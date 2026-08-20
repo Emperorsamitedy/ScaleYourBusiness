@@ -10,7 +10,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session A — Repo scaffold *(~8h · steps 10–12)*
+## Session A — Repo scaffold _(~8h · steps 10–12)_
 
 - [ ] **P0-01** `npm init`, TypeScript strict mode, ESLint, Prettier
 - [ ] **P0-02** Next.js app, empty page, runs locally
@@ -19,14 +19,14 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 - [ ] **P0-05** `.env` handling, Anthropic key loaded, never committed
 - [x] **P0-06** Copy specs into `specs/`, `scripts/lint_bank.py`, `CLAUDE.md` at root
 - [ ] **P0-07** CI: typecheck, tests, and `lint_bank.py` all run on push
-- [ ] **P0-07b** Sentry free tier, error monitoring wired, verified with a deliberate test exception *(step 11)*
+- [ ] **P0-07b** Sentry free tier, error monitoring wired, verified with a deliberate test exception _(step 11)_
 - [ ] **P0-08** Deploy to staging, verify the empty app is reachable
 
 **Done when:** an empty app deploys from a merge and CI blocks a broken question bank.
 
 ---
 
-## Session B — Core primitives *(~14h · step 13)*
+## Session B — Core primitives _(~14h · step 13)_
 
 - [ ] **P0-09** `Money` type: integer minor units + ISO currency. Add, subtract, multiply, format
 - [ ] **P0-10** Money tests including the two-currency case that must refuse to total silently
@@ -42,7 +42,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session C — Conversation additions *(~4h · step 13a)*
+## Session C — Conversation additions _(~4h · step 13a)_
 
 - [ ] **P0-16** Add `conversation` to `SourceKind`, `utterance_id` to `SourceRef`
 - [ ] **P0-17** `Utterance` table and type, `UtteranceIntent` enum, `cost_eur` field
@@ -52,7 +52,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session D — Profile tables *(~20h · step 14)*
+## Session D — Profile tables _(~20h · step 14)_
 
 - [ ] **P0-19** `Account`, `User`, `BusinessProfile` root
 - [ ] **P0-20** The fourteen section types as columns/tables
@@ -66,7 +66,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session E — Supersession *(~10h · step 15)*
+## Session E — Supersession _(~10h · step 15)_
 
 - [ ] **P0-26** Field writes mark the previous record superseded rather than updating
 - [ ] **P0-27** Query returns newest non-superseded value by default
@@ -77,7 +77,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session F — Vocabularies *(~8h · step 16)*
+## Session F — Vocabularies _(~8h · step 16)_
 
 - [ ] **P0-30** Vocabulary tables, loaded from the bank JSON
 - [ ] **P0-31** `other` + `label_raw` preservation
@@ -85,7 +85,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session G — Decision log *(~8h · step 17)*
+## Session G — Decision log _(~8h · step 17)_
 
 - [ ] **P0-33** Append-only table, updates and deletes rejected at the database level
 - [ ] **P0-34** Every profile change writes an entry
@@ -95,7 +95,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session H — Bank loader *(~10h · step 18)*
+## Session H — Bank loader _(~10h · step 18)_
 
 - [ ] **P0-36** Load 153 questions, 55 vocabularies, 8 entity schemas from JSON
 - [ ] **P0-37** Bank versioning — a new version doesn't invalidate existing answers
@@ -103,7 +103,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session I — Condition evaluator *(~12h · step 19)*
+## Session I — Condition evaluator _(~12h · step 19)_
 
 - [ ] **P0-39** All seven operators: `eq`, `neq`, `includes`, `gt/gte/lt/lte`, `answered/unanswered`, `and`, `or`, `not`
 - [ ] **P0-40** The `.length` accessor on array fields
@@ -113,7 +113,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session J — Applicability resolver *(~10h · step 20)*
+## Session J — Applicability resolver _(~10h · step 20)_
 
 - [ ] **P0-42** Given a profile, return currently applicable questions
 - [ ] **P0-43** Test: services-only profile never surfaces inventory questions
@@ -121,7 +121,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session K — Completeness scorer *(~8h · step 21)*
+## Session K — Completeness scorer _(~8h · step 21)_
 
 - [ ] **P0-45** Weighted score, `core` heavy, `optional` near-zero
 - [ ] **P0-46** `core_complete` true when the 25 always-asked are answered or explicitly unknown
@@ -129,7 +129,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session L — Interviewer agent *(~28h · steps 22–23)*
+## Session L — Interviewer agent _(~28h · steps 22–23)_
 
 - [ ] **P0-48** Prompt: profile + applicable questions + history → next question ID + `selection_reason`
 - [ ] **P0-49** Cheap core before expensive deep, using `priority` and `cost`
@@ -142,7 +142,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session M — Answer parser *(~20h · steps 24–25)*
+## Session M — Answer parser _(~20h · steps 24–25)_
 
 - [ ] **P0-54** Haiku parser: free text → typed value
 - [ ] **P0-55** Estimate detection — "about", "roughly" lowers confidence and preserves the wording in `note`
@@ -152,7 +152,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session N — Intake shell *(~30h · steps 26–27)*
+## Session N — Intake shell _(~30h · steps 26–27)_
 
 - [ ] **P0-59** Design tokens as CSS custom properties, exact values from the UX spec
 - [ ] **P0-60** Three-column stage layout, centre card, side columns
@@ -166,7 +166,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session O — Entity list sub-form *(~20h · step 28)*
+## Session O — Entity list sub-form _(~20h · step 28)_
 
 - [ ] **P0-68** Repeating row form inside the question card
 - [ ] **P0-69** Core sub-fields shown, "Add detail" reveals the rest
@@ -177,7 +177,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session P — Chips and motion *(~18h · steps 29–31)*
+## Session P — Chips and motion _(~18h · steps 29–31)_
 
 - [ ] **P0-72** Provenance chip: question, answer, mono source line, status dot
 - [ ] **P0-73** Settle animation, ~580ms total, alternating columns
@@ -188,7 +188,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session Q — Validation *(~24h · steps 32–34)*
+## Session Q — Validation _(~24h · steps 32–34)_
 
 - [ ] **P0-78** Rule engine, declarative and versioned
 - [ ] **P0-79** The nine rules from §7 of the data model
@@ -200,7 +200,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ---
 
-## Session R — Real intakes *(~24h · steps 35–36)* ⚠ GATE
+## Session R — Real intakes _(~24h · steps 35–36)_ ⚠ GATE
 
 - [ ] **P0-85** Deploy to staging, make it reachable by a stranger
 - [ ] **P0-86** Run ten intakes with real business owners. Watch silently, say nothing

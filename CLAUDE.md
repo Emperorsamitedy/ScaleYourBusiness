@@ -14,17 +14,17 @@ An AI business operating system for small businesses. It interviews an owner, bu
 
 ## The specs are the source of truth
 
-| File | What it defines |
-|---|---|
-| `specs/data-model-v1.md` | Every entity, field, rule and score. The spine. |
-| `specs/question-bank-v1.json` | 153 questions, 55 vocabularies, 8 entity schemas |
-| `specs/question-bank-notes.md` | Structure, the core 25, branching fixes |
-| `specs/ux-spec-v1.md` | Design tokens, screens, interaction detail |
-| `specs/conversation-channel.md` | Conversation as a fact source; confidence bases |
-| `specs/site-audit.md` | Site audit inputs to the profile |
-| `specs/intake-mockup.html` | Reference mockup for the intake UI |
-| `specs/build-sequence.md` | 99 numbered steps |
-| `scripts/lint_bank.py` | Validates the question bank. Must pass in CI. |
+| File                            | What it defines                                  |
+| ------------------------------- | ------------------------------------------------ |
+| `specs/data-model-v1.md`        | Every entity, field, rule and score. The spine.  |
+| `specs/question-bank-v1.json`   | 153 questions, 55 vocabularies, 8 entity schemas |
+| `specs/question-bank-notes.md`  | Structure, the core 25, branching fixes          |
+| `specs/ux-spec-v1.md`           | Design tokens, screens, interaction detail       |
+| `specs/conversation-channel.md` | Conversation as a fact source; confidence bases  |
+| `specs/site-audit.md`           | Site audit inputs to the profile                 |
+| `specs/intake-mockup.html`      | Reference mockup for the intake UI               |
+| `specs/build-sequence.md`       | 99 numbered steps                                |
+| `scripts/lint_bank.py`          | Validates the question bank. Must pass in CI.    |
 
 If a spec and this file disagree, the spec wins. If the spec is wrong, change the spec in the same commit — don't work around it in code.
 
@@ -109,6 +109,7 @@ Current position lives in **`TASKS.md`** at the repo root — the first unchecke
 ---
 
 <!-- BEGIN PRODUCTOS -->
+
 ## This repo runs on ProductOS
 
 - The product strategy system lives in `productos/` — checklists, templates, and skills. The strategy docs are the source of intent; don't guess at product decisions the docs already answer.
@@ -116,6 +117,7 @@ Current position lives in **`TASKS.md`** at the repo root — the first unchecke
 - The canonical product documents live in `docs/` at the repo root (`PRODUCT.md`, `DESIGN.md`, `PRD.md`, `ROADMAP.md`, `LAUNCHES.md`, `SECURITY-AUDIT.md`, …). ProductOS skills write them; they may sit alongside the repo's own docs.
 - Build-loop plan files are `docs/ROADMAP.md` and `docs/REFACTOR.md` — never `docs/PLAN.md` (the programme plan, no checkboxes) and never `productos/*-CHECKLIST.md`.
 - Full system orientation: `productos/AGENTS.md`.
+
 <!-- END PRODUCTOS -->
 
 Full ProductOS coding-agent guidelines: `productos/setup/CLAUDE.md`.
