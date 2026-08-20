@@ -1,0 +1,16 @@
+# ProductOS — licensed to the member, never committed
+productos/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies / build output
+node_modules/
+.next/
+dist/
+
+# OS junk
+.DS_Store
+Thumbs.db

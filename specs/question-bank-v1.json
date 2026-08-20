@@ -1,0 +1,4192 @@
+{
+  "bank_version": "1.0.0",
+  "schema_version": "1.0.0",
+  "locale_base": "en",
+  "source_document": "MAIN.txt",
+  "vocabularies": {
+    "sells_type": [
+      "physical_products",
+      "services",
+      "software",
+      "digital_products",
+      "subscriptions",
+      "marketplace_access",
+      "other"
+    ],
+    "business_stage": [
+      "idea",
+      "preparing_to_launch",
+      "recently_launched",
+      "operating",
+      "growing",
+      "stable",
+      "declining",
+      "paused",
+      "rebuilding"
+    ],
+    "focus_area": [
+      "launch",
+      "first_customers",
+      "increase_revenue",
+      "reduce_costs",
+      "automate_work",
+      "improve_marketing",
+      "hire_people",
+      "expand_locations",
+      "improve_profit",
+      "other"
+    ],
+    "presence_type": [
+      "online_only",
+      "physical_only",
+      "both"
+    ],
+    "location_type": [
+      "store",
+      "office",
+      "warehouse",
+      "restaurant",
+      "salon",
+      "gym",
+      "studio",
+      "clinic",
+      "other"
+    ],
+    "ecommerce_platform": [
+      "shopify",
+      "woocommerce",
+      "wordpress",
+      "webflow",
+      "wix",
+      "squarespace",
+      "amazon",
+      "etsy",
+      "ebay",
+      "tiktok_shop",
+      "instagram_shop",
+      "facebook_shop",
+      "custom",
+      "none",
+      "other"
+    ],
+    "market_scope": [
+      "local",
+      "national",
+      "international",
+      "mixed"
+    ],
+    "website_purpose": [
+      "sales",
+      "lead_generation",
+      "booking",
+      "branding",
+      "information",
+      "mixed"
+    ],
+    "offer_kind": [
+      "physical",
+      "service",
+      "digital",
+      "subscription",
+      "marketplace_access"
+    ],
+    "price_model": [
+      "one_time",
+      "subscription",
+      "usage_based",
+      "freemium",
+      "lifetime",
+      "license",
+      "commission",
+      "mixed"
+    ],
+    "purchase_type": [
+      "one_time",
+      "recurring",
+      "repeat"
+    ],
+    "offer_lifecycle": [
+      "active",
+      "planned",
+      "discontinued"
+    ],
+    "offer_problem": [
+      "too_cheap",
+      "too_expensive",
+      "low_demand",
+      "hard_to_deliver",
+      "low_margin",
+      "too_manual",
+      "too_many_refunds",
+      "bad_positioning",
+      "none",
+      "other"
+    ],
+    "yes_no_partly": [
+      "yes",
+      "no",
+      "partly"
+    ],
+    "no_inventory_model": [
+      "dropshipping",
+      "made_to_order",
+      "preorder",
+      "supplier_shipped",
+      "hybrid",
+      "other"
+    ],
+    "inventory_tracking": [
+      "spreadsheet",
+      "pos_system",
+      "erp",
+      "ecommerce_platform",
+      "paper",
+      "none",
+      "other"
+    ],
+    "restock_frequency": [
+      "weekly",
+      "biweekly",
+      "monthly",
+      "quarterly",
+      "irregular",
+      "never"
+    ],
+    "service_standardization": [
+      "standardized",
+      "custom",
+      "mixed"
+    ],
+    "quality_process": [
+      "checklists",
+      "sops",
+      "training",
+      "customer_feedback",
+      "review_process",
+      "complaint_handling",
+      "none"
+    ],
+    "digital_product_type": [
+      "saas",
+      "mobile_app",
+      "web_app",
+      "online_course",
+      "template",
+      "digital_file",
+      "membership_platform",
+      "community",
+      "paid_newsletter",
+      "other"
+    ],
+    "digital_stage": [
+      "idea",
+      "prototype",
+      "mvp",
+      "beta",
+      "launched",
+      "growing",
+      "mature",
+      "needs_rebuilding"
+    ],
+    "revenue_status": [
+      "yes",
+      "no",
+      "not_launched",
+      "previously"
+    ],
+    "revenue_trend": [
+      "growing",
+      "stable",
+      "declining",
+      "unknown"
+    ],
+    "payment_method": [
+      "cash",
+      "card",
+      "bank_transfer",
+      "online_payment",
+      "installments",
+      "deposits",
+      "invoice_terms"
+    ],
+    "payment_provider": [
+      "stripe",
+      "paypal",
+      "square",
+      "adyen",
+      "mollie",
+      "klarna",
+      "shopify_payments",
+      "apple_google_pay",
+      "local_provider",
+      "bank_only",
+      "other"
+    ],
+    "cost_category": [
+      "rent",
+      "salaries",
+      "contractors",
+      "software",
+      "insurance",
+      "utilities",
+      "loan_payments",
+      "accounting",
+      "hosting",
+      "vehicle",
+      "warehouse",
+      "marketing",
+      "materials",
+      "packaging",
+      "shipping",
+      "payment_fees",
+      "platform_fees",
+      "other"
+    ],
+    "cost_cadence": [
+      "monthly",
+      "quarterly",
+      "annual",
+      "per_unit",
+      "per_job"
+    ],
+    "customer_type": [
+      "b2c",
+      "b2b",
+      "both"
+    ],
+    "purchase_frequency": [
+      "one_time",
+      "occasional",
+      "monthly",
+      "weekly",
+      "daily"
+    ],
+    "channel_type": [
+      "website",
+      "physical_store",
+      "marketplace",
+      "social_organic",
+      "paid_ads",
+      "phone",
+      "email",
+      "direct_message",
+      "sales_calls",
+      "referrals",
+      "appointments",
+      "events",
+      "partners",
+      "resellers",
+      "other"
+    ],
+    "channel_platform": [
+      "own_website",
+      "instagram",
+      "tiktok",
+      "facebook",
+      "youtube",
+      "google_search",
+      "google_ads",
+      "meta_ads",
+      "tiktok_ads",
+      "amazon",
+      "etsy",
+      "ebay",
+      "shopify_shop",
+      "linkedin",
+      "pinterest",
+      "whatsapp",
+      "messenger",
+      "local_marketplace",
+      "in_person",
+      "other"
+    ],
+    "effort_level": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "customer_quality": [
+      "poor",
+      "mixed",
+      "good",
+      "excellent"
+    ],
+    "advertising_status": [
+      "yes",
+      "no",
+      "previously"
+    ],
+    "marketing_channel": [
+      "facebook_ads",
+      "instagram_ads",
+      "tiktok_ads",
+      "google_ads",
+      "youtube",
+      "seo",
+      "email_marketing",
+      "influencers",
+      "organic_social",
+      "content_marketing",
+      "partnerships",
+      "offline_print",
+      "events",
+      "cold_outreach",
+      "other"
+    ],
+    "content_frequency": [
+      "daily",
+      "several_weekly",
+      "weekly",
+      "monthly",
+      "irregular",
+      "never"
+    ],
+    "operating_status": [
+      "operating",
+      "being_set_up",
+      "paused",
+      "seasonal",
+      "temporarily_closed"
+    ],
+    "engagement_type": [
+      "owner",
+      "employee",
+      "contractor",
+      "agency",
+      "freelancer",
+      "partner",
+      "external_service"
+    ],
+    "replaceability": [
+      "easy",
+      "hard",
+      "single_point_of_failure"
+    ],
+    "tool_category": [
+      "website_platform",
+      "crm",
+      "booking",
+      "payments",
+      "accounting",
+      "inventory",
+      "email_marketing",
+      "analytics",
+      "project_management",
+      "customer_support",
+      "ads_manager",
+      "design",
+      "ai_tools",
+      "automation",
+      "spreadsheets"
+    ],
+    "manual_task": [
+      "answering_messages",
+      "creating_invoices",
+      "posting_content",
+      "checking_stock",
+      "following_up_leads",
+      "booking_appointments",
+      "sending_reminders",
+      "reporting",
+      "customer_support",
+      "data_entry",
+      "order_processing",
+      "other"
+    ],
+    "legal_entity_type": [
+      "sole_trader",
+      "single_member_llc",
+      "llc_ltd",
+      "partnership",
+      "corporation",
+      "nonprofit",
+      "not_registered",
+      "other"
+    ],
+    "vat_status": [
+      "registered",
+      "exempt",
+      "below_threshold",
+      "not_applicable",
+      "unsure"
+    ],
+    "growth_blocker": [
+      "not_enough_leads",
+      "low_conversion",
+      "bad_offer",
+      "weak_marketing",
+      "expensive_ads",
+      "operational_chaos",
+      "lack_of_time",
+      "lack_of_staff",
+      "low_profit",
+      "poor_website",
+      "poor_retention",
+      "no_strategy",
+      "owner_overload",
+      "cash_flow",
+      "product_quality",
+      "other"
+    ],
+    "expansion_type": [
+      "new_products",
+      "new_locations",
+      "new_markets",
+      "hiring",
+      "franchising",
+      "online_expansion",
+      "international",
+      "more_automation",
+      "more_paid_ads",
+      "none"
+    ],
+    "asset_type": [
+      "product_photos",
+      "service_photos",
+      "location_photos",
+      "packaging_photos",
+      "team_photos",
+      "videos",
+      "logo",
+      "brand_guide",
+      "ads",
+      "content_examples",
+      "testimonials",
+      "sales_materials",
+      "price_list",
+      "financial_reports",
+      "crm_export",
+      "analytics_export",
+      "inventory_sheet",
+      "sops",
+      "contracts"
+    ],
+    "seasonality": [
+      "none",
+      "mild",
+      "strong",
+      "highly_seasonal"
+    ],
+    "demand_trend": [
+      "growing",
+      "stable",
+      "declining",
+      "unsure"
+    ],
+    "support_channel": [
+      "email",
+      "phone",
+      "website_chat",
+      "social_dm",
+      "in_person",
+      "whatsapp",
+      "contact_form",
+      "none"
+    ],
+    "business_type": [
+      "retail_shop",
+      "ecommerce_store",
+      "restaurant",
+      "cafe",
+      "bar",
+      "food_production",
+      "salon_beauty",
+      "barber",
+      "gym_fitness",
+      "wellness_spa",
+      "clinic_health",
+      "construction",
+      "trades_services",
+      "cleaning_services",
+      "automotive",
+      "professional_services",
+      "consulting",
+      "agency_marketing",
+      "it_services",
+      "software_saas",
+      "education_training",
+      "childcare",
+      "real_estate",
+      "logistics",
+      "manufacturing",
+      "wholesale",
+      "agriculture",
+      "events",
+      "photography_creative",
+      "tourism_accommodation",
+      "transport",
+      "nonprofit",
+      "other"
+    ],
+    "consent_status": [
+      "explicit_consent",
+      "implied_consent",
+      "no_consent",
+      "unsure"
+    ],
+    "goal_horizon": [
+      "3_months",
+      "6_months",
+      "12_months"
+    ],
+    "price_feeling": [
+      "too_low",
+      "about_right",
+      "too_high",
+      "unsure"
+    ],
+    "sales_asset": [
+      "scripts",
+      "proposals",
+      "price_lists",
+      "product_pages",
+      "landing_pages",
+      "presentations",
+      "before_after",
+      "testimonials",
+      "none"
+    ],
+    "shipping_payer": [
+      "customer_pays",
+      "business_pays",
+      "free_over_threshold",
+      "mixed"
+    ]
+  },
+  "entity_schemas": {
+    "offer": {
+      "label": {
+        "en": "Product or service"
+      },
+      "min_items": 1,
+      "fields": [
+        {
+          "key": "name",
+          "prompt": {
+            "en": "Name"
+          },
+          "input": {
+            "type": "text"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "kind",
+          "prompt": {
+            "en": "What type is it?"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "offer_kind"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "description",
+          "prompt": {
+            "en": "Short description"
+          },
+          "input": {
+            "type": "long_text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "price",
+          "prompt": {
+            "en": "Price"
+          },
+          "input": {
+            "type": "money"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "price_model",
+          "prompt": {
+            "en": "How is it charged?"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "price_model"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "cost_to_deliver",
+          "prompt": {
+            "en": "What does it cost you to deliver one?"
+          },
+          "input": {
+            "type": "money",
+            "allow_unknown": true
+          },
+          "priority": "core"
+        },
+        {
+          "key": "margin_stated",
+          "prompt": {
+            "en": "Profit margin, if you know it (%)"
+          },
+          "input": {
+            "type": "number",
+            "min": -100,
+            "max": 100,
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "volume_period",
+          "prompt": {
+            "en": "Roughly how many do you sell per month?"
+          },
+          "input": {
+            "type": "number",
+            "allow_unknown": true
+          },
+          "priority": "core"
+        },
+        {
+          "key": "purchase_type",
+          "prompt": {
+            "en": "One-time, recurring or repeat purchase?"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "purchase_type"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "lifecycle",
+          "prompt": {
+            "en": "Status"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "offer_lifecycle"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "main_customer_segment",
+          "prompt": {
+            "en": "Who mainly buys this?"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "problems",
+          "prompt": {
+            "en": "Any problems with this offer?"
+          },
+          "input": {
+            "type": "multi_select",
+            "vocabulary_id": "offer_problem"
+          },
+          "priority": "important"
+        }
+      ]
+    },
+    "supplier": {
+      "label": {
+        "en": "Supplier"
+      },
+      "fields": [
+        {
+          "key": "name",
+          "prompt": {
+            "en": "Supplier name"
+          },
+          "input": {
+            "type": "text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "country",
+          "prompt": {
+            "en": "Country"
+          },
+          "input": {
+            "type": "text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "supplies_offers",
+          "prompt": {
+            "en": "Which products do they supply?"
+          },
+          "input": {
+            "type": "multi_select",
+            "vocabulary_id": "__offers__"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "purchase_price",
+          "prompt": {
+            "en": "Typical purchase price"
+          },
+          "input": {
+            "type": "money",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "moq",
+          "prompt": {
+            "en": "Minimum order quantity"
+          },
+          "input": {
+            "type": "number",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "lead_time_days",
+          "prompt": {
+            "en": "Delivery time in days"
+          },
+          "input": {
+            "type": "number",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "payment_terms",
+          "prompt": {
+            "en": "Payment terms"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "reliability_issues",
+          "prompt": {
+            "en": "Any reliability problems?"
+          },
+          "input": {
+            "type": "long_text",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "has_alternative",
+          "prompt": {
+            "en": "Do you have an alternative supplier for this?"
+          },
+          "input": {
+            "type": "boolean"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "import_duties_apply",
+          "prompt": {
+            "en": "Do import duties or customs apply?"
+          },
+          "input": {
+            "type": "boolean",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        }
+      ]
+    },
+    "channel": {
+      "label": {
+        "en": "Sales channel"
+      },
+      "fields": [
+        {
+          "key": "type",
+          "prompt": {
+            "en": "Channel type"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "channel_type"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "platform",
+          "prompt": {
+            "en": "Platform"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "channel_platform"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "monthly_sales",
+          "prompt": {
+            "en": "Sales per month from this channel"
+          },
+          "input": {
+            "type": "number",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "revenue_monthly",
+          "prompt": {
+            "en": "Revenue per month from this channel"
+          },
+          "input": {
+            "type": "money",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "cost_monthly",
+          "prompt": {
+            "en": "What does this channel cost per month?"
+          },
+          "input": {
+            "type": "money",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "monthly_leads",
+          "prompt": {
+            "en": "Leads per month"
+          },
+          "input": {
+            "type": "number",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "conversion_rate",
+          "prompt": {
+            "en": "Conversion rate (%)"
+          },
+          "input": {
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "effort_level",
+          "prompt": {
+            "en": "How much effort does it take?"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "effort_level"
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "customer_quality",
+          "prompt": {
+            "en": "Quality of customers from here"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "customer_quality"
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "trend",
+          "prompt": {
+            "en": "Growing or declining?"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "revenue_trend"
+          },
+          "priority": "important"
+        }
+      ]
+    },
+    "competitor": {
+      "label": {
+        "en": "Competitor"
+      },
+      "fields": [
+        {
+          "key": "name",
+          "prompt": {
+            "en": "Name"
+          },
+          "input": {
+            "type": "text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "url",
+          "prompt": {
+            "en": "Website or social link"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "what_they_sell",
+          "prompt": {
+            "en": "What do they sell?"
+          },
+          "input": {
+            "type": "long_text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "price_points",
+          "prompt": {
+            "en": "Their typical prices"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "strengths",
+          "prompt": {
+            "en": "Their strengths"
+          },
+          "input": {
+            "type": "long_text",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "weaknesses",
+          "prompt": {
+            "en": "Their weaknesses"
+          },
+          "input": {
+            "type": "long_text",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "why_customers_choose_them",
+          "prompt": {
+            "en": "Why do customers choose them?"
+          },
+          "input": {
+            "type": "long_text",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "why_customers_choose_us",
+          "prompt": {
+            "en": "Why do customers choose you instead?"
+          },
+          "input": {
+            "type": "long_text",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        }
+      ]
+    },
+    "staff_role": {
+      "label": {
+        "en": "Person or role"
+      },
+      "fields": [
+        {
+          "key": "role_title",
+          "prompt": {
+            "en": "Role"
+          },
+          "input": {
+            "type": "text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "engagement",
+          "prompt": {
+            "en": "Type"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "engagement_type"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "main_tasks",
+          "prompt": {
+            "en": "Main tasks"
+          },
+          "input": {
+            "type": "long_text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "hours_per_week",
+          "prompt": {
+            "en": "Hours per week"
+          },
+          "input": {
+            "type": "number",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "cost_monthly",
+          "prompt": {
+            "en": "Monthly cost"
+          },
+          "input": {
+            "type": "money",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "replaceability",
+          "prompt": {
+            "en": "How replaceable is this role?"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "replaceability"
+          },
+          "priority": "important"
+        }
+      ]
+    },
+    "cost_item": {
+      "label": {
+        "en": "Cost"
+      },
+      "fields": [
+        {
+          "key": "category",
+          "prompt": {
+            "en": "Category"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "cost_category"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "label",
+          "prompt": {
+            "en": "What is it?"
+          },
+          "input": {
+            "type": "text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "amount",
+          "prompt": {
+            "en": "Amount"
+          },
+          "input": {
+            "type": "money"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "cadence",
+          "prompt": {
+            "en": "How often?"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "cost_cadence"
+          },
+          "priority": "core"
+        }
+      ]
+    },
+    "customer_segment": {
+      "label": {
+        "en": "Customer segment"
+      },
+      "fields": [
+        {
+          "key": "name",
+          "prompt": {
+            "en": "Segment name"
+          },
+          "input": {
+            "type": "text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "who_they_are",
+          "prompt": {
+            "en": "Who are they?"
+          },
+          "input": {
+            "type": "long_text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "what_they_buy",
+          "prompt": {
+            "en": "What do they buy?"
+          },
+          "input": {
+            "type": "text"
+          },
+          "priority": "important"
+        },
+        {
+          "key": "purchase_frequency",
+          "prompt": {
+            "en": "How often do they buy?"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "purchase_frequency"
+          },
+          "priority": "deep"
+        },
+        {
+          "key": "average_spend",
+          "prompt": {
+            "en": "Average spend"
+          },
+          "input": {
+            "type": "money",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "acquisition_source",
+          "prompt": {
+            "en": "Where do they come from?"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        }
+      ]
+    },
+    "goal": {
+      "label": {
+        "en": "Goal"
+      },
+      "fields": [
+        {
+          "key": "horizon",
+          "prompt": {
+            "en": "Time horizon"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "goal_horizon"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "area",
+          "prompt": {
+            "en": "Area"
+          },
+          "input": {
+            "type": "single_select",
+            "vocabulary_id": "focus_area"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "statement",
+          "prompt": {
+            "en": "What do you want to achieve?"
+          },
+          "input": {
+            "type": "long_text"
+          },
+          "priority": "core"
+        },
+        {
+          "key": "target_value",
+          "prompt": {
+            "en": "Target number, if there is one"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        }
+      ]
+    }
+  },
+  "questions": [
+    {
+      "id": "1.1",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.legal_name",
+      "prompt": {
+        "en": "What is the name of the business?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.1b",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "legal.country",
+      "prompt": {
+        "en": "Which country does the business operate in?"
+      },
+      "help_text": {
+        "en": "This affects tax, advertising rules and data protection requirements."
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.2",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.business_type",
+      "prompt": {
+        "en": "What type of business is this?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "business_type",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.3",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.description",
+      "prompt": {
+        "en": "In a few sentences, what does the business do?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 2
+    },
+    {
+      "id": "1.4",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.sells",
+      "prompt": {
+        "en": "What does the business sell?"
+      },
+      "help_text": {
+        "en": "Select everything that applies."
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "sells_type",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1,
+      "unlocks": [
+        "3.1",
+        "1.4.1.2",
+        "1.4.2.3",
+        "1.4.3.1"
+      ]
+    },
+    {
+      "id": "1.4.4",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.primary_revenue_driver",
+      "prompt": {
+        "en": "Which of those brings in the most money?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "sells_type"
+      },
+      "condition": {
+        "op": "gt",
+        "field": "identity.sells.length",
+        "value": 1
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.5",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.stage",
+      "prompt": {
+        "en": "What stage is the business in right now?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "business_stage",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.5b",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.founded",
+      "prompt": {
+        "en": "When did the business start operating?"
+      },
+      "help_text": {
+        "en": "An approximate month is fine."
+      },
+      "input": {
+        "type": "date",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "not",
+        "term": {
+          "op": "eq",
+          "field": "identity.stage",
+          "value": "idea"
+        }
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.5.1",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.current_focus",
+      "prompt": {
+        "en": "What is your main focus right now?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "focus_area",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.6",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.team_size",
+      "prompt": {
+        "en": "How many people work in the business, including you?"
+      },
+      "input": {
+        "type": "number",
+        "min": 0,
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "2.1",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.type",
+      "prompt": {
+        "en": "Is the business online, physical, or both?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "presence_type",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1,
+      "unlocks": [
+        "2.1.1.1",
+        "2.1.2.1"
+      ]
+    },
+    {
+      "id": "2.1.1.1",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.location_count",
+      "prompt": {
+        "en": "How many physical locations are there?"
+      },
+      "input": {
+        "type": "number",
+        "min": 1
+      },
+      "condition": {
+        "op": "neq",
+        "field": "presence.type",
+        "value": "online_only"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "2.1.1.2",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.location_type",
+      "prompt": {
+        "en": "What kind of place is it?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "location_type"
+      },
+      "condition": {
+        "op": "neq",
+        "field": "presence.type",
+        "value": "online_only"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "2.1.1.3",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.customers_visit",
+      "prompt": {
+        "en": "Do customers come to this location?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": {
+        "op": "neq",
+        "field": "presence.type",
+        "value": "online_only"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "2.1.1.7",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.opening_hours",
+      "prompt": {
+        "en": "What are the opening hours?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "presence.customers_visit",
+        "value": true
+      },
+      "priority": "deep",
+      "cost": 1
+    },
+    {
+      "id": "2.1.1.8",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.capacity_limit",
+      "prompt": {
+        "en": "What limits how much you can serve? For example seats, appointments per day, or storage space."
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "presence.type",
+        "value": "online_only"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "2.1.2.1",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.website_url",
+      "prompt": {
+        "en": "What is your website address?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "presence.type",
+        "value": "physical_only"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "2.1.2.2",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.sells_on_website",
+      "prompt": {
+        "en": "Can customers buy directly on the website?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": {
+        "op": "answered",
+        "field": "presence.website_url"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "2.1.2.4",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.platforms",
+      "prompt": {
+        "en": "Which platforms do you sell or publish on?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "ecommerce_platform"
+      },
+      "condition": {
+        "op": "neq",
+        "field": "presence.type",
+        "value": "physical_only"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "2.2.1",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.market_scope",
+      "prompt": {
+        "en": "Do you sell locally, nationally or internationally?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "market_scope",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "2.2.3",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.website_purpose",
+      "prompt": {
+        "en": "What is the website mainly for?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "website_purpose"
+      },
+      "condition": {
+        "op": "answered",
+        "field": "presence.website_url"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "3.1",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers",
+      "prompt": {
+        "en": "List what the business sells."
+      },
+      "help_text": {
+        "en": "Add each product or service. You can start with the main ones and add more later."
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "offer",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 3
+    },
+    {
+      "id": "3.2",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.best_seller_id",
+      "prompt": {
+        "en": "Which one sells the most?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "__offers__"
+      },
+      "condition": {
+        "op": "gt",
+        "field": "offers.length",
+        "value": 1
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "3.3",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.most_profitable_id",
+      "prompt": {
+        "en": "Which one has the best profit margin?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "__offers__",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "gt",
+        "field": "offers.length",
+        "value": 1
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "3.4",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.strategic_id",
+      "prompt": {
+        "en": "Which one do you most want to grow?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "__offers__"
+      },
+      "condition": {
+        "op": "gt",
+        "field": "offers.length",
+        "value": 1
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.2",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.holds_inventory",
+      "prompt": {
+        "en": "Do you hold stock of your physical products?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "yes_no_partly"
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "physical_products"
+      },
+      "priority": "core",
+      "cost": 1,
+      "unlocks": [
+        "1.4.1.2.1a",
+        "1.4.1.2.2"
+      ]
+    },
+    {
+      "id": "1.4.1.2.1a",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.inventory.tracking_method",
+      "prompt": {
+        "en": "How do you track stock levels?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "inventory_tracking"
+      },
+      "condition": {
+        "op": "neq",
+        "field": "offers.physical.holds_inventory",
+        "value": "no"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.2.1b",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.inventory.restock_frequency",
+      "prompt": {
+        "en": "How often do you restock?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "restock_frequency"
+      },
+      "condition": {
+        "op": "neq",
+        "field": "offers.physical.holds_inventory",
+        "value": "no"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.2.1c",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.inventory.stockout_items",
+      "prompt": {
+        "en": "Which products run out most often?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "__offers__",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "offers.physical.holds_inventory",
+        "value": "no"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.2.1d",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.inventory.slow_moving_items",
+      "prompt": {
+        "en": "Which products sell slowly or are sitting unsold?"
+      },
+      "help_text": {
+        "en": "Money tied up in slow stock is one of the most common hidden problems."
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "__offers__",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "offers.physical.holds_inventory",
+        "value": "no"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.2.1e",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.inventory.storage_cost_monthly",
+      "prompt": {
+        "en": "What does storage cost you per month?"
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "offers.physical.holds_inventory",
+        "value": "no"
+      },
+      "priority": "deep",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.2.1f",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.inventory.dead_stock_value",
+      "prompt": {
+        "en": "Is there damaged, expired or dead stock? Roughly what is it worth?"
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "offers.physical.holds_inventory",
+        "value": "no"
+      },
+      "priority": "deep",
+      "cost": 2
+    },
+    {
+      "id": "1.4.1.2.2",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.no_inventory_model",
+      "prompt": {
+        "en": "How do products reach the customer if you don't hold stock?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "no_inventory_model"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "offers.physical.holds_inventory",
+        "value": "no"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.3",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "suppliers",
+      "prompt": {
+        "en": "Who supplies your products?"
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "supplier",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "physical_products"
+      },
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "1.4.1.4",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.manufactures_in_house",
+      "prompt": {
+        "en": "Do you make or customise the products yourself?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "physical_products"
+      },
+      "priority": "important",
+      "cost": 1,
+      "unlocks": [
+        "1.4.1.4a",
+        "1.4.1.4b"
+      ]
+    },
+    {
+      "id": "1.4.1.4a",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.production.capacity",
+      "prompt": {
+        "en": "How much can you produce per week?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "offers.physical.manufactures_in_house",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "1.4.1.4b",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "offers.physical.production.bottleneck",
+      "prompt": {
+        "en": "What is the main thing slowing production down?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "offers.physical.manufactures_in_house",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "1.4.1.5",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "fulfilment.ships_products",
+      "prompt": {
+        "en": "Do you ship products to customers?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "physical_products"
+      },
+      "priority": "important",
+      "cost": 1,
+      "unlocks": [
+        "1.4.1.5a",
+        "1.4.1.5b",
+        "1.4.1.5c"
+      ]
+    },
+    {
+      "id": "1.4.1.5a",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "fulfilment.shipping_providers",
+      "prompt": {
+        "en": "Which carriers do you use?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "fulfilment.ships_products",
+        "value": true
+      },
+      "priority": "deep",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.5b",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "fulfilment.shipping_paid_by",
+      "prompt": {
+        "en": "Who pays for shipping?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "shipping_payer"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "fulfilment.ships_products",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.5c",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "fulfilment.return_problems",
+      "prompt": {
+        "en": "Do you have problems with returns, or lost and damaged parcels?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "fulfilment.ships_products",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "1.4.1.6",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "fulfilment.local_delivery",
+      "prompt": {
+        "en": "Do you deliver locally yourself?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "physical_products"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.1.6a",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "fulfilment.local_delivery_problems",
+      "prompt": {
+        "en": "What are the main problems with local delivery?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "fulfilment.local_delivery",
+        "value": true
+      },
+      "priority": "deep",
+      "cost": 2
+    },
+    {
+      "id": "1.4.2.2",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "service.delivery_steps",
+      "prompt": {
+        "en": "Walk me through how a service is delivered, from first contact to finish."
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "services"
+      },
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "1.4.2.3",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "service.uses_booking",
+      "prompt": {
+        "en": "Do customers book appointments?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "services"
+      },
+      "priority": "important",
+      "cost": 1,
+      "unlocks": [
+        "1.4.2.3a",
+        "1.4.2.3b",
+        "1.4.2.3c"
+      ]
+    },
+    {
+      "id": "1.4.2.3a",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "service.booking_tool",
+      "prompt": {
+        "en": "How do they book, and with which tool?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "service.uses_booking",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.2.3b",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "service.capacity_per_week",
+      "prompt": {
+        "en": "How many appointments can you handle per week?"
+      },
+      "input": {
+        "type": "number",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "service.uses_booking",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.2.3c",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "service.no_show_rate",
+      "prompt": {
+        "en": "Do you have a problem with no-shows or late cancellations?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "service.uses_booking",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.2.4",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "service.key_person_dependency",
+      "prompt": {
+        "en": "Could someone else deliver the service if you were unavailable?"
+      },
+      "help_text": {
+        "en": "This is one of the biggest risks in a service business."
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "replaceability"
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "services"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.4.2.5",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "service.quality_process",
+      "prompt": {
+        "en": "How do you keep service quality consistent?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "quality_process"
+      },
+      "condition": {
+        "op": "includes",
+        "field": "identity.sells",
+        "value": "services"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.3.1",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "digital.product_type",
+      "prompt": {
+        "en": "What kind of digital product is it?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "digital_product_type"
+      },
+      "condition": {
+        "op": "or",
+        "terms": [
+          {
+            "op": "includes",
+            "field": "identity.sells",
+            "value": "software"
+          },
+          {
+            "op": "includes",
+            "field": "identity.sells",
+            "value": "digital_products"
+          },
+          {
+            "op": "includes",
+            "field": "identity.sells",
+            "value": "subscriptions"
+          }
+        ]
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.3.2",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "digital.stage",
+      "prompt": {
+        "en": "What stage is the product in?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "digital_stage"
+      },
+      "condition": {
+        "op": "answered",
+        "field": "digital.product_type"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.4.3.4a",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "digital.registered_users",
+      "prompt": {
+        "en": "How many registered users are there?"
+      },
+      "input": {
+        "type": "number",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "answered",
+        "field": "digital.product_type"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.3.4b",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "digital.paying_users",
+      "prompt": {
+        "en": "How many are paying?"
+      },
+      "input": {
+        "type": "number",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "answered",
+        "field": "digital.product_type"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "1.4.3.4c",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "digital.churn_rate_monthly",
+      "prompt": {
+        "en": "What is your monthly churn rate, if you know it?"
+      },
+      "input": {
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "gt",
+        "field": "digital.paying_users",
+        "value": 0
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "1.4.3.4d",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "digital.top_cancel_reason",
+      "prompt": {
+        "en": "Why do users usually cancel?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "gt",
+        "field": "digital.paying_users",
+        "value": 0
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "1.4.3.5a",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "digital.tech_stack",
+      "prompt": {
+        "en": "What is it built on and where is it hosted?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "answered",
+        "field": "digital.product_type"
+      },
+      "priority": "deep",
+      "cost": 1
+    },
+    {
+      "id": "1.4.3.5b",
+      "version": 1,
+      "section": "offers",
+      "writes_to": "digital.blocking_issues",
+      "prompt": {
+        "en": "Are there bugs or missing features holding growth back?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "answered",
+        "field": "digital.product_type"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "4.1",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.generates_revenue",
+      "prompt": {
+        "en": "Does the business make money at the moment?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "revenue_status",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1,
+      "unlocks": [
+        "4.1a",
+        "4.1n1"
+      ]
+    },
+    {
+      "id": "4.1a",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.monthly_revenue",
+      "prompt": {
+        "en": "Roughly how much revenue per month?"
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "4.1b",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.order_count_monthly",
+      "prompt": {
+        "en": "How many sales or orders per month?"
+      },
+      "input": {
+        "type": "number",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "4.1c",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.trend",
+      "prompt": {
+        "en": "Is revenue growing, stable or declining?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "revenue_trend"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "4.1d",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.repeat_customer_rate",
+      "prompt": {
+        "en": "Roughly what share of customers buy again?"
+      },
+      "input": {
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "4.1e",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.best_worst_month",
+      "prompt": {
+        "en": "Which was your best month and which was your worst, and roughly how much?"
+      },
+      "help_text": {
+        "en": "This gives me two points to work from even without full records."
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "4.1f",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.seasonality",
+      "prompt": {
+        "en": "Is the business seasonal?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "seasonality"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "4.1n1",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.pre_launch.blocking_items",
+      "prompt": {
+        "en": "What is missing before you can start selling?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": {
+        "op": "or",
+        "terms": [
+          {
+            "op": "eq",
+            "field": "revenue.generates_revenue",
+            "value": "no"
+          },
+          {
+            "op": "eq",
+            "field": "revenue.generates_revenue",
+            "value": "not_launched"
+          }
+        ]
+      },
+      "priority": "core",
+      "cost": 2
+    },
+    {
+      "id": "4.1n2",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.pre_launch.acquisition_plan",
+      "prompt": {
+        "en": "How do you plan to get your first customers?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "or",
+        "terms": [
+          {
+            "op": "eq",
+            "field": "revenue.generates_revenue",
+            "value": "no"
+          },
+          {
+            "op": "eq",
+            "field": "revenue.generates_revenue",
+            "value": "not_launched"
+          }
+        ]
+      },
+      "priority": "core",
+      "cost": 2
+    },
+    {
+      "id": "4.1p",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.stopped_reason",
+      "prompt": {
+        "en": "Why did the business stop making money?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "previously"
+      },
+      "priority": "core",
+      "cost": 2
+    },
+    {
+      "id": "4.2a",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.payment.methods",
+      "prompt": {
+        "en": "How do customers pay?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "payment_method"
+      },
+      "condition": {
+        "op": "neq",
+        "field": "revenue.generates_revenue",
+        "value": "not_launched"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "4.2b",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.payment.provider",
+      "prompt": {
+        "en": "Which payment provider do you use?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "payment_provider",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "includes",
+        "field": "revenue.payment.methods",
+        "value": "online_payment"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "4.2c",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.payment.refund_policy",
+      "prompt": {
+        "en": "What is your refund policy?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "deep",
+      "cost": 1
+    },
+    {
+      "id": "4.3a",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.price_history",
+      "prompt": {
+        "en": "Have you changed your prices? What changed and why?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "4.3b",
+      "version": 1,
+      "section": "revenue",
+      "writes_to": "revenue.price_confidence",
+      "prompt": {
+        "en": "Do you feel your prices are too low, too high, or about right?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "price_feeling"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "5.1",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "costs.fixed_monthly",
+      "prompt": {
+        "en": "What does the business pay every month regardless of sales?"
+      },
+      "help_text": {
+        "en": "Rent, salaries, software, insurance, loans, subscriptions and so on."
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "cost_item",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 3
+    },
+    {
+      "id": "5.2",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "costs.variable",
+      "prompt": {
+        "en": "Which costs go up when you sell more, beyond the delivery cost you already gave per product?"
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "cost_item",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "5.3a",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "costs.gross_margin",
+      "prompt": {
+        "en": "Do you know your gross profit margin?"
+      },
+      "input": {
+        "type": "number",
+        "min": -100,
+        "max": 100,
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "5.3b",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "costs.cash_flow_problems",
+      "prompt": {
+        "en": "Do you have cash flow problems or late-paying customers?"
+      },
+      "input": {
+        "type": "boolean",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "5.3c",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "costs.debt",
+      "prompt": {
+        "en": "Does the business carry debt or financing?"
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "5.3d",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "costs.biggest_leak",
+      "prompt": {
+        "en": "Where do you think money is being wasted?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "5.4",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "assets.financial_documents",
+      "prompt": {
+        "en": "Can you upload any financial records? Revenue reports, a profit and loss statement, or a pricing sheet."
+      },
+      "input": {
+        "type": "file",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "6.1a",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.type",
+      "prompt": {
+        "en": "Do you sell to consumers, to businesses, or both?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "customer_type",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "6.1b",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.main_problem_solved",
+      "prompt": {
+        "en": "What problem are customers trying to solve when they come to you?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "6.1c",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.objections",
+      "prompt": {
+        "en": "What makes people hesitate before buying?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "6.1d",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.demographics",
+      "prompt": {
+        "en": "Describe your typical customer. Age, location, anything relevant."
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "customers.type",
+        "value": "b2b"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "6.1e",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.b2b_profile",
+      "prompt": {
+        "en": "What kind of companies buy from you, and who decides?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "customers.type",
+        "value": "b2c"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "6.2",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.segments",
+      "prompt": {
+        "en": "Are there clearly different types of customer?"
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "customer_segment",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "6.3a",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.discovery_path",
+      "prompt": {
+        "en": "How do customers usually find you?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 2
+    },
+    {
+      "id": "6.3b",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.decision_time",
+      "prompt": {
+        "en": "How long does it take them to decide to buy?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "6.3c",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.refers_others",
+      "prompt": {
+        "en": "Do customers recommend you to others?"
+      },
+      "input": {
+        "type": "boolean",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "6.4",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.has_contact_database",
+      "prompt": {
+        "en": "Do you keep a list of customer contacts anywhere?"
+      },
+      "help_text": {
+        "en": "Even a spreadsheet counts."
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1,
+      "unlocks": [
+        "6.4a",
+        "6.4b"
+      ]
+    },
+    {
+      "id": "6.4a",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.contact_count",
+      "prompt": {
+        "en": "Roughly how many contacts?"
+      },
+      "input": {
+        "type": "number",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "customers.has_contact_database",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "6.4b",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.marketing_consent_status",
+      "prompt": {
+        "en": "Do you have permission to email those contacts for marketing?"
+      },
+      "help_text": {
+        "en": "This matters legally before anything is sent."
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "consent_status"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "customers.has_contact_database",
+        "value": true
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "7.1",
+      "version": 1,
+      "section": "channels",
+      "writes_to": "channels",
+      "prompt": {
+        "en": "Where do your sales come from?"
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "channel",
+        "allow_unknown": false
+      },
+      "condition": {
+        "op": "neq",
+        "field": "revenue.generates_revenue",
+        "value": "not_launched"
+      },
+      "priority": "core",
+      "cost": 3
+    },
+    {
+      "id": "7.3a",
+      "version": 1,
+      "section": "channels",
+      "writes_to": "channels.primary_id",
+      "prompt": {
+        "en": "Which is your main sales channel?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "__channels__"
+      },
+      "condition": {
+        "op": "gt",
+        "field": "channels.length",
+        "value": 1
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "7.3b",
+      "version": 1,
+      "section": "channels",
+      "writes_to": "channels.underperforming_id",
+      "prompt": {
+        "en": "Which channel is underperforming?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "__channels__",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "gt",
+        "field": "channels.length",
+        "value": 1
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "7.4",
+      "version": 1,
+      "section": "channels",
+      "writes_to": "channels.sales_process",
+      "prompt": {
+        "en": "What happens between someone first hearing about you and actually paying?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "7.5",
+      "version": 1,
+      "section": "channels",
+      "writes_to": "channels.sales_assets",
+      "prompt": {
+        "en": "Do you use any sales materials? Scripts, proposals, price lists, landing pages, testimonials."
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "sales_asset",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "8.1",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.advertising_status",
+      "prompt": {
+        "en": "Do you run paid advertising?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "advertising_status",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1,
+      "unlocks": [
+        "8.1a",
+        "8.1b",
+        "8.1c"
+      ]
+    },
+    {
+      "id": "8.1a",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.monthly_ad_spend",
+      "prompt": {
+        "en": "How much do you spend on ads per month?"
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "marketing.advertising_status",
+        "value": "yes"
+      },
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "8.1b",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.ad_platforms",
+      "prompt": {
+        "en": "Which platforms do you advertise on?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "marketing_channel"
+      },
+      "condition": {
+        "op": "neq",
+        "field": "marketing.advertising_status",
+        "value": "no"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "8.1c",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.cost_per_purchase",
+      "prompt": {
+        "en": "Roughly what does it cost you to get one sale from ads?"
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "marketing.advertising_status",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "8.1d",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.past_ad_result",
+      "prompt": {
+        "en": "What happened when you advertised before, and why did you stop?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "marketing.advertising_status",
+        "value": "previously"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "8.1e",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.creates_content",
+      "prompt": {
+        "en": "Do you post content anywhere? Social media, video, blog."
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1,
+      "unlocks": [
+        "8.1f",
+        "8.1g"
+      ]
+    },
+    {
+      "id": "8.1f",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.content_frequency",
+      "prompt": {
+        "en": "How often do you post?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "content_frequency"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "marketing.creates_content",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "8.1g",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.best_performing_content",
+      "prompt": {
+        "en": "What content has worked best so far?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "marketing.creates_content",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "8.1h",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.social_accounts",
+      "prompt": {
+        "en": "Which social accounts does the business have? Please include the handles."
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "8.2a",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.brand.has_assets",
+      "prompt": {
+        "en": "Do you have a logo and brand colours?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "8.2b",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.brand.main_promise",
+      "prompt": {
+        "en": "If you had one sentence to tell someone why to choose you, what would it be?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "8.2c",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.brand.desired_feeling",
+      "prompt": {
+        "en": "What should customers feel about the brand?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "deep",
+      "cost": 2
+    },
+    {
+      "id": "8.2d",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.brand.public_face",
+      "prompt": {
+        "en": "Is there a person who is the face of the business?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "8.3a",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.collects_leads",
+      "prompt": {
+        "en": "Do you collect email addresses or leads from people who don't buy immediately?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "8.3b",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.has_reviews",
+      "prompt": {
+        "en": "Do you have public reviews or testimonials? Where?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "9.1",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.status",
+      "prompt": {
+        "en": "Is the business operating normally right now?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "operating_status",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "9.1a",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.daily_workflow",
+      "prompt": {
+        "en": "Describe a normal working day in the business."
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": {
+        "op": "eq",
+        "field": "operations.status",
+        "value": "operating"
+      },
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "9.1b",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.most_time_consuming",
+      "prompt": {
+        "en": "What takes up the most time each week?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "9.1c",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.breaks_most_often",
+      "prompt": {
+        "en": "What goes wrong most often?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "9.2",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.staff",
+      "prompt": {
+        "en": "Who works in the business and what do they do?"
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "staff_role",
+        "allow_unknown": false
+      },
+      "condition": {
+        "op": "gt",
+        "field": "identity.team_size",
+        "value": 1
+      },
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "9.2b",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.owner_role",
+      "prompt": {
+        "en": "What do you personally spend most of your time on?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "9.3a",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.support_channels",
+      "prompt": {
+        "en": "How do customers contact you when they have a problem?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "support_channel",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "9.3b",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.has_support_process",
+      "prompt": {
+        "en": "Is there a set way of handling customer questions, or is it ad hoc?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "9.3c",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.common_questions",
+      "prompt": {
+        "en": "What do customers ask about most often?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "9.3d",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.common_complaints",
+      "prompt": {
+        "en": "What do customers complain about most often?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "9.4a",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.has_sops",
+      "prompt": {
+        "en": "Are any of your processes written down as instructions or checklists?"
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "9.4b",
+      "version": 1,
+      "section": "operations",
+      "writes_to": "operations.most_stressful_process",
+      "prompt": {
+        "en": "Which part of running the business causes you the most stress?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "10.1",
+      "version": 1,
+      "section": "tooling",
+      "writes_to": "tooling.tools",
+      "prompt": {
+        "en": "Which tools and software do you use to run the business?"
+      },
+      "help_text": {
+        "en": "Website, payments, accounting, bookings, email, spreadsheets, anything."
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "10.1b",
+      "version": 1,
+      "section": "tooling",
+      "writes_to": "tooling.categories_covered",
+      "prompt": {
+        "en": "Which of these areas do you already have a tool for?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "tool_category"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "10.1c",
+      "version": 1,
+      "section": "tooling",
+      "writes_to": "tooling.has_automations",
+      "prompt": {
+        "en": "Do you have any automations set up already?"
+      },
+      "help_text": {
+        "en": "Automatic emails, order syncing, scheduled posts, anything that runs on its own."
+      },
+      "input": {
+        "type": "boolean"
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "10.2",
+      "version": 1,
+      "section": "tooling",
+      "writes_to": "tooling.manual_tasks",
+      "prompt": {
+        "en": "Which of these do you still do by hand?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "manual_task"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "10.3",
+      "version": 1,
+      "section": "tooling",
+      "writes_to": "tooling.automate_first",
+      "prompt": {
+        "en": "If one task could disappear tomorrow, which would it be?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "10.4a",
+      "version": 1,
+      "section": "tooling",
+      "writes_to": "tooling.data_tracked",
+      "prompt": {
+        "en": "What numbers do you already track, and where do they live?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "10.4b",
+      "version": 1,
+      "section": "tooling",
+      "writes_to": "tooling.data_exportable",
+      "prompt": {
+        "en": "Could you export that data if needed?"
+      },
+      "input": {
+        "type": "boolean",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "answered",
+        "field": "tooling.data_tracked"
+      },
+      "priority": "deep",
+      "cost": 1
+    },
+    {
+      "id": "11.1a",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.entity_type",
+      "prompt": {
+        "en": "What legal form is the business?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "legal_entity_type",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "11.1b",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.vat_status",
+      "prompt": {
+        "en": "What is your VAT status?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "vat_status",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "11.1c",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.required_licences",
+      "prompt": {
+        "en": "Does your business need any licences, permits or insurance to operate?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "11.1d",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.has_privacy_policy",
+      "prompt": {
+        "en": "Do you have terms and conditions and a privacy policy published?"
+      },
+      "input": {
+        "type": "boolean",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "presence.type",
+        "value": "physical_only"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "11.2a",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.platform_dependency",
+      "prompt": {
+        "en": "Is there a single platform or account the business could not survive losing?"
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "11.2b",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.biggest_risk",
+      "prompt": {
+        "en": "What could stop the business tomorrow?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "11.3",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.advertising_restrictions",
+      "prompt": {
+        "en": "Are there any advertising or industry restrictions in your field?"
+      },
+      "help_text": {
+        "en": "For example age limits, health claims, or regulated products."
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 2
+    },
+    {
+      "id": "12.1",
+      "version": 1,
+      "section": "competition",
+      "writes_to": "competitors",
+      "prompt": {
+        "en": "Who are your main competitors?"
+      },
+      "help_text": {
+        "en": "Names and links are enough to start. I'll research the rest."
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "competitor",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 3
+    },
+    {
+      "id": "12.2a",
+      "version": 1,
+      "section": "competition",
+      "writes_to": "positioning.differentiator",
+      "prompt": {
+        "en": "What makes you different from them?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "12.2b",
+      "version": 1,
+      "section": "competition",
+      "writes_to": "positioning.proof",
+      "prompt": {
+        "en": "What proof do you have that it's true? Reviews, results, numbers."
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "12.2c",
+      "version": 1,
+      "section": "competition",
+      "writes_to": "positioning.weakest_point",
+      "prompt": {
+        "en": "Where are competitors clearly better than you?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "12.3a",
+      "version": 1,
+      "section": "competition",
+      "writes_to": "market.demand_trend",
+      "prompt": {
+        "en": "Is demand in your market growing, stable or shrinking?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "demand_trend"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "12.3b",
+      "version": 1,
+      "section": "competition",
+      "writes_to": "market.price_sensitivity",
+      "prompt": {
+        "en": "Do customers in your market shop mainly on price?"
+      },
+      "input": {
+        "type": "boolean",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "13.1",
+      "version": 1,
+      "section": "goals",
+      "writes_to": "goals.list",
+      "prompt": {
+        "en": "What do you want to achieve in the next 3, 6 and 12 months?"
+      },
+      "input": {
+        "type": "entity_list",
+        "entity_schema": "goal",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 3
+    },
+    {
+      "id": "13.2",
+      "version": 1,
+      "section": "goals",
+      "writes_to": "goals.growth_blocker",
+      "prompt": {
+        "en": "What is the single biggest thing stopping growth right now?"
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "growth_blocker",
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "13.3a",
+      "version": 1,
+      "section": "goals",
+      "writes_to": "goals.previous_attempts",
+      "prompt": {
+        "en": "What have you already tried to grow the business?"
+      },
+      "input": {
+        "type": "long_text"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "13.3b",
+      "version": 1,
+      "section": "goals",
+      "writes_to": "goals.what_failed",
+      "prompt": {
+        "en": "What failed, and why do you think it failed?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "answered",
+        "field": "goals.previous_attempts"
+      },
+      "priority": "important",
+      "cost": 2
+    },
+    {
+      "id": "13.3c",
+      "version": 1,
+      "section": "goals",
+      "writes_to": "goals.do_not_repeat",
+      "prompt": {
+        "en": "Is there anything you definitely don't want tried again?"
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "13.4",
+      "version": 1,
+      "section": "goals",
+      "writes_to": "goals.expansion_plans",
+      "prompt": {
+        "en": "Are you planning any of these?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "expansion_type"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "13.5",
+      "version": 1,
+      "section": "goals",
+      "writes_to": "goals.owner_boundaries",
+      "prompt": {
+        "en": "Is there anything you would never want the business to do, regardless of results?"
+      },
+      "help_text": {
+        "en": "Tone, tactics, platforms, discounting. I will treat these as hard limits."
+      },
+      "input": {
+        "type": "long_text",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "core",
+      "cost": 2
+    },
+    {
+      "id": "14.1",
+      "version": 1,
+      "section": "assets",
+      "writes_to": "assets.uploads",
+      "prompt": {
+        "en": "Upload anything you already have that could be useful."
+      },
+      "help_text": {
+        "en": "Photos, logo, videos, price lists, reviews, reports. More material means better output later."
+      },
+      "input": {
+        "type": "file",
+        "allow_unknown": true
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 3
+    },
+    {
+      "id": "14.1b",
+      "version": 1,
+      "section": "assets",
+      "writes_to": "assets.available_types",
+      "prompt": {
+        "en": "Which of these do you have available, even if not uploaded yet?"
+      },
+      "input": {
+        "type": "multi_select",
+        "vocabulary_id": "asset_type"
+      },
+      "condition": null,
+      "priority": "important",
+      "cost": 1
+    }
+  ],
+  "market_scope": "international",
+  "localisation": {
+    "launch_locale": "en",
+    "policy": "Additional locales added after Gate 1, chosen by where paying customers actually come from. Not decided in advance.",
+    "candidates": [
+      "hu",
+      "de",
+      "es",
+      "fr",
+      "pt-BR",
+      "pl"
+    ]
+  }
+}
