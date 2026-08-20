@@ -20,3 +20,6 @@ services:
 
 volumes:
   syb_pgdata:
+    # Explicit name so compose adopts the volume created by the initial
+    # `docker run` bring-up instead of creating a prefixed duplicate.
+    name: syb_pgdata
