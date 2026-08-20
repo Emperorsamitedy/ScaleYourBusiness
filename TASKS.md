@@ -12,11 +12,11 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session A — Repo scaffold _(~8h · steps 10–12)_
 
-- [ ] **P0-01** `npm init`, TypeScript strict mode, ESLint, Prettier
-- [ ] **P0-02** Next.js app, empty page, runs locally
-- [ ] **P0-03** Postgres locally via Docker, connection verified
-- [ ] **P0-04** Migration tool wired up (Drizzle or Prisma), one empty migration applied
-- [ ] **P0-05** `.env` handling, Anthropic key loaded, never committed
+- [x] **P0-01** `npm init`, TypeScript strict mode, ESLint, Prettier
+- [x] **P0-02** Next.js app, empty page, runs locally
+- [x] **P0-03** Postgres locally via Docker, connection verified
+- [x] **P0-04** Migration tool wired up (Drizzle or Prisma), one empty migration applied
+- [x] **P0-05** `.env` handling, Anthropic key loaded, never committed
 - [x] **P0-06** Copy specs into `specs/`, `scripts/lint_bank.py`, `CLAUDE.md` at root
 - [ ] **P0-07** CI: typecheck, tests, and `lint_bank.py` all run on push
 - [ ] **P0-07b** Sentry free tier, error monitoring wired, verified with a deliberate test exception _(step 11)_
