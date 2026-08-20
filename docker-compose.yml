@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: syb-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: syb
+      POSTGRES_PASSWORD: syb_local_dev
+      POSTGRES_DB: syb
+    ports:
+      # 5433 on the host: the system Postgres already owns 5432
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - syb_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U syb -d syb"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  syb_pgdata:
