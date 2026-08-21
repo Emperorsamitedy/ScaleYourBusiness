@@ -33,7 +33,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 - [x] **P0-11** `Quantity`, `DateRange`, `EnumValue` with `label_raw`
 - [x] **P0-12** `FieldStatus` enum — all six values, documented meanings
 - [x] **P0-13** `SourceRef` with all seven kinds, `derived_from`, `method`
-- [ ] **P0-14** `Field<T>` wrapper, generic over value type
+- [x] **P0-14** `Field<T>` wrapper, generic over value type
 - [ ] **P0-15** Tests covering every `FieldStatus` and every `SourceKind`
 
 **Done when:** unit tests cover all six statuses and a two-currency profile cannot produce a wrong total.
