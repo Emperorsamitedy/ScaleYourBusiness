@@ -399,6 +399,81 @@ export const decisionLog = pgTable(
   (t) => [index("decision_log_profile_at_idx").on(t.profile_id, t.at)],
 );
 
+// ---------------------------------------------------------------------------
+// Question bank — §6.1 / step 18. Questions and entity schemas are stored
+// PER BANK VERSION: loading a new version adds rows, never rewrites old
+// ones, so an answer recorded against bank 1.0.0's question 4.2 keeps its
+// provenance forever (P0-37). Vocabularies mirror only the current bank
+// (Session F) — answers store codes, not entry references, so they
+// survive vocabulary evolution.
+// ---------------------------------------------------------------------------
+
+export const questionPriority = pgEnum("question_priority", [
+  "core",
+  "important",
+  "deep",
+  "optional",
+]);
+
+export const bankVersions = pgTable(
+  "bank_versions",
+  {
+    version: text("version").primaryKey(),
+    loaded_at: timestamp("loaded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** sha256 of the bank file, for byte-level provenance. */
+    source_hash: text("source_hash").notNull(),
+    question_count: integer("question_count").notNull(),
+    vocabulary_count: integer("vocabulary_count").notNull(),
+    entity_schema_count: integer("entity_schema_count").notNull(),
+    is_current: boolean("is_current").notNull().default(false),
+  },
+  (t) => [
+    // At most one current bank — same partial-index trick as supersession.
+    uniqueIndex("bank_versions_current_idx")
+      .on(t.is_current)
+      .where(sql`is_current`),
+  ],
+);
+
+export const bankQuestions = pgTable(
+  "bank_questions",
+  {
+    bank_version: text("bank_version")
+      .notNull()
+      .references(() => bankVersions.version),
+    id: text("id").notNull(),
+    /** The question's own version field from the bank. */
+    question_version: integer("question_version").notNull(),
+    /** Interview-flow section (bank "competition" stored as competitors). */
+    section: profileSection("section").notNull(),
+    writes_to: text("writes_to").notNull(),
+    prompt: jsonb("prompt").notNull(),
+    help_text: jsonb("help_text"),
+    input: jsonb("input").notNull(),
+    condition: jsonb("condition"),
+    priority: questionPriority("priority").notNull(),
+    cost: integer("cost").notNull(),
+    unlocks: jsonb("unlocks"),
+  },
+  (t) => [uniqueIndex("bank_questions_pk").on(t.bank_version, t.id)],
+);
+
+export const bankEntitySchemas = pgTable(
+  "bank_entity_schemas",
+  {
+    bank_version: text("bank_version")
+      .notNull()
+      .references(() => bankVersions.version),
+    key: text("key").notNull(),
+    label: jsonb("label").notNull(),
+    min_items: integer("min_items"),
+    fields: jsonb("fields").notNull(),
+  },
+  (t) => [uniqueIndex("bank_entity_schemas_pk").on(t.bank_version, t.key)],
+);
+
 export const utteranceRole = pgEnum("utterance_role", ["owner", "system"]);
 
 export const utteranceIntent = pgEnum("utterance_intent", [

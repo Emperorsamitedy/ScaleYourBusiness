@@ -54,12 +54,20 @@ export function readBankVocabularies(path: string): BankVocabularies {
   };
 }
 
-/** Load (or reload) every vocabulary from a bank. Returns counts for verification. */
+/** Any executor that can run the statements — the db root or an open transaction. */
+type Executor = Pick<typeof db, "delete" | "insert">;
+
+/**
+ * Load (or reload) every vocabulary from a bank. Runs on the given
+ * executor so the bank loader (Session H) can include it in one atomic
+ * load; standalone callers get their own transaction via the default.
+ */
 export async function loadVocabularies(
   bank: BankVocabularies,
+  executor?: Executor,
 ): Promise<{ vocabularies: number; entries: number }> {
   let entryCount = 0;
-  await db.transaction(async (tx) => {
+  const run = async (tx: Executor) => {
     for (const [key, codes] of Object.entries(bank.vocabularies)) {
       await tx.delete(vocabularyEntries).where(eq(vocabularyEntries.vocab_key, key));
       await tx.delete(vocabularies).where(eq(vocabularies.key, key));
@@ -69,6 +77,11 @@ export async function loadVocabularies(
         .values(codes.map((code, position) => ({ vocab_key: key, code, position })));
       entryCount += codes.length;
     }
-  });
+  };
+  if (executor) {
+    await run(executor);
+  } else {
+    await db.transaction(async (tx) => run(tx));
+  }
   return { vocabularies: Object.keys(bank.vocabularies).length, entries: entryCount };
 }

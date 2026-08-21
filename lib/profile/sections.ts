@@ -36,17 +36,37 @@ export class InvalidFieldKeyError extends Error {
   }
 }
 
+// The question bank writes to six namespaces beyond the fourteen section
+// prefixes; each belongs to exactly one section. Offer-branch detail
+// namespaces live with offers; positioning and market intelligence live
+// with competitors. Derived from the bank's own question sections and
+// checked by the loader against every writes_to.
+export const EXTRA_PREFIX_SECTIONS: Readonly<Record<string, ProfileSection>> = {
+  suppliers: "offers",
+  fulfilment: "offers",
+  service: "offers",
+  digital: "offers",
+  positioning: "competitors",
+  market: "competitors",
+};
+
 /**
- * A field_key's section is its first path segment. Throws when the key is
- * empty or its section isn't one of the fourteen — a record filed outside
- * the section map is unreachable by the resolver and the scorer.
+ * A field_key's home section: its first path segment, either one of the
+ * fourteen or a bank namespace that maps onto one. (A question's flow
+ * section can differ — 1.1b asks the country mid-identity but the fact is
+ * legal.country; the FIELD lives in legal.) Throws for keys outside the
+ * map — a record filed nowhere is unreachable by resolver and scorer.
  */
 export function sectionOfFieldKey(fieldKey: string): ProfileSection {
   const [head] = fieldKey.split(".");
-  if (head === undefined || head === "" || !isProfileSection(head)) {
+  if (head !== undefined && head !== "" && isProfileSection(head)) {
+    return head;
+  }
+  const mapped = head === undefined ? undefined : EXTRA_PREFIX_SECTIONS[head];
+  if (mapped === undefined) {
     throw new InvalidFieldKeyError(
-      `field_key "${fieldKey}" does not start with one of the fourteen profile sections`,
+      `field_key "${fieldKey}" does not start with a profile section or a mapped bank namespace`,
     );
   }
-  return head;
+  return mapped;
 }
