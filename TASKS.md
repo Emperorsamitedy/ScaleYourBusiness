@@ -97,9 +97,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session H — Bank loader _(~10h · step 18)_
 
-- [ ] **P0-36** Load 153 questions, 55 vocabularies, 8 entity schemas from JSON
-- [ ] **P0-37** Bank versioning — a new version doesn't invalidate existing answers
-- [ ] **P0-38** Loader refuses a bank that fails lint
+- [x] **P0-36** Load 153 questions, 55 vocabularies, 8 entity schemas from JSON
+- [x] **P0-37** Bank versioning — a new version doesn't invalidate existing answers
+- [x] **P0-38** Loader refuses a bank that fails lint
 
 ---
 
