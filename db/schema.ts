@@ -7,6 +7,7 @@
 // expressed as uniqueIndex(...).where(...) — round-trip verified against
 // live Postgres before Session B (generate → apply → generate is a no-op).
 
+import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -79,6 +80,84 @@ export const businessProfiles = pgTable("business_profiles", {
   /** Data-model version this profile was written against. */
   schema_version: text("schema_version").notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// field_records — the storage form of Field<T> (§3.1) for every one of the
+// fourteen §5.1 sections.
+//
+// The spec's section interfaces (IdentitySection, RevenueSection, …)
+// describe the ASSEMBLED profile; storage is one generic table keyed by
+// field_key path ("identity.legal_name", "offers.<offer_id>.price").
+// One table means one supersession mechanism (rule 3): the partial unique
+// index below — round-trip-verified before Session B — lets the database
+// itself guarantee at most one current record per field while keeping
+// every superseded record as history. Typed-columns-per-section would need
+// that machinery re-invented per table.
+//
+// Session E adds the write path that supersedes; nothing may UPDATE a
+// record's value — ever.
+// ---------------------------------------------------------------------------
+
+export const fieldStatus = pgEnum("field_status", [
+  "answered",
+  "unknown",
+  "not_applicable",
+  "skipped",
+  "inferred",
+  "unasked",
+]);
+
+export const profileSection = pgEnum("profile_section", [
+  "identity",
+  "presence",
+  "offers",
+  "revenue",
+  "costs",
+  "customers",
+  "channels",
+  "marketing",
+  "operations",
+  "tooling",
+  "legal",
+  "competitors",
+  "goals",
+  "assets",
+]);
+
+export const fieldRecords = pgTable(
+  "field_records",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    /** First segment of field_key, denormalised for section-level queries. */
+    section: profileSection("section").notNull(),
+    /** Stable path, e.g. "identity.legal_name", "offers.<offer_id>.price". */
+    field_key: text("field_key").notNull(),
+    /** The typed value as JSON; null for unknown/skipped/unasked/not_applicable. */
+    value: jsonb("value"),
+    status: fieldStatus("status").notNull(),
+    confidence: numeric("confidence", { precision: 4, scale: 3 }).notNull(),
+    /** SourceRef (§3.2 + conversation) as JSON — validated in code. */
+    source: jsonb("source").notNull(),
+    observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    note: text("note"),
+    superseded_at: timestamp("superseded_at", { withTimezone: true, mode: "string" }),
+    superseded_by: uuid("superseded_by").references((): AnyPgColumn => fieldRecords.id),
+  },
+  (t) => [
+    // Rule 3's enforcement: at most one CURRENT record per field per
+    // profile; history rows keep their key with superseded_at set.
+    uniqueIndex("field_records_current_idx")
+      .on(t.profile_id, t.field_key)
+      .where(sql`superseded_at IS NULL`),
+    index("field_records_profile_section_idx").on(t.profile_id, t.section),
+  ],
+);
 
 export const utteranceRole = pgEnum("utterance_role", ["owner", "system"]);
 

@@ -55,7 +55,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 ## Session D — Profile tables _(~20h · step 14)_
 
 - [x] **P0-19** `Account`, `User`, `BusinessProfile` root
-- [ ] **P0-20** The fourteen section types as columns/tables
+- [x] **P0-20** The fourteen section types as columns/tables
 - [ ] **P0-21** `Offer` with the three type-specific detail variants
 - [ ] **P0-22** `Supplier`, `Channel`, `Competitor`
 - [ ] **P0-23** `StaffRole`, `CostItem`, `CustomerSegment`, `Goal`
