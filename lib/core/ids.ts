@@ -20,6 +20,10 @@ export type ConnectorId = Branded<"ConnectorId">;
 export type DocumentId = Branded<"DocumentId">;
 /** One chat message — what a conversation-sourced fact points back at (conversation-channel.md §2). */
 export type UtteranceId = Branded<"UtteranceId">;
+/** The business profile root (§5.1) — tables land in Session D. */
+export type BusinessProfileId = Branded<"BusinessProfileId">;
+/** One conversation thread (conversation-channel.md §2.2). */
+export type ThreadId = Branded<"ThreadId">;
 
 export class InvalidIdError extends Error {
   constructor(message: string) {
@@ -40,3 +44,6 @@ export const fieldRecordId = (value: string): FieldRecordId => makeId("FieldReco
 export const connectorId = (value: string): ConnectorId => makeId("ConnectorId", value);
 export const documentId = (value: string): DocumentId => makeId("DocumentId", value);
 export const utteranceId = (value: string): UtteranceId => makeId("UtteranceId", value);
+export const businessProfileId = (value: string): BusinessProfileId =>
+  makeId("BusinessProfileId", value);
+export const threadId = (value: string): ThreadId => makeId("ThreadId", value);
