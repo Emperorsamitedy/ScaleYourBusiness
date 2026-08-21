@@ -145,9 +145,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 ## Session M — Answer parser _(~20h · steps 24–25)_
 
 - [ ] **P0-54** Haiku parser: free text → typed value
-- [ ] **P0-55** Estimate detection — "about", "roughly" lowers confidence and preserves the wording in `note`
-- [ ] **P0-56** Multi-answer extraction: one paragraph fills several fields
-- [ ] **P0-57** Interviewer skips what the paragraph already answered
+- [x] **P0-55** Estimate detection — "about", "roughly" lowers confidence and preserves the wording in `note`
+- [x] **P0-56** Multi-answer extraction: one paragraph fills several fields
+- [x] **P0-57** Interviewer skips what the paragraph already answered
 - [ ] **P0-58** Test: "about 4 and a half million a month, before tax" → correct `Money`, lowered confidence, note kept
 
 ---
