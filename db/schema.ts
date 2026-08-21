@@ -192,6 +192,74 @@ export const offers = pgTable(
   (t) => [index("offers_profile_idx").on(t.profile_id)],
 );
 
+// ---------------------------------------------------------------------------
+// Entity spines — §5.4. Standalone entities referenced by ID; their
+// owner-answerable attributes live in field_records under
+// "<section>.<entity_id>.<attr>". Structural columns appear only where the
+// spec types them outside Field<T>.
+// ---------------------------------------------------------------------------
+
+export const suppliers = pgTable(
+  "suppliers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("suppliers_profile_idx").on(t.profile_id)],
+);
+
+/** PhysicalOfferDetail.supplier_ids (§5.3) — which suppliers feed an offer. */
+export const offerSuppliers = pgTable(
+  "offer_suppliers",
+  {
+    offer_id: uuid("offer_id")
+      .notNull()
+      .references(() => offers.id),
+    supplier_id: uuid("supplier_id")
+      .notNull()
+      .references(() => suppliers.id),
+  },
+  (t) => [uniqueIndex("offer_suppliers_pk").on(t.offer_id, t.supplier_id)],
+);
+
+export const channels = pgTable(
+  "channels",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("channels_profile_idx").on(t.profile_id)],
+);
+
+export const competitors = pgTable(
+  "competitors",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    // Structural per §5.4 (bare SourceRef, not Field): what the owner
+    // BELIEVES about a competitor vs what research FOUND must stay
+    // distinguishable — the positioning recommendation depends on it.
+    source: jsonb("source").notNull(),
+    researched_at: timestamp("researched_at", { withTimezone: true, mode: "string" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("competitors_profile_idx").on(t.profile_id)],
+);
+
 export const utteranceRole = pgEnum("utterance_role", ["owner", "system"]);
 
 export const utteranceIntent = pgEnum("utterance_intent", [
