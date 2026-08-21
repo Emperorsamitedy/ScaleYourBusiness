@@ -159,6 +159,39 @@ export const fieldRecords = pgTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Offers — §5.3. One entity with type-specific extensions; "a single offer
+// table with variants is dramatically easier to query than three parallel
+// structures". The spine holds identity + kind; every owner-answerable
+// attribute (price, margin, inventory, churn, …) is a field_record under
+// "offers.<offer_id>.…", so offer facts supersede exactly like profile
+// facts. Which detail namespace (physical/service/digital) is legal for a
+// kind is enforced in lib/profile/offer.ts.
+// ---------------------------------------------------------------------------
+
+export const offerKind = pgEnum("offer_kind", [
+  "physical",
+  "service",
+  "digital",
+  "subscription",
+  "marketplace_access",
+]);
+
+export const offers = pgTable(
+  "offers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    kind: offerKind("kind").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("offers_profile_idx").on(t.profile_id)],
+);
+
 export const utteranceRole = pgEnum("utterance_role", ["owner", "system"]);
 
 export const utteranceIntent = pgEnum("utterance_intent", [
