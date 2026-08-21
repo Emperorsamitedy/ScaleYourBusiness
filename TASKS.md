@@ -131,10 +131,10 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session L — Interviewer agent _(~28h · steps 22–23)_
 
-- [ ] **P0-48** Prompt: profile + applicable questions + history → next question ID + `selection_reason`
-- [ ] **P0-49** Cheap core before expensive deep, using `priority` and `cost`
+- [x] **P0-48** Prompt: profile + applicable questions + history → next question ID + `selection_reason`
+- [x] **P0-49** Cheap core before expensive deep, using `priority` and `cost`
 - [ ] **P0-50** **Prompt caching on the bank** — verify `cache_read_input_tokens` from turn two
-- [ ] **P0-51** Token and cost logging per call, tagged by workload
+- [x] **P0-51** Token and cost logging per call, tagged by workload
 - [ ] **P0-52** Harness: 20 synthetic profiles run end to end
 - [ ] **P0-53** Assert across all 20: never asks an inapplicable question, never repeats one
 
