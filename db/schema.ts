@@ -11,6 +11,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  integer,
   jsonb,
   numeric,
   pgEnum,
@@ -330,6 +331,32 @@ export const goals = pgTable(
       .defaultNow(),
   },
   (t) => [index("goals_profile_idx").on(t.profile_id)],
+);
+
+// ---------------------------------------------------------------------------
+// Vocabularies — §3.4 / step 16. The 55 controlled lists from the question
+// bank, stored verbatim (including their "other" entries) so the database
+// mirrors the bank exactly; whether a vocabulary accepts "other" is a fact
+// about its entries, not a flag that can drift from them.
+// ---------------------------------------------------------------------------
+
+export const vocabularies = pgTable("vocabularies", {
+  key: text("key").primaryKey(),
+  /** Bank version the entries were loaded from. */
+  bank_version: text("bank_version").notNull(),
+});
+
+export const vocabularyEntries = pgTable(
+  "vocabulary_entries",
+  {
+    vocab_key: text("vocab_key")
+      .notNull()
+      .references(() => vocabularies.key),
+    code: text("code").notNull(),
+    /** Bank order — the intake renders options in this order. */
+    position: integer("position").notNull(),
+  },
+  (t) => [uniqueIndex("vocabulary_entries_pk").on(t.vocab_key, t.code)],
 );
 
 export const utteranceRole = pgEnum("utterance_role", ["owner", "system"]);
