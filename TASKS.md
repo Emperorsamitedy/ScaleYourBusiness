@@ -87,9 +87,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session G — Decision log _(~8h · step 17)_
 
-- [ ] **P0-33** Append-only table, updates and deletes rejected at the database level
-- [ ] **P0-34** Every profile change writes an entry
-- [ ] **P0-35** Test that an update attempt throws
+- [x] **P0-33** Append-only table, updates and deletes rejected at the database level
+- [x] **P0-34** Every profile change writes an entry
+- [x] **P0-35** Test that an update attempt throws
 
 > Enforce append-only with a `BEFORE UPDATE OR DELETE` trigger that `RAISE`s, not `REVOKE`. `REVOKE` doesn't restrict the table owner, and migrations run as owner — the protection would be absent exactly where it counts.
 

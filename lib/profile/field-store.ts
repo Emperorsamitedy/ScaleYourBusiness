@@ -12,13 +12,36 @@
 // fails the unique index and can retry against the new state. The
 // database is the arbiter, not application locking.
 
+import { createHash } from "node:crypto";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
-import { fieldRecords } from "../../db/schema";
+import { decisionLog, fieldRecords } from "../../db/schema";
 import type { Field } from "../core/field";
 import { fieldRecordId } from "../core/ids";
 import type { FieldRecordRow } from "./field-codec";
 import { fieldToRow, rowToField } from "./field-codec";
+
+/**
+ * Canonical sha256 of what was written — the decision log stores the hash
+ * so later tampering with a field record is detectable against the log.
+ * Key order is fixed by construction; do not spread `field` here.
+ */
+export function hashFieldPayload<T>(profileId: string, field: Field<T>): string {
+  return createHash("sha256")
+    .update(
+      JSON.stringify({
+        profile_id: profileId,
+        field_key: field.id,
+        value: field.value,
+        status: field.status,
+        confidence: field.confidence,
+        source: field.source,
+        observed_at: field.observed_at,
+        note: field.note,
+      }),
+    )
+    .digest("hex");
+}
 
 export interface HistoricalFieldRecord<T> {
   /** Storage id of this record — what superseded_by chains point at. */
@@ -62,6 +85,18 @@ export async function writeField<T>(profileId: string, field: Field<T>): Promise
         .set({ superseded_by: newId })
         .where(eq(fieldRecords.id, previous.id));
     }
+    // 4. Every profile change writes a decision-log entry (rule 7), in the
+    //    same transaction: a fact without its log entry cannot exist.
+    await tx.insert(decisionLog).values({
+      profile_id: profileId,
+      actor:
+        field.source.kind === "owner_input" || field.source.kind === "conversation"
+          ? "owner"
+          : "system",
+      kind: "profile_change",
+      ref_id: newId,
+      payload_hash: hashFieldPayload(profileId, field),
+    });
   });
   return newId;
 }
