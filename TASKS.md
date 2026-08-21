@@ -18,7 +18,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 - [x] **P0-04** Migration tool wired up (Drizzle or Prisma), one empty migration applied
 - [x] **P0-05** `.env` handling, Anthropic key loaded, never committed
 - [x] **P0-06** Copy specs into `specs/`, `scripts/lint_bank.py`, `CLAUDE.md` at root
-- [ ] **P0-07** CI: typecheck, tests, and `lint_bank.py` all run on push
+- [x] **P0-07** CI: typecheck, tests, and `lint_bank.py` all run on push
 - [ ] **P0-07b** ⏸ _blocked-deferred until Session N_ — Sentry free tier, error monitoring wired, verified with a deliberate test exception _(step 11; nothing to monitor before the intake UI exists)_
 - [ ] **P0-08** ⏸ _blocked-deferred until Session N_ — Deploy to staging (Vercel + Neon), verify the empty app is reachable _(nothing to deploy before the intake UI exists)_
 
