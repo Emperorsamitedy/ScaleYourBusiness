@@ -68,10 +68,10 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session E — Supersession _(~10h · step 15)_
 
-- [ ] **P0-26** Field writes mark the previous record superseded rather than updating
-- [ ] **P0-27** Query returns newest non-superseded value by default
-- [ ] **P0-28** History query returns the full dated chain
-- [ ] **P0-29** Test: change a price three times → three records, newest returned
+- [x] **P0-26** Field writes mark the previous record superseded rather than updating
+- [x] **P0-27** Query returns newest non-superseded value by default
+- [x] **P0-28** History query returns the full dated chain
+- [x] **P0-29** Test: change a price three times → three records, newest returned
 
 **Done when:** nothing in the codebase can overwrite a fact. This is the task that cannot be retrofitted.
 
