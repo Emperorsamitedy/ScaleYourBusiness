@@ -359,6 +359,46 @@ export const vocabularyEntries = pgTable(
   (t) => [uniqueIndex("vocabulary_entries_pk").on(t.vocab_key, t.code)],
 );
 
+// ---------------------------------------------------------------------------
+// Decision log — §11, rule 7. Append-only at the database level: migration
+// 0010 installs a BEFORE UPDATE OR DELETE (and TRUNCATE) trigger that
+// RAISEs. A trigger, not REVOKE — REVOKE doesn't bind the table owner,
+// and migrations run as owner, so permission-based protection would be
+// absent exactly where it counts.
+//
+// profile_id is deliberately NOT a foreign key: the audit trail outlives
+// its subject. A profile can be removed without touching the log; how log
+// entries are handled under a GDPR erasure request is an open decision in
+// §12 and must be decided, not defaulted.
+// ---------------------------------------------------------------------------
+
+export const decisionActor = pgEnum("decision_actor", ["system", "owner"]);
+
+export const decisionKind = pgEnum("decision_kind", [
+  "proposal",
+  "approval",
+  "rejection",
+  "execution",
+  "measurement",
+  "profile_change",
+]);
+
+export const decisionLog = pgTable(
+  "decision_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    actor: decisionActor("actor").notNull(),
+    kind: decisionKind("kind").notNull(),
+    /** What the entry is about — e.g. the field_records id of a profile change. */
+    ref_id: text("ref_id").notNull(),
+    /** sha256 of the canonical payload, so any later tampering is detectable. */
+    payload_hash: text("payload_hash").notNull(),
+  },
+  (t) => [index("decision_log_profile_at_idx").on(t.profile_id, t.at)],
+);
+
 export const utteranceRole = pgEnum("utterance_role", ["owner", "system"]);
 
 export const utteranceIntent = pgEnum("utterance_intent", [
