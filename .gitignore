@@ -20,3 +20,6 @@ Thumbs.db
 
 # Build artifacts
 *.tsbuildinfo
+
+# Harness reports and local run artifacts
+var/

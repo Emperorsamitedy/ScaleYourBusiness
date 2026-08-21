@@ -13,7 +13,9 @@
     "build": "next build",
     "start": "next start",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "verify:caching": "tsx lib/interviewer/verify-caching.ts",
+    "harness": "tsx lib/interviewer/harness/run.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
