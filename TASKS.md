@@ -115,9 +115,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session J — Applicability resolver _(~10h · step 20)_
 
-- [ ] **P0-42** Given a profile, return currently applicable questions
-- [ ] **P0-43** Test: services-only profile never surfaces inventory questions
-- [ ] **P0-44** Test: adding "physical products" later makes them appear
+- [x] **P0-42** Given a profile, return currently applicable questions
+- [x] **P0-43** Test: services-only profile never surfaces inventory questions
+- [x] **P0-44** Test: adding "physical products" later makes them appear
 
 ---
 
