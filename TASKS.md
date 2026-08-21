@@ -79,9 +79,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session F — Vocabularies _(~8h · step 16)_
 
-- [ ] **P0-30** Vocabulary tables, loaded from the bank JSON
-- [ ] **P0-31** `other` + `label_raw` preservation
-- [ ] **P0-32** Report of recurring `other` values, for promoting into the list later
+- [x] **P0-30** Vocabulary tables, loaded from the bank JSON
+- [x] **P0-31** `other` + `label_raw` preservation
+- [x] **P0-32** Report of recurring `other` values, for promoting into the list later
 
 ---
 
