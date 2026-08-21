@@ -9,5 +9,8 @@ export default defineConfig({
   test: {
     include: ["**/*.test.ts"],
     exclude: ["node_modules/**", ".next/**", "productos/**"],
+    // Test files share one Postgres; the vocab and bank suites both rewrite
+    // the vocabulary mirror, so files must not interleave.
+    fileParallelism: false,
   },
 });
