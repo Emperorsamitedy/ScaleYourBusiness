@@ -79,6 +79,10 @@ export const businessProfiles = pgTable("business_profiles", {
   last_material_change: timestamp("last_material_change", { withTimezone: true, mode: "string" }),
   /** Data-model version this profile was written against. */
   schema_version: text("schema_version").notNull(),
+  /** Owner opted in to anonymised cross-business benchmarking. Off until said otherwise. */
+  benchmark_consent: boolean("benchmark_consent").notNull().default(false),
+  /** System judgment that the profile has enough data to benchmark against. */
+  benchmark_eligible: boolean("benchmark_eligible").notNull().default(false),
 });
 
 // ---------------------------------------------------------------------------

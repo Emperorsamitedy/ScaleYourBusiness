@@ -1,0 +1,2 @@
+ALTER TABLE "business_profiles" ADD COLUMN "benchmark_consent" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "business_profiles" ADD COLUMN "benchmark_eligible" boolean DEFAULT false NOT NULL;
