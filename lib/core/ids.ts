@@ -18,6 +18,8 @@ export type FieldRecordId = Branded<"FieldRecordId">;
 export type ConnectorId = Branded<"ConnectorId">;
 /** An uploaded P&L, invoice, screenshot (§3.2). */
 export type DocumentId = Branded<"DocumentId">;
+/** One chat message — what a conversation-sourced fact points back at (conversation-channel.md §2). */
+export type UtteranceId = Branded<"UtteranceId">;
 
 export class InvalidIdError extends Error {
   constructor(message: string) {
@@ -37,3 +39,4 @@ export const fieldId = (value: string): FieldId => makeId("FieldId", value);
 export const fieldRecordId = (value: string): FieldRecordId => makeId("FieldRecordId", value);
 export const connectorId = (value: string): ConnectorId => makeId("ConnectorId", value);
 export const documentId = (value: string): DocumentId => makeId("DocumentId", value);
+export const utteranceId = (value: string): UtteranceId => makeId("UtteranceId", value);

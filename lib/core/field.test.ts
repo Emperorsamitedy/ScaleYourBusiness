@@ -7,7 +7,7 @@ import { confidence, InvalidConfidenceError } from "./confidence";
 import type { CreateFieldInput } from "./field";
 import { createField, FieldInvariantError } from "./field";
 import { FIELD_STATUSES, isFieldStatus, VALUE_BEARING_STATUSES } from "./field-status";
-import { connectorId, documentId, fieldId } from "./ids";
+import { connectorId, documentId, fieldId, utteranceId } from "./ids";
 import { InvalidISODateError, isoDateTime } from "./iso";
 import type { Money } from "./money";
 import { money } from "./money";
@@ -114,14 +114,15 @@ describe("every FieldStatus constructs and is enforced", () => {
 // ------------------------------------------------------------ source kinds
 
 describe("every SourceKind validates and is enforced", () => {
-  it("the runtime list carries all six kinds — 'conversation' arrives in Session C", () => {
-    expect(SOURCE_KINDS).toHaveLength(6);
+  it("the runtime list carries all seven kinds, conversation included (step 13a)", () => {
+    expect(SOURCE_KINDS).toHaveLength(7);
     for (const k of SOURCE_KINDS) expect(isSourceKind(k)).toBe(true);
-    expect(isSourceKind("conversation")).toBe(false);
+    expect(isSourceKind("telepathy")).toBe(false);
   });
 
   const valid: Record<(typeof SOURCE_KINDS)[number], SourceRef> = {
     owner_input: { kind: "owner_input" },
+    conversation: { kind: "conversation", utterance_id: utteranceId("utt_price_rise_july") },
     connector: { kind: "connector", connector_id: connectorId("shopify") },
     document: { kind: "document", document_id: documentId("doc_2026_pnl") },
     inferred: {
@@ -138,6 +139,12 @@ describe("every SourceKind validates and is enforced", () => {
       expect(validateSourceRef(valid[kind])).toEqual(valid[kind]);
     });
   }
+
+  it("conversation without its utterance is refused — disputes need the exact sentence", () => {
+    expect(() => validateSourceRef({ kind: "conversation", utterance_id: " " as never })).toThrow(
+      InvalidSourceRefError,
+    );
+  });
 
   it("connector without its id is refused", () => {
     expect(() => validateSourceRef({ kind: "connector", connector_id: " " as never })).toThrow(

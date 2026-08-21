@@ -44,7 +44,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session C — Conversation additions _(~4h · step 13a)_
 
-- [ ] **P0-16** Add `conversation` to `SourceKind`, `utterance_id` to `SourceRef`
+- [x] **P0-16** Add `conversation` to `SourceKind`, `utterance_id` to `SourceRef`
 - [ ] **P0-17** `Utterance` table and type, `UtteranceIntent` enum, `cost_eur` field
 - [ ] **P0-18** Confidence base values per §2.3 of `specs/conversation-channel.md`
 
