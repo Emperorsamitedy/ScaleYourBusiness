@@ -58,7 +58,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 - [x] **P0-20** The fourteen section types as columns/tables
 - [x] **P0-21** `Offer` with the three type-specific detail variants
 - [x] **P0-22** `Supplier`, `Channel`, `Competitor`
-- [ ] **P0-23** `StaffRole`, `CostItem`, `CustomerSegment`, `Goal`
+- [x] **P0-23** `StaffRole`, `CostItem`, `CustomerSegment`, `Goal`
 - [ ] **P0-24** `benchmark_consent` and `benchmark_eligible` on the profile
 - [ ] **P0-25** Round-trip test: create, write fields, read back, no loss
 

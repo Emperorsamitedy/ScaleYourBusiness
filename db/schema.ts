@@ -260,6 +260,74 @@ export const competitors = pgTable(
   (t) => [index("competitors_profile_idx").on(t.profile_id)],
 );
 
+export const staffRoles = pgTable(
+  "staff_roles",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    /** Structural per §5.4 — the owner's own role row, not an answer. */
+    is_owner: boolean("is_owner").notNull().default(false),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("staff_roles_profile_idx").on(t.profile_id)],
+);
+
+// CostSection (§5.5) splits fixed_monthly from variable as two lists —
+// structural membership, so a bucket column rather than a fact.
+export const costBucket = pgEnum("cost_bucket", ["fixed", "variable"]);
+
+export const costItems = pgTable(
+  "cost_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    bucket: costBucket("bucket").notNull(),
+    /** Structural per §5.5 CostItem — typed boolean, not a Field. */
+    scales_with_sales: boolean("scales_with_sales").notNull().default(false),
+    linked_offer_id: uuid("linked_offer_id").references(() => offers.id),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("cost_items_profile_idx").on(t.profile_id)],
+);
+
+export const customerSegments = pgTable(
+  "customer_segments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("customer_segments_profile_idx").on(t.profile_id)],
+);
+
+// GoalSection's entries as entities so goals can be referenced, achieved
+// and abandoned individually; attributes live under "goals.<id>.…".
+export const goals = pgTable(
+  "goals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("goals_profile_idx").on(t.profile_id)],
+);
+
 export const utteranceRole = pgEnum("utterance_role", ["owner", "system"]);
 
 export const utteranceIntent = pgEnum("utterance_intent", [
