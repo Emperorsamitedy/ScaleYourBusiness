@@ -46,7 +46,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 - [x] **P0-16** Add `conversation` to `SourceKind`, `utterance_id` to `SourceRef`
 - [x] **P0-17** `Utterance` table and type, `UtteranceIntent` enum, `cost_eur` field
-- [ ] **P0-18** Confidence base values per §2.3 of `specs/conversation-channel.md`
+- [x] **P0-18** Confidence base values per §2.3 of `specs/conversation-channel.md`
 
 **Done when:** the schema can hold a conversation-sourced fact. Nothing writes to it yet.
 
