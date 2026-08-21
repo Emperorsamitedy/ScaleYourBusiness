@@ -7,6 +7,22 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: syb
+          POSTGRES_PASSWORD: syb_ci
+          POSTGRES_DB: syb
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U syb -d syb"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://syb:syb_ci@127.0.0.1:5433/syb
     steps:
       - uses: actions/checkout@v4
 
@@ -26,6 +42,9 @@ jobs:
 
       - name: Format check
         run: npm run format:check
+
+      - name: Apply migrations
+        run: npm run db:migrate
 
       - name: Tests
         run: npm test

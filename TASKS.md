@@ -60,7 +60,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 - [x] **P0-22** `Supplier`, `Channel`, `Competitor`
 - [x] **P0-23** `StaffRole`, `CostItem`, `CustomerSegment`, `Goal`
 - [x] **P0-24** `benchmark_consent` and `benchmark_eligible` on the profile
-- [ ] **P0-25** Round-trip test: create, write fields, read back, no loss
+- [x] **P0-25** Round-trip test: create, write fields, read back, no loss
 
 **Done when:** a full profile round-trips through JSON without losing a single field or its provenance.
 
