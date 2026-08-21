@@ -30,7 +30,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 - [x] **P0-09** `Money` type: integer minor units + ISO currency. Add, subtract, multiply, format
 - [x] **P0-10** Money tests including the two-currency case that must refuse to total silently
-- [ ] **P0-11** `Quantity`, `DateRange`, `EnumValue` with `label_raw`
+- [x] **P0-11** `Quantity`, `DateRange`, `EnumValue` with `label_raw`
 - [ ] **P0-12** `FieldStatus` enum — all six values, documented meanings
 - [ ] **P0-13** `SourceRef` with all seven kinds, `derived_from`, `method`
 - [ ] **P0-14** `Field<T>` wrapper, generic over value type
