@@ -123,9 +123,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session K — Completeness scorer _(~8h · step 21)_
 
-- [ ] **P0-45** Weighted score, `core` heavy, `optional` near-zero
-- [ ] **P0-46** `core_complete` true when the 25 always-asked are answered or explicitly unknown
-- [ ] **P0-47** `blocking_gaps` list
+- [x] **P0-45** Weighted score, `core` heavy, `optional` near-zero
+- [x] **P0-46** `core_complete` true when the 25 always-asked are answered or explicitly unknown
+- [x] **P0-47** `blocking_gaps` list
 
 ---
 
