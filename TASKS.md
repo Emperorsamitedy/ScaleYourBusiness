@@ -105,9 +105,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session I — Condition evaluator _(~12h · step 19)_
 
-- [ ] **P0-39** All seven operators: `eq`, `neq`, `includes`, `gt/gte/lt/lte`, `answered/unanswered`, `and`, `or`, `not`
-- [ ] **P0-40** The `.length` accessor on array fields
-- [ ] **P0-41** Tests for each operator plus three levels of nesting
+- [x] **P0-39** All seven operators: `eq`, `neq`, `includes`, `gt/gte/lt/lte`, `answered/unanswered`, `and`, `or`, `not`
+- [x] **P0-40** The `.length` accessor on array fields
+- [x] **P0-41** Tests for each operator plus three levels of nesting
 
 > No `if (sells.includes('physical'))` anywhere in application code. Branching is data.
 
