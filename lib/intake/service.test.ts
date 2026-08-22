@@ -2,7 +2,7 @@
 // contract, proven without a browser.
 
 import "dotenv/config";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "../../db";
 import { accounts, businessProfiles, fieldRecords, offers } from "../../db/schema";
@@ -137,14 +137,15 @@ describe("the intake flow", () => {
           estimate: true,
         });
         expect(res.chip.provenance).toBe(`${q.id} · owner · estimate`);
-        const [row] = await db
+        // Scope to THIS profile's current records: other suites write the
+        // same field keys, and superseded history stays in the table.
+        const current = await db
           .select({ confidence: fieldRecords.confidence, note: fieldRecords.note })
           .from(fieldRecords)
-          .where(eq(fieldRecords.field_key, "revenue.monthly_revenue"));
-        if (row) {
-          expect(Number(row.confidence)).toBe(0.55);
-          expect(row.note).toBe("owner marked as estimate");
-        }
+          .where(and(eq(fieldRecords.profile_id, profileId), isNull(fieldRecords.superseded_at)));
+        const estimates = current.filter((r) => r.note === "owner marked as estimate");
+        expect(estimates).toHaveLength(1);
+        expect(Number(estimates[0]?.confidence)).toBe(0.55);
         return;
       }
       if (q.input_type === "entity_list") {

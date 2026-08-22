@@ -154,15 +154,15 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session N — Intake shell _(~30h · steps 26–27)_
 
-- [ ] **P0-59** Design tokens as CSS custom properties, exact values from the UX spec
-- [ ] **P0-60** Three-column stage layout, centre card, side columns
-- [ ] **P0-61** Question card: eyebrow, prompt, help, control slot, action row
-- [ ] **P0-62** Controls: text, long_text, number, money, boolean
-- [ ] **P0-63** Controls: single_select, multi_select
-- [ ] **P0-64** Control: file
-- [ ] **P0-65** "I don't know" as a visible link, writing `unknown`
-- [ ] **P0-66** Progress as `6 / 25 core`, never a percentage
-- [ ] **P0-67** Keyboard: Enter submits, Cmd/Ctrl-Enter from textarea, full tab order
+- [x] **P0-59** Design tokens as CSS custom properties, exact values from the UX spec
+- [x] **P0-60** Three-column stage layout, centre card, side columns
+- [x] **P0-61** Question card: eyebrow, prompt, help, control slot, action row
+- [x] **P0-62** Controls: text, long_text, number, money, boolean
+- [x] **P0-63** Controls: single_select, multi_select
+- [x] **P0-64** Control: file
+- [x] **P0-65** "I don't know" as a visible link, writing `unknown`
+- [x] **P0-66** Progress as `6 / 25 core`, never a percentage
+- [x] **P0-67** Keyboard: Enter submits, Cmd/Ctrl-Enter from textarea, full tab order
 
 ---
 
