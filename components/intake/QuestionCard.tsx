@@ -10,7 +10,8 @@ import type { AnswerAction, IntakeQuestion } from "@/lib/intake/types";
 import type { ControlChange } from "./controls/shared";
 import { BooleanControl } from "./controls/Boolean";
 import { DateControl } from "./controls/DateInput";
-import { EntityStubControl } from "./controls/EntityStub";
+import { EntityListControl } from "./controls/EntityList";
+import type { EntityRow } from "./controls/EntityList";
 import { FileStubControl } from "./controls/FileStub";
 import { LongTextControl } from "./controls/LongText";
 import { MoneyControl } from "./controls/Money";
@@ -24,7 +25,7 @@ interface QuestionCardProps {
   leaving: boolean;
   serverError: string | null;
   onAnswer: (action: AnswerAction) => void;
-  onEntityCount: (count: number) => void;
+  onEntityRows: (rows: EntityRow[]) => void;
   onClearError: () => void;
 }
 
@@ -49,12 +50,12 @@ export function QuestionCard({
   leaving,
   serverError,
   onAnswer,
-  onEntityCount,
+  onEntityRows,
   onClearError,
 }: QuestionCardProps) {
-  const [draft, setDraft] = useState<ControlChange>(() =>
-    question.input_type === "entity_list" ? { wire: 1 } : { wire: null },
-  );
+  const [draft, setDraft] = useState<ControlChange>({ wire: null });
+  const [entityRows, setEntityRows] = useState<EntityRow[] | null>(null);
+  const [entityValid, setEntityValid] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [mod, setMod] = useState("Ctrl");
 
@@ -75,7 +76,11 @@ export function QuestionCard({
   const record = (change: ControlChange): void => {
     if (leaving) return;
     if (question.input_type === "entity_list") {
-      onEntityCount(change.wire as number);
+      if (!entityValid || !entityRows) {
+        setLocalError("Fill in at least the first field of one row to record.");
+        return;
+      }
+      onEntityRows(entityRows);
       return;
     }
     if (change.wire === null || change.wire === undefined) {
@@ -109,7 +114,18 @@ export function QuestionCard({
       case "multi_select":
         return <MultiSelectControl {...props} />;
       case "entity_list":
-        return <EntityStubControl {...props} />;
+        return (
+          <EntityListControl
+            question={question}
+            onRowsChange={(rows) => {
+              setEntityRows(rows);
+              setEntityValid(rows.length > 0);
+              setLocalError(null);
+              onClearError();
+            }}
+            onRequestSubmit={() => record(draft)}
+          />
+        );
       case "file":
         return <FileStubControl question={question} />;
     }
@@ -134,7 +150,12 @@ export function QuestionCard({
           <button
             type="button"
             className="next"
-            disabled={leaving || draft.wire === null || draft.wire === undefined}
+            disabled={
+              leaving ||
+              (question.input_type === "entity_list"
+                ? !entityValid
+                : draft.wire === null || draft.wire === undefined)
+            }
             onClick={() => record(draft)}
           >
             Record answer

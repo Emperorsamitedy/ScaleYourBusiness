@@ -17,6 +17,7 @@ import {
   getIntakeState,
   IntakeError,
   submitAnswer,
+  submitEntities,
   submitEntityCount,
 } from "../../../lib/intake/service";
 import type { AnswerAction } from "../../../lib/intake/types";
@@ -90,9 +91,21 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await resolveSession();
     if (!session) return NextResponse.json({ error: "no intake session" }, { status: 404 });
-    const body = (await request.json()) as { question_id?: string; count?: number };
-    if (!body.question_id || typeof body.count !== "number") {
-      return NextResponse.json({ error: "question_id and count required" }, { status: 400 });
+    const body = (await request.json()) as {
+      question_id?: string;
+      count?: number;
+      rows?: Record<string, unknown>[];
+    };
+    if (!body.question_id) {
+      return NextResponse.json({ error: "question_id required" }, { status: 400 });
+    }
+    if (Array.isArray(body.rows)) {
+      return NextResponse.json(
+        await submitEntities(session.account_id, session.profile_id, body.question_id, body.rows),
+      );
+    }
+    if (typeof body.count !== "number") {
+      return NextResponse.json({ error: "rows or count required" }, { status: 400 });
     }
     return NextResponse.json(
       await submitEntityCount(session.account_id, session.profile_id, body.question_id, body.count),

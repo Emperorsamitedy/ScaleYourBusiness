@@ -168,9 +168,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session O — Entity list sub-form _(~20h · step 28)_
 
-- [ ] **P0-68** Repeating row form inside the question card
-- [ ] **P0-69** Core sub-fields shown, "Add detail" reveals the rest
-- [ ] **P0-70** Collapses to one chip: "4 products · 3 with costs", expands on click
+- [x] **P0-68** Repeating row form inside the question card
+- [x] **P0-69** Core sub-fields shown, "Add detail" reveals the rest
+- [x] **P0-70** Collapses to one chip: "4 products · 3 with costs", expands on click
 - [ ] **P0-71** Timed test: five products entered in under 90 seconds
 
 > The most complex control in the intake and the most likely abandonment point. Give it real time.

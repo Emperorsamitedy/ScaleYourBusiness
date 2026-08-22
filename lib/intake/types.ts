@@ -28,6 +28,8 @@ export interface IntakeQuestion {
   currency: string;
   /** For entity_list: which entity schema (offer, supplier, …). */
   entity_schema: string | null;
+  /** For entity_list: the row sub-fields (P0-68). */
+  entity_fields?: EntityField[];
 }
 
 export interface IntakeChip {
@@ -39,6 +41,18 @@ export interface IntakeChip {
   provenance: string;
   /** solid = recorded fact, hollow = gap. */
   dot: "solid" | "hollow";
+  /** Per-row lines for entity chips — expands on click (P0-70). */
+  detail?: string[];
+}
+
+/** One sub-field of an entity row (P0-68/69). */
+export interface EntityField {
+  key: string;
+  prompt: string;
+  input_type: IntakeQuestion["input_type"];
+  options: IntakeOption[];
+  priority: "core" | "important" | "deep" | "optional";
+  currency: string;
 }
 
 export interface IntakeProgress {

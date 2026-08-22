@@ -113,10 +113,10 @@ export function IntakeStage() {
     [phase, question, submit],
   );
 
-  const handleEntityCount = useCallback(
-    (count: number): void => {
+  const handleEntityRows = useCallback(
+    (rows: Record<string, unknown>[]): void => {
       if (phase !== "answering" || !question) return;
-      void submit("PATCH", { question_id: question.id, count });
+      void submit("PATCH", { question_id: question.id, rows });
     },
     [phase, question, submit],
   );
@@ -162,7 +162,7 @@ export function IntakeStage() {
               leaving={phase === "leaving"}
               serverError={serverError}
               onAnswer={handleAnswer}
-              onEntityCount={handleEntityCount}
+              onEntityRows={handleEntityRows}
               onClearError={clearServerError}
             />
           )}

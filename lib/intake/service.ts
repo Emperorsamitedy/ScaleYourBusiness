@@ -35,6 +35,7 @@ import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
 import { computeCompleteness } from "../scorer/completeness";
 import { vocabularyCodes } from "../vocab/validate";
+import { entityChipDisplay, loadEntityFields, writeEntityRows } from "./entities";
 import type {
   AnswerAction,
   AnswerResponse,
@@ -148,7 +149,7 @@ async function toIntakeQuestion(
   currency: string,
 ): Promise<IntakeQuestion> {
   const spec = q.input as InputSpec;
-  return {
+  const base: IntakeQuestion = {
     id: q.id,
     priority: q.priority,
     cost: q.cost,
@@ -160,6 +161,14 @@ async function toIntakeQuestion(
     currency,
     entity_schema: spec.entity_schema ?? null,
   };
+  if (spec.type === "entity_list" && spec.entity_schema) {
+    base.entity_fields = await loadEntityFields(
+      spec.entity_schema,
+      (s) => optionsFor(profileId, s),
+      currency,
+    );
+  }
+  return base;
 }
 
 function progressOf(
@@ -401,6 +410,63 @@ const ENTITY_TABLES: Record<string, typeof suppliers> = {
   customer_segment: customerSegments as unknown as typeof suppliers,
   goal: goals as unknown as typeof suppliers,
 };
+
+/**
+ * The real entity sub-form handler — Session O (P0-68..70). Rows of
+ * { fieldKey: wire } become spine records + per-entity field records; the
+ * chip collapses to "4 products · 3 with costs" with expandable detail.
+ */
+export async function submitEntities(
+  accountId: string,
+  profileId: string,
+  questionId: string,
+  rows: readonly Record<string, unknown>[],
+): Promise<AnswerResponse> {
+  if (!Array.isArray(rows) || rows.length < 1 || rows.length > 20) {
+    throw new IntakeError("between 1 and 20 rows required", 422);
+  }
+  const applicable = await applicableQuestions(profileId);
+  const view = await loadRecords(profileId);
+  const skippedIds = new Set(
+    applicable.filter((q) => view.skippedKeys.has(q.writes_to)).map((q) => q.id),
+  );
+  const selection = selectCandidates(applicable, view.responded, skippedIds);
+  const question = selection.candidates.find((q) => q.id === questionId);
+  if (!question) throw new IntakeError(`question ${questionId} is not currently askable`, 409);
+  const spec = question.input as InputSpec;
+  if (spec.type !== "entity_list" || !spec.entity_schema) {
+    throw new IntakeError("not an entity question", 422);
+  }
+  const currency = await reportingCurrency(profileId);
+  const fields = await loadEntityFields(
+    spec.entity_schema,
+    (s) => optionsFor(profileId, s),
+    currency,
+  );
+  try {
+    const result = await writeEntityRows({
+      profileId,
+      question,
+      schemaKey: spec.entity_schema,
+      fields,
+      rows,
+      currency,
+    });
+    const chip: IntakeChip = {
+      question_id: question.id,
+      prompt: ((question.prompt as Record<string, string> | null)?.en ?? "").trim(),
+      display: entityChipDisplay(result),
+      provenance: `${question.id} · owner · stated`,
+      dot: "solid",
+      detail: result.detail,
+    };
+    return { chip, state: await getIntakeState(accountId, profileId) };
+  } catch (error) {
+    const status = (error as { status?: number }).status;
+    if (status === 422) throw new IntakeError((error as Error).message, 422);
+    throw error;
+  }
+}
 
 /**
  * Interim entity_list handler for Session N: create `count` entities and

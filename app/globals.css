@@ -572,3 +572,76 @@ input[type="number"].field::-webkit-inner-spin-button {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- entity sub-form (Session O, P0-68..70) ---------- */
+.entity-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.entity-row {
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 12px 14px 8px;
+}
+.entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 6px 16px;
+}
+.entity-detail {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--rule);
+}
+.entity-row-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+}
+.add-row {
+  align-self: flex-start;
+  text-decoration: none;
+  font-weight: 500;
+}
+.subfield-select {
+  appearance: none;
+  cursor: pointer;
+  background: transparent;
+}
+.subfield-money {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.subfield-money .field {
+  flex: 1;
+}
+.currency-suffix {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--slate);
+}
+.opts-compact {
+  gap: 5px;
+}
+.opt-compact {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.chip-expandable {
+  width: 100%;
+  cursor: pointer;
+}
+.chip-expandable[aria-expanded="true"] {
+  border-color: var(--slate);
+}
+.chip-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 5px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--slate);
+}
