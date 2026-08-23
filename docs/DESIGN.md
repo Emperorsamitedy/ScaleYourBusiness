@@ -16,6 +16,8 @@ colors:
   surface: "#0A0B0D"
   surface-container: "#131418"
   surface-container-high: "#1A1C21"
+  surface-glass: "#1314189E"
+  surface-glass-strong: "#1A1C21B8"
   on-surface: "#F2F3F5"
   on-surface-variant: "#9BA1AB"
   outline: "#2A2C33"
@@ -170,7 +172,7 @@ An 8px base unit governs everything; the named sequence is xs 4 → sm 8 → md 
 
 ## Elevation & Depth
 
-Depth is light, not shadow. Four devices, in order of preference: (1) tonal layering — `surface` → `surface-container` → `surface-container-high`; (2) 1px hairline borders in `outline` / `outline-variant`; (3) the ember edge — a 1px border whose color blends toward `primary-deep` on one flank, reserved for the single focal element on screen; (4) ambient glow — large, very-low-opacity radial gradients of `primary-deep` and `secondary` bleeding from the stage corners, fixed to the page background, never attached to components. Drop shadows do not exist in this system. In light mode, the glows drop out entirely and hairlines carry all depth.
+Depth is light, not shadow. Five devices, in order of preference: (1) tonal layering — `surface` → `surface-container` → `surface-container-high`; (2) glass — surfaces that sit over the glowing stage use `surface-glass` / `surface-glass-strong` (the 8-digit hex encodes the alpha) with `backdrop-filter: blur(18px) saturate(1.25)`, so the ambient light reads through every card; (3) 1px hairline borders in `outline` / `outline-variant`; (4) the ember edge — a 1px border whose color blends toward `primary-deep` on one flank, reserved for the single focal element on screen; (5) ambient glow — large, very-low-opacity radial gradients of `primary-deep` and `secondary` bleeding from the stage corners, fixed to the page background and drifting on a 26–32s cycle, never attached to components. Interactive elements may lift 1px on hover with a soft ember glow — glow is light and therefore permitted; drop shadows are not and do not exist in this system. In light mode, the glows and glass drop out entirely and hairlines carry all depth.
 
 ## Shapes
 

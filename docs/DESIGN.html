@@ -22,6 +22,8 @@
     --color-surface: #0A0B0D;
     --color-surface-container: #131418;
     --color-surface-container-high: #1A1C21;
+    --color-surface-glass: #1314189E;
+    --color-surface-glass-strong: #1A1C21B8;
     --color-on-surface: #F2F3F5;
     --color-on-surface-variant: #9BA1AB;
     --color-outline: #2A2C33;
@@ -232,12 +234,13 @@
 
 <section id="elevation">
   <h2>Elevation</h2>
-  <p class="lede">Depth is light, not shadow: tonal layers, hairlines, one ember edge, ambient glow. Drop shadows do not exist here.</p>
+  <p class="lede">Depth is light, not shadow: tonal layers, glass over the glowing stage, hairlines, one ember edge, ambient glow. Drop shadows do not exist here.</p>
   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
     <div class="elev e1"><h4>1 · Stage</h4><p>surface + fixed ambient glows (dark only)</p></div>
-    <div class="elev e2"><h4>2 · Card</h4><p>surface-container + outline-variant hairline</p></div>
-    <div class="elev e3"><h4>3 · Raised</h4><p>surface-container-high + outline hairline</p></div>
-    <div class="elev e4"><h4>4 · Ember edge</h4><p>gradient hairline — the one focal element</p></div>
+    <div class="elev" style="background:var(--color-surface-glass);backdrop-filter:blur(18px) saturate(1.25);-webkit-backdrop-filter:blur(18px) saturate(1.25);border:1px solid var(--color-outline-variant)"><h4>2 · Glass</h4><p>surface-glass + blur(18px) — light reads through</p></div>
+    <div class="elev e2"><h4>3 · Card</h4><p>surface-container + outline-variant hairline</p></div>
+    <div class="elev e3"><h4>4 · Raised</h4><p>surface-container-high + outline hairline</p></div>
+    <div class="elev e4"><h4>5 · Ember edge</h4><p>gradient hairline — the one focal element</p></div>
   </div>
 </section>
 

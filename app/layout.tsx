@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Bricolage_Grotesque, IBM_Plex_Mono, Public_Sans } from "next/font/google";
+import { IBM_Plex_Mono, Schibsted_Grotesk } from "next/font/google";
 import "./globals.css";
 
-// Type per specs/ux-spec-v1.md §2 — display / body / data (P0-59).
-const display = Bricolage_Grotesque({
+// Type per docs/DESIGN.md (Ember Grid): Schibsted Grotesk for everything
+// human, IBM Plex Mono for machine truth — provenance, ids, timestamps.
+const sans = Schibsted_Grotesk({
   subsets: ["latin"],
   weight: "variable",
-  axes: ["opsz"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const body = Public_Sans({
-  subsets: ["latin"],
-  weight: "variable",
-  variable: "--font-body",
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -33,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );

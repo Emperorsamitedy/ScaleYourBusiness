@@ -23,25 +23,29 @@ This is a real constraint, not a stylistic preference. In a product that will ev
 
 ### Colour
 
+Ember Grid (see `docs/DESIGN.md`, the token source of truth): dark canonical, glass surfaces, one amber ember per screen. This supersedes the v1 light-paper palette; `specs/intake-mockup.html` remains as historical reference for layout, not colour.
+
 | Token | Value | Use |
 |---|---|---|
-| `--paper` | `#EBEDEA` | Page background. Cool pale graphite-green, not cream |
-| `--card` | `#F6F7F5` | Card and surface fill |
-| `--ink` | `#10201B` | Primary text, primary buttons |
-| `--slate` | `#64716C` | Secondary text, metadata |
-| `--rule` | `#CFD5D1` | Hairlines, borders, inactive states |
-| `--signal` | `#1B3FCC` | **Decisions only.** Approvals, contradictions, things awaiting the owner |
-| `--signal-wash` | `#E4E8FA` | Background for decision surfaces |
-| `--settled` | `#3E6B57` | Confirmed and recorded — used only as a 5px dot, never as a fill |
+| `--stage` | `#0A0B0D` | Page background — near-black, with faint drifting amber/blue ambient glows |
+| `--glass` | `rgba(19,20,24,.62)` | Card fill — translucent, `backdrop-filter: blur(18px) saturate(1.25)` |
+| `--glass-strong` | `rgba(26,28,33,.72)` | Inputs, raised interiors |
+| `--raised` | `#1A1C21` | Solid raised layer, hover fills |
+| `--ink` | `#F2F3F5` | Primary text |
+| `--mut` | `#9BA1AB` | Secondary text, metadata |
+| `--hair` / `--hair-2` | `rgba(255,255,255,.07/.12)` | Hairlines, borders, inactive states |
+| `--ember` | `#F59B4B` | **The one accent.** The advancing action, focus, live data; deep end `#E1560F` for gradients |
+| `--whisper` | `#4C7DF0` | Ambient glows and the focal-CTA gradient only — never body text |
+| `--settled` | `#34D399` | Confirmed and recorded — used only as a 5px dot, never as a fill |
+| `--err` | `#FF7A72` | Validation, stated plainly — never alarm styling |
 
-The palette deliberately avoids the warm cream and terracotta that reads as generic, and avoids near-black with a bright accent, which reads as a developer tool. Cool graphite-green paper suggests ledger stock and instrument panels — the world this product actually lives in — while staying quiet enough to sit behind text for an hour.
+The stage is a dark instrument panel, not a dashboard casino: depth comes from tonal layers, hairlines and light (glow), never drop shadows; the ember appears exactly once per screen; and nothing may ever read as crypto-casino — no 3D coins, confetti or pulsing glow spam.
 
 ### Type
 
 | Role | Face | Use |
 |---|---|---|
-| Display | Bricolage Grotesque, 500–600 | Questions, headings, report titles |
-| Body | Public Sans, 400–500 | All reading text, controls |
+| Display + Body | Schibsted Grotesk, 400–700 | One family for everything human — questions, headings, reading text, controls |
 | Data | IBM Plex Mono, 400–500 | Question IDs, confidence, sources, timestamps |
 
 The mono layer is the structural device and it encodes something true. Every fact in this system carries provenance and confidence, so every fact in the interface carries a small mono line stating where it came from. `1.4 · owner · estimate` under an answer is not decoration — it is the `SourceRef` from the data model, made visible. This is what makes the product feel like an instrument rather than a chatbot, and it is why the owner can trust the report: they can see which parts rest on their own guesses.
@@ -50,11 +54,11 @@ Scale: display 27/23px, headings 26/17px, body 16/15/14px, help 14px, mono 12/11
 
 ### Structure
 
-Radius 3px on controls, 5px on cards — nearly square, because rounded corners read as consumer-friendly and this product's credibility rests on looking like a serious instrument. Hairlines at 1px `--rule`. Grid gutter 28px, card padding 26px desktop / 18px mobile.
+Rectangles hold information, pills are pressed: chips 12px, entity rows 16px, the focal card 24px with a gradient "ember edge" hairline (the one gradient border on screen); every button, select-chip and toggle is a full pill with a ≥44px touch target. Hairlines at 1px `--hair`. Grid gutter 28px, card padding 30px desktop / 20px mobile, stage max-width 1400px.
 
 ### Motion
 
-Two easings only: `cubic-bezier(.2,.7,.3,1)` for everything, 240–380ms. Motion exists to show causation — where an answer went, where a proposal came from — never as flourish. Every animation sits behind `prefers-reduced-motion`.
+One easing: `cubic-bezier(.2,.7,.3,1)` for everything, 240–380ms — depart 240, settle 340, rise 380. Motion exists to show causation — where an answer went, where a proposal came from — never as flourish. Around it, ambience: the two corner glows drift on a 26–32s cycle, the on-deck card floats ±5px, buttons lift 1px on hover with a soft ember glow (light, not shadow), and the sticky top bar blurs the content scrolling beneath it. Every animation sits behind `prefers-reduced-motion`.
 
 ---
 

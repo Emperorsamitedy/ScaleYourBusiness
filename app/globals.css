@@ -1,22 +1,40 @@
-/* Intake UI — global styles. Tokens per specs/ux-spec-v1.md §2, class
-   vocabulary per specs/intake-mockup.html (the visual ground truth). */
+/* Intake UI — global styles. Ember Grid glass, per docs/DESIGN.md and
+   specs/ux-spec-v1.md §2. Class vocabulary unchanged from Session N.
+
+   The look: "expensive fintech at night, run by a Swiss modernist."
+   Near-black stage with drifting ambient glows; translucent blurred
+   cards on hairlines; one amber ember per screen (the current action);
+   depth is light, never drop shadow. Motion shows causation:
+   depart 240ms → settle 340ms → rise 380ms, one easing. */
 
 :root {
-  --paper: #ebedea;
-  --card: #f6f7f5;
-  --ink: #10201b;
-  --slate: #64716c;
-  --rule: #cfd5d1;
-  --signal: #1b3fcc;
-  --signal-wash: #e4e8fa;
-  --settled: #3e6b57;
-  --display: var(--font-display), system-ui, sans-serif;
-  --body: var(--font-body), system-ui, sans-serif;
+  /* Ember Grid — dark canonical (docs/DESIGN.md) */
+  --stage: #0a0b0d;
+  --card-solid: #131418;
+  --raised: #1a1c21;
+  --glass: rgba(19, 20, 24, 0.62);
+  --glass-strong: rgba(26, 28, 33, 0.72);
+  --ink: #f2f3f5;
+  --mut: #9ba1ab;
+  --hair: rgba(255, 255, 255, 0.07);
+  --hair-2: rgba(255, 255, 255, 0.12);
+  --ember: #f59b4b;
+  --ember-bright: #ffb25c;
+  --ember-deep: #e1560f;
+  --on-ember: #1c1006;
+  --whisper: #4c7df0;
+  --settled: #34d399;
+  --err: #ff7a72;
+  --sans: var(--font-sans), system-ui, sans-serif;
   --mono: var(--font-mono), ui-monospace, monospace;
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --blur: blur(18px) saturate(1.25);
 }
 * {
   box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
 }
 html,
 body {
@@ -24,13 +42,75 @@ body {
   height: 100%;
 }
 body {
-  background: var(--paper);
+  background: var(--stage);
   color: var(--ink);
-  font-family: var(--body);
-  font-size: 16px;
+  font-family: var(--sans);
+  font-size: 15px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
+/* Ambient glows — fixed light sources that drift very slowly. The one
+   place the blue whisper is allowed to exist. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+}
+body::before {
+  width: 720px;
+  height: 480px;
+  left: -180px;
+  top: -160px;
+  background: radial-gradient(closest-side, rgba(225, 86, 15, 0.17), transparent);
+  animation: drift-a 26s var(--ease) infinite alternate;
+}
+body::after {
+  width: 820px;
+  height: 560px;
+  right: -220px;
+  bottom: -200px;
+  background: radial-gradient(closest-side, rgba(76, 125, 240, 0.12), transparent);
+  animation: drift-b 32s var(--ease) infinite alternate;
+}
+@keyframes drift-a {
+  to {
+    transform: translate(60px, 40px) scale(1.08);
+  }
+}
+@keyframes drift-b {
+  to {
+    transform: translate(-70px, -50px) scale(1.06);
+  }
+}
+
+::selection {
+  background: rgba(245, 155, 75, 0.28);
+}
+::placeholder {
+  color: rgba(155, 161, 171, 0.55);
+}
+/* quiet dark scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--raised) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--raised);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -43,10 +123,11 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Keyboard focus — --signal ring on every interactive element (P0-67). */
+/* Keyboard focus — ember ring on every interactive element (P0-67). */
 :focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--ember);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ---------- frame ---------- */
@@ -56,31 +137,48 @@ body {
   flex-direction: column;
 }
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: flex;
   align-items: baseline;
   gap: 16px;
-  padding: 18px 28px;
-  border-bottom: 1px solid var(--rule);
+  padding: 16px 28px;
+  background: rgba(10, 11, 13, 0.55);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border-bottom: 1px solid var(--hair);
 }
 .wordmark {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: 17px;
+  font-weight: 700;
+  font-size: 16px;
   letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.wordmark::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--ember), var(--ember-deep));
 }
 .topbar .subtitle {
   font-size: 13px;
-  color: var(--slate);
+  color: var(--mut);
 }
 .topbar .meta {
   margin-left: auto;
   font-family: var(--mono);
-  font-size: 12px;
-  color: var(--slate);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--mut);
   font-variant-numeric: tabular-nums;
 }
 .counter-swap {
   display: inline-block;
+  color: var(--ember);
   animation: countswap 0.3s var(--ease) both;
 }
 @keyframes countswap {
@@ -94,31 +192,37 @@ body {
   }
 }
 .progress-rail {
-  height: 2px;
-  background: var(--rule);
-  position: relative;
+  position: sticky;
+  top: 53px;
+  z-index: 30;
+  height: 1px;
+  background: var(--hair);
 }
 .progress-fill {
-  height: 2px;
-  background: var(--ink);
+  height: 1px;
+  background: linear-gradient(90deg, var(--ember-deep), var(--ember));
   width: 0;
   transition: width 0.5s var(--ease);
+  box-shadow: 0 0 12px rgba(245, 155, 75, 0.55);
 }
 
 .stage {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr minmax(360px, 600px) 1fr;
+  grid-template-columns: 1fr minmax(360px, 620px) 1fr;
   gap: 28px;
-  padding: 32px 28px 48px;
+  padding: 40px 28px 64px;
   align-items: start;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ---------- side columns ---------- */
 .col {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
 }
 .col-head {
@@ -126,28 +230,36 @@ body {
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--slate);
-  padding: 0 2px 6px;
-  border-bottom: 1px solid var(--rule);
+  color: var(--mut);
+  padding: 0 2px 8px;
+  border-bottom: 1px solid var(--hair);
   margin-bottom: 4px;
 }
 .chip {
-  background: var(--card);
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  padding: 9px 11px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  padding: 0;
   text-align: left;
   font: inherit;
   color: inherit;
   animation: settle 0.34s var(--ease) both;
+  transition:
+    border-color 0.24s var(--ease),
+    transform 0.24s var(--ease),
+    background 0.24s var(--ease);
 }
 .chip:hover {
-  border-color: var(--slate);
+  border-color: var(--hair-2);
+  background: var(--glass-strong);
+  transform: translateY(-1px);
 }
 .chip .q {
   display: block;
   font-size: 12px;
-  color: var(--slate);
+  color: var(--mut);
   line-height: 1.35;
   margin-bottom: 3px;
 }
@@ -161,8 +273,9 @@ body {
 .chip .tag {
   font-family: var(--mono);
   font-size: 10px;
-  color: var(--slate);
-  margin-top: 6px;
+  letter-spacing: 0.06em;
+  color: var(--mut);
+  margin-top: 7px;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -175,13 +288,13 @@ body {
   flex: none;
 }
 .dot.thin {
-  background: var(--rule);
-  border: 1px solid var(--slate);
+  background: transparent;
+  border: 1px solid var(--mut);
 }
 @keyframes settle {
   from {
     opacity: 0;
-    transform: translateY(-10px) scale(0.97);
+    transform: translateY(-12px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -193,20 +306,49 @@ body {
 .centre {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   padding-top: 6px;
 }
+/* The focal card: glass with the ember edge — the one gradient hairline
+   on screen. The ring lives on a masked pseudo-element so the blur on
+   the card itself stays intact. */
 .card {
-  background: var(--card);
-  border: 1px solid var(--rule);
-  border-radius: 5px;
-  padding: 26px 26px 22px;
+  position: relative;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid transparent;
+  border-radius: 24px;
+  padding: 30px 30px 26px;
   animation: rise 0.38s var(--ease) both;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(225, 86, 15, 0.65),
+    rgba(255, 255, 255, 0.09) 42%,
+    rgba(255, 255, 255, 0.07) 62%,
+    rgba(76, 125, 240, 0.45)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(26px);
+    transform: translateY(28px) scale(0.99);
   }
   to {
     opacity: 1;
@@ -219,73 +361,72 @@ body {
 @keyframes depart {
   to {
     opacity: 0;
-    transform: translateY(-14px) scale(0.985);
+    transform: translateY(-16px) scale(0.985);
   }
 }
 
 .eyebrow {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--slate);
+  letter-spacing: 0.06em;
+  color: var(--ember);
   display: flex;
   gap: 10px;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 .eyebrow .tier {
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  padding: 1px 5px;
+  color: var(--mut);
+  border: 1px solid var(--hair-2);
+  border-radius: 999px;
+  padding: 2px 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
 }
 .prompt {
-  font-family: var(--display);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 27px;
-  line-height: 1.22;
+  line-height: 1.2;
   letter-spacing: -0.015em;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
 }
 .help {
   font-size: 14px;
-  color: var(--slate);
-  margin: 0 0 20px;
-  max-width: 46ch;
+  color: var(--mut);
+  margin: 0 0 22px;
+  max-width: 50ch;
 }
 
 .field {
   width: 100%;
   font: inherit;
   color: inherit;
-  background: transparent;
-  border: 0;
-  border-bottom: 1.5px solid var(--rule);
-  border-radius: 0;
-  padding: 9px 2px;
+  background: var(--glass-strong);
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  padding: 12px 16px;
   outline: none;
+  transition:
+    border-color 0.24s var(--ease),
+    box-shadow 0.24s var(--ease);
 }
 .field:focus {
-  border-bottom-color: var(--ink);
+  border-color: var(--ember);
+  box-shadow: 0 0 0 3px rgba(245, 155, 75, 0.22);
 }
 .field:focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 2px;
-}
-.field::placeholder {
-  color: #9aa5a0;
+  outline: none;
 }
 textarea.field {
   resize: vertical;
-  min-height: 80px;
-  border: 1.5px solid var(--rule);
-  border-radius: 4px;
-  padding: 11px;
-}
-textarea.field:focus {
-  border-color: var(--ink);
+  min-height: 88px;
+  line-height: 1.55;
 }
 input[type="date"].field {
   max-width: 240px;
   font-variant-numeric: tabular-nums;
+  color-scheme: dark;
 }
 input[type="number"].field {
   appearance: textfield;
@@ -300,28 +441,31 @@ input[type="number"].field::-webkit-inner-spin-button {
 /* money */
 .money-wrap {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
 }
 .money-wrap .field {
   flex: 1;
+  font-variant-numeric: tabular-nums;
 }
 .money-cur {
   font-family: var(--mono);
-  font-size: 13px;
-  color: var(--slate);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--ink);
   flex: none;
 }
 .estimate-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 .mono-note {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--slate);
+  letter-spacing: 0.06em;
+  color: var(--mut);
   animation: fadein 0.24s var(--ease) both;
 }
 
@@ -334,57 +478,65 @@ input[type="number"].field::-webkit-inner-spin-button {
 .opt {
   font: inherit;
   font-size: 14px;
-  background: transparent;
+  background: var(--glass-strong);
   color: inherit;
   cursor: pointer;
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  padding: 8px 13px;
-  transition: 0.14s var(--ease);
+  border: 1px solid var(--hair-2);
+  border-radius: 999px;
+  padding: 9px 16px;
+  transition:
+    border-color 0.18s var(--ease),
+    background 0.18s var(--ease),
+    color 0.18s var(--ease),
+    transform 0.18s var(--ease);
 }
 .opt:hover {
-  border-color: var(--slate);
+  border-color: var(--mut);
+  transform: translateY(-1px);
 }
 .opt[aria-pressed="true"] {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--card);
+  border-color: var(--ember);
+  background: var(--ember);
+  color: var(--on-ember);
+  font-weight: 600;
   /* the 130ms confirm beat: the pressed state must render fully
      before the card departs, so the fill is near-instant */
   transition-duration: 0.06s;
 }
 .opt:focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--ember);
   outline-offset: 2px;
 }
 
 /* file / entity interim controls */
 .filestub {
-  border: 1.5px dashed var(--rule);
-  border-radius: 5px;
-  padding: 26px 20px;
+  border: 1.5px dashed var(--hair-2);
+  border-radius: 16px;
+  padding: 28px 20px;
   text-align: center;
-  color: var(--slate);
+  color: var(--mut);
   font-size: 14px;
 }
 .filestub .sub {
   display: block;
   font-family: var(--mono);
   font-size: 11px;
+  letter-spacing: 0.06em;
   margin-top: 6px;
 }
 .stepper-label {
   display: block;
   font-size: 14px;
-  color: var(--slate);
+  color: var(--mut);
   margin-bottom: 10px;
 }
 .stepper {
   display: inline-flex;
   align-items: stretch;
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  background: transparent;
+  border: 1px solid var(--hair-2);
+  border-radius: 999px;
+  background: var(--glass-strong);
+  overflow: hidden;
 }
 .stepper button {
   font: inherit;
@@ -394,14 +546,15 @@ input[type="number"].field::-webkit-inner-spin-button {
   border: 0;
   color: var(--ink);
   cursor: pointer;
-  padding: 8px 14px;
+  padding: 9px 16px;
+  transition: background 0.18s var(--ease);
 }
 .stepper button:disabled {
-  color: var(--rule);
+  color: rgba(155, 161, 171, 0.35);
   cursor: not-allowed;
 }
 .stepper button:hover:not(:disabled) {
-  background: var(--paper);
+  background: var(--raised);
 }
 .stepper input {
   font-family: var(--mono);
@@ -410,8 +563,8 @@ input[type="number"].field::-webkit-inner-spin-button {
   text-align: center;
   width: 3.2ch;
   border: 0;
-  border-left: 1px solid var(--rule);
-  border-right: 1px solid var(--rule);
+  border-left: 1px solid var(--hair);
+  border-right: 1px solid var(--hair);
   background: transparent;
   color: inherit;
   padding: 8px 4px;
@@ -425,7 +578,7 @@ input[type="number"].field::-webkit-inner-spin-button {
 }
 .stub-note {
   font-size: 13px;
-  color: var(--slate);
+  color: var(--mut);
   margin: 12px 0 0;
 }
 
@@ -434,19 +587,35 @@ input[type="number"].field::-webkit-inner-spin-button {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 22px;
+  margin-top: 24px;
   flex-wrap: wrap;
 }
+/* The ember: one per screen, on the advancing action. Hover lifts and
+   brightens; the glow is light, not shadow. */
 .next {
   font: inherit;
-  font-weight: 500;
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  background: var(--ink);
-  color: var(--card);
-  border: 1px solid var(--ink);
-  border-radius: 3px;
-  padding: 9px 20px;
+  background: var(--ember);
+  color: var(--on-ember);
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 24px;
+  min-height: 44px;
+  transition:
+    background 0.24s var(--ease),
+    transform 0.24s var(--ease),
+    box-shadow 0.24s var(--ease);
+}
+.next:hover:not(:disabled) {
+  background: var(--ember-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(245, 155, 75, 0.35);
+}
+.next:active:not(:disabled) {
+  transform: translateY(0);
 }
 .next:disabled {
   opacity: 0.32;
@@ -454,48 +623,70 @@ input[type="number"].field::-webkit-inner-spin-button {
 }
 .ghost {
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   background: transparent;
-  border: 0;
-  color: var(--slate);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  padding: 4px;
-}
-.ghost:hover {
+  border: 1px solid var(--hair-2);
+  border-radius: 999px;
   color: var(--ink);
+  cursor: pointer;
+  padding: 11px 20px;
+  min-height: 44px;
+  transition:
+    background 0.24s var(--ease),
+    border-color 0.24s var(--ease),
+    transform 0.24s var(--ease);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--raised);
+  transform: translateY(-1px);
 }
 .ghost[aria-pressed="true"] {
-  color: var(--ink);
+  border-color: var(--ember);
+  color: var(--ember);
 }
 .ghost.quiet {
-  font-size: 13px;
-  text-decoration: none;
+  border: 0;
+  min-height: 0;
+  padding: 6px 8px;
+  font-weight: 400;
+  color: var(--mut);
 }
-.ghost.quiet:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.ghost.quiet:hover:not(:disabled) {
+  background: transparent;
+  color: var(--ink);
+  transform: none;
 }
 .hint {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--slate);
+  letter-spacing: 0.06em;
+  color: var(--mut);
   margin-left: auto;
 }
 .err {
-  color: var(--signal);
+  color: var(--err);
   font-size: 13px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 /* ---------- on-deck ---------- */
 .ondeck {
-  border: 1px dashed var(--rule);
-  border-radius: 5px;
+  border: 1px dashed var(--hair-2);
+  border-radius: 16px;
   padding: 14px 18px;
   font-size: 13px;
-  color: var(--slate);
+  color: var(--mut);
+  animation: float 7s ease-in-out infinite alternate;
+}
+@keyframes float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-5px);
+  }
 }
 .ondeck .lbl {
   font-family: var(--mono);
@@ -520,26 +711,26 @@ input[type="number"].field::-webkit-inner-spin-button {
 
 /* ---------- done ---------- */
 .done h2 {
-  font-family: var(--display);
   font-size: 26px;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 10px;
   letter-spacing: -0.015em;
 }
 .done p {
   font-size: 15px;
-  color: var(--slate);
+  color: var(--mut);
   max-width: 48ch;
   margin: 0;
 }
 .readout {
   font-family: var(--mono);
   font-size: 12px;
-  color: var(--slate);
-  border-top: 1px solid var(--rule);
-  margin-top: 18px;
-  padding-top: 14px;
-  line-height: 2;
+  letter-spacing: 0.06em;
+  color: var(--mut);
+  border-top: 1px solid var(--hair);
+  margin-top: 20px;
+  padding-top: 16px;
+  line-height: 2.1;
   font-variant-numeric: tabular-nums;
 }
 .readout strong {
@@ -551,7 +742,7 @@ input[type="number"].field::-webkit-inner-spin-button {
   .stage {
     grid-template-columns: 1fr;
     gap: 20px;
-    padding: 22px 18px 40px;
+    padding: 24px 18px 48px;
   }
   .col {
     display: none;
@@ -560,7 +751,8 @@ input[type="number"].field::-webkit-inner-spin-button {
     font-size: 23px;
   }
   .card {
-    padding: 20px 18px 18px;
+    padding: 22px 20px 20px;
+    border-radius: 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -571,6 +763,9 @@ input[type="number"].field::-webkit-inner-spin-button {
     animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
   }
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 /* ---------- entity sub-form (Session O, P0-68..70) ---------- */
@@ -580,38 +775,47 @@ input[type="number"].field::-webkit-inner-spin-button {
   gap: 14px;
 }
 .entity-row {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  padding: 12px 14px 8px;
+  background: var(--glass-strong);
+  border: 1px solid var(--hair);
+  border-radius: 16px;
+  padding: 14px 16px 10px;
+  transition: border-color 0.24s var(--ease);
+}
+.entity-row:hover {
+  border-color: var(--hair-2);
 }
 .entity-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 6px 16px;
+  gap: 8px 16px;
+}
+.entity-grid .field {
+  background: rgba(10, 11, 13, 0.45);
 }
 .entity-detail {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--rule);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--hair);
 }
 .entity-row-actions {
   display: flex;
   gap: 14px;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 .add-row {
   align-self: flex-start;
-  text-decoration: none;
-  font-weight: 500;
 }
 .subfield-select {
   appearance: none;
   cursor: pointer;
-  background: transparent;
+}
+.subfield-select option {
+  background: var(--card-solid);
+  color: var(--ink);
 }
 .subfield-money {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 6px;
 }
 .subfield-money .field {
@@ -620,36 +824,35 @@ input[type="number"].field::-webkit-inner-spin-button {
 .currency-suffix {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--slate);
+  letter-spacing: 0.06em;
+  color: var(--mut);
 }
 .opts-compact {
   gap: 5px;
 }
 .opt-compact {
   font-size: 12px;
-  padding: 4px 8px;
+  padding: 5px 11px;
 }
 .chip-expandable {
   width: 100%;
   cursor: pointer;
 }
 .chip-expandable[aria-expanded="true"] {
-  border-color: var(--slate);
+  border-color: var(--hair-2);
 }
 .chip-detail {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-top: 5px;
+  margin-top: 6px;
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--slate);
+  letter-spacing: 0.04em;
+  color: var(--mut);
 }
 
 /* ---------- P0-75: chip reopen ---------- */
-.chip {
-  padding: 0;
-}
 .chip-face {
   display: block;
   width: 100%;
@@ -659,36 +862,42 @@ input[type="number"].field::-webkit-inner-spin-button {
   background: transparent;
   border: 0;
   cursor: pointer;
-  padding: 9px 11px;
+  padding: 11px 14px;
+  border-radius: inherit;
 }
 .chip-face .q,
 .chip-face .a,
 .chip-face .tag {
   display: block;
 }
+.chip-face .tag {
+  display: flex;
+}
 .chip-reopen {
   display: flex;
   gap: 8px;
   align-items: center;
-  padding: 0 11px 9px;
-  border-top: 1px solid var(--rule);
+  padding: 10px 14px 11px;
+  border-top: 1px solid var(--hair);
   margin-top: 2px;
-  padding-top: 8px;
+  animation: fadein 0.24s var(--ease) both;
 }
 .chip-reopen-field {
   font-size: 13px;
-  padding: 4px 2px;
+  padding: 7px 12px;
   flex: 1;
   min-width: 0;
+  border-radius: 999px;
 }
 .chip-reopen .ghost {
-  font-size: 13px;
+  font-size: 12px;
   white-space: nowrap;
+  min-height: 0;
+  padding: 7px 14px;
 }
 .chip-reopen .ghost:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-  text-decoration: none;
 }
 
 /* ---------- P0-76: mobile "Recorded (n)" strip ---------- */
@@ -699,19 +908,21 @@ input[type="number"].field::-webkit-inner-spin-button {
   .recorded-strip {
     display: block;
     margin-top: 4px;
-    border-top: 1px solid var(--rule);
-    padding-top: 10px;
+    border-top: 1px solid var(--hair);
+    padding-top: 12px;
   }
   .strip-toggle {
     font-family: var(--mono);
     font-size: 11px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--slate);
-    background: transparent;
-    border: 0;
+    color: var(--mut);
+    background: var(--glass-strong);
+    border: 1px solid var(--hair-2);
+    border-radius: 999px;
     cursor: pointer;
-    padding: 4px 2px;
+    padding: 8px 16px;
+    transition: color 0.24s var(--ease);
   }
   .strip-toggle:hover {
     color: var(--ink);
@@ -720,6 +931,6 @@ input[type="number"].field::-webkit-inner-spin-button {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 12px;
   }
 }
