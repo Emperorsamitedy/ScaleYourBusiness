@@ -98,6 +98,12 @@ export async function writeField<T>(profileId: string, field: Field<T>): Promise
       payload_hash: hashFieldPayload(profileId, field),
     });
   });
+  // P0-81: validation runs on EVERY field write, not as a batch. The
+  // dynamic import breaks the module cycle (the engine reads back through
+  // this store); the engine contains its own failures, so a validation
+  // bug can never turn into a failed write.
+  const { runValidationForWrite } = await import("../validation/engine");
+  await runValidationForWrite(profileId, field.id);
   return newId;
 }
 

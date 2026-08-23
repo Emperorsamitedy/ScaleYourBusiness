@@ -513,3 +513,51 @@ export const utterances = pgTable(
     index("utterances_thread_at_idx").on(t.thread_id, t.at),
   ],
 );
+
+/* ---------- Session Q — validation (data-model §7, steps 32-34) ---------- */
+
+export const findingKind = pgEnum("finding_kind", [
+  "gap",
+  "contradiction",
+  "implausible",
+  "stale",
+]);
+
+export const findingSeverity = pgEnum("finding_severity", ["blocking", "high", "medium", "low"]);
+
+/**
+ * ValidationFinding — data-model §7. Findings persist with their
+ * resolution; both original values stay in field_records history, so a
+ * contradiction never destroys evidence. `field_keys` holds the stable
+ * field identities involved (record ids churn under supersession).
+ */
+export const validationFindings = pgTable(
+  "validation_findings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // Cascade: findings are derived data — they die with their profile.
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    kind: findingKind("kind").notNull(),
+    severity: findingSeverity("severity").notNull(),
+    field_keys: jsonb("field_keys").notNull(),
+    rule_id: text("rule_id").notNull(),
+    /** Version of the rule set that produced this finding (P0-78). */
+    rule_version: text("rule_version").notNull(),
+    /** LocalizedText — { en: "..." }. */
+    message: jsonb("message").notNull(),
+    /** FindingResolution | null — { resolved_at, method, note }. */
+    resolution: jsonb("resolution"),
+    detected_at: timestamp("detected_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    // One OPEN finding per rule per profile; resolved history accumulates.
+    uniqueIndex("validation_findings_open_idx")
+      .on(t.profile_id, t.rule_id)
+      .where(sql`resolution IS NULL`),
+    index("validation_findings_profile_idx").on(t.profile_id),
+  ],
+);
