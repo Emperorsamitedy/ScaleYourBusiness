@@ -2,7 +2,7 @@
   "name": "syb",
   "version": "0.0.1",
   "private": true,
-  "description": "AI business operating system for small businesses — Phase 0: data layer, question engine, interviewer, intake UI",
+  "description": "AI business operating system for small businesses \u2014 Phase 0: data layer, question engine, interviewer, intake UI",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -16,7 +16,8 @@
     "db:migrate": "drizzle-kit migrate",
     "verify:caching": "tsx lib/interviewer/verify-caching.ts",
     "harness": "tsx lib/interviewer/harness/run.ts",
-    "verify:parser": "tsx lib/parser/verify-parser.ts"
+    "verify:parser": "tsx lib/parser/verify-parser.ts",
+    "db:seed": "tsx scripts/seed-bank.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

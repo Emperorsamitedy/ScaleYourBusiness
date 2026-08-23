@@ -561,3 +561,40 @@ export const validationFindings = pgTable(
     index("validation_findings_profile_idx").on(t.profile_id),
   ],
 );
+
+/* ---------- Session R — intake telemetry (P0-87, steps 35-36) ---------- */
+
+export const intakeEventKind = pgEnum("intake_event_kind", [
+  "question_shown",
+  "first_input",
+  "answer_recorded",
+  "marked_unknown",
+  "skipped",
+  "reopened",
+  "reconcile_shown",
+  "reconcile_resolved",
+  "session_resumed",
+  "page_hidden",
+]);
+
+/**
+ * P0-87: every hesitation, every confusion, the actual abandonment point.
+ * Append-only by convention; the analysis (scripts/intake-report.ts) reads
+ * it to decide which questions get rewritten in P0-88. `ms_since_shown`
+ * is hesitation on first_input, dwell on answer_recorded.
+ */
+export const intakeEvents = pgTable(
+  "intake_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    question_id: text("question_id"),
+    kind: intakeEventKind("kind").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    ms_since_shown: integer("ms_since_shown"),
+    meta: jsonb("meta"),
+  },
+  (t) => [index("intake_events_profile_at_idx").on(t.profile_id, t.at)],
+);

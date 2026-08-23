@@ -52,6 +52,14 @@ function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> })
   );
 }
 
+/** P0-87 telemetry: batched, fire-and-forget, never breaks the intake. */
+interface TelemetryEvent {
+  kind: string;
+  question_id?: string | null;
+  ms_since_shown?: number | null;
+  meta?: Record<string, unknown> | null;
+}
+
 export function IntakeStage() {
   const [state, setState] = useState<IntakeState | null>(null);
   const [chips, setChips] = useState<readonly IntakeChip[]>([]);
@@ -59,6 +67,50 @@ export function IntakeStage() {
   const [serverError, setServerError] = useState<string | null>(null);
   const [stripOpen, setStripOpen] = useState(false);
   const booted = useRef(false);
+
+  // P0-87: hesitation, confusion, abandonment — all observable.
+  const eventQueue = useRef<TelemetryEvent[]>([]);
+  const shownAt = useRef<number | null>(null);
+  const firstInputSent = useRef(false);
+
+  const flushEvents = useCallback((useBeacon = false): void => {
+    const events = eventQueue.current;
+    if (events.length === 0) return;
+    eventQueue.current = [];
+    const body = JSON.stringify({ events });
+    try {
+      if (useBeacon && navigator.sendBeacon) {
+        navigator.sendBeacon("/api/intake/events", body);
+      } else {
+        void fetch("/api/intake/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body,
+          keepalive: true,
+        }).catch(() => undefined);
+      }
+    } catch {
+      // Telemetry must never break the intake.
+    }
+  }, []);
+
+  const track = useCallback(
+    (event: TelemetryEvent, flush = true): void => {
+      eventQueue.current.push(event);
+      if (flush) flushEvents();
+    },
+    [flushEvents],
+  );
+
+  useEffect(() => {
+    const onHide = (): void => {
+      if (document.visibilityState !== "hidden") return;
+      eventQueue.current.push({ kind: "page_hidden" });
+      flushEvents(true);
+    };
+    document.addEventListener("visibilitychange", onHide);
+    return () => document.removeEventListener("visibilitychange", onHide);
+  }, [flushEvents]);
 
   const boot = useCallback(async (): Promise<void> => {
     setPhase("boot");
@@ -68,10 +120,11 @@ export function IntakeStage() {
       const next = (await res.json()) as IntakeState;
       setState(next);
       setPhase("answering");
+      if (next.progress.core_done > 0) track({ kind: "session_resumed" });
     } catch {
       setPhase("boot_error");
     }
-  }, []);
+  }, [track]);
 
   useEffect(() => {
     if (booted.current) return;
@@ -113,20 +166,55 @@ export function IntakeStage() {
 
   const question = state?.question ?? null;
 
+  // Every question arrival starts a hesitation clock (P0-87).
+  useEffect(() => {
+    if (!question) return;
+    shownAt.current = Date.now();
+    firstInputSent.current = false;
+    track({ kind: "question_shown", question_id: question.id }, false);
+  }, [question, track]);
+
+  const handleFirstInput = useCallback((): void => {
+    if (firstInputSent.current || !question) return;
+    firstInputSent.current = true;
+    track({
+      kind: "first_input",
+      question_id: question.id,
+      ms_since_shown: shownAt.current ? Date.now() - shownAt.current : null,
+    });
+  }, [question, track]);
+
   const handleAnswer = useCallback(
     (action: AnswerAction): void => {
       if (phase !== "answering" || !question) return;
+      const kind =
+        action.kind === "unknown"
+          ? "marked_unknown"
+          : action.kind === "skip"
+            ? "skipped"
+            : "answer_recorded";
+      track({
+        kind,
+        question_id: question.id,
+        ms_since_shown: shownAt.current ? Date.now() - shownAt.current : null,
+      });
       void submit("PUT", { question_id: question.id, action });
     },
-    [phase, question, submit],
+    [phase, question, submit, track],
   );
 
   const handleEntityRows = useCallback(
     (rows: Record<string, unknown>[]): void => {
       if (phase !== "answering" || !question) return;
+      track({
+        kind: "answer_recorded",
+        question_id: question.id,
+        ms_since_shown: shownAt.current ? Date.now() - shownAt.current : null,
+        meta: { rows: rows.length },
+      });
       void submit("PATCH", { question_id: question.id, rows });
     },
-    [phase, question, submit],
+    [phase, question, submit, track],
   );
 
   // P0-75: reopen removes the chip and returns the question to the centre.
@@ -144,13 +232,14 @@ export function IntakeStage() {
         return;
       }
       const { state: next } = (await res.json()) as AnswerResponse;
+      track({ kind: "reopened", question_id: questionId });
       setChips((prev) => prev.filter((c) => c.question_id !== questionId));
       setState(next);
       setPhase("answering");
     } catch {
       setServerError("I couldn't reach the server — check your connection and try again.");
     }
-  }, []);
+  }, [track]);
 
   const clearServerError = useCallback((): void => {
     setServerError(null);
@@ -175,6 +264,7 @@ export function IntakeStage() {
           return;
         }
         const { reopened, state: next } = (await res.json()) as ReconcileResponse;
+        track({ kind: "reconcile_resolved", meta: { choice, reopened: reopened.length } });
         if (reopened.length > 0) {
           setChips((prev) => prev.filter((c) => !reopened.includes(c.question_id)));
         }
@@ -186,13 +276,21 @@ export function IntakeStage() {
         setReconcileBusy(false);
       }
     },
-    [],
+    [track],
   );
 
   // The panel surfaces contradictions and implausibilities; plain gaps
   // stay as hollow dots. Involved chips take the ember hairline.
   const reconcile =
     state?.findings.find((f) => f.kind === "contradiction" || f.kind === "implausible") ?? null;
+
+  const reconcileId = reconcile?.id ?? null;
+  const reconcileRule = reconcile?.rule_id ?? null;
+  useEffect(() => {
+    // Re-fires only when a different finding surfaces.
+    if (!reconcileId || !reconcileRule) return;
+    track({ kind: "reconcile_shown", meta: { rule_id: reconcileRule } });
+  }, [reconcileId, reconcileRule, track]);
   const flagged = new Set(state?.findings.flatMap((f) => f.question_ids) ?? []);
 
   // Columns alternate left, right, left; chips append downward (§4.2).
@@ -239,6 +337,7 @@ export function IntakeStage() {
               onAnswer={handleAnswer}
               onEntityRows={handleEntityRows}
               onClearError={clearServerError}
+              onFirstInput={handleFirstInput}
             />
           )}
           {reconcile && (

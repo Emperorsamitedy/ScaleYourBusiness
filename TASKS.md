@@ -204,7 +204,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 - [ ] **P0-85** Deploy to staging, make it reachable by a stranger
 - [ ] **P0-86** Run ten intakes with real business owners. Watch silently, say nothing
-- [ ] **P0-87** Log every hesitation, every confusion, the actual abandonment point
+- [x] **P0-87** Log every hesitation, every confusion, the actual abandonment point
 - [ ] **P0-88** Rewrite the questions that failed — expect 15 to 30
 - [ ] **P0-89** Increment bank version, lint passes
 - [ ] **P0-90** Compare measured API cost per intake against the €1.31 estimate

@@ -27,6 +27,8 @@ interface QuestionCardProps {
   onAnswer: (action: AnswerAction) => void;
   onEntityRows: (rows: EntityRow[]) => void;
   onClearError: () => void;
+  /** P0-87: first interaction with the control — the hesitation mark. */
+  onFirstInput?: () => void;
 }
 
 /** Where Enter (or Cmd/Ctrl-Enter) submits, say so in mono (P0-67). */
@@ -52,6 +54,7 @@ export function QuestionCard({
   onAnswer,
   onEntityRows,
   onClearError,
+  onFirstInput,
 }: QuestionCardProps) {
   const [draft, setDraft] = useState<ControlChange>({ wire: null });
   const [entityRows, setEntityRows] = useState<EntityRow[] | null>(null);
@@ -68,6 +71,7 @@ export function QuestionCard({
     : "Answer this, or choose “Skip for now” to move on.";
 
   const handleChange = (change: ControlChange): void => {
+    onFirstInput?.();
     setDraft(change);
     setLocalError(null);
     onClearError();
