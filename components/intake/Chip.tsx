@@ -11,16 +11,19 @@ import type { IntakeChip } from "@/lib/intake/types";
 
 export function Chip({
   chip,
+  flagged = false,
   onReopen,
 }: {
   chip: IntakeChip;
+  /** §4.5: involved in an open finding — takes the ember hairline. */
+  flagged?: boolean;
   onReopen?: (questionId: string, reason: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
 
   return (
-    <div className={`chip${open ? " chip-open" : ""}`}>
+    <div className={`chip${open ? " chip-open" : ""}${flagged ? " chip-flagged" : ""}`}>
       <button
         type="button"
         className="chip-face"

@@ -194,9 +194,9 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 - [x] **P0-79** The nine rules from §7 of the data model
 - [x] **P0-80** Each rule: one passing test, one firing test
 - [x] **P0-81** Runs on every field write, not as a batch
-- [ ] **P0-82** Reconcile panel — wording exactly as specified, curious not corrective
-- [ ] **P0-83** Both resolution paths: "Both are right" and "Let me fix one"
-- [ ] **P0-84** `ValidationFinding` and its resolution persist correctly
+- [x] **P0-82** Reconcile panel — wording exactly as specified, curious not corrective
+- [x] **P0-83** Both resolution paths: "Both are right" and "Let me fix one"
+- [x] **P0-84** `ValidationFinding` and its resolution persist correctly
 
 ---
 

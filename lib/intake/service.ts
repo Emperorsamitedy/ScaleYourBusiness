@@ -31,6 +31,7 @@ import { pickNextQuestion } from "../interviewer/interviewer";
 import { selectCandidates } from "../interviewer/select";
 import { coerceParsedValue } from "../parser/coerce";
 import { writeField } from "../profile/field-store";
+import { openFindings, resolveFinding } from "../validation/engine";
 import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
 import { computeCompleteness } from "../scorer/completeness";
@@ -40,10 +41,12 @@ import type {
   AnswerAction,
   AnswerResponse,
   IntakeChip,
+  IntakeFinding,
   IntakeOption,
   IntakeProgress,
   IntakeQuestion,
   IntakeState,
+  ReconcileResponse,
 } from "./types";
 
 export class IntakeError extends Error {
@@ -231,6 +234,35 @@ async function askedEntries(
   return entries;
 }
 
+/**
+ * Map a finding's field_keys to the applicable questions that wrote them —
+ * exact key or the key's sub-tree (so "costs" reaches 5.1 and 5.2).
+ */
+function findingQuestionIds(fieldKeys: string[], applicable: ApplicableQuestion[]): string[] {
+  const ids = new Set<string>();
+  for (const key of fieldKeys) {
+    for (const q of applicable) {
+      if (q.writes_to === key || q.writes_to.startsWith(`${key}.`)) ids.add(q.id);
+    }
+  }
+  return [...ids].sort(naturalIdCompare);
+}
+
+/** Open findings shaped for the wire (P0-82). */
+async function intakeFindings(
+  profileId: string,
+  applicable: ApplicableQuestion[],
+): Promise<IntakeFinding[]> {
+  const rows = await openFindings(profileId);
+  return rows.map((row) => ({
+    id: row.id,
+    rule_id: row.rule_id,
+    kind: row.kind,
+    message: ((row.message as { en?: string }).en ?? "").trim(),
+    question_ids: findingQuestionIds(row.field_keys as string[], applicable),
+  }));
+}
+
 /** The current intake state: what to ask now, what's next, honest progress. */
 export async function getIntakeState(
   accountId: string,
@@ -250,6 +282,8 @@ export async function getIntakeState(
   const selection = selectCandidates(applicable, view.responded, skippedIds);
   const progress = progressOf(applicable, view.responded);
 
+  const findings = await intakeFindings(profileId, applicable);
+
   if (selection.tier === null) {
     const score = await computeCompleteness(profileId);
     const answered = [...view.responded].length;
@@ -259,6 +293,7 @@ export async function getIntakeState(
       question: null,
       on_deck: null,
       progress,
+      findings,
       readout: {
         answered,
         gaps: score.blocking_gaps.length + view.skippedKeys.size,
@@ -292,7 +327,62 @@ export async function getIntakeState(
       ? ((onDeck.prompt as Record<string, string> | null)?.en ?? "").trim() || null
       : null,
     progress,
+    findings,
     readout: null,
+  };
+}
+
+/**
+ * Resolve a finding the owner has looked at (P0-83, §4.5). "Both are
+ * right" records a confirmation and clears the flag. "Let me fix one"
+ * records a correction and returns the involved questions to the centre
+ * in sequence — the same supersede-to-unasked mechanic as reopen, so
+ * both original values stay in history.
+ */
+export async function reconcileFinding(
+  accountId: string,
+  profileId: string,
+  findingId: string,
+  choice: "confirm" | "fix",
+): Promise<ReconcileResponse> {
+  const findings = await openFindings(profileId);
+  const finding = findings.find((f) => f.id === findingId);
+  if (!finding) throw new IntakeError(`finding ${findingId} is not open on this profile`, 404);
+
+  if (choice === "confirm") {
+    await resolveFinding(findingId, "owner_confirmed", "both are right");
+    return { reopened: [], state: await getIntakeState(accountId, profileId) };
+  }
+
+  await resolveFinding(findingId, "owner_corrected", "let me fix one");
+  const [applicable, view] = await Promise.all([
+    applicableQuestions(profileId),
+    loadRecords(profileId),
+  ]);
+  const involved = findingQuestionIds(finding.field_keys as string[], applicable);
+  const reopened: string[] = [];
+  for (const id of involved) {
+    const q = applicable.find((c) => c.id === id);
+    if (!q || !view.responded.has(q.writes_to)) continue;
+    const at = isoDateTime(new Date().toISOString());
+    await writeField(
+      profileId,
+      createField<unknown>({
+        id: fieldId(q.writes_to),
+        value: null,
+        status: "unasked",
+        confidence: 0.75,
+        source: { kind: "owner_input" },
+        observed_at: at,
+        recorded_at: at,
+        note: `reconcile: ${finding.rule_id}`,
+      }),
+    );
+    reopened.push(q.id);
+  }
+  return {
+    reopened,
+    state: await getIntakeState(accountId, profileId, reopened[0]),
   };
 }
 

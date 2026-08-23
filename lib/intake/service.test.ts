@@ -5,14 +5,25 @@ import "dotenv/config";
 import { and, eq, isNull } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "../../db";
-import { accounts, businessProfiles, fieldRecords, offers } from "../../db/schema";
+import {
+  accounts,
+  businessProfiles,
+  fieldRecords,
+  offers,
+  validationFindings,
+} from "../../db/schema";
 import { loadBank } from "../bank/loader";
+import { createField } from "../core/field";
+import { fieldId } from "../core/ids";
+import { isoDateTime } from "../core/iso";
+import { writeField } from "../profile/field-store";
 import {
   bootstrapIntake,
   getIntakeState,
   humanizeCode,
   IntakeError,
   naturalIdCompare,
+  reconcileFinding,
   submitAnswer,
   submitEntities,
   submitEntityCount,
@@ -274,6 +285,88 @@ describe("P0-75 — reopen keeps history and records a reason", () => {
     ).rejects.toThrow(IntakeError);
     await expect(
       submitAnswer(accountId, profileId, "13.2", { kind: "reopen", reason: "x" }),
+    ).rejects.toThrow(IntakeError);
+  });
+});
+
+describe("P0-82..84 — reconcile panel service", () => {
+  /** Plant the stage_vs_revenue contradiction directly on the profile. */
+  async function plantContradiction(): Promise<void> {
+    const at = isoDateTime(new Date().toISOString());
+    for (const [key, value] of [
+      ["identity.stage", { code: "idea" }],
+      ["revenue.generates_revenue", { code: "yes" }],
+    ] as const) {
+      await writeField(
+        profileId,
+        createField<unknown>({
+          id: fieldId(key),
+          value,
+          status: "answered",
+          confidence: 0.75,
+          source: { kind: "owner_input" },
+          observed_at: at,
+          recorded_at: at,
+        }),
+      );
+    }
+  }
+
+  it("surfaces the contradiction in intake state with mapped questions (P0-82)", async () => {
+    await plantContradiction();
+    const state = await getIntakeState(accountId, profileId);
+    const finding = state.findings.find((f) => f.rule_id === "stage_vs_revenue");
+    if (!finding) throw new Error("expected stage_vs_revenue in intake findings");
+    expect(finding.kind).toBe("contradiction");
+    expect(finding.message).toContain("idea");
+    expect(finding.question_ids).toContain("1.5");
+  });
+
+  it('"Both are right" records owner_confirmed and clears the flag (P0-83/84)', async () => {
+    const state = await getIntakeState(accountId, profileId);
+    const finding = state.findings.find((f) => f.rule_id === "stage_vs_revenue");
+    if (!finding) throw new Error("expected an open finding");
+    const res = await reconcileFinding(accountId, profileId, finding.id, "confirm");
+    expect(res.reopened).toEqual([]);
+    expect(res.state.findings.find((f) => f.rule_id === "stage_vs_revenue")).toBeUndefined();
+    const row = await db
+      .select()
+      .from(validationFindings)
+      .where(eq(validationFindings.id, finding.id));
+    expect((row[0]?.resolution as { method: string }).method).toBe("owner_confirmed");
+  });
+
+  it('"Let me fix one" reopens the involved questions in sequence (P0-83)', async () => {
+    await plantContradiction(); // re-fires: the confirmed finding is history
+    const state = await getIntakeState(accountId, profileId);
+    const finding = state.findings.find((f) => f.rule_id === "stage_vs_revenue");
+    if (!finding) throw new Error("expected the finding to re-fire");
+    const res = await reconcileFinding(accountId, profileId, finding.id, "fix");
+    expect(res.reopened).toContain("1.5");
+    expect(res.state.question?.id).toBe(res.reopened[0]); // back to the centre
+    const chain = await db
+      .select({ status: fieldRecords.status, note: fieldRecords.note })
+      .from(fieldRecords)
+      .where(
+        and(
+          eq(fieldRecords.profile_id, profileId),
+          eq(fieldRecords.field_key, "identity.stage"),
+          isNull(fieldRecords.superseded_at),
+        ),
+      );
+    expect(chain[0]?.status).toBe("unasked");
+    expect(chain[0]?.note).toBe("reconcile: stage_vs_revenue");
+    // The resolution persisted as owner_corrected (P0-84).
+    const row = await db
+      .select()
+      .from(validationFindings)
+      .where(eq(validationFindings.id, finding.id));
+    expect((row[0]?.resolution as { method: string }).method).toBe("owner_corrected");
+  });
+
+  it("refuses to reconcile a finding that is not open (P0-84 guard)", async () => {
+    await expect(
+      reconcileFinding(accountId, profileId, crypto.randomUUID(), "confirm"),
     ).rejects.toThrow(IntakeError);
   });
 });

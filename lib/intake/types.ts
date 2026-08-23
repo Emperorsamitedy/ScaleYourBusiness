@@ -62,14 +62,34 @@ export interface IntakeProgress {
   fraction: number;
 }
 
+/** An open validation finding, surfaced to the intake UI (P0-82). */
+export interface IntakeFinding {
+  id: string;
+  rule_id: string;
+  kind: "gap" | "contradiction" | "implausible" | "stale";
+  /** Both statements, factual — the panel supplies the tone. */
+  message: string;
+  /** Questions whose answers are involved; their chips take the ember. */
+  question_ids: string[];
+}
+
 export interface IntakeState {
   profile_id: string;
   done: boolean;
   question: IntakeQuestion | null;
   on_deck: string | null;
   progress: IntakeProgress;
+  /** Open findings — contradictions drive the reconcile panel (§4.5). */
+  findings: IntakeFinding[];
   /** Populated when done: the closing readout. */
   readout: { answered: number; gaps: number; completeness: number } | null;
+}
+
+/** Response of the reconcile endpoint (P0-83). */
+export interface ReconcileResponse {
+  /** Question ids returned to the centre by "Let me fix one". */
+  reopened: string[];
+  state: IntakeState;
 }
 
 export type AnswerAction =

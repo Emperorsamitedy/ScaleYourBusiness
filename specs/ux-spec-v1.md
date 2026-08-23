@@ -149,7 +149,7 @@ Columns are structurally impossible below ~900px. Instead: the question fills th
 
 ### 4.5 Reconcile
 
-When the validator finds a contradiction, both source chips turn signal-blue and a reconcile panel appears below the centre card.
+When the validator finds a contradiction, both source chips take the ember hairline and a reconcile panel appears below the centre card.
 
 The copy matters more than the layout: **"Help me reconcile these two"** followed by both statements and *"Both can be true — I'd rather ask than assume."* Two actions: "Both are right" (records a confirmation and clears the flag) or "Let me fix one" (returns both questions to the centre in sequence).
 

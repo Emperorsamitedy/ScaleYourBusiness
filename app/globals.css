@@ -934,3 +934,57 @@ input[type="number"].field::-webkit-inner-spin-button {
     margin-top: 12px;
   }
 }
+
+/* ---------- §4.5 reconcile panel (Session Q, P0-82/83) ---------- */
+.reconcile {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid rgba(245, 155, 75, 0.35);
+  border-radius: 16px;
+  padding: 20px 22px 18px;
+  animation: rise 0.38s var(--ease) both;
+}
+.reconcile-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mut);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.dot.ember {
+  background: var(--ember);
+  border: 0;
+}
+.reconcile h3 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+.reconcile-both {
+  font-size: 14px;
+  color: var(--ink);
+  margin: 0 0 6px;
+  max-width: 56ch;
+}
+.reconcile-tagline {
+  font-size: 13px;
+  color: var(--mut);
+  font-style: italic;
+  margin: 0 0 14px;
+}
+.reconcile-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+/* A chip involved in an open finding takes the ember hairline. */
+.chip-flagged,
+.chip-flagged:hover {
+  border-color: rgba(245, 155, 75, 0.55);
+}

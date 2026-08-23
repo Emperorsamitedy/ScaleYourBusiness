@@ -11,10 +11,17 @@
 // first card rises when state arrives from a single POST on mount.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { AnswerAction, AnswerResponse, IntakeChip, IntakeState } from "@/lib/intake/types";
+import type {
+  AnswerAction,
+  AnswerResponse,
+  IntakeChip,
+  IntakeState,
+  ReconcileResponse,
+} from "@/lib/intake/types";
 import { Chip } from "./Chip";
 import { OnDeck } from "./OnDeck";
 import { QuestionCard } from "./QuestionCard";
+import { ReconcilePanel } from "./ReconcilePanel";
 import { TopBar } from "./TopBar";
 
 type Phase = "boot" | "boot_error" | "answering" | "leaving";
@@ -149,6 +156,45 @@ export function IntakeStage() {
     setServerError(null);
   }, []);
 
+  // §4.5: the two resolution paths. "fix" pulls the involved chips back
+  // out of the columns — their questions are returning to the centre.
+  const [reconcileBusy, setReconcileBusy] = useState(false);
+  const handleReconcile = useCallback(
+    async (findingId: string, choice: "confirm" | "fix"): Promise<void> => {
+      setReconcileBusy(true);
+      setServerError(null);
+      try {
+        const res = await fetch("/api/intake/reconcile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ finding_id: findingId, choice }),
+        });
+        if (!res.ok) {
+          const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+          setServerError(payload?.error ?? "I couldn't record that — try again.");
+          return;
+        }
+        const { reopened, state: next } = (await res.json()) as ReconcileResponse;
+        if (reopened.length > 0) {
+          setChips((prev) => prev.filter((c) => !reopened.includes(c.question_id)));
+        }
+        setState(next);
+        setPhase("answering");
+      } catch {
+        setServerError("I couldn't reach the server — check your connection and try again.");
+      } finally {
+        setReconcileBusy(false);
+      }
+    },
+    [],
+  );
+
+  // The panel surfaces contradictions and implausibilities; plain gaps
+  // stay as hollow dots. Involved chips take the ember hairline.
+  const reconcile =
+    state?.findings.find((f) => f.kind === "contradiction" || f.kind === "implausible") ?? null;
+  const flagged = new Set(state?.findings.flatMap((f) => f.question_ids) ?? []);
+
   // Columns alternate left, right, left; chips append downward (§4.2).
   const left = chips.filter((_, i) => i % 2 === 0);
   const right = chips.filter((_, i) => i % 2 === 1);
@@ -163,6 +209,7 @@ export function IntakeStage() {
             <Chip
               key={chip.question_id}
               chip={chip}
+              flagged={flagged.has(chip.question_id)}
               onReopen={(id, r) => void handleReopen(id, r)}
             />
           ))}
@@ -194,6 +241,13 @@ export function IntakeStage() {
               onClearError={clearServerError}
             />
           )}
+          {reconcile && (
+            <ReconcilePanel
+              finding={reconcile}
+              busy={reconcileBusy}
+              onChoose={(choice) => void handleReconcile(reconcile.id, choice)}
+            />
+          )}
           {!state?.done && state?.on_deck && <OnDeck text={state.on_deck} />}
         </section>
 
@@ -203,6 +257,7 @@ export function IntakeStage() {
             <Chip
               key={chip.question_id}
               chip={chip}
+              flagged={flagged.has(chip.question_id)}
               onReopen={(id, r) => void handleReopen(id, r)}
             />
           ))}
