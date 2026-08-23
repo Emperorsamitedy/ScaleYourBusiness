@@ -232,7 +232,11 @@ async function askedEntries(
 }
 
 /** The current intake state: what to ask now, what's next, honest progress. */
-export async function getIntakeState(accountId: string, profileId: string): Promise<IntakeState> {
+export async function getIntakeState(
+  accountId: string,
+  profileId: string,
+  preferId?: string,
+): Promise<IntakeState> {
   const [applicable, view, currency] = await Promise.all([
     applicableQuestions(profileId),
     loadRecords(profileId),
@@ -265,7 +269,11 @@ export async function getIntakeState(accountId: string, profileId: string): Prom
 
   const ordered = [...selection.candidates].sort((a, b) => naturalIdCompare(a.id, b.id));
   let chosen = ordered[0];
-  if (interviewerMode() === "llm") {
+  // A reopened question returns straight to the centre (P0-75, §4.1).
+  const preferred = preferId ? ordered.find((q) => q.id === preferId) : undefined;
+  if (preferred) {
+    chosen = preferred;
+  } else if (interviewerMode() === "llm") {
     const picked = await pickNextQuestion({
       accountId,
       profileId,
@@ -326,6 +334,43 @@ export async function submitAnswer(
     loadRecords(profileId),
     reportingCurrency(profileId),
   ]);
+  // P0-75: reopen has the inverse gate — the question must already be
+  // responded. The old value stays in history (supersession); the new
+  // current record is `unasked` carrying the owner's reason, which makes
+  // the question a candidate again and returns it to the centre.
+  if (action.kind === "reopen") {
+    const reason = action.reason.trim();
+    if (reason === "") throw new IntakeError("a reason is needed to change an answer", 422);
+    const target = applicable.find((q) => q.id === questionId);
+    if (!target || !view.responded.has(target.writes_to)) {
+      throw new IntakeError(`question ${questionId} has no answer to reopen`, 409);
+    }
+    const reopenAt = isoDateTime(new Date().toISOString());
+    await writeField(
+      profileId,
+      createField<unknown>({
+        id: fieldId(target.writes_to),
+        value: null,
+        status: "unasked",
+        confidence: 0.75,
+        source: { kind: "owner_input" },
+        observed_at: reopenAt,
+        recorded_at: reopenAt,
+        note: `reopened: ${reason}`,
+      }),
+    );
+    return {
+      chip: {
+        question_id: target.id,
+        prompt: ((target.prompt as Record<string, string> | null)?.en ?? "").trim(),
+        display: "Reopened",
+        provenance: `${target.id} · reopened`,
+        dot: "hollow",
+      },
+      state: await getIntakeState(accountId, profileId, target.id),
+    };
+  }
+
   const skippedIds = new Set(
     applicable.filter((q) => view.skippedKeys.has(q.writes_to)).map((q) => q.id),
   );

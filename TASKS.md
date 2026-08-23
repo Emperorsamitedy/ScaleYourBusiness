@@ -179,12 +179,12 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session P — Chips and motion _(~18h · steps 29–31)_
 
-- [ ] **P0-72** Provenance chip: question, answer, mono source line, status dot
-- [ ] **P0-73** Settle animation, ~580ms total, alternating columns
-- [ ] **P0-74** `prefers-reduced-motion` disables all of it
-- [ ] **P0-75** Chips clickable → reopen, keeping history, recording a reason
-- [ ] **P0-76** Mobile layout: single column, "Recorded (6)" strip
-- [ ] **P0-77** Usable at 360px, verified on a real phone
+- [x] **P0-72** Provenance chip: question, answer, mono source line, status dot
+- [x] **P0-73** Settle animation, ~580ms total, alternating columns
+- [x] **P0-74** `prefers-reduced-motion` disables all of it
+- [x] **P0-75** Chips clickable → reopen, keeping history, recording a reason
+- [x] **P0-76** Mobile layout: single column, "Recorded (6)" strip
+- [x] **P0-77** Usable at 360px, verified on a real phone
 
 ---
 

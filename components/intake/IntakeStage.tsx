@@ -50,6 +50,7 @@ export function IntakeStage() {
   const [chips, setChips] = useState<readonly IntakeChip[]>([]);
   const [phase, setPhase] = useState<Phase>("boot");
   const [serverError, setServerError] = useState<string | null>(null);
+  const [stripOpen, setStripOpen] = useState(false);
   const booted = useRef(false);
 
   const boot = useCallback(async (): Promise<void> => {
@@ -121,6 +122,29 @@ export function IntakeStage() {
     [phase, question, submit],
   );
 
+  // P0-75: reopen removes the chip and returns the question to the centre.
+  const handleReopen = useCallback(async (questionId: string, reason: string): Promise<void> => {
+    setServerError(null);
+    try {
+      const res = await fetch("/api/intake", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question_id: questionId, action: { kind: "reopen", reason } }),
+      });
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+        setServerError(payload?.error ?? "I couldn't reopen that — try again.");
+        return;
+      }
+      const { state: next } = (await res.json()) as AnswerResponse;
+      setChips((prev) => prev.filter((c) => c.question_id !== questionId));
+      setState(next);
+      setPhase("answering");
+    } catch {
+      setServerError("I couldn't reach the server — check your connection and try again.");
+    }
+  }, []);
+
   const clearServerError = useCallback((): void => {
     setServerError(null);
   }, []);
@@ -136,7 +160,11 @@ export function IntakeStage() {
         <section className="col" aria-label="Recorded answers, left column">
           <div className="col-head">Recorded</div>
           {left.map((chip) => (
-            <Chip key={chip.question_id} chip={chip} />
+            <Chip
+              key={chip.question_id}
+              chip={chip}
+              onReopen={(id, r) => void handleReopen(id, r)}
+            />
           ))}
         </section>
 
@@ -172,9 +200,39 @@ export function IntakeStage() {
         <section className="col" aria-label="Recorded answers, right column">
           <div className="col-head">Recorded</div>
           {right.map((chip) => (
-            <Chip key={chip.question_id} chip={chip} />
+            <Chip
+              key={chip.question_id}
+              chip={chip}
+              onReopen={(id, r) => void handleReopen(id, r)}
+            />
           ))}
         </section>
+
+        {/* P0-76: below 900px the columns are gone; answers collapse into
+            a pinned "Recorded (n)" strip that expands on tap. */}
+        {chips.length > 0 && (
+          <section className="recorded-strip" aria-label="Recorded answers">
+            <button
+              type="button"
+              className="strip-toggle"
+              aria-expanded={stripOpen}
+              onClick={() => setStripOpen((v) => !v)}
+            >
+              Recorded ({chips.length})
+            </button>
+            {stripOpen && (
+              <div className="strip-list">
+                {chips.map((chip) => (
+                  <Chip
+                    key={chip.question_id}
+                    chip={chip}
+                    onReopen={(id, r) => void handleReopen(id, r)}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </main>
     </div>
   );

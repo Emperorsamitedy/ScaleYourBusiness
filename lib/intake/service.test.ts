@@ -124,7 +124,9 @@ describe("the intake flow", () => {
     }
   });
 
-  it("estimate toggle lowers confidence and shows in provenance", async () => {
+  // Walk-forward loops make dozens of sequential DB round-trips; under
+  // full-suite load they can exceed the 5s default.
+  it("estimate toggle lowers confidence and shows in provenance", { timeout: 30_000 }, async () => {
     // Find the next money/number question by walking forward.
     let guard = 0;
     for (;;) {
@@ -172,7 +174,7 @@ describe("the intake flow", () => {
 });
 
 describe("P0-68..70 — entity sub-form service", () => {
-  it("writes 5 product rows: spines, per-entity records, collapsing chip", async () => {
+  it("writes 5 product rows: spines, per-entity records, collapsing chip", { timeout: 30_000 }, async () => {
     const s = await bootstrapIntake();
     try {
       // Reach 3.1 (offers): answer forward deterministically.
@@ -231,5 +233,47 @@ describe("P0-68..70 — entity sub-form service", () => {
       await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
       await db.delete(accounts).where(eq(accounts.id, s.account_id));
     }
+  });
+});
+
+describe("P0-75 — reopen keeps history and records a reason", () => {
+  it("reopens an answered question: it returns to the centre, chain intact", async () => {
+    // 1.1 was answered earlier in this suite.
+    const res = await submitAnswer(accountId, profileId, "1.1", {
+      kind: "reopen",
+      reason: "mistyped the name",
+    });
+    expect(res.state.question?.id).toBe("1.1");
+
+    const chain = await db
+      .select({ status: fieldRecords.status, note: fieldRecords.note })
+      .from(fieldRecords)
+      .where(
+        and(
+          eq(fieldRecords.profile_id, profileId),
+          eq(fieldRecords.field_key, "identity.legal_name"),
+        ),
+      )
+      .orderBy(fieldRecords.recorded_at);
+    expect(chain.length).toBeGreaterThanOrEqual(2);
+    expect(chain[0]?.status).toBe("answered"); // old value kept in history
+    expect(chain.at(-1)?.status).toBe("unasked");
+    expect(chain.at(-1)?.note).toBe("reopened: mistyped the name");
+
+    // Re-answer supersedes again — three records, newest current.
+    const re = await submitAnswer(accountId, profileId, "1.1", {
+      kind: "value",
+      wire: "Szörp és Társa Kft.",
+    });
+    expect(re.chip.display).toBe("Szörp és Társa Kft.");
+  });
+
+  it("refuses reopen without a reason or on an unanswered question", async () => {
+    await expect(
+      submitAnswer(accountId, profileId, "1.1", { kind: "reopen", reason: "  " }),
+    ).rejects.toThrow(IntakeError);
+    await expect(
+      submitAnswer(accountId, profileId, "13.2", { kind: "reopen", reason: "x" }),
+    ).rejects.toThrow(IntakeError);
   });
 });

@@ -645,3 +645,81 @@ input[type="number"].field::-webkit-inner-spin-button {
   font-size: 11px;
   color: var(--slate);
 }
+
+/* ---------- P0-75: chip reopen ---------- */
+.chip {
+  padding: 0;
+}
+.chip-face {
+  display: block;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 9px 11px;
+}
+.chip-face .q,
+.chip-face .a,
+.chip-face .tag {
+  display: block;
+}
+.chip-reopen {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0 11px 9px;
+  border-top: 1px solid var(--rule);
+  margin-top: 2px;
+  padding-top: 8px;
+}
+.chip-reopen-field {
+  font-size: 13px;
+  padding: 4px 2px;
+  flex: 1;
+  min-width: 0;
+}
+.chip-reopen .ghost {
+  font-size: 13px;
+  white-space: nowrap;
+}
+.chip-reopen .ghost:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* ---------- P0-76: mobile "Recorded (n)" strip ---------- */
+.recorded-strip {
+  display: none;
+}
+@media (max-width: 900px) {
+  .recorded-strip {
+    display: block;
+    margin-top: 4px;
+    border-top: 1px solid var(--rule);
+    padding-top: 10px;
+  }
+  .strip-toggle {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 4px 2px;
+  }
+  .strip-toggle:hover {
+    color: var(--ink);
+  }
+  .strip-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+}

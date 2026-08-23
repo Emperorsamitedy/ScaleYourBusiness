@@ -73,7 +73,11 @@ export interface IntakeState {
 }
 
 export type AnswerAction =
-  { kind: "value"; wire: unknown; estimate?: boolean } | { kind: "unknown" } | { kind: "skip" };
+  | { kind: "value"; wire: unknown; estimate?: boolean }
+  | { kind: "unknown" }
+  | { kind: "skip" }
+  /** P0-75: return an answered question to the centre; reason is recorded. */
+  | { kind: "reopen"; reason: string };
 
 export interface AnswerResponse {
   chip: IntakeChip;
