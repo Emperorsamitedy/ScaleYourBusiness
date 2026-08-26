@@ -133,7 +133,7 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 - [x] **P0-48** Prompt: profile + applicable questions + history → next question ID + `selection_reason`
 - [x] **P0-49** Cheap core before expensive deep, using `priority` and `cost`
-- [ ] **P0-50** **Prompt caching on the bank** — verify `cache_read_input_tokens` from turn two
+- [x] **P0-50** **Prompt caching on the bank** — verify `cache_read_input_tokens` from turn two
 - [x] **P0-51** Token and cost logging per call, tagged by workload
 - [ ] **P0-52** Harness: 20 synthetic profiles run end to end
 - [ ] **P0-53** Assert across all 20: never asks an inapplicable question, never repeats one
@@ -144,11 +144,11 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 
 ## Session M — Answer parser _(~20h · steps 24–25)_
 
-- [ ] **P0-54** Haiku parser: free text → typed value
+- [x] **P0-54** Haiku parser: free text → typed value
 - [x] **P0-55** Estimate detection — "about", "roughly" lowers confidence and preserves the wording in `note`
 - [x] **P0-56** Multi-answer extraction: one paragraph fills several fields
 - [x] **P0-57** Interviewer skips what the paragraph already answered
-- [ ] **P0-58** Test: "about 4 and a half million a month, before tax" → correct `Money`, lowered confidence, note kept
+- [x] **P0-58** Test: "about 4 and a half million a month, before tax" → correct `Money`, lowered confidence, note kept
 
 ---
 
