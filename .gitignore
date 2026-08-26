@@ -26,3 +26,8 @@ var/
 reports/
 .vercel
 .env*
+
+# mockup copies served by the dev server — source lives in mockups/
+/public/*.html
+/public/ember.css
+/public/anno-engine.js

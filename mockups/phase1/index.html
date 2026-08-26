@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledgerline — Phase 1 screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Ember Grid — tokens verbatim from docs/DESIGN.md / app/globals.css */
+:root{
+  --stage:#0a0b0d; --card-solid:#131418; --raised:#1a1c21;
+  --glass:rgba(19,20,24,.62); --glass-strong:rgba(26,28,33,.72);
+  --ink:#f2f3f5; --mut:#9ba1ab;
+  --hair:rgba(255,255,255,.07); --hair-2:rgba(255,255,255,.12);
+  --ember:#f59b4b; --ember-bright:#ffb25c; --ember-deep:#e1560f; --on-ember:#1c1006;
+  --whisper:#4c7df0; --settled:#34d399; --err:#ff7a72;
+  --sans:'Schibsted Grotesk',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --ease:cubic-bezier(.2,.7,.3,1); --blur:blur(18px) saturate(1.25);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--stage); color:var(--ink); font-family:var(--sans);
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+/* ambient light — the one place the blue whisper lives */
+body::before,body::after{content:"";position:fixed;z-index:0;border-radius:50%;pointer-events:none;filter:blur(80px)}
+body::before{width:720px;height:480px;left:-180px;top:-160px;background:radial-gradient(closest-side,rgba(225,86,15,.17),transparent);animation:drift-a 26s var(--ease) infinite alternate}
+body::after{width:820px;height:560px;right:-220px;bottom:-200px;background:radial-gradient(closest-side,rgba(76,125,240,.12),transparent);animation:drift-b 32s var(--ease) infinite alternate}
+@keyframes drift-a{to{transform:translate(60px,40px) scale(1.08)}}
+@keyframes drift-b{to{transform:translate(-70px,-50px) scale(1.06)}}
+::selection{background:rgba(245,155,75,.28)}
+*{scrollbar-width:thin;scrollbar-color:var(--raised) transparent}
+*::-webkit-scrollbar{width:8px;height:8px}
+*::-webkit-scrollbar-thumb{background:var(--raised);border-radius:4px}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px;border-radius:6px}
+.tabular{font-variant-numeric:tabular-nums}
+
+/* ---------- shell: persistent left rail (spec §3) ---------- */
+.app{position:relative;z-index:1;display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.rail{
+  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px;
+  padding:20px 14px;border-right:1px solid var(--hair);
+  background:rgba(10,11,13,.55);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+}
+.wordmark{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;letter-spacing:-.01em;padding:4px 10px 18px}
+.wordmark::before{content:"";width:8px;height:8px;border-radius:2px;background:linear-gradient(135deg,var(--ember),var(--ember-deep))}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  font:inherit;font-size:14px;color:var(--mut);background:transparent;border:0;
+  padding:10px 12px;border-radius:10px;cursor:pointer;transition:background .24s var(--ease),color .24s var(--ease);
+}
+.nav button:hover{background:var(--glass-strong);color:var(--ink)}
+.nav button[aria-current="true"]{background:var(--glass-strong);color:var(--ink);font-weight:500}
+.nav button[aria-current="true"] .ico{color:var(--ember)}
+.ico{width:17px;height:17px;flex:none;color:var(--mut)}
+.rail-foot{margin-top:auto;padding:12px 12px 0;border-top:1px solid var(--hair)}
+.who{display:flex;align-items:center;gap:10px}
+.avatar{width:28px;height:28px;border-radius:999px;background:var(--raised);border:1px solid var(--hair-2);display:grid;place-items:center;font-size:11px;font-weight:600}
+.who small{display:block;color:var(--mut);font-size:11px;font-family:var(--mono);letter-spacing:.06em}
+
+/* ---------- main ---------- */
+.main{padding:40px 44px 90px;max-width:1180px}
+.screen{display:none;animation:rise .38s var(--ease) both}
+.screen.on{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mut)}
+h1{font-size:34px;line-height:1.14;letter-spacing:-.02em;margin:10px 0 10px;font-weight:600;text-wrap:balance;max-width:20ch}
+h2{font-size:24px;line-height:1.25;letter-spacing:-.01em;margin:0 0 8px;font-weight:600}
+h3{font-size:16px;margin:0 0 6px;font-weight:600}
+.lede{color:var(--mut);font-size:16px;max-width:62ch;margin:0 0 30px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin:38px 0 14px}
+.sec-head h3{margin:0}
+.sec-head .rule{flex:1;height:1px;background:var(--hair)}
+
+/* cards */
+.card{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--hair);border-radius:16px;padding:22px}
+.focal{position:relative;background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid transparent;border-radius:24px;padding:30px}
+.focal::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;
+  background:linear-gradient(135deg,rgba(225,86,15,.65),rgba(255,255,255,.09) 42%,rgba(255,255,255,.07) 62%,rgba(76,125,240,.45));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;pointer-events:none}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.stat .label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.stat .val{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;margin:8px 0 6px;letter-spacing:-.01em}
+.prov{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mut)}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--settled);flex:none}
+.dot.amber{background:var(--ember)} .dot.hollow{background:transparent;border:1px solid var(--mut)}
+.dot.blue{background:var(--whisper)}
+
+/* pills & buttons */
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--raised);border:1px solid var(--hair-2);border-radius:999px;padding:4px 11px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.pill.amber{color:var(--ember);border-color:rgba(245,155,75,.4)}
+.btn{font:inherit;font-size:14px;font-weight:600;letter-spacing:.02em;border-radius:999px;padding:12px 24px;min-height:44px;cursor:pointer;border:0;transition:background .24s var(--ease),transform .24s var(--ease),box-shadow .24s var(--ease),border-color .24s var(--ease)}
+.btn.primary{background:var(--ember);color:var(--on-ember)}
+.btn.primary:hover{background:var(--ember-bright);transform:translateY(-1px);box-shadow:0 0 24px rgba(245,155,75,.35)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--hair-2)}
+.btn.ghost:hover{background:var(--raised);transform:translateY(-1px)}
+.btn.quiet{background:transparent;border:0;color:var(--mut);font-weight:400;font-size:13px;min-height:0;padding:8px 10px}
+.btn.quiet:hover{color:var(--ink)}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px}
+
+/* lists / tables */
+.rows{border-top:1px solid var(--hair)}
+.r{display:flex;align-items:center;gap:16px;padding:15px 4px;border-bottom:1px solid var(--hair);transition:background .24s var(--ease)}
+.r:hover{background:rgba(255,255,255,.02)}
+.r .grow{flex:1;min-width:0}
+.r .name{font-size:15px}
+.r .num{font-variant-numeric:tabular-nums;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:500;padding:0 12px 10px 0;border-bottom:1px solid var(--hair-2)}
+td{padding:13px 12px 13px 0;border-bottom:1px solid var(--hair);vertical-align:top}
+td.n{font-variant-numeric:tabular-nums}
+
+/* work log (report generating) */
+.log{font-family:var(--mono);font-size:12px;line-height:2.1;letter-spacing:.04em}
+.log div{display:flex;gap:12px;align-items:baseline;color:var(--mut)}
+.log .t{color:rgba(155,161,171,.6);min-width:44px}
+.log .now{color:var(--ink)}
+.stepper{display:flex;align-items:center;margin:26px 0 6px}
+.step{display:flex;flex-direction:column;align-items:center;gap:7px}
+.step .b{width:18px;height:18px;border-radius:999px;border:1px solid var(--hair-2);display:grid;place-items:center}
+.step.done .b{background:var(--settled);border-color:var(--settled)}
+.step.now .b{background:var(--ember);border-color:var(--ember)}
+.step small{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.step.now small{color:var(--ember)}
+.link{width:56px;height:1px;background:var(--hair-2);margin:0 10px 22px}
+.link.done{background:var(--settled);opacity:.5}
+
+/* compare strip */
+.cmp{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:0;border-top:1px solid var(--hair)}
+.cmp>div{padding:14px 12px;border-bottom:1px solid var(--hair)}
+.cmp .h{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--hair-2)}
+.cmp .after{color:var(--ember);font-weight:600}
+
+/* profile edit row */
+.edit{background:var(--glass-strong);border:1px solid var(--hair-2);border-radius:14px;padding:14px;margin:6px 0}
+.field{width:100%;font:inherit;color:var(--ink);background:rgba(10,11,13,.5);border:1px solid var(--hair-2);border-radius:12px;padding:10px 14px;outline:none}
+.field:focus{border-color:var(--ember);box-shadow:0 0 0 3px rgba(245,155,75,.22)}
+.searchbar{display:flex;align-items:center;gap:9px;background:var(--glass-strong);border:1px solid var(--hair);border-radius:999px;padding:9px 16px;min-width:250px}
+.searchbar input{background:transparent;border:0;outline:none;color:var(--ink);font:inherit;font-size:14px;width:100%}
+.subrail{display:flex;flex-direction:column;gap:1px}
+.subrail button{display:flex;align-items:center;gap:9px;font:inherit;font-size:13px;color:var(--mut);background:transparent;border:0;padding:9px 12px;border-radius:9px;cursor:pointer;text-align:left;width:100%}
+.subrail button:hover{background:var(--glass-strong);color:var(--ink)}
+.subrail button[aria-current="true"]{background:var(--glass-strong);color:var(--ink)}
+.subrail .c{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.06em}
+
+/* toggles (modules) */
+.tg{width:40px;height:22px;border-radius:999px;border:1px solid var(--hair-2);background:var(--raised);position:relative;flex:none;cursor:pointer;transition:background .24s var(--ease),border-color .24s var(--ease)}
+.tg::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:999px;background:var(--mut);transition:left .24s var(--ease),background .24s var(--ease)}
+.tg[aria-checked="true"]{background:var(--ember);border-color:var(--ember)}
+.tg[aria-checked="true"]::after{left:20px;background:var(--on-ember)}
+.tg[disabled]{opacity:.85;cursor:not-allowed}
+
+/* progress hairline */
+.rail-line{height:1px;background:var(--hair-2);position:relative;margin:14px 0}
+.rail-line i{position:absolute;left:0;top:0;height:1px;background:linear-gradient(90deg,var(--ember-deep),var(--ember));box-shadow:0 0 12px rgba(245,155,75,.55)}
+
+/* mockup chrome — screen picker */
+.picker{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:4px;padding:6px;
+  background:rgba(10,11,13,.75);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--hair-2);border-radius:999px;max-width:94vw;overflow-x:auto}
+.picker button{font:inherit;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--mut);background:transparent;border:0;padding:8px 13px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.picker button:hover{color:var(--ink)}
+.picker button[aria-current="true"]{background:var(--ink);color:var(--stage);font-weight:600}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .rail{position:static;height:auto;flex-direction:row;align-items:center;gap:8px;overflow-x:auto;padding:12px}
+  .wordmark{padding:0 12px 0 4px} .nav{flex-direction:row} .rail-foot{display:none}
+  .main{padding:24px 18px 90px} .grid4,.grid2{grid-template-columns:1fr} h1{font-size:27px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- persistent rail, ≤5 entries (spec §3) -->
+  <aside class="rail">
+    <div class="wordmark">Ledgerline</div>
+    <nav class="nav" id="nav">
+      <button data-go="report" aria-current="true"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M3 17h14M5.5 13V9M10 13V5M14.5 13V7"/></svg>Diagnosis</button>
+      <button data-go="profile"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M5 3h7l3 3v11H5zM12 3v3h3M8 10h4M8 13h4"/></svg>Profile</button>
+      <button data-go="watching"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5z"/><circle cx="10" cy="10" r="2"/></svg>Watching</button>
+      <button data-go="modules"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><path d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z"/></svg>Modules</button>
+    </nav>
+    <div class="rail-foot">
+      <div class="who"><span class="avatar">ES</span><div><div style="font-size:13px">Eszter</div><small>SZÖRP KFT.</small></div></div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+  <!-- ══════════ 1 · REPORT GENERATING ══════════ -->
+  <section class="screen" data-screen="generating">
+    <div class="eyebrow">Diagnosis · running</div>
+    <h1>Reading your business.</h1>
+    <p class="lede">This takes about a minute of real work. You can close this — I'll have the report waiting.</p>
+
+    <div class="focal">
+      <div class="stepper">
+        <div class="step done"><span class="b"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="#062b1d" stroke-width="2" stroke-linecap="square"><path d="M2 5.5 4 7.5 8 2.5"/></svg></span><small>Read</small></div>
+        <span class="link done"></span>
+        <div class="step done"><span class="b"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="#062b1d" stroke-width="2" stroke-linecap="square"><path d="M2 5.5 4 7.5 8 2.5"/></svg></span><small>Compute</small></div>
+        <span class="link done"></span>
+        <div class="step now"><span class="b"></span><small>Check</small></div>
+        <span class="link"></span>
+        <div class="step"><span class="b"></span><small>Write</small></div>
+      </div>
+
+      <div class="log" style="margin-top:22px">
+        <div><span class="t">00:04</span><span class="dot"></span>read 214 recorded facts · 9 sections</div>
+        <div><span class="t">00:11</span><span class="dot"></span>computed unit economics for 5 offers</div>
+        <div><span class="t">00:19</span><span class="dot"></span>szörp 0.5l · margin 18% · flagged</div>
+        <div><span class="t">00:27</span><span class="dot"></span>fetched 4 competitor pages · 3 with prices</div>
+        <div><span class="t">00:41</span><span class="dot amber"></span><span class="now">checking 9 consistency rules · 1 contradiction carried in</span></div>
+        <div style="opacity:.45"><span class="t">—</span><span class="dot hollow"></span>drafting findings</div>
+      </div>
+
+      <div class="rail-line" style="margin-top:24px"><i style="width:62%"></i></div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost">Notify me instead</button>
+        <span class="mono" style="margin-left:auto">elapsed 00:47 · no artificial delay</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 2 · DIAGNOSIS REPORT ══════════ -->
+  <section class="screen on" data-screen="report">
+    <div class="eyebrow">Diagnosis · 26 aug 2026 · profile snapshot #f3a91c</div>
+    <h1>Here's what I can see.</h1>
+    <p class="lede">Three findings, ordered by the money involved. Every figure below can show you where it came from.</p>
+
+    <div class="grid4">
+      <div class="card stat"><div class="label">Monthly revenue</div><div class="val">4 500 000 HUF</div><div class="prov"><span class="dot amber"></span>4.1a · owner · estimate</div></div>
+      <div class="card stat"><div class="label">Gross margin</div><div class="val">23%</div><div class="prov"><span class="dot blue"></span>derived · price − cost</div></div>
+      <div class="card stat"><div class="label">Monthly orders</div><div class="val">310</div><div class="prov"><span class="dot"></span>4.1b · owner · stated</div></div>
+      <div class="card stat"><div class="label">Best seller</div><div class="val" style="font-size:20px">Szörp 0.5L</div><div class="prov"><span class="dot"></span>3.2 · owner · stated</div></div>
+    </div>
+
+    <div class="sec-head"><h3>The finding that matters most</h3><span class="rule"></span></div>
+    <div class="focal">
+      <div class="prov" style="margin-bottom:10px"><span class="dot amber"></span><span style="color:var(--ember)">FINDING 1 · MARGIN · HIGH</span></div>
+      <h2>Your best-selling product is your least profitable.</h2>
+      <p style="color:var(--mut);max-width:60ch;margin:0 0 16px">Szörp 0.5L is 61% of your orders and returns 18% margin. The gift box is 9% of orders at 61% margin. Every extra 0.5L you sell earns less than the box you're not promoting.</p>
+      <div class="mono" style="line-height:1.9">
+        offers.szorp_05.price · 4 990 HUF · owner · stated · 0.75<br>
+        offers.szorp_05.cost_to_deliver · 4 090 HUF · owner · stated · 0.75<br>
+        margin = (price − cost) / price → 18% · derived · 0.68
+      </div>
+      <div class="row">
+        <button class="btn primary" data-go="finding">See the evidence</button>
+        <button class="btn ghost">Not right — let me correct it</button>
+      </div>
+    </div>
+
+    <div class="sec-head"><h3>Also worth your attention</h3><span class="rule"></span></div>
+    <div class="rows">
+      <div class="r"><span class="pill">2 · PRICING</span><div class="grow"><div class="name">You haven't raised prices in 26 months.</div><div class="mono" style="margin-top:3px">4.3a · owner · stated · inflation 31% over the same period</div></div><span class="mono">≈ 210 000 HUF/mo</span></div>
+      <div class="r"><span class="pill">3 · CHANNELS</span><div class="grow"><div class="name">Instagram DMs cost you four hours a week and 6% of revenue.</div><div class="mono" style="margin-top:3px">7.1 · owner · stated · effort_level high</div></div><span class="mono">≈ 16 h/mo</span></div>
+    </div>
+
+    <div class="sec-head"><h3>What I still don't know</h3><span class="rule"></span></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="rows" style="border-top:0">
+          <div class="r" style="padding-top:0"><span class="dot hollow"></span><div class="grow"><div class="name">Monthly ad spend</div><div class="mono" style="margin-top:3px">8.1a · skipped · will revisit</div></div><button class="btn quiet">Answer · 1 min</button></div>
+          <div class="r"><span class="dot hollow"></span><div class="grow"><div class="name">Supplier lead times</div><div class="mono" style="margin-top:3px">1.4.1.3 · unknown</div></div><button class="btn quiet">Answer · 2 min</button></div>
+          <div class="r" style="border-bottom:0"><span class="dot hollow"></span><div class="grow"><div class="name">Repeat customer rate</div><div class="mono" style="margin-top:3px">4.1d · skipped · will revisit</div></div><button class="btn quiet">Answer · 1 min</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Profile confidence</div>
+        <div class="val" style="font-size:26px;font-weight:600;margin:10px 0 4px">good</div>
+        <p class="mono" style="line-height:2">core 27 / 27 · important 9 / 14 · deep 0 / 12<br>3 gaps · none blocking</p>
+        <p style="color:var(--mut);font-size:13px;font-style:italic;margin:14px 0 0">A gap is a finding, not a failure — but ad spend would sharpen finding 3.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 3 · FINDING DETAIL ══════════ -->
+  <section class="screen" data-screen="finding">
+    <div class="mono">report / finding 1 of 3</div>
+    <div style="display:flex;gap:8px;margin-top:12px"><span class="pill amber"><span class="dot amber"></span>High · Margin</span><span class="pill">Contradiction carried</span></div>
+    <h1>Your best-selling product is your least profitable.</h1>
+    <p class="lede">Szörp 0.5L earns 900 HUF per unit. The gift box earns 7 870 HUF per unit and takes the same twenty minutes to pack. You are selling the harder product to sell.</p>
+
+    <div class="sec-head"><h3>The evidence</h3><span class="rule"></span></div>
+    <table>
+      <thead><tr><th style="width:38%">Fact</th><th style="width:22%">Value</th><th>Where it came from</th></tr></thead>
+      <tbody>
+        <tr><td>Szörp 0.5L price</td><td class="n">4 990 HUF</td><td class="mono">3.1 · owner · stated · 0.75</td></tr>
+        <tr><td>Szörp 0.5L cost to deliver</td><td class="n">4 090 HUF</td><td class="mono">3.1 · owner · stated · 0.75</td></tr>
+        <tr><td>Share of monthly orders</td><td class="n">61%</td><td class="mono">3.2 · owner · stated · 0.75</td></tr>
+        <tr><td>Gift box margin</td><td class="n">61%</td><td class="mono">derived · (12 900 − 5 030) / 12 900</td></tr>
+        <tr><td><strong>Szörp 0.5L margin</strong></td><td class="n"><strong>18%</strong></td><td class="mono">derived · min(inputs) × 0.9 → 0.68</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid2" style="margin-top:26px">
+      <div class="card stat">
+        <div class="label">What it costs you</div>
+        <div class="val">≈ 310 000 HUF / month</div>
+        <div class="prov"><span class="dot blue"></span>derived · 189 orders × (7 870 − 900) × 0.23 shift</div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Contradiction carried into this finding</div>
+        <p style="font-size:14px;margin:10px 0 0">You told me your gross margin is about <strong>40%</strong>. Your prices and costs work out to <strong>23%</strong>. I used the computed figure here and kept yours on record.</p>
+        <div class="prov" style="margin-top:12px"><span class="dot amber"></span>margin_mismatch · open · detected 26 aug</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn primary" data-go="rec">See the recommendation</button>
+      <button class="btn ghost">I think this is wrong</button>
+      <span class="mono" style="margin-left:auto">finding recorded · decision log #214</span>
+    </div>
+  </section>
+
+  <!-- ══════════ 4 · RECOMMENDATION DETAIL ══════════ -->
+  <section class="screen" data-screen="rec">
+    <div class="mono">report / finding 1 / recommendation</div>
+    <h1>Raise the 0.5L price to 5 990.</h1>
+    <p class="lede">A 20% rise puts the margin at 32% — still under the gift box, but it stops the bleed. Your closest competitor sells a comparable bottle at 6 490.</p>
+
+    <div class="sec-head"><h3>What I'm assuming</h3><span class="rule"></span></div>
+    <div class="rows">
+      <div class="r"><div class="grow"><div class="name">Volume falls no more than 8%</div><div class="mono" style="margin-top:3px">benchmark · hungarian food-craft · 0.5</div></div><button class="btn quiet">Adjust</button></div>
+      <div class="r"><div class="grow"><div class="name">Cost to deliver stays at 4 090 HUF</div><div class="mono" style="margin-top:3px">3.1 · owner · stated · 0.75</div></div><button class="btn quiet">Adjust</button></div>
+      <div class="r"><div class="grow"><div class="name">Weekend market pricing moves with the webshop</div><div class="mono" style="margin-top:3px">assumption · unverified</div></div><button class="btn quiet">Adjust</button></div>
+    </div>
+
+    <div class="sec-head"><h3>What changes</h3><span class="rule"></span></div>
+    <div class="cmp">
+      <div class="h">&nbsp;</div><div class="h">Today</div><div class="h">If you approve</div>
+      <div>Unit price</div><div class="n">4 990 HUF</div><div class="n after">5 990 HUF</div>
+      <div>Margin per unit</div><div class="n">900 HUF · 18%</div><div class="n after">1 900 HUF · 32%</div>
+      <div style="border-bottom:0">Monthly profit <span class="mono">(at −8% volume)</span></div><div class="n" style="border-bottom:0">170 100 HUF</div><div class="n after" style="border-bottom:0">330 300 HUF</div>
+    </div>
+    <p style="color:var(--mut);font-size:14px;margin:16px 0 0;font-style:italic">If volume drops more than 14%, this loses money. I'll watch for that and tell you.</p>
+
+    <div class="row">
+      <button class="btn primary">Approve — raise the price</button>
+      <button class="btn ghost">Not now</button>
+      <button class="btn quiet">Never suggest this again</button>
+    </div>
+    <p class="mono" style="margin-top:16px">your decision writes to the log · nothing executes without you</p>
+  </section>
+
+  <!-- ══════════ 5 · MODE DECISION ══════════ -->
+  <section class="screen" data-screen="mode">
+    <div class="eyebrow">Mode · decided</div>
+    <h1>I'd rather watch for six weeks first.</h1>
+    <p class="lede">Your revenue swings with the season and I only have one month of figures. Acting now would be guessing; six weeks of real numbers makes the advice worth following.</p>
+
+    <div class="grid2">
+      <div class="focal">
+        <div class="eyebrow" style="margin-bottom:14px">What decided it</div>
+        <div class="rows" style="border-top:0">
+          <div class="r" style="padding-top:0"><div class="grow"><div class="name">Stage · operating</div></div><span class="mono">1.5 · owner · stated</span></div>
+          <div class="r"><div class="grow"><div class="name">Seasonality · strong</div></div><span class="mono">4.1f · owner · stated</span></div>
+          <div class="r"><div class="grow"><div class="name">Months of figures · 1</div></div><span class="mono">derived · profile age</span></div>
+          <div class="r"><div class="grow"><div class="name">Monthly orders · 310</div></div><span class="mono">4.1b · owner · stated</span></div>
+          <div class="r" style="border-bottom:0"><div class="grow"><div class="name">Active ad spend · none</div></div><span class="mono">8.1a · skipped</span></div>
+        </div>
+        <div class="prov" style="margin-top:16px"><span class="dot amber"></span>confidence 0.72 · reviewed 7 oct 2026</div>
+      </div>
+      <div>
+        <div class="card">
+          <h3>Watching (6 weeks)</h3>
+          <p style="color:var(--mut);font-size:14px;margin:0">I track orders, margin and channel mix weekly. You get one short note a week and the full report on 7 October.</p>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h3>Instant report</h3>
+          <p style="color:var(--mut);font-size:14px;margin:0">Everything I can say from today's data — with the seasonal caveat stated on every figure that depends on it.</p>
+        </div>
+        <div class="row">
+          <button class="btn primary">Start watching · 6 weeks</button>
+          <button class="btn ghost">Extend to 8</button>
+        </div>
+        <button class="btn quiet" style="margin-top:6px">Give me the instant report — I understand it will be less certain</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 6 · WATCHING STATUS ══════════ -->
+  <section class="screen" data-screen="watching">
+    <div class="eyebrow">Watching · week 2 of 6</div>
+    <h1>Two weeks in. Nothing alarming yet.</h1>
+    <p class="lede">Ends 7 October. Everything below is work actually performed — no placeholders, no projections.</p>
+
+    <div class="rail-line"><i style="width:33%"></i></div>
+    <div style="display:flex;justify-content:space-between" class="mono"><span>started 26 aug</span><span>7 oct</span></div>
+
+    <div class="grid4" style="margin-top:26px">
+      <div class="card stat"><div class="label">Orders / week</div><div class="val">74</div><div class="prov"><span class="dot"></span>+3 vs week 1</div></div>
+      <div class="card stat"><div class="label">Margin</div><div class="val">23%</div><div class="prov"><span class="dot"></span>flat</div></div>
+      <div class="card stat"><div class="label">Channel mix</div><div class="val" style="font-size:20px">Markets 58%</div><div class="prov"><span class="dot"></span>−4 pts vs week 1</div></div>
+      <div class="card stat"><div class="label">New facts</div><div class="val">6</div><div class="prov"><span class="dot amber"></span>2 need your eyes</div></div>
+    </div>
+
+    <div class="sec-head"><h3>Activity</h3><span class="rule"></span></div>
+    <div class="card">
+      <div class="log">
+        <div><span class="t">7 sep</span><span class="dot"></span>weekly snapshot taken · 6 facts changed</div>
+        <div><span class="t">5 sep</span><span class="dot amber"></span>gift box margin moved 61% → 57% · supplier price up</div>
+        <div><span class="t">2 sep</span><span class="dot"></span>competitor prices re-checked · 1 of 4 changed</div>
+        <div><span class="t">31 aug</span><span class="dot"></span>weekly snapshot taken · 3 facts changed</div>
+        <div><span class="t">26 aug</span><span class="dot"></span>watching started · baseline snapshot #f3a91c</div>
+      </div>
+    </div>
+    <div class="row"><button class="btn ghost">Extend to 8 weeks</button><button class="btn quiet">Stop watching and report now</button></div>
+  </section>
+
+  <!-- ══════════ 7 · BUSINESS PROFILE ══════════ -->
+  <section class="screen" data-screen="profile">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap">
+      <div>
+        <div class="eyebrow">Profile</div>
+        <h1 style="margin-bottom:6px">Everything I know.</h1>
+        <p class="lede" style="margin-bottom:0">214 facts. Every one can say where it came from. Change anything — the old value stays in the history.</p>
+      </div>
+      <div class="searchbar"><svg class="ico" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"><circle cx="9" cy="9" r="5.5"/><path d="M13.5 13.5 17 17"/></svg><input placeholder="Search 214 facts" aria-label="Search facts"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:190px 1fr;gap:26px;margin-top:28px">
+      <div class="subrail">
+        <button><span class="dot"></span>Identity<span class="c">9/9</span></button>
+        <button><span class="dot"></span>Offers<span class="c">32/32</span></button>
+        <button aria-current="true"><span class="dot"></span>Revenue<span class="c">11/12</span></button>
+        <button><span class="dot hollow"></span>Costs<span class="c">7/14</span></button>
+        <button><span class="dot"></span>Channels<span class="c">18/18</span></button>
+        <button><span class="dot hollow"></span>Marketing<span class="c">2/9</span></button>
+        <button><span class="dot"></span>Operations<span class="c">12/12</span></button>
+      </div>
+
+      <div>
+        <div class="rows">
+          <div class="r"><div class="grow"><div class="name">Monthly revenue</div><div class="mono" style="margin-top:4px">4.1a · owner · estimate · 0.55 · 21 aug 2026</div></div><span class="pill amber">Estimate</span><span class="num">4 500 000 HUF</span><button class="btn quiet">Change</button></div>
+
+          <!-- reopen in progress: the Session P mechanic, grown up -->
+          <div class="edit">
+            <div style="display:flex;gap:16px;align-items:baseline;margin-bottom:10px"><div class="name" style="flex:1">Monthly orders</div><span class="mono">4.1b · owner · stated · 0.75</span></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <input class="field" style="flex:1;min-width:140px" value="340">
+              <input class="field" style="flex:1.4;min-width:180px" placeholder="Why change it?" value="counted properly from Shopify">
+              <button class="btn primary" style="min-height:0;padding:10px 20px">Record</button>
+            </div>
+            <p class="mono" style="margin:10px 0 0">was 310 · the old value stays in the history</p>
+          </div>
+
+          <div class="r"><div class="grow"><div class="name">Repeat customer rate</div><div class="mono" style="margin-top:4px">4.1d · gap · will revisit</div></div><span class="pill"><span class="dot hollow"></span>Unknown</span><span class="num" style="color:var(--mut)">—</span><button class="btn quiet">Answer</button></div>
+          <div class="r"><div class="grow"><div class="name">Revenue trend</div><div class="mono" style="margin-top:4px">4.1c · owner · stated · 0.75 · 21 aug 2026</div></div><span class="num">Growing</span><button class="btn quiet">Change</button></div>
+          <div class="r"><div class="grow"><div class="name">Szörp 0.5L price</div><div class="mono" style="margin-top:4px">3.1 · owner · stated · 0.75 · 24 aug 2026 · <span style="color:var(--ink)">history (2)</span></div></div><span class="num">4 990 HUF</span><button class="btn quiet">Change</button></div>
+          <div class="r"><div class="grow"><div class="name">Gross margin</div><div class="mono" style="margin-top:4px">5.3a · owner · stated · 0.75 · <span style="color:var(--ember)">in an open contradiction</span></div></div><span class="num">40%</span><button class="btn quiet">Reconcile</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 8 · MODULE SELECTION ══════════ -->
+  <section class="screen" data-screen="modules">
+    <div class="eyebrow">Modules</div>
+    <h1>What I'm allowed to work on.</h1>
+    <p class="lede">Turn a module on and I'll start proposing work in that area. Nothing runs without your approval, whatever is switched on.</p>
+
+    <div class="grid2">
+      <div class="focal">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="flex:1">
+            <h3>Analytics</h3>
+            <p style="color:var(--mut);font-size:14px;margin:0 0 10px">Measures what everything else does. Every recommendation's outcome is checked against it — turning it off would mean I could propose work but never tell you whether it worked.</p>
+            <span class="pill amber">Always on</span>
+          </div>
+          <span class="tg" role="switch" aria-checked="true" aria-disabled="true" disabled aria-label="Analytics is always on"></span>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="flex:1"><h3>Marketing</h3><p style="color:var(--mut);font-size:14px;margin:0">Channel mix, ad spend, campaigns, and the copy that goes with them.</p><span class="mono" style="display:block;margin-top:10px">phase 3 · not yet available</span></div>
+          <span class="tg" role="switch" aria-checked="false" aria-label="Marketing"></span>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="flex:1"><h3>Support</h3><p style="color:var(--mut);font-size:14px;margin:0">Customer questions, response times, and the answers you keep repeating.</p><span class="mono" style="display:block;margin-top:10px">phase 4 · not yet available</span></div>
+          <span class="tg" role="switch" aria-checked="false" aria-label="Support"></span>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:flex-start;gap:16px">
+          <div style="flex:1"><h3>Finance &amp; inventory</h3><p style="color:var(--mut);font-size:14px;margin:0">Cash flow, stock levels, supplier terms and what they cost you.</p><span class="mono" style="display:block;margin-top:10px">phase 5 · not yet available</span></div>
+          <span class="tg" role="switch" aria-checked="false" aria-label="Finance and inventory"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-head"><h3>Your plan</h3><span class="rule"></span></div>
+    <div class="card" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="flex:1;min-width:220px"><div class="name">One-off diagnosis report</div><p class="mono" style="margin:6px 0 0">paid 26 aug 2026 · next report on request</p></div>
+      <div class="val" style="font-size:22px;font-weight:600;margin:0">14 900 HUF</div>
+      <button class="btn ghost">Switch to monthly</button>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<nav class="picker" id="picker" aria-label="Mockup screens">
+  <button data-go="generating">1 · Generating</button>
+  <button data-go="report" aria-current="true">2 · Report</button>
+  <button data-go="finding">3 · Finding</button>
+  <button data-go="rec">4 · Recommendation</button>
+  <button data-go="mode">5 · Mode</button>
+  <button data-go="watching">6 · Watching</button>
+  <button data-go="profile">7 · Profile</button>
+  <button data-go="modules">8 · Modules</button>
+</nav>
+
+<script>
+const screens = [...document.querySelectorAll('.screen')];
+const order = screens.map(s => s.dataset.screen);
+const railFor = { report:'report', finding:'report', rec:'report', generating:'report', mode:'report', watching:'watching', profile:'profile', modules:'modules' };
+function show(name){
+  if(!order.includes(name)) return;
+  screens.forEach(s => s.classList.toggle('on', s.dataset.screen === name));
+  document.querySelectorAll('#picker button').forEach(b => b.setAttribute('aria-current', String(b.dataset.go === name)));
+  document.querySelectorAll('#nav button').forEach(b => b.setAttribute('aria-current', String(b.dataset.go === railFor[name])));
+  history.replaceState(null, '', '#' + name);
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]');
+  if (b) show(b.dataset.go);
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+  const i = order.indexOf(document.querySelector('.screen.on').dataset.screen);
+  show(order[(i + (e.key === 'ArrowRight' ? 1 : order.length - 1)) % order.length]);
+});
+show(location.hash.slice(1) || 'report');
+</script>
+</body>
+</html>

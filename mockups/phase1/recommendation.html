@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ledgerline — Recommendation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ember.css">
+<style>
+.crumb{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.crumb a{color:var(--dim);text-decoration:none}.crumb a:hover{color:var(--ink)}
+
+/* what changes — four outcome cards, no table */
+.was{font-size:13.5px;color:var(--dim);margin-top:8px}
+.was s{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.25)}
+.tile .arrowline{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
+  font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--dim)}
+
+.split{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;align-items:start;margin-top:20px}
+.asm{display:flex;flex-direction:column;gap:2px;margin-top:14px}
+.arow{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--hair)}
+.arow:last-child{border-bottom:0}
+.arow .n{font-size:14.5px;line-height:1.35}
+.arow .s{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--dim);margin-top:4px}
+.arow .v{font-family:var(--display);font-weight:600;font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.dec{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:28px;padding-top:24px;border-top:1px solid var(--hair-2)}
+.zone{display:inline-flex;align-items:center;gap:9px;font-size:14px;color:var(--ink);background:rgba(52,211,153,.1);
+  border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:12px 16px;margin-top:16px}
+@media (max-width:1000px){.split{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="rail">
+  <div class="wordmark">Ledgerline</div>
+  <nav class="nav">
+    <a href="/report-v3.html" class="on"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 17h14M6 13V8.5M10 13V4M14 13V7"/></svg>Diagnosis</a>
+    <a href="#"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 3h7l3 3v11H5zM12 3v3h3M8 10h4M8 13h4"/></svg>Profile</a>
+    <a href="#"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5z"/><circle cx="10" cy="10" r="2"/></svg>Watching</a>
+    <a href="#"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z"/></svg>Modules</a>
+  </nav>
+  <div class="foot"><span class="av">ES</span><div><div style="font-size:14px">Eszter</div><small>SZÖRP KFT.</small></div></div>
+</aside>
+
+<main class="main">
+  <div class="crumb"><a href="/report-v3.html">Report</a> · <a href="#">Finding 1</a> · <span style="color:var(--ember)">Recommendation</span></div>
+  <h1 style="max-width:24ch">Raise the 0.5L price to 5 990.</h1>
+  <p class="lede">A 20% rise puts the margin at 32% — still below the gift box, but it stops the bleed. Your nearest competitor sells a comparable bottle at 6 490, and you're the only one making it by hand.</p>
+
+  <!-- what changes: four outcomes, each its own card -->
+  <div class="label" style="margin-bottom:14px">What changes</div>
+  <div class="tiles">
+    <div class="tile hot">
+      <div class="th"><span class="ti"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 3v14M13.5 6.5H8.2a2.3 2.3 0 0 0 0 4.6h3.6a2.3 2.3 0 0 1 0 4.6H6"/></svg></span><span class="cl">Shelf price</span></div>
+      <div class="tv"><span class="v">5 990<span class="sm"> HUF</span></span><span class="chip up">+20%</span></div>
+      <div class="was">was <s>4 990</s></div>
+      <div class="arrowline">the only thing you actually change</div>
+    </div>
+
+    <div class="tile">
+      <div class="th"><span class="ti"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 6.5h.01M13.5 13.5h.01M15 5 5 15"/></svg></span><span class="cl">Margin per bottle</span></div>
+      <div class="tv"><span class="v">1 900</span><span class="chip up">+111%</span></div>
+      <div class="was">was <s>900</s> · 18% → 32%</div>
+      <div class="tviz" style="height:26px">
+        <span class="b" style="height:31%;flex:0 0 46%"></span>
+        <span class="b hot" style="height:100%;flex:0 0 46%"></span>
+      </div>
+    </div>
+
+    <div class="tile">
+      <div class="th"><span class="ti"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 14 8 9l3 3 6-6"/><path d="M13 6h4v4"/></svg></span><span class="cl">Monthly profit</span></div>
+      <div class="tv"><span class="v">330 300</span><span class="chip up">+94%</span></div>
+      <div class="was">was <s>170 100</s> · at −8% volume</div>
+      <div class="arrowline">+160 200 HUF every month</div>
+    </div>
+
+    <div class="tile">
+      <div class="th"><span class="ti"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 5h2l1.6 8.4a1.5 1.5 0 0 0 1.5 1.2h6.3a1.5 1.5 0 0 0 1.5-1.2L17 8H6"/><circle cx="8.5" cy="17" r="1"/><circle cx="15" cy="17" r="1"/></svg></span><span class="cl">Bottles sold</span></div>
+      <div class="tv"><span class="v">174<span class="sm"> /mo</span></span><span class="chip dn">−8%</span></div>
+      <div class="was">was <s>189</s> · the expected cost</div>
+      <div class="arrowline">fewer bottles, more money</div>
+    </div>
+  </div>
+
+  <!-- the risk curve + what it rests on -->
+  <div class="split">
+    <div class="focal">
+      <div class="label">How wrong I can be before this hurts</div>
+      <h2 style="margin:12px 0 6px">You'd have to lose 53% of your bottles.</h2>
+      <p style="color:var(--mut);font-size:15px;margin:0">Below that line you still make more than you do today, even selling far fewer.</p>
+
+      <svg viewBox="0 0 460 250" style="width:100%;height:auto;overflow:visible;margin-top:18px" role="img"
+           aria-label="Profit change against bottles lost. Profit stays above today until volume falls 53 percent.">
+        <defs>
+          <linearGradient id="good" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f59b4b" stop-opacity=".30"/><stop offset="100%" stop-color="#f59b4b" stop-opacity=".02"/></linearGradient>
+          <linearGradient id="bad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ff7a72" stop-opacity=".05"/><stop offset="100%" stop-color="#ff7a72" stop-opacity=".24"/></linearGradient>
+        </defs>
+        <line x1="54" y1="26" x2="54" y2="200" stroke="rgba(255,255,255,.13)"/>
+        <line x1="54" y1="196" x2="444" y2="196" stroke="rgba(255,255,255,.16)" stroke-dasharray="4 4"/>
+        <text x="46" y="30" text-anchor="end" font-family="Geist Mono,monospace" font-size="10" fill="#6b727c">+189k</text>
+        <text x="46" y="200" text-anchor="end" font-family="Geist Mono,monospace" font-size="10" fill="#9ba1ab">today</text>
+        <text x="46" y="228" text-anchor="end" font-family="Geist Mono,monospace" font-size="10" fill="#ff7a72">−26k</text>
+
+        <path d="M54,30 L397,196 L54,196 Z" fill="url(#good)"/>
+        <path d="M397,196 L444,219 L444,196 Z" fill="url(#bad)"/>
+        <path d="M54,30 L444,219" fill="none" stroke="#f59b4b" stroke-width="2.6" stroke-linecap="round"/>
+
+        <line x1="397" y1="26" x2="397" y2="214" stroke="#ff7a72" stroke-width="1.4" stroke-dasharray="4 5" opacity=".85"/>
+        <circle cx="397" cy="196" r="5.5" fill="#0a0b0d" stroke="#ff7a72" stroke-width="2"/>
+        <text x="391" y="22" text-anchor="end" font-family="Geist Mono,monospace" font-size="10" fill="#ff7a72" letter-spacing="1">BREAK-EVEN −53%</text>
+
+        <line x1="106" y1="55" x2="106" y2="196" stroke="rgba(245,155,75,.35)" stroke-width="1.2" stroke-dasharray="3 4"/>
+        <circle cx="106" cy="55" r="16" fill="#f59b4b" opacity=".16"/>
+        <circle cx="106" cy="55" r="6.5" fill="#f59b4b" stroke="#ffb25c" stroke-width="2"/>
+        <text x="122" y="50" font-size="13" font-weight="600" fill="#f2f3f5">we assume −8%</text>
+        <text x="122" y="67" font-family="Geist Mono,monospace" font-size="10.5" fill="#9ba1ab">+160 200 HUF/mo</text>
+
+        <text x="54" y="216" font-family="Geist Mono,monospace" font-size="10" fill="#6b727c">0%</text>
+        <text x="249" y="242" text-anchor="middle" font-family="Geist Mono,monospace" font-size="10" fill="#6b727c" letter-spacing="1.4">BOTTLES LOST →</text>
+        <text x="444" y="216" text-anchor="end" font-family="Geist Mono,monospace" font-size="10" fill="#6b727c">−60%</text>
+      </svg>
+
+      <div class="zone">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--settled)" stroke-width="1.9" stroke-linecap="round" style="flex:none"><path d="M4 11l4 4 8-9"/></svg>
+        Anything down to −53% still beats what you make today
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">What I'm assuming</div>
+      <div class="asm">
+        <div class="arow"><div><div class="n">Volume falls no more than 8%</div><div class="s">benchmark · hungarian food-craft · 0.5</div></div><span class="v">−8%</span></div>
+        <div class="arow"><div><div class="n">Cost to deliver stays at 4 090</div><div class="s">3.1 · owner · stated · 0.75</div></div><span class="v">4 090</span></div>
+        <div class="arow"><div><div class="n">Market stalls follow the webshop price</div><div class="s">assumption · unverified</div></div><span class="v" style="color:var(--dim)">—</span></div>
+      </div>
+      <button class="btn g" style="width:100%;margin-top:18px">Adjust these assumptions</button>
+      <p style="color:var(--dim);font-size:13.5px;margin:14px 0 0;line-height:1.5">Change any of them and the curve above redraws before you decide.</p>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:26px">
+    <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="var(--ember)" stroke-width="1.6" stroke-linecap="round" style="flex:none;margin-top:2px"><circle cx="10" cy="10" r="7.5"/><path d="M10 6.5v4M10 13.5h.01"/></svg>
+    <span>If bottles sold fall past 53% I'll tell you within a week — that's what watching is for. Nothing here is irreversible: prices go back the same day.</span>
+  </div>
+
+  <div class="dec">
+    <button class="btn p">Approve — raise the price</button>
+    <button class="btn g">Not now</button>
+    <button class="btn q">Never suggest this again</button>
+    <span class="src" style="margin-left:auto"><span class="dot der"></span>your decision writes to the log · nothing executes without you</span>
+  </div>
+</main>
+</div>
+</body>
+</html>

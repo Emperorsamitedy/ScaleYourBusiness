@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ledgerline — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ember.css">
+<style>
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.searchbar{display:flex;align-items:center;gap:10px;background:var(--glass-strong);border:1px solid var(--hair);
+  border-radius:999px;padding:12px 18px;min-width:280px}
+.searchbar input{background:transparent;border:0;outline:none;color:var(--ink);font:inherit;font-size:14.5px;width:100%}
+
+/* ── section map: a chart that is also the navigation ── */
+.map{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-top:18px}
+.mcol{background:transparent;border:0;padding:0;cursor:pointer;text-align:center;font:inherit}
+.mbar{height:96px;display:flex;align-items:flex-end;background:rgba(255,255,255,.035);border-radius:8px;overflow:hidden;
+  border:1px solid var(--hair);transition:border-color .22s var(--ease),transform .22s var(--ease)}
+.mcol:hover .mbar{border-color:var(--hair-2);transform:translateY(-2px)}
+.mfill{width:100%;background:rgba(255,255,255,.20);border-radius:7px;transform-origin:bottom;animation:rise .85s var(--ease) both}
+.mcol[aria-current="true"] .mbar{border-color:rgba(245,155,75,.5)}
+.mcol[aria-current="true"] .mfill{background:linear-gradient(180deg,var(--ember),var(--ember-deep))}
+.mcol.thin .mfill{background:rgba(255,255,255,.11)}
+@keyframes rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.mname{font-size:12.5px;color:var(--mut);margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mcol[aria-current="true"] .mname{color:var(--ink);font-weight:500}
+.mcount{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--dim);margin-top:2px}
+
+/* ── facts: colour-coded by where they came from ── */
+.facts{margin-top:14px}
+.fact{display:grid;grid-template-columns:3px 1fr auto auto;gap:22px;align-items:center;padding:18px 16px 18px 0;
+  border-bottom:1px solid var(--hair);transition:background .2s var(--ease)}
+.fact:hover{background:rgba(255,255,255,.022)}
+.edge{height:34px;border-radius:99px;background:rgba(255,255,255,.45)}
+.edge.est{background:var(--ember)} .edge.der{background:var(--whisper)}
+.edge.gap{background:transparent;border-left:2px dashed var(--dim);border-radius:0}
+.fact .k{font-size:15.5px}
+.fact .src2{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--dim);margin-top:5px}
+.fact .val{font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fact .val .u2{font-size:12px;color:var(--dim);font-weight:400;letter-spacing:0}
+.pill2{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;
+  border-radius:999px;border:1px solid var(--hair-2);color:var(--dim);white-space:nowrap}
+.pill2.est{color:var(--ember);border-color:rgba(245,155,75,.4);background:rgba(245,155,75,.08)}
+.act{opacity:0;transition:opacity .2s var(--ease)}
+.fact:hover .act{opacity:1}
+
+.flagrow{border:1px solid rgba(245,155,75,.28);background:rgba(245,155,75,.05);border-radius:14px;padding:18px 20px;
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin:12px 0}
+.flagrow .big2{font-family:var(--display);font-weight:600;font-size:22px;font-variant-numeric:tabular-nums;margin-left:auto}
+
+.editing{background:var(--glass-strong);border:1px solid rgba(245,155,75,.32);border-radius:14px;padding:20px;margin:12px 0}
+.field2{font:inherit;font-size:15px;color:var(--ink);background:rgba(10,11,13,.55);border:1px solid var(--hair-2);
+  border-radius:11px;padding:12px 15px;outline:none;width:100%}
+.field2:focus{border-color:var(--ember);box-shadow:0 0 0 3px rgba(245,155,75,.2)}
+
+/* ── history: chart and chain side by side ── */
+.hist{background:var(--glass-strong);border:1px solid var(--hair-2);border-radius:18px;padding:26px;margin:14px 0}
+.hgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:30px;align-items:center;margin-top:20px}
+.chain{display:flex;flex-direction:column}
+.link2{display:grid;grid-template-columns:14px 1fr auto;gap:16px;align-items:start;padding:13px 0}
+.link2 .node{display:grid;place-items:center;position:relative;height:100%;padding-top:5px}
+.link2 .node i{width:9px;height:9px;border-radius:50%;background:var(--hair-2);display:block;z-index:1}
+.link2.now .node i{background:var(--ember);box-shadow:0 0 12px rgba(245,155,75,.75)}
+.link2 .node::before{content:"";position:absolute;top:-13px;bottom:-13px;width:1px;background:var(--hair-2)}
+.link2:first-child .node::before{top:calc(50% - 4px)}
+.link2:last-child .node::before{bottom:calc(50% + 4px)}
+.link2 .v2{font-family:var(--display);font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
+.link2.old .v2{color:var(--mut)}
+.link2 .why{font-size:13.5px;color:var(--mut);margin-top:3px}
+.link2 .when{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--dim);margin-top:4px}
+@media (max-width:1000px){.map{grid-template-columns:repeat(4,1fr)}.hgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="rail">
+  <div class="wordmark">Ledgerline</div>
+  <nav class="nav">
+    <a href="/report-v3.html"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 17h14M6 13V8.5M10 13V4M14 13V7"/></svg>Diagnosis</a>
+    <a href="#" class="on"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 3h7l3 3v11H5zM12 3v3h3M8 10h4M8 13h4"/></svg>Profile</a>
+    <a href="/watching.html"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5z"/><circle cx="10" cy="10" r="2"/></svg>Watching</a>
+    <a href="#"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z"/></svg>Modules</a>
+  </nav>
+  <div class="foot"><span class="av">ES</span><div><div style="font-size:14px">Eszter</div><small>SZÖRP KFT.</small></div></div>
+</aside>
+
+<main class="main">
+  <div class="head">
+    <div>
+      <div class="kicker">Profile · 214 facts · last change 2 days ago</div>
+      <h1 style="max-width:16ch">Everything I know.</h1>
+    </div>
+    <div class="searchbar">
+      <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="var(--dim)" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="9" r="5.5"/><path d="M13.5 13.5 17 17"/></svg>
+      <input placeholder="Search 214 facts" aria-label="Search facts">
+    </div>
+  </div>
+
+  <!-- the map: completeness per section, doubling as navigation -->
+  <div class="map">
+    <button class="mcol"><span class="mbar"><span class="mfill" style="height:100%;animation-delay:.02s"></span></span><div class="mname">Identity</div><div class="mcount">9/9</div></button>
+    <button class="mcol"><span class="mbar"><span class="mfill" style="height:100%;animation-delay:.06s"></span></span><div class="mname">Offers</div><div class="mcount">32/32</div></button>
+    <button class="mcol" aria-current="true"><span class="mbar"><span class="mfill" style="height:92%;animation-delay:.1s"></span></span><div class="mname">Revenue</div><div class="mcount">11/12</div></button>
+    <button class="mcol thin"><span class="mbar"><span class="mfill" style="height:50%;animation-delay:.14s"></span></span><div class="mname">Costs</div><div class="mcount">7/14</div></button>
+    <button class="mcol"><span class="mbar"><span class="mfill" style="height:100%;animation-delay:.18s"></span></span><div class="mname">Channels</div><div class="mcount">18/18</div></button>
+    <button class="mcol thin"><span class="mbar"><span class="mfill" style="height:22%;animation-delay:.22s"></span></span><div class="mname">Marketing</div><div class="mcount">2/9</div></button>
+    <button class="mcol"><span class="mbar"><span class="mfill" style="height:100%;animation-delay:.26s"></span></span><div class="mname">Operations</div><div class="mcount">12/12</div></button>
+    <button class="mcol thin"><span class="mbar"><span class="mfill" style="height:36%;animation-delay:.3s"></span></span><div class="mname">Competitors</div><div class="mcount">4/11</div></button>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid var(--hair)">
+    <div style="display:flex;gap:26px;flex-wrap:wrap;font-size:13.5px;color:var(--mut)">
+      <span><i style="width:9px;height:9px;border-radius:3px;background:rgba(255,255,255,.45);display:inline-block;margin-right:8px"></i>You told me · 124</span>
+      <span><i style="width:9px;height:9px;border-radius:3px;background:var(--ember);display:inline-block;margin-right:8px"></i>Your estimates · 36</span>
+      <span><i style="width:9px;height:9px;border-radius:3px;background:var(--whisper);display:inline-block;margin-right:8px"></i>Computed · 32</span>
+      <span><i style="width:9px;height:9px;border-radius:3px;background:rgba(255,255,255,.12);display:inline-block;margin-right:8px"></i>Still unknown · 22</span>
+    </div>
+    <span class="mono" style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--dim)">nothing here is ever overwritten</span>
+  </div>
+
+  <div class="sec"><h3>Revenue</h3><span class="ln"></span><span style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--dim)">11 of 12 answered</span></div>
+
+  <div class="facts">
+    <div class="fact">
+      <span class="edge est"></span>
+      <div><div class="k">Monthly revenue</div><div class="src2">4.1a · your estimate · 21 aug 2026</div></div>
+      <span class="pill2 est">Estimate</span>
+      <span class="val">4 500 000<span class="u2"> HUF</span></span>
+    </div>
+
+    <!-- caught in a contradiction -->
+    <div class="flagrow">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="var(--ember)" stroke-width="1.7" stroke-linecap="round" style="flex:none"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4.5M10 14h.01"/></svg>
+      <div><div class="k" style="font-size:15.5px">Gross margin</div>
+        <div style="font-size:13.5px;color:var(--mut);margin-top:4px">You told me 40%. Your prices and costs work out to 23%. I kept both.</div></div>
+      <span class="big2">40%</span>
+      <button class="btn g" style="min-height:0;padding:10px 18px;font-size:13px">Reconcile</button>
+    </div>
+
+    <!-- mid-edit -->
+    <div class="editing">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="k" style="font-size:15.5px">Monthly orders</div>
+        <span style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--dim)">4.1b · you told me · 0.75</span>
+      </div>
+      <div style="display:grid;grid-template-columns:150px 1fr auto;gap:10px">
+        <input class="field2" value="340" aria-label="New value">
+        <input class="field2" value="counted properly from Shopify" placeholder="Why is it changing?" aria-label="Reason">
+        <button class="btn p" style="min-height:0;padding:12px 24px">Record</button>
+      </div>
+      <p style="font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--dim);margin:13px 0 0">
+        was 310 · the old value stays in the history, with your reason attached</p>
+    </div>
+
+    <!-- ── history: the step chart and the chain, side by side ── -->
+    <div class="hist">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+        <div><div class="k" style="font-size:15.5px">Szörp 0.5L · shelf price</div>
+          <div class="src2" style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:5px">3.1 · you told me · three values kept since jan 2023</div></div>
+        <span class="pill2 est">+26% over 26 months</span>
+      </div>
+
+      <div class="hgrid">
+        <svg viewBox="0 0 460 190" style="width:100%;height:auto;overflow:visible" role="img"
+             aria-label="Shelf price stepped from 3 950 in 2023 to 4 490 in 2024 to 4 990 in 2025.">
+          <line x1="0" y1="40" x2="460" y2="40" stroke="rgba(255,255,255,.05)"/>
+          <line x1="0" y1="95" x2="460" y2="95" stroke="rgba(255,255,255,.05)"/>
+          <line x1="0" y1="150" x2="460" y2="150" stroke="rgba(255,255,255,.07)"/>
+          <path d="M0,150 L150,150 L150,95 L300,95 L300,40 L460,40" fill="none" stroke="#f59b4b" stroke-width="2.6"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="0" cy="150" r="4.5" fill="#0a0b0d" stroke="#f59b4b" stroke-width="2"/>
+          <circle cx="150" cy="95" r="4.5" fill="#0a0b0d" stroke="#f59b4b" stroke-width="2"/>
+          <circle cx="300" cy="40" r="9" fill="#f59b4b" opacity=".22"/>
+          <circle cx="300" cy="40" r="5.5" fill="#f59b4b"/>
+          <text x="4" y="140" font-family="Geist Mono,monospace" font-size="10.5" fill="#6b727c">3 950</text>
+          <text x="154" y="85" font-family="Geist Mono,monospace" font-size="10.5" fill="#6b727c">4 490</text>
+          <text x="304" y="30" font-family="Geist Mono,monospace" font-size="11" fill="#f59b4b">4 990 · today</text>
+          <text x="0" y="178" font-family="Geist Mono,monospace" font-size="9.5" letter-spacing="1" fill="#5a6068">JAN 2023</text>
+          <text x="150" y="178" font-family="Geist Mono,monospace" font-size="9.5" letter-spacing="1" fill="#5a6068">SEP 2024</text>
+          <text x="300" y="178" font-family="Geist Mono,monospace" font-size="9.5" letter-spacing="1" fill="#5a6068">MAR 2025</text>
+        </svg>
+
+        <div class="chain">
+          <div class="link2 now"><span class="node"><i></i></span>
+            <div><span class="v2">4 990 HUF</span><div class="why">“packaging went up”</div><div class="when">14 mar 2025 · decision log #182</div></div>
+            <span class="pill2 est">Current</span></div>
+          <div class="link2 old"><span class="node"><i></i></span>
+            <div><span class="v2">4 490 HUF</span><div class="why">held for 18 months</div><div class="when">02 sep 2024 · decision log #97</div></div>
+            <span class="pill2">Kept</span></div>
+          <div class="link2 old"><span class="node"><i></i></span>
+            <div><span class="v2">3 950 HUF</span><div class="why">first recorded value</div><div class="when">11 jan 2023 · decision log #14</div></div>
+            <span class="pill2">Kept</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fact">
+      <span class="edge gap"></span>
+      <div><div class="k">Repeat customer rate</div><div class="src2">4.1d · you skipped this · I'll ask again</div></div>
+      <span class="pill2">Unknown</span>
+      <span class="val" style="color:var(--dim)">—</span>
+    </div>
+
+    <div class="fact">
+      <span class="edge"></span>
+      <div><div class="k">Revenue trend</div><div class="src2">4.1c · you told me · 21 aug 2026</div></div>
+      <span class="pill2">Stated</span>
+      <span class="val">Growing</span>
+    </div>
+
+    <div class="fact">
+      <span class="edge der"></span>
+      <div><div class="k">Average order value</div><div class="src2">derived · revenue ÷ orders · 0.68</div></div>
+      <span class="pill2">Computed</span>
+      <span class="val">14 516<span class="u2"> HUF</span></span>
+    </div>
+
+    <div class="fact" style="border-bottom:0">
+      <span class="edge"></span>
+      <div><div class="k">Seasonality</div><div class="src2">4.1f · you told me · 21 aug 2026</div></div>
+      <span class="pill2">Stated</span>
+      <span class="val">Autumn peak</span>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>
