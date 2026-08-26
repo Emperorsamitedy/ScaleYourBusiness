@@ -174,6 +174,24 @@ async function runPersona(persona: Persona): Promise<ProfileResult> {
   }
 }
 
+/** var/harness-report.json — rewritten after every persona (see below). */
+function writeReport(results: ProfileResult[], crashed: string[]): void {
+  mkdirSync("var", { recursive: true });
+  writeFileSync(
+    "var/harness-report.json",
+    JSON.stringify(
+      {
+        generated_at: new Date().toISOString(),
+        total: summarizeCalls(results.flatMap((r) => r.calls)),
+        crashed,
+        results,
+      },
+      null,
+      2,
+    ),
+  );
+}
+
 async function main(): Promise<void> {
   await loadBank("specs/question-bank-v1.json");
 
@@ -206,6 +224,9 @@ async function main(): Promise<void> {
         continue;
       }
       results.push(result);
+      // Checkpoint after every persona: a run stopped early (budget,
+      // network, Ctrl-C) must not discard the profiles already paid for.
+      writeReport(results, crashed);
       const cost = summarizeCalls(result.calls);
       console.log(
         `✓ ${result.persona}: ${result.turns.length} turns, ` +
@@ -236,11 +257,7 @@ async function main(): Promise<void> {
   for (const f of crashed) console.log(`  ✗ ${f}`);
   for (const f of allFailures) console.log(`  ✗ ${f}`);
 
-  mkdirSync("var", { recursive: true });
-  writeFileSync(
-    "var/harness-report.json",
-    JSON.stringify({ generated_at: new Date().toISOString(), total, crashed, results }, null, 2),
-  );
+  writeReport(results, crashed);
   console.log("report: var/harness-report.json");
 
   process.exit(allFailures.length === 0 && crashed.length === 0 ? 0 : 1);
