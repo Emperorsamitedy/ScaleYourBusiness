@@ -2,7 +2,7 @@
   "name": "syb",
   "version": "0.0.1",
   "private": true,
-  "description": "AI business operating system for small businesses \u2014 Phase 0: data layer, question engine, interviewer, intake UI",
+  "description": "AI business operating system for small businesses — Phase 0: data layer, question engine, interviewer, intake UI",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
+    "@sentry/nextjs": "^10.71.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "next": "^16.3.1",
