@@ -53,6 +53,11 @@ interface SelectionPayload {
   selection_reason: string;
 }
 
+// Deliberately STATIC: a per-turn enum of candidate ids would be the
+// cleaner constraint, but the schema participates in the prompt-cache
+// prefix — measured live, it drove cache hits to 0% and cost to ~9x
+// (rule 8). Validity is enforced our side instead: retry with feedback,
+// then fall back deterministically to the first candidate.
 const OUTPUT_SCHEMA = {
   type: "object" as const,
   properties: {
@@ -217,12 +222,31 @@ export async function pickNextQuestion(args: {
     if (question) {
       return { question, selection_reason: payload.selection_reason, selection, calls };
     }
+    console.error(
+      JSON.stringify({
+        msg: "interviewer picked outside candidates",
+        account_id: args.accountId,
+        attempt,
+        picked: payload.next_question_id,
+        candidates: selection.candidates.map((q) => q.id),
+      }),
+    );
     feedback = `"${payload.next_question_id}" is not in CANDIDATES — choose one of the listed ids exactly.`;
   }
 
-  throw new InterviewerError(
-    `model failed to pick a valid candidate in ${MAX_ATTEMPTS} attempts (tier ${selection.tier}, ${selection.candidates.length} candidates)`,
-  );
+  // The model exhausted its attempts outside the candidate list. The tier
+  // gate still holds absolutely: fall back to the deterministic first
+  // candidate rather than crashing the interview — P0-53's guarantees
+  // (never inapplicable, never repeated) live in the candidate set, not
+  // in the model's cooperation.
+  const fallback = selection.candidates[0];
+  if (!fallback) throw new InterviewerError("no candidates despite an open tier");
+  return {
+    question: fallback,
+    selection_reason: "fallback: deterministic first candidate after invalid model picks",
+    selection,
+    calls,
+  };
 }
 
 /** Used by scripts that need the spine list for cleanup. */

@@ -181,6 +181,7 @@ async function main(): Promise<void> {
   const concurrency = Number(process.env.HARNESS_CONCURRENCY ?? 2);
   const queue = PERSONAS.slice(0, count);
   const results: ProfileResult[] = [];
+  const crashed: string[] = [];
   let cursor = 0;
 
   console.log(`harness: ${queue.length} personas, concurrency ${concurrency}`);
@@ -192,7 +193,18 @@ async function main(): Promise<void> {
       const persona = queue[index];
       if (!persona) return;
       const t0 = Date.now();
-      const result = await runPersona(persona);
+      let result: ProfileResult;
+      try {
+        result = await runPersona(persona);
+      } catch (error) {
+        // One persona's transport failure must not discard the paid work
+        // of the other nineteen. Record it as a failure and carry on;
+        // the aggregate reports it and the run still exits non-zero.
+        const message = error instanceof Error ? error.message : String(error);
+        console.log(`✗ ${persona.name}: ABORTED — ${message}`);
+        crashed.push(`${persona.name} — aborted: ${message}`);
+        continue;
+      }
       results.push(result);
       const cost = summarizeCalls(result.calls);
       console.log(
@@ -219,17 +231,19 @@ async function main(): Promise<void> {
   console.log(`cache hit rate: ${(total.cache_hit_rate * 100).toFixed(1)}%`);
   console.log(`total cost    : €${total.cost_eur.toFixed(2)}`);
   console.log(`wall clock    : ${Math.round((Date.now() - started) / 1000)}s`);
+  console.log(`aborted       : ${crashed.length}`);
   console.log(`failures      : ${allFailures.length}`);
+  for (const f of crashed) console.log(`  ✗ ${f}`);
   for (const f of allFailures) console.log(`  ✗ ${f}`);
 
   mkdirSync("var", { recursive: true });
   writeFileSync(
     "var/harness-report.json",
-    JSON.stringify({ generated_at: new Date().toISOString(), total, results }, null, 2),
+    JSON.stringify({ generated_at: new Date().toISOString(), total, crashed, results }, null, 2),
   );
   console.log("report: var/harness-report.json");
 
-  process.exit(allFailures.length === 0 ? 0 : 1);
+  process.exit(allFailures.length === 0 && crashed.length === 0 ? 0 : 1);
 }
 
 main().catch((error) => {

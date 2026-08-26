@@ -70,7 +70,26 @@ const EXTRACTION_SCHEMA = {
         type: "object" as const,
         properties: {
           field_key: { type: "string" as const },
-          value: {}, // wire value — validated by the coercion layer, never trusted
+          // Wire value — the concrete union of shapes the SYSTEM prompt
+          // names. Still validated by the coercion layer, never trusted;
+          // the API refuses an empty ({} = anything) schema here.
+          value: {
+            anyOf: [
+              { type: "string" as const },
+              { type: "number" as const },
+              { type: "boolean" as const },
+              { type: "array" as const, items: { type: "string" as const } },
+              {
+                type: "object" as const,
+                properties: {
+                  amount_major: { type: "number" as const },
+                  currency: { type: "string" as const },
+                },
+                required: ["amount_major"],
+                additionalProperties: false,
+              },
+            ],
+          },
           is_estimate: { type: "boolean" as const },
           estimate_wording: { type: ["string", "null"] as unknown as "string" },
         },
@@ -90,7 +109,7 @@ You are given the question that was asked, plus other still-open questions the r
 Wire formats by input type:
 - text/long_text: string
 - number: plain number
-- money: {"amount_major": <number in major units>, "currency": "<ISO code if the owner names one, else omit>"}
+- money: {"amount_major": <number in major units, with word-units expanded to digits: "4 and a half million" → 4500000, "20k" → 20000>, "currency": "<ISO code if the owner names one, else omit>"}
 - boolean: true/false
 - date: "YYYY-MM-DD"
 - single_select: one code from the question's listed codes

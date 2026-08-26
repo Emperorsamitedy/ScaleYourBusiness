@@ -10,8 +10,11 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { accounts, businessProfiles, fieldRecords } from "../../db/schema";
 import { loadBank } from "../bank/loader";
+import { createField } from "../core/field";
+import { fieldId } from "../core/ids";
+import { isoDateTime } from "../core/iso";
 import { money } from "../core/money";
-import { readCurrentField } from "../profile/field-store";
+import { readCurrentField, writeField } from "../profile/field-store";
 import { applicableQuestions } from "../resolver/applicability";
 import { CONFIDENCE_ESTIMATED, parseAndWriteAnswer } from "./parse";
 
@@ -32,9 +35,24 @@ async function main(): Promise<void> {
   if (!profile) throw new Error("profile insert failed");
 
   try {
+    // 4.1a is gated on revenue.generates_revenue = yes (ConditionExpr in
+    // the bank) — satisfy the gate the honest way, by writing the fact.
+    const at = isoDateTime(new Date().toISOString());
+    await writeField(
+      profile.id,
+      createField<unknown>({
+        id: fieldId("revenue.generates_revenue"),
+        value: { code: "yes" },
+        status: "answered",
+        confidence: 0.75,
+        source: { kind: "owner_input" },
+        observed_at: at,
+        recorded_at: at,
+      }),
+    );
     const applicable = await applicableQuestions(profile.id);
     const asked = applicable.find((q) => q.writes_to === "revenue.monthly_revenue");
-    if (!asked) throw new Error("revenue.monthly_revenue is not applicable on an empty profile");
+    if (!asked) throw new Error("revenue.monthly_revenue did not become applicable after its gate");
     const otherOpen = applicable.filter((q) => q.id !== asked.id).slice(0, 10);
 
     console.log(`parsing: "${SENTENCE}"`);
@@ -58,8 +76,11 @@ async function main(): Promise<void> {
     const expected = money(450_000_000, "HUF");
     const checks: [string, boolean][] = [
       [
+        // Structural compare — Postgres jsonb does not preserve key order.
         `value = 450,000,000 fillér HUF (got ${JSON.stringify(field.value)})`,
-        JSON.stringify(field.value) === JSON.stringify(expected),
+        field.value !== null &&
+          field.value.amount_minor === expected.amount_minor &&
+          field.value.currency === expected.currency,
       ],
       [
         `confidence = ${CONFIDENCE_ESTIMATED} (got ${field.confidence})`,
