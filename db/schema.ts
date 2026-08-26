@@ -598,3 +598,52 @@ export const intakeEvents = pgTable(
   },
   (t) => [index("intake_events_profile_at_idx").on(t.profile_id, t.at)],
 );
+
+/* ---------- Phase 1 Session A — profile snapshots (step 37) ---------- */
+
+/**
+ * A frozen view of a profile at one instant. A report references a
+ * snapshot, never "the profile", so opening a six-month-old report shows
+ * the numbers it was actually written from.
+ *
+ * Storage exploits rule 3: field records are immutable and never deleted,
+ * so a snapshot only has to record WHICH records were current — the
+ * values themselves need no copying and cannot drift.
+ *
+ * `content_hash` is over the facts' CONTENT, not their ids: re-snapshotting
+ * an unchanged profile yields the same hash, and one changed value changes it.
+ */
+export const profileSnapshots = pgTable(
+  "profile_snapshots",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    taken_at: timestamp("taken_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    content_hash: text("content_hash").notNull(),
+    fact_count: integer("fact_count").notNull(),
+    entity_count: integer("entity_count").notNull(),
+    /** Why it was taken: "report", "watching_weekly", "manual". */
+    reason: text("reason").notNull().default("manual"),
+    /** [{spine, id, kind}] — the entity rows alive at that instant. */
+    entities: jsonb("entities").notNull(),
+  },
+  (t) => [index("profile_snapshots_profile_idx").on(t.profile_id, t.taken_at)],
+);
+
+/** Which field records the snapshot froze. Membership only — see above. */
+export const snapshotRecords = pgTable(
+  "snapshot_records",
+  {
+    snapshot_id: uuid("snapshot_id")
+      .notNull()
+      .references(() => profileSnapshots.id, { onDelete: "cascade" }),
+    record_id: uuid("record_id")
+      .notNull()
+      .references(() => fieldRecords.id),
+  },
+  (t) => [uniqueIndex("snapshot_records_pk").on(t.snapshot_id, t.record_id)],
+);

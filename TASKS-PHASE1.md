@@ -20,12 +20,12 @@ Revisit this file after the tenth intake. Cross out what the owners proved wrong
 
 The foundation everything else references. A report must be reproducible from the exact state that produced it — otherwise "your margin was 23%" becomes unfalsifiable the moment a fact changes.
 
-- [ ] **P1-01** `profile_snapshots` table: id, profile_id, taken_at, content_hash, fact_count
-- [ ] **P1-02** Snapshot writer — freeze every current `field_records` row plus entity spines into an immutable set
-- [ ] **P1-03** Content addressing: identical facts always produce an identical hash; a single changed value changes it
-- [ ] **P1-04** Snapshot reader — rebuild the exact profile view a snapshot captured, ignoring everything written since
-- [ ] **P1-05** Diff two snapshots: what changed, what was added, what was superseded — the input to the watching module
-- [ ] **P1-06** Tests: byte-for-byte reproduction, hash stability across reorderings, diff correctness
+- [x] **P1-01** `profile_snapshots` table: id, profile_id, taken_at, content_hash, fact_count
+- [x] **P1-02** Snapshot writer — freeze every current `field_records` row plus entity spines into an immutable set
+- [x] **P1-03** Content addressing: identical facts always produce an identical hash; a single changed value changes it
+- [x] **P1-04** Snapshot reader — rebuild the exact profile view a snapshot captured, ignoring everything written since
+- [x] **P1-05** Diff two snapshots: what changed, what was added, what was superseded — the input to the watching module
+- [x] **P1-06** Tests: byte-for-byte reproduction, hash stability across reorderings, diff correctness
 
 **Done when:** a snapshot ID reproduces a report's inputs byte for byte, and re-snapshotting an unchanged profile yields the same hash.
 
