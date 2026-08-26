@@ -7,7 +7,6 @@
 // spine rows plus a marker record. Session M owns free-text parsing;
 // this file bypasses it by construction.
 
-import { eq } from "drizzle-orm";
 import { db } from "../../../db";
 import {
   channels,
@@ -25,6 +24,10 @@ import type { FieldStatus } from "../../core/field-status";
 import { fieldId } from "../../core/ids";
 import { isoDateTime } from "../../core/iso";
 import { money } from "../../core/money";
+import {
+  dynamicVocabularyOptions,
+  isDynamicVocabulary,
+} from "../../profile/dynamic-vocab";
 import { writeField } from "../../profile/field-store";
 import type { ApplicableQuestion } from "../../resolver/applicability";
 import { vocabularyCodes } from "../../vocab/validate";
@@ -77,18 +80,14 @@ function pick<T>(rng: () => number, items: readonly T[]): T {
   return item;
 }
 
-/** "__offers__" is dynamic: the owner's own offers, by spine id. */
-async function dynamicOfferCodes(profileId: string): Promise<string[]> {
-  const rows = await db
-    .select({ id: offers.id })
-    .from(offers)
-    .where(eq(offers.profile_id, profileId));
-  return rows.map((r) => r.id);
-}
-
 async function selectCodes(profileId: string, vocabularyId: string | undefined): Promise<string[]> {
   if (vocabularyId === undefined) throw new HarnessAnswerError("select without vocabulary_id");
-  if (vocabularyId === "__offers__") return dynamicOfferCodes(profileId);
+  // "__offers__", "__channels__", … — the owner's own entities by spine id.
+  if (isDynamicVocabulary(vocabularyId)) {
+    const options = await dynamicVocabularyOptions(profileId, vocabularyId);
+    if (options.length === 0) throw new HarnessAnswerError(`dynamic ${vocabularyId} has no rows`);
+    return options.map((o) => o.code);
+  }
   const codes = await vocabularyCodes(vocabularyId);
   const usable = codes.filter((c) => c !== "other");
   if (usable.length === 0) throw new HarnessAnswerError(`vocabulary ${vocabularyId} empty`);

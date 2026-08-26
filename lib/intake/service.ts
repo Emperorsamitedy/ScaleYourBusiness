@@ -30,6 +30,10 @@ import type { InputSpec } from "../interviewer/harness/answers";
 import { pickNextQuestion } from "../interviewer/interviewer";
 import { selectCandidates } from "../interviewer/select";
 import { coerceParsedValue } from "../parser/coerce";
+import {
+  dynamicVocabularyOptions,
+  isDynamicVocabulary,
+} from "../profile/dynamic-vocab";
 import { writeField } from "../profile/field-store";
 import { openFindings, resolveFinding } from "../validation/engine";
 import type { ApplicableQuestion } from "../resolver/applicability";
@@ -135,12 +139,9 @@ async function loadRecords(profileId: string): Promise<RecordsView> {
 async function optionsFor(profileId: string, spec: InputSpec): Promise<IntakeOption[]> {
   if (spec.type !== "single_select" && spec.type !== "multi_select") return [];
   if (!spec.vocabulary_id) return [];
-  if (spec.vocabulary_id === "__offers__") {
-    const rows = await db
-      .select({ id: offers.id })
-      .from(offers)
-      .where(eq(offers.profile_id, profileId));
-    return rows.map((r, i) => ({ code: r.id, label: `Product ${i + 1}` }));
+  // Dynamic vocabularies are the owner's own entities, not bank codes.
+  if (isDynamicVocabulary(spec.vocabulary_id)) {
+    return dynamicVocabularyOptions(profileId, spec.vocabulary_id);
   }
   const codes = await vocabularyCodes(spec.vocabulary_id);
   return codes.map((code) => ({ code, label: humanizeCode(code) }));
