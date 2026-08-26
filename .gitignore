@@ -23,3 +23,6 @@ Thumbs.db
 
 # Harness reports and local run artifacts
 var/
+reports/
+.vercel
+.env*

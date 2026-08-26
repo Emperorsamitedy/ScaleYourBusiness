@@ -1,7 +1,10 @@
 # Deploying SYB to staging (P0-85 / P0-08)
 
 One Next.js app, one Postgres. Target: Vercel (app) + Neon (database).
-Total time with accounts in hand: ~10 minutes.
+
+**Live since 2026-08-26:** https://syb-kappa.vercel.app/intake — Vercel
+project `syb` (samy283407-7767), Neon project `red-breeze-79256837`
+(aws-eu-central-1, Postgres 18). The steps below reproduce it from zero.
 
 ## 1. Neon — the database
 
