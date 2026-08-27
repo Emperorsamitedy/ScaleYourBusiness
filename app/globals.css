@@ -1592,3 +1592,340 @@ a.ghost {
     min-width: 190px;
   }
 }
+
+/* ---------- Session D — the morph demo (P1-55) ----------
+   Three answers become a diagnosis. The chips do not cross-fade into the
+   report: they fly toward it and shrink, so the report reads as something
+   the answers PRODUCED rather than something that replaced them. */
+.morph {
+  margin-top: 46px;
+  border: 1px solid var(--hair);
+  border-radius: 20px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  overflow: hidden;
+}
+.morph-bar {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--hair);
+}
+.morph-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--ember), var(--ember-deep));
+  flex: none;
+}
+.morph-title {
+  font-size: 13px;
+  color: var(--mut);
+  transition: color 0.4s var(--ease);
+}
+.morph-meta {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  color: var(--mut);
+  font-variant-numeric: tabular-nums;
+}
+.morph-stage {
+  position: relative;
+  min-height: 330px;
+  padding: 22px;
+}
+
+/* the intake half */
+.morph-intake {
+  max-width: 60%;
+  transition:
+    opacity 0.45s var(--ease),
+    transform 0.45s var(--ease);
+}
+.morph-intake.gone {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+.morph-card {
+  border: 1px solid transparent;
+  border-radius: 16px;
+  padding: 20px;
+  background:
+    linear-gradient(var(--card-solid), var(--card-solid)) padding-box,
+    linear-gradient(135deg, rgba(225, 86, 15, 0.55), rgba(255, 255, 255, 0.07) 55%) border-box;
+  animation: rise 0.38s var(--ease) both;
+}
+.morph-card.leaving {
+  animation: depart 0.23s var(--ease) forwards;
+}
+.morph-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ember);
+}
+.morph-q {
+  font-family: var(--display);
+  font-size: 16.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 10px 0 15px;
+}
+.morph-field {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 40px;
+  padding: 9px 13px;
+  border-radius: 11px;
+  background: var(--glass-strong);
+  border: 1px solid var(--hair-2);
+  font-size: 14.5px;
+}
+.morph-caret {
+  width: 1.5px;
+  height: 17px;
+  background: var(--ember);
+  animation: blink 1s steps(2) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* the answers — they fly into the report */
+.morph-chips {
+  position: absolute;
+  right: 22px;
+  top: 22px;
+  width: 34%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.morph-chip {
+  border: 1px solid var(--hair);
+  border-radius: 11px;
+  padding: 9px 12px;
+  background: var(--glass-strong);
+  animation: settle 0.34s var(--ease) both;
+  transition:
+    transform 0.6s var(--ease),
+    opacity 0.5s var(--ease);
+}
+.morph-chips.fly .morph-chip {
+  /* the settle animation has fill-mode: both, so it would keep pinning
+     opacity/transform — drop it before the fly transition takes over */
+  animation: none;
+  transform: translate(-32%, 34px) scale(0.62);
+  opacity: 0;
+}
+.morph-chip-a {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+.morph-chip-p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  color: var(--mut);
+  margin-top: 4px;
+}
+.morph-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--settled);
+  flex: none;
+}
+
+.morph-reading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  color: var(--mut);
+  animation: fadein 0.3s var(--ease) both;
+}
+.morph-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ember);
+  animation: pulse 1.1s var(--ease) infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.7);
+    opacity: 0.35;
+  }
+}
+
+/* the report those answers produced */
+.morph-report {
+  position: absolute;
+  inset: 22px;
+  opacity: 0;
+  transform: translateY(14px) scale(0.985);
+  transition:
+    opacity 0.5s var(--ease),
+    transform 0.5s var(--ease);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.morph-report.in {
+  opacity: 1;
+  transform: none;
+}
+.morph-headline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.morph-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+.morph-big {
+  font-family: var(--display);
+  font-size: clamp(30px, 4.4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  margin-top: 6px;
+}
+.morph-big span {
+  font-size: 15px;
+  color: var(--mut);
+  margin-left: 6px;
+  font-weight: 500;
+}
+.morph-stats {
+  display: flex;
+  gap: 26px;
+}
+.morph-stats b {
+  display: block;
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 5px;
+}
+.morph-stats em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--mut);
+}
+.morph-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.morph-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 38px;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--mut);
+}
+.morph-row.hot .morph-name,
+.morph-row.hot .morph-pct {
+  color: var(--ember);
+}
+.morph-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.morph-track {
+  display: block;
+  height: 16px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+.morph-fill {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.16);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.7s var(--ease);
+}
+.morph-report.in .morph-fill {
+  transform: scaleX(1);
+}
+.morph-row.hot .morph-fill {
+  background: linear-gradient(90deg, var(--ember-deep), var(--ember));
+}
+.morph-pct {
+  text-align: right;
+  font-family: var(--display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.morph-finding {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--mut);
+  margin: auto 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+}
+.morph-finding strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+@media (max-width: 860px) {
+  .morph-stage {
+    min-height: 420px;
+  }
+  .morph-intake {
+    max-width: 100%;
+  }
+  .morph-chips {
+    position: static;
+    width: 100%;
+    margin-top: 12px;
+  }
+  .morph-headline {
+    gap: 14px;
+  }
+  .morph-row {
+    grid-template-columns: 76px 1fr 34px;
+  }
+}

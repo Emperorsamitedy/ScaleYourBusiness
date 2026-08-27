@@ -12,7 +12,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DemoLoop } from "@/components/landing/DemoLoop";
+import { MorphDemo } from "@/components/landing/MorphDemo";
 import { ExampleCharts } from "@/components/landing/ExampleCharts";
 
 export const metadata: Metadata = {
@@ -81,7 +81,7 @@ export default function Home() {
           </Link>
           <span className="hint">no account, no card</span>
         </div>
-        <DemoLoop />
+        <MorphDemo />
       </section>
 
       {/* the proof: the finding itself, not a description of it */}
