@@ -15,6 +15,7 @@
 // finished report with no movement at all.
 
 import { useEffect, useRef, useState } from "react";
+import { LeakDial, MarginRadar, MiniGauge, Scanner } from "./Hud";
 
 type Phase = "intake" | "reading" | "report";
 
@@ -31,13 +32,6 @@ const ANSWERS: Answer[] = [
   { q: "What does the 0.5L cost you to make?", a: "4 090 HUF", prov: "3.4 · you told me" },
 ];
 
-const BARS = [
-  { name: "Gift box", pct: 61, w: 100 },
-  { name: "Winter spice", pct: 44, w: 72 },
-  { name: "Sampler", pct: 38, w: 62 },
-  { name: "Szörp 1L", pct: 31, w: 51 },
-  { name: "Szörp 0.5L", pct: 18, w: 30, hot: true },
-];
 
 const TYPE_MS = 38;
 const HOLD_MS = 520;
@@ -184,52 +178,31 @@ export function MorphDemo() {
           </div>
         )}
 
-        {phase === "reading" && (
-          <div className="morph-reading">
-            <span className="morph-pulse" />
-            reading 214 facts · computing five margins
-          </div>
-        )}
+        {phase === "reading" && <Scanner />}
 
-        {/* ── the report those answers produced ── */}
+        {/* ── the instrument cluster those answers produced ── */}
         <div className={`morph-report ${showReport ? "in" : ""}`}>
-          <div className="morph-headline">
-            <div>
-              <span className="morph-label">Leaking every month</span>
-              <div className="morph-big">
-                {spaced(leak)}
-                <span>HUF</span>
-              </div>
-            </div>
-            <div className="morph-stats">
-              <div>
-                <span className="morph-label">Real margin</span>
-                <b>{margin}%</b>
-                <em>you said 40%</em>
-              </div>
-              <div>
-                <span className="morph-label">Per order</span>
-                <b>14 516</b>
-                <em>computed</em>
-              </div>
+          <div className="hud-grid">
+            <LeakDial value={spaced(leak)} live={showReport} />
+            <MarginRadar live={showReport} />
+            <div className="hud-side">
+              <MiniGauge
+                label="real margin"
+                value={`${margin}%`}
+                note="YOU SAID 40%"
+                frac={0.23}
+                live={showReport}
+              />
+              <MiniGauge
+                label="per order"
+                value="14 516"
+                note="COMPUTED"
+                frac={0.62}
+                tone="blue"
+                live={showReport}
+              />
             </div>
           </div>
-
-          <div className="morph-bars">
-            {BARS.map((b, i) => (
-              <div className={b.hot ? "morph-row hot" : "morph-row"} key={b.name}>
-                <span className="morph-name">{b.name}</span>
-                <span className="morph-track">
-                  <span
-                    className="morph-fill"
-                    style={{ width: `${b.w}%`, transitionDelay: `${260 + i * 90}ms` }}
-                  />
-                </span>
-                <span className="morph-pct">{b.pct}%</span>
-              </div>
-            ))}
-          </div>
-
           <p className="morph-finding">
             <strong>Your best seller is your least profitable.</strong> Szörp 0.5L is 61% of what
             you sell and returns the thinnest margin of the five.
