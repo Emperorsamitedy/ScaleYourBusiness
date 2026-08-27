@@ -13,7 +13,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MorphDemo } from "@/components/landing/MorphDemo";
-import { ExampleCharts } from "@/components/landing/ExampleCharts";
+import { Reel } from "@/components/landing/Reel";
 
 export const metadata: Metadata = {
   title: "Ledgerline — where your business actually leaks money",
@@ -146,7 +146,7 @@ export default function Home() {
           Three of the things the diagnosis produces. Every figure on them can say where it came
           from, and every one of them is arithmetic you can check.
         </p>
-        <ExampleCharts />
+        <Reel />
       </section>
 
       <section className="land-ledger">
