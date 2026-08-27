@@ -52,13 +52,13 @@ Arithmetic, not inference. Never an LLM call — CLAUDE.md's cost rule and the a
 
 The first write-adjacent external calls in the product. Read-scope only, forever (CLAUDE.md).
 
-- [ ] **P1-15** Search + fetch, hard-capped: N results, timeout per page, total budget per profile
-- [ ] **P1-16** Extract into `Competitor` records — name, URL, price points, positioning — with `source.kind = "web_research"` and confidence 0.5
-- [ ] **P1-17** Owner-stated and researched facts stay distinguishable everywhere they surface
-- [ ] **P1-18** Nothing is invented: a field the page didn't support is `unknown`, never a plausible guess
-- [ ] **P1-19** `researched_at` on every record; staleness feeds the `stale_financials`-style rules
-- [ ] **P1-20** Honest progress: real steps, real timings, **no artificial delay** — the log shows work completed, not a theatre of it
-- [ ] **P1-21** Cost logged per research run, tagged by workload
+- [x] **P1-15** Search + fetch, hard-capped: N results, timeout per page, total budget per profile
+- [x] **P1-16** Extract into `Competitor` records — name, URL, price points, positioning — with `source.kind = "web_research"` and confidence 0.5
+- [x] **P1-17** Owner-stated and researched facts stay distinguishable everywhere they surface
+- [x] **P1-18** Nothing is invented: a field the page didn't support is `unknown`, never a plausible guess
+- [x] **P1-19** `researched_at` on every record; staleness feeds the `stale_financials`-style rules
+- [x] **P1-20** Honest progress: real steps, real timings, **no artificial delay** — the log shows work completed, not a theatre of it
+- [x] **P1-21** Cost logged per research run, tagged by workload
 
 **Done when:** naming a competitor produces a populated record with real URLs and nothing invented, and the progress log entries correspond to actual completed work.
 
