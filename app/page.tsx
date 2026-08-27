@@ -21,14 +21,16 @@ export const metadata: Metadata = {
     "Answer questions about your business for about fifteen minutes. Get back a read on where the money goes, with the arithmetic shown for every figure.",
 };
 
-/** The proof, with real shape: the bestseller is the shortest bar. */
-const BARS = [
-  { name: "Gift box", pct: 61, w: 100 },
-  { name: "Winter spice", pct: 44, w: 72 },
-  { name: "Sampler", pct: 38, w: 62 },
-  { name: "Szörp 1L", pct: 31, w: 51 },
-  { name: "Szörp 0.5L", pct: 18, w: 30, hot: true },
+/** The proof: five offers read out on a segmented meter, worst last. */
+const CELLS = 26;
+const SCAN = [
+  { name: "Gift box", margin: 61, share: 9 },
+  { name: "Winter spice", margin: 44, share: 11 },
+  { name: "Sampler 3×0.1L", margin: 38, share: 5 },
+  { name: "Szörp 1L", margin: 31, share: 14 },
+  { name: "Szörp 0.5L", margin: 18, share: 61, critical: true },
 ];
+const PEAK = 61;
 
 const SEQUENCE = [
   {
@@ -84,28 +86,48 @@ export default function Home() {
         <MorphDemo />
       </section>
 
-      {/* the proof: the finding itself, not a description of it */}
-      <section className="land-proof">
-        <div className="land-proof-head">
-          <span className="label">What one owner found in fourteen minutes</span>
-          <span className="mono-note">margin per unit sold</span>
+      {/* the proof: an instrument reading it out, not a chart of it */}
+      <section className="scan" aria-label="Margin analysis across five products">
+        <span className="scan-line" aria-hidden="true" />
+        <header className="scan-head">
+          <span>Analysis · 5 offers · margin per unit</span>
+          <span>Szörp Kft. · 14 min</span>
+        </header>
+
+        <div className="scan-rows">
+          {SCAN.map((o, i) => {
+            const lit = Math.round((o.margin / PEAK) * CELLS);
+            return (
+              <div className={o.critical ? "scan-row crit" : "scan-row"} key={o.name}>
+                <span className="scan-i">{String(i + 1).padStart(2, "0")}</span>
+                <span className="scan-name">{o.name}</span>
+                <span className="scan-meter" aria-hidden="true">
+                  {Array.from({ length: CELLS }, (_, c) => (
+                    <i
+                      key={c}
+                      className={c < lit ? "on" : ""}
+                      style={{ transitionDelay: `${i * 90 + c * 16}ms` }}
+                    />
+                  ))}
+                </span>
+                <span className="scan-val">{o.margin}%</span>
+                <span className="scan-share">{o.share}% of volume</span>
+                {o.critical && <span className="scan-flag">◄ critical</span>}
+              </div>
+            );
+          })}
         </div>
-        <div className="pbars">
-          {BARS.map((b) => (
-            <div key={b.name} className={b.hot ? "pbar hot" : "pbar"}>
-              <span className="pname">{b.name}</span>
-              <span className="ptrack">
-                <span className="pfill" style={{ width: `${b.w}%` }} />
-              </span>
-              <span className="pval">{b.pct}%</span>
-            </div>
-          ))}
-        </div>
-        <p className="land-proof-note">
-          <strong>Her best-selling product was her least profitable.</strong> It was 61% of
-          everything she sold and returned the thinnest margin of the five. She had been pushing it
-          for two years.
-        </p>
+
+        <footer className="scan-foot">
+          <span className="scan-verdict">
+            <i className="scan-pip" />
+            highest volume · lowest return
+          </span>
+          <span>
+            Her best seller was her least profitable — 61% of everything she sold, the thinnest
+            margin of the five. She had been pushing it for two years.
+          </span>
+        </footer>
       </section>
 
       <section className="land-seq">

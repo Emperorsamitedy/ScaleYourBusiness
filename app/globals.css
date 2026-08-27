@@ -1041,88 +1041,211 @@ input[type="number"].field::-webkit-inner-spin-button {
   margin: 0 0 32px;
 }
 
-/* the proof — the finding itself */
-.land-proof {
-  border-top: 1px solid var(--hair-2);
-  padding-top: 26px;
+/* ── the analyzer (P1-55) ──
+   An instrument reading the offers out, not a chart of them. Segmented
+   meters rather than solid fills, corner brackets, a scan line, and one
+   row flagged critical — the same amber discipline as everywhere else. */
+.scan {
+  position: relative;
+  border: 1px solid var(--hair-2);
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(var(--glass), var(--glass)),
+    repeating-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.028) 0 1px,
+      transparent 1px 46px
+    );
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
 }
-.land-proof-head {
+/* corner brackets */
+.scan::before,
+.scan::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  border: 1px solid var(--ember);
+  opacity: 0.85;
+}
+.scan::before {
+  top: 6px;
+  left: 6px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.scan::after {
+  bottom: 6px;
+  right: 6px;
+  border-left: 0;
+  border-top: 0;
+}
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 64px;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(245, 155, 75, 0.07), transparent);
+  animation: scanpass 6.5s var(--ease) infinite;
+}
+@keyframes scanpass {
+  0% {
+    transform: translateY(-70px);
+    opacity: 0;
+  }
+  12%,
+  76% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(420px);
+    opacity: 0;
+  }
+}
+.scan-head,
+.scan-foot {
   display: flex;
   justify-content: space-between;
+  gap: 22px;
   align-items: baseline;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-}
-.mono-note {
+  padding: 15px 22px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.07em;
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+.scan-head {
+  border-bottom: 1px solid var(--hair);
+}
+.scan-rows {
+  padding: 8px 22px 12px;
+}
+.scan-row {
+  display: grid;
+  grid-template-columns: 26px 132px 1fr 46px 104px 74px;
+  gap: 16px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+}
+.scan-row:last-child {
+  border-bottom: 0;
+}
+.scan-i,
+.scan-share,
+.scan-flag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   color: var(--dim, #6b727c);
 }
-.pbars {
-  display: flex;
-  flex-direction: column;
-  gap: 13px;
-}
-.pbar {
-  display: grid;
-  grid-template-columns: 132px 1fr 52px;
-  gap: 18px;
-  align-items: center;
-}
-.pname {
-  font-size: 14.5px;
+.scan-name {
+  font-size: 14px;
   color: var(--mut);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.pbar.hot .pname {
-  color: var(--ink);
-  font-weight: 500;
+/* the segmented meter: cells, never a solid bar */
+.scan-meter {
+  display: flex;
+  gap: 3px;
+  height: 15px;
 }
-.ptrack {
-  display: block;
-  height: 26px;
-  background: rgba(255, 255, 255, 0.045);
-  border-radius: 6px;
-  overflow: hidden;
+.scan-meter i {
+  flex: 1;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.055);
+  transition: background 0.35s var(--ease);
 }
-.pfill {
-  display: block;
-  height: 100%;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.16);
-  transform-origin: left center;
-  animation: grow 0.9s var(--ease) both;
+.scan-meter i.on {
+  background: rgba(255, 255, 255, 0.34);
 }
-.pbar.hot .pfill {
-  background: linear-gradient(90deg, var(--ember-deep), var(--ember));
-}
-.pval {
+.scan-val {
   font-family: var(--display);
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
   text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--mut);
 }
-.pbar.hot .pval {
+.scan-flag {
+  color: var(--ember);
+  opacity: 0;
+  animation: fadein 0.4s var(--ease) 1.6s forwards;
+}
+/* the one that matters */
+.scan-row.crit .scan-name,
+.scan-row.crit .scan-val,
+.scan-row.crit .scan-i,
+.scan-row.crit .scan-share {
   color: var(--ember);
 }
-.land-proof-note {
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--mut);
-  max-width: 62ch;
-  margin: 26px 0 0;
-  padding-top: 22px;
-  border-top: 1px solid var(--hair);
+.scan-row.crit .scan-name {
+  font-weight: 500;
 }
-.land-proof-note strong {
-  color: var(--ink);
-  font-weight: 600;
+.scan-row.crit .scan-meter i.on {
+  background: var(--ember);
+  box-shadow: 0 0 9px rgba(245, 155, 75, 0.55);
+}
+.scan-row.crit {
+  background: linear-gradient(90deg, rgba(245, 155, 75, 0.07), transparent 62%);
+  margin: 0 -22px;
+  padding-left: 22px;
+  padding-right: 22px;
+}
+.scan-foot {
+  border-top: 1px solid var(--hair);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--mut);
+  line-height: 1.55;
+}
+.scan-foot > span:last-child {
+  max-width: 62ch;
+}
+.scan-verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ember);
+  white-space: nowrap;
+}
+.scan-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ember);
+  animation: pulse 2s var(--ease) infinite;
+}
+@media (max-width: 860px) {
+  .scan-row {
+    grid-template-columns: 22px 1fr 52px;
+    gap: 10px;
+  }
+  .scan-meter,
+  .scan-share,
+  .scan-flag {
+    display: none;
+  }
+  .scan-head,
+  .scan-foot {
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 
 /* the sequence — rules, not boxes */
