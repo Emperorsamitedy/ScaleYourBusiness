@@ -647,3 +647,39 @@ export const snapshotRecords = pgTable(
   },
   (t) => [uniqueIndex("snapshot_records_pk").on(t.snapshot_id, t.record_id)],
 );
+
+/* ---------- Phase 1 Session D — first contact (P1-56/57) ---------- */
+
+/**
+ * A way back in. Identity in Phase 1 is deliberately thin: an email and
+ * a signed link, never a password — an owner halfway through an intake
+ * on a market stall will not create an account, and a lost cookie must
+ * not cost them twenty minutes of answers.
+ *
+ * The token itself is never stored; only its sha256. A leaked database
+ * row cannot be replayed as a login.
+ */
+export const resumeTokens = pgTable(
+  "resume_tokens",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** sha256 of the token handed to the owner. */
+    token_hash: text("token_hash").notNull(),
+    email: text("email").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    /** Set the first time it is used; a link keeps working until it expires. */
+    last_used_at: timestamp("last_used_at", { withTimezone: true, mode: "string" }),
+    /** Revoked links stop resolving without being deleted. */
+    revoked_at: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("resume_tokens_hash_idx").on(t.token_hash),
+    index("resume_tokens_profile_idx").on(t.profile_id),
+  ],
+);

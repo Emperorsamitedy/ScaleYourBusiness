@@ -988,3 +988,178 @@ input[type="number"].field::-webkit-inner-spin-button {
 .chip-flagged:hover {
   border-color: rgba(245, 155, 75, 0.55);
 }
+
+/* ---------- Session D — landing (P1-55) ---------- */
+.land {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 28px 28px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+}
+.land-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 4px;
+}
+.land-hero {
+  padding-top: 28px;
+}
+.land-hero h1 {
+  font-size: clamp(30px, 5.2vw, 50px);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  margin: 18px 0 20px;
+  max-width: 17ch;
+  text-wrap: balance;
+}
+.kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mut);
+  margin: 0;
+}
+.land-lede {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--mut);
+  max-width: 58ch;
+  margin: 0 0 30px;
+}
+.land-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.land-step {
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--hair);
+  border-radius: 18px;
+  padding: 24px;
+}
+.land-step h2 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 14px 0 8px;
+}
+.land-step p {
+  font-size: 14.5px;
+  color: var(--mut);
+  margin: 0;
+  line-height: 1.55;
+}
+.land-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ember);
+}
+.land-honest {
+  border-top: 1px solid var(--hair);
+  padding-top: 44px;
+}
+.land-honest h2 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 20px;
+}
+.land-honest ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 68ch;
+}
+.land-honest li {
+  font-size: 15px;
+  color: var(--mut);
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.55;
+}
+.land-honest li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--settled);
+}
+.land-honest strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.land-foot {
+  border-top: 1px solid var(--hair);
+  padding-top: 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--mut);
+}
+a.next,
+a.ghost {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+@media (max-width: 760px) {
+  .land {
+    gap: 52px;
+    padding: 20px 18px 64px;
+  }
+  .land-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Session D — finish: leave an email, get a link ---------- */
+.finish-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.finish-form .field {
+  flex: 1;
+  min-width: 220px;
+}
+.linkbox {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--glass-strong);
+  border: 1px solid rgba(245, 155, 75, 0.3);
+}
+.linkbox code {
+  display: block;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ember);
+  overflow-wrap: anywhere;
+  margin-top: 8px;
+}
+.resume-note {
+  border: 1px solid var(--hair-2);
+  background: var(--glass);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  color: var(--mut);
+  margin-bottom: 14px;
+}

@@ -8,9 +8,9 @@ Commit-sized tasks in strict order. Work top to bottom. Reference the task ID in
 
 **Status: PROVISIONAL.** `TASKS.md` says Phase 1 is written "informed by what the ten intakes taught you, not by what I guessed today." The ten intakes (P0-86) have not run. So this plan is split deliberately:
 
-- **Sessions A–C are safe to build now.** They key off `field_records` and the data model, which P0-88's question rewrites cannot move.
-- **Sessions D–F should wait for real profiles.** Prompts tuned against synthetic data are tuned against fiction; the findings and recommendations engines need messy, real answers to be worth anything.
-- **Sessions G–H are the business wrapper**, buildable any time but pointless before there is something to sell.
+- **Sessions A–D are safe to build now.** They key off `field_records` and the data model, which P0-88's question rewrites cannot move.
+- **Sessions E–G should wait for real profiles.** Prompts tuned against synthetic data are tuned against fiction; the findings and recommendations engines need messy, real answers to be worth anything.
+- **Sessions H–I are the business wrapper**, buildable any time but pointless before there is something to sell.
 
 Revisit this file after the tenth intake. Cross out what the owners proved wrong.
 
@@ -64,13 +64,33 @@ The first write-adjacent external calls in the product. Read-scope only, forever
 
 ---
 
-## ⚠ Wait here for the ten intakes
+## Session D — First contact _(~22h · pulled forward from step 50)_
 
-Sessions D–F consume real owner answers. Building them on synthetic profiles risks tuning the system's judgement to a fiction. If P0-86 has not run, stop and go do it — the link is live.
+**Why this moved.** Sessions A–C were ordered to build the report. The GATE
+needs something else: a stranger has to be able to arrive, understand what
+this is, leave halfway through, come back on a different device, and end up
+somewhere worth the fifteen minutes. Without that, P0-86 burns real owners
+on a dead end. The report can wait; the ten intakes cannot.
+
+- [x] **P1-55** Landing page: what this is, what you get, how long it takes, what happens to their answers
+- [x] **P1-56** Email capture at the finish — "where should I send this?", never a password
+- [x] **P1-57** Magic-link resume: a signed link reopens *their* profile on any device, cookie or no cookie
+- [x] **P1-58** Resume screen (§ mockup 6): where they left off, how far in they are, one button back in
+- [ ] **P1-59** Fact sheet wired to real data — every captured fact with its source, from the snapshot
+- [ ] **P1-60** Gaps view: what's missing and what answering it would buy, each linking back into the intake
+- [x] **P1-61** Tests: link signing and expiry, resume across devices, a stranger's whole path end to end
+
+**Done when:** a stranger can arrive cold, stop halfway, return on another device a week later, finish, and see everything they told us with its source.
 
 ---
 
-## Session D — Findings _(~30h · step 42)_
+## ⚠ Wait here for the ten intakes
+
+Sessions E–G consume real owner answers. Building them on synthetic profiles risks tuning the system's judgement to a fiction. If P0-86 has not run, stop and go do it — the link is live.
+
+---
+
+## Session E — Findings _(~30h · step 42)_
 
 - [ ] **P1-22** `DiagnosisFinding` type: severity, headline, detail, evidence array, snapshot reference
 - [ ] **P1-23** The findings prompt (Opus 5 — the only Opus workload in the product)
@@ -83,7 +103,7 @@ Sessions D–F consume real owner answers. Building them on synthetic profiles r
 
 ---
 
-## Session E — Recommendations _(~30h · step 43)_
+## Session F — Recommendations _(~30h · step 43)_
 
 - [ ] **P1-28** `ScenarioBlock`: assumptions, base / downside / upside, break-even condition, sensitivity flags
 - [ ] **P1-29** The recommendations prompt, constrained to findings that actually exist
@@ -96,7 +116,7 @@ Sessions D–F consume real owner answers. Building them on synthetic profiles r
 
 ---
 
-## Session F — The report screen _(~28h · steps 44–46)_
+## Session G — The report screen _(~28h · steps 44–46)_
 
 Design language is settled: `docs/DESIGN.md` + the Phase 1 mockups in `mockups/phase1/`.
 
@@ -113,7 +133,7 @@ Design language is settled: `docs/DESIGN.md` + the Phase 1 mockups in `mockups/p
 
 ---
 
-## Session G — Mode decision & watching _(~26h · steps 47–48)_
+## Session H — Mode decision & watching _(~26h · steps 47–48)_
 
 - [ ] **P1-42** `ModeDecision` from `ModeDecisionInputs` — deterministic, auditable, not a vibe from a prompt
 - [ ] **P1-43** Mode decision screen (§5): reasons shown are the actual inputs that triggered it
@@ -127,7 +147,7 @@ Design language is settled: `docs/DESIGN.md` + the Phase 1 mockups in `mockups/p
 
 ---
 
-## Session H — Money _(~28h · steps 50–52)_
+## Session I — Money _(~28h · steps 50–52)_
 
 - [ ] **P1-49** Signup and auth beyond the intake cookie
 - [ ] **P1-50** Payment for the one-off report price; a stranger pays and receives a report with nobody touching anything
