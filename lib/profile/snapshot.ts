@@ -121,6 +121,16 @@ async function liveEntities(profileId: string): Promise<SnapshotEntity[]> {
       out.push(...rows.map((r) => ({ spine, id: r.id, kind: r.kind as string })));
       continue;
     }
+    if (spine === "cost_items") {
+      // The fixed/variable bucket is structural (spine column, §5.4), and
+      // Session B's break-even needs it — freeze it as the entity kind.
+      const rows = await db
+        .select({ id: costItems.id, kind: costItems.bucket })
+        .from(costItems)
+        .where(eq(costItems.profile_id, profileId));
+      out.push(...rows.map((r) => ({ spine, id: r.id, kind: r.kind as string })));
+      continue;
+    }
     const rows = await db
       .select({ id: table.id })
       .from(table)

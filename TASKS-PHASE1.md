@@ -35,14 +35,14 @@ The foundation everything else references. A report must be reproducible from th
 
 Arithmetic, not inference. Never an LLM call — CLAUDE.md's cost rule and the auditability requirement point the same way.
 
-- [ ] **P1-07** Margin per offer: `(price − cost_to_deliver) / price`, currency-safe, per offer kind
-- [ ] **P1-08** Blended gross margin, weighted by volume where volume is known
-- [ ] **P1-09** Break-even: fixed costs ÷ contribution per unit, with the volume assumption stated
-- [ ] **P1-10** Average order value, monthly order count, revenue per channel where derivable
-- [ ] **P1-11** Cost per acquisition where ad spend and new-customer count both exist; refuse to guess when either is missing
-- [ ] **P1-12** Every computed value writes `derived_from` + the formula string (rule 6) — no unexplainable numbers
-- [ ] **P1-13** Stated-vs-computed handling (§8.3): computed wins for analysis, both shown, contradiction raised, neither overwritten
-- [ ] **P1-14** Tests: one passing and one failing case per formula; a two-currency profile must refuse to blend
+- [x] **P1-07** Margin per offer: `(price − cost_to_deliver) / price`, currency-safe, per offer kind
+- [x] **P1-08** Blended gross margin, weighted by volume where volume is known
+- [x] **P1-09** Break-even: fixed costs ÷ contribution per unit, with the volume assumption stated
+- [x] **P1-10** Average order value, monthly order count, revenue per channel where derivable
+- [x] **P1-11** Cost per acquisition where ad spend and new-customer count both exist; refuse to guess when either is missing
+- [x] **P1-12** Every computed value writes `derived_from` + the formula string (rule 6) — no unexplainable numbers
+- [x] **P1-13** Stated-vs-computed handling (§8.3): computed wins for analysis, both shown, contradiction raised, neither overwritten
+- [x] **P1-14** Tests: one passing and one failing case per formula; a two-currency profile must refuse to blend
 
 **Done when:** every figure on a report can be traced to its inputs on screen, and a wrong stated margin produces a visible discrepancy rather than a silent correction.
 
