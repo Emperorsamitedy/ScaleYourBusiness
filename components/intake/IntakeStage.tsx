@@ -31,6 +31,70 @@ const DEPART_MS = 240;
 /** The closing readout renders completeness as a word, never a percentage. */
 const completenessWord = (overall: number): string => (overall >= 0.7 ? "good" : "moderate");
 
+/**
+ * P1-56: the finish is where an owner gets a way back in. No password —
+ * an email and a link that reopens their profile on any device. The link
+ * is shown on screen rather than promised by email, because a promised
+ * email that never arrives is worse than no promise.
+ */
+function KeepAccess() {
+  const [email, setEmail] = useState("");
+  const [link, setLink] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (busy || email.trim() === "") return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/intake/resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const payload = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok) {
+        setError(payload.error ?? "That didn't work — try again.");
+        return;
+      }
+      setLink(payload.url ?? null);
+    } catch {
+      setError("I couldn't reach the server — check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (link) {
+    return (
+      <div className="linkbox">
+        <strong>Keep this link.</strong> It reopens your profile on any device for the next 30
+        days. Mail it to yourself now.
+        <code>{link}</code>
+      </div>
+    );
+  }
+
+  return (
+    <form className="finish-form" onSubmit={(e) => void submit(e)}>
+      <input
+        className="field"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="you@yourbusiness.hu"
+        aria-label="Your email address"
+      />
+      <button type="submit" className="next" disabled={busy || email.trim() === ""}>
+        {busy ? "One moment" : "Get my link"}
+      </button>
+      {error && <p className="err">{error}</p>}
+    </form>
+  );
+}
+
 function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> }) {
   return (
     <div className="card done">
@@ -48,6 +112,10 @@ function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> })
         <br />
         next&nbsp;&nbsp;<strong>deciding how carefully to move</strong>
       </div>
+      <p className="help" style={{ marginTop: 22, marginBottom: 0 }}>
+        Leave an email and I&rsquo;ll give you a link back to this — no password, no account.
+      </p>
+      <KeepAccess />
     </div>
   );
 }
@@ -66,7 +134,21 @@ export function IntakeStage() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [serverError, setServerError] = useState<string | null>(null);
   const [stripOpen, setStripOpen] = useState(false);
+  const [resumeNotice, setResumeNotice] = useState<string | null>(null);
   const booted = useRef(false);
+
+  // P1-57: arriving from a resume link. An expired link still lands here
+  // with a usable intake rather than an apology page.
+  useEffect(() => {
+    const flag = new URLSearchParams(window.location.search).get("resume");
+    if (flag === "ok") setResumeNotice("Welcome back — picking up where you left off.");
+    if (flag === "expired") {
+      setResumeNotice(
+        "That link has expired, so this is a fresh start. You can get a new link at the end.",
+      );
+    }
+    if (flag) window.history.replaceState({}, "", window.location.pathname);
+  }, []);
 
   // P0-87: hesitation, confusion, abandonment — all observable.
   const eventQueue = useRef<TelemetryEvent[]>([]);
@@ -300,6 +382,13 @@ export function IntakeStage() {
   return (
     <div className="shell">
       <TopBar progress={state?.progress ?? null} />
+      {resumeNotice && (
+        <div className="stage" style={{ paddingBottom: 0, paddingTop: 18 }}>
+          <div />
+          <div className="resume-note">{resumeNotice}</div>
+          <div />
+        </div>
+      )}
       <main className="stage">
         <section className="col" aria-label="Recorded answers, left column">
           <div className="col-head">Recorded</div>
