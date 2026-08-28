@@ -3184,3 +3184,339 @@ a.ghost {
   color: var(--mut);
   white-space: nowrap;
 }
+
+/* ── the fact sheet (P1-59/60) ──
+   Everything the owner told us with its source; everything open with
+   what answering it buys. Glass cards on the stage, mono for machine
+   truth, no colour on severity anywhere. */
+.fs-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 26px 28px 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.fs-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.fs-nav {
+  display: flex;
+  gap: 18px;
+  font-size: 13.5px;
+}
+.fs-nav a {
+  color: var(--mut);
+  text-decoration: none;
+}
+.fs-nav a:hover {
+  color: var(--ink);
+}
+.fs-nav [aria-current] {
+  color: var(--ink);
+  border-bottom: 1px solid var(--ember);
+  padding-bottom: 2px;
+}
+.fs-title h1 {
+  font-family: var(--display);
+  font-size: clamp(26px, 3.4vw, 38px);
+  letter-spacing: -0.03em;
+  margin: 0 0 6px;
+}
+.fs-title-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+
+.fs-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 16px;
+}
+.fs-card {
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow: var(--rim);
+  padding: 20px 22px;
+}
+.fs-card h2 {
+  font-family: var(--display);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+.fs-comp {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.fs-comp p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--mut);
+  line-height: 1.55;
+}
+.fs-ring {
+  width: 96px;
+  flex: none;
+}
+.fs-ring-v {
+  font-family: var(--mono);
+  font-size: 19px;
+  fill: var(--ink);
+}
+.fs-prov-row {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr) 34px;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0;
+}
+.fs-prov-row span {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--mut);
+  text-align: right;
+}
+.fs-prov-bar {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+.fs-prov-bar b {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--ember-deep), var(--ember));
+}
+
+.fs-block {
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow: var(--rim);
+  padding: 4px 22px 14px;
+}
+.fs-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 15px 0 11px;
+  border-bottom: 1px solid var(--hair);
+}
+.fs-block-head h2 {
+  font-family: var(--display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-transform: capitalize;
+}
+.fs-block-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+
+.fs-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--hair);
+  font-size: 13.5px;
+}
+.fs-row:last-child {
+  border-bottom: 0;
+}
+.fs-key {
+  color: var(--mut);
+}
+.fs-val {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.fs-val em {
+  font-style: normal;
+  color: var(--mut);
+}
+.fs-row.unknown .fs-val {
+  color: var(--mut);
+}
+.fs-meta {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  white-space: nowrap;
+}
+.fs-conf {
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 10.5px;
+  color: var(--ink);
+}
+.fs-pill {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--hair-2);
+  color: var(--mut);
+}
+.fs-pill.s-owner_input,
+.fs-pill.s-conversation {
+  color: var(--ember);
+  border-color: rgba(245, 155, 75, 0.38);
+}
+.fs-pill.s-inferred {
+  color: #a8bdf5;
+  border-color: rgba(76, 125, 240, 0.34);
+}
+.fs-pill.s-web_research {
+  color: var(--ink);
+}
+
+.fs-gap {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.fs-gap:last-child {
+  border-bottom: 0;
+}
+.fs-gap-p {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+.fs-gap.blocking .fs-gap-p {
+  color: var(--ember);
+}
+.fs-gap-q {
+  margin: 0;
+  font-size: 14px;
+}
+.fs-gap-b {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--mut);
+}
+
+.fs-entity {
+  padding: 10px 0 4px;
+  border-bottom: 1px solid var(--hair);
+}
+.fs-entity:last-child {
+  border-bottom: 0;
+}
+.fs-entity h3 {
+  font-family: var(--display);
+  font-size: 14.5px;
+  font-weight: 600;
+  margin: 4px 0 2px;
+}
+
+.fs-cands {
+  padding: 12px 0 6px;
+  border-bottom: 1px solid var(--hair);
+}
+.fs-cands-lede {
+  font-size: 13px;
+  color: var(--mut);
+  margin: 0 0 10px;
+}
+.fs-cand {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid var(--hair);
+}
+.fs-cand strong {
+  display: block;
+  font-size: 14px;
+}
+.fs-cand a {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--mut);
+  text-decoration: none;
+}
+.fs-cand a:hover {
+  color: var(--ember);
+}
+.fs-cand p {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--mut);
+}
+
+.fs-search {
+  position: sticky;
+  top: 10px;
+  z-index: 5;
+}
+.fs-note {
+  font-size: 13px;
+  color: var(--mut);
+  padding: 10px 0;
+  margin: 0;
+}
+.fs-empty {
+  font-size: 14px;
+  color: var(--mut);
+  padding: 14px 0;
+  margin: 0;
+}
+.fs-empty a {
+  color: var(--ember);
+}
+.fs-foot {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--mut);
+  text-align: center;
+  padding-top: 10px;
+}
+
+@media (max-width: 720px) {
+  .fs-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fs-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .fs-gap {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .fs-gap-p {
+    display: none;
+  }
+}

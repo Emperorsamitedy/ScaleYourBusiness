@@ -12,5 +12,10 @@ export default defineConfig({
     // Test files share one Postgres; the vocab and bank suites both rewrite
     // the vocabulary mirror, so files must not interleave.
     fileParallelism: false,
+    // That same shared Postgres is often also serving a running dev server.
+    // Under that contention, multi-write DB tests that finish in ~1s alone
+    // have been measured at 5–7s in the full batch — past the 5s default,
+    // which made the suite flake by machine load rather than by defect.
+    testTimeout: 15_000,
   },
 });

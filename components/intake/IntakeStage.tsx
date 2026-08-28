@@ -199,7 +199,14 @@ export function IntakeStage() {
     try {
       const res = await fetch("/api/intake", { method: "POST" });
       if (!res.ok) throw new Error(`intake boot ${res.status}`);
-      const next = (await res.json()) as IntakeState;
+      let next = (await res.json()) as IntakeState;
+      // A gap on the fact sheet links here as /intake?ask=<question_id>;
+      // re-read with the preference so that question is the one presented.
+      const ask = new URLSearchParams(window.location.search).get("ask");
+      if (ask !== null && ask !== "") {
+        const preferred = await fetch(`/api/intake?ask=${encodeURIComponent(ask)}`);
+        if (preferred.ok) next = (await preferred.json()) as IntakeState;
+      }
       setState(next);
       setPhase("answering");
       if (next.progress.core_done > 0) track({ kind: "session_resumed" });

@@ -61,11 +61,15 @@ export async function POST(): Promise<NextResponse> {
   }
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await resolveSession();
     if (!session) return NextResponse.json({ error: "no intake session" }, { status: 404 });
-    return NextResponse.json(await getIntakeState(session.account_id, session.profile_id));
+    // ?ask=<question_id> — a gap on the fact sheet links straight to its
+    // question. getIntakeState already honours a preferred id; unknown or
+    // inapplicable ids simply fall back to normal selection.
+    const ask = request.nextUrl.searchParams.get("ask") ?? undefined;
+    return NextResponse.json(await getIntakeState(session.account_id, session.profile_id, ask));
   } catch (error) {
     return errorResponse(error);
   }

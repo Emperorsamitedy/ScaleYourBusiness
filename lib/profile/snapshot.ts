@@ -141,6 +141,39 @@ async function liveEntities(profileId: string): Promise<SnapshotEntity[]> {
 }
 
 /**
+ * The snapshot to render from right now: the latest one if the profile
+ * has not moved since it was taken, a fresh one if it has. Content-hash
+ * comparison, so a fact sheet viewed twenty times creates one snapshot,
+ * not twenty.
+ */
+export async function ensureSnapshot(
+  profileId: string,
+  reason: "report" | "watching_weekly" | "manual" = "manual",
+): Promise<SnapshotSummary> {
+  const current = await db
+    .select()
+    .from(fieldRecords)
+    .where(and(eq(fieldRecords.profile_id, profileId), isNull(fieldRecords.superseded_at)));
+  const entities = await liveEntities(profileId);
+  const hash = contentHash(
+    current.map((r) => ({
+      field_key: r.field_key,
+      value: r.value,
+      status: r.status,
+      confidence: r.confidence,
+      source: r.source,
+      observed_at: r.observed_at,
+      note: r.note,
+    })),
+    entities,
+  );
+
+  const [latest] = await listSnapshots(profileId);
+  if (latest && latest.content_hash === hash) return latest;
+  return takeSnapshot(profileId, reason);
+}
+
+/**
  * Freeze the profile as it stands. Returns the summary; the snapshot is
  * immutable from here — nothing in this module ever updates one.
  */
