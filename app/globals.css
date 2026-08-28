@@ -1323,42 +1323,283 @@ input[type="number"].field::-webkit-inner-spin-button {
   line-height: 1.6;
 }
 
-/* the honest ledger */
-.land-ledger h2,
-.land-end h2 {
-  font-family: var(--display);
-  font-size: clamp(23px, 3vw, 30px);
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  margin: 0 0 24px;
-  max-width: 22ch;
-  text-wrap: balance;
+/* ── the trust diagram (P1-55) ──
+   Four promises in a list convince nobody. This draws the actual data
+   posture: two routes an answer takes, three it never does, cut on the
+   same diagram with packets that set off and die at the severance. */
+.trust {
+  position: relative;
+  border: 1px solid var(--hair-2);
+  border-radius: 4px;
+  overflow: hidden;
+  background:
+    linear-gradient(var(--glass), var(--glass)),
+    repeating-linear-gradient(to right, rgba(255, 255, 255, 0.028) 0 1px, transparent 1px 46px);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
 }
-.land-ledger dl {
-  margin: 0;
+.trust::before,
+.trust::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--ember);
+  opacity: 0.85;
+  pointer-events: none;
+}
+.trust::before {
+  top: 6px;
+  left: 6px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.trust::after {
+  bottom: 6px;
+  right: 6px;
+  border-left: 0;
+  border-top: 0;
+}
+.trust-head {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 15px 22px;
+  border-bottom: 1px solid var(--hair);
+  font-family: var(--display);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
-.ledger-row {
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 24px;
-  padding: 15px 0;
-  border-top: 1px solid var(--hair);
+.trust-mono {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--mut);
+  font-weight: 400;
 }
-.ledger-row dt {
+.trust-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 14px 10px 4px;
+}
+.t-label {
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
-  color: var(--dim, #6b727c);
-  padding-top: 3px;
+  fill: #9ba1ab;
 }
-.ledger-row dd {
+.t-label.hot {
+  fill: var(--ember);
+}
+.t-blocked {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  fill: #6b727c;
+}
+/* the live routes draw themselves, then stay */
+.t-live {
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: hud-draw 0.9s var(--ease) 0.2s forwards;
+}
+.t-vault {
+  animation: t-seal 4s var(--ease) infinite;
+}
+@keyframes t-seal {
+  0%,
+  62%,
+  100% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.72;
+  }
+}
+.t-cut {
+  animation: t-flick 4s var(--ease) infinite;
+}
+@keyframes t-flick {
+  0%,
+  55%,
+  100% {
+    opacity: 0.55;
+  }
+  62%,
+  72% {
+    opacity: 1;
+  }
+}
+
+/* packets */
+.t-pkt {
+  opacity: 0;
+}
+.t-p1 {
+  animation: t-run1 4s var(--ease) infinite;
+}
+@keyframes t-run1 {
+  0% {
+    transform: translate(128px, 150px);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  30% {
+    transform: translate(336px, 150px);
+    opacity: 1;
+  }
+  36%,
+  100% {
+    transform: translate(336px, 150px);
+    opacity: 0;
+  }
+}
+.t-p2 {
+  animation: t-run2 4s var(--ease) infinite;
+}
+@keyframes t-run2 {
+  0%,
+  34% {
+    transform: translate(524px, 150px);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  56% {
+    transform: translate(700px, 150px);
+    opacity: 1;
+  }
+  62%,
+  100% {
+    transform: translate(700px, 150px);
+    opacity: 0;
+  }
+}
+/* the three that set off and die at the cut */
+.t-b1 {
+  animation: t-block1 4s var(--ease) infinite;
+}
+@keyframes t-block1 {
+  0%,
+  58% {
+    transform: translate(430px, 200px);
+    opacity: 0;
+  }
+  62% {
+    opacity: 1;
+  }
+  70% {
+    transform: translate(232px, 252px);
+    opacity: 1;
+  }
+  74%,
+  100% {
+    transform: translate(232px, 252px);
+    opacity: 0;
+  }
+}
+.t-b2 {
+  animation: t-block2 4s var(--ease) infinite;
+}
+@keyframes t-block2 {
+  0%,
+  59% {
+    transform: translate(430px, 200px);
+    opacity: 0;
+  }
+  63% {
+    opacity: 1;
+  }
+  71% {
+    transform: translate(430px, 276px);
+    opacity: 1;
+  }
+  75%,
+  100% {
+    transform: translate(430px, 276px);
+    opacity: 0;
+  }
+}
+.t-b3 {
+  animation: t-block3 4s var(--ease) infinite;
+}
+@keyframes t-block3 {
+  0%,
+  60% {
+    transform: translate(430px, 200px);
+    opacity: 0;
+  }
+  64% {
+    opacity: 1;
+  }
+  72% {
+    transform: translate(628px, 252px);
+    opacity: 1;
+  }
+  76%,
+  100% {
+    transform: translate(628px, 252px);
+    opacity: 0;
+  }
+}
+
+.trust-foot {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  padding: 20px 22px 22px;
+  border-top: 1px solid var(--hair);
+}
+.trust-k {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: 7px;
+}
+.trust-foot p {
   margin: 0;
-  font-size: 15.5px;
-  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--mut);
 }
+@media (prefers-reduced-motion: reduce) {
+  .t-pkt {
+    opacity: 0 !important;
+    animation: none !important;
+  }
+  .t-live {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .t-vault,
+  .t-cut {
+    animation: none;
+    opacity: 1;
+  }
+}
+@media (max-width: 860px) {
+  .trust-foot {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .trust-head {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
 .land-end {
   border-top: 1px solid var(--hair-2);
   padding-top: 40px;

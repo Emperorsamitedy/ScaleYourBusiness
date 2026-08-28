@@ -14,6 +14,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MorphDemo } from "@/components/landing/MorphDemo";
 import { Reel } from "@/components/landing/Reel";
+import { Trust } from "@/components/landing/Trust";
 
 export const metadata: Metadata = {
   title: "Ledgerline — where your business actually leaks money",
@@ -50,12 +51,6 @@ const SEQUENCE = [
   },
 ];
 
-const LEDGER = [
-  ["your answers", "stay yours — not sold, not shown to anyone else"],
-  ["your account", "there isn’t one. an email and a link, no password"],
-  ["stopping halfway", "everything is saved as you go"],
-  ["what it changes", "nothing. this version reads and explains"],
-];
 
 export default function Home() {
   return (
@@ -155,16 +150,8 @@ export default function Home() {
         <Reel />
       </section>
 
-      <section className="land-ledger">
-        <h2>Before you tell me anything</h2>
-        <dl>
-          {LEDGER.map(([k, v]) => (
-            <div key={k} className="ledger-row">
-              <dt>{k}</dt>
-              <dd>{v}</dd>
-            </div>
-          ))}
-        </dl>
+      <section className="land-trust">
+        <Trust />
       </section>
 
       <section className="land-end">
