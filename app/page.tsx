@@ -67,23 +67,29 @@ export default function Home() {
         </Link>
       </header>
 
-      <section className="land-hero">
-        <p className="kicker">For people who run a small business</p>
-        <h1>
-          Most owners are wrong about which product makes them money.
-        </h1>
-        <p className="land-lede">
-          Not through carelessness — the numbers live in six places and none of them talk. Answer
-          some questions and I’ll show you where the money actually goes, and the arithmetic
-          behind every figure.
-        </p>
-        <div className="row">
-          <Link className="next" href="/intake">
-            Start — about 15 minutes
-          </Link>
-          <span className="hint">no account, no card</span>
+      <section className="hero2">
+        <div className="hero2-type">
+          <p className="kicker">For people who run a small business</p>
+          <h1>
+            Most owners are wrong about which product{" "}
+            <span className="hero2-mark">makes them money</span>.
+          </h1>
+          <p className="land-lede">
+            Not through carelessness — the numbers live in six places and none of them talk. Answer
+            some questions and I&rsquo;ll show you where the money actually goes, and the arithmetic
+            behind every figure.
+          </p>
+          <div className="row">
+            <Link className="next" href="/intake">
+              Start — about 15 minutes
+            </Link>
+            <span className="hint">no account, no card</span>
+          </div>
         </div>
-        <MorphDemo />
+
+        <div className="hero2-panel">
+          <MorphDemo />
+        </div>
       </section>
 
       {/* the proof: an instrument reading it out, not a chart of it */}
