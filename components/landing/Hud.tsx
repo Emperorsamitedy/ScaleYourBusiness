@@ -11,9 +11,15 @@
 // for any profile's real numbers later.
 
 /* ── polar helpers ── */
+
+// Rounded, because Math.cos and Math.sin are not required to be correctly
+// rounded and Node and Chrome disagree in the last bit. Unrounded, every
+// tick coordinate is a hydration mismatch React refuses to patch up.
+const r3 = (n: number): number => Math.round(n * 1000) / 1000;
+
 const P = (cx: number, cy: number, r: number, deg: number): [number, number] => {
   const t = ((deg - 90) * Math.PI) / 180;
-  return [cx + r * Math.cos(t), cy + r * Math.sin(t)];
+  return [r3(cx + r * Math.cos(t)), r3(cy + r * Math.sin(t))];
 };
 
 /** Arc path for a fraction of a circle, starting at 12 o'clock. */

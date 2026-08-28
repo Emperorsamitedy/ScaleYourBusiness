@@ -12,6 +12,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Arc } from "@/components/landing/Arc";
 import { MorphDemo } from "@/components/landing/MorphDemo";
 import { Reel } from "@/components/landing/Reel";
 import { Trust } from "@/components/landing/Trust";
@@ -148,6 +149,16 @@ export default function Home() {
           from, and every one of them is arithmetic you can check.
         </p>
         <Reel />
+      </section>
+
+      <section className="land-arc">
+        <h2>That&rsquo;s stage one of five.</h2>
+        <p className="land-lede" style={{ marginBottom: 34 }}>
+          Understanding the business is the part that has to come first — nothing downstream can be
+          trusted without it. Here is the rest of what gets built on top, and which of it exists
+          today.
+        </p>
+        <Arc />
       </section>
 
       <section className="land-trust">

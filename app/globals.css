@@ -1323,6 +1323,302 @@ input[type="number"].field::-webkit-inner-spin-button {
   line-height: 1.6;
 }
 
+/* ── the five-stage arc (P1-55) ──
+   The page sells a diagnosis, which is all the product does today. This
+   shows the whole system it becomes, and tells the truth in the drawing:
+   solid spine over built ground, dashed over planned, with the charge
+   going faint the moment it leaves what exists. */
+.arc {
+  position: relative;
+  border: 1px solid var(--hair-2);
+  border-radius: 16px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  overflow: hidden;
+}
+.arc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 15px 22px;
+  border-bottom: 1px solid var(--hair);
+  font-family: var(--display);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.arc-mono {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mut);
+  font-weight: 400;
+}
+.arc-rail {
+  padding: 26px 20px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.arc-rail::-webkit-scrollbar {
+  display: none;
+}
+.arc-svg {
+  display: block;
+  width: 100%;
+  min-width: 720px;
+  height: auto;
+}
+
+.arc-spine.plan {
+  stroke: rgba(255, 255, 255, 0.16);
+  stroke-width: 1.2;
+}
+.arc-pulse {
+  animation: arcRun 7s var(--ease) infinite;
+}
+@keyframes arcRun {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+    r: 4.5px;
+  }
+  4% {
+    opacity: 1;
+  }
+  /* leaves built ground at station one and immediately weakens */
+  11% {
+    transform: translateX(78px);
+    opacity: 1;
+    r: 4.5px;
+  }
+  16% {
+    transform: translateX(120px);
+    opacity: 0.28;
+    r: 2.6px;
+  }
+  92% {
+    transform: translateX(854px);
+    opacity: 0.28;
+    r: 2.6px;
+  }
+  100% {
+    transform: translateX(854px);
+    opacity: 0;
+    r: 2.6px;
+  }
+}
+
+.arc-node g line {
+  stroke: rgba(255, 255, 255, 0.14);
+}
+.arc-node.live g line {
+  stroke: rgba(245, 155, 75, 0.42);
+}
+.arc-node {
+  cursor: pointer;
+  outline: none;
+}
+.arc-hit {
+  fill: transparent;
+}
+.arc-well {
+  fill: #0d0e11;
+  stroke: none;
+}
+.arc-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 3.5;
+}
+.arc-cap {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  transition: stroke 260ms var(--ease);
+}
+.arc-node.live .arc-cap {
+  stroke: url(#arcLive);
+  stroke-width: 4.5;
+}
+.arc-node.on .arc-cap {
+  stroke: rgba(255, 255, 255, 0.62);
+}
+.arc-node.live.on .arc-cap {
+  stroke: url(#arcLive);
+}
+.arc-num {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  fill: var(--mut);
+  transition: fill 260ms var(--ease);
+}
+.arc-node.live .arc-num,
+.arc-node.on .arc-num {
+  fill: var(--ink);
+}
+.arc-verb {
+  font-family: var(--display);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  fill: rgba(255, 255, 255, 0.42);
+  transition: fill 260ms var(--ease);
+}
+.arc-node.on .arc-verb {
+  fill: var(--ink);
+}
+.arc-node.live .arc-verb {
+  fill: var(--ember);
+}
+.arc-state {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  fill: rgba(255, 255, 255, 0.26);
+}
+.arc-node.live .arc-state {
+  fill: var(--ember);
+}
+.arc-node:focus-visible .arc-track {
+  stroke: var(--ember);
+}
+.arc-ping {
+  fill: none;
+  stroke: rgba(245, 155, 75, 0.5);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: arcPing 3.4s var(--ease) infinite;
+}
+@keyframes arcPing {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+.arc-detail {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: start;
+  padding: 22px 24px;
+  border-top: 1px solid var(--hair);
+  animation: arcIn 420ms var(--ease) both;
+}
+@keyframes arcIn {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.arc-d-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ember);
+  padding-top: 4px;
+}
+.arc-d-body h3 {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 7px;
+}
+.arc-d-body p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--mut);
+  max-width: 62ch;
+}
+.arc-d-mark {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--hair-2);
+  color: var(--mut);
+}
+.arc-d-mark.live {
+  color: var(--ember);
+  border-color: rgba(245, 155, 75, 0.42);
+  background: rgba(245, 155, 75, 0.08);
+}
+.arc-d-mark.next {
+  color: #a8bdf5;
+  border-color: rgba(76, 125, 240, 0.34);
+}
+
+.arc-foot {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px 24px 18px;
+  border-top: 1px solid var(--hair);
+  background: rgba(255, 255, 255, 0.015);
+}
+.arc-foot-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--settled);
+  margin-top: 8px;
+  flex: none;
+}
+.arc-foot p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--mut);
+}
+.arc-foot em {
+  font-style: normal;
+  color: var(--ink);
+}
+.arc-foot strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .arc-detail {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+  .arc-d-mark {
+    grid-column: 2;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arc-pulse,
+  .arc-ping {
+    animation: none;
+  }
+  .arc-pulse {
+    opacity: 0;
+  }
+  .arc-detail {
+    animation: none;
+  }
+}
+
 /* ── the trust diagram (P1-55) ──
    Four promises in a list convince nobody. This draws the actual data
    posture: two routes an answer takes, three it never does, cut on the
@@ -1813,6 +2109,7 @@ a.ghost {
    Three scenes in one instrument frame, each assembling itself, then
    handing over. Same chrome as the analyzer so it reads as one product. */
 .land-examples h2,
+.land-arc h2,
 .land-ledger h2,
 .land-end h2 {
   font-family: var(--display);
