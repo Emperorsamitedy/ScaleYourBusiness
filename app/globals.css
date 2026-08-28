@@ -999,7 +999,7 @@ input[type="number"].field::-webkit-inner-spin-button {
    under it PROVES the claim with the real chart, and the rest is
    hairline-ruled sequence. No card grid — that shape is the tell. */
 .land {
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 26px 28px 90px;
   display: flex;
@@ -1015,7 +1015,7 @@ input[type="number"].field::-webkit-inner-spin-button {
 /* the split hero: type left, the instrument running right */
 .hero2 {
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.14fr);
   gap: 44px;
   align-items: center;
   padding-top: 26px;
@@ -1023,9 +1023,9 @@ input[type="number"].field::-webkit-inner-spin-button {
 }
 .hero2-type h1 {
   font-family: var(--display);
-  font-size: clamp(32px, 4.4vw, 56px);
+  font-size: clamp(32px, 3.6vw, 46px);
   font-weight: 700;
-  line-height: 1.03;
+  line-height: 1.06;
   letter-spacing: -0.035em;
   margin: 18px 0 22px;
   text-wrap: balance;
@@ -3095,4 +3095,92 @@ a.ghost {
   box-shadow:
     0 0 0 3px rgba(245, 155, 75, 0.22),
     var(--rim);
+}
+
+/* ── the demo's floor: the profile filling up ──
+   The panel is sized for the report, so during the questions it used to
+   sit 44% empty. This puts the structured core underneath — answered
+   fields lit, the rest waiting — which fills the space with the
+   product's actual behaviour rather than with decoration. */
+.morph-core {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+  transition:
+    opacity 0.4s var(--ease),
+    transform 0.4s var(--ease);
+}
+.morph-core.gone {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+.morph-core-meter {
+  display: flex;
+  gap: 3px;
+}
+.morph-core-meter i {
+  flex: 1;
+  height: 6px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.07);
+  transition:
+    background 0.34s var(--ease),
+    box-shadow 0.34s var(--ease);
+}
+/* the slot being answered right now — so the meter is never inert */
+.morph-core-meter i.cur {
+  background: rgba(245, 155, 75, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(245, 155, 75, 0.55);
+}
+.morph-core-meter i.on {
+  background: linear-gradient(180deg, var(--ember-bright), var(--ember-deep));
+  box-shadow: 0 0 8px rgba(245, 155, 75, 0.45);
+}
+.morph-core-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+}
+.morph-core-names {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  gap: 0 7px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-width: 0;
+}
+.morph-core-names em {
+  font-style: normal;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.24);
+  transition: color 0.34s var(--ease);
+}
+.morph-core-names em::after {
+  content: " ·";
+  color: rgba(255, 255, 255, 0.14);
+}
+.morph-core-names em.rest::after {
+  content: "";
+}
+.morph-core-names em.lit {
+  color: var(--ember);
+}
+.morph-core-count {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mut);
+  white-space: nowrap;
 }

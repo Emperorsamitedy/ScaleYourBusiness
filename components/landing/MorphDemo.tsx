@@ -33,6 +33,17 @@ const ANSWERS: Answer[] = [
 ];
 
 
+// The core set, in the order this demo captures them. What is already
+// answered lights up; what is coming stays dim, so the panel says "there
+// is a structured set of these" without a word of copy.
+const CORE_FIELDS = [
+  "monthly revenue",
+  "what you sell",
+  "unit cost",
+  "orders / month",
+];
+const CORE_TOTAL = 27;
+
 const TYPE_MS = 38;
 const HOLD_MS = 520;
 const READ_MS = 1150;
@@ -175,6 +186,35 @@ export function MorphDemo() {
                 </span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* the profile filling up underneath — the panel's floor, so it is
+            never empty while the questions are still being answered */}
+        {!still && (
+          <div className={`morph-core ${flying ? "gone" : ""}`}>
+            <div className="morph-core-meter" aria-hidden="true">
+              {Array.from({ length: CORE_TOTAL }, (_, c) => (
+                <i
+                  key={c}
+                  className={c < chips.length ? "on" : c === chips.length ? "cur" : ""}
+                  style={{ transitionDelay: `${c * 18}ms` }}
+                />
+              ))}
+            </div>
+            <div className="morph-core-row">
+              <span className="morph-core-names">
+                {CORE_FIELDS.map((n, idx) => (
+                  <em key={n} className={idx < chips.length ? "lit" : ""}>
+                    {n}
+                  </em>
+                ))}
+                <em className="rest">+{CORE_TOTAL - CORE_FIELDS.length} more</em>
+              </span>
+              <span className="morph-core-count">
+                {chips.length} of {CORE_TOTAL} core
+              </span>
+            </div>
           </div>
         )}
 
