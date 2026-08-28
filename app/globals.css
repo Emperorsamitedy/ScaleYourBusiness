@@ -999,7 +999,7 @@ input[type="number"].field::-webkit-inner-spin-button {
    under it PROVES the claim with the real chart, and the rest is
    hairline-ruled sequence. No card grid — that shape is the tell. */
 .land {
-  max-width: 1000px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 26px 28px 90px;
   display: flex;
@@ -1015,8 +1015,8 @@ input[type="number"].field::-webkit-inner-spin-button {
 /* the split hero: type left, the instrument running right */
 .hero2 {
   display: grid;
-  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
-  gap: 48px;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: 44px;
   align-items: center;
   padding-top: 26px;
   min-height: 74vh;
@@ -2002,46 +2002,116 @@ a.ghost {
   animation: fadein 0.5s var(--ease) 1s both;
 }
 
-/* scene 2 — how wrong it can be */
-.reel-svg {
+/* scene 2 — how wrong it can be: a diverging ladder, not a lone diagonal */
+.lad {
   width: 100%;
-  height: auto;
-  max-height: 210px;
-  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-.reel-ax {
+.lad-axis {
+  position: relative;
+  height: 16px;
+  margin-left: 62px;
+  margin-right: 92px;
   font-family: var(--mono);
   font-size: 9px;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  fill: #6b727c;
+  color: var(--dim, #6b727c);
 }
-.reel-ax.hot {
-  fill: var(--err);
+.lad-axis > span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
-.reel-note {
-  font-family: var(--sans);
-  font-size: 12.5px;
+.lad-axis i {
+  display: block;
+  width: 1px;
+  height: 6px;
+  margin: 0 auto 3px;
+  background: rgba(255, 255, 255, 0.28);
+}
+.lad-axis .lad-right {
+  right: 0;
+  left: auto;
+  transform: none;
+}
+.lad-row {
+  display: grid;
+  grid-template-columns: 54px 1fr 84px 82px;
+  gap: 8px;
+  align-items: center;
+}
+.lad-loss {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--mut);
+  text-align: right;
+}
+.lad-track {
+  position: relative;
+  display: block;
+  height: 17px;
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: 3px;
+}
+.lad-zero {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.3);
+}
+.lad-fill {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 2px;
+  transform: scaleX(0);
+  animation: reel-grow 0.55s var(--ease) both;
+}
+.lad-fill.up {
+  background: linear-gradient(90deg, var(--ember-deep), var(--ember));
+  transform-origin: left center;
+}
+.lad-fill.down {
+  background: var(--err);
+  transform-origin: right center;
+}
+.lad-v {
+  font-family: var(--display);
   font-weight: 600;
-  fill: var(--ink);
+  font-size: 13px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--mut);
 }
-.reel-line {
-  stroke-dasharray: 520;
-  stroke-dashoffset: 520;
-  animation: hud-draw 1.2s var(--ease) 0.15s forwards;
+.lad-flag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--err);
+  animation: fadein 0.4s var(--ease) 0.9s both;
 }
-.reel-area,
-.reel-area2 {
-  opacity: 0;
-  animation: fadein 0.6s var(--ease) 0.9s forwards;
+.lad-row.be .lad-loss,
+.lad-row.be .lad-v {
+  color: var(--err);
 }
-.reel-mark {
-  opacity: 0;
-  animation: fadein 0.5s var(--ease) 1.25s forwards;
+.lad-row.be .lad-track {
+  background: rgba(255, 122, 114, 0.09);
 }
-.reel-assume {
-  opacity: 0;
-  animation: fadein 0.5s var(--ease) 1.6s forwards;
+.lad-note {
+  margin: 10px 0 0 62px;
+  font-size: 13.5px;
+  color: var(--mut);
+  animation: fadein 0.5s var(--ease) 1.1s both;
+}
+.lad-note strong {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* scene 3 — what it watched */

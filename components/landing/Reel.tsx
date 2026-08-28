@@ -18,7 +18,7 @@ const SCENE_MS = 5400;
 
 const SCENES = [
   { key: "month", title: "Where the month goes", sub: "4 500 000 HUF of revenue, by what it paid for" },
-  { key: "risk", title: "How wrong I can be before it hurts", sub: "Raise the price 20% — you'd have to lose 53% of sales to be worse off" },
+  { key: "risk", title: "How wrong I can be before it hurts", sub: "Profit change at every level of being wrong about the volume drop" },
   { key: "watch", title: "What I watched afterwards", sub: "Weekly snapshots against the thresholds that would interrupt you" },
 ] as const;
 
@@ -50,44 +50,60 @@ function MonthScene() {
   );
 }
 
+/** What the recommendation earns at each level of being wrong. */
 function RiskScene() {
+  // profit change = 1900 × 189 × (1 − loss) − 170 100, in HUF
+  const STEPS = [
+    { loss: "0%", v: 189_000 },
+    { loss: "−10%", v: 153_090 },
+    { loss: "−20%", v: 117_180 },
+    { loss: "−30%", v: 81_270 },
+    { loss: "−40%", v: 45_360 },
+    { loss: "−53%", v: 0, breakeven: true },
+    { loss: "−60%", v: -26_460 },
+  ];
+  const SCALE = 189_000;
+  const ORIGIN = 34; // % across the track where zero sits
+
   return (
-    <svg viewBox="0 0 520 190" className="reel-svg" aria-hidden="true">
-      <defs>
-        <linearGradient id="reelGood" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f59b4b" stopOpacity=".26" />
-          <stop offset="100%" stopColor="#f59b4b" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="reelBad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#ff7a72" stopOpacity=".04" />
-          <stop offset="100%" stopColor="#ff7a72" stopOpacity=".2" />
-        </linearGradient>
-      </defs>
-      <line x1="46" y1="146" x2="500" y2="146" stroke="rgba(255,255,255,.16)" strokeDasharray="4 5" />
-      <text x="40" y="150" textAnchor="end" className="reel-ax">today</text>
-      <path className="reel-area" d="M46,26 L426,146 L46,146 Z" fill="url(#reelGood)" />
-      <path className="reel-area2" d="M426,146 L500,169 L500,146 Z" fill="url(#reelBad)" />
-      <path
-        className="reel-line"
-        d="M46,26 L500,169"
-        fill="none"
-        stroke="#f59b4b"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-      />
-      <g className="reel-mark">
-        <line x1="426" y1="22" x2="426" y2="162" stroke="#ff7a72" strokeWidth="1.3" strokeDasharray="4 5" />
-        <circle cx="426" cy="146" r="5.5" fill="#0a0b0d" stroke="#ff7a72" strokeWidth="2" />
-        <text x="420" y="18" textAnchor="end" className="reel-ax hot">break-even −53%</text>
-      </g>
-      <g className="reel-assume">
-        <circle cx="118" cy="49" r="15" fill="#f59b4b" opacity=".16" />
-        <circle cx="118" cy="49" r="6" fill="#f59b4b" />
-        <text x="136" y="46" className="reel-note">we assume −8%</text>
-        <text x="136" y="61" className="reel-ax">+160 200 HUF / month</text>
-      </g>
-      <text x="46" y="182" className="reel-ax">sales lost →</text>
-    </svg>
+    <div className="lad">
+      <div className="lad-axis">
+        <span style={{ left: `${ORIGIN}%` }}>
+          <i />
+          today
+        </span>
+        <span className="lad-right">better off →</span>
+      </div>
+
+      {STEPS.map((s, i) => {
+        const pos = s.v >= 0;
+        const w = (Math.abs(s.v) / SCALE) * (100 - ORIGIN - 4);
+        return (
+          <div className={s.breakeven ? "lad-row be" : "lad-row"} key={s.loss}>
+            <span className="lad-loss">{s.loss}</span>
+            <span className="lad-track">
+              <i className="lad-zero" style={{ left: `${ORIGIN}%` }} />
+              <b
+                className={pos ? "lad-fill up" : "lad-fill down"}
+                style={{
+                  left: pos ? `${ORIGIN}%` : `${ORIGIN - w}%`,
+                  width: `${Math.max(w, 0.4)}%`,
+                  animationDelay: `${i * 110}ms`,
+                }}
+              />
+            </span>
+            <span className="lad-v">
+              {s.v === 0 ? "0" : `${s.v > 0 ? "+" : "−"}${Math.abs(s.v).toLocaleString("en-US").replace(/,/g, " ")}`}
+            </span>
+            {s.breakeven && <span className="lad-flag">break-even</span>}
+          </div>
+        );
+      })}
+
+      <p className="lad-note">
+        Sales would have to fall <strong>53%</strong> before the price rise costs you anything.
+      </p>
+    </div>
   );
 }
 
