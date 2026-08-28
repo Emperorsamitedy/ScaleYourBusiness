@@ -92,6 +92,7 @@ const FULL = {
   url: "https://szomszed-szorp.hu",
   what_they_sell: "Kézműves bodzaszörp és limonádé alapok",
   price_points: "0,5 l — 6 490 Ft",
+  delivery_promise: "2 munkanapos kiszállítás országosan",
   strengths: "Országos szállítás, letisztult csomagolás",
   weaknesses: "Csak három íz, nincs ajándékcsomag",
   why_customers_choose_them: "Nagyobb választék online",
@@ -133,6 +134,7 @@ describe("P1-16 — a populated record with real URLs", () => {
     });
 
     expect(result.written).toContain("price_points");
+    expect(result.written).toContain("delivery_promise");
     expect(result.pages_read[0]).toMatch(/^https:\/\/szomszed-szorp\.hu\//);
 
     const fields = await currentFields(result.competitor_id);

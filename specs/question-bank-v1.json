@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.0.0",
+  "bank_version": "1.1.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -966,6 +966,17 @@
           "key": "price_points",
           "prompt": {
             "en": "Their typical prices"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "delivery_promise",
+          "prompt": {
+            "en": "What do they promise on delivery or fulfilment?"
           },
           "input": {
             "type": "text",

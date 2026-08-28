@@ -99,6 +99,7 @@ const FIELDS = [
   "url",
   "what_they_sell",
   "price_points",
+  "delivery_promise",
   "strengths",
   "weaknesses",
   "why_customers_choose_them",
@@ -132,6 +133,7 @@ Fields:
 - url: their main page
 - what_they_sell: their offering, in their words
 - price_points: prices actually shown, with currency; null if none are published
+- delivery_promise: what they promise on delivery or fulfilment — speed, cost, area covered; null if the pages say nothing
 - strengths: what they visibly do well
 - weaknesses: gaps visible on the page — thin range, no delivery, no prices shown
 - why_customers_choose_them: the reason they themselves give`;

@@ -59,8 +59,14 @@ The first write-adjacent external calls in the product. Read-scope only, forever
 - [x] **P1-19** `researched_at` on every record; staleness feeds the `stale_financials`-style rules
 - [x] **P1-20** Honest progress: real steps, real timings, **no artificial delay** — the log shows work completed, not a theatre of it
 - [x] **P1-21** Cost logged per research run, tagged by workload
+- [x] **P1-21a** Live providers: real web search (Anthropic `web_search` on Haiku, results parsed from tool blocks, never prose) and a real page fetcher (timeout, HTML stripped, public web only)
+- [x] **P1-21b** Discovery: `discoverCompetitors` goes from the owner's own facts (1.3/1.4 + country) to 3–5 candidates with URLs — proposes only; the owner's confirmation is what creates a record
+- [x] **P1-21c** `delivery_promise` in the extraction and the bank's competitor schema (bank 1.1.0) — what they promise on delivery is a field, not a footnote
+- [x] **P1-21d** Routes: `POST /api/research/discover` and `POST /api/research/competitor`, intake-cookie scoped
 
-**Done when:** naming a competitor produces a populated record with real URLs and nothing invented, and the progress log entries correspond to actual completed work.
+**Done when:** a profile that has said what it does and where can ask "who competes with me?" and get back 3–5 real candidates with URLs it can confirm; confirming one produces a populated record with real URLs and nothing invented; and the progress log entries correspond to actual completed work.
+
+_(The original "Done when" only covered enriching a competitor the owner had already named — the plan's actual claim, "the agent goes and looks", was P1-21a/b and landed later.)_
 
 ---
 
