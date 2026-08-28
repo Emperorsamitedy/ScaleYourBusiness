@@ -134,6 +134,21 @@ td.acts a:hover{text-decoration:underline}
 @media (max-width:760px){.sum,.charts{grid-template-columns:1fr}.shell{padding:16px 14px 60px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
  .dw{stroke-dashoffset:0}}
+
+/* ── watery glass: the cool rim (mirrors app/globals.css) ── */
+:root{
+  --rim-lip:rgba(198,218,255,.10); --rim-cool:rgba(120,162,255,.055);
+  --rim-bleed:rgba(126,168,255,.5); --rim-bloom:rgba(76,125,240,.4);
+  --edge:rgba(148,180,255,.13);
+  --rim:
+    inset 0 1px 0 var(--rim-lip),
+    inset 1px 0 0 rgba(160,195,255,.045),
+    inset 0 -1px 0 rgba(76,125,240,.07),
+    inset 0 0 0 1px var(--rim-cool),
+    inset 0 0 22px -13px var(--rim-bleed),
+    0 0 26px -14px var(--rim-bloom);
+}
+.g{box-shadow:var(--rim);border-color:var(--edge)}
 </style></head>
 <body>
 <div class="shell">
