@@ -28,7 +28,7 @@ describe("costEur", () => {
 
   it("refuses an unpriced model — no silent free calls", () => {
     expect(() =>
-      costEur("claude-opus-4-8", {
+      costEur("claude-nonexistent-9", {
         input_tokens: 1,
         output_tokens: 0,
         cache_creation_input_tokens: 0,
@@ -61,5 +61,17 @@ describe("call records and summaries", () => {
     expect(summary.cache_read_input_tokens).toBe(50_000);
     expect(summary.cache_hit_rate).toBeCloseTo(50_000 / 52_400, 5);
     expect(summary.cost_eur).toBeCloseTo(record.cost_eur * 2, 9);
+  });
+});
+
+describe("diagnosis model pricing (Session E)", () => {
+  it("prices claude-opus-4-8 at $5/$25 per MTok", () => {
+    const eur = costEur("claude-opus-4-8", {
+      input_tokens: 1_000_000,
+      output_tokens: 1_000_000,
+      cache_creation_input_tokens: 0,
+      cache_read_input_tokens: 0,
+    });
+    expect(eur).toBeCloseTo(30 * 0.92, 6);
   });
 });

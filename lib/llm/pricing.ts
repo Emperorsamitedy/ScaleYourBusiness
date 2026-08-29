@@ -14,6 +14,12 @@ export interface ModelPricing {
 }
 
 export const PRICING: Readonly<Record<string, ModelPricing>> = {
+  "claude-opus-4-8": {
+    input_usd_per_mtok: 5,
+    output_usd_per_mtok: 25,
+    cache_write_multiplier: 1.25,
+    cache_read_multiplier: 0.1,
+  },
   "claude-sonnet-5": {
     input_usd_per_mtok: 2,
     output_usd_per_mtok: 10,

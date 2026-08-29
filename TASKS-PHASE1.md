@@ -98,12 +98,12 @@ Sessions E–G consume real owner answers. Building them on synthetic profiles r
 
 ## Session E — Findings _(~30h · step 42)_
 
-- [ ] **P1-22** `DiagnosisFinding` type: severity, headline, detail, evidence array, snapshot reference
-- [ ] **P1-23** The findings prompt (Opus 5 — the only Opus workload in the product)
-- [ ] **P1-24** **Evidence is enforced in code, not in the prompt**: a finding whose evidence array is empty or references a non-existent field is rejected, not repaired
-- [ ] **P1-25** Severity ordering, and the report's three-sentence plain-language summary (§7)
-- [ ] **P1-26** Findings are never coloured; severity is a mono label (§7)
-- [ ] **P1-27** Cost + token logging per diagnosis; measure against the €1.78 estimate
+- [x] **P1-22** `DiagnosisFinding` type: severity, headline, detail, evidence array, snapshot reference
+- [x] **P1-23** The findings prompt (`claude-opus-4-8` — "Opus 5" does not exist; the only Opus workload in the product). **PROVISIONAL**: written ahead of the P0-86 gate at the owner's decision; recalibrate against the ten real intakes
+- [x] **P1-24** **Evidence is enforced in code, not in the prompt**: a finding whose evidence array is empty or references a non-existent field is rejected, not repaired
+- [x] **P1-25** Severity ordering, and the report's three-sentence plain-language summary (§7)
+- [x] **P1-26** Findings are never coloured; severity is a mono label (§7)
+- [x] **P1-27** Cost + token logging per diagnosis; measured live: €0.067 on an 11-fact dev profile (the €1.78 estimate assumed a full ~200-fact profile — re-measure at P0-86)
 
 **Done when:** no finding can exist without field references, enforced in code, and the summary reads as plain language a non-technical owner recognises.
 
