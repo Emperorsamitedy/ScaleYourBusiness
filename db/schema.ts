@@ -683,3 +683,39 @@ export const resumeTokens = pgTable(
     index("resume_tokens_profile_idx").on(t.profile_id),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// Diagnosis reports — Session G (P1-34). A report is generated FROM a
+// snapshot and stores the snapshot id, never live-profile references:
+// re-reading it years later shows exactly what the diagnosis saw. The
+// jsonb blocks are the validated outputs of Sessions B/E/F — every number
+// in them was computed or evidence-checked in code before landing here.
+// Recommendation responses mutate the jsonb status in place, but every
+// response ALSO appends to the append-only decision log (P1-39) — the
+// report row is the current view, the log is the history.
+// ---------------------------------------------------------------------------
+
+export const diagnosisReports = pgTable(
+  "diagnosis_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    snapshot_id: uuid("snapshot_id")
+      .notNull()
+      .references(() => profileSnapshots.id),
+    generated_at: timestamp("generated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** Three plain sentences (§7), trimmed in code. */
+    summary: text("summary").notNull(),
+    completeness: numeric("completeness").notNull(),
+    cost_eur: numeric("cost_eur").notNull(),
+    unit_economics: jsonb("unit_economics").notNull(),
+    findings: jsonb("findings").notNull(),
+    recommendations: jsonb("recommendations").notNull(),
+    data_gaps: jsonb("data_gaps").notNull(),
+  },
+  (t) => [index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at)],
+);

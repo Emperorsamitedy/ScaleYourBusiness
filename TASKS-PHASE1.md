@@ -126,14 +126,14 @@ Sessions E–G consume real owner answers. Building them on synthetic profiles r
 
 Design language is settled: `docs/DESIGN.md` + the Phase 1 mockups in `mockups/phase1/`.
 
-- [ ] **P1-34** Report route reading a snapshot, not the live profile
-- [ ] **P1-35** Structure per §7: summary → unit economics → findings → recommendations → what would sharpen this
-- [ ] **P1-36** Every figure carries its source; an estimate looks different from a connector-sourced number and says so
-- [ ] **P1-37** Data-gaps section — each gap one click back into the intake question that fills it
-- [ ] **P1-38** Recommendation responses: "Look into this" / "Not for us", equal visual weight (§8)
-- [ ] **P1-39** Declining opens an optional reason field, pre-filled with three chips — reasons write to the decision log
-- [ ] **P1-40** Reads well on a phone; prints cleanly to PDF
-- [ ] **P1-41** Loading, empty and error states for a report that is still generating or failed
+- [x] **P1-34** Report route reading a snapshot, not the live profile
+- [x] **P1-35** Structure per §7: summary → unit economics → findings → recommendations → what would sharpen this
+- [x] **P1-36** Every figure carries its source; an estimate looks different from a connector-sourced number and says so
+- [x] **P1-37** Data-gaps section — each gap one click back into the intake question that fills it
+- [x] **P1-38** Recommendation responses: "Look into this" / "Not for us", equal visual weight (§8)
+- [x] **P1-39** Declining opens an optional reason field, pre-filled with three chips — reasons write to the decision log
+- [x] **P1-40** Reads well on a phone; prints cleanly to PDF
+- [x] **P1-41** Loading, empty and error states for a report that is still generating or failed
 
 **Done when:** it reads well on a phone, prints cleanly, and clicking a gap opens that question in the intake.
 
