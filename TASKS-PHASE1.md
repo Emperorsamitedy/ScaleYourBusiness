@@ -111,12 +111,12 @@ Sessions E–G consume real owner answers. Building them on synthetic profiles r
 
 ## Session F — Recommendations _(~30h · step 43)_
 
-- [ ] **P1-28** `ScenarioBlock`: assumptions, base / downside / upside, break-even condition, sensitivity flags
-- [ ] **P1-29** The recommendations prompt, constrained to findings that actually exist
-- [ ] **P1-30** Break-even arithmetic computed in code, never by the model — the model frames it, the code proves it
-- [ ] **P1-31** High-sensitivity assumptions called out inline (§7): *"this depends heavily on your 22% repeat rate"*
-- [ ] **P1-32** Reversibility stated on every recommendation — what happens if the owner changes their mind
-- [ ] **P1-33** Tests: a discount recommendation must state the volume lift required to break even, with the arithmetic shown
+- [x] **P1-28** `ScenarioBlock`: assumptions, base / downside / upside, break-even condition, sensitivity flags
+- [x] **P1-29** The recommendations prompt, constrained to findings that actually exist. **PROVISIONAL** like P1-23: recalibrate at P0-86
+- [x] **P1-30** Break-even arithmetic computed in code, never by the model — the model frames it, the code proves it
+- [x] **P1-31** High-sensitivity assumptions called out inline (§7): *"this depends heavily on your 22% repeat rate"*
+- [x] **P1-32** Reversibility stated on every recommendation — what happens if the owner changes their mind
+- [x] **P1-33** Tests: a discount recommendation must state the volume lift required to break even, with the arithmetic shown
 
 **Done when:** a discount recommendation states its break-even condition with the arithmetic visible, and no scenario's numbers come from the model.
 
