@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Barlow, Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 // Type per docs/DESIGN.md (Ember Grid). Geist carries everything human —
@@ -22,6 +22,24 @@ const mono = Geist_Mono({
   display: "swap",
 });
 
+// The landing page's cinematic voice (the "cine" scope in globals.css).
+// Instrument Serif italic for headings, Barlow for body — used ONLY on
+// the landing; the product screens keep Ember Grid's Geist/Satoshi.
+const cineHead = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["italic", "normal"],
+  variable: "--font-cine-head",
+  display: "swap",
+});
+
+const cineBody = Barlow({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-cine-body",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Ledgerline",
   description: "Find out where your business actually leaks money.",
@@ -29,7 +47,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+    <html
+      lang="en"
+      className={`${sans.variable} ${mono.variable} ${cineHead.variable} ${cineBody.variable}`}
+    >
       <head>
         <link
           href="https://api.fontshare.com/v2/css?f[]=satoshi@700,600&display=swap"

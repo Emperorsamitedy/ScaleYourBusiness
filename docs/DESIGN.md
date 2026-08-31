@@ -160,6 +160,8 @@ Ember Grid is "expensive fintech at night, run by a Swiss modernist." The stage 
 
 ## Colors
 
+**The landing page is a scoped exception (owner-directed, 2026-08-31).** `app/page.tsx` runs the "cine" variant: pure black stage, white type, Instrument Serif italic display over Barlow, and liquid-glass surfaces whose borders are gradient strokes cut with CSS mask-composite (`.liquid-glass` / `.liquid-glass-strong` in globals.css, scoped under `.cine`). It is a marketing voice, not a second product brand — every product screen (intake, fact sheet, report) remains Ember Grid as specified here. Motion follows the same reduced-motion rules as the rest of the system.
+
 Dark is the primary and canonical mode; the light tokens (`*-light`) are a derived variant for user preference, not a second brand. On the dark stage, `surface` is the near-black canvas, `surface-container` the card layer, and `surface-container-high` the raised interior layer (segmented controls, hover fills). `primary` (#F59B4B) is the ember — actions, focus rings, live chart lines — with `primary-bright` for hover and `primary-deep` as the low end of the one permitted gradient (`primary-deep → primary`). `secondary` (#4C7DF0) is the blue whisper: ambient glows and the cool end of the focal CTA gradient only — never text on dark below headline sizes (it fails AA for body). `success` (#34D399) exists solely as the settled-fact dot; `error` is a warm coral tuned to 7.7:1 on `surface`. In light mode, actions and accents switch from `primary` to `primary-strong` (#C2410C), because raw amber fails contrast on white. All body text pairs meet WCAG AA: `on-surface` on `surface` is ~17:1, `on-surface-variant` is ~7.5:1, `on-primary` on `primary` is ~8.6:1.
 
 ## Typography

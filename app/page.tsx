@@ -1,21 +1,26 @@
-// The landing page — P1-55, second attempt.
+// The landing page — liquid-glass rebuild (owner-directed restyle).
 //
-// The first version was a hero, three feature cards and a bullet list:
-// the shape of every generated landing page on the internet, and it read
-// like one. This one argues instead of describing.
+// Structure and motion follow the cinematic two-section spec: full-bleed
+// hero, capabilities grid, Instrument Serif italic display over Barlow,
+// glass surfaces whose borders are gradient strokes cut with CSS masks,
+// staggered blur-in everywhere. Everything else is ours:
 //
-// The product's whole claim is that owners are wrong about which product
-// makes them money. So the page SHOWS that finding — the real chart, the
-// bestseller as the shortest bar — above the fold, before asking anyone
-// for fifteen minutes. Everything below it is hairline-ruled sequence and
-// a plain ledger of what we do with their answers. No card grid anywhere.
+//   - No external videos. The spec's CloudFront clips are someone else's
+//     assets; the atmosphere is a drifting monochrome aurora instead.
+//   - No Framer Motion. BlurText/Reveal do the identical animation with
+//     CSS transitions and an IntersectionObserver — zero new deps.
+//   - No invented numbers. The stat cards, the badge, the trust line and
+//     the five-stage row all state things the product actually does; the
+//     four unbuilt stages are dimmed and say so.
+//
+// The previous landing's instruments (MorphDemo, Reel, Arc, Trust) are
+// parked in components/landing/, not deleted — they can be folded back in
+// as sections if this direction wants proof under the fold.
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Arc } from "@/components/landing/Arc";
-import { MorphDemo } from "@/components/landing/MorphDemo";
-import { Reel } from "@/components/landing/Reel";
-import { Trust } from "@/components/landing/Trust";
+import { BlurText } from "@/components/landing/cine/BlurText";
+import { Reveal } from "@/components/landing/cine/Reveal";
 
 export const metadata: Metadata = {
   title: "Ledgerline — where your business actually leaks money",
@@ -23,159 +28,229 @@ export const metadata: Metadata = {
     "Answer questions about your business for about fifteen minutes. Get back a read on where the money goes, with the arithmetic shown for every figure.",
 };
 
-/** The proof: five offers read out on a segmented meter, worst last. */
-const CELLS = 26;
-const SCAN = [
-  { name: "Gift box", margin: 61, share: 9 },
-  { name: "Winter spice", margin: 44, share: 11 },
-  { name: "Sampler 3×0.1L", margin: 38, share: 5 },
-  { name: "Szörp 1L", margin: 31, share: 14 },
-  { name: "Szörp 0.5L", margin: 18, share: 61, critical: true },
-];
-const PEAK = 61;
+/* ── the spec's stroke icons, inline ── */
 
-const SEQUENCE = [
-  {
-    n: "01",
-    t: "You answer questions",
-    d: "One at a time, in plain language, for about fifteen minutes. “I don’t know” is a real answer — what you can’t say is worth knowing too.",
-  },
-  {
-    n: "02",
-    t: "Every answer keeps its source",
-    d: "Whether you stated it, guessed it, or I worked it out. Change your mind later and the old answer stays in the history, with your reason.",
-  },
-  {
-    n: "03",
-    t: "You get a read on the business",
-    d: "Where the margin actually is, what it costs you, and what would change if you moved a price — with the arithmetic shown, not asserted.",
-  },
+const ArrowUpRight = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M7 17L17 7" />
+    <path d="M7 7h10v10" />
+  </svg>
+);
+
+const Play = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <polygon points="6 4 20 12 6 20 6 4" />
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </svg>
+);
+
+const LedgerIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+    <rect x="4" y="3" width="16" height="18" rx="2" />
+    <path d="M8 8h8M8 12h8M8 16h5" />
+  </svg>
+);
+
+const AskIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 2C6.48 2 2 5.94 2 10.8c0 2.8 1.5 5.28 3.84 6.88L5 22l4.62-2.31c.76.17 1.56.26 2.38.26 5.52 0 10-3.94 10-8.8S17.52 2 12 2zm1 13h-2v-2h2v2zm.9-4.6c-.6.5-.9.8-.9 1.6h-2c0-1.4.6-2.1 1.4-2.7.5-.4.6-.7.6-1.1 0-.6-.4-1-1-1s-1.1.4-1.2 1.2l-2-.3C9 6.4 10.3 5.2 12 5.2c1.8 0 3 1.2 3 2.9 0 1.1-.5 1.8-1.1 2.3z" />
+  </svg>
+);
+
+const SheetIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM9 19H5v-4h4v4zm0-6H5V9h4v4zm10 6h-8v-4h8v4zm0-6h-8V9h8v4zm0-6H5V5h14v2z" />
+  </svg>
+);
+
+const ReportIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+  </svg>
+);
+
+/* ── content: ours, and all of it true ── */
+
+const NAV = [
+  { label: "What exists", href: "#capabilities" },
+  { label: "Fact sheet", href: "/profile" },
+  { label: "Report", href: "/report" },
+  { label: "Privacy", href: "#privacy" },
 ];
 
+const STAGES = [
+  { name: "Understands", live: true },
+  { name: "Measures", live: false },
+  { name: "Proposes", live: false },
+  { name: "Answers", live: false },
+  { name: "Forecasts", live: false },
+];
+
+const CARDS = [
+  {
+    icon: <AskIcon />,
+    title: "The interview",
+    tags: ["One question at a time", "“I don’t know” counts", "~15 minutes", "Resumes anywhere"],
+    body: "Plain-language questions about what you sell, what it costs, and where the money goes. Stop any time — everything is saved, and a link brings your answers back on any device.",
+  },
+  {
+    icon: <SheetIcon />,
+    title: "The fact sheet",
+    tags: ["Every source shown", "Confidence per fact", "Gaps are findings", "Live competitor research"],
+    body: "Everything you told me, with where each fact came from and how much to trust it. What's missing is listed too — with exactly what answering it would buy you.",
+  },
+  {
+    icon: <ReportIcon />,
+    title: "The report",
+    tags: ["Arithmetic shown", "Break-even proven", "Reversibility stated", "Declining teaches it"],
+    body: "Findings that cite their evidence, recommendations with the break-even maths in the sentence, and two equal buttons — “not for us” is a legitimate answer here.",
+  },
+];
 
 export default function Home() {
   return (
-    <main className="land">
-      <header className="land-top">
-        <span className="wordmark">Ledgerline</span>
-        <Link className="ghost quiet" href="/intake">
-          Continue where I left off
-        </Link>
-      </header>
+    <div className="cine">
+      {/* ── section 1: hero ── */}
+      <section className="cine-hero">
+        <div className="cine-aurora" aria-hidden="true">
+          <i /><i /><i />
+        </div>
 
-      <section className="hero2">
-        <div className="hero2-type">
-          <p className="kicker">For people who run a small business</p>
-          <h1>
-            Most owners are wrong about which product{" "}
-            <span className="hero2-mark">makes them money</span>.
-          </h1>
-          <p className="land-lede">
-            Not through carelessness — the numbers live in six places and none of them talk. Answer
-            some questions and I&rsquo;ll show you where the money actually goes, and the arithmetic
-            behind every figure.
-          </p>
-          <div className="row">
-            <Link className="next" href="/intake">
-              Start — about 15 minutes
-            </Link>
-            <span className="hint">no account, no card</span>
+        <nav className="cine-nav">
+          <div className="liquid-glass cine-logo">
+            <span>ℓ</span>
           </div>
-        </div>
+          <div className="liquid-glass cine-navpill">
+            {NAV.map((n) =>
+              n.href.startsWith("#") ? (
+                <a key={n.label} href={n.href}>{n.label}</a>
+              ) : (
+                <Link key={n.label} href={n.href}>{n.label}</Link>
+              ),
+            )}
+            <Link className="cine-navcta" href="/intake">
+              Start a diagnosis <ArrowUpRight />
+            </Link>
+          </div>
+          <div className="cine-navspacer" />
+        </nav>
 
-        <div className="hero2-panel">
-          <MorphDemo />
-        </div>
-      </section>
+        <div className="cine-hero-main">
+          <Reveal delay={400}>
+            <div className="liquid-glass cine-badge">
+              <span className="cine-badge-new">Pilot</span>
+              Free for the first ten businesses — every figure earns its keep
+            </div>
+          </Reveal>
 
-      {/* the proof: an instrument reading it out, not a chart of it */}
-      <section className="scan" aria-label="Margin analysis across five products">
-        <span className="scan-line" aria-hidden="true" />
-        <header className="scan-head">
-          <span>Analysis · 5 offers · margin per unit</span>
-          <span>Szörp Kft. · 14 min</span>
-        </header>
+          <h1 className="cine-h1">
+            <BlurText text="Most owners are wrong about which product makes them money." />
+          </h1>
 
-        <div className="scan-rows">
-          {SCAN.map((o, i) => {
-            const lit = Math.round((o.margin / PEAK) * CELLS);
-            return (
-              <div className={o.critical ? "scan-row crit" : "scan-row"} key={o.name}>
-                <span className="scan-i">{String(i + 1).padStart(2, "0")}</span>
-                <span className="scan-name">{o.name}</span>
-                <span className="scan-meter" aria-hidden="true">
-                  {Array.from({ length: CELLS }, (_, c) => (
-                    <i
-                      key={c}
-                      className={c < lit ? "on" : ""}
-                      style={{ transitionDelay: `${i * 90 + c * 16}ms` }}
-                    />
-                  ))}
-                </span>
-                <span className="scan-val">{o.margin}%</span>
-                <span className="scan-share">{o.share}% of volume</span>
-                {o.critical && <span className="scan-flag">◄ critical</span>}
+          <Reveal delay={800}>
+            <p className="cine-sub">
+              Not through carelessness — the numbers live in six places and none of them talk.
+              Answer plain questions for about fifteen minutes and I&rsquo;ll show you where the
+              money actually goes, with the arithmetic behind every figure.
+            </p>
+          </Reveal>
+
+          <Reveal delay={1100}>
+            <div className="cine-ctas">
+              <Link className="liquid-glass-strong cine-cta" href="/intake">
+                Start — about 15 minutes <ArrowUpRight />
+              </Link>
+              <a className="cine-cta-quiet" href="#capabilities">
+                <Play /> See what exists
+              </a>
+            </div>
+          </Reveal>
+
+          <Reveal delay={1300}>
+            <div className="cine-stats">
+              <div className="liquid-glass cine-stat">
+                <ClockIcon />
+                <strong>15 min</strong>
+                <span>From the first question to your first read</span>
               </div>
-            );
-          })}
+              <div className="liquid-glass cine-stat">
+                <LedgerIcon />
+                <strong>Every figure</strong>
+                <span>Carries its source, or says it&rsquo;s missing</span>
+              </div>
+            </div>
+          </Reveal>
         </div>
 
-        <footer className="scan-foot">
-          <span className="scan-verdict">
-            <i className="scan-pip" />
-            highest volume · lowest return
-          </span>
-          <span>
-            Her best seller was her least profitable — 61% of everything she sold, the thinnest
-            margin of the five. She had been pushing it for two years.
-          </span>
-        </footer>
+        <Reveal delay={1400} className="cine-trustbar">
+          <div className="liquid-glass cine-trustpill" id="privacy">
+            No account. No card. Read-only. Your answers are never sold or used to train models.
+          </div>
+          <div className="cine-stages">
+            {STAGES.map((s) => (
+              <span key={s.name} className={s.live ? "live" : ""}>
+                {s.name}
+                {s.live && <em>live</em>}
+              </span>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
-      <section className="land-seq">
-        {SEQUENCE.map((s) => (
-          <article key={s.n} className="land-row">
-            <span className="land-n">{s.n}</span>
-            <h2>{s.t}</h2>
-            <p>{s.d}</p>
-          </article>
-        ))}
-      </section>
+      {/* ── section 2: capabilities ── */}
+      <section className="cine-caps" id="capabilities">
+        <div className="cine-aurora dim" aria-hidden="true">
+          <i /><i />
+        </div>
 
-      <section className="land-examples">
-        <h2>What you get back</h2>
-        <p className="land-lede" style={{ marginBottom: 34 }}>
-          Three of the things the diagnosis produces. Every figure on them can say where it came
-          from, and every one of them is arithmetic you can check.
-        </p>
-        <Reel />
-      </section>
+        <div className="cine-caps-inner">
+          <header className="cine-caps-head">
+            <Reveal onScroll>
+              <p className="cine-label">// What exists today — stage one of five</p>
+            </Reveal>
+            <h2 className="cine-h2">
+              <BlurText text="A diagnosis, end to end" />
+            </h2>
+          </header>
 
-      <section className="land-arc">
-        <h2>That&rsquo;s stage one of five.</h2>
-        <p className="land-lede" style={{ marginBottom: 34 }}>
-          Understanding the business is the part that has to come first — nothing downstream can be
-          trusted without it. Here is the rest of what gets built on top, and which of it exists
-          today.
-        </p>
-        <Arc />
-      </section>
+          <div className="cine-grid">
+            {CARDS.map((card, i) => (
+              <Reveal key={card.title} onScroll delay={i * 150}>
+                <article className="liquid-glass cine-card">
+                  <div className="cine-card-top">
+                    <div className="liquid-glass cine-card-icon">{card.icon}</div>
+                    <div className="cine-tags">
+                      {card.tags.map((t) => (
+                        <span className="liquid-glass cine-tag" key={t}>{t}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="cine-card-spacer" />
+                  <h3 className="cine-card-title">{card.title}</h3>
+                  <p className="cine-card-body">{card.body}</p>
+                </article>
+              </Reveal>
+            ))}
+          </div>
 
-      <section className="land-trust">
-        <Trust />
-      </section>
-
-      <section className="land-end">
-        <h2>Fifteen minutes, and you’ll know which line to stop pushing.</h2>
-        <div className="row">
-          <Link className="next" href="/intake">
-            Start the questions
-          </Link>
-          <span className="hint">stop any time — it’s saved</span>
+          <Reveal onScroll delay={300} className="cine-end">
+            <p>
+              Stages two through five — measuring, proposing, answering, forecasting — are planned,
+              not built. You can verify that the easy way: stage one is the only one you can use.
+            </p>
+            <Link className="liquid-glass-strong cine-cta" href="/intake">
+              Start the questions <ArrowUpRight />
+            </Link>
+            <span className="cine-foot">Ledgerline · a read on the business, not a dashboard</span>
+          </Reveal>
         </div>
       </section>
-
-      <footer className="land-foot">Ledgerline · a read on the business, not a dashboard</footer>
-    </main>
+    </div>
   );
 }
