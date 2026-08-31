@@ -40,9 +40,16 @@
     "@sentry/nextjs": "^10.71.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
+    "framer-motion": "^13.1.1",
     "next": "^16.3.1",
     "pg": "^8.23.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
-  }
+  },
+  "browserslist": [
+    "chrome >= 100",
+    "edge >= 100",
+    "firefox >= 103",
+    "safari >= 15.4"
+  ]
 }

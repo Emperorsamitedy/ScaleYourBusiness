@@ -1,46 +1,31 @@
 "use client";
 
-// Word-by-word blur-in (the spec's BlurText), without Framer Motion:
-// each word is a span whose transition is staggered by index; the whole
-// thing arms when it enters the viewport (IntersectionObserver, 0.1).
-// Under prefers-reduced-motion every word renders settled immediately.
+// The spec's BlurText, on real Framer Motion: word-by-word staggered
+// blur-in, armed once when the container enters the viewport.
 
-import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 export function BlurText({ text, className }: { text: string; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [on, setOn] = useState(false);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setOn(true);
-      return;
-    }
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setOn(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.1 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  const inView = useInView(ref, { amount: 0.1, once: true });
 
   return (
-    <span ref={ref} className={`cine-blurtext ${on ? "on" : ""} ${className ?? ""}`}>
+    <span
+      ref={ref}
+      className={className}
+      style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", rowGap: "0.1em" }}
+    >
       {text.split(" ").map((word, i) => (
-        <span
+        <motion.span
           key={`${word}-${i}`}
-          className="cine-word"
-          style={{ transitionDelay: `${i * 100}ms` }}
+          style={{ display: "inline-block", marginRight: "0.28em" }}
+          initial={{ filter: "blur(10px)", opacity: 0, y: 50 }}
+          animate={inView ? { filter: "blur(0px)", opacity: 1, y: 0 } : { filter: "blur(10px)", opacity: 0, y: 50 }}
+          transition={{ duration: 0.7, delay: i * 0.1, ease: "easeOut" }}
         >
           {word}
-        </span>
+        </motion.span>
       ))}
     </span>
   );
