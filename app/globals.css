@@ -50,7 +50,9 @@ body {
   font-size: 15px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* clip rather than hidden — see the note on .ep: hidden here would
+     make body a scroll container and break every position:sticky. */
+  overflow-x: clip;
 }
 /* Ambient glows — fixed light sources that drift very slowly. The one
    place the blue whisper is allowed to exist. */
@@ -3979,7 +3981,10 @@ a.ghost {
   background: var(--stage);
   color: var(--ink);
   font-family: var(--sans);
-  overflow-x: hidden;
+  /* clip, NOT hidden: overflow-x:hidden makes this a scroll container,
+     which silently stops the film beds' position:sticky from ever
+     engaging. clip contains the same overflow without that side effect. */
+  overflow-x: clip;
 }
 .ep a {
   color: inherit;
@@ -4405,4 +4410,55 @@ a.ghost {
   .ep-scrollhint i {
     animation: none;
   }
+}
+
+/* ── film beds: a pinned, dimmed loop behind long scrolls ──
+   The roadmap and the closer used to be flat black for thousands of
+   pixels. The bed pins a looping film for the height of the section so
+   the copy scrolls over moving image, with a veil heavy enough that
+   body text keeps its contrast. */
+.ep-sec {
+  position: relative;
+}
+.ep-sec-inner {
+  position: relative;
+  z-index: 2;
+}
+.ep-bed {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* clip keeps the pinned film inside its own section; hidden would
+     create a scroll container and break the sticky pin. */
+  overflow: clip;
+}
+.ep-bed-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.ep-bed-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, var(--stage) 0%, rgba(10, 11, 13, 0.74) 16%, rgba(10, 11, 13, 0.74) 84%, var(--stage) 100%),
+    radial-gradient(120% 80% at 50% 50%, rgba(10, 11, 13, 0.28), rgba(10, 11, 13, 0.88) 100%);
+}
+.ep-bed-veil.strong {
+  background:
+    linear-gradient(180deg, var(--stage) 0%, rgba(10, 11, 13, 0.88) 22%, rgba(10, 11, 13, 0.88) 78%, var(--stage) 100%);
+}
+.ep-end {
+  position: relative;
+}
+.ep-end > *:not(.ep-bed) {
+  position: relative;
+  z-index: 2;
+}
+
+/* the shining second line of the headline */
+.ep-shine {
+  display: block;
 }

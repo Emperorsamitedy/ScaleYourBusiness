@@ -14,10 +14,13 @@ export function FadingVideo({
   src,
   className,
   style,
+  loop = false,
 }: {
   src: string | string[];
   className?: string;
   style?: React.CSSProperties;
+  /** Background beds loop seamlessly: fade in once, never fade out. */
+  loop?: boolean;
 }) {
   const sources = Array.isArray(src) ? src : [src];
   const [index, setIndex] = useState(0);
@@ -48,13 +51,14 @@ export function FadingVideo({
       fade(0, 1, FADE_IN_MS);
     };
     const onTime = (): void => {
-      if (fadingOut.current || !el.duration) return;
+      if (loop || fadingOut.current || !el.duration) return;
       if (el.duration - el.currentTime <= FADE_OUT_REMAINING) {
         fadingOut.current = true;
         fade(1, 0, FADE_OUT_MS);
       }
     };
     const onEnded = (): void => {
+      if (loop) return; // the loop attribute handles it
       if (sources.length === 1) {
         el.currentTime = 0;
         void el.play();
@@ -65,6 +69,12 @@ export function FadingVideo({
       }
     };
 
+    // A cached video can already be loaded before this effect runs, so
+    // "loadeddata" never fires and it would sit at opacity 0 forever.
+    // Catch that case explicitly — this is how the film beds stayed
+    // invisible on a warm cache.
+    if (el.readyState >= 2) onLoaded();
+
     el.addEventListener("loadeddata", onLoaded);
     el.addEventListener("timeupdate", onTime);
     el.addEventListener("ended", onEnded);
@@ -74,7 +84,7 @@ export function FadingVideo({
       el.removeEventListener("timeupdate", onTime);
       el.removeEventListener("ended", onEnded);
     };
-  }, [fade, sources.length, index]);
+  }, [fade, sources.length, index, loop]);
 
   return (
     <video
@@ -87,6 +97,7 @@ export function FadingVideo({
       muted
       playsInline
       preload="auto"
+      loop={loop}
     />
   );
 }

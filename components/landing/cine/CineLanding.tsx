@@ -23,11 +23,16 @@ import { Reel } from "@/components/landing/Reel";
 import { Trust } from "@/components/landing/Trust";
 import { BlurText } from "./BlurText";
 import { FadingVideo } from "./FadingVideo";
+import { ShinyText } from "./ShinyText";
 
 const HERO_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260619_191346_9d19d66e-86a4-47f7-8dc6-712c1788c3b2.mp4";
 const CAPS_VIDEO =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_093722_ccfc7ebf-182f-419f-8a62-2dc02db7dd9d.mp4";
+// The bed that runs behind the long scroll — pinned, dimmed, looping, so
+// the roadmap reads over moving film instead of flat black.
+const BED_VIDEO =
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4";
 
 /* ── motion grammar ── */
 
@@ -232,10 +237,29 @@ function PhaseBlock({ phase, index }: { phase: Phase; index: number }) {
   );
 }
 
-function Shell({ id, children, wide }: { id?: string; children: ReactNode; wide?: boolean }) {
+function Shell({
+  id,
+  children,
+  wide,
+  film,
+}: {
+  id?: string;
+  children: ReactNode;
+  wide?: boolean;
+  /** Pins a dimmed looping film behind the whole section as it scrolls. */
+  film?: boolean;
+}) {
   return (
-    <section id={id} className={wide ? "ep-sec wide" : "ep-sec"}>
-      {children}
+    <section id={id} className={`ep-sec${wide ? " wide" : ""}${film ? " filmed" : ""}`}>
+      {film && (
+        <div className="ep-bed" aria-hidden="true">
+          <div className="ep-bed-pin">
+            <FadingVideo src={BED_VIDEO} className="ep-video" loop />
+            <div className="ep-bed-veil" />
+          </div>
+        </div>
+      )}
+      <div className="ep-sec-inner">{children}</div>
     </section>
   );
 }
@@ -275,7 +299,15 @@ export function CineLanding() {
           </motion.div>
 
           <h1 className="ep-h1">
-            <BlurText text="Most owners are wrong about which product makes them money." />
+            <BlurText text="Most owners are wrong about" />
+            <ShinyText
+              className="ep-shine"
+              text="which product makes them money."
+              baseColor="#F59B4B"
+              shineColor="#ffffff"
+              speed={3}
+              spread={100}
+            />
           </h1>
 
           <motion.p
@@ -430,7 +462,7 @@ export function CineLanding() {
       </section>
 
       {/* ═ 6 · the five phases, long-form ═ */}
-      <Shell id="phases" wide>
+      <Shell id="phases" wide film>
         <SectionHead
           kicker="// The roadmap — everything this becomes"
           title="Five phases, in the order they earn trust"
@@ -468,6 +500,12 @@ export function CineLanding() {
 
       {/* ═ 9 · the end ═ */}
       <section className="ep-end">
+        <div className="ep-bed" aria-hidden="true">
+          <div className="ep-bed-pin">
+            <FadingVideo src={BED_VIDEO} className="ep-video" loop />
+            <div className="ep-bed-veil strong" />
+          </div>
+        </div>
         <h2 className="ep-h2 center">
           <BlurText text="Fifteen minutes, and you'll know which line to stop pushing." />
         </h2>
