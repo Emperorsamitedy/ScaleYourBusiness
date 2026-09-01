@@ -6,7 +6,15 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
-export function BlurText({ text, className }: { text: string; className?: string }) {
+export function BlurText({
+  text,
+  className,
+  align = "center",
+}: {
+  text: string;
+  className?: string;
+  align?: "center" | "left";
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { amount: 0.1, once: true });
 
@@ -14,7 +22,12 @@ export function BlurText({ text, className }: { text: string; className?: string
     <span
       ref={ref}
       className={className}
-      style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", rowGap: "0.1em" }}
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: align === "center" ? "center" : "flex-start",
+        rowGap: "0.1em",
+      }}
     >
       {text.split(" ").map((word, i) => (
         <motion.span

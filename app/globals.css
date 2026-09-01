@@ -3970,86 +3970,47 @@ a.ghost {
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   THE CINE LANDING — liquid-glass restyle (owner-directed).
-   Scoped under .cine so the product screens keep Ember Grid untouched.
-   Glass borders are gradient strokes cut with mask-composite, per spec.
+   THE EPIC LANDING (.ep) — cinematic machinery, Ember Grid voice.
+   Films + Framer Motion choreography from the liquid-glass pass; fonts,
+   colour and glass from docs/DESIGN.md. Owner-directed, 2026-08-31.
    ════════════════════════════════════════════════════════════════════ */
 
-.liquid-glass,
-.liquid-glass-strong {
-  position: relative;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.01);
-  background-blend-mode: luminosity;
-  /* The standard property ONLY, on purpose: this build's CSS minifier
-     collapses any backdrop-filter + -webkit- pair down to the -webkit-
-     property alone, and that alias is not applied by every Chromium
-     CSSOM. Writing just the standard property survives the pipeline;
-     the prefixer adds what targets need. Verified against the served
-     chunk — do not add the -webkit- twin back by hand. */
-  --lg-blur: blur(4px);
+.ep {
+  background: var(--stage);
+  color: var(--ink);
+  font-family: var(--sans);
+  overflow-x: hidden;
 }
-.liquid-glass {
-  backdrop-filter: var(--lg-blur);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
-}
-.liquid-glass-strong {
-  --lg-blur: blur(50px);
-  backdrop-filter: var(--lg-blur);
-  box-shadow:
-    4px 4px 4px rgba(0, 0, 0, 0.05),
-    inset 0 1px 1px rgba(255, 255, 255, 0.15);
-}
-.liquid-glass::before,
-.liquid-glass-strong::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1.4px;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-.liquid-glass::before {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.45) 0%,
-    rgba(255, 255, 255, 0.15) 20%,
-    rgba(255, 255, 255, 0) 40%,
-    rgba(255, 255, 255, 0) 60%,
-    rgba(255, 255, 255, 0.15) 80%,
-    rgba(255, 255, 255, 0.45) 100%
-  );
-}
-.liquid-glass-strong::before {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0.2) 20%,
-    rgba(255, 255, 255, 0) 40%,
-    rgba(255, 255, 255, 0) 60%,
-    rgba(255, 255, 255, 0.2) 80%,
-    rgba(255, 255, 255, 0.5) 100%
-  );
-}
-
-/* ── the scope: pure black, white type, its own two faces ── */
-.cine {
-  background: #000;
-  color: #fff;
-  font-family: var(--font-cine-body), sans-serif;
-}
-.cine a {
+.ep a {
   color: inherit;
   text-decoration: none;
 }
 
-/* ── section 1: hero ── */
-.cine-hero {
+/* ── films ── */
+.ep-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.ep-hero-veil,
+.ep-interlude-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(10, 11, 13, 0.5) 0%, rgba(10, 11, 13, 0.24) 40%, rgba(10, 11, 13, 0.86) 82%, var(--stage) 100%);
+}
+.ep-interlude-veil {
+  background:
+    linear-gradient(180deg, var(--stage) 0%, rgba(10, 11, 13, 0.42) 24%, rgba(10, 11, 13, 0.42) 70%, var(--stage) 100%);
+}
+
+/* ── hero ── */
+.ep-hero {
   position: relative;
   min-height: 100vh;
   min-height: 100svh;
@@ -4057,7 +4018,7 @@ a.ghost {
   display: flex;
   flex-direction: column;
 }
-.cine-nav {
+.ep-nav {
   position: fixed;
   top: 16px;
   left: 0;
@@ -4068,64 +4029,46 @@ a.ghost {
   align-items: center;
   padding: 0 32px;
 }
-@media (min-width: 1024px) {
-  .cine-nav {
-    padding: 0 64px;
-  }
-}
-.cine-logo {
-  height: 48px;
-  width: 48px;
-  border-radius: 999px;
+.ep-navpill {
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-.cine-logo span {
-  font-family: var(--font-cine-head), serif;
-  font-style: italic;
-  font-size: 24px;
-  line-height: 1;
-}
-.cine-navpill {
-  display: none;
+  gap: 2px;
   border-radius: 999px;
   padding: 6px;
-  align-items: center;
-  gap: 2px;
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--edge);
+  box-shadow: var(--rim);
 }
-@media (min-width: 768px) {
-  .cine-navpill {
-    display: flex;
-  }
-}
-.cine-navpill > a {
-  padding: 8px 12px;
-  font-size: 14px;
+.ep-navpill > a {
+  padding: 8px 13px;
+  font-size: 13.5px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--mut);
+  border-radius: 999px;
 }
-.cine-navpill > a:hover {
-  color: #fff;
+.ep-navpill > a:hover {
+  color: var(--ink);
 }
-.cine-navcta {
+.ep-navcta {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #fff;
-  color: #000 !important;
+  background: var(--ember);
+  color: var(--on-ember) !important;
   border-radius: 999px;
   padding: 8px 14px;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   margin-left: 6px;
 }
-.cine-navspacer {
-  height: 48px;
-  width: 48px;
+@media (max-width: 720px) {
+  .ep-navpill > a:not(.ep-navcta) {
+    display: none;
+  }
 }
 
-.cine-hero-main {
+.ep-hero-main {
   position: relative;
   z-index: 10;
   flex: 1;
@@ -4133,294 +4076,333 @@ a.ghost {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 96px 16px 0;
+  padding: 110px 20px 0;
   text-align: center;
 }
-.cine-badge {
+.ep-badge {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   border-radius: 999px;
-  padding: 6px 14px 6px 6px;
+  padding: 6px 15px 6px 6px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--edge);
+  box-shadow: var(--rim);
 }
-.cine-badge-new {
-  background: #fff;
-  color: #000;
+.ep-badge span {
+  background: var(--ember);
+  color: var(--on-ember);
   border-radius: 999px;
   padding: 3px 10px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
-.cine-h1 {
-  margin: 24px 0 0;
-  max-width: 880px;
-  font-family: var(--font-cine-head), serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(48px, 7.5vw, 88px);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
+.ep-h1 {
+  margin: 26px 0 0;
+  max-width: 900px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(40px, 6.4vw, 76px);
+  line-height: 1.0;
+  letter-spacing: -0.035em;
 }
-.cine-sub {
-  margin: 16px auto 0;
-  max-width: 640px;
-  font-size: 15px;
-  font-weight: 300;
-  line-height: 1.4;
-  color: #fff;
+.ep-sub {
+  margin: 18px auto 0;
+  max-width: 680px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink);
 }
-@media (min-width: 768px) {
-  .cine-sub {
-    font-size: 16px;
-  }
-}
-.cine-ctas {
-  margin-top: 24px;
+.ep-ctas {
+  margin-top: 28px;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 22px;
   justify-content: center;
+  flex-wrap: wrap;
 }
-.cine-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border-radius: 999px;
-  padding: 10px 20px;
+.ep-ctas.center {
+  margin-top: 20px;
+}
+.ep-quiet {
   font-size: 14.5px;
-  font-weight: 500;
-  color: #fff;
+  color: var(--mut);
 }
-.cine-cta:hover {
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
+.ep-quiet:hover {
+  color: var(--ink);
 }
-.cine-cta-quiet {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14.5px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+
+/* the pulse the owner asked for — subtle, and off under reduced motion */
+@keyframes epPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(245, 155, 75, 0.35);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 26px 4px rgba(245, 155, 75, 0.22);
+  }
 }
-.cine-stats {
-  margin-top: 32px;
+.ep-pulse {
+  animation: epPulse 2.6s var(--ease) infinite;
+}
+
+.ep-stats {
+  margin-top: 40px;
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
   justify-content: center;
 }
-.cine-stat {
-  width: 220px;
-  padding: 20px;
-  border-radius: 1.25rem;
+.ep-stat {
+  width: 218px;
+  padding: 18px 20px;
+  border-radius: 16px;
   text-align: left;
-  color: rgba(255, 255, 255, 0.9);
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--edge);
+  box-shadow: var(--rim);
 }
-.cine-stat strong {
+.ep-stat strong {
   display: block;
-  margin-top: 16px;
-  font-family: var(--font-cine-head), serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 36px;
-  letter-spacing: -1px;
-  line-height: 1;
-}
-.cine-stat span {
-  display: block;
-  margin-top: 8px;
-  font-size: 13px;
-  font-weight: 300;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.cine-trustbar {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding-bottom: 32px;
-}
-.cine-trustpill {
-  border-radius: 999px;
-  padding: 8px 18px;
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.85);
-  text-align: center;
-}
-.cine-logos {
-  display: flex;
-  gap: 48px;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: baseline;
-}
-@media (min-width: 768px) {
-  .cine-logos {
-    gap: 64px;
-  }
-}
-.cine-logos span {
-  font-family: var(--font-cine-head), serif;
-  font-style: italic;
-  font-size: clamp(24px, 2.6vw, 30px);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 32px;
   letter-spacing: -0.02em;
-  color: #fff;
+  line-height: 1;
+  color: var(--ember);
 }
-
-/* ── the atmospheric videos ── */
-.cine-video-hero {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  object-fit: cover;
-  object-position: top;
-  z-index: 0;
+.ep-stat span {
+  display: block;
+  margin-top: 7px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--mut);
 }
-.cine-video-cover {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-
-/* ── section 2: capabilities ── */
-.cine-caps {
-  position: relative;
-  min-height: 100vh;
-  overflow: hidden;
-  background: #000;
-}
-.cine-caps-inner {
+.ep-scrollhint {
   position: relative;
   z-index: 10;
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding: 96px 32px 40px;
+  justify-content: center;
+  padding-bottom: 26px;
 }
-@media (min-width: 768px) {
-  .cine-caps-inner {
-    padding: 96px 64px 40px;
-  }
+.ep-scrollhint i {
+  width: 1px;
+  height: 42px;
+  background: linear-gradient(180deg, transparent, var(--ember));
+  animation: epPulse 2.6s var(--ease) infinite;
 }
-@media (min-width: 1024px) {
-  .cine-caps-inner {
-    padding: 96px 80px 40px;
-  }
+
+/* ── section shell + heading grammar ── */
+.ep-sec {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 110px 28px 10px;
 }
-.cine-label {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 0 0 24px;
+.ep-sec.wide {
+  max-width: 1240px;
 }
-.cine-h2 {
+.ep-head {
+  margin-bottom: 40px;
+}
+.ep-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin: 0 0 18px;
+}
+.ep-h2 {
   margin: 0;
-  font-family: var(--font-cine-head), serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(48px, 7vw, 96px);
-  line-height: 0.9;
-  letter-spacing: -0.033em;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(32px, 4.6vw, 54px);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
 }
-.cine-h2 .cine-blurtext {
-  justify-content: flex-start;
+.ep-h2.big {
+  font-size: clamp(36px, 5.6vw, 68px);
 }
-.cine-grid {
-  margin-top: 64px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
+.ep-h2.center .cine-word,
+.ep-h2.center {
+  justify-content: center;
+  text-align: center;
 }
-@media (min-width: 768px) {
-  .cine-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.ep-lede {
+  margin: 16px 0 0;
+  max-width: 66ch;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--mut);
 }
-.cine-card {
-  border-radius: 1.25rem;
-  padding: 24px;
-  min-height: 360px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+.ep-scan {
+  margin-top: 8px;
 }
-.cine-card-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: flex-start;
-}
-.cine-card-icon {
-  height: 44px;
-  width: 44px;
-  border-radius: 0.75rem;
+
+/* ── the interlude film ── */
+.ep-interlude {
+  position: relative;
+  min-height: 68vh;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: none;
-  color: #fff;
+  margin-top: 90px;
 }
-.cine-tags {
+.ep-interlude-copy {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 80px 24px;
+  max-width: 900px;
+}
+.ep-interlude-copy p {
+  margin: 18px auto 0;
+  max-width: 56ch;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+/* ── the five phases ── */
+.ep-phases {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 30px;
 }
-.cine-tag {
-  border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.9);
-  white-space: nowrap;
+.ep-phase {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(120px, 0.35fr) minmax(0, 1fr);
+  gap: 30px;
+  align-items: center;
+  padding: 46px 0;
+  border-top: 1px solid var(--hair);
 }
-.cine-card-spacer {
-  flex: 1;
-  min-height: 40px;
+.ep-phase.flip {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 0.35fr);
 }
-.cine-card-title {
-  margin: 0 0 10px;
-  font-family: var(--font-cine-head), serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(28px, 3vw, 36px);
-  letter-spacing: -1px;
+.ep-phase.flip .ep-phase-n {
+  order: 2;
+  text-align: right;
+}
+.ep-phase-n {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(110px, 15vw, 210px);
   line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.14);
+  user-select: none;
 }
-.cine-card-body {
+.ep-phase.st-live .ep-phase-n {
+  -webkit-text-stroke: 1px rgba(245, 155, 75, 0.55);
+  text-shadow: 0 0 42px rgba(225, 86, 15, 0.18);
+}
+.ep-status {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--mut);
+  border: 1px solid var(--hair-2);
+  border-radius: 999px;
+  padding: 4px 11px;
+}
+.ep-status.st-live {
+  color: var(--ember);
+  border-color: rgba(245, 155, 75, 0.45);
+  background: rgba(245, 155, 75, 0.07);
+}
+.ep-status.st-next {
+  color: #a8bdf5;
+  border-color: rgba(76, 125, 240, 0.34);
+}
+.ep-phase-body h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(24px, 2.8vw, 34px);
+  letter-spacing: -0.02em;
+  margin: 14px 0 10px;
+}
+.ep-phase-body > p {
+  margin: 0 0 18px;
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--mut);
+}
+.ep-phase-body ul {
+  list-style: none;
   margin: 0;
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 32ch;
+  padding: 0;
 }
-.cine-end {
-  margin-top: 72px;
+.ep-phase-body li {
+  position: relative;
+  padding: 9px 0 9px 22px;
+  border-bottom: 1px solid var(--hair);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ep-phase-body li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--ember);
+}
+.ep-phase.st-planned .ep-phase-body li::before {
+  color: rgba(255, 255, 255, 0.3);
+}
+.ep-phase-links {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+/* ── the end ── */
+.ep-end {
+  padding: 130px 24px 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
   text-align: center;
+  gap: 22px;
 }
-.cine-end p {
-  margin: 0;
-  max-width: 62ch;
-  font-size: 13.5px;
-  font-weight: 300;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.7);
+.ep-end .ep-h2 {
+  max-width: 760px;
 }
-.cine-foot {
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.4);
+.ep-foot {
+  margin-top: 40px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--mut);
+}
+
+@media (max-width: 760px) {
+  .ep-phase,
+  .ep-phase.flip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+  .ep-phase.flip .ep-phase-n {
+    order: 0;
+    text-align: left;
+  }
+  .ep-phase-n {
+    font-size: 90px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ep-pulse,
+  .ep-scrollhint i {
+    animation: none;
+  }
 }
