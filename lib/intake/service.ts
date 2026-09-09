@@ -431,7 +431,10 @@ export async function submitAnswer(
   // current record is `unasked` carrying the owner's reason, which makes
   // the question a candidate again and returns it to the centre.
   if (action.kind === "reopen") {
-    const reason = action.reason.trim();
+    // The reason arrives from an HTTP body the route only casts, never
+    // checks, so a missing one used to reach .trim() and 500 — an input
+    // mistake reported as our fault. It is the same 422 as an empty one.
+    const reason = typeof action.reason === "string" ? action.reason.trim() : "";
     if (reason === "") throw new IntakeError("a reason is needed to change an answer", 422);
     const target = applicable.find((q) => q.id === questionId);
     if (!target || !view.responded.has(target.writes_to)) {

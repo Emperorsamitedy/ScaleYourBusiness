@@ -17,6 +17,7 @@ import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { writeField } from "../profile/field-store";
+import type { AnswerAction } from "./types";
 import {
   bootstrapIntake,
   getIntakeState,
@@ -180,6 +181,27 @@ describe("the intake flow", () => {
                     : [q.options[0]?.code];
         await submitAnswer(accountId, profileId, q.id, { kind: "value", wire });
       }
+    }
+  });
+});
+
+describe("a malformed action is the caller's fault, not a crash", () => {
+  it("reopen with no reason is a 422, not a 500", async () => {
+    // Found live against production: the route casts the JSON body to
+    // AnswerAction without checking it, so a reopen missing its reason
+    // reached .trim() on undefined and surfaced as "something went wrong
+    // on our side" — our fault, for their bad request.
+    const s = await bootstrapIntake();
+    try {
+      await expect(
+        submitAnswer(s.account_id, s.profile_id, "1.1", {
+          kind: "reopen",
+        } as unknown as AnswerAction),
+      ).rejects.toMatchObject({ status: 422 });
+    } finally {
+      await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
+      await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
+      await db.delete(accounts).where(eq(accounts.id, s.account_id));
     }
   });
 });
