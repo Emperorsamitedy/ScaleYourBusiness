@@ -271,10 +271,15 @@ export async function getIntakeState(
   profileId: string,
   preferId?: string,
 ): Promise<IntakeState> {
-  const [applicable, view, currency] = await Promise.all([
+  const [applicable, view, currency, profileRow] = await Promise.all([
     applicableQuestions(profileId),
     loadRecords(profileId),
     reportingCurrency(profileId),
+    db
+      .select({ next_question_id: businessProfiles.next_question_id })
+      .from(businessProfiles)
+      .where(eq(businessProfiles.id, profileId))
+      .then((rows) => rows[0]),
   ]);
 
   // A skipped question was asked this session — never re-surfaced here.
@@ -311,14 +316,42 @@ export async function getIntakeState(
   if (preferred) {
     chosen = preferred;
   } else if (interviewerMode() === "llm") {
-    const picked = await pickNextQuestion({
-      accountId,
-      profileId,
-      asked: await askedEntries(applicable, view),
-    });
-    if (picked) chosen = picked.question;
+    // Reuse the last pick when it is still an open candidate.
+    //
+    // This function runs on every read of the intake state — every page
+    // load, every poll, and again after each answer — and the interviewer
+    // is a Sonnet call. Re-picking each time meant an owner who refreshed
+    // the page five times paid for five calls to be shown the question
+    // already on their screen. Measured on a live run: 192 calls for ~50
+    // answers, ~3.8x what the interview actually needs, against a €50/month
+    // budget.
+    //
+    // The stored id is a cache, not a fact, so it is honoured only while it
+    // is still in the candidate set. That makes it self-invalidating —
+    // answering the question removes it from the candidates and forces
+    // exactly one fresh pick — with no explicit invalidation to keep in
+    // sync with the write path.
+    const cached = profileRow?.next_question_id
+      ? ordered.find((q) => q.id === profileRow.next_question_id)
+      : undefined;
+    if (cached) {
+      chosen = cached;
+    } else {
+      const picked = await pickNextQuestion({
+        accountId,
+        profileId,
+        asked: await askedEntries(applicable, view),
+      });
+      if (picked) chosen = picked.question;
+    }
   }
   if (!chosen) throw new IntakeError("no candidate despite open tier", 500);
+  if (chosen.id !== profileRow?.next_question_id) {
+    await db
+      .update(businessProfiles)
+      .set({ next_question_id: chosen.id })
+      .where(eq(businessProfiles.id, profileId));
+  }
 
   const onDeck = ordered.find((q) => q.id !== chosen.id);
   return {

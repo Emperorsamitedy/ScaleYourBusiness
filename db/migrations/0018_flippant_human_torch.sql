@@ -1,0 +1,1 @@
+ALTER TABLE "business_profiles" ADD COLUMN "next_question_id" text;

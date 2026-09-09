@@ -84,6 +84,12 @@ export const businessProfiles = pgTable("business_profiles", {
   benchmark_consent: boolean("benchmark_consent").notNull().default(false),
   /** System judgment that the profile has enough data to benchmark against. */
   benchmark_eligible: boolean("benchmark_eligible").notNull().default(false),
+  // The interviewer's last pick, so that reading the intake state does not
+  // re-run the interviewer. It is a cache, not a fact: it is honoured only
+  // while it is still an open candidate, which makes it self-invalidating —
+  // answering the question drops it out of the candidate set and forces
+  // exactly one fresh pick. See getIntakeState.
+  next_question_id: text("next_question_id"),
 });
 
 // ---------------------------------------------------------------------------
