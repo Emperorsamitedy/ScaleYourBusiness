@@ -29,6 +29,7 @@ import type { Money } from "../core/money";
 import type { InputSpec } from "../interviewer/harness/answers";
 import { pickNextQuestion } from "../interviewer/interviewer";
 import { selectCandidates } from "../interviewer/select";
+import { currencyForCountry } from "../core/country-currency";
 import { coerceParsedValue } from "../parser/coerce";
 import {
   dynamicVocabularyOptions,
@@ -519,6 +520,24 @@ export async function submitAnswer(
       note,
     }),
   );
+
+  // The reporting currency follows the country, because nothing in the
+  // bank ever asks for it and the account is created with a default.
+  // Without this, an owner outside that default's country gets every
+  // figure in their report labelled in the wrong currency — found live,
+  // where a US candle maker's $18 printed as "18 HUF". Only ever set
+  // from a recognised country; an unrecognised answer leaves it alone.
+  // Money records carry their own currency, so anything already written
+  // keeps its label and the economics layer still refuses to blend.
+  if (question.writes_to === "legal.country" && status === "answered") {
+    const resolved = currencyForCountry(value);
+    if (resolved !== null && resolved !== currency) {
+      await db
+        .update(accounts)
+        .set({ reporting_currency: resolved })
+        .where(eq(accounts.id, accountId));
+    }
+  }
 
   const provenance =
     status === "answered"

@@ -184,6 +184,58 @@ describe("the intake flow", () => {
   });
 });
 
+describe("reporting currency follows the country", () => {
+  it("a US answer switches the account off the default, and money written after is USD", async () => {
+    // Found live: the account is created with a hardcoded default and
+    // nothing in the bank asks for a currency, so a US owner's $18
+    // candle printed as "18 HUF" throughout the report.
+    const s = await bootstrapIntake();
+    try {
+      const before = await db
+        .select({ c: accounts.reporting_currency })
+        .from(accounts)
+        .where(eq(accounts.id, s.account_id));
+      expect(before[0]?.c).toBe("HUF");
+
+      await submitAnswer(s.account_id, s.profile_id, "1.1", {
+        kind: "value",
+        wire: "Ember & Oak",
+      });
+      await submitAnswer(s.account_id, s.profile_id, "1.1b", {
+        kind: "value",
+        wire: "United States",
+      });
+
+      const after = await db
+        .select({ c: accounts.reporting_currency })
+        .from(accounts)
+        .where(eq(accounts.id, s.account_id));
+      expect(after[0]?.c).toBe("USD");
+    } finally {
+      await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
+      await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
+      await db.delete(accounts).where(eq(accounts.id, s.account_id));
+    }
+  });
+
+  it("an unrecognised country leaves the currency alone rather than guessing", async () => {
+    const s = await bootstrapIntake();
+    try {
+      await submitAnswer(s.account_id, s.profile_id, "1.1", { kind: "value", wire: "Nowhere Ltd" });
+      await submitAnswer(s.account_id, s.profile_id, "1.1b", { kind: "value", wire: "Narnia" });
+      const after = await db
+        .select({ c: accounts.reporting_currency })
+        .from(accounts)
+        .where(eq(accounts.id, s.account_id));
+      expect(after[0]?.c).toBe("HUF");
+    } finally {
+      await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
+      await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
+      await db.delete(accounts).where(eq(accounts.id, s.account_id));
+    }
+  });
+});
+
 describe("entity rows are all-or-nothing", () => {
   it("a bad value in row 3 writes NOTHING and leaves the question askable", { timeout: 30_000 }, async () => {
     // Regression: writeEntityRows used to create spines and write fields
