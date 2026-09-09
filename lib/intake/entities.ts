@@ -196,13 +196,18 @@ export async function writeEntityRows(args: {
   const detail: string[] = [];
   let rowsWithCosts = 0;
 
+  // VALIDATE EVERY ROW BEFORE WRITING ANYTHING.
+  //
+  // These writes are not one transaction — writeField owns its own. So a
+  // value that fails to coerce halfway through used to leave the earlier
+  // rows written, the later ones lost, and (because the spine row exists)
+  // the question no longer askable: an owner who mistyped one field lost
+  // their whole product list with no way to re-enter it. Found on a live
+  // run where a bad `purchase_type` code stranded a five-product list as
+  // one nameless offer. Coerce first, write only if all of it is good.
+  const prepared: { row: Record<string, unknown>; values: [string, unknown][] }[] = [];
   for (const row of args.rows) {
-    const kindWire = typeof row.kind === "string" ? row.kind : null;
-    const entityId = await createSpineRow(args.profileId, args.schemaKey, kindWire);
-    entityIds.push(entityId);
-
-    let rowHasCost = false;
-    const labelParts: string[] = [];
+    const values: [string, unknown][] = [];
     for (const [key, wire] of Object.entries(row)) {
       if (wire === null || wire === undefined || wire === "") continue;
       const field = byKey.get(key);
@@ -217,11 +222,24 @@ export async function writeEntityRows(args: {
       if (!coerced.ok) {
         throw Object.assign(new Error(`${field.prompt}: ${coerced.reason}`), { status: 422 });
       }
+      values.push([key, coerced.value]);
+    }
+    prepared.push({ row, values });
+  }
+
+  for (const { row, values } of prepared) {
+    const kindWire = typeof row.kind === "string" ? row.kind : null;
+    const entityId = await createSpineRow(args.profileId, args.schemaKey, kindWire);
+    entityIds.push(entityId);
+
+    let rowHasCost = false;
+    const labelParts: string[] = [];
+    for (const [key, value] of values) {
       await writeField(
         args.profileId,
         createField<unknown>({
           id: fieldId(`${prefix}.${entityId}.${key}`),
-          value: coerced.value,
+          value,
           status: "answered",
           confidence: 0.75,
           source: { kind: "owner_input" },
@@ -232,10 +250,10 @@ export async function writeEntityRows(args: {
       );
       if (COST_KEYS.has(key)) rowHasCost = true;
       if (NAME_KEYS.includes(key) && labelParts.length === 0) {
-        labelParts.push(String(wire));
+        labelParts.push(String(value));
       }
       if (key === "price" || key === "amount") {
-        const m = coerced.value as Money;
+        const m = value as Money;
         labelParts.push(
           `${new Intl.NumberFormat("en-GB").format(m.amount_minor / 100)} ${m.currency}`,
         );

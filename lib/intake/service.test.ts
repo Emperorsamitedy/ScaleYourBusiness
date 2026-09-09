@@ -184,6 +184,82 @@ describe("the intake flow", () => {
   });
 });
 
+describe("entity rows are all-or-nothing", () => {
+  it("a bad value in row 3 writes NOTHING and leaves the question askable", { timeout: 30_000 }, async () => {
+    // Regression: writeEntityRows used to create spines and write fields
+    // as it went, so a value that failed to coerce stranded the earlier
+    // rows, dropped the later ones, and left the question unaskable —
+    // an owner who mistyped one field lost the whole list. Found on a
+    // live run: a bad `purchase_type` turned a five-product list into
+    // one nameless offer.
+    const s = await bootstrapIntake();
+    try {
+      let guard = 0;
+      for (;;) {
+        const st = await getIntakeState(s.account_id, s.profile_id);
+        if (!st.question || guard++ > 30) throw new Error("never reached 3.1");
+        const q = st.question;
+        if (q.input_type === "entity_list" && q.entity_schema === "offer") {
+          const rows = [
+            { name: "Good one", kind: "physical", price: { amount_major: 1800 } },
+            { name: "Also good", kind: "physical", price: { amount_major: 2800 } },
+            { name: "Bad one", kind: "physical", purchase_type: "one_off" }, // not a real code
+          ];
+          await expect(
+            submitEntities(s.account_id, s.profile_id, q.id, rows),
+          ).rejects.toThrow();
+
+          // Nothing was written: no spines, no per-entity records.
+          const spine = await db
+            .select({ id: offers.id })
+            .from(offers)
+            .where(eq(offers.profile_id, s.profile_id));
+          expect(spine).toHaveLength(0);
+          const recs = await db
+            .select({ k: fieldRecords.field_key })
+            .from(fieldRecords)
+            .where(eq(fieldRecords.profile_id, s.profile_id));
+          expect(recs.filter((r) => /^offers\.[0-9a-f-]{36}\./.test(r.k))).toHaveLength(0);
+
+          // And the owner can still answer it — with the value corrected.
+          const after = await getIntakeState(s.account_id, s.profile_id);
+          expect(after.question?.id).toBe(q.id);
+          const fixed = rows.map((r) =>
+            r.purchase_type ? { ...r, purchase_type: "one_time" } : r,
+          );
+          const res = await submitEntities(s.account_id, s.profile_id, q.id, fixed);
+          expect(res.chip.detail).toHaveLength(3);
+          return;
+        }
+        const wire =
+          q.input_type === "text" || q.input_type === "long_text"
+            ? "x"
+            : q.input_type === "number"
+              ? 2
+              : q.input_type === "money"
+                ? { amount_major: 1000 }
+                : q.input_type === "boolean"
+                  ? true
+                  : q.input_type === "date"
+                    ? "2022-06-01"
+                    : q.input_type === "single_select"
+                      ? q.options[0]?.code
+                      : q.input_type === "multi_select"
+                        ? [q.options[0]?.code]
+                        : null;
+        if (q.input_type === "entity_list")
+          await submitEntityCount(s.account_id, s.profile_id, q.id, 1);
+        else await submitAnswer(s.account_id, s.profile_id, q.id, { kind: "value", wire });
+      }
+    } finally {
+      await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
+      await db.delete(offers).where(eq(offers.profile_id, s.profile_id));
+      await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
+      await db.delete(accounts).where(eq(accounts.id, s.account_id));
+    }
+  });
+});
+
 describe("P0-68..70 — entity sub-form service", () => {
   it("writes 5 product rows: spines, per-entity records, collapsing chip", { timeout: 30_000 }, async () => {
     const s = await bootstrapIntake();
