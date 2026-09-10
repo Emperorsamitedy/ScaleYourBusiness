@@ -9,11 +9,28 @@ Usage:
 Exits 0 when clean, 1 when any issue is found. Safe to run in CI.
 """
 import json
+import re
 import sys
 import collections
 from pathlib import Path
 
 DEFAULT = Path("specs/question-bank-v1.json")
+
+# A prompt opening with an auxiliary verb reads as yes/no.
+YES_NO_PROMPT = re.compile(
+    r"^(do|does|did|is|are|was|were|have|has|had|can|could|will|would|should)\b",
+    re.IGNORECASE,
+)
+
+# Inputs with no way to express "no". A yes/no prompt on one of these is a
+# trap: the owner reads a yes/no question and is handed a number box.
+# Found live — "Do you know your gross profit margin?" took a percentage,
+# so answering "no" was rejected outright; and "Does the business carry
+# debt or financing?" had no way to say "none" short of typing 0.
+# text/long_text are excluded: they absorb a written "no" harmlessly.
+# multi_select is handled separately — it is fine when it offers a "none".
+VALUE_ONLY_INPUTS = {"number", "money", "date", "percent"}
+NONE_LIKE = {"none", "none_yet", "no", "nothing", "not_applicable"}
 
 
 def load(path: Path):
@@ -75,6 +92,22 @@ def lint(bank):
             elif es not in schemas:
                 issues["missing_entity_schema"].append(f"{label} -> {es}")
 
+    def check_prompt_matches_input(prompt_en, spec, label):
+        """A question phrased as yes/no must be answerable with "no"."""
+        if not YES_NO_PROMPT.match(prompt_en.strip()):
+            return
+        kind = spec.get("type")
+        if kind in VALUE_ONLY_INPUTS:
+            issues["yes_no_prompt_wants_a_value"].append(f"{label}: {prompt_en}")
+        elif kind == "multi_select":
+            vid = spec.get("vocabulary_id")
+            options = vocabs.get(vid) or []
+            codes = {o if isinstance(o, str) else o.get("code") for o in options}
+            if not codes & NONE_LIKE:
+                issues["yes_no_prompt_multi_select_without_none"].append(
+                    f"{label}: {prompt_en}"
+                )
+
     for q in questions:
         label = q["id"]
 
@@ -94,6 +127,8 @@ def lint(bank):
         prompt = q.get("prompt")
         if not isinstance(prompt, dict) or not prompt.get("en"):
             issues["missing_english_prompt"].append(label)
+        else:
+            check_prompt_matches_input(prompt["en"], q["input"], label)
 
     # entity schema fields get the same input checks
     for name, schema in schemas.items():

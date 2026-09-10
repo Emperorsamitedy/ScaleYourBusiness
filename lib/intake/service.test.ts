@@ -206,6 +206,39 @@ describe("a malformed action is the caller's fault, not a crash", () => {
   });
 });
 
+describe("an owner who does not know their fixed costs can say so", () => {
+  it("records unknown, not skipped, for the fixed-cost list (P0-88)", async () => {
+    // 5.1 is an entity_list and used to carry allow_unknown: false, so the
+    // only way past it was "Skip for now". That wrote status "skipped",
+    // which means the owner DECLINED — when the truth was that they did not
+    // know. Rule 5 requires those stay distinct, and the bank was forcing
+    // the wrong one. Fixed costs is exactly the number a small owner most
+    // often has never added up.
+    const s = await bootstrapIntake();
+    try {
+      const res = await submitAnswer(s.account_id, s.profile_id, "5.1", { kind: "unknown" });
+      expect(res.chip.display).toBe("Not known");
+
+      const [row] = await db
+        .select({ status: fieldRecords.status, key: fieldRecords.field_key })
+        .from(fieldRecords)
+        .where(
+          and(
+            eq(fieldRecords.profile_id, s.profile_id),
+            eq(fieldRecords.field_key, "costs.fixed_monthly"),
+            isNull(fieldRecords.superseded_at),
+          ),
+        );
+      expect(row?.status).toBe("unknown");
+      expect(row?.status).not.toBe("skipped");
+    } finally {
+      await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
+      await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
+      await db.delete(accounts).where(eq(accounts.id, s.account_id));
+    }
+  });
+});
+
 describe("reporting currency follows the country", () => {
   it("a US answer switches the account off the default, and money written after is USD", async () => {
     // Found live: the account is created with a hardcoded default and

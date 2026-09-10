@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.1.0",
+  "bank_version": "1.2.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -1889,11 +1889,14 @@
     },
     {
       "id": "1.4.1.2.1f",
-      "version": 1,
+      "version": 2,
       "section": "offers",
       "writes_to": "offers.physical.inventory.dead_stock_value",
       "prompt": {
-        "en": "Is there damaged, expired or dead stock? Roughly what is it worth?"
+        "en": "Roughly what is your damaged, expired or dead stock worth?"
+      },
+      "help_text": {
+        "en": "Enter 0 if there is none."
       },
       "input": {
         "type": "money",
@@ -2454,11 +2457,14 @@
     },
     {
       "id": "4.1",
-      "version": 1,
+      "version": 2,
       "section": "revenue",
       "writes_to": "revenue.generates_revenue",
       "prompt": {
-        "en": "Does the business make money at the moment?"
+        "en": "Is money coming into the business at the moment?"
+      },
+      "help_text": {
+        "en": "Any sales at all, even if the business is not making a profit yet."
       },
       "input": {
         "type": "single_select",
@@ -2775,7 +2781,7 @@
     },
     {
       "id": "5.1",
-      "version": 1,
+      "version": 2,
       "section": "costs",
       "writes_to": "costs.fixed_monthly",
       "prompt": {
@@ -2787,7 +2793,7 @@
       "input": {
         "type": "entity_list",
         "entity_schema": "cost_item",
-        "allow_unknown": false
+        "allow_unknown": true
       },
       "condition": null,
       "priority": "core",
@@ -2812,11 +2818,14 @@
     },
     {
       "id": "5.3a",
-      "version": 1,
+      "version": 2,
       "section": "costs",
       "writes_to": "costs.gross_margin",
       "prompt": {
-        "en": "Do you know your gross profit margin?"
+        "en": "What is your gross profit margin?"
+      },
+      "help_text": {
+        "en": "The percentage of each sale left after the direct cost of delivering it. If you have never worked it out, say you don't know."
       },
       "input": {
         "type": "number",
@@ -2854,11 +2863,14 @@
     },
     {
       "id": "5.3c",
-      "version": 1,
+      "version": 2,
       "section": "costs",
       "writes_to": "costs.debt",
       "prompt": {
-        "en": "Does the business carry debt or financing?"
+        "en": "How much debt or financing is the business carrying?"
+      },
+      "help_text": {
+        "en": "Enter 0 if there is none. Loans, credit lines, buy-now-pay-later on stock, investor money to repay."
       },
       "input": {
         "type": "money",
@@ -3326,11 +3338,14 @@
     },
     {
       "id": "8.1e",
-      "version": 1,
+      "version": 2,
       "section": "marketing",
       "writes_to": "marketing.creates_content",
       "prompt": {
-        "en": "Do you post content anywhere? Social media, video, blog."
+        "en": "Do you post content anywhere?"
+      },
+      "help_text": {
+        "en": "Social media, video, a blog, a newsletter — anything you publish yourself."
       },
       "input": {
         "type": "boolean"
