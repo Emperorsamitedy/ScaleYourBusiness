@@ -61,6 +61,26 @@ export async function POST(): Promise<NextResponse> {
   }
 }
 
+/**
+ * Leave the current intake, so the next POST starts a fresh profile.
+ *
+ * POST resumes whatever the cookie points at and there was no way out:
+ * an owner with a second business, or one who wanted to abandon a
+ * half-finished intake and begin again, was pinned to their first
+ * profile forever. The cookie is httpOnly, so they could not clear it
+ * themselves either.
+ *
+ * This ends the session only. The profile and every fact in it stay
+ * exactly where they are — facts are superseded, never destroyed, and a
+ * stale cookie is no reason to break that. Recovering an abandoned
+ * profile is what the resume link is for.
+ */
+export async function DELETE(): Promise<NextResponse> {
+  const response = NextResponse.json({ ended: true });
+  response.cookies.set(COOKIE, "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0 });
+  return response;
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await resolveSession();
