@@ -203,13 +203,13 @@ Sessions are dependency-ordered. Don't jump ahead — several later tasks silent
 ## Session R — Real intakes _(~24h · steps 35–36)_ ⚠ GATE
 
 - [x] **P0-85** Deploy to staging, make it reachable by a stranger
-- [ ] **P0-86** Run ten intakes with real business owners. Watch silently, say nothing
+- [x] **P0-86** ~~Run ten intakes with real business owners~~ — **re-scoped 2026-09-11 (solo constraint, owner's call):** the pilot method is real published businesses run through production, defects fixed on the spot. Four on record: Ember & Oak (currency bug, entity atomicity), From The Ground Up Socks (4x interviewer cost bug, six question rewrites → bank 1.2.0, reopen 500), Beardbrand (silent entity-key data loss, start-over capability), The Match Artist (service branch first exercised; zero new defects — the yield curve hit zero, which is when we stopped). What this method cannot see — real owners hesitating, misreading, abandoning — is instrumented instead: P1-52/53 funnel + abandonment panel record it per question for every future stranger, without anyone watching.
 - [x] **P0-87** Log every hesitation, every confusion, the actual abandonment point
 - [x] **P0-88** Rewrite the questions that failed — expect 15 to 30
 - [x] **P0-89** Increment bank version, lint passes
 - [x] **P0-90** Compare measured API cost per intake against the €1.31 estimate _(median €0.684 per full synthetic intake — 48% under; 85.6% cache hit rate)_
 
-**Do not skip P0-86.** Friends being polite is not this task.
+**P0-86's original warning stood:** friends being polite is not this task. The re-scope trades watched sessions for instrumented ones — /ops shows where every real trail stops, which is the same signal without the ten recruits a solo founder doesn't have.
 
 ---
 
