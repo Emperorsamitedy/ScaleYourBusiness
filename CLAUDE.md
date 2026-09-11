@@ -8,7 +8,7 @@ Project instructions for Claude Code. Read this before writing anything.
 
 An AI business operating system for small businesses. It interviews an owner, builds a structured profile of their business, diagnoses problems, and — in later phases — proposes and executes work across marketing, sales, support and operations with the owner's approval.
 
-**Current phase: Phases 0 and 1 are COMPLETE (2026-09-11); Phase 2 is gated.** The shipped system runs on production (syb-kappa.vercel.app): intake → provenance-tracked profile → validation → diagnosis report → mode decision → watching loop, with magic-link auth, a Stripe payment gate (built, unarmed until keys exist), cost/funnel telemetry, and the /ops panel. Five real businesses have run through it end to end. Phase 2 (connectors, proposals, execution) is gated by TASKS-PHASE1.md's own rule — strangers paying for the report — and the owner has deliberately parked customer acquisition; do not start Phase 2 work without the owner overriding that gate explicitly. P0-86 was re-scoped (see TASKS.md) and P0-71 remains a human-timed test.
+**Current phase: Phases 0 and 1 are COMPLETE (2026-09-11); Phase 2 is gated.** The shipped system runs on production (syb-kappa.vercel.app): intake → provenance-tracked profile → validation → diagnosis report → mode decision → watching loop, with magic-link auth, a Stripe payment gate (built, unarmed until keys exist), cost/funnel telemetry, and the /ops panel. Five real businesses have run through it end to end. **Phase 2 (Measurement) is OPEN as of 2026-09-11 — the owner explicitly overrode the paying-customers gate**, the same recorded override as P0-86. The plan is `TASKS-PHASE2.md`: read-only connectors (Stripe first, then commerce, analytics, ads), measured facts superseding estimates with provenance, deterministic anomaly detection. Three new non-negotiables live in that file: read-only scopes forever with a failing-test scope audit, connection secrets encrypted at rest, and stated-vs-measured deltas shown rather than silently swapped. Proposals/approval/execution remain Phase 3 and stay fenced. P0-86 was re-scoped (see TASKS.md) and P0-71 remains a human-timed test.
 
 ---
 
@@ -57,8 +57,8 @@ These are load-bearing. Violating any of them is expensive to undo later.
 Claude Code tends to helpfully scaffold ahead. Don't.
 
 - No approval queue, proposals or execution engine — Phase 3
-- No connectors to external platforms — Phase 2
-- **No write-scope API calls to anything, ever, in Phase 0 or 1**
+- Connectors are IN SCOPE as of Phase 2 (TASKS-PHASE2.md) — read-only only
+- **No write-scope API calls to anything, ever — in any phase built so far; Phase 2's scope audit enforces it in tests**
 - No support, CRM, finance or HR modules
 - No auth beyond what the intake needs
 - No premature abstraction for modules that don't exist
