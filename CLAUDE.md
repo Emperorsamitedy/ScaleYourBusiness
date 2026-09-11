@@ -8,7 +8,7 @@ Project instructions for Claude Code. Read this before writing anything.
 
 An AI business operating system for small businesses. It interviews an owner, builds a structured profile of their business, diagnoses problems, and — in later phases — proposes and executes work across marketing, sales, support and operations with the owner's approval.
 
-**Current phase: Phase 0 — Foundation.** We are building the data layer, the question engine, the interviewer agent and the intake UI. Nothing else.
+**Current phase: Phases 0 and 1 are COMPLETE (2026-09-11); Phase 2 is gated.** The shipped system runs on production (syb-kappa.vercel.app): intake → provenance-tracked profile → validation → diagnosis report → mode decision → watching loop, with magic-link auth, a Stripe payment gate (built, unarmed until keys exist), cost/funnel telemetry, and the /ops panel. Five real businesses have run through it end to end. Phase 2 (connectors, proposals, execution) is gated by TASKS-PHASE1.md's own rule — strangers paying for the report — and the owner has deliberately parked customer acquisition; do not start Phase 2 work without the owner overriding that gate explicitly. P0-86 was re-scoped (see TASKS.md) and P0-71 remains a human-timed test.
 
 ---
 
