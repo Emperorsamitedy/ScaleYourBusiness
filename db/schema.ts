@@ -847,3 +847,84 @@ export const llmCalls = pgTable(
   },
   (t) => [index("llm_calls_account_at_idx").on(t.account_id, t.at)],
 );
+
+// ---------------------------------------------------------------------------
+// Mode decision — Session H (P1-42..45), data-model §9. The decision
+// row stores the exact inputs that produced it, which is what makes it
+// auditable: the screen shows THESE, not generated prose. New decisions
+// append; the latest by decided_at is current. The owner override is
+// asymmetric by design — extend freely, shorten only with a stored
+// acknowledgement.
+
+export const modeKind = pgEnum("mode_kind", ["instant", "watching"]);
+
+export const modeDecisions = pgTable(
+  "mode_decisions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    mode: modeKind("mode").notNull(),
+    /** 4 | 6 | 8 for watching; null for instant. */
+    watch_weeks: integer("watch_weeks"),
+    decided_at: timestamp("decided_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** ModeDecisionInputs, verbatim — the audit trail. */
+    inputs: jsonb("inputs").notNull(),
+    /** Deterministic template text, assembled from the inputs. */
+    reasoning: text("reasoning").notNull(),
+    confidence: numeric("confidence", { precision: 4, scale: 3 }).notNull(),
+    /** OwnerOverride | null — extend freely, shorten with acknowledgement. */
+    owner_override: jsonb("owner_override"),
+    review_at: timestamp("review_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [index("mode_decisions_profile_idx").on(t.profile_id, t.decided_at)],
+);
+
+// ---------------------------------------------------------------------------
+// Watch activity — Session H (P1-46/47). The honest log: every row is
+// real work performed (a snapshot taken, a diff computed, a question
+// queued). Nothing is ever inserted to look busy — the ux-spec is
+// explicit that manufactured delay poisons every honest thing the
+// product has said.
+
+export const watchActivity = pgTable(
+  "watch_activity",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    /** "snapshot_taken" | "diff_computed" | "watch_started" | ... */
+    kind: text("kind").notNull(),
+    /** Owner-readable one-liner: "Weekly snapshot: 3 fields changed". */
+    detail: text("detail").notNull(),
+    meta: jsonb("meta"),
+  },
+  (t) => [index("watch_activity_profile_at_idx").on(t.profile_id, t.at)],
+);
+
+// ---------------------------------------------------------------------------
+// Module selection — Session H (P1-48). Which future modules the owner
+// wants. Analytics is not a row here on purpose: it is fixed on, and a
+// row that cannot be turned off would only invite the attempt.
+
+export const accountModules = pgTable(
+  "account_modules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    /** "marketing" | "sales" | "support" | "operations" | "finance". */
+    module: text("module").notNull(),
+    enabled: boolean("enabled").notNull().default(true),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("account_modules_unique_idx").on(t.account_id, t.module)],
+);

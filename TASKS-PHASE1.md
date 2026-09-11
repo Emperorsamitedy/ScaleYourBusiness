@@ -141,13 +141,13 @@ Design language is settled: `docs/DESIGN.md` + the Phase 1 mockups in `mockups/p
 
 ## Session H — Mode decision & watching _(~26h · steps 47–48)_
 
-- [ ] **P1-42** `ModeDecision` from `ModeDecisionInputs` — deterministic, auditable, not a vibe from a prompt
-- [ ] **P1-43** Mode decision screen (§5): reasons shown are the actual inputs that triggered it
-- [ ] **P1-44** Extending the watch is one click; shortening sits behind an acknowledgement
-- [ ] **P1-45** A low-confidence profile defers the decision instead of guessing
-- [ ] **P1-46** Weekly snapshot job + diff against the baseline (uses P1-05)
-- [ ] **P1-47** Watching status screen (§6): honest activity log, thresholds that would trigger an interruption
-- [ ] **P1-48** Module selection with analytics fixed on, and the UI explaining why
+- [x] **P1-42** `ModeDecision` from `ModeDecisionInputs` — deterministic, auditable, not a vibe from a prompt
+- [x] **P1-43** Mode decision screen (§5): reasons shown are the actual inputs that triggered it
+- [x] **P1-44** Extending the watch is one click; shortening sits behind an acknowledgement
+- [x] **P1-45** A low-confidence profile defers the decision instead of guessing
+- [x] **P1-46** Weekly snapshot job + diff against the baseline (uses P1-05)
+- [x] **P1-47** Watching status screen (§6): honest activity log, thresholds that would trigger an interruption
+- [x] **P1-48** Module selection with analytics fixed on, and the UI explaining why
 
 **Done when:** both modes render correctly, every activity entry corresponds to real work performed, and analytics cannot be disabled.
 

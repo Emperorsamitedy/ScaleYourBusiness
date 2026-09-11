@@ -148,6 +148,13 @@
       "when": 1789133279248,
       "tag": "0020_steady_maximus",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1789136044604,
+      "tag": "0021_demonic_the_hand",
+      "breakpoints": true
     }
   ]
 }

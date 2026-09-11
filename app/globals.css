@@ -4617,3 +4617,89 @@ a.auth-cta {
   font-family: var(--mono);
   font-size: 12.5px;
 }
+
+/* ── mode decision + watching (Session H) ── */
+
+.mode-reasons {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mode-reasons li {
+  font-size: 14px;
+  color: var(--ink, inherit);
+  padding-left: 18px;
+  position: relative;
+}
+.mode-reasons li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--ember), var(--ember-deep));
+}
+.mode-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.mode-actions .auth-cta {
+  width: auto;
+  padding: 12px 28px;
+}
+.mode-extend {
+  font-size: 13.5px;
+}
+.watch-log {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.watch-log li {
+  display: flex;
+  gap: 14px;
+  font-size: 13.5px;
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 10px;
+}
+.watch-at {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--mut);
+  flex: 0 0 auto;
+  padding-top: 1px;
+}
+.watch-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 12px;
+}
+.watch-module {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+.watch-module input {
+  accent-color: var(--ember);
+  width: 16px;
+  height: 16px;
+}
+.watch-module.fixed {
+  color: var(--mut);
+  cursor: default;
+}
