@@ -725,3 +725,92 @@ export const diagnosisReports = pgTable(
   },
   (t) => [index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at)],
 );
+
+// ---------------------------------------------------------------------------
+// Auth — Session I (P1-49). The resume-token philosophy, promoted to the
+// account: an email and a signed link, no password, only hashes at rest.
+// A login token is short-lived and single-purpose; redeeming it mints an
+// auth session (long-lived) AND re-points the intake cookie at the
+// account's profile, so every existing route keeps working untouched.
+
+export const loginTokens = pgTable(
+  "login_tokens",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: text("email").notNull(),
+    /** sha256 of the token in the emailed link. Never the token itself. */
+    token_hash: text("token_hash").notNull(),
+    /** The profile the browser held when asking to log in, if any —
+     * redeeming binds this profile's account to the email. */
+    profile_id: uuid("profile_id").references(() => businessProfiles.id, {
+      onDelete: "set null",
+    }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    /** A login token is one-shot: set on redeem, checked on redeem. */
+    used_at: timestamp("used_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("login_tokens_hash_idx").on(t.token_hash),
+    index("login_tokens_email_idx").on(t.email),
+  ],
+);
+
+export const authSessions = pgTable(
+  "auth_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    user_id: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token_hash: text("token_hash").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    revoked_at: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("auth_sessions_hash_idx").on(t.token_hash),
+    index("auth_sessions_account_idx").on(t.account_id),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Payments — Session I (P1-50). One row per checkout attempt; the paid
+// status is only ever set by the verified Stripe webhook, never by a
+// redirect URL a browser can fabricate.
+
+export const paymentStatus = pgEnum("payment_status", ["pending", "paid", "failed", "expired"]);
+
+export const payments = pgTable(
+  "payments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id),
+    provider: text("provider").notNull().default("stripe"),
+    /** Stripe Checkout Session id — the join key for the webhook. */
+    checkout_session_id: text("checkout_session_id").notNull(),
+    amount_minor: integer("amount_minor").notNull(),
+    currency: text("currency").notNull(),
+    status: paymentStatus("status").notNull().default("pending"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    paid_at: timestamp("paid_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("payments_checkout_idx").on(t.checkout_session_id),
+    index("payments_profile_idx").on(t.profile_id, t.status),
+  ],
+);

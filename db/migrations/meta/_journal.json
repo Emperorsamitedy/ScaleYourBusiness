@@ -134,6 +134,13 @@
       "when": 1788986776233,
       "tag": "0018_flippant_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1789125737127,
+      "tag": "0019_happy_squirrel_girl",
+      "breakpoints": true
     }
   ]
 }

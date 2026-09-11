@@ -12,6 +12,7 @@ import { NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
 import { DiagnosisError } from "../../../lib/diagnosis/findings";
+import { hasPaidReport, paymentsConfigured } from "../../../lib/payments/stripe";
 import { generateReport, latestReport } from "../../../lib/report/service";
 
 const COOKIE = "syb_intake_profile";
@@ -50,6 +51,25 @@ export async function POST(): Promise<NextResponse> {
   const session = await resolveSession();
   if (!session) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
+    // The payment gate (P1-50). Armed only when Stripe is configured, so
+    // an environment without keys behaves exactly as before — logged, so
+    // nobody mistakes an unarmed gate for a passed one. A profile that
+    // already has a report keeps access to it (the cost guard returns the
+    // existing one); what payment buys is the expensive generation.
+    if (paymentsConfigured()) {
+      const paid = await hasPaidReport(session.profile_id);
+      const existing = await latestReport(session.profile_id);
+      if (!paid && !existing) {
+        return NextResponse.json(
+          { error: "the report needs to be paid for first", payment_required: true },
+          { status: 402 },
+        );
+      }
+    } else {
+      console.log(
+        JSON.stringify({ event: "report_gate_unarmed", account_id: session.account_id }),
+      );
+    }
     const { report, fresh } = await generateReport({
       accountId: session.account_id,
       profileId: session.profile_id,

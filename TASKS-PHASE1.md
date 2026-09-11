@@ -155,8 +155,8 @@ Design language is settled: `docs/DESIGN.md` + the Phase 1 mockups in `mockups/p
 
 ## Session I — Money _(~28h · steps 50–52)_
 
-- [ ] **P1-49** Signup and auth beyond the intake cookie
-- [ ] **P1-50** Payment for the one-off report price; a stranger pays and receives a report with nobody touching anything
+- [x] **P1-49** Signup and auth beyond the intake cookie
+- [x] **P1-50** Payment for the one-off report price; a stranger pays and receives a report with nobody touching anything
 - [ ] **P1-51** Per-account cost telemetry — tokens and euros by workload, so one onboarding's true cost is visible
 - [ ] **P1-52** Funnel instrumentation: intake start → core complete → report delivered → recommendation responses
 - [ ] **P1-53** The abandonment point visible in a dashboard (extends the P0-87 telemetry)

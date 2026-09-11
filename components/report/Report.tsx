@@ -10,7 +10,7 @@
 // Everything rendered here was computed or evidence-checked in code
 // before it reached the row; this component adds no numbers of its own.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 /* ── shapes from lib/report/service.ts ── */
@@ -324,6 +324,23 @@ export function ReportScreen() {
     setError(null);
     try {
       const res = await fetch("/api/report", { method: "POST" });
+      if (res.status === 402) {
+        // P1-50: the report is paid. Start checkout and hand the browser
+        // to Stripe; the webhook makes it real, and coming back here with
+        // ?checkout=success retries generation against the paid record.
+        const checkout = await fetch("/api/checkout", { method: "POST" });
+        const payload = (await checkout.json().catch(() => null)) as {
+          checkout_url?: string;
+          error?: string;
+        } | null;
+        if (checkout.ok && payload?.checkout_url) {
+          window.location.href = payload.checkout_url;
+          return;
+        }
+        setError(payload?.error ?? "payment could not be started");
+        setState(report ? "ready" : "none");
+        return;
+      }
       if (!res.ok) {
         const payload = (await res.json().catch(() => null)) as { error?: string } | null;
         setError(payload?.error ?? "generation failed");
@@ -337,6 +354,21 @@ export function ReportScreen() {
       setState(report ? "ready" : "none");
     }
   }, [report]);
+
+  // Back from Stripe: the webhook has (usually) landed before the
+  // redirect. Kick generation once; if the webhook is still in flight
+  // the 402 path shows the pay button again rather than double-charging.
+  // Deliberately mount-only — `generate` is stable enough and re-running
+  // on its identity change would re-trigger checkout.
+  const kicked = useRef(false);
+  useEffect(() => {
+    if (kicked.current) return;
+    kicked.current = true;
+    if (new URLSearchParams(window.location.search).get("checkout") === "success") {
+      window.history.replaceState(null, "", "/report");
+      void generate();
+    }
+  }, [generate]);
 
   /* ── P1-41: the three non-report states ── */
   if (state === "loading") {
