@@ -12,11 +12,17 @@
 //   2. The model reads a SNAPSHOT, not the live profile. The exact facts
 //      a finding pointed at can be reproduced later, byte for byte.
 //
-// ⚠ PROMPT STATUS: PROVISIONAL. Session E was built ahead of the P0-86
-// gate (ten real intakes) at the owner's explicit decision. Everything in
-// this file except SYSTEM is prompt-independent machinery; SYSTEM itself
-// must be recalibrated against real owner profiles once they exist, and
-// should not be treated as tuned until TASKS.md marks P0-86 done.
+// PROMPT STATUS: CALIBRATED (2026-09-11) against five real businesses
+// run through production under the re-scoped P0-86 — physical DTC small
+// (FTGU) and at scale with subscriptions (Beardbrand), booking service
+// (Match Artist), digital courses (Justin Welsh), plus Ember & Oak.
+// Across all five: zero invented numbers, every finding evidence-cited,
+// refusals chosen over guesses, and cross-fact reasoning that held up
+// (inventory history → missing tracking; international digital sales →
+// VAT exposure; a service-branch answer → the key-man critical). The
+// two changes real runs DID force were mechanical, not prompt: the
+// threeSentences decimal split and widening close_gap to fillable keys.
+// Recalibrate again only when a real run produces a grounding failure.
 
 import { computeCompleteness } from "../scorer/completeness";
 import type { Field } from "../core/field";
@@ -125,7 +131,7 @@ const OUTPUT_SCHEMA = {
   additionalProperties: false,
 };
 
-// PROVISIONAL — see the header. Recalibrate against real intakes (P0-86).
+// Calibrated — see the header for the five-run evidence.
 const SYSTEM = `You are diagnosing a small business from its profile: a list of facts, each carrying its field key, value, status, confidence, and source.
 
 Write findings — the specific places this business is losing or risking money — and a summary.

@@ -11,10 +11,11 @@
 // Assumption sensitivity (P1-31) is computed, not asserted: how much the
 // conclusion moves when the input does is a derivative, not an opinion.
 //
-// ⚠ PROMPT STATUS: PROVISIONAL — same standing as findings.ts. Built
-// ahead of the P0-86 gate at the owner's decision; the machinery is
-// prompt-independent, the SYSTEM text is not tuned until real intakes
-// exist.
+// PROMPT STATUS: CALIBRATED (2026-09-11) — same evidence as
+// findings.ts: five real businesses, every recommendation scenario
+// coherent, break-even conditions in plain arithmetic, no-cost actions
+// correctly priced as time. Recalibrate again only on an observed
+// failure, not on taste.
 
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
