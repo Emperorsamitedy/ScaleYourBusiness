@@ -25,7 +25,7 @@ import { computeEconomics } from "../economics/unit-economics";
 import type { OfferEconomics } from "../economics/unit-economics";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
-import { buildCallRecord, logLlmCall } from "../llm/cost-log";
+import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { applicableQuestions } from "../resolver/applicability";
 import type { DiagnosisFinding } from "./findings";
@@ -353,7 +353,7 @@ export const liveRecommendationsLlm: RecommendationsLlm = async ({ system, user,
       cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
     },
   });
-  logLlmCall(record);
+  await recordLlmCall(record);
   const text = response.content
     .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
     .map((b) => b.text)

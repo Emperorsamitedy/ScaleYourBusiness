@@ -4542,3 +4542,78 @@ a.auth-cta {
 .auth-foot a:hover {
   color: var(--ember);
 }
+
+/* ── ops dashboard (P1-51/53) ── */
+
+.ops-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.ops-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.ops-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--mut);
+}
+.ops-card {
+  padding: 26px 28px 24px;
+}
+.ops-funnel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.ops-funnel div {
+  display: flex;
+  flex-direction: column;
+}
+.ops-funnel b {
+  font-family: var(--display);
+  font-size: 30px;
+  font-weight: 700;
+}
+.ops-funnel span {
+  font-size: 12.5px;
+  color: var(--mut);
+}
+.ops-funnel i {
+  color: var(--mut);
+  font-style: normal;
+}
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 13.5px;
+}
+.ops-table th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mut);
+  font-weight: 500;
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.ops-table td {
+  padding: 7px 12px 7px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.ops-mono {
+  font-family: var(--mono);
+  font-size: 12.5px;
+}

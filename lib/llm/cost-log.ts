@@ -46,6 +46,36 @@ export function logLlmCall(record: LlmCallRecord): void {
   console.log(JSON.stringify(record));
 }
 
+/**
+ * P1-51: the log line, persisted. Vercel keeps no function-log history,
+ * so before this table every cost figure was an estimate reconstructed
+ * by hand from whatever logs happened to still be on screen. Telemetry
+ * must never break the call it measures: a failed insert is logged and
+ * swallowed — the model call already succeeded and cost real money,
+ * and losing one metering row is better than failing the answer.
+ */
+export async function recordLlmCall(record: LlmCallRecord): Promise<void> {
+  logLlmCall(record);
+  try {
+    const { db } = await import("../../db");
+    const { llmCalls } = await import("../../db/schema");
+    await db.insert(llmCalls).values({
+      at: record.at,
+      account_id: record.account_id,
+      workload: record.workload,
+      model: record.model,
+      duration_ms: record.duration_ms,
+      input_tokens: record.input_tokens,
+      output_tokens: record.output_tokens,
+      cache_creation_input_tokens: record.cache_creation_input_tokens,
+      cache_read_input_tokens: record.cache_read_input_tokens,
+      cost_eur: record.cost_eur.toFixed(6),
+    });
+  } catch (error) {
+    console.error(JSON.stringify({ event: "llm_call_persist_failed", message: String(error) }));
+  }
+}
+
 /** Aggregate a run's records — the harness prints this as its cost report. */
 export function summarizeCalls(records: readonly LlmCallRecord[]): {
   calls: number;

@@ -22,7 +22,7 @@ import { computeCompleteness } from "../scorer/completeness";
 import type { Field } from "../core/field";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
-import { buildCallRecord, logLlmCall } from "../llm/cost-log";
+import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { repr } from "../profile/factsheet";
 import { openFindings } from "../validation/engine";
@@ -170,7 +170,7 @@ export const liveDiagnosisLlm: DiagnosisLlm = async ({ system, user, accountId }
       cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
     },
   });
-  logLlmCall(record);
+  await recordLlmCall(record);
   const text = response.content
     .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
     .map((b) => b.text)

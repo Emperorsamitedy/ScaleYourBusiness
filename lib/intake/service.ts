@@ -36,6 +36,7 @@ import {
   isDynamicVocabulary,
 } from "../profile/dynamic-vocab";
 import { writeField } from "../profile/field-store";
+import { recordFunnelEvent } from "./telemetry";
 import { openFindings, resolveFinding } from "../validation/engine";
 import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
@@ -210,6 +211,7 @@ export async function bootstrapIntake(): Promise<{ account_id: string; profile_i
     .values({ account_id: account.id, schema_version: "1.0.0" })
     .returning();
   if (!profile) throw new IntakeError("profile creation failed", 500);
+  await recordFunnelEvent(profile.id, "funnel_intake_started");
   return { account_id: account.id, profile_id: profile.id };
 }
 
@@ -288,6 +290,13 @@ export async function getIntakeState(
   );
   const selection = selectCandidates(applicable, view.responded, skippedIds);
   const progress = progressOf(applicable, view.responded);
+  // P1-52: the core-complete funnel stage, recorded the first time the
+  // fraction reaches 1 (recordFunnelEvent deduplicates). Read-side on
+  // purpose: completion is a property of the profile's state, not of
+  // whichever write happened to tip it over.
+  if (progress.core_total > 0 && progress.core_done >= progress.core_total) {
+    await recordFunnelEvent(profileId, "funnel_core_completed");
+  }
 
   const findings = await intakeFindings(profileId, applicable);
 

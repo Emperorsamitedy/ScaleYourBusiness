@@ -16,7 +16,7 @@ import { competitors } from "../../db/schema";
 import type { Field } from "../core/field";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
-import { buildCallRecord, logLlmCall } from "../llm/cost-log";
+import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { readCurrentField } from "../profile/field-store";
 import type { ProgressEvent, ProgressSink } from "./competitor";
 import { CAPS, RESEARCH_MODEL, ResearchError } from "./competitor";
@@ -99,7 +99,7 @@ export const liveDiscoveryLlm: DiscoveryLlm = async ({ system, user, accountId }
       cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
     },
   });
-  logLlmCall(record);
+  await recordLlmCall(record);
   const text = response.content
     .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
     .map((b) => b.text)

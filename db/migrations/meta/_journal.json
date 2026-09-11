@@ -141,6 +141,13 @@
       "when": 1789125737127,
       "tag": "0019_happy_squirrel_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1789133279248,
+      "tag": "0020_steady_maximus",
+      "breakpoints": true
     }
   ]
 }

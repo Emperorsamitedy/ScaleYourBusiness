@@ -34,6 +34,55 @@ export interface IntakeEventInput {
   meta?: Record<string, unknown> | null;
 }
 
+/**
+ * P1-52 — funnel stages, written by the SERVER only. They share the
+ * intake_events table (same profile scoping, same dashboard reads) but
+ * are deliberately absent from EVENT_KINDS: the client sink validates
+ * against that list, so a browser cannot post its own conversion.
+ * The three once-per-profile stages are deduplicated at write; the
+ * recommendation responses are each a real event and are not.
+ */
+export type FunnelKind =
+  | "funnel_intake_started"
+  | "funnel_core_completed"
+  | "funnel_report_delivered"
+  | "funnel_recommendation_response";
+
+const FUNNEL_ONCE = new Set<FunnelKind>([
+  "funnel_intake_started",
+  "funnel_core_completed",
+  "funnel_report_delivered",
+]);
+
+export async function recordFunnelEvent(
+  profileId: string,
+  kind: FunnelKind,
+  meta?: Record<string, unknown>,
+): Promise<void> {
+  try {
+    if (FUNNEL_ONCE.has(kind)) {
+      const [existing] = await db
+        .select({ id: intakeEvents.id })
+        .from(intakeEvents)
+        .where(and(eq(intakeEvents.profile_id, profileId), eq(intakeEvents.kind, kind)))
+        .limit(1);
+      if (existing) return;
+    }
+    await db.insert(intakeEvents).values({
+      profile_id: profileId,
+      kind,
+      question_id: null,
+      ms_since_shown: null,
+      meta: meta ?? null,
+    });
+  } catch (error) {
+    // Telemetry never breaks the thing it measures.
+    console.error(
+      JSON.stringify({ event: "funnel_event_failed", kind, message: String(error) }),
+    );
+  }
+}
+
 const MAX_BATCH = 50;
 const KIND_SET = new Set<string>(EVENT_KINDS);
 
@@ -52,8 +101,15 @@ export async function recordIntakeEvents(
         typeof (e as { kind?: unknown }).kind === "string" &&
         KIND_SET.has((e as { kind: string }).kind),
     )
-    .map((e) => ({
+    .map((e, index) => ({
       profile_id: profileId,
+      // A batch is one INSERT, so defaultNow() would stamp every event in
+      // it identically and "which question was shown LAST" becomes
+      // undefined — the abandonment report then misattributes stalls.
+      // `at` is already receipt time, not event time (the client batches
+      // for seconds); one millisecond per batch position encodes the
+      // client's ordering at noise level. Found by the P1-53 tests.
+      at: new Date(Date.now() + index).toISOString(),
       kind: e.kind,
       question_id: typeof e.question_id === "string" ? e.question_id.slice(0, 32) : null,
       ms_since_shown:

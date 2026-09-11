@@ -27,6 +27,7 @@ import { gapBuys, repr } from "../profile/factsheet";
 import type { GapRow } from "../profile/factsheet";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { computeCompleteness } from "../scorer/completeness";
+import { recordFunnelEvent } from "../intake/telemetry";
 import { applicableQuestions } from "../resolver/applicability";
 
 export type RecommendationResponse = "look_into" | "not_for_us";
@@ -189,6 +190,7 @@ export async function generateReport(args: {
     .returning();
   if (!row) throw new DiagnosisError("report insert failed");
 
+  await recordFunnelEvent(args.profileId, "funnel_report_delivered");
   return { report: rowToView(row, await factMap(row.snapshot_id)), fresh: true };
 }
 
@@ -241,6 +243,11 @@ export async function respondToRecommendation(args: {
       ref_id: `${args.reportId}#${args.index}`,
       payload_hash: createHash("sha256").update(JSON.stringify(payload)).digest("hex"),
     });
+  });
+
+  await recordFunnelEvent(args.profileId, "funnel_recommendation_response", {
+    response: args.response,
+    recommendation_index: args.index,
   });
 
   return rec;

@@ -16,7 +16,7 @@
 // breakpoint would be a silent no-op. Revisit if the prompt grows.
 
 import { anthropicClient } from "../llm/client";
-import { buildCallRecord, logLlmCall } from "../llm/cost-log";
+import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
@@ -155,7 +155,7 @@ export const liveExtractionLlm: ExtractionLlm = async ({ system, user, accountId
       cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
     },
   });
-  logLlmCall(record);
+  await recordLlmCall(record);
   if (response.stop_reason !== "end_turn") {
     throw new ParserError(`unexpected stop_reason "${response.stop_reason}"`);
   }

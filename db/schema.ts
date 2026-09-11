@@ -581,6 +581,12 @@ export const intakeEventKind = pgEnum("intake_event_kind", [
   "reconcile_resolved",
   "session_resumed",
   "page_hidden",
+  // P1-52 funnel stages — written by the SERVER only; the client event
+  // sink refuses them, so a browser cannot forge its own conversion.
+  "funnel_intake_started",
+  "funnel_core_completed",
+  "funnel_report_delivered",
+  "funnel_recommendation_response",
 ]);
 
 /**
@@ -813,4 +819,31 @@ export const payments = pgTable(
     uniqueIndex("payments_checkout_idx").on(t.checkout_session_id),
     index("payments_profile_idx").on(t.profile_id, t.status),
   ],
+);
+
+// ---------------------------------------------------------------------------
+// Per-call LLM cost telemetry — Session I (P1-51). The structured
+// llm_call log line, persisted. Vercel keeps no function-log history,
+// which made every cost figure of the pilot an estimate reconstructed
+// by hand; this table makes "what did this onboarding cost" a query.
+// Append-only by convention: rows are facts about calls that happened.
+
+export const llmCalls = pgTable(
+  "llm_calls",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    account_id: uuid("account_id").notNull(),
+    /** "interviewer" | "parser" | "diagnosis" | "research" — budget line. */
+    workload: text("workload").notNull(),
+    model: text("model").notNull(),
+    duration_ms: integer("duration_ms").notNull(),
+    input_tokens: integer("input_tokens").notNull(),
+    output_tokens: integer("output_tokens").notNull(),
+    cache_creation_input_tokens: integer("cache_creation_input_tokens").notNull(),
+    cache_read_input_tokens: integer("cache_read_input_tokens").notNull(),
+    /** Euro cost at the day's prices; 6 decimals holds sub-cent calls. */
+    cost_eur: numeric("cost_eur", { precision: 10, scale: 6 }).notNull(),
+  },
+  (t) => [index("llm_calls_account_at_idx").on(t.account_id, t.at)],
 );

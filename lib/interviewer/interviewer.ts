@@ -12,7 +12,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { fieldRecords } from "../../db/schema";
 import { anthropicClient, INTERVIEWER_MODEL } from "../llm/client";
-import { buildCallRecord, logLlmCall } from "../llm/cost-log";
+import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { LlmCallRecord } from "../llm/cost-log";
 import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
@@ -199,7 +199,7 @@ export async function pickNextQuestion(args: {
         cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
       },
     });
-    logLlmCall(record);
+    await recordLlmCall(record);
     calls.push(record);
 
     if (response.stop_reason === "refusal") {
