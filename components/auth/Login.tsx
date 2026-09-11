@@ -1,27 +1,30 @@
 "use client";
 
-// The sign-in screen — P1-49, third pass: the cinematic split.
+// The sign-in / sign-up screen — P1-49, cinematic split.
 //
-// Left: the landing's looping film bed under an ember scrim, with the
-// product's statement in Satoshi — the same world the owner arrived
-// from. Right: the form, quiet and single-purpose. Sign-up and sign-in
-// are one motion (an email and a signed link), so there is exactly one
-// screen for both and the copy says so.
+// There are no passwords here, so there is no "forgot password" — the
+// emailed one-shot link is the key, every time. Sign-up and sign-in
+// are the same motion (the link creates the account the first time an
+// email proves itself), but they are two ENTRANCES: /login and /signup
+// render this same screen with copy that meets each visitor where they
+// arrived, because a stranger looking for "create account" should find
+// those words, not a riddle.
 //
-// On mobile the film collapses to a short band above the form; the
-// form never competes with the picture for the viewport.
+// Left: the landing's film bed with the system visibly working — a
+// looped question → recorded fact → provable finding demo. Right: the
+// one form both entrances share.
 
 import { useState } from "react";
 import Link from "next/link";
 import { FadingVideo } from "../landing/cine/FadingVideo";
+import { SystemDemo } from "./SystemDemo";
 
-// The landing's scroll bed — looping, dimmed, already fades itself in.
 const FILM =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4";
 
 type Phase = "form" | "sending" | "sent";
 
-export function LoginScreen() {
+export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "signup" }) {
   const [email, setEmail] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [error, setError] = useState<string | null>(
@@ -30,6 +33,8 @@ export function LoginScreen() {
       : null,
   );
   const [screenLink, setScreenLink] = useState<string | null>(null);
+
+  const signup = variant === "signup";
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +66,7 @@ export function LoginScreen() {
 
   return (
     <main className="auth-split">
-      {/* ── the film ── */}
+      {/* ── the film + the system working ── */}
       <section className="auth-cine" aria-hidden="true">
         <FadingVideo src={FILM} className="auth-film" loop />
         <div className="auth-scrim" />
@@ -69,6 +74,7 @@ export function LoginScreen() {
           <Link href="/" className="wordmark auth-wordmark">
             Ledgerline
           </Link>
+          <SystemDemo />
           <div className="auth-statement">
             <span className="auth-eyebrow">the business operating system</span>
             <h2>
@@ -76,9 +82,6 @@ export function LoginScreen() {
               <br />
               actually understood.
             </h2>
-            <p className="auth-cine-line">
-              Every number you give it keeps its source. Every claim it makes shows its work.
-            </p>
           </div>
         </div>
       </section>
@@ -97,12 +100,12 @@ export function LoginScreen() {
                     is right here instead. It works once and expires in 15&nbsp;minutes.
                   </p>
                   <a className="next auth-cta" href={screenLink}>
-                    Sign in now
+                    {signup ? "Create my account" : "Sign in now"}
                   </a>
                 </>
               ) : (
                 <p className="auth-copy">
-                  A sign-in link is on its way to <strong>{email}</strong>. It works once and
+                  Your link is on its way to <strong>{email}</strong>. It works once and
                   expires in 15&nbsp;minutes — you can close this tab.
                 </p>
               )}
@@ -115,11 +118,14 @@ export function LoginScreen() {
             </div>
           ) : (
             <div>
-              <span className="auth-eyebrow">sign in · sign up</span>
-              <h1 className="auth-title">One link. No password.</h1>
+              <span className="auth-eyebrow">{signup ? "create account" : "sign in"}</span>
+              <h1 className="auth-title">
+                {signup ? "Start with your email." : "Welcome back."}
+              </h1>
               <p className="auth-copy">
-                Your email is the whole account. New here? The same link signs you up — and
-                keeps everything you&rsquo;ve already answered.
+                {signup
+                  ? "That's the whole form. A link lands in your inbox, and clicking it is your account — everything you answer is yours from the first question."
+                  : "Enter your email and click the link we send — that's the entire sign-in."}
               </p>
               <form onSubmit={(e) => void submit(e)} className="auth-form">
                 <input
@@ -134,11 +140,33 @@ export function LoginScreen() {
                   disabled={phase === "sending"}
                 />
                 <button className="next auth-cta" type="submit" disabled={phase === "sending"}>
-                  {phase === "sending" ? "Sending…" : "Email me a sign-in link"}
+                  {phase === "sending"
+                    ? "Sending…"
+                    : signup
+                      ? "Create my account"
+                      : "Email me a sign-in link"}
                 </button>
               </form>
               {error && <p className="auth-error">{error}</p>}
-              <p className="auth-foot" style={{ marginTop: 34 }}>
+
+              {/* The answer to "forgot password?", where the eye expects it. */}
+              <p className="auth-nopass">
+                No password — nothing to forget or reset. The emailed link is the key, every
+                time.
+              </p>
+
+              <p className="auth-foot" style={{ marginTop: 26 }}>
+                {signup ? (
+                  <>
+                    Already have an account? <Link href="/login">Sign in</Link>
+                  </>
+                ) : (
+                  <>
+                    New here? <Link href="/signup">Create your account</Link>
+                  </>
+                )}
+              </p>
+              <p className="auth-foot" style={{ marginTop: 10 }}>
                 <Link href="/">← back to the front page</Link>
               </p>
             </div>
