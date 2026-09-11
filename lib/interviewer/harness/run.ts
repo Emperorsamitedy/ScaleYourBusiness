@@ -197,7 +197,17 @@ async function main(): Promise<void> {
 
   const count = Number(process.env.HARNESS_PROFILES ?? PERSONAS.length);
   const concurrency = Number(process.env.HARNESS_CONCURRENCY ?? 2);
-  const queue = PERSONAS.slice(0, count);
+  // HARNESS_ONLY: comma-separated persona names, for finishing a run's
+  // tail without paying for the personas that already passed. Unknown
+  // names fail loudly — a typo silently running zero personas would
+  // read as a pass.
+  const only = (process.env.HARNESS_ONLY ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const unknown = only.filter((name) => !PERSONAS.some((p) => p.name === name));
+  if (unknown.length > 0) throw new Error(`HARNESS_ONLY names not found: ${unknown.join(", ")}`);
+  const queue = only.length > 0 ? PERSONAS.filter((p) => only.includes(p.name)) : PERSONAS.slice(0, count);
   const results: ProfileResult[] = [];
   const crashed: string[] = [];
   let cursor = 0;
