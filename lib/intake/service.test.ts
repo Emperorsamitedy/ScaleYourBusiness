@@ -292,6 +292,60 @@ describe("reporting currency follows the country", () => {
 });
 
 describe("entity rows are all-or-nothing", () => {
+  it("an unknown field key is a 422, not silent data loss", { timeout: 30_000 }, async () => {
+    // Found live: channel rows sent as {channel_type: "website"} — the
+    // schema field is "type" — were accepted, the unknown key silently
+    // dropped, and four typeless channels created. Every later reference
+    // to them fell back to "Channel 1". A wrong key must fail loudly,
+    // before anything is written.
+    const s = await bootstrapIntake();
+    try {
+      let guard = 0;
+      for (;;) {
+        const st = await getIntakeState(s.account_id, s.profile_id);
+        if (!st.question || guard++ > 30) throw new Error("never reached 3.1");
+        const q = st.question;
+        if (q.input_type === "entity_list" && q.entity_schema === "offer") {
+          await expect(
+            submitEntities(s.account_id, s.profile_id, q.id, [
+              { name: "Fine", kind: "physical", pricee: { amount_major: 1800 } },
+            ]),
+          ).rejects.toMatchObject({ status: 422 });
+          const spine = await db
+            .select({ id: offers.id })
+            .from(offers)
+            .where(eq(offers.profile_id, s.profile_id));
+          expect(spine).toHaveLength(0);
+          return;
+        }
+        const wire =
+          q.input_type === "text" || q.input_type === "long_text"
+            ? "x"
+            : q.input_type === "number"
+              ? 2
+              : q.input_type === "money"
+                ? { amount_major: 1000 }
+                : q.input_type === "boolean"
+                  ? true
+                  : q.input_type === "date"
+                    ? "2022-06-01"
+                    : q.input_type === "single_select"
+                      ? q.options[0]?.code
+                      : q.input_type === "multi_select"
+                        ? [q.options[0]?.code]
+                        : null;
+        if (q.input_type === "entity_list")
+          await submitEntityCount(s.account_id, s.profile_id, q.id, 1);
+        else await submitAnswer(s.account_id, s.profile_id, q.id, { kind: "value", wire });
+      }
+    } finally {
+      await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
+      await db.delete(offers).where(eq(offers.profile_id, s.profile_id));
+      await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
+      await db.delete(accounts).where(eq(accounts.id, s.account_id));
+    }
+  });
+
   it("a bad value in row 3 writes NOTHING and leaves the question askable", { timeout: 30_000 }, async () => {
     // Regression: writeEntityRows used to create spines and write fields
     // as it went, so a value that failed to coerce stranded the earlier

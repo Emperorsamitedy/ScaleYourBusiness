@@ -210,9 +210,22 @@ export async function writeEntityRows(args: {
     const values: [string, unknown][] = [];
     for (const [key, wire] of Object.entries(row)) {
       if (wire === null || wire === undefined || wire === "") continue;
-      const field = byKey.get(key);
-      if (!field) continue;
       if (args.schemaKey === "offer" && key === "kind") continue; // spine column
+      const field = byKey.get(key);
+      if (!field) {
+        // An unknown key used to be skipped silently, which turned a
+        // caller's typo into invisible data loss: a row of channels sent
+        // as {channel_type: "website"} created four spine rows with no
+        // type at all, and every later reference to them fell back to
+        // "Channel 1". Found live. A wrong key is a 422 like any other
+        // bad input — loud, before anything is written.
+        throw Object.assign(
+          new Error(
+            `unknown field "${key}" for ${args.schemaKey} — expected one of: ${[...byKey.keys()].join(", ")}`,
+          ),
+          { status: 422 },
+        );
+      }
       const coerced = coerceParsedValue(
         field.input,
         wire,
