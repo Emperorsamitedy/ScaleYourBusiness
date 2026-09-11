@@ -1,11 +1,14 @@
 "use client";
 
-// The sign-in screen — P1-49. One field. Requesting a link for a new
-// email IS signup; there is nothing else to fill in. When no email
-// provider is configured the link renders here instead — the resume
-// screen's shown-on-screen precedent, kept honest for the pilot.
+// The sign-in screen — P1-49, in the Ember Grid language this time:
+// centred glass card with the gradient rim, wordmark above it, mono
+// eyebrow, Satoshi heading, the intake's own field and CTA. One field,
+// because the email is the whole account. When no email provider is
+// configured the link renders in the card — the resume screen's
+// shown-on-screen precedent, kept honest for the pilot.
 
 import { useState } from "react";
+import Link from "next/link";
 
 type Phase = "form" | "sending" | "sent";
 
@@ -47,66 +50,63 @@ export function LoginScreen() {
     }
   };
 
-  if (phase === "sent") {
-    return (
-      <main className="rp-shell">
-        <div className="rp-none">
-          <h1>Check your email.</h1>
-          {screenLink ? (
-            <>
-              <p>
-                Email sending isn&rsquo;t set up in this environment, so here is your sign-in link
-                directly — it works once and expires in 15 minutes.
-              </p>
-              <div className="rp-actions" style={{ maxWidth: 420 }}>
-                <a className="rp-act" href={screenLink}>
+  return (
+    <main className="auth-stage">
+      <div className="auth-col">
+        <span className="wordmark">Ledgerline</span>
+
+        {phase === "sent" ? (
+          <section className="card auth-card" aria-live="polite">
+            <span className="auth-eyebrow">link sent</span>
+            <h1 className="auth-title">Check your email.</h1>
+            {screenLink ? (
+              <>
+                <p className="auth-copy">
+                  Email sending isn&rsquo;t set up in this environment, so your sign-in link is
+                  right here instead. It works once and expires in 15&nbsp;minutes.
+                </p>
+                <a className="next auth-cta" href={screenLink}>
                   Sign in now
                 </a>
-              </div>
-            </>
-          ) : (
-            <p>
-              A sign-in link is on its way to <strong>{email}</strong>. It works once and expires
-              in 15 minutes. You can close this tab.
+              </>
+            ) : (
+              <p className="auth-copy">
+                A sign-in link is on its way to <strong>{email}</strong>. It works once and
+                expires in 15&nbsp;minutes — you can close this tab.
+              </p>
+            )}
+          </section>
+        ) : (
+          <section className="card auth-card">
+            <span className="auth-eyebrow">sign in</span>
+            <h1 className="auth-title">One link. No password.</h1>
+            <p className="auth-copy">
+              Your email is the whole account. New here? The same link signs you up — and keeps
+              everything you&rsquo;ve already answered.
             </p>
-          )}
-        </div>
-      </main>
-    );
-  }
+            <form onSubmit={(e) => void submit(e)} className="auth-form">
+              <input
+                className="field"
+                type="email"
+                required
+                autoFocus
+                autoComplete="email"
+                placeholder="you@business.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={phase === "sending"}
+              />
+              <button className="next auth-cta" type="submit" disabled={phase === "sending"}>
+                {phase === "sending" ? "Sending…" : "Email me a sign-in link"}
+              </button>
+            </form>
+            {error && <p className="auth-error">{error}</p>}
+          </section>
+        )}
 
-  return (
-    <main className="rp-shell">
-      <div className="rp-none">
-        <h1>Sign in.</h1>
-        <p>
-          Your email is the whole account — no password. New here? The same link signs you up and
-          keeps everything you&rsquo;ve already answered.
+        <p className="auth-foot">
+          <Link href="/">← back to the front page</Link>
         </p>
-        <form onSubmit={(e) => void submit(e)} className="rp-actions" style={{ maxWidth: 420 }}>
-          <input
-            type="email"
-            required
-            autoFocus
-            placeholder="you@business.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={phase === "sending"}
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              borderRadius: 10,
-              border: "1px solid rgba(255,255,255,.14)",
-              background: "rgba(255,255,255,.04)",
-              color: "inherit",
-              font: "inherit",
-            }}
-          />
-          <button className="rp-act" type="submit" disabled={phase === "sending"}>
-            {phase === "sending" ? "Sending…" : "Email me a sign-in link"}
-          </button>
-        </form>
-        {error && <p style={{ color: "var(--ember, #f59b4b)", marginTop: 12 }}>{error}</p>}
       </div>
     </main>
   );
