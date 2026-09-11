@@ -83,7 +83,7 @@ on a dead end. The report can wait; the ten intakes cannot.
 - [x] **P1-57** Magic-link resume: a signed link reopens *their* profile on any device, cookie or no cookie
 - [x] **P1-58** Resume screen (§ mockup 6): where they left off, how far in they are, one button back in
 - [x] **P1-59** Fact sheet wired to real data — every captured fact with its source, from the snapshot
-- [ ] **P1-60** Gaps view: what's missing and what answering it would buy, each linking back into the intake
+- [x] **P1-60** Gaps view: what's missing and what answering it would buy, each linking back into the intake
 - [x] **P1-61** Tests: link signing and expiry, resume across devices, a stranger's whole path end to end
 
 **Done when:** a stranger can arrive cold, stop halfway, return on another device a week later, finish, and see everything they told us with its source.

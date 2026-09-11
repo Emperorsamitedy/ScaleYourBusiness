@@ -8,8 +8,15 @@ import { db } from "../../db";
 import {
   accounts,
   businessProfiles,
+  channels,
+  competitors,
+  costItems,
+  customerSegments,
   fieldRecords,
+  goals,
   offers,
+  staffRoles,
+  suppliers,
   validationFindings,
 } from "../../db/schema";
 import { loadBank } from "../bank/loader";
@@ -181,6 +188,91 @@ describe("the intake flow", () => {
                     : [q.options[0]?.code];
         await submitAnswer(accountId, profileId, q.id, { kind: "value", wire });
       }
+    }
+  });
+});
+
+describe("P1-60 — a gap link works after a skip and after the interview is done", () => {
+  it("serves the skipped question via ask, even once done, and accepts the answer", { timeout: 120_000 }, async () => {
+    // The gaps view's whole point: "Answer now" on the fact sheet links
+    // /intake?ask=<id>. Before this worked, the preferred id was looked
+    // up in the auto-selection candidates — which exclude skipped
+    // questions and are empty once the interview finishes — so on a
+    // completed profile every gap link landed on the done screen with
+    // no question. Found live on the Beardbrand run.
+    const s = await bootstrapIntake();
+    const SKIP_ID = "13.5"; // unconditional long_text — stays a gap to the end
+    try {
+      let guard = 0;
+      for (;;) {
+        const st = await getIntakeState(s.account_id, s.profile_id);
+        if (st.done) break;
+        const q = st.question;
+        if (!q || guard++ > 250) throw new Error(`walker stuck at ${q?.id}`);
+        if (q.id === SKIP_ID) {
+          await submitAnswer(s.account_id, s.profile_id, q.id, { kind: "skip" });
+          continue;
+        }
+        if (q.input_type === "entity_list") {
+          await submitEntityCount(s.account_id, s.profile_id, q.id, 1);
+          continue;
+        }
+        const wire =
+          q.input_type === "text" || q.input_type === "long_text"
+            ? "x"
+            : q.input_type === "number"
+              ? 2
+              : q.input_type === "money"
+                ? { amount_major: 1000 }
+                : q.input_type === "boolean"
+                  ? true
+                  : q.input_type === "date"
+                    ? "2022-06-01"
+                    : q.input_type === "single_select"
+                      ? q.options[0]?.code
+                      : q.input_type === "multi_select"
+                        ? [q.options[0]?.code]
+                        : null;
+        try {
+          if (wire === null) throw new Error("unhandled input type");
+          await submitAnswer(s.account_id, s.profile_id, q.id, { kind: "value", wire });
+        } catch {
+          try {
+            await submitAnswer(s.account_id, s.profile_id, q.id, { kind: "unknown" });
+          } catch {
+            await submitAnswer(s.account_id, s.profile_id, q.id, { kind: "skip" });
+          }
+        }
+      }
+
+      // Done, with our deliberate gap still open.
+      const done = await getIntakeState(s.account_id, s.profile_id);
+      expect(done.done).toBe(true);
+
+      // The gap link serves the skipped question, not the done screen.
+      const asked = await getIntakeState(s.account_id, s.profile_id, SKIP_ID);
+      expect(asked.done).toBe(false);
+      expect(asked.question?.id).toBe(SKIP_ID);
+
+      // And it can actually be answered.
+      const res = await submitAnswer(s.account_id, s.profile_id, SKIP_ID, {
+        kind: "value",
+        wire: "We would never misrepresent what is in the products.",
+      });
+      expect(res.chip.question_id).toBe(SKIP_ID);
+
+      // Answered questions still refuse ask-through — reopen is the door.
+      const again = await getIntakeState(s.account_id, s.profile_id, SKIP_ID);
+      expect(again.question?.id ?? null).not.toBe(SKIP_ID);
+    } finally {
+      await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
+      // The walker's entity counts create placeholder spine rows in
+      // every entity table it passes, not just offers.
+      for (const t of [offers, channels, suppliers, competitors, staffRoles, costItems, customerSegments, goals]) {
+        await db.delete(t).where(eq(t.profile_id, s.profile_id));
+      }
+      await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
+      await db.delete(accounts).where(eq(accounts.id, s.account_id));
     }
   });
 });

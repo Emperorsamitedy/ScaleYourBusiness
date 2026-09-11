@@ -291,7 +291,21 @@ export async function getIntakeState(
 
   const findings = await intakeFindings(profileId, applicable);
 
-  if (selection.tier === null) {
+  // An explicit ask names the question the owner wants — a gap on the
+  // fact sheet or a reopen. It resolves against everything applicable
+  // and unanswered, NOT the auto-selection candidates, for two reasons
+  // the candidates cannot cover. Skipped questions: auto-selection never
+  // re-surfaces a skip, but the owner pressing "Answer now" on that gap
+  // is the owner changing their mind. Finished interviews: once tier is
+  // null there are no candidates at all, yet a finished interview is
+  // exactly where the gaps view matters — it is the only state with a
+  // report. Found live: every "Answer now" on a completed profile landed
+  // on the done screen with no question.
+  const preferred = preferId
+    ? applicable.find((q) => q.id === preferId && !view.responded.has(q.writes_to))
+    : undefined;
+
+  if (selection.tier === null && !preferred) {
     const score = await computeCompleteness(profileId);
     const answered = [...view.responded].length;
     return {
@@ -310,12 +324,10 @@ export async function getIntakeState(
   }
 
   const ordered = [...selection.candidates].sort((a, b) => naturalIdCompare(a.id, b.id));
-  let chosen = ordered[0];
-  // A reopened question returns straight to the centre (P0-75, §4.1).
-  const preferred = preferId ? ordered.find((q) => q.id === preferId) : undefined;
-  if (preferred) {
-    chosen = preferred;
-  } else if (interviewerMode() === "llm") {
+  // A preferred question (reopen, gap link) goes straight to the centre
+  // (P0-75, §4.1) — even when it is not an auto-selection candidate.
+  let chosen = preferred ?? ordered[0];
+  if (!preferred && interviewerMode() === "llm") {
     // Reuse the last pick when it is still an open candidate.
     //
     // This function runs on every read of the intake state — every page
@@ -503,7 +515,14 @@ export async function submitAnswer(
     applicable.filter((q) => view.skippedKeys.has(q.writes_to)).map((q) => q.id),
   );
   const selection = selectCandidates(applicable, view.responded, skippedIds);
-  const question = selection.candidates.find((q) => q.id === questionId);
+  // Candidates first; then anything applicable and unanswered, so a
+  // question reached through a gap link — skipped earlier, or after the
+  // interview finished — can actually be answered. Answered questions
+  // still 409 here: changing an answer goes through reopen, with a
+  // reason, so the supersession trail says why.
+  const question =
+    selection.candidates.find((q) => q.id === questionId) ??
+    applicable.find((q) => q.id === questionId && !view.responded.has(q.writes_to));
   if (!question) {
     throw new IntakeError(`question ${questionId} is not currently askable`, 409);
   }
@@ -622,7 +641,11 @@ export async function submitEntities(
     applicable.filter((q) => view.skippedKeys.has(q.writes_to)).map((q) => q.id),
   );
   const selection = selectCandidates(applicable, view.responded, skippedIds);
-  const question = selection.candidates.find((q) => q.id === questionId);
+  // Same widening as submitAnswer: a gap link may point at an entity
+  // question that was skipped or that outlived the interview.
+  const question =
+    selection.candidates.find((q) => q.id === questionId) ??
+    applicable.find((q) => q.id === questionId && !view.responded.has(q.writes_to));
   if (!question) throw new IntakeError(`question ${questionId} is not currently askable`, 409);
   const spec = question.input as InputSpec;
   if (spec.type !== "entity_list" || !spec.entity_schema) {
