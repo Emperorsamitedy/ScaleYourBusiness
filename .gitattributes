@@ -1,0 +1,13 @@
+# Line endings are normalised to LF in the repository and in every
+# working copy. Without this, a Windows checkout (core.autocrlf=true)
+# gets CRLF files that `prettier --check` rejects on sight — every file,
+# every run — which made `npm run format:check` unusable locally while
+# passing in CI on Linux.
+* text=auto eol=lf
+
+# Binary-ish assets that must never be touched.
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary

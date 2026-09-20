@@ -23,6 +23,9 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgresql://syb:syb_ci@127.0.0.1:5433/syb
+      # P2-03: a throwaway 32-byte key so connector tests can encrypt.
+      # CI never holds a real connection secret.
+      CONNECTOR_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
     steps:
       - uses: actions/checkout@v4
 

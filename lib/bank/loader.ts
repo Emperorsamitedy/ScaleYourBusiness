@@ -67,11 +67,45 @@ function profileSectionOf(bankSection: string): ProfileSection {
   throw new BankLoadError(`question section "${bankSection}" maps to no profile section`);
 }
 
+// CI and macOS have "python3"; a default Windows install has only
+// "python" (and a "python3" App Execution Alias that opens the Microsoft
+// Store instead of running anything). Probing keeps one linter as the
+// single truth while letting the loader run on a Windows dev machine.
+// PYTHON overrides both, for a venv or a non-PATH interpreter.
+let cachedPython: string | null = null;
+
+export function pythonCommand(): string {
+  if (cachedPython) return cachedPython;
+  const override = process.env.PYTHON;
+  const candidates = override ? [override] : ["python3", "python", "py"];
+  for (const candidate of candidates) {
+    try {
+      // The Store alias exits non-zero with no stdout, so a real version
+      // string is the test — not merely "the call did not throw".
+      const out = execFileSync(candidate, ["-c", "import sys; print(sys.version_info[0])"], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      });
+      if (out.trim() === "3") {
+        cachedPython = candidate;
+        return candidate;
+      }
+    } catch {
+      // Try the next candidate.
+    }
+  }
+  throw new BankLintError(
+    `no Python 3 interpreter found (tried ${candidates.join(", ")}) — ` +
+      `scripts/lint_bank.py gates every bank load. Install Python 3 or set PYTHON.`,
+  );
+}
+
 /** P0-38 — run the canonical linter; throw its output when it refuses. */
 export function lintBank(path: string): void {
   try {
-    execFileSync("python3", ["scripts/lint_bank.py", path], { encoding: "utf8" });
+    execFileSync(pythonCommand(), ["scripts/lint_bank.py", path], { encoding: "utf8" });
   } catch (error) {
+    if (error instanceof BankLintError) throw error;
     const e = error as { stdout?: string; stderr?: string; message: string };
     throw new BankLintError(
       `bank failed lint, refusing to load:\n${e.stdout ?? ""}${e.stderr ?? e.message}`,
