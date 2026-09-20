@@ -25,7 +25,11 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json(await buildFactSheet(row.id));
   } catch (error) {
     console.error(
-      JSON.stringify({ event: "factsheet_error", account_id: row.account_id, message: String(error) }),
+      JSON.stringify({
+        event: "factsheet_error",
+        account_id: row.account_id,
+        message: String(error),
+      }),
     );
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }

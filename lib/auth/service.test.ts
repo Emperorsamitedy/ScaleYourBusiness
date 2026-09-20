@@ -101,9 +101,7 @@ describe("P1-49 — email + signed link auth", () => {
   it("revoking a session stops it resolving without deleting it", async () => {
     const s = await bootstrapIntake();
     cleanupProfiles.push(s);
-    const redeemed = await redeemLogin(
-      (await requestLogin(testEmail(), s.profile_id)).token,
-    );
+    const redeemed = await redeemLogin((await requestLogin(testEmail(), s.profile_id)).token);
     expect(await currentSession(redeemed.session_token)).not.toBeNull();
     await revokeSession(redeemed.session_token);
     expect(await currentSession(redeemed.session_token)).toBeNull();

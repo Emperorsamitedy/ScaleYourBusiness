@@ -183,7 +183,12 @@ describe("P1-34/35 — generation reads a snapshot and assembles §7's structure
 
   it("a changed profile generates fresh — new snapshot, new report", async () => {
     await write("goals.main_goal", "növekedés");
-    const { fresh } = await generateReport({ accountId, profileId, findingsLlm, recommendationsLlm });
+    const { fresh } = await generateReport({
+      accountId,
+      profileId,
+      findingsLlm,
+      recommendationsLlm,
+    });
     expect(fresh).toBe(true);
     const rows = await db
       .select()

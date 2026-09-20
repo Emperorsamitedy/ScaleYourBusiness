@@ -179,7 +179,9 @@ export function MarginRadar({ live }: { live: boolean }) {
               r={it.hot ? 5 : 3}
               fill={it.hot ? "#f59b4b" : "rgba(255,255,255,.5)"}
             />
-            {it.hot && <circle className="hud-ping" cx={x} cy={y} r={5} fill="none" stroke="#f59b4b" />}
+            {it.hot && (
+              <circle className="hud-ping" cx={x} cy={y} r={5} fill="none" stroke="#f59b4b" />
+            )}
             <text
               x={lx}
               y={ly + 3}

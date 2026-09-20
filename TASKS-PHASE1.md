@@ -80,7 +80,7 @@ on a dead end. The report can wait; the ten intakes cannot.
 
 - [x] **P1-55** Landing page: what this is, what you get, how long it takes, what happens to their answers
 - [x] **P1-56** Email capture at the finish — "where should I send this?", never a password
-- [x] **P1-57** Magic-link resume: a signed link reopens *their* profile on any device, cookie or no cookie
+- [x] **P1-57** Magic-link resume: a signed link reopens _their_ profile on any device, cookie or no cookie
 - [x] **P1-58** Resume screen (§ mockup 6): where they left off, how far in they are, one button back in
 - [x] **P1-59** Fact sheet wired to real data — every captured fact with its source, from the snapshot
 - [x] **P1-60** Gaps view: what's missing and what answering it would buy, each linking back into the intake
@@ -114,7 +114,7 @@ Sessions E–G consume real owner answers. Building them on synthetic profiles r
 - [x] **P1-28** `ScenarioBlock`: assumptions, base / downside / upside, break-even condition, sensitivity flags
 - [x] **P1-29** The recommendations prompt, constrained to findings that actually exist. **PROVISIONAL** like P1-23: recalibrate at P0-86
 - [x] **P1-30** Break-even arithmetic computed in code, never by the model — the model frames it, the code proves it
-- [x] **P1-31** High-sensitivity assumptions called out inline (§7): *"this depends heavily on your 22% repeat rate"*
+- [x] **P1-31** High-sensitivity assumptions called out inline (§7): _"this depends heavily on your 22% repeat rate"_
 - [x] **P1-32** Reversibility stated on every recommendation — what happens if the owner changes their mind
 - [x] **P1-33** Tests: a discount recommendation must state the volume lift required to break even, with the arithmetic shown
 

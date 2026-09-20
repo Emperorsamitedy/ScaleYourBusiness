@@ -56,12 +56,8 @@
           "name": "accounts_owner_user_id_users_id_fk",
           "tableFrom": "accounts",
           "tableTo": "users",
-          "columnsFrom": [
-            "owner_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -135,12 +131,8 @@
           "name": "bank_entity_schemas_bank_version_bank_versions_version_fk",
           "tableFrom": "bank_entity_schemas",
           "tableTo": "bank_versions",
-          "columnsFrom": [
-            "bank_version"
-          ],
-          "columnsTo": [
-            "version"
-          ],
+          "columnsFrom": ["bank_version"],
+          "columnsTo": ["version"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -258,12 +250,8 @@
           "name": "bank_questions_bank_version_bank_versions_version_fk",
           "tableFrom": "bank_questions",
           "tableTo": "bank_versions",
-          "columnsFrom": [
-            "bank_version"
-          ],
-          "columnsTo": [
-            "version"
-          ],
+          "columnsFrom": ["bank_version"],
+          "columnsTo": ["version"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -405,12 +393,8 @@
           "name": "business_profiles_account_id_accounts_id_fk",
           "tableFrom": "business_profiles",
           "tableTo": "accounts",
-          "columnsFrom": [
-            "account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -420,9 +404,7 @@
         "business_profiles_account_id_unique": {
           "name": "business_profiles_account_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "account_id"
-          ]
+          "columns": ["account_id"]
         }
       },
       "policies": {},
@@ -476,12 +458,8 @@
           "name": "channels_profile_id_business_profiles_id_fk",
           "tableFrom": "channels",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -551,12 +529,8 @@
           "name": "competitors_profile_id_business_profiles_id_fk",
           "tableFrom": "competitors",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -634,12 +608,8 @@
           "name": "cost_items_profile_id_business_profiles_id_fk",
           "tableFrom": "cost_items",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -647,12 +617,8 @@
           "name": "cost_items_linked_offer_id_offers_id_fk",
           "tableFrom": "cost_items",
           "tableTo": "offers",
-          "columnsFrom": [
-            "linked_offer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["linked_offer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -710,12 +676,8 @@
           "name": "customer_segments_profile_id_business_profiles_id_fk",
           "tableFrom": "customer_segments",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -944,12 +906,8 @@
           "name": "field_records_profile_id_business_profiles_id_fk",
           "tableFrom": "field_records",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -957,12 +915,8 @@
           "name": "field_records_superseded_by_field_records_id_fk",
           "tableFrom": "field_records",
           "tableTo": "field_records",
-          "columnsFrom": [
-            "superseded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["superseded_by"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1020,12 +974,8 @@
           "name": "goals_profile_id_business_profiles_id_fk",
           "tableFrom": "goals",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1114,12 +1064,8 @@
           "name": "intake_events_profile_id_business_profiles_id_fk",
           "tableFrom": "intake_events",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1175,12 +1121,8 @@
           "name": "offer_suppliers_offer_id_offers_id_fk",
           "tableFrom": "offer_suppliers",
           "tableTo": "offers",
-          "columnsFrom": [
-            "offer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["offer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1188,12 +1130,8 @@
           "name": "offer_suppliers_supplier_id_suppliers_id_fk",
           "tableFrom": "offer_suppliers",
           "tableTo": "suppliers",
-          "columnsFrom": [
-            "supplier_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["supplier_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1258,12 +1196,8 @@
           "name": "offers_profile_id_business_profiles_id_fk",
           "tableFrom": "offers",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1358,12 +1292,8 @@
           "name": "profile_snapshots_profile_id_business_profiles_id_fk",
           "tableFrom": "profile_snapshots",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1466,12 +1396,8 @@
           "name": "resume_tokens_profile_id_business_profiles_id_fk",
           "tableFrom": "resume_tokens",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1527,12 +1453,8 @@
           "name": "snapshot_records_snapshot_id_profile_snapshots_id_fk",
           "tableFrom": "snapshot_records",
           "tableTo": "profile_snapshots",
-          "columnsFrom": [
-            "snapshot_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["snapshot_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1540,12 +1462,8 @@
           "name": "snapshot_records_record_id_field_records_id_fk",
           "tableFrom": "snapshot_records",
           "tableTo": "field_records",
-          "columnsFrom": [
-            "record_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["record_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1610,12 +1528,8 @@
           "name": "staff_roles_profile_id_business_profiles_id_fk",
           "tableFrom": "staff_roles",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1673,12 +1587,8 @@
           "name": "suppliers_profile_id_business_profiles_id_fk",
           "tableFrom": "suppliers",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1755,12 +1665,8 @@
           "name": "users_account_id_accounts_id_fk",
           "tableFrom": "users",
           "tableTo": "accounts",
-          "columnsFrom": [
-            "account_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2000,12 +1906,8 @@
           "name": "validation_findings_profile_id_business_profiles_id_fk",
           "tableFrom": "validation_findings",
           "tableTo": "business_profiles",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2092,12 +1994,8 @@
           "name": "vocabulary_entries_vocab_key_vocabularies_key_fk",
           "tableFrom": "vocabulary_entries",
           "tableTo": "vocabularies",
-          "columnsFrom": [
-            "vocab_key"
-          ],
-          "columnsTo": [
-            "key"
-          ],
+          "columnsFrom": ["vocab_key"],
+          "columnsTo": ["key"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2113,71 +2011,37 @@
     "public.account_plan": {
       "name": "account_plan",
       "schema": "public",
-      "values": [
-        "trial",
-        "starter",
-        "pro"
-      ]
+      "values": ["trial", "starter", "pro"]
     },
     "public.cost_bucket": {
       "name": "cost_bucket",
       "schema": "public",
-      "values": [
-        "fixed",
-        "variable"
-      ]
+      "values": ["fixed", "variable"]
     },
     "public.decision_actor": {
       "name": "decision_actor",
       "schema": "public",
-      "values": [
-        "system",
-        "owner"
-      ]
+      "values": ["system", "owner"]
     },
     "public.decision_kind": {
       "name": "decision_kind",
       "schema": "public",
-      "values": [
-        "proposal",
-        "approval",
-        "rejection",
-        "execution",
-        "measurement",
-        "profile_change"
-      ]
+      "values": ["proposal", "approval", "rejection", "execution", "measurement", "profile_change"]
     },
     "public.field_status": {
       "name": "field_status",
       "schema": "public",
-      "values": [
-        "answered",
-        "unknown",
-        "not_applicable",
-        "skipped",
-        "inferred",
-        "unasked"
-      ]
+      "values": ["answered", "unknown", "not_applicable", "skipped", "inferred", "unasked"]
     },
     "public.finding_kind": {
       "name": "finding_kind",
       "schema": "public",
-      "values": [
-        "gap",
-        "contradiction",
-        "implausible",
-        "stale"
-      ]
+      "values": ["gap", "contradiction", "implausible", "stale"]
     },
     "public.finding_severity": {
       "name": "finding_severity",
       "schema": "public",
-      "values": [
-        "blocking",
-        "high",
-        "medium",
-        "low"
-      ]
+      "values": ["blocking", "high", "medium", "low"]
     },
     "public.intake_event_kind": {
       "name": "intake_event_kind",
@@ -2198,13 +2062,7 @@
     "public.offer_kind": {
       "name": "offer_kind",
       "schema": "public",
-      "values": [
-        "physical",
-        "service",
-        "digital",
-        "subscription",
-        "marketplace_access"
-      ]
+      "values": ["physical", "service", "digital", "subscription", "marketplace_access"]
     },
     "public.profile_section": {
       "name": "profile_section",
@@ -2229,41 +2087,22 @@
     "public.question_priority": {
       "name": "question_priority",
       "schema": "public",
-      "values": [
-        "core",
-        "important",
-        "deep",
-        "optional"
-      ]
+      "values": ["core", "important", "deep", "optional"]
     },
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": [
-        "owner",
-        "manager",
-        "viewer"
-      ]
+      "values": ["owner", "manager", "viewer"]
     },
     "public.utterance_intent": {
       "name": "utterance_intent",
       "schema": "public",
-      "values": [
-        "ask",
-        "tell",
-        "correct",
-        "request",
-        "limit",
-        "social"
-      ]
+      "values": ["ask", "tell", "correct", "request", "limit", "social"]
     },
     "public.utterance_role": {
       "name": "utterance_role",
       "schema": "public",
-      "values": [
-        "owner",
-        "system"
-      ]
+      "values": ["owner", "system"]
     }
   },
   "schemas": {},

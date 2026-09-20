@@ -11,7 +11,12 @@ import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
 import { currentSession } from "../../../lib/auth/service";
-import { ModeError, decideForProfile, latestDecision, overrideWatch } from "../../../lib/mode/service";
+import {
+  ModeError,
+  decideForProfile,
+  latestDecision,
+  overrideWatch,
+} from "../../../lib/mode/service";
 
 const COOKIE = "syb_intake_profile";
 const AUTH_COOKIE = "syb_session";

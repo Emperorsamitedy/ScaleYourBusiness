@@ -194,7 +194,10 @@ describe("P1-29/32 — validation: real findings, real offers, stated undo", () 
 
   it("rejects addressing findings that do not exist", () => {
     const { kept, rejected } = buildRecommendations(
-      [{ ...RAW, addresses: [5] }, { ...RAW, addresses: [] }],
+      [
+        { ...RAW, addresses: [5] },
+        { ...RAW, addresses: [] },
+      ],
       2,
       OFFERS,
       KEYS,

@@ -83,10 +83,7 @@ async function latest(profileId: string, ruleId: string) {
     .select()
     .from(validationFindings)
     .where(
-      and(
-        eq(validationFindings.profile_id, profileId),
-        eq(validationFindings.rule_id, ruleId),
-      ),
+      and(eq(validationFindings.profile_id, profileId), eq(validationFindings.rule_id, ruleId)),
     );
   return rows[rows.length - 1] ?? null;
 }

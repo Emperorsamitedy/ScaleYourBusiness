@@ -1,1629 +1,3028 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ledgerline — screens 3–11</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-/* ============================================================
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ledgerline — screens 3–11</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ============================================================
    Ledgerline mockup — Ember Grid glass (docs/DESIGN.md + app/globals.css)
    Nine screens, one file. Depth is light, never drop shadow.
    ============================================================ */
-:root {
-  --stage: #0a0b0d;
-  --card-solid: #131418;
-  --raised: #1a1c21;
-  --glass: rgba(19, 20, 24, 0.62);
-  --glass-strong: rgba(26, 28, 33, 0.72);
-  --ink: #f2f3f5;
-  --mut: #9ba1ab;
-  --hair: rgba(255, 255, 255, 0.07);
-  --hair-2: rgba(255, 255, 255, 0.12);
-  --ember: #f59b4b;
-  --ember-bright: #ffb25c;
-  --ember-deep: #e1560f;
-  --on-ember: #1c1006;
-  --whisper: #4c7df0;
-  --settled: #34d399;
-  --err: #ff7a72;
-  --sans: "Schibsted Grotesk", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, monospace;
-  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
-  --blur: blur(18px) saturate(1.25);
-}
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-html, body { margin: 0; min-height: 100%; }
-body {
-  background: var(--stage);
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 15px;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-/* Ambient glows — fixed light sources drifting very slowly. The one
+      :root {
+        --stage: #0a0b0d;
+        --card-solid: #131418;
+        --raised: #1a1c21;
+        --glass: rgba(19, 20, 24, 0.62);
+        --glass-strong: rgba(26, 28, 33, 0.72);
+        --ink: #f2f3f5;
+        --mut: #9ba1ab;
+        --hair: rgba(255, 255, 255, 0.07);
+        --hair-2: rgba(255, 255, 255, 0.12);
+        --ember: #f59b4b;
+        --ember-bright: #ffb25c;
+        --ember-deep: #e1560f;
+        --on-ember: #1c1006;
+        --whisper: #4c7df0;
+        --settled: #34d399;
+        --err: #ff7a72;
+        --sans: "Schibsted Grotesk", system-ui, sans-serif;
+        --mono: "IBM Plex Mono", ui-monospace, monospace;
+        --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+        --blur: blur(18px) saturate(1.25);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+      body {
+        background: var(--stage);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      /* Ambient glows — fixed light sources drifting very slowly. The one
    place the blue whisper is allowed to live (plus the s5 CTA). */
-body::before, body::after {
-  content: "";
-  position: fixed;
-  z-index: -1;
-  border-radius: 50%;
-  pointer-events: none;
-  filter: blur(80px);
-}
-body::before {
-  width: 720px; height: 480px; left: -180px; top: -160px;
-  background: radial-gradient(closest-side, rgba(225, 86, 15, 0.17), transparent);
-  animation: drift-a 26s var(--ease) infinite alternate;
-}
-body::after {
-  width: 820px; height: 560px; right: -220px; bottom: -200px;
-  background: radial-gradient(closest-side, rgba(76, 125, 240, 0.12), transparent);
-  animation: drift-b 32s var(--ease) infinite alternate;
-}
-@keyframes drift-a { to { transform: translate(60px, 40px) scale(1.08); } }
-@keyframes drift-b { to { transform: translate(-70px, -50px) scale(1.06); } }
-
-::selection { background: rgba(245, 155, 75, 0.28); }
-::placeholder { color: rgba(155, 161, 171, 0.55); }
-* { scrollbar-width: thin; scrollbar-color: var(--raised) transparent; }
-*::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-thumb { background: var(--raised); border-radius: 4px; }
-*::-webkit-scrollbar-track { background: transparent; }
-
-.sr-only {
-  position: absolute; width: 1px; height: 1px; overflow: hidden;
-  clip: rect(0 0 0 0); white-space: nowrap;
-}
-.tabular { font-variant-numeric: tabular-nums; }
-:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; border-radius: 4px; }
-
-/* ---------- mockup switcher (chrome, not product) ---------- */
-.switcher {
-  position: fixed; left: 0; top: 0; bottom: 0; z-index: 60;
-  width: 168px;
-  padding: 22px 12px;
-  display: flex; flex-direction: column; gap: 2px;
-  background: rgba(10, 11, 13, 0.72);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border-right: 1px solid var(--hair);
-}
-.sw-head {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--mut);
-  padding: 0 10px 12px; opacity: 0.8;
-}
-.sw {
-  display: flex; align-items: baseline; gap: 10px;
-  padding: 8px 12px; border-radius: 999px;
-  border: 1px solid transparent;
-  color: var(--mut); text-decoration: none; font-size: 12px;
-  transition: color 0.2s var(--ease), background 0.2s var(--ease), border-color 0.2s var(--ease);
-}
-.sw .n {
-  font-family: var(--mono); font-size: 11px; width: 2ch; text-align: right;
-  font-variant-numeric: tabular-nums; flex: none;
-}
-.sw:hover { color: var(--ink); background: var(--glass-strong); }
-.sw[aria-current="true"] {
-  color: var(--ink);
-  background: var(--glass-strong);
-  border-color: var(--hair-2);
-}
-.sw[aria-current="true"] .n { color: var(--ember); }
-.sw-hint {
-  margin-top: auto; padding: 12px 10px 0;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
-  color: var(--mut); opacity: 0.6;
-}
-
-.app { margin-left: 168px; min-height: 100vh; display: flex; flex-direction: column; }
-
-/* ---------- shared product chrome ---------- */
-.topbar {
-  position: sticky; top: 0; z-index: 30;
-  display: flex; align-items: baseline; gap: 16px;
-  padding: 16px 28px;
-  background: rgba(10, 11, 13, 0.55);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border-bottom: 1px solid var(--hair);
-}
-.wordmark {
-  font-weight: 700; font-size: 16px; letter-spacing: -0.01em;
-  display: inline-flex; align-items: center; gap: 9px;
-}
-.wordmark::before {
-  content: "";
-  width: 8px; height: 8px; border-radius: 2px;
-  background: linear-gradient(135deg, var(--ember), var(--ember-deep));
-}
-.topbar .subtitle { font-size: 13px; color: var(--mut); }
-.topbar .meta {
-  margin-left: auto;
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
-  color: var(--mut); font-variant-numeric: tabular-nums;
-}
-.progress-rail { position: sticky; top: 53px; z-index: 30; height: 1px; background: var(--hair); }
-.progress-fill {
-  height: 1px; width: 0;
-  background: linear-gradient(90deg, var(--ember-deep), var(--ember));
-  transition: width 0.5s var(--ease);
-  box-shadow: 0 0 12px rgba(245, 155, 75, 0.55);
-}
-
-/* ---------- screens ---------- */
-.screen { display: none; }
-.screen.active { display: block; animation: fadein 0.3s var(--ease) both; }
-@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
-
-/* ---------- three-column intake stage ---------- */
-.stage {
-  display: grid;
-  grid-template-columns: 1fr minmax(360px, 620px) 1fr;
-  gap: 28px;
-  padding: 40px 28px 64px;
-  align-items: start;
-  width: 100%; max-width: 1400px; margin: 0 auto;
-}
-.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.col-head {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--mut);
-  padding: 0 2px 8px; border-bottom: 1px solid var(--hair); margin-bottom: 4px;
-}
-.chip {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--hair);
-  border-radius: 12px;
-  padding: 11px 14px;
-  text-align: left;
-  animation: settle 0.34s var(--ease) both;
-  transition: border-color 0.24s var(--ease), transform 0.24s var(--ease), background 0.24s var(--ease);
-}
-.chip:hover { border-color: var(--hair-2); background: var(--glass-strong); transform: translateY(-1px); }
-.chip .q { display: block; font-size: 12px; color: var(--mut); line-height: 1.35; margin-bottom: 3px; }
-.chip .a { display: block; font-size: 14px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
-.chip .tag {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: var(--mut);
-  margin-top: 7px; display: flex; gap: 8px; align-items: center;
-  font-variant-numeric: tabular-nums;
-}
-.dot { width: 5px; height: 5px; border-radius: 50%; background: var(--settled); flex: none; }
-.dot.thin { background: transparent; border: 1px solid var(--mut); }
-.dot.ember { background: var(--ember); border: 0; }
-/* A chip involved in an open finding takes the ember hairline. */
-.chip-flagged, .chip-flagged:hover { border-color: rgba(245, 155, 75, 0.55); }
-@keyframes settle {
-  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
-  to { opacity: 1; transform: none; }
-}
-
-.centre { display: flex; flex-direction: column; gap: 16px; padding-top: 6px; min-width: 0; }
-/* Focal card: glass + the ember-edge gradient hairline on a masked ::before. */
-.card {
-  position: relative;
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid transparent;
-  border-radius: 24px;
-  padding: 30px 30px 26px;
-  animation: rise 0.38s var(--ease) both;
-}
-.card::before {
-  content: "";
-  position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
-  background: linear-gradient(135deg,
-    rgba(225, 86, 15, 0.65),
-    rgba(255, 255, 255, 0.09) 42%,
-    rgba(255, 255, 255, 0.07) 62%,
-    rgba(76, 125, 240, 0.45));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-}
-@keyframes rise {
-  from { opacity: 0; transform: translateY(28px) scale(0.99); }
-  to { opacity: 1; transform: none; }
-}
-/* plain glass card — no ember edge */
-.card.plain::before { display: none; }
-.card.plain { border-color: var(--hair); border-radius: 16px; }
-
-.eyebrow {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ember);
-  display: flex; gap: 10px; align-items: center; margin-bottom: 14px;
-}
-.eyebrow .tier {
-  color: var(--mut); border: 1px solid var(--hair-2); border-radius: 999px;
-  padding: 2px 9px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 10px;
-}
-.prompt {
-  font-weight: 600; font-size: 27px; line-height: 1.2; letter-spacing: -0.015em;
-  margin: 0 0 10px;
-}
-.help { font-size: 14px; color: var(--mut); margin: 0 0 22px; max-width: 50ch; }
-
-.field {
-  width: 100%; font: inherit; color: inherit;
-  background: var(--glass-strong);
-  border: 1px solid var(--hair); border-radius: 12px;
-  padding: 12px 16px; outline: none;
-  transition: border-color 0.24s var(--ease), box-shadow 0.24s var(--ease);
-}
-.field:focus { border-color: var(--ember); box-shadow: 0 0 0 3px rgba(245, 155, 75, 0.22); }
-.field:focus-visible { outline: none; }
-.money-wrap { display: flex; align-items: center; gap: 12px; }
-.money-wrap .field { flex: 1; font-variant-numeric: tabular-nums; }
-.money-cur {
-  font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
-  color: var(--ink); flex: none;
-}
-.mono-note {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  font-variant-numeric: tabular-nums;
-}
-
-/* pills */
-.opt {
-  font: inherit; font-size: 14px;
-  background: var(--glass-strong); color: inherit; cursor: pointer;
-  border: 1px solid var(--hair-2); border-radius: 999px;
-  padding: 9px 16px;
-  transition: border-color 0.18s var(--ease), background 0.18s var(--ease),
-              color 0.18s var(--ease), transform 0.18s var(--ease);
-}
-.opt:hover { border-color: var(--mut); transform: translateY(-1px); }
-.opt[aria-pressed="true"] {
-  border-color: var(--ember); background: var(--ember); color: var(--on-ember);
-  font-weight: 600; transition-duration: 0.06s;
-}
-.opt-compact { font-size: 12px; padding: 5px 11px; min-height: 28px; }
-
-.row { display: flex; align-items: center; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
-.next {
-  font: inherit; font-weight: 600; font-size: 14px; letter-spacing: 0.02em; cursor: pointer;
-  background: var(--ember); color: var(--on-ember);
-  border: 0; border-radius: 999px; padding: 12px 24px; min-height: 44px;
-  transition: background 0.24s var(--ease), transform 0.24s var(--ease), box-shadow 0.24s var(--ease);
-}
-.next:hover:not(:disabled) {
-  background: var(--ember-bright);
-  transform: translateY(-1px);
-  box-shadow: 0 0 24px rgba(245, 155, 75, 0.35);
-}
-.next:active:not(:disabled) { transform: translateY(0); }
-.ghost {
-  font: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
-  background: transparent; border: 1px solid var(--hair-2); border-radius: 999px;
-  color: var(--ink); cursor: pointer; padding: 11px 20px; min-height: 44px;
-  transition: background 0.24s var(--ease), border-color 0.24s var(--ease), transform 0.24s var(--ease);
-}
-.ghost:hover:not(:disabled) { background: var(--raised); transform: translateY(-1px); }
-.ghost.quiet { border: 0; min-height: 0; padding: 6px 8px; font-weight: 400; color: var(--mut); }
-.ghost.quiet:hover:not(:disabled) { background: transparent; color: var(--ink); transform: none; }
-.hint {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  margin-left: auto;
-}
-
-/* the one gradient CTA in the whole product — screen 5 only */
-.cta-grad {
-  font: inherit; font-weight: 700; font-size: 15px; letter-spacing: 0.02em; cursor: pointer;
-  background: linear-gradient(100deg, var(--whisper), var(--ember) 78%);
-  color: var(--on-ember);
-  border: 0; border-radius: 999px; padding: 14px 30px; min-height: 48px;
-  transition: transform 0.24s var(--ease), box-shadow 0.24s var(--ease), filter 0.24s var(--ease);
-}
-.cta-grad:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.08);
-  box-shadow: 0 0 28px rgba(245, 155, 75, 0.35);
-}
-.cta-grad:active { transform: translateY(0); }
-
-/* on-deck */
-.ondeck {
-  border: 1px dashed var(--hair-2); border-radius: 16px;
-  padding: 14px 18px; font-size: 13px; color: var(--mut);
-  animation: float 7s ease-in-out infinite alternate;
-}
-@keyframes float { from { transform: translateY(0); } to { transform: translateY(-5px); } }
-.ondeck .lbl {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
-  text-transform: uppercase; display: block; margin-bottom: 4px;
-}
-
-/* ---------- screen 3 · entity sub-form ---------- */
-.entity-rows { display: flex; flex-direction: column; gap: 14px; }
-.entity-row {
-  background: var(--glass-strong);
-  border: 1px solid var(--hair); border-radius: 16px;
-  padding: 14px 16px 12px;
-  transition: border-color 0.24s var(--ease);
-}
-.entity-row:hover { border-color: var(--hair-2); }
-.entity-grid {
-  display: grid;
-  grid-template-columns: minmax(150px, 1.2fr) auto minmax(130px, 0.9fr);
-  gap: 10px 16px; align-items: center;
-}
-.entity-grid .field { background: rgba(10, 11, 13, 0.45); padding: 10px 14px; }
-.kindgroup { display: flex; gap: 5px; flex-wrap: wrap; }
-.subfield-money { display: flex; align-items: center; gap: 8px; }
-.subfield-money .field { flex: 1; font-variant-numeric: tabular-nums; }
-.currency-suffix {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-}
-.entity-detail {
-  margin-top: 12px; padding-top: 12px;
-  border-top: 1px dashed var(--hair);
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  animation: fadein 0.24s var(--ease) both;
-}
-.entity-detail[hidden] { display: none; }
-.entity-detail .field { max-width: 170px; background: rgba(10, 11, 13, 0.45); padding: 10px 14px; }
-.entity-detail .lbl {
-  font-size: 13px; color: var(--mut); flex: none;
-}
-.margin-line {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
-  color: var(--ember); font-variant-numeric: tabular-nums;
-  margin-left: auto;
-}
-.exp {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
-  background: transparent; border: 0; color: var(--mut); cursor: pointer;
-  padding: 8px 2px 2px; margin-top: 2px;
-  transition: color 0.2s var(--ease);
-  font-variant-numeric: tabular-nums;
-}
-.exp:hover { color: var(--ink); }
-.exp[aria-expanded="true"] { color: var(--ink); }
-.add-row { align-self: flex-start; margin-top: 14px; }
-.count-line { margin-top: 12px; }
-
-/* ---------- screen 4 · reconcile ---------- */
-.reconcile {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid rgba(245, 155, 75, 0.35);
-  border-radius: 16px;
-  padding: 20px 22px 18px;
-  animation: rise 0.38s var(--ease) both;
-  animation-delay: 0.08s;
-}
-.reconcile-eyebrow {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--mut);
-  display: flex; gap: 8px; align-items: center; margin-bottom: 10px;
-}
-.reconcile h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; }
-.reconcile-both { font-size: 14px; color: var(--ink); margin: 0 0 6px; max-width: 56ch; }
-.reconcile-tagline { font-size: 13px; color: var(--mut); font-style: italic; margin: 0 0 14px; }
-.reconcile-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-/* ---------- screen 5 · done ---------- */
-.done h2 { font-size: 26px; font-weight: 700; margin: 0 0 10px; letter-spacing: -0.015em; }
-.done > p { font-size: 15px; color: var(--mut); max-width: 48ch; margin: 0; }
-.readout {
-  font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; color: var(--mut);
-  border-top: 1px solid var(--hair); margin-top: 20px; padding-top: 16px;
-  line-height: 2.1; font-variant-numeric: tabular-nums;
-}
-.readout strong { color: var(--ink); font-weight: 500; }
-.assemble { margin-top: 4px; text-align: center; }
-.tiles { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-.tile {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--hair); border-radius: 12px;
-  padding: 9px 14px;
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink);
-  animation: tile-in 0.38s var(--ease) both;
-}
-.tile:nth-child(1) { animation-delay: 0.25s; }
-.tile:nth-child(2) { animation-delay: 0.35s; }
-.tile:nth-child(3) { animation-delay: 0.45s; }
-.tile:nth-child(4) { animation-delay: 0.55s; }
-.tile:nth-child(5) { animation-delay: 0.65s; }
-@keyframes tile-in {
-  from { opacity: 0; transform: translateX(18px); }
-  to { opacity: 1; transform: none; }
-}
-.assemble .cap { font-size: 13px; color: var(--mut); margin: 14px 0 0; }
-
-/* ---------- screen 6 · resume ---------- */
-.solo { max-width: 620px; margin: 0 auto; padding: 72px 28px 64px; }
-.solo .card { padding: 34px 34px 30px; }
-.solo h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 10px; }
-.solo .body { font-size: 15px; color: var(--mut); margin: 0 0 22px; max-width: 46ch; }
-.paused {
-  background: var(--glass-strong);
-  border: 1px solid var(--hair); border-radius: 16px;
-  padding: 16px 18px; margin-bottom: 22px;
-}
-.paused .nextup {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--ember);
-  display: flex; gap: 8px; align-items: center; margin-bottom: 8px;
-}
-.paused .pq { font-size: 16px; font-weight: 600; line-height: 1.35; }
-.paused .pq .qn { font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--mut); margin-right: 8px; }
-.ministrip { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; justify-content: center; }
-.minichip {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--hair); border-radius: 999px;
-  padding: 7px 13px; font-size: 12px; color: var(--ink);
-  animation: settle 0.34s var(--ease) both;
-}
-.minichip:nth-child(1) { animation-delay: 0.15s; }
-.minichip:nth-child(2) { animation-delay: 0.22s; }
-.minichip:nth-child(3) { animation-delay: 0.29s; }
-.minichip:nth-child(4) { animation-delay: 0.36s; }
-.minichip:nth-child(5) { animation-delay: 0.43s; }
-.minichip.more { color: var(--mut); }
-.solo-foot {
-  text-align: center; margin-top: 18px;
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---------- screen 7 · gaps ---------- */
-.gaps-wrap {
-  max-width: 1060px; margin: 0 auto; padding: 56px 28px 80px;
-  display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 36px;
-}
-.page-head { grid-column: 1 / -1; margin-bottom: 4px; }
-.page-head h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.15; margin: 0 0 10px; }
-.page-head .sub { font-size: 16px; color: var(--mut); margin: 0; max-width: 56ch; }
-.gap-rows { display: flex; flex-direction: column; gap: 14px; }
-.gap-row {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--hair); border-radius: 16px;
-  padding: 18px 20px;
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 18px;
-  align-items: center;
-  animation: settle 0.34s var(--ease) both;
-  transition: border-color 0.24s var(--ease), background 0.24s var(--ease);
-}
-.gap-row:hover { border-color: var(--hair-2); background: var(--glass-strong); }
-.gap-row:nth-child(2) { animation-delay: 0.06s; }
-.gap-row:nth-child(3) { animation-delay: 0.12s; }
-.gap-row:nth-child(4) { animation-delay: 0.18s; }
-.gap-title { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; }
-.gap-prov {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  margin: 2px 0 0 15px; font-variant-numeric: tabular-nums;
-}
-.gap-why { font-size: 14px; color: var(--mut); margin: 6px 0 0 15px; max-width: 52ch; grid-column: 1; }
-.gap-row .ghost { grid-row: 1 / span 3; grid-column: 2; white-space: nowrap; font-size: 12px; }
-.completeness {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--hair); border-radius: 16px;
-  padding: 22px 22px 20px;
-  align-self: start;
-  position: sticky; top: 86px;
-}
-.completeness .big {
-  font-size: 28px; font-weight: 600; line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-.completeness .big-lbl {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  margin-top: 2px;
-}
-.break-rows { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
-.break-row .k {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  display: flex; justify-content: space-between; font-variant-numeric: tabular-nums;
-}
-.break-bar { height: 1px; background: var(--hair); margin-top: 7px; }
-.break-bar i {
-  display: block; height: 1px;
-  background: linear-gradient(90deg, var(--ember-deep), var(--ember));
-  box-shadow: 0 0 8px rgba(245, 155, 75, 0.45);
-}
-.gap-foot {
-  grid-column: 1; margin: 6px 0 0; font-size: 13px; color: var(--mut); font-style: italic;
-}
-
-/* ---------- screen 8 · generating ---------- */
-.gen-wrap { max-width: 680px; margin: 0 auto; padding: 64px 28px 80px; }
-.gen-wrap .card { padding: 32px 34px 28px; }
-.gen-wrap h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 18px; }
-.steps { display: flex; align-items: center; gap: 0; margin: 0 0 22px; padding: 0; list-style: none; }
-.step {
-  display: flex; align-items: center; gap: 8px;
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--mut);
-}
-.step .nd {
-  width: 8px; height: 8px; border-radius: 50%; flex: none;
-  border: 1px solid var(--mut); background: transparent;
-  transition: background 0.3s var(--ease), border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
-}
-.step.done .nd { background: var(--mut); border-color: transparent; }
-.step.done { color: var(--ink); }
-.step.active { color: var(--ember); }
-.step.active .nd {
-  background: var(--ember); border-color: transparent;
-  box-shadow: 0 0 10px rgba(245, 155, 75, 0.55);
-}
-.steps .conn { flex: 1; height: 1px; background: var(--hair); margin: 0 10px; min-width: 18px; }
-.steps .conn.lit {
-  background: linear-gradient(90deg, var(--ember-deep), var(--ember));
-  box-shadow: 0 0 8px rgba(245, 155, 75, 0.4);
-}
-.worklog {
-  font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em;
-  border-top: 1px solid var(--hair);
-  padding-top: 16px; margin-top: 2px;
-  display: flex; flex-direction: column; gap: 9px;
-  min-height: 172px;
-  font-variant-numeric: tabular-nums;
-}
-.logline { display: flex; align-items: baseline; gap: 10px; color: var(--ink); animation: logline-in 0.3s var(--ease) both; }
-.logline .dot { position: relative; top: -1px; }
-.logline .ts { color: var(--mut); flex: none; }
-.logline.current { color: var(--ember); }
-.logline.current .ts { color: rgba(245, 155, 75, 0.7); }
-@keyframes logline-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
-}
-.gen-note { font-size: 14px; color: var(--mut); margin: 20px 0 0; max-width: 48ch; }
-
-/* ---------- screens 9 & 10 · report ---------- */
-.report { max-width: 720px; margin: 0 auto; padding: 56px 28px 96px; }
-.crumb {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  margin-bottom: 18px; font-variant-numeric: tabular-nums;
-}
-.pillrow { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-.status-pill {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: var(--raised);
-  border: 1px solid var(--hair);
-  border-radius: 999px; padding: 4px 12px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--mut);
-}
-.status-pill.sev { color: var(--ember); border-color: rgba(245, 155, 75, 0.35); }
-.report h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.15; margin: 0 0 16px; }
-.lead { font-size: 18px; line-height: 1.55; color: var(--ink); margin: 0 0 36px; }
-.sect {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--mut);
-  margin: 36px 0 12px; display: flex; gap: 10px; align-items: center;
-}
-.sect::after { content: ""; flex: 1; height: 1px; background: var(--hair); }
-.facts {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--hair); border-radius: 16px;
-  padding: 4px 20px;
-}
-.fact {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2px 18px; align-items: baseline;
-  padding: 13px 0; border-bottom: 1px solid var(--hair);
-}
-.fact:last-child { border-bottom: 0; }
-.fact .fl { font-size: 15px; }
-.fact .fv { font-size: 15px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.fact .fp {
-  grid-column: 1 / -1;
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
-}
-.fact.derived .fl, .fact.derived .fv { color: var(--ember); }
-.fact.derived .fl { font-family: var(--mono); font-size: 13px; letter-spacing: 0.02em; }
-.statcard {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid rgba(245, 155, 75, 0.35); border-radius: 16px;
-  padding: 22px 24px 20px;
-}
-.statcard .big {
-  font-size: 28px; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
-}
-.statcard .big small { font-size: 15px; font-weight: 400; color: var(--mut); letter-spacing: 0; }
-.statcard .deriv {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  margin-top: 10px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
-}
-.report .row { margin-top: 40px; }
-.foot-note {
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  margin-left: auto; font-variant-numeric: tabular-nums;
-}
-
-/* screen 10 */
-.scenario { font-size: 16px; line-height: 1.6; color: var(--ink); margin: 0 0 8px; max-width: 58ch; }
-.assump {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--hair); border-radius: 16px;
-  padding: 15px 18px;
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: center;
-  margin-bottom: 10px;
-  transition: border-color 0.24s var(--ease);
-}
-.assump:hover { border-color: var(--hair-2); }
-.assump .al { font-size: 15px; }
-.assump .av { font-size: 15px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.assump .ap {
-  grid-column: 1;
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  font-variant-numeric: tabular-nums;
-}
-.assump .ghost.quiet { grid-column: 2; grid-row: 2; justify-self: end; font-size: 12px; padding: 2px 4px; }
-.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.comp-col {
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--hair); border-radius: 16px;
-  padding: 18px 20px 16px;
-}
-.comp-col.approve { border-color: rgba(245, 155, 75, 0.35); }
-.comp-col .ch {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--mut); margin-bottom: 14px; display: flex; gap: 8px; align-items: center;
-}
-.comp-col.approve .ch { color: var(--ember); }
-.comp-row { padding: 9px 0; border-top: 1px solid var(--hair); }
-.comp-row .ck {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--mut); display: block; margin-bottom: 2px;
-}
-.comp-row .cv {
-  font-size: 28px; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em;
-  font-variant-numeric: tabular-nums;
-}
-.comp-row .cv small { font-size: 13px; font-weight: 400; color: var(--mut); letter-spacing: 0; }
-.honesty { font-size: 14px; color: var(--mut); font-style: italic; margin: 18px 0 0; }
-.textlink {
-  background: none; border: 0; padding: 6px 4px; cursor: pointer;
-  font: inherit; font-size: 13px; color: var(--mut); text-decoration: underline;
-  text-underline-offset: 3px; text-decoration-color: var(--hair-2);
-  transition: color 0.2s var(--ease);
-}
-.textlink:hover { color: var(--ink); }
-
-/* ---------- screen 11 · profile ---------- */
-.prof-wrap {
-  max-width: 1180px; margin: 0 auto; padding: 56px 28px 96px;
-  display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 44px;
-}
-.prof-head { grid-column: 1 / -1; }
-.prof-head h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 10px; }
-.prof-head .sub { font-size: 16px; color: var(--mut); margin: 0; max-width: 62ch; }
-.section-rail {
-  align-self: start; position: sticky; top: 86px;
-  display: flex; flex-direction: column; gap: 2px;
-  font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em;
-}
-.rail-item {
-  display: flex; align-items: center; gap: 9px;
-  padding: 8px 10px; border-radius: 999px;
-  color: var(--mut); text-decoration: none;
-  border: 1px solid transparent;
-  font-variant-numeric: tabular-nums;
-  transition: color 0.2s var(--ease), background 0.2s var(--ease);
-}
-.rail-item:hover { color: var(--ink); background: var(--glass-strong); }
-.rail-item .cnt { margin-left: auto; font-size: 11px; opacity: 0.85; }
-.rail-item[aria-current="true"] { color: var(--ember); background: var(--glass-strong); border-color: var(--hair-2); }
-.prof-main { min-width: 0; }
-.prof-bar { display: flex; align-items: baseline; gap: 16px; margin-bottom: 10px; }
-.prof-bar h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
-.prof-bar .count { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut); }
-.search {
-  margin-left: auto;
-  display: flex; align-items: center; gap: 8px;
-  background: var(--glass-strong);
-  border: 1px solid var(--hair); border-radius: 999px;
-  padding: 8px 16px; min-width: 220px;
-  transition: border-color 0.24s var(--ease);
-}
-.search:focus-within { border-color: var(--ember); box-shadow: 0 0 0 3px rgba(245, 155, 75, 0.18); }
-.search svg { flex: none; color: var(--mut); }
-.search input {
-  font: inherit; font-size: 13px; background: none; border: 0; outline: none;
-  color: var(--ink); width: 100%;
-}
-.factlist { border-top: 1px solid var(--hair-2); }
-.factrow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 3px 20px; align-items: baseline;
-  padding: 16px 4px; border-bottom: 1px solid var(--hair);
-  transition: background 0.24s var(--ease);
-}
-.factrow:hover { background: rgba(26, 28, 33, 0.4); }
-.factrow .lab { font-size: 15px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
-.factrow .val {
-  font-size: 15px; font-weight: 600; text-align: right;
-  font-variant-numeric: tabular-nums; white-space: nowrap;
-}
-.factrow .prov {
-  grid-column: 1; grid-row: 2;
-  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--mut);
-  font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
-}
-.factrow .acts {
-  grid-column: 2 / span 2; grid-row: 2; justify-self: end;
-  display: flex; gap: 12px; align-items: baseline;
-}
-.est-pill {
-  display: inline-flex; align-items: center;
-  font-family: var(--mono); font-size: 9px; font-weight: 500; letter-spacing: 0.1em;
-  color: var(--ember); border: 1px solid rgba(245, 155, 75, 0.45);
-  border-radius: 999px; padding: 1px 8px 0; height: 17px;
-  position: relative; top: -1px;
-}
-.rowlink {
-  background: none; border: 0; padding: 4px 2px; cursor: pointer;
-  font: inherit; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
-  color: var(--mut);
-  transition: color 0.2s var(--ease);
-}
-.rowlink:hover { color: var(--ink); }
-.factedit {
-  grid-column: 1 / -1; grid-row: 3;
-  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  margin-top: 12px; padding-top: 14px; border-top: 1px dashed var(--hair);
-  animation: fadein 0.24s var(--ease) both;
-}
-.factedit .field { padding: 9px 14px; font-size: 14px; border-radius: 999px; }
-.factedit .fe-val { max-width: 160px; font-variant-numeric: tabular-nums; }
-.factedit .fe-why { flex: 1; min-width: 220px; }
-.factedit .next { min-height: 38px; padding: 8px 18px; font-size: 13px; }
-.factedit .fe-note { flex-basis: 100%; }
-
-/* ---------- responsive ---------- */
-@media (max-width: 1100px) {
-  .app { margin-left: 0; padding-bottom: 66px; }
-  .switcher {
-    top: auto; bottom: 0; right: 0; width: auto;
-    flex-direction: row; align-items: center; gap: 4px;
-    padding: 10px 14px;
-    border-right: 0; border-top: 1px solid var(--hair);
-    overflow-x: auto;
-  }
-  .sw-head { padding: 0 8px 0 0; white-space: nowrap; }
-  .sw { padding: 7px 12px; white-space: nowrap; flex: none; }
-  .sw-hint { display: none; }
-}
-@media (max-width: 900px) {
-  .stage { grid-template-columns: 1fr; gap: 20px; padding: 24px 18px 48px; }
-  .stage .col { display: none; }
-  .prompt { font-size: 23px; }
-  .card { padding: 22px 20px 20px; border-radius: 20px; }
-  .gaps-wrap { grid-template-columns: 1fr; padding: 36px 18px 64px; gap: 24px; }
-  .completeness { position: static; }
-  .prof-wrap { grid-template-columns: 1fr; gap: 20px; padding: 36px 18px 72px; }
-  .section-rail {
-    position: static; flex-direction: row; overflow-x: auto; gap: 6px;
-    padding-bottom: 6px;
-  }
-  .rail-item { white-space: nowrap; border: 1px solid var(--hair); flex: none; }
-  .rail-item .cnt { margin-left: 8px; }
-  .page-head h1, .report h1, .prof-head h1 { font-size: 28px; }
-  .solo { padding: 40px 18px 56px; }
-  .entity-grid { grid-template-columns: 1fr; }
-  .compare { grid-template-columns: 1fr; }
-  .gap-row { grid-template-columns: 1fr; }
-  .gap-row .ghost { grid-row: auto; grid-column: 1; justify-self: start; margin-top: 10px; margin-left: 15px; }
-  .search { min-width: 0; flex: 1; }
-  .prof-bar { flex-wrap: wrap; gap: 10px; }
-  .gen-wrap { padding: 36px 18px 64px; }
-  .report { padding: 36px 18px 72px; }
-  .factrow { grid-template-columns: minmax(0, 1fr) auto; }
-  .factrow .acts { grid-column: 1 / -1; justify-self: start; }
-}
-@media (max-width: 480px) {
-  .topbar { padding: 14px 16px; gap: 10px; }
-  .topbar .subtitle { display: none; }
-  .worklog { font-size: 11px; }
-  .steps { flex-wrap: wrap; gap: 8px; }
-  .steps .conn { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0ms !important;
-    transition-duration: 0.01ms !important;
-  }
-  html { scroll-behavior: auto; }
-}
-</style>
-</head>
-<body>
-
-<!-- ======================= mockup switcher ======================= -->
-<nav class="switcher" aria-label="Mockup screens">
-  <div class="sw-head">Ledgerline · screens</div>
-  <a class="sw" href="#s3"><span class="n">3</span><span class="lbl">Entities</span></a>
-  <a class="sw" href="#s4"><span class="n">4</span><span class="lbl">Reconcile</span></a>
-  <a class="sw" href="#s5"><span class="n">5</span><span class="lbl">Complete</span></a>
-  <a class="sw" href="#s6"><span class="n">6</span><span class="lbl">Resume</span></a>
-  <a class="sw" href="#s7"><span class="n">7</span><span class="lbl">Gaps</span></a>
-  <a class="sw" href="#s8"><span class="n">8</span><span class="lbl">Generating</span></a>
-  <a class="sw" href="#s9"><span class="n">9</span><span class="lbl">Finding</span></a>
-  <a class="sw" href="#s10"><span class="n">10</span><span class="lbl">Recommendation</span></a>
-  <a class="sw" href="#s11"><span class="n">11</span><span class="lbl">Profile</span></a>
-  <div class="sw-hint">← → to browse</div>
-</nav>
-
-<div class="app">
-  <!-- ======================= shared product chrome ======================= -->
-  <header class="topbar">
-    <span class="wordmark">Ledgerline</span>
-    <span class="subtitle" id="tb-sub">intake · Szörp Kft.</span>
-    <span class="meta tabular" id="tb-count">8 / 27 core</span>
-  </header>
-  <div class="progress-rail"><div class="progress-fill" id="tb-fill" style="width:30%"></div></div>
-
-  <main>
-
-  <!-- ======================= SCREEN 3 · entity sub-form ======================= -->
-  <section class="screen" id="s3" aria-label="Screen 3 — What do you sell?">
-    <div class="stage">
-      <div class="col" aria-label="Recorded answers">
-        <div class="col-head">Recorded</div>
-        <div class="chip"><span class="q">What's the business called?</span><span class="a">Szörp Kft.</span><span class="tag"><i class="dot"></i>1.1 · owner · stated</span></div>
-        <div class="chip"><span class="q">How long has it been running?</span><span class="a">4 years</span><span class="tag"><i class="dot"></i>1.3 · owner · stated</span></div>
-        <div class="chip"><span class="q">Where does selling happen today?</span><span class="a">Weekend markets · Webshop · Instagram DMs</span><span class="tag"><i class="dot"></i>2.1 · owner · stated</span></div>
-        <div class="chip"><span class="q">Who usually buys?</span><span class="a">Gift shoppers &amp; small delis</span><span class="tag"><i class="dot"></i>2.3 · owner · stated</span></div>
-      </div>
-
-      <div class="centre">
-        <div class="card">
-          <div class="eyebrow">3.1<span class="tier">Core</span></div>
-          <h2 class="prompt">What do you sell?</h2>
-          <p class="help">Just the ones that matter — you can add more later.</p>
-
-          <div class="entity-rows" id="entity-rows">
-            <!-- row 1 — filled, cost recorded, collapsed -->
-            <div class="entity-row">
-              <div class="entity-grid">
-                <input class="field" type="text" value="Szörp 0.5L" aria-label="Product name">
-                <div class="kindgroup" role="group" aria-label="Kind">
-                  <button class="opt opt-compact" type="button" aria-pressed="true">Physical</button>
-                  <button class="opt opt-compact" type="button" aria-pressed="false">Service</button>
-                  <button class="opt opt-compact" type="button" aria-pressed="false">Digital</button>
-                </div>
-                <div class="subfield-money">
-                  <input class="field tabular" type="text" inputmode="numeric" value="4 990" aria-label="Price">
-                  <span class="currency-suffix">HUF</span>
-                </div>
-              </div>
-              <button class="exp" type="button" aria-expanded="false" data-exp>cost recorded · 4 090 HUF</button>
-              <div class="entity-detail" hidden>
-                <span class="lbl">Cost to deliver</span>
-                <div class="subfield-money">
-                  <input class="field tabular" type="text" inputmode="numeric" value="4 090" aria-label="Cost to deliver">
-                  <span class="currency-suffix">HUF</span>
-                </div>
-                <span class="margin-line">margin · 18% · derived</span>
-              </div>
-            </div>
-
-            <!-- row 2 — filled, cost expanded -->
-            <div class="entity-row">
-              <div class="entity-grid">
-                <input class="field" type="text" value="Gift box" aria-label="Product name">
-                <div class="kindgroup" role="group" aria-label="Kind">
-                  <button class="opt opt-compact" type="button" aria-pressed="true">Physical</button>
-                  <button class="opt opt-compact" type="button" aria-pressed="false">Service</button>
-                  <button class="opt opt-compact" type="button" aria-pressed="false">Digital</button>
-                </div>
-                <div class="subfield-money">
-                  <input class="field tabular" type="text" inputmode="numeric" value="12 900" aria-label="Price">
-                  <span class="currency-suffix">HUF</span>
-                </div>
-              </div>
-              <button class="exp" type="button" aria-expanded="true" data-exp>− cost to deliver</button>
-              <div class="entity-detail">
-                <span class="lbl">Cost to deliver</span>
-                <div class="subfield-money">
-                  <input class="field tabular" type="text" inputmode="numeric" value="5 290" aria-label="Cost to deliver">
-                  <span class="currency-suffix">HUF</span>
-                </div>
-                <span class="margin-line">margin · 59% · derived</span>
-              </div>
-            </div>
-
-            <!-- row 3 — partially filled, alive -->
-            <div class="entity-row">
-              <div class="entity-grid">
-                <input class="field" type="text" value="Winter spice 0.5L" aria-label="Product name">
-                <div class="kindgroup" role="group" aria-label="Kind">
-                  <button class="opt opt-compact" type="button" aria-pressed="true">Physical</button>
-                  <button class="opt opt-compact" type="button" aria-pressed="false">Service</button>
-                  <button class="opt opt-compact" type="button" aria-pressed="false">Digital</button>
-                </div>
-                <div class="subfield-money">
-                  <input class="field tabular" type="text" inputmode="numeric" placeholder="e.g. 5 490" aria-label="Price">
-                  <span class="currency-suffix">HUF</span>
-                </div>
-              </div>
-              <button class="exp" type="button" aria-expanded="false" data-exp>+ cost to deliver</button>
-              <div class="entity-detail" hidden>
-                <span class="lbl">Cost to deliver</span>
-                <div class="subfield-money">
-                  <input class="field tabular" type="text" inputmode="numeric" placeholder="0" aria-label="Cost to deliver">
-                  <span class="currency-suffix">HUF</span>
-                </div>
-                <span class="margin-line">margin · — · derived</span>
-              </div>
-            </div>
-          </div>
-
-          <button class="ghost add-row" type="button" id="add-row">+ Add another product</button>
-          <div class="mono-note count-line" id="entity-count">3 recorded · 2 with costs</div>
-
-          <div class="row">
-            <button class="next" type="button">Record these</button>
-            <button class="ghost" type="button">Skip for now</button>
-            <span class="hint">Enter to continue</span>
-          </div>
-        </div>
-
-        <div class="ondeck"><span class="lbl">Next</span><span class="ondeck-text">Where do these get sold?</span></div>
-      </div>
-
-      <div class="col" aria-label="Recorded answers">
-        <div class="col-head">&nbsp;</div>
-        <div class="chip"><span class="q">What does the business make?</span><span class="a">Elderflower syrup, small batch</span><span class="tag"><i class="dot"></i>1.2 · owner · stated</span></div>
-        <div class="chip"><span class="q">Where is it based?</span><span class="a">Veszprém, Hungary</span><span class="tag"><i class="dot"></i>1.4 · owner · stated</span></div>
-        <div class="chip"><span class="q">Does anyone else work in it?</span><span class="a">Eszter + one part-timer</span><span class="tag"><i class="dot"></i>1.5 · owner · stated</span></div>
-        <div class="chip"><span class="q">Main supplier?</span><span class="a">Bakonyi Gyümölcs Kft.</span><span class="tag"><i class="dot"></i>2.4 · owner · stated</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ======================= SCREEN 4 · reconcile ======================= -->
-  <section class="screen" id="s4" aria-label="Screen 4 — Reconcile contradiction">
-    <div class="stage">
-      <div class="col" aria-label="Recorded answers">
-        <div class="col-head">Recorded</div>
-        <div class="chip chip-flagged"><span class="q">Gross margin</span><span class="a">About 40%</span><span class="tag"><i class="dot"></i>5.3a · owner · stated</span></div>
-        <div class="chip"><span class="q">Monthly revenue, typical</span><span class="a">≈ 4 500 000 HUF</span><span class="tag"><i class="dot"></i>4.1a · owner · estimate · 0.55</span></div>
-        <div class="chip"><span class="q">Orders in a typical month</span><span class="a">≈ 310</span><span class="tag"><i class="dot"></i>4.3 · owner · estimate</span></div>
-        <div class="chip"><span class="q">Webshop platform</span><span class="a">Shopify</span><span class="tag"><i class="dot"></i>6.1 · owner · stated</span></div>
-      </div>
-
-      <div class="centre">
-        <div class="card">
-          <div class="eyebrow">7.2<span class="tier">Important</span></div>
-          <h2 class="prompt">About how much goes to ads in a month?</h2>
-          <p class="help">Instagram boosts, Google, market fees — a rough monthly figure is plenty.</p>
-          <div class="money-wrap">
-            <input class="field tabular" type="text" inputmode="numeric" placeholder="e.g. 120 000" aria-label="Monthly ad spend">
-            <span class="money-cur">HUF</span>
-          </div>
-          <div class="row">
-            <button class="next" type="button">Record answer</button>
-            <button class="ghost" type="button">Skip for now</button>
-            <span class="hint">Enter ↵</span>
-          </div>
-        </div>
-
-        <div class="reconcile" role="note" aria-label="Open contradiction">
-          <div class="reconcile-eyebrow"><i class="dot ember"></i>Margin_mismatch · Contradiction</div>
-          <h3>Help me reconcile these two</h3>
-          <p class="reconcile-both">You told me your gross margin is about 40%. Your product prices and costs work out to about 23%.</p>
-          <p class="reconcile-tagline">Both can be true — I'd rather ask than assume.</p>
-          <div class="reconcile-actions">
-            <button class="ghost" type="button">Both are right</button>
-            <button class="ghost" type="button">Let me fix one</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col" aria-label="Recorded answers">
-        <div class="col-head">&nbsp;</div>
-        <div class="chip chip-flagged"><span class="q">Product costs</span><span class="a">5 products · 3 with costs</span><span class="tag"><i class="dot"></i>3.1 · owner · stated</span></div>
-        <div class="chip"><span class="q">Best-selling product</span><span class="a">Szörp 0.5L · 4 990 HUF</span><span class="tag"><i class="dot"></i>3.1 · owner · stated</span></div>
-        <div class="chip"><span class="q">Gift box price</span><span class="a">12 900 HUF</span><span class="tag"><i class="dot"></i>3.1 · owner · stated</span></div>
-        <div class="chip"><span class="q">Sales channels</span><span class="a">Markets · Webshop · Instagram DMs</span><span class="tag"><i class="dot"></i>2.1 · owner · stated</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ======================= SCREEN 5 · intake complete ======================= -->
-  <section class="screen" id="s5" aria-label="Screen 5 — Intake complete">
-    <div class="stage">
-      <div class="col" aria-label="Recorded answers">
-        <div class="col-head">Recorded</div>
-        <div class="chip"><span class="q">What's the business called?</span><span class="a">Szörp Kft.</span><span class="tag"><i class="dot"></i>1.1 · owner · stated</span></div>
-        <div class="chip"><span class="q">Monthly revenue, typical</span><span class="a">≈ 4 500 000 HUF</span><span class="tag"><i class="dot"></i>4.1a · owner · estimate · 0.55</span></div>
-        <div class="chip"><span class="q">Gross margin</span><span class="a">About 40%</span><span class="tag"><i class="dot"></i>5.3a · owner · stated</span></div>
-        <div class="chip"><span class="q">Monthly ad spend</span><span class="a">Skipped for now</span><span class="tag"><i class="dot thin"></i>8.1a · skipped</span></div>
-      </div>
-
-      <div class="centre">
-        <div class="card done">
-          <div class="eyebrow">Intake<span class="tier">Complete</span></div>
-          <h2>That's enough to start.</h2>
-          <p>I have what I need for a first read on the business. The deeper questions get easier once you've seen what I do with these.</p>
-          <div class="readout">
-            answered&nbsp;&nbsp;<strong>23</strong> &nbsp;·&nbsp; gaps to revisit&nbsp;&nbsp;<strong>4</strong><br>
-            profile confidence&nbsp;&nbsp;<strong>good</strong> &nbsp;·&nbsp; next&nbsp;&nbsp;<strong>deciding how carefully to move</strong>
-          </div>
-          <div class="row">
-            <button class="cta-grad" type="button">Start the diagnosis</button>
-            <button class="ghost" type="button">Review my answers first</button>
-          </div>
-        </div>
-
-        <div class="assemble">
-          <div class="tiles">
-            <span class="tile"><i class="dot"></i>identity</span>
-            <span class="tile"><i class="dot"></i>offers</span>
-            <span class="tile"><i class="dot"></i>revenue</span>
-            <span class="tile"><i class="dot thin"></i>costs</span>
-            <span class="tile"><i class="dot"></i>channels</span>
-          </div>
-          <p class="cap">Your profile, assembled from 23 answers — every fact keeps its source.</p>
-        </div>
-      </div>
-
-      <div class="col" aria-label="Recorded answers">
-        <div class="col-head">&nbsp;</div>
-        <div class="chip"><span class="q">5 products recorded</span><span class="a">Szörp 0.5L · 1L · Gift box · more</span><span class="tag"><i class="dot"></i>3.1 · owner · stated</span></div>
-        <div class="chip"><span class="q">Orders in a typical month</span><span class="a">≈ 310</span><span class="tag"><i class="dot"></i>4.3 · owner · estimate</span></div>
-        <div class="chip"><span class="q">Main supplier</span><span class="a">Bakonyi Gyümölcs Kft.</span><span class="tag"><i class="dot"></i>2.4 · owner · stated</span></div>
-        <div class="chip"><span class="q">Webshop platform</span><span class="a">Shopify</span><span class="tag"><i class="dot"></i>6.1 · owner · stated</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ======================= SCREEN 6 · resume ======================= -->
-  <section class="screen" id="s6" aria-label="Screen 6 — Welcome back">
-    <div class="solo">
-      <div class="card">
-        <div class="eyebrow">Welcome back · 2 days since your last answer</div>
-        <h2>Ready when you are.</h2>
-        <p class="body">You've recorded 12 of 27 core answers — about 9 minutes of work so far. Nothing was lost.</p>
-
-        <div class="paused">
-          <div class="nextup"><i class="dot ember"></i>next up</div>
-          <div class="pq"><span class="qn">4.2</span>About how much does the business make in a typical month?</div>
-        </div>
-
-        <div class="row" style="margin-top:0">
-          <button class="next" type="button">Pick up where I left off</button>
-          <button class="ghost" type="button">Show me what you have so far</button>
-        </div>
-      </div>
-
-      <div class="ministrip" aria-label="Recorded so far">
-        <span class="minichip"><i class="dot"></i>Szörp Kft.</span>
-        <span class="minichip"><i class="dot"></i>4 years</span>
-        <span class="minichip"><i class="dot"></i>5 products</span>
-        <span class="minichip"><i class="dot"></i>3 channels</span>
-        <span class="minichip more">+8 more</span>
-      </div>
-      <div class="solo-foot">your answers · 12 recorded · each with its source</div>
-    </div>
-  </section>
-
-  <!-- ======================= SCREEN 7 · data gaps ======================= -->
-  <section class="screen" id="s7" aria-label="Screen 7 — What I still don't know">
-    <div class="gaps-wrap">
-      <header class="page-head">
-        <h1>What I still don't know</h1>
-        <p class="sub">Four gaps limit how far the diagnosis can see. None of them block it.</p>
-      </header>
-
-      <div class="gap-rows">
-        <div class="gap-row">
-          <div class="gap-title"><i class="dot thin"></i>Monthly ad spend</div>
-          <div class="gap-prov">8.1a · skipped · will revisit</div>
-          <p class="gap-why">Without this I can't tell whether your marketing pays for itself.</p>
-          <button class="ghost" type="button">Answer now · 1 min</button>
-        </div>
-        <div class="gap-row">
-          <div class="gap-title"><i class="dot thin"></i>Cost to deliver an order</div>
-          <div class="gap-prov">8.2 · skipped · will revisit</div>
-          <p class="gap-why">Shipping eats margin quietly — right now I'm guessing at webshop profitability.</p>
-          <button class="ghost" type="button">Answer now · 1 min</button>
-        </div>
-        <div class="gap-row">
-          <div class="gap-title"><i class="dot thin"></i>Returning-customer share</div>
-          <div class="gap-prov">7.4 · skipped · will revisit</div>
-          <p class="gap-why">I can see revenue, but not whether the same people keep coming back.</p>
-          <button class="ghost" type="button">Answer now · 1 min</button>
-        </div>
-        <div class="gap-row">
-          <div class="gap-title"><i class="dot thin"></i>Webshop conversion rate</div>
-          <div class="gap-prov">9.2 · unknown · owner answered "don't know"</div>
-          <p class="gap-why">Most owners don't know this one offhand — Shopify can tell us, whenever you're ready.</p>
-          <button class="ghost" type="button">Answer with help · 2 min</button>
-        </div>
-        <p class="gap-foot">A gap is a finding, not a failure.</p>
-      </div>
-
-      <aside class="completeness" aria-label="Profile completeness">
-        <div class="big">good</div>
-        <div class="big-lbl">profile confidence</div>
-        <div class="break-rows">
-          <div class="break-row">
-            <div class="k"><span>core</span><span>23 / 27</span></div>
-            <div class="break-bar"><i style="width:85%"></i></div>
-          </div>
-          <div class="break-row">
-            <div class="k"><span>important</span><span>6 / 14</span></div>
-            <div class="break-bar"><i style="width:43%"></i></div>
-          </div>
-          <div class="break-row">
-            <div class="k"><span>deep</span><span>0 / 12</span></div>
-            <div class="break-bar"><i style="width:0%"></i></div>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </section>
-
-  <!-- ======================= SCREEN 8 · report generating ======================= -->
-  <section class="screen" id="s8" aria-label="Screen 8 — Reading your business">
-    <div class="gen-wrap">
-      <div class="card">
-        <div class="eyebrow">Diagnosis · Running</div>
-        <h2>Reading your business.</h2>
-
-        <ol class="steps" id="gen-steps" aria-label="Diagnosis stages">
-          <li class="step" data-step="0"><i class="nd"></i>Read</li>
-          <li class="conn" aria-hidden="true"></li>
-          <li class="step" data-step="1"><i class="nd"></i>Compute</li>
-          <li class="conn" aria-hidden="true"></li>
-          <li class="step" data-step="2"><i class="nd"></i>Check</li>
-          <li class="conn" aria-hidden="true"></li>
-          <li class="step" data-step="3"><i class="nd"></i>Write</li>
-        </ol>
-
-        <div class="worklog" id="worklog" aria-live="polite"></div>
-
-        <p class="gen-note">This takes about a minute of real work. You can leave — I'll send the report when it's ready.</p>
-        <div class="row" style="margin-top:16px">
-          <button class="ghost" type="button">Notify me instead</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ======================= SCREEN 9 · finding detail ======================= -->
-  <section class="screen" id="s9" aria-label="Screen 9 — Finding detail">
-    <article class="report">
-      <div class="crumb">report / finding 1 of 3</div>
-      <div class="pillrow">
-        <span class="status-pill sev"><i class="dot ember"></i>High · Margin</span>
-        <span class="status-pill">Contradiction carried</span>
-      </div>
-      <h1>Your best-selling product is your least profitable.</h1>
-      <p class="lead">Szörp 0.5L brings in more orders than everything else you make, but after bottling and delivery it keeps just 18% of its price. Every other product in the range earns at least twice that.</p>
-
-      <div class="sect">The evidence</div>
-      <div class="facts">
-        <div class="fact">
-          <span class="fl">Szörp 0.5L price</span>
-          <span class="fv">4 990 HUF</span>
-          <span class="fp">3.1 · owner · stated · 0.90</span>
-        </div>
-        <div class="fact">
-          <span class="fl">Cost to make &amp; deliver</span>
-          <span class="fv">4 090 HUF</span>
-          <span class="fp">3.1a · owner · stated · 0.75</span>
-        </div>
-        <div class="fact">
-          <span class="fl">Units sold in a typical month</span>
-          <span class="fv">≈ 282</span>
-          <span class="fp">4.3a · derived from orders · 0.55</span>
-        </div>
-        <div class="fact">
-          <span class="fl">Gross margin, as you stated it</span>
-          <span class="fv">40%</span>
-          <span class="fp">5.3a · owner · stated · 0.60 · open contradiction</span>
-        </div>
-        <div class="fact derived">
-          <span class="fl">margin = (price − cost) / price → 18%</span>
-          <span class="fv">18%</span>
-          <span class="fp">derived · min(inputs) × 0.9 → 0.68</span>
-        </div>
-      </div>
-
-      <div class="sect">What it costs you</div>
-      <div class="statcard">
-        <div class="big">≈ 310 000 HUF <small>/ month left on the table</small></div>
-        <div class="deriv">(0.40 stated − 0.18 computed) × 4 990 × 282 → 309 581 / mo · rounded</div>
-      </div>
-
-      <div class="row">
-        <button class="next" type="button">See the recommendation</button>
-        <button class="ghost" type="button">I think this is wrong</button>
-        <span class="foot-note">finding recorded · decision log #214</span>
-      </div>
-    </article>
-  </section>
-
-  <!-- ======================= SCREEN 10 · recommendation ======================= -->
-  <section class="screen" id="s10" aria-label="Screen 10 — Recommendation detail">
-    <article class="report">
-      <div class="crumb">report / finding 1 / recommendation</div>
-      <h1>Raise the 0.5L price to 5 990.</h1>
-      <p class="scenario">At 4 990 the bottle barely covers its own costs. At 5 990 it earns like the rest of your range — and it still sits below what gift shoppers pay for comparable Hungarian craft syrup.</p>
-
-      <div class="sect">The assumptions</div>
-      <div class="assump">
-        <span class="al">Cost to make &amp; deliver stays</span>
-        <span class="av">4 090 HUF</span>
-        <span class="ap">owner · stated</span>
-        <button class="ghost quiet" type="button">adjust</button>
-      </div>
-      <div class="assump">
-        <span class="al">Comparable craft syrup, 0.5L</span>
-        <span class="av">5 500 – 7 200 HUF</span>
-        <span class="ap">benchmark · hungarian food-craft · 0.5</span>
-        <button class="ghost quiet" type="button">adjust</button>
-      </div>
-      <div class="assump">
-        <span class="al">Worst-case volume drop</span>
-        <span class="av">−8%</span>
-        <span class="ap">benchmark · hungarian food-craft · 0.5</span>
-        <button class="ghost quiet" type="button">adjust</button>
-      </div>
-
-      <div class="sect">What changes</div>
-      <div class="compare">
-        <div class="comp-col">
-          <div class="ch">Today</div>
-          <div class="comp-row"><span class="ck">price</span><span class="cv">4 990 <small>HUF</small></span></div>
-          <div class="comp-row"><span class="ck">margin</span><span class="cv">18%</span></div>
-          <div class="comp-row"><span class="ck">0.5L revenue / mo</span><span class="cv">1 407 000 <small>HUF</small></span></div>
-        </div>
-        <div class="comp-col approve">
-          <div class="ch"><i class="dot ember"></i>If you approve</div>
-          <div class="comp-row"><span class="ck">price</span><span class="cv">5 990 <small>HUF</small></span></div>
-          <div class="comp-row"><span class="ck">margin</span><span class="cv">32%</span></div>
-          <div class="comp-row"><span class="ck">at −8% volume, worst case</span><span class="cv">1 554 000 <small>HUF</small></span></div>
-        </div>
-      </div>
-      <p class="honesty">If volume drops more than 14%, this loses money — I'll watch for that.</p>
-
-      <div class="row">
-        <button class="next" type="button">Approve — raise the price</button>
-        <button class="ghost" type="button">Not now</button>
-        <button class="textlink" type="button">Never suggest this again</button>
-      </div>
-      <p class="foot-note" style="margin-left:0;margin-top:14px">your decision writes to the log · nothing executes without you</p>
-    </article>
-  </section>
-
-  <!-- ======================= SCREEN 11 · business profile ======================= -->
-  <section class="screen" id="s11" aria-label="Screen 11 — Business profile">
-    <div class="prof-wrap">
-      <header class="prof-head">
-        <h1>Everything I know</h1>
-        <p class="sub">214 facts. Every one can say where it came from. Change anything — the old value stays in the history.</p>
-      </header>
-
-      <nav class="section-rail" aria-label="Profile sections">
-        <a class="rail-item" href="#s11"><i class="dot"></i>identity<span class="cnt">9/9</span></a>
-        <a class="rail-item" href="#s11"><i class="dot"></i>offers<span class="cnt">12/12</span></a>
-        <a class="rail-item" href="#s11" aria-current="true"><i class="dot"></i>revenue<span class="cnt">6/6</span></a>
-        <a class="rail-item" href="#s11"><i class="dot thin"></i>costs<span class="cnt">4/9</span></a>
-        <a class="rail-item" href="#s11"><i class="dot"></i>channels<span class="cnt">5/5</span></a>
-        <a class="rail-item" href="#s11"><i class="dot thin"></i>customers<span class="cnt">3/7</span></a>
-        <a class="rail-item" href="#s11"><i class="dot thin"></i>operations<span class="cnt">2/6</span></a>
-        <a class="rail-item" href="#s11"><i class="dot thin"></i>team<span class="cnt">1/3</span></a>
-      </nav>
-
-      <div class="prof-main">
-        <div class="prof-bar">
-          <h2>Revenue</h2>
-          <span class="count">6 facts</span>
-          <label class="search">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <span class="sr-only">Search facts</span>
-            <input type="search" placeholder="Search facts…">
-          </label>
-        </div>
-
-        <div class="factlist">
-          <div class="factrow" data-q="4.1a" data-value="4 500 000 HUF">
-            <span class="lab">Monthly revenue, typical <span class="est-pill">Estimate</span></span>
-            <span class="val">4 500 000 HUF</span>
-            <span class="prov">4.1a · owner · estimate · 0.55 · 21 aug 2026</span>
-            <span class="acts"><button class="rowlink" type="button" data-change>change</button></span>
-          </div>
-
-          <div class="factrow" data-q="4.3" data-value="≈ 310" data-open>
-            <span class="lab">Orders in a typical month</span>
-            <span class="val">≈ 310</span>
-            <span class="prov">4.3 · owner · estimate · 0.55 · 21 aug 2026</span>
-            <span class="acts"><button class="rowlink" type="button" data-change>change</button></span>
-          </div>
-
-          <div class="factrow" data-q="4.2c" data-value="14 516 HUF">
-            <span class="lab">Average order value</span>
-            <span class="val">14 516 HUF</span>
-            <span class="prov">4.2c · derived · revenue / orders · 0.50 · 21 aug 2026</span>
-            <span class="acts"><button class="rowlink" type="button" data-change>change</button></span>
-          </div>
-
-          <div class="factrow" data-q="4.4" data-value="35%">
-            <span class="lab">Webshop share of revenue</span>
-            <span class="val">35%</span>
-            <span class="prov">4.4 · owner · stated · 0.80 · 22 aug 2026</span>
-            <span class="acts"><button class="rowlink" type="button" data-history>history (2)</button><button class="rowlink" type="button" data-change>change</button></span>
-          </div>
-
-          <div class="factrow" data-q="4.5" data-value="380 000 HUF">
-            <span class="lab">Typical market-day take</span>
-            <span class="val">380 000 HUF</span>
-            <span class="prov">4.5 · owner · estimate · 0.55 · 21 aug 2026</span>
-            <span class="acts"><button class="rowlink" type="button" data-change>change</button></span>
-          </div>
-
-          <div class="factrow" data-q="4.6" data-value="December · gift boxes">
-            <span class="lab">Best month of the year</span>
-            <span class="val">December · gift boxes</span>
-            <span class="prov">4.6 · owner · stated · 0.85 · 21 aug 2026</span>
-            <span class="acts"><button class="rowlink" type="button" data-change>change</button></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  </main>
-</div>
-
-<script>
-(function () {
-  "use strict";
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  /* ---------- screen switching ---------- */
-  var ORDER = ["s3","s4","s5","s6","s7","s8","s9","s10","s11"];
-  var CHROME = {
-    s3:  { sub: "intake · Szörp Kft.",    count: "8 / 27 core",  frac: 8/27 },
-    s4:  { sub: "intake · Szörp Kft.",    count: "14 / 27 core", frac: 14/27 },
-    s5:  { sub: "intake · Szörp Kft.",    count: "23 / 27 core", frac: 23/27 },
-    s6:  { sub: "intake · Szörp Kft.",    count: "12 / 27 core", frac: 12/27 },
-    s7:  { sub: "profile · Szörp Kft.",   count: "23 / 27 core", frac: 23/27 },
-    s8:  { sub: "diagnosis · Szörp Kft.", count: "23 / 27 core", frac: 23/27 },
-    s9:  { sub: "report · Szörp Kft.",    count: "23 / 27 core", frac: 23/27 },
-    s10: { sub: "report · Szörp Kft.",    count: "23 / 27 core", frac: 23/27 },
-    s11: { sub: "profile · Szörp Kft.",   count: "23 / 27 core", frac: 23/27 }
-  };
-  var tbSub = document.getElementById("tb-sub");
-  var tbCount = document.getElementById("tb-count");
-  var tbFill = document.getElementById("tb-fill");
-  var current = null;
-
-  function show(id) {
-    if (ORDER.indexOf(id) === -1) id = "s3";
-    if (id === current) return;
-    current = id;
-    ORDER.forEach(function (sid) {
-      var el = document.getElementById(sid);
-      el.classList.toggle("active", sid === id);
-    });
-    document.querySelectorAll(".switcher .sw").forEach(function (a) {
-      var on = a.getAttribute("href") === "#" + id;
-      if (on) { a.setAttribute("aria-current", "true"); } else { a.removeAttribute("aria-current"); }
-    });
-    var c = CHROME[id];
-    tbSub.textContent = c.sub;
-    tbCount.textContent = c.count;
-    tbFill.style.width = (c.frac * 100).toFixed(1) + "%";
-    window.scrollTo(0, 0);
-    if (id === "s8") { playLog(); } else { stopLog(); }
-  }
-
-  function fromHash() {
-    show((location.hash || "#s3").slice(1));
-  }
-  window.addEventListener("hashchange", fromHash);
-
-  window.addEventListener("keydown", function (e) {
-    var t = e.target;
-    if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
-    var i = ORDER.indexOf(current);
-    if (e.key === "ArrowRight" && i < ORDER.length - 1) { location.hash = "#" + ORDER[i + 1]; }
-    if (e.key === "ArrowLeft" && i > 0) { location.hash = "#" + ORDER[i - 1]; }
-  });
-
-  /* ---------- screen 3: kind pills, cost expanders, add row ---------- */
-  document.addEventListener("click", function (e) {
-    var kbtn = e.target.closest(".kindgroup .opt");
-    if (kbtn) {
-      kbtn.parentElement.querySelectorAll(".opt").forEach(function (b) {
-        b.setAttribute("aria-pressed", b === kbtn ? "true" : "false");
-      });
-      return;
-    }
-    var exp = e.target.closest("[data-exp]");
-    if (exp) {
-      var open = exp.getAttribute("aria-expanded") === "true";
-      var detail = exp.parentElement.querySelector(".entity-detail");
-      exp.setAttribute("aria-expanded", open ? "false" : "true");
-      if (open) {
-        detail.hidden = true;
-        if (!exp.dataset.label) exp.textContent = "+ cost to deliver";
-        else exp.textContent = exp.dataset.label;
-      } else {
-        if (exp.textContent.indexOf("+") === 0 || exp.textContent.indexOf("cost recorded") === 0) {
-          exp.dataset.label = exp.textContent;
-        }
-        detail.hidden = false;
-        exp.textContent = "− cost to deliver";
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        z-index: -1;
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(80px);
       }
-    }
-  });
-
-  var addRow = document.getElementById("add-row");
-  if (addRow) {
-    addRow.addEventListener("click", function () {
-      var rows = document.getElementById("entity-rows");
-      var tpl = rows.children[rows.children.length - 1].cloneNode(true);
-      tpl.querySelectorAll("input").forEach(function (inp) { inp.value = ""; });
-      tpl.querySelector('input[aria-label="Product name"]').placeholder = "Product name";
-      tpl.querySelectorAll(".kindgroup .opt").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
-      var exp = tpl.querySelector("[data-exp]");
-      exp.setAttribute("aria-expanded", "false");
-      exp.textContent = "+ cost to deliver";
-      delete exp.dataset.label;
-      tpl.querySelector(".entity-detail").hidden = true;
-      rows.appendChild(tpl);
-      tpl.querySelector("input").focus();
-    });
-  }
-
-  /* ---------- screen 8: work-log replay ---------- */
-  var LOG = [
-    { t: "00:04", text: "reading 214 recorded facts", step: 0 },
-    { t: "00:11", text: "computing unit economics for 5 offers", step: 1 },
-    { t: "00:19", text: "szörp 0.5l · margin 18% · flag", step: 1 },
-    { t: "00:27", text: "checking 9 consistency rules · 1 open contradiction carried in", step: 2 },
-    { t: "00:41", text: "comparing against 34 hungarian food-craft benchmarks", step: 2 },
-    { t: "00:58", text: "drafting finding 2 of 3…", step: 3 }
-  ];
-  var logTimers = [];
-  function stopLog() { logTimers.forEach(clearTimeout); logTimers = []; }
-
-  function renderLine(entry, isCurrent) {
-    var div = document.createElement("div");
-    div.className = "logline" + (isCurrent ? " current" : "");
-    div.innerHTML =
-      '<i class="dot ' + (isCurrent ? "ember" : "") + '"></i>' +
-      '<span class="ts">' + entry.t + "</span>" +
-      "<span>" + entry.text + "</span>";
-    return div;
-  }
-  function setSteps(activeStep, allPrevDone) {
-    var steps = document.querySelectorAll("#gen-steps .step");
-    var conns = document.querySelectorAll("#gen-steps .conn");
-    steps.forEach(function (s, i) {
-      s.classList.toggle("done", i < activeStep);
-      s.classList.toggle("active", i === activeStep);
-    });
-    conns.forEach(function (c, i) {
-      c.classList.toggle("lit", i < activeStep);
-    });
-  }
-  function playLog() {
-    stopLog();
-    var log = document.getElementById("worklog");
-    log.innerHTML = "";
-    if (reduced) {
-      LOG.forEach(function (entry, i) {
-        log.appendChild(renderLine(entry, i === LOG.length - 1));
-      });
-      setSteps(3);
-      return;
-    }
-    setSteps(0);
-    LOG.forEach(function (entry, i) {
-      logTimers.push(setTimeout(function () {
-        var prev = log.querySelector(".logline.current");
-        if (prev) {
-          prev.classList.remove("current");
-          prev.querySelector(".dot").classList.remove("ember");
-        }
-        log.appendChild(renderLine(entry, true));
-        setSteps(entry.step);
-      }, 500 + i * 900));
-    });
-  }
-
-  /* ---------- screen 11: change / edit rows ---------- */
-  function closeEdit(row) {
-    var f = row.querySelector(".factedit");
-    if (f) f.remove();
-    var link = row.querySelector("[data-change]");
-    if (link) link.textContent = "change";
-  }
-  function openEdit(row) {
-    if (row.querySelector(".factedit")) return;
-    var form = document.createElement("form");
-    form.className = "factedit";
-    form.innerHTML =
-      '<input class="field fe-val tabular" type="text" aria-label="New value" value="' + (row.dataset.value || "") + '">' +
-      '<input class="field fe-why" type="text" aria-label="Reason for change" placeholder="Why change it?">' +
-      '<button class="next" type="submit">Record</button>' +
-      '<button class="ghost quiet" type="button" data-cancel>cancel</button>' +
-      '<span class="mono-note fe-note">old value stays in history · ' + row.dataset.q + "</span>";
-    form.addEventListener("submit", function (ev) {
-      ev.preventDefault();
-      var nv = form.querySelector(".fe-val").value.trim();
-      if (nv) {
-        row.querySelector(".val").textContent = nv;
-        row.querySelector(".prov").textContent = row.dataset.q + " · owner · stated · 0.90 · 23 aug 2026";
-        row.dataset.value = nv;
-        var acts = row.querySelector(".acts");
-        if (!acts.querySelector("[data-history]")) {
-          var h = document.createElement("button");
-          h.className = "rowlink"; h.type = "button";
-          h.setAttribute("data-history", "");
-          h.textContent = "history (2)";
-          acts.insertBefore(h, acts.firstChild);
+      body::before {
+        width: 720px;
+        height: 480px;
+        left: -180px;
+        top: -160px;
+        background: radial-gradient(closest-side, rgba(225, 86, 15, 0.17), transparent);
+        animation: drift-a 26s var(--ease) infinite alternate;
+      }
+      body::after {
+        width: 820px;
+        height: 560px;
+        right: -220px;
+        bottom: -200px;
+        background: radial-gradient(closest-side, rgba(76, 125, 240, 0.12), transparent);
+        animation: drift-b 32s var(--ease) infinite alternate;
+      }
+      @keyframes drift-a {
+        to {
+          transform: translate(60px, 40px) scale(1.08);
         }
       }
-      closeEdit(row);
-    });
-    form.addEventListener("click", function (ev) {
-      if (ev.target.closest("[data-cancel]")) closeEdit(row);
-    });
-    row.appendChild(form);
-    var link = row.querySelector("[data-change]");
-    if (link) link.textContent = "close";
-  }
-  document.addEventListener("click", function (e) {
-    var chg = e.target.closest("[data-change]");
-    if (chg) {
-      var row = chg.closest(".factrow");
-      if (row.querySelector(".factedit")) { closeEdit(row); } else { openEdit(row); }
-    }
-  });
-  var preopen = document.querySelector(".factrow[data-open]");
-  if (preopen) openEdit(preopen);
+      @keyframes drift-b {
+        to {
+          transform: translate(-70px, -50px) scale(1.06);
+        }
+      }
 
-  /* boot */
-  fromHash();
-})();
-</script>
-</body>
+      ::selection {
+        background: rgba(245, 155, 75, 0.28);
+      }
+      ::placeholder {
+        color: rgba(155, 161, 171, 0.55);
+      }
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--raised) transparent;
+      }
+      *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      *::-webkit-scrollbar-thumb {
+        background: var(--raised);
+        border-radius: 4px;
+      }
+      *::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+      .tabular {
+        font-variant-numeric: tabular-nums;
+      }
+      :focus-visible {
+        outline: 2px solid var(--ember);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      /* ---------- mockup switcher (chrome, not product) ---------- */
+      .switcher {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 60;
+        width: 168px;
+        padding: 22px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        background: rgba(10, 11, 13, 0.72);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border-right: 1px solid var(--hair);
+      }
+      .sw-head {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--mut);
+        padding: 0 10px 12px;
+        opacity: 0.8;
+      }
+      .sw {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        color: var(--mut);
+        text-decoration: none;
+        font-size: 12px;
+        transition:
+          color 0.2s var(--ease),
+          background 0.2s var(--ease),
+          border-color 0.2s var(--ease);
+      }
+      .sw .n {
+        font-family: var(--mono);
+        font-size: 11px;
+        width: 2ch;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        flex: none;
+      }
+      .sw:hover {
+        color: var(--ink);
+        background: var(--glass-strong);
+      }
+      .sw[aria-current="true"] {
+        color: var(--ink);
+        background: var(--glass-strong);
+        border-color: var(--hair-2);
+      }
+      .sw[aria-current="true"] .n {
+        color: var(--ember);
+      }
+      .sw-hint {
+        margin-top: auto;
+        padding: 12px 10px 0;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        opacity: 0.6;
+      }
+
+      .app {
+        margin-left: 168px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ---------- shared product chrome ---------- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        padding: 16px 28px;
+        background: rgba(10, 11, 13, 0.55);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border-bottom: 1px solid var(--hair);
+      }
+      .wordmark {
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: -0.01em;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+      }
+      .wordmark::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        background: linear-gradient(135deg, var(--ember), var(--ember-deep));
+      }
+      .topbar .subtitle {
+        font-size: 13px;
+        color: var(--mut);
+      }
+      .topbar .meta {
+        margin-left: auto;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        font-variant-numeric: tabular-nums;
+      }
+      .progress-rail {
+        position: sticky;
+        top: 53px;
+        z-index: 30;
+        height: 1px;
+        background: var(--hair);
+      }
+      .progress-fill {
+        height: 1px;
+        width: 0;
+        background: linear-gradient(90deg, var(--ember-deep), var(--ember));
+        transition: width 0.5s var(--ease);
+        box-shadow: 0 0 12px rgba(245, 155, 75, 0.55);
+      }
+
+      /* ---------- screens ---------- */
+      .screen {
+        display: none;
+      }
+      .screen.active {
+        display: block;
+        animation: fadein 0.3s var(--ease) both;
+      }
+      @keyframes fadein {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* ---------- three-column intake stage ---------- */
+      .stage {
+        display: grid;
+        grid-template-columns: 1fr minmax(360px, 620px) 1fr;
+        gap: 28px;
+        padding: 40px 28px 64px;
+        align-items: start;
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .col {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+      }
+      .col-head {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mut);
+        padding: 0 2px 8px;
+        border-bottom: 1px solid var(--hair);
+        margin-bottom: 4px;
+      }
+      .chip {
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid var(--hair);
+        border-radius: 12px;
+        padding: 11px 14px;
+        text-align: left;
+        animation: settle 0.34s var(--ease) both;
+        transition:
+          border-color 0.24s var(--ease),
+          transform 0.24s var(--ease),
+          background 0.24s var(--ease);
+      }
+      .chip:hover {
+        border-color: var(--hair-2);
+        background: var(--glass-strong);
+        transform: translateY(-1px);
+      }
+      .chip .q {
+        display: block;
+        font-size: 12px;
+        color: var(--mut);
+        line-height: 1.35;
+        margin-bottom: 3px;
+      }
+      .chip .a {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+      }
+      .chip .tag {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        margin-top: 7px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-variant-numeric: tabular-nums;
+      }
+      .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--settled);
+        flex: none;
+      }
+      .dot.thin {
+        background: transparent;
+        border: 1px solid var(--mut);
+      }
+      .dot.ember {
+        background: var(--ember);
+        border: 0;
+      }
+      /* A chip involved in an open finding takes the ember hairline. */
+      .chip-flagged,
+      .chip-flagged:hover {
+        border-color: rgba(245, 155, 75, 0.55);
+      }
+      @keyframes settle {
+        from {
+          opacity: 0;
+          transform: translateY(-12px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      .centre {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding-top: 6px;
+        min-width: 0;
+      }
+      /* Focal card: glass + the ember-edge gradient hairline on a masked ::before. */
+      .card {
+        position: relative;
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid transparent;
+        border-radius: 24px;
+        padding: 30px 30px 26px;
+        animation: rise 0.38s var(--ease) both;
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(
+          135deg,
+          rgba(225, 86, 15, 0.65),
+          rgba(255, 255, 255, 0.09) 42%,
+          rgba(255, 255, 255, 0.07) 62%,
+          rgba(76, 125, 240, 0.45)
+        );
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(28px) scale(0.99);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      /* plain glass card — no ember edge */
+      .card.plain::before {
+        display: none;
+      }
+      .card.plain {
+        border-color: var(--hair);
+        border-radius: 16px;
+      }
+
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--ember);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+      .eyebrow .tier {
+        color: var(--mut);
+        border: 1px solid var(--hair-2);
+        border-radius: 999px;
+        padding: 2px 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 10px;
+      }
+      .prompt {
+        font-weight: 600;
+        font-size: 27px;
+        line-height: 1.2;
+        letter-spacing: -0.015em;
+        margin: 0 0 10px;
+      }
+      .help {
+        font-size: 14px;
+        color: var(--mut);
+        margin: 0 0 22px;
+        max-width: 50ch;
+      }
+
+      .field {
+        width: 100%;
+        font: inherit;
+        color: inherit;
+        background: var(--glass-strong);
+        border: 1px solid var(--hair);
+        border-radius: 12px;
+        padding: 12px 16px;
+        outline: none;
+        transition:
+          border-color 0.24s var(--ease),
+          box-shadow 0.24s var(--ease);
+      }
+      .field:focus {
+        border-color: var(--ember);
+        box-shadow: 0 0 0 3px rgba(245, 155, 75, 0.22);
+      }
+      .field:focus-visible {
+        outline: none;
+      }
+      .money-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .money-wrap .field {
+        flex: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .money-cur {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        color: var(--ink);
+        flex: none;
+      }
+      .mono-note {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* pills */
+      .opt {
+        font: inherit;
+        font-size: 14px;
+        background: var(--glass-strong);
+        color: inherit;
+        cursor: pointer;
+        border: 1px solid var(--hair-2);
+        border-radius: 999px;
+        padding: 9px 16px;
+        transition:
+          border-color 0.18s var(--ease),
+          background 0.18s var(--ease),
+          color 0.18s var(--ease),
+          transform 0.18s var(--ease);
+      }
+      .opt:hover {
+        border-color: var(--mut);
+        transform: translateY(-1px);
+      }
+      .opt[aria-pressed="true"] {
+        border-color: var(--ember);
+        background: var(--ember);
+        color: var(--on-ember);
+        font-weight: 600;
+        transition-duration: 0.06s;
+      }
+      .opt-compact {
+        font-size: 12px;
+        padding: 5px 11px;
+        min-height: 28px;
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+      }
+      .next {
+        font: inherit;
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        background: var(--ember);
+        color: var(--on-ember);
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 24px;
+        min-height: 44px;
+        transition:
+          background 0.24s var(--ease),
+          transform 0.24s var(--ease),
+          box-shadow 0.24s var(--ease);
+      }
+      .next:hover:not(:disabled) {
+        background: var(--ember-bright);
+        transform: translateY(-1px);
+        box-shadow: 0 0 24px rgba(245, 155, 75, 0.35);
+      }
+      .next:active:not(:disabled) {
+        transform: translateY(0);
+      }
+      .ghost {
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        background: transparent;
+        border: 1px solid var(--hair-2);
+        border-radius: 999px;
+        color: var(--ink);
+        cursor: pointer;
+        padding: 11px 20px;
+        min-height: 44px;
+        transition:
+          background 0.24s var(--ease),
+          border-color 0.24s var(--ease),
+          transform 0.24s var(--ease);
+      }
+      .ghost:hover:not(:disabled) {
+        background: var(--raised);
+        transform: translateY(-1px);
+      }
+      .ghost.quiet {
+        border: 0;
+        min-height: 0;
+        padding: 6px 8px;
+        font-weight: 400;
+        color: var(--mut);
+      }
+      .ghost.quiet:hover:not(:disabled) {
+        background: transparent;
+        color: var(--ink);
+        transform: none;
+      }
+      .hint {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        margin-left: auto;
+      }
+
+      /* the one gradient CTA in the whole product — screen 5 only */
+      .cta-grad {
+        font: inherit;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        background: linear-gradient(100deg, var(--whisper), var(--ember) 78%);
+        color: var(--on-ember);
+        border: 0;
+        border-radius: 999px;
+        padding: 14px 30px;
+        min-height: 48px;
+        transition:
+          transform 0.24s var(--ease),
+          box-shadow 0.24s var(--ease),
+          filter 0.24s var(--ease);
+      }
+      .cta-grad:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+        box-shadow: 0 0 28px rgba(245, 155, 75, 0.35);
+      }
+      .cta-grad:active {
+        transform: translateY(0);
+      }
+
+      /* on-deck */
+      .ondeck {
+        border: 1px dashed var(--hair-2);
+        border-radius: 16px;
+        padding: 14px 18px;
+        font-size: 13px;
+        color: var(--mut);
+        animation: float 7s ease-in-out infinite alternate;
+      }
+      @keyframes float {
+        from {
+          transform: translateY(0);
+        }
+        to {
+          transform: translateY(-5px);
+        }
+      }
+      .ondeck .lbl {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      /* ---------- screen 3 · entity sub-form ---------- */
+      .entity-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .entity-row {
+        background: var(--glass-strong);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        padding: 14px 16px 12px;
+        transition: border-color 0.24s var(--ease);
+      }
+      .entity-row:hover {
+        border-color: var(--hair-2);
+      }
+      .entity-grid {
+        display: grid;
+        grid-template-columns: minmax(150px, 1.2fr) auto minmax(130px, 0.9fr);
+        gap: 10px 16px;
+        align-items: center;
+      }
+      .entity-grid .field {
+        background: rgba(10, 11, 13, 0.45);
+        padding: 10px 14px;
+      }
+      .kindgroup {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+      .subfield-money {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .subfield-money .field {
+        flex: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .currency-suffix {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+      }
+      .entity-detail {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px dashed var(--hair);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        animation: fadein 0.24s var(--ease) both;
+      }
+      .entity-detail[hidden] {
+        display: none;
+      }
+      .entity-detail .field {
+        max-width: 170px;
+        background: rgba(10, 11, 13, 0.45);
+        padding: 10px 14px;
+      }
+      .entity-detail .lbl {
+        font-size: 13px;
+        color: var(--mut);
+        flex: none;
+      }
+      .margin-line {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--ember);
+        font-variant-numeric: tabular-nums;
+        margin-left: auto;
+      }
+      .exp {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        background: transparent;
+        border: 0;
+        color: var(--mut);
+        cursor: pointer;
+        padding: 8px 2px 2px;
+        margin-top: 2px;
+        transition: color 0.2s var(--ease);
+        font-variant-numeric: tabular-nums;
+      }
+      .exp:hover {
+        color: var(--ink);
+      }
+      .exp[aria-expanded="true"] {
+        color: var(--ink);
+      }
+      .add-row {
+        align-self: flex-start;
+        margin-top: 14px;
+      }
+      .count-line {
+        margin-top: 12px;
+      }
+
+      /* ---------- screen 4 · reconcile ---------- */
+      .reconcile {
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid rgba(245, 155, 75, 0.35);
+        border-radius: 16px;
+        padding: 20px 22px 18px;
+        animation: rise 0.38s var(--ease) both;
+        animation-delay: 0.08s;
+      }
+      .reconcile-eyebrow {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mut);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .reconcile h3 {
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin: 0 0 8px;
+      }
+      .reconcile-both {
+        font-size: 14px;
+        color: var(--ink);
+        margin: 0 0 6px;
+        max-width: 56ch;
+      }
+      .reconcile-tagline {
+        font-size: 13px;
+        color: var(--mut);
+        font-style: italic;
+        margin: 0 0 14px;
+      }
+      .reconcile-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      /* ---------- screen 5 · done ---------- */
+      .done h2 {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0 0 10px;
+        letter-spacing: -0.015em;
+      }
+      .done > p {
+        font-size: 15px;
+        color: var(--mut);
+        max-width: 48ch;
+        margin: 0;
+      }
+      .readout {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        border-top: 1px solid var(--hair);
+        margin-top: 20px;
+        padding-top: 16px;
+        line-height: 2.1;
+        font-variant-numeric: tabular-nums;
+      }
+      .readout strong {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .assemble {
+        margin-top: 4px;
+        text-align: center;
+      }
+      .tiles {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .tile {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid var(--hair);
+        border-radius: 12px;
+        padding: 9px 14px;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--ink);
+        animation: tile-in 0.38s var(--ease) both;
+      }
+      .tile:nth-child(1) {
+        animation-delay: 0.25s;
+      }
+      .tile:nth-child(2) {
+        animation-delay: 0.35s;
+      }
+      .tile:nth-child(3) {
+        animation-delay: 0.45s;
+      }
+      .tile:nth-child(4) {
+        animation-delay: 0.55s;
+      }
+      .tile:nth-child(5) {
+        animation-delay: 0.65s;
+      }
+      @keyframes tile-in {
+        from {
+          opacity: 0;
+          transform: translateX(18px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .assemble .cap {
+        font-size: 13px;
+        color: var(--mut);
+        margin: 14px 0 0;
+      }
+
+      /* ---------- screen 6 · resume ---------- */
+      .solo {
+        max-width: 620px;
+        margin: 0 auto;
+        padding: 72px 28px 64px;
+      }
+      .solo .card {
+        padding: 34px 34px 30px;
+      }
+      .solo h2 {
+        font-size: 30px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        margin: 0 0 10px;
+      }
+      .solo .body {
+        font-size: 15px;
+        color: var(--mut);
+        margin: 0 0 22px;
+        max-width: 46ch;
+      }
+      .paused {
+        background: var(--glass-strong);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin-bottom: 22px;
+      }
+      .paused .nextup {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ember);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .paused .pq {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+      .paused .pq .qn {
+        font-family: var(--mono);
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--mut);
+        margin-right: 8px;
+      }
+      .ministrip {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        justify-content: center;
+      }
+      .minichip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid var(--hair);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-size: 12px;
+        color: var(--ink);
+        animation: settle 0.34s var(--ease) both;
+      }
+      .minichip:nth-child(1) {
+        animation-delay: 0.15s;
+      }
+      .minichip:nth-child(2) {
+        animation-delay: 0.22s;
+      }
+      .minichip:nth-child(3) {
+        animation-delay: 0.29s;
+      }
+      .minichip:nth-child(4) {
+        animation-delay: 0.36s;
+      }
+      .minichip:nth-child(5) {
+        animation-delay: 0.43s;
+      }
+      .minichip.more {
+        color: var(--mut);
+      }
+      .solo-foot {
+        text-align: center;
+        margin-top: 18px;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* ---------- screen 7 · gaps ---------- */
+      .gaps-wrap {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 56px 28px 80px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 36px;
+      }
+      .page-head {
+        grid-column: 1 / -1;
+        margin-bottom: 4px;
+      }
+      .page-head h1 {
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+        margin: 0 0 10px;
+      }
+      .page-head .sub {
+        font-size: 16px;
+        color: var(--mut);
+        margin: 0;
+        max-width: 56ch;
+      }
+      .gap-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .gap-row {
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        padding: 18px 20px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 6px 18px;
+        align-items: center;
+        animation: settle 0.34s var(--ease) both;
+        transition:
+          border-color 0.24s var(--ease),
+          background 0.24s var(--ease);
+      }
+      .gap-row:hover {
+        border-color: var(--hair-2);
+        background: var(--glass-strong);
+      }
+      .gap-row:nth-child(2) {
+        animation-delay: 0.06s;
+      }
+      .gap-row:nth-child(3) {
+        animation-delay: 0.12s;
+      }
+      .gap-row:nth-child(4) {
+        animation-delay: 0.18s;
+      }
+      .gap-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .gap-prov {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        margin: 2px 0 0 15px;
+        font-variant-numeric: tabular-nums;
+      }
+      .gap-why {
+        font-size: 14px;
+        color: var(--mut);
+        margin: 6px 0 0 15px;
+        max-width: 52ch;
+        grid-column: 1;
+      }
+      .gap-row .ghost {
+        grid-row: 1 / span 3;
+        grid-column: 2;
+        white-space: nowrap;
+        font-size: 12px;
+      }
+      .completeness {
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        padding: 22px 22px 20px;
+        align-self: start;
+        position: sticky;
+        top: 86px;
+      }
+      .completeness .big {
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+      }
+      .completeness .big-lbl {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        margin-top: 2px;
+      }
+      .break-rows {
+        margin-top: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .break-row .k {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        display: flex;
+        justify-content: space-between;
+        font-variant-numeric: tabular-nums;
+      }
+      .break-bar {
+        height: 1px;
+        background: var(--hair);
+        margin-top: 7px;
+      }
+      .break-bar i {
+        display: block;
+        height: 1px;
+        background: linear-gradient(90deg, var(--ember-deep), var(--ember));
+        box-shadow: 0 0 8px rgba(245, 155, 75, 0.45);
+      }
+      .gap-foot {
+        grid-column: 1;
+        margin: 6px 0 0;
+        font-size: 13px;
+        color: var(--mut);
+        font-style: italic;
+      }
+
+      /* ---------- screen 8 · generating ---------- */
+      .gen-wrap {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 64px 28px 80px;
+      }
+      .gen-wrap .card {
+        padding: 32px 34px 28px;
+      }
+      .gen-wrap h2 {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        margin: 0 0 18px;
+      }
+      .steps {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        margin: 0 0 22px;
+        padding: 0;
+        list-style: none;
+      }
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mut);
+      }
+      .step .nd {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex: none;
+        border: 1px solid var(--mut);
+        background: transparent;
+        transition:
+          background 0.3s var(--ease),
+          border-color 0.3s var(--ease),
+          box-shadow 0.3s var(--ease);
+      }
+      .step.done .nd {
+        background: var(--mut);
+        border-color: transparent;
+      }
+      .step.done {
+        color: var(--ink);
+      }
+      .step.active {
+        color: var(--ember);
+      }
+      .step.active .nd {
+        background: var(--ember);
+        border-color: transparent;
+        box-shadow: 0 0 10px rgba(245, 155, 75, 0.55);
+      }
+      .steps .conn {
+        flex: 1;
+        height: 1px;
+        background: var(--hair);
+        margin: 0 10px;
+        min-width: 18px;
+      }
+      .steps .conn.lit {
+        background: linear-gradient(90deg, var(--ember-deep), var(--ember));
+        box-shadow: 0 0 8px rgba(245, 155, 75, 0.4);
+      }
+      .worklog {
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        border-top: 1px solid var(--hair);
+        padding-top: 16px;
+        margin-top: 2px;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        min-height: 172px;
+        font-variant-numeric: tabular-nums;
+      }
+      .logline {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        color: var(--ink);
+        animation: logline-in 0.3s var(--ease) both;
+      }
+      .logline .dot {
+        position: relative;
+        top: -1px;
+      }
+      .logline .ts {
+        color: var(--mut);
+        flex: none;
+      }
+      .logline.current {
+        color: var(--ember);
+      }
+      .logline.current .ts {
+        color: rgba(245, 155, 75, 0.7);
+      }
+      @keyframes logline-in {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .gen-note {
+        font-size: 14px;
+        color: var(--mut);
+        margin: 20px 0 0;
+        max-width: 48ch;
+      }
+
+      /* ---------- screens 9 & 10 · report ---------- */
+      .report {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 56px 28px 96px;
+      }
+      .crumb {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        margin-bottom: 18px;
+        font-variant-numeric: tabular-nums;
+      }
+      .pillrow {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: var(--raised);
+        border: 1px solid var(--hair);
+        border-radius: 999px;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mut);
+      }
+      .status-pill.sev {
+        color: var(--ember);
+        border-color: rgba(245, 155, 75, 0.35);
+      }
+      .report h1 {
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+        margin: 0 0 16px;
+      }
+      .lead {
+        font-size: 18px;
+        line-height: 1.55;
+        color: var(--ink);
+        margin: 0 0 36px;
+      }
+      .sect {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mut);
+        margin: 36px 0 12px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .sect::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--hair);
+      }
+      .facts {
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        padding: 4px 20px;
+      }
+      .fact {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 2px 18px;
+        align-items: baseline;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--hair);
+      }
+      .fact:last-child {
+        border-bottom: 0;
+      }
+      .fact .fl {
+        font-size: 15px;
+      }
+      .fact .fv {
+        font-size: 15px;
+        font-weight: 600;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .fact .fp {
+        grid-column: 1 / -1;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+      .fact.derived .fl,
+      .fact.derived .fv {
+        color: var(--ember);
+      }
+      .fact.derived .fl {
+        font-family: var(--mono);
+        font-size: 13px;
+        letter-spacing: 0.02em;
+      }
+      .statcard {
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid rgba(245, 155, 75, 0.35);
+        border-radius: 16px;
+        padding: 22px 24px 20px;
+      }
+      .statcard .big {
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+      }
+      .statcard .big small {
+        font-size: 15px;
+        font-weight: 400;
+        color: var(--mut);
+        letter-spacing: 0;
+      }
+      .statcard .deriv {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        margin-top: 10px;
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+      .report .row {
+        margin-top: 40px;
+      }
+      .foot-note {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        margin-left: auto;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* screen 10 */
+      .scenario {
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink);
+        margin: 0 0 8px;
+        max-width: 58ch;
+      }
+      .assump {
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        padding: 15px 18px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 2px 16px;
+        align-items: center;
+        margin-bottom: 10px;
+        transition: border-color 0.24s var(--ease);
+      }
+      .assump:hover {
+        border-color: var(--hair-2);
+      }
+      .assump .al {
+        font-size: 15px;
+      }
+      .assump .av {
+        font-size: 15px;
+        font-weight: 600;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .assump .ap {
+        grid-column: 1;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        font-variant-numeric: tabular-nums;
+      }
+      .assump .ghost.quiet {
+        grid-column: 2;
+        grid-row: 2;
+        justify-self: end;
+        font-size: 12px;
+        padding: 2px 4px;
+      }
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .comp-col {
+        background: var(--glass);
+        backdrop-filter: var(--blur);
+        -webkit-backdrop-filter: var(--blur);
+        border: 1px solid var(--hair);
+        border-radius: 16px;
+        padding: 18px 20px 16px;
+      }
+      .comp-col.approve {
+        border-color: rgba(245, 155, 75, 0.35);
+      }
+      .comp-col .ch {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mut);
+        margin-bottom: 14px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .comp-col.approve .ch {
+        color: var(--ember);
+      }
+      .comp-row {
+        padding: 9px 0;
+        border-top: 1px solid var(--hair);
+      }
+      .comp-row .ck {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--mut);
+        display: block;
+        margin-bottom: 2px;
+      }
+      .comp-row .cv {
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        font-variant-numeric: tabular-nums;
+      }
+      .comp-row .cv small {
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--mut);
+        letter-spacing: 0;
+      }
+      .honesty {
+        font-size: 14px;
+        color: var(--mut);
+        font-style: italic;
+        margin: 18px 0 0;
+      }
+      .textlink {
+        background: none;
+        border: 0;
+        padding: 6px 4px;
+        cursor: pointer;
+        font: inherit;
+        font-size: 13px;
+        color: var(--mut);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-color: var(--hair-2);
+        transition: color 0.2s var(--ease);
+      }
+      .textlink:hover {
+        color: var(--ink);
+      }
+
+      /* ---------- screen 11 · profile ---------- */
+      .prof-wrap {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 56px 28px 96px;
+        display: grid;
+        grid-template-columns: 200px minmax(0, 1fr);
+        gap: 44px;
+      }
+      .prof-head {
+        grid-column: 1 / -1;
+      }
+      .prof-head h1 {
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        margin: 0 0 10px;
+      }
+      .prof-head .sub {
+        font-size: 16px;
+        color: var(--mut);
+        margin: 0;
+        max-width: 62ch;
+      }
+      .section-rail {
+        align-self: start;
+        position: sticky;
+        top: 86px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+      }
+      .rail-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        color: var(--mut);
+        text-decoration: none;
+        border: 1px solid transparent;
+        font-variant-numeric: tabular-nums;
+        transition:
+          color 0.2s var(--ease),
+          background 0.2s var(--ease);
+      }
+      .rail-item:hover {
+        color: var(--ink);
+        background: var(--glass-strong);
+      }
+      .rail-item .cnt {
+        margin-left: auto;
+        font-size: 11px;
+        opacity: 0.85;
+      }
+      .rail-item[aria-current="true"] {
+        color: var(--ember);
+        background: var(--glass-strong);
+        border-color: var(--hair-2);
+      }
+      .prof-main {
+        min-width: 0;
+      }
+      .prof-bar {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        margin-bottom: 10px;
+      }
+      .prof-bar h2 {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin: 0;
+      }
+      .prof-bar .count {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+      }
+      .search {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--glass-strong);
+        border: 1px solid var(--hair);
+        border-radius: 999px;
+        padding: 8px 16px;
+        min-width: 220px;
+        transition: border-color 0.24s var(--ease);
+      }
+      .search:focus-within {
+        border-color: var(--ember);
+        box-shadow: 0 0 0 3px rgba(245, 155, 75, 0.18);
+      }
+      .search svg {
+        flex: none;
+        color: var(--mut);
+      }
+      .search input {
+        font: inherit;
+        font-size: 13px;
+        background: none;
+        border: 0;
+        outline: none;
+        color: var(--ink);
+        width: 100%;
+      }
+      .factlist {
+        border-top: 1px solid var(--hair-2);
+      }
+      .factrow {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 3px 20px;
+        align-items: baseline;
+        padding: 16px 4px;
+        border-bottom: 1px solid var(--hair);
+        transition: background 0.24s var(--ease);
+      }
+      .factrow:hover {
+        background: rgba(26, 28, 33, 0.4);
+      }
+      .factrow .lab {
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+      }
+      .factrow .val {
+        font-size: 15px;
+        font-weight: 600;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .factrow .prov {
+        grid-column: 1;
+        grid-row: 2;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        font-variant-numeric: tabular-nums;
+        overflow-wrap: anywhere;
+      }
+      .factrow .acts {
+        grid-column: 2 / span 2;
+        grid-row: 2;
+        justify-self: end;
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+      }
+      .est-pill {
+        display: inline-flex;
+        align-items: center;
+        font-family: var(--mono);
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        color: var(--ember);
+        border: 1px solid rgba(245, 155, 75, 0.45);
+        border-radius: 999px;
+        padding: 1px 8px 0;
+        height: 17px;
+        position: relative;
+        top: -1px;
+      }
+      .rowlink {
+        background: none;
+        border: 0;
+        padding: 4px 2px;
+        cursor: pointer;
+        font: inherit;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        color: var(--mut);
+        transition: color 0.2s var(--ease);
+      }
+      .rowlink:hover {
+        color: var(--ink);
+      }
+      .factedit {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 12px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--hair);
+        animation: fadein 0.24s var(--ease) both;
+      }
+      .factedit .field {
+        padding: 9px 14px;
+        font-size: 14px;
+        border-radius: 999px;
+      }
+      .factedit .fe-val {
+        max-width: 160px;
+        font-variant-numeric: tabular-nums;
+      }
+      .factedit .fe-why {
+        flex: 1;
+        min-width: 220px;
+      }
+      .factedit .next {
+        min-height: 38px;
+        padding: 8px 18px;
+        font-size: 13px;
+      }
+      .factedit .fe-note {
+        flex-basis: 100%;
+      }
+
+      /* ---------- responsive ---------- */
+      @media (max-width: 1100px) {
+        .app {
+          margin-left: 0;
+          padding-bottom: 66px;
+        }
+        .switcher {
+          top: auto;
+          bottom: 0;
+          right: 0;
+          width: auto;
+          flex-direction: row;
+          align-items: center;
+          gap: 4px;
+          padding: 10px 14px;
+          border-right: 0;
+          border-top: 1px solid var(--hair);
+          overflow-x: auto;
+        }
+        .sw-head {
+          padding: 0 8px 0 0;
+          white-space: nowrap;
+        }
+        .sw {
+          padding: 7px 12px;
+          white-space: nowrap;
+          flex: none;
+        }
+        .sw-hint {
+          display: none;
+        }
+      }
+      @media (max-width: 900px) {
+        .stage {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          padding: 24px 18px 48px;
+        }
+        .stage .col {
+          display: none;
+        }
+        .prompt {
+          font-size: 23px;
+        }
+        .card {
+          padding: 22px 20px 20px;
+          border-radius: 20px;
+        }
+        .gaps-wrap {
+          grid-template-columns: 1fr;
+          padding: 36px 18px 64px;
+          gap: 24px;
+        }
+        .completeness {
+          position: static;
+        }
+        .prof-wrap {
+          grid-template-columns: 1fr;
+          gap: 20px;
+          padding: 36px 18px 72px;
+        }
+        .section-rail {
+          position: static;
+          flex-direction: row;
+          overflow-x: auto;
+          gap: 6px;
+          padding-bottom: 6px;
+        }
+        .rail-item {
+          white-space: nowrap;
+          border: 1px solid var(--hair);
+          flex: none;
+        }
+        .rail-item .cnt {
+          margin-left: 8px;
+        }
+        .page-head h1,
+        .report h1,
+        .prof-head h1 {
+          font-size: 28px;
+        }
+        .solo {
+          padding: 40px 18px 56px;
+        }
+        .entity-grid {
+          grid-template-columns: 1fr;
+        }
+        .compare {
+          grid-template-columns: 1fr;
+        }
+        .gap-row {
+          grid-template-columns: 1fr;
+        }
+        .gap-row .ghost {
+          grid-row: auto;
+          grid-column: 1;
+          justify-self: start;
+          margin-top: 10px;
+          margin-left: 15px;
+        }
+        .search {
+          min-width: 0;
+          flex: 1;
+        }
+        .prof-bar {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .gen-wrap {
+          padding: 36px 18px 64px;
+        }
+        .report {
+          padding: 36px 18px 72px;
+        }
+        .factrow {
+          grid-template-columns: minmax(0, 1fr) auto;
+        }
+        .factrow .acts {
+          grid-column: 1 / -1;
+          justify-self: start;
+        }
+      }
+      @media (max-width: 480px) {
+        .topbar {
+          padding: 14px 16px;
+          gap: 10px;
+        }
+        .topbar .subtitle {
+          display: none;
+        }
+        .worklog {
+          font-size: 11px;
+        }
+        .steps {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .steps .conn {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-delay: 0ms !important;
+          transition-duration: 0.01ms !important;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ======================= mockup switcher ======================= -->
+    <nav class="switcher" aria-label="Mockup screens">
+      <div class="sw-head">Ledgerline · screens</div>
+      <a class="sw" href="#s3"><span class="n">3</span><span class="lbl">Entities</span></a>
+      <a class="sw" href="#s4"><span class="n">4</span><span class="lbl">Reconcile</span></a>
+      <a class="sw" href="#s5"><span class="n">5</span><span class="lbl">Complete</span></a>
+      <a class="sw" href="#s6"><span class="n">6</span><span class="lbl">Resume</span></a>
+      <a class="sw" href="#s7"><span class="n">7</span><span class="lbl">Gaps</span></a>
+      <a class="sw" href="#s8"><span class="n">8</span><span class="lbl">Generating</span></a>
+      <a class="sw" href="#s9"><span class="n">9</span><span class="lbl">Finding</span></a>
+      <a class="sw" href="#s10"><span class="n">10</span><span class="lbl">Recommendation</span></a>
+      <a class="sw" href="#s11"><span class="n">11</span><span class="lbl">Profile</span></a>
+      <div class="sw-hint">← → to browse</div>
+    </nav>
+
+    <div class="app">
+      <!-- ======================= shared product chrome ======================= -->
+      <header class="topbar">
+        <span class="wordmark">Ledgerline</span>
+        <span class="subtitle" id="tb-sub">intake · Szörp Kft.</span>
+        <span class="meta tabular" id="tb-count">8 / 27 core</span>
+      </header>
+      <div class="progress-rail">
+        <div class="progress-fill" id="tb-fill" style="width: 30%"></div>
+      </div>
+
+      <main>
+        <!-- ======================= SCREEN 3 · entity sub-form ======================= -->
+        <section class="screen" id="s3" aria-label="Screen 3 — What do you sell?">
+          <div class="stage">
+            <div class="col" aria-label="Recorded answers">
+              <div class="col-head">Recorded</div>
+              <div class="chip">
+                <span class="q">What's the business called?</span><span class="a">Szörp Kft.</span
+                ><span class="tag"><i class="dot"></i>1.1 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">How long has it been running?</span><span class="a">4 years</span
+                ><span class="tag"><i class="dot"></i>1.3 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Where does selling happen today?</span
+                ><span class="a">Weekend markets · Webshop · Instagram DMs</span
+                ><span class="tag"><i class="dot"></i>2.1 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Who usually buys?</span
+                ><span class="a">Gift shoppers &amp; small delis</span
+                ><span class="tag"><i class="dot"></i>2.3 · owner · stated</span>
+              </div>
+            </div>
+
+            <div class="centre">
+              <div class="card">
+                <div class="eyebrow">3.1<span class="tier">Core</span></div>
+                <h2 class="prompt">What do you sell?</h2>
+                <p class="help">Just the ones that matter — you can add more later.</p>
+
+                <div class="entity-rows" id="entity-rows">
+                  <!-- row 1 — filled, cost recorded, collapsed -->
+                  <div class="entity-row">
+                    <div class="entity-grid">
+                      <input
+                        class="field"
+                        type="text"
+                        value="Szörp 0.5L"
+                        aria-label="Product name"
+                      />
+                      <div class="kindgroup" role="group" aria-label="Kind">
+                        <button class="opt opt-compact" type="button" aria-pressed="true">
+                          Physical
+                        </button>
+                        <button class="opt opt-compact" type="button" aria-pressed="false">
+                          Service
+                        </button>
+                        <button class="opt opt-compact" type="button" aria-pressed="false">
+                          Digital
+                        </button>
+                      </div>
+                      <div class="subfield-money">
+                        <input
+                          class="field tabular"
+                          type="text"
+                          inputmode="numeric"
+                          value="4 990"
+                          aria-label="Price"
+                        />
+                        <span class="currency-suffix">HUF</span>
+                      </div>
+                    </div>
+                    <button class="exp" type="button" aria-expanded="false" data-exp>
+                      cost recorded · 4 090 HUF
+                    </button>
+                    <div class="entity-detail" hidden>
+                      <span class="lbl">Cost to deliver</span>
+                      <div class="subfield-money">
+                        <input
+                          class="field tabular"
+                          type="text"
+                          inputmode="numeric"
+                          value="4 090"
+                          aria-label="Cost to deliver"
+                        />
+                        <span class="currency-suffix">HUF</span>
+                      </div>
+                      <span class="margin-line">margin · 18% · derived</span>
+                    </div>
+                  </div>
+
+                  <!-- row 2 — filled, cost expanded -->
+                  <div class="entity-row">
+                    <div class="entity-grid">
+                      <input class="field" type="text" value="Gift box" aria-label="Product name" />
+                      <div class="kindgroup" role="group" aria-label="Kind">
+                        <button class="opt opt-compact" type="button" aria-pressed="true">
+                          Physical
+                        </button>
+                        <button class="opt opt-compact" type="button" aria-pressed="false">
+                          Service
+                        </button>
+                        <button class="opt opt-compact" type="button" aria-pressed="false">
+                          Digital
+                        </button>
+                      </div>
+                      <div class="subfield-money">
+                        <input
+                          class="field tabular"
+                          type="text"
+                          inputmode="numeric"
+                          value="12 900"
+                          aria-label="Price"
+                        />
+                        <span class="currency-suffix">HUF</span>
+                      </div>
+                    </div>
+                    <button class="exp" type="button" aria-expanded="true" data-exp>
+                      − cost to deliver
+                    </button>
+                    <div class="entity-detail">
+                      <span class="lbl">Cost to deliver</span>
+                      <div class="subfield-money">
+                        <input
+                          class="field tabular"
+                          type="text"
+                          inputmode="numeric"
+                          value="5 290"
+                          aria-label="Cost to deliver"
+                        />
+                        <span class="currency-suffix">HUF</span>
+                      </div>
+                      <span class="margin-line">margin · 59% · derived</span>
+                    </div>
+                  </div>
+
+                  <!-- row 3 — partially filled, alive -->
+                  <div class="entity-row">
+                    <div class="entity-grid">
+                      <input
+                        class="field"
+                        type="text"
+                        value="Winter spice 0.5L"
+                        aria-label="Product name"
+                      />
+                      <div class="kindgroup" role="group" aria-label="Kind">
+                        <button class="opt opt-compact" type="button" aria-pressed="true">
+                          Physical
+                        </button>
+                        <button class="opt opt-compact" type="button" aria-pressed="false">
+                          Service
+                        </button>
+                        <button class="opt opt-compact" type="button" aria-pressed="false">
+                          Digital
+                        </button>
+                      </div>
+                      <div class="subfield-money">
+                        <input
+                          class="field tabular"
+                          type="text"
+                          inputmode="numeric"
+                          placeholder="e.g. 5 490"
+                          aria-label="Price"
+                        />
+                        <span class="currency-suffix">HUF</span>
+                      </div>
+                    </div>
+                    <button class="exp" type="button" aria-expanded="false" data-exp>
+                      + cost to deliver
+                    </button>
+                    <div class="entity-detail" hidden>
+                      <span class="lbl">Cost to deliver</span>
+                      <div class="subfield-money">
+                        <input
+                          class="field tabular"
+                          type="text"
+                          inputmode="numeric"
+                          placeholder="0"
+                          aria-label="Cost to deliver"
+                        />
+                        <span class="currency-suffix">HUF</span>
+                      </div>
+                      <span class="margin-line">margin · — · derived</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button class="ghost add-row" type="button" id="add-row">
+                  + Add another product
+                </button>
+                <div class="mono-note count-line" id="entity-count">3 recorded · 2 with costs</div>
+
+                <div class="row">
+                  <button class="next" type="button">Record these</button>
+                  <button class="ghost" type="button">Skip for now</button>
+                  <span class="hint">Enter to continue</span>
+                </div>
+              </div>
+
+              <div class="ondeck">
+                <span class="lbl">Next</span
+                ><span class="ondeck-text">Where do these get sold?</span>
+              </div>
+            </div>
+
+            <div class="col" aria-label="Recorded answers">
+              <div class="col-head">&nbsp;</div>
+              <div class="chip">
+                <span class="q">What does the business make?</span
+                ><span class="a">Elderflower syrup, small batch</span
+                ><span class="tag"><i class="dot"></i>1.2 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Where is it based?</span><span class="a">Veszprém, Hungary</span
+                ><span class="tag"><i class="dot"></i>1.4 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Does anyone else work in it?</span
+                ><span class="a">Eszter + one part-timer</span
+                ><span class="tag"><i class="dot"></i>1.5 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Main supplier?</span><span class="a">Bakonyi Gyümölcs Kft.</span
+                ><span class="tag"><i class="dot"></i>2.4 · owner · stated</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================= SCREEN 4 · reconcile ======================= -->
+        <section class="screen" id="s4" aria-label="Screen 4 — Reconcile contradiction">
+          <div class="stage">
+            <div class="col" aria-label="Recorded answers">
+              <div class="col-head">Recorded</div>
+              <div class="chip chip-flagged">
+                <span class="q">Gross margin</span><span class="a">About 40%</span
+                ><span class="tag"><i class="dot"></i>5.3a · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Monthly revenue, typical</span><span class="a">≈ 4 500 000 HUF</span
+                ><span class="tag"><i class="dot"></i>4.1a · owner · estimate · 0.55</span>
+              </div>
+              <div class="chip">
+                <span class="q">Orders in a typical month</span><span class="a">≈ 310</span
+                ><span class="tag"><i class="dot"></i>4.3 · owner · estimate</span>
+              </div>
+              <div class="chip">
+                <span class="q">Webshop platform</span><span class="a">Shopify</span
+                ><span class="tag"><i class="dot"></i>6.1 · owner · stated</span>
+              </div>
+            </div>
+
+            <div class="centre">
+              <div class="card">
+                <div class="eyebrow">7.2<span class="tier">Important</span></div>
+                <h2 class="prompt">About how much goes to ads in a month?</h2>
+                <p class="help">
+                  Instagram boosts, Google, market fees — a rough monthly figure is plenty.
+                </p>
+                <div class="money-wrap">
+                  <input
+                    class="field tabular"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="e.g. 120 000"
+                    aria-label="Monthly ad spend"
+                  />
+                  <span class="money-cur">HUF</span>
+                </div>
+                <div class="row">
+                  <button class="next" type="button">Record answer</button>
+                  <button class="ghost" type="button">Skip for now</button>
+                  <span class="hint">Enter ↵</span>
+                </div>
+              </div>
+
+              <div class="reconcile" role="note" aria-label="Open contradiction">
+                <div class="reconcile-eyebrow">
+                  <i class="dot ember"></i>Margin_mismatch · Contradiction
+                </div>
+                <h3>Help me reconcile these two</h3>
+                <p class="reconcile-both">
+                  You told me your gross margin is about 40%. Your product prices and costs work out
+                  to about 23%.
+                </p>
+                <p class="reconcile-tagline">Both can be true — I'd rather ask than assume.</p>
+                <div class="reconcile-actions">
+                  <button class="ghost" type="button">Both are right</button>
+                  <button class="ghost" type="button">Let me fix one</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="col" aria-label="Recorded answers">
+              <div class="col-head">&nbsp;</div>
+              <div class="chip chip-flagged">
+                <span class="q">Product costs</span><span class="a">5 products · 3 with costs</span
+                ><span class="tag"><i class="dot"></i>3.1 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Best-selling product</span
+                ><span class="a">Szörp 0.5L · 4 990 HUF</span
+                ><span class="tag"><i class="dot"></i>3.1 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Gift box price</span><span class="a">12 900 HUF</span
+                ><span class="tag"><i class="dot"></i>3.1 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Sales channels</span
+                ><span class="a">Markets · Webshop · Instagram DMs</span
+                ><span class="tag"><i class="dot"></i>2.1 · owner · stated</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================= SCREEN 5 · intake complete ======================= -->
+        <section class="screen" id="s5" aria-label="Screen 5 — Intake complete">
+          <div class="stage">
+            <div class="col" aria-label="Recorded answers">
+              <div class="col-head">Recorded</div>
+              <div class="chip">
+                <span class="q">What's the business called?</span><span class="a">Szörp Kft.</span
+                ><span class="tag"><i class="dot"></i>1.1 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Monthly revenue, typical</span><span class="a">≈ 4 500 000 HUF</span
+                ><span class="tag"><i class="dot"></i>4.1a · owner · estimate · 0.55</span>
+              </div>
+              <div class="chip">
+                <span class="q">Gross margin</span><span class="a">About 40%</span
+                ><span class="tag"><i class="dot"></i>5.3a · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Monthly ad spend</span><span class="a">Skipped for now</span
+                ><span class="tag"><i class="dot thin"></i>8.1a · skipped</span>
+              </div>
+            </div>
+
+            <div class="centre">
+              <div class="card done">
+                <div class="eyebrow">Intake<span class="tier">Complete</span></div>
+                <h2>That's enough to start.</h2>
+                <p>
+                  I have what I need for a first read on the business. The deeper questions get
+                  easier once you've seen what I do with these.
+                </p>
+                <div class="readout">
+                  answered&nbsp;&nbsp;<strong>23</strong> &nbsp;·&nbsp; gaps to
+                  revisit&nbsp;&nbsp;<strong>4</strong><br />
+                  profile confidence&nbsp;&nbsp;<strong>good</strong> &nbsp;·&nbsp;
+                  next&nbsp;&nbsp;<strong>deciding how carefully to move</strong>
+                </div>
+                <div class="row">
+                  <button class="cta-grad" type="button">Start the diagnosis</button>
+                  <button class="ghost" type="button">Review my answers first</button>
+                </div>
+              </div>
+
+              <div class="assemble">
+                <div class="tiles">
+                  <span class="tile"><i class="dot"></i>identity</span>
+                  <span class="tile"><i class="dot"></i>offers</span>
+                  <span class="tile"><i class="dot"></i>revenue</span>
+                  <span class="tile"><i class="dot thin"></i>costs</span>
+                  <span class="tile"><i class="dot"></i>channels</span>
+                </div>
+                <p class="cap">
+                  Your profile, assembled from 23 answers — every fact keeps its source.
+                </p>
+              </div>
+            </div>
+
+            <div class="col" aria-label="Recorded answers">
+              <div class="col-head">&nbsp;</div>
+              <div class="chip">
+                <span class="q">5 products recorded</span
+                ><span class="a">Szörp 0.5L · 1L · Gift box · more</span
+                ><span class="tag"><i class="dot"></i>3.1 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Orders in a typical month</span><span class="a">≈ 310</span
+                ><span class="tag"><i class="dot"></i>4.3 · owner · estimate</span>
+              </div>
+              <div class="chip">
+                <span class="q">Main supplier</span><span class="a">Bakonyi Gyümölcs Kft.</span
+                ><span class="tag"><i class="dot"></i>2.4 · owner · stated</span>
+              </div>
+              <div class="chip">
+                <span class="q">Webshop platform</span><span class="a">Shopify</span
+                ><span class="tag"><i class="dot"></i>6.1 · owner · stated</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================= SCREEN 6 · resume ======================= -->
+        <section class="screen" id="s6" aria-label="Screen 6 — Welcome back">
+          <div class="solo">
+            <div class="card">
+              <div class="eyebrow">Welcome back · 2 days since your last answer</div>
+              <h2>Ready when you are.</h2>
+              <p class="body">
+                You've recorded 12 of 27 core answers — about 9 minutes of work so far. Nothing was
+                lost.
+              </p>
+
+              <div class="paused">
+                <div class="nextup"><i class="dot ember"></i>next up</div>
+                <div class="pq">
+                  <span class="qn">4.2</span>About how much does the business make in a typical
+                  month?
+                </div>
+              </div>
+
+              <div class="row" style="margin-top: 0">
+                <button class="next" type="button">Pick up where I left off</button>
+                <button class="ghost" type="button">Show me what you have so far</button>
+              </div>
+            </div>
+
+            <div class="ministrip" aria-label="Recorded so far">
+              <span class="minichip"><i class="dot"></i>Szörp Kft.</span>
+              <span class="minichip"><i class="dot"></i>4 years</span>
+              <span class="minichip"><i class="dot"></i>5 products</span>
+              <span class="minichip"><i class="dot"></i>3 channels</span>
+              <span class="minichip more">+8 more</span>
+            </div>
+            <div class="solo-foot">your answers · 12 recorded · each with its source</div>
+          </div>
+        </section>
+
+        <!-- ======================= SCREEN 7 · data gaps ======================= -->
+        <section class="screen" id="s7" aria-label="Screen 7 — What I still don't know">
+          <div class="gaps-wrap">
+            <header class="page-head">
+              <h1>What I still don't know</h1>
+              <p class="sub">
+                Four gaps limit how far the diagnosis can see. None of them block it.
+              </p>
+            </header>
+
+            <div class="gap-rows">
+              <div class="gap-row">
+                <div class="gap-title"><i class="dot thin"></i>Monthly ad spend</div>
+                <div class="gap-prov">8.1a · skipped · will revisit</div>
+                <p class="gap-why">
+                  Without this I can't tell whether your marketing pays for itself.
+                </p>
+                <button class="ghost" type="button">Answer now · 1 min</button>
+              </div>
+              <div class="gap-row">
+                <div class="gap-title"><i class="dot thin"></i>Cost to deliver an order</div>
+                <div class="gap-prov">8.2 · skipped · will revisit</div>
+                <p class="gap-why">
+                  Shipping eats margin quietly — right now I'm guessing at webshop profitability.
+                </p>
+                <button class="ghost" type="button">Answer now · 1 min</button>
+              </div>
+              <div class="gap-row">
+                <div class="gap-title"><i class="dot thin"></i>Returning-customer share</div>
+                <div class="gap-prov">7.4 · skipped · will revisit</div>
+                <p class="gap-why">
+                  I can see revenue, but not whether the same people keep coming back.
+                </p>
+                <button class="ghost" type="button">Answer now · 1 min</button>
+              </div>
+              <div class="gap-row">
+                <div class="gap-title"><i class="dot thin"></i>Webshop conversion rate</div>
+                <div class="gap-prov">9.2 · unknown · owner answered "don't know"</div>
+                <p class="gap-why">
+                  Most owners don't know this one offhand — Shopify can tell us, whenever you're
+                  ready.
+                </p>
+                <button class="ghost" type="button">Answer with help · 2 min</button>
+              </div>
+              <p class="gap-foot">A gap is a finding, not a failure.</p>
+            </div>
+
+            <aside class="completeness" aria-label="Profile completeness">
+              <div class="big">good</div>
+              <div class="big-lbl">profile confidence</div>
+              <div class="break-rows">
+                <div class="break-row">
+                  <div class="k"><span>core</span><span>23 / 27</span></div>
+                  <div class="break-bar"><i style="width: 85%"></i></div>
+                </div>
+                <div class="break-row">
+                  <div class="k"><span>important</span><span>6 / 14</span></div>
+                  <div class="break-bar"><i style="width: 43%"></i></div>
+                </div>
+                <div class="break-row">
+                  <div class="k"><span>deep</span><span>0 / 12</span></div>
+                  <div class="break-bar"><i style="width: 0%"></i></div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ======================= SCREEN 8 · report generating ======================= -->
+        <section class="screen" id="s8" aria-label="Screen 8 — Reading your business">
+          <div class="gen-wrap">
+            <div class="card">
+              <div class="eyebrow">Diagnosis · Running</div>
+              <h2>Reading your business.</h2>
+
+              <ol class="steps" id="gen-steps" aria-label="Diagnosis stages">
+                <li class="step" data-step="0"><i class="nd"></i>Read</li>
+                <li class="conn" aria-hidden="true"></li>
+                <li class="step" data-step="1"><i class="nd"></i>Compute</li>
+                <li class="conn" aria-hidden="true"></li>
+                <li class="step" data-step="2"><i class="nd"></i>Check</li>
+                <li class="conn" aria-hidden="true"></li>
+                <li class="step" data-step="3"><i class="nd"></i>Write</li>
+              </ol>
+
+              <div class="worklog" id="worklog" aria-live="polite"></div>
+
+              <p class="gen-note">
+                This takes about a minute of real work. You can leave — I'll send the report when
+                it's ready.
+              </p>
+              <div class="row" style="margin-top: 16px">
+                <button class="ghost" type="button">Notify me instead</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ======================= SCREEN 9 · finding detail ======================= -->
+        <section class="screen" id="s9" aria-label="Screen 9 — Finding detail">
+          <article class="report">
+            <div class="crumb">report / finding 1 of 3</div>
+            <div class="pillrow">
+              <span class="status-pill sev"><i class="dot ember"></i>High · Margin</span>
+              <span class="status-pill">Contradiction carried</span>
+            </div>
+            <h1>Your best-selling product is your least profitable.</h1>
+            <p class="lead">
+              Szörp 0.5L brings in more orders than everything else you make, but after bottling and
+              delivery it keeps just 18% of its price. Every other product in the range earns at
+              least twice that.
+            </p>
+
+            <div class="sect">The evidence</div>
+            <div class="facts">
+              <div class="fact">
+                <span class="fl">Szörp 0.5L price</span>
+                <span class="fv">4 990 HUF</span>
+                <span class="fp">3.1 · owner · stated · 0.90</span>
+              </div>
+              <div class="fact">
+                <span class="fl">Cost to make &amp; deliver</span>
+                <span class="fv">4 090 HUF</span>
+                <span class="fp">3.1a · owner · stated · 0.75</span>
+              </div>
+              <div class="fact">
+                <span class="fl">Units sold in a typical month</span>
+                <span class="fv">≈ 282</span>
+                <span class="fp">4.3a · derived from orders · 0.55</span>
+              </div>
+              <div class="fact">
+                <span class="fl">Gross margin, as you stated it</span>
+                <span class="fv">40%</span>
+                <span class="fp">5.3a · owner · stated · 0.60 · open contradiction</span>
+              </div>
+              <div class="fact derived">
+                <span class="fl">margin = (price − cost) / price → 18%</span>
+                <span class="fv">18%</span>
+                <span class="fp">derived · min(inputs) × 0.9 → 0.68</span>
+              </div>
+            </div>
+
+            <div class="sect">What it costs you</div>
+            <div class="statcard">
+              <div class="big">≈ 310 000 HUF <small>/ month left on the table</small></div>
+              <div class="deriv">
+                (0.40 stated − 0.18 computed) × 4 990 × 282 → 309 581 / mo · rounded
+              </div>
+            </div>
+
+            <div class="row">
+              <button class="next" type="button">See the recommendation</button>
+              <button class="ghost" type="button">I think this is wrong</button>
+              <span class="foot-note">finding recorded · decision log #214</span>
+            </div>
+          </article>
+        </section>
+
+        <!-- ======================= SCREEN 10 · recommendation ======================= -->
+        <section class="screen" id="s10" aria-label="Screen 10 — Recommendation detail">
+          <article class="report">
+            <div class="crumb">report / finding 1 / recommendation</div>
+            <h1>Raise the 0.5L price to 5 990.</h1>
+            <p class="scenario">
+              At 4 990 the bottle barely covers its own costs. At 5 990 it earns like the rest of
+              your range — and it still sits below what gift shoppers pay for comparable Hungarian
+              craft syrup.
+            </p>
+
+            <div class="sect">The assumptions</div>
+            <div class="assump">
+              <span class="al">Cost to make &amp; deliver stays</span>
+              <span class="av">4 090 HUF</span>
+              <span class="ap">owner · stated</span>
+              <button class="ghost quiet" type="button">adjust</button>
+            </div>
+            <div class="assump">
+              <span class="al">Comparable craft syrup, 0.5L</span>
+              <span class="av">5 500 – 7 200 HUF</span>
+              <span class="ap">benchmark · hungarian food-craft · 0.5</span>
+              <button class="ghost quiet" type="button">adjust</button>
+            </div>
+            <div class="assump">
+              <span class="al">Worst-case volume drop</span>
+              <span class="av">−8%</span>
+              <span class="ap">benchmark · hungarian food-craft · 0.5</span>
+              <button class="ghost quiet" type="button">adjust</button>
+            </div>
+
+            <div class="sect">What changes</div>
+            <div class="compare">
+              <div class="comp-col">
+                <div class="ch">Today</div>
+                <div class="comp-row">
+                  <span class="ck">price</span><span class="cv">4 990 <small>HUF</small></span>
+                </div>
+                <div class="comp-row">
+                  <span class="ck">margin</span><span class="cv">18%</span>
+                </div>
+                <div class="comp-row">
+                  <span class="ck">0.5L revenue / mo</span
+                  ><span class="cv">1 407 000 <small>HUF</small></span>
+                </div>
+              </div>
+              <div class="comp-col approve">
+                <div class="ch"><i class="dot ember"></i>If you approve</div>
+                <div class="comp-row">
+                  <span class="ck">price</span><span class="cv">5 990 <small>HUF</small></span>
+                </div>
+                <div class="comp-row">
+                  <span class="ck">margin</span><span class="cv">32%</span>
+                </div>
+                <div class="comp-row">
+                  <span class="ck">at −8% volume, worst case</span
+                  ><span class="cv">1 554 000 <small>HUF</small></span>
+                </div>
+              </div>
+            </div>
+            <p class="honesty">
+              If volume drops more than 14%, this loses money — I'll watch for that.
+            </p>
+
+            <div class="row">
+              <button class="next" type="button">Approve — raise the price</button>
+              <button class="ghost" type="button">Not now</button>
+              <button class="textlink" type="button">Never suggest this again</button>
+            </div>
+            <p class="foot-note" style="margin-left: 0; margin-top: 14px">
+              your decision writes to the log · nothing executes without you
+            </p>
+          </article>
+        </section>
+
+        <!-- ======================= SCREEN 11 · business profile ======================= -->
+        <section class="screen" id="s11" aria-label="Screen 11 — Business profile">
+          <div class="prof-wrap">
+            <header class="prof-head">
+              <h1>Everything I know</h1>
+              <p class="sub">
+                214 facts. Every one can say where it came from. Change anything — the old value
+                stays in the history.
+              </p>
+            </header>
+
+            <nav class="section-rail" aria-label="Profile sections">
+              <a class="rail-item" href="#s11"
+                ><i class="dot"></i>identity<span class="cnt">9/9</span></a
+              >
+              <a class="rail-item" href="#s11"
+                ><i class="dot"></i>offers<span class="cnt">12/12</span></a
+              >
+              <a class="rail-item" href="#s11" aria-current="true"
+                ><i class="dot"></i>revenue<span class="cnt">6/6</span></a
+              >
+              <a class="rail-item" href="#s11"
+                ><i class="dot thin"></i>costs<span class="cnt">4/9</span></a
+              >
+              <a class="rail-item" href="#s11"
+                ><i class="dot"></i>channels<span class="cnt">5/5</span></a
+              >
+              <a class="rail-item" href="#s11"
+                ><i class="dot thin"></i>customers<span class="cnt">3/7</span></a
+              >
+              <a class="rail-item" href="#s11"
+                ><i class="dot thin"></i>operations<span class="cnt">2/6</span></a
+              >
+              <a class="rail-item" href="#s11"
+                ><i class="dot thin"></i>team<span class="cnt">1/3</span></a
+              >
+            </nav>
+
+            <div class="prof-main">
+              <div class="prof-bar">
+                <h2>Revenue</h2>
+                <span class="count">6 facts</span>
+                <label class="search">
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="m20 20-3.5-3.5" />
+                  </svg>
+                  <span class="sr-only">Search facts</span>
+                  <input type="search" placeholder="Search facts…" />
+                </label>
+              </div>
+
+              <div class="factlist">
+                <div class="factrow" data-q="4.1a" data-value="4 500 000 HUF">
+                  <span class="lab"
+                    >Monthly revenue, typical <span class="est-pill">Estimate</span></span
+                  >
+                  <span class="val">4 500 000 HUF</span>
+                  <span class="prov">4.1a · owner · estimate · 0.55 · 21 aug 2026</span>
+                  <span class="acts"
+                    ><button class="rowlink" type="button" data-change>change</button></span
+                  >
+                </div>
+
+                <div class="factrow" data-q="4.3" data-value="≈ 310" data-open>
+                  <span class="lab">Orders in a typical month</span>
+                  <span class="val">≈ 310</span>
+                  <span class="prov">4.3 · owner · estimate · 0.55 · 21 aug 2026</span>
+                  <span class="acts"
+                    ><button class="rowlink" type="button" data-change>change</button></span
+                  >
+                </div>
+
+                <div class="factrow" data-q="4.2c" data-value="14 516 HUF">
+                  <span class="lab">Average order value</span>
+                  <span class="val">14 516 HUF</span>
+                  <span class="prov">4.2c · derived · revenue / orders · 0.50 · 21 aug 2026</span>
+                  <span class="acts"
+                    ><button class="rowlink" type="button" data-change>change</button></span
+                  >
+                </div>
+
+                <div class="factrow" data-q="4.4" data-value="35%">
+                  <span class="lab">Webshop share of revenue</span>
+                  <span class="val">35%</span>
+                  <span class="prov">4.4 · owner · stated · 0.80 · 22 aug 2026</span>
+                  <span class="acts"
+                    ><button class="rowlink" type="button" data-history>history (2)</button
+                    ><button class="rowlink" type="button" data-change>change</button></span
+                  >
+                </div>
+
+                <div class="factrow" data-q="4.5" data-value="380 000 HUF">
+                  <span class="lab">Typical market-day take</span>
+                  <span class="val">380 000 HUF</span>
+                  <span class="prov">4.5 · owner · estimate · 0.55 · 21 aug 2026</span>
+                  <span class="acts"
+                    ><button class="rowlink" type="button" data-change>change</button></span
+                  >
+                </div>
+
+                <div class="factrow" data-q="4.6" data-value="December · gift boxes">
+                  <span class="lab">Best month of the year</span>
+                  <span class="val">December · gift boxes</span>
+                  <span class="prov">4.6 · owner · stated · 0.85 · 21 aug 2026</span>
+                  <span class="acts"
+                    ><button class="rowlink" type="button" data-change>change</button></span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+        var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* ---------- screen switching ---------- */
+        var ORDER = ["s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11"];
+        var CHROME = {
+          s3: { sub: "intake · Szörp Kft.", count: "8 / 27 core", frac: 8 / 27 },
+          s4: { sub: "intake · Szörp Kft.", count: "14 / 27 core", frac: 14 / 27 },
+          s5: { sub: "intake · Szörp Kft.", count: "23 / 27 core", frac: 23 / 27 },
+          s6: { sub: "intake · Szörp Kft.", count: "12 / 27 core", frac: 12 / 27 },
+          s7: { sub: "profile · Szörp Kft.", count: "23 / 27 core", frac: 23 / 27 },
+          s8: { sub: "diagnosis · Szörp Kft.", count: "23 / 27 core", frac: 23 / 27 },
+          s9: { sub: "report · Szörp Kft.", count: "23 / 27 core", frac: 23 / 27 },
+          s10: { sub: "report · Szörp Kft.", count: "23 / 27 core", frac: 23 / 27 },
+          s11: { sub: "profile · Szörp Kft.", count: "23 / 27 core", frac: 23 / 27 },
+        };
+        var tbSub = document.getElementById("tb-sub");
+        var tbCount = document.getElementById("tb-count");
+        var tbFill = document.getElementById("tb-fill");
+        var current = null;
+
+        function show(id) {
+          if (ORDER.indexOf(id) === -1) id = "s3";
+          if (id === current) return;
+          current = id;
+          ORDER.forEach(function (sid) {
+            var el = document.getElementById(sid);
+            el.classList.toggle("active", sid === id);
+          });
+          document.querySelectorAll(".switcher .sw").forEach(function (a) {
+            var on = a.getAttribute("href") === "#" + id;
+            if (on) {
+              a.setAttribute("aria-current", "true");
+            } else {
+              a.removeAttribute("aria-current");
+            }
+          });
+          var c = CHROME[id];
+          tbSub.textContent = c.sub;
+          tbCount.textContent = c.count;
+          tbFill.style.width = (c.frac * 100).toFixed(1) + "%";
+          window.scrollTo(0, 0);
+          if (id === "s8") {
+            playLog();
+          } else {
+            stopLog();
+          }
+        }
+
+        function fromHash() {
+          show((location.hash || "#s3").slice(1));
+        }
+        window.addEventListener("hashchange", fromHash);
+
+        window.addEventListener("keydown", function (e) {
+          var t = e.target;
+          if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+          var i = ORDER.indexOf(current);
+          if (e.key === "ArrowRight" && i < ORDER.length - 1) {
+            location.hash = "#" + ORDER[i + 1];
+          }
+          if (e.key === "ArrowLeft" && i > 0) {
+            location.hash = "#" + ORDER[i - 1];
+          }
+        });
+
+        /* ---------- screen 3: kind pills, cost expanders, add row ---------- */
+        document.addEventListener("click", function (e) {
+          var kbtn = e.target.closest(".kindgroup .opt");
+          if (kbtn) {
+            kbtn.parentElement.querySelectorAll(".opt").forEach(function (b) {
+              b.setAttribute("aria-pressed", b === kbtn ? "true" : "false");
+            });
+            return;
+          }
+          var exp = e.target.closest("[data-exp]");
+          if (exp) {
+            var open = exp.getAttribute("aria-expanded") === "true";
+            var detail = exp.parentElement.querySelector(".entity-detail");
+            exp.setAttribute("aria-expanded", open ? "false" : "true");
+            if (open) {
+              detail.hidden = true;
+              if (!exp.dataset.label) exp.textContent = "+ cost to deliver";
+              else exp.textContent = exp.dataset.label;
+            } else {
+              if (
+                exp.textContent.indexOf("+") === 0 ||
+                exp.textContent.indexOf("cost recorded") === 0
+              ) {
+                exp.dataset.label = exp.textContent;
+              }
+              detail.hidden = false;
+              exp.textContent = "− cost to deliver";
+            }
+          }
+        });
+
+        var addRow = document.getElementById("add-row");
+        if (addRow) {
+          addRow.addEventListener("click", function () {
+            var rows = document.getElementById("entity-rows");
+            var tpl = rows.children[rows.children.length - 1].cloneNode(true);
+            tpl.querySelectorAll("input").forEach(function (inp) {
+              inp.value = "";
+            });
+            tpl.querySelector('input[aria-label="Product name"]').placeholder = "Product name";
+            tpl.querySelectorAll(".kindgroup .opt").forEach(function (b) {
+              b.setAttribute("aria-pressed", "false");
+            });
+            var exp = tpl.querySelector("[data-exp]");
+            exp.setAttribute("aria-expanded", "false");
+            exp.textContent = "+ cost to deliver";
+            delete exp.dataset.label;
+            tpl.querySelector(".entity-detail").hidden = true;
+            rows.appendChild(tpl);
+            tpl.querySelector("input").focus();
+          });
+        }
+
+        /* ---------- screen 8: work-log replay ---------- */
+        var LOG = [
+          { t: "00:04", text: "reading 214 recorded facts", step: 0 },
+          { t: "00:11", text: "computing unit economics for 5 offers", step: 1 },
+          { t: "00:19", text: "szörp 0.5l · margin 18% · flag", step: 1 },
+          {
+            t: "00:27",
+            text: "checking 9 consistency rules · 1 open contradiction carried in",
+            step: 2,
+          },
+          { t: "00:41", text: "comparing against 34 hungarian food-craft benchmarks", step: 2 },
+          { t: "00:58", text: "drafting finding 2 of 3…", step: 3 },
+        ];
+        var logTimers = [];
+        function stopLog() {
+          logTimers.forEach(clearTimeout);
+          logTimers = [];
+        }
+
+        function renderLine(entry, isCurrent) {
+          var div = document.createElement("div");
+          div.className = "logline" + (isCurrent ? " current" : "");
+          div.innerHTML =
+            '<i class="dot ' +
+            (isCurrent ? "ember" : "") +
+            '"></i>' +
+            '<span class="ts">' +
+            entry.t +
+            "</span>" +
+            "<span>" +
+            entry.text +
+            "</span>";
+          return div;
+        }
+        function setSteps(activeStep, allPrevDone) {
+          var steps = document.querySelectorAll("#gen-steps .step");
+          var conns = document.querySelectorAll("#gen-steps .conn");
+          steps.forEach(function (s, i) {
+            s.classList.toggle("done", i < activeStep);
+            s.classList.toggle("active", i === activeStep);
+          });
+          conns.forEach(function (c, i) {
+            c.classList.toggle("lit", i < activeStep);
+          });
+        }
+        function playLog() {
+          stopLog();
+          var log = document.getElementById("worklog");
+          log.innerHTML = "";
+          if (reduced) {
+            LOG.forEach(function (entry, i) {
+              log.appendChild(renderLine(entry, i === LOG.length - 1));
+            });
+            setSteps(3);
+            return;
+          }
+          setSteps(0);
+          LOG.forEach(function (entry, i) {
+            logTimers.push(
+              setTimeout(
+                function () {
+                  var prev = log.querySelector(".logline.current");
+                  if (prev) {
+                    prev.classList.remove("current");
+                    prev.querySelector(".dot").classList.remove("ember");
+                  }
+                  log.appendChild(renderLine(entry, true));
+                  setSteps(entry.step);
+                },
+                500 + i * 900,
+              ),
+            );
+          });
+        }
+
+        /* ---------- screen 11: change / edit rows ---------- */
+        function closeEdit(row) {
+          var f = row.querySelector(".factedit");
+          if (f) f.remove();
+          var link = row.querySelector("[data-change]");
+          if (link) link.textContent = "change";
+        }
+        function openEdit(row) {
+          if (row.querySelector(".factedit")) return;
+          var form = document.createElement("form");
+          form.className = "factedit";
+          form.innerHTML =
+            '<input class="field fe-val tabular" type="text" aria-label="New value" value="' +
+            (row.dataset.value || "") +
+            '">' +
+            '<input class="field fe-why" type="text" aria-label="Reason for change" placeholder="Why change it?">' +
+            '<button class="next" type="submit">Record</button>' +
+            '<button class="ghost quiet" type="button" data-cancel>cancel</button>' +
+            '<span class="mono-note fe-note">old value stays in history · ' +
+            row.dataset.q +
+            "</span>";
+          form.addEventListener("submit", function (ev) {
+            ev.preventDefault();
+            var nv = form.querySelector(".fe-val").value.trim();
+            if (nv) {
+              row.querySelector(".val").textContent = nv;
+              row.querySelector(".prov").textContent =
+                row.dataset.q + " · owner · stated · 0.90 · 23 aug 2026";
+              row.dataset.value = nv;
+              var acts = row.querySelector(".acts");
+              if (!acts.querySelector("[data-history]")) {
+                var h = document.createElement("button");
+                h.className = "rowlink";
+                h.type = "button";
+                h.setAttribute("data-history", "");
+                h.textContent = "history (2)";
+                acts.insertBefore(h, acts.firstChild);
+              }
+            }
+            closeEdit(row);
+          });
+          form.addEventListener("click", function (ev) {
+            if (ev.target.closest("[data-cancel]")) closeEdit(row);
+          });
+          row.appendChild(form);
+          var link = row.querySelector("[data-change]");
+          if (link) link.textContent = "close";
+        }
+        document.addEventListener("click", function (e) {
+          var chg = e.target.closest("[data-change]");
+          if (chg) {
+            var row = chg.closest(".factrow");
+            if (row.querySelector(".factedit")) {
+              closeEdit(row);
+            } else {
+              openEdit(row);
+            }
+          }
+        });
+        var preopen = document.querySelector(".factrow[data-open]");
+        if (preopen) openEdit(preopen);
+
+        /* boot */
+        fromHash();
+      })();
+    </script>
+  </body>
 </html>

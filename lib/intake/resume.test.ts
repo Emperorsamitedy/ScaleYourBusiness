@@ -140,10 +140,7 @@ describe("P1-61 — the ways a link stops working", () => {
     await revokeResumeToken(link.token);
 
     await expect(resolveResumeToken(link.token)).rejects.toThrow(ResumeError);
-    const rows = await db
-      .select()
-      .from(resumeTokens)
-      .where(eq(resumeTokens.profile_id, profileId));
+    const rows = await db.select().from(resumeTokens).where(eq(resumeTokens.profile_id, profileId));
     expect(rows).toHaveLength(1);
     expect(rows[0]?.revoked_at).not.toBeNull();
   });

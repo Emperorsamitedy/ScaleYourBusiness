@@ -34,7 +34,11 @@ export function BlurText({
           key={`${word}-${i}`}
           style={{ display: "inline-block", marginRight: "0.28em" }}
           initial={{ filter: "blur(10px)", opacity: 0, y: 50 }}
-          animate={inView ? { filter: "blur(0px)", opacity: 1, y: 0 } : { filter: "blur(10px)", opacity: 0, y: 50 }}
+          animate={
+            inView
+              ? { filter: "blur(0px)", opacity: 1, y: 0 }
+              : { filter: "blur(10px)", opacity: 0, y: 50 }
+          }
           transition={{ duration: 0.7, delay: i * 0.1, ease: "easeOut" }}
         >
           {word}

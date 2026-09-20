@@ -77,9 +77,7 @@ export async function recordFunnelEvent(
     });
   } catch (error) {
     // Telemetry never breaks the thing it measures.
-    console.error(
-      JSON.stringify({ event: "funnel_event_failed", kind, message: String(error) }),
-    );
+    console.error(JSON.stringify({ event: "funnel_event_failed", kind, message: String(error) }));
   }
 }
 
@@ -87,10 +85,7 @@ const MAX_BATCH = 50;
 const KIND_SET = new Set<string>(EVENT_KINDS);
 
 /** Validate and persist a client batch. Returns how many were accepted. */
-export async function recordIntakeEvents(
-  profileId: string,
-  events: unknown,
-): Promise<number> {
+export async function recordIntakeEvents(profileId: string, events: unknown): Promise<number> {
   if (!Array.isArray(events)) return 0;
   const rows = events
     .slice(0, MAX_BATCH)

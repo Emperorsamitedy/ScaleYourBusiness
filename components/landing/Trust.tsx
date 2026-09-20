@@ -25,8 +25,12 @@ export function Trust() {
         <span className="trust-mono">read-only · no third parties</span>
       </header>
 
-      <svg viewBox="0 0 860 340" className="trust-svg" role="img"
-        aria-label="Your answers travel into your profile and into your report. They are never sold, never used to train models, and never shown to other users.">
+      <svg
+        viewBox="0 0 860 340"
+        className="trust-svg"
+        role="img"
+        aria-label="Your answers travel into your profile and into your report. They are never sold, never used to train models, and never shown to other users."
+      >
         <defs>
           <linearGradient id="tLive" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#e1560f" />
@@ -35,8 +39,24 @@ export function Trust() {
         </defs>
 
         {/* the two routes an answer actually takes */}
-        <line className="t-live" x1="128" y1="150" x2="336" y2="150" stroke="url(#tLive)" strokeWidth="1.6" />
-        <line className="t-live" x1="524" y1="150" x2="700" y2="150" stroke="url(#tLive)" strokeWidth="1.6" />
+        <line
+          className="t-live"
+          x1="128"
+          y1="150"
+          x2="336"
+          y2="150"
+          stroke="url(#tLive)"
+          strokeWidth="1.6"
+        />
+        <line
+          className="t-live"
+          x1="524"
+          y1="150"
+          x2="700"
+          y2="150"
+          stroke="url(#tLive)"
+          strokeWidth="1.6"
+        />
 
         {/* the three it never takes */}
         {BLOCKED.map((b) => (
@@ -52,7 +72,12 @@ export function Trust() {
             />
             <g className="t-cut" style={{ transform: `translate(${b.x}px, ${b.y}px)` }}>
               <circle r="13" fill="rgba(255,122,114,.07)" stroke="rgba(255,122,114,.4)" />
-              <path d="M-5,-5 L5,5 M5,-5 L-5,5" stroke="#ff7a72" strokeWidth="1.7" strokeLinecap="round" />
+              <path
+                d="M-5,-5 L5,5 M5,-5 L-5,5"
+                stroke="#ff7a72"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+              />
             </g>
             <text x={b.x} y={b.y + 32} textAnchor="middle" className="t-blocked">
               never {b.label}
@@ -61,27 +86,83 @@ export function Trust() {
         ))}
 
         {/* you */}
-        <circle cx="86" cy="150" r="30" fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.18)" />
+        <circle
+          cx="86"
+          cy="150"
+          r="30"
+          fill="rgba(255,255,255,.05)"
+          stroke="rgba(255,255,255,.18)"
+        />
         <circle cx="86" cy="150" r="7" fill="#eef0f2" />
-        <text x="86" y="204" textAnchor="middle" className="t-label">you</text>
+        <text x="86" y="204" textAnchor="middle" className="t-label">
+          you
+        </text>
 
         {/* your profile — the sealed middle */}
         <g className="t-vault">
-          <rect x="336" y="104" width="188" height="96" rx="10"
-            fill="rgba(245,155,75,.07)" stroke="rgba(245,155,75,.42)" />
-          <path d="M424,142 v-9 a6,6 0 0 1 12,0 v9" fill="none" stroke="#f59b4b" strokeWidth="1.6" />
-          <rect x="420" y="142" width="20" height="15" rx="2.5" fill="none" stroke="#f59b4b" strokeWidth="1.6" />
-          <text x="430" y="180" textAnchor="middle" className="t-label hot">your profile</text>
-          <text x="430" y="196" textAnchor="middle" className="t-blocked">214 facts · yours</text>
+          <rect
+            x="336"
+            y="104"
+            width="188"
+            height="96"
+            rx="10"
+            fill="rgba(245,155,75,.07)"
+            stroke="rgba(245,155,75,.42)"
+          />
+          <path
+            d="M424,142 v-9 a6,6 0 0 1 12,0 v9"
+            fill="none"
+            stroke="#f59b4b"
+            strokeWidth="1.6"
+          />
+          <rect
+            x="420"
+            y="142"
+            width="20"
+            height="15"
+            rx="2.5"
+            fill="none"
+            stroke="#f59b4b"
+            strokeWidth="1.6"
+          />
+          <text x="430" y="180" textAnchor="middle" className="t-label hot">
+            your profile
+          </text>
+          <text x="430" y="196" textAnchor="middle" className="t-blocked">
+            214 facts · yours
+          </text>
         </g>
 
         {/* your report */}
-        <rect x="700" y="112" width="120" height="76" rx="8"
-          fill="rgba(255,255,255,.05)" stroke="rgba(255,255,255,.18)" />
+        <rect
+          x="700"
+          y="112"
+          width="120"
+          height="76"
+          rx="8"
+          fill="rgba(255,255,255,.05)"
+          stroke="rgba(255,255,255,.18)"
+        />
         <line x1="722" y1="140" x2="798" y2="140" stroke="rgba(255,255,255,.3)" strokeWidth="1.4" />
-        <line x1="722" y1="154" x2="778" y2="154" stroke="rgba(255,255,255,.18)" strokeWidth="1.4" />
-        <line x1="722" y1="168" x2="790" y2="168" stroke="rgba(255,255,255,.18)" strokeWidth="1.4" />
-        <text x="760" y="210" textAnchor="middle" className="t-label">your report</text>
+        <line
+          x1="722"
+          y1="154"
+          x2="778"
+          y2="154"
+          stroke="rgba(255,255,255,.18)"
+          strokeWidth="1.4"
+        />
+        <line
+          x1="722"
+          y1="168"
+          x2="790"
+          y2="168"
+          stroke="rgba(255,255,255,.18)"
+          strokeWidth="1.4"
+        />
+        <text x="760" y="210" textAnchor="middle" className="t-label">
+          your report
+        </text>
 
         {/* packets: two that arrive, three that die at the cut */}
         <circle className="t-pkt t-p1" r="4.5" fill="#f59b4b" />

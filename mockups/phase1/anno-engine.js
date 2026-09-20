@@ -87,9 +87,13 @@ const RULES = [
   },
   // The multiple between them, stated plainly.
   (r) => {
-    const b = best(r), w = worst(r);
+    const b = best(r),
+      w = worst(r);
     return (
-      b && w && w.margin > 0 && b.margin / w.margin >= 1.5 && {
+      b &&
+      w &&
+      w.margin > 0 &&
+      b.margin / w.margin >= 1.5 && {
         priority: 60,
         kind: "note",
         anchor: "offer-second-row",
@@ -225,10 +229,22 @@ export function renderAnnotations(marks, layer, root) {
     }
     if (m.kind === "underline" || m.kind === "strike") {
       const y = m.kind === "strike" ? box.y + box.h * 0.5 - 6 : box.y + box.h - 6;
-      const el = svg(`pen${tone}`, "0 0 200 13", 230, "M3,6 C42,2 82,11 122,5 C152,1.5 176,8 197,4", 2);
+      const el = svg(
+        `pen${tone}`,
+        "0 0 200 13",
+        230,
+        "M3,6 C42,2 82,11 122,5 C152,1.5 176,8 197,4",
+        2,
+      );
       put(el, box.x - 4, y, box.w + 8, 13);
       if (m.double) {
-        const el2 = svg(`pen${tone}`, "0 0 200 13", 230, "M8,11 C48,8 92,13 136,9 C160,7 182,11 194,9", 2);
+        const el2 = svg(
+          `pen${tone}`,
+          "0 0 200 13",
+          230,
+          "M8,11 C48,8 92,13 136,9 C160,7 182,11 194,9",
+          2,
+        );
         put(el2, box.x - 2, y + 4, box.w + 4, 13);
       }
     }

@@ -17,9 +17,7 @@ async function main(): Promise<void> {
     console.log("no intake events recorded yet");
     process.exit(0);
   }
-  console.log(
-    "question   shown  ans  skip  unk  reopen  hesitation  dwell  ABANDONED",
-  );
+  console.log("question   shown  ans  skip  unk  reopen  hesitation  dwell  ABANDONED");
   for (const r of rows) {
     console.log(
       [

@@ -178,25 +178,14 @@ export function Arc() {
             stroke="url(#arcLive)"
             strokeWidth="1.8"
           />
-          <line
-            className="arc-spine plan"
-            x1={X0}
-            y1={Y}
-            x2={lastX}
-            y2={Y}
-            strokeDasharray="4 7"
-          />
+          <line className="arc-spine plan" x1={X0} y1={Y} x2={lastX} y2={Y} strokeDasharray="4 7" />
 
           {/* one charge, bright over built ground and faint over planned */}
           <circle className="arc-pulse" cy={Y} r="4.5" fill="#ffb25c" />
 
           {STAGES.map((s, n) => {
             const cx = cxOf(n);
-            const cls = [
-              "arc-node",
-              s.state === "live" ? "live" : "plan",
-              n === i ? "on" : "",
-            ]
+            const cls = ["arc-node", s.state === "live" ? "live" : "plan", n === i ? "on" : ""]
               .filter(Boolean)
               .join(" ");
             return (
@@ -220,9 +209,7 @@ export function Arc() {
                 <circle className="arc-track" cx={cx} cy={Y} r={R} />
                 {/* the ring fills further along the rail — the scope grows */}
                 <path className="arc-cap" d={capPath(cx, (n + 1) / NODES)} />
-                {s.state === "live" && (
-                  <circle className="arc-ping" cx={cx} cy={Y} r={R} />
-                )}
+                {s.state === "live" && <circle className="arc-ping" cx={cx} cy={Y} r={R} />}
                 <text className="arc-num" x={cx} y={Y + 5} textAnchor="middle">
                   {s.n}
                 </text>

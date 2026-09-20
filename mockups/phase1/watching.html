@@ -1,246 +1,830 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ledgerline — Watching</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/ember.css">
-<style>
-/* 1 · TIMELINE RIBBON */
-.tl{position:relative;margin-top:8px;padding:26px 0 8px}
-.tl-track{display:flex;gap:3px;height:38px}
-.tl-w{flex:1;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--hair);position:relative;
-  display:grid;place-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--dim)}
-.tl-w.done{background:linear-gradient(180deg,rgba(245,155,75,.22),rgba(245,155,75,.08));border-color:rgba(245,155,75,.35);color:var(--ember)}
-.tl-w.now{background:linear-gradient(180deg,var(--ember),var(--ember-deep));border-color:var(--ember-bright);color:var(--on-ember);font-weight:600}
-.tl-ev{position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:9px;height:9px;border-radius:50%;
-  background:var(--stage);border:2px solid var(--mut)}
-.tl-ev.hot{border-color:var(--ember);box-shadow:0 0 12px rgba(245,155,75,.6)}
-.tl-cap{display:flex;justify-content:space-between;margin-top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--dim)}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Ledgerline — Watching</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@700,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/ember.css" />
+    <style>
+      /* 1 · TIMELINE RIBBON */
+      .tl {
+        position: relative;
+        margin-top: 8px;
+        padding: 26px 0 8px;
+      }
+      .tl-track {
+        display: flex;
+        gap: 3px;
+        height: 38px;
+      }
+      .tl-w {
+        flex: 1;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--hair);
+        position: relative;
+        display: grid;
+        place-items: center;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+      }
+      .tl-w.done {
+        background: linear-gradient(180deg, rgba(245, 155, 75, 0.22), rgba(245, 155, 75, 0.08));
+        border-color: rgba(245, 155, 75, 0.35);
+        color: var(--ember);
+      }
+      .tl-w.now {
+        background: linear-gradient(180deg, var(--ember), var(--ember-deep));
+        border-color: var(--ember-bright);
+        color: var(--on-ember);
+        font-weight: 600;
+      }
+      .tl-ev {
+        position: absolute;
+        top: -22px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--stage);
+        border: 2px solid var(--mut);
+      }
+      .tl-ev.hot {
+        border-color: var(--ember);
+        box-shadow: 0 0 12px rgba(245, 155, 75, 0.6);
+      }
+      .tl-cap {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        color: var(--dim);
+      }
 
-/* 2 · DIALS */
-.dials{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
-.dial{background:var(--glass);border:1px solid var(--hair);border-radius:18px;padding:18px 14px 16px;text-align:center;
-  transition:border-color .24s var(--ease),transform .24s var(--ease)}
-.dial:hover{border-color:var(--hair-2);transform:translateY(-2px)}
-.dial svg{width:100%;max-width:150px;height:auto;overflow:visible}
-.dial .dv{stroke-dasharray:280;stroke-dashoffset:280;animation:draw 1.2s var(--ease) .25s forwards}
-.dl{font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:2px}
-@media (max-width:1000px){.dials{grid-template-columns:1fr 1fr}}
-/* 3 · HEATMAP */
-.hm{display:grid;grid-template-columns:auto repeat(7,1fr);gap:4px;margin-top:16px}
-.hm .lbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--dim);display:grid;place-items:center;padding-right:6px}
-.hm .cell{aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.04);position:relative;transition:transform .18s var(--ease)}
-.hm .cell:hover{transform:scale(1.14);z-index:2;outline:1px solid var(--hair-2)}
-.hm .cell.pending{border:1px dashed var(--hair-2);background:transparent}
-.hm-key{display:flex;align-items:center;gap:7px;margin-top:14px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--dim)}
-.hm-key i{width:16px;height:10px;border-radius:3px;display:block}
+      /* 2 · DIALS */
+      .dials {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-top: 18px;
+      }
+      .dial {
+        background: var(--glass);
+        border: 1px solid var(--hair);
+        border-radius: 18px;
+        padding: 18px 14px 16px;
+        text-align: center;
+        transition:
+          border-color 0.24s var(--ease),
+          transform 0.24s var(--ease);
+      }
+      .dial:hover {
+        border-color: var(--hair-2);
+        transform: translateY(-2px);
+      }
+      .dial svg {
+        width: 100%;
+        max-width: 150px;
+        height: auto;
+        overflow: visible;
+      }
+      .dial .dv {
+        stroke-dasharray: 280;
+        stroke-dashoffset: 280;
+        animation: draw 1.2s var(--ease) 0.25s forwards;
+      }
+      .dl {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-top: 2px;
+      }
+      @media (max-width: 1000px) {
+        .dials {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      /* 3 · HEATMAP */
+      .hm {
+        display: grid;
+        grid-template-columns: auto repeat(7, 1fr);
+        gap: 4px;
+        margin-top: 16px;
+      }
+      .hm .lbl {
+        font-family: var(--mono);
+        font-size: 9.5px;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        display: grid;
+        place-items: center;
+        padding-right: 6px;
+      }
+      .hm .cell {
+        aspect-ratio: 1;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.04);
+        position: relative;
+        transition: transform 0.18s var(--ease);
+      }
+      .hm .cell:hover {
+        transform: scale(1.14);
+        z-index: 2;
+        outline: 1px solid var(--hair-2);
+      }
+      .hm .cell.pending {
+        border: 1px dashed var(--hair-2);
+        background: transparent;
+      }
+      .hm-key {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 14px;
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        color: var(--dim);
+      }
+      .hm-key i {
+        width: 16px;
+        height: 10px;
+        border-radius: 3px;
+        display: block;
+      }
 
-/* 4 · BULLET */
-.bul{display:flex;flex-direction:column;gap:20px;margin-top:18px}
-.bul .h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:14px}
-.bul .h b{font-family:var(--display);font-weight:600;font-variant-numeric:tabular-nums}
-.bul .track{height:26px;border-radius:6px;position:relative;overflow:hidden;
-  background:linear-gradient(90deg,rgba(255,122,114,.20) 0 22%,rgba(255,255,255,.06) 22% 55%,rgba(52,211,153,.14) 55%)}
-.bul .fill{position:absolute;left:0;top:7px;height:12px;border-radius:3px;background:var(--ink);
-  transform-origin:left;animation:grow .9s var(--ease) both}
-.bul .fill.hot{background:linear-gradient(90deg,var(--ember-deep),var(--ember))}
-.bul .mark{position:absolute;top:2px;width:2px;height:22px;background:var(--err);border-radius:1px}
-.bul .cap{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--dim);margin-top:7px}
+      /* 4 · BULLET */
+      .bul {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 18px;
+      }
+      .bul .h {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      .bul .h b {
+        font-family: var(--display);
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+      }
+      .bul .track {
+        height: 26px;
+        border-radius: 6px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 122, 114, 0.2) 0 22%,
+          rgba(255, 255, 255, 0.06) 22% 55%,
+          rgba(52, 211, 153, 0.14) 55%
+        );
+      }
+      .bul .fill {
+        position: absolute;
+        left: 0;
+        top: 7px;
+        height: 12px;
+        border-radius: 3px;
+        background: var(--ink);
+        transform-origin: left;
+        animation: grow 0.9s var(--ease) both;
+      }
+      .bul .fill.hot {
+        background: linear-gradient(90deg, var(--ember-deep), var(--ember));
+      }
+      .bul .mark {
+        position: absolute;
+        top: 2px;
+        width: 2px;
+        height: 22px;
+        background: var(--err);
+        border-radius: 1px;
+      }
+      .bul .cap {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        color: var(--dim);
+        margin-top: 7px;
+      }
 
-.logrow{display:grid;grid-template-columns:74px 12px 1fr;gap:14px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--hair)}
-.logrow:last-child{border-bottom:0}
-.logrow .when{font-family:var(--mono);font-size:11px;letter-spacing:.05em;color:var(--dim)}
-.logrow .what{font-size:14.5px}
-.logrow .sub{font-size:13px;color:var(--mut);margin-top:2px}
-@media (max-width:1000px){.sm-grid{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div class="app">
-<aside class="rail">
-  <div class="wordmark">Ledgerline</div>
-  <nav class="nav">
-    <a href="/report-v3.html"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 17h14M6 13V8.5M10 13V4M14 13V7"/></svg>Diagnosis</a>
-    <a href="#"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 3h7l3 3v11H5zM12 3v3h3M8 10h4M8 13h4"/></svg>Profile</a>
-    <a href="#" class="on"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5z"/><circle cx="10" cy="10" r="2"/></svg>Watching</a>
-    <a href="#"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z"/></svg>Modules</a>
-  </nav>
-  <div class="foot"><span class="av">ES</span><div><div style="font-size:14px">Eszter</div><small>SZÖRP KFT.</small></div></div>
-</aside>
-
-<main class="main">
-  <div class="kicker">Watching · week 2 of 6</div>
-  <h1>Two weeks in. Nothing alarming yet.</h1>
-  <p class="lede">I take a snapshot every Sunday and check it against what the diagnosis assumed. Everything below is work actually performed — no projections.</p>
-
-  <!-- 1 · TIMELINE RIBBON -->
-  <div class="tl">
-    <div class="tl-track">
-      <div class="tl-w done"><span class="tl-ev"></span>W1</div>
-      <div class="tl-w now"><span class="tl-ev hot"></span>W2</div>
-      <div class="tl-w">W3</div>
-      <div class="tl-w">W4</div>
-      <div class="tl-w">W5</div>
-      <div class="tl-w">W6</div>
-    </div>
-    <div class="tl-cap"><span>started 26 aug · baseline snapshot #f3a91c</span><span>report due 7 oct</span></div>
-  </div>
-
-  <!-- 2 · SMALL MULTIPLES -->
-  <div class="sec"><h3>The four things I'm watching</h3><span class="ln"></span></div>
-  <div class="dials">
-    <div class="dial">
-      <svg viewBox="0 0 120 132" aria-label="Orders / week: 74, +3 vs W1">
-        <path d="M27.5,92.5 A46,46 0 1 1 92.5,92.5" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="9" stroke-linecap="round"/>
-        <path d="M50.0,25.4 L44.4,6.2" stroke="rgba(255,255,255,.30)" stroke-width="2" stroke-linecap="round"/>
-        <path class="dv" d="M27.5,92.5 A46,46 0 0 1 72.8,15.8" fill="none" stroke="#34d399" stroke-width="9" stroke-linecap="round"/>
-        <circle cx="72.8" cy="15.8" r="7" fill="#34d399" opacity=".2"/>
-        <circle cx="72.8" cy="15.8" r="3.4" fill="#34d399"/>
-        <text x="60" y="58" text-anchor="middle" font-family="Satoshi,Geist,sans-serif" font-weight="700"
-              font-size="27" letter-spacing="-1" fill="#f2f3f5">74<tspan font-size="14" fill="#9ba1ab"></tspan></text>
-        <text x="60" y="76" text-anchor="middle" font-family="Geist Mono,monospace" font-size="9.5" letter-spacing=".8" fill="#34d399">+3 vs W1</text>
-        <text x="14" y="112" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing=".8" fill="#5a6068">60</text>
-        <text x="106" y="112" text-anchor="end" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing=".8" fill="#5a6068">85</text>
-      </svg>
-      <div class="dl">Orders / week</div>
-    </div>
-    <div class="dial">
-      <svg viewBox="0 0 120 132" aria-label="Gross margin: 23%, flat">
-        <path d="M27.5,92.5 A46,46 0 1 1 92.5,92.5" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="9" stroke-linecap="round"/>
-        <path d="M26.7,46.2 L8.3,38.6" stroke="rgba(255,255,255,.30)" stroke-width="2" stroke-linecap="round"/>
-        <path class="dv" d="M27.5,92.5 A46,46 0 0 1 17.5,42.4" fill="none" stroke="#f59b4b" stroke-width="9" stroke-linecap="round"/>
-        <circle cx="17.5" cy="42.4" r="7" fill="#f59b4b" opacity=".2"/>
-        <circle cx="17.5" cy="42.4" r="3.4" fill="#f59b4b"/>
-        <text x="60" y="58" text-anchor="middle" font-family="Satoshi,Geist,sans-serif" font-weight="700"
-              font-size="27" letter-spacing="-1" fill="#f2f3f5">23<tspan font-size="14" fill="#9ba1ab">%</tspan></text>
-        <text x="60" y="76" text-anchor="middle" font-family="Geist Mono,monospace" font-size="9.5" letter-spacing=".8" fill="#f59b4b">flat</text>
-        <text x="14" y="112" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing=".8" fill="#5a6068">20%</text>
-        <text x="106" y="112" text-anchor="end" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing=".8" fill="#5a6068">32%</text>
-      </svg>
-      <div class="dl">Gross margin</div>
-    </div>
-    <div class="dial">
-      <svg viewBox="0 0 120 132" aria-label="Markets share: 54%, −4 pts">
-        <path d="M27.5,92.5 A46,46 0 1 1 92.5,92.5" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="9" stroke-linecap="round"/>
-        <path d="M91.0,41.7 L108.2,31.5" stroke="rgba(255,255,255,.30)" stroke-width="2" stroke-linecap="round"/>
-        <path class="dv" d="M27.5,92.5 A46,46 0 0 1 72.8,15.8" fill="none" stroke="#ff7a72" stroke-width="9" stroke-linecap="round"/>
-        <circle cx="72.8" cy="15.8" r="7" fill="#ff7a72" opacity=".2"/>
-        <circle cx="72.8" cy="15.8" r="3.4" fill="#ff7a72"/>
-        <text x="60" y="58" text-anchor="middle" font-family="Satoshi,Geist,sans-serif" font-weight="700"
-              font-size="27" letter-spacing="-1" fill="#f2f3f5">54<tspan font-size="14" fill="#9ba1ab">%</tspan></text>
-        <text x="60" y="76" text-anchor="middle" font-family="Geist Mono,monospace" font-size="9.5" letter-spacing=".8" fill="#ff7a72">−4 pts</text>
-        <text x="14" y="112" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing=".8" fill="#5a6068">40%</text>
-        <text x="106" y="112" text-anchor="end" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing=".8" fill="#5a6068">65%</text>
-      </svg>
-      <div class="dl">Markets share</div>
-    </div>
-    <div class="dial">
-      <svg viewBox="0 0 120 132" aria-label="Average order: 14 900, +400">
-        <path d="M27.5,92.5 A46,46 0 1 1 92.5,92.5" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="9" stroke-linecap="round"/>
-        <path d="M40.0,30.1 L28.9,13.4" stroke="rgba(255,255,255,.30)" stroke-width="2" stroke-linecap="round"/>
-        <path class="dv" d="M27.5,92.5 A46,46 0 0 1 54.6,14.3" fill="none" stroke="#34d399" stroke-width="9" stroke-linecap="round"/>
-        <circle cx="54.6" cy="14.3" r="7" fill="#34d399" opacity=".2"/>
-        <circle cx="54.6" cy="14.3" r="3.4" fill="#34d399"/>
-        <text x="60" y="58" text-anchor="middle" font-family="Satoshi,Geist,sans-serif" font-weight="700"
-              font-size="22" letter-spacing="-1" fill="#f2f3f5">14 900<tspan font-size="14" fill="#9ba1ab"></tspan></text>
-        <text x="60" y="76" text-anchor="middle" font-family="Geist Mono,monospace" font-size="9.5" letter-spacing=".8" fill="#34d399">+400</text>
-        <text x="14" y="112" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing=".8" fill="#5a6068">13k</text>
-        <text x="106" y="112" text-anchor="end" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing=".8" fill="#5a6068">17k</text>
-      </svg>
-      <div class="dl">Average order</div>
-    </div>
-  </div>
-  <div style="display:flex;justify-content:space-between;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--dim)">
-    <span>each dial runs from the alarm level to the goal</span><span>faint tick = where you were last week</span>
-  </div>
-
-  <div class="two" style="margin-top:12px">
-    <!-- 3 · HEATMAP -->
-    <div class="card">
-      <div class="label">When the money actually comes in</div>
-      <p style="color:var(--mut);font-size:14px;margin:8px 0 0">Six weeks of sales by weekday. Your business happens on Saturday.</p>
-      <div class="hm" id="hm"></div>
-      <div class="hm-key">
-        quiet
-        <i style="background:rgba(255,255,255,.05)"></i>
-        <i style="background:rgba(245,155,75,.25)"></i>
-        <i style="background:rgba(245,155,75,.5)"></i>
-        <i style="background:rgba(245,155,75,.75)"></i>
-        <i style="background:var(--ember)"></i>
-        busy
-      </div>
-    </div>
-
-    <!-- 4 · BULLET -->
-    <div class="card">
-      <div class="label">What would make me interrupt you</div>
-      <p style="color:var(--mut);font-size:14px;margin:8px 0 0">Three thresholds. Cross one and you hear from me within a week.</p>
-      <div class="bul">
-        <div>
-          <div class="h"><span>0.5L bottles sold</span><b>174 <span style="color:var(--mut);font-weight:400;font-size:12px">/ 189</span></b></div>
-          <div class="track"><span class="fill hot" style="width:92%"></span><span class="mark" style="left:47%"></span></div>
-          <div class="cap">break-even marker at −53% · you are 45 pts clear</div>
+      .logrow {
+        display: grid;
+        grid-template-columns: 74px 12px 1fr;
+        gap: 14px;
+        align-items: baseline;
+        padding: 13px 0;
+        border-bottom: 1px solid var(--hair);
+      }
+      .logrow:last-child {
+        border-bottom: 0;
+      }
+      .logrow .when {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        color: var(--dim);
+      }
+      .logrow .what {
+        font-size: 14.5px;
+      }
+      .logrow .sub {
+        font-size: 13px;
+        color: var(--mut);
+        margin-top: 2px;
+      }
+      @media (max-width: 1000px) {
+        .sm-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .two {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="rail">
+        <div class="wordmark">Ledgerline</div>
+        <nav class="nav">
+          <a href="/report-v3.html"
+            ><svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            >
+              <path d="M3 17h14M6 13V8.5M10 13V4M14 13V7" /></svg
+            >Diagnosis</a
+          >
+          <a href="#"
+            ><svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            >
+              <path d="M5 3h7l3 3v11H5zM12 3v3h3M8 10h4M8 13h4" /></svg
+            >Profile</a
+          >
+          <a href="#" class="on"
+            ><svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            >
+              <path d="M2.5 10s2.8-5 7.5-5 7.5 5 7.5 5-2.8 5-7.5 5-7.5-5-7.5-5z" />
+              <circle cx="10" cy="10" r="2" /></svg
+            >Watching</a
+          >
+          <a href="#"
+            ><svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            >
+              <path d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z" /></svg
+            >Modules</a
+          >
+        </nav>
+        <div class="foot">
+          <span class="av">ES</span>
+          <div>
+            <div style="font-size: 14px">Eszter</div>
+            <small>SZÖRP KFT.</small>
+          </div>
         </div>
-        <div>
-          <div class="h"><span>Gross margin</span><b>23% <span style="color:var(--mut);font-weight:400;font-size:12px">/ floor 20%</span></b></div>
-          <div class="track"><span class="fill" style="width:58%"></span><span class="mark" style="left:50%"></span></div>
-          <div class="cap">3 pts of headroom · supplier rise would eat 2 of them</div>
+      </aside>
+
+      <main class="main">
+        <div class="kicker">Watching · week 2 of 6</div>
+        <h1>Two weeks in. Nothing alarming yet.</h1>
+        <p class="lede">
+          I take a snapshot every Sunday and check it against what the diagnosis assumed. Everything
+          below is work actually performed — no projections.
+        </p>
+
+        <!-- 1 · TIMELINE RIBBON -->
+        <div class="tl">
+          <div class="tl-track">
+            <div class="tl-w done"><span class="tl-ev"></span>W1</div>
+            <div class="tl-w now"><span class="tl-ev hot"></span>W2</div>
+            <div class="tl-w">W3</div>
+            <div class="tl-w">W4</div>
+            <div class="tl-w">W5</div>
+            <div class="tl-w">W6</div>
+          </div>
+          <div class="tl-cap">
+            <span>started 26 aug · baseline snapshot #f3a91c</span><span>report due 7 oct</span>
+          </div>
         </div>
-        <div>
-          <div class="h"><span>Supplier price</span><b style="color:var(--err)">+6% <span style="color:var(--mut);font-weight:400;font-size:12px">/ alert +10%</span></b></div>
-          <div class="track"><span class="fill" style="width:60%;background:var(--err)"></span><span class="mark" style="left:100%"></span></div>
-          <div class="cap">moved once already · watching weekly</div>
+
+        <!-- 2 · SMALL MULTIPLES -->
+        <div class="sec">
+          <h3>The four things I'm watching</h3>
+          <span class="ln"></span>
         </div>
-      </div>
+        <div class="dials">
+          <div class="dial">
+            <svg viewBox="0 0 120 132" aria-label="Orders / week: 74, +3 vs W1">
+              <path
+                d="M27.5,92.5 A46,46 0 1 1 92.5,92.5"
+                fill="none"
+                stroke="rgba(255,255,255,.06)"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <path
+                d="M50.0,25.4 L44.4,6.2"
+                stroke="rgba(255,255,255,.30)"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                class="dv"
+                d="M27.5,92.5 A46,46 0 0 1 72.8,15.8"
+                fill="none"
+                stroke="#34d399"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <circle cx="72.8" cy="15.8" r="7" fill="#34d399" opacity=".2" />
+              <circle cx="72.8" cy="15.8" r="3.4" fill="#34d399" />
+              <text
+                x="60"
+                y="58"
+                text-anchor="middle"
+                font-family="Satoshi,Geist,sans-serif"
+                font-weight="700"
+                font-size="27"
+                letter-spacing="-1"
+                fill="#f2f3f5"
+              >
+                74
+                <tspan font-size="14" fill="#9ba1ab"></tspan>
+              </text>
+              <text
+                x="60"
+                y="76"
+                text-anchor="middle"
+                font-family="Geist Mono,monospace"
+                font-size="9.5"
+                letter-spacing=".8"
+                fill="#34d399"
+              >
+                +3 vs W1
+              </text>
+              <text
+                x="14"
+                y="112"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing=".8"
+                fill="#5a6068"
+              >
+                60
+              </text>
+              <text
+                x="106"
+                y="112"
+                text-anchor="end"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing=".8"
+                fill="#5a6068"
+              >
+                85
+              </text>
+            </svg>
+            <div class="dl">Orders / week</div>
+          </div>
+          <div class="dial">
+            <svg viewBox="0 0 120 132" aria-label="Gross margin: 23%, flat">
+              <path
+                d="M27.5,92.5 A46,46 0 1 1 92.5,92.5"
+                fill="none"
+                stroke="rgba(255,255,255,.06)"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <path
+                d="M26.7,46.2 L8.3,38.6"
+                stroke="rgba(255,255,255,.30)"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                class="dv"
+                d="M27.5,92.5 A46,46 0 0 1 17.5,42.4"
+                fill="none"
+                stroke="#f59b4b"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <circle cx="17.5" cy="42.4" r="7" fill="#f59b4b" opacity=".2" />
+              <circle cx="17.5" cy="42.4" r="3.4" fill="#f59b4b" />
+              <text
+                x="60"
+                y="58"
+                text-anchor="middle"
+                font-family="Satoshi,Geist,sans-serif"
+                font-weight="700"
+                font-size="27"
+                letter-spacing="-1"
+                fill="#f2f3f5"
+              >
+                23
+                <tspan font-size="14" fill="#9ba1ab">%</tspan>
+              </text>
+              <text
+                x="60"
+                y="76"
+                text-anchor="middle"
+                font-family="Geist Mono,monospace"
+                font-size="9.5"
+                letter-spacing=".8"
+                fill="#f59b4b"
+              >
+                flat
+              </text>
+              <text
+                x="14"
+                y="112"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing=".8"
+                fill="#5a6068"
+              >
+                20%
+              </text>
+              <text
+                x="106"
+                y="112"
+                text-anchor="end"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing=".8"
+                fill="#5a6068"
+              >
+                32%
+              </text>
+            </svg>
+            <div class="dl">Gross margin</div>
+          </div>
+          <div class="dial">
+            <svg viewBox="0 0 120 132" aria-label="Markets share: 54%, −4 pts">
+              <path
+                d="M27.5,92.5 A46,46 0 1 1 92.5,92.5"
+                fill="none"
+                stroke="rgba(255,255,255,.06)"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <path
+                d="M91.0,41.7 L108.2,31.5"
+                stroke="rgba(255,255,255,.30)"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                class="dv"
+                d="M27.5,92.5 A46,46 0 0 1 72.8,15.8"
+                fill="none"
+                stroke="#ff7a72"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <circle cx="72.8" cy="15.8" r="7" fill="#ff7a72" opacity=".2" />
+              <circle cx="72.8" cy="15.8" r="3.4" fill="#ff7a72" />
+              <text
+                x="60"
+                y="58"
+                text-anchor="middle"
+                font-family="Satoshi,Geist,sans-serif"
+                font-weight="700"
+                font-size="27"
+                letter-spacing="-1"
+                fill="#f2f3f5"
+              >
+                54
+                <tspan font-size="14" fill="#9ba1ab">%</tspan>
+              </text>
+              <text
+                x="60"
+                y="76"
+                text-anchor="middle"
+                font-family="Geist Mono,monospace"
+                font-size="9.5"
+                letter-spacing=".8"
+                fill="#ff7a72"
+              >
+                −4 pts
+              </text>
+              <text
+                x="14"
+                y="112"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing=".8"
+                fill="#5a6068"
+              >
+                40%
+              </text>
+              <text
+                x="106"
+                y="112"
+                text-anchor="end"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing=".8"
+                fill="#5a6068"
+              >
+                65%
+              </text>
+            </svg>
+            <div class="dl">Markets share</div>
+          </div>
+          <div class="dial">
+            <svg viewBox="0 0 120 132" aria-label="Average order: 14 900, +400">
+              <path
+                d="M27.5,92.5 A46,46 0 1 1 92.5,92.5"
+                fill="none"
+                stroke="rgba(255,255,255,.06)"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <path
+                d="M40.0,30.1 L28.9,13.4"
+                stroke="rgba(255,255,255,.30)"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                class="dv"
+                d="M27.5,92.5 A46,46 0 0 1 54.6,14.3"
+                fill="none"
+                stroke="#34d399"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <circle cx="54.6" cy="14.3" r="7" fill="#34d399" opacity=".2" />
+              <circle cx="54.6" cy="14.3" r="3.4" fill="#34d399" />
+              <text
+                x="60"
+                y="58"
+                text-anchor="middle"
+                font-family="Satoshi,Geist,sans-serif"
+                font-weight="700"
+                font-size="22"
+                letter-spacing="-1"
+                fill="#f2f3f5"
+              >
+                14 900
+                <tspan font-size="14" fill="#9ba1ab"></tspan>
+              </text>
+              <text
+                x="60"
+                y="76"
+                text-anchor="middle"
+                font-family="Geist Mono,monospace"
+                font-size="9.5"
+                letter-spacing=".8"
+                fill="#34d399"
+              >
+                +400
+              </text>
+              <text
+                x="14"
+                y="112"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing=".8"
+                fill="#5a6068"
+              >
+                13k
+              </text>
+              <text
+                x="106"
+                y="112"
+                text-anchor="end"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing=".8"
+                fill="#5a6068"
+              >
+                17k
+              </text>
+            </svg>
+            <div class="dl">Average order</div>
+          </div>
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-family: var(--mono);
+            font-size: 10.5px;
+            letter-spacing: 0.06em;
+            color: var(--dim);
+          "
+        >
+          <span>each dial runs from the alarm level to the goal</span
+          ><span>faint tick = where you were last week</span>
+        </div>
+
+        <div class="two" style="margin-top: 12px">
+          <!-- 3 · HEATMAP -->
+          <div class="card">
+            <div class="label">When the money actually comes in</div>
+            <p style="color: var(--mut); font-size: 14px; margin: 8px 0 0">
+              Six weeks of sales by weekday. Your business happens on Saturday.
+            </p>
+            <div class="hm" id="hm"></div>
+            <div class="hm-key">
+              quiet
+              <i style="background: rgba(255, 255, 255, 0.05)"></i>
+              <i style="background: rgba(245, 155, 75, 0.25)"></i>
+              <i style="background: rgba(245, 155, 75, 0.5)"></i>
+              <i style="background: rgba(245, 155, 75, 0.75)"></i>
+              <i style="background: var(--ember)"></i>
+              busy
+            </div>
+          </div>
+
+          <!-- 4 · BULLET -->
+          <div class="card">
+            <div class="label">What would make me interrupt you</div>
+            <p style="color: var(--mut); font-size: 14px; margin: 8px 0 0">
+              Three thresholds. Cross one and you hear from me within a week.
+            </p>
+            <div class="bul">
+              <div>
+                <div class="h">
+                  <span>0.5L bottles sold</span
+                  ><b
+                    >174
+                    <span style="color: var(--mut); font-weight: 400; font-size: 12px"
+                      >/ 189</span
+                    ></b
+                  >
+                </div>
+                <div class="track">
+                  <span class="fill hot" style="width: 92%"></span
+                  ><span class="mark" style="left: 47%"></span>
+                </div>
+                <div class="cap">break-even marker at −53% · you are 45 pts clear</div>
+              </div>
+              <div>
+                <div class="h">
+                  <span>Gross margin</span
+                  ><b
+                    >23%
+                    <span style="color: var(--mut); font-weight: 400; font-size: 12px"
+                      >/ floor 20%</span
+                    ></b
+                  >
+                </div>
+                <div class="track">
+                  <span class="fill" style="width: 58%"></span
+                  ><span class="mark" style="left: 50%"></span>
+                </div>
+                <div class="cap">3 pts of headroom · supplier rise would eat 2 of them</div>
+              </div>
+              <div>
+                <div class="h">
+                  <span>Supplier price</span
+                  ><b style="color: var(--err)"
+                    >+6%
+                    <span style="color: var(--mut); font-weight: 400; font-size: 12px"
+                      >/ alert +10%</span
+                    ></b
+                  >
+                </div>
+                <div class="track">
+                  <span class="fill" style="width: 60%; background: var(--err)"></span
+                  ><span class="mark" style="left: 100%"></span>
+                </div>
+                <div class="cap">moved once already · watching weekly</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- activity -->
+        <div class="sec">
+          <h3>What I actually did</h3>
+          <span class="ln"></span>
+        </div>
+        <div class="card">
+          <div class="logrow">
+            <span class="when">7 sep</span><span class="dot"></span>
+            <div>
+              <div class="what">Weekly snapshot taken</div>
+              <div class="sub">6 facts changed · profile #f3a91c → #f3a9d4</div>
+            </div>
+          </div>
+          <div class="logrow">
+            <span class="when">5 sep</span
+            ><span class="dot" style="background: var(--ember)"></span>
+            <div>
+              <div class="what">Gift box margin moved 61% → 57%</div>
+              <div class="sub">
+                Bakonyi Gyümölcs raised elderflower by 6%. Still inside the threshold.
+              </div>
+            </div>
+          </div>
+          <div class="logrow">
+            <span class="when">2 sep</span><span class="dot"></span>
+            <div>
+              <div class="what">Competitor prices re-checked</div>
+              <div class="sub">
+                4 pages fetched · 1 of 4 changed · nothing that moves your position
+              </div>
+            </div>
+          </div>
+          <div class="logrow">
+            <span class="when">31 aug</span><span class="dot"></span>
+            <div>
+              <div class="what">Weekly snapshot taken</div>
+              <div class="sub">3 facts changed</div>
+            </div>
+          </div>
+          <div class="logrow">
+            <span class="when">26 aug</span><span class="dot"></span>
+            <div>
+              <div class="what">Watching started</div>
+              <div class="sub">baseline snapshot #f3a91c · 214 facts</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn g">Extend to 8 weeks</button>
+          <button class="btn q">Stop watching and report now</button>
+          <span class="src" style="margin-left: auto"
+            ><span class="dot"></span>next snapshot sunday 14 sep</span
+          >
+        </div>
+      </main>
     </div>
-  </div>
 
-  <!-- activity -->
-  <div class="sec"><h3>What I actually did</h3><span class="ln"></span></div>
-  <div class="card">
-    <div class="logrow"><span class="when">7 sep</span><span class="dot"></span><div><div class="what">Weekly snapshot taken</div><div class="sub">6 facts changed · profile #f3a91c → #f3a9d4</div></div></div>
-    <div class="logrow"><span class="when">5 sep</span><span class="dot" style="background:var(--ember)"></span><div><div class="what">Gift box margin moved 61% → 57%</div><div class="sub">Bakonyi Gyümölcs raised elderflower by 6%. Still inside the threshold.</div></div></div>
-    <div class="logrow"><span class="when">2 sep</span><span class="dot"></span><div><div class="what">Competitor prices re-checked</div><div class="sub">4 pages fetched · 1 of 4 changed · nothing that moves your position</div></div></div>
-    <div class="logrow"><span class="when">31 aug</span><span class="dot"></span><div><div class="what">Weekly snapshot taken</div><div class="sub">3 facts changed</div></div></div>
-    <div class="logrow"><span class="when">26 aug</span><span class="dot"></span><div><div class="what">Watching started</div><div class="sub">baseline snapshot #f3a91c · 214 facts</div></div></div>
-  </div>
-
-  <div class="row">
-    <button class="btn g">Extend to 8 weeks</button>
-    <button class="btn q">Stop watching and report now</button>
-    <span class="src" style="margin-left:auto"><span class="dot"></span>next snapshot sunday 14 sep</span>
-  </div>
-</main>
-</div>
-
-<script>
-// heatmap: six weeks × weekday, market days carry the business
-const DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
-const WEEKS = [
-  [0.10,0.14,0.12,0.22,0.38,0.95,0.62],
-  [0.08,0.11,0.15,0.20,0.41,1.00,0.58],
-  [0.12,0.09,0.13,0.25,0.35,0.88,0.55],
-  [0.09,0.13,0.11,0.19,0.44,0.92,0.66],
-  [0.11,0.10,0.16,0.23,0.39,0.85,0.60],
-  [0.07,0.12,0.14,0.21,0.36,0.79,0.52],
-];
-const hm = document.getElementById('hm');
-let html = '<div></div>' + DAYS.map(d => `<div class="lbl" style="align-items:end">${d}</div>`).join('');
-WEEKS.forEach((wk, i) => {
-  html += `<div class="lbl">W${6 - i}</div>`;
-  html += wk.map((v, j) => {
-    const pending = i === 0 && j > 4;   // this week isn't finished yet
-    if (pending) return `<div class="cell pending" title="${DAYS[j]} · not yet"></div>`;
-    const a = (0.05 + v * 0.9).toFixed(2);
-    return `<div class="cell" style="background:rgba(245,155,75,${a})" title="${DAYS[j]} · ${Math.round(v*100)}% of peak"></div>`;
-  }).join('');
-});
-hm.innerHTML = html;
-</script>
-</body>
+    <script>
+      // heatmap: six weeks × weekday, market days carry the business
+      const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+      const WEEKS = [
+        [0.1, 0.14, 0.12, 0.22, 0.38, 0.95, 0.62],
+        [0.08, 0.11, 0.15, 0.2, 0.41, 1.0, 0.58],
+        [0.12, 0.09, 0.13, 0.25, 0.35, 0.88, 0.55],
+        [0.09, 0.13, 0.11, 0.19, 0.44, 0.92, 0.66],
+        [0.11, 0.1, 0.16, 0.23, 0.39, 0.85, 0.6],
+        [0.07, 0.12, 0.14, 0.21, 0.36, 0.79, 0.52],
+      ];
+      const hm = document.getElementById("hm");
+      let html =
+        "<div></div>" +
+        DAYS.map((d) => `<div class="lbl" style="align-items:end">${d}</div>`).join("");
+      WEEKS.forEach((wk, i) => {
+        html += `<div class="lbl">W${6 - i}</div>`;
+        html += wk
+          .map((v, j) => {
+            const pending = i === 0 && j > 4; // this week isn't finished yet
+            if (pending) return `<div class="cell pending" title="${DAYS[j]} · not yet"></div>`;
+            const a = (0.05 + v * 0.9).toFixed(2);
+            return `<div class="cell" style="background:rgba(245,155,75,${a})" title="${DAYS[j]} · ${Math.round(v * 100)}% of peak"></div>`;
+          })
+          .join("");
+      });
+      hm.innerHTML = html;
+    </script>
+  </body>
 </html>

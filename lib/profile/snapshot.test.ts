@@ -101,9 +101,7 @@ describe("P1-04 — a snapshot reproduces its inputs, whatever happened since", 
     expect(view.summary.content_hash).toBe(before.content_hash);
 
     // Money survives the round trip as minor units plus its currency.
-    expect(view.facts.get("revenue.monthly_revenue")?.value).toEqual(
-      money(460_000_000, "HUF"),
-    );
+    expect(view.facts.get("revenue.monthly_revenue")?.value).toEqual(money(460_000_000, "HUF"));
 
     // And the live profile has moved on.
     const now = await takeSnapshot(profileId);
@@ -178,9 +176,7 @@ describe("listing", () => {
     const all = await listSnapshots(profileId);
     expect(all.length).toBeGreaterThanOrEqual(6);
     for (let i = 1; i < all.length; i++) {
-      expect(Date.parse(all[i - 1]!.taken_at)).toBeGreaterThanOrEqual(
-        Date.parse(all[i]!.taken_at),
-      );
+      expect(Date.parse(all[i - 1]!.taken_at)).toBeGreaterThanOrEqual(Date.parse(all[i]!.taken_at));
     }
     expect(all.some((s) => s.reason === "report")).toBe(true);
   });

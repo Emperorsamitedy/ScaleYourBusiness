@@ -207,7 +207,8 @@ async function main(): Promise<void> {
     .filter(Boolean);
   const unknown = only.filter((name) => !PERSONAS.some((p) => p.name === name));
   if (unknown.length > 0) throw new Error(`HARNESS_ONLY names not found: ${unknown.join(", ")}`);
-  const queue = only.length > 0 ? PERSONAS.filter((p) => only.includes(p.name)) : PERSONAS.slice(0, count);
+  const queue =
+    only.length > 0 ? PERSONAS.filter((p) => only.includes(p.name)) : PERSONAS.slice(0, count);
   const results: ProfileResult[] = [];
   const crashed: string[] = [];
   let cursor = 0;

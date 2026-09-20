@@ -39,7 +39,11 @@ export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
     // A failed send must not strand the owner: fall back to the screen
     // and log loudly. Silence here would look like a broken login.
     console.error(
-      JSON.stringify({ event: "login_email_failed", status: res.status, to_domain: mail.to.split("@")[1] }),
+      JSON.stringify({
+        event: "login_email_failed",
+        status: res.status,
+        to_domain: mail.to.split("@")[1],
+      }),
     );
     return { delivered_via: "screen" };
   }

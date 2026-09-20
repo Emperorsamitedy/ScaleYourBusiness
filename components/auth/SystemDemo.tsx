@@ -63,8 +63,7 @@ export function SystemDemo() {
       <div className={`sd-card ${step === 2 ? "on" : ""}`}>
         <span className="sd-tag">diagnosis</span>
         <p className="sd-q">
-          <b className="sd-sev">high</b> Break-even is 74 orders — you averaged 61 last
-          quarter.
+          <b className="sd-sev">high</b> Break-even is 74 orders — you averaged 61 last quarter.
         </p>
         <span className="sd-prov">rests on: fixed costs (you told me) · price = 49 USD</span>
       </div>

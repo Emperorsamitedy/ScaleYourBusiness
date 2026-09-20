@@ -210,11 +210,7 @@ function Competitors({
                 </a>
                 <p>{c.evidence}</p>
               </div>
-              <button
-                className="ghost"
-                onClick={() => void confirm(c)}
-                disabled={busy !== null}
-              >
+              <button className="ghost" onClick={() => void confirm(c)} disabled={busy !== null}>
                 {busy === c.url ? "reading their pages…" : "That's one — look them up"}
               </button>
             </div>
@@ -287,8 +283,8 @@ export function FactSheetScreen() {
     return (
       <main className="fs-shell">
         <p className="fs-empty">
-          There&rsquo;s no profile on this device yet. <Link href="/intake">Start the questions</Link>{" "}
-          — or open the link I sent you.
+          There&rsquo;s no profile on this device yet.{" "}
+          <Link href="/intake">Start the questions</Link> — or open the link I sent you.
         </p>
       </main>
     );
@@ -383,15 +379,16 @@ export function FactSheetScreen() {
                 <p className="fs-gap-q">{g.prompt}</p>
                 <p className="fs-gap-b">{g.buys}</p>
               </div>
-              <Link className="ghost quiet" href={`/intake?ask=${encodeURIComponent(g.question_id)}`}>
+              <Link
+                className="ghost quiet"
+                href={`/intake?ask=${encodeURIComponent(g.question_id)}`}
+              >
                 Answer now
               </Link>
             </div>
           ))}
           {sheet.gaps.length > 12 && (
-            <p className="fs-note">
-              …and {sheet.gaps.length - 12} more, waiting in the interview.
-            </p>
+            <p className="fs-note">…and {sheet.gaps.length - 12} more, waiting in the interview.</p>
           )}
         </section>
       )}
@@ -448,8 +445,8 @@ export function FactSheetScreen() {
       )}
 
       <footer className="fs-foot">
-        Snapshot {sheet.snapshot_id.slice(0, 8)} · nothing here is invented — a value I computed says
-        so, a value you gave me says so.
+        Snapshot {sheet.snapshot_id.slice(0, 8)} · nothing here is invented — a value I computed
+        says so, a value you gave me says so.
       </footer>
     </main>
   );

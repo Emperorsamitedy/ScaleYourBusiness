@@ -24,10 +24,7 @@ import type { FieldStatus } from "../../core/field-status";
 import { fieldId } from "../../core/ids";
 import { isoDateTime } from "../../core/iso";
 import { money } from "../../core/money";
-import {
-  dynamicVocabularyOptions,
-  isDynamicVocabulary,
-} from "../../profile/dynamic-vocab";
+import { dynamicVocabularyOptions, isDynamicVocabulary } from "../../profile/dynamic-vocab";
 import { writeField } from "../../profile/field-store";
 import type { ApplicableQuestion } from "../../resolver/applicability";
 import { vocabularyCodes } from "../../vocab/validate";

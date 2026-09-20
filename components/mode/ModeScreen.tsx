@@ -85,12 +85,16 @@ export function ModeScreen() {
             <span className="auth-eyebrow">how I&rsquo;ll work</span>
             <h1 className="auth-title">Ready to decide.</h1>
             <p className="auth-copy">
-              I&rsquo;ll look at what you told me — orders, staff, ads, how long you&rsquo;ve
-              been operating — and decide whether it&rsquo;s safe to act right away or whether
-              I should watch first. The rule is fixed and you&rsquo;ll see exactly which of
-              your answers triggered it.
+              I&rsquo;ll look at what you told me — orders, staff, ads, how long you&rsquo;ve been
+              operating — and decide whether it&rsquo;s safe to act right away or whether I should
+              watch first. The rule is fixed and you&rsquo;ll see exactly which of your answers
+              triggered it.
             </p>
-            <button className="next auth-cta" style={{ marginTop: 22 }} onClick={() => void decide()}>
+            <button
+              className="next auth-cta"
+              style={{ marginTop: 22 }}
+              onClick={() => void decide()}
+            >
               Decide now
             </button>
           </section>
@@ -162,7 +166,11 @@ export function ModeScreen() {
               {watching ? "Start watching" : "See the first read"}
             </Link>
             {watching && decision.watch_weeks !== 8 && (
-              <button className="ghost quiet mode-extend" disabled={state.extending} onClick={() => void extend()}>
+              <button
+                className="ghost quiet mode-extend"
+                disabled={state.extending}
+                onClick={() => void extend()}
+              >
                 {state.extending ? "Extending…" : "Extend to eight weeks"}
               </button>
             )}

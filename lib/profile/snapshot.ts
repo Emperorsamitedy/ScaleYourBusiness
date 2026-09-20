@@ -101,9 +101,7 @@ function contentHash(
       ].join(""),
     )
     .sort();
-  const entityLines = entities
-    .map((e) => ["entity", e.spine, e.id, e.kind ?? ""].join(""))
-    .sort();
+  const entityLines = entities.map((e) => ["entity", e.spine, e.id, e.kind ?? ""].join("")).sort();
   return createHash("sha256")
     .update([...factLines, ...entityLines].join("\n"))
     .digest("hex");
@@ -213,9 +211,9 @@ export async function takeSnapshot(
   if (!snapshot) throw new SnapshotError("snapshot insert failed");
 
   if (current.length > 0) {
-    await db.insert(snapshotRecords).values(
-      current.map((r) => ({ snapshot_id: snapshot.id, record_id: r.id })),
-    );
+    await db
+      .insert(snapshotRecords)
+      .values(current.map((r) => ({ snapshot_id: snapshot.id, record_id: r.id })));
   }
 
   return {

@@ -28,9 +28,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
   const [email, setEmail] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
   const [error, setError] = useState<string | null>(
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("error")
-      : null,
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("error") : null,
   );
   const [screenLink, setScreenLink] = useState<string | null>(null);
 
@@ -96,8 +94,8 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
               {screenLink ? (
                 <>
                   <p className="auth-copy">
-                    Email sending isn&rsquo;t set up in this environment, so your sign-in link
-                    is right here instead. It works once and expires in 15&nbsp;minutes.
+                    Email sending isn&rsquo;t set up in this environment, so your sign-in link is
+                    right here instead. It works once and expires in 15&nbsp;minutes.
                   </p>
                   <a className="next auth-cta" href={screenLink}>
                     {signup ? "Create my account" : "Sign in now"}
@@ -105,8 +103,8 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                 </>
               ) : (
                 <p className="auth-copy">
-                  Your link is on its way to <strong>{email}</strong>. It works once and
-                  expires in 15&nbsp;minutes — you can close this tab.
+                  Your link is on its way to <strong>{email}</strong>. It works once and expires in
+                  15&nbsp;minutes — you can close this tab.
                 </p>
               )}
               <p className="auth-foot" style={{ marginTop: 28 }}>
@@ -119,9 +117,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
           ) : (
             <div>
               <span className="auth-eyebrow">{signup ? "create account" : "sign in"}</span>
-              <h1 className="auth-title">
-                {signup ? "Start with your email." : "Welcome back."}
-              </h1>
+              <h1 className="auth-title">{signup ? "Start with your email." : "Welcome back."}</h1>
               <p className="auth-copy">
                 {signup
                   ? "That's the whole form. A link lands in your inbox, and clicking it is your account — everything you answer is yours from the first question."
@@ -151,8 +147,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
 
               {/* The answer to "forgot password?", where the eye expects it. */}
               <p className="auth-nopass">
-                No password — nothing to forget or reset. The emailed link is the key, every
-                time.
+                No password — nothing to forget or reset. The emailed link is the key, every time.
               </p>
 
               <p className="auth-foot" style={{ marginTop: 26 }}>

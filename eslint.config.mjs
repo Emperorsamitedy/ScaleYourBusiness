@@ -4,7 +4,9 @@ import prettier from "eslint-config-prettier";
 
 export default tseslint.config(
   // mockups/ and public/ are browser design scratch, not app code.
-  { ignores: ["node_modules/", ".next/", "productos/", "next-env.d.ts", "mockups/", "public/"] },
+  // .vercel/ holds `vercel build` output — thousands of generated files
+  // that once turned a clean lint into 4,380 errors.
+  { ignores: ["node_modules/", ".next/", ".vercel/", "productos/", "next-env.d.ts", "mockups/", "public/"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

@@ -66,9 +66,7 @@ export async function POST(): Promise<NextResponse> {
         );
       }
     } else {
-      console.log(
-        JSON.stringify({ event: "report_gate_unarmed", account_id: session.account_id }),
-      );
+      console.log(JSON.stringify({ event: "report_gate_unarmed", account_id: session.account_id }));
     }
     const { report, fresh } = await generateReport({
       accountId: session.account_id,

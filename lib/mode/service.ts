@@ -89,9 +89,7 @@ export async function decideForProfile(profileId: string): Promise<DecisionOutco
 
   const decided: ModeRuling = ruling;
   const now = Date.now();
-  const reviewAt = new Date(
-    now + (decided.watch_weeks ?? 1) * 7 * 86_400_000,
-  ).toISOString();
+  const reviewAt = new Date(now + (decided.watch_weeks ?? 1) * 7 * 86_400_000).toISOString();
 
   const [row] = await db
     .insert(modeDecisions)

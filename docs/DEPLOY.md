@@ -19,7 +19,7 @@ project `syb` (samy283407-7767), Neon project `red-breeze-79256837`
    ```
 
    Expected output: 14 migrations applied; `vocabularies: 55 / 438
-   entries`; `bank: 1.0.0, 153 questions`.
+entries`; `bank: 1.0.0, 153 questions`.
 
 ## 2. Vercel — the app
 

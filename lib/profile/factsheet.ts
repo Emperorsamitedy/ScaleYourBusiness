@@ -199,7 +199,9 @@ export async function buildFactSheet(profileId: string): Promise<FactSheet> {
   // explicit unknown is an answer, not a gap (rule 5).
   const respondedKeys = new Set(
     [...view.facts.entries()]
-      .filter(([, f]) => f.status === "answered" || f.status === "inferred" || f.status === "unknown")
+      .filter(
+        ([, f]) => f.status === "answered" || f.status === "inferred" || f.status === "unknown",
+      )
       .map(([key]) => key),
   );
   const blocking = new Set(completeness.blocking_gaps);
@@ -209,7 +211,7 @@ export async function buildFactSheet(profileId: string): Promise<FactSheet> {
       question_id: q.id,
       prompt:
         typeof (q.prompt as { en?: unknown })?.en === "string"
-          ? ((q.prompt as { en: string }).en)
+          ? (q.prompt as { en: string }).en
           : q.id,
       section: q.section,
       priority: q.priority,

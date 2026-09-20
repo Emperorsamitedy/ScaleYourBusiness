@@ -95,7 +95,11 @@ export async function startCheckout(profileId: string, appUrl: string): Promise<
   const body = (await res.json()) as { id?: string; url?: string; error?: { message?: string } };
   if (!res.ok || !body.id || !body.url) {
     console.error(
-      JSON.stringify({ event: "checkout_create_failed", status: res.status, message: body.error?.message }),
+      JSON.stringify({
+        event: "checkout_create_failed",
+        status: res.status,
+        message: body.error?.message,
+      }),
     );
     throw new PaymentError("could not start the payment", 502);
   }
@@ -156,7 +160,9 @@ export function verifyStripeSignature(
  * Mark a checkout session paid. Idempotent: Stripe retries webhooks, and
  * a second delivery of the same event must change nothing.
  */
-export async function markCheckoutPaid(checkoutSessionId: string): Promise<"paid" | "already" | "unknown"> {
+export async function markCheckoutPaid(
+  checkoutSessionId: string,
+): Promise<"paid" | "already" | "unknown"> {
   const [row] = await db
     .select({ id: payments.id, status: payments.status })
     .from(payments)

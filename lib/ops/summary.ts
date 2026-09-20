@@ -97,7 +97,8 @@ export async function abandonmentSummary(sinceIso: string): Promise<AbandonmentR
   for (const r of shown) {
     if (r.question_id === null) continue;
     const prev = lastByProfile.get(r.profile_id);
-    if (!prev || r.at > prev.at) lastByProfile.set(r.profile_id, { question_id: r.question_id, at: r.at });
+    if (!prev || r.at > prev.at)
+      lastByProfile.set(r.profile_id, { question_id: r.question_id, at: r.at });
   }
   const counts = new Map<string, number>();
   for (const { question_id } of lastByProfile.values()) {

@@ -101,7 +101,10 @@ export const livePageFetcher: PageFetcher = async (url, timeoutMs) => {
     const response = await fetch(url, {
       signal: AbortSignal.timeout(timeoutMs),
       redirect: "follow",
-      headers: { accept: "text/html,application/xhtml+xml", "user-agent": "LedgerlineResearch/1.0" },
+      headers: {
+        accept: "text/html,application/xhtml+xml",
+        "user-agent": "LedgerlineResearch/1.0",
+      },
     });
     if (!response.ok) return null;
     const type = response.headers.get("content-type") ?? "";
@@ -130,7 +133,8 @@ export function isPublicHttpUrl(raw: string): boolean {
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
   const host = parsed.hostname.toLowerCase();
   if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) return false;
-  if (/^(?:127|10)\./.test(host) || /^192\.168\./.test(host) || /^169\.254\./.test(host)) return false;
+  if (/^(?:127|10)\./.test(host) || /^192\.168\./.test(host) || /^169\.254\./.test(host))
+    return false;
   if (/^172\.(?:1[6-9]|2\d|3[01])\./.test(host)) return false;
   if (host === "0.0.0.0" || host === "[::1]" || host === "::1") return false;
   return true;

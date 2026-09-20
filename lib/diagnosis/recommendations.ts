@@ -93,7 +93,9 @@ export interface RecommendationsResult {
 /* ── the arithmetic (P1-30): pure, exported, provable ── */
 
 const fmt = (minor: number, currency: string): string =>
-  `${Math.round(minor / 100).toLocaleString("en-US").replace(/,/g, " ")} ${currency}`;
+  `${Math.round(minor / 100)
+    .toLocaleString("en-US")
+    .replace(/,/g, " ")} ${currency}`;
 
 const pct1 = (n: number): string => `${(Math.round(n * 10) / 10).toLocaleString("en-US")}%`;
 
@@ -419,7 +421,8 @@ export function buildRecommendations(
     }
 
     // P1-32: reversibility is not optional prose.
-    const undo = typeof r.if_you_change_your_mind === "string" ? r.if_you_change_your_mind.trim() : "";
+    const undo =
+      typeof r.if_you_change_your_mind === "string" ? r.if_you_change_your_mind.trim() : "";
     const level = r.reversibility_level;
     if (undo === "" || (level !== "easy" && level !== "moderate" && level !== "hard")) {
       reject(`"${title}" · reversibility missing — every recommendation says what undo looks like`);
@@ -462,7 +465,9 @@ export function buildRecommendations(
         const bogus = keys.filter((k) => !fillableFieldKeys.has(k));
         if (keys.length === 0) throw new ScenarioError("close_gap names no fields");
         if (bogus.length > 0) {
-          throw new ScenarioError(`close_gap cites fields that are neither recorded nor fillable: ${bogus.join(", ")}`);
+          throw new ScenarioError(
+            `close_gap cites fields that are neither recorded nor fillable: ${bogus.join(", ")}`,
+          );
         }
         scenario = closeGapScenario(keys, typeof s.gap_why === "string" ? s.gap_why : title);
       } else {
@@ -556,7 +561,8 @@ export async function runRecommendations(args: {
   const user = [
     `FINDINGS (address by index):`,
     ...args.findings.map(
-      (f, i) => `${i}. [${f.severity}] ${f.title} — ${f.detail} (evidence: ${f.evidence.join(", ")})`,
+      (f, i) =>
+        `${i}. [${f.severity}] ${f.title} — ${f.detail} (evidence: ${f.evidence.join(", ")})`,
     ),
     "",
     `OFFERS (price changes may only target rows with both cost and volume):`,

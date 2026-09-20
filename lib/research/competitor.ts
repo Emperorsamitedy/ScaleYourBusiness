@@ -221,7 +221,11 @@ async function ownerAnsweredKeys(
   competitorId: string,
 ): Promise<Set<CompetitorField>> {
   const rows = await db
-    .select({ key: fieldRecords.field_key, source: fieldRecords.source, status: fieldRecords.status })
+    .select({
+      key: fieldRecords.field_key,
+      source: fieldRecords.source,
+      status: fieldRecords.status,
+    })
     .from(fieldRecords)
     .where(and(eq(fieldRecords.profile_id, profileId), isNull(fieldRecords.superseded_at)));
 
@@ -306,10 +310,7 @@ export async function researchCompetitor(args: RunArgs): Promise<ResearchResult>
     if (!row) throw new ResearchError("competitor insert failed");
     competitorId = row.id;
   } else {
-    await db
-      .update(competitors)
-      .set({ researched_at: at })
-      .where(eq(competitors.id, competitorId));
+    await db.update(competitors).set({ researched_at: at }).where(eq(competitors.id, competitorId));
   }
 
   const ownerHeld = args.competitorId

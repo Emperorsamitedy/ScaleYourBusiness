@@ -70,8 +70,8 @@ function KeepAccess() {
   if (link) {
     return (
       <div className="linkbox">
-        <strong>Keep this link.</strong> It reopens your profile on any device for the next 30
-        days. Mail it to yourself now.
+        <strong>Keep this link.</strong> It reopens your profile on any device for the next 30 days.
+        Mail it to yourself now.
         <code>{link}</code>
       </div>
     );
@@ -307,28 +307,31 @@ export function IntakeStage() {
   );
 
   // P0-75: reopen removes the chip and returns the question to the centre.
-  const handleReopen = useCallback(async (questionId: string, reason: string): Promise<void> => {
-    setServerError(null);
-    try {
-      const res = await fetch("/api/intake", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question_id: questionId, action: { kind: "reopen", reason } }),
-      });
-      if (!res.ok) {
-        const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-        setServerError(payload?.error ?? "I couldn't reopen that — try again.");
-        return;
+  const handleReopen = useCallback(
+    async (questionId: string, reason: string): Promise<void> => {
+      setServerError(null);
+      try {
+        const res = await fetch("/api/intake", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question_id: questionId, action: { kind: "reopen", reason } }),
+        });
+        if (!res.ok) {
+          const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+          setServerError(payload?.error ?? "I couldn't reopen that — try again.");
+          return;
+        }
+        const { state: next } = (await res.json()) as AnswerResponse;
+        track({ kind: "reopened", question_id: questionId });
+        setChips((prev) => prev.filter((c) => c.question_id !== questionId));
+        setState(next);
+        setPhase("answering");
+      } catch {
+        setServerError("I couldn't reach the server — check your connection and try again.");
       }
-      const { state: next } = (await res.json()) as AnswerResponse;
-      track({ kind: "reopened", question_id: questionId });
-      setChips((prev) => prev.filter((c) => c.question_id !== questionId));
-      setState(next);
-      setPhase("answering");
-    } catch {
-      setServerError("I couldn't reach the server — check your connection and try again.");
-    }
-  }, [track]);
+    },
+    [track],
+  );
 
   const clearServerError = useCallback((): void => {
     setServerError(null);

@@ -226,9 +226,7 @@ export function validateFindings(
       reject(`"${f.title}" · empty evidence — a finding without evidence is not a finding`);
       continue;
     }
-    const missing = f.evidence.filter(
-      (key) => typeof key !== "string" || !knownFieldKeys.has(key),
-    );
+    const missing = f.evidence.filter((key) => typeof key !== "string" || !knownFieldKeys.has(key));
     if (missing.length > 0) {
       reject(`"${f.title}" · evidence not in the snapshot: ${missing.join(", ")}`);
       continue;
@@ -268,9 +266,10 @@ export function factLine(key: string, field: Field<unknown>): string {
   // diagnosis it is the strongest evidence in the profile, not a derivation
   // from the owner's other answers (Phase 2, P2-10).
   const source = displaySourceKind(field.source);
-  const value = field.status === "answered" || field.status === "inferred"
-    ? (repr(field.value) ?? "—")
-    : `(${field.status})`;
+  const value =
+    field.status === "answered" || field.status === "inferred"
+      ? (repr(field.value) ?? "—")
+      : `(${field.status})`;
   return `${key} = ${value} · status=${field.status} · confidence=${field.confidence} · source=${source}`;
 }
 
@@ -306,7 +305,8 @@ export async function runDiagnosis(args: {
       ? `VALIDATION FINDINGS ALREADY DETECTED BY RULES (${validation.length}):`
       : "No validation findings are currently open.",
     ...validation.map(
-      (v) => `- [${v.kind}/${v.severity}] ${v.rule_id}: fields ${(v.field_keys as string[]).join(", ")}`,
+      (v) =>
+        `- [${v.kind}/${v.severity}] ${v.rule_id}: fields ${(v.field_keys as string[]).join(", ")}`,
     ),
   ].join("\n");
 

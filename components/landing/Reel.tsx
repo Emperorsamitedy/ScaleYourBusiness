@@ -17,9 +17,21 @@ import { useEffect, useState } from "react";
 const SCENE_MS = 5400;
 
 const SCENES = [
-  { key: "month", title: "Where the month goes", sub: "4 500 000 HUF of revenue, by what it paid for" },
-  { key: "risk", title: "How wrong I can be before it hurts", sub: "Profit change at every level of being wrong about the volume drop" },
-  { key: "watch", title: "What I watched afterwards", sub: "Weekly snapshots against the thresholds that would interrupt you" },
+  {
+    key: "month",
+    title: "Where the month goes",
+    sub: "4 500 000 HUF of revenue, by what it paid for",
+  },
+  {
+    key: "risk",
+    title: "How wrong I can be before it hurts",
+    sub: "Profit change at every level of being wrong about the volume drop",
+  },
+  {
+    key: "watch",
+    title: "What I watched afterwards",
+    sub: "Weekly snapshots against the thresholds that would interrupt you",
+  },
 ] as const;
 
 function MonthScene() {
@@ -93,7 +105,9 @@ function RiskScene() {
               />
             </span>
             <span className="lad-v">
-              {s.v === 0 ? "0" : `${s.v > 0 ? "+" : "−"}${Math.abs(s.v).toLocaleString("en-US").replace(/,/g, " ")}`}
+              {s.v === 0
+                ? "0"
+                : `${s.v > 0 ? "+" : "−"}${Math.abs(s.v).toLocaleString("en-US").replace(/,/g, " ")}`}
             </span>
             {s.breakeven && <span className="lad-flag">break-even</span>}
           </div>

@@ -7,13 +7,7 @@ import "dotenv/config";
 import { eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 import { db } from "../../db";
-import {
-  accounts,
-  businessProfiles,
-  fieldRecords,
-  intakeEvents,
-  llmCalls,
-} from "../../db/schema";
+import { accounts, businessProfiles, fieldRecords, intakeEvents, llmCalls } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
 import { recordFunnelEvent, recordIntakeEvents } from "../intake/telemetry";
 import { recordLlmCall } from "../llm/cost-log";
@@ -60,8 +54,12 @@ describe("P1-52 — funnel stages", () => {
 
   it("recommendation responses are each real and NOT deduplicated", async () => {
     const s = await fresh();
-    await recordFunnelEvent(s.profile_id, "funnel_recommendation_response", { response: "look_into" });
-    await recordFunnelEvent(s.profile_id, "funnel_recommendation_response", { response: "not_for_us" });
+    await recordFunnelEvent(s.profile_id, "funnel_recommendation_response", {
+      response: "look_into",
+    });
+    await recordFunnelEvent(s.profile_id, "funnel_recommendation_response", {
+      response: "not_for_us",
+    });
     const rows = await db
       .select({ kind: intakeEvents.kind })
       .from(intakeEvents)

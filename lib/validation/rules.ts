@@ -229,8 +229,7 @@ export const RULES: readonly ValidationRule[] = [
       if (sops !== false) return null;
       return {
         field_keys: ["service.key_person_dependency", "operations.has_sops"],
-        message:
-          "The service depends heavily on one person, and no written procedures exist yet.",
+        message: "The service depends heavily on one person, and no written procedures exist yet.",
       };
     },
   },

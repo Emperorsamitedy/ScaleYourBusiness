@@ -93,7 +93,9 @@ export default async function OpsPage({
       </section>
 
       <section className="card ops-card">
-        <span className="auth-eyebrow">cost · {eur(costs.total_eur)} across {costs.total_calls} calls</span>
+        <span className="auth-eyebrow">
+          cost · {eur(costs.total_eur)} across {costs.total_calls} calls
+        </span>
         <p className="auth-copy">
           {Object.entries(costs.by_workload)
             .map(([w, c]) => `${w} ${eur(c)}`)

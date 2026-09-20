@@ -31,10 +31,7 @@ import { pickNextQuestion } from "../interviewer/interviewer";
 import { selectCandidates } from "../interviewer/select";
 import { currencyForCountry } from "../core/country-currency";
 import { coerceParsedValue } from "../parser/coerce";
-import {
-  dynamicVocabularyOptions,
-  isDynamicVocabulary,
-} from "../profile/dynamic-vocab";
+import { dynamicVocabularyOptions, isDynamicVocabulary } from "../profile/dynamic-vocab";
 import { writeField } from "../profile/field-store";
 import { recordFunnelEvent } from "./telemetry";
 import { openFindings, resolveFinding } from "../validation/engine";

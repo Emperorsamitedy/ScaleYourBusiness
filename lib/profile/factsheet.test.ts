@@ -70,7 +70,11 @@ beforeAll(async () => {
       value: { amount_minor: 450_000_000, currency: "HUF" },
       status: "inferred",
       confidence: 0.6,
-      source: { kind: "inferred", derived_from: [fieldId("offers.total_revenue")], method: "sum of offer revenue" },
+      source: {
+        kind: "inferred",
+        derived_from: [fieldId("offers.total_revenue")],
+        method: "sum of offer revenue",
+      },
       observed_at: at,
       recorded_at: at,
     }),

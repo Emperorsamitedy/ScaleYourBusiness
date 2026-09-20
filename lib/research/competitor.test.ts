@@ -52,11 +52,13 @@ const page = (url: string, text = "Kézműves bodzaszörp. 0,5 l — 6 490 Ft.")
 });
 
 /** Records what it was asked, so we can assert the caps were honoured. */
-function stubWorld(opts: {
-  results?: number;
-  failUrls?: string[];
-  pageText?: string;
-} = {}) {
+function stubWorld(
+  opts: {
+    results?: number;
+    failUrls?: string[];
+    pageText?: string;
+  } = {},
+) {
   const fetched: string[] = [];
   const timeouts: number[] = [];
   return {
@@ -100,7 +102,13 @@ const FULL = {
 
 async function currentFields(competitorId: string) {
   const rows = await db
-    .select({ key: fieldRecords.field_key, value: fieldRecords.value, status: fieldRecords.status, source: fieldRecords.source, confidence: fieldRecords.confidence })
+    .select({
+      key: fieldRecords.field_key,
+      value: fieldRecords.value,
+      status: fieldRecords.status,
+      source: fieldRecords.source,
+      confidence: fieldRecords.confidence,
+    })
     .from(fieldRecords)
     .where(and(eq(fieldRecords.profile_id, profileId), isNull(fieldRecords.superseded_at)));
   const prefix = `competitors.${competitorId}.`;
@@ -348,7 +356,15 @@ describe("P1-20 — honest progress", () => {
     });
     const realDuration = Date.now() - started;
 
-    expect(seen.map((e) => e.step)).toEqual(["search", "fetch", "fetch", "fetch", "read", "write", "done"]);
+    expect(seen.map((e) => e.step)).toEqual([
+      "search",
+      "fetch",
+      "fetch",
+      "fetch",
+      "read",
+      "write",
+      "done",
+    ]);
     expect(seen).toEqual(result.events);
 
     // Monotonic, and never longer than the run actually took — the only

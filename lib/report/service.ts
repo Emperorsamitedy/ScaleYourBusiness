@@ -158,7 +158,9 @@ export async function generateReport(args: {
   const completeness = await computeCompleteness(args.profileId);
   const responded = new Set(
     [...view.facts.entries()]
-      .filter(([, f]) => f.status === "answered" || f.status === "inferred" || f.status === "unknown")
+      .filter(
+        ([, f]) => f.status === "answered" || f.status === "inferred" || f.status === "unknown",
+      )
       .map(([key]) => key),
   );
   const blocking = new Set(completeness.blocking_gaps);

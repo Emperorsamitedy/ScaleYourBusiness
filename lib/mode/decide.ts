@@ -103,9 +103,7 @@ export function decideMode(
         inputs.has_revenue ? "Fewer than 10 lifetime orders" : "No revenue yet",
         "Nobody besides you works in the business",
         "No paid ads running",
-        inputs.months_operating === null
-          ? "Not operating yet"
-          : `Operating under 3 months`,
+        inputs.months_operating === null ? "Not operating yet" : `Operating under 3 months`,
       ],
       reasoning:
         "There is nothing running that a change could break: no meaningful " +

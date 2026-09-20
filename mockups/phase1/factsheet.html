@@ -1,358 +1,1890 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ledgerline — Fact sheet</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,600&display=swap" rel="stylesheet">
-<style>
-:root{
- --stage:#07080a;--ink:#f2f3f5;--mut:#9ba1ab;--dim:#6b727c;
- --hair:rgba(255,255,255,.08);--hair2:rgba(255,255,255,.15);
- --ember:#f59b4b;--ember2:#ffb25c;--deep:#e1560f;--on:#1c1006;
- --blue:#4c7df0;--green:#34d399;--err:#ff7a72;
- --sans:'Geist',system-ui,sans-serif;--disp:'Satoshi','Geist',sans-serif;--mono:'Geist Mono',monospace;
- --ease:cubic-bezier(.2,.7,.3,1);
-}
-*{box-sizing:border-box}html,body{margin:0}
-body{background:var(--stage);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-/* water: slow-moving light behind the glass */
-body::before,body::after{content:"";position:fixed;z-index:0;border-radius:50%;filter:blur(90px);pointer-events:none}
-body::before{width:820px;height:560px;left:-220px;top:-200px;background:radial-gradient(closest-side,rgba(225,86,15,.22),transparent);animation:d1 30s var(--ease) infinite alternate}
-body::after{width:900px;height:620px;right:-250px;bottom:-240px;background:radial-gradient(closest-side,rgba(76,125,240,.17),transparent);animation:d2 36s var(--ease) infinite alternate}
-@keyframes d1{to{transform:translate(90px,60px) scale(1.12)}}
-@keyframes d2{to{transform:translate(-90px,-70px) scale(1.1)}}
-::selection{background:rgba(245,155,75,.3)}
-*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.14) transparent}
-*::-webkit-scrollbar{width:9px;height:9px}*::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:5px}
-:focus-visible{outline:2px solid var(--ember);outline-offset:2px;border-radius:8px}
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Ledgerline — Fact sheet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@700,600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --stage: #07080a;
+        --ink: #f2f3f5;
+        --mut: #9ba1ab;
+        --dim: #6b727c;
+        --hair: rgba(255, 255, 255, 0.08);
+        --hair2: rgba(255, 255, 255, 0.15);
+        --ember: #f59b4b;
+        --ember2: #ffb25c;
+        --deep: #e1560f;
+        --on: #1c1006;
+        --blue: #4c7df0;
+        --green: #34d399;
+        --err: #ff7a72;
+        --sans: "Geist", system-ui, sans-serif;
+        --disp: "Satoshi", "Geist", sans-serif;
+        --mono: "Geist Mono", monospace;
+        --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+      }
+      body {
+        background: var(--stage);
+        color: var(--ink);
+        font-family: var(--sans);
+        font-size: 15px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      /* water: slow-moving light behind the glass */
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        z-index: 0;
+        border-radius: 50%;
+        filter: blur(90px);
+        pointer-events: none;
+      }
+      body::before {
+        width: 820px;
+        height: 560px;
+        left: -220px;
+        top: -200px;
+        background: radial-gradient(closest-side, rgba(225, 86, 15, 0.22), transparent);
+        animation: d1 30s var(--ease) infinite alternate;
+      }
+      body::after {
+        width: 900px;
+        height: 620px;
+        right: -250px;
+        bottom: -240px;
+        background: radial-gradient(closest-side, rgba(76, 125, 240, 0.17), transparent);
+        animation: d2 36s var(--ease) infinite alternate;
+      }
+      @keyframes d1 {
+        to {
+          transform: translate(90px, 60px) scale(1.12);
+        }
+      }
+      @keyframes d2 {
+        to {
+          transform: translate(-90px, -70px) scale(1.1);
+        }
+      }
+      ::selection {
+        background: rgba(245, 155, 75, 0.3);
+      }
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+      }
+      *::-webkit-scrollbar {
+        width: 9px;
+        height: 9px;
+      }
+      *::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.14);
+        border-radius: 5px;
+      }
+      :focus-visible {
+        outline: 2px solid var(--ember);
+        outline-offset: 2px;
+        border-radius: 8px;
+      }
 
-/* ── the glass ── */
-.g{position:relative;border-radius:18px;border:1px solid var(--hair);
- background:linear-gradient(158deg,rgba(255,255,255,.075),rgba(255,255,255,.018) 46%,rgba(255,255,255,.03));
- backdrop-filter:blur(26px) saturate(1.5);-webkit-backdrop-filter:blur(26px) saturate(1.5);
- box-shadow:inset 0 1px 0 rgba(255,255,255,.13),inset 0 -1px 0 rgba(255,255,255,.03);overflow:hidden}
-.g::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
- background:linear-gradient(180deg,rgba(255,255,255,.10),transparent 34%)}
-.g::before{content:"";position:absolute;left:-40%;top:-120%;width:60%;height:340%;pointer-events:none;
- background:linear-gradient(90deg,transparent,rgba(255,255,255,.055),transparent);transform:rotate(16deg);
- animation:sheen 9s var(--ease) infinite}
-@keyframes sheen{0%,68%{left:-45%}100%{left:125%}}
-.g.hot{border-color:rgba(245,155,75,.34);background:linear-gradient(158deg,rgba(245,155,75,.14),rgba(255,255,255,.02) 52%)}
+      /* ── the glass ── */
+      .g {
+        position: relative;
+        border-radius: 18px;
+        border: 1px solid var(--hair);
+        background: linear-gradient(
+          158deg,
+          rgba(255, 255, 255, 0.075),
+          rgba(255, 255, 255, 0.018) 46%,
+          rgba(255, 255, 255, 0.03)
+        );
+        backdrop-filter: blur(26px) saturate(1.5);
+        -webkit-backdrop-filter: blur(26px) saturate(1.5);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.13),
+          inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+        overflow: hidden;
+      }
+      .g::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 34%);
+      }
+      .g::before {
+        content: "";
+        position: absolute;
+        left: -40%;
+        top: -120%;
+        width: 60%;
+        height: 340%;
+        pointer-events: none;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.055), transparent);
+        transform: rotate(16deg);
+        animation: sheen 9s var(--ease) infinite;
+      }
+      @keyframes sheen {
+        0%,
+        68% {
+          left: -45%;
+        }
+        100% {
+          left: 125%;
+        }
+      }
+      .g.hot {
+        border-color: rgba(245, 155, 75, 0.34);
+        background: linear-gradient(
+          158deg,
+          rgba(245, 155, 75, 0.14),
+          rgba(255, 255, 255, 0.02) 52%
+        );
+      }
 
-.shell{position:relative;z-index:1;max-width:1420px;margin:0 auto;padding:26px 28px 70px}
-.top{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:14px 20px;margin-bottom:22px}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:-.02em}
-.brand::before{content:"";width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--ember),var(--deep))}
-.tnav{display:flex;gap:4px;margin-left:14px;flex-wrap:wrap}
-.tnav a{font-size:14px;color:var(--mut);text-decoration:none;padding:8px 13px;border-radius:10px;transition:.2s var(--ease)}
-.tnav a:hover{background:rgba(255,255,255,.06);color:var(--ink)}.tnav a.on{color:var(--ink);background:rgba(255,255,255,.07)}
-.btn{font:inherit;font-size:14px;font-weight:600;border-radius:999px;padding:11px 22px;cursor:pointer;border:0;transition:.24s var(--ease)}
-.btn.p{background:var(--ember);color:var(--on)}.btn.p:hover{background:var(--ember2);transform:translateY(-1px);box-shadow:0 0 26px rgba(245,155,75,.4)}
-.btn.g2{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid var(--hair2)}
-.btn.g2:hover{background:rgba(255,255,255,.1)}
+      .shell {
+        position: relative;
+        z-index: 1;
+        max-width: 1420px;
+        margin: 0 auto;
+        padding: 26px 28px 70px;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+        padding: 14px 20px;
+        margin-bottom: 22px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--disp);
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+      }
+      .brand::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        background: linear-gradient(135deg, var(--ember), var(--deep));
+      }
+      .tnav {
+        display: flex;
+        gap: 4px;
+        margin-left: 14px;
+        flex-wrap: wrap;
+      }
+      .tnav a {
+        font-size: 14px;
+        color: var(--mut);
+        text-decoration: none;
+        padding: 8px 13px;
+        border-radius: 10px;
+        transition: 0.2s var(--ease);
+      }
+      .tnav a:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--ink);
+      }
+      .tnav a.on {
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.07);
+      }
+      .btn {
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 999px;
+        padding: 11px 22px;
+        cursor: pointer;
+        border: 0;
+        transition: 0.24s var(--ease);
+      }
+      .btn.p {
+        background: var(--ember);
+        color: var(--on);
+      }
+      .btn.p:hover {
+        background: var(--ember2);
+        transform: translateY(-1px);
+        box-shadow: 0 0 26px rgba(245, 155, 75, 0.4);
+      }
+      .btn.g2 {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--ink);
+        border: 1px solid var(--hair2);
+      }
+      .btn.g2:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
 
-h1{font-family:var(--disp);font-weight:700;font-size:clamp(26px,3.4vw,38px);letter-spacing:-.03em;margin:0}
-.hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:16px}
-.meta{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--dim)}
-.search{display:flex;align-items:center;gap:11px;padding:14px 20px;margin-bottom:20px}
-.search input{background:transparent;border:0;outline:none;color:var(--ink);font:inherit;font-size:14.5px;width:100%}
-.lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+      h1 {
+        font-family: var(--disp);
+        font-weight: 700;
+        font-size: clamp(26px, 3.4vw, 38px);
+        letter-spacing: -0.03em;
+        margin: 0;
+      }
+      .hrow {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .meta {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        letter-spacing: 0.05em;
+        color: var(--dim);
+      }
+      .search {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 14px 20px;
+        margin-bottom: 20px;
+      }
+      .search input {
+        background: transparent;
+        border: 0;
+        outline: none;
+        color: var(--ink);
+        font: inherit;
+        font-size: 14.5px;
+        width: 100%;
+      }
+      .lab {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+        color: var(--dim);
+      }
 
-.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px}
-.card{padding:20px}
-.card h3{font-family:var(--disp);font-size:16px;font-weight:600;margin:0 0 4px;letter-spacing:-.01em}
-.big{font-family:var(--disp);font-weight:700;font-size:30px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:10px}
-.word{font-family:var(--disp);font-weight:700;font-size:30px;color:var(--ember);letter-spacing:-.02em}
-.kv{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut);margin-top:6px}
-.kv i{width:8px;height:8px;border-radius:2.5px;flex:none}
-.dw{stroke-dasharray:700;stroke-dashoffset:700;animation:draw 1.3s var(--ease) .2s forwards}
-path.dw[fill]:not([fill="none"]){stroke-dasharray:none;stroke-dashoffset:0;animation:fade .7s var(--ease) both}
-@keyframes draw{to{stroke-dashoffset:0}}@keyframes fade{from{opacity:0}to{opacity:1}}
-.bub circle{transition:opacity .2s var(--ease)}.bub:hover circle{opacity:.95}
+      .sum {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .card {
+        padding: 20px;
+      }
+      .card h3 {
+        font-family: var(--disp);
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 4px;
+        letter-spacing: -0.01em;
+      }
+      .big {
+        font-family: var(--disp);
+        font-weight: 700;
+        font-size: 30px;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+        margin-top: 10px;
+      }
+      .word {
+        font-family: var(--disp);
+        font-weight: 700;
+        font-size: 30px;
+        color: var(--ember);
+        letter-spacing: -0.02em;
+      }
+      .kv {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12.5px;
+        color: var(--mut);
+        margin-top: 6px;
+      }
+      .kv i {
+        width: 8px;
+        height: 8px;
+        border-radius: 2.5px;
+        flex: none;
+      }
+      .dw {
+        stroke-dasharray: 700;
+        stroke-dashoffset: 700;
+        animation: draw 1.3s var(--ease) 0.2s forwards;
+      }
+      path.dw[fill]:not([fill="none"]) {
+        stroke-dasharray: none;
+        stroke-dashoffset: 0;
+        animation: fade 0.7s var(--ease) both;
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .bub circle {
+        transition: opacity 0.2s var(--ease);
+      }
+      .bub:hover circle {
+        opacity: 0.95;
+      }
 
-.body{display:grid;grid-template-columns:236px 288px minmax(0,1fr);gap:16px;align-items:start}
-.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:20px}
-.navlist{display:flex;flex-direction:column;gap:1px;padding:10px}
-.navlist button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;font:inherit;font-size:13.5px;
- color:var(--mut);background:transparent;border:0;padding:9px 11px;border-radius:9px;cursor:pointer;transition:.2s var(--ease)}
-.navlist button:hover{background:rgba(255,255,255,.06);color:var(--ink)}
-.navlist button[aria-current="true"]{background:rgba(245,155,75,.14);color:var(--ember);font-weight:500}
-.navlist .s{font-family:var(--mono);font-size:9.5px;color:var(--dim);width:30px;flex:none}
-.navlist .c{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--dim)}
-.flags{padding:16px 18px}
-.frow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--hair);font-size:13px;color:var(--mut)}
-.frow:last-child{border-bottom:0}
-.chip{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;
- border:1px solid var(--hair2);color:var(--mut)}
-.chip.yes{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1)}
+      .body {
+        display: grid;
+        grid-template-columns: 236px 288px minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+      }
+      .side {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        position: sticky;
+        top: 20px;
+      }
+      .navlist {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        padding: 10px;
+      }
+      .navlist button {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        text-align: left;
+        font: inherit;
+        font-size: 13.5px;
+        color: var(--mut);
+        background: transparent;
+        border: 0;
+        padding: 9px 11px;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: 0.2s var(--ease);
+      }
+      .navlist button:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--ink);
+      }
+      .navlist button[aria-current="true"] {
+        background: rgba(245, 155, 75, 0.14);
+        color: var(--ember);
+        font-weight: 500;
+      }
+      .navlist .s {
+        font-family: var(--mono);
+        font-size: 9.5px;
+        color: var(--dim);
+        width: 30px;
+        flex: none;
+      }
+      .navlist .c {
+        margin-left: auto;
+        font-family: var(--mono);
+        font-size: 9.5px;
+        color: var(--dim);
+      }
+      .flags {
+        padding: 16px 18px;
+      }
+      .frow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--hair);
+        font-size: 13px;
+        color: var(--mut);
+      }
+      .frow:last-child {
+        border-bottom: 0;
+      }
+      .chip {
+        font-family: var(--mono);
+        font-size: 9.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--hair2);
+        color: var(--mut);
+      }
+      .chip.yes {
+        color: var(--green);
+        border-color: rgba(52, 211, 153, 0.4);
+        background: rgba(52, 211, 153, 0.1);
+      }
 
-.find{padding:18px}
-.fitem{display:flex;gap:11px;padding:13px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--hair);margin-top:10px}
-.fitem.hot{background:rgba(245,155,75,.09);border-color:rgba(245,155,75,.3)}
-.fitem .t{font-size:13.5px;line-height:1.45}
-.fitem .m{font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:var(--dim);margin-top:5px}
-.fitem a{color:var(--ember);text-decoration:none;border-bottom:1px solid rgba(245,155,75,.4)}
+      .find {
+        padding: 18px;
+      }
+      .fitem {
+        display: flex;
+        gap: 11px;
+        padding: 13px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid var(--hair);
+        margin-top: 10px;
+      }
+      .fitem.hot {
+        background: rgba(245, 155, 75, 0.09);
+        border-color: rgba(245, 155, 75, 0.3);
+      }
+      .fitem .t {
+        font-size: 13.5px;
+        line-height: 1.45;
+      }
+      .fitem .m {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.05em;
+        color: var(--dim);
+        margin-top: 5px;
+      }
+      .fitem a {
+        color: var(--ember);
+        text-decoration: none;
+        border-bottom: 1px solid rgba(245, 155, 75, 0.4);
+      }
 
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.chart{padding:18px}
-.chart h4{font-family:var(--disp);font-size:14.5px;font-weight:600;margin:0 0 12px;letter-spacing:-.01em}
-.chart svg{width:100%;height:auto;overflow:visible;display:block}
-.leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--dim)}
-.leg i{width:12px;height:2.5px;display:inline-block;margin-right:6px;vertical-align:middle;border-radius:2px}
+      .charts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .chart {
+        padding: 18px;
+      }
+      .chart h4 {
+        font-family: var(--disp);
+        font-size: 14.5px;
+        font-weight: 600;
+        margin: 0 0 12px;
+        letter-spacing: -0.01em;
+      }
+      .chart svg {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        display: block;
+      }
+      .leg {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        font-family: var(--mono);
+        font-size: 9.5px;
+        letter-spacing: 0.06em;
+        color: var(--dim);
+      }
+      .leg i {
+        width: 12px;
+        height: 2.5px;
+        display: inline-block;
+        margin-right: 6px;
+        vertical-align: middle;
+        border-radius: 2px;
+      }
 
-.tablewrap{margin-top:16px;padding:20px 0 6px;overflow:hidden}
-.tscroll{overflow-x:auto;padding:0 20px 14px}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1080px}
-th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);
- font-weight:500;padding:0 14px 11px 0;border-bottom:1px solid var(--hair2);white-space:nowrap}
-td{padding:13px 14px 13px 0;border-bottom:1px solid var(--hair);vertical-align:top}
-tr:hover td{background:rgba(255,255,255,.022)}
-td.lab{font-size:13.5px;white-space:nowrap}
-td.key,th.key{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.03em}
-td.v{font-family:var(--disp);font-weight:600;font-size:14.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
-td.cf{font-family:var(--mono);font-size:11px;color:var(--mut)}
-td.note{font-size:12.5px;color:var(--mut);max-width:210px}
-td.acts a{color:var(--ember);font-size:12px;text-decoration:none;margin-right:11px;cursor:pointer;white-space:nowrap}
-td.acts a:hover{text-decoration:underline}
-.tag{font-family:var(--mono);font-size:9px;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:999px;
- border:1px solid var(--hair2);color:var(--mut);white-space:nowrap}
-.tag.est{color:var(--ember);border-color:rgba(245,155,75,.4);background:rgba(245,155,75,.09)}
-.tag.flag{color:var(--err);border-color:rgba(255,122,114,.4);background:rgba(255,122,114,.09)}
-.tag.der{color:var(--blue);border-color:rgba(76,125,240,.4);background:rgba(76,125,240,.09)}
-.tag.gap{border-style:dashed}
-.warn{display:grid;place-items:center;width:17px;height:17px;border-radius:50%;background:rgba(255,122,114,.16);
- color:var(--err);font-size:10px;font-weight:700}
-.warn.off{background:transparent}
-.entity{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;margin:0 20px 16px;padding:14px 16px;
- border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--hair)}
-.sel{background:rgba(10,11,13,.6);border:1px solid var(--hair2);color:var(--ink);font:inherit;font-size:13px;
- border-radius:9px;padding:8px 12px}
+      .tablewrap {
+        margin-top: 16px;
+        padding: 20px 0 6px;
+        overflow: hidden;
+      }
+      .tscroll {
+        overflow-x: auto;
+        padding: 0 20px 14px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 1080px;
+      }
+      th {
+        text-align: left;
+        font-family: var(--mono);
+        font-size: 9.5px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--dim);
+        font-weight: 500;
+        padding: 0 14px 11px 0;
+        border-bottom: 1px solid var(--hair2);
+        white-space: nowrap;
+      }
+      td {
+        padding: 13px 14px 13px 0;
+        border-bottom: 1px solid var(--hair);
+        vertical-align: top;
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.022);
+      }
+      td.lab {
+        font-size: 13.5px;
+        white-space: nowrap;
+      }
+      td.key,
+      th.key {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--dim);
+        letter-spacing: 0.03em;
+      }
+      td.v {
+        font-family: var(--disp);
+        font-weight: 600;
+        font-size: 14.5px;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      td.cf {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--mut);
+      }
+      td.note {
+        font-size: 12.5px;
+        color: var(--mut);
+        max-width: 210px;
+      }
+      td.acts a {
+        color: var(--ember);
+        font-size: 12px;
+        text-decoration: none;
+        margin-right: 11px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      td.acts a:hover {
+        text-decoration: underline;
+      }
+      .tag {
+        font-family: var(--mono);
+        font-size: 9px;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--hair2);
+        color: var(--mut);
+        white-space: nowrap;
+      }
+      .tag.est {
+        color: var(--ember);
+        border-color: rgba(245, 155, 75, 0.4);
+        background: rgba(245, 155, 75, 0.09);
+      }
+      .tag.flag {
+        color: var(--err);
+        border-color: rgba(255, 122, 114, 0.4);
+        background: rgba(255, 122, 114, 0.09);
+      }
+      .tag.der {
+        color: var(--blue);
+        border-color: rgba(76, 125, 240, 0.4);
+        background: rgba(76, 125, 240, 0.09);
+      }
+      .tag.gap {
+        border-style: dashed;
+      }
+      .warn {
+        display: grid;
+        place-items: center;
+        width: 17px;
+        height: 17px;
+        border-radius: 50%;
+        background: rgba(255, 122, 114, 0.16);
+        color: var(--err);
+        font-size: 10px;
+        font-weight: 700;
+      }
+      .warn.off {
+        background: transparent;
+      }
+      .entity {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 14px;
+        align-items: center;
+        margin: 0 20px 16px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid var(--hair);
+      }
+      .sel {
+        background: rgba(10, 11, 13, 0.6);
+        border: 1px solid var(--hair2);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        border-radius: 9px;
+        padding: 8px 12px;
+      }
 
-@media (max-width:1180px){.body{grid-template-columns:1fr}.side{position:static;flex-direction:row;flex-wrap:wrap}
- .side>*{flex:1 1 260px}.sum{grid-template-columns:1fr 1fr}}
-@media (max-width:760px){.sum,.charts{grid-template-columns:1fr}.shell{padding:16px 14px 60px}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}
- .dw{stroke-dashoffset:0}}
+      @media (max-width: 1180px) {
+        .body {
+          grid-template-columns: 1fr;
+        }
+        .side {
+          position: static;
+          flex-direction: row;
+          flex-wrap: wrap;
+        }
+        .side > * {
+          flex: 1 1 260px;
+        }
+        .sum {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 760px) {
+        .sum,
+        .charts {
+          grid-template-columns: 1fr;
+        }
+        .shell {
+          padding: 16px 14px 60px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+        .dw {
+          stroke-dashoffset: 0;
+        }
+      }
 
-/* ── watery glass: the cool rim (mirrors app/globals.css) ── */
-:root{
-  --rim-lip:rgba(198,218,255,.10); --rim-cool:rgba(120,162,255,.055);
-  --rim-bleed:rgba(126,168,255,.5); --rim-bloom:rgba(76,125,240,.4);
-  --edge:rgba(148,180,255,.13);
-  --rim:
-    inset 0 1px 0 var(--rim-lip),
-    inset 1px 0 0 rgba(160,195,255,.045),
-    inset 0 -1px 0 rgba(76,125,240,.07),
-    inset 0 0 0 1px var(--rim-cool),
-    inset 0 0 22px -13px var(--rim-bleed),
-    0 0 26px -14px var(--rim-bloom);
-}
-.g{box-shadow:var(--rim);border-color:var(--edge)}
-</style></head>
-<body>
-<div class="shell">
+      /* ── watery glass: the cool rim (mirrors app/globals.css) ── */
+      :root {
+        --rim-lip: rgba(198, 218, 255, 0.1);
+        --rim-cool: rgba(120, 162, 255, 0.055);
+        --rim-bleed: rgba(126, 168, 255, 0.5);
+        --rim-bloom: rgba(76, 125, 240, 0.4);
+        --edge: rgba(148, 180, 255, 0.13);
+        --rim:
+          inset 0 1px 0 var(--rim-lip), inset 1px 0 0 rgba(160, 195, 255, 0.045),
+          inset 0 -1px 0 rgba(76, 125, 240, 0.07), inset 0 0 0 1px var(--rim-cool),
+          inset 0 0 22px -13px var(--rim-bleed), 0 0 26px -14px var(--rim-bloom);
+      }
+      .g {
+        box-shadow: var(--rim);
+        border-color: var(--edge);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="g top">
+        <span class="brand">Ledgerline</span>
+        <nav class="tnav">
+          <a href="/report-v3.html">Diagnosis</a><a class="on" href="#">Profile</a>
+          <a href="/watching.html">Watching</a><a href="#">Sources</a><a href="#">Modules</a>
+        </nav>
+        <button class="btn p" style="margin-left: auto">Run diagnosis</button>
+      </div>
 
-  <div class="g top">
-    <span class="brand">Ledgerline</span>
-    <nav class="tnav"><a href="/report-v3.html">Diagnosis</a><a class="on" href="#">Profile</a>
-      <a href="/watching.html">Watching</a><a href="#">Sources</a><a href="#">Modules</a></nav>
-    <button class="btn p" style="margin-left:auto">Run diagnosis</button>
-  </div>
-
-  <div class="hrow">
-    <h1>Fact sheet: Szörp Kft.</h1>
-    <div class="meta">214 FACTS &nbsp;·&nbsp; LAST CHANGED 2 DAYS AGO &nbsp;·&nbsp; SCHEMA 1.0.0</div>
-  </div>
-
-  <div class="g search">
-    <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="var(--dim)" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="9" r="5.5"/><path d="M13.5 13.5 17 17"/></svg>
-    <input placeholder="Search across 214 facts (e.g. revenue.monthly_revenue or offers.*.price)" aria-label="Search facts">
-  </div>
-
-  <!-- four summaries -->
-  <div class="sum">
-    <div class="g card">
-      <h3>Reporting currency</h3><div class="lab">locale hu-HU</div>
-      <div class="big">4 500 000 <span style="font-size:16px;color:var(--mut)">Ft</span></div>
-      <div class="kv" style="margin-top:10px">monthly revenue · your estimate</div>
-      <div class="kv"><i style="background:var(--blue)"></i>ad spend recorded in EUR</div>
-    </div>
-
-    <div class="g card">
-      <h3>Overall completeness</h3><div class="lab">3 material gaps</div>
-      <div style="display:flex;align-items:center;gap:16px;margin-top:6px">
-        <svg viewBox="0 0 140 140" style="width:118px;flex:none"><circle cx="70" cy="70" r="52" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/><path class="dw" d="M70.0,18.0 A52,52 0 1 1 69.7,18.0" fill="none" stroke="#34d399" stroke-width="10" stroke-linecap="round"/><circle cx="70" cy="70" r="37" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/><path class="dw" d="M70.0,33.0 A37,37 0 1 1 41.5,93.6" fill="none" stroke="#f59b4b" stroke-width="10" stroke-linecap="round"/><circle cx="70" cy="70" r="22" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/><path class="dw" d="M70.0,48.0 A22,22 0 0 1 80.6,50.7" fill="none" stroke="#4c7df0" stroke-width="10" stroke-linecap="round"/></svg>
-        <div>
-          <div class="word">Good</div>
-          <div class="kv"><i style="background:var(--green)"></i>core 27/27</div>
-          <div class="kv"><i style="background:var(--ember)"></i>important 9/14</div>
-          <div class="kv"><i style="background:var(--blue)"></i>deep 1/12</div>
+      <div class="hrow">
+        <h1>Fact sheet: Szörp Kft.</h1>
+        <div class="meta">
+          214 FACTS &nbsp;·&nbsp; LAST CHANGED 2 DAYS AGO &nbsp;·&nbsp; SCHEMA 1.0.0
         </div>
       </div>
-    </div>
 
-    <div class="g card">
-      <h3>Data provenance</h3><div class="lab">where the 214 came from</div>
-      <div style="display:flex;align-items:center;gap:14px;margin-top:6px">
-        <svg viewBox="0 0 140 140" style="width:118px;flex:none"><path class="dw" d="M70.0,12.0 A58,58 0 1 1 43.5,121.6 L52.7,103.8 A38,38 0 1 0 70.0,32.0 Z" fill="rgba(255,255,255,.62)"><title>Owner-stated · 124</title></path><path class="dw" d="M42.2,120.9 A58,58 0 0 1 12.0,72.3 L32.0,71.5 A38,38 0 0 0 51.8,103.4 Z" fill="#f59b4b"><title>Estimated · 36</title></path><path class="dw" d="M12.0,70.9 A58,58 0 0 1 33.9,24.6 L46.4,40.2 A38,38 0 0 0 32.0,70.6 Z" fill="#4c7df0"><title>Computed · 32</title></path><path class="dw" d="M35.1,23.7 A58,58 0 0 1 68.5,12.0 L69.0,32.0 A38,38 0 0 0 47.1,39.7 Z" fill="rgba(255,255,255,.14)"><title>Unknown · 22</title></path>
-          <text x="70" y="66" text-anchor="middle" font-family="Satoshi,sans-serif" font-weight="700" font-size="21" fill="#f2f3f5">214</text>
-          <text x="70" y="82" text-anchor="middle" font-family="Geist Mono,monospace" font-size="8.5" letter-spacing="1" fill="#6b727c">FACTS</text></svg>
-        <div>
-          <div class="kv"><i style="background:rgba(255,255,255,.62)"></i>Owner-stated 124</div>
-          <div class="kv"><i style="background:var(--ember)"></i>Estimated 36</div>
-          <div class="kv"><i style="background:var(--blue)"></i>Computed 32</div>
-          <div class="kv"><i style="background:rgba(255,255,255,.14)"></i>Unknown 22</div>
+      <div class="g search">
+        <svg
+          width="17"
+          height="17"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="var(--dim)"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        >
+          <circle cx="9" cy="9" r="5.5" />
+          <path d="M13.5 13.5 17 17" />
+        </svg>
+        <input
+          placeholder="Search across 214 facts (e.g. revenue.monthly_revenue or offers.*.price)"
+          aria-label="Search facts"
+        />
+      </div>
+
+      <!-- four summaries -->
+      <div class="sum">
+        <div class="g card">
+          <h3>Reporting currency</h3>
+          <div class="lab">locale hu-HU</div>
+          <div class="big">
+            4 500 000 <span style="font-size: 16px; color: var(--mut)">Ft</span>
+          </div>
+          <div class="kv" style="margin-top: 10px">monthly revenue · your estimate</div>
+          <div class="kv"><i style="background: var(--blue)"></i>ad spend recorded in EUR</div>
         </div>
-      </div>
-    </div>
 
-    <div class="g card">
-      <h3>Section coverage</h3><div class="lab">14 sections · size = facts held</div>
-      <svg viewBox="0 0 210 185" style="margin-top:4px"><g class="bub"><circle cx="70" cy="62" r="11.6" fill="#34d399" opacity="0.85"/><circle cx="70" cy="62" r="11.6" fill="none" stroke="#34d399" stroke-width="1" opacity=".5"/><title>Identity · 9 facts · 100% answered</title></g><g class="bub"><circle cx="120" cy="42" r="9.7" fill="rgba(255,255,255,.5)" opacity="0.75"/><circle cx="120" cy="42" r="9.7" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1" opacity=".5"/><title>Presence · 6 facts · 83% answered</title></g><g class="bub"><circle cx="46" cy="110" r="25.8" fill="#34d399" opacity="0.85"/><circle cx="46" cy="110" r="25.8" fill="none" stroke="#34d399" stroke-width="1" opacity=".5"/><title>Offers · 32 facts · 100% answered</title></g><g class="bub"><circle cx="112" cy="96" r="13.4" fill="rgba(255,255,255,.5)" opacity="0.80"/><circle cx="112" cy="96" r="13.4" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1" opacity=".5"/><title>Revenue · 12 facts · 92% answered</title></g><g class="bub"><circle cx="160" cy="68" r="14.7" fill="#f59b4b" opacity="0.55"/><circle cx="160" cy="68" r="14.7" fill="none" stroke="#f59b4b" stroke-width="1" opacity=".5"/><title>Costs · 14 facts · 50% answered</title></g><g class="bub"><circle cx="32" cy="60" r="12.8" fill="rgba(255,255,255,.5)" opacity="0.68"/><circle cx="32" cy="60" r="12.8" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1" opacity=".5"/><title>Customers · 11 facts · 72% answered</title></g><g class="bub"><circle cx="150" cy="120" r="17.2" fill="#34d399" opacity="0.85"/><circle cx="150" cy="120" r="17.2" fill="none" stroke="#34d399" stroke-width="1" opacity=".5"/><title>Channels · 18 facts · 100% answered</title></g><g class="bub"><circle cx="86" cy="142" r="11.6" fill="#f59b4b" opacity="0.38"/><circle cx="86" cy="142" r="11.6" fill="none" stroke="#f59b4b" stroke-width="1" opacity=".5"/><title>Marketing · 9 facts · 22% answered</title></g><g class="bub"><circle cx="178" cy="104" r="13.4" fill="#34d399" opacity="0.85"/><circle cx="178" cy="104" r="13.4" fill="none" stroke="#34d399" stroke-width="1" opacity=".5"/><title>Operations · 12 facts · 100% answered</title></g><g class="bub"><circle cx="54" cy="152" r="11.0" fill="rgba(255,255,255,.5)" opacity="0.70"/><circle cx="54" cy="152" r="11.0" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1" opacity=".5"/><title>Tooling · 8 facts · 75% answered</title></g><g class="bub"><circle cx="122" cy="166" r="10.3" fill="#f59b4b" opacity="0.59"/><circle cx="122" cy="166" r="10.3" fill="none" stroke="#f59b4b" stroke-width="1" opacity=".5"/><title>Legal · 7 facts · 56% answered</title></g><g class="bub"><circle cx="186" cy="150" r="12.8" fill="#f59b4b" opacity="0.47"/><circle cx="186" cy="150" r="12.8" fill="none" stroke="#f59b4b" stroke-width="1" opacity=".5"/><title>Competitors · 11 facts · 36% answered</title></g><g class="bub"><circle cx="24" cy="132" r="9.7" fill="rgba(255,255,255,.5)" opacity="0.65"/><circle cx="24" cy="132" r="9.7" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1" opacity=".5"/><title>Goals · 6 facts · 66% answered</title></g><g class="bub"><circle cx="160" cy="32" r="9.1" fill="#f59b4b" opacity="0.49"/><circle cx="160" cy="32" r="9.1" fill="none" stroke="#f59b4b" stroke-width="1" opacity=".5"/><title>Assets · 5 facts · 40% answered</title></g></svg>
-    </div>
-  </div>
+        <div class="g card">
+          <h3>Overall completeness</h3>
+          <div class="lab">3 material gaps</div>
+          <div style="display: flex; align-items: center; gap: 16px; margin-top: 6px">
+            <svg viewBox="0 0 140 140" style="width: 118px; flex: none">
+              <circle
+                cx="70"
+                cy="70"
+                r="52"
+                fill="none"
+                stroke="rgba(255,255,255,.07)"
+                stroke-width="10"
+              />
+              <path
+                class="dw"
+                d="M70.0,18.0 A52,52 0 1 1 69.7,18.0"
+                fill="none"
+                stroke="#34d399"
+                stroke-width="10"
+                stroke-linecap="round"
+              />
+              <circle
+                cx="70"
+                cy="70"
+                r="37"
+                fill="none"
+                stroke="rgba(255,255,255,.07)"
+                stroke-width="10"
+              />
+              <path
+                class="dw"
+                d="M70.0,33.0 A37,37 0 1 1 41.5,93.6"
+                fill="none"
+                stroke="#f59b4b"
+                stroke-width="10"
+                stroke-linecap="round"
+              />
+              <circle
+                cx="70"
+                cy="70"
+                r="22"
+                fill="none"
+                stroke="rgba(255,255,255,.07)"
+                stroke-width="10"
+              />
+              <path
+                class="dw"
+                d="M70.0,48.0 A22,22 0 0 1 80.6,50.7"
+                fill="none"
+                stroke="#4c7df0"
+                stroke-width="10"
+                stroke-linecap="round"
+              />
+            </svg>
+            <div>
+              <div class="word">Good</div>
+              <div class="kv"><i style="background: var(--green)"></i>core 27/27</div>
+              <div class="kv"><i style="background: var(--ember)"></i>important 9/14</div>
+              <div class="kv"><i style="background: var(--blue)"></i>deep 1/12</div>
+            </div>
+          </div>
+        </div>
 
-  <!-- body -->
-  <div class="body">
-    <div class="side">
-      <div class="g navlist"><button><span class="s">§5.1</span>Identity<span class="c">9/9</span></button><button><span class="s">§5.2</span>Presence<span class="c">5/6</span></button><button><span class="s">§5.3</span>Offers<span class="c">32/32</span></button><button aria-current="true"><span class="s">§5.4</span>Revenue<span class="c">11/12</span></button><button><span class="s">§5.5</span>Costs<span class="c">7/14</span></button><button><span class="s">§5.6</span>Customers<span class="c">8/11</span></button><button><span class="s">§5.7</span>Channels<span class="c">18/18</span></button><button><span class="s">§5.8</span>Marketing<span class="c">2/9</span></button><button><span class="s">§5.9</span>Operations<span class="c">12/12</span></button><button><span class="s">§5.10</span>Tooling<span class="c">6/8</span></button><button><span class="s">§5.11</span>Legal<span class="c">4/7</span></button><button><span class="s">§5.12</span>Competitors<span class="c">4/11</span></button><button><span class="s">§5.13</span>Goals<span class="c">4/6</span></button><button><span class="s">§5.14</span>Assets<span class="c">2/5</span></button></div>
-      <div class="g flags">
-        <div class="lab" style="margin-bottom:10px">Key actions</div>
-        <button class="btn g2" style="width:100%;margin-bottom:8px">Reconcile contradiction</button>
-        <button class="btn g2" style="width:100%;margin-bottom:8px">Add an offer</button>
-        <button class="btn g2" style="width:100%">Answer 3 open gaps</button>
-      </div>
-      <div class="g flags">
-        <div class="lab" style="margin-bottom:6px">Account flags</div>
-        <div class="frow">Benchmark consent<span class="chip yes">Yes</span></div>
-        <div class="frow">Benchmark eligible<span class="chip yes">Yes</span></div>
-        <div class="frow">Schema<span class="chip">1.0.0</span></div>
-        <div class="frow">Question bank<span class="chip">1.0.0</span></div>
-      </div>
-    </div>
+        <div class="g card">
+          <h3>Data provenance</h3>
+          <div class="lab">where the 214 came from</div>
+          <div style="display: flex; align-items: center; gap: 14px; margin-top: 6px">
+            <svg viewBox="0 0 140 140" style="width: 118px; flex: none">
+              <path
+                class="dw"
+                d="M70.0,12.0 A58,58 0 1 1 43.5,121.6 L52.7,103.8 A38,38 0 1 0 70.0,32.0 Z"
+                fill="rgba(255,255,255,.62)"
+              >
+                <title>Owner-stated · 124</title>
+              </path>
+              <path
+                class="dw"
+                d="M42.2,120.9 A58,58 0 0 1 12.0,72.3 L32.0,71.5 A38,38 0 0 0 51.8,103.4 Z"
+                fill="#f59b4b"
+              >
+                <title>Estimated · 36</title>
+              </path>
+              <path
+                class="dw"
+                d="M12.0,70.9 A58,58 0 0 1 33.9,24.6 L46.4,40.2 A38,38 0 0 0 32.0,70.6 Z"
+                fill="#4c7df0"
+              >
+                <title>Computed · 32</title>
+              </path>
+              <path
+                class="dw"
+                d="M35.1,23.7 A58,58 0 0 1 68.5,12.0 L69.0,32.0 A38,38 0 0 0 47.1,39.7 Z"
+                fill="rgba(255,255,255,.14)"
+              >
+                <title>Unknown · 22</title>
+              </path>
+              <text
+                x="70"
+                y="66"
+                text-anchor="middle"
+                font-family="Satoshi,sans-serif"
+                font-weight="700"
+                font-size="21"
+                fill="#f2f3f5"
+              >
+                214
+              </text>
+              <text
+                x="70"
+                y="82"
+                text-anchor="middle"
+                font-family="Geist Mono,monospace"
+                font-size="8.5"
+                letter-spacing="1"
+                fill="#6b727c"
+              >
+                FACTS
+              </text>
+            </svg>
+            <div>
+              <div class="kv">
+                <i style="background: rgba(255, 255, 255, 0.62)"></i>Owner-stated 124
+              </div>
+              <div class="kv"><i style="background: var(--ember)"></i>Estimated 36</div>
+              <div class="kv"><i style="background: var(--blue)"></i>Computed 32</div>
+              <div class="kv"><i style="background: rgba(255, 255, 255, 0.14)"></i>Unknown 22</div>
+            </div>
+          </div>
+        </div>
 
-    <div class="g find">
-      <h3 style="font-family:var(--disp);font-size:16px;margin:0 0 3px">Validation findings</h3>
-      <div class="lab">3 open · checked on every write</div>
-      <div class="fitem hot">
-        <span class="warn">!</span>
-        <div><div class="t">Stated margin 40% against a computed 23%.</div>
-          <div class="m">margin_mismatch · contradiction · high · <a>Reconcile</a></div></div>
-      </div>
-      <div class="fitem">
-        <span class="warn">!</span>
-        <div><div class="t">Competitor prices are older than 365 days.</div>
-          <div class="m">stale_financials · stale · low · <a>Re-check</a></div></div>
-      </div>
-      <div class="fitem">
-        <span class="warn off">·</span>
-        <div><div class="t">Primary channel has no revenue figure.</div>
-          <div class="m">channel_without_revenue · gap · medium · <a>Answer</a></div></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="charts">
-        <div class="g chart">
-          <h4>Revenue against cost</h4>
-          <svg viewBox="0 0 380 145">
-            <line x1="30" y1="118" x2="370" y2="118" stroke="rgba(255,255,255,.1)"/>
-            <line x1="30" y1="68" x2="370" y2="68" stroke="rgba(255,255,255,.04)"/>
-            <line x1="30" y1="18" x2="370" y2="18" stroke="rgba(255,255,255,.04)"/>
-            <path d="M30.0,88.0 L53.6,81.3 L77.3,84.7 L100.9,71.3 L124.5,64.7 L148.2,68.0 L171.8,54.7 L195.5,48.0 L219.1,51.3 L242.7,41.3 L266.4,38.0 L290.0,34.7" fill="none" stroke="var(--ember)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M30.0,108.0 L53.6,104.7 L77.3,104.7 L100.9,98.0 L124.5,91.3 L148.2,94.7 L171.8,84.7 L195.5,78.0 L219.1,78.0 L242.7,71.3 L266.4,71.3 L290.0,68.0" fill="none" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M290,34.7 L330,26.3 L370,16.3" fill="none" stroke="rgba(255,255,255,.34)" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"/>
-            <text x="24" y="22" text-anchor="end" font-family="Geist Mono,monospace" font-size="8" fill="#6b727c">5.0M</text>
-            <text x="24" y="122" text-anchor="end" font-family="Geist Mono,monospace" font-size="8" fill="#6b727c">2.0M</text>
-            <text x="30" y="138" font-family="Geist Mono,monospace" font-size="8" fill="#5a6068">SEP 2025</text>
-            <text x="370" y="138" text-anchor="end" font-family="Geist Mono,monospace" font-size="8" fill="#5a6068">PROJECTED</text>
+        <div class="g card">
+          <h3>Section coverage</h3>
+          <div class="lab">14 sections · size = facts held</div>
+          <svg viewBox="0 0 210 185" style="margin-top: 4px">
+            <g class="bub">
+              <circle cx="70" cy="62" r="11.6" fill="#34d399" opacity="0.85" />
+              <circle
+                cx="70"
+                cy="62"
+                r="11.6"
+                fill="none"
+                stroke="#34d399"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Identity · 9 facts · 100% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="120" cy="42" r="9.7" fill="rgba(255,255,255,.5)" opacity="0.75" />
+              <circle
+                cx="120"
+                cy="42"
+                r="9.7"
+                fill="none"
+                stroke="rgba(255,255,255,.5)"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Presence · 6 facts · 83% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="46" cy="110" r="25.8" fill="#34d399" opacity="0.85" />
+              <circle
+                cx="46"
+                cy="110"
+                r="25.8"
+                fill="none"
+                stroke="#34d399"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Offers · 32 facts · 100% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="112" cy="96" r="13.4" fill="rgba(255,255,255,.5)" opacity="0.80" />
+              <circle
+                cx="112"
+                cy="96"
+                r="13.4"
+                fill="none"
+                stroke="rgba(255,255,255,.5)"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Revenue · 12 facts · 92% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="160" cy="68" r="14.7" fill="#f59b4b" opacity="0.55" />
+              <circle
+                cx="160"
+                cy="68"
+                r="14.7"
+                fill="none"
+                stroke="#f59b4b"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Costs · 14 facts · 50% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="32" cy="60" r="12.8" fill="rgba(255,255,255,.5)" opacity="0.68" />
+              <circle
+                cx="32"
+                cy="60"
+                r="12.8"
+                fill="none"
+                stroke="rgba(255,255,255,.5)"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Customers · 11 facts · 72% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="150" cy="120" r="17.2" fill="#34d399" opacity="0.85" />
+              <circle
+                cx="150"
+                cy="120"
+                r="17.2"
+                fill="none"
+                stroke="#34d399"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Channels · 18 facts · 100% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="86" cy="142" r="11.6" fill="#f59b4b" opacity="0.38" />
+              <circle
+                cx="86"
+                cy="142"
+                r="11.6"
+                fill="none"
+                stroke="#f59b4b"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Marketing · 9 facts · 22% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="178" cy="104" r="13.4" fill="#34d399" opacity="0.85" />
+              <circle
+                cx="178"
+                cy="104"
+                r="13.4"
+                fill="none"
+                stroke="#34d399"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Operations · 12 facts · 100% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="54" cy="152" r="11.0" fill="rgba(255,255,255,.5)" opacity="0.70" />
+              <circle
+                cx="54"
+                cy="152"
+                r="11.0"
+                fill="none"
+                stroke="rgba(255,255,255,.5)"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Tooling · 8 facts · 75% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="122" cy="166" r="10.3" fill="#f59b4b" opacity="0.59" />
+              <circle
+                cx="122"
+                cy="166"
+                r="10.3"
+                fill="none"
+                stroke="#f59b4b"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Legal · 7 facts · 56% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="186" cy="150" r="12.8" fill="#f59b4b" opacity="0.47" />
+              <circle
+                cx="186"
+                cy="150"
+                r="12.8"
+                fill="none"
+                stroke="#f59b4b"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Competitors · 11 facts · 36% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="24" cy="132" r="9.7" fill="rgba(255,255,255,.5)" opacity="0.65" />
+              <circle
+                cx="24"
+                cy="132"
+                r="9.7"
+                fill="none"
+                stroke="rgba(255,255,255,.5)"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Goals · 6 facts · 66% answered</title>
+            </g>
+            <g class="bub">
+              <circle cx="160" cy="32" r="9.1" fill="#f59b4b" opacity="0.49" />
+              <circle
+                cx="160"
+                cy="32"
+                r="9.1"
+                fill="none"
+                stroke="#f59b4b"
+                stroke-width="1"
+                opacity=".5"
+              />
+              <title>Assets · 5 facts · 40% answered</title>
+            </g>
           </svg>
-          <div class="leg"><span><i style="background:var(--ember)"></i>revenue</span><span><i style="background:var(--blue)"></i>cost</span><span><i style="background:rgba(255,255,255,.34)"></i>projected</span></div>
+        </div>
+      </div>
+
+      <!-- body -->
+      <div class="body">
+        <div class="side">
+          <div class="g navlist">
+            <button><span class="s">§5.1</span>Identity<span class="c">9/9</span></button
+            ><button><span class="s">§5.2</span>Presence<span class="c">5/6</span></button
+            ><button><span class="s">§5.3</span>Offers<span class="c">32/32</span></button
+            ><button aria-current="true">
+              <span class="s">§5.4</span>Revenue<span class="c">11/12</span></button
+            ><button><span class="s">§5.5</span>Costs<span class="c">7/14</span></button
+            ><button><span class="s">§5.6</span>Customers<span class="c">8/11</span></button
+            ><button><span class="s">§5.7</span>Channels<span class="c">18/18</span></button
+            ><button><span class="s">§5.8</span>Marketing<span class="c">2/9</span></button
+            ><button><span class="s">§5.9</span>Operations<span class="c">12/12</span></button
+            ><button><span class="s">§5.10</span>Tooling<span class="c">6/8</span></button
+            ><button><span class="s">§5.11</span>Legal<span class="c">4/7</span></button
+            ><button><span class="s">§5.12</span>Competitors<span class="c">4/11</span></button
+            ><button><span class="s">§5.13</span>Goals<span class="c">4/6</span></button
+            ><button><span class="s">§5.14</span>Assets<span class="c">2/5</span></button>
+          </div>
+          <div class="g flags">
+            <div class="lab" style="margin-bottom: 10px">Key actions</div>
+            <button class="btn g2" style="width: 100%; margin-bottom: 8px">
+              Reconcile contradiction
+            </button>
+            <button class="btn g2" style="width: 100%; margin-bottom: 8px">Add an offer</button>
+            <button class="btn g2" style="width: 100%">Answer 3 open gaps</button>
+          </div>
+          <div class="g flags">
+            <div class="lab" style="margin-bottom: 6px">Account flags</div>
+            <div class="frow">Benchmark consent<span class="chip yes">Yes</span></div>
+            <div class="frow">Benchmark eligible<span class="chip yes">Yes</span></div>
+            <div class="frow">Schema<span class="chip">1.0.0</span></div>
+            <div class="frow">Question bank<span class="chip">1.0.0</span></div>
+          </div>
         </div>
 
-        <div class="g chart">
-          <h4>Share of orders against margin</h4>
-          <svg viewBox="0 0 380 145">
-            <line x1="30" y1="118" x2="370" y2="118" stroke="rgba(255,255,255,.1)"/>
-            <rect x="36" y="23" width="18" height="95" rx="3" fill="#f59b4b" opacity=".85"><title>Szörp 0.5L · 61% of orders</title></rect><rect x="57" y="90" width="18" height="28" rx="3" fill="rgba(255,255,255,.32)"><title>Szörp 0.5L · 18% margin</title></rect><text x="54" y="132" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Szörp</text><rect x="90" y="96" width="18" height="22" rx="3" fill="#f59b4b" opacity=".85"><title>Szörp 1L · 14% of orders</title></rect><rect x="111" y="70" width="18" height="48" rx="3" fill="rgba(255,255,255,.32)"><title>Szörp 1L · 31% margin</title></rect><text x="108" y="132" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Szörp</text><rect x="144" y="104" width="18" height="14" rx="3" fill="#f59b4b" opacity=".85"><title>Gift box · 9% of orders</title></rect><rect x="165" y="23" width="18" height="95" rx="3" fill="rgba(255,255,255,.32)"><title>Gift box · 61% margin</title></rect><text x="162" y="132" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Gift</text><rect x="198" y="101" width="18" height="17" rx="3" fill="#f59b4b" opacity=".85"><title>Winter · 11% of orders</title></rect><rect x="219" y="50" width="18" height="68" rx="3" fill="rgba(255,255,255,.32)"><title>Winter · 44% margin</title></rect><text x="216" y="132" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Winter</text><rect x="252" y="110" width="18" height="8" rx="3" fill="#f59b4b" opacity=".85"><title>Sampler · 5% of orders</title></rect><rect x="273" y="59" width="18" height="59" rx="3" fill="rgba(255,255,255,.32)"><title>Sampler · 38% margin</title></rect><text x="270" y="132" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Sampler</text>
-          </svg>
-          <div class="leg"><span><i style="background:var(--ember)"></i>% of orders</span><span><i style="background:rgba(255,255,255,.32)"></i>% margin</span></div>
+        <div class="g find">
+          <h3 style="font-family: var(--disp); font-size: 16px; margin: 0 0 3px">
+            Validation findings
+          </h3>
+          <div class="lab">3 open · checked on every write</div>
+          <div class="fitem hot">
+            <span class="warn">!</span>
+            <div>
+              <div class="t">Stated margin 40% against a computed 23%.</div>
+              <div class="m">margin_mismatch · contradiction · high · <a>Reconcile</a></div>
+            </div>
+          </div>
+          <div class="fitem">
+            <span class="warn">!</span>
+            <div>
+              <div class="t">Competitor prices are older than 365 days.</div>
+              <div class="m">stale_financials · stale · low · <a>Re-check</a></div>
+            </div>
+          </div>
+          <div class="fitem">
+            <span class="warn off">·</span>
+            <div>
+              <div class="t">Primary channel has no revenue figure.</div>
+              <div class="m">channel_without_revenue · gap · medium · <a>Answer</a></div>
+            </div>
+          </div>
         </div>
 
-        <div class="g chart">
-          <h4>Revenue by customer segment</h4>
-          <svg viewBox="0 0 260 135"><rect x="74" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.82)"><title>Market regulars · APR · 90%</title></rect><rect x="104" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.78)"><title>Market regulars · MAY · 85%</title></rect><rect x="134" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.87)"><title>Market regulars · JUN · 95%</title></rect><rect x="164" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.91)"><title>Market regulars · JUL · 100%</title></rect><rect x="194" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.74)"><title>Market regulars · AUG · 80%</title></rect><rect x="224" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.66)"><title>Market regulars · SEP · 70%</title></rect><text x="68" y="26" text-anchor="end" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Market regula</text><rect x="74" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.36)"><title>Webshop one-off · APR · 35%</title></rect><rect x="104" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.40)"><title>Webshop one-off · MAY · 40%</title></rect><rect x="134" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.44)"><title>Webshop one-off · JUN · 45%</title></rect><rect x="164" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.48)"><title>Webshop one-off · JUL · 50%</title></rect><rect x="194" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.42)"><title>Webshop one-off · AUG · 42%</title></rect><rect x="224" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.38)"><title>Webshop one-off · SEP · 38%</title></rect><text x="68" y="46" text-anchor="end" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Webshop one-o</text><rect x="74" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.19)"><title>Gift buyers · APR · 15%</title></rect><rect x="104" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.23)"><title>Gift buyers · MAY · 20%</title></rect><rect x="134" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.32)"><title>Gift buyers · JUN · 30%</title></rect><rect x="164" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.70)"><title>Gift buyers · JUL · 75%</title></rect><rect x="194" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.87)"><title>Gift buyers · AUG · 95%</title></rect><rect x="224" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.57)"><title>Gift buyers · SEP · 60%</title></rect><text x="68" y="66" text-anchor="end" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Gift buyers</text><rect x="74" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.48)"><title>Cafés · APR · 50%</title></rect><rect x="104" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.47)"><title>Cafés · MAY · 48%</title></rect><rect x="134" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.50)"><title>Cafés · JUN · 52%</title></rect><rect x="164" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.53)"><title>Cafés · JUL · 55%</title></rect><rect x="194" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.57)"><title>Cafés · AUG · 60%</title></rect><rect x="224" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.55)"><title>Cafés · SEP · 57%</title></rect><text x="68" y="86" text-anchor="end" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Cafés</text><rect x="74" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.23)"><title>Wholesale · APR · 20%</title></rect><rect x="104" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.27)"><title>Wholesale · MAY · 25%</title></rect><rect x="134" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.25)"><title>Wholesale · JUN · 22%</title></rect><rect x="164" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.32)"><title>Wholesale · JUL · 30%</title></rect><rect x="194" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.36)"><title>Wholesale · AUG · 35%</title></rect><rect x="224" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.40)"><title>Wholesale · SEP · 40%</title></rect><text x="68" y="106" text-anchor="end" font-family="Geist Mono,monospace" font-size="7.5" fill="#6b727c">Wholesale</text><text x="87" y="127" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#5a6068">APR</text><text x="117" y="127" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#5a6068">MAY</text><text x="147" y="127" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#5a6068">JUN</text><text x="177" y="127" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#5a6068">JUL</text><text x="207" y="127" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#5a6068">AUG</text><text x="237" y="127" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#5a6068">SEP</text></svg>
-          <div class="leg"><span>quiet</span><span><i style="width:34px;height:8px;background:linear-gradient(90deg,rgba(245,155,75,.1),var(--ember))"></i></span><span>busy</span></div>
-        </div>
+        <div>
+          <div class="charts">
+            <div class="g chart">
+              <h4>Revenue against cost</h4>
+              <svg viewBox="0 0 380 145">
+                <line x1="30" y1="118" x2="370" y2="118" stroke="rgba(255,255,255,.1)" />
+                <line x1="30" y1="68" x2="370" y2="68" stroke="rgba(255,255,255,.04)" />
+                <line x1="30" y1="18" x2="370" y2="18" stroke="rgba(255,255,255,.04)" />
+                <path
+                  d="M30.0,88.0 L53.6,81.3 L77.3,84.7 L100.9,71.3 L124.5,64.7 L148.2,68.0 L171.8,54.7 L195.5,48.0 L219.1,51.3 L242.7,41.3 L266.4,38.0 L290.0,34.7"
+                  fill="none"
+                  stroke="var(--ember)"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M30.0,108.0 L53.6,104.7 L77.3,104.7 L100.9,98.0 L124.5,91.3 L148.2,94.7 L171.8,84.7 L195.5,78.0 L219.1,78.0 L242.7,71.3 L266.4,71.3 L290.0,68.0"
+                  fill="none"
+                  stroke="var(--blue)"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M290,34.7 L330,26.3 L370,16.3"
+                  fill="none"
+                  stroke="rgba(255,255,255,.34)"
+                  stroke-width="2"
+                  stroke-dasharray="4 5"
+                  stroke-linecap="round"
+                />
+                <text
+                  x="24"
+                  y="22"
+                  text-anchor="end"
+                  font-family="Geist Mono,monospace"
+                  font-size="8"
+                  fill="#6b727c"
+                >
+                  5.0M
+                </text>
+                <text
+                  x="24"
+                  y="122"
+                  text-anchor="end"
+                  font-family="Geist Mono,monospace"
+                  font-size="8"
+                  fill="#6b727c"
+                >
+                  2.0M
+                </text>
+                <text
+                  x="30"
+                  y="138"
+                  font-family="Geist Mono,monospace"
+                  font-size="8"
+                  fill="#5a6068"
+                >
+                  SEP 2025
+                </text>
+                <text
+                  x="370"
+                  y="138"
+                  text-anchor="end"
+                  font-family="Geist Mono,monospace"
+                  font-size="8"
+                  fill="#5a6068"
+                >
+                  PROJECTED
+                </text>
+              </svg>
+              <div class="leg">
+                <span><i style="background: var(--ember)"></i>revenue</span
+                ><span><i style="background: var(--blue)"></i>cost</span
+                ><span><i style="background: rgba(255, 255, 255, 0.34)"></i>projected</span>
+              </div>
+            </div>
 
-        <div class="g chart">
-          <h4>What actually drives revenue</h4>
-          <svg viewBox="0 0 280 155"><line x1="150" y1="64" x2="84" y2="32" stroke="rgba(255,255,255,.13)" stroke-width="1"/><line x1="150" y1="64" x2="92" y2="96" stroke="rgba(255,255,255,.13)" stroke-width="1"/><line x1="150" y1="64" x2="214" y2="40" stroke="rgba(255,255,255,.13)" stroke-width="1"/><line x1="214" y1="40" x2="206" y2="96" stroke="rgba(255,255,255,.13)" stroke-width="1"/><line x1="92" y1="96" x2="120" y2="132" stroke="rgba(255,255,255,.13)" stroke-width="1"/><line x1="92" y1="96" x2="56" y2="66" stroke="rgba(255,255,255,.13)" stroke-width="1"/><line x1="150" y1="64" x2="236" y2="68" stroke="rgba(255,255,255,.13)" stroke-width="1"/><line x1="84" y1="32" x2="214" y2="40" stroke="rgba(255,255,255,.13)" stroke-width="1"/><circle cx="150" cy="64" r="21" fill="#f59b4b" opacity=".13"/><circle cx="150" cy="64" r="15" fill="#f59b4b"><title>Revenue</title></circle><text x="150" y="90" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#8f959d">Revenue</text><circle cx="84" cy="32" r="15" fill="rgba(255,255,255,.5)" opacity=".13"/><circle cx="84" cy="32" r="9" fill="rgba(255,255,255,.5)"><title>Price</title></circle><text x="84" y="52" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#8f959d">Price</text><circle cx="92" cy="96" r="17" fill="rgba(255,255,255,.5)" opacity=".13"/><circle cx="92" cy="96" r="11" fill="rgba(255,255,255,.5)"><title>Volume</title></circle><text x="92" y="118" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#8f959d">Volume</text><circle cx="214" cy="40" r="16" fill="#4c7df0" opacity=".13"/><circle cx="214" cy="40" r="10" fill="#4c7df0"><title>Margin</title></circle><text x="214" y="61" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#8f959d">Margin</text><circle cx="206" cy="96" r="15" fill="rgba(255,255,255,.35)" opacity=".13"/><circle cx="206" cy="96" r="9" fill="rgba(255,255,255,.35)"><title>Cost</title></circle><text x="206" y="116" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#8f959d">Cost</text><circle cx="120" cy="132" r="14" fill="rgba(255,255,255,.35)" opacity=".13"/><circle cx="120" cy="132" r="8" fill="rgba(255,255,255,.35)"><title>Channel mix</title></circle><text x="120" y="151" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#8f959d">Channel mix</text><circle cx="56" cy="66" r="13" fill="rgba(255,255,255,.25)" opacity=".13"/><circle cx="56" cy="66" r="7" fill="rgba(255,255,255,.25)"><title>Seasonality</title></circle><text x="56" y="84" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#8f959d">Seasonality</text><circle cx="236" cy="68" r="12" fill="rgba(255,255,255,.18)" opacity=".13"/><circle cx="236" cy="68" r="6" fill="rgba(255,255,255,.18)"><title>Repeat rate</title></circle><text x="236" y="85" text-anchor="middle" font-family="Geist Mono,monospace" font-size="7.5" fill="#8f959d">Repeat rate</text></svg>
-          <div class="leg"><span><i style="background:var(--ember)"></i>outcome</span><span><i style="background:rgba(255,255,255,.5)"></i>owner-stated driver</span><span><i style="background:var(--blue)"></i>computed</span></div>
+            <div class="g chart">
+              <h4>Share of orders against margin</h4>
+              <svg viewBox="0 0 380 145">
+                <line x1="30" y1="118" x2="370" y2="118" stroke="rgba(255,255,255,.1)" />
+                <rect x="36" y="23" width="18" height="95" rx="3" fill="#f59b4b" opacity=".85">
+                  <title>Szörp 0.5L · 61% of orders</title>
+                </rect>
+                <rect x="57" y="90" width="18" height="28" rx="3" fill="rgba(255,255,255,.32)">
+                  <title>Szörp 0.5L · 18% margin</title>
+                </rect>
+                <text
+                  x="54"
+                  y="132"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Szörp
+                </text>
+                <rect x="90" y="96" width="18" height="22" rx="3" fill="#f59b4b" opacity=".85">
+                  <title>Szörp 1L · 14% of orders</title>
+                </rect>
+                <rect x="111" y="70" width="18" height="48" rx="3" fill="rgba(255,255,255,.32)">
+                  <title>Szörp 1L · 31% margin</title>
+                </rect>
+                <text
+                  x="108"
+                  y="132"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Szörp
+                </text>
+                <rect x="144" y="104" width="18" height="14" rx="3" fill="#f59b4b" opacity=".85">
+                  <title>Gift box · 9% of orders</title>
+                </rect>
+                <rect x="165" y="23" width="18" height="95" rx="3" fill="rgba(255,255,255,.32)">
+                  <title>Gift box · 61% margin</title>
+                </rect>
+                <text
+                  x="162"
+                  y="132"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Gift
+                </text>
+                <rect x="198" y="101" width="18" height="17" rx="3" fill="#f59b4b" opacity=".85">
+                  <title>Winter · 11% of orders</title>
+                </rect>
+                <rect x="219" y="50" width="18" height="68" rx="3" fill="rgba(255,255,255,.32)">
+                  <title>Winter · 44% margin</title>
+                </rect>
+                <text
+                  x="216"
+                  y="132"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Winter
+                </text>
+                <rect x="252" y="110" width="18" height="8" rx="3" fill="#f59b4b" opacity=".85">
+                  <title>Sampler · 5% of orders</title>
+                </rect>
+                <rect x="273" y="59" width="18" height="59" rx="3" fill="rgba(255,255,255,.32)">
+                  <title>Sampler · 38% margin</title>
+                </rect>
+                <text
+                  x="270"
+                  y="132"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Sampler
+                </text>
+              </svg>
+              <div class="leg">
+                <span><i style="background: var(--ember)"></i>% of orders</span
+                ><span><i style="background: rgba(255, 255, 255, 0.32)"></i>% margin</span>
+              </div>
+            </div>
+
+            <div class="g chart">
+              <h4>Revenue by customer segment</h4>
+              <svg viewBox="0 0 260 135">
+                <rect x="74" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.82)">
+                  <title>Market regulars · APR · 90%</title>
+                </rect>
+                <rect x="104" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.78)">
+                  <title>Market regulars · MAY · 85%</title>
+                </rect>
+                <rect x="134" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.87)">
+                  <title>Market regulars · JUN · 95%</title>
+                </rect>
+                <rect x="164" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.91)">
+                  <title>Market regulars · JUL · 100%</title>
+                </rect>
+                <rect x="194" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.74)">
+                  <title>Market regulars · AUG · 80%</title>
+                </rect>
+                <rect x="224" y="14" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.66)">
+                  <title>Market regulars · SEP · 70%</title>
+                </rect>
+                <text
+                  x="68"
+                  y="26"
+                  text-anchor="end"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Market regula
+                </text>
+                <rect x="74" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.36)">
+                  <title>Webshop one-off · APR · 35%</title>
+                </rect>
+                <rect x="104" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.40)">
+                  <title>Webshop one-off · MAY · 40%</title>
+                </rect>
+                <rect x="134" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.44)">
+                  <title>Webshop one-off · JUN · 45%</title>
+                </rect>
+                <rect x="164" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.48)">
+                  <title>Webshop one-off · JUL · 50%</title>
+                </rect>
+                <rect x="194" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.42)">
+                  <title>Webshop one-off · AUG · 42%</title>
+                </rect>
+                <rect x="224" y="34" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.38)">
+                  <title>Webshop one-off · SEP · 38%</title>
+                </rect>
+                <text
+                  x="68"
+                  y="46"
+                  text-anchor="end"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Webshop one-o
+                </text>
+                <rect x="74" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.19)">
+                  <title>Gift buyers · APR · 15%</title>
+                </rect>
+                <rect x="104" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.23)">
+                  <title>Gift buyers · MAY · 20%</title>
+                </rect>
+                <rect x="134" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.32)">
+                  <title>Gift buyers · JUN · 30%</title>
+                </rect>
+                <rect x="164" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.70)">
+                  <title>Gift buyers · JUL · 75%</title>
+                </rect>
+                <rect x="194" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.87)">
+                  <title>Gift buyers · AUG · 95%</title>
+                </rect>
+                <rect x="224" y="54" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.57)">
+                  <title>Gift buyers · SEP · 60%</title>
+                </rect>
+                <text
+                  x="68"
+                  y="66"
+                  text-anchor="end"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Gift buyers
+                </text>
+                <rect x="74" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.48)">
+                  <title>Cafés · APR · 50%</title>
+                </rect>
+                <rect x="104" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.47)">
+                  <title>Cafés · MAY · 48%</title>
+                </rect>
+                <rect x="134" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.50)">
+                  <title>Cafés · JUN · 52%</title>
+                </rect>
+                <rect x="164" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.53)">
+                  <title>Cafés · JUL · 55%</title>
+                </rect>
+                <rect x="194" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.57)">
+                  <title>Cafés · AUG · 60%</title>
+                </rect>
+                <rect x="224" y="74" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.55)">
+                  <title>Cafés · SEP · 57%</title>
+                </rect>
+                <text
+                  x="68"
+                  y="86"
+                  text-anchor="end"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Cafés
+                </text>
+                <rect x="74" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.23)">
+                  <title>Wholesale · APR · 20%</title>
+                </rect>
+                <rect x="104" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.27)">
+                  <title>Wholesale · MAY · 25%</title>
+                </rect>
+                <rect x="134" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.25)">
+                  <title>Wholesale · JUN · 22%</title>
+                </rect>
+                <rect x="164" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.32)">
+                  <title>Wholesale · JUL · 30%</title>
+                </rect>
+                <rect x="194" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.36)">
+                  <title>Wholesale · AUG · 35%</title>
+                </rect>
+                <rect x="224" y="94" width="27" height="17" rx="3.5" fill="rgba(245,155,75,0.40)">
+                  <title>Wholesale · SEP · 40%</title>
+                </rect>
+                <text
+                  x="68"
+                  y="106"
+                  text-anchor="end"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#6b727c"
+                >
+                  Wholesale
+                </text>
+                <text
+                  x="87"
+                  y="127"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#5a6068"
+                >
+                  APR
+                </text>
+                <text
+                  x="117"
+                  y="127"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#5a6068"
+                >
+                  MAY
+                </text>
+                <text
+                  x="147"
+                  y="127"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#5a6068"
+                >
+                  JUN
+                </text>
+                <text
+                  x="177"
+                  y="127"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#5a6068"
+                >
+                  JUL
+                </text>
+                <text
+                  x="207"
+                  y="127"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#5a6068"
+                >
+                  AUG
+                </text>
+                <text
+                  x="237"
+                  y="127"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#5a6068"
+                >
+                  SEP
+                </text>
+              </svg>
+              <div class="leg">
+                <span>quiet</span
+                ><span
+                  ><i
+                    style="
+                      width: 34px;
+                      height: 8px;
+                      background: linear-gradient(90deg, rgba(245, 155, 75, 0.1), var(--ember));
+                    "
+                  ></i></span
+                ><span>busy</span>
+              </div>
+            </div>
+
+            <div class="g chart">
+              <h4>What actually drives revenue</h4>
+              <svg viewBox="0 0 280 155">
+                <line
+                  x1="150"
+                  y1="64"
+                  x2="84"
+                  y2="32"
+                  stroke="rgba(255,255,255,.13)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="150"
+                  y1="64"
+                  x2="92"
+                  y2="96"
+                  stroke="rgba(255,255,255,.13)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="150"
+                  y1="64"
+                  x2="214"
+                  y2="40"
+                  stroke="rgba(255,255,255,.13)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="214"
+                  y1="40"
+                  x2="206"
+                  y2="96"
+                  stroke="rgba(255,255,255,.13)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="92"
+                  y1="96"
+                  x2="120"
+                  y2="132"
+                  stroke="rgba(255,255,255,.13)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="92"
+                  y1="96"
+                  x2="56"
+                  y2="66"
+                  stroke="rgba(255,255,255,.13)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="150"
+                  y1="64"
+                  x2="236"
+                  y2="68"
+                  stroke="rgba(255,255,255,.13)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="84"
+                  y1="32"
+                  x2="214"
+                  y2="40"
+                  stroke="rgba(255,255,255,.13)"
+                  stroke-width="1"
+                />
+                <circle cx="150" cy="64" r="21" fill="#f59b4b" opacity=".13" />
+                <circle cx="150" cy="64" r="15" fill="#f59b4b"><title>Revenue</title></circle>
+                <text
+                  x="150"
+                  y="90"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#8f959d"
+                >
+                  Revenue
+                </text>
+                <circle cx="84" cy="32" r="15" fill="rgba(255,255,255,.5)" opacity=".13" />
+                <circle cx="84" cy="32" r="9" fill="rgba(255,255,255,.5)">
+                  <title>Price</title>
+                </circle>
+                <text
+                  x="84"
+                  y="52"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#8f959d"
+                >
+                  Price
+                </text>
+                <circle cx="92" cy="96" r="17" fill="rgba(255,255,255,.5)" opacity=".13" />
+                <circle cx="92" cy="96" r="11" fill="rgba(255,255,255,.5)">
+                  <title>Volume</title>
+                </circle>
+                <text
+                  x="92"
+                  y="118"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#8f959d"
+                >
+                  Volume
+                </text>
+                <circle cx="214" cy="40" r="16" fill="#4c7df0" opacity=".13" />
+                <circle cx="214" cy="40" r="10" fill="#4c7df0"><title>Margin</title></circle>
+                <text
+                  x="214"
+                  y="61"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#8f959d"
+                >
+                  Margin
+                </text>
+                <circle cx="206" cy="96" r="15" fill="rgba(255,255,255,.35)" opacity=".13" />
+                <circle cx="206" cy="96" r="9" fill="rgba(255,255,255,.35)">
+                  <title>Cost</title>
+                </circle>
+                <text
+                  x="206"
+                  y="116"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#8f959d"
+                >
+                  Cost
+                </text>
+                <circle cx="120" cy="132" r="14" fill="rgba(255,255,255,.35)" opacity=".13" />
+                <circle cx="120" cy="132" r="8" fill="rgba(255,255,255,.35)">
+                  <title>Channel mix</title>
+                </circle>
+                <text
+                  x="120"
+                  y="151"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#8f959d"
+                >
+                  Channel mix
+                </text>
+                <circle cx="56" cy="66" r="13" fill="rgba(255,255,255,.25)" opacity=".13" />
+                <circle cx="56" cy="66" r="7" fill="rgba(255,255,255,.25)">
+                  <title>Seasonality</title>
+                </circle>
+                <text
+                  x="56"
+                  y="84"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#8f959d"
+                >
+                  Seasonality
+                </text>
+                <circle cx="236" cy="68" r="12" fill="rgba(255,255,255,.18)" opacity=".13" />
+                <circle cx="236" cy="68" r="6" fill="rgba(255,255,255,.18)">
+                  <title>Repeat rate</title>
+                </circle>
+                <text
+                  x="236"
+                  y="85"
+                  text-anchor="middle"
+                  font-family="Geist Mono,monospace"
+                  font-size="7.5"
+                  fill="#8f959d"
+                >
+                  Repeat rate
+                </text>
+              </svg>
+              <div class="leg">
+                <span><i style="background: var(--ember)"></i>outcome</span
+                ><span><i style="background: rgba(255, 255, 255, 0.5)"></i>owner-stated driver</span
+                ><span><i style="background: var(--blue)"></i>computed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- every fact row -->
+      <div class="g tablewrap">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 0 20px 14px;
+          "
+        >
+          <h3 style="font-family: var(--disp); font-size: 17px; margin: 0">
+            Every fact in Revenue
+          </h3>
+          <span class="lab">11 of 12 answered · nothing is ever overwritten</span>
+        </div>
+        <div class="tscroll">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Label</th>
+                <th class="key">Key</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th>Conf</th>
+                <th class="key">Source</th>
+                <th class="key">Recorded</th>
+                <th>Note</th>
+                <th>Sup</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="est">
+                <td><span class="warn off"></span></td>
+                <td class="lab">Monthly revenue</td>
+                <td class="key">revenue.monthly_revenue</td>
+                <td class="v">4 500 000 Ft</td>
+                <td><span class="tag est">Estimate</span></td>
+                <td class="cf">0.55</td>
+                <td class="key">conversation · utterance 34</td>
+                <td class="key">21 aug 2026</td>
+                <td class="note">“about four and a half million”</td>
+                <td class="cf">2</td>
+                <td class="acts"><a>Change</a><a>History</a></td>
+              </tr>
+              <tr class="flag">
+                <td><span class="warn">!</span></td>
+                <td class="lab">Gross margin</td>
+                <td class="key">costs.gross_margin</td>
+                <td class="v">40%</td>
+                <td><span class="tag flag">Contradiction</span></td>
+                <td class="cf">0.75</td>
+                <td class="key">owner · question 5.3a</td>
+                <td class="key">21 aug 2026</td>
+                <td class="note">contradicts computed 23%</td>
+                <td class="cf">1</td>
+                <td class="acts"><a>Change</a><a>History</a></td>
+              </tr>
+              <tr class="ok">
+                <td><span class="warn off"></span></td>
+                <td class="lab">Monthly orders</td>
+                <td class="key">revenue.order_count_monthly</td>
+                <td class="v">310</td>
+                <td><span class="tag ok">Stated</span></td>
+                <td class="cf">0.75</td>
+                <td class="key">owner · question 4.1b</td>
+                <td class="key">21 aug 2026</td>
+                <td class="note">—</td>
+                <td class="cf">1</td>
+                <td class="acts"><a>Change</a><a>History</a></td>
+              </tr>
+              <tr class="der">
+                <td><span class="warn off"></span></td>
+                <td class="lab">Average order value</td>
+                <td class="key">revenue.aov</td>
+                <td class="v">14 516 Ft</td>
+                <td><span class="tag der">Computed</span></td>
+                <td class="cf">0.68</td>
+                <td class="key">derived · revenue ÷ orders</td>
+                <td class="key">26 aug 2026</td>
+                <td class="note">min(inputs) × 0.9</td>
+                <td class="cf">0</td>
+                <td class="acts"><a>Change</a><a>History</a></td>
+              </tr>
+              <tr class="gap">
+                <td><span class="warn off"></span></td>
+                <td class="lab">Repeat customer rate</td>
+                <td class="key">revenue.repeat_customer_rate</td>
+                <td class="v">—</td>
+                <td><span class="tag gap">Unknown</span></td>
+                <td class="cf">—</td>
+                <td class="key">owner · question 4.1d</td>
+                <td class="key">21 aug 2026</td>
+                <td class="note">will revisit</td>
+                <td class="cf">0</td>
+                <td class="acts"><a>Change</a><a>History</a></td>
+              </tr>
+              <tr class="ok">
+                <td><span class="warn off"></span></td>
+                <td class="lab">Szörp 0.5L price</td>
+                <td class="key">offers.szorp05.price</td>
+                <td class="v">4 990 Ft</td>
+                <td><span class="tag ok">Stated</span></td>
+                <td class="cf">0.75</td>
+                <td class="key">owner · question 3.1</td>
+                <td class="key">14 mar 2025</td>
+                <td class="note">“packaging went up”</td>
+                <td class="cf">3</td>
+                <td class="acts"><a>Change</a><a>History</a></td>
+              </tr>
+              <tr class="ok">
+                <td><span class="warn off"></span></td>
+                <td class="lab">Seasonality</td>
+                <td class="key">revenue.seasonality</td>
+                <td class="v">Autumn peak</td>
+                <td><span class="tag ok">Stated</span></td>
+                <td class="cf">0.75</td>
+                <td class="key">owner · question 4.1f</td>
+                <td class="key">21 aug 2026</td>
+                <td class="note">—</td>
+                <td class="cf">1</td>
+                <td class="acts"><a>Change</a><a>History</a></td>
+              </tr>
+              <tr class="flag">
+                <td><span class="warn">!</span></td>
+                <td class="lab">Competitor prices</td>
+                <td class="key">competitors.price_points</td>
+                <td class="v">3 of 4 found</td>
+                <td><span class="tag flag">Stale</span></td>
+                <td class="cf">0.50</td>
+                <td class="key">web research · 4 pages</td>
+                <td class="key">12 jun 2025</td>
+                <td class="note">older than 365 days</td>
+                <td class="cf">1</td>
+                <td class="acts"><a>Change</a><a>History</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="entity">
+          <select class="sel" aria-label="Entity type">
+            <option>Offer · Szörp 0.5L</option>
+            <option>Supplier · Bakonyi</option>
+            <option>Channel · Weekend markets</option>
+          </select>
+          <div style="font-size: 13px; color: var(--mut)">
+            4 990 Ft ·
+            <span style="font-family: var(--mono); font-size: 11px; color: var(--dim)"
+              >3 values kept since jan 2023 · +26%</span
+            >
+          </div>
+          <a style="color: var(--ember); font-size: 12.5px; text-decoration: none; cursor: pointer"
+            >View history →</a
+          >
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- every fact row -->
-  <div class="g tablewrap">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;padding:0 20px 14px">
-      <h3 style="font-family:var(--disp);font-size:17px;margin:0">Every fact in Revenue</h3>
-      <span class="lab">11 of 12 answered · nothing is ever overwritten</span>
-    </div>
-    <div class="tscroll">
-      <table>
-        <thead><tr><th></th><th>Label</th><th class="key">Key</th><th>Value</th><th>Status</th><th>Conf</th>
-          <th class="key">Source</th><th class="key">Recorded</th><th>Note</th><th>Sup</th><th>Actions</th></tr></thead>
-        <tbody><tr class="est">
-      <td><span class="warn off"></span></td><td class="lab">Monthly revenue</td><td class="key">revenue.monthly_revenue</td>
-      <td class="v">4 500 000 Ft</td><td><span class="tag est">Estimate</span></td>
-      <td class="cf">0.55</td><td class="key">conversation · utterance 34</td><td class="key">21 aug 2026</td>
-      <td class="note">“about four and a half million”</td><td class="cf">2</td>
-      <td class="acts"><a>Change</a><a>History</a></td></tr><tr class="flag">
-      <td><span class="warn">!</span></td><td class="lab">Gross margin</td><td class="key">costs.gross_margin</td>
-      <td class="v">40%</td><td><span class="tag flag">Contradiction</span></td>
-      <td class="cf">0.75</td><td class="key">owner · question 5.3a</td><td class="key">21 aug 2026</td>
-      <td class="note">contradicts computed 23%</td><td class="cf">1</td>
-      <td class="acts"><a>Change</a><a>History</a></td></tr><tr class="ok">
-      <td><span class="warn off"></span></td><td class="lab">Monthly orders</td><td class="key">revenue.order_count_monthly</td>
-      <td class="v">310</td><td><span class="tag ok">Stated</span></td>
-      <td class="cf">0.75</td><td class="key">owner · question 4.1b</td><td class="key">21 aug 2026</td>
-      <td class="note">—</td><td class="cf">1</td>
-      <td class="acts"><a>Change</a><a>History</a></td></tr><tr class="der">
-      <td><span class="warn off"></span></td><td class="lab">Average order value</td><td class="key">revenue.aov</td>
-      <td class="v">14 516 Ft</td><td><span class="tag der">Computed</span></td>
-      <td class="cf">0.68</td><td class="key">derived · revenue ÷ orders</td><td class="key">26 aug 2026</td>
-      <td class="note">min(inputs) × 0.9</td><td class="cf">0</td>
-      <td class="acts"><a>Change</a><a>History</a></td></tr><tr class="gap">
-      <td><span class="warn off"></span></td><td class="lab">Repeat customer rate</td><td class="key">revenue.repeat_customer_rate</td>
-      <td class="v">—</td><td><span class="tag gap">Unknown</span></td>
-      <td class="cf">—</td><td class="key">owner · question 4.1d</td><td class="key">21 aug 2026</td>
-      <td class="note">will revisit</td><td class="cf">0</td>
-      <td class="acts"><a>Change</a><a>History</a></td></tr><tr class="ok">
-      <td><span class="warn off"></span></td><td class="lab">Szörp 0.5L price</td><td class="key">offers.szorp05.price</td>
-      <td class="v">4 990 Ft</td><td><span class="tag ok">Stated</span></td>
-      <td class="cf">0.75</td><td class="key">owner · question 3.1</td><td class="key">14 mar 2025</td>
-      <td class="note">“packaging went up”</td><td class="cf">3</td>
-      <td class="acts"><a>Change</a><a>History</a></td></tr><tr class="ok">
-      <td><span class="warn off"></span></td><td class="lab">Seasonality</td><td class="key">revenue.seasonality</td>
-      <td class="v">Autumn peak</td><td><span class="tag ok">Stated</span></td>
-      <td class="cf">0.75</td><td class="key">owner · question 4.1f</td><td class="key">21 aug 2026</td>
-      <td class="note">—</td><td class="cf">1</td>
-      <td class="acts"><a>Change</a><a>History</a></td></tr><tr class="flag">
-      <td><span class="warn">!</span></td><td class="lab">Competitor prices</td><td class="key">competitors.price_points</td>
-      <td class="v">3 of 4 found</td><td><span class="tag flag">Stale</span></td>
-      <td class="cf">0.50</td><td class="key">web research · 4 pages</td><td class="key">12 jun 2025</td>
-      <td class="note">older than 365 days</td><td class="cf">1</td>
-      <td class="acts"><a>Change</a><a>History</a></td></tr></tbody>
-      </table>
-    </div>
-    <div class="entity">
-      <select class="sel" aria-label="Entity type"><option>Offer · Szörp 0.5L</option><option>Supplier · Bakonyi</option><option>Channel · Weekend markets</option></select>
-      <div style="font-size:13px;color:var(--mut)">4 990 Ft · <span style="font-family:var(--mono);font-size:11px;color:var(--dim)">3 values kept since jan 2023 · +26%</span></div>
-      <a style="color:var(--ember);font-size:12.5px;text-decoration:none;cursor:pointer">View history →</a>
-    </div>
-  </div>
-</div>
-</body></html>
+  </body>
+</html>

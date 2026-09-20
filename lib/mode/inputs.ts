@@ -65,20 +65,31 @@ export interface AssembledInputs {
 }
 
 export async function assembleInputs(profileId: string): Promise<AssembledInputs> {
-  const [stage, generates, orders, founded, teamSize, adStatus, adSpend, support, automations, completeness, confidence] =
-    await Promise.all([
-      readCurrentField<unknown>(profileId, "identity.stage"),
-      readCurrentField<unknown>(profileId, "revenue.generates_revenue"),
-      readCurrentField<unknown>(profileId, "revenue.order_count_monthly"),
-      readCurrentField<unknown>(profileId, "identity.founded"),
-      readCurrentField<unknown>(profileId, "identity.team_size"),
-      readCurrentField<unknown>(profileId, "marketing.advertising_status"),
-      readCurrentField<unknown>(profileId, "marketing.monthly_ad_spend"),
-      readCurrentField<unknown>(profileId, "operations.has_support_process"),
-      readCurrentField<unknown>(profileId, "tooling.has_automations"),
-      computeCompleteness(profileId),
-      coreDataConfidence(profileId),
-    ]);
+  const [
+    stage,
+    generates,
+    orders,
+    founded,
+    teamSize,
+    adStatus,
+    adSpend,
+    support,
+    automations,
+    completeness,
+    confidence,
+  ] = await Promise.all([
+    readCurrentField<unknown>(profileId, "identity.stage"),
+    readCurrentField<unknown>(profileId, "revenue.generates_revenue"),
+    readCurrentField<unknown>(profileId, "revenue.order_count_monthly"),
+    readCurrentField<unknown>(profileId, "identity.founded"),
+    readCurrentField<unknown>(profileId, "identity.team_size"),
+    readCurrentField<unknown>(profileId, "marketing.advertising_status"),
+    readCurrentField<unknown>(profileId, "marketing.monthly_ad_spend"),
+    readCurrentField<unknown>(profileId, "operations.has_support_process"),
+    readCurrentField<unknown>(profileId, "tooling.has_automations"),
+    computeCompleteness(profileId),
+    coreDataConfidence(profileId),
+  ]);
 
   const teamSizeValue = asNumber(teamSize?.value ?? null);
   const spend = (adSpend?.value ?? null) as Money | null;
@@ -88,9 +99,7 @@ export async function assembleInputs(profileId: string): Promise<AssembledInputs
       stage: asCode(stage?.value ?? null),
       has_revenue: asCode(generates?.value ?? null) === "yes",
       monthly_order_count: asNumber(orders?.value ?? null),
-      months_operating: monthsSince(
-        typeof founded?.value === "string" ? founded.value : null,
-      ),
+      months_operating: monthsSince(typeof founded?.value === "string" ? founded.value : null),
       // team_size includes the owner (1.6 asks "including you"); §9's
       // employee_count does not. A solo founder is zero employees.
       employee_count: teamSizeValue === null ? 0 : Math.max(0, teamSizeValue - 1),

@@ -163,9 +163,7 @@ export async function openFindings(profileId: string) {
   return db
     .select()
     .from(validationFindings)
-    .where(
-      and(eq(validationFindings.profile_id, profileId), isNull(validationFindings.resolution)),
-    )
+    .where(and(eq(validationFindings.profile_id, profileId), isNull(validationFindings.resolution)))
     .orderBy(sql`${validationFindings.detected_at} DESC`);
 }
 

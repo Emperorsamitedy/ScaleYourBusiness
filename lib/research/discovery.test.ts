@@ -220,9 +220,7 @@ describe("honest progress", () => {
 
     expect(result.events.map((e) => e.step)).toEqual(["search", "read", "done"]);
     for (let i = 1; i < result.events.length; i++) {
-      expect(result.events[i]!.elapsed_ms).toBeGreaterThanOrEqual(
-        result.events[i - 1]!.elapsed_ms,
-      );
+      expect(result.events[i]!.elapsed_ms).toBeGreaterThanOrEqual(result.events[i - 1]!.elapsed_ms);
     }
     expect(result.events.at(-1)!.elapsed_ms).toBeLessThanOrEqual(took + 5);
     expect(took).toBeLessThan(1_000);

@@ -58,7 +58,17 @@ const slide = (from: "left" | "right") => ({
 });
 
 const ArrowUpRight = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
     <path d="M7 17L17 7" />
     <path d="M7 7h10v10" />
   </svg>
@@ -80,8 +90,7 @@ const PHASES: Phase[] = [
     n: "01",
     status: "live",
     title: "It understands the business",
-    lede:
-      "Fifteen minutes of plain questions become a profile where every fact carries its source, its confidence, and its history — and then a diagnosis with the arithmetic shown.",
+    lede: "Fifteen minutes of plain questions become a profile where every fact carries its source, its confidence, and its history — and then a diagnosis with the arithmetic shown.",
     features: [
       "One-question-at-a-time interview — “I don’t know” is a real answer",
       "Fact sheet with provenance on every figure, and gaps listed as findings",
@@ -99,8 +108,7 @@ const PHASES: Phase[] = [
     n: "02",
     status: "next",
     title: "Then it stops taking your word for it",
-    lede:
-      "Read-only connections to the places your numbers already live. What actually happened replaces what you estimated — and your original stays in the history, with your name on it.",
+    lede: "Read-only connections to the places your numbers already live. What actually happened replaces what you estimated — and your original stays in the history, with your name on it.",
     features: [
       "Stripe first — payments are the most reliable truth about revenue",
       "Shopify / WooCommerce, GA4, Meta Ads, Google Ads follow",
@@ -113,8 +121,7 @@ const PHASES: Phase[] = [
     n: "03",
     status: "planned",
     title: "Then it does the work — and asks first",
-    lede:
-      "Marketing arrives as proposals: what will happen, why, what it rests on, and what happens if you decline. Nothing executes without your yes, and a kill switch stops everything in seconds.",
+    lede: "Marketing arrives as proposals: what will happen, why, what it rests on, and what happens if you decline. Nothing executes without your yes, and a kill switch stops everything in seconds.",
     features: [
       "An approval queue where approve and decline carry equal visual weight",
       "Execution engine with idempotency — a proposal cannot run twice",
@@ -127,8 +134,7 @@ const PHASES: Phase[] = [
     n: "04",
     status: "planned",
     title: "Then it takes the questions you answer twice a day",
-    lede:
-      "Support that knows your catalogue, your delivery times and your tone — and knows what it must not decide on its own.",
+    lede: "Support that knows your catalogue, your delivery times and your tone — and knows what it must not decide on its own.",
     features: [
       "Website chat that introduces itself as an AI, always",
       "Email support with escalation to you for anything that matters",
@@ -141,8 +147,7 @@ const PHASES: Phase[] = [
     n: "05",
     status: "planned",
     title: "Then it sees it coming",
-    lede:
-      "The compounding payoff of a profile that has watched your business for a year: it warns you before the numbers become a problem.",
+    lede: "The compounding payoff of a profile that has watched your business for a year: it warns you before the numbers become a problem.",
     features: [
       "Inventory intelligence — the stockout it can see three weeks out",
       "Cash-flow scenarios and break-even from measured data, not estimates",
@@ -161,15 +166,7 @@ const STATUS_LABEL: Record<Phase["status"], string> = {
 
 /* ── section shell with the shared heading grammar ── */
 
-function SectionHead({
-  kicker,
-  title,
-  lede,
-}: {
-  kicker: string;
-  title: string;
-  lede?: string;
-}) {
+function SectionHead({ kicker, title, lede }: { kicker: string; title: string; lede?: string }) {
   return (
     <header className="ep-head">
       <motion.p className="ep-kicker" {...fadeUp}>
@@ -198,11 +195,7 @@ function PhaseBlock({ phase, index }: { phase: Phase; index: number }) {
 
   return (
     <div className={`ep-phase ${index % 2 === 1 ? "flip" : ""} st-${phase.status}`} ref={ref}>
-      <motion.span
-        className="ep-phase-n"
-        style={reduced ? {} : { y }}
-        aria-hidden="true"
-      >
+      <motion.span className="ep-phase-n" style={reduced ? {} : { y }} aria-hidden="true">
         {phase.n}
       </motion.span>
 
@@ -386,7 +379,11 @@ export function CineLanding() {
           title="Her best seller was her least profitable"
           lede="61% of everything she sold. The thinnest margin of five products. She had been pushing it for two years."
         />
-        <motion.div className="scan ep-scan" {...pop} aria-label="Margin analysis across five products">
+        <motion.div
+          className="scan ep-scan"
+          {...pop}
+          aria-label="Margin analysis across five products"
+        >
           <span className="scan-line" aria-hidden="true" />
           <header className="scan-head">
             <span>Analysis · 5 offers · margin per unit</span>
@@ -429,7 +426,9 @@ export function CineLanding() {
               <i className="scan-pip" />
               highest volume · lowest return
             </span>
-            <span>Every figure above traces to an answer she gave — or to arithmetic shown on screen.</span>
+            <span>
+              Every figure above traces to an answer she gave — or to arithmetic shown on screen.
+            </span>
           </footer>
         </motion.div>
       </Shell>

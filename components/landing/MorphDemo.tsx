@@ -27,21 +27,19 @@ interface Answer {
 }
 
 const ANSWERS: Answer[] = [
-  { q: "About how much do you make in a typical month?", a: "≈ 4 500 000 HUF", prov: "4.2 · your estimate" },
+  {
+    q: "About how much do you make in a typical month?",
+    a: "≈ 4 500 000 HUF",
+    prov: "4.2 · your estimate",
+  },
   { q: "What do you sell, and for how much?", a: "5 products", prov: "3.1 · you told me" },
   { q: "What does the 0.5L cost you to make?", a: "4 090 HUF", prov: "3.4 · you told me" },
 ];
 
-
 // The core set, in the order this demo captures them. What is already
 // answered lights up; what is coming stays dim, so the panel says "there
 // is a structured set of these" without a word of copy.
-const CORE_FIELDS = [
-  "monthly revenue",
-  "what you sell",
-  "unit cost",
-  "orders / month",
-];
+const CORE_FIELDS = ["monthly revenue", "what you sell", "unit cost", "orders / month"];
 const CORE_TOTAL = 27;
 
 const TYPE_MS = 38;
@@ -148,7 +146,11 @@ export function MorphDemo() {
   const flying = phase === "reading" || phase === "report";
 
   return (
-    <div className="morph" role="img" aria-label="A demonstration: three answers becoming a diagnosis">
+    <div
+      className="morph"
+      role="img"
+      aria-label="A demonstration: three answers becoming a diagnosis"
+    >
       <div className="morph-bar">
         <span className="morph-dot" />
         <span className="morph-title">
@@ -178,7 +180,11 @@ export function MorphDemo() {
         {!still && (
           <div className={`morph-chips ${flying ? "fly" : ""}`}>
             {chips.map((c, i) => (
-              <div className="morph-chip" key={`${c.a}-${i}`} style={{ transitionDelay: `${i * 90}ms` }}>
+              <div
+                className="morph-chip"
+                key={`${c.a}-${i}`}
+                style={{ transitionDelay: `${i * 90}ms` }}
+              >
                 <span className="morph-chip-a">{c.a}</span>
                 <span className="morph-chip-p">
                   <i className="morph-pip" />
