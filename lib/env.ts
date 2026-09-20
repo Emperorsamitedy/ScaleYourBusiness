@@ -2,7 +2,7 @@
 // read process.env directly outside this file. Missing required variables
 // throw at first access, not at the point of use three modules later.
 
-type RequiredKey = "DATABASE_URL" | "ANTHROPIC_API_KEY";
+type RequiredKey = "DATABASE_URL" | "ANTHROPIC_API_KEY" | "CONNECTOR_KEY";
 
 function read(key: RequiredKey): string {
   const value = process.env[key];
@@ -22,5 +22,10 @@ export const env: Record<RequiredKey, string> = {
   },
   get ANTHROPIC_API_KEY() {
     return read("ANTHROPIC_API_KEY");
+  },
+  // Phase 2 (P2-03): the key that encrypts connection secrets at rest.
+  // Demanded only when a connector is connected or synced.
+  get CONNECTOR_KEY() {
+    return read("CONNECTOR_KEY");
   },
 };

@@ -25,6 +25,7 @@
 // Recalibrate again only when a real run produces a grounding failure.
 
 import { computeCompleteness } from "../scorer/completeness";
+import { displaySourceKind } from "../connectors/measured";
 import type { Field } from "../core/field";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
@@ -263,7 +264,10 @@ export function threeSentences(text: string): string {
 
 /** One fact, one line — the profile as the model sees it. */
 export function factLine(key: string, field: Field<unknown>): string {
-  const source = (field.source as { kind?: string } | null)?.kind ?? "unknown";
+  // A connector measurement reads as source=connector, not inferred: to the
+  // diagnosis it is the strongest evidence in the profile, not a derivation
+  // from the owner's other answers (Phase 2, P2-10).
+  const source = displaySourceKind(field.source);
   const value = field.status === "answered" || field.status === "inferred"
     ? (repr(field.value) ?? "—")
     : `(${field.status})`;

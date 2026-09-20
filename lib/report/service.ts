@@ -12,11 +12,17 @@
 // transaction — the history. The reason chips' text is the training
 // corpus for every later proposal; it is stored verbatim in the log
 // payload, hashed on the row.
+//
+// Phase 2 (P2-10/11): a connector measurement is labelled "measured", and
+// where it superseded something the owner said, the economics block
+// carries both figures (rule 11) rather than silently swapping them.
 
 import { createHash } from "node:crypto";
 import { desc, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { accounts, businessProfiles, decisionLog, diagnosisReports } from "../../db/schema";
+import { displaySourceKind } from "../connectors/measured";
+import { statedVsMeasured } from "../connectors/stated-vs-measured";
 import { computeEconomics } from "../economics/unit-economics";
 import type { EconomicsResult } from "../economics/unit-economics";
 import type { DiagnosisFinding, DiagnosisLlm } from "../diagnosis/findings";
@@ -64,7 +70,7 @@ async function factMap(snapshotId: string): Promise<ReportView["fact_map"]> {
       value: repr(f.value),
       status: f.status,
       confidence: f.confidence,
-      source_kind: (f.source as { kind?: string } | null)?.kind ?? "unknown",
+      source_kind: displaySourceKind(f.source),
     };
   }
   return out;
@@ -143,7 +149,11 @@ export async function generateReport(args: {
     .from(businessProfiles)
     .innerJoin(accounts, eq(accounts.id, businessProfiles.account_id))
     .where(eq(businessProfiles.id, args.profileId));
-  const economics = computeEconomics(view, acct?.currency ?? "EUR");
+  // Rule 11: where a connector superseded the owner's figure, carry both.
+  const economics: EconomicsResult = {
+    ...computeEconomics(view, acct?.currency ?? "EUR"),
+    stated_vs_measured: await statedVsMeasured(snapshot.id),
+  };
 
   const completeness = await computeCompleteness(args.profileId);
   const responded = new Set(

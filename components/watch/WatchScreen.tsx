@@ -21,7 +21,10 @@ interface WatchView {
     review_at: string;
   } | null;
   days_remaining: number | null;
-  thresholds: string[];
+  /** P2-24: each rule says whether code enforces it yet. */
+  thresholds: { text: string; enforced: boolean }[];
+  /** Open anomalies that crossed an enforced rule. */
+  interruptions: { id: string; detail: string; detected_at: string; metric_key: string }[];
   log: LogEntry[];
 }
 interface ModuleRow {
@@ -109,6 +112,25 @@ export function WatchScreen() {
         </span>
       </header>
 
+      {/* P2-24: the interruption the thresholds promised, when one has happened. */}
+      {view.interruptions.length > 0 && (
+        <section className="card ops-card">
+          <span className="auth-eyebrow">interrupted — something crossed a threshold</span>
+          <ul className="watch-log">
+            {view.interruptions.map((i) => (
+              <li key={i.id}>
+                <span className="watch-at">{i.detected_at.slice(0, 10)}</span>
+                <span>{i.detail}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="auth-copy" style={{ marginTop: 12, fontSize: 13 }}>
+            Every figure above is measured, and the arithmetic is shown so you can check it. The
+            watch continues; this is the moment it said it would tell you.
+          </p>
+        </section>
+      )}
+
       <section className="card ops-card">
         <span className="auth-eyebrow">activity — every entry is real work</span>
         {view.log.length === 0 ? (
@@ -129,7 +151,10 @@ export function WatchScreen() {
         <span className="auth-eyebrow">what would interrupt the watch</span>
         <ul className="mode-reasons">
           {view.thresholds.map((t) => (
-            <li key={t}>{t}</li>
+            <li key={t.text}>
+              {t.text}
+              {!t.enforced && <em> — promised, not yet checked automatically</em>}
+            </li>
           ))}
         </ul>
       </section>

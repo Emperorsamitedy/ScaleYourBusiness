@@ -18,6 +18,8 @@
 // Everything reads a snapshot, so a report's numbers stay reproducible
 // long after the profile has moved on.
 
+import { isMeasuredSource } from "../connectors/measured";
+import type { StatedVsMeasured } from "../connectors/measured";
 import type { Money } from "../core/money";
 import { money, multiply, subtract } from "../core/money";
 import type { SnapshotEntity, SnapshotView } from "../profile/snapshot";
@@ -76,9 +78,18 @@ export interface EconomicsResult {
   break_even: Computed<BreakEven> | null;
   average_order_value: Computed<Money> | null;
   cost_per_acquisition: Computed<Money> | null;
+  /** P2-21. Absent on reports generated before Phase 2 Session D. */
+  return_on_ad_spend?: Computed<number> | null;
   fixed_costs_monthly: Computed<Money> | null;
   stated_vs_computed_margin: StatedVsComputed | null;
   refusals: Refusal[];
+  /**
+   * Rule 11 (P2-11): measured facts that superseded something the owner
+   * said, both sides shown. Added by the report service, because finding
+   * the owner's figure needs history a snapshot view doesn't carry.
+   * Absent on reports generated before Phase 2.
+   */
+  stated_vs_measured?: StatedVsMeasured[];
 }
 
 /* ── reading a snapshot ── */
@@ -91,7 +102,12 @@ interface FactLike {
 
 function fact(view: SnapshotView, key: string): FactLike | null {
   const f = view.facts.get(key);
-  if (!f || f.status !== "answered" || f.value === null) return null;
+  if (!f || f.value === null) return null;
+  // Owner answers, plus connector measurements (P2-10). Other inferred
+  // values stay out: this engine won't build arithmetic on its own
+  // derivations, but a sum of Stripe payments is an input, not a guess.
+  const usable = f.status === "answered" || (f.status === "inferred" && isMeasuredSource(f.source));
+  if (!usable) return null;
   return { value: f.value, status: f.status, confidence: Number(f.confidence) };
 }
 
@@ -128,7 +144,11 @@ function entityFacts(view: SnapshotView, spine: string, id: string): Map<string,
   const prefix = `${spine}.${id}.`;
   for (const [key, f] of view.facts) {
     if (!key.startsWith(prefix)) continue;
-    if (f.status !== "answered" || f.value === null) continue;
+    // Owner answers, plus connector measurements such as a store's units
+    // sold per matched product (P2-16), for the same reason as fact().
+    const usable =
+      f.status === "answered" || (f.status === "inferred" && isMeasuredSource(f.source));
+    if (!usable || f.value === null) continue;
     out.set(key.slice(prefix.length), {
       value: f.value,
       status: f.status,
@@ -218,7 +238,8 @@ function blendedMargin(offers: OfferEconomics[]): Computed<number> | null {
 
   const weighted = priced.filter((o) => o.volume !== null && o.volume > 0);
   const use = weighted.length > 0 ? weighted : priced;
-  const totalWeight = weighted.length > 0 ? use.reduce((n, o) => n + (o.volume ?? 0), 0) : use.length;
+  const totalWeight =
+    weighted.length > 0 ? use.reduce((n, o) => n + (o.volume ?? 0), 0) : use.length;
   const sum = use.reduce(
     (n, o) => n + o.margin_pct!.value * (weighted.length > 0 ? (o.volume ?? 0) : 1),
     0,
@@ -448,6 +469,57 @@ function costPerAcquisition(
 }
 
 /**
+ * P2-21: return on ad spend, blended — all monthly revenue over all monthly
+ * ad spend, not attributed to particular ads. Computed only when both
+ * sides exist; a ratio with a guessed side is a guess.
+ */
+function returnOnAdSpend(
+  view: SnapshotView,
+  currency: string,
+  refusals: Refusal[],
+): Computed<number> | null {
+  const revFact = fact(view, "revenue.monthly_revenue");
+  const spendFact = fact(view, "marketing.monthly_ad_spend");
+  const revenue = asMoney(revFact?.value);
+  const spend = asMoney(spendFact?.value);
+  const missing = [
+    ...(revenue ? [] : ["revenue.monthly_revenue"]),
+    ...(spend ? [] : ["marketing.monthly_ad_spend"]),
+  ];
+  if (missing.length > 0) {
+    refusals.push({
+      what: "return on ad spend",
+      missing,
+      why: "monthly revenue and monthly ad spend are both needed; a ratio with a guessed side is a guess",
+    });
+    return null;
+  }
+  if (spend!.amount_minor <= 0) {
+    refusals.push({
+      what: "return on ad spend",
+      missing: [],
+      why: "ad spend is zero, so there is nothing to return on",
+    });
+    return null;
+  }
+  if (revenue!.currency !== currency || spend!.currency !== currency) {
+    refusals.push({
+      what: "return on ad spend",
+      missing: [],
+      why: `revenue is in ${revenue!.currency} and ad spend in ${spend!.currency}; the profile reports in ${currency}, and converting needs an FX rate nobody has given me`,
+    });
+    return null;
+  }
+  return {
+    value: Math.round((revenue!.amount_minor / spend!.amount_minor) * 100) / 100,
+    derived_from: ["revenue.monthly_revenue", "marketing.monthly_ad_spend"],
+    formula:
+      "monthly revenue ÷ monthly ad spend (blended: all revenue over all ad spend, not attributed)",
+    confidence: derivedConfidence([revFact, spendFact]),
+  };
+}
+
+/**
  * P1-13 / §8.3: when the owner's stated margin disagrees with the
  * arithmetic, the computed value drives analysis and BOTH are shown.
  * Neither is overwritten — the contradiction itself is raised by the
@@ -504,6 +576,7 @@ export function computeEconomics(view: SnapshotView, currency: string): Economic
     break_even: breakEven(offers, fixed, currency, refusals),
     average_order_value: averageOrderValue(view, currency, refusals),
     cost_per_acquisition: costPerAcquisition(view, currency, refusals),
+    return_on_ad_spend: returnOnAdSpend(view, currency, refusals),
     fixed_costs_monthly: fixed,
     stated_vs_computed_margin: statedVsComputed(view, blended),
     refusals,

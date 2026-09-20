@@ -1089,11 +1089,7 @@ input[type="number"].field::-webkit-inner-spin-button {
   overflow: hidden;
   background:
     linear-gradient(var(--glass), var(--glass)),
-    repeating-linear-gradient(
-      to right,
-      rgba(255, 255, 255, 0.028) 0 1px,
-      transparent 1px 46px
-    );
+    repeating-linear-gradient(to right, rgba(255, 255, 255, 0.028) 0 1px, transparent 1px 46px);
   backdrop-filter: var(--blur);
 }
 /* corner brackets */
@@ -3048,12 +3044,9 @@ a.ghost {
   --rim-bloom: rgba(76, 125, 240, 0.4);
   --edge: rgba(148, 180, 255, 0.13);
   --rim:
-    inset 0 1px 0 var(--rim-lip),
-    inset 1px 0 0 rgba(160, 195, 255, 0.045),
-    inset 0 -1px 0 rgba(76, 125, 240, 0.07),
-    inset 0 0 0 1px var(--rim-cool),
-    inset 0 0 22px -13px var(--rim-bleed),
-    0 0 26px -14px var(--rim-bloom);
+    inset 0 1px 0 var(--rim-lip), inset 1px 0 0 rgba(160, 195, 255, 0.045),
+    inset 0 -1px 0 rgba(76, 125, 240, 0.07), inset 0 0 0 1px var(--rim-cool),
+    inset 0 0 22px -13px var(--rim-bleed), 0 0 26px -14px var(--rim-bloom);
 }
 
 .arc,
@@ -4006,12 +3999,22 @@ a.ghost {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(10, 11, 13, 0.5) 0%, rgba(10, 11, 13, 0.24) 40%, rgba(10, 11, 13, 0.86) 82%, var(--stage) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(10, 11, 13, 0.5) 0%,
+    rgba(10, 11, 13, 0.24) 40%,
+    rgba(10, 11, 13, 0.86) 82%,
+    var(--stage) 100%
+  );
 }
 .ep-interlude-veil {
-  background:
-    linear-gradient(180deg, var(--stage) 0%, rgba(10, 11, 13, 0.42) 24%, rgba(10, 11, 13, 0.42) 70%, var(--stage) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--stage) 0%,
+    rgba(10, 11, 13, 0.42) 24%,
+    rgba(10, 11, 13, 0.42) 70%,
+    var(--stage) 100%
+  );
 }
 
 /* ── hero ── */
@@ -4111,7 +4114,7 @@ a.ghost {
   font-family: var(--display);
   font-weight: 700;
   font-size: clamp(40px, 6.4vw, 76px);
-  line-height: 1.0;
+  line-height: 1;
   letter-spacing: -0.035em;
 }
 .ep-sub {
@@ -4443,12 +4446,23 @@ a.ghost {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, var(--stage) 0%, rgba(10, 11, 13, 0.74) 16%, rgba(10, 11, 13, 0.74) 84%, var(--stage) 100%),
+    linear-gradient(
+      180deg,
+      var(--stage) 0%,
+      rgba(10, 11, 13, 0.74) 16%,
+      rgba(10, 11, 13, 0.74) 84%,
+      var(--stage) 100%
+    ),
     radial-gradient(120% 80% at 50% 50%, rgba(10, 11, 13, 0.28), rgba(10, 11, 13, 0.88) 100%);
 }
 .ep-bed-veil.strong {
-  background:
-    linear-gradient(180deg, var(--stage) 0%, rgba(10, 11, 13, 0.88) 22%, rgba(10, 11, 13, 0.88) 78%, var(--stage) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--stage) 0%,
+    rgba(10, 11, 13, 0.88) 22%,
+    rgba(10, 11, 13, 0.88) 78%,
+    var(--stage) 100%
+  );
 }
 .ep-end {
   position: relative;
@@ -4702,6 +4716,149 @@ a.auth-cta {
 .watch-module.fixed {
   color: var(--mut);
   cursor: default;
+}
+
+/* ── connections (Phase 2, P2-12) ── */
+
+.conn-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.conn-name {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 22px;
+  margin: 0;
+}
+.conn-badges {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.conn-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--hair);
+  color: var(--mut);
+}
+.conn-badge.readonly {
+  border-color: var(--ember);
+  color: var(--ember);
+}
+.conn-badge.problem {
+  border-color: var(--ember-bright);
+  color: var(--ember-bright);
+}
+.conn-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 18px;
+  margin: 16px 0 0;
+  font-size: 13.5px;
+}
+.conn-facts dt {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mut);
+  padding-top: 2px;
+}
+.conn-facts dd {
+  margin: 0;
+}
+.conn-scope {
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.conn-note {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--mut);
+  margin: 14px 0 0;
+}
+.conn-note a {
+  color: inherit;
+}
+.conn-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.conn-steps {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.conn-steps strong {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ember);
+}
+.conn-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+.conn-mapping {
+  margin-top: 18px;
+  border-top: 1px solid var(--hair);
+  padding-top: 4px;
+}
+.conn-map-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.conn-map-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(140px, 1fr);
+  gap: 6px 16px;
+  align-items: center;
+  font-size: 14px;
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 12px;
+}
+.conn-map-offer {
+  font-weight: 600;
+}
+.conn-map-state {
+  font-size: 13px;
+  color: var(--mut);
+}
+.conn-map-pick {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.conn-map-pick .field {
+  flex: 1;
+}
+.conn-textarea {
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 120px;
 }
 
 /* ── auth, third pass: the cinematic split ── */

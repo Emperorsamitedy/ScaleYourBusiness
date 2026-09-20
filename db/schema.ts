@@ -9,7 +9,9 @@
 
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -522,12 +524,7 @@ export const utterances = pgTable(
 
 /* ---------- Session Q — validation (data-model §7, steps 32-34) ---------- */
 
-export const findingKind = pgEnum("finding_kind", [
-  "gap",
-  "contradiction",
-  "implausible",
-  "stale",
-]);
+export const findingKind = pgEnum("finding_kind", ["gap", "contradiction", "implausible", "stale"]);
 
 export const findingSeverity = pgEnum("finding_severity", ["blocking", "high", "medium", "low"]);
 
@@ -632,9 +629,7 @@ export const profileSnapshots = pgTable(
     profile_id: uuid("profile_id")
       .notNull()
       .references(() => businessProfiles.id, { onDelete: "cascade" }),
-    taken_at: timestamp("taken_at", { withTimezone: true, mode: "string" })
-      .notNull()
-      .defaultNow(),
+    taken_at: timestamp("taken_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
     content_hash: text("content_hash").notNull(),
     fact_count: integer("fact_count").notNull(),
     entity_count: integer("entity_count").notNull(),
@@ -927,4 +922,177 @@ export const accountModules = pgTable(
       .defaultNow(),
   },
   (t) => [uniqueIndex("account_modules_unique_idx").on(t.account_id, t.module)],
+);
+
+/* ---------- Phase 2 Session A — the connector spine (P2-01/02/06) ---------- */
+
+// Connections — P2-01. One live row per (account, provider). Disconnecting
+// revokes locally: the secret is wiped, the status flips, sync stops — but
+// the row is kept, because every observation it produced points back here
+// for its provenance (rule 2), and a fact whose source row vanished would
+// be a bare value with extra steps. The partial unique index lets an owner
+// reconnect a provider after disconnecting it without resurrecting the
+// old row.
+
+export const connectionStatus = pgEnum("connection_status", [
+  "connected",
+  "paused",
+  "failed",
+  "disconnected",
+]);
+
+export const connections = pgTable(
+  "connections",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** A ProviderId from lib/connectors/scopes.ts — "stripe", "fixture", … */
+    provider: text("provider").notNull(),
+    status: connectionStatus("status").notNull().default("connected"),
+    /**
+     * AES-256-GCM blob (P2-03, rule 10). Null once disconnected. Never
+     * selected into an API response — see toPublicConnection.
+     */
+    encrypted_secret: text("encrypted_secret"),
+    /** Verbatim from the provider, verified against the scope registry (P2-04). */
+    granted_scopes: jsonb("granted_scopes").$type<string[]>().notNull().default([]),
+    /** Provider-opaque resume point. Null means "never synced": the next run backfills. */
+    cursor: text("cursor"),
+    last_sync_at: timestamp("last_sync_at", { withTimezone: true, mode: "string" }),
+    /** Consecutive failed runs; the runner parks the connection at the cap (P2-06). */
+    failure_count: integer("failure_count").notNull().default(0),
+    last_error: text("last_error"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    disconnected_at: timestamp("disconnected_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("connections_active_idx")
+      .on(t.account_id, t.provider)
+      .where(sql`status <> 'disconnected'`),
+    index("connections_account_idx").on(t.account_id),
+  ],
+);
+
+// Metric observations — P2-02. What a provider said happened on one day,
+// one row per (connection, metric, dimensions, day). Append-only in
+// spirit: rows are never deleted, and re-ingesting the same day upserts by
+// the natural key so a re-run backfill cannot double-count. Money lives in
+// value_minor + currency (rule 1); counts in value_num. `dimension_key`
+// is the canonical serialisation of `dimensions` — the half of the
+// natural key that a jsonb column cannot reliably provide.
+
+export const metricObservations = pgTable(
+  "metric_observations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id),
+    /** Denormalised from the connection for series queries. */
+    provider: text("provider").notNull(),
+    /** "revenue.daily" | "orders.daily" | "ad_spend.daily" | "sessions.daily". */
+    metric_key: text("metric_key").notNull(),
+    /** { offer_id?, channel_id?, currency? } — see lib/connectors/provider.ts. */
+    dimensions: jsonb("dimensions").$type<Record<string, string>>().notNull().default({}),
+    dimension_key: text("dimension_key").notNull(),
+    period_date: date("period_date", { mode: "string" }).notNull(),
+    /** Integer minor units for money metrics; null otherwise. */
+    value_minor: bigint("value_minor", { mode: "number" }),
+    /** ISO 4217 — required exactly when value_minor is set. */
+    currency: text("currency"),
+    /** Counts and ratios; null for money metrics. */
+    value_num: numeric("value_num", { precision: 18, scale: 4 }),
+    observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("metric_observations_natural_idx").on(
+      t.connection_id,
+      t.metric_key,
+      t.dimension_key,
+      t.period_date,
+    ),
+    index("metric_observations_series_idx").on(t.connection_id, t.metric_key, t.period_date),
+  ],
+);
+
+// Sync telemetry — P2-06, in the llm_calls mould: one row per run of one
+// connection, so "what did syncing this account cost in time and calls"
+// is a query rather than archaeology. Append-only by convention.
+
+export const connectorSyncs = pgTable(
+  "connector_syncs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id),
+    /** Every log line carries an account id (CLAUDE.md conventions). */
+    account_id: uuid("account_id").notNull(),
+    started_at: timestamp("started_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** "backfill" | "incremental". */
+    kind: text("kind").notNull(),
+    duration_ms: integer("duration_ms").notNull(),
+    pages: integer("pages").notNull(),
+    observations_upserted: integer("observations_upserted").notNull(),
+    ok: boolean("ok").notNull(),
+    error: text("error"),
+  },
+  (t) => [index("connector_syncs_connection_idx").on(t.connection_id, t.started_at)],
+);
+
+/* ---------- Phase 2 Session E — anomalies (P2-22..25) ---------- */
+
+// An anomaly is a run of days on one measured series beyond the
+// weekday-adjusted baseline (lib/anomaly). One OPEN anomaly per series at
+// a time; it is resolved, never deleted, when the series returns to
+// normal, so a false alarm can be replayed from `inputs` and the
+// thresholds tuned from evidence (P2-25). `detail` is the arithmetic in
+// words, as the watch log shows it.
+
+export const anomalyDirection = pgEnum("anomaly_direction", ["drop", "spike"]);
+export const anomalySeverity = pgEnum("anomaly_severity", ["notice", "interrupt"]);
+
+export const anomalies = pgTable(
+  "anomalies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id),
+    metric_key: text("metric_key").notNull(),
+    dimension_key: text("dimension_key").notNull(),
+    direction: anomalyDirection("direction").notNull(),
+    severity: anomalySeverity("severity").notNull(),
+    first_date: date("first_date", { mode: "string" }).notNull(),
+    last_date: date("last_date", { mode: "string" }).notNull(),
+    run_days: integer("run_days").notNull(),
+    /** The latest day's figures, in the series' own units. */
+    actual: numeric("actual", { precision: 18, scale: 4 }).notNull(),
+    expected: numeric("expected", { precision: 18, scale: 4 }).notNull(),
+    /** (actual − expected) ÷ scale: how many "usual variations" off. */
+    deviation: numeric("deviation", { precision: 10, scale: 3 }).notNull(),
+    /** The owner-readable arithmetic. */
+    detail: text("detail").notNull(),
+    /** Everything the verdict rested on: window values, factors, residuals. */
+    inputs: jsonb("inputs").notNull(),
+    detected_at: timestamp("detected_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    resolved_at: timestamp("resolved_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("anomalies_open_idx")
+      .on(t.connection_id, t.metric_key, t.dimension_key)
+      .where(sql`resolved_at IS NULL`),
+    index("anomalies_profile_idx").on(t.profile_id, t.detected_at),
+  ],
 );

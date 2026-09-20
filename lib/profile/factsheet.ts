@@ -12,6 +12,7 @@
 import { PRIORITY_WEIGHTS, computeCompleteness } from "../scorer/completeness";
 import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
+import { displaySourceKind } from "../connectors/measured";
 import type { Field } from "../core/field";
 import { ensureSnapshot, readSnapshot } from "./snapshot";
 import type { ProfileSection } from "./sections";
@@ -119,13 +120,13 @@ function sourceDetail(source: unknown): string | null {
 }
 
 function toRow(key: string, field: Field<unknown>): FactRow {
-  const source = field.source as { kind?: string } | null;
   return {
     key,
     value: repr(field.value),
     status: field.status,
     confidence: field.confidence,
-    source_kind: source?.kind ?? "unknown",
+    // "connector" for a measured fact, so its pill says "measured" (P2-10).
+    source_kind: displaySourceKind(field.source),
     source_detail: sourceDetail(field.source),
     observed_at: field.observed_at,
     note: field.note ?? null,

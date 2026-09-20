@@ -1,0 +1,461 @@
+// The Google Analytics 4 connector — Phase 2 Session D (P2-18).
+//
+// HOW AN OWNER CONNECTS. Google Analytics has a genuinely read-only scope,
+// analytics.readonly, so this connector is read-only by construction. The
+// owner creates a service account in Google Cloud, downloads its JSON key,
+// and adds the service account's email to their GA4 property with the
+// Viewer role. We store the property ID and the key, encrypted (rule 10),
+// sign a one-hour JWT asking for analytics.readonly and nothing else, and
+// exchange it for an access token.
+//
+// READ-ONLY, PROVEN. Google's tokeninfo endpoint reports the scopes a token
+// actually carries, so the connect check is real (scopeVerification:
+// "reported"). This module knows exactly three URLs: the token endpoint,
+// tokeninfo, and runReport on the owner's property. It never uses the
+// token_uri written in the key file, so a doctored key cannot point it
+// anywhere else. ga4.test.ts scans this source and fails the build if the
+// full analytics scope, or any other Google host, ever appears.
+//
+// WHAT IS READ. Sessions per day per default channel group. Sessions add up
+// across channels, so the business total is their sum. Users do not add up
+// across channels or across days, so they are deliberately not stored. Days
+// are the property's own reporting days, in its time zone. GA4 keeps
+// processing recent data for a while, so every sync re-reads the last 3.
+
+import { createSign } from "node:crypto";
+import { addDays, advanceCursor, dayString, planWindow } from "../days";
+import type { ExternalProduct, Observation, Provider, PullPage } from "../provider";
+import { ProviderError } from "../provider";
+
+export const GA4_SCOPE = "https://www.googleapis.com/auth/analytics.readonly";
+export const GA4_TOKEN_URL = "https://oauth2.googleapis.com/token";
+export const GA4_TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo";
+export const GA4_DATA_ORIGIN = "https://analyticsdata.googleapis.com";
+
+export const GA4_HISTORY_DAYS = 365;
+export const GA4_REREAD_DAYS = 3;
+export const GA4_WINDOW_DAYS = 30;
+export const GA4_ROW_LIMIT = 10_000;
+export const GA4_MAX_PAGES = 20;
+export const GA4_CHANNEL_LOOKBACK_DAYS = 90;
+export const GA4_MAX_ATTEMPTS = 3;
+
+/** The only reports this module can run. */
+export const GA4_REPORTS = {
+  sessions_by_day_and_channel: {
+    dimensions: ["date", "sessionDefaultChannelGroup"],
+    metrics: ["sessions"],
+  },
+  channels: { dimensions: ["sessionDefaultChannelGroup"], metrics: ["sessions"] },
+  probe: { dimensions: [], metrics: ["sessions"] },
+} as const;
+
+export type Ga4ReportName = keyof typeof GA4_REPORTS;
+
+export interface Ga4RequestInit {
+  method: "GET" | "POST";
+  headers: Record<string, string>;
+  body?: string;
+}
+
+export interface Ga4Response {
+  status: number;
+  json(): Promise<unknown>;
+}
+
+export type Ga4Fetch = (url: string, init: Ga4RequestInit) => Promise<Ga4Response>;
+
+export interface Ga4ProviderOptions {
+  fetch?: Ga4Fetch;
+  sleep?: (ms: number) => Promise<void>;
+  /** Milliseconds since the epoch, for the JWT's issued-at. */
+  clock?: () => number;
+}
+
+export interface Ga4Credential {
+  property_id: string;
+  client_email: string;
+  private_key: string;
+}
+
+export function parseGa4Credential(secret: string): Ga4Credential {
+  let outer: unknown;
+  try {
+    outer = JSON.parse(secret);
+  } catch {
+    throw new ProviderError("ga4: the property ID and the service account key are both needed");
+  }
+  const o = (outer ?? {}) as Record<string, unknown>;
+  const property =
+    typeof o["property_id"] === "string"
+      ? o["property_id"].trim().replace(/^properties\//, "")
+      : "";
+  if (!/^\d{4,}$/.test(property)) {
+    throw new ProviderError(
+      "ga4: the property ID is the number shown in GA4 Admin, under Property details",
+    );
+  }
+  let key: Record<string, unknown>;
+  try {
+    key = JSON.parse(
+      typeof o["service_account_json"] === "string" ? o["service_account_json"] : "",
+    );
+  } catch {
+    throw new ProviderError("ga4: paste the whole service account key file, which is JSON");
+  }
+  const email = typeof key["client_email"] === "string" ? key["client_email"] : "";
+  const privateKey = typeof key["private_key"] === "string" ? key["private_key"] : "";
+  if (
+    key["type"] !== "service_account" ||
+    !email.endsWith(".iam.gserviceaccount.com") ||
+    !privateKey.includes("PRIVATE KEY")
+  ) {
+    throw new ProviderError("ga4: that isn't a Google service account key file");
+  }
+  return { property_id: property, client_email: email, private_key: privateKey };
+}
+
+const base64url = (text: string): string => Buffer.from(text).toString("base64url");
+
+/** A one-hour JWT asking for analytics.readonly and nothing else, signed RS256. */
+export function signAssertion(cred: Ga4Credential, issuedAtSeconds: number): string {
+  const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+  const claims = base64url(
+    JSON.stringify({
+      iss: cred.client_email,
+      scope: GA4_SCOPE,
+      aud: GA4_TOKEN_URL,
+      iat: issuedAtSeconds,
+      exp: issuedAtSeconds + 3600,
+    }),
+  );
+  const input = `${header}.${claims}`;
+  let signature: string;
+  try {
+    signature = createSign("RSA-SHA256").update(input).sign(cred.private_key, "base64url");
+  } catch {
+    throw new ProviderError("ga4: the service account's private key couldn't be read");
+  }
+  return `${input}.${signature}`;
+}
+
+const runReportUrl = (propertyId: string): string =>
+  `${GA4_DATA_ORIGIN}/v1beta/properties/${propertyId}:runReport`;
+
+interface Token {
+  value: string;
+  expiresAt: number;
+}
+
+interface Context {
+  fetch: Ga4Fetch;
+  sleep: (ms: number) => Promise<void>;
+  clock: () => number;
+  tokens: Map<string, Token>;
+}
+
+function backoffMs(attempt: number): number {
+  return 500 * 2 ** (attempt - 1) + Math.floor(Math.random() * 250);
+}
+
+function googleMessage(body: unknown): string | null {
+  const message = (body as { error?: { message?: unknown } | string } | null)?.error;
+  if (typeof message === "string") return message;
+  return typeof message?.message === "string" ? message.message : null;
+}
+
+/** One request to one of the three known URLs, retried on 429, 5xx and network failure. */
+async function request(
+  ctx: Context,
+  cred: Ga4Credential,
+  url: string,
+  init: Ga4RequestInit,
+): Promise<{ status: number; body: unknown }> {
+  const allowed =
+    url === GA4_TOKEN_URL ||
+    url.startsWith(`${GA4_TOKENINFO_URL}?`) ||
+    url === runReportUrl(cred.property_id);
+  if (!allowed) throw new ProviderError("ga4: refusing to call an unregistered address");
+
+  for (let attempt = 1; ; attempt += 1) {
+    let response: Ga4Response;
+    try {
+      response = await ctx.fetch(url, init);
+    } catch {
+      if (attempt >= GA4_MAX_ATTEMPTS) {
+        throw new ProviderError(`ga4: network failure after ${attempt} attempts`);
+      }
+      await ctx.sleep(backoffMs(attempt));
+      continue;
+    }
+    if ((response.status === 429 || response.status >= 500) && attempt < GA4_MAX_ATTEMPTS) {
+      await ctx.sleep(backoffMs(attempt));
+      continue;
+    }
+    return { status: response.status, body: await response.json().catch(() => null) };
+  }
+}
+
+async function accessToken(ctx: Context, cred: Ga4Credential, fresh = false): Promise<string> {
+  const cacheKey = `${cred.client_email}|${cred.property_id}`;
+  const cached = ctx.tokens.get(cacheKey);
+  if (!fresh && cached && cached.expiresAt - 60_000 > ctx.clock()) return cached.value;
+
+  const { status, body } = await request(ctx, cred, GA4_TOKEN_URL, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: signAssertion(cred, Math.floor(ctx.clock() / 1000)),
+    }).toString(),
+  });
+  const token = body as { access_token?: unknown; expires_in?: unknown } | null;
+  if (status !== 200 || typeof token?.access_token !== "string") {
+    throw new ProviderError(
+      "ga4: Google did not accept the service account key. It may have been deleted or disabled",
+    );
+  }
+  const seconds = typeof token.expires_in === "number" ? token.expires_in : 3600;
+  ctx.tokens.set(cacheKey, { value: token.access_token, expiresAt: ctx.clock() + seconds * 1000 });
+  return token.access_token;
+}
+
+/** The scopes Google says this token carries. */
+async function tokenScopes(ctx: Context, cred: Ga4Credential, token: string): Promise<string[]> {
+  const url = `${GA4_TOKENINFO_URL}?${new URLSearchParams({ access_token: token }).toString()}`;
+  const { status, body } = await request(ctx, cred, url, { method: "GET", headers: {} });
+  const info = body as { scope?: unknown } | null;
+  if (status !== 200 || typeof info?.scope !== "string") {
+    throw new ProviderError("ga4: Google could not confirm the token's permissions");
+  }
+  return info.scope.split(/\s+/).filter((s) => s !== "");
+}
+
+interface ReportRow {
+  dimensions: string[];
+  metrics: string[];
+}
+
+async function runReport(
+  ctx: Context,
+  cred: Ga4Credential,
+  name: Ga4ReportName,
+  startDate: string,
+  endDate: string,
+): Promise<ReportRow[]> {
+  const spec = GA4_REPORTS[name];
+  const out: ReportRow[] = [];
+  let fresh = false;
+
+  for (let page = 0; page < GA4_MAX_PAGES;) {
+    const token = await accessToken(ctx, cred, fresh);
+    fresh = false;
+    const { status, body } = await request(ctx, cred, runReportUrl(cred.property_id), {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        dateRanges: [{ startDate, endDate }],
+        dimensions: spec.dimensions.map((d) => ({ name: d })),
+        metrics: spec.metrics.map((m) => ({ name: m })),
+        limit: GA4_ROW_LIMIT,
+        offset: out.length,
+        keepEmptyRows: false,
+      }),
+    });
+    if (status === 401 && page === 0 && out.length === 0 && !fresh) {
+      fresh = true; // the cached token expired early: exchange once and retry
+      page += 1;
+      continue;
+    }
+    if (status === 403) {
+      throw new ProviderError(
+        `ga4: ${cred.client_email} can't read property ${cred.property_id}. In GA4 Admin, open Property access management and add it as a Viewer`,
+      );
+    }
+    if (status !== 200) {
+      const message = googleMessage(body);
+      throw new ProviderError(
+        `ga4: the report failed with status ${status}${message ? `. ${message}` : ""}`,
+      );
+    }
+    const report = body as { rows?: unknown; rowCount?: unknown } | null;
+    const rows = Array.isArray(report?.rows) ? report.rows : [];
+    for (const row of rows) {
+      const r = row as {
+        dimensionValues?: { value?: unknown }[];
+        metricValues?: { value?: unknown }[];
+      } | null;
+      out.push({
+        dimensions: (r?.dimensionValues ?? []).map((v) => String(v?.value ?? "")),
+        metrics: (r?.metricValues ?? []).map((v) => String(v?.value ?? "0")),
+      });
+    }
+    const total = typeof report?.rowCount === "number" ? report.rowCount : out.length;
+    if (rows.length === 0 || out.length >= total) return out;
+    page += 1;
+  }
+  throw new ProviderError("ga4: the report had more rows than one sync reads");
+}
+
+/* ── arithmetic ── */
+
+export interface Ga4DayRow {
+  /** "YYYY-MM-DD". */
+  date: string;
+  channel: string;
+  sessions: number;
+}
+
+function isoFromGa4Date(value: string): string | null {
+  const m = /^(\d{4})(\d{2})(\d{2})$/.exec(value);
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : null;
+}
+
+/**
+ * Sessions for every day in [start, end]: the business total (zero days
+ * included) and one row per channel group that had any sessions.
+ */
+export function aggregateSessions(
+  rows: readonly Ga4DayRow[],
+  start: Date,
+  end: Date,
+  observedAt: string,
+): Observation[] {
+  const totals = new Map<string, number>();
+  const byChannel = new Map<string, Map<string, number>>();
+  const from = dayString(start);
+  const to = dayString(end);
+
+  for (const row of rows) {
+    if (row.date < from || row.date > to || row.sessions <= 0) continue;
+    totals.set(row.date, (totals.get(row.date) ?? 0) + row.sessions);
+    const channels = byChannel.get(row.date) ?? new Map<string, number>();
+    channels.set(row.channel, (channels.get(row.channel) ?? 0) + row.sessions);
+    byChannel.set(row.date, channels);
+  }
+
+  const out: Observation[] = [];
+  for (let d = start; d.getTime() <= end.getTime(); d = addDays(d, 1)) {
+    const day = dayString(d);
+    out.push({
+      metric_key: "sessions.daily",
+      period_date: day,
+      dimensions: {},
+      value_num: totals.get(day) ?? 0,
+      observed_at: observedAt,
+    });
+    const channels = byChannel.get(day);
+    if (channels) {
+      for (const [channel, sessions] of [...channels.entries()].sort(([a], [b]) =>
+        a < b ? -1 : a > b ? 1 : 0,
+      )) {
+        out.push({
+          metric_key: "sessions.daily",
+          period_date: day,
+          dimensions: { channel_ref: channel },
+          value_num: sessions,
+          observed_at: observedAt,
+        });
+      }
+    }
+  }
+  return out;
+}
+
+function toDayRows(rows: readonly ReportRow[]): Ga4DayRow[] {
+  const out: Ga4DayRow[] = [];
+  for (const row of rows) {
+    const date = isoFromGa4Date(row.dimensions[0] ?? "");
+    const sessions = Number(row.metrics[0]);
+    if (date === null || !Number.isFinite(sessions)) {
+      throw new ProviderError("ga4: a report row is missing its date or sessions");
+    }
+    out.push({ date, channel: row.dimensions[1] ?? "(not set)", sessions });
+  }
+  return out;
+}
+
+/* ── the provider ── */
+
+const defaultFetch: Ga4Fetch = async (url, init) => {
+  const response = await fetch(url, {
+    method: init.method,
+    headers: init.headers,
+    ...(init.body !== undefined ? { body: init.body } : {}),
+    cache: "no-store",
+  });
+  return { status: response.status, json: () => response.json() as Promise<unknown> };
+};
+
+export function createGa4Provider(options: Ga4ProviderOptions = {}): Provider {
+  const ctx: Context = {
+    fetch: options.fetch ?? defaultFetch,
+    sleep: options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms))),
+    clock: options.clock ?? (() => Date.now()),
+    tokens: new Map(),
+  };
+
+  return {
+    id: "ga4",
+    label: "Google Analytics",
+    scopeVerification: "reported",
+
+    async connect(secret) {
+      const cred = parseGa4Credential(secret);
+      const token = await accessToken(ctx, cred, true);
+      const granted = [...new Set(await tokenScopes(ctx, cred, token))].sort();
+      if (!granted.includes(GA4_SCOPE)) {
+        throw new ProviderError("ga4: the token doesn't carry read-only analytics access");
+      }
+      // Prove the property is readable: one tiny report.
+      const yesterday = dayString(addDays(new Date(ctx.clock()), -1));
+      await runReport(ctx, cred, "probe", yesterday, yesterday);
+      return { granted_scopes: granted };
+    },
+
+    async pull(secret, cursor, now): Promise<PullPage> {
+      const cred = parseGa4Credential(secret);
+      const plan = planWindow({
+        cursor,
+        now,
+        historyDays: GA4_HISTORY_DAYS,
+        rereadDays: GA4_REREAD_DAYS,
+        windowDays: GA4_WINDOW_DAYS,
+        provider: "ga4",
+      });
+      if (plan === null) return { observations: [], cursor, done: true };
+
+      const rows = await runReport(
+        ctx,
+        cred,
+        "sessions_by_day_and_channel",
+        dayString(plan.start),
+        dayString(plan.end),
+      );
+      return {
+        observations: aggregateSessions(toDayRows(rows), plan.start, plan.end, now.toISOString()),
+        cursor: advanceCursor(cursor, plan.end),
+        done: plan.end.getTime() === plan.yesterday.getTime(),
+      };
+    },
+
+    async listChannels(secret): Promise<ExternalProduct[]> {
+      const cred = parseGa4Credential(secret);
+      const today = new Date(ctx.clock());
+      const rows = await runReport(
+        ctx,
+        cred,
+        "channels",
+        dayString(addDays(today, -GA4_CHANNEL_LOOKBACK_DAYS)),
+        dayString(addDays(today, -1)),
+      );
+      return rows
+        .map((r) => ({ channel: r.dimensions[0] ?? "", sessions: Number(r.metrics[0]) }))
+        .filter((r) => r.channel !== "")
+        .sort((a, b) => b.sessions - a.sessions || (a.channel < b.channel ? -1 : 1))
+        .map((r) => ({ ref: r.channel, title: r.channel, status: null }));
+    },
+  };
+}
+
+export const ga4Provider = createGa4Provider();

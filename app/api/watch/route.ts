@@ -1,24 +1,20 @@
 // GET /api/watch — the watching status screen's read (P1-47): the
-// current decision, the honest activity log, days remaining, and the
-// thresholds that would trigger an interruption. All of it is stored
-// fact; nothing here is generated.
+// current decision, the honest activity log, days remaining, the
+// thresholds that would trigger an interruption, and (P2-24) any
+// interruption that has actually happened. All of it is stored fact;
+// nothing here is generated.
 
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
+import { openInterruptions } from "../../../lib/anomaly/detect";
+import { thresholdTexts } from "../../../lib/anomaly/thresholds";
 import { latestDecision } from "../../../lib/mode/service";
 import { watchLog } from "../../../lib/watch/job";
 
 const COOKIE = "syb_intake_profile";
-
-/** What would interrupt the watch early — shown, not enforced yet (Phase 2). */
-const INTERRUPT_THRESHOLDS = [
-  "Revenue drops more than 30% week over week",
-  "A validation finding of critical severity appears",
-  "You reopen a core answer the diagnosis rests on",
-];
 
 export async function GET(): Promise<NextResponse> {
   const store = await cookies();
@@ -40,7 +36,9 @@ export async function GET(): Promise<NextResponse> {
   return NextResponse.json({
     decision,
     days_remaining: daysRemaining,
-    thresholds: INTERRUPT_THRESHOLDS,
+    // The rules as code (P2-24), each saying whether anything enforces it yet.
+    thresholds: thresholdTexts(),
+    interruptions: await openInterruptions(profileId),
     log: log.map((entry) => ({ at: entry.at, kind: entry.kind, detail: entry.detail })),
   });
 }

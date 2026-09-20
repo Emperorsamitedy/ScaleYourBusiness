@@ -346,7 +346,18 @@ interface Channel {
   trend: Field<EnumValue>;                  // growing | stable | declining
   roi_computed: Field<number>;              // inferred
   is_primary: Field<boolean>;
+  monthly_sessions: Field<number>;          // Phase 2: measured only, from an analytics
+                                            // connector's channel matched to this one
 }
+```
+
+Phase 2 measured-only fields, written by connectors and never asked in the
+intake: `presence.monthly_sessions` (website sessions a month, business-wide)
+and `marketing.cost_per_purchase` measured as ad spend over the purchases the
+ad platform attributes (the intake asks the owner's estimate of the same
+thing; measurement supersedes it, rule 11).
+
+```ts
 
 interface Competitor {
   id: CompetitorId;

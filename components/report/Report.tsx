@@ -40,11 +40,30 @@ interface OfferEco {
   contribution: Computed<MoneyV> | null;
   volume: number | null;
 }
+/** Rule 11 (P2-11): a connector superseded the owner's figure, and both are shown. */
+interface StatedVsMeasuredRow {
+  field_key: string;
+  provider: string;
+  stated: {
+    value: unknown;
+    status: string;
+    source_kind: string;
+    observed_at: string;
+    note: string | null;
+  };
+  measured: { value: unknown; method: string; observed_at: string };
+  delta: { amount: number; currency: string | null; pct: number | null } | null;
+}
 interface Economics {
+  /** Absent on reports generated before Phase 2. */
+  stated_vs_measured?: StatedVsMeasuredRow[];
   currency: string;
   offers: OfferEco[];
   blended_margin_pct: Computed<number> | null;
   break_even: Computed<{ units_per_month: number }> | null;
+  /** Absent on reports generated before Phase 2 Session D. */
+  cost_per_acquisition?: Computed<MoneyV> | null;
+  return_on_ad_spend?: Computed<number> | null;
   fixed_costs_monthly: Computed<MoneyV> | null;
   stated_vs_computed_margin: { stated_pct: number; computed_pct: number; delta_pts: number } | null;
 }
@@ -149,13 +168,7 @@ function EvidenceLine({ keys, map }: { keys: string[]; map: Record<string, FactI
   );
 }
 
-function Decline({
-  onSubmit,
-  busy,
-}: {
-  onSubmit: (reason: string) => void;
-  busy: boolean;
-}) {
+function Decline({ onSubmit, busy }: { onSubmit: (reason: string) => void; busy: boolean }) {
   const [reason, setReason] = useState("");
   return (
     <div className="rp-decline">
@@ -239,15 +252,13 @@ function RecommendationCard({
       ))}
 
       <div className="rp-cases">
-        {[rec.scenario.base_case, rec.scenario.downside_case, rec.scenario.upside_case].map(
-          (o) => (
-            <div className="rp-case" key={o.case}>
-              <span className="rp-mono">{o.case.toUpperCase()}</span>
-              <p>{o.statement}</p>
-              {o.formula !== null && <code>{o.formula}</code>}
-            </div>
-          ),
-        )}
+        {[rec.scenario.base_case, rec.scenario.downside_case, rec.scenario.upside_case].map((o) => (
+          <div className="rp-case" key={o.case}>
+            <span className="rp-mono">{o.case.toUpperCase()}</span>
+            <p>{o.statement}</p>
+            {o.formula !== null && <code>{o.formula}</code>}
+          </div>
+        ))}
       </div>
 
       <details className="rp-assumptions">
@@ -281,8 +292,12 @@ function RecommendationCard({
           </button>
         </div>
       )}
-      {declining && <Decline busy={busy} onSubmit={(reason) => void respond("not_for_us", reason)} />}
-      {rec.status === "accepted" && <p className="rp-responded">✓ you&rsquo;re looking into this</p>}
+      {declining && (
+        <Decline busy={busy} onSubmit={(reason) => void respond("not_for_us", reason)} />
+      )}
+      {rec.status === "accepted" && (
+        <p className="rp-responded">✓ you&rsquo;re looking into this</p>
+      )}
       {rec.status === "rejected" && (
         <p className="rp-responded">
           declined{rec.rejection_reason !== null ? ` — “${rec.rejection_reason}”` : ""}
@@ -442,8 +457,13 @@ export function ReportScreen() {
 
       <div className="rp-title">
         <span className="rp-mono">
-          DIAGNOSIS · {new Date(report.generated_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })} ·
-          COMPLETENESS {Math.round(report.completeness * 100)}%
+          DIAGNOSIS ·{" "}
+          {new Date(report.generated_at).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}{" "}
+          · COMPLETENESS {Math.round(report.completeness * 100)}%
         </span>
         <h1>Here&rsquo;s what I can see.</h1>
       </div>
@@ -479,12 +499,68 @@ export function ReportScreen() {
             </span>
           </div>
         ))}
+        {/* Rule 11 (P2-11): a measurement replaced an estimate, and both are shown. */}
+        {(eco.stated_vs_measured ?? []).map((s) => {
+          // P2-16 / P2-18: a measured figure for one matched offer or channel.
+          const volume = /^offers\.([^.]+)\.volume_period$/.exec(s.field_key);
+          const traffic = /^channels\.([^.]+)\.monthly_sessions$/.exec(s.field_key);
+          const entityNoun = volume
+            ? `units a month of ${report.fact_map[`offers.${volume[1]}.name`]?.value ?? "this product"}`
+            : traffic
+              ? `monthly visits from your ${report.fact_map[`channels.${traffic[1]}.type`]?.value ?? "channel"} channel`
+              : null;
+          const noun =
+            entityNoun ??
+            (
+              {
+                "revenue.monthly_revenue": "monthly revenue",
+                "revenue.order_count_monthly": "orders a month",
+                "marketing.monthly_ad_spend": "monthly ad spend",
+                "marketing.cost_per_purchase": "cost per purchase from ads",
+                "presence.monthly_sessions": "monthly website visits",
+              } as Record<string, string>
+            )[s.field_key] ??
+            s.field_key;
+          const show = (v: unknown): string => {
+            if (typeof v === "number") return v.toLocaleString("en-US").replace(/,/g, " ");
+            const m = v as MoneyV | null;
+            return m !== null && typeof m === "object" && typeof m.amount_minor === "number"
+              ? fmtMoney(m)
+              : "—";
+          };
+          const period = /over (\S+)\.\.(\S+)/.exec(s.measured.method);
+          const span = period ? ` between ${period[1]} and ${period[2]}` : "";
+          const pct = s.delta?.pct;
+          const change = pct !== null && pct !== undefined ? ` (${pct > 0 ? "+" : ""}${pct}%)` : "";
+          return (
+            <p className="rp-discrepancy" key={s.field_key}>
+              {s.stated.value === null
+                ? `You didn't know your ${noun}. ${s.provider} measured ${show(s.measured.value)}${span}.`
+                : `You estimated ${show(s.stated.value)} for ${noun}. ${s.provider} measured ${show(s.measured.value)}${span}${change}.`}{" "}
+              The analysis uses the measured figure, and your estimate stays in your history.
+            </p>
+          );
+        })}
         {eco.stated_vs_computed_margin && (
           <p className="rp-discrepancy">
             You said {eco.stated_vs_computed_margin.stated_pct}% margin; your own product figures
             compute to {eco.stated_vs_computed_margin.computed_pct}% — a{" "}
-            {Math.abs(eco.stated_vs_computed_margin.delta_pts).toFixed(0)}-point gap. Both are shown;
-            the analysis uses the computed one.
+            {Math.abs(eco.stated_vs_computed_margin.delta_pts).toFixed(0)}-point gap. Both are
+            shown; the analysis uses the computed one.
+          </p>
+        )}
+        {/* P2-21: what the ads pay back, computed only when both sides were measured or stated. */}
+        {eco.cost_per_acquisition && (
+          <p className="rp-eco-be">
+            Cost to acquire a new customer: {fmtMoney(eco.cost_per_acquisition.value)}{" "}
+            <SourceLine from={eco.cost_per_acquisition.derived_from} map={report.fact_map} />
+          </p>
+        )}
+        {eco.return_on_ad_spend && (
+          <p className="rp-eco-be">
+            Return on ad spend: {eco.return_on_ad_spend.value.toFixed(2)}× revenue per unit of ad
+            spend, blended across everything you sell{" "}
+            <SourceLine from={eco.return_on_ad_spend.derived_from} map={report.fact_map} />
           </p>
         )}
         {eco.break_even && (
@@ -541,7 +617,10 @@ export function ReportScreen() {
                 <p className="rp-gap-q">{g.prompt}</p>
                 <p className="rp-gap-b">{g.buys}</p>
               </div>
-              <Link className="ghost quiet noprint" href={`/intake?ask=${encodeURIComponent(g.question_id)}`}>
+              <Link
+                className="ghost quiet noprint"
+                href={`/intake?ask=${encodeURIComponent(g.question_id)}`}
+              >
                 Answer now
               </Link>
             </div>
