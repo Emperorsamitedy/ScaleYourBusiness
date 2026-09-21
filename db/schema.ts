@@ -11,6 +11,7 @@ import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
+  check,
   date,
   index,
   integer,
@@ -1094,5 +1095,85 @@ export const anomalies = pgTable(
       .on(t.connection_id, t.metric_key, t.dimension_key)
       .where(sql`resolved_at IS NULL`),
     index("anomalies_profile_idx").on(t.profile_id, t.detected_at),
+  ],
+);
+
+/* ---------- Phase 3 Session A — proposals (P3-01) ---------- */
+
+// The only doorway to action (rule 12). A proposal states what will
+// happen, why, the evidence behind it, the expected effect, and whether
+// it can be undone — and it is decided by a human whose id is stored, or
+// it never runs. The invariants live in the DATABASE, not just the
+// service, so no future call site can quietly relax them:
+//   · requires_approval is pinned true by a check constraint
+//   · a blocked proposal must name the 13.5 limit it hit (rule 14 —
+//     restraint is shown, so it must be explainable)
+//   · approved / rejected / executed all demand a deciding user and time
+//   · a rejection must carry its reason (the learning corpus, P3-28)
+//   · an executed proposal must carry its execution result
+// `expired` needs no decider: silence is not a decision, and the two are
+// never conflated (P3-06).
+
+export const proposalStatus = pgEnum("proposal_status", [
+  "pending",
+  "approved",
+  "rejected",
+  "expired",
+  "executed",
+  "blocked",
+]);
+
+export const proposals = pgTable(
+  "proposals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** Which module raised it — "diagnosis" today; marketing et al. later. */
+    module: text("module").notNull(),
+    /** Id of the finding it addresses; null when raised another way. */
+    originating_finding: text("originating_finding"),
+    /** ProposalAction — what will happen, in the owner's terms. */
+    action: jsonb("action").notNull(),
+    /** ScenarioBlock (lib/diagnosis) — assumptions with sources and sensitivity. */
+    scenario: jsonb("scenario").notNull(),
+    /** Declared BEFORE approval: level + if_you_change_your_mind. */
+    reversibility: jsonb("reversibility").notNull(),
+    /** Rule 12: literal true — the check below makes false unrepresentable. */
+    requires_approval: boolean("requires_approval").notNull().default(true),
+    status: proposalStatus("status").notNull().default("pending"),
+    /** The 13.5 hard limit a blocked proposal hit — the restraint view's caption. */
+    blocked_by_limit: text("blocked_by_limit"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** P3-06: proposals expire; expired ≠ rejected everywhere. */
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    decided_by: uuid("decided_by").references(() => users.id),
+    decided_at: timestamp("decided_at", { withTimezone: true, mode: "string" }),
+    rejection_reason: text("rejection_reason"),
+    /** ExecutionResult, written only by the Session B engine. */
+    execution_result: jsonb("execution_result"),
+  },
+  (t) => [
+    index("proposals_profile_status_idx").on(t.profile_id, t.status),
+    check("proposals_requires_approval_true", sql`${t.requires_approval} = true`),
+    check(
+      "proposals_blocked_names_limit",
+      sql`${t.status} <> 'blocked' OR ${t.blocked_by_limit} IS NOT NULL`,
+    ),
+    check(
+      "proposals_decided_by_human",
+      sql`${t.status} NOT IN ('approved', 'rejected', 'executed') OR (${t.decided_by} IS NOT NULL AND ${t.decided_at} IS NOT NULL)`,
+    ),
+    check(
+      "proposals_rejection_has_reason",
+      sql`${t.status} <> 'rejected' OR ${t.rejection_reason} IS NOT NULL`,
+    ),
+    check(
+      "proposals_executed_has_result",
+      sql`${t.status} <> 'executed' OR ${t.execution_result} IS NOT NULL`,
+    ),
   ],
 );

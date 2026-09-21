@@ -169,6 +169,13 @@
       "when": 1789485389274,
       "tag": "0023_sloppy_mandroid",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1790018480637,
+      "tag": "0024_cloudy_forge",
+      "breakpoints": true
     }
   ]
 }
