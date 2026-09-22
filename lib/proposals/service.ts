@@ -1,0 +1,253 @@
+// Proposal service — Phase 3 Session A (P3-02). The decision-log kinds
+// "proposal", "approval", "rejection" and "execution" have sat in the
+// enum since P0-33; this module makes them real. Every state change
+// happens in the same transaction as its log entry — a proposal event
+// without its audit row cannot exist (rule 7, rule 12).
+//
+// Transitions are guarded by conditional UPDATEs, not read-then-write:
+// the WHERE clause names the only legal prior state, so two racing
+// deciders cannot both win, and the database — not application locking —
+// is the arbiter (the field-store precedent).
+
+import { createHash } from "node:crypto";
+import { and, eq, gt, sql } from "drizzle-orm";
+import { db } from "../../db";
+import { decisionLog, proposals } from "../../db/schema";
+import type { ScenarioBlock } from "../diagnosis/recommendations";
+
+export class ProposalError extends Error {
+  readonly status: number;
+  constructor(message: string, status = 400) {
+    super(message);
+    this.name = "ProposalError";
+    this.status = status;
+  }
+}
+
+/** What will happen, in the owner's terms — module-specific detail rides along. */
+export interface ProposalAction {
+  kind: string;
+  summary: string;
+  detail?: unknown;
+}
+
+/** Declared before approval, shown on the card (data-model §10 shape). */
+export interface Reversibility {
+  level: "easy" | "moderate" | "hard";
+  if_you_change_your_mind: string;
+}
+
+export type ProposalRow = typeof proposals.$inferSelect;
+
+export interface NewProposal {
+  profile_id: string;
+  module: string;
+  originating_finding?: string | null;
+  action: ProposalAction;
+  scenario: ScenarioBlock;
+  reversibility: Reversibility;
+  /** ISO timestamp; the queue shows the window, the sweep enforces it. */
+  expires_at: string;
+  /** Rule 14: present ⇒ the proposal is born blocked, for the restraint view. */
+  blocked_by_limit?: string | null;
+}
+
+/**
+ * Canonical sha256 of a proposal event. Key order is fixed by
+ * construction — do not spread inputs here (the field-store rule). The
+ * log stores the hash so later tampering with the row is detectable.
+ */
+export function hashProposalPayload(
+  kind: "proposal" | "approval" | "rejection" | "execution",
+  payload: {
+    proposal_id: string;
+    profile_id: string;
+    status: string;
+    decided_by?: string | null;
+    rejection_reason?: string | null;
+    detail?: unknown;
+  },
+): string {
+  return createHash("sha256")
+    .update(
+      JSON.stringify({
+        kind,
+        proposal_id: payload.proposal_id,
+        profile_id: payload.profile_id,
+        status: payload.status,
+        decided_by: payload.decided_by ?? null,
+        rejection_reason: payload.rejection_reason ?? null,
+        detail: payload.detail ?? null,
+      }),
+    )
+    .digest("hex");
+}
+
+/**
+ * Create a proposal — pending, or born blocked when a 13.5 limit is
+ * named (P3-03 calls it that way). Both are "proposal" log entries: the
+ * restraint view is part of the record, not an off-books shadow.
+ */
+export async function createProposal(input: NewProposal): Promise<ProposalRow> {
+  const blocked = typeof input.blocked_by_limit === "string" && input.blocked_by_limit !== "";
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(proposals)
+      .values({
+        profile_id: input.profile_id,
+        module: input.module,
+        originating_finding: input.originating_finding ?? null,
+        action: input.action,
+        scenario: input.scenario,
+        reversibility: input.reversibility,
+        status: blocked ? "blocked" : "pending",
+        blocked_by_limit: blocked ? input.blocked_by_limit : null,
+        expires_at: input.expires_at,
+      })
+      .returning();
+    if (!row) throw new ProposalError("could not record the proposal", 500);
+    await tx.insert(decisionLog).values({
+      profile_id: row.profile_id,
+      actor: "system",
+      kind: "proposal",
+      ref_id: row.id,
+      payload_hash: hashProposalPayload("proposal", {
+        proposal_id: row.id,
+        profile_id: row.profile_id,
+        status: row.status,
+        detail: { action: input.action, blocked_by_limit: row.blocked_by_limit },
+      }),
+    });
+    return row;
+  });
+}
+
+/**
+ * Approve: pending → approved, by a named human, inside the expiry
+ * window. The conditional UPDATE is the guard — no legal prior state,
+ * no rows, no approval.
+ */
+export async function approveProposal(args: {
+  proposalId: string;
+  userId: string;
+}): Promise<ProposalRow> {
+  return decide({ ...args, to: "approved" });
+}
+
+/** Reject: same guard, and the reason is required (P3-28 feeds on it). */
+export async function rejectProposal(args: {
+  proposalId: string;
+  userId: string;
+  reason: string;
+}): Promise<ProposalRow> {
+  if (args.reason.trim() === "") {
+    throw new ProposalError("declining asks why — the reason is required", 422);
+  }
+  return decide({
+    proposalId: args.proposalId,
+    userId: args.userId,
+    to: "rejected",
+    reason: args.reason.trim(),
+  });
+}
+
+async function decide(args: {
+  proposalId: string;
+  userId: string;
+  to: "approved" | "rejected";
+  reason?: string;
+}): Promise<ProposalRow> {
+  const now = new Date().toISOString();
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .update(proposals)
+      .set({
+        status: args.to,
+        decided_by: args.userId,
+        decided_at: now,
+        rejection_reason: args.to === "rejected" ? (args.reason as string) : null,
+      })
+      .where(
+        and(
+          eq(proposals.id, args.proposalId),
+          eq(proposals.status, "pending"),
+          gt(proposals.expires_at, now),
+        ),
+      )
+      .returning();
+    if (!row) {
+      // Explain the refusal honestly: decided, expired, or missing?
+      const [cur] = await tx
+        .select({ status: proposals.status, expires_at: proposals.expires_at })
+        .from(proposals)
+        .where(eq(proposals.id, args.proposalId));
+      if (!cur) throw new ProposalError("no such proposal", 404);
+      if (cur.status === "pending" && cur.expires_at <= now) {
+        throw new ProposalError(
+          "this proposal has expired — it needs re-proposing, not deciding",
+          409,
+        );
+      }
+      throw new ProposalError(`this proposal is already ${cur.status}`, 409);
+    }
+    await tx.insert(decisionLog).values({
+      profile_id: row.profile_id,
+      actor: "owner",
+      kind: args.to === "approved" ? "approval" : "rejection",
+      ref_id: row.id,
+      payload_hash: hashProposalPayload(args.to === "approved" ? "approval" : "rejection", {
+        proposal_id: row.id,
+        profile_id: row.profile_id,
+        status: row.status,
+        decided_by: row.decided_by,
+        rejection_reason: row.rejection_reason,
+      }),
+    });
+    return row;
+  });
+}
+
+/**
+ * Record an execution result: approved → executed. Only the Session B
+ * engine calls this; it exists now so "execution" log entries are real
+ * from the spine up. The engine's own guards (watching mode, emergency
+ * stop, idempotency) sit in front of it — this is the last step, not
+ * the doorway.
+ */
+export async function recordExecution(args: {
+  proposalId: string;
+  result: unknown;
+}): Promise<ProposalRow> {
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .update(proposals)
+      .set({ status: "executed", execution_result: sql`${JSON.stringify(args.result)}::jsonb` })
+      .where(and(eq(proposals.id, args.proposalId), eq(proposals.status, "approved")))
+      .returning();
+    if (!row) {
+      const [cur] = await tx
+        .select({ status: proposals.status })
+        .from(proposals)
+        .where(eq(proposals.id, args.proposalId));
+      if (!cur) throw new ProposalError("no such proposal", 404);
+      throw new ProposalError(
+        `only an approved proposal can execute — this one is ${cur.status}`,
+        409,
+      );
+    }
+    await tx.insert(decisionLog).values({
+      profile_id: row.profile_id,
+      actor: "system",
+      kind: "execution",
+      ref_id: row.id,
+      payload_hash: hashProposalPayload("execution", {
+        proposal_id: row.id,
+        profile_id: row.profile_id,
+        status: row.status,
+        decided_by: row.decided_by,
+        detail: args.result,
+      }),
+    });
+    return row;
+  });
+}
