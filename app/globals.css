@@ -5250,3 +5250,97 @@ a.auth-cta {
   background: var(--whisper);
   color: #fff;
 }
+
+/* Content queue — Session C. */
+.ct-goals {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ct-goal-statement {
+  margin-right: 10px;
+}
+.ct-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.ct-goal-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.ct-input {
+  flex: 1;
+  min-width: 240px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.ct-input:focus {
+  outline: none;
+  border-color: var(--hair-2);
+}
+.ct-producible {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.ct-item {
+  border-top: 1px solid var(--hair);
+  padding: 14px 0 4px;
+  margin-top: 12px;
+}
+.ct-item:first-of-type {
+  border-top: none;
+}
+.ct-item-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ct-item-title {
+  flex: 1;
+  font-weight: 600;
+}
+.ct-body {
+  white-space: pre-wrap;
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 12px 0 0;
+}
+.ct-disclosure {
+  margin: 8px 0 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+.prop-tag.ct-shot_list {
+  border-color: var(--ember);
+  color: var(--ember);
+}
+.prop-tag.ct-video {
+  border-color: var(--settled);
+  color: var(--settled);
+}

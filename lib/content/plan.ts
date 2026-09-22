@@ -77,8 +77,8 @@ export interface PlannedItem {
   evidence: string[];
 }
 
-/** Spread n slots across a week deterministically: Mon/Wed/Fri, then Tue/Thu. */
-const WEEK_SLOTS = [1, 3, 5, 2, 4, 6, 0];
+/** Offsets from the Monday start: Mon/Wed/Fri first, then Tue/Thu/Sat/Sun. */
+const WEEK_SLOTS = [0, 2, 4, 1, 3, 5, 6];
 
 async function topOffer(
   profileId: string,

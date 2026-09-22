@@ -210,7 +210,7 @@ describe("P3-15 — the calendar proposal", () => {
       }
     ).detail;
     expect(detail.items).toHaveLength(6); // one social channel × 3/wk × 2 wks
-    expect(detail.items[0]?.date).toBe("2026-09-29"); // next Monday (the 22nd is itself a Monday)
+    expect(detail.items[0]?.date).toBe("2026-09-28"); // the next Monday itself — first slot IS Monday
     for (const item of detail.items) expect(item.evidence.length).toBeGreaterThan(0);
     expect(detail.manual_limits).toContain("never sound corporate");
     expect(await contentQueue(s.profile_id)).toHaveLength(0); // nothing drafted yet
