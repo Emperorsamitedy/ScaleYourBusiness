@@ -116,14 +116,16 @@ Steps 75–77 plus the owner's scope. The loop closes: predictions meet measurem
 
 Site-audit 74a–c plus the owner's scope. The highest-trust write surface, so it carries the strictest rules in the phase.
 
-- [ ] **P3-30** Platform detection and scoped credentials: theme/content write access only — never admin, and never anything rule 18 covers. Platforms that cannot take programmatic changes are detected and honestly labelled, never promised.
-- [ ] **P3-31** Preview-first, always: changes applied to a preview copy, never straight to live. Rendered before/after screenshots from the real page, mobile and desktop, on the visual approval card.
-- [ ] **P3-32** One-click undo, permanent: the pre-change state stored indefinitely via P3-11; undo works months later, not just inside a window.
-- [ ] **P3-33** Auto-rollback **only on hard failures** — errors, load regressions — never on conversion noise. The thresholds are code with tests at the boundaries, the Session E (Phase 2) discipline applied to rollback.
-- [ ] **P3-34** Checkout and payments untouchable (rule 18): the exclusion enforced in the change generator and the credential scopes both, with a test that a checkout-touching change cannot even be proposed.
-- [ ] **P3-35** The manual path for Wix and Squarespace: rendered before/after plus step-by-step instructions for the owner's own editor — a useful answer for the third of customers whose platform can't be edited programmatically.
+- [x] **P3-30** Platform detection and scoped credentials: theme/content write access only — never admin, and never anything rule 18 covers. Platforms that cannot take programmatic changes are detected and honestly labelled, never promised.
+- [x] **P3-31** Preview-first, always: changes applied to a preview copy, never straight to live. Rendered before/after screenshots from the real page, mobile and desktop, on the visual approval card.
+- [x] **P3-32** One-click undo, permanent: the pre-change state stored indefinitely via P3-11; undo works months later, not just inside a window.
+- [x] **P3-33** Auto-rollback **only on hard failures** — errors, load regressions — never on conversion noise. The thresholds are code with tests at the boundaries, the Session E (Phase 2) discipline applied to rollback.
+- [x] **P3-34** Checkout and payments untouchable (rule 18): the exclusion enforced in the change generator and the credential scopes both, with a test that a checkout-touching change cannot even be proposed.
+- [x] **P3-35** The manual path for Wix and Squarespace: rendered before/after plus step-by-step instructions for the owner's own editor — a useful answer for the third of customers whose platform can't be edited programmatically.
 
 **Done when:** a real site change previews with honest before/after renders, applies on approval, undoes with one click, and a deliberately seeded hard failure auto-rolls-back while a conversion dip does not.
+
+**Status 2026-09-22:** Done, with the write half held at the designed gate. Platform detection names shopify/woocommerce/wordpress/webflow/wix/squarespace/custom from page markers with evidence; the fetcher is GET-only behind a resolved-IP SSRF guard. Rule 18 stands as two walls at the GENERATOR: money-path URLs refused before any fetch (proven with a fetcher that throws if called), and targets within 400 chars of checkout/payment markers unproposable. The approval card renders the REAL page before and after — live in the owner's own browser at desktop and phone widths, scripts off — an amendment from static screenshots to something strictly fresher; verified against live example.com. Apply goes through the Session B engine (fixture-site provider; the pinned registry literal extended deliberately), refuses stale diffs by refetching first, health-checks after (thresholds boundary-tested both directions), and a seeded 500 auto-rolls-back as the SYSTEM (undone_by null) while conversion noise is structurally unexpressible — no such input exists and a test scans the exports. Undo restores byte for byte, permanently. Wix/Squarespace get rendered before/afters plus deterministic editor steps, and their apply refuses honestly. REAL platform writes (Shopify theme etc.) refuse with the Session D gate named — claiming success anywhere else would be a progress bar over a lie. Two live findings fixed in the walk: dual-stack fetches died on this v6-less box until happy-eyeballs was enabled explicitly, and the preview frames now scale to their column. 11 tests in lib/site.
 
 ---
 

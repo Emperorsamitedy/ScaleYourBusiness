@@ -12,7 +12,18 @@
 // the same treatment per hop.
 
 import { lookup } from "node:dns/promises";
-import { isIP } from "node:net";
+import { isIP, setDefaultAutoSelectFamily } from "node:net";
+
+// Happy-eyeballs, explicitly on: a dual-stack site (AAAA + A records)
+// fetched from a host with no IPv6 route otherwise dies with a bare
+// "fetch failed" when undici picks the v6 address — found live against
+// example.com from this very box. Auto-selection tries both families
+// and keeps whichever connects.
+try {
+  setDefaultAutoSelectFamily(true);
+} catch {
+  /* older Node without the switch — fetch behaves as before */
+}
 
 export class SiteFetchError extends Error {
   readonly status: number;
