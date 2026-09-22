@@ -33,6 +33,7 @@ import {
 } from "./hard-limits";
 import type { ProposalRow } from "./service";
 import { createProposal } from "./service";
+import { suppressedKinds } from "../trust/suppression";
 
 export const PROPOSAL_EXPIRY_DAYS = 14;
 export const CLASSIFY_MODEL = "claude-haiku-4-5";
@@ -178,6 +179,9 @@ export async function generateProposals(
   const existing = new Set(existingRows.map((r) => r.ref).filter(Boolean));
 
   const { limits } = await ensureHardLimits(profileId, opts.limitLlm ?? liveLimitLlm);
+  // P3-28: kinds the owner has declined three times are not proposed
+  // again — checked after classification, so the skip can say why.
+  const suppressed = await suppressedKinds(profileId);
 
   const [acct] = await db
     .select({ account_id: businessProfiles.account_id })
@@ -232,6 +236,14 @@ export async function generateProposals(
       const kind = coerceKind(text);
       if (kind === null) {
         out.skipped.push({ ref, reason: "unclassifiable — not proposing on a guess" });
+        continue;
+      }
+      const suppression = suppressed.get(kind);
+      if (suppression) {
+        out.skipped.push({
+          ref,
+          reason: `you've declined ${kind.replace(/_/g, " ")} ${suppression.rejections} times — I've stopped proposing it`,
+        });
         continue;
       }
       await record({

@@ -100,13 +100,15 @@ Step 74 plus ad management. **Gated twice:** Phase 2's done-when judged first, a
 
 Steps 75–77 plus the owner's scope. The loop closes: predictions meet measurements, and the agent gets a public report card.
 
-- [ ] **P3-25** Performance readback: every approved action tied to its goal and measured through the Phase 2 observation tables; the proposal's actual outcome renders against its predicted scenario, assumption by assumption.
-- [ ] **P3-26** The agent scorecard: suggestions made, approved, **helped, did nothing, backfired** — judged by deterministic rules against measured outcomes, with the arithmetic shown. This is the Glass Business scoring itself in public; the numbers render whatever they say.
-- [ ] **P3-27** Suggestion history and outcome detail screens: every proposal ever made, its decision, its execution, its outcome — the decision log made legible.
-- [ ] **P3-28** Learning from declines (step 76): rejection reasons feed proposal generation — an owner who rejected three video proposals stops receiving video proposals. Deterministic suppression rules first; no model-inferred taste.
-- [ ] **P3-29** Mobile approval (step 77): a proposal reviewed and decided in under 30 seconds on a phone — measured, not assumed, with the P0-71 stopwatch discipline.
+- [x] **P3-25** Performance readback: every approved action tied to its goal and measured through the Phase 2 observation tables; the proposal's actual outcome renders against its predicted scenario, assumption by assumption.
+- [x] **P3-26** The agent scorecard: suggestions made, approved, **helped, did nothing, backfired** — judged by deterministic rules against measured outcomes, with the arithmetic shown. This is the Glass Business scoring itself in public; the numbers render whatever they say.
+- [x] **P3-27** Suggestion history and outcome detail screens: every proposal ever made, its decision, its execution, its outcome — the decision log made legible.
+- [x] **P3-28** Learning from declines (step 76): rejection reasons feed proposal generation — an owner who rejected three video proposals stops receiving video proposals. Deterministic suppression rules first; no model-inferred taste.
+- [x] **P3-29** Mobile approval (step 77): a proposal reviewed and decided in under 30 seconds on a phone — measured, not assumed, with the P0-71 stopwatch discipline.
 
 **Done when:** the scorecard renders honest numbers from real executions; a published item's measured outcome appears against its prediction; and a thrice-rejected proposal kind provably stops being generated.
+
+**Status 2026-09-22:** Built and browser-verified, with one clause honestly narrowed. The readback judges every EXECUTED proposal against the measured revenue series — after-window mean vs the 28 days before, thresholds pinned at ±5% with boundary tests in both directions, and two honest non-verdicts (too_early under 7 measured days, unmeasured without a connected source, each explaining itself). The scorecard shows suggested / approved / declined / helped / did-nothing / backfired with the approval-rate arithmetic spelled out, restraint counted separately and excluded from the rate. /history renders every proposal ever with decision, reason, prediction and outcome arithmetic. The third decline of a kind provably silences it in generation, reason stated; owner-initiated /content requests deliberately bypass suppression — answering a direct ask is not nagging. Per-PUBLISHED-item outcomes await Session D's publish path (P3-23); proposal-level readback stands in until then and shares the same tables. P3-29: a full proposal card fits a 375×812 screen with both buttons reachable (header collision found and fixed at that size); the sub-30-second stopwatch run itself stays human-timed, the P0-71 discipline. 8 tests in lib/trust.
 
 ---
 
