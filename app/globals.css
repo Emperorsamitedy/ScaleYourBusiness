@@ -5076,3 +5076,157 @@ a.auth-cta {
     display: none;
   }
 }
+
+/* Approval queue — P3-05, ux-spec §8. The ONLY surface where the signal
+   blue appears at full strength: an approval is the owner's turn, and
+   colour means "your turn" nowhere else. Approve and Decline are the
+   same size, same weight — "no" is never the small grey option. */
+.prop-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.prop-check {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--whisper);
+}
+.prop-title {
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1.25;
+  margin: 10px 0 6px;
+}
+.prop-title.small {
+  font-size: 16px;
+  margin: 0 0 4px;
+}
+.prop-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.prop-btn {
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: 1px solid var(--hair-2);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    border-color 0.24s var(--ease),
+    transform 0.24s var(--ease);
+}
+.prop-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.prop-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.prop-btn.signal {
+  border-color: var(--whisper);
+  color: var(--whisper);
+}
+.prop-btn.quiet {
+  border-color: transparent;
+  color: var(--mut);
+}
+.prop-bulk {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
+}
+.prop-decline {
+  margin-top: 14px;
+}
+.prop-reason {
+  width: 100%;
+  min-height: 64px;
+  resize: vertical;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.prop-reason:focus {
+  outline: none;
+  border-color: var(--hair-2);
+}
+.prop-manual {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ember-bright);
+}
+.prop-schedule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.prop-schedule .conn-note {
+  margin: 0;
+}
+.prop-select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.prop-muted {
+  opacity: 0.7;
+}
+.prop-log {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13.5px;
+}
+.prop-log .conn-note {
+  margin: 0;
+  display: inline;
+}
+.prop-log-title {
+  margin-right: 4px;
+}
+.prop-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--hair-2);
+  color: var(--mut);
+  margin-right: 8px;
+}
+.prop-tag.approved {
+  border-color: var(--settled);
+  color: var(--settled);
+}
+.prop-tag.executed {
+  border-color: var(--settled);
+  color: var(--settled);
+}
+.prop-tag.rejected {
+  border-color: var(--hair-2);
+  color: var(--ink);
+}
+.prop-tag.expired {
+  border-color: var(--hair);
+  color: var(--mut);
+}

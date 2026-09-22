@@ -176,6 +176,13 @@
       "when": 1790018480637,
       "tag": "0024_cloudy_forge",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1790072784423,
+      "tag": "0025_free_robin_chapel",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "proposals" ADD COLUMN "execute_not_before" timestamp with time zone;

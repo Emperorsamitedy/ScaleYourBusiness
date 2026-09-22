@@ -130,8 +130,15 @@ export async function createProposal(input: NewProposal): Promise<ProposalRow> {
 export async function approveProposal(args: {
   proposalId: string;
   userId: string;
+  /** P3-05: approve now, execute no earlier than this ISO time. */
+  executeNotBefore?: string | null;
 }): Promise<ProposalRow> {
-  return decide({ ...args, to: "approved" });
+  return decide({
+    proposalId: args.proposalId,
+    userId: args.userId,
+    to: "approved",
+    executeNotBefore: args.executeNotBefore ?? null,
+  });
 }
 
 /** Reject: same guard, and the reason is required (P3-28 feeds on it). */
@@ -156,6 +163,7 @@ async function decide(args: {
   userId: string;
   to: "approved" | "rejected";
   reason?: string;
+  executeNotBefore?: string | null;
 }): Promise<ProposalRow> {
   const now = new Date().toISOString();
   return db.transaction(async (tx) => {
@@ -166,6 +174,7 @@ async function decide(args: {
         decided_by: args.userId,
         decided_at: now,
         rejection_reason: args.to === "rejected" ? (args.reason as string) : null,
+        execute_not_before: args.to === "approved" ? (args.executeNotBefore ?? null) : null,
       })
       .where(
         and(

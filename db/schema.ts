@@ -1152,6 +1152,8 @@ export const proposals = pgTable(
     expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
     decided_by: uuid("decided_by").references(() => users.id),
     decided_at: timestamp("decided_at", { withTimezone: true, mode: "string" }),
+    /** P3-05 scheduled actions: approved now, executed no earlier than this. */
+    execute_not_before: timestamp("execute_not_before", { withTimezone: true, mode: "string" }),
     rejection_reason: text("rejection_reason"),
     /** ExecutionResult, written only by the Session B engine. */
     execution_result: jsonb("execution_result"),
