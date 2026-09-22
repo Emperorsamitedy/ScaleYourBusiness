@@ -131,9 +131,11 @@ Site-audit 74a–c plus the owner's scope. The highest-trust write surface, so i
 
 Conversation-channel step 70a.
 
-- [ ] **P3-36** "Post something about the new product" becomes a **proposal in the queue, not an action** — the chat gains a request tier that generates through P3-04, gated by hard limits and watching mode like every other source. The conversation never executes anything directly.
+- [x] **P3-36** "Post something about the new product" becomes a **proposal in the queue, not an action** — the chat gains a request tier that generates through P3-04, gated by hard limits and watching mode like every other source. The conversation never executes anything directly.
 
 **Done when:** a chat request produces a queued proposal with evidence and scenario, and a request violating a hard limit lands in the restraint view with a plain-language explanation in the chat.
+
+**Status 2026-09-22:** Done — and the prerequisite it exposed (the conversation channel itself, step 46a, never built in Phase 1) shipped with it. /chat is the read tier plus the request tier, to the spec's letter: Haiku classifies intent first (§6), asks get Sonnet answers grounded ONLY in the profile and report with honest gaps named, requests become proposals (module "conversation", originating_finding naming the exact utterance) that bypass nothing, watching mode refuses requests outright with the review date, a limit stated in chat appends to goals.owner_boundaries as a conversation-sourced fact naming its utterance at 0.70 confidence (§2.3) — and cannot be removed in chat (§5) — and tell/correct record NOTHING silently, replying that the write tier (step 60a) is not built yet. Verified live with real models: a grounded answer citing only profile facts, then "run a 20% off flash sale" born blocked against the owner's own "We never discount" with the restraint explained in chat — the done-when verbatim on screen. Per-turn cost lands on each utterance row (the live demo: ~€0.003). Every guardrail is also a test: 8 in lib/chat.
 
 ---
 

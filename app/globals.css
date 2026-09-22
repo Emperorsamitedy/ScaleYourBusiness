@@ -5410,3 +5410,58 @@ a.auth-cta {
     text-align: left;
   }
 }
+
+/* The conversation — step 46a. Ink and grey; signal lives on the
+   queued-proposal link only (the colour rule). */
+.ch-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 92vh;
+}
+.ch-thread {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+.ch-turn {
+  display: flex;
+}
+.ch-turn.owner {
+  justify-content: flex-end;
+}
+.ch-text {
+  max-width: 76%;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+.ch-turn.owner .ch-text {
+  background: var(--raised);
+  border: 1px solid var(--hair-2);
+}
+.ch-turn.system .ch-text {
+  background: transparent;
+  border: 1px solid var(--hair);
+  color: var(--ink);
+}
+.ch-thinking {
+  color: var(--mut);
+  letter-spacing: 2px;
+}
+.ch-queued {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+.ch-queued a {
+  color: var(--whisper);
+}
+.ch-composer {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
