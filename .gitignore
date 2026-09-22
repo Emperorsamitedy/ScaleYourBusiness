@@ -31,3 +31,4 @@ reports/
 /public/*.html
 /public/ember.css
 /public/anno-engine.js
+.data/

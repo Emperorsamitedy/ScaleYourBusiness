@@ -1259,3 +1259,42 @@ export const executionHalts = pgTable("execution_halts", {
   halted_by: uuid("halted_by").references(() => users.id),
   reason: text("reason"),
 });
+
+/* ---------- Phase 3 Session C — content items (P3-15/16/17) ---------- */
+
+// The scheduled queue that has nowhere to publish yet. Every item was
+// born from an APPROVED proposal, carries the goal it serves, its
+// disclosure label (rule 17 — NOT NULL: an undisclosed item is
+// unrepresentable), and provenance naming the voice card, the brief
+// and the model. Session D adds the publish path; until then these
+// rows are the end of the line, on purpose.
+
+export const contentKind = pgEnum("content_kind", ["post", "email", "shot_list", "video"]);
+
+export const contentItems = pgTable(
+  "content_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id),
+    goal_id: uuid("goal_id").references(() => goals.id),
+    kind: contentKind("kind").notNull(),
+    channel_label: text("channel_label").notNull(),
+    scheduled_for: date("scheduled_for", { mode: "string" }),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    /** Renders land on disk (object storage is a Session D concern). */
+    media_path: text("media_path"),
+    disclosure: text("disclosure").notNull(),
+    /** Voice card, brief, model, evidence — why it reads the way it reads. */
+    provenance: jsonb("provenance").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("content_items_profile_idx").on(t.profile_id, t.scheduled_for)],
+);
