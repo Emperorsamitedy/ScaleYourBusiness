@@ -74,6 +74,25 @@ export const EXECUTION_SCOPE_REGISTRY = {
       },
     ],
   },
+  /** The in-repo fixture SITE (Session F) — a stand-in theme API. */
+  fixture_site: {
+    label: "Fixture site (in-repo)",
+    write_scopes: ["write_site_content"],
+    operations: [
+      {
+        op: "apply_site_change",
+        description: "Replace one page's content on the fixture site.",
+        reversible: true,
+      },
+    ],
+    consent: [
+      {
+        scope: "write_site_content",
+        grant: "Fixture site: Write content",
+        why: "Lets the engine apply an approved page change, so preview, undo and auto-rollback are provable without a real platform.",
+      },
+    ],
+  },
 } as const satisfies Record<string, ExecutionProviderSpec>;
 
 export type ExecutionProviderId = keyof typeof EXECUTION_SCOPE_REGISTRY;

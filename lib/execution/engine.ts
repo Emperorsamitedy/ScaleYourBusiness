@@ -295,7 +295,8 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
 export async function undoExecution(args: {
   executionId: string;
   provider: ExecutionProvider;
-  userId: string;
+  /** null = the SYSTEM undid it (auto-rollback, P3-33) — logged as such. */
+  userId: string | null;
 }): Promise<ExecutionRow> {
   const [execution] = await db.select().from(executions).where(eq(executions.id, args.executionId));
   if (!execution) throw new ExecutionRefused("not_found", "no such execution", 404);
@@ -335,7 +336,7 @@ export async function undoExecution(args: {
   const { decisionLog } = await import("../../db/schema");
   await db.insert(decisionLog).values({
     profile_id: execution.profile_id,
-    actor: "owner",
+    actor: args.userId ? "owner" : "system",
     kind: "execution",
     ref_id: execution.proposal_id,
     payload_hash: hashProposalPayload("execution", {
