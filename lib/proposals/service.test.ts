@@ -24,6 +24,7 @@ import {
   ProposalError,
   recordExecution,
   rejectProposal,
+  proposalQueue,
 } from "./service";
 
 const created: { account_id: string; profile_id: string }[] = [];
@@ -197,5 +198,29 @@ describe("P3-02 — proposal events and the decision log", () => {
       rejection_reason: approved.rejection_reason,
     });
     expect(entry?.hash).not.toBe(tampered);
+  });
+});
+
+describe("P3-06 — expiry and the queue", () => {
+  it("the sweep expires only due pending proposals, and the queue never mixes expired with rejected", async () => {
+    const s = await fresh();
+    const userId = await decider(s.account_id);
+    const due = await createProposal(draft(s.profile_id, -1)); // past
+    const alive = await createProposal(draft(s.profile_id, 24)); // future
+    const rejected = await createProposal(draft(s.profile_id, 24));
+    await rejectProposal({ proposalId: rejected.id, userId, reason: "no" });
+    const blocked = await createProposal({
+      ...draft(s.profile_id),
+      blocked_by_limit: "13.5: never discount",
+    });
+
+    const queue = await proposalQueue(s.profile_id);
+    expect(queue.expired.map((p) => p.id)).toEqual([due.id]);
+    expect(queue.pending.map((p) => p.id)).toEqual([alive.id]);
+    expect(queue.blocked.map((p) => p.id)).toEqual([blocked.id]);
+    expect(queue.decided.map((p) => p.id)).toEqual([rejected.id]);
+    // Expired stayed undecided; rejected carries its decider and reason.
+    expect(queue.expired[0]?.decided_by).toBeNull();
+    expect(queue.decided[0]?.rejection_reason).toBe("no");
   });
 });

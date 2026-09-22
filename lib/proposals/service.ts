@@ -10,7 +10,7 @@
 // is the arbiter (the field-store precedent).
 
 import { createHash } from "node:crypto";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { decisionLog, proposals } from "../../db/schema";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
@@ -250,4 +250,57 @@ export async function recordExecution(args: {
     });
     return row;
   });
+}
+
+/* ── P3-06: expiry, and the queue read ── */
+
+/**
+ * Sweep due proposals: pending past expires_at become expired. No
+ * decision-log entry — expiry is the absence of a decision, not one.
+ * Runs deterministically at queue-read time; no cron needed for
+ * correctness, only for tidiness.
+ */
+export async function expireDueProposals(profileId: string): Promise<number> {
+  const now = new Date().toISOString();
+  const rows = await db
+    .update(proposals)
+    .set({ status: "expired" })
+    .where(
+      and(
+        eq(proposals.profile_id, profileId),
+        eq(proposals.status, "pending"),
+        lte(proposals.expires_at, now),
+      ),
+    )
+    .returning({ id: proposals.id });
+  return rows.length;
+}
+
+export interface ProposalQueue {
+  /** Awaiting the owner — the only group that badges (ux-spec §3). */
+  pending: ProposalRow[];
+  /** Born blocked by a 13.5 limit — the restraint view (rule 14). */
+  blocked: ProposalRow[];
+  /** Approved, rejected, executed — history, newest first. */
+  decided: ProposalRow[];
+  /** Ran out of time, undecided. Never mixed with rejected (P3-06). */
+  expired: ProposalRow[];
+}
+
+/** The queue, swept then grouped. One read serves screen and badge both. */
+export async function proposalQueue(profileId: string): Promise<ProposalQueue> {
+  await expireDueProposals(profileId);
+  const rows = await db
+    .select()
+    .from(proposals)
+    .where(eq(proposals.profile_id, profileId))
+    .orderBy(desc(proposals.created_at));
+  const queue: ProposalQueue = { pending: [], blocked: [], decided: [], expired: [] };
+  for (const row of rows) {
+    if (row.status === "pending") queue.pending.push(row);
+    else if (row.status === "blocked") queue.blocked.push(row);
+    else if (row.status === "expired") queue.expired.push(row);
+    else queue.decided.push(row);
+  }
+  return queue;
 }
