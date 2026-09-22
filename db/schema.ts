@@ -1179,3 +1179,83 @@ export const proposals = pgTable(
     ),
   ],
 );
+
+/* ---------- Phase 3 Session B — execution (P3-10..13) ---------- */
+
+// One execution per proposal, held by a unique index — THE idempotency
+// key (rule 16): a racing second caller loses the insert, not a
+// coin-flip. The undo payload is captured BEFORE the first attempt and
+// kept indefinitely (permanent undo, not a window). Attempts are
+// journaled one row each, the connector_syncs pattern (P3-13).
+
+export const executionStatus = pgEnum("execution_status", [
+  "running",
+  "succeeded",
+  "failed",
+  "undone",
+]);
+
+export const executions = pgTable(
+  "executions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id").notNull(),
+    provider: text("provider").notNull(),
+    op: text("op").notNull(),
+    status: executionStatus("status").notNull().default("running"),
+    attempts: integer("attempts").notNull().default(0),
+    /** Captured BEFORE attempt one; null = irreversible, labelled before approval. */
+    undo_payload: jsonb("undo_payload"),
+    result: jsonb("result"),
+    error: text("error"),
+    started_at: timestamp("started_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    finished_at: timestamp("finished_at", { withTimezone: true, mode: "string" }),
+    undone_at: timestamp("undone_at", { withTimezone: true, mode: "string" }),
+    undone_by: uuid("undone_by").references(() => users.id),
+  },
+  (t) => [
+    uniqueIndex("executions_proposal_idx").on(t.proposal_id),
+    index("executions_profile_idx").on(t.profile_id, t.started_at),
+  ],
+);
+
+export const executionAttempts = pgTable(
+  "execution_attempts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    execution_id: uuid("execution_id")
+      .notNull()
+      .references(() => executions.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id").notNull(),
+    attempt: integer("attempt").notNull(),
+    started_at: timestamp("started_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    duration_ms: integer("duration_ms").notNull(),
+    ok: boolean("ok").notNull(),
+    error: text("error"),
+  },
+  (t) => [index("execution_attempts_execution_idx").on(t.execution_id, t.attempt)],
+);
+
+// The emergency stop (P3-12, rule 15). A row here halts EVERYTHING for
+// the account — new executions, retries mid-loop, and undos alike. The
+// row records who pulled it and when; resuming deletes it (the halt is
+// state, not history — the decision log carries the history).
+
+export const executionHalts = pgTable("execution_halts", {
+  account_id: uuid("account_id")
+    .primaryKey()
+    .references(() => accounts.id),
+  halted_at: timestamp("halted_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  halted_by: uuid("halted_by").references(() => users.id),
+  reason: text("reason"),
+});
