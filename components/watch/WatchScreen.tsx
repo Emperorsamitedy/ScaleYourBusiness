@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { ProposalsBadge } from "../proposals/ProposalsBadge";
 
 interface LogEntry {
   at: string;
@@ -110,6 +111,7 @@ export function WatchScreen() {
           watching · {view.days_remaining} day{view.days_remaining === 1 ? "" : "s"} remaining ·
           review {view.decision.review_at.slice(0, 10)}
         </span>
+        <ProposalsBadge />
       </header>
 
       {/* P2-24: the interruption the thresholds promised, when one has happened. */}

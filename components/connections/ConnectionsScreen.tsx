@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { ProposalsBadge } from "../proposals/ProposalsBadge";
 
 type Verification = "reported" | "probed";
 type Matching = "product" | "channel" | null;
@@ -819,8 +820,8 @@ export function ConnectionsScreen() {
       <p className="conn-note">
         Google Ads isn&rsquo;t available yet: it needs Ledgerline&rsquo;s own approval from Google
         before any account can connect. Measured figures replace your estimates in the report, and
-        your estimates stay in your history. <Link href="/report">See the report</Link> ·{" "}
-        <Link href="/profile">Fact sheet</Link>
+        your estimates stay in your history. <ProposalsBadge /> ·{" "}
+        <Link href="/report">See the report</Link> · <Link href="/profile">Fact sheet</Link>
       </p>
     </main>
   );

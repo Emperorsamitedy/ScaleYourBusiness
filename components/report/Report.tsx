@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { ProposalsBadge } from "../proposals/ProposalsBadge";
 
 /* ── shapes from lib/report/service.ts ── */
 
@@ -447,6 +448,7 @@ export function ReportScreen() {
       <header className="rp-top noprint">
         <span className="wordmark">Ledgerline</span>
         <nav className="fs-nav">
+          <ProposalsBadge />
           <Link href="/profile">Fact sheet</Link>
           <span aria-current="page">Report</span>
           <button className="rp-print" onClick={() => window.print()}>
