@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { EmergencyStop } from "../execution/EmergencyStop";
 
 interface Goal {
   goal_id: string;
@@ -176,6 +177,8 @@ export function ContentScreen() {
           content · {s.items.length} in the queue · publishes nowhere yet
         </span>
       </header>
+
+      <EmergencyStop />
 
       {s.notice && (
         <section className="card ops-card">

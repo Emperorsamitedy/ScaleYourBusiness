@@ -5533,3 +5533,41 @@ a.auth-cta {
   font-size: 13.5px;
   line-height: 1.7;
 }
+
+/* The emergency stop — P3-12, rule 15. The ONE place --err appears at
+   full strength: a halted system must be unmissable, and the quiet
+   button must never be hunted for. */
+.es-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -2px 0 10px;
+}
+.es-stop {
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--hair-2);
+  background: transparent;
+  color: var(--mut);
+  cursor: pointer;
+  transition:
+    border-color 0.24s var(--ease),
+    color 0.24s var(--ease);
+}
+.es-stop:hover:not(:disabled) {
+  border-color: var(--err);
+  color: var(--err);
+}
+.es-stop:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.es-halted {
+  border-color: var(--err);
+}
+.es-eyebrow {
+  color: var(--err);
+}

@@ -24,7 +24,13 @@ import { bootstrapIntake } from "../intake/service";
 import { approveProposal, createProposal } from "../proposals/service";
 import type { ProposalRow } from "../proposals/service";
 import type { ExecutionRefused } from "./engine";
-import { executeProposal, haltExecutions, resumeExecutions, undoExecution } from "./engine";
+import {
+  executeProposal,
+  haltExecutions,
+  haltState,
+  resumeExecutions,
+  undoExecution,
+} from "./engine";
 import {
   fixtureExecuteCalls,
   fixtureExecutor,
@@ -321,6 +327,32 @@ describe("P3-12 — the emergency stop (rule 15)", () => {
     await resumeExecutions(s.account_id);
     const done = await run(p.id);
     expect(done.status).toBe("succeeded");
+  });
+
+  it("the stop reports its own state — who stopped it, when, and why", async () => {
+    const s = await fresh();
+    expect(await haltState(s.account_id)).toMatchObject({ halted: false, halted_at: null });
+
+    await haltExecutions({
+      accountId: s.account_id,
+      userId: s.user_id,
+      reason: "prices look wrong",
+    });
+    const halted = await haltState(s.account_id);
+    expect(halted.halted).toBe(true);
+    expect(halted.halted_by).toBe(s.user_id);
+    expect(halted.reason).toBe("prices look wrong");
+    expect(halted.halted_at).not.toBeNull();
+
+    // Stopping twice keeps the FIRST stop's record — the original
+    // reason and moment survive a panicked second click.
+    await haltExecutions({ accountId: s.account_id, userId: null, reason: "again" });
+    const again = await haltState(s.account_id);
+    expect(again.reason).toBe("prices look wrong");
+    expect(again.halted_at).toBe(halted.halted_at);
+
+    await resumeExecutions(s.account_id);
+    expect(await haltState(s.account_id)).toMatchObject({ halted: false, reason: null });
   });
 
   it("halted MID-FLIGHT: the stop lands between attempts and the loop dies", async () => {

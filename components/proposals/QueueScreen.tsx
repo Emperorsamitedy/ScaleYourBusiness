@@ -15,6 +15,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { EmergencyStop } from "../execution/EmergencyStop";
 
 interface Assumption {
   statement: string;
@@ -195,6 +196,8 @@ export function QueueScreen() {
         <span className="wordmark">Ledgerline</span>
         <span className="ops-meta">proposals · your decision · {queue.pending.length} waiting</span>
       </header>
+
+      <EmergencyStop />
 
       {notice && (
         <section className="card ops-card">

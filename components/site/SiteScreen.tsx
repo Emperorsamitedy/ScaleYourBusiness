@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { EmergencyStop } from "../execution/EmergencyStop";
 
 interface SiteDetail {
   url: string;
@@ -124,6 +125,8 @@ export function SiteScreen() {
         <span className="wordmark">Ledgerline</span>
         <span className="ops-meta">your site · preview first · checkout untouchable</span>
       </header>
+
+      <EmergencyStop />
 
       {s.notice && (
         <section className="card ops-card">

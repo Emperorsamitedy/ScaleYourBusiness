@@ -86,6 +86,29 @@ export async function resumeExecutions(accountId: string): Promise<void> {
   await db.delete(executionHalts).where(eq(executionHalts.account_id, accountId));
 }
 
+export interface HaltState {
+  halted: boolean;
+  halted_at: string | null;
+  halted_by: string | null;
+  reason: string | null;
+}
+
+/** The stop's own state, for the owner-visible control (rule 15). */
+export async function haltState(accountId: string): Promise<HaltState> {
+  const [row] = await db
+    .select()
+    .from(executionHalts)
+    .where(eq(executionHalts.account_id, accountId));
+  return row
+    ? {
+        halted: true,
+        halted_at: row.halted_at,
+        halted_by: row.halted_by,
+        reason: row.reason,
+      }
+    : { halted: false, halted_at: null, halted_by: null, reason: null };
+}
+
 export { isHalted };
 
 export interface ExecuteArgs {

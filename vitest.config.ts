@@ -8,7 +8,17 @@ export default defineConfig({
   },
   test: {
     include: ["**/*.test.ts"],
-    exclude: ["node_modules/**", ".next/**", "productos/**"],
+    // .claude/** holds harness worktrees — full repo copies that once
+    // silently doubled the suite (1383 "passing" tests, half of them a
+    // stale checkout's). Generated and tool dirs are not the codebase.
+    exclude: [
+      "node_modules/**",
+      ".next/**",
+      "productos/**",
+      ".claude/**",
+      ".vercel/**",
+      ".data/**",
+    ],
     // Test files share one Postgres; the vocab and bank suites both rewrite
     // the vocabulary mirror, so files must not interleave.
     fileParallelism: false,
