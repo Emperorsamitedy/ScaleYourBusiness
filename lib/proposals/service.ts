@@ -132,12 +132,15 @@ export async function approveProposal(args: {
   userId: string;
   /** P3-05: approve now, execute no earlier than this ISO time. */
   executeNotBefore?: string | null;
+  /** Ownership scope: when set, only this profile's proposals decide. */
+  profileId?: string;
 }): Promise<ProposalRow> {
   return decide({
     proposalId: args.proposalId,
     userId: args.userId,
     to: "approved",
     executeNotBefore: args.executeNotBefore ?? null,
+    ...(args.profileId ? { profileId: args.profileId } : {}),
   });
 }
 
@@ -146,6 +149,8 @@ export async function rejectProposal(args: {
   proposalId: string;
   userId: string;
   reason: string;
+  /** Ownership scope: when set, only this profile's proposals decide. */
+  profileId?: string;
 }): Promise<ProposalRow> {
   if (args.reason.trim() === "") {
     throw new ProposalError("declining asks why — the reason is required", 422);
@@ -155,6 +160,7 @@ export async function rejectProposal(args: {
     userId: args.userId,
     to: "rejected",
     reason: args.reason.trim(),
+    ...(args.profileId ? { profileId: args.profileId } : {}),
   });
 }
 
@@ -164,6 +170,7 @@ async function decide(args: {
   to: "approved" | "rejected";
   reason?: string;
   executeNotBefore?: string | null;
+  profileId?: string;
 }): Promise<ProposalRow> {
   const now = new Date().toISOString();
   return db.transaction(async (tx) => {
@@ -181,15 +188,25 @@ async function decide(args: {
           eq(proposals.id, args.proposalId),
           eq(proposals.status, "pending"),
           gt(proposals.expires_at, now),
+          // Ownership clause (2026-09-26 review): a decision reaches only
+          // the caller's own profile — a leaked foreign id decides nothing.
+          ...(args.profileId ? [eq(proposals.profile_id, args.profileId)] : []),
         ),
       )
       .returning();
     if (!row) {
       // Explain the refusal honestly: decided, expired, or missing?
+      // A foreign profile's proposal is "missing" on purpose — 404, not
+      // 403: existence is not confirmed across the boundary.
       const [cur] = await tx
         .select({ status: proposals.status, expires_at: proposals.expires_at })
         .from(proposals)
-        .where(eq(proposals.id, args.proposalId));
+        .where(
+          and(
+            eq(proposals.id, args.proposalId),
+            ...(args.profileId ? [eq(proposals.profile_id, args.profileId)] : []),
+          ),
+        );
       if (!cur) throw new ProposalError("no such proposal", 404);
       if (cur.status === "pending" && cur.expires_at <= now) {
         throw new ProposalError(

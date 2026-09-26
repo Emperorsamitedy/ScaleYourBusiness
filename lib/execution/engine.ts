@@ -320,9 +320,16 @@ export async function undoExecution(args: {
   provider: ExecutionProvider;
   /** null = the SYSTEM undid it (auto-rollback, P3-33) — logged as such. */
   userId: string | null;
+  /** Ownership scope: when set, only this profile's executions undo. */
+  expectedProfileId?: string;
 }): Promise<ExecutionRow> {
   const [execution] = await db.select().from(executions).where(eq(executions.id, args.executionId));
   if (!execution) throw new ExecutionRefused("not_found", "no such execution", 404);
+  // Ownership clause (2026-09-26 review): foreign = missing — 404,
+  // never confirmation of existence across the boundary.
+  if (args.expectedProfileId && execution.profile_id !== args.expectedProfileId) {
+    throw new ExecutionRefused("not_found", "no such execution", 404);
+  }
 
   const ctx: ExecutionContext = {
     profile_id: execution.profile_id,

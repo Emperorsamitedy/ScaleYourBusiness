@@ -121,12 +121,18 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   for (const id of ids) {
     try {
       if (body.decision === "approve") {
-        await approveProposal({ proposalId: id, userId: session.user_id, executeNotBefore });
+        await approveProposal({
+          proposalId: id,
+          userId: session.user_id,
+          executeNotBefore,
+          profileId,
+        });
       } else {
         await rejectProposal({
           proposalId: id,
           userId: session.user_id,
           reason: body.reason as string,
+          profileId,
         });
       }
       decided.push(id);

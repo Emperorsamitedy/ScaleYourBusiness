@@ -39,10 +39,14 @@ export interface ProduceOutcome {
  */
 export async function produceFromProposal(
   proposalId: string,
-  opts: { draftLlm?: DraftLlm; limitLlm?: LimitLlm } = {},
+  opts: { draftLlm?: DraftLlm; limitLlm?: LimitLlm; expectedProfileId?: string } = {},
 ): Promise<ProduceOutcome> {
   const [proposal] = await db.select().from(proposals).where(eq(proposals.id, proposalId));
   if (!proposal) throw new ContentError("no such proposal", 404);
+  // Ownership clause (2026-09-26 review): foreign = missing, 404.
+  if (opts.expectedProfileId && proposal.profile_id !== opts.expectedProfileId) {
+    throw new ContentError("no such proposal", 404);
+  }
   if (proposal.status !== "approved") {
     throw new ContentError(
       `only an approved proposal produces content — this one is ${proposal.status}`,

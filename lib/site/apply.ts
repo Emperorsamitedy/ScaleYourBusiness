@@ -91,6 +91,8 @@ export interface ApplyOutcome {
 
 export interface ApplySiteChangeArgs {
   proposalId: string;
+  /** Ownership scope: when set, only this profile's proposals apply. */
+  expectedProfileId?: string;
   provider?: ExecutionProvider;
   fetcher?: PageFetcher;
   sleep?: (ms: number) => Promise<void>;
@@ -102,6 +104,11 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
 
   const [proposal] = await db.select().from(proposals).where(eq(proposals.id, args.proposalId));
   if (!proposal) throw new SiteChangeError("no such proposal", 404);
+  // Ownership clause (2026-09-26 review): a foreign profile's proposal
+  // is "missing" — 404, never confirmation across the boundary.
+  if (args.expectedProfileId && proposal.profile_id !== args.expectedProfileId) {
+    throw new SiteChangeError("no such proposal", 404);
+  }
   if (proposal.module !== "site") throw new SiteChangeError("not a site proposal", 422);
   const detail = (proposal.action as { detail: SiteChangeDetail }).detail;
   if (detail.manual_instructions) {

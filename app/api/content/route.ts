@@ -96,7 +96,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (typeof body.proposal_id !== "string") {
         return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
       }
-      const { items } = await produceFromProposal(body.proposal_id);
+      const { items } = await produceFromProposal(body.proposal_id, {
+        expectedProfileId: profileId,
+      });
       return NextResponse.json({ produced: items.length });
     }
     return NextResponse.json(

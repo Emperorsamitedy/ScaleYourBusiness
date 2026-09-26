@@ -99,7 +99,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (typeof body.proposal_id !== "string") {
           return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
         }
-        const outcome = await applySiteChange({ proposalId: body.proposal_id });
+        const outcome = await applySiteChange({
+          proposalId: body.proposal_id,
+          expectedProfileId: profileId,
+        });
         return NextResponse.json({
           status: outcome.execution.status,
           rolled_back: outcome.rolled_back,
@@ -113,6 +116,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         executionId: body.execution_id,
         provider: fixtureSiteExecutor,
         userId: session.user_id,
+        expectedProfileId: profileId,
       });
       return NextResponse.json({ status: undone.status });
     }
