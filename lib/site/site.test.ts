@@ -34,7 +34,7 @@ import * as applyModule from "./apply";
 import { HEALTH, applySiteChange, checkSiteHealth } from "./apply";
 import { SiteChangeError, proposeSiteChange } from "./changes";
 import type { FetchedPage, PageFetcher } from "./fetch";
-import { livePageFetcher } from "./fetch";
+import { embeddedV4, isPrivateAddress, livePageFetcher, pinnedLookup } from "./fetch";
 import { detectPlatform } from "./platform";
 
 const created: { account_id: string; profile_id: string }[] = [];
@@ -156,6 +156,68 @@ describe("the SSRF guard", () => {
     ]) {
       await expect(livePageFetcher(url)).rejects.toThrow();
     }
+  });
+
+  it("finding 1: every spelling of a private address is private — mapped v6 included", () => {
+    // The review's verified bypasses, now assertions forever.
+    for (const ip of [
+      "::ffff:169.254.169.254", // cloud metadata, dotted-mapped
+      "::ffff:a9fe:a9fe", // cloud metadata, hex-mapped
+      "::ffff:7f00:1", // loopback, hex-mapped
+      "::ffff:127.0.0.1",
+      "::ffff:172.16.0.1", // RFC-1918 172.16/12, dotted-mapped
+      "::ffff:ac10:1", // same, hex-mapped
+      "::ffff:10.0.0.5",
+      "::ffff:0.0.0.0",
+      "::127.0.0.1", // deprecated v4-compatible form
+      "100.64.0.1", // CGNAT
+      "::",
+      "::1",
+      "fe80::1",
+      "fd00::1",
+      "not-an-ip", // unresolvable spellings never connect
+    ]) {
+      expect(isPrivateAddress(ip), ip).toBe(true);
+    }
+    for (const ip of ["93.184.216.34", "8.8.8.8", "2606:4700::1111", "::ffff:8.8.8.8"]) {
+      expect(isPrivateAddress(ip), ip).toBe(false);
+    }
+  });
+
+  it("embeddedV4 unwraps both spellings and nothing else", () => {
+    expect(embeddedV4("::ffff:169.254.169.254")).toBe("169.254.169.254");
+    expect(embeddedV4("::ffff:a9fe:a9fe")).toBe("169.254.169.254");
+    expect(embeddedV4("::ffff:7f00:1")).toBe("127.0.0.1");
+    expect(embeddedV4("2606:4700::1111")).toBeNull();
+    expect(embeddedV4("::1")).toBeNull();
+  });
+
+  it("finding 2: the pinned lookup answers ONLY from the vetted list — no second resolution", async () => {
+    const vetted = [{ address: "93.184.216.34", family: 4 as const }];
+    const lookupFn = pinnedLookup(vetted);
+    // Whatever hostname the connection layer asks about, the answer is
+    // the vetted address — a rebinding nameserver never gets a second question.
+    const single = await new Promise<{ address: string; family: number }>((resolve, reject) => {
+      lookupFn("rebind.attacker.example", { family: 0 }, (err, address, family) =>
+        err ? reject(err) : resolve({ address: address as string, family: family as number }),
+      );
+    });
+    expect(single).toEqual({ address: "93.184.216.34", family: 4 });
+    const all = await new Promise<unknown>((resolve, reject) => {
+      (lookupFn as (h: string, o: object, cb: (e: Error | null, a?: unknown) => void) => void)(
+        "rebind.attacker.example",
+        { all: true },
+        (err, addresses) => (err ? reject(err) : resolve(addresses)),
+      );
+    });
+    expect(all).toEqual([{ address: "93.184.216.34", family: 4 }]);
+    // An empty vetted list refuses to connect rather than resolving fresh.
+    const empty = pinnedLookup([]);
+    await expect(
+      new Promise((resolve, reject) =>
+        empty("x.example", { family: 0 }, (err, a) => (err ? reject(err) : resolve(a))),
+      ),
+    ).rejects.toThrow(/no vetted address/);
   });
 });
 
