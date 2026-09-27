@@ -4870,6 +4870,99 @@ a.auth-cta {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
 }
+/* The auth hero (owner-directed 2026-09-27): the film fills the whole
+   stage, the demo holds centre-left, and the form floats over the
+   scene as a sharp-cornered glass card. Sharp corners are a SCOPED
+   exception to the pill rule, like the landing's cine variant. */
+.auth-hero {
+  position: relative;
+  min-height: 100dvh;
+  overflow: clip;
+  background: var(--stage);
+}
+.auth-hero-mark {
+  position: absolute;
+  top: 32px;
+  left: 40px;
+  z-index: 3;
+}
+.auth-demo-wrap {
+  position: absolute;
+  inset: 0 45% 0 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 48px;
+}
+.auth-demo-wrap .auth-statement {
+  margin-top: 52px; /* clear of the beat dots below the stack */
+}
+.auth-float {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  right: 7%;
+  transform: translateY(-50%);
+  width: min(430px, 92%);
+  background: var(--glass-strong);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--hair-2);
+  border-radius: 0;
+  padding: 44px 40px;
+}
+.auth-hero .auth-cta,
+.auth-hero .field {
+  border-radius: 0;
+}
+/* SSO — honest doors: they say so on click until their keys exist. */
+.sso-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+}
+.sso-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.sso-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 44px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--hair-2);
+  border-radius: 0;
+  cursor: pointer;
+  transition: border-color 0.24s var(--ease);
+}
+.sso-btn:hover {
+  border-color: var(--mut);
+}
+.sso-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 2px;
+  color: var(--mut);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sso-or::before,
+.sso-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--hair);
+}
 .auth-cine {
   position: relative;
   overflow: clip;
@@ -4943,6 +5036,17 @@ a.auth-cta {
 }
 
 @media (max-width: 880px) {
+  .auth-demo-wrap {
+    display: none;
+  }
+  .auth-float {
+    right: 50%;
+    transform: translate(50%, -50%);
+  }
+  .auth-hero-mark {
+    top: 22px;
+    left: 22px;
+  }
   .auth-split {
     grid-template-columns: 1fr;
     grid-template-rows: 34dvh 1fr;
@@ -4980,7 +5084,7 @@ a.auth-cta {
   background: var(--glass);
   backdrop-filter: var(--blur);
   border: 1px solid var(--hair-2);
-  border-radius: 16px;
+  border-radius: 0; /* auth hero exception — square edges, owner-directed */
   padding: 24px 28px;
   opacity: 0;
   transform: translateY(14px);
@@ -5018,7 +5122,7 @@ a.auth-cta {
   color: var(--ink, inherit);
   background: var(--glass-strong);
   border: 1px solid var(--hair);
-  border-radius: 9px;
+  border-radius: 0;
   padding: 12px 14px;
   min-height: 44px;
 }
@@ -5090,7 +5194,7 @@ a.auth-cta {
 }
 .sd-bars i {
   flex: 1;
-  border-radius: 3px 3px 0 0;
+  border-radius: 0;
   background: var(--hair-2);
 }
 .sd-bars i.on {
