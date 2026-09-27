@@ -34,6 +34,7 @@ import {
   eraseContact,
   outboundPosture,
 } from "./contacts";
+import { importContacts } from "./import";
 
 const created: { account_id: string; profile_id: string }[] = [];
 
@@ -229,5 +230,84 @@ describe("P4-04 — erasure: the row goes, the trail stays clean (rule 22)", () 
 
     // Erasing a contact that never existed is a 404, not a crash.
     await expect(eraseContact(s.account_id, crypto.randomUUID())).rejects.toThrow(ContactError);
+  });
+});
+
+describe("P4-03 — import under attestation", () => {
+  it("imports with the attestation as every row's provenance; every line gets an outcome", async () => {
+    const s = await fresh();
+    // Seed a suppression (an earlier erasure) and an existing contact.
+    await addContact(s.account_id, { email: "existing@example.com", consent: consented });
+    const erased = await addContact(s.account_id, {
+      email: "gone@example.com",
+      consent: consented,
+    });
+    await eraseContact(s.account_id, erased.id);
+
+    const csv = [
+      "Email Address,Full Name,Phone",
+      "anna.import@example.com,Anna,+36301112222",
+      '"quoted@example.com","Kovács, Anna",',
+      "ANNA.IMPORT@example.com,Duplicate,",
+      "existing@example.com,Already Here,",
+      "gone@example.com,Should Bounce,",
+      "not-an-email,No At Sign,",
+      ",,",
+    ].join("\n");
+
+    const result = await importContacts(s.account_id, csv, {
+      status: "explicit_consent",
+      statement: "newsletter checkbox at checkout since 2024",
+    });
+
+    expect(result.imported).toBe(2);
+    // The fully blank ",," line never reaches the outcome loop — the
+    // parser drops all-empty rows, so only the no-@ row counts invalid.
+    expect(result.skipped).toEqual({
+      suppressed: 1,
+      already_exists: 1,
+      duplicate_in_batch: 1,
+      invalid: 1,
+    });
+    const suppressedRow = result.rows.find((r) => r.outcome === "suppressed");
+    expect(suppressedRow && "reason" in suppressedRow && suppressedRow.reason).toBe("erasure");
+
+    // Provenance: batch id + the owner's words on every imported row,
+    // and the quoted comma-name parsed intact.
+    const [quoted] = await db
+      .select()
+      .from(contacts)
+      .where(and(eq(contacts.account_id, s.account_id), eq(contacts.email, "quoted@example.com")));
+    expect(quoted?.name).toBe("Kovács, Anna");
+    expect(quoted?.consent_source).toContain(result.batch_id);
+    expect(quoted?.consent_source).toContain("newsletter checkbox at checkout since 2024");
+    expect(quoted?.consent_status).toBe("explicit_consent");
+
+    // One log entry for the batch — and no PII anywhere in it.
+    const entries = await db
+      .select()
+      .from(decisionLog)
+      .where(and(eq(decisionLog.profile_id, s.profile_id), eq(decisionLog.kind, "import")));
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.ref_id).toBe(result.batch_id);
+    const blob = JSON.stringify(entries);
+    expect(blob).not.toContain("anna.import@example.com");
+    expect(blob).not.toContain("quoted@example.com");
+  });
+
+  it("refuses an import with no attestation statement, and a headerless file", async () => {
+    const s = await fresh();
+    await expect(
+      importContacts(s.account_id, "email\na@example.com", {
+        status: "explicit_consent",
+        statement: "   ",
+      }),
+    ).rejects.toThrow(/attestation/);
+    await expect(
+      importContacts(s.account_id, "colour,size\nred,large", {
+        status: "unsure",
+        statement: "trade fair fishbowl",
+      }),
+    ).rejects.toThrow(/no usable columns/);
   });
 });

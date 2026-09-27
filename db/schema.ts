@@ -391,6 +391,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "measurement",
   "profile_change",
   "erasure", // Phase 4 rule 22: the fact of an erasure, never its PII
+  "import", // Phase 4 P4-03: a contact import batch — hash and counts, no PII
 ]);
 
 export const decisionLog = pgTable(

@@ -204,6 +204,13 @@
       "when": 1790501712361,
       "tag": "0028_first_the_hood",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1790503193067,
+      "tag": "0029_clever_fabian_cortez",
+      "breakpoints": true
     }
   ]
 }

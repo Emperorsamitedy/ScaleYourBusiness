@@ -1,0 +1,1 @@
+ALTER TYPE "public"."decision_kind" ADD VALUE 'import';
