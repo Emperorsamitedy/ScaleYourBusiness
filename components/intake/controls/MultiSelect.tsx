@@ -21,7 +21,7 @@ export function MultiSelectControl({ question, onChange }: ControlProps) {
   };
 
   return (
-    <div className="opts" role="group">
+    <div className={question.options.length > 8 ? "opts many" : "opts"} role="group">
       {question.options.map((option, i) => (
         <button
           key={option.code}
