@@ -51,8 +51,6 @@ export interface GapRow {
   buys: string;
   /** True when this gap alone holds the diagnosis back. */
   blocking: boolean;
-  /** The bank's input type — the fact sheet answers text inline. */
-  input_type: string;
 }
 
 export interface FactSheet {
@@ -222,10 +220,6 @@ export async function buildFactSheet(profileId: string): Promise<FactSheet> {
       priority: q.priority,
       buys: gapBuys(q),
       blocking: blocking.has(q.writes_to),
-      input_type:
-        typeof (q.input as { type?: unknown })?.type === "string"
-          ? (q.input as { type: string }).type
-          : "text",
     }))
     .sort(
       (a, b) =>
