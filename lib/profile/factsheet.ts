@@ -84,7 +84,10 @@ const MINOR_UNITS: Record<string, number> = { HUF: 2, EUR: 2, USD: 2, GBP: 2, JP
 
 export function repr(value: unknown): string | null {
   if (value === null || value === undefined) return null;
-  if (typeof value === "string") return value;
+  // A bare vocabulary code ("social_organic") reads as words; anything
+  // with spaces, capitals or punctuation is owner text and stays verbatim.
+  if (typeof value === "string")
+    return /^[a-z0-9]+(_[a-z0-9]+)+$/.test(value) ? value.replace(/_/g, " ") : value;
   if (typeof value === "number" || typeof value === "boolean") return String(value);
   if (isMoney(value)) {
     const digits = MINOR_UNITS[value.currency] ?? 2;

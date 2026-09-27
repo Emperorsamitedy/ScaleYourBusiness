@@ -67,7 +67,16 @@ const SOURCE_LABEL: Record<string, string> = {
   connector: "measured",
 };
 
-const nice = (key: string): string => key.split(".").slice(1).join(" · ").replace(/_/g, " ");
+const UUID_SEG = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+/* Keys whose literal words mislead — the bank's phrasing, shortened. */
+const KEY_LABEL: Record<string, string> = { volume_period: "sold per month" };
+const nice = (key: string): string =>
+  key
+    .split(".")
+    .slice(1)
+    .filter((seg) => !UUID_SEG.test(seg))
+    .map((seg) => KEY_LABEL[seg] ?? seg.replace(/_/g, " "))
+    .join(" · ");
 
 function Ring({ frac, label }: { frac: number; label: string }) {
   const R = 44;

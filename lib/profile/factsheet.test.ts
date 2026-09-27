@@ -136,6 +136,11 @@ describe("repr — deterministic humanising", () => {
     expect(repr({ code: "physical_products" })).toBe("physical products");
     expect(repr([{ code: "a" }, { code: "b" }])).toBe("a, b");
   });
+  it("reads bare vocabulary codes as words, but leaves owner text verbatim", () => {
+    expect(repr("social_organic")).toBe("social organic");
+    expect(repr("We never_ever discount.")).toBe("We never_ever discount.");
+    expect(repr("instagram")).toBe("instagram");
+  });
 });
 
 describe("P1-59 — the sheet reads from a snapshot", () => {
