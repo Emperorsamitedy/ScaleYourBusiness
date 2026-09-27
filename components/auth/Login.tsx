@@ -74,12 +74,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
           </Link>
           <SystemDemo />
           <div className="auth-statement">
-            <span className="auth-eyebrow">the business operating system</span>
-            <h2>
-              Your business,
-              <br />
-              actually understood.
-            </h2>
+            <h2>Your business, actually understood.</h2>
           </div>
         </div>
       </section>
@@ -89,13 +84,12 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
         <div className="auth-panel-inner">
           {phase === "sent" ? (
             <div aria-live="polite">
-              <span className="auth-eyebrow">link sent</span>
               <h1 className="auth-title">Check your email.</h1>
               {screenLink ? (
                 <>
                   <p className="auth-copy">
-                    Email sending isn&rsquo;t set up in this environment, so your sign-in link is
-                    right here instead. It works once and expires in 15&nbsp;minutes.
+                    Email isn&rsquo;t configured here, so your one-time link is below. It expires in
+                    15&nbsp;minutes.
                   </p>
                   <a className="next auth-cta" href={screenLink}>
                     {signup ? "Create my account" : "Sign in now"}
@@ -103,8 +97,8 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                 </>
               ) : (
                 <p className="auth-copy">
-                  Your link is on its way to <strong>{email}</strong>. It works once and expires in
-                  15&nbsp;minutes — you can close this tab.
+                  We sent a one-time link to <strong>{email}</strong>. It expires in
+                  15&nbsp;minutes.
                 </p>
               )}
               <p className="auth-foot" style={{ marginTop: 28 }}>
@@ -116,13 +110,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
             </div>
           ) : (
             <div>
-              <span className="auth-eyebrow">{signup ? "create account" : "sign in"}</span>
-              <h1 className="auth-title">{signup ? "Start with your email." : "Welcome back."}</h1>
-              <p className="auth-copy">
-                {signup
-                  ? "That's the whole form. A link lands in your inbox, and clicking it is your account — everything you answer is yours from the first question."
-                  : "Enter your email and click the link we send — that's the entire sign-in."}
-              </p>
+              <h1 className="auth-title">{signup ? "Create your account" : "Sign in"}</h1>
               <form onSubmit={(e) => void submit(e)} className="auth-form">
                 <input
                   className="field"
@@ -146,11 +134,9 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
               {error && <p className="auth-error">{error}</p>}
 
               {/* The answer to "forgot password?", where the eye expects it. */}
-              <p className="auth-nopass">
-                No password — nothing to forget or reset. The emailed link is the key, every time.
-              </p>
+              <p className="auth-nopass">No password — we email you a one-time link.</p>
 
-              <p className="auth-foot" style={{ marginTop: 26 }}>
+              <p className="auth-foot" style={{ marginTop: 24 }}>
                 {signup ? (
                   <>
                     Already have an account? <Link href="/login">Sign in</Link>
@@ -160,9 +146,6 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                     New here? <Link href="/signup">Create your account</Link>
                   </>
                 )}
-              </p>
-              <p className="auth-foot" style={{ marginTop: 10 }}>
-                <Link href="/">← back to the front page</Link>
               </p>
             </div>
           )}
