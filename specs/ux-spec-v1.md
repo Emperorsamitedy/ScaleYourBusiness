@@ -85,7 +85,7 @@ The layout you described, built and refined. One question in the centre; answere
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ Ledgerline   Setting up your business profile      6 / 12 core│
+│ Ledgerline                                          6 / 12 core│
 ├──────────────────────────────────────────────────────────────┤
 │ ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
 │                                                              │
@@ -98,7 +98,7 @@ The layout you described, built and refined. One question in the centre; answere
 │ └──────────┘       │ [Physical] [Serv…] │                    │
 │ ┌──────────┐       │ [Software] [Digi…] │                    │
 │ │ What does│       │                    │       ┌──────────┐ │
-│ │ it do?   │       │ Record answer      │       │ Stage?   │ │
+│ │ it do?   │       │ Record             │       │ Stage?   │ │
 │ │ Fast foo…│       │ I don't know       │       │ Growing  │ │
 │ └──────────┘       └────────────────────┘       └──────────┘ │
 │                    ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐                     │
@@ -120,7 +120,7 @@ Your instinct is right: one question at a time removes the dread of a 300-field 
 
 ### 4.2 Interaction detail
 
-**Answering.** Single-selects submit on click after a 130ms confirm beat, so the owner sees their choice register before the card leaves. Multi-selects and text require an explicit "Record answer". Enter submits; Cmd/Ctrl-Enter submits from a textarea.
+**Answering.** Single-selects submit on click after a 130ms confirm beat, so the owner sees their choice register before the card leaves. Multi-selects and text require an explicit "Record". Enter submits; Cmd/Ctrl-Enter submits from a textarea.
 
 **Motion sequence,** total ~580ms:
 1. Centre card fades and lifts 14px, 240ms.
@@ -259,7 +259,7 @@ Four rules held everywhere:
 - **Failures explain and direct.** "I couldn't read your Meta account — the connection expired. Reconnect and I'll pick up where I left off." No apology, no vagueness.
 - **Empty states invite.** The profile page before intake reads "Nothing here yet. Twelve questions and I'll have enough to start."
 
-Buttons use the same verb from click to confirmation: "Record answer" produces a card that says recorded; "Start watching" leads to a screen that says watching.
+Buttons use the same verb from click to confirmation: "Record" produces a card that says recorded; "Start watching" leads to a screen that says watching.
 
 ---
 
