@@ -1,12 +1,11 @@
 "use client";
 
-// The system, working — a looped three-beat demo for the auth screen's
-// film panel: a question is asked, the answer is recorded with its
-// provenance, the diagnosis says something it can prove. Built from
-// the product's own design language rather than a compressed gif, so
-// it stays crisp and costs nothing to load. The content mirrors what
-// the real screens show; nothing is claimed here that the product
-// doesn't do.
+// The system, working — a looped four-beat demo for the auth screen,
+// sized to mirror the form card beside it. Each beat is a small
+// analyst's panel: one tag, one hero figure, one chart, one quiet
+// footnote. Built from the product's own design language rather than
+// a compressed gif; nothing is claimed here that the product doesn't
+// do.
 
 import { useEffect, useRef, useState } from "react";
 
@@ -41,31 +40,63 @@ export function SystemDemo() {
 
   return (
     <div className="sd-stack" aria-hidden="true">
-      {/* beat 1 — the interview asks */}
+      {/* beat 1 — the interview asks, the profile fills */}
       <div className={`sd-card ${step === 0 ? "on" : ""}`}>
         <span className="sd-tag">5.1 · core</span>
-        <p className="sd-q">What does the business pay every month regardless of sales?</p>
+        <p className="sd-q">What do you pay every month, regardless of sales?</p>
         <div className="sd-field">
           {typed}
           <span className="sd-caret" />
         </div>
+        <div className="sd-meter">
+          <div className="sd-meter-head">
+            <span>profile completeness</span>
+            <span>61%</span>
+          </div>
+          <div className="sd-track">
+            <i style={{ width: "61%" }} />
+          </div>
+        </div>
       </div>
 
-      {/* beat 2 — the answer is a fact with a source */}
+      {/* beat 2 — the answer is a fact with a breakdown */}
       <div className={`sd-card ${step === 1 ? "on" : ""}`}>
         <span className="sd-tag">recorded</span>
-        <p className="sd-q">Fixed monthly costs</p>
-        <p className="sd-a">$2,170 / month</p>
-        <span className="sd-prov">5.1 · owner · stated · confidence 75%</span>
+        <p className="sd-hero">$2,170</p>
+        <span className="sd-hero-label">fixed costs / month</span>
+        <div className="sd-split">
+          <i style={{ width: "85%" }} className="a" />
+          <i style={{ width: "15%" }} className="b" />
+        </div>
+        <div className="sd-legend">
+          <span>
+            <i className="a" /> rent $1,850
+          </span>
+          <span>
+            <i className="b" /> software $320
+          </span>
+        </div>
+        <span className="sd-prov">owner · stated · confidence 75%</span>
       </div>
 
-      {/* beat 3 — the diagnosis proves what it says */}
+      {/* beat 3 — the diagnosis, as a gauge */}
       <div className={`sd-card ${step === 2 ? "on" : ""}`}>
-        <span className="sd-tag">diagnosis</span>
-        <p className="sd-q">
-          <b className="sd-sev">high</b> Break-even is 74 orders — you averaged 61 last quarter.
-        </p>
-        <span className="sd-prov">rests on: fixed costs (you told me) · price = 49 USD</span>
+        <span className="sd-tag">
+          diagnosis · <b className="sd-sev">high</b>
+        </span>
+        <p className="sd-hero">74 orders</p>
+        <span className="sd-hero-label">break-even / month</span>
+        <div className="sd-meter">
+          <div className="sd-track sd-gauge">
+            <i style={{ width: "82%" }} />
+            <b style={{ left: "82%" }} />
+          </div>
+          <div className="sd-meter-head sd-gauge-foot">
+            <span>you average 61</span>
+            <span>74 needed</span>
+          </div>
+        </div>
+        <span className="sd-prov">rests on: fixed costs · price $49</span>
       </div>
 
       {/* beat 4 — measured truth replaces the estimate */}
@@ -74,25 +105,26 @@ export function SystemDemo() {
         <div className="sd-stats">
           <div className="sd-stat">
             <span className="sd-stat-num">$6,910</span>
-            <span className="sd-stat-label">revenue / mo</span>
+            <span className="sd-stat-label">revenue</span>
           </div>
           <div className="sd-stat">
             <span className="sd-stat-num">141</span>
-            <span className="sd-stat-label">orders / mo</span>
+            <span className="sd-stat-label">orders</span>
           </div>
           <div className="sd-stat">
             <span className="sd-stat-num">31%</span>
             <span className="sd-stat-label">margin</span>
           </div>
         </div>
-        <div className="sd-bars" aria-hidden="true">
+        <div className="sd-bars">
           {[34, 52, 41, 66, 58, 74, 90].map((h, i) => (
             <i key={i} style={{ height: `${h}%` }} className={i === 6 ? "on" : ""} />
           ))}
         </div>
-        <span className="sd-prov">
-          you estimated $8,300 — measured $6,910, estimate kept in history
-        </span>
+        <div className="sd-delta">
+          <span className="sd-delta-chip">−17%</span>
+          <span>est. $8,300 → measured $6,910</span>
+        </div>
       </div>
 
       <div className="sd-dots">
