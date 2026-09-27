@@ -23,6 +23,8 @@
   --ember-deep: #e1560f;
   --on-ember: #1c1006;
   --whisper: #4c7df0;
+  /* on-secondary: dark text for filled signal surfaces (AA on --whisper) */
+  --on-signal: #0b1220;
   --settled: #34d399;
   --err: #ff7a72;
   --sans: var(--font-sans), system-ui, sans-serif;
@@ -5111,7 +5113,8 @@ a.auth-cta {
   font: inherit;
   font-weight: 600;
   padding: 10px 22px;
-  border-radius: 10px;
+  min-height: 44px;
+  border-radius: 9999px;
   border: 1px solid var(--hair-2);
   background: transparent;
   color: var(--ink);
@@ -5149,11 +5152,11 @@ a.auth-cta {
   min-height: 64px;
   resize: vertical;
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink);
   background: var(--raised);
   border: 1px solid var(--hair);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 12px;
 }
 .prop-reason:focus {
@@ -5164,12 +5167,12 @@ a.auth-cta {
   margin: 14px 0 0;
   font-size: 13px;
   line-height: 1.6;
-  color: var(--ember-bright);
+  color: var(--mut); /* the quote carries the weight; the ember stays singular */
 }
 .prop-schedule {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin-top: 16px;
 }
 .prop-schedule .conn-note {
@@ -5181,7 +5184,7 @@ a.auth-cta {
   color: var(--ink);
   background: var(--raised);
   border: 1px solid var(--hair);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 6px 10px;
 }
 .prop-muted {
@@ -5193,8 +5196,8 @@ a.auth-cta {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  font-size: 13.5px;
+  gap: 8px;
+  font-size: 13px;
 }
 .prop-log .conn-note {
   margin: 0;
@@ -5205,7 +5208,7 @@ a.auth-cta {
 }
 .prop-tag {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 2px 8px;
@@ -5248,7 +5251,7 @@ a.auth-cta {
   font-size: 11px;
   font-weight: 600;
   background: var(--whisper);
-  color: #fff;
+  color: var(--on-signal); /* on-secondary — AA on the signal blue */
 }
 
 /* Content queue — Session C. */
@@ -5279,11 +5282,11 @@ a.auth-cta {
   flex: 1;
   min-width: 240px;
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink);
   background: var(--raised);
   border: 1px solid var(--hair);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 12px;
 }
 .ct-input:focus {
@@ -5319,19 +5322,19 @@ a.auth-cta {
 .ct-body {
   white-space: pre-wrap;
   font-family: var(--sans);
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.6;
   color: var(--ink);
   background: var(--raised);
   border: 1px solid var(--hair);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 14px 16px;
   margin: 12px 0 0;
 }
 .ct-disclosure {
   margin: 8px 0 0;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--mut);
@@ -5365,10 +5368,11 @@ a.auth-cta {
   font-family: var(--display);
   font-size: 28px;
   line-height: 1.1;
+  font-variant-numeric: tabular-nums; /* data-lg rule */
 }
 .tr-label {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--mut);
@@ -5435,8 +5439,8 @@ a.auth-cta {
   max-width: 76%;
   margin: 0;
   padding: 10px 14px;
-  border-radius: 14px;
-  font-size: 14px;
+  border-radius: 12px;
+  font-size: 15px;
   line-height: 1.55;
   white-space: pre-wrap;
 }
@@ -5462,7 +5466,7 @@ a.auth-cta {
 }
 .ch-composer {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-top: 14px;
 }
 
@@ -5471,7 +5475,7 @@ a.auth-cta {
 .st-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   margin-top: 14px;
   max-width: 560px;
 }
@@ -5504,6 +5508,9 @@ a.auth-cta {
   overflow: hidden;
   border: 1px solid var(--hair);
   border-radius: 12px;
+  /* one-off (design-review 2026-09-27): the render canvas behind
+     third-party pages that assume a light background — semantic,
+     not thematic; deliberately not a theme token. */
   background: #fff;
 }
 .st-frame-clip.phone {
@@ -5528,9 +5535,9 @@ a.auth-cta {
   background: #fff;
 }
 .st-steps {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   padding-left: 20px;
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.7;
 }
 
@@ -5540,14 +5547,15 @@ a.auth-cta {
 .es-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   margin: -2px 0 10px;
 }
 .es-stop {
   font: inherit;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 5px 14px;
+  padding: 6px 16px;
+  min-height: 32px; /* button-compact — persistent utility, never advancing */
   border-radius: 999px;
   border: 1px solid var(--hair-2);
   background: transparent;

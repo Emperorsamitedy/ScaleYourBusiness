@@ -126,7 +126,7 @@ export function ContentScreen() {
               Content is planned from your profile — channels, goals, offers. Twelve questions and
               there is something real to plan with.
             </p>
-            <Link className="next auth-cta" style={{ marginTop: 22 }} href="/intake">
+            <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
               Begin
             </Link>
           </section>

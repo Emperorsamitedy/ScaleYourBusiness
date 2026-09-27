@@ -93,7 +93,7 @@ export function HistoryScreen() {
             <span className="auth-eyebrow">the record</span>
             <h1 className="auth-title">Nothing on file for this browser.</h1>
             <p className="auth-copy">The scorecard exists once there are suggestions to score.</p>
-            <Link className="next auth-cta" style={{ marginTop: 22 }} href="/intake">
+            <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
               Start
             </Link>
           </section>
@@ -169,7 +169,7 @@ export function HistoryScreen() {
               {dateWord(proposal.decided_at ?? proposal.created_at)}
             </span>
           </div>
-          <h2 className="prop-title small" style={{ marginTop: 10 }}>
+          <h2 className="prop-title small" style={{ marginTop: 8 }}>
             {proposal.action.summary}
           </h2>
           {proposal.rejection_reason && (

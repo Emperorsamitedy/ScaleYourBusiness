@@ -9,6 +9,7 @@ colors:
   primary-strong: "#C2410C"
   on-primary: "#1C1006"
   secondary: "#4C7DF0"
+  on-secondary: "#0B1220"
   success: "#34D399"
   error: "#FF7A72"
   error-container: "#3A1512"
@@ -150,6 +151,21 @@ components:
     typography: "{typography.label-sm}"
     rounded: "{rounded.full}"
     padding: 4px 10px
+  status-pill-outline:
+    backgroundColor: transparent
+    border: "1px solid {colors.outline}"
+    textColor: "{colors.on-surface-variant}"
+    typography: "{typography.mono-sm}"
+    rounded: "{rounded.full}"
+    padding: 3px 9px
+  button-compact:
+    backgroundColor: transparent
+    border: "1px solid {colors.outline}"
+    textColor: "{colors.on-surface-variant}"
+    typography: "{typography.label-md}"
+    rounded: "{rounded.full}"
+    padding: 6px 16px
+    height: 32px
 ---
 
 # Ember Grid
@@ -162,7 +178,7 @@ Ember Grid is "expensive fintech at night, run by a Swiss modernist." The stage 
 
 **The landing page is a scoped exception (owner-directed, 2026-08-31).** `app/page.tsx` runs the "cine" variant: pure black stage, white type, Instrument Serif italic display over Barlow, and liquid-glass surfaces whose borders are gradient strokes cut with CSS mask-composite (`.liquid-glass` / `.liquid-glass-strong` in globals.css, scoped under `.cine`). It is a marketing voice, not a second product brand — every product screen (intake, fact sheet, report) remains Ember Grid as specified here. Motion follows the same reduced-motion rules as the rest of the system.
 
-Dark is the primary and canonical mode; the light tokens (`*-light`) are a derived variant for user preference, not a second brand. On the dark stage, `surface` is the near-black canvas, `surface-container` the card layer, and `surface-container-high` the raised interior layer (segmented controls, hover fills). `primary` (#F59B4B) is the ember — actions, focus rings, live chart lines — with `primary-bright` for hover and `primary-deep` as the low end of the one permitted gradient (`primary-deep → primary`). `secondary` (#4C7DF0) is the blue whisper: ambient glows and the cool end of the focal CTA gradient only — never text on dark below headline sizes (it fails AA for body). `success` (#34D399) exists solely as the settled-fact dot; `error` is a warm coral tuned to 7.7:1 on `surface`. In light mode, actions and accents switch from `primary` to `primary-strong` (#C2410C), because raw amber fails contrast on white. All body text pairs meet WCAG AA: `on-surface` on `surface` is ~17:1, `on-surface-variant` is ~7.5:1, `on-primary` on `primary` is ~8.6:1.
+Dark is the primary and canonical mode; the light tokens (`*-light`) are a derived variant for user preference, not a second brand. On the dark stage, `surface` is the near-black canvas, `surface-container` the card layer, and `surface-container-high` the raised interior layer (segmented controls, hover fills). `primary` (#F59B4B) is the ember — actions, focus rings, live chart lines — with `primary-bright` for hover and `primary-deep` as the low end of the one permitted gradient (`primary-deep → primary`). `secondary` (#4C7DF0) is the blue whisper: ambient glows and the cool end of the focal CTA gradient only — never text on dark below headline sizes (it fails AA for body). The one sanctioned exception is the **approval signal** (ux-spec §3/§8, which outranks this file per CLAUDE.md): controls that are literally the owner's turn — the Approve pill, the approval-count badge, the queued-proposal link — carry `secondary` at full strength, with `on-secondary` (#0B1220) as the text on filled uses so the pairing meets AA. Nothing else ever wears it. `success` (#34D399) exists solely as the settled-fact dot; `error` is a warm coral tuned to 7.7:1 on `surface`. In light mode, actions and accents switch from `primary` to `primary-strong` (#C2410C), because raw amber fails contrast on white. All body text pairs meet WCAG AA: `on-surface` on `surface` is ~17:1, `on-surface-variant` is ~7.5:1, `on-primary` on `primary` is ~8.6:1.
 
 ## Typography
 
@@ -182,14 +198,14 @@ Cards are soft (`md` 12px for standard, `lg` 16px for content cards, `xl` 24px f
 
 ## Components
 
-**Buttons.** `button-primary` is the amber pill — dark text on ember, one per screen, for the advancing action ("Record answer"). Hover brightens to `primary-bright`; the focal CTA (final submit, "start diagnosis"-class moments) may use the one permitted gradient, `secondary → primary`, as in the reference's Mint button. `button-ghost` is a transparent pill with a 1px `outline` border and `on-surface` text for secondary actions ("Skip for now", "Reopen"); hover fills `surface-container-high`. Both are 44px for touch targets. **Inputs.** Fields sit on `surface-container` with an `outline-variant` hairline; focus swaps the border to `primary` and adds a soft ember outer ring — never a browser-default ring. Labels above in `label-sm` uppercase; help text below in `body-sm` `on-surface-variant`. Errors swap the border to `error` with the message in `error` (in a `error-container` panel when persistent). **Cards.** `card` is the workhorse (chips' container, stat blocks); `card-focal` is the centre question card — `xl` radius, 32px padding, the only element allowed the ember edge. **Chips.** The recorded-answer chip keeps its anatomy — question in `body-sm` `on-surface-variant`, answer in `body-md` `on-surface`, provenance line in `mono-sm` with the status dot (`success` solid = recorded fact, hollow `outline` ring = gap). Chips expand on press to reveal detail and the reopen form. **Status pills.** `status-pill` is the reference's tiny state row — uppercase `label-sm` with a 5px leading dot in `success`, `primary`, or `on-surface-variant` — used for system state ("32 / 37 core", "estimate", "gap").
+**Buttons.** `button-primary` is the amber pill — dark text on ember, one per screen, for the advancing action ("Record answer"). Hover brightens to `primary-bright`; the focal CTA (final submit, "start diagnosis"-class moments) may use the one permitted gradient, `secondary → primary`, as in the reference's Mint button. `button-ghost` is a transparent pill with a 1px `outline` border and `on-surface` text for secondary actions ("Skip for now", "Reopen"); hover fills `surface-container-high`. Both are 44px for touch targets. **Inputs.** Fields sit on `surface-container` with an `outline-variant` hairline; focus swaps the border to `primary` and adds a soft ember outer ring — never a browser-default ring. Labels above in `label-sm` uppercase; help text below in `body-sm` `on-surface-variant`. Errors swap the border to `error` with the message in `error` (in a `error-container` panel when persistent). **Cards.** `card` is the workhorse (chips' container, stat blocks); `card-focal` is the centre question card — `xl` radius, 32px padding, the only element allowed the ember edge. **Chips.** The recorded-answer chip keeps its anatomy — question in `body-sm` `on-surface-variant`, answer in `body-md` `on-surface`, provenance line in `mono-sm` with the status dot (`success` solid = recorded fact, hollow `outline` ring = gap). Chips expand on press to reveal detail and the reopen form. **Status pills.** `status-pill` is the reference's tiny state row — uppercase `label-sm` with a 5px leading dot in `success`, `primary`, or `on-surface-variant` — used for system state ("32 / 37 core", "estimate", "gap"). `status-pill-outline` is its machine-truth sibling — transparent with an `outline` hairline, `mono-sm` uppercase — for system-recorded state (proposal statuses, readback verdicts, connection badges): filled pills for human-facing state, outline pills for what the machine recorded. **Compact utility button.** `button-compact` is a 32px ghost pill in `label-md` for persistent low-emphasis controls that must exist without competing — the emergency stop at rest is the canonical use. Never for advancing actions, which keep the 44px pills.
 
 ## Do's and Don'ts
 
 - **Do** keep the ember singular: one amber focal element per screen — the current action or the live data line, never both plus decoration.
 - **Don't** ever ship crypto-casino artifacts: 3D coins, mascots, confetti, pulsing glows, or animated gradients. The reference's illustrations are explicitly excluded from this system.
 - **Do** put every machine-truth string (provenance, field keys, costs, timestamps) in IBM Plex Mono `mono-sm` — it is the system's honesty channel.
-- **Don't** use `secondary` blue for body-size text on dark or as a second action color; it lives in glows and the single gradient CTA only.
+- **Don't** use `secondary` blue for body-size text on dark or as a second action color — it lives in glows and the single gradient CTA, plus exactly one exception: the approval signal (see Colors).
 - **Do** respect the grid and the ten type styles absolutely — a new size or an off-grid nudge is a design bug, not a tweak.
 - **Don't** use drop shadows anywhere; depth is tonal layers, hairlines, and light.
 - **Do** keep gradients to exactly two uses: the focal CTA fill and the focal card's ember edge.

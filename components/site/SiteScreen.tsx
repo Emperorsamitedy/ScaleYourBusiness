@@ -84,7 +84,7 @@ export function SiteScreen() {
             <span className="auth-eyebrow">your site</span>
             <h1 className="auth-title">Start with the intake.</h1>
             <p className="auth-copy">Site changes belong to a profile — begin and come back.</p>
-            <Link className="next auth-cta" style={{ marginTop: 22 }} href="/intake">
+            <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
               Begin
             </Link>
           </section>
@@ -194,7 +194,7 @@ export function SiteScreen() {
                 {d.platform.platform} · {d.platform.editable}
               </span>
             </div>
-            <h2 className="prop-title small" style={{ marginTop: 10 }}>
+            <h2 className="prop-title small" style={{ marginTop: 8 }}>
               {p.action.summary}
             </h2>
             <p className="conn-note">{d.platform_line}</p>

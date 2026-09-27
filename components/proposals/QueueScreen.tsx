@@ -144,7 +144,7 @@ export function QueueScreen() {
               Approving or declining a proposal is recorded with your name on it — that needs you
               signed in, not just this browser.
             </p>
-            <Link className="next auth-cta" style={{ marginTop: 22 }} href="/login">
+            <Link className="next auth-cta" style={{ marginTop: 24 }} href="/login">
               Sign in
             </Link>
           </section>
@@ -217,7 +217,7 @@ export function QueueScreen() {
           </p>
           <button
             className="next auth-cta"
-            style={{ marginTop: 22 }}
+            style={{ marginTop: 24 }}
             disabled={busy}
             onClick={() => void generate()}
           >

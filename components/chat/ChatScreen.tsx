@@ -60,7 +60,7 @@ export function ChatScreen() {
               This channel is grounded in one profile — yours. Start the intake and there is
               something real to talk about.
             </p>
-            <Link className="next auth-cta" style={{ marginTop: 22 }} href="/intake">
+            <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
               Begin
             </Link>
           </section>
