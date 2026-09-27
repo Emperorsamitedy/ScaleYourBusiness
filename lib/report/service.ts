@@ -176,6 +176,10 @@ export async function generateReport(args: {
       priority: q.priority,
       buys: gapBuys(q),
       blocking: blocking.has(q.writes_to),
+      input_type:
+        typeof (q.input as { type?: unknown })?.type === "string"
+          ? (q.input as { type: string }).type
+          : "text",
     }))
     .sort((a, b) => Number(b.blocking) - Number(a.blocking))
     .slice(0, 8);
