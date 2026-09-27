@@ -97,19 +97,33 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
 
   await db.update(loginTokens).set({ used_at: now }).where(eq(loginTokens.id, row.id));
 
-  // Existing user for this email → their account. Otherwise create the
-  // user on the account of the profile the login was requested from —
-  // that is the "claim your anonymous intake" path. With neither, a
-  // fresh account: the intake starts after login instead of before.
-  let user = (await db.select().from(users).where(eq(users.email, row.email)))[0];
+  return signInWithEmail(row.email, row.profile_id);
+}
+
+/**
+ * The account side of any proven sign-in — shared by the emailed link
+ * and the OAuth callbacks, which each prove email ownership their own
+ * way before landing here.
+ *
+ * Existing user for this email → their account. Otherwise create the
+ * user on the account of the profile the browser held — the "claim
+ * your anonymous intake" path. With neither, a fresh account: the
+ * intake starts after sign-in instead of before.
+ */
+export async function signInWithEmail(
+  rawEmail: string,
+  profileId: string | null,
+): Promise<RedeemedSession> {
+  const email = normaliseEmail(rawEmail);
+  let user = (await db.select().from(users).where(eq(users.email, email)))[0];
   if (!user) {
     let accountId: string;
-    if (row.profile_id) {
+    if (profileId) {
       const [profile] = await db
         .select({ account_id: businessProfiles.account_id })
         .from(businessProfiles)
-        .where(eq(businessProfiles.id, row.profile_id));
-      if (!profile) throw new AuthError("that sign-in link is no longer valid", 401);
+        .where(eq(businessProfiles.id, profileId));
+      if (!profile) throw new AuthError("that sign-in is no longer valid", 401);
       accountId = profile.account_id;
     } else {
       const [account] = await db
@@ -123,8 +137,8 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
       .insert(users)
       .values({
         account_id: accountId,
-        email: row.email,
-        display_name: row.email.split("@")[0] ?? row.email,
+        email,
+        display_name: email.split("@")[0] ?? email,
         role: "owner",
       })
       .returning();

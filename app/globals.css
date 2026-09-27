@@ -4886,23 +4886,12 @@ a.auth-cta {
   left: 40px;
   z-index: 3;
 }
-.auth-demo-wrap {
-  position: absolute;
-  inset: 0 45% 0 0;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  padding: 48px;
-}
-.auth-demo-wrap .auth-statement {
-  margin-top: 52px; /* clear of the beat dots below the stack */
-}
 .auth-float {
   position: absolute;
   z-index: 3;
   top: 50%;
-  right: 7%;
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: min(430px, 92%);
   background: var(--glass-strong);
   backdrop-filter: var(--blur);
@@ -5036,13 +5025,6 @@ a.auth-cta {
 }
 
 @media (max-width: 880px) {
-  .auth-demo-wrap {
-    display: none;
-  }
-  .auth-float {
-    right: 50%;
-    transform: translate(50%, -50%);
-  }
   .auth-hero-mark {
     top: 22px;
     left: 22px;
@@ -5069,244 +5051,6 @@ a.auth-cta {
 
 /* ── the system-working demo on the auth film (three looped beats) ── */
 
-.sd-stack {
-  position: relative;
-  /* Mirrors the form card floating beside it — the two read as a
-     matched pair over the film. */
-  width: min(430px, 92%);
-  height: 568px;
-  margin: auto;
-}
-.sd-card {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 20px;
-  background: var(--glass);
-  backdrop-filter: var(--blur);
-  border: 1px solid var(--hair-2);
-  border-radius: 0; /* auth hero exception — square edges, owner-directed */
-  padding: 40px;
-  opacity: 0;
-  transform: translateY(14px);
-  transition:
-    opacity 0.55s var(--ease),
-    transform 0.55s var(--ease);
-  pointer-events: none;
-}
-.sd-card.on {
-  opacity: 1;
-  transform: none;
-}
-.sd-tag {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ember);
-}
-.sd-q {
-  font-size: 17px;
-  line-height: 1.5;
-  margin: 0;
-}
-.sd-hero {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 46px;
-  line-height: 1;
-  margin: 6px 0 0;
-  font-variant-numeric: tabular-nums;
-}
-.sd-hero-label {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--mut);
-  margin-top: -14px;
-}
-.sd-field {
-  margin-top: 0;
-  font-family: var(--mono);
-  font-size: 13px;
-  color: var(--ink, inherit);
-  background: var(--glass-strong);
-  border: 1px solid var(--hair);
-  border-radius: 0;
-  padding: 12px 14px;
-  min-height: 44px;
-}
-.sd-caret {
-  display: inline-block;
-  width: 7px;
-  height: 15px;
-  margin-left: 2px;
-  background: var(--ember);
-  vertical-align: -2px;
-  animation: sd-blink 0.9s steps(1) infinite;
-}
-@keyframes sd-blink {
-  50% {
-    opacity: 0;
-  }
-}
-.sd-prov {
-  display: block;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.04em;
-  color: var(--mut);
-}
-/* Analyst furniture — meters, breakdown bars, legends, deltas. All
-   squares, one ember accent per panel. */
-.sd-meter-head {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--mut);
-  margin-bottom: 8px;
-}
-.sd-track {
-  position: relative;
-  height: 8px;
-  background: var(--hair-2);
-}
-.sd-track i {
-  position: absolute;
-  inset: 0 auto 0 0;
-  background: var(--ember);
-}
-.sd-gauge b {
-  position: absolute;
-  top: -4px;
-  bottom: -4px;
-  width: 2px;
-  background: var(--ink);
-}
-.sd-gauge-foot {
-  margin: 8px 0 0;
-}
-.sd-split {
-  display: flex;
-  gap: 3px;
-  height: 12px;
-  margin-top: 4px;
-}
-.sd-split i.a {
-  background: var(--ember);
-}
-.sd-split i.b {
-  background: var(--secondary, #4c7df0);
-}
-.sd-legend {
-  display: flex;
-  gap: 18px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--mut);
-}
-.sd-legend i {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 6px;
-}
-.sd-legend i.a {
-  background: var(--ember);
-}
-.sd-legend i.b {
-  background: var(--secondary, #4c7df0);
-}
-.sd-delta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--mut);
-}
-.sd-delta-chip {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ember-bright);
-  border: 1px solid var(--hair-2);
-  padding: 3px 8px;
-}
-.sd-sev {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ember-bright);
-  margin-right: 8px;
-  font-weight: 500;
-}
-/* Beat 4 — the measured stats. Tabular numerals, mono labels, and a
-   quiet bar run with a single ember highlight: architecture, not
-   fireworks. */
-.sd-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.sd-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.sd-stat-num {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 26px;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-.sd-stat-label {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--mut);
-}
-.sd-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  height: 120px;
-}
-.sd-bars i {
-  flex: 1;
-  border-radius: 0;
-  background: var(--hair-2);
-}
-.sd-bars i.on {
-  background: var(--ember);
-}
-.sd-dots {
-  position: absolute;
-  bottom: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-}
-.sd-dots i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--hair-2);
-  transition: background 0.3s var(--ease);
-}
-.sd-dots i.on {
-  background: var(--ember);
-}
 .auth-nopass {
   margin: 18px 0 0;
   font-size: 12.5px;
@@ -5316,12 +5060,6 @@ a.auth-cta {
 .auth-foot a {
   color: var(--ember);
 }
-@media (max-width: 880px) {
-  .sd-stack {
-    display: none;
-  }
-}
-
 /* Approval queue — P3-05, ux-spec §8. The ONLY surface where the signal
    blue appears at full strength: an approval is the owner's turn, and
    colour means "your turn" nowhere else. Approve and Decline are the

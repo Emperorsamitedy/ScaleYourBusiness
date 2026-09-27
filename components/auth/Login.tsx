@@ -10,14 +10,13 @@
 // arrived, because a stranger looking for "create account" should find
 // those words, not a riddle.
 //
-// Left: the landing's film bed with the system visibly working — a
-// looped question → recorded fact → provable finding demo. Right: the
-// one form both entrances share.
+// The film fills the stage; the one form both entrances share floats
+// centred over it. The SSO doors are real OAuth starts — a provider
+// whose keys aren't set says so and points at the email path.
 
 import { useState } from "react";
 import Link from "next/link";
 import { FadingVideo } from "../landing/cine/FadingVideo";
-import { SystemDemo } from "./SystemDemo";
 
 const FILM =
   "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4";
@@ -63,7 +62,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
   };
 
   const sso = (provider: string) => {
-    setError(`${provider} sign-in isn't connected yet — your email below works today.`);
+    window.location.href = `/api/auth/oauth/${provider}/start?from=${variant}`;
   };
 
   return (
@@ -75,17 +74,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
         Ledgerline
       </Link>
 
-      {/* ── the system working, centre-left ── */}
-      <section className="auth-demo-wrap" aria-hidden="true">
-        <div>
-          <SystemDemo />
-          <div className="auth-statement">
-            <h2>Your business, actually understood.</h2>
-          </div>
-        </div>
-      </section>
-
-      {/* ── the form floats over the scene ── */}
+      {/* ── the form floats centred over the scene ── */}
       <section className="auth-float">
         <div className="auth-panel-inner">
           {phase === "sent" ? (
@@ -118,7 +107,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
             <div>
               <h1 className="auth-title">{signup ? "Create your account" : "Sign in"}</h1>
               <div className="sso-row">
-                <button type="button" className="sso-btn" onClick={() => sso("Google")}>
+                <button type="button" className="sso-btn" onClick={() => sso("google")}>
                   <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                     <path
                       fill="#EA4335"
@@ -140,7 +129,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                   Continue with Google
                 </button>
                 <div className="sso-pair">
-                  <button type="button" className="sso-btn" onClick={() => sso("Apple")}>
+                  <button type="button" className="sso-btn" onClick={() => sso("apple")}>
                     <svg
                       viewBox="0 0 24 24"
                       width="18"
@@ -152,7 +141,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                     </svg>
                     Apple
                   </button>
-                  <button type="button" className="sso-btn" onClick={() => sso("Microsoft")}>
+                  <button type="button" className="sso-btn" onClick={() => sso("microsoft")}>
                     <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
                       <rect x="2" y="2" width="9.5" height="9.5" fill="#F25022" />
                       <rect x="12.5" y="2" width="9.5" height="9.5" fill="#7FBA00" />
