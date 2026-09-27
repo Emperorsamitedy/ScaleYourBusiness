@@ -194,7 +194,7 @@ function Competitors({
   );
 
   return (
-    <section className="fs-block">
+    <section className="fs-block" id="fs-competitors" data-rail>
       <header className="fs-block-head">
         <h2>Competitors</h2>
         <button className="ghost" onClick={() => void discover()} disabled={busy !== null}>
@@ -252,6 +252,8 @@ export function FactSheetScreen() {
   const [sheet, setSheet] = useState<FactSheet | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [showAllGaps, setShowAllGaps] = useState(false);
+  const [active, setActive] = useState<string>("");
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -270,6 +272,24 @@ export function FactSheetScreen() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // The rail follows the scroll: whichever marked section is nearest
+  // the top of the viewport is the one lit.
+  useEffect(() => {
+    if (sheet === null) return;
+    const marked = Array.from(document.querySelectorAll("[data-rail]"));
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: "-15% 0px -65% 0px" },
+    );
+    marked.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [sheet, query, showAllGaps]);
 
   const q = query.trim().toLowerCase();
   const filtered = useMemo(() => {
@@ -329,6 +349,34 @@ export function FactSheetScreen() {
         </nav>
       </header>
 
+      <nav className="fs-rail" aria-label="Sections">
+        <a href="#fs-overview" className={active === "fs-overview" ? "on" : ""}>
+          overview
+        </a>
+        {sheet.gaps.length > 0 && (
+          <a href="#fs-gaps" className={active === "fs-gaps" ? "on" : ""}>
+            still open <b>{sheet.gaps.length}</b>
+          </a>
+        )}
+        <a href="#fs-competitors" className={active === "fs-competitors" ? "on" : ""}>
+          competitors
+        </a>
+        {filtered.map(({ section, facts }) => (
+          <a
+            key={section}
+            href={`#sec-${section}`}
+            className={active === `sec-${section}` ? "on" : ""}
+          >
+            {section.replace(/_/g, " ")} <b>{facts.length}</b>
+          </a>
+        ))}
+        {sheet.entities.filter((e) => e.spine !== "competitors").length > 0 && (
+          <a href="#fs-entities" className={active === "fs-entities" ? "on" : ""}>
+            offers &amp; more
+          </a>
+        )}
+      </nav>
+
       <div className="fs-title">
         <h1>{name}</h1>
         <span className="fs-title-meta">
@@ -341,7 +389,7 @@ export function FactSheetScreen() {
         </span>
       </div>
 
-      <div className="fs-summary">
+      <div className="fs-summary" id="fs-overview" data-rail>
         <div className="fs-card fs-comp">
           <Ring
             frac={sheet.completeness.overall}
@@ -373,7 +421,7 @@ export function FactSheetScreen() {
 
       {/* ── the gaps: what's missing and what answering it buys (P1-60) ── */}
       {sheet.gaps.length > 0 && (
-        <section className="fs-block">
+        <section className="fs-block" id="fs-gaps" data-rail>
           <header className="fs-block-head">
             <h2>Still open</h2>
             <span className="fs-block-meta">
@@ -381,7 +429,7 @@ export function FactSheetScreen() {
               not a failure
             </span>
           </header>
-          {sheet.gaps.slice(0, 12).map((g) => (
+          {sheet.gaps.slice(0, showAllGaps ? sheet.gaps.length : 5).map((g) => (
             <div className={g.blocking ? "fs-gap blocking" : "fs-gap"} key={g.question_id}>
               <span className={`fs-gap-p ${g.priority}`}>{g.priority}</span>
               <div>
@@ -396,8 +444,10 @@ export function FactSheetScreen() {
               </Link>
             </div>
           ))}
-          {sheet.gaps.length > 12 && (
-            <p className="fs-note">…and {sheet.gaps.length - 12} more, waiting in the interview.</p>
+          {sheet.gaps.length > 5 && (
+            <button className="fs-more" onClick={() => setShowAllGaps((v) => !v)}>
+              {showAllGaps ? "Show fewer" : `Show all ${sheet.gaps.length}`}
+            </button>
           )}
         </section>
       )}
@@ -418,7 +468,7 @@ export function FactSheetScreen() {
       </div>
 
       {filtered.map(({ section, facts }) => (
-        <section className="fs-block" key={section}>
+        <section className="fs-block" key={section} id={`sec-${section}`} data-rail>
           <header className="fs-block-head">
             <h2>{section}</h2>
             <span className="fs-block-meta">
@@ -432,7 +482,7 @@ export function FactSheetScreen() {
       ))}
 
       {sheet.entities.filter((e) => e.spine !== "competitors").length > 0 && (
-        <section className="fs-block">
+        <section className="fs-block" id="fs-entities" data-rail>
           <header className="fs-block-head">
             <h2>Offers &amp; the rest</h2>
           </header>

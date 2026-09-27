@@ -3197,6 +3197,73 @@ a.ghost {
    Everything the owner told us with its source; everything open with
    what answering it buys. Glass cards on the stage, mono for machine
    truth, no colour on severity anywhere. */
+/* The spine — a fixed mono rail that names every section, lights the
+   one under the reader, and jumps on click. The answer to a long page
+   is not a shorter page but a map. */
+.fs-rail {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  left: calc(50% - 645px);
+  width: 148px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 5;
+}
+.fs-rail a {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mut);
+  text-decoration: none;
+  padding: 6px 12px;
+  border-left: 2px solid var(--hair);
+  transition:
+    color 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.fs-rail a b {
+  font-weight: 400;
+  opacity: 0.55;
+  margin-left: 5px;
+}
+.fs-rail a:hover {
+  color: var(--ink);
+}
+.fs-rail a.on {
+  color: var(--ink);
+  border-left-color: var(--ember);
+}
+@media (max-width: 1339px) {
+  .fs-rail {
+    display: none;
+  }
+}
+[data-rail] {
+  scroll-margin-top: 24px;
+}
+.fs-more {
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mut);
+  background: none;
+  border: none;
+  border-top: 1px solid var(--hair);
+  padding: 12px 0 2px;
+  margin-top: 6px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.fs-more:hover {
+  color: var(--ember);
+}
 .fs-shell {
   max-width: 980px;
   margin: 0 auto;
