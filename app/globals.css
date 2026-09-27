@@ -5060,30 +5060,6 @@ a.auth-cta {
 .auth-foot a {
   color: var(--ember);
 }
-/* The intake shell squared (owner-directed 2026-09-27) — the same
-   scoped sharp-corner exception as the auth hero. Dots and glows keep
-   their circles; every box loses its radius. */
-.shell .card,
-.shell .field,
-.shell .next,
-.shell .ghost,
-.shell .chip,
-.shell .eyebrow .tier,
-.shell .opt,
-.shell .filestub,
-.shell .stepper,
-.shell .ondeck,
-.shell .entity-row,
-.shell .chip-reopen-field,
-.shell .recorded-strip,
-.shell .strip-toggle,
-.shell .reconcile,
-.shell .linkbox,
-.shell .readout,
-.shell .resume-note {
-  border-radius: 0;
-}
-
 /* Approval queue — P3-05, ux-spec §8. The ONLY surface where the signal
    blue appears at full strength: an approval is the owner's turn, and
    colour means "your turn" nowhere else. Approve and Decline are the

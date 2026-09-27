@@ -35,13 +35,13 @@ interface QuestionCardProps {
 function hintFor(type: IntakeQuestion["input_type"], mod: string): string | null {
   switch (type) {
     case "long_text":
-      return `${mod}↩`;
+      return `${mod}↩ to continue`;
     case "text":
     case "number":
     case "money":
     case "date":
     case "entity_list":
-      return "Enter ↩";
+      return "Enter to continue";
     default:
       return null;
   }
@@ -67,8 +67,8 @@ export function QuestionCard({
   }, []);
 
   const emptyMessage = question.allow_unknown
-    ? "Answer, or choose “I don't know”."
-    : "Answer, or skip.";
+    ? "Answer this, or choose “I don't know” to move on."
+    : "Answer this, or choose “Skip for now” to move on.";
 
   const handleChange = (change: ControlChange): void => {
     onFirstInput?.();
@@ -162,7 +162,7 @@ export function QuestionCard({
             }
             onClick={() => record(draft)}
           >
-            Record
+            Record answer
           </button>
         )}
         {question.allow_unknown ? (
@@ -181,7 +181,7 @@ export function QuestionCard({
             disabled={leaving}
             onClick={() => onAnswer({ kind: "skip" })}
           >
-            Skip
+            Skip for now
           </button>
         )}
         {hint && <span className="hint">{hint}</span>}

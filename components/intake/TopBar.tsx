@@ -1,7 +1,6 @@
 "use client";
 
-// Top bar — wordmark and the honest fraction `6 / 25 core`; the
-// screen itself says what is happening, so no subtitle
+// Top bar — wordmark, subtitle, and the honest fraction `6 / 25 core`
 // (P0-66 — never a percentage). 2px rail below, --ink fill.
 
 import type { IntakeProgress } from "@/lib/intake/types";
@@ -11,6 +10,7 @@ export function TopBar({ progress }: { progress: IntakeProgress | null }) {
     <>
       <header className="topbar">
         <span className="wordmark">Ledgerline</span>
+        <span className="subtitle">Setting up your business profile</span>
         <span className="meta">
           {progress && (
             <>
