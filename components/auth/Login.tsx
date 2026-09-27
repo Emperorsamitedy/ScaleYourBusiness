@@ -134,7 +134,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
               {error && <p className="auth-error">{error}</p>}
 
               {/* The answer to "forgot password?", where the eye expects it. */}
-              <p className="auth-nopass">No password — we email you a one-time link.</p>
+              <p className="auth-nopass">We email you a one-time link.</p>
 
               <p className="auth-foot" style={{ marginTop: 24 }}>
                 {signup ? (

@@ -4967,8 +4967,8 @@ a.auth-cta {
 
 .sd-stack {
   position: relative;
-  width: min(540px, 92%);
-  height: 252px;
+  width: min(600px, 94%);
+  height: 290px;
   /* margin auto centers the demo both ways between the wordmark and
      the statement — it is the panel's one focal object. */
   margin: auto;
@@ -5052,6 +5052,49 @@ a.auth-cta {
   color: var(--ember-bright);
   margin-right: 8px;
   font-weight: 500;
+}
+/* Beat 4 — the measured stats. Tabular numerals, mono labels, and a
+   quiet bar run with a single ember highlight: architecture, not
+   fireworks. */
+.sd-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 14px 0 4px;
+}
+.sd-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sd-stat-num {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.sd-stat-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+.sd-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 44px;
+  margin: 10px 0 2px;
+}
+.sd-bars i {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: var(--hair-2);
+}
+.sd-bars i.on {
+  background: var(--ember);
 }
 .sd-dots {
   position: absolute;

@@ -20,7 +20,7 @@ export function SystemDemo() {
   const typing = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const cycle = setInterval(() => setStep((s) => (s + 1) % 3), STEP_MS);
+    const cycle = setInterval(() => setStep((s) => (s + 1) % 4), STEP_MS);
     return () => clearInterval(cycle);
   }, []);
 
@@ -68,8 +68,35 @@ export function SystemDemo() {
         <span className="sd-prov">rests on: fixed costs (you told me) · price = 49 USD</span>
       </div>
 
+      {/* beat 4 — measured truth replaces the estimate */}
+      <div className={`sd-card ${step === 3 ? "on" : ""}`}>
+        <span className="sd-tag">measured · stripe</span>
+        <div className="sd-stats">
+          <div className="sd-stat">
+            <span className="sd-stat-num">$6,910</span>
+            <span className="sd-stat-label">revenue / mo</span>
+          </div>
+          <div className="sd-stat">
+            <span className="sd-stat-num">141</span>
+            <span className="sd-stat-label">orders / mo</span>
+          </div>
+          <div className="sd-stat">
+            <span className="sd-stat-num">31%</span>
+            <span className="sd-stat-label">margin</span>
+          </div>
+        </div>
+        <div className="sd-bars" aria-hidden="true">
+          {[34, 52, 41, 66, 58, 74, 90].map((h, i) => (
+            <i key={i} style={{ height: `${h}%` }} className={i === 6 ? "on" : ""} />
+          ))}
+        </div>
+        <span className="sd-prov">
+          you estimated $8,300 — measured $6,910, estimate kept in history
+        </span>
+      </div>
+
       <div className="sd-dots">
-        {[0, 1, 2].map((i) => (
+        {[0, 1, 2, 3].map((i) => (
           <i key={i} className={step === i ? "on" : ""} />
         ))}
       </div>
