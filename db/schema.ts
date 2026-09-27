@@ -390,6 +390,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "execution",
   "measurement",
   "profile_change",
+  "erasure", // Phase 4 rule 22: the fact of an erasure, never its PII
 ]);
 
 export const decisionLog = pgTable(
@@ -1297,4 +1298,68 @@ export const contentItems = pgTable(
       .defaultNow(),
   },
   (t) => [index("content_items_profile_idx").on(t.profile_id, t.scheduled_for)],
+);
+
+/* ---------- Phase 4 Session A — contacts (P4-01) ---------- */
+
+// The business's customers, held to rule 22 from the first migration:
+// contact rows are ERASABLE (GDPR), and everything that must survive
+// them — the suppression list, the log — stores hashes and ids, never
+// PII. Consent is a recorded fact with provenance (rule 19), using the
+// question bank's own vocabulary, and the (account, email) uniqueness
+// is partial: a partial contact without an email is a real contact.
+
+export const consentStatus = pgEnum("consent_status", [
+  "explicit_consent",
+  "implied_consent",
+  "no_consent",
+  "unsure",
+]);
+
+export const contacts = pgTable(
+  "contacts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    email: text("email"),
+    name: text("name"),
+    phone: text("phone"),
+    consent_status: consentStatus("consent_status").notNull().default("unsure"),
+    /** How consent was obtained, in words: "checkout checkbox", "import batch <id> — owner attests". */
+    consent_source: text("consent_source").notNull(),
+    consent_captured_at: timestamp("consent_captured_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    first_seen_at: timestamp("first_seen_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    last_activity_at: timestamp("last_activity_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("contacts_account_email_idx")
+      .on(t.account_id, t.email)
+      .where(sql`email IS NOT NULL`),
+    index("contacts_account_idx").on(t.account_id),
+  ],
+);
+
+// The list that survives erasure (rules 22/23): sha256 of the
+// lowercased email, never the email. An unsubscribe or an erasure is
+// permanent — re-import bounces off this table forever.
+
+export const contactSuppressions = pgTable(
+  "contact_suppressions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** sha256(lowercase(trim(email))) — no PII here, by design. */
+    email_hash: text("email_hash").notNull(),
+    reason: text("reason").notNull(), // "unsubscribed" | "erasure"
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("contact_suppressions_idx").on(t.account_id, t.email_hash)],
 );

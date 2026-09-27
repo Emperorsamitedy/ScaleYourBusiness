@@ -197,6 +197,13 @@
       "when": 1790076872080,
       "tag": "0027_happy_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1790501712361,
+      "tag": "0028_first_the_hood",
+      "breakpoints": true
     }
   ]
 }

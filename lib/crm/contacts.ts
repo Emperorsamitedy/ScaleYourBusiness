@@ -1,0 +1,220 @@
+// The contact spine — Phase 4 Session A (P4-01/02/04).
+//
+// Three rules carried in code, not intention:
+//
+//   Rule 19 — consent is a recorded fact. Every contact lands with a
+//   status from the bank's own vocabulary plus provenance (source and
+//   when), and the gate below treats the gradations as law: explicit
+//   consent emails for marketing; implied, unsure and none do not.
+//   The owner's own 6.4b answer sets the module's posture — a profile
+//   that said "no consent" has outbound disabled wholesale until the
+//   owner's data says otherwise.
+//
+//   Rule 22 — PII is erasable; the audit trail is not. Erasure deletes
+//   the row, leaves a suppression HASH, and writes a decision-log
+//   entry that names ids and hashes only. The log stays verifiable
+//   forever while holding nothing personal.
+//
+//   Rule 23 (its foundation) — the suppression list survives
+//   everything. Unsubscribes and erasures live as sha256(email);
+//   re-adding a suppressed address is refused by name of the reason,
+//   forever.
+//
+// Support contact ≠ marketing consent: nothing in this module infers
+// consent from interaction. Only the owner's attestation or the
+// customer's own recorded action sets a status.
+
+import { createHash } from "node:crypto";
+import { and, eq } from "drizzle-orm";
+import { db } from "../../db";
+import { businessProfiles, contactSuppressions, contacts, decisionLog } from "../../db/schema";
+import { readCurrentField } from "../profile/field-store";
+
+export class ContactError extends Error {
+  readonly status: number;
+  constructor(message: string, status = 400) {
+    super(message);
+    this.name = "ContactError";
+    this.status = status;
+  }
+}
+
+export type ConsentStatus = "explicit_consent" | "implied_consent" | "no_consent" | "unsure";
+
+export type ContactRow = typeof contacts.$inferSelect;
+
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+/** sha256 of the normalized address — all that suppression ever stores. */
+export function emailHash(email: string): string {
+  return createHash("sha256").update(normalizeEmail(email)).digest("hex");
+}
+
+export async function isSuppressed(accountId: string, email: string): Promise<string | null> {
+  const [row] = await db
+    .select({ reason: contactSuppressions.reason })
+    .from(contactSuppressions)
+    .where(
+      and(
+        eq(contactSuppressions.account_id, accountId),
+        eq(contactSuppressions.email_hash, emailHash(email)),
+      ),
+    );
+  return row?.reason ?? null;
+}
+
+export interface NewContact {
+  email?: string | null;
+  name?: string | null;
+  phone?: string | null;
+  consent: {
+    status: ConsentStatus;
+    /** How it was obtained, in words — required, not decorative. */
+    source: string;
+  };
+}
+
+/** Add one contact. A suppressed address is refused by its reason. */
+export async function addContact(accountId: string, input: NewContact): Promise<ContactRow> {
+  if (!input.email && !input.name && !input.phone) {
+    throw new ContactError("a contact needs at least an email, a name or a phone", 422);
+  }
+  if (input.consent.source.trim() === "") {
+    throw new ContactError("consent needs its provenance — how was it obtained?", 422);
+  }
+  const email = input.email ? normalizeEmail(input.email) : null;
+  if (email) {
+    const suppressed = await isSuppressed(accountId, email);
+    if (suppressed) {
+      throw new ContactError(
+        `that address is permanently suppressed (${suppressed}) — it cannot be re-added`,
+        409,
+      );
+    }
+  }
+  try {
+    const [row] = await db
+      .insert(contacts)
+      .values({
+        account_id: accountId,
+        email,
+        name: input.name?.trim() || null,
+        phone: input.phone?.trim() || null,
+        consent_status: input.consent.status,
+        consent_source: input.consent.source.trim(),
+      })
+      .returning();
+    return row as ContactRow;
+  } catch (error) {
+    // Drizzle wraps the pg error; the constraint name lives on cause.
+    const constraint = (error as { cause?: { constraint?: string } }).cause?.constraint;
+    if (constraint === "contacts_account_email_idx") {
+      throw new ContactError("a contact with that email already exists", 409);
+    }
+    throw error;
+  }
+}
+
+/* ── the consent gate (rule 19) ── */
+
+export interface EmailPermission {
+  allowed: boolean;
+  reason: string;
+}
+
+/** Marketing: explicit consent, an address, and no suppression. Nothing less. */
+export async function canEmailForMarketing(contact: ContactRow): Promise<EmailPermission> {
+  if (!contact.email) return { allowed: false, reason: "no email address on the contact" };
+  const suppressed = await isSuppressed(contact.account_id, contact.email);
+  if (suppressed) return { allowed: false, reason: `suppressed (${suppressed})` };
+  if (contact.consent_status !== "explicit_consent") {
+    return {
+      allowed: false,
+      reason: `consent is "${contact.consent_status.replace(/_/g, " ")}" — marketing needs explicit consent, recorded`,
+    };
+  }
+  return { allowed: true, reason: "explicit consent on record" };
+}
+
+/** Transactional (a reply to their own ticket): an address and no suppression. */
+export async function canEmailTransactional(contact: ContactRow): Promise<EmailPermission> {
+  if (!contact.email) return { allowed: false, reason: "no email address on the contact" };
+  const suppressed = await isSuppressed(contact.account_id, contact.email);
+  if (suppressed) return { allowed: false, reason: `suppressed (${suppressed})` };
+  return { allowed: true, reason: "transactional reply to the contact's own thread" };
+}
+
+export type OutboundPosture = "enabled" | "caution" | "disabled" | "unknown";
+
+/**
+ * The module posture from the owner's own 6.4b answer
+ * (customers.marketing_consent_status). "no_consent" disables outbound
+ * wholesale; "unsure"/"implied" run at caution (per-contact explicit
+ * consent still decides); explicit enables; unanswered is unknown —
+ * treated as caution by callers, never as permission.
+ */
+export async function outboundPosture(profileId: string): Promise<OutboundPosture> {
+  const field = await readCurrentField<string>(profileId, "customers.marketing_consent_status");
+  if (!field || field.status !== "answered" || typeof field.value !== "string") return "unknown";
+  if (field.value === "no_consent") return "disabled";
+  if (field.value === "explicit_consent") return "enabled";
+  return "caution";
+}
+
+/* ── erasure (rule 22) ── */
+
+/**
+ * Erase a contact: the row goes, the suppression hash stays, and the
+ * decision log records that an erasure HAPPENED — ids and hashes only,
+ * nothing recoverable. Idempotent on the suppression side.
+ */
+export async function eraseContact(accountId: string, contactId: string): Promise<void> {
+  const [contact] = await db
+    .select()
+    .from(contacts)
+    .where(and(eq(contacts.id, contactId), eq(contacts.account_id, accountId)));
+  if (!contact) throw new ContactError("no such contact", 404);
+
+  const hash = contact.email ? emailHash(contact.email) : null;
+  const [profile] = await db
+    .select({ id: businessProfiles.id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.account_id, accountId));
+
+  await db.transaction(async (tx) => {
+    if (hash) {
+      await tx
+        .insert(contactSuppressions)
+        .values({ account_id: accountId, email_hash: hash, reason: "erasure" })
+        .onConflictDoNothing();
+    }
+    await tx.delete(contacts).where(eq(contacts.id, contactId));
+    if (profile) {
+      await tx.insert(decisionLog).values({
+        profile_id: profile.id,
+        actor: "owner",
+        kind: "erasure",
+        ref_id: contactId,
+        payload_hash: createHash("sha256")
+          .update(
+            JSON.stringify({ account_id: accountId, contact_id: contactId, email_hash: hash }),
+          )
+          .digest("hex"),
+      });
+    }
+  });
+  console.log(
+    JSON.stringify({ event: "contact_erased", account_id: accountId, contact_id: contactId }),
+  );
+}
+
+/** The account's contacts, newest first. */
+export async function listContacts(accountId: string): Promise<ContactRow[]> {
+  return db
+    .select()
+    .from(contacts)
+    .where(eq(contacts.account_id, accountId))
+    .orderBy(contacts.first_seen_at);
+}
