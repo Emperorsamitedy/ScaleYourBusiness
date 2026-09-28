@@ -19,6 +19,7 @@ interface Decision {
 
 type State =
   | { phase: "loading" }
+  | { phase: "signedout" }
   | { phase: "none" }
   | { phase: "deferred"; reasoning: string }
   | { phase: "ready"; decision: Decision; extending: boolean };
@@ -40,6 +41,7 @@ export function ModeScreen() {
   const load = useCallback(async () => {
     const res = await fetch("/api/mode");
     const j = (await res.json()) as Decision & { none?: boolean; error?: string };
+    if (res.status === 401) return setState({ phase: "signedout" });
     if (!res.ok) return setState({ phase: "none" });
     if (j.none) return setState({ phase: "none" });
     setState({ phase: "ready", decision: j, extending: false });
@@ -81,6 +83,24 @@ export function ModeScreen() {
     return (
       <main className="auth-stage">
         <p className="auth-copy">Reading the decision…</p>
+      </main>
+    );
+  }
+
+  if (state.phase === "signedout") {
+    return (
+      <main className="auth-stage">
+        <div className="auth-col">
+          <span className="wordmark">Ledgerline</span>
+          <section className="card auth-card">
+            <span className="auth-eyebrow">how I&rsquo;ll work</span>
+            <h1 className="auth-title">Sign in first.</h1>
+            <p className="auth-copy">This screen reads your profile.</p>
+            <Link className="next auth-cta" style={{ marginTop: 22 }} href="/login">
+              Sign in
+            </Link>
+          </section>
+        </div>
       </main>
     );
   }
