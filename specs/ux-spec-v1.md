@@ -163,7 +163,7 @@ One screen, no interaction beyond acknowledgement, and it must not feel like a l
 
 ```
 ┌──────────────────────────────────────────────┐
-│  I'm going to watch before I act.            │
+│  Six weeks of watching first.                │
 │                                              │
 │  Your business is operating with real        │
 │  customers. Changing things quickly could    │
@@ -188,7 +188,7 @@ One screen, no interaction beyond acknowledgement, and it must not feel like a l
 
 Three deliberate choices. The reasons are listed as the actual `ModeDecisionInputs` that triggered the decision, so the owner can see it is a rule rather than an opinion. Extending is one click while shortening is buried in settings behind an explicit acknowledgement, encoding the asymmetry from the data model spec directly into the UI. And the screen states plainly what still happens during watching, because an owner who thinks they've paid for six weeks of nothing will cancel.
 
-For instant mode the same screen inverts: "I can start straight away," with the reasons that make it safe.
+For instant mode the same screen inverts: "Starting now," with the reasons that make it safe.
 
 ---
 

@@ -25,6 +25,15 @@ type State =
 
 const WEEKS_WORD: Record<number, string> = { 4: "four", 6: "six", 8: "eight" };
 
+/** Months read as years once they stop being months-sized. */
+const humanise = (reason: string): string =>
+  reason.replace(/(\d+) months/g, (m, n: string) => {
+    const months = Number(n);
+    if (months < 24) return m;
+    const years = Math.round(months / 12);
+    return `${years} years`;
+  });
+
 export function ModeScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
 
@@ -85,10 +94,8 @@ export function ModeScreen() {
             <span className="auth-eyebrow">how I&rsquo;ll work</span>
             <h1 className="auth-title">Ready to decide.</h1>
             <p className="auth-copy">
-              I&rsquo;ll look at what you told me — orders, staff, ads, how long you&rsquo;ve been
-              operating — and decide whether it&rsquo;s safe to act right away or whether I should
-              watch first. The rule is fixed and you&rsquo;ll see exactly which of your answers
-              triggered it.
+              One fixed rule reads your answers and picks: act now, or watch first. You see exactly
+              what triggered it.
             </p>
             <button
               className="next auth-cta"
@@ -132,16 +139,16 @@ export function ModeScreen() {
         <section className="card auth-card">
           <span className="auth-eyebrow">{watching ? "watching first" : "instant"}</span>
           <h1 className="auth-title">
-            {watching ? "I'm going to watch before I act." : "I can start straight away."}
+            {watching
+              ? `${(weeksWord ?? String(decision.watch_weeks ?? "")).replace(/^./, (c) => c.toUpperCase())} weeks of watching first.`
+              : "Starting now."}
           </h1>
           {/* The stored reasoning is the decision-time record and stays
               immutable; the paragraph must follow the CURRENT length,
               which an override can have changed since. */}
           <p className="auth-copy">
             {watching
-              ? `Your business is operating with real customers. Changing things quickly ` +
-                `could cost you sales, so I'll spend ${weeksWord ?? decision.watch_weeks} weeks ` +
-                `learning how it actually behaves before proposing anything.`
+              ? "Real customers are buying. Changes wait until the numbers are known."
               : decision.reasoning}
           </p>
 
@@ -150,14 +157,13 @@ export function ModeScreen() {
           </span>
           <ul className="mode-reasons">
             {decision.reasons.map((reason) => (
-              <li key={reason}>{reason}</li>
+              <li key={reason}>{humanise(reason)}</li>
             ))}
           </ul>
 
           {watching && (
             <p className="auth-copy" style={{ marginTop: 18 }}>
-              During this time I&rsquo;ll still send you the first read on the business, and
-              I&rsquo;ll ask questions as they come up. I just won&rsquo;t change anything.
+              The first read still arrives. Nothing changes without you.
             </p>
           )}
 
