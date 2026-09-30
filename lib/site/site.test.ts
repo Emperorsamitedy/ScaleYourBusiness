@@ -32,7 +32,7 @@ import type { LimitLlm } from "../proposals/hard-limits";
 import { approveProposal } from "../proposals/service";
 import * as applyModule from "./apply";
 import { HEALTH, applySiteChange, checkSiteHealth } from "./apply";
-import { SiteChangeError, proposeSiteChange } from "./changes";
+import { proposeSiteChange } from "./changes";
 import type { FetchedPage, PageFetcher } from "./fetch";
 import { embeddedV4, isPrivateAddress, livePageFetcher, pinnedLookup } from "./fetch";
 import { detectPlatform } from "./platform";

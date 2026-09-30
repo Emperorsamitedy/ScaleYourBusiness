@@ -17,8 +17,10 @@ v0.0.12 — new file, released files stay history.
 - **Owner decisions recorded 2026-09-30:** Meta first (Facebook Pages +
   Instagram via Facebook Login + Marketing API); TikTok deferred; Google
   Ads still blocked; the Phase 2 gate amended (below).
-- **Nothing in code changed** except `package.json`. Tests, migrations
-  and screens are as v0.0.15 left them.
+- **Code changes: two one-line lint fixes and `package.json`.** Tests,
+  migrations and screens are as v0.0.15 left them.
+- **CI is green again** (see "Fixed — CI red since 2026-09-27" below),
+  and staying green is now a written rule for both of us.
 - Samuel's commits now carry his `JanKenzeroX` identity. Vercel's
   Hobby contributor rule (v0.0.13) still applies: until the hosting
   decision lands, Tedi re-authors on merge and the trees are verified
@@ -84,6 +86,31 @@ approved by name. A fresh clone left `ffmpeg-static` without its binary
 and warned on three `esbuild` versions and `@sentry/cli`. The
 `allowScripts` block in `package.json` records the approvals; `npm
 install` finishes clean and the cutting room's ffmpeg runs.
+
+## Fixed — CI red since 2026-09-27
+
+Every push from `fb90302` (2026-09-27) through `d974f31` (2026-09-30)
+failed GitHub Actions at the **Lint** step, so the format check,
+migrations, tests and bank lint never ran on any of them — fourteen
+red runs in a row, unnoticed. Two unused identifiers: `_ctx` in
+`lib/execution/providers/fixture-site.ts` (the sibling methods already
+omit the unused context argument; ESLint's default does not exempt
+underscore-prefixed names) and an unused `SiteChangeError` import in
+`lib/site/site.test.ts`. Both removed; typecheck, lint, format check
+and the full test suite pass locally, and the run for this commit is
+green on GitHub.
+
+**Rule, for both of us, from here on:** `main` is green or it is
+broken. After every push, look at the Actions tab before doing anything
+else; a red run is the next task, not a note for later. Locally, run
+the same four commands CI does before pushing:
+
+```
+npm run typecheck && npm run lint && npm run format:check && npm test
+```
+
+A red `main` hides real failures behind the one everyone is used to
+seeing, which is how fourteen runs went by unread.
 
 ---
 

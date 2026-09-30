@@ -8,7 +8,7 @@
 // restores it byte for byte, whatever else the fixture "site" claims
 // by then (rule 16: permanent, not a window).
 
-import type { ExecutionContext, ExecutionProvider } from "./fixture";
+import type { ExecutionProvider } from "./fixture";
 
 const pages = new Map<string, string>();
 let failNextApplies = 0;
@@ -22,7 +22,7 @@ export const fixtureSiteExecutor: ExecutionProvider = {
     return { url, previous_html: pages.get(url) ?? null };
   },
 
-  async execute(op, params, _ctx: ExecutionContext) {
+  async execute(op, params) {
     if (op !== "apply_site_change") throw new Error(`fixture_site: unknown op "${op}"`);
     if (failNextApplies > 0) {
       failNextApplies -= 1;
