@@ -2,7 +2,7 @@
 // read process.env directly outside this file. Missing required variables
 // throw at first access, not at the point of use three modules later.
 
-type RequiredKey = "DATABASE_URL" | "ANTHROPIC_API_KEY" | "CONNECTOR_KEY";
+type RequiredKey = "DATABASE_URL" | "ANTHROPIC_API_KEY" | "CONNECTOR_KEY" | "BLOB_READ_WRITE_TOKEN";
 
 function read(key: RequiredKey): string {
   const value = process.env[key];
@@ -27,5 +27,11 @@ export const env: Record<RequiredKey, string> = {
   // Demanded only when a connector is connected or synced.
   get CONNECTOR_KEY() {
     return read("CONNECTOR_KEY");
+  },
+  // Phase 3 Session D (P3-20c): the Vercel Blob store that holds rendered
+  // media at a public URL for the platform to fetch. Demanded only when a
+  // render is attached to a content item; tests use the in-memory store.
+  get BLOB_READ_WRITE_TOKEN() {
+    return read("BLOB_READ_WRITE_TOKEN");
   },
 };
