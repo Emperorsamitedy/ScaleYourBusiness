@@ -22,6 +22,7 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
       fixture: {
         label: "Fixture (in-repo)",
         write_scopes: ["write_fixture_state"],
+        readback_scopes: [],
         operations: [
           {
             op: "set_value",
@@ -45,6 +46,7 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
       fixture_site: {
         label: "Fixture site (in-repo)",
         write_scopes: ["write_site_content"],
+        readback_scopes: [],
         operations: [
           {
             op: "apply_site_change",
@@ -97,6 +99,23 @@ describe("P3-08 — honest naming and the money fence", () => {
     );
     expect(violations).toEqual([
       { provider: "sneaky", value: "read_content_v2", reason: "not_write_shaped" },
+    ]);
+  });
+
+  it("P3-20b: a write-shaped READBACK scope is caught — readback scopes are reads, and the money fence covers them too", () => {
+    const violations = auditExecutionRegistry(
+      {
+        planted: {
+          write_scopes: ["publish_things"],
+          readback_scopes: ["read_insights", "manage_pages", "read_payment_history"],
+          operations: [],
+        },
+      },
+      isWriteCapable,
+    );
+    expect(violations).toEqual([
+      { provider: "planted", value: "manage_pages", reason: "readback_write_shaped" },
+      { provider: "planted", value: "read_payment_history", reason: "money_surface" },
     ]);
   });
 

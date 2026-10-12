@@ -44,6 +44,8 @@ export interface PublicConnection {
   label: string;
   /** Whether granted_scopes were reported by the provider or only probed (provider.ts). */
   scope_verification: "reported" | "probed";
+  /** Always "measure" here (P3-20b): execute rows have their own module and type. */
+  purpose: "measure";
   status: ConnectionStatus;
   granted_scopes: string[];
   cursor: string | null;
@@ -63,6 +65,7 @@ export function toPublicConnection(row: ConnectionRow): PublicConnection {
     label: provider?.label ?? row.provider,
     // A provider the registry doesn't know can't vouch for anything.
     scope_verification: provider?.scopeVerification ?? "probed",
+    purpose: "measure",
     status: row.status,
     granted_scopes: row.granted_scopes,
     cursor: row.cursor,
@@ -89,7 +92,15 @@ export async function ownedConnection(
   const [row] = await db
     .select()
     .from(connections)
-    .where(and(eq(connections.id, connectionId), eq(connections.account_id, accountId)));
+    .where(
+      and(
+        eq(connections.id, connectionId),
+        eq(connections.account_id, accountId),
+        // P3-20b: the measurement side owns measure rows only. An execute
+        // connection is "not found" here — its own module manages it.
+        eq(connections.purpose, "measure"),
+      ),
+    );
   if (!row) throw new ConnectorError("connection not found", 404);
   return row;
 }
@@ -115,6 +126,7 @@ export async function activeConnection(
       and(
         eq(connections.account_id, accountId),
         eq(connections.provider, provider),
+        eq(connections.purpose, "measure"),
         ne(connections.status, "disconnected"),
       ),
     )
@@ -160,6 +172,7 @@ export async function connect(
     .values({
       account_id: accountId,
       provider: providerId,
+      purpose: "measure",
       status: "connected",
       encrypted_secret: encryptSecret(secret),
       granted_scopes: granted,
@@ -210,11 +223,12 @@ export async function resumeConnection(connectionId: string): Promise<PublicConn
   return toPublicConnection(row);
 }
 
+/** The account's MEASURE connections (P3-20b): execute rows are listed by lib/execution/connections. */
 export async function listConnections(accountId: string): Promise<PublicConnection[]> {
   const rows = await db
     .select()
     .from(connections)
-    .where(eq(connections.account_id, accountId))
+    .where(and(eq(connections.account_id, accountId), eq(connections.purpose, "measure")))
     .orderBy(connections.created_at);
   return rows.map(toPublicConnection);
 }

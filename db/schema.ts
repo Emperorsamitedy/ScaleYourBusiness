@@ -944,6 +944,17 @@ export const connectionStatus = pgEnum("connection_status", [
   "disconnected",
 ]);
 
+// P3-20b (Session D, rule 13): a connection is FOR measuring or FOR
+// executing, never both. "measure" rows hold read-only scopes verified by
+// lib/connectors (rule 9) and are the only rows the sync runner walks;
+// "execute" rows hold the write scopes of lib/execution/scopes and are
+// never returned to the measurement side. One table, two purposes, so
+// every metric_observations row keeps a valid connection_id whichever
+// credential produced it (D4's readback). A Postgres trigger (migration
+// 0030) refuses a write-capable scope on a measure row, mirroring
+// isWriteCapable, so the invariant holds even for a hand-written row.
+export const connectionPurpose = pgEnum("connection_purpose", ["measure", "execute"]);
+
 export const connections = pgTable(
   "connections",
   {
@@ -951,8 +962,13 @@ export const connections = pgTable(
     account_id: uuid("account_id")
       .notNull()
       .references(() => accounts.id),
-    /** A ProviderId from lib/connectors/scopes.ts — "stripe", "fixture", … */
+    /**
+     * A ProviderId from lib/connectors/scopes.ts for measure rows ("stripe",
+     * "fixture", …); an ExecutionProviderId from lib/execution/scopes.ts
+     * for execute rows. The purpose column says which registry applies.
+     */
     provider: text("provider").notNull(),
+    purpose: connectionPurpose("purpose").notNull().default("measure"),
     status: connectionStatus("status").notNull().default("connected"),
     /**
      * AES-256-GCM blob (P2-03, rule 10). Null once disconnected. Never
@@ -974,7 +990,7 @@ export const connections = pgTable(
   },
   (t) => [
     uniqueIndex("connections_active_idx")
-      .on(t.account_id, t.provider)
+      .on(t.account_id, t.provider, t.purpose)
       .where(sql`status <> 'disconnected'`),
     index("connections_account_idx").on(t.account_id),
   ],

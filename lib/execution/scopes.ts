@@ -45,6 +45,13 @@ export interface ExecutionOperationSpec {
 export interface ExecutionProviderSpec {
   label: string;
   write_scopes: readonly string[];
+  /**
+   * Read-only scopes the SAME credential needs beside its writes — page
+   * listing, insights for readback (D4). Declared here so an execute
+   * connection is accepted with EXACTLY write_scopes ∪ readback_scopes
+   * (P3-20b), and audited as reads: a write-shaped entry fails the build.
+   */
+  readback_scopes: readonly string[];
   operations: readonly ExecutionOperationSpec[];
   consent: readonly ExecutionConsentEntry[];
 }
@@ -54,6 +61,7 @@ export const EXECUTION_SCOPE_REGISTRY = {
   fixture: {
     label: "Fixture (in-repo)",
     write_scopes: ["write_fixture_state"],
+    readback_scopes: [],
     operations: [
       {
         op: "set_value",
@@ -78,6 +86,7 @@ export const EXECUTION_SCOPE_REGISTRY = {
   fixture_site: {
     label: "Fixture site (in-repo)",
     write_scopes: ["write_site_content"],
+    readback_scopes: [],
     operations: [
       {
         op: "apply_site_change",
@@ -123,18 +132,24 @@ export function touchesMoneySurface(value: string): boolean {
 export interface ExecutionScopeViolation {
   provider: string;
   value: string;
-  reason: "money_surface" | "not_write_shaped" | "empty" | "op_money_surface";
+  reason:
+    "money_surface" | "not_write_shaped" | "empty" | "op_money_surface" | "readback_write_shaped";
 }
 
 /**
  * The build-failing audit for the WRITE side. isWriteCapable comes from
  * the measurement audit (lib/connectors/scopes) — the same vocabulary
- * that refuses writes there requires them here.
+ * that refuses writes there requires them here, and forbids them again
+ * among the readback scopes (P3-20b): a readback scope is a read.
  */
 export function auditExecutionRegistry(
   registry: Record<
     string,
-    { write_scopes: readonly string[]; operations: readonly ExecutionOperationSpec[] }
+    {
+      write_scopes: readonly string[];
+      readback_scopes?: readonly string[];
+      operations: readonly ExecutionOperationSpec[];
+    }
   > = EXECUTION_SCOPE_REGISTRY,
   isWriteCapable: (scope: string) => boolean = requireWriteVocabulary,
 ): ExecutionScopeViolation[] {
@@ -146,6 +161,13 @@ export function auditExecutionRegistry(
         violations.push({ provider, value: scope, reason: "money_surface" });
       else if (!isWriteCapable(scope))
         violations.push({ provider, value: scope, reason: "not_write_shaped" });
+    }
+    for (const scope of spec.readback_scopes ?? []) {
+      if (scope.trim() === "") violations.push({ provider, value: scope, reason: "empty" });
+      else if (touchesMoneySurface(scope))
+        violations.push({ provider, value: scope, reason: "money_surface" });
+      else if (isWriteCapable(scope))
+        violations.push({ provider, value: scope, reason: "readback_write_shaped" });
     }
     for (const operation of spec.operations) {
       if (touchesMoneySurface(operation.op))

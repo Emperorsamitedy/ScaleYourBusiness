@@ -25,7 +25,7 @@
 // BullMQ (CLAUDE.md stack) takes over the loop below; nothing else here
 // changes. Until it is measured, a queue is speculation.
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { connections, connectorSyncs } from "../../db/schema";
 import type { DeriveOutcome } from "./derive";
@@ -50,8 +50,8 @@ export interface SyncOutcome {
   provider: string | null;
   kind: SyncKind | null;
   ok: boolean;
-  /** Set when nothing ran, and why. */
-  skipped: "locked" | "not_found" | "not_connected" | null;
+  /** Set when nothing ran, and why. "not_measurement": an execute connection (P3-20b) — never synced. */
+  skipped: "locked" | "not_found" | "not_connected" | "not_measurement" | null;
   pages: number;
   observations: number;
   duration_ms: number;
@@ -119,6 +119,12 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
       }
       outcome.account_id = row.account_id;
       outcome.provider = row.provider;
+      // P3-20b: a write credential is never pulled from. The runner's
+      // query already excludes execute rows; this holds for a direct call.
+      if (row.purpose !== "measure") {
+        outcome.skipped = "not_measurement";
+        return outcome;
+      }
       if (row.status !== "connected") {
         outcome.skipped = "not_connected";
         return outcome;
@@ -260,7 +266,7 @@ export async function runConnectorSync(now = new Date()): Promise<SyncRunSummary
   const rows = await db
     .select({ id: connections.id })
     .from(connections)
-    .where(eq(connections.status, "connected"))
+    .where(and(eq(connections.status, "connected"), eq(connections.purpose, "measure")))
     .orderBy(connections.created_at);
   const summary: SyncRunSummary = {
     connections: rows.length,

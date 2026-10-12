@@ -345,6 +345,7 @@ describe("toPublicConnection", () => {
       "last_error",
       "last_sync_at",
       "provider",
+      "purpose",
       "scope_verification",
       "status",
     ]);
