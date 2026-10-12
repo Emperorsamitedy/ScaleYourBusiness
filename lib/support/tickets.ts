@@ -77,14 +77,30 @@ export async function listTickets(profileId: string): Promise<TicketRow[]> {
     .orderBy(desc(supportTickets.created_at));
 }
 
+export const TICKET_ANSWER_MAX_CHARS = 2000;
+
+/**
+ * Resolve, optionally recording what the owner answered (P4-12): the FAQ
+ * proposes from that text and never from a drafted one. The answer is
+ * the owner's words, trimmed, never rewritten.
+ */
 export async function resolveTicket(
   profileId: string,
   ticketId: string,
   status: "answered" | "closed",
+  answer?: string,
 ): Promise<TicketRow> {
+  const recorded = typeof answer === "string" ? answer.trim() : "";
+  if (recorded.length > TICKET_ANSWER_MAX_CHARS) {
+    throw new TicketError(`keep the answer under ${TICKET_ANSWER_MAX_CHARS} characters`, 422);
+  }
   const [row] = await db
     .update(supportTickets)
-    .set({ status, resolved_at: new Date().toISOString() })
+    .set({
+      status,
+      resolved_at: new Date().toISOString(),
+      ...(recorded !== "" ? { answer: recorded } : {}),
+    })
     .where(
       and(
         eq(supportTickets.id, ticketId),

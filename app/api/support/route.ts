@@ -1,13 +1,15 @@
-// The OWNER'S support API — Phase 4 Session B (P4-05..07).
+// The OWNER'S support API — Phase 4 Sessions B and D (P4-05..07, P4-12).
 //
 //   GET  /api/support                         settings, knowledge, tickets, conversations
 //   GET  /api/support?conversation=<id>       one transcript
 //   POST /api/support {action}                enable | rotate | propose_knowledge |
-//                                             propose_custom | publish | retire | resolve_ticket
+//                                             propose_custom | publish | retire |
+//                                             resolve_ticket | cluster_faq
 //
 // Reading needs the intake cookie like every profile surface. Every
 // mutation needs a signed-in user: publishing puts words in the
-// assistant's mouth, rotating a key cuts every embedded widget off.
+// assistant's mouth, rotating a key cuts every embedded widget off, and
+// clustering spends a model call.
 
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
@@ -15,6 +17,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
 import { currentSession } from "../../../lib/auth/service";
+import { FaqError, clusterQuestions } from "../../../lib/crm/faq";
 import {
   KnowledgeError,
   listKnowledge,
@@ -58,6 +61,7 @@ function onError(error: unknown): NextResponse {
     error instanceof SupportSettingsError ||
     error instanceof SupportError ||
     error instanceof TicketError ||
+    error instanceof FaqError ||
     error instanceof ProposalError
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
@@ -128,8 +132,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       entry_id?: unknown;
       ticket_id?: unknown;
       status?: unknown;
-      question?: unknown;
       answer?: unknown;
+      question?: unknown;
     };
     switch (body.action) {
       case "enable": {
@@ -175,14 +179,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           return NextResponse.json({ error: "ticket_id is required" }, { status: 422 });
         }
         const status = body.status === "closed" ? "closed" : "answered";
-        const ticket = await resolveTicket(profileId, body.ticket_id, status);
-        return NextResponse.json({ status: ticket.status });
+        const ticket = await resolveTicket(
+          profileId,
+          body.ticket_id,
+          status,
+          typeof body.answer === "string" ? body.answer : undefined,
+        );
+        return NextResponse.json({ status: ticket.status, answered: ticket.answer !== null });
+      }
+      case "cluster_faq": {
+        const outcome = await clusterQuestions(profileId, session.account_id);
+        return NextResponse.json(outcome);
       }
       default:
         return NextResponse.json(
           {
             error:
-              'action must be "enable", "rotate", "propose_knowledge", "propose_custom", "publish", "retire" or "resolve_ticket"',
+              'action must be "enable", "rotate", "propose_knowledge", "propose_custom", "publish", "retire", "resolve_ticket" or "cluster_faq"',
           },
           { status: 422 },
         );

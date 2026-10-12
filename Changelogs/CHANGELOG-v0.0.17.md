@@ -15,10 +15,12 @@ Convention per v0.0.12 — new file, released files stay history.
   build. Everything that needs a legal entity waits for it: Meta
   Business Verification and the approvals behind it, and Stripe live
   mode. Nothing that is buildable waits.
-- **Session D layer D0 is built, and Phase 4 Session B** (both below).
-  Three new migrations, 0030–0032, all additive — production must apply
-  them before this branch deploys. One new dependency: `@vercel/blob`.
-- **Local: 766 tests across 82 files**, typecheck, lint, format and
+- **Session D layer D0 is built, and Phase 4 Sessions B and D** (all
+  below). Four new migrations, 0030–0033, all additive — production must
+  apply them before this branch deploys. One new dependency:
+  `@vercel/blob`. Two new crons in `vercel.json`: `execute-due` and
+  `faq-cluster`.
+- **Local: 771 tests across 83 files**, typecheck, lint, format and
   build clean. Not pushed yet — Samuel pushes when he says so.
 
 ---
@@ -154,16 +156,36 @@ existing `ANTHROPIC_API_KEY`; `BLOB_READ_WRITE_TOKEN` waits for D2.
 
 ---
 
+## Built — Phase 4 Session D: the self-updating FAQ (2026-10-13)
+
+The loop that makes support cheaper every week, with the owner holding
+the pen. `lib/crm/faq.ts` clusters the real questions the assistant
+could not answer — tickets — with one batched Haiku call per run over
+at most 200 open questions; fewer than three costs no call. A cluster
+becomes a proposed knowledge entry ONLY when one of its members carries
+the owner's own answer: `support_tickets.answer` (migration 0033)
+records what the owner actually said when marking a ticket answered,
+and the system never drafts an answer it was not given. A cluster
+nobody answered is reported on `/support` as "frequently asked, not yet
+answered by you". Approval publishes through the same path as every
+other entry; the chat answers the next asker from it. Folding a
+question into the FAQ does not close the people who asked it. Nightly
+cron `/api/cron/faq-cluster` at 03:00 UTC, plus an owner-triggered run.
+5 tests; the done-when is one of them, end to end.
+
+---
+
 ## Next
 
 1. **Tedi:** the Stripe key on production, test payments, the first
    autonomous sync. That meets the amended gate and opens D1.
 2. **Owner:** walk `/support` → enable → propose → approve in the queue →
    publish → `/support/test` → ask, ask the unanswerable, ask for a
-   person. Each should behave as the status note promises.
-3. **Meanwhile, needing nothing external:** Phase 4 Session D (the
-   self-updating FAQ) and Session E (segments) — Session C (email) waits
-   on `RESEND_API_KEY`, Session F on that and on D2.
+   person → answer the ticket in your words → cluster. Each should
+   behave as the status notes promise.
+3. **Meanwhile, needing nothing external:** Phase 4 Session E
+   (segments and lifecycle) — Session C (email) waits on
+   `RESEND_API_KEY`, Session F on that and on D2.
 4. **D1** once the gate is met and the Meta business portfolio exists;
    the **hosting decision** before D2.
 

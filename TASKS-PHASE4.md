@@ -70,9 +70,11 @@ Step 83. ⏸ **Gated on the owner's email provider key (inbound + outbound)** �
 
 Step 84.
 
-- [ ] **P4-12** Question clustering over real chat/ticket questions (Haiku, batched, cost-capped) → proposed FAQ entries through the queue; owner approval publishes to the knowledge base (P4-05), which feeds the chat — the loop that makes support cheaper every week, with the owner holding the pen.
+- [x] **P4-12** Question clustering over real chat/ticket questions (Haiku, batched, cost-capped) → proposed FAQ entries through the queue; owner approval publishes to the knowledge base (P4-05), which feeds the chat — the loop that makes support cheaper every week, with the owner holding the pen.
 
 **Done when:** three real questions cluster into one proposed entry, approval publishes it, and the chat answers the fourth asker from it.
+
+**Status 2026-10-13:** Done — the done-when is one test, end to end: three tickets cluster, the entry is proposed with the owner's own answer, approval publishes it, and a fourth asker is answered from it with no new ticket. The system groups questions and never drafts an answer: `support_tickets.answer` (migration 0033) records what the owner actually said when marking a ticket answered, and a cluster is proposed only when one of its members carries such an answer (the latest wins); a cluster nobody answered is reported as "frequently asked, not yet answered by you" on `/support` for the owner to answer on a ticket. One batched Haiku call per run over at most 200 open questions (reason `no_answer` or `customer_asked`, not yet folded into a public or queued entry); fewer than three questions costs no call. Clusters of fewer than three, unknown ids and reused ids are dropped. Folding a question into the FAQ does not close the people who asked it — they wait for a person until the owner says otherwise. Entries reach the queue through the same `proposeEntries` as facts and owner-written answers, with `source_keys` naming every ticket. Nightly cron `/api/cron/faq-cluster` (03:00 UTC) plus an owner-triggered run from `/support`. 5 tests.
 
 ## Session E — Segmentation & lifecycle _(~2 wks)_
 

@@ -274,6 +274,16 @@ async function pendingKnowledgeProposals(profileId: string): Promise<ProposalRow
   return rows.filter((p) => (p.action as { kind?: string }).kind === KNOWLEDGE_KIND);
 }
 
+/** The one way entries enter the queue — facts, owner-written, and the FAQ (P4-12) all come through here. */
+export async function proposeEntries(
+  profileId: string,
+  entries: KnowledgeCandidate[],
+  summary: string,
+  limitLlm: LimitLlm | undefined,
+): Promise<ProposalRow> {
+  return propose(profileId, entries, summary, limitLlm);
+}
+
 async function propose(
   profileId: string,
   entries: KnowledgeCandidate[],

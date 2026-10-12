@@ -1,12 +1,14 @@
 "use client";
 
-// The owner's support screen — Phase 4 Session B. Four things, plainly:
-// the widget's public key and the one-line snippet that embeds it; the
-// knowledge base (what the assistant may say — proposed from facts,
-// approved in the queue, published here, retired here); the tickets
-// where a human was asked for; and the conversations as they happened.
-// Nothing on this screen touches a customer's account or executes
-// anything — the assistant answers, and that is all it does.
+// The owner's support screen — Phase 4 Sessions B and D. Four things,
+// plainly: the widget's public key and the one-line snippet that embeds
+// it; the knowledge base (what the assistant may say — proposed from
+// facts, clustered from real questions, approved in the queue,
+// published here, retired here); the tickets where a human was asked
+// for, each with a place to write the answer in the owner's own words;
+// and the conversations as they happened. Nothing on this screen
+// touches a customer's account or executes anything — the assistant
+// answers, and that is all it does.
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -38,6 +40,7 @@ interface Ticket {
   reason: "customer_asked" | "no_answer" | "cost_cap" | "conversation_cap";
   summary: string;
   status: "open" | "answered" | "closed";
+  answer: string | null;
   created_at: string;
 }
 
@@ -57,6 +60,18 @@ interface Message {
   at: string;
 }
 
+interface FaqCluster {
+  question: string;
+  members: string[];
+}
+
+interface FaqOutcome {
+  questions: number;
+  clusters: FaqCluster[];
+  proposal_id: string | null;
+  unanswered: FaqCluster[];
+}
+
 type State =
   | { phase: "loading" }
   | { phase: "signedout" }
@@ -73,6 +88,8 @@ type State =
       transcript: Message[];
       question: string;
       answer: string;
+      ticketAnswers: Record<string, string>;
+      faq: FaqOutcome | null;
     };
 
 const REASON_WORD: Record<Ticket["reason"], string> = {
@@ -104,7 +121,7 @@ export function SupportScreen() {
       tickets: Ticket[];
       conversations: Conversation[];
     };
-    setState({
+    setState((cur) => ({
       phase: "ready",
       ...j,
       busy: false,
@@ -113,7 +130,9 @@ export function SupportScreen() {
       transcript: [],
       question: "",
       answer: "",
-    });
+      ticketAnswers: {},
+      faq: cur.phase === "ready" ? cur.faq : null,
+    }));
   }, []);
 
   useEffect(() => {
@@ -149,26 +168,58 @@ export function SupportScreen() {
   }
 
   const s = state;
-  const act = async (payload: Record<string, unknown>, doneNotice: string) => {
-    setState({ ...s, busy: true, notice: null });
+  const post = async (payload: Record<string, unknown>) => {
     const res = await fetch("/api/support", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const j = (await res.json()) as { error?: string };
-    if (!res.ok) {
-      setState({ ...s, busy: false, notice: j.error ?? "that didn't work" });
+    const j = (await res.json()) as { error?: string } & Record<string, unknown>;
+    return { ok: res.ok, json: j };
+  };
+
+  const act = async (payload: Record<string, unknown>, doneNotice: string) => {
+    setState({ ...s, busy: true, notice: null });
+    const { ok, json } = await post(payload);
+    if (!ok) {
+      setState({ ...s, busy: false, notice: json.error ?? "that didn't work" });
       return;
     }
     await load();
     setState((cur) => (cur.phase === "ready" ? { ...cur, notice: doneNotice } : cur));
   };
 
+  const clusterFaq = async () => {
+    setState({ ...s, busy: true, notice: null });
+    const { ok, json } = await post({ action: "cluster_faq" });
+    if (!ok) {
+      setState({ ...s, busy: false, notice: json.error ?? "that didn't work" });
+      return;
+    }
+    const outcome = json as unknown as FaqOutcome;
+    await load();
+    setState((cur) =>
+      cur.phase === "ready"
+        ? {
+            ...cur,
+            faq: outcome,
+            notice:
+              outcome.questions < 3
+                ? `Only ${outcome.questions} open question${outcome.questions === 1 ? "" : "s"} — nothing to cluster yet. Three askers make a frequently asked question.`
+                : outcome.proposal_id
+                  ? "Clustered. The answers you already gave are in your approval queue; the rest are listed below for you to answer."
+                  : outcome.clusters.length === 0
+                    ? "Clustered: no three people have asked the same thing yet."
+                    : "Clustered. Nobody has answered these yet — answer one on its ticket and cluster again.",
+          }
+        : cur,
+    );
+  };
+
   const openTranscript = async (id: string) => {
     if (s.open === id) return setState({ ...s, open: null, transcript: [] });
     const res = await fetch(`/api/support?conversation=${id}`);
-    const j = (await res.json()) as { messages: Message[] };
+    const j = (await res.json()) as { message?: Message[]; messages: Message[] };
     setState({ ...s, open: id, transcript: j.messages });
   };
 
@@ -244,7 +295,8 @@ export function SupportScreen() {
       <section className="card ops-card">
         <span className="auth-eyebrow">what it may say — approved by you, nothing else</span>
         <p className="auth-copy">
-          Answers are rendered from facts you gave in the intake, put in your{" "}
+          Answers are rendered from facts you gave in the intake, or clustered from questions
+          customers actually asked and you actually answered, put in your{" "}
           <Link href="/proposals">approval queue</Link>, and published here once you approve.
           Retiring one takes it out of the assistant&apos;s mouth immediately.
         </p>
@@ -261,7 +313,21 @@ export function SupportScreen() {
           >
             Propose answers from my facts
           </button>
+          <button className="prop-btn" disabled={s.busy} onClick={() => void clusterFaq()}>
+            Cluster the questions customers asked
+          </button>
         </div>
+        {s.faq && s.faq.unanswered.length > 0 && (
+          <div className="ct-suggestions">
+            <span className="auth-eyebrow">frequently asked, not yet answered by you</span>
+            {s.faq.unanswered.map((c) => (
+              <p key={c.question} className="conn-note">
+                “{c.question}” — asked {c.members.length} times. Answer it on one of its tickets
+                below, then cluster again.
+              </p>
+            ))}
+          </div>
+        )}
         <form
           className="ct-goal-form"
           onSubmit={(e) => {
@@ -338,7 +404,12 @@ export function SupportScreen() {
               )}
             </div>
             <p className="auth-copy">{e.answer}</p>
-            <p className="ct-disclosure">from {e.source_keys.join(", ")}</p>
+            <p className="ct-disclosure">
+              from{" "}
+              {e.source_keys.some((k) => k.startsWith("faq:ticket:"))
+                ? `${e.source_keys.length} customers who asked`
+                : e.source_keys.join(", ")}
+            </p>
           </article>
         ))}
       </section>
@@ -355,6 +426,14 @@ export function SupportScreen() {
               <span className="ct-item-title">{when(t.created_at)}</span>
             </div>
             <pre className="ct-body">{t.summary}</pre>
+            <input
+              className="ct-input"
+              placeholder="What you answered them, in your words — the FAQ proposes from this"
+              value={s.ticketAnswers[t.id] ?? ""}
+              onChange={(e) =>
+                setState({ ...s, ticketAnswers: { ...s.ticketAnswers, [t.id]: e.target.value } })
+              }
+            />
             <div className="prop-actions">
               {t.conversation_id && (
                 <button
@@ -369,8 +448,15 @@ export function SupportScreen() {
                 disabled={s.busy}
                 onClick={() =>
                   void act(
-                    { action: "resolve_ticket", ticket_id: t.id, status: "answered" },
-                    "Marked answered.",
+                    {
+                      action: "resolve_ticket",
+                      ticket_id: t.id,
+                      status: "answered",
+                      answer: s.ticketAnswers[t.id] ?? "",
+                    },
+                    (s.ticketAnswers[t.id] ?? "").trim() === ""
+                      ? "Marked answered. Next time, write what you said — it can become an approved answer."
+                      : "Marked answered, with your words on record.",
                   )
                 }
               >

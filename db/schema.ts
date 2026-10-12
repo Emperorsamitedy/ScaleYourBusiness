@@ -1582,6 +1582,12 @@ export const supportTickets = pgTable(
     /** The customer's last question, verbatim — what the human is being asked to answer. */
     summary: text("summary").notNull(),
     status: supportTicketStatus("status").notNull().default("open"),
+    /**
+     * P4-12: what the owner actually answered, in their words, recorded when
+     * the ticket is marked answered. The FAQ proposes from THIS — the system
+     * never drafts an answer the owner did not give.
+     */
+    answer: text("answer"),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
