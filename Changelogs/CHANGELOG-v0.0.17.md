@@ -15,11 +15,11 @@ Convention per v0.0.12 — new file, released files stay history.
   build. Everything that needs a legal entity waits for it: Meta
   Business Verification and the approvals behind it, and Stripe live
   mode. Nothing that is buildable waits.
-- **Session D layer D0 is built** (below). Two new migrations, 0030 and
-  0031, both additive — production must apply them before this branch
-  deploys. One new dependency: `@vercel/blob`.
-- **Local: 745 tests across 79 files**, typecheck, lint and format
-  clean. Not pushed yet — Samuel pushes when he says so.
+- **Session D layer D0 is built, and Phase 4 Session B** (both below).
+  Three new migrations, 0030–0032, all additive — production must apply
+  them before this branch deploys. One new dependency: `@vercel/blob`.
+- **Local: 766 tests across 82 files**, typecheck, lint, format and
+  build clean. Not pushed yet — Samuel pushes when he says so.
 
 ---
 
@@ -102,14 +102,69 @@ red on the next push for a reason unrelated to the push.
 
 ---
 
+## Built — Phase 4 Session B: customer chat (2026-10-13)
+
+The first stranger-facing surface, on the opposite privilege model to
+the owner's chat: no profile, no report, no proposal queue, no execution
+reach. The one thing a conversation can create is a ticket. One commit;
+every done-when clause a test; the browser walk on `/support/test` is
+recorded as still to do, not assumed.
+
+- **P4-05 Knowledge.** `lib/crm/knowledge.ts` renders candidates from a
+  closed allowlist of fourteen public-safe field keys plus each offer's
+  name, description, price and price model — nothing else in the profile
+  is read — as ONE proposal (module `support`, new action kind
+  `support_knowledge`). Approval then publishes them as
+  `knowledge_entries`; a re-rendered fact retires the entry it replaces;
+  retiring is one click; an owner-written entry takes the same queue.
+- **P4-06 Chat.** `lib/support/chat.ts`. The disclosure is the first
+  message of every conversation (rule 20). "A person, please" is caught
+  by a plain pattern before any model call and by Haiku after. A
+  question is grounded by word overlap against the public entries — no
+  model, no embeddings — and Sonnet answers only from those entries,
+  saying `grounded: false` when they don't cover it; an ungrounded or
+  unparseable answer is a handover plus a ticket, never a guess. The
+  customer's text reaches only the user turn (rule 24 verbatim in both
+  prompts). Caps in code — €0.05 per conversation, €5 per account per
+  month from the metering table, 40 turns, 1 000 characters, 200 new
+  conversations a day — are checked before any model call.
+- **P4-07 Widget and endpoint.** `support_settings.site_key` (public by
+  design, rotatable) scopes `/api/support/public`, which reads no cookie,
+  sets none, answers CORS for any origin, and knows only the key and a
+  per-conversation token the widget keeps in `sessionStorage`.
+  `public/support-widget.js` is one script tag with the disclosure
+  pinned in its header. `/support` is the owner's screen (key, snippet,
+  knowledge, tickets with reasons, transcripts); `/support/test` a
+  pretend customer page with the real widget.
+- **P4-08 Rule 21.** `lib/support/structure.test.ts` walks the import
+  graph transitively from every stranger-facing entry point and fails
+  the build if execution, proposals, profile, connectors, content, site,
+  crm, chat, intake, auth or the rest is reached.
+
+Migration 0032: five tables, five enums. 21 new tests across three
+files. One flake caught by the full run and fixed at the source: a
+customer turn stamped by the app's clock next to a reply stamped by the
+database's could land out of order by a few milliseconds of skew; every
+message is now stamped by one clock and a reply lands strictly after
+the turn it answers.
+
+**For Tedi, production:** migrations 0030–0032 before this branch
+deploys. No new environment variable for Session B — the chat uses the
+existing `ANTHROPIC_API_KEY`; `BLOB_READ_WRITE_TOKEN` waits for D2.
+
+---
+
 ## Next
 
 1. **Tedi:** the Stripe key on production, test payments, the first
    autonomous sync. That meets the amended gate and opens D1.
-2. **Meanwhile, needing nothing external:** Phase 4 Session B (customer
-   chat) and the other Phase 4 sessions without outside keys, per the
-   work split.
-3. **D1** once the gate is met and the Meta business portfolio exists;
+2. **Owner:** walk `/support` → enable → propose → approve in the queue →
+   publish → `/support/test` → ask, ask the unanswerable, ask for a
+   person. Each should behave as the status note promises.
+3. **Meanwhile, needing nothing external:** Phase 4 Session D (the
+   self-updating FAQ) and Session E (segments) — Session C (email) waits
+   on `RESEND_API_KEY`, Session F on that and on D2.
+4. **D1** once the gate is met and the Meta business portfolio exists;
    the **hosting decision** before D2.
 
 ---

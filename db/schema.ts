@@ -1425,3 +1425,167 @@ export const contactSuppressions = pgTable(
   },
   (t) => [uniqueIndex("contact_suppressions_idx").on(t.account_id, t.email_hash)],
 );
+
+/* ---------- Phase 4 Session B — customer chat (P4-05..08) ---------- */
+
+// The first stranger-facing surface. The privilege model is different in
+// kind, not degree (TASKS-PHASE4.md): a customer gets no profile access,
+// no execution reach, and answers grounded ONLY in knowledge the owner
+// approved. These tables hold exactly that — what may be said, who said
+// what to the widget, and the one thing a support conversation can
+// create: an escalation to a human. Conversations and messages carry
+// customer text and are plain, erasable rows (rule 22); the decision log
+// never holds message text.
+
+// support_settings — one per profile: the PUBLIC site key the widget
+// identifies itself with (unguessable, rotatable, never a session), and
+// the business name copied in by the owner-side module so the support
+// tier can greet without reading the profile.
+export const supportSettings = pgTable(
+  "support_settings",
+  {
+    profile_id: uuid("profile_id")
+      .primaryKey()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** 32 hex chars from 16 random bytes. Public by design; it scopes, it does not authenticate. */
+    site_key: text("site_key").notNull(),
+    business_name: text("business_name").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    rotated_at: timestamp("rotated_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [uniqueIndex("support_settings_site_key_idx").on(t.site_key)],
+);
+
+// knowledge_entries — P4-05. Every row was born from an APPROVED proposal
+// (proposal_id NOT NULL): the system suggested it from profile facts, the
+// owner approved what becomes public. Nothing unapproved is sayable,
+// because nothing unapproved is a row. Retiring keeps the row (history)
+// and takes it out of the sayable set.
+export const knowledgeStatus = pgEnum("knowledge_status", ["public", "retired"]);
+
+export const knowledgeEntries = pgTable(
+  "knowledge_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id),
+    question: text("question").notNull(),
+    answer: text("answer").notNull(),
+    /** The profile field keys this answer was rendered from — its provenance (rule 2). */
+    source_keys: jsonb("source_keys").$type<string[]>().notNull().default([]),
+    status: knowledgeStatus("status").notNull().default("public"),
+    published_at: timestamp("published_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    retired_at: timestamp("retired_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    index("knowledge_entries_profile_idx").on(t.profile_id, t.status),
+    check(
+      "knowledge_entries_retired_has_time",
+      sql`${t.status} <> 'retired' OR ${t.retired_at} IS NOT NULL`,
+    ),
+  ],
+);
+
+// support_conversations — P4-06/07. One per widget session, identified by
+// an opaque token the widget holds (not a cookie, not the owner's app
+// session). Cost and turn counters are the per-conversation caps' ledger.
+export const supportConversationStatus = pgEnum("support_conversation_status", [
+  "open",
+  "escalated",
+  "closed",
+]);
+
+export const supportConversations = pgTable(
+  "support_conversations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** 48 hex chars from 24 random bytes — the widget's only credential, scoped to this one conversation. */
+    token: text("token").notNull(),
+    status: supportConversationStatus("status").notNull().default("open"),
+    turns: integer("turns").notNull().default(0),
+    cost_eur: numeric("cost_eur", { precision: 10, scale: 6 }).notNull().default("0"),
+    started_at: timestamp("started_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    last_at: timestamp("last_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("support_conversations_token_idx").on(t.token),
+    index("support_conversations_profile_idx").on(t.profile_id, t.started_at),
+  ],
+);
+
+export const supportRole = pgEnum("support_role", ["customer", "assistant"]);
+
+export const supportMessages = pgTable(
+  "support_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    conversation_id: uuid("conversation_id")
+      .notNull()
+      .references(() => supportConversations.id, { onDelete: "cascade" }),
+    role: supportRole("role").notNull(),
+    text: text("text").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    /** knowledge_entries ids an assistant answer was grounded on — empty for the disclosure and escalations. */
+    grounded_on: jsonb("grounded_on").$type<string[]>().notNull().default([]),
+    cost_eur: numeric("cost_eur", { precision: 10, scale: 6 }).notNull().default("0"),
+  },
+  (t) => [index("support_messages_conversation_idx").on(t.conversation_id, t.at)],
+);
+
+// support_tickets — the ONE thing a support conversation can create
+// (rule 21). The reason is a closed set so the owner's screen can say
+// why a human was needed; contact_id arrives with Session C's email
+// tickets and is set null on erasure (rule 22).
+export const supportTicketReason = pgEnum("support_ticket_reason", [
+  "customer_asked",
+  "no_answer",
+  "cost_cap",
+  "conversation_cap",
+]);
+
+export const supportTicketStatus = pgEnum("support_ticket_status", ["open", "answered", "closed"]);
+
+export const supportTickets = pgTable(
+  "support_tickets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    conversation_id: uuid("conversation_id").references(() => supportConversations.id, {
+      onDelete: "set null",
+    }),
+    contact_id: uuid("contact_id").references(() => contacts.id, { onDelete: "set null" }),
+    reason: supportTicketReason("reason").notNull(),
+    /** The customer's last question, verbatim — what the human is being asked to answer. */
+    summary: text("summary").notNull(),
+    status: supportTicketStatus("status").notNull().default("open"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    resolved_at: timestamp("resolved_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [index("support_tickets_profile_idx").on(t.profile_id, t.status, t.created_at)],
+);

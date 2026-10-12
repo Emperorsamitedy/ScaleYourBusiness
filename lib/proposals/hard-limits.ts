@@ -59,6 +59,8 @@ export const ACTION_KINDS = [
   "channel_expansion",
   "offer_change",
   "operations_change",
+  /** Phase 4 (P4-05): answers the business will give customers in public. */
+  "support_knowledge",
 ] as const;
 export type ActionKind = (typeof ACTION_KINDS)[number];
 
