@@ -287,6 +287,28 @@ describe("P3-11 — the rollback store (rule 16)", () => {
     ).rejects.toThrow(/already undone/);
   });
 
+  it("P3-20a: undo resolves the provider from the execution row itself, and refuses a mismatched one", async () => {
+    const s = await fresh();
+    const p = await approved(s);
+    const done = await run(p.id, { key: "colour", value: "ember" });
+    expect(done.provider).toBe("fixture");
+
+    // The wrong provider is refused by name — never trusted over the row.
+    await expect(
+      undoExecution({
+        executionId: done.id,
+        provider: { ...fixtureExecutor, id: "fixture_site" },
+        userId: s.user_id,
+      }),
+    ).rejects.toMatchObject({ code: "not_undoable", status: 422 });
+    expect(fixtureRead(s.profile_id, "colour")).toBe("ember");
+
+    // No provider passed: resolved from executions.provider.
+    const undone = await undoExecution({ executionId: done.id, userId: s.user_id });
+    expect(undone.status).toBe("undone");
+    expect(fixtureRead(s.profile_id, "colour")).toBeUndefined();
+  });
+
   it("an op with no undo must have been labelled 'hard' before approval — else it never runs", async () => {
     const s = await fresh();
     const lied = await approved(s, { level: "easy" });

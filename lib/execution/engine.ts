@@ -32,6 +32,7 @@ import { recordExecution } from "../proposals/service";
 import type { ExecutionProviderId } from "./scopes";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 import type { ExecutionContext, ExecutionProvider } from "./providers/fixture";
+import { executionProvider } from "./providers/index";
 
 export const MAX_ATTEMPTS = 3;
 
@@ -317,7 +318,12 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
  */
 export async function undoExecution(args: {
   executionId: string;
-  provider: ExecutionProvider;
+  /**
+   * Resolved from the execution's own provider id when omitted (P3-20a).
+   * Passing one is for tests and for callers that already hold it; a
+   * mismatch with the row is refused rather than trusted.
+   */
+  provider?: ExecutionProvider;
   /** null = the SYSTEM undid it (auto-rollback, P3-33) — logged as such. */
   userId: string | null;
   /** Ownership scope: when set, only this profile's executions undo. */
@@ -330,6 +336,14 @@ export async function undoExecution(args: {
   if (args.expectedProfileId && execution.profile_id !== args.expectedProfileId) {
     throw new ExecutionRefused("not_found", "no such execution", 404);
   }
+  if (args.provider && args.provider.id !== execution.provider) {
+    throw new ExecutionRefused(
+      "not_undoable",
+      `this execution ran on ${execution.provider}, not ${args.provider.id} — undo goes through the provider that did it`,
+      422,
+    );
+  }
+  const provider = args.provider ?? executionProvider(execution.provider);
 
   const ctx: ExecutionContext = {
     profile_id: execution.profile_id,
@@ -353,7 +367,7 @@ export async function undoExecution(args: {
     );
   }
 
-  await args.provider.undo(execution.op, execution.undo_payload, ctx);
+  await provider.undo(execution.op, execution.undo_payload, ctx);
 
   const [row] = await db
     .update(executions)

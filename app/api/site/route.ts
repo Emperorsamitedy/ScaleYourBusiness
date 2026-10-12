@@ -12,7 +12,6 @@ import { db } from "../../../db";
 import { businessProfiles, executions, proposals } from "../../../db/schema";
 import { currentSession } from "../../../lib/auth/service";
 import { ExecutionRefused, undoExecution } from "../../../lib/execution/engine";
-import { fixtureSiteExecutor } from "../../../lib/execution/providers/fixture-site";
 import { applySiteChange } from "../../../lib/site/apply";
 import { SiteChangeError, proposeSiteChange } from "../../../lib/site/changes";
 import { SiteFetchError } from "../../../lib/site/fetch";
@@ -112,9 +111,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (typeof body.execution_id !== "string") {
         return NextResponse.json({ error: "execution_id is required" }, { status: 422 });
       }
+      // The provider is resolved from the execution row itself (P3-20a):
+      // undo goes through whichever provider did the write.
       const undone = await undoExecution({
         executionId: body.execution_id,
-        provider: fixtureSiteExecutor,
         userId: session.user_id,
         expectedProfileId: profileId,
       });
