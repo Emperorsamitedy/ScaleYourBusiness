@@ -89,10 +89,11 @@ export const SCOPE_GUIDE: Readonly<
   stripe: [
     {
       scope: "read_balance_transactions",
-      // PROVISIONAL until confirmed against a real test-mode key. Stripe's
-      // permission reference describes "Balance" read as the balance and its
-      // history. If the name is wrong, connecting fails with Stripe's own
-      // 403 message naming the permission, and the screen shows it verbatim.
+      // Name confirmed 2026-10-12 in Stripe's own dashboard: the restricted-
+      // key permission is called "Balance" and its endpoint list includes
+      // /v1/balance_transactions. The first live connection is still pending
+      // (on production); if it fails, connecting shows Stripe's own 403
+      // message naming the permission, verbatim.
       grant: "Balance: Read",
       why: "Your payment history, meaning every charge and refund, which is where monthly revenue and order count come from.",
     },
