@@ -245,9 +245,12 @@ describe("Session C — production from an approved plan", () => {
   it("approved plan → disclosed items with goals and provenance; proposal flips to executed", async () => {
     const s = await business();
     const goal = await addGoal(s.profile_id, { statement: "Reach 200 candles a month" });
+    // A live clock here, not the pinned one above: this plan gets APPROVED,
+    // and approval checks expiry against real time — a pinned date put this
+    // proposal past its 14-day expiry on 2026-10-06 and the test fell over
+    // by itself. Nothing below asserts a calendar date.
     const proposal = await proposeContentPlan(s.profile_id, {
       weeks: 1,
-      now: new Date("2026-09-22T10:00:00Z"),
       limitLlm: limitsLlm,
     });
 

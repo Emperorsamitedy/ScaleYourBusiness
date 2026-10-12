@@ -218,6 +218,13 @@
       "when": 1791826788012,
       "tag": "0030_demonic_whistler",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1791827310708,
+      "tag": "0031_slippery_sebastian_shaw",
+      "breakpoints": true
     }
   ]
 }

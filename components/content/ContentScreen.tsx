@@ -24,6 +24,8 @@ interface Suggestion {
   source: string;
 }
 
+type ContentStatus = "drafted" | "queued" | "publishing" | "published" | "failed" | "withdrawn";
+
 interface ContentItem {
   id: string;
   kind: "post" | "email" | "shot_list" | "video";
@@ -33,6 +35,12 @@ interface ContentItem {
   body: string;
   disclosure: string;
   goal_id: string | null;
+  /* P3-20d — the publish state, straight from the row. */
+  status: ContentStatus;
+  platform: string | null;
+  platform_post_id: string | null;
+  published_at: string | null;
+  last_error: string | null;
 }
 
 interface Producible {
@@ -60,6 +68,16 @@ const KIND_WORD: Record<ContentItem["kind"], string> = {
   email: "email",
   shot_list: "film this",
   video: "video",
+};
+
+/** The owner's word for each state; "drafted" is the quiet default and shows no pill. */
+const STATUS_WORD: Record<ContentStatus, string | null> = {
+  drafted: null,
+  queued: "scheduled",
+  publishing: "publishing…",
+  published: "published",
+  failed: "failed",
+  withdrawn: "withdrawn",
 };
 
 const HORIZON_WORD: Record<string, string> = {
@@ -296,6 +314,11 @@ export function ContentScreen() {
             <article key={item.id} className="ct-item">
               <div className="ct-item-head">
                 <span className={`prop-tag ct-${item.kind}`}>{KIND_WORD[item.kind]}</span>
+                {STATUS_WORD[item.status] && (
+                  <span className={`prop-tag ct-status ct-status-${item.status}`}>
+                    {STATUS_WORD[item.status]}
+                  </span>
+                )}
                 <span className="ct-item-title">{item.title}</span>
                 <button
                   className="prop-btn quiet"
@@ -305,6 +328,16 @@ export function ContentScreen() {
                 </button>
               </div>
               {s.open === item.id && <pre className="ct-body">{item.body}</pre>}
+              {(item.status === "published" || item.status === "withdrawn") && item.platform && (
+                <p className="conn-note">
+                  {item.status === "published" ? "Live on" : "Was on"} {item.platform} as{" "}
+                  {item.platform_post_id}
+                  {item.published_at && ` · ${dateWord(item.published_at.slice(0, 10))}`}
+                </p>
+              )}
+              {item.status === "failed" && item.last_error && (
+                <p className="conn-note">{item.last_error}</p>
+              )}
               <p className="ct-disclosure">{item.disclosure}</p>
             </article>
           ))}

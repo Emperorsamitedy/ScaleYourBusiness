@@ -1289,6 +1289,23 @@ export const executionHalts = pgTable("execution_halts", {
 
 export const contentKind = pgEnum("content_kind", ["post", "email", "shot_list", "video"]);
 
+// P3-20d (Session D, layer D0): an item's publish state, held by the
+// database. drafted → queued (its publish proposal approved) → publishing
+// (the call is in flight) → published | failed. withdrawn is the UNDO —
+// the owner or the system took it down — and is distinct from failed in
+// every query and screen. The checks make the lies unrepresentable: a
+// published or withdrawn item names its platform and the platform's own
+// id (kept forever: readback's key, rule 16's record); a failed one
+// carries the sentence that says why.
+export const contentStatus = pgEnum("content_status", [
+  "drafted",
+  "queued",
+  "publishing",
+  "published",
+  "failed",
+  "withdrawn",
+]);
+
 export const contentItems = pgTable(
   "content_items",
   {
@@ -1305,7 +1322,7 @@ export const contentItems = pgTable(
     scheduled_for: date("scheduled_for", { mode: "string" }),
     title: text("title").notNull(),
     body: text("body").notNull(),
-    /** Renders land on disk (object storage is a Session D concern). */
+    /** The render's public URL in object storage (P3-20c, lib/content/media.ts). */
     media_path: text("media_path"),
     disclosure: text("disclosure").notNull(),
     /** Voice card, brief, model, evidence — why it reads the way it reads. */
@@ -1313,8 +1330,36 @@ export const contentItems = pgTable(
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
+    /* ── P3-20d publish state ── */
+    status: contentStatus("status").notNull().default("drafted"),
+    /** "facebook" | "instagram" (D2). Null until the item has gone somewhere. */
+    platform: text("platform"),
+    /** The platform's own id for the post — kept even when withdrawn. */
+    platform_post_id: text("platform_post_id"),
+    published_at: timestamp("published_at", { withTimezone: true, mode: "string" }),
+    /** The per-item publish proposal (D2): the owner approves the finished item, not just the plan. */
+    publish_proposal_id: uuid("publish_proposal_id").references(() => proposals.id),
+    /** The engine run that published it — the undo's handle (D2). */
+    publish_execution_id: uuid("publish_execution_id").references(() => executions.id),
+    /** Why it failed, in the owner's language (D5). */
+    last_error: text("last_error"),
   },
-  (t) => [index("content_items_profile_idx").on(t.profile_id, t.scheduled_for)],
+  (t) => [
+    index("content_items_profile_idx").on(t.profile_id, t.scheduled_for),
+    index("content_items_status_idx").on(t.profile_id, t.status),
+    check(
+      "content_items_published_names_platform",
+      sql`${t.status} NOT IN ('published', 'withdrawn') OR (${t.platform} IS NOT NULL AND ${t.platform_post_id} IS NOT NULL)`,
+    ),
+    check(
+      "content_items_published_has_time",
+      sql`${t.status} <> 'published' OR ${t.published_at} IS NOT NULL`,
+    ),
+    check(
+      "content_items_failed_has_error",
+      sql`${t.status} <> 'failed' OR ${t.last_error} IS NOT NULL`,
+    ),
+  ],
 );
 
 /* ---------- Phase 4 Session A — contacts (P4-01) ---------- */
