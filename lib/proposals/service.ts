@@ -302,6 +302,19 @@ export async function expireDueProposals(profileId: string): Promise<number> {
   return rows.length;
 }
 
+/**
+ * The same sweep across every profile — the due runner's first step
+ * (P3-20e), so expiry is tidy on a clock as well as at queue-read time.
+ */
+export async function expireAllDueProposals(now = new Date()): Promise<number> {
+  const rows = await db
+    .update(proposals)
+    .set({ status: "expired" })
+    .where(and(eq(proposals.status, "pending"), lte(proposals.expires_at, now.toISOString())))
+    .returning({ id: proposals.id });
+  return rows.length;
+}
+
 export interface ProposalQueue {
   /** Awaiting the owner — the only group that badges (ux-spec §3). */
   pending: ProposalRow[];

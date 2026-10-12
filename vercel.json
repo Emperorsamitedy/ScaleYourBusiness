@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/connector-sync",
       "schedule": "30 4 * * *"
+    },
+    {
+      "path": "/api/cron/execute-due",
+      "schedule": "0 5 * * *"
     }
   ]
 }
