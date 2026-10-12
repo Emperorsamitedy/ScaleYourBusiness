@@ -1398,12 +1398,23 @@ export const contacts = pgTable(
       .notNull()
       .defaultNow(),
     last_activity_at: timestamp("last_activity_at", { withTimezone: true, mode: "string" }),
+    /* ── P4-13: measured purchase history, from the owner's shop export ── */
+    /** The last order's date, as the shop exported it. Lifecycle counts from here when present. */
+    last_purchase_at: timestamp("last_purchase_at", { withTimezone: true, mode: "string" }),
+    orders_count: integer("orders_count"),
+    /** Integer minor units + currency, together or not at all (rule 1). */
+    total_spent_minor: bigint("total_spent_minor", { mode: "number" }),
+    spent_currency: text("spent_currency"),
   },
   (t) => [
     uniqueIndex("contacts_account_email_idx")
       .on(t.account_id, t.email)
       .where(sql`email IS NOT NULL`),
     index("contacts_account_idx").on(t.account_id),
+    check(
+      "contacts_spent_has_currency",
+      sql`(${t.total_spent_minor} IS NULL) = (${t.spent_currency} IS NULL)`,
+    ),
   ],
 );
 

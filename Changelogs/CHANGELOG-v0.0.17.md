@@ -15,12 +15,16 @@ Convention per v0.0.12 — new file, released files stay history.
   build. Everything that needs a legal entity waits for it: Meta
   Business Verification and the approvals behind it, and Stripe live
   mode. Nothing that is buildable waits.
-- **Session D layer D0 is built, and Phase 4 Sessions B and D** (all
-  below). Four new migrations, 0030–0033, all additive — production must
+- **Session D layer D0 is built, and Phase 4 Sessions B, D and E** (all
+  below). Five new migrations, 0030–0034, all additive — production must
   apply them before this branch deploys. One new dependency:
   `@vercel/blob`. Two new crons in `vercel.json`: `execute-due` and
-  `faq-cluster`.
-- **Local: 771 tests across 83 files**, typecheck, lint, format and
+  `faq-cluster`. Three new screens: `/support`, `/support/test`,
+  `/customers`.
+- **Phase 4's buildable half is done.** Sessions A, B, D and E are
+  built; C (email support) and F (outbound) need an email provider key
+  with inbound, and F also needs Session D's publish path.
+- **Local: 780 tests across 84 files**, typecheck, lint, format and
   build clean. Not pushed yet — Samuel pushes when he says so.
 
 ---
@@ -175,17 +179,40 @@ cron `/api/cron/faq-cluster` at 03:00 UTC, plus an owner-triggered run.
 
 ---
 
+## Built — Phase 4 Session E: segments and lifecycle (2026-10-13)
+
+Arithmetic, not inference, with one honest amendment to the plan:
+"measured purchase data" is the owner's own shop export, because Phase
+2 measures the business as a whole and never a customer. The CSV import
+now reads last order date, order count and total spent (migration 0034;
+money as minor units with a batch currency, rule 1; the unreadable left
+null and counted). Lifecycle thresholds are pinned and boundary-tested
+both ways — new ≤ 30 days with at most one order, counted from the
+purchase and not the import date; active ≤ 90; lapsing ≤ 180; lapsed
+beyond; unknown without a date. VIP is 3+ orders or the top tenth of
+spend. Segments separate who is in from who may be emailed — the
+consent gate decides per contact — and `lib/crm/segment-proposals.ts`
+puts a win-back and a thank-you in the queue once a month, through the
+outbound posture, the hard limits and suppression learning, carrying
+contact ids only and saying plainly that nothing sends on approval.
+New action kind `customer_email`. `/customers` is the owner's screen.
+9 tests; the done-when is one of them.
+
+---
+
 ## Next
 
 1. **Tedi:** the Stripe key on production, test payments, the first
    autonomous sync. That meets the amended gate and opens D1.
 2. **Owner:** walk `/support` → enable → propose → approve in the queue →
    publish → `/support/test` → ask, ask the unanswerable, ask for a
-   person → answer the ticket in your words → cluster. Each should
-   behave as the status notes promise.
-3. **Meanwhile, needing nothing external:** Phase 4 Session E
-   (segments and lifecycle) — Session C (email) waits on
-   `RESEND_API_KEY`, Session F on that and on D2.
+   person → answer the ticket in your words → cluster. Then
+   `/customers` → import a shop export → propose. Each should behave as
+   the status notes promise.
+3. **Phase 4's remainder needs keys:** Session C (email support) waits
+   on `RESEND_API_KEY` with inbound; Session F (outbound) on that and
+   on Session D's publish path. Nothing else in Phase 4 is buildable
+   without them.
 4. **D1** once the gate is met and the Meta business portfolio exists;
    the **hosting decision** before D2.
 

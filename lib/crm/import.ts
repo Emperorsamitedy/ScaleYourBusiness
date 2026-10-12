@@ -1,4 +1,4 @@
-// Contact import — Phase 4 Session A (P4-03).
+// Contact import — Phase 4 Session A (P4-03), extended in Session E (P4-13).
 //
 // A CSV never comes in without the owner standing behind it: every
 // batch requires an ATTESTATION — the consent status these contacts
@@ -13,6 +13,12 @@
 // says (rules 22/23). And the decision log records the BATCH — id,
 // counts, a hash — never a contact's PII.
 //
+// Session E: a shop's customer export carries purchase history — last
+// order date, order count, total spent — and that is the "measured
+// data" lifecycle and segments compute from (P4-13). Money lands as
+// integer minor units plus the batch's currency (rule 1); a value that
+// cannot be read is left null and counted, never guessed.
+//
 // The parser is deliberately small and deterministic: quoted fields,
 // escaped quotes, flexible header names. No model anywhere near it —
 // reading a spreadsheet is not inference (cost rule).
@@ -21,6 +27,7 @@ import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, contacts, decisionLog } from "../../db/schema";
+import { minorUnitExponent } from "../core/money";
 import type { ConsentStatus } from "./contacts";
 import { ContactError, isSuppressed, normalizeEmail } from "./contacts";
 
@@ -67,8 +74,17 @@ export function parseCsv(text: string): string[][] {
   return rows;
 }
 
-/** Header → column role, tolerant of the spellings spreadsheets grow. */
-function mapHeader(header: string[]): { email: number; name: number; phone: number } {
+interface Columns {
+  email: number;
+  name: number;
+  phone: number;
+  last_purchase: number;
+  orders: number;
+  spent: number;
+}
+
+/** Header → column role, tolerant of the spellings spreadsheets (and shop exports) grow. */
+function mapHeader(header: string[]): Columns {
   const find = (...names: string[]) =>
     header.findIndex((h) =>
       names.includes(
@@ -82,7 +98,60 @@ function mapHeader(header: string[]): { email: number; name: number; phone: numb
     email: find("email", "emailaddress", "e-mail", "mail"),
     name: find("name", "fullname", "contactname", "customer"),
     phone: find("phone", "phonenumber", "tel", "telephone", "mobile"),
+    last_purchase: find(
+      "lastpurchase",
+      "lastpurchaseat",
+      "lastpurchasedate",
+      "lastorder",
+      "lastorderat",
+      "lastorderdate",
+      "lastordered",
+    ),
+    orders: find("orders", "orderscount", "ordercount", "totalorders", "numberoforders"),
+    spent: find("totalspent", "totalspend", "spent", "spend", "lifetimevalue", "ltv"),
   };
+}
+
+/** ISO-ish dates and the common day-month-year spellings; anything else is null, never guessed. */
+export function parseDate(raw: string): string | null {
+  const v = raw.trim();
+  if (v === "") return null;
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+  if (iso) {
+    const t = Date.parse(v.length === 10 ? `${v}T00:00:00Z` : v);
+    return Number.isNaN(t) ? null : new Date(t).toISOString();
+  }
+  const dmy = /^(\d{1,2})[./](\d{1,2})[./](\d{4})$/.exec(v);
+  if (dmy) {
+    const t = Date.UTC(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1]));
+    return Number.isNaN(t) ? null : new Date(t).toISOString();
+  }
+  const t = Date.parse(v);
+  return Number.isNaN(t) ? null : new Date(t).toISOString();
+}
+
+export function parseCount(raw: string): number | null {
+  const v = raw.trim().replace(/[\s,]/g, "");
+  if (!/^\d+$/.test(v)) return null;
+  return Number.parseInt(v, 10);
+}
+
+/** "1 234.50", "1,234.50", "€1234.5", "1234" → integer minor units for the currency. */
+export function parseMoneyMinor(raw: string, currency: string): number | null {
+  let v = raw.trim().replace(/[^\d.,-]/g, "");
+  if (v === "" || v === "-") return null;
+  // Two separators: the last one is the decimal mark. One: decimal if followed by 1–2 digits.
+  const lastComma = v.lastIndexOf(",");
+  const lastDot = v.lastIndexOf(".");
+  if (lastComma !== -1 && lastDot !== -1) {
+    v = lastComma > lastDot ? v.replace(/\./g, "").replace(",", ".") : v.replace(/,/g, "");
+  } else if (lastComma !== -1) {
+    v = /,\d{1,2}$/.test(v) ? v.replace(",", ".") : v.replace(/,/g, "");
+  }
+  if (!/^-?\d+(\.\d+)?$/.test(v)) return null;
+  const exponent = minorUnitExponent(currency);
+  const minor = Math.round(Number.parseFloat(v) * 10 ** exponent);
+  return Number.isFinite(minor) ? minor : null;
 }
 
 /* ── the import ── */
@@ -91,6 +160,11 @@ export interface ImportAttestation {
   status: ConsentStatus;
   /** The owner's words: what these contacts consented to, and how. */
   statement: string;
+}
+
+export interface ImportOptions {
+  /** ISO 4217 for the spent column. Required when the CSV carries one; the column is ignored otherwise. */
+  currency?: string;
 }
 
 export type RowOutcome =
@@ -109,6 +183,8 @@ export interface ImportResult {
     duplicate_in_batch: number;
     invalid: number;
   };
+  /** Purchase columns present in the header, and values that could not be read (left null). */
+  purchase: { columns: string[]; unreadable: number };
   rows: RowOutcome[];
 }
 
@@ -121,6 +197,7 @@ export async function importContacts(
   accountId: string,
   csv: string,
   attestation: ImportAttestation,
+  options: ImportOptions = {},
 ): Promise<ImportResult> {
   if (attestation.statement.trim() === "") {
     throw new ContactError(
@@ -145,6 +222,16 @@ export async function importContacts(
       422,
     );
   }
+  const currency = options.currency?.trim().toUpperCase() ?? "";
+  if (columns.spent !== -1 && !/^[A-Z]{3}$/.test(currency)) {
+    throw new ContactError(
+      "the file has a spent column — say which currency it is in (three letters, e.g. EUR)",
+      422,
+    );
+  }
+  const purchaseColumns = (["last_purchase", "orders", "spent"] as const).filter(
+    (c) => columns[c] !== -1,
+  );
 
   const batchId = crypto.randomUUID();
   const source = `import batch ${batchId}: "${attestation.statement.trim()}"`;
@@ -152,11 +239,13 @@ export async function importContacts(
   const rows: RowOutcome[] = [];
   const counts = { suppressed: 0, already_exists: 0, duplicate_in_batch: 0, invalid: 0 };
   let imported = 0;
+  let unreadable = 0;
 
   for (const raw of parsed.slice(1)) {
-    const email = columns.email >= 0 ? (raw[columns.email] ?? "").trim() : "";
-    const name = columns.name >= 0 ? (raw[columns.name] ?? "").trim() : "";
-    const phone = columns.phone >= 0 ? (raw[columns.phone] ?? "").trim() : "";
+    const cell = (i: number) => (i >= 0 ? (raw[i] ?? "").trim() : "");
+    const email = cell(columns.email);
+    const name = cell(columns.name);
+    const phone = cell(columns.phone);
 
     if (!email && !name && !phone) {
       counts.invalid++;
@@ -183,6 +272,18 @@ export async function importContacts(
         continue;
       }
     }
+
+    // Purchase history: read what can be read, count what cannot, invent nothing.
+    const lastPurchaseRaw = cell(columns.last_purchase);
+    const ordersRaw = cell(columns.orders);
+    const spentRaw = cell(columns.spent);
+    const lastPurchase = lastPurchaseRaw ? parseDate(lastPurchaseRaw) : null;
+    const orders = ordersRaw ? parseCount(ordersRaw) : null;
+    const spent = spentRaw ? parseMoneyMinor(spentRaw, currency) : null;
+    if (lastPurchaseRaw && lastPurchase === null) unreadable++;
+    if (ordersRaw && orders === null) unreadable++;
+    if (spentRaw && spent === null) unreadable++;
+
     try {
       const [inserted] = await db
         .insert(contacts)
@@ -193,6 +294,11 @@ export async function importContacts(
           phone: phone || null,
           consent_status: attestation.status,
           consent_source: source,
+          last_purchase_at: lastPurchase,
+          last_activity_at: lastPurchase,
+          orders_count: orders,
+          total_spent_minor: spent,
+          spent_currency: spent === null ? null : currency,
         })
         .returning({ id: contacts.id });
       imported++;
@@ -228,6 +334,7 @@ export async function importContacts(
             attestation_statement: attestation.statement.trim(),
             imported,
             ...counts,
+            purchase_columns: purchaseColumns,
           }),
         )
         .digest("hex"),
@@ -240,7 +347,15 @@ export async function importContacts(
       batch_id: batchId,
       imported,
       ...counts,
+      purchase_columns: purchaseColumns,
+      unreadable,
     }),
   );
-  return { batch_id: batchId, imported, skipped: counts, rows };
+  return {
+    batch_id: batchId,
+    imported,
+    skipped: counts,
+    purchase: { columns: purchaseColumns, unreadable },
+    rows,
+  };
 }

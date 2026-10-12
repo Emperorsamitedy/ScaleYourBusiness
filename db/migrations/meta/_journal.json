@@ -239,6 +239,13 @@
       "when": 1791846502321,
       "tag": "0033_lively_infant_terrible",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791847585454,
+      "tag": "0034_glamorous_liz_osborn",
+      "breakpoints": true
     }
   ]
 }
