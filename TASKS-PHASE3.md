@@ -300,7 +300,7 @@ When a business has been under Ledgerline's care for a decent time and isn't mov
   - **Lagging:** shown on `/watch`, no review.
   - **Alert:** progress far below the path for several consecutive weekly checks, or moving away from the target.
 
-  The alert threshold scales with the gap: a goal asking for +50% tolerates less drift than one asking for +5%. Nothing triggers before a minimum time under care has passed after watching mode ends. Honest non-states: `too_early` and `unmeasured`, each explaining itself. All thresholds are pinned in code with boundary tests both ways. An alert appears in the watch log on `/watch` (amended at build: the rail badge counts approvals and nothing else, P3-05).
+  The alert threshold scales with the gap: a goal asking for +50% tolerates less drift than one asking for +5%. Nothing triggers before a minimum time under care has passed after watching mode ends. Honest non-states: `too_early` and `unmeasured`, each explaining itself. All thresholds are pinned in code with boundary tests both ways. An alert appears on `/progress` (amended at build: the rail badge counts approvals and nothing else, P3-05, and `/watch` only renders while a watch is running — alerts happen after it ends).
 
 - [x] **P3-45** The case file, built deterministically with no model:
   - day zero against now, per metric;
@@ -339,7 +339,7 @@ When a business has been under Ledgerline's care for a decent time and isn't mov
   - Alert after 3 consecutive off-track weeks, raised once, with an on-track week resetting the count. At most one check per goal per 6 days.
   - Nothing before 8 weeks under care, inside watching mode, or inside the goal's first 28 days. `too_early` and `unmeasured` explain themselves.
   - Every boundary is tested both ways, including a decrease goal.
-  - Amended at build: an alert shows in the `/watch` log, not the rail badge, which P3-05 reserves for approvals.
+  - Amended at build: an alert shows on `/progress`, not the rail badge (P3-05 reserves it for approvals) and not `/watch` (which renders only during a watch).
 - `lib/trust/series.ts` is the readback's series reader made shared, generalised from revenue to any metric. The readback's own tests are unchanged and pass.
 
 **Status 2026-10-13 (later):** P3-45 to P3-47 built. Session J's done-when is met in tests, with a fake model; 10 tests in `lib/care/review.test.ts`.
@@ -369,11 +369,15 @@ When a business has been under Ledgerline's care for a decent time and isn't mov
   - the review is unusable (no evidenced cause); or
   - the budget is spent.
 
-  The owner sees "a person at Ledgerline is now looking" in the watch log. `/api/ops` lists open `escalations`. No automatic review runs while a person holds the case. `scripts/resolve-escalation.ts` closes it.
+  The owner sees "a person at Ledgerline is now looking" on `/progress` (and as a watch-activity entry). `/api/ops` lists open `escalations`. No automatic review runs while a person holds the case. `scripts/resolve-escalation.ts` closes it.
 
 - Stored in `alert_reviews` (migration 0036). `GET /api/care` gives the owner, per goal: measure, baseline, latest verdict, latest review and whether a person has it.
 
-**Not built:** a screen. `/watch` shows the log entries but not the review's causes and suggestions; `/api/care` is ready for one.
+**Screen, same day:** `/progress` (`components/care/ProgressScreen.tsx`, linked from `/watch` in both states).
+
+- It shows, per goal: the measure and baseline, or a form to make the goal measurable; the latest verdict with its arithmetic; and the latest review, with causes in plain words and evidence counts, suggestions linked to the queue or marked "yours to decide", and a notice when a person has the case.
+- Verified against the dev server with a seeded stalled business: off track, alert, review stored, one suggestion queued as a pending proposal, `revise_goal` left to the owner, and the unmeasurable goal offered the form.
+- **Not checked in a browser:** the page is client-rendered, and no browser tool was available. The API it reads was verified.
 
 ---
 

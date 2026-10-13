@@ -330,14 +330,14 @@ nothing Samuel is building. 19 new tests, no model call anywhere.
   `/api/ops` as `gate2`). Set it with `scripts/mark-internal.ts`.
 - **P3-42, measurable goals.** A goal can name revenue, orders or website
   visits, a target per 30 days and a deadline. The starting value is
-  measured from the 28 days before, with its source named. Set through
-  `PUT /api/goals`; no screen yet.
+  measured from the 28 days before, with its source named. Set on
+  `/progress` or through `PUT /api/goals`.
 - **P3-43, day zero.** A business's first mode decision freezes the
   profile and writes a verifiable `takeover` entry in the decision log.
 - **P3-44, progress and alerts.** Each week, every measurable goal is
   judged on track / lagging / off track against the straight path to
-  its target. Three off-track weeks in a row raise an alert in the
-  `/watch` log. Thresholds are pinned and boundary-tested both ways.
+  its target. Three off-track weeks in a row raise an alert, shown on
+  `/progress`. Thresholds are pinned and boundary-tested both ways.
 
 **Then P3-45 to P3-47, the rest of alert mode:**
 
@@ -353,6 +353,12 @@ nothing Samuel is building. 19 new tests, no model call anywhere.
   per account is spent. It shows on `/ops`; no AI loop.
 
 The prompt is uncalibrated until a real alert happens. 10 more tests.
+
+**The owner's screen is `/progress`,** linked from `/watch`. It shows
+each goal's measure or a form to make it measurable, the latest weekly
+verdict, and the review's causes and suggestions. Its API was verified
+against a seeded stalled business; the page itself hasn't been looked at
+in a browser yet. **Owner: please walk it.**
 
 **Migrations 0035 and 0036** (additive: the `internal` column, the
 `takeover` decision kind, the `alert_reviews` table) must be applied to

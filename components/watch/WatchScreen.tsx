@@ -97,6 +97,9 @@ export function WatchScreen() {
             <Link className="next auth-cta" style={{ marginTop: 22 }} href="/mode">
               See the mode decision
             </Link>
+            <p className="auth-copy" style={{ marginTop: 14, fontSize: 13 }}>
+              <Link href="/progress">How your goals are going →</Link>
+            </p>
           </section>
         </div>
       </main>
@@ -109,7 +112,8 @@ export function WatchScreen() {
         <span className="wordmark">Ledgerline</span>
         <span className="ops-meta">
           watching · {view.days_remaining} day{view.days_remaining === 1 ? "" : "s"} remaining ·
-          review {view.decision.review_at.slice(0, 10)}
+          review {view.decision.review_at.slice(0, 10)} ·{" "}
+          <Link href="/progress">goal progress</Link>
         </span>
         <ProposalsBadge />
       </header>

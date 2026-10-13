@@ -20,7 +20,8 @@ const COOKIE = "syb_intake_profile";
 async function resolveProfile(): Promise<string | null> {
   const store = await cookies();
   const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
+  // A malformed cookie is "no business", not a database error.
+  if (!profileId || !/^[0-9a-f-]{36}$/i.test(profileId)) return null;
   const [row] = await db
     .select({ id: businessProfiles.id })
     .from(businessProfiles)
