@@ -219,6 +219,133 @@ him and he hands it over directly. Nothing is in the repo or in chat.
 
 ---
 
+## Planned — Session H: Ledgerline markets itself (2026-10-13, owner idea)
+
+Ledgerline runs SYB's own marketing through the product for 3–4 weeks,
+then publishes that it did, with the scorecard as the proof. Recorded
+in `TASKS-PHASE3.md` as Session H (P3-40a–e), after Session D and
+before Gate 2. It needs D2 to publish and D4 to judge. It does not need
+company registration, because Meta's Standard Access covers SYB's own
+Page, Instagram and ad account, which already exist.
+
+Four constraints are fixed now:
+
+- **No secret reveal.** Every post carries the AI label (rule 17).
+- **A person approves every item** (rule 12).
+- **Results are published whatever they say.**
+- **SYB's own decisions are flagged internal** (P3-40b), so they never
+  count toward Gate 2's customer approval rate.
+
+**Can start today, no code — P3-40a:** run SYB through its own intake,
+report and watching mode. Rule 15's 4–8 week watching period then
+elapses while D1–D4 are built.
+
+---
+
+## Planned — trading-hours analysis and trials (2026-10-13, owner idea)
+
+For businesses customers visit (bars, restaurants, cafés): when the
+business earns and gets attention, hour by hour. Then whether the doors
+open too early or too late, and whether the last hour pays for itself.
+Split where the work belongs:
+
+- **Measurement and findings:** `TASKS-PHASE2.md` Session F, P2-26 to
+  P2-31.
+  - Structured opening hours, timezone, and the cost of one open hour.
+  - Hourly revenue with a trading-day cutoff, so 20:00–01:00 is one
+    night.
+  - A read-only Square point-of-sale connector, since bars rarely take
+    cards through Stripe.
+  - Attention by hour from GA4 and Instagram.
+  - Per-weekday opening and closing signals with pinned thresholds.
+  - Competitors' stated hours from the existing research.
+- **Trials:** `TASKS-PHASE3.md` Session I, P3-41. A suggested hours
+  change becomes a 4-week trial with three scenarios, judged by the
+  readback net of the hour's cost. The owner changes their own hours, so
+  it does not wait on Session D.
+
+**The honest limit, written into both:** a closed hour records no sales,
+so the data can only suggest; the trial is the proof. Cash is invisible
+to connectors, so every finding states its coverage.
+
+---
+
+## Planned — customer blindspots (2026-10-13, owner idea)
+
+What potential customers search for, ask about and check before buying,
+compared with what the business actually shows them. A blindspot is
+demand with no answer on the owner's site or profile. Recorded in
+`TASKS-PHASE2.md` Session G, P2-32 to P2-37, all read-only:
+
+- **A "what customers check" list** per business type, as data.
+- **Google Search Console,** a new read-only connector: the real
+  searches the site appeared for.
+- **Deeper GA4 reads:** pages people land on and leave from, and
+  site-search terms.
+- **Support questions** counted by topic, with no customer text leaving
+  support.
+- **Competitor norms:** what competitors show that the business doesn't.
+- **The finder** that ranks blindspots by demand.
+
+Fixes go through the existing queues: site change, content item or
+knowledge entry.
+
+**Found on the way:** the site audit's Tier 1 (`specs/site-audit.md` §2,
+walking the site as a customer with screenshots) and its Tier 2 GA4
+evidence (§3) were specified but never scheduled. Tier 2 is now P2-34;
+Tier 1 remains unscheduled and needs an owner decision.
+
+---
+
+## Planned — alert mode (2026-10-13, owner idea)
+
+When a business under Ledgerline's care isn't improving, or improves far
+slower than the gap between its goal and today demands, the system
+escalates. Recorded in `TASKS-PHASE3.md` Session J, P3-42 to P3-47:
+
+- **Measurable goals:** a metric, a target and a deadline, with the
+  baseline captured when the goal is set. Today a goal is free text
+  linked to nothing, so the gap can't be computed.
+- **Day zero recorded:** the profile as it stood at takeover.
+- **Weekly progress check:** on track, lagging or alert, by arithmetic,
+  with thresholds that scale with the size of the gap.
+- **A case file** of everything done since day zero.
+- **An Opus review:** likely causes, each with evidence, including "our
+  advice was wrong". The recovery plan goes into the queue as proposals.
+- **A person at SYB** takes over if the recovery plan doesn't move it
+  either.
+
+Nothing executes on its own and no limit is relaxed.
+
+---
+
+## Built — alert-mode foundations and the internal flag (2026-10-13)
+
+The parts of the new plans that need no key, no external account and
+nothing Samuel is building. 19 new tests, no model call anywhere.
+
+- **P3-40b, internal accounts.** `accounts.internal` keeps SYB's own
+  numbers out of the ops funnel, cost view and Gate 2's new
+  cross-customer approval rate (`lib/trust/gate.ts`, returned by
+  `/api/ops` as `gate2`). Set it with `scripts/mark-internal.ts`.
+- **P3-42, measurable goals.** A goal can name revenue, orders or website
+  visits, a target per 30 days and a deadline. The starting value is
+  measured from the 28 days before, with its source named. Set through
+  `PUT /api/goals`; no screen yet.
+- **P3-43, day zero.** A business's first mode decision freezes the
+  profile and writes a verifiable `takeover` entry in the decision log.
+- **P3-44, progress and alerts.** Each week, every measurable goal is
+  judged on track / lagging / off track against the straight path to
+  its target. Three off-track weeks in a row raise an alert in the
+  `/watch` log. Thresholds are pinned and boundary-tested both ways.
+
+**Migration 0035** (additive: the `internal` column and the `takeover`
+decision kind) must be applied to production with 0030–0034 before this
+deploys. Samuel: if you add a migration before this is pushed, the
+second to push renumbers.
+
+---
+
 ## Next
 
 1. **Tedi:** the Stripe key on production, test payments, the first

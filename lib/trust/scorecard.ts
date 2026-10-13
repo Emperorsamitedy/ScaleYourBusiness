@@ -74,24 +74,46 @@ export async function buildTrustView(
   }
   history.reverse();
 
-  // Approval rate: of everything put to the owner that reached an end
-  // state (approved, executed, rejected, expired) — how much got a yes.
-  // Blocked never reached them; pending hasn't ended.
-  const numerator = counts.approved + counts.executed;
-  const denominator = numerator + counts.rejected + counts.expired;
-  const value = denominator > 0 ? Math.round((numerator / denominator) * 1000) / 10 : null;
-
+  const rate = approvalRate(counts);
   return {
     scorecard: {
       made: rows.length,
       ...counts,
-      approval_rate: { numerator, denominator, value },
+      approval_rate: rate.approval_rate,
       outcomes,
-      arithmetic:
-        denominator > 0
-          ? `${numerator} approved of ${denominator} concluded (${counts.rejected} declined, ${counts.expired} lapsed; ${counts.blocked} withheld by your limits, not counted) = ${value}%`
-          : "nothing concluded yet — the rate exists after your first decisions",
+      arithmetic: rate.arithmetic,
     },
     history,
+  };
+}
+
+export interface StatusCounts {
+  blocked: number;
+  pending: number;
+  approved: number;
+  rejected: number;
+  expired: number;
+  executed: number;
+}
+
+/**
+ * Approval rate: of everything put to the owner that reached an end
+ * state (approved, executed, rejected, expired) — how much got a yes.
+ * Blocked never reached them; pending hasn't ended. One definition,
+ * shared by the per-profile scorecard and Gate 2's cross-customer rate.
+ */
+export function approvalRate(counts: StatusCounts): {
+  approval_rate: Scorecard["approval_rate"];
+  arithmetic: string;
+} {
+  const numerator = counts.approved + counts.executed;
+  const denominator = numerator + counts.rejected + counts.expired;
+  const value = denominator > 0 ? Math.round((numerator / denominator) * 1000) / 10 : null;
+  return {
+    approval_rate: { numerator, denominator, value },
+    arithmetic:
+      denominator > 0
+        ? `${numerator} approved of ${denominator} concluded (${counts.rejected} declined, ${counts.expired} lapsed; ${counts.blocked} withheld by your limits, not counted) = ${value}%`
+        : "nothing concluded yet — the rate exists after your first decisions",
   };
 }

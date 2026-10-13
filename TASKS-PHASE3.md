@@ -233,6 +233,119 @@ Conversation-channel step 70a.
 
 ---
 
+## Session H — Ledgerline markets itself _(~0.5 wk build, then a 3–4 week run)_
+
+Owner idea, recorded 2026-10-13: Ledgerline runs SYB's own marketing through the product for a few weeks, then publishes that it did, with the scorecard as the proof. The Glass Business turned on ourselves. If the marketing was good, the campaign is the pitch; if it was mediocre, publishing that anyway is the pitch.
+
+**Where it sits, and why.** After Session D: nothing publishes before D2, and "it was good" means nothing without D4's per-post readback. Ad spend needs D3. It does **not** wait on company registration: Meta's Standard Access covers an app acting on its own business's assets without App Review, and SYB's own Page, Instagram account and ad account already exist (owner-side checklist item 1). SYB can be the "real business" in Session D's done-when.
+
+**Constraints, decided now so the run can't drift from them:**
+
+- **No secret reveal.** Rule 17 and P3-21b label every post as AI-assisted on the platform (`is_ai_generated` on Instagram, the disclosure line on Facebook). The story is "every post was proposed by Ledgerline and approved by a person, and here are the numbers", never "surprise, it was AI".
+- **Rule 12 unchanged.** Samuel or Tedi approves each item in the queue like any owner. The approvals are part of the story, not a shortcut around it.
+- **Results published whatever they say.** The write-up quotes the scorecard (helped / did nothing / backfired) as rendered, with the arithmetic. Choosing to publish only after seeing good numbers turns it into an ad and is out of scope.
+- **A week is too short.** Per-post verdicts are `too_early` under 3 measured days, and the comparison needs a baseline, so the run is 3–4 weeks. A new Page has no audience, so either a small ad budget through D3 (inside P3-22c's guardrails) or a baseline stated up front, never raw reach presented as success.
+
+- [ ] **P3-40a** SYB through its own funnel — **can start today, no code**: the team runs the intake as SYB's owner, accepts the profile, generates the report, and opts into ongoing watching. The report's findings are the campaign's starting point and the "before" on record. The profile is kept as the canonical SYB account. **Start it now for a second reason:** rule 15 gives every live business 4–8 weeks of watching mode before anything executes, and SYB's own account is no exception. Started today, that period runs out while D1–D4 are built instead of after.
+- [x] **P3-40b** Internal-account flag: an `internal` marker on accounts, set for SYB's own, that excludes it from Gate 2's cross-customer approval rate (P3-37), the ops funnel and cost-per-customer views, while its own scorecard keeps working. Own numbers must never pass as customer evidence. Migration, additive; a test that an internal account's decisions are absent from the cross-customer rate.
+- [ ] **P3-40c** Connect SYB's own Page, Instagram and ad account as an `execute` connection through P3-20g (system-user token), and set the baseline: the counts and reach at day 0, recorded as observations so the readback has something to compare against.
+- [ ] **P3-40d** The run: 3–4 weeks of calendar proposals, drafts and publishes through the normal queue, plus ad changes if a budget is set. Nothing bypasses suppression, hard limits or the emergency stop. Every decision lands in the decision log as usual.
+- [ ] **P3-40e** The reveal: a public write-up (and a post from the same account) built from `/history` and the scorecard: what was proposed, what was approved or declined and why, what helped, what did nothing, what backfired. Numbers quoted as rendered. It doubles as the launch content when open sign-up arrives after registration.
+
+**Done when:** SYB's own account has run end to end (intake → report → proposals → approved publishes → measured verdicts) for at least three weeks; its decisions are provably excluded from Gate 2's customer metrics; and the write-up is published with the scorecard as rendered on the day of writing.
+
+**Status 2026-10-13:** P3-40b built.
+
+- `accounts.internal` (migration 0035) is excluded from the ops funnel, abandonment and cost views and from the new `crossCustomerApprovalRate()` in `lib/trust/gate.ts`. That function is the query P3-37 will read; `/api/ops` now returns it as `gate2`. Its arithmetic is the scorecard's own, extracted to one shared `approvalRate()`.
+- The account's own scorecard is unaffected.
+- `scripts/mark-internal.ts <account_id>` sets the flag. It hasn't been run against production: SYB's own account doesn't exist until P3-40a.
+- 3 tests in `lib/care/care.test.ts`.
+
+P3-40a is still the team's to do, and starting it starts the watching-mode clock.
+
+---
+
+## Session I — Trading-hours trials _(planned 2026-10-13, owner idea)_
+
+The second half of `TASKS-PHASE2.md` Session F (P2-26..31). Data can only suggest demand in an hour the business was closed, so a suggested change to opening hours becomes a **time-boxed trial with a measured verdict**, not a recommendation taken on faith. It touches no external platform: the owner changes their own hours, so it does **not** wait on Session D.
+
+- [ ] **P3-41** Hours-trial proposals, from P2-30's signals only. Examples: "Open at 19:00 on Fridays for 4 weeks" and "Close at midnight on Tuesdays for 4 weeks".
+  - **Scenarios** are arithmetic, pessimistic / expected / optimistic: the extra or saved hour's revenue, estimated from the measured first-hour or last-hour curve, minus or plus the cost of an open hour (P2-26). Money is in minor units and the arithmetic is shown.
+  - **Reversibility** is `easy`. The owner makes the change themselves: the proposal says plainly that SYB will not edit their Google listing or website (a write, so out of scope until a write connector covers it).
+  - **Rules:** hard limits, suppression (P3-28) and watching mode (rule 15) apply as to every proposal. One trial per weekday at a time, so the verdicts don't mix.
+  - **Readback** (P3-25) judges the trial window on that weekday's measured revenue net of the hour's cost, against the same weekday before. The verdicts are helped / did nothing / backfired, plus `too_early` under 3 measured trial days.
+  - The P2-26 schedule is updated as an owner-stated fact when the trial starts, and superseded back when it ends (rule 3).
+
+**Done when:** a seeded Friday opening signal produces a trial proposal with three scenarios and the arithmetic shown; approving it records the owner-stated schedule change; four seeded trial Fridays get a verdict net of the hour's cost; and the same proposal is refused during watching mode with the reason stated.
+
+---
+
+## Session J — Alert mode: when the business isn't improving _(planned 2026-10-13, owner idea)_
+
+When a business has been under Ledgerline's care for a decent time and isn't moving towards what the owner wants, or is moving far slower than the gap demands, the system escalates. A high-alert review goes through everything: where the business stood on day zero, everything proposed, approved, declined, executed and undone since, and what each did. It names the most likely reasons, with evidence, and proposes a recovery plan. Gate 2 asks "does it work?" across all customers; this asks it for one business, every week.
+
+**Principles, decided now:**
+
+- **The trigger is arithmetic, never a model** (CLAUDE.md cost rule). The review is the only model call.
+- **The review may blame us.** "Our recommendations were wrong" and "the goal was unrealistic" are causes it must weigh, beside "the owner declined the key proposals", "the data is incomplete" and "something outside changed". The Glass Business includes our own failures.
+- **"Solve it" means proposals.** The recovery plan goes into the queue like everything else (rule 12). Alert mode never executes and never relaxes a hard limit, suppression or watching mode.
+- **No endless AI loop.** If the recovery plan doesn't move things either, a person at SYB looks next (P3-47).
+
+**What exists today, found 2026-10-13:** goals (P3-14, `lib/content/goals.ts`) are a statement, a horizon code and a free-text `target_value`, linked to no measured series, so the gap between wanted and current can't be computed. The readback (P3-25) judges each action alone; nothing judges the whole trajectory. The decision log, supersession (rule 3) and the scorecard already hold the history the review needs.
+
+- [x] **P3-42** Measurable goals. A goal may name a metric (a `METRIC_KEYS` series or a derived profile field), a target (money in minor units plus currency, rule 1) and a deadline (from its horizon). The **baseline** is captured automatically at the moment it's set. The free-text statement stays. A goal without a metric is labelled "not measurable, so alert mode can't watch it" rather than guessed at. Data-model spec updated in the same commit.
+- [x] **P3-43** Day zero. Entering ongoing mode records a takeover entry in the decision log: the date, the profile hash and the goals. Supersession then reconstructs the profile exactly as it stood that day, which is the "before" every later judgement compares against.
+- [x] **P3-44** Progress check and alert levels, inside the existing weekly watch job. Per measurable goal it compares actual progress with the straight-line path from baseline to target. The levels:
+  - **On track.**
+  - **Lagging:** shown on `/watch`, no review.
+  - **Alert:** progress far below the path for several consecutive weekly checks, or moving away from the target.
+
+  The alert threshold scales with the gap: a goal asking for +50% tolerates less drift than one asking for +5%. Nothing triggers before a minimum time under care has passed after watching mode ends. Honest non-states: `too_early` and `unmeasured`, each explaining itself. All thresholds are pinned in code with boundary tests both ways. An alert appears in the watch log on `/watch` (amended at build: the rail badge counts approvals and nothing else, P3-05).
+
+- [ ] **P3-45** The case file, built deterministically with no model:
+  - day zero against now, per metric;
+  - every proposal with its decision and decline reason, execution, undo and readback verdict;
+  - report findings that never became a proposal;
+  - approved items that never executed;
+  - execution failures, anomalies and the watch log;
+  - stated-vs-measured contradictions;
+  - which sources are connected and which aren't.
+
+  Every line gets an evidence id.
+
+- [ ] **P3-46** The alert review: Opus, the diagnosis-report workload under CLAUDE.md's routing, reads the case file.
+  - **Output:** the likely causes, ranked, each citing evidence ids. A cause without evidence is not stated. It weighs every category in the principles above.
+  - **Recovery plan:** proposals into the queue, which can include stopping a strategy that did nothing (through suppression, P3-28) or revising the goal. The owner decides; the system never lowers a goal on its own.
+  - **Cost:** a cost cap per review and at most one review per business per pinned interval, both in code. The prompt is cached.
+  - **Owner screen:** a plain-English write-up of what we tried, what happened, what we think went wrong and what we suggest now.
+- [ ] **P3-47** Escalation to a person. If the goal is still in alert after the recovery plan's window, the case is flagged on `/ops` for the SYB team with the case file and the review attached. The owner is told plainly that a person is now looking. No second automatic review.
+
+**Done when:**
+
+- A seeded business, three months into a +20%-revenue-in-six-months goal, sitting at +2% with mostly did-nothing verdicts, reaches alert, gets a case file with every action and verdict, and receives a review whose causes all cite evidence.
+- The recovery proposals land in the queue and nothing executes.
+- A lagging business gets no review, and an unmeasurable goal says it can't be watched.
+- A business still in alert after the recovery window is flagged on `/ops` instead of being reviewed again.
+
+**Status 2026-10-13:** P3-42 to P3-44 built. No model call anywhere; 16 tests in `lib/care/care.test.ts`.
+
+- **P3-42, measurable goals** (`lib/care/goal-measure.ts`). A goal names revenue, orders or website visits, a target per 30 days (minor units plus currency for money) and a deadline, given or derived from its horizon.
+  - The baseline is measured: the 28 days before the goal is set, needing 21 measured days. It's stored as an inferred fact naming its series (`connector:stripe:revenue.daily`) and its formula (rule 6). A connector's backfill fills a missing baseline later.
+  - Refused by name: an unknown metric, money without a currency, a fractional target, no deadline or horizon, and a target already reached.
+  - Set through `PUT /api/goals` with `measure`; read back on `GET`. **No screen yet:** `/content`'s goals panel doesn't offer it.
+- **P3-43, day zero** (`lib/care/day-zero.ts`). The first mode decision takes a `day_zero` snapshot and writes a `takeover` log entry (migration 0035). Its hash covers the snapshot's content hash and the goal ids, and the test recomputes it. It's written once, and a second call returns the first. Profiles already in care fall back to their first mode decision, marked `recorded: false`. The hook in `decideForProfile` itself is not covered by a test: reaching a non-deferred decision needs a half-complete profile.
+- **P3-44, progress and alerts** (`lib/care/progress.ts`). This runs on the weekly-watch cron. A straight path from baseline to target.
+  - Thresholds: on track from 70% of the expected progress; off track below 40%, or when falling below the baseline. Shortfalls under 5% of the baseline are noise, and that noise floor is how the alert scales with the gap.
+  - Alert after 3 consecutive off-track weeks, raised once, with an on-track week resetting the count. At most one check per goal per 6 days.
+  - Nothing before 8 weeks under care, inside watching mode, or inside the goal's first 28 days. `too_early` and `unmeasured` explain themselves.
+  - Every boundary is tested both ways, including a decrease goal.
+  - Amended at build: an alert shows in the `/watch` log, not the rail badge, which P3-05 reserves for approvals.
+- `lib/trust/series.ts` is the readback's series reader made shared, generalised from revenue to any metric. The readback's own tests are unchanged and pass.
+
+**P3-45 to P3-47 are next:** the case file, the Opus review and escalation to a person.
+
+---
+
 ## Gate 2 — does it actually work? _(steps 78–80)_
 
 Runs after Session E has real traffic through it. Not a formality; 35 dev-weeks earns a hard look.

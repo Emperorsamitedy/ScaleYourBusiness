@@ -2,13 +2,15 @@
 //
 //   GET  /api/goals   the owner's goals + suggestions from the report
 //   POST /api/goals   add a goal (the owner's words, owner_input source)
-//   PUT  /api/goals   refine one — every change supersedes, never overwrites
+//   PUT  /api/goals   refine one — every change supersedes, never overwrites;
+//                     `measure` makes it measurable (P3-42)
 
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
+import { GoalMeasureError, readGoalMeasure, setGoalMeasure } from "../../../lib/care/goal-measure";
 import {
   GoalError,
   addGoal,
@@ -31,7 +33,7 @@ async function resolveProfile(): Promise<string | null> {
 }
 
 function onError(error: unknown): NextResponse {
-  if (error instanceof GoalError) {
+  if (error instanceof GoalError || error instanceof GoalMeasureError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
   console.error(JSON.stringify({ event: "goals_error", message: String(error) }));
@@ -42,10 +44,13 @@ export async function GET(): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
-    const [goals, suggestions] = await Promise.all([
+    const [listed, suggestions] = await Promise.all([
       listGoals(profileId),
       suggestGoalsFromReport(profileId),
     ]);
+    const goals = await Promise.all(
+      listed.map(async (g) => ({ ...g, ...(await readGoalMeasure(profileId, g.goal_id)) })),
+    );
     return NextResponse.json({ goals, suggestions });
   } catch (error) {
     return onError(error);
@@ -90,6 +95,17 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       if (typeof body[key] === "string") patch[key] = body[key] as string;
     }
     const goal = await updateGoal(profileId, body.goal_id, patch);
+    const measure = body.measure as Record<string, unknown> | undefined;
+    if (measure && typeof measure === "object") {
+      const set = await setGoalMeasure(profileId, body.goal_id, {
+        metric: String(measure.metric ?? ""),
+        direction: typeof measure.direction === "string" ? measure.direction : null,
+        target_per_30d: Number(measure.target_per_30d),
+        currency: typeof measure.currency === "string" ? measure.currency : null,
+        deadline: typeof measure.deadline === "string" ? measure.deadline : null,
+      });
+      return NextResponse.json({ ...goal, ...set });
+    }
     return NextResponse.json(goal);
   } catch (error) {
     return onError(error);

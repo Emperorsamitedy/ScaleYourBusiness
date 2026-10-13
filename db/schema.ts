@@ -51,6 +51,13 @@ export const accounts = pgTable("accounts", {
   locale: text("locale").notNull().default("en-GB"),
   /** ISO 4217 — aggregates state their currency; see lib/core/money.ts. */
   reporting_currency: text("reporting_currency").notNull(),
+  /**
+   * P3-40b: SYB's own business, run through its own product. Excluded from
+   * every cross-customer number (Gate 2's approval rate, the ops funnel and
+   * cost views) so our own numbers never pass as customer evidence. Its
+   * per-profile scorecard is unaffected.
+   */
+  internal: boolean("internal").notNull().default(false),
 });
 
 export const users = pgTable(
@@ -392,6 +399,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "profile_change",
   "erasure", // Phase 4 rule 22: the fact of an erasure, never its PII
   "import", // Phase 4 P4-03: a contact import batch — hash and counts, no PII
+  "takeover", // P3-43: day zero — the business enters care; ref is the frozen snapshot
 ]);
 
 export const decisionLog = pgTable(

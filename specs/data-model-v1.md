@@ -118,6 +118,7 @@ interface Account {
   locale: string;              // "hu-HU", "en-GB" — drives intake language
   reporting_currency: string;
   business_profile_id: BusinessProfileId;
+  internal: boolean;           // P3-40b: SYB's own business — excluded from every cross-customer figure
 }
 
 interface User {
@@ -737,11 +738,35 @@ interface DecisionLogEntry {
   profile_id: BusinessProfileId;
   at: ISODateTime;
   actor: "system" | "owner";
-  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import";
+  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover";
   ref_id: string;
   payload_hash: string;
 }
+
+// P3-42 (alert mode): a goal made measurable. Stored as two fields beside
+// the goal's other attributes, both superseded, never overwritten:
+//   goals.<id>.measure   — owner_input: what to move, how far, by when
+//   goals.<id>.baseline  — inferred from the measured series (rule 6)
+// Units are "per 30 days": the mean of measured days in a 28-day window × 30.
+interface GoalMeasure {
+  metric: "revenue" | "orders" | "sessions";   // revenue.daily | orders.daily | sessions.daily
+  direction: "increase" | "decrease";
+  target_per_30d: number;                      // minor units for money (rule 1)
+  currency: string | null;                     // ISO 4217 for money; null for counts
+  deadline: ISODate;                           // explicit, or the goal's horizon from set_on
+  set_on: ISODate;                             // the start of the expected path
+}
+
+interface GoalBaseline {
+  per_30d: number;
+  currency: string | null;
+  from: ISODate;                               // the 28 days before set_on
+  to: ISODate;
+  days_measured: number;                       // ≥ 21, or there is no baseline
+}
 ```
+
+**`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
 
 The decision log is append-only. It serves three purposes at once: the learning corpus, the debugging trail, and the compliance record showing that a human approved every consequential action — which matters directly given GDPR Article 22 exposure on anything touching individuals.
 
