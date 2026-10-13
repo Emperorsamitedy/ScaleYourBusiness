@@ -43,6 +43,8 @@ export const TRADING = {
 } as const;
 
 export const OPEN_HOUR_COST_KEY = "presence.open_hour_cost";
+/** P3-41: the trials running now, written by lib/hours/trials. */
+export const TRIALS_KEY = "presence.hours_trials";
 
 export interface HourStat {
   /** Trading-day hour: 0–23, then 24 = 00:00 after midnight, 25 = 01:00… */
@@ -388,18 +390,33 @@ export async function tradingAnalysis(
   const scheduleField = await readCurrentField<OpeningSchedule>(profileId, SCHEDULE_KEY);
   const schedule = scheduleField?.value ?? null;
   const cost = await openHourCost(profileId, currency);
+  // P3-41: a weekday under a running trial keeps different hours on those
+  // days; they are left out so the trial can't feed its own signal.
+  const trials =
+    (
+      await readCurrentField<{ weekday: Weekday; from: string; to: string }[]>(
+        profileId,
+        TRIALS_KEY,
+      )
+    )?.value ?? [];
 
-  const weekdays = WEEKDAYS.map((weekday) =>
-    analyseWeekday({
+  const weekdays = WEEKDAYS.map((weekday) => {
+    const all = measuredDays.get(weekday) ?? [];
+    const inTrial = (d: string) =>
+      trials.some((t) => t.weekday === weekday && d >= t.from && d <= t.to);
+    const result = analyseWeekday({
       weekday,
-      days: measuredDays.get(weekday) ?? [],
+      days: all.filter((d) => !inTrial(d)),
       sales: byDay,
       periods:
         schedule === null || schedule.unstated.includes(weekday) ? null : schedule.days[weekday],
       hourCostMinor: cost,
       money: (m) => format(m, currency),
-    }),
-  );
+    });
+    const left = all.filter(inTrial).length;
+    if (left > 0) result.arithmetic.push(`${left} day(s) under a running trial are left out`);
+    return result;
+  });
 
   return {
     status: "ok",

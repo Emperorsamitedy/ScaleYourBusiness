@@ -137,6 +137,25 @@ export function isValidZone(zone: string): boolean {
 /** Every zone the map holds — for the test that checks them against Intl. */
 export const KNOWN_ZONES = Object.values(SINGLE_ZONE).map((e) => e.zone);
 
+/** The owner states the zone themselves — the way in for multi-zone countries. Always wins. */
+export async function setTimezone(profileId: string, zone: string): Promise<void> {
+  if (!isValidZone(zone)) throw new Error(`"${zone}" isn't a timezone`);
+  const at = isoDateTime(new Date().toISOString());
+  await writeField(
+    profileId,
+    createField<string>({
+      id: fieldId(TIMEZONE_KEY),
+      value: zone,
+      status: "answered",
+      confidence: confidence(0.75),
+      source: { kind: "owner_input" },
+      observed_at: at,
+      recorded_at: at,
+      note: null,
+    }),
+  );
+}
+
 /**
  * The business's timezone: the owner's statement if there is one, else
  * derived from a single-zone country (written once, as an inferred fact),

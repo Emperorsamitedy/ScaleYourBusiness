@@ -5,7 +5,7 @@
 // from the weekday's measured takings, net of the hour's cost.
 
 import "dotenv/config";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 import { db } from "../../db";
 import {
@@ -31,7 +31,18 @@ import { shiftDay } from "../trust/series";
 import { ensureOpeningSchedule } from "./schedule";
 import type { WeekdayAnalysis } from "./trading";
 import { localParts } from "./trading";
-import { TRIAL, judgeHoursTrial, proposeHoursTrials, trialFor } from "./trials";
+import { readCurrentField } from "../profile/field-store";
+import { buildTrustView } from "../trust/scorecard";
+import { tradingAnalysis } from "./trading";
+import {
+  TRIAL,
+  TRIALS_KEY,
+  judgeHoursTrial,
+  proposeHoursTrials,
+  syncRunningTrials,
+  trialFor,
+  trialWindow,
+} from "./trials";
 
 const created: { account_id: string; profile_id: string }[] = [];
 const ZONE = "Europe/Budapest";
@@ -320,6 +331,81 @@ describe("P3-41 — the verdict", () => {
       .where(eq(proposals.id, p!.id));
     const [row] = await db.select().from(proposals).where(eq(proposals.id, p!.id));
     expect((await judgeHoursTrial(row!)).verdict).toBe("did_nothing");
+  });
+
+  it("the scorecard judges an approved trial, though nothing 'executed' it", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const decided = shiftDay(today, -32);
+    const trialStart = shiftDay(decided, 1);
+    const s = await bar((day, weekday) => {
+      const base = fridayBusy(day, weekday);
+      return weekday === "fri" && day >= trialStart ? [[19, 10_000], ...base] : base;
+    });
+    await recordDayZero(s.profile_id, crypto.randomUUID());
+    const [p] = (await proposeHoursTrials(s.profile_id)).created;
+    await approveProposal({ proposalId: p!.id, userId: s.user_id });
+    await db
+      .update(proposals)
+      .set({ decided_at: `${decided}T09:00:00.000Z` })
+      .where(eq(proposals.id, p!.id));
+
+    const view = await buildTrustView(s.profile_id);
+    expect(view.scorecard.outcomes.helped).toBe(1);
+    const scored = view.history.find((h) => h.proposal.id === p!.id);
+    expect(scored?.outcome?.verdict).toBe("helped");
+    expect(scored?.outcome?.delta_pct).toBe(10.3);
+    expect(scored?.outcome?.metric).toContain("Fridays");
+  });
+
+  it("a running trial is on the profile, its days are left out of the signals, and it clears when it ends", async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const s = await bar(fridayBusy);
+    await recordDayZero(s.profile_id, crypto.randomUUID());
+    const [p] = (await proposeHoursTrials(s.profile_id)).created;
+    await approveProposal({ proposalId: p!.id, userId: s.user_id });
+    const decided = shiftDay(today, -15);
+    await db
+      .update(proposals)
+      .set({ decided_at: `${decided}T09:00:00.000Z` })
+      .where(eq(proposals.id, p!.id));
+
+    const running = await syncRunningTrials(s.profile_id);
+    expect(running).toEqual([
+      expect.objectContaining({
+        proposal_id: p!.id,
+        weekday: "fri",
+        change: "open_earlier",
+        hour: 19,
+        ...trialWindow(`${decided}T09:00:00.000Z`, 4),
+      }),
+    ]);
+    const field = await readCurrentField<unknown[]>(s.profile_id, TRIALS_KEY);
+    expect(field?.status).toBe("inferred");
+    expect(field?.source).toMatchObject({ derived_from: [`proposal:${p!.id}`] });
+
+    // Unchanged list: no new record.
+    await syncRunningTrials(s.profile_id);
+    const records = await db
+      .select({ id: fieldRecords.id })
+      .from(fieldRecords)
+      .where(
+        and(eq(fieldRecords.profile_id, s.profile_id), eq(fieldRecords.field_key, TRIALS_KEY)),
+      );
+    expect(records).toHaveLength(1);
+
+    const analysis = await tradingAnalysis(s.profile_id);
+    expect(analysis.status).toBe("ok");
+    if (analysis.status === "ok") {
+      const fri = analysis.weekdays.find((w) => w.weekday === "fri")!;
+      expect(fri.arithmetic.some((l) => l.includes("under a running trial are left out"))).toBe(
+        true,
+      );
+    }
+
+    // After the trial's four weeks it clears — superseded, so the history keeps it.
+    const after = new Date(Date.parse(`${decided}T09:00:00Z`) + 40 * 86_400_000);
+    expect(await syncRunningTrials(s.profile_id, after)).toEqual([]);
+    expect((await readCurrentField<unknown[]>(s.profile_id, TRIALS_KEY))?.value).toEqual([]);
   });
 
   it("two trial days are too early; a pending proposal is not judged", async () => {

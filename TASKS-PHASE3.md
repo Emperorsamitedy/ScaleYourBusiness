@@ -269,7 +269,7 @@ P3-40a is still the team's to do, and starting it starts the watching-mode clock
 
 The second half of `TASKS-PHASE2.md` Session F (P2-26..31). Data can only suggest demand in an hour the business was closed, so a suggested change to opening hours becomes a **time-boxed trial with a measured verdict**, not a recommendation taken on faith. It touches no external platform: the owner changes their own hours, so it does **not** wait on Session D.
 
-- [ ] **P3-41** Hours-trial proposals, from P2-30's signals only. Examples: "Open at 19:00 on Fridays for 4 weeks" and "Close at midnight on Tuesdays for 4 weeks".
+- [x] **P3-41** Hours-trial proposals, from P2-30's signals only. Examples: "Open at 19:00 on Fridays for 4 weeks" and "Close at midnight on Tuesdays for 4 weeks".
   - **Scenarios** are arithmetic, pessimistic / expected / optimistic: the extra or saved hour's revenue, estimated from the measured first-hour or last-hour curve, minus or plus the cost of an open hour (P2-26). Money is in minor units and the arithmetic is shown.
   - **Reversibility** is `easy`. The owner makes the change themselves: the proposal says plainly that SYB will not edit their Google listing or website (a write, so out of scope until a write connector covers it).
   - **Rules:** hard limits, suppression (P3-28) and watching mode (rule 15) apply as to every proposal. One trial per weekday at a time, so the verdicts don't mix.
@@ -289,8 +289,10 @@ The second half of `TASKS-PHASE2.md` Session F (P2-26..31). Data can only sugges
 - **Guards:** idempotent per weekday, change and month; one trial per weekday at a time; nothing before care starts or while watching (rule 15); hard limits and decline-suppression as usual. The card says SYB won't touch the Google listing or website.
 - **The verdict** (`judgeHoursTrial`). The weekday's takings during the four weeks after approval, net of the hour's cost, against the four weeks before, using the readback's ±5% thresholds; `too_early` under 3 trial days.
 - **Where it runs:** proposals come from the weekly-watch cron. Trials and verdicts show on `/hours`.
-- **Not built:** recording the owner's hours change in the profile while a trial runs, and putting it back after. The verdict reads the approval date instead.
-- **Not wired:** the trial verdict isn't in the agent scorecard, which judges executed proposals only. These trials stay `approved`, because the owner changes the hours themselves.
+- **Recorded while running (added the same day):** `presence.hours_trials` holds the trials running today (`syncRunningTrials`, on the weekly job and `/hours`), and goes back to empty when they end.
+  - Amended from "the schedule is updated and superseded back": the opening schedule stays the owner's own words, and the trial is a separate inferred fact derived from the approval, so a trial can never overwrite what the owner said.
+  - Its days are left out of that weekday's signals, so a trial can't feed itself.
+- **In the scorecard (added the same day):** `buildTrustView` judges approved `hours` trials through `trialOutcome`, beside executed proposals. A trial stays `approved`, because the owner changes the hours themselves.
 
 ---
 

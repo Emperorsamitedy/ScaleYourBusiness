@@ -24,7 +24,12 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { modeDecisions, proposals } from "../../db/schema";
 import { careState } from "../care/day-zero";
+import { confidence } from "../core/confidence";
+import { createField } from "../core/field";
+import { fieldId } from "../core/ids";
+import { isoDateTime } from "../core/iso";
 import { money } from "../core/money";
+import { readCurrentField, writeField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import {
   checkHardLimits,
@@ -34,12 +39,13 @@ import {
 } from "../proposals/hard-limits";
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
+import type { ProposalOutcome } from "../trust/readback";
 import { READBACK } from "../trust/readback";
 import { shiftDay } from "../trust/series";
 import { suppressedKinds } from "../trust/suppression";
 import type { Weekday } from "./schedule";
 import type { WeekdayAnalysis } from "./trading";
-import { label, loadTradingSales, openHourCost, tradingAnalysis } from "./trading";
+import { TRIALS_KEY, label, loadTradingSales, openHourCost, tradingAnalysis } from "./trading";
 
 export const HOURS_MODULE = "hours";
 export const TRIAL_KIND = "operations_change";
@@ -385,6 +391,89 @@ export async function proposeHoursTrials(
   return out;
 }
 
+export { TRIALS_KEY };
+export const TRIALS_METHOD = "approved-hours-trials-v1";
+
+export interface RunningTrial {
+  proposal_id: string;
+  weekday: Weekday;
+  change: TrialChange;
+  /** Trading-day hour gained or given up. */
+  hour: number;
+  /** First and last trading day of the trial, inclusive. */
+  from: string;
+  to: string;
+}
+
+/** The trading days an approved trial covers: the four weeks after approval. */
+export function trialWindow(decidedAt: string, weeks: number): { from: string; to: string } {
+  const from = shiftDay(decidedAt.slice(0, 10), 1);
+  return { from, to: shiftDay(from, weeks * 7 - 1) };
+}
+
+/**
+ * Keep presence.hours_trials equal to the trials running today, so the
+ * profile says "Fridays open at 19:00 until 14 Nov (a trial)" while one
+ * runs and stops saying it when it ends. Written only when the list
+ * changes; every change supersedes (rule 3), so the history of trials is
+ * the field's own history. Derived from the owner's approvals (rule 6).
+ */
+export async function syncRunningTrials(
+  profileId: string,
+  now: Date = new Date(),
+): Promise<RunningTrial[]> {
+  const today = now.toISOString().slice(0, 10);
+  const rows = await db
+    .select()
+    .from(proposals)
+    .where(and(eq(proposals.profile_id, profileId), eq(proposals.module, HOURS_MODULE)));
+  const running: RunningTrial[] = [];
+  for (const row of rows) {
+    const detail = (row.action as { detail?: TrialDetail }).detail;
+    if (!detail || !row.decided_at || (row.status !== "approved" && row.status !== "executed"))
+      continue;
+    const window = trialWindow(row.decided_at, detail.trial_weeks);
+    if (today < window.from || today > window.to) continue;
+    running.push({
+      proposal_id: row.id,
+      weekday: detail.weekday,
+      change: detail.change,
+      hour: detail.hour,
+      ...window,
+    });
+  }
+  running.sort((a, b) => a.proposal_id.localeCompare(b.proposal_id));
+
+  const current = await readCurrentField<RunningTrial[]>(profileId, TRIALS_KEY);
+  // Compared field by field: jsonb does not keep key order, so a JSON.stringify
+  // of the stored value would never equal the fresh one.
+  const sig = (ts: readonly RunningTrial[]) =>
+    ts.map((t) => [t.proposal_id, t.weekday, t.change, t.hour, t.from, t.to].join("|")).join(";");
+  if (sig(current?.value ?? []) === sig(running)) return running;
+  if (!current && running.length === 0) return running;
+  const at = isoDateTime(now.toISOString());
+  await writeField(
+    profileId,
+    createField<RunningTrial[]>({
+      id: fieldId(TRIALS_KEY),
+      value: running,
+      status: "inferred",
+      confidence: confidence(0.9),
+      source: {
+        kind: "inferred",
+        derived_from: (running.length > 0 ? running : [{ proposal_id: "none" }]).map((t) =>
+          fieldId(`proposal:${t.proposal_id}`),
+        ),
+        method: TRIALS_METHOD,
+      },
+      observed_at: at,
+      recorded_at: at,
+      note: running.length === 0 ? "no trial running" : null,
+    }),
+  );
+  return running;
+}
+
 /** The weekly sweep: every business in care, one failure never stopping the rest. */
 export async function runHoursTrials(
   now: Date = new Date(),
@@ -396,6 +485,7 @@ export async function runHoursTrials(
   let failed = 0;
   for (const { profile_id } of inCare) {
     try {
+      await syncRunningTrials(profile_id, now);
       created += (await proposeHoursTrials(profile_id, { now })).created.length;
     } catch (error) {
       failed++;
@@ -407,9 +497,44 @@ export async function runHoursTrials(
   return { created, failed };
 }
 
+/**
+ * The trial's verdict in the scorecard's own shape. A trial stays
+ * "approved" — the owner changes the hours, no executor runs — so the
+ * scorecard judges approved trials through this, beside executed proposals.
+ */
+export async function trialOutcome(
+  row: ProposalRow,
+  now: Date = new Date(),
+): Promise<ProposalOutcome> {
+  const v = await judgeHoursTrial(row, now);
+  const detail = (row.action as { detail?: TrialDetail }).detail;
+  const scenario = row.scenario as {
+    base_case?: { statement?: string };
+    assumptions?: { statement: string; sensitivity: string }[];
+  } | null;
+  return {
+    proposal_id: row.id,
+    verdict: v.verdict,
+    executed_on: row.decided_at ? row.decided_at.slice(0, 10) : null,
+    metric: `revenue.hourly (${detail ? DAY_WORD[detail.weekday] : "trial weekday"}, net of the hour)`,
+    currency: detail?.currency ?? null,
+    before: null,
+    after: null,
+    delta_pct: v.delta_pct,
+    arithmetic: v.arithmetic,
+    predicted: scenario?.base_case?.statement ?? null,
+    assumptions: (scenario?.assumptions ?? []).map((a) => ({
+      statement: a.statement,
+      sensitivity: a.sensitivity,
+    })),
+  };
+}
+
 export interface TrialVerdict {
   proposal_id: string;
   verdict: "helped" | "did_nothing" | "backfired" | "too_early" | "unmeasured";
+  /** Net change against the weeks before, in percent; null without a verdict. */
+  delta_pct: number | null;
   arithmetic: string;
 }
 
@@ -424,12 +549,11 @@ export async function judgeHoursTrial(
   now: Date = new Date(),
 ): Promise<TrialVerdict> {
   const detail = (row.action as { detail?: TrialDetail }).detail;
-  const base = { proposal_id: row.id };
+  const base = { proposal_id: row.id, delta_pct: null };
   if (!detail || !row.decided_at || (row.status !== "approved" && row.status !== "executed")) {
     return { ...base, verdict: "unmeasured", arithmetic: "not an approved trial" };
   }
-  const start = shiftDay(row.decided_at.slice(0, 10), 1);
-  const end = shiftDay(start, detail.trial_weeks * 7 - 1);
+  const { from: start, to: end } = trialWindow(row.decided_at, detail.trial_weeks);
   const today = shiftDay(now.toISOString().slice(0, 10), -1);
   const beforeFrom = shiftDay(start, -detail.trial_weeks * 7);
   const sales = await loadTradingSales(row.profile_id, beforeFrom, end < today ? end : today);
@@ -470,6 +594,7 @@ export async function judgeHoursTrial(
   return {
     ...base,
     verdict,
+    delta_pct: pct,
     arithmetic:
       `${DAY_WORD[detail.weekday]} averaged ${fmt(Math.round(now_))} net over ${during.length} trial day(s)` +
       `${cost ? ` (takings ${detail.change === "open_earlier" ? "minus" : "plus"} the ${fmt(cost)} hour)` : ""}` +

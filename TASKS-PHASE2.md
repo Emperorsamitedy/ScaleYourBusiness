@@ -128,7 +128,7 @@ For businesses customers visit — bars, restaurants, cafés, salons, shops — 
   - Code validates every period. A day with an impossible time goes to `unparsed`, shown and never repaired, and that day stays unknown, not closed.
   - Bank **1.3.0**: 2.1.1.7 is `important` with an example. Its existing `customers_visit` condition already restricts it to visit-based businesses, so no new `ConditionExpr` was needed. New question 2.1.1.7a, `presence.open_hour_cost`.
 - **P2-26, timezone.** Amended from "a question": it's derived from `legal.country` when the country has one zone (`lib/hours/timezone.ts`, 43 countries checked against Intl). Multi-zone and unreadable countries are unknown, with the reason, and every hourly figure says so. An owner-stated `presence.timezone` always wins.
-  - **Open:** there's no question that asks for it, so a US business has no hourly analysis yet.
+  - **Multi-zone countries (added the same day):** when the zone can't be derived, `/hours` asks the owner to pick it (`POST /api/hours`, stored as `owner_input`). The picker appears only when it's needed, so everyone else is never asked.
 - **P2-27, hourly measurement.** Amended to store in **UTC** (`hour_utc`), not local time: an exact instant, so the clock, daylight saving and the 05:00 trading-day cutoff are applied at read, and a timezone learned later needs no re-sync.
   - Stripe and Shopify share one helper (`lib/connectors/hourly.ts`). Only hours with sales are emitted; the daily row says the day was covered.
   - Anomaly detection and every business-wide sum skip hourly rows by the existing dimension filter.

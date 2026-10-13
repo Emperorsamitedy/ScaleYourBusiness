@@ -14,6 +14,7 @@ import { proposals } from "../../db/schema";
 import type { ProposalRow } from "../proposals/service";
 import type { OutcomeVerdict, ProposalOutcome } from "./readback";
 import { readbackForProposal } from "./readback";
+import { HOURS_MODULE, trialOutcome } from "../hours/trials";
 
 export interface Scorecard {
   made: number;
@@ -68,6 +69,11 @@ export async function buildTrustView(
     let outcome: ProposalOutcome | null = null;
     if (row.status === "executed") {
       outcome = await readbackForProposal(row, now);
+      outcomes[outcome.verdict] += 1;
+    } else if (row.status === "approved" && row.module === HOURS_MODULE) {
+      // P3-41: an hours trial is carried out by the owner, so it stays
+      // approved; it is judged on its weekday's takings all the same.
+      outcome = await trialOutcome(row, now);
       outcomes[outcome.verdict] += 1;
     }
     history.push({ proposal: row, outcome });

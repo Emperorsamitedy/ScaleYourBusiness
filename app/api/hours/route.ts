@@ -6,13 +6,13 @@
 
 import { and, desc, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles, proposals } from "../../../db/schema";
-import { HOURS_MODULE, judgeHoursTrial } from "../../../lib/hours/trials";
+import { HOURS_MODULE, judgeHoursTrial, syncRunningTrials } from "../../../lib/hours/trials";
 import { format, money } from "../../../lib/core/money";
 import { ensureOpeningSchedule } from "../../../lib/hours/schedule";
-import { ensureTimezone } from "../../../lib/hours/timezone";
+import { ensureTimezone, isValidZone, setTimezone } from "../../../lib/hours/timezone";
 import { tradingAnalysis } from "../../../lib/hours/trading";
 
 const COOKIE = "syb_intake_profile";
@@ -26,6 +26,21 @@ async function resolveProfile(): Promise<string | null> {
     .from(businessProfiles)
     .where(eq(businessProfiles.id, profileId));
   return row?.id ?? null;
+}
+
+/** POST /api/hours { timezone } — the owner states their zone (multi-zone countries). */
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const profileId = await resolveProfile();
+  if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const body = (await request.json().catch(() => ({}))) as { timezone?: unknown };
+  if (typeof body.timezone !== "string" || !isValidZone(body.timezone)) {
+    return NextResponse.json(
+      { error: "timezone must be a timezone name, e.g. America/Chicago" },
+      { status: 422 },
+    );
+  }
+  await setTimezone(profileId, body.timezone);
+  return NextResponse.json({ timezone: body.timezone });
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -43,6 +58,7 @@ export async function GET(): Promise<NextResponse> {
       console.error(JSON.stringify({ event: "schedule_parse_failed", message: String(error) }));
     }
     const timezone = await ensureTimezone(profileId);
+    await syncRunningTrials(profileId);
     const analysis = await tradingAnalysis(profileId, new Date(), (m, c) => format(money(m, c)));
     // P3-41: the trials proposed from these signals, each with its verdict so far.
     const rows = await db

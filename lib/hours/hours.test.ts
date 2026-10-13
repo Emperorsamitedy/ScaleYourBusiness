@@ -25,7 +25,7 @@ import { readCurrentField, writeField } from "../profile/field-store";
 import { shiftDay } from "../trust/series";
 import type { OpeningSchedule, ScheduleLlm } from "./schedule";
 import { SCHEDULE_KEY, coerceSchedule, ensureOpeningSchedule, periodMinutes } from "./schedule";
-import { KNOWN_ZONES, ensureTimezone, isValidZone, zoneForCountry } from "./timezone";
+import { KNOWN_ZONES, ensureTimezone, isValidZone, setTimezone, zoneForCountry } from "./timezone";
 import {
   TRADING,
   analyseWeekday,
@@ -230,6 +230,15 @@ describe("P2-26 — the timezone: derived from a single-zone country, never gues
 
     await put(s.profile_id, "presence.timezone", "Europe/Vienna");
     expect(await ensureTimezone(s.profile_id)).toEqual({ zone: "Europe/Vienna", via: "owner" });
+  });
+
+  it("a multi-zone business states its zone itself; a made-up zone is refused", async () => {
+    const s = await fresh();
+    await put(s.profile_id, "legal.country", "USA");
+    expect(await ensureTimezone(s.profile_id)).toMatchObject({ zone: null });
+    await setTimezone(s.profile_id, "America/Chicago");
+    expect(await ensureTimezone(s.profile_id)).toEqual({ zone: "America/Chicago", via: "owner" });
+    await expect(setTimezone(s.profile_id, "America/Atlantis")).rejects.toThrow("isn't a timezone");
   });
 });
 

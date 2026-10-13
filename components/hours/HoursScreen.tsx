@@ -100,6 +100,47 @@ function Curve({ w, currency }: { w: WeekdayAnalysis; currency: string }) {
   );
 }
 
+/** Shown only when the zone can't be derived — a country with several, or none given. */
+function ZonePicker({ onSaved }: { onSaved: () => void }) {
+  const zones =
+    typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : [];
+  const [zone, setZone] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const save = async () => {
+    const res = await fetch("/api/hours", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ timezone: zone }),
+    });
+    if (!res.ok)
+      return setError(((await res.json()) as { error?: string }).error ?? "That didn't save.");
+    onSaved();
+  };
+  return (
+    <form
+      className="ct-goal-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void save();
+      }}
+    >
+      <span className="conn-note">Which timezone is the business in?</span>
+      <select className="prop-select" value={zone} onChange={(e) => setZone(e.target.value)}>
+        <option value="">Choose…</option>
+        {zones.map((z) => (
+          <option key={z} value={z}>
+            {z.replace(/_/g, " ")}
+          </option>
+        ))}
+      </select>
+      <button className="prop-btn" disabled={zone === ""}>
+        Save
+      </button>
+      {error && <p className="conn-note">{error}</p>}
+    </form>
+  );
+}
+
 export function HoursScreen() {
   const [view, setView] = useState<HoursView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
@@ -212,6 +253,7 @@ export function HoursScreen() {
       {a.status !== "ok" ? (
         <section className="card ops-card">
           <p className="auth-copy">Not yet: {a.reason}.</p>
+          {view.timezone.zone === null && <ZonePicker onSaved={() => location.reload()} />}
         </section>
       ) : (
         <>
