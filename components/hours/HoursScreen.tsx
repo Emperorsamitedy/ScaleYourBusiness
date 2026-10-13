@@ -24,7 +24,16 @@ interface WeekdayAnalysis {
   closing_signal: boolean | null;
   arithmetic: string[];
 }
+interface Trial {
+  id: string;
+  summary: string;
+  status: string;
+  created_at: string;
+  decided_at: string | null;
+  verdict: { verdict: string; arithmetic: string } | null;
+}
 interface HoursView {
+  trials: Trial[];
   schedule: {
     days: Record<Weekday, { open: string; close: string }[]>;
     unstated: Weekday[];
@@ -172,6 +181,33 @@ export function HoursScreen() {
           Wrong? Change your answer in your <Link href="/profile">profile</Link> and this updates.
         </p>
       </section>
+
+      {view.trials.length > 0 && (
+        <section className="card ops-card">
+          <span className="auth-eyebrow">trials — a signal is tested, never taken on faith</span>
+          <ul className="prop-log">
+            {view.trials.map((t) => (
+              <li key={t.id}>
+                <span className="prop-log-title">{t.summary}</span>{" "}
+                <span className="prop-tag">{t.status}</span>
+                {t.status === "pending" && (
+                  <span className="conn-note">
+                    {" "}
+                    — waiting for you in the <Link href="/proposals">approval queue</Link>, with its
+                    numbers
+                  </span>
+                )}
+                {t.verdict && (
+                  <span className="conn-note">
+                    {" "}
+                    — {t.verdict.verdict.replace("_", " ")}: {t.verdict.arithmetic}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {a.status !== "ok" ? (
         <section className="card ops-card">

@@ -385,6 +385,14 @@ Phase 2 Session F, P2-26, P2-27 and most of P2-30. The full status is in
   open too late, and whether the last hour pays for itself, all with the
   arithmetic and the honest limits.
 
+**Trials (P3-41).** A signal such as "Fridays may open too late" becomes
+a 4-week trial in the approval queue. It carries three worked scenarios
+(how much the new hour might earn, minus what an hour costs) and gets a
+verdict afterwards from what was actually taken. Proposals are made by
+the weekly job, never during watching mode, one trial per weekday at a
+time. The owner changes their own hours; nothing touches their Google
+listing.
+
 **Bank 1.3.0** changes the interview for every business that customers
 visit: the opening-hours question moves up to "important", and one new
 question asks what an open hour costs. **Production needs `npm run

@@ -4,11 +4,12 @@
 // words, P2-26), the timezone we judge in, and per weekday the measured
 // revenue curve with the opening and closing signals (P2-30). Read-only.
 
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
+import { businessProfiles, proposals } from "../../../db/schema";
+import { HOURS_MODULE, judgeHoursTrial } from "../../../lib/hours/trials";
 import { format, money } from "../../../lib/core/money";
 import { ensureOpeningSchedule } from "../../../lib/hours/schedule";
 import { ensureTimezone } from "../../../lib/hours/timezone";
@@ -43,7 +44,26 @@ export async function GET(): Promise<NextResponse> {
     }
     const timezone = await ensureTimezone(profileId);
     const analysis = await tradingAnalysis(profileId, new Date(), (m, c) => format(money(m, c)));
-    return NextResponse.json({ schedule, schedule_note: scheduleNote, timezone, analysis });
+    // P3-41: the trials proposed from these signals, each with its verdict so far.
+    const rows = await db
+      .select()
+      .from(proposals)
+      .where(and(eq(proposals.profile_id, profileId), eq(proposals.module, HOURS_MODULE)))
+      .orderBy(desc(proposals.created_at));
+    const trials = await Promise.all(
+      rows.map(async (row) => ({
+        id: row.id,
+        summary: (row.action as { summary: string }).summary,
+        status: row.status,
+        created_at: row.created_at,
+        decided_at: row.decided_at,
+        verdict:
+          row.status === "approved" || row.status === "executed"
+            ? await judgeHoursTrial(row)
+            : null,
+      })),
+    );
+    return NextResponse.json({ schedule, schedule_note: scheduleNote, timezone, analysis, trials });
   } catch (error) {
     console.error(JSON.stringify({ event: "hours_read_failed", message: String(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });

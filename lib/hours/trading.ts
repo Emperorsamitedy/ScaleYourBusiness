@@ -141,7 +141,6 @@ export function openSpan(periods: readonly OpenPeriod[]): { first: number; last:
 export interface DaySales {
   /** Trading day → (trading hour → revenue minor). */
   byDay: Map<string, Map<number, number>>;
-  weekdayOf: Map<string, Weekday>;
 }
 
 /** Pure: the per-weekday analysis from bucketed sales. Exported for boundary tests. */
@@ -265,15 +264,28 @@ export function label(hour: number): string {
   return hour >= 24 ? `${h}:00 after midnight` : `${h}:00`;
 }
 
-/** The analysis for one profile, from what is measured and stated today. */
-export async function tradingAnalysis(
+export interface TradingSales {
+  zone: string;
+  currency: string;
+  providers: string[];
+  /** Trading day → trading hour → revenue (minor units). */
+  byDay: DaySales["byDay"];
+  /** Measured trading days per weekday, oldest first. */
+  measuredDays: Map<Weekday, string[]>;
+}
+
+/**
+ * Measured sales per trading day in the business's clock, for trading
+ * days from..to. Shared by the analysis (P2-30) and the trials' verdicts
+ * (P3-41). Null-with-reason when it can't be measured honestly.
+ */
+export async function loadTradingSales(
   profileId: string,
-  now: Date = new Date(),
-  format: (minor: number, currency: string) => string = (m, c) => `${(m / 100).toFixed(2)} ${c}`,
-): Promise<TradingAnalysis> {
+  from: string,
+  to: string,
+): Promise<TradingSales | { reason: string }> {
   const tz = await ensureTimezone(profileId);
-  if (tz.zone === null)
-    return { status: "unmeasured", reason: `the business's timezone isn't known: ${tz.reason}` };
+  if (tz.zone === null) return { reason: `the business's timezone isn't known: ${tz.reason}` };
 
   const [profile] = await db
     .select({ account_id: businessProfiles.account_id })
@@ -285,12 +297,8 @@ export async function tradingAnalysis(
         .from(connections)
         .where(eq(connections.account_id, profile.account_id))
     : [];
-  if (conns.length === 0)
-    return { status: "unmeasured", reason: "no connected source measures sales" };
+  if (conns.length === 0) return { reason: "no connected source measures sales" };
 
-  const today = now.toISOString().slice(0, 10);
-  const to = shiftDay(today, -1);
-  const from = shiftDay(today, -TRADING.window_days);
   const ids = conns.map((c) => c.id);
   const rows = await db
     .select({
@@ -315,7 +323,6 @@ export async function tradingAnalysis(
   const currencies = new Set<string>();
   const providers = new Set<string>();
   const byDay: DaySales["byDay"] = new Map();
-  const weekdayOf = new Map<string, Weekday>();
   for (const r of rows) {
     if (r.metric_key === "revenue.daily") {
       if (Object.keys(r.dimensions ?? {}).every((k) => k === "currency"))
@@ -331,17 +338,12 @@ export async function tradingAnalysis(
     const hours = byDay.get(slot.day) ?? new Map<number, number>();
     hours.set(slot.hour, (hours.get(slot.hour) ?? 0) + r.value_minor);
     byDay.set(slot.day, hours);
-    weekdayOf.set(slot.day, slot.weekday);
   }
   if (providers.size === 0) {
-    return {
-      status: "unmeasured",
-      reason: "no hourly sales are measured yet — they arrive with the next sync",
-    };
+    return { reason: "no hourly sales are measured yet — they arrive with the next sync" };
   }
   if (currencies.size !== 1) {
     return {
-      status: "unmeasured",
       reason: `sales are in ${[...currencies].join(" and ")} — one currency is needed (rule 1)`,
     };
   }
@@ -354,17 +356,38 @@ export async function tradingAnalysis(
     const weekday = localParts(new Date(`${day}T12:00:00Z`), tz.zone).weekday;
     measuredDays.get(weekday)?.push(day);
   }
+  return { zone: tz.zone, currency, providers: [...providers].sort(), byDay, measuredDays };
+}
 
-  const scheduleField = await readCurrentField<OpeningSchedule>(profileId, SCHEDULE_KEY);
-  const schedule = scheduleField?.value ?? null;
+/** The open-hour cost when it is stated in the sales' currency; null otherwise. */
+export async function openHourCost(profileId: string, currency: string): Promise<number | null> {
   const costField = await readCurrentField<{ amount_minor: number; currency: string }>(
     profileId,
     OPEN_HOUR_COST_KEY,
   );
-  const cost =
-    costField?.status === "answered" && costField.value && costField.value.currency === currency
-      ? costField.value.amount_minor
-      : null;
+  return costField?.status === "answered" &&
+    costField.value &&
+    costField.value.currency === currency
+    ? costField.value.amount_minor
+    : null;
+}
+
+/** The analysis for one profile, from what is measured and stated today. */
+export async function tradingAnalysis(
+  profileId: string,
+  now: Date = new Date(),
+  format: (minor: number, currency: string) => string = (m, c) => `${(m / 100).toFixed(2)} ${c}`,
+): Promise<TradingAnalysis> {
+  const today = now.toISOString().slice(0, 10);
+  const to = shiftDay(today, -1);
+  const from = shiftDay(today, -TRADING.window_days);
+  const sales = await loadTradingSales(profileId, from, to);
+  if ("reason" in sales) return { status: "unmeasured", reason: sales.reason };
+  const { zone, currency, byDay, measuredDays, providers } = sales;
+
+  const scheduleField = await readCurrentField<OpeningSchedule>(profileId, SCHEDULE_KEY);
+  const schedule = scheduleField?.value ?? null;
+  const cost = await openHourCost(profileId, currency);
 
   const weekdays = WEEKDAYS.map((weekday) =>
     analyseWeekday({
@@ -380,12 +403,12 @@ export async function tradingAnalysis(
 
   return {
     status: "ok",
-    zone: tz.zone,
+    zone,
     currency,
     from,
     to,
     weekdays,
-    coverage: `card payments through ${[...providers].sort().join(", ")} only — cash sales aren't seen by any connection`,
+    coverage: `card payments through ${providers.join(", ")} only — cash sales aren't seen by any connection`,
     limit: LIMIT,
   };
 }

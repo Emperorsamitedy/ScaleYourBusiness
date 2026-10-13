@@ -278,6 +278,20 @@ The second half of `TASKS-PHASE2.md` Session F (P2-26..31). Data can only sugges
 
 **Done when:** a seeded Friday opening signal produces a trial proposal with three scenarios and the arithmetic shown; approving it records the owner-stated schedule change; four seeded trial Fridays get a verdict net of the hour's cost; and the same proposal is refused during watching mode with the reason stated.
 
+**Status 2026-10-13:** built except one clause; 8 tests in `lib/hours/trials.test.ts`.
+
+- **Proposals** (`lib/hours/trials.ts`). P2-30's signals become `hours`-module `operations_change` proposals. Each has three scenarios in minor units with the formula shown:
+  - open earlier: 25/50/100% of today's first-hour takings, minus the open-hour cost;
+  - close earlier: the cost saved, minus 100/50/0% of the last hour lost.
+
+  Without the cost, an opening trial shows takings and says plainly "not profit", and a closing trial isn't proposed at all.
+
+- **Guards:** idempotent per weekday, change and month; one trial per weekday at a time; nothing before care starts or while watching (rule 15); hard limits and decline-suppression as usual. The card says SYB won't touch the Google listing or website.
+- **The verdict** (`judgeHoursTrial`). The weekday's takings during the four weeks after approval, net of the hour's cost, against the four weeks before, using the readback's ±5% thresholds; `too_early` under 3 trial days.
+- **Where it runs:** proposals come from the weekly-watch cron. Trials and verdicts show on `/hours`.
+- **Not built:** recording the owner's hours change in the profile while a trial runs, and putting it back after. The verdict reads the approval date instead.
+- **Not wired:** the trial verdict isn't in the agent scorecard, which judges executed proposals only. These trials stay `approved`, because the owner changes the hours themselves.
+
 ---
 
 ## Session J — Alert mode: when the business isn't improving _(planned 2026-10-13, owner idea)_
