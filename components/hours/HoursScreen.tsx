@@ -22,6 +22,7 @@ interface WeekdayAnalysis {
   last_hour: number | null;
   opening_signal: boolean;
   closing_signal: boolean | null;
+  attention_signal: boolean | null;
   arithmetic: string[];
 }
 interface Trial {
@@ -270,6 +271,7 @@ export function HoursScreen() {
                 {w.days_measured === 1 ? "" : "s"} measured
                 {w.opening_signal && " · may open too late"}
                 {w.closing_signal && " · last hour doesn't pay"}
+                {w.attention_signal && " · people look you up before you open"}
               </span>
               {w.verdict === "too_early" && (
                 <p className="auth-copy" style={{ fontSize: 14 }}>

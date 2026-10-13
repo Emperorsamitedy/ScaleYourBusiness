@@ -43,6 +43,7 @@ import type { ProposalOutcome } from "../trust/readback";
 import { READBACK } from "../trust/readback";
 import { shiftDay } from "../trust/series";
 import { suppressedKinds } from "../trust/suppression";
+import { parseCompetitorHours } from "./competitors";
 import type { Weekday } from "./schedule";
 import type { WeekdayAnalysis } from "./trading";
 import { TRIALS_KEY, label, loadTradingSales, openHourCost, tradingAnalysis } from "./trading";
@@ -486,6 +487,7 @@ export async function runHoursTrials(
   for (const { profile_id } of inCare) {
     try {
       await syncRunningTrials(profile_id, now);
+      await parseCompetitorHours(profile_id);
       created += (await proposeHoursTrials(profile_id, { now })).created.length;
     } catch (error) {
       failed++;

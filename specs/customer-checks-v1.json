@@ -1,0 +1,174 @@
+{
+  "version": "1.0.0",
+  "note": "P2-32: what potential customers check before they buy, per business_type (question 1.2). Presence on the owner's site is detected deterministically: a check is shown when any of its keywords appears in a fetched page's text or link targets (case-insensitive), starting at a word boundary; keywords of three letters or fewer must be whole words, so 'eur' never matches 'Europe' and 'ár' never matches 'nyár'. Keywords are deliberately short and plain; en and hu first (the bank's market scope). Extend freely — lib/blindspots/checks.test.ts holds this file to the bank's vocabulary.",
+  "checks": {
+    "opening_hours": {
+      "label": { "en": "Opening hours" },
+      "keywords": {
+        "en": ["opening hours", "open daily", "hours of operation", "we are open", "opening times"],
+        "hu": ["nyitvatartás", "nyitva tartás", "nyitva"]
+      }
+    },
+    "prices": {
+      "label": { "en": "Prices" },
+      "keywords": {
+        "en": ["price", "pricing", "€", "£", "$", "eur", "usd"],
+        "hu": ["ár", "árak", "árlista", "ft", "huf"]
+      }
+    },
+    "menu": {
+      "label": { "en": "Menu" },
+      "keywords": { "en": ["menu", "drinks list", "food & drink", "cocktails"], "hu": ["étlap", "itallap", "menü"] }
+    },
+    "location_map": {
+      "label": { "en": "Address and map" },
+      "keywords": {
+        "en": ["address", "find us", "directions", "google.com/maps", "maps.app.goo.gl"],
+        "hu": ["cím", "megközelítés", "térkép"]
+      }
+    },
+    "parking": {
+      "label": { "en": "Parking" },
+      "keywords": { "en": ["parking", "car park"], "hu": ["parkolás", "parkoló"] }
+    },
+    "phone_contact": {
+      "label": { "en": "A phone number" },
+      "keywords": { "en": ["tel:", "phone", "call us"], "hu": ["telefon", "hívj"] }
+    },
+    "contact_email": {
+      "label": { "en": "An email address" },
+      "keywords": { "en": ["mailto:", "email us", "e-mail"], "hu": ["e-mail", "email"] }
+    },
+    "booking": {
+      "label": { "en": "Booking or reservations" },
+      "keywords": {
+        "en": ["book now", "book a table", "book online", "booking", "reserve", "reservation", "appointment"],
+        "hu": ["foglalás", "foglalj", "asztalfoglalás", "időpontfoglalás", "időpont"]
+      }
+    },
+    "reviews": {
+      "label": { "en": "Reviews or testimonials" },
+      "keywords": {
+        "en": ["review", "testimonial", "what our customers say", "rated"],
+        "hu": ["vélemény", "értékelés", "visszajelzés"]
+      }
+    },
+    "events": {
+      "label": { "en": "Events and what's on" },
+      "keywords": {
+        "en": ["events", "what's on", "live music", "tonight", "dj", "quiz"],
+        "hu": ["esemény", "program", "élőzene", "koncert"]
+      }
+    },
+    "photos": {
+      "label": { "en": "Photos of the place or work" },
+      "keywords": { "en": ["gallery", "photos", "instagram.com"], "hu": ["galéria", "képek", "fotók"] }
+    },
+    "dietary_options": {
+      "label": { "en": "Dietary options" },
+      "keywords": {
+        "en": ["vegan", "vegetarian", "gluten", "allergen"],
+        "hu": ["vegán", "vegetáriánus", "glutén", "allergén"]
+      }
+    },
+    "delivery": {
+      "label": { "en": "Delivery and its cost" },
+      "keywords": {
+        "en": ["delivery", "shipping", "free shipping", "dispatch"],
+        "hu": ["szállítás", "kiszállítás", "házhozszállítás", "futár"]
+      }
+    },
+    "returns_policy": {
+      "label": { "en": "Returns policy" },
+      "keywords": { "en": ["returns", "refund", "exchange"], "hu": ["visszaküldés", "elállás", "csere", "visszatérítés"] }
+    },
+    "payment_methods": {
+      "label": { "en": "Payment methods" },
+      "keywords": {
+        "en": ["visa", "mastercard", "apple pay", "google pay", "paypal", "card payment"],
+        "hu": ["bankkártya", "kártyás fizetés", "szép kártya", "utánvét"]
+      }
+    },
+    "service_area": {
+      "label": { "en": "The area served" },
+      "keywords": { "en": ["areas we cover", "service area", "we serve", "covering"], "hu": ["kiszállási terület", "területen"] }
+    },
+    "quote_request": {
+      "label": { "en": "A way to get a quote" },
+      "keywords": { "en": ["get a quote", "free quote", "request a quote", "estimate"], "hu": ["árajánlat", "ajánlatkérés"] }
+    },
+    "portfolio": {
+      "label": { "en": "Past work" },
+      "keywords": { "en": ["portfolio", "our work", "case stud", "projects"], "hu": ["referencia", "munkáink", "portfólió"] }
+    },
+    "credentials": {
+      "label": { "en": "Qualifications and licences" },
+      "keywords": {
+        "en": ["certified", "qualified", "licensed", "accredited", "insured"],
+        "hu": ["képesítés", "minősített", "engedély", "biztosítás"]
+      }
+    },
+    "guarantee": {
+      "label": { "en": "A guarantee" },
+      "keywords": { "en": ["guarantee", "warranty", "money back"], "hu": ["garancia", "jótállás"] }
+    },
+    "faq": {
+      "label": { "en": "Answers to common questions" },
+      "keywords": { "en": ["faq", "frequently asked", "questions"], "hu": ["gyik", "gyakori kérdések"] }
+    },
+    "team": {
+      "label": { "en": "Who you'll deal with" },
+      "keywords": { "en": ["our team", "meet the team", "about us"], "hu": ["csapatunk", "rólunk", "munkatársaink"] }
+    },
+    "stock_availability": {
+      "label": { "en": "Whether it's in stock" },
+      "keywords": { "en": ["in stock", "out of stock", "available now", "sold out"], "hu": ["raktáron", "elfogyott", "készleten"] }
+    }
+  },
+  "by_business_type": {
+    "bar": ["opening_hours", "menu", "prices", "location_map", "events", "photos", "reviews", "booking", "phone_contact"],
+    "restaurant": [
+      "opening_hours",
+      "menu",
+      "prices",
+      "location_map",
+      "booking",
+      "dietary_options",
+      "photos",
+      "reviews",
+      "parking",
+      "phone_contact"
+    ],
+    "cafe": ["opening_hours", "menu", "prices", "location_map", "dietary_options", "photos", "reviews"],
+    "retail_shop": ["opening_hours", "location_map", "prices", "stock_availability", "payment_methods", "returns_policy", "parking", "phone_contact"],
+    "ecommerce_store": ["prices", "delivery", "returns_policy", "payment_methods", "stock_availability", "reviews", "faq", "contact_email"],
+    "food_production": ["prices", "delivery", "dietary_options", "location_map", "contact_email", "reviews"],
+    "salon_beauty": ["prices", "booking", "opening_hours", "location_map", "photos", "reviews", "team"],
+    "barber": ["prices", "booking", "opening_hours", "location_map", "photos", "reviews"],
+    "gym_fitness": ["prices", "opening_hours", "location_map", "booking", "photos", "team", "reviews", "parking"],
+    "wellness_spa": ["prices", "booking", "opening_hours", "location_map", "photos", "reviews", "team"],
+    "clinic_health": ["booking", "prices", "opening_hours", "location_map", "credentials", "team", "phone_contact", "parking"],
+    "construction": ["quote_request", "portfolio", "service_area", "credentials", "reviews", "guarantee", "phone_contact"],
+    "trades_services": ["quote_request", "prices", "service_area", "credentials", "reviews", "guarantee", "phone_contact"],
+    "cleaning_services": ["prices", "quote_request", "service_area", "booking", "reviews", "credentials"],
+    "automotive": ["prices", "booking", "opening_hours", "location_map", "reviews", "guarantee", "phone_contact"],
+    "professional_services": ["prices", "team", "credentials", "contact_email", "faq", "reviews"],
+    "consulting": ["portfolio", "team", "prices", "contact_email", "reviews"],
+    "agency_marketing": ["portfolio", "team", "prices", "reviews", "contact_email"],
+    "it_services": ["prices", "portfolio", "service_area", "contact_email", "reviews", "faq"],
+    "software_saas": ["prices", "faq", "reviews", "contact_email", "payment_methods"],
+    "education_training": ["prices", "booking", "credentials", "team", "faq", "reviews"],
+    "childcare": ["prices", "opening_hours", "location_map", "credentials", "team", "reviews", "phone_contact"],
+    "real_estate": ["prices", "photos", "location_map", "team", "phone_contact"],
+    "logistics": ["quote_request", "service_area", "prices", "contact_email"],
+    "manufacturing": ["quote_request", "portfolio", "credentials", "contact_email"],
+    "wholesale": ["prices", "delivery", "payment_methods", "contact_email", "stock_availability"],
+    "agriculture": ["prices", "delivery", "location_map", "contact_email"],
+    "events": ["prices", "booking", "portfolio", "photos", "reviews", "contact_email"],
+    "photography_creative": ["portfolio", "prices", "booking", "reviews", "contact_email"],
+    "tourism_accommodation": ["prices", "booking", "photos", "location_map", "reviews", "parking", "faq"],
+    "transport": ["prices", "booking", "service_area", "phone_contact", "reviews"],
+    "nonprofit": ["team", "events", "contact_email", "location_map"]
+  },
+  "default": ["prices", "location_map", "phone_contact", "contact_email", "reviews", "faq"]
+}

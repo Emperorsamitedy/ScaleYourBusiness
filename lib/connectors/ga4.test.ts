@@ -292,6 +292,103 @@ describe("P2-18 — the sync", () => {
   });
 });
 
+describe("P2-29/34 — attention by hour, landing pages, site search", () => {
+  const rows = [
+    // Summer: Budapest is UTC+2, so 20:00 local is 18:00Z.
+    {
+      date: "2026-09-10",
+      channel: "Organic Search",
+      sessions: 7,
+      hour: 20,
+      landing: "/menu",
+      bounces: 2,
+    },
+    { date: "2026-09-10", channel: "Direct", sessions: 3, hour: 20, landing: "/", bounces: 3 },
+    { date: "2026-09-10", channel: "Direct", sessions: 1, hour: 0, landing: "/", bounces: 0 },
+    {
+      date: "2026-09-10",
+      channel: "Direct",
+      sessions: 0,
+      searchTerm: "Vegan Options ",
+      searches: 4,
+    },
+    {
+      date: "2026-09-11",
+      channel: "Direct",
+      sessions: 0,
+      searchTerm: "vegan options",
+      searches: 1,
+    },
+  ];
+
+  it("sessions per hour land in UTC from the property's zone, with every report on the one read-only URL", async () => {
+    const { fake, provider } = ga4({ rows });
+    const page = await provider.pull(SECRET, "2026-09-09", NOW);
+    const hourly = page.observations.filter((o) => o.metric_key === "sessions.hourly");
+    expect(hourly).toContainEqual(
+      expect.objectContaining({
+        period_date: "2026-09-10",
+        dimensions: { hour_utc: "18" },
+        value_num: 10,
+      }),
+    );
+    // 00:00 on the 10th in Budapest is 22:00Z on the 9th.
+    expect(hourly).toContainEqual(
+      expect.objectContaining({
+        period_date: "2026-09-09",
+        dimensions: { hour_utc: "22" },
+        value_num: 1,
+      }),
+    );
+    const reportBodies = fake.calls
+      .filter((c) => c.url.origin === GA4_DATA_ORIGIN)
+      .map((c) => JSON.parse(c.init.body ?? "{}") as { dimensions: { name: string }[] });
+    expect(reportBodies.map((b) => b.dimensions.map((d) => d.name).join(","))).toEqual([
+      "date,sessionDefaultChannelGroup",
+      "dateHour",
+      "date,landingPage",
+      "date,searchTerm",
+    ]);
+  });
+
+  it("a property whose zone isn't stated gets no hourly rows rather than misplaced ones", async () => {
+    const { provider } = ga4({ rows, timeZone: null });
+    const page = await provider.pull(SECRET, "2026-09-09", NOW);
+    expect(page.observations.some((o) => o.metric_key === "sessions.hourly")).toBe(false);
+  });
+
+  it("landing pages carry sessions and bounced sessions; site search counts normalised terms", async () => {
+    const { provider } = ga4({ rows });
+    const obs = (await provider.pull(SECRET, "2026-09-09", NOW)).observations;
+    const landing = (metric: string, page: string) =>
+      obs.find(
+        (o) =>
+          o.metric_key === metric &&
+          o.period_date === "2026-09-10" &&
+          o.dimensions.page_ref === page,
+      )?.value_num;
+    expect(landing("landing_sessions.daily", "/menu")).toBe(7);
+    expect(landing("landing_bounces.daily", "/menu")).toBe(2);
+    expect(landing("landing_sessions.daily", "/")).toBe(4);
+    expect(landing("landing_bounces.daily", "/")).toBe(3);
+    const searches = obs.filter((o) => o.metric_key === "site_search.daily");
+    expect(searches).toEqual([
+      expect.objectContaining({
+        period_date: "2026-09-10",
+        dimensions: { term_ref: "vegan options" },
+        value_num: 4,
+      }),
+      expect.objectContaining({
+        period_date: "2026-09-11",
+        dimensions: { term_ref: "vegan options" },
+        value_num: 1,
+      }),
+    ]);
+    // None of these leak into the business-wide sessions total.
+    expect(totalSessions(obs)).toBe(11);
+  });
+});
+
 describe("P2-18 — listing channels for matching", () => {
   it("returns the property's channel groups, busiest first", async () => {
     const { provider } = ga4({

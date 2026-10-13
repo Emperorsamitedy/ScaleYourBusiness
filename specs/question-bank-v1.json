@@ -985,6 +985,17 @@
           "priority": "important"
         },
         {
+          "key": "opening_hours",
+          "prompt": {
+            "en": "Their opening hours"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
           "key": "strengths",
           "prompt": {
             "en": "Their strengths"

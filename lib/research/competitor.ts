@@ -27,7 +27,8 @@ import { isoDateTime } from "../core/iso";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, logLlmCall } from "../llm/cost-log";
-import { writeField } from "../profile/field-store";
+import { readCurrentField, writeField } from "../profile/field-store";
+import { BUSINESS_TYPE_KEY, CHECKS, checksFor, detects } from "../blindspots/checks";
 
 export const RESEARCH_MODEL = "claude-haiku-4-5";
 
@@ -100,6 +101,8 @@ const FIELDS = [
   "what_they_sell",
   "price_points",
   "delivery_promise",
+  /** P2-31: as stated, verbatim; parsed later by lib/hours like the owner's own. */
+  "opening_hours",
   "strengths",
   "weaknesses",
   "why_customers_choose_them",
@@ -134,6 +137,7 @@ Fields:
 - what_they_sell: their offering, in their words
 - price_points: prices actually shown, with currency; null if none are published
 - delivery_promise: what they promise on delivery or fulfilment — speed, cost, area covered; null if the pages say nothing
+- opening_hours: their opening hours exactly as the pages state them, per day; null if the pages don't state them
 - strengths: what they visibly do well
 - weaknesses: gaps visible on the page — thin range, no delivery, no prices shown
 - why_customers_choose_them: the reason they themselves give`;
@@ -344,6 +348,43 @@ export async function researchCompetitor(args: RunArgs): Promise<ResearchResult>
     );
     (value === null ? unknown : written).push(field);
   }
+
+  // P2-36: which of the owner's customer checks this competitor's pages
+  // show — the same deterministic matcher as the owner's own site, no
+  // model, on the pages already read.
+  const businessType = await readCurrentField<{ code?: string } | string>(
+    args.profileId,
+    BUSINESS_TYPE_KEY,
+  );
+  const typeCode =
+    typeof businessType?.value === "string"
+      ? businessType.value
+      : ((businessType?.value as { code?: string } | null)?.code ?? null);
+  const texts = pages.map((p) => ({ url: p.url, text: p.text.toLowerCase() }));
+  const shows = Object.fromEntries(
+    checksFor(typeCode).map((code) => [
+      code,
+      texts.find((t) => detects(t.text, code))?.url ?? null,
+    ]),
+  );
+  await writeField(
+    args.profileId,
+    createField<unknown>({
+      id: fieldId(`competitors.${competitorId}.site_checks`),
+      value: {
+        version: CHECKS.version,
+        business_type: typeCode,
+        results: shows,
+        pages: texts.map((t) => t.url),
+      },
+      status: "answered",
+      confidence: RESEARCH_CONFIDENCE,
+      source: { kind: "web_research", researched_url: pages[0]!.url },
+      observed_at: at,
+      recorded_at: at,
+      note: null,
+    }),
+  );
 
   emit(
     "write",

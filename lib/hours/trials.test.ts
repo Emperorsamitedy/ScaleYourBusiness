@@ -210,6 +210,7 @@ describe("P3-41 — the scenarios are arithmetic", () => {
     peak: { hour: 22, mean_minor: 30_000 },
     opening_signal: true,
     closing_signal: true,
+    attention_signal: null,
     outside_hours_minor: 0,
     arithmetic: [],
   };

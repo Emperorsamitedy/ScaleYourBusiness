@@ -29,6 +29,7 @@ import { KNOWN_ZONES, ensureTimezone, isValidZone, setTimezone, zoneForCountry }
 import {
   TRADING,
   analyseWeekday,
+  attentionFor,
   localParts,
   openSpan,
   tradingAnalysis,
@@ -346,6 +347,38 @@ describe("P2-30 — the signals, at the boundary, both directions", () => {
         money,
       }).verdict,
     ).toBe("hours_unknown");
+  });
+});
+
+describe("P2-29 — the attention signal, at the boundary, both directions", () => {
+  const w = { first_hour: 20, verdict: "ok" as const };
+  // 100 sessions on the day; `before` of them in 17:00–19:59.
+  const day = (before: number) =>
+    new Map([
+      [17, before],
+      [21, 100 - before],
+    ]);
+
+  it("30% of the day's sessions in the 3 hours before opening is the signal; 29% is not", () => {
+    expect(attentionFor(w, day(30)).signal).toBe(true);
+    expect(attentionFor(w, day(29)).signal).toBe(false);
+    expect(attentionFor(w, day(30)).line).toContain("30% of this day's website sessions");
+  });
+
+  it("an hour earlier than the window doesn't count; fewer than 30 sessions is no verdict", () => {
+    expect(
+      attentionFor(
+        w,
+        new Map([
+          [16, 50],
+          [21, 50],
+        ]),
+      ).signal,
+    ).toBe(false);
+    const thin = attentionFor(w, new Map([[19, 29]]));
+    expect(thin.signal).toBeNull();
+    expect(thin.line).toContain("needs 30");
+    expect(attentionFor({ first_hour: null, verdict: "ok" }, day(50)).signal).toBeNull();
   });
 });
 

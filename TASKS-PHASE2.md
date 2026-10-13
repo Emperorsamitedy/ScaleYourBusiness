@@ -109,7 +109,7 @@ For businesses customers visit — bars, restaurants, cafés, salons, shops — 
 - [x] **P2-26** Structured hours and their cost. Question 2.1.1.7 becomes a weekly schedule: per weekday an open time, a close time that may cross midnight, or closed. The business timezone and **the cost of one open hour** (staff on shift plus energy, money in minor units, rule 1) are added as questions. Priority rises for visit-based businesses through a `ConditionExpr` (rule 4), not code. Spec, bank and `lint_bank.py` change in the same commit. The support knowledge renderer (P4-05) keeps answering "what are your opening hours?" from the structured value.
 - [x] **P2-27** Hourly measurement. `revenue.hourly` and `orders.hourly` join `METRIC_KEYS` deliberately (the refusal test changes in the same commit, with the reason). Buckets are in the business's local time. A **trading-day cutoff** (default 05:00) puts a 20:00–01:00 night into one evening rather than two dates. Derived from the payment and order timestamps Stripe and Shopify already return; hourly rows stay out of daily sums by the existing dimension filter.
 - [ ] **P2-28** A point-of-sale connector, read-only: Square first (payments and orders read scopes, the P2-02 scope audit applied unchanged). SumUp, Zettle, Lightspeed and Toast are re-judged after. **Cash is invisible to every connector**, so the owner states a cash share and every hourly finding carries its coverage ("card sales only, about 70% of takings").
-- [ ] **P2-29** Attention by hour: GA4 sessions by `dateHour`; Instagram's follower-online-by-hour insight through the existing read scopes (_verify at build_: metric name and availability). Google Business Profile's "popular times" has no official API. It is not scraped, and the screen says so.
+- [x] **P2-29** Attention by hour: GA4 sessions by `dateHour`; Instagram's follower-online-by-hour insight through the existing read scopes (_verify at build_: metric name and availability). Google Business Profile's "popular times" has no official API. It is not scraped, and the screen says so.
 - [ ] **P2-30** The trading-hours analysis, as report and watch findings with the arithmetic shown. Built from at least 4 measured weeks per weekday; below that, the finding is `too_early` and says how many weeks remain. Per weekday it produces:
   - a revenue-by-hour curve;
   - **an opening signal:** if the first open hour already runs at a high share of the evening's peak, demand probably starts before the doors open;
@@ -118,7 +118,7 @@ For businesses customers visit — bars, restaurants, cafés, salons, shops — 
 
   Thresholds are pinned in code with boundary tests both ways. Signals are per weekday: Friday may want 19:00 while Tuesday is fine at 20:00.
 
-- [ ] **P2-31** Background check on competitors' hours. The existing competitor research (P1-15..21) also extracts stated opening hours from the pages it already reads, inside the same caps, at research confidence 0.5. A page that doesn't state hours gives `unknown`, never a guess. The finding cites them: "3 of the 4 nearby bars found open at 18:00."
+- [x] **P2-31** Background check on competitors' hours. The existing competitor research (P1-15..21) also extracts stated opening hours from the pages it already reads, inside the same caps, at research confidence 0.5. A page that doesn't state hours gives `unknown`, never a guess. The finding cites them: "3 of the 4 nearby bars found open at 18:00."
 
 **Done when:** a seeded bar with 6 weeks of hourly card sales gets a per-weekday curve, a pinned-threshold opening signal on Fridays and none on Tuesdays, and a closing signal when the last hour falls below the cost of an open hour; every finding states its coverage and its arithmetic; and a business with 3 weeks of data gets `too_early`, not a conclusion.
 
@@ -142,7 +142,15 @@ For businesses customers visit — bars, restaurants, cafés, salons, shops — 
   The coverage line ("card payments through stripe only — cash isn't seen") and the honest limit are on every result.
 
 - **Still open in P2-30:** the attention signal needs P2-29, and the findings aren't yet written into the diagnosis report or the watch. They show on `/hours`.
-- **Not started:** P2-28 (Square), P2-29 (attention by hour), P2-31 (competitor hours).
+- **Not started:** P2-28 (Square).
+- **P2-29, built (the same day).** GA4's `dateHour` report becomes `sessions.hourly`. It's placed in UTC from the zone the response states (`metadata.timeZone`), and none is stored when the zone isn't stated.
+  - The analysis adds the attention signal: at least 30% of a weekday's website sessions in the 3 hours before opening, with at least 30 sessions. Boundary-tested both ways.
+  - **Instagram's `online_followers` is not built:** Meta's current metrics table no longer lists it (checked 2026-10-13), so attention by hour is website-only until it's confirmed.
+- **P2-31, built (the same day).** Competitor research records `competitors.<id>.opening_hours` as the pages state them, `unknown` otherwise.
+  - The competitor entity schema in bank 1.3.0 gains the field, and the research prompt gains one line.
+  - `lib/hours/competitors.ts` parses each one once through the same schedule parser as the owner's.
+  - The analysis adds "2 of the 3 competitors whose hours we found open before you (20:00), the earliest at 18:00 — from their own pages" to each weekday.
+  - Unstated weekdays count as unknown, not closed. 3 tests.
 
 ---
 
@@ -157,16 +165,32 @@ Find what potential customers search for, ask about and check before they buy, t
 - Customer questions are already collected: support tickets and the unanswered-question clusters (P4-06, P4-12).
 - Competitor research already reads competitors' pages (P1-15..21).
 
-- [ ] **P2-32** The "what customers check" list as data. For each `business_type`, the things customers check before buying: for a bar, hours, prices, location and parking, photos, events, booking and reviews; for a shop, delivery cost, returns and stock. It goes in the spec and is linted, not hard-coded (rule 4). A deterministic presence check runs it against the owner's site pages, through the existing GET-only fetcher and its SSRF guard (`lib/site/fetch.ts`), and against the profile. Not the full Tier 1 audit: no screenshots, no vision.
+- [x] **P2-32** The "what customers check" list as data. For each `business_type`, the things customers check before buying: for a bar, hours, prices, location and parking, photos, events, booking and reviews; for a shop, delivery cost, returns and stock. It goes in the spec and is linted, not hard-coded (rule 4). A deterministic presence check runs it against the owner's site pages, through the existing GET-only fetcher and its SSRF guard (`lib/site/fetch.ts`), and against the profile. Not the full Tier 1 audit: no screenshots, no vision.
 - [ ] **P2-33** Google Search Console connector, read-only (`webmasters.readonly`, the P2-02 scope audit unchanged). It gives the real queries the site appeared for, with impressions, clicks and position per query and page. Two signals: **seen but not chosen** (high impressions, low click rate) and **wanted but not found** (queries about something the profile says the business offers, where the site ranks poorly or not at all).
-- [ ] **P2-34** GA4, deeper, with the same read-only scope:
+- [x] **P2-34** GA4, deeper, with the same read-only scope:
   - landing pages and exits per page, which is site-audit Tier 2 at last;
   - the site's own search box terms (`searchTerm`, when the site sends `view_search_results`), since people searching your site for something is the plainest signal there is.
 - [ ] **P2-35** Customer questions as demand. Support conversations and ticket clusters (P4-06, P4-12) are counted as demand by topic. They stay content, never instructions (rule 24), and only counts and topics leave the support tables, no customer text or identity (rule 22).
-- [ ] **P2-36** Competitor norms. Competitor research also records which P2-32 items each competitor's pages show, inside the existing caps, at research confidence 0.5, `unknown` when not stated. "4 of 5 competitors show prices; you don't."
+- [x] **P2-36** Competitor norms. Competitor research also records which P2-32 items each competitor's pages show, inside the existing caps, at research confidence 0.5, `unknown` when not stated. "4 of 5 competitors show prices; you don't."
 - [ ] **P2-37** The blindspot finder: demand (P2-33, 34, 35) and norms (P2-36) joined against presence (P2-32), ranked by demand volume, not by severity. Haiku groups queries and questions into topics (one batched call per run, capped; nothing is grouped under a threshold count). The matching and ranking are arithmetic. Each finding names its numbers, sources and coverage, and the queue that would fix it, as report and watch findings. With no connector, it runs on the checklist and competitor norms alone and says so.
 
 **Done when:** for a seeded bar with Search Console, GA4 and support data, the finder reports "searched or asked about, not on your site" with counts and sources; ranks a high-volume blindspot above a low-volume one; reports a competitor norm the business misses; makes no finding for an item the site does show; and states its coverage when a source isn't connected.
+
+**Status 2026-10-13:** P2-32 and P2-36 built.
+
+- **P2-32.** `specs/customer-checks-v1.json` holds 23 checks with English and Hungarian keywords, and a list per business type. A test holds every type to the bank's `business_type` vocabulary and every listed check to its definition.
+  - `lib/blindspots/checks.ts` reads up to 5 pages of the owner's own origin through the GET-only fetcher with its SSRF guard. It records `presence.site_checks` (web_research): each check, and the page it was found on or null.
+  - Matching starts at a word boundary, and keywords of three letters or fewer must be whole words, so "eur" never matches "Europe" and "ár" never matches "nyár".
+  - 9 tests.
+- **P2-34.** Two more GA4 reports on the same read-only scope and URL, both tested against the recorded-shape fake:
+  - **Landing pages** per day: `landing_sessions.daily` and `landing_bounces.daily`, the latter being sessions × `bounceRate` so it stays additive.
+  - **Site-search terms** per day: `site_search.daily` from `view_search_results`, lower-cased and trimmed. A term is visitor-written content, never an instruction.
+- **P2-36.** Competitor research runs the same matcher, with no model, over the pages it already reads, and records `competitors.<id>.site_checks`. Aggregating it into "4 of 5 competitors show prices" happens in the finder (P2-37).
+- **API shapes checked against the official docs on 2026-10-13, for P2-33/34 and P2-28:**
+  - GA4 has **no exits metric**, so P2-34 uses `bounceRate` per landing page instead.
+  - Search Console's row limit is 25,000 per request, data lags 2–3 days, and rare queries are anonymised: rows sum to less than the totals, and the screen says so.
+  - **Square records cash rung up in Square POS** (`source_type: CASH`), so for Square merchants cash is measurable and P2-28's cash caveat narrows to "cash not rung up in Square".
+  - Instagram's `online_followers` is no longer in Meta's current metrics table, so P2-29 treats it as unsupported and degrades.
 
 **Verify at build:** whether Google Business Profile's reviews and Q&A can be read without the API access application. Until it's known, reviews come only from an owner-uploaded export, never scraped.
 

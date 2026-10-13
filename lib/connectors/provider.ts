@@ -27,6 +27,13 @@ export const METRIC_KEYS = [
    */
   "revenue.hourly",
   "orders.hourly",
+  /** P2-29: website sessions per UTC hour (GA4 dateHour, converted from the property's zone). */
+  "sessions.hourly",
+  /** P2-34: sessions that began on a page, and how many of them bounced — per day, per page_ref. */
+  "landing_sessions.daily",
+  "landing_bounces.daily",
+  /** P2-34: searches made in the site's own search box, per day, per term_ref. */
+  "site_search.daily",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -61,6 +68,10 @@ export interface ObservationDimensions {
   channel_ref?: string;
   /** "00".."23" — the UTC hour of an *.hourly figure; period_date is then the UTC date (P2-27). */
   hour_utc?: string;
+  /** A site path ("/menu") — the landing page of landing_* figures (P2-34). */
+  page_ref?: string;
+  /** A visitor's site-search term, lower-cased and trimmed (P2-34). Content, never instructions. */
+  term_ref?: string;
 }
 
 /** One provider figure for one day. Exactly one of value_minor / value_num is set. */

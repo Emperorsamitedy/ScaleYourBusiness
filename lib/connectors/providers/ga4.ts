@@ -21,9 +21,14 @@
 // across channels or across days, so they are deliberately not stored. Days
 // are the property's own reporting days, in its time zone. GA4 keeps
 // processing recent data for a while, so every sync re-reads the last 3.
+// Since P2-29/P2-34 also: sessions per hour (dateHour, placed in UTC from
+// the property zone the response states), landing pages with sessions and
+// bounced sessions, and site-search terms (view_search_results). Same
+// scope, same URL, three more reports per window.
 
 import { createSign } from "node:crypto";
 import { addDays, advanceCursor, dayString, planWindow } from "../days";
+import { HourlyBuckets, utcOfZonedHour } from "../hourly";
 import type { ExternalProduct, Observation, Provider, PullPage } from "../provider";
 import { ProviderError } from "../provider";
 
@@ -48,7 +53,24 @@ export const GA4_REPORTS = {
   },
   channels: { dimensions: ["sessionDefaultChannelGroup"], metrics: ["sessions"] },
   probe: { dimensions: [], metrics: ["sessions"] },
-} as const;
+  /** P2-29: dateHour is YYYYMMDDHH in the PROPERTY's time zone (response metadata.timeZone). */
+  sessions_by_hour: { dimensions: ["dateHour"], metrics: ["sessions"] },
+  /** P2-34: where sessions begin, and how many bounced. GA4 has no exits metric. */
+  landing_pages: { dimensions: ["date", "landingPage"], metrics: ["sessions", "bounceRate"] },
+  /** P2-34: the site's own search box — Enhanced Measurement's view_search_results event. */
+  site_search: {
+    dimensions: ["date", "searchTerm"],
+    metrics: ["eventCount"],
+    filter: { fieldName: "eventName", value: "view_search_results" },
+  },
+} as const satisfies Record<
+  string,
+  {
+    dimensions: readonly string[];
+    metrics: readonly string[];
+    filter?: { fieldName: string; value: string };
+  }
+>;
 
 export type Ga4ReportName = keyof typeof GA4_REPORTS;
 
@@ -243,8 +265,24 @@ async function runReport(
   startDate: string,
   endDate: string,
 ): Promise<ReportRow[]> {
-  const spec = GA4_REPORTS[name];
+  return (await runReportWithZone(ctx, cred, name, startDate, endDate)).rows;
+}
+
+/** A report, with the property's own time zone from the response metadata. */
+async function runReportWithZone(
+  ctx: Context,
+  cred: Ga4Credential,
+  name: Ga4ReportName,
+  startDate: string,
+  endDate: string,
+): Promise<{ rows: ReportRow[]; timeZone: string | null }> {
+  const spec: {
+    dimensions: readonly string[];
+    metrics: readonly string[];
+    filter?: { fieldName: string; value: string };
+  } = GA4_REPORTS[name];
   const out: ReportRow[] = [];
+  let timeZone: string | null = null;
   let fresh = false;
 
   for (let page = 0; page < GA4_MAX_PAGES;) {
@@ -260,6 +298,16 @@ async function runReport(
         limit: GA4_ROW_LIMIT,
         offset: out.length,
         keepEmptyRows: false,
+        ...(spec.filter
+          ? {
+              dimensionFilter: {
+                filter: {
+                  fieldName: spec.filter.fieldName,
+                  stringFilter: { matchType: "EXACT", value: spec.filter.value },
+                },
+              },
+            }
+          : {}),
       }),
     });
     if (status === 401 && page === 0 && out.length === 0 && !fresh) {
@@ -278,7 +326,12 @@ async function runReport(
         `ga4: the report failed with status ${status}${message ? `. ${message}` : ""}`,
       );
     }
-    const report = body as { rows?: unknown; rowCount?: unknown } | null;
+    const report = body as {
+      rows?: unknown;
+      rowCount?: unknown;
+      metadata?: { timeZone?: unknown };
+    } | null;
+    if (typeof report?.metadata?.timeZone === "string") timeZone = report.metadata.timeZone;
     const rows = Array.isArray(report?.rows) ? report.rows : [];
     for (const row of rows) {
       const r = row as {
@@ -291,10 +344,89 @@ async function runReport(
       });
     }
     const total = typeof report?.rowCount === "number" ? report.rowCount : out.length;
-    if (rows.length === 0 || out.length >= total) return out;
+    if (rows.length === 0 || out.length >= total) return { rows: out, timeZone };
     page += 1;
   }
   throw new ProviderError("ga4: the report had more rows than one sync reads");
+}
+
+/* ── P2-29 / P2-34: attention by hour, landing pages, site search ── */
+
+/**
+ * Sessions per UTC hour from dateHour rows in the property's zone. A row
+ * for an hour that doesn't exist in that zone (the spring-forward gap)
+ * can't be placed and is dropped rather than guessed.
+ */
+export function aggregateHourlySessions(
+  rows: readonly ReportRow[],
+  timeZone: string,
+  observedAt: string,
+): Observation[] {
+  const buckets = new HourlyBuckets();
+  for (const row of rows) {
+    const m = /^(\d{4})(\d{2})(\d{2})(\d{2})$/.exec(row.dimensions[0] ?? "");
+    const sessions = Number(row.metrics[0]);
+    if (!m || !Number.isFinite(sessions) || sessions <= 0) continue;
+    const at = utcOfZonedHour(`${m[1]}-${m[2]}-${m[3]}`, Number(m[4]), timeZone);
+    if (at) buckets.addSessions(at.getTime(), sessions);
+  }
+  return buckets.observations(observedAt);
+}
+
+/** Landing pages per day: sessions, and bounced sessions = round(sessions × bounceRate). */
+export function aggregateLandingPages(
+  rows: readonly ReportRow[],
+  observedAt: string,
+): Observation[] {
+  const out: Observation[] = [];
+  for (const row of rows) {
+    const date = isoFromGa4Date(row.dimensions[0] ?? "");
+    const page = (row.dimensions[1] ?? "").trim();
+    const sessions = Number(row.metrics[0]);
+    const bounceRate = Number(row.metrics[1]);
+    if (date === null || page === "" || page === "(not set)" || !(sessions > 0)) continue;
+    const dims = { page_ref: page.slice(0, 300) };
+    out.push({
+      metric_key: "landing_sessions.daily",
+      period_date: date,
+      dimensions: dims,
+      value_num: sessions,
+      observed_at: observedAt,
+    });
+    if (Number.isFinite(bounceRate)) {
+      out.push({
+        metric_key: "landing_bounces.daily",
+        period_date: date,
+        dimensions: dims,
+        value_num: Math.round(sessions * Math.min(1, Math.max(0, bounceRate))),
+        observed_at: observedAt,
+      });
+    }
+  }
+  return out;
+}
+
+/** Site-search terms per day. Lower-cased, trimmed, capped — and summed when they then coincide. */
+export function aggregateSiteSearch(rows: readonly ReportRow[], observedAt: string): Observation[] {
+  const totals = new Map<string, number>();
+  for (const row of rows) {
+    const date = isoFromGa4Date(row.dimensions[0] ?? "");
+    const term = (row.dimensions[1] ?? "").trim().toLowerCase().replace(/\s+/g, " ").slice(0, 100);
+    const count = Number(row.metrics[0]);
+    if (date === null || term === "" || term === "(not set)" || !(count > 0)) continue;
+    const key = `${date}|${term}`;
+    totals.set(key, (totals.get(key) ?? 0) + count);
+  }
+  return [...totals.entries()].sort().map(([key, count]) => {
+    const [date, term] = key.split("|") as [string, string];
+    return {
+      metric_key: "site_search.daily",
+      period_date: date,
+      dimensions: { term_ref: term },
+      value_num: count,
+      observed_at: observedAt,
+    };
+  });
 }
 
 /* ── arithmetic ── */
@@ -425,15 +557,23 @@ export function createGa4Provider(options: Ga4ProviderOptions = {}): Provider {
       });
       if (plan === null) return { observations: [], cursor, done: true };
 
-      const rows = await runReport(
-        ctx,
-        cred,
-        "sessions_by_day_and_channel",
-        dayString(plan.start),
-        dayString(plan.end),
-      );
+      const startDay = dayString(plan.start);
+      const endDay = dayString(plan.end);
+      const observedAt = now.toISOString();
+      const rows = await runReport(ctx, cred, "sessions_by_day_and_channel", startDay, endDay);
+      const hourly = await runReportWithZone(ctx, cred, "sessions_by_hour", startDay, endDay);
+      const landing = await runReport(ctx, cred, "landing_pages", startDay, endDay);
+      const search = await runReport(ctx, cred, "site_search", startDay, endDay);
       return {
-        observations: aggregateSessions(toDayRows(rows), plan.start, plan.end, now.toISOString()),
+        observations: [
+          ...aggregateSessions(toDayRows(rows), plan.start, plan.end, observedAt),
+          // Without the property's zone an hour can't be placed — none rather than wrong.
+          ...(hourly.timeZone
+            ? aggregateHourlySessions(hourly.rows, hourly.timeZone, observedAt)
+            : []),
+          ...aggregateLandingPages(landing, observedAt),
+          ...aggregateSiteSearch(search, observedAt),
+        ],
         cursor: advanceCursor(cursor, plan.end),
         done: plan.end.getTime() === plan.yesterday.getTime(),
       };

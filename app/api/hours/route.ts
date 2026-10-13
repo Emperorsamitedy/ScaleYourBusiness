@@ -11,6 +11,7 @@ import { db } from "../../../db";
 import { businessProfiles, proposals } from "../../../db/schema";
 import { HOURS_MODULE, judgeHoursTrial, syncRunningTrials } from "../../../lib/hours/trials";
 import { format, money } from "../../../lib/core/money";
+import { parseCompetitorHours } from "../../../lib/hours/competitors";
 import { ensureOpeningSchedule } from "../../../lib/hours/schedule";
 import { ensureTimezone, isValidZone, setTimezone } from "../../../lib/hours/timezone";
 import { tradingAnalysis } from "../../../lib/hours/trading";
@@ -56,6 +57,11 @@ export async function GET(): Promise<NextResponse> {
     } catch (error) {
       scheduleNote = "Your opening hours couldn't be read just now.";
       console.error(JSON.stringify({ event: "schedule_parse_failed", message: String(error) }));
+    }
+    try {
+      await parseCompetitorHours(profileId); // P2-31: once per competitor's stated hours
+    } catch (error) {
+      console.error(JSON.stringify({ event: "competitor_hours_failed", message: String(error) }));
     }
     const timezone = await ensureTimezone(profileId);
     await syncRunningTrials(profileId);

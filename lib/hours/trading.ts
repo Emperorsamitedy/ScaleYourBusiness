@@ -26,7 +26,8 @@ import { businessProfiles, connections, metricObservations } from "../../db/sche
 import { readCurrentField } from "../profile/field-store";
 import { shiftDay } from "../trust/series";
 import type { OpenPeriod, OpeningSchedule, Weekday } from "./schedule";
-import { SCHEDULE_KEY, WEEKDAYS, minutesOf } from "./schedule";
+import { SCHEDULE_KEY, WEEKDAYS, openSpan } from "./schedule";
+import { competitorLine, competitorOpenings } from "./competitors";
 import { ensureTimezone } from "./timezone";
 
 export const TRADING = {
@@ -40,6 +41,12 @@ export const TRADING = {
   opening_share: 0.6,
   /** Last hour under the cost of an open hour on at least this share of days: closing signal. */
   closing_day_share: 0.75,
+  /** P2-29: share of a weekday's website sessions in the hours just before opening… */
+  attention_share: 0.3,
+  /** …over this many hours before the first open hour… */
+  attention_window_hours: 3,
+  /** …counted only above this many sessions on that weekday in the window read. */
+  attention_min_sessions: 30,
 } as const;
 
 export const OPEN_HOUR_COST_KEY = "presence.open_hour_cost";
@@ -63,6 +70,8 @@ export interface WeekdayAnalysis {
   peak: HourStat | null;
   opening_signal: boolean;
   closing_signal: boolean | null;
+  /** P2-29: website attention just before opening; null without enough measured sessions. */
+  attention_signal: boolean | null;
   /** Revenue measured in hours the schedule says are closed — the schedule may be out of date. */
   outside_hours_minor: number;
   arithmetic: string[];
@@ -125,20 +134,7 @@ export function tradingSlot(local: { date: string; weekday: Weekday; hour: numbe
   };
 }
 
-/** First and last trading-day hour a weekday's periods cover; null when closed. */
-export function openSpan(periods: readonly OpenPeriod[]): { first: number; last: number } | null {
-  if (periods.length === 0) return null;
-  let first = Infinity;
-  let last = -Infinity;
-  for (const p of periods) {
-    const open = minutesOf(p.open);
-    let close = minutesOf(p.close);
-    if (close <= open) close += 24 * 60;
-    first = Math.min(first, Math.floor(open / 60));
-    last = Math.max(last, Math.floor((close - 1) / 60));
-  }
-  return { first, last };
-}
+export { openSpan };
 
 export interface DaySales {
   /** Trading day → (trading hour → revenue minor). */
@@ -165,6 +161,7 @@ export function analyseWeekday(args: {
     peak: null,
     opening_signal: false,
     closing_signal: null,
+    attention_signal: null,
     outside_hours_minor: 0,
     arithmetic: [],
   };
@@ -361,6 +358,84 @@ export async function loadTradingSales(
   return { zone: tz.zone, currency, providers: [...providers].sort(), byDay, measuredDays };
 }
 
+/** Website sessions per weekday, per trading hour (P2-29, GA4's sessions.hourly). */
+export async function loadTradingSessions(
+  profileId: string,
+  zone: string,
+  from: string,
+  to: string,
+): Promise<Map<Weekday, Map<number, number>>> {
+  const [profile] = await db
+    .select({ account_id: businessProfiles.account_id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.id, profileId));
+  const out = new Map<Weekday, Map<number, number>>();
+  if (!profile) return out;
+  const conns = await db
+    .select({ id: connections.id })
+    .from(connections)
+    .where(eq(connections.account_id, profile.account_id));
+  if (conns.length === 0) return out;
+  const rows = await db
+    .select({
+      period_date: metricObservations.period_date,
+      dimensions: metricObservations.dimensions,
+      value_num: metricObservations.value_num,
+    })
+    .from(metricObservations)
+    .where(
+      and(
+        inArray(
+          metricObservations.connection_id,
+          conns.map((c) => c.id),
+        ),
+        eq(metricObservations.metric_key, "sessions.hourly"),
+        gte(metricObservations.period_date, shiftDay(from, -1)),
+        lte(metricObservations.period_date, shiftDay(to, 1)),
+      ),
+    );
+  for (const r of rows) {
+    const hourUtc = r.dimensions?.hour_utc;
+    if (hourUtc === undefined) continue;
+    const slot = tradingSlot(localParts(new Date(`${r.period_date}T${hourUtc}:00:00Z`), zone));
+    if (slot.day < from || slot.day > to) continue;
+    const hours = out.get(slot.weekday) ?? new Map<number, number>();
+    hours.set(slot.hour, (hours.get(slot.hour) ?? 0) + Number(r.value_num ?? 0));
+    out.set(slot.weekday, hours);
+  }
+  return out;
+}
+
+/**
+ * Pure: the attention signal for one weekday — the share of its website
+ * sessions in the hours just before opening. Null without a known first
+ * hour or with too few sessions to say anything. Exported for tests.
+ */
+export function attentionFor(
+  w: Pick<WeekdayAnalysis, "first_hour" | "verdict">,
+  hours: Map<number, number> | undefined,
+): { signal: boolean | null; line: string | null } {
+  if (w.verdict !== "ok" || w.first_hour === null || !hours) return { signal: null, line: null };
+  let total = 0;
+  let before = 0;
+  for (const [hour, count] of hours) {
+    total += count;
+    if (hour >= w.first_hour - TRADING.attention_window_hours && hour < w.first_hour)
+      before += count;
+  }
+  if (total < TRADING.attention_min_sessions) {
+    return {
+      signal: null,
+      line: `${total} website session(s) measured on this day — the attention check needs ${TRADING.attention_min_sessions}`,
+    };
+  }
+  const share = before / total;
+  return {
+    signal: share >= TRADING.attention_share,
+    line: `${Math.round(share * 100)}% of this day's website sessions come in the ${TRADING.attention_window_hours} hours before you open (${label(w.first_hour)}) — the attention signal starts at ${TRADING.attention_share * 100}%`,
+  };
+}
+
 /** The open-hour cost when it is stated in the sales' currency; null otherwise. */
 export async function openHourCost(profileId: string, currency: string): Promise<number | null> {
   const costField = await readCurrentField<{ amount_minor: number; currency: string }>(
@@ -400,6 +475,8 @@ export async function tradingAnalysis(
       )
     )?.value ?? [];
 
+  const openings = await competitorOpenings(profileId);
+  const sessions = await loadTradingSessions(profileId, zone, from, to);
   const weekdays = WEEKDAYS.map((weekday) => {
     const all = measuredDays.get(weekday) ?? [];
     const inTrial = (d: string) =>
@@ -415,6 +492,13 @@ export async function tradingAnalysis(
     });
     const left = all.filter(inTrial).length;
     if (left > 0) result.arithmetic.push(`${left} day(s) under a running trial are left out`);
+    // P2-31: the background check — when competitors open, from their own pages.
+    // P2-29: when people look the business up online, against when it opens.
+    const att = attentionFor(result, sessions.get(weekday));
+    result.attention_signal = att.signal;
+    if (att.line) result.arithmetic.push(att.line);
+    const rivals = competitorLine(openings.get(weekday), result.first_hour);
+    if (rivals) result.arithmetic.push(rivals);
     return result;
   });
 

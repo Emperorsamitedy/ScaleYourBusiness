@@ -69,6 +69,21 @@ export function periodMinutes(p: OpenPeriod): number {
   return close > open ? close - open : close + 24 * 60 - open;
 }
 
+/** First and last trading-day hour a weekday's periods cover (24 = midnight after); null when closed. */
+export function openSpan(periods: readonly OpenPeriod[]): { first: number; last: number } | null {
+  if (periods.length === 0) return null;
+  let first = Infinity;
+  let last = -Infinity;
+  for (const p of periods) {
+    const open = minutesOf(p.open);
+    let close = minutesOf(p.close);
+    if (close <= open) close += 24 * 60;
+    first = Math.min(first, Math.floor(open / 60));
+    last = Math.max(last, Math.floor((close - 1) / 60));
+  }
+  return { first, last };
+}
+
 export type ScheduleLlm = (args: {
   system: string;
   user: string;
@@ -227,12 +242,14 @@ export interface ScheduleOutcome {
 export async function ensureOpeningSchedule(
   profileId: string,
   llm: ScheduleLlm = liveScheduleLlm,
+  /** P2-31: the same parse for a competitor's stated hours. Defaults to the owner's own. */
+  keys: { hours: string; schedule: string } = { hours: HOURS_KEY, schedule: SCHEDULE_KEY },
 ): Promise<ScheduleOutcome> {
-  const hours = await readCurrentField<string>(profileId, HOURS_KEY);
+  const hours = await readCurrentField<string>(profileId, keys.hours);
   if (!hours || hours.status !== "answered" || typeof hours.value !== "string") {
     return { schedule: null, via: "no_hours" };
   }
-  const existing = await readCurrentField<OpeningSchedule>(profileId, SCHEDULE_KEY);
+  const existing = await readCurrentField<OpeningSchedule>(profileId, keys.schedule);
   if (existing && existing.status === "inferred" && existing.recorded_at >= hours.recorded_at) {
     return { schedule: existing.value, via: "reused" };
   }
@@ -246,11 +263,11 @@ export async function ensureOpeningSchedule(
   await writeField(
     profileId,
     createField<OpeningSchedule>({
-      id: fieldId(SCHEDULE_KEY),
+      id: fieldId(keys.schedule),
       value: schedule,
       status: "inferred",
       confidence: SCHEDULE_CONFIDENCE,
-      source: { kind: "inferred", derived_from: [fieldId(HOURS_KEY)], method: SCHEDULE_METHOD },
+      source: { kind: "inferred", derived_from: [fieldId(keys.hours)], method: SCHEDULE_METHOD },
       observed_at: hours.observed_at,
       recorded_at: isoDateTime(new Date().toISOString()),
       note: null,
