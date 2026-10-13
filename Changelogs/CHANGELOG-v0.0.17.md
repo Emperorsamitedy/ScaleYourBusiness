@@ -211,6 +211,12 @@ One "verify at build" question answered on the way: an unverified
 portfolio can create a system user and issue the token, so the own-
 account fallback is not needed. D1 now waits only on the Stripe gate.
 
+**Tedi — the keys are with Samuel.** He holds the Stripe test-mode
+restricted key, the Meta App ID and App Secret, and the system-user
+token. When a step needs one — the Stripe key at `/connections` on
+production, `META_APP_ID` and `META_APP_SECRET` in Vercel at D1 — ask
+him and he hands it over directly. Nothing is in the repo or in chat.
+
 ---
 
 ## Next
