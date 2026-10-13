@@ -358,6 +358,25 @@ and `marketing.cost_per_purchase` measured as ad spend over the purchases the
 ad platform attributes (the intake asks the owner's estimate of the same
 thing; measurement supersedes it, rule 11).
 
+Trading hours (Phase 2 Session F, bank 1.3.0):
+
+- `presence.opening_hours` stays the owner's own words (question 2.1.1.7,
+  now `important` for visit-based businesses).
+- `presence.opening_schedule` is derived from it once by Haiku (inferred,
+  `derived_from: presence.opening_hours`, method
+  `haiku-opening-hours-v1`). Its shape is `{ days: Record<mon…sun,
+  {open,close}[]>, unstated, unparsed }`; a close at or before the open
+  runs past midnight.
+- `presence.timezone` is an IANA zone, either owner-stated or derived from
+  a single-zone `legal.country` (`single-zone-country-map-v1`). It's never
+  derived for a multi-zone country.
+- `presence.open_hour_cost` is `Field<Money>`, from question 2.1.1.7a.
+
+The connector metrics `revenue.hourly` and `orders.hourly` carry
+`dimensions.hour_utc` ("00"–"23"), with `period_date` the UTC date. They
+are stored in UTC and read in the business's clock with a 05:00
+trading-day cutoff.
+
 ```ts
 
 interface Competitor {

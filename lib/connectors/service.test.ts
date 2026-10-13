@@ -311,7 +311,7 @@ describe("P2-02 — the shape rules money depends on (rule 1)", () => {
     expect(() =>
       toObservationRow("c", "fixture", {
         ...base,
-        metric_key: "revenue.hourly" as never,
+        metric_key: "revenue.weekly" as never,
         dimensions: {},
         value_num: 1,
       }),

@@ -98,7 +98,8 @@ export function WatchScreen() {
               See the mode decision
             </Link>
             <p className="auth-copy" style={{ marginTop: 14, fontSize: 13 }}>
-              <Link href="/progress">How your goals are going →</Link>
+              <Link href="/progress">How your goals are going →</Link> ·{" "}
+              <Link href="/hours">Trading hours →</Link>
             </p>
           </section>
         </div>
@@ -113,7 +114,7 @@ export function WatchScreen() {
         <span className="ops-meta">
           watching · {view.days_remaining} day{view.days_remaining === 1 ? "" : "s"} remaining ·
           review {view.decision.review_at.slice(0, 10)} ·{" "}
-          <Link href="/progress">goal progress</Link>
+          <Link href="/progress">goal progress</Link> · <Link href="/hours">trading hours</Link>
         </span>
         <ProposalsBadge />
       </header>

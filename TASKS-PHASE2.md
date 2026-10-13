@@ -106,8 +106,8 @@ For businesses customers visit — bars, restaurants, cafés, salons, shops — 
 
 **What exists today, found 2026-10-13:** opening hours are one free-text answer (question 2.1.1.7, priority `deep`, so often never asked); the profile has no timezone; every metric is daily (`METRIC_KEYS` in `lib/connectors/provider.ts`, and `service.test.ts` asserts `revenue.hourly` is refused); and no point-of-sale connector exists, though most bars take cards on a POS, not Stripe.
 
-- [ ] **P2-26** Structured hours and their cost. Question 2.1.1.7 becomes a weekly schedule: per weekday an open time, a close time that may cross midnight, or closed. The business timezone and **the cost of one open hour** (staff on shift plus energy, money in minor units, rule 1) are added as questions. Priority rises for visit-based businesses through a `ConditionExpr` (rule 4), not code. Spec, bank and `lint_bank.py` change in the same commit. The support knowledge renderer (P4-05) keeps answering "what are your opening hours?" from the structured value.
-- [ ] **P2-27** Hourly measurement. `revenue.hourly` and `orders.hourly` join `METRIC_KEYS` deliberately (the refusal test changes in the same commit, with the reason). Buckets are in the business's local time. A **trading-day cutoff** (default 05:00) puts a 20:00–01:00 night into one evening rather than two dates. Derived from the payment and order timestamps Stripe and Shopify already return; hourly rows stay out of daily sums by the existing dimension filter.
+- [x] **P2-26** Structured hours and their cost. Question 2.1.1.7 becomes a weekly schedule: per weekday an open time, a close time that may cross midnight, or closed. The business timezone and **the cost of one open hour** (staff on shift plus energy, money in minor units, rule 1) are added as questions. Priority rises for visit-based businesses through a `ConditionExpr` (rule 4), not code. Spec, bank and `lint_bank.py` change in the same commit. The support knowledge renderer (P4-05) keeps answering "what are your opening hours?" from the structured value.
+- [x] **P2-27** Hourly measurement. `revenue.hourly` and `orders.hourly` join `METRIC_KEYS` deliberately (the refusal test changes in the same commit, with the reason). Buckets are in the business's local time. A **trading-day cutoff** (default 05:00) puts a 20:00–01:00 night into one evening rather than two dates. Derived from the payment and order timestamps Stripe and Shopify already return; hourly rows stay out of daily sums by the existing dimension filter.
 - [ ] **P2-28** A point-of-sale connector, read-only: Square first (payments and orders read scopes, the P2-02 scope audit applied unchanged). SumUp, Zettle, Lightspeed and Toast are re-judged after. **Cash is invisible to every connector**, so the owner states a cash share and every hourly finding carries its coverage ("card sales only, about 70% of takings").
 - [ ] **P2-29** Attention by hour: GA4 sessions by `dateHour`; Instagram's follower-online-by-hour insight through the existing read scopes (_verify at build_: metric name and availability). Google Business Profile's "popular times" has no official API. It is not scraped, and the screen says so.
 - [ ] **P2-30** The trading-hours analysis, as report and watch findings with the arithmetic shown. Built from at least 4 measured weeks per weekday; below that, the finding is `too_early` and says how many weeks remain. Per weekday it produces:
@@ -121,6 +121,28 @@ For businesses customers visit — bars, restaurants, cafés, salons, shops — 
 - [ ] **P2-31** Background check on competitors' hours. The existing competitor research (P1-15..21) also extracts stated opening hours from the pages it already reads, inside the same caps, at research confidence 0.5. A page that doesn't state hours gives `unknown`, never a guess. The finding cites them: "3 of the 4 nearby bars found open at 18:00."
 
 **Done when:** a seeded bar with 6 weeks of hourly card sales gets a per-weekday curve, a pinned-threshold opening signal on Fridays and none on Tuesdays, and a closing signal when the last hour falls below the cost of an open hour; every finding states its coverage and its arithmetic; and a business with 3 weeks of data gets `too_early`, not a conclusion.
+
+**Status 2026-10-13:** P2-26 and P2-27 built, P2-30 mostly built. The done-when holds in tests (`lib/hours/hours.test.ts`, 14 tests; Stripe and Shopify hourly tests). It was verified on the dev server with a seeded Budapest bar: the opening signal on Friday and Saturday, none Tuesday to Thursday, Sunday and Monday read as closed. Decisions taken at build, with the owner's go-ahead:
+
+- **P2-26, opening hours.** Amended from "a weekly-schedule input": the owner still answers in their own words, and Haiku parses the answer once into `presence.opening_schedule` (`lib/hours/schedule.ts`). It's the hard-limits pattern (P3-03), so there's no new intake input type, no new table, and existing answers upgrade.
+  - Code validates every period. A day with an impossible time goes to `unparsed`, shown and never repaired, and that day stays unknown, not closed.
+  - Bank **1.3.0**: 2.1.1.7 is `important` with an example. Its existing `customers_visit` condition already restricts it to visit-based businesses, so no new `ConditionExpr` was needed. New question 2.1.1.7a, `presence.open_hour_cost`.
+- **P2-26, timezone.** Amended from "a question": it's derived from `legal.country` when the country has one zone (`lib/hours/timezone.ts`, 43 countries checked against Intl). Multi-zone and unreadable countries are unknown, with the reason, and every hourly figure says so. An owner-stated `presence.timezone` always wins.
+  - **Open:** there's no question that asks for it, so a US business has no hourly analysis yet.
+- **P2-27, hourly measurement.** Amended to store in **UTC** (`hour_utc`), not local time: an exact instant, so the clock, daylight saving and the 05:00 trading-day cutoff are applied at read, and a timezone learned later needs no re-sync.
+  - Stripe and Shopify share one helper (`lib/connectors/hourly.ts`). Only hours with sales are emitted; the daily row says the day was covered.
+  - Anomaly detection and every business-wide sum skip hourly rows by the existing dimension filter.
+- **P2-30, analysis** (`lib/hours/trading.ts`, `GET /api/hours`, screen `/hours`). Per weekday, from 12 weeks:
+  - a revenue curve with hours after midnight numbered 24, 25…;
+  - the opening signal (first hour ≥ 60% of the peak);
+  - the closing signal (last hour under the cost of an open hour on ≥ 75% of days, with no verdict without the cost);
+  - sales outside the stated hours;
+  - `too_early` under 4 measured days.
+
+  The coverage line ("card payments through stripe only — cash isn't seen") and the honest limit are on every result.
+
+- **Still open in P2-30:** the attention signal needs P2-29, and the findings aren't yet written into the diagnosis report or the watch. They show on `/hours`.
+- **Not started:** P2-28 (Square), P2-29 (attention by hour), P2-31 (competitor hours).
 
 ---
 

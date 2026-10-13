@@ -27,6 +27,7 @@
 // partial-capture reversals, before Stripe's fees. Disputes, fees, payouts
 // and transfers are excluded, because none of them is a sale.
 
+import { HourlyBuckets } from "../hourly";
 import type { Observation, Provider, PullPage } from "../provider";
 import { ProviderError } from "../provider";
 
@@ -281,6 +282,7 @@ export function aggregateDays(
   const revenue = new Map<string, Map<string, number>>();
   const orders = new Map<string, number>();
   const currencies = new Set<string>();
+  const hourly = new HourlyBuckets(); // P2-27
   const from = start.getTime();
   const until = addDays(end, 1).getTime();
 
@@ -294,9 +296,11 @@ export function aggregateDays(
       const byCurrency = revenue.get(day) ?? new Map<string, number>();
       byCurrency.set(currency, (byCurrency.get(currency) ?? 0) + t.amount);
       revenue.set(day, byCurrency);
+      hourly.addRevenue(at, currency, t.amount);
     }
     if (t.reporting_category === "charge" && t.amount > 0) {
       orders.set(day, (orders.get(day) ?? 0) + 1);
+      hourly.addOrder(at);
     }
   }
 
@@ -321,6 +325,7 @@ export function aggregateDays(
       observed_at: observedAt,
     });
   }
+  out.push(...hourly.observations(observedAt));
   return out;
 }
 

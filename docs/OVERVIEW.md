@@ -35,6 +35,8 @@ contradictions are visible.
 | Owner chat       | `/chat`        | Ask about your business                                                     | Live                                      |
 | Support          | `/support`     | Chat widget for the owner's site; says it is an AI; FAQ that updates itself | New; not yet walked through by a human    |
 | Customers        | `/customers`   | Customer import, consent, segments                                          | New; not yet walked through by a human    |
+| Goal progress    | `/progress`    | Measurable goals, weekly on-track check, alert review when stuck            | New; not yet walked through by a human    |
+| Trading hours    | `/hours`       | Revenue by hour and weekday; opens too late? last hour pays?                | New; Stripe/Shopify card sales only       |
 
 ## What is still to come
 
@@ -45,17 +47,17 @@ contradictions are visible.
 - **Email marketing** to customer segments, with consent rules enforced in
   code (Phase 4 Session F).
 - **Google Ads** — blocked on Google's developer-token approval.
-- **Trading hours** — for bars, restaurants and other places customers
-  visit: revenue and attention hour by hour, whether opening or closing
-  times are right, checked with 4-week trials rather than guesses
-  (`TASKS-PHASE2.md` Session F, `TASKS-PHASE3.md` Session I).
+- **Trading hours, the rest** — `/hours` already shows revenue by hour;
+  still to come: website and Instagram attention by hour, a till
+  (point-of-sale) connection, competitors' hours, and 4-week trials of
+  an hours change (`TASKS-PHASE2.md` Session F, `TASKS-PHASE3.md`
+  Session I).
 - **Customer blindspots** — what potential customers search for, ask
   about and check before buying, compared with what the business
   actually shows them (`TASKS-PHASE2.md` Session G).
-- **Alert mode** — when a business isn't improving towards its goal, a
-  high-alert review goes through its whole history since day zero, names
-  the likely causes with evidence, and proposes a recovery plan; a
-  person at SYB steps in if that fails too (`TASKS-PHASE3.md` Session J).
+- **Alert mode, in real use** — built (`/progress`, `TASKS-PHASE3.md`
+  Session J) and tested on sample data; its review prompt is tuned on
+  the first real business that stalls.
 - **Ledgerline markets itself** — once posting works, it runs SYB's own
   marketing for 3–4 weeks, then publishes the honest results as the
   launch story (Phase 3 Session H, `TASKS-PHASE3.md`). Step one, running

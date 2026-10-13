@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.2.1",
+  "bank_version": "1.3.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -1545,7 +1545,7 @@
     },
     {
       "id": "2.1.1.7",
-      "version": 1,
+      "version": 2,
       "section": "presence",
       "writes_to": "presence.opening_hours",
       "prompt": {
@@ -1560,8 +1560,34 @@
         "field": "presence.customers_visit",
         "value": true
       },
-      "priority": "deep",
-      "cost": 1
+      "priority": "important",
+      "cost": 1,
+      "help_text": {
+        "en": "Per day, as you'd write it on the door — e.g. Mon–Thu 20:00–01:00, Fri–Sat 18:00–02:00, Sun closed."
+      }
+    },
+    {
+      "id": "2.1.1.7a",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.open_hour_cost",
+      "prompt": {
+        "en": "Roughly what does one hour of being open cost you — staff on shift plus energy?"
+      },
+      "help_text": {
+        "en": "A rough figure is fine. It tells us whether your first and last hours pay for themselves."
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "presence.customers_visit",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 2
     },
     {
       "id": "2.1.1.8",

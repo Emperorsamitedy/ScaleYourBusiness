@@ -367,6 +367,32 @@ second to push renumbers.
 
 ---
 
+## Built — trading hours, first half (2026-10-13)
+
+Phase 2 Session F, P2-26, P2-27 and most of P2-30. The full status is in
+`TASKS-PHASE2.md`.
+
+- **Opening hours** are still the owner's own words. Haiku reads them
+  once into a weekly schedule, and code throws out anything impossible
+  instead of guessing.
+- **The timezone** comes from the country when the country has only one
+  (Hungary, most of Europe). Otherwise it's unknown, and the screen says
+  why.
+- **Stripe and Shopify** now also record revenue and orders per hour, in
+  UTC, so daylight saving and a bar's after-midnight hours are handled
+  when the data is read.
+- **`/hours`** shows each weekday's revenue curve, whether the doors may
+  open too late, and whether the last hour pays for itself, all with the
+  arithmetic and the honest limits.
+
+**Bank 1.3.0** changes the interview for every business that customers
+visit: the opening-hours question moves up to "important", and one new
+question asks what an open hour costs. **Production needs `npm run
+db:seed`** (the bank loader) after deploy. Samuel: your interview tests
+pin question counts. They're updated here (153 → 154).
+
+---
+
 ## Next
 
 1. **Tedi:** the Stripe key on production, test payments, the first

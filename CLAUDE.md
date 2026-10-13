@@ -17,7 +17,7 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | File                            | What it defines                                  |
 | ------------------------------- | ------------------------------------------------ |
 | `specs/data-model-v1.md`        | Every entity, field, rule and score. The spine.  |
-| `specs/question-bank-v1.json`   | 153 questions, 55 vocabularies, 8 entity schemas |
+| `specs/question-bank-v1.json`   | 154 questions, 55 vocabularies, 8 entity schemas |
 | `specs/question-bank-notes.md`  | Structure, the core 25, branching fixes          |
 | `specs/ux-spec-v1.md`           | Design tokens, screens, interaction detail       |
 | `specs/conversation-channel.md` | Conversation as a fact source; confidence bases  |

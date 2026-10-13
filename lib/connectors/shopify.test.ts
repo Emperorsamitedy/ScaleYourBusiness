@@ -303,6 +303,28 @@ describe("P2-16 — the arithmetic", () => {
     expect(find("orders.daily", "2026-09-03")?.value_num).toBe(0);
   });
 
+  it("P2-27: the same orders per UTC hour, netted, cancelled and test orders left out", () => {
+    const hour = (metric: string, h: string, currency?: string) =>
+      obs.find(
+        (o) =>
+          o.metric_key === metric &&
+          o.period_date === "2026-09-01" &&
+          o.dimensions.hour_utc === h &&
+          o.dimensions.currency === currency,
+      );
+    expect(hour("revenue.hourly", "09", "EUR")?.value_minor).toBe(10_000);
+    expect(hour("revenue.hourly", "10", "EUR")?.value_minor).toBe(3_000);
+    expect(hour("revenue.hourly", "11", "EUR")).toBeUndefined(); // cancelled
+    expect(hour("revenue.hourly", "12", "EUR")).toBeUndefined(); // test
+    expect(hour("revenue.hourly", "23", "USD")?.value_minor).toBe(1_000);
+    expect(hour("orders.hourly", "09")?.value_num).toBe(1);
+    // A fully refunded order is still an order; its revenue nets to nothing.
+    const refunded = obs.filter(
+      (o) => o.period_date === "2026-09-02" && o.dimensions.hour_utc === "00",
+    );
+    expect(refunded.map((o) => o.metric_key)).toEqual(["orders.hourly"]);
+  });
+
   it("an amount more precise than the currency is an error naming the order, not a rounding", () => {
     expect(() =>
       aggregateOrders([order({ id: "gid://shopify/Order/9", total: "10.005" })], start, end, "x"),

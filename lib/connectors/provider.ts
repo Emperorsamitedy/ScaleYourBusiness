@@ -17,6 +17,16 @@ export const METRIC_KEYS = [
   "sessions.daily",
   /** Units sold per day, per store product (Session C). */
   "units.daily",
+  /**
+   * P2-27: revenue and orders per UTC hour, dimension hour_utc. Stored in
+   * UTC on purpose: an exact instant, so the business's local clock (and
+   * its daylight saving) is applied when the series is read, and a
+   * timezone learned later re-reads correctly without a re-sync. Only
+   * hours with sales are emitted; the daily row of the same day says the
+   * day was covered, so a missing hour is a zero, not a gap.
+   */
+  "revenue.hourly",
+  "orders.hourly",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -26,7 +36,11 @@ export function isMetricKey(value: string): value is MetricKey {
 }
 
 /** Metrics whose value is Money (rule 1): integer minor units + currency. */
-export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set(["revenue.daily", "ad_spend.daily"]);
+export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
+  "revenue.daily",
+  "ad_spend.daily",
+  "revenue.hourly",
+]);
 
 /** Which slice of the business a daily figure belongs to. All optional. */
 export interface ObservationDimensions {
@@ -45,6 +59,8 @@ export interface ObservationDimensions {
   product_ref?: string;
   /** The analytics platform's channel name ("Paid Social"); mapped like product_ref (P2-18). */
   channel_ref?: string;
+  /** "00".."23" — the UTC hour of an *.hourly figure; period_date is then the UTC date (P2-27). */
+  hour_utc?: string;
 }
 
 /** One provider figure for one day. Exactly one of value_minor / value_num is set. */
