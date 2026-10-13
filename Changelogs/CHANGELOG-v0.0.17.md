@@ -200,6 +200,19 @@ New action kind `customer_email`. `/customers` is the owner's screen.
 
 ---
 
+## Done — Meta test assets for Session D (2026-10-13, Samuel)
+
+Portfolio "SYB"; Page "SYB Test" with the Instagram professional
+account linked; app "SYB" in development mode with the Page, Instagram
+and Marketing API use cases; a sandbox ad account in EUR; an admin
+system user with a non-expiring token carrying exactly the nine D1
+scopes. App ID, App Secret and the token are held outside the repo.
+One "verify at build" question answered on the way: an unverified
+portfolio can create a system user and issue the token, so the own-
+account fallback is not needed. D1 now waits only on the Stripe gate.
+
+---
+
 ## Next
 
 1. **Tedi:** the Stripe key on production, test payments, the first
