@@ -302,7 +302,7 @@ When a business has been under Ledgerline's care for a decent time and isn't mov
 
   The alert threshold scales with the gap: a goal asking for +50% tolerates less drift than one asking for +5%. Nothing triggers before a minimum time under care has passed after watching mode ends. Honest non-states: `too_early` and `unmeasured`, each explaining itself. All thresholds are pinned in code with boundary tests both ways. An alert appears in the watch log on `/watch` (amended at build: the rail badge counts approvals and nothing else, P3-05).
 
-- [ ] **P3-45** The case file, built deterministically with no model:
+- [x] **P3-45** The case file, built deterministically with no model:
   - day zero against now, per metric;
   - every proposal with its decision and decline reason, execution, undo and readback verdict;
   - report findings that never became a proposal;
@@ -313,12 +313,12 @@ When a business has been under Ledgerline's care for a decent time and isn't mov
 
   Every line gets an evidence id.
 
-- [ ] **P3-46** The alert review: Opus, the diagnosis-report workload under CLAUDE.md's routing, reads the case file.
+- [x] **P3-46** The alert review: Opus, the diagnosis-report workload under CLAUDE.md's routing, reads the case file.
   - **Output:** the likely causes, ranked, each citing evidence ids. A cause without evidence is not stated. It weighs every category in the principles above.
   - **Recovery plan:** proposals into the queue, which can include stopping a strategy that did nothing (through suppression, P3-28) or revising the goal. The owner decides; the system never lowers a goal on its own.
-  - **Cost:** a cost cap per review and at most one review per business per pinned interval, both in code. The prompt is cached.
+  - **Cost:** a cost cap per review and at most one review per business per pinned interval, both in code. ~~The prompt is cached.~~ Amended at build: one call per review with a short system prompt and a different case file each time leaves no repeated prefix for caching to reuse.
   - **Owner screen:** a plain-English write-up of what we tried, what happened, what we think went wrong and what we suggest now.
-- [ ] **P3-47** Escalation to a person. If the goal is still in alert after the recovery plan's window, the case is flagged on `/ops` for the SYB team with the case file and the review attached. The owner is told plainly that a person is now looking. No second automatic review.
+- [x] **P3-47** Escalation to a person. If the goal is still in alert after the recovery plan's window, the case is flagged on `/ops` for the SYB team with the case file and the review attached. The owner is told plainly that a person is now looking. No second automatic review.
 
 **Done when:**
 
@@ -342,7 +342,38 @@ When a business has been under Ledgerline's care for a decent time and isn't mov
   - Amended at build: an alert shows in the `/watch` log, not the rail badge, which P3-05 reserves for approvals.
 - `lib/trust/series.ts` is the readback's series reader made shared, generalised from revenue to any metric. The readback's own tests are unchanged and pass.
 
-**P3-45 to P3-47 are next:** the case file, the Opus review and escalation to a person.
+**Status 2026-10-13 (later):** P3-45 to P3-47 built. Session J's done-when is met in tests, with a fake model; 10 tests in `lib/care/review.test.ts`.
+
+- **P3-45, the case file** (`lib/care/case-file.ts`). Built by code from:
+  - the goal, its baseline, day zero and the profile diff since;
+  - every series before day zero and now;
+  - every proposal with its decision, decline reason, limit, execution and readback;
+  - report recommendations and findings nobody acted on;
+  - approved-never-executed items, failed and undone executions, and anomalies since day zero;
+  - stated-vs-measured pairs, open validation findings, sources, and this goal's weekly verdicts.
+
+  Every line has an evidence id. It freezes the profile it read, and the same state gives the same hash.
+
+- **P3-46, the review** (`lib/care/review.ts`). One Opus call, on `DIAGNOSIS_MODEL` with workload `alert_review`, when an alert is raised. Code then decides what survives:
+  - a cause with no evidence, or citing an id the file doesn't hold, is rejected and kept visible;
+  - every one of the 8 cause categories must be named or set aside with a reason, including `our_advice_was_wrong` and `goal_unrealistic`, or the gap is recorded.
+
+  Suggestions with an action kind become `alert_review` proposals: pending, through hard limits and decline suppression, and nothing executes. `revise_goal` and `stop_strategy` stay the owner's to decide: no proposal kind executes them, and adding one is a registry decision.
+
+  Caps, in code: one review per goal per 56 days, and €3 per account per month, after which the case goes straight to a person.
+
+  **Prompt uncalibrated:** calibrate it on the first real alert, as the diagnosis prompt was.
+
+- **P3-47, escalation.** The case goes to a person when:
+  - the goal is still in alert 42 days after the review;
+  - the review is unusable (no evidenced cause); or
+  - the budget is spent.
+
+  The owner sees "a person at Ledgerline is now looking" in the watch log. `/api/ops` lists open `escalations`. No automatic review runs while a person holds the case. `scripts/resolve-escalation.ts` closes it.
+
+- Stored in `alert_reviews` (migration 0036). `GET /api/care` gives the owner, per goal: measure, baseline, latest verdict, latest review and whether a person has it.
+
+**Not built:** a screen. `/watch` shows the log entries but not the review's causes and suggestions; `/api/care` is ready for one.
 
 ---
 

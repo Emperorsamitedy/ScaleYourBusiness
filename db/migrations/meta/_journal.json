@@ -253,6 +253,13 @@
       "when": 1791912130449,
       "tag": "0035_fixed_young_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1791919273276,
+      "tag": "0036_tricky_prowler",
+      "breakpoints": true
     }
   ]
 }

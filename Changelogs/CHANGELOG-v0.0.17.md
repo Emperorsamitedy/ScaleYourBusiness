@@ -339,9 +339,24 @@ nothing Samuel is building. 19 new tests, no model call anywhere.
   its target. Three off-track weeks in a row raise an alert in the
   `/watch` log. Thresholds are pinned and boundary-tested both ways.
 
-**Migration 0035** (additive: the `internal` column and the `takeover`
-decision kind) must be applied to production with 0030–0034 before this
-deploys. Samuel: if you add a migration before this is pushed, the
+**Then P3-45 to P3-47, the rest of alert mode:**
+
+- **A case file** of everything since day zero, every line with an
+  evidence id.
+- **One Opus review** when a goal reaches alert. Code throws out any
+  cause without real evidence and records any cause category the review
+  skipped, including "our advice was wrong".
+- **Its suggestions** enter the queue as ordinary pending proposals,
+  through the owner's limits and decline-suppression.
+- **A person at SYB takes the case** when the goal is still in alert six
+  weeks later, when the review is unusable, or when the €3 monthly budget
+  per account is spent. It shows on `/ops`; no AI loop.
+
+The prompt is uncalibrated until a real alert happens. 10 more tests.
+
+**Migrations 0035 and 0036** (additive: the `internal` column, the
+`takeover` decision kind, the `alert_reviews` table) must be applied to
+production with 0030–0034 before this deploys. Samuel: if you add a migration before this is pushed, the
 second to push renumbers.
 
 ---

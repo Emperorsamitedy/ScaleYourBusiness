@@ -768,6 +768,28 @@ interface GoalBaseline {
 
 **`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
 
+```ts
+// P3-45..47: one row per alert review of one goal (table alert_reviews).
+interface AlertReview {
+  id: ReviewId;
+  profile_id: BusinessProfileId;
+  goal_id: GoalId;
+  created_at: ISODateTime;
+  outcome: "reviewed" | "unusable" | "skipped_cost_cap";
+  case_file: { lines: { id: string; section: string; text: string }[]; snapshot_id: SnapshotId; built_at: ISODateTime };
+  case_hash: string;                 // sha256 of the rendered case file
+  review: { summary: string; causes: Cause[]; considered: SetAside[]; suggestions: Suggestion[] } | null;
+  rejected: { raw: unknown; reason: string }[];   // what code refused — kept, never repaired
+  proposal_ids: ProposalId[];        // suggestions that entered the queue
+  cost_eur: string;
+  escalated_at: ISODateTime | null;  // handed to a person (P3-47)
+  escalation_reason: string | null;
+  resolved_at: ISODateTime | null;   // a person closed the case
+}
+```
+
+A cause must cite evidence ids the case file holds; every cause category (`our_advice_was_wrong`, `goal_unrealistic`, `owner_declined_key_actions`, `approved_actions_not_executed`, `execution_failed`, `data_incomplete`, `external_change`, `other`) must be named or set aside, or the gap is recorded in `rejected`.
+
 The decision log is append-only. It serves three purposes at once: the learning corpus, the debugging trail, and the compliance record showing that a human approved every consequential action — which matters directly given GDPR Article 22 exposure on anything touching individuals.
 
 ---

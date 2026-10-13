@@ -6,6 +6,7 @@
 
 import { type NextRequest, NextResponse } from "next/server";
 import { abandonmentSummary, costSummary, funnelSummary } from "../../../lib/ops/summary";
+import { openEscalations } from "../../../lib/care/review";
 import { crossCustomerApprovalRate } from "../../../lib/trust/gate";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -20,13 +21,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   );
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
   try {
-    const [funnel, abandonment, costs, gate2] = await Promise.all([
+    const [funnel, abandonment, costs, gate2, escalations] = await Promise.all([
       funnelSummary(since),
       abandonmentSummary(since),
       costSummary(since),
       crossCustomerApprovalRate(),
+      openEscalations(),
     ]);
-    return NextResponse.json({ since, days, funnel, abandonment, costs, gate2 });
+    return NextResponse.json({ since, days, funnel, abandonment, costs, gate2, escalations });
   } catch (error) {
     console.error(JSON.stringify({ event: "ops_summary_failed", message: String(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });

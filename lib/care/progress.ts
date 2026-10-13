@@ -35,6 +35,9 @@ import type { CareState } from "./day-zero";
 import { careState } from "./day-zero";
 import type { GoalBaseline, GoalMeasure } from "./goal-measure";
 import { GOAL_METRICS, ensureBaseline, readGoalMeasure } from "./goal-measure";
+import type { LimitLlm } from "../proposals/hard-limits";
+import type { ReviewLlm } from "./review";
+import { escalateIfStuck, runAlertReview } from "./review";
 
 export const PROGRESS = {
   /** No verdict before this long under care (and never inside watching mode). */
@@ -232,12 +235,23 @@ const SENTENCE: Record<ProgressVerdict, string> = {
   unmeasured: "Can't be measured yet",
 };
 
-/** Check one goal; writes one watch-log entry, and an alert entry when one starts. */
+/** How a raised alert reaches the review (P3-46); null = record the alert only. */
+export interface ReviewHook {
+  llm?: ReviewLlm;
+  limitLlm?: LimitLlm;
+}
+
+/**
+ * Check one goal; writes one watch-log entry, and an alert entry when one
+ * starts. A new alert runs the review when `review` is given; a goal
+ * still in alert is escalated to a person once the recovery window closes.
+ */
 export async function checkGoal(
   profileId: string,
   goalId: string,
   care: CareState | null,
   now: Date = new Date(),
+  review: ReviewHook | null = null,
 ): Promise<{ checked: boolean; alert_raised: boolean }> {
   const previous = await previousCheck(profileId, goalId);
   if (
@@ -287,12 +301,18 @@ export async function checkGoal(
       detail: `Alert: this goal has been off track for ${consecutive} weekly checks in a row. A full review of everything since day zero comes next.`,
       meta: { goal_id: goalId, consecutive_off_track: consecutive },
     });
+    if (review) await runAlertReview(profileId, goalId, { ...review, now });
+  } else if (alert) {
+    await escalateIfStuck(profileId, goalId, now);
   }
   return { checked: true, alert_raised: raised };
 }
 
-/** The weekly sweep: every measurable goal of every business in care. */
-export async function runProgressChecks(now: Date = new Date()): Promise<ProgressRunResult> {
+/** The weekly sweep: every measurable goal of every business in care. Live review by default. */
+export async function runProgressChecks(
+  now: Date = new Date(),
+  review: ReviewHook | null = {},
+): Promise<ProgressRunResult> {
   const inCare = await db
     .selectDistinct({ profile_id: modeDecisions.profile_id })
     .from(modeDecisions);
@@ -308,7 +328,7 @@ export async function runProgressChecks(now: Date = new Date()): Promise<Progres
     for (const goal of goalRows) {
       const { measure } = await readGoalMeasure(profile_id, goal.id);
       if (!measure) continue;
-      const outcome = await checkGoal(profile_id, goal.id, care, now);
+      const outcome = await checkGoal(profile_id, goal.id, care, now, review);
       if (outcome.checked) checked++;
       else skipped++;
       if (outcome.alert_raised) alerts++;
