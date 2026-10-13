@@ -98,6 +98,58 @@ _"Knows a weekend dip from a real 20% drop."_ Deterministic statistics — no mo
 
 ---
 
+## Session F — Trading hours: when the money and the attention come _(planned 2026-10-13, owner idea)_
+
+For businesses customers visit — bars, restaurants, cafés, salons, shops — **when** the business earns matters as much as how much. A bar open 20:00–01:00 should learn whether 20:00 is too early, too late or right, and whether the last hour pays for itself. Deterministic arithmetic on observations, no model calls (CLAUDE.md cost rule). The experiment half lives in `TASKS-PHASE3.md` Session I (P3-41).
+
+**Honest limit, stated up front:** a closed hour records no sales, so the data can only _suggest_ demand before opening. Proof comes from a trial (P3-41) measured by the readback, never from extrapolation alone.
+
+**What exists today, found 2026-10-13:** opening hours are one free-text answer (question 2.1.1.7, priority `deep`, so often never asked); the profile has no timezone; every metric is daily (`METRIC_KEYS` in `lib/connectors/provider.ts`, and `service.test.ts` asserts `revenue.hourly` is refused); and no point-of-sale connector exists, though most bars take cards on a POS, not Stripe.
+
+- [ ] **P2-26** Structured hours and their cost. Question 2.1.1.7 becomes a weekly schedule: per weekday an open time, a close time that may cross midnight, or closed. The business timezone and **the cost of one open hour** (staff on shift plus energy, money in minor units, rule 1) are added as questions. Priority rises for visit-based businesses through a `ConditionExpr` (rule 4), not code. Spec, bank and `lint_bank.py` change in the same commit. The support knowledge renderer (P4-05) keeps answering "what are your opening hours?" from the structured value.
+- [ ] **P2-27** Hourly measurement. `revenue.hourly` and `orders.hourly` join `METRIC_KEYS` deliberately (the refusal test changes in the same commit, with the reason). Buckets are in the business's local time. A **trading-day cutoff** (default 05:00) puts a 20:00–01:00 night into one evening rather than two dates. Derived from the payment and order timestamps Stripe and Shopify already return; hourly rows stay out of daily sums by the existing dimension filter.
+- [ ] **P2-28** A point-of-sale connector, read-only: Square first (payments and orders read scopes, the P2-02 scope audit applied unchanged). SumUp, Zettle, Lightspeed and Toast are re-judged after. **Cash is invisible to every connector**, so the owner states a cash share and every hourly finding carries its coverage ("card sales only, about 70% of takings").
+- [ ] **P2-29** Attention by hour: GA4 sessions by `dateHour`; Instagram's follower-online-by-hour insight through the existing read scopes (_verify at build_: metric name and availability). Google Business Profile's "popular times" has no official API. It is not scraped, and the screen says so.
+- [ ] **P2-30** The trading-hours analysis, as report and watch findings with the arithmetic shown. Built from at least 4 measured weeks per weekday; below that, the finding is `too_early` and says how many weeks remain. Per weekday it produces:
+  - a revenue-by-hour curve;
+  - **an opening signal:** if the first open hour already runs at a high share of the evening's peak, demand probably starts before the doors open;
+  - **a closing signal:** if the last hour's revenue sits below the cost of an open hour for most of the measured weeks, it isn't paying for itself;
+  - **an attention signal:** online attention peaking well before opening.
+
+  Thresholds are pinned in code with boundary tests both ways. Signals are per weekday: Friday may want 19:00 while Tuesday is fine at 20:00.
+
+- [ ] **P2-31** Background check on competitors' hours. The existing competitor research (P1-15..21) also extracts stated opening hours from the pages it already reads, inside the same caps, at research confidence 0.5. A page that doesn't state hours gives `unknown`, never a guess. The finding cites them: "3 of the 4 nearby bars found open at 18:00."
+
+**Done when:** a seeded bar with 6 weeks of hourly card sales gets a per-weekday curve, a pinned-threshold opening signal on Fridays and none on Tuesdays, and a closing signal when the last hour falls below the cost of an open hour; every finding states its coverage and its arithmetic; and a business with 3 weeks of data gets `too_early`, not a conclusion.
+
+---
+
+## Session G — What customers look for: demand and blindspots _(planned 2026-10-13, owner idea)_
+
+Find what potential customers search for, ask about and check before they buy, then compare it with what the business actually shows them. A **blindspot** is a demand signal with no matching answer on the owner's surfaces. Examples: people search "bar with live music" and the site never mentions the Friday band; the chat is asked about vegan options thirty times and the menu page doesn't say; every nearby competitor shows prices and this business doesn't. All reads, no writes. Fixing a blindspot goes through the queues that already exist: a site change (Phase 3 Session F), a content item, or a knowledge entry (P4-05). Nothing changes on its own.
+
+**What exists today, found 2026-10-13:**
+
+- GA4 reads only sessions by channel (`lib/connectors/providers/ga4.ts`). The page-level evidence `specs/site-audit.md` §3 (Tier 2) promises is not built.
+- **The Tier 1 site audit (§2, "walk the path" with screenshots) was specified but never scheduled in any TASKS file.** `lib/site/` holds only Phase 3's change machinery.
+- Customer questions are already collected: support tickets and the unanswered-question clusters (P4-06, P4-12).
+- Competitor research already reads competitors' pages (P1-15..21).
+
+- [ ] **P2-32** The "what customers check" list as data. For each `business_type`, the things customers check before buying: for a bar, hours, prices, location and parking, photos, events, booking and reviews; for a shop, delivery cost, returns and stock. It goes in the spec and is linted, not hard-coded (rule 4). A deterministic presence check runs it against the owner's site pages, through the existing GET-only fetcher and its SSRF guard (`lib/site/fetch.ts`), and against the profile. Not the full Tier 1 audit: no screenshots, no vision.
+- [ ] **P2-33** Google Search Console connector, read-only (`webmasters.readonly`, the P2-02 scope audit unchanged). It gives the real queries the site appeared for, with impressions, clicks and position per query and page. Two signals: **seen but not chosen** (high impressions, low click rate) and **wanted but not found** (queries about something the profile says the business offers, where the site ranks poorly or not at all).
+- [ ] **P2-34** GA4, deeper, with the same read-only scope:
+  - landing pages and exits per page, which is site-audit Tier 2 at last;
+  - the site's own search box terms (`searchTerm`, when the site sends `view_search_results`), since people searching your site for something is the plainest signal there is.
+- [ ] **P2-35** Customer questions as demand. Support conversations and ticket clusters (P4-06, P4-12) are counted as demand by topic. They stay content, never instructions (rule 24), and only counts and topics leave the support tables, no customer text or identity (rule 22).
+- [ ] **P2-36** Competitor norms. Competitor research also records which P2-32 items each competitor's pages show, inside the existing caps, at research confidence 0.5, `unknown` when not stated. "4 of 5 competitors show prices; you don't."
+- [ ] **P2-37** The blindspot finder: demand (P2-33, 34, 35) and norms (P2-36) joined against presence (P2-32), ranked by demand volume, not by severity. Haiku groups queries and questions into topics (one batched call per run, capped; nothing is grouped under a threshold count). The matching and ranking are arithmetic. Each finding names its numbers, sources and coverage, and the queue that would fix it, as report and watch findings. With no connector, it runs on the checklist and competitor norms alone and says so.
+
+**Done when:** for a seeded bar with Search Console, GA4 and support data, the finder reports "searched or asked about, not on your site" with counts and sources; ranks a high-volume blindspot above a low-volume one; reports a competitor norm the business misses; makes no finding for an item the site does show; and states its coverage when a source isn't connected.
+
+**Verify at build:** whether Google Business Profile's reviews and Q&A can be read without the API access application. Until it's known, reviews come only from an owner-uploaded export, never scraped.
+
+---
+
 ## Phase 2 status, 2026-09-15
 
 Every buildable task is built and tested against recorded-shape providers: Sessions A to E, 25 tasks, with P2-20 (Google Ads) blocked on Google's approvals by owner decision. **The phase's done-when below is not met**, because it needs real accounts: a Stripe test key, a Shopify development store, a GA4 property and a Meta ad account, plus two weeks of unattended daily sync. Those are the remaining steps, and they are the owner's to schedule.

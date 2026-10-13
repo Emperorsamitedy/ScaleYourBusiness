@@ -56,7 +56,7 @@ These are load-bearing. Violating any of them is expensive to undo later.
 
 Claude Code tends to helpfully scaffold ahead. Don't.
 
-- No approval queue, proposals or execution engine — Phase 3
+- Proposals, the approval queue and the execution engine are IN SCOPE as of Phase 3 (TASKS-PHASE3.md), under its rules 12–18; real external writes wait for Session D
 - Connectors are IN SCOPE as of Phase 2 (TASKS-PHASE2.md) — read-only only
 - **No write-scope API calls to anything, ever — in any phase built so far; Phase 2's scope audit enforces it in tests**
 - Support & CRM are IN SCOPE as of Phase 4 (TASKS-PHASE4.md); finance, inventory and HR modules remain fenced (Phase 5+), as does phone AI
