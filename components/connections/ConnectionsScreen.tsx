@@ -478,6 +478,23 @@ function Steps({ provider }: { provider: ProviderOption }) {
           </li>
         </ol>
       );
+    case "square":
+      return (
+        <ol className="conn-steps">
+          <li>
+            In the <strong>Square Developer Console</strong>, create an application (or open one)
+            and copy its <strong>Production access token</strong>.
+          </li>
+          <li>
+            Give it only these permissions:
+            <GuideList guide={provider.guide} />
+          </li>
+          <li>
+            Paste the token below. Payments rung up in Square — card and cash — are read; cash that
+            never goes through the till can&rsquo;t be seen by anything.
+          </li>
+        </ol>
+      );
     case "search_console":
       return (
         <ol className="conn-steps">

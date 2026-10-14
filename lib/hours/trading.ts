@@ -28,6 +28,7 @@ import { shiftDay } from "../trust/series";
 import type { OpenPeriod, OpeningSchedule, Weekday } from "./schedule";
 import { SCHEDULE_KEY, WEEKDAYS, openSpan } from "./schedule";
 import { competitorLine, competitorOpenings } from "./competitors";
+import { coverageLine } from "./coverage";
 import { ensureTimezone } from "./timezone";
 
 export const TRADING = {
@@ -509,7 +510,7 @@ export async function tradingAnalysis(
     from,
     to,
     weekdays,
-    coverage: `card payments through ${providers.join(", ")} only — cash sales aren't seen by any connection`,
+    coverage: coverageLine(providers),
     limit: LIMIT,
   };
 }

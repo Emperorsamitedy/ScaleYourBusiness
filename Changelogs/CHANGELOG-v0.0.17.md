@@ -419,6 +419,10 @@ the official docs first.
   No customer's words ever leave the support system; only counts do.
 
 - **New connection: Google Search Console** (read-only).
+- **New connection: Square** (read-only). It reads every location's
+  payments, card and cash rung up at the till, by day and by hour. For a
+  Square bar or café, `/hours` therefore covers its till takings, not
+  just card sales.
 - **Google Analytics** now also reads visits by hour, landing pages and
   site searches.
 - **`/hours`** gains:

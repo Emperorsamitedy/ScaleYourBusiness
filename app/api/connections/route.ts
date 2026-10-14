@@ -21,6 +21,7 @@ import { FIXTURE_BACKFILL_DAYS } from "../../../lib/connectors/providers/fixture
 import { GA4_HISTORY_DAYS } from "../../../lib/connectors/providers/ga4";
 import { META_HISTORY_DAYS } from "../../../lib/connectors/providers/meta-ads";
 import { SC_HISTORY_DAYS } from "../../../lib/connectors/providers/search-console";
+import { SQUARE_HISTORY_DAYS } from "../../../lib/connectors/providers/square";
 import { historyDaysFor } from "../../../lib/connectors/providers/shopify";
 import { STRIPE_BACKFILL_DAYS } from "../../../lib/connectors/providers/stripe";
 import { WOO_BACKFILL_DAYS } from "../../../lib/connectors/providers/woocommerce";
@@ -52,6 +53,8 @@ function historyDays(provider: string, grantedScopes: readonly string[]): number
       return META_HISTORY_DAYS;
     case "search_console":
       return SC_HISTORY_DAYS;
+    case "square":
+      return SQUARE_HISTORY_DAYS;
     default:
       return FIXTURE_BACKFILL_DAYS;
   }
@@ -66,6 +69,7 @@ function offered(): ProviderId[] {
     "ga4",
     "meta_ads",
     "search_console",
+    "square",
   ];
   return process.env.NODE_ENV === "production" ? live : [...live, "fixture"];
 }

@@ -108,7 +108,7 @@ For businesses customers visit — bars, restaurants, cafés, salons, shops — 
 
 - [x] **P2-26** Structured hours and their cost. Question 2.1.1.7 becomes a weekly schedule: per weekday an open time, a close time that may cross midnight, or closed. The business timezone and **the cost of one open hour** (staff on shift plus energy, money in minor units, rule 1) are added as questions. Priority rises for visit-based businesses through a `ConditionExpr` (rule 4), not code. Spec, bank and `lint_bank.py` change in the same commit. The support knowledge renderer (P4-05) keeps answering "what are your opening hours?" from the structured value.
 - [x] **P2-27** Hourly measurement. `revenue.hourly` and `orders.hourly` join `METRIC_KEYS` deliberately (the refusal test changes in the same commit, with the reason). Buckets are in the business's local time. A **trading-day cutoff** (default 05:00) puts a 20:00–01:00 night into one evening rather than two dates. Derived from the payment and order timestamps Stripe and Shopify already return; hourly rows stay out of daily sums by the existing dimension filter.
-- [ ] **P2-28** A point-of-sale connector, read-only: Square first (payments and orders read scopes, the P2-02 scope audit applied unchanged). SumUp, Zettle, Lightspeed and Toast are re-judged after. **Cash is invisible to every connector**, so the owner states a cash share and every hourly finding carries its coverage ("card sales only, about 70% of takings").
+- [x] **P2-28** A point-of-sale connector, read-only: Square first (payments and orders read scopes, the P2-02 scope audit applied unchanged). SumUp, Zettle, Lightspeed and Toast are re-judged after. **Cash is invisible to every connector**, so the owner states a cash share and every hourly finding carries its coverage ("card sales only, about 70% of takings").
 - [x] **P2-29** Attention by hour: GA4 sessions by `dateHour`; Instagram's follower-online-by-hour insight through the existing read scopes (_verify at build_: metric name and availability). Google Business Profile's "popular times" has no official API. It is not scraped, and the screen says so.
 - [ ] **P2-30** The trading-hours analysis, as report and watch findings with the arithmetic shown. Built from at least 4 measured weeks per weekday; below that, the finding is `too_early` and says how many weeks remain. Per weekday it produces:
   - a revenue-by-hour curve;
@@ -142,7 +142,13 @@ For businesses customers visit — bars, restaurants, cafés, salons, shops — 
   The coverage line ("card payments through stripe only — cash isn't seen") and the honest limit are on every result.
 
 - **Still open in P2-30:** the attention signal needs P2-29, and the findings aren't yet written into the diagnosis report or the watch. They show on `/hours`.
-- **Not started:** P2-28 (Square).
+- **P2-28, built (the same day).** `providers/square.ts`, provider `square`, read-only.
+  - Scopes come from `POST /oauth2/token/status`, and only `PAYMENTS_READ` and `MERCHANT_PROFILE_READ` pass the registry.
+  - Every data read is a GET with `Square-Version: 2026-09-16`. Payments are read **per location**, because ListPayments defaults to the main one, with cursor paging.
+  - Only COMPLETED payments count, refunds are netted, tips are excluded, and revenue and orders go out daily and hourly through the shared helper.
+  - **Amended:** P2-28 planned an owner-stated cash share. Instead, Square records till cash as payments (docs, 2026-10-13), so for Square businesses cash is measured and the coverage line says "card and cash payments rung up in Square — cash that never goes through a till isn't seen". Other sources still say card only, and no cash-share question was added.
+  - 9 tests against a recorded-shape fake.
+  - **Verify at build:** the first real token, and whether a sandbox token behaves the same.
 - **P2-29, built (the same day).** GA4's `dateHour` report becomes `sessions.hourly`. It's placed in UTC from the zone the response states (`metadata.timeZone`), and none is stored when the zone isn't stated.
   - The analysis adds the attention signal: at least 30% of a weekday's website sessions in the 3 hours before opening, with at least 30 sessions. Boundary-tested both ways.
   - **Instagram's `online_followers` is not built:** Meta's current metrics table no longer lists it (checked 2026-10-13), so attention by hour is website-only until it's confirmed.
