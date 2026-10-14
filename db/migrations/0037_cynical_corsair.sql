@@ -1,0 +1,1 @@
+ALTER TABLE "diagnosis_reports" ADD COLUMN "trading_hours" jsonb;

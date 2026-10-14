@@ -23,6 +23,7 @@ import { isoDateTime } from "../core/iso";
 import { bootstrapIntake } from "../intake/service";
 import { readCurrentField, writeField } from "../profile/field-store";
 import { shiftDay } from "../trust/series";
+import { tradingFindings } from "./findings";
 import type { OpeningSchedule, ScheduleLlm } from "./schedule";
 import { SCHEDULE_KEY, coerceSchedule, ensureOpeningSchedule, periodMinutes } from "./schedule";
 import { KNOWN_ZONES, ensureTimezone, isValidZone, setTimezone, zoneForCountry } from "./timezone";
@@ -485,6 +486,18 @@ describe("P2-30 — end to end on a seeded bar", () => {
     expect(tuesday.curve.find((c) => c.hour === 24)?.mean_minor).toBe(3_000); // midnight stays Tuesday
     expect(result.weekdays.find((w) => w.weekday === "mon")!.verdict).toBe("hours_unknown");
     expect(result.weekdays.find((w) => w.weekday === "sun")!.verdict).toBe("closed");
+
+    // The last mile: the findings the report and the watch carry, arithmetic shown.
+    const block = tradingFindings(result)!;
+    expect(block.coverage).toBe(result.coverage);
+    const opening = block.findings.find((f) => f.signal === "opening")!;
+    expect(opening.weekdays).toEqual(["fri"]);
+    expect(opening.arithmetic).toEqual([
+      expect.stringMatching(/^Fridays: first open hour \(20:00\).*80% of the peak hour/),
+    ]);
+    const closing = block.findings.find((f) => f.signal === "closing")!;
+    expect(closing.weekdays).toContain("fri");
+    expect(closing.arithmetic.join("\n")).toMatch(/Fridays: last open hour .* the closing signal/);
   });
 
   it("a multi-zone country gets no analysis, with the reason", async () => {

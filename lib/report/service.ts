@@ -16,6 +16,10 @@
 // Phase 2 (P2-10/11): a connector measurement is labelled "measured", and
 // where it superseded something the owner said, the economics block
 // carries both figures (rule 11) rather than silently swapping them.
+//
+// P2-30: the trading-hours findings ride beside the economics as their
+// own deterministic block, computed from measured hourly sales at
+// generation and frozen on the row with the report.
 
 import { createHash } from "node:crypto";
 import { desc, eq } from "drizzle-orm";
@@ -23,12 +27,16 @@ import { db } from "../../db";
 import { accounts, businessProfiles, decisionLog, diagnosisReports } from "../../db/schema";
 import { displaySourceKind } from "../connectors/measured";
 import { statedVsMeasured } from "../connectors/stated-vs-measured";
+import { format, money } from "../core/money";
 import { computeEconomics } from "../economics/unit-economics";
 import type { EconomicsResult } from "../economics/unit-economics";
 import type { DiagnosisFinding, DiagnosisLlm } from "../diagnosis/findings";
 import { DiagnosisError, runDiagnosis } from "../diagnosis/findings";
 import type { Recommendation, RecommendationsLlm } from "../diagnosis/recommendations";
 import { runRecommendations } from "../diagnosis/recommendations";
+import type { TradingHoursBlock } from "../hours/findings";
+import { tradingFindings } from "../hours/findings";
+import { tradingAnalysis } from "../hours/trading";
 import { gapBuys, repr } from "../profile/factsheet";
 import type { GapRow } from "../profile/factsheet";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
@@ -55,6 +63,8 @@ export interface ReportView {
   findings: DiagnosisFinding[];
   recommendations: StoredRecommendation[];
   data_gaps: GapRow[];
+  /** P2-30: null when no stated hours or no hourly sales are measured. */
+  trading_hours: TradingHoursBlock | null;
   /** Evidence rendering (P1-36): key → value/status/confidence/source. */
   fact_map: Record<
     string,
@@ -92,6 +102,7 @@ function rowToView(
     findings: row.findings as DiagnosisFinding[],
     recommendations: row.recommendations as StoredRecommendation[],
     data_gaps: row.data_gaps as GapRow[],
+    trading_hours: (row.trading_hours as TradingHoursBlock | null) ?? null,
     fact_map: facts,
   };
 }
@@ -180,6 +191,23 @@ export async function generateReport(args: {
     .sort((a, b) => Number(b.blocking) - Number(a.blocking))
     .slice(0, 8);
 
+  // P2-30: deterministic, from measured hourly sales; never fails the report.
+  let tradingHours: TradingHoursBlock | null = null;
+  try {
+    tradingHours = tradingFindings(
+      await tradingAnalysis(args.profileId, new Date(), (m, c) => format(money(m, c))),
+    );
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "report_trading_hours_failed",
+        account_id: args.accountId,
+        profile_id: args.profileId,
+        message: String(error),
+      }),
+    );
+  }
+
   const stored: StoredRecommendation[] = recs.recommendations.map((r) => ({
     ...r,
     status: "proposed",
@@ -198,6 +226,7 @@ export async function generateReport(args: {
       findings: diagnosis.findings,
       recommendations: stored,
       data_gaps: gaps,
+      trading_hours: tradingHours,
     })
     .returning();
   if (!row) throw new DiagnosisError("report insert failed");

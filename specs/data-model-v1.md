@@ -684,7 +684,27 @@ interface DiagnosisReport {
   findings: DiagnosisFinding[];
   recommendations: Recommendation[];
   data_gaps: FieldId[];                 // what would most improve the next report
+  trading_hours: TradingHoursBlock | null; // P2-30; null when no hours or hourly sales are measured
   confidence: number;
+}
+
+// P2-30: deterministic, from measured hourly sales — never a model. One
+// finding per signal, naming its weekdays; the arithmetic that fired it,
+// the coverage ("card sales only") and the honest limit travel with it.
+interface TradingHoursBlock {
+  from: ISODate;
+  to: ISODate;
+  zone: string;                          // the business's IANA timezone
+  currency: CurrencyCode;
+  coverage: string;
+  limit: string;                         // "a closed hour records no sales…"
+  findings: {
+    signal: "opening" | "closing" | "attention" | "too_early";
+    weekdays: Weekday[];
+    title: LocalizedText;
+    detail: LocalizedText;
+    arithmetic: string[];                // one line per weekday that fired it
+  }[];
 }
 
 interface DiagnosisFinding {

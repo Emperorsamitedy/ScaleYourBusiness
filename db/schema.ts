@@ -734,6 +734,8 @@ export const diagnosisReports = pgTable(
     findings: jsonb("findings").notNull(),
     recommendations: jsonb("recommendations").notNull(),
     data_gaps: jsonb("data_gaps").notNull(),
+    /** P2-30: deterministic trading-hours findings; null when no hours or hourly sales are measured. */
+    trading_hours: jsonb("trading_hours"),
   },
   (t) => [index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at)],
 );

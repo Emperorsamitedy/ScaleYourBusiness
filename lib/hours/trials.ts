@@ -45,6 +45,7 @@ import { shiftDay } from "../trust/series";
 import { suppressedKinds } from "../trust/suppression";
 import { groupDemandTopics } from "../blindspots/finder";
 import { parseCompetitorHours } from "./competitors";
+import { DAY_WORD } from "./findings";
 import type { Weekday } from "./schedule";
 import type { WeekdayAnalysis } from "./trading";
 import { TRIALS_KEY, label, loadTradingSales, openHourCost, tradingAnalysis } from "./trading";
@@ -62,16 +63,6 @@ export const TRIAL = {
   min_trial_days: 3,
   expiry_days: 14,
 } as const;
-
-const DAY_WORD: Record<Weekday, string> = {
-  mon: "Mondays",
-  tue: "Tuesdays",
-  wed: "Wednesdays",
-  thu: "Thursdays",
-  fri: "Fridays",
-  sat: "Saturdays",
-  sun: "Sundays",
-};
 
 export type TrialChange = "open_earlier" | "close_earlier";
 
