@@ -20,10 +20,11 @@
 // re-asserted from this side, so no future merge can weaken rule 9
 // while adding rule 13.
 //
-// The only provider today is the in-repo fixture — Session B proves the
-// engine against it before any real platform lands (the Phase 2 order:
-// fixture first, Stripe second). Real write providers arrive with
-// Session D, each behind its own owner decision.
+// The fixtures came first — Session B proved the engine against them
+// before any real platform landed (the Phase 2 order: fixture first,
+// Stripe second). Meta is the first real write provider (P3-20f, Session
+// D, owner decision 2026-09-30), split in two so publishing and ad
+// management are separate consents: `meta_publish` and `meta_ads`.
 
 export interface ExecutionConsentEntry {
   /** The registry scope this consent line explains. */
@@ -102,6 +103,101 @@ export const EXECUTION_SCOPE_REGISTRY = {
       },
     ],
   },
+  /**
+   * Meta publishing (P3-20f): a Facebook Page and its linked Instagram
+   * account. Every publish is undone by deleting the post (P3-21c). The
+   * readback scopes let the same token read the posts' reach (P3-23a).
+   */
+  meta_publish: {
+    label: "Meta publishing (Facebook Page and Instagram)",
+    write_scopes: ["pages_manage_posts", "instagram_content_publish", "instagram_manage_contents"],
+    readback_scopes: [
+      "pages_show_list",
+      "pages_read_engagement",
+      "read_insights",
+      "instagram_basic",
+      "instagram_manage_insights",
+    ],
+    operations: [
+      {
+        op: "publish_page_post",
+        description: "Publish an approved text or link post to the Facebook Page.",
+        reversible: true,
+      },
+      {
+        op: "publish_page_photo",
+        description: "Publish an approved photo post to the Facebook Page.",
+        reversible: true,
+      },
+      {
+        op: "publish_page_video",
+        description: "Publish an approved video or Reel to the Facebook Page.",
+        reversible: true,
+      },
+      {
+        op: "publish_ig_media",
+        description: "Publish an approved post, carousel or Reel to the Instagram account.",
+        reversible: true,
+      },
+    ],
+    consent: [
+      {
+        scope: "pages_manage_posts",
+        grant: "pages_manage_posts",
+        why: "SYB may publish posts to the Page you choose, and delete them again when you withdraw one.",
+      },
+      {
+        scope: "instagram_content_publish",
+        grant: "instagram_content_publish",
+        why: "SYB may publish posts and Reels to the Instagram account you choose, each one only after you approve it.",
+      },
+      {
+        scope: "instagram_manage_contents",
+        grant: "instagram_manage_contents",
+        why: "SYB may delete an Instagram post it published, so withdrawing one takes it down.",
+      },
+    ],
+  },
+  /**
+   * Meta ad management (P3-20f). Creating a campaign is the one
+   * irreversible op: Meta's DELETED and ARCHIVED states are both
+   * permanent, so a campaign once created cannot be un-created. Billing,
+   * funding and payment methods are fenced by the money audit below.
+   */
+  meta_ads: {
+    label: "Meta ad management",
+    write_scopes: ["ads_management"],
+    readback_scopes: [],
+    operations: [
+      {
+        op: "pause_campaign",
+        description: "Pause a running campaign.",
+        reversible: true,
+      },
+      {
+        op: "resume_campaign",
+        description: "Resume a paused campaign.",
+        reversible: true,
+      },
+      {
+        op: "set_daily_budget",
+        description: "Change a campaign's daily budget, within the approved bounds.",
+        reversible: true,
+      },
+      {
+        op: "create_campaign_paused",
+        description: "Create a new campaign in the paused state.",
+        reversible: false,
+      },
+    ],
+    consent: [
+      {
+        scope: "ads_management",
+        grant: "ads_management",
+        why: "SYB may pause, resume or change the daily budget of campaigns, and create new campaigns paused. SYB will never touch billing or payment methods.",
+      },
+    ],
+  },
 } as const satisfies Record<string, ExecutionProviderSpec>;
 
 export type ExecutionProviderId = keyof typeof EXECUTION_SCOPE_REGISTRY;
@@ -123,7 +219,19 @@ const MONEY_SURFACE = [
   /bank/i,
   /invoice/i,
   /subscription/i,
+  /funding/i,
 ];
+
+/**
+ * Read permissions a vendor named with write vocabulary. Each is exempt
+ * from readback_write_shaped ONLY as a readback scope and is pinned in
+ * scopes.test.ts with its reason, so adding one is the same deliberate
+ * edit as adding a write scope. Every other "manage" readback still fails.
+ */
+export const VENDOR_MISNAMED_READS: Readonly<Record<string, string>> = {
+  instagram_manage_insights:
+    "Meta's name; it grants reads of Instagram account and media insights, nothing else",
+};
 
 export function touchesMoneySurface(value: string): boolean {
   return MONEY_SURFACE.some((pattern) => pattern.test(value));
@@ -166,7 +274,10 @@ export function auditExecutionRegistry(
       if (scope.trim() === "") violations.push({ provider, value: scope, reason: "empty" });
       else if (touchesMoneySurface(scope))
         violations.push({ provider, value: scope, reason: "money_surface" });
-      else if (isWriteCapable(scope))
+      else if (
+        isWriteCapable(scope) &&
+        !Object.prototype.hasOwnProperty.call(VENDOR_MISNAMED_READS, scope)
+      )
         violations.push({ provider, value: scope, reason: "readback_write_shaped" });
     }
     for (const operation of spec.operations) {

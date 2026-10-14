@@ -52,9 +52,10 @@ export const META_PAGE_SIZE = 100;
 export const META_MAX_PAGES = 50;
 export const META_MAX_ATTEMPTS = 3;
 
-const RATE_LIMIT_CODES: ReadonlySet<number> = new Set([4, 17, 32, 613]);
-const AUTH_CODES: ReadonlySet<number> = new Set([102, 190]);
-const PERMISSION_CODES: ReadonlySet<number> = new Set([10, 200, 294]);
+// Shared with the write connector (lib/execution/providers/meta.ts, P3-20g).
+export const RATE_LIMIT_CODES: ReadonlySet<number> = new Set([4, 17, 32, 613]);
+export const AUTH_CODES: ReadonlySet<number> = new Set([102, 190]);
+export const PERMISSION_CODES: ReadonlySet<number> = new Set([10, 200, 294]);
 
 export interface MetaRequestInit {
   /** The only verb the type admits. */

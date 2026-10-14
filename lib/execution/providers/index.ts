@@ -16,10 +16,13 @@ import { EXECUTION_SCOPE_REGISTRY, isExecutionProviderId } from "../scopes";
 import type { ExecutionProvider } from "./fixture";
 import { fixtureExecutor } from "./fixture";
 import { fixtureSiteExecutor } from "./fixture-site";
+import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   fixture: fixtureExecutor,
   fixture_site: fixtureSiteExecutor,
+  meta_publish: metaPublishExecutor,
+  meta_ads: metaAdsExecutor,
 };
 
 export class UnknownExecutionProviderError extends Error {

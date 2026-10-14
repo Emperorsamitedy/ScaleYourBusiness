@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import { SCOPE_REGISTRY, auditRegistry, isWriteCapable } from "../connectors/scopes";
 import {
   EXECUTION_SCOPE_REGISTRY,
+  VENDOR_MISNAMED_READS,
   auditExecutionRegistry,
   isExecutionProviderId,
   touchesMoneySurface,
@@ -62,7 +63,116 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // P3-20f, 2026-10-14: Meta, the first real write provider. Two
+      // consents, so publishing never implies ad management.
+      meta_publish: {
+        label: "Meta publishing (Facebook Page and Instagram)",
+        write_scopes: [
+          "pages_manage_posts",
+          "instagram_content_publish",
+          "instagram_manage_contents",
+        ],
+        readback_scopes: [
+          "pages_show_list",
+          "pages_read_engagement",
+          "read_insights",
+          "instagram_basic",
+          "instagram_manage_insights",
+        ],
+        operations: [
+          {
+            op: "publish_page_post",
+            description: "Publish an approved text or link post to the Facebook Page.",
+            reversible: true,
+          },
+          {
+            op: "publish_page_photo",
+            description: "Publish an approved photo post to the Facebook Page.",
+            reversible: true,
+          },
+          {
+            op: "publish_page_video",
+            description: "Publish an approved video or Reel to the Facebook Page.",
+            reversible: true,
+          },
+          {
+            op: "publish_ig_media",
+            description: "Publish an approved post, carousel or Reel to the Instagram account.",
+            reversible: true,
+          },
+        ],
+        consent: [
+          {
+            scope: "pages_manage_posts",
+            grant: "pages_manage_posts",
+            why: "SYB may publish posts to the Page you choose, and delete them again when you withdraw one.",
+          },
+          {
+            scope: "instagram_content_publish",
+            grant: "instagram_content_publish",
+            why: "SYB may publish posts and Reels to the Instagram account you choose, each one only after you approve it.",
+          },
+          {
+            scope: "instagram_manage_contents",
+            grant: "instagram_manage_contents",
+            why: "SYB may delete an Instagram post it published, so withdrawing one takes it down.",
+          },
+        ],
+      },
+      meta_ads: {
+        label: "Meta ad management",
+        write_scopes: ["ads_management"],
+        readback_scopes: [],
+        operations: [
+          { op: "pause_campaign", description: "Pause a running campaign.", reversible: true },
+          { op: "resume_campaign", description: "Resume a paused campaign.", reversible: true },
+          {
+            op: "set_daily_budget",
+            description: "Change a campaign's daily budget, within the approved bounds.",
+            reversible: true,
+          },
+          {
+            // Irreversible: Meta's DELETED and ARCHIVED are both permanent.
+            op: "create_campaign_paused",
+            description: "Create a new campaign in the paused state.",
+            reversible: false,
+          },
+        ],
+        consent: [
+          {
+            scope: "ads_management",
+            grant: "ads_management",
+            why: "SYB may pause, resume or change the daily budget of campaigns, and create new campaigns paused. SYB will never touch billing or payment methods.",
+          },
+        ],
+      },
     });
+  });
+
+  it("P3-20f: the vendor-misnamed reads are exactly this, each with its reason", () => {
+    expect(VENDOR_MISNAMED_READS).toEqual({
+      instagram_manage_insights:
+        "Meta's name; it grants reads of Instagram account and media insights, nothing else",
+    });
+  });
+
+  it("P3-20f: a misnamed read is exempt only as a readback scope — as a write scope, or any other 'manage' readback, still fails", () => {
+    const violations = auditExecutionRegistry(
+      {
+        planted: {
+          write_scopes: ["publish_things"],
+          readback_scopes: ["instagram_manage_insights", "instagram_manage_comments"],
+          operations: [],
+        },
+      },
+      isWriteCapable,
+    );
+    expect(violations).toEqual([
+      { provider: "planted", value: "instagram_manage_comments", reason: "readback_write_shaped" },
+    ]);
+    // It is still a write by the vocabulary, so it can never sit in the
+    // measurement registry: the read side's audit refuses it there.
+    expect(isWriteCapable("instagram_manage_insights")).toBe(true);
   });
 
   it("every consent line explains a registered scope, and every scope has one", () => {
@@ -144,6 +254,7 @@ describe("P3-08 — honest naming and the money fence", () => {
       "write_bank_details",
       "manage_invoices",
       "edit_subscription_plan",
+      "act_123/funding_source_details",
     ]) {
       expect(touchesMoneySurface(term)).toBe(true);
     }
