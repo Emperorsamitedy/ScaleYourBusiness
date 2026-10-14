@@ -400,6 +400,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "erasure", // Phase 4 rule 22: the fact of an erasure, never its PII
   "import", // Phase 4 P4-03: a contact import batch — hash and counts, no PII
   "takeover", // P3-43: day zero — the business enters care; ref is the frozen snapshot
+  "consent", // P3-20h: write access granted (rule 13); ref is the execute connection
 ]);
 
 export const decisionLog = pgTable(

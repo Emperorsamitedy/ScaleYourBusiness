@@ -777,7 +777,7 @@ interface DecisionLogEntry {
   profile_id: BusinessProfileId;
   at: ISODateTime;
   actor: "system" | "owner";
-  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover";
+  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent";
   ref_id: string;
   payload_hash: string;
 }
@@ -804,6 +804,8 @@ interface GoalBaseline {
   days_measured: number;                       // ≥ 21, or there is no baseline
 }
 ```
+
+**`consent`** (P3-20h, rule 13) is write access granted: written by the owner when an execute connection is made through the consent screen. Its `ref_id` is the connection, and its hash covers the provider, the scopes granted, the consent lines shown verbatim and the confirmation the owner typed, so what was agreed to stays checkable after the registry changes. Disconnecting revokes nothing on the platform's side and writes no consent row; the connection keeps its own `disconnected_at`.
 
 **`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
 

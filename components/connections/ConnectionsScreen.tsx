@@ -10,11 +10,13 @@
 // system suggests, the owner confirms, and nothing is stored until they do.
 // The connect form's instructions are the scope registry rendered
 // (SCOPE_GUIDE), so the screen cannot promise a permission the code
-// doesn't declare.
+// doesn't declare. Below it, the Execution section (P3-20h) keeps write
+// access visibly apart: its own heading, colour and consent.
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ProposalsBadge } from "../proposals/ProposalsBadge";
+import { ExecutionSection } from "./ExecutionSection";
 
 type Verification = "reported" | "probed";
 type Matching = "product" | "channel" | null;
@@ -803,7 +805,7 @@ export function ConnectionsScreen() {
     <main className="ops-shell">
       <header className="ops-head">
         <span className="wordmark">Ledgerline</span>
-        <span className="ops-meta">connections · read-only · {live.length} active</span>
+        <span className="ops-meta">connections · {live.length} read-only active</span>
       </header>
 
       {notice !== null && (
@@ -853,6 +855,9 @@ export function ConnectionsScreen() {
           </ul>
         </section>
       )}
+
+      {/* P3-20h: write access, visibly apart from everything above. */}
+      <ExecutionSection />
 
       <p className="conn-note">
         Google Ads isn&rsquo;t available yet: it needs Ledgerline&rsquo;s own approval from Google

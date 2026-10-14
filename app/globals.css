@@ -4846,6 +4846,22 @@ a.auth-cta {
   border-color: var(--ember-bright);
   color: var(--ember-bright);
 }
+/* P3-20h: write access is its own colour, never the read-only ember. */
+.conn-badge.write {
+  border-color: var(--whisper);
+  color: var(--whisper);
+}
+.exec-card {
+  box-shadow: inset 3px 0 0 var(--whisper);
+}
+.exec-heading {
+  margin: 28px 0 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--whisper);
+}
 .conn-facts {
   display: grid;
   grid-template-columns: max-content 1fr;

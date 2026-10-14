@@ -35,3 +35,14 @@ export const env: Record<RequiredKey, string> = {
     return read("BLOB_READ_WRITE_TOKEN");
   },
 };
+
+export type MetaAccessLevel = "standard" | "advanced";
+
+/**
+ * P3-20i: what Meta has approved SYB for. Optional, and anything but
+ * "advanced" reads as "standard" — the screen must never claim an access
+ * level Meta hasn't granted, so the safe reading is the default.
+ */
+export function metaAccessLevel(): MetaAccessLevel {
+  return process.env.META_ACCESS_LEVEL === "advanced" ? "advanced" : "standard";
+}
