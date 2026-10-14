@@ -50,6 +50,12 @@ export const SCOPE_REGISTRY = {
    * anything beyond ads_read refuses the connection.
    */
   meta_ads: ["ads_read"],
+  /**
+   * Google Search Console (P2-33). The read-only scope, read back from
+   * tokeninfo at connect time like GA4's. Name checked in Google's docs
+   * 2026-10-13.
+   */
+  search_console: ["https://www.googleapis.com/auth/webmasters.readonly"],
 } as const satisfies Record<string, readonly string[]>;
 
 export interface ScopeGuideEntry {
@@ -139,6 +145,13 @@ export const SCOPE_GUIDE: Readonly<
       scope: "ads_read",
       grant: "ads_read",
       why: "Daily ad spend and the purchases Meta attributes to your ads. Nothing that could edit a campaign.",
+    },
+  ],
+  search_console: [
+    {
+      scope: "https://www.googleapis.com/auth/webmasters.readonly",
+      grant: "Restricted permission on the property is enough",
+      why: "The Google searches your site appeared for, how often, and how often people clicked. It can read reports and change nothing.",
     },
   ],
 };

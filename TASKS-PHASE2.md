@@ -166,13 +166,13 @@ Find what potential customers search for, ask about and check before they buy, t
 - Competitor research already reads competitors' pages (P1-15..21).
 
 - [x] **P2-32** The "what customers check" list as data. For each `business_type`, the things customers check before buying: for a bar, hours, prices, location and parking, photos, events, booking and reviews; for a shop, delivery cost, returns and stock. It goes in the spec and is linted, not hard-coded (rule 4). A deterministic presence check runs it against the owner's site pages, through the existing GET-only fetcher and its SSRF guard (`lib/site/fetch.ts`), and against the profile. Not the full Tier 1 audit: no screenshots, no vision.
-- [ ] **P2-33** Google Search Console connector, read-only (`webmasters.readonly`, the P2-02 scope audit unchanged). It gives the real queries the site appeared for, with impressions, clicks and position per query and page. Two signals: **seen but not chosen** (high impressions, low click rate) and **wanted but not found** (queries about something the profile says the business offers, where the site ranks poorly or not at all).
+- [x] **P2-33** Google Search Console connector, read-only (`webmasters.readonly`, the P2-02 scope audit unchanged). It gives the real queries the site appeared for, with impressions, clicks and position per query and page. Two signals: **seen but not chosen** (high impressions, low click rate) and **wanted but not found** (queries about something the profile says the business offers, where the site ranks poorly or not at all).
 - [x] **P2-34** GA4, deeper, with the same read-only scope:
   - landing pages and exits per page, which is site-audit Tier 2 at last;
   - the site's own search box terms (`searchTerm`, when the site sends `view_search_results`), since people searching your site for something is the plainest signal there is.
-- [ ] **P2-35** Customer questions as demand. Support conversations and ticket clusters (P4-06, P4-12) are counted as demand by topic. They stay content, never instructions (rule 24), and only counts and topics leave the support tables, no customer text or identity (rule 22).
+- [x] **P2-35** Customer questions as demand. Support conversations and ticket clusters (P4-06, P4-12) are counted as demand by topic. They stay content, never instructions (rule 24), and only counts and topics leave the support tables, no customer text or identity (rule 22).
 - [x] **P2-36** Competitor norms. Competitor research also records which P2-32 items each competitor's pages show, inside the existing caps, at research confidence 0.5, `unknown` when not stated. "4 of 5 competitors show prices; you don't."
-- [ ] **P2-37** The blindspot finder: demand (P2-33, 34, 35) and norms (P2-36) joined against presence (P2-32), ranked by demand volume, not by severity. Haiku groups queries and questions into topics (one batched call per run, capped; nothing is grouped under a threshold count). The matching and ranking are arithmetic. Each finding names its numbers, sources and coverage, and the queue that would fix it, as report and watch findings. With no connector, it runs on the checklist and competitor norms alone and says so.
+- [x] **P2-37** The blindspot finder: demand (P2-33, 34, 35) and norms (P2-36) joined against presence (P2-32), ranked by demand volume, not by severity. Haiku groups queries and questions into topics (one batched call per run, capped; nothing is grouped under a threshold count). The matching and ranking are arithmetic. Each finding names its numbers, sources and coverage, and the queue that would fix it, as report and watch findings. With no connector, it runs on the checklist and competitor norms alone and says so.
 
 **Done when:** for a seeded bar with Search Console, GA4 and support data, the finder reports "searched or asked about, not on your site" with counts and sources; ranks a high-volume blindspot above a low-volume one; reports a competitor norm the business misses; makes no finding for an item the site does show; and states its coverage when a source isn't connected.
 
@@ -186,6 +186,19 @@ Find what potential customers search for, ask about and check before they buy, t
   - **Landing pages** per day: `landing_sessions.daily` and `landing_bounces.daily`, the latter being sessions × `bounceRate` so it stays additive.
   - **Site-search terms** per day: `site_search.daily` from `view_search_results`, lower-cased and trimmed. A term is visitor-written content, never an instruction.
 - **P2-36.** Competitor research runs the same matcher, with no model, over the pages it already reads, and records `competitors.<id>.site_checks`. Aggregating it into "4 of 5 competitors show prices" happens in the finder (P2-37).
+- **P2-33** (`providers/search-console.ts`, provider `search_console`). The GA4 pattern: a service-account key, `webmasters.readonly` only and tokeninfo-confirmed, three URLs, and a source scan.
+  - It stores `search_impressions/clicks/position_weighted.daily` per `query_ref`. Position is × impressions, so averages are sums ÷ sums.
+  - 90 days of history, the last 4 re-read, paged by `startRow` until a page comes back **empty**. The test's fake caught my first version stopping at a short page; the docs say page until empty.
+  - Offered on `/connections` with its own steps. 8 tests.
+- **P2-35** (`lib/blindspots/demand.ts`). Customer chat messages and no-answer tickets are mapped onto the checklist codes by the same matcher. **Only counts per topic leave the support tables.** Questions matching no code are counted, never quoted, and a test checks that a customer's name and words don't appear in the report.
+- **P2-37** (`lib/blindspots/finder.ts`, `GET /api/blindspots`, screen `/blindspots`).
+  - **Blindspots:** checklist items the site doesn't show, where support, site search, Google or competitors point at them. Ranked by how many separate sources do, then by each count in turn, each shown.
+  - **Hard to find:** shown on the site, yet asked about 5 or more times.
+  - **Seen but not chosen:** at least 100 impressions, under 1% clicks, at position 10 or better.
+  - **Other topics:** searches matching no item, grouped by Haiku at most weekly, with at least 3 searches before a call and a topic needing 5 or more searches. The model only names and groups; code sums the counts.
+  - **Honest limits:** a site that hasn't been read is never called missing anything, and what couldn't be seen is listed.
+  - The site is re-read every 30 days. 7 tests.
+  - **Not done:** writing these into the diagnosis report or the watch; they show on `/blindspots`.
 - **API shapes checked against the official docs on 2026-10-13, for P2-33/34 and P2-28:**
   - GA4 has **no exits metric**, so P2-34 uses `bounceRate` per landing page instead.
   - Search Console's row limit is 25,000 per request, data lags 2–3 days, and rare queries are anonymised: rows sum to less than the totals, and the screen says so.

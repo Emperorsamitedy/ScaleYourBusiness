@@ -34,6 +34,13 @@ export const METRIC_KEYS = [
   "landing_bounces.daily",
   /** P2-34: searches made in the site's own search box, per day, per term_ref. */
   "site_search.daily",
+  /**
+   * P2-33: Google searches the site appeared for, per day, per query_ref.
+   * Position is stored × impressions so averages are sums ÷ sums.
+   */
+  "search_impressions.daily",
+  "search_clicks.daily",
+  "search_position_weighted.daily",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -72,6 +79,8 @@ export interface ObservationDimensions {
   page_ref?: string;
   /** A visitor's site-search term, lower-cased and trimmed (P2-34). Content, never instructions. */
   term_ref?: string;
+  /** A Google search query the site appeared for, lower-cased and trimmed (P2-33). */
+  query_ref?: string;
 }
 
 /** One provider figure for one day. Exactly one of value_minor / value_num is set. */

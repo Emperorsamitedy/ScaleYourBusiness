@@ -20,6 +20,7 @@ import { mappingKindFor } from "../../../lib/connectors/mapping";
 import { FIXTURE_BACKFILL_DAYS } from "../../../lib/connectors/providers/fixture";
 import { GA4_HISTORY_DAYS } from "../../../lib/connectors/providers/ga4";
 import { META_HISTORY_DAYS } from "../../../lib/connectors/providers/meta-ads";
+import { SC_HISTORY_DAYS } from "../../../lib/connectors/providers/search-console";
 import { historyDaysFor } from "../../../lib/connectors/providers/shopify";
 import { STRIPE_BACKFILL_DAYS } from "../../../lib/connectors/providers/stripe";
 import { WOO_BACKFILL_DAYS } from "../../../lib/connectors/providers/woocommerce";
@@ -49,6 +50,8 @@ function historyDays(provider: string, grantedScopes: readonly string[]): number
       return GA4_HISTORY_DAYS;
     case "meta_ads":
       return META_HISTORY_DAYS;
+    case "search_console":
+      return SC_HISTORY_DAYS;
     default:
       return FIXTURE_BACKFILL_DAYS;
   }
@@ -56,7 +59,14 @@ function historyDays(provider: string, grantedScopes: readonly string[]): number
 
 /** The fixture exists for tests and local UI work. It is never offered in production. */
 function offered(): ProviderId[] {
-  const live: ProviderId[] = ["stripe", "shopify", "woocommerce", "ga4", "meta_ads"];
+  const live: ProviderId[] = [
+    "stripe",
+    "shopify",
+    "woocommerce",
+    "ga4",
+    "meta_ads",
+    "search_console",
+  ];
   return process.env.NODE_ENV === "production" ? live : [...live, "fixture"];
 }
 

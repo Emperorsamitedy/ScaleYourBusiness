@@ -43,6 +43,7 @@ import type { ProposalOutcome } from "../trust/readback";
 import { READBACK } from "../trust/readback";
 import { shiftDay } from "../trust/series";
 import { suppressedKinds } from "../trust/suppression";
+import { groupDemandTopics } from "../blindspots/finder";
 import { parseCompetitorHours } from "./competitors";
 import type { Weekday } from "./schedule";
 import type { WeekdayAnalysis } from "./trading";
@@ -488,6 +489,7 @@ export async function runHoursTrials(
     try {
       await syncRunningTrials(profile_id, now);
       await parseCompetitorHours(profile_id);
+      await groupDemandTopics(profile_id, { now }); // P2-37: at most once a week, ≥3 searches
       created += (await proposeHoursTrials(profile_id, { now })).created.length;
     } catch (error) {
       failed++;

@@ -401,6 +401,41 @@ pin question counts. They're updated here (153 → 154).
 
 ---
 
+## Built — customer blindspots, and the rest of trading hours (2026-10-13)
+
+`TASKS-PHASE2.md` Sessions F and G; every API shape was checked against
+the official docs first.
+
+- **`/blindspots`** compares what potential customers want with what the
+  site shows:
+  - **Missing from your site:** things customers asked the support chat,
+    typed into the site's search box or searched on Google, or that
+    competitors show.
+  - **Hard to find:** things the site does show that people keep asking
+    about anyway.
+  - **Seen, not clicked:** Google searches where the site appears on
+    page one but rarely gets the click.
+
+  No customer's words ever leave the support system; only counts do.
+
+- **New connection: Google Search Console** (read-only).
+- **Google Analytics** now also reads visits by hour, landing pages and
+  site searches.
+- **`/hours`** gains:
+  - when people look the business up online before it opens;
+  - when competitors open, from their own pages;
+  - a timezone picker for countries with several timezones.
+- **Trials:** a running trial is recorded in the profile, and its verdict
+  now counts in the agent's scorecard.
+- **Found in the docs:**
+  - Google Analytics has no "exits" figure, so bounce rate is used instead.
+  - **Square records cash rung up on its tills**, so cash becomes
+    measurable for Square businesses.
+  - Instagram no longer lists its "followers online by hour" figure, so
+    it isn't used.
+
+---
+
 ## Next
 
 1. **Tedi:** the Stripe key on production, test payments, the first

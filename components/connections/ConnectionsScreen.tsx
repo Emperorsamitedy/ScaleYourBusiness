@@ -478,6 +478,26 @@ function Steps({ provider }: { provider: ProviderOption }) {
           </li>
         </ol>
       );
+    case "search_console":
+      return (
+        <ol className="conn-steps">
+          <li>
+            In <strong>Google Cloud Console</strong>, enable the{" "}
+            <strong>Google Search Console API</strong> on a project and create a service account
+            with a <strong>JSON key</strong> — the same one you use for Google Analytics is fine.
+          </li>
+          <li>
+            In <strong>Search Console</strong>, open <strong>Settings</strong>, then{" "}
+            <strong>Users and permissions</strong>, and add the service account&rsquo;s email:
+            <GuideList guide={provider.guide} />
+          </li>
+          <li>
+            Enter the property exactly as Search Console names it, with the contents of the key
+            file. Rare searches are hidden by Google for privacy, so the searches I read add up to a
+            little less than Google&rsquo;s own total.
+          </li>
+        </ol>
+      );
     case "meta_ads":
       return (
         <ol className="conn-steps">
