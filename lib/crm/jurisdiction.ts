@@ -201,12 +201,24 @@ const REQUIREMENT_WORDS: Record<MessageRequirement, string> = {
   unsubscribe: "a working unsubscribe link",
 };
 
-/** Pure: what the message is missing under these regimes, in the owner's words. Empty = complete. */
-export function messageGaps(message: MarketingMessage, regimes: readonly Regime[]): string[] {
+/**
+ * Pure: what the message is missing under these regimes, in the owner's
+ * words. Empty = complete. Scope "draft" checks only what a draft itself
+ * carries — the sender's name, the postal address, the disclosure — since
+ * the sending address and each recipient's unsubscribe link are added at
+ * send time (P4-15), where scope "send" checks everything.
+ */
+export function messageGaps(
+  message: MarketingMessage,
+  regimes: readonly Regime[],
+  scope: "send" | "draft" = "send",
+): string[] {
   const required = new Set<MessageRequirement>(regimes.flatMap((r) => r.requires));
+  if (scope === "draft") required.delete("unsubscribe");
+  const named = message.sender_name.trim() !== "";
   const has: Record<MessageRequirement, boolean> = {
     sender_identity:
-      message.sender_name.trim() !== "" && /^[^@\s]+@[^@\s]+$/.test(message.sender_email.trim()),
+      scope === "draft" ? named : named && /^[^@\s]+@[^@\s]+$/.test(message.sender_email.trim()),
     postal_address: (message.postal_address ?? "").trim() !== "",
     unsubscribe: /^https:\/\/\S+$/.test((message.unsubscribe_url ?? "").trim()),
   };
@@ -214,7 +226,9 @@ export function messageGaps(message: MarketingMessage, regimes: readonly Regime[
     .filter((r) => required.has(r) && !has[r])
     .map((r) => {
       const why = regimes.filter((g) => g.requires.includes(r)).map((g) => g.label.split(" — ")[0]);
-      return `${REQUIREMENT_WORDS[r]} (${why.join(", ")})`;
+      const words =
+        scope === "draft" && r === "sender_identity" ? "the business's name" : REQUIREMENT_WORDS[r];
+      return `${words} (${why.join(", ")})`;
     });
   // Rule 17 holds everywhere, whatever the regime says.
   if (message.disclosure.trim() === "") gaps.push("the AI disclosure line (SYB, everywhere)");

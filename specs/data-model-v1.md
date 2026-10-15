@@ -372,6 +372,8 @@ Trading hours (Phase 2 Session F, bank 1.3.0):
   derived for a multi-zone country.
 - `presence.open_hour_cost` is `Field<Money>`, from question 2.1.1.7a.
 
+Email marketing (Phase 4 Session F, bank 1.4.0): `legal.postal_address` is the owner's own words for the address at the foot of marketing emails (question 11.1e, asked unless the owner's consent posture is `no_consent`). The US and Canada require one in every marketing message (`lib/crm/jurisdiction.ts`); a send under those regimes without it is refused by name.
+
 The connector metrics `revenue.hourly` and `orders.hourly` carry
 `dimensions.hour_utc` ("00"–"23"), with `period_date` the UTC date. They
 are stored in UTC and read in the business's clock with a 05:00

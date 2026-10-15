@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.3.0",
+  "bank_version": "1.4.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -3931,6 +3931,29 @@
         "op": "neq",
         "field": "presence.type",
         "value": "physical_only"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "11.1e",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.postal_address",
+      "prompt": {
+        "en": "What postal address should appear at the foot of your marketing emails?"
+      },
+      "help_text": {
+        "en": "The US and Canada require a real postal address in every marketing email; elsewhere it's good practice. A PO box you check is fine."
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "customers.marketing_consent_status",
+        "value": "no_consent"
       },
       "priority": "important",
       "cost": 1
