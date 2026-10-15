@@ -612,7 +612,7 @@ export function ReportScreen() {
           <h2>Your trading hours</h2>
           <p className="rp-body">
             From measured hourly sales, {report.trading_hours.from} to {report.trading_hours.to}.{" "}
-            {report.trading_hours.coverage}
+            Measured: {report.trading_hours.coverage}.
           </p>
           {report.trading_hours.findings.length === 0 && (
             <p className="rp-body">No signal fires on any measured day.</p>

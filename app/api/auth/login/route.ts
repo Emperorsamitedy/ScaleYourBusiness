@@ -14,7 +14,7 @@ import { ResumeError } from "../../../../lib/intake/resume";
 const INTAKE_COOKIE = "syb_intake_profile";
 
 function appUrl(request: NextRequest): string {
-  return process.env.APP_URL ?? new URL(request.url).origin;
+  return process.env.APP_URL || new URL(request.url).origin;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

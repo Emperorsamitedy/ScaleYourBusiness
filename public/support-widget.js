@@ -14,6 +14,10 @@
   "use strict";
   var script = document.currentScript;
   if (!script) return;
+  // One assistant per page, however many times the tag runs (pasted twice,
+  // or a framework re-inserting it): a second launcher would be a second
+  // conversation the visitor can't tell apart.
+  if (document.querySelector(".syb-sw-launch")) return;
   var siteKey = script.getAttribute("data-site-key");
   if (!siteKey) return;
   var origin = script.getAttribute("data-origin") || new URL(script.src, location.href).origin;

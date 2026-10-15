@@ -66,7 +66,7 @@ describe("P3-20h — what the consent screen offers", () => {
     for (const id of OFFERED_EXECUTION) {
       const steps = EXECUTION_SETUP[id]?.own_app_steps ?? [];
       expect(steps.length).toBeGreaterThanOrEqual(4);
-      expect(steps.join(" ")).toMatch(/exactly the permissions? listed below/);
+      expect(steps.join(" ")).toMatch(/exactly the permissions? listed above/);
     }
   });
 });

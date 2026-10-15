@@ -34,7 +34,7 @@ export interface VoiceCard {
 }
 
 const IDENTITY_KEYS: readonly { key: string; frame: (v: string) => string }[] = [
-  { key: "identity.business_name", frame: (v) => `The business is called ${v}.` },
+  { key: "identity.legal_name", frame: (v) => `The business is called ${v}.` },
   { key: "identity.one_liner", frame: (v) => `In the owner's words, it is: ${v}` },
   { key: "customers.description", frame: (v) => `They describe their customers as: ${v}` },
   { key: "presence.brand_tone", frame: (v) => `Stated brand tone: ${v}` },
