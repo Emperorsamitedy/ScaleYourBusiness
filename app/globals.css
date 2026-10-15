@@ -4893,6 +4893,12 @@ a.auth-cta {
 .conn-note a {
   color: inherit;
 }
+/* Links inside body copy read as the copy, underlined — never the browser's blue. */
+.auth-copy a {
+  color: inherit;
+  text-decoration-color: rgba(245, 155, 75, 0.6);
+  text-underline-offset: 3px;
+}
 .conn-actions {
   display: flex;
   gap: 12px;

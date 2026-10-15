@@ -26,6 +26,7 @@ import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { connectForExecution, expectedExecutionScopes } from "../execution/connections";
+import { consentToExecution } from "../execution/consent";
 import { preboundPlan } from "../execution/due";
 import { bootstrapIntake } from "../intake/service";
 import { writeField } from "../profile/field-store";
@@ -322,6 +323,26 @@ describe("P3-21a — proposePublishing", () => {
       .where(inArray(contentItems.id, [fb.id, past.id]));
     const notes = await publishNotes(b.profile_id, items);
     expect(notes[fb.id]).toBe("connect Meta publishing on Connections to publish this to Facebook");
+  });
+
+  it("consenting to Meta publishing offers the drafts that were waiting for it", async () => {
+    const b = await business(false);
+    const fb = await b.item(b.facebook, "facebook", "2026-12-10");
+    const before = await db.select().from(contentItems).where(eq(contentItems.id, fb.id));
+    expect(before[0]?.publish_proposal_id).toBeNull(); // drafted before Meta existed
+
+    const { proposed } = await consentToExecution({
+      accountId: b.account_id,
+      provider: "meta_publish",
+      secret: JSON.stringify({ access_token: "EAAconsentLater", page_id: ASSETS.page_id }),
+      confirmation: "allow publishing",
+      verify: async () => ({ granted_scopes: expectedExecutionScopes("meta_publish") }),
+      limitLlm: limitsLlm,
+      now: NOW,
+    });
+    expect(proposed).toBe(1);
+    const [after] = await db.select().from(contentItems).where(eq(contentItems.id, fb.id));
+    expect(after?.publish_proposal_id).not.toBeNull();
   });
 
   it("a draft whose date has passed is not proposed", async () => {

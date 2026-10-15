@@ -6,11 +6,18 @@
 // and what was typed. Consent and connection stand or fall together: if
 // the log write fails, the fresh connection is disconnected again, so no
 // write credential ever sits at rest without its consent on record.
+//
+// Consent to publishing also picks up the drafts already waiting: every
+// drafted item with no publish proposal is offered for publishing now
+// (P3-21a), so connecting Meta isn't a dead end for what was drafted
+// before it. That step can fail without touching the consent.
 
 import { createHash } from "node:crypto";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
-import { businessProfiles, decisionLog } from "../../db/schema";
+import { businessProfiles, contentItems, decisionLog } from "../../db/schema";
+import { proposePublishing } from "../content/publish";
+import type { LimitLlm } from "../proposals/hard-limits";
 import type { CredentialVerifier, PublicExecutionConnection } from "./connections";
 import { ExecutionConnectionError, connectForExecution, disconnectExecution } from "./connections";
 import type { ExecutionProviderId } from "./scopes";
@@ -48,12 +55,58 @@ export function consentLines(provider: ExecutionProviderId): string[] {
   return EXECUTION_SCOPE_REGISTRY[provider].consent.map((c) => c.why);
 }
 
+/**
+ * After consent to publishing: offer every waiting draft for publishing.
+ * Logged, never thrown — the consent and connection already stand.
+ */
+async function proposeWaitingDrafts(
+  profileId: string,
+  provider: ExecutionProviderId,
+  args: ConsentArgs,
+): Promise<number> {
+  if (provider !== "meta_publish") return 0;
+  try {
+    const waiting = await db
+      .select({ id: contentItems.id })
+      .from(contentItems)
+      .where(
+        and(
+          eq(contentItems.profile_id, profileId),
+          eq(contentItems.status, "drafted"),
+          isNull(contentItems.publish_proposal_id),
+        ),
+      );
+    const run = await proposePublishing(
+      profileId,
+      waiting.map((w) => w.id),
+      {
+        ...(args.limitLlm ? { limitLlm: args.limitLlm } : {}),
+        ...(args.now ? { now: args.now } : {}),
+      },
+    );
+    return run.created.length;
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "consent_publish_proposals_failed",
+        account_id: args.accountId,
+        profile_id: profileId,
+        name: error instanceof Error ? error.name : "unknown",
+      }),
+    );
+    return 0;
+  }
+}
+
 export interface ConsentArgs {
   accountId: string;
   provider: string;
   secret: string;
   confirmation: string;
   verify: CredentialVerifier;
+  /** Passed to the hard limits when waiting drafts are proposed (tests use a stand-in). */
+  limitLlm?: LimitLlm;
+  now?: Date;
 }
 
 /**
@@ -63,7 +116,7 @@ export interface ConsentArgs {
  */
 export async function consentToExecution(
   args: ConsentArgs,
-): Promise<{ connection: PublicExecutionConnection; consent_hash: string }> {
+): Promise<{ connection: PublicExecutionConnection; consent_hash: string; proposed: number }> {
   if (!isExecutionProviderId(args.provider) || !OFFERED_EXECUTION.includes(args.provider)) {
     throw new ExecutionConnectionError(`"${args.provider}" is not offered for execution`, 422);
   }
@@ -119,5 +172,9 @@ export async function consentToExecution(
       connection_id: connection.id,
     }),
   );
-  return { connection, consent_hash };
+  return {
+    connection,
+    consent_hash,
+    proposed: await proposeWaitingDrafts(profile.id, provider, args),
+  };
 }
