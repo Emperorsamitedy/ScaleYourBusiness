@@ -23,6 +23,7 @@
 // escaped quotes, flexible header names. No model anywhere near it —
 // reading a spreadsheet is not inference (cost rule).
 
+import { countryCode } from "../hours/timezone";
 import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
@@ -81,6 +82,7 @@ interface Columns {
   last_purchase: number;
   orders: number;
   spent: number;
+  country: number;
 }
 
 /** Header → column role, tolerant of the spellings spreadsheets (and shop exports) grow. */
@@ -109,7 +111,29 @@ function mapHeader(header: string[]): Columns {
     ),
     orders: find("orders", "orderscount", "ordercount", "totalorders", "numberoforders"),
     spent: find("totalspent", "totalspend", "spent", "spend", "lifetimevalue", "ltv"),
+    country: find(
+      "country",
+      "countrycode",
+      "billingcountry",
+      "shippingcountry",
+      "countryregion",
+      "defaultaddresscountry",
+      "defaultaddresscountrycode",
+    ),
   };
+}
+
+/**
+ * A country as an ISO alpha-2 code: the names owners' exports carry (the
+ * shared country table), or any bare two-letter code. Anything else is
+ * null and counted, never guessed.
+ */
+export function parseCountry(raw: string): string | null {
+  const v = raw.trim();
+  if (v === "") return null;
+  const known = countryCode(v);
+  if (known) return known;
+  return /^[A-Za-z]{2}$/.test(v) ? v.toUpperCase() : null;
 }
 
 /** ISO-ish dates and the common day-month-year spellings; anything else is null, never guessed. */
@@ -185,6 +209,8 @@ export interface ImportResult {
   };
   /** Purchase columns present in the header, and values that could not be read (left null). */
   purchase: { columns: string[]; unreadable: number };
+  /** Whether the file had a country column, and how many values could not be read (left null). */
+  country: { column: boolean; unreadable: number };
   rows: RowOutcome[];
 }
 
@@ -240,6 +266,8 @@ export async function importContacts(
   const counts = { suppressed: 0, already_exists: 0, duplicate_in_batch: 0, invalid: 0 };
   let imported = 0;
   let unreadable = 0;
+  let countryUnreadable = 0;
+  const hasCountry = columns.country !== -1;
 
   for (const raw of parsed.slice(1)) {
     const cell = (i: number) => (i >= 0 ? (raw[i] ?? "").trim() : "");
@@ -283,6 +311,9 @@ export async function importContacts(
     if (lastPurchaseRaw && lastPurchase === null) unreadable++;
     if (ordersRaw && orders === null) unreadable++;
     if (spentRaw && spent === null) unreadable++;
+    const countryRaw = cell(columns.country);
+    const country = countryRaw ? parseCountry(countryRaw) : null;
+    if (countryRaw && country === null) countryUnreadable++;
 
     try {
       const [inserted] = await db
@@ -299,6 +330,7 @@ export async function importContacts(
           orders_count: orders,
           total_spent_minor: spent,
           spent_currency: spent === null ? null : currency,
+          country,
         })
         .returning({ id: contacts.id });
       imported++;
@@ -335,6 +367,7 @@ export async function importContacts(
             imported,
             ...counts,
             purchase_columns: purchaseColumns,
+            country_column: hasCountry,
           }),
         )
         .digest("hex"),
@@ -349,6 +382,8 @@ export async function importContacts(
       ...counts,
       purchase_columns: purchaseColumns,
       unreadable,
+      country_column: hasCountry,
+      country_unreadable: countryUnreadable,
     }),
   );
   return {
@@ -356,6 +391,7 @@ export async function importContacts(
     imported,
     skipped: counts,
     purchase: { columns: purchaseColumns, unreadable },
+    country: { column: hasCountry, unreadable: countryUnreadable },
     rows,
   };
 }

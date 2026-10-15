@@ -99,6 +99,7 @@ export async function GET(): Promise<NextResponse> {
         orders_count: c.orders_count,
         total_spent_minor: c.total_spent_minor,
         spent_currency: c.spent_currency,
+        country: c.country,
       })),
       lifecycle: report.lifecycle,
       segments: report.segments.map((s) => ({

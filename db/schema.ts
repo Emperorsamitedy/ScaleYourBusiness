@@ -1460,6 +1460,12 @@ export const contacts = pgTable(
     /** Integer minor units + currency, together or not at all (rule 1). */
     total_spent_minor: bigint("total_spent_minor", { mode: "number" }),
     spent_currency: text("spent_currency"),
+    /**
+     * P4-16 follow-up: the recipient's country, ISO alpha-2, from the shop
+     * export. Their own email rules apply beside the business's (rule 23);
+     * null = unknown, and only the business's regime applies.
+     */
+    country: text("country"),
   },
   (t) => [
     uniqueIndex("contacts_account_email_idx")
