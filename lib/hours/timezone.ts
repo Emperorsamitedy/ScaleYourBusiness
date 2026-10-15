@@ -125,6 +125,19 @@ export function zoneForCountry(raw: string): ZoneLookup {
   return { zone: null, reason: `"${raw.trim()}" isn't a country this map knows` };
 }
 
+/** Pure: the ISO alpha-2 code for a country as the owner typed it, or null. Shared with P4-16. */
+export function countryCode(raw: string): string | null {
+  const text = norm(raw);
+  if (text === "") return null;
+  for (const [code, entry] of Object.entries(SINGLE_ZONE)) {
+    if (text === code.toLowerCase() || entry.names.includes(text)) return code;
+  }
+  for (const [code, names] of Object.entries(MULTI_ZONE)) {
+    if (text === code.toLowerCase() || names.includes(text)) return code;
+  }
+  return null;
+}
+
 export function isValidZone(zone: string): boolean {
   try {
     new Intl.DateTimeFormat("en", { timeZone: zone });
