@@ -31,11 +31,27 @@ interface SegmentView {
   evidence: string[];
 }
 
+interface CampaignView {
+  proposal_id: string;
+  summary: string;
+  label: string | null;
+  approved_at: string | null;
+  draft: { id: string; title: string; body: string } | null;
+  /** What the law where the business is still wants from the draft. */
+  gaps: string[];
+  /** Added per recipient at send time, never in the draft. */
+  at_send: string[];
+  /** The bank questions that close the gaps. */
+  ask: { question_id: string; label: string }[];
+}
+
 interface Payload {
   posture: "enabled" | "caution" | "disabled" | "unknown";
   contacts: Contact[];
   lifecycle: Record<Contact["lifecycle"], number>;
   segments: SegmentView[];
+  /** P4-16: absent from an older API. */
+  campaigns?: CampaignView[];
 }
 
 type State =
@@ -209,6 +225,55 @@ export function CustomersScreen() {
           </Link>
         </div>
       </section>
+
+      {(s.campaigns ?? []).length > 0 && (
+        <section className="card ops-card">
+          <span className="auth-eyebrow">approved campaigns — drafted, never sent from here</span>
+          {(s.campaigns ?? []).map((c) => (
+            <article key={c.proposal_id} className="ct-item">
+              <div className="ct-item-head">
+                <span className="prop-tag">{c.label ?? "campaign"}</span>
+                <span className="ct-item-title">{c.summary}</span>
+                {c.draft === null && (
+                  <button
+                    className="prop-btn signal"
+                    disabled={s.busy}
+                    onClick={() =>
+                      void act({ action: "draft_campaign", proposal_id: c.proposal_id }, (j) =>
+                        j.fresh
+                          ? "Drafted in your voice, with the AI disclosure and the footer. Read it below — nothing has been sent."
+                          : "This campaign already has its draft.",
+                      )
+                    }
+                  >
+                    Draft the email
+                  </button>
+                )}
+              </div>
+              {c.draft && <pre className="ct-body">{c.draft.body}</pre>}
+              {c.gaps.length > 0 ? (
+                <p className="conn-note">
+                  Before it can send, it still needs: {c.gaps.join("; ")}.{" "}
+                  {c.ask.map((q) => (
+                    <Link
+                      key={q.question_id}
+                      href={`/intake?ask=${encodeURIComponent(q.question_id)}`}
+                      style={{ marginRight: 12 }}
+                    >
+                      {q.label}
+                    </Link>
+                  ))}
+                </p>
+              ) : (
+                <p className="conn-note">
+                  Complete for where you are. Added at send time: {c.at_send.join(" and ")}, after
+                  consent is checked again for every recipient.
+                </p>
+              )}
+            </article>
+          ))}
+        </section>
+      )}
 
       <section className="card ops-card">
         <span className="auth-eyebrow">import — under your attestation</span>

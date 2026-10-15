@@ -19,7 +19,7 @@ export async function GET(
   { params }: { params: Promise<{ provider: string }> },
 ): Promise<NextResponse> {
   const { provider: providerId } = await params;
-  const origin = process.env.APP_URL ?? new URL(request.url).origin;
+  const origin = process.env.APP_URL || new URL(request.url).origin;
   const from = request.nextUrl.searchParams.get("from") === "signin" ? "/login" : "/signup";
 
   if (!KNOWN_PROVIDERS.includes(providerId)) {

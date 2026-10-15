@@ -11,7 +11,7 @@ import { db } from "../../db";
 import { businessProfiles, supportSettings } from "../../db/schema";
 import { readCurrentField } from "../profile/field-store";
 import type { SupportSettingsRow } from "../support/settings";
-import { settingsForProfile } from "../support/settings";
+import { DEFAULT_BUSINESS_NAME, settingsForProfile } from "../support/settings";
 
 export class SupportSettingsError extends Error {
   readonly status: number;
@@ -23,7 +23,8 @@ export class SupportSettingsError extends Error {
 }
 
 export const BUSINESS_NAME_KEY = "identity.legal_name";
-export const DEFAULT_BUSINESS_NAME = "this business";
+// One default, owned by the support tier it is shown in (lib/crm may import lib/support, never the reverse).
+export { DEFAULT_BUSINESS_NAME };
 
 function newSiteKey(): string {
   return randomBytes(16).toString("hex");

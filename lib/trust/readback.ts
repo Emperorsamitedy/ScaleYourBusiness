@@ -14,10 +14,14 @@
 // Today every kind is judged on revenue.daily — the honest default
 // until per-post readback (P3-23, Session D) gives finer attribution.
 
-import { and, eq, gte, inArray, lte } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../../db";
-import { businessProfiles, connections, executions, metricObservations } from "../../db/schema";
+import { executions } from "../../db/schema";
 import type { ProposalRow } from "../proposals/service";
+import type { WindowStat } from "./series";
+import { dailySeries, shiftDay, windowStat } from "./series";
+
+export type { WindowStat } from "./series";
 
 export const READBACK = {
   /** Relative change at or above this: helped. */
@@ -33,13 +37,6 @@ export const READBACK = {
 } as const;
 
 export type OutcomeVerdict = "helped" | "did_nothing" | "backfired" | "too_early" | "unmeasured";
-
-export interface WindowStat {
-  from: string;
-  to: string;
-  days_measured: number;
-  mean_minor: number;
-}
 
 export interface ProposalOutcome {
   proposal_id: string;
@@ -57,76 +54,9 @@ export interface ProposalOutcome {
   assumptions: { statement: string; sensitivity: string }[];
 }
 
-function shiftDay(day: string, by: number): string {
-  const d = new Date(`${day}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + by);
-  return d.toISOString().slice(0, 10);
-}
-
 function money(minor: number, currency: string | null): string {
   const major = (minor / 100).toFixed(2);
   return currency ? `${major} ${currency}` : major;
-}
-
-interface Series {
-  values: Map<string, number>;
-  currency: string | null;
-}
-
-async function revenueSeries(profileId: string, from: string, to: string): Promise<Series | null> {
-  const [profile] = await db
-    .select({ account_id: businessProfiles.account_id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  if (!profile) return null;
-  const conns = await db
-    .select({ id: connections.id })
-    .from(connections)
-    .where(eq(connections.account_id, profile.account_id));
-  if (conns.length === 0) return null;
-
-  const rows = await db
-    .select({
-      period_date: metricObservations.period_date,
-      value_minor: metricObservations.value_minor,
-      currency: metricObservations.currency,
-      dimensions: metricObservations.dimensions,
-    })
-    .from(metricObservations)
-    .where(
-      and(
-        inArray(
-          metricObservations.connection_id,
-          conns.map((c) => c.id),
-        ),
-        eq(metricObservations.metric_key, "revenue.daily"),
-        gte(metricObservations.period_date, from),
-        lte(metricObservations.period_date, to),
-      ),
-    );
-
-  const values = new Map<string, number>();
-  let currency: string | null = null;
-  for (const row of rows) {
-    // Business-wide rows only — the anomaly layer's own rule.
-    if (!Object.keys(row.dimensions ?? {}).every((k) => k === "currency")) continue;
-    values.set(row.period_date, (values.get(row.period_date) ?? 0) + (row.value_minor ?? 0));
-    currency = currency ?? row.currency;
-  }
-  return { values, currency };
-}
-
-function windowStat(series: Series, from: string, to: string): WindowStat {
-  let sum = 0;
-  let days = 0;
-  for (let day = from; day <= to; day = shiftDay(day, 1)) {
-    const value = series.values.get(day);
-    if (value !== undefined) {
-      sum += value;
-      days += 1;
-    }
-  }
-  return { from, to, days_measured: days, mean_minor: days > 0 ? Math.round(sum / days) : 0 };
 }
 
 /** When the proposal actually ran: the engine's record, else the decision. */
@@ -173,7 +103,7 @@ export async function readbackForProposal(
   const today = now.toISOString().slice(0, 10);
   const afterTo =
     shiftDay(day, READBACK.after_days) < today ? shiftDay(day, READBACK.after_days) : today;
-  const series = await revenueSeries(proposal.profile_id, from, afterTo);
+  const series = await dailySeries(proposal.profile_id, "revenue.daily", from, afterTo);
   if (!series || series.values.size === 0) {
     return {
       ...base,

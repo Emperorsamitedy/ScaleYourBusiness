@@ -24,7 +24,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .where(eq(businessProfiles.id, profileId));
     if (!profile) return NextResponse.json({ error: "no intake session" }, { status: 401 });
 
-    const appUrl = process.env.APP_URL ?? new URL(request.url).origin;
+    const appUrl = process.env.APP_URL || new URL(request.url).origin;
     const checkout = await startCheckout(profile.id, appUrl);
     return NextResponse.json(checkout);
   } catch (error) {

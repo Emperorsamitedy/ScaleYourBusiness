@@ -14,6 +14,9 @@ import { supportSettings } from "../../db/schema";
 
 export type SupportSettingsRow = typeof supportSettings.$inferSelect;
 
+/** What the assistant calls the business until the owner names it. Never shown as a title. */
+export const DEFAULT_BUSINESS_NAME = "this business";
+
 /** 16 random bytes as hex. Checked before any query so junk never reaches the database. */
 export const SITE_KEY_RE = /^[0-9a-f]{32}$/;
 

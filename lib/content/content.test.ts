@@ -76,7 +76,7 @@ async function business() {
     .returning({ id: offers.id });
   await owner(s.profile_id, `offers.${offer!.id}.name`, "Ember Candle");
   await owner(s.profile_id, `offers.${offer!.id}.volume_period`, 120);
-  await owner(s.profile_id, "identity.business_name", "Emberworks");
+  await owner(s.profile_id, "identity.legal_name", "Emberworks");
   await owner(s.profile_id, "goals.owner_boundaries", "We never discount. Never sound corporate.");
   await db.insert(utterances).values({
     profile_id: s.profile_id,
@@ -171,7 +171,7 @@ describe("P3-16 — the voice card", () => {
   it("every trait names its source, exemplars are the owner's words, boundaries ride along", async () => {
     const s = await business();
     const card = await buildVoiceCard(s.profile_id, limitsLlm);
-    expect(card.traits.some((t) => t.source === "identity.business_name")).toBe(true);
+    expect(card.traits.some((t) => t.source === "identity.legal_name")).toBe(true);
     for (const t of card.traits) expect(t.source).not.toBe("");
     expect(card.exemplars[0]?.text).toContain("real fireplace");
     expect(card.exemplars[0]?.source).toMatch(/^utterance:/);

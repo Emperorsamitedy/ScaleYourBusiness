@@ -6,6 +6,8 @@ import type { Provider } from "./provider";
 import { fixtureProvider } from "./providers/fixture";
 import { ga4Provider } from "./providers/ga4";
 import { metaAdsProvider } from "./providers/meta-ads";
+import { searchConsoleProvider } from "./providers/search-console";
+import { squareProvider } from "./providers/square";
 import { shopifyProvider } from "./providers/shopify";
 import { stripeProvider } from "./providers/stripe";
 import { woocommerceProvider } from "./providers/woocommerce";
@@ -18,6 +20,8 @@ const PROVIDERS: Readonly<Record<ProviderId, Provider>> = {
   woocommerce: woocommerceProvider,
   ga4: ga4Provider,
   meta_ads: metaAdsProvider,
+  search_console: searchConsoleProvider,
+  square: squareProvider,
 };
 
 const overrides = new Map<ProviderId, Provider>();

@@ -50,6 +50,18 @@ export const SCOPE_REGISTRY = {
    * anything beyond ads_read refuses the connection.
    */
   meta_ads: ["ads_read"],
+  /**
+   * Google Search Console (P2-33). The read-only scope, read back from
+   * tokeninfo at connect time like GA4's. Name checked in Google's docs
+   * 2026-10-13.
+   */
+  search_console: ["https://www.googleapis.com/auth/webmasters.readonly"],
+  /**
+   * Square (P2-28). POST /oauth2/token/status reports a token's scopes, so
+   * registry membership is a real check. Permission names from Square's
+   * docs, checked 2026-10-13.
+   */
+  square: ["PAYMENTS_READ", "MERCHANT_PROFILE_READ"],
 } as const satisfies Record<string, readonly string[]>;
 
 export interface ScopeGuideEntry {
@@ -139,6 +151,25 @@ export const SCOPE_GUIDE: Readonly<
       scope: "ads_read",
       grant: "ads_read",
       why: "Daily ad spend and the purchases Meta attributes to your ads. Nothing that could edit a campaign.",
+    },
+  ],
+  search_console: [
+    {
+      scope: "https://www.googleapis.com/auth/webmasters.readonly",
+      grant: "Restricted permission on the property is enough",
+      why: "The Google searches your site appeared for, how often, and how often people clicked. It can read reports and change nothing.",
+    },
+  ],
+  square: [
+    {
+      scope: "PAYMENTS_READ",
+      grant: "PAYMENTS_READ",
+      why: "Every payment your tills took, card and cash rung up in Square, which is where daily and hourly takings come from.",
+    },
+    {
+      scope: "MERCHANT_PROFILE_READ",
+      grant: "MERCHANT_PROFILE_READ",
+      why: "Your list of locations, so payments from every till are read, not just the main one.",
     },
   ],
 };

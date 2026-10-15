@@ -246,6 +246,34 @@
       "when": 1791847585454,
       "tag": "0034_glamorous_liz_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1791912130449,
+      "tag": "0035_fixed_young_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1791919273276,
+      "tag": "0036_tricky_prowler",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1792003423197,
+      "tag": "0037_cynical_corsair",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792004036344,
+      "tag": "0038_sharp_baron_zemo",
+      "breakpoints": true
     }
   ]
 }

@@ -230,6 +230,31 @@ describe("P4-06/07 — a stranger's conversation", () => {
     expect(await listTickets(b.profile_id)).toEqual([]);
   });
 
+  it("a model that can't be reached hands over to a person — at either call — never an error", async () => {
+    const down: SupportIntentLlm = async () => {
+      throw new Error("Missing required environment variable ANTHROPIC_API_KEY");
+    };
+    const b = await business();
+    const atIntent = await postCustomerMessage(
+      (await startConversation(b.site_key)).token,
+      "What time do you open on Friday?",
+      { intentLlm: down, answerLlm: neverCalled("the answer model") },
+    );
+    expect(atIntent).toMatchObject({ escalated: true, reason: "no_answer" });
+    expect(atIntent.reply.text).toMatch(
+      /can't answer that right now, so I've passed it to a person/,
+    );
+
+    const b2 = await business();
+    const atAnswer = await postCustomerMessage(
+      (await startConversation(b2.site_key)).token,
+      "How long does shipping take?",
+      { intentLlm: intentAs("question"), answerLlm: down as unknown as SupportAnswerLlm },
+    );
+    expect(atAnswer).toMatchObject({ escalated: true, reason: "no_answer" });
+    expect(await listTickets(b2.profile_id)).toHaveLength(1);
+  });
+
   it("no approved answer → an honest handover and a ticket the owner sees, never a guess", async () => {
     const b = await business();
     const { token } = await startConversation(b.site_key);

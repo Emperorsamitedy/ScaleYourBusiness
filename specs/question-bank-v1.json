@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.2.1",
+  "bank_version": "1.4.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -985,6 +985,17 @@
           "priority": "important"
         },
         {
+          "key": "opening_hours",
+          "prompt": {
+            "en": "Their opening hours"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "deep"
+        },
+        {
           "key": "strengths",
           "prompt": {
             "en": "Their strengths"
@@ -1545,7 +1556,7 @@
     },
     {
       "id": "2.1.1.7",
-      "version": 1,
+      "version": 2,
       "section": "presence",
       "writes_to": "presence.opening_hours",
       "prompt": {
@@ -1560,8 +1571,34 @@
         "field": "presence.customers_visit",
         "value": true
       },
-      "priority": "deep",
-      "cost": 1
+      "priority": "important",
+      "cost": 1,
+      "help_text": {
+        "en": "Per day, as you'd write it on the door — e.g. Mon–Thu 20:00–01:00, Fri–Sat 18:00–02:00, Sun closed."
+      }
+    },
+    {
+      "id": "2.1.1.7a",
+      "version": 1,
+      "section": "presence",
+      "writes_to": "presence.open_hour_cost",
+      "prompt": {
+        "en": "Roughly what does one hour of being open cost you — staff on shift plus energy?"
+      },
+      "help_text": {
+        "en": "A rough figure is fine. It tells us whether your first and last hours pay for themselves."
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "presence.customers_visit",
+        "value": true
+      },
+      "priority": "important",
+      "cost": 2
     },
     {
       "id": "2.1.1.8",
@@ -3894,6 +3931,29 @@
         "op": "neq",
         "field": "presence.type",
         "value": "physical_only"
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
+      "id": "11.1e",
+      "version": 1,
+      "section": "legal",
+      "writes_to": "legal.postal_address",
+      "prompt": {
+        "en": "What postal address should appear at the foot of your marketing emails?"
+      },
+      "help_text": {
+        "en": "The US and Canada require a real postal address in every marketing email; elsewhere it's good practice. A PO box you check is fine."
+      },
+      "input": {
+        "type": "text",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "customers.marketing_consent_status",
+        "value": "no_consent"
       },
       "priority": "important",
       "cost": 1

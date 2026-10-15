@@ -118,6 +118,7 @@ interface Account {
   locale: string;              // "hu-HU", "en-GB" — drives intake language
   reporting_currency: string;
   business_profile_id: BusinessProfileId;
+  internal: boolean;           // P3-40b: SYB's own business — excluded from every cross-customer figure
 }
 
 interface User {
@@ -356,6 +357,27 @@ intake: `presence.monthly_sessions` (website sessions a month, business-wide)
 and `marketing.cost_per_purchase` measured as ad spend over the purchases the
 ad platform attributes (the intake asks the owner's estimate of the same
 thing; measurement supersedes it, rule 11).
+
+Trading hours (Phase 2 Session F, bank 1.3.0):
+
+- `presence.opening_hours` stays the owner's own words (question 2.1.1.7,
+  now `important` for visit-based businesses).
+- `presence.opening_schedule` is derived from it once by Haiku (inferred,
+  `derived_from: presence.opening_hours`, method
+  `haiku-opening-hours-v1`). Its shape is `{ days: Record<mon…sun,
+  {open,close}[]>, unstated, unparsed }`; a close at or before the open
+  runs past midnight.
+- `presence.timezone` is an IANA zone, either owner-stated or derived from
+  a single-zone `legal.country` (`single-zone-country-map-v1`). It's never
+  derived for a multi-zone country.
+- `presence.open_hour_cost` is `Field<Money>`, from question 2.1.1.7a.
+
+Email marketing (Phase 4 Session F, bank 1.4.0): `legal.postal_address` is the owner's own words for the address at the foot of marketing emails (question 11.1e, asked unless the owner's consent posture is `no_consent`). The US and Canada require one in every marketing message (`lib/crm/jurisdiction.ts`); a send under those regimes without it is refused by name.
+
+The connector metrics `revenue.hourly` and `orders.hourly` carry
+`dimensions.hour_utc` ("00"–"23"), with `period_date` the UTC date. They
+are stored in UTC and read in the business's clock with a 05:00
+trading-day cutoff.
 
 ```ts
 
@@ -664,7 +686,27 @@ interface DiagnosisReport {
   findings: DiagnosisFinding[];
   recommendations: Recommendation[];
   data_gaps: FieldId[];                 // what would most improve the next report
+  trading_hours: TradingHoursBlock | null; // P2-30; null when no hours or hourly sales are measured
   confidence: number;
+}
+
+// P2-30: deterministic, from measured hourly sales — never a model. One
+// finding per signal, naming its weekdays; the arithmetic that fired it,
+// the coverage ("card sales only") and the honest limit travel with it.
+interface TradingHoursBlock {
+  from: ISODate;
+  to: ISODate;
+  zone: string;                          // the business's IANA timezone
+  currency: CurrencyCode;
+  coverage: string;
+  limit: string;                         // "a closed hour records no sales…"
+  findings: {
+    signal: "opening" | "closing" | "attention" | "too_early";
+    weekdays: Weekday[];
+    title: LocalizedText;
+    detail: LocalizedText;
+    arithmetic: string[];                // one line per weekday that fired it
+  }[];
 }
 
 interface DiagnosisFinding {
@@ -737,11 +779,59 @@ interface DecisionLogEntry {
   profile_id: BusinessProfileId;
   at: ISODateTime;
   actor: "system" | "owner";
-  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import";
+  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent";
   ref_id: string;
   payload_hash: string;
 }
+
+// P3-42 (alert mode): a goal made measurable. Stored as two fields beside
+// the goal's other attributes, both superseded, never overwritten:
+//   goals.<id>.measure   — owner_input: what to move, how far, by when
+//   goals.<id>.baseline  — inferred from the measured series (rule 6)
+// Units are "per 30 days": the mean of measured days in a 28-day window × 30.
+interface GoalMeasure {
+  metric: "revenue" | "orders" | "sessions";   // revenue.daily | orders.daily | sessions.daily
+  direction: "increase" | "decrease";
+  target_per_30d: number;                      // minor units for money (rule 1)
+  currency: string | null;                     // ISO 4217 for money; null for counts
+  deadline: ISODate;                           // explicit, or the goal's horizon from set_on
+  set_on: ISODate;                             // the start of the expected path
+}
+
+interface GoalBaseline {
+  per_30d: number;
+  currency: string | null;
+  from: ISODate;                               // the 28 days before set_on
+  to: ISODate;
+  days_measured: number;                       // ≥ 21, or there is no baseline
+}
 ```
+
+**`consent`** (P3-20h, rule 13) is write access granted: written by the owner when an execute connection is made through the consent screen. Its `ref_id` is the connection, and its hash covers the provider, the scopes granted, the consent lines shown verbatim and the confirmation the owner typed, so what was agreed to stays checkable after the registry changes. Disconnecting revokes nothing on the platform's side and writes no consent row; the connection keeps its own `disconnected_at`.
+
+**`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
+
+```ts
+// P3-45..47: one row per alert review of one goal (table alert_reviews).
+interface AlertReview {
+  id: ReviewId;
+  profile_id: BusinessProfileId;
+  goal_id: GoalId;
+  created_at: ISODateTime;
+  outcome: "reviewed" | "unusable" | "skipped_cost_cap";
+  case_file: { lines: { id: string; section: string; text: string }[]; snapshot_id: SnapshotId; built_at: ISODateTime };
+  case_hash: string;                 // sha256 of the rendered case file
+  review: { summary: string; causes: Cause[]; considered: SetAside[]; suggestions: Suggestion[] } | null;
+  rejected: { raw: unknown; reason: string }[];   // what code refused — kept, never repaired
+  proposal_ids: ProposalId[];        // suggestions that entered the queue
+  cost_eur: string;
+  escalated_at: ISODateTime | null;  // handed to a person (P3-47)
+  escalation_reason: string | null;
+  resolved_at: ISODateTime | null;   // a person closed the case
+}
+```
+
+A cause must cite evidence ids the case file holds; every cause category (`our_advice_was_wrong`, `goal_unrealistic`, `owner_declined_key_actions`, `approved_actions_not_executed`, `execution_failed`, `data_incomplete`, `external_change`, `other`) must be named or set aside, or the gap is recorded in `rejected`.
 
 The decision log is append-only. It serves three purposes at once: the learning corpus, the debugging trail, and the compliance record showing that a human approved every consequential action — which matters directly given GDPR Article 22 exposure on anything touching individuals.
 

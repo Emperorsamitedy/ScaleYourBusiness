@@ -478,6 +478,29 @@ export async function postCustomerMessage(
     );
   }
 
+  // A model that can't be reached never leaves a stranger with an error:
+  // rule 20 keeps a person one message away, so a failed call hands over.
+  const unavailable = (stage: "intent" | "answer", error: unknown) => {
+    console.error(
+      JSON.stringify({
+        event: "support_model_unavailable",
+        account_id: conversation.account_id,
+        conversation_id: conversation.id,
+        stage,
+        name: error instanceof Error ? error.name : "unknown",
+      }),
+    );
+    return escalate(
+      conversation,
+      "no_answer",
+      trimmed,
+      `I can't answer that right now, so I've passed it to a person at ${settings.business_name} — they'll pick up from here.`,
+      0,
+      "question",
+      replyAt(),
+    );
+  };
+
   // Intent: the plain pattern first, Haiku second.
   let intent: SupportIntent;
   let intentCost = 0;
@@ -485,13 +508,18 @@ export async function postCustomerMessage(
     intent = "wants_human";
   } else {
     const intentLlm = seams.intentLlm ?? liveSupportIntentLlm;
-    const { text: intentJson, calls } = await intentLlm({
-      system: INTENT_SYSTEM,
-      user: trimmed,
-      accountId: conversation.account_id,
-    });
-    intent = coerceSupportIntent(intentJson);
-    intentCost = costOf(calls);
+    let intentReply: Awaited<ReturnType<typeof intentLlm>>;
+    try {
+      intentReply = await intentLlm({
+        system: INTENT_SYSTEM,
+        user: trimmed,
+        accountId: conversation.account_id,
+      });
+    } catch (error) {
+      return unavailable("intent", error);
+    }
+    intent = coerceSupportIntent(intentReply.text);
+    intentCost = costOf(intentReply.calls);
   }
   await addCost(conversation.id, intentCost);
 
@@ -527,11 +555,17 @@ export async function postCustomerMessage(
     return escalate(conversation, "no_answer", trimmed, handover, intentCost, intent, replyAt());
   }
   const answerLlm = seams.answerLlm ?? liveSupportAnswerLlm;
-  const { text: answerJson, calls: answerCalls } = await answerLlm({
-    system: answerSystem(settings.business_name, selected),
-    user: trimmed,
-    accountId: conversation.account_id,
-  });
+  let answerReply: Awaited<ReturnType<typeof answerLlm>>;
+  try {
+    answerReply = await answerLlm({
+      system: answerSystem(settings.business_name, selected),
+      user: trimmed,
+      accountId: conversation.account_id,
+    });
+  } catch (error) {
+    return unavailable("answer", error);
+  }
+  const { text: answerJson, calls: answerCalls } = answerReply;
   const answerCost = costOf(answerCalls);
   await addCost(conversation.id, answerCost);
   const grounded = coerceAnswer(answerJson);

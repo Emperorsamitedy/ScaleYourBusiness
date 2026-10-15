@@ -20,15 +20,13 @@ import { connections } from "../../db/schema";
 import { decryptSecret, encryptSecret } from "../connectors/secrets";
 import type { ExecutionProviderId } from "./scopes";
 import { EXECUTION_SCOPE_REGISTRY, isExecutionProviderId } from "./scopes";
+import type { CredentialVerifier } from "./verify";
+import { ExecutionConnectionError, unique, verifyExecutionScopes } from "./verify";
 
-export class ExecutionConnectionError extends Error {
-  readonly status: number;
-  constructor(message: string, status = 400) {
-    super(message);
-    this.name = "ExecutionConnectionError";
-    this.status = status;
-  }
-}
+// The pure half lives in ./verify so providers can refuse by name without
+// a database; re-exported so callers keep one import.
+export type { CredentialProof, CredentialVerifier } from "./verify";
+export { ExecutionConnectionError, expectedExecutionScopes, verifyExecutionScopes } from "./verify";
 
 export type ExecutionConnectionRow = typeof connections.$inferSelect;
 
@@ -66,57 +64,6 @@ export function toPublicExecutionConnection(
     created_at: row.created_at,
     disconnected_at: row.disconnected_at,
   };
-}
-
-/** What the platform reports a credential was granted. */
-export interface CredentialProof {
-  granted_scopes: readonly string[];
-}
-
-/**
- * Proves a credential with its platform and reports the scopes it holds.
- * D1's Meta provider supplies one that asks /me/permissions; tests supply
- * one that answers what the test says. The verifier never stores anything.
- */
-export type CredentialVerifier = (secret: string) => Promise<CredentialProof>;
-
-function unique(values: readonly string[]): string[] {
-  return [...new Set(values)].sort();
-}
-
-/** EXACTLY what an execute connection for this provider must hold. */
-export function expectedExecutionScopes(provider: ExecutionProviderId): readonly string[] {
-  const spec = EXECUTION_SCOPE_REGISTRY[provider];
-  return unique([...spec.write_scopes, ...spec.readback_scopes]);
-}
-
-/**
- * Connect-time check: granted must equal the expected set. Throws naming
- * every extra scope (too many) and every missing one (too few).
- */
-export function verifyExecutionScopes(
-  provider: ExecutionProviderId,
-  granted: readonly string[],
-): void {
-  const expected = expectedExecutionScopes(provider);
-  const have = unique(granted);
-  const extra = have.filter((s) => !expected.includes(s));
-  const missing = expected.filter((s) => !have.includes(s));
-  if (extra.length === 0 && missing.length === 0) return;
-  const label = EXECUTION_SCOPE_REGISTRY[provider].label;
-  const parts: string[] = [];
-  if (extra.length > 0) {
-    parts.push(
-      `granted ${extra.map((s) => `"${s}"`).join(", ")} which the consent does not name (one scope too many is a refusal, not a bonus)`,
-    );
-  }
-  if (missing.length > 0) {
-    parts.push(`missing ${missing.map((s) => `"${s}"`).join(", ")} which the consent requires`);
-  }
-  throw new ExecutionConnectionError(
-    `refusing to connect ${label} for execution: ${parts.join("; ")}`,
-    422,
-  );
 }
 
 /** The live execute connection for (account, provider), if any. Internal: carries the secret. */

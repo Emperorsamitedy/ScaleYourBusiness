@@ -13,7 +13,7 @@ const AUTH_COOKIE = "syb_session";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const token = request.nextUrl.searchParams.get("token") ?? "";
-  const origin = process.env.APP_URL ?? new URL(request.url).origin;
+  const origin = process.env.APP_URL || new URL(request.url).origin;
   try {
     const session = await redeemLogin(token);
     const response = NextResponse.redirect(

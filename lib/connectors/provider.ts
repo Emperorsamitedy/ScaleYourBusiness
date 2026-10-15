@@ -17,6 +17,30 @@ export const METRIC_KEYS = [
   "sessions.daily",
   /** Units sold per day, per store product (Session C). */
   "units.daily",
+  /**
+   * P2-27: revenue and orders per UTC hour, dimension hour_utc. Stored in
+   * UTC on purpose: an exact instant, so the business's local clock (and
+   * its daylight saving) is applied when the series is read, and a
+   * timezone learned later re-reads correctly without a re-sync. Only
+   * hours with sales are emitted; the daily row of the same day says the
+   * day was covered, so a missing hour is a zero, not a gap.
+   */
+  "revenue.hourly",
+  "orders.hourly",
+  /** P2-29: website sessions per UTC hour (GA4 dateHour, converted from the property's zone). */
+  "sessions.hourly",
+  /** P2-34: sessions that began on a page, and how many of them bounced — per day, per page_ref. */
+  "landing_sessions.daily",
+  "landing_bounces.daily",
+  /** P2-34: searches made in the site's own search box, per day, per term_ref. */
+  "site_search.daily",
+  /**
+   * P2-33: Google searches the site appeared for, per day, per query_ref.
+   * Position is stored × impressions so averages are sums ÷ sums.
+   */
+  "search_impressions.daily",
+  "search_clicks.daily",
+  "search_position_weighted.daily",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -26,7 +50,11 @@ export function isMetricKey(value: string): value is MetricKey {
 }
 
 /** Metrics whose value is Money (rule 1): integer minor units + currency. */
-export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set(["revenue.daily", "ad_spend.daily"]);
+export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
+  "revenue.daily",
+  "ad_spend.daily",
+  "revenue.hourly",
+]);
 
 /** Which slice of the business a daily figure belongs to. All optional. */
 export interface ObservationDimensions {
@@ -45,6 +73,14 @@ export interface ObservationDimensions {
   product_ref?: string;
   /** The analytics platform's channel name ("Paid Social"); mapped like product_ref (P2-18). */
   channel_ref?: string;
+  /** "00".."23" — the UTC hour of an *.hourly figure; period_date is then the UTC date (P2-27). */
+  hour_utc?: string;
+  /** A site path ("/menu") — the landing page of landing_* figures (P2-34). */
+  page_ref?: string;
+  /** A visitor's site-search term, lower-cased and trimmed (P2-34). Content, never instructions. */
+  term_ref?: string;
+  /** A Google search query the site appeared for, lower-cased and trimmed (P2-33). */
+  query_ref?: string;
 }
 
 /** One provider figure for one day. Exactly one of value_minor / value_num is set. */

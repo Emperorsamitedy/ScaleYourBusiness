@@ -45,6 +45,14 @@ export interface FakeGa4Row {
   date: string;
   channel: string;
   sessions: number;
+  /** P2-29: the hour (0–23) in the property's zone. */
+  hour?: number;
+  /** P2-34: the landing page, and how many of these sessions bounced. */
+  landing?: string;
+  bounces?: number;
+  /** P2-34: a site-search term and how many view_search_results events carried it. */
+  searchTerm?: string;
+  searches?: number;
 }
 
 export interface FakeGa4Call {
@@ -64,6 +72,8 @@ export interface FakeGa4Options {
   viewer?: boolean;
   /** The server's own page cap, to exercise offset paging. */
   maxRows?: number;
+  /** The property's reporting zone, returned in metadata.timeZone. Default Europe/Budapest. */
+  timeZone?: string | null;
   respond?: (call: FakeGa4Call, n: number) => Ga4Response | null;
 }
 
@@ -154,43 +164,78 @@ export function fakeGa4(options: FakeGa4Options): FakeGa4 {
       const body = JSON.parse(init.body ?? "{}") as {
         dateRanges: { startDate: string; endDate: string }[];
         dimensions: { name: string }[];
+        metrics: { name: string }[];
         limit: number;
         offset: number;
+        dimensionFilter?: { filter?: { fieldName?: string; stringFilter?: { value?: string } } };
       };
       const range = body.dateRanges[0];
       const dims = body.dimensions.map((d) => d.name);
-      const grouped = new Map<string, { dimensions: string[]; sessions: number }>();
+      const metrics = body.metrics.map((m) => m.name);
+      const searchOnly =
+        body.dimensionFilter?.filter?.stringFilter?.value === "view_search_results";
+      const grouped = new Map<
+        string,
+        { dimensions: string[]; sessions: number; bounces: number; events: number }
+      >();
       for (const row of rows) {
         if (!range || row.date < range.startDate || row.date > range.endDate) continue;
+        if (searchOnly && !row.searchTerm) continue;
+        if (dims.includes("dateHour") && row.hour === undefined) continue;
         const values = dims.map((d) =>
           d === "date"
             ? row.date.replace(/-/g, "")
-            : d === "sessionDefaultChannelGroup"
-              ? row.channel
-              : "",
+            : d === "dateHour"
+              ? `${row.date.replace(/-/g, "")}${String(row.hour).padStart(2, "0")}`
+              : d === "sessionDefaultChannelGroup"
+                ? row.channel
+                : d === "landingPage"
+                  ? (row.landing ?? "(not set)")
+                  : d === "searchTerm"
+                    ? (row.searchTerm ?? "(not set)")
+                    : "",
         );
         const key = values.join("|");
-        const current = grouped.get(key) ?? { dimensions: values, sessions: 0 };
+        const current = grouped.get(key) ?? {
+          dimensions: values,
+          sessions: 0,
+          bounces: 0,
+          events: 0,
+        };
         current.sessions += row.sessions;
+        current.bounces += row.bounces ?? 0;
+        current.events += row.searches ?? 0;
         grouped.set(key, current);
       }
+      const metricValue = (m: string, r: { sessions: number; bounces: number; events: number }) =>
+        m === "bounceRate"
+          ? String(r.sessions > 0 ? r.bounces / r.sessions : 0)
+          : m === "eventCount"
+            ? String(r.events)
+            : String(r.sessions);
       const all = [...grouped.values()].sort((a, b) =>
         a.dimensions.join("|") < b.dimensions.join("|") ? -1 : 1,
       );
       const limit = Math.min(body.limit, options.maxRows ?? body.limit);
       const page = all.slice(body.offset, body.offset + limit);
+      const zone = options.timeZone === undefined ? "Europe/Budapest" : options.timeZone;
       return ga4Json(200, {
         dimensionHeaders: dims.map((name) => ({ name })),
-        metricHeaders: [{ name: "sessions", type: "TYPE_INTEGER" }],
+        metricHeaders: metrics.map((name) => ({
+          name,
+          type: name === "bounceRate" ? "TYPE_FLOAT" : "TYPE_INTEGER",
+        })),
         ...(page.length > 0
           ? {
               rows: page.map((r) => ({
                 dimensionValues: r.dimensions.map((value) => ({ value })),
-                metricValues: [{ value: String(r.sessions) }],
+                metricValues: metrics.map((m) => ({ value: metricValue(m, r) })),
               })),
             }
           : {}),
         rowCount: all.length,
+        ...(zone ? { metadata: { timeZone: zone, currencyCode: "EUR" } } : {}),
+        kind: "analyticsData#runReport",
       });
     }
 

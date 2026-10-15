@@ -60,6 +60,9 @@ export interface SnapshotEntity {
   kind: string | null;
 }
 
+/** Why a snapshot was taken. "day_zero" is P3-43: the business entering care. */
+export type SnapshotReason = "report" | "watching_weekly" | "manual" | "day_zero";
+
 export interface SnapshotSummary {
   id: string;
   profile_id: string;
@@ -146,7 +149,7 @@ async function liveEntities(profileId: string): Promise<SnapshotEntity[]> {
  */
 export async function ensureSnapshot(
   profileId: string,
-  reason: "report" | "watching_weekly" | "manual" = "manual",
+  reason: SnapshotReason = "manual",
 ): Promise<SnapshotSummary> {
   const current = await db
     .select()
@@ -177,7 +180,7 @@ export async function ensureSnapshot(
  */
 export async function takeSnapshot(
   profileId: string,
-  reason: "report" | "watching_weekly" | "manual" = "manual",
+  reason: SnapshotReason = "manual",
 ): Promise<SnapshotSummary> {
   const current = await db
     .select()

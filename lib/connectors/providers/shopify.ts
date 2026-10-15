@@ -37,6 +37,7 @@
 
 import { addDays, advanceCursor, dayString, isoSeconds, oneNewDay, planWindow } from "../days";
 import { DecimalError, decimalToMinor } from "../decimal";
+import { HourlyBuckets } from "../hourly";
 import type { ExternalProduct, Observation, Provider, PullPage } from "../provider";
 import { ProviderError } from "../provider";
 
@@ -525,6 +526,7 @@ export function aggregateOrders(
   const counts = new Map<string, number>();
   const units = new Map<string, Map<string, number>>();
   const currencies = new Set<string>();
+  const hourly = new HourlyBuckets(); // P2-27
   const from = start.getTime();
   const until = addDays(end, 1).getTime();
 
@@ -548,6 +550,8 @@ export function aggregateOrders(
     byCurrency.set(currency, (byCurrency.get(currency) ?? 0) + net);
     revenue.set(day, byCurrency);
     counts.set(day, (counts.get(day) ?? 0) + 1);
+    hourly.addRevenue(at, currency, net);
+    hourly.addOrder(at);
 
     for (const line of o.lines) {
       if (line.productRef === null || line.quantity <= 0) continue;
@@ -592,6 +596,7 @@ export function aggregateOrders(
       }
     }
   }
+  out.push(...hourly.observations(observedAt));
   return out;
 }
 

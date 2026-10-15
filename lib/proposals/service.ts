@@ -139,7 +139,7 @@ export async function approveProposal(args: {
     proposalId: args.proposalId,
     userId: args.userId,
     to: "approved",
-    executeNotBefore: args.executeNotBefore ?? null,
+    executeNotBefore: args.executeNotBefore ?? (await carriedSchedule(args.proposalId)),
     ...(args.profileId ? { profileId: args.profileId } : {}),
   });
 }
@@ -162,6 +162,22 @@ export async function rejectProposal(args: {
     reason: args.reason.trim(),
     ...(args.profileId ? { profileId: args.profileId } : {}),
   });
+}
+
+/**
+ * P3-21a: a proposal may carry its own posting time (action.detail.publish_at,
+ * a publish proposal's date at its posting hour). Approving without choosing
+ * a time keeps that one; an owner-picked time always wins.
+ */
+async function carriedSchedule(proposalId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ action: proposals.action })
+    .from(proposals)
+    .where(eq(proposals.id, proposalId));
+  const at = (row?.action as { detail?: { publish_at?: unknown } } | null)?.detail?.publish_at;
+  return typeof at === "string" && !Number.isNaN(Date.parse(at))
+    ? new Date(at).toISOString()
+    : null;
 }
 
 async function decide(args: {

@@ -18,6 +18,7 @@ import {
   readConversation,
   startConversation,
 } from "../../../../lib/support/chat";
+import { DEFAULT_BUSINESS_NAME } from "../../../../lib/support/settings";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -46,7 +47,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (body?.action === "start") {
       if (typeof body.site_key !== "string") return json({ error: "site_key is required" }, 422);
       const started = await startConversation(body.site_key);
-      return json(started, 201);
+      // The widget titles itself with the name only once the owner has given one.
+      return json(
+        {
+          ...started,
+          business_name:
+            started.business_name === DEFAULT_BUSINESS_NAME ? null : started.business_name,
+        },
+        201,
+      );
     }
     if (body?.action === "message") {
       if (typeof body.token !== "string" || typeof body.text !== "string") {

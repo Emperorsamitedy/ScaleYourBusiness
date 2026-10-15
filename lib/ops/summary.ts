@@ -2,10 +2,13 @@
 // the funnel, where abandoners actually stopped, and what every account
 // costs. All of it deterministic reads over telemetry tables — no model
 // is consulted to describe our own operations (CLAUDE.md cost rule).
+// Internal accounts (P3-40b) are left out of every figure here: the
+// panel describes customers, and SYB is not one.
 
 import { and, eq, gte, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { intakeEvents, llmCalls } from "../../db/schema";
+import { internalAccountIds, internalProfileIds } from "./internal";
 
 export interface FunnelSummary {
   started: number;
@@ -35,8 +38,10 @@ export async function funnelSummary(sinceIso: string): Promise<FunnelSummary> {
         ]),
       ),
     );
+  const internal = await internalProfileIds();
   const byKind = new Map<string, Set<string>>();
   for (const r of rows) {
+    if (internal.has(r.profile_id)) continue;
     const set = byKind.get(r.kind) ?? new Set<string>();
     set.add(r.profile_id);
     byKind.set(r.kind, set);
@@ -81,7 +86,10 @@ export async function abandonmentSummary(sinceIso: string): Promise<AbandonmentR
     .from(intakeEvents)
     .where(eq(intakeEvents.kind, "funnel_core_completed"));
   const done = new Set(completed.map((r) => r.profile_id));
-  const stalled = [...new Set(started.map((r) => r.profile_id))].filter((p) => !done.has(p));
+  const internal = await internalProfileIds();
+  const stalled = [...new Set(started.map((r) => r.profile_id))].filter(
+    (p) => !done.has(p) && !internal.has(p),
+  );
   if (stalled.length === 0) return [];
 
   const shown = await db
@@ -133,11 +141,13 @@ export async function costSummary(sinceIso: string): Promise<CostSummary> {
     })
     .from(llmCalls)
     .where(gte(llmCalls.at, sinceIso));
+  const internal = await internalAccountIds();
+  const customerRows = rows.filter((r) => !internal.has(r.account_id));
 
   const accounts = new Map<string, AccountCostRow>();
   const byWorkload: Record<string, number> = {};
   let total = 0;
-  for (const r of rows) {
+  for (const r of customerRows) {
     const cost = Number(r.cost_eur);
     total += cost;
     byWorkload[r.workload] = (byWorkload[r.workload] ?? 0) + cost;
@@ -155,7 +165,7 @@ export async function costSummary(sinceIso: string): Promise<CostSummary> {
   const round = (n: number) => Math.round(n * 10000) / 10000;
   return {
     total_eur: round(total),
-    total_calls: rows.length,
+    total_calls: customerRows.length,
     by_workload: Object.fromEntries(Object.entries(byWorkload).map(([k, v]) => [k, round(v)])),
     accounts: [...accounts.values()]
       .map((a) => ({

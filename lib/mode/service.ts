@@ -6,6 +6,7 @@
 import { desc, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { modeDecisions, watchActivity } from "../../db/schema";
+import { recordDayZero } from "../care/day-zero";
 import { assembleInputs } from "./inputs";
 import type { DeferredRuling, ModeRuling } from "./decide";
 import { decideMode } from "./decide";
@@ -88,6 +89,7 @@ export async function decideForProfile(profileId: string): Promise<DecisionOutco
   }
 
   const decided: ModeRuling = ruling;
+  const isFirst = (await latestDecision(profileId)) === null;
   const now = Date.now();
   const reviewAt = new Date(now + (decided.watch_weeks ?? 1) * 7 * 86_400_000).toISOString();
 
@@ -104,6 +106,9 @@ export async function decideForProfile(profileId: string): Promise<DecisionOutco
     })
     .returning();
   if (!row) throw new ModeError("could not record the decision", 500);
+
+  // P3-43: the first ruling is the moment the business enters care.
+  if (isFirst) await recordDayZero(profileId, row.id);
 
   if (decided.mode === "watching") {
     await db.insert(watchActivity).values({

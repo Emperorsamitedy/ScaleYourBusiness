@@ -6,6 +6,8 @@
 // completes in seconds — a cron-hit route is the whole requirement.
 
 import { type NextRequest, NextResponse } from "next/server";
+import { runProgressChecks } from "../../../../lib/care/progress";
+import { runHoursTrials } from "../../../../lib/hours/trials";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -15,8 +17,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
   try {
     const result = await runWeeklyWatch();
-    console.log(JSON.stringify({ event: "weekly_watch", ...result }));
-    return NextResponse.json(result);
+    // P3-44: goal progress rides the same weekly beat.
+    const progress = await runProgressChecks();
+    // P3-41: this month's trading-hours signals become trial proposals.
+    const trials = await runHoursTrials();
+    console.log(JSON.stringify({ event: "weekly_watch", ...result, progress, trials }));
+    return NextResponse.json({ ...result, progress, trials });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_watch_failed", message: String(error) }));
     return NextResponse.json({ error: "job failed" }, { status: 500 });

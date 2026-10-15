@@ -51,6 +51,13 @@ export const accounts = pgTable("accounts", {
   locale: text("locale").notNull().default("en-GB"),
   /** ISO 4217 — aggregates state their currency; see lib/core/money.ts. */
   reporting_currency: text("reporting_currency").notNull(),
+  /**
+   * P3-40b: SYB's own business, run through its own product. Excluded from
+   * every cross-customer number (Gate 2's approval rate, the ops funnel and
+   * cost views) so our own numbers never pass as customer evidence. Its
+   * per-profile scorecard is unaffected.
+   */
+  internal: boolean("internal").notNull().default(false),
 });
 
 export const users = pgTable(
@@ -392,6 +399,8 @@ export const decisionKind = pgEnum("decision_kind", [
   "profile_change",
   "erasure", // Phase 4 rule 22: the fact of an erasure, never its PII
   "import", // Phase 4 P4-03: a contact import batch — hash and counts, no PII
+  "takeover", // P3-43: day zero — the business enters care; ref is the frozen snapshot
+  "consent", // P3-20h: write access granted (rule 13); ref is the execute connection
 ]);
 
 export const decisionLog = pgTable(
@@ -726,6 +735,8 @@ export const diagnosisReports = pgTable(
     findings: jsonb("findings").notNull(),
     recommendations: jsonb("recommendations").notNull(),
     data_gaps: jsonb("data_gaps").notNull(),
+    /** P2-30: deterministic trading-hours findings; null when no hours or hourly sales are measured. */
+    trading_hours: jsonb("trading_hours"),
   },
   (t) => [index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at)],
 );
@@ -1277,6 +1288,50 @@ export const executionHalts = pgTable("execution_halts", {
   halted_by: uuid("halted_by").references(() => users.id),
   reason: text("reason"),
 });
+
+/* ---------- Phase 3 Session J — alert mode (P3-45..47) ---------- */
+
+// One row per alert review of one goal. It keeps the case file it read
+// (and its hash), what the review concluded, what code refused from it,
+// the proposals it put in the queue, and what it cost. Escalation to a
+// person (P3-47) is a state on the same row: once escalated, no further
+// automatic review runs for that goal until a person resolves it.
+
+export const alertReviewOutcome = pgEnum("alert_review_outcome", [
+  "reviewed", // the model answered and the review was stored
+  "unusable", // the model answered, but nothing survived validation
+  "skipped_cost_cap", // the account's monthly review budget was spent — straight to a person
+]);
+
+export const alertReviews = pgTable(
+  "alert_reviews",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    goal_id: uuid("goal_id").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    outcome: alertReviewOutcome("outcome").notNull(),
+    /** The case file as the review read it: lines with evidence ids. */
+    case_file: jsonb("case_file").notNull(),
+    case_hash: text("case_hash").notNull(),
+    /** The validated review — summary, causes, considered, suggestions. */
+    review: jsonb("review"),
+    /** What code refused, and why — visible, never repaired. */
+    rejected: jsonb("rejected").notNull().default([]),
+    proposal_ids: jsonb("proposal_ids").$type<string[]>().notNull().default([]),
+    cost_eur: numeric("cost_eur").notNull().default("0"),
+    /** P3-47: when the goal was handed to a person, and why. */
+    escalated_at: timestamp("escalated_at", { withTimezone: true, mode: "string" }),
+    escalation_reason: text("escalation_reason"),
+    /** A person closed the case; automatic review may run again after this. */
+    resolved_at: timestamp("resolved_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [index("alert_reviews_profile_goal_idx").on(t.profile_id, t.goal_id, t.created_at)],
+);
 
 /* ---------- Phase 3 Session C — content items (P3-15/16/17) ---------- */
 

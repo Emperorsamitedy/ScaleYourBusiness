@@ -17,7 +17,7 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | File                            | What it defines                                  |
 | ------------------------------- | ------------------------------------------------ |
 | `specs/data-model-v1.md`        | Every entity, field, rule and score. The spine.  |
-| `specs/question-bank-v1.json`   | 153 questions, 55 vocabularies, 8 entity schemas |
+| `specs/question-bank-v1.json`   | 155 questions, 55 vocabularies, 8 entity schemas |
 | `specs/question-bank-notes.md`  | Structure, the core 25, branching fixes          |
 | `specs/ux-spec-v1.md`           | Design tokens, screens, interaction detail       |
 | `specs/conversation-channel.md` | Conversation as a fact source; confidence bases  |
@@ -56,7 +56,7 @@ These are load-bearing. Violating any of them is expensive to undo later.
 
 Claude Code tends to helpfully scaffold ahead. Don't.
 
-- No approval queue, proposals or execution engine — Phase 3
+- Proposals, the approval queue and the execution engine are IN SCOPE as of Phase 3 (TASKS-PHASE3.md), under its rules 12–18; real external writes wait for Session D
 - Connectors are IN SCOPE as of Phase 2 (TASKS-PHASE2.md) — read-only only
 - **No write-scope API calls to anything, ever — in any phase built so far; Phase 2's scope audit enforces it in tests**
 - Support & CRM are IN SCOPE as of Phase 4 (TASKS-PHASE4.md); finance, inventory and HR modules remain fenced (Phase 5+), as does phone AI

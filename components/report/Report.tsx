@@ -105,6 +105,20 @@ interface Gap {
   buys: string;
   blocking: boolean;
 }
+interface HoursFinding {
+  signal: "opening" | "closing" | "attention" | "too_early";
+  weekdays: string[];
+  title: string;
+  detail: string;
+  arithmetic: string[];
+}
+interface TradingHours {
+  from: string;
+  to: string;
+  coverage: string;
+  limit: string;
+  findings: HoursFinding[];
+}
 interface ReportView {
   id: string;
   generated_at: string;
@@ -114,6 +128,8 @@ interface ReportView {
   findings: Finding[];
   recommendations: Rec[];
   data_gaps: Gap[];
+  /** P2-30: absent on reports generated before it, null when nothing is measured. */
+  trading_hours?: TradingHours | null;
   fact_map: Record<string, FactInfo>;
 }
 
@@ -589,6 +605,39 @@ export function ReportScreen() {
           </article>
         ))}
       </section>
+
+      {/* ── trading hours (P2-30): measured, deterministic, the arithmetic shown ── */}
+      {report.trading_hours && (
+        <section className="rp-block">
+          <h2>Your trading hours</h2>
+          <p className="rp-body">
+            From measured hourly sales, {report.trading_hours.from} to {report.trading_hours.to}.{" "}
+            Measured: {report.trading_hours.coverage}.
+          </p>
+          {report.trading_hours.findings.length === 0 && (
+            <p className="rp-body">No signal fires on any measured day.</p>
+          )}
+          {report.trading_hours.findings.map((f) => (
+            <article className="rp-finding" key={f.signal}>
+              <header>
+                <span className="rp-sev">
+                  {f.signal === "too_early" ? "TOO EARLY" : "MEASURED"}
+                </span>
+                <h3>{f.title}</h3>
+              </header>
+              <p className="rp-body">{f.detail}</p>
+              {f.arithmetic.map((a) => (
+                <p className="rp-src" key={a}>
+                  {a}
+                </p>
+              ))}
+            </article>
+          ))}
+          <p className="rp-src">
+            {report.trading_hours.limit} <Link href="/hours">See every weekday →</Link>
+          </p>
+        </section>
+      )}
 
       {/* ── recommendations with scenarios and the two equal actions ── */}
       <section className="rp-block">

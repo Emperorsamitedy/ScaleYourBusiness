@@ -25,7 +25,7 @@ async function finish(
   state: string | null,
   providerError: string | null,
 ): Promise<NextResponse> {
-  const origin = process.env.APP_URL ?? new URL(request.url).origin;
+  const origin = process.env.APP_URL || new URL(request.url).origin;
   const store = await cookies();
   const stateCookie = store.get(STATE_COOKIE)?.value ?? "";
   const [expectedState, from = "/signup"] = stateCookie.split(":");

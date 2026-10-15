@@ -251,7 +251,46 @@ describe("P2-08 — the arithmetic", () => {
     expect(orderDays(obs)).toEqual(["2026-09-01", "2026-09-02", "2026-09-03"]);
     expect(find("revenue.daily", "2026-09-03", "EUR")?.value_minor).toBe(0);
     // three days × (two currencies + one order count)
-    expect(obs).toHaveLength(9);
+    expect(obs.filter((o) => o.metric_key.endsWith(".daily"))).toHaveLength(9);
+  });
+
+  // P2-27: the same transactions per UTC hour, stored as an exact instant.
+  const hourly = (metric: string, day: string, hour: string, currency?: string) =>
+    obs.find(
+      (o) =>
+        o.metric_key === metric &&
+        o.period_date === day &&
+        o.dimensions.hour_utc === hour &&
+        o.dimensions.currency === currency,
+    );
+
+  it("buckets revenue by UTC hour with the same netting, currencies apart", () => {
+    expect(hourly("revenue.hourly", "2026-09-01", "09", "EUR")?.value_minor).toBe(5_000);
+    expect(hourly("revenue.hourly", "2026-09-01", "11", "EUR")?.value_minor).toBe(-1_000);
+    expect(hourly("revenue.hourly", "2026-09-01", "23", "EUR")?.value_minor).toBe(700);
+    expect(hourly("revenue.hourly", "2026-09-02", "00", "USD")?.value_minor).toBe(4_000);
+    // Fees, disputes and payouts are not revenue in any hour.
+    for (const h of ["13", "14", "15"]) {
+      expect(hourly("revenue.hourly", "2026-09-01", h, "EUR")).toBeUndefined();
+    }
+    // The hourly rows sum to the day.
+    const sum = obs
+      .filter(
+        (o) =>
+          o.metric_key === "revenue.hourly" &&
+          o.period_date === "2026-09-01" &&
+          o.dimensions.currency === "EUR",
+      )
+      .reduce((s, o) => s + (o.value_minor ?? 0), 0);
+    expect(sum).toBe(find("revenue.daily", "2026-09-01", "EUR")?.value_minor);
+  });
+
+  it("emits only hours where something happened; orders per hour count positive charges", () => {
+    expect(hourly("orders.hourly", "2026-09-01", "09")?.value_num).toBe(1);
+    expect(hourly("orders.hourly", "2026-09-01", "11")).toBeUndefined(); // a refund is not an order
+    expect(hourly("orders.hourly", "2026-09-03", "08")).toBeUndefined(); // a zero charge is not one either
+    expect(hourly("revenue.hourly", "2026-09-03", "08", "EUR")).toBeUndefined(); // nets to nothing
+    expect(obs.filter((o) => o.metric_key === "orders.hourly")).toHaveLength(4);
   });
 });
 

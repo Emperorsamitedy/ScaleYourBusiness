@@ -10,11 +10,13 @@
 // system suggests, the owner confirms, and nothing is stored until they do.
 // The connect form's instructions are the scope registry rendered
 // (SCOPE_GUIDE), so the screen cannot promise a permission the code
-// doesn't declare.
+// doesn't declare. Below it, the Execution section (P3-20h) keeps write
+// access visibly apart: its own heading, colour and consent.
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ProposalsBadge } from "../proposals/ProposalsBadge";
+import { ExecutionSection } from "./ExecutionSection";
 
 type Verification = "reported" | "probed";
 type Matching = "product" | "channel" | null;
@@ -478,6 +480,43 @@ function Steps({ provider }: { provider: ProviderOption }) {
           </li>
         </ol>
       );
+    case "square":
+      return (
+        <ol className="conn-steps">
+          <li>
+            In the <strong>Square Developer Console</strong>, create an application (or open one)
+            and copy its <strong>Production access token</strong>.
+          </li>
+          <li>
+            Give it only these permissions:
+            <GuideList guide={provider.guide} />
+          </li>
+          <li>
+            Paste the token below. Payments rung up in Square — card and cash — are read; cash that
+            never goes through the till can&rsquo;t be seen by anything.
+          </li>
+        </ol>
+      );
+    case "search_console":
+      return (
+        <ol className="conn-steps">
+          <li>
+            In <strong>Google Cloud Console</strong>, enable the{" "}
+            <strong>Google Search Console API</strong> on a project and create a service account
+            with a <strong>JSON key</strong> — the same one you use for Google Analytics is fine.
+          </li>
+          <li>
+            In <strong>Search Console</strong>, open <strong>Settings</strong>, then{" "}
+            <strong>Users and permissions</strong>, and add the service account&rsquo;s email:
+            <GuideList guide={provider.guide} />
+          </li>
+          <li>
+            Enter the property exactly as Search Console names it, with the contents of the key
+            file. Rare searches are hidden by Google for privacy, so the searches I read add up to a
+            little less than Google&rsquo;s own total.
+          </li>
+        </ol>
+      );
     case "meta_ads":
       return (
         <ol className="conn-steps">
@@ -766,7 +805,7 @@ export function ConnectionsScreen() {
     <main className="ops-shell">
       <header className="ops-head">
         <span className="wordmark">Ledgerline</span>
-        <span className="ops-meta">connections · read-only · {live.length} active</span>
+        <span className="ops-meta">connections · {live.length} read-only active</span>
       </header>
 
       {notice !== null && (
@@ -816,6 +855,9 @@ export function ConnectionsScreen() {
           </ul>
         </section>
       )}
+
+      {/* P3-20h: write access, visibly apart from everything above. */}
+      <ExecutionSection />
 
       <p className="conn-note">
         Google Ads isn&rsquo;t available yet: it needs Ledgerline&rsquo;s own approval from Google

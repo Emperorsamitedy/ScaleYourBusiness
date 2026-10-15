@@ -81,6 +81,35 @@ export const CREDENTIAL_FIELDS: Readonly<Record<ProviderId, readonly CredentialF
       secret: true,
     },
   ],
+  square: [
+    {
+      name: "access_token",
+      label: "Access token",
+      placeholder: "from the Square Developer Console",
+      secret: true,
+    },
+    {
+      name: "environment",
+      label: "Environment",
+      placeholder: "production (or sandbox for testing)",
+      secret: false,
+    },
+  ],
+  search_console: [
+    {
+      name: "site_url",
+      label: "Property",
+      placeholder: "https://www.example.com/ or sc-domain:example.com",
+      secret: false,
+    },
+    {
+      name: "service_account_json",
+      label: "Service account key file",
+      placeholder: "paste the whole JSON key file here",
+      secret: true,
+      multiline: true,
+    },
+  ],
 };
 
 /** Encode form values into the single credential string the connect API takes. */
