@@ -11,6 +11,10 @@
 // still flips to executed through the Session A service, which writes
 // the decision-log entry — an approved plan that produced drafts is a
 // thing that HAPPENED, and the log says so.
+//
+// P3-21a: the drafts it produces are then offered for publishing, one
+// proposal per item headed for a connected Meta asset (./publish) — the
+// owner approves the finished item, not just the plan.
 
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
@@ -20,6 +24,8 @@ import { recordExecution } from "../proposals/service";
 import type { DraftLlm } from "./draft";
 import { draftItem } from "./draft";
 import { withDisclosure } from "./disclosure";
+import type { PublishRun } from "./publish";
+import { isPublishProposal, proposePublishing } from "./publish";
 import type { PlannedItem } from "./plan";
 import { ContentError } from "./plan";
 import type { Shot } from "./shotlist";
@@ -30,6 +36,8 @@ export type ContentItemRow = typeof contentItems.$inferSelect;
 
 export interface ProduceOutcome {
   items: ContentItemRow[];
+  /** P3-21a: the publish proposals the drafts got, and why the rest didn't. */
+  publishing: PublishRun;
 }
 
 /**
@@ -60,6 +68,12 @@ export async function produceFromProposal(
   };
   if (action.kind !== "content_publishing") {
     throw new ContentError("this proposal is not a content proposal", 422);
+  }
+  if (isPublishProposal(proposal.action)) {
+    throw new ContentError(
+      "this is a publish proposal for one finished item — it publishes, it doesn't produce",
+      422,
+    );
   }
 
   const [acct] = await db
@@ -144,7 +158,27 @@ export async function produceFromProposal(
     proposalId: proposal.id,
     result: { produced: inserted.length, kinds: inserted.map((r) => r.kind) },
   });
-  return { items: inserted };
+
+  // The drafts exist and the plan is executed whatever happens next; a
+  // failure to propose publishing is logged, never an undone production.
+  let publishing: PublishRun = { created: [], skipped: [] };
+  try {
+    publishing = await proposePublishing(
+      proposal.profile_id,
+      inserted.map((r) => r.id),
+      opts.limitLlm ? { limitLlm: opts.limitLlm } : {},
+    );
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "publish_proposals_failed",
+        account_id: accountId,
+        profile_id: proposal.profile_id,
+        message: String(error),
+      }),
+    );
+  }
+  return { items: inserted, publishing };
 }
 
 /** The queue, soonest first — the /content screen's one read. */

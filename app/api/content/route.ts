@@ -16,6 +16,7 @@ import { businessProfiles, proposals } from "../../../db/schema";
 import { currentSession } from "../../../lib/auth/service";
 import { ContentError, proposeContentPlan } from "../../../lib/content/plan";
 import { contentQueue, produceFromProposal } from "../../../lib/content/produce";
+import { isPublishProposal, publishNotes } from "../../../lib/content/publish";
 import { proposeShotList } from "../../../lib/content/shotlist";
 import { ProposalError } from "../../../lib/proposals/service";
 
@@ -60,10 +61,15 @@ export async function GET(): Promise<NextResponse> {
     ]);
     return NextResponse.json({
       items,
-      producible: producible.map((p) => ({
-        id: p.id,
-        summary: (p.action as { summary?: string }).summary ?? "content proposal",
-      })),
+      // P3-21a: why each draft isn't headed for publishing, in the owner's words.
+      publish_notes: await publishNotes(profileId, items),
+      // A publish proposal publishes one finished item; it never produces.
+      producible: producible
+        .filter((p) => !isPublishProposal(p.action))
+        .map((p) => ({
+          id: p.id,
+          summary: (p.action as { summary?: string }).summary ?? "content proposal",
+        })),
     });
   } catch (error) {
     return onError(error);
@@ -96,10 +102,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (typeof body.proposal_id !== "string") {
         return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
       }
-      const { items } = await produceFromProposal(body.proposal_id, {
+      const { items, publishing } = await produceFromProposal(body.proposal_id, {
         expectedProfileId: profileId,
       });
-      return NextResponse.json({ produced: items.length });
+      return NextResponse.json({ produced: items.length, publishing: publishing.created.length });
     }
     return NextResponse.json(
       { error: 'action must be "plan", "shotlist" or "produce"' },

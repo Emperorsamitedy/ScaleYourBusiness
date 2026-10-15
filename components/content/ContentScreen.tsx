@@ -57,6 +57,8 @@ type State =
       suggestions: Suggestion[];
       items: ContentItem[];
       producible: Producible[];
+      /** P3-21a: item id → why it isn't headed for publishing. */
+      publishNotes: Record<string, string>;
       busy: boolean;
       notice: string | null;
       newGoal: string;
@@ -106,7 +108,11 @@ export function ContentScreen() {
     if (contentRes.status === 401 || goalsRes.status === 401) {
       return setState({ phase: "signedout" });
     }
-    const content = (await contentRes.json()) as { items: ContentItem[]; producible: Producible[] };
+    const content = (await contentRes.json()) as {
+      items: ContentItem[];
+      producible: Producible[];
+      publish_notes?: Record<string, string>;
+    };
     const goals = (await goalsRes.json()) as { goals: Goal[]; suggestions: Suggestion[] };
     setState({
       phase: "ready",
@@ -114,6 +120,7 @@ export function ContentScreen() {
       suggestions: goals.suggestions,
       items: content.items,
       producible: content.producible,
+      publishNotes: content.publish_notes ?? {},
       busy: false,
       notice: null,
       newGoal: "",
@@ -337,6 +344,9 @@ export function ContentScreen() {
               )}
               {item.status === "failed" && item.last_error && (
                 <p className="conn-note">{item.last_error}</p>
+              )}
+              {s.publishNotes[item.id] && (
+                <p className="conn-note">Not publishing: {s.publishNotes[item.id]}.</p>
               )}
               <p className="ct-disclosure">{item.disclosure}</p>
             </article>
