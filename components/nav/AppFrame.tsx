@@ -31,21 +31,7 @@ interface Section {
   /** Where clicking the section goes. */
   href: string;
   tabs: Tab[];
-  icon: ReactNode;
 }
-
-const icon = (d: string) => (
-  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-    <path
-      d={d}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 export const SECTIONS: readonly Section[] = [
   {
@@ -53,7 +39,6 @@ export const SECTIONS: readonly Section[] = [
     label: "To approve",
     href: "/proposals",
     tabs: [{ href: "/proposals", label: "Waiting for you" }],
-    icon: icon("M5 12.5l4.5 4.5L19 7.5"),
   },
   {
     key: "insights",
@@ -66,7 +51,6 @@ export const SECTIONS: readonly Section[] = [
       { href: "/hours", label: "Trading hours" },
       { href: "/blindspots", label: "Blindspots" },
     ],
-    icon: icon("M4 19V9m6 10V5m6 14v-7m4 7H3"),
   },
   {
     key: "grow",
@@ -76,7 +60,6 @@ export const SECTIONS: readonly Section[] = [
       { href: "/content", label: "Content" },
       { href: "/site", label: "Website" },
     ],
-    icon: icon("M4 16l5-5 4 4 7-7M14 8h6v6"),
   },
   {
     key: "customers",
@@ -86,9 +69,6 @@ export const SECTIONS: readonly Section[] = [
       { href: "/customers", label: "Customers" },
       { href: "/support", label: "Support" },
     ],
-    icon: icon(
-      "M16 19v-1.5a3.5 3.5 0 00-3.5-3.5h-5A3.5 3.5 0 004 17.5V19M10 10.5a3 3 0 100-6 3 3 0 000 6zM20 19v-1.5a3.5 3.5 0 00-2.5-3.35M15.5 4.6a3 3 0 010 5.8",
-    ),
   },
   {
     key: "business",
@@ -100,7 +80,6 @@ export const SECTIONS: readonly Section[] = [
       { href: "/mode", label: "How I work" },
       { href: "/history", label: "History" },
     ],
-    icon: icon("M4 20V9l8-5 8 5v11M9 20v-6h6v6"),
   },
 ];
 
@@ -171,7 +150,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
   return (
     <div className="app-frame">
       <nav className="app-rail" aria-label="Main">
-        <Link href="/report" className="wordmark app-rail-mark">
+        <Link href="/report" className="app-rail-mark">
           Ledgerline
         </Link>
         <ul className="app-rail-list">
@@ -184,7 +163,6 @@ export function AppFrame({ children }: { children: ReactNode }) {
                   className={`app-rail-item${active ? " active" : ""}`}
                   aria-current={active ? "page" : undefined}
                 >
-                  {s.icon}
                   <span className="app-rail-label">{s.label}</span>
                   {s.key === "approve" && <ApprovalCount />}
                 </Link>

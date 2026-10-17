@@ -78,33 +78,16 @@ const nice = (key: string): string =>
     .map((seg) => KEY_LABEL[seg] ?? seg.replace(/_/g, " "))
     .join(" · ");
 
-function Ring({ frac, label }: { frac: number; label: string }) {
-  const R = 44;
-  const C = 2 * Math.PI * R;
+/** Completeness as a figure and a flat, text-width bar — arithmetic, not a dial. */
+function Completeness({ frac }: { frac: number }) {
+  const pct = Math.round(frac * 100);
   return (
-    <svg viewBox="0 0 110 110" className="fs-ring" aria-label={`completeness ${label}`}>
-      <circle cx="55" cy="55" r={R} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="9" />
-      <circle
-        cx="55"
-        cy="55"
-        r={R}
-        fill="none"
-        stroke="url(#fsGrad)"
-        strokeWidth="9"
-        strokeLinecap="round"
-        strokeDasharray={`${(C * frac).toFixed(1)} ${C.toFixed(1)}`}
-        transform="rotate(-90 55 55)"
-      />
-      <defs>
-        <linearGradient id="fsGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ffb25c" />
-          <stop offset="100%" stopColor="#e1560f" />
-        </linearGradient>
-      </defs>
-      <text x="55" y="61" textAnchor="middle" className="fs-ring-v">
-        {label}
-      </text>
-    </svg>
+    <div className="fs-ring">
+      <span className="fs-ring-v">{pct}%</span>
+      <span className="fs-ring-bar" aria-hidden="true">
+        <span style={{ width: `${pct}%` }} />
+      </span>
+    </div>
   );
 }
 
@@ -390,10 +373,7 @@ export function FactSheetScreen() {
 
       <div className="fs-summary" id="fs-overview" data-rail>
         <div className="fs-card fs-comp">
-          <Ring
-            frac={sheet.completeness.overall}
-            label={`${Math.round(sheet.completeness.overall * 100)}%`}
-          />
+          <Completeness frac={sheet.completeness.overall} />
           <div>
             <h2>How complete this is</h2>
             <p>

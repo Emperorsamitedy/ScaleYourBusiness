@@ -83,11 +83,9 @@ function Curve({ w, currency }: { w: WeekdayAnalysis; currency: string }) {
             style={{
               display: "inline-block",
               height: 10,
-              borderRadius: 5,
               width: `${Math.max(2, Math.round((Math.max(0, c.mean_minor) / max) * 100))}%`,
               maxWidth: "60%",
               background: inOpen(c.hour) ? "var(--ink)" : "var(--hair-2)",
-              opacity: inOpen(c.hour) ? 0.7 : 1,
             }}
           />
           <span className="conn-note" style={{ margin: 0 }}>

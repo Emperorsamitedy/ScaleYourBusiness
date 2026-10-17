@@ -17,7 +17,7 @@
   white-space: nowrap;
 }
 
-.lp-skip {
+.lp .lp-skip {
   position: absolute;
   left: var(--gutter);
   top: -100px;
@@ -445,7 +445,7 @@
   background: var(--inset);
 }
 .ds-table tbody tr.is-alarm th {
-  box-shadow: inset 2px 0 0 var(--alarm);
+  border-left: 2px solid var(--alarm);
   padding-left: var(--s-3);
 }
 .ds-table-tight th,

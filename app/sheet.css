@@ -240,14 +240,16 @@
 }
 
 /* Focus is always visible and never confused with hover: a 2px ring
-   in whichever ink the surface underneath reads in. */
-.desk :focus-visible {
-  outline: 2px solid var(--desk-ink);
-  outline-offset: 3px;
-  border-radius: 0;
+   in whichever ink the surface underneath reads in (globals.css). */
+.sheet {
+  --ink: var(--sheet-ink);
+  --mut: var(--sheet-ink-2);
 }
-.desk .sheet :focus-visible {
-  outline-color: var(--sheet-ink);
+button,
+input,
+select,
+textarea {
+  border-radius: 0;
 }
 
 /* ── worded flags: the word carries meaning, colour only tints it ── */
