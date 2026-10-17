@@ -135,7 +135,7 @@ export function fakeGa4(options: FakeGa4Options): FakeGa4 {
     }
 
     if (u.origin + u.pathname === "https://oauth2.googleapis.com/tokeninfo") {
-      const token = u.searchParams.get("access_token") ?? "";
+      const token = (init.headers["authorization"] ?? "").replace(/^Bearer /, "");
       const scope = issued.get(token);
       if (scope === undefined) return ga4Json(400, { error: "invalid_token" });
       return ga4Json(200, {

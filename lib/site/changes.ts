@@ -152,7 +152,8 @@ export async function proposeSiteChange(
   }
 
   const platform = detectPlatform(page.html, page.headers);
-  const afterHtml = page.html.replace(find, replace);
+  // Literal, like the apply: "$'" in the text must never copy the rest of the page in.
+  const afterHtml = page.html.replace(find, () => replace);
   const previewable = page.html.length <= PREVIEW_CAP;
 
   const detail: SiteChangeDetail = {

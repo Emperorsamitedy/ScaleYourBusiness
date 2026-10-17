@@ -353,6 +353,15 @@ export async function undoExecution(args: {
   if (await isHalted(ctx.account_id)) {
     throw new ExecutionRefused("halted", "the emergency stop is on — resume before undoing");
   }
+  // The watching block applies to undo like any other write (the comment
+  // above said so; the code didn't check — security review 2026-10-17).
+  const decision = await latestDecision(ctx.profile_id);
+  if (decision?.mode === "watching") {
+    throw new ExecutionRefused(
+      "watching",
+      "this business is being watched, not changed — the watch blocks every write, undo included",
+    );
+  }
   if (execution.undo_payload === null) {
     throw new ExecutionRefused(
       "not_undoable",

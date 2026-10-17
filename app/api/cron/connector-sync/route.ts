@@ -5,13 +5,14 @@
 // job-queue decision is recorded in lib/connectors/sync.ts — this stays a
 // cron route until a measured run says otherwise.
 
+import { bearerMatches } from "../../../../lib/core/secret-compare";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { runConnectorSync } from "../../../../lib/connectors/sync";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!bearerMatches(request.headers.get("authorization"), secret)) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
   try {

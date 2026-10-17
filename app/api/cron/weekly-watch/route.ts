@@ -5,6 +5,7 @@
 // No job queue until Phase 2 (CLAUDE.md), and a weekly snapshot+diff
 // completes in seconds — a cron-hit route is the whole requirement.
 
+import { bearerMatches } from "../../../../lib/core/secret-compare";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { runProgressChecks } from "../../../../lib/care/progress";
@@ -13,7 +14,7 @@ import { runWeeklyWatch } from "../../../../lib/watch/job";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!bearerMatches(request.headers.get("authorization"), secret)) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
   try {

@@ -5,6 +5,7 @@
 // business with support enabled and enough open questions; a business
 // with fewer than FAQ_MIN_CLUSTER questions costs nothing.
 
+import { bearerMatches } from "../../../../lib/core/secret-compare";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../../db";
@@ -13,7 +14,7 @@ import { clusterQuestions } from "../../../../lib/crm/faq";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!bearerMatches(request.headers.get("authorization"), secret)) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
   try {

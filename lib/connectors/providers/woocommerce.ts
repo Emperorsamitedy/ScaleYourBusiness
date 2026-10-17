@@ -26,6 +26,7 @@
 // days, because refunds change past orders. Units are line item quantities
 // by product id.
 
+import { vetAddresses } from "../../site/fetch";
 import { addDays, advanceCursor, dayString, oneNewDay, planWindow } from "../days";
 import { DecimalError, decimalToMinor } from "../decimal";
 import type { ExternalProduct, Observation, Provider, PullPage } from "../provider";
@@ -387,12 +388,25 @@ export function aggregateWooOrders(
 
 /* ── the provider ── */
 
+/** A store sync that stalls must not hang the sync cron. */
+export const WOO_FETCH_TIMEOUT_MS = 20_000;
+
 const defaultFetch: WooFetch = async (url, init) => {
+  // The owner typed this address. Resolve it and refuse private, loopback
+  // and link-local targets BEFORE the request carrying the store's key
+  // goes out (the security review of 2026-10-17: the hostname check alone
+  // let a public name that resolves inside a network through).
+  try {
+    await vetAddresses(new URL(url));
+  } catch {
+    throw new ProviderError("woocommerce: that store address doesn't resolve to a public server");
+  }
   const response = await fetch(url, {
     method: init.method,
     headers: init.headers,
     cache: "no-store",
     redirect: "error",
+    signal: AbortSignal.timeout(WOO_FETCH_TIMEOUT_MS),
   });
   return {
     status: response.status,
