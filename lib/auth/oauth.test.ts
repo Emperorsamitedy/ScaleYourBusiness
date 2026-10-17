@@ -124,8 +124,8 @@ describe("signInWithEmail — one motion, however the email was proven", () => {
 });
 
 describe("security review 2026-10-17 — an id_token's claims are checked before its email is trusted", () => {
-  const google = { id: "google", label: "Google", clientId: "g-client" };
-  const microsoft = { id: "microsoft", label: "Microsoft", clientId: "ms-client" };
+  const google = { id: "google" as const, label: "Google", clientId: "g-client" };
+  const microsoft = { id: "microsoft" as const, label: "Microsoft", clientId: "ms-client" };
   const ATTACKER_TENANT = "11111111-2222-3333-4444-555555555555";
 
   it("Google: our audience, Google's issuer, a verified email", () => {

@@ -20,7 +20,8 @@
 // design: that is the product's "answer first, sign up later" path, and
 // the signature is what protects it.
 
-import { createHmac, hkdfSync, timingSafeEqual } from "node:crypto";
+import { derivedKey } from "../core/derived-key";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { db } from "../../db";
@@ -34,21 +35,9 @@ export const INTAKE_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-let cachedKey: Buffer | null = null;
-
 /** The signing key: HKDF over COOKIE_SECRET, or CONNECTOR_KEY when that is unset. Never logged. */
 function cookieKey(): Buffer {
-  if (cachedKey) return cachedKey;
-  const material = process.env.COOKIE_SECRET || process.env.CONNECTOR_KEY;
-  if (!material) {
-    throw new Error(
-      "Missing COOKIE_SECRET (or CONNECTOR_KEY) — the intake cookie cannot be signed without one",
-    );
-  }
-  cachedKey = Buffer.from(
-    hkdfSync("sha256", Buffer.from(material, "utf8"), Buffer.alloc(0), "syb-intake-cookie-v1", 32),
-  );
-  return cachedKey;
+  return derivedKey("syb-intake-cookie-v1");
 }
 
 function mac(profileId: string): string {

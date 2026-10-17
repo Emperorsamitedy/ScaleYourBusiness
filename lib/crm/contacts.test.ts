@@ -382,3 +382,33 @@ describe("security review 2026-10-17 — erasure takes the support traces too (r
     });
   });
 });
+
+describe("security review 2026-10-17 — suppression hashes are keyed, and old ones still bind", () => {
+  it("THE GAP: a new suppression is an HMAC, so a database reader can't test an address against it", async () => {
+    const { createHash } = await import("node:crypto");
+    const h = emailHash("Someone@Example.com ");
+    expect(h).toMatch(/^h1:[0-9a-f]{64}$/);
+    expect(h).not.toContain(createHash("sha256").update("someone@example.com").digest("hex"));
+    expect(emailHash("someone@example.com")).toBe(h); // normalised the same way
+  });
+
+  it("a suppression written before the change (plain sha256) still refuses the address, forever", async () => {
+    const { isSuppressed, legacyEmailHash } = await import("./contacts");
+    const s = await fresh();
+    const email = `legacy-${crypto.randomUUID().slice(0, 8)}@example.com`;
+    await db
+      .insert(contactSuppressions)
+      .values({
+        account_id: s.account_id,
+        email_hash: legacyEmailHash(email),
+        reason: "unsubscribed",
+      });
+    expect(await isSuppressed(s.account_id, email)).toBe("unsubscribed");
+    await expect(
+      addContact(s.account_id, {
+        email,
+        consent: { status: "explicit_consent", source: "checkout" },
+      }),
+    ).rejects.toThrow(/unsubscribed/);
+  });
+});
