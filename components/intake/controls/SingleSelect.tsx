@@ -1,9 +1,10 @@
 "use client";
 
 // Single select — click fills ink, a 130ms confirm beat lets the choice
-// register, then the answer auto-submits (§4.2).
+// register, then the answer auto-submits (§4.2). Zero under reduced motion.
 
 import { useEffect, useRef, useState } from "react";
+import { CONFIRM_MS, beat } from "../motion";
 import type { ControlProps } from "./shared";
 
 export function SingleSelectControl({ question, onChange, onCommit }: ControlProps) {
@@ -20,11 +21,15 @@ export function SingleSelectControl({ question, onChange, onCommit }: ControlPro
     committing.current = true;
     setPicked(code);
     onChange({ wire: code });
-    window.setTimeout(() => onCommit({ wire: code }), 130);
+    window.setTimeout(() => onCommit({ wire: code }), beat(CONFIRM_MS));
   };
 
   return (
-    <div className={question.options.length > 8 ? "opts many" : "opts"} role="group">
+    <div
+      className={question.options.length > 8 ? "opts many" : "opts"}
+      role="group"
+      aria-labelledby={`q-${question.id}`}
+    >
       {question.options.map((option, i) => (
         <button
           key={option.code}

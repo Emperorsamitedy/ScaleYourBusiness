@@ -38,7 +38,7 @@ import { runRecommendations } from "../diagnosis/recommendations";
 import type { TradingHoursBlock } from "../hours/findings";
 import { tradingFindings } from "../hours/findings";
 import { tradingAnalysis } from "../hours/trading";
-import { gapBuys, repr } from "../profile/factsheet";
+import { gapBuys, repr, sourceDetail } from "../profile/factsheet";
 import type { GapRow } from "../profile/factsheet";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { computeCompleteness } from "../scorer/completeness";
@@ -69,7 +69,16 @@ export interface ReportView {
   /** Evidence rendering (P1-36): key → value/status/confidence/source. */
   fact_map: Record<
     string,
-    { value: string | null; status: string; confidence: number; source_kind: string }
+    {
+      value: string | null;
+      status: string;
+      confidence: number;
+      source_kind: string;
+      /** When the fact was true, a question id / URL / method, and any note — printed beside it. */
+      observed_at: string;
+      source_detail: string | null;
+      note: string | null;
+    }
   >;
 }
 
@@ -82,6 +91,9 @@ async function factMap(snapshotId: string): Promise<ReportView["fact_map"]> {
       status: f.status,
       confidence: f.confidence,
       source_kind: displaySourceKind(f.source),
+      observed_at: f.observed_at,
+      source_detail: sourceDetail(f.source),
+      note: f.note ?? null,
     };
   }
   return out;

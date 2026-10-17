@@ -3,11 +3,16 @@
 // The centre card — eyebrow (mono id + tier), display prompt, help,
 // control slot, action row (P0-61). Validation is inline and specific;
 // errors never modal, never apologise, clear on next input (§4.2).
+//
+// Key hints are words in mono, never glyphs. A money question prints its
+// bank help text as a mono PURPOSE note — only text the bank already
+// carries; nothing is written per question here (rule 4).
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { AnswerAction, IntakeQuestion } from "@/lib/intake/types";
 import type { ControlChange } from "./controls/shared";
+import { keyHint } from "./record";
 import { BooleanControl } from "./controls/Boolean";
 import { DateControl } from "./controls/DateInput";
 import { EntityListControl } from "./controls/EntityList";
@@ -31,22 +36,6 @@ interface QuestionCardProps {
   onFirstInput?: () => void;
 }
 
-/** Where Enter (or Cmd/Ctrl-Enter) submits, say so in mono (P0-67). */
-function hintFor(type: IntakeQuestion["input_type"], mod: string): string | null {
-  switch (type) {
-    case "long_text":
-      return `${mod}↩ to continue`;
-    case "text":
-    case "number":
-    case "money":
-    case "date":
-    case "entity_list":
-      return "Enter to continue";
-    default:
-      return null;
-  }
-}
-
 export function QuestionCard({
   question,
   leaving,
@@ -60,10 +49,10 @@ export function QuestionCard({
   const [entityRows, setEntityRows] = useState<EntityRow[] | null>(null);
   const [entityValid, setEntityValid] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
-  const [mod, setMod] = useState("Ctrl");
+  const [isMac, setIsMac] = useState(false);
 
   useEffect(() => {
-    if (/Mac|iPhone|iPad/.test(navigator.platform)) setMod("⌘");
+    if (/Mac|iPhone|iPad/.test(navigator.platform)) setIsMac(true);
   }, []);
 
   const emptyMessage = question.allow_unknown
@@ -136,19 +125,33 @@ export function QuestionCard({
   })();
 
   const error = serverError ?? localError;
-  const hint = hintFor(question.input_type, mod);
+  const hint = keyHint(question.input_type, isMac);
+  const isMoney = question.input_type === "money";
   const showRecord = question.input_type !== "file";
 
   return (
     <div className={leaving ? "card leaving" : "card"}>
-      <div className="eyebrow">
-        <span>{question.id}</span>
+      <div className="eyebrow label">
+        <span className="fig">{question.id}</span>
         <span className="tier">{question.priority}</span>
       </div>
-      <h2 className="prompt">{question.prompt}</h2>
-      {question.help && <p className="help">{question.help}</p>}
+      <h2 className="prompt" id={`q-${question.id}`}>
+        {question.prompt}
+      </h2>
+      {question.help &&
+        (isMoney ? (
+          <p className="help purpose">
+            <span className="label">Purpose:</span> {question.help}
+          </p>
+        ) : (
+          <p className="help">{question.help}</p>
+        ))}
       <div>{control}</div>
-      {error && <p className="err">{error}</p>}
+      {error && (
+        <p className="err" role="alert">
+          {error}
+        </p>
+      )}
       <div className="row">
         {showRecord && (
           <button
@@ -162,7 +165,7 @@ export function QuestionCard({
             }
             onClick={() => record(draft)}
           >
-            Record answer
+            Record answer &rarr;
           </button>
         )}
         {question.allow_unknown ? (
@@ -184,7 +187,7 @@ export function QuestionCard({
             Skip for now
           </button>
         )}
-        {hint && <span className="hint">{hint}</span>}
+        {hint && <span className="hint label">{hint}</span>}
       </div>
     </div>
   );

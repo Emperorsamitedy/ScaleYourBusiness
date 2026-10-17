@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { ControlProps } from "./shared";
 
-export function LongTextControl({ onChange, onCommit }: ControlProps) {
+export function LongTextControl({ question, onChange, onCommit }: ControlProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     ref.current?.focus();
@@ -14,6 +14,7 @@ export function LongTextControl({ onChange, onCommit }: ControlProps) {
   return (
     <textarea
       ref={ref}
+      aria-labelledby={`q-${question.id}`}
       className="field"
       rows={3}
       onChange={(e) => onChange({ wire: wireOf(e.target.value) })}

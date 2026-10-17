@@ -1,0 +1,430 @@
+/* The fact sheet on the sheet system — ux-spec §2. Imported by
+   components/profile/FactSheet.tsx. Same grammar as the report
+   (app/report.css): ruled tables, figures in mono, and the basis, source
+   and observed date printed in every row.
+
+   Scoped under .fs-shell.fx so it outranks the older .fs-* rules in
+   app/globals.css; .fs-shell stays on <main> because globals.css makes
+   it a paper scope. */
+
+.fs-shell.fx {
+  display: block;
+  max-width: 1160px;
+  margin: var(--s-6) auto var(--s-8);
+  padding: var(--s-6) var(--gutter) var(--s-7);
+  color: var(--sheet-ink);
+  background: var(--paper);
+  font-family: var(--f-prose);
+}
+@media (max-width: 719px) {
+  .fs-shell.fx {
+    margin: 0 0 var(--s-8);
+    padding: var(--s-5) var(--gutter) var(--s-7);
+    border-left: 0;
+    border-right: 0;
+  }
+}
+
+/* ── the head: the business name is the one display heading ── */
+
+.fx .fx-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--s-4);
+  padding-bottom: var(--s-4);
+  border-bottom: var(--line-ink);
+}
+.fx .fx-kicker {
+  margin: 0 0 var(--s-2);
+  color: var(--sheet-ink-2);
+}
+.fx .fx-h1 {
+  font-size: var(--t-display-2);
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.fx .fx-sub {
+  margin: var(--s-2) 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  color: var(--sheet-ink-2);
+}
+.fx .fx-answer {
+  flex: none;
+}
+
+/* ── contents beside the body on wide screens, above it otherwise ── */
+
+.fx .fx-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-5);
+  margin-top: var(--s-5);
+}
+.fx .fx-contents .label {
+  margin: 0 0 var(--s-2);
+  color: var(--sheet-ink-2);
+}
+.fx .fx-contents ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-4);
+}
+.fx .fx-contents a {
+  display: inline-block;
+  padding: var(--s-1) 0;
+  font-size: var(--t-prose-s);
+}
+.fx .fx-contents a[aria-current] {
+  text-decoration-thickness: 2px;
+  font-weight: 600;
+}
+.fx .fx-contents .fig {
+  color: var(--sheet-ink-2);
+  font-size: var(--t-mono-xs);
+}
+@media (min-width: 1200px) {
+  .fx .fx-body {
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: var(--s-6);
+  }
+  .fx .fx-contents {
+    position: sticky;
+    top: var(--s-5);
+    align-self: start;
+  }
+  .fx .fx-contents ul {
+    flex-direction: column;
+    gap: 0;
+  }
+  .fx .fx-contents li a {
+    display: block;
+    padding: 6px 0 6px var(--s-3);
+    border-left: 2px solid var(--rule-soft);
+    text-decoration: none;
+  }
+  .fx .fx-contents li a:hover {
+    border-left-color: var(--rule);
+    text-decoration: underline;
+  }
+  .fx .fx-contents li a[aria-current] {
+    border-left-color: var(--sheet-ink);
+  }
+}
+
+/* ── sections ── */
+
+.fx .fx-section {
+  margin-bottom: var(--s-7);
+}
+.fx .fx-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-4);
+  padding-bottom: var(--s-2);
+  border-bottom: var(--line);
+}
+.fx .fx-h2 {
+  margin: 0;
+  font-family: var(--f-prose);
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.fx .fx-h3 {
+  margin: 0 0 var(--s-2);
+  font-family: var(--f-prose);
+  font-size: 16px;
+  font-weight: 600;
+}
+.fx .fx-meta {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.fx .fx-empty,
+.fx .fx-note-line,
+.fx .fx-lede {
+  margin: var(--s-3) 0;
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+}
+.fx .fx-status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: var(--s-3) 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+}
+
+/* ── the overview: two ruled panels ── */
+
+.fx .fx-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: var(--s-5);
+}
+.fx .fx-panel {
+  padding: var(--s-4);
+  border: var(--line);
+}
+.fx .fx-pct {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.fx .fx-bar {
+  display: block;
+  height: 8px;
+  margin: var(--s-2) 0 var(--s-3);
+  border: var(--line-ink);
+}
+.fx .fx-bar span {
+  display: block;
+  height: 100%;
+  background: var(--sheet-ink);
+}
+.fx .fx-panel-note {
+  margin: 0;
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+}
+
+/* ── tables: rules, not boxes ── */
+
+.fx .fx-scroll {
+  overflow-x: auto;
+}
+.fx .fx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-prose-s);
+}
+.fx .fx-table th,
+.fx .fx-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: var(--s-2) var(--s-3) var(--s-2) 0;
+  border-bottom: var(--hair);
+}
+.fx .fx-table thead th {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--sheet-ink-2);
+  border-bottom: var(--line);
+  white-space: nowrap;
+}
+.fx .fx-table tbody th {
+  width: 28%;
+  font-weight: 500;
+  color: var(--sheet-ink-2);
+}
+.fx .fx-table tbody tr:hover {
+  background: var(--inset);
+}
+.fx .fx-table .num-col {
+  text-align: right;
+  white-space: nowrap;
+}
+.fx .fx-table td.num-col {
+  font-size: var(--t-mono-s);
+}
+.fx .fx-prov tbody th {
+  width: auto;
+  color: var(--sheet-ink);
+}
+.fx .fx-val {
+  overflow-wrap: anywhere;
+}
+.fx .fx-val .fig {
+  font-size: var(--t-mono);
+}
+.fx .fx-missing {
+  font-style: italic;
+  color: var(--sheet-ink-2);
+}
+.fx .fx-note,
+.fx .fx-detail {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.fx .fx-basis {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.fx .flag.none {
+  color: var(--sheet-ink-2);
+}
+.fx .fx-source {
+  min-width: 12ch;
+}
+
+/* ── gaps, candidates, entities ── */
+
+.fx .fx-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fx .fx-gap,
+.fx .fx-cand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: var(--hair);
+}
+.fx .fx-gap-head {
+  display: flex;
+  gap: var(--s-3);
+  align-items: baseline;
+  margin: 0;
+}
+.fx .fx-gap-head .label {
+  color: var(--sheet-ink-2);
+}
+.fx .fx-gap-q {
+  margin: var(--s-1) 0 0;
+  font-size: var(--t-prose);
+}
+.fx .fx-gap-b {
+  margin: 2px 0 0;
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+}
+.fx .fx-more {
+  margin-top: var(--s-2);
+}
+.fx .fx-cand strong {
+  display: block;
+}
+.fx .fx-cand p {
+  margin: var(--s-1) 0 0;
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+}
+.fx .fx-entity {
+  margin-top: var(--s-5);
+}
+.fx .fx-spine {
+  margin-left: var(--s-2);
+  color: var(--sheet-ink-2);
+}
+
+.fx .fx-search {
+  position: sticky;
+  top: var(--s-2);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin: 0 0 var(--s-5);
+  padding: var(--s-2) 0;
+  background: var(--paper);
+}
+.fx .fx-search .label {
+  color: var(--sheet-ink-2);
+}
+.fx .fx-search .field {
+  background: var(--paper);
+  border: var(--line);
+  min-height: 48px;
+}
+.fx .fx-search .field:focus {
+  border-color: var(--sheet-ink);
+}
+
+.fx .fx-foot {
+  padding-top: var(--s-3);
+  border-top: var(--line);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+.fx .fx-foot p {
+  margin: 0 0 var(--s-2);
+}
+.fx .fx-foot b {
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+
+/* ── narrow: rows stack, each cell keeps its column name ── */
+
+@media (max-width: 719px) {
+  .fx .fx-head {
+    flex-direction: column;
+  }
+  .fx .fx-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fx .fx-scroll {
+    overflow-x: visible;
+  }
+  .fx .fx-table:not(.fx-prov),
+  .fx .fx-table:not(.fx-prov) tbody,
+  .fx .fx-table:not(.fx-prov) tr,
+  .fx .fx-table:not(.fx-prov) th,
+  .fx .fx-table:not(.fx-prov) td {
+    display: block;
+  }
+  .fx .fx-table:not(.fx-prov) thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .fx .fx-table:not(.fx-prov) tr {
+    padding: var(--s-3) 0;
+    border-bottom: var(--hair);
+  }
+  .fx .fx-table:not(.fx-prov) th,
+  .fx .fx-table:not(.fx-prov) td {
+    width: auto;
+    border: 0;
+    padding: 2px 0;
+  }
+  .fx .fx-table:not(.fx-prov) tbody th {
+    color: var(--sheet-ink);
+    font-weight: 600;
+  }
+  .fx .fx-table:not(.fx-prov) td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    text-align: right;
+    white-space: normal;
+  }
+  .fx .fx-table:not(.fx-prov) td[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    font-family: var(--f-mono);
+    font-size: var(--t-mono-xs);
+    color: var(--sheet-ink-2);
+    text-align: left;
+  }
+  .fx .fx-gap,
+  .fx .fx-cand {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

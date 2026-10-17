@@ -108,7 +108,7 @@ export function repr(value: unknown): string | null {
   return String(value);
 }
 
-function sourceDetail(source: unknown): string | null {
+export function sourceDetail(source: unknown): string | null {
   if (typeof source !== "object" || source === null) return null;
   const s = source as {
     researched_url?: unknown;

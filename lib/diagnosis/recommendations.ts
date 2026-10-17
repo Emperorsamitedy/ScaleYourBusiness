@@ -21,7 +21,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { accounts, bankEntitySchemas, bankVersions, businessProfiles } from "../../db/schema";
 import type { Money } from "../core/money";
-import { money, subtract } from "../core/money";
+import { minorUnitExponent, money, subtract } from "../core/money";
 import { computeEconomics } from "../economics/unit-economics";
 import type { OfferEconomics } from "../economics/unit-economics";
 import { anthropicClient } from "../llm/client";
@@ -92,8 +92,10 @@ export interface RecommendationsResult {
 
 /* ── the arithmetic (P1-30): pure, exported, provable ── */
 
+// Whole major units by the currency's own exponent (CLAUDE.md rule 1):
+// /100 was wrong for JPY (0 decimals) and KWD (3).
 const fmt = (minor: number, currency: string): string =>
-  `${Math.round(minor / 100)
+  `${Math.round(minor / 10 ** minorUnitExponent(currency))
     .toLocaleString("en-US")
     .replace(/,/g, " ")} ${currency}`;
 

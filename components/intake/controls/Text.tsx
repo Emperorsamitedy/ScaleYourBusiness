@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { ControlProps } from "./shared";
 
-export function TextControl({ onChange, onCommit }: ControlProps) {
+export function TextControl({ question, onChange, onCommit }: ControlProps) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     ref.current?.focus();
@@ -14,6 +14,7 @@ export function TextControl({ onChange, onCommit }: ControlProps) {
   return (
     <input
       ref={ref}
+      aria-labelledby={`q-${question.id}`}
       className="field"
       type="text"
       autoComplete="off"

@@ -75,6 +75,7 @@ export function MoneyControl({ question, onChange, onCommit }: ControlProps) {
       <div className="money-wrap">
         <input
           ref={ref}
+          aria-labelledby={`q-${question.id}`}
           className="field tabular"
           type="text"
           inputMode="decimal"
@@ -96,7 +97,7 @@ export function MoneyControl({ question, onChange, onCommit }: ControlProps) {
         <button type="button" className="ghost" aria-pressed={estimate} onClick={toggleEstimate}>
           This is an estimate
         </button>
-        {estimate && <span className="mono-note">will be marked · estimate</span>}
+        {estimate && <span className="mono-note label">Basis: estimate</span>}
       </div>
     </div>
   );

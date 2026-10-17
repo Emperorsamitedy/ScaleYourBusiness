@@ -1,0 +1,586 @@
+/* The intake on the sheet system — specs/ux-spec-v1.md §2 and §4, owner
+   brief 2026-10-17. Imported by components/intake/IntakeStage.tsx.
+
+   Everything is scoped under .intake, so these rules outrank the older
+   class rules in app/globals.css without editing that file.
+
+   Layout: one question in the centre; beside it, one record column — the
+   live "check your answers" list. Under 900px the column becomes a strip
+   below the card.
+
+   Motion reports state and nothing else:
+     card rises         --d-move   (220ms)
+     card departs       --d-record (280ms) — the JS wait reads this token
+     fact line settles  --d-record (280ms)
+   all on --ease-out; sheet.css zeroes every token under reduced motion. */
+
+/* ── the bar: masthead ink, the record in words, a flat 1px rule ── */
+
+.intake .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  flex-wrap: wrap;
+  align-items: baseline;
+  row-gap: var(--s-1);
+  column-gap: var(--s-4);
+  padding: var(--s-4) var(--gutter);
+  background: var(--masthead);
+  border-bottom: 1px solid var(--desk-rule);
+}
+.intake .topbar .subtitle {
+  font-size: var(--t-prose-s);
+  color: var(--desk-ink-2);
+}
+.intake .topbar .meta {
+  margin-left: auto;
+  font-size: var(--t-mono-s);
+  letter-spacing: 0.02em;
+  color: var(--desk-ink);
+  white-space: normal;
+}
+.intake .progress-rail {
+  position: absolute;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: var(--desk-rule);
+}
+.intake .progress-fill {
+  height: 1px;
+  background: var(--desk-ink);
+  transition: width var(--d-record) var(--ease-out);
+}
+
+.intake-notice {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: var(--s-4) var(--gutter) 0;
+}
+.intake .resume-note {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: var(--t-prose-s);
+}
+
+/* ── the stage: question, then the record beside it ── */
+
+.intake .stage {
+  grid-template-columns: minmax(0, 640px) minmax(280px, 400px);
+  justify-content: center;
+  gap: var(--s-6);
+  max-width: 1180px;
+  padding: var(--s-6) var(--gutter) var(--s-8);
+}
+.intake .centre {
+  gap: var(--s-4);
+  padding-top: 0;
+  min-width: 0;
+}
+
+/* ── the question sheet ── */
+
+.intake .card {
+  padding: var(--s-6);
+  border: 1px solid var(--desk-rule);
+  animation: intake-rise var(--d-move) var(--ease-out) both;
+}
+.intake .card.leaving {
+  animation: intake-depart var(--d-record) var(--ease-out) forwards;
+}
+@keyframes intake-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes intake-depart {
+  to {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+.intake .eyebrow {
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+  color: var(--sheet-ink-2);
+  font-size: var(--t-mono-xs);
+}
+.intake .eyebrow .tier {
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+.intake .eyebrow .tier::before {
+  content: "·";
+  margin-right: var(--s-2);
+}
+.intake .prompt {
+  font-family: var(--f-display);
+  font-size: var(--t-display-3);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--s-2);
+  max-width: var(--measure);
+}
+.intake .help {
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+  max-width: var(--measure);
+  margin: 0 0 var(--s-5);
+}
+/* Money questions print the bank's own help text as a purpose note. */
+.intake .help.purpose {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  line-height: 1.5;
+  color: var(--sheet-ink);
+  background: var(--inset);
+  border: var(--line);
+  padding: var(--s-2) var(--s-3);
+}
+.intake .help.purpose .label {
+  margin-right: var(--s-1);
+}
+
+.intake .field {
+  min-height: 48px;
+  border-color: var(--rule);
+  transition: border-color var(--d-press) linear;
+}
+.intake .field:focus {
+  border-color: var(--sheet-ink);
+}
+/* globals.css sets outline:none on .field; focus must always show. */
+.intake .field:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.intake textarea.field {
+  min-height: 96px;
+}
+
+.intake .mono-note,
+.intake .currency-suffix,
+.intake .filestub .sub,
+.intake .chip-detail {
+  font-size: var(--t-mono-xs);
+  animation: none;
+}
+.intake .filestub {
+  border: 1px dashed var(--rule);
+}
+
+.intake .row {
+  gap: var(--s-3);
+  margin-top: var(--s-5);
+}
+.intake .row .ghost.quiet {
+  min-height: 48px;
+  padding: 0 var(--s-1);
+}
+.intake .hint {
+  margin-left: auto;
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.intake .err {
+  font-size: var(--t-prose-s);
+  margin: var(--s-3) 0 0;
+}
+
+/* ── the restatement: what was just recorded, as a fact line ── */
+
+.intake .last-rec {
+  margin: 0;
+  padding: 0 0 var(--s-3);
+  border-bottom: 1px solid var(--desk-rule);
+  font-size: var(--t-prose-s);
+  line-height: 1.6;
+  color: var(--desk-ink-2);
+}
+.intake .last-rec .label {
+  color: var(--desk-ink);
+}
+.intake .last-rec-a {
+  color: var(--desk-ink);
+  font-weight: 600;
+}
+.intake .last-rec-src {
+  color: var(--desk-ink-2);
+  white-space: nowrap;
+}
+
+/* ── on deck: dashed, quiet, still ── */
+
+.intake .ondeck {
+  border: 1px dashed var(--hair-2);
+  padding: var(--s-3) var(--s-4);
+  font-size: var(--t-prose-s);
+  color: var(--desk-ink-2);
+}
+.intake .ondeck .lbl {
+  font-size: var(--t-mono-xs);
+  letter-spacing: 0.06em;
+  margin-bottom: var(--s-1);
+}
+.intake .ondeck .ondeck-text {
+  animation: none;
+}
+
+/* ── the record column ── */
+
+.intake .rec-col {
+  position: sticky;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: calc(100dvh - 104px);
+}
+.intake .col-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-1) var(--s-3);
+  padding: 0 0 var(--s-2);
+  margin: 0 0 var(--s-3);
+  border-bottom: 1px solid var(--desk-rule);
+  font-size: var(--t-mono-xs);
+  color: var(--desk-ink-2);
+}
+.intake .col-head h2 {
+  margin: 0;
+  color: var(--desk-ink);
+}
+.intake .rec-tally {
+  font-size: var(--t-mono-xs);
+  color: var(--desk-ink-2);
+  white-space: normal;
+}
+.intake .rec-empty {
+  margin: 0;
+  font-size: var(--t-prose-s);
+  color: var(--desk-ink-2);
+}
+.intake .rec-list,
+.intake .strip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.intake .rec-list {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* A fact line: paper, ruled, provenance printed. It settles into the
+   column on --d-record — the motion the brief keeps. */
+.intake .chip {
+  border: 1px solid var(--desk-rule);
+  animation: intake-settle var(--d-record) var(--ease-out) both;
+  transition: background-color var(--d-press) linear;
+}
+.intake .strip-list .chip {
+  border-color: var(--rule);
+}
+@keyframes intake-settle {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.intake .chip:hover {
+  background: var(--paper);
+}
+.intake .chip-face {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 48px;
+  padding: var(--s-3) var(--s-4);
+}
+/* Inset ring: the list scrolls, so an outset ring would clip. */
+.intake .chip-face:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: -4px;
+}
+.intake .rec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-2);
+  margin-bottom: 2px;
+}
+.intake .rec-flag {
+  color: var(--sheet-ink);
+}
+.intake .rec-unknown .rec-flag,
+.intake .rec-skipped .rec-flag,
+.intake .rec-reopened .rec-flag {
+  color: var(--low);
+}
+.intake .rec-ref {
+  margin-left: auto;
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.intake .chip .q {
+  font-size: var(--t-prose-s);
+  line-height: 1.4;
+  color: var(--sheet-ink-2);
+  margin: 0;
+}
+.intake .chip .a {
+  font-size: var(--t-prose);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--sheet-ink);
+}
+.intake .rec-unknown .a,
+.intake .rec-skipped .a {
+  font-weight: 500;
+}
+.intake .chip .tag,
+.intake .chip-face .tag {
+  display: block;
+  margin-top: var(--s-1);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  letter-spacing: 0.02em;
+  color: var(--sheet-ink-2);
+}
+.intake .rec-note {
+  font-size: var(--t-prose-s);
+  line-height: 1.45;
+  color: var(--sheet-ink-2);
+}
+.intake .rec-change {
+  align-self: flex-start;
+  margin-top: var(--s-1);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  color: var(--sheet-ink);
+}
+.intake .chip-face:hover .rec-change {
+  text-decoration-thickness: 2px;
+}
+/* In an open finding: flagged in words, and in shape (a heavier rule). */
+.intake .chip-flagged,
+.intake .chip-flagged:hover {
+  border-color: var(--drift);
+  border-left-width: 3px;
+}
+
+.intake .chip-reopen {
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-top: 1px solid var(--rule-soft);
+  margin: 0;
+  animation: none;
+}
+.intake .chip-reopen-field {
+  min-height: 40px;
+  font-size: var(--t-prose-s);
+  flex: 1 1 140px;
+}
+.intake .chip-reopen .ghost {
+  min-height: 40px;
+  padding: 0 var(--s-4);
+  font-size: var(--t-mono-s);
+}
+.intake .chip-reopen .ghost:disabled {
+  opacity: 1;
+}
+
+/* ── reconcile: paper, plain ── */
+
+.intake .reconcile {
+  padding: var(--s-5);
+  border: 1px solid var(--desk-rule);
+  animation: intake-rise var(--d-move) var(--ease-out) both;
+}
+.intake .reconcile-eyebrow {
+  flex-wrap: wrap;
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+  margin-bottom: var(--s-2);
+}
+.intake .reconcile h3 {
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 var(--s-2);
+}
+.intake .reconcile-both {
+  font-size: var(--t-prose);
+  max-width: var(--measure);
+  margin: 0 0 var(--s-2);
+}
+.intake .reconcile-tagline {
+  font-size: var(--t-prose-s);
+  font-style: normal;
+  color: var(--sheet-ink-2);
+  margin: 0 0 var(--s-4);
+}
+
+/* ── done ── */
+
+.intake .done h2 {
+  font-family: var(--f-display);
+  font-size: var(--t-display-3);
+  font-weight: 600;
+  margin: 0 0 var(--s-2);
+}
+.intake .done p {
+  max-width: var(--measure);
+}
+.intake .readout {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--s-2) var(--s-5);
+  align-items: baseline;
+  margin: var(--s-5) 0 0;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule);
+  line-height: 1.4;
+}
+.intake .readout dt {
+  color: var(--sheet-ink-2);
+}
+.intake .readout dd {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono);
+  color: var(--sheet-ink);
+}
+.intake .done-access {
+  margin: var(--s-5) 0 0;
+}
+.intake .finish-form .field {
+  min-width: min(220px, 100%);
+}
+.intake .linkbox .label {
+  display: block;
+  margin-bottom: var(--s-1);
+}
+
+/* ── under 900px: one column, the record as a strip below ── */
+
+@media (max-width: 900px) {
+  .intake .stage {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-5);
+    padding: var(--s-5) var(--gutter) var(--s-7);
+  }
+  .intake .rec-col {
+    display: none;
+  }
+  .intake .card {
+    padding: var(--s-5) var(--s-4);
+  }
+  .intake .recorded-strip {
+    margin: 0;
+    padding: var(--s-3);
+    border: 1px solid var(--desk-rule);
+  }
+  .intake .strip-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-1) var(--s-3);
+    width: 100%;
+    min-height: 48px;
+    padding: var(--s-2) var(--s-4);
+    border: 1px solid var(--sheet-ink);
+    background: var(--paper);
+    color: var(--sheet-ink);
+    font-family: var(--f-mono);
+    font-size: var(--t-mono-xs);
+    letter-spacing: 0;
+    text-transform: none;
+    text-align: left;
+    transition:
+      background-color var(--d-press) linear,
+      color var(--d-press) linear;
+  }
+  .intake .strip-toggle:hover,
+  .intake .strip-toggle:active {
+    background: var(--sheet-ink);
+    color: var(--paper);
+  }
+  .intake .strip-toggle .fig {
+    white-space: normal;
+  }
+  .intake .strip-list {
+    margin-top: var(--s-3);
+  }
+}
+
+@media (max-width: 600px) {
+  .intake .topbar .subtitle {
+    display: none;
+  }
+  .intake .topbar .meta {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+  .intake .hint {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
+/* ── touch: every target at least 48px ── */
+
+@media (pointer: coarse) {
+  .intake .opt,
+  .intake .chip-reopen .ghost,
+  .intake .chip-reopen-field,
+  .intake .ghost.quiet {
+    min-height: 48px;
+  }
+}
+
+/* ── reduced motion: every duration is already zero (sheet.css); make
+   the record motion explicitly absent rather than merely instant. ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .intake .card,
+  .intake .card.leaving,
+  .intake .chip,
+  .intake .reconcile {
+    animation-duration: 0ms;
+  }
+  .intake .progress-fill {
+    transition: none;
+  }
+}

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { ControlProps } from "./shared";
 
-export function DateControl({ onChange, onCommit }: ControlProps) {
+export function DateControl({ question, onChange, onCommit }: ControlProps) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     ref.current?.focus();
@@ -15,6 +15,7 @@ export function DateControl({ onChange, onCommit }: ControlProps) {
   return (
     <input
       ref={ref}
+      aria-labelledby={`q-${question.id}`}
       className="field"
       type="date"
       onChange={(e) => onChange({ wire: wireOf(e.target.value) })}

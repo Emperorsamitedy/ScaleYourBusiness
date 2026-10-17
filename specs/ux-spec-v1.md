@@ -21,7 +21,7 @@ This is a real constraint, not a stylistic preference. In a product that will ev
 
 ## 2. Design tokens
 
-**The sheet system (adopted 2026-10-17, owner decision).** A diagnostic panel / lab report: content lives on eucalyptus paper sheets laid on a dark forest desk. It supersedes Ember Grid. The tokens live in `app/sheet.css`; this section is their source of truth. **Migration is surface by surface**, in this order: (a) the landing page and sample diagnosis (done), (b) the report sheet, (c) the intake, (d) the approval queue, (e) mobile approvals. Screens not yet migrated still render Ember Grid from `app/globals.css`. A screen is either fully on the sheet system or fully on Ember, never a mix.
+**The sheet system (adopted 2026-10-17, owner decision).** A diagnostic panel / lab report: content lives on eucalyptus paper sheets laid on a dark forest desk. It supersedes Ember Grid. The tokens live in `app/sheet.css`; this section is their source of truth. **Every screen is on it** (2026-10-17): the landing page, sign-in, the intake, every owner screen, the operator panel and the support widget. The old class names in `app/globals.css` still work, but their tokens now point at the sheet system: the page is the desk, cards/chips/report/fact sheet are paper, and `--ink` is redefined per surface. Screen-specific grammar (the report's number grammar, the queue's decision flow, the intake's progress) lands surface by surface on top of that.
 
 ### Surfaces
 
@@ -113,38 +113,31 @@ Navigation is a single persistent left rail on desktop, collapsing to a bottom b
 
 ## 4. Intake — the signature screen
 
-The layout you described, built and refined. One question in the centre; answered questions settle into two columns either side; the next question rises from below.
+One question per screen on a paper sheet; beside it, a second sheet that is the live record. Each answer settles into the record as a fact line, and the next question rises into its place. (Revised 2026-10-17, sheet system: one record column, not two.)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ Ledgerline   Setting up your business profile      6 / 12 core│
+│ LEDGERLINE   6 core facts on record · 6 core questions open  │
 ├──────────────────────────────────────────────────────────────┤
-│ ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
-│                                                              │
-│  RECORDED          ┌────────────────────┐         RECORDED   │
-│ ┌──────────┐       │ 1.4 · core         │       ┌──────────┐ │
-│ │ Business │       │                    │       │ Country? │ │
-│ │ name?    │       │ What does the      │       │ Hungary  │ │
-│ │ Bellozo  │       │ business sell?     │       │ ● owner  │ │
-│ │ ● owner  │       │                    │       └──────────┘ │
-│ └──────────┘       │ [Physical] [Serv…] │                    │
-│ ┌──────────┐       │ [Software] [Digi…] │                    │
-│ │ What does│       │                    │       ┌──────────┐ │
-│ │ it do?   │       │ Record answer      │       │ Stage?   │ │
-│ │ Fast foo…│       │ I don't know       │       │ Growing  │ │
-│ └──────────┘       └────────────────────┘       └──────────┘ │
-│                    ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐                     │
-│                    │ NEXT               │                     │
-│                    │ How many people…   │                     │
-│                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘                     │
+│  ┌───────────────────────────┐   ┌────────────────────────┐  │
+│  │ 1.4 · CORE                │   │ RECORD                 │  │
+│  │ What does the business    │   │ 1.1 Business name      │  │
+│  │ sell?                     │   │ Bellozo                │  │
+│  │ [Physical] [Services] …   │   │ Source: you · stated   │  │
+│  │                           │   │ Change                 │  │
+│  │ RECORD ANSWER →  I don't  │   │ 1.2 What it does       │  │
+│  │                  know     │   │ GAP RECORDED · Not     │  │
+│  │ ENTER TO RECORD           │   │ known — I'll come back │  │
+│  └───────────────────────────┘   └────────────────────────┘  │
+│  NEXT · How many people work in the business?                │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 ### 4.1 Why this works, and where I changed your idea
 
-Your instinct is right: one question at a time removes the dread of a 300-field form, and the accumulating columns give a sense of progress that a percentage bar can't. Three changes worth defending:
+Your instinct is right: one question at a time removes the dread of a 300-field form, and the record filling up gives a sense of progress that a percentage bar can't. Three changes worth defending:
 
-**The columns are not history, they are the profile being built.** Each settled card carries its mono provenance line. The owner is literally watching the system's knowledge accumulate, with its sourcing visible. This turns a progress indicator into a trust device at no extra cost.
+**The record is not history, it is the profile being built.** Each fact line carries its provenance in words (`Source: you · stated`), and the system restates what it just recorded above the next question, as a fact line, never as praise. The owner is literally watching the system's knowledge accumulate, with its sourcing visible. This turns a progress indicator into a trust device at no extra cost.
 
 **A next-question preview sits below the centre, dashed and quiet.** Your description had the next question floating up from the bottom, which implies it exists down there. Showing it — muted, one line — removes the sense of an endless queue, because the owner can always see there is exactly one more thing coming. It also lets them mentally prepare, which measurably speeds up answers to longer questions.
 
@@ -152,20 +145,20 @@ Your instinct is right: one question at a time removes the dread of a 300-field 
 
 ### 4.2 Interaction detail
 
-**Answering.** Single-selects submit on click after a 130ms confirm beat, so the owner sees their choice register before the card leaves. Multi-selects and text require an explicit "Record answer". Enter submits; Cmd/Ctrl-Enter submits from a textarea.
+**Answering.** Single-selects submit on click after a 130ms confirm beat, so the owner sees their choice register before the card leaves. Multi-selects and text require an explicit "Record answer →". Enter records; Cmd/Ctrl + Enter records from a textarea. The hints are written in words ("Enter to record"), never as key glyphs.
 
-**Motion sequence,** total ~580ms:
-1. Centre card fades and lifts 14px, 240ms.
-2. Summary chip appears in the target column, dropping 10px into place with a slight scale-up, 340ms.
-3. Next card rises 26px from below into the centre, 380ms.
+**Motion sequence:**
+1. The question card departs, `--d-record` (280ms). The script waits on the same token, so the two can't drift apart.
+2. The fact line settles into the record column, `--d-record`.
+3. The next card rises into place, `--d-move` (220ms).
 
-Columns alternate left, right, left. Chips append downward so the newest sits at the bottom, nearest the eye's return path from the centre.
+Under `prefers-reduced-motion` all three are instant, and so are the depart wait and the confirm beat. Fact lines append downward, and the newest one carries the `--marker` highlight: ink just laid down.
 
-**"I don't know" is a first-class control**, styled as a visible link rather than hidden in a menu. It writes `status: unknown`, and the chip shows a hollow dot with `gap · will revisit`. This is the interface honouring the schema rule that a gap is a finding, not a failure. An owner who feels forced to guess will guess, and every downstream conclusion inherits that guess.
+**"I don't know" is a first-class control**, styled as a visible link rather than hidden in a menu. It writes `status: unknown`, and the record line reads `GAP RECORDED · Not known`, with a follow-up note. A skip reads `NOT PROVIDED`; the two stay distinct. This is the interface honouring the schema rule that a gap is a finding, not a failure. An owner who feels forced to guess will guess, and every downstream conclusion inherits that guess.
 
-**Progress reads `6 / 12 core`,** not a percentage. Core count changes as branches open and close, and a percentage that jumps backwards destroys trust. A fraction that grows is honest and legible.
+**Progress is the record filling up:** `6 core facts on record · 6 core questions open`, never an `N / M` counter and never a percentage. The core count changes as branches open and close, so a counter or a percentage would jump backwards, and that destroys trust. Two plain counts that each only grow or shrink for a visible reason are honest.
 
-**Validation** is inline and specific: "Answer this, or choose I don't know to move on." It appears under the control, in signal blue, and clears on the next keystroke. Errors never block with a modal and never apologise.
+**Validation** is inline and specific: "Answer this, or choose I don't know to move on." It appears under the control, in ink, and clears on the next keystroke. Errors never block with a modal and never apologise.
 
 ### 4.3 Entity-list questions
 
@@ -181,9 +174,9 @@ Columns are structurally impossible below ~900px. Instead: the question fills th
 
 ### 4.5 Reconcile
 
-When the validator finds a contradiction, both source chips take the ember hairline and a reconcile panel appears below the centre card.
+When the validator finds a contradiction, both fact lines are flagged `TO RECONCILE` and a reconcile panel appears below the question card.
 
-The copy matters more than the layout: **"Help me reconcile these two"** followed by both statements and *"Both can be true — I'd rather ask than assume."* Two actions: "Both are right" (records a confirmation and clears the flag) or "Let me fix one" (returns both questions to the centre in sequence).
+The copy matters more than the layout, and it is plain (revised 2026-10-17: no persona lines). The heading names what was found (**"Two answers disagree"**), then both statements, then *"I won't pick one for you. Confirm both are right, or change one."* Two actions: "Confirm both →" (records a confirmation and clears the flag) or "Change one →" (returns both questions to the centre in sequence).
 
 This is the tonal high-water mark for the whole product. The system has just caught the owner in an apparent inconsistency, which is exactly the moment a business tool usually makes someone feel stupid. Getting this moment right — curious, not corrective — sets the relationship for everything that follows, including the far more consequential moment when the system disagrees with a decision they've made.
 
@@ -242,9 +235,9 @@ Structure, top to bottom:
 
 **A plain-language summary** — three sentences, no jargon, stating the single most important thing found.
 
-**Unit economics block** — the numbers, with every figure carrying its mono source line. A margin that came from the owner's estimate looks different from one computed from Stripe data, and it says so.
+**Unit economics block:** the numbers as ruled tables, following the number grammar of §2. Every figure carries its basis, source and date as visible text: OBSERVED, DERIVED, ESTIMATED, STATED or ASSUMED, never a confidence percentage. A margin that came from the owner's estimate looks different from one computed from Stripe data, and it says so. STATED is a fifth basis class beside the four in §2: an exact owner answer is neither an estimate nor observed. Figures the data cannot support are listed under "Not computed" with what is missing; nothing is invented to fill a range column.
 
-**Findings**, ordered by severity. Each is a headline, two sentences of detail, and an evidence line listing the specific answers it rests on. Findings are never coloured; severity is shown as a mono label.
+**Findings**, ordered by severity. Each is a headline, two sentences of detail, and an evidence box listing the specific answers it rests on, each with its basis. Severity is a worded flag (ACT NOW, HIGH, MEDIUM, LOW); colour only tints the word.
 
 **Recommendations**, each with its scenario block: the assumptions stated, the base and downside cases, and the break-even condition. Where an assumption is marked high-sensitivity, it is called out inline — *"this depends heavily on your 22% repeat rate; if that's closer to 10%, the case doesn't hold."*
 
@@ -267,11 +260,25 @@ The landing page sells the sheet itself (`components/marketing/Landing.tsx`).
 
 ## 8. Approval pattern
 
-Not built in v1, but every v1 screen is designed so this drops in without redesign.
-
 An approval is always: what will happen, why, what it's based on, and what happens if you decline. Two buttons of equal visual weight — approving and declining are both legitimate answers, and an interface that makes "no" feel like the small grey option is manipulating the owner.
 
-Approvals are the only place `--signal` appears at full strength, which is what makes them findable at a glance across the whole product.
+Built (2026-10-17, `components/proposals/QueueScreen.tsx`). Each proposal sheet reads in this order:
+
+1. The change, as before → after where the action carries both.
+2. The expected effect as a range, from the downside and upside cases.
+3. The evidence, with each assumption's source printed.
+4. REVERSIBLE · EASY/MODERATE/HARD TO UNDO, or IRREVERSIBLE when reversibility is null.
+5. What happens if you decline.
+
+The decision controls:
+
+- Approve → and Decline → are identical ink buttons, set apart, and neither is pre-selected.
+- Decline takes a reason. Four chips fill it in one tap: WRONG DATA / WRONG TIMING / TOO RISKY / NOT MY STRATEGY. The API requires a non-empty reason.
+- J / K moves between pending proposals.
+- After a decision, the card becomes a thin inline stamp ("APPROVED 14:02 · ref …"), and focus advances to the next pending card. No overlay.
+- An unanswered proposal expires as "not approved — nothing ran".
+
+Not built yet, and waiting on owner decisions: a "Request changes" answer, an AI recommendation, pausing similar proposals after a decline, standing pre-approval policies, and snooze.
 
 ---
 

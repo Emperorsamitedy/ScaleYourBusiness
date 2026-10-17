@@ -170,7 +170,7 @@ components:
 
 # Ember Grid
 
-> **Being replaced (2026-10-17).** The owner adopted the sheet system: a lab-report look, with paper sheets on a forest desk. Its tokens and rules are in `specs/ux-spec-v1.md` §2 and `app/sheet.css`. Screens move over one surface at a time, and the landing page is first. Until a screen moves, it renders Ember Grid as described below. Once no screen does, this file gets rewritten for the sheet system.
+> **Superseded (2026-10-17).** Every screen now renders the sheet system: a lab-report look, with paper sheets on a forest desk. Its tokens and rules are in `specs/ux-spec-v1.md` §2 and `app/sheet.css`, and that spec is the source of truth. What follows records Ember Grid only as history; none of it applies to current screens.
 
 ## Brand & Style
 

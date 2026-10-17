@@ -1,0 +1,514 @@
+/* The diagnosis report on the sheet system — ux-spec §2 and §7.
+   Imported by components/report/Report.tsx. The visual reference is the
+   landing page's sample sheet (app/landing.css, .ds-*): a lab report,
+   tables ruled rather than boxed, figures right-aligned in mono, the
+   basis · source · date printed under every fact.
+
+   Everything is scoped under .rp-shell.rs so it outranks the older
+   .rp-* rules in app/globals.css without touching that file; .rp-shell
+   stays on <main> because globals.css makes it a paper scope (--ink dark,
+   paper background). */
+
+.rp-shell.rs {
+  display: block;
+  max-width: 1040px;
+  margin: var(--s-6) auto var(--s-8);
+  padding: var(--s-6) var(--gutter) var(--s-7);
+  color: var(--sheet-ink);
+  background: var(--paper);
+  font-family: var(--f-prose);
+}
+@media (max-width: 719px) {
+  .rp-shell.rs {
+    margin: 0 0 var(--s-8);
+    padding: var(--s-5) var(--gutter) var(--s-7);
+    border-left: 0;
+    border-right: 0;
+  }
+}
+
+/* ── the head: one display heading per sheet ── */
+
+.rs .rs-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--s-4);
+  padding-bottom: var(--s-4);
+  border-bottom: var(--line-ink);
+}
+.rs .rs-kicker {
+  margin: 0 0 var(--s-2);
+  color: var(--sheet-ink-2);
+}
+.rs .rs-h1 {
+  font-size: var(--t-display-2);
+  margin: 0;
+}
+.rs .rs-sub {
+  margin: var(--s-2) 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  color: var(--sheet-ink-2);
+}
+.rs .rs-print {
+  flex: none;
+  min-height: 44px;
+}
+.rs .rs-summary {
+  max-width: var(--measure);
+  margin: var(--s-5) 0 var(--s-6);
+  font-size: var(--t-prose-l);
+  line-height: 1.5;
+}
+
+/* ── headings: Archivo; the only display face is the h1 ── */
+
+.rs .rs-section {
+  margin-top: var(--s-7);
+}
+.rs .rs-h2 {
+  margin: 0 0 var(--s-3);
+  padding-bottom: var(--s-2);
+  border-bottom: var(--line);
+  font-family: var(--f-prose);
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+}
+.rs .rs-h3 {
+  margin: var(--s-6) 0 var(--s-2);
+  font-family: var(--f-prose);
+  font-size: 16px;
+  font-weight: 600;
+}
+.rs .rs-h4 {
+  margin: var(--s-4) 0 var(--s-2);
+  font-family: var(--f-prose);
+  font-size: var(--t-prose-s);
+  font-weight: 600;
+}
+.rs .rs-prose {
+  max-width: var(--measure);
+  margin: var(--s-2) 0;
+  font-size: var(--t-prose);
+  line-height: 1.6;
+}
+.rs .rs-note {
+  max-width: var(--measure);
+  margin: var(--s-3) 0 0;
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+}
+.rs .rs-empty {
+  margin: var(--s-3) 0;
+  font-size: var(--t-prose);
+  color: var(--sheet-ink-2);
+}
+
+/* ── the mono provenance line: basis · source · date, never caps ── */
+
+.rs .rs-src {
+  display: block;
+  margin-top: var(--s-1);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+  text-transform: none;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+.rs .rs-src-block {
+  margin: 0 0 var(--s-3);
+}
+.rs .rs-basis {
+  font-family: var(--f-mono);
+  font-weight: 600;
+  color: var(--sheet-ink);
+}
+.rs .rs-unit {
+  color: var(--sheet-ink-2);
+}
+.rs .rs-none {
+  color: var(--sheet-ink-2);
+}
+.rs .rs-missing {
+  font-family: var(--f-prose);
+  font-style: italic;
+  color: var(--sheet-ink-2);
+}
+.rs .flag.none {
+  color: var(--sheet-ink-2);
+}
+
+/* ── tables: rules, not boxes; figures right-aligned in mono ── */
+
+.rs .rs-scroll {
+  overflow-x: auto;
+  margin-top: var(--s-3);
+}
+.rs .rs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-prose-s);
+}
+.rs .rs-table th,
+.rs .rs-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: var(--s-3) var(--s-3) var(--s-3) 0;
+  border-bottom: var(--hair);
+}
+.rs .rs-table thead th {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--sheet-ink-2);
+  border-bottom: var(--line);
+  padding-top: 0;
+  white-space: nowrap;
+}
+.rs .rs-table tbody th {
+  font-weight: 500;
+}
+.rs .rs-table .num-col {
+  text-align: right;
+  font-size: var(--t-mono);
+}
+.rs .rs-table thead .num-col {
+  font-size: var(--t-mono-xs);
+}
+.rs .rs-table tbody tr:hover {
+  background: var(--inset);
+}
+.rs .rs-table tbody tr.is-alarm th {
+  border-left: 2px solid var(--alarm);
+  padding-left: var(--s-3);
+}
+.rs .rs-table-tight th,
+.rs .rs-table-tight td {
+  padding-top: var(--s-2);
+  padding-bottom: var(--s-2);
+}
+.rs .rs-measure {
+  min-width: 16ch;
+}
+.rs .rs-measure-name {
+  display: block;
+  max-width: 44ch;
+  font-weight: 600;
+}
+.rs .rs-flag {
+  white-space: nowrap;
+}
+.rs .rs-cmp {
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+}
+.rs .rs-how {
+  font-size: var(--t-prose-s);
+}
+.rs .rs-formula {
+  display: block;
+  margin-top: var(--s-1);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+
+/* ── findings and recommendations ── */
+
+.rs .rs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rs .rs-finding,
+.rs .rs-rec,
+.rs .rs-gap {
+  padding: var(--s-5) 0;
+  border-bottom: var(--hair);
+}
+.rs .rs-rec {
+  padding: var(--s-6) 0;
+  border-bottom: var(--line);
+}
+.rs .rs-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-3);
+  align-items: baseline;
+  margin: 0;
+}
+.rs .rs-ref {
+  font-size: var(--t-mono-s);
+  font-weight: 600;
+}
+.rs .rs-area {
+  color: var(--sheet-ink-2);
+}
+.rs .rs-item-title {
+  margin: var(--s-2) 0 var(--s-1);
+  max-width: var(--measure);
+  font-family: var(--f-prose);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.rs .rs-evidence {
+  margin: var(--s-3) 0 0;
+  padding: var(--s-2) var(--s-3);
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.55;
+  color: var(--sheet-ink-2);
+  background: var(--inset);
+  border: var(--line);
+  overflow-wrap: anywhere;
+}
+.rs .rs-evidence li + li {
+  margin-top: var(--s-1);
+}
+.rs .rs-ev-key {
+  color: var(--sheet-ink);
+}
+.rs .rs-ev-text {
+  font-family: var(--f-prose);
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink);
+}
+.rs .rs-evidence .fig {
+  color: var(--sheet-ink);
+}
+
+.rs .rs-forecast {
+  margin: var(--s-4) 0;
+}
+.rs .rs-forecast-head {
+  padding: var(--s-3) 0;
+  border-top: var(--line-ink);
+}
+.rs .rs-forecast-head .label {
+  margin: 0;
+  color: var(--sheet-ink-2);
+}
+.rs .rs-range {
+  margin: var(--s-1) 0 0;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: normal;
+}
+.rs .rs-range .rs-unit {
+  font-size: var(--t-mono-s);
+  font-weight: 400;
+}
+.rs .rs-base {
+  max-width: var(--measure);
+  margin: var(--s-2) 0 0;
+  font-size: var(--t-prose-s);
+}
+.rs .rs-base .label {
+  margin-right: var(--s-2);
+  color: var(--sheet-ink-2);
+}
+.rs .rs-inset {
+  margin: var(--s-4) 0;
+  padding: var(--s-3) var(--s-4);
+  background: var(--inset);
+  border: var(--line);
+}
+.rs .rs-inset .label {
+  margin: 0 0 var(--s-1);
+  color: var(--sheet-ink-2);
+}
+.rs .rs-inset p:last-child {
+  margin: 0;
+  font-size: var(--t-prose-s);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.rs .rs-callout {
+  max-width: var(--measure);
+  margin: var(--s-2) 0;
+  font-size: var(--t-prose-s);
+}
+.rs .rs-callout .flag {
+  margin-right: var(--s-2);
+}
+.rs .rs-undo {
+  max-width: var(--measure);
+  margin: var(--s-4) 0 0;
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+}
+.rs .rs-undo strong {
+  color: var(--sheet-ink);
+}
+.rs .rs-responded {
+  margin: var(--s-4) 0 0;
+  font-size: var(--t-prose-s);
+}
+.rs .rs-responded .label {
+  margin-right: var(--s-2);
+}
+.rs .rp-actions {
+  max-width: 520px;
+}
+.rs .rp-actions .rp-act {
+  flex: 1;
+}
+
+.rs .rs-refusals {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rs .rs-refusals li {
+  padding: var(--s-2) 0;
+  border-bottom: var(--hair);
+  font-size: var(--t-prose-s);
+}
+.rs .rs-refusals .flag {
+  margin-right: var(--s-2);
+}
+
+.rs .rs-gap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-4);
+}
+.rs .rs-gap-q {
+  margin: var(--s-1) 0 0;
+  font-size: var(--t-prose);
+}
+.rs .rs-gap-b {
+  margin: var(--s-1) 0 0;
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink-2);
+}
+
+/* ── the generating / empty states ── */
+
+.rs .rs-status {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: var(--s-4) 0 var(--s-2);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+}
+.rs .rs-none-actions {
+  margin-top: var(--s-5);
+}
+
+.rs .rs-foot {
+  margin-top: var(--s-7);
+  padding-top: var(--s-3);
+  border-top: var(--line);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+.rs .rs-foot p {
+  margin: 0 0 var(--s-2);
+}
+.rs .rs-legend b {
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+
+/* ── narrow: each table row stacks, every figure keeps its column name ── */
+
+@media (max-width: 719px) {
+  .rs .rs-head {
+    flex-direction: column;
+  }
+  .rs .rs-scroll {
+    overflow-x: visible;
+  }
+  .rs .rs-table,
+  .rs .rs-table tbody,
+  .rs .rs-table tr,
+  .rs .rs-table th,
+  .rs .rs-table td {
+    display: block;
+  }
+  .rs .rs-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .rs .rs-table tr {
+    padding: var(--s-3) 0;
+    border-bottom: var(--hair);
+  }
+  .rs .rs-table th,
+  .rs .rs-table td {
+    border: 0;
+    padding: 2px 0;
+  }
+  .rs .rs-table tbody tr.is-alarm th {
+    padding-left: var(--s-3);
+  }
+  .rs .rs-table td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    text-align: right;
+  }
+  .rs .rs-table td[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    font-family: var(--f-mono);
+    font-size: var(--t-mono-xs);
+    color: var(--sheet-ink-2);
+    text-align: left;
+  }
+  .rs .rs-table td.rs-how,
+  .rs .rs-table td.rs-cmp {
+    text-align: left;
+  }
+  .rs .rs-table td.rs-how::before,
+  .rs .rs-table td.rs-cmp::before {
+    max-width: 40%;
+  }
+  .rs .rs-gap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .rs .rp-actions {
+    flex-direction: column;
+  }
+}
+
+/* ── print: ink on paper, no chrome, no actions ── */
+
+@media print {
+  .rp-shell.rs {
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    border: 0;
+    background: #fff;
+  }
+  .rs .rs-rec,
+  .rs .rs-finding,
+  .rs .rs-gap,
+  .rs .rs-table tr {
+    break-inside: avoid;
+  }
+  .rs .rs-table tbody tr:hover {
+    background: none;
+  }
+}

@@ -250,7 +250,7 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
         disabled={rows.length >= 20}
         onClick={() => setRows((prev) => [...prev, {}])}
       >
-        + Add another
+        Add another row
       </button>
     </div>
   );

@@ -21,7 +21,11 @@ export function MultiSelectControl({ question, onChange }: ControlProps) {
   };
 
   return (
-    <div className={question.options.length > 8 ? "opts many" : "opts"} role="group">
+    <div
+      className={question.options.length > 8 ? "opts many" : "opts"}
+      role="group"
+      aria-labelledby={`q-${question.id}`}
+    >
       {question.options.map((option, i) => (
         <button
           key={option.code}

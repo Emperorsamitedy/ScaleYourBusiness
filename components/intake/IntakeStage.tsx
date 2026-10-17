@@ -1,11 +1,17 @@
 "use client";
 
 // The intake stage — client orchestrator for the signature screen
-// (specs/ux-spec-v1.md §4). The motion IS the product (P0-60):
+// (specs/ux-spec-v1.md §4). The motion reports state (P0-60, §2):
 //
-//   answering → (submit) → leaving (card departs, ~240ms; the PUT rides
-//   inside the animation) → chip settles into the alternating column
-//   (340ms) → next card rises (380ms) → answering.
+//   answering → (submit) → leaving (card departs on --d-record, 280ms;
+//   the PUT rides inside it) → the fact line settles into the record
+//   column (--d-record) → next card rises (--d-move) → answering.
+//
+// The JS depart wait reads the same --d-record token the CSS runs on,
+// so the two agree; under prefers-reduced-motion both are zero.
+//
+// One question in the centre; beside it, one record column — the live
+// "check your answers" list, every line printing its provenance.
 //
 // First paint is skeleton-free: the shell renders immediately and the
 // first card rises when state arrives from a single POST on mount.
@@ -18,15 +24,16 @@ import type {
   IntakeState,
   ReconcileResponse,
 } from "@/lib/intake/types";
+import "@/app/intake.css";
 import { Chip } from "./Chip";
+import { departMs } from "./motion";
 import { OnDeck } from "./OnDeck";
 import { QuestionCard } from "./QuestionCard";
 import { ReconcilePanel } from "./ReconcilePanel";
+import { factLine, sessionTally, tallyText } from "./record";
 import { TopBar } from "./TopBar";
 
 type Phase = "boot" | "boot_error" | "answering" | "leaving";
-
-const DEPART_MS = 240;
 
 /** The closing readout renders completeness as a word, never a percentage. */
 const completenessWord = (overall: number): string => (overall >= 0.7 ? "good" : "moderate");
@@ -56,12 +63,12 @@ function KeepAccess() {
       });
       const payload = (await res.json()) as { url?: string; error?: string };
       if (!res.ok) {
-        setError(payload.error ?? "That didn't work — try again.");
+        setError(payload.error ?? "I couldn't make the link. Try again.");
         return;
       }
       setLink(payload.url ?? null);
     } catch {
-      setError("I couldn't reach the server — check your connection and try again.");
+      setError("I couldn't reach the server. Check your connection and try again.");
     } finally {
       setBusy(false);
     }
@@ -70,8 +77,8 @@ function KeepAccess() {
   if (link) {
     return (
       <div className="linkbox">
-        <strong>Keep this link.</strong> It reopens your profile on any device for the next 30 days.
-        Mail it to yourself now.
+        <span className="label">Your link</span> It reopens this profile on any device for 30 days.
+        Keep a copy somewhere you&rsquo;ll find it.
         <code>{link}</code>
       </div>
     );
@@ -88,7 +95,7 @@ function KeepAccess() {
         aria-label="Your email address"
       />
       <button type="submit" className="next" disabled={busy || email.trim() === ""}>
-        {busy ? "One moment" : "Get my link"}
+        {busy ? "Making the link" : <>Get my link &rarr;</>}
       </button>
       {error && <p className="err">{error}</p>}
     </form>
@@ -98,22 +105,23 @@ function KeepAccess() {
 function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> }) {
   return (
     <div className="card done">
-      <h2>That&rsquo;s enough to start.</h2>
+      <h2>The interview is complete.</h2>
       <p>
-        I have what I need for a first read on the business. I&rsquo;ll keep asking as I go — the
-        deeper questions are easier to answer once you&rsquo;ve seen what I do with these.
+        I have the record I need for a first read on the business. Deeper questions come later, once
+        you have seen the first report.
       </p>
-      <div className="readout">
-        answered&nbsp;&nbsp;<strong>{readout.answered}</strong>
-        <br />
-        gaps to revisit&nbsp;&nbsp;<strong>{readout.gaps}</strong>
-        <br />
-        profile confidence&nbsp;&nbsp;<strong>{completenessWord(readout.completeness)}</strong>
-        <br />
-        next&nbsp;&nbsp;<strong>deciding how carefully to move</strong>
-      </div>
-      <p className="help" style={{ marginTop: 22, marginBottom: 0 }}>
-        Leave an email and I&rsquo;ll give you a link back to this — no password, no account.
+      <dl className="readout">
+        <dt className="label">Answers on record</dt>
+        <dd className="fig">{readout.answered}</dd>
+        <dt className="label">Gaps to revisit</dt>
+        <dd className="fig">{readout.gaps}</dd>
+        <dt className="label">Profile completeness</dt>
+        <dd>{completenessWord(readout.completeness)}</dd>
+        <dt className="label">Next</dt>
+        <dd>deciding how carefully to move</dd>
+      </dl>
+      <p className="help done-access">
+        Leave an email and I&rsquo;ll give you a link back to this profile. No password, no account.
       </p>
       <KeepAccess />
     </div>
@@ -134,6 +142,8 @@ export function IntakeStage() {
   const [phase, setPhase] = useState<Phase>("boot");
   const [serverError, setServerError] = useState<string | null>(null);
   const [stripOpen, setStripOpen] = useState(false);
+  // The line the system restates after a record — cleared on reopen.
+  const [justRecorded, setJustRecorded] = useState<IntakeChip | null>(null);
   const [resumeNotice, setResumeNotice] = useState<string | null>(null);
   const booted = useRef(false);
 
@@ -141,10 +151,10 @@ export function IntakeStage() {
   // with a usable intake rather than an apology page.
   useEffect(() => {
     const flag = new URLSearchParams(window.location.search).get("resume");
-    if (flag === "ok") setResumeNotice("Welcome back — picking up where you left off.");
+    if (flag === "ok") setResumeNotice("Resumed from your link. Earlier answers are on record.");
     if (flag === "expired") {
       setResumeNotice(
-        "That link has expired, so this is a fresh start. You can get a new link at the end.",
+        "That link had expired, so this is a new profile. You can get a new link at the end.",
       );
     }
     if (flag) window.history.replaceState({}, "", window.location.pathname);
@@ -226,7 +236,7 @@ export function IntakeStage() {
       setServerError(null);
       setPhase("leaving");
       // Network latency hides inside the depart animation (§4.2).
-      const departed = new Promise((resolve) => setTimeout(resolve, DEPART_MS));
+      const departed = new Promise((resolve) => setTimeout(resolve, departMs()));
       try {
         const res = await fetch("/api/intake", {
           method,
@@ -237,17 +247,18 @@ export function IntakeStage() {
         if (res.ok) {
           const { chip, state: next } = (await res.json()) as AnswerResponse;
           setChips((prev) => [...prev, chip]);
+          setJustRecorded(chip);
           setState(next);
           setPhase("answering");
         } else {
           const payload = (await res.json().catch(() => null)) as { error?: string } | null;
           setPhase("answering");
-          setServerError(payload?.error ?? "Something went wrong on our side — try again.");
+          setServerError(payload?.error ?? "Something went wrong on our side. Try again.");
         }
       } catch {
         await departed;
         setPhase("answering");
-        setServerError("I couldn't reach the server — check your connection and try again.");
+        setServerError("I couldn't reach the server. Check your connection and try again.");
       }
     },
     [],
@@ -318,16 +329,17 @@ export function IntakeStage() {
         });
         if (!res.ok) {
           const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-          setServerError(payload?.error ?? "I couldn't reopen that — try again.");
+          setServerError(payload?.error ?? "I couldn't reopen that. Try again.");
           return;
         }
         const { state: next } = (await res.json()) as AnswerResponse;
         track({ kind: "reopened", question_id: questionId });
         setChips((prev) => prev.filter((c) => c.question_id !== questionId));
+        setJustRecorded(null);
         setState(next);
         setPhase("answering");
       } catch {
-        setServerError("I couldn't reach the server — check your connection and try again.");
+        setServerError("I couldn't reach the server. Check your connection and try again.");
       }
     },
     [track],
@@ -352,18 +364,19 @@ export function IntakeStage() {
         });
         if (!res.ok) {
           const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-          setServerError(payload?.error ?? "I couldn't record that — try again.");
+          setServerError(payload?.error ?? "I couldn't record that. Try again.");
           return;
         }
         const { reopened, state: next } = (await res.json()) as ReconcileResponse;
         track({ kind: "reconcile_resolved", meta: { choice, reopened: reopened.length } });
         if (reopened.length > 0) {
           setChips((prev) => prev.filter((c) => !reopened.includes(c.question_id)));
+          setJustRecorded(null);
         }
         setState(next);
         setPhase("answering");
       } catch {
-        setServerError("I couldn't reach the server — check your connection and try again.");
+        setServerError("I couldn't reach the server. Check your connection and try again.");
       } finally {
         setReconcileBusy(false);
       }
@@ -372,7 +385,7 @@ export function IntakeStage() {
   );
 
   // The panel surfaces contradictions and implausibilities; plain gaps
-  // stay as hollow dots. Involved chips take the ember hairline.
+  // stay as gap lines in the record. Involved lines are flagged in words.
   const reconcile =
     state?.findings.find((f) => f.kind === "contradiction" || f.kind === "implausible") ?? null;
 
@@ -385,34 +398,24 @@ export function IntakeStage() {
   }, [reconcileId, reconcileRule, track]);
   const flagged = new Set(state?.findings.flatMap((f) => f.question_ids) ?? []);
 
-  // Columns alternate left, right, left; chips append downward (§4.2).
-  const left = chips.filter((_, i) => i % 2 === 0);
-  const right = chips.filter((_, i) => i % 2 === 1);
+  // One record column; lines append downward, newest last (§4.2), and
+  // the list keeps the newest line in view as it arrives.
+  const restated = justRecorded ? factLine(justRecorded) : null;
+  const earlier = chips.length === 0 && (state?.progress.core_done ?? 0) > 0;
+  const tally = tallyText(sessionTally(chips));
+
+  const reopen = (id: string, r: string): void => void handleReopen(id, r);
 
   return (
-    <div className="shell">
+    <div className="shell intake">
       <TopBar progress={state?.progress ?? null} />
       {resumeNotice && (
-        <div className="stage" style={{ paddingBottom: 0, paddingTop: 18 }}>
-          <div />
-          <div className="resume-note">{resumeNotice}</div>
-          <div />
+        <div className="intake-notice">
+          <p className="resume-note">{resumeNotice}</p>
         </div>
       )}
       <main className="stage">
-        <section className="col" aria-label="Recorded answers, left column">
-          <div className="col-head">Recorded</div>
-          {left.map((chip) => (
-            <Chip
-              key={chip.question_id}
-              chip={chip}
-              flagged={flagged.has(chip.question_id)}
-              onReopen={(id, r) => void handleReopen(id, r)}
-            />
-          ))}
-        </section>
-
-        <section className="centre" aria-live="polite">
+        <section className="centre" aria-live="polite" aria-label="Current question">
           {phase === "boot_error" && (
             <div className="card">
               <h2 className="prompt">I couldn&rsquo;t reach the server.</h2>
@@ -421,10 +424,20 @@ export function IntakeStage() {
               </p>
               <div className="row">
                 <button type="button" className="next" onClick={() => void boot()}>
-                  Try again
+                  Try again &rarr;
                 </button>
               </div>
             </div>
+          )}
+          {justRecorded && restated && phase === "answering" && (
+            <p className="last-rec" key={justRecorded.question_id}>
+              <span className="label">
+                {restated.flag} <span className="fig">{restated.ref}</span>
+              </span>{" "}
+              <span className="last-rec-q">{justRecorded.prompt}</span>{" "}
+              <span className="last-rec-a">{restated.value}</span>{" "}
+              <span className="label last-rec-src">{restated.source}</span>
+            </p>
           )}
           {state?.done && state.readout && <DoneCard readout={state.readout} />}
           {!state?.done && question && (
@@ -449,44 +462,91 @@ export function IntakeStage() {
           {!state?.done && state?.on_deck && <OnDeck text={state.on_deck} />}
         </section>
 
-        <section className="col" aria-label="Recorded answers, right column">
-          <div className="col-head">Recorded</div>
-          {right.map((chip) => (
-            <Chip
-              key={chip.question_id}
-              chip={chip}
-              flagged={flagged.has(chip.question_id)}
-              onReopen={(id, r) => void handleReopen(id, r)}
-            />
-          ))}
+        <section className="rec-col" aria-labelledby="rec-col-head">
+          <div className="col-head">
+            <h2 id="rec-col-head" className="label">
+              The record
+            </h2>
+            {chips.length > 0 && <span className="fig rec-tally">{tally}</span>}
+          </div>
+          {chips.length === 0 && (
+            <p className="rec-empty">
+              {earlier ? (
+                <>
+                  Answers from an earlier session are on <a href="/profile">the fact sheet</a>. New
+                  answers land here with their source.
+                </>
+              ) : (
+                "Nothing recorded yet. Each answer lands here with its source and basis."
+              )}
+            </p>
+          )}
+          {chips.length > 0 && (
+            <RecordList chips={chips} latest={justRecorded} flagged={flagged} onReopen={reopen} />
+          )}
         </section>
 
-        {/* P0-76: below 900px the columns are gone; answers collapse into
-            a pinned "Recorded (n)" strip that expands on tap. */}
+        {/* P0-76: below 900px the column is gone; the record collapses
+            into a strip under the card that expands on tap. */}
         {chips.length > 0 && (
-          <section className="recorded-strip" aria-label="Recorded answers">
+          <section className="recorded-strip" aria-label="The record">
             <button
               type="button"
               className="strip-toggle"
               aria-expanded={stripOpen}
               onClick={() => setStripOpen((v) => !v)}
             >
-              Recorded ({chips.length})
+              <span className="label">{stripOpen ? "Hide the record" : "Show the record"}</span>
+              <span className="fig">{tally}</span>
             </button>
             {stripOpen && (
-              <div className="strip-list">
-                {chips.map((chip) => (
-                  <Chip
-                    key={chip.question_id}
-                    chip={chip}
-                    onReopen={(id, r) => void handleReopen(id, r)}
-                  />
-                ))}
-              </div>
+              <RecordList
+                chips={chips}
+                latest={justRecorded}
+                flagged={flagged}
+                onReopen={reopen}
+                className="strip-list"
+              />
             )}
           </section>
         )}
       </main>
     </div>
+  );
+}
+
+/** The record as an ordered list; keeps its newest line in view. */
+function RecordList({
+  chips,
+  latest,
+  flagged,
+  onReopen,
+  className = "rec-list",
+}: {
+  chips: readonly IntakeChip[];
+  latest: IntakeChip | null;
+  flagged: ReadonlySet<string>;
+  onReopen: (questionId: string, reason: string) => void;
+  className?: string;
+}) {
+  const ref = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    const list = ref.current;
+    // An instant jump, never a smooth scroll (§2 motion: cut).
+    if (list) list.scrollTop = list.scrollHeight;
+  }, [chips.length]);
+  return (
+    <ol className={className} ref={ref}>
+      {chips.map((chip) => (
+        <li key={chip.question_id}>
+          <Chip
+            chip={chip}
+            flagged={flagged.has(chip.question_id)}
+            fresh={chip === latest}
+            onReopen={onReopen}
+          />
+        </li>
+      ))}
+    </ol>
   );
 }
