@@ -46,7 +46,6 @@ describe("P3-20h — what the consent screen offers", () => {
       access_token: "EAAtoken",
       page_id: "1234567890",
       ig_user_id: null,
-      page_access_token: null,
     });
     expect(parseMetaExecutionCredential(filled("meta_ads"), "meta_ads").ad_account_id).toBe(
       "1234567890",

@@ -24,7 +24,8 @@
 // consent from interaction. Only the owner's attestation or the
 // customer's own recorded action sets a status.
 
-import { createHash } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
+import { derivedKey } from "../core/derived-key";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
@@ -55,8 +56,22 @@ export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-/** sha256 of the normalized address — all that suppression ever stores. */
+/**
+ * What suppression stores for an address: an HMAC under a server key,
+ * prefixed "h1:". A plain sha256 of an email can be tested by anyone holding
+ * the database ("was owner@x ever a contact?"); a keyed hash can't
+ * (security review 2026-10-17).
+ */
 export function emailHash(email: string): string {
+  return `h1:${createHmac("sha256", derivedKey("syb-suppression-v1")).update(normalizeEmail(email)).digest("hex")}`;
+}
+
+/**
+ * The form rows written before 2026-10-17 carry: plain sha256. The emails
+ * behind them are gone, so they can't be re-hashed. Every check matches
+ * both forms, so no earlier unsubscribe or erasure is ever lost.
+ */
+export function legacyEmailHash(email: string): string {
   return createHash("sha256").update(normalizeEmail(email)).digest("hex");
 }
 
@@ -67,7 +82,7 @@ export async function isSuppressed(accountId: string, email: string): Promise<st
     .where(
       and(
         eq(contactSuppressions.account_id, accountId),
-        eq(contactSuppressions.email_hash, emailHash(email)),
+        inArray(contactSuppressions.email_hash, [emailHash(email), legacyEmailHash(email)]),
       ),
     );
   return row?.reason ?? null;

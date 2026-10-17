@@ -149,6 +149,61 @@ export function emailFromClaims(claims: Record<string, unknown>, label: string):
   return email;
 }
 
+/** Microsoft's tenant for personal accounts, whose email addresses Microsoft itself verifies. */
+export const MICROSOFT_CONSUMER_TENANT = "9188040d-6c67-4c5b-b112-36a304b66dad";
+
+const truthy = (v: unknown) => v === true || v === "true";
+
+/**
+ * The id_token's claims checked BEFORE its email is trusted — the security
+ * review of 2026-10-17. It arrives straight from the token endpoint over
+ * TLS (the confidential code flow), so the claims, not a signature, are
+ * what matter:
+ *
+ *   · aud must be our client id, and iss the provider's own issuer.
+ *   · Google and Apple must say the email is verified, positively.
+ *   · Microsoft: the multi-tenant `email` claim is set by whoever runs the
+ *     tenant, so an attacker's own tenant could claim an owner's address
+ *     and land on their account ("nOAuth"). It is trusted only for
+ *     personal Microsoft accounts (Microsoft verifies those) or when the
+ *     token carries `xms_edov` — the email domain owner verified claim,
+ *     an optional claim to switch on in the app registration.
+ */
+export function verifiedEmailFromClaims(
+  provider: Pick<OAuthProvider, "id" | "label" | "clientId">,
+  claims: Record<string, unknown>,
+): string {
+  const refuse = (why: string) => {
+    throw new AuthError(
+      `${provider.label} sign-in couldn't be verified (${why}) — use the email link instead`,
+      403,
+    );
+  };
+  const aud = claims.aud;
+  const audOk = Array.isArray(aud) ? aud.includes(provider.clientId) : aud === provider.clientId;
+  if (!audOk) refuse("issued for another app");
+  const iss = typeof claims.iss === "string" ? claims.iss : "";
+  if (provider.id === "google") {
+    if (iss !== "https://accounts.google.com" && iss !== "accounts.google.com")
+      refuse("wrong issuer");
+    if (!truthy(claims.email_verified)) refuse("email not verified");
+  } else if (provider.id === "apple") {
+    if (iss !== "https://appleid.apple.com") refuse("wrong issuer");
+    if (!truthy(claims.email_verified)) refuse("email not verified");
+  } else if (provider.id === "microsoft") {
+    const tid = typeof claims.tid === "string" ? claims.tid : "";
+    if (!/^[0-9a-f-]{36}$/i.test(tid) || iss !== `https://login.microsoftonline.com/${tid}/v2.0`) {
+      refuse("wrong issuer");
+    }
+    if (tid.toLowerCase() !== MICROSOFT_CONSUMER_TENANT && !truthy(claims.xms_edov)) {
+      refuse("the organisation's email isn't verified as its own");
+    }
+  } else {
+    refuse("unknown provider");
+  }
+  return emailFromClaims(claims, provider.label);
+}
+
 /** Exchange the code for the provider's proven email. */
 export async function exchangeCodeForEmail(
   provider: OAuthProvider,
@@ -180,5 +235,5 @@ export async function exchangeCodeForEmail(
   if (!tokens.id_token) {
     throw new AuthError(`${provider.label} sign-in failed — try again or use the email link`, 502);
   }
-  return emailFromClaims(idTokenClaims(tokens.id_token), provider.label);
+  return verifiedEmailFromClaims(provider, idTokenClaims(tokens.id_token));
 }

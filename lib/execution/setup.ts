@@ -54,13 +54,6 @@ export const EXECUTION_SETUP: Readonly<Partial<Record<ExecutionProviderId, Execu
         secret: false,
         optional: true,
       },
-      {
-        name: "page_access_token",
-        label: "Page token",
-        placeholder: "Page token (only if asked for one)",
-        secret: true,
-        optional: true,
-      },
     ],
     own_app_steps: [
       "In Meta Business Suite, check that your Facebook Page and its Instagram account both sit in your business portfolio.",
