@@ -216,6 +216,30 @@ async function assertBudget(profileId: string): Promise<void> {
   }
 }
 
+/** How soon the same competitor may be researched again (each run is paid). */
+export const RERESEARCH_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Enriching an existing competitor: it must be THIS profile's, and not one
+ * researched in the last day. Before the security review of 2026-10-17 an
+ * id skipped the budget entirely — unlimited paid runs, against any id,
+ * including another business's competitor row.
+ */
+async function assertOwnCompetitor(
+  profileId: string,
+  competitorId: string,
+  now: number = Date.now(),
+): Promise<void> {
+  const [row] = await db
+    .select({ id: competitors.id, researched_at: competitors.researched_at })
+    .from(competitors)
+    .where(and(eq(competitors.id, competitorId), eq(competitors.profile_id, profileId)));
+  if (!row) throw new ResearchError("no such competitor on this profile");
+  if (row.researched_at && now - Date.parse(row.researched_at) < RERESEARCH_COOLDOWN_MS) {
+    throw new ResearchError("this competitor was researched in the last day — try again tomorrow");
+  }
+}
+
 /**
  * Rule 3, second half: research may fill a blank, never contradict the
  * owner. A field they answered themselves is left exactly as it is.
@@ -258,7 +282,8 @@ export async function researchCompetitor(args: RunArgs): Promise<ResearchResult>
     args.onProgress?.(event);
   };
 
-  if (!args.competitorId) await assertBudget(args.profileId);
+  if (args.competitorId) await assertOwnCompetitor(args.profileId, args.competitorId);
+  else await assertBudget(args.profileId);
 
   // 1 · search, capped
   const hits = (await args.search(args.competitorName, CAPS.max_results)).slice(
@@ -314,7 +339,10 @@ export async function researchCompetitor(args: RunArgs): Promise<ResearchResult>
     if (!row) throw new ResearchError("competitor insert failed");
     competitorId = row.id;
   } else {
-    await db.update(competitors).set({ researched_at: at }).where(eq(competitors.id, competitorId));
+    await db
+      .update(competitors)
+      .set({ researched_at: at })
+      .where(and(eq(competitors.id, competitorId), eq(competitors.profile_id, args.profileId)));
   }
 
   const ownerHeld = args.competitorId

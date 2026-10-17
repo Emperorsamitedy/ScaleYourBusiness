@@ -9,6 +9,8 @@
 // account anywhere. The search RESULTS are parsed deterministically from
 // the tool-result blocks — the model's prose is never the data path.
 
+import type { PageFetcher as GuardedFetch } from "../site/fetch";
+import { livePageFetcher as guardedFetch } from "../site/fetch";
 import type Anthropic from "@anthropic-ai/sdk";
 import { anthropicClient } from "../llm/client";
 import { buildCallRecord, logLlmCall } from "../llm/cost-log";
@@ -96,30 +98,44 @@ export const liveSearchProvider: SearchProvider = async (query, limit) => {
  * this is a web app, not a shop window. */
 export const MAX_FETCH_CHARS = 300_000;
 
-export const livePageFetcher: PageFetcher = async (url, timeoutMs) => {
-  try {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(timeoutMs),
-      redirect: "follow",
-      headers: {
-        accept: "text/html,application/xhtml+xml",
-        "user-agent": "LedgerlineResearch/1.0",
-      },
-    });
-    if (!response.ok) return null;
-    const type = response.headers.get("content-type") ?? "";
-    if (!/text\/html|application\/xhtml|text\/plain/.test(type)) return null;
-    const raw = (await response.text()).slice(0, MAX_FETCH_CHARS);
-    const text = stripHtml(raw);
-    if (text === "") return null;
-    return { url: response.url || url, title: extractTitle(raw), text } satisfies FetchedPage;
-  } catch {
-    // Timeout, DNS failure, TLS error — a page that cannot be read is a
-    // page skipped, never a run killed (competitor.ts decides when
-    // nothing at all loaded).
-    return null;
-  }
-};
+/**
+ * Research reads the public web through the SAME guarded fetcher the site
+ * audit uses (lib/site/fetch): every hop resolved once, its addresses
+ * vetted against private, loopback and link-local ranges, the connection
+ * pinned to them, redirects re-vetted, bytes capped. Before the security
+ * review of 2026-10-17 this was a bare fetch that followed redirects
+ * anywhere — a page ranked for a competitor's name could bounce the
+ * server to localhost or a metadata address and read the answer back.
+ */
+export function createLivePageFetcher(fetchGuarded: GuardedFetch = guardedFetch): PageFetcher {
+  return async (url, timeoutMs) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const page = await Promise.race([
+        fetchGuarded(url),
+        new Promise<null>((resolve) => {
+          timer = setTimeout(() => resolve(null), timeoutMs);
+        }),
+      ]);
+      if (!page || page.status < 200 || page.status >= 300) return null;
+      const type = page.headers["content-type"] ?? "";
+      if (!/text\/html|application\/xhtml|text\/plain/.test(type)) return null;
+      const raw = page.html.slice(0, MAX_FETCH_CHARS);
+      const text = stripHtml(raw);
+      if (text === "") return null;
+      return { url: page.url, title: extractTitle(raw), text } satisfies FetchedPage;
+    } catch {
+      // Refused address, timeout, DNS failure, TLS error — a page that cannot
+      // be read is a page skipped, never a run killed (competitor.ts decides
+      // when nothing at all loaded).
+      return null;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  };
+}
+
+export const livePageFetcher: PageFetcher = createLivePageFetcher();
 
 /** Guard for routes: research must never be pointed at localhost or a
  * private range — it reads the public web only. */

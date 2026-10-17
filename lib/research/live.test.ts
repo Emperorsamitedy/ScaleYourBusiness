@@ -7,7 +7,9 @@ import type { AddressInfo } from "node:net";
 import { afterAll, describe, expect, it } from "vitest";
 import type Anthropic from "@anthropic-ai/sdk";
 import { CAPS } from "./competitor";
+import type { FetchedPage as SiteFetchedPage, PageFetcher as GuardedFetch } from "../site/fetch";
 import {
+  createLivePageFetcher,
   extractTitle,
   isPublicHttpUrl,
   livePageFetcher,
@@ -108,39 +110,51 @@ describe("livePageFetcher", () => {
     });
   }
 
+  /** A stand-in for the guarded site fetcher, answering what the test says. */
+  const page =
+    (over: Partial<SiteFetchedPage> = {}): GuardedFetch =>
+    async (url) => ({
+      url,
+      status: 200,
+      html: "<title>Bolt</title><p>Szállítás 2 nap</p>",
+      headers: { "content-type": "text/html; charset=utf-8" },
+      duration_ms: 5,
+      ...over,
+    });
+
   it("returns stripped text and the page title", async () => {
+    const got = await createLivePageFetcher(page())("https://bolt.example/", 2_000);
+    expect(got?.title).toBe("Bolt");
+    expect(got?.text).toContain("Szállítás 2 nap");
+  });
+
+  it("THE ATTACK (SSRF): a real page on a loopback address is refused, not read", async () => {
+    // The 2026-10-17 security review: research used to read whatever a
+    // search result (or its redirect) pointed at, localhost included.
     const url = await serve((_req, res) => {
       res.setHeader("content-type", "text/html; charset=utf-8");
-      res.end("<title>Bolt</title><p>Szállítás 2 nap</p>");
+      res.end("<title>internal</title><p>secret admin page</p>");
     });
-    const page = await livePageFetcher(url, 2_000);
-    expect(page?.title).toBe("Bolt");
-    expect(page?.text).toContain("Szállítás 2 nap");
+    expect(await livePageFetcher(url, 2_000)).toBeNull();
   });
 
   it("gives up at the timeout instead of waiting — rule 2 on the wire", async () => {
-    const url = await serve(() => {
-      /* never responds */
-    });
+    const never: GuardedFetch = () => new Promise(() => {});
     const t0 = Date.now();
-    const page = await livePageFetcher(url, 300);
-    expect(page).toBeNull();
+    expect(await createLivePageFetcher(never)("https://slow.example/", 300)).toBeNull();
     // Must return promptly after the deadline, far inside the 8s cap.
     expect(Date.now() - t0).toBeLessThan(CAPS.page_timeout_ms);
   });
 
-  it("refuses non-HTML and error statuses", async () => {
-    const pdf = await serve((_req, res) => {
-      res.setHeader("content-type", "application/pdf");
-      res.end("%PDF-1.4");
-    });
-    expect(await livePageFetcher(pdf, 2_000)).toBeNull();
-
-    const broken = await serve((_req, res) => {
-      res.statusCode = 500;
-      res.end("boom");
-    });
-    expect(await livePageFetcher(broken, 2_000)).toBeNull();
+  it("refuses non-HTML, error statuses and a refused fetch", async () => {
+    const fetchPage = (g: GuardedFetch) => createLivePageFetcher(g)("https://x.example/", 2_000);
+    expect(await fetchPage(page({ headers: { "content-type": "application/pdf" } }))).toBeNull();
+    expect(await fetchPage(page({ status: 500 }))).toBeNull();
+    expect(
+      await fetchPage(async () => {
+        throw new Error("that address is private");
+      }),
+    ).toBeNull();
   });
 
   it("caps how much raw HTML it will even consider", () => {
