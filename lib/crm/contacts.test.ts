@@ -396,13 +396,11 @@ describe("security review 2026-10-17 — suppression hashes are keyed, and old o
     const { isSuppressed, legacyEmailHash } = await import("./contacts");
     const s = await fresh();
     const email = `legacy-${crypto.randomUUID().slice(0, 8)}@example.com`;
-    await db
-      .insert(contactSuppressions)
-      .values({
-        account_id: s.account_id,
-        email_hash: legacyEmailHash(email),
-        reason: "unsubscribed",
-      });
+    await db.insert(contactSuppressions).values({
+      account_id: s.account_id,
+      email_hash: legacyEmailHash(email),
+      reason: "unsubscribed",
+    });
     expect(await isSuppressed(s.account_id, email)).toBe("unsubscribed");
     await expect(
       addContact(s.account_id, {
