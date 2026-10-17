@@ -9,6 +9,7 @@ import { bearerMatches } from "../../../../lib/core/secret-compare";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { runProgressChecks } from "../../../../lib/care/progress";
+import { runAdProposals } from "../../../../lib/ads/proposals";
 import { runHoursTrials } from "../../../../lib/hours/trials";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
 
@@ -23,8 +24,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const progress = await runProgressChecks();
     // P3-41: this month's trading-hours signals become trial proposals.
     const trials = await runHoursTrials();
-    console.log(JSON.stringify({ event: "weekly_watch", ...result, progress, trials }));
-    return NextResponse.json({ ...result, progress, trials });
+    // P3-22a: measured campaigns become pause / raise proposals — never executed here.
+    const ads = await runAdProposals();
+    console.log(JSON.stringify({ event: "weekly_watch", ...result, progress, trials, ads }));
+    return NextResponse.json({ ...result, progress, trials, ads });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_watch_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "job failed" }, { status: 500 });

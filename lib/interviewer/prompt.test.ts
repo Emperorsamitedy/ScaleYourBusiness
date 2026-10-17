@@ -20,9 +20,9 @@ describe("system prompt — stable, cached, complete", () => {
     expect(blocksA[1]?.text).toBe(blocksB[1]?.text);
   });
 
-  it("carries all 155 questions and puts the cache breakpoint on the bank block", async () => {
+  it("carries all 156 questions and puts the cache breakpoint on the bank block", async () => {
     const bank = await loadInterviewerBank();
-    expect(bank.questions).toHaveLength(155);
+    expect(bank.questions).toHaveLength(156);
     const blocks = buildSystemBlocks(bank);
     expect(blocks[0]?.cache_control).toBeUndefined();
     expect(blocks[1]?.cache_control).toEqual({ type: "ephemeral" });

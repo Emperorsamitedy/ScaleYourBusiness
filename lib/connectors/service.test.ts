@@ -351,3 +351,14 @@ describe("toPublicConnection", () => {
     ]);
   });
 });
+
+describe("P3-22a — a campaign's name labels its series without splitting it", () => {
+  it("the natural key leaves the name out; the stored row keeps it", async () => {
+    const { canonicalDimensions, storedDimensions } = await import("./service");
+    const before = { currency: "EUR", campaign_ref: "120000001", campaign_name: "Autumn menu" };
+    const renamed = { ...before, campaign_name: "Autumn menu — v2" };
+    expect(canonicalDimensions(before)).toBe(canonicalDimensions(renamed));
+    expect(canonicalDimensions(before)).toBe('{"campaign_ref":"120000001","currency":"EUR"}');
+    expect(storedDimensions(renamed)).toMatchObject({ campaign_name: "Autumn menu — v2" });
+  });
+});

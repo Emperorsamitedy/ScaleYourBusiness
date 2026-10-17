@@ -17,7 +17,7 @@ import { connections, metricObservations } from "../../db/schema";
 import { isoDate, isoDateTime } from "../core/iso";
 import { money } from "../core/money";
 import type { Observation, ObservationDimensions } from "./provider";
-import { MONEY_METRICS, ProviderError, isMetricKey } from "./provider";
+import { LABEL_DIMENSIONS, MONEY_METRICS, ProviderError, isMetricKey } from "./provider";
 import { getProvider } from "./registry";
 import { encryptSecret } from "./secrets";
 import type { ProviderId } from "./scopes";
@@ -236,11 +236,22 @@ export async function listConnections(accountId: string): Promise<PublicConnecti
 /* ---------- P2-02: observations ---------- */
 
 /** The jsonb half of the natural key, serialised with sorted keys and no empties. */
-export function canonicalDimensions(dimensions: ObservationDimensions): string {
-  const entries = Object.entries(dimensions)
+function sortedEntries(dimensions: ObservationDimensions): [string, string][] {
+  return Object.entries(dimensions)
     .filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1] !== "")
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
-  return JSON.stringify(Object.fromEntries(entries));
+}
+
+/** The natural key of a series: every identifying dimension, labels excluded (P3-22a). */
+export function canonicalDimensions(dimensions: ObservationDimensions): string {
+  return JSON.stringify(
+    Object.fromEntries(sortedEntries(dimensions).filter(([k]) => !LABEL_DIMENSIONS.has(k))),
+  );
+}
+
+/** What a row stores: the identifying dimensions plus their labels. */
+export function storedDimensions(dimensions: ObservationDimensions): Record<string, string> {
+  return Object.fromEntries(sortedEntries(dimensions));
 }
 
 export class ObservationError extends Error {
@@ -268,7 +279,7 @@ export function toObservationRow(
   }
   const period_date = isoDate(o.period_date);
   const observed_at = isoDateTime(o.observed_at);
-  const dimensions: Record<string, string> = JSON.parse(canonicalDimensions(o.dimensions));
+  const dimensions: Record<string, string> = storedDimensions(o.dimensions);
   const isMoney = MONEY_METRICS.has(o.metric_key);
 
   if (isMoney) {

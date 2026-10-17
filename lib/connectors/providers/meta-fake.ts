@@ -26,8 +26,19 @@ export interface FakeMetaCall {
   init: MetaRequestInit;
 }
 
+export interface FakeMetaCampaignDay {
+  date: string;
+  campaign_id: string;
+  campaign_name: string;
+  spend: string;
+  /** Attributed purchase value, as Meta reports it under action_values. */
+  purchase_value?: string;
+}
+
 export interface FakeMetaOptions {
   days?: FakeMetaDay[];
+  /** P3-22a: per-campaign rows, answered when insights is asked at level=campaign. */
+  campaigns?: FakeMetaCampaignDay[];
   currency?: string;
   permissions?: { permission: string; status: string }[];
   respond?: (call: FakeMetaCall, n: number) => MetaResponse | null;
@@ -78,6 +89,32 @@ export function fakeMeta(options: FakeMetaOptions = {}): FakeMeta {
     }
     if (path === `/v25.0/act_${FAKE_META_ACCOUNT}`) {
       return metaJson(200, { id: `act_${FAKE_META_ACCOUNT}`, currency, name: "Ember & Oak" });
+    }
+    if (
+      path === `/v25.0/act_${FAKE_META_ACCOUNT}/insights` &&
+      call.url.searchParams.get("level") === "campaign"
+    ) {
+      const range = JSON.parse(call.url.searchParams.get("time_range") ?? "{}") as {
+        since?: string;
+        until?: string;
+      };
+      const rows = (options.campaigns ?? []).filter(
+        (d) => (!range.since || d.date >= range.since) && (!range.until || d.date <= range.until),
+      );
+      return metaJson(200, {
+        data: rows.map((d) => ({
+          campaign_id: d.campaign_id,
+          campaign_name: d.campaign_name,
+          spend: d.spend,
+          account_currency: currency,
+          ...(d.purchase_value
+            ? { action_values: [{ action_type: "omni_purchase", value: d.purchase_value }] }
+            : {}),
+          date_start: d.date,
+          date_stop: d.date,
+        })),
+        paging: { cursors: { before: "0", after: "0" } },
+      });
     }
     if (path === `/v25.0/act_${FAKE_META_ACCOUNT}/insights`) {
       const range = JSON.parse(call.url.searchParams.get("time_range") ?? "{}") as {

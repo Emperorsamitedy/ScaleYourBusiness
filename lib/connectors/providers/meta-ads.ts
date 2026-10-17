@@ -23,7 +23,10 @@
 // against a real ad account before Session D's done-when counts.
 //
 // WHAT IS READ. Daily spend in the ad account's currency, and the purchases
-// Meta attributes to the ads. Meta reports purchases under overlapping
+// Meta attributes to the ads. Since P3-22a also, per campaign: spend and
+// the purchase VALUE Meta attributes (action_values), keyed by campaign id
+// with its current name as a label, so a campaign's return on ad spend can
+// be computed from measured days. Same read scope (ads_read), same path. Meta reports purchases under overlapping
 // action types, so they are never summed: omni_purchase is used when
 // present, then purchase, then the pixel's purchase event. Meta keeps
 // attributing conversions for days after a click, so every sync re-reads
@@ -272,6 +275,120 @@ export function aggregateInsights(
   return out;
 }
 
+export interface MetaCampaignRow {
+  date: string;
+  campaign_id: string;
+  campaign_name: string;
+  spend: string;
+  currency: string;
+  action_values: MetaAction[];
+}
+
+/** Purchase value from one day's action_values: the first purchase type present, never a sum. */
+export function purchaseValueFrom(values: readonly MetaAction[]): string | null {
+  for (const type of META_PURCHASE_ACTIONS) {
+    const v = values.find((a) => a.action_type === type);
+    if (v) return v.value;
+  }
+  return null;
+}
+
+/**
+ * Per-campaign spend and attributed purchase value, one pair per campaign
+ * per day Meta reported (a campaign that didn't run reports nothing — that
+ * day is not "measured" for it). Money in minor units of the account
+ * currency; a row in another currency is an error, never a blend (rule 1).
+ */
+export function aggregateCampaignInsights(
+  rows: readonly MetaCampaignRow[],
+  accountCurrency: string,
+  start: Date,
+  end: Date,
+  observedAt: string,
+): Observation[] {
+  const currency = accountCurrency.toUpperCase();
+  const from = dayString(start);
+  const to = dayString(end);
+  const out: Observation[] = [];
+  for (const row of rows) {
+    if (row.date < from || row.date > to) continue;
+    if (row.currency.toUpperCase() !== currency) {
+      throw new ProviderError(
+        `meta: campaign ${row.campaign_id} on ${row.date} is in ${row.currency}, not the account's ${currency}`,
+      );
+    }
+    let spend: number;
+    let value: number;
+    try {
+      spend = decimalToMinor(row.spend, currency);
+      value = decimalToMinor(purchaseValueFrom(row.action_values) ?? "0", currency);
+    } catch (error) {
+      if (error instanceof DecimalError) {
+        throw new ProviderError(
+          `meta: campaign ${row.campaign_id} on ${row.date}: ${error.message}`,
+        );
+      }
+      throw error;
+    }
+    const dimensions = {
+      currency,
+      campaign_ref: row.campaign_id,
+      campaign_name: row.campaign_name,
+    };
+    out.push(
+      {
+        metric_key: "ad_spend.campaign.daily",
+        period_date: row.date,
+        dimensions,
+        value_minor: spend,
+        observed_at: observedAt,
+      },
+      {
+        metric_key: "ad_purchase_value.campaign.daily",
+        period_date: row.date,
+        dimensions,
+        value_minor: value,
+        observed_at: observedAt,
+      },
+    );
+  }
+  return out;
+}
+
+function parseCampaignRow(value: unknown, fallbackCurrency: string): MetaCampaignRow {
+  const r = value as {
+    date_start?: unknown;
+    campaign_id?: unknown;
+    campaign_name?: unknown;
+    spend?: unknown;
+    account_currency?: unknown;
+    action_values?: unknown;
+  } | null;
+  if (!r || typeof r.date_start !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(r.date_start)) {
+    throw new ProviderError("meta: a campaign insights row is missing its date");
+  }
+  if (typeof r.campaign_id !== "string" || !/^\d+$/.test(r.campaign_id)) {
+    throw new ProviderError("meta: a campaign insights row is missing its campaign id");
+  }
+  const values = Array.isArray(r.action_values)
+    ? r.action_values.flatMap((a) => {
+        const v = a as { action_type?: unknown; value?: unknown } | null;
+        return typeof v?.action_type === "string" && typeof v.value === "string"
+          ? [{ action_type: v.action_type, value: v.value }]
+          : [];
+      })
+    : [];
+  return {
+    date: r.date_start,
+    campaign_id: r.campaign_id,
+    campaign_name:
+      typeof r.campaign_name === "string" ? r.campaign_name.slice(0, 200) : r.campaign_id,
+    spend: typeof r.spend === "string" ? r.spend : "0",
+    currency: typeof r.account_currency === "string" ? r.account_currency : fallbackCurrency,
+    action_values: values,
+  };
+}
+
 function parseInsightRow(value: unknown, fallbackCurrency: string): MetaInsightRow {
   const r = value as {
     date_start?: unknown;
@@ -391,8 +508,41 @@ export function createMetaAdsProvider(options: MetaProviderOptions = {}): Provid
         after = nextAfter;
       }
 
+      // P3-22a: the same window again, per campaign — same path, same scope.
+      const campaignRows: MetaCampaignRow[] = [];
+      let campaignAfter: string | null = null;
+      for (let page = 0; ; page += 1) {
+        if (page >= META_MAX_PAGES) {
+          throw new ProviderError("meta: more campaign insights pages than one sync reads");
+        }
+        const body = await metaGet(ctx, cred, "insights", {
+          fields: "campaign_id,campaign_name,spend,action_values,account_currency,date_start",
+          level: "campaign",
+          time_increment: "1",
+          time_range: JSON.stringify({ since: dayString(plan.start), until: dayString(plan.end) }),
+          limit: String(META_PAGE_SIZE),
+          ...(campaignAfter !== null ? { after: campaignAfter } : {}),
+        });
+        const data = Array.isArray(body["data"]) ? body["data"] : [];
+        campaignRows.push(...data.map((row) => parseCampaignRow(row, currency)));
+        const paging = body["paging"] as
+          { next?: unknown; cursors?: { after?: unknown } } | undefined;
+        const next = typeof paging?.cursors?.after === "string" ? paging.cursors.after : null;
+        if (typeof paging?.next !== "string" || next === null) break;
+        campaignAfter = next;
+      }
+
       return {
-        observations: aggregateInsights(rows, currency, plan.start, plan.end, now.toISOString()),
+        observations: [
+          ...aggregateInsights(rows, currency, plan.start, plan.end, now.toISOString()),
+          ...aggregateCampaignInsights(
+            campaignRows,
+            currency,
+            plan.start,
+            plan.end,
+            now.toISOString(),
+          ),
+        ],
         cursor: advanceCursor(cursor, plan.end),
         done: plan.end.getTime() === plan.yesterday.getTime(),
       };
