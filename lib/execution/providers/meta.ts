@@ -18,8 +18,13 @@
 // THE PAGE TOKEN. Meta publishes to a Page with a Page token. Derived here
 // from the system user's assigned Page by reading the Page's access_token
 // field — _verify at build_ against a real Page: Meta's current docs do not
-// state the derivation for system users. The fallback is a pasted Page
-// token (`page_access_token`), proven by reading the Page with it.
+// state the derivation for system users. There is NO pasted-Page-token
+// fallback (security review 2026-10-17): a pasted token's permissions
+// can't be checked against the consent, so a broader token — or another
+// user's — could have been stored under it. The only Page token SYB uses
+// is one derived from the system-user token whose scopes were verified
+// exactly. If derivation fails against a real Page, the paste route comes
+// back only with a verified permission check (P3-21b).
 //
 // WHAT IT CAN SEND. Only the requests in META_EXEC_REQUESTS, all GET until
 // the publish ops (P3-21b) and ad ops (P3-22b) land; meta.test.ts scans
@@ -94,8 +99,6 @@ export interface MetaExecutionCredential {
   ig_user_id: string | null;
   /** Digits only; the act_ prefix is added where the API wants it. */
   ad_account_id: string | null;
-  /** Pilot fallback when the Page token can't be derived. */
-  page_access_token: string | null;
 }
 
 function token(value: unknown, what: string): string | null {
@@ -132,8 +135,13 @@ export function parseMetaExecutionCredential(
     page_id: digits(c["page_id"], "Page id"),
     ig_user_id: digits(c["ig_user_id"], "Instagram account id"),
     ad_account_id: digits(c["ad_account_id"], "ad account id", /^act_/),
-    page_access_token: token(c["page_access_token"], "Page token"),
   };
+  if (c["page_access_token"] !== undefined && c["page_access_token"] !== "") {
+    throw new ExecutionConnectionError(
+      "meta: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and SYB derives the Page token from it",
+      400,
+    );
+  }
   if (cred.access_token === "") {
     throw new ExecutionConnectionError("meta: the access token is needed", 400);
   }
@@ -264,18 +272,6 @@ function sameId(body: Record<string, unknown>, expected: string, what: string): 
 
 async function provePage(ctx: Context, cred: MetaExecutionCredential, pageId: string) {
   const reach = `Page ${pageId}. Assign the Page to the system user with the permissions listed`;
-  if (cred.page_access_token !== null) {
-    const page = await metaRequest(
-      ctx,
-      cred.page_access_token,
-      "page",
-      { page_id: pageId },
-      { fields: "id,name" },
-      reach,
-    );
-    sameId(page, pageId, "Page");
-    return;
-  }
   const page = await metaRequest(
     ctx,
     cred.access_token,
@@ -287,7 +283,7 @@ async function provePage(ctx: Context, cred: MetaExecutionCredential, pageId: st
   sameId(page, pageId, "Page");
   if (typeof page["access_token"] !== "string" || page["access_token"] === "") {
     throw new ExecutionConnectionError(
-      `meta: no Page token could be had for Page ${pageId}. Assign the Page to the system user, or paste a Page token`,
+      `meta: no Page token could be had for Page ${pageId}. Assign the Page to the system user with the permissions listed`,
       422,
     );
   }

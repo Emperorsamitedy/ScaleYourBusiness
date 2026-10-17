@@ -13,7 +13,14 @@ import { eq } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../db";
 import { accounts, authSessions, users } from "../../db/schema";
-import { authorizeRedirect, emailFromClaims, idTokenClaims, oauthProvider } from "./oauth";
+import {
+  MICROSOFT_CONSUMER_TENANT,
+  authorizeRedirect,
+  emailFromClaims,
+  idTokenClaims,
+  oauthProvider,
+  verifiedEmailFromClaims,
+} from "./oauth";
 import { currentSession, signInWithEmail } from "./service";
 
 afterEach(() => {
@@ -113,5 +120,65 @@ describe("signInWithEmail — one motion, however the email was proven", () => {
     const second = await signInWithEmail(email.toUpperCase(), null);
     expect(second.account_id).toBe(first.account_id);
     expect(second.session_token).not.toBe(first.session_token);
+  });
+});
+
+describe("security review 2026-10-17 — an id_token's claims are checked before its email is trusted", () => {
+  const google = { id: "google", label: "Google", clientId: "g-client" };
+  const microsoft = { id: "microsoft", label: "Microsoft", clientId: "ms-client" };
+  const ATTACKER_TENANT = "11111111-2222-3333-4444-555555555555";
+
+  it("Google: our audience, Google's issuer, a verified email", () => {
+    const ok = {
+      aud: "g-client",
+      iss: "https://accounts.google.com",
+      email: "o@example.com",
+      email_verified: true,
+    };
+    expect(verifiedEmailFromClaims(google, ok)).toBe("o@example.com");
+    expect(() => verifiedEmailFromClaims(google, { ...ok, aud: "someone-elses-app" })).toThrow(
+      /another app/,
+    );
+    expect(() => verifiedEmailFromClaims(google, { ...ok, iss: "https://evil.example" })).toThrow(
+      /wrong issuer/,
+    );
+    // Missing is not verified: positively true, or no sign-in.
+    const unstated = { aud: ok.aud, iss: ok.iss, email: ok.email };
+    expect(() => verifiedEmailFromClaims(google, unstated)).toThrow(/not verified/);
+  });
+
+  it("THE ATTACK (nOAuth): an attacker's own Microsoft tenant claiming an owner's email is refused", () => {
+    const forged = {
+      aud: "ms-client",
+      tid: ATTACKER_TENANT,
+      iss: `https://login.microsoftonline.com/${ATTACKER_TENANT}/v2.0`,
+      email: "owner@victim-shop.hu",
+    };
+    expect(() => verifiedEmailFromClaims(microsoft, forged)).toThrow(/isn't verified as its own/);
+  });
+
+  it("Microsoft: a personal account, or a work account carrying xms_edov, signs in", () => {
+    const personal = {
+      aud: "ms-client",
+      tid: MICROSOFT_CONSUMER_TENANT,
+      iss: `https://login.microsoftonline.com/${MICROSOFT_CONSUMER_TENANT}/v2.0`,
+      email: "someone@outlook.com",
+    };
+    expect(verifiedEmailFromClaims(microsoft, personal)).toBe("someone@outlook.com");
+    const work = {
+      aud: "ms-client",
+      tid: ATTACKER_TENANT,
+      iss: `https://login.microsoftonline.com/${ATTACKER_TENANT}/v2.0`,
+      email: "owner@their-own-domain.hu",
+      xms_edov: true,
+    };
+    expect(verifiedEmailFromClaims(microsoft, work)).toBe("owner@their-own-domain.hu");
+    // An issuer that doesn't match the tenant is refused.
+    expect(() =>
+      verifiedEmailFromClaims(microsoft, {
+        ...work,
+        iss: `https://login.microsoftonline.com/${MICROSOFT_CONSUMER_TENANT}/v2.0`,
+      }),
+    ).toThrow(/wrong issuer/);
   });
 });

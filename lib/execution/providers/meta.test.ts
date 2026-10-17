@@ -216,21 +216,21 @@ describe("P3-20g — the verifier proves the token and the asset", () => {
     ).rejects.toThrow(/can't reach Page 9999999/);
     const noToken = meta({ permissions: granted(...PUBLISH_SCOPES), noPageToken: true });
     await expect(noToken.exec.verifier("meta_publish")(PUBLISH_SECRET)).rejects.toThrow(
-      /no Page token could be had.*or paste a Page token/,
+      /no Page token could be had for Page/,
     );
   });
 
-  it("pilot fallback: a pasted Page token is proven by reading the Page with it", async () => {
-    const { exec, calls } = meta({ permissions: granted(...PUBLISH_SCOPES), noPageToken: true });
+  it("THE ATTACK (review 2026-10-17): a pasted Page token is refused — its permissions can't be checked against the consent", async () => {
+    const { exec, calls } = meta({ permissions: granted(...PUBLISH_SCOPES) });
     const secret = JSON.stringify({
       access_token: TOKEN,
       page_id: PAGE,
       page_access_token: PAGE_TOKEN,
     });
-    await exec.verifier("meta_publish")(secret);
-    const pageCall = calls.find((c) => c.url.pathname === `${V}/${PAGE}`);
-    expect(pageCall?.init.headers["authorization"]).toBe(`Bearer ${PAGE_TOKEN}`);
-    expect(pageCall?.url.searchParams.get("fields")).toBe("id,name");
+    await expect(exec.verifier("meta_publish")(secret)).rejects.toThrow(
+      /a pasted Page token can't be checked against your consent/,
+    );
+    expect(calls).toHaveLength(0); // refused before anything was sent
   });
 
   it("an invalid token is reported as not accepted, without echoing it", async () => {
