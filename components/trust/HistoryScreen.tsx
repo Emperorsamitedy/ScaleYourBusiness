@@ -190,9 +190,7 @@ export function HistoryScreen() {
       ))}
 
       <p className="conn-note">
-        Every verdict above is arithmetic over measured days — nothing is graded on intention.{" "}
-        <Link href="/proposals">Proposals</Link> · <Link href="/content">Content</Link> ·{" "}
-        <Link href="/report">Report</Link>
+        Every verdict above is arithmetic over measured days — nothing is graded on intention.
       </p>
     </main>
   );

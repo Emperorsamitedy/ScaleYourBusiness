@@ -332,7 +332,8 @@ async function propose(
       },
       upside_case: {
         case: "upside",
-        statement: "Fewer repeat questions reach you; the FAQ (Session D) will measure which.",
+        statement:
+          "Fewer repeat questions reach you; your support page will show which ones it answers.",
         profit_delta_monthly: null,
         formula: null,
       },

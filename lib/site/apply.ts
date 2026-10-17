@@ -127,7 +127,7 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
     (new URL(detail.url).hostname.endsWith(".example") ? fixtureSiteExecutor : null);
   if (!provider) {
     throw new SiteChangeError(
-      `applying to ${detail.platform.platform} needs its write access connected — that arrives with its own consent screen (Session D gate). Until then this card, with its before/after, is the reference for changing it yourself`,
+      `applying to ${detail.platform.platform} needs its write access connected — you will give that permission separately, on its own screen. Until then this card, with its before/after, is the reference for changing it yourself`,
       409,
     );
   }

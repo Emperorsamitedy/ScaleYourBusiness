@@ -92,7 +92,7 @@ export function detectPlatform(
 export function editabilityLine(verdict: PlatformVerdict): string {
   switch (verdict.editable) {
     case "api":
-      return `${verdict.platform} — changes can be applied for you once its write access is connected (its own consent, Session D gate).`;
+      return `${verdict.platform} — changes can be applied for you once you give it permission to make changes — a separate step, on its own screen.`;
     case "partial":
       return `${verdict.platform} — some elements can be changed programmatically, not all; anything beyond that comes as instructions.`;
     case "manual":

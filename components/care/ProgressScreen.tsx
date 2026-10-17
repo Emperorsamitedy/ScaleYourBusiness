@@ -10,7 +10,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { format, minorUnitExponent, money } from "../../lib/core/money";
-import { ProposalsBadge } from "../proposals/ProposalsBadge";
 
 interface Measure {
   metric: "revenue" | "orders" | "sessions";
@@ -250,7 +249,6 @@ export function ProgressScreen() {
             ? ` · in our care since ${view.care.day_zero.slice(0, 10)}`
             : " · not in care yet"}
         </span>
-        <ProposalsBadge />
       </header>
 
       <section className="card ops-card">

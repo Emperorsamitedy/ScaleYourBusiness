@@ -9,7 +9,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { format, money } from "../../lib/core/money";
-import { ProposalsBadge } from "../proposals/ProposalsBadge";
 
 type Weekday = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
@@ -193,7 +192,6 @@ export function HoursScreen() {
           {view.timezone.zone ? ` · judged in ${view.timezone.zone}` : ""}
           {a.status === "ok" ? ` · ${a.from} to ${a.to}` : ""}
         </span>
-        <ProposalsBadge />
       </header>
 
       <section className="card ops-card">

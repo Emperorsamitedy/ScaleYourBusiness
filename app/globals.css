@@ -3277,22 +3277,14 @@ a.ghost {
   justify-content: space-between;
   align-items: center;
 }
-.fs-nav {
-  display: flex;
-  gap: 18px;
+.fs-answer {
+  margin-left: auto;
   font-size: 13.5px;
-}
-.fs-nav a {
   color: var(--mut);
   text-decoration: none;
 }
-.fs-nav a:hover {
+.fs-answer:hover {
   color: var(--ink);
-}
-.fs-nav [aria-current] {
-  color: var(--ink);
-  border-bottom: 1px solid var(--ember);
-  padding-bottom: 2px;
 }
 .fs-title h1 {
   font-family: var(--display);
@@ -3612,6 +3604,7 @@ a.ghost {
   align-items: center;
 }
 .rp-print {
+  margin-left: auto;
   font: inherit;
   font-size: 13.5px;
   color: var(--mut);
@@ -5325,26 +5318,6 @@ a.auth-cta {
   color: var(--mut);
 }
 
-/* The one badge — P3-07. Counts approvals, nothing else. */
-.prop-badge-link {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.prop-badge {
-  display: inline-block;
-  min-width: 18px;
-  text-align: center;
-  margin-left: 7px;
-  padding: 1px 6px;
-  border-radius: 999px;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--whisper);
-  color: var(--on-signal); /* on-secondary — AA on the signal blue */
-}
-
 /* Content queue — Session C. */
 .ct-goals {
   list-style: none;
@@ -5669,4 +5642,208 @@ a.auth-cta {
 }
 .es-eyebrow {
   color: var(--err);
+}
+
+/* ── The app's one navigation (ux-spec §3): a left rail on desktop, a
+   bottom bar under 900px, five sections, one badge. components/nav. ── */
+.app-frame {
+  min-height: 100dvh;
+}
+.app-rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 232px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 26px 14px 20px;
+  background: var(--card-solid);
+  border-right: 1px solid var(--hair);
+  z-index: 40;
+}
+.app-rail-mark {
+  padding: 0 10px 8px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.app-rail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.app-rail-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: var(--mut);
+  text-decoration: none;
+  font-size: 14.5px;
+  font-weight: 500;
+  transition:
+    background 0.2s var(--ease),
+    color 0.2s var(--ease);
+}
+.app-rail-item:hover {
+  background: var(--raised);
+  color: var(--ink);
+}
+.app-rail-item.active {
+  background: var(--raised);
+  color: var(--ink);
+  box-shadow: inset 2px 0 0 var(--ember);
+}
+.app-rail-item:focus-visible,
+.app-tab:focus-visible,
+.nav-foot-link:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+.nav-badge {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background: var(--ember);
+  color: var(--on-ember);
+  font: 600 12px/1 var(--mono);
+}
+.app-rail-foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+}
+.nav-foot-link {
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  color: var(--mut);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.nav-foot-link:hover,
+.nav-foot-link.active {
+  color: var(--ink);
+  background: var(--raised);
+}
+.app-main {
+  margin-left: 232px;
+  min-height: 100dvh;
+}
+.app-tabs {
+  display: flex;
+  gap: 4px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 22px 24px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.app-tab {
+  flex: none;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--mut);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+.app-tab:hover {
+  color: var(--ink);
+}
+.app-tab.active {
+  color: var(--ink);
+  border-color: var(--hair-2);
+  background: var(--raised);
+}
+/* The rail carries the wordmark; a page's own copy of it would be a second one. */
+.app-main .wordmark {
+  display: none;
+}
+.app-main .ops-shell {
+  padding-top: 18px;
+}
+
+@media (max-width: 899px) {
+  .app-rail {
+    inset: auto 0 0 0;
+    width: auto;
+    height: 64px;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    padding: 0 4px env(safe-area-inset-bottom);
+    border-right: 0;
+    border-top: 1px solid var(--hair);
+  }
+  .app-rail-mark,
+  .app-rail-foot {
+    display: none;
+  }
+  .app-rail-list {
+    flex: 1;
+    flex-direction: row;
+    gap: 0;
+  }
+  .app-rail-list li {
+    flex: 1;
+  }
+  .app-rail-item {
+    position: relative;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 2px;
+    border-radius: 0;
+    font-size: 10.5px;
+    text-align: center;
+  }
+  .app-rail-item.active {
+    background: none;
+    box-shadow: inset 0 2px 0 var(--ember);
+  }
+  .nav-badge {
+    position: absolute;
+    top: 6px;
+    left: calc(50% + 6px);
+    margin: 0;
+    min-width: 18px;
+    height: 18px;
+    font-size: 10.5px;
+  }
+  .app-main {
+    margin-left: 0;
+    padding-bottom: 72px;
+  }
+  .app-tabs {
+    padding: 14px 16px 0;
+    /* More tabs than fit: the fade says "scroll me" where a hidden bar can't. */
+    mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+  }
+}
+@media print {
+  .app-rail,
+  .app-tabs {
+    display: none;
+  }
+  .app-main {
+    margin-left: 0;
+    padding-bottom: 0;
+  }
 }
