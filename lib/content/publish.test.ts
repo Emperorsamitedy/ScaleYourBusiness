@@ -283,32 +283,39 @@ describe("P3-21a — proposePublishing", () => {
   });
 
   it("approving without a time keeps the proposal's posting time; nothing is pre-bound to execute", async () => {
+    // Approval checks expiry on the REAL clock, so this test runs on it too —
+    // a pinned date here would expire by itself (the 2026-10-15 lesson).
+    const now = new Date();
+    const inDays = (n: number) =>
+      new Date(now.getTime() + n * 86_400_000).toISOString().slice(0, 10);
     const b = await business(true);
-    const fb = await b.item(b.facebook, "facebook", "2026-12-01");
-    const [p] = (await proposePublishing(b.profile_id, [fb.id], { now: NOW, limitLlm: limitsLlm }))
+    const fb = await b.item(b.facebook, "facebook", inDays(10));
+    const [p] = (await proposePublishing(b.profile_id, [fb.id], { now, limitLlm: limitsLlm }))
       .created;
     const approved = await approveProposal({
       proposalId: p!.id,
       userId: b.user_id,
       profileId: b.profile_id,
     });
-    expect(Date.parse(approved.execute_not_before ?? "")).toBe(Date.parse("2026-12-01T09:00:00Z"));
+    expect(Date.parse(approved.execute_not_before ?? "")).toBe(
+      zonedInstant(inDays(10), DEFAULT_POSTING_HOUR, "Europe/Budapest").getTime(),
+    );
     // The runner leaves it approved until the publish ops exist (P3-21b).
     expect(preboundPlan(approved)).toBeNull();
 
+    const pick = new Date(now.getTime() + 11 * 86_400_000 + 3_600_000).toISOString();
     const picked = await (async () => {
-      const fb2 = await b.item(b.facebook, "facebook", "2026-12-02");
-      const [p2] = (
-        await proposePublishing(b.profile_id, [fb2.id], { now: NOW, limitLlm: limitsLlm })
-      ).created;
+      const fb2 = await b.item(b.facebook, "facebook", inDays(11));
+      const [p2] = (await proposePublishing(b.profile_id, [fb2.id], { now, limitLlm: limitsLlm }))
+        .created;
       return approveProposal({
         proposalId: p2!.id,
         userId: b.user_id,
         profileId: b.profile_id,
-        executeNotBefore: "2026-12-02T15:30:00.000Z",
+        executeNotBefore: pick,
       });
     })();
-    expect(Date.parse(picked.execute_not_before ?? "")).toBe(Date.parse("2026-12-02T15:30:00Z")); // the owner's pick wins
+    expect(Date.parse(picked.execute_not_before ?? "")).toBe(Date.parse(pick)); // the owner's pick wins
   });
 
   it("without a Meta connection nothing is proposed, and the queue says how to fix it", async () => {

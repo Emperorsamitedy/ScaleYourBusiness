@@ -87,6 +87,7 @@ function contact(over: Partial<ContactRow>): ContactRow {
     orders_count: null,
     total_spent_minor: null,
     spent_currency: null,
+    country: null,
     ...over,
   };
 }
@@ -328,10 +329,16 @@ describe("P4-13/14 — segments and the win-back proposal", () => {
       .where(eq(contacts.account_id, s.account_id));
     // Three months, each its own proposal (the month key), each declined.
     // Months AHEAD of the real clock, because a proposal expires 14 days
-    // after ITS now and deciding checks expiry on real time.
-    for (const month of ["2026-10-01", "2026-11-01", "2026-12-01"]) {
+    // after ITS now and deciding checks expiry on real time. Computed from
+    // the real clock, not pinned: pinned months expired by themselves on
+    // 2026-10-15 (the first was October's 1st plus 14 days).
+    const ahead = (n: number) => {
+      const d = new Date();
+      return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1, 12));
+    };
+    for (const at of [ahead(1), ahead(2), ahead(3)]) {
       const out = await proposeFromSegments(s.profile_id, {
-        now: new Date(`${month}T12:00:00Z`),
+        now: at,
         limitLlm: noLimits,
       });
       expect(out.created).toHaveLength(1);
@@ -342,7 +349,7 @@ describe("P4-13/14 — segments and the win-back proposal", () => {
       });
     }
     const silenced = await proposeFromSegments(s.profile_id, {
-      now: new Date("2027-01-15T12:00:00Z"),
+      now: ahead(4),
       limitLlm: noLimits,
     });
     expect(silenced.created).toEqual([]);

@@ -20,6 +20,8 @@ interface Contact {
   orders_count: number | null;
   total_spent_minor: number | null;
   spent_currency: string | null;
+  /** ISO alpha-2, from the import; null = unknown. */
+  country?: string | null;
 }
 
 interface SegmentView {
@@ -82,6 +84,41 @@ const POSTURE_WORD: Record<Payload["posture"], string> = {
   disabled: "you said customers gave no consent — outbound email is off",
   unknown: "you haven't answered the consent question (6.4b) — treated as caution",
 };
+
+/** The import's outcome in words — never a JSON dump. */
+function importNotice(j: Record<string, unknown>): string {
+  const skipped = (j.skipped ?? {}) as Record<string, number>;
+  const purchase = (j.purchase ?? { columns: [], unreadable: 0 }) as {
+    columns: string[];
+    unreadable: number;
+  };
+  const country = (j.country ?? { column: false, unreadable: 0 }) as {
+    column: boolean;
+    unreadable: number;
+  };
+  const words: Record<string, string> = {
+    suppressed: "on the unsubscribe list",
+    already_exists: "already here",
+    duplicate_in_batch: "repeated in the file",
+    invalid: "unreadable rows",
+  };
+  const skips = Object.entries(skipped)
+    .filter(([, n]) => n > 0)
+    .map(([k, n]) => `${n} ${words[k] ?? k}`);
+  const parts = [`Imported ${String(j.imported ?? 0)}.`];
+  if (skips.length > 0) parts.push(`Skipped ${skips.join(", ")}.`);
+  if (purchase.columns.length > 0) {
+    parts.push(
+      `Purchase history read from ${purchase.columns.length} column${purchase.columns.length === 1 ? "" : "s"}${purchase.unreadable > 0 ? `; ${purchase.unreadable} value${purchase.unreadable === 1 ? "" : "s"} couldn't be read and were left empty` : ""}.`,
+    );
+  }
+  if (country.column && country.unreadable > 0) {
+    parts.push(
+      `${country.unreadable} countr${country.unreadable === 1 ? "y wasn't" : "ies weren't"} recognised and ${country.unreadable === 1 ? "was" : "were"} left unknown.`,
+    );
+  }
+  return parts.join(" ");
+}
 
 function money(minor: number | null, currency: string | null): string {
   if (minor === null || currency === null) return "—";
@@ -278,9 +315,10 @@ export function CustomersScreen() {
       <section className="card ops-card">
         <span className="auth-eyebrow">import — under your attestation</span>
         <p className="auth-copy">
-          Paste a CSV from your shop or spreadsheet. Columns it understands: email, name, phone, and
-          — for lifecycle — last order date, order count, total spent. You state what these contacts
-          consented to and how; that statement lands on every row.
+          Paste a CSV from your shop or spreadsheet. Columns it understands: email, name, phone,
+          country (so each customer&rsquo;s own email rules apply), and — for lifecycle — last order
+          date, order count, total spent. You state what these contacts consented to and how; that
+          statement lands on every row.
         </p>
         <form
           className="ct-goal-form"
@@ -294,8 +332,7 @@ export function CustomersScreen() {
                 statement: s.statement,
                 currency: s.currency,
               },
-              (j) =>
-                `Imported ${String(j.imported)}. Skipped: ${JSON.stringify(j.skipped)}. Purchase columns: ${JSON.stringify(j.purchase)}.`,
+              (j) => importNotice(j),
             );
           }}
         >
@@ -373,7 +410,8 @@ export function CustomersScreen() {
             <p className="conn-note">
               {c.email ?? "no email"} · {CONSENT_WORD[c.consent_status]} · last order{" "}
               {c.last_purchase_at ? c.last_purchase_at.slice(0, 10) : "—"} · orders{" "}
-              {c.orders_count ?? "—"} · spent {money(c.total_spent_minor, c.spent_currency)}
+              {c.orders_count ?? "—"} · spent {money(c.total_spent_minor, c.spent_currency)} ·{" "}
+              {c.country ?? "country unknown"}
             </p>
           </article>
         ))}

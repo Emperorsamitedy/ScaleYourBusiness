@@ -269,9 +269,10 @@ export async function canSendMarketing(args: {
   if (!gate.allowed) reasons.push(gate.reason);
   const evidence = consentEvidenceGap(args.contact);
   if (evidence) reasons.push(evidence);
+  // The recipient's own country, when the contact carries one, unless the caller knows better.
   const lookup = applicableRegimes({
     businessCountry: args.businessCountry,
-    recipientCountry: args.recipientCountry ?? null,
+    recipientCountry: args.recipientCountry ?? args.contact.country ?? null,
   });
   if (!lookup.ok) reasons.push(lookup.reason);
   else {

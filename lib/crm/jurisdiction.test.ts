@@ -13,6 +13,7 @@ import { accounts, businessProfiles, contacts, fieldRecords, intakeEvents } from
 import { bootstrapIntake } from "../intake/service";
 import type { ContactRow } from "./contacts";
 import { addContact } from "./contacts";
+import { importContacts, parseCountry } from "./import";
 import type { MarketingMessage } from "./jurisdiction";
 import {
   REGIMES,
@@ -157,6 +158,17 @@ describe("P4-16 — demonstrable consent", () => {
   });
 });
 
+describe("P4-16 follow-up — the recipient's country, from the export", () => {
+  it("reads the names exports carry and bare two-letter codes; anything else is unknown, not guessed", () => {
+    expect(parseCountry("Hungary")).toBe("HU");
+    expect(parseCountry("United States")).toBe("US");
+    expect(parseCountry("gb")).toBe("GB");
+    expect(parseCountry("PE")).toBe("PE"); // a real code SYB has no regime for — refused at send
+    expect(parseCountry("Atlantis")).toBeNull();
+    expect(parseCountry("  ")).toBeNull();
+  });
+});
+
 /* ── the whole pre-send check, against the database (suppression lives there) ── */
 
 const created: { account_id: string; profile_id: string }[] = [];
@@ -209,5 +221,61 @@ describe("P4-16 — canSendMarketing", () => {
 
     const [row] = await db.select().from(contacts).where(eq(contacts.id, yes.id));
     expect((row as ContactRow).consent_status).toBe("explicit_consent"); // the check wrote nothing
+  });
+
+  it("an imported recipient's own country adds its rules; an unknown one refuses rather than guesses", async () => {
+    const s = await bootstrapIntake();
+    created.push(s);
+    const tag = crypto.randomUUID().slice(0, 8);
+    const result = await importContacts(
+      s.account_id,
+      [
+        "email,Billing Country",
+        `us-${tag}@test.local,United States`,
+        `hu-${tag}@test.local,HU`,
+        `pe-${tag}@test.local,PE`,
+        `xx-${tag}@test.local,Atlantis`,
+      ].join("\n"),
+      { status: "explicit_consent", statement: "checkout checkbox, every one of them" },
+    );
+    expect(result.imported).toBe(4);
+    expect(result.country).toEqual({ column: true, unreadable: 1 });
+
+    const rows = await db.select().from(contacts).where(eq(contacts.account_id, s.account_id));
+    const by = (prefix: string) => rows.find((r) => r.email?.startsWith(prefix)) as ContactRow;
+    expect(by("us-").country).toBe("US");
+    expect(by("xx-").country).toBeNull(); // unknown, never guessed
+
+    const noAddress = { ...COMPLETE, postal_address: null };
+    // A Hungarian business emailing a US customer falls under CAN-SPAM too: the address is required.
+    const us = await canSendMarketing({
+      contact: by("us-"),
+      businessCountry: "Hungary",
+      message: noAddress,
+    });
+    expect(us).toMatchObject({ allowed: false, regimes: ["eu_gdpr", "us_can_spam"] });
+    expect(us.reason).toMatch(/postal address \(United States\)/);
+    expect(
+      await canSendMarketing({
+        contact: by("hu-"),
+        businessCountry: "Hungary",
+        message: noAddress,
+      }),
+    ).toMatchObject({ allowed: true, regimes: ["eu_gdpr"] });
+    const pe = await canSendMarketing({
+      contact: by("pe-"),
+      businessCountry: "Hungary",
+      message: COMPLETE,
+    });
+    expect(pe.allowed).toBe(false);
+    expect(pe.reason).toMatch(/recipient's country \(PE\)/);
+    // No country on the contact: only the business's own regime applies.
+    expect(
+      await canSendMarketing({
+        contact: by("xx-"),
+        businessCountry: "Hungary",
+        message: noAddress,
+      }),
+    ).toMatchObject({ allowed: true, regimes: ["eu_gdpr"] });
   });
 });
