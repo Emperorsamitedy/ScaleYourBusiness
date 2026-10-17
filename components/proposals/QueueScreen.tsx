@@ -389,8 +389,7 @@ export function QueueScreen() {
       )}
       <p className="conn-note">
         Nothing on this screen runs without your yes, and everything decided here is recorded with
-        your name and your words. <Link href="/report">See the report</Link> ·{" "}
-        <Link href="/watch">Watching</Link> · <Link href="/connections">Connections</Link>
+        your name and your words.
       </p>
     </main>
   );

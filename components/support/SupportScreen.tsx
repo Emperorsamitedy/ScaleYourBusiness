@@ -536,8 +536,7 @@ export function SupportScreen() {
 
       <p className="conn-note">
         The assistant reads approved answers and nothing else: not your profile, not your numbers,
-        not your connections, and it cannot execute anything. A test proves that import by import.{" "}
-        <Link href="/proposals">Proposals</Link> · <Link href="/chat">Your chat</Link>
+        not your connections, and it cannot change anything.
       </p>
     </main>
   );

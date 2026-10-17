@@ -418,10 +418,9 @@ export function CustomersScreen() {
       </section>
 
       <p className="conn-note">
-        Per-customer history comes from your own shop export, not from Phase 2&apos;s connectors,
-        which measure the business as a whole. Erasure is GDPR erasure: the row goes, the audit
-        trail keeps only ids and hashes. <Link href="/support">Support</Link> ·{" "}
-        <Link href="/proposals">Proposals</Link>
+        Per-customer history comes from your own shop export, not from your connected accounts,
+        which measure the business as a whole. Erasing a customer is GDPR erasure: their details go,
+        and the record keeps only anonymous ids.
       </p>
     </main>
   );

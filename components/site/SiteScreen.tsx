@@ -285,8 +285,7 @@ export function SiteScreen() {
 
       <p className="conn-note">
         Every change previews from the real page, applies only after your yes in the queue, keeps
-        its undo forever, and rolls itself back on a hard failure — never on a quiet week.{" "}
-        <Link href="/proposals">Proposals</Link> · <Link href="/history">The record</Link>
+        its undo forever, and rolls itself back on a hard failure — never on a quiet week.
       </p>
     </main>
   );

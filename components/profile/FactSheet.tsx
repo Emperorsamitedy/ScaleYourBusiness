@@ -343,10 +343,9 @@ export function FactSheetScreen() {
     <main className="fs-shell">
       <header className="fs-top">
         <span className="wordmark">Ledgerline</span>
-        <nav className="fs-nav">
-          <span aria-current="page">Fact sheet</span>
-          <Link href="/intake">Interview</Link>
-        </nav>
+        <Link href="/intake" className="fs-answer">
+          Answer more questions →
+        </Link>
       </header>
 
       <nav className="fs-rail" aria-label="Sections">

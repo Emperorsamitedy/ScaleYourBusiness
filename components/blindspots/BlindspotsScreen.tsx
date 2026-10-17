@@ -7,7 +7,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ProposalsBadge } from "../proposals/ProposalsBadge";
 
 interface Demand {
   support_asked: number;
@@ -83,7 +82,6 @@ export function BlindspotsScreen() {
           blindspots · {view.window.from} to {view.window.to}
           {view.site_checked_at ? ` · site read ${view.site_checked_at.slice(0, 10)}` : ""}
         </span>
-        <ProposalsBadge />
       </header>
 
       <section className="card ops-card">

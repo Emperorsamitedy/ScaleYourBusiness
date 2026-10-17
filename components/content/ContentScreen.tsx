@@ -355,10 +355,8 @@ export function ContentScreen() {
       ))}
 
       <p className="conn-note">
-        This queue has nowhere to publish yet — that is Session D, behind its own consent, after the
-        measurement layer has proven itself. Until then every draft waits here, yours to keep or
-        discard. <Link href="/proposals">Proposals</Link> · <Link href="/report">Report</Link> ·{" "}
-        <Link href="/watch">Watching</Link>
+        I can&rsquo;t post anything for you yet — publishing switches on later, and only after you
+        give it separate permission. Until then every draft waits here, yours to keep or discard.
       </p>
     </main>
   );

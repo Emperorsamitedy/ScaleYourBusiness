@@ -163,9 +163,7 @@ export function ChatScreen() {
 
       <p className="conn-note">
         I answer only from what your profile and report hold — no generic advice at your expense.
-        Requests become proposals; limits you state here stick.{" "}
-        <Link href="/proposals">Proposals</Link> · <Link href="/report">Report</Link> ·{" "}
-        <Link href="/history">The record</Link>
+        Requests become proposals; limits you state here stick.
       </p>
     </main>
   );

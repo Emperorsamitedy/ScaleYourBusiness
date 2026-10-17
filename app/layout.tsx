@@ -1,3 +1,4 @@
+import { AppFrame } from "../components/nav/AppFrame";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Barlow, Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
@@ -57,7 +58,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <AppFrame>{children}</AppFrame>
+      </body>
     </html>
   );
 }
