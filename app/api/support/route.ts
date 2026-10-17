@@ -11,12 +11,8 @@
 // assistant's mouth, rotating a key cuts every embedded widget off, and
 // clustering spends a model call.
 
-import { cookies } from "next/headers";
+import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
-import { currentSession } from "../../../lib/auth/service";
 import { FaqError, clusterQuestions } from "../../../lib/crm/faq";
 import {
   KnowledgeError,
@@ -41,18 +37,9 @@ import {
 import { settingsForProfile } from "../../../lib/support/settings";
 import { TicketError, listTickets, resolveTicket } from "../../../lib/support/tickets";
 
-const COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 function onError(error: unknown): NextResponse {
@@ -117,8 +104,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
-  const store = await cookies();
-  const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+  const session = await matchingSession();
   if (!session) {
     return NextResponse.json(
       { error: "changing what the assistant says, or its key, needs you signed in" },

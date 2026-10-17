@@ -6,12 +6,14 @@
 //   PUT  /api/intake            submit an answer  { question_id, action }
 //   PATCH /api/intake           interim entity count { question_id, count }
 
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import {
+  INTAKE_COOKIE,
+  intakeCookieOptions,
+  resolveAccess,
+  signProfileCookie,
+} from "../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
 import {
   bootstrapIntake,
   getIntakeState,
@@ -22,17 +24,10 @@ import {
 } from "../../../lib/intake/service";
 import type { AnswerAction } from "../../../lib/intake/types";
 
-const COOKIE = "syb_intake_profile";
-
 async function resolveSession(): Promise<{ account_id: string; profile_id: string } | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ profile_id: businessProfiles.id, account_id: businessProfiles.account_id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  const access = await resolveAccess();
+  return access ? { profile_id: access.profile_id, account_id: access.account_id } : null;
 }
 
 function errorResponse(error: unknown): NextResponse {
@@ -49,12 +44,11 @@ export async function POST(): Promise<NextResponse> {
     session ??= await bootstrapIntake();
     const state = await getIntakeState(session.account_id, session.profile_id);
     const response = NextResponse.json(state);
-    response.cookies.set(COOKIE, session.profile_id, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30,
-    });
+    response.cookies.set(
+      INTAKE_COOKIE,
+      signProfileCookie(session.profile_id),
+      intakeCookieOptions(),
+    );
     return response;
   } catch (error) {
     return errorResponse(error);
@@ -77,7 +71,7 @@ export async function POST(): Promise<NextResponse> {
  */
 export async function DELETE(): Promise<NextResponse> {
   const response = NextResponse.json({ ended: true });
-  response.cookies.set(COOKIE, "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0 });
+  response.cookies.set(INTAKE_COOKIE, "", intakeCookieOptions(0));
   return response;
 }
 

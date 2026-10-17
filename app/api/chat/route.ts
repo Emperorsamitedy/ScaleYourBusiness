@@ -7,24 +7,14 @@
 // request can only ever produce a proposal — the queue and the engine
 // hold every gate; this route holds none of its own beyond identity.
 
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
 import { ChatError, postMessage, readThread } from "../../../lib/chat/service";
 
-const COOKIE = "syb_intake_profile";
-
 async function resolveProfile(): Promise<{ profile_id: string; account_id: string } | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id, account_id: businessProfiles.account_id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row ? { profile_id: row.id, account_id: row.account_id } : null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  const access = await resolveAccess();
+  return access ? { profile_id: access.profile_id, account_id: access.account_id } : null;
 }
 
 export async function GET(): Promise<NextResponse> {

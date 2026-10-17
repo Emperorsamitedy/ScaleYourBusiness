@@ -11,12 +11,11 @@
 // need a signed-in user: an import is an attestation under a name, an
 // erasure is irreversible, a proposal lands in the queue.
 
-import { cookies } from "next/headers";
+import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../../db";
-import { businessProfiles, proposals } from "../../../db/schema";
-import { currentSession } from "../../../lib/auth/service";
+import { proposals } from "../../../db/schema";
 import type { ConsentStatus } from "../../../lib/crm/contacts";
 import {
   ContactError,
@@ -43,8 +42,6 @@ import {
 import { computeSegments, lifecycleOf } from "../../../lib/crm/segments";
 import { ProposalError } from "../../../lib/proposals/service";
 
-const COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
 const CONSENT: readonly ConsentStatus[] = [
   "explicit_consent",
   "implied_consent",
@@ -53,14 +50,9 @@ const CONSENT: readonly ConsentStatus[] = [
 ];
 
 async function resolveProfile(): Promise<{ profile_id: string; account_id: string } | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id, account_id: businessProfiles.account_id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row ? { profile_id: row.id, account_id: row.account_id } : null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  const access = await resolveAccess();
+  return access ? { profile_id: access.profile_id, account_id: access.account_id } : null;
 }
 
 function onError(error: unknown): NextResponse {
@@ -163,8 +155,7 @@ async function campaignsFor(profileId: string) {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const who = await resolveProfile();
   if (!who) return NextResponse.json({ error: "no intake session" }, { status: 401 });
-  const store = await cookies();
-  const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+  const session = await matchingSession();
   if (!session) {
     return NextResponse.json(
       { error: "importing, erasing or proposing needs you signed in" },

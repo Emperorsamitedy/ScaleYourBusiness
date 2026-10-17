@@ -2,18 +2,16 @@
 // with its source, from the snapshot, plus the gaps and what answering
 // each would buy. Session-scoped like the intake; read-only.
 
+import { resolveAccess } from "../../../lib/auth/access";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
 import { buildFactSheet } from "../../../lib/profile/factsheet";
 
-const COOKIE = "syb_intake_profile";
-
 export async function GET(): Promise<NextResponse> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  const profileId = (await resolveAccess())?.profile_id;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const [row] = await db
     .select({ id: businessProfiles.id, account_id: businessProfiles.account_id })

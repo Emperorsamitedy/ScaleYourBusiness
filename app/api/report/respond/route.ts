@@ -4,8 +4,8 @@
 // (UX spec §7) — but when given it is stored verbatim in the decision
 // log's payload: it is the training corpus for everything proposed later.
 
+import { resolveAccess } from "../../../../lib/auth/access";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { db } from "../../../../db";
@@ -13,11 +13,9 @@ import { businessProfiles } from "../../../../db/schema";
 import { DiagnosisError } from "../../../../lib/diagnosis/findings";
 import { respondToRecommendation } from "../../../../lib/report/service";
 
-const COOKIE = "syb_intake_profile";
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  const profileId = (await resolveAccess())?.profile_id;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const [row] = await db
     .select({ id: businessProfiles.id })

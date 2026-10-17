@@ -4,11 +4,11 @@
 // words, P2-26), the timezone we judge in, and per weekday the measured
 // revenue curve with the opening and closing signals (P2-30). Read-only.
 
+import { resolveAccess } from "../../../lib/auth/access";
 import { and, desc, eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
-import { businessProfiles, proposals } from "../../../db/schema";
+import { proposals } from "../../../db/schema";
 import { HOURS_MODULE, judgeHoursTrial, syncRunningTrials } from "../../../lib/hours/trials";
 import { format, money } from "../../../lib/core/money";
 import { parseCompetitorHours } from "../../../lib/hours/competitors";
@@ -16,17 +16,9 @@ import { ensureOpeningSchedule } from "../../../lib/hours/schedule";
 import { ensureTimezone, isValidZone, setTimezone } from "../../../lib/hours/timezone";
 import { tradingAnalysis } from "../../../lib/hours/trading";
 
-const COOKIE = "syb_intake_profile";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId || !/^[0-9a-f-]{36}$/i.test(profileId)) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 /** POST /api/hours { timezone } — the owner states their zone (multi-zone countries). */

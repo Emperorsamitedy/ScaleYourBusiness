@@ -6,27 +6,18 @@
 // person at Ledgerline now has the case. Read-only: the suggestions it
 // made are ordinary proposals in the queue.
 
+import { resolveAccess } from "../../../lib/auth/access";
 import { and, desc, eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "../../../db";
-import { alertReviews, businessProfiles, watchActivity } from "../../../db/schema";
+import { alertReviews, watchActivity } from "../../../db/schema";
 import { careState } from "../../../lib/care/day-zero";
 import { readGoalMeasure } from "../../../lib/care/goal-measure";
 import { listGoals } from "../../../lib/content/goals";
 
-const COOKIE = "syb_intake_profile";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  // A malformed cookie is "no business", not a database error.
-  if (!profileId || !/^[0-9a-f-]{36}$/i.test(profileId)) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 export async function GET(): Promise<NextResponse> {

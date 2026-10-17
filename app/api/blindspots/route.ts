@@ -5,28 +5,18 @@
 // The owner's own site is (re)checked when it never was or the last check
 // is older than 30 days — up to five pages of their own origin, GET only.
 
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { resolveAccess } from "../../../lib/auth/access";
 import { NextResponse } from "next/server";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
 import type { SiteChecks } from "../../../lib/blindspots/checks";
 import { SITE_CHECKS_KEY, runSiteChecks } from "../../../lib/blindspots/checks";
 import { buildBlindspots } from "../../../lib/blindspots/finder";
 import { readCurrentField } from "../../../lib/profile/field-store";
 
-const COOKIE = "syb_intake_profile";
 const RECHECK_DAYS = 30;
 
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId || !/^[0-9a-f-]{36}$/i.test(profileId)) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 export async function GET(): Promise<NextResponse> {

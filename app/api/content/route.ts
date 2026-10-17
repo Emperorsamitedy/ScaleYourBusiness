@@ -8,30 +8,20 @@
 // drafts, so it demands the same signed-in user who could have
 // approved the plan — production is the paid half of an approval.
 
+import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { and, eq, inArray } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
-import { businessProfiles, proposals } from "../../../db/schema";
-import { currentSession } from "../../../lib/auth/service";
+import { proposals } from "../../../db/schema";
 import { ContentError, proposeContentPlan } from "../../../lib/content/plan";
 import { contentQueue, produceFromProposal } from "../../../lib/content/produce";
 import { isPublishProposal, publishNotes } from "../../../lib/content/publish";
 import { proposeShotList } from "../../../lib/content/shotlist";
 import { ProposalError } from "../../../lib/proposals/service";
 
-const COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 function onError(error: unknown): NextResponse {
@@ -91,8 +81,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ proposal_id: proposal.id, status: proposal.status });
     }
     if (body.action === "produce") {
-      const store = await cookies();
-      const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+      const session = await matchingSession();
       if (!session) {
         return NextResponse.json(
           { error: "producing drafts needs you signed in — it spends real model calls" },

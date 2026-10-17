@@ -4,19 +4,17 @@
 // the browser goes there, Stripe takes the card, and the webhook —
 // never this route, never the redirect — marks the payment real.
 
+import { resolveAccess } from "../../../lib/auth/access";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
 import { PaymentError, startCheckout } from "../../../lib/payments/stripe";
 
-const COOKIE = "syb_intake_profile";
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const store = await cookies();
-    const profileId = store.get(COOKIE)?.value;
+    // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+    const profileId = (await resolveAccess())?.profile_id;
     if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
     const [profile] = await db
       .select({ id: businessProfiles.id })

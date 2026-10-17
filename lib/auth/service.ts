@@ -95,7 +95,14 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
     );
   if (!row) throw new AuthError("that sign-in link is no longer valid", 401);
 
-  await db.update(loginTokens).set({ used_at: now }).where(eq(loginTokens.id, row.id));
+  // Claimed atomically: of two concurrent redeems, only the one that flips
+  // used_at from null wins — the other gets the same refusal as a used link.
+  const claimed = await db
+    .update(loginTokens)
+    .set({ used_at: now })
+    .where(and(eq(loginTokens.id, row.id), isNull(loginTokens.used_at)))
+    .returning({ id: loginTokens.id });
+  if (claimed.length === 0) throw new AuthError("that sign-in link is no longer valid", 401);
 
   return signInWithEmail(row.email, row.profile_id);
 }
@@ -117,15 +124,24 @@ export async function signInWithEmail(
   const email = normaliseEmail(rawEmail);
   let user = (await db.select().from(users).where(eq(users.email, email)))[0];
   if (!user) {
-    let accountId: string;
+    let accountId: string | null = null;
     if (profileId) {
       const [profile] = await db
         .select({ account_id: businessProfiles.account_id })
         .from(businessProfiles)
         .where(eq(businessProfiles.id, profileId));
       if (!profile) throw new AuthError("that sign-in is no longer valid", 401);
-      accountId = profile.account_id;
-    } else {
+      // Never join an account that already has a user: a profile id is not
+      // proof of anything (the security review of 2026-10-17). Such a
+      // sign-in gets its own fresh account instead.
+      const [someone] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.account_id, profile.account_id))
+        .limit(1);
+      if (!someone) accountId = profile.account_id;
+    }
+    if (accountId === null) {
       const [account] = await db
         .insert(accounts)
         .values({ reporting_currency: "HUF", locale: "en-GB" })

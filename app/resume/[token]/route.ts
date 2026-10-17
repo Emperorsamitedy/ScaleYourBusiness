@@ -8,9 +8,8 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { INTAKE_COOKIE, intakeCookieOptions, signProfileCookie } from "../../../lib/auth/access";
 import { resolveResumeToken } from "../../../lib/intake/resume";
-
-const COOKIE = "syb_intake_profile";
 
 export async function GET(
   request: NextRequest,
@@ -22,13 +21,12 @@ export async function GET(
   try {
     const { profile_id } = await resolveResumeToken(token);
     const response = NextResponse.redirect(`${origin}/intake?resume=ok`);
-    response.cookies.set(COOKIE, profile_id, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: request.nextUrl.protocol === "https:",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 180,
-    });
+    // Signed like every intake cookie; an owned profile still needs its owner's sign-in.
+    response.cookies.set(
+      INTAKE_COOKIE,
+      signProfileCookie(profile_id),
+      intakeCookieOptions(60 * 60 * 24 * 180),
+    );
     return response;
   } catch {
     return NextResponse.redirect(`${origin}/intake?resume=expired`);

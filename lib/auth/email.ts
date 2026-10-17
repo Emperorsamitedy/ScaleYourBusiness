@@ -12,15 +12,22 @@ export interface LoginEmail {
 }
 
 export interface SendResult {
-  /** "resend" when actually emailed; "screen" when the caller must show it. */
-  delivered_via: "resend" | "screen";
+  /**
+   * "resend" when emailed; "screen" ONLY in local development with no key
+   * (the security review of 2026-10-17: a link shown to whoever asked is a
+   * sign-in as anybody); "failed" when the send did not happen.
+   */
+  delivered_via: "resend" | "screen" | "failed";
 }
 
 const FROM = () => process.env.EMAIL_FROM ?? "Ledgerline <onboarding@resend.dev>";
 
 export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY;
-  if (!key) return { delivered_via: "screen" };
+  if (!key) {
+    // Showing the link is only safe where the only person asking is the developer.
+    return { delivered_via: process.env.NODE_ENV === "production" ? "failed" : "screen" };
+  }
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -36,8 +43,9 @@ export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
     }),
   });
   if (!res.ok) {
-    // A failed send must not strand the owner: fall back to the screen
-    // and log loudly. Silence here would look like a broken login.
+    // A failed send is reported as failed, never answered with the link:
+    // the screen fallback let anyone who could make a send fail (a burst
+    // into the rate limit, an unverified sender) sign in as anyone.
     console.error(
       JSON.stringify({
         event: "login_email_failed",
@@ -45,7 +53,7 @@ export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
         to_domain: mail.to.split("@")[1],
       }),
     );
-    return { delivered_via: "screen" };
+    return { delivered_via: "failed" };
   }
   return { delivered_via: "resend" };
 }

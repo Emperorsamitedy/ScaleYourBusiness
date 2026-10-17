@@ -13,10 +13,15 @@ import {
   oauthProvider,
   STATE_COOKIE,
 } from "../../../../../../lib/auth/oauth";
+import {
+  AUTH_COOKIE,
+  INTAKE_COOKIE,
+  authCookieOptions,
+  claimableProfile,
+  intakeCookieOptions,
+  signProfileCookie,
+} from "../../../../../../lib/auth/access";
 import { AuthError, signInWithEmail } from "../../../../../../lib/auth/service";
-
-const INTAKE_COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
 
 async function finish(
   request: NextRequest,
@@ -48,7 +53,8 @@ async function finish(
 
     const redirectUri = `${origin}/api/auth/oauth/${provider.id}/callback`;
     const email = await exchangeCodeForEmail(provider, code, redirectUri);
-    const profileId = store.get(INTAKE_COOKIE)?.value ?? null;
+    // Only a profile nobody owns yet can be claimed by a sign-in.
+    const profileId = await claimableProfile(store.get(INTAKE_COOKIE)?.value);
     const session = await signInWithEmail(email, profileId);
     console.log(
       JSON.stringify({
@@ -62,19 +68,13 @@ async function finish(
       new URL(session.profile_id ? "/profile" : "/intake", origin),
     );
     response.cookies.delete(STATE_COOKIE);
-    response.cookies.set(AUTH_COOKIE, session.session_token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 90,
-    });
+    response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
     if (session.profile_id) {
-      response.cookies.set(INTAKE_COOKIE, session.profile_id, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30,
-      });
+      response.cookies.set(
+        INTAKE_COOKIE,
+        signProfileCookie(session.profile_id),
+        intakeCookieOptions(),
+      );
     }
     return response;
   } catch (error) {

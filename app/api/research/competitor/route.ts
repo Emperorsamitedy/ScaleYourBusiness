@@ -6,26 +6,16 @@
 // candidate (or names one themselves), and this route runs Session C's
 // researchCompetitor with the live providers. Read scope only, forever.
 
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { resolveAccess } from "../../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { db } from "../../../../db";
-import { businessProfiles } from "../../../../db/schema";
 import { researchCompetitor, ResearchError } from "../../../../lib/research/competitor";
 import { livePageFetcher, liveSearchProvider } from "../../../../lib/research/live";
 
-const COOKIE = "syb_intake_profile";
-
 async function resolveSession(): Promise<{ account_id: string; profile_id: string } | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ profile_id: businessProfiles.id, account_id: businessProfiles.account_id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  const access = await resolveAccess();
+  return access ? { profile_id: access.profile_id, account_id: access.account_id } : null;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
