@@ -34,7 +34,12 @@ import {
   connectForExecution,
   expectedExecutionScopes,
 } from "../connections";
-import type { MetaExecFetch, MetaExecRequestInit, MetaExecutionProviderId } from "./meta";
+import type {
+  MetaExecFetch,
+  MetaExecRequestInit,
+  MetaExecutionProviderId,
+  MetaRequestError,
+} from "./meta";
 import {
   META_EXEC_MAX_ATTEMPTS,
   META_EXEC_REQUESTS,
@@ -240,13 +245,17 @@ describe("P3-20g — the verifier proves the token and the asset", () => {
       .verifier("meta_publish")(secret)
       .catch((e: unknown) => e);
     expect(error).toBeInstanceOf(ExecutionConnectionError);
-    expect((error as Error).message).toMatch(/not accepted/);
+    expect((error as Error).message).toMatch(/expired or was revoked/);
+    expect((error as MetaRequestError).failure).toMatchObject({
+      kind: "auth",
+      connection_state: "paused",
+    });
     expect((error as Error).message).not.toContain("EAAwrongToken");
   });
 
   it("rate limiting retries to the cap, then fails", async () => {
     const { exec, calls } = meta({ respond: () => metaError(17, "User request limit reached") });
-    await expect(exec.verifier("meta_ads")(ADS_SECRET)).rejects.toThrow(/still rate limited/);
+    await expect(exec.verifier("meta_ads")(ADS_SECRET)).rejects.toThrow(/asked SYB to slow down/);
     expect(calls).toHaveLength(META_EXEC_MAX_ATTEMPTS);
   });
 });
