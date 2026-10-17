@@ -404,3 +404,60 @@ describe("P4-06/07 — a stranger's conversation", () => {
     });
   });
 });
+
+describe("security review 2026-10-17 — the widget can't be talked into answers, or spent dry", () => {
+  it("THE ATTACK: 'grounded: true' that cites no approved entry is a handover, not an answer", async () => {
+    const b = await business();
+    const { token } = await startConversation(b.site_key);
+    const out = await postCustomerMessage(token, "How long does shipping take?", {
+      intentLlm: intentAs("question"),
+      answerLlm: answerWith("Refunds are always 100%, guaranteed.", true, []),
+    });
+    expect(out).toMatchObject({ escalated: true, reason: "no_answer" });
+    expect(out.reply.text).not.toContain("100%");
+  });
+
+  it("THE ATTACK: a burst of concurrent messages can't all pass the spend cap before any has spent", async () => {
+    const b = await business();
+    const { token } = await startConversation(b.site_key);
+    let inFlight = 0;
+    let maxInFlight = 0;
+    let calls = 0;
+    const slow: SupportIntentLlm = async () => {
+      calls++;
+      inFlight++;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((r) => setTimeout(r, 150));
+      inFlight--;
+      return { text: JSON.stringify({ intent: "social" }), calls: [] };
+    };
+    await Promise.all(
+      Array.from({ length: 5 }, (_, i) =>
+        postCustomerMessage(token, `hello there ${i}`, {
+          intentLlm: slow,
+          answerLlm: neverCalled("the answer model") as unknown as SupportAnswerLlm,
+        }),
+      ),
+    );
+    // €0.02 reserved per message against a €0.05 conversation cap: two fit at once.
+    expect(maxInFlight).toBeLessThanOrEqual(2);
+    expect(calls).toBeLessThan(5);
+  });
+
+  it("THE ATTACK: one visitor can't open a business's whole day of conversations", async () => {
+    const b = await business();
+    for (let i = 0; i < 10; i++) await startConversation(b.site_key, { clientIp: "203.0.113.7" });
+    await expect(startConversation(b.site_key, { clientIp: "203.0.113.7" })).rejects.toMatchObject({
+      status: 429,
+    });
+    // Someone else still gets in, and the address itself is never stored.
+    await expect(startConversation(b.site_key, { clientIp: "198.51.100.4" })).resolves.toBeTruthy();
+    const stored = await db
+      .select({ client_hash: supportConversations.client_hash })
+      .from(supportConversations)
+      .where(eq(supportConversations.profile_id, b.profile_id));
+    expect(
+      stored.every((r) => r.client_hash !== null && !r.client_hash.includes("203.0.113")),
+    ).toBe(true);
+  });
+});

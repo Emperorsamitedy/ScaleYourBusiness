@@ -24,7 +24,7 @@
 // does not, the honest answer is "I'll get you a human", with a ticket,
 // never a guess.
 
-import { randomBytes } from "node:crypto";
+import { createHmac, hkdfSync, randomBytes } from "node:crypto";
 import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { llmCalls, supportConversations, supportMessages } from "../../db/schema";
@@ -48,6 +48,10 @@ export const SUPPORT_MONTHLY_CAP_EUR = 5;
 export const SUPPORT_MAX_TURNS = 40;
 export const SUPPORT_MAX_MESSAGE_CHARS = 1000;
 export const SUPPORT_MAX_NEW_CONVERSATIONS_PER_DAY = 200;
+/** One visitor's share of that: a script can't spend a business's whole day (review 2026-10-17). */
+export const SUPPORT_MAX_CONVERSATIONS_PER_CLIENT_PER_DAY = 10;
+/** Reserved before a message's model calls and settled after — above one message's real cost. */
+export const SUPPORT_MESSAGE_RESERVE_EUR = 0.02;
 
 export class SupportError extends Error {
   readonly status: number;
@@ -73,6 +77,33 @@ export interface SupportSeams {
   intentLlm?: SupportIntentLlm;
   answerLlm?: SupportAnswerLlm;
   now?: () => Date;
+  /** The visitor's network address, for the per-visitor limit. Hashed, never stored. */
+  clientIp?: string | null;
+}
+
+let clientKey: Buffer | null = null;
+
+/**
+ * A keyed hash of the visitor's address, scoped to the site and the day:
+ * enough to count one visitor's conversations, useless for tracking them
+ * across days or businesses, and the address itself is never stored.
+ */
+export function clientHash(ip: string, siteKey: string, day: string): string {
+  if (!clientKey) {
+    const material = process.env.COOKIE_SECRET || process.env.CONNECTOR_KEY || "";
+    if (material === "")
+      throw new Error("COOKIE_SECRET (or CONNECTOR_KEY) is needed to rate-limit the widget");
+    clientKey = Buffer.from(
+      hkdfSync(
+        "sha256",
+        Buffer.from(material, "utf8"),
+        Buffer.alloc(0),
+        "syb-support-client-v1",
+        32,
+      ),
+    );
+  }
+  return createHmac("sha256", clientKey).update(`${siteKey}|${day}|${ip}`).digest("base64url");
 }
 
 /* ── the prompts, with rule 24 verbatim ── */
@@ -304,6 +335,26 @@ export async function startConversation(
   if ((count?.n ?? 0) >= SUPPORT_MAX_NEW_CONVERSATIONS_PER_DAY) {
     throw new SupportError("the assistant is busy right now — please try again later", 429);
   }
+  const ip = seams.clientIp?.trim() ?? "";
+  const client = ip !== "" ? clientHash(ip, siteKey, now().toISOString().slice(0, 10)) : null;
+  if (client) {
+    const [mine] = await db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(supportConversations)
+      .where(
+        and(
+          eq(supportConversations.profile_id, settings.profile_id),
+          eq(supportConversations.client_hash, client),
+          gte(supportConversations.started_at, startOfTodayUtc(now())),
+        ),
+      );
+    if ((mine?.n ?? 0) >= SUPPORT_MAX_CONVERSATIONS_PER_CLIENT_PER_DAY) {
+      throw new SupportError(
+        "you've started a lot of conversations today — please try again tomorrow",
+        429,
+      );
+    }
+  }
 
   const [conversation] = await db
     .insert(supportConversations)
@@ -311,6 +362,7 @@ export async function startConversation(
       profile_id: settings.profile_id,
       account_id: settings.account_id,
       token: randomBytes(24).toString("hex"),
+      client_hash: client,
       started_at: now().toISOString(),
       last_at: now().toISOString(),
     })
@@ -445,11 +497,13 @@ export async function postCustomerMessage(
     text: trimmed,
     at: customerAt.toISOString(),
   });
-  const turns = conversation.turns + 1;
-  await db
+  // Atomic: concurrent messages each get their own turn, so the cap can't undercount.
+  const [counted] = await db
     .update(supportConversations)
-    .set({ turns, last_at: customerAt.toISOString() })
-    .where(eq(supportConversations.id, conversation.id));
+    .set({ turns: sql`${supportConversations.turns} + 1`, last_at: customerAt.toISOString() })
+    .where(eq(supportConversations.id, conversation.id))
+    .returning({ turns: supportConversations.turns });
+  const turns = counted?.turns ?? conversation.turns + 1;
   const replyAt = () => after(customerAt, now);
 
   // Caps first — before any model call (§6). Past a cap, a human takes over.
@@ -464,9 +518,10 @@ export async function postCustomerMessage(
       replyAt(),
     );
   }
-  const spent = Number.parseFloat(conversation.cost_eur);
-  const monthly = await monthlySupportSpendEur(conversation.account_id, now());
-  if (spent >= SUPPORT_CONVERSATION_CAP_EUR || monthly >= SUPPORT_MONTHLY_CAP_EUR) {
+  // Spend is RESERVED before any model call and settled after, and every
+  // check counts what is reserved — a burst can't all pass the cap at once.
+  const needsModel = !WANTS_HUMAN_RE.test(trimmed);
+  if (needsModel && !(await reserveSpend(conversation, now()))) {
     return escalate(
       conversation,
       "cost_cap",
@@ -478,109 +533,157 @@ export async function postCustomerMessage(
     );
   }
 
-  // A model that can't be reached never leaves a stranger with an error:
-  // rule 20 keeps a person one message away, so a failed call hands over.
-  const unavailable = (stage: "intent" | "answer", error: unknown) => {
-    console.error(
-      JSON.stringify({
-        event: "support_model_unavailable",
-        account_id: conversation.account_id,
-        conversation_id: conversation.id,
-        stage,
-        name: error instanceof Error ? error.name : "unknown",
-      }),
-    );
-    return escalate(
-      conversation,
-      "no_answer",
-      trimmed,
-      `I can't answer that right now, so I've passed it to a person at ${settings.business_name} — they'll pick up from here.`,
-      0,
-      "question",
-      replyAt(),
-    );
-  };
+  try {
+    return await answerMessage(conversation);
+  } finally {
+    if (needsModel) await releaseSpend(conversation.id);
+  }
 
-  // Intent: the plain pattern first, Haiku second.
-  let intent: SupportIntent;
-  let intentCost = 0;
-  if (WANTS_HUMAN_RE.test(trimmed)) {
-    intent = "wants_human";
-  } else {
-    const intentLlm = seams.intentLlm ?? liveSupportIntentLlm;
-    let intentReply: Awaited<ReturnType<typeof intentLlm>>;
+  async function answerMessage(conversation: ConversationRow): Promise<MessageOutcome> {
+    // A model that can't be reached never leaves a stranger with an error:
+    // rule 20 keeps a person one message away, so a failed call hands over.
+    const unavailable = (stage: "intent" | "answer", error: unknown) => {
+      console.error(
+        JSON.stringify({
+          event: "support_model_unavailable",
+          account_id: conversation.account_id,
+          conversation_id: conversation.id,
+          stage,
+          name: error instanceof Error ? error.name : "unknown",
+        }),
+      );
+      return escalate(
+        conversation,
+        "no_answer",
+        trimmed,
+        `I can't answer that right now, so I've passed it to a person at ${settings.business_name} — they'll pick up from here.`,
+        0,
+        "question",
+        replyAt(),
+      );
+    };
+
+    // Intent: the plain pattern first, Haiku second.
+    let intent: SupportIntent;
+    let intentCost = 0;
+    if (WANTS_HUMAN_RE.test(trimmed)) {
+      intent = "wants_human";
+    } else {
+      const intentLlm = seams.intentLlm ?? liveSupportIntentLlm;
+      let intentReply: Awaited<ReturnType<typeof intentLlm>>;
+      try {
+        intentReply = await intentLlm({
+          system: INTENT_SYSTEM,
+          user: trimmed,
+          accountId: conversation.account_id,
+        });
+      } catch (error) {
+        return unavailable("intent", error);
+      }
+      intent = coerceSupportIntent(intentReply.text);
+      intentCost = costOf(intentReply.calls);
+    }
+    await addCost(conversation.id, intentCost);
+
+    if (intent === "wants_human") {
+      return escalate(
+        conversation,
+        "customer_asked",
+        trimmed,
+        `Of course — I've passed this to a person at ${settings.business_name}. They'll pick up from here with everything you've written.`,
+        intentCost,
+        intent,
+        replyAt(),
+      );
+    }
+
+    if (intent === "social") {
+      const row = await sayTo(
+        conversation.id,
+        `Hello! Ask me anything about ${settings.business_name} — and if you'd rather talk to a person, just say so.`,
+        intentCost,
+        replyAt(),
+      );
+      return { intent, reply: publicMessage(row), escalated: false, ticket_id: null, reason: null };
+    }
+
+    // A question: ground it in the approved knowledge, or hand it over.
+    const entries = await publicKnowledge(conversation.profile_id);
+    const selected = selectEntries(trimmed, entries);
+    const handover =
+      `I don't have an approved answer for that, so I'm not going to guess — I've passed it to a ` +
+      `person at ${settings.business_name}.`;
+    if (selected.length === 0) {
+      return escalate(conversation, "no_answer", trimmed, handover, intentCost, intent, replyAt());
+    }
+    const answerLlm = seams.answerLlm ?? liveSupportAnswerLlm;
+    let answerReply: Awaited<ReturnType<typeof answerLlm>>;
     try {
-      intentReply = await intentLlm({
-        system: INTENT_SYSTEM,
+      answerReply = await answerLlm({
+        system: answerSystem(settings.business_name, selected),
         user: trimmed,
         accountId: conversation.account_id,
       });
     } catch (error) {
-      return unavailable("intent", error);
+      return unavailable("answer", error);
     }
-    intent = coerceSupportIntent(intentReply.text);
-    intentCost = costOf(intentReply.calls);
-  }
-  await addCost(conversation.id, intentCost);
-
-  if (intent === "wants_human") {
-    return escalate(
-      conversation,
-      "customer_asked",
-      trimmed,
-      `Of course — I've passed this to a person at ${settings.business_name}. They'll pick up from here with everything you've written.`,
-      intentCost,
-      intent,
-      replyAt(),
-    );
-  }
-
-  if (intent === "social") {
-    const row = await sayTo(
-      conversation.id,
-      `Hello! Ask me anything about ${settings.business_name} — and if you'd rather talk to a person, just say so.`,
-      intentCost,
-      replyAt(),
-    );
+    const { text: answerJson, calls: answerCalls } = answerReply;
+    const answerCost = costOf(answerCalls);
+    await addCost(conversation.id, answerCost);
+    const grounded = coerceAnswer(answerJson);
+    // Grounded means it CITES approved knowledge that was offered: the model's
+    // own "grounded: true" alone could be talked into by a crafted message
+    // (security review 2026-10-17).
+    const selectedIds = new Set(selected.map((e) => e.id));
+    const cited = grounded.used.filter((id) => selectedIds.has(id));
+    if (!grounded.grounded || cited.length === 0) {
+      return escalate(conversation, "no_answer", trimmed, handover, answerCost, intent, replyAt());
+    }
+    const row = await sayTo(conversation.id, grounded.answer, answerCost, replyAt(), cited);
     return { intent, reply: publicMessage(row), escalated: false, ticket_id: null, reason: null };
   }
+}
 
-  // A question: ground it in the approved knowledge, or hand it over.
-  const entries = await publicKnowledge(conversation.profile_id);
-  const selected = selectEntries(trimmed, entries);
-  const handover =
-    `I don't have an approved answer for that, so I'm not going to guess — I've passed it to a ` +
-    `person at ${settings.business_name}.`;
-  if (selected.length === 0) {
-    return escalate(conversation, "no_answer", trimmed, handover, intentCost, intent, replyAt());
+/**
+ * Reserve one message's worth of spend, within the conversation's cap and
+ * then the account's month (counting every reservation in flight). False
+ * means a cap is reached: a human takes over and nothing is spent.
+ */
+async function reserveSpend(conversation: ConversationRow, at: Date): Promise<boolean> {
+  const r = SUPPORT_MESSAGE_RESERVE_EUR.toFixed(6);
+  const [held] = await db
+    .update(supportConversations)
+    .set({ reserved_eur: sql`${supportConversations.reserved_eur} + ${r}::numeric` })
+    .where(
+      and(
+        eq(supportConversations.id, conversation.id),
+        sql`${supportConversations.cost_eur} + ${supportConversations.reserved_eur} + ${r}::numeric <= ${SUPPORT_CONVERSATION_CAP_EUR.toFixed(6)}::numeric`,
+      ),
+    )
+    .returning({ id: supportConversations.id });
+  if (!held) return false;
+  const [inFlight] = await db
+    .select({ total: sql<string>`coalesce(sum(${supportConversations.reserved_eur}), 0)::text` })
+    .from(supportConversations)
+    .where(eq(supportConversations.account_id, conversation.account_id));
+  const month =
+    (await monthlySupportSpendEur(conversation.account_id, at)) +
+    Number.parseFloat(inFlight?.total ?? "0");
+  if (month > SUPPORT_MONTHLY_CAP_EUR) {
+    await releaseSpend(conversation.id);
+    return false;
   }
-  const answerLlm = seams.answerLlm ?? liveSupportAnswerLlm;
-  let answerReply: Awaited<ReturnType<typeof answerLlm>>;
-  try {
-    answerReply = await answerLlm({
-      system: answerSystem(settings.business_name, selected),
-      user: trimmed,
-      accountId: conversation.account_id,
-    });
-  } catch (error) {
-    return unavailable("answer", error);
-  }
-  const { text: answerJson, calls: answerCalls } = answerReply;
-  const answerCost = costOf(answerCalls);
-  await addCost(conversation.id, answerCost);
-  const grounded = coerceAnswer(answerJson);
-  if (!grounded.grounded) {
-    return escalate(conversation, "no_answer", trimmed, handover, answerCost, intent, replyAt());
-  }
-  const selectedIds = new Set(selected.map((e) => e.id));
-  const row = await sayTo(
-    conversation.id,
-    grounded.answer,
-    answerCost,
-    replyAt(),
-    grounded.used.filter((id) => selectedIds.has(id)),
-  );
-  return { intent, reply: publicMessage(row), escalated: false, ticket_id: null, reason: null };
+  return true;
+}
+
+async function releaseSpend(conversationId: string): Promise<void> {
+  const r = SUPPORT_MESSAGE_RESERVE_EUR.toFixed(6);
+  await db
+    .update(supportConversations)
+    .set({
+      reserved_eur: sql`greatest(${supportConversations.reserved_eur} - ${r}::numeric, 0)`,
+    })
+    .where(eq(supportConversations.id, conversationId));
 }
 
 async function addCost(conversationId: string, costEur: number): Promise<void> {

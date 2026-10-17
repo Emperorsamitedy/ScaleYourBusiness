@@ -46,7 +46,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     if (body?.action === "start") {
       if (typeof body.site_key !== "string") return json({ error: "site_key is required" }, 422);
-      const started = await startConversation(body.site_key);
+      // The visitor's address, as the platform reports it, for the per-visitor limit only.
+      const clientIp =
+        request.headers.get("x-real-ip") ??
+        request.headers.get("x-forwarded-for")?.split(",")[0] ??
+        null;
+      const started = await startConversation(body.site_key, { clientIp });
       // The widget titles itself with the name only once the owner has given one.
       return json(
         {
