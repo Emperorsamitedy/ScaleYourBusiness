@@ -311,3 +311,74 @@ describe("P4-03 — import under attestation", () => {
     ).rejects.toThrow(/no usable columns/);
   });
 });
+
+describe("security review 2026-10-17 — erasure takes the support traces too (rule 22)", () => {
+  it("THE GAP: the contact's tickets, their conversations, and any widget chat naming their email all go", async () => {
+    const { supportConversations, supportMessages, supportTickets } =
+      await import("../../db/schema");
+    const { eraseConversation } = await import("./contacts");
+    const s = await fresh();
+    const email = `erase-${crypto.randomUUID().slice(0, 8)}@example.com`;
+    const c = await addContact(s.account_id, {
+      email,
+      name: "Erin Erasable",
+      consent: { status: "explicit_consent", source: "checkout" },
+    });
+    const conversation = async (text: string) => {
+      const [conv] = await db
+        .insert(supportConversations)
+        .values({
+          profile_id: s.profile_id,
+          account_id: s.account_id,
+          token: crypto.randomUUID().replace(/-/g, ""),
+        })
+        .returning({ id: supportConversations.id });
+      await db
+        .insert(supportMessages)
+        .values({ conversation_id: conv!.id, role: "customer", text });
+      return conv!.id;
+    };
+    const linked = await conversation("Where is my order?");
+    await db.insert(supportTickets).values({
+      profile_id: s.profile_id,
+      account_id: s.account_id,
+      conversation_id: linked,
+      contact_id: c.id,
+      reason: "no_answer",
+      summary: "Where is my order?",
+    });
+    const typed = await conversation(`Hi, it's Erin, you can reach me at ${email.toUpperCase()}`);
+    const someoneElse = await conversation("Do you ship to Austria?");
+
+    await eraseContact(s.account_id, c.id);
+
+    const left = await db
+      .select({ id: supportConversations.id })
+      .from(supportConversations)
+      .where(eq(supportConversations.account_id, s.account_id));
+    expect(left.map((r) => r.id)).toEqual([someoneElse]); // only the stranger's chat remains
+    expect(
+      await db
+        .select()
+        .from(supportMessages)
+        .where(inArray(supportMessages.conversation_id, [linked, typed])),
+    ).toHaveLength(0);
+    expect(
+      await db.select().from(supportTickets).where(eq(supportTickets.account_id, s.account_id)),
+    ).toHaveLength(0);
+
+    // A visitor who never became a contact can be erased by their conversation.
+    await eraseConversation(s.account_id, someoneElse);
+    expect(
+      await db
+        .select()
+        .from(supportConversations)
+        .where(eq(supportConversations.account_id, s.account_id)),
+    ).toHaveLength(0);
+    // And never another account's.
+    const other = await fresh();
+    await expect(eraseConversation(other.account_id, linked)).rejects.toMatchObject({
+      status: 404,
+    });
+  });
+});

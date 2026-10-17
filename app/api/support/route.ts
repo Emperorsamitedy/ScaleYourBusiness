@@ -13,6 +13,7 @@
 
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
+import { ContactError, eraseConversation } from "../../../lib/crm/contacts";
 import { FaqError, clusterQuestions } from "../../../lib/crm/faq";
 import {
   KnowledgeError,
@@ -49,7 +50,8 @@ function onError(error: unknown): NextResponse {
     error instanceof SupportError ||
     error instanceof TicketError ||
     error instanceof FaqError ||
-    error instanceof ProposalError
+    error instanceof ProposalError ||
+    error instanceof ContactError
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
@@ -120,6 +122,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       status?: unknown;
       answer?: unknown;
       question?: unknown;
+      conversation_id?: unknown;
     };
     switch (body.action) {
       case "enable": {
@@ -172,6 +175,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           typeof body.answer === "string" ? body.answer : undefined,
         );
         return NextResponse.json({ status: ticket.status, answered: ticket.answer !== null });
+      }
+      case "erase_conversation": {
+        // GDPR erasure of one widget conversation (rule 22), for a visitor
+        // who never became a contact. Irreversible, so signed-in only.
+        if (typeof body.conversation_id !== "string") {
+          return NextResponse.json({ error: "conversation_id is required" }, { status: 422 });
+        }
+        await eraseConversation(session.account_id, body.conversation_id);
+        return NextResponse.json({ erased: true });
       }
       case "cluster_faq": {
         const outcome = await clusterQuestions(profileId, session.account_id);

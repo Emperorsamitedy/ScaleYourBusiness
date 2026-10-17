@@ -17,6 +17,7 @@ import {
   reportPrice,
   verifyStripeSignature,
 } from "./stripe";
+import { POST as webhook } from "../../app/api/stripe/webhook/route";
 
 const SECRET = "whsec_test_secret";
 
@@ -115,5 +116,59 @@ describe("P1-50 — configuration", () => {
     expect(paymentsConfigured()).toBe(false);
     vi.stubEnv("STRIPE_SECRET_KEY", "sk_test_x");
     expect(paymentsConfigured()).toBe(true);
+  });
+});
+
+describe("security review 2026-10-17 — paid means paid", () => {
+  async function pending() {
+    const s = await bootstrapIntake();
+    created.push(s);
+    const sessionId = `cs_test_${crypto.randomUUID().slice(0, 12)}`;
+    await db.insert(payments).values({
+      account_id: s.account_id,
+      profile_id: s.profile_id,
+      checkout_session_id: sessionId,
+      amount_minor: 4900,
+      currency: "eur",
+    });
+    return { ...s, sessionId };
+  }
+  function deliver(event: unknown) {
+    const body = JSON.stringify(event);
+    return webhook(
+      new Request("http://localhost/api/stripe/webhook", {
+        method: "POST",
+        headers: { "stripe-signature": sign(body) },
+        body,
+      }) as never,
+    );
+  }
+
+  it("THE ATTACK: a completed checkout still awaiting a delayed payment does NOT unlock the report", async () => {
+    vi.stubEnv("STRIPE_WEBHOOK_SECRET", SECRET);
+    const p = await pending();
+    const res = await deliver({
+      type: "checkout.session.completed",
+      data: { object: { id: p.sessionId, payment_status: "unpaid" } },
+    });
+    expect(res.status).toBe(200);
+    expect(await hasPaidReport(p.profile_id)).toBe(false);
+
+    // The money arriving later is what unlocks it.
+    await deliver({
+      type: "checkout.session.async_payment_succeeded",
+      data: { object: { id: p.sessionId, payment_status: "paid" } },
+    });
+    expect(await hasPaidReport(p.profile_id)).toBe(true);
+  });
+
+  it("a completed, paid checkout unlocks at once", async () => {
+    vi.stubEnv("STRIPE_WEBHOOK_SECRET", SECRET);
+    const p = await pending();
+    await deliver({
+      type: "checkout.session.completed",
+      data: { object: { id: p.sessionId, payment_status: "paid" } },
+    });
+    expect(await hasPaidReport(p.profile_id)).toBe(true);
   });
 });

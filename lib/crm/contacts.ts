@@ -25,9 +25,17 @@
 // customer's own recorded action sets a status.
 
 import { createHash } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { businessProfiles, contactSuppressions, contacts, decisionLog } from "../../db/schema";
+import {
+  businessProfiles,
+  contactSuppressions,
+  contacts,
+  decisionLog,
+  supportConversations,
+  supportMessages,
+  supportTickets,
+} from "../../db/schema";
 import { readCurrentField } from "../profile/field-store";
 
 export class ContactError extends Error {
@@ -183,12 +191,67 @@ export async function eraseContact(accountId: string, contactId: string): Promis
     .from(businessProfiles)
     .where(eq(businessProfiles.account_id, accountId));
 
+  // Their support traces go too (the security review of 2026-10-17 found
+  // erasure left every ticket and widget transcript behind): the tickets
+  // tied to the contact, the conversations behind them, and any widget
+  // conversation in which the customer typed their own email address.
+  const ticketConversations = await db
+    .select({ id: supportTickets.conversation_id })
+    .from(supportTickets)
+    .where(and(eq(supportTickets.contact_id, contactId), eq(supportTickets.account_id, accountId)));
+  const emailConversations = contact.email
+    ? await db
+        .selectDistinct({ id: supportMessages.conversation_id })
+        .from(supportMessages)
+        .innerJoin(
+          supportConversations,
+          eq(supportConversations.id, supportMessages.conversation_id),
+        )
+        .where(
+          and(
+            eq(supportConversations.account_id, accountId),
+            sql`position(${contact.email.toLowerCase()} in lower(${supportMessages.text})) > 0`,
+          ),
+        )
+    : [];
+  const conversationIds = [
+    ...new Set(
+      [...ticketConversations, ...emailConversations]
+        .map((r) => r.id)
+        .filter((id): id is string => id !== null),
+    ),
+  ];
+
   await db.transaction(async (tx) => {
     if (hash) {
       await tx
         .insert(contactSuppressions)
         .values({ account_id: accountId, email_hash: hash, reason: "erasure" })
         .onConflictDoNothing();
+    }
+    await tx
+      .delete(supportTickets)
+      .where(
+        and(
+          eq(supportTickets.account_id, accountId),
+          conversationIds.length > 0
+            ? or(
+                eq(supportTickets.contact_id, contactId),
+                inArray(supportTickets.conversation_id, conversationIds),
+              )
+            : eq(supportTickets.contact_id, contactId),
+        ),
+      );
+    if (conversationIds.length > 0) {
+      // Messages go with their conversation (ON DELETE CASCADE).
+      await tx
+        .delete(supportConversations)
+        .where(
+          and(
+            eq(supportConversations.account_id, accountId),
+            inArray(supportConversations.id, conversationIds),
+          ),
+        );
     }
     await tx.delete(contacts).where(eq(contacts.id, contactId));
     if (profile) {
@@ -206,7 +269,57 @@ export async function eraseContact(accountId: string, contactId: string): Promis
     }
   });
   console.log(
-    JSON.stringify({ event: "contact_erased", account_id: accountId, contact_id: contactId }),
+    JSON.stringify({
+      event: "contact_erased",
+      account_id: accountId,
+      contact_id: contactId,
+      conversations_erased: conversationIds.length,
+    }),
+  );
+}
+
+/**
+ * Erase one widget conversation and its ticket — the GDPR path for a
+ * visitor who never became a contact. The transcript goes; the decision
+ * log records that an erasure happened, by id only (rule 22).
+ */
+export async function eraseConversation(accountId: string, conversationId: string): Promise<void> {
+  const [conversation] = await db
+    .select({ id: supportConversations.id, profile_id: supportConversations.profile_id })
+    .from(supportConversations)
+    .where(
+      and(
+        eq(supportConversations.id, conversationId),
+        eq(supportConversations.account_id, accountId),
+      ),
+    );
+  if (!conversation) throw new ContactError("no such conversation", 404);
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(supportTickets)
+      .where(
+        and(
+          eq(supportTickets.account_id, accountId),
+          eq(supportTickets.conversation_id, conversationId),
+        ),
+      );
+    await tx.delete(supportConversations).where(eq(supportConversations.id, conversationId));
+    await tx.insert(decisionLog).values({
+      profile_id: conversation.profile_id,
+      actor: "owner",
+      kind: "erasure",
+      ref_id: conversationId,
+      payload_hash: createHash("sha256")
+        .update(JSON.stringify({ account_id: accountId, conversation_id: conversationId }))
+        .digest("hex"),
+    });
+  });
+  console.log(
+    JSON.stringify({
+      event: "conversation_erased",
+      account_id: accountId,
+      conversation_id: conversationId,
+    }),
   );
 }
 
