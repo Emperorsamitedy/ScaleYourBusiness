@@ -5,6 +5,7 @@
 //   PUT  /api/mode   override the watch length — extend freely,
 //                    shorten only with an acknowledgement (P1-44)
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
 import {
@@ -23,7 +24,7 @@ function onError(error: unknown): NextResponse {
   if (error instanceof ModeError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "mode_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "mode_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 

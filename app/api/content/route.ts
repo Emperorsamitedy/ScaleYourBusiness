@@ -8,6 +8,7 @@
 // drafts, so it demands the same signed-in user who could have
 // approved the plan — production is the paid half of an approval.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { and, eq, inArray } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -28,7 +29,7 @@ function onError(error: unknown): NextResponse {
   if (error instanceof ContentError || error instanceof ProposalError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "content_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "content_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 

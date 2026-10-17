@@ -25,6 +25,7 @@
 // BullMQ (CLAUDE.md stack) takes over the loop below; nothing else here
 // changes. Until it is measured, a queue is speculation.
 
+import { logSafeError } from "../core/log-safe";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { connections, connectorSyncs } from "../../db/schema";
@@ -88,7 +89,9 @@ async function withConnectionLock<T>(
 }
 
 function errorText(error: unknown): string {
-  return error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  // Stored and shown: redacted, so a query error's bound values never persist.
+  const facts = logSafeError(error);
+  return `${facts.error_name}: ${facts.error_message}`;
 }
 
 /** Sync one connection. Never throws for provider or data failures — they are recorded. */

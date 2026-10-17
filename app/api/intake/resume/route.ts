@@ -5,6 +5,7 @@
 // screen so an owner can mail it to themselves. Better a visible link
 // than a promised email that never arrives.
 
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { resolveAccess } from "../../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (error instanceof ResumeError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error(JSON.stringify({ msg: "resume link failed", error: String(error) }));
+    console.error(JSON.stringify({ msg: "resume link failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

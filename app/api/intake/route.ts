@@ -6,6 +6,7 @@
 //   PUT  /api/intake            submit an answer  { question_id, action }
 //   PATCH /api/intake           interim entity count { question_id, count }
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import {
   INTAKE_COOKIE,
   intakeCookieOptions,
@@ -34,7 +35,7 @@ function errorResponse(error: unknown): NextResponse {
   if (error instanceof IntakeError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "intake_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "intake_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 

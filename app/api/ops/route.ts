@@ -4,6 +4,7 @@
 // pattern). Unset key = endpoint off. Wrong key answers exactly like a
 // missing route — nothing to enumerate.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { abandonmentSummary, costSummary, funnelSummary } from "../../../lib/ops/summary";
 import { openEscalations } from "../../../lib/care/review";
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     ]);
     return NextResponse.json({ since, days, funnel, abandonment, costs, gate2, escalations });
   } catch (error) {
-    console.error(JSON.stringify({ event: "ops_summary_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "ops_summary_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

@@ -6,6 +6,7 @@
 // the emailed link uses — then set the same two cookies the redeem
 // route sets. One account model, three ways to prove an address.
 
+import { logSafeError } from "../../../../../../lib/core/log-safe";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import {
@@ -83,7 +84,7 @@ async function finish(
       JSON.stringify({
         event: "oauth_callback_failed",
         provider: providerId,
-        message: String(error),
+        ...logSafeError(error),
       }),
     );
     return fail("something went wrong on our side — the email link still works");

@@ -13,6 +13,7 @@
 // cursor's advance, counted from the observations themselves. A tail
 // re-read that only confirmed what was already stored is not news.
 
+import { logSafeError } from "../core/log-safe";
 import { and, eq, gt, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, metricObservations, watchActivity } from "../../db/schema";
@@ -140,7 +141,7 @@ export async function recordSyncActivity(input: SyncActivityInput): Promise<void
       JSON.stringify({
         event: "connector_activity_persist_failed",
         account_id: input.accountId,
-        message: error instanceof Error ? error.message : String(error),
+        ...logSafeError(error),
       }),
     );
   }

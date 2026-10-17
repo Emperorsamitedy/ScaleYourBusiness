@@ -6,6 +6,7 @@
 // candidate (or names one themselves), and this route runs Session C's
 // researchCompetitor with the live providers. Read scope only, forever.
 
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { resolveAccess } from "../../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       JSON.stringify({
         event: "research_error",
         account_id: session.account_id,
-        message: String(error),
+        ...logSafeError(error),
       }),
     );
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });

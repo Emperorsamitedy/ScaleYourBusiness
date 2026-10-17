@@ -5,6 +5,7 @@
 //   POST /api/site {action:"apply"}      apply an approved change (signed in)
 //   POST /api/site {action:"undo"}       one-click undo, permanent (signed in)
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { desc, eq, inArray } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -30,7 +31,7 @@ function onError(error: unknown): NextResponse {
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "site_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "site_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 

@@ -5,6 +5,7 @@
 //   PUT  /api/goals   refine one — every change supersedes, never overwrites;
 //                     `measure` makes it measurable (P3-42)
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
 import { GoalMeasureError, readGoalMeasure, setGoalMeasure } from "../../../lib/care/goal-measure";
@@ -25,7 +26,7 @@ function onError(error: unknown): NextResponse {
   if (error instanceof GoalError || error instanceof GoalMeasureError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "goals_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "goals_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 

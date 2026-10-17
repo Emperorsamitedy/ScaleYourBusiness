@@ -5,6 +5,7 @@
 // business with support enabled and enough open questions; a business
 // with fewer than FAQ_MIN_CLUSTER questions costs nothing.
 
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../../db";
 import { supportSettings } from "../../../../db/schema";
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.log(JSON.stringify({ event: "faq_cluster_cron", ...summary }));
     return NextResponse.json(summary);
   } catch (error) {
-    console.error(JSON.stringify({ event: "faq_cluster_cron_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "faq_cluster_cron_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "job failed" }, { status: 500 });
   }
 }

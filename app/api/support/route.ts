@@ -11,6 +11,7 @@
 // assistant's mouth, rotating a key cuts every embedded widget off, and
 // clustering spends a model call.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
 import { ContactError, eraseConversation } from "../../../lib/crm/contacts";
@@ -55,7 +56,7 @@ function onError(error: unknown): NextResponse {
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "support_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "support_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 

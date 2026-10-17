@@ -6,6 +6,7 @@
 // person at Ledgerline now has the case. Read-only: the suggestions it
 // made are ordinary proposals in the queue.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { and, desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -64,7 +65,7 @@ export async function GET(): Promise<NextResponse> {
     }
     return NextResponse.json({ care, goals });
   } catch (error) {
-    console.error(JSON.stringify({ event: "care_read_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "care_read_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

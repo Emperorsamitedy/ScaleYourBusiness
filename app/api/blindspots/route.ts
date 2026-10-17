@@ -5,6 +5,7 @@
 // The owner's own site is (re)checked when it never was or the last check
 // is older than 30 days — up to five pages of their own origin, GET only.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import type { SiteChecks } from "../../../lib/blindspots/checks";
@@ -34,7 +35,7 @@ export async function GET(): Promise<NextResponse> {
     const report = await buildBlindspots(profileId);
     return NextResponse.json({ ...report, site_note: siteNote });
   } catch (error) {
-    console.error(JSON.stringify({ event: "blindspots_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "blindspots_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

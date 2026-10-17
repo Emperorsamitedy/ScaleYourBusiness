@@ -2,6 +2,7 @@
 // read: the scorecard and the full suggestion history with outcomes.
 // No POST — this surface only ever reports; nothing here acts.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -21,7 +22,7 @@ export async function GET(): Promise<NextResponse> {
   try {
     return NextResponse.json(await buildTrustView(row.id));
   } catch (error) {
-    console.error(JSON.stringify({ event: "trust_error", message: String(error) }));
+    console.error(JSON.stringify({ event: "trust_error", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

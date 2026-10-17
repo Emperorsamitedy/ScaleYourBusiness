@@ -5,6 +5,7 @@
 // schedule's precision is the hosting decision recorded in
 // TASKS-PHASE3.md (Hobby: once a day, ±59 min; Pro: per minute).
 
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { runDueExecutions } from "../../../../lib/execution/due";
 
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { outcomes, ...summary } = await runDueExecutions();
     return NextResponse.json({ ...summary, outcomes: outcomes.length });
   } catch (error) {
-    console.error(JSON.stringify({ event: "execute_due_run_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "execute_due_run_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "job failed" }, { status: 500 });
   }
 }

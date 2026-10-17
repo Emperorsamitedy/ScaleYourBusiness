@@ -4,6 +4,7 @@
 // words, P2-26), the timezone we judge in, and per weekday the measured
 // revenue curve with the opening and closing signals (P2-30). Read-only.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { and, desc, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -48,12 +49,12 @@ export async function GET(): Promise<NextResponse> {
       if (schedule === null) scheduleNote = "Your opening hours aren't in your profile yet.";
     } catch (error) {
       scheduleNote = "Your opening hours couldn't be read just now.";
-      console.error(JSON.stringify({ event: "schedule_parse_failed", message: String(error) }));
+      console.error(JSON.stringify({ event: "schedule_parse_failed", ...logSafeError(error) }));
     }
     try {
       await parseCompetitorHours(profileId); // P2-31: once per competitor's stated hours
     } catch (error) {
-      console.error(JSON.stringify({ event: "competitor_hours_failed", message: String(error) }));
+      console.error(JSON.stringify({ event: "competitor_hours_failed", ...logSafeError(error) }));
     }
     const timezone = await ensureTimezone(profileId);
     await syncRunningTrials(profileId);
@@ -79,7 +80,7 @@ export async function GET(): Promise<NextResponse> {
     );
     return NextResponse.json({ schedule, schedule_note: scheduleNote, timezone, analysis, trials });
   } catch (error) {
-    console.error(JSON.stringify({ event: "hours_read_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "hours_read_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

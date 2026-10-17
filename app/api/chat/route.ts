@@ -7,6 +7,7 @@
 // request can only ever produce a proposal — the queue and the engine
 // hold every gate; this route holds none of its own beyond identity.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
 import { ChatError, postMessage, readThread } from "../../../lib/chat/service";
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (error instanceof ChatError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error(JSON.stringify({ event: "chat_error", message: String(error) }));
+    console.error(JSON.stringify({ event: "chat_error", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

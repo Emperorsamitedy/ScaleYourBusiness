@@ -11,6 +11,7 @@
 // every proposal gets its own conditional-update guard and its own
 // decision-log entry; there is no "approve all" shortcut around rule 12.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
 import { generateProposals } from "../../../lib/proposals/generate";
@@ -30,7 +31,7 @@ function onError(error: unknown): NextResponse {
   if (error instanceof ProposalError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "proposals_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "proposals_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 

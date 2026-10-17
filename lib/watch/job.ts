@@ -8,6 +8,7 @@
 // when the signals move — which fire, on which days — so an unchanged
 // finding is said once, not every week.
 
+import { logSafeError } from "../core/log-safe";
 import { and, desc, eq, gt, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { modeDecisions, watchActivity } from "../../db/schema";
@@ -57,7 +58,7 @@ export async function logHoursFindings(
       JSON.stringify({
         event: "watch_hours_failed",
         profile_id: profileId,
-        message: String(error),
+        ...logSafeError(error),
       }),
     );
     return false;

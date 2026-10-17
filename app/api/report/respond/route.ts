@@ -4,6 +4,7 @@
 // (UX spec §7) — but when given it is stored verbatim in the decision
 // log's payload: it is the training corpus for everything proposed later.
 
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { resolveAccess } from "../../../../lib/auth/access";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (error instanceof DiagnosisError) {
       return NextResponse.json({ error: error.message }, { status: 422 });
     }
-    console.error(JSON.stringify({ event: "report_error", message: String(error) }));
+    console.error(JSON.stringify({ event: "report_error", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

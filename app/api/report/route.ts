@@ -6,6 +6,7 @@
 //
 // Session-scoped like everything else; the intake cookie is the identity.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import { DiagnosisError } from "../../../lib/diagnosis/findings";
@@ -30,7 +31,7 @@ export async function GET(): Promise<NextResponse> {
       JSON.stringify({
         event: "report_error",
         account_id: session.account_id,
-        message: String(error),
+        ...logSafeError(error),
       }),
     );
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
@@ -71,7 +72,7 @@ export async function POST(): Promise<NextResponse> {
       JSON.stringify({
         event: "report_error",
         account_id: session.account_id,
-        message: String(error),
+        ...logSafeError(error),
       }),
     );
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });

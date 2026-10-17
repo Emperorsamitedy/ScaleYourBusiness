@@ -4,6 +4,7 @@
 // the browser goes there, Stripe takes the card, and the webhook —
 // never this route, never the redirect — marks the payment real.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (error instanceof PaymentError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error(JSON.stringify({ event: "checkout_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "checkout_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

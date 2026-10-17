@@ -24,6 +24,7 @@
 // proposal flips to executed through the Session A service, which
 // writes the decision-log entry in the same transaction.
 
+import { logSafeError } from "../core/log-safe";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { executionAttempts, executionHalts, executions, proposals } from "../../db/schema";
@@ -293,7 +294,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
         .returning();
       return done as ExecutionRow;
     } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
+      lastError = logSafeError(error).error_message;
       await recordAttempt(execution.id, ctx.account_id, attempt, started, false, lastError);
       await db
         .update(executions)

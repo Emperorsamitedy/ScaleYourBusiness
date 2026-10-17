@@ -2,6 +2,7 @@
 // with its source, from the snapshot, plus the gaps and what answering
 // each would buy. Session-scoped like the intake; read-only.
 
+import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -26,7 +27,7 @@ export async function GET(): Promise<NextResponse> {
       JSON.stringify({
         event: "factsheet_error",
         account_id: row.account_id,
-        message: String(error),
+        ...logSafeError(error),
       }),
     );
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });

@@ -5,6 +5,7 @@
 // route already reads — re-pointing it at the account's profile is what
 // makes login-from-a-new-device just work with zero route changes.
 
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import {
   AUTH_COOKIE,
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     const message = error instanceof AuthError ? error.message : "something went wrong on our side";
     if (!(error instanceof AuthError)) {
-      console.error(JSON.stringify({ event: "redeem_failed", message: String(error) }));
+      console.error(JSON.stringify({ event: "redeem_failed", ...logSafeError(error) }));
     }
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(message)}`, origin));
   }
