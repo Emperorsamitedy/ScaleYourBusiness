@@ -55,12 +55,12 @@ afterAll(async () => {
   await loadBank(BANK_PATH);
 });
 
-describe("P0-36 — loads 155 questions, 55 vocabularies, 8 entity schemas", () => {
+describe("P0-36 — loads 156 questions, 55 vocabularies, 8 entity schemas", () => {
   it("loads the real bank with exact counts and marks it current", async () => {
     const result = await loadBank(BANK_PATH);
     expect(result).toEqual({
-      bank_version: "1.4.0",
-      questions: 155,
+      bank_version: "1.5.0",
+      questions: 156,
       vocabularies: 55,
       entity_schemas: 8,
     });
@@ -68,7 +68,7 @@ describe("P0-36 — loads 155 questions, 55 vocabularies, 8 entity schemas", () 
     const [versionRow] = await db
       .select()
       .from(bankVersions)
-      .where(eq(bankVersions.version, "1.4.0"));
+      .where(eq(bankVersions.version, "1.5.0"));
     expect(versionRow?.is_current).toBe(true);
     expect(versionRow?.source_hash).toHaveLength(64);
   });
@@ -77,7 +77,7 @@ describe("P0-36 — loads 155 questions, 55 vocabularies, 8 entity schemas", () 
     const [q11] = await db
       .select()
       .from(bankQuestions)
-      .where(and(eq(bankQuestions.bank_version, "1.4.0"), eq(bankQuestions.id, "1.1")));
+      .where(and(eq(bankQuestions.bank_version, "1.5.0"), eq(bankQuestions.id, "1.1")));
     expect(q11?.writes_to).toBe("identity.legal_name");
     expect(q11?.priority).toBe("core");
     expect((q11?.prompt as { en: string }).en).toMatch(/name of the business/);
@@ -86,7 +86,7 @@ describe("P0-36 — loads 155 questions, 55 vocabularies, 8 entity schemas", () 
     const [q121] = await db
       .select()
       .from(bankQuestions)
-      .where(and(eq(bankQuestions.bank_version, "1.4.0"), eq(bankQuestions.id, "12.1")));
+      .where(and(eq(bankQuestions.bank_version, "1.5.0"), eq(bankQuestions.id, "12.1")));
     expect(q121?.section).toBe("competitors");
   });
 
@@ -94,7 +94,7 @@ describe("P0-36 — loads 155 questions, 55 vocabularies, 8 entity schemas", () 
     const schemas = await db
       .select()
       .from(bankEntitySchemas)
-      .where(eq(bankEntitySchemas.bank_version, "1.4.0"));
+      .where(eq(bankEntitySchemas.bank_version, "1.5.0"));
     expect(schemas.map((s) => s.key).sort()).toEqual([
       "channel",
       "competitor",
@@ -141,17 +141,17 @@ describe("P0-37 — a new bank version does not invalidate existing answers", ()
     writeFileSync(nextPath, JSON.stringify(bank));
 
     const result = await loadBank(nextPath);
-    expect(result.questions).toBe(154);
+    expect(result.questions).toBe(155);
 
     // Both versions coexist, current pointer moved.
     const versions = await db.select().from(bankVersions);
-    expect(versions.find((v) => v.version === "1.4.0")?.is_current).toBe(false);
+    expect(versions.find((v) => v.version === "1.5.0")?.is_current).toBe(false);
     expect(versions.find((v) => v.version === "1.0.1-test")?.is_current).toBe(true);
     const oldQuestions = await db
       .select()
       .from(bankQuestions)
-      .where(eq(bankQuestions.bank_version, "1.4.0"));
-    expect(oldQuestions).toHaveLength(155);
+      .where(eq(bankQuestions.bank_version, "1.5.0"));
+    expect(oldQuestions).toHaveLength(156);
 
     // The answer written under 1.1.0 is untouched and fully readable.
     const answer = await readCurrentField<EnumValue[]>(profileId, "identity.sells");

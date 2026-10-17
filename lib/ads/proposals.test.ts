@@ -85,6 +85,19 @@ describe("P3-22c — guardrails at generation", () => {
     expect(budgetGuard({ share: -0.6, daily_spend_minor: 1_000, currency: "EUR" })).toMatch(/-60%/);
   });
 
+  it("the ceiling covers the whole account: a small raise is refused when the others already fill it", () => {
+    // This campaign €10/day (+20% = +€2), the account €60/day in all: (60 + 2) × 30 = €1,860 > €1,800.
+    expect(
+      budgetGuard({
+        share: 0.2,
+        daily_spend_minor: 1_000,
+        account_daily_spend_minor: 6_000,
+        currency: "EUR",
+        monthly_ceiling_minor: 180_000,
+      }),
+    ).toMatch(/1,?860.*over your stated ceiling/);
+  });
+
   it("a stated monthly ceiling refuses a raise that would cross it, with both figures", () => {
     // €10/day × 1.2 × 30 = €360/month, over a €300 ceiling.
     expect(
@@ -258,5 +271,48 @@ describe("P3-22a — proposeAdChanges", () => {
     const run = await proposeAdChanges(b.profile_id, { now: NOW, limitLlm: noLimits });
     expect(run.created).toHaveLength(0);
     expect(run.skipped[0]?.reason).toMatch(/still watching/);
+  });
+});
+
+describe("8.1i — the owner's stated ad ceiling, at generation", () => {
+  async function withCeiling(amount_minor: number, currency: string) {
+    const b = await business();
+    await b.campaign("420000001", "Winner", 20, 1_000, 4_000); // ROAS 4.0 → a raise
+    const at = isoDateTime(new Date().toISOString());
+    await writeField(
+      b.profile_id,
+      createField<{ amount_minor: number; currency: string }>({
+        id: fieldId("marketing.monthly_ad_ceiling"),
+        value: { amount_minor, currency },
+        status: "answered",
+        confidence: confidence(0.8),
+        source: { kind: "owner_input" },
+        observed_at: at,
+        recorded_at: at,
+      }),
+    );
+    return proposeAdChanges(b.profile_id, { now: NOW, limitLlm: noLimits });
+  }
+
+  it("a raise past the ceiling is refused at generation, naming both figures", async () => {
+    // €10/day × 1.2 × 30 = €360/month against a €300 ceiling.
+    const run = await withCeiling(30_000, "EUR");
+    expect(run.created).toHaveLength(0);
+    expect(run.skipped.find((s) => s.ref.includes("raise_budget"))?.reason).toMatch(
+      /360.*over your stated ceiling of .*300/,
+    );
+  });
+
+  it("room under the ceiling lets the raise through", async () => {
+    const run = await withCeiling(100_000, "EUR");
+    expect(run.created).toHaveLength(1);
+  });
+
+  it("a ceiling in another currency is never converted: the raise is refused, saying why (rule 1)", async () => {
+    const run = await withCeiling(10_000_000, "HUF");
+    expect(run.created).toHaveLength(0);
+    expect(run.skipped.find((s) => s.ref.includes("raise_budget"))?.reason).toMatch(
+      /ceiling is in HUF and this campaign spends in EUR/,
+    );
   });
 });

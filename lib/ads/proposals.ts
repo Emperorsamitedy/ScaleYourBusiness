@@ -18,9 +18,12 @@
 //
 // Guardrails at generation (P3-22c): a change is bounded to ±50% of the
 // current budget; the plan's +20% sits inside it, and anything outside is
-// refused by name. The owner's stated monthly ad ceiling applies when one
-// is stated — the bank has no such question yet, so today only the ±50%
-// bound holds. Meta's minimum daily budget and the currency-offset table
+// refused by name. The owner's stated monthly ad ceiling (question 8.1i,
+// marketing.monthly_ad_ceiling) applies to the whole account: a raise that
+// would take total monthly ad spend past it is refused, naming both
+// figures; a ceiling in another currency than the campaign's can't be
+// compared without converting, so the raise is refused rather than guessed
+// (rule 1). Meta's minimum daily budget and the currency-offset table
 // belong to the executor (P3-22b), where the number is actually sent.
 //
 // What it does NOT do: execute. No action.detail.execution is bound, so
@@ -49,10 +52,13 @@ import {
 } from "../proposals/hard-limits";
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
+import { readCurrentField } from "../profile/field-store";
 import { shiftDay } from "../trust/series";
 import { suppressedKinds } from "../trust/suppression";
 
 export const ADS_MODULE = "ads";
+/** Question 8.1i: the most the owner wants to spend on ads in a month (money). */
+export const CEILING_KEY = "marketing.monthly_ad_ceiling";
 
 /** The pinned thresholds. Boundary-tested both ways. */
 export const ADS = {
@@ -147,8 +153,10 @@ export function adChangeFor(series: CampaignSeries, today: string): AdChange | n
  */
 export function budgetGuard(args: {
   share: number;
-  /** Average measured daily spend in the window (minor units). */
+  /** The campaign's average measured daily spend in the window (minor units). */
   daily_spend_minor: number;
+  /** The whole account's average daily spend across its campaigns; defaults to this campaign's. */
+  account_daily_spend_minor?: number;
   currency: string;
   /** The owner's stated monthly ad ceiling, when one exists (minor units, same currency). */
   monthly_ceiling_minor?: number | null;
@@ -158,7 +166,8 @@ export function budgetGuard(args: {
   }
   const ceiling = args.monthly_ceiling_minor ?? null;
   if (ceiling !== null) {
-    const projected = Math.round(args.daily_spend_minor * (1 + args.share) * 30);
+    const account = args.account_daily_spend_minor ?? args.daily_spend_minor;
+    const projected = Math.round((account + args.daily_spend_minor * args.share) * 30);
     if (projected > ceiling) {
       return `it would take monthly ad spend to about ${format(money(projected, args.currency))}, over your stated ceiling of ${format(money(ceiling, args.currency))}`;
     }
@@ -277,6 +286,17 @@ export async function proposeAdChanges(
   }
 
   const month = today.slice(0, 7);
+  // The ceiling covers the whole account: every campaign's average day, together.
+  const accountDaily = campaigns.reduce((sum, c) => {
+    const w = windowOf(c, shiftDay(today, -ADS.raise_window_days), shiftDay(today, -1));
+    return sum + (w.measured_days > 0 ? w.spend_minor / w.measured_days : 0);
+  }, 0);
+  const ceilingField = await readCurrentField<{ amount_minor: number; currency: string }>(
+    profileId,
+    CEILING_KEY,
+  );
+  const ceiling =
+    ceilingField?.status === "answered" && ceilingField.value ? ceilingField.value : null;
   const existing = new Set(
     (
       await db
@@ -313,10 +333,19 @@ export async function proposeAdChanges(
     const fmt = (m: number) => format(money(m, c.currency));
     const dailySpend = Math.round(w.spend_minor / Math.max(1, w.measured_days));
     if (change.change === "raise_budget") {
+      if (ceiling && ceiling.currency.toUpperCase() !== c.currency.toUpperCase()) {
+        out.skipped.push({
+          ref,
+          reason: `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${c.currency} — I won't convert to compare them`,
+        });
+        continue;
+      }
       const refused = budgetGuard({
         share: change.share,
         daily_spend_minor: dailySpend,
+        account_daily_spend_minor: Math.round(accountDaily),
         currency: c.currency,
+        monthly_ceiling_minor: ceiling?.amount_minor ?? null,
       });
       if (refused) {
         out.skipped.push({ ref, reason: refused });

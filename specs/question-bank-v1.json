@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.4.0",
+  "bank_version": "1.5.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -3312,6 +3312,29 @@
         "value": "yes"
       },
       "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "8.1i",
+      "version": 1,
+      "section": "marketing",
+      "writes_to": "marketing.monthly_ad_ceiling",
+      "prompt": {
+        "en": "What's the most you'd want to spend on ads in a month?"
+      },
+      "help_text": {
+        "en": "A ceiling, not a target. SYB never proposes raising an ad budget past it."
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "marketing.advertising_status",
+        "value": "yes"
+      },
+      "priority": "important",
       "cost": 1
     },
     {

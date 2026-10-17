@@ -374,6 +374,8 @@ Trading hours (Phase 2 Session F, bank 1.3.0):
 
 Email marketing (Phase 4 Session F, bank 1.4.0): `legal.postal_address` is the owner's own words for the address at the foot of marketing emails (question 11.1e, asked unless the owner's consent posture is `no_consent`). The US and Canada require one in every marketing message (`lib/crm/jurisdiction.ts`); a send under those regimes without it is refused by name.
 
+Ad spend ceiling (Phase 3 Session D, bank 1.5.0): `marketing.monthly_ad_ceiling` is `Field<Money>`, the most the owner wants to spend on ads in a month (question 8.1i, asked when they advertise). An ad budget raise (P3-22a/c) that would take the account's total monthly ad spend past it is refused at generation, naming both figures. A ceiling in a different currency from the campaign is never converted: the raise is refused instead (rule 1).
+
 The connector metrics `revenue.hourly` and `orders.hourly` carry
 `dimensions.hour_utc` ("00"–"23"), with `period_date` the UTC date. They
 are stored in UTC and read in the business's clock with a 05:00
