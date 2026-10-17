@@ -41,6 +41,14 @@ export const METRIC_KEYS = [
   "search_impressions.daily",
   "search_clicks.daily",
   "search_position_weighted.daily",
+  /**
+   * P3-22a: Meta spend and the purchase value Meta attributes, per day, per
+   * campaign (dimension campaign_ref). What "pause campaign X — return on
+   * ad spend below 1.0 for 14 days" is computed from. Business-wide totals
+   * stay in ad_spend.daily; these never enter them.
+   */
+  "ad_spend.campaign.daily",
+  "ad_purchase_value.campaign.daily",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -54,7 +62,16 @@ export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
   "revenue.daily",
   "ad_spend.daily",
   "revenue.hourly",
+  "ad_spend.campaign.daily",
+  "ad_purchase_value.campaign.daily",
 ]);
+
+/**
+ * Dimensions that LABEL a series without identifying it: stored on every
+ * row (the latest re-read wins) but left out of the natural key, so a
+ * renamed campaign keeps one history instead of splitting into two.
+ */
+export const LABEL_DIMENSIONS: ReadonlySet<string> = new Set(["campaign_name"]);
 
 /** Which slice of the business a daily figure belongs to. All optional. */
 export interface ObservationDimensions {
@@ -81,6 +98,10 @@ export interface ObservationDimensions {
   term_ref?: string;
   /** A Google search query the site appeared for, lower-cased and trimmed (P2-33). */
   query_ref?: string;
+  /** The ad platform's own campaign id — the series key of ad_*.campaign.daily (P3-22a). */
+  campaign_ref?: string;
+  /** The campaign's current name: a label, not part of the key (LABEL_DIMENSIONS). */
+  campaign_name?: string;
 }
 
 /** One provider figure for one day. Exactly one of value_minor / value_num is set. */

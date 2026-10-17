@@ -20,6 +20,7 @@ import {
   META_HISTORY_DAYS,
   META_MAX_ATTEMPTS,
   META_REREAD_DAYS,
+  aggregateCampaignInsights,
   aggregateInsights,
   createMetaAdsProvider,
   parseMetaCredential,
@@ -284,5 +285,92 @@ describe("P2-19 — the sync", () => {
     expect(fake.calls.filter((c) => c.url.pathname.endsWith("/insights"))).toHaveLength(
       META_MAX_ATTEMPTS,
     );
+  });
+});
+
+describe("P3-22a — spend and attributed purchase value, per campaign", () => {
+  it("reads each campaign's days in minor units, keyed by campaign id, never summing purchase types", () => {
+    const obs = aggregateCampaignInsights(
+      [
+        {
+          date: "2026-09-01",
+          campaign_id: "120000001",
+          campaign_name: "Autumn menu",
+          spend: "40.00",
+          currency: "EUR",
+          action_values: [
+            { action_type: "purchase", value: "30.00" },
+            { action_type: "omni_purchase", value: "36.00" }, // wins: never a sum
+          ],
+        },
+        {
+          date: "2026-09-01",
+          campaign_id: "120000002",
+          campaign_name: "Brand",
+          spend: "10.00",
+          currency: "EUR",
+          action_values: [],
+        },
+      ],
+      "EUR",
+      new Date("2026-09-01T00:00:00Z"),
+      new Date("2026-09-01T00:00:00Z"),
+      NOW.toISOString(),
+    );
+    const pick = (metric: string, ref: string) =>
+      obs.find((o) => o.metric_key === metric && o.dimensions.campaign_ref === ref)?.value_minor;
+    expect(pick("ad_spend.campaign.daily", "120000001")).toBe(4_000);
+    expect(pick("ad_purchase_value.campaign.daily", "120000001")).toBe(3_600);
+    expect(pick("ad_purchase_value.campaign.daily", "120000002")).toBe(0);
+    expect(obs[0]?.dimensions).toMatchObject({ currency: "EUR", campaign_name: "Autumn menu" });
+  });
+
+  it("a campaign day in another currency is an error, never a blend (rule 1)", () => {
+    expect(() =>
+      aggregateCampaignInsights(
+        [
+          {
+            date: "2026-09-01",
+            campaign_id: "1",
+            campaign_name: "x",
+            spend: "1.00",
+            currency: "USD",
+            action_values: [],
+          },
+        ],
+        "EUR",
+        new Date("2026-09-01T00:00:00Z"),
+        new Date("2026-09-01T00:00:00Z"),
+        NOW.toISOString(),
+      ),
+    ).toThrow(/USD, not the account's EUR/);
+  });
+
+  it("a sync reads campaigns through the same insights path, read-only, and keeps them out of the business totals", async () => {
+    const { fake, provider } = meta({
+      days: [{ date: "2026-09-10", spend: "50.00" }],
+      campaigns: [
+        {
+          date: "2026-09-10",
+          campaign_id: "120000001",
+          campaign_name: "Autumn menu",
+          spend: "50.00",
+          purchase_value: "120.00",
+        },
+      ],
+    });
+    const page = await provider.pull(FAKE_META_SECRET, "2026-09-09", NOW);
+    const campaign = page.observations.filter((o) => o.metric_key.includes(".campaign."));
+    expect(campaign.map((o) => [o.metric_key, o.value_minor])).toEqual([
+      ["ad_spend.campaign.daily", 5_000],
+      ["ad_purchase_value.campaign.daily", 12_000],
+    ]);
+    expect(spendOf(page.observations)).toBe(5_000); // business total unchanged by the campaign rows
+    const campaignCalls = fake.calls.filter((c) => c.url.searchParams.get("level") === "campaign");
+    expect(campaignCalls.length).toBeGreaterThan(0);
+    for (const call of campaignCalls) {
+      expect(call.init.method).toBe("GET");
+      expect(call.url.pathname).toBe(`/v25.0/act_${FAKE_META_ACCOUNT}/insights`);
+    }
   });
 });
