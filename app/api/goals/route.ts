@@ -5,11 +5,9 @@
 //   PUT  /api/goals   refine one — every change supersedes, never overwrites;
 //                     `measure` makes it measurable (P3-42)
 
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { logSafeError } from "../../../lib/core/log-safe";
+import { resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
 import { GoalMeasureError, readGoalMeasure, setGoalMeasure } from "../../../lib/care/goal-measure";
 import {
   GoalError,
@@ -19,24 +17,16 @@ import {
   updateGoal,
 } from "../../../lib/content/goals";
 
-const COOKIE = "syb_intake_profile";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 function onError(error: unknown): NextResponse {
   if (error instanceof GoalError || error instanceof GoalMeasureError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "goals_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "goals_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 

@@ -11,12 +11,9 @@
 // every proposal gets its own conditional-update guard and its own
 // decision-log entry; there is no "approve all" shortcut around rule 12.
 
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { logSafeError } from "../../../lib/core/log-safe";
+import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
-import { currentSession } from "../../../lib/auth/service";
 import { generateProposals } from "../../../lib/proposals/generate";
 import {
   ProposalError,
@@ -25,25 +22,16 @@ import {
   rejectProposal,
 } from "../../../lib/proposals/service";
 
-const COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 function onError(error: unknown): NextResponse {
   if (error instanceof ProposalError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "proposals_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "proposals_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 
@@ -84,8 +72,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
 
-  const store = await cookies();
-  const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+  const session = await matchingSession();
   if (!session) {
     return NextResponse.json(
       { error: "deciding needs you signed in — approvals carry your name" },

@@ -2,7 +2,7 @@
 // "Both are right" confirms, "Let me fix one" returns the involved
 // questions to the centre. Session comes from the same intake cookie.
 
-import { cookies } from "next/headers";
+import { resolveAccess } from "../../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
@@ -10,12 +10,10 @@ import { db } from "../../../../db";
 import { businessProfiles } from "../../../../db/schema";
 import { IntakeError, reconcileFinding } from "../../../../lib/intake/service";
 
-const COOKIE = "syb_intake_profile";
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const store = await cookies();
-    const profileId = store.get(COOKIE)?.value;
+    // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+    const profileId = (await resolveAccess())?.profile_id;
     if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 404 });
     const rows = await db
       .select({ account_id: businessProfiles.account_id })

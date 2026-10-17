@@ -21,6 +21,7 @@
 // own deterministic block, computed from measured hourly sales at
 // generation and frozen on the row with the report.
 
+import { logSafeError } from "../core/log-safe";
 import { createHash } from "node:crypto";
 import { desc, eq } from "drizzle-orm";
 import { db } from "../../db";
@@ -203,7 +204,7 @@ export async function generateReport(args: {
         event: "report_trading_hours_failed",
         account_id: args.accountId,
         profile_id: args.profileId,
-        message: String(error),
+        ...logSafeError(error),
       }),
     );
   }

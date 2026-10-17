@@ -5,12 +5,9 @@
 //   PUT  /api/mode   override the watch length — extend freely,
 //                    shorten only with an acknowledgement (P1-44)
 
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { logSafeError } from "../../../lib/core/log-safe";
+import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
-import { currentSession } from "../../../lib/auth/service";
 import {
   ModeError,
   decideForProfile,
@@ -18,25 +15,16 @@ import {
   overrideWatch,
 } from "../../../lib/mode/service";
 
-const COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 function onError(error: unknown): NextResponse {
   if (error instanceof ModeError) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "mode_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "mode_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 
@@ -73,8 +61,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     if (toWeeks !== 4 && toWeeks !== 6 && toWeeks !== 8) {
       return NextResponse.json({ error: "to_weeks must be 4, 6 or 8" }, { status: 422 });
     }
-    const store = await cookies();
-    const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+    const session = await matchingSession();
     const decision = await overrideWatch({
       profileId,
       toWeeks,

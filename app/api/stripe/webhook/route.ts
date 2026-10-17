@@ -20,14 +20,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "bad signature" }, { status: 400 });
   }
 
-  let event: { type?: string; data?: { object?: { id?: string } } };
+  let event: { type?: string; data?: { object?: { id?: string; payment_status?: string } } };
   try {
     event = JSON.parse(rawBody) as typeof event;
   } catch {
     return NextResponse.json({ error: "bad payload" }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
+  // Paid means PAID: "completed" also fires with payment_status "unpaid"
+  // for delayed methods (SEPA, bank transfer), whose money may never
+  // arrive. Those unlock on async_payment_succeeded instead (the security
+  // review of 2026-10-17).
+  const paid =
+    (event.type === "checkout.session.completed" &&
+      event.data?.object?.payment_status === "paid") ||
+    event.type === "checkout.session.async_payment_succeeded";
+  if (event.type === "checkout.session.completed" && !paid) {
+    console.log(
+      JSON.stringify({
+        event: "stripe_webhook",
+        type: event.type,
+        outcome: "awaiting_payment",
+        payment_status: event.data?.object?.payment_status ?? null,
+      }),
+    );
+  }
+  if (paid) {
     const sessionId = event.data?.object?.id;
     if (typeof sessionId === "string" && sessionId !== "") {
       const outcome = await markCheckoutPaid(sessionId);

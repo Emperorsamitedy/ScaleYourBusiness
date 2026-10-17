@@ -12,6 +12,7 @@
 // Resolved findings accumulate as history — the open-uniqueness partial
 // index allows the same rule to fire again later.
 
+import { logSafeError } from "../core/log-safe";
 import { and, eq, isNull, like, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { fieldRecords, offers, suppliers, validationFindings } from "../../db/schema";
@@ -151,7 +152,7 @@ export async function runValidationForWrite(profileId: string, fieldKey: string)
           msg: "validation rule failed",
           profile_id: profileId,
           rule_id: rule.id,
-          error: error instanceof Error ? error.message : String(error),
+          ...logSafeError(error),
         }),
       );
     }

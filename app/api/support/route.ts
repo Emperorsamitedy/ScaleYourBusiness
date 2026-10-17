@@ -11,12 +11,10 @@
 // assistant's mouth, rotating a key cuts every embedded widget off, and
 // clustering spends a model call.
 
-import { cookies } from "next/headers";
+import { logSafeError } from "../../../lib/core/log-safe";
+import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
-import { currentSession } from "../../../lib/auth/service";
+import { ContactError, eraseConversation } from "../../../lib/crm/contacts";
 import { FaqError, clusterQuestions } from "../../../lib/crm/faq";
 import {
   KnowledgeError,
@@ -41,18 +39,9 @@ import {
 import { settingsForProfile } from "../../../lib/support/settings";
 import { TicketError, listTickets, resolveTicket } from "../../../lib/support/tickets";
 
-const COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 function onError(error: unknown): NextResponse {
@@ -62,11 +51,12 @@ function onError(error: unknown): NextResponse {
     error instanceof SupportError ||
     error instanceof TicketError ||
     error instanceof FaqError ||
-    error instanceof ProposalError
+    error instanceof ProposalError ||
+    error instanceof ContactError
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "support_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "support_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 
@@ -117,8 +107,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
-  const store = await cookies();
-  const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+  const session = await matchingSession();
   if (!session) {
     return NextResponse.json(
       { error: "changing what the assistant says, or its key, needs you signed in" },
@@ -134,6 +123,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       status?: unknown;
       answer?: unknown;
       question?: unknown;
+      conversation_id?: unknown;
     };
     switch (body.action) {
       case "enable": {
@@ -186,6 +176,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           typeof body.answer === "string" ? body.answer : undefined,
         );
         return NextResponse.json({ status: ticket.status, answered: ticket.answer !== null });
+      }
+      case "erase_conversation": {
+        // GDPR erasure of one widget conversation (rule 22), for a visitor
+        // who never became a contact. Irreversible, so signed-in only.
+        if (typeof body.conversation_id !== "string") {
+          return NextResponse.json({ error: "conversation_id is required" }, { status: 422 });
+        }
+        await eraseConversation(session.account_id, body.conversation_id);
+        return NextResponse.json({ erased: true });
       }
       case "cluster_faq": {
         const outcome = await clusterQuestions(profileId, session.account_id);

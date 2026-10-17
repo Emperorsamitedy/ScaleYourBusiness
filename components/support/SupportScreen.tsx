@@ -90,6 +90,8 @@ type State =
       answer: string;
       ticketAnswers: Record<string, string>;
       faq: FaqOutcome | null;
+      /** The conversation whose erasure awaits a second click. */
+      confirmErase: string | null;
     };
 
 const REASON_WORD: Record<Ticket["reason"], string> = {
@@ -132,6 +134,7 @@ export function SupportScreen() {
       answer: "",
       ticketAnswers: {},
       faq: cur.phase === "ready" ? cur.faq : null,
+      confirmErase: null,
     }));
   }, []);
 
@@ -501,6 +504,21 @@ export function SupportScreen() {
               </span>
               <button className="prop-btn quiet" onClick={() => void openTranscript(c.id)}>
                 {s.open === c.id ? "Close" : "Read"}
+              </button>
+              {/* GDPR erasure (rule 22): irreversible, so it asks twice. */}
+              <button
+                className="prop-btn quiet"
+                disabled={s.busy}
+                onClick={() =>
+                  s.confirmErase === c.id
+                    ? void act(
+                        { action: "erase_conversation", conversation_id: c.id },
+                        "The conversation and its ticket are erased. The log records only that it happened.",
+                      )
+                    : setState({ ...s, confirmErase: c.id })
+                }
+              >
+                {s.confirmErase === c.id ? "Erase permanently" : "Erase"}
               </button>
             </div>
             {s.open === c.id && (

@@ -7,11 +7,10 @@
 
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { INTAKE_COOKIE, claimableProfile } from "../../../../lib/auth/access";
 import { sendLoginEmail } from "../../../../lib/auth/email";
 import { AuthError, requestLogin } from "../../../../lib/auth/service";
 import { ResumeError } from "../../../../lib/intake/resume";
-
-const INTAKE_COOKIE = "syb_intake_profile";
 
 function appUrl(request: NextRequest): string {
   return process.env.APP_URL || new URL(request.url).origin;
@@ -24,24 +23,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "an email address is needed" }, { status: 422 });
     }
     const store = await cookies();
-    const profileId = store.get(INTAKE_COOKIE)?.value ?? null;
+    // Only a profile nobody owns yet can be claimed by a sign-in.
+    const profileId = await claimableProfile(store.get(INTAKE_COOKIE)?.value);
 
     const login = await requestLogin(body.email, profileId);
     const link = `${appUrl(request)}/api/auth/redeem?token=${encodeURIComponent(login.token)}`;
     const sent = await sendLoginEmail({ to: login.email, link });
+    if (sent.delivered_via === "failed") {
+      return NextResponse.json(
+        { error: "I couldn't send the sign-in email just now — try again in a minute." },
+        { status: 503 },
+      );
+    }
 
     return NextResponse.json({
       email: login.email,
       expires_at: login.expires_at,
       delivered_via: sent.delivered_via,
-      // Only when no email provider is configured — dev and pilot.
+      // Only in local development with no email provider configured.
       ...(sent.delivered_via === "screen" ? { link } : {}),
     });
   } catch (error) {
     if (error instanceof AuthError || error instanceof ResumeError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    console.error(JSON.stringify({ event: "login_request_failed", message: String(error) }));
+    // The error's name only: a database error's message carries the query's values (the email).
+    console.error(
+      JSON.stringify({
+        event: "login_request_failed",
+        name: error instanceof Error ? error.name : "unknown",
+      }),
+    );
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

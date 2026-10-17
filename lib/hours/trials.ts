@@ -20,6 +20,7 @@
 // decline-suppression (P3-28) apply as to every proposal. One trial per
 // weekday at a time, so two verdicts never mix.
 
+import { logSafeError } from "../core/log-safe";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { modeDecisions, proposals } from "../../db/schema";
@@ -485,7 +486,7 @@ export async function runHoursTrials(
     } catch (error) {
       failed++;
       console.error(
-        JSON.stringify({ event: "hours_trials_failed", profile_id, message: String(error) }),
+        JSON.stringify({ event: "hours_trials_failed", profile_id, ...logSafeError(error) }),
       );
     }
   }

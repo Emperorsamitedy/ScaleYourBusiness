@@ -4,13 +4,11 @@
 //   PUT /api/modules   { module, enabled } — analytics is not a module
 //                      here and cannot be sent, so it cannot be disabled.
 
+import { resolveAccess } from "../../../lib/auth/access";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
-import { accountModules, businessProfiles } from "../../../db/schema";
-
-const COOKIE = "syb_intake_profile";
+import { accountModules } from "../../../db/schema";
 
 /** The Phase 2+ modules an owner can opt into ahead of time. */
 export const SELECTABLE_MODULES = [
@@ -22,14 +20,8 @@ export const SELECTABLE_MODULES = [
 ] as const;
 
 async function resolveAccount(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ account_id: businessProfiles.account_id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.account_id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.account_id ?? null;
 }
 
 export async function GET(): Promise<NextResponse> {

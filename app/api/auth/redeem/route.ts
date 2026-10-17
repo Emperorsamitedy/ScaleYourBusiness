@@ -5,11 +5,16 @@
 // route already reads — re-pointing it at the account's profile is what
 // makes login-from-a-new-device just work with zero route changes.
 
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
+import {
+  AUTH_COOKIE,
+  INTAKE_COOKIE,
+  authCookieOptions,
+  intakeCookieOptions,
+  signProfileCookie,
+} from "../../../../lib/auth/access";
 import { AuthError, redeemLogin } from "../../../../lib/auth/service";
-
-const INTAKE_COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const token = request.nextUrl.searchParams.get("token") ?? "";
@@ -19,25 +24,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const response = NextResponse.redirect(
       new URL(session.profile_id ? "/profile" : "/intake", origin),
     );
-    response.cookies.set(AUTH_COOKIE, session.session_token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 90,
-    });
+    response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
     if (session.profile_id) {
-      response.cookies.set(INTAKE_COOKIE, session.profile_id, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30,
-      });
+      response.cookies.set(
+        INTAKE_COOKIE,
+        signProfileCookie(session.profile_id),
+        intakeCookieOptions(),
+      );
     }
     return response;
   } catch (error) {
     const message = error instanceof AuthError ? error.message : "something went wrong on our side";
     if (!(error instanceof AuthError)) {
-      console.error(JSON.stringify({ event: "redeem_failed", message: String(error) }));
+      console.error(JSON.stringify({ event: "redeem_failed", ...logSafeError(error) }));
     }
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(message)}`, origin));
   }

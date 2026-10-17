@@ -1593,6 +1593,14 @@ export const supportConversations = pgTable(
     status: supportConversationStatus("status").notNull().default("open"),
     turns: integer("turns").notNull().default(0),
     cost_eur: numeric("cost_eur", { precision: 10, scale: 6 }).notNull().default("0"),
+    /**
+     * Spend reserved for a message whose model calls are in flight. Every cap
+     * check counts it, so a burst of concurrent messages can't each pass the
+     * cap before any of them has spent (security review 2026-10-17).
+     */
+    reserved_eur: numeric("reserved_eur", { precision: 10, scale: 6 }).notNull().default("0"),
+    /** A keyed hash of the visitor's address and the day — never the address itself. */
+    client_hash: text("client_hash"),
     started_at: timestamp("started_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
@@ -1601,6 +1609,7 @@ export const supportConversations = pgTable(
   (t) => [
     uniqueIndex("support_conversations_token_idx").on(t.token),
     index("support_conversations_profile_idx").on(t.profile_id, t.started_at),
+    index("support_conversations_client_idx").on(t.profile_id, t.client_hash, t.started_at),
   ],
 );
 

@@ -382,3 +382,51 @@ describe("P1-20 — honest progress", () => {
     expect(seen.find((e) => e.step === "read")!.detail).toContain(`${CAPS.max_pages} pages`);
   });
 });
+
+describe("security review 2026-10-17 — enriching a competitor is scoped and rate-limited", () => {
+  it("THE ATTACK: another business's competitor id is refused, and its row is untouched", async () => {
+    const victimProfile = profileId;
+    const [theirs] = await db
+      .insert(competitors)
+      .values({ profile_id: victimProfile, source: { kind: "owner_input" } })
+      .returning();
+    await freshProfile(); // the attacker's own profile
+    const world = stubWorld();
+    const { llm } = stubLlm(FULL);
+    await expect(
+      researchCompetitor({
+        accountId,
+        profileId,
+        competitorName: "Szomszéd Szörp",
+        competitorId: theirs!.id,
+        search: world.search,
+        fetchPage: world.fetchPage,
+        llm,
+      }),
+    ).rejects.toThrow(/no such competitor on this profile/);
+    const [after] = await db.select().from(competitors).where(eq(competitors.id, theirs!.id));
+    expect(after?.researched_at).toBeNull();
+  });
+
+  it("THE ATTACK: the same competitor can't be re-researched (and re-billed) again within a day", async () => {
+    const [mine] = await db
+      .insert(competitors)
+      .values({ profile_id: profileId, source: { kind: "owner_input" } })
+      .returning();
+    const run = () => {
+      const world = stubWorld();
+      const { llm } = stubLlm(FULL);
+      return researchCompetitor({
+        accountId,
+        profileId,
+        competitorName: "Szomszéd Szörp",
+        competitorId: mine!.id,
+        search: world.search,
+        fetchPage: world.fetchPage,
+        llm,
+      });
+    };
+    await run();
+    await expect(run()).rejects.toThrow(/researched in the last day/);
+  });
+});

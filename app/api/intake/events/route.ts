@@ -3,7 +3,7 @@
 // may post text/plain), validates hard, and never errors the intake:
 // a malformed batch is dropped, not bounced.
 
-import { cookies } from "next/headers";
+import { resolveAccess } from "../../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
@@ -11,12 +11,10 @@ import { db } from "../../../../db";
 import { businessProfiles } from "../../../../db/schema";
 import { recordIntakeEvents } from "../../../../lib/intake/telemetry";
 
-const COOKIE = "syb_intake_profile";
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const store = await cookies();
-    const profileId = store.get(COOKIE)?.value;
+    // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+    const profileId = (await resolveAccess())?.profile_id;
     if (!profileId) return new NextResponse(null, { status: 204 });
     const exists = await db
       .select({ id: businessProfiles.id })

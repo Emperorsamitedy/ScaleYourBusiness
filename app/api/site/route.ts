@@ -5,30 +5,21 @@
 //   POST /api/site {action:"apply"}      apply an approved change (signed in)
 //   POST /api/site {action:"undo"}       one-click undo, permanent (signed in)
 
+import { logSafeError } from "../../../lib/core/log-safe";
+import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { desc, eq, inArray } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
-import { businessProfiles, executions, proposals } from "../../../db/schema";
-import { currentSession } from "../../../lib/auth/service";
+import { executions, proposals } from "../../../db/schema";
 import { ExecutionRefused, undoExecution } from "../../../lib/execution/engine";
 import { applySiteChange } from "../../../lib/site/apply";
 import { SiteChangeError, proposeSiteChange } from "../../../lib/site/changes";
 import { SiteFetchError } from "../../../lib/site/fetch";
 import { ProposalError } from "../../../lib/proposals/service";
 
-const COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
-
 async function resolveProfile(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.profile_id ?? null;
 }
 
 function onError(error: unknown): NextResponse {
@@ -40,7 +31,7 @@ function onError(error: unknown): NextResponse {
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
-  console.error(JSON.stringify({ event: "site_error", message: String(error) }));
+  console.error(JSON.stringify({ event: "site_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
 }
 
@@ -86,8 +77,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     };
 
     if (body.action === "apply" || body.action === "undo") {
-      const store = await cookies();
-      const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+      const session = await matchingSession();
       if (!session) {
         return NextResponse.json(
           { error: "changing a live site needs you signed in" },

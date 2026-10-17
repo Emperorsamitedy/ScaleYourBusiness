@@ -31,6 +31,7 @@
 // TASKS-PHASE3.md: Vercel Hobby runs this once a day with ±59 minutes
 // of slack; Pro runs it every minute. The runner is the same either way.
 
+import { logSafeError } from "../core/log-safe";
 import { and, eq, isNotNull, isNull, lte } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, executions, proposals } from "../../db/schema";
@@ -97,7 +98,7 @@ export interface DueRunOptions {
 }
 
 function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  return logSafeError(error).error_message;
 }
 
 /** The cron's body: sweep expiry, then run everything that is due. Never throws for one proposal. */

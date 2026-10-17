@@ -14,26 +14,13 @@
 // at the keyboard gets to stop the machine; the row records who when
 // a session exists and null when it doesn't, rather than refusing.
 
-import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
-import { currentSession } from "../../../lib/auth/service";
 import { haltExecutions, haltState, resumeExecutions } from "../../../lib/execution/engine";
 
-const COOKIE = "syb_intake_profile";
-const AUTH_COOKIE = "syb_session";
-
 async function resolveAccount(): Promise<string | null> {
-  const store = await cookies();
-  const profileId = store.get(COOKIE)?.value;
-  if (!profileId) return null;
-  const [row] = await db
-    .select({ account_id: businessProfiles.account_id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  return row?.account_id ?? null;
+  // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
+  return (await resolveAccess())?.account_id ?? null;
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -45,8 +32,7 @@ export async function GET(): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const accountId = await resolveAccount();
   if (!accountId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
-  const store = await cookies();
-  const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+  const session = await matchingSession();
   let reason: string | undefined;
   try {
     const body = (await request.json()) as { reason?: unknown };
@@ -72,8 +58,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function DELETE(): Promise<NextResponse> {
   const accountId = await resolveAccount();
   if (!accountId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
-  const store = await cookies();
-  const session = await currentSession(store.get(AUTH_COOKIE)?.value);
+  const session = await matchingSession();
   if (!session) {
     return NextResponse.json(
       { error: "starting things up again needs you signed in — stopping never does" },

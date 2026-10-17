@@ -59,6 +59,12 @@ function privateV4(ip: string): boolean {
   if (a === 172 && (b ?? 0) >= 16 && (b ?? 0) <= 31) return true;
   if (a === 192 && b === 168) return true;
   if (a === 100 && (b ?? 0) >= 64 && (b ?? 0) <= 127) return true; // CGNAT
+  // Added by the security review of 2026-10-17:
+  if (a === 192 && b === 0) return true; // 192.0.0/24 IETF special use (and 192.0.2/24 docs)
+  if (a === 198 && (b === 18 || b === 19)) return true; // 198.18/15 benchmarking
+  if (a === 198 && b === 51) return true; // 198.51.100/24 documentation
+  if (a === 203 && b === 0) return true; // 203.0.113/24 documentation
+  if ((a ?? 0) >= 224) return true; // 224/4 multicast, 240/4 reserved, 255.255.255.255 broadcast
   return false;
 }
 
@@ -87,9 +93,13 @@ function privateV6(ip: string): boolean {
   return (
     lower === "::1" ||
     lower === "::" ||
-    lower.startsWith("fe80") ||
+    /^fe[89ab]/.test(lower) || // fe80::/10 link-local, the whole /10 (review 2026-10-17)
+    /^fe[c-f]/.test(lower) || // fec0::/10 deprecated site-local
     lower.startsWith("fc") ||
-    lower.startsWith("fd")
+    lower.startsWith("fd") ||
+    lower.startsWith("ff") || // ff00::/8 multicast
+    lower.startsWith("64:ff9b:") || // NAT64: embeds an IPv4 the egress may route to
+    lower.startsWith("2002:") // 6to4: embeds an IPv4 too
   );
 }
 
@@ -115,7 +125,7 @@ interface VettedAddress {
  * what the connection is pinned to — the same resolution result serves
  * both the check and the connect (the review's finding 2).
  */
-async function vetAddresses(url: URL): Promise<VettedAddress[]> {
+export async function vetAddresses(url: URL): Promise<VettedAddress[]> {
   if (url.protocol !== "http:" && url.protocol !== "https:") {
     throw new SiteFetchError("only http(s) sites can be read");
   }

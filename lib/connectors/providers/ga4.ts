@@ -194,9 +194,7 @@ async function request(
   init: Ga4RequestInit,
 ): Promise<{ status: number; body: unknown }> {
   const allowed =
-    url === GA4_TOKEN_URL ||
-    url.startsWith(`${GA4_TOKENINFO_URL}?`) ||
-    url === runReportUrl(cred.property_id);
+    url === GA4_TOKEN_URL || url === GA4_TOKENINFO_URL || url === runReportUrl(cred.property_id);
   if (!allowed) throw new ProviderError("ga4: refusing to call an unregistered address");
 
   for (let attempt = 1; ; attempt += 1) {
@@ -244,8 +242,15 @@ async function accessToken(ctx: Context, cred: Ga4Credential, fresh = false): Pr
 
 /** The scopes Google says this token carries. */
 async function tokenScopes(ctx: Context, cred: Ga4Credential, token: string): Promise<string[]> {
-  const url = `${GA4_TOKENINFO_URL}?${new URLSearchParams({ access_token: token }).toString()}`;
-  const { status, body } = await request(ctx, cred, url, { method: "GET", headers: {} });
+  // The token goes in a header, never a URL, where proxies, APM and
+  // fetch breadcrumbs would keep it (the security review of 2026-10-17).
+  const { status, body } = await request(ctx, cred, GA4_TOKENINFO_URL, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/x-www-form-urlencoded",
+    },
+  });
   const info = body as { scope?: unknown } | null;
   if (status !== 200 || typeof info?.scope !== "string") {
     throw new ProviderError("ga4: Google could not confirm the token's permissions");

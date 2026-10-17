@@ -167,9 +167,7 @@ async function request(
   init: ScRequestInit,
 ): Promise<{ status: number; body: unknown }> {
   const allowed =
-    url === SC_TOKEN_URL ||
-    url.startsWith(`${SC_TOKENINFO_URL}?`) ||
-    url === queryUrl(cred.site_url);
+    url === SC_TOKEN_URL || url === SC_TOKENINFO_URL || url === queryUrl(cred.site_url);
   if (!allowed) throw new ProviderError("search console: refusing to call an unregistered address");
   for (let attempt = 1; ; attempt += 1) {
     let response: ScResponse;
@@ -213,8 +211,15 @@ async function accessToken(ctx: Context, cred: ScCredential, fresh = false): Pro
 }
 
 async function tokenScopes(ctx: Context, cred: ScCredential, token: string): Promise<string[]> {
-  const url = `${SC_TOKENINFO_URL}?${new URLSearchParams({ access_token: token }).toString()}`;
-  const { status, body } = await request(ctx, cred, url, { method: "GET", headers: {} });
+  // The token goes in a header, never a URL, where proxies, APM and
+  // fetch breadcrumbs would keep it (the security review of 2026-10-17).
+  const { status, body } = await request(ctx, cred, SC_TOKENINFO_URL, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${token}`,
+      "content-type": "application/x-www-form-urlencoded",
+    },
+  });
   const info = body as { scope?: unknown } | null;
   if (status !== 200 || typeof info?.scope !== "string") {
     throw new ProviderError("search console: Google could not confirm the token's permissions");

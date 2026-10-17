@@ -16,6 +16,7 @@
 // proposal per item headed for a connected Meta asset (./publish) — the
 // owner approves the finished item, not just the plan.
 
+import { logSafeError } from "../core/log-safe";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, contentItems, proposals } from "../../db/schema";
@@ -174,7 +175,7 @@ export async function produceFromProposal(
         event: "publish_proposals_failed",
         account_id: accountId,
         profile_id: proposal.profile_id,
-        message: String(error),
+        ...logSafeError(error),
       }),
     );
   }

@@ -7,6 +7,7 @@
 // never break the intake: the route swallows malformed batches after
 // validation rather than erroring the session.
 
+import { logSafeError } from "../core/log-safe";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { intakeEvents } from "../../db/schema";
@@ -77,7 +78,7 @@ export async function recordFunnelEvent(
     });
   } catch (error) {
     // Telemetry never breaks the thing it measures.
-    console.error(JSON.stringify({ event: "funnel_event_failed", kind, message: String(error) }));
+    console.error(JSON.stringify({ event: "funnel_event_failed", kind, ...logSafeError(error) }));
   }
 }
 

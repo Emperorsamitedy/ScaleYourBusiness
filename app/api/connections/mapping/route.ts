@@ -7,6 +7,7 @@
 // Suggestions are computed; nothing is stored until the owner confirms.
 // Signed-in sessions only, and only for a connection the account owns.
 
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import type { AuthedSession } from "../../../../lib/auth/service";
@@ -30,7 +31,7 @@ function onError(error: unknown, accountId: string): NextResponse {
       event: "mapping_error",
       account_id: accountId,
       name: error instanceof Error ? error.name : "unknown",
-      message: error instanceof Error ? error.message : String(error),
+      ...logSafeError(error),
     }),
   );
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });

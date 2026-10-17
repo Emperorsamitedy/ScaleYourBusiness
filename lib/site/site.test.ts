@@ -176,6 +176,17 @@ describe("the SSRF guard", () => {
       "fe80::1",
       "fd00::1",
       "not-an-ip", // unresolvable spellings never connect
+      // The 2026-10-17 security review's additions:
+      "192.0.0.8", // IETF special use
+      "198.18.0.1", // benchmarking
+      "224.0.0.1", // multicast
+      "240.0.0.1", // reserved
+      "255.255.255.255", // broadcast
+      "febf::1", // the far end of fe80::/10
+      "fec0::1", // site-local
+      "ff02::1", // multicast
+      "64:ff9b::7f00:1", // NAT64 wrapping 127.0.0.1
+      "2002:7f00:1::", // 6to4 wrapping 127.0.0.1
     ]) {
       expect(isPrivateAddress(ip), ip).toBe(true);
     }

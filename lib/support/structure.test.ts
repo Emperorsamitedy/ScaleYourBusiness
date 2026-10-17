@@ -101,7 +101,11 @@ describe("P4-08 — rule 21, held by the module graph", () => {
         file.startsWith("app/api/support/public/") ||
         file.startsWith("db/") ||
         file.startsWith("lib/llm/") ||
-        file === "lib/env.ts",
+        file === "lib/env.ts" ||
+        // Added deliberately by the 2026-10-17 security review: a pure
+        // function with no imports, reached through the model metering's
+        // logs, that strips a query's bound values (PII) from error lines.
+        file === "lib/core/log-safe.ts",
     );
     expect(allowed, [...graph].sort().join("\n")).toBe(true);
   });

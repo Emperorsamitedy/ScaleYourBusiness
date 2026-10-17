@@ -5,6 +5,7 @@
 // €50/month budget's measurement instrument; nothing calls a model
 // without passing through here.
 
+import { logSafeError } from "../core/log-safe";
 import type { UsageTokens } from "./pricing";
 import { costEur } from "./pricing";
 
@@ -72,7 +73,7 @@ export async function recordLlmCall(record: LlmCallRecord): Promise<void> {
       cost_eur: record.cost_eur.toFixed(6),
     });
   } catch (error) {
-    console.error(JSON.stringify({ event: "llm_call_persist_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "llm_call_persist_failed", ...logSafeError(error) }));
   }
 }
 

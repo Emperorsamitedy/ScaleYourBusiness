@@ -143,7 +143,9 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
       409,
     );
   }
-  const nextHtml = current.html.replace(detail.find, detail.replace);
+  // A function replacement is literal: "$&", "$'" and friends in the owner's
+  // text must be written as typed, never expanded into page content.
+  const nextHtml = current.html.replace(detail.find, () => detail.replace);
 
   const execution = await executeProposal({
     proposalId: proposal.id,

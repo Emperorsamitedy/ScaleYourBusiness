@@ -5,6 +5,8 @@
 // business with support enabled and enough open questions; a business
 // with fewer than FAQ_MIN_CLUSTER questions costs nothing.
 
+import { bearerMatches } from "../../../../lib/core/secret-compare";
+import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../../db";
 import { supportSettings } from "../../../../db/schema";
@@ -12,7 +14,7 @@ import { clusterQuestions } from "../../../../lib/crm/faq";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!bearerMatches(request.headers.get("authorization"), secret)) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
   try {
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.log(JSON.stringify({ event: "faq_cluster_cron", ...summary }));
     return NextResponse.json(summary);
   } catch (error) {
-    console.error(JSON.stringify({ event: "faq_cluster_cron_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "faq_cluster_cron_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "job failed" }, { status: 500 });
   }
 }

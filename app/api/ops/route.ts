@@ -4,6 +4,8 @@
 // pattern). Unset key = endpoint off. Wrong key answers exactly like a
 // missing route — nothing to enumerate.
 
+import { secretMatches } from "../../../lib/core/secret-compare";
+import { logSafeError } from "../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { abandonmentSummary, costSummary, funnelSummary } from "../../../lib/ops/summary";
 import { openEscalations } from "../../../lib/care/review";
@@ -12,7 +14,7 @@ import { crossCustomerApprovalRate } from "../../../lib/trust/gate";
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.OPS_KEY;
   const key = request.nextUrl.searchParams.get("key");
-  if (!secret || key !== secret) {
+  if (!secretMatches(key, secret)) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }
   const days = Math.min(
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     ]);
     return NextResponse.json({ since, days, funnel, abandonment, costs, gate2, escalations });
   } catch (error) {
-    console.error(JSON.stringify({ event: "ops_summary_failed", message: String(error) }));
+    console.error(JSON.stringify({ event: "ops_summary_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
   }
 }

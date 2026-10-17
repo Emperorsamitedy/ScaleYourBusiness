@@ -24,6 +24,7 @@
 // proposal flips to executed through the Session A service, which
 // writes the decision-log entry in the same transaction.
 
+import { logSafeError } from "../core/log-safe";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { executionAttempts, executionHalts, executions, proposals } from "../../db/schema";
@@ -293,7 +294,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
         .returning();
       return done as ExecutionRow;
     } catch (error) {
-      lastError = error instanceof Error ? error.message : String(error);
+      lastError = logSafeError(error).error_message;
       await recordAttempt(execution.id, ctx.account_id, attempt, started, false, lastError);
       await db
         .update(executions)
@@ -351,6 +352,15 @@ export async function undoExecution(args: {
   };
   if (await isHalted(ctx.account_id)) {
     throw new ExecutionRefused("halted", "the emergency stop is on — resume before undoing");
+  }
+  // The watching block applies to undo like any other write (the comment
+  // above said so; the code didn't check — security review 2026-10-17).
+  const decision = await latestDecision(ctx.profile_id);
+  if (decision?.mode === "watching") {
+    throw new ExecutionRefused(
+      "watching",
+      "this business is being watched, not changed — the watch blocks every write, undo included",
+    );
   }
   if (execution.undo_payload === null) {
     throw new ExecutionRefused(

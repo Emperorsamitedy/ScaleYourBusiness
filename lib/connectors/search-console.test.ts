@@ -58,7 +58,9 @@ function fakeGoogle(
       return json(200, { access_token: token, expires_in: 3599 });
     }
     if (u.origin + u.pathname === "https://oauth2.googleapis.com/tokeninfo") {
-      const scope = issued.get(u.searchParams.get("access_token") ?? "");
+      // The token arrives in the header now; a token in the URL is a failure.
+      if (u.searchParams.has("access_token")) return json(400, { error: "token in URL" });
+      const scope = issued.get((init.headers["authorization"] ?? "").replace(/^Bearer /, ""));
       return scope === undefined
         ? json(400, { error: "invalid_token" })
         : json(200, { scope: opts.reportedScope ?? scope });

@@ -3,6 +3,7 @@
 // same OPS_KEY gates it, and a wrong key renders the same nothing a
 // wrong URL would.
 
+import { secretMatches } from "../../lib/core/secret-compare";
 import type { Metadata } from "next";
 import { abandonmentSummary, costSummary, funnelSummary } from "../../lib/ops/summary";
 
@@ -19,7 +20,7 @@ export default async function OpsPage({
 }) {
   const params = await searchParams;
   const secret = process.env.OPS_KEY;
-  if (!secret || params.key !== secret) {
+  if (!secretMatches(params.key, secret)) {
     return (
       <main className="auth-stage">
         <p className="auth-copy">There is nothing here.</p>
