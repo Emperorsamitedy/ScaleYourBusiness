@@ -21,44 +21,76 @@ This is a real constraint, not a stylistic preference. In a product that will ev
 
 ## 2. Design tokens
 
-### Colour
+**The sheet system (adopted 2026-10-17, owner decision).** A diagnostic panel / lab report: content lives on eucalyptus paper sheets laid on a dark forest desk. It supersedes Ember Grid. The tokens live in `app/sheet.css`; this section is their source of truth. **Migration is surface by surface**, in this order: (a) the landing page and sample diagnosis (done), (b) the report sheet, (c) the intake, (d) the approval queue, (e) mobile approvals. Screens not yet migrated still render Ember Grid from `app/globals.css`. A screen is either fully on the sheet system or fully on Ember, never a mix.
 
-Ember Grid (see `docs/DESIGN.md`, the token source of truth): dark canonical, glass surfaces, one amber ember per screen. This supersedes the v1 light-paper palette; `specs/intake-mockup.html` remains as historical reference for layout, not colour.
+### Surfaces
 
 | Token | Value | Use |
 |---|---|---|
-| `--stage` | `#0A0B0D` | Page background — near-black, with faint drifting amber/blue ambient glows |
-| `--glass` | `rgba(19,20,24,.62)` | Card fill — translucent, `backdrop-filter: blur(18px) saturate(1.25)` |
-| `--glass-strong` | `rgba(26,28,33,.72)` | Inputs, raised interiors |
-| `--raised` | `#1A1C21` | Solid raised layer, hover fills |
-| `--ink` | `#F2F3F5` | Primary text |
-| `--mut` | `#9BA1AB` | Secondary text, metadata |
-| `--hair` / `--hair-2` | `rgba(255,255,255,.07/.12)` | Hairlines, borders, inactive states |
-| `--ember` | `#F59B4B` | **The one accent.** The advancing action, focus, live data; deep end `#E1560F` for gradients |
-| `--whisper` | `#4C7DF0` | Ambient glows and the focal-CTA gradient only — never body text |
-| `--settled` | `#34D399` | Confirmed and recorded — used only as a 5px dot, never as a fill |
-| `--err` | `#FF7A72` | Validation, stated plainly — never alarm styling |
+| `--desk` | `#132119` | The background: the receding navigation layer |
+| `--masthead` | `#0E1A13` | Ink masthead, with a 2px `--live-rule` (`#3D6BFF`) beneath. The rule is static brand structure, not machine state |
+| `--paper` | `#F2F7F4` | The sheet. Content lives here |
+| `--inset` | `#DFE9E3` | Evidence boxes and stamps. Only 1.15:1 against paper, so every inset also carries a 1px `--rule` |
+| `--rule` / `--rule-soft` | `#71897D` / `#B9CBC1` | 1px rules: structural (3.5:1 on paper) and row hairlines |
 
-The stage is a dark instrument panel, not a dashboard casino: depth comes from tonal layers, hairlines and light (glow), never drop shadows; the ember appears exactly once per screen; and nothing may ever read as crypto-casino — no 3D coins, confetti or pulsing glow spam.
+Square corners everywhere. No shadows on sheets: separation comes from 1px rules, surface colour and whitespace. No icons: meaning is carried by words, typography, rules and position. Typographic characters such as → are allowed.
+
+### Text and meaning
+
+Every text token is measured on each surface it appears on (WCAG 2 ratio, APCA Lc). Smallest mono labels target Lc 75+.
+
+| Token | Value | On paper | On inset | On desk | Use |
+|---|---|---|---|---|---|
+| `--sheet-ink` | `#0E1A13` | 16.5:1 · Lc 99 | 14.4:1 · Lc 90 | — | Text on sheets |
+| `--sheet-ink-2` | `#3A4C42` | 8.5:1 · Lc 86 | 7.4:1 · Lc 77 | — | Secondary text on sheets |
+| `--desk-ink` | `#EAF2ED` | — | — | 14.6:1 · Lc 96 | Text on the desk |
+| `--desk-ink-2` | `#C3D4CA` | — | — | 10.8:1 · Lc 76 | Secondary text on the desk. Never a muted grey |
+| `--live` | `#1A3DAE` | 8.4:1 · Lc 84 | 7.3:1 · Lc 75 | — | Cobalt: the machine is working right now. Nothing else |
+| `--live-desk` | `#C2D4FF` | — | — | 11.2:1 · Lc 79 | The same meaning, on the desk |
+| `--ok` | `#145530` | 8.2:1 · Lc 84 | 7.1:1 · Lc 75 | — | Tints IN RANGE |
+| `--low` | `#36495F` | 8.5:1 · Lc 86 | 7.4:1 · Lc 77 | — | Tints BELOW RANGE and idle |
+| `--drift` | `#683D00` | 8.6:1 · Lc 86 | 7.5:1 · Lc 77 | — | Tints ABOVE RANGE (slightly past) |
+| `--alarm` | `#8C1713` | 8.6:1 · Lc 84 | 7.5:1 · Lc 76 | — | Tints ACT NOW. Also underlined, so alarm differs from drift in shape, not only hue |
+| `--marker` | `#F7E26B` | — | — | — | Ink was just laid down. Only ever a background behind ink (13.7:1), **never text** |
+
+Colour never carries meaning alone: every status is a worded flag, and the screen must read in grayscale.
+
+**Cobalt is machine state only.** Interactive elements are ink on paper: a full 1px border, a verb label with a typographic arrow ("APPROVE →"), underlined links, an ink-fill inversion on hover and press within 100ms, and a 2px focus ring in the ink of the surface underneath, offset 3px. Never cobalt, never a pill, and at least 48px tall.
 
 ### Type
 
 | Role | Face | Use |
 |---|---|---|
-| Display + Body | Schibsted Grotesk, 400–700 | One family for everything human — questions, headings, reading text, controls |
-| Data | IBM Plex Mono, 400–500 | Question IDs, confidence, sources, timestamps |
+| Display | Zilla Slab 500–600 | One primary figure or heading per sheet. Never chrome |
+| Prose | Archivo | All reading text, 45–90 characters per line (`--measure: 68ch`) |
+| Figures and labels | IBM Plex Mono 400–600 | Every figure and every label. Tabular numerals on the figure itself, right-aligned in columns |
 
-The mono layer is the structural device and it encodes something true. Every fact in this system carries provenance and confidence, so every fact in the interface carries a small mono line stating where it came from. `1.4 · owner · estimate` under an answer is not decoration — it is the `SourceRef` from the data model, made visible. This is what makes the product feel like an instrument rather than a chatbot, and it is why the owner can trust the report: they can see which parts rest on their own guesses.
+The mono layer still encodes something true: every fact prints its source, date and basis as visible text, never behind a click. Caps are reserved for mono labels and flags. Scale: display 64/40/26px, prose 19/16/14px, mono 14/12.5/11.5px. Nothing below 11.5px.
 
-Scale: display 27/23px, headings 26/17px, body 16/15/14px, help 14px, mono 12/11/10px. Nothing below 10px. Sentence case throughout, including buttons.
+### The number grammar
 
-### Structure
+Every number on every surface follows one grammar, the way a lab result does:
 
-Rectangles hold information, pills are pressed: chips 12px, entity rows 16px, the focal card 24px with a gradient "ember edge" hairline (the one gradient border on screen); every button, select-chip and toggle is a full pill with a ≥44px touch target. Hairlines at 1px `--hair`. Grid gutter 28px, card padding 30px desktop / 20px mobile, stage max-width 1400px.
+- The value in mono, tabular, right-aligned.
+- A named comparison in the column header ("vs prior 28 d"). Never a bare number.
+- A reference or goal range where one exists. The owner's own targets may serve.
+- A worded flag: IN RANGE / BELOW RANGE / ABOVE RANGE / ACT NOW / NOT PROVIDED.
+- For findings, a text-width range bar (`components/sheet/RangeBar.tsx`): the ok band as a tint, the value as an ink tick, and a dashed hairline where drift becomes ACT NOW.
+- Forecasts are ranges, never single points.
+- Basis is a named class defined by what produced the fact: OBSERVED / DERIVED / ESTIMATED / ASSUMED. Never an AI-generated percentage.
+- Money is integer minor units formatted by the currency's exponent (`components/sheet/num.ts`). One column, one decimal count. A space separates number and unit; the unit sits in the column header rather than in every cell.
 
-### Motion
+### Space and motion
 
-One easing: `cubic-bezier(.2,.7,.3,1)` for everything, 240–380ms — depart 240, settle 340, rise 380. Motion exists to show causation — where an answer went, where a proposal came from — never as flourish. Around it, ambience: the two corner glows drift on a 26–32s cycle, the on-deck card floats ±5px, buttons lift 1px on hover with a soft ember glow (light, not shadow), and the sticky top bar blurs the content scrolling beneath it. Every animation sits behind `prefers-reduced-motion`.
+Space follows a scale (4, 8, 12, 16, 24, 32, 48, 64, 96px), not a constant. Gutters are 16px under 720px and 32px above.
+
+Motion reports state, and is subtler the more often it plays: 100ms press, 220ms move, 280ms record, decelerating (`cubic-bezier(.16,1,.3,1)`).
+
+- **Kept:** answers flying into the record column.
+- **Allowed:** a cobalt pulse only while the AI is genuinely working.
+- **Cut:** smooth or inertial scroll, scroll-jacking, cursor tilt, magnetic buttons, ambient drift, decorative loops, confetti, and padded "loading" sequences.
+- **Text reveals:** at most one marketing headline, masked as a single text node.
+- **Reduced motion:** under `prefers-reduced-motion` every duration is zero.
 
 ---
 
@@ -220,6 +252,17 @@ Structure, top to bottom:
 
 Recommendations carry two actions — "Look into this" and "Not for us". Declining opens a short reason field, because that reason is the training data for everything the system proposes later. The field is optional but pre-filled with three common reasons as chips, since a required field here produces junk.
 
+### 7.1 Landing page
+
+The landing page sells the sheet itself (`components/marketing/Landing.tsx`).
+
+- **The hero is a flat, full-width sample diagnosis page** for a fictional store, labelled as one at its top edge. It is not a device mockup. Its arithmetic is held true by `lib/marketing/sample-diagnosis.test.ts`.
+- **Copy:** plain hero copy at roughly a sixth-grade reading level, with hard counts ("17 checks across 5 areas"). The counts come from `lib/marketing/checks.ts`, which a test holds to the validation rules, so the page cannot claim more checks than the product runs.
+- **The body follows the report's own numbered sections**, set like a table of contents: sample page, what is checked, how the numbers are made, examiner, price, questions.
+- **The price on the button is `reportPrice()`**, the same value checkout charges.
+- **The "Examined by" block and the refund guarantee** render only once the owner supplies them in `lib/marketing/offer.ts`. The page never prints a stand-in name or an unagreed promise.
+- **Never:** a centred gradient hero, an icon feature grid, a "1-2-3 steps" row, a row of big stats without a comparison, or a claim the code does not back.
+
 ---
 
 ## 8. Approval pattern
@@ -265,7 +308,7 @@ Buttons use the same verb from click to confirmation: "Record answer" produces a
 
 ## 11. Quality floor
 
-Keyboard operable end to end, with visible focus rings in `--signal`. `aria-live` on the centre stage so screen readers announce each new question. Colour never the sole carrier of meaning — flagged chips also change their mono label to `contradiction`. Contrast: ink on paper is 14.8:1, slate on card 5.1:1, signal on wash 8.6:1. Reduced motion respected globally. Responsive to 360px.
+Keyboard operable end to end, with a visible 2px focus ring in the ink of the surface underneath. `aria-live` on the centre stage so screen readers announce each new question. Colour never the sole carrier of meaning: every status is a worded flag, and every surface must read in grayscale. Contrast: every text token reaches WCAG 4.5:1 on each surface it appears on; the measured values are in §2. Reduced motion respected globally. Responsive to 360px with no horizontal page scroll; checked at 1440, 1024 and 390px.
 
 ---
 

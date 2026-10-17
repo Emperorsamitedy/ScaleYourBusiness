@@ -1,0 +1,629 @@
+/* The landing page and the sample diagnosis sheet — ux-spec §7.1.
+   Tokens live in sheet.css; nothing here defines a colour of its own. */
+
+.lp {
+  --wrap: 1180px;
+}
+.lp main {
+  display: block;
+}
+
+.vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.lp-skip {
+  position: absolute;
+  left: var(--gutter);
+  top: -100px;
+  z-index: 10;
+  padding: var(--s-2) var(--s-3);
+  background: var(--paper);
+  color: var(--sheet-ink);
+}
+.lp-skip:focus {
+  top: var(--s-2);
+}
+
+/* ── masthead: ink, with the static cobalt rule beneath ── */
+
+.mast {
+  background: var(--masthead);
+  border-bottom: 2px solid var(--live-rule);
+}
+.mast-in {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+.lp .mast-mark {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--desk-ink);
+}
+.mast-nav {
+  display: flex;
+  gap: var(--s-5);
+  font-size: var(--t-prose-s);
+}
+.lp .mast-nav a {
+  color: var(--desk-ink);
+}
+@media (max-width: 719px) {
+  .mast-nav a:not(:last-child) {
+    display: none;
+  }
+}
+
+/* ── hero, on the desk ── */
+
+.lp-hero,
+.lp-sec,
+.lp-foot {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+.lp-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: var(--s-7);
+  align-items: end;
+  padding-top: var(--s-8);
+  padding-bottom: var(--s-5);
+}
+@media (max-width: 959px) {
+  .lp-hero {
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    padding-top: var(--s-7);
+  }
+}
+.lp-kicker {
+  color: var(--desk-ink-2);
+  margin: 0 0 var(--s-4);
+}
+.lp-h1 {
+  font-size: var(--t-display-1);
+  max-width: 16ch;
+  color: var(--desk-ink);
+}
+.lp-lede {
+  max-width: 54ch;
+  margin: var(--s-5) 0 0;
+  font-size: var(--t-prose-l);
+  line-height: 1.5;
+  color: var(--desk-ink);
+}
+.lp-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-5);
+  margin-top: var(--s-6);
+}
+.lp-cta-btn {
+  font-size: var(--t-mono);
+  min-height: 52px;
+}
+@media (max-width: 479px) {
+  .lp-cta-btn {
+    width: 100%;
+    padding: 0 var(--s-3);
+    font-size: var(--t-mono-s);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+}
+.lp-cta-note {
+  margin: 0;
+  max-width: 40ch;
+  font-size: var(--t-prose-s);
+  color: var(--desk-ink-2);
+}
+.lp-works {
+  margin: var(--s-6) 0 0;
+  font-size: var(--t-mono-s);
+  color: var(--desk-ink-2);
+  max-width: 70ch;
+}
+
+/* ── contents, set like a table of contents ── */
+
+.toc .label {
+  color: var(--desk-ink-2);
+  margin: 0 0 var(--s-3);
+}
+.toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--desk-rule);
+}
+.toc li {
+  border-bottom: 1px solid var(--desk-rule);
+}
+.lp .toc a {
+  display: flex;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  text-decoration: none;
+  color: var(--desk-ink);
+}
+.toc a:hover .toc-t {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.toc-n {
+  width: 3ch;
+  color: var(--desk-ink-2);
+}
+
+/* ── numbered sections ── */
+
+.lp-sec {
+  padding-top: var(--s-7);
+  padding-bottom: var(--s-5);
+  scroll-margin-top: var(--s-4);
+}
+.lp-sec-h {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  margin: 0 0 var(--s-2);
+  font-family: var(--f-prose);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--desk-ink);
+}
+.lp-sec-h .fig {
+  font-size: var(--t-mono);
+  color: var(--desk-ink-2);
+}
+.lp-sec-note {
+  margin: 0 0 var(--s-5);
+  color: var(--desk-ink-2);
+  font-size: var(--t-prose-s);
+}
+.lp-sec-h + .sheet {
+  margin-top: var(--s-4);
+}
+
+.lp-sheet {
+  padding: var(--s-6) var(--s-6) var(--s-6);
+}
+@media (max-width: 719px) {
+  .lp-sheet {
+    padding: var(--s-5) var(--s-4);
+  }
+}
+.lp-p {
+  max-width: var(--measure);
+  margin: 0 0 var(--s-5);
+}
+
+.lp-bases {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0;
+  margin: 0 0 var(--s-6);
+  border-top: var(--line-ink);
+}
+.lp-bases > div {
+  padding: var(--s-4) var(--s-4) var(--s-4) 0;
+  border-bottom: var(--hair);
+}
+.lp-bases dd {
+  margin: var(--s-2) 0 0;
+  font-size: var(--t-prose-s);
+  max-width: 34ch;
+}
+
+.lp-rules {
+  margin: 0 0 var(--s-5);
+  padding: 0;
+  list-style: none;
+  max-width: var(--measure);
+}
+.lp-rules li {
+  position: relative;
+  padding: var(--s-2) 0 var(--s-2) var(--s-5);
+  border-bottom: var(--hair);
+}
+.lp-rules li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--sheet-ink-2);
+}
+
+.lp-price {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 2fr;
+  gap: var(--s-6);
+}
+@media (max-width: 719px) {
+  .lp-price {
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
+}
+.lp-price-fig {
+  font-size: var(--t-display-1);
+  font-variant-numeric: tabular-nums;
+}
+.lp-cta-note-sheet {
+  margin-top: var(--s-3);
+  color: var(--sheet-ink-2);
+}
+
+.lp-examiner {
+  display: flex;
+  gap: var(--s-5);
+  align-items: flex-start;
+}
+.lp-examiner img {
+  border: var(--line);
+  object-fit: cover;
+}
+.lp-examiner-name {
+  font-family: var(--f-display);
+  font-size: var(--t-display-3);
+  margin: var(--s-1) 0;
+}
+
+.lp-faq {
+  margin: 0;
+  max-width: var(--measure);
+}
+.lp-faq dt {
+  font-weight: 600;
+  padding-top: var(--s-4);
+  border-top: var(--hair);
+}
+.lp-faq dt:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.lp-faq dd {
+  margin: var(--s-2) 0 var(--s-4);
+}
+
+.lp-foot {
+  padding-top: var(--s-7);
+  padding-bottom: var(--s-7);
+  font-size: var(--t-mono-s);
+  color: var(--desk-ink-2);
+}
+
+/* ── the diagnosis sheet ── */
+
+.ds {
+  position: relative;
+  padding: var(--s-7) var(--s-6) var(--s-6);
+}
+@media (max-width: 719px) {
+  .ds {
+    padding: var(--s-7) var(--s-4) var(--s-5);
+  }
+}
+.ds-stamp {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: var(--s-2) var(--s-6);
+  background: var(--inset);
+  border-bottom: var(--line);
+  color: var(--sheet-ink);
+}
+@media (max-width: 719px) {
+  .ds-stamp {
+    padding: var(--s-2) var(--s-4);
+  }
+}
+
+.ds-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-5);
+  align-items: end;
+  padding-bottom: var(--s-5);
+  border-bottom: var(--line-ink);
+}
+@media (max-width: 719px) {
+  .ds-head {
+    grid-template-columns: 1fr;
+  }
+}
+.ds-kicker {
+  margin: 0 0 var(--s-2);
+  color: var(--sheet-ink-2);
+}
+.ds-store {
+  margin: 0;
+  font-family: var(--f-prose);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.ds-sub {
+  margin: var(--s-2) 0 0;
+  font-size: var(--t-mono-s);
+  color: var(--sheet-ink-2);
+}
+.ds-primary {
+  text-align: right;
+}
+@media (max-width: 719px) {
+  .ds-primary {
+    text-align: left;
+  }
+}
+.ds-primary .label {
+  margin: 0;
+  color: var(--sheet-ink-2);
+}
+.ds-fig {
+  font-size: var(--t-display-2);
+  font-variant-numeric: tabular-nums;
+  margin: var(--s-1) 0;
+  white-space: nowrap;
+}
+.ds-fig-note {
+  margin: 0;
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+
+.ds-summary {
+  max-width: var(--measure);
+  margin: var(--s-5) 0 var(--s-6);
+  font-size: var(--t-prose-l);
+  line-height: 1.5;
+}
+
+.ds-h {
+  margin: var(--s-6) 0 var(--s-3);
+  padding-bottom: var(--s-2);
+  border-bottom: var(--line);
+}
+
+/* tables: rules, not boxes; figures right-aligned in mono */
+.ds-scroll {
+  overflow-x: auto;
+}
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-prose-s);
+}
+.ds-table th,
+.ds-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: var(--s-3) var(--s-3) var(--s-3) 0;
+  border-bottom: var(--hair);
+}
+.ds-table thead th {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--sheet-ink-2);
+  border-bottom: var(--line);
+  padding-top: 0;
+  white-space: nowrap;
+}
+.ds-table tbody th {
+  font-weight: 500;
+}
+.ds-table .num-col {
+  text-align: right;
+  font-size: var(--t-mono);
+}
+.ds-table thead .num-col {
+  font-size: var(--t-mono-xs);
+}
+.ds-table tbody tr:hover {
+  background: var(--inset);
+}
+.ds-table tbody tr.is-alarm th {
+  box-shadow: inset 2px 0 0 var(--alarm);
+  padding-left: var(--s-3);
+}
+.ds-table-tight th,
+.ds-table-tight td {
+  padding-top: var(--s-2);
+  padding-bottom: var(--s-2);
+}
+.ds-table tfoot th,
+.ds-table tfoot td {
+  border-top: var(--line-ink);
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+.ds-measure-name {
+  display: block;
+  max-width: 44ch;
+}
+.ds-src {
+  display: block;
+  margin-top: var(--s-1);
+  font-size: var(--t-mono-xs);
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+}
+.ds-src b,
+.ds-evidence b,
+.ds-how b,
+.ds-foot b,
+.ds-fig-note b {
+  font-weight: 600;
+  color: var(--sheet-ink);
+}
+.ds-unit {
+  color: var(--sheet-ink-2);
+}
+.ds-missing {
+  font-family: var(--f-prose);
+  font-style: italic;
+  color: var(--sheet-ink-2);
+}
+.ds-range-from {
+  display: block;
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.ds-bar {
+  padding-top: calc(var(--s-3) + 4px) !important;
+  width: 9em;
+}
+.ds-flag {
+  white-space: nowrap;
+}
+.flag.none {
+  color: var(--sheet-ink-2);
+}
+.ds-how {
+  font-size: var(--t-prose-s);
+}
+
+.ds-legend {
+  margin: var(--s-3) 0 0;
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.ds-legend-bar {
+  width: 5em;
+}
+
+.ds-findings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ds-finding {
+  padding: var(--s-4) 0;
+  border-bottom: var(--hair);
+}
+.ds-finding-head {
+  display: flex;
+  gap: var(--s-3);
+  align-items: baseline;
+  margin: 0;
+}
+.ds-ref {
+  font-size: var(--t-mono-s);
+  font-weight: 600;
+}
+.ds-finding-title {
+  margin: var(--s-2) 0 var(--s-1);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.35;
+  max-width: var(--measure);
+}
+.ds-finding-detail {
+  margin: 0;
+  max-width: var(--measure);
+}
+.ds-evidence {
+  margin: var(--s-3) 0 0;
+  padding: var(--s-2) var(--s-3);
+  list-style: none;
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+  background: var(--inset);
+  border: var(--line);
+}
+.ds-evidence li + li {
+  margin-top: 2px;
+}
+
+.ds-foot {
+  margin-top: var(--s-6);
+  padding-top: var(--s-3);
+  border-top: var(--line);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+
+/* Narrow: each result row stacks, every figure keeps its column name. */
+@media (max-width: 719px) {
+  .ds-table,
+  .ds-table tbody,
+  .ds-table tfoot,
+  .ds-table tr,
+  .ds-table th,
+  .ds-table td {
+    display: block;
+  }
+  .ds-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .ds-table tr {
+    padding: var(--s-3) 0;
+    border-bottom: var(--hair);
+  }
+  .ds-table th,
+  .ds-table td {
+    border: 0;
+    padding: 2px 0;
+  }
+  .ds-table tbody tr.is-alarm th {
+    padding-left: var(--s-3);
+  }
+  .ds-table td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    text-align: right;
+  }
+  .ds-table td[data-label]::before {
+    content: attr(data-label);
+    font-family: var(--f-mono);
+    font-size: var(--t-mono-xs);
+    color: var(--sheet-ink-2);
+    text-align: left;
+  }
+  .ds-range-from {
+    display: inline;
+    margin-left: var(--s-2);
+  }
+  .ds-bar {
+    padding-top: var(--s-2) !important;
+  }
+  .ds-table td.ds-how span {
+    max-width: 30ch;
+  }
+  .ds-table tfoot tr {
+    border-top: var(--line-ink);
+  }
+  .lp-checks td.mono,
+  .lp-checks td.label {
+    display: inline;
+    margin-right: var(--s-3);
+  }
+}

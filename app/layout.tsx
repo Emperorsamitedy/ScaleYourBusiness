@@ -1,8 +1,9 @@
 import { AppFrame } from "../components/nav/AppFrame";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Barlow, Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Archivo, Geist, Geist_Mono, IBM_Plex_Mono, Zilla_Slab } from "next/font/google";
 import "./globals.css";
+import "./sheet.css";
 
 // Type per docs/DESIGN.md (Ember Grid). Geist carries everything human —
 // chosen for its numerals, because a financial interface lives or dies on
@@ -23,21 +24,28 @@ const mono = Geist_Mono({
   display: "swap",
 });
 
-// The landing page's cinematic voice (the "cine" scope in globals.css).
-// Instrument Serif italic for headings, Barlow for body — used ONLY on
-// the landing; the product screens keep Ember Grid's Geist/Satoshi.
-const cineHead = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["italic", "normal"],
-  variable: "--font-cine-head",
+// The sheet system (ux-spec §2): Zilla Slab for the one display figure
+// or heading per sheet, Archivo for prose, IBM Plex Mono for every
+// figure and label. The owner screens move over surface by surface;
+// until then they keep Geist/Satoshi above.
+const zilla = Zilla_Slab({
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "600"],
+  variable: "--font-zilla",
   display: "swap",
 });
 
-const cineBody = Barlow({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-cine-body",
+const archivo = Archivo({
+  subsets: ["latin", "latin-ext"],
+  weight: "variable",
+  variable: "--font-archivo",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -50,7 +58,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable} ${cineHead.variable} ${cineBody.variable}`}
+      className={`${sans.variable} ${mono.variable} ${zilla.variable} ${archivo.variable} ${plexMono.variable}`}
     >
       <head>
         <link
