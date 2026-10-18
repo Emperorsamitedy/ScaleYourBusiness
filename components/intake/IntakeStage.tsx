@@ -1,130 +1,82 @@
 "use client";
 
-// The intake stage — client orchestrator for the signature screen
-// (specs/ux-spec-v1.md §4). The motion reports state (P0-60, §2):
+// The intake — the signature screen (specs/ux-spec-v1.md §4), laid out as
+// the owner's design intake-v2: masthead; the channel bank (one tile per
+// area, one bar per question); the question panel on the left; three paper
+// cards on the right (live reading, report readiness, the area's record);
+// the tape along the bottom. Every figure on screen is the server's
+// (lib/intake/service.ts): area bars and status, the record, readiness,
+// the derived figure, the business name. The client orchestrates and
+// re-words; it decides nothing about a question's content (rule 4).
 //
-//   answering → (submit) → leaving (card departs on --d-record, 280ms;
-//   the PUT rides inside it) → the fact line settles into the record
-//   column (--d-record) → next card rises (--d-move) → answering.
-//
-// The JS depart wait reads the same --d-record token the CSS runs on,
-// so the two agree; under prefers-reduced-motion both are zero.
-//
-// One question in the centre; beside it, one record column — the live
-// "check your answers" list, every line printing its provenance.
+// The motion reports state (P0-60, §2):
+//   answering → (submit) → leaving (the sheet departs on --d-record; the
+//   PUT rides inside it) → the new row lands in the record with the
+//   marker (--d-record) → the next question rises (--d-move).
+// The JS depart wait reads the same --d-record token the CSS runs on, so
+// the two agree; under prefers-reduced-motion both are zero.
 //
 // First paint is skeleton-free: the shell renders immediately and the
-// first card rises when state arrives from a single POST on mount.
+// first question rises when state arrives from a single POST on mount.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AnswerAction,
   AnswerResponse,
-  IntakeChip,
   IntakeState,
   ReconcileResponse,
 } from "@/lib/intake/types";
 import "@/app/intake.css";
-import { Chip } from "./Chip";
+import { AreaTiles } from "./AreaTiles";
+import { KeepAccess } from "./KeepAccess";
+import { LiveReading, Readiness } from "./LiveReading";
+import { Masthead } from "./Masthead";
 import { departMs } from "./motion";
-import { OnDeck } from "./OnDeck";
 import { QuestionCard } from "./QuestionCard";
 import { ReconcilePanel } from "./ReconcilePanel";
-import { factLine, sessionTally, tallyText } from "./record";
-import { TopBar } from "./TopBar";
+import { RecordSheet } from "./RecordSheet";
+import { Tape } from "./Tape";
+import {
+  areaName,
+  channelNo,
+  connectorLegend,
+  factLabel,
+  factValue,
+  leftInArea,
+  previousQuestion,
+} from "./record";
 
 type Phase = "boot" | "boot_error" | "answering" | "leaving";
 
 /** The closing readout renders completeness as a word, never a percentage. */
 const completenessWord = (overall: number): string => (overall >= 0.7 ? "good" : "moderate");
 
-/**
- * P1-56: the finish is where an owner gets a way back in. No password —
- * an email and a link that reopens their profile on any device. The link
- * is shown on screen rather than promised by email, because a promised
- * email that never arrives is worse than no promise.
- */
-function KeepAccess() {
-  const [email, setEmail] = useState("");
-  const [link, setLink] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    if (busy || email.trim() === "") return;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/intake/resume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const payload = (await res.json()) as { url?: string; error?: string };
-      if (!res.ok) {
-        setError(payload.error ?? "I couldn't make the link. Try again.");
-        return;
-      }
-      setLink(payload.url ?? null);
-    } catch {
-      setError("I couldn't reach the server. Check your connection and try again.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (link) {
-    return (
-      <div className="linkbox">
-        <span className="label">Your link</span> It reopens this profile on any device for 30 days.
-        Keep a copy somewhere you&rsquo;ll find it.
-        <code>{link}</code>
-      </div>
-    );
-  }
-
-  return (
-    <form className="finish-form" onSubmit={(e) => void submit(e)}>
-      <input
-        className="field"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@yourbusiness.hu"
-        aria-label="Your email address"
-      />
-      <button type="submit" className="next" disabled={busy || email.trim() === ""}>
-        {busy ? "Making the link" : <>Get my link &rarr;</>}
-      </button>
-      {error && <p className="err">{error}</p>}
-    </form>
-  );
-}
-
 function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> }) {
   return (
-    <div className="card done">
-      <h2>The interview is complete.</h2>
-      <p>
+    <article className="ix-q sheet ix-done" aria-labelledby="ix-done-h">
+      <p className="ix-cap">The interview · complete</p>
+      <h2 className="ix-prompt" id="ix-done-h">
+        The interview is complete.
+      </h2>
+      <p className="ix-done-lede">
         I have the record I need for a first read on the business. Deeper questions come later, once
         you have seen the first report.
       </p>
-      <dl className="readout">
-        <dt className="label">Answers on record</dt>
+      <dl className="ix-readout">
+        <dt className="ix-cap">Answers on record</dt>
         <dd className="fig">{readout.answered}</dd>
-        <dt className="label">Gaps to revisit</dt>
+        <dt className="ix-cap">Gaps to revisit</dt>
         <dd className="fig">{readout.gaps}</dd>
-        <dt className="label">Profile completeness</dt>
+        <dt className="ix-cap">Profile completeness</dt>
         <dd>{completenessWord(readout.completeness)}</dd>
-        <dt className="label">Next</dt>
+        <dt className="ix-cap">Next</dt>
         <dd>deciding how carefully to move</dd>
       </dl>
-      <p className="help done-access">
+      <p className="ix-done-lede">
         Leave an email and I&rsquo;ll give you a link back to this profile. No password, no account.
       </p>
       <KeepAccess />
-    </div>
+    </article>
   );
 }
 
@@ -138,14 +90,23 @@ interface TelemetryEvent {
 
 export function IntakeStage() {
   const [state, setState] = useState<IntakeState | null>(null);
-  const [chips, setChips] = useState<readonly IntakeChip[]>([]);
   const [phase, setPhase] = useState<Phase>("boot");
   const [serverError, setServerError] = useState<string | null>(null);
-  const [stripOpen, setStripOpen] = useState(false);
-  // The line the system restates after a record — cleared on reopen.
-  const [justRecorded, setJustRecorded] = useState<IntakeChip | null>(null);
   const [resumeNotice, setResumeNotice] = useState<string | null>(null);
+  // The area the owner chose on the tile row; cleared when it runs dry.
+  const [focusSection, setFocusSection] = useState<string | null>(null);
+  // The record row just laid down — it carries the marker.
+  const [freshKey, setFreshKey] = useState<string | null>(null);
+  // What a screen reader hears after a record.
+  const [announce, setAnnounce] = useState("");
   const booted = useRef(false);
+  // Requests in flight — the masthead says "Saving…" only while one is.
+  const [inFlight, setInFlight] = useState(0);
+  const begin = useCallback(() => setInFlight((n) => n + 1), []);
+  const end = useCallback(() => setInFlight((n) => Math.max(0, n - 1)), []);
+  // When this page opened, for the masthead's session clock.
+  const [openedAt] = useState(() => Date.now());
+  const [pauseOpen, setPauseOpen] = useState(false);
 
   // P1-57: arriving from a resume link. An expired link still lands here
   // with a usable intake rather than an apology page.
@@ -204,6 +165,12 @@ export function IntakeStage() {
     return () => document.removeEventListener("visibilitychange", onHide);
   }, [flushEvents]);
 
+  /** Take a new state; an area focus ends once the area has nothing left to ask. */
+  const adopt = useCallback((next: IntakeState, focus: string | null): void => {
+    setState(next);
+    setFocusSection(focus !== null && next.question?.section === focus ? focus : null);
+  }, []);
+
   const boot = useCallback(async (): Promise<void> => {
     setPhase("boot");
     try {
@@ -217,13 +184,13 @@ export function IntakeStage() {
         const preferred = await fetch(`/api/intake?ask=${encodeURIComponent(ask)}`);
         if (preferred.ok) next = (await preferred.json()) as IntakeState;
       }
-      setState(next);
+      adopt(next, null);
       setPhase("answering");
       if (next.progress.core_done > 0) track({ kind: "session_resumed" });
     } catch {
       setPhase("boot_error");
     }
-  }, [track]);
+  }, [adopt, track]);
 
   useEffect(() => {
     if (booted.current) return;
@@ -235,20 +202,26 @@ export function IntakeStage() {
     async (method: "PUT" | "PATCH", body: Record<string, unknown>): Promise<void> => {
       setServerError(null);
       setPhase("leaving");
+      begin();
       // Network latency hides inside the depart animation (§4.2).
       const departed = new Promise((resolve) => setTimeout(resolve, departMs()));
       try {
         const res = await fetch("/api/intake", {
           method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          body: JSON.stringify(focusSection ? { ...body, section: focusSection } : body),
         });
         await departed;
         if (res.ok) {
           const { chip, state: next } = (await res.json()) as AnswerResponse;
-          setChips((prev) => [...prev, chip]);
-          setJustRecorded(chip);
-          setState(next);
+          const newest = next.record.facts[0] ?? null;
+          setFreshKey(newest?.key ?? null);
+          setAnnounce(
+            newest
+              ? `Recorded. ${factLabel(newest)}: ${factValue(newest).full}.`
+              : `Recorded: ${chip.display}.`,
+          );
+          adopt(next, focusSection);
           setPhase("answering");
         } else {
           const payload = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -259,9 +232,48 @@ export function IntakeStage() {
         await departed;
         setPhase("answering");
         setServerError("I couldn't reach the server. Check your connection and try again.");
+      } finally {
+        end();
       }
     },
-    [],
+    [adopt, begin, end, focusSection],
+  );
+
+  /** Read a state with a preference: an area from the tiles, or one question. */
+  const steer = useCallback(
+    async (query: string, focus: string | null): Promise<void> => {
+      setServerError(null);
+      begin();
+      try {
+        const res = await fetch(`/api/intake?${query}`);
+        if (!res.ok) {
+          setServerError("I couldn't open that. Try again.");
+          return;
+        }
+        adopt((await res.json()) as IntakeState, focus);
+        setPhase("answering");
+      } catch {
+        setServerError("I couldn't reach the server. Check your connection and try again.");
+      } finally {
+        end();
+      }
+    },
+    [adopt, begin, end],
+  );
+
+  const chooseArea = useCallback(
+    (section: string): void => {
+      if (phase !== "answering") return;
+      void steer(`section=${encodeURIComponent(section)}`, section);
+    },
+    [phase, steer],
+  );
+
+  const askQuestion = useCallback(
+    (questionId: string): void => {
+      void steer(`ask=${encodeURIComponent(questionId)}`, null);
+    },
+    [steer],
   );
 
   const question = state?.question ?? null;
@@ -317,10 +329,12 @@ export function IntakeStage() {
     [phase, question, submit, track],
   );
 
-  // P0-75: reopen removes the chip and returns the question to the centre.
+  // P0-75: a record row's change returns its question to the left; the
+  // old value stays in history and the reason is recorded.
   const handleReopen = useCallback(
     async (questionId: string, reason: string): Promise<void> => {
       setServerError(null);
+      begin();
       try {
         const res = await fetch("/api/intake", {
           method: "PUT",
@@ -334,28 +348,31 @@ export function IntakeStage() {
         }
         const { state: next } = (await res.json()) as AnswerResponse;
         track({ kind: "reopened", question_id: questionId });
-        setChips((prev) => prev.filter((c) => c.question_id !== questionId));
-        setJustRecorded(null);
-        setState(next);
+        setFreshKey(null);
+        setAnnounce("Reopened. The question is back on the left.");
+        adopt(next, null);
         setPhase("answering");
       } catch {
         setServerError("I couldn't reach the server. Check your connection and try again.");
+      } finally {
+        end();
       }
     },
-    [track],
+    [adopt, begin, end, track],
   );
 
   const clearServerError = useCallback((): void => {
     setServerError(null);
   }, []);
 
-  // §4.5: the two resolution paths. "fix" pulls the involved chips back
-  // out of the columns — their questions are returning to the centre.
+  // §4.5: the two resolution paths. "fix" returns the involved questions
+  // to the left in sequence.
   const [reconcileBusy, setReconcileBusy] = useState(false);
   const handleReconcile = useCallback(
     async (findingId: string, choice: "confirm" | "fix"): Promise<void> => {
       setReconcileBusy(true);
       setServerError(null);
+      begin();
       try {
         const res = await fetch("/api/intake/reconcile", {
           method: "POST",
@@ -369,23 +386,21 @@ export function IntakeStage() {
         }
         const { reopened, state: next } = (await res.json()) as ReconcileResponse;
         track({ kind: "reconcile_resolved", meta: { choice, reopened: reopened.length } });
-        if (reopened.length > 0) {
-          setChips((prev) => prev.filter((c) => !reopened.includes(c.question_id)));
-          setJustRecorded(null);
-        }
-        setState(next);
+        if (reopened.length > 0) setFreshKey(null);
+        adopt(next, null);
         setPhase("answering");
       } catch {
         setServerError("I couldn't reach the server. Check your connection and try again.");
       } finally {
         setReconcileBusy(false);
+        end();
       }
     },
-    [track],
+    [adopt, begin, end, track],
   );
 
   // The panel surfaces contradictions and implausibilities; plain gaps
-  // stay as gap lines in the record. Involved lines are flagged in words.
+  // stay gaps in the record. Involved rows are flagged in words.
   const reconcile =
     state?.findings.find((f) => f.kind === "contradiction" || f.kind === "implausible") ?? null;
 
@@ -398,59 +413,100 @@ export function IntakeStage() {
   }, [reconcileId, reconcileRule, track]);
   const flagged = new Set(state?.findings.flatMap((f) => f.question_ids) ?? []);
 
-  // One record column; lines append downward, newest last (§4.2), and
-  // the list keeps the newest line in view as it arrives.
-  const restated = justRecorded ? factLine(justRecorded) : null;
-  const earlier = chips.length === 0 && (state?.progress.core_done ?? 0) > 0;
-  const tally = tallyText(sessionTally(chips));
-
-  const reopen = (id: string, r: string): void => void handleReopen(id, r);
+  const areas = state?.areas ?? [];
+  const activeSection = state?.done ? null : (question?.section ?? null);
+  const activeIndex = areas.findIndex((a) => a.section === activeSection);
+  const activeArea = activeIndex >= 0 ? areas[activeIndex] : undefined;
+  const channel = activeIndex >= 0 ? channelNo(activeIndex) : null;
+  const previous = state ? previousQuestion(state.record.facts, question?.id ?? null) : null;
+  const machine =
+    inFlight > 0 || phase === "leaving"
+      ? "saving"
+      : phase === "answering" && question && !state?.done
+        ? "listening"
+        : null;
 
   return (
-    <div className="shell intake">
-      <TopBar progress={state?.progress ?? null} />
-      {resumeNotice && (
-        <div className="intake-notice">
-          <p className="resume-note">{resumeNotice}</p>
-        </div>
+    <div className="ix desk">
+      <Masthead
+        businessName={state?.business_name ?? null}
+        machine={phase === "boot_error" ? null : machine}
+        openedAt={openedAt}
+        factCount={state ? state.record.fact_count : null}
+        pauseOpen={pauseOpen}
+        onPause={() => setPauseOpen((v) => !v)}
+      />
+      {pauseOpen && (
+        <section id="ix-pause-panel" className="ix-pause-panel sheet" aria-labelledby="ix-pause-h">
+          <div>
+            <h2 className="ix-cap" id="ix-pause-h">
+              Pause · finish later
+            </h2>
+            <p className="ix-pause-lede">
+              Everything so far is already on record. Leave an email and I&rsquo;ll give you a link
+              that reopens this profile on any device. No password, no account.
+            </p>
+          </div>
+          <KeepAccess />
+          <button type="button" className="ix-link" onClick={() => setPauseOpen(false)}>
+            Keep going
+          </button>
+        </section>
       )}
-      <main className="stage">
-        <section className="centre" aria-live="polite" aria-label="Current question">
+      {state && (
+        <AreaTiles
+          areas={areas}
+          active={activeSection}
+          busy={phase !== "answering"}
+          connector={connectorLegend(state.record.sources)}
+          onChoose={chooseArea}
+        />
+      )}
+      {resumeNotice && <p className="ix-notice">{resumeNotice}</p>}
+      {focusSection && question && (
+        <p className="ix-notice">
+          Asking from {areaName(focusSection)} while it has questions open.{" "}
+          <button type="button" className="ix-link" onClick={() => setFocusSection(null)}>
+            Back to the usual order
+          </button>
+        </p>
+      )}
+      <main className="ix-main">
+        <div className="ix-left" aria-live="polite" aria-label="Current question">
           {phase === "boot_error" && (
-            <div className="card">
-              <h2 className="prompt">I couldn&rsquo;t reach the server.</h2>
-              <p className="help">
+            <article className="ix-q sheet ix-plain">
+              <h2 className="ix-prompt">I couldn&rsquo;t reach the server.</h2>
+              <p className="ix-done-lede">
                 Nothing was lost. Try again and I&rsquo;ll pick up where we left off.
               </p>
-              <div className="row">
-                <button type="button" className="next" onClick={() => void boot()}>
+              <div className="ix-actions">
+                <button type="button" className="act solid" onClick={() => void boot()}>
                   Try again &rarr;
                 </button>
               </div>
-            </div>
-          )}
-          {justRecorded && restated && phase === "answering" && (
-            <p className="last-rec" key={justRecorded.question_id}>
-              <span className="label">
-                {restated.flag} <span className="fig">{restated.ref}</span>
-              </span>{" "}
-              <span className="last-rec-q">{justRecorded.prompt}</span>{" "}
-              <span className="last-rec-a">{restated.value}</span>{" "}
-              <span className="label last-rec-src">{restated.source}</span>
-            </p>
+            </article>
           )}
           {state?.done && state.readout && <DoneCard readout={state.readout} />}
           {!state?.done && question && (
             <QuestionCard
               key={question.id}
               question={question}
+              channel={channel}
+              left={activeArea ? leftInArea(activeArea) : 0}
+              previous={previous}
               leaving={phase === "leaving"}
               serverError={serverError}
               onAnswer={handleAnswer}
               onEntityRows={handleEntityRows}
+              onBack={(id) => void handleReopen(id, `went back to it from question ${question.id}`)}
               onClearError={clearServerError}
               onFirstInput={handleFirstInput}
             />
+          )}
+          {(state?.done || !question) && serverError && (
+            <p className="ix-err ix-err-desk" role="alert">
+              {serverError}
+            </p>
           )}
           {reconcile && (
             <ReconcilePanel
@@ -459,94 +515,29 @@ export function IntakeStage() {
               onChoose={(choice) => void handleReconcile(reconcile.id, choice)}
             />
           )}
-          {!state?.done && state?.on_deck && <OnDeck text={state.on_deck} />}
-        </section>
-
-        <section className="rec-col" aria-labelledby="rec-col-head">
-          <div className="col-head">
-            <h2 id="rec-col-head" className="label">
-              The record
-            </h2>
-            {chips.length > 0 && <span className="fig rec-tally">{tally}</span>}
-          </div>
-          {chips.length === 0 && (
-            <p className="rec-empty">
-              {earlier ? (
-                <>
-                  Answers from an earlier session are on <a href="/profile">the fact sheet</a>. New
-                  answers land here with their source.
-                </>
-              ) : (
-                "Nothing recorded yet. Each answer lands here with its source and basis."
-              )}
-            </p>
-          )}
-          {chips.length > 0 && (
-            <RecordList chips={chips} latest={justRecorded} flagged={flagged} onReopen={reopen} />
-          )}
-        </section>
-
-        {/* P0-76: below 900px the column is gone; the record collapses
-            into a strip under the card that expands on tap. */}
-        {chips.length > 0 && (
-          <section className="recorded-strip" aria-label="The record">
-            <button
-              type="button"
-              className="strip-toggle"
-              aria-expanded={stripOpen}
-              onClick={() => setStripOpen((v) => !v)}
-            >
-              <span className="label">{stripOpen ? "Hide the record" : "Show the record"}</span>
-              <span className="fig">{tally}</span>
-            </button>
-            {stripOpen && (
-              <RecordList
-                chips={chips}
-                latest={justRecorded}
+        </div>
+        {state && (
+          <aside className="ix-right" aria-label="The record as it stands">
+            {state.live_reading && <LiveReading reading={state.live_reading} />}
+            <Readiness fraction={state.readiness} />
+            {state.area_record && (
+              <RecordSheet
+                area={state.area_record}
+                channel={channel}
+                unlocks={question?.unlocks ?? []}
+                freshKey={freshKey}
                 flagged={flagged}
-                onReopen={reopen}
-                className="strip-list"
+                onReopen={(id, reason) => void handleReopen(id, reason)}
+                onAsk={askQuestion}
               />
             )}
-          </section>
+          </aside>
         )}
       </main>
+      {state && <Tape facts={state.record.facts} />}
+      <p className="sr-only" aria-live="polite">
+        {announce}
+      </p>
     </div>
-  );
-}
-
-/** The record as an ordered list; keeps its newest line in view. */
-function RecordList({
-  chips,
-  latest,
-  flagged,
-  onReopen,
-  className = "rec-list",
-}: {
-  chips: readonly IntakeChip[];
-  latest: IntakeChip | null;
-  flagged: ReadonlySet<string>;
-  onReopen: (questionId: string, reason: string) => void;
-  className?: string;
-}) {
-  const ref = useRef<HTMLOListElement>(null);
-  useEffect(() => {
-    const list = ref.current;
-    // An instant jump, never a smooth scroll (§2 motion: cut).
-    if (list) list.scrollTop = list.scrollHeight;
-  }, [chips.length]);
-  return (
-    <ol className={className} ref={ref}>
-      {chips.map((chip) => (
-        <li key={chip.question_id}>
-          <Chip
-            chip={chip}
-            flagged={flagged.has(chip.question_id)}
-            fresh={chip === latest}
-            onReopen={onReopen}
-          />
-        </li>
-      ))}
-    </ol>
   );
 }

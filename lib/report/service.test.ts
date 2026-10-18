@@ -24,7 +24,7 @@ import type { DiagnosisLlm } from "../diagnosis/findings";
 import { DiagnosisError } from "../diagnosis/findings";
 import type { RecommendationsLlm } from "../diagnosis/recommendations";
 import { writeField } from "../profile/field-store";
-import { generateReport, latestReport, respondToRecommendation } from "./service";
+import { generateReport, latestReport, priorOf, respondToRecommendation } from "./service";
 
 let accountId: string;
 let profileId: string;
@@ -195,6 +195,29 @@ describe("P1-34/35 — generation reads a snapshot and assembles §7's structure
       .from(diagnosisReports)
       .where(eq(diagnosisReports.profile_id, profileId));
     expect(rows).toHaveLength(2);
+  });
+
+  it("the view carries the prior report and the superseded history, read-only", async () => {
+    // goals.main_goal was written once above; a second answer supersedes it (rule 3).
+    await write("goals.main_goal", "stabilitás");
+    const view = await latestReport(profileId);
+    expect(view).not.toBeNull();
+    const rows = await db
+      .select()
+      .from(diagnosisReports)
+      .where(eq(diagnosisReports.profile_id, profileId))
+      .orderBy(desc(diagnosisReports.generated_at));
+    // the newest report's prior is the one issued before it
+    expect(view!.id).toBe(rows[0]!.id);
+    expect(view!.prior?.id).toBe(rows[1]!.id);
+    expect(view!.prior?.unit_economics.offers[0]!.margin_pct!.value).toBeCloseTo(18, 0);
+    // the old answer is in the history, struck but kept
+    const past = view!.history["goals.main_goal"];
+    expect(past).toHaveLength(1);
+    expect(past![0]!.value).toBe("növekedés");
+    expect(past![0]!.superseded_at).toBeTruthy();
+    // a report with nothing before it has no prior
+    expect(priorOf(undefined)).toBeNull();
   });
 });
 

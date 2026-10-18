@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { delta, moneyFig, moneyText, num } from "./num";
+import { delta, moneyExact, moneyFig, moneyText, num } from "./num";
 
-const NB = " ";
+const NB = ",";
 
 describe("sheet number grammar", () => {
-  it("groups thousands with a no-break space and keeps fixed decimals", () => {
+  it("groups thousands with a comma and keeps fixed decimals", () => {
     expect(num(1234567)).toBe(`1${NB}234${NB}567`);
     expect(num(38.4, 1)).toBe("38.4");
     expect(num(38, 1)).toBe("38.0");
@@ -32,5 +32,10 @@ describe("sheet number grammar", () => {
     expect(delta(2.14)).toBe("+2.1");
     expect(delta(-0.4)).toBe("−0.4");
     expect(delta(0.01)).toBe("0.0");
+  });
+
+  it("prints ledger money at the currency's full decimals", () => {
+    expect(moneyExact(29000, "eur")).toBe("€290.00");
+    expect(moneyExact(1500, "JPY")).toBe("1,500 JPY");
   });
 });

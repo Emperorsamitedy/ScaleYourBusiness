@@ -34,6 +34,7 @@ import {
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { suppressedKinds } from "../trust/suppression";
+import { enumCode } from "../core/enum-value";
 
 export const PUBLISH_KIND = "content_publishing";
 /** The local hour a publish proposal posts at unless the owner picks another (P3-21a). */
@@ -179,8 +180,8 @@ export async function metaAssets(accountId: string): Promise<MetaAssets | null> 
 async function itemPlatform(profileId: string, provenance: unknown): Promise<string | null> {
   const channelId = (provenance as { item?: { channel_id?: unknown } } | null)?.item?.channel_id;
   if (typeof channelId !== "string") return null;
-  const field = await readCurrentField<string>(profileId, `channels.${channelId}.platform`);
-  return typeof field?.value === "string" ? field.value : null;
+  const field = await readCurrentField<unknown>(profileId, `channels.${channelId}.platform`);
+  return enumCode(field?.value);
 }
 
 function evidenceOf(provenance: unknown): string[] {

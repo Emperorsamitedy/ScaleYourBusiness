@@ -21,6 +21,7 @@ import { isoDateTime } from "../core/iso";
 import { readCurrentField, writeField } from "../profile/field-store";
 import type { StoredRecommendation } from "../report/service";
 import { vocabularyCodes } from "../vocab/validate";
+import { enumCode } from "../core/enum-value";
 
 export class GoalError extends Error {
   readonly status: number;
@@ -62,8 +63,10 @@ export async function listGoals(profileId: string): Promise<GoalView[]> {
       target_value: null,
     };
     for (const attr of ATTRS) {
-      const field = await readCurrentField<string>(profileId, `goals.${row.id}.${attr}`);
-      if (field && typeof field.value === "string") view[attr] = field.value;
+      const field = await readCurrentField<unknown>(profileId, `goals.${row.id}.${attr}`);
+      // horizon and area are single-selects: the intake stores {code}.
+      const v = field ? enumCode(field.value) : null;
+      if (v !== null) view[attr] = v;
     }
     views.push(view);
   }

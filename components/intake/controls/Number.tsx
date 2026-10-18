@@ -6,7 +6,7 @@ import type { ControlProps } from "./shared";
 export function NumberControl({ question, onChange, onCommit }: ControlProps) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    ref.current?.focus();
+    ref.current?.focus({ preventScroll: true });
   }, []);
 
   const wireOf = (raw: string): unknown => {
@@ -20,7 +20,7 @@ export function NumberControl({ question, onChange, onCommit }: ControlProps) {
     <input
       ref={ref}
       aria-labelledby={`q-${question.id}`}
-      className="field tabular"
+      className="ix-input ix-num"
       type="number"
       inputMode="decimal"
       autoComplete="off"

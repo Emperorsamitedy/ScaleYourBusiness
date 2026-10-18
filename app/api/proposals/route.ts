@@ -2,7 +2,8 @@
 //
 //   GET  /api/proposals   the swept, grouped queue (+ pending count for badges)
 //   POST /api/proposals   generate from the latest report and open interrupts
-//   PUT  /api/proposals   decide — approve or decline, one id or a bulk list
+//   PUT  /api/proposals   decide — approve, decline, or request changes;
+//                         one id or a bulk list
 //
 // Reading needs the intake cookie, like every profile surface. DECIDING
 // needs a signed-in user: the schema itself refuses an approval without
@@ -13,18 +14,38 @@
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
+import { and, eq, isNull } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
+import { db } from "../../../db";
+import { fieldRecords } from "../../../db/schema";
+import { readEvidence, sourceFieldsOf } from "../../../lib/proposals/evidence";
 import { generateProposals } from "../../../lib/proposals/generate";
 import {
   ProposalError,
   approveProposal,
   proposalQueue,
   rejectProposal,
+  requestChanges,
 } from "../../../lib/proposals/service";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
   return (await resolveAccess())?.profile_id ?? null;
+}
+
+/** The masthead's business name — identity.legal_name, as the menu reads it. Null when unrecorded. */
+async function businessName(profileId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ value: fieldRecords.value })
+    .from(fieldRecords)
+    .where(
+      and(
+        eq(fieldRecords.profile_id, profileId),
+        eq(fieldRecords.field_key, "identity.legal_name"),
+        isNull(fieldRecords.superseded_at),
+      ),
+    );
+  return typeof row?.value === "string" && row.value.trim() !== "" ? row.value.trim() : null;
 }
 
 function onError(error: unknown): NextResponse {
@@ -40,7 +61,19 @@ export async function GET(): Promise<NextResponse> {
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
     const queue = await proposalQueue(profileId);
-    return NextResponse.json({ ...queue, pending_count: queue.pending.length });
+    // The evidence lines' basis and any open disagreement, for the fields
+    // the pending proposals' assumptions name (lib/proposals/evidence).
+    const [business, evidence] = await Promise.all([
+      businessName(profileId),
+      readEvidence(profileId, sourceFieldsOf(queue.pending.map((p) => p.scenario))),
+    ]);
+    return NextResponse.json({
+      ...queue,
+      pending_count: queue.pending.length,
+      business,
+      facts: evidence.facts,
+      disagreements: evidence.disagreements,
+    });
   } catch (error) {
     return onError(error);
   }
@@ -65,6 +98,8 @@ interface DecideBody {
   ids?: unknown;
   decision?: unknown;
   reason?: unknown;
+  /** request_changes: the owner's words on what should be different. */
+  changes?: unknown;
   execute_not_before?: unknown;
 }
 
@@ -85,8 +120,24 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   if (ids.length === 0) {
     return NextResponse.json({ error: "ids must be a non-empty list" }, { status: 422 });
   }
-  if (body.decision !== "approve" && body.decision !== "reject") {
-    return NextResponse.json({ error: 'decision must be "approve" or "reject"' }, { status: 422 });
+  if (
+    body.decision !== "approve" &&
+    body.decision !== "reject" &&
+    body.decision !== "request_changes"
+  ) {
+    return NextResponse.json(
+      { error: 'decision must be "approve", "reject" or "request_changes"' },
+      { status: 422 },
+    );
+  }
+  if (
+    body.decision === "request_changes" &&
+    (typeof body.changes !== "string" || body.changes.trim() === "")
+  ) {
+    return NextResponse.json(
+      { error: "asking for changes needs the changes — say what should be different" },
+      { status: 422 },
+    );
   }
   if (
     body.decision === "reject" &&
@@ -112,6 +163,13 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
           proposalId: id,
           userId: session.user_id,
           executeNotBefore,
+          profileId,
+        });
+      } else if (body.decision === "request_changes") {
+        await requestChanges({
+          proposalId: id,
+          userId: session.user_id,
+          words: body.changes as string,
           profileId,
         });
       } else {

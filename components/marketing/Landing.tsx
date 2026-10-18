@@ -1,290 +1,251 @@
-// The landing page — ux-spec §7.1. It sells the sheet itself: the hero
-// is a sample diagnosis page, and the body follows the report's own
-// numbered sections, set like a table of contents.
+// The landing page — the owner's landing design (2026-10-17), built as
+// app components: a hero with the product walkthrough, the store read as
+// a candlestick chart, the nine panels, how it works, the price card,
+// questions and the footer, alternating desk and paper bands.
 //
-// Every claim on this page is something the code does. The check counts
-// come from lib/marketing/checks.ts (held to the validation rules by a
-// test); the price is the one checkout charges; the examiner and the
-// guarantee blocks appear only once the owner has supplied them.
+// Placeholders the owner still has to supply print as the design's
+// brackets — "[7]", "[3]", "[Company details]" — from
+// lib/marketing/offer.ts, so nothing here invents a deadline or a
+// promise. The price on every button is reportPrice(), the same value
+// checkout charges. The store in the walkthrough and the chart is
+// fictional and labelled as illustrative where it renders.
 
 import Link from "next/link";
-import { CHECKS, CHECK_AREAS } from "../../lib/marketing/checks";
-import type { CheckKind } from "../../lib/marketing/checks";
-import { EXAMINER, GUARANTEE } from "../../lib/marketing/offer";
+import { PANELS } from "../../lib/marketing/areas";
+import { DELIVERY_DAYS, GUARANTEE } from "../../lib/marketing/offer";
 import { moneyText } from "../sheet/num";
-import { SampleSheet } from "./SampleSheet";
+import { StoreChart } from "./StoreChart";
+import { Walkthrough } from "./Walkthrough";
 
-const KIND_WORD: Record<CheckKind, string> = {
-  consistency: "Consistency",
-  arithmetic: "Arithmetic",
-  measured: "Measured",
-};
+const STEPS = [
+  { when: "Day 0 · 2 min", t: "Connect", d: "Read-only. Nothing changes." },
+  {
+    when: "Day 0 · 12 min",
+    t: "Answer a few questions",
+    d: "Only what your store can’t tell us.",
+  },
+  { when: "Day 7", t: "Get your results", d: "Every leak priced, charted, and three fixes first." },
+] as const;
 
-const AREA_WORD: Record<string, string> = {
-  finance: "Money",
-  sales: "Sales",
-  marketing: "Marketing",
-  operations: "Operations",
-  customers: "Customers",
-  product: "Product",
-};
+const INCLUDED = [
+  ["36 markers, each priced", "✓"],
+  ["Your revenue chart, leaks marked", "✓"],
+  ["3 fixes, in order", "✓"],
+  ["Signed, 30-min walkthrough", "✓"],
+  ["Subscription", "none"],
+] as const;
 
-const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight"];
-const say = (n: number) => NUMBER_WORDS[n] ?? String(n);
-
-interface Section {
-  id: string;
-  title: string;
-}
+const FAQ = [
+  ["Do you need my password?", "No. A read-only connection you can remove any time."],
+  [
+    "Will anything change in my store?",
+    "No. We only read. Nothing ever runs without your approval.",
+  ],
+  [
+    "Is my store big enough?",
+    "Built for stores doing about $10k–$50k a month. Too small to read? We tell you before you pay.",
+  ],
+] as const;
 
 export function Landing({ price }: { price: { amount_minor: number; currency: string } }) {
   const priceText = moneyText(price.amount_minor, price.currency);
-  const sections: Section[] = [
-    { id: "sample", title: "A sample page" },
-    { id: "checked", title: "What is checked" },
-    { id: "method", title: "How the numbers are made" },
-    ...(EXAMINER ? [{ id: "examiner", title: "Who examines it" }] : []),
-    { id: "price", title: "Price" },
-    { id: "faq", title: "Questions" },
-  ];
-  const n = (id: string) => sections.findIndex((s) => s.id === id) + 1;
-  const guarantee = GUARANTEE
-    ? `If I don't find ${say(GUARANTEE.min_findings)} fixable leaks worth more than ${priceText} together, you get a full refund.`
-    : null;
+  const days = DELIVERY_DAYS === null ? "[7]" : String(DELIVERY_DAYS);
+  const leaks = GUARANTEE === null ? "[3]" : String(GUARANTEE.min_findings);
+  // The last step's day is the delivery promise, so it follows DELIVERY_DAYS too.
+  const steps = STEPS.map((s, i) => (i === STEPS.length - 1 ? { ...s, when: `Day ${days}` } : s));
 
   return (
-    <div className="desk lp">
-      <a className="lp-skip" href="#main">
-        Skip to content
-      </a>
-      <header className="mast">
-        <div className="mast-in">
-          <Link href="/" className="mast-mark">
+    <div className="ll">
+      <header className="ll-head">
+        <div className="ll-w ll-head-in">
+          <a href="#top" className="ll-s ll-logo">
             Ledgerline
-          </Link>
-          <nav className="mast-nav" aria-label="Site">
-            <a href="#sample">Sample</a>
-            <a href="#checked">What is checked</a>
-            <a href="#price">Price</a>
-            <Link href="/login">Sign in</Link>
+          </a>
+          <nav aria-label="Main" className="ll-nav">
+            <a className="ll-nl" href="#chart">
+              The chart
+            </a>
+            <a className="ll-nl" href="#panels">
+              What we test
+            </a>
+            <a className="ll-nl" href="#price">
+              Price
+            </a>
+            <Link className="ll-nl" href="/login">
+              Sign in
+            </Link>
           </nav>
         </div>
       </header>
 
-      <main id="main">
-        <section className="lp-hero on-desk" aria-labelledby="lp-h1">
-          <div className="lp-hero-copy">
-            <p className="label lp-kicker">A diagnosis for online shops</p>
-            <h1 id="lp-h1" className="display lp-h1">
-              Find out where your shop loses money.
+      <main>
+        <section id="top" className="ll-w ll-hero" aria-labelledby="ll-h1">
+          <div className="ll-hero-copy">
+            <div className="ll-m ll-pill">
+              <span className="ll-beat" aria-hidden="true" />A blood test for your online store
+            </div>
+            <h1 id="ll-h1" className="ll-s ll-hd">
+              Your store looks healthy.
+              <br />
+              <span style={{ fontStyle: "italic", color: "#FF9C8F" }}>Its numbers</span> might not.
             </h1>
-            <p className="lp-lede">
-              Answer questions about your shop. I run <span className="fig">{CHECKS.length}</span>{" "}
-              checks across <span className="fig">{CHECK_AREAS.length}</span> areas of the business
-              and give you a report like the sample below. Every number on it says where it came
-              from.
+            <p className="ll-lede">
+              We run 36 checks on your Shopify or WooCommerce store, price every leak in euros, and
+              hand you a signed report in {days} days.
             </p>
-            <div className="lp-cta">
-              <Link className="act solid lp-cta-btn" href="/intake">
-                Get your diagnosis — {priceText}, once →
+            <div className="ll-ctas">
+              <Link className="ll-go" href="/signup">
+                Book your test — {priceText} <span aria-hidden="true">→</span>
               </Link>
-              <p className="lp-cta-note">
-                {guarantee ?? "The questions are free. You pay once, before I write the report."}
+              <a className="ll-go line" href="#chart">
+                See what we find
+              </a>
+            </div>
+            <div className="ll-m ll-trust">
+              <span>
+                <span style={{ color: "#9FD7B3" }}>✓</span> Read-only
+              </span>
+              <span>
+                <span style={{ color: "#9FD7B3" }}>✓</span> Signed by a person
+              </span>
+              <span>
+                <span style={{ color: "#9FD7B3" }}>✓</span> Refund if we find nothing
+              </span>
+            </div>
+          </div>
+          <Walkthrough />
+        </section>
+
+        <section id="chart" className="ll-band-deep" aria-labelledby="ll-h-chart">
+          <div className="ll-w ll-pad-chart">
+            <div className="ll-sec-top">
+              <div>
+                <div className="ll-k" style={{ color: "#8FA8FF" }}>
+                  The chart
+                </div>
+                <h2 id="ll-h-chart" className="ll-s ll-h2" style={{ maxWidth: "13em" }}>
+                  Your store, read like a stock.
+                </h2>
+              </div>
+              <p className="ll-sec-aside">
+                We mark the day each leak started — and shade what it cost you.
               </p>
             </div>
-            <p className="mono lp-works">
-              Works with Shopify, WooCommerce, Square, Stripe and Meta Ads. Connecting them is
-              optional, and read-only.
-            </p>
+            <StoreChart />
           </div>
-          <nav className="toc" aria-label="Contents">
-            <p className="label">Contents</p>
-            <ol>
-              {sections.map((s, i) => (
-                <li key={s.id}>
-                  <a href={`#${s.id}`}>
-                    <span className="toc-n fig">§{i + 1}</span>
-                    <span className="toc-t">{s.title}</span>
-                  </a>
+        </section>
+
+        <section id="panels" className="ll-paper" aria-labelledby="ll-h-panels">
+          <div className="ll-w ll-pad-96">
+            <div className="ll-k" style={{ color: "#3E5248" }}>
+              What we test
+            </div>
+            <h2 id="ll-h-panels" className="ll-s ll-h2" style={{ maxWidth: "14em" }}>
+              Nine panels. Everything that moves your profit.
+            </h2>
+            <ol className="ll-panels">
+              {PANELS.map((p) => (
+                <li key={p.no} className="ll-panel">
+                  <span className="ll-m ll-panel-no">{p.no}</span>
+                  <span className="ll-s ll-panel-name">{p.name}</span>
+                  <span className="ll-m ll-panel-markers">{p.markers}</span>
                 </li>
               ))}
             </ol>
-          </nav>
-        </section>
-
-        <section id="sample" className="lp-sec" aria-labelledby="h-sample">
-          <h2 id="h-sample" className="lp-sec-h on-desk">
-            <span className="fig">§{n("sample")}</span> A sample page
-          </h2>
-          <p className="lp-sec-note on-desk">
-            A made-up shop. Your report has the same parts, with your numbers.
-          </p>
-          <SampleSheet />
-        </section>
-
-        <section id="checked" className="lp-sec" aria-labelledby="h-checked">
-          <h2 id="h-checked" className="lp-sec-h on-desk">
-            <span className="fig">§{n("checked")}</span> What is checked
-          </h2>
-          <div className="sheet lp-sheet">
-            <p className="lp-p">
-              <span className="fig">{CHECKS.length}</span> checks across{" "}
-              <span className="fig">{CHECK_AREAS.length}</span> areas. Consistency checks compare
-              your answers with each other. Arithmetic checks work out a number from the ones you
-              gave. Measured checks compare your answers with a connected account.
-            </p>
-            <div className="ds-scroll">
-              <table className="ds-table ds-table-tight lp-checks">
-                <caption className="vh">Every check the diagnosis runs</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Area</th>
-                    <th scope="col">What I check</th>
-                    <th scope="col">Kind</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {CHECKS.map((c) => (
-                    <tr key={c.source}>
-                      <td className="mono">{AREA_WORD[c.area] ?? c.area}</td>
-                      <th scope="row">{c.what}</th>
-                      <td className="label">{KIND_WORD[c.kind]}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
         </section>
 
-        <section id="method" className="lp-sec" aria-labelledby="h-method">
-          <h2 id="h-method" className="lp-sec-h on-desk">
-            <span className="fig">§{n("method")}</span> How the numbers are made
-          </h2>
-          <div className="sheet lp-sheet">
-            <dl className="lp-bases">
-              <div>
-                <dt className="label">Observed</dt>
-                <dd>Read from an account you connected, such as Shopify or Meta Ads.</dd>
-              </div>
-              <div>
-                <dt className="label">Derived</dt>
-                <dd>Worked out by arithmetic from other facts. The sum is shown.</dd>
-              </div>
-              <div>
-                <dt className="label">Estimated</dt>
-                <dd>Your own estimate. The report says when a finding leans on one.</dd>
-              </div>
-              <div>
-                <dt className="label">Assumed</dt>
-                <dd>An input to a forecast, stated so you can disagree with it.</dd>
-              </div>
-            </dl>
-            <ul className="lp-rules">
-              <li>
-                Every fact keeps its source and its date. A new answer is added on top of the old
-                one, never written over it, so you can see what changed.
-              </li>
-              <li>
-                A finding has to point at the facts it rests on. One that can&rsquo;t is thrown out,
-                not patched up.
-              </li>
-              <li>
-                Margins, break-even and return on ad spend are worked out by code, not guessed.
-              </li>
-              <li>Forecasts are ranges, and they name the inputs that are assumptions.</li>
-              <li>
-                &ldquo;I don&rsquo;t know&rdquo; is a real answer. Gaps are listed in the report,
-                not filled in.
-              </li>
-            </ul>
+        <section id="read" className="ll-w ll-pad-104" aria-labelledby="ll-h-read">
+          <div className="ll-k" style={{ color: "#A9BDB2" }}>
+            How it works
           </div>
+          <h2 id="ll-h-read" className="ll-s ll-h2" style={{ maxWidth: "13em" }}>
+            Fifteen minutes from you.
+          </h2>
+          <ol className="ll-steps">
+            {steps.map((s) => (
+              <li key={s.t} className="ll-step">
+                <div className="ll-m ll-step-when">{s.when}</div>
+                <h3 className="ll-s ll-step-t">{s.t}</h3>
+                <p className="ll-step-d">{s.d}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
-        {EXAMINER && (
-          <section id="examiner" className="lp-sec" aria-labelledby="h-examiner">
-            <h2 id="h-examiner" className="lp-sec-h on-desk">
-              <span className="fig">§{n("examiner")}</span> Who examines it
-            </h2>
-            <div className="sheet lp-sheet lp-examiner">
-              <img src={EXAMINER.photo} alt={EXAMINER.name} width={120} height={150} />
-              <div>
-                <p className="label">Examined by</p>
-                <p className="lp-examiner-name">{EXAMINER.name}</p>
-                <p className="mono">{EXAMINER.role}</p>
-                <p className="lp-p">{EXAMINER.note}</p>
+        <section id="price" className="ll-paper" aria-labelledby="ll-h-price">
+          <div className="ll-w ll-pad-96 ll-price">
+            <div className="ll-price-head">
+              <div className="ll-k" style={{ color: "#3E5248" }}>
+                Price
               </div>
+              <h2 id="ll-h-price" className="ll-s ll-h2">
+                One test.
+                <br />
+                One price.
+              </h2>
             </div>
-          </section>
-        )}
-
-        <section id="price" className="lp-sec" aria-labelledby="h-price">
-          <h2 id="h-price" className="lp-sec-h on-desk">
-            <span className="fig">§{n("price")}</span> Price
-          </h2>
-          <div className="sheet lp-sheet lp-price">
-            <div>
-              <p className="display lp-price-fig">{priceText}</p>
-              <p className="mono">once · not a subscription</p>
-            </div>
-            <div>
-              <p className="label">What you get</p>
-              <ul className="lp-rules">
-                <li>
-                  The report: results against a range, findings with their evidence, and what fixing
-                  them could recover.
-                </li>
-                <li>Your fact sheet: every answer you gave, with its source and date.</li>
-                <li>A list of the gaps that would sharpen the report if you filled them.</li>
-                <li>A printable copy.</li>
+            <div className="ll-price-card">
+              <div className="ll-price-top">
+                <span className="ll-s" style={{ fontSize: 24, fontWeight: 600 }}>
+                  Full store panel
+                </span>
+                <span>
+                  <span className="ll-s ll-price-fig">{priceText}</span>{" "}
+                  <span className="ll-m" style={{ fontSize: 13, color: "#3E5248" }}>
+                    once
+                  </span>
+                </span>
+              </div>
+              <ul className="ll-m ll-included">
+                {INCLUDED.map(([what, mark]) => (
+                  <li key={what}>
+                    <span>{what}</span>
+                    <span>{mark}</span>
+                  </li>
+                ))}
               </ul>
-              <Link className="act solid" href="/intake">
-                Get your diagnosis — {priceText}, once →
+              <Link className="ll-go ink ll-go-full" href="/signup">
+                Book your test <span aria-hidden="true">→</span>
               </Link>
-              <p className="lp-cta-note lp-cta-note-sheet">
-                {guarantee ?? "The questions are free. You pay before I write the report."}
-              </p>
+              <p className="ll-refund">Fewer than {leaks} fixable leaks? Full refund.</p>
             </div>
           </div>
         </section>
 
-        <section id="faq" className="lp-sec" aria-labelledby="h-faq">
-          <h2 id="h-faq" className="lp-sec-h on-desk">
-            <span className="fig">§{n("faq")}</span> Questions
+        <section className="ll-w ll-faq" aria-labelledby="ll-h-faq">
+          <h2 id="ll-h-faq" className="ll-s ll-faq-h">
+            Questions
           </h2>
-          <div className="sheet lp-sheet">
-            <dl className="lp-faq">
-              <dt>What do I have to do?</dt>
-              <dd>
-                Answer questions about your shop. The first 25 are enough to start. You can stop and
-                come back at any time; your answers are kept.
-              </dd>
-              <dt>What if I don&rsquo;t know a number?</dt>
-              <dd>
-                Say so. &ldquo;I don&rsquo;t know&rdquo; is recorded as an answer, and the report
-                lists it as a gap instead of guessing.
-              </dd>
-              <dt>Will Ledgerline change anything in my shop?</dt>
-              <dd>
-                No. The diagnosis only reads. Connected accounts are read-only, and nothing runs
-                without your approval.
-              </dd>
-              <dt>What happens to my answers?</dt>
-              <dd>
-                They are used for your report. They are never sold, and never used to train models.
-              </dd>
-              <dt>When do I pay?</dt>
-              <dd>The questions are free. You pay {priceText}, once, before I write the report.</dd>
-            </dl>
+          <div className="ll-faq-list">
+            {FAQ.map(([q, a]) => (
+              <details key={q}>
+                <summary>
+                  {q}
+                  <span className="ll-pm" aria-hidden="true">
+                    +
+                  </span>
+                </summary>
+                <p>{a}</p>
+              </details>
+            ))}
           </div>
         </section>
       </main>
 
-      <footer className="lp-foot on-desk">
-        <p className="mono">
-          Ledgerline · a diagnosis of your shop, with the arithmetic shown ·{" "}
-          <Link href="/login">Sign in</Link>
-        </p>
+      <footer className="ll-foot">
+        <div className="ll-w ll-foot-in">
+          <span className="ll-s" style={{ fontSize: 20, fontWeight: 700 }}>
+            Ledgerline
+          </span>
+          <Link className="ll-go line" href="/signup" style={{ minHeight: 46 }}>
+            Book your test — {priceText} →
+          </Link>
+          <span className="ll-m" style={{ fontSize: 11.5, color: "#A9BDB2" }}>
+            [Company details] · <Link href="/terms">Terms</Link> ·{" "}
+            <Link href="/privacy">Privacy</Link>
+          </span>
+        </div>
       </footer>
     </div>
   );

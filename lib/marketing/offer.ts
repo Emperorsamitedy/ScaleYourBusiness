@@ -5,10 +5,11 @@
 // the same value checkout charges, so the button and the receipt can
 // never disagree.
 //
-// EXAMINER and GUARANTEE are null until the owner supplies them. While
-// null, the page leaves that block out rather than printing a stand-in:
-// an invented name or a refund promise nobody agreed to is worse than
-// no block at all.
+// EXAMINER, GUARANTEE and DELIVERY_DAYS are null until the owner supplies
+// them. While null, the landing page prints the owner's design's bracketed
+// placeholder ("[3]", "[7]") in their place rather than inventing a value:
+// a bracket reads as unfinished, an invented deadline or refund promise
+// reads as a commitment nobody made.
 
 export interface Examiner {
   name: string;
@@ -29,3 +30,6 @@ export interface Guarantee {
 }
 
 export const GUARANTEE: Guarantee | null = null;
+
+/** Working days from order to signed report. null until the owner commits to one. */
+export const DELIVERY_DAYS: number | null = null;

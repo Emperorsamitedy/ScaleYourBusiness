@@ -148,3 +148,34 @@ export const SOURCE_LABEL: Record<string, string> = {
 };
 
 export const sourceLabel = (kind: string): string => SOURCE_LABEL[kind] ?? kind.replace(/_/g, " ");
+
+/** What replaced a superseded value, in a word: "superseded by a newer measurement". */
+export function newerWord(kind: string | undefined): string {
+  switch (kind) {
+    case "connector":
+      return "measurement";
+    case "document":
+    case "web_research":
+      return "reading";
+    case "inferred":
+      return "calculation";
+    case "owner_input":
+    case "conversation":
+      return "answer";
+    default:
+      return "record";
+  }
+}
+
+/**
+ * The source kind of whatever replaced `list[i]`: superseded lists run
+ * newest first, so its successor is the entry before it, and the newest
+ * one's successor is the current fact.
+ */
+export function successorKind(
+  list: readonly { source_kind: string }[],
+  i: number,
+  currentKind: string | undefined,
+): string | undefined {
+  return i === 0 ? currentKind : list[i - 1]?.source_kind;
+}

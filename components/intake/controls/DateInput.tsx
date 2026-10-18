@@ -6,7 +6,7 @@ import type { ControlProps } from "./shared";
 export function DateControl({ question, onChange, onCommit }: ControlProps) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    ref.current?.focus();
+    ref.current?.focus({ preventScroll: true });
   }, []);
 
   // Native date input already yields "YYYY-MM-DD" — the wire format.
@@ -16,7 +16,7 @@ export function DateControl({ question, onChange, onCommit }: ControlProps) {
     <input
       ref={ref}
       aria-labelledby={`q-${question.id}`}
-      className="field"
+      className="ix-input ix-date"
       type="date"
       onChange={(e) => onChange({ wire: wireOf(e.target.value) })}
       onKeyDown={(e) => {

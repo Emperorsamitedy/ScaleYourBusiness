@@ -59,11 +59,11 @@
   --f-prose: var(--font-archivo), "Archivo", Arial, sans-serif;
   --f-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
 
-  --t-display-1: clamp(40px, 5.2vw, 64px);
-  --t-display-2: clamp(30px, 3.4vw, 40px);
-  --t-display-3: 26px;
-  --t-prose-l: 19px;
-  --t-prose: 16px;
+  --t-display-1: clamp(26px, 3.41vw, 42px);
+  --t-display-2: clamp(19.5px, 2.23vw, 26px);
+  --t-display-3: 17px;
+  --t-prose-l: 14px;
+  --t-prose: 14px;
   --t-prose-s: 14px;
   --t-mono: 14px;
   --t-mono-s: 12.5px;
@@ -74,12 +74,12 @@
   --s-2: 8px;
   --s-3: 12px;
   --s-4: 16px;
-  --s-5: 24px;
-  --s-6: 32px;
-  --s-7: 48px;
-  --s-8: 64px;
-  --s-9: 96px;
-  --gutter: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 34px;
+  --s-8: 44px;
+  --s-9: 64px;
+  --gutter: 14px;
   --measure: 68ch; /* prose line length, inside the 45–90 band */
 
   /* rules */
@@ -96,7 +96,7 @@
 
 @media (min-width: 720px) {
   :root {
-    --gutter: 32px;
+    --gutter: 22px;
   }
 }
 
@@ -139,7 +139,7 @@
 
 .display {
   font-family: var(--f-display);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.08;
   margin: 0;
@@ -338,4 +338,192 @@ textarea {
   width: 3px;
   margin-left: -1px;
   background: var(--sheet-ink);
+}
+
+/* ── The owner screens' shared furniture (the owner's instrument designs,
+   2026-10-17). components/sheet/PageHead.tsx renders these. ── */
+
+.screen {
+  padding: 0 22px 45px;
+}
+@media (max-width: 719px) {
+  .screen {
+    padding: 0 14px 34px;
+  }
+}
+
+.ph {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--s-5);
+  flex-wrap: wrap;
+  padding: 22px 0 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--desk-rule);
+  color: var(--desk-ink);
+}
+.ph-kicker {
+  margin: 0 0 10px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--desk-ink-2);
+}
+.ph-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(20px, 1.9vw, 27px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+.ph-notes {
+  margin-top: 10px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--desk-ink-2);
+}
+.ph-aside {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--desk-ink-2);
+  text-align: right;
+}
+
+/* a paper card with a header band and a double rule under it */
+.cs {
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border: 1px solid var(--rule);
+  --ink: var(--sheet-ink);
+  --mut: var(--sheet-ink-2);
+}
+.cs-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--s-4);
+  padding: 17px 20px 15px;
+  border-bottom: 3px double var(--sheet-ink);
+}
+.cs-label {
+  margin: 0 0 8px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.cs-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(16px, 1.3vw, 19px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.cs-meta {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+  text-align: right;
+}
+.cs-body {
+  padding: 15px 20px 15px;
+}
+.cs-foot {
+  padding: 14px 20px;
+  border-top: 1px solid var(--rule-soft);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+@media (max-width: 719px) {
+  .cs-head,
+  .cs-body,
+  .cs-foot {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .cs-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cs-meta {
+    text-align: left;
+  }
+}
+
+/* the ruled table the designs use everywhere */
+.rt {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rt thead th {
+  padding: 10px 10px 8px;
+  border-bottom: 1px solid var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--sheet-ink-2);
+  white-space: nowrap;
+}
+.rt tbody th,
+.rt tbody td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--rule-soft);
+  text-align: left;
+  vertical-align: baseline;
+  font-size: 13.5px;
+}
+.rt tbody th {
+  font-weight: 500;
+}
+.rt .num,
+.rt th.num {
+  text-align: right;
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rt .src {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.rt tbody tr.on {
+  background: var(--inset);
+}
+
+/* worded status in mono caps — STEADY, DRIFTING, IN RANGE … */
+.word {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.word.ok {
+  color: var(--ok);
+}
+.word.drift {
+  color: var(--drift);
+}
+.word.alarm {
+  color: var(--alarm);
+}
+.word.low,
+.word.none {
+  color: var(--sheet-ink-2);
+}
+.word.boxed {
+  display: inline-block;
+  padding: 4px 9px;
+  border: 1px solid currentColor;
 }

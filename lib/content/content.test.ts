@@ -37,7 +37,7 @@ import type { DraftLlm } from "./draft";
 import { draftItem } from "./draft";
 import { disclosureLabel, withDisclosure } from "./disclosure";
 import { addGoal, listGoals, suggestGoalsFromReport, updateGoal } from "./goals";
-import { proposeContentPlan } from "./plan";
+import { listChannels, proposeContentPlan } from "./plan";
 import { contentQueue, produceFromProposal } from "./produce";
 import { proposeShotList } from "./shotlist";
 import { buildVoiceCard, renderVoiceCard } from "./voice";
@@ -298,5 +298,29 @@ describe("Session C — production from an approved plan", () => {
     expect(result.body).toContain("[voice:card]"); // the card reached the prompt
     expect(result.body.trimEnd()).toMatch(/Written with AI assistance\.$/);
     expect(result.provenance.voice_card.boundaries).toContain("never sound corporate");
+  });
+});
+
+describe("vocabulary fields read the intake's answer shape", () => {
+  it("lists a channel and a goal whose single-selects the intake stored as {code}", async () => {
+    const s = await bootstrapIntake();
+    created.push(s);
+    const [ch] = await db
+      .insert(channels)
+      .values({ profile_id: s.profile_id })
+      .returning({ id: channels.id });
+    await owner(s.profile_id, `channels.${ch!.id}.type`, { code: "email" });
+    await owner(s.profile_id, `channels.${ch!.id}.platform`, { code: "mailchimp" });
+    const [channel] = await listChannels(s.profile_id);
+    expect(channel).toMatchObject({ type: "email", platform: "mailchimp", label: "mailchimp" });
+
+    const [g] = await db
+      .insert(goalsTable)
+      .values({ profile_id: s.profile_id })
+      .returning({ id: goalsTable.id });
+    await owner(s.profile_id, `goals.${g!.id}.statement`, "Grow repeat orders");
+    await owner(s.profile_id, `goals.${g!.id}.horizon`, { code: "6_months" });
+    const [goal] = await listGoals(s.profile_id);
+    expect(goal).toMatchObject({ statement: "Grow repeat orders", horizon: "6_months" });
   });
 });

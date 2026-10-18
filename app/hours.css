@@ -1,0 +1,276 @@
+/* Insights · Trading hours — the owner's Trading hours design
+   (2026-10-17), on the sheet system (app/sheet.css). The week as a grid
+   of hours, each cell tinted by what the hour nets against its cost;
+   the reading beside it; the trials beneath that.
+
+   Cell tints sit behind ink, measured with --sheet-ink on top:
+     --hr-loses  #e3bcbc  10.9:1
+     --hr-even   #e6e0d0  13.4:1
+     --hr-pays   #a9c9b6  10.6:1 at full strength
+   The number in every cell carries the meaning; the tint only groups. */
+
+.hr-screen {
+  --hr-loses: #e3bcbc;
+  --hr-even: #e6e0d0;
+  --hr-pays: #a9c9b6;
+  --hr-hatch: #c9d6ce;
+}
+
+.hr-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.hr-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+  gap: 15px;
+  align-items: start;
+}
+.hr-grid .cs {
+  min-width: 0;
+}
+.hr-side {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+}
+
+/* legend */
+.hr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink);
+}
+.hr-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.hr-sw {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--rule-soft);
+}
+.hr-sw.loses {
+  background: var(--hr-loses);
+}
+.hr-sw.even {
+  background: var(--hr-even);
+}
+.hr-sw.pays {
+  background: var(--hr-pays);
+}
+
+/* the week grid */
+.hr-wrap {
+  overflow-x: auto;
+}
+.hr-week {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 3px;
+  table-layout: fixed;
+}
+.hr-week th {
+  font-family: var(--f-mono);
+  font-weight: 500;
+  color: var(--sheet-ink-2);
+}
+.hr-week thead th {
+  padding: 0 0 4px;
+  font-size: 12px;
+  text-align: center;
+}
+.hr-week thead th:first-child {
+  width: 70px;
+}
+.hr-week tbody th {
+  padding: 0 8px 0 2px;
+  font-size: 13px;
+  text-align: left;
+  color: var(--sheet-ink);
+  white-space: nowrap;
+}
+.hr-week td {
+  height: 40px;
+  padding: 0;
+  text-align: center;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--sheet-ink);
+  background: var(--paper);
+}
+.hr-week td.loses {
+  background: var(--hr-loses);
+  font-weight: 600;
+}
+.hr-week td.even {
+  background: var(--hr-even);
+}
+.hr-week td.pays {
+  background: color-mix(in srgb, var(--hr-pays) var(--hr-k, 100%), var(--paper));
+}
+.hr-week td.open {
+  background: var(--inset);
+}
+.hr-week td.closed {
+  background: repeating-linear-gradient(135deg, var(--paper) 0 5px, var(--hr-hatch) 5px 6px);
+}
+.hr-week td.unknown {
+  background: var(--paper);
+  border: 1px dashed var(--rule-soft);
+}
+.hr-week tr.early td {
+  opacity: 0.75;
+}
+.hr-rownote {
+  display: block;
+  white-space: normal;
+  line-height: 1.25;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+}
+
+/* the reading */
+.hr-reads {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hr-reads li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.hr-reads li:first-child {
+  padding-top: 2px;
+}
+.hr-read-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-4);
+  font-size: 15px;
+}
+.hr-read-sub {
+  margin: 6px 0 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+
+/* not a proposal yet */
+.hr-inset {
+  padding: 14px 17px 15px;
+  background: var(--inset);
+  border: 1px solid var(--rule);
+  color: var(--sheet-ink);
+  --ink: var(--sheet-ink);
+}
+.hr-inset h2 {
+  margin: 0 0 8px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.hr-inset p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.hr-inset .act {
+  min-height: 44px;
+}
+.hr-trials {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.hr-trials li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 14px;
+}
+.hr-trial-sub {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+
+/* the zone picker, when the zone can't be derived */
+.hr-zone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+.hr-zone select {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 13.5px;
+}
+.hr-zone select:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.hr-copy {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+}
+.hr-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+
+@media (max-width: 1099px) {
+  .hr-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .hr-legend {
+    justify-content: flex-start;
+  }
+  .hr-week td {
+    height: 34px;
+    font-size: 11.5px;
+  }
+  .hr-week thead th:first-child {
+    width: 58px;
+  }
+  .hr-week tbody th {
+    padding-right: 4px;
+    font-size: 12px;
+  }
+  .hr-inset {
+    padding: 15px 14px;
+  }
+}

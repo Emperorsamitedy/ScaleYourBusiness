@@ -38,6 +38,7 @@ import {
   supportTickets,
 } from "../../db/schema";
 import { readCurrentField } from "../profile/field-store";
+import { enumCode } from "../core/enum-value";
 
 export class ContactError extends Error {
   readonly status: number;
@@ -179,10 +180,11 @@ export type OutboundPosture = "enabled" | "caution" | "disabled" | "unknown";
  * treated as caution by callers, never as permission.
  */
 export async function outboundPosture(profileId: string): Promise<OutboundPosture> {
-  const field = await readCurrentField<string>(profileId, "customers.marketing_consent_status");
-  if (!field || field.status !== "answered" || typeof field.value !== "string") return "unknown";
-  if (field.value === "no_consent") return "disabled";
-  if (field.value === "explicit_consent") return "enabled";
+  const field = await readCurrentField<unknown>(profileId, "customers.marketing_consent_status");
+  const code = field && field.status === "answered" ? enumCode(field.value) : null;
+  if (code === null) return "unknown";
+  if (code === "no_consent") return "disabled";
+  if (code === "explicit_consent") return "enabled";
   return "caution";
 }
 

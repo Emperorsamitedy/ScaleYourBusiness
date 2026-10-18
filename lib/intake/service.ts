@@ -11,7 +11,14 @@
 
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
-import { accounts, businessProfiles, fieldRecords, offers } from "../../db/schema";
+import {
+  accounts,
+  bankQuestions,
+  bankVersions,
+  businessProfiles,
+  fieldRecords,
+  offers,
+} from "../../db/schema";
 import {
   channels,
   competitors,
@@ -35,9 +42,27 @@ import { dynamicVocabularyOptions, isDynamicVocabulary } from "../profile/dynami
 import { writeField } from "../profile/field-store";
 import { recordFunnelEvent } from "./telemetry";
 import { openFindings, resolveFinding } from "../validation/engine";
+import type { ConditionExpr } from "../conditions/evaluate";
+import { getProvider } from "../connectors/registry";
+import type { ProviderId } from "../connectors/scopes";
+import { PROVIDER_IDS } from "../connectors/scopes";
+import type { ProfileSection } from "../profile/sections";
+import { isProfileSection } from "../profile/sections";
 import type { ApplicableQuestion } from "../resolver/applicability";
-import { applicableQuestions } from "../resolver/applicability";
-import { computeCompleteness } from "../scorer/completeness";
+import { applicableQuestions, buildConditionContext } from "../resolver/applicability";
+import type { AreaQuestion, ResponseKind } from "./areas";
+import { computeAreas, naturalIdCompare, responseKindOf } from "./areas";
+import type { CurrentRow } from "./record-view";
+import { alreadyRead, areaRecord, buildRecord, listFacts } from "./record-view";
+import { computeCompleteness, scoreQuestions } from "../scorer/completeness";
+import { computeEconomics } from "../economics/unit-economics";
+import { displaySourceKind } from "../connectors/measured";
+import { VALUE_BEARING_STATUSES } from "../core/field-status";
+import type { ConditionContext } from "../conditions/evaluate";
+import type { FieldRecordRow } from "../profile/field-codec";
+import type { SnapshotEntity } from "../profile/snapshot";
+import { sectionOfFieldKey } from "../profile/sections";
+import { currentRecordsView, liveReadingOf } from "./live-reading";
 import { vocabularyCodes } from "../vocab/validate";
 import { entityChipDisplay, loadEntityFields, writeEntityRows } from "./entities";
 import type {
@@ -49,7 +74,10 @@ import type {
   IntakeProgress,
   IntakeQuestion,
   IntakeState,
+  IntakeUnlock,
+  LiveReading,
   ReconcileResponse,
+  RecordFact,
 } from "./types";
 
 export class IntakeError extends Error {
@@ -66,22 +94,7 @@ export function interviewerMode(): "llm" | "deterministic" {
   return process.env.INTERVIEWER_MODE === "llm" ? "llm" : "deterministic";
 }
 
-/** Natural order for bank ids: "1.10" after "1.9", "1.4.1.5a" after "1.4.1.5". */
-export function naturalIdCompare(a: string, b: string): number {
-  const as = a.split(".");
-  const bs = b.split(".");
-  for (let i = 0; i < Math.max(as.length, bs.length); i++) {
-    const x = as[i];
-    const y = bs[i];
-    if (x === undefined) return -1;
-    if (y === undefined) return 1;
-    const xn = parseInt(x, 10);
-    const yn = parseInt(y, 10);
-    if (xn !== yn) return xn - yn;
-    if (x !== y) return x < y ? -1 : 1;
-  }
-  return 0;
-}
+export { naturalIdCompare };
 
 /** "physical_products" → "Physical products". */
 export function humanizeCode(code: string): string {
@@ -104,35 +117,176 @@ interface RecordsView {
   responded: Set<string>;
   skippedKeys: Set<string>;
   byKey: Map<string, { status: FieldStatus; value: unknown }>;
+  /** The current records in full, for the record sheet. */
+  rows: CurrentRow[];
+  /** The same rows as Field codec rows, for the live economics view. */
+  fieldRows: FieldRecordRow[];
+  /** Every entity row alive on the profile, with the kind the economics engine reads. */
+  entities: SnapshotEntity[];
+  /** writes_to → what its current response is, for the tile bars. */
+  responseKinds: Map<string, ResponseKind>;
 }
 
 async function loadRecords(profileId: string): Promise<RecordsView> {
   const rows = await db
     .select({
+      profile_id: fieldRecords.profile_id,
+      section: fieldRecords.section,
       field_key: fieldRecords.field_key,
       status: fieldRecords.status,
       value: fieldRecords.value,
+      source: fieldRecords.source,
+      note: fieldRecords.note,
+      confidence: fieldRecords.confidence,
+      observed_at: fieldRecords.observed_at,
+      recorded_at: fieldRecords.recorded_at,
     })
     .from(fieldRecords)
     .where(and(eq(fieldRecords.profile_id, profileId), isNull(fieldRecords.superseded_at)));
   const responded = new Set<string>();
   const skippedKeys = new Set<string>();
   const byKey = new Map<string, { status: FieldStatus; value: unknown }>();
+  const responseKinds = new Map<string, ResponseKind>();
   for (const r of rows) {
     byKey.set(r.field_key, { status: r.status, value: r.value });
+    const kind = responseKindOf(r.status, displaySourceKind(r.source));
+    if (kind !== null) responseKinds.set(r.field_key, kind);
     if (r.status === "answered" || r.status === "inferred" || r.status === "unknown") {
       responded.add(r.field_key);
     }
     if (r.status === "skipped") skippedKeys.add(r.field_key);
   }
+  const entities: SnapshotEntity[] = [];
   for (const [key, table] of SPINES) {
-    const spine = await db
-      .select({ id: table.id })
-      .from(table)
-      .where(eq(table.profile_id, profileId));
+    // Offers carry a kind and cost items a fixed/variable bucket — the
+    // entity kind the economics engine reads (as lib/profile/snapshot does).
+    const spine: { id: string; kind: string | null }[] =
+      key === "offers"
+        ? await db
+            .select({ id: offers.id, kind: offers.kind })
+            .from(offers)
+            .where(eq(offers.profile_id, profileId))
+        : key === "cost_items"
+          ? await db
+              .select({ id: costItems.id, kind: costItems.bucket })
+              .from(costItems)
+              .where(eq(costItems.profile_id, profileId))
+          : (
+              await db.select({ id: table.id }).from(table).where(eq(table.profile_id, profileId))
+            ).map((r) => ({ id: r.id, kind: null }));
     if (spine.length > 0) responded.add(key);
+    entities.push(...spine.map((r) => ({ spine: key, id: r.id, kind: r.kind ?? null })));
   }
-  return { responded, skippedKeys, byKey };
+  const fieldRows: FieldRecordRow[] = rows.map((r) => ({
+    profile_id: r.profile_id,
+    section: r.section,
+    field_key: r.field_key,
+    value: r.value,
+    status: r.status,
+    confidence: String(r.confidence),
+    source: r.source,
+    observed_at: r.observed_at,
+    recorded_at: r.recorded_at,
+    note: r.note,
+  }));
+  return { responded, skippedKeys, byKey, rows, fieldRows, entities, responseKinds };
+}
+
+/** Report readiness: the completeness scorer's own arithmetic over what is already loaded. */
+function readinessOf(applicable: readonly ApplicableQuestion[], ctx: ConditionContext): number {
+  return scoreQuestions(
+    applicable.map((q) => {
+      const view = ctx.get(q.writes_to);
+      return {
+        priority: q.priority,
+        section: q.section,
+        writes_to: q.writes_to,
+        responded:
+          view !== undefined &&
+          (VALUE_BEARING_STATUSES.has(view.status) || view.status === "unknown"),
+      };
+    }),
+    isoDateTime(new Date().toISOString()),
+  ).overall;
+}
+
+/** The live reading on the current records; null when the engine refuses. */
+function liveReading(profileId: string, view: RecordsView, currency: string): LiveReading | null {
+  try {
+    const records = currentRecordsView(
+      profileId,
+      view.fieldRows,
+      view.entities,
+      new Date().toISOString(),
+    );
+    return liveReadingOf(computeEconomics(records, currency));
+  } catch {
+    // A figure the engine cannot compute is not a reason to fail the intake.
+    return null;
+  }
+}
+
+/** The bank's `unlocks` for one question, each with whether it applies yet. */
+function unlocksOf(
+  q: ApplicableQuestion,
+  bank: readonly BankQuestion[],
+  applicable: readonly ApplicableQuestion[],
+): IntakeUnlock[] {
+  const ids = Array.isArray(q.unlocks)
+    ? q.unlocks.filter((x): x is string => typeof x === "string")
+    : [];
+  return ids.flatMap((id) => {
+    const target = bank.find((b) => b.id === id);
+    if (!target) return [];
+    return [
+      {
+        id,
+        section: target.section,
+        prompt: target.prompt,
+        open: applicable.some((a) => a.id === id),
+      },
+    ];
+  });
+}
+
+/** A bank question as the tiles and the unlock list read it. */
+interface BankQuestion extends AreaQuestion {
+  prompt: string;
+}
+
+/** Every question of the current bank with its condition — what the area tiles read. */
+async function areaQuestions(): Promise<BankQuestion[]> {
+  const rows = await db
+    .select({
+      id: bankQuestions.id,
+      section: bankQuestions.section,
+      writes_to: bankQuestions.writes_to,
+      condition: bankQuestions.condition,
+      prompt: bankQuestions.prompt,
+    })
+    .from(bankQuestions)
+    .innerJoin(bankVersions, eq(bankQuestions.bank_version, bankVersions.version))
+    .where(eq(bankVersions.is_current, true));
+  return rows.map((r) => ({
+    id: r.id,
+    section: r.section,
+    writes_to: r.writes_to,
+    condition: (r.condition as ConditionExpr | null) ?? null,
+    prompt: ((r.prompt as Record<string, string> | null)?.en ?? "").trim(),
+  }));
+}
+
+/** "shopify" → "Shopify", from the connector registry; the id itself when unregistered. */
+function providerLabel(id: string): string {
+  if ((PROVIDER_IDS as readonly string[]).includes(id)) {
+    return getProvider(id as ProviderId).label;
+  }
+  return id;
+}
+
+/** A preferred area from the wire: a real profile section, or nothing. */
+export function parseSection(raw: unknown): ProfileSection | undefined {
+  return typeof raw === "string" && isProfileSection(raw) ? raw : undefined;
 }
 
 async function optionsFor(profileId: string, spec: InputSpec): Promise<IntakeOption[]> {
@@ -150,6 +304,11 @@ async function toIntakeQuestion(
   profileId: string,
   q: ApplicableQuestion,
   currency: string,
+  area: { position: number; alreadyRead: RecordFact | null; unlocks: IntakeUnlock[] } = {
+    position: 1,
+    alreadyRead: null,
+    unlocks: [],
+  },
 ): Promise<IntakeQuestion> {
   const spec = q.input as InputSpec;
   const base: IntakeQuestion = {
@@ -163,6 +322,11 @@ async function toIntakeQuestion(
     allow_unknown: spec.allow_unknown !== false,
     currency,
     entity_schema: spec.entity_schema ?? null,
+    section: q.section,
+    area_position: area.position,
+    already_read: area.alreadyRead,
+    missing_piece: area.alreadyRead !== null && area.alreadyRead.key !== q.writes_to,
+    unlocks: area.unlocks,
   };
   if (spec.type === "entity_list" && spec.entity_schema) {
     base.entity_fields = await loadEntityFields(
@@ -264,16 +428,45 @@ async function intakeFindings(
   }));
 }
 
+/** Open questions in one area in bank order, then that area's skips. */
+function pickInSection(
+  applicable: readonly ApplicableQuestion[],
+  view: RecordsView,
+  section: ProfileSection,
+): ApplicableQuestion | undefined {
+  const inArea = applicable
+    .filter((q) => q.section === section && !view.responded.has(q.writes_to))
+    .sort((a, b) => naturalIdCompare(a.id, b.id));
+  return inArea.find((q) => !view.skippedKeys.has(q.writes_to)) ?? inArea[0];
+}
+
+/**
+ * The masthead's business name: identity.legal_name (bank 1.1) when it
+ * holds a value, else an identity.business_name a test seed or an older
+ * path recorded. Null when neither does — the masthead then names none.
+ */
+function legalName(view: RecordsView): string | null {
+  for (const key of ["identity.legal_name", "identity.business_name"]) {
+    const record = view.byKey.get(key);
+    if (!record || (record.status !== "answered" && record.status !== "inferred")) continue;
+    if (typeof record.value === "string" && record.value.trim() !== "") return record.value.trim();
+  }
+  return null;
+}
+
 /** The current intake state: what to ask now, what's next, honest progress. */
 export async function getIntakeState(
   accountId: string,
   profileId: string,
   preferId?: string,
+  preferSection?: ProfileSection,
 ): Promise<IntakeState> {
-  const [applicable, view, currency, profileRow] = await Promise.all([
+  const [applicable, view, currency, bank, ctx, profileRow] = await Promise.all([
     applicableQuestions(profileId),
     loadRecords(profileId),
     reportingCurrency(profileId),
+    areaQuestions(),
+    buildConditionContext(profileId),
     db
       .select({ next_question_id: businessProfiles.next_question_id })
       .from(businessProfiles)
@@ -311,11 +504,58 @@ export async function getIntakeState(
     ? applicable.find((q) => q.id === preferId && !view.responded.has(q.writes_to))
     : undefined;
 
-  if (selection.tier === null && !preferred) {
+  const ordered = [...selection.candidates].sort((a, b) => naturalIdCompare(a.id, b.id));
+
+  // An area tile names a section the owner wants to work on. Within it:
+  // the auto-selection candidates first (the tier gate still orders the
+  // area), then anything open there, then — the owner having chosen the
+  // area — what they skipped in it earlier, as a gap link would.
+  const sectionPick =
+    !preferred && preferSection
+      ? (ordered.find((q) => q.section === preferSection) ??
+        pickInSection(applicable, view, preferSection))
+      : undefined;
+
+  // The record sheet, the masthead name and the area tiles, for every state.
+  const questionIdByKey = new Map(applicable.map((q) => [q.writes_to, q.id]));
+  const listed = listFacts({ rows: view.rows, questionIdByKey, providerLabel });
+  const record = buildRecord(listed);
+  const businessName = legalName(view);
+  const areasFor = (activeSection: string | null, activeQuestionId: string | null) =>
+    computeAreas({
+      questions: bank,
+      ctx,
+      responded: view.responded,
+      skippedKeys: view.skippedKeys,
+      activeSection,
+      activeQuestionId,
+      responseKinds: view.responseKinds,
+    });
+  const readiness = readinessOf(applicable, ctx);
+  const live = liveReading(profileId, view, currency);
+  // A fact's area: the section of the question that writes it, else its key's home.
+  const sectionByQuestion = new Map<string, string>(applicable.map((q) => [q.id, q.section]));
+  const sectionOfFact = (f: RecordFact): string | null => {
+    const byQuestion = f.question_id ? sectionByQuestion.get(f.question_id) : undefined;
+    if (byQuestion) return byQuestion;
+    try {
+      return sectionOfFieldKey(f.key);
+    } catch {
+      return null;
+    }
+  };
+
+  if (selection.tier === null && !preferred && !sectionPick) {
     const score = await computeCompleteness(profileId);
     const answered = [...view.responded].length;
     return {
       profile_id: profileId,
+      business_name: businessName,
+      areas: areasFor(null, null),
+      record,
+      readiness,
+      live_reading: live,
+      area_record: null,
       done: true,
       question: null,
       on_deck: null,
@@ -329,11 +569,11 @@ export async function getIntakeState(
     };
   }
 
-  const ordered = [...selection.candidates].sort((a, b) => naturalIdCompare(a.id, b.id));
   // A preferred question (reopen, gap link) goes straight to the centre
-  // (P0-75, §4.1) — even when it is not an auto-selection candidate.
-  let chosen = preferred ?? ordered[0];
-  if (!preferred && interviewerMode() === "llm") {
+  // (P0-75, §4.1) — even when it is not an auto-selection candidate. An
+  // area pick is the owner's choice too, so the interviewer is not asked.
+  let chosen = preferred ?? sectionPick ?? ordered[0];
+  if (!preferred && !sectionPick && interviewerMode() === "llm") {
     // Reuse the last pick when it is still an open candidate.
     //
     // This function runs on every read of the intake state — every page
@@ -372,10 +612,26 @@ export async function getIntakeState(
   }
 
   const onDeck = ordered.find((q) => q.id !== chosen.id);
+  const earlierInArea = applicable.filter(
+    (q) =>
+      q.section === chosen.section &&
+      q.id !== chosen.id &&
+      (view.responded.has(q.writes_to) || view.skippedKeys.has(q.writes_to)),
+  ).length;
   return {
     profile_id: profileId,
+    business_name: businessName,
+    areas: areasFor(chosen.section, chosen.id),
+    record,
+    readiness,
+    live_reading: live,
+    area_record: areaRecord(listed, chosen.section, sectionOfFact),
     done: false,
-    question: await toIntakeQuestion(profileId, chosen, currency),
+    question: await toIntakeQuestion(profileId, chosen, currency, {
+      position: earlierInArea + 1,
+      alreadyRead: alreadyRead(chosen.writes_to, listed),
+      unlocks: unlocksOf(chosen, bank, applicable),
+    }),
     on_deck: onDeck
       ? ((onDeck.prompt as Record<string, string> | null)?.en ?? "").trim() || null
       : null,
@@ -471,6 +727,7 @@ export async function submitAnswer(
   profileId: string,
   questionId: string,
   action: AnswerAction,
+  preferSection?: ProfileSection,
 ): Promise<AnswerResponse> {
   const [applicable, view, currency] = await Promise.all([
     applicableQuestions(profileId),
@@ -614,7 +871,7 @@ export async function submitAnswer(
     provenance,
     dot: status === "answered" ? "solid" : "hollow",
   };
-  return { chip, state: await getIntakeState(accountId, profileId) };
+  return { chip, state: await getIntakeState(accountId, profileId, undefined, preferSection) };
 }
 
 const ENTITY_TABLES: Record<string, typeof suppliers> = {
@@ -637,6 +894,7 @@ export async function submitEntities(
   profileId: string,
   questionId: string,
   rows: readonly Record<string, unknown>[],
+  preferSection?: ProfileSection,
 ): Promise<AnswerResponse> {
   if (!Array.isArray(rows) || rows.length < 1 || rows.length > 20) {
     throw new IntakeError("between 1 and 20 rows required", 422);
@@ -680,7 +938,10 @@ export async function submitEntities(
       dot: "solid",
       detail: result.detail,
     };
-    return { chip, state: await getIntakeState(accountId, profileId) };
+    return {
+      chip,
+      state: await getIntakeState(accountId, profileId, undefined, preferSection),
+    };
   } catch (error) {
     const status = (error as { status?: number }).status;
     if (status === 422) throw new IntakeError((error as Error).message, 422);

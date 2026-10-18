@@ -1,0 +1,374 @@
+/* The owner's support screen — the instrument design (2026-10-17).
+   What the assistant may say on the left; the conversations, the open
+   transcript and the hand-over box on the right; the widget below.
+   Tokens from sheet.css; square, ruled, no shadows. Scoped under
+   .sp-screen. */
+
+.sp-screen .cs {
+  --hair: var(--rule-soft);
+  --hair-2: var(--rule);
+  --raised: var(--inset);
+  --on-ember: var(--paper);
+}
+.sp-screen .word.live {
+  color: var(--live);
+}
+
+.sp-screen .sp-counts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  margin-top: 6px;
+  font-size: 14px;
+}
+.sp-screen .sp-counts b {
+  font-weight: 600;
+  color: var(--desk-ink);
+}
+.sp-screen .sp-test {
+  min-height: 44px;
+  color: var(--desk-ink);
+}
+.sp-screen .sp-notice {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--desk-rule);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink);
+}
+
+.sp-screen .sp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  gap: 20px;
+  align-items: start;
+}
+.sp-screen .cs-head {
+  align-items: flex-end;
+}
+.sp-screen .sp-small {
+  min-height: 44px;
+  padding: 0 12px;
+  flex: 0 0 auto;
+}
+
+/* ── boxes: the inset, always ruled ── */
+
+.sp-screen .sp-box {
+  margin: 0 0 14px;
+  padding: 14px 14px 15px;
+  background: var(--inset);
+  border: 1px solid var(--sheet-ink);
+}
+.sp-screen .sp-box-label {
+  margin: 0 0 8px;
+}
+.sp-screen .sp-box-title {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.sp-screen .sp-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 10px;
+  margin-top: 10px;
+}
+.sp-screen .sp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sp-screen .sp-form .cs-label {
+  margin: 8px 0 0;
+}
+.sp-screen .sp-input,
+.sp-screen .sp-textarea {
+  min-height: 48px;
+  padding: 0 4px;
+  border: 0;
+  border-bottom: 1px solid var(--sheet-ink);
+  background: transparent;
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 14px;
+}
+.sp-screen .sp-textarea {
+  display: block;
+  width: 100%;
+  padding: 10px 10px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  line-height: 1.5;
+  resize: vertical;
+}
+.sp-screen .sp-fine {
+  margin: 8px 0 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+.sp-screen .sp-row .sp-fine {
+  margin: 0;
+}
+.sp-screen .sp-empty,
+.sp-screen .sp-prose {
+  margin: 4px 0 10px;
+  max-width: var(--measure);
+  color: var(--sheet-ink-2);
+}
+.sp-screen .sp-gap {
+  margin-top: 14px;
+}
+
+/* ── approved answers ── */
+
+.sp-screen .sp-entries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sp-screen .sp-entry {
+  display: grid;
+  grid-template-columns: 4.5em minmax(0, 1fr) auto;
+  gap: 4px 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.sp-screen .sp-entry-id,
+.sp-screen .sp-entry-date {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+  white-space: nowrap;
+}
+.sp-screen .sp-entry-id {
+  padding-top: 3px;
+}
+.sp-screen .sp-entry-q {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.sp-screen .sp-entry-a {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.sp-screen .sp-entry-src {
+  margin: 6px 0 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.sp-screen .sp-entry-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.sp-screen .sp-retired .sp-entry-q {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+.sp-screen .sp-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 10px;
+}
+
+/* ── conversations ── */
+
+.sp-screen .sp-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  min-height: 420px;
+}
+.sp-screen .sp-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-right: 1px solid var(--rule-soft);
+}
+.sp-screen .sp-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  padding: 12px 14px 12px 17px;
+  border: 0;
+  border-bottom: 1px solid var(--rule-soft);
+  border-left: 3px solid transparent;
+  background: transparent;
+  color: var(--sheet-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sp-screen .sp-thread:hover {
+  background: var(--inset);
+}
+.sp-screen .sp-thread.on {
+  background: var(--inset);
+  border-left-color: var(--sheet-ink);
+}
+.sp-screen .sp-thread:focus-visible {
+  outline-offset: -3px;
+}
+.sp-screen .sp-thread-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sp-screen .sp-who {
+  font-size: 15px;
+  font-weight: 500;
+}
+.sp-screen .sp-when {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.sp-screen .sp-what {
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.sp-screen .sp-thread .word {
+  white-space: normal;
+}
+
+.sp-screen .sp-thread-view {
+  min-width: 0;
+  padding: 15px 17px 17px;
+}
+.sp-screen .sp-via {
+  margin: 0 0 14px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+.sp-screen .sp-msgs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 15px;
+  padding: 0;
+  list-style: none;
+}
+.sp-screen .sp-msg {
+  max-width: 88%;
+  padding: 10px 14px;
+}
+.sp-screen .sp-msg.customer {
+  align-self: flex-start;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.sp-screen .sp-msg.assistant {
+  align-self: flex-end;
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.sp-screen .sp-msg-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sp-screen .sp-msg-meta {
+  margin: 8px 0 0;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.sp-screen .sp-msg.customer .sp-msg-meta {
+  color: var(--sheet-ink-2);
+  opacity: 1;
+}
+.sp-screen .sp-msg.assistant .sp-msg-meta {
+  color: var(--desk-ink-2);
+  opacity: 1;
+}
+.sp-screen .sp-handed .cs-label {
+  display: block;
+  margin: 6px 0 8px;
+}
+.sp-screen .sp-erase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+/* ── the widget ── */
+
+.sp-screen .sp-widget {
+  margin-top: 20px;
+}
+.sp-screen .sp-snippet {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  background: var(--inset);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1199px) {
+  .sp-screen .sp-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 719px) {
+  .sp-screen .cs-head {
+    align-items: flex-start;
+  }
+  .sp-screen .sp-split {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+  .sp-screen .sp-list {
+    border-right: 0;
+    border-bottom: 1px solid var(--sheet-ink);
+  }
+  .sp-screen .sp-thread {
+    padding: 10px 14px;
+  }
+  .sp-screen .sp-thread-view {
+    padding: 14px;
+  }
+  .sp-screen .sp-msg {
+    max-width: 100%;
+  }
+  .sp-screen .sp-entry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sp-screen .sp-entry-side {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sp-screen .sp-box {
+    padding: 12px 12px 14px;
+  }
+}

@@ -1,53 +1,79 @@
 import { describe, expect, it } from "vitest";
-import { RECOVERY_RANGE, SAMPLE } from "./sample-diagnosis";
+import {
+  SAMPLE_LEAK,
+  SAMPLE_MARKERS,
+  SAMPLE_OUTCOME,
+  SAMPLE_PROPOSAL,
+  type SampleFlag,
+} from "./sample-diagnosis";
 
-// The sample is fictional, but its arithmetic has to hold: a sales page
-// that shows wrong maths about a pretend shop sells nothing.
-describe("the sample diagnosis is arithmetic-consistent", () => {
-  it("revenue is orders × average order value", () => {
-    const aov = SAMPLE.rows.find((r) => r.measure === "Average order value")!.value!;
-    expect(SAMPLE.revenue_minor).toBe(Math.round(SAMPLE.orders * aov * 100));
-  });
-
-  it("the best seller's margin follows from its price and cost", () => {
-    const margin = ((14.9 - 13.11) / 14.9) * 100;
-    const row = SAMPLE.rows.find((r) => r.measure.startsWith("Margin · Morning Ritual"))!;
-    expect(row.value).toBeCloseTo(margin, 1);
-    // F1: €1.79 margin less the €0.70 shipping shortfall
-    expect(14.9 - 13.11 - (5.6 - 4.9)).toBeCloseTo(1.09, 2);
-  });
-
-  it("the campaign's return is attributed sales over spend", () => {
-    const roas = SAMPLE.rows.find((r) => r.measure.startsWith("Return on ad spend"))!;
-    expect(roas.value).toBeCloseTo(1517 / 1850, 2);
-  });
-
-  it("the return rate is refunds over orders", () => {
-    const rr = SAMPLE.rows.find((r) => r.measure === "Return rate")!;
-    expect(rr.value).toBeCloseTo((82 / SAMPLE.orders) * 100, 1);
-  });
-
-  it("every flag agrees with its value and range", () => {
-    for (const r of SAMPLE.rows) {
-      if (r.value === null) {
-        expect(r.flag).toBe("NOT PROVIDED");
-        continue;
-      }
-      const [lo, hi] = r.range!;
-      const past = r.act_at !== null && (r.act_at < lo ? r.value < r.act_at : r.value > r.act_at);
-      const expected = past
-        ? "ACT NOW"
+// The sample is fictional, but its grammar has to hold: a flag that
+// disagrees with its own range sells nothing.
+describe("the illustrative store follows the number grammar", () => {
+  it("every flag agrees with its value, range and act-now line", () => {
+    for (const r of SAMPLE_MARKERS) {
+      const [lo, hi] = r.range;
+      const actBelow = r.act_at < lo;
+      const past = actBelow ? r.value < r.act_at : r.value > r.act_at;
+      const expected: SampleFlag = past
+        ? "ACT"
         : r.value < lo
-          ? "BELOW RANGE"
+          ? "LOW"
           : r.value > hi
-            ? "ABOVE RANGE"
-            : "IN RANGE";
+            ? "HIGH"
+            : "OK";
       expect(r.flag, r.measure).toBe(expected);
     }
   });
 
-  it("the headline recovery range is the sum of its parts, low ≤ high", () => {
-    for (const p of SAMPLE.recovery) expect(p.low_minor).toBeLessThanOrEqual(p.high_minor);
-    expect(RECOVERY_RANGE).toEqual({ low_minor: 75_000, high_minor: 177_000 });
+  it("puts the act-now line outside the range, on the side it guards", () => {
+    for (const r of SAMPLE_MARKERS) {
+      const [lo, hi] = r.range;
+      expect(r.act_at < lo || r.act_at > hi, r.measure).toBe(true);
+    }
+  });
+
+  it("keeps every value, range and line on the bar's scale", () => {
+    for (const r of SAMPLE_MARKERS) {
+      const [min, max] = r.scale;
+      for (const v of [r.value, r.act_at, ...r.range]) {
+        expect(v, r.measure).toBeGreaterThanOrEqual(min);
+        expect(v, r.measure).toBeLessThanOrEqual(max);
+      }
+    }
+  });
+
+  it("prices a leak exactly where a marker is out of range", () => {
+    for (const r of SAMPLE_MARKERS) {
+      if (r.flag === "OK") expect(r.leak_minor, r.measure).toBeNull();
+      else expect(r.leak_minor, r.measure).toBeGreaterThan(0);
+    }
+  });
+
+  it("states the leak as a range whose low end is the priced markers' sum", () => {
+    const sum = SAMPLE_MARKERS.reduce((a, r) => a + (r.leak_minor ?? 0), 0);
+    expect(SAMPLE_LEAK.low_minor).toBe(sum);
+    expect(SAMPLE_LEAK.low_minor).toBeLessThan(SAMPLE_LEAK.high_minor);
+  });
+
+  it("keeps money in integer minor units", () => {
+    for (const v of [
+      SAMPLE_LEAK.low_minor,
+      SAMPLE_LEAK.high_minor,
+      SAMPLE_PROPOSAL.expected_low_minor,
+      SAMPLE_PROPOSAL.expected_high_minor,
+      SAMPLE_OUTCOME.recovered_minor,
+      ...SAMPLE_MARKERS.map((r) => r.leak_minor ?? 0),
+    ]) {
+      expect(Number.isInteger(v)).toBe(true);
+    }
+  });
+
+  it("measures an outcome inside the proposal's expected range", () => {
+    expect(SAMPLE_OUTCOME.recovered_minor).toBeGreaterThanOrEqual(
+      SAMPLE_PROPOSAL.expected_low_minor,
+    );
+    expect(SAMPLE_OUTCOME.recovered_minor).toBeLessThanOrEqual(SAMPLE_PROPOSAL.expected_high_minor);
+    expect(SAMPLE_OUTCOME.conversion_after).toBeGreaterThan(SAMPLE_OUTCOME.conversion_before);
   });
 });

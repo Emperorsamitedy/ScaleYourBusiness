@@ -3,20 +3,19 @@
 // One rule per kind of figure, so a column never mixes them:
 //   - money is integer minor units + ISO currency (CLAUDE.md rule 1),
 //     shown at a fixed number of decimals chosen per column;
-//   - thousands are grouped with a no-break space;
+//   - thousands are grouped with a comma ("€2,140"), as the owner's
+//     instrument-screen designs set them;
 //   - a unit is separated from its number by a space.
 // Pure functions; no locale guessing, so the server and the browser
 // print the same characters.
 
 import { minorUnitExponent } from "../../lib/core/money";
 
-const NBSP = " ";
-
 function group(intPart: string): string {
-  return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
+  return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-/** A plain number at fixed decimals: 12345.6 → "12 345.6". Negative uses a true minus. */
+/** A plain number at fixed decimals: 12345.6 → "12,345.6". Negative uses a true minus. */
 export function num(n: number, decimals = 0): string {
   const fixed = Math.abs(n).toFixed(decimals);
   const [i = "0", f] = fixed.split(".");
@@ -46,6 +45,15 @@ export function moneyText(amount_minor: number, currency: string): string {
 }
 
 const SYMBOLS: Record<string, string> = { EUR: "€", USD: "$", GBP: "£" };
+
+/** Money with its unit at the currency's full decimals, for ledgers: "€290.00". */
+export function moneyExact(amount_minor: number, currency: string): string {
+  const exp = minorUnitExponent(currency);
+  const body = num(amount_minor / 10 ** exp, exp);
+  const code = currency.toUpperCase();
+  const symbol = SYMBOLS[code];
+  return symbol ? `${symbol}${body}` : `${body} ${code}`;
+}
 
 /** A signed delta: +2.1, −0.4, 0.0. */
 export function delta(n: number, decimals = 1): string {

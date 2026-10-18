@@ -104,8 +104,17 @@ async function activeWatches(): Promise<{ profile_id: string; review_at: string 
     .map((r) => ({ profile_id: r.profile_id, review_at: r.review_at }));
 }
 
-export async function runWeeklyWatch(now = new Date()): Promise<WatchRunResult> {
-  const watches = await activeWatches();
+export async function runWeeklyWatch(
+  now = new Date(),
+  // Tests scope the run to their own profiles so other watched businesses
+  // in a shared database (a local demo, say) neither slow nor touch them.
+  // The cron passes nothing and walks every active watch.
+  opts: { profileIds?: readonly string[] } = {},
+): Promise<WatchRunResult> {
+  const all = await activeWatches();
+  const watches = opts.profileIds
+    ? all.filter((w) => opts.profileIds!.includes(w.profile_id))
+    : all;
   let snapshots = 0;
   let completed = 0;
   let hoursLogged = 0;

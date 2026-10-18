@@ -143,6 +143,18 @@ export function fmtDate(iso: string): string {
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
+/**
+ * "12 Oct" — the designs' short date for a column of recent dates. The
+ * year is dropped only when it is the current one (`now`'s UTC year), so
+ * a date can never be mistaken for one a year off.
+ */
+export function fmtDay(iso: string, now: Date = new Date()): string {
+  const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? `${iso}T00:00:00Z` : iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const day = `${String(d.getUTCDate()).padStart(2, "0")} ${MONTHS[d.getUTCMonth()]}`;
+  return d.getUTCFullYear() === now.getUTCFullYear() ? day : `${day} ${d.getUTCFullYear()}`;
+}
+
 /* ── worded severity ── */
 
 export type Severity = "critical" | "high" | "medium" | "low";

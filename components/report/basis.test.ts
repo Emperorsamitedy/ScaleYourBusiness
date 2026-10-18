@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { BASES, BASIS_MEANING, basisMix, basisOf, basisOfKey, gapWord, sourceLabel } from "./basis";
+import {
+  BASES,
+  BASIS_MEANING,
+  basisMix,
+  basisOf,
+  basisOfKey,
+  gapWord,
+  newerWord,
+  sourceLabel,
+  successorKind,
+} from "./basis";
 
 describe("basis — a named class from what produced the fact, never a percentage", () => {
   it("calls a connector measurement OBSERVED", () => {
@@ -79,5 +89,19 @@ describe("basis — a named class from what produced the fact, never a percentag
     expect(gapWord("not_applicable")).toBe("NOT APPLICABLE");
     expect(sourceLabel("connector")).toBe("measured");
     expect(sourceLabel("new_kind")).toBe("new kind");
+  });
+});
+
+describe("what replaced a superseded value", () => {
+  it("names the successor's kind in a word", () => {
+    expect(newerWord("connector")).toBe("measurement");
+    expect(newerWord("owner_input")).toBe("answer");
+    expect(newerWord("web_research")).toBe("reading");
+    expect(newerWord(undefined)).toBe("record");
+  });
+  it("the newest superseded value was replaced by the current fact, older ones by the next newer", () => {
+    const list = [{ source_kind: "owner_input" }, { source_kind: "web_research" }];
+    expect(successorKind(list, 0, "connector")).toBe("connector");
+    expect(successorKind(list, 1, "connector")).toBe("owner_input");
   });
 });

@@ -1,11 +1,19 @@
 "use client";
 
-// Money — underline field, mono currency suffix, live thousands
-// separation that never fights the caret, and the §8.1 honesty device:
-// a ghost "This is an estimate" toggle.
+// Money (owner design intake-v2): a ruled "EXACT  € [ 0.00 ]" box with
+// the currency's mark from components/sheet/num.ts (the profile's own
+// reporting currency), live thousands separation that never fights the
+// caret, and the §8.1 honesty device: a "This is an estimate" toggle.
+//
+// The design prints a unit after the field ("per order"). The bank's
+// money questions carry no unit, so none is printed. Nor are range tiles
+// ("Under €6", "€6–€9") drawn: the bank carries no per-question ranges,
+// and inventing buckets would put numbers on screen nothing backs. The
+// measured reference ruler lives in QuestionCard, from already_read.
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
+import { currencyMark } from "../record";
 import type { ControlProps } from "./shared";
 
 /** "1234567.5" → "1,234,567.5" (integer part grouped, decimals kept). */
@@ -21,15 +29,22 @@ function parse(raw: string): { intPart: string; decPart: string | undefined } {
   return { intPart: m?.[1] ?? "", decPart: m?.[2] };
 }
 
-export function MoneyControl({ question, onChange, onCommit }: ControlProps) {
+export function MoneyControl({
+  question,
+  onChange,
+  onCommit,
+  afterRows = false,
+}: ControlProps & { afterRows?: boolean }) {
   const ref = useRef<HTMLInputElement>(null);
   const caretRef = useRef<number | null>(null);
   const [display, setDisplay] = useState("");
   const [estimate, setEstimate] = useState(false);
 
+  // With option rows above, focus stays off the field so the number keys
+  // can pick a row; alone, the field takes focus.
   useEffect(() => {
-    ref.current?.focus();
-  }, []);
+    if (!afterRows) ref.current?.focus({ preventScroll: true });
+  }, [afterRows]);
 
   // Restore the caret after React re-renders the formatted value.
   useLayoutEffect(() => {
@@ -70,16 +85,28 @@ export function MoneyControl({ question, onChange, onCommit }: ControlProps) {
     onChange({ wire: wireOf(display), estimate: next });
   };
 
+  const { mark, before } = currencyMark(question.currency);
+  const inputId = `money-${question.id}`;
   return (
-    <div>
-      <div className="money-wrap">
+    <div className="ix-money">
+      <div className="ix-money-box">
+        <label className="ix-money-label" htmlFor={inputId}>
+          Exact<span className="sr-only"> amount, {question.currency}</span>
+        </label>
+        {before && (
+          <span className="ix-money-mark" aria-hidden="true">
+            {mark}
+          </span>
+        )}
         <input
           ref={ref}
-          aria-labelledby={`q-${question.id}`}
-          className="field tabular"
+          id={inputId}
+          aria-describedby={`q-${question.id}`}
+          className="ix-money-input"
           type="text"
           inputMode="decimal"
           autoComplete="off"
+          placeholder="0.00"
           value={display}
           onChange={handleInput}
           onKeyDown={(e) => {
@@ -89,15 +116,13 @@ export function MoneyControl({ question, onChange, onCommit }: ControlProps) {
             }
           }}
         />
-        <span className="money-cur" aria-hidden="true">
-          {question.currency}
-        </span>
+        {!before && <span className="ix-money-mark">{mark}</span>}
       </div>
-      <div className="estimate-row">
-        <button type="button" className="ghost" aria-pressed={estimate} onClick={toggleEstimate}>
-          This is an estimate
+      <div className="ix-estimate">
+        <button type="button" className="ix-link" aria-pressed={estimate} onClick={toggleEstimate}>
+          {estimate ? "Marked as an estimate" : "This is an estimate"}
         </button>
-        {estimate && <span className="mono-note label">Basis: estimate</span>}
+        {estimate && <span className="ix-note">Basis: estimated</span>}
       </div>
     </div>
   );

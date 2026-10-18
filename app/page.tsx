@@ -1,5 +1,5 @@
-// The landing page — ux-spec §7.1: the sample diagnosis sheet is the
-// hero, and the price on the button is the price checkout charges.
+// The landing page — the owner's landing design (2026-10-17); the price
+// on every button is the price checkout charges.
 
 import type { Metadata } from "next";
 import { Landing } from "@/components/marketing/Landing";
@@ -7,9 +7,9 @@ import { reportPrice } from "@/lib/payments/stripe";
 import "./landing.css";
 
 export const metadata: Metadata = {
-  title: "Ledgerline — find out where your shop loses money",
+  title: "Ledgerline — a blood test for your online store",
   description:
-    "Answer questions about your shop and get a diagnosis: every figure checked against a range, every finding with its evidence, and the arithmetic shown.",
+    "36 checks on your Shopify or WooCommerce store, every leak priced in euros, and a signed report.",
 };
 
 export default function Home() {

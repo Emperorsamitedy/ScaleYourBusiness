@@ -10,7 +10,8 @@ import "./sheet.css";
 // Archivo for prose, IBM Plex Mono for every figure and label.
 const zilla = Zilla_Slab({
   subsets: ["latin", "latin-ext"],
-  weight: ["500", "600"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-zilla",
   display: "swap",
 });

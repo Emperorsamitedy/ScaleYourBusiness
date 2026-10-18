@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   columnDecimals,
   fmtDate,
+  fmtDay,
   forecastRange,
   isFigureText,
   keyWords,
@@ -14,7 +15,7 @@ import {
   signedMoney,
 } from "./figures";
 
-const NB = " ";
+const NB = ",";
 const eur = (amount_minor: number) => ({ amount_minor, currency: "EUR" });
 
 describe("one decimal count per money column", () => {
@@ -137,5 +138,17 @@ describe("field keys as words", () => {
       "sold per month",
     );
     expect(keyWords("identity")).toBe("identity");
+  });
+});
+
+describe("fmtDay — the designs' short date", () => {
+  const now = new Date("2026-10-17T12:00:00Z");
+  it("drops the year only when it is this year", () => {
+    expect(fmtDay("2026-10-03T09:00:00Z", now)).toBe("03 Oct");
+    expect(fmtDay("2026-09-14", now)).toBe("14 Sep");
+    expect(fmtDay("2025-12-31T00:00:00Z", now)).toBe("31 Dec 2025");
+  });
+  it("returns unparseable input as given", () => {
+    expect(fmtDay("someday", now)).toBe("someday");
   });
 });

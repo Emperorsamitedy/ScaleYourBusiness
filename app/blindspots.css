@@ -1,0 +1,174 @@
+/* Insights · Blindspots — the owner's Blindspots design (2026-10-17), on
+   the sheet system (app/sheet.css): what customers looked for against
+   what the site shows, the biggest one up close, and how a blindspot
+   gets fixed. */
+
+.bs-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.bs-screen .ph-aside {
+  max-width: 46ch;
+}
+
+.bs-table-wrap {
+  overflow-x: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+.bs-table {
+  min-width: 640px;
+}
+.bs-table tbody th {
+  font-family: var(--f-mono);
+  font-size: 14px;
+  font-weight: 500;
+}
+.bs-bar {
+  display: block;
+  position: relative;
+  width: 100%;
+  min-width: 90px;
+  height: 9px;
+  background: var(--inset);
+}
+.bs-bar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--sheet-ink);
+}
+.bs-table td.bs-barcell {
+  width: 24%;
+  vertical-align: middle;
+}
+
+.bs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  align-items: start;
+  margin-top: 15px;
+}
+.bs-grid .cs {
+  min-width: 0;
+}
+
+/* the biggest blindspot, source by source */
+.bs-sources {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin: 0 0 14px;
+  border: 1px solid var(--rule-soft);
+}
+.bs-sources div {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.bs-sources div:nth-child(odd) {
+  border-right: 1px solid var(--rule-soft);
+}
+.bs-sources dt {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.bs-sources dd {
+  margin: 6px 0 0;
+  font-family: var(--f-mono);
+  font-size: 16.5px;
+  font-variant-numeric: tabular-nums;
+}
+.bs-sources dd small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+.bs-sources dd.none {
+  color: var(--sheet-ink-2);
+  font-size: 14px;
+}
+.bs-copy {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+/* how blindspots get fixed */
+.bs-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bs-steps li {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: var(--s-4);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.bs-steps li:first-child {
+  padding-top: 4px;
+}
+.bs-steps .n {
+  font-family: var(--f-mono);
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.bs-foot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+.bs-foot-row .act {
+  min-height: 44px;
+}
+
+.bs-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bs-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 14px;
+}
+
+.bs-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+
+@media (max-width: 1099px) {
+  .bs-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .bs-screen .ph-aside {
+    text-align: left;
+  }
+  .bs-sources {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bs-sources div:nth-child(odd) {
+    border-right: 0;
+  }
+  .bs-steps li {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: var(--s-3);
+  }
+}

@@ -107,7 +107,15 @@ Motion reports state, and is subtler the more often it plays: 100ms press, 220ms
 | Approval queue | Decide on proposals | v2, patterned here |
 | Module pages | Marketing, finance, support detail | v3+ |
 
-Navigation is a single persistent left rail on desktop, collapsing to a bottom bar on mobile, with at most five entries. The rail carries exactly one badge — the approval count — because that is the only thing that is ever the owner's turn.
+Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame.tsx`). It is a 248px ink rail with:
+- the wordmark, the business name and the live state ("WATCHING · DAY 19 / 28") over a cobalt rule;
+- five labelled groups (To approve, Insights, Grow, Customers, Your business) that list every screen;
+- a mono count beside each item where a real count exists (`/api/nav`);
+- "Ask me anything →" at the foot.
+
+There are no icons and no section tabs. Under 900px the rail folds into a top bar with a Menu button.
+
+Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
 ---
 
@@ -180,6 +188,37 @@ The copy matters more than the layout, and it is plain (revised 2026-10-17: no p
 
 This is the tonal high-water mark for the whole product. The system has just caught the owner in an apparent inconsistency, which is exactly the moment a business tool usually makes someone feel stupid. Getting this moment right — curious, not corrective — sets the relationship for everything that follows, including the far more consequential moment when the system disagrees with a decision they've made.
 
+### 4.6 The calibration layout (owner design, 2026-10-17)
+
+The intake now follows the owner's "calibrating the record" design (`components/intake/**`, `app/intake.css`). It supersedes the wireframe at the top of §4 wherever the two differ.
+
+**Masthead:**
+- a live state: "Listening" while a question waits, "Saving…" while a request is in flight
+- minutes in this sitting, measured on the browser clock
+- the number of facts on file
+- "Pause — finish later", which opens the resume-link form
+
+**Channel bank:** one tile per bank section.
+- Each tile has one bar per applicable question, in bank order. The bar kinds are owner, measured, derived, current, open, unknown and skipped, each with its own fill pattern.
+- Each tile shows the percentage answered and a status word: DONE, MEASURING, READ ONLY, NOT STARTED, NEEDS CH nn or IN PROGRESS.
+
+**Question panel:**
+- a dark band showing the question, the channel, and how many questions and minutes are left (45 seconds a question)
+- a graph-paper body with a watermark of the question number
+- "Already measured" and "The missing piece" boxes, shown only when connector data exists for the question
+- numbered option tiles, answered with keys 1–9
+- the exact-amount input, with a ruler only when a measured value exists
+- Back / Skip / Next
+
+**Right column:**
+- a live blended-margin dial with a neutral track. It has no bands until a reference range exists.
+- report readiness: completeness shown as 25 cells
+- the area's record, with "what this answer unlocks" taken from the bank's `unlocks`
+
+**Tape:** a strip along the bottom showing the newest facts with their real timestamps. It scrolls by hand and never moves on its own.
+
+**Not shown until data exists for them:** highlighted words in the question, range tiles, sensitivity figures and the Confirm action.
+
 ---
 
 ## 5. Mode decision
@@ -247,14 +286,24 @@ Recommendations carry two actions — "Look into this" and "Not for us". Declini
 
 ### 7.1 Landing page
 
-The landing page sells the sheet itself (`components/marketing/Landing.tsx`).
+The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx` and `StoreChart.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
 
-- **The hero is a flat, full-width sample diagnosis page** for a fictional store, labelled as one at its top edge. It is not a device mockup. Its arithmetic is held true by `lib/marketing/sample-diagnosis.test.ts`.
-- **Copy:** plain hero copy at roughly a sixth-grade reading level, with hard counts ("17 checks across 5 areas"). The counts come from `lib/marketing/checks.ts`, which a test holds to the validation rules, so the page cannot claim more checks than the product runs.
-- **The body follows the report's own numbered sections**, set like a table of contents: sample page, what is checked, how the numbers are made, examiner, price, questions.
-- **The price on the button is `reportPrice()`**, the same value checkout charges.
-- **The "Examined by" block and the refund guarantee** render only once the owner supplies them in `lib/marketing/offer.ts`. The page never prints a stand-in name or an unagreed promise.
-- **Never:** a centred gradient hero, an icon feature grid, a "1-2-3 steps" row, a row of big stats without a comparison, or a claim the code does not back.
+The page, top to bottom:
+1. Header.
+2. Hero: "Its numbers" in coral italic.
+3. A six-chapter product walkthrough player: cursor, captions, chapters, play/pause, and reduced-motion opening paused on the report chapter.
+4. A 90-day candlestick store chart with leak shading, 1D/1W and a crosshair.
+5. Nine test panels (`lib/marketing/areas.ts`).
+6. How it works.
+7. Price.
+8. Questions.
+9. Footer.
+
+Every sample is labelled "Illustrative store". `lib/marketing/sample-diagnosis.test.ts` holds each flag to its range and act-now line, and every sample amount is in integer minor units.
+
+The price on every button is `reportPrice()`. The examiner, guarantee count and delivery days come from `lib/marketing/offer.ts`, and print as the mockup's bracketed placeholders until supplied.
+
+Two hero lines are promises the owner has not yet recorded in `offer.ts`: "Refund if we find nothing" and "Signed by a person". Confirm both before launch. `areas.ts` marks which panels have a read-only connector today.
 
 ---
 

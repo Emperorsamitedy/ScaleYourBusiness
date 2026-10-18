@@ -2,7 +2,8 @@
 // pattern). Everything the queue shows that is arithmetic or wording lives
 // here, so it is testable without a browser and without the database.
 
-import { moneyText } from "../sheet/num";
+import { type BasisInput, basisOfKey, sourceLabel } from "../report/basis";
+import { moneyText, num } from "../sheet/num";
 
 export interface MoneyLike {
   amount_minor: number;
@@ -137,17 +138,25 @@ export function shortRef(id: string): string {
   return id.replace(/-/g, "").slice(0, 8);
 }
 
+export type Decision = "approved" | "rejected" | "changes_requested";
+
 export interface Stamp {
-  decision: "approved" | "rejected";
+  decision: Decision;
   /** ISO time of the decision. */
   at: string;
   /** True when `at` is this device's clock, not the recorded time. */
   clientTime: boolean;
 }
 
+const STAMP_VERB: Record<Decision, string> = {
+  approved: "APPROVED",
+  rejected: "DECLINED",
+  changes_requested: "CHANGES REQUESTED",
+};
+
 /** "APPROVED 14:02 · ref 3f2a9c1b" — the recorded time unless labelled otherwise. */
 export function stampText(id: string, stamp: Stamp, timeZone?: string): string {
-  const verb = stamp.decision === "approved" ? "APPROVED" : "DECLINED";
+  const verb = STAMP_VERB[stamp.decision];
   const clock = clockWord(stamp.at, timeZone);
   const when = stamp.clientTime ? `${clock} (this device's clock)` : clock;
   return `${verb} ${when} · ref ${shortRef(id)}`;
@@ -264,4 +273,330 @@ export const SCHEDULE_CHOICES: readonly ScheduleChoice[] = [
 export function executeNotBefore(key: string, nowMs: number): string | null {
   const days = SCHEDULE_CHOICES.find((s) => s.key === key)?.days ?? null;
   return days === null ? null : new Date(nowMs + days * 86_400_000).toISOString();
+}
+
+/* ── the approval-queue design (2026-10-17): derived lines, all from data ── */
+
+export interface ActionLike {
+  kind?: string;
+  summary: string;
+  detail?: unknown;
+}
+
+export interface ChangeLine {
+  /** What changes, in words — "Campaign “Autumn menu”". */
+  line: string;
+  /** A mono qualifier under it, when the data gives one. */
+  sub: string | null;
+  before: string;
+  after: string;
+}
+
+type Detail = Record<string, unknown>;
+
+const asDetail = (d: unknown): Detail | null =>
+  typeof d === "object" && d !== null && !Array.isArray(d) ? (d as Detail) : null;
+const str = (v: unknown): string | null =>
+  typeof v === "string" && v.trim() !== "" ? v.trim() : null;
+const int = (v: unknown): number | null => (Number.isSafeInteger(v) ? (v as number) : null);
+
+/**
+ * The "what changes — before → after" lines, read from what the
+ * proposal's own detail states. Null when it states no before and after:
+ * the sheet then prints the summary alone rather than invent a "before".
+ *
+ *   - any detail with `before` / `after` (changeOf)
+ *   - an ad change (detail.change "pause" | "raise_budget" with the
+ *     measured spend): the campaign's average daily spend over the
+ *     measured days, before and after
+ *   - a customer email (detail.contact_ids): who receives it, and what
+ *   - a publish (detail.platform + publish_at): not posted → posted then
+ */
+export function changeLines(action: ActionLike, timeZone?: string): ChangeLine[] | null {
+  const d = asDetail(action.detail);
+  if (!d) return null;
+
+  const stated = changeOf(d);
+  if (stated) return [{ line: "The change", sub: null, ...stated }];
+
+  const change = str(d.change);
+  const name = str(d.campaign_name);
+  const spend = int(d.spend_minor);
+  const days = int(d.measured_days);
+  const currency = str(d.currency);
+  if (
+    (change === "pause" || change === "raise_budget") &&
+    name &&
+    spend !== null &&
+    days &&
+    currency
+  ) {
+    const daily = Math.round(spend / Math.max(1, days));
+    const over = `daily spend, average over ${days} measured day${days === 1 ? "" : "s"}`;
+    if (change === "pause") {
+      return [
+        {
+          line: `Campaign “${name}”`,
+          sub: over,
+          before: `${moneyText(daily, currency)} a day`,
+          after: "paused · nothing spent",
+        },
+      ];
+    }
+    const share = typeof d.share === "number" && Number.isFinite(d.share) ? d.share : null;
+    if (share !== null) {
+      return [
+        {
+          line: `Campaign “${name}”`,
+          sub: over,
+          before: `${moneyText(daily, currency)} a day`,
+          after: `about ${moneyText(Math.round(daily * (1 + share)), currency)} a day (+${num(share * 100)} %)`,
+        },
+      ];
+    }
+  }
+
+  if (Array.isArray(d.contact_ids)) {
+    const n = d.contact_ids.length;
+    const lines: ChangeLine[] = [
+      {
+        line: "Audience",
+        sub: str(d.label),
+        before: "nobody",
+        after: `${num(n)} ${n === 1 ? "person" : "people"}`,
+      },
+    ];
+    const what = str(d.what);
+    if (what) lines.push({ line: "Email", sub: null, before: "—", after: what });
+    return lines;
+  }
+
+  const platform = str(d.platform);
+  const at = str(d.publish_at);
+  if (platform && at && !Number.isNaN(Date.parse(at))) {
+    return [
+      {
+        line: `Post on ${platform}`,
+        sub: str(d.target),
+        before: "not posted",
+        after: `posted ${dayWord(at, timeZone)} ${clockWord(at, timeZone)}`,
+      },
+    ];
+  }
+  return null;
+}
+
+/**
+ * The primary button states the consequence (the owner's mobile design):
+ * what approving this proposal asks for, from its own action data —
+ * "Pause “Autumn menu”", "Send to 398 customers". "Approve" when the
+ * data names no specific consequence.
+ */
+export function consequence(action: ActionLike): string {
+  const d = asDetail(action.detail);
+  if (!d) return "Approve";
+  const change = str(d.change);
+  const name = str(d.campaign_name);
+  if (change === "pause" && name) return `Pause “${name}”`;
+  if (change === "raise_budget" && name && typeof d.share === "number") {
+    return `Raise “${name}” by ${num(d.share * 100)} %`;
+  }
+  if (Array.isArray(d.contact_ids) && d.contact_ids.length > 0) {
+    const n = d.contact_ids.length;
+    return `Send to ${num(n)} ${n === 1 ? "customer" : "customers"}`;
+  }
+  const platform = str(d.platform);
+  if (platform && str(d.publish_at)) return `Publish to ${platform}`;
+  return "Approve";
+}
+
+const ORIGIN_WORDS: Record<string, string> = {
+  anomaly: "an alert in your numbers",
+  ads: "the ad review",
+  publish: "the content plan",
+  alert_review: "an alert review",
+  utterance: "something you asked for",
+  crm: "the customer review",
+  hours: "the opening-hours review",
+};
+
+/** Where a proposal came from, in words, from its originating_finding ref. */
+export function originWord(ref: string | null | undefined): string | null {
+  if (!ref) return null;
+  const rec = /^report:[^:]+:rec:(\d+)$/.exec(ref);
+  if (rec) return `report recommendation ${Number(rec[1]) + 1}`;
+  const prefix = ref.split(":")[0] ?? "";
+  return ORIGIN_WORDS[prefix] ?? ref;
+}
+
+/** The list's short reversibility: "easy to undo" … "irreversible". */
+export function shortReversibility(rev: ReversibilityLike | null | undefined): string {
+  const level = rev?.level ?? null;
+  return level !== null && LEVELS.has(level) ? `${level} to undo` : "irreversible";
+}
+
+/* ── evidence: every line with its source and basis ── */
+
+export interface AssumptionLike {
+  statement: string;
+  source_field?: string | null;
+  sensitivity?: string;
+}
+
+export interface EvidenceLine {
+  statement: string;
+  /** The source half of the mono line. */
+  source: string;
+  /** OBSERVED · DERIVED · ESTIMATED · STATED · ASSUMED, or NOT RECORDED. */
+  basis: string;
+  leansHard: boolean;
+}
+
+/**
+ * Each assumption as an evidence line. With a source field: the field's
+ * current record decides the basis (basis.ts) and the source word; a
+ * named field with no current record is NOT RECORDED. Without one it is
+ * ASSUMED — basis.ts: "an input to a forecast that nobody measured or
+ * stated" — never promoted to anything stronger.
+ */
+export function evidenceLines(
+  assumptions: readonly AssumptionLike[],
+  facts: Record<string, BasisInput | undefined>,
+): EvidenceLine[] {
+  return assumptions.map((a) => {
+    const key = str(a.source_field);
+    const leansHard = a.sensitivity === "high";
+    if (!key) {
+      return { statement: a.statement, source: "no source field", basis: "ASSUMED", leansHard };
+    }
+    const fact = facts[key];
+    const basis = basisOfKey(key, facts);
+    const source = fact ? `${sourceLabel(fact.source_kind)} · ${key}` : key;
+    return { statement: a.statement, source, basis: basis ?? "NOT RECORDED", leansHard };
+  });
+}
+
+/* ── the effect axis: the range on a scale that includes zero ── */
+
+function niceStep(span: number): number {
+  const raw = span / 4;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  for (const m of [1, 2, 2.5, 5]) if (raw <= m * mag) return m * mag;
+  return 10 * mag;
+}
+
+/**
+ * The scale and ticks for the range bar, in minor units: always spans
+ * zero (an effect is read against "nothing changes"), stepped at 1 / 2 /
+ * 2.5 / 5 × 10ⁿ with about four intervals.
+ */
+export function rangeAxis(
+  lowMinor: number,
+  highMinor: number,
+): { scale: [number, number]; ticks: number[] } {
+  const lo = Math.min(0, lowMinor, highMinor);
+  const hi = Math.max(0, lowMinor, highMinor);
+  const step = niceStep(hi - lo || 100);
+  const start = Math.floor(lo / step) * step;
+  let end = Math.ceil(hi / step) * step;
+  if (end === start) end = start + step;
+  const ticks: number[] = [];
+  for (let t = start; t <= end + step / 1000; t += step) ticks.push(Math.round(t));
+  return { scale: [start, end], ticks };
+}
+
+/* ── the masthead's review stats, from decided_at and created_at ── */
+
+export interface DecidedLike {
+  status: string;
+  created_at: string;
+  decided_at: string | null;
+}
+
+const HUMAN_DECISIONS = new Set(["approved", "executed", "rejected", "changes_requested"]);
+
+/**
+ * This calendar month's decisions (in `timeZone`, default the device's):
+ * the median time from drafted to decided, and how many were approved
+ * (approved or since executed) of all decided. Expired proposals are not
+ * decisions and are not counted. Null when nothing was decided this month.
+ */
+export function reviewStats(
+  rows: readonly DecidedLike[],
+  now: Date,
+  timeZone?: string,
+): { medianMs: number; approved: number; decided: number } | null {
+  const monthOf = (d: Date) =>
+    d.toLocaleDateString("en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      ...(timeZone ? { timeZone } : {}),
+    });
+  const month = monthOf(now);
+  const waits: number[] = [];
+  let approved = 0;
+  for (const r of rows) {
+    if (!HUMAN_DECISIONS.has(r.status) || !r.decided_at) continue;
+    const decided = new Date(r.decided_at);
+    if (monthOf(decided) !== month) continue;
+    const wait = decided.getTime() - new Date(r.created_at).getTime();
+    if (!Number.isFinite(wait) || wait < 0) continue;
+    waits.push(wait);
+    if (r.status === "approved" || r.status === "executed") approved++;
+  }
+  if (waits.length === 0) return null;
+  waits.sort((a, b) => a - b);
+  const mid = Math.floor(waits.length / 2);
+  const upper = waits[mid] ?? 0;
+  const medianMs = waits.length % 2 === 1 ? upper : ((waits[mid - 1] ?? 0) + upper) / 2;
+  return { medianMs: Math.round(medianMs), approved, decided: waits.length };
+}
+
+/** "40 s", "2 m 40 s", "3 h 05 m", "2 d 4 h". */
+export function durationWord(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000));
+  if (s < 60) return `${s} s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m} m ${String(s % 60).padStart(2, "0")} s`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} h ${String(m % 60).padStart(2, "0")} m`;
+  return `${Math.floor(h / 24)} d ${h % 24} h`;
+}
+
+/** Same calendar day as `now`, in `timeZone` (default the device's). */
+export function isSameDay(iso: string, now: Date, timeZone?: string): boolean {
+  const day = (d: Date) => d.toLocaleDateString("en-GB", timeZone ? { timeZone } : {});
+  return day(new Date(iso)) === day(now);
+}
+
+/* ── what approving actually does — only what is true ── */
+
+/**
+ * The line under the decision buttons. The design's "you can undo until
+ * then" is not offered: no un-approve window exists (lib/execution — an
+ * approved proposal stays approved; the emergency stop halts runs, and
+ * the undo is the permanent post-run one, rule 16). So it says when it
+ * can run, what the proposal itself says about sending, and that the
+ * stop still holds.
+ */
+export function approvalNote(args: {
+  /** The execute_not_before the approval would carry, or null. */
+  runAt: string | null;
+  /** The proposal's own statement of what approval sends, if any. */
+  sending?: unknown;
+  timeZone?: string;
+}): string {
+  const parts: string[] = [];
+  if (args.runAt) {
+    parts.push(
+      `Approving queues it to run no earlier than ${dayWord(args.runAt, args.timeZone)}, ${clockWord(args.runAt, args.timeZone)}. There is no un-approve; the emergency stop can still halt it.`,
+    );
+  } else {
+    parts.push(
+      "Approving records your yes with your name. With no set time, it doesn't run by itself.",
+    );
+  }
+  const sending = str(args.sending);
+  if (sending) parts.push(sending);
+  return parts.join(" ");
 }

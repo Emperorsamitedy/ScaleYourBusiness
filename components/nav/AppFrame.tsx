@@ -1,53 +1,53 @@
 "use client";
 
-// The app's one navigation — ux-spec §3: "a single persistent left rail on
-// desktop, collapsing to a bottom bar on mobile, with at most five
-// entries", carrying exactly one badge, the approval count, "because that
-// is the only thing that is ever the owner's turn."
+// The app's one navigation — the owner's menu design (2026-10-17) on
+// ux-spec §3: an ink rail with the wordmark, the business, and the live
+// state ("WATCHING · DAY 19 / 28") over a cobalt rule; then five labelled
+// groups listing every screen, each with its count where one exists; and
+// "Ask me anything →" at the foot. No icons and no section tabs: every
+// screen is one click from the rail.
 //
-// Before this, every screen drew its own footer links and several features
-// (customers, the website, the chat) could only be reached by typing a
-// URL. Now every owner screen sits in one of five places, and a section
-// with several screens shows them as tabs at the top. Pages keep their own
-// content; nothing here changes what a page does.
-//
-// Shown only on the owner's screens: never on the landing, the intake (a
-// focused flow by design), sign-in, the operator panel or the widget test
-// page.
+// Two screens are focused views with their own masthead and no rail —
+// the report and the approval queue (their designs). The landing, the
+// intake, sign-in and the operator panel never show it.
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import type { NavCounts } from "../../app/api/nav/route";
 
-interface Tab {
+interface Item {
   href: string;
   label: string;
+  count?: (c: NavCounts) => string | null;
 }
 
-interface Section {
+interface Group {
   key: string;
   label: string;
-  /** Where clicking the section goes. */
-  href: string;
-  tabs: Tab[];
+  items: Item[];
 }
 
-export const SECTIONS: readonly Section[] = [
+const n = (v: number) => (v > 0 ? String(v) : null);
+
+export const GROUPS: readonly Group[] = [
   {
     key: "approve",
     label: "To approve",
-    href: "/proposals",
-    tabs: [{ href: "/proposals", label: "Waiting for you" }],
+    items: [{ href: "/proposals", label: "Waiting for you", count: (c) => n(c.pending) }],
   },
   {
     key: "insights",
     label: "Insights",
-    href: "/report",
-    tabs: [
+    items: [
       { href: "/report", label: "Report" },
-      { href: "/watch", label: "Watching" },
-      { href: "/progress", label: "Goals" },
+      {
+        href: "/watch",
+        label: "Watching",
+        count: (c) => (c.watch ? `${c.watch.day}/${c.watch.of}` : null),
+      },
+      { href: "/progress", label: "Goals", count: (c) => n(c.goals) },
       { href: "/hours", label: "Trading hours" },
       { href: "/blindspots", label: "Blindspots" },
     ],
@@ -55,81 +55,74 @@ export const SECTIONS: readonly Section[] = [
   {
     key: "grow",
     label: "Grow",
-    href: "/content",
-    tabs: [
-      { href: "/content", label: "Content" },
-      { href: "/site", label: "Website" },
+    items: [
+      { href: "/content", label: "Content", count: (c) => n(c.by_module.content ?? 0) },
+      { href: "/site", label: "Website", count: (c) => n(c.by_module.site ?? 0) },
     ],
   },
   {
     key: "customers",
     label: "Customers",
-    href: "/customers",
-    tabs: [
+    items: [
       { href: "/customers", label: "Customers" },
-      { href: "/support", label: "Support" },
+      { href: "/support", label: "Support", count: (c) => n(c.by_module.support ?? 0) },
     ],
   },
   {
     key: "business",
     label: "Your business",
-    href: "/profile",
-    tabs: [
-      { href: "/profile", label: "Fact sheet" },
-      { href: "/connections", label: "Connections" },
+    items: [
+      { href: "/profile", label: "Fact sheet", count: (c) => n(c.facts) },
+      { href: "/connections", label: "Connections", count: (c) => n(c.connections) },
       { href: "/mode", label: "How I work" },
       { href: "/history", label: "History" },
     ],
   },
 ];
 
-/** Screens that are part of the app but no section's tab (the owner's chat). */
+/** Focused views: their own masthead, no rail. */
+const FOCUSED = ["/report", "/proposals"];
 const LOOSE_ROUTES = ["/chat"];
 
 const matches = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
 
-/** Pure: the section a path belongs to, or null when it isn't an owner screen. */
-export function sectionFor(path: string): Section | null {
+/** Pure: the group a path belongs to, or null when it isn't an owner screen. */
+export function groupFor(path: string): Group | null {
   if (path.startsWith("/support/test")) return null; // the stand-in for an owner's own site
-  return SECTIONS.find((s) => s.tabs.some((t) => matches(path, t.href))) ?? null;
+  return GROUPS.find((g) => g.items.some((i) => matches(path, i.href))) ?? null;
 }
 
-/** Pure: whether a path shows the app's navigation at all. */
+/** Pure: whether a path shows the rail at all. */
 export function showsNav(path: string): boolean {
-  return sectionFor(path) !== null || LOOSE_ROUTES.some((r) => matches(path, r));
+  if (FOCUSED.some((r) => matches(path, r))) return false;
+  return groupFor(path) !== null || LOOSE_ROUTES.some((r) => matches(path, r));
 }
 
-function ApprovalCount() {
-  const [count, setCount] = useState<number | null>(null);
-  const path = usePathname();
+function useCounts(path: string): NavCounts | null {
+  const [counts, setCounts] = useState<NavCounts | null>(null);
   useEffect(() => {
     let alive = true;
-    void fetch("/api/proposals")
-      .then(async (res) => {
-        if (!res.ok) return;
-        const j = (await res.json()) as { pending_count?: number };
-        if (alive && typeof j.pending_count === "number") setCount(j.pending_count);
+    void fetch("/api/nav")
+      .then(async (res) => (res.ok ? ((await res.json()) as NavCounts) : null))
+      .then((c) => {
+        if (alive && c) setCounts(c);
       })
       .catch(() => undefined);
     return () => {
       alive = false;
     };
   }, [path]); // refreshed on every move, so a decision just made is reflected
-  if (!count) return null;
-  return (
-    <span className="nav-badge" aria-label={`${count} waiting for you`}>
-      {count}
-    </span>
-  );
+  return counts;
 }
 
+// Not in the menu design, which has no way out; kept small under the foot.
 function SignOut() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   return (
     <button
       type="button"
-      className="nav-foot-link"
+      className="app-rail-signout"
       disabled={busy}
       onClick={async () => {
         setBusy(true);
@@ -144,64 +137,70 @@ function SignOut() {
 
 export function AppFrame({ children }: { children: ReactNode }) {
   const path = usePathname() ?? "/";
+  const counts = useCounts(path);
+  const [open, setOpen] = useState(false);
+  useEffect(() => setOpen(false), [path]);
   if (!showsNav(path)) return <>{children}</>;
-  const current = sectionFor(path);
 
   return (
     <div className="app-frame">
-      <nav className="app-rail" aria-label="Main">
-        <Link href="/report" className="app-rail-mark">
-          Ledgerline
-        </Link>
-        <ul className="app-rail-list">
-          {SECTIONS.map((s) => {
-            const active = current?.key === s.key;
-            return (
-              <li key={s.key}>
-                <Link
-                  href={s.href}
-                  className={`app-rail-item${active ? " active" : ""}`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <span className="app-rail-label">{s.label}</span>
-                  {s.key === "approve" && <ApprovalCount />}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="app-rail-foot">
-          <Link
-            href="/chat"
-            className={`nav-foot-link${matches(path, "/chat") ? " active" : ""}`}
-            aria-current={matches(path, "/chat") ? "page" : undefined}
-          >
-            Ask me anything
+      <nav className={`app-rail${open ? " open" : ""}`} aria-label="Main">
+        <div className="app-rail-head">
+          <Link href="/watch" className="app-rail-mark">
+            Ledgerline
           </Link>
-          <SignOut />
+          {counts?.business && <p className="app-rail-biz">{counts.business}</p>}
+          {counts?.watch && (
+            <p className="app-rail-live">
+              <span className="app-rail-sq" aria-hidden="true" />
+              Watching · day {counts.watch.day} / {counts.watch.of}
+            </p>
+          )}
+          <button
+            type="button"
+            className="app-rail-toggle"
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+          >
+            {open ? "Close" : "Menu"}
+          </button>
         </div>
+        <div className="app-rail-groups">
+          {GROUPS.map((g) => (
+            <div key={g.key} className="app-rail-group">
+              <p className="app-rail-label">{g.label}</p>
+              <ul>
+                {g.items.map((i) => {
+                  const active = matches(path, i.href);
+                  const c = counts && i.count ? i.count(counts) : null;
+                  return (
+                    <li key={i.href}>
+                      <Link
+                        href={i.href}
+                        className={`app-rail-item${active ? " active" : ""}`}
+                        aria-current={active ? "page" : undefined}
+                      >
+                        <span>{i.label}</span>
+                        {c && <span className="app-rail-count">{c}</span>}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <Link
+          href="/chat"
+          className={`app-rail-ask${matches(path, "/chat") ? " active" : ""}`}
+          aria-current={matches(path, "/chat") ? "page" : undefined}
+        >
+          <span>Ask me anything</span>
+          <span aria-hidden="true">→</span>
+        </Link>
+        <SignOut />
       </nav>
-
-      <div className="app-main">
-        {current && current.tabs.length > 1 && (
-          <nav className="app-tabs" aria-label={current.label}>
-            {current.tabs.map((t) => {
-              const active = matches(path, t.href);
-              return (
-                <Link
-                  key={t.href}
-                  href={t.href}
-                  className={`app-tab${active ? " active" : ""}`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {t.label}
-                </Link>
-              );
-            })}
-          </nav>
-        )}
-        {children}
-      </div>
+      <div className="app-main">{children}</div>
     </div>
   );
 }

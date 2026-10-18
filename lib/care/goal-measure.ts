@@ -23,6 +23,7 @@ import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { readCurrentField, writeField } from "../profile/field-store";
 import { dailySeries, shiftDay, windowStat } from "../trust/series";
+import { enumCode } from "../core/enum-value";
 
 export class GoalMeasureError extends Error {
   readonly status: number;
@@ -223,8 +224,9 @@ export async function setGoalMeasure(
   const setOn = now.toISOString().slice(0, 10);
   let deadline = input.deadline ?? null;
   if (!deadline) {
-    const horizon = await readCurrentField<string>(profileId, `goals.${goalId}.horizon`);
-    const months = horizon ? HORIZON_MONTHS[horizon.value as string] : undefined;
+    const horizon = await readCurrentField<unknown>(profileId, `goals.${goalId}.horizon`);
+    const code = horizon ? enumCode(horizon.value) : null;
+    const months = code ? HORIZON_MONTHS[code] : undefined;
     if (!months) {
       throw new GoalMeasureError(
         "a measurable goal needs a deadline, or a horizon to derive one from",

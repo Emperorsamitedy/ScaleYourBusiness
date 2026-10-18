@@ -1,21 +1,35 @@
 "use client";
 
-// The customers screen — Phase 4 Sessions A and E. The contact list the
-// owner imported under their own attestation; lifecycle counts and the
-// four segments with their arithmetic written out; one button that puts
-// a win-back and a thank-you in the approval queue; and erasure, one
-// click, irreversible, with the suppression that survives it. Nothing
-// here sends anything.
+// The customers screen — Phase 4 Sessions A and E, in the owner's
+// instrument design (2026-10-17). One sentence counted from the contact
+// list; FIND A CUSTOMER (search + lifecycle filters) over a ruled list;
+// the open customer's record beside it — their purchase figures, the
+// consent recorded for them (rule 19), the segment they fall in, and
+// erasure (rule 22: their details go, the suppression hash stays). Below:
+// the segments with their arithmetic, approved campaigns, and the import
+// under the owner's attestation. Nothing here sends anything. Emails are
+// partly masked on screen; the full address never needs to be shown.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import "../../app/customers.css";
+import { PageHead, SheetCard } from "../sheet/PageHead";
+import { moneyExact, num } from "../sheet/num";
+import {
+  LIFECYCLE_ORDER,
+  LIFECYCLE_WORD,
+  type Lifecycle,
+  customersHeadline,
+  filterContacts,
+  maskEmail,
+} from "./customers-view";
 
 interface Contact {
   id: string;
   name: string | null;
   email: string | null;
   consent_status: "explicit_consent" | "implied_consent" | "no_consent" | "unsure";
-  lifecycle: "new" | "active" | "lapsing" | "lapsed" | "unknown";
+  lifecycle: Lifecycle;
   last_purchase_at: string | null;
   orders_count: number | null;
   total_spent_minor: number | null;
@@ -50,7 +64,7 @@ interface CampaignView {
 interface Payload {
   posture: "enabled" | "caution" | "disabled" | "unknown";
   contacts: Contact[];
-  lifecycle: Record<Contact["lifecycle"], number>;
+  lifecycle: Record<Lifecycle, number>;
   segments: SegmentView[];
   /** P4-16: absent from an older API. */
   campaigns?: CampaignView[];
@@ -68,21 +82,28 @@ type State =
       statement: string;
       currency: string;
       showEvidence: string | null;
+      query: string;
+      filter: Lifecycle | "all";
+      open: string | null;
+      confirmErase: string | null;
+      shown: number;
     });
+
+const PAGE = 50;
 
 const CONSENT_WORD: Record<Contact["consent_status"], string> = {
   explicit_consent: "explicit consent",
-  implied_consent: "implied",
+  implied_consent: "implied consent — not explicit",
   no_consent: "no consent",
-  unsure: "unsure",
+  unsure: "unsure — not explicit",
 };
 
 const POSTURE_WORD: Record<Payload["posture"], string> = {
-  enabled: "you said customers gave explicit consent — outbound is possible, per contact",
+  enabled: "You said customers gave explicit consent — outbound is possible, per contact.",
   caution:
-    "your consent answer was implied or unsure — only contacts with explicit consent can be emailed",
-  disabled: "you said customers gave no consent — outbound email is off",
-  unknown: "you haven't answered the consent question (6.4b) — treated as caution",
+    "Your consent answer was implied or unsure — only contacts with explicit consent can be emailed.",
+  disabled: "You said customers gave no consent — outbound email is off.",
+  unknown: "You haven't answered the consent question (6.4b) — treated as caution.",
 };
 
 /** The import's outcome in words — never a JSON dump. */
@@ -120,13 +141,27 @@ function importNotice(j: Record<string, unknown>): string {
   return parts.join(" ");
 }
 
-function money(minor: number | null, currency: string | null): string {
-  if (minor === null || currency === null) return "—";
-  return `${(minor / 100).toFixed(2)} ${currency}`;
+function spent(c: Contact): string {
+  return c.total_spent_minor === null || c.spent_currency === null
+    ? "—"
+    : moneyExact(c.total_spent_minor, c.spent_currency);
+}
+
+function lastOrder(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  const sameYear = d.getUTCFullYear() === new Date().getUTCFullYear();
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    ...(sameYear ? {} : { year: "numeric" }),
+    timeZone: "UTC",
+  });
 }
 
 export function CustomersScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
+  const recordRef = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/crm");
@@ -142,6 +177,11 @@ export function CustomersScreen() {
       statement: cur.phase === "ready" ? cur.statement : "",
       currency: cur.phase === "ready" ? cur.currency : "EUR",
       showEvidence: null,
+      query: cur.phase === "ready" ? cur.query : "",
+      filter: cur.phase === "ready" ? cur.filter : "all",
+      open: cur.phase === "ready" && j.contacts.some((c) => c.id === cur.open) ? cur.open : null,
+      confirmErase: null,
+      shown: cur.phase === "ready" ? cur.shown : PAGE,
     }));
   }, []);
 
@@ -151,8 +191,8 @@ export function CustomersScreen() {
 
   if (state.phase === "loading") {
     return (
-      <main className="auth-stage">
-        <p className="auth-copy">Opening customers…</p>
+      <main className="screen cu-screen">
+        <PageHead kicker="Customers" title="Opening customers…" />
       </main>
     );
   }
@@ -193,87 +233,436 @@ export function CustomersScreen() {
     setState((cur) => (cur.phase === "ready" ? { ...cur, notice: done(j) } : cur));
   };
 
+  const list = filterContacts(s.contacts, s.filter, s.query);
+  const visible = list.slice(0, s.shown);
+  const open = s.contacts.find((c) => c.id === s.open) ?? visible[0] ?? null;
+  const segmentOf = (c: Contact) =>
+    c.lifecycle === "lapsed" || c.lifecycle === "lapsing" || c.lifecycle === "new"
+      ? s.segments.find((seg) => seg.key === c.lifecycle)
+      : undefined;
+
+  const pick = (id: string) => {
+    setState({ ...s, open: id, confirmErase: null });
+    if (window.matchMedia("(max-width: 1099px)").matches) {
+      requestAnimationFrame(() => recordRef.current?.scrollIntoView({ block: "start" }));
+    }
+  };
+
+  const who = (c: Contact) => c.name ?? maskEmail(c.email);
+
   return (
-    <main className="ops-shell">
-      <header className="ops-head">
-        <span className="wordmark">Ledgerline</span>
-        <span className="ops-meta">
-          customers · {s.contacts.length} contacts · {s.lifecycle.lapsed} lapsed ·{" "}
-          {s.lifecycle.active} active
-        </span>
-      </header>
+    <main className="screen cu-screen">
+      <PageHead
+        kicker="Customers"
+        title={customersHeadline(s.contacts.length, s.lifecycle.lapsed)}
+        aside="From the list you imported · nothing here sends"
+      />
 
       {s.notice && (
-        <section className="card ops-card">
-          <p className="auth-copy" aria-live="polite">
-            {s.notice}
-          </p>
-        </section>
+        <p className="cu-notice" aria-live="polite">
+          {s.notice}
+        </p>
       )}
 
-      <section className="card ops-card">
-        <span className="auth-eyebrow">segments — arithmetic, with the working shown</span>
-        <p className="conn-note">{POSTURE_WORD[s.posture]}</p>
-        {s.segments.map((seg) => (
-          <article key={seg.key} className="ct-item">
-            <div className="ct-item-head">
-              <span className="prop-tag">{seg.label}</span>
-              <span className="ct-item-title">
-                {seg.size} in it · {seg.emailable} may be emailed
-              </span>
+      <div className="cu-grid">
+        <section className="cs cu-list" aria-label="Customers">
+          <div className="cu-find">
+            <label className="cs-label" htmlFor="cu-q">
+              Find a customer
+            </label>
+            <input
+              id="cu-q"
+              className="cu-search"
+              type="search"
+              placeholder="name or email"
+              autoComplete="off"
+              value={s.query}
+              onChange={(e) => setState({ ...s, query: e.target.value, shown: PAGE })}
+            />
+            <div className="cu-filters" role="group" aria-label="Filter by pattern">
               <button
-                className="prop-btn quiet"
-                onClick={() =>
-                  setState({ ...s, showEvidence: s.showEvidence === seg.key ? null : seg.key })
-                }
+                type="button"
+                className={`cu-chip${s.filter === "all" ? " on" : ""}`}
+                aria-pressed={s.filter === "all"}
+                onClick={() => setState({ ...s, filter: "all", shown: PAGE })}
               >
-                {s.showEvidence === seg.key ? "Hide" : "Why"}
+                All · {num(s.contacts.length)}
+              </button>
+              {LIFECYCLE_ORDER.filter((l) => s.lifecycle[l] > 0).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  className={`cu-chip${s.filter === l ? " on" : ""}`}
+                  aria-pressed={s.filter === l}
+                  onClick={() => setState({ ...s, filter: l, shown: PAGE })}
+                >
+                  {LIFECYCLE_WORD[l].word} · {num(s.lifecycle[l])}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="cu-table-wrap">
+            {visible.length === 0 ? (
+              <p className="cu-empty">
+                {s.contacts.length === 0
+                  ? "No customers yet. Import your shop's export below — under your own attestation of what they consented to."
+                  : "Nobody matches that."}
+              </p>
+            ) : (
+              <table className="rt cu-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Customer</th>
+                    <th scope="col" className="num">
+                      Orders
+                    </th>
+                    <th scope="col" className="num">
+                      Spent
+                    </th>
+                    <th scope="col" className="num">
+                      Last order
+                    </th>
+                    <th scope="col">Pattern</th>
+                    <th scope="col">
+                      <span className="sr-only">Open</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visible.map((c) => {
+                    const w = LIFECYCLE_WORD[c.lifecycle];
+                    return (
+                      <tr key={c.id} className={open?.id === c.id ? "on" : undefined}>
+                        <th scope="row">
+                          <span className="cu-name">{who(c)}</span>
+                          {c.name && <span className="src cu-sub">{maskEmail(c.email)}</span>}
+                        </th>
+                        <td className="num" data-label="Orders">
+                          {c.orders_count ?? "—"}
+                        </td>
+                        <td className="num" data-label="Spent">
+                          {spent(c)}
+                        </td>
+                        <td className="num" data-label="Last order">
+                          {lastOrder(c.last_purchase_at)}
+                        </td>
+                        <td data-label="Pattern">
+                          <span className={`word boxed ${w.tone}`}>{w.word}</span>
+                        </td>
+                        <td className="cu-open">
+                          <button
+                            type="button"
+                            className="prop-btn cu-open-btn"
+                            aria-pressed={open?.id === c.id}
+                            aria-label={`Open ${who(c)}`}
+                            onClick={() => pick(c.id)}
+                          >
+                            Open
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+          <footer className="cs-foot cu-foot">
+            <span>
+              Showing {num(visible.length)} of {num(list.length)}
+              {list.length !== s.contacts.length ? ` (${num(s.contacts.length)} in all)` : ""} ·
+              emails are partly hidden on screen
+            </span>
+            {list.length > visible.length && (
+              <button
+                type="button"
+                className="prop-btn quiet"
+                onClick={() => setState({ ...s, shown: s.shown + PAGE })}
+              >
+                Show {Math.min(PAGE, list.length - visible.length)} more
+              </button>
+            )}
+          </footer>
+        </section>
+
+        {open && (
+          <section
+            className="cs cu-record"
+            ref={recordRef}
+            aria-labelledby="cu-record-name"
+            aria-live="polite"
+          >
+            <header className="cu-rec-head">
+              <p className="cs-label">Customer record</p>
+              <h2 className="cs-title" id="cu-record-name">
+                {open.name ?? "No name on record"}
+              </h2>
+              <p className="cu-rec-sub">
+                {maskEmail(open.email)} · {open.country ?? "country unknown"}
+              </p>
+            </header>
+            <dl className="cu-stats">
+              <div>
+                <dt>Orders</dt>
+                <dd>{open.orders_count ?? "—"}</dd>
+              </div>
+              <div>
+                <dt>Spent</dt>
+                <dd>{spent(open)}</dd>
+              </div>
+              <div>
+                <dt>Last</dt>
+                <dd>{lastOrder(open.last_purchase_at)}</dd>
+              </div>
+            </dl>
+            <div className="cu-rec-block">
+              <p className="cs-label">On record</p>
+              <ul className="cu-facts">
+                <li>Consent: {CONSENT_WORD[open.consent_status]} · as you attested at import</li>
+                <li>Pattern: {LIFECYCLE_WORD[open.lifecycle].word}</li>
+                {segmentOf(open) && (
+                  <li>
+                    Segment: {segmentOf(open)?.label} · {segmentOf(open)?.size} in it
+                  </li>
+                )}
+              </ul>
+              <p className="cu-rec-note">
+                Order-by-order history isn&rsquo;t imported — these are the totals from your export.
+              </p>
+            </div>
+            <div className="cu-rec-block cu-erase">
+              <p className="cu-erase-title">Erase this customer</p>
+              <p className="cu-erase-copy">
+                For a deletion request. Removes their name, email, details and support conversations
+                from Ledgerline for good. Their address stays on the unsubscribe list as a hash, so
+                they are never emailed again; the audit log keeps only anonymous ids.
+              </p>
+              {s.confirmErase === open.id ? (
+                <div className="cu-erase-confirm">
+                  <p className="cu-erase-copy">
+                    <span className="word alarm">irreversible</span> This cannot be undone.
+                  </p>
+                  <button
+                    type="button"
+                    className="next cu-wide"
+                    disabled={s.busy}
+                    onClick={() =>
+                      void act(
+                        { action: "erase", contact_id: open.id },
+                        () => "Erased. The suppression hash stays.",
+                      )
+                    }
+                  >
+                    Erase permanently <span aria-hidden="true">→</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="prop-btn quiet"
+                    onClick={() => setState({ ...s, confirmErase: null })}
+                  >
+                    Keep them
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="prop-btn cu-wide"
+                  disabled={s.busy}
+                  onClick={() => setState({ ...s, confirmErase: open.id })}
+                >
+                  Erase {open.name ?? "this customer"}… <span aria-hidden="true">→</span>
+                </button>
+              )}
+            </div>
+          </section>
+        )}
+      </div>
+
+      <div className="cu-lower">
+        <SheetCard label="Segments" title="Arithmetic, with the working shown">
+          <p className="cu-posture">{POSTURE_WORD[s.posture]}</p>
+          <table className="rt cu-seg">
+            <thead>
+              <tr>
+                <th scope="col">Segment</th>
+                <th scope="col" className="num">
+                  In it
+                </th>
+                <th scope="col" className="num">
+                  May be emailed
+                </th>
+                <th scope="col">
+                  <span className="sr-only">Working</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.segments.map((seg) => (
+                <tr key={seg.key}>
+                  <th scope="row">
+                    {seg.label}
+                    {s.showEvidence === seg.key && (
+                      <ul className="cu-evidence">
+                        {seg.evidence.map((e) => (
+                          <li key={e}>{e}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </th>
+                  <td className="num" data-label="In it">
+                    {num(seg.size)}
+                  </td>
+                  <td className="num" data-label="May be emailed">
+                    {num(seg.emailable)}
+                  </td>
+                  <td className="cu-open">
+                    <button
+                      type="button"
+                      className="prop-btn quiet"
+                      aria-expanded={s.showEvidence === seg.key}
+                      onClick={() =>
+                        setState({
+                          ...s,
+                          showEvidence: s.showEvidence === seg.key ? null : seg.key,
+                        })
+                      }
+                    >
+                      {s.showEvidence === seg.key ? "Hide" : "Why"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="cu-actions">
+            <button
+              type="button"
+              className="prop-btn"
+              disabled={s.busy}
+              onClick={() =>
+                void act({ action: "propose_segments" }, (j) => {
+                  const created = Number(j.created ?? 0);
+                  const skipped =
+                    (j.skipped as { segment: string; reason: string }[] | undefined) ?? [];
+                  return created > 0
+                    ? `${created} proposal${created === 1 ? "" : "s"} in your approval queue. Nothing sends on approval — sending arrives with its own consent re-check.`
+                    : skipped.map((x) => `${x.segment}: ${x.reason}`).join(" · ") ||
+                        "Nothing to propose.";
+                })
+              }
+            >
+              Propose a win-back and a thank-you
+            </button>
+            <Link className="prop-btn quiet" href="/proposals">
+              Open the queue
+            </Link>
+          </div>
+        </SheetCard>
+
+        <SheetCard label="Import" title="Under your attestation">
+          <p className="cu-prose">
+            Paste a CSV from your shop or spreadsheet. Columns it understands: email, name, phone,
+            country (so each customer&rsquo;s own email rules apply), and — for lifecycle — last
+            order date, order count, total spent. You state what these contacts consented to and
+            how; that statement lands on every row.
+          </p>
+          <form
+            className="cu-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void act(
+                {
+                  action: "import",
+                  csv: s.csv,
+                  status: s.status,
+                  statement: s.statement,
+                  currency: s.currency,
+                },
+                (j) => importNotice(j),
+              );
+            }}
+          >
+            <label className="cs-label" htmlFor="cu-csv">
+              The CSV
+            </label>
+            <textarea
+              id="cu-csv"
+              className="cu-textarea"
+              rows={6}
+              placeholder={
+                "email,name,last order date,orders,total spent\nanna@example.com,Anna,2026-03-02,4,312.50"
+              }
+              value={s.csv}
+              onChange={(e) => setState({ ...s, csv: e.target.value })}
+            />
+            <label className="cs-label" htmlFor="cu-status">
+              What they consented to
+            </label>
+            <select
+              id="cu-status"
+              className="cu-input"
+              value={s.status}
+              onChange={(e) =>
+                setState({ ...s, status: e.target.value as Contact["consent_status"] })
+              }
+            >
+              <option value="explicit_consent">
+                They gave explicit consent to marketing email
+              </option>
+              <option value="implied_consent">
+                Consent is implied (customers, no explicit opt-in)
+              </option>
+              <option value="unsure">Unsure</option>
+              <option value="no_consent">No consent</option>
+            </select>
+            <label className="cs-label" htmlFor="cu-statement">
+              How it was obtained, in your words
+            </label>
+            <input
+              id="cu-statement"
+              className="cu-input"
+              placeholder="e.g. checkout checkbox since 2024"
+              value={s.statement}
+              onChange={(e) => setState({ ...s, statement: e.target.value })}
+            />
+            <label className="cs-label" htmlFor="cu-currency">
+              Currency of the spent column
+            </label>
+            <input
+              id="cu-currency"
+              className="cu-input"
+              placeholder="EUR, HUF, …"
+              value={s.currency}
+              onChange={(e) => setState({ ...s, currency: e.target.value })}
+            />
+            <div>
+              <button
+                className="next"
+                disabled={s.busy || s.csv.trim() === "" || s.statement.trim() === ""}
+              >
+                Import under my attestation <span aria-hidden="true">→</span>
               </button>
             </div>
-            {s.showEvidence === seg.key && (
-              <ul className="mode-reasons">
-                {seg.evidence.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            )}
-          </article>
-        ))}
-        <div className="prop-actions">
-          <button
-            className="prop-btn signal"
-            disabled={s.busy}
-            onClick={() =>
-              void act({ action: "propose_segments" }, (j) => {
-                const created = Number(j.created ?? 0);
-                const skipped =
-                  (j.skipped as { segment: string; reason: string }[] | undefined) ?? [];
-                return created > 0
-                  ? `${created} proposal${created === 1 ? "" : "s"} in your approval queue. Nothing sends on approval — sending arrives with its own consent re-check.`
-                  : skipped.map((x) => `${x.segment}: ${x.reason}`).join(" · ") ||
-                      "Nothing to propose.";
-              })
-            }
-          >
-            Propose a win-back and a thank-you
-          </button>
-          <Link className="prop-btn quiet" href="/proposals">
-            Open the queue
-          </Link>
-        </div>
-      </section>
+          </form>
+        </SheetCard>
+      </div>
 
       {(s.campaigns ?? []).length > 0 && (
-        <section className="card ops-card">
-          <span className="auth-eyebrow">approved campaigns — drafted, never sent from here</span>
+        <SheetCard
+          label="Approved campaigns"
+          title="Drafted, never sent from here"
+          className="cu-campaigns"
+        >
           {(s.campaigns ?? []).map((c) => (
-            <article key={c.proposal_id} className="ct-item">
-              <div className="ct-item-head">
-                <span className="prop-tag">{c.label ?? "campaign"}</span>
-                <span className="ct-item-title">{c.summary}</span>
+            <article key={c.proposal_id} className="cu-campaign">
+              <div className="cu-campaign-head">
+                <span className="word boxed low">{c.label ?? "campaign"}</span>
+                <span className="cu-campaign-title">{c.summary}</span>
                 {c.draft === null && (
                   <button
-                    className="prop-btn signal"
+                    type="button"
+                    className="prop-btn"
                     disabled={s.busy}
                     onClick={() =>
                       void act({ action: "draft_campaign", proposal_id: c.proposal_id }, (j) =>
@@ -287,137 +676,32 @@ export function CustomersScreen() {
                   </button>
                 )}
               </div>
-              {c.draft && <pre className="ct-body">{c.draft.body}</pre>}
+              {c.draft && <pre className="cu-draft">{c.draft.body}</pre>}
               {c.gaps.length > 0 ? (
-                <p className="conn-note">
+                <p className="cu-rec-note">
                   Before it can send, it still needs: {c.gaps.join("; ")}.{" "}
                   {c.ask.map((q) => (
                     <Link
                       key={q.question_id}
                       href={`/intake?ask=${encodeURIComponent(q.question_id)}`}
-                      style={{ marginRight: 12 }}
+                      className="cu-ask"
                     >
                       {q.label}
                     </Link>
                   ))}
                 </p>
               ) : (
-                <p className="conn-note">
+                <p className="cu-rec-note">
                   Complete for where you are. Added at send time: {c.at_send.join(" and ")}, after
                   consent is checked again for every recipient.
                 </p>
               )}
             </article>
           ))}
-        </section>
+        </SheetCard>
       )}
 
-      <section className="card ops-card">
-        <span className="auth-eyebrow">import — under your attestation</span>
-        <p className="auth-copy">
-          Paste a CSV from your shop or spreadsheet. Columns it understands: email, name, phone,
-          country (so each customer&rsquo;s own email rules apply), and — for lifecycle — last order
-          date, order count, total spent. You state what these contacts consented to and how; that
-          statement lands on every row.
-        </p>
-        <form
-          className="ct-goal-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void act(
-              {
-                action: "import",
-                csv: s.csv,
-                status: s.status,
-                statement: s.statement,
-                currency: s.currency,
-              },
-              (j) => importNotice(j),
-            );
-          }}
-        >
-          <textarea
-            className="conn-textarea"
-            rows={6}
-            placeholder={
-              "email,name,last order date,orders,total spent\nanna@example.com,Anna,2026-03-02,4,312.50"
-            }
-            value={s.csv}
-            onChange={(e) => setState({ ...s, csv: e.target.value })}
-          />
-          <select
-            className="ct-input"
-            value={s.status}
-            onChange={(e) =>
-              setState({ ...s, status: e.target.value as Contact["consent_status"] })
-            }
-          >
-            <option value="explicit_consent">They gave explicit consent to marketing email</option>
-            <option value="implied_consent">
-              Consent is implied (customers, no explicit opt-in)
-            </option>
-            <option value="unsure">Unsure</option>
-            <option value="no_consent">No consent</option>
-          </select>
-          <input
-            className="ct-input"
-            placeholder="How was it obtained, in your words — e.g. checkout checkbox since 2024"
-            value={s.statement}
-            onChange={(e) => setState({ ...s, statement: e.target.value })}
-          />
-          <input
-            className="ct-input"
-            placeholder="Currency of the spent column (EUR, HUF, …)"
-            value={s.currency}
-            onChange={(e) => setState({ ...s, currency: e.target.value })}
-          />
-          <button
-            className="prop-btn"
-            disabled={s.busy || s.csv.trim() === "" || s.statement.trim() === ""}
-          >
-            Import under my attestation
-          </button>
-        </form>
-      </section>
-
-      <section className="card ops-card">
-        <span className="auth-eyebrow">contacts — {s.contacts.length}</span>
-        {s.contacts.length === 0 && <p className="conn-note">None yet.</p>}
-        {s.contacts.map((c) => (
-          <article key={c.id} className="ct-item">
-            <div className="ct-item-head">
-              <span className="prop-tag">{c.lifecycle}</span>
-              <span className="ct-item-title">{c.name ?? c.email ?? "(no name)"}</span>
-              <button
-                className="prop-btn quiet"
-                disabled={s.busy}
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Erase this contact? The row goes for good; the suppression stays.",
-                    )
-                  ) {
-                    void act(
-                      { action: "erase", contact_id: c.id },
-                      () => "Erased. The suppression hash stays.",
-                    );
-                  }
-                }}
-              >
-                Erase
-              </button>
-            </div>
-            <p className="conn-note">
-              {c.email ?? "no email"} · {CONSENT_WORD[c.consent_status]} · last order{" "}
-              {c.last_purchase_at ? c.last_purchase_at.slice(0, 10) : "—"} · orders{" "}
-              {c.orders_count ?? "—"} · spent {money(c.total_spent_minor, c.spent_currency)} ·{" "}
-              {c.country ?? "country unknown"}
-            </p>
-          </article>
-        ))}
-      </section>
-
-      <p className="conn-note">
+      <p className="cu-fine">
         Per-customer history comes from your own shop export, not from your connected accounts,
         which measure the business as a whole. Erasing a customer is GDPR erasure: their details go,
         and the record keeps only anonymous ids.

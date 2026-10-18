@@ -38,8 +38,8 @@ import { runRecommendations } from "../diagnosis/recommendations";
 import type { TradingHoursBlock } from "../hours/findings";
 import { tradingFindings } from "../hours/findings";
 import { tradingAnalysis } from "../hours/trading";
-import { gapBuys, repr, sourceDetail } from "../profile/factsheet";
-import type { GapRow } from "../profile/factsheet";
+import { displayValue, gapBuys, readSupersededFacts, sourceDetail } from "../profile/factsheet";
+import type { FactHistory, GapRow } from "../profile/factsheet";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { computeCompleteness } from "../scorer/completeness";
 import { recordFunnelEvent } from "../intake/telemetry";
@@ -80,6 +80,21 @@ export interface ReportView {
       note: string | null;
     }
   >;
+  /**
+   * The derivation sheet's "history": every superseded record of the
+   * profile's facts, by key, newest first (rule 3 — superseded, never
+   * erased). Read at view time, so a correction made after the report
+   * was issued still shows against the figure it would have changed.
+   */
+  history: FactHistory;
+  /** The report issued before this one, for the "prior" column; null when this is the first. */
+  prior: PriorReport | null;
+}
+
+export interface PriorReport {
+  id: string;
+  generated_at: string;
+  unit_economics: EconomicsResult;
 }
 
 async function factMap(snapshotId: string): Promise<ReportView["fact_map"]> {
@@ -87,7 +102,7 @@ async function factMap(snapshotId: string): Promise<ReportView["fact_map"]> {
   const out: ReportView["fact_map"] = {};
   for (const [key, f] of view.facts) {
     out[key] = {
-      value: repr(f.value),
+      value: displayValue(f.value),
       status: f.status,
       confidence: f.confidence,
       source_kind: displaySourceKind(f.source),
@@ -99,9 +114,42 @@ async function factMap(snapshotId: string): Promise<ReportView["fact_map"]> {
   return out;
 }
 
+/** Pure: the prior-report slice of an earlier row, or null when there is none. */
+export function priorOf(row: typeof diagnosisReports.$inferSelect | undefined): PriorReport | null {
+  if (!row) return null;
+  return {
+    id: row.id,
+    generated_at: row.generated_at,
+    unit_economics: row.unit_economics as EconomicsResult,
+  };
+}
+
+/** The report issued immediately before `row` for the same profile. */
+async function priorReport(row: typeof diagnosisReports.$inferSelect): Promise<PriorReport | null> {
+  const rows = await db
+    .select()
+    .from(diagnosisReports)
+    .where(eq(diagnosisReports.profile_id, row.profile_id))
+    .orderBy(desc(diagnosisReports.generated_at))
+    .limit(12);
+  const at = rows.findIndex((r) => r.id === row.id);
+  return priorOf(at >= 0 ? rows[at + 1] : undefined);
+}
+
+async function viewOf(row: typeof diagnosisReports.$inferSelect): Promise<ReportView> {
+  const [facts, history, prior] = await Promise.all([
+    factMap(row.snapshot_id),
+    readSupersededFacts(row.profile_id),
+    priorReport(row),
+  ]);
+  return rowToView(row, facts, history, prior);
+}
+
 function rowToView(
   row: typeof diagnosisReports.$inferSelect,
   facts: ReportView["fact_map"],
+  history: FactHistory,
+  prior: PriorReport | null,
 ): ReportView {
   return {
     id: row.id,
@@ -117,6 +165,8 @@ function rowToView(
     data_gaps: row.data_gaps as GapRow[],
     trading_hours: (row.trading_hours as TradingHoursBlock | null) ?? null,
     fact_map: facts,
+    history,
+    prior,
   };
 }
 
@@ -128,7 +178,7 @@ export async function latestReport(profileId: string): Promise<ReportView | null
     .orderBy(desc(diagnosisReports.generated_at))
     .limit(1);
   if (!row) return null;
-  return rowToView(row, await factMap(row.snapshot_id));
+  return viewOf(row);
 }
 
 /**
@@ -150,7 +200,7 @@ export async function generateReport(args: {
     .orderBy(desc(diagnosisReports.generated_at))
     .limit(1);
   if (existing && existing.snapshot_id === snapshot.id) {
-    return { report: rowToView(existing, await factMap(existing.snapshot_id)), fresh: false };
+    return { report: await viewOf(existing), fresh: false };
   }
 
   // The expensive part — findings, then recommendations addressing them.
@@ -245,7 +295,7 @@ export async function generateReport(args: {
   if (!row) throw new DiagnosisError("report insert failed");
 
   await recordFunnelEvent(args.profileId, "funnel_report_delivered");
-  return { report: rowToView(row, await factMap(row.snapshot_id)), fresh: true };
+  return { report: await viewOf(row), fresh: true };
 }
 
 /**

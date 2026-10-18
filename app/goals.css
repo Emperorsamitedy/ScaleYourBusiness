@@ -1,0 +1,331 @@
+/* Insights · Goals — the owner's Goals design (2026-10-17), on the sheet
+   system (app/sheet.css). A card per goal: now / path says / target, the
+   weekly candle chart drawn as plain SVG, and the latest check beneath.
+
+   The chart's own inks, measured on its plot (#fbfdfc):
+     --gl-up    5.0:1   a week that closed at or above its open
+     --gl-down  5.1:1   a week that closed below it
+     --gl-path  cobalt rule, the path to the target — static structure,
+                the masthead rule's colour, never "working right now"
+   Direction is also carried by shape (a hollow candle body for down
+   weeks), so the chart reads in grayscale. */
+
+.gl-screen {
+  --gl-plot: #fbfdfc;
+  --gl-up: #11735c;
+  --gl-down: #b4302a;
+  --gl-path: var(--live-rule);
+  --gl-grid: #dbe5df;
+}
+
+.gl-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.gl-aside {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-5);
+  flex-wrap: wrap;
+}
+.gl-aside > span {
+  max-width: 36ch;
+  line-height: 1.5;
+}
+.gl-aside .act {
+  min-height: 44px;
+  border-color: var(--desk-ink);
+  background: transparent;
+  color: var(--desk-ink);
+}
+.gl-aside .act:hover,
+.gl-aside .act:active {
+  background: var(--desk-ink);
+  color: var(--desk);
+}
+.gl-aside .act:focus-visible {
+  outline: 2px solid var(--desk-ink);
+  outline-offset: 3px;
+}
+
+.gl-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  align-items: start;
+}
+.gl-grid .cs {
+  min-width: 0;
+}
+.gl-card .cs-body {
+  padding-top: 14px;
+}
+
+/* now / path says / target */
+.gl-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 25px;
+  margin: 0 0 14px;
+}
+.gl-stats div {
+  margin: 0;
+}
+.gl-stats dt {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.gl-stats dd {
+  margin: 4px 0 0;
+  font-family: var(--f-mono);
+  font-size: 15.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--sheet-ink-2);
+}
+.gl-stats .gl-now dd {
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+.gl-per {
+  margin: -8px 0 12px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+
+/* the chart */
+.gl-chart {
+  border: 1px solid var(--rule-soft);
+  background: var(--gl-plot);
+}
+.gl-legend {
+  margin: 0;
+  padding: 10px 10px 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.gl-legend b {
+  font-weight: 600;
+  color: var(--sheet-ink);
+}
+.gl-legend .up {
+  color: var(--gl-up);
+}
+.gl-legend .down {
+  color: var(--gl-down);
+}
+.gl-legend span + span {
+  margin-left: 10px;
+}
+.gl-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.gl-svg .grid {
+  stroke: var(--gl-grid);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.gl-svg .today {
+  stroke: var(--rule);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.gl-svg .today-label {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  fill: var(--sheet-ink-2);
+}
+.gl-svg .path {
+  fill: none;
+  stroke: var(--gl-path);
+  stroke-width: 2;
+}
+.gl-svg .target {
+  stroke: var(--gl-path);
+  stroke-width: 1;
+  stroke-dasharray: 1 3;
+}
+.gl-svg .now-line {
+  stroke-width: 1;
+  stroke-dasharray: 1 3;
+}
+.gl-svg .up {
+  stroke: var(--gl-up);
+  fill: var(--gl-up);
+}
+.gl-svg .down {
+  stroke: var(--gl-down);
+  fill: var(--gl-plot);
+}
+.gl-svg .wick {
+  stroke-width: 1.5;
+}
+.gl-svg .body {
+  stroke-width: 1.5;
+}
+.gl-svg .vol.up {
+  fill: color-mix(in srgb, var(--gl-up) 40%, var(--gl-plot));
+  stroke: none;
+}
+.gl-svg .vol.down {
+  fill: color-mix(in srgb, var(--gl-down) 35%, var(--gl-plot));
+  stroke: none;
+}
+.gl-svg .tag-target {
+  fill: var(--gl-path);
+}
+.gl-svg .tag-now.up {
+  fill: var(--gl-up);
+}
+.gl-svg .tag-now.down {
+  fill: var(--gl-down);
+}
+.gl-svg .tag-text {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  fill: #fff;
+}
+.gl-svg .axis-text {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  fill: var(--sheet-ink-2);
+}
+.gl-nochart {
+  margin: 0;
+  padding: 20px 14px;
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+
+/* the card foot: the latest check, and where to go */
+.gl-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--s-5);
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--sheet-ink);
+}
+.gl-foot p {
+  margin: 0;
+  max-width: var(--measure);
+  overflow-wrap: anywhere;
+}
+.gl-foot a {
+  flex: none;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink);
+}
+.gl-review {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  background: var(--inset);
+  border: 1px solid var(--rule);
+  font-size: 14px;
+}
+.gl-review h3 {
+  margin: 0 0 6px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.gl-review p,
+.gl-review ul {
+  margin: 0 0 8px;
+}
+.gl-review ul {
+  padding-left: 15px;
+}
+
+/* the measure form, on a goal that can't be measured yet */
+.gl-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.gl-form select,
+.gl-form input {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 13.5px;
+}
+.gl-form select:focus-visible,
+.gl-form input:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.gl-form .gl-word {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.gl-form .act {
+  min-height: 44px;
+}
+.gl-note {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+.gl-copy {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+}
+
+.gl-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+
+@media (max-width: 1099px) {
+  .gl-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .gl-aside {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .gl-stats {
+    gap: 8px 15px;
+  }
+  .gl-stats dd {
+    font-size: 14px;
+  }
+  .gl-foot {
+    flex-direction: column;
+    gap: var(--s-3);
+  }
+}

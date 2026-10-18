@@ -1,0 +1,431 @@
+/* Sign in, sign up, and the terms / privacy placeholders — the sheet
+   system (specs/ux-spec-v1.md §2; tokens in app/sheet.css).
+
+   An ink masthead with the static cobalt rule, the promise on the desk
+   at left, one paper sheet at right carrying the form. Square corners,
+   no shadows, no icons; separation is 1px rules and space.
+
+   Every class here is .au-* so nothing older in globals.css reaches it. */
+
+.au {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── masthead ── */
+
+.au-mast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  min-height: 64px; /* 61px of ink + the 3px rule */
+  padding: 0 var(--s-6);
+  background: var(--masthead);
+  border-bottom: 3px solid var(--live-rule);
+}
+.au .au-mark {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 15.5px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--desk-ink);
+  text-decoration: none;
+}
+.au .au-mast-link {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--desk-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  white-space: nowrap;
+}
+.au .au-mast-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ── the desk: two columns, centred on each other ── */
+
+.au-main {
+  width: 100%;
+  max-width: calc(1176px + 2 * var(--s-6));
+  margin: 0 auto;
+  padding: 51px var(--s-6) var(--s-8);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 459px;
+  gap: var(--s-7);
+  align-items: center;
+}
+
+.au-kicker,
+.au-steps-head {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 16px;
+  text-transform: uppercase;
+  color: var(--desk-ink-2);
+}
+.au-headline {
+  margin: 12px 0 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  /* the design sets the headline a touch under --t-display-1 */
+  font-size: clamp(26px, 2.79vw, 40px);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  color: var(--desk-ink);
+}
+
+/* Sign-in: three numbered promises between hairlines. */
+.au-points {
+  max-width: 480px;
+  margin: 31px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+.au-points li {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--desk-rule);
+  font-size: var(--t-prose);
+  line-height: 24px;
+  color: var(--desk-ink);
+}
+.au-n {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-variant-numeric: tabular-nums;
+  color: var(--desk-ink-2);
+}
+.au-points .au-n {
+  line-height: 20px;
+}
+
+/* Sign-up: what happens next, a ruled table; each column ruled on its
+   own so the row rules break at the gutters. */
+.au-steps {
+  max-width: 512px;
+  margin-top: 26px;
+}
+.au-steps-head {
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--rule);
+}
+.au-steps-table {
+  width: calc(100% + 2 * 15px);
+  margin: 0 -13px;
+  border-collapse: separate;
+  border-spacing: 15px 0;
+}
+.au-steps-table td {
+  padding: 11px 0 10px;
+  border-bottom: 1px solid var(--desk-rule);
+  vertical-align: baseline;
+  font-size: var(--t-prose);
+  line-height: 24px;
+  color: var(--desk-ink);
+}
+.au-steps-table .au-n {
+  width: 41px;
+  font-size: var(--t-mono-s);
+  color: var(--desk-ink-2);
+}
+.au-steps-table .au-takes {
+  width: 1%;
+  white-space: nowrap;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--desk-ink-2);
+}
+
+/* ── the sheet ── */
+
+.au-sheet {
+  width: 100%;
+}
+.au-sheet-head {
+  padding: 15px 18px 15px;
+  border-bottom: 3px double var(--sheet-ink);
+}
+.au-sheet-label,
+.au-label {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 16px;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.au-sheet-title {
+  margin: 2px 0 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 15.5px;
+  letter-spacing: -0.005em;
+  line-height: 1.15;
+  color: var(--sheet-ink);
+}
+.au-sheet-body {
+  padding: 18px 18px 18px;
+}
+.au-sheet-foot {
+  padding: 11px 18px;
+  border-top: 1px solid var(--rule-soft);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+.au .au-sheet-foot a {
+  color: var(--sheet-ink);
+}
+
+/* fields: underline only */
+.au-form {
+  display: flex;
+  flex-direction: column;
+}
+.au-field + .au-field {
+  margin-top: 14px;
+}
+.au-label {
+  display: block;
+}
+.au-opt {
+  text-transform: none;
+  letter-spacing: 0;
+}
+.au-input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 6px 2px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--sheet-ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: none;
+  appearance: none;
+}
+.au-input::placeholder {
+  color: var(--rule);
+  opacity: 1;
+}
+.au-input:focus {
+  border-bottom-color: var(--sheet-ink);
+  box-shadow: inset 0 -1px 0 var(--sheet-ink);
+}
+.au-input:disabled {
+  color: var(--sheet-ink-2);
+  border-bottom-style: dashed;
+}
+
+/* actions: mono caps at left, the arrow at the far right */
+.au-primary,
+.au-door {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  width: 100%;
+  margin: 0;
+  padding: 0 15px;
+  border: 1px solid var(--sheet-ink);
+  border-radius: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.au .au-primary {
+  min-height: 52px;
+  margin-top: 15px;
+  background: var(--sheet-ink);
+  color: var(--paper);
+  text-decoration: none;
+}
+.au .au-primary:hover:not(:disabled),
+.au .au-primary:active:not(:disabled) {
+  background: var(--paper);
+  color: var(--sheet-ink);
+}
+.au .au-primary:disabled {
+  cursor: progress;
+  border-style: dashed;
+  background: var(--paper);
+  color: var(--sheet-ink-2);
+}
+.au-door {
+  min-height: 48px;
+  background: transparent;
+  color: var(--sheet-ink);
+}
+.au-door:hover,
+.au-door:active {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.au-arrow {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.au-error {
+  margin: 10px 0 0;
+  font-size: var(--t-prose-s);
+  line-height: 1.45;
+  color: var(--alarm);
+}
+.au-note {
+  margin: 10px 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.35;
+  color: var(--sheet-ink-2);
+}
+
+.au-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 15px 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  letter-spacing: 0.03em;
+  line-height: 16px;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.au-or::before,
+.au-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule-soft);
+}
+
+.au-sso {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* the "sent" sheet */
+.au-copy {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--sheet-ink);
+}
+.au-copy strong {
+  font-family: var(--f-mono);
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.au-textbtn {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--sheet-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.au-textbtn:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ── terms / privacy placeholders: one sheet on the desk ── */
+
+.au-legal {
+  width: 100%;
+  max-width: calc(640px + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: var(--s-8) var(--gutter) var(--s-9);
+}
+.au-legal .au-sheet-body p {
+  margin: 0;
+  font-size: var(--t-prose);
+  line-height: 1.55;
+  color: var(--sheet-ink);
+}
+
+/* ── narrower: the promise stacks above the sheet ── */
+
+@media (max-width: 900px) {
+  .au-main {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-7);
+    align-items: start;
+    padding: var(--s-7) var(--gutter) var(--s-8);
+    max-width: calc(560px + 2 * var(--gutter));
+  }
+  .au-points,
+  .au-steps {
+    max-width: none;
+  }
+}
+
+@media (max-width: 719px) {
+  .au-mast {
+    padding: 0 var(--gutter);
+  }
+}
+
+@media (max-width: 559px) {
+  .au-mast-pre {
+    display: none;
+  }
+  .au-main {
+    padding-top: var(--s-6);
+  }
+  .au-headline {
+    font-size: 26px;
+    margin-top: 12px;
+  }
+  .au-sheet-head {
+    padding: 14px 14px 12px;
+  }
+  .au-sheet-body {
+    padding: 15px 14px;
+  }
+  .au-sheet-foot {
+    padding: 11px 14px;
+  }
+  .au-steps-table .au-n {
+    width: 28px;
+  }
+  .au-points li {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+}

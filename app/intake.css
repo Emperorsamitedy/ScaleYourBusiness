@@ -1,586 +1,1457 @@
-/* The intake on the sheet system — specs/ux-spec-v1.md §2 and §4, owner
-   brief 2026-10-17. Imported by components/intake/IntakeStage.tsx.
+/* The intake — the owner's design intake-v2 on the sheet system
+   (specs/ux-spec-v1.md §2 and §4; tokens in app/sheet.css). Imported by
+   components/intake/IntakeStage.tsx.
 
-   Everything is scoped under .intake, so these rules outrank the older
-   class rules in app/globals.css without editing that file.
+   Every class here is ix-prefixed and lives under .ix, so nothing from the
+   older class vocabulary in app/globals.css reaches this screen, and
+   nothing here reaches another.
 
-   Layout: one question in the centre; beside it, one record column — the
-   live "check your answers" list. Under 900px the column becomes a strip
-   below the card.
+   Layout: ink masthead with the cobalt rule under it; the channel bank
+   (one tile per area, one bar per question) on the desk; the question
+   panel on the left and three paper cards on the right; the tape along
+   the bottom. Under 980px the cards drop below the question; at 760px and
+   under the bank is a strip that scrolls inside itself.
+
+   Type sizes are medium by owner brief: question 32px Zilla, card titles
+   21px, tile names 16px, body 14–15px Archivo, labels 11–13px Plex Mono,
+   the dial figure 40px. Nothing under 11px.
 
    Motion reports state and nothing else:
-     card rises         --d-move   (220ms)
-     card departs       --d-record (280ms) — the JS wait reads this token
-     fact line settles  --d-record (280ms)
-   all on --ease-out; sheet.css zeroes every token under reduced motion. */
+     question rises      --d-move   (220ms)
+     question departs    --d-record (280ms) — the JS wait reads this token
+     new record row      --d-record (280ms) — lands with the marker
+   all on --ease-out; sheet.css zeroes every token under reduced motion.
+   The tape never moves on its own. */
 
-/* ── the bar: masthead ink, the record in words, a flat 1px rule ── */
-
-.intake .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  flex-wrap: wrap;
-  align-items: baseline;
-  row-gap: var(--s-1);
-  column-gap: var(--s-4);
-  padding: var(--s-4) var(--gutter);
-  background: var(--masthead);
-  border-bottom: 1px solid var(--desk-rule);
+.ix {
+  /* On the desk the drift and ok tints need their own light inks: the
+     tokens are set for paper. 9.2:1 and 11.6:1 on --desk. */
+  --ix-drift-desk: #f0b866;
+  --ix-ok-desk: #9fe0b5;
+  --ink: var(--desk-ink);
+  --ix-pad: 28px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
-.intake .topbar .subtitle {
-  font-size: var(--t-prose-s);
-  color: var(--desk-ink-2);
-}
-.intake .topbar .meta {
-  margin-left: auto;
-  font-size: var(--t-mono-s);
-  letter-spacing: 0.02em;
-  color: var(--desk-ink);
-  white-space: normal;
-}
-.intake .progress-rail {
-  position: absolute;
-  top: auto;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 1px;
-  background: var(--desk-rule);
-}
-.intake .progress-fill {
-  height: 1px;
-  background: var(--desk-ink);
-  transition: width var(--d-record) var(--ease-out);
+.ix .sheet,
+.ix .ix-card {
+  --ink: var(--sheet-ink);
 }
 
-.intake-notice {
-  width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: var(--s-4) var(--gutter) 0;
-}
-.intake .resume-note {
+/* ── shared pieces ── */
+
+.ix .ix-cap,
+.ix .ix-label {
   margin: 0;
-  max-width: var(--measure);
-  font-size: var(--t-prose-s);
-}
-
-/* ── the stage: question, then the record beside it ── */
-
-.intake .stage {
-  grid-template-columns: minmax(0, 640px) minmax(280px, 400px);
-  justify-content: center;
-  gap: var(--s-6);
-  max-width: 1180px;
-  padding: var(--s-6) var(--gutter) var(--s-8);
-}
-.intake .centre {
-  gap: var(--s-4);
-  padding-top: 0;
-  min-width: 0;
-}
-
-/* ── the question sheet ── */
-
-.intake .card {
-  padding: var(--s-6);
-  border: 1px solid var(--desk-rule);
-  animation: intake-rise var(--d-move) var(--ease-out) both;
-}
-.intake .card.leaving {
-  animation: intake-depart var(--d-record) var(--ease-out) forwards;
-}
-@keyframes intake-rise {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes intake-depart {
-  to {
-    opacity: 0;
-    transform: translateY(-14px);
-  }
-}
-
-.intake .eyebrow {
-  gap: var(--s-2);
-  margin-bottom: var(--s-3);
-  color: var(--sheet-ink-2);
-  font-size: var(--t-mono-xs);
-}
-.intake .eyebrow .tier {
-  border: 0;
-  padding: 0;
-  font-size: inherit;
-  letter-spacing: inherit;
-  color: inherit;
-}
-.intake .eyebrow .tier::before {
-  content: "·";
-  margin-right: var(--s-2);
-}
-.intake .prompt {
-  font-family: var(--f-display);
-  font-size: var(--t-display-3);
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  margin: 0 0 var(--s-2);
-  max-width: var(--measure);
-}
-.intake .help {
-  font-size: var(--t-prose-s);
-  color: var(--sheet-ink-2);
-  max-width: var(--measure);
-  margin: 0 0 var(--s-5);
-}
-/* Money questions print the bank's own help text as a purpose note. */
-.intake .help.purpose {
   font-family: var(--f-mono);
-  font-size: var(--t-mono-s);
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ix .ix-note {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
   line-height: 1.5;
-  color: var(--sheet-ink);
-  background: var(--inset);
-  border: var(--line);
-  padding: var(--s-2) var(--s-3);
-}
-.intake .help.purpose .label {
-  margin-right: var(--s-1);
-}
-
-.intake .field {
-  min-height: 48px;
-  border-color: var(--rule);
-  transition: border-color var(--d-press) linear;
-}
-.intake .field:focus {
-  border-color: var(--sheet-ink);
-}
-/* globals.css sets outline:none on .field; focus must always show. */
-.intake .field:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
-}
-.intake textarea.field {
-  min-height: 96px;
-}
-
-.intake .mono-note,
-.intake .currency-suffix,
-.intake .filestub .sub,
-.intake .chip-detail {
-  font-size: var(--t-mono-xs);
-  animation: none;
-}
-.intake .filestub {
-  border: 1px dashed var(--rule);
-}
-
-.intake .row {
-  gap: var(--s-3);
-  margin-top: var(--s-5);
-}
-.intake .row .ghost.quiet {
-  min-height: 48px;
-  padding: 0 var(--s-1);
-}
-.intake .hint {
-  margin-left: auto;
-  font-size: var(--t-mono-xs);
   color: var(--sheet-ink-2);
 }
-.intake .err {
-  font-size: var(--t-prose-s);
-  margin: var(--s-3) 0 0;
-}
-
-/* ── the restatement: what was just recorded, as a fact line ── */
-
-.intake .last-rec {
-  margin: 0;
-  padding: 0 0 var(--s-3);
-  border-bottom: 1px solid var(--desk-rule);
-  font-size: var(--t-prose-s);
-  line-height: 1.6;
-  color: var(--desk-ink-2);
-}
-.intake .last-rec .label {
-  color: var(--desk-ink);
-}
-.intake .last-rec-a {
-  color: var(--desk-ink);
-  font-weight: 600;
-}
-.intake .last-rec-src {
-  color: var(--desk-ink-2);
-  white-space: nowrap;
-}
-
-/* ── on deck: dashed, quiet, still ── */
-
-.intake .ondeck {
-  border: 1px dashed var(--hair-2);
-  padding: var(--s-3) var(--s-4);
-  font-size: var(--t-prose-s);
-  color: var(--desk-ink-2);
-}
-.intake .ondeck .lbl {
-  font-size: var(--t-mono-xs);
-  letter-spacing: 0.06em;
-  margin-bottom: var(--s-1);
-}
-.intake .ondeck .ondeck-text {
-  animation: none;
-}
-
-/* ── the record column ── */
-
-.intake .rec-col {
-  position: sticky;
-  top: 80px;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  max-height: calc(100dvh - 104px);
-}
-.intake .col-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--s-1) var(--s-3);
-  padding: 0 0 var(--s-2);
-  margin: 0 0 var(--s-3);
-  border-bottom: 1px solid var(--desk-rule);
-  font-size: var(--t-mono-xs);
-  color: var(--desk-ink-2);
-}
-.intake .col-head h2 {
-  margin: 0;
-  color: var(--desk-ink);
-}
-.intake .rec-tally {
-  font-size: var(--t-mono-xs);
-  color: var(--desk-ink-2);
-  white-space: normal;
-}
-.intake .rec-empty {
-  margin: 0;
-  font-size: var(--t-prose-s);
-  color: var(--desk-ink-2);
-}
-.intake .rec-list,
-.intake .strip-list {
-  list-style: none;
-  margin: 0;
+.ix .ix-link {
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-}
-.intake .rec-list {
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-/* A fact line: paper, ruled, provenance printed. It settles into the
-   column on --d-record — the motion the brief keeps. */
-.intake .chip {
-  border: 1px solid var(--desk-rule);
-  animation: intake-settle var(--d-record) var(--ease-out) both;
-  transition: background-color var(--d-press) linear;
-}
-.intake .strip-list .chip {
-  border-color: var(--rule);
-}
-@keyframes intake-settle {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-.intake .chip:hover {
-  background: var(--paper);
-}
-.intake .chip-face {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-height: 48px;
-  padding: var(--s-3) var(--s-4);
-}
-/* Inset ring: the list scrolls, so an outset ring would clip. */
-.intake .chip-face:focus-visible {
-  outline: 2px solid var(--sheet-ink);
-  outline-offset: -4px;
-}
-.intake .rec-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--s-1) var(--s-2);
-  margin-bottom: 2px;
-}
-.intake .rec-flag {
-  color: var(--sheet-ink);
-}
-.intake .rec-unknown .rec-flag,
-.intake .rec-skipped .rec-flag,
-.intake .rec-reopened .rec-flag {
-  color: var(--low);
-}
-.intake .rec-ref {
-  margin-left: auto;
-  font-size: var(--t-mono-xs);
-  color: var(--sheet-ink-2);
-}
-.intake .chip .q {
-  font-size: var(--t-prose-s);
-  line-height: 1.4;
-  color: var(--sheet-ink-2);
-  margin: 0;
-}
-.intake .chip .a {
-  font-size: var(--t-prose);
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--sheet-ink);
-}
-.intake .rec-unknown .a,
-.intake .rec-skipped .a {
-  font-weight: 500;
-}
-.intake .chip .tag,
-.intake .chip-face .tag {
-  display: block;
-  margin-top: var(--s-1);
+  border: 0;
+  background: none;
+  color: inherit;
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
-  letter-spacing: 0.02em;
-  color: var(--sheet-ink-2);
-}
-.intake .rec-note {
-  font-size: var(--t-prose-s);
-  line-height: 1.45;
-  color: var(--sheet-ink-2);
-}
-.intake .rec-change {
-  align-self: flex-start;
-  margin-top: var(--s-1);
-  font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  color: var(--sheet-ink);
+  cursor: pointer;
 }
-.intake .chip-face:hover .rec-change {
+.ix .ix-link:hover {
   text-decoration-thickness: 2px;
 }
-/* In an open finding: flagged in words, and in shape (a heavier rule). */
-.intake .chip-flagged,
-.intake .chip-flagged:hover {
-  border-color: var(--drift);
-  border-left-width: 3px;
+.ix .ix-link[aria-pressed="true"] {
+  background: var(--marker);
+  color: var(--sheet-ink);
+  text-decoration: none;
+  padding: 0 4px;
 }
-
-.intake .chip-reopen {
-  flex-wrap: wrap;
-  gap: var(--s-2);
-  padding: var(--s-3) var(--s-4);
-  border-top: 1px solid var(--rule-soft);
-  margin: 0;
-  animation: none;
+.ix .ix-err {
+  margin: 14px 0 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--alarm);
 }
-.intake .chip-reopen-field {
-  min-height: 40px;
-  font-size: var(--t-prose-s);
-  flex: 1 1 140px;
+.ix .ix-err-desk {
+  color: #ffb4a8; /* alarm on the desk: 9.8:1 */
 }
-.intake .chip-reopen .ghost {
-  min-height: 40px;
-  padding: 0 var(--s-4);
-  font-size: var(--t-mono-s);
+.ix .act {
+  min-height: 42px;
 }
-.intake .chip-reopen .ghost:disabled {
-  opacity: 1;
-}
-
-/* ── reconcile: paper, plain ── */
-
-.intake .reconcile {
-  padding: var(--s-5);
-  border: 1px solid var(--desk-rule);
-  animation: intake-rise var(--d-move) var(--ease-out) both;
-}
-.intake .reconcile-eyebrow {
-  flex-wrap: wrap;
-  font-size: var(--t-mono-xs);
+.ix .act:disabled:hover {
+  background: var(--paper);
   color: var(--sheet-ink-2);
-  margin-bottom: var(--s-2);
 }
-.intake .reconcile h3 {
+
+/* ── the masthead ── */
+
+.ix-mast {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  column-gap: 18px;
+  row-gap: 4px;
+  min-height: 60px;
+  padding: 10px var(--ix-pad);
+  background: var(--masthead);
+  color: var(--desk-ink);
+  border-bottom: 3px solid var(--live-rule);
+}
+.ix-mark {
   font-family: var(--f-display);
   font-size: 22px;
-  font-weight: 600;
-  margin: 0 0 var(--s-2);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
 }
-.intake .reconcile-both {
-  font-size: var(--t-prose);
-  max-width: var(--measure);
-  margin: 0 0 var(--s-2);
-}
-.intake .reconcile-tagline {
-  font-size: var(--t-prose-s);
-  font-style: normal;
-  color: var(--sheet-ink-2);
-  margin: 0 0 var(--s-4);
-}
-
-/* ── done ── */
-
-.intake .done h2 {
-  font-family: var(--f-display);
-  font-size: var(--t-display-3);
-  font-weight: 600;
-  margin: 0 0 var(--s-2);
-}
-.intake .done p {
-  max-width: var(--measure);
-}
-.intake .readout {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: var(--s-2) var(--s-5);
-  align-items: baseline;
-  margin: var(--s-5) 0 0;
-  padding-top: var(--s-4);
-  border-top: 1px solid var(--rule);
-  line-height: 1.4;
-}
-.intake .readout dt {
-  color: var(--sheet-ink-2);
-}
-.intake .readout dd {
-  margin: 0;
+.ix-mast-sub,
+.ix-mast-fig {
   font-family: var(--f-mono);
-  font-size: var(--t-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--desk-ink-2);
+}
+.ix-mast-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  margin-left: auto;
+}
+.ix-machine {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--live-desk); /* cobalt: the machine's state, 11.2:1 */
+}
+.ix-machine-sq {
+  width: 9px;
+  height: 9px;
+  background: var(--live-desk);
+}
+.ix-pause {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--desk-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.ix-pause:hover,
+.ix-pause[aria-expanded="true"] {
+  text-decoration-thickness: 2px;
+}
+
+.ix-pause-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px 24px;
+  margin: 14px var(--ix-pad) 0;
+  padding: 16px 18px;
+  animation: ix-rise var(--d-move) var(--ease-out) both;
+}
+.ix-pause-panel > div:first-child {
+  flex: 1 1 320px;
+}
+.ix-pause-lede {
+  margin: 6px 0 0;
+  max-width: var(--measure);
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+.ix-pause-panel .ix-finish,
+.ix-pause-panel .ix-linkbox {
+  flex: 1 1 380px;
+}
+
+/* ── the channel bank ── */
+
+.ix-bank {
+  padding: 16px var(--ix-pad) 0;
+}
+.ix-bank-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin-bottom: 10px;
+}
+.ix-bank .ix-cap {
+  color: var(--desk-ink-2);
+}
+.ix-legend {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+}
+.ix-key-sw {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  margin-left: 4px;
+}
+.ix-key-sw.owner {
+  background: var(--desk-ink);
+}
+.ix-key-sw.measured {
+  background: repeating-linear-gradient(-45deg, var(--desk-ink) 0 2px, transparent 2px 4px);
+}
+
+/* One row of tiles for up to ten areas, two balanced rows past that
+   (--tile-cols, set from the count), so every name fits at 16px without
+   breaking a word. On a phone the row scrolls inside itself — never the
+   page. */
+.ix-tiles {
+  display: grid;
+  grid-template-columns: repeat(var(--tile-cols, 7), minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ix-tiles > li {
+  display: flex;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.ix-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  min-height: 112px;
+  padding: 8px 10px 9px;
+  border: 1px solid var(--desk-rule);
+  border-radius: 0;
+  background: transparent;
+  color: var(--desk-ink);
+  font: inherit;
+  text-align: left;
+  transition:
+    background-color var(--d-press) linear,
+    border-color var(--d-press) linear;
+}
+button.ix-tile {
+  cursor: pointer;
+}
+button.ix-tile:hover,
+button.ix-tile:focus-visible {
+  border-color: var(--desk-ink-2);
+  background: #1a2c22;
+}
+button.ix-tile:disabled {
+  cursor: progress;
+}
+.ix-tile.active {
+  border-color: var(--live-rule);
+  background: #17263a;
+  box-shadow: inset 0 0 0 1px var(--live-rule);
+}
+.ix-tile-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--desk-ink-2);
+}
+.ix-tile-top .fig {
+  color: var(--desk-ink);
+  font-weight: 600;
+}
+
+/* One bar per applicable question. Each kind differs in shape, not only
+   in shade, so the stack reads in grayscale too. */
+.ix-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  height: 42px;
+  overflow: hidden;
+}
+.ix-bar {
+  flex: 1 1 0;
+  min-height: 1px;
+  max-height: 6px;
+  box-sizing: border-box;
+}
+.ix-bar.owner {
+  background: var(--desk-ink);
+}
+.ix-bar.measured {
+  background: repeating-linear-gradient(-45deg, var(--desk-ink) 0 2px, transparent 2px 4px);
+}
+.ix-bar.derived {
+  background: repeating-linear-gradient(90deg, var(--desk-ink) 0 2px, transparent 2px 5px);
+}
+.ix-bar.current {
+  background: var(--live-rule);
+}
+.ix-bar.open {
+  border: 1px solid var(--rule);
+}
+.ix-bar.unknown {
+  border: 1px dashed var(--desk-ink-2);
+}
+.ix-bar.skipped {
+  background: linear-gradient(to bottom, transparent 50%, var(--desk-ink-2) 50%);
+}
+.ix-tile-name {
+  margin-top: auto;
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.15;
+  overflow-wrap: break-word;
+}
+.ix-tile-status {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--desk-ink-2);
+}
+.ix-tile-status.ok {
+  color: var(--ix-ok-desk);
+}
+.ix-tile-status.drift {
+  color: var(--ix-drift-desk);
+}
+.ix-tile-status.live {
+  color: var(--live-desk);
+}
+
+.ix-notice {
+  margin: 12px var(--ix-pad) 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--desk-ink-2);
+}
+.ix-notice .ix-link {
+  color: var(--desk-ink);
+}
+
+/* ── the two columns ── */
+
+.ix-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.48fr) minmax(320px, 1fr);
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+  padding: 18px var(--ix-pad) 32px;
+}
+.ix-left,
+.ix-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ── the question panel ── */
+
+.ix-q {
+  animation: ix-rise var(--d-move) var(--ease-out) both;
+}
+.ix-q.leaving {
+  animation: ix-depart var(--d-record) var(--ease-out) forwards;
+}
+.ix-plain,
+.ix-done {
+  padding: 22px 24px;
+}
+@keyframes ix-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes ix-depart {
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+.ix-q-band {
+  --ink: var(--desk-ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 12px 20px;
+  background: var(--masthead);
+  border-bottom: 1px solid var(--desk-rule);
+}
+.ix-q-band .ix-cap {
+  font-size: 12.5px;
+  letter-spacing: 0.07em;
+  color: var(--desk-ink);
+}
+/* Bank ids are data: "1.4.1.5a" keeps its case inside an uppercase label. */
+.ix .ix-cap .fig,
+.ix .ix-navlink .fig {
+  text-transform: none;
+}
+.ix-q-band .ix-q-left {
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--desk-ink-2);
+}
+
+/* Paper on faint graph paper; the lines stay far under the ink (the
+   sheet-ink on the lightest grid crossing is still >13:1). */
+.ix-q-body {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 24px 18px;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--rule-soft) 40%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--rule-soft) 40%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 16px 16px;
+}
+.ix-q-body > :not(.ix-watermark) {
+  position: relative;
+  z-index: 1;
+}
+.ix-watermark {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  z-index: 0;
+  font-family: var(--f-display);
+  font-size: 128px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--rule-soft);
+  pointer-events: none;
+  user-select: none;
+}
+
+.ix-insets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.ix-measured,
+.ix-missing {
+  padding: 12px 15px 13px;
+  background: var(--paper);
+}
+.ix-measured {
+  border: 1.5px solid var(--live);
+}
+.ix-measured .ix-cap {
+  color: var(--live);
+}
+.ix-missing {
+  border: 1px dashed var(--sheet-ink-2);
+}
+.ix-measured-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 8px 0 0;
+}
+.ix-measured-val {
+  font-family: var(--f-mono);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.ix-measured-what {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+
+.ix-prompt {
+  margin: 0 0 18px;
+  max-width: 30ch;
+  font-family: var(--f-display);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+.ix-field {
+  margin-bottom: 14px;
+}
+
+/* Option tiles: ink-ruled, sharing their rules, wrapping by --cols. */
+.ix-opts {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+  border-top: 1px solid var(--sheet-ink);
+  border-left: 1px solid var(--sheet-ink);
+  margin-bottom: 14px;
+}
+.ix-opt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 70px;
+  padding: 11px 38px 11px 14px;
+  border: 0;
+  border-right: 1px solid var(--sheet-ink);
+  border-bottom: 1px solid var(--sheet-ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.ix-opt:hover {
+  background: var(--inset);
+}
+.ix-opt[aria-pressed="true"] {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.ix-opt:disabled {
+  cursor: default;
+}
+.ix-opt-label {
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.ix-opt-help {
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+.ix-opt[aria-pressed="true"] .ix-opt-help {
+  color: var(--paper);
+}
+.ix-key {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--sheet-ink-2);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--sheet-ink-2);
+}
+.ix-opt[aria-pressed="true"] .ix-key {
+  border-color: var(--paper);
+  color: var(--paper);
+}
+/* "No reading — I don't know": dashed, set apart from the choices. */
+.ix-opt.ix-opt-unknown {
+  justify-content: center;
+  min-height: 54px;
+  border: 1px dashed var(--sheet-ink);
+}
+.ix-opt-unknown .ix-opt-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ix-opt-unknown .ix-key {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+.ix-q-last {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 6px;
+}
+.ix-q-last.solo {
+  grid-template-columns: minmax(0, min(100%, 400px));
+}
+.ix-q-last > :only-child {
+  grid-column: 1 / -1;
+  max-width: 50%;
+}
+
+/* The measured-reference ruler under a money question. */
+.ix-ruler {
+  position: relative;
+  height: 66px;
+  margin: 0 0 16px;
+}
+.ix-ruler-ref {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--live);
+}
+.ix-ruler-axis {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  border-bottom: 1px solid var(--sheet-ink);
+}
+.ix-tick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 7px;
+  background: var(--sheet-ink-2);
+}
+.ix-tick.major {
+  height: 13px;
+  background: var(--sheet-ink);
+}
+.ix-ruler-mark {
+  position: absolute;
+  bottom: -4px;
+  width: 2px;
+  height: 26px;
+  margin-left: -1px;
+  background: var(--live);
+}
+.ix-ruler-labels {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+}
+.ix-ruler-labels span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+.ix-ruler-labels span:first-child {
+  transform: none;
+}
+.ix-ruler-labels span:last-child {
+  transform: translateX(-100%);
+}
+
+/* Typed answers: an underline field, ink on paper. */
+.ix .ix-input {
+  width: 100%;
+  padding: 8px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--sheet-ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 15px;
+}
+.ix .ix-input::placeholder {
+  color: var(--sheet-ink-2);
+  opacity: 0.75;
+}
+.ix .ix-textarea {
+  min-height: 104px;
+  padding: 10px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  line-height: 1.5;
+  resize: vertical;
+}
+.ix .ix-num,
+.ix .ix-date {
+  max-width: 240px;
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ix .ix-select {
+  font-size: 14px;
+}
+
+.ix-money-box {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-height: 54px;
+  padding: 12px 15px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.ix-money-box:focus-within {
+  border-color: var(--sheet-ink);
+}
+.ix-money-label {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ix-money-mark {
+  font-family: var(--f-mono);
+  font-size: 17px;
+}
+.ix .ix-money-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+.ix .ix-money-input::placeholder {
+  color: var(--sheet-ink-2);
+  opacity: 0.75;
+}
+.ix-estimate {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.ix-filestub {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 15px;
+  border: 1px dashed var(--rule);
+  background: var(--paper);
+  font-size: 14px;
+}
+
+/* Entity rows (P0-68..70), ruled. */
+.ix-entities {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ix-entity {
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.ix-entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px 12px;
+}
+.ix-entity-grid.detail {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: var(--hair);
+}
+.ix-entity-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+.ix-sub-money {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.ix-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ix-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--sheet-ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.ix-chip[aria-pressed="true"] {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.ix .ix-add {
+  align-self: flex-start;
+}
+
+.ix-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.ix-q-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-soft);
+}
+.ix-purpose {
+  flex: 1 1 320px;
+  margin: 0;
+  max-width: 62ch;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--sheet-ink-2);
+}
+.ix-purpose strong {
+  font-weight: 600;
+  color: var(--sheet-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ix-q-nav {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-left: auto;
+}
+.ix-navlink {
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.ix-navlink.strong {
+  font-weight: 700;
+}
+.ix-navlink:hover {
+  text-decoration-thickness: 2px;
+}
+.ix-navlink:disabled {
+  cursor: not-allowed;
+  color: var(--sheet-ink-2);
+  text-decoration-style: dashed;
+}
+.ix-hint {
+  margin-top: 8px !important;
+  text-align: right;
+}
+
+/* ── the right-hand cards ── */
+
+.ix-card {
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border: 1px solid var(--rule);
+  padding: 16px 18px;
+}
+.ix-card-head {
+  margin: -16px -18px 14px;
+  padding: 16px 18px 12px;
+  border-bottom: 3px double var(--sheet-ink-2);
+}
+.ix-card-head.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.ix-card-title {
+  margin: 6px 0 0;
+  font-family: var(--f-display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.ix-card-titlerow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.ix-card-foot {
+  margin-top: 10px !important;
+}
+.ix-card-foot strong {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--sheet-ink);
 }
-.intake .done-access {
-  margin: var(--s-5) 0 0;
+
+.ix-live {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 22px;
 }
-.intake .finish-form .field {
-  min-width: min(220px, 100%);
+.ix-dial {
+  flex: 0 1 220px;
+  width: 220px;
+  max-width: 100%;
+  height: auto;
 }
-.intake .linkbox .label {
+.ix-dial-track {
+  fill: none;
+  stroke: var(--rule-soft);
+  stroke-width: 12;
+}
+.ix-dial-tick {
+  stroke: var(--sheet-ink-2);
+  stroke-width: 1;
+}
+.ix-dial-tick.major {
+  stroke: var(--sheet-ink);
+  stroke-width: 1.6;
+}
+.ix-dial-label {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  fill: var(--sheet-ink-2);
+}
+.ix-dial-needle {
+  stroke: var(--sheet-ink);
+  stroke-width: 3;
+  stroke-linecap: square;
+}
+.ix-dial-hub {
+  fill: var(--sheet-ink);
+}
+.ix-dial-stated {
+  fill: var(--paper);
+  stroke: var(--sheet-ink);
+  stroke-width: 2;
+}
+.ix-stated-sw {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--sheet-ink);
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+.ix-live-fig {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ix-big {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+}
+.ix-big-unit {
+  font-size: 30px;
+}
+
+.ix-ready-pct {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 22px;
+  font-weight: 600;
+}
+.ix-cells {
+  display: grid;
+  grid-template-columns: repeat(25, minmax(0, 1fr));
+  gap: 3px;
+  margin-bottom: 10px;
+}
+.ix-cell {
+  aspect-ratio: 1;
+  border: 1px solid var(--rule);
+}
+.ix-cell.on {
+  border-color: var(--sheet-ink);
+  background: var(--sheet-ink);
+}
+
+.ix-rec-empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+.ix-rec-list,
+.ix-change-wrap,
+.ix-unlocks ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ix-rec-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(78px, max-content);
+  align-items: baseline;
+  gap: 4px 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ix-rec-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 14.5px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.ix-rec-src {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--sheet-ink-2);
+}
+.ix-rec-val {
+  max-width: 24ch;
+  font-family: var(--f-mono);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: right;
+  overflow-wrap: anywhere;
+  /* A long text answer shows its start; the whole of it is in the title
+     and on the fact sheet. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.ix-rec-val.fig {
+  font-size: 15px;
+}
+.ix-rec-row.gap .ix-rec-val {
+  color: var(--sheet-ink-2);
+}
+.ix-rec-basis .flag {
   display: block;
-  margin-bottom: var(--s-1);
+}
+.ix-rec-basis {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+/* The row just laid down: the marker, settling in on --d-record. */
+.ix-rec-row.fresh {
+  background: var(--marker);
+  animation: ix-settle var(--d-record) var(--ease-out) both;
+}
+@keyframes ix-settle {
+  from {
+    background-color: var(--paper);
+    opacity: 0;
+  }
+  to {
+    background-color: var(--marker);
+    opacity: 1;
+  }
+}
+.ix-fact-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ix-fact-btn:hover,
+.ix-fact-btn[aria-expanded="true"] {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.ix-change {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 10px;
+  background: var(--inset);
+}
+.ix-change-form {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+}
+.ix-change-form .ix-input {
+  flex: 1 1 200px;
+  width: auto;
+  font-size: 14px;
+}
+.ix-change .act {
+  min-height: 38px;
+  padding: 0 14px;
+}
+.ix-more {
+  margin: 10px 0 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--sheet-ink-2);
 }
 
-/* ── under 900px: one column, the record as a strip below ── */
+.ix-unlocks {
+  margin-top: 16px;
+}
+.ix-unlocks h3 {
+  margin-bottom: 4px;
+}
+.ix-unlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ix-unlock-text {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.ix-unlock-id {
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+.ix-badge {
+  flex: none;
+  padding: 2px 7px;
+  border: 1px solid var(--sheet-ink-2);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ix-badge.open {
+  border-color: var(--ok);
+  color: var(--ok);
+  font-weight: 600;
+}
 
-@media (max-width: 900px) {
-  .intake .stage {
+/* ── the tape ── */
+
+.ix-tape {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 42px;
+  padding: 10px var(--ix-pad);
+  background: var(--paper);
+  color: var(--sheet-ink);
+}
+/* Perforations: desk-coloured holes punched along both edges. */
+.ix-tape::before,
+.ix-tape::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background-image: radial-gradient(circle, var(--desk) 2.2px, transparent 2.7px);
+  background-size: 11px 6px;
+  background-repeat: repeat-x;
+}
+.ix-tape::before {
+  top: -3px;
+}
+.ix-tape::after {
+  bottom: -3px;
+}
+.ix-tape-head {
+  flex: none;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ix-tape-line {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  padding: 2px 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.ix-tape-line li + li::before {
+  content: "▪";
+  margin: 0 14px;
+  color: var(--sheet-ink-2);
+}
+
+/* ── reconcile, done, keep-access ── */
+
+.ix-reconcile {
+  padding: 17px 18px 18px;
+  animation: ix-rise var(--d-record) var(--ease-out) both;
+}
+.ix-reconcile-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-bottom: 10px !important;
+}
+.ix-reconcile h3 {
+  margin: 0 0 10px;
+  font-family: var(--f-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.ix-reconcile-both {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.ix-done-lede {
+  margin: 0 0 15px;
+  max-width: var(--measure);
+  font-size: 15px;
+  color: var(--sheet-ink-2);
+}
+.ix-readout {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 10px 17px;
+  align-items: baseline;
+  margin: 0 0 17px;
+  padding: 14px 0;
+  border-top: 1px solid var(--sheet-ink);
+  border-bottom: var(--hair);
+}
+.ix-readout dd {
+  margin: 0;
+}
+.ix-finish {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 14px;
+}
+.ix-finish .ix-input {
+  flex: 1 1 240px;
+  width: auto;
+}
+.ix-linkbox {
+  padding: 12px 14px;
+  font-size: 14px;
+}
+.ix-linkbox code {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+/* ── narrower and shorter screens ── */
+
+/* A short desktop window (1280×650): the bank gives up height so the
+   question starts higher; every tile keeps its bars, name and status. */
+@media (min-width: 761px) and (max-height: 760px) {
+  .ix-bank {
+    padding-top: 12px;
+  }
+  .ix-bank-head {
+    margin-bottom: 8px;
+  }
+  .ix-tile {
+    min-height: 0;
+    gap: 5px;
+    padding: 7px 9px 8px;
+  }
+  .ix-bars {
+    height: 24px;
+  }
+  .ix-tile-name {
+    font-size: 15px;
+  }
+  .ix-main {
+    padding-top: 14px;
+  }
+}
+
+@media (max-width: 1180px) {
+  .ix-prompt {
+    font-size: 30px;
+  }
+  .ix-rec-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .ix-rec-basis {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 980px) {
+  .ix-main {
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--s-5);
-    padding: var(--s-5) var(--gutter) var(--s-7);
   }
-  .intake .rec-col {
-    display: none;
-  }
-  .intake .card {
-    padding: var(--s-5) var(--s-4);
-  }
-  .intake .recorded-strip {
-    margin: 0;
-    padding: var(--s-3);
-    border: 1px solid var(--desk-rule);
-  }
-  .intake .strip-toggle {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--s-1) var(--s-3);
-    width: 100%;
-    min-height: 48px;
-    padding: var(--s-2) var(--s-4);
-    border: 1px solid var(--sheet-ink);
-    background: var(--paper);
-    color: var(--sheet-ink);
-    font-family: var(--f-mono);
-    font-size: var(--t-mono-xs);
-    letter-spacing: 0;
-    text-transform: none;
-    text-align: left;
-    transition:
-      background-color var(--d-press) linear,
-      color var(--d-press) linear;
-  }
-  .intake .strip-toggle:hover,
-  .intake .strip-toggle:active {
-    background: var(--sheet-ink);
-    color: var(--paper);
-  }
-  .intake .strip-toggle .fig {
-    white-space: normal;
-  }
-  .intake .strip-list {
-    margin-top: var(--s-3);
-  }
-}
-
-@media (max-width: 600px) {
-  .intake .topbar .subtitle {
-    display: none;
-  }
-  .intake .topbar .meta {
+  .ix-mast-right {
     margin-left: 0;
-    flex-basis: 100%;
   }
-  .intake .hint {
+}
+
+/* Phones: the bank is one strip that scrolls inside itself (the page
+   never scrolls sideways); question first, cards below, tape at the
+   bottom. */
+@media (max-width: 760px) {
+  .ix {
+    --ix-pad: var(--gutter);
+  }
+  .ix-mast {
+    column-gap: 12px;
+  }
+  .ix-mast-right {
+    flex-basis: 100%;
+    gap: 2px 16px;
+  }
+  .ix-mast-sub,
+  .ix-mast-fig,
+  .ix-machine {
+    font-size: 12px;
+  }
+  .ix-tiles {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 124px;
+    padding-bottom: 6px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+  .ix-tiles > li {
+    scroll-snap-align: start;
+  }
+  .ix-q-band {
+    padding: 10px 16px;
+  }
+  .ix-q-body {
+    padding: 18px 16px 16px;
+  }
+  .ix-watermark {
+    font-size: 84px;
+  }
+  .ix-prompt {
+    font-size: 24px;
+    max-width: none;
+  }
+  .ix-opts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ix-q-last,
+  .ix-q-last.solo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ix-q-last > :only-child {
+    max-width: none;
+  }
+  .ix-q-nav {
     margin-left: 0;
-    flex-basis: 100%;
   }
-}
-
-/* ── touch: every target at least 48px ── */
-
-@media (pointer: coarse) {
-  .intake .opt,
-  .intake .chip-reopen .ghost,
-  .intake .chip-reopen-field,
-  .intake .ghost.quiet {
-    min-height: 48px;
+  .ix-big {
+    font-size: 34px;
   }
-}
-
-/* ── reduced motion: every duration is already zero (sheet.css); make
-   the record motion explicitly absent rather than merely instant. ── */
-
-@media (prefers-reduced-motion: reduce) {
-  .intake .card,
-  .intake .card.leaving,
-  .intake .chip,
-  .intake .reconcile {
-    animation-duration: 0ms;
+  .ix-cells {
+    gap: 2px;
   }
-  .intake .progress-fill {
-    transition: none;
+  .ix-tape {
+    gap: 12px;
+  }
+  .ix-tape-line {
+    font-size: 12px;
   }
 }

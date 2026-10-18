@@ -1,21 +1,27 @@
 "use client";
 
 // The connections screen — P2-12, extended for stores (Session C) and for
-// analytics and ads (Session D). In the Ember language.
+// analytics and ads (Session D); the owner's Connections design
+// (2026-10-17): a patch panel of every source and a separate sheet for
+// write access.
 //
-// What an owner sees about each data source: that it is read-only, the
-// permissions it was granted (verbatim from the database), whether those
-// were verified or only tested, when it last synced, how far its history
-// reaches, and a way to disconnect. Stores and analytics add matching: the
-// system suggests, the owner confirms, and nothing is stored until they do.
-// The connect form's instructions are the scope registry rendered
-// (SCOPE_GUIDE), so the screen cannot promise a permission the code
-// doesn't declare. Below it, the Execution section (P3-20h) keeps write
-// access visibly apart: its own heading, colour and consent.
+// What an owner sees about each data source: what it reads (the scope
+// registry's own words), whether it is on, that it can never write, and
+// when it last read. Settings opens the rest — the permissions it was
+// granted (verbatim from the database), whether those were verified or
+// only tested, how far its history reaches, the last error, matching,
+// sync and disconnect. Connect opens the setup steps and the credential
+// form, which render the scope registry (SCOPE_GUIDE), so the screen
+// cannot promise a permission the code doesn't declare. Below it, write
+// access (P3-20h) keeps visibly apart: its own sheet and its own consent.
 
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { PageHead, SheetCard } from "../sheet/PageHead";
+import type { ExecView } from "./ExecutionSection";
 import { ExecutionSection } from "./ExecutionSection";
+import { gives, headline, lastRead, parseTs } from "./patch";
+import "../../app/connections.css";
 
 type Verification = "reported" | "probed";
 type Matching = "product" | "channel" | null;
@@ -92,6 +98,8 @@ type Payload = Record<string, unknown> | null;
 
 const DAY_MS = 86_400_000;
 const NONE = "__none__";
+const KICKER = "Your business · Connections";
+const ASIDE = "Reading is separate from writing — always";
 
 function historyLine(c: Connection): string {
   const days = c.history_days;
@@ -113,7 +121,7 @@ function historyLine(c: Connection): string {
 
 function when(iso: string | null): string {
   if (iso === null) return "never";
-  return new Date(iso).toLocaleString("en-GB", {
+  return new Date(parseTs(iso)).toLocaleString("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -196,11 +204,11 @@ function MappingPanel({ connection }: { connection: Connection }) {
     }
   };
 
-  if (error !== null && view === null) return <p className="auth-error">{error}</p>;
-  if (view === null) return <p className="conn-note">Reading {connection.label}…</p>;
+  if (error !== null && view === null) return <p className="cn-error">{error}</p>;
+  if (view === null) return <p className="cn-note">Reading {connection.label}…</p>;
   if (view.entities.length === 0) {
     return (
-      <p className="conn-note">
+      <p className="cn-note">
         There are no {view.entity_noun}s in your profile to match yet. Add them in the interview
         first.
       </p>
@@ -209,31 +217,31 @@ function MappingPanel({ connection }: { connection: Connection }) {
 
   const unmatchedCount = view.unmapped_items.length;
   return (
-    <div className="conn-mapping">
-      <p className="conn-note">
+    <div className="cn-mapping">
+      <p className="cn-note">
         {view.kind === "product"
           ? `Match each thing you sell to its ${connection.label} product. Sales of a matched product become that offer's measured units a month.`
           : `Match each of your sales channels to the ${connection.label} traffic channel it corresponds to. Visits from a matched channel become that channel's measured monthly visits.`}{" "}
         I suggest matches; nothing counts until you confirm it.
       </p>
-      <ul className="conn-map-list">
+      <ul className="cn-map-list">
         {view.entities.map((entity) => {
           const selected = choices[entity.entity_id] ?? entity.suggestion?.ref ?? "";
           return (
-            <li key={entity.entity_id} className="conn-map-row">
-              <span className="conn-map-offer">{entity.name}</span>
+            <li key={entity.entity_id} className="cn-map-row">
+              <span className="cn-map-offer">{entity.name}</span>
               {entity.mapped !== null ? (
-                <span className="conn-map-state">
+                <span className="cn-map-state">
                   matched to <strong>{entity.mapped.label_raw}</strong>
                 </span>
               ) : entity.no_match ? (
-                <span className="conn-map-state">no matching {view.item_noun}</span>
+                <span className="cn-map-state">no matching {view.item_noun}</span>
               ) : (
-                <span className="conn-map-state">not matched yet</span>
+                <span className="cn-map-state">not matched yet</span>
               )}
-              <span className="conn-map-pick">
+              <span className="cn-map-pick">
                 <select
-                  className="field"
+                  className="cn-input"
                   value={selected}
                   aria-label={`${connection.label} ${view.item_noun} for ${entity.name}`}
                   onChange={(e) =>
@@ -268,9 +276,9 @@ function MappingPanel({ connection }: { connection: Connection }) {
           );
         })}
       </ul>
-      {error !== null && <p className="auth-error">{error}</p>}
+      {error !== null && <p className="cn-error">{error}</p>}
       {unmatchedCount > 0 && (
-        <p className="conn-note">
+        <p className="cn-note">
           {unmatchedCount} {connection.label} {view.item_noun}
           {unmatchedCount === 1 ? " isn't" : "s aren't"} matched to anything in your profile.
           That&rsquo;s a gap, and I won&rsquo;t guess what{" "}
@@ -281,114 +289,11 @@ function MappingPanel({ connection }: { connection: Connection }) {
   );
 }
 
-function ConnectionCard({
-  connection: c,
-  busy,
-  confirming,
-  onSync,
-  onAskDisconnect,
-  onCancel,
-  onDisconnect,
-}: {
-  connection: Connection;
-  busy: boolean;
-  confirming: boolean;
-  onSync: () => void;
-  onAskDisconnect: () => void;
-  onCancel: () => void;
-  onDisconnect: () => void;
-}) {
-  const [matching, setMatching] = useState(false);
-
-  return (
-    <section className="card ops-card">
-      <div className="conn-head">
-        <h2 className="conn-name">{c.label}</h2>
-        <span className="conn-badges">
-          <span className="conn-badge readonly">read-only</span>
-          <span className={c.status === "failed" ? "conn-badge problem" : "conn-badge"}>
-            {c.status}
-          </span>
-        </span>
-      </div>
-
-      <dl className="conn-facts">
-        <dt>granted</dt>
-        <dd>
-          <span className="conn-scope">{c.granted_scopes.join(" · ")}</span>
-        </dd>
-        <dt>checked</dt>
-        <dd>{checkedLine(c)}</dd>
-        <dt>last sync</dt>
-        <dd>{when(c.last_sync_at)}</dd>
-        <dt>history</dt>
-        <dd>
-          {historyLine(c)}
-          {c.provider === "shopify" && !c.granted_scopes.includes("read_all_orders")
-            ? " Shopify only shows 60 days without read_all_orders, which Shopify must approve."
-            : ""}
-        </dd>
-        {c.last_error !== null && (
-          <>
-            <dt>last error</dt>
-            <dd>
-              {c.last_error}
-              {c.failure_count > 1 ? ` (${c.failure_count} in a row)` : ""}
-            </dd>
-          </>
-        )}
-      </dl>
-
-      <div className="conn-actions">
-        {c.status === "connected" && !confirming && (
-          <button className="ghost" disabled={busy} onClick={onSync}>
-            {busy ? "syncing…" : "Sync now"}
-          </button>
-        )}
-        {c.matching !== null && c.status !== "disconnected" && !confirming && (
-          <button
-            className="ghost"
-            aria-pressed={matching}
-            disabled={busy}
-            onClick={() => setMatching((m) => !m)}
-          >
-            {matching
-              ? "Hide matching"
-              : c.matching === "product"
-                ? "Match products"
-                : "Match channels"}
-          </button>
-        )}
-        {confirming ? (
-          <>
-            <span className="auth-copy">
-              Disconnect {c.label}? The credential is deleted and syncing stops. The measured
-              history stays.
-            </span>
-            <button className="ghost" disabled={busy} onClick={onDisconnect}>
-              Yes, disconnect
-            </button>
-            <button className="ghost quiet" disabled={busy} onClick={onCancel}>
-              Keep it
-            </button>
-          </>
-        ) : (
-          <button className="ghost quiet" disabled={busy} onClick={onAskDisconnect}>
-            Disconnect
-          </button>
-        )}
-      </div>
-
-      {matching && <MappingPanel connection={c} />}
-    </section>
-  );
-}
-
 /* ── connecting ── */
 
 function GuideList({ guide }: { guide: GuideEntry[] }) {
   return (
-    <ul className="mode-reasons">
+    <ul className="cn-list">
       {guide.map((g) => (
         <li key={g.scope}>
           <strong>{g.grant}</strong>. {g.why}
@@ -402,7 +307,7 @@ function Steps({ provider }: { provider: ProviderOption }) {
   switch (provider.id) {
     case "stripe":
       return (
-        <ol className="conn-steps">
+        <ol className="cn-steps">
           <li>
             In your Stripe Dashboard, open <strong>Developers</strong>, then{" "}
             <strong>API keys</strong>, and choose <strong>Create restricted key</strong>. Test mode
@@ -420,7 +325,7 @@ function Steps({ provider }: { provider: ProviderOption }) {
       );
     case "shopify":
       return (
-        <ol className="conn-steps">
+        <ol className="cn-steps">
           <li>
             In Shopify&rsquo;s <strong>Dev Dashboard</strong>, choose <strong>Create app</strong>,
             then <strong>Start from Dev Dashboard</strong>, and name it.
@@ -442,7 +347,7 @@ function Steps({ provider }: { provider: ProviderOption }) {
       );
     case "woocommerce":
       return (
-        <ol className="conn-steps">
+        <ol className="cn-steps">
           <li>
             In WordPress, open <strong>WooCommerce</strong>, then <strong>Settings</strong>,{" "}
             <strong>Advanced</strong>, <strong>REST API</strong>, and choose{" "}
@@ -460,7 +365,7 @@ function Steps({ provider }: { provider: ProviderOption }) {
       );
     case "ga4":
       return (
-        <ol className="conn-steps">
+        <ol className="cn-steps">
           <li>
             In <strong>Google Cloud Console</strong>, create a project (or use one), enable the{" "}
             <strong>Google Analytics Data API</strong>, then under <strong>IAM &amp; Admin</strong>,{" "}
@@ -481,7 +386,7 @@ function Steps({ provider }: { provider: ProviderOption }) {
       );
     case "square":
       return (
-        <ol className="conn-steps">
+        <ol className="cn-steps">
           <li>
             In the <strong>Square Developer Console</strong>, create an application (or open one)
             and copy its <strong>Production access token</strong>.
@@ -498,7 +403,7 @@ function Steps({ provider }: { provider: ProviderOption }) {
       );
     case "search_console":
       return (
-        <ol className="conn-steps">
+        <ol className="cn-steps">
           <li>
             In <strong>Google Cloud Console</strong>, enable the{" "}
             <strong>Google Search Console API</strong> on a project and create a service account
@@ -518,7 +423,7 @@ function Steps({ provider }: { provider: ProviderOption }) {
       );
     case "meta_ads":
       return (
-        <ol className="conn-steps">
+        <ol className="cn-steps">
           <li>
             In <strong>Meta Business Suite</strong>, open <strong>Business settings</strong>, then{" "}
             <strong>Users</strong>, <strong>System users</strong>, and add a system user (Employee
@@ -546,14 +451,14 @@ function Steps({ provider }: { provider: ProviderOption }) {
 function VerificationNote({ provider }: { provider: ProviderOption }) {
   if (provider.scope_verification === "reported") {
     return (
-      <p className="conn-note">
+      <p className="cn-note">
         {provider.label} reports exactly which permissions a credential has, and I check them when
         you connect. If it could change anything on your side, I refuse the connection.
       </p>
     );
   }
   return (
-    <p className="conn-note">
+    <p className="cn-note">
       {provider.label} doesn&rsquo;t let any app check the rest of a key&rsquo;s permissions. Here
       is what I can promise: I test that the reads above work, and my code can only read.{" "}
       {provider.id === "stripe"
@@ -563,29 +468,124 @@ function VerificationNote({ provider }: { provider: ProviderOption }) {
   );
 }
 
-function ConnectForm({
-  providers,
+/* ── a connected source's settings ── */
+
+function SourceSettings({
+  connection: c,
+  busy,
+  confirming,
+  onSync,
+  onAskDisconnect,
+  onCancel,
+  onDisconnect,
+}: {
+  connection: Connection;
+  busy: boolean;
+  confirming: boolean;
+  onSync: () => void;
+  onAskDisconnect: () => void;
+  onCancel: () => void;
+  onDisconnect: () => void;
+}) {
+  const [matching, setMatching] = useState(false);
+
+  return (
+    <div className="cn-detail">
+      <dl className="cn-facts">
+        <dt>access</dt>
+        <dd>
+          <span className="word boxed">read-only</span>{" "}
+          <span className={`word ${c.status === "connected" ? "ok" : "alarm"}`}>{c.status}</span>
+        </dd>
+        <dt>granted</dt>
+        <dd>
+          <span className="cn-scope">
+            {c.granted_scopes.length > 0 ? c.granted_scopes.join(" · ") : "nothing recorded"}
+          </span>
+        </dd>
+        <dt>checked</dt>
+        <dd>{checkedLine(c)}</dd>
+        <dt>last sync</dt>
+        <dd>{when(c.last_sync_at)}</dd>
+        <dt>history</dt>
+        <dd>
+          {historyLine(c)}
+          {c.provider === "shopify" && !c.granted_scopes.includes("read_all_orders")
+            ? " Shopify only shows 60 days without read_all_orders, which Shopify must approve."
+            : ""}
+        </dd>
+        {c.last_error !== null && (
+          <>
+            <dt>last error</dt>
+            <dd>
+              {c.last_error}
+              {c.failure_count > 1 ? ` (${c.failure_count} in a row)` : ""}
+            </dd>
+          </>
+        )}
+      </dl>
+
+      <div className="cn-acts">
+        {c.status === "connected" && !confirming && (
+          <button type="button" className="ghost" disabled={busy} onClick={onSync}>
+            {busy ? "Syncing…" : "Sync now"}
+          </button>
+        )}
+        {c.matching !== null && c.status !== "disconnected" && !confirming && (
+          <button
+            type="button"
+            className="ghost"
+            aria-pressed={matching}
+            disabled={busy}
+            onClick={() => setMatching((m) => !m)}
+          >
+            {matching
+              ? "Hide matching"
+              : c.matching === "product"
+                ? "Match products"
+                : "Match channels"}
+          </button>
+        )}
+        {confirming ? (
+          <>
+            <span className="cn-confirm">
+              Disconnect {c.label}? The credential is deleted and syncing stops. The measured
+              history stays.
+            </span>
+            <button type="button" className="ghost" disabled={busy} onClick={onDisconnect}>
+              Yes, disconnect
+            </button>
+            <button type="button" className="ghost quiet" disabled={busy} onClick={onCancel}>
+              Keep it
+            </button>
+          </>
+        ) : (
+          <button type="button" className="ghost quiet" disabled={busy} onClick={onAskDisconnect}>
+            Disconnect
+          </button>
+        )}
+      </div>
+
+      {matching && <MappingPanel connection={c} />}
+    </div>
+  );
+}
+
+/* ── connecting one source ── */
+
+function ConnectPanel({
+  provider,
   onConnected,
 }: {
-  providers: ProviderOption[];
+  provider: ProviderOption;
   onConnected: (message: string) => Promise<void>;
 }) {
-  const [providerId, setProviderId] = useState(providers[0]?.id ?? "");
   const [values, setValues] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const provider = providers.find((p) => p.id === providerId) ?? providers[0];
-  if (!provider) return null;
-
   const fields = provider.credential_fields;
   const complete = fields.every((f) => (values[f.name] ?? "").trim() !== "");
-
-  const choose = (id: string) => {
-    setProviderId(id);
-    setValues({});
-    setError(null);
-  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -625,76 +625,96 @@ function ConnectForm({
   };
 
   return (
-    <section className="card ops-card">
-      <span className="auth-eyebrow">connect a data source</span>
-      {providers.length > 1 && (
-        <div className="conn-actions" style={{ marginTop: 0, marginBottom: 14 }}>
-          {providers.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className="ghost"
-              aria-pressed={p.id === provider.id}
-              onClick={() => choose(p.id)}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-      )}
-      <h2 className="auth-title">{provider.label}, read-only</h2>
-
+    <div className="cn-detail">
+      <p className="cn-sub">{provider.label}, read-only</p>
       <Steps provider={provider} />
       <VerificationNote provider={provider} />
 
-      <form className="conn-form" onSubmit={(e) => void submit(e)}>
-        {fields.map((f) =>
-          f.multiline ? (
-            <textarea
-              key={f.name}
-              className="field conn-textarea"
-              rows={6}
-              spellCheck={false}
-              placeholder={f.placeholder}
-              aria-label={`${provider.label} ${f.label}`}
-              value={values[f.name] ?? ""}
-              onChange={(e) => setValues((prev) => ({ ...prev, [f.name]: e.target.value }))}
-              disabled={busy}
-            />
-          ) : (
-            <input
-              key={f.name}
-              className="field"
-              type={f.secret ? "password" : "text"}
-              autoComplete="off"
-              spellCheck={false}
-              placeholder={f.placeholder}
-              aria-label={`${provider.label} ${f.label}`}
-              value={values[f.name] ?? ""}
-              onChange={(e) => setValues((prev) => ({ ...prev, [f.name]: e.target.value }))}
-              disabled={busy}
-            />
-          ),
+      <form className="cn-form" onSubmit={(e) => void submit(e)}>
+        {fields.map((f) => (
+          <label key={f.name} className="cn-field">
+            <span className="cn-field-label">{f.label}</span>
+            {f.multiline ? (
+              <textarea
+                className="cn-input cn-textarea"
+                rows={6}
+                spellCheck={false}
+                placeholder={f.placeholder}
+                value={values[f.name] ?? ""}
+                onChange={(e) => setValues((prev) => ({ ...prev, [f.name]: e.target.value }))}
+                disabled={busy}
+              />
+            ) : (
+              <input
+                className="cn-input"
+                type={f.secret ? "password" : "text"}
+                autoComplete="off"
+                spellCheck={false}
+                placeholder={f.placeholder}
+                value={values[f.name] ?? ""}
+                onChange={(e) => setValues((prev) => ({ ...prev, [f.name]: e.target.value }))}
+                disabled={busy}
+              />
+            )}
+          </label>
+        ))}
+        {error !== null && (
+          <p className="cn-error" role="alert">
+            {error}
+          </p>
         )}
-        {error !== null && <p className="auth-error">{error}</p>}
         <button className="next" type="submit" disabled={busy || !complete}>
-          {busy ? "checking…" : `Connect ${provider.label}`}
+          {busy ? "Checking…" : `Connect ${provider.label}`}
         </button>
       </form>
-      <p className="conn-note">
+      <p className="cn-note">
         Everything you enter is encrypted before it&rsquo;s stored and never shown again, not even
         to you.
       </p>
-    </section>
+    </div>
+  );
+}
+
+/* ── the screen ── */
+
+interface PanelRow {
+  id: string;
+  label: string;
+  gives: string;
+  provider: ProviderOption | null;
+  connection: Connection | null;
+}
+
+function ReadBox({ c }: { c: Connection | null }) {
+  const on = c?.status === "connected";
+  return (
+    <span className={`cn-box${on ? " on" : ""}`}>
+      <span className="sr-only">{on ? "reading" : c ? `not reading, ${c.status}` : "off"}</span>
+    </span>
   );
 }
 
 export function ConnectionsScreen() {
   const [view, setView] = useState<View | null>(null);
+  const [exec, setExec] = useState<ExecView | null>(null);
+  // The headline speaks for writing too, so it waits until that side has answered.
+  const [execDone, setExecDone] = useState(false);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
+
+  const loadExec = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/execute");
+      setExec(res.ok ? ((await res.json()) as ExecView) : null);
+    } catch {
+      setExec(null);
+    } finally {
+      setExecDone(true);
+    }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -716,7 +736,8 @@ export function ConnectionsScreen() {
 
   useEffect(() => {
     void load();
-  }, [load]);
+    void loadExec();
+  }, [load, loadExec]);
 
   const syncNow = async (c: Connection) => {
     setBusy(c.id);
@@ -750,6 +771,7 @@ export function ConnectionsScreen() {
           : errorText(payload, "That didn't disconnect."),
       );
       setConfirming(null);
+      setOpen(null);
       await load();
     } catch {
       setNotice("I couldn't reach the server. Try again.");
@@ -758,39 +780,38 @@ export function ConnectionsScreen() {
     }
   };
 
-  if (state === "loading") {
+  if (state === "loading" || (state === "ready" && !execDone)) {
     return (
-      <main className="auth-stage">
-        <p className="auth-copy">Reading your connections…</p>
+      <main className="screen cn-screen">
+        <PageHead kicker={KICKER} title="Reading your connections…" aside={ASIDE} />
       </main>
     );
   }
   if (state === "error") {
     return (
-      <main className="auth-stage">
-        <p className="auth-copy">
-          Something went wrong loading your connections. Refresh to try again.
-        </p>
+      <main className="screen cn-screen">
+        <PageHead kicker={KICKER} title="Connections didn't load." aside={ASIDE} />
+        <SheetCard label="Connections" title="Something went wrong.">
+          <p className="cn-copy">
+            Something went wrong loading your connections. Refresh to try again.
+          </p>
+        </SheetCard>
       </main>
     );
   }
   if (state === "signed_out") {
     return (
-      <main className="auth-stage">
-        <div className="auth-col">
-          <span className="wordmark">Ledgerline</span>
-          <section className="card auth-card">
-            <span className="auth-eyebrow">connections</span>
-            <h1 className="auth-title">Sign in to connect your numbers.</h1>
-            <p className="auth-copy">
-              A payment account, a store or an ad account connects to your account, not just to this
-              browser.
-            </p>
-            <Link className="next auth-cta" href="/login">
-              Sign in
-            </Link>
-          </section>
-        </div>
+      <main className="screen cn-screen">
+        <PageHead kicker={KICKER} title="Sign in to connect your numbers." aside={ASIDE} />
+        <SheetCard label="Connections" title="Connections belong to your account.">
+          <p className="cn-copy">
+            A payment account, a store or an ad account connects to your account, not just to this
+            browser.
+          </p>
+          <Link className="next" href="/login">
+            Sign in <span aria-hidden="true">→</span>
+          </Link>
+        </SheetCard>
       </main>
     );
   }
@@ -798,71 +819,182 @@ export function ConnectionsScreen() {
 
   const live = view.connections.filter((c) => c.status !== "disconnected");
   const past = view.connections.filter((c) => c.status === "disconnected");
-  const connectable = view.providers.filter((p) => !live.some((c) => c.provider === p.id));
+  const now = Date.now();
+
+  // Every offered source, with its live connection when there is one;
+  // a live connection to a source no longer offered still gets its row.
+  const rows: PanelRow[] = view.providers.map((p) => ({
+    id: p.id,
+    label: p.label,
+    gives: gives(p.guide),
+    provider: p,
+    connection: live.find((c) => c.provider === p.id) ?? null,
+  }));
+  for (const c of live) {
+    if (!rows.some((r) => r.id === c.provider)) {
+      rows.push({ id: c.provider, label: c.label, gives: "", provider: null, connection: c });
+    }
+  }
+
+  const title = headline(live, exec ? exec.connections : null);
 
   return (
-    <main className="ops-shell">
-      <header className="ops-head">
-        <span className="wordmark">Ledgerline</span>
-        <span className="ops-meta">connections · {live.length} read-only active</span>
-      </header>
+    <main className="screen cn-screen">
+      <PageHead kicker={KICKER} title={title} aside={ASIDE} />
 
       {notice !== null && (
-        <section className="card ops-card">
-          <p className="auth-copy" aria-live="polite">
-            {notice}
+        <p className="cn-banner" aria-live="polite">
+          {notice}
+        </p>
+      )}
+
+      <section className="cs cn-panel" aria-labelledby="cn-panel-title">
+        <header className="cs-head">
+          <div>
+            <p className="cs-label">Patch panel</p>
+            <h2 className="cs-title" id="cn-panel-title">
+              What&rsquo;s plugged in
+            </h2>
+          </div>
+          <p className="cs-meta cn-legend" aria-hidden="true">
+            <span className="cn-box on" /> on <span className="cn-box" /> off{" "}
+            <span className="cn-dash">—</span> never
           </p>
-        </section>
-      )}
-
-      {live.map((c) => (
-        <ConnectionCard
-          key={c.id}
-          connection={c}
-          busy={busy === c.id}
-          confirming={confirming === c.id}
-          onSync={() => void syncNow(c)}
-          onAskDisconnect={() => setConfirming(c.id)}
-          onCancel={() => setConfirming(null)}
-          onDisconnect={() => void disconnectOne(c)}
-        />
-      ))}
-
-      {connectable.length > 0 && (
-        <ConnectForm
-          providers={connectable}
-          onConnected={async (message) => {
-            setNotice(message);
-            await load();
-          }}
-        />
-      )}
-
-      {past.length > 0 && (
-        <section className="card ops-card">
-          <span className="auth-eyebrow">disconnected</span>
-          <ul className="watch-log">
-            {past.map((c) => (
-              <li key={c.id}>
-                <span className="watch-at">{(c.disconnected_at ?? c.created_at).slice(0, 10)}</span>
-                <span>
-                  {c.label}. The credential was deleted. The measured history it produced stays in
-                  your profile.
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        </header>
+        <div className="cn-table-wrap">
+          <table className="rt cn-table">
+            <thead>
+              <tr>
+                <th scope="col">Source</th>
+                <th scope="col">What it gives</th>
+                <th scope="col" className="cn-c">
+                  Read
+                </th>
+                <th scope="col" className="cn-c">
+                  Write
+                </th>
+                <th scope="col" className="num">
+                  Last read
+                </th>
+                <th scope="col">
+                  <span className="sr-only">Action</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const c = r.connection;
+                const isOpen = open === r.id;
+                const canConnect = c === null && r.provider !== null;
+                const panelId = `cn-row-${r.id}`;
+                return (
+                  <Fragment key={r.id}>
+                    <tr className={isOpen ? "on" : undefined}>
+                      <th scope="row" className="cn-name" data-label="Source">
+                        {r.label}
+                      </th>
+                      <td className="cn-gives" data-label="What it gives">
+                        {r.gives}
+                      </td>
+                      <td className="cn-c" data-label="Read">
+                        <ReadBox c={c} />
+                      </td>
+                      <td className="cn-c" data-label="Write">
+                        <span className="cn-dash" aria-hidden="true">
+                          —
+                        </span>
+                        <span className="sr-only">never — read-only by design</span>
+                      </td>
+                      <td className="num cn-last" data-label="Last read">
+                        {lastRead(c?.last_sync_at ?? null, now)}
+                        {c !== null && c.status !== "connected" && (
+                          <span className={`word ${c.status === "failed" ? "alarm" : "drift"}`}>
+                            {c.status}
+                          </span>
+                        )}
+                      </td>
+                      <td className="cn-act">
+                        {(c !== null || canConnect) && (
+                          <button
+                            type="button"
+                            className="prop-btn"
+                            aria-expanded={isOpen}
+                            aria-controls={panelId}
+                            onClick={() => {
+                              setOpen(isOpen ? null : r.id);
+                              setConfirming(null);
+                            }}
+                          >
+                            {isOpen ? (
+                              "Close"
+                            ) : c !== null ? (
+                              "Settings"
+                            ) : (
+                              <>
+                                Connect <span aria-hidden="true">→</span>
+                              </>
+                            )}
+                            <span className="sr-only"> {r.label}</span>
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="cn-open" id={panelId}>
+                        <td colSpan={6}>
+                          {c !== null ? (
+                            <SourceSettings
+                              connection={c}
+                              busy={busy === c.id}
+                              confirming={confirming === c.id}
+                              onSync={() => void syncNow(c)}
+                              onAskDisconnect={() => setConfirming(c.id)}
+                              onCancel={() => setConfirming(null)}
+                              onDisconnect={() => void disconnectOne(c)}
+                            />
+                          ) : r.provider !== null ? (
+                            <ConnectPanel
+                              provider={r.provider}
+                              onConnected={async (message) => {
+                                setNotice(message);
+                                setOpen(null);
+                                await load();
+                              }}
+                            />
+                          ) : null}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <footer className="cs-foot cn-foot">
+          {past.length > 0 && (
+            <ul className="cn-past">
+              {past.map((c) => (
+                <li key={c.id}>
+                  <span className="cn-past-at">
+                    {(c.disconnected_at ?? c.created_at).slice(0, 10)}
+                  </span>{" "}
+                  {c.label} disconnected. The credential was deleted; the measured history it
+                  produced stays in your profile.
+                </li>
+              ))}
+            </ul>
+          )}
+          <p>
+            Measured figures replace your estimates in the report, and your estimates stay in your
+            history. Google Ads isn&rsquo;t available yet: it needs Ledgerline&rsquo;s own approval
+            from Google before any account can connect.
+          </p>
+        </footer>
+      </section>
 
       {/* P3-20h: write access, visibly apart from everything above. */}
-      <ExecutionSection />
-
-      <p className="conn-note">
-        Google Ads isn&rsquo;t available yet: it needs Ledgerline&rsquo;s own approval from Google
-        before any account can connect. Measured figures replace your estimates in the report, and
-        your estimates stay in your history.
-      </p>
+      {exec !== null && <ExecutionSection view={exec} onChanged={loadExec} />}
     </main>
   );
 }
