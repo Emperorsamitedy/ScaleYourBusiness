@@ -8,7 +8,14 @@ import { afterEach, describe, expect, it } from "vitest";
 import { metaAccessLevel } from "../env";
 import { parseMetaExecutionCredential } from "./providers/meta";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
-import { EXECUTION_SETUP, OFFERED_EXECUTION, accessLevelCopy, confirmationMatches } from "./setup";
+import {
+  EXECUTION_SETUP,
+  FACEBOOK_LOGIN_OFF,
+  OFFERED_EXECUTION,
+  TESTER_NOTE,
+  accessLevelCopy,
+  confirmationMatches,
+} from "./setup";
 
 const saved = process.env.META_ACCESS_LEVEL;
 afterEach(() => {
@@ -86,15 +93,28 @@ describe("P3-20i — access-level honesty", () => {
     expect(copy.headline).toMatch(/hasn't approved SYB for open sign-up/);
     expect(copy.body).toContain("company registration");
     expect(copy.body).toMatch(/Advanced Access.*Business Verification.*Tech Provider/);
-    // Facebook Login for testers (P3-20j) isn't built: it is offered as unavailable, not pretended.
+    // Without SYB's Meta app keys, Facebook Login (P3-20j) is shown as unavailable, not pretended.
     expect(copy.routes.find((r) => /Facebook/.test(r.title))?.available).toBe(false);
+    expect(copy.routes.find((r) => /Facebook/.test(r.title))?.detail).toContain(FACEBOOK_LOGIN_OFF);
     expect(copy.routes.find((r) => /own Meta app/.test(r.title))?.available).toBe(true);
   });
 
-  it("at advanced: no claim of waiting, and still no pretending Facebook Login exists", () => {
+  it("at advanced: no claim of waiting, and no pretending Facebook Login is on without the keys", () => {
     const copy = accessLevelCopy("advanced");
     expect(copy.headline).toMatch(/has approved/);
     expect(copy.body).not.toMatch(/pilot/);
     expect(copy.routes.find((r) => /Facebook/.test(r.title))?.available).toBe(false);
+  });
+
+  it("P3-20j: with the app keys set, the tester route is available and says the Tester step comes first", () => {
+    const copy = accessLevelCopy("standard", true);
+    const route = copy.routes.find((r) => /Facebook/.test(r.title));
+    expect(route?.available).toBe(true);
+    expect(route?.detail).toMatch(/Samuel or Tedi adds you/);
+    expect(TESTER_NOTE).toMatch(/Tester on SYB's Meta app/);
+    expect(TESTER_NOTE).toMatch(/Samuel or Tedi/);
+    expect(
+      accessLevelCopy("advanced", true).routes.find((r) => /Facebook/.test(r.title)),
+    ).toMatchObject({ available: true });
   });
 });

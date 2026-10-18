@@ -102,8 +102,31 @@ export interface AccessLevelCopy {
   routes: { title: string; available: boolean; detail: string }[];
 }
 
-/** P3-20i: what the screen says about Meta's approvals. No line pretends otherwise. */
-export function accessLevelCopy(level: MetaAccessLevel): AccessLevelCopy {
+/**
+ * Pilot route 1 (P3-20j): who may use Facebook sign-in while Meta hasn't
+ * approved open sign-up, and the one thing the exact scope match means
+ * for it. Shown beside the button, so nobody signs in to be refused.
+ */
+export const TESTER_NOTE =
+  "During the pilot, Facebook sign-in works only for invited testers. First Samuel or Tedi at SYB adds you as a Tester on SYB's Meta app, and you accept the invite from your own Facebook account. Meta then asks you to approve exactly the permissions listed above, and you pick the Page or ad account here.";
+
+/**
+ * Meta hands SYB's app every permission a person ever granted it, so a
+ * Facebook sign-in for the second consent would carry the first one's
+ * permissions too, and the exact match refuses it by name.
+ */
+export const ONE_CONSENT_PER_FACEBOOK_ACCOUNT =
+  "One Facebook account can connect publishing or ad management through sign-in, not both: Meta gives SYB's app everything you granted it before, and SYB refuses a token holding more than this consent names. For the other one, use your own Meta app below.";
+
+/** Said where Facebook sign-in would be, while META_APP_ID and META_APP_SECRET aren't set. */
+export const FACEBOOK_LOGIN_OFF = "Not switched on yet.";
+
+/**
+ * P3-20i: what the screen says about Meta's approvals. No line pretends
+ * otherwise. `facebookLogin` is whether SYB's Meta app keys are set
+ * (P3-20j): without them the sign-in route is shown, and said to be off.
+ */
+export function accessLevelCopy(level: MetaAccessLevel, facebookLogin = false): AccessLevelCopy {
   if (level === "advanced") {
     return {
       level,
@@ -117,8 +140,10 @@ export function accessLevelCopy(level: MetaAccessLevel): AccessLevelCopy {
         },
         {
           title: "Sign in with Facebook",
-          available: false,
-          detail: "Not switched on yet.",
+          available: facebookLogin,
+          detail: facebookLogin
+            ? "Sign in, approve the permissions listed, and pick your Page or ad account."
+            : FACEBOOK_LOGIN_OFF,
         },
       ],
     };
@@ -130,8 +155,10 @@ export function accessLevelCopy(level: MetaAccessLevel): AccessLevelCopy {
     routes: [
       {
         title: "Invited testers: sign in with Facebook",
-        available: false,
-        detail: "For testers the SYB team has added in Meta. Not switched on yet.",
+        available: facebookLogin,
+        detail: facebookLogin
+          ? "For testers the SYB team has added in Meta: Samuel or Tedi adds you in SYB's Meta app first, and you accept the invite."
+          : `For testers the SYB team has added in Meta. ${FACEBOOK_LOGIN_OFF}`,
       },
       {
         title: "Your own Meta app",

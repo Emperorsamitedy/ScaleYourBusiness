@@ -46,3 +46,35 @@ export type MetaAccessLevel = "standard" | "advanced";
 export function metaAccessLevel(): MetaAccessLevel {
   return process.env.META_ACCESS_LEVEL === "advanced" ? "advanced" : "standard";
 }
+
+/** APP_URL, the absolute origin for links and OAuth redirects. Null = derive from the request. */
+export function appUrl(): string | null {
+  return process.env.APP_URL?.trim() || null;
+}
+
+/** SYB's own Meta app for Facebook Login (P3-20j), as the environment holds it. */
+export interface MetaLoginEnv {
+  app_id: string;
+  app_secret: string;
+  /** META_OAUTH_REDIRECT_URI when set; otherwise derived from APP_URL or the request's origin. */
+  redirect_uri: string | null;
+  /** APP_URL when set: the origin the callback sends the owner back to. */
+  app_url: string | null;
+}
+
+/**
+ * P3-20j: Facebook Login is offered only when BOTH META_APP_ID and
+ * META_APP_SECRET are set. Null otherwise — and every route of the flow
+ * refuses rather than sending a half-configured request to Meta.
+ */
+export function metaLoginEnv(): MetaLoginEnv | null {
+  const app_id = process.env.META_APP_ID?.trim() ?? "";
+  const app_secret = process.env.META_APP_SECRET?.trim() ?? "";
+  if (app_id === "" || app_secret === "") return null;
+  return {
+    app_id,
+    app_secret,
+    redirect_uri: process.env.META_OAUTH_REDIRECT_URI?.trim() || null,
+    app_url: appUrl(),
+  };
+}

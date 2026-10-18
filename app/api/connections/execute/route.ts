@@ -1,7 +1,8 @@
 // The execute-connections API — P3-20h/i (Session D, layer D1), rule 13.
 //
 //   GET     /api/connections/execute   the consent screen: what may be written, how to set it up,
-//                                      Meta's access level, and the account's execute connections
+//                                      Meta's access level, whether Facebook Login (P3-20j) is
+//                                      armed, and the account's execute connections
 //   POST    /api/connections/execute   { provider, secret, confirmation }: consent and connect
 //   DELETE  /api/connections/execute   { id }: disconnect (the token is wiped here; Meta keeps its grant)
 //
@@ -14,7 +15,7 @@ import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import type { AuthedSession } from "../../../../lib/auth/service";
 import { currentSession } from "../../../../lib/auth/service";
-import { metaAccessLevel } from "../../../../lib/env";
+import { metaAccessLevel, metaLoginEnv } from "../../../../lib/env";
 import {
   ExecutionConnectionError,
   disconnectExecution,
@@ -26,8 +27,11 @@ import { EXECUTION_SCOPE_REGISTRY } from "../../../../lib/execution/scopes";
 import {
   DISCONNECT_NOTE,
   EXECUTION_SETUP,
+  FACEBOOK_LOGIN_OFF,
   NOTHING_SENT_YET,
   OFFERED_EXECUTION,
+  ONE_CONSENT_PER_FACEBOOK_ACCOUNT,
+  TESTER_NOTE,
   accessLevelCopy,
 } from "../../../../lib/execution/setup";
 
@@ -61,8 +65,16 @@ export async function GET(): Promise<NextResponse> {
   const session = await signedIn();
   if (!session) return unauthorised();
   try {
+    // P3-20j: Facebook Login is offered only when SYB's Meta app keys are set.
+    const facebookLogin = metaLoginEnv() !== null;
     return NextResponse.json({
-      access: accessLevelCopy(metaAccessLevel()),
+      access: accessLevelCopy(metaAccessLevel(), facebookLogin),
+      facebook_login: {
+        available: facebookLogin,
+        tester_note: TESTER_NOTE,
+        one_consent_note: ONE_CONSENT_PER_FACEBOOK_ACCOUNT,
+        off_note: FACEBOOK_LOGIN_OFF,
+      },
       nothing_sent: NOTHING_SENT_YET,
       disconnect_note: DISCONNECT_NOTE,
       connections: await listExecutionConnections(session.account_id),

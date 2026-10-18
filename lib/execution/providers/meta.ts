@@ -26,10 +26,20 @@
 // exactly. If derivation fails against a real Page, the paste route comes
 // back only with a verified permission check (P3-21b).
 //
-// WHAT IT CAN SEND. Only the requests in META_EXEC_REQUESTS, all GET until
-// the publish ops (P3-21b) and ad ops (P3-22b) land; meta.test.ts scans
-// this source and fails the build otherwise. No registered path under
-// act_* may name billing, funding or payment methods (rule 18).
+// WHAT IT CAN SEND. Only the requests in META_EXEC_REQUESTS; meta.test.ts
+// scans this source and fails the build otherwise. Every one is a read
+// except the OAuth token exchange (P3-20j, Facebook Login for testers),
+// which trades a sign-in code or a short-lived token for a user token and
+// changes nothing on any Page or ad account. It is sent as a form body, so
+// the app secret and the code never sit in a URL. The publish ops (P3-21b)
+// and ad ops (P3-22b) widen the list when they land. No registered path
+// under act_* may name billing, funding or payment methods (rule 18).
+//
+// FACEBOOK LOGIN (P3-20j). The same helper — the same retry cap, timeout
+// and error taxonomy — serves the tester sign-in: the code exchange, the
+// long-lived swap, and the two candidate lists (/me/accounts for Pages and
+// their linked Instagram accounts, /me/adaccounts). The token it yields
+// goes through the same verifier and connectForExecution as a pasted one.
 //
 // THE OPS. Registered in the scope registry so consent names them, built
 // in D2 and D3. Until then every op refuses by name — never a silent no-op,
@@ -46,6 +56,8 @@ import type { ExecutionProvider } from "./fixture";
 
 export const META_EXEC_API_VERSION = "v26.0";
 export const META_EXEC_MAX_ATTEMPTS = 3;
+/** Every request to Meta gives up after this long; a timeout counts as "Meta didn't answer". */
+export const META_EXEC_TIMEOUT_MS = 20_000;
 
 export type MetaExecutionProviderId = "meta_publish" | "meta_ads";
 
@@ -55,12 +67,16 @@ export const META_EXEC_REQUESTS = {
   page: { method: "GET", path: "/{page_id}" },
   ig_user: { method: "GET", path: "/{ig_user_id}" },
   ad_account: { method: "GET", path: "/act_{ad_account_id}" },
+  // P3-20j, Facebook Login: the token exchange (code grant and long-lived swap), then the lists.
+  token_exchange: { method: "POST", path: "/oauth/access_token" },
+  my_pages: { method: "GET", path: "/me/accounts" },
+  my_ad_accounts: { method: "GET", path: "/me/adaccounts" },
 } as const;
 
 type MetaExecRequest = keyof typeof META_EXEC_REQUESTS;
 
 export interface MetaRequestSpec {
-  method: "GET";
+  method: "GET" | "POST";
   path: string;
 }
 
@@ -77,9 +93,11 @@ export function auditMetaRequests(
 }
 
 export interface MetaExecRequestInit {
-  /** GET only until P3-21b widens it, deliberately and with the source scan. */
-  method: "GET";
+  /** A registered request's own method; the only non-GET is the OAuth token exchange. */
+  method: MetaRequestSpec["method"];
   headers: Record<string, string>;
+  /** Form-encoded, for the token exchange only. */
+  body?: string;
 }
 
 export type MetaExecFetch = (url: string, init: MetaExecRequestInit) => Promise<MetaResponse>;
@@ -171,9 +189,12 @@ function pathFor(which: MetaExecRequest, ids: Readonly<Record<string, string>>):
   return `/${META_EXEC_API_VERSION}${path}`;
 }
 
+/** How a request authenticates: the token in a header, or (token exchange only) a form body. */
+type MetaAuth = { bearer: string } | { form: Readonly<Record<string, string>> };
+
 async function metaRequest(
   ctx: Context,
-  bearer: string,
+  auth: MetaAuth,
   which: MetaExecRequest,
   ids: Readonly<Record<string, string>>,
   params: Record<string, string>,
@@ -181,16 +202,27 @@ async function metaRequest(
 ): Promise<Record<string, unknown>> {
   const query = new URLSearchParams(params).toString();
   const url = `${META_GRAPH_ORIGIN}${pathFor(which, ids)}${query ? `?${query}` : ""}`;
+  const init: MetaExecRequestInit =
+    "bearer" in auth
+      ? {
+          method: META_EXEC_REQUESTS[which].method,
+          headers: { authorization: `Bearer ${auth.bearer}`, accept: "application/json" },
+        }
+      : {
+          method: META_EXEC_REQUESTS[which].method,
+          headers: {
+            "content-type": "application/x-www-form-urlencoded",
+            accept: "application/json",
+          },
+          body: new URLSearchParams(auth.form).toString(),
+        };
 
   for (let attempt = 1; ; attempt += 1) {
     let response: MetaResponse;
     try {
-      response = await ctx.fetch(url, {
-        method: META_EXEC_REQUESTS[which].method,
-        headers: { authorization: `Bearer ${bearer}`, accept: "application/json" },
-      });
+      response = await ctx.fetch(url, init);
     } catch {
-      // A request that never got an answer: Meta unavailable, by the taxonomy.
+      // A request that never got an answer (or timed out): Meta unavailable, by the taxonomy.
       const failure = classifyMetaError({ status: 0, code: null });
       if (attempt >= META_EXEC_MAX_ATTEMPTS) throw new MetaRequestError(failure, cannotReach);
       await ctx.sleep(backoffMs(attempt));
@@ -250,7 +282,14 @@ export class MetaRequestError extends ExecutionConnectionError {
 
 /** What Meta says the token was granted, public_profile aside. */
 async function grantedPermissions(ctx: Context, accessToken: string): Promise<string[]> {
-  const body = await metaRequest(ctx, accessToken, "permissions", {}, {}, "its own permissions");
+  const body = await metaRequest(
+    ctx,
+    { bearer: accessToken },
+    "permissions",
+    {},
+    {},
+    "its own permissions",
+  );
   const data = Array.isArray(body["data"]) ? body["data"] : null;
   if (data === null) {
     throw new ExecutionConnectionError("meta: could not read the token's permissions", 502);
@@ -279,7 +318,7 @@ async function provePage(ctx: Context, cred: MetaExecutionCredential, pageId: st
   const reach = `Page ${pageId}. Assign the Page to the system user with the permissions listed`;
   const page = await metaRequest(
     ctx,
-    cred.access_token,
+    { bearer: cred.access_token },
     "page",
     { page_id: pageId },
     { fields: "id,name,access_token" },
@@ -294,9 +333,42 @@ async function provePage(ctx: Context, cred: MetaExecutionCredential, pageId: st
   }
 }
 
+/** SYB's own Meta app, for the tester sign-in. The secret never leaves the server. */
+export interface MetaAppCredentials {
+  app_id: string;
+  app_secret: string;
+}
+
+/** A Page the signed-in Facebook user can publish to, with its linked Instagram account. */
+export interface MetaPageCandidate {
+  id: string;
+  name: string;
+  instagram: { id: string; username: string | null } | null;
+}
+
+/** An ad account the signed-in Facebook user can manage. account_status 1 is active. */
+export interface MetaAdAccountCandidate {
+  /** Digits only, as the credential stores it. */
+  id: string;
+  name: string;
+  account_status: number | null;
+}
+
+/** P3-20j: the Graph calls behind Facebook Login, through the same capped, timed helper. */
+export interface MetaLoginCalls {
+  /** The sign-in code for a short-lived user token. */
+  exchangeCode(app: MetaAppCredentials, code: string, redirectUri: string): Promise<string>;
+  /** A short-lived user token for a long-lived one (about 60 days). */
+  longLived(app: MetaAppCredentials, shortLived: string): Promise<string>;
+  pages(userToken: string): Promise<MetaPageCandidate[]>;
+  adAccounts(userToken: string): Promise<MetaAdAccountCandidate[]>;
+}
+
 export interface MetaExecution {
   /** The connect-time proof for one of the two Meta consents. */
   verifier(provider: MetaExecutionProviderId): CredentialVerifier;
+  /** Facebook Login for testers (P3-20j). */
+  login: MetaLoginCalls;
   publish: ExecutionProvider;
   ads: ExecutionProvider;
 }
@@ -326,10 +398,105 @@ const defaultFetch: MetaExecFetch = async (url, init) => {
   const response = await fetch(url, {
     method: init.method,
     headers: init.headers,
+    ...(init.body !== undefined ? { body: init.body } : {}),
     cache: "no-store",
+    signal: AbortSignal.timeout(META_EXEC_TIMEOUT_MS),
   });
   return { status: response.status, json: () => response.json() as Promise<unknown> };
 };
+
+function userToken(body: Record<string, unknown>): string {
+  const t = body["access_token"];
+  if (typeof t !== "string" || t === "" || /\s/.test(t)) {
+    throw new ExecutionConnectionError("meta: the Facebook sign-in returned no usable token", 502);
+  }
+  return t;
+}
+
+function listOf(body: Record<string, unknown>): Record<string, unknown>[] {
+  const data = body["data"];
+  if (!Array.isArray(data)) {
+    throw new ExecutionConnectionError("meta: the list came back in a shape SYB can't read", 502);
+  }
+  return data.filter((d): d is Record<string, unknown> => d !== null && typeof d === "object");
+}
+
+const idOf = (v: unknown): string | null =>
+  typeof v === "string" && /^\d{5,}$/.test(v) ? v : null;
+const nameOf = (v: unknown): string => (typeof v === "string" && v.trim() !== "" ? v : "(no name)");
+
+function loginCalls(ctx: Context): MetaLoginCalls {
+  const exchange = async (form: Record<string, string>) =>
+    userToken(await metaRequest(ctx, { form }, "token_exchange", {}, {}, "the Facebook sign-in"));
+  return {
+    exchangeCode: (app, code, redirectUri) =>
+      exchange({
+        client_id: app.app_id,
+        client_secret: app.app_secret,
+        redirect_uri: redirectUri,
+        code,
+      }),
+    longLived: (app, shortLived) =>
+      exchange({
+        grant_type: "fb_exchange_token",
+        client_id: app.app_id,
+        client_secret: app.app_secret,
+        fb_exchange_token: shortLived,
+      }),
+    pages: async (token) => {
+      const body = await metaRequest(
+        ctx,
+        { bearer: token },
+        "my_pages",
+        {},
+        { fields: "id,name,instagram_business_account{id,username}", limit: "100" },
+        "your Pages",
+      );
+      return listOf(body).flatMap((p) => {
+        const id = idOf(p["id"]);
+        if (id === null) return [];
+        const ig = p["instagram_business_account"];
+        const igRow =
+          ig !== null && typeof ig === "object" ? (ig as Record<string, unknown>) : null;
+        const igId = igRow ? idOf(igRow["id"]) : null;
+        const username = igRow?.["username"];
+        return [
+          {
+            id,
+            name: nameOf(p["name"]),
+            instagram:
+              igId === null
+                ? null
+                : { id: igId, username: typeof username === "string" ? username : null },
+          },
+        ];
+      });
+    },
+    adAccounts: async (token) => {
+      const body = await metaRequest(
+        ctx,
+        { bearer: token },
+        "my_ad_accounts",
+        {},
+        { fields: "id,name,account_status", limit: "100" },
+        "your ad accounts",
+      );
+      return listOf(body).flatMap((a) => {
+        const raw = a["id"];
+        const id = typeof raw === "string" ? idOf(raw.replace(/^act_/, "")) : null;
+        if (id === null) return [];
+        const status = a["account_status"];
+        return [
+          {
+            id,
+            name: nameOf(a["name"]),
+            account_status: typeof status === "number" ? status : null,
+          },
+        ];
+      });
+    },
+  };
+}
 
 export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExecution {
   const ctx: Context = {
@@ -349,7 +516,7 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
         if (cred.ig_user_id !== null) {
           const ig = await metaRequest(
             ctx,
-            cred.access_token,
+            { bearer: cred.access_token },
             "ig_user",
             { ig_user_id: cred.ig_user_id },
             { fields: "id,username" },
@@ -361,7 +528,7 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
         const account = cred.ad_account_id as string;
         const body = await metaRequest(
           ctx,
-          cred.access_token,
+          { bearer: cred.access_token },
           "ad_account",
           { ad_account_id: account },
           { fields: "id,name,currency" },
@@ -371,6 +538,7 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
       }
       return { granted_scopes: granted };
     },
+    login: loginCalls(ctx),
     publish: unbuilt("meta_publish", "P3-21b"),
     ads: unbuilt("meta_ads", "P3-22b"),
   };

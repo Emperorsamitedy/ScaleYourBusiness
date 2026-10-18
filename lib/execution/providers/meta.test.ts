@@ -284,14 +284,35 @@ describe("rules 13 and 18 — what the connector can send", () => {
       page: { method: "GET", path: "/{page_id}" },
       ig_user: { method: "GET", path: "/{ig_user_id}" },
       ad_account: { method: "GET", path: "/act_{ad_account_id}" },
+      // P3-20j, added deliberately: Facebook Login's token exchange and its two lists.
+      token_exchange: { method: "POST", path: "/oauth/access_token" },
+      my_pages: { method: "GET", path: "/me/accounts" },
+      my_ad_accounts: { method: "GET", path: "/me/adaccounts" },
     });
+    // The one non-GET is the OAuth token exchange, which writes to no Page or ad account.
+    const nonGet = Object.values(META_EXEC_REQUESTS).filter((r) => r.method !== "GET");
+    expect(nonGet).toEqual([{ method: "POST", path: "/oauth/access_token" }]);
+
     const source = readFileSync(fileURLToPath(new URL("./meta.ts", import.meta.url)), "utf8");
-    expect(source).not.toMatch(/\b(POST|PUT|PATCH|DELETE)\b/);
+    expect(source).not.toMatch(/\b(PUT|PATCH|DELETE)\b/);
+    // POST appears only in the token_exchange registration and the type that allows it.
+    const postLines = source.split("\n").filter((line) => /\bPOST\b/.test(line));
+    expect(postLines.map((l) => l.trim())).toEqual([
+      'token_exchange: { method: "POST", path: "/oauth/access_token" },',
+      'method: "GET" | "POST";',
+    ]);
     expect(source).not.toMatch(/access_token=/);
     const methods = [...source.matchAll(/method:\s*([^,;\n}]+)/g)].map((m) => m[1]?.trim());
     expect(methods.length).toBeGreaterThan(0);
     for (const method of methods) {
-      expect(['"GET"', "init.method", "META_EXEC_REQUESTS[which].method"]).toContain(method);
+      expect([
+        '"GET"',
+        '"POST"',
+        '"GET" | "POST"',
+        'MetaRequestSpec["method"]',
+        "init.method",
+        "META_EXEC_REQUESTS[which].method",
+      ]).toContain(method);
     }
   });
 
