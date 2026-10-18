@@ -36,13 +36,9 @@
 // and never a null undo, which the engine would read as "irreversible".
 
 import type { MetaResponse } from "../../connectors/providers/meta-ads";
-import {
-  AUTH_CODES,
-  META_GRAPH_ORIGIN,
-  META_IGNORED_PERMISSIONS,
-  PERMISSION_CODES,
-  RATE_LIMIT_CODES,
-} from "../../connectors/providers/meta-ads";
+import { META_GRAPH_ORIGIN, META_IGNORED_PERMISSIONS } from "../../connectors/providers/meta-ads";
+import type { MetaFailure } from "../meta-errors";
+import { classifyMetaError } from "../meta-errors";
 import type { CredentialVerifier } from "../verify";
 import { ExecutionConnectionError, verifyExecutionScopes } from "../verify";
 import { touchesMoneySurface } from "../scopes";
@@ -194,52 +190,61 @@ async function metaRequest(
         headers: { authorization: `Bearer ${bearer}`, accept: "application/json" },
       });
     } catch {
-      if (attempt >= META_EXEC_MAX_ATTEMPTS) {
-        throw new ExecutionConnectionError(`meta: network failure after ${attempt} attempts`, 503);
-      }
+      // A request that never got an answer: Meta unavailable, by the taxonomy.
+      const failure = classifyMetaError({ status: 0, code: null });
+      if (attempt >= META_EXEC_MAX_ATTEMPTS) throw new MetaRequestError(failure, cannotReach);
       await ctx.sleep(backoffMs(attempt));
       continue;
     }
 
     const body = (await response.json().catch(() => null)) as {
-      error?: { code?: unknown; error_subcode?: unknown; message?: unknown };
+      error?: { code?: unknown; error_subcode?: unknown };
     } | null;
     const error = body?.error;
     if (response.status === 200 && error === undefined && body !== null) {
       return body as Record<string, unknown>;
     }
 
-    const code = typeof error?.code === "number" ? error.code : null;
-    const subcode = typeof error?.error_subcode === "number" ? error.error_subcode : null;
-    const message = typeof error?.message === "string" ? error.message : null;
-
-    if (code !== null && AUTH_CODES.has(code)) {
-      throw new ExecutionConnectionError(
-        "meta: that token was not accepted. It may have expired or been revoked",
-        422,
-      );
-    }
-    if ((code !== null && PERMISSION_CODES.has(code)) || (code === 100 && subcode === 33)) {
-      throw new ExecutionConnectionError(`meta: the token can't reach ${cannotReach}`, 422);
-    }
-    const retryable =
-      (code !== null && RATE_LIMIT_CODES.has(code)) ||
-      response.status === 429 ||
-      response.status >= 500;
-    if (retryable && attempt < META_EXEC_MAX_ATTEMPTS) {
+    // One mapping for every refusal (P3-24a): the sentence, the connection's
+    // fate, the next step and whether to retry all come from meta-errors.
+    const failure = classifyMetaError({
+      status: response.status,
+      code: typeof error?.code === "number" ? error.code : null,
+      subcode: typeof error?.error_subcode === "number" ? error.error_subcode : null,
+    });
+    if (failure.retryable && attempt < META_EXEC_MAX_ATTEMPTS) {
       await ctx.sleep(backoffMs(attempt));
       continue;
     }
-    if (retryable) {
-      throw new ExecutionConnectionError(
-        `meta: still rate limited or unavailable after ${attempt} attempts`,
-        503,
-      );
-    }
-    throw new ExecutionConnectionError(
-      `meta: request failed${message ? `. ${message}` : ` with status ${response.status}`}`,
-      502,
+    throw new MetaRequestError(failure, cannotReach);
+  }
+}
+
+const STATUS_FOR: Readonly<Record<MetaFailure["kind"], number>> = {
+  auth: 422,
+  permission: 422,
+  rate_limit: 503,
+  page_limit: 503,
+  unavailable: 503,
+  unknown: 502,
+};
+
+/**
+ * A Meta refusal, classified once. The message is the owner's sentence —
+ * with the asset named where that helps fix it — and `failure` carries the
+ * connection's fate and the next step for the degrade-to-paused path (P3-24b).
+ */
+export class MetaRequestError extends ExecutionConnectionError {
+  readonly failure: MetaFailure;
+  constructor(failure: MetaFailure, asset: string) {
+    super(
+      failure.kind === "permission"
+        ? `${failure.owner_sentence} (It can't reach ${asset}.)`
+        : failure.owner_sentence,
+      STATUS_FOR[failure.kind],
     );
+    this.name = "MetaRequestError";
+    this.failure = failure;
   }
 }
 
