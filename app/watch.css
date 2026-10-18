@@ -1,0 +1,274 @@
+/* Insights · Watching — the owner's Watching design (2026-10-17), on the
+   sheet system (app/sheet.css). Square corners, no shadows, no icons,
+   no motion: the strip of days, the signals table, what was noted and
+   what happens when the watch ends. */
+
+.wt-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.wt-live {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 0;
+  color: var(--live-desk);
+}
+.wt-sq {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  background: var(--live-desk);
+}
+.wt-live a {
+  color: inherit;
+}
+
+/* ── the strip: one square per watch day ── */
+
+.wt-days {
+  margin: 0 0 22px;
+  color: var(--desk-ink-2);
+}
+.wt-strip {
+  display: grid;
+  grid-template-columns: repeat(var(--wt-of, 28), minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wt-day {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 44px;
+  padding-bottom: 4px;
+  border: 1px solid var(--desk-rule);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--desk-ink-2);
+}
+.wt-day.past {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--sheet-ink-2);
+}
+.wt-day.today {
+  border: 2px solid var(--live-desk);
+  color: var(--desk-ink);
+  font-weight: 600;
+}
+.wt-days-cap {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-top: 10px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+}
+.wt-days-cap span:nth-child(2) {
+  text-align: center;
+}
+
+/* ── the two-column body ── */
+
+.wt-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.48fr) minmax(0, 1fr);
+  gap: 15px;
+  align-items: start;
+}
+.wt-grid + .wt-grid {
+  margin-top: 15px;
+}
+.wt-side {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+}
+.wt-grid .cs {
+  min-width: 0;
+}
+
+/* the signals table scrolls inside its card, never the page */
+.wt-table-wrap {
+  overflow-x: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+.wt-table {
+  min-width: 560px;
+}
+.wt-table thead th.wt-wrap {
+  white-space: normal;
+}
+.wt-table tbody th {
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+}
+.wt-table tbody .num {
+  font-size: 14px;
+}
+.wt-empty {
+  margin: 4px 0;
+  max-width: var(--measure);
+  color: var(--sheet-ink-2);
+}
+
+/* "Noted, not acted on" and the activity log: day or date, then the line */
+.wt-notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wt-notes li {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: var(--s-4);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.wt-notes li:first-child {
+  padding-top: 4px;
+}
+.wt-notes .wt-at {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+  padding-top: 2px;
+  white-space: nowrap;
+}
+.wt-notes p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+/* "When the watch ends" */
+.wt-when {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wt-when li {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: var(--s-4);
+  align-items: baseline;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 13.5px;
+}
+.wt-when li:first-child {
+  padding-top: 2px;
+}
+.wt-when .wt-at {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--sheet-ink);
+}
+.wt-foot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+.wt-foot-row .act {
+  min-height: 44px;
+}
+
+/* thresholds and modules */
+.wt-rules {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wt-rules li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 14px;
+}
+.wt-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.wt-module {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.wt-module input {
+  margin: 0;
+  accent-color: var(--sheet-ink);
+}
+.wt-module input:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.wt-module.fixed {
+  cursor: default;
+  border-style: dashed;
+}
+.wt-why {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+
+.wt-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+
+@media (max-width: 1099px) {
+  .wt-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .wt-strip {
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+  }
+  .wt-day {
+    height: 34px;
+    font-size: 10px;
+  }
+  .wt-days-cap {
+    flex-wrap: wrap;
+  }
+  .wt-days-cap span:nth-child(2) {
+    order: 3;
+    flex-basis: 100%;
+    text-align: left;
+  }
+  .wt-notes li,
+  .wt-when li {
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: var(--s-3);
+  }
+}

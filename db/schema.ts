@@ -401,6 +401,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "import", // Phase 4 P4-03: a contact import batch — hash and counts, no PII
   "takeover", // P3-43: day zero — the business enters care; ref is the frozen snapshot
   "consent", // P3-20h: write access granted (rule 13); ref is the execute connection
+  "change_request", // the queue's third answer: not approved, the owner's words on what to change
 ]);
 
 export const decisionLog = pgTable(
@@ -1150,6 +1151,9 @@ export const proposalStatus = pgEnum("proposal_status", [
   "expired",
   "executed",
   "blocked",
+  // The queue's third answer (2026-10-17): not approved, and not a no —
+  // the owner said what should change. Nothing runs; the words are kept.
+  "changes_requested",
 ]);
 
 export const proposals = pgTable(
@@ -1184,6 +1188,8 @@ export const proposals = pgTable(
     /** P3-05 scheduled actions: approved now, executed no earlier than this. */
     execute_not_before: timestamp("execute_not_before", { withTimezone: true, mode: "string" }),
     rejection_reason: text("rejection_reason"),
+    /** The owner's words when they asked for changes instead of deciding. */
+    change_request: text("change_request"),
     /** ExecutionResult, written only by the Session B engine. */
     execution_result: jsonb("execution_result"),
   },
@@ -1201,6 +1207,12 @@ export const proposals = pgTable(
     check(
       "proposals_rejection_has_reason",
       sql`${t.status} <> 'rejected' OR ${t.rejection_reason} IS NOT NULL`,
+    ),
+    // Compared as text: the enum value is added in the same migration,
+    // and Postgres refuses a new enum literal before its commit.
+    check(
+      "proposals_change_request_recorded",
+      sql`${t.status}::text <> 'changes_requested' OR (${t.decided_by} IS NOT NULL AND ${t.decided_at} IS NOT NULL AND ${t.change_request} IS NOT NULL)`,
     ),
     check(
       "proposals_executed_has_result",

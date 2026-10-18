@@ -1,0 +1,508 @@
+/* The fact sheet — the owner's fact-sheet design (2026-10-17) on the
+   sheet system (app/sheet.css), inside the rail shell. Imported by
+   components/profile/FactSheet.tsx. Square corners, no shadows, no icons.
+   Everything is scoped under .fs. */
+
+.fs a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+/* ── the head's basis line ── */
+
+.fs-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 15px;
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 14px;
+  color: var(--desk-ink-2);
+}
+.fs-counts b {
+  font-weight: 600;
+  color: var(--desk-ink);
+}
+
+/* ── the sheet ── */
+
+.fs-card {
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border: 1px solid var(--rule);
+  --ink: var(--sheet-ink);
+  --mut: var(--sheet-ink-2);
+}
+.fs-msg {
+  padding: 17px 20px;
+}
+.fs-msg p {
+  margin: 0;
+}
+
+/* the search band */
+.fs-top {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px 15px;
+  flex-wrap: wrap;
+  padding: 21px 18px 15px;
+  border-bottom: 3px double var(--sheet-ink);
+}
+.fs-search {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.fs-label {
+  display: block;
+  margin: 0 0 10px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.fs-input {
+  display: block;
+  width: 100%;
+  padding: 4px 2px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--sheet-ink);
+  border-radius: 0;
+  background: transparent;
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 15px;
+}
+.fs-input::placeholder {
+  color: var(--sheet-ink-2);
+}
+.fs-input:focus {
+  outline: none;
+  border-bottom-width: 2px;
+  padding-bottom: 9px;
+}
+.fs-input:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 4px;
+}
+.fs-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.fs-filter {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.fs-filter:hover,
+.fs-filter.on {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+/* the superseded toggle: solid outline while the struck lines show,
+   dashed and quiet once they are hidden */
+.fs-toggle.off {
+  border-style: dashed;
+  color: var(--sheet-ink-2);
+}
+
+/* the two columns */
+.fs-body {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+}
+.fs-nav {
+  padding: 15px 0;
+  border-right: 1px solid var(--rule-soft);
+}
+.fs-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fs-nav-i {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 18px 7px 16px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: none;
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.fs-nav-i:hover {
+  background: var(--inset);
+}
+.fs-nav-i.on {
+  background: var(--inset);
+  border-left-color: var(--sheet-ink);
+  font-weight: 600;
+}
+.fs-nav-n {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--sheet-ink-2);
+}
+
+/* the facts: an inner scroll so the sections stay beside them */
+.fs-pane {
+  position: relative;
+  min-width: 0;
+  max-height: max(440px, calc(100dvh - 300px));
+  overflow-y: auto;
+  padding: 15px 14px 17px 15px;
+  scrollbar-color: var(--rule) transparent;
+}
+.fs-sec {
+  padding-top: 15px;
+}
+.fs-sec + .fs-sec {
+  margin-top: 18px;
+}
+.fs-sec-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding: 0 10px;
+}
+.fs-sec-head h2 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.fs-meta {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+
+.fs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.fs-table thead th {
+  padding: 10px 10px 7px;
+  border-bottom: 1px solid var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--sheet-ink-2);
+}
+.fs-table thead th.num {
+  text-align: right;
+}
+.fs-table tbody th,
+.fs-table tbody td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--rule-soft);
+  text-align: left;
+  vertical-align: baseline;
+}
+.fs-table tbody th {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  min-width: 11em;
+}
+.fs-table .num {
+  text-align: right;
+}
+.fs-table tbody .num {
+  font-family: var(--f-mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.fs-table td.fs-words {
+  font-family: var(--f-mono);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  max-width: 26ch;
+}
+.fs-src {
+  min-width: 17ch;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.fs-since {
+  white-space: nowrap;
+  font-size: 13.5px !important;
+}
+.fs-sub {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+}
+.fs-basis {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.fs-basis.ink {
+  color: var(--sheet-ink);
+}
+/* the owner's own answers read FROM YOU in cobalt, as the design sets them */
+.fs-basis.you {
+  color: var(--live);
+}
+.fs-basis.drift {
+  color: var(--drift);
+}
+.fs-basis.low,
+.fs-basis.sup {
+  color: var(--sheet-ink-2);
+}
+.fs-gap th,
+.fs-gap td.fs-words {
+  color: var(--sheet-ink-2);
+}
+
+/* a superseded value: struck through on the inset, beneath its successor */
+.fs-sup th,
+.fs-sup td {
+  background: var(--inset);
+}
+.fs-sup th {
+  padding-left: 25px !important;
+  font-weight: 400 !important;
+}
+.fs-sup s {
+  color: var(--sheet-ink-2);
+  text-decoration-thickness: 1px;
+}
+
+.fs-empty,
+.fs-note {
+  margin: 10px 10px 0;
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+.fs-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+}
+
+/* actions inside the record: ink on paper, inverting on hover */
+.fs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  color: var(--sheet-ink) !important;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.fs-btn:hover:not(:disabled) {
+  background: var(--sheet-ink);
+  color: var(--paper) !important;
+}
+.fs-btn:disabled {
+  border-style: dashed;
+  cursor: not-allowed;
+}
+.fs-finder {
+  margin: 12px 10px 0;
+}
+.fs-cands,
+.fs-gaps {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+.fs-cands li,
+.fs-gaps li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 10px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.fs-cands p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+}
+.fs-gap-head {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin: 0;
+}
+.fs-gap-head .fs-sub {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.fs-gap-q {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+.fs-more {
+  margin: 12px 10px 0;
+}
+
+.fs-foot {
+  padding: 14px 18px;
+  border-top: 1px solid var(--rule-soft);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+
+/* ── narrow: the sections above the facts, no inner scroll ── */
+
+@media (max-width: 900px) {
+  .fs-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fs-nav {
+    padding: 10px 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .fs-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 10px;
+  }
+  .fs-nav-i {
+    width: auto;
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+  .fs-pane {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* ── phone: each fact stacks — name, then value, source, basis, since ── */
+
+@media (max-width: 640px) {
+  .fs-top {
+    padding: 14px 14px 12px;
+  }
+  .fs-filter {
+    padding: 0 10px;
+  }
+  .fs-pane {
+    padding: 8px 0 15px;
+  }
+  .fs-sec-head {
+    padding: 0 14px;
+  }
+  .fs-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .fs-table,
+  .fs-table tbody,
+  .fs-table tr,
+  .fs-table th,
+  .fs-table td {
+    display: block;
+  }
+  .fs-table tbody tr {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .fs-table tbody tr.fs-sup {
+    background: var(--inset);
+    padding-left: 20px;
+  }
+  .fs-table tbody th,
+  .fs-table tbody td {
+    padding: 2px 0 !important;
+    border: 0;
+    background: none !important;
+    text-align: left;
+    max-width: none !important;
+  }
+  .fs-table tbody td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 14px;
+    text-align: right;
+  }
+  .fs-table tbody td[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sheet-ink-2);
+  }
+  .fs-cands li,
+  .fs-gaps li {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 14px;
+  }
+  .fs-finder,
+  .fs-more,
+  .fs-note,
+  .fs-empty {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+  .fs-foot {
+    padding: 12px 14px;
+  }
+}

@@ -1,122 +1,82 @@
 "use client";
 
-// The intake stage — client orchestrator for the signature screen
-// (specs/ux-spec-v1.md §4). The motion IS the product (P0-60):
+// The intake — the signature screen (specs/ux-spec-v1.md §4), laid out as
+// the owner's design intake-v2: masthead; the channel bank (one tile per
+// area, one bar per question); the question panel on the left; three paper
+// cards on the right (live reading, report readiness, the area's record);
+// the tape along the bottom. Every figure on screen is the server's
+// (lib/intake/service.ts): area bars and status, the record, readiness,
+// the derived figure, the business name. The client orchestrates and
+// re-words; it decides nothing about a question's content (rule 4).
 //
-//   answering → (submit) → leaving (card departs, ~240ms; the PUT rides
-//   inside the animation) → chip settles into the alternating column
-//   (340ms) → next card rises (380ms) → answering.
+// The motion reports state (P0-60, §2):
+//   answering → (submit) → leaving (the sheet departs on --d-record; the
+//   PUT rides inside it) → the new row lands in the record with the
+//   marker (--d-record) → the next question rises (--d-move).
+// The JS depart wait reads the same --d-record token the CSS runs on, so
+// the two agree; under prefers-reduced-motion both are zero.
 //
 // First paint is skeleton-free: the shell renders immediately and the
-// first card rises when state arrives from a single POST on mount.
+// first question rises when state arrives from a single POST on mount.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AnswerAction,
   AnswerResponse,
-  IntakeChip,
   IntakeState,
   ReconcileResponse,
 } from "@/lib/intake/types";
-import { Chip } from "./Chip";
-import { OnDeck } from "./OnDeck";
+import "@/app/intake.css";
+import { AreaTiles } from "./AreaTiles";
+import { KeepAccess } from "./KeepAccess";
+import { LiveReading, Readiness } from "./LiveReading";
+import { Masthead } from "./Masthead";
+import { departMs } from "./motion";
 import { QuestionCard } from "./QuestionCard";
 import { ReconcilePanel } from "./ReconcilePanel";
-import { TopBar } from "./TopBar";
+import { RecordSheet } from "./RecordSheet";
+import { Tape } from "./Tape";
+import {
+  areaName,
+  channelNo,
+  connectorLegend,
+  factLabel,
+  factValue,
+  leftInArea,
+  previousQuestion,
+} from "./record";
 
 type Phase = "boot" | "boot_error" | "answering" | "leaving";
-
-const DEPART_MS = 240;
 
 /** The closing readout renders completeness as a word, never a percentage. */
 const completenessWord = (overall: number): string => (overall >= 0.7 ? "good" : "moderate");
 
-/**
- * P1-56: the finish is where an owner gets a way back in. No password —
- * an email and a link that reopens their profile on any device. The link
- * is shown on screen rather than promised by email, because a promised
- * email that never arrives is worse than no promise.
- */
-function KeepAccess() {
-  const [email, setEmail] = useState("");
-  const [link, setLink] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    if (busy || email.trim() === "") return;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/intake/resume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const payload = (await res.json()) as { url?: string; error?: string };
-      if (!res.ok) {
-        setError(payload.error ?? "That didn't work — try again.");
-        return;
-      }
-      setLink(payload.url ?? null);
-    } catch {
-      setError("I couldn't reach the server — check your connection and try again.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (link) {
-    return (
-      <div className="linkbox">
-        <strong>Keep this link.</strong> It reopens your profile on any device for the next 30 days.
-        Mail it to yourself now.
-        <code>{link}</code>
-      </div>
-    );
-  }
-
-  return (
-    <form className="finish-form" onSubmit={(e) => void submit(e)}>
-      <input
-        className="field"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@yourbusiness.hu"
-        aria-label="Your email address"
-      />
-      <button type="submit" className="next" disabled={busy || email.trim() === ""}>
-        {busy ? "One moment" : "Get my link"}
-      </button>
-      {error && <p className="err">{error}</p>}
-    </form>
-  );
-}
-
 function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> }) {
   return (
-    <div className="card done">
-      <h2>That&rsquo;s enough to start.</h2>
-      <p>
-        I have what I need for a first read on the business. I&rsquo;ll keep asking as I go — the
-        deeper questions are easier to answer once you&rsquo;ve seen what I do with these.
+    <article className="ix-q sheet ix-done" aria-labelledby="ix-done-h">
+      <p className="ix-cap">The interview · complete</p>
+      <h2 className="ix-prompt" id="ix-done-h">
+        The interview is complete.
+      </h2>
+      <p className="ix-done-lede">
+        I have the record I need for a first read on the business. Deeper questions come later, once
+        you have seen the first report.
       </p>
-      <div className="readout">
-        answered&nbsp;&nbsp;<strong>{readout.answered}</strong>
-        <br />
-        gaps to revisit&nbsp;&nbsp;<strong>{readout.gaps}</strong>
-        <br />
-        profile confidence&nbsp;&nbsp;<strong>{completenessWord(readout.completeness)}</strong>
-        <br />
-        next&nbsp;&nbsp;<strong>deciding how carefully to move</strong>
-      </div>
-      <p className="help" style={{ marginTop: 22, marginBottom: 0 }}>
-        Leave an email and I&rsquo;ll give you a link back to this — no password, no account.
+      <dl className="ix-readout">
+        <dt className="ix-cap">Answers on record</dt>
+        <dd className="fig">{readout.answered}</dd>
+        <dt className="ix-cap">Gaps to revisit</dt>
+        <dd className="fig">{readout.gaps}</dd>
+        <dt className="ix-cap">Profile completeness</dt>
+        <dd>{completenessWord(readout.completeness)}</dd>
+        <dt className="ix-cap">Next</dt>
+        <dd>deciding how carefully to move</dd>
+      </dl>
+      <p className="ix-done-lede">
+        Leave an email and I&rsquo;ll give you a link back to this profile. No password, no account.
       </p>
       <KeepAccess />
-    </div>
+    </article>
   );
 }
 
@@ -130,21 +90,32 @@ interface TelemetryEvent {
 
 export function IntakeStage() {
   const [state, setState] = useState<IntakeState | null>(null);
-  const [chips, setChips] = useState<readonly IntakeChip[]>([]);
   const [phase, setPhase] = useState<Phase>("boot");
   const [serverError, setServerError] = useState<string | null>(null);
-  const [stripOpen, setStripOpen] = useState(false);
   const [resumeNotice, setResumeNotice] = useState<string | null>(null);
+  // The area the owner chose on the tile row; cleared when it runs dry.
+  const [focusSection, setFocusSection] = useState<string | null>(null);
+  // The record row just laid down — it carries the marker.
+  const [freshKey, setFreshKey] = useState<string | null>(null);
+  // What a screen reader hears after a record.
+  const [announce, setAnnounce] = useState("");
   const booted = useRef(false);
+  // Requests in flight — the masthead says "Saving…" only while one is.
+  const [inFlight, setInFlight] = useState(0);
+  const begin = useCallback(() => setInFlight((n) => n + 1), []);
+  const end = useCallback(() => setInFlight((n) => Math.max(0, n - 1)), []);
+  // When this page opened, for the masthead's session clock.
+  const [openedAt] = useState(() => Date.now());
+  const [pauseOpen, setPauseOpen] = useState(false);
 
   // P1-57: arriving from a resume link. An expired link still lands here
   // with a usable intake rather than an apology page.
   useEffect(() => {
     const flag = new URLSearchParams(window.location.search).get("resume");
-    if (flag === "ok") setResumeNotice("Welcome back — picking up where you left off.");
+    if (flag === "ok") setResumeNotice("Resumed from your link. Earlier answers are on record.");
     if (flag === "expired") {
       setResumeNotice(
-        "That link has expired, so this is a fresh start. You can get a new link at the end.",
+        "That link had expired, so this is a new profile. You can get a new link at the end.",
       );
     }
     if (flag) window.history.replaceState({}, "", window.location.pathname);
@@ -194,6 +165,12 @@ export function IntakeStage() {
     return () => document.removeEventListener("visibilitychange", onHide);
   }, [flushEvents]);
 
+  /** Take a new state; an area focus ends once the area has nothing left to ask. */
+  const adopt = useCallback((next: IntakeState, focus: string | null): void => {
+    setState(next);
+    setFocusSection(focus !== null && next.question?.section === focus ? focus : null);
+  }, []);
+
   const boot = useCallback(async (): Promise<void> => {
     setPhase("boot");
     try {
@@ -207,13 +184,13 @@ export function IntakeStage() {
         const preferred = await fetch(`/api/intake?ask=${encodeURIComponent(ask)}`);
         if (preferred.ok) next = (await preferred.json()) as IntakeState;
       }
-      setState(next);
+      adopt(next, null);
       setPhase("answering");
       if (next.progress.core_done > 0) track({ kind: "session_resumed" });
     } catch {
       setPhase("boot_error");
     }
-  }, [track]);
+  }, [adopt, track]);
 
   useEffect(() => {
     if (booted.current) return;
@@ -225,32 +202,78 @@ export function IntakeStage() {
     async (method: "PUT" | "PATCH", body: Record<string, unknown>): Promise<void> => {
       setServerError(null);
       setPhase("leaving");
+      begin();
       // Network latency hides inside the depart animation (§4.2).
-      const departed = new Promise((resolve) => setTimeout(resolve, DEPART_MS));
+      const departed = new Promise((resolve) => setTimeout(resolve, departMs()));
       try {
         const res = await fetch("/api/intake", {
           method,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          body: JSON.stringify(focusSection ? { ...body, section: focusSection } : body),
         });
         await departed;
         if (res.ok) {
           const { chip, state: next } = (await res.json()) as AnswerResponse;
-          setChips((prev) => [...prev, chip]);
-          setState(next);
+          const newest = next.record.facts[0] ?? null;
+          setFreshKey(newest?.key ?? null);
+          setAnnounce(
+            newest
+              ? `Recorded. ${factLabel(newest)}: ${factValue(newest).full}.`
+              : `Recorded: ${chip.display}.`,
+          );
+          adopt(next, focusSection);
           setPhase("answering");
         } else {
           const payload = (await res.json().catch(() => null)) as { error?: string } | null;
           setPhase("answering");
-          setServerError(payload?.error ?? "Something went wrong on our side — try again.");
+          setServerError(payload?.error ?? "Something went wrong on our side. Try again.");
         }
       } catch {
         await departed;
         setPhase("answering");
-        setServerError("I couldn't reach the server — check your connection and try again.");
+        setServerError("I couldn't reach the server. Check your connection and try again.");
+      } finally {
+        end();
       }
     },
-    [],
+    [adopt, begin, end, focusSection],
+  );
+
+  /** Read a state with a preference: an area from the tiles, or one question. */
+  const steer = useCallback(
+    async (query: string, focus: string | null): Promise<void> => {
+      setServerError(null);
+      begin();
+      try {
+        const res = await fetch(`/api/intake?${query}`);
+        if (!res.ok) {
+          setServerError("I couldn't open that. Try again.");
+          return;
+        }
+        adopt((await res.json()) as IntakeState, focus);
+        setPhase("answering");
+      } catch {
+        setServerError("I couldn't reach the server. Check your connection and try again.");
+      } finally {
+        end();
+      }
+    },
+    [adopt, begin, end],
+  );
+
+  const chooseArea = useCallback(
+    (section: string): void => {
+      if (phase !== "answering") return;
+      void steer(`section=${encodeURIComponent(section)}`, section);
+    },
+    [phase, steer],
+  );
+
+  const askQuestion = useCallback(
+    (questionId: string): void => {
+      void steer(`ask=${encodeURIComponent(questionId)}`, null);
+    },
+    [steer],
   );
 
   const question = state?.question ?? null;
@@ -306,10 +329,12 @@ export function IntakeStage() {
     [phase, question, submit, track],
   );
 
-  // P0-75: reopen removes the chip and returns the question to the centre.
+  // P0-75: a record row's change returns its question to the left; the
+  // old value stays in history and the reason is recorded.
   const handleReopen = useCallback(
     async (questionId: string, reason: string): Promise<void> => {
       setServerError(null);
+      begin();
       try {
         const res = await fetch("/api/intake", {
           method: "PUT",
@@ -318,32 +343,36 @@ export function IntakeStage() {
         });
         if (!res.ok) {
           const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-          setServerError(payload?.error ?? "I couldn't reopen that — try again.");
+          setServerError(payload?.error ?? "I couldn't reopen that. Try again.");
           return;
         }
         const { state: next } = (await res.json()) as AnswerResponse;
         track({ kind: "reopened", question_id: questionId });
-        setChips((prev) => prev.filter((c) => c.question_id !== questionId));
-        setState(next);
+        setFreshKey(null);
+        setAnnounce("Reopened. The question is back on the left.");
+        adopt(next, null);
         setPhase("answering");
       } catch {
-        setServerError("I couldn't reach the server — check your connection and try again.");
+        setServerError("I couldn't reach the server. Check your connection and try again.");
+      } finally {
+        end();
       }
     },
-    [track],
+    [adopt, begin, end, track],
   );
 
   const clearServerError = useCallback((): void => {
     setServerError(null);
   }, []);
 
-  // §4.5: the two resolution paths. "fix" pulls the involved chips back
-  // out of the columns — their questions are returning to the centre.
+  // §4.5: the two resolution paths. "fix" returns the involved questions
+  // to the left in sequence.
   const [reconcileBusy, setReconcileBusy] = useState(false);
   const handleReconcile = useCallback(
     async (findingId: string, choice: "confirm" | "fix"): Promise<void> => {
       setReconcileBusy(true);
       setServerError(null);
+      begin();
       try {
         const res = await fetch("/api/intake/reconcile", {
           method: "POST",
@@ -352,27 +381,26 @@ export function IntakeStage() {
         });
         if (!res.ok) {
           const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-          setServerError(payload?.error ?? "I couldn't record that — try again.");
+          setServerError(payload?.error ?? "I couldn't record that. Try again.");
           return;
         }
         const { reopened, state: next } = (await res.json()) as ReconcileResponse;
         track({ kind: "reconcile_resolved", meta: { choice, reopened: reopened.length } });
-        if (reopened.length > 0) {
-          setChips((prev) => prev.filter((c) => !reopened.includes(c.question_id)));
-        }
-        setState(next);
+        if (reopened.length > 0) setFreshKey(null);
+        adopt(next, null);
         setPhase("answering");
       } catch {
-        setServerError("I couldn't reach the server — check your connection and try again.");
+        setServerError("I couldn't reach the server. Check your connection and try again.");
       } finally {
         setReconcileBusy(false);
+        end();
       }
     },
-    [track],
+    [adopt, begin, end, track],
   );
 
   // The panel surfaces contradictions and implausibilities; plain gaps
-  // stay as hollow dots. Involved chips take the ember hairline.
+  // stay gaps in the record. Involved rows are flagged in words.
   const reconcile =
     state?.findings.find((f) => f.kind === "contradiction" || f.kind === "implausible") ?? null;
 
@@ -385,59 +413,100 @@ export function IntakeStage() {
   }, [reconcileId, reconcileRule, track]);
   const flagged = new Set(state?.findings.flatMap((f) => f.question_ids) ?? []);
 
-  // Columns alternate left, right, left; chips append downward (§4.2).
-  const left = chips.filter((_, i) => i % 2 === 0);
-  const right = chips.filter((_, i) => i % 2 === 1);
+  const areas = state?.areas ?? [];
+  const activeSection = state?.done ? null : (question?.section ?? null);
+  const activeIndex = areas.findIndex((a) => a.section === activeSection);
+  const activeArea = activeIndex >= 0 ? areas[activeIndex] : undefined;
+  const channel = activeIndex >= 0 ? channelNo(activeIndex) : null;
+  const previous = state ? previousQuestion(state.record.facts, question?.id ?? null) : null;
+  const machine =
+    inFlight > 0 || phase === "leaving"
+      ? "saving"
+      : phase === "answering" && question && !state?.done
+        ? "listening"
+        : null;
 
   return (
-    <div className="shell">
-      <TopBar progress={state?.progress ?? null} />
-      {resumeNotice && (
-        <div className="stage" style={{ paddingBottom: 0, paddingTop: 18 }}>
-          <div />
-          <div className="resume-note">{resumeNotice}</div>
-          <div />
-        </div>
-      )}
-      <main className="stage">
-        <section className="col" aria-label="Recorded answers, left column">
-          <div className="col-head">Recorded</div>
-          {left.map((chip) => (
-            <Chip
-              key={chip.question_id}
-              chip={chip}
-              flagged={flagged.has(chip.question_id)}
-              onReopen={(id, r) => void handleReopen(id, r)}
-            />
-          ))}
+    <div className="ix desk">
+      <Masthead
+        businessName={state?.business_name ?? null}
+        machine={phase === "boot_error" ? null : machine}
+        openedAt={openedAt}
+        factCount={state ? state.record.fact_count : null}
+        pauseOpen={pauseOpen}
+        onPause={() => setPauseOpen((v) => !v)}
+      />
+      {pauseOpen && (
+        <section id="ix-pause-panel" className="ix-pause-panel sheet" aria-labelledby="ix-pause-h">
+          <div>
+            <h2 className="ix-cap" id="ix-pause-h">
+              Pause · finish later
+            </h2>
+            <p className="ix-pause-lede">
+              Everything so far is already on record. Leave an email and I&rsquo;ll give you a link
+              that reopens this profile on any device. No password, no account.
+            </p>
+          </div>
+          <KeepAccess />
+          <button type="button" className="ix-link" onClick={() => setPauseOpen(false)}>
+            Keep going
+          </button>
         </section>
-
-        <section className="centre" aria-live="polite">
+      )}
+      {state && (
+        <AreaTiles
+          areas={areas}
+          active={activeSection}
+          busy={phase !== "answering"}
+          connector={connectorLegend(state.record.sources)}
+          onChoose={chooseArea}
+        />
+      )}
+      {resumeNotice && <p className="ix-notice">{resumeNotice}</p>}
+      {focusSection && question && (
+        <p className="ix-notice">
+          Asking from {areaName(focusSection)} while it has questions open.{" "}
+          <button type="button" className="ix-link" onClick={() => setFocusSection(null)}>
+            Back to the usual order
+          </button>
+        </p>
+      )}
+      <main className="ix-main">
+        <div className="ix-left" aria-live="polite" aria-label="Current question">
           {phase === "boot_error" && (
-            <div className="card">
-              <h2 className="prompt">I couldn&rsquo;t reach the server.</h2>
-              <p className="help">
+            <article className="ix-q sheet ix-plain">
+              <h2 className="ix-prompt">I couldn&rsquo;t reach the server.</h2>
+              <p className="ix-done-lede">
                 Nothing was lost. Try again and I&rsquo;ll pick up where we left off.
               </p>
-              <div className="row">
-                <button type="button" className="next" onClick={() => void boot()}>
-                  Try again
+              <div className="ix-actions">
+                <button type="button" className="act solid" onClick={() => void boot()}>
+                  Try again &rarr;
                 </button>
               </div>
-            </div>
+            </article>
           )}
           {state?.done && state.readout && <DoneCard readout={state.readout} />}
           {!state?.done && question && (
             <QuestionCard
               key={question.id}
               question={question}
+              channel={channel}
+              left={activeArea ? leftInArea(activeArea) : 0}
+              previous={previous}
               leaving={phase === "leaving"}
               serverError={serverError}
               onAnswer={handleAnswer}
               onEntityRows={handleEntityRows}
+              onBack={(id) => void handleReopen(id, `went back to it from question ${question.id}`)}
               onClearError={clearServerError}
               onFirstInput={handleFirstInput}
             />
+          )}
+          {(state?.done || !question) && serverError && (
+            <p className="ix-err ix-err-desk" role="alert">
+              {serverError}
+            </p>
           )}
           {reconcile && (
             <ReconcilePanel
@@ -446,47 +515,29 @@ export function IntakeStage() {
               onChoose={(choice) => void handleReconcile(reconcile.id, choice)}
             />
           )}
-          {!state?.done && state?.on_deck && <OnDeck text={state.on_deck} />}
-        </section>
-
-        <section className="col" aria-label="Recorded answers, right column">
-          <div className="col-head">Recorded</div>
-          {right.map((chip) => (
-            <Chip
-              key={chip.question_id}
-              chip={chip}
-              flagged={flagged.has(chip.question_id)}
-              onReopen={(id, r) => void handleReopen(id, r)}
-            />
-          ))}
-        </section>
-
-        {/* P0-76: below 900px the columns are gone; answers collapse into
-            a pinned "Recorded (n)" strip that expands on tap. */}
-        {chips.length > 0 && (
-          <section className="recorded-strip" aria-label="Recorded answers">
-            <button
-              type="button"
-              className="strip-toggle"
-              aria-expanded={stripOpen}
-              onClick={() => setStripOpen((v) => !v)}
-            >
-              Recorded ({chips.length})
-            </button>
-            {stripOpen && (
-              <div className="strip-list">
-                {chips.map((chip) => (
-                  <Chip
-                    key={chip.question_id}
-                    chip={chip}
-                    onReopen={(id, r) => void handleReopen(id, r)}
-                  />
-                ))}
-              </div>
+        </div>
+        {state && (
+          <aside className="ix-right" aria-label="The record as it stands">
+            {state.live_reading && <LiveReading reading={state.live_reading} />}
+            <Readiness fraction={state.readiness} />
+            {state.area_record && (
+              <RecordSheet
+                area={state.area_record}
+                channel={channel}
+                unlocks={question?.unlocks ?? []}
+                freshKey={freshKey}
+                flagged={flagged}
+                onReopen={(id, reason) => void handleReopen(id, reason)}
+                onAsk={askQuestion}
+              />
             )}
-          </section>
+          </aside>
         )}
       </main>
+      {state && <Tape facts={state.record.facts} />}
+      <p className="sr-only" aria-live="polite">
+        {announce}
+      </p>
     </div>
   );
 }

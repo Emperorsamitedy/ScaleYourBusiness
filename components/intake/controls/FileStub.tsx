@@ -7,10 +7,12 @@ import type { IntakeQuestion } from "@/lib/intake/types";
 
 export function FileStubControl({ question }: { question: IntakeQuestion }) {
   return (
-    <div className="filestub">
+    <div className="ix-filestub">
       Uploads arrive in a later session
-      <span className="sub">
-        {question.allow_unknown ? "mark unknown to move on" : "skip for now to move on"}
+      <span className="ix-note">
+        {question.allow_unknown
+          ? "choose “No reading — I don’t know” to move on"
+          : "skip for now to move on"}
       </span>
     </div>
   );

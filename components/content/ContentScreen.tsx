@@ -1,16 +1,26 @@
 "use client";
 
-// The content queue — Phase 3 Session C. What the owner sees: their
-// goals with one-click add; the two proposal buttons (calendar, shot
-// list) that put PROPOSALS in the approval queue rather than doing
-// anything; approved plans waiting to be drafted; and the scheduled
-// queue itself, grouped by date, every item wearing its disclosure and
-// able to say why it reads the way it reads. The honesty line is
-// structural: this queue has nowhere to publish yet, and says so.
+// The content queue — Phase 3 Session C, in the owner's instrument
+// design (2026-10-17). Top to bottom: one sentence counted from the
+// queue; a strip per channel (planned vs posted, from the queue itself —
+// no invented targets); the draft queue as a ruled table beside the open
+// draft's record (caption, what it was written from, its disclosure);
+// then the goals the content serves and the two proposal buttons, which
+// put PROPOSALS in the approval queue rather than doing anything. The
+// honesty line is structural: nothing posts from this screen.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import "../../app/content.css";
 import { EmergencyStop } from "../execution/EmergencyStop";
+import { PageHead, SheetCard } from "../sheet/PageHead";
+import {
+  type ContentStatus,
+  channelStrips,
+  contentHeadline,
+  shortId,
+  stateWord,
+} from "./content-view";
 
 interface Goal {
   goal_id: string;
@@ -24,8 +34,6 @@ interface Suggestion {
   source: string;
 }
 
-type ContentStatus = "drafted" | "queued" | "publishing" | "published" | "failed" | "withdrawn";
-
 interface ContentItem {
   id: string;
   kind: "post" | "email" | "shot_list" | "video";
@@ -35,11 +43,14 @@ interface ContentItem {
   body: string;
   disclosure: string;
   goal_id: string | null;
+  media_path: string | null;
+  provenance: { evidence?: string[] } | null;
   /* P3-20d — the publish state, straight from the row. */
   status: ContentStatus;
   platform: string | null;
   platform_post_id: string | null;
   published_at: string | null;
+  publish_proposal_id: string | null;
   last_error: string | null;
 }
 
@@ -72,27 +83,15 @@ const KIND_WORD: Record<ContentItem["kind"], string> = {
   video: "video",
 };
 
-/** The owner's word for each state; "drafted" is the quiet default and shows no pill. */
-const STATUS_WORD: Record<ContentStatus, string | null> = {
-  drafted: null,
-  queued: "scheduled",
-  publishing: "publishing…",
-  published: "published",
-  failed: "failed",
-  withdrawn: "withdrawn",
-};
-
 const HORIZON_WORD: Record<string, string> = {
   "3_months": "3 months",
   "6_months": "6 months",
   "12_months": "12 months",
 };
 
-function dateWord(iso: string | null): string {
-  if (!iso) return "anytime";
-  // The date is a calendar day, not an instant — render it in UTC so a
-  // negative-offset timezone doesn't show Monday's slot as Sunday.
-  return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
+/** A calendar day, not an instant — rendered in UTC so a negative offset doesn't shift it. */
+function dayWord(iso: string): string {
+  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-GB", {
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -100,8 +99,24 @@ function dateWord(iso: string | null): string {
   });
 }
 
+function shortDay(iso: string): string {
+  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}
+
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** The id that produced a "channels.<id>.type" style key, if any. */
+const EVIDENCE = /^(channels|goals)\.([0-9a-f-]{36})\.(\w+)$/;
+
 export function ContentScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
+  const detailRef = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
     const [contentRes, goalsRes] = await Promise.all([fetch("/api/content"), fetch("/api/goals")]);
@@ -114,7 +129,7 @@ export function ContentScreen() {
       publish_notes?: Record<string, string>;
     };
     const goals = (await goalsRes.json()) as { goals: Goal[]; suggestions: Suggestion[] };
-    setState({
+    setState((cur) => ({
       phase: "ready",
       goals: goals.goals,
       suggestions: goals.suggestions,
@@ -124,8 +139,8 @@ export function ContentScreen() {
       busy: false,
       notice: null,
       newGoal: "",
-      open: null,
-    });
+      open: cur.phase === "ready" ? cur.open : null,
+    }));
   }, []);
 
   useEffect(() => {
@@ -134,8 +149,8 @@ export function ContentScreen() {
 
   if (state.phase === "loading") {
     return (
-      <main className="auth-stage">
-        <p className="auth-copy">Reading the content queue…</p>
+      <main className="screen ct-screen">
+        <PageHead kicker="Grow · Content" title="Reading the content queue…" />
       </main>
     );
   }
@@ -188,176 +203,371 @@ export function ContentScreen() {
     await load();
   };
 
-  const byDate = new Map<string, ContentItem[]>();
-  for (const item of s.items) {
-    const key = item.scheduled_for ?? "anytime";
-    byDate.set(key, [...(byDate.get(key) ?? []), item]);
-  }
+  const today = todayIso();
+  const strips = channelStrips(s.items, today);
+  const goalById = new Map(s.goals.map((g) => [g.goal_id, g]));
+  const nextDate =
+    s.items
+      .filter((i) => i.status === "drafted" || i.status === "queued")
+      .map((i) => i.scheduled_for)
+      .filter((d): d is string => d !== null && d >= today)
+      .sort()[0] ?? null;
+  const headline = contentHeadline({
+    items: s.items,
+    producible: s.producible.length,
+    blocked: Object.keys(s.publishNotes).length,
+    nextDate: nextDate ? dayWord(nextDate) : null,
+  });
+
+  // The open draft: the owner's pick, else the first one waiting on them, else the first draft.
+  const open =
+    s.items.find((i) => i.id === s.open) ??
+    s.items.find((i) => i.status === "drafted" && i.publish_proposal_id !== null) ??
+    s.items.find((i) => i.status === "drafted") ??
+    s.items[0] ??
+    null;
+
+  const stripTitle = (channel: string, planned: number): string => {
+    const kinds = new Set(
+      s.items
+        .filter((i) => i.channel_label === channel && i.status !== "withdrawn")
+        .map((i) => i.kind),
+    );
+    const only = kinds.size === 1 ? [...kinds][0] : undefined;
+    const word = only ? (only === "shot_list" ? "shot list" : KIND_WORD[only]) : "piece";
+    return `${planned} ${word}${planned === 1 ? "" : "s"}`;
+  };
+
+  const pick = (id: string) => {
+    setState({ ...s, open: id });
+    if (window.matchMedia("(max-width: 1099px)").matches) {
+      requestAnimationFrame(() => detailRef.current?.scrollIntoView({ block: "start" }));
+    }
+  };
+
+  const evidenceLine = (key: string, item: ContentItem): string => {
+    const m = EVIDENCE.exec(key);
+    if (m?.[1] === "channels") return `Channel: ${item.channel_label} · from your profile`;
+    if (m?.[1] === "goals") {
+      const g = m[2] ? goalById.get(m[2]) : undefined;
+      return `Goal: ${g?.statement ?? "a goal you set"}`;
+    }
+    return key;
+  };
 
   return (
-    <main className="ops-shell">
-      <header className="ops-head">
-        <span className="wordmark">Ledgerline</span>
-        <span className="ops-meta">
-          content · {s.items.length} in the queue · publishes nowhere yet
-        </span>
-      </header>
+    <main className="screen ct-screen">
+      <PageHead
+        kicker="Grow · Content"
+        title={headline}
+        aside={
+          <a className="ghost ct-aside" href="#ct-goals">
+            Change content goals <span aria-hidden="true">→</span>
+          </a>
+        }
+      />
 
-      <EmergencyStop />
+      <div className="ct-stop">
+        <EmergencyStop />
+      </div>
 
       {s.notice && (
-        <section className="card ops-card">
-          <p className="auth-copy" aria-live="polite">
-            {s.notice}
-          </p>
-        </section>
-      )}
-
-      <section className="card ops-card">
-        <span className="auth-eyebrow">goals — what the content serves</span>
-        {s.goals.length === 0 && (
-          <p className="auth-copy">
-            No goals yet. State one, or take a suggestion — every planned piece will name the goal
-            it serves.
-          </p>
-        )}
-        <ul className="ct-goals">
-          {s.goals.map((g) => (
-            <li key={g.goal_id}>
-              <span className="ct-goal-statement">{g.statement ?? "—"}</span>
-              {g.horizon && (
-                <span className="prop-tag">{HORIZON_WORD[g.horizon] ?? g.horizon}</span>
-              )}
-              {g.target_value && <span className="conn-note"> target: {g.target_value}</span>}
-            </li>
-          ))}
-        </ul>
-        {s.suggestions.length > 0 && (
-          <div className="ct-suggestions">
-            {s.suggestions.map((sug) => (
-              <button
-                key={sug.source}
-                className="prop-btn quiet"
-                disabled={s.busy}
-                onClick={() => void addGoal(sug.statement)}
-              >
-                + {sug.statement}
-              </button>
-            ))}
-          </div>
-        )}
-        <form
-          className="ct-goal-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void addGoal(s.newGoal);
-          }}
-        >
-          <input
-            className="ct-input"
-            placeholder="A goal in your own words — dated and measurable beats grand"
-            value={s.newGoal}
-            onChange={(e) => setState({ ...s, newGoal: e.target.value })}
-          />
-          <button className="prop-btn" disabled={s.busy || s.newGoal.trim() === ""}>
-            Add goal
-          </button>
-        </form>
-      </section>
-
-      <section className="card ops-card">
-        <span className="auth-eyebrow">propose — nothing is made until you approve</span>
-        <p className="auth-copy">
-          Both of these create a proposal in your <Link href="/proposals">approval queue</Link>. Not
-          a single word is drafted before you say yes there.
+        <p className="ct-notice" aria-live="polite">
+          {s.notice}
         </p>
-        <div className="prop-actions">
-          <button
-            className="prop-btn"
-            disabled={s.busy}
-            onClick={() => void act({ action: "plan" }, "The calendar is in your approval queue.")}
-          >
-            Propose a content calendar
-          </button>
-          <button
-            className="prop-btn"
-            disabled={s.busy}
-            onClick={() =>
-              void act({ action: "shotlist" }, "The shot list is in your approval queue.")
-            }
-          >
-            Propose a shot list
-          </button>
-        </div>
-      </section>
-
-      {s.producible.length > 0 && (
-        <section className="card ops-card">
-          <span className="auth-eyebrow">approved — ready to draft</span>
-          {s.producible.map((p) => (
-            <div key={p.id} className="ct-producible">
-              <span>{p.summary}</span>
-              <button
-                className="prop-btn signal"
-                disabled={s.busy}
-                onClick={() =>
-                  void act(
-                    { action: "produce", proposal_id: p.id },
-                    "Drafted. Every item below carries its disclosure and its sources.",
-                  )
-                }
-              >
-                Draft it
-              </button>
-            </div>
-          ))}
-        </section>
       )}
 
-      {[...byDate.entries()].map(([date, items]) => (
-        <section key={date} className="card ops-card">
-          <span className="auth-eyebrow">{dateWord(date === "anytime" ? null : date)}</span>
-          {items.map((item) => (
-            <article key={item.id} className="ct-item">
-              <div className="ct-item-head">
-                <span className={`prop-tag ct-${item.kind}`}>{KIND_WORD[item.kind]}</span>
-                {STATUS_WORD[item.status] && (
-                  <span className={`prop-tag ct-status ct-status-${item.status}`}>
-                    {STATUS_WORD[item.status]}
+      {strips.length > 0 && (
+        <ul className="ct-strips" aria-label="Each channel's queue">
+          {strips.map((st) => {
+            const pct = st.planned === 0 ? 0 : Math.round((st.posted / st.planned) * 100);
+            const span =
+              st.first && st.last
+                ? st.first === st.last
+                  ? shortDay(st.first)
+                  : `${shortDay(st.first)} – ${shortDay(st.last)}`
+                : "undated";
+            return (
+              <li key={st.channel} className="ct-strip">
+                <p className="ct-strip-label">
+                  {st.channel} · {span}
+                </p>
+                <p className="ct-strip-row">
+                  <span className="ct-strip-title">{stripTitle(st.channel, st.planned)}</span>
+                  <span className="ct-strip-fig">
+                    {st.posted} / {st.planned}
                   </span>
-                )}
-                <span className="ct-item-title">{item.title}</span>
-                <button
-                  className="prop-btn quiet"
-                  onClick={() => setState({ ...s, open: s.open === item.id ? null : item.id })}
+                </p>
+                <span
+                  className={`ct-bar ${st.state}`}
+                  role="img"
+                  aria-label={`${st.posted} of ${st.planned} posted`}
                 >
-                  {s.open === item.id ? "Close" : "Read"}
-                </button>
+                  <span className="ct-bar-fill" style={{ width: `${pct}%` }} />
+                </span>
+                <p className="ct-strip-state">
+                  {st.state === "behind"
+                    ? `Behind · ${st.overdue} past its date`
+                    : st.state === "done"
+                      ? "All posted"
+                      : st.next
+                        ? `Next ${dayWord(st.next)}`
+                        : "On pace"}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <div className="ct-grid">
+        <SheetCard label="Drafts" title="Everything written, nothing posted" className="ct-queue">
+          {s.items.length === 0 ? (
+            <p className="ct-empty">
+              The queue is empty. Propose a calendar below — once you approve it in the queue, I
+              draft it here.
+            </p>
+          ) : (
+            <table className="rt ct-table">
+              <thead>
+                <tr>
+                  <th scope="col">Draft</th>
+                  <th scope="col">Channel</th>
+                  <th scope="col">Serves goal</th>
+                  <th scope="col">State</th>
+                  <th scope="col" className="num">
+                    Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {s.items.map((item) => {
+                  const w = stateWord(item, shortDay);
+                  const goal = item.goal_id ? goalById.get(item.goal_id) : undefined;
+                  return (
+                    <tr key={item.id} className={open?.id === item.id ? "on" : undefined}>
+                      <th scope="row" data-label="Draft">
+                        <button
+                          type="button"
+                          className="ct-pick"
+                          aria-pressed={open?.id === item.id}
+                          onClick={() => pick(item.id)}
+                        >
+                          {item.title}
+                        </button>
+                        <span className="src ct-sub">
+                          {shortId("C", item.id)} · {KIND_WORD[item.kind]}
+                        </span>
+                      </th>
+                      <td data-label="Channel" className="ct-mono">
+                        {item.channel_label}
+                      </td>
+                      <td data-label="Serves goal">{goal?.statement ?? "—"}</td>
+                      <td data-label="State">
+                        <span className={`word boxed ${w.tone}`}>{w.word}</span>
+                      </td>
+                      <td data-label="Date" className="num">
+                        {item.scheduled_for ? shortDay(item.scheduled_for) : "anytime"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </SheetCard>
+
+        {open && (
+          <section
+            className="cs ct-detail"
+            ref={detailRef}
+            aria-label={`Draft ${shortId("C", open.id)}`}
+          >
+            <header className="cs-head">
+              <div>
+                <p className="cs-label">
+                  {shortId("C", open.id)} · {open.channel_label} {KIND_WORD[open.kind]} ·{" "}
+                  {open.scheduled_for ? dayWord(open.scheduled_for) : "anytime"}
+                </p>
+                <h2 className="cs-title">{open.title}</h2>
               </div>
-              {s.open === item.id && <pre className="ct-body">{item.body}</pre>}
-              {(item.status === "published" || item.status === "withdrawn") && item.platform && (
-                <p className="conn-note">
-                  {item.status === "published" ? "Live on" : "Was on"} {item.platform} as{" "}
-                  {item.platform_post_id}
-                  {item.published_at && ` · ${dateWord(item.published_at.slice(0, 10))}`}
+              <div className="cs-meta">
+                <span className={`word boxed ${stateWord(open, shortDay).tone}`}>
+                  {stateWord(open, shortDay).word}
+                </span>
+              </div>
+            </header>
+            <div className="cs-body ct-detail-body">
+              {open.media_path && (
+                <div className="ct-media">
+                  <span>Media · your footage</span>
+                  <span className="ct-media-path">{open.media_path.split("/").pop()}</span>
+                </div>
+              )}
+              <div className="ct-detail-text">
+                <p className="cs-label">{open.kind === "email" ? "Email" : "Caption"}</p>
+                <p className="ct-caption">{open.body}</p>
+                <p className="cs-label ct-gap">Written from</p>
+                <ul className="ct-from">
+                  {(open.provenance?.evidence ?? []).map((key) => (
+                    <li key={key}>{evidenceLine(key, open)}</li>
+                  ))}
+                  {open.goal_id && goalById.get(open.goal_id)?.statement && (
+                    <li>Serves: {goalById.get(open.goal_id)?.statement}</li>
+                  )}
+                  <li>Disclosure: {open.disclosure}</li>
+                </ul>
+              </div>
+            </div>
+            <footer className="ct-detail-foot">
+              {s.publishNotes[open.id] && (
+                <p className="ct-why">Not publishing: {s.publishNotes[open.id]}.</p>
+              )}
+              {open.status === "failed" && open.last_error && (
+                <p className="ct-why">
+                  <span className="word alarm">failed</span> {open.last_error}
                 </p>
               )}
-              {item.status === "failed" && item.last_error && (
-                <p className="conn-note">{item.last_error}</p>
+              {(open.status === "published" || open.status === "withdrawn") && open.platform && (
+                <p className="ct-why">
+                  {open.status === "published" ? "Live on" : "Was on"} {open.platform} as{" "}
+                  {open.platform_post_id}
+                  {open.published_at && ` · ${dayWord(open.published_at)}`}
+                </p>
               )}
-              {s.publishNotes[item.id] && (
-                <p className="conn-note">Not publishing: {s.publishNotes[item.id]}.</p>
-              )}
-              <p className="ct-disclosure">{item.disclosure}</p>
-            </article>
-          ))}
-        </section>
-      ))}
+              <div className="ct-actions">
+                {open.publish_proposal_id !== null && open.status === "drafted" && (
+                  <Link className="prop-btn ct-wide" href="/proposals">
+                    Decide in the queue <span aria-hidden="true">→</span>
+                  </Link>
+                )}
+                {s.publishNotes[open.id]?.includes("Connections") && (
+                  <Link className="prop-btn" href="/connections">
+                    Connections <span aria-hidden="true">→</span>
+                  </Link>
+                )}
+              </div>
+              <p className="ct-fine">
+                Nothing posts from this screen. Publishing needs your yes in the queue and its own
+                permission; until then every draft waits here.
+              </p>
+            </footer>
+          </section>
+        )}
+      </div>
 
-      <p className="conn-note">
-        I can&rsquo;t post anything for you yet — publishing switches on later, and only after you
-        give it separate permission. Until then every draft waits here, yours to keep or discard.
-      </p>
+      <div className="ct-lower">
+        <SheetCard label="Goals" title="What the content serves" id="ct-goals">
+          {s.goals.length === 0 ? (
+            <p className="ct-empty">
+              No goals yet. State one, or take a suggestion — every planned piece will name the goal
+              it serves.
+            </p>
+          ) : (
+            <ul className="ct-goal-list">
+              {s.goals.map((g) => (
+                <li key={g.goal_id}>
+                  <span>{g.statement ?? "—"}</span>
+                  <span className="ct-goal-meta">
+                    {g.horizon ? (HORIZON_WORD[g.horizon] ?? g.horizon) : ""}
+                    {g.target_value ? ` · target ${g.target_value}` : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {s.suggestions.length > 0 && (
+            <div className="ct-suggest">
+              {s.suggestions.map((sug) => (
+                <button
+                  key={sug.source}
+                  type="button"
+                  className="prop-btn quiet"
+                  disabled={s.busy}
+                  onClick={() => void addGoal(sug.statement)}
+                >
+                  + {sug.statement}
+                </button>
+              ))}
+            </div>
+          )}
+          <form
+            className="ct-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void addGoal(s.newGoal);
+            }}
+          >
+            <label className="cs-label" htmlFor="ct-new-goal">
+              A goal in your own words
+            </label>
+            <input
+              id="ct-new-goal"
+              className="ct-input"
+              placeholder="dated and measurable beats grand"
+              value={s.newGoal}
+              onChange={(e) => setState({ ...s, newGoal: e.target.value })}
+            />
+            <button className="prop-btn" disabled={s.busy || s.newGoal.trim() === ""}>
+              Add goal
+            </button>
+          </form>
+        </SheetCard>
+
+        <SheetCard label="Propose" title="Nothing is made until you approve">
+          <p className="ct-prose">
+            Both of these create a proposal in your <Link href="/proposals">approval queue</Link>.
+            Not a single word is drafted before you say yes there.
+          </p>
+          <div className="ct-actions">
+            <button
+              type="button"
+              className="prop-btn"
+              disabled={s.busy}
+              onClick={() =>
+                void act({ action: "plan" }, "The calendar is in your approval queue.")
+              }
+            >
+              Propose a content calendar
+            </button>
+            <button
+              type="button"
+              className="prop-btn"
+              disabled={s.busy}
+              onClick={() =>
+                void act({ action: "shotlist" }, "The shot list is in your approval queue.")
+              }
+            >
+              Propose a shot list
+            </button>
+          </div>
+          {s.producible.length > 0 && (
+            <>
+              <p className="cs-label ct-gap">Approved — ready to draft</p>
+              <ul className="ct-producible">
+                {s.producible.map((p) => (
+                  <li key={p.id}>
+                    <span>{p.summary}</span>
+                    <button
+                      type="button"
+                      className="next"
+                      disabled={s.busy}
+                      onClick={() =>
+                        void act(
+                          { action: "produce", proposal_id: p.id },
+                          "Drafted. Every item carries its disclosure and its sources.",
+                        )
+                      }
+                    >
+                      Draft it <span aria-hidden="true">→</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </SheetCard>
+      </div>
     </main>
   );
 }

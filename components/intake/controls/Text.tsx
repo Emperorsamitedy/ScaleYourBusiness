@@ -3,10 +3,10 @@
 import { useEffect, useRef } from "react";
 import type { ControlProps } from "./shared";
 
-export function TextControl({ onChange, onCommit }: ControlProps) {
+export function TextControl({ question, onChange, onCommit }: ControlProps) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    ref.current?.focus();
+    ref.current?.focus({ preventScroll: true });
   }, []);
 
   const wireOf = (raw: string): unknown => (raw.trim() === "" ? null : raw.trim());
@@ -14,7 +14,8 @@ export function TextControl({ onChange, onCommit }: ControlProps) {
   return (
     <input
       ref={ref}
-      className="field"
+      aria-labelledby={`q-${question.id}`}
+      className="ix-input"
       type="text"
       autoComplete="off"
       onChange={(e) => onChange({ wire: wireOf(e.target.value) })}

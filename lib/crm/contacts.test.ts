@@ -174,6 +174,26 @@ describe("P4-02 — the consent gate, every gradation at its boundary", () => {
   });
 });
 
+describe("consent posture reads the intake's answer shape", () => {
+  it("reads an intake-written {code} answer, not only a bare string", async () => {
+    const s = await fresh();
+    const at = isoDateTime(new Date().toISOString());
+    await writeField(
+      s.profile_id,
+      createField<{ code: string }>({
+        id: fieldId("customers.marketing_consent_status"),
+        value: { code: "explicit_consent" },
+        status: "answered",
+        confidence: confidence(0.75),
+        source: { kind: "owner_input" },
+        observed_at: at,
+        recorded_at: at,
+      }),
+    );
+    expect(await outboundPosture(s.profile_id)).toBe("enabled");
+  });
+});
+
 describe("P4-04 — erasure: the row goes, the trail stays clean (rule 22)", () => {
   it("erases, suppresses forever, refuses re-entry, and the log holds no PII", async () => {
     const s = await fresh();

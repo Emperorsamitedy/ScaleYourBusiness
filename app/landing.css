@@ -1,0 +1,865 @@
+/* The landing page — the owner's landing design (2026-10-17).
+   Every value below is the design's own; colours are the design's exact
+   hex values rather than sheet.css tokens, because the landing is drawn
+   to that file and the app's tokens are moving under it. Everything is
+   scoped under .ll so nothing leaks into the app once this stylesheet is
+   loaded by a client-side navigation. Fonts come from app/layout.tsx. */
+
+body:has(.ll) {
+  background: #132119;
+}
+
+.ll {
+  background: #132119;
+  color: #f2f7f4;
+  font-family: var(--f-prose);
+  font-size: 16px;
+  line-height: normal;
+  min-height: 100%;
+}
+.ll *,
+.ll *::before,
+.ll *::after {
+  box-sizing: border-box;
+}
+
+/* ── shared marks ── */
+.ll-w {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.ll-m {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+}
+.ll-k {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.ll-s {
+  font-family: var(--f-display);
+}
+.ll svg text {
+  font-family: var(--f-mono);
+}
+.ll-mark {
+  background: #f3df4e;
+  padding: 0 3px;
+  color: #132119;
+}
+.ll-h2 {
+  font-size: 52px;
+  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 14px 0 0;
+}
+
+/* ── buttons and links ── */
+.ll-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 56px;
+  padding: 0 24px;
+  background: #f2f7f4;
+  color: #132119;
+  border: 1px solid #f2f7f4;
+  font-family: var(--f-mono);
+  font-size: 13.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.1s,
+    color 0.1s;
+}
+.ll-go:hover {
+  background: #f3df4e;
+  border-color: #f3df4e;
+}
+.ll-go.ink {
+  background: #132119;
+  color: #f2f7f4;
+  border-color: #132119;
+}
+.ll-go.ink:hover {
+  background: #f3df4e;
+  color: #132119;
+}
+.ll-go.line {
+  background: transparent;
+  color: #f2f7f4;
+}
+.ll-go.line:hover {
+  background: #f2f7f4;
+  color: #132119;
+}
+.ll-go-full {
+  width: 100%;
+  margin-top: 24px;
+}
+.ll-nl {
+  color: #a9bdb2;
+  text-decoration: none;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+.ll-nl:hover {
+  color: #f2f7f4;
+}
+
+/* Keyboard focus: the design's yellow ring on everything. */
+.ll button:focus-visible,
+.ll a:focus-visible,
+.ll input:focus-visible,
+.ll summary:focus-visible {
+  outline: 2px solid #f3df4e;
+  outline-offset: 2px;
+}
+.ll .ll-go:focus-visible,
+.ll .ll-nl:focus-visible,
+.ll summary:focus-visible,
+.ll .ll-mini:focus-visible {
+  outline-offset: 3px;
+}
+
+/* ── masthead ── */
+.ll-head {
+  border-bottom: 1px solid rgba(242, 247, 244, 0.14);
+}
+.ll-head-in {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 68px;
+  flex-wrap: wrap;
+}
+.ll-logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f2f7f4;
+  text-decoration: none;
+}
+.ll-nav {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+/* ── hero ── */
+.ll-hero {
+  padding-top: 80px;
+  padding-bottom: 110px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 64px;
+  align-items: center;
+}
+.ll-hero-copy {
+  flex: 1 1 400px;
+  min-width: 0;
+}
+.ll-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f2f7f4;
+  border: 1px solid rgba(242, 247, 244, 0.3);
+  padding: 7px 12px;
+}
+.ll-beat {
+  width: 8px;
+  height: 8px;
+  background: #ff9c8f;
+  animation: ll-beat 1.1s ease-in-out infinite;
+}
+@keyframes ll-beat {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+  30% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+.ll-hd {
+  font-size: 76px;
+  line-height: 0.98;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: 26px 0 0;
+}
+.ll-lede {
+  font-size: 20px;
+  line-height: 1.5;
+  color: #d6e2db;
+  margin: 28px 0 0;
+  max-width: 25em;
+}
+.ll-ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+.ll-trust {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: #c9d8cf;
+  margin-top: 26px;
+}
+
+/* ── the walkthrough player ── */
+.ll-player {
+  flex: 1 1 600px;
+  min-width: 0;
+  margin: 0;
+  background: #0b140f;
+  border: 1px solid #2a3a31;
+  padding: 0 0 14px;
+}
+.ll-vbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #22332a;
+  flex-wrap: wrap;
+}
+.ll-screen {
+  position: relative;
+  margin: 14px 14px 0;
+  background: #f2f7f4;
+  color: #132119;
+  border: 1px solid #0a120d;
+  overflow: hidden;
+}
+.ll-appbar {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(19, 33, 25, 0.2);
+  background: #ffffff;
+}
+.ll-stage {
+  position: relative;
+  height: 300px;
+  padding: 18px 20px;
+  overflow: hidden;
+}
+.ll-sc {
+  animation: ll-scin 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes ll-scin {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ll-mini-card {
+  background: #ffffff;
+  border: 1px solid rgba(19, 33, 25, 0.25);
+  padding: 14px 16px;
+}
+.ll-tagg {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  border: 1px solid #2e6b47;
+  color: #2e6b47;
+  padding: 2px 6px;
+}
+.ll-vbtn {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px;
+  margin-top: 14px;
+  border: 1px solid #132119;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #132119;
+  color: #f2f7f4;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.ll-opt {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #132119;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+.ll-rec-row {
+  font-size: 11.5px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(19, 33, 25, 0.15);
+}
+.ll-slidein {
+  animation: ll-slidein 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes ll-slidein {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ll-s3-stats {
+  display: flex;
+  gap: 28px;
+  margin-top: 18px;
+}
+.ll-s3-fig {
+  font-size: 26px;
+  font-weight: 600;
+}
+.ll-s5-figs {
+  display: flex;
+  gap: 22px;
+  margin-top: 10px;
+}
+.ll-s6-svg {
+  width: 100%;
+  height: 150px;
+  display: block;
+  margin-top: 8px;
+}
+.ll-s6-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #3e5248;
+}
+.ll-s4row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr) 44px 60px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(19, 33, 25, 0.12);
+  transition: opacity 0.3s;
+}
+.ll-rbar {
+  position: relative;
+  height: 14px;
+  min-width: 120px;
+}
+.ll-rbar-base {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 1px;
+  background: rgba(19, 33, 25, 0.35);
+}
+.ll-rbar-band {
+  position: absolute;
+  top: 2px;
+  height: 9px;
+  background: rgba(46, 107, 71, 0.24);
+  border-left: 1px solid #2e6b47;
+  border-right: 1px solid #2e6b47;
+}
+.ll-rbar-tick {
+  position: absolute;
+  top: -3px;
+  width: 3px;
+  height: 19px;
+  background: #132119;
+  margin-left: -1px;
+}
+.ll-stampv {
+  position: absolute;
+  right: 14px;
+  top: 40px;
+  border: 3px solid #2e6b47;
+  color: #2e6b47;
+  background: rgba(255, 255, 255, 0.9);
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  padding: 6px 10px;
+  transform: rotate(-7deg);
+  animation: ll-stv 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+@keyframes ll-stv {
+  from {
+    opacity: 0;
+    transform: rotate(-7deg) scale(1.5);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-7deg) scale(1);
+  }
+}
+.ll-cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition:
+    left 0.12s linear,
+    top 0.12s linear;
+  pointer-events: none;
+  z-index: 3;
+}
+.ll-ripple {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 2px solid #1f4fd1;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+}
+.ll-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  background: rgba(11, 20, 15, 0.92);
+  color: #f2f7f4;
+  font-size: 14px;
+  padding: 7px 14px;
+  white-space: nowrap;
+  z-index: 4;
+}
+.ll-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px 0;
+}
+.ll-pbtn {
+  width: 38px;
+  height: 34px;
+  flex: 0 0 auto;
+  background: #f2f7f4;
+  color: #132119;
+  border: 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  cursor: pointer;
+}
+.ll-pbtn:hover {
+  background: #f3df4e;
+}
+.ll-track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 4px;
+  background: rgba(242, 247, 244, 0.15);
+}
+.ll-chaps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 10px 14px 0;
+}
+.ll-chap {
+  font-family: var(--f-prose);
+  font-size: 12.5px;
+  text-align: left;
+  padding: 7px 9px;
+  background: transparent;
+  color: #a9bdb2;
+  border: 1px solid rgba(242, 247, 244, 0.12);
+  cursor: pointer;
+}
+.ll-chap:hover {
+  color: #f2f7f4;
+  border-color: rgba(242, 247, 244, 0.4);
+}
+.ll-chap.on {
+  color: #132119;
+  background: #f2f7f4;
+  border-color: #f2f7f4;
+}
+
+/* ── the chart ── */
+.ll-band-deep {
+  background: #0b140f;
+  border-top: 1px solid rgba(242, 247, 244, 0.1);
+  border-bottom: 1px solid rgba(242, 247, 244, 0.1);
+}
+.ll-pad-chart {
+  padding-top: 96px;
+  padding-bottom: 100px;
+}
+.ll-sec-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-end;
+}
+.ll-sec-aside {
+  font-size: 17px;
+  line-height: 1.5;
+  color: #c9d8cf;
+  margin: 0;
+  max-width: 26em;
+}
+.ll-tv {
+  background: #ffffff;
+  color: #131722;
+  border: 1px solid #0a120d;
+}
+.ll-tv-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e3eb;
+  flex-wrap: wrap;
+}
+.ll-tv-sep {
+  width: 1px;
+  height: 20px;
+  background: #e0e3eb;
+  margin: 0 4px;
+}
+.ll-tv-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 8px 14px 0;
+  font-size: 12px;
+  color: #5d6b78;
+}
+.ll-mini {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #5d6b78;
+  cursor: pointer;
+}
+.ll-mini:hover {
+  color: #131722;
+  background: #f0f3fa;
+}
+.ll-mini.on {
+  color: #2962ff;
+  background: #e3ebff;
+}
+.ll-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: crosshair;
+}
+.ll-chart-key {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 28px;
+}
+.ll-chart-key > div {
+  font-size: 13px;
+  color: #c9d8cf;
+  line-height: 1.6;
+}
+.ll-chart-keybox {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: #2962ff;
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  line-height: 16px;
+  margin-right: 8px;
+}
+
+/* ── paper bands: the nine panels and the price ── */
+.ll-paper {
+  background: #f2f7f4;
+  color: #132119;
+}
+.ll-pad-96 {
+  padding-top: 96px;
+  padding-bottom: 96px;
+}
+.ll-panels {
+  list-style: none;
+  margin: 48px 0 0;
+  padding: 0;
+  border-top: 2px solid #132119;
+}
+.ll-panel {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) minmax(0, 2fr);
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(19, 33, 25, 0.2);
+  align-items: baseline;
+}
+.ll-panel-no {
+  font-size: 13px;
+  color: #3e5248;
+}
+.ll-panel-name {
+  font-size: 26px;
+  font-weight: 600;
+}
+.ll-panel-markers {
+  font-size: 13px;
+  color: #3e5248;
+  line-height: 1.6;
+}
+
+/* ── how it works ── */
+.ll-pad-104 {
+  padding-top: 104px;
+  padding-bottom: 104px;
+}
+.ll-steps {
+  list-style: none;
+  margin: 48px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0;
+  border-top: 1px solid rgba(242, 247, 244, 0.3);
+}
+.ll-step {
+  padding: 26px 26px 0 0;
+}
+.ll-step-when {
+  font-size: 12px;
+  color: #8fa8ff;
+  letter-spacing: 0.08em;
+}
+.ll-step-t {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 8px 0 0;
+  line-height: normal;
+}
+.ll-step-d {
+  font-size: 16px;
+  color: #c9d8cf;
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
+/* ── price ── */
+.ll-price {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 56px;
+  align-items: center;
+}
+.ll-price-head {
+  flex: 1 1 380px;
+}
+.ll-price-card {
+  flex: 1 1 460px;
+  border: 1px solid #132119;
+  padding: 32px 34px;
+}
+.ll-price-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-bottom: 3px double #132119;
+  padding-bottom: 16px;
+}
+.ll-price-fig {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.ll-included {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 2.1;
+}
+.ll-included li {
+  display: flex;
+  justify-content: space-between;
+}
+.ll-refund {
+  font-size: 14px;
+  margin: 14px 0 0;
+  color: #3e5248;
+}
+
+/* ── questions ── */
+.ll-faq {
+  padding-top: 96px;
+  padding-bottom: 80px;
+  max-width: 900px;
+}
+.ll-faq-h {
+  font-size: 44px;
+  font-weight: 600;
+  margin: 0 0 24px;
+}
+.ll-faq-list {
+  border-top: 1px solid rgba(242, 247, 244, 0.2);
+}
+.ll-faq-list details {
+  border-bottom: 1px solid rgba(242, 247, 244, 0.2);
+}
+.ll-faq-list summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 22px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 500;
+}
+.ll-faq-list summary::-webkit-details-marker {
+  display: none;
+}
+.ll-faq-list details[open] .ll-pm {
+  transform: rotate(45deg);
+}
+.ll-pm {
+  font-family: var(--f-mono);
+  transition: transform 0.15s;
+}
+.ll-faq-list p {
+  margin: 0 0 22px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #c9d8cf;
+}
+
+/* ── footer ── */
+.ll-foot {
+  border-top: 1px solid rgba(242, 247, 244, 0.14);
+}
+.ll-foot-in {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding-top: 28px;
+  padding-bottom: 36px;
+  flex-wrap: wrap;
+}
+.ll-foot-in a:not(.ll-go) {
+  color: inherit;
+  text-decoration: none;
+}
+.ll-foot-in a:not(.ll-go):hover {
+  color: #f2f7f4;
+  text-decoration: underline;
+}
+
+/* ── small screens ── */
+@media (max-width: 760px) {
+  .ll-hd {
+    font-size: 52px;
+  }
+}
+@media (max-width: 700px) {
+  .ll-caption {
+    white-space: normal;
+    width: 86%;
+    text-align: center;
+  }
+  .ll-chaps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Phone widths: the design's 300px stage, kept, with its scenes eased
+   so nothing is clipped — the record column steps aside, figures wrap. */
+@media (max-width: 560px) {
+  .ll-s2-rec {
+    display: none;
+  }
+  .ll-s4row {
+    grid-template-columns: minmax(0, 1fr) 44px 60px;
+  }
+  .ll-s4row .ll-rbar {
+    display: none;
+  }
+  .ll-s6-svg {
+    height: 96px;
+  }
+  .ll-s3-stats {
+    gap: 18px;
+  }
+  .ll-s3-fig {
+    font-size: 20px;
+  }
+  .ll-s5-figs {
+    flex-wrap: wrap;
+    gap: 4px 22px;
+  }
+  .ll-s6-legend {
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+}
+
+/* ── reduced motion: the design's rules, kept ── */
+@media (prefers-reduced-motion: reduce) {
+  .ll-beat,
+  .ll-sc,
+  .ll-slidein,
+  .ll-stampv {
+    animation: none;
+  }
+  .ll-cursor {
+    transition: none;
+  }
+  .ll *,
+  .ll *::before,
+  .ll *::after {
+    transition: none !important;
+    animation-duration: 0.01ms !important;
+  }
+}

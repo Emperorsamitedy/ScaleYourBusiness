@@ -1,150 +1,45 @@
 "use client";
 
-// The fact sheet — P1-59/60. Session D's closing claim: the owner sees
-// everything they told us, with its source, and everything still open,
-// with what answering it would buy.
+// The fact sheet — P1-59/60, set as the owner's fact-sheet design
+// (2026-10-17) inside the rail shell: a page head stating the count and
+// the basis mix, then one sheet with a search band and filters, the
+// sections on the left, and the facts on the right — value, source,
+// basis, since — with every superseded value struck through beneath the
+// fact it used to be (rule 3: superseded, never erased).
 //
-// Everything rendered here is the API's deterministic read of the
-// snapshot. No number on this screen is computed in the browser beyond
-// percentages for ring geometry.
+// Everything rendered is the API's deterministic read of the snapshot
+// plus the superseded field_records; components/profile/model.ts holds
+// the rules (filing, basis words, filters) and their tests.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import "../../app/factsheet.css";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { PageHead } from "../sheet/PageHead";
+import { num } from "../sheet/num";
+import { fmtDay } from "../report/figures";
+import type { DisplaySection, FactSheet, GapRow, Mode, SupersededFact } from "./model";
+import {
+  basisCounts,
+  basisWord,
+  changedIn,
+  displaySections,
+  filterSections,
+  sourceText,
+  valueView,
+} from "./model";
+import { basisOf, newerWord, successorKind } from "../report/basis";
 
-/* ── the API's shapes (lib/profile/factsheet.ts) ── */
-
-interface FactRow {
-  key: string;
-  value: string | null;
-  status: string;
-  confidence: number;
-  source_kind: string;
-  source_detail: string | null;
-  observed_at: string;
-  note: string | null;
-}
-interface EntityGroup {
-  id: string;
-  spine: string;
-  name: string | null;
-  facts: FactRow[];
-}
-interface GapRow {
-  question_id: string;
-  prompt: string;
-  section: string;
-  priority: "core" | "important" | "deep" | "optional";
-  buys: string;
-  blocking: boolean;
-}
-interface FactSheet {
-  profile_id: string;
-  snapshot_id: string;
-  taken_at: string;
-  fact_count: number;
-  completeness: {
-    overall: number;
-    core_complete: boolean;
-    by_section: { section: string; score: number }[];
-  };
-  provenance: { kind: string; count: number }[];
-  sections: { section: string; facts: FactRow[] }[];
-  entities: EntityGroup[];
-  gaps: GapRow[];
-}
 interface Candidate {
   name: string;
   url: string;
   evidence: string;
 }
 
-const SOURCE_LABEL: Record<string, string> = {
-  owner_input: "you told me",
-  conversation: "from our conversation",
-  inferred: "computed",
-  web_research: "researched",
-  benchmark: "benchmark",
-  connector: "measured",
-};
+const anchor = (section: string) => `fs-${section}`;
+const GAPS = "fs-open";
 
-const UUID_SEG = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-/* Keys whose literal words mislead — the bank's phrasing, shortened. */
-const KEY_LABEL: Record<string, string> = { volume_period: "sold per month" };
-const nice = (key: string): string =>
-  key
-    .split(".")
-    .slice(1)
-    .filter((seg) => !UUID_SEG.test(seg))
-    .map((seg) => KEY_LABEL[seg] ?? seg.replace(/_/g, " "))
-    .join(" · ");
-
-function Ring({ frac, label }: { frac: number; label: string }) {
-  const R = 44;
-  const C = 2 * Math.PI * R;
-  return (
-    <svg viewBox="0 0 110 110" className="fs-ring" aria-label={`completeness ${label}`}>
-      <circle cx="55" cy="55" r={R} fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="9" />
-      <circle
-        cx="55"
-        cy="55"
-        r={R}
-        fill="none"
-        stroke="url(#fsGrad)"
-        strokeWidth="9"
-        strokeLinecap="round"
-        strokeDasharray={`${(C * frac).toFixed(1)} ${C.toFixed(1)}`}
-        transform="rotate(-90 55 55)"
-      />
-      <defs>
-        <linearGradient id="fsGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ffb25c" />
-          <stop offset="100%" stopColor="#e1560f" />
-        </linearGradient>
-      </defs>
-      <text x="55" y="61" textAnchor="middle" className="fs-ring-v">
-        {label}
-      </text>
-    </svg>
-  );
-}
-
-function SourcePill({ kind }: { kind: string }) {
-  return <span className={`fs-pill s-${kind}`}>{SOURCE_LABEL[kind] ?? kind}</span>;
-}
-
-function Row({ fact }: { fact: FactRow }) {
-  return (
-    <div className={fact.status === "unknown" ? "fs-row unknown" : "fs-row"}>
-      <span className="fs-key">{nice(fact.key) || fact.key}</span>
-      <span className="fs-val">
-        {fact.value ?? (
-          <em>
-            {fact.status !== "unknown"
-              ? fact.status
-              : fact.source_kind === "web_research"
-                ? "their pages didn't say — that's recorded"
-                : "you didn't know — that's recorded"}
-          </em>
-        )}
-      </span>
-      <span className="fs-meta">
-        <SourcePill kind={fact.source_kind} />
-        <i className="fs-conf" style={{ opacity: 0.35 + fact.confidence * 0.65 }}>
-          {Math.round(fact.confidence * 100)}%
-        </i>
-      </span>
-    </div>
-  );
-}
-
-/** Competitors: the one entity block with an action — the agent goes and looks. */
-function Competitors({
-  groups,
-  onChanged,
-}: {
-  groups: EntityGroup[];
-  onChanged: () => Promise<void>;
-}) {
+/** Competitors: the one section with an action — the agent goes and looks. */
+function CompetitorFinder({ onChanged }: { onChanged: () => Promise<void> }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<Candidate[] | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -161,7 +56,7 @@ function Competitors({
       }
       setCandidates(payload.candidates);
     } catch {
-      setNote("couldn't reach the server");
+      setNote("I couldn't reach the server. Try again in a moment.");
     } finally {
       setBusy(null);
     }
@@ -177,7 +72,7 @@ function Competitors({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ name: candidate.name }),
         });
-        const payload = (await res.json()) as { error?: string; written?: string[] };
+        const payload = (await res.json()) as { error?: string };
         if (!res.ok) {
           setNote(payload.error ?? "research failed");
           return;
@@ -185,7 +80,7 @@ function Competitors({
         setCandidates((prev) => prev?.filter((c) => c.url !== candidate.url) ?? null);
         await onChanged();
       } catch {
-        setNote("couldn't reach the server");
+        setNote("I couldn't reach the server. Try again in a moment.");
       } finally {
         setBusy(null);
       }
@@ -194,57 +89,175 @@ function Competitors({
   );
 
   return (
-    <section className="fs-block" id="fs-competitors" data-rail>
-      <header className="fs-block-head">
-        <h2>Competitors</h2>
-        <button className="ghost" onClick={() => void discover()} disabled={busy !== null}>
-          {busy === "discover" ? "searching the web…" : "Find my competitors"}
-        </button>
-      </header>
-
-      {note !== null && <p className="fs-note">{note}</p>}
-
-      {candidates !== null && candidates.length > 0 && (
-        <div className="fs-cands">
-          <p className="fs-cands-lede">
-            Found by searching from what you told me. Nothing is saved until you confirm — you know
-            your market better than a search does.
-          </p>
-          {candidates.map((c) => (
-            <div className="fs-cand" key={c.url}>
-              <div>
-                <strong>{c.name}</strong>
-                <a href={c.url} target="_blank" rel="noreferrer noopener">
-                  {c.url.replace(/^https?:\/\/(www\.)?/, "").slice(0, 48)}
-                </a>
-                <p>{c.evidence}</p>
-              </div>
-              <button className="ghost" onClick={() => void confirm(c)} disabled={busy !== null}>
-                {busy === c.url ? "reading their pages…" : "That's one — look them up"}
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {groups.length === 0 && candidates === null && (
-        <p className="fs-empty">
-          None recorded yet. Name them in the interview, or let me search from what you&rsquo;ve
-          already told me.
+    <div className="fs-finder">
+      <button className="fs-btn" onClick={() => void discover()} disabled={busy !== null}>
+        {busy === "discover" ? "Searching the web…" : "Find my competitors →"}
+      </button>
+      {busy !== null && (
+        <p className="fs-status live" role="status" aria-live="polite">
+          <span className="live-dot" aria-hidden="true" />{" "}
+          {busy === "discover" ? "Searching from what you told me" : "Reading their pages"}
         </p>
       )}
-
-      {groups.map((g) => (
-        <div className="fs-entity" key={g.id}>
-          <h3>{g.name ?? "unnamed competitor"}</h3>
-          {g.facts
-            .filter((f) => f.key !== "name")
-            .map((f) => (
-              <Row key={f.key} fact={{ ...f, key: `x.${f.key}` }} />
+      {note !== null && (
+        <p className="fs-note" role="alert">
+          {note}
+        </p>
+      )}
+      {candidates !== null && candidates.length > 0 && (
+        <>
+          <p className="fs-note">
+            Found by searching from what you told me. Nothing is saved until you confirm.
+          </p>
+          <ul className="fs-cands">
+            {candidates.map((c) => (
+              <li key={c.url}>
+                <div>
+                  <strong>{c.name}</strong>{" "}
+                  <a href={c.url} target="_blank" rel="noreferrer noopener" className="fs-sub">
+                    {c.url.replace(/^https?:\/\/(www\.)?/, "").slice(0, 48)}
+                  </a>
+                  <p>{c.evidence}</p>
+                </div>
+                <button className="fs-btn" onClick={() => void confirm(c)} disabled={busy !== null}>
+                  {busy === c.url ? "Reading their pages…" : "That's one — look them up →"}
+                </button>
+              </li>
             ))}
-        </div>
-      ))}
-    </section>
+          </ul>
+        </>
+      )}
+    </div>
+  );
+}
+
+function SupersededRow({ label, h, by }: { label: string; h: SupersededFact; by: string }) {
+  const v = valueView(h);
+  return (
+    <tr className="fs-sup">
+      <th scope="row">
+        <s>{label}</s>
+        <s className="fs-sub">
+          superseded {fmtDay(h.superseded_at)} by a newer {by}
+        </s>
+      </th>
+      <td className="num" data-label="Value">
+        <s>{v.text}</s>
+      </td>
+      <td className="fs-src" data-label="Source">
+        {sourceText(h)}
+      </td>
+      <td data-label="Basis">
+        <span className="fs-basis sup">Superseded</span>
+      </td>
+      <td className="num fs-since" data-label="Since">
+        {fmtDay(h.observed_at)}
+      </td>
+    </tr>
+  );
+}
+
+function SectionTable({
+  s,
+  history,
+  changed,
+  showSuperseded,
+}: {
+  s: DisplaySection;
+  history: Record<string, SupersededFact[]>;
+  changed: ReadonlySet<string>;
+  showSuperseded: boolean;
+}) {
+  return (
+    <table className="fs-table">
+      <caption className="sr-only">
+        {s.label}: every fact with its value, source, basis and the date it holds from
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Fact</th>
+          <th scope="col" className="num">
+            Value
+          </th>
+          <th scope="col">Source</th>
+          <th scope="col">Basis</th>
+          <th scope="col" className="num">
+            Since
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {s.facts.map((d) => {
+          const v = valueView(d.fact);
+          const b = basisWord(d.fact);
+          const past = showSuperseded ? (history[d.key] ?? []) : [];
+          return [
+            <tr key={d.key} className={v.gap ? "fs-gap" : undefined}>
+              <th scope="row">
+                {d.label}
+                {basisOf(d.fact) === "ASSUMED" && (
+                  <span className="fs-sub">confirm to replace the default</span>
+                )}
+                {d.fact.note !== null && d.fact.value !== null && (
+                  <span className="fs-sub">noted: {d.fact.note}</span>
+                )}
+              </th>
+              <td className={`num${v.figure ? "" : " fs-words"}`} data-label="Value">
+                {changed.has(d.key) ? <span className="marked">{v.text}</span> : v.text}
+              </td>
+              <td className="fs-src" data-label="Source">
+                {sourceText(d.fact)}
+              </td>
+              <td data-label="Basis">
+                <span className={`fs-basis ${b.tone}`}>{b.word}</span>
+              </td>
+              <td className="num fs-since" data-label="Since">
+                {fmtDay(d.fact.observed_at)}
+              </td>
+            </tr>,
+            ...past.map((h, i) => (
+              <SupersededRow
+                key={`${d.key}~${h.superseded_at}~${i}`}
+                label={d.label}
+                h={h}
+                by={newerWord(successorKind(past, i, d.fact.source_kind))}
+              />
+            )),
+          ];
+        })}
+      </tbody>
+    </table>
+  );
+}
+
+function OpenQuestions({ gaps }: { gaps: GapRow[] }) {
+  const [all, setAll] = useState(false);
+  const shown = all ? gaps : gaps.slice(0, 6);
+  return (
+    <>
+      <ul className="fs-gaps">
+        {shown.map((g) => (
+          <li key={g.question_id}>
+            <div>
+              <p className="fs-gap-head">
+                <span className="fs-sub">{g.priority}</span>
+                {g.blocking && <span className="word drift">Blocking</span>}
+              </p>
+              <p className="fs-gap-q">{g.prompt}</p>
+              <p className="fs-sub">{g.buys}</p>
+            </div>
+            <Link className="fs-btn" href={`/intake?ask=${encodeURIComponent(g.question_id)}`}>
+              Answer now →
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {gaps.length > 6 && (
+        <button className="fs-btn fs-more" onClick={() => setAll((v) => !v)} aria-expanded={all}>
+          {all ? "Show fewer" : `Show all ${num(gaps.length)}`}
+        </button>
+      )}
+    </>
   );
 }
 
@@ -252,8 +265,10 @@ export function FactSheetScreen() {
   const [sheet, setSheet] = useState<FactSheet | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [showAllGaps, setShowAllGaps] = useState(false);
+  const [mode, setMode] = useState<Mode>("all");
+  const [showSuperseded, setShowSuperseded] = useState(true);
   const [active, setActive] = useState<string>("");
+  const pane = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -273,239 +288,258 @@ export function FactSheetScreen() {
     void load();
   }, [load]);
 
-  // The rail follows the scroll: whichever marked section is nearest
-  // the top of the viewport is the one lit.
+  const sections = useMemo(() => (sheet ? displaySections(sheet) : []), [sheet]);
+  const changed = useMemo(() => new Set(sheet?.changed ?? []), [sheet]);
+  const history = useMemo(() => sheet?.history ?? {}, [sheet]);
+  const visible = useMemo(
+    () => filterSections(sections, { mode, query, changed }),
+    [sections, mode, query, changed],
+  );
+  const allFacts = useMemo(() => sections.flatMap((s) => s.facts.map((d) => d.fact)), [sections]);
+  const counts = useMemo(() => basisCounts(allFacts), [allFacts]);
+  const supersededCount = useMemo(
+    () => Object.values(history).reduce((n, l) => n + l.length, 0),
+    [history],
+  );
+  const hasCompetitors = sections.some((s) => s.section === "competitors");
+  const filtering = mode !== "all" || query.trim() !== "";
+  const gaps = sheet?.gaps ?? [];
+
+  // The contents follow the pane's scroll: the section nearest its top is current.
   useEffect(() => {
-    if (sheet === null) return;
-    const marked = Array.from(document.querySelectorAll("[data-rail]"));
+    const root = pane.current;
+    if (!root) return;
+    const marked = Array.from(root.querySelectorAll("[data-sec]"));
     const io = new IntersectionObserver(
       (entries) => {
-        const visible = entries
+        const seen = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActive(visible[0].target.id);
+        if (seen[0]) setActive(seen[0].target.id);
       },
-      { rootMargin: "-15% 0px -65% 0px" },
+      { root: root.scrollHeight > root.clientHeight ? root : null, rootMargin: "0px 0px -70% 0px" },
     );
     marked.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [sheet, query, showAllGaps]);
+  }, [visible, gaps.length]);
 
-  const q = query.trim().toLowerCase();
-  const filtered = useMemo(() => {
-    if (!sheet) return [];
-    if (q === "") return sheet.sections;
-    return sheet.sections
-      .map(({ section, facts }) => ({
-        section,
-        facts: facts.filter(
-          (f) =>
-            f.key.toLowerCase().includes(q) ||
-            (f.value ?? "").toLowerCase().includes(q) ||
-            f.source_kind.includes(q),
-        ),
-      }))
-      .filter((s) => s.facts.length > 0);
-  }, [sheet, q]);
+  const jump = (id: string) => {
+    const el = document.getElementById(id);
+    const root = pane.current;
+    if (!el || !root) return;
+    setActive(id);
+    if (root.scrollHeight > root.clientHeight) {
+      root.scrollTo({ top: el.offsetTop - root.offsetTop - 8, behavior: "smooth" });
+    } else {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
-  if (error === "no-session") {
+  if (error !== null || sheet === null) {
     return (
-      <main className="fs-shell">
-        <p className="fs-empty">
-          There&rsquo;s no profile on this device yet.{" "}
-          <Link href="/intake">Start the questions</Link> — or open the link I sent you.
-        </p>
-      </main>
-    );
-  }
-  if (error !== null) {
-    return (
-      <main className="fs-shell">
-        <p className="fs-empty">Something went wrong loading your profile. Refresh to try again.</p>
-      </main>
-    );
-  }
-  if (sheet === null) {
-    return (
-      <main className="fs-shell">
-        <p className="fs-empty">Reading your profile…</p>
+      <main className="screen fs">
+        <PageHead kicker="Your business · Fact sheet" title="The record." />
+        <section className="fs-card fs-msg">
+          {error === "no-session" ? (
+            <p>
+              There&rsquo;s no profile on this device yet.{" "}
+              <Link href="/intake">Start the questions</Link> — or open the link I sent you.
+            </p>
+          ) : error !== null ? (
+            <p role="alert">
+              Something went wrong loading your profile. Refresh to try again — nothing you told me
+              is lost.
+            </p>
+          ) : (
+            <p role="status">Reading your profile…</p>
+          )}
+        </section>
       </main>
     );
   }
 
-  const name =
-    sheet.sections
-      .find((s) => s.section === "identity")
-      ?.facts.find((f) => f.key === "identity.legal_name")?.value ?? "your business";
-  const blocking = sheet.gaps.filter((g) => g.blocking).length;
+  const assumedCount = counts.assumed;
+  const filters: { m: Mode; label: string }[] = [
+    { m: "all", label: "All" },
+    { m: "assumed", label: `Assumed · ${num(assumedCount)}` },
+    { m: "changed", label: `Changed this month · ${num(changed.size)}` },
+  ];
 
   return (
-    <main className="fs-shell">
-      <header className="fs-top">
-        <span className="wordmark">Ledgerline</span>
-        <Link href="/intake" className="fs-answer">
-          Answer more questions →
-        </Link>
-      </header>
+    <main className="screen fs">
+      <PageHead
+        kicker="Your business · Fact sheet"
+        title={
+          <>
+            {num(allFacts.length)} fact{allFacts.length === 1 ? "" : "s"}. Every one shows where it
+            came from.
+          </>
+        }
+      >
+        <p className="fs-counts">
+          <span>
+            <b>{num(counts.observed)}</b> observed
+          </span>
+          <span>
+            <b>{num(counts.derived)}</b> derived
+          </span>
+          <span>
+            <b>{num(counts.fromYou)}</b> from you
+          </span>
+          <span>
+            <b>{num(counts.assumed)}</b> assumed
+          </span>
+          {counts.gaps > 0 && (
+            <span>
+              <b>{num(counts.gaps)}</b> recorded as not known
+            </span>
+          )}
+        </p>
+      </PageHead>
 
-      <nav className="fs-rail" aria-label="Sections">
-        <a href="#fs-overview" className={active === "fs-overview" ? "on" : ""}>
-          overview
-        </a>
-        {sheet.gaps.length > 0 && (
-          <a href="#fs-gaps" className={active === "fs-gaps" ? "on" : ""}>
-            still open <b>{sheet.gaps.length}</b>
-          </a>
-        )}
-        <a href="#fs-competitors" className={active === "fs-competitors" ? "on" : ""}>
-          competitors
-        </a>
-        {filtered.map(({ section, facts }) => (
-          <a
-            key={section}
-            href={`#sec-${section}`}
-            className={active === `sec-${section}` ? "on" : ""}
-          >
-            {section.replace(/_/g, " ")} <b>{facts.length}</b>
-          </a>
-        ))}
-        {sheet.entities.filter((e) => e.spine !== "competitors").length > 0 && (
-          <a href="#fs-entities" className={active === "fs-entities" ? "on" : ""}>
-            offers &amp; more
-          </a>
-        )}
-      </nav>
-
-      <div className="fs-title">
-        <h1>{name}</h1>
-        <span className="fs-title-meta">
-          {sheet.fact_count} facts · as of{" "}
-          {new Date(sheet.taken_at).toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "short",
-          })}{" "}
-          · every one carries its source
-        </span>
-      </div>
-
-      <div className="fs-summary" id="fs-overview" data-rail>
-        <div className="fs-card fs-comp">
-          <Ring
-            frac={sheet.completeness.overall}
-            label={`${Math.round(sheet.completeness.overall * 100)}%`}
-          />
-          <div>
-            <h2>How complete this is</h2>
-            <p>
-              {sheet.completeness.core_complete
-                ? "The core set is answered — the picture holds."
-                : `${blocking} core question${blocking === 1 ? "" : "s"} still open — these hold the diagnosis back.`}
-            </p>
+      <section className="fs-card" aria-label="The record">
+        <div className="fs-top">
+          <div className="fs-search">
+            <label className="fs-label" htmlFor="fs-q">
+              Search the record
+            </label>
+            <input
+              id="fs-q"
+              type="search"
+              className="fs-input"
+              placeholder="e.g. hours, price, channels"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+          <div className="fs-filters" role="group" aria-label="Filter the record">
+            {filters.map((f) => (
+              <button
+                key={f.m}
+                type="button"
+                className={`fs-filter${mode === f.m ? " on" : ""}`}
+                aria-pressed={mode === f.m}
+                onClick={() => setMode(f.m)}
+              >
+                {f.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              className={`fs-filter fs-toggle${showSuperseded ? "" : " off"}`}
+              aria-pressed={showSuperseded}
+              onClick={() => setShowSuperseded((v) => !v)}
+              title={`${num(supersededCount)} superseded value${supersededCount === 1 ? "" : "s"}`}
+            >
+              Show superseded
+            </button>
           </div>
         </div>
 
-        <div className="fs-card fs-prov">
-          <h2>Where the {sheet.fact_count} came from</h2>
-          {sheet.provenance.map((p) => (
-            <div className="fs-prov-row" key={p.kind}>
-              <SourcePill kind={p.kind} />
-              <i className="fs-prov-bar">
-                <b style={{ width: `${(p.count / sheet.fact_count) * 100}%` }} />
-              </i>
-              <span>{p.count}</span>
-            </div>
-          ))}
+        <div className="fs-body">
+          <nav className="fs-nav" aria-label="Sections of the record">
+            <ul>
+              {visible.map((s) => (
+                <li key={s.section}>
+                  <button
+                    type="button"
+                    className={`fs-nav-i${active === anchor(s.section) ? " on" : ""}`}
+                    aria-current={active === anchor(s.section) ? "location" : undefined}
+                    onClick={() => jump(anchor(s.section))}
+                  >
+                    <span>{s.label}</span>
+                    <span className="fs-nav-n">{num(s.facts.length)}</span>
+                  </button>
+                </li>
+              ))}
+              {!filtering && gaps.length > 0 && (
+                <li>
+                  <button
+                    type="button"
+                    className={`fs-nav-i${active === GAPS ? " on" : ""}`}
+                    aria-current={active === GAPS ? "location" : undefined}
+                    onClick={() => jump(GAPS)}
+                  >
+                    <span>Still open</span>
+                    <span className="fs-nav-n">{num(gaps.length)}</span>
+                  </button>
+                </li>
+              )}
+            </ul>
+          </nav>
+
+          <div className="fs-pane" ref={pane}>
+            {visible.length === 0 && (
+              <p className="fs-empty" role="status">
+                {query.trim() !== ""
+                  ? `No fact matches “${query.trim()}”.`
+                  : mode === "assumed"
+                    ? "No fact rests on an assumption — every value came from you, a connection or arithmetic."
+                    : mode === "changed"
+                      ? "Nothing was replaced this month."
+                      : "Nothing recorded yet."}
+              </p>
+            )}
+            {visible.map((s) => {
+              const n = changedIn(s, changed);
+              return (
+                <section
+                  key={s.section}
+                  id={anchor(s.section)}
+                  data-sec
+                  className="fs-sec"
+                  aria-labelledby={`${anchor(s.section)}-h`}
+                >
+                  <header className="fs-sec-head">
+                    <h2 id={`${anchor(s.section)}-h`}>{s.label}</h2>
+                    <span className="fs-meta">
+                      {num(s.facts.length)} fact{s.facts.length === 1 ? "" : "s"}
+                      {n > 0 && <> · {num(n)} changed this month</>}
+                    </span>
+                  </header>
+                  <SectionTable
+                    s={s}
+                    history={history}
+                    changed={changed}
+                    showSuperseded={showSuperseded}
+                  />
+                  {s.section === "competitors" && <CompetitorFinder onChanged={load} />}
+                </section>
+              );
+            })}
+            {!filtering && !hasCompetitors && (
+              <section className="fs-sec" aria-labelledby="fs-comp-h">
+                <header className="fs-sec-head">
+                  <h2 id="fs-comp-h">Competitors</h2>
+                  <span className="fs-meta">none recorded</span>
+                </header>
+                <p className="fs-note">
+                  Name them in the interview, or let me search from what you&rsquo;ve already told
+                  me.
+                </p>
+                <CompetitorFinder onChanged={load} />
+              </section>
+            )}
+            {!filtering && gaps.length > 0 && (
+              <section id={GAPS} data-sec className="fs-sec" aria-labelledby={`${GAPS}-h`}>
+                <header className="fs-sec-head">
+                  <h2 id={`${GAPS}-h`}>Still open</h2>
+                  <span className="fs-meta">
+                    {num(gaps.length)} question{gaps.length === 1 ? "" : "s"} · a gap is a finding,
+                    not a failure
+                  </span>
+                </header>
+                <OpenQuestions gaps={gaps} />
+              </section>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* ── the gaps: what's missing and what answering it buys (P1-60) ── */}
-      {sheet.gaps.length > 0 && (
-        <section className="fs-block" id="fs-gaps" data-rail>
-          <header className="fs-block-head">
-            <h2>Still open</h2>
-            <span className="fs-block-meta">
-              {sheet.gaps.length} question{sheet.gaps.length === 1 ? "" : "s"} · a gap is a finding,
-              not a failure
-            </span>
-          </header>
-          {sheet.gaps.slice(0, showAllGaps ? sheet.gaps.length : 5).map((g) => (
-            <div className={g.blocking ? "fs-gap blocking" : "fs-gap"} key={g.question_id}>
-              <span className={`fs-gap-p ${g.priority}`}>{g.priority}</span>
-              <div>
-                <p className="fs-gap-q">{g.prompt}</p>
-                <p className="fs-gap-b">{g.buys}</p>
-              </div>
-              <Link
-                className="ghost quiet"
-                href={`/intake?ask=${encodeURIComponent(g.question_id)}`}
-              >
-                Answer now
-              </Link>
-            </div>
-          ))}
-          {sheet.gaps.length > 5 && (
-            <button className="fs-more" onClick={() => setShowAllGaps((v) => !v)}>
-              {showAllGaps ? "Show fewer" : `Show all ${sheet.gaps.length}`}
-            </button>
-          )}
-        </section>
-      )}
-
-      <Competitors
-        groups={sheet.entities.filter((e) => e.spine === "competitors")}
-        onChanged={load}
-      />
-
-      {/* ── every scalar fact, by section ── */}
-      <div className="fs-search">
-        <input
-          className="field"
-          placeholder={`Search across ${sheet.fact_count} facts`}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-      </div>
-
-      {filtered.map(({ section, facts }) => (
-        <section className="fs-block" key={section} id={`sec-${section}`} data-rail>
-          <header className="fs-block-head">
-            <h2>{section}</h2>
-            <span className="fs-block-meta">
-              {facts.length} fact{facts.length === 1 ? "" : "s"}
-            </span>
-          </header>
-          {facts.map((f) => (
-            <Row key={f.key} fact={f} />
-          ))}
-        </section>
-      ))}
-
-      {sheet.entities.filter((e) => e.spine !== "competitors").length > 0 && (
-        <section className="fs-block" id="fs-entities" data-rail>
-          <header className="fs-block-head">
-            <h2>Offers &amp; the rest</h2>
-          </header>
-          {sheet.entities
-            .filter((e) => e.spine !== "competitors")
-            .map((g) => (
-              <div className="fs-entity" key={g.id}>
-                <h3>
-                  {g.name ?? g.spine} <span className="fs-block-meta">{g.spine}</span>
-                </h3>
-                {g.facts
-                  .filter((f) => f.key !== "name")
-                  .map((f) => (
-                    <Row key={f.key} fact={{ ...f, key: `x.${f.key}` }} />
-                  ))}
-              </div>
-            ))}
-        </section>
-      )}
-
-      <footer className="fs-foot">
-        Snapshot {sheet.snapshot_id.slice(0, 8)} · nothing here is invented — a value I computed
-        says so, a value you gave me says so.
-      </footer>
+        <footer className="fs-foot">
+          Struck-through lines were true until something better came in. Nothing in the record is
+          ever deleted. Snapshot {sheet.snapshot_id.slice(0, 8)} · {fmtDay(sheet.taken_at)}.
+        </footer>
+      </section>
     </main>
   );
 }

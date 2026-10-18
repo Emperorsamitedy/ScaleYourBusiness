@@ -1,58 +1,139 @@
 "use client";
 
-// The centre card — eyebrow (mono id + tier), display prompt, help,
-// control slot, action row (P0-61). Validation is inline and specific;
-// errors never modal, never apologise, clear on next input (§4.2).
+// The question panel (owner design intake-v2): a dark header band naming
+// the bank id, the channel and the area, with how many questions are left
+// there; then a paper body on faint graph paper with the bank id as an
+// outlined watermark.
+//
+// Inside, top to bottom, each piece only when the data holds it:
+//   ALREADY MEASURED · <provider>  the connector measurement on record for
+//                                  this question (already_read)
+//   THE MISSING PIECE              beside it, when that measurement sits
+//                                  beneath this question's field and the
+//                                  question is still open for the rest
+//   the prompt                     the sheet's one Zilla heading — no
+//                                  marker highlight: the bank marks no
+//                                  emphasis, and guessing one would put
+//                                  words in its mouth
+//   the choices                    a row of tiles with boxed number keys
+//   the ruler                      money only, when a measured reference
+//                                  exists: an axis with its cobalt marker
+//   NO READING — I DON'T KNOW      the dashed tile wherever the bank allows
+//                                  an unknown; an explicit unknown stays
+//                                  distinct from a skip (rule 5)
+//   PURPOSE: <help>                the bank's own help text
+//   ← Q <prev> · SKIP FOR NOW · NEXT →
+//
+// The design's WORTH KNOWING box ("every €1 here moves your margin by
+// €134") is not drawn: no sensitivity figure exists in the data.
+//
+// Number keys 1–9 press tiles — never while the owner is typing in a
+// field. Validation is inline and specific, and clears on the next input
+// (§4.2). Nothing here branches on a question's content (rule 4): the
+// input type and the bank's flags decide everything.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { AnswerAction, IntakeQuestion } from "@/lib/intake/types";
 import type { ControlChange } from "./controls/shared";
-import { BooleanControl } from "./controls/Boolean";
+import { CONFIRM_MS, beat } from "./motion";
+import {
+  areaName,
+  currencyMark,
+  factLabel,
+  factValue,
+  keyHint,
+  minutesFor,
+  moneyReference,
+  numberKeyIndex,
+  rulerScale,
+} from "./record";
+import { num } from "../sheet/num";
 import { DateControl } from "./controls/DateInput";
 import { EntityListControl } from "./controls/EntityList";
 import type { EntityRow } from "./controls/EntityList";
 import { FileStubControl } from "./controls/FileStub";
 import { LongTextControl } from "./controls/LongText";
 import { MoneyControl } from "./controls/Money";
-import { MultiSelectControl } from "./controls/MultiSelect";
 import { NumberControl } from "./controls/Number";
-import { SingleSelectControl } from "./controls/SingleSelect";
+import { OptionRow, OptionRows } from "./controls/Rows";
+import type { RowSpec } from "./controls/Rows";
 import { TextControl } from "./controls/Text";
 
 interface QuestionCardProps {
   question: IntakeQuestion;
+  /** "03": the channel number of the question's area on the bank. */
+  channel: string | null;
+  /** Questions left in this area, this one included. */
+  left: number;
+  /** The question "← Q …" reopens, when there is one. */
+  previous: string | null;
   leaving: boolean;
   serverError: string | null;
   onAnswer: (action: AnswerAction) => void;
   onEntityRows: (rows: EntityRow[]) => void;
+  onBack: (questionId: string) => void;
   onClearError: () => void;
   /** P0-87: first interaction with the control — the hesitation mark. */
   onFirstInput?: () => void;
 }
 
-/** Where Enter (or Cmd/Ctrl-Enter) submits, say so in mono (P0-67). */
-function hintFor(type: IntakeQuestion["input_type"], mod: string): string | null {
-  switch (type) {
-    case "long_text":
-      return `${mod}↩ to continue`;
-    case "text":
-    case "number":
-    case "money":
-    case "date":
-    case "entity_list":
-      return "Enter to continue";
-    default:
-      return null;
-  }
+const CHOICE_TYPES = new Set<IntakeQuestion["input_type"]>([
+  "single_select",
+  "boolean",
+  "multi_select",
+]);
+
+/** Minor ticks per labelled step on the money ruler. */
+const RULER_MINOR = 5;
+
+function MoneyRuler({ question }: { question: IntakeQuestion }) {
+  const ref = moneyReference(question);
+  const scale = ref ? rulerScale(ref.major) : null;
+  if (!ref || !scale || !question.already_read) return null;
+  const { mark, before } = currencyMark(ref.currency);
+  const label = (n: number): string => {
+    const decimals = Number.isInteger(n) ? 0 : 1;
+    return before ? `${mark}${num(n, decimals)}` : `${num(n, decimals)} ${mark}`;
+  };
+  const ticks = Array.from({ length: 5 * RULER_MINOR + 1 }, (_, i) => i);
+  const at = `${Math.min(1, scale.at) * 100}%`;
+  return (
+    <figure className="ix-ruler" aria-label={`Measured reference: ${ref.text}`}>
+      <figcaption className="ix-ruler-ref" style={{ left: at }}>
+        {question.already_read.provider} · <span className="fig">{ref.text}</span>
+      </figcaption>
+      <div className="ix-ruler-axis" aria-hidden="true">
+        {ticks.map((i) => (
+          <span
+            key={i}
+            className={i % RULER_MINOR === 0 ? "ix-tick major" : "ix-tick"}
+            style={{ left: `${(i / (5 * RULER_MINOR)) * 100}%` }}
+          />
+        ))}
+        <span className="ix-ruler-mark" style={{ left: at }} />
+      </div>
+      <div className="ix-ruler-labels" aria-hidden="true">
+        {scale.labels.map((n) => (
+          <span key={n} className="fig" style={{ left: `${(n / scale.max) * 100}%` }}>
+            {label(n)}
+          </span>
+        ))}
+      </div>
+    </figure>
+  );
 }
 
 export function QuestionCard({
   question,
+  channel,
+  left,
+  previous,
   leaving,
   serverError,
   onAnswer,
   onEntityRows,
+  onBack,
   onClearError,
   onFirstInput,
 }: QuestionCardProps) {
@@ -60,26 +141,56 @@ export function QuestionCard({
   const [entityRows, setEntityRows] = useState<EntityRow[] | null>(null);
   const [entityValid, setEntityValid] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
-  const [mod, setMod] = useState("Ctrl");
+  const [picked, setPicked] = useState<readonly string[]>([]);
+  const [isMac, setIsMac] = useState(false);
+  const committing = useRef(false);
+  const firstRow = useRef<HTMLButtonElement>(null);
+
+  const type = question.input_type;
+  const isChoice = CHOICE_TYPES.has(type);
+  const labelId = `q-${question.id}`;
 
   useEffect(() => {
-    if (/Mac|iPhone|iPad/.test(navigator.platform)) setMod("⌘");
+    if (/Mac|iPhone|iPad/.test(navigator.platform)) setIsMac(true);
   }, []);
 
-  const emptyMessage = question.allow_unknown
-    ? "Answer this, or choose “I don't know” to move on."
-    : "Answer this, or choose “Skip for now” to move on.";
+  // A choice question starts on the first tile so the number keys work at once.
+  useEffect(() => {
+    if (isChoice) firstRow.current?.focus({ preventScroll: true });
+  }, [isChoice]);
 
-  const handleChange = (change: ControlChange): void => {
+  const touched = (): void => {
     onFirstInput?.();
-    setDraft(change);
     setLocalError(null);
     onClearError();
   };
 
+  const handleChange = (change: ControlChange): void => {
+    touched();
+    setDraft(change);
+  };
+
+  /** Once per card: the depart animation follows, and a second press must not record twice. */
+  const commit = useCallback(
+    (action: AnswerAction): void => {
+      if (leaving || committing.current) return;
+      committing.current = true;
+      onAnswer(action);
+      // The card stays mounted if the server refuses; let it try again.
+      window.setTimeout(() => {
+        committing.current = false;
+      }, 600);
+    },
+    [leaving, onAnswer],
+  );
+
+  const emptyMessage = question.allow_unknown
+    ? "Answer this, or choose “No reading — I don't know” to move on."
+    : "Answer this, or choose “Skip for now” to move on.";
+
   const record = (change: ControlChange): void => {
     if (leaving) return;
-    if (question.input_type === "entity_list") {
+    if (type === "entity_list") {
       if (!entityValid || !entityRows) {
         setLocalError("Fill in at least the first field of one row to record.");
         return;
@@ -91,16 +202,105 @@ export function QuestionCard({
       setLocalError(emptyMessage);
       return;
     }
-    onAnswer(
+    commit(
       change.estimate === true
         ? { kind: "value", wire: change.wire, estimate: true }
         : { kind: "value", wire: change.wire },
     );
   };
 
-  const control = ((): ReactNode => {
+  /** A single choice: ink fills the tile, a confirm beat, then it records (§4.2). */
+  const choose = (id: string, wire: unknown): void => {
+    if (leaving || committing.current) return;
+    touched();
+    setPicked([id]);
+    window.setTimeout(() => commit({ kind: "value", wire }), beat(CONFIRM_MS));
+  };
+
+  const choiceRows: RowSpec[] = (() => {
+    switch (type) {
+      case "single_select":
+        return question.options.map((o) => ({
+          id: o.code,
+          label: o.label,
+          pressed: picked.includes(o.code),
+          onPress: () => choose(o.code, o.code),
+        }));
+      case "boolean":
+        return [
+          {
+            id: "yes",
+            label: "Yes",
+            pressed: picked.includes("yes"),
+            onPress: () => choose("yes", true),
+          },
+          {
+            id: "no",
+            label: "No",
+            pressed: picked.includes("no"),
+            onPress: () => choose("no", false),
+          },
+        ];
+      case "multi_select":
+        return question.options.map((o) => ({
+          id: o.code,
+          label: o.label,
+          pressed: picked.includes(o.code),
+          onPress: () => {
+            touched();
+            const next = picked.includes(o.code)
+              ? picked.filter((c) => c !== o.code)
+              : [...picked.filter((c) => c !== "__unknown__"), o.code];
+            setPicked(next);
+            setDraft({ wire: next.length > 0 ? [...next] : null });
+          },
+        }));
+      default:
+        return [];
+    }
+  })();
+
+  const unknownRow: RowSpec | null = question.allow_unknown
+    ? {
+        id: "__unknown__",
+        label: "No reading — I don't know",
+        pressed: picked.includes("__unknown__"),
+        unknown: true,
+        onPress: () => {
+          if (leaving || committing.current) return;
+          touched();
+          setPicked(["__unknown__"]);
+          window.setTimeout(() => commit({ kind: "unknown" }), beat(CONFIRM_MS));
+        },
+      }
+    : null;
+  const rows: RowSpec[] = unknownRow ? [...choiceRows, unknownRow] : choiceRows;
+
+  // Number keys press tiles — read from the tiles actually drawn.
+  const rowsRef = useRef(rows);
+  useEffect(() => {
+    rowsRef.current = rows;
+  });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      const i = numberKeyIndex(e.key, e.target as HTMLElement | null, {
+        ctrl: e.ctrlKey,
+        meta: e.metaKey,
+        alt: e.altKey,
+      });
+      if (i === null) return;
+      const row = rowsRef.current[i];
+      if (!row) return;
+      e.preventDefault();
+      row.onPress();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const field = ((): ReactNode => {
     const props = { question, onChange: handleChange, onCommit: record };
-    switch (question.input_type) {
+    switch (type) {
       case "text":
         return <TextControl {...props} />;
       case "long_text":
@@ -109,21 +309,15 @@ export function QuestionCard({
         return <NumberControl {...props} />;
       case "money":
         return <MoneyControl {...props} />;
-      case "boolean":
-        return <BooleanControl {...props} />;
       case "date":
         return <DateControl {...props} />;
-      case "single_select":
-        return <SingleSelectControl {...props} />;
-      case "multi_select":
-        return <MultiSelectControl {...props} />;
       case "entity_list":
         return (
           <EntityListControl
             question={question}
-            onRowsChange={(rows) => {
-              setEntityRows(rows);
-              setEntityValid(rows.length > 0);
+            onRowsChange={(next) => {
+              setEntityRows(next);
+              setEntityValid(next.length > 0);
               setLocalError(null);
               onClearError();
             }}
@@ -132,60 +326,150 @@ export function QuestionCard({
         );
       case "file":
         return <FileStubControl question={question} />;
+      default:
+        return null;
     }
   })();
 
   const error = serverError ?? localError;
-  const hint = hintFor(question.input_type, mod);
-  const showRecord = question.input_type !== "file";
+  const hint = keyHint(type, isMac);
+  const needsNext = !(type === "single_select" || type === "boolean" || type === "file");
+  const nextDisabled =
+    leaving ||
+    (type === "entity_list" ? !entityValid : draft.wire === null || draft.wire === undefined);
+  const read = question.already_read;
+  const readValue = read ? factValue(read) : null;
+  const missingMark = type === "money" ? currencyMark(question.currency) : null;
+  // Money and the plain fields share the last row with the unknown tile.
+  const inLastRow = type === "money" || type === "number" || type === "date" || type === "text";
 
   return (
-    <div className={leaving ? "card leaving" : "card"}>
-      <div className="eyebrow">
-        <span>{question.id}</span>
-        <span className="tier">{question.priority}</span>
-      </div>
-      <h2 className="prompt">{question.prompt}</h2>
-      {question.help && <p className="help">{question.help}</p>}
-      <div>{control}</div>
-      {error && <p className="err">{error}</p>}
-      <div className="row">
-        {showRecord && (
-          <button
-            type="button"
-            className="next"
-            disabled={
-              leaving ||
-              (question.input_type === "entity_list"
-                ? !entityValid
-                : draft.wire === null || draft.wire === undefined)
-            }
-            onClick={() => record(draft)}
-          >
-            Record answer
-          </button>
+    <article className={leaving ? "ix-q sheet leaving" : "ix-q sheet"} aria-labelledby={labelId}>
+      <header className="ix-q-band">
+        <span className="ix-cap">
+          Q <span className="fig">{question.id}</span>
+          {channel && (
+            <>
+              {" "}
+              · Channel <span className="fig">{channel}</span>
+            </>
+          )}{" "}
+          · {areaName(question.section)}
+        </span>
+        {left > 0 && (
+          <span className="ix-cap ix-q-left">
+            <span className="fig">{left}</span> left in this channel · about{" "}
+            <span className="fig">{minutesFor(left)}</span> min
+          </span>
         )}
-        {question.allow_unknown ? (
-          <button
-            type="button"
-            className="ghost"
-            disabled={leaving}
-            onClick={() => onAnswer({ kind: "unknown" })}
-          >
-            I don&rsquo;t know
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="ghost quiet"
-            disabled={leaving}
-            onClick={() => onAnswer({ kind: "skip" })}
-          >
-            Skip for now
-          </button>
+      </header>
+
+      <div className="ix-q-body">
+        <span className="ix-watermark" aria-hidden="true">
+          {question.id}
+        </span>
+
+        {read && readValue && (
+          <div className="ix-insets">
+            <div className="ix-measured">
+              <p className="ix-cap">Already measured · {read.provider}</p>
+              <p className="ix-measured-row">
+                <strong className="ix-measured-val fig">{readValue.text}</strong>
+                <span className="ix-measured-what">{factLabel(read)}</span>
+              </p>
+            </div>
+            {question.missing_piece && (
+              <div className="ix-missing">
+                <p className="ix-cap">The missing piece</p>
+                <p className="ix-measured-row">
+                  <strong className="ix-measured-val fig" aria-hidden="true">
+                    {missingMark?.before ? `${missingMark.mark} ?` : "?"}
+                  </strong>
+                  <span className="ix-measured-what">
+                    the rest — what {read.provider} doesn&rsquo;t measure
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
         )}
-        {hint && <span className="hint">{hint}</span>}
+
+        <h2 className="ix-prompt" id={labelId}>
+          {question.prompt}
+        </h2>
+
+        {!inLastRow && field && <div className="ix-field">{field}</div>}
+        {choiceRows.length > 0 && (
+          <OptionRows
+            rows={choiceRows}
+            labelledBy={labelId}
+            disabled={leaving}
+            firstRef={firstRow}
+          />
+        )}
+        {type === "money" && <MoneyRuler question={question} />}
+        {(unknownRow || inLastRow) && (
+          <div className={inLastRow ? "ix-q-last" : "ix-q-last solo"}>
+            {unknownRow && (
+              <OptionRow
+                ref={choiceRows.length === 0 && !inLastRow ? firstRow : undefined}
+                row={unknownRow}
+                index={choiceRows.length}
+                disabled={leaving}
+              />
+            )}
+            {inLastRow && field}
+          </div>
+        )}
+
+        {error && (
+          <p className="ix-err" role="alert">
+            {error}
+          </p>
+        )}
+
+        <footer className="ix-q-foot">
+          {question.help ? (
+            <p className="ix-purpose">
+              <strong>Purpose:</strong> {question.help}
+            </p>
+          ) : (
+            <span />
+          )}
+          <div className="ix-q-nav">
+            {previous && (
+              <button
+                type="button"
+                className="ix-navlink"
+                disabled={leaving}
+                onClick={() => onBack(previous)}
+                title="Reopens that answer to change it; the old one stays in history"
+              >
+                &larr; Q <span className="fig">{previous}</span>
+              </button>
+            )}
+            <button
+              type="button"
+              className="ix-navlink"
+              disabled={leaving}
+              onClick={() => commit({ kind: "skip" })}
+            >
+              Skip for now
+            </button>
+            {needsNext && (
+              <button
+                type="button"
+                className="ix-navlink strong"
+                disabled={nextDisabled}
+                onClick={() => record(draft)}
+              >
+                Next &rarr;
+              </button>
+            )}
+          </div>
+        </footer>
+        {hint && <p className="ix-note ix-hint">{hint}</p>}
       </div>
-    </div>
+    </article>
   );
 }

@@ -21,44 +21,76 @@ This is a real constraint, not a stylistic preference. In a product that will ev
 
 ## 2. Design tokens
 
-### Colour
+**The sheet system (adopted 2026-10-17, owner decision).** A diagnostic panel / lab report: content lives on eucalyptus paper sheets laid on a dark forest desk. It supersedes Ember Grid. The tokens live in `app/sheet.css`; this section is their source of truth. **Every screen is on it** (2026-10-17): the landing page, sign-in, the intake, every owner screen, the operator panel and the support widget. The old class names in `app/globals.css` still work, but their tokens now point at the sheet system: the page is the desk, cards/chips/report/fact sheet are paper, and `--ink` is redefined per surface. Screen-specific grammar (the report's number grammar, the queue's decision flow, the intake's progress) lands surface by surface on top of that.
 
-Ember Grid (see `docs/DESIGN.md`, the token source of truth): dark canonical, glass surfaces, one amber ember per screen. This supersedes the v1 light-paper palette; `specs/intake-mockup.html` remains as historical reference for layout, not colour.
+### Surfaces
 
 | Token | Value | Use |
 |---|---|---|
-| `--stage` | `#0A0B0D` | Page background — near-black, with faint drifting amber/blue ambient glows |
-| `--glass` | `rgba(19,20,24,.62)` | Card fill — translucent, `backdrop-filter: blur(18px) saturate(1.25)` |
-| `--glass-strong` | `rgba(26,28,33,.72)` | Inputs, raised interiors |
-| `--raised` | `#1A1C21` | Solid raised layer, hover fills |
-| `--ink` | `#F2F3F5` | Primary text |
-| `--mut` | `#9BA1AB` | Secondary text, metadata |
-| `--hair` / `--hair-2` | `rgba(255,255,255,.07/.12)` | Hairlines, borders, inactive states |
-| `--ember` | `#F59B4B` | **The one accent.** The advancing action, focus, live data; deep end `#E1560F` for gradients |
-| `--whisper` | `#4C7DF0` | Ambient glows and the focal-CTA gradient only — never body text |
-| `--settled` | `#34D399` | Confirmed and recorded — used only as a 5px dot, never as a fill |
-| `--err` | `#FF7A72` | Validation, stated plainly — never alarm styling |
+| `--desk` | `#132119` | The background: the receding navigation layer |
+| `--masthead` | `#0E1A13` | Ink masthead, with a 2px `--live-rule` (`#3D6BFF`) beneath. The rule is static brand structure, not machine state |
+| `--paper` | `#F2F7F4` | The sheet. Content lives here |
+| `--inset` | `#DFE9E3` | Evidence boxes and stamps. Only 1.15:1 against paper, so every inset also carries a 1px `--rule` |
+| `--rule` / `--rule-soft` | `#71897D` / `#B9CBC1` | 1px rules: structural (3.5:1 on paper) and row hairlines |
 
-The stage is a dark instrument panel, not a dashboard casino: depth comes from tonal layers, hairlines and light (glow), never drop shadows; the ember appears exactly once per screen; and nothing may ever read as crypto-casino — no 3D coins, confetti or pulsing glow spam.
+Square corners everywhere. No shadows on sheets: separation comes from 1px rules, surface colour and whitespace. No icons: meaning is carried by words, typography, rules and position. Typographic characters such as → are allowed.
+
+### Text and meaning
+
+Every text token is measured on each surface it appears on (WCAG 2 ratio, APCA Lc). Smallest mono labels target Lc 75+.
+
+| Token | Value | On paper | On inset | On desk | Use |
+|---|---|---|---|---|---|
+| `--sheet-ink` | `#0E1A13` | 16.5:1 · Lc 99 | 14.4:1 · Lc 90 | — | Text on sheets |
+| `--sheet-ink-2` | `#3A4C42` | 8.5:1 · Lc 86 | 7.4:1 · Lc 77 | — | Secondary text on sheets |
+| `--desk-ink` | `#EAF2ED` | — | — | 14.6:1 · Lc 96 | Text on the desk |
+| `--desk-ink-2` | `#C3D4CA` | — | — | 10.8:1 · Lc 76 | Secondary text on the desk. Never a muted grey |
+| `--live` | `#1A3DAE` | 8.4:1 · Lc 84 | 7.3:1 · Lc 75 | — | Cobalt: the machine is working right now. Nothing else |
+| `--live-desk` | `#C2D4FF` | — | — | 11.2:1 · Lc 79 | The same meaning, on the desk |
+| `--ok` | `#145530` | 8.2:1 · Lc 84 | 7.1:1 · Lc 75 | — | Tints IN RANGE |
+| `--low` | `#36495F` | 8.5:1 · Lc 86 | 7.4:1 · Lc 77 | — | Tints BELOW RANGE and idle |
+| `--drift` | `#683D00` | 8.6:1 · Lc 86 | 7.5:1 · Lc 77 | — | Tints ABOVE RANGE (slightly past) |
+| `--alarm` | `#8C1713` | 8.6:1 · Lc 84 | 7.5:1 · Lc 76 | — | Tints ACT NOW. Also underlined, so alarm differs from drift in shape, not only hue |
+| `--marker` | `#F7E26B` | — | — | — | Ink was just laid down. Only ever a background behind ink (13.7:1), **never text** |
+
+Colour never carries meaning alone: every status is a worded flag, and the screen must read in grayscale.
+
+**Cobalt is machine state only.** Interactive elements are ink on paper: a full 1px border, a verb label with a typographic arrow ("APPROVE →"), underlined links, an ink-fill inversion on hover and press within 100ms, and a 2px focus ring in the ink of the surface underneath, offset 3px. Never cobalt, never a pill, and at least 48px tall.
 
 ### Type
 
 | Role | Face | Use |
 |---|---|---|
-| Display + Body | Schibsted Grotesk, 400–700 | One family for everything human — questions, headings, reading text, controls |
-| Data | IBM Plex Mono, 400–500 | Question IDs, confidence, sources, timestamps |
+| Display | Zilla Slab 500–600 | One primary figure or heading per sheet. Never chrome |
+| Prose | Archivo | All reading text, 45–90 characters per line (`--measure: 68ch`) |
+| Figures and labels | IBM Plex Mono 400–600 | Every figure and every label. Tabular numerals on the figure itself, right-aligned in columns |
 
-The mono layer is the structural device and it encodes something true. Every fact in this system carries provenance and confidence, so every fact in the interface carries a small mono line stating where it came from. `1.4 · owner · estimate` under an answer is not decoration — it is the `SourceRef` from the data model, made visible. This is what makes the product feel like an instrument rather than a chatbot, and it is why the owner can trust the report: they can see which parts rest on their own guesses.
+The mono layer still encodes something true: every fact prints its source, date and basis as visible text, never behind a click. Caps are reserved for mono labels and flags. Scale: display 64/40/26px, prose 19/16/14px, mono 14/12.5/11.5px. Nothing below 11.5px.
 
-Scale: display 27/23px, headings 26/17px, body 16/15/14px, help 14px, mono 12/11/10px. Nothing below 10px. Sentence case throughout, including buttons.
+### The number grammar
 
-### Structure
+Every number on every surface follows one grammar, the way a lab result does:
 
-Rectangles hold information, pills are pressed: chips 12px, entity rows 16px, the focal card 24px with a gradient "ember edge" hairline (the one gradient border on screen); every button, select-chip and toggle is a full pill with a ≥44px touch target. Hairlines at 1px `--hair`. Grid gutter 28px, card padding 30px desktop / 20px mobile, stage max-width 1400px.
+- The value in mono, tabular, right-aligned.
+- A named comparison in the column header ("vs prior 28 d"). Never a bare number.
+- A reference or goal range where one exists. The owner's own targets may serve.
+- A worded flag: IN RANGE / BELOW RANGE / ABOVE RANGE / ACT NOW / NOT PROVIDED.
+- For findings, a text-width range bar (`components/sheet/RangeBar.tsx`): the ok band as a tint, the value as an ink tick, and a dashed hairline where drift becomes ACT NOW.
+- Forecasts are ranges, never single points.
+- Basis is a named class defined by what produced the fact: OBSERVED / DERIVED / ESTIMATED / ASSUMED. Never an AI-generated percentage.
+- Money is integer minor units formatted by the currency's exponent (`components/sheet/num.ts`). One column, one decimal count. A space separates number and unit; the unit sits in the column header rather than in every cell.
 
-### Motion
+### Space and motion
 
-One easing: `cubic-bezier(.2,.7,.3,1)` for everything, 240–380ms — depart 240, settle 340, rise 380. Motion exists to show causation — where an answer went, where a proposal came from — never as flourish. Around it, ambience: the two corner glows drift on a 26–32s cycle, the on-deck card floats ±5px, buttons lift 1px on hover with a soft ember glow (light, not shadow), and the sticky top bar blurs the content scrolling beneath it. Every animation sits behind `prefers-reduced-motion`.
+Space follows a scale (4, 8, 12, 16, 24, 32, 48, 64, 96px), not a constant. Gutters are 16px under 720px and 32px above.
+
+Motion reports state, and is subtler the more often it plays: 100ms press, 220ms move, 280ms record, decelerating (`cubic-bezier(.16,1,.3,1)`).
+
+- **Kept:** answers flying into the record column.
+- **Allowed:** a cobalt pulse only while the AI is genuinely working.
+- **Cut:** smooth or inertial scroll, scroll-jacking, cursor tilt, magnetic buttons, ambient drift, decorative loops, confetti, and padded "loading" sequences.
+- **Text reveals:** at most one marketing headline, masked as a single text node.
+- **Reduced motion:** under `prefers-reduced-motion` every duration is zero.
 
 ---
 
@@ -75,44 +107,45 @@ One easing: `cubic-bezier(.2,.7,.3,1)` for everything, 240–380ms — depart 24
 | Approval queue | Decide on proposals | v2, patterned here |
 | Module pages | Marketing, finance, support detail | v3+ |
 
-Navigation is a single persistent left rail on desktop, collapsing to a bottom bar on mobile, with at most five entries. The rail carries exactly one badge — the approval count — because that is the only thing that is ever the owner's turn.
+Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame.tsx`). It is a 248px ink rail with:
+- the wordmark, the business name and the live state ("WATCHING · DAY 19 / 28") over a cobalt rule;
+- five labelled groups (To approve, Insights, Grow, Customers, Your business) that list every screen;
+- a mono count beside each item where a real count exists (`/api/nav`);
+- "Ask me anything →" at the foot.
+
+There are no icons and no section tabs. Under 900px the rail folds into a top bar with a Menu button.
+
+Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
 ---
 
 ## 4. Intake — the signature screen
 
-The layout you described, built and refined. One question in the centre; answered questions settle into two columns either side; the next question rises from below.
+One question per screen on a paper sheet; beside it, a second sheet that is the live record. Each answer settles into the record as a fact line, and the next question rises into its place. (Revised 2026-10-17, sheet system: one record column, not two.)
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ Ledgerline   Setting up your business profile      6 / 12 core│
+│ LEDGERLINE   6 core facts on record · 6 core questions open  │
 ├──────────────────────────────────────────────────────────────┤
-│ ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
-│                                                              │
-│  RECORDED          ┌────────────────────┐         RECORDED   │
-│ ┌──────────┐       │ 1.4 · core         │       ┌──────────┐ │
-│ │ Business │       │                    │       │ Country? │ │
-│ │ name?    │       │ What does the      │       │ Hungary  │ │
-│ │ Bellozo  │       │ business sell?     │       │ ● owner  │ │
-│ │ ● owner  │       │                    │       └──────────┘ │
-│ └──────────┘       │ [Physical] [Serv…] │                    │
-│ ┌──────────┐       │ [Software] [Digi…] │                    │
-│ │ What does│       │                    │       ┌──────────┐ │
-│ │ it do?   │       │ Record answer      │       │ Stage?   │ │
-│ │ Fast foo…│       │ I don't know       │       │ Growing  │ │
-│ └──────────┘       └────────────────────┘       └──────────┘ │
-│                    ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐                     │
-│                    │ NEXT               │                     │
-│                    │ How many people…   │                     │
-│                    └ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┘                     │
+│  ┌───────────────────────────┐   ┌────────────────────────┐  │
+│  │ 1.4 · CORE                │   │ RECORD                 │  │
+│  │ What does the business    │   │ 1.1 Business name      │  │
+│  │ sell?                     │   │ Bellozo                │  │
+│  │ [Physical] [Services] …   │   │ Source: you · stated   │  │
+│  │                           │   │ Change                 │  │
+│  │ RECORD ANSWER →  I don't  │   │ 1.2 What it does       │  │
+│  │                  know     │   │ GAP RECORDED · Not     │  │
+│  │ ENTER TO RECORD           │   │ known — I'll come back │  │
+│  └───────────────────────────┘   └────────────────────────┘  │
+│  NEXT · How many people work in the business?                │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 ### 4.1 Why this works, and where I changed your idea
 
-Your instinct is right: one question at a time removes the dread of a 300-field form, and the accumulating columns give a sense of progress that a percentage bar can't. Three changes worth defending:
+Your instinct is right: one question at a time removes the dread of a 300-field form, and the record filling up gives a sense of progress that a percentage bar can't. Three changes worth defending:
 
-**The columns are not history, they are the profile being built.** Each settled card carries its mono provenance line. The owner is literally watching the system's knowledge accumulate, with its sourcing visible. This turns a progress indicator into a trust device at no extra cost.
+**The record is not history, it is the profile being built.** Each fact line carries its provenance in words (`Source: you · stated`), and the system restates what it just recorded above the next question, as a fact line, never as praise. The owner is literally watching the system's knowledge accumulate, with its sourcing visible. This turns a progress indicator into a trust device at no extra cost.
 
 **A next-question preview sits below the centre, dashed and quiet.** Your description had the next question floating up from the bottom, which implies it exists down there. Showing it — muted, one line — removes the sense of an endless queue, because the owner can always see there is exactly one more thing coming. It also lets them mentally prepare, which measurably speeds up answers to longer questions.
 
@@ -120,20 +153,20 @@ Your instinct is right: one question at a time removes the dread of a 300-field 
 
 ### 4.2 Interaction detail
 
-**Answering.** Single-selects submit on click after a 130ms confirm beat, so the owner sees their choice register before the card leaves. Multi-selects and text require an explicit "Record answer". Enter submits; Cmd/Ctrl-Enter submits from a textarea.
+**Answering.** Single-selects submit on click after a 130ms confirm beat, so the owner sees their choice register before the card leaves. Multi-selects and text require an explicit "Record answer →". Enter records; Cmd/Ctrl + Enter records from a textarea. The hints are written in words ("Enter to record"), never as key glyphs.
 
-**Motion sequence,** total ~580ms:
-1. Centre card fades and lifts 14px, 240ms.
-2. Summary chip appears in the target column, dropping 10px into place with a slight scale-up, 340ms.
-3. Next card rises 26px from below into the centre, 380ms.
+**Motion sequence:**
+1. The question card departs, `--d-record` (280ms). The script waits on the same token, so the two can't drift apart.
+2. The fact line settles into the record column, `--d-record`.
+3. The next card rises into place, `--d-move` (220ms).
 
-Columns alternate left, right, left. Chips append downward so the newest sits at the bottom, nearest the eye's return path from the centre.
+Under `prefers-reduced-motion` all three are instant, and so are the depart wait and the confirm beat. Fact lines append downward, and the newest one carries the `--marker` highlight: ink just laid down.
 
-**"I don't know" is a first-class control**, styled as a visible link rather than hidden in a menu. It writes `status: unknown`, and the chip shows a hollow dot with `gap · will revisit`. This is the interface honouring the schema rule that a gap is a finding, not a failure. An owner who feels forced to guess will guess, and every downstream conclusion inherits that guess.
+**"I don't know" is a first-class control**, styled as a visible link rather than hidden in a menu. It writes `status: unknown`, and the record line reads `GAP RECORDED · Not known`, with a follow-up note. A skip reads `NOT PROVIDED`; the two stay distinct. This is the interface honouring the schema rule that a gap is a finding, not a failure. An owner who feels forced to guess will guess, and every downstream conclusion inherits that guess.
 
-**Progress reads `6 / 12 core`,** not a percentage. Core count changes as branches open and close, and a percentage that jumps backwards destroys trust. A fraction that grows is honest and legible.
+**Progress is the record filling up:** `6 core facts on record · 6 core questions open`, never an `N / M` counter and never a percentage. The core count changes as branches open and close, so a counter or a percentage would jump backwards, and that destroys trust. Two plain counts that each only grow or shrink for a visible reason are honest.
 
-**Validation** is inline and specific: "Answer this, or choose I don't know to move on." It appears under the control, in signal blue, and clears on the next keystroke. Errors never block with a modal and never apologise.
+**Validation** is inline and specific: "Answer this, or choose I don't know to move on." It appears under the control, in ink, and clears on the next keystroke. Errors never block with a modal and never apologise.
 
 ### 4.3 Entity-list questions
 
@@ -149,11 +182,42 @@ Columns are structurally impossible below ~900px. Instead: the question fills th
 
 ### 4.5 Reconcile
 
-When the validator finds a contradiction, both source chips take the ember hairline and a reconcile panel appears below the centre card.
+When the validator finds a contradiction, both fact lines are flagged `TO RECONCILE` and a reconcile panel appears below the question card.
 
-The copy matters more than the layout: **"Help me reconcile these two"** followed by both statements and *"Both can be true — I'd rather ask than assume."* Two actions: "Both are right" (records a confirmation and clears the flag) or "Let me fix one" (returns both questions to the centre in sequence).
+The copy matters more than the layout, and it is plain (revised 2026-10-17: no persona lines). The heading names what was found (**"Two answers disagree"**), then both statements, then *"I won't pick one for you. Confirm both are right, or change one."* Two actions: "Confirm both →" (records a confirmation and clears the flag) or "Change one →" (returns both questions to the centre in sequence).
 
 This is the tonal high-water mark for the whole product. The system has just caught the owner in an apparent inconsistency, which is exactly the moment a business tool usually makes someone feel stupid. Getting this moment right — curious, not corrective — sets the relationship for everything that follows, including the far more consequential moment when the system disagrees with a decision they've made.
+
+### 4.6 The calibration layout (owner design, 2026-10-17)
+
+The intake now follows the owner's "calibrating the record" design (`components/intake/**`, `app/intake.css`). It supersedes the wireframe at the top of §4 wherever the two differ.
+
+**Masthead:**
+- a live state: "Listening" while a question waits, "Saving…" while a request is in flight
+- minutes in this sitting, measured on the browser clock
+- the number of facts on file
+- "Pause — finish later", which opens the resume-link form
+
+**Channel bank:** one tile per bank section.
+- Each tile has one bar per applicable question, in bank order. The bar kinds are owner, measured, derived, current, open, unknown and skipped, each with its own fill pattern.
+- Each tile shows the percentage answered and a status word: DONE, MEASURING, READ ONLY, NOT STARTED, NEEDS CH nn or IN PROGRESS.
+
+**Question panel:**
+- a dark band showing the question, the channel, and how many questions and minutes are left (45 seconds a question)
+- a graph-paper body with a watermark of the question number
+- "Already measured" and "The missing piece" boxes, shown only when connector data exists for the question
+- numbered option tiles, answered with keys 1–9
+- the exact-amount input, with a ruler only when a measured value exists
+- Back / Skip / Next
+
+**Right column:**
+- a live blended-margin dial with a neutral track. It has no bands until a reference range exists.
+- report readiness: completeness shown as 25 cells
+- the area's record, with "what this answer unlocks" taken from the bank's `unlocks`
+
+**Tape:** a strip along the bottom showing the newest facts with their real timestamps. It scrolls by hand and never moves on its own.
+
+**Not shown until data exists for them:** highlighted words in the question, range tiles, sensitivity figures and the Confirm action.
 
 ---
 
@@ -210,9 +274,9 @@ Structure, top to bottom:
 
 **A plain-language summary** — three sentences, no jargon, stating the single most important thing found.
 
-**Unit economics block** — the numbers, with every figure carrying its mono source line. A margin that came from the owner's estimate looks different from one computed from Stripe data, and it says so.
+**Unit economics block:** the numbers as ruled tables, following the number grammar of §2. Every figure carries its basis, source and date as visible text: OBSERVED, DERIVED, ESTIMATED, STATED or ASSUMED, never a confidence percentage. A margin that came from the owner's estimate looks different from one computed from Stripe data, and it says so. STATED is a fifth basis class beside the four in §2: an exact owner answer is neither an estimate nor observed. Figures the data cannot support are listed under "Not computed" with what is missing; nothing is invented to fill a range column.
 
-**Findings**, ordered by severity. Each is a headline, two sentences of detail, and an evidence line listing the specific answers it rests on. Findings are never coloured; severity is shown as a mono label.
+**Findings**, ordered by severity. Each is a headline, two sentences of detail, and an evidence box listing the specific answers it rests on, each with its basis. Severity is a worded flag (ACT NOW, HIGH, MEDIUM, LOW); colour only tints the word.
 
 **Recommendations**, each with its scenario block: the assumptions stated, the base and downside cases, and the break-even condition. Where an assumption is marked high-sensitivity, it is called out inline — *"this depends heavily on your 22% repeat rate; if that's closer to 10%, the case doesn't hold."*
 
@@ -220,15 +284,50 @@ Structure, top to bottom:
 
 Recommendations carry two actions — "Look into this" and "Not for us". Declining opens a short reason field, because that reason is the training data for everything the system proposes later. The field is optional but pre-filled with three common reasons as chips, since a required field here produces junk.
 
+### 7.1 Landing page
+
+The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx` and `StoreChart.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
+
+The page, top to bottom:
+1. Header.
+2. Hero: "Its numbers" in coral italic.
+3. A six-chapter product walkthrough player: cursor, captions, chapters, play/pause, and reduced-motion opening paused on the report chapter.
+4. A 90-day candlestick store chart with leak shading, 1D/1W and a crosshair.
+5. Nine test panels (`lib/marketing/areas.ts`).
+6. How it works.
+7. Price.
+8. Questions.
+9. Footer.
+
+Every sample is labelled "Illustrative store". `lib/marketing/sample-diagnosis.test.ts` holds each flag to its range and act-now line, and every sample amount is in integer minor units.
+
+The price on every button is `reportPrice()`. The examiner, guarantee count and delivery days come from `lib/marketing/offer.ts`, and print as the mockup's bracketed placeholders until supplied.
+
+Two hero lines are promises the owner has not yet recorded in `offer.ts`: "Refund if we find nothing" and "Signed by a person". Confirm both before launch. `areas.ts` marks which panels have a read-only connector today.
+
 ---
 
 ## 8. Approval pattern
 
-Not built in v1, but every v1 screen is designed so this drops in without redesign.
-
 An approval is always: what will happen, why, what it's based on, and what happens if you decline. Two buttons of equal visual weight — approving and declining are both legitimate answers, and an interface that makes "no" feel like the small grey option is manipulating the owner.
 
-Approvals are the only place `--signal` appears at full strength, which is what makes them findable at a glance across the whole product.
+Built (2026-10-17, `components/proposals/QueueScreen.tsx`). Each proposal sheet reads in this order:
+
+1. The change, as before → after where the action carries both.
+2. The expected effect as a range, from the downside and upside cases.
+3. The evidence, with each assumption's source printed.
+4. REVERSIBLE · EASY/MODERATE/HARD TO UNDO, or IRREVERSIBLE when reversibility is null.
+5. What happens if you decline.
+
+The decision controls:
+
+- Approve → and Decline → are identical ink buttons, set apart, and neither is pre-selected.
+- Decline takes a reason. Four chips fill it in one tap: WRONG DATA / WRONG TIMING / TOO RISKY / NOT MY STRATEGY. The API requires a non-empty reason.
+- J / K moves between pending proposals.
+- After a decision, the card becomes a thin inline stamp ("APPROVED 14:02 · ref …"), and focus advances to the next pending card. No overlay.
+- An unanswered proposal expires as "not approved — nothing ran".
+
+Not built yet, and waiting on owner decisions: a "Request changes" answer, an AI recommendation, pausing similar proposals after a decline, standing pre-approval policies, and snooze.
 
 ---
 
@@ -265,7 +364,7 @@ Buttons use the same verb from click to confirmation: "Record answer" produces a
 
 ## 11. Quality floor
 
-Keyboard operable end to end, with visible focus rings in `--signal`. `aria-live` on the centre stage so screen readers announce each new question. Colour never the sole carrier of meaning — flagged chips also change their mono label to `contradiction`. Contrast: ink on paper is 14.8:1, slate on card 5.1:1, signal on wash 8.6:1. Reduced motion respected globally. Responsive to 360px.
+Keyboard operable end to end, with a visible 2px focus ring in the ink of the surface underneath. `aria-live` on the centre stage so screen readers announce each new question. Colour never the sole carrier of meaning: every status is a worded flag, and every surface must read in grayscale. Contrast: every text token reaches WCAG 4.5:1 on each surface it appears on; the measured values are in §2. Reduced motion respected globally. Responsive to 360px with no horizontal page scroll; checked at 1440, 1024 and 390px.
 
 ---
 

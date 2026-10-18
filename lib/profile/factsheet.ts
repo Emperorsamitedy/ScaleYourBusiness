@@ -9,6 +9,9 @@
 // not exist for it. All of it is deterministic arithmetic; no model is
 // consulted to describe the owner's own data.
 
+import { and, desc, eq, inArray, isNotNull } from "drizzle-orm";
+import { db } from "../../db";
+import { fieldRecords } from "../../db/schema";
 import { PRIORITY_WEIGHTS, computeCompleteness } from "../scorer/completeness";
 import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
@@ -30,8 +33,30 @@ export interface FactRow {
   /** URL, question id, or derivation formula — whatever the source names. */
   source_detail: string | null;
   observed_at: string;
+  /** When the record was written — what "changed this month" is measured on. */
+  recorded_at: string;
   note: string | null;
 }
+
+/**
+ * One superseded record (rule 3): a value the field held until something
+ * better came in. Kept forever; shown struck through, never erased.
+ */
+export interface SupersededFact {
+  key: string;
+  value: string | null;
+  status: string;
+  source_kind: string;
+  source_detail: string | null;
+  observed_at: string;
+  recorded_at: string;
+  /** When its successor replaced it. */
+  superseded_at: string;
+  note: string | null;
+}
+
+/** field_key → its superseded records, newest first. */
+export type FactHistory = Record<string, SupersededFact[]>;
 
 export interface EntityGroup {
   /** "competitors.<id>" — the field-key prefix the rows share. */
@@ -70,6 +95,17 @@ export interface FactSheet {
   /** Entity facts (offers, competitors, …), grouped per entity. */
   entities: EntityGroup[];
   gaps: GapRow[];
+  /** Superseded records for the facts above, by full field_key (rule 3). */
+  history: FactHistory;
+  /** Start of the current calendar month (UTC) — what "changed this month" counts from. */
+  changed_since: string;
+  /** Keys whose value was replaced since `changed_since`. */
+  changed: string[];
+}
+
+/** Pure: the first instant of `now`'s calendar month, UTC. */
+export function monthStart(now: Date): string {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 }
 
 /* ── humanising values: deterministic, no model ── */
@@ -108,7 +144,52 @@ export function repr(value: unknown): string | null {
   return String(value);
 }
 
-function sourceDetail(source: unknown): string | null {
+const WEEK = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+const isPeriod = (p: unknown): p is { open: string; close: string } =>
+  typeof p === "object" &&
+  p !== null &&
+  typeof (p as { open?: unknown }).open === "string" &&
+  typeof (p as { close?: unknown }).close === "string";
+
+/**
+ * An opening schedule (lib/hours/schedule.ts OpeningSchedule) in words:
+ * "Mon closed · Tue 20:00–01:00 · …". A day the answer never mentioned
+ * says "not stated" — unknown is not closed (rule 5). Null for anything
+ * that is not a schedule.
+ */
+export function scheduleWords(value: unknown): string | null {
+  if (typeof value !== "object" || value === null) return null;
+  const days = (value as { days?: unknown }).days;
+  if (typeof days !== "object" || days === null || Array.isArray(days)) return null;
+  const map = days as Record<string, unknown>;
+  if (!WEEK.some((d) => Array.isArray(map[d]))) return null;
+  const unstated = new Set(
+    Array.isArray((value as { unstated?: unknown }).unstated)
+      ? ((value as { unstated: unknown[] }).unstated.filter(
+          (d) => typeof d === "string",
+        ) as string[])
+      : [],
+  );
+  const name = (d: string) => d.charAt(0).toUpperCase() + d.slice(1);
+  return WEEK.map((d) => {
+    const periods = map[d];
+    if (unstated.has(d) || !Array.isArray(periods)) return `${name(d)} not stated`;
+    const ok = periods.filter(isPeriod);
+    if (ok.length === 0) return `${name(d)} closed`;
+    return `${name(d)} ${ok.map((p) => `${p.open}–${p.close}`).join(", ")}`;
+  }).join(" · ");
+}
+
+/**
+ * The value as the fact sheet and the report print it: repr(), except a
+ * schedule reads as days and hours. Display only — repr() itself stays
+ * byte-for-byte what the diagnosis evidence was written from.
+ */
+export function displayValue(value: unknown): string | null {
+  return scheduleWords(value) ?? repr(value);
+}
+
+export function sourceDetail(source: unknown): string | null {
   if (typeof source !== "object" || source === null) return null;
   const s = source as {
     researched_url?: unknown;
@@ -125,15 +206,110 @@ function sourceDetail(source: unknown): string | null {
 function toRow(key: string, field: Field<unknown>): FactRow {
   return {
     key,
-    value: repr(field.value),
+    value: displayValue(field.value),
     status: field.status,
     confidence: field.confidence,
     // "connector" for a measured fact, so its pill says "measured" (P2-10).
     source_kind: displaySourceKind(field.source),
     source_detail: sourceDetail(field.source),
     observed_at: field.observed_at,
+    recorded_at: field.recorded_at,
     note: field.note ?? null,
   };
+}
+
+/* ── history: the superseded records, read-only ── */
+
+/** The raw columns of a field_records row the history view needs. */
+export interface SupersededRowInput {
+  field_key: string;
+  value: unknown;
+  status: string;
+  source: unknown;
+  observed_at: string;
+  recorded_at: string;
+  superseded_at: string | null;
+  note: string | null;
+}
+
+const isoOf = (t: string): string => {
+  const d = new Date(t);
+  return Number.isNaN(d.getTime()) ? t : d.toISOString();
+};
+
+/** Pure: a stored row as a history line. Null for a row that is still current. */
+export function toSupersededFact(row: SupersededRowInput): SupersededFact | null {
+  if (row.superseded_at === null) return null;
+  return {
+    key: row.field_key,
+    value: displayValue(row.value),
+    status: row.status,
+    source_kind: displaySourceKind(row.source),
+    source_detail: sourceDetail(row.source),
+    observed_at: isoOf(row.observed_at),
+    recorded_at: isoOf(row.recorded_at),
+    superseded_at: isoOf(row.superseded_at),
+    note: row.note,
+  };
+}
+
+/** Pure: group history lines by key, newest supersession first, at most `perKey` each. */
+export function groupHistory(facts: readonly SupersededFact[], perKey = 12): FactHistory {
+  const out: FactHistory = {};
+  const sorted = [...facts].sort(
+    (a, b) =>
+      b.superseded_at.localeCompare(a.superseded_at) || b.recorded_at.localeCompare(a.recorded_at),
+  );
+  for (const f of sorted) {
+    const list = (out[f.key] ??= []);
+    if (list.length < perKey) list.push(f);
+  }
+  return out;
+}
+
+/** Pure: the keys whose value was replaced at or after `sinceIso` — "changed this month". */
+export function changedSince(history: FactHistory, sinceIso: string): Set<string> {
+  const since = Date.parse(sinceIso);
+  const keys = new Set<string>();
+  for (const [key, list] of Object.entries(history)) {
+    if (list.some((f) => Date.parse(f.superseded_at) >= since)) keys.add(key);
+  }
+  return keys;
+}
+
+/** Hard cap on history rows read per profile — the view is a record, not an export. */
+const HISTORY_ROW_CAP = 2000;
+
+/**
+ * Every superseded record of a profile (optionally only for `keys`),
+ * grouped by key. Read-only: it selects, it never writes.
+ */
+export async function readSupersededFacts(
+  profileId: string,
+  keys?: readonly string[],
+): Promise<FactHistory> {
+  if (keys !== undefined && keys.length === 0) return {};
+  const where = and(
+    eq(fieldRecords.profile_id, profileId),
+    isNotNull(fieldRecords.superseded_at),
+    ...(keys !== undefined ? [inArray(fieldRecords.field_key, [...keys])] : []),
+  );
+  const rows = await db
+    .select({
+      field_key: fieldRecords.field_key,
+      value: fieldRecords.value,
+      status: fieldRecords.status,
+      source: fieldRecords.source,
+      observed_at: fieldRecords.observed_at,
+      recorded_at: fieldRecords.recorded_at,
+      superseded_at: fieldRecords.superseded_at,
+      note: fieldRecords.note,
+    })
+    .from(fieldRecords)
+    .where(where)
+    .orderBy(desc(fieldRecords.superseded_at))
+    .limit(HISTORY_ROW_CAP);
+  return groupHistory(rows.map(toSupersededFact).filter((f): f is SupersededFact => f !== null));
 }
 
 /** "competitors.<uuid>.name" → the entity prefix and trailing field. */
@@ -162,11 +338,13 @@ export function gapBuys(q: Pick<ApplicableQuestion, "priority" | "unlocks">): st
 
 export async function buildFactSheet(profileId: string): Promise<FactSheet> {
   const summary = await ensureSnapshot(profileId, "manual");
-  const [view, completeness, applicable] = await Promise.all([
+  const [view, completeness, applicable, history] = await Promise.all([
     readSnapshot(summary.id),
     computeCompleteness(profileId),
     applicableQuestions(profileId),
+    readSupersededFacts(profileId),
   ]);
+  const since = monthStart(new Date());
 
   const sections = new Map<ProfileSection, FactRow[]>();
   const entities = new Map<string, EntityGroup>();
@@ -247,5 +425,8 @@ export async function buildFactSheet(profileId: string): Promise<FactSheet> {
       .sort((a, b) => a.section.localeCompare(b.section)),
     entities: [...entities.values()].sort((a, b) => a.spine.localeCompare(b.spine)),
     gaps,
+    history,
+    changed_since: since,
+    changed: [...changedSince(history, since)].sort(),
   };
 }

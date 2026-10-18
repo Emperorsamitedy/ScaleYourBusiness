@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dateRange, InvalidDateRangeError, isOngoing } from "./date-range";
-import { enumValue, InvalidEnumValueError, isOther, OTHER_CODE } from "./enum-value";
+import { enumCode, enumValue, InvalidEnumValueError, isOther, OTHER_CODE } from "./enum-value";
 import { InvalidISODateError, isoDate } from "./iso";
 import { InvalidQuantityError, quantity } from "./quantity";
 
@@ -91,5 +91,21 @@ describe("enumValue", () => {
   it("rejects an empty label_raw — it records nothing", () => {
     expect(() => enumValue(OTHER_CODE, "")).toThrow(InvalidEnumValueError);
     expect(() => enumValue(OTHER_CODE, "  ")).toThrow(InvalidEnumValueError);
+  });
+});
+
+describe("enumCode", () => {
+  it("reads the code from the intake's EnumValue and from a bare code string alike", () => {
+    expect(enumCode({ code: "social_organic" })).toBe("social_organic");
+    expect(enumCode({ code: OTHER_CODE, label_raw: "Farmers market" })).toBe(OTHER_CODE);
+    expect(enumCode("email")).toBe("email");
+  });
+
+  it("refuses anything that holds no code", () => {
+    expect(enumCode(null)).toBeNull();
+    expect(enumCode("")).toBeNull();
+    expect(enumCode({ code: "" })).toBeNull();
+    expect(enumCode({ label_raw: "x" })).toBeNull();
+    expect(enumCode(42)).toBeNull();
   });
 });

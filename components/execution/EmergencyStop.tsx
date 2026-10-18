@@ -11,11 +11,20 @@
 // confirmation and a signed-in name, because that is the direction
 // that can cost something.
 //
-// When halted it is loud and unmissable — the one place --err appears
-// at full strength — and it says plainly what is and isn't stopped:
-// nothing executes, but reading, planning and proposing continue.
+// Sheet system (ux-spec §2): an ink-bordered control with a verb and an
+// arrow, never a colour. What it does is printed beside it, not hidden
+// in a tooltip. When halted it is a paper sheet with a worded, underlined
+// STOPPED flag and a heavier rule, and it says plainly what is and isn't
+// stopped: nothing executes, but reading, planning and proposing continue.
+//
+// The approval queue's design (2026-10-17) carries the control in its ink
+// masthead: variant "masthead" is the same behaviour as an alarm-bordered
+// mono button, and — when halted — a STOPPED word with the same
+// confirm-to-restart step, inline. `onState` tells the host screen
+// whether everything is halted, so it can say so beside its own buttons.
 
 import { useCallback, useEffect, useState } from "react";
+import "../../app/queue.css";
 
 interface Halt {
   halted: boolean;
@@ -30,15 +39,35 @@ type State =
 function whenWord(iso: string | null): string {
   if (!iso) return "";
   return new Date(iso).toLocaleString("en-GB", {
+    weekday: "long",
     day: "numeric",
-    month: "short",
+    month: "long",
     hour: "2-digit",
     minute: "2-digit",
   });
 }
 
-export function EmergencyStop() {
+/** "14:02" today, "Fri 16 Oct 14:02" otherwise — short enough for the masthead. */
+function shortWhen(iso: string): string {
+  const d = new Date(iso);
+  const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+  return d.toDateString() === new Date().toDateString()
+    ? time
+    : `${d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} ${time}`;
+}
+
+export function EmergencyStop({
+  variant = "bar",
+  onState,
+}: {
+  variant?: "bar" | "masthead";
+  onState?: (halted: boolean) => void;
+} = {}) {
   const [state, setState] = useState<State>({ phase: "hidden" });
+  const halted = state.phase === "ready" ? state.halt.halted : null;
+  useEffect(() => {
+    if (halted !== null) onState?.(halted);
+  }, [halted, onState]);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/stop");
@@ -65,29 +94,112 @@ export function EmergencyStop() {
     setState({ phase: "ready", halt: j, busy: false, confirming: false, error: null });
   };
 
+  if (variant === "masthead") {
+    if (!s.halt.halted) {
+      return (
+        <div className="es-mast">
+          <button
+            type="button"
+            className="es-mast-stop"
+            disabled={s.busy}
+            aria-describedby="es-mast-what"
+            onClick={() => void send("POST")}
+          >
+            {s.busy ? "Stopping…" : "Stop everything"}
+          </button>
+          <span className="sr-only" id="es-mast-what">
+            Halts every execution at once, no sign-in needed. Reading and proposing carry on.
+          </span>
+          {s.error && (
+            <p className="es-mast-note" role="alert">
+              {s.error}
+            </p>
+          )}
+        </div>
+      );
+    }
+    return (
+      <div className="es-mast es-mast-halted" role="status">
+        <span className="es-mast-word">
+          Stopped{s.halt.halted_at ? ` ${shortWhen(s.halt.halted_at)}` : ""} · nothing executes
+        </span>
+        {s.confirming ? (
+          <>
+            <button
+              type="button"
+              className="es-mast-stop es-mast-go"
+              disabled={s.busy}
+              onClick={() => void send("DELETE")}
+            >
+              {s.busy ? "Starting…" : "Yes — start again"}
+            </button>
+            <button
+              type="button"
+              className="es-mast-quiet"
+              onClick={() => setState({ ...s, confirming: false })}
+            >
+              Stay stopped
+            </button>
+            <span className="es-mast-note">
+              Starting again lets approved actions run. It needs you signed in.
+            </span>
+          </>
+        ) : (
+          <button
+            type="button"
+            className="es-mast-quiet"
+            onClick={() => setState({ ...s, confirming: true })}
+          >
+            Start things up again
+          </button>
+        )}
+        {s.error && (
+          <p className="es-mast-note" role="alert">
+            {s.error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   if (!s.halt.halted) {
     return (
-      <div className="es-bar">
+      <div className="es-bar es-run">
         <button
-          className="es-stop"
+          type="button"
+          className="es-stop es-verb"
           disabled={s.busy}
+          aria-describedby="es-what"
           onClick={() => void send("POST")}
-          title="Halts every execution immediately. Reading and proposing continue."
         >
-          {s.busy ? "Stopping…" : "Stop everything"}
+          {s.busy ? (
+            "Stopping…"
+          ) : (
+            <>
+              Stop everything <span aria-hidden="true">→</span>
+            </>
+          )}
         </button>
-        {s.error && <span className="conn-note">{s.error}</span>}
+        <p className="es-what" id="es-what">
+          Halts every execution at once, no sign-in needed. Reading and proposing carry on.
+        </p>
+        {s.error && (
+          <p className="es-what" role="alert">
+            {s.error}
+          </p>
+        )}
       </div>
     );
   }
 
   return (
-    <section className="card ops-card es-halted" role="alert">
-      <span className="auth-eyebrow es-eyebrow">everything is stopped</span>
-      <h2 className="prop-title small" style={{ marginTop: 8 }}>
-        Nothing will execute{s.halt.halted_at ? ` — stopped ${whenWord(s.halt.halted_at)}` : ""}.
+    <section className="card ops-card es-halted es-sheet" role="alert">
+      <p className="flag es-flag">stopped · nothing will execute</p>
+      <h2 className="prop-title small es-title">
+        Everything is stopped
+        {s.halt.halted_at ? ` — since ${whenWord(s.halt.halted_at)}` : ""}.
       </h2>
-      <p className="auth-copy">
+      <p className="auth-copy es-copy">
         Approved actions stay approved and wait. Nothing runs, nothing publishes, nothing changes on
         your site — including anything that was mid-flight when you stopped it. Reading, planning
         and proposing all carry on as normal.
@@ -95,18 +207,40 @@ export function EmergencyStop() {
       {s.halt.reason && <p className="conn-note">You said: “{s.halt.reason}”</p>}
       {s.error && <p className="conn-note">{s.error}</p>}
       {s.confirming ? (
-        <div className="prop-actions">
-          <button className="prop-btn" disabled={s.busy} onClick={() => void send("DELETE")}>
-            {s.busy ? "Starting…" : "Yes — start executing again"}
+        <div className="es-actions">
+          <p className="conn-note es-confirm">
+            Starting again lets approved actions run. It needs you signed in.
+          </p>
+          <button
+            type="button"
+            className="prop-btn es-verb"
+            disabled={s.busy}
+            onClick={() => void send("DELETE")}
+          >
+            {s.busy ? (
+              "Starting…"
+            ) : (
+              <>
+                Yes — start executing again <span aria-hidden="true">→</span>
+              </>
+            )}
           </button>
-          <button className="prop-btn quiet" onClick={() => setState({ ...s, confirming: false })}>
+          <button
+            type="button"
+            className="prop-btn quiet es-quiet"
+            onClick={() => setState({ ...s, confirming: false })}
+          >
             Stay stopped
           </button>
         </div>
       ) : (
-        <div className="prop-actions">
-          <button className="prop-btn" onClick={() => setState({ ...s, confirming: true })}>
-            Start things up again
+        <div className="es-actions">
+          <button
+            type="button"
+            className="prop-btn es-verb"
+            onClick={() => setState({ ...s, confirming: true })}
+          >
+            Start things up again <span aria-hidden="true">→</span>
           </button>
         </div>
       )}

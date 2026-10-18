@@ -1,0 +1,529 @@
+/* The sheet system — specs/ux-spec-v1.md §2 (rewritten 2026-10-17).
+
+   A diagnostic panel / lab report: content lives on eucalyptus paper
+   sheets laid on a dark forest desk. Square corners, no shadows, no
+   icons; separation comes from 1px rules, surface colour and space.
+
+   Contrast is measured, not guessed (WCAG 2 ratio · APCA Lc):
+     sheet-ink   on paper 16.5:1 Lc99 · inset 14.4:1 Lc90 · marker 13.7:1
+     sheet-ink-2 on paper  8.5:1 Lc86 · inset  7.4:1 Lc77
+     desk-ink    on desk  14.6:1 Lc96 · masthead 15.7:1
+     desk-ink-2  on desk  10.8:1 Lc76 · masthead 11.6:1
+     live        on paper  8.4:1 Lc84 · inset  7.3:1 Lc75
+     live-desk   on desk  11.2:1 Lc79
+     ok          on paper  8.2:1 Lc84 · inset  7.1:1 Lc75
+     low         on paper  8.5:1 Lc86 · inset  7.4:1 Lc77
+     drift       on paper  8.6:1 Lc86 · inset  7.5:1 Lc77
+     alarm       on paper  8.6:1 Lc84 · inset  7.5:1 Lc76
+     rule        on paper  3.5:1 · inset 3.0:1 (non-text, WCAG 1.4.11)
+   The inset is 1.15:1 against paper — a surface change alone is not
+   enough to read, so every inset also carries a 1px rule.
+
+   Meaning, never decoration:
+     --live    cobalt: the machine is working right now. Nothing else —
+               links and buttons are ink, never cobalt.
+     --marker  yellow: ink was just laid down. Only ever a background
+               behind ink, never a text colour.
+     --ok / --low / --drift / --alarm tint a worded flag; the word
+               carries the meaning, so the page reads in grayscale. */
+
+:root {
+  /* surfaces */
+  --desk: #132119;
+  --masthead: #0e1a13;
+  --paper: #f2f7f4;
+  --inset: #dfe9e3;
+  --rule: #71897d;
+  --rule-soft: #b9cbc1;
+  --desk-rule: #2f4538;
+
+  /* text */
+  --sheet-ink: #0e1a13;
+  --sheet-ink-2: #3a4c42;
+  --desk-ink: #eaf2ed;
+  --desk-ink-2: #c3d4ca;
+
+  /* meaning */
+  --live: #1a3dae;
+  --live-desk: #c2d4ff;
+  --live-rule: #3d6bff; /* the masthead's cobalt rule — static structure */
+  --ok: #145530;
+  --ok-band: #cfe5d7;
+  --low: #36495f;
+  --drift: #683d00;
+  --alarm: #8c1713;
+  --marker: #f7e26b;
+
+  /* type */
+  --f-display: var(--font-zilla), "Zilla Slab", Georgia, serif;
+  --f-prose: var(--font-archivo), "Archivo", Arial, sans-serif;
+  --f-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+
+  --t-display-1: clamp(26px, 3.41vw, 42px);
+  --t-display-2: clamp(19.5px, 2.23vw, 26px);
+  --t-display-3: 17px;
+  --t-prose-l: 14px;
+  --t-prose: 14px;
+  --t-prose-s: 14px;
+  --t-mono: 14px;
+  --t-mono-s: 12.5px;
+  --t-mono-xs: 11.5px; /* the floor — labels, never prose */
+
+  /* space — a scale, not a constant */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 34px;
+  --s-8: 44px;
+  --s-9: 64px;
+  --gutter: 14px;
+  --measure: 68ch; /* prose line length, inside the 45–90 band */
+
+  /* rules */
+  --hair: 1px solid var(--rule-soft);
+  --line: 1px solid var(--rule);
+  --line-ink: 1px solid var(--sheet-ink);
+
+  /* motion — reports state; subtler the more often it plays */
+  --d-press: 100ms;
+  --d-move: 220ms;
+  --d-record: 280ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 720px) {
+  :root {
+    --gutter: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --d-press: 0ms;
+    --d-move: 0ms;
+    --d-record: 0ms;
+  }
+}
+
+/* ── the desk and the sheet ── */
+
+.desk {
+  min-height: 100dvh;
+  background: var(--desk);
+  color: var(--desk-ink);
+  font-family: var(--f-prose);
+  font-size: var(--t-prose);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.desk ::selection {
+  background: var(--marker);
+  color: var(--sheet-ink);
+}
+
+.sheet {
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border: 1px solid var(--desk-rule);
+}
+
+.inset {
+  background: var(--inset);
+  border: var(--line);
+}
+
+/* ── type roles ── */
+
+.display {
+  font-family: var(--f-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  margin: 0;
+}
+
+.mono,
+.fig {
+  font-family: var(--f-mono);
+}
+/* Tabular on the figure itself, not on the words around it. */
+.fig {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  white-space: nowrap;
+}
+
+/* Caps are reserved for mono labels and flags. */
+.label {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.prose {
+  max-width: var(--measure);
+}
+
+/* ── interaction: ink on paper, unmistakable ── */
+
+.sheet a,
+.desk a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.sheet a:hover,
+.desk a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* A verb, a full 1px border, an arrow; inverts to ink on hover/press. */
+.act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: 0 var(--s-5);
+  border: var(--line-ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.act:hover,
+.act:active {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.act.solid {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.act.solid:hover,
+.act.solid:active {
+  background: var(--paper);
+  color: var(--sheet-ink);
+}
+.act:disabled {
+  cursor: not-allowed;
+  border-style: dashed;
+  background: var(--paper);
+  color: var(--sheet-ink-2);
+}
+/* On the desk the same control inverts the other way. */
+.on-desk .act {
+  border-color: var(--desk-ink);
+  background: transparent;
+  color: var(--desk-ink);
+}
+.on-desk .act:hover,
+.on-desk .act:active,
+.on-desk .act.solid {
+  background: var(--desk-ink);
+  color: var(--desk);
+}
+
+/* Focus is always visible and never confused with hover: a 2px ring
+   in whichever ink the surface underneath reads in (globals.css). */
+.sheet {
+  --ink: var(--sheet-ink);
+  --mut: var(--sheet-ink-2);
+}
+button,
+input,
+select,
+textarea {
+  border-radius: 0;
+}
+
+/* ── worded flags: the word carries meaning, colour only tints it ── */
+
+.flag {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.flag.ok {
+  color: var(--ok);
+}
+.flag.low {
+  color: var(--low);
+}
+.flag.drift {
+  color: var(--drift);
+}
+.flag.alarm {
+  color: var(--alarm);
+  border-bottom: 2px solid currentColor; /* alarm differs from drift in shape, not just hue */
+}
+
+/* Ink just laid down. */
+.marked {
+  background: var(--marker);
+  color: var(--sheet-ink);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 2px;
+}
+
+/* The machine is working — only while it genuinely is. */
+.live {
+  color: var(--live);
+}
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--live);
+  animation: live-pulse 1.4s steps(2, jump-none) infinite;
+}
+@keyframes live-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot {
+    animation: none;
+  }
+}
+
+/* ── the range bar: text-width, the ok band tinted, the value an ink tick ── */
+
+.rbar {
+  position: relative;
+  display: inline-block;
+  width: 9em;
+  height: 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--rule);
+}
+.rbar-band {
+  position: absolute;
+  top: 2px;
+  bottom: 0;
+  background: var(--ok-band);
+  border-left: 1px solid var(--ok);
+  border-right: 1px solid var(--ok);
+}
+.rbar-act {
+  position: absolute;
+  top: -2px;
+  bottom: -3px;
+  border-left: 1px dashed var(--alarm);
+}
+.rbar-tick {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 3px;
+  margin-left: -1px;
+  background: var(--sheet-ink);
+}
+
+/* ── The owner screens' shared furniture (the owner's instrument designs,
+   2026-10-17). components/sheet/PageHead.tsx renders these. ── */
+
+.screen {
+  padding: 0 22px 45px;
+}
+@media (max-width: 719px) {
+  .screen {
+    padding: 0 14px 34px;
+  }
+}
+
+.ph {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--s-5);
+  flex-wrap: wrap;
+  padding: 22px 0 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--desk-rule);
+  color: var(--desk-ink);
+}
+.ph-kicker {
+  margin: 0 0 10px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--desk-ink-2);
+}
+.ph-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(20px, 1.9vw, 27px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+.ph-notes {
+  margin-top: 10px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--desk-ink-2);
+}
+.ph-aside {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--desk-ink-2);
+  text-align: right;
+}
+
+/* a paper card with a header band and a double rule under it */
+.cs {
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border: 1px solid var(--rule);
+  --ink: var(--sheet-ink);
+  --mut: var(--sheet-ink-2);
+}
+.cs-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--s-4);
+  padding: 17px 20px 15px;
+  border-bottom: 3px double var(--sheet-ink);
+}
+.cs-label {
+  margin: 0 0 8px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.cs-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(16px, 1.3vw, 19px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.cs-meta {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+  text-align: right;
+}
+.cs-body {
+  padding: 15px 20px 15px;
+}
+.cs-foot {
+  padding: 14px 20px;
+  border-top: 1px solid var(--rule-soft);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+@media (max-width: 719px) {
+  .cs-head,
+  .cs-body,
+  .cs-foot {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .cs-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cs-meta {
+    text-align: left;
+  }
+}
+
+/* the ruled table the designs use everywhere */
+.rt {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rt thead th {
+  padding: 10px 10px 8px;
+  border-bottom: 1px solid var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--sheet-ink-2);
+  white-space: nowrap;
+}
+.rt tbody th,
+.rt tbody td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--rule-soft);
+  text-align: left;
+  vertical-align: baseline;
+  font-size: 13.5px;
+}
+.rt tbody th {
+  font-weight: 500;
+}
+.rt .num,
+.rt th.num {
+  text-align: right;
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rt .src {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.rt tbody tr.on {
+  background: var(--inset);
+}
+
+/* worded status in mono caps — STEADY, DRIFTING, IN RANGE … */
+.word {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.word.ok {
+  color: var(--ok);
+}
+.word.drift {
+  color: var(--drift);
+}
+.word.alarm {
+  color: var(--alarm);
+}
+.word.low,
+.word.none {
+  color: var(--sheet-ink-2);
+}
+.word.boxed {
+  display: inline-block;
+  padding: 4px 9px;
+  border: 1px solid currentColor;
+}

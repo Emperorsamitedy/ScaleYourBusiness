@@ -24,6 +24,7 @@ import {
   ProposalError,
   recordExecution,
   rejectProposal,
+  requestChanges,
   proposalQueue,
 } from "./service";
 
@@ -198,6 +199,83 @@ describe("P3-02 — proposal events and the decision log", () => {
       rejection_reason: approved.rejection_reason,
     });
     expect(entry?.hash).not.toBe(tampered);
+  });
+});
+
+describe("request changes — the queue's third answer", () => {
+  it("pending → changes_requested by a named human, with the words and a 'change_request' entry", async () => {
+    const s = await fresh();
+    const userId = await decider(s.account_id);
+    const row = await createProposal(draft(s.profile_id));
+    const asked = await requestChanges({
+      proposalId: row.id,
+      userId,
+      words: "  only the loyal customers, and no discount  ",
+    });
+    expect(asked.status).toBe("changes_requested");
+    expect(asked.decided_by).toBe(userId);
+    expect(asked.change_request).toBe("only the loyal customers, and no discount");
+    expect(asked.rejection_reason).toBeNull();
+    expect(asked.execute_not_before).toBeNull();
+    const entries = await logEntries(row.id);
+    expect(entries.map((e) => e.kind).sort()).toEqual(["change_request", "proposal"]);
+    // The owner's words are in the hashed payload — editing them later is detectable.
+    const entry = entries.find((e) => e.kind === "change_request");
+    expect(entry?.hash).toBe(
+      hashProposalPayload("change_request", {
+        proposal_id: asked.id,
+        profile_id: asked.profile_id,
+        status: asked.status,
+        decided_by: asked.decided_by,
+        rejection_reason: null,
+        detail: { change_request: asked.change_request },
+      }),
+    );
+    // It lands in history, not pending — and it can't then be approved.
+    const queue = await proposalQueue(s.profile_id);
+    expect(queue.pending.map((p) => p.id)).not.toContain(row.id);
+    expect(queue.decided.map((p) => p.id)).toContain(row.id);
+    await expect(approveProposal({ proposalId: row.id, userId })).rejects.toThrow(
+      /already changes_requested/,
+    );
+  });
+
+  it("asking for changes without saying what refuses, and records nothing", async () => {
+    const s = await fresh();
+    const userId = await decider(s.account_id);
+    const row = await createProposal(draft(s.profile_id));
+    await expect(requestChanges({ proposalId: row.id, userId, words: "   " })).rejects.toThrow(
+      ProposalError,
+    );
+    const [cur] = await db.select().from(proposals).where(eq(proposals.id, row.id));
+    expect(cur?.status).toBe("pending");
+    expect((await logEntries(row.id)).map((e) => e.kind)).toEqual(["proposal"]);
+  });
+
+  it("the database refuses a changes_requested row without the owner's words", async () => {
+    const s = await fresh();
+    const userId = await decider(s.account_id);
+    const row = await createProposal(draft(s.profile_id));
+    await expect(
+      db
+        .update(proposals)
+        .set({
+          status: "changes_requested",
+          decided_by: userId,
+          decided_at: new Date().toISOString(),
+        })
+        .where(eq(proposals.id, row.id)),
+    ).rejects.toThrow();
+  });
+
+  it("an already-decided proposal cannot be sent back for changes", async () => {
+    const s = await fresh();
+    const userId = await decider(s.account_id);
+    const row = await createProposal(draft(s.profile_id));
+    await rejectProposal({ proposalId: row.id, userId, reason: "no" });
+    await expect(
+      requestChanges({ proposalId: row.id, userId, words: "try again smaller" }),
+    ).rejects.toThrow(/already rejected/);
   });
 });
 

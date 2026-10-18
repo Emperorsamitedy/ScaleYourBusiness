@@ -1,17 +1,31 @@
 "use client";
 
-// The owner's support screen — Phase 4 Sessions B and D. Four things,
-// plainly: the widget's public key and the one-line snippet that embeds
-// it; the knowledge base (what the assistant may say — proposed from
-// facts, clustered from real questions, approved in the queue,
-// published here, retired here); the tickets where a human was asked
-// for, each with a place to write the answer in the owner's own words;
-// and the conversations as they happened. Nothing on this screen
-// touches a customer's account or executes anything — the assistant
-// answers, and that is all it does.
+// The owner's support screen — Phase 4 Sessions B and D, in the owner's
+// instrument design (2026-10-17). Left: what the assistant is allowed to
+// say — approved answers, ones approved but not yet public, questions
+// customers keep asking that nobody has answered, and the form that
+// proposes a new one (approval happens in the queue). Right: the
+// conversations, the open one's transcript, and — when it was handed to
+// the owner — a place to record what they answered. Below: the widget's
+// public key and snippet. Nothing on this screen touches a customer's
+// account or executes anything (rule 21); what customers typed is shown
+// as text and never acted on (rule 24); every assistant turn is labelled
+// as automated (rule 20).
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import "../../app/support.css";
+import { PageHead } from "../sheet/PageHead";
+import {
+  type ConversationStatus,
+  REASON_WORD,
+  type TicketReason,
+  type TicketStatus,
+  conversationWord,
+  supportHeadline,
+  waitingTitle,
+  whenShort,
+} from "./support-view";
 
 interface Settings {
   site_key: string;
@@ -37,16 +51,16 @@ interface Publishable {
 interface Ticket {
   id: string;
   conversation_id: string | null;
-  reason: "customer_asked" | "no_answer" | "cost_cap" | "conversation_cap";
+  reason: TicketReason;
   summary: string;
-  status: "open" | "answered" | "closed";
+  status: TicketStatus;
   answer: string | null;
   created_at: string;
 }
 
 interface Conversation {
   id: string;
-  status: "open" | "escalated" | "closed";
+  status: ConversationStatus;
   turns: number;
   cost_eur: string;
   started_at: string;
@@ -72,6 +86,14 @@ interface FaqOutcome {
   unanswered: FaqCluster[];
 }
 
+/** One row of the conversation list: a widget conversation, or a ticket that has none. */
+interface Thread {
+  key: string;
+  conversation: Conversation | null;
+  ticket: Ticket | null;
+  at: string;
+}
+
 type State =
   | { phase: "loading" }
   | { phase: "signedout" }
@@ -84,8 +106,12 @@ type State =
       conversations: Conversation[];
       busy: boolean;
       notice: string | null;
+      /** The selected thread's key. */
       open: string | null;
       transcript: Message[];
+      /** Which conversation the transcript belongs to. */
+      transcriptOf: string | null;
+      writing: boolean;
       question: string;
       answer: string;
       ticketAnswers: Record<string, string>;
@@ -94,19 +120,36 @@ type State =
       confirmErase: string | null;
     };
 
-const REASON_WORD: Record<Ticket["reason"], string> = {
-  customer_asked: "asked for a person",
-  no_answer: "no approved answer",
-  cost_cap: "spend cap reached",
-  conversation_cap: "conversation ran long",
-};
+function shortId(id: string): string {
+  return `A-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
+}
 
-function when(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
+function dayWord(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+}
+
+function threadsOf(conversations: Conversation[], tickets: Ticket[]): Thread[] {
+  // The newest ticket per conversation speaks for it.
+  const byConversation = new Map<string, Ticket>();
+  for (const t of [...tickets].sort((a, b) => a.created_at.localeCompare(b.created_at))) {
+    if (t.conversation_id) byConversation.set(t.conversation_id, t);
+  }
+  const threads: Thread[] = [
+    ...conversations.map((c) => ({
+      key: c.id,
+      conversation: c,
+      ticket: byConversation.get(c.id) ?? null,
+      at: c.last_at,
+    })),
+    ...tickets
+      .filter((t) => t.conversation_id === null)
+      .map((t) => ({ key: `ticket:${t.id}`, conversation: null, ticket: t, at: t.created_at })),
+  ];
+  // Waiting first, then newest first.
+  return threads.sort((a, b) => {
+    const wa = a.ticket?.status === "open" ? 0 : 1;
+    const wb = b.ticket?.status === "open" ? 0 : 1;
+    return wa - wb || b.at.localeCompare(a.at);
   });
 }
 
@@ -128,11 +171,13 @@ export function SupportScreen() {
       ...j,
       busy: false,
       notice: null,
-      open: null,
-      transcript: [],
+      open: cur.phase === "ready" ? cur.open : null,
+      transcript: cur.phase === "ready" ? cur.transcript : [],
+      transcriptOf: cur.phase === "ready" ? cur.transcriptOf : null,
+      writing: false,
       question: "",
       answer: "",
-      ticketAnswers: {},
+      ticketAnswers: cur.phase === "ready" ? cur.ticketAnswers : {},
       faq: cur.phase === "ready" ? cur.faq : null,
       confirmErase: null,
     }));
@@ -142,10 +187,35 @@ export function SupportScreen() {
     void load();
   }, [load]);
 
+  // The selected thread's transcript, fetched when the selection lands on a conversation.
+  const ready = state.phase === "ready" ? state : null;
+  const threads = ready ? threadsOf(ready.conversations, ready.tickets) : [];
+  const selected = threads.find((t) => t.key === ready?.open) ?? threads[0] ?? null;
+  const wantTranscript = selected?.conversation?.id ?? null;
+  const haveTranscript = ready?.transcriptOf ?? null;
+  useEffect(() => {
+    if (wantTranscript === null || wantTranscript === haveTranscript) return;
+    let live = true;
+    void (async () => {
+      const res = await fetch(`/api/support?conversation=${encodeURIComponent(wantTranscript)}`);
+      if (!res.ok) return;
+      const j = (await res.json()) as { messages: Message[] };
+      if (!live) return;
+      setState((cur) =>
+        cur.phase === "ready"
+          ? { ...cur, transcript: j.messages, transcriptOf: wantTranscript }
+          : cur,
+      );
+    })();
+    return () => {
+      live = false;
+    };
+  }, [wantTranscript, haveTranscript]);
+
   if (state.phase === "loading") {
     return (
-      <main className="auth-stage">
-        <p className="auth-copy">Opening support…</p>
+      <main className="screen sp-screen">
+        <PageHead kicker="Customers · Support" title="Opening support…" />
       </main>
     );
   }
@@ -210,334 +280,498 @@ export function SupportScreen() {
               outcome.questions < 3
                 ? `Only ${outcome.questions} open question${outcome.questions === 1 ? "" : "s"} — nothing to cluster yet. Three askers make a frequently asked question.`
                 : outcome.proposal_id
-                  ? "Clustered. The answers you already gave are in your approval queue; the rest are listed below for you to answer."
+                  ? "Clustered. The answers you already gave are in your approval queue; the rest are listed for you to answer."
                   : outcome.clusters.length === 0
                     ? "Clustered: no three people have asked the same thing yet."
-                    : "Clustered. Nobody has answered these yet — answer one on its ticket and cluster again.",
+                    : "Clustered. Nobody has answered these yet — answer one on its conversation and cluster again.",
           }
         : cur,
     );
   };
 
-  const openTranscript = async (id: string) => {
-    if (s.open === id) return setState({ ...s, open: null, transcript: [] });
-    const res = await fetch(`/api/support?conversation=${id}`);
-    const j = (await res.json()) as { message?: Message[]; messages: Message[] };
-    setState({ ...s, open: id, transcript: j.messages });
-  };
-
   const openTickets = s.tickets.filter((t) => t.status === "open");
   const publicEntries = s.knowledge.filter((e) => e.status === "public");
+  const retired = s.knowledge.filter((e) => e.status !== "public");
+  const unanswered = s.faq?.unanswered ?? [];
+  const ticket = selected?.ticket ?? null;
+  const conversation = selected?.conversation ?? null;
+  const transcript = conversation && s.transcriptOf === conversation.id ? s.transcript : [];
+  const typed = ticket ? (s.ticketAnswers[ticket.id] ?? "") : "";
 
   return (
-    <main className="ops-shell">
-      <header className="ops-head">
-        <span className="wordmark">Ledgerline</span>
-        <span className="ops-meta">
-          support · {publicEntries.length} approved answers · {openTickets.length} waiting for you
-        </span>
-      </header>
+    <main className="screen sp-screen">
+      <PageHead kicker="Customers · Support" title={supportHeadline(publicEntries.length)}>
+        <div className="sp-counts">
+          <span>
+            <b>{s.conversations.length}</b>{" "}
+            {s.conversations.length === 1 ? "conversation" : "conversations"} ·{" "}
+            <b>{s.tickets.length}</b> handed to you · <b>{openTickets.length}</b> waiting
+          </span>
+          <Link className="ghost sp-test" href="/support/test">
+            Test the widget <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+      </PageHead>
 
       {s.notice && (
-        <section className="card ops-card">
-          <p className="auth-copy" aria-live="polite">
-            {s.notice}
-          </p>
-        </section>
+        <p className="sp-notice" aria-live="polite">
+          {s.notice}
+        </p>
       )}
 
-      <section className="card ops-card">
-        <span className="auth-eyebrow">the widget — an assistant that says it is one</span>
-        {s.settings ? (
-          <>
-            <p className="auth-copy">
-              Paste this one line into your website. Visitors see an assistant that introduces
-              itself as automated, answers only from the approved list below, and hands over to you
-              the moment they ask for a person.
-            </p>
-            <pre className="ct-body">{s.settings.snippet}</pre>
-            <div className="prop-actions">
-              <Link className="prop-btn" href="/support/test">
-                Try it on a test page
-              </Link>
-              <button
-                className="prop-btn quiet"
-                disabled={s.busy}
-                onClick={() =>
-                  void act(
-                    { action: "rotate" },
-                    "New key. Every page with the old snippet stops working until you update it.",
-                  )
-                }
-              >
-                Rotate the key
-              </button>
+      <div className="sp-grid">
+        {/* ── what it may say ── */}
+        <section className="cs sp-answers" aria-labelledby="sp-answers-title">
+          <header className="cs-head">
+            <div>
+              <p className="cs-label">Approved answers · {publicEntries.length}</p>
+              <h2 className="cs-title" id="sp-answers-title">
+                What it&rsquo;s allowed to say
+              </h2>
             </div>
-            <p className="conn-note">
-              The key is public by design — it only says which business a conversation belongs to.
-              It is not a login, and the widget never touches your sign-in.
-            </p>
-          </>
-        ) : (
-          <>
-            <p className="auth-copy">
-              Not enabled yet. Enabling creates the widget&apos;s public key; nothing is said to
-              anyone until you approve answers below.
-            </p>
             <button
-              className="prop-btn signal"
-              disabled={s.busy}
-              onClick={() => void act({ action: "enable" }, "Enabled. Now approve some answers.")}
+              type="button"
+              className="prop-btn sp-small"
+              aria-expanded={s.writing}
+              aria-controls="sp-write"
+              onClick={() => setState({ ...s, writing: !s.writing })}
             >
-              Enable the assistant
+              {s.writing ? "Close" : "Write an answer"}
             </button>
-          </>
-        )}
-      </section>
+          </header>
+          <div className="cs-body">
+            {s.writing && (
+              <form
+                id="sp-write"
+                className="sp-box sp-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void act(
+                    { action: "propose_custom", question: s.question, answer: s.answer },
+                    "Proposed. Approve it in the queue, then publish it here.",
+                  );
+                }}
+              >
+                <label className="cs-label" htmlFor="sp-q">
+                  A question customers ask
+                </label>
+                <input
+                  id="sp-q"
+                  className="sp-input"
+                  value={s.question}
+                  onChange={(e) => setState({ ...s, question: e.target.value })}
+                />
+                <label className="cs-label" htmlFor="sp-a">
+                  The answer, in your words
+                </label>
+                <textarea
+                  id="sp-a"
+                  className="sp-textarea"
+                  rows={3}
+                  value={s.answer}
+                  onChange={(e) => setState({ ...s, answer: e.target.value })}
+                />
+                <div className="sp-row">
+                  <button
+                    className="prop-btn"
+                    disabled={s.busy || s.question.trim() === "" || s.answer.trim() === ""}
+                  >
+                    Propose this answer
+                  </button>
+                  <span className="sp-fine">It goes to your approval queue first.</span>
+                </div>
+              </form>
+            )}
 
-      <section className="card ops-card">
-        <span className="auth-eyebrow">what it may say — approved by you, nothing else</span>
-        <p className="auth-copy">
-          Answers are rendered from facts you gave in the intake, or clustered from questions
-          customers actually asked and you actually answered, put in your{" "}
-          <Link href="/proposals">approval queue</Link>, and published here once you approve.
-          Retiring one takes it out of the assistant&apos;s mouth immediately.
-        </p>
-        <div className="prop-actions">
-          <button
-            className="prop-btn"
-            disabled={s.busy}
-            onClick={() =>
-              void act(
-                { action: "propose_knowledge" },
-                "Proposed. Approve it in the queue, then publish it here.",
-              )
-            }
-          >
-            Propose answers from my facts
-          </button>
-          <button className="prop-btn" disabled={s.busy} onClick={() => void clusterFaq()}>
-            Cluster the questions customers asked
-          </button>
-        </div>
-        {s.faq && s.faq.unanswered.length > 0 && (
-          <div className="ct-suggestions">
-            <span className="auth-eyebrow">frequently asked, not yet answered by you</span>
-            {s.faq.unanswered.map((c) => (
-              <p key={c.question} className="conn-note">
-                “{c.question}” — asked {c.members.length} times. Answer it on one of its tickets
-                below, then cluster again.
-              </p>
-            ))}
-          </div>
-        )}
-        <form
-          className="ct-goal-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void act(
-              { action: "propose_custom", question: s.question, answer: s.answer },
-              "Proposed. Approve it in the queue, then publish it here.",
-            );
-          }}
-        >
-          <input
-            className="ct-input"
-            placeholder="A question customers ask"
-            value={s.question}
-            onChange={(e) => setState({ ...s, question: e.target.value })}
-          />
-          <input
-            className="ct-input"
-            placeholder="The answer, in your words"
-            value={s.answer}
-            onChange={(e) => setState({ ...s, answer: e.target.value })}
-          />
-          <button
-            className="prop-btn"
-            disabled={s.busy || s.question.trim() === "" || s.answer.trim() === ""}
-          >
-            Propose this answer
-          </button>
-        </form>
-        {s.publishable.length > 0 && (
-          <div className="ct-suggestions">
             {s.publishable.map((p) => (
-              <div key={p.id} className="ct-producible">
-                <span>{p.summary} — approved, not yet public</span>
-                <button
-                  className="prop-btn signal"
-                  disabled={s.busy}
-                  onClick={() =>
-                    void act(
-                      { action: "publish", proposal_id: p.id },
-                      "Published. The assistant can say these now.",
-                    )
-                  }
-                >
-                  Publish
-                </button>
+              <div key={p.id} className="sp-box">
+                <p className="sp-box-label">
+                  <span className="word ok">approved · not yet public</span>
+                </p>
+                <p className="sp-box-title">{p.summary}</p>
+                <div className="sp-row">
+                  <button
+                    type="button"
+                    className="prop-btn"
+                    disabled={s.busy}
+                    onClick={() =>
+                      void act(
+                        { action: "publish", proposal_id: p.id },
+                        "Published. The assistant can say these now.",
+                      )
+                    }
+                  >
+                    Publish
+                  </button>
+                </div>
               </div>
             ))}
+
+            {unanswered.map((c) => (
+              <div key={c.question} className="sp-box">
+                <p className="sp-box-label">
+                  <span className="word drift">asked {c.members.length} times · not answered</span>
+                </p>
+                <p className="sp-box-title">{c.question}</p>
+                <p className="sp-fine">
+                  Answer it on one of its conversations, then cluster again.
+                </p>
+              </div>
+            ))}
+
+            {s.knowledge.length === 0 && !s.writing && (
+              <p className="sp-empty">
+                No answers yet. Until you approve some, the assistant says it doesn&rsquo;t know and
+                hands the question to you.
+              </p>
+            )}
+
+            {publicEntries.length > 0 && (
+              <ul className="sp-entries">
+                {publicEntries.map((e) => (
+                  <EntryRow
+                    key={e.id}
+                    e={e}
+                    busy={s.busy}
+                    onRetire={() =>
+                      void act(
+                        { action: "retire", entry_id: e.id },
+                        "Retired. It will not be said again.",
+                      )
+                    }
+                  />
+                ))}
+              </ul>
+            )}
+            {retired.length > 0 && (
+              <>
+                <p className="cs-label sp-gap">Retired · no longer said</p>
+                <ul className="sp-entries sp-retired">
+                  {retired.map((e) => (
+                    <EntryRow key={e.id} e={e} busy={s.busy} />
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
-        )}
-        {s.knowledge.length === 0 && <p className="conn-note">No answers yet.</p>}
-        {s.knowledge.map((e) => (
-          <article key={e.id} className="ct-item">
-            <div className="ct-item-head">
-              <span
-                className={`prop-tag ct-status ct-status-${e.status === "public" ? "published" : "withdrawn"}`}
-              >
-                {e.status}
-              </span>
-              <span className="ct-item-title">{e.question}</span>
-              {e.status === "public" && (
+          <footer className="cs-foot sp-foot">
+            <button
+              type="button"
+              className="prop-btn"
+              disabled={s.busy}
+              onClick={() =>
+                void act(
+                  { action: "propose_knowledge" },
+                  "Proposed. Approve it in the queue, then publish it here.",
+                )
+              }
+            >
+              Propose answers from my facts
+            </button>
+            <button
+              type="button"
+              className="prop-btn"
+              disabled={s.busy}
+              onClick={() => void clusterFaq()}
+            >
+              Cluster what customers asked
+            </button>
+          </footer>
+        </section>
+
+        {/* ── conversations ── */}
+        <section className="cs sp-convos" aria-labelledby="sp-convos-title">
+          <header className="cs-head">
+            <div>
+              <p className="cs-label">Conversations · {s.conversations.length}</p>
+              <h2 className="cs-title" id="sp-convos-title">
+                {waitingTitle(openTickets.length)}
+              </h2>
+            </div>
+          </header>
+          {threads.length === 0 ? (
+            <div className="cs-body">
+              <p className="sp-empty">
+                No conversations yet. Every one the widget has lands here, and anything handed to
+                you is marked.
+              </p>
+            </div>
+          ) : (
+            <div className="sp-split">
+              <ul className="sp-list" aria-label="Conversations">
+                {threads.map((t) => {
+                  const w = conversationWord(t.conversation?.status ?? "escalated", t.ticket);
+                  const on = selected?.key === t.key;
+                  return (
+                    <li key={t.key}>
+                      <button
+                        type="button"
+                        className={`sp-thread${on ? " on" : ""}`}
+                        aria-pressed={on}
+                        onClick={() => setState({ ...s, open: t.key, confirmErase: null })}
+                      >
+                        <span className="sp-thread-top">
+                          <span className="sp-who">Visitor</span>
+                          <span className="sp-when">{whenShort(t.at)}</span>
+                        </span>
+                        <span className="sp-what">
+                          {t.ticket?.summary ??
+                            `${t.conversation?.turns ?? 0} ${t.conversation?.turns === 1 ? "message" : "messages"}`}
+                        </span>
+                        <span className={`word ${w.tone}`}>{w.word}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <div className="sp-thread-view" aria-live="polite">
+                {selected && (
+                  <p className="sp-via">
+                    Visitor · {conversation ? "via the widget" : "a ticket"} ·{" "}
+                    {new Date(selected.at).toLocaleString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    {conversation &&
+                      ` · ${conversation.turns} ${conversation.turns === 1 ? "turn" : "turns"} · €${Number.parseFloat(conversation.cost_eur).toFixed(4)}`}
+                  </p>
+                )}
+                {conversation && transcript.length === 0 && (
+                  <p className="sp-fine">
+                    {s.transcriptOf === conversation.id
+                      ? "Nothing was said in this conversation."
+                      : "Reading the conversation…"}
+                  </p>
+                )}
+                <ol className="sp-msgs">
+                  {transcript.map((m) => (
+                    <li key={m.id} className={`sp-msg ${m.role}`}>
+                      {/* Customer words are text under discussion — rendered, never acted on. */}
+                      <p className="sp-msg-text">{m.text}</p>
+                      <p className="sp-msg-meta">
+                        {m.role === "assistant" ? "Assistant · automated" : "Visitor"} ·{" "}
+                        {whenShort(m.at)}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+
+                {ticket && (
+                  <div className="sp-box sp-handed">
+                    <p className="sp-box-label">
+                      <span className={`word ${ticket.status === "open" ? "drift" : "ok"}`}>
+                        handed to you · {REASON_WORD[ticket.reason]}
+                      </span>
+                    </p>
+                    {!conversation && <p className="sp-box-title">{ticket.summary}</p>}
+                    {ticket.status === "open" ? (
+                      <>
+                        <label className="cs-label" htmlFor={`sp-t-${ticket.id}`}>
+                          What you told them — kept on record, not sent
+                        </label>
+                        <textarea
+                          id={`sp-t-${ticket.id}`}
+                          className="sp-textarea"
+                          rows={3}
+                          value={typed}
+                          onChange={(e) =>
+                            setState({
+                              ...s,
+                              ticketAnswers: { ...s.ticketAnswers, [ticket.id]: e.target.value },
+                            })
+                          }
+                        />
+                        <div className="sp-row">
+                          <button
+                            type="button"
+                            className="next"
+                            disabled={s.busy}
+                            onClick={() =>
+                              void act(
+                                {
+                                  action: "resolve_ticket",
+                                  ticket_id: ticket.id,
+                                  status: "answered",
+                                  answer: typed,
+                                },
+                                typed.trim() === ""
+                                  ? "Marked answered. Next time, write what you said — it can become an approved answer."
+                                  : "Marked answered, with your words on record.",
+                              )
+                            }
+                          >
+                            I answered them <span aria-hidden="true">→</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="prop-btn"
+                            disabled={s.busy || typed.trim() === ""}
+                            onClick={() =>
+                              void act(
+                                {
+                                  action: "propose_custom",
+                                  question: ticket.summary,
+                                  answer: typed,
+                                },
+                                "Proposed as an answer. Approve it in the queue, then publish it here.",
+                              )
+                            }
+                          >
+                            Propose as an answer
+                          </button>
+                          <button
+                            type="button"
+                            className="prop-btn quiet"
+                            disabled={s.busy}
+                            onClick={() =>
+                              void act(
+                                {
+                                  action: "resolve_ticket",
+                                  ticket_id: ticket.id,
+                                  status: "closed",
+                                },
+                                "Closed.",
+                              )
+                            }
+                          >
+                            Close
+                          </button>
+                        </div>
+                        <p className="sp-fine">
+                          You reply to them yourself; this screen sends nothing.
+                        </p>
+                      </>
+                    ) : (
+                      ticket.answer && <p className="sp-box-title">You said: {ticket.answer}</p>
+                    )}
+                  </div>
+                )}
+
+                {conversation && (
+                  <div className="sp-erase">
+                    {/* GDPR erasure (rule 22): irreversible, so it asks twice. */}
+                    <button
+                      type="button"
+                      className={s.confirmErase === conversation.id ? "prop-btn" : "prop-btn quiet"}
+                      disabled={s.busy}
+                      onClick={() =>
+                        s.confirmErase === conversation.id
+                          ? void act(
+                              { action: "erase_conversation", conversation_id: conversation.id },
+                              "The conversation and its ticket are erased. The log records only that it happened.",
+                            )
+                          : setState({ ...s, confirmErase: conversation.id })
+                      }
+                    >
+                      {s.confirmErase === conversation.id
+                        ? "Erase permanently"
+                        : "Erase this conversation"}
+                    </button>
+                    {s.confirmErase === conversation.id && (
+                      <span className="sp-fine">
+                        It cannot be undone. The log keeps only that it happened.
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* ── the widget ── */}
+      <section className="cs sp-widget" aria-labelledby="sp-widget-title">
+        <header className="cs-head">
+          <div>
+            <p className="cs-label">The widget</p>
+            <h2 className="cs-title" id="sp-widget-title">
+              An assistant that says it is one
+            </h2>
+          </div>
+          <Link className="prop-btn sp-small" href="/support/test">
+            Test the widget <span aria-hidden="true">→</span>
+          </Link>
+        </header>
+        <div className="cs-body">
+          {s.settings ? (
+            <>
+              <p className="sp-prose">
+                Paste this one line into your website. Visitors see an assistant that introduces
+                itself as automated, answers only from the approved list above, and hands over to
+                you the moment they ask for a person.
+              </p>
+              <pre className="sp-snippet">{s.settings.snippet}</pre>
+              <div className="sp-row">
                 <button
-                  className="prop-btn quiet"
+                  type="button"
+                  className="prop-btn"
                   disabled={s.busy}
                   onClick={() =>
                     void act(
-                      { action: "retire", entry_id: e.id },
-                      "Retired. It will not be said again.",
+                      { action: "rotate" },
+                      "New key. Every page with the old snippet stops working until you update it.",
                     )
                   }
                 >
-                  Retire
+                  Rotate the key
                 </button>
-              )}
-            </div>
-            <p className="auth-copy">{e.answer}</p>
-            <p className="ct-disclosure">
-              from{" "}
-              {e.source_keys.some((k) => k.startsWith("faq:ticket:"))
-                ? `${e.source_keys.length} customers who asked`
-                : e.source_keys.join(", ")}
-            </p>
-          </article>
-        ))}
-      </section>
-
-      <section className="card ops-card">
-        <span className="auth-eyebrow">waiting for a person — {openTickets.length}</span>
-        {openTickets.length === 0 && (
-          <p className="conn-note">Nobody is waiting. Every escalation lands here, with why.</p>
-        )}
-        {openTickets.map((t) => (
-          <article key={t.id} className="ct-item">
-            <div className="ct-item-head">
-              <span className="prop-tag">{REASON_WORD[t.reason]}</span>
-              <span className="ct-item-title">{when(t.created_at)}</span>
-            </div>
-            <pre className="ct-body">{t.summary}</pre>
-            <input
-              className="ct-input"
-              placeholder="What you answered them, in your words — the FAQ proposes from this"
-              value={s.ticketAnswers[t.id] ?? ""}
-              onChange={(e) =>
-                setState({ ...s, ticketAnswers: { ...s.ticketAnswers, [t.id]: e.target.value } })
-              }
-            />
-            <div className="prop-actions">
-              {t.conversation_id && (
-                <button
-                  className="prop-btn quiet"
-                  onClick={() => void openTranscript(t.conversation_id!)}
-                >
-                  Read the conversation
-                </button>
-              )}
-              <button
-                className="prop-btn"
-                disabled={s.busy}
-                onClick={() =>
-                  void act(
-                    {
-                      action: "resolve_ticket",
-                      ticket_id: t.id,
-                      status: "answered",
-                      answer: s.ticketAnswers[t.id] ?? "",
-                    },
-                    (s.ticketAnswers[t.id] ?? "").trim() === ""
-                      ? "Marked answered. Next time, write what you said — it can become an approved answer."
-                      : "Marked answered, with your words on record.",
-                  )
-                }
-              >
-                I answered them
-              </button>
-              <button
-                className="prop-btn quiet"
-                disabled={s.busy}
-                onClick={() =>
-                  void act(
-                    { action: "resolve_ticket", ticket_id: t.id, status: "closed" },
-                    "Closed.",
-                  )
-                }
-              >
-                Close
-              </button>
-            </div>
-            {s.open === t.conversation_id && (
-              <div className="ch-thread">
-                {s.transcript.map((m) => (
-                  <p key={m.id} className={`ch-turn ${m.role}`}>
-                    <b>{m.role === "customer" ? "Customer" : "Assistant"}:</b> {m.text}
-                  </p>
-                ))}
+                <span className="sp-fine">
+                  The key is public by design — it only says which business a conversation belongs
+                  to. It is not a login.
+                </span>
               </div>
-            )}
-          </article>
-        ))}
-      </section>
-
-      <section className="card ops-card">
-        <span className="auth-eyebrow">conversations — {s.conversations.length}</span>
-        {s.conversations.length === 0 && <p className="conn-note">None yet.</p>}
-        {s.conversations.map((c) => (
-          <article key={c.id} className="ct-item">
-            <div className="ct-item-head">
-              <span className="prop-tag">{c.status}</span>
-              <span className="ct-item-title">
-                {when(c.last_at)} · {c.turns} message{c.turns === 1 ? "" : "s"} · €
-                {Number.parseFloat(c.cost_eur).toFixed(4)}
-              </span>
-              <button className="prop-btn quiet" onClick={() => void openTranscript(c.id)}>
-                {s.open === c.id ? "Close" : "Read"}
-              </button>
-              {/* GDPR erasure (rule 22): irreversible, so it asks twice. */}
+            </>
+          ) : (
+            <>
+              <p className="sp-prose">
+                Not enabled yet. Enabling creates the widget&apos;s public key; nothing is said to
+                anyone until you approve answers.
+              </p>
               <button
-                className="prop-btn quiet"
+                type="button"
+                className="next"
                 disabled={s.busy}
-                onClick={() =>
-                  s.confirmErase === c.id
-                    ? void act(
-                        { action: "erase_conversation", conversation_id: c.id },
-                        "The conversation and its ticket are erased. The log records only that it happened.",
-                      )
-                    : setState({ ...s, confirmErase: c.id })
-                }
+                onClick={() => void act({ action: "enable" }, "Enabled. Now approve some answers.")}
               >
-                {s.confirmErase === c.id ? "Erase permanently" : "Erase"}
+                Enable the assistant <span aria-hidden="true">→</span>
               </button>
-            </div>
-            {s.open === c.id && (
-              <div className="ch-thread">
-                {s.transcript.map((m) => (
-                  <p key={m.id} className={`ch-turn ${m.role}`}>
-                    <b>{m.role === "customer" ? "Customer" : "Assistant"}:</b> {m.text}
-                  </p>
-                ))}
-              </div>
-            )}
-          </article>
-        ))}
+            </>
+          )}
+        </div>
+        <footer className="cs-foot">
+          The assistant reads approved answers and nothing else: not your profile, not your numbers,
+          not your connections, and it cannot change anything.
+        </footer>
       </section>
-
-      <p className="conn-note">
-        The assistant reads approved answers and nothing else: not your profile, not your numbers,
-        not your connections, and it cannot change anything.
-      </p>
     </main>
+  );
+}
+
+function EntryRow({ e, busy, onRetire }: { e: Entry; busy: boolean; onRetire?: () => void }) {
+  const fromCustomers = e.source_keys.some((k) => k.startsWith("faq:ticket:"));
+  return (
+    <li className="sp-entry">
+      <span className="sp-entry-id">{shortId(e.id)}</span>
+      <div className="sp-entry-main">
+        <p className="sp-entry-q">{e.question}</p>
+        <p className="sp-entry-a">{e.answer}</p>
+        <p className="sp-entry-src">
+          from{" "}
+          {fromCustomers ? `${e.source_keys.length} customers who asked` : e.source_keys.join(", ")}
+        </p>
+      </div>
+      <div className="sp-entry-side">
+        <span className="sp-entry-date">pub. {dayWord(e.published_at)}</span>
+        {onRetire && (
+          <button type="button" className="prop-btn quiet" disabled={busy} onClick={onRetire}>
+            Retire
+          </button>
+        )}
+      </div>
+    </li>
   );
 }

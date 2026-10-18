@@ -1,0 +1,147 @@
+// Pure read-model for the content screen (the owner's instrument design,
+// 2026-10-17): the per-channel strips, each row's state word, and the
+// headline — all counted from the queue the API returns. No targets are
+// invented: a strip's "planned" is what is actually in the queue for
+// that channel, and "posted" is what actually published.
+
+export type ContentStatus =
+  "drafted" | "queued" | "publishing" | "published" | "failed" | "withdrawn";
+
+export interface QueueItem {
+  id: string;
+  kind: "post" | "email" | "shot_list" | "video";
+  channel_label: string;
+  scheduled_for: string | null;
+  status: ContentStatus;
+  publish_proposal_id: string | null;
+  published_at: string | null;
+}
+
+export interface ChannelStrip {
+  channel: string;
+  planned: number;
+  posted: number;
+  first: string | null;
+  last: string | null;
+  /** Unposted items dated before today. */
+  overdue: number;
+  /** The next unposted date, today or later. */
+  next: string | null;
+  state: "behind" | "on_pace" | "done";
+}
+
+const LIVE: ReadonlySet<ContentStatus> = new Set(["drafted", "queued", "publishing", "failed"]);
+
+/** One strip per channel, in the order channels first appear in the queue. */
+export function channelStrips(items: readonly QueueItem[], today: string): ChannelStrip[] {
+  const by = new Map<string, QueueItem[]>();
+  for (const item of items) {
+    if (item.status === "withdrawn") continue;
+    by.set(item.channel_label, [...(by.get(item.channel_label) ?? []), item]);
+  }
+  return [...by.entries()].map(([channel, list]) => {
+    const dates = list.map((i) => i.scheduled_for).filter((d): d is string => d !== null);
+    dates.sort();
+    const unposted = list.filter((i) => LIVE.has(i.status));
+    const overdue = unposted.filter((i) => i.scheduled_for !== null && i.scheduled_for < today);
+    const upcoming = unposted
+      .map((i) => i.scheduled_for)
+      .filter((d): d is string => d !== null && d >= today)
+      .sort();
+    const posted = list.filter((i) => i.status === "published").length;
+    return {
+      channel,
+      planned: list.length,
+      posted,
+      first: dates[0] ?? null,
+      last: dates[dates.length - 1] ?? null,
+      overdue: overdue.length,
+      next: upcoming[0] ?? null,
+      state: overdue.length > 0 ? "behind" : unposted.length === 0 ? "done" : "on_pace",
+    };
+  });
+}
+
+export type Tone = "live" | "ok" | "low" | "drift" | "alarm";
+
+/** The state word a row wears, and the tone that tints it. */
+export function stateWord(
+  item: QueueItem,
+  dayWord: (iso: string) => string,
+): {
+  word: string;
+  tone: Tone;
+} {
+  switch (item.status) {
+    case "drafted":
+      return item.publish_proposal_id !== null
+        ? { word: "in your queue", tone: "live" }
+        : { word: "drafted", tone: "low" };
+    case "queued":
+      return {
+        word: item.scheduled_for ? `scheduled ${dayWord(item.scheduled_for)}` : "scheduled",
+        tone: "ok",
+      };
+    case "publishing":
+      return { word: "publishing", tone: "live" };
+    case "published":
+      return {
+        word: item.published_at ? `posted ${dayWord(item.published_at.slice(0, 10))}` : "posted",
+        tone: "ok",
+      };
+    case "failed":
+      return { word: "failed", tone: "alarm" };
+    case "withdrawn":
+      return { word: "withdrawn", tone: "low" };
+  }
+}
+
+const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+const NUMBER_WORD = [
+  "None",
+  "One",
+  "Two",
+  "Three",
+  "Four",
+  "Five",
+  "Six",
+  "Seven",
+  "Eight",
+  "Nine",
+];
+const lead = (n: number) => NUMBER_WORD[n] ?? String(n);
+
+/** The page's one sentence, from the queue as it stands. */
+export function contentHeadline(args: {
+  items: readonly QueueItem[];
+  producible: number;
+  blocked: number;
+  nextDate: string | null;
+}): string {
+  const { items, producible, blocked, nextDate } = args;
+  const drafts = items.filter((i) => i.status === "drafted");
+  const inQueue = drafts.filter((i) => i.publish_proposal_id !== null).length;
+  if (items.length === 0) {
+    return producible > 0
+      ? `Nothing drafted yet. ${lead(producible)} approved ${producible === 1 ? "plan is" : "plans are"} ready to draft.`
+      : "Nothing drafted yet.";
+  }
+  if (drafts.length === 0) {
+    const scheduled = items.filter((i) => i.status === "queued").length;
+    const posted = items.filter((i) => i.status === "published").length;
+    return `${scheduled} scheduled. ${lead(posted)} posted.`;
+  }
+  const first = `${plural(drafts.length, "draft")}.`;
+  if (inQueue > 0) return `${first} ${lead(inQueue)} ${inQueue === 1 ? "needs" : "need"} your yes.`;
+  if (producible > 0) {
+    return `${first} ${lead(producible)} more approved ${producible === 1 ? "plan" : "plans"} to draft.`;
+  }
+  if (blocked >= drafts.length) return `${first} None can post yet.`;
+  if (nextDate) return `${first} The next one is due ${nextDate}.`;
+  return first;
+}
+
+/** A short, real handle for an item: the first four hex digits of its id. */
+export function shortId(prefix: string, id: string): string {
+  return `${prefix}-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
+}

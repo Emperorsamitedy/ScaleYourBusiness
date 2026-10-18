@@ -3,10 +3,10 @@
 import { useEffect, useRef } from "react";
 import type { ControlProps } from "./shared";
 
-export function NumberControl({ onChange, onCommit }: ControlProps) {
+export function NumberControl({ question, onChange, onCommit }: ControlProps) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    ref.current?.focus();
+    ref.current?.focus({ preventScroll: true });
   }, []);
 
   const wireOf = (raw: string): unknown => {
@@ -19,7 +19,8 @@ export function NumberControl({ onChange, onCommit }: ControlProps) {
   return (
     <input
       ref={ref}
-      className="field tabular"
+      aria-labelledby={`q-${question.id}`}
+      className="ix-input ix-num"
       type="number"
       inputMode="decimal"
       autoComplete="off"

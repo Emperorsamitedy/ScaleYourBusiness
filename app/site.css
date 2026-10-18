@@ -1,0 +1,328 @@
+/* The website screen — the owner's instrument design (2026-10-17).
+   Tabs of proposed changes on the desk; the open one is a paper sheet:
+   now / proposed renders side by side, the swap in a ruled table, the
+   expected effect, reversibility, then the actions. Tokens from
+   sheet.css; square, ruled, no shadows. Scoped under .st-screen. */
+
+.st-screen .st-stop {
+  margin: 0 0 14px;
+}
+.st-screen .st-stop:empty {
+  display: none;
+}
+.st-screen .st-notice {
+  margin: 0 0 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--desk-rule);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink);
+}
+
+/* ── tabs: outlined on the desk, the open one is paper ── */
+
+.st-screen .st-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 17px;
+}
+.st-screen .st-tab {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--desk-ink);
+  background: transparent;
+  color: var(--desk-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.st-screen .st-tab:hover {
+  background: var(--raised);
+}
+.st-screen .st-tab.on {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--sheet-ink);
+}
+
+/* ── the change sheet ── */
+
+.st-screen .cs {
+  --hair: var(--rule-soft);
+  --raised: var(--inset);
+}
+.st-screen .st-sheet .cs-head {
+  align-items: flex-start;
+}
+.st-screen .st-sheet .cs-title {
+  overflow-wrap: anywhere;
+}
+.st-screen .st-flags {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.st-screen .word.live {
+  color: var(--live);
+}
+
+.st-screen .st-preview-bar {
+  margin: 0;
+  padding: 15px 20px 0;
+}
+.st-screen .st-preview-bar .cs-label {
+  margin: 0;
+}
+.st-screen .st-small {
+  min-height: 40px;
+  padding: 0 12px;
+}
+.st-screen .st-small[aria-pressed="true"] {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.st-screen .st-frames {
+  gap: 0;
+  margin: 12px 0 0;
+  border-top: 1px solid var(--rule-soft);
+  border-bottom: 1px solid var(--rule-soft);
+}
+.st-screen .st-frame-col {
+  gap: 10px;
+  padding: 14px 20px 20px;
+  min-width: 0;
+}
+.st-screen .st-frame-col + .st-frame-col {
+  border-left: 1px solid var(--rule-soft);
+}
+.st-screen .st-frame-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+}
+.st-screen .st-frame-word {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.st-screen .st-frame-url {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.st-screen .st-frame-clip {
+  border: 1px solid var(--sheet-ink);
+}
+
+.st-screen .st-changes {
+  padding: 8px 15px 14px;
+}
+.st-screen .st-table tbody td,
+.st-screen .st-table tbody th {
+  vertical-align: top;
+}
+.st-screen .st-n {
+  font-family: var(--f-mono);
+  width: 2.5em;
+}
+.st-screen .st-quote {
+  overflow-wrap: anywhere;
+}
+.st-screen .st-gap {
+  margin: 15px 10px 6px;
+}
+.st-screen .st-evidence,
+.st-screen .st-unread {
+  margin: 0;
+  padding: 0 10px;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.st-screen .st-unread {
+  margin-top: 12px;
+  padding: 0;
+  color: var(--sheet-ink-2);
+}
+
+.st-screen .st-expect {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 14px 22px;
+  align-items: end;
+  padding: 15px 20px 17px;
+  border-top: 1px solid var(--rule-soft);
+  border-bottom: 3px double var(--sheet-ink);
+}
+.st-screen .st-expect-line {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(15.5px, 1.18vw, 17.5px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.st-screen .st-expect-sub {
+  margin: 8px 0 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+.st-screen .st-rev {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+}
+.st-screen .st-rev .word.boxed {
+  color: var(--sheet-ink);
+}
+.st-screen .st-rev .word.boxed.alarm {
+  color: var(--alarm);
+}
+
+.st-screen .st-platform {
+  padding: 14px 20px 4px;
+}
+.st-screen .st-note {
+  margin: 0 0 10px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.st-screen .st-steps {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+
+.st-screen .st-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 20px 17px;
+  border-top: 1px solid var(--rule-soft);
+}
+.st-screen .st-wide {
+  flex: 1 1 260px;
+  justify-content: space-between;
+}
+
+/* ── the propose form ── */
+
+.st-screen .st-form {
+  max-width: 640px;
+  margin: 0;
+  gap: 6px;
+}
+.st-screen .st-form .cs-label {
+  margin: 10px 0 0;
+}
+.st-screen .st-form > div {
+  margin-top: 15px;
+}
+.st-screen .st-input {
+  min-height: 48px;
+  padding: 0 4px;
+  border: 0;
+  border-bottom: 1px solid var(--sheet-ink);
+  background: transparent;
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 14px;
+}
+.st-screen .st-input::placeholder {
+  color: var(--sheet-ink-2);
+}
+
+.st-screen .st-fine {
+  margin: 17px 0 0;
+  max-width: var(--measure);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--desk-ink-2);
+}
+
+@media (max-width: 880px) {
+  .st-screen .st-frame-col + .st-frame-col {
+    border-left: 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+}
+
+@media (max-width: 719px) {
+  .st-screen .st-tab {
+    flex: 1 1 100%;
+  }
+  .st-screen .st-flags {
+    align-items: flex-start;
+  }
+  .st-screen .st-preview-bar,
+  .st-screen .st-frame-col,
+  .st-screen .st-expect,
+  .st-screen .st-platform,
+  .st-screen .st-actions {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .st-screen .st-changes {
+    padding: 8px 4px 14px;
+  }
+  .st-screen .st-expect {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* ruled tables become labelled records */
+  .st-screen .st-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .st-screen .st-table,
+  .st-screen .st-table tbody,
+  .st-screen .st-table tr,
+  .st-screen .st-table th,
+  .st-screen .st-table td {
+    display: block;
+  }
+  .st-screen .st-table tr {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .st-screen .st-table tbody th,
+  .st-screen .st-table tbody td {
+    width: auto;
+    padding: 3px 0;
+    border: 0;
+  }
+  .st-screen .st-table tbody td::before {
+    content: attr(data-label) " · ";
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sheet-ink-2);
+  }
+}

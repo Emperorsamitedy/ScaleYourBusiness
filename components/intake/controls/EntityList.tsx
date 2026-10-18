@@ -55,7 +55,8 @@ function SubField({
     case "single_select":
       return (
         <select
-          className="field subfield-select"
+          className="ix-input ix-select"
+          aria-label={field.prompt}
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -70,14 +71,14 @@ function SubField({
     case "multi_select": {
       const selected = Array.isArray(value) ? value : [];
       return (
-        <div className="opts opts-compact" role="group" aria-label={field.prompt}>
+        <div className="ix-chips" role="group" aria-label={field.prompt}>
           {field.options.map((o) => {
             const on = selected.includes(o.code);
             return (
               <button
                 key={o.code}
                 type="button"
-                className="opt opt-compact"
+                className="ix-chip"
                 aria-pressed={on}
                 onClick={() =>
                   onChange(on ? selected.filter((c) => c !== o.code) : [...selected, o.code])
@@ -93,7 +94,8 @@ function SubField({
     case "boolean":
       return (
         <select
-          className="field subfield-select"
+          className="ix-input ix-select"
+          aria-label={field.prompt}
           value={value === true ? "yes" : value === false ? "no" : ""}
           onChange={(e) => onChange(e.target.value === "yes")}
         >
@@ -105,9 +107,10 @@ function SubField({
     case "long_text":
       return (
         <input
-          className="field"
+          className="ix-input"
           type="text"
           placeholder={field.prompt}
+          aria-label={field.prompt}
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={enter}
@@ -115,25 +118,27 @@ function SubField({
       );
     case "money":
       return (
-        <span className="subfield-money">
+        <span className="ix-sub-money">
           <input
-            className="field"
+            className="ix-input"
             type="text"
             inputMode="numeric"
             placeholder={field.prompt}
+            aria-label={field.prompt}
             value={typeof value === "string" ? value : ""}
             onChange={(e) => onChange(e.target.value.replace(/[^\d.,\s]/g, ""))}
             onKeyDown={enter}
           />
-          <span className="currency-suffix">{field.currency}</span>
+          <span className="ix-note">{field.currency}</span>
         </span>
       );
     default:
       return (
         <input
-          className="field"
+          className="ix-input"
           type={field.input_type === "number" ? "number" : "text"}
           placeholder={field.prompt}
+          aria-label={field.prompt}
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={enter}
@@ -186,10 +191,10 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
   };
 
   return (
-    <div className="entity-rows" ref={firstInput}>
+    <div className="ix-entities" ref={firstInput}>
       {rows.map((row, i) => (
-        <div className="entity-row" key={i}>
-          <div className="entity-grid">
+        <div className="ix-entity" key={i}>
+          <div className="ix-entity-grid">
             {core.map((f) => (
               <SubField
                 key={f.key}
@@ -201,7 +206,7 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
             ))}
           </div>
           {detailOpen.has(i) && (
-            <div className="entity-grid entity-detail">
+            <div className="ix-entity-grid detail">
               {rest.map((f) => (
                 <SubField
                   key={f.key}
@@ -213,11 +218,11 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
               ))}
             </div>
           )}
-          <div className="entity-row-actions">
+          <div className="ix-entity-actions">
             {rest.length > 0 && (
               <button
                 type="button"
-                className="ghost quiet"
+                className="ix-link"
                 aria-expanded={detailOpen.has(i)}
                 onClick={() =>
                   setDetailOpen((prev) => {
@@ -234,7 +239,7 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
             {rows.length > 1 && (
               <button
                 type="button"
-                className="ghost quiet"
+                className="ix-link"
                 aria-label={`Remove row ${i + 1}`}
                 onClick={() => setRows((prev) => prev.filter((_, idx) => idx !== i))}
               >
@@ -246,11 +251,11 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
       ))}
       <button
         type="button"
-        className="ghost add-row"
+        className="ix-link ix-add"
         disabled={rows.length >= 20}
         onClick={() => setRows((prev) => [...prev, {}])}
       >
-        + Add another
+        Add another row
       </button>
     </div>
   );

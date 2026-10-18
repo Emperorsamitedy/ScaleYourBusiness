@@ -21,6 +21,7 @@ import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/ha
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { listGoals } from "./goals";
+import { enumCode } from "../core/enum-value";
 
 export class ContentError extends Error {
   readonly status: number;
@@ -46,10 +47,10 @@ export async function listChannels(profileId: string): Promise<ChannelView[]> {
     .orderBy(channels.created_at);
   const views: ChannelView[] = [];
   for (const row of spine) {
-    const type = await readCurrentField<string>(profileId, `channels.${row.id}.type`);
-    const platform = await readCurrentField<string>(profileId, `channels.${row.id}.platform`);
-    const t = typeof type?.value === "string" ? type.value : null;
-    const p = typeof platform?.value === "string" ? platform.value : null;
+    const type = await readCurrentField<unknown>(profileId, `channels.${row.id}.type`);
+    const platform = await readCurrentField<unknown>(profileId, `channels.${row.id}.platform`);
+    const t = enumCode(type?.value);
+    const p = enumCode(platform?.value);
     views.push({ channel_id: row.id, type: t, platform: p, label: p ?? t ?? "channel" });
   }
   return views;

@@ -4,7 +4,11 @@
 //   POST /api/intake            start (or resume) a session
 //   GET  /api/intake            current state
 //   PUT  /api/intake            submit an answer  { question_id, action }
-//   PATCH /api/intake           interim entity count { question_id, count }
+//   PATCH /api/intake           entity rows { question_id, rows } (or interim { count })
+//
+// GET ?section=, and `section` in a PUT/PATCH body, name an area the owner
+// chose on the tile row: the next question comes from that area while it
+// has one, then normal order resumes. An unknown section is ignored.
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import {
@@ -19,6 +23,7 @@ import {
   bootstrapIntake,
   getIntakeState,
   IntakeError,
+  parseSection,
   submitAnswer,
   submitEntities,
   submitEntityCount,
@@ -84,7 +89,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // question. getIntakeState already honours a preferred id; unknown or
     // inapplicable ids simply fall back to normal selection.
     const ask = request.nextUrl.searchParams.get("ask") ?? undefined;
-    return NextResponse.json(await getIntakeState(session.account_id, session.profile_id, ask));
+    const section = parseSection(request.nextUrl.searchParams.get("section"));
+    return NextResponse.json(
+      await getIntakeState(session.account_id, session.profile_id, ask, section),
+    );
   } catch (error) {
     return errorResponse(error);
   }
@@ -94,12 +102,22 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await resolveSession();
     if (!session) return NextResponse.json({ error: "no intake session" }, { status: 404 });
-    const body = (await request.json()) as { question_id?: string; action?: AnswerAction };
+    const body = (await request.json()) as {
+      question_id?: string;
+      action?: AnswerAction;
+      section?: unknown;
+    };
     if (!body.question_id || !body.action) {
       return NextResponse.json({ error: "question_id and action required" }, { status: 400 });
     }
     return NextResponse.json(
-      await submitAnswer(session.account_id, session.profile_id, body.question_id, body.action),
+      await submitAnswer(
+        session.account_id,
+        session.profile_id,
+        body.question_id,
+        body.action,
+        parseSection(body.section),
+      ),
     );
   } catch (error) {
     return errorResponse(error);
@@ -114,13 +132,20 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       question_id?: string;
       count?: number;
       rows?: Record<string, unknown>[];
+      section?: unknown;
     };
     if (!body.question_id) {
       return NextResponse.json({ error: "question_id required" }, { status: 400 });
     }
     if (Array.isArray(body.rows)) {
       return NextResponse.json(
-        await submitEntities(session.account_id, session.profile_id, body.question_id, body.rows),
+        await submitEntities(
+          session.account_id,
+          session.profile_id,
+          body.question_id,
+          body.rows,
+          parseSection(body.section),
+        ),
       );
     }
     if (typeof body.count !== "number") {

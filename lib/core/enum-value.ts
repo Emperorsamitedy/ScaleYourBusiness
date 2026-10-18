@@ -50,3 +50,19 @@ export function enumValue(code: string, label_raw?: string): EnumValue {
 export function isOther(value: EnumValue): boolean {
   return value.code === OTHER_CODE;
 }
+
+/**
+ * The code a stored single-select answer holds. The intake writes an
+ * EnumValue ({code}); older screens and some writers store the bare code
+ * string. Every reader of a vocabulary field goes through this, so both
+ * shapes read the same — reading only strings silently dropped every
+ * intake-answered channel type, goal horizon and consent status.
+ */
+export function enumCode(value: unknown): string | null {
+  if (typeof value === "string") return value.trim() === "" ? null : value;
+  if (value !== null && typeof value === "object") {
+    const code = (value as { code?: unknown }).code;
+    if (typeof code === "string" && code.trim() !== "") return code;
+  }
+  return null;
+}

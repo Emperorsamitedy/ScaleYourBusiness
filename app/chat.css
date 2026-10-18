@@ -1,0 +1,242 @@
+/* Ask me anything — the conversation (the owner's chat design,
+   2026-10-17). components/chat/ChatScreen.tsx. Built on sheet.css: the
+   .cs paper sheet with its header band and double rule. Chat is ink and
+   grey; cobalt appears only while an answer is genuinely being written. */
+
+.ak-screen {
+  padding-top: 20px;
+}
+.ak-wait {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+.ak-copy {
+  margin: 0 0 15px;
+  max-width: var(--measure);
+  color: var(--sheet-ink-2);
+}
+
+.ak-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  max-width: 1120px;
+}
+.ak-layout.with-side {
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  max-width: none;
+}
+
+.ak-title {
+  font-size: clamp(15.5px, 1.44vw, 19.5px);
+  overflow-wrap: anywhere;
+}
+.ak-new {
+  flex: none;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-bottom: 1px solid var(--sheet-ink);
+  background: none;
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ak-new:hover {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+
+/* the thread */
+.ak-thread {
+  max-height: min(70vh, 900px);
+  overflow-y: auto;
+  padding: 18px 20px 8px;
+}
+.ak-empty {
+  margin: 0 0 14px;
+}
+.ak-turn {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  column-gap: 14px;
+  margin-bottom: 18px;
+}
+.ak-who {
+  margin: 0;
+  padding-top: 6px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ak-at {
+  display: block;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+.ak-who.live {
+  color: var(--live);
+}
+.ak-who .live-dot {
+  margin-right: 4px;
+  vertical-align: 1px;
+}
+.ak-text p {
+  margin: 0 0 12px;
+  max-width: var(--measure);
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.ak-text p:last-child {
+  margin-bottom: 0;
+}
+.ak-turn.owner .ak-text p {
+  font-family: var(--f-display);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.ak-turn.system .ak-text p {
+  font-size: 15px;
+  line-height: 1.65;
+}
+.ak-thinking {
+  color: var(--sheet-ink-2);
+}
+.ak-queued {
+  margin: 0;
+  padding: 14px 14px;
+  font-size: 14px;
+}
+
+/* the composer */
+.ak-composer {
+  padding: 15px 20px 17px;
+  border-top: 3px double var(--sheet-ink);
+}
+.ak-label {
+  display: block;
+  margin-bottom: 10px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ak-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+.ak-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 60px;
+  padding: 12px 14px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.45;
+  resize: vertical;
+}
+.ak-input::placeholder {
+  color: var(--sheet-ink-2);
+}
+.ak-input:disabled {
+  border-style: dashed;
+}
+.ak-ask {
+  flex: none;
+  align-self: center;
+  min-width: 110px;
+}
+.ak-rule {
+  margin: 10px 0 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+
+/* the side sheet */
+.ak-side-body {
+  padding: 15px 17px 18px;
+}
+.ak-side .cs-label {
+  margin-bottom: 12px;
+}
+.ak-earlier {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ak-earlier li {
+  margin-bottom: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.ak-earlier li:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1099px) {
+  .ak-layout.with-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .ak-screen {
+    padding-top: 14px;
+  }
+  .ak-thread {
+    max-height: none;
+    padding: 14px 14px 4px;
+  }
+  .ak-turn {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 6px;
+  }
+  .ak-who {
+    padding-top: 0;
+  }
+  .ak-at {
+    display: inline;
+    margin-left: 8px;
+  }
+  .ak-turn.owner .ak-text p {
+    font-size: 15px;
+  }
+  .ak-composer {
+    padding: 15px 14px 14px;
+  }
+  .ak-row {
+    flex-direction: column;
+  }
+  .ak-ask {
+    align-self: stretch;
+  }
+  .ak-side-body {
+    padding: 15px 14px 14px;
+  }
+}
+
+/* plain links read as ink, underlined — never a browser blue */
+.ak-screen a:not([class]) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.ak-screen a:not([class]):hover {
+  text-decoration-thickness: 2px;
+}

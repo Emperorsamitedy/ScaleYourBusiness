@@ -76,18 +76,18 @@ describe("P1-46 — the weekly watch job", () => {
   it("baseline, then held-steady, then a real diff — each said honestly", async () => {
     const s = await watchedProfile(30);
 
-    await runWeeklyWatch();
+    await runWeeklyWatch(new Date(), { profileIds: [s.profile_id] });
     let log = await activityOf(s.profile_id);
     expect(log.some((a) => a.detail.includes("Baseline snapshot"))).toBe(true);
 
     // Nothing changed: the log must say so, not invent motion.
-    await runWeeklyWatch();
+    await runWeeklyWatch(new Date(), { profileIds: [s.profile_id] });
     log = await activityOf(s.profile_id);
     expect(log.some((a) => a.detail.includes("held steady"))).toBe(true);
 
     // One real change: the diff names the movement.
     await put(s.profile_id, "identity.team_size", 4);
-    await runWeeklyWatch();
+    await runWeeklyWatch(new Date(), { profileIds: [s.profile_id] });
     log = await activityOf(s.profile_id);
     const diff = log.find((a) => a.kind === "diff_computed");
     expect(diff).toBeDefined();
@@ -96,9 +96,9 @@ describe("P1-46 — the weekly watch job", () => {
 
   it("a finished watch announces completion exactly once", async () => {
     const s = await watchedProfile(-1); // review date already passed
-    await runWeeklyWatch();
-    await runWeeklyWatch();
-    await runWeeklyWatch();
+    await runWeeklyWatch(new Date(), { profileIds: [s.profile_id] });
+    await runWeeklyWatch(new Date(), { profileIds: [s.profile_id] });
+    await runWeeklyWatch(new Date(), { profileIds: [s.profile_id] });
     const log = await activityOf(s.profile_id);
     expect(log.filter((a) => a.kind === "watch_complete")).toHaveLength(1);
     // And no snapshots were taken for an expired watch.

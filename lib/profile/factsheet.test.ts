@@ -20,7 +20,18 @@ import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { loadBank } from "../bank/loader";
 import { writeField } from "./field-store";
-import { buildFactSheet, gapBuys, repr } from "./factsheet";
+import type { SupersededRowInput } from "./factsheet";
+import {
+  buildFactSheet,
+  changedSince,
+  displayValue,
+  gapBuys,
+  groupHistory,
+  monthStart,
+  repr,
+  scheduleWords,
+  toSupersededFact,
+} from "./factsheet";
 import { ensureSnapshot } from "./snapshot";
 
 const BANK_PATH = "specs/question-bank-v1.json";
@@ -209,5 +220,91 @@ describe("P1-60 — gaps say what answering them buys", () => {
     expect(gapBuys({ priority: "core", unlocks: ["3.1", "3.2"] })).toContain("2 follow-ups");
     expect(gapBuys({ priority: "important", unlocks: null })).toContain("sharpens");
     expect(gapBuys({ priority: "deep", unlocks: [] })).toContain("precision");
+  });
+});
+
+describe("rule 3 on the sheet — superseded values are kept and shown", () => {
+  const row = (over: Partial<SupersededRowInput> = {}): SupersededRowInput => ({
+    field_key: "revenue.monthly_revenue",
+    value: { amount_minor: 3_800_000, currency: "EUR" },
+    status: "answered",
+    source: { kind: "owner_input" },
+    observed_at: "2026-09-14T00:00:00.000Z",
+    recorded_at: "2026-09-14T00:00:00.000Z",
+    superseded_at: "2026-10-12T00:00:00.000Z",
+    note: null,
+    ...over,
+  });
+
+  it("a superseded row becomes a history line; a current row does not", () => {
+    const line = toSupersededFact(row());
+    expect(line?.value).toBe("38 000 EUR");
+    expect(line?.source_kind).toBe("owner_input");
+    expect(line?.superseded_at).toBe("2026-10-12T00:00:00.000Z");
+    expect(toSupersededFact(row({ superseded_at: null }))).toBeNull();
+  });
+
+  it("groups by key, newest supersession first, capped per key", () => {
+    const a = toSupersededFact(row({ superseded_at: "2026-09-01T00:00:00.000Z" }))!;
+    const b = toSupersededFact(row({ superseded_at: "2026-10-01T00:00:00.000Z" }))!;
+    const c = toSupersededFact(row({ field_key: "legal.country" }))!;
+    const grouped = groupHistory([a, b, c]);
+    expect(grouped["revenue.monthly_revenue"]!.map((f) => f.superseded_at)).toEqual([
+      "2026-10-01T00:00:00.000Z",
+      "2026-09-01T00:00:00.000Z",
+    ]);
+    expect(grouped["legal.country"]).toHaveLength(1);
+    expect(groupHistory([a, b], 1)["revenue.monthly_revenue"]).toHaveLength(1);
+  });
+
+  it("'changed this month' counts a replacement on or after the month start, not before", () => {
+    const since = monthStart(new Date("2026-10-17T14:06:00Z"));
+    expect(since).toBe("2026-10-01T00:00:00.000Z");
+    const grouped = groupHistory([
+      toSupersededFact(row({ superseded_at: "2026-10-01T00:00:00.000Z" }))!,
+      toSupersededFact(
+        row({ field_key: "legal.country", superseded_at: "2026-09-30T23:59:59.000Z" }),
+      )!,
+    ]);
+    const changed = changedSince(grouped, since);
+    expect(changed.has("revenue.monthly_revenue")).toBe(true);
+    expect(changed.has("legal.country")).toBe(false);
+  });
+
+  it("an opening schedule reads as days; an unstated day is not called closed (rule 5)", () => {
+    const words = scheduleWords({
+      days: {
+        mon: [],
+        tue: [{ open: "20:00", close: "01:00" }],
+        wed: [],
+        thu: [],
+        fri: [{ open: "20:00", close: "02:00" }],
+        sat: [],
+        sun: [],
+      },
+      unstated: ["wed"],
+      unparsed: [],
+    });
+    expect(words).toBe(
+      "Mon closed · Tue 20:00–01:00 · Wed not stated · Thu closed · Fri 20:00–02:00 · Sat closed · Sun closed",
+    );
+    expect(scheduleWords({ code: "x" })).toBeNull();
+    expect(displayValue({ amount_minor: 4_000, currency: "EUR" })).toBe("40 EUR");
+    // repr itself is untouched: the diagnosis evidence was written from it
+    expect(repr({ days: { mon: [] } })).toContain("{");
+  });
+
+  it("the sheet carries the old value after a correction, and marks it changed this month", async () => {
+    await ownerSays("identity.description", "Kézműves szörpök és lekvárok");
+    const sheet = await buildFactSheet(profileId);
+    const past = sheet.history["identity.description"];
+    expect(past).toHaveLength(1);
+    expect(past![0]!.value).toBe("Kézműves szörpök");
+    expect(sheet.changed).toContain("identity.description");
+    const current = sheet.sections
+      .find((s) => s.section === "identity")
+      ?.facts.find((f) => f.key === "identity.description");
+    expect(current?.value).toBe("Kézműves szörpök és lekvárok");
+    expect(current?.recorded_at).toBeTruthy();
   });
 });

@@ -58,7 +58,7 @@ export interface NewProposal {
  * log stores the hash so later tampering with the row is detectable.
  */
 export function hashProposalPayload(
-  kind: "proposal" | "approval" | "rejection" | "execution",
+  kind: "proposal" | "approval" | "rejection" | "change_request" | "execution",
   payload: {
     proposal_id: string;
     profile_id: string;
@@ -165,6 +165,36 @@ export async function rejectProposal(args: {
 }
 
 /**
+ * Request changes — the queue's third answer: pending → changes_requested,
+ * by a named human, with the owner's words (required, like a decline's
+ * reason). It is not an approval, so nothing can execute from it (rule
+ * 12: the engine acts on approved rows only), and not a rejection, so it
+ * never counts toward P3-28's suppression. No redraft is automatic yet:
+ * the words are on the record and in the decision log.
+ */
+export async function requestChanges(args: {
+  proposalId: string;
+  userId: string;
+  words: string;
+  /** Ownership scope: when set, only this profile's proposals decide. */
+  profileId?: string;
+}): Promise<ProposalRow> {
+  if (args.words.trim() === "") {
+    throw new ProposalError(
+      "asking for changes needs the changes — say what should be different",
+      422,
+    );
+  }
+  return decide({
+    proposalId: args.proposalId,
+    userId: args.userId,
+    to: "changes_requested",
+    reason: args.words.trim(),
+    ...(args.profileId ? { profileId: args.profileId } : {}),
+  });
+}
+
+/**
  * P3-21a: a proposal may carry its own posting time (action.detail.publish_at,
  * a publish proposal's date at its posting hour). Approving without choosing
  * a time keeps that one; an owner-picked time always wins.
@@ -180,10 +210,16 @@ async function carriedSchedule(proposalId: string): Promise<string | null> {
     : null;
 }
 
+const LOG_KIND = {
+  approved: "approval",
+  rejected: "rejection",
+  changes_requested: "change_request",
+} as const;
+
 async function decide(args: {
   proposalId: string;
   userId: string;
-  to: "approved" | "rejected";
+  to: "approved" | "rejected" | "changes_requested";
   reason?: string;
   executeNotBefore?: string | null;
   profileId?: string;
@@ -197,6 +233,7 @@ async function decide(args: {
         decided_by: args.userId,
         decided_at: now,
         rejection_reason: args.to === "rejected" ? (args.reason as string) : null,
+        change_request: args.to === "changes_requested" ? (args.reason as string) : null,
         execute_not_before: args.to === "approved" ? (args.executeNotBefore ?? null) : null,
       })
       .where(
@@ -232,17 +269,19 @@ async function decide(args: {
       }
       throw new ProposalError(`this proposal is already ${cur.status}`, 409);
     }
+    const kind = LOG_KIND[args.to];
     await tx.insert(decisionLog).values({
       profile_id: row.profile_id,
       actor: "owner",
-      kind: args.to === "approved" ? "approval" : "rejection",
+      kind,
       ref_id: row.id,
-      payload_hash: hashProposalPayload(args.to === "approved" ? "approval" : "rejection", {
+      payload_hash: hashProposalPayload(kind, {
         proposal_id: row.id,
         profile_id: row.profile_id,
         status: row.status,
         decided_by: row.decided_by,
         rejection_reason: row.rejection_reason,
+        ...(row.change_request ? { detail: { change_request: row.change_request } } : {}),
       }),
     });
     return row;
@@ -336,7 +375,7 @@ export interface ProposalQueue {
   pending: ProposalRow[];
   /** Born blocked by a 13.5 limit — the restraint view (rule 14). */
   blocked: ProposalRow[];
-  /** Approved, rejected, executed — history, newest first. */
+  /** Approved, rejected, changes requested, executed — history, newest first. */
   decided: ProposalRow[];
   /** Ran out of time, undecided. Never mixed with rejected (P3-06). */
   expired: ProposalRow[];
