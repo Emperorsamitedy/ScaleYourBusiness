@@ -10,8 +10,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { num } from "../sheet/num";
-import type { SendView } from "./campaign-view";
-import { countRows, phaseFlag, refusalLines, sendSentence, unknownLine } from "./campaign-view";
+import type { ReadbackView, SendView } from "./campaign-view";
+import {
+  countRows,
+  measuredSentence,
+  phaseFlag,
+  readbackFlag,
+  readbackRows,
+  refusalLines,
+  sendSentence,
+  unknownLine,
+} from "./campaign-view";
 
 export interface CampaignView {
   proposal_id: string;
@@ -26,6 +35,8 @@ export interface CampaignView {
   recipients?: number;
   irreversible?: boolean;
   send?: SendView;
+  /** P4-17: the readback, once it has gone out; absent from an older API. */
+  readback?: ReadbackView | null;
 }
 
 type Act = (
@@ -219,6 +230,45 @@ export function CampaignCard({
           {unknownLine(send.counts) && <p className="cu-rec-note">{unknownLine(send.counts)}</p>}
         </>
       )}
+
+      {c.readback && <Readback r={c.readback} />}
     </article>
+  );
+}
+
+/** P4-17: what happened after it went out, as numbers, the verdict and what wasn't measured. */
+function Readback({ r }: { r: ReadbackView }) {
+  const flag = readbackFlag(r.verdict);
+  return (
+    <section className="cu-readback" aria-label="What happened after it went out">
+      <div className="cu-readback-head">
+        <span className="cs-label">What happened after it went out</span>
+        <span className={`flag ${flag.tone}`}>{flag.word}</span>
+      </div>
+      <table className="rt cu-readback-table">
+        <thead>
+          <tr>
+            <th scope="col"> </th>
+            <th scope="col" className="num">
+              count
+            </th>
+            <th scope="col" className="num">
+              rate
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {readbackRows(r).map((row) => (
+            <tr key={row.label}>
+              <th scope="row">{row.label}</th>
+              <td className="num">{row.count}</td>
+              <td className="num">{row.rate}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="cu-rec-note">{r.arithmetic}.</p>
+      <p className="cu-send-line">{measuredSentence(r)}</p>
+    </section>
   );
 }

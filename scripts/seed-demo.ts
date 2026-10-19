@@ -41,6 +41,8 @@ import "dotenv/config";
 import { localDatabaseHost } from "./seed-demo-guard";
 
 const DEMO_EMAIL = "demo@syb.test";
+/** P4-17: the second demo owner, whose campaign has gone out and been read back. */
+const OUTBOUND_EMAIL = "demo-outbound@syb.test";
 const DAY_MS = 86_400_000;
 
 /* ── the simulated clock ── */
@@ -108,6 +110,16 @@ async function main(): Promise<void> {
     const archived = `demo-archived-${new Date().toISOString().replace(/\D/g, "").slice(0, 14)}@syb.test`;
     await db.update(users).set({ email: archived }).where(eq(users.id, existing.id));
     log(`archived the previous demo owner as ${archived} (its account is kept, nothing deleted).`);
+    const [second] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, OUTBOUND_EMAIL));
+    if (second) {
+      await db
+        .update(users)
+        .set({ email: archived.replace("demo-archived-", "demo-outbound-archived-") })
+        .where(eq(users.id, second.id));
+    }
   } else if (existing) {
     log(
       `demo already seeded (${DEMO_EMAIL}) — nothing written. Re-seed around today with --fresh.`,
@@ -134,6 +146,18 @@ async function printSignIn(): Promise<void> {
   console.log("");
   console.log(`Sign in as ${DEMO_EMAIL} (one use, expires in ${LOGIN_TTL_MINUTES} minutes):`);
   console.log(`  ${origin}/api/auth/redeem?token=${login.token}`);
+  const { db } = await import("../db");
+  const { users } = await import("../db/schema");
+  const { eq } = await import("drizzle-orm");
+  const [second] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, OUTBOUND_EMAIL));
+  if (second) {
+    const other = await requestLogin(OUTBOUND_EMAIL, null);
+    console.log(`Sign in as ${OUTBOUND_EMAIL}: a campaign that went out, read back on /customers:`);
+    console.log(`  ${origin}/api/auth/redeem?token=${other.token}`);
+  }
   console.log("A fresh link any time: npm run db:seed-demo -- --link");
 }
 
@@ -245,6 +269,10 @@ async function seed(): Promise<void> {
     { table: "support_settings", column: "created_at", scope: "profile" },
     { table: "support_tickets", column: "created_at", scope: "profile" },
     { table: "support_replies", column: "created_at", scope: "profile" },
+    { table: "executions", column: "started_at", scope: "profile" },
+    { table: "campaign_sends", column: "created_at", scope: "profile" },
+    { table: "contacts", column: "consent_captured_at", scope: "account" },
+    { table: "contacts", column: "first_seen_at", scope: "account" },
   ];
 
   async function dbNow(): Promise<string> {
@@ -252,18 +280,22 @@ async function seed(): Promise<void> {
     return String((result.rows[0] as { now: string }).now);
   }
 
-  async function restamp(since: string, shiftMs: number): Promise<void> {
+  async function restamp(
+    since: string,
+    shiftMs: number,
+    who: { account: string; profile: string } = ids,
+  ): Promise<void> {
     for (const t of STAMPED) {
       const scopeColumn =
         t.scope === "self" ? "id" : t.scope === "profile" ? "profile_id" : "account_id";
       const scopeValue =
         t.scope === "self"
           ? t.table === "accounts"
-            ? ids.account
-            : ids.profile
+            ? who.account
+            : who.profile
           : t.scope === "profile"
-            ? ids.profile
-            : ids.account;
+            ? who.profile
+            : who.account;
       if (!scopeValue) continue;
       await db.execute(
         sql`update ${sql.identifier(t.table)} set ${sql.identifier(t.column)} = ${sql.identifier(t.column)} - (${shiftMs}::bigint * interval '1 millisecond') where ${sql.identifier(scopeColumn)} = ${scopeValue} and ${sql.identifier(t.column)} >= ${since}::timestamptz`,
@@ -271,7 +303,12 @@ async function seed(): Promise<void> {
     }
   }
 
-  async function phase<T>(label: string, when: string, run: () => Promise<T>): Promise<T> {
+  async function phase<T>(
+    label: string,
+    when: string,
+    run: () => Promise<T>,
+    who: { account: string; profile: string } = ids,
+  ): Promise<T> {
     const since = await dbNow();
     offsetMs = RealDate.parse(when) - RealDate.now();
     log(`${when.slice(0, 16).replace("T", " ")} · ${label}`);
@@ -280,7 +317,7 @@ async function seed(): Promise<void> {
     } finally {
       const shift = -offsetMs;
       offsetMs = 0;
-      if (shift > 0) await restamp(since, shift);
+      if (shift > 0) await restamp(since, shift, who);
     }
   }
 
@@ -1711,6 +1748,278 @@ async function seed(): Promise<void> {
         eq(schema.connections.purpose, "measure"),
       ),
     );
+
+  /* ── 11. a second, smaller business: a campaign that went out, and its readback (P4-17) ── */
+
+  // Fernhill is still being watched, so nothing of its can have been sent
+  // (rule 15) — a sent campaign there would teach the wrong story. The
+  // readback lives on a second demo owner, "Emberworks Candles", past its
+  // watch: a win-back sent 42 days ago through the real engine and executor
+  // with an in-process fake email service (the global fetch stays sealed;
+  // the key and address set for that one step are placeholders the fake
+  // never checks), delivery events from recorded-shape fixtures, one
+  // unsubscribe through the real link, and the shop export six days ago
+  // that shows who came back. No network, no model.
+  const outbound = { account: "", profile: "", user: "" };
+  {
+    const { consentToCampaignEmail: grant } = await import("../lib/execution/email-consent");
+    const { dbCampaignBackend, sendCampaignNow } = await import("../lib/crm/campaign-send");
+    const { createEmailCampaignExecutor } =
+      await import("../lib/execution/providers/email-campaign");
+    const { jurisdictionTableHash, lawReviewVerdict } = await import("../lib/crm/law-review");
+    const { applyDeliveryEvent, parseDeliveryEvent } = await import("../lib/crm/campaign-events");
+    const { deliveryEvent } = await import("../lib/crm/resend-event-fixtures");
+    const { unsubscribe } = await import("../lib/unsubscribe/unsubscribe");
+    const { emailCampaignOutcome } = await import("../lib/trust/email-readback");
+
+    const YES = [
+      "Maeve",
+      "Cian",
+      "Orla",
+      "Darragh",
+      "Niamh",
+      "Eoin",
+      "Sadhbh",
+      "Ronan",
+      "Clodagh",
+      "Tadhg",
+      "Grainne",
+      "Fiachra",
+    ];
+    const UNSURE = [
+      "Siobhan",
+      "Colm",
+      "Una",
+      "Padraig",
+      "Roisin",
+      "Diarmuid",
+      "Ailbhe",
+      "Cormac",
+      "Brid",
+      "Lorcan",
+    ];
+    const address = (name: string, i: number) => `${name.toLowerCase()}.${i}@example.org`;
+    const csv = (
+      names: readonly string[],
+      offset: number,
+      lastOrder: (i: number) => string,
+      orders: (i: number) => number,
+    ) =>
+      [
+        "Name,Email,Orders Count,Last Order Date",
+        ...names.map((n, i) => `${n},${address(n, i + offset)},${orders(i)},${lastOrder(i)}`),
+      ].join("\n");
+    const lapsedDay = (i: number) => data.shiftDay(today, -(260 + i * 9));
+    const who = { account: "", profile: "" };
+
+    await phase(
+      "Emberworks: intake answers and the shop export",
+      at(70, "10:00"),
+      async () => {
+        const boot = await bootstrapIntake();
+        outbound.account = who.account = boot.account_id;
+        outbound.profile = who.profile = boot.profile_id;
+        const session = await signInWithEmail(
+          `demo-outbound-seeding-${crypto.randomUUID()}@syb.test`,
+          outbound.profile,
+        );
+        outbound.user = session.user_id;
+        await db
+          .update(schema.users)
+          .set({ display_name: "Ciara" })
+          .where(eq(schema.users.id, outbound.user));
+        await submitAnswer(outbound.account, outbound.profile, "1.1", {
+          kind: "value",
+          wire: "Emberworks Candles",
+        });
+        await submitAnswer(outbound.account, outbound.profile, "1.1b", {
+          kind: "value",
+          wire: "Ireland",
+        });
+        await importContacts(
+          outbound.account,
+          csv(YES, 0, lapsedDay, (i) => 1 + (i % 3)),
+          {
+            status: "explicit_consent",
+            statement: "Shopify export, customers who ticked 'email me news' at checkout",
+          },
+        );
+        await importContacts(
+          outbound.account,
+          csv(UNSURE, 100, lapsedDay, (i) => 1 + (i % 2)),
+          { status: "unsure", statement: "market-stall customers who gave an email for a receipt" },
+        );
+      },
+      who,
+    );
+
+    await phase(
+      "Emberworks: the watch ended — instant mode",
+      at(50, "09:00"),
+      async () => {
+        await db.insert(schema.modeDecisions).values({
+          profile_id: outbound.profile,
+          mode: "instant",
+          watch_weeks: null,
+          decided_at: new Date().toISOString(),
+          inputs: { reasons: ["demo: a second business, past its watch"] },
+          reasoning: "Demo fixture: the four-week watch ended without a concern.",
+          confidence: "0.800",
+          review_at: new Date(Date.now() + 42 * DAY_MS).toISOString(),
+        });
+      },
+      who,
+    );
+
+    const saved = {
+      SESSION_D_REAL_WRITES: process.env.SESSION_D_REAL_WRITES,
+      RESEND_API_KEY: process.env.RESEND_API_KEY,
+      APP_URL: process.env.APP_URL,
+      EMAIL_FROM: process.env.EMAIL_FROM,
+    };
+    const sentTo: { to: string; text: string }[] = [];
+    let winbackId = "";
+    await phase(
+      "Emberworks: win-back proposed, approved, drafted and sent",
+      at(42, "10:30"),
+      async () => {
+        const proposed = await proposeFromSegments(outbound.profile, {
+          limitLlm: async () => ({ text: JSON.stringify({ limits: [] }), calls: [] }),
+        });
+        const winback = proposed.created.find(
+          (p) => (p.action as { detail?: { segment?: string } }).detail?.segment === "lapsed",
+        );
+        if (!winback) throw new Error("Emberworks: no win-back proposed");
+        winbackId = winback.id;
+        await approveProposal({
+          proposalId: winback.id,
+          userId: outbound.user,
+          profileId: outbound.profile,
+        });
+        await draftCampaign(winback.id, {
+          expectedProfileId: outbound.profile,
+          draftLlm: async () => ({
+            text: "It's been a while.\n\nThe autumn candles are poured: fig and cedar, and the smoked-oak one people kept asking about. If you've run out, they're on the shop this week.\n\nCiara",
+          }),
+        });
+        await grant({
+          accountId: outbound.account,
+          senderName: "Emberworks Candles",
+          replyTo: "hello@emberworks-candles.example",
+          confirmation: "allow campaign email",
+        });
+        const draft = await campaignDraftFor(winback.id);
+        if (!draft) throw new Error("Emberworks: no draft");
+        await approveCampaignEmail({
+          profileId: outbound.profile,
+          proposalId: winback.id,
+          userId: outbound.user,
+          subject: "The autumn candles are poured",
+          bodySha256: sha256Hex(draft.body),
+        });
+        // For this one step only: placeholders the in-process fake never checks.
+        process.env.SESSION_D_REAL_WRITES = "on";
+        process.env.RESEND_API_KEY = "re_demo_in_process_fake";
+        process.env.APP_URL = "https://demo.syb.test";
+        process.env.EMAIL_FROM = "Ledgerline <campaigns@syb.test>";
+        const current = lawReviewVerdict(
+          { table_sha256: jurisdictionTableHash(), reviewed_on: today },
+          jurisdictionTableHash(),
+        );
+        try {
+          const run = await sendCampaignNow({
+            profileId: outbound.profile,
+            proposalId: winback.id,
+            sleep: async () => undefined,
+            provider: createEmailCampaignExecutor({
+              sleep: async () => undefined,
+              backend: dbCampaignBackend({ lawReview: async () => current }),
+              fetch: async (_url, init) => {
+                const body = JSON.parse(String(init.body)) as { to: string[]; text: string };
+                sentTo.push({ to: body.to[0] ?? "", text: body.text });
+                return new Response(JSON.stringify({ id: crypto.randomUUID() }), { status: 200 });
+              },
+            }),
+          });
+          if (run.result !== "sent") throw new Error(`Emberworks send: ${run.message}`);
+        } finally {
+          for (const [k, v] of Object.entries(saved)) {
+            if (v === undefined) delete process.env[k];
+            else process.env[k] = v;
+          }
+        }
+        log(`  win-back sent to ${sentTo.length} (a fake email service, in process)`);
+      },
+      who,
+    );
+
+    await phase(
+      "Emberworks: delivery reports and one unsubscribe",
+      at(41, "08:00"),
+      async () => {
+        const sends = await db
+          .select()
+          .from(schema.campaignSends)
+          .where(eq(schema.campaignSends.proposal_id, winbackId));
+        const bounced = address(YES[11] as string, 11);
+        for (const row of sends) {
+          if (!row.provider_message_id || row.contact_id === null) continue;
+          const [c] = await db
+            .select({ email: schema.contacts.email })
+            .from(schema.contacts)
+            .where(eq(schema.contacts.id, row.contact_id));
+          const type = c?.email === bounced ? "email.bounced" : "email.delivered";
+          const event = parseDeliveryEvent(
+            deliveryEvent(type, row.provider_message_id, { at: new Date().toISOString() }),
+          );
+          if (event) await applyDeliveryEvent(event);
+        }
+        const leaving = sentTo.find((m) => m.to === address(YES[7] as string, 7));
+        const token = leaving ? /\/u\/([A-Za-z0-9_-]{43})/.exec(leaving.text)?.[1] : undefined;
+        if (token) await unsubscribe(token);
+      },
+      who,
+    );
+
+    await phase(
+      "Emberworks: the October shop export",
+      at(6, "18:00"),
+      async () => {
+        // Four of the twelve came back after the email; one of the ten who never said yes did.
+        await importContacts(
+          outbound.account,
+          csv(
+            YES,
+            0,
+            (i) => (i < 4 ? data.shiftDay(today, -(30 - i * 5)) : lapsedDay(i)),
+            (i) => 1 + (i % 3) + (i < 4 ? 1 : 0),
+          ),
+          { status: "implied_consent", statement: "the October Shopify export" },
+        );
+        await importContacts(
+          outbound.account,
+          csv(
+            UNSURE,
+            100,
+            (i) => (i === 0 ? data.shiftDay(today, -20) : lapsedDay(i)),
+            (i) => 1 + (i % 2) + (i === 0 ? 1 : 0),
+          ),
+          { status: "implied_consent", statement: "the October market-stall list" },
+        );
+      },
+      who,
+    );
+
+    const outcome = await emailCampaignOutcome({
+      id: winbackId,
+      action: { detail: { segment: "lapsed" } },
+    });
+    log(`  Emberworks win-back readback: ${outcome.verdict}. ${outcome.arithmetic}`);
+    await db
+      .update(schema.users)
+      .set({ email: OUTBOUND_EMAIL })
+      .where(eq(schema.users.id, outbound.user));
+  }
 
   // Finished: the demo address now exists, so a re-run stops at the door.
   await db.update(schema.users).set({ email: DEMO_EMAIL }).where(eq(schema.users.id, ids.user));

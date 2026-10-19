@@ -42,7 +42,7 @@ export const REFUSAL_WORDS: Readonly<Record<string, string>> = {
   consent_implied: "consent only implied",
   consent_unsure: "consent unsure",
   consent_none: "no consent",
-  suppressed: "unsubscribed or erased",
+  suppressed: "unsubscribed, marked as spam, or erased",
   consent_unproven: "consent not recorded with how and when",
   no_regime: "in a country I have no email rules for",
   message_incomplete: "the email lacked something their law requires",
@@ -115,4 +115,123 @@ export function unknownLine(c: SendCounts): string | null {
   const n = c.unknown + c.sending;
   if (n === 0) return null;
   return `${plural(n, "email", "emails")} may have gone out: the email service didn't confirm either way. I won't send to ${n === 1 ? "that customer" : "those customers"} again for this campaign.`;
+}
+
+/* ── P4-17: the readback, once a campaign has gone out ── */
+
+export type ReadbackVerdict = "helped" | "did_nothing" | "backfired" | "too_early" | "unmeasured";
+
+export interface ReadbackGroup {
+  size: number;
+  erased: number;
+  measured: number;
+  returned: number;
+  waiting: number;
+  measured_through: string | null;
+}
+
+export interface ReadbackView {
+  verdict: ReadbackVerdict;
+  kind: "winback" | "vip";
+  lift_pp: number | null;
+  controlled: boolean;
+  arithmetic: string;
+  sent_on: string | null;
+  delivery: {
+    sent: number;
+    unknown: number;
+    delivered: number;
+    bounced: number;
+    complained: number;
+    unsubscribed: number;
+    harmed: number;
+  };
+  recipients: ReadbackGroup;
+  comparison: ReadbackGroup;
+  /** Whether the email service's delivery webhook is set up at all. */
+  delivery_reported: boolean;
+  /** Where replies go: the owner's own address, named in their consent. */
+  replies_to: string | null;
+}
+
+/** Pure: the verdict as a worded flag — the same words as the history ledger. */
+export function readbackFlag(v: ReadbackVerdict): { word: string; tone: "ok" | "low" | "alarm" } {
+  switch (v) {
+    case "helped":
+      return { word: "helped", tone: "ok" };
+    case "backfired":
+      return { word: "backfired", tone: "alarm" };
+    case "did_nothing":
+      return { word: "did nothing", tone: "low" };
+    case "too_early":
+      return { word: "too early to say", tone: "low" };
+    default:
+      return { word: "unmeasured", tone: "low" };
+  }
+}
+
+const rate = (n: number, d: number): string => (d === 0 ? "—" : `${((n / d) * 100).toFixed(1)}%`);
+
+/** Pure: the readback table — label, count with its unit, and the rate it is a share of. */
+export function readbackRows(r: ReadbackView): { label: string; count: string; rate: string }[] {
+  const d = r.delivery;
+  const emails = (n: number) => `${num(n)} ${n === 1 ? "email" : "emails"}`;
+  const people = (n: number) => `${num(n)} ${n === 1 ? "person" : "people"}`;
+  const reported = (n: number, unit: (n: number) => string) =>
+    r.delivery_reported
+      ? { count: unit(n), rate: rate(n, d.sent) }
+      : { count: "not reported", rate: "—" };
+  const group = r.kind === "vip" ? "best customers" : "lapsed customers";
+  const rows = [
+    { label: "sent", count: emails(d.sent), rate: "" },
+    { label: "delivered", ...reported(d.delivered, emails) },
+    { label: "bounced", ...reported(d.bounced, emails) },
+    { label: "unsubscribed", count: people(d.unsubscribed), rate: rate(d.unsubscribed, d.sent) },
+    { label: "marked as spam", ...reported(d.complained, people) },
+    { label: "replied", count: "not counted", rate: "—" },
+    {
+      label: "bought again since",
+      count: `${num(r.recipients.returned)} of ${num(r.recipients.measured)} measured`,
+      rate: rate(r.recipients.returned, r.recipients.measured),
+    },
+    {
+      label: `${group} not emailed, bought again`,
+      count: `${num(r.comparison.returned)} of ${num(r.comparison.measured)} measured`,
+      rate: rate(r.comparison.returned, r.comparison.measured),
+    },
+  ];
+  if (r.lift_pp !== null) {
+    rows.push({
+      label: "difference",
+      count: `${r.lift_pp >= 0 ? "+" : "−"}${num(Math.abs(r.lift_pp), 1)} points`,
+      rate: "",
+    });
+  }
+  return rows;
+}
+
+/** Pure: one first-person sentence on what was measured and what wasn't. */
+export function measuredSentence(r: ReadbackView): string {
+  const through = r.recipients.measured_through ?? r.comparison.measured_through;
+  const counted = [
+    r.delivery_reported ? "delivery, bounces and spam reports from the email service" : null,
+    "unsubscribes from the links in each email",
+    through
+      ? `purchases from your shop export of ${through.slice(0, 10)}`
+      : "purchases from your next shop export, once it comes in",
+  ].filter((x): x is string => x !== null);
+  const notCounted = [
+    r.delivery_reported
+      ? null
+      : "delivery and spam reports (the email service's webhook isn't set up yet)",
+    "opens (that needs a tracking pixel, which is a consent question of its own, and Apple Mail reports opens nobody made)",
+    `replies, which go straight to you${r.replies_to ? ` at ${r.replies_to}` : ""}`,
+  ].filter((x): x is string => x !== null);
+  const last = counted.pop();
+  const lastNot = notCounted.pop();
+  return (
+    `I counted ${counted.length > 0 ? `${counted.join(", ")} and ` : ""}${last}; ` +
+    `I don't count ${notCounted.length > 0 ? `${notCounted.join(", ")} or ` : ""}${lastNot}` +
+    `${r.controlled ? ", and the customers I compare against never said yes to email, so the comparison isn't a controlled test" : ""}.`
+  );
 }
