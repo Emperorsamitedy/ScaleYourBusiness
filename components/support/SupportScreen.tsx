@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import "../../app/support.css";
 import { PageHead } from "../sheet/PageHead";
+import { type Reply, ReplyBox } from "./ReplyBox";
 import {
   type ConversationStatus,
   REASON_WORD,
@@ -134,6 +135,8 @@ type State =
       /** The selected ticket's email thread, and which ticket it belongs to. */
       emails: Email[];
       emailsOf: string | null;
+      replies: Reply[];
+      reachable: boolean;
       writing: boolean;
       question: string;
       answer: string;
@@ -198,6 +201,8 @@ export function SupportScreen() {
       transcript: cur.phase === "ready" ? cur.transcript : [],
       transcriptOf: cur.phase === "ready" ? cur.transcriptOf : null,
       emails: cur.phase === "ready" ? cur.emails : [],
+      replies: cur.phase === "ready" ? cur.replies : [],
+      reachable: cur.phase === "ready" ? cur.reachable : false,
       // Re-read after every load: a send or a new email changes the thread.
       emailsOf: null,
       writing: false,
@@ -247,10 +252,18 @@ export function SupportScreen() {
     void (async () => {
       const res = await fetch(`/api/support?ticket=${encodeURIComponent(wantEmails)}`);
       if (!res.ok) return;
-      const j = (await res.json()) as { emails: Email[] };
+      const j = (await res.json()) as { emails: Email[]; replies: Reply[]; reachable: boolean };
       if (!live) return;
       setState((cur) =>
-        cur.phase === "ready" ? { ...cur, emails: j.emails, emailsOf: wantEmails } : cur,
+        cur.phase === "ready"
+          ? {
+              ...cur,
+              emails: j.emails,
+              replies: j.replies,
+              reachable: j.reachable,
+              emailsOf: wantEmails,
+            }
+          : cur,
       );
     })();
     return () => {
@@ -297,7 +310,10 @@ export function SupportScreen() {
     return { ok: res.ok, json: j };
   };
 
-  const act = async (payload: Record<string, unknown>, doneNotice: string) => {
+  const act = async (
+    payload: Record<string, unknown>,
+    doneNotice: string | ((json: Record<string, unknown>) => string),
+  ) => {
     setState({ ...s, busy: true, notice: null });
     const { ok, json } = await post(payload);
     if (!ok) {
@@ -305,7 +321,8 @@ export function SupportScreen() {
       return;
     }
     await load();
-    setState((cur) => (cur.phase === "ready" ? { ...cur, notice: doneNotice } : cur));
+    const notice = typeof doneNotice === "string" ? doneNotice : doneNotice(json);
+    setState((cur) => (cur.phase === "ready" ? { ...cur, notice } : cur));
   };
 
   const clusterFaq = async () => {
@@ -343,6 +360,7 @@ export function SupportScreen() {
   const conversation = selected?.conversation ?? null;
   const transcript = conversation && s.transcriptOf === conversation.id ? s.transcript : [];
   const emails = ticket && s.emailsOf === ticket.id ? s.emails : [];
+  const replies = ticket && s.emailsOf === ticket.id ? s.replies : [];
   const typed = ticket ? (s.ticketAnswers[ticket.id] ?? "") : "";
 
   return (
@@ -645,6 +663,20 @@ export function SupportScreen() {
                   </p>
                 )}
 
+                {ticket &&
+                  s.emailsOf === ticket.id &&
+                  (ticket.status === "open" ||
+                    replies.some((r) => ["approved", "sending"].includes(r.status))) && (
+                    <ReplyBox
+                      ticketId={ticket.id}
+                      replies={replies}
+                      reachable={s.reachable}
+                      businessName={s.settings?.business_name ?? "this business"}
+                      busy={s.busy}
+                      act={act}
+                    />
+                  )}
+
                 {ticket && (
                   <div className="sp-box sp-handed">
                     <p className="sp-box-label">
@@ -727,7 +759,8 @@ export function SupportScreen() {
                           </button>
                         </div>
                         <p className="sp-fine">
-                          You reply to them yourself; this screen sends nothing.
+                          Marking it answered sends nothing; only an approved reply above goes to
+                          the customer.
                         </p>
                       </>
                     ) : (

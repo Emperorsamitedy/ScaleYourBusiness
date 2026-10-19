@@ -7,7 +7,12 @@
 //                                             propose_knowledge | propose_custom |
 //                                             publish | retire | resolve_ticket |
 //                                             erase_conversation | erase_ticket |
-//                                             cluster_faq
+//                                             cluster_faq | draft_reply | save_reply |
+//                                             approve_reply | send_reply | decline_reply
+//
+// P4-10: approve_reply and send_reply are the ONLY path by which a reply
+// reaches a customer — one call site of sendApprovedReply, after the
+// signed-in check below (a source scan in lib/support-desk holds it).
 //
 // Reading needs the intake cookie like every profile surface. Every
 // mutation needs a signed-in user: publishing puts words in the
@@ -47,6 +52,16 @@ import {
   readConversationForOwner,
 } from "../../../lib/support/chat";
 import { emailThread, inboundAddress } from "../../../lib/support/email-tickets";
+import { draftReply } from "../../../lib/support-desk/draft";
+import {
+  ReplyError,
+  approveReply,
+  declineReply,
+  repliesFor,
+  replyTarget,
+  saveReplyText,
+  sendApprovedReply,
+} from "../../../lib/support-desk/replies";
 import { settingsForProfile } from "../../../lib/support/settings";
 import { TicketError, listTickets, resolveTicket } from "../../../lib/support/tickets";
 
@@ -63,7 +78,8 @@ function onError(error: unknown): NextResponse {
     error instanceof TicketError ||
     error instanceof FaqError ||
     error instanceof ProposalError ||
-    error instanceof ContactError
+    error instanceof ContactError ||
+    error instanceof ReplyError
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
@@ -84,7 +100,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const ticket = (await listTickets(profileId)).find((t) => t.id === ticketId);
       if (!ticket) return NextResponse.json({ error: "no such ticket" }, { status: 404 });
       const thread = await emailThread(ticket.id);
+      const target = await replyTarget(ticket);
       return NextResponse.json({
+        reachable: target !== null,
+        replies: (await repliesFor(profileId, ticket.id)).map((r) => ({
+          id: r.id,
+          status: r.status,
+          ai_drafted: r.ai_drafted,
+          body: r.body,
+          sent_text: r.sent_text,
+          approved_at: r.approved_at,
+          sent_at: r.sent_at,
+          outcome_note: r.outcome_note,
+          created_at: r.created_at,
+        })),
         emails: thread.map((m) => ({
           id: m.id,
           direction: m.direction,
@@ -177,6 +206,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       proposal_id?: unknown;
       entry_id?: unknown;
       ticket_id?: unknown;
+      reply_id?: unknown;
+      body?: unknown;
       status?: unknown;
       answer?: unknown;
       question?: unknown;
@@ -255,6 +286,57 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         await eraseConversation(session.account_id, body.conversation_id);
         return NextResponse.json({ erased: true });
       }
+      case "draft_reply": {
+        // The owner's click — the only way a model drafts a reply (P4-10).
+        if (typeof body.ticket_id !== "string") {
+          return NextResponse.json({ error: "ticket_id is required" }, { status: 422 });
+        }
+        const outcome = await draftReply({ profileId, ticketId: body.ticket_id });
+        return NextResponse.json(
+          outcome.drafted
+            ? { drafted: true, reply_id: outcome.reply.id }
+            : { drafted: false, message: outcome.message },
+        );
+      }
+      case "save_reply": {
+        if (typeof body.ticket_id !== "string" || typeof body.body !== "string") {
+          return NextResponse.json({ error: "ticket_id and body are required" }, { status: 422 });
+        }
+        const reply = await saveReplyText(profileId, body.ticket_id, body.body);
+        return NextResponse.json({ reply_id: reply.id, status: reply.status });
+      }
+      case "decline_reply": {
+        if (typeof body.reply_id !== "string") {
+          return NextResponse.json({ error: "reply_id is required" }, { status: 422 });
+        }
+        const reply = await declineReply({
+          profileId,
+          replyId: body.reply_id,
+          userId: session.user_id,
+        });
+        return NextResponse.json({ status: reply.status });
+      }
+      case "approve_reply":
+      case "send_reply": {
+        // Approve the exact words on screen and send them — or, for a reply
+        // approved earlier and not yet sent (no key then, or the stop), send it.
+        if (typeof body.reply_id !== "string") {
+          return NextResponse.json({ error: "reply_id is required" }, { status: 422 });
+        }
+        if (body.action === "approve_reply") {
+          if (typeof body.body !== "string") {
+            return NextResponse.json({ error: "body is required" }, { status: 422 });
+          }
+          await approveReply({
+            profileId,
+            replyId: body.reply_id,
+            userId: session.user_id,
+            body: body.body,
+          });
+        }
+        const sent = await sendApprovedReply({ profileId, replyId: body.reply_id });
+        return NextResponse.json(sent);
+      }
       case "cluster_faq": {
         const outcome = await clusterQuestions(profileId, session.account_id);
         return NextResponse.json(outcome);
@@ -263,7 +345,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json(
           {
             error:
-              'action must be "enable", "rotate", "rotate_inbound", "propose_knowledge", "propose_custom", "publish", "retire", "resolve_ticket", "erase_conversation", "erase_ticket" or "cluster_faq"',
+              'action must be "enable", "rotate", "rotate_inbound", "propose_knowledge", "propose_custom", "publish", "retire", "resolve_ticket", "erase_conversation", "erase_ticket", "cluster_faq", "draft_reply", "save_reply", "approve_reply", "send_reply" or "decline_reply"',
           },
           { status: 422 },
         );

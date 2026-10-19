@@ -391,3 +391,37 @@
 .sp-screen .sp-refused .word {
   margin-right: var(--s-2);
 }
+
+/* P4-10 — the reply box */
+.sp-screen .sp-reply .sp-box-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
+}
+.sp-screen .sp-reply .act {
+  min-height: 40px;
+  padding: 0 var(--s-4);
+}
+.sp-screen .sp-apart {
+  justify-content: space-between;
+}
+.sp-screen .sp-disclosure {
+  margin: var(--s-2) 0 0;
+  padding-left: var(--s-3);
+  border-left: var(--line);
+}
+.sp-screen .sp-sent {
+  margin: var(--s-2) 0;
+  padding: var(--s-3);
+  border: var(--hair);
+  background: var(--inset);
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.sp-screen .sp-note {
+  color: var(--sheet-ink);
+}

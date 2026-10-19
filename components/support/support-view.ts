@@ -64,3 +64,26 @@ export function whenShort(iso: string, now: Date = new Date()): string {
   }
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
+
+export type ReplyStatus = "drafted" | "declined" | "approved" | "sending" | "sent" | "failed";
+
+/** A reply's send state in words (P4-10). "sending" means the outcome is unknown, never "in progress". */
+export function replyStateWord(status: ReplyStatus): {
+  word: string;
+  tone: "drift" | "ok" | "low" | "alarm";
+} {
+  switch (status) {
+    case "drafted":
+      return { word: "draft · not sent", tone: "drift" };
+    case "approved":
+      return { word: "approved · not sent", tone: "drift" };
+    case "sending":
+      return { word: "unconfirmed · may have sent", tone: "alarm" };
+    case "sent":
+      return { word: "sent", tone: "ok" };
+    case "failed":
+      return { word: "not sent", tone: "alarm" };
+    case "declined":
+      return { word: "declined", tone: "low" };
+  }
+}

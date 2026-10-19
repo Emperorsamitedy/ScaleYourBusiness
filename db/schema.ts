@@ -402,6 +402,9 @@ export const decisionKind = pgEnum("decision_kind", [
   "takeover", // P3-43: day zero — the business enters care; ref is the frozen snapshot
   "consent", // P3-20h: write access granted (rule 13); ref is the execute connection
   "change_request", // the queue's third answer: not approved, the owner's words on what to change
+  "reply_approval", // P4-10: the owner approved a support reply; hash covers the exact text's sha256
+  "reply_decline", // P4-10: the owner declined a drafted support reply
+  "reply_send", // P4-10: a support reply's send outcome (sent / refused / unknown); ids and hashes only
 ]);
 
 export const decisionLog = pgTable(
@@ -1770,6 +1773,8 @@ export const supportTickets = pgTable(
      * recreated for it and the gate refuses every reply (rules 22/23).
      */
     suppressed_address: boolean("suppressed_address").notNull().default(false),
+    /** P4-10: model calls spent drafting replies on this ticket — the per-ticket cap's ledger. */
+    draft_calls: integer("draft_calls").notNull().default(0),
   },
   (t) => [
     index("support_tickets_profile_idx").on(t.profile_id, t.status, t.created_at),
@@ -1779,6 +1784,80 @@ export const supportTickets = pgTable(
     check(
       "support_tickets_email_has_no_conversation",
       sql`${t.channel} <> 'email' OR ${t.conversation_id} IS NULL`,
+    ),
+  ],
+);
+
+// support_replies — P4-10. A reply to a customer, from draft to sent.
+// Rule 12's covenant extended to support: nothing goes out without a
+// recorded human approval — who, when, and sha256 of the EXACT text that
+// will be sent (the owner's words plus, for an AI-drafted reply, the
+// disclosure appended in code). drafted → approved → sending → sent |
+// failed, or drafted → declined. "sending" is claimed atomically before
+// the provider is called and never retried automatically: a send whose
+// outcome is unknown stays "sending" and says so. Erasable with its
+// ticket (rule 22); the log keeps ids and hashes only.
+export const supportReplyStatus = pgEnum("support_reply_status", [
+  "drafted",
+  "declined",
+  "approved",
+  "sending",
+  "sent",
+  "failed",
+]);
+
+export const supportReplies = pgTable(
+  "support_replies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ticket_id: uuid("ticket_id")
+      .notNull()
+      .references(() => supportTickets.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    status: supportReplyStatus("status").notNull().default("drafted"),
+    /** True when the assistant drafted it — kept true however much the owner edits it. */
+    ai_drafted: boolean("ai_drafted").notNull(),
+    /** The assistant's draft as it came back; null for a reply the owner wrote. */
+    drafted_text: text("drafted_text"),
+    /** knowledge_entries ids the draft was grounded on. */
+    grounded_on: jsonb("grounded_on").$type<string[]>().notNull().default([]),
+    draft_cost_eur: numeric("draft_cost_eur", { precision: 10, scale: 6 }).notNull().default("0"),
+    /** The owner's text — editable until approval. */
+    body: text("body").notNull(),
+    /** Set at approval: exactly what will be sent (body + disclosure when ai_drafted). */
+    sent_text: text("sent_text"),
+    sent_text_sha256: text("sent_text_sha256"),
+    approved_by: uuid("approved_by").references(() => users.id),
+    approved_at: timestamp("approved_at", { withTimezone: true, mode: "string" }),
+    declined_at: timestamp("declined_at", { withTimezone: true, mode: "string" }),
+    claimed_at: timestamp("claimed_at", { withTimezone: true, mode: "string" }),
+    sent_at: timestamp("sent_at", { withTimezone: true, mode: "string" }),
+    /** Resend's id for the sent email. */
+    provider_id: text("provider_id"),
+    /** In words, on the ticket: why it hasn't gone, or what is unknown. */
+    outcome_note: text("outcome_note"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("support_replies_ticket_idx").on(t.ticket_id, t.created_at),
+    // One reply in flight per ticket.
+    uniqueIndex("support_replies_live_idx")
+      .on(t.ticket_id)
+      .where(sql`status IN ('drafted', 'approved', 'sending')`),
+    check(
+      "support_replies_approval_recorded",
+      sql`${t.status} IN ('drafted', 'declined') OR (${t.approved_by} IS NOT NULL AND ${t.approved_at} IS NOT NULL AND ${t.sent_text} IS NOT NULL AND ${t.sent_text_sha256} IS NOT NULL)`,
+    ),
+    check(
+      "support_replies_ai_has_draft",
+      sql`NOT ${t.ai_drafted} OR ${t.drafted_text} IS NOT NULL`,
     ),
   ],
 );

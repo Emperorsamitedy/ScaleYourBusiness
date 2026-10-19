@@ -46,6 +46,8 @@ const FORBIDDEN_PREFIXES = [
   "lib/bank/",
   "lib/validation/",
   "lib/watch/",
+  // P4-10: the owner's drafting and sending. A stranger must never reach it.
+  "lib/support-desk/",
 ];
 
 const IMPORT_RE = /(?:from|import)\s*\(?\s*["']([^"']+)["']\s*\)?/g;

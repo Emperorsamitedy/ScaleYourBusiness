@@ -38,3 +38,16 @@ describe("whenShort", () => {
     expect(whenShort("2026-08-02T10:00:00", now)).toBe("2 Aug");
   });
 });
+
+describe("replyStateWord (P4-10)", () => {
+  it("says an unknown send is unconfirmed, never in progress, and only a sent reply is sent", async () => {
+    const { replyStateWord } = await import("./support-view");
+    expect(replyStateWord("sending")).toEqual({
+      word: "unconfirmed · may have sent",
+      tone: "alarm",
+    });
+    expect(replyStateWord("approved").word).toBe("approved · not sent");
+    expect(replyStateWord("sent")).toEqual({ word: "sent", tone: "ok" });
+    expect(replyStateWord("failed").word).toBe("not sent");
+  });
+});
