@@ -10,8 +10,14 @@
 // and the access-level wording from META_ACCESS_LEVEL (P3-20i), so the
 // screen cannot promise more than the code declares or Meta has approved.
 // Granting records consent; it never runs anything by itself (rule 12).
+//
+// Two ways in (the pilot routes): invited testers sign in with Facebook
+// (P3-20j) — the phrase is typed here first, Meta's dialog asks for the
+// listed permissions, and the owner picks the Page or ad account from what
+// the server lists — or the owner pastes a token from their own Meta app.
+// Both land in the same exact-scope check and the same consent row.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ConsentEntry {
   scope: string;
@@ -61,10 +67,54 @@ export interface ExecView {
     body: string;
     routes: { title: string; available: boolean; detail: string }[];
   };
+  /** P3-20j: Facebook Login for invited testers, armed only when SYB's Meta app keys are set. */
+  facebook_login: {
+    available: boolean;
+    tester_note: string;
+    one_consent_note: string;
+    off_note: string;
+  };
   nothing_sent: string;
   disconnect_note: string;
   connections: ExecConnection[];
   providers: ExecProvider[];
+}
+
+interface PageCandidate {
+  id: string;
+  name: string;
+  instagram: { id: string; username: string | null } | null;
+}
+
+interface AdAccountCandidate {
+  id: string;
+  name: string;
+  account_status: number | null;
+}
+
+type Candidates =
+  | { provider: string; kind: "pages"; candidates: PageCandidate[] }
+  | { provider: string; kind: "ad_accounts"; candidates: AdAccountCandidate[] };
+
+/** What the Facebook sign-in's redirect back to /connections says, read once from the URL. */
+interface LoginReturn {
+  kind: "pick" | "cancelled" | "error";
+  provider: string | null;
+  message: string | null;
+}
+
+function readLoginReturn(): LoginReturn | null {
+  const q = new URLSearchParams(window.location.search);
+  const meta = q.get("meta");
+  if (meta !== "pick" && meta !== "cancelled" && meta !== "error") return null;
+  return { kind: meta, provider: q.get("provider"), message: q.get("message") };
+}
+
+/** The flow's query off the address bar, so a reload doesn't replay it. */
+function clearLoginReturn(): void {
+  const url = new URL(window.location.href);
+  for (const key of ["meta", "provider", "message"]) url.searchParams.delete(key);
+  window.history.replaceState(null, "", url.pathname + url.search + url.hash);
 }
 
 type Payload = Record<string, unknown> | null;
@@ -155,11 +205,227 @@ function ConnectedWrite({
   );
 }
 
+/**
+ * Pilot route 1 (P3-20j): the phrase is typed HERE, before Meta is ever
+ * involved; the form then posts to the start route, which checks it again
+ * and sends the owner to Meta's dialog. A plain form post, so the browser
+ * follows the redirect itself.
+ */
+function FacebookSignIn({
+  provider,
+  login,
+}: {
+  provider: ExecProvider;
+  login: ExecView["facebook_login"];
+}) {
+  const [typed, setTyped] = useState("");
+  const [leaving, setLeaving] = useState(false);
+  const phrase = provider.confirm_phrase ?? "";
+  const confirmed = phrase !== "" && typed.trim().toLowerCase() === phrase;
+  const asset = provider.id === "meta_ads" ? "ad account" : "Page";
+
+  return (
+    <>
+      <p className="cn-sub">Invited testers: sign in with Facebook</p>
+      {login.available ? (
+        <>
+          <p className="cn-note">{login.tester_note}</p>
+          <p className="cn-note">{login.one_consent_note}</p>
+          <form
+            className="cn-form"
+            method="post"
+            action="/api/connections/meta/start"
+            onSubmit={() => setLeaving(true)}
+          >
+            <input type="hidden" name="provider" value={provider.id} />
+            <label className="cn-field">
+              <span className="cn-field-label">
+                To confirm, type <strong>{phrase}</strong>
+              </span>
+              <input
+                className="cn-input"
+                type="text"
+                name="confirmation"
+                autoComplete="off"
+                spellCheck={false}
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                disabled={leaving}
+              />
+            </label>
+            <button className="next" type="submit" disabled={leaving || !confirmed}>
+              {leaving ? "Opening Facebook…" : `Sign in with Facebook and pick the ${asset}`}
+            </button>
+          </form>
+        </>
+      ) : (
+        <div className="cn-acts">
+          <button type="button" className="ghost" disabled>
+            Sign in with Facebook
+          </button>
+          <span className="cn-note">{login.off_note}</span>
+        </div>
+      )}
+    </>
+  );
+}
+
+/**
+ * After Meta sends the owner back: the Pages (with their linked Instagram
+ * account) or ad accounts the sign-in reaches, listed by the server from
+ * Meta. The token never comes to the browser; only the picked id goes back.
+ */
+function MetaPicker({
+  provider,
+  onDone,
+  onCancel,
+}: {
+  provider: ExecProvider;
+  onDone: (message: string) => Promise<void>;
+  onCancel: (message: string) => void;
+}) {
+  const [list, setList] = useState<Candidates | null>(null);
+  const [picked, setPicked] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    void (async () => {
+      try {
+        const res = await fetch(
+          `/api/connections/meta/candidates?provider=${encodeURIComponent(provider.id)}`,
+        );
+        const payload = (await res.json().catch(() => null)) as Payload;
+        if (!live) return;
+        if (!res.ok) {
+          setError(errorText(payload, "I couldn't list what Meta shared."));
+          return;
+        }
+        const got = payload as unknown as Candidates;
+        setList(got);
+        if (got.candidates.length === 1) setPicked(got.candidates[0]?.id ?? "");
+      } catch {
+        if (live) setError("I couldn't reach the server. Try again.");
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [provider.id]);
+
+  const connect = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/connections/meta/finish", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ provider: provider.id, asset_id: picked }),
+      });
+      const payload = (await res.json().catch(() => null)) as Payload;
+      if (!res.ok) {
+        setError(errorText(payload, "That didn't connect."));
+        return;
+      }
+      await onDone(
+        `${provider.label} is connected through Facebook, and your consent is on record.`,
+      );
+    } catch {
+      setError("I couldn't reach the server. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const cancel = async () => {
+    setBusy(true);
+    await fetch("/api/connections/meta/candidates", { method: "DELETE" }).catch(() => null);
+    setBusy(false);
+    onCancel("Facebook sign-in cancelled. Nothing was connected, and SYB kept no token.");
+  };
+
+  const what = provider.id === "meta_ads" ? "ad account" : "Page";
+  return (
+    <div className="cn-wp-detail" id={`cn-pick-${provider.id}`}>
+      <p className="cn-sub">Pick the {what} SYB may act on</p>
+      {list === null && error === null && <p className="cn-note">Asking Meta what you shared…</p>}
+      {list !== null && (
+        <ul className="cn-pick" role="radiogroup" aria-label={`Pick the ${what}`}>
+          {list.kind === "pages"
+            ? list.candidates.map((p) => (
+                <li key={p.id}>
+                  <label className="cn-pick-row">
+                    <input
+                      type="radio"
+                      name={`cn-pick-${provider.id}`}
+                      value={p.id}
+                      checked={picked === p.id}
+                      onChange={() => setPicked(p.id)}
+                      disabled={busy}
+                    />
+                    <span className="cn-pick-name">{p.name}</span>
+                    <span className="cn-pick-meta">
+                      {p.instagram
+                        ? `Instagram ${p.instagram.username ? `@${p.instagram.username}` : p.instagram.id} too`
+                        : "no Instagram account linked: Facebook only"}
+                    </span>
+                  </label>
+                </li>
+              ))
+            : list.candidates.map((a) => (
+                <li key={a.id}>
+                  <label className="cn-pick-row">
+                    <input
+                      type="radio"
+                      name={`cn-pick-${provider.id}`}
+                      value={a.id}
+                      checked={picked === a.id}
+                      onChange={() => setPicked(a.id)}
+                      disabled={busy}
+                    />
+                    <span className="cn-pick-name">{a.name}</span>
+                    <span className="cn-pick-meta">
+                      act_{a.id} · {a.account_status === 1 ? "active" : "not active"}
+                    </span>
+                  </label>
+                </li>
+              ))}
+        </ul>
+      )}
+      {error !== null && (
+        <p className="cn-error" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="cn-acts">
+        <button
+          type="button"
+          className="next"
+          disabled={busy || list === null || picked === ""}
+          onClick={() => void connect()}
+        >
+          {busy ? "Checking…" : `Allow and connect this ${what}`}
+        </button>
+        <button type="button" className="ghost" disabled={busy} onClick={() => void cancel()}>
+          Cancel
+        </button>
+      </div>
+      <p className="cn-note">
+        SYB checks with Meta that the sign-in holds exactly the permissions listed above before
+        anything is stored.
+      </p>
+    </div>
+  );
+}
+
 function ConsentForm({
   provider,
+  login,
   onDone,
 }: {
   provider: ExecProvider;
+  login: ExecView["facebook_login"];
   onDone: (message: string) => Promise<void>;
 }) {
   const [values, setValues] = useState<Record<string, string>>({});
@@ -222,7 +488,9 @@ function ConsentForm({
         </p>
       )}
 
-      <p className="cn-sub">Set up your own Meta app</p>
+      <FacebookSignIn provider={provider} login={login} />
+
+      <p className="cn-sub">Or: set up your own Meta app</p>
       <ol className="cn-steps">
         {provider.own_app_steps.map((s) => (
           <li key={s}>{s}</li>
@@ -283,12 +551,33 @@ export function ExecutionSection({
   onChanged: () => Promise<void>;
 }) {
   const [notice, setNotice] = useState<string | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
+  const [picking, setPicking] = useState<string | null>(null);
+
+  // The Facebook sign-in comes back to /connections with its outcome in the query.
+  useEffect(() => {
+    const back = readLoginReturn();
+    if (back === null) return;
+    clearLoginReturn();
+    const known = view.providers.some((p) => p.id === back.provider);
+    if (back.kind === "pick" && known) {
+      setPicking(back.provider);
+    } else if (back.kind === "cancelled") {
+      setNotice("You cancelled the Facebook sign-in. Nothing was connected.");
+    } else {
+      setFailure(back.message ?? "Facebook sign-in didn't finish. Nothing was connected.");
+      if (known) setOpen(back.provider);
+    }
+    // Read once, on arrival: the query is cleared above, so a re-render finds nothing.
+  }, []);
 
   const live = view.connections.filter((c) => c.status !== "disconnected");
   const done = async (message: string) => {
     setNotice(message);
+    setFailure(null);
     setOpen(null);
+    setPicking(null);
     await onChanged();
   };
 
@@ -316,7 +605,7 @@ export function ExecutionSection({
                       {c ? `consented ${c.created_at.slice(0, 10)} · ${c.status}` : "not granted"}
                     </p>
                   </div>
-                  {c === null && (
+                  {c === null && picking !== p.id && (
                     <button
                       type="button"
                       className="prop-btn"
@@ -330,10 +619,27 @@ export function ExecutionSection({
                 </div>
                 <ConsentLines provider={p} />
                 {c !== null && <ConnectedWrite c={c} note={view.disconnect_note} onDone={done} />}
-                {c === null && isOpen && <ConsentForm provider={p} onDone={done} />}
+                {c === null && picking === p.id && (
+                  <MetaPicker
+                    provider={p}
+                    onDone={done}
+                    onCancel={(message) => {
+                      setPicking(null);
+                      setNotice(message);
+                    }}
+                  />
+                )}
+                {c === null && isOpen && picking !== p.id && (
+                  <ConsentForm provider={p} login={view.facebook_login} onDone={done} />
+                )}
               </div>
             );
           })}
+          {failure !== null && (
+            <p className="cn-error" role="alert">
+              {failure}
+            </p>
+          )}
           {notice !== null && (
             <p className="cn-notice" aria-live="polite">
               {notice}
