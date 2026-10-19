@@ -102,6 +102,17 @@ export function resendWebhookSecret(): string | null {
 }
 
 /**
+ * P4-17: the signing secret (whsec_…) of a SECOND Resend webhook, pointed at
+ * /api/email/events for email.delivered, email.bounced, email.complained and
+ * email.suppressed. Its own secret, because Resend signs each webhook with
+ * its own. Null = the endpoint refuses every delivery (503), and the
+ * campaign readback says delivery isn't reported.
+ */
+export function resendEventsWebhookSecret(): string | null {
+  return process.env.RESEND_EVENTS_WEBHOOK_SECRET?.trim() || null;
+}
+
+/**
  * P4-09: the domain Resend receives support mail on (its MX points at
  * Resend), e.g. "inbound.example.com" or "<id>.resend.app". Null = no
  * inbound address can be shown, and the owner's screen says so.
