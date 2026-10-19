@@ -11,7 +11,8 @@
 // One proposal per segment per month, keyed by originating_finding, so
 // re-running is idempotent at zero model cost. The proposal carries
 // contact IDS only — never a name or an address (rule 22: the record is
-// hashes and ids).
+// hashes and ids). It is labelled irreversible ("hard") before approval,
+// because the send it leads to can't be recalled (P4-15).
 
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
@@ -157,7 +158,7 @@ export async function proposeFromSegments(
           evidence: segment.evidence,
           posture,
           sending:
-            "Nothing sends on approval: sending arrives with Session F and goes through the execution engine with consent re-checked per recipient at send time.",
+            "Nothing sends on approval. Approving lets me draft the email; nothing sends until you approve the finished email itself, and then every recipient's consent is checked again at the moment it goes.",
           manual_limits: verdict.manual.map((l) => l.quote),
         },
       },
@@ -198,10 +199,12 @@ export async function proposeFromSegments(
         breakeven_condition:
           "not computed — no per-customer revenue series exists yet to compute it from",
       } as never,
+      // P4-15: labelled irreversible BEFORE approval (rule 16) — the engine
+      // refuses to send a campaign approved as undoable.
       reversibility: {
-        level: "easy",
+        level: "hard",
         if_you_change_your_mind:
-          "Decline it here, or stop the campaign before it sends; after sending, an email cannot be unsent.",
+          "Irreversible once sent: a sent email can't be recalled. Until then, decline it here, don't approve the email itself, or press the emergency stop.",
       },
       expires_at: new Date(now.getTime() + SEGMENT_PROPOSAL_EXPIRY_DAYS * 86_400_000).toISOString(),
       blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,

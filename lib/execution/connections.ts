@@ -44,6 +44,9 @@ export interface PublicExecutionConnection {
   /** P3-22d: the Marketing API access tier Meta last reported (meta_ads), verbatim, and when. */
   access_tier: string | null;
   access_tier_seen_at: string | null;
+  /** P4-15, email_campaign only: the name campaigns are sent as, and where replies go. */
+  sender_name: string | null;
+  reply_to: string | null;
   created_at: string;
   disconnected_at: string | null;
 }
@@ -66,6 +69,8 @@ export function toPublicExecutionConnection(
     last_error: row.last_error,
     access_tier: row.access_tier,
     access_tier_seen_at: row.access_tier_seen_at,
+    sender_name: row.sender_name,
+    reply_to: row.reply_to,
     created_at: row.created_at,
     disconnected_at: row.disconnected_at,
   };

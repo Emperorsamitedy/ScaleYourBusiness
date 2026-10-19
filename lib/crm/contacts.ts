@@ -30,6 +30,7 @@ import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
   businessProfiles,
+  campaignSends,
   contactSuppressions,
   contacts,
   decisionLog,
@@ -292,6 +293,14 @@ export async function eraseContact(accountId: string, contactId: string): Promis
           ),
         );
     }
+    // P4-15: their campaign sends keep their status and the address's keyed
+    // hash (the suppression's own form, so counts stay true and their
+    // unsubscribe link keeps working), but lose the contact and Resend's id
+    // for the email — through which SYB's own key could look the address up.
+    await tx
+      .update(campaignSends)
+      .set({ contact_id: null, provider_message_id: null })
+      .where(and(eq(campaignSends.account_id, accountId), eq(campaignSends.contact_id, contactId)));
     await tx.delete(contacts).where(eq(contacts.id, contactId));
     if (profile) {
       await tx.insert(decisionLog).values({

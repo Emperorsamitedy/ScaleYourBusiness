@@ -198,6 +198,42 @@ export const EXECUTION_SCOPE_REGISTRY = {
       },
     ],
   },
+  /**
+   * Campaign email (P4-15, Phase 4 Session F): an approved campaign, sent
+   * from SYB's OWN Resend account — never the owner's — to the contacts
+   * whose explicit consent is checked again at the moment of each send
+   * (rule 23). There is no owner credential: the execute connection is the
+   * owner's recorded consent plus the sender identity, and holds no secret.
+   * A sent email can't be recalled, so the one op is irreversible and
+   * labelled so before approval. `{sender}` is filled with the sender
+   * identity where the consent is shown and hashed (lib/execution/
+   * email-consent.ts). The scope's two lines are a promise and a restraint.
+   */
+  email_campaign: {
+    label: "Campaign email",
+    write_scopes: ["email.send_marketing"],
+    readback_scopes: [],
+    operations: [
+      {
+        op: "send_campaign",
+        description:
+          "Send an approved campaign email to the customers who explicitly agreed to hear from you, each one checked again at the moment it goes.",
+        reversible: false,
+      },
+    ],
+    consent: [
+      {
+        scope: "email.send_marketing",
+        grant: "your consent here (SYB's own email service)",
+        why: "SYB may send the campaigns you approve, from {sender}, to customers who explicitly agreed to hear from you.",
+      },
+      {
+        scope: "email.send_marketing",
+        grant: "your consent here (SYB's own email service)",
+        why: "SYB will never email anyone who hasn't explicitly agreed, or who unsubscribed.",
+      },
+    ],
+  },
 } as const satisfies Record<string, ExecutionProviderSpec>;
 
 export type ExecutionProviderId = keyof typeof EXECUTION_SCOPE_REGISTRY;
@@ -291,5 +327,5 @@ export function auditExecutionRegistry(
 // Local default so this module has no import cycle; the test wires in
 // the real isWriteCapable from lib/connectors/scopes and both must agree.
 function requireWriteVocabulary(scope: string): boolean {
-  return /write|publish|create|update|manage|edit|delete|modify/i.test(scope);
+  return /write|publish|create|update|manage|edit|delete|modify|send/i.test(scope);
 }
