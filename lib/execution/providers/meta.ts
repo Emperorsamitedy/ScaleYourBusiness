@@ -34,9 +34,13 @@
 // sit in a URL. The publish path (P3-21b) widened the list deliberately:
 // POST only on the registered publish paths (feed, photos, video_reels and
 // its upload, the Instagram container and media_publish) and DELETE only
-// on a post or media id, for undo (P3-21c). The ad ops (P3-22b) widen it
-// when they land. No registered path under act_* may name billing, funding
-// or payment methods (rule 18).
+// on a post or media id, for undo (P3-21c). The ad ops (P3-22b) widened it
+// again, by three: GET and POST on a campaign by its id, and POST on the
+// ad account's campaigns edge (create, paused). An ad write may carry only
+// the fields AD_WRITE_FIELDS names and only the statuses PAUSED and ACTIVE
+// — checked at the same choke point as the disclosure, so DELETED and
+// ARCHIVED (both permanent on Meta) cannot be sent. No registered path
+// under act_* may name billing, funding or payment methods (rule 18).
 //
 // THE PUBLISH PATH (P3-21b/c/d). See the block above createMetaExecution:
 // disclosure enforced at the one request choke point (rule 17), no native
@@ -49,14 +53,23 @@
 // goes through the same verifier and connectForExecution as a pasted one.
 //
 // THE OPS. Registered in the scope registry so consent names them. The
-// publish ops are built (D2); the ad ops refuse by name until D3 — never a
-// silent no-op, and never a null undo, which the engine would read as
-// "irreversible".
+// publish ops are D2's; the ad ops are D3's — see the block above
+// createMetaExecution: a validate_only dry run before every write, the
+// spend guardrails re-checked (lib/ads/guard), the access tier read on every
+// call, and undo to the captured previous status or budget.
 
 import { createHash } from "node:crypto";
 import type { MetaResponse } from "../../connectors/providers/meta-ads";
 import { META_GRAPH_ORIGIN, META_IGNORED_PERMISSIONS } from "../../connectors/providers/meta-ads";
 import { isDisclosed } from "../../content/disclosure";
+import { format, money } from "../../core/money";
+import {
+  UnknownMetaCurrencyError,
+  dailyBudgetFloor,
+  fromMetaBudget,
+  spendGuard,
+  toMetaBudget,
+} from "../../ads/guard";
 import type { MetaFailure } from "../meta-errors";
 import { classifyMetaError } from "../meta-errors";
 import type { CredentialVerifier } from "../verify";
@@ -101,6 +114,10 @@ export const META_EXEC_REQUESTS = {
   // P3-21c: undo is deletion — of a Page post or Reel, or of Instagram media.
   page_post_delete: { method: "DELETE", path: "/{post_id}" },
   ig_media_delete: { method: "DELETE", path: "/{ig_media_id}" },
+  // P3-22b, added deliberately: the ad ops. A campaign read and write by id, and create (paused).
+  campaign: { method: "GET", path: "/{campaign_id}" },
+  campaign_update: { method: "POST", path: "/{campaign_id}" },
+  campaign_create: { method: "POST", path: "/act_{ad_account_id}/campaigns" },
 } as const;
 
 type MetaExecRequest = keyof typeof META_EXEC_REQUESTS;
@@ -144,6 +161,8 @@ export interface MetaExecutionOptions {
   sleep?: (ms: number) => Promise<void>;
   /** The publish path's state (P3-21b). Default: the database, loaded on first use. */
   backend?: PublishBackend;
+  /** The ad ops' state (P3-22b). Default: the database, loaded on first use. */
+  adsBackend?: AdsBackend;
 }
 
 export interface MetaExecutionCredential {
@@ -298,44 +317,97 @@ interface CallOptions {
   publishing?: boolean;
   /** For the usage log line (P3-21d); never a token. */
   account_id?: string;
+  /** What the call is part of, for the owner's sentence on a refusal (P3-22b). */
+  subject?: "publish" | "ad_change";
 }
 
 interface CallResult {
   body: Record<string, unknown>;
   /** The highest rate-limit usage Meta reported on this response, 0–100, or null. */
   usage_pct: number | null;
+  /** P3-22d: the Marketing API access tier Meta reported on this response, or null. */
+  access_tier: string | null;
+}
+
+function parseHeader(raw: string | null): unknown {
+  if (raw === null || raw === "") return null;
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+/** The entries of X-Business-Use-Case-Usage: {id: [{type, call_count, …}]}. */
+function bucEntries(header: (name: string) => string | null): Record<string, unknown>[] {
+  const buc = parseHeader(header("x-business-use-case-usage"));
+  if (buc === null || typeof buc !== "object") return [];
+  return Object.values(buc as Record<string, unknown>).flatMap((list) =>
+    Array.isArray(list)
+      ? list.filter((e): e is Record<string, unknown> => e !== null && typeof e === "object")
+      : [],
+  );
 }
 
 /**
+ * The Marketing API's own usage headers (P3-22d): X-Ad-Account-Usage
+ * {acc_id_util_pct, reset_time_duration, ads_api_access_tier} and
+ * X-FB-Ads-Insights-Throttle {app_id_util_pct, acc_id_util_pct,
+ * ads_api_access_tier}. Header names per Meta's rate-limiting page, read
+ * 2026-10-19 — _verify at build_ against a real ad account's responses.
+ */
+export const META_ADS_USAGE_HEADERS = ["x-ad-account-usage", "x-fb-ads-insights-throttle"] as const;
+
+/**
  * The highest percentage in Meta's usage headers: X-App-Usage
- * {call_count,total_time,total_cputime} and X-Business-Use-Case-Usage
- * {id: [{type, call_count, total_time, total_cputime}]}. Null when absent.
+ * {call_count,total_time,total_cputime}, X-Business-Use-Case-Usage
+ * {id: [{type, call_count, total_time, total_cputime}]}, and the ads
+ * headers' acc_id_util_pct / app_id_util_pct. Null when absent.
  */
 export function usagePercent(header: (name: string) => string | null): number | null {
   const values: number[] = [];
   const collect = (o: unknown) => {
     if (o === null || typeof o !== "object") return;
-    for (const k of ["call_count", "total_time", "total_cputime"]) {
+    for (const k of [
+      "call_count",
+      "total_time",
+      "total_cputime",
+      "acc_id_util_pct",
+      "app_id_util_pct",
+    ]) {
       const v = (o as Record<string, unknown>)[k];
       if (typeof v === "number" && Number.isFinite(v)) values.push(v);
     }
   };
-  const parse = (raw: string | null): unknown => {
-    if (raw === null || raw === "") return null;
-    try {
-      return JSON.parse(raw) as unknown;
-    } catch {
-      return null;
-    }
-  };
-  collect(parse(header("x-app-usage")));
-  const buc = parse(header("x-business-use-case-usage"));
-  if (buc !== null && typeof buc === "object") {
-    for (const list of Object.values(buc as Record<string, unknown>)) {
-      if (Array.isArray(list)) list.forEach(collect);
+  collect(parseHeader(header("x-app-usage")));
+  bucEntries(header).forEach(collect);
+  for (const name of META_ADS_USAGE_HEADERS) collect(parseHeader(header(name)));
+  return values.length === 0 ? null : Math.max(...values);
+}
+
+/**
+ * P3-22d: the Marketing API access tier Meta reports on a response, verbatim
+ * ("development_access", "standard_access", …), or null. Meta puts
+ * `ads_api_access_tier` in the ads_management / ads_insights entries of
+ * X-Business-Use-Case-Usage, and in X-Ad-Account-Usage and
+ * X-FB-Ads-Insights-Throttle — _verify at build_ which a v26.0 ads write
+ * actually carries. Only a short word is accepted: it is stored and shown.
+ */
+export function adsAccessTier(header: (name: string) => string | null): string | null {
+  const word = (v: unknown): string | null =>
+    typeof v === "string" && /^[a-z_]{1,40}$/.test(v) ? v : null;
+  for (const e of bucEntries(header)) {
+    const tier = word(e["ads_api_access_tier"]);
+    if (tier !== null) return tier;
+  }
+  for (const name of META_ADS_USAGE_HEADERS) {
+    const o = parseHeader(header(name));
+    if (o !== null && typeof o === "object") {
+      const tier = word((o as Record<string, unknown>)["ads_api_access_tier"]);
+      if (tier !== null) return tier;
     }
   }
-  return values.length === 0 ? null : Math.max(...values);
+  return null;
 }
 
 async function metaCall(
@@ -348,6 +420,8 @@ async function metaCall(
   options: CallOptions = {},
 ): Promise<CallResult> {
   if (disclosureViolation(which, params) !== null) throw new UndisclosedPublishError(which);
+  const adViolation = adWriteViolation(which, params);
+  if (adViolation !== null) throw new AdWriteRefusedError(adViolation);
   const method = META_EXEC_REQUESTS[which].method;
   const asBody = "bearer" in auth && method === "POST";
   const query = asBody ? "" : new URLSearchParams(params).toString();
@@ -388,20 +462,27 @@ async function metaCall(
     } catch {
       // A request that never got an answer (or timed out): Meta unavailable, by the taxonomy.
       if (options.publishing) throw new MetaNoAnswerError(which);
-      const failure = classifyMetaError({ status: 0, code: null });
+      const failure = classifyMetaError({
+        status: 0,
+        code: null,
+        ...(options.subject ? { subject: options.subject } : {}),
+      });
       if (attempt >= META_EXEC_MAX_ATTEMPTS) throw new MetaRequestError(failure, cannotReach);
       await ctx.sleep(backoffMs(attempt));
       continue;
     }
 
-    const usage = response.header ? usagePercent((n) => response.header?.(n) ?? null) : null;
-    if (usage !== null) {
+    const read = (n: string) => response.header?.(n) ?? null;
+    const usage = response.header ? usagePercent(read) : null;
+    const tier = response.header ? adsAccessTier(read) : null;
+    if (usage !== null || tier !== null) {
       console.log(
         JSON.stringify({
           event: "meta_usage",
           ...(options.account_id ? { account_id: options.account_id } : {}),
           request: which,
           usage_pct: usage,
+          ...(tier !== null ? { access_tier: tier } : {}),
         }),
       );
     }
@@ -411,7 +492,7 @@ async function metaCall(
     } | null;
     const error = body?.error;
     if (response.status === 200 && error === undefined && body !== null) {
-      return { body: body as Record<string, unknown>, usage_pct: usage };
+      return { body: body as Record<string, unknown>, usage_pct: usage, access_tier: tier };
     }
     const code = typeof error?.code === "number" ? error.code : null;
     // A publishing call answered with silence, not a refusal: it may have landed.
@@ -423,6 +504,7 @@ async function metaCall(
       status: response.status,
       code,
       subcode: typeof error?.error_subcode === "number" ? error.error_subcode : null,
+      ...(options.subject ? { subject: options.subject } : {}),
     });
     if (failure.retryable && attempt < META_EXEC_MAX_ATTEMPTS) {
       await ctx.sleep(backoffMs(attempt));
@@ -563,6 +645,7 @@ export interface MetaExecution {
   login: MetaLoginCalls;
   /** The publish ops (P3-21b), undo by deletion (P3-21c), the read-back (P3-21d). */
   publish: MetaPublishProvider;
+  /** The ad ops (P3-22b), guardrails re-checked (P3-22c), the access tier read (P3-22d). */
   ads: ExecutionProvider;
   /**
    * The Instagram publisher on its own: one image, a Reel, or a CAROUSEL of
@@ -576,28 +659,6 @@ export interface MetaExecution {
     caption: string;
     account_id: string;
   }): Promise<PublishedPost>;
-}
-
-export class MetaOpNotBuiltError extends Error {
-  constructor(provider: MetaExecutionProviderId, op: string, task: string) {
-    super(
-      `${provider}: "${op}" is registered but not built yet (${task}) — nothing was sent to Meta`,
-    );
-    this.name = "MetaOpNotBuiltError";
-  }
-}
-
-function unbuilt(id: "meta_ads", task: string): ExecutionProvider {
-  const refuse = (op: string): never => {
-    throw new MetaOpNotBuiltError(id, op, task);
-  };
-  return {
-    id,
-    external: true,
-    captureUndo: async (op) => refuse(op),
-    execute: async (op) => refuse(op),
-    undo: async (op) => refuse(op),
-  };
 }
 
 const defaultFetch: MetaExecFetch = async (url, init) => {
@@ -1778,6 +1839,849 @@ function publishProvider(
   };
 }
 
+/* ══════════ THE AD OPS — P3-22b/c/d (Session D, layer D3) ══════════
+ *
+ * One approved ad change, in order:
+ *
+ *   preflight (reads only, before the engine claims anything) — the
+ *     connection is live; the campaign is in the connected ad account and
+ *     live or paused (never one Meta has deleted or archived); the change
+ *     still makes sense (a pause of a paused campaign is refused); a budget
+ *     change passes the spend guard (P3-22c) against the live budget; the
+ *     access tier is read and stored (P3-22d); Meta's usage headers are
+ *     under 75% of the hourly limit, or it is deferred. A refusal here
+ *     leaves the proposal approved.
+ *   captureUndo (before attempt one, kept forever) — the previous status,
+ *     or the previous daily_budget in Meta's own unit.
+ *   execute — the campaign read again; a budget change computed from the
+ *     CAPTURED previous budget (so a retried attempt can never compound a
+ *     +20% into +44%) and guarded again; then the identical call with
+ *     execution_options=["validate_only"], refused on any validation error
+ *     before anything changes; then the call itself.
+ *   undo — the captured status or budget put back, dry run first too.
+ *
+ * Never sent: DELETED or ARCHIVED (both permanent on Meta — "delete
+ * campaign" is not an op), any field AD_WRITE_FIELDS doesn't list (so no
+ * spend cap, bid, lifetime budget or anything billing-shaped, rule 18), and
+ * a campaign created anything but PAUSED. adWriteViolation refuses each at
+ * the one request choke point, and meta.test.ts scans this source for the
+ * two forbidden words.
+ *
+ * Creating is irreversible (registry, labelled "hard" before approval) and
+ * at most once: a create that gets no usable answer is never sent again —
+ * "I may have created this campaign — check Ads Manager." Going live is a
+ * separate resume proposal.
+ */
+
+export type AdOp =
+  "pause_campaign" | "resume_campaign" | "set_daily_budget" | "create_campaign_paused";
+
+/** The only fields an ad write may carry, per request (rule 18: nothing billing-shaped). */
+export const AD_WRITE_FIELDS: Readonly<Partial<Record<MetaExecRequest, readonly string[]>>> = {
+  campaign_update: ["status", "daily_budget", "execution_options"],
+  campaign_create: [
+    "name",
+    "objective",
+    "status",
+    "special_ad_categories",
+    "buying_type",
+    "daily_budget",
+    "execution_options",
+  ],
+};
+
+/** The only campaign statuses SYB ever sends. Meta's other two are permanent. */
+export const AD_STATUSES: readonly string[] = ["PAUSED", "ACTIVE"];
+
+/** The dry run (docs-verified, task text): the same call, validated and not applied. */
+export const VALIDATE_ONLY = '["validate_only"]';
+
+/** Meta's current (ODAX) campaign objectives — _verify at build_ against v26.0. */
+export const META_CAMPAIGN_OBJECTIVES: readonly string[] = [
+  "OUTCOME_AWARENESS",
+  "OUTCOME_TRAFFIC",
+  "OUTCOME_ENGAGEMENT",
+  "OUTCOME_LEADS",
+  "OUTCOME_APP_PROMOTION",
+  "OUTCOME_SALES",
+];
+
+/** Meta's special ad categories; an empty list means none — _verify at build_. */
+export const META_SPECIAL_AD_CATEGORIES: readonly string[] = [
+  "EMPLOYMENT",
+  "HOUSING",
+  "FINANCIAL_PRODUCTS_SERVICES",
+  "ISSUES_ELECTIONS_POLITICS",
+  "ONLINE_GAMBLING_AND_GAMING",
+];
+
+export class AdWriteRefusedError extends Error {
+  readonly retryable = false;
+  constructor(reason: string) {
+    super(`meta: refusing an ad write — ${reason}. Nothing was sent.`);
+    this.name = "AdWriteRefusedError";
+  }
+}
+
+/** Pure: why an ad write may not be sent as it stands, or null. Every other request: null. */
+export function adWriteViolation(
+  which: MetaExecRequest,
+  params: Readonly<Record<string, string>>,
+): string | null {
+  const allowed = AD_WRITE_FIELDS[which];
+  if (allowed === undefined) return null;
+  for (const key of Object.keys(params)) {
+    if (!allowed.includes(key)) return `${which} may not carry "${key}"`;
+  }
+  const status = params["status"];
+  if (status !== undefined && !AD_STATUSES.includes(status)) {
+    return `${which} may set a status of PAUSED or ACTIVE only`;
+  }
+  const options = params["execution_options"];
+  if (options !== undefined && options !== VALIDATE_ONLY) {
+    return `${which} may carry execution_options only as the validate_only dry run`;
+  }
+  const budget = params["daily_budget"];
+  if (budget !== undefined && !/^[1-9]\d{0,14}$/.test(budget)) {
+    return `${which} needs a daily budget as a positive whole number in Meta's unit`;
+  }
+  if (which === "campaign_update" && status === undefined && budget === undefined) {
+    return "campaign_update changes a status or a daily budget, nothing else";
+  }
+  if (which === "campaign_create") {
+    if (status !== "PAUSED")
+      return "a campaign is created PAUSED; going live is a separate approval";
+    if (params["buying_type"] !== "AUCTION")
+      return "a campaign is created with buying_type AUCTION";
+    if (!META_CAMPAIGN_OBJECTIVES.includes(params["objective"] ?? "")) {
+      return "a campaign needs one of Meta's campaign objectives";
+    }
+    let categories: unknown;
+    try {
+      categories = JSON.parse(params["special_ad_categories"] ?? "");
+    } catch {
+      categories = null;
+    }
+    if (
+      !Array.isArray(categories) ||
+      !categories.every((c) => typeof c === "string" && META_SPECIAL_AD_CATEGORIES.includes(c))
+    ) {
+      return "a campaign needs special_ad_categories as a list of Meta's categories";
+    }
+    const name = params["name"] ?? "";
+    if (name.trim() === "" || name.length > 400) return "a campaign needs a name";
+  }
+  return null;
+}
+
+/**
+ * An ad change that ended. `retryable` is read by the engine: false stops
+ * its loop. Pause, resume and budget writes set a value, so repeating one
+ * is harmless and a transient failure stays retryable; a create never is.
+ */
+export class AdChangeError extends Error {
+  readonly retryable: boolean;
+  constructor(message: string, retryable = false) {
+    super(message);
+    this.name = "AdChangeError";
+    this.retryable = retryable;
+  }
+}
+
+/** The ad ops' state, held by the database (lib/ads/executing.ts). Injected, as PublishBackend is. */
+export interface AdsBackend {
+  /** The live meta_ads credential, or the sentence saying why there is none. */
+  credential(accountId: string): Promise<MetaExecutionCredential | { refused: string }>;
+  /** The undo payload the engine stored before attempt one — a budget change's baseline. */
+  capturedUndo(executionId: string): Promise<unknown>;
+  /** The owner's stated monthly ad ceiling (8.1i) — the same fact the generator reads. */
+  ceiling(profileId: string): Promise<{ amount_minor: number; currency: string } | null>;
+  /** The account's measured average day in this currency (the generator's arithmetic), or null. */
+  accountDailySpend(accountId: string, currency: string): Promise<number | null>;
+  /** P3-22d: the access tier Meta last reported, stored on the execute connection. */
+  sawTier(accountId: string, tier: string): Promise<void>;
+  /** One watch-log line for the owner: "Paused "Spring sale" on Meta." */
+  changed(profileId: string, detail: string, meta: Record<string, unknown>): Promise<void>;
+}
+
+/** Back off once Meta reports this much of the ad account's hourly limit used (P3-22d). */
+export const META_ADS_BACKOFF_PCT = 75;
+
+/**
+ * P3-22d, pure: Meta's published hourly call limit for ads management at
+ * standard access, per ad account — 300 + 40 × active ads (rate-limiting
+ * page, read 2026-10-19; the task text calls this tier "Limited Access").
+ */
+export function adsHourlyCallLimit(activeAds: number): number {
+  return 300 + 40 * Math.max(0, Math.floor(activeAds));
+}
+
+interface CampaignState {
+  id: string;
+  name: string;
+  account_id: string;
+  status: string;
+  objective: string | null;
+  /** Meta's own unit (offset), or null when the budget sits on the ad sets. */
+  daily_budget: number | null;
+  lifetime_budget: number | null;
+}
+
+interface AccountState {
+  currency: string;
+  /** The account's reported minimum daily budget, in SYB minor units, when Meta reports one. */
+  min_daily_minor: number | null;
+}
+
+const CAMPAIGN_FIELDS = "id,name,account_id,status,objective,daily_budget,lifetime_budget";
+/** min_daily_budget: an AdAccount field per the Marketing API reference — _verify at build_. */
+const ACCOUNT_FIELDS = "id,currency,min_daily_budget";
+
+function metaInt(v: unknown): number | null {
+  const raw = typeof v === "number" ? String(v) : v;
+  if (typeof raw !== "string" || !/^\d{1,15}$/.test(raw)) return null;
+  const n = Number(raw);
+  return n > 0 ? n : null;
+}
+
+function campaignIdOf(params: Record<string, unknown>): string {
+  const id = params["campaign_id"];
+  if (typeof id !== "string" || !/^\d{5,}$/.test(id)) {
+    throw new AdChangeError("the ad change names no campaign — nothing was sent");
+  }
+  return id;
+}
+
+/** The approved change's scale: +0.2 = raise by 20%. */
+function shareOf(params: Record<string, unknown>): number {
+  const share = params["share"];
+  if (typeof share !== "number" || !Number.isFinite(share) || share === 0) {
+    throw new AdChangeError("the budget change names no amount — nothing was sent");
+  }
+  return share;
+}
+
+function approvedCurrency(params: Record<string, unknown>): string {
+  const c = params["currency"];
+  if (typeof c !== "string" || !/^[A-Za-z]{3}$/.test(c)) {
+    throw new AdChangeError("the budget change names no currency — nothing was sent");
+  }
+  return c.toUpperCase();
+}
+
+interface CreateParams {
+  name: string;
+  objective: string;
+  special_ad_categories: string[];
+  daily_budget_minor: number | null;
+  currency: string | null;
+}
+
+function createParams(params: Record<string, unknown>): CreateParams {
+  const name = params["name"];
+  const objective = params["objective"];
+  const categories = params["special_ad_categories"];
+  if (typeof name !== "string" || name.trim() === "" || name.length > 400) {
+    throw new AdChangeError("the new campaign has no name — nothing was sent");
+  }
+  if (typeof objective !== "string" || !META_CAMPAIGN_OBJECTIVES.includes(objective)) {
+    throw new AdChangeError("the new campaign has no objective Meta accepts — nothing was sent");
+  }
+  if (
+    !Array.isArray(categories) ||
+    !categories.every((c) => typeof c === "string" && META_SPECIAL_AD_CATEGORIES.includes(c))
+  ) {
+    throw new AdChangeError(
+      "the new campaign's special ad categories aren't Meta's — nothing was sent",
+    );
+  }
+  const budget = params["daily_budget_minor"];
+  const hasBudget = budget !== undefined && budget !== null;
+  if (hasBudget && (typeof budget !== "number" || !Number.isSafeInteger(budget) || budget <= 0)) {
+    throw new AdChangeError(
+      "the new campaign's daily budget isn't a whole amount — nothing was sent",
+    );
+  }
+  return {
+    name: name.trim(),
+    objective,
+    special_ad_categories: categories as string[],
+    daily_budget_minor: hasBudget ? (budget as number) : null,
+    currency: hasBudget ? approvedCurrency(params) : null,
+  };
+}
+
+function isAdOp(op: string): op is AdOp {
+  return (
+    op === "pause_campaign" ||
+    op === "resume_campaign" ||
+    op === "set_daily_budget" ||
+    op === "create_campaign_paused"
+  );
+}
+
+const STATUS_WORD: Readonly<Record<string, string>> = { PAUSED: "paused", ACTIVE: "active" };
+
+function logAdChange(event: Record<string, unknown>): void {
+  console.log(JSON.stringify({ event: "ad_change", ...event }));
+}
+
+/** A Meta refusal as the owner reads it, for an ad change. */
+function adRefusal(failure: MetaFailure, dryRun: boolean): AdChangeError {
+  if (dryRun && failure.kind === "unknown") {
+    return new AdChangeError(
+      `Meta's dry run refused this change${failure.code !== null ? ` (code ${failure.code})` : ""}, so it was never sent for real. Nothing was changed.`,
+    );
+  }
+  return new AdChangeError(
+    failure.retryable && failure.kind !== "unavailable"
+      ? "Meta kept asking SYB to slow down. Nothing was changed — I'll try again."
+      : failure.owner_sentence,
+    failure.retryable,
+  );
+}
+
+function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): ExecutionProvider {
+  /** One run's calls: the credential, and what Meta reported about limits and tier. */
+  interface Run {
+    b: AdsBackend;
+    cred: MetaExecutionCredential;
+    account_id: string;
+    usage_pct: number | null;
+    access_tier: string | null;
+  }
+
+  async function open(accountId: string): Promise<Run> {
+    const b = await loadBackend();
+    const cred = await b.credential(accountId);
+    if ("refused" in cred) throw new AdChangeError(cred.refused);
+    if (cred.ad_account_id === null) {
+      throw new AdChangeError(
+        "The Meta ad connection names no ad account. Reconnect it on Connections; nothing was changed.",
+      );
+    }
+    return { b, cred, account_id: accountId, usage_pct: null, access_tier: null };
+  }
+
+  async function call(
+    run: Run,
+    which: MetaExecRequest,
+    ids: Readonly<Record<string, string>>,
+    params: Record<string, string>,
+    reach: string,
+    options: { publishing?: boolean } = {},
+  ): Promise<Record<string, unknown>> {
+    const r = await metaCall(ctx, { bearer: run.cred.access_token }, which, ids, params, reach, {
+      account_id: run.account_id,
+      subject: "ad_change",
+      ...options,
+    });
+    if (r.usage_pct !== null) run.usage_pct = Math.max(run.usage_pct ?? 0, r.usage_pct);
+    if (r.access_tier !== null) {
+      run.access_tier = r.access_tier;
+      try {
+        await run.b.sawTier(run.account_id, r.access_tier);
+      } catch {
+        // The tier is a fact worth showing, never a reason to fail a change.
+      }
+    }
+    return r.body;
+  }
+
+  /** The campaign, proven to sit in the connected ad account. */
+  async function readCampaign(run: Run, campaignId: string): Promise<CampaignState> {
+    const body = await call(
+      run,
+      "campaign",
+      { campaign_id: campaignId },
+      { fields: CAMPAIGN_FIELDS },
+      `campaign ${campaignId}`,
+    );
+    const account = String(body["account_id"] ?? "").replace(/^act_/, "");
+    if (String(body["id"] ?? "") !== campaignId || account !== run.cred.ad_account_id) {
+      throw new AdChangeError(
+        `Campaign ${campaignId} isn't in the connected ad account (act_${run.cred.ad_account_id}). Nothing was changed.`,
+      );
+    }
+    return {
+      id: campaignId,
+      name: typeof body["name"] === "string" && body["name"] !== "" ? body["name"] : campaignId,
+      account_id: account,
+      status: typeof body["status"] === "string" ? body["status"] : "UNKNOWN",
+      objective: typeof body["objective"] === "string" ? body["objective"] : null,
+      daily_budget: metaInt(body["daily_budget"]),
+      lifetime_budget: metaInt(body["lifetime_budget"]),
+    };
+  }
+
+  async function readAccount(run: Run): Promise<AccountState> {
+    const account = run.cred.ad_account_id as string;
+    const body = await call(
+      run,
+      "ad_account",
+      { ad_account_id: account },
+      { fields: ACCOUNT_FIELDS },
+      `ad account act_${account}`,
+    );
+    const currency = typeof body["currency"] === "string" ? body["currency"].toUpperCase() : "";
+    if (!/^[A-Z]{3}$/.test(currency)) {
+      throw new AdChangeError(
+        "Meta didn't say which currency the ad account bills in. Nothing was changed.",
+      );
+    }
+    const min = metaInt(body["min_daily_budget"]);
+    return { currency, min_daily_minor: min === null ? null : fromMetaBudget(min, currency) };
+  }
+
+  /** Only a live or paused campaign is touched; Meta's other states are permanent. */
+  function touchable(c: CampaignState): void {
+    if (!AD_STATUSES.includes(c.status)) {
+      throw new AdChangeError(
+        `"${c.name}" is ${c.status.toLowerCase()} on Meta, and SYB only pauses, resumes or re-budgets live and paused campaigns. Nothing was changed.`,
+      );
+    }
+  }
+
+  /**
+   * P3-22c inside the executor: the new budget from a baseline, in Meta's
+   * unit, through the same spend guard the generator ran — ±50%, Meta's
+   * floor, the owner's ceiling. Throws the refusal, naming the number.
+   */
+  async function guardedBudget(
+    run: Run,
+    args: {
+      profile_id: string;
+      campaign: CampaignState;
+      account: AccountState;
+      baseline_minor: number;
+      share: number;
+      currency: string;
+    },
+  ): Promise<{ meta_value: number; sent_minor: number }> {
+    const { account, currency } = args;
+    if (account.currency !== currency) {
+      throw new AdChangeError(
+        `You approved this change in ${currency}, but the ad account bills in ${account.currency}. Nothing was changed; it needs approving again.`,
+      );
+    }
+    const target = Math.round(args.baseline_minor * (1 + args.share));
+    const { meta_value, sent_minor } = toMetaBudget(target, currency);
+    const floor = dailyBudgetFloor(currency, account.min_daily_minor);
+    if (floor === null) {
+      throw new AdChangeError(
+        `I don't know Meta's minimum daily budget in ${currency}, so I won't set one. Nothing was changed.`,
+      );
+    }
+    const ceiling = await run.b.ceiling(args.profile_id);
+    const accountDaily = ceiling ? await run.b.accountDailySpend(run.account_id, currency) : null;
+    const refusal = spendGuard({
+      current_daily_minor: args.baseline_minor,
+      proposed_daily_minor: sent_minor,
+      currency,
+      ...(accountDaily !== null ? { account_daily_minor: accountDaily } : {}),
+      monthly_ceiling: ceiling,
+      floor_minor: floor,
+    });
+    if (refusal !== null) {
+      throw new AdChangeError(
+        `I didn't change "${args.campaign.name}": ${refusal}. Nothing was changed.`,
+      );
+    }
+    return { meta_value, sent_minor };
+  }
+
+  /** The identical call with validate_only first, refused on any error before anything changes. */
+  async function validatedWrite(
+    run: Run,
+    which: "campaign_update" | "campaign_create",
+    ids: Readonly<Record<string, string>>,
+    fields: Record<string, string>,
+    reach: string,
+  ): Promise<Record<string, unknown>> {
+    try {
+      await call(run, which, ids, { ...fields, execution_options: VALIDATE_ONLY }, reach);
+    } catch (error) {
+      if (error instanceof MetaRequestError) throw adRefusal(error.failure, true);
+      throw error;
+    }
+    try {
+      return await call(run, which, ids, fields, reach, {
+        // A create that gets no usable answer is never sent again (at most once).
+        ...(which === "campaign_create" ? { publishing: true } : {}),
+      });
+    } catch (error) {
+      if (error instanceof MetaNoAnswerError) {
+        throw new AdChangeError(
+          "I may have created this campaign — check Ads Manager. Meta didn't confirm it, and I won't create it again.",
+        );
+      }
+      if (error instanceof MetaRequestError) {
+        const refusal = adRefusal(error.failure, false);
+        throw which === "campaign_create" ? new AdChangeError(refusal.message) : refusal;
+      }
+      throw error;
+    }
+  }
+
+  async function setStatus(run: Run, c: CampaignState, status: string): Promise<void> {
+    const body = await validatedWrite(
+      run,
+      "campaign_update",
+      { campaign_id: c.id },
+      { status },
+      `campaign ${c.id}`,
+    );
+    if (body["success"] !== true) {
+      throw new AdChangeError(
+        `Meta didn't confirm the change to "${c.name}" — I'll check again.`,
+        true,
+      );
+    }
+  }
+
+  async function setBudget(run: Run, c: CampaignState, metaValue: number): Promise<void> {
+    const body = await validatedWrite(
+      run,
+      "campaign_update",
+      { campaign_id: c.id },
+      { daily_budget: String(metaValue) },
+      `campaign ${c.id}`,
+    );
+    if (body["success"] !== true) {
+      throw new AdChangeError(
+        `Meta didn't confirm the change to "${c.name}" — I'll check again.`,
+        true,
+      );
+    }
+  }
+
+  const fmt = (minor: number, currency: string) => format(money(minor, currency));
+
+  return {
+    id: "meta_ads",
+    external: true,
+
+    async preflight(op, params, pctx) {
+      const log = (outcome: string, run?: Run) =>
+        logAdChange({
+          account_id: pctx.account_id,
+          op,
+          phase: "preflight",
+          outcome,
+          access_tier: run?.access_tier ?? null,
+          usage_pct: run?.usage_pct ?? null,
+        });
+      let run: Run | undefined;
+      try {
+        if (!isAdOp(op))
+          return { code: "refused", message: `"${op}" is not an ad change SYB makes` };
+        run = await open(pctx.account_id);
+        if (op === "create_campaign_paused") {
+          const p = createParams(params);
+          const account = await readAccount(run);
+          if (p.daily_budget_minor !== null) {
+            if (p.currency !== account.currency) {
+              throw new AdChangeError(
+                `You approved this budget in ${p.currency}, but the ad account bills in ${account.currency}. Nothing was changed; it needs approving again.`,
+              );
+            }
+            const floor = dailyBudgetFloor(account.currency, account.min_daily_minor);
+            const sent = toMetaBudget(p.daily_budget_minor, account.currency).sent_minor;
+            if (floor === null || sent < floor) {
+              throw new AdChangeError(
+                floor === null
+                  ? `I don't know Meta's minimum daily budget in ${account.currency}, so I won't set one. Nothing was changed.`
+                  : `I didn't create "${p.name}": its daily budget of ${fmt(sent, account.currency)} is under Meta's minimum of ${fmt(floor, account.currency)} a day. Nothing was changed.`,
+              );
+            }
+          }
+        } else {
+          const c = await readCampaign(run, campaignIdOf(params));
+          touchable(c);
+          if (op === "pause_campaign" && c.status === "PAUSED") {
+            throw new AdChangeError(`"${c.name}" is already paused. Nothing was sent.`);
+          }
+          if (op === "resume_campaign" && c.status === "ACTIVE") {
+            throw new AdChangeError(`"${c.name}" is already running. Nothing was sent.`);
+          }
+          if (op === "set_daily_budget") {
+            if (c.daily_budget === null) {
+              throw new AdChangeError(
+                `"${c.name}" has its budget on its ad sets, not the campaign, and SYB changes campaign budgets only. Nothing was changed.`,
+              );
+            }
+            const account = await readAccount(run);
+            await guardedBudget(run, {
+              profile_id: pctx.profile_id,
+              campaign: c,
+              account,
+              baseline_minor: fromMetaBudget(c.daily_budget, account.currency),
+              share: shareOf(params),
+              currency: approvedCurrency(params),
+            });
+          }
+        }
+        if (run.usage_pct !== null && run.usage_pct >= META_ADS_BACKOFF_PCT) {
+          log("deferred", run);
+          return {
+            code: "deferred",
+            message: `Meta says this ad account has used ${run.usage_pct}% of its hourly call limit (at standard access Meta allows 300 + 40 × active ads calls an hour). Nothing was sent; it runs on the next run.`,
+          };
+        }
+        log("ok", run);
+        return null;
+      } catch (error) {
+        if (error instanceof MetaRequestError) {
+          log("meta_refused", run);
+          return {
+            code: error.failure.retryable ? "deferred" : "refused",
+            message: adRefusal(error.failure, false).message,
+          };
+        }
+        if (error instanceof AdChangeError || error instanceof RangeError) {
+          log("refused", run);
+          return { code: "refused", message: error.message };
+        }
+        if (error instanceof UnknownMetaCurrencyError) {
+          log("refused", run);
+          return { code: "refused", message: error.message };
+        }
+        throw error;
+      }
+    },
+
+    async captureUndo(op, params, pctx) {
+      // The irreversible op has no undo; the engine never asks for one (registry: reversible false).
+      if (op === "create_campaign_paused" || !isAdOp(op)) return null;
+      const run = await open(pctx.account_id);
+      const c = await readCampaign(run, campaignIdOf(params));
+      touchable(c);
+      if (op === "set_daily_budget") {
+        if (c.daily_budget === null) {
+          throw new AdChangeError(
+            `"${c.name}" has no campaign budget to record. Nothing was changed.`,
+          );
+        }
+        const account = await readAccount(run);
+        return {
+          campaign_id: c.id,
+          campaign_name: c.name,
+          daily_budget: c.daily_budget,
+          daily_budget_minor: fromMetaBudget(c.daily_budget, account.currency),
+          currency: account.currency,
+        };
+      }
+      return { campaign_id: c.id, campaign_name: c.name, status: c.status };
+    },
+
+    async execute(op, params, pctx) {
+      if (!isAdOp(op)) throw new AdChangeError(`"${op}" is not an ad change SYB makes`);
+      const run = await open(pctx.account_id);
+      const log = (outcome: string, extra: Record<string, unknown> = {}) =>
+        logAdChange({
+          account_id: pctx.account_id,
+          execution_id: pctx.execution_id ?? null,
+          op,
+          phase: "execute",
+          outcome,
+          access_tier: run.access_tier,
+          usage_pct: run.usage_pct,
+          ...extra,
+        });
+      try {
+        if (op === "create_campaign_paused") {
+          const p = createParams(params);
+          const account = await readAccount(run);
+          let budget: { meta_value: number; sent_minor: number } | null = null;
+          if (p.daily_budget_minor !== null) {
+            if (p.currency !== account.currency) {
+              throw new AdChangeError(
+                `You approved this budget in ${p.currency}, but the ad account bills in ${account.currency}. Nothing was changed.`,
+              );
+            }
+            budget = toMetaBudget(p.daily_budget_minor, account.currency);
+            const floor = dailyBudgetFloor(account.currency, account.min_daily_minor);
+            if (floor === null || budget.sent_minor < floor) {
+              throw new AdChangeError(
+                `I didn't create "${p.name}": its daily budget is under Meta's minimum, or the minimum isn't known. Nothing was changed.`,
+              );
+            }
+          }
+          const body = await validatedWrite(
+            run,
+            "campaign_create",
+            { ad_account_id: run.cred.ad_account_id as string },
+            {
+              name: p.name,
+              objective: p.objective,
+              status: "PAUSED",
+              special_ad_categories: JSON.stringify(p.special_ad_categories),
+              buying_type: "AUCTION",
+              ...(budget ? { daily_budget: String(budget.meta_value) } : {}),
+            },
+            `ad account act_${run.cred.ad_account_id}`,
+          );
+          const id = stringId(body, "id");
+          if (id === null) {
+            throw new AdChangeError(
+              "I may have created this campaign — check Ads Manager. Meta didn't confirm it, and I won't create it again.",
+            );
+          }
+          await run.b.changed(pctx.profile_id, `Created "${p.name}" on Meta, paused.`, {
+            campaign_id: id,
+            op,
+          });
+          log("created", { campaign_id: id });
+          return {
+            campaign_id: id,
+            campaign_name: p.name,
+            status: "PAUSED",
+            ...(budget
+              ? { daily_budget_minor: budget.sent_minor, currency: account.currency }
+              : {}),
+            access_tier: run.access_tier,
+          };
+        }
+
+        const c = await readCampaign(run, campaignIdOf(params));
+        touchable(c);
+        if (op === "pause_campaign" || op === "resume_campaign") {
+          const target = op === "pause_campaign" ? "PAUSED" : "ACTIVE";
+          // Already there: an earlier attempt landed and its answer was lost. Setting a status twice is harmless.
+          if (c.status !== target) await setStatus(run, c, target);
+          await run.b.changed(
+            pctx.profile_id,
+            `${target === "PAUSED" ? "Paused" : "Resumed"} "${c.name}" on Meta.`,
+            { campaign_id: c.id, op },
+          );
+          log("changed", { campaign_id: c.id, status: target });
+          return {
+            campaign_id: c.id,
+            campaign_name: c.name,
+            status: target,
+            previous_status: c.status === target ? null : c.status,
+            access_tier: run.access_tier,
+          };
+        }
+
+        // set_daily_budget — from the budget captured before attempt one, never the live one.
+        const captured = (
+          pctx.execution_id ? await run.b.capturedUndo(pctx.execution_id) : null
+        ) as { daily_budget_minor?: unknown; currency?: unknown } | null;
+        const baseline = captured?.daily_budget_minor;
+        if (typeof baseline !== "number" || typeof captured?.currency !== "string") {
+          throw new AdChangeError(
+            "The budget before this change wasn't recorded, so I won't change it. Nothing was changed.",
+          );
+        }
+        const account = await readAccount(run);
+        const { meta_value, sent_minor } = await guardedBudget(run, {
+          profile_id: pctx.profile_id,
+          campaign: c,
+          account,
+          baseline_minor: baseline,
+          share: shareOf(params),
+          currency: approvedCurrency(params),
+        });
+        if (c.daily_budget !== meta_value) await setBudget(run, c, meta_value);
+        await run.b.changed(
+          pctx.profile_id,
+          `Changed "${c.name}"'s daily budget on Meta from ${fmt(baseline, account.currency)} to ${fmt(sent_minor, account.currency)}.`,
+          { campaign_id: c.id, op },
+        );
+        log("changed", { campaign_id: c.id, daily_budget: meta_value });
+        return {
+          campaign_id: c.id,
+          campaign_name: c.name,
+          daily_budget_before_minor: baseline,
+          daily_budget_minor: sent_minor,
+          currency: account.currency,
+          sent_daily_budget: meta_value,
+          access_tier: run.access_tier,
+        };
+      } catch (error) {
+        log("failed", { error: error instanceof Error ? error.name : "unknown" });
+        if (error instanceof MetaRequestError) {
+          const refusal = adRefusal(error.failure, false);
+          throw op === "create_campaign_paused" ? new AdChangeError(refusal.message) : refusal;
+        }
+        if (op === "create_campaign_paused" && !(error instanceof AdChangeError)) {
+          // Whatever went wrong, a create is never sent twice by the engine's loop.
+          throw new AdChangeError(
+            error instanceof UnknownMetaCurrencyError
+              ? error.message
+              : "Something went wrong creating the campaign. Check Ads Manager before approving it again.",
+          );
+        }
+        throw error;
+      }
+    },
+
+    async undo(op, undoPayload, pctx) {
+      const u = (undoPayload ?? {}) as {
+        campaign_id?: unknown;
+        status?: unknown;
+        daily_budget?: unknown;
+        daily_budget_minor?: unknown;
+        currency?: unknown;
+      };
+      const run = await open(pctx.account_id);
+      const c = await readCampaign(run, campaignIdOf({ campaign_id: u.campaign_id }));
+      touchable(c);
+      if (op === "pause_campaign" || op === "resume_campaign") {
+        if (typeof u.status !== "string" || !AD_STATUSES.includes(u.status)) {
+          throw new AdChangeError(
+            "the stored undo names no status SYB may set — nothing was changed",
+          );
+        }
+        if (c.status !== u.status) await setStatus(run, c, u.status);
+        await run.b.changed(
+          pctx.profile_id,
+          `Undid: "${c.name}" is ${STATUS_WORD[u.status] ?? u.status} on Meta again.`,
+          { campaign_id: c.id, op, undo: true },
+        );
+        logAdChange({
+          account_id: pctx.account_id,
+          op,
+          phase: "undo",
+          outcome: "restored",
+          campaign_id: c.id,
+          access_tier: run.access_tier,
+        });
+        return { campaign_id: c.id, status: u.status };
+      }
+      if (op === "set_daily_budget") {
+        const previous = metaInt(u.daily_budget);
+        if (previous === null || typeof u.currency !== "string") {
+          throw new AdChangeError("the stored undo names no budget — nothing was changed");
+        }
+        if (c.daily_budget !== previous) await setBudget(run, c, previous);
+        const minor =
+          typeof u.daily_budget_minor === "number"
+            ? u.daily_budget_minor
+            : fromMetaBudget(previous, u.currency);
+        await run.b.changed(
+          pctx.profile_id,
+          `Undid: "${c.name}"'s daily budget on Meta is ${fmt(minor, u.currency)} again.`,
+          { campaign_id: c.id, op, undo: true },
+        );
+        logAdChange({
+          account_id: pctx.account_id,
+          op,
+          phase: "undo",
+          outcome: "restored",
+          campaign_id: c.id,
+          access_tier: run.access_tier,
+        });
+        return { campaign_id: c.id, daily_budget: previous };
+      }
+      throw new AdChangeError(
+        `"${op}" can't be undone — it was labelled irreversible before approval`,
+      );
+    },
+  };
+}
+
 export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExecution {
   const ctx: Context = {
     fetch: options.fetch ?? defaultFetch,
@@ -1826,7 +2730,12 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
       const { dbPublishBackend } = await import("../../content/publishing");
       return dbPublishBackend();
     }),
-    ads: unbuilt("meta_ads", "P3-22b"),
+    ads: adsProvider(ctx, async () => {
+      if (options.adsBackend) return options.adsBackend;
+      // The database side lives in lib/ads, loaded on first use like the publish backend.
+      const { dbAdsBackend } = await import("../../ads/executing");
+      return dbAdsBackend();
+    }),
     instagram: (a) =>
       publishInstagram(ctx, {
         igUserId: a.igUserId,

@@ -198,16 +198,23 @@ export async function requestChanges(args: {
  * P3-21a: a proposal may carry its own posting time (action.detail.publish_at,
  * a publish proposal's date at its posting hour). Approving without choosing
  * a time keeps that one; an owner-picked time always wins.
+ *
+ * P3-22b: a proposal may instead say `execute_on_approval: true` (the ad
+ * changes): approving without a time schedules it for now, so the next due
+ * run picks it up. Without either, an unscheduled approval never runs by
+ * itself — the runner only takes scheduled ones.
  */
 async function carriedSchedule(proposalId: string): Promise<string | null> {
   const [row] = await db
     .select({ action: proposals.action })
     .from(proposals)
     .where(eq(proposals.id, proposalId));
-  const at = (row?.action as { detail?: { publish_at?: unknown } } | null)?.detail?.publish_at;
-  return typeof at === "string" && !Number.isNaN(Date.parse(at))
-    ? new Date(at).toISOString()
-    : null;
+  const detail = (
+    row?.action as { detail?: { publish_at?: unknown; execute_on_approval?: unknown } } | null
+  )?.detail;
+  const at = detail?.publish_at;
+  if (typeof at === "string" && !Number.isNaN(Date.parse(at))) return new Date(at).toISOString();
+  return detail?.execute_on_approval === true ? new Date().toISOString() : null;
 }
 
 const LOG_KIND = {

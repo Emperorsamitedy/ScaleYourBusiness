@@ -56,6 +56,10 @@ export interface ExecConnection {
   label: string;
   status: "connected" | "paused" | "failed" | "disconnected";
   granted_scopes: string[];
+  /** P3-22d, meta_ads: the access tier Meta last reported, verbatim, and in words. */
+  access_tier?: string | null;
+  access_tier_seen_at?: string | null;
+  access_tier_words?: string | null;
   created_at: string;
   disconnected_at: string | null;
 }
@@ -76,6 +80,8 @@ export interface ExecView {
   };
   nothing_sent: string;
   disconnect_note: string;
+  /** P3-22d: what the ads access tier means, shown under the ad connection. */
+  ads_access_note?: string;
   connections: ExecConnection[];
   providers: ExecProvider[];
 }
@@ -150,10 +156,13 @@ function ConsentLines({ provider }: { provider: ExecProvider }) {
 function ConnectedWrite({
   c,
   note,
+  tierNote,
   onDone,
 }: {
   c: ExecConnection;
   note: string;
+  /** P3-22d: shown under an ad connection, beside its access tier. */
+  tierNote: string | null;
   onDone: (message: string) => Promise<void>;
 }) {
   const [busy, setBusy] = useState(false);
@@ -189,6 +198,16 @@ function ConnectedWrite({
         </dd>
         <dt>consented</dt>
         <dd>{c.created_at.slice(0, 10)}</dd>
+        {c.access_tier_words != null && (
+          <>
+            <dt>access tier</dt>
+            <dd>
+              {c.access_tier != null && <span className="cn-scope">{c.access_tier}</span>}{" "}
+              {c.access_tier_words}
+              {c.access_tier_seen_at != null && ` · seen ${c.access_tier_seen_at.slice(0, 10)}`}
+            </dd>
+          </>
+        )}
       </dl>
       <div className="cn-acts">
         <button type="button" className="ghost" disabled={busy} onClick={() => void disconnect()}>
@@ -200,6 +219,7 @@ function ConnectedWrite({
           {error}
         </p>
       )}
+      {tierNote !== null && c.access_tier_words != null && <p className="cn-note">{tierNote}</p>}
       <p className="cn-note">{note}</p>
     </div>
   );
@@ -618,7 +638,14 @@ export function ExecutionSection({
                   )}
                 </div>
                 <ConsentLines provider={p} />
-                {c !== null && <ConnectedWrite c={c} note={view.disconnect_note} onDone={done} />}
+                {c !== null && (
+                  <ConnectedWrite
+                    c={c}
+                    note={view.disconnect_note}
+                    tierNote={view.ads_access_note ?? null}
+                    onDone={done}
+                  />
+                )}
                 {c === null && picking === p.id && (
                   <MetaPicker
                     provider={p}

@@ -95,6 +95,17 @@ describe("P3-24a — the Meta error taxonomy", () => {
     );
   });
 
+  it("an ad change says nothing was changed, never published (P3-22b); a publish keeps its wording", () => {
+    const ad = (code: number | null, status = 400) =>
+      classifyMetaError({ status, code, subject: "ad_change" });
+    expect(ad(368).owner_sentence).toBe("Meta refused with code 368; nothing was changed.");
+    expect(ad(null, 0).owner_sentence).toMatch(/Nothing was changed — I'll try again/);
+    expect(ad(190).kind).toBe("auth"); // the mapping itself is unchanged
+    expect(classifyMetaError({ status: 400, code: 368, subject: "publish" }).owner_sentence).toBe(
+      "Meta refused with code 368; nothing was published.",
+    );
+  });
+
   it("never pauses for something waiting can fix, and never retries something the owner must fix", () => {
     const all = [102, 190, 10, 200, 294, 4, 17, 32, 613, 80001, 1, 2, 368].map((code) => c(code));
     for (const f of all) {

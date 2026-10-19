@@ -26,6 +26,11 @@
 //     item's media, never a caller. While the Session D real-write gate
 //     is off the engine refuses it unclaimed: counted as refused, the
 //     proposal left approved, the item untouched
+//   - an ad proposal (P3-22b): lib/ads/executing's adsPlan builds
+//     { meta_ads, op, params } from the approved row — pause, resume, a
+//     budget change by the approved share, or a paused create. The op
+//     follows the change the owner approved, never a caller; the real-write
+//     gate covers it exactly as it covers publishing
 //   - module "site": applySiteChange, which does its own drift check,
 //     health check and auto-rollback through the engine
 //   - anything else is UNROUTABLE: counted, logged, left approved. The
@@ -49,6 +54,7 @@ import { expireAllDueProposals } from "../proposals/service";
 import type { ReconcileSummary } from "../content/publishing";
 import { publishPlan, reconcilePublishing } from "../content/publishing";
 import { isPublishProposal } from "../content/publish";
+import { adsPlan, isAdProposal } from "../ads/executing";
 import { applySiteChange } from "../site/apply";
 import { SiteChangeError } from "../site/changes";
 import { ExecutionRefused, executeProposal, isHalted } from "./engine";
@@ -215,6 +221,13 @@ async function runOne(
     let plan = preboundPlan(proposal);
     if (!plan && isPublishProposal(proposal.action)) {
       const routed = await publishPlan(proposal);
+      if ("unroutable" in routed) {
+        return { ...base, result: "unroutable", detail: `${routed.unroutable} — left approved` };
+      }
+      plan = routed.plan;
+    }
+    if (!plan && isAdProposal(proposal)) {
+      const routed = adsPlan(proposal);
       if ("unroutable" in routed) {
         return { ...base, result: "unroutable", detail: `${routed.unroutable} — left approved` };
       }

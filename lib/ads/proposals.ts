@@ -23,11 +23,14 @@
 // would take total monthly ad spend past it is refused, naming both
 // figures; a ceiling in another currency than the campaign's can't be
 // compared without converting, so the raise is refused rather than guessed
-// (rule 1). Meta's minimum daily budget and the currency-offset table
-// belong to the executor (P3-22b), where the number is actually sent.
+// (rule 1). The arithmetic is lib/ads/guard's spendGuard, which the
+// executor runs again before anything is sent, with Meta's minimum daily
+// budget and the currency-offset table beside it (P3-22b/c).
 //
-// What it does NOT do: execute. No action.detail.execution is bound, so
-// the due runner leaves an approved one alone until P3-22b's ops exist.
+// Execution (P3-22b): no action.detail.execution is bound. The proposal
+// says `execute_on_approval`, so approving schedules it for the next due
+// run, and the runner builds the plan from this row (lib/ads/executing,
+// adsPlan) — the op follows the change, never a caller.
 // Attribution is Meta's own: the proposal says so, and calls it ROAS as
 // Meta attributes it, not as the business measured it.
 
@@ -54,6 +57,7 @@ import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { readCurrentField } from "../profile/field-store";
 import { shiftDay } from "../trust/series";
+import { MAX_CHANGE_SHARE, spendGuard } from "./guard";
 import { suppressedKinds } from "../trust/suppression";
 
 export const ADS_MODULE = "ads";
@@ -72,8 +76,8 @@ export const ADS = {
   raise_roas_at_least: 3.0,
   /** The raise itself, as a share of the current daily budget. */
   raise_share: 0.2,
-  /** P3-22c: no single change beyond this share of the current budget. */
-  max_change_share: 0.5,
+  /** P3-22c: no single change beyond this share of the current budget (lib/ads/guard). */
+  max_change_share: MAX_CHANGE_SHARE,
   expiry_days: 14,
 } as const;
 
@@ -149,7 +153,10 @@ export function adChangeFor(series: CampaignSeries, today: string): AdChange | n
 /**
  * P3-22c at generation: a budget change outside ±max_change_share, or that
  * would take monthly spend over a stated ceiling, is refused — the reason
- * names the number it hit. Null means it is within bounds.
+ * names the number it hit. Null means it is within bounds. The arithmetic
+ * is lib/ads/guard's spendGuard, the same one the executor runs again
+ * before anything is sent; here the current figure is the measured average
+ * day, since the read side doesn't see the campaign's budget.
  */
 export function budgetGuard(args: {
   share: number;
@@ -161,18 +168,47 @@ export function budgetGuard(args: {
   /** The owner's stated monthly ad ceiling, when one exists (minor units, same currency). */
   monthly_ceiling_minor?: number | null;
 }): string | null {
-  if (Math.abs(args.share) > ADS.max_change_share) {
-    return `a ${Math.round(args.share * 100)}% change is beyond the ${ADS.max_change_share * 100}% allowed in one approval`;
-  }
   const ceiling = args.monthly_ceiling_minor ?? null;
-  if (ceiling !== null) {
-    const account = args.account_daily_spend_minor ?? args.daily_spend_minor;
-    const projected = Math.round((account + args.daily_spend_minor * args.share) * 30);
-    if (projected > ceiling) {
-      return `it would take monthly ad spend to about ${format(money(projected, args.currency))}, over your stated ceiling of ${format(money(ceiling, args.currency))}`;
-    }
-  }
-  return null;
+  return spendGuard({
+    current_daily_minor: args.daily_spend_minor,
+    proposed_daily_minor: Math.round(args.daily_spend_minor * (1 + args.share)),
+    currency: args.currency,
+    ...(args.account_daily_spend_minor !== undefined
+      ? { account_daily_minor: args.account_daily_spend_minor }
+      : {}),
+    monthly_ceiling: ceiling === null ? null : { amount_minor: ceiling, currency: args.currency },
+  });
+}
+
+/**
+ * Pure: the account's average day — every campaign in `currency`, each its
+ * measured spend over the raise window ÷ its measured days, summed. The
+ * ceiling's left-hand side, here and in the executor (rule 1: one currency).
+ */
+export function accountDailySpend(
+  campaigns: readonly CampaignSeries[],
+  today: string,
+  currency: string,
+): number {
+  return Math.round(
+    campaigns
+      .filter((c) => c.currency.toUpperCase() === currency.toUpperCase())
+      .reduce((sum, c) => {
+        const w = windowOf(c, shiftDay(today, -ADS.raise_window_days), shiftDay(today, -1));
+        return sum + (w.measured_days > 0 ? w.spend_minor / w.measured_days : 0);
+      }, 0),
+  );
+}
+
+/** The owner's stated monthly ad ceiling (8.1i), when answered. */
+export async function monthlyAdCeiling(
+  profileId: string,
+): Promise<{ amount_minor: number; currency: string } | null> {
+  const field = await readCurrentField<{ amount_minor: number; currency: string }>(
+    profileId,
+    CEILING_KEY,
+  );
+  return field?.status === "answered" && field.value ? field.value : null;
 }
 
 /** The per-campaign series an account measures, from its Meta measure connection(s). */
@@ -286,17 +322,7 @@ export async function proposeAdChanges(
   }
 
   const month = today.slice(0, 7);
-  // The ceiling covers the whole account: every campaign's average day, together.
-  const accountDaily = campaigns.reduce((sum, c) => {
-    const w = windowOf(c, shiftDay(today, -ADS.raise_window_days), shiftDay(today, -1));
-    return sum + (w.measured_days > 0 ? w.spend_minor / w.measured_days : 0);
-  }, 0);
-  const ceilingField = await readCurrentField<{ amount_minor: number; currency: string }>(
-    profileId,
-    CEILING_KEY,
-  );
-  const ceiling =
-    ceilingField?.status === "answered" && ceilingField.value ? ceilingField.value : null;
+  const ceiling = await monthlyAdCeiling(profileId);
   const existing = new Set(
     (
       await db
@@ -343,7 +369,7 @@ export async function proposeAdChanges(
       const refused = budgetGuard({
         share: change.share,
         daily_spend_minor: dailySpend,
-        account_daily_spend_minor: Math.round(accountDaily),
+        account_daily_spend_minor: accountDailySpend(campaigns, today, c.currency),
         currency: c.currency,
         monthly_ceiling_minor: ceiling?.amount_minor ?? null,
       });
@@ -382,8 +408,10 @@ export async function proposeAdChanges(
           arithmetic,
           attribution:
             "Purchases are the ones Meta attributes to the campaign, by Meta's own rules.",
+          // P3-22b: approving queues it for the next due run (no set time needed).
+          execute_on_approval: true,
           sending:
-            "Nothing changes on approval yet: the ad executor (P3-22b) runs approved changes once it exists.",
+            "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
           manual_limits: verdict.manual.map((l) => l.quote),
         },
       },

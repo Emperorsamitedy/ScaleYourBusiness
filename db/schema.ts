@@ -995,6 +995,14 @@ export const connections = pgTable(
     /** Consecutive failed runs; the runner parks the connection at the cap (P2-06). */
     failure_count: integer("failure_count").notNull().default(0),
     last_error: text("last_error"),
+    /**
+     * P3-22d, execute rows only: the Marketing API access tier Meta last
+     * reported on this connection's calls (`ads_api_access_tier`, verbatim —
+     * "development_access", "standard_access"), and when. Shown on
+     * /connections so the owner sees the rate-limit tier SYB works under.
+     */
+    access_tier: text("access_tier"),
+    access_tier_seen_at: timestamp("access_tier_seen_at", { withTimezone: true, mode: "string" }),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),

@@ -25,6 +25,7 @@ import { consentToExecution } from "../../../../lib/execution/consent";
 import { metaExecution } from "../../../../lib/execution/providers/meta";
 import { EXECUTION_SCOPE_REGISTRY } from "../../../../lib/execution/scopes";
 import {
+  ADS_ACCESS_TIER_NOTE,
   DISCONNECT_NOTE,
   EXECUTION_SETUP,
   FACEBOOK_LOGIN_OFF,
@@ -33,6 +34,7 @@ import {
   ONE_CONSENT_PER_FACEBOOK_ACCOUNT,
   TESTER_NOTE,
   accessLevelCopy,
+  accessTierWords,
 } from "../../../../lib/execution/setup";
 
 const AUTH_COOKIE = "syb_session";
@@ -77,7 +79,12 @@ export async function GET(): Promise<NextResponse> {
       },
       nothing_sent: NOTHING_SENT_YET,
       disconnect_note: DISCONNECT_NOTE,
-      connections: await listExecutionConnections(session.account_id),
+      // P3-22d: the ad connection's last-seen access tier, in words beside Meta's own.
+      ads_access_note: ADS_ACCESS_TIER_NOTE,
+      connections: (await listExecutionConnections(session.account_id)).map((c) => ({
+        ...c,
+        access_tier_words: c.provider === "meta_ads" ? accessTierWords(c.access_tier) : null,
+      })),
       providers: OFFERED_EXECUTION.map((id) => {
         const spec = EXECUTION_SCOPE_REGISTRY[id];
         const setup = EXECUTION_SETUP[id];
