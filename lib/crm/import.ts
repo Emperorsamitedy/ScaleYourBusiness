@@ -25,7 +25,8 @@
 
 import { countryCode } from "../hours/timezone";
 import { createHash } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
+import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { db } from "../../db";
 import { businessProfiles, contacts, decisionLog } from "../../db/schema";
 import { minorUnitExponent } from "../core/money";
@@ -194,7 +195,7 @@ export interface ImportOptions {
 export type RowOutcome =
   | { outcome: "imported"; contact_id: string }
   | { outcome: "suppressed"; reason: string }
-  | { outcome: "already_exists" }
+  | { outcome: "already_exists"; refreshed?: true }
   | { outcome: "duplicate_in_batch" }
   | { outcome: "invalid"; reason: string };
 
@@ -207,8 +208,12 @@ export interface ImportResult {
     duplicate_in_batch: number;
     invalid: number;
   };
-  /** Purchase columns present in the header, and values that could not be read (left null). */
-  purchase: { columns: string[]; unreadable: number };
+  /**
+   * Purchase columns present in the header, values that could not be read
+   * (left null), and — P4-17 — how many contacts already here had their
+   * purchase history refreshed from this file (consent never moves).
+   */
+  purchase: { columns: string[]; unreadable: number; refreshed: number };
   /** Whether the file had a country column, and how many values could not be read (left null). */
   country: { column: boolean; unreadable: number };
   rows: RowOutcome[];
@@ -265,6 +270,7 @@ export async function importContacts(
   const rows: RowOutcome[] = [];
   const counts = { suppressed: 0, already_exists: 0, duplicate_in_batch: 0, invalid: 0 };
   let imported = 0;
+  let refreshed = 0;
   let unreadable = 0;
   let countryUnreadable = 0;
   const hasCountry = columns.country !== -1;
@@ -293,13 +299,8 @@ export async function importContacts(
         continue;
       }
       seenInBatch.add(normalized);
-      const suppressed = await isSuppressed(accountId, normalized);
-      if (suppressed) {
-        counts.suppressed++;
-        rows.push({ outcome: "suppressed", reason: suppressed });
-        continue;
-      }
     }
+    const suppressed = normalized ? await isSuppressed(accountId, normalized) : null;
 
     // Purchase history: read what can be read, count what cannot, invent nothing.
     const lastPurchaseRaw = cell(columns.last_purchase);
@@ -315,6 +316,30 @@ export async function importContacts(
     const country = countryRaw ? parseCountry(countryRaw) : null;
     if (countryRaw && country === null) countryUnreadable++;
 
+    // P4-17: a file with a last-order column measures purchases as of now.
+    const at = new Date().toISOString();
+    const hasDates = columns.last_purchase !== -1;
+    const refresh = (email: string) =>
+      purchaseColumns.length > 0
+        ? refreshPurchases(accountId, email, {
+            lastPurchase,
+            orders,
+            spent,
+            currency,
+            at: hasDates ? at : null,
+          })
+        : Promise.resolve(false);
+
+    if (normalized && suppressed) {
+      // Never re-added (rules 22/23). An unsubscribed customer who is still
+      // on the books has their purchases refreshed all the same — what they
+      // bought is not marketing, and the campaign readback would otherwise
+      // lose exactly the recipients who said no. An erased one has no row.
+      counts.suppressed++;
+      if (await refresh(normalized)) refreshed++;
+      rows.push({ outcome: "suppressed", reason: suppressed });
+      continue;
+    }
     try {
       const [inserted] = await db
         .insert(contacts)
@@ -331,6 +356,7 @@ export async function importContacts(
           total_spent_minor: spent,
           spent_currency: spent === null ? null : currency,
           country,
+          purchase_refreshed_at: hasDates ? at : null,
         })
         .returning({ id: contacts.id });
       imported++;
@@ -339,7 +365,16 @@ export async function importContacts(
       const constraint = (error as { cause?: { constraint?: string } }).cause?.constraint;
       if (constraint === "contacts_account_email_idx") {
         counts.already_exists++;
-        rows.push({ outcome: "already_exists" });
+        // P4-17: the shop's later export refreshes what it measures — the
+        // purchase history, and nothing else. Consent, name, phone and
+        // country stay as recorded; an unreadable or empty cell leaves the
+        // stored value alone; the last order date never moves backwards (an
+        // older file can't un-happen a purchase).
+        const did = normalized !== null && (await refresh(normalized));
+        if (did) refreshed++;
+        rows.push(
+          did ? { outcome: "already_exists", refreshed: true } : { outcome: "already_exists" },
+        );
         continue;
       }
       throw error;
@@ -367,6 +402,7 @@ export async function importContacts(
             imported,
             ...counts,
             purchase_columns: purchaseColumns,
+            purchase_refreshed: refreshed,
             country_column: hasCountry,
           }),
         )
@@ -381,6 +417,7 @@ export async function importContacts(
       imported,
       ...counts,
       purchase_columns: purchaseColumns,
+      purchase_refreshed: refreshed,
       unreadable,
       country_column: hasCountry,
       country_unreadable: countryUnreadable,
@@ -390,8 +427,46 @@ export async function importContacts(
     batch_id: batchId,
     imported,
     skipped: counts,
-    purchase: { columns: purchaseColumns, unreadable },
+    purchase: { columns: purchaseColumns, unreadable, refreshed },
     country: { column: hasCountry, unreadable: countryUnreadable },
     rows,
   };
+}
+
+/**
+ * P4-17: refresh an existing contact's purchase history from a later shop
+ * export. Only readable values are written; the last order date is the
+ * later of the stored and the exported one. `at` (set when the file has a
+ * last-order column) records that the export measured this contact now.
+ * Returns whether anything was written.
+ */
+async function refreshPurchases(
+  accountId: string,
+  email: string,
+  v: {
+    lastPurchase: string | null;
+    orders: number | null;
+    spent: number | null;
+    currency: string;
+    at: string | null;
+  },
+): Promise<boolean> {
+  const set: PgUpdateSetSource<typeof contacts> = {};
+  if (v.lastPurchase !== null) {
+    set.last_purchase_at = sql`GREATEST(${contacts.last_purchase_at}, ${v.lastPurchase}::timestamptz)`;
+    set.last_activity_at = sql`GREATEST(${contacts.last_activity_at}, ${v.lastPurchase}::timestamptz)`;
+  }
+  if (v.orders !== null) set.orders_count = v.orders;
+  if (v.spent !== null) {
+    set.total_spent_minor = v.spent;
+    set.spent_currency = v.currency;
+  }
+  if (v.at !== null) set.purchase_refreshed_at = v.at;
+  if (Object.keys(set).length === 0) return false;
+  const rows = await db
+    .update(contacts)
+    .set(set)
+    .where(and(eq(contacts.account_id, accountId), eq(contacts.email, email)))
+    .returning({ id: contacts.id });
+  return rows.length === 1;
 }

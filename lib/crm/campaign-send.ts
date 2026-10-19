@@ -27,6 +27,7 @@ import { and, asc, count, eq, inArray, isNotNull, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
   businessProfiles,
+  campaignComparisons,
   campaignSends,
   contacts,
   contentItems,
@@ -64,6 +65,7 @@ import { canSendMarketing } from "./jurisdiction";
 import type { LawReviewVerdict } from "./law-review";
 import { currentLawReview } from "./law-review";
 import { SEGMENT_KIND, SEGMENT_MODULE } from "./segment-proposals";
+import { computeSegments } from "./segments";
 
 export class CampaignSendError extends Error {
   readonly status: number;
@@ -366,6 +368,30 @@ export function dbCampaignBackend(opts: CampaignBackendOptions = {}): CampaignBa
           };
         });
         if (rows.length > 0) await tx.insert(campaignSends).values(rows);
+        // P4-17: the comparison group, as the send begins — the segment's
+        // members who are NOT on the approved list. Read once, here, so the
+        // readback compares like with like: both groups "since this moment".
+        const segment = (proposal.action as { detail?: { segment?: unknown } }).detail?.segment;
+        if (typeof segment === "string") {
+          const report = await computeSegments(ctx.account_id, now());
+          const members = report.segments.find((s) => s.key === segment)?.contact_ids ?? [];
+          const approved = new Set(ids);
+          const others = members.filter((id) => !approved.has(id));
+          if (others.length > 0) {
+            await tx
+              .insert(campaignComparisons)
+              .values(
+                others.map((contact_id) => ({
+                  proposal_id: proposalId,
+                  profile_id: ctx.profile_id,
+                  account_id: ctx.account_id,
+                  contact_id,
+                  snapshot_at: now().toISOString(),
+                })),
+              )
+              .onConflictDoNothing();
+          }
+        }
       });
     },
 

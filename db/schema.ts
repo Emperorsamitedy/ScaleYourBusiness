@@ -408,6 +408,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "law_review", // P4-15: a person reviewed the jurisdiction table; ref is the jurisdiction_reviews row
   "campaign_approval", // P4-15: the owner approved the exact campaign email; ref is the proposal
   "unsubscribe", // P4-15: a recipient unsubscribed; ref is the campaign_sends row, no PII
+  "complaint", // P4-17: a recipient marked a campaign email as spam; ref is the campaign_sends row, no PII
 ]);
 
 export const decisionLog = pgTable(
@@ -1568,6 +1569,17 @@ export const contacts = pgTable(
      * null = unknown, and only the business's regime applies.
      */
     country: text("country"),
+    /**
+     * P4-17: when a shop export last carried this contact's last-order
+     * date — at insert, or when a later export refreshed an existing
+     * contact's purchase history. Null = no export with a date column has
+     * ever covered them. The campaign readback measures "bought again since
+     * the email" only from an export at least this long after the send.
+     */
+    purchase_refreshed_at: timestamp("purchase_refreshed_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
   },
   (t) => [
     uniqueIndex("contacts_account_email_idx")
@@ -2029,6 +2041,15 @@ export const campaignSends = pgTable(
     claimed_at: timestamp("claimed_at", { withTimezone: true, mode: "string" }),
     sent_at: timestamp("sent_at", { withTimezone: true, mode: "string" }),
     unsubscribed_at: timestamp("unsubscribed_at", { withTimezone: true, mode: "string" }),
+    /* ── P4-17: what the email service reported, from its Svix-signed events ── */
+    /** First `email.delivered` for this email. */
+    delivered_at: timestamp("delivered_at", { withTimezone: true, mode: "string" }),
+    /** First `email.bounced` (or `email.suppressed`: the service held it back). */
+    bounced_at: timestamp("bounced_at", { withTimezone: true, mode: "string" }),
+    /** permanent | temporary | suppressed | other — a code, never the server's message. */
+    bounce_type: text("bounce_type"),
+    /** First `email.complained`: marked as spam. Suppresses the address permanently (rule 23). */
+    complained_at: timestamp("complained_at", { withTimezone: true, mode: "string" }),
   },
   (t) => [
     uniqueIndex("campaign_sends_contact_idx")
@@ -2051,6 +2072,48 @@ export const campaignSends = pgTable(
       sql`${t.status} <> 'refused' OR jsonb_array_length(${t.refused_reasons}) > 0`,
     ),
     check("campaign_sends_sent_has_time", sql`${t.status} <> 'sent' OR ${t.sent_at} IS NOT NULL`),
+    check(
+      "campaign_sends_bounce_whole",
+      sql`(${t.bounced_at} IS NULL) = (${t.bounce_type} IS NULL) AND (${t.bounce_type} IS NULL OR ${t.bounce_type} IN ('permanent', 'temporary', 'suppressed', 'other'))`,
+    ),
+    index("campaign_sends_provider_idx")
+      .on(t.provider_message_id)
+      .where(sql`provider_message_id IS NOT NULL`),
+  ],
+);
+
+// campaign_comparisons — P4-17. The campaign's segment members who were NOT
+// emailed (no explicit consent, or otherwise not on the approved list), as
+// they stood when the send began. The readback compares who bought again
+// among them with who bought again among the recipients. Not randomised —
+// SYB never withholds an approved send to make a control group — so the
+// screen says the comparison is observational. Ids only (rule 22): an
+// erased contact's row keeps nothing but the proposal and the time.
+export const campaignComparisons = pgTable(
+  "campaign_comparisons",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** Null once the contact is erased (rule 22). */
+    contact_id: uuid("contact_id").references(() => contacts.id, { onDelete: "set null" }),
+    /** When the send began: "since" is measured from here for this group. */
+    snapshot_at: timestamp("snapshot_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("campaign_comparisons_contact_idx")
+      .on(t.proposal_id, t.contact_id)
+      .where(sql`contact_id IS NOT NULL`),
+    index("campaign_comparisons_proposal_idx").on(t.proposal_id),
   ],
 );
 

@@ -30,6 +30,7 @@ import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
   businessProfiles,
+  campaignComparisons,
   campaignSends,
   contactSuppressions,
   contacts,
@@ -301,6 +302,16 @@ export async function eraseContact(accountId: string, contactId: string): Promis
       .update(campaignSends)
       .set({ contact_id: null, provider_message_id: null })
       .where(and(eq(campaignSends.account_id, accountId), eq(campaignSends.contact_id, contactId)));
+    // P4-17: a readback comparison row keeps only its proposal and time.
+    await tx
+      .update(campaignComparisons)
+      .set({ contact_id: null })
+      .where(
+        and(
+          eq(campaignComparisons.account_id, accountId),
+          eq(campaignComparisons.contact_id, contactId),
+        ),
+      );
     await tx.delete(contacts).where(eq(contacts.id, contactId));
     if (profile) {
       await tx.insert(decisionLog).values({
