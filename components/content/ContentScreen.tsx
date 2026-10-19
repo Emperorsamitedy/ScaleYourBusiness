@@ -22,8 +22,10 @@ import { EmergencyStop } from "../execution/EmergencyStop";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import {
   type ContentStatus,
+  type PerformanceLike,
   channelStrips,
   contentHeadline,
+  performanceLine,
   platformWord,
   publishLine,
   shortId,
@@ -81,6 +83,8 @@ type State =
       publishNotes: Record<string, string>;
       /** The Session D real-write gate: false until the two-week test completes. */
       realWrites: boolean;
+      /** P3-23b: item id → its measured figures and verdict, published items only. */
+      performance: Record<string, PerformanceLike>;
       /** The item whose Withdraw is waiting on a second click. */
       confirmWithdraw: string | null;
       busy: boolean;
@@ -141,6 +145,7 @@ export function ContentScreen() {
       producible: Producible[];
       publish_notes?: Record<string, string>;
       real_writes?: boolean;
+      performance?: Record<string, PerformanceLike>;
     };
     const goals = (await goalsRes.json()) as { goals: Goal[]; suggestions: Suggestion[] };
     setState((cur) => ({
@@ -151,6 +156,7 @@ export function ContentScreen() {
       producible: content.producible,
       publishNotes: content.publish_notes ?? {},
       realWrites: content.real_writes === true,
+      performance: content.performance ?? {},
       confirmWithdraw: null,
       busy: false,
       notice: null,
@@ -469,6 +475,17 @@ export function ContentScreen() {
                     )}
                 </p>
               )}
+              {(() => {
+                const perf = performanceLine(s.performance[open.id]);
+                if (!perf) return null;
+                return (
+                  <p className="ct-why">
+                    Measured <span className={`word boxed ${perf.tone}`}>{perf.word}</span>
+                    {perf.figures && ` ${perf.figures}`}
+                    <span className="src ct-sub">{perf.arithmetic}</span>
+                  </p>
+                );
+              })()}
               {open.status === "published" && s.confirmWithdraw === open.id && (
                 <p className="ct-why">
                   Withdraw it? This deletes the post on {platformWord(open.platform)}. The record

@@ -30,6 +30,8 @@ export interface LedgerProposal {
 
 export interface LedgerOutcome {
   verdict: Verdict;
+  /** P3-23b: what it was judged on; absent or "revenue" reads as before. */
+  judged_on?: "revenue" | "post" | "campaign";
   arithmetic: string;
   delta_pct: number | null;
   executed_on: string | null;
@@ -87,6 +89,12 @@ const VERDICT: Record<Verdict, { word: string; tone: LedgerRow["tone"] }> = {
   backfired: { word: "backfired", tone: "alarm" },
   too_early: { word: "too early to say", tone: "low" },
   unmeasured: { word: "unmeasured", tone: "low" },
+};
+
+/** P3-23b: the series a verdict was read from, when it isn't the business's revenue. */
+const JUDGED_ON: Record<"post" | "campaign", string> = {
+  post: "Judged on the post's own figures against your earlier posts",
+  campaign: "Judged on the campaign's own return on ad spend",
 };
 
 const SOURCE_WORD: Record<string, string> = {
@@ -220,7 +228,10 @@ export function proposalRows(
       timed: true,
       title,
       ref,
-      detail: outcome.arithmetic,
+      detail:
+        outcome.judged_on && outcome.judged_on !== "revenue"
+          ? `${JUDGED_ON[outcome.judged_on]}: ${outcome.arithmetic}`
+          : outcome.arithmetic,
       actor: "Ledgerline",
       note: `${delta}${v.word}`,
       tone: v.tone,

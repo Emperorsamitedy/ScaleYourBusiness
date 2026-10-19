@@ -21,6 +21,7 @@ import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/ha
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { listGoals } from "./goals";
+import { evidenceAssumption, performanceEvidence } from "./performance";
 import { enumCode } from "../core/enum-value";
 
 export class ContentError extends Error {
@@ -171,6 +172,8 @@ export async function proposeContentPlan(
 
   const { limits } = await ensureHardLimits(profileId, args.limitLlm);
   const verdict = checkHardLimits(limits, "content_publishing");
+  // P3-23c: what performed before, when enough has been measured per post.
+  const performed = await performanceEvidence(profileId);
 
   return createProposal({
     profile_id: profileId,
@@ -182,10 +185,12 @@ export async function proposeContentPlan(
         items,
         manual_limits: verdict.manual.map((l) => l.quote),
         rationale: `Every slot serves a stated goal and leans on ${focus?.name ?? "the business"}; nothing publishes anywhere you don't already run.`,
+        ...(performed ? { performance: performed } : {}),
       },
     },
     scenario: {
       assumptions: [
+        ...(performed ? [evidenceAssumption(performed)] : []),
         {
           statement: `${plannable.length} plannable channel(s) on the profile`,
           value: null,

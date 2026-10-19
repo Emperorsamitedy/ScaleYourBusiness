@@ -73,6 +73,53 @@ describe("proposalRows", () => {
     expect(rows[3]?.tone).toBe("alarm");
   });
 
+  it("P3-23b: a post or campaign verdict says what it was judged on; a revenue one reads as before", () => {
+    const executed = proposal({ status: "executed", decided_at: "2026-10-01 18:31:00+00" });
+    const post = proposalRows(
+      executed,
+      {
+        verdict: "helped",
+        judged_on: "post",
+        arithmetic: "on day 7 after posting: reach 150 against a median of 115 (+30.4%)",
+        delta_pct: 30.4,
+        executed_on: "2026-10-02",
+      },
+      NOW,
+    ).find((r) => r.kind === "measured");
+    expect(post?.note).toBe("+30.4% · helped");
+    expect(post?.tone).toBe("ok");
+    expect(post?.detail).toBe(
+      "Judged on the post's own figures against your earlier posts: on day 7 after posting: reach 150 against a median of 115 (+30.4%)",
+    );
+    const campaign = proposalRows(
+      executed,
+      {
+        verdict: "too_early",
+        judged_on: "campaign",
+        arithmetic: "3 measured day(s)",
+        delta_pct: null,
+        executed_on: "2026-10-02",
+      },
+      NOW,
+    ).find((r) => r.kind === "measured");
+    expect(campaign?.detail).toBe(
+      "Judged on the campaign's own return on ad spend: 3 measured day(s)",
+    );
+    expect(campaign?.note).toBe("too early to say");
+    const revenue = proposalRows(
+      executed,
+      {
+        verdict: "did_nothing",
+        judged_on: "revenue",
+        arithmetic: "mean 100 vs 100",
+        delta_pct: 0,
+        executed_on: "2026-10-02",
+      },
+      NOW,
+    ).find((r) => r.kind === "measured");
+    expect(revenue?.detail).toBe("mean 100 vs 100");
+  });
+
   it("an unmeasured outcome adds no measured line", () => {
     const rows = proposalRows(
       proposal({ status: "executed", decided_at: "2026-10-01 18:31:00+00" }),
