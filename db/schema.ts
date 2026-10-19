@@ -1607,10 +1607,25 @@ export const supportSettings = pgTable(
       .notNull()
       .default(sql`replace(gen_random_uuid()::text, '-', '')`),
     inbound_rotated_at: timestamp("inbound_rotated_at", { withTimezone: true, mode: "string" }),
+    /**
+     * P4-11: "I reply within N hours" — OWNER-STATED on /support, never a
+     * default. Null = no reply time set, and nothing claims one. Clock
+     * hours, not business hours.
+     */
+    reply_hours: integer("reply_hours"),
+    reply_hours_set_at: timestamp("reply_hours_set_at", { withTimezone: true, mode: "string" }),
+    /** P4-11: email the owner's own account address when an email ticket opens. */
+    notify_owner: boolean("notify_owner").notNull().default(true),
+    /** P4-11: the last such notice — at most one an hour, so a flood of mail is one email. */
+    owner_notified_at: timestamp("owner_notified_at", { withTimezone: true, mode: "string" }),
   },
   (t) => [
     uniqueIndex("support_settings_site_key_idx").on(t.site_key),
     uniqueIndex("support_settings_inbound_token_idx").on(t.inbound_token),
+    check(
+      "support_settings_reply_hours_range",
+      sql`${t.reply_hours} IS NULL OR (${t.reply_hours} BETWEEN 1 AND 720 AND ${t.reply_hours_set_at} IS NOT NULL)`,
+    ),
   ],
 );
 

@@ -22,6 +22,10 @@ const ENTRY_POINTS = [
   "lib/support/inbound.ts",
   "lib/support/email-tickets.ts",
   "lib/support/support-contact.ts",
+  // P4-11: the chat handover's optional address, the reply-time arithmetic, the owner notice.
+  "lib/support/handover.ts",
+  "lib/support/sla.ts",
+  "lib/support/notify-owner.ts",
 ];
 
 /** Anything under these may never be reached from the support tier. */

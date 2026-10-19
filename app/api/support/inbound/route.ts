@@ -16,11 +16,14 @@
 //     retries the delivery — the email is not lost and not half-filed.
 //
 // Nothing here drafts or sends a reply: a stranger emailing in can never
-// spend money on a model or make a reply go out.
+// spend money on a model or make a reply go out. The one email it may
+// cause is a short notice to the business's OWN account address that a
+// ticket opened (P4-11): at most one an hour, with no customer text in it.
 
 import { type NextRequest, NextResponse } from "next/server";
 import { resendApiKey, resendWebhookSecret, supportInboundDomain } from "../../../../lib/env";
 import { receiveInboundEmail } from "../../../../lib/support/email-tickets";
+import { notifyOwnerOfEmailTicket } from "../../../../lib/support/notify-owner";
 import {
   InboundFetchError,
   fetchReceivedEmail,
@@ -92,6 +95,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return json({ ignored: true });
     }
     const outcome = await receiveInboundEmail(email, domain);
+    if (outcome.kind === "filed" && outcome.created) {
+      // Best effort: a failed notice never fails the filing (the rail counts it anyway).
+      await notifyOwnerOfEmailTicket({
+        profileId: outcome.profile_id,
+        ticketId: outcome.ticket_id,
+      }).catch(() => "failed");
+    }
     return json({ outcome: outcome.kind });
   } catch (error) {
     // The name only — an email's content could be in a message.

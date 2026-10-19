@@ -36,6 +36,7 @@ import { publicKnowledge, selectEntries } from "./knowledge";
 import type { SupportSettingsRow } from "./settings";
 import { settingsBySiteKey, settingsForProfile } from "./settings";
 import type { TicketReason } from "./tickets";
+import { handoverTiming } from "./sla";
 import { openTicketForConversation } from "./tickets";
 
 export const SUPPORT_WORKLOAD = "support";
@@ -439,6 +440,11 @@ export interface MessageOutcome {
   ticket_id: string | null;
   /** Why a human was called, when one was. */
   reason: TicketReason | null;
+  /**
+   * P4-11: the handover may ask for an address so a person can reply by
+   * email — optional for the customer, and only while the ticket has none.
+   */
+  ask_address: boolean;
 }
 
 async function settingsForConversation(conversation: ConversationRow): Promise<SupportSettingsRow> {
@@ -463,15 +469,25 @@ async function escalate(
     reason,
     summary,
   });
+  // P4-11: the owner's own reply time, or no promise — never an invented one.
+  const settings = await settingsForProfile(conversation.profile_id);
+  const timing = handoverTiming(settings?.reply_hours ?? null);
   const text = created
-    ? reply
+    ? `${reply} ${timing}`
     : "This conversation is already with a person — they'll pick up from here, including what you just wrote.";
   const row = await sayTo(conversation.id, text, costEur, at);
   await db
     .update(supportConversations)
     .set({ status: "escalated" })
     .where(eq(supportConversations.id, conversation.id));
-  return { intent, reply: publicMessage(row), escalated: true, ticket_id: ticket.id, reason };
+  return {
+    intent,
+    reply: publicMessage(row),
+    escalated: true,
+    ticket_id: ticket.id,
+    reason,
+    ask_address: ticket.contact_id === null && !ticket.suppressed_address,
+  };
 }
 
 /** One customer turn, handled end to end. */
@@ -610,7 +626,14 @@ export async function postCustomerMessage(
         intentCost,
         replyAt(),
       );
-      return { intent, reply: publicMessage(row), escalated: false, ticket_id: null, reason: null };
+      return {
+        intent,
+        reply: publicMessage(row),
+        escalated: false,
+        ticket_id: null,
+        reason: null,
+        ask_address: false,
+      };
     }
 
     // A question: ground it in the approved knowledge, or hand it over.
@@ -646,7 +669,14 @@ export async function postCustomerMessage(
       return escalate(conversation, "no_answer", trimmed, handover, answerCost, intent, replyAt());
     }
     const row = await sayTo(conversation.id, grounded.answer, answerCost, replyAt(), cited);
-    return { intent, reply: publicMessage(row), escalated: false, ticket_id: null, reason: null };
+    return {
+      intent,
+      reply: publicMessage(row),
+      escalated: false,
+      ticket_id: null,
+      reason: null,
+      ask_address: false,
+    };
   }
 }
 

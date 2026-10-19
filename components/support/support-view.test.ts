@@ -51,3 +51,53 @@ describe("replyStateWord (P4-10)", () => {
     expect(replyStateWord("failed").word).toBe("not sent");
   });
 });
+
+describe("ticketLine (P4-11)", () => {
+  const now = new Date("2026-10-19T12:00:00Z");
+  const base = {
+    channel: "email" as const,
+    status: "open" as const,
+    from: "Ana Kovács",
+    has_address: true,
+    summary: "Where is my order?",
+    waiting_since: "2026-10-18T09:00:00Z",
+  };
+
+  it("says how long they've waited and how it stands, in words with figures", async () => {
+    const { ticketLine } = await import("./support-view");
+    expect(ticketLine(base, now, 24)).toEqual({
+      channel: "Email",
+      who: "Ana Kovács",
+      what: "Where is my order?",
+      waited: "27 h",
+      flag: "Overdue",
+      detail: "3 h over",
+      tone: "alarm",
+    });
+    expect(ticketLine(base, now, 48)).toMatchObject({
+      flag: "In time",
+      detail: "21 h left",
+      tone: "ok",
+    });
+    expect(ticketLine(base, now, null)).toMatchObject({
+      flag: "No reply time set",
+      detail: "",
+      waited: "27 h",
+    });
+  });
+
+  it("names a chat ticket with no address, and stops the clock once we replied or it's closed", async () => {
+    const { ticketLine } = await import("./support-view");
+    expect(
+      ticketLine({ ...base, channel: "chat", from: null, has_address: false }, now, 24).who,
+    ).toBe("no address");
+    expect(ticketLine({ ...base, waiting_since: null }, now, 24)).toMatchObject({
+      flag: "You replied",
+      waited: "",
+    });
+    expect(ticketLine({ ...base, status: "answered" }, now, 24)).toMatchObject({
+      flag: "Answered",
+      waited: "",
+    });
+  });
+});

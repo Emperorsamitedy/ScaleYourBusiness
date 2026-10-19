@@ -248,3 +248,55 @@ export async function emailThread(ticketId: string): Promise<EmailMessageRow[]> 
     .where(eq(supportEmailMessages.ticket_id, ticketId))
     .orderBy(supportEmailMessages.at);
 }
+
+export interface TicketEmailFacts {
+  /** The first inbound sender, as name (when given) and address. */
+  from_name: string | null;
+  from_address: string | null;
+  last_inbound_at: string | null;
+  last_outbound_at: string | null;
+  /** The first customer email not yet followed by one of ours; null when we wrote last. */
+  unanswered_since: string | null;
+}
+
+/** Per ticket on a profile: who wrote first, and the waiting clock. One query, oldest first. */
+export async function ticketEmailFacts(profileId: string): Promise<Map<string, TicketEmailFacts>> {
+  const rows = await db
+    .select({
+      ticket_id: supportEmailMessages.ticket_id,
+      direction: supportEmailMessages.direction,
+      from_name: supportEmailMessages.from_name,
+      from_address: supportEmailMessages.from_address,
+      at: supportEmailMessages.at,
+    })
+    .from(supportEmailMessages)
+    .where(eq(supportEmailMessages.profile_id, profileId))
+    .orderBy(supportEmailMessages.at);
+  const facts = new Map<string, TicketEmailFacts>();
+  for (const r of rows) {
+    let f = facts.get(r.ticket_id);
+    if (!f) {
+      f = {
+        from_name: null,
+        from_address: null,
+        last_inbound_at: null,
+        last_outbound_at: null,
+        unanswered_since: null,
+      };
+      facts.set(r.ticket_id, f);
+    }
+    const at = new Date(r.at).toISOString();
+    if (r.direction === "inbound") {
+      if (f.from_address === null) {
+        f.from_name = r.from_name;
+        f.from_address = r.from_address;
+      }
+      f.last_inbound_at = at;
+      f.unanswered_since ??= at;
+    } else {
+      f.last_outbound_at = at;
+      f.unanswered_since = null;
+    }
+  }
+  return facts;
+}

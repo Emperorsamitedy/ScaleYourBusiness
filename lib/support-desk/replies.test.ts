@@ -491,13 +491,11 @@ describe("P4-10 — the send, honest in every outcome", () => {
     ).toEqual({ status: "approved", note: STOPPED });
     await db.delete(executionHalts).where(eq(executionHalts.account_id, b.account_id));
     // They unsubscribed after the approval: the gate refuses, transactional or not.
-    await db
-      .insert(contactSuppressions)
-      .values({
-        account_id: b.account_id,
-        email_hash: emailHash(mail.from.address),
-        reason: "unsubscribed",
-      });
+    await db.insert(contactSuppressions).values({
+      account_id: b.account_id,
+      email_hash: emailHash(mail.from.address),
+      reason: "unsubscribed",
+    });
     const refused = await sendApprovedReply({
       profileId: b.profile_id,
       replyId,
@@ -559,6 +557,38 @@ describe("P4-10 — the send, honest in every outcome", () => {
   });
 });
 
+describe("P4-11 — a chat ticket with an address is answered by email through the same path", () => {
+  it("escalate in the widget, leave an address, approve a reply: one send to that address, unthreaded", async () => {
+    const { startConversation, postCustomerMessage } = await import("../support/chat");
+    const { leaveAddress } = await import("../support/handover");
+    const b = await business();
+    const started = await startConversation(b.settings.site_key);
+    const out = await postCustomerMessage(started.token, "Can I talk to a real person please?");
+    // No address yet: nothing to reply to, so nothing to draft or write.
+    await expect(saveReplyText(b.profile_id, out.ticket_id!, "Hi!")).rejects.toMatchObject({
+      status: 409,
+    });
+    await leaveAddress(started.token, "chat.p411@example.com");
+    const r = await saveReplyText(b.profile_id, out.ticket_id!, "Hi, it's Aoife — happy to help.");
+    await approveReply({ profileId: b.profile_id, replyId: r.id, userId: b.user_id, body: r.body });
+    const resend = fakeResend();
+    expect(
+      (await sendApprovedReply({ profileId: b.profile_id, replyId: r.id, fetchImpl: resend.impl }))
+        .status,
+    ).toBe("sent");
+    expect(resend.calls).toHaveLength(1);
+    expect(resend.calls[0]!.body).toMatchObject({
+      to: ["chat.p411@example.com"],
+      subject: "Your question to Fernhill Ceramics",
+      text: "Hi, it's Aoife — happy to help.",
+    });
+    expect(resend.calls[0]!.body.headers).toBeUndefined();
+    const { supportConversations } = await import("../../db/schema");
+    await db.delete(supportTickets).where(eq(supportTickets.profile_id, b.profile_id));
+    await db.delete(supportConversations).where(eq(supportConversations.profile_id, b.profile_id));
+  });
+});
+
 /* ── the build gates ── */
 
 const ROOT = process.cwd();
@@ -611,13 +641,18 @@ describe("P4-10 — THE BUILD GATES: one way out, behind the owner", () => {
     expect(call).toBeGreaterThan(refusal);
   });
 
-  it("no other code posts to Resend's send endpoint except the login email", () => {
+  it("no other code posts to Resend's send endpoint", () => {
     const posting = SOURCES.filter((f) =>
       readFileSync(f, "utf8").includes('"https://api.resend.com/emails"'),
     )
       .map(rel)
       .sort();
-    expect(posting).toEqual(["lib/auth/email.ts", "lib/support-desk/mailer.ts"]);
+    // The login link, the support reply, and (P4-11) the owner's own notice — never a customer's.
+    expect(posting).toEqual([
+      "lib/auth/email.ts",
+      "lib/support-desk/mailer.ts",
+      "lib/support/notify-owner.ts",
+    ]);
   });
 
   it("drafting is never triggered by inbound mail: nothing under the stranger tier names the desk", () => {

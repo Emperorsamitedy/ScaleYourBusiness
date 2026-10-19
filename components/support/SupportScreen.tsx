@@ -24,6 +24,7 @@ import {
   type TicketStatus,
   conversationWord,
   supportHeadline,
+  ticketLine,
   waitingTitle,
   whenShort,
 } from "./support-view";
@@ -36,6 +37,9 @@ interface Settings {
   /** s-<token>@<domain>, or null when no inbound domain is configured. */
   inbound_address: string | null;
   inbound_rotated_at: string | null;
+  reply_hours: number | null;
+  reply_hours_set_at: string | null;
+  notify_owner: boolean;
 }
 
 interface Entry {
@@ -64,8 +68,12 @@ interface Ticket {
   created_at: string;
   /** The address is suppressed: the gate refuses every reply to it. */
   suppressed_address: boolean;
-  /** The sender's name or address, for an email ticket. */
+  /** The customer's name or address, when there is one. */
   from: string | null;
+  has_address: boolean;
+  /** The first word of theirs not yet answered; null when we wrote last. */
+  waiting_since: string | null;
+  last_reply_at: string | null;
 }
 
 interface Email {
@@ -362,6 +370,7 @@ export function SupportScreen() {
   const emails = ticket && s.emailsOf === ticket.id ? s.emails : [];
   const replies = ticket && s.emailsOf === ticket.id ? s.replies : [];
   const typed = ticket ? (s.ticketAnswers[ticket.id] ?? "") : "";
+  const now = new Date();
 
   return (
     <main className="screen sp-screen">
@@ -384,213 +393,91 @@ export function SupportScreen() {
         </p>
       )}
 
-      <div className="sp-grid">
-        {/* ── what it may say ── */}
-        <section className="cs sp-answers" aria-labelledby="sp-answers-title">
-          <header className="cs-head">
-            <div>
-              <p className="cs-label">Approved answers · {publicEntries.length}</p>
-              <h2 className="cs-title" id="sp-answers-title">
-                What it&rsquo;s allowed to say
-              </h2>
-            </div>
-            <button
-              type="button"
-              className="prop-btn sp-small"
-              aria-expanded={s.writing}
-              aria-controls="sp-write"
-              onClick={() => setState({ ...s, writing: !s.writing })}
-            >
-              {s.writing ? "Close" : "Write an answer"}
-            </button>
-          </header>
-          <div className="cs-body">
-            {s.writing && (
-              <form
-                id="sp-write"
-                className="sp-box sp-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void act(
-                    { action: "propose_custom", question: s.question, answer: s.answer },
-                    "Proposed. Approve it in the queue, then publish it here.",
-                  );
-                }}
-              >
-                <label className="cs-label" htmlFor="sp-q">
-                  A question customers ask
-                </label>
-                <input
-                  id="sp-q"
-                  className="sp-input"
-                  value={s.question}
-                  onChange={(e) => setState({ ...s, question: e.target.value })}
-                />
-                <label className="cs-label" htmlFor="sp-a">
-                  The answer, in your words
-                </label>
-                <textarea
-                  id="sp-a"
-                  className="sp-textarea"
-                  rows={3}
-                  value={s.answer}
-                  onChange={(e) => setState({ ...s, answer: e.target.value })}
-                />
-                <div className="sp-row">
-                  <button
-                    className="prop-btn"
-                    disabled={s.busy || s.question.trim() === "" || s.answer.trim() === ""}
-                  >
-                    Propose this answer
-                  </button>
-                  <span className="sp-fine">It goes to your approval queue first.</span>
-                </div>
-              </form>
-            )}
-
-            {s.publishable.map((p) => (
-              <div key={p.id} className="sp-box">
-                <p className="sp-box-label">
-                  <span className="word ok">approved · not yet public</span>
-                </p>
-                <p className="sp-box-title">{p.summary}</p>
-                <div className="sp-row">
-                  <button
-                    type="button"
-                    className="prop-btn"
-                    disabled={s.busy}
-                    onClick={() =>
-                      void act(
-                        { action: "publish", proposal_id: p.id },
-                        "Published. The assistant can say these now.",
-                      )
-                    }
-                  >
-                    Publish
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {unanswered.map((c) => (
-              <div key={c.question} className="sp-box">
-                <p className="sp-box-label">
-                  <span className="word drift">asked {c.members.length} times · not answered</span>
-                </p>
-                <p className="sp-box-title">{c.question}</p>
-                <p className="sp-fine">
-                  Answer it on one of its conversations, then cluster again.
-                </p>
-              </div>
-            ))}
-
-            {s.knowledge.length === 0 && !s.writing && (
-              <p className="sp-empty">
-                No answers yet. Until you approve some, the assistant says it doesn&rsquo;t know and
-                hands the question to you.
-              </p>
-            )}
-
-            {publicEntries.length > 0 && (
-              <ul className="sp-entries">
-                {publicEntries.map((e) => (
-                  <EntryRow
-                    key={e.id}
-                    e={e}
-                    busy={s.busy}
-                    onRetire={() =>
-                      void act(
-                        { action: "retire", entry_id: e.id },
-                        "Retired. It will not be said again.",
-                      )
-                    }
-                  />
-                ))}
-              </ul>
-            )}
-            {retired.length > 0 && (
-              <>
-                <p className="cs-label sp-gap">Retired · no longer said</p>
-                <ul className="sp-entries sp-retired">
-                  {retired.map((e) => (
-                    <EntryRow key={e.id} e={e} busy={s.busy} />
-                  ))}
-                </ul>
-              </>
-            )}
+      {/* ── tickets and conversations (P4-11) ── */}
+      <section className="cs sp-convos" aria-labelledby="sp-convos-title">
+        <header className="cs-head">
+          <div>
+            <p className="cs-label">
+              Tickets · {s.tickets.length} · conversations · {s.conversations.length}
+            </p>
+            <h2 className="cs-title" id="sp-convos-title">
+              {waitingTitle(openTickets.length)}
+            </h2>
           </div>
-          <footer className="cs-foot sp-foot">
-            <button
-              type="button"
-              className="prop-btn"
-              disabled={s.busy}
-              onClick={() =>
-                void act(
-                  { action: "propose_knowledge" },
-                  "Proposed. Approve it in the queue, then publish it here.",
-                )
-              }
-            >
-              Propose answers from my facts
-            </button>
-            <button
-              type="button"
-              className="prop-btn"
-              disabled={s.busy}
-              onClick={() => void clusterFaq()}
-            >
-              Cluster what customers asked
-            </button>
-          </footer>
-        </section>
-
-        {/* ── conversations ── */}
-        <section className="cs sp-convos" aria-labelledby="sp-convos-title">
-          <header className="cs-head">
-            <div>
-              <p className="cs-label">Conversations · {s.conversations.length}</p>
-              <h2 className="cs-title" id="sp-convos-title">
-                {waitingTitle(openTickets.length)}
-              </h2>
+          <p className="cs-meta sp-sla-meta">
+            {s.settings?.reply_hours
+              ? `Your reply time: ${s.settings.reply_hours} h`
+              : "No reply time set"}
+            <br />
+            Counted in clock hours, not business hours.
+          </p>
+        </header>
+        {threads.length === 0 ? (
+          <div className="cs-body">
+            <p className="sp-empty">
+              Nothing yet. Every widget conversation and every email to your support address lands
+              here, and anything waiting for you is marked.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="sp-table-wrap">
+              <table className="rt sp-tickets">
+                <thead>
+                  <tr>
+                    <th scope="col">Channel</th>
+                    <th scope="col">Who</th>
+                    <th scope="col">Subject or question</th>
+                    <th scope="col" className="num">
+                      Waited
+                    </th>
+                    <th scope="col">Against your reply time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {threads.map((t) => {
+                    const on = selected?.key === t.key;
+                    const line = t.ticket
+                      ? ticketLine(t.ticket, now, s.settings?.reply_hours ?? null)
+                      : null;
+                    const w = conversationWord(t.conversation?.status ?? "escalated", t.ticket);
+                    return (
+                      <tr key={t.key} className={on ? "on" : undefined}>
+                        <td className="src">{line?.channel ?? "Chat"}</td>
+                        <th scope="row">
+                          <button
+                            type="button"
+                            className="sp-pick"
+                            aria-pressed={on}
+                            onClick={() => setState({ ...s, open: t.key, confirmErase: null })}
+                          >
+                            {line ? line.who : "Visitor"}
+                          </button>
+                        </th>
+                        <td className="sp-what">
+                          {line?.what ??
+                            `${t.conversation?.turns ?? 0} ${t.conversation?.turns === 1 ? "message" : "messages"} · ${whenShort(t.at)}`}
+                        </td>
+                        <td className="num">{line?.waited ?? ""}</td>
+                        <td>
+                          {line ? (
+                            <>
+                              <span className={`flag ${line.tone}`}>{line.flag}</span>
+                              {line.detail && <span className="sp-sla-fig"> {line.detail}</span>}
+                            </>
+                          ) : (
+                            <span className={`flag ${w.tone}`}>{w.word}</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          </header>
-          {threads.length === 0 ? (
-            <div className="cs-body">
-              <p className="sp-empty">
-                No conversations yet. Every one the widget has lands here, and anything handed to
-                you is marked.
-              </p>
-            </div>
-          ) : (
-            <div className="sp-split">
-              <ul className="sp-list" aria-label="Conversations">
-                {threads.map((t) => {
-                  const w = conversationWord(t.conversation?.status ?? "escalated", t.ticket);
-                  const on = selected?.key === t.key;
-                  return (
-                    <li key={t.key}>
-                      <button
-                        type="button"
-                        className={`sp-thread${on ? " on" : ""}`}
-                        aria-pressed={on}
-                        onClick={() => setState({ ...s, open: t.key, confirmErase: null })}
-                      >
-                        <span className="sp-thread-top">
-                          <span className="sp-who">{whoOf(t.ticket)}</span>
-                          <span className="sp-when">{whenShort(t.at)}</span>
-                        </span>
-                        <span className="sp-what">
-                          {t.ticket?.summary ??
-                            `${t.conversation?.turns ?? 0} ${t.conversation?.turns === 1 ? "message" : "messages"}`}
-                        </span>
-                        <span className={`word ${w.tone}`}>{w.word}</span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
 
-              <div className="sp-thread-view" aria-live="polite">
+            <div className="sp-split" aria-live="polite">
+              <div className="sp-thread-view">
                 {selected && (
                   <p className="sp-via">
                     {whoOf(ticket)} ·{" "}
@@ -662,7 +549,8 @@ export function SupportScreen() {
                     send it anything. The ticket is here so you know they wrote.
                   </p>
                 )}
-
+              </div>
+              <div className="sp-thread-act">
                 {ticket &&
                   s.emailsOf === ticket.id &&
                   (ticket.status === "open" ||
@@ -824,131 +712,397 @@ export function SupportScreen() {
                 )}
               </div>
             </div>
-          )}
-        </section>
-      </div>
+          </>
+        )}
+      </section>
 
-      {/* ── the widget ── */}
-      <section className="cs sp-widget" aria-labelledby="sp-widget-title">
-        <header className="cs-head">
-          <div>
-            <p className="cs-label">The widget</p>
-            <h2 className="cs-title" id="sp-widget-title">
-              An assistant that says it is one
-            </h2>
-          </div>
-          <Link className="prop-btn sp-small" href="/support/test">
-            Test the widget <span aria-hidden="true">→</span>
-          </Link>
-        </header>
-        <div className="cs-body">
-          {s.settings ? (
-            <>
-              <p className="sp-prose">
-                Paste this one line into your website. Visitors see an assistant that introduces
-                itself as automated, answers only from the approved list above, and hands over to
-                you the moment they ask for a person.
-              </p>
-              <pre className="sp-snippet">{s.settings.snippet}</pre>
-              <div className="sp-row">
-                <button
-                  type="button"
-                  className="prop-btn"
-                  disabled={s.busy}
-                  onClick={() =>
-                    void act(
-                      { action: "rotate" },
-                      "New key. Every page with the old snippet stops working until you update it.",
-                    )
-                  }
-                >
-                  Rotate the key
-                </button>
-                <span className="sp-fine">
-                  The key is public by design — it only says which business a conversation belongs
-                  to. It is not a login.
-                </span>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="sp-prose">
-                Not enabled yet. Enabling creates the widget&apos;s public key; nothing is said to
-                anyone until you approve answers.
-              </p>
-              <button
-                type="button"
-                className="next"
-                disabled={s.busy}
-                onClick={() => void act({ action: "enable" }, "Enabled. Now approve some answers.")}
+      <div className="sp-grid">
+        {/* ── what it may say ── */}
+        <section className="cs sp-answers" aria-labelledby="sp-answers-title">
+          <header className="cs-head">
+            <div>
+              <p className="cs-label">Approved answers · {publicEntries.length}</p>
+              <h2 className="cs-title" id="sp-answers-title">
+                What it&rsquo;s allowed to say
+              </h2>
+            </div>
+            <button
+              type="button"
+              className="prop-btn sp-small"
+              aria-expanded={s.writing}
+              aria-controls="sp-write"
+              onClick={() => setState({ ...s, writing: !s.writing })}
+            >
+              {s.writing ? "Close" : "Write an answer"}
+            </button>
+          </header>
+          <div className="cs-body">
+            {s.writing && (
+              <form
+                id="sp-write"
+                className="sp-box sp-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void act(
+                    { action: "propose_custom", question: s.question, answer: s.answer },
+                    "Proposed. Approve it in the queue, then publish it here.",
+                  );
+                }}
               >
-                Enable the assistant <span aria-hidden="true">→</span>
-              </button>
-            </>
-          )}
-        </div>
-        <footer className="cs-foot">
-          The assistant reads approved answers and nothing else: not your profile, not your numbers,
-          not your connections, and it cannot change anything.
-        </footer>
-      </section>
+                <label className="cs-label" htmlFor="sp-q">
+                  A question customers ask
+                </label>
+                <input
+                  id="sp-q"
+                  className="sp-input"
+                  value={s.question}
+                  onChange={(e) => setState({ ...s, question: e.target.value })}
+                />
+                <label className="cs-label" htmlFor="sp-a">
+                  The answer, in your words
+                </label>
+                <textarea
+                  id="sp-a"
+                  className="sp-textarea"
+                  rows={3}
+                  value={s.answer}
+                  onChange={(e) => setState({ ...s, answer: e.target.value })}
+                />
+                <div className="sp-row">
+                  <button
+                    className="prop-btn"
+                    disabled={s.busy || s.question.trim() === "" || s.answer.trim() === ""}
+                  >
+                    Propose this answer
+                  </button>
+                  <span className="sp-fine">It goes to your approval queue first.</span>
+                </div>
+              </form>
+            )}
 
-      {/* ── the support inbox (P4-09) ── */}
-      <section className="cs sp-widget" aria-labelledby="sp-inbox-title">
-        <header className="cs-head">
-          <div>
-            <p className="cs-label">Support email</p>
-            <h2 className="cs-title" id="sp-inbox-title">
-              Emails to your support address become tickets here
-            </h2>
-          </div>
-        </header>
-        <div className="cs-body">
-          {!s.settings ? (
-            <p className="sp-prose">Enable the assistant above first; that creates your address.</p>
-          ) : s.settings.inbound_address ? (
-            <>
-              <p className="sp-prose">
-                Forward your support mailbox to this address. Every email becomes a ticket here,
-                threaded with its replies. Nothing is answered automatically: you see each one, and
-                nothing goes back without your click.
-              </p>
-              <pre className="sp-snippet">{s.settings.inbound_address}</pre>
-              <div className="sp-row">
-                <button
-                  type="button"
-                  className="prop-btn"
-                  disabled={s.busy}
-                  onClick={() =>
-                    void act(
-                      { action: "rotate_inbound" },
-                      "New address. Mail to the old one is dropped from now on, so update your forwarding.",
-                    )
-                  }
-                >
-                  Change the address
-                </button>
-                <span className="sp-fine">
-                  Only someone who knows it can file a ticket. Change it if it leaks.
-                </span>
+            {s.publishable.map((p) => (
+              <div key={p.id} className="sp-box">
+                <p className="sp-box-label">
+                  <span className="word ok">approved · not yet public</span>
+                </p>
+                <p className="sp-box-title">{p.summary}</p>
+                <div className="sp-row">
+                  <button
+                    type="button"
+                    className="prop-btn"
+                    disabled={s.busy}
+                    onClick={() =>
+                      void act(
+                        { action: "publish", proposal_id: p.id },
+                        "Published. The assistant can say these now.",
+                      )
+                    }
+                  >
+                    Publish
+                  </button>
+                </div>
               </div>
-            </>
-          ) : (
-            <p className="sp-prose">
-              Not set up yet: support email needs the inbound domain and the webhook connected in
-              Resend. Until then no email reaches this screen.
-            </p>
-          )}
+            ))}
+
+            {unanswered.map((c) => (
+              <div key={c.question} className="sp-box">
+                <p className="sp-box-label">
+                  <span className="word drift">asked {c.members.length} times · not answered</span>
+                </p>
+                <p className="sp-box-title">{c.question}</p>
+                <p className="sp-fine">
+                  Answer it on one of its conversations, then cluster again.
+                </p>
+              </div>
+            ))}
+
+            {s.knowledge.length === 0 && !s.writing && (
+              <p className="sp-empty">
+                No answers yet. Until you approve some, the assistant says it doesn&rsquo;t know and
+                hands the question to you.
+              </p>
+            )}
+
+            {publicEntries.length > 0 && (
+              <ul className="sp-entries">
+                {publicEntries.map((e) => (
+                  <EntryRow
+                    key={e.id}
+                    e={e}
+                    busy={s.busy}
+                    onRetire={() =>
+                      void act(
+                        { action: "retire", entry_id: e.id },
+                        "Retired. It will not be said again.",
+                      )
+                    }
+                  />
+                ))}
+              </ul>
+            )}
+            {retired.length > 0 && (
+              <>
+                <p className="cs-label sp-gap">Retired · no longer said</p>
+                <ul className="sp-entries sp-retired">
+                  {retired.map((e) => (
+                    <EntryRow key={e.id} e={e} busy={s.busy} />
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+          <footer className="cs-foot sp-foot">
+            <button
+              type="button"
+              className="prop-btn"
+              disabled={s.busy}
+              onClick={() =>
+                void act(
+                  { action: "propose_knowledge" },
+                  "Proposed. Approve it in the queue, then publish it here.",
+                )
+              }
+            >
+              Propose answers from my facts
+            </button>
+            <button
+              type="button"
+              className="prop-btn"
+              disabled={s.busy}
+              onClick={() => void clusterFaq()}
+            >
+              Cluster what customers asked
+            </button>
+          </footer>
+        </section>
+
+        <div className="sp-side">
+          {/* ── the widget ── */}
+          <section className="cs sp-widget" aria-labelledby="sp-widget-title">
+            <header className="cs-head">
+              <div>
+                <p className="cs-label">The widget</p>
+                <h2 className="cs-title" id="sp-widget-title">
+                  An assistant that says it is one
+                </h2>
+              </div>
+              <Link className="prop-btn sp-small" href="/support/test">
+                Test the widget <span aria-hidden="true">→</span>
+              </Link>
+            </header>
+            <div className="cs-body">
+              {s.settings ? (
+                <>
+                  <p className="sp-prose">
+                    Paste this one line into your website. Visitors see an assistant that introduces
+                    itself as automated, answers only from the approved list above, and hands over
+                    to you the moment they ask for a person.
+                  </p>
+                  <pre className="sp-snippet">{s.settings.snippet}</pre>
+                  <div className="sp-row">
+                    <button
+                      type="button"
+                      className="prop-btn"
+                      disabled={s.busy}
+                      onClick={() =>
+                        void act(
+                          { action: "rotate" },
+                          "New key. Every page with the old snippet stops working until you update it.",
+                        )
+                      }
+                    >
+                      Rotate the key
+                    </button>
+                    <span className="sp-fine">
+                      The key is public by design — it only says which business a conversation
+                      belongs to. It is not a login.
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="sp-prose">
+                    Not enabled yet. Enabling creates the widget&apos;s public key; nothing is said
+                    to anyone until you approve answers.
+                  </p>
+                  <button
+                    type="button"
+                    className="next"
+                    disabled={s.busy}
+                    onClick={() =>
+                      void act({ action: "enable" }, "Enabled. Now approve some answers.")
+                    }
+                  >
+                    Enable the assistant <span aria-hidden="true">→</span>
+                  </button>
+                </>
+              )}
+            </div>
+            <footer className="cs-foot">
+              The assistant reads approved answers and nothing else: not your profile, not your
+              numbers, not your connections, and it cannot change anything.
+            </footer>
+          </section>
+
+          {/* ── the support inbox (P4-09) ── */}
+          <section className="cs sp-widget" aria-labelledby="sp-inbox-title">
+            <header className="cs-head">
+              <div>
+                <p className="cs-label">Support email</p>
+                <h2 className="cs-title" id="sp-inbox-title">
+                  Emails to your support address become tickets here
+                </h2>
+              </div>
+            </header>
+            <div className="cs-body">
+              {!s.settings ? (
+                <p className="sp-prose">
+                  Enable the assistant above first; that creates your address.
+                </p>
+              ) : s.settings.inbound_address ? (
+                <>
+                  <p className="sp-prose">
+                    Forward your support mailbox to this address. Every email becomes a ticket here,
+                    threaded with its replies. Nothing is answered automatically: you see each one,
+                    and nothing goes back without your click.
+                  </p>
+                  <pre className="sp-snippet">{s.settings.inbound_address}</pre>
+                  <div className="sp-row">
+                    <button
+                      type="button"
+                      className="prop-btn"
+                      disabled={s.busy}
+                      onClick={() =>
+                        void act(
+                          { action: "rotate_inbound" },
+                          "New address. Mail to the old one is dropped from now on, so update your forwarding.",
+                        )
+                      }
+                    >
+                      Change the address
+                    </button>
+                    <span className="sp-fine">
+                      Only someone who knows it can file a ticket. Change it if it leaks.
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p className="sp-prose">
+                  Not set up yet: support email needs the inbound domain and the webhook connected
+                  in Resend. Until then no email reaches this screen.
+                </p>
+              )}
+            </div>
+          </section>
+          {s.settings && <ReplyTime settings={s.settings} busy={s.busy} act={act} />}
         </div>
-      </section>
+      </div>
     </main>
+  );
+}
+
+/**
+ * P4-11: the owner's own reply time — stated here, stored with when, and
+ * never defaulted. The ticket list measures against it in clock hours.
+ */
+function ReplyTime({
+  settings,
+  busy,
+  act,
+}: {
+  settings: Settings;
+  busy: boolean;
+  act: (
+    payload: Record<string, unknown>,
+    notice: string | ((json: Record<string, unknown>) => string),
+  ) => Promise<void>;
+}) {
+  const [hours, setHours] = useState(settings.reply_hours ? String(settings.reply_hours) : "");
+  const n = Number(hours);
+  const valid = /^\d+$/.test(hours.trim()) && n >= 1 && n <= 720;
+  return (
+    <section className="cs sp-widget" aria-labelledby="sp-time-title">
+      <header className="cs-head">
+        <div>
+          <p className="cs-label">Your reply time</p>
+          <h2 className="cs-title" id="sp-time-title">
+            {settings.reply_hours
+              ? `You reply within ${settings.reply_hours} ${settings.reply_hours === 1 ? "hour" : "hours"}`
+              : "No reply time set"}
+          </h2>
+        </div>
+      </header>
+      <div className="cs-body">
+        <form
+          className="sp-row sp-time"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!valid) return;
+            void act({ action: "set_reply_hours", hours: n }, `Saved: you reply within ${n} h.`);
+          }}
+        >
+          <label htmlFor="sp-hours">I reply within</label>
+          <input
+            id="sp-hours"
+            className="sp-input sp-hours"
+            inputMode="numeric"
+            value={hours}
+            onChange={(e) => setHours(e.target.value)}
+          />
+          <span>hours</span>
+          <button className="act" disabled={busy || !valid}>
+            Save
+          </button>
+          {settings.reply_hours && (
+            <button
+              type="button"
+              className="act"
+              disabled={busy}
+              onClick={() =>
+                void act(
+                  { action: "set_reply_hours", hours: null },
+                  "Cleared. No reply time is promised.",
+                )
+              }
+            >
+              Clear
+            </button>
+          )}
+        </form>
+        <p className="sp-fine">
+          Clock hours, not business hours. Each waiting ticket shows how it stands against this. The
+          chat tells a customer this time only when you have set one; otherwise it promises nothing.
+          {settings.reply_hours_set_at && ` Set ${whenShort(settings.reply_hours_set_at)}.`}
+        </p>
+        <label className="sp-row sp-check">
+          <input
+            type="checkbox"
+            checked={settings.notify_owner}
+            disabled={busy}
+            onChange={(e) =>
+              void act(
+                { action: "set_notify", on: e.target.checked },
+                e.target.checked
+                  ? "On: a new support email sends you a short notice, at most one an hour."
+                  : "Off: no notices. The count in the menu still shows what's waiting.",
+              )
+            }
+          />
+          <span>
+            Email me at my sign-in address when a customer emails (at most one an hour, and only
+            once email is set up)
+          </span>
+        </label>
+      </div>
+    </section>
   );
 }
 
 /** Who a thread is from, in words: the emailer's name or address, else a widget visitor. */
 function whoOf(ticket: Ticket | null): string {
   if (ticket?.from) return ticket.from;
-  return ticket?.channel === "email" ? "Emailer" : "Visitor";
+  if (!ticket) return "Visitor";
+  return ticket.has_address ? "Customer" : "Visitor · no address";
 }
 
 function EntryRow({ e, busy, onRetire }: { e: Entry; busy: boolean; onRetire?: () => void }) {

@@ -4,6 +4,7 @@
 //   GET  /api/support?conversation=<id>       one transcript
 //   GET  /api/support?ticket=<id>             one ticket's email thread (P4-09)
 //   POST /api/support {action}                enable | rotate | rotate_inbound |
+//                                             set_reply_hours | set_notify |
 //                                             propose_knowledge | propose_custom |
 //                                             publish | retire | resolve_ticket |
 //                                             erase_conversation | erase_ticket |
@@ -42,6 +43,8 @@ import {
   SupportSettingsError,
   ensureSupportSettings,
   rotateInboundToken,
+  setNotifyOwner,
+  setReplyHours,
   rotateSiteKey,
 } from "../../../lib/crm/support-settings";
 import { supportInboundDomain } from "../../../lib/env";
@@ -51,7 +54,10 @@ import {
   listConversations,
   readConversationForOwner,
 } from "../../../lib/support/chat";
-import { emailThread, inboundAddress } from "../../../lib/support/email-tickets";
+import { inArray } from "drizzle-orm";
+import { db } from "../../../db";
+import { contacts } from "../../../db/schema";
+import { emailThread, inboundAddress, ticketEmailFacts } from "../../../lib/support/email-tickets";
 import { draftReply } from "../../../lib/support-desk/draft";
 import {
   ReplyError,
@@ -141,18 +147,45 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     ]);
     const origin = process.env.APP_URL?.replace(/\/$/, "") || request.nextUrl.origin;
     const domain = supportInboundDomain();
-    // Who each email ticket is from, and whether the gate refuses replies to them.
-    const emailFrom = new Map<string, string>();
-    const refused = new Set<string>();
+    // Who each ticket is from, whether anyone can reply, and when they last wrote.
+    const facts = await ticketEmailFacts(profileId);
+    const contactIds = tickets.map((t) => t.contact_id).filter((id): id is string => id !== null);
+    const people = new Map(
+      (contactIds.length > 0
+        ? await db
+            .select({ id: contacts.id, name: contacts.name, email: contacts.email })
+            .from(contacts)
+            .where(inArray(contacts.id, contactIds))
+        : []
+      ).map((c) => [c.id, c]),
+    );
+    const shaped = [];
     for (const t of tickets) {
-      if (t.channel !== "email") continue;
-      const first = (await emailThread(t.id)).find((m) => m.direction === "inbound");
-      if (!first) continue;
-      emailFrom.set(t.id, first.from_name ?? first.from_address);
+      const f = facts.get(t.id);
+      const person = t.contact_id ? people.get(t.contact_id) : undefined;
+      const address = person?.email ?? f?.from_address ?? null;
       // Read now, not only at filing: an unsubscribe since then binds too.
-      if (t.suppressed_address || (await isSuppressed(t.account_id, first.from_address))) {
-        refused.add(t.id);
-      }
+      const refused =
+        t.suppressed_address ||
+        (address !== null && (await isSuppressed(t.account_id, address)) !== null);
+      shaped.push({
+        id: t.id,
+        conversation_id: t.conversation_id,
+        contact_id: t.contact_id,
+        channel: t.channel,
+        reason: t.reason,
+        summary: t.summary,
+        status: t.status,
+        answer: t.answer,
+        created_at: t.created_at,
+        suppressed_address: refused,
+        from: person?.name ?? f?.from_name ?? address,
+        has_address: address !== null,
+        // P4-11's waited clock: from the first word of theirs we haven't answered.
+        // A ticket with no email side waits from when it was handed over.
+        waiting_since: f ? f.unanswered_since : t.created_at,
+        last_reply_at: f?.last_outbound_at ?? null,
+      });
     }
     return NextResponse.json({
       settings: settings
@@ -163,6 +196,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             snippet: widgetSnippet(origin, settings.site_key),
             inbound_address: domain ? inboundAddress(settings.inbound_token, domain) : null,
             inbound_rotated_at: settings.inbound_rotated_at,
+            reply_hours: settings.reply_hours,
+            reply_hours_set_at: settings.reply_hours_set_at,
+            notify_owner: settings.notify_owner,
           }
         : null,
       knowledge,
@@ -170,19 +206,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         id: p.id,
         summary: (p.action as { summary?: string }).summary ?? "knowledge proposal",
       })),
-      tickets: tickets.map((t) => ({
-        id: t.id,
-        conversation_id: t.conversation_id,
-        contact_id: t.contact_id,
-        channel: t.channel,
-        reason: t.reason,
-        summary: t.summary,
-        status: t.status,
-        answer: t.answer,
-        created_at: t.created_at,
-        suppressed_address: t.suppressed_address || refused.has(t.id),
-        from: emailFrom.get(t.id) ?? null,
-      })),
+      tickets: shaped,
       conversations,
     });
   } catch (error) {
@@ -207,6 +231,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       entry_id?: unknown;
       ticket_id?: unknown;
       reply_id?: unknown;
+      hours?: unknown;
+      on?: unknown;
       body?: unknown;
       status?: unknown;
       answer?: unknown;
@@ -221,6 +247,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       case "rotate": {
         const settings = await rotateSiteKey(profileId);
         return NextResponse.json({ site_key: settings.site_key });
+      }
+      case "set_reply_hours": {
+        // P4-11: the owner's own stated reply time, or null for none.
+        const hours = body.hours === null ? null : Number(body.hours);
+        if (hours !== null && !Number.isFinite(hours)) {
+          return NextResponse.json({ error: "hours must be a number or null" }, { status: 422 });
+        }
+        const settings = await setReplyHours(profileId, hours);
+        return NextResponse.json({ reply_hours: settings.reply_hours });
+      }
+      case "set_notify": {
+        const settings = await setNotifyOwner(profileId, body.on === true);
+        return NextResponse.json({ notify_owner: settings.notify_owner });
       }
       case "rotate_inbound": {
         await rotateInboundToken(profileId);
@@ -345,7 +384,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json(
           {
             error:
-              'action must be "enable", "rotate", "rotate_inbound", "propose_knowledge", "propose_custom", "publish", "retire", "resolve_ticket", "erase_conversation", "erase_ticket", "cluster_faq", "draft_reply", "save_reply", "approve_reply", "send_reply" or "decline_reply"',
+              'action must be "enable", "rotate", "rotate_inbound", "set_reply_hours", "set_notify", "propose_knowledge", "propose_custom", "publish", "retire", "resolve_ticket", "erase_conversation", "erase_ticket", "cluster_faq", "draft_reply", "save_reply", "approve_reply", "send_reply" or "decline_reply"',
           },
           { status: 422 },
         );
