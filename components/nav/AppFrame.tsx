@@ -41,6 +41,15 @@ export function connectionsCount(c: Pick<NavCounts, "connections" | "needs_recon
   return paused > 0 ? `${paused} paused` : n(c.connections);
 }
 
+/**
+ * P4-11: tickets waiting for a person outrank everything else on Support
+ * ("2 open"); otherwise the support proposals waiting for approval.
+ */
+export function supportCount(c: Pick<NavCounts, "support_open" | "by_module">) {
+  const open = c.support_open ?? 0;
+  return open > 0 ? `${open} open` : n(c.by_module.support ?? 0);
+}
+
 export const GROUPS: readonly Group[] = [
   {
     key: "approve",
@@ -75,7 +84,7 @@ export const GROUPS: readonly Group[] = [
     label: "Customers",
     items: [
       { href: "/customers", label: "Customers" },
-      { href: "/support", label: "Support", count: (c) => n(c.by_module.support ?? 0) },
+      { href: "/support", label: "Support", count: supportCount },
     ],
   },
   {

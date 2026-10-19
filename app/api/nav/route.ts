@@ -7,7 +7,7 @@
 import { and, count, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "../../../db";
-import { connections, fieldRecords, goals, proposals } from "../../../db/schema";
+import { connections, fieldRecords, goals, proposals, supportTickets } from "../../../db/schema";
 import { resolveAccess } from "../../../lib/auth/access";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { countPausedExecutionConnections } from "../../../lib/execution/connections";
@@ -29,6 +29,8 @@ export interface NavCounts {
    * "N paused" there instead of the connected count, until reconnected.
    */
   needs_reconnect: number;
+  /** P4-11: support tickets waiting for a person — chat and email alike. */
+  support_open: number;
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -36,7 +38,7 @@ export async function GET(): Promise<NextResponse> {
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const profileId = access.profile_id;
   try {
-    const [pendingRows, goalRows, factRows, connRows, pausedCount, nameRow, decision] =
+    const [pendingRows, goalRows, factRows, connRows, pausedCount, nameRow, decision, openRows] =
       await Promise.all([
         db
           .select({ module: proposals.module, n: count() })
@@ -66,6 +68,10 @@ export async function GET(): Promise<NextResponse> {
             ),
           ),
         latestDecision(profileId),
+        db
+          .select({ n: count() })
+          .from(supportTickets)
+          .where(and(eq(supportTickets.profile_id, profileId), eq(supportTickets.status, "open"))),
       ]);
 
     const by_module: Record<string, number> = {};
@@ -86,6 +92,7 @@ export async function GET(): Promise<NextResponse> {
       facts: Number(factRows[0]?.n ?? 0),
       connections: Number(connRows[0]?.n ?? 0),
       needs_reconnect: pausedCount,
+      support_open: Number(openRows[0]?.n ?? 0),
     };
     return NextResponse.json(body);
   } catch (error) {

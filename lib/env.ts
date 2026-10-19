@@ -91,3 +91,27 @@ export function metaLoginEnv(): MetaLoginEnv | null {
 export function sessionDRealWritesOn(): boolean {
   return process.env.SESSION_D_REAL_WRITES?.trim() === "on";
 }
+
+/**
+ * P4-09: the Resend webhook signing secret (whsec_…) for the inbound
+ * support endpoint. Null = inbound email is not set up, and the endpoint
+ * refuses every delivery rather than accept an unverified one.
+ */
+export function resendWebhookSecret(): string | null {
+  return process.env.RESEND_WEBHOOK_SECRET?.trim() || null;
+}
+
+/**
+ * P4-09: the domain Resend receives support mail on (its MX points at
+ * Resend), e.g. "inbound.example.com" or "<id>.resend.app". Null = no
+ * inbound address can be shown, and the owner's screen says so.
+ */
+export function supportInboundDomain(): string | null {
+  const raw = process.env.SUPPORT_INBOUND_DOMAIN?.trim().toLowerCase() ?? "";
+  return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(raw) ? raw : null;
+}
+
+/** RESEND_API_KEY, or null — every Resend call is honest about its absence. */
+export function resendApiKey(): string | null {
+  return process.env.RESEND_API_KEY?.trim() || null;
+}

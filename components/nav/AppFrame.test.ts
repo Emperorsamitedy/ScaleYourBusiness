@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GROUPS, connectionsCount, groupFor, showsNav } from "./AppFrame";
+import { GROUPS, connectionsCount, groupFor, showsNav, supportCount } from "./AppFrame";
 
 // The owner's menu design: five labelled groups, every owner screen in one.
 describe("app navigation", () => {
@@ -40,5 +40,14 @@ describe("app navigation", () => {
     expect(connectionsCount({ connections: 0, needs_reconnect: 0 })).toBeNull();
     const item = GROUPS.flatMap((g) => g.items).find((i) => i.href === "/connections");
     expect(item?.count).toBe(connectionsCount);
+  });
+
+  // P4-11: the open-ticket count sits on the existing Support item, in words.
+  it("puts open tickets beside Support, else the pending support proposals", () => {
+    expect(supportCount({ support_open: 2, by_module: { support: 1 } })).toBe("2 open");
+    expect(supportCount({ support_open: 0, by_module: { support: 1 } })).toBe("1");
+    expect(supportCount({ support_open: 0, by_module: {} })).toBeNull();
+    const item = GROUPS.flatMap((g) => g.items).find((i) => i.href === "/support");
+    expect(item?.count).toBe(supportCount);
   });
 });

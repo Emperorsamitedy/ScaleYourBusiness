@@ -9,6 +9,10 @@
  * disclosure (rule 20): this is an automated assistant, and a human is
  * one message away. Plain script, no framework, so it drops into any
  * page the owner has.
+ *
+ * P4-11: after a handover the visitor MAY leave an email address so a
+ * person can reply. It is optional, says what it is for (only this
+ * question, not marketing), and is offered once.
  */
 (function () {
   "use strict";
@@ -147,7 +151,32 @@
     PAPER +
     ";color:" +
     INK2 +
-    "}";
+    "}" +
+    ".syb-sw-addr{align-self:stretch;padding:10px 12px;border:1px solid " +
+    RULE +
+    ";background:" +
+    PAPER +
+    "}" +
+    ".syb-sw-addr p{margin:0 0 8px;font-size:13px;line-height:1.45;color:" +
+    INK +
+    "}" +
+    ".syb-sw-addr form{display:flex;gap:8px;flex-wrap:wrap}" +
+    ".syb-sw-addr input{flex:1 1 160px;min-width:0;min-height:40px;padding:0 10px;border:1px solid " +
+    RULE +
+    ";font:inherit;color:" +
+    INK +
+    ";background:" +
+    PAPER +
+    "}" +
+    ".syb-sw-addr button{min-height:40px;padding:0 12px;border:1px solid " +
+    INK +
+    ";background:" +
+    PAPER +
+    ";color:" +
+    INK +
+    ";font:600 11.5px/1 " +
+    MONO +
+    ";letter-spacing:.06em;text-transform:uppercase;cursor:pointer}";
   var style = document.createElement("style");
   style.textContent = css;
   document.head.appendChild(style);
@@ -182,6 +211,40 @@
     el.className = "syb-sw-msg " + role;
     el.textContent = text;
     log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  var addressOffered = false;
+
+  // Optional, once: where a person may reply. Says what the address is for.
+  function offerAddress() {
+    if (addressOffered) return;
+    addressOffered = true;
+    var box = document.createElement("div");
+    box.className = "syb-sw-addr";
+    box.innerHTML =
+      "<p>Want the answer by email? Leave your address and a person will reply there. It's used only to answer this question, not for marketing. This is optional.</p>" +
+      '<form><input type="email" maxlength="254" placeholder="you@example.com" aria-label="Your email address" required>' +
+      '<button type="submit">Send address</button><button type="button" data-skip>No thanks</button></form>';
+    var f = box.querySelector("form");
+    var field = f.querySelector("input");
+    box.querySelector("[data-skip]").addEventListener("click", function () {
+      box.remove();
+    });
+    f.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var email = field.value.trim();
+      if (!email || !token) return;
+      post({ action: "contact", token: token, email: email })
+        .then(function (json) {
+          box.remove();
+          add("note", json.message);
+        })
+        .catch(function (err) {
+          add("note", err.message);
+        });
+    });
+    log.appendChild(box);
     log.scrollTop = log.scrollHeight;
   }
 
@@ -265,6 +328,7 @@
       .then(function (json) {
         add("assistant", json.reply.text);
         if (json.escalated) add("note", "A person has been asked to pick this up.");
+        if (json.ask_address) offerAddress();
       })
       .catch(function (err) {
         add("note", err.message);

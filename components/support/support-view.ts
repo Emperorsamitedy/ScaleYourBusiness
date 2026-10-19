@@ -3,7 +3,10 @@
 // is worded in the list. Counted from what the API returns; nothing here
 // reads a customer's message as anything but text (rule 24).
 
-export type TicketReason = "customer_asked" | "no_answer" | "cost_cap" | "conversation_cap";
+import { durationText, slaState, slaWords } from "../../lib/support/sla";
+
+export type TicketReason =
+  "customer_asked" | "no_answer" | "cost_cap" | "conversation_cap" | "emailed";
 export type TicketStatus = "open" | "answered" | "closed";
 export type ConversationStatus = "open" | "escalated" | "closed";
 
@@ -12,6 +15,7 @@ export const REASON_WORD: Record<TicketReason, string> = {
   no_answer: "no approved answer",
   cost_cap: "spend cap reached",
   conversation_cap: "conversation ran long",
+  emailed: "emailed you",
 };
 
 export function supportHeadline(publicAnswers: number): string {
@@ -61,4 +65,81 @@ export function whenShort(iso: string, now: Date = new Date()): string {
     return d.toLocaleDateString("en-GB", { weekday: "short" });
   }
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
+
+export type ReplyStatus = "drafted" | "declined" | "approved" | "sending" | "sent" | "failed";
+
+/** A reply's send state in words (P4-10). "sending" means the outcome is unknown, never "in progress". */
+export function replyStateWord(status: ReplyStatus): {
+  word: string;
+  tone: "drift" | "ok" | "low" | "alarm";
+} {
+  switch (status) {
+    case "drafted":
+      return { word: "draft · not sent", tone: "drift" };
+    case "approved":
+      return { word: "approved · not sent", tone: "drift" };
+    case "sending":
+      return { word: "unconfirmed · may have sent", tone: "alarm" };
+    case "sent":
+      return { word: "sent", tone: "ok" };
+    case "failed":
+      return { word: "not sent", tone: "alarm" };
+    case "declined":
+      return { word: "declined", tone: "low" };
+  }
+}
+
+/* ── P4-11: the ticket list, in words ── */
+
+export interface TicketForList {
+  channel: "chat" | "email";
+  status: TicketStatus;
+  from: string | null;
+  has_address: boolean;
+  summary: string;
+  waiting_since: string | null;
+}
+
+export interface TicketLine {
+  channel: string;
+  who: string;
+  what: string;
+  /** How long they have waited, figures with units — empty when nobody is waiting. */
+  waited: string;
+  flag: string;
+  detail: string;
+  tone: "ok" | "drift" | "alarm" | "low";
+}
+
+const SLA_TONE = { in_time: "ok", due_soon: "drift", overdue: "alarm", unset: "low" } as const;
+
+/** One row of the ticket list. Pure: the clock and the owner's reply time come in. */
+export function ticketLine(t: TicketForList, now: Date, replyHours: number | null): TicketLine {
+  const base = {
+    channel: t.channel === "email" ? "Email" : "Chat",
+    who: t.from ?? (t.has_address ? "Customer" : "no address"),
+    what: t.summary,
+  };
+  if (t.status !== "open") {
+    return {
+      ...base,
+      waited: "",
+      flag: t.status === "answered" ? "Answered" : "Closed",
+      detail: "",
+      tone: "low",
+    };
+  }
+  if (t.waiting_since === null) {
+    return { ...base, waited: "", flag: "You replied", detail: "their turn", tone: "ok" };
+  }
+  const state = slaState(t.waiting_since, now, replyHours);
+  const words = slaWords(state);
+  return {
+    ...base,
+    waited: durationText(state.waited_ms),
+    flag: words.flag,
+    detail: words.detail,
+    tone: SLA_TONE[state.flag],
+  };
 }

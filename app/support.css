@@ -190,63 +190,99 @@
 
 /* ── conversations ── */
 
-.sp-screen .sp-split {
-  display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-  min-height: 420px;
+.sp-screen .sp-convos {
+  margin-bottom: 20px;
 }
-.sp-screen .sp-list {
+.sp-screen .sp-sla-meta {
   margin: 0;
-  padding: 0;
-  list-style: none;
-  border-right: 1px solid var(--rule-soft);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+  text-align: right;
 }
-.sp-screen .sp-thread {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  width: 100%;
-  padding: 12px 14px 12px 17px;
+.sp-screen .sp-table-wrap {
+  max-height: 260px;
+  overflow: auto;
+  padding: 0 7px;
+  border-bottom: 1px solid var(--sheet-ink);
+}
+.sp-screen .sp-tickets thead th {
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+}
+.sp-screen .sp-tickets tbody th,
+.sp-screen .sp-tickets tbody td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.sp-screen .sp-pick {
+  padding: 0;
   border: 0;
-  border-bottom: 1px solid var(--rule-soft);
-  border-left: 3px solid transparent;
   background: transparent;
   color: var(--sheet-ink);
   font: inherit;
+  font-weight: 500;
   text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
-.sp-screen .sp-thread:hover {
-  background: var(--inset);
-}
-.sp-screen .sp-thread.on {
-  background: var(--inset);
-  border-left-color: var(--sheet-ink);
-}
-.sp-screen .sp-thread:focus-visible {
-  outline-offset: -3px;
-}
-.sp-screen .sp-thread-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-.sp-screen .sp-who {
-  font-size: 15px;
-  font-weight: 500;
-}
-.sp-screen .sp-when {
-  font-family: var(--f-mono);
-  font-size: 12.5px;
-  color: var(--sheet-ink-2);
+.sp-screen .sp-tickets tr.on .sp-pick {
+  text-decoration-thickness: 2px;
 }
 .sp-screen .sp-what {
-  font-size: 14px;
+  max-width: 34ch;
   color: var(--sheet-ink-2);
   overflow-wrap: anywhere;
 }
-.sp-screen .sp-thread .word {
-  white-space: normal;
+.sp-screen .sp-sla-fig {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sp-screen .sp-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+}
+.sp-screen .sp-thread-act {
+  min-width: 0;
+  padding: 15px 17px 17px;
+  border-left: 1px solid var(--rule-soft);
+}
+.sp-screen .sp-side {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.sp-screen .sp-time {
+  align-items: center;
+}
+.sp-screen .sp-hours {
+  width: 5.5em;
+  font-family: var(--f-mono);
+  text-align: right;
+}
+.sp-screen .sp-check {
+  align-items: flex-start;
+  margin-top: var(--s-3);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.sp-screen .sp-check input {
+  margin-top: 3px;
+}
+@media (max-width: 899px) {
+  .sp-screen .sp-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sp-screen .sp-thread-act {
+    border-left: 0;
+    border-top: 1px solid var(--rule-soft);
+  }
 }
 
 .sp-screen .sp-thread-view {
@@ -319,7 +355,7 @@
 /* ── the widget ── */
 
 .sp-screen .sp-widget {
-  margin-top: 20px;
+  margin-top: 0;
 }
 .sp-screen .sp-snippet {
   margin: 0;
@@ -347,15 +383,12 @@
     grid-template-columns: minmax(0, 1fr);
     min-height: 0;
   }
-  .sp-screen .sp-list {
-    border-right: 0;
-    border-bottom: 1px solid var(--sheet-ink);
-  }
-  .sp-screen .sp-thread {
-    padding: 10px 14px;
-  }
-  .sp-screen .sp-thread-view {
+  .sp-screen .sp-thread-view,
+  .sp-screen .sp-thread-act {
     padding: 14px;
+  }
+  .sp-screen .sp-sla-meta {
+    text-align: left;
   }
   .sp-screen .sp-msg {
     max-width: 100%;
@@ -371,4 +404,61 @@
   .sp-screen .sp-box {
     padding: 12px 12px 14px;
   }
+}
+
+/* P4-09 — email threads on a ticket */
+.sp-screen .sp-msg-subject {
+  margin: 0 0 4px;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-weight: 600;
+}
+.sp-screen .sp-emails {
+  margin-top: var(--s-3);
+}
+.sp-screen .sp-refused {
+  margin: var(--s-3) 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.sp-screen .sp-refused .word {
+  margin-right: var(--s-2);
+}
+
+/* P4-10 — the reply box */
+.sp-screen .sp-reply .sp-box-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
+}
+.sp-screen .sp-reply .act {
+  min-height: 40px;
+  padding: 0 var(--s-4);
+}
+.sp-screen .sp-apart {
+  justify-content: space-between;
+}
+/* Approve and Decline: equal weight, apart. */
+.sp-screen .sp-apart .act {
+  flex: 0 0 13.5em;
+}
+.sp-screen .sp-disclosure {
+  margin: var(--s-2) 0 0;
+  padding-left: var(--s-3);
+  border-left: var(--line);
+}
+.sp-screen .sp-sent {
+  margin: var(--s-2) 0;
+  padding: var(--s-3);
+  border: var(--hair);
+  background: var(--inset);
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.sp-screen .sp-note {
+  color: var(--sheet-ink);
 }

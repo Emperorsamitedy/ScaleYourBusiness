@@ -38,3 +38,66 @@ describe("whenShort", () => {
     expect(whenShort("2026-08-02T10:00:00", now)).toBe("2 Aug");
   });
 });
+
+describe("replyStateWord (P4-10)", () => {
+  it("says an unknown send is unconfirmed, never in progress, and only a sent reply is sent", async () => {
+    const { replyStateWord } = await import("./support-view");
+    expect(replyStateWord("sending")).toEqual({
+      word: "unconfirmed · may have sent",
+      tone: "alarm",
+    });
+    expect(replyStateWord("approved").word).toBe("approved · not sent");
+    expect(replyStateWord("sent")).toEqual({ word: "sent", tone: "ok" });
+    expect(replyStateWord("failed").word).toBe("not sent");
+  });
+});
+
+describe("ticketLine (P4-11)", () => {
+  const now = new Date("2026-10-19T12:00:00Z");
+  const base = {
+    channel: "email" as const,
+    status: "open" as const,
+    from: "Ana Kovács",
+    has_address: true,
+    summary: "Where is my order?",
+    waiting_since: "2026-10-18T09:00:00Z",
+  };
+
+  it("says how long they've waited and how it stands, in words with figures", async () => {
+    const { ticketLine } = await import("./support-view");
+    expect(ticketLine(base, now, 24)).toEqual({
+      channel: "Email",
+      who: "Ana Kovács",
+      what: "Where is my order?",
+      waited: "27 h",
+      flag: "Overdue",
+      detail: "3 h over",
+      tone: "alarm",
+    });
+    expect(ticketLine(base, now, 48)).toMatchObject({
+      flag: "In time",
+      detail: "21 h left",
+      tone: "ok",
+    });
+    expect(ticketLine(base, now, null)).toMatchObject({
+      flag: "No reply time set",
+      detail: "",
+      waited: "27 h",
+    });
+  });
+
+  it("names a chat ticket with no address, and stops the clock once we replied or it's closed", async () => {
+    const { ticketLine } = await import("./support-view");
+    expect(
+      ticketLine({ ...base, channel: "chat", from: null, has_address: false }, now, 24).who,
+    ).toBe("no address");
+    expect(ticketLine({ ...base, waiting_since: null }, now, 24)).toMatchObject({
+      flag: "You replied",
+      waited: "",
+    });
+    expect(ticketLine({ ...base, status: "answered" }, now, 24)).toMatchObject({
+      flag: "Answered",
+      waited: "",
+    });
+  });
+});

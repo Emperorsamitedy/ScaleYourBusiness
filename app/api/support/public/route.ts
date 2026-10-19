@@ -3,6 +3,8 @@
 //   POST /api/support/public {action:"start", site_key}          open a conversation
 //   POST /api/support/public {action:"message", token, text}     one customer turn
 //   POST /api/support/public {action:"transcript", token}        the thread, for a reload
+//   POST /api/support/public {action:"contact", token, email}    after a handover: where a
+//                                                                person may reply (P4-11)
 //   OPTIONS                                                      CORS preflight
 //
 // This route is called from the OWNER'S website by strangers, so it
@@ -18,6 +20,7 @@ import {
   readConversation,
   startConversation,
 } from "../../../../lib/support/chat";
+import { leaveAddress } from "../../../../lib/support/handover";
 import { DEFAULT_BUSINESS_NAME } from "../../../../lib/support/settings";
 
 const CORS = {
@@ -37,7 +40,13 @@ export async function OPTIONS(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  let body: { action?: unknown; site_key?: unknown; token?: unknown; text?: unknown } | null;
+  let body: {
+    action?: unknown;
+    site_key?: unknown;
+    token?: unknown;
+    text?: unknown;
+    email?: unknown;
+  } | null;
   try {
     body = (await request.json()) as typeof body;
   } catch {
@@ -71,13 +80,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         reply: outcome.reply,
         escalated: outcome.escalated,
         reason: outcome.reason,
+        ask_address: outcome.ask_address,
       });
     }
     if (body?.action === "transcript") {
       if (typeof body.token !== "string") return json({ error: "token is required" }, 422);
       return json({ messages: await readConversation(body.token) });
     }
-    return json({ error: 'action must be "start", "message" or "transcript"' }, 422);
+    if (body?.action === "contact") {
+      if (typeof body.token !== "string" || typeof body.email !== "string") {
+        return json({ error: "token and email are required" }, 422);
+      }
+      return json(await leaveAddress(body.token, body.email));
+    }
+    return json({ error: 'action must be "start", "message", "transcript" or "contact"' }, 422);
   } catch (error) {
     if (error instanceof SupportError) return json({ error: error.message }, error.status);
     // The name only: a customer's text could be in the message.

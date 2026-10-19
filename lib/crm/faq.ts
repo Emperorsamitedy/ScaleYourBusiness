@@ -174,7 +174,15 @@ async function alreadyFolded(profileId: string): Promise<Set<string>> {
   return folded;
 }
 
-/** The questions worth clustering: tickets born from a question, not yet folded into the FAQ. */
+/**
+ * The questions worth clustering: tickets born from a question, not yet
+ * folded into the FAQ. Emailed tickets (P4-09, reason "emailed") are left
+ * out on purpose: an email's summary and body carry signatures, order
+ * numbers and quoted threads, so batching them into the clustering prompt
+ * would put far more customer PII before a model than a one-line widget
+ * question does (rule 24). Revisit once an emailed question can be reduced
+ * to its question alone.
+ */
 export async function openQuestions(profileId: string): Promise<FaqQuestion[]> {
   const folded = await alreadyFolded(profileId);
   const rows = await db

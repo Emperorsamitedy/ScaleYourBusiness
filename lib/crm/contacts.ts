@@ -34,6 +34,7 @@ import {
   contacts,
   decisionLog,
   supportConversations,
+  supportEmailMessages,
   supportMessages,
   supportTickets,
 } from "../../db/schema";
@@ -231,6 +232,23 @@ export async function eraseContact(accountId: string, contactId: string): Promis
           ),
         )
     : [];
+  // P4-09: every email ticket this address wrote or was written to — a
+  // suppressed sender's tickets carry no contact_id, so the address finds them.
+  const emailTickets = contact.email
+    ? await db
+        .selectDistinct({ id: supportEmailMessages.ticket_id })
+        .from(supportEmailMessages)
+        .where(
+          and(
+            eq(supportEmailMessages.account_id, accountId),
+            or(
+              eq(supportEmailMessages.from_address, normalizeEmail(contact.email)),
+              sql`${supportEmailMessages.to_addresses} ? ${normalizeEmail(contact.email)}`,
+            ),
+          ),
+        )
+    : [];
+  const emailTicketIds = emailTickets.map((r) => r.id);
   const conversationIds = [
     ...new Set(
       [...ticketConversations, ...emailConversations]
@@ -246,17 +264,21 @@ export async function eraseContact(accountId: string, contactId: string): Promis
         .values({ account_id: accountId, email_hash: hash, reason: "erasure" })
         .onConflictDoNothing();
     }
+    // The tickets go whole — their email messages and replies with them
+    // (ON DELETE CASCADE) — rather than surviving with contact_id nulled:
+    // a ticket's summary is the customer's own words (review 2026-10-17).
     await tx
       .delete(supportTickets)
       .where(
         and(
           eq(supportTickets.account_id, accountId),
-          conversationIds.length > 0
-            ? or(
-                eq(supportTickets.contact_id, contactId),
-                inArray(supportTickets.conversation_id, conversationIds),
-              )
-            : eq(supportTickets.contact_id, contactId),
+          or(
+            eq(supportTickets.contact_id, contactId),
+            ...(conversationIds.length > 0
+              ? [inArray(supportTickets.conversation_id, conversationIds)]
+              : []),
+            ...(emailTicketIds.length > 0 ? [inArray(supportTickets.id, emailTicketIds)] : []),
+          ),
         ),
       );
     if (conversationIds.length > 0) {
@@ -291,6 +313,7 @@ export async function eraseContact(accountId: string, contactId: string): Promis
       account_id: accountId,
       contact_id: contactId,
       conversations_erased: conversationIds.length,
+      email_tickets_erased: emailTicketIds.length,
     }),
   );
 }
@@ -337,6 +360,52 @@ export async function eraseConversation(accountId: string, conversationId: strin
       account_id: accountId,
       conversation_id: conversationId,
     }),
+  );
+}
+
+/**
+ * Erase one ticket — the GDPR path for an emailer who never became a
+ * contact (a suppressed address, P4-09) or whose ticket alone must go. Its
+ * email messages and replies go with it (ON DELETE CASCADE), and so does a
+ * widget conversation behind it. The log records the fact, by id (rule 22).
+ */
+export async function eraseTicket(accountId: string, ticketId: string): Promise<void> {
+  const [ticket] = await db
+    .select({
+      id: supportTickets.id,
+      profile_id: supportTickets.profile_id,
+      conversation_id: supportTickets.conversation_id,
+    })
+    .from(supportTickets)
+    .where(and(eq(supportTickets.id, ticketId), eq(supportTickets.account_id, accountId)));
+  if (!ticket) throw new ContactError("no such ticket", 404);
+  await db.transaction(async (tx) => {
+    await tx.delete(supportTickets).where(eq(supportTickets.id, ticketId));
+    if (ticket.conversation_id) {
+      await tx
+        .delete(supportTickets)
+        .where(
+          and(
+            eq(supportTickets.account_id, accountId),
+            eq(supportTickets.conversation_id, ticket.conversation_id),
+          ),
+        );
+      await tx
+        .delete(supportConversations)
+        .where(eq(supportConversations.id, ticket.conversation_id));
+    }
+    await tx.insert(decisionLog).values({
+      profile_id: ticket.profile_id,
+      actor: "owner",
+      kind: "erasure",
+      ref_id: ticketId,
+      payload_hash: createHash("sha256")
+        .update(JSON.stringify({ account_id: accountId, ticket_id: ticketId }))
+        .digest("hex"),
+    });
+  });
+  console.log(
+    JSON.stringify({ event: "ticket_erased", account_id: accountId, ticket_id: ticketId }),
   );
 }
 

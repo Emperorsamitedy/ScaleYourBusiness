@@ -183,6 +183,11 @@ async function seed(): Promise<void> {
     await import("../lib/crm/knowledge");
   const { startConversation, postCustomerMessage } = await import("../lib/support/chat");
   const { listTickets, resolveTicket } = await import("../lib/support/tickets");
+  const { setReplyHours } = await import("../lib/crm/support-settings");
+  const { receiveInboundEmail, inboundAddress } = await import("../lib/support/email-tickets");
+  const { normaliseReceived, parseReceivedEvent } = await import("../lib/support/inbound");
+  const { receivedEvent, receivedEmail } = await import("../lib/support/resend-fixtures");
+  const { draftReply } = await import("../lib/support-desk/draft");
   const { proposeContentPlan } = await import("../lib/content/plan");
   const { produceFromProposal } = await import("../lib/content/produce");
   const { runSiteChecks } = await import("../lib/blindspots/checks");
@@ -236,6 +241,7 @@ async function seed(): Promise<void> {
     { table: "knowledge_entries", column: "published_at", scope: "profile" },
     { table: "support_settings", column: "created_at", scope: "profile" },
     { table: "support_tickets", column: "created_at", scope: "profile" },
+    { table: "support_replies", column: "created_at", scope: "profile" },
   ];
 
   async function dbNow(): Promise<string> {
@@ -1446,6 +1452,88 @@ async function seed(): Promise<void> {
       intent: "question",
     },
   ]);
+
+  /* ── 8b. support email (P4-09..11): three emailed tickets, no network, no model ── */
+
+  // The owner states a reply time; the tickets are measured against it.
+  await phase("owner sets a reply time of 24 hours", at(3, "09:10"), async () => {
+    await setReplyHours(ids.profile, 24);
+  });
+  // Recorded-shape Resend payloads, filed through the real inbound path.
+  const DEMO_INBOUND_DOMAIN = "inbound.syb.test";
+  const emailIn = async (args: {
+    from: string;
+    subject: string;
+    text: string;
+    hoursAgo: number;
+  }): Promise<string> => {
+    const settings = await ensureSupportSettings(ids.profile);
+    const createdAt = new RealDate(RealDate.now() - args.hoursAgo * 3_600_000).toISOString();
+    const f = {
+      email_id: crypto.randomUUID(),
+      from: args.from,
+      to: ["hello@fernhillceramics.example"],
+      received_for: [inboundAddress(settings.inbound_token, DEMO_INBOUND_DOMAIN)],
+      subject: args.subject,
+      text: args.text,
+      message_id: `<${crypto.randomUUID()}@mail.example.com>`,
+      created_at: createdAt,
+    };
+    const email = normaliseReceived(parseReceivedEvent(receivedEvent(f))!, receivedEmail(f));
+    if (!email) throw new Error("demo email did not normalise");
+    const out = await receiveInboundEmail(email, DEMO_INBOUND_DOMAIN);
+    if (out.kind !== "filed") throw new Error(`demo email not filed: ${out.kind}`);
+    return out.ticket_id;
+  };
+  // Overdue: two days old against a 24-hour reply time.
+  const hoursAgo = (h: number) => new RealDate(RealDate.now() - h * 3_600_000).toISOString();
+  await phase("support email: a chipped plate (overdue)", hoursAgo(46), async () => {
+    await emailIn({
+      from: "Niamh Byrne <niamh.byrne@example.ie>",
+      subject: "Chipped plate in my order #2219",
+      text: "Hi Fernhill team,\n\nMy order #2219 arrived on Saturday and one of the four dinner plates has a chip on the rim. The box looked fine. Could you send a replacement, or should I send it back first?\n\nThanks,\nNiamh",
+      hoursAgo: 46,
+    });
+  });
+  // Due soon: twenty hours into the twenty-four.
+  await phase("support email: a wholesale enquiry (due soon)", hoursAgo(20), async () => {
+    await emailIn({
+      from: "Orla Quinn <orla@thelittlecafe.example>",
+      subject: "Wholesale mugs for our café",
+      text: "Hello,\n\nWe're opening a small café in Waterford in December and love your speckled mugs. Do you sell wholesale, and what would 60 mugs look like?\n\nBest,\nOrla Quinn\nThe Little Café",
+      hoursAgo: 20,
+    });
+  });
+  // In time, with an AI draft awaiting the owner's approval. The "model" is a
+  // stand-in: it cites the approved dishwasher answer it is offered and repeats it.
+  await phase("support email: a dishwasher question, drafted", hoursAgo(2), async () => {
+    const ticketId = await emailIn({
+      from: "Jonas Weber <jonas.weber@example.de>",
+      subject: "Dishwasher safe?",
+      text: "Hallo! Before I order the serving bowl as a gift: can it go in the dishwasher? Thanks, Jonas",
+      hoursAgo: 3,
+    });
+    const out = await draftReply({
+      profileId: ids.profile,
+      ticketId,
+      llm: async ({ system }) => {
+        const m = /\[([0-9a-f-]{36})\] Q: ([^\n]*dishwasher[^\n]*)\nA: ([^\n]*)/i.exec(system);
+        return {
+          calls: [],
+          text: JSON.stringify(
+            m
+              ? {
+                  answer: `Hi Jonas,\n\nThanks for asking before you order. ${m[3]}\n\nWarm wishes from the studio`,
+                  grounded: true,
+                  used: [m[1]],
+                }
+              : { answer: "", grounded: false, used: [] },
+          ),
+        };
+      },
+    });
+    if (!out.drafted) throw new Error(`demo draft refused: ${out.message}`);
+  });
 
   /* ── 9. content and the website, the last few days ── */
 

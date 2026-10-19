@@ -781,7 +781,7 @@ interface DecisionLogEntry {
   profile_id: BusinessProfileId;
   at: ISODateTime;
   actor: "system" | "owner";
-  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent";
+  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send";
   ref_id: string;
   payload_hash: string;
 }
@@ -810,6 +810,8 @@ interface GoalBaseline {
 ```
 
 **`consent`** (P3-20h, rule 13) is write access granted: written by the owner when an execute connection is made through the consent screen. Its `ref_id` is the connection, and its hash covers the provider, the scopes granted, the consent lines shown verbatim and the confirmation the owner typed, so what was agreed to stays checkable after the registry changes. Disconnecting revokes nothing on the platform's side and writes no consent row; the connection keeps its own `disconnected_at`.
+
+**`reply_approval`, `reply_decline`, `reply_send`** (P4-10, rules 12 and 22) are the approval covenant extended to support replies. Each `ref_id` is a `support_replies` row. An approval is written by the owner, and its hash covers the reply and ticket ids, the approving user, the time, whether the assistant drafted it, and the sha256 of the exact text that will be sent: the owner's words plus, for an AI-drafted reply, the disclosure appended in code. A decline covers the ids, the user, the time and the body's hash. A send is written by the system with the outcome (`sent`, `refused` or `unknown`), Resend's id when there is one, and the same text hash. No entry holds the reply's words, the customer's address or their name, so erasing the ticket (and with it the reply) leaves every entry verifiable and nothing personal.
 
 **`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
 

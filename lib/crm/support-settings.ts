@@ -74,3 +74,57 @@ export async function rotateSiteKey(profileId: string): Promise<SupportSettingsR
   console.log(JSON.stringify({ event: "support_site_key_rotated", account_id: row.account_id }));
   return row;
 }
+
+/**
+ * P4-09: a new inbound routing token. Mail to the old address stops
+ * filing tickets the moment this returns (it is acknowledged and dropped),
+ * so the owner must update their forwarding rule.
+ */
+export async function rotateInboundToken(profileId: string): Promise<SupportSettingsRow> {
+  await ensureSupportSettings(profileId);
+  const [row] = await db
+    .update(supportSettings)
+    .set({ inbound_token: newSiteKey(), inbound_rotated_at: new Date().toISOString() })
+    .where(eq(supportSettings.profile_id, profileId))
+    .returning();
+  if (!row) throw new SupportSettingsError("no such profile", 404);
+  console.log(JSON.stringify({ event: "support_inbound_rotated", account_id: row.account_id }));
+  return row;
+}
+
+/**
+ * P4-11: "I reply within N hours", in the owner's own words — a whole
+ * number of clock hours from 1 to 720, or null to say no reply time.
+ * Stored with when it was set; never defaulted.
+ */
+export async function setReplyHours(
+  profileId: string,
+  hours: number | null,
+): Promise<SupportSettingsRow> {
+  if (hours !== null && (!Number.isInteger(hours) || hours < 1 || hours > 720)) {
+    throw new SupportSettingsError("a reply time is a whole number of hours, from 1 to 720", 422);
+  }
+  await ensureSupportSettings(profileId);
+  const [row] = await db
+    .update(supportSettings)
+    .set({
+      reply_hours: hours,
+      reply_hours_set_at: hours === null ? null : new Date().toISOString(),
+    })
+    .where(eq(supportSettings.profile_id, profileId))
+    .returning();
+  if (!row) throw new SupportSettingsError("no such profile", 404);
+  return row;
+}
+
+/** P4-11: whether a new email ticket emails the owner's own account address. */
+export async function setNotifyOwner(profileId: string, on: boolean): Promise<SupportSettingsRow> {
+  await ensureSupportSettings(profileId);
+  const [row] = await db
+    .update(supportSettings)
+    .set({ notify_owner: on })
+    .where(eq(supportSettings.profile_id, profileId))
+    .returning();
+  if (!row) throw new SupportSettingsError("no such profile", 404);
+  return row;
+}
