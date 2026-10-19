@@ -914,8 +914,11 @@ describe("P4-15 — at send time, per recipient", () => {
       account_id: b.account_id,
     });
     const [firstRow] = await backend.pending(c.proposal_id, 1);
+    // Rows tie on created_at and then order by a random id, so name the
+    // address of whichever contact this row belongs to.
+    const claimed = people.find((x) => x.id === firstRow!.contact_id)!;
     await backend.claim(firstRow!.send_id, {
-      email_hash: emailHash(people[0]!.email!),
+      email_hash: emailHash(claimed.email!),
       token_hash: "f".repeat(64),
       sender_name: "Emberworks",
       body_sha256: "0".repeat(64),
