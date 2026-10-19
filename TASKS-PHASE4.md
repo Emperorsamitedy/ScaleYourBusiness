@@ -62,7 +62,7 @@ Step 82. The first stranger-facing surface.
 
 Step 83. ⏸ **Gated on the owner's email provider key (inbound + outbound)** — the same key that un-parks login emails.
 
-- [ ] **P4-09** Inbound: provider webhook → ticket threads tied to contacts (creating consent-`unsure` contacts for unknown senders — support contact ≠ marketing consent, rule 19).
+- [x] **P4-09** Inbound: provider webhook → ticket threads tied to contacts (creating consent-`unsure` contacts for unknown senders — support contact ≠ marketing consent, rule 19).
 - [ ] **P4-10** AI-drafted replies with disclosure, HUMAN-APPROVED before sending — the approval covenant extends to support; automation of routine replies is earned later from the record, not assumed now.
 - [ ] **P4-11** Escalate-to-human end to end; SLA surfaced honestly on the ticket.
 

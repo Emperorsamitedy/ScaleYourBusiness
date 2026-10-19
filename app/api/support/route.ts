@@ -2,9 +2,12 @@
 //
 //   GET  /api/support                         settings, knowledge, tickets, conversations
 //   GET  /api/support?conversation=<id>       one transcript
-//   POST /api/support {action}                enable | rotate | propose_knowledge |
-//                                             propose_custom | publish | retire |
-//                                             resolve_ticket | cluster_faq
+//   GET  /api/support?ticket=<id>             one ticket's email thread (P4-09)
+//   POST /api/support {action}                enable | rotate | rotate_inbound |
+//                                             propose_knowledge | propose_custom |
+//                                             publish | retire | resolve_ticket |
+//                                             erase_conversation | erase_ticket |
+//                                             cluster_faq
 //
 // Reading needs the intake cookie like every profile surface. Every
 // mutation needs a signed-in user: publishing puts words in the
@@ -14,7 +17,12 @@
 import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { ContactError, eraseConversation } from "../../../lib/crm/contacts";
+import {
+  ContactError,
+  eraseConversation,
+  eraseTicket,
+  isSuppressed,
+} from "../../../lib/crm/contacts";
 import { FaqError, clusterQuestions } from "../../../lib/crm/faq";
 import {
   KnowledgeError,
@@ -28,14 +36,17 @@ import {
 import {
   SupportSettingsError,
   ensureSupportSettings,
+  rotateInboundToken,
   rotateSiteKey,
 } from "../../../lib/crm/support-settings";
+import { supportInboundDomain } from "../../../lib/env";
 import { ProposalError } from "../../../lib/proposals/service";
 import {
   SupportError,
   listConversations,
   readConversationForOwner,
 } from "../../../lib/support/chat";
+import { emailThread, inboundAddress } from "../../../lib/support/email-tickets";
 import { settingsForProfile } from "../../../lib/support/settings";
 import { TicketError, listTickets, resolveTicket } from "../../../lib/support/tickets";
 
@@ -68,6 +79,24 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
+    const ticketId = request.nextUrl.searchParams.get("ticket");
+    if (ticketId) {
+      const ticket = (await listTickets(profileId)).find((t) => t.id === ticketId);
+      if (!ticket) return NextResponse.json({ error: "no such ticket" }, { status: 404 });
+      const thread = await emailThread(ticket.id);
+      return NextResponse.json({
+        emails: thread.map((m) => ({
+          id: m.id,
+          direction: m.direction,
+          from_address: m.from_address,
+          from_name: m.from_name,
+          subject: m.subject,
+          body: m.body,
+          truncated: m.truncated,
+          at: m.at,
+        })),
+      });
+    }
     const conversationId = request.nextUrl.searchParams.get("conversation");
     if (conversationId) {
       return NextResponse.json({
@@ -82,6 +111,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       listConversations(profileId),
     ]);
     const origin = process.env.APP_URL?.replace(/\/$/, "") || request.nextUrl.origin;
+    const domain = supportInboundDomain();
+    // Who each email ticket is from, and whether the gate refuses replies to them.
+    const emailFrom = new Map<string, string>();
+    const refused = new Set<string>();
+    for (const t of tickets) {
+      if (t.channel !== "email") continue;
+      const first = (await emailThread(t.id)).find((m) => m.direction === "inbound");
+      if (!first) continue;
+      emailFrom.set(t.id, first.from_name ?? first.from_address);
+      // Read now, not only at filing: an unsubscribe since then binds too.
+      if (t.suppressed_address || (await isSuppressed(t.account_id, first.from_address))) {
+        refused.add(t.id);
+      }
+    }
     return NextResponse.json({
       settings: settings
         ? {
@@ -89,6 +132,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             business_name: settings.business_name,
             rotated_at: settings.rotated_at,
             snippet: widgetSnippet(origin, settings.site_key),
+            inbound_address: domain ? inboundAddress(settings.inbound_token, domain) : null,
+            inbound_rotated_at: settings.inbound_rotated_at,
           }
         : null,
       knowledge,
@@ -96,7 +141,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         id: p.id,
         summary: (p.action as { summary?: string }).summary ?? "knowledge proposal",
       })),
-      tickets,
+      tickets: tickets.map((t) => ({
+        id: t.id,
+        conversation_id: t.conversation_id,
+        contact_id: t.contact_id,
+        channel: t.channel,
+        reason: t.reason,
+        summary: t.summary,
+        status: t.status,
+        answer: t.answer,
+        created_at: t.created_at,
+        suppressed_address: t.suppressed_address || refused.has(t.id),
+        from: emailFrom.get(t.id) ?? null,
+      })),
       conversations,
     });
   } catch (error) {
@@ -133,6 +190,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       case "rotate": {
         const settings = await rotateSiteKey(profileId);
         return NextResponse.json({ site_key: settings.site_key });
+      }
+      case "rotate_inbound": {
+        await rotateInboundToken(profileId);
+        return NextResponse.json({ rotated: true });
+      }
+      case "erase_ticket": {
+        // GDPR erasure of one ticket and its emails (rule 22). Irreversible, so signed-in only.
+        if (typeof body.ticket_id !== "string") {
+          return NextResponse.json({ error: "ticket_id is required" }, { status: 422 });
+        }
+        await eraseTicket(session.account_id, body.ticket_id);
+        return NextResponse.json({ erased: true });
       }
       case "propose_knowledge": {
         const proposal = await proposeKnowledgeEntries(profileId);
@@ -194,7 +263,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json(
           {
             error:
-              'action must be "enable", "rotate", "propose_knowledge", "propose_custom", "publish", "retire", "resolve_ticket" or "cluster_faq"',
+              'action must be "enable", "rotate", "rotate_inbound", "propose_knowledge", "propose_custom", "publish", "retire", "resolve_ticket", "erase_conversation", "erase_ticket" or "cluster_faq"',
           },
           { status: 422 },
         );

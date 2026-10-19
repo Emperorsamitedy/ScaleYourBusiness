@@ -430,3 +430,92 @@ describe("security review 2026-10-17 — suppression hashes are keyed, and old o
     ).rejects.toThrow(/unsubscribed/);
   });
 });
+
+describe("P4-09 — erasure takes the contact's email tickets, and the trail stays clean (rule 22)", () => {
+  it("their email tickets and messages go; the log verifies with no PII; a later email cannot recreate them", async () => {
+    const { supportEmailMessages, supportTickets } = await import("../../db/schema");
+    const { ensureSupportSettings } = await import("./support-settings");
+    const { inboundAddress, receiveInboundEmail } = await import("../support/email-tickets");
+    const { eraseTicket } = await import("./contacts");
+    const s = await fresh();
+    const settings = await ensureSupportSettings(s.profile_id);
+    const domain = "inbound.syb.test";
+    const email = `mail-erase-${crypto.randomUUID().slice(0, 8)}@example.com`;
+    const mail = (subject: string) => ({
+      provider_id: crypto.randomUUID(),
+      from: { address: email, name: "Mara Mailer" },
+      to: [inboundAddress(settings.inbound_token, domain)],
+      subject,
+      text: `Hello, this is Mara (${email}), phone +36 30 555 0101.`,
+      truncated: false,
+      message_id: `<${crypto.randomUUID()}@mail.example.com>`,
+      in_reply_to: null,
+      references: null,
+      received_at: new Date().toISOString(),
+    });
+    const filed = await receiveInboundEmail(mail("A broken bowl"), domain);
+    if (filed.kind !== "filed") throw new Error("not filed");
+    const [ticket] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, filed.ticket_id));
+    const contactId = ticket!.contact_id!;
+
+    await eraseContact(s.account_id, contactId);
+
+    expect(
+      await db.select().from(supportTickets).where(eq(supportTickets.id, filed.ticket_id)),
+    ).toHaveLength(0);
+    expect(
+      await db
+        .select()
+        .from(supportEmailMessages)
+        .where(eq(supportEmailMessages.account_id, s.account_id)),
+    ).toHaveLength(0);
+    const log = await db.select().from(decisionLog).where(eq(decisionLog.profile_id, s.profile_id));
+    // The log verifies: the erasure entry's hash recomputes from ids and the suppression hash alone.
+    const { createHash } = await import("node:crypto");
+    const erasure = log.find((e) => e.kind === "erasure" && e.ref_id === contactId);
+    expect(erasure?.payload_hash).toBe(
+      createHash("sha256")
+        .update(
+          JSON.stringify({
+            account_id: s.account_id,
+            contact_id: contactId,
+            email_hash: emailHash(email),
+          }),
+        )
+        .digest("hex"),
+    );
+    const text = JSON.stringify(log);
+    for (const pii of [email, "Mara", "+36 30 555 0101", "broken bowl"])
+      expect(text).not.toContain(pii);
+    for (const e of log) expect(e.payload_hash).toMatch(/^[0-9a-f]{64}$/);
+
+    // They write again: the suppression outranks the email — no contact comes back.
+    const again = await receiveInboundEmail(mail("Me again"), domain);
+    if (again.kind !== "filed") throw new Error("not filed");
+    expect(await db.select().from(contacts).where(eq(contacts.email, email))).toHaveLength(0);
+    const [second] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, again.ticket_id));
+    expect(second).toMatchObject({ contact_id: null, suppressed_address: true });
+
+    // And that ticket, too, is erasable on its own — never another account's.
+    const other = await fresh();
+    await expect(eraseTicket(other.account_id, again.ticket_id)).rejects.toMatchObject({
+      status: 404,
+    });
+    await eraseTicket(s.account_id, again.ticket_id);
+    expect(
+      await db
+        .select()
+        .from(supportEmailMessages)
+        .where(eq(supportEmailMessages.account_id, s.account_id)),
+    ).toHaveLength(0);
+    await db.delete(supportTickets).where(eq(supportTickets.account_id, s.account_id));
+    const { supportSettings } = await import("../../db/schema");
+    await db.delete(supportSettings).where(eq(supportSettings.profile_id, s.profile_id));
+  });
+});

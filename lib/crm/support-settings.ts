@@ -74,3 +74,20 @@ export async function rotateSiteKey(profileId: string): Promise<SupportSettingsR
   console.log(JSON.stringify({ event: "support_site_key_rotated", account_id: row.account_id }));
   return row;
 }
+
+/**
+ * P4-09: a new inbound routing token. Mail to the old address stops
+ * filing tickets the moment this returns (it is acknowledged and dropped),
+ * so the owner must update their forwarding rule.
+ */
+export async function rotateInboundToken(profileId: string): Promise<SupportSettingsRow> {
+  await ensureSupportSettings(profileId);
+  const [row] = await db
+    .update(supportSettings)
+    .set({ inbound_token: newSiteKey(), inbound_rotated_at: new Date().toISOString() })
+    .where(eq(supportSettings.profile_id, profileId))
+    .returning();
+  if (!row) throw new SupportSettingsError("no such profile", 404);
+  console.log(JSON.stringify({ event: "support_inbound_rotated", account_id: row.account_id }));
+  return row;
+}

@@ -372,3 +372,22 @@
     padding: 12px 12px 14px;
   }
 }
+
+/* P4-09 — email threads on a ticket */
+.sp-screen .sp-msg-subject {
+  margin: 0 0 4px;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-weight: 600;
+}
+.sp-screen .sp-emails {
+  margin-top: var(--s-3);
+}
+.sp-screen .sp-refused {
+  margin: var(--s-3) 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.sp-screen .sp-refused .word {
+  margin-right: var(--s-2);
+}

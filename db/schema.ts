@@ -1594,8 +1594,21 @@ export const supportSettings = pgTable(
       .notNull()
       .defaultNow(),
     rotated_at: timestamp("rotated_at", { withTimezone: true, mode: "string" }),
+    /**
+     * P4-09: the routing token in the inbound address s-<token>@<inbound
+     * domain>. 32 hex chars from Postgres's random uuid (122 random bits),
+     * unguessable, rotatable like the site key. Knowing it lets someone
+     * file a ticket, nothing more.
+     */
+    inbound_token: text("inbound_token")
+      .notNull()
+      .default(sql`replace(gen_random_uuid()::text, '-', '')`),
+    inbound_rotated_at: timestamp("inbound_rotated_at", { withTimezone: true, mode: "string" }),
   },
-  (t) => [uniqueIndex("support_settings_site_key_idx").on(t.site_key)],
+  (t) => [
+    uniqueIndex("support_settings_site_key_idx").on(t.site_key),
+    uniqueIndex("support_settings_inbound_token_idx").on(t.inbound_token),
+  ],
 );
 
 // knowledge_entries — P4-05. Every row was born from an APPROVED proposal
@@ -1699,14 +1712,18 @@ export const supportMessages = pgTable(
 
 // support_tickets — the ONE thing a support conversation can create
 // (rule 21). The reason is a closed set so the owner's screen can say
-// why a human was needed; contact_id arrives with Session C's email
-// tickets and is set null on erasure (rule 22).
+// why a human was needed; contact_id (Session C) is set null on erasure
+// (rule 22). Session C adds the channel: a ticket starts in the widget
+// (chat, with a conversation) or in the inbox (email, with none).
 export const supportTicketReason = pgEnum("support_ticket_reason", [
   "customer_asked",
   "no_answer",
   "cost_cap",
   "conversation_cap",
+  "emailed", // P4-09: the customer emailed the support inbox
 ]);
+
+export const supportChannel = pgEnum("support_channel", ["chat", "email"]);
 
 export const supportTicketStatus = pgEnum("support_ticket_status", ["open", "answered", "closed"]);
 
@@ -1738,6 +1755,74 @@ export const supportTickets = pgTable(
       .notNull()
       .defaultNow(),
     resolved_at: timestamp("resolved_at", { withTimezone: true, mode: "string" }),
+    /** P4-09: where the ticket started. */
+    channel: supportChannel("channel").notNull().default("chat"),
+    /**
+     * P4-09: 32 hex chars carried in the reply-to address of every email
+     * sent on this ticket (s-<inbound token>+<thread token>@…), so the
+     * customer's answer threads back even when their mail client drops
+     * In-Reply-To. Null until the ticket has an email side.
+     */
+    thread_token: text("thread_token"),
+    /**
+     * P4-09/P4-11: the address that reached this ticket (the sender, or the
+     * one given in the chat) is on the suppression list, so no contact was
+     * recreated for it and the gate refuses every reply (rules 22/23).
+     */
+    suppressed_address: boolean("suppressed_address").notNull().default(false),
   },
-  (t) => [index("support_tickets_profile_idx").on(t.profile_id, t.status, t.created_at)],
+  (t) => [
+    index("support_tickets_profile_idx").on(t.profile_id, t.status, t.created_at),
+    uniqueIndex("support_tickets_thread_token_idx").on(t.thread_token),
+    // One origin, coherent: an email ticket never has a widget conversation.
+    // A chat ticket may lose its conversation to an erasure (ON DELETE SET NULL).
+    check(
+      "support_tickets_email_has_no_conversation",
+      sql`${t.channel} <> 'email' OR ${t.conversation_id} IS NULL`,
+    ),
+  ],
+);
+
+// support_email_messages — P4-09. Every email on a ticket, in and out,
+// as plain erasable rows (rule 22): they carry addresses and customer
+// text, so they go with their ticket. provider_id is the provider's own
+// id — UNIQUE, so a redelivered webhook can never file the same email
+// twice. The headers kept are the ones threading needs.
+export const supportEmailDirection = pgEnum("support_email_direction", ["inbound", "outbound"]);
+
+export const supportEmailMessages = pgTable(
+  "support_email_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ticket_id: uuid("ticket_id")
+      .notNull()
+      .references(() => supportTickets.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    direction: supportEmailDirection("direction").notNull(),
+    /** Resend's email id (inbound: the received email; outbound: the sent one). */
+    provider_id: text("provider_id"),
+    /** The Message-ID header, angle brackets included, as the mail carried it. */
+    message_id_header: text("message_id_header"),
+    in_reply_to: text("in_reply_to"),
+    /** The References header, verbatim (space-separated ids). */
+    references_header: text("references_header"),
+    from_address: text("from_address").notNull(),
+    from_name: text("from_name"),
+    to_addresses: jsonb("to_addresses").$type<string[]>().notNull().default([]),
+    subject: text("subject").notNull().default(""),
+    /** Plain text, capped (SUPPORT_EMAIL_BODY_MAX_CHARS); `truncated` says when it was cut. */
+    body: text("body").notNull(),
+    truncated: boolean("truncated").notNull().default(false),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("support_email_messages_provider_idx").on(t.provider_id),
+    index("support_email_messages_ticket_idx").on(t.ticket_id, t.at),
+    index("support_email_messages_thread_idx").on(t.profile_id, t.message_id_header),
+  ],
 );

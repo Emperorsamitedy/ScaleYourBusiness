@@ -32,6 +32,9 @@ interface Settings {
   business_name: string;
   rotated_at: string | null;
   snippet: string;
+  /** s-<token>@<domain>, or null when no inbound domain is configured. */
+  inbound_address: string | null;
+  inbound_rotated_at: string | null;
 }
 
 interface Entry {
@@ -51,11 +54,28 @@ interface Publishable {
 interface Ticket {
   id: string;
   conversation_id: string | null;
+  contact_id: string | null;
+  channel: "chat" | "email";
   reason: TicketReason;
   summary: string;
   status: TicketStatus;
   answer: string | null;
   created_at: string;
+  /** The address is suppressed: the gate refuses every reply to it. */
+  suppressed_address: boolean;
+  /** The sender's name or address, for an email ticket. */
+  from: string | null;
+}
+
+interface Email {
+  id: string;
+  direction: "inbound" | "outbound";
+  from_address: string;
+  from_name: string | null;
+  subject: string;
+  body: string;
+  truncated: boolean;
+  at: string;
 }
 
 interface Conversation {
@@ -111,6 +131,9 @@ type State =
       transcript: Message[];
       /** Which conversation the transcript belongs to. */
       transcriptOf: string | null;
+      /** The selected ticket's email thread, and which ticket it belongs to. */
+      emails: Email[];
+      emailsOf: string | null;
       writing: boolean;
       question: string;
       answer: string;
@@ -174,6 +197,9 @@ export function SupportScreen() {
       open: cur.phase === "ready" ? cur.open : null,
       transcript: cur.phase === "ready" ? cur.transcript : [],
       transcriptOf: cur.phase === "ready" ? cur.transcriptOf : null,
+      emails: cur.phase === "ready" ? cur.emails : [],
+      // Re-read after every load: a send or a new email changes the thread.
+      emailsOf: null,
       writing: false,
       question: "",
       answer: "",
@@ -211,6 +237,26 @@ export function SupportScreen() {
       live = false;
     };
   }, [wantTranscript, haveTranscript]);
+
+  // The selected ticket's email thread (P4-09), when it has an email side.
+  const wantEmails = selected?.ticket ? selected.ticket.id : null;
+  const haveEmails = ready?.emailsOf ?? null;
+  useEffect(() => {
+    if (wantEmails === null || wantEmails === haveEmails) return;
+    let live = true;
+    void (async () => {
+      const res = await fetch(`/api/support?ticket=${encodeURIComponent(wantEmails)}`);
+      if (!res.ok) return;
+      const j = (await res.json()) as { emails: Email[] };
+      if (!live) return;
+      setState((cur) =>
+        cur.phase === "ready" ? { ...cur, emails: j.emails, emailsOf: wantEmails } : cur,
+      );
+    })();
+    return () => {
+      live = false;
+    };
+  }, [wantEmails, haveEmails]);
 
   if (state.phase === "loading") {
     return (
@@ -296,6 +342,7 @@ export function SupportScreen() {
   const ticket = selected?.ticket ?? null;
   const conversation = selected?.conversation ?? null;
   const transcript = conversation && s.transcriptOf === conversation.id ? s.transcript : [];
+  const emails = ticket && s.emailsOf === ticket.id ? s.emails : [];
   const typed = ticket ? (s.ticketAnswers[ticket.id] ?? "") : "";
 
   return (
@@ -511,7 +558,7 @@ export function SupportScreen() {
                         onClick={() => setState({ ...s, open: t.key, confirmErase: null })}
                       >
                         <span className="sp-thread-top">
-                          <span className="sp-who">Visitor</span>
+                          <span className="sp-who">{whoOf(t.ticket)}</span>
                           <span className="sp-when">{whenShort(t.at)}</span>
                         </span>
                         <span className="sp-what">
@@ -528,7 +575,13 @@ export function SupportScreen() {
               <div className="sp-thread-view" aria-live="polite">
                 {selected && (
                   <p className="sp-via">
-                    Visitor · {conversation ? "via the widget" : "a ticket"} ·{" "}
+                    {whoOf(ticket)} ·{" "}
+                    {conversation
+                      ? "via the widget"
+                      : ticket?.channel === "email"
+                        ? "by email"
+                        : "a ticket"}{" "}
+                    ·{" "}
                     {new Date(selected.at).toLocaleString("en-GB", {
                       day: "numeric",
                       month: "short",
@@ -558,6 +611,39 @@ export function SupportScreen() {
                     </li>
                   ))}
                 </ol>
+
+                {emails.length > 0 && (
+                  <ol className="sp-msgs sp-emails" aria-label="Emails">
+                    {emails.map((m) => (
+                      <li
+                        key={m.id}
+                        className={`sp-msg ${m.direction === "inbound" ? "customer" : "assistant"}`}
+                      >
+                        {m.subject && <p className="sp-msg-subject">{m.subject}</p>}
+                        {/* An email's words are text under discussion — rendered, never acted on (rule 24). */}
+                        <p className="sp-msg-text">{m.body}</p>
+                        {m.truncated && (
+                          <p className="sp-fine">
+                            This email was longer than I keep; I kept the first 20,000 characters.
+                          </p>
+                        )}
+                        <p className="sp-msg-meta">
+                          {m.direction === "inbound"
+                            ? (m.from_name ?? m.from_address)
+                            : "You, by email"}{" "}
+                          · {whenShort(m.at)}
+                        </p>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+                {ticket?.suppressed_address && (
+                  <p className="sp-box sp-refused">
+                    <span className="word alarm">replies refused</span> This address is on your
+                    suppression list (they unsubscribed or asked to be erased), so I won&rsquo;t
+                    send it anything. The ticket is here so you know they wrote.
+                  </p>
+                )}
 
                 {ticket && (
                   <div className="sp-box sp-handed">
@@ -646,6 +732,32 @@ export function SupportScreen() {
                       </>
                     ) : (
                       ticket.answer && <p className="sp-box-title">You said: {ticket.answer}</p>
+                    )}
+                  </div>
+                )}
+
+                {ticket && !conversation && (
+                  <div className="sp-erase">
+                    {/* GDPR erasure (rule 22): irreversible, so it asks twice. */}
+                    <button
+                      type="button"
+                      className={s.confirmErase === ticket.id ? "prop-btn" : "prop-btn quiet"}
+                      disabled={s.busy}
+                      onClick={() =>
+                        s.confirmErase === ticket.id
+                          ? void act(
+                              { action: "erase_ticket", ticket_id: ticket.id },
+                              "The ticket and its emails are erased. The log records only that it happened.",
+                            )
+                          : setState({ ...s, confirmErase: ticket.id })
+                      }
+                    >
+                      {s.confirmErase === ticket.id ? "Erase permanently" : "Erase this ticket"}
+                    </button>
+                    {s.confirmErase === ticket.id && (
+                      <span className="sp-fine">
+                        It cannot be undone. The log keeps only that it happened.
+                      </span>
                     )}
                   </div>
                 )}
@@ -747,8 +859,63 @@ export function SupportScreen() {
           not your connections, and it cannot change anything.
         </footer>
       </section>
+
+      {/* ── the support inbox (P4-09) ── */}
+      <section className="cs sp-widget" aria-labelledby="sp-inbox-title">
+        <header className="cs-head">
+          <div>
+            <p className="cs-label">Support email</p>
+            <h2 className="cs-title" id="sp-inbox-title">
+              Emails to your support address become tickets here
+            </h2>
+          </div>
+        </header>
+        <div className="cs-body">
+          {!s.settings ? (
+            <p className="sp-prose">Enable the assistant above first; that creates your address.</p>
+          ) : s.settings.inbound_address ? (
+            <>
+              <p className="sp-prose">
+                Forward your support mailbox to this address. Every email becomes a ticket here,
+                threaded with its replies. Nothing is answered automatically: you see each one, and
+                nothing goes back without your click.
+              </p>
+              <pre className="sp-snippet">{s.settings.inbound_address}</pre>
+              <div className="sp-row">
+                <button
+                  type="button"
+                  className="prop-btn"
+                  disabled={s.busy}
+                  onClick={() =>
+                    void act(
+                      { action: "rotate_inbound" },
+                      "New address. Mail to the old one is dropped from now on, so update your forwarding.",
+                    )
+                  }
+                >
+                  Change the address
+                </button>
+                <span className="sp-fine">
+                  Only someone who knows it can file a ticket. Change it if it leaks.
+                </span>
+              </div>
+            </>
+          ) : (
+            <p className="sp-prose">
+              Not set up yet: support email needs the inbound domain and the webhook connected in
+              Resend. Until then no email reaches this screen.
+            </p>
+          )}
+        </div>
+      </section>
     </main>
   );
+}
+
+/** Who a thread is from, in words: the emailer's name or address, else a widget visitor. */
+function whoOf(ticket: Ticket | null): string {
+  if (ticket?.from) return ticket.from;
+  return ticket?.channel === "email" ? "Emailer" : "Visitor";
 }
 
 function EntryRow({ e, busy, onRetire }: { e: Entry; busy: boolean; onRetire?: () => void }) {

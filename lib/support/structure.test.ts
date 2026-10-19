@@ -17,6 +17,11 @@ const ENTRY_POINTS = [
   "lib/support/settings.ts",
   "lib/support/tickets.ts",
   "app/api/support/public/route.ts",
+  // P4-09: the inbound-email webhook — anyone can email a business.
+  "app/api/support/inbound/route.ts",
+  "lib/support/inbound.ts",
+  "lib/support/email-tickets.ts",
+  "lib/support/support-contact.ts",
 ];
 
 /** Anything under these may never be reached from the support tier. */
@@ -99,6 +104,7 @@ describe("P4-08 — rule 21, held by the module graph", () => {
       (file) =>
         file.startsWith("lib/support/") ||
         file.startsWith("app/api/support/public/") ||
+        file.startsWith("app/api/support/inbound/") ||
         file.startsWith("db/") ||
         file.startsWith("lib/llm/") ||
         file === "lib/env.ts" ||
@@ -115,5 +121,13 @@ describe("P4-08 — rule 21, held by the module graph", () => {
     expect(source).not.toMatch(/cookies\(/);
     expect(source).not.toMatch(/set-cookie/i);
     expect(source).toMatch(/Access-Control-Allow-Origin/);
+  });
+
+  it("P4-09: the inbound webhook sets no cookie, reads none, and verifies before it reads", () => {
+    const source = readFileSync(path.resolve(ROOT, "app/api/support/inbound/route.ts"), "utf8");
+    expect(source).not.toMatch(/cookies\(/);
+    expect(source).not.toMatch(/set-cookie/i);
+    expect(source.indexOf("verifyWebhook(")).toBeGreaterThan(0);
+    expect(source.indexOf("verifyWebhook(")).toBeLessThan(source.indexOf("JSON.parse("));
   });
 });

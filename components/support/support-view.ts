@@ -3,7 +3,8 @@
 // is worded in the list. Counted from what the API returns; nothing here
 // reads a customer's message as anything but text (rule 24).
 
-export type TicketReason = "customer_asked" | "no_answer" | "cost_cap" | "conversation_cap";
+export type TicketReason =
+  "customer_asked" | "no_answer" | "cost_cap" | "conversation_cap" | "emailed";
 export type TicketStatus = "open" | "answered" | "closed";
 export type ConversationStatus = "open" | "escalated" | "closed";
 
@@ -12,6 +13,7 @@ export const REASON_WORD: Record<TicketReason, string> = {
   no_answer: "no approved answer",
   cost_cap: "spend cap reached",
   conversation_cap: "conversation ran long",
+  emailed: "emailed you",
 };
 
 export function supportHeadline(publicAnswers: number): string {
