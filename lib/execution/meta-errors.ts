@@ -54,6 +54,23 @@ const AUTH_SUBCODE_REASON: Readonly<Record<number, string>> = {
 };
 
 /**
+ * P3-24b: what every piece of work held up by a paused connection says —
+ * the one sentence, whichever item or change it is, so /content, the
+ * attempt journal and the watch log tell the owner the same thing. The
+ * connection itself carries the classified sentence (why it stopped).
+ */
+export const PAUSED_WORK_SENTENCE: Readonly<Record<"publish" | "ad_change", string>> = {
+  publish: "I couldn't post — the connection expired. Reconnect and I'll pick up where I left off.",
+  ad_change:
+    "I couldn't change the ad — the connection expired. Reconnect and I'll pick up where I left off.",
+};
+
+/** P3-24b: a refusal that pauses the execute connection itself — the auth class, and only it. */
+export function pausesConnection(failure: Pick<MetaFailure, "kind">): boolean {
+  return failure.kind === "auth";
+}
+
+/**
  * Pure: one Meta response (or a failed request: status 0, no code) as the
  * failure the system acts on. Never throws; unknown codes get the default.
  */

@@ -15,6 +15,8 @@
 //   sawTier            P3-22d: the access tier Meta last reported, on the
 //                      execute connection (migration 0043)
 //   changed            one watch-log line the owner can read
+//   paused             P3-24b: Meta refused the sign-in — the ad connection
+//                      pauses itself (lib/execution/pause.ts)
 //
 // And adsPlan: the due runner's route for an ad proposal, built from the
 // approved proposal row — never from a client. The op follows the change
@@ -24,6 +26,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { connections, executions, watchActivity } from "../../db/schema";
 import { activeExecutionConnection, executionSecret } from "../execution/connections";
+import { pauseExecutionConnection } from "../execution/pause";
 import type { DispatchPlan } from "../execution/due";
 import type { AdsBackend } from "../execution/providers/meta";
 import { parseMetaExecutionCredential } from "../execution/providers/meta";
@@ -179,6 +182,15 @@ export function dbAdsBackend(opts: { now?: () => Date } = {}): AdsBackend {
         kind: "ad_changed",
         detail,
         meta,
+      });
+    },
+
+    async paused({ account_id, failure }) {
+      await pauseExecutionConnection({
+        accountId: account_id,
+        provider: "meta_ads",
+        failure,
+        source: "ad_change",
       });
     },
   };

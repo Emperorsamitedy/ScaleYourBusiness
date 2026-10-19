@@ -41,12 +41,23 @@
 // BACK (P3-21d) — never by posting it again. A proposal with an execution
 // row is never selected here, so the read-back is the only way back.
 //
+// D5 (P3-24b/c): a run journaled `failed` with a HOLD is the one exception
+// to "never re-run". held_for "reconnect" (its connection failed sign-in and
+// paused itself) and "stop" (the emergency stop came on mid-run, before
+// anything was sent) are selected again, and once the cause has cleared
+// they go back through executeProposal — every guard re-evaluated, the
+// real-write gate, the pre-flight and the schedule included. Before that,
+// the sweep resumes any work a reconnect has freed (resumeAfterReconnect),
+// and anything routed to a PAUSED connection is skipped as `paused` —
+// nothing is sent, and an item approved since the pause is held the same
+// way as the rest.
+//
 // Scheduling precision is the hosting decision recorded in
 // TASKS-PHASE3.md: Vercel Hobby runs this once a day with ±59 minutes
 // of slack; Pro runs it every minute. The runner is the same either way.
 
 import { logSafeError } from "../core/log-safe";
-import { and, eq, isNotNull, isNull, lte } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, lte, or } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, executions, proposals } from "../../db/schema";
 import type { ProposalRow } from "../proposals/service";
@@ -57,7 +68,10 @@ import { isPublishProposal } from "../content/publish";
 import { adsPlan, isAdProposal } from "../ads/executing";
 import { applySiteChange } from "../site/apply";
 import { SiteChangeError } from "../site/changes";
+import { activeExecutionConnection } from "./connections";
 import { ExecutionRefused, executeProposal, isHalted } from "./engine";
+import type { ResumeOutcome } from "./pause";
+import { holdQueuedForPausedConnection, isPausableProvider, resumeAfterReconnect } from "./pause";
 import type { ExecutionProvider } from "./providers/fixture";
 import { executionProvider } from "./providers/index";
 import type { MetaPublishProvider } from "./providers/meta";
@@ -86,7 +100,7 @@ export function preboundPlan(proposal: ProposalRow): DispatchPlan | null {
   return { provider, op, params: (params as Record<string, unknown> | undefined) ?? {} };
 }
 
-export type DueResult = "executed" | "failed" | "refused" | "halted" | "unroutable";
+export type DueResult = "executed" | "failed" | "refused" | "halted" | "paused" | "unroutable";
 
 export interface DueOutcome {
   proposal_id: string;
@@ -105,9 +119,13 @@ export interface DueRunSummary {
   failed: number;
   refused: number;
   halted: number;
+  /** P3-24b: routed to an execute connection that paused itself — skipped, nothing sent. */
+  paused: number;
   unroutable: number;
   /** P3-21d: items a dead or failed run left `publishing`, read back. */
   reconciled: ReconcileSummary;
+  /** P3-24b: work a reconnect freed, put back in motion before anything ran. */
+  resumed: ResumeOutcome[];
   outcomes: DueOutcome[];
 }
 
@@ -137,12 +155,17 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     failed: 0,
     refused: 0,
     halted: 0,
+    paused: 0,
     unroutable: 0,
     reconciled: { checked: 0, published: 0, not_sent: 0, uncertain: 0 },
+    resumed: [],
     outcomes: [],
   };
 
   summary.expired = await expireAllDueProposals(now());
+  summary.resumed = await resumeAfterReconnect(
+    opts.profileId ? { accountId: await accountOf(opts.profileId) } : {},
+  );
   summary.reconciled = await reconcilePublishing({
     now,
     ...(opts.profileId ? { profileId: opts.profileId } : {}),
@@ -153,7 +176,8 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     eq(proposals.status, "approved"),
     isNotNull(proposals.execute_not_before),
     lte(proposals.execute_not_before, now().toISOString()),
-    isNull(executions.id),
+    // Never run before — or failed only because it was held (P3-24b/c).
+    or(isNull(executions.id), and(eq(executions.status, "failed"), isNotNull(executions.held_for))),
   ];
   if (opts.profileId) conditions.push(eq(proposals.profile_id, opts.profileId));
 
@@ -192,11 +216,26 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
       failed: summary.failed,
       refused: summary.refused,
       halted: summary.halted,
+      paused: summary.paused,
       unroutable: summary.unroutable,
       reconciled: summary.reconciled,
+      resumed: summary.resumed.length,
     }),
   );
   return summary;
+}
+
+const PAUSED_DETAIL = {
+  meta_publish: "The Meta publishing connection is paused",
+  meta_ads: "The Meta ad connection is paused",
+} as const;
+
+async function accountOf(profileId: string): Promise<string> {
+  const [row] = await db
+    .select({ account_id: businessProfiles.account_id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.id, profileId));
+  return row?.account_id ?? "00000000-0000-0000-0000-000000000000";
 }
 
 async function runOne(
@@ -232,6 +271,20 @@ async function runOne(
         return { ...base, result: "unroutable", detail: `${routed.unroutable} — left approved` };
       }
       plan = routed.plan;
+    }
+    if (plan && isPausableProvider(plan.provider)) {
+      // P3-24b: nothing retries on a paused connection until the reconnect.
+      const conn = await activeExecutionConnection(accountId, plan.provider);
+      if (conn?.status === "paused") {
+        if (plan.provider === "meta_publish") {
+          await holdQueuedForPausedConnection(accountId, conn.id);
+        }
+        return {
+          ...base,
+          result: "paused",
+          detail: `${PAUSED_DETAIL[plan.provider]}. ${conn.last_error ?? "Reconnect it on Connections."} Nothing was sent.`,
+        };
+      }
     }
     if (plan) {
       const execution = await executeProposal({

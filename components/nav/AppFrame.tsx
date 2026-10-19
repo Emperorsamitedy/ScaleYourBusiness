@@ -31,6 +31,16 @@ interface Group {
 
 const n = (v: number) => (v > 0 ? String(v) : null);
 
+/**
+ * P3-24b: a write connection that paused itself needs the owner, so the
+ * count beside Connections says so ("1 paused") until it is reconnected;
+ * otherwise it is the connected count, as before.
+ */
+export function connectionsCount(c: Pick<NavCounts, "connections" | "needs_reconnect">) {
+  const paused = c.needs_reconnect ?? 0;
+  return paused > 0 ? `${paused} paused` : n(c.connections);
+}
+
 export const GROUPS: readonly Group[] = [
   {
     key: "approve",
@@ -73,7 +83,7 @@ export const GROUPS: readonly Group[] = [
     label: "Your business",
     items: [
       { href: "/profile", label: "Fact sheet", count: (c) => n(c.facts) },
-      { href: "/connections", label: "Connections", count: (c) => n(c.connections) },
+      { href: "/connections", label: "Connections", count: connectionsCount },
       { href: "/mode", label: "How I work" },
       { href: "/history", label: "History" },
     ],

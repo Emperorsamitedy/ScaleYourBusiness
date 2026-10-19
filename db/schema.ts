@@ -1269,10 +1269,24 @@ export const executions = pgTable(
     finished_at: timestamp("finished_at", { withTimezone: true, mode: "string" }),
     undone_at: timestamp("undone_at", { withTimezone: true, mode: "string" }),
     undone_by: uuid("undone_by").references(() => users.id),
+    /**
+     * P3-24b/c (migration 0044): why a FAILED run is waiting rather than
+     * finished. "reconnect" = it failed only because its execute connection
+     * failed authentication and paused itself; "stop" = the emergency stop
+     * came on mid-run, before anything was sent. Either way the due runner
+     * picks it up again once the cause clears (a reconnect, a resume) and
+     * the engine re-runs it through every guard; the reclaim clears it.
+     * Null for every other failure, which stays for a human (P3-20e).
+     */
+    held_for: text("held_for"),
   },
   (t) => [
     uniqueIndex("executions_proposal_idx").on(t.proposal_id),
     index("executions_profile_idx").on(t.profile_id, t.started_at),
+    check(
+      "executions_held_for_known",
+      sql`${t.held_for} IS NULL OR (${t.held_for} IN ('reconnect', 'stop') AND ${t.status} = 'failed')`,
+    ),
   ],
 );
 
@@ -1291,6 +1305,15 @@ export const executionAttempts = pgTable(
     duration_ms: integer("duration_ms").notNull(),
     ok: boolean("ok").notNull(),
     error: text("error"),
+    /**
+     * P3-24d (migration 0044): the rate-limit usage the platform reported on
+     * this attempt's own requests — for Meta, every request's X-App-Usage,
+     * X-Business-Use-Case-Usage, X-Ad-Account-Usage and
+     * X-FB-Ads-Insights-Throttle as parsed JSON, the highest percentage, and
+     * the access tier. Null for a provider with no such headers (the
+     * fixtures). Never a token.
+     */
+    usage: jsonb("usage"),
   },
   (t) => [index("execution_attempts_execution_idx").on(t.execution_id, t.attempt)],
 );
@@ -1428,6 +1451,14 @@ export const contentItems = pgTable(
      * back, never by posting again.
      */
     publish_attempt: jsonb("publish_attempt"),
+    /**
+     * P3-24b (migration 0044): the execute connection whose failed sign-in
+     * paused it. Set only on a `failed` item that never went out — queued
+     * when the connection paused itself, or refused definitively by Meta's
+     * auth error — so a reconnect puts it back in the queue. Never set on
+     * anything `publishing`: a post that may be live is read back, not re-run.
+     */
+    paused_connection_id: uuid("paused_connection_id").references(() => connections.id),
   },
   (t) => [
     index("content_items_profile_idx").on(t.profile_id, t.scheduled_for),
@@ -1443,6 +1474,10 @@ export const contentItems = pgTable(
     check(
       "content_items_failed_has_error",
       sql`${t.status} <> 'failed' OR ${t.last_error} IS NOT NULL`,
+    ),
+    check(
+      "content_items_paused_is_failed",
+      sql`${t.paused_connection_id} IS NULL OR ${t.status} = 'failed'`,
     ),
   ],
 );

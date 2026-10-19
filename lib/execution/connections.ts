@@ -14,7 +14,7 @@
 // scopes, encrypt, store. A credential that fails either check never
 // touches the database. Nothing here returns a row with the secret on it.
 
-import { and, eq, ne } from "drizzle-orm";
+import { and, count, eq, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { connections } from "../../db/schema";
 import { decryptSecret, encryptSecret } from "../connectors/secrets";
@@ -123,7 +123,10 @@ export async function connectForExecution(
   if (args.secret.trim() === "") {
     throw new ExecutionConnectionError("a credential is required", 400);
   }
-  if (await activeExecutionConnection(args.accountId, provider)) {
+  // P3-24b: a PAUSED connection is the one exception — reconnecting is how
+  // the owner un-pauses it. Anything else live must be disconnected first.
+  const existing = await activeExecutionConnection(args.accountId, provider);
+  if (existing && existing.status !== "paused") {
     throw new ExecutionConnectionError(
       `${EXECUTION_SCOPE_REGISTRY[provider].label} is already connected for execution — disconnect it first`,
       409,
@@ -133,17 +136,42 @@ export async function connectForExecution(
   const proof = await args.verify(args.secret);
   verifyExecutionScopes(provider, proof.granted_scopes);
 
-  const [row] = await db
-    .insert(connections)
-    .values({
-      account_id: args.accountId,
-      provider,
-      purpose: "execute",
-      status: "connected",
-      encrypted_secret: encryptSecret(args.secret),
-      granted_scopes: unique(proof.granted_scopes),
-    })
-    .returning();
+  // A reconnect retires the paused row (secret wiped, row kept for every
+  // execution and readback row that cites it) and stores the new credential
+  // as a fresh row, in one transaction: there is never a moment with two
+  // live rows, or none. The work the pause held resumes from the journal
+  // (lib/execution/pause.ts) once the consent is on record.
+  const row = await db.transaction(async (tx) => {
+    if (existing) {
+      const retired = await tx
+        .update(connections)
+        .set({
+          status: "disconnected",
+          encrypted_secret: null,
+          disconnected_at: new Date().toISOString(),
+        })
+        .where(and(eq(connections.id, existing.id), eq(connections.status, "paused")))
+        .returning({ id: connections.id });
+      if (retired.length !== 1) {
+        throw new ExecutionConnectionError(
+          `${EXECUTION_SCOPE_REGISTRY[provider].label} changed while reconnecting — try again`,
+          409,
+        );
+      }
+    }
+    const [inserted] = await tx
+      .insert(connections)
+      .values({
+        account_id: args.accountId,
+        provider,
+        purpose: "execute",
+        status: "connected",
+        encrypted_secret: encryptSecret(args.secret),
+        granted_scopes: unique(proof.granted_scopes),
+      })
+      .returning();
+    return inserted;
+  });
   if (!row) throw new ExecutionConnectionError("connection could not be stored", 500);
   console.log(
     JSON.stringify({
@@ -151,6 +179,7 @@ export async function connectForExecution(
       account_id: args.accountId,
       provider,
       connection_id: row.id,
+      ...(existing ? { replaced_paused: existing.id } : {}),
     }),
   );
   return toPublicExecutionConnection(row);
@@ -194,4 +223,23 @@ export async function listExecutionConnections(
     .where(and(eq(connections.account_id, accountId), eq(connections.purpose, "execute")))
     .orderBy(connections.created_at);
   return rows.map(toPublicExecutionConnection);
+}
+
+/**
+ * P3-24b: write connections on the account that paused themselves because
+ * Meta refused their sign-in — the needs-you flag beside Connections in the
+ * menu (/api/nav), until the owner reconnects.
+ */
+export async function countPausedExecutionConnections(accountId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: count() })
+    .from(connections)
+    .where(
+      and(
+        eq(connections.account_id, accountId),
+        eq(connections.purpose, "execute"),
+        eq(connections.status, "paused"),
+      ),
+    );
+  return Number(row?.n ?? 0);
 }

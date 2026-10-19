@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GROUPS, groupFor, showsNav } from "./AppFrame";
+import { GROUPS, connectionsCount, groupFor, showsNav } from "./AppFrame";
 
 // The owner's menu design: five labelled groups, every owner screen in one.
 describe("app navigation", () => {
@@ -30,5 +30,15 @@ describe("app navigation", () => {
     for (const p of ["/report", "/proposals", "/", "/intake", "/login", "/ops", "/support/test"]) {
       expect(showsNav(p)).toBe(false);
     }
+  });
+
+  // P3-24b: the needs-you flag is a count beside an item, in words, no icon.
+  it("says how many write connections paused themselves beside Connections, else the connected count", () => {
+    expect(connectionsCount({ connections: 3, needs_reconnect: 1 })).toBe("1 paused");
+    expect(connectionsCount({ connections: 3, needs_reconnect: 2 })).toBe("2 paused");
+    expect(connectionsCount({ connections: 3, needs_reconnect: 0 })).toBe("3");
+    expect(connectionsCount({ connections: 0, needs_reconnect: 0 })).toBeNull();
+    const item = GROUPS.flatMap((g) => g.items).find((i) => i.href === "/connections");
+    expect(item?.count).toBe(connectionsCount);
   });
 });

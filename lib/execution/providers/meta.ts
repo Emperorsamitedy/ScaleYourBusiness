@@ -47,6 +47,17 @@
 // disclosure enforced at the one request choke point (rule 17), no native
 // scheduling, at-most-once with a read-back reconcile, undo by deletion.
 //
+// FAILURE HONESTY (P3-24b/c/d). A sign-in Meta refuses (the auth class)
+// pauses the execute connection through the backend's `paused`, and the
+// run waits for the reconnect (ConnectionPausedError, held "reconnect");
+// the emergency stop is checked before every step that sends, and a stop
+// seen before the step that makes anything public refuses it (StopError,
+// held "stop"), the item returned to the queue untouched by Meta; every
+// response's rate-limit usage headers are noted on the engine's attempt
+// row (attempt-usage.ts); and each publish attempt ends in exactly one
+// `content_publish` log line with the account, platform, item, attempt and
+// outcome — never a token.
+//
 // FACEBOOK LOGIN (P3-20j). The same helper — the same retry cap, timeout
 // and error taxonomy — serves the tester sign-in: the code exchange, the
 // long-lived swap, and the two candidate lists (/me/accounts for Pages and
@@ -71,8 +82,9 @@ import {
   spendGuard,
   toMetaBudget,
 } from "../../ads/guard";
+import { noteRequestUsage } from "../attempt-usage";
 import type { MetaFailure } from "../meta-errors";
-import { classifyMetaError } from "../meta-errors";
+import { PAUSED_WORK_SENTENCE, classifyMetaError, pausesConnection } from "../meta-errors";
 import type { CredentialVerifier } from "../verify";
 import { ExecutionConnectionError, verifyExecutionScopes } from "../verify";
 import { touchesMoneySurface } from "../scopes";
@@ -312,6 +324,51 @@ export class MetaNoAnswerError extends Error {
   }
 }
 
+/**
+ * P3-24b: Meta refused the connection's sign-in (the auth class). The
+ * connection has paused itself; this run waits for the reconnect (the
+ * engine journals it held "reconnect") and nothing retries before then.
+ * The message is the one owner sentence for held work.
+ */
+export class ConnectionPausedError extends Error {
+  readonly retryable = false;
+  readonly held_for = "reconnect" as const;
+  readonly failure: MetaFailure;
+  constructor(failure: MetaFailure, subject: "publish" | "ad_change") {
+    super(PAUSED_WORK_SENTENCE[subject]);
+    this.name = "ConnectionPausedError";
+    this.failure = failure;
+  }
+}
+
+/**
+ * P3-24c: the emergency stop came on between two steps of one publish or
+ * ad change, before the step that makes anything public. Nothing more is
+ * sent; the engine journals the run held "stop" and it goes out — through
+ * every guard again — after the owner resumes.
+ */
+export class StopError extends Error {
+  readonly retryable = false;
+  readonly held_for = "stop" as const;
+  constructor(message: string) {
+    super(message);
+    this.name = "StopError";
+  }
+}
+
+export const STOPPED_BEFORE_PUBLISH =
+  "The emergency stop came on before this went out. Nothing was published; it goes out after you resume.";
+export const STOPPED_BEFORE_CHANGE =
+  "The emergency stop came on before this change was sent. Nothing was changed; it goes ahead after you resume.";
+
+/** Throws StopError when the engine says the stop is on. No check offered = nothing to check. */
+async function checkStop(
+  halted: (() => Promise<boolean>) | undefined,
+  sentence: string,
+): Promise<void> {
+  if (halted && (await halted())) throw new StopError(sentence);
+}
+
 interface CallOptions {
   /**
    * A call that makes something public. Silence is never retried: a
@@ -414,6 +471,24 @@ export function adsAccessTier(header: (name: string) => string | null): string |
   return null;
 }
 
+/** The rate-limit headers Meta may send on any response (P3-21d, P3-22d). */
+export const META_USAGE_HEADERS = [
+  "x-app-usage",
+  "x-business-use-case-usage",
+  ...META_ADS_USAGE_HEADERS,
+] as const;
+
+/** P3-24d, pure: each usage header Meta sent, as parsed JSON (unparseable ones verbatim, capped). */
+export function usageHeaders(header: (name: string) => string | null): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const name of META_USAGE_HEADERS) {
+    const raw = header(name);
+    if (raw === null || raw === "") continue;
+    out[name] = parseHeader(raw) ?? raw.slice(0, 500);
+  }
+  return out;
+}
+
 async function metaCall(
   ctx: Context,
   auth: MetaAuth,
@@ -479,6 +554,13 @@ async function metaCall(
     const read = (n: string) => response.header?.(n) ?? null;
     const usage = response.header ? usagePercent(read) : null;
     const tier = response.header ? adsAccessTier(read) : null;
+    // P3-24d: every response's usage headers, onto the engine's attempt row.
+    noteRequestUsage({
+      request: which,
+      usage_pct: usage,
+      access_tier: tier,
+      headers: response.header ? usageHeaders(read) : {},
+    });
     if (usage !== null || tier !== null) {
       console.log(
         JSON.stringify({
@@ -664,6 +746,8 @@ export interface MetaExecution {
     media: readonly string[];
     caption: string;
     account_id: string;
+    /** P3-24c: the emergency stop, checked before every container and before media_publish. */
+    halted?: () => Promise<boolean>;
   }): Promise<PublishedPost>;
 }
 
@@ -878,6 +962,21 @@ export interface PublishBackend {
   /** Status untouched; the sentence shows on /content. */
   deferred(itemId: string, sentence: string): Promise<void>;
   withdrawn(item: PublishItem, platform: PublishPlatform, accountId: string): Promise<void>;
+  /**
+   * P3-24b: Meta refused the connection's sign-in. Pause the execute
+   * connection and hold every queued item on it (and `item_id`, already
+   * failed) for the reconnect.
+   */
+  paused(args: {
+    account_id: string;
+    failure: MetaFailure;
+    item_id?: string | null;
+  }): Promise<void>;
+  /**
+   * P3-24c: publishing → queued, only while nothing was sent (no sent_at):
+   * the stop came on between steps, before the one that makes it public.
+   */
+  unclaim(itemId: string, sentence: string): Promise<void>;
 }
 
 /**
@@ -997,7 +1096,11 @@ interface PublishHooks {
   account_id: string;
   /** Record progress before the next step: sent_at goes down BEFORE the publishing call. */
   note(patch: Partial<PublishAttempt>): Promise<void>;
+  /** P3-24c: is the emergency stop on? Checked before every step that sends. */
+  halted?: () => Promise<boolean>;
 }
+
+const stopBeforePublish = (hooks: PublishHooks) => checkStop(hooks.halted, STOPPED_BEFORE_PUBLISH);
 
 /** The Page token, derived from the verified system-user token, and the usage Meta reported. */
 async function pageAccess(
@@ -1067,6 +1170,7 @@ async function publishFacebook(
   const reach = `Page ${pageId}`;
 
   if (op === "publish_page_post") {
+    await stopBeforePublish(hooks);
     await hooks.note({ sent_at: new Date().toISOString() });
     const fields = args.link ? { message: caption, link: args.link } : { message: caption };
     const body = await metaRequest(ctx, bearer, "page_feed", page, fields, reach, {
@@ -1086,6 +1190,7 @@ async function publishFacebook(
   if (mediaUrl === null) throw new PublishError("this post has no media — nothing was sent");
 
   if (op === "publish_page_photo") {
+    await stopBeforePublish(hooks);
     await hooks.note({ sent_at: new Date().toISOString() });
     const body = await metaRequest(
       ctx,
@@ -1106,6 +1211,7 @@ async function publishFacebook(
   }
 
   // publish_page_video — a Reel, by Meta's resumable upload: start, upload by URL, finish.
+  await stopBeforePublish(hooks);
   const start = await metaRequest(
     ctx,
     bearer,
@@ -1120,6 +1226,7 @@ async function publishFacebook(
     throw new PublishError("Facebook didn't open an upload for the Reel. Nothing was published.");
   }
   await hooks.note({ video_id: videoId });
+  await stopBeforePublish(hooks);
   const uploaded = await metaRequest(
     ctx,
     { oauth: pageToken, headers: { file_url: mediaUrl } },
@@ -1132,6 +1239,7 @@ async function publishFacebook(
   if (uploaded["success"] !== true) {
     throw new PublishError("Facebook didn't take the Reel's upload. Nothing was published.");
   }
+  await stopBeforePublish(hooks);
   await hooks.note({ sent_at: new Date().toISOString() });
   const finished = await metaRequest(
     ctx,
@@ -1240,6 +1348,7 @@ async function publishInstagram(
   let creation: string;
   const first = kinds[0] as { url: string; kind: MediaKind };
   if (kinds.length === 1) {
+    await stopBeforePublish(hooks);
     creation = await igContainer(
       ctx,
       token,
@@ -1252,6 +1361,8 @@ async function publishInstagram(
   } else {
     const children: string[] = [];
     for (const m of kinds) {
+      // P3-24c: the stop before every child, and before the parent.
+      await stopBeforePublish(hooks);
       const child = await igContainer(
         ctx,
         token,
@@ -1264,6 +1375,7 @@ async function publishInstagram(
       await igWaitFinished(ctx, token, child, hooks.account_id);
       children.push(child);
     }
+    await stopBeforePublish(hooks);
     creation = await igContainer(
       ctx,
       token,
@@ -1275,6 +1387,9 @@ async function publishInstagram(
   await hooks.note({ container_id: creation });
   await igWaitFinished(ctx, token, creation, hooks.account_id);
 
+  // The last check, before media_publish: a stop seen here leaves every
+  // container unpublished, and Meta discards an unpublished container itself.
+  await stopBeforePublish(hooks);
   await hooks.note({ sent_at: new Date().toISOString() });
   const published = await metaRequest(
     ctx,
@@ -1497,11 +1612,16 @@ function publishProvider(
     b: PublishBackend,
     outcome: ReconcileOutcome,
     item: PublishItem,
-    accountId: string,
+    pctx: ExecutionContext,
+    platform: PublishPlatform,
   ): Promise<PublishedPost> {
+    const accountId = pctx.account_id;
     logPublish({
       account_id: accountId,
+      platform,
       item_id: item.id,
+      execution_id: pctx.execution_id ?? null,
+      attempt: pctx.attempt ?? null,
       phase: "reconcile",
       outcome: outcome.kind,
     });
@@ -1603,6 +1723,19 @@ function publishProvider(
         }
         return null;
       } catch (error) {
+        if (error instanceof MetaRequestError && pausesConnection(error.failure)) {
+          // P3-24b: the sign-in is gone. The connection pauses itself and
+          // this item, with every other queued one, waits for the reconnect.
+          await b.paused({ account_id: pctx.account_id, failure: error.failure });
+          logPublish({
+            account_id: pctx.account_id,
+            platform: p.platform,
+            item_id: item.id,
+            phase: "preflight",
+            outcome: "paused",
+          });
+          return { code: "refused", message: PAUSED_WORK_SENTENCE.publish };
+        }
         if (error instanceof MetaRequestError) {
           return refuse({
             code: error.failure.retryable ? "deferred" : "refused",
@@ -1652,7 +1785,7 @@ function publishProvider(
           item,
           accountId: pctx.account_id,
         });
-        return settle(b, outcome, item, pctx.account_id);
+        return settle(b, outcome, item, pctx, p.platform);
       }
       if (item.status !== "drafted" && item.status !== "queued") {
         throw new PublishError(`it is ${item.status}, so it isn't published — nothing was sent`);
@@ -1672,13 +1805,16 @@ function publishProvider(
           Object.assign(attempt, patch);
           await b.note(item.id, attempt);
         },
+        ...(pctx.halted ? { halted: pctx.halted } : {}),
       };
+      // P3-24d: exactly one of these per publish attempt, whatever the end.
       const log = (outcome: string) =>
         logPublish({
           account_id: pctx.account_id,
+          platform: p.platform,
           item_id: item.id,
           execution_id: pctx.execution_id ?? null,
-          platform: p.platform,
+          attempt: pctx.attempt ?? null,
           op: publishOp,
           phase: "publish",
           outcome,
@@ -1714,6 +1850,13 @@ function publishProvider(
         return post;
       } catch (error) {
         if (error instanceof PublishError && error.retryable) throw error;
+        // P3-24c: the stop came on between steps. Checked before sent_at is
+        // written, so nothing public went out: back to the queue, held "stop".
+        if (error instanceof StopError) {
+          await b.unclaim(item.id, error.message);
+          log("halted");
+          throw error;
+        }
         // No usable answer to the publishing call, or our own failure after
         // it was sent: it may be up. Stay `publishing`; the engine's next
         // attempt — or the next sweep — reads back instead of re-sending.
@@ -1725,6 +1868,15 @@ function publishProvider(
           await b.uncertain(item.id, MAY_HAVE_POSTED[p.platform]);
           log("no_answer");
           throw new PublishError(MAY_HAVE_POSTED[p.platform], true);
+        }
+        // P3-24b: Meta refused the sign-in — an answer, so nothing went out.
+        // The item fails with the one sentence, the connection pauses itself
+        // and holds everything queued on it, and the run waits for the reconnect.
+        if (error instanceof MetaRequestError && pausesConnection(error.failure)) {
+          await b.failed(item.id, PAUSED_WORK_SENTENCE.publish);
+          await b.paused({ account_id: pctx.account_id, failure: error.failure, item_id: item.id });
+          log("paused");
+          throw new ConnectionPausedError(error.failure, "publish");
         }
         // A definite refusal, or anything before the publishing call: nothing went out.
         const sentence =
@@ -1836,7 +1988,7 @@ function publishProvider(
         accountId: pctx.account_id,
       });
       try {
-        await settle(b, outcome, item, pctx.account_id);
+        await settle(b, outcome, item, pctx, p.platform);
       } catch (error) {
         if (!(error instanceof PublishError)) throw error;
       }
@@ -2008,6 +2160,8 @@ export interface AdsBackend {
   sawTier(accountId: string, tier: string): Promise<void>;
   /** One watch-log line for the owner: "Paused "Spring sale" on Meta." */
   changed(profileId: string, detail: string, meta: Record<string, unknown>): Promise<void>;
+  /** P3-24b: Meta refused the connection's sign-in — pause the ad connection. */
+  paused(args: { account_id: string; failure: MetaFailure }): Promise<void>;
 }
 
 /** Back off once Meta reports this much of the ad account's hourly limit used (P3-22d). */
@@ -2155,6 +2309,8 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     account_id: string;
     usage_pct: number | null;
     access_tier: string | null;
+    /** P3-24c: the engine's stop check, between the dry run and the write. */
+    halted?: () => Promise<boolean>;
   }
 
   async function open(accountId: string): Promise<Run> {
@@ -2307,9 +2463,14 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     try {
       await call(run, which, ids, { ...fields, execution_options: VALIDATE_ONLY }, reach);
     } catch (error) {
-      if (error instanceof MetaRequestError) throw adRefusal(error.failure, true);
+      // A refused sign-in pauses the connection (P3-24b): passed up as it is.
+      if (error instanceof MetaRequestError && !pausesConnection(error.failure)) {
+        throw adRefusal(error.failure, true);
+      }
       throw error;
     }
+    // P3-24c: the stop, between Meta's dry run and the real change.
+    await checkStop(run.halted, STOPPED_BEFORE_CHANGE);
     try {
       return await call(run, which, ids, fields, reach, {
         // A create that gets no usable answer is never sent again (at most once).
@@ -2321,12 +2482,20 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
           "I may have created this campaign — check Ads Manager. Meta didn't confirm it, and I won't create it again.",
         );
       }
-      if (error instanceof MetaRequestError) {
+      if (error instanceof MetaRequestError && !pausesConnection(error.failure)) {
         const refusal = adRefusal(error.failure, false);
         throw which === "campaign_create" ? new AdChangeError(refusal.message) : refusal;
       }
       throw error;
     }
+  }
+
+  /** P3-24b: a refused sign-in pauses the ad connection; the change waits for the reconnect. */
+  async function pauseOn(error: unknown, accountId: string): Promise<ConnectionPausedError | null> {
+    if (!(error instanceof MetaRequestError) || !pausesConnection(error.failure)) return null;
+    const b = await loadBackend();
+    await b.paused({ account_id: accountId, failure: error.failure });
+    return new ConnectionPausedError(error.failure, "ad_change");
   }
 
   async function setStatus(run: Run, c: CampaignState, status: string): Promise<void> {
@@ -2437,6 +2606,11 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         log("ok", run);
         return null;
       } catch (error) {
+        const paused = await pauseOn(error, pctx.account_id);
+        if (paused) {
+          log("paused", run);
+          return { code: "refused", message: paused.message };
+        }
         if (error instanceof MetaRequestError) {
           log("meta_refused", run);
           return {
@@ -2459,30 +2633,39 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     async captureUndo(op, params, pctx) {
       // The irreversible op has no undo; the engine never asks for one (registry: reversible false).
       if (op === "create_campaign_paused" || !isAdOp(op)) return null;
-      const run = await open(pctx.account_id);
-      const c = await readCampaign(run, campaignIdOf(params));
-      touchable(c);
-      if (op === "set_daily_budget") {
-        if (c.daily_budget === null) {
-          throw new AdChangeError(
-            `"${c.name}" has no campaign budget to record. Nothing was changed.`,
-          );
+      const capture = async (): Promise<unknown> => {
+        const run = await open(pctx.account_id);
+        const c = await readCampaign(run, campaignIdOf(params));
+        touchable(c);
+        if (op === "set_daily_budget") {
+          if (c.daily_budget === null) {
+            throw new AdChangeError(
+              `"${c.name}" has no campaign budget to record. Nothing was changed.`,
+            );
+          }
+          const account = await readAccount(run);
+          return {
+            campaign_id: c.id,
+            campaign_name: c.name,
+            daily_budget: c.daily_budget,
+            daily_budget_minor: fromMetaBudget(c.daily_budget, account.currency),
+            currency: account.currency,
+          };
         }
-        const account = await readAccount(run);
-        return {
-          campaign_id: c.id,
-          campaign_name: c.name,
-          daily_budget: c.daily_budget,
-          daily_budget_minor: fromMetaBudget(c.daily_budget, account.currency),
-          currency: account.currency,
-        };
+        return { campaign_id: c.id, campaign_name: c.name, status: c.status };
+      };
+      try {
+        return await capture();
+      } catch (error) {
+        // P3-24b: a refused sign-in at capture pauses the connection; the run waits.
+        throw (await pauseOn(error, pctx.account_id)) ?? error;
       }
-      return { campaign_id: c.id, campaign_name: c.name, status: c.status };
     },
 
     async execute(op, params, pctx) {
       if (!isAdOp(op)) throw new AdChangeError(`"${op}" is not an ad change SYB makes`);
       const run = await open(pctx.account_id);
+      if (pctx.halted) run.halted = pctx.halted;
       const log = (outcome: string, extra: Record<string, unknown> = {}) =>
         logAdChange({
           account_id: pctx.account_id,
@@ -2606,6 +2789,15 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
           access_tier: run.access_tier,
         };
       } catch (error) {
+        if (error instanceof StopError) {
+          log("halted");
+          throw error;
+        }
+        const paused = await pauseOn(error, pctx.account_id);
+        if (paused) {
+          log("paused");
+          throw paused;
+        }
         log("failed", { error: error instanceof Error ? error.name : "unknown" });
         if (error instanceof MetaRequestError) {
           const refusal = adRefusal(error.failure, false);
@@ -2960,7 +3152,11 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
         token: a.token,
         media: a.media,
         caption: a.caption,
-        hooks: { account_id: a.account_id, note: async () => undefined },
+        hooks: {
+          account_id: a.account_id,
+          note: async () => undefined,
+          ...(a.halted ? { halted: a.halted } : {}),
+        },
       }),
   };
 }

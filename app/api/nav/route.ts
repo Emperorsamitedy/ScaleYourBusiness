@@ -10,6 +10,7 @@ import { db } from "../../../db";
 import { connections, fieldRecords, goals, proposals } from "../../../db/schema";
 import { resolveAccess } from "../../../lib/auth/access";
 import { logSafeError } from "../../../lib/core/log-safe";
+import { countPausedExecutionConnections } from "../../../lib/execution/connections";
 import { latestDecision } from "../../../lib/mode/service";
 import { watchDays } from "../../../lib/watch/watch-view";
 
@@ -22,6 +23,12 @@ export interface NavCounts {
   goals: number;
   facts: number;
   connections: number;
+  /**
+   * P3-24b, the needs-you flag beside Connections: write connections that
+   * paused themselves because Meta refused their sign-in. The menu prints
+   * "N paused" there instead of the connected count, until reconnected.
+   */
+  needs_reconnect: number;
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -29,35 +36,37 @@ export async function GET(): Promise<NextResponse> {
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const profileId = access.profile_id;
   try {
-    const [pendingRows, goalRows, factRows, connRows, nameRow, decision] = await Promise.all([
-      db
-        .select({ module: proposals.module, n: count() })
-        .from(proposals)
-        .where(and(eq(proposals.profile_id, profileId), eq(proposals.status, "pending")))
-        .groupBy(proposals.module),
-      db.select({ n: count() }).from(goals).where(eq(goals.profile_id, profileId)),
-      db
-        .select({ n: count() })
-        .from(fieldRecords)
-        .where(and(eq(fieldRecords.profile_id, profileId), isNull(fieldRecords.superseded_at))),
-      db
-        .select({ n: count() })
-        .from(connections)
-        .where(
-          and(eq(connections.account_id, access.account_id), eq(connections.status, "connected")),
-        ),
-      db
-        .select({ value: fieldRecords.value })
-        .from(fieldRecords)
-        .where(
-          and(
-            eq(fieldRecords.profile_id, profileId),
-            eq(fieldRecords.field_key, "identity.legal_name"),
-            isNull(fieldRecords.superseded_at),
+    const [pendingRows, goalRows, factRows, connRows, pausedCount, nameRow, decision] =
+      await Promise.all([
+        db
+          .select({ module: proposals.module, n: count() })
+          .from(proposals)
+          .where(and(eq(proposals.profile_id, profileId), eq(proposals.status, "pending")))
+          .groupBy(proposals.module),
+        db.select({ n: count() }).from(goals).where(eq(goals.profile_id, profileId)),
+        db
+          .select({ n: count() })
+          .from(fieldRecords)
+          .where(and(eq(fieldRecords.profile_id, profileId), isNull(fieldRecords.superseded_at))),
+        db
+          .select({ n: count() })
+          .from(connections)
+          .where(
+            and(eq(connections.account_id, access.account_id), eq(connections.status, "connected")),
           ),
-        ),
-      latestDecision(profileId),
-    ]);
+        countPausedExecutionConnections(access.account_id),
+        db
+          .select({ value: fieldRecords.value })
+          .from(fieldRecords)
+          .where(
+            and(
+              eq(fieldRecords.profile_id, profileId),
+              eq(fieldRecords.field_key, "identity.legal_name"),
+              isNull(fieldRecords.superseded_at),
+            ),
+          ),
+        latestDecision(profileId),
+      ]);
 
     const by_module: Record<string, number> = {};
     for (const r of pendingRows) by_module[r.module] = Number(r.n);
@@ -76,6 +85,7 @@ export async function GET(): Promise<NextResponse> {
       goals: Number(goalRows[0]?.n ?? 0),
       facts: Number(factRows[0]?.n ?? 0),
       connections: Number(connRows[0]?.n ?? 0),
+      needs_reconnect: pausedCount,
     };
     return NextResponse.json(body);
   } catch (error) {

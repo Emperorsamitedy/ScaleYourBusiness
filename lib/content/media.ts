@@ -46,13 +46,28 @@ export interface StoredMedia {
   bytes: number;
 }
 
+/** What the store holds right now (P3-24d): the ops panel's storage line. */
+export interface StoreUsage {
+  objects: number;
+  bytes: number;
+  /** True when the listing stopped at its page cap, so the figures are a floor. */
+  truncated: boolean;
+}
+
 /** What any media store must do. Vercel Blob in production, memory in tests. */
 export interface MediaStore {
   readonly kind: "vercel_blob" | "memory";
   put(pathname: string, body: Uint8Array, contentType: string): Promise<StoredMedia>;
   /** Idempotent: deleting what is already gone is not an error. */
   del(url: string): Promise<void>;
+  /** P3-24d: what is stored under renders/ — reads only. */
+  usage(): Promise<StoreUsage>;
 }
+
+/** The prefix every render is stored under (renderPath). */
+export const RENDER_PREFIX = "renders/";
+/** A hard cap on listing pages (1 000 objects each) for one usage read. */
+export const USAGE_MAX_PAGES = 20;
 
 /* ── the production store ── */
 
@@ -86,6 +101,26 @@ export function vercelBlobStore(): MediaStore {
       const { del } = await import("@vercel/blob");
       await del(url, { token: env.BLOB_READ_WRITE_TOKEN });
     },
+    async usage() {
+      const { list } = await import("@vercel/blob");
+      const out: StoreUsage = { objects: 0, bytes: 0, truncated: false };
+      let cursor: string | undefined;
+      for (let page = 1; ; page += 1) {
+        const res = await list({
+          prefix: RENDER_PREFIX,
+          limit: 1000,
+          token: env.BLOB_READ_WRITE_TOKEN,
+          ...(cursor ? { cursor } : {}),
+        });
+        for (const b of res.blobs) {
+          out.objects += 1;
+          out.bytes += b.size;
+        }
+        if (!res.hasMore || !res.cursor) return out;
+        if (page >= USAGE_MAX_PAGES) return { ...out, truncated: true };
+        cursor = res.cursor;
+      }
+    },
   };
 }
 
@@ -109,6 +144,16 @@ export function memoryMediaStore(origin = "https://blob.test.invalid"): MemoryMe
     },
     async del(url) {
       objects.delete(url);
+    },
+    async usage() {
+      let bytes = 0;
+      let count = 0;
+      for (const [url, o] of objects) {
+        if (!url.startsWith(`${origin}/${RENDER_PREFIX}`)) continue;
+        count += 1;
+        bytes += o.body.byteLength;
+      }
+      return { objects: count, bytes, truncated: false };
     },
     read(url) {
       return objects.get(url)?.body ?? null;
