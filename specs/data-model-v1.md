@@ -781,7 +781,7 @@ interface DecisionLogEntry {
   profile_id: BusinessProfileId;
   at: ISODateTime;
   actor: "system" | "owner";
-  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send";
+  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send" | "law_review" | "campaign_approval" | "unsubscribe";
   ref_id: string;
   payload_hash: string;
 }
@@ -812,6 +812,36 @@ interface GoalBaseline {
 **`consent`** (P3-20h, rule 13) is write access granted: written by the owner when an execute connection is made through the consent screen. Its `ref_id` is the connection, and its hash covers the provider, the scopes granted, the consent lines shown verbatim and the confirmation the owner typed, so what was agreed to stays checkable after the registry changes. Disconnecting revokes nothing on the platform's side and writes no consent row; the connection keeps its own `disconnected_at`.
 
 **`reply_approval`, `reply_decline`, `reply_send`** (P4-10, rules 12 and 22) are the approval covenant extended to support replies. Each `ref_id` is a `support_replies` row. An approval is written by the owner, and its hash covers the reply and ticket ids, the approving user, the time, whether the assistant drafted it, and the sha256 of the exact text that will be sent: the owner's words plus, for an AI-drafted reply, the disclosure appended in code. A decline covers the ids, the user, the time and the body's hash. A send is written by the system with the outcome (`sent`, `refused` or `unknown`), Resend's id when there is one, and the same text hash. No entry holds the reply's words, the customer's address or their name, so erasing the ticket (and with it the reply) leaves every entry verifiable and nothing personal.
+
+**`law_review`, `campaign_approval`, `unsubscribe`** (P4-15, rules 12, 22 and 23) are the outbound send's record.
+
+- **`law_review`**: a person reviewed the jurisdiction table (`lib/crm/jurisdiction.ts` REGIMES) against current law. Its `ref_id` is a `jurisdiction_reviews` row: the reviewer's name, the day, an optional note, and `table_sha256`, the sha256 of the table's canonical serialisation (keys sorted at every depth, arrays in order). A campaign sends only while the LATEST review's hash equals the table as it is now, so editing the table voids the review. The review covers the product, not one business, so the entry is filed under the nil uuid as `profile_id` (no business profile can hold it) with actor `system`. Its hash covers the review id, the sha256 of the reviewer's name (never the name itself), the day, the table hash and the time.
+- **`campaign_approval`**: the owner approved the exact campaign email. Its `ref_id` is the campaign proposal. Its hash covers the proposal and draft ids, the approving user, the time, the sha256 of the body as approved and the sha256 of the subject line. The draft's own row keeps the same four facts (`content_items.approved_by/at/sha256/subject`). What goes out to each recipient is that body with the `{{unsubscribe_url}}` slot filled and nothing else changed, which the executor proves before each send.
+- **`unsubscribe`**: a recipient used their link. Its `ref_id` is the `campaign_sends` row. It is written by the system, and its hash covers the send id, the account and the time. It never holds the address, its hash or the token.
+
+```ts
+// P4-15: one row per recipient per campaign (table campaign_sends), materialised from the
+// approved proposal's contact ids on the first run. Consent is re-checked per row AT its send.
+interface CampaignSend {
+  id: SendId;                     // also names the Idempotency-Key: "syb-campaign-<id>"
+  proposal_id: ProposalId;
+  execution_id: ExecutionId;
+  contact_id: ContactId | null;   // nulled by erasure (rule 22), with provider_message_id
+  email_hash: string | null;      // emailHash() of the address, written at the claim; never the address
+  status: "pending" | "refused" | "sending" | "sent" | "failed" | "unknown";
+  refused_reasons: string[];      // codes: consent_implied | consent_unsure | consent_none | suppressed |
+                                  // consent_unproven | no_regime | message_incomplete | no_email |
+                                  // contact_gone | duplicate_address
+  provider_message_id: string | null;
+  unsubscribe_token_hash: string | null; // sha256 of the recipient's own token; links never expire
+  sender_name: string | null;     // the business name it was sent as, for the unsubscribe page
+  body_sha256: string | null;     // the exact text this recipient was sent
+  provider_status: number | null; // a definitive refusal's HTTP status, never the provider's message
+  unsubscribed_at: ISODateTime | null;
+}
+// UNIQUE (proposal_id, contact_id) and UNIQUE (proposal_id, email_hash): once per recipient,
+// structurally. `unknown` is never sent again, by any run.
+```
 
 **`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
 

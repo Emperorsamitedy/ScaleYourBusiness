@@ -405,6 +405,9 @@ export const decisionKind = pgEnum("decision_kind", [
   "reply_approval", // P4-10: the owner approved a support reply; hash covers the exact text's sha256
   "reply_decline", // P4-10: the owner declined a drafted support reply
   "reply_send", // P4-10: a support reply's send outcome (sent / refused / unknown); ids and hashes only
+  "law_review", // P4-15: a person reviewed the jurisdiction table; ref is the jurisdiction_reviews row
+  "campaign_approval", // P4-15: the owner approved the exact campaign email; ref is the proposal
+  "unsubscribe", // P4-15: a recipient unsubscribed; ref is the campaign_sends row, no PII
 ]);
 
 export const decisionLog = pgTable(
@@ -1006,6 +1009,15 @@ export const connections = pgTable(
      */
     access_tier: text("access_tier"),
     access_tier_seen_at: timestamp("access_tier_seen_at", { withTimezone: true, mode: "string" }),
+    /**
+     * P4-15, the email_campaign execute row only (migration 0048): the name
+     * campaigns are sent as ("<name> via Ledgerline") and the address replies
+     * go to. That row holds NO secret: campaigns send from SYB's own Resend
+     * account, so the connection is the owner's recorded consent and the
+     * sender identity, nothing else. A check keeps the pair on that row only.
+     */
+    sender_name: text("sender_name"),
+    reply_to: text("reply_to"),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
@@ -1016,6 +1028,10 @@ export const connections = pgTable(
       .on(t.account_id, t.provider, t.purpose)
       .where(sql`status <> 'disconnected'`),
     index("connections_account_idx").on(t.account_id),
+    check(
+      "connections_sender_on_email_campaign",
+      sql`(${t.sender_name} IS NULL AND ${t.reply_to} IS NULL) OR (${t.provider} = 'email_campaign' AND ${t.purpose} = 'execute' AND ${t.sender_name} IS NOT NULL AND ${t.reply_to} IS NOT NULL)`,
+    ),
   ],
 );
 
@@ -1280,6 +1296,9 @@ export const executions = pgTable(
      * picks it up again once the cause clears (a reconnect, a resume) and
      * the engine re-runs it through every guard; the reclaim clears it.
      * Null for every other failure, which stays for a human (P3-20e).
+     * P4-15 (migration 0048) adds "remaining": a campaign run that reached
+     * its per-run recipient cap, or that the email service asked to slow
+     * down, with recipients still unsent. The next run sends only those.
      */
     held_for: text("held_for"),
   },
@@ -1288,7 +1307,7 @@ export const executions = pgTable(
     index("executions_profile_idx").on(t.profile_id, t.started_at),
     check(
       "executions_held_for_known",
-      sql`${t.held_for} IS NULL OR (${t.held_for} IN ('reconnect', 'stop') AND ${t.status} = 'failed')`,
+      sql`${t.held_for} IS NULL OR (${t.held_for} IN ('reconnect', 'stop', 'remaining') AND ${t.status} = 'failed')`,
     ),
   ],
 );
@@ -1462,6 +1481,16 @@ export const contentItems = pgTable(
      * anything `publishing`: a post that may be live is read back, not re-run.
      */
     paused_connection_id: uuid("paused_connection_id").references(() => connections.id),
+    /**
+     * P4-15 (migration 0048), campaign emails only: the owner approved THIS
+     * text — who, when, the sha256 of the body as approved, and the subject
+     * line they gave it. The send refuses a body whose hash no longer
+     * matches, and what goes out equals it apart from the unsubscribe slot.
+     */
+    approved_by: uuid("approved_by").references(() => users.id),
+    approved_at: timestamp("approved_at", { withTimezone: true, mode: "string" }),
+    approved_sha256: text("approved_sha256"),
+    approved_subject: text("approved_subject"),
   },
   (t) => [
     index("content_items_profile_idx").on(t.profile_id, t.scheduled_for),
@@ -1482,6 +1511,11 @@ export const contentItems = pgTable(
       "content_items_paused_is_failed",
       sql`${t.paused_connection_id} IS NULL OR ${t.status} = 'failed'`,
     ),
+    check(
+      "content_items_approval_whole",
+      sql`(${t.approved_at} IS NULL) = (${t.approved_by} IS NULL) AND (${t.approved_at} IS NULL) = (${t.approved_sha256} IS NULL) AND (${t.approved_at} IS NULL) = (${t.approved_subject} IS NULL)`,
+    ),
+    check("content_items_approval_is_email", sql`${t.approved_at} IS NULL OR ${t.kind} = 'email'`),
   ],
 );
 
@@ -1918,5 +1952,132 @@ export const supportEmailMessages = pgTable(
     uniqueIndex("support_email_messages_provider_idx").on(t.provider_id),
     index("support_email_messages_ticket_idx").on(t.ticket_id, t.at),
     index("support_email_messages_thread_idx").on(t.profile_id, t.message_id_header),
+  ],
+);
+
+/* ---------- Phase 4 Session F — the campaign send (P4-15) ---------- */
+
+// campaign_sends — one row per recipient per campaign, the executor's
+// journal below the engine's one executions row. Materialised on the
+// first run from the approved proposal's contact ids; every run after
+// that only ever sends rows still `pending`. A recipient's consent is
+// re-checked at the moment of THEIR send (rule 23), never at creation.
+//
+//   pending → refused            the gate said no at send time; never sent
+//   pending → sending → sent     claimed before the call, Resend's id after
+//                     → failed   Resend refused it definitively; nothing went out
+//                     → unknown  no usable answer; it may have gone out.
+//                                NEVER retried, by any run, ever.
+//
+// "Exactly once" is structural: one row per (proposal, contact) and one
+// per (proposal, address hash), each a UNIQUE index, and a row only ever
+// leaves `pending` through a conditional claim.
+//
+// Rule 22: erasure NULLS contact_id and provider_message_id (lib/crm/
+// contacts.ts); the row keeps its status and the address's keyed hash —
+// the suppression list's own form — so the count stays true and the
+// unsubscribe link keeps working after erasure. No address, name or body
+// is ever stored here; refusal reasons are codes.
+export const campaignSendStatus = pgEnum("campaign_send_status", [
+  "pending",
+  "refused",
+  "sending",
+  "sent",
+  "failed",
+  "unknown",
+]);
+
+export const campaignSends = pgTable(
+  "campaign_sends",
+  {
+    /** Generated in code, so the idempotency key can name it before the insert. */
+    id: uuid("id").primaryKey(),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id),
+    execution_id: uuid("execution_id")
+      .notNull()
+      .references(() => executions.id),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** Null once the contact is erased (rule 22): nulled by erasure, and by the FK. */
+    contact_id: uuid("contact_id").references(() => contacts.id, { onDelete: "set null" }),
+    /** emailHash() of the address it went to — written at the claim, never the address. */
+    email_hash: text("email_hash"),
+    status: campaignSendStatus("status").notNull().default("pending"),
+    /** Codes, never sentences that could quote PII (lib/crm/campaign-send.ts). */
+    refused_reasons: jsonb("refused_reasons").$type<string[]>().notNull().default([]),
+    /** Resend's id for the email. Null once the contact is erased. */
+    provider_message_id: text("provider_message_id"),
+    /** Resend's Idempotency-Key: one per recipient, "syb-campaign-<id>". */
+    idempotency_key: text("idempotency_key").notNull(),
+    /** sha256 of the recipient's own unsubscribe token; the token itself is only ever in their email. */
+    unsubscribe_token_hash: text("unsubscribe_token_hash"),
+    /** The business name it was sent as — what the unsubscribe page names. */
+    sender_name: text("sender_name"),
+    /** sha256 of the exact text sent to this recipient (the approved body, slot filled). */
+    body_sha256: text("body_sha256"),
+    /** The HTTP status of a definitive refusal — a number, never Resend's message. */
+    provider_status: integer("provider_status"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    claimed_at: timestamp("claimed_at", { withTimezone: true, mode: "string" }),
+    sent_at: timestamp("sent_at", { withTimezone: true, mode: "string" }),
+    unsubscribed_at: timestamp("unsubscribed_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("campaign_sends_contact_idx")
+      .on(t.proposal_id, t.contact_id)
+      .where(sql`contact_id IS NOT NULL`),
+    uniqueIndex("campaign_sends_address_idx")
+      .on(t.proposal_id, t.email_hash)
+      .where(sql`email_hash IS NOT NULL`),
+    uniqueIndex("campaign_sends_idempotency_idx").on(t.idempotency_key),
+    uniqueIndex("campaign_sends_token_idx")
+      .on(t.unsubscribe_token_hash)
+      .where(sql`unsubscribe_token_hash IS NOT NULL`),
+    index("campaign_sends_proposal_idx").on(t.proposal_id, t.status),
+    check(
+      "campaign_sends_claimed_has_address",
+      sql`${t.status} IN ('pending', 'refused') OR (${t.email_hash} IS NOT NULL AND ${t.claimed_at} IS NOT NULL AND ${t.unsubscribe_token_hash} IS NOT NULL)`,
+    ),
+    check(
+      "campaign_sends_refused_has_reason",
+      sql`${t.status} <> 'refused' OR jsonb_array_length(${t.refused_reasons}) > 0`,
+    ),
+    check("campaign_sends_sent_has_time", sql`${t.status} <> 'sent' OR ${t.sent_at} IS NOT NULL`),
+  ],
+);
+
+// jurisdiction_reviews — P4-15's second gate. A person reviewed the
+// regime table (lib/crm/jurisdiction.ts) against current law: who, on
+// what day, and the sha256 of the table's canonical serialisation they
+// reviewed. A send is refused unless the LATEST review's hash equals the
+// table as it is now, so editing the table voids the review by itself.
+// Recorded by an operator from /ops, with a decision-log entry (kind
+// law_review) that holds the hash and ids only.
+export const jurisdictionReviews = pgTable(
+  "jurisdiction_reviews",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** The reviewer's own name, as they gave it — a person, never "the team". */
+    reviewer: text("reviewer").notNull(),
+    reviewed_on: date("reviewed_on", { mode: "string" }).notNull(),
+    table_sha256: text("table_sha256").notNull(),
+    /** Optional: what the reviewer said, e.g. which sources they checked. */
+    note: text("note"),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("jurisdiction_reviews_recorded_idx").on(t.recorded_at),
+    check("jurisdiction_reviews_reviewer_named", sql`length(trim(${t.reviewer})) > 0`),
+    check("jurisdiction_reviews_hash_shape", sql`${t.table_sha256} ~ '^[0-9a-f]{64}$'`),
   ],
 );

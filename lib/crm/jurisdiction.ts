@@ -253,31 +253,73 @@ export function consentEvidenceGap(
 }
 
 /**
+ * Why a recipient was refused, as a code — what the send executor stores
+ * and counts (P4-15), never a sentence that could quote an address. The
+ * owner's words for each live with the screen (components/crm).
+ */
+export type MarketingRefusal =
+  | "no_email"
+  | "suppressed"
+  | "consent_implied"
+  | "consent_unsure"
+  | "consent_none"
+  | "consent_unproven"
+  | "no_regime"
+  | "message_incomplete";
+
+/** Pure: the consent gate's verdict as codes (rule 19), from what canEmailForMarketing reads. */
+export function consentRefusals(
+  contact: Pick<ContactRow, "email" | "consent_status">,
+  suppressed: boolean,
+): MarketingRefusal[] {
+  if (!contact.email) return ["no_email"];
+  const codes: MarketingRefusal[] = [];
+  if (suppressed) codes.push("suppressed");
+  if (contact.consent_status === "implied_consent") codes.push("consent_implied");
+  if (contact.consent_status === "unsure") codes.push("consent_unsure");
+  if (contact.consent_status === "no_consent") codes.push("consent_none");
+  return codes;
+}
+
+/**
  * The whole pre-send check for one recipient: SYB's consent gate
  * (explicit, unsuppressed), demonstrable consent, a known regime on both
  * sides, and a message complete for every regime that applies. Every
- * failing reason is returned, not just the first.
+ * failing reason is returned, not just the first — in words, and (P4-15)
+ * as codes the send executor counts.
  */
 export async function canSendMarketing(args: {
   contact: ContactRow;
   businessCountry: string | null;
   recipientCountry?: string | null;
   message: MarketingMessage;
-}): Promise<EmailPermission & { regimes: RegimeId[] }> {
+}): Promise<EmailPermission & { regimes: RegimeId[]; codes: MarketingRefusal[] }> {
   const reasons: string[] = [];
   const gate = await canEmailForMarketing(args.contact);
-  if (!gate.allowed) reasons.push(gate.reason);
+  const codes: MarketingRefusal[] = [];
+  if (!gate.allowed) {
+    reasons.push(gate.reason);
+    codes.push(...consentRefusals(args.contact, gate.reason.startsWith("suppressed")));
+  }
   const evidence = consentEvidenceGap(args.contact);
-  if (evidence) reasons.push(evidence);
+  if (evidence) {
+    reasons.push(evidence);
+    codes.push("consent_unproven");
+  }
   // The recipient's own country, when the contact carries one, unless the caller knows better.
   const lookup = applicableRegimes({
     businessCountry: args.businessCountry,
     recipientCountry: args.recipientCountry ?? args.contact.country ?? null,
   });
-  if (!lookup.ok) reasons.push(lookup.reason);
-  else {
+  if (!lookup.ok) {
+    reasons.push(lookup.reason);
+    codes.push("no_regime");
+  } else {
     const gaps = messageGaps(args.message, lookup.regimes);
-    if (gaps.length > 0) reasons.push(`the message is missing ${gaps.join("; ")}`);
+    if (gaps.length > 0) {
+      reasons.push(`the message is missing ${gaps.join("; ")}`);
+      codes.push("message_incomplete");
+    }
   }
   const regimes = lookup.ok ? lookup.regimes.map((r) => r.id) : [];
   return reasons.length === 0
@@ -285,6 +327,7 @@ export async function canSendMarketing(args: {
         allowed: true,
         reason: `explicit consent on record; complete under ${regimes.join(", ")}`,
         regimes,
+        codes: [],
       }
-    : { allowed: false, reason: reasons.join("; "), regimes };
+    : { allowed: false, reason: reasons.join("; "), regimes, codes };
 }

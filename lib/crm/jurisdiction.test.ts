@@ -200,7 +200,7 @@ describe("P4-16 — canSendMarketing", () => {
 
     expect(
       await canSendMarketing({ contact: yes, businessCountry: "Hungary", message: COMPLETE }),
-    ).toMatchObject({ allowed: true, regimes: ["eu_gdpr"] });
+    ).toMatchObject({ allowed: true, regimes: ["eu_gdpr"], codes: [] });
 
     // The law in the US is opt-out; SYB still refuses implied consent there.
     const us = await canSendMarketing({
@@ -211,13 +211,15 @@ describe("P4-16 — canSendMarketing", () => {
     expect(us.allowed).toBe(false);
     expect(us.reason).toMatch(/marketing needs explicit consent/);
     expect(us.reason).toMatch(/postal address \(United States\)/);
+    // P4-15: the same verdict as codes the send executor counts — never a sentence with an address.
+    expect(us.codes).toEqual(["consent_implied", "message_incomplete"]);
 
     const nowhere = await canSendMarketing({
       contact: yes,
       businessCountry: "Switzerland",
       message: COMPLETE,
     });
-    expect(nowhere).toMatchObject({ allowed: false, regimes: [] });
+    expect(nowhere).toMatchObject({ allowed: false, regimes: [], codes: ["no_regime"] });
 
     const [row] = await db.select().from(contacts).where(eq(contacts.id, yes.id));
     expect((row as ContactRow).consent_status).toBe("explicit_consent"); // the check wrote nothing
