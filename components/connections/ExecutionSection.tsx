@@ -16,6 +16,12 @@
 // listed permissions, and the owner picks the Page or ad account from what
 // the server lists — or the owner pastes a token from their own Meta app.
 // Both land in the same exact-scope check and the same consent row.
+//
+// P3-24b: a write connection whose sign-in Meta refused pauses itself. It
+// shows here as `paused`, with the reason in Meta's terms said in ours, and
+// one Reconnect action that opens the same two ways in; reconnecting
+// replaces the paused credential and the held work picks up where it left
+// off. No icons: the state is a mono status word and a sentence.
 
 import { useEffect, useState } from "react";
 
@@ -56,6 +62,8 @@ export interface ExecConnection {
   label: string;
   status: "connected" | "paused" | "failed" | "disconnected";
   granted_scopes: string[];
+  /** Why it paused itself, in the owner's words (P3-24b) — the classified Meta refusal. */
+  last_error?: string | null;
   /** P3-22d, meta_ads: the access tier Meta last reported, verbatim, and in words. */
   access_tier?: string | null;
   access_tier_seen_at?: string | null;
@@ -158,12 +166,17 @@ function ConnectedWrite({
   note,
   tierNote,
   onDone,
+  onReconnect,
+  reconnecting,
 }: {
   c: ExecConnection;
   note: string;
   /** P3-22d: shown under an ad connection, beside its access tier. */
   tierNote: string | null;
   onDone: (message: string) => Promise<void>;
+  /** P3-24b: open the two ways in again, for a paused connection. */
+  onReconnect: () => void;
+  reconnecting: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -209,7 +222,24 @@ function ConnectedWrite({
           </>
         )}
       </dl>
+      {c.status === "paused" && (
+        <p className="cn-error" role="alert">
+          {c.last_error ??
+            "Meta stopped accepting this connection's sign-in. Reconnect it and I'll pick up where I left off."}
+        </p>
+      )}
       <div className="cn-acts">
+        {c.status === "paused" && (
+          <button
+            type="button"
+            className="prop-btn"
+            aria-expanded={reconnecting}
+            aria-controls={`cn-grant-${c.provider}`}
+            onClick={onReconnect}
+          >
+            {reconnecting ? "Close" : "Reconnect"}
+          </button>
+        )}
         <button type="button" className="ghost" disabled={busy} onClick={() => void disconnect()}>
           {busy ? "Disconnecting…" : "Disconnect"}
         </button>
@@ -593,6 +623,7 @@ export function ExecutionSection({
   }, []);
 
   const live = view.connections.filter((c) => c.status !== "disconnected");
+  const anyPaused = live.some((c) => c.status === "paused");
   const done = async (message: string) => {
     setNotice(message);
     setFailure(null);
@@ -608,7 +639,11 @@ export function ExecutionSection({
           <div>
             <p className="cs-label">Write access · a separate consent</p>
             <h2 className="cs-title" id="cn-write-title">
-              {live.length === 0 ? "Off. Nothing can publish." : "On, only for what you approve"}
+              {live.length === 0
+                ? "Off. Nothing can publish."
+                : anyPaused
+                  ? "Paused. Reconnect to carry on."
+                  : "On, only for what you approve"}
             </h2>
           </div>
         </header>
@@ -616,6 +651,8 @@ export function ExecutionSection({
           {view.providers.map((p) => {
             const c = live.find((x) => x.provider === p.id) ?? null;
             const isOpen = open === p.id;
+            // P3-24b: a paused connection is granted again through the same two ways in.
+            const grantable = c === null || c.status === "paused";
             return (
               <div key={p.id} className="cn-wp">
                 <div className="cn-wp-head">
@@ -644,9 +681,11 @@ export function ExecutionSection({
                     note={view.disconnect_note}
                     tierNote={view.ads_access_note ?? null}
                     onDone={done}
+                    onReconnect={() => setOpen(isOpen ? null : p.id)}
+                    reconnecting={isOpen}
                   />
                 )}
-                {c === null && picking === p.id && (
+                {grantable && picking === p.id && (
                   <MetaPicker
                     provider={p}
                     onDone={done}
@@ -656,7 +695,7 @@ export function ExecutionSection({
                     }}
                   />
                 )}
-                {c === null && isOpen && picking !== p.id && (
+                {grantable && isOpen && picking !== p.id && (
                   <ConsentForm provider={p} login={view.facebook_login} onDone={done} />
                 )}
               </div>

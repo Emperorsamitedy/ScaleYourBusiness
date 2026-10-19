@@ -412,7 +412,7 @@ describe("P3-23a — sliced rows stay out of every business-wide sum", () => {
 });
 
 describe("P3-23a — failures", () => {
-  it("a token Meta refuses fails the run, leaves the connection alone and never echoes the token", async () => {
+  it("a token Meta refuses fails the run, pauses the connection (P3-24b) and never echoes the token", async () => {
     const b = await fxBusiness();
     const conn = await fxExecuteConnection(b.account_id);
     await fxPublishedItem(b, {
@@ -430,7 +430,10 @@ describe("P3-23a — failures", () => {
     // Retries are capped: an auth refusal is not retried at all.
     expect(graph.calls.length).toBe(1);
     const [row] = await db.select().from(connections).where(eq(connections.id, conn.id));
-    expect(row?.status).toBe("connected");
+    expect(out.paused).toBe(true);
+    expect(row?.status).toBe("paused");
+    expect(row?.last_error).toMatch(/Reconnect it on Connections/);
+    expect(row?.last_error).not.toContain(FX_TOKEN);
     expect(await rowsOf(conn.id)).toEqual([]);
   });
 

@@ -30,6 +30,11 @@
 // detection, the watch's signals, the derived facts, the trust series)
 // skips them. insights.test.ts proves it against all four.
 //
+// A SIGN-IN META REFUSES pauses the connection (P3-24b, lib/execution/
+// pause.ts): the reason on the row, every queued post held for the
+// reconnect, one watch-log line. A paused row is not read again until the
+// owner reconnects — the runner walks connected rows only.
+//
 // Structured logs carry the account id; no token is ever logged or stored
 // outside the encrypted secret.
 
@@ -48,7 +53,9 @@ import type {
   PostInsightsTarget,
   PublishPlatform,
 } from "../execution/providers/meta";
-import { parseMetaExecutionCredential } from "../execution/providers/meta";
+import { MetaRequestError, parseMetaExecutionCredential } from "../execution/providers/meta";
+import { pausesConnection } from "../execution/meta-errors";
+import { pauseExecutionConnection } from "../execution/pause";
 
 export const POST_INSIGHTS = {
   /** Posts published within this many days are re-read on every run. */
@@ -76,6 +83,8 @@ export interface PostReadbackOutcome {
   /** Posts Meta gave nothing for, with the reason — a gap per post, never a failed run. */
   unreadable: { platform_post_id: string; reason: string }[];
   error: string | null;
+  /** P3-24b: Meta refused the sign-in, and the connection paused itself. */
+  paused: boolean;
   duration_ms: number;
 }
 
@@ -158,6 +167,7 @@ export async function syncPostInsights(
     observations: 0,
     unreadable: [],
     error: null,
+    paused: false,
     duration_ms: 0,
   };
 
@@ -228,9 +238,20 @@ export async function syncPostInsights(
         }
         outcome.ok = true;
       } catch (error) {
-        // The connection is left as it is: degrading an execute connection
-        // to paused is P3-24b's job. The run says what happened.
         outcome.error = errorText(error);
+        // P3-24b: a sign-in Meta refuses pauses the execute connection, the
+        // same as a refused publish would — with the reason on the row, the
+        // queued posts held for the reconnect, and one watch-log line. Any
+        // other failure leaves the connection as it is; the run says what.
+        if (error instanceof MetaRequestError && pausesConnection(error.failure)) {
+          await pauseExecutionConnection({
+            accountId: row.account_id,
+            provider: "meta_publish",
+            failure: error.failure,
+            source: "readback",
+          });
+          outcome.paused = true;
+        }
       }
 
       outcome.duration_ms = Date.now() - started;
@@ -255,6 +276,7 @@ async function recordReadback(outcome: PostReadbackOutcome): Promise<void> {
       posts: outcome.posts,
       observations: outcome.observations,
       unreadable: outcome.unreadable.length,
+      paused: outcome.paused,
       duration_ms: outcome.duration_ms,
       error: outcome.error,
     }),

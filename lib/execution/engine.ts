@@ -34,6 +34,18 @@
 // retry loop with per-attempt journal rows (P3-13); on success the
 // proposal flips to executed through the Session A service, which
 // writes the decision-log entry in the same transaction.
+//
+// Session D, layer D5 (P3-24b/c/d):
+//
+//   - a run that must WAIT rather than end is journaled `failed` with a
+//     hold (executions.held_for): "reconnect" when the provider's
+//     connection failed authentication and paused itself, "stop" when the
+//     emergency stop came on mid-run — at the top of an attempt, or between
+//     a provider's own steps (ctx.halted). The due runner picks a held run
+//     up again once the cause clears, and the reclaim below re-runs it
+//     through EVERY guard above; nothing is skipped because it ran before.
+//   - each attempt row carries the rate-limit usage the platform reported
+//     on that attempt's own requests (execution_attempts.usage).
 
 import { logSafeError } from "../core/log-safe";
 import { and, eq, sql } from "drizzle-orm";
@@ -44,7 +56,10 @@ import { latestDecision } from "../mode/service";
 import { recordExecution } from "../proposals/service";
 import type { ExecutionProviderId } from "./scopes";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
-import type { ExecutionContext, ExecutionProvider } from "./providers/fixture";
+import type { AttemptUsage } from "./attempt-usage";
+import { emptyUsage, withUsage } from "./attempt-usage";
+import type { ExecutionContext, ExecutionProvider, HeldFor } from "./providers/fixture";
+import { heldFor } from "./providers/fixture";
 import { executionProvider } from "./providers/index";
 
 export const MAX_ATTEMPTS = 3;
@@ -299,7 +314,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     // deliberate re-run is a new run, not a continuation of the old cap.
     const [reclaimed] = await db
       .update(executions)
-      .set({ status: "running", error: null, attempts: 0 })
+      .set({ status: "running", error: null, attempts: 0, held_for: null })
       .where(and(eq(executions.id, existing.id), eq(executions.status, "failed")))
       .returning();
     if (!reclaimed) throw new ExecutionRefused("in_flight", "this proposal is already executing");
@@ -316,12 +331,15 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     } catch (error) {
       // Nothing has run, and nothing will without its undo. Close the claimed
       // row as failed (never left `running`, which nothing would ever reclaim).
+      // A capture refused because the connection paused itself (P3-24b) waits
+      // for the reconnect, as an attempt refused the same way would.
       await db
         .update(executions)
         .set({
           status: "failed",
           error: `the undo could not be captured: ${logSafeError(error).error_message}`,
           finished_at: now().toISOString(),
+          held_for: heldFor(error) === "reconnect" ? "reconnect" : null,
         })
         .where(eq(executions.id, execution.id));
       throw error;
@@ -342,23 +360,28 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
       .where(eq(executions.id, execution.id));
   }
 
-  // The attempt loop — halt checked before EVERY attempt (rule 15).
+  // The attempt loop — halt checked before EVERY attempt (rule 15), and
+  // offered to the provider between its own steps (P3-24c).
   let lastError: string;
+  let hold: HeldFor | null = null;
+  const halted = () => isHalted(ctx.account_id);
   for (let attempt = execution.attempts + 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    if (await isHalted(ctx.account_id)) {
-      await db
-        .update(executions)
-        .set({ status: "failed", error: "halted by the emergency stop", attempts: attempt - 1 })
-        .where(eq(executions.id, execution.id));
+    if (await halted()) {
+      await holdForStop(execution.id, attempt - 1, now());
       throw new ExecutionRefused(
         "halted",
         "the emergency stop came on mid-flight — execution halted",
       );
     }
     const started = Date.now();
+    // P3-24d: a real platform reports its rate-limit usage on each response;
+    // the fixtures have none, so their rows say null rather than "none seen".
+    const usage = args.provider.external === true ? emptyUsage() : null;
+    const attemptCtx: ExecutionContext = { ...runCtx, attempt, halted };
+    const run = () => args.provider.execute(args.op, args.params, attemptCtx);
     try {
-      const result = await args.provider.execute(args.op, args.params, runCtx);
-      await recordAttempt(execution.id, ctx.account_id, attempt, started, true, null);
+      const result = await (usage ? withUsage(usage, run) : run());
+      await recordAttempt(execution.id, ctx.account_id, attempt, started, true, null, usage);
       await recordExecution({ proposalId: proposal.id, result });
       const [done] = await db
         .update(executions)
@@ -374,22 +397,44 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
       return done as ExecutionRow;
     } catch (error) {
       lastError = logSafeError(error).error_message;
-      await recordAttempt(execution.id, ctx.account_id, attempt, started, false, lastError);
+      await recordAttempt(execution.id, ctx.account_id, attempt, started, false, lastError, usage);
       await db
         .update(executions)
         .set({ attempts: attempt, error: lastError })
         .where(eq(executions.id, execution.id));
-      if (isFinal(error)) break;
+      hold = heldFor(error);
+      if (hold === "stop") {
+        // The provider saw the stop between its own steps and sent nothing further.
+        await holdForStop(execution.id, attempt, now(), lastError);
+        throw new ExecutionRefused(
+          "halted",
+          "the emergency stop came on mid-flight — execution halted",
+        );
+      }
+      if (hold !== null || isFinal(error)) break;
       if (attempt < MAX_ATTEMPTS) await sleep(200 * attempt);
     }
   }
 
   const [failed] = await db
     .update(executions)
-    .set({ status: "failed", finished_at: now().toISOString() })
+    .set({ status: "failed", finished_at: now().toISOString(), held_for: hold })
     .where(eq(executions.id, execution.id))
     .returning();
   return failed as ExecutionRow;
+}
+
+/** P3-24c: the stop came on mid-run. Failed and held for the resume — never left `running`. */
+async function holdForStop(
+  executionId: string,
+  attempts: number,
+  at: Date,
+  error = "halted by the emergency stop",
+): Promise<void> {
+  await db
+    .update(executions)
+    .set({ status: "failed", error, attempts, finished_at: at.toISOString(), held_for: "stop" })
+    .where(eq(executions.id, executionId));
 }
 
 /**
@@ -494,6 +539,7 @@ async function recordAttempt(
   startedMs: number,
   ok: boolean,
   error: string | null,
+  usage: AttemptUsage | null,
 ): Promise<void> {
   await db.insert(executionAttempts).values({
     execution_id: executionId,
@@ -502,6 +548,7 @@ async function recordAttempt(
     duration_ms: Date.now() - startedMs,
     ok,
     error,
+    usage: usage === null ? null : sql`${JSON.stringify(usage)}::jsonb`,
   });
   console.log(
     JSON.stringify({
@@ -511,6 +558,7 @@ async function recordAttempt(
       attempt,
       ok,
       ...(error ? { error } : {}),
+      ...(usage ? { usage_pct: usage.max_pct, requests: usage.requests.length } : {}),
     }),
   );
 }

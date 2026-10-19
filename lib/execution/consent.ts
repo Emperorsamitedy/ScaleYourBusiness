@@ -11,6 +11,13 @@
 // drafted item with no publish proposal is offered for publishing now
 // (P3-21a), so connecting Meta isn't a dead end for what was drafted
 // before it. That step can fail without touching the consent.
+//
+// Consent is also how a PAUSED connection comes back (P3-24b): the pasted
+// route and the Facebook-login finish both land here, connectForExecution
+// retires the paused row for the new one, and — once the consent is on
+// record — the work the pause held resumes from the journal
+// (resumeAfterReconnect). That step, too, can fail without touching the
+// consent; the due runner's own sweep picks it up on its next run.
 
 import { createHash } from "node:crypto";
 import { and, asc, eq, isNull } from "drizzle-orm";
@@ -22,6 +29,7 @@ import type { CredentialVerifier, PublicExecutionConnection } from "./connection
 import { ExecutionConnectionError, connectForExecution, disconnectExecution } from "./connections";
 import type { ExecutionProviderId } from "./scopes";
 import { EXECUTION_SCOPE_REGISTRY, isExecutionProviderId } from "./scopes";
+import { isPausableProvider, resumeAfterReconnect } from "./pause";
 import { EXECUTION_SETUP, OFFERED_EXECUTION, confirmationMatches } from "./setup";
 
 export interface ConsentPayload {
@@ -114,9 +122,13 @@ export interface ConsentArgs {
  * with nothing stored, unless the provider is offered and the typed phrase
  * matches; then proven, scope-matched, encrypted, and logged.
  */
-export async function consentToExecution(
-  args: ConsentArgs,
-): Promise<{ connection: PublicExecutionConnection; consent_hash: string; proposed: number }> {
+export async function consentToExecution(args: ConsentArgs): Promise<{
+  connection: PublicExecutionConnection;
+  consent_hash: string;
+  proposed: number;
+  /** P3-24b: items and held runs a reconnect put back in motion. */
+  resumed: number;
+}> {
   if (!isExecutionProviderId(args.provider) || !OFFERED_EXECUTION.includes(args.provider)) {
     throw new ExecutionConnectionError(`"${args.provider}" is not offered for execution`, 422);
   }
@@ -172,9 +184,30 @@ export async function consentToExecution(
       connection_id: connection.id,
     }),
   );
+  let resumed = 0;
+  if (isPausableProvider(provider)) {
+    try {
+      const out = await resumeAfterReconnect({
+        accountId: args.accountId,
+        provider,
+        announce: true,
+      });
+      resumed = out.reduce((n, o) => n + o.items + o.runs, 0);
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          event: "consent_resume_failed",
+          account_id: args.accountId,
+          provider,
+          name: error instanceof Error ? error.name : "unknown",
+        }),
+      );
+    }
+  }
   return {
     connection,
     consent_hash,
     proposed: await proposeWaitingDrafts(profile.id, provider, args),
+    resumed,
   };
 }

@@ -575,6 +575,36 @@ describe("P3-20j — the flow, end to end against the fake Graph API", () => {
     expect((await refusal(() => startFor(s, "meta_publish", "allow publishing"))).reason).toBe(
       "already_connected",
     );
+
+    // P3-24b: a connection that paused itself is reconnected through this same sign-in.
+    await db
+      .update(connections)
+      .set({ status: "paused", last_error: "the sign-in expired" })
+      .where(eq(connections.id, connection.id));
+    const again = await startFor(s, "meta_publish", "allow publishing");
+    const back = await completeMetaCallback({
+      accountId: s.account_id,
+      query: { code: CODE, state: stateOf(again.authorize_url), error: null, error_reason: null },
+      nonceCookie: again.nonce,
+      config: CONFIG,
+      exec: graph.exec,
+      now: NOW,
+    });
+    if (back.kind !== "pick") throw new Error(`expected a pick, got ${back.kind}`);
+    const reconnected = await finishMetaLogin({
+      accountId: s.account_id,
+      profileId: s.profile_id,
+      provider: "meta_publish",
+      assetId: PAGE,
+      pendingCookie: back.pending,
+      exec: graph.exec,
+      now: NOW,
+    });
+    expect(reconnected.status).toBe("connected");
+    expect(reconnected.id).not.toBe(connection.id);
+    const [old] = await db.select().from(connections).where(eq(connections.id, connection.id));
+    expect(old?.status).toBe("disconnected");
+    expect(old?.encrypted_secret).toBeNull();
   });
 
   it("ad management: the ad accounts are listed and the picked one connects with exactly ads_management", async () => {

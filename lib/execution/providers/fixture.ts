@@ -14,6 +14,31 @@ export interface ExecutionContext {
   account_id: string;
   /** The engine's executions row for this run (P3-21d) — the publish path's handle. Unset for undo. */
   execution_id?: string;
+  /** P3-24d: which attempt of the engine's loop this is (1-based). Unset outside execute. */
+  attempt?: number;
+  /**
+   * P3-24c: is the emergency stop on right now? Supplied by the engine, so a
+   * provider with several steps (a carousel's children, then its parent,
+   * then media_publish) checks between them and refuses before the step
+   * that makes anything public. Unset outside execute.
+   */
+  halted?: () => Promise<boolean>;
+}
+
+/**
+ * P3-24b/c: an error a provider throws when the run must WAIT rather than
+ * end — `held_for` names what it waits for. "reconnect": the connection
+ * failed authentication and paused itself; "stop": the emergency stop came
+ * on before anything was sent. The engine journals the run as failed with
+ * that hold, and the due runner picks it up again once the cause clears.
+ */
+export type HeldFor = "reconnect" | "stop";
+
+/** Pure: the hold an error carries, or null. */
+export function heldFor(error: unknown): HeldFor | null {
+  if (error === null || typeof error !== "object") return null;
+  const v = (error as { held_for?: unknown }).held_for;
+  return v === "reconnect" || v === "stop" ? v : null;
 }
 
 /**

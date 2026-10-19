@@ -8,6 +8,7 @@
 import { and, eq, gte, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { intakeEvents, llmCalls } from "../../db/schema";
+import type { MediaStore } from "../content/media";
 import { internalAccountIds, internalProfileIds } from "./internal";
 
 export interface FunnelSummary {
@@ -177,4 +178,76 @@ export async function costSummary(sinceIso: string): Promise<CostSummary> {
       }))
       .sort((a, b) => b.cost_eur - a.cost_eur),
   };
+}
+
+/* ── P3-24d: Blob storage in the cost view ── */
+
+/**
+ * Vercel Blob's storage list price, in integer micro-dollars per GB-month
+ * ($0.023/GB-month = 23 000 µ$), and what Hobby includes free (1 GB stored,
+ * the figure P3-20c recorded from Vercel's pricing page on 2026-09-30).
+ * _Verify at build_ against vercel.com/docs/vercel-blob/usage-and-pricing:
+ * the per-GB price, whether a GB is 10^9 or 2^30 bytes there (10^9 is used
+ * here), and the included amount on the plan production runs on. Transfer
+ * and operations are billed separately and are not counted here — renders
+ * are deleted once the platform has them (P3-20c), so storage stays small.
+ */
+export const BLOB_STORAGE_MICRO_USD_PER_GB_MONTH = 23_000;
+export const BLOB_HOBBY_INCLUDED_BYTES = 1_000_000_000;
+const BYTES_PER_GB = 1_000_000_000;
+
+export type StorageSummary =
+  | {
+      known: true;
+      store: MediaStore["kind"];
+      objects: number;
+      bytes: number;
+      /** True when the listing stopped at its page cap: the figures are a floor. */
+      truncated: boolean;
+      /** bytes × the list price, a month of it, in integer micro-dollars (rule 1: no float money). */
+      monthly_list_micro_usd: number;
+      currency: "USD";
+      within_hobby_included: boolean;
+      price_micro_usd_per_gb_month: number;
+    }
+  | { known: false; reason: string };
+
+/** Pure: a month of storing `bytes` at the list price, in micro-dollars, rounded up. */
+export function blobMonthlyMicroUsd(bytes: number): number {
+  return Math.ceil((bytes * BLOB_STORAGE_MICRO_USD_PER_GB_MONTH) / BYTES_PER_GB);
+}
+
+/**
+ * What the media store holds and what that costs a month — read from the
+ * store itself (MediaStore.usage), never estimated. A store that can't be
+ * read (no BLOB_READ_WRITE_TOKEN here, Vercel unreachable) is "unknown",
+ * never zero.
+ */
+export async function storageSummary(store?: MediaStore): Promise<StorageSummary> {
+  try {
+    const s = store ?? (await import("../content/media")).vercelBlobStore();
+    const u = await s.usage();
+    return {
+      known: true,
+      store: s.kind,
+      objects: u.objects,
+      bytes: u.bytes,
+      truncated: u.truncated,
+      monthly_list_micro_usd: blobMonthlyMicroUsd(u.bytes),
+      currency: "USD",
+      within_hobby_included: u.bytes <= BLOB_HOBBY_INCLUDED_BYTES,
+      price_micro_usd_per_gb_month: BLOB_STORAGE_MICRO_USD_PER_GB_MONTH,
+    };
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "ops_storage_unreadable",
+        name: error instanceof Error ? error.name : "unknown",
+      }),
+    );
+    return {
+      known: false,
+      reason: "Blob storage couldn't be read here, so its size and cost are unknown.",
+    };
+  }
 }

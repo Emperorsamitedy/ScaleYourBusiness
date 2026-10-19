@@ -14,6 +14,10 @@
 //   failed     nothing went out; the sentence says why
 //   uncertain  stays `publishing`: "I may have posted this — check the Page"
 //   withdrawn  the undo: status withdrawn, the platform id kept forever
+//   paused     P3-24b: Meta refused the sign-in — the connection pauses
+//              itself and holds every queued item (lib/execution/pause.ts)
+//   unclaim    P3-24c: the stop came on between steps, before sent_at —
+//              publishing → queued, nothing having gone out
 //
 // Also here: the due runner's route for a publish proposal (publishPlan),
 // the sweep that reconciles a run that died mid-publish by reading back
@@ -31,6 +35,7 @@ import {
 } from "../../db/schema";
 import { logSafeError } from "../core/log-safe";
 import { activeExecutionConnection, executionSecret } from "../execution/connections";
+import { pauseExecutionConnection } from "../execution/pause";
 import type { DispatchPlan } from "../execution/due";
 import { isHalted, undoExecution } from "../execution/engine";
 import type { ExecutionRow } from "../execution/engine";
@@ -228,6 +233,31 @@ export function dbPublishBackend(opts: { store?: MediaStore } = {}): PublishBack
         meta: { item_id: item.id, platform, platform_post_id: item.platform_post_id },
       });
       await releaseMedia(item, store(), accountId);
+    },
+
+    async paused({ account_id, failure, item_id }) {
+      await pauseExecutionConnection({
+        accountId: account_id,
+        provider: "meta_publish",
+        failure,
+        itemId: item_id ?? null,
+        source: "publish",
+      });
+    },
+
+    async unclaim(itemId, sentence) {
+      // Only while nothing was sent: sent_at goes down just before the call
+      // that makes a post public, so its absence proves nothing went out.
+      await db
+        .update(contentItems)
+        .set({ status: "queued", last_error: sentence })
+        .where(
+          and(
+            eq(contentItems.id, itemId),
+            eq(contentItems.status, "publishing"),
+            sql`${contentItems.publish_attempt}->>'sent_at' IS NULL`,
+          ),
+        );
     },
   };
 }

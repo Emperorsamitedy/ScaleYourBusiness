@@ -1,17 +1,43 @@
-// /ops?key=… — the P1-53 dashboard: funnel, abandonment, cost.
+// /ops?key=… — the P1-53 dashboard: funnel, abandonment, cost — and, since
+// P3-24d, what Blob storage holds and costs, read from the store itself.
 // Server component; reads the summaries directly, no client fetch. The
 // same OPS_KEY gates it, and a wrong key renders the same nothing a
 // wrong URL would.
 
 import { secretMatches } from "../../lib/core/secret-compare";
 import type { Metadata } from "next";
-import { abandonmentSummary, costSummary, funnelSummary } from "../../lib/ops/summary";
+import {
+  abandonmentSummary,
+  costSummary,
+  funnelSummary,
+  storageSummary,
+} from "../../lib/ops/summary";
+import type { StorageSummary } from "../../lib/ops/summary";
 
 export const metadata: Metadata = { title: "Ops — Ledgerline" };
 export const dynamic = "force-dynamic";
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const eur = (x: number) => `€${x.toFixed(4)}`;
+/** Integer micro-dollars as dollars, to the micro-dollar — never a float in the data. */
+const usdMicro = (m: number) =>
+  `$${Math.floor(m / 1_000_000)}.${String(m % 1_000_000).padStart(6, "0")}`;
+const size = (bytes: number) =>
+  bytes >= 1_000_000_000
+    ? `${(bytes / 1_000_000_000).toFixed(2)} GB`
+    : bytes >= 1_000_000
+      ? `${(bytes / 1_000_000).toFixed(1)} MB`
+      : `${(bytes / 1_000).toFixed(1)} kB`;
+
+/** P3-24d: the storage line, read from the media store itself. */
+function storageLine(st: StorageSummary): string {
+  if (!st.known) return st.reason;
+  return [
+    `${size(st.bytes)} in ${st.objects} ${st.objects === 1 ? "render" : "renders"}${st.truncated ? " (at least — the listing stopped at its cap)" : ""}`,
+    `${usdMicro(st.monthly_list_micro_usd)} a month at list price (${usdMicro(st.price_micro_usd_per_gb_month)} per GB-month; verify at build)`,
+    st.within_hobby_included ? "within Hobby's included 1 GB" : "over Hobby's included 1 GB",
+  ].join(" · ");
+}
 
 export default async function OpsPage({
   searchParams,
@@ -29,10 +55,11 @@ export default async function OpsPage({
   }
   const days = Math.min(365, Math.max(1, Number.parseInt(params.days ?? "30", 10) || 30));
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
-  const [funnel, abandonment, costs] = await Promise.all([
+  const [funnel, abandonment, costs, storage] = await Promise.all([
     funnelSummary(since),
     abandonmentSummary(since),
     costSummary(since),
+    storageSummary(),
   ]);
 
   return (
@@ -122,6 +149,7 @@ export default async function OpsPage({
             </tbody>
           </table>
         )}
+        <p className="auth-copy">Blob storage · {storageLine(storage)}</p>
       </section>
     </main>
   );

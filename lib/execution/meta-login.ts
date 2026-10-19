@@ -402,7 +402,8 @@ export function startedElsewhere(secFetchSite: string | null): boolean {
 /**
  * Step 1, before any redirect: the provider is offered, Facebook Login is
  * configured, the phrase is the one this consent asks for, and nothing is
- * already connected. Only then a nonce and a signed state.
+ * already connected (a paused connection may be reconnected — P3-24b).
+ * Only then a nonce and a signed state.
  */
 export async function startMetaLogin(args: {
   accountId: string;
@@ -432,7 +433,9 @@ export async function startMetaLogin(args: {
       422,
     );
   }
-  if (await activeExecutionConnection(args.accountId, provider)) {
+  // P3-24b: a paused connection is reconnected through this same sign-in.
+  const live = await activeExecutionConnection(args.accountId, provider);
+  if (live && live.status !== "paused") {
     throw new MetaLoginError(
       "already_connected",
       `${EXECUTION_SCOPE_REGISTRY[provider].label} is already connected. Disconnect it first.`,

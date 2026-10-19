@@ -14,6 +14,11 @@
 // screen: an item goes out after its own yes in the queue, at its time,
 // through the runner. While the Session D real-write gate is off the
 // screen says so plainly.
+//
+// P3-24b: an item held by a write connection that paused itself reads
+// `failed` with the one sentence ("I couldn't post — the connection
+// expired…") and offers Reconnect, which goes to /connections; the
+// reconnect puts it back in the queue.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -63,6 +68,8 @@ interface ContentItem {
   published_at: string | null;
   publish_proposal_id: string | null;
   last_error: string | null;
+  /** P3-24b: set when the item waits for a paused connection to be reconnected. */
+  paused_connection_id?: string | null;
 }
 
 interface Producible {
@@ -541,6 +548,11 @@ export function ContentScreen() {
                 {open.publish_proposal_id !== null && open.status === "drafted" && (
                   <Link className="prop-btn ct-wide" href="/proposals">
                     Decide in the queue <span aria-hidden="true">→</span>
+                  </Link>
+                )}
+                {open.status === "failed" && open.paused_connection_id && (
+                  <Link className="prop-btn" href="/connections">
+                    Reconnect <span aria-hidden="true">→</span>
                   </Link>
                 )}
                 {s.publishNotes[open.id]?.includes("Connections") && (
