@@ -37,7 +37,11 @@ import { contactForSupport, emailedSource } from "./support-contact";
 export type EmailMessageRow = typeof supportEmailMessages.$inferSelect;
 
 export const ROUTING_TOKEN_RE = /^[0-9a-f]{32}$/;
-const ADDRESS_TOKEN_RE = /^s-([0-9a-f]{32})(?:\+([0-9a-f]{32}))?@([a-z0-9.-]+)$/;
+// A thread token is 24 hex chars; 32-char ones minted before 2026-10-19 still parse.
+const ADDRESS_TOKEN_RE = /^s-([0-9a-f]{32})(?:\+([0-9a-f]{24}|[0-9a-f]{32}))?@([a-z0-9.-]+)$/;
+
+/** RFC 5321 §4.5.3.1.1: a local part longer than this may be refused by the sender's server. */
+export const MAX_LOCAL_PART = 64;
 
 /** The inbound address a business forwards its support mailbox to. */
 export function inboundAddress(routingToken: string, domain: string): string {
@@ -49,8 +53,12 @@ export function threadAddress(routingToken: string, threadToken: string, domain:
   return `s-${routingToken}+${threadToken}@${domain}`;
 }
 
+/**
+ * 12 random bytes (96 bits) — 24 hex chars, so `s-<32>+<24>` is a 59-char
+ * local part, inside RFC 5321's 64. Sixteen bytes made it 67.
+ */
 export function newThreadToken(): string {
-  return randomBytes(16).toString("hex");
+  return randomBytes(12).toString("hex");
 }
 
 /** The routing (and, on a reply, thread) tokens an email's addresses carry for our domain. */
