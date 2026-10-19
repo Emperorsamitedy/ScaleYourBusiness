@@ -6,6 +6,10 @@
 //   POST /api/crm {action:"erase", contact_id}
 //   POST /api/crm {action:"propose_segments"}
 //   POST /api/crm {action:"draft_campaign", proposal_id}  an approved campaign → its one email draft
+//   POST /api/crm {action:"approve_campaign_email", proposal_id, subject, body_sha256}
+//        P4-15: the owner approves the exact email, then the send is tried at once, through the
+//        engine; a gate holding it answers in its own words
+//   POST /api/crm {action:"send_campaign", proposal_id}  P4-15: try the send again now
 //
 // Reading needs the intake cookie. Importing, erasing and proposing
 // need a signed-in user: an import is an attestation under a name, an
@@ -13,7 +17,7 @@
 
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../../db";
 import { proposals } from "../../../db/schema";
 import type { ConsentStatus } from "../../../lib/crm/contacts";
@@ -30,6 +34,13 @@ import {
   POSTAL_ADDRESS_KEY,
 } from "../../../lib/crm/campaign-draft";
 import { importContacts } from "../../../lib/crm/import";
+import {
+  CampaignSendError,
+  approveCampaignEmail,
+  approvedRecipients,
+  campaignSendView,
+  sendCampaignNow,
+} from "../../../lib/crm/campaign-send";
 import { BUSINESS_NAME_KEY } from "../../../lib/crm/support-settings";
 import { COUNTRY_KEY } from "../../../lib/hours/timezone";
 import { readCurrentField } from "../../../lib/profile/field-store";
@@ -59,7 +70,8 @@ function onError(error: unknown): NextResponse {
   if (
     error instanceof ContactError ||
     error instanceof SegmentProposalError ||
-    error instanceof ProposalError
+    error instanceof ProposalError ||
+    error instanceof CampaignSendError
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
   }
@@ -102,23 +114,28 @@ export async function GET(): Promise<NextResponse> {
         excluded: s.excluded,
         evidence: s.evidence,
       })),
-      campaigns: await campaignsFor(who.profile_id),
+      campaigns: await campaignsFor(who.profile_id, who.account_id),
+      business_name: await answeredText(who.profile_id, BUSINESS_NAME_KEY),
     });
   } catch (error) {
     return onError(error);
   }
 }
 
-/** P4-16: approved campaigns, each with its draft (if any) and what the law still wants from it. */
-async function campaignsFor(profileId: string) {
+/**
+ * P4-16: approved campaigns, each with its draft (if any) and what the law
+ * still wants from it — and, since P4-15, sent ones too, with the send's
+ * state: counts by status and reason, unsubscribed since, the gate holding it.
+ */
+async function campaignsFor(profileId: string, accountId: string) {
   const rows = await db
-    .select({ id: proposals.id, action: proposals.action, decided_at: proposals.decided_at })
+    .select()
     .from(proposals)
     .where(
       and(
         eq(proposals.profile_id, profileId),
         eq(proposals.module, SEGMENT_MODULE),
-        eq(proposals.status, "approved"),
+        inArray(proposals.status, ["approved", "executed"]),
       ),
     );
   const value = async (key: string) => {
@@ -147,9 +164,19 @@ async function campaignsFor(profileId: string) {
       gaps: compliance.gaps,
       at_send: compliance.at_send,
       ask: compliance.ask,
+      recipients: approvedRecipients(r.action).length,
+      irreversible: (r.reversibility as { level?: string } | null)?.level === "hard",
+      send: await campaignSendView(r, accountId),
     });
   }
   return out;
+}
+
+async function answeredText(profileId: string, key: string): Promise<string | null> {
+  const f = await readCurrentField<string>(profileId, key);
+  return f && f.status === "answered" && typeof f.value === "string" && f.value.trim() !== ""
+    ? f.value.trim()
+    : null;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -171,6 +198,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       currency?: unknown;
       contact_id?: unknown;
       proposal_id?: unknown;
+      subject?: unknown;
+      body_sha256?: unknown;
     };
     switch (body.action) {
       case "import": {
@@ -222,9 +251,44 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           { status: fresh ? 201 : 200 },
         );
       }
+      case "approve_campaign_email": {
+        if (
+          typeof body.proposal_id !== "string" ||
+          typeof body.subject !== "string" ||
+          typeof body.body_sha256 !== "string"
+        ) {
+          return NextResponse.json(
+            { error: "proposal_id, subject and body_sha256 are required" },
+            { status: 422 },
+          );
+        }
+        await approveCampaignEmail({
+          profileId: who.profile_id,
+          proposalId: body.proposal_id,
+          userId: session.user_id,
+          subject: body.subject,
+          bodySha256: body.body_sha256,
+        });
+        const sent = await sendCampaignNow({
+          profileId: who.profile_id,
+          proposalId: body.proposal_id,
+        });
+        return NextResponse.json({ approved: true, ...sent });
+      }
+      case "send_campaign": {
+        if (typeof body.proposal_id !== "string") {
+          return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
+        }
+        return NextResponse.json(
+          await sendCampaignNow({ profileId: who.profile_id, proposalId: body.proposal_id }),
+        );
+      }
       default:
         return NextResponse.json(
-          { error: 'action must be "import", "erase", "propose_segments" or "draft_campaign"' },
+          {
+            error:
+              'action must be "import", "erase", "propose_segments", "draft_campaign", "approve_campaign_email" or "send_campaign"',
+          },
           { status: 422 },
         );
     }

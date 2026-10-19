@@ -16,6 +16,7 @@ import { EXECUTION_SCOPE_REGISTRY, isExecutionProviderId } from "../scopes";
 import type { ExecutionProvider } from "./fixture";
 import { fixtureExecutor } from "./fixture";
 import { fixtureSiteExecutor } from "./fixture-site";
+import { emailCampaignExecutor } from "./email-campaign";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
@@ -23,6 +24,7 @@ const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   fixture_site: fixtureSiteExecutor,
   meta_publish: metaPublishExecutor,
   meta_ads: metaAdsExecutor,
+  email_campaign: emailCampaignExecutor,
 };
 
 export class UnknownExecutionProviderError extends Error {

@@ -20,6 +20,8 @@ import Link from "next/link";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import type { ExecView } from "./ExecutionSection";
 import { ExecutionSection } from "./ExecutionSection";
+import type { EmailView } from "./EmailCampaignSection";
+import { EmailCampaignSection } from "./EmailCampaignSection";
 import { gives, headline, lastRead, parseTs } from "./patch";
 import "../../app/connections.css";
 
@@ -697,6 +699,8 @@ function ReadBox({ c }: { c: Connection | null }) {
 export function ConnectionsScreen() {
   const [view, setView] = useState<View | null>(null);
   const [exec, setExec] = useState<ExecView | null>(null);
+  // P4-15: campaign email, its own consent.
+  const [email, setEmail] = useState<EmailView | null>(null);
   // The headline speaks for writing too, so it waits until that side has answered.
   const [execDone, setExecDone] = useState(false);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
@@ -713,6 +717,15 @@ export function ConnectionsScreen() {
       setExec(null);
     } finally {
       setExecDone(true);
+    }
+  }, []);
+
+  const loadEmail = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/email");
+      setEmail(res.ok ? ((await res.json()) as EmailView) : null);
+    } catch {
+      setEmail(null);
     }
   }, []);
 
@@ -737,7 +750,8 @@ export function ConnectionsScreen() {
   useEffect(() => {
     void load();
     void loadExec();
-  }, [load, loadExec]);
+    void loadEmail();
+  }, [load, loadExec, loadEmail]);
 
   const syncNow = async (c: Connection) => {
     setBusy(c.id);
@@ -995,6 +1009,9 @@ export function ConnectionsScreen() {
 
       {/* P3-20h: write access, visibly apart from everything above. */}
       {exec !== null && <ExecutionSection view={exec} onChanged={loadExec} />}
+
+      {/* P4-15: campaign email — no token of yours, SYB's own email service, your consent. */}
+      {email !== null && <EmailCampaignSection view={email} onChanged={loadEmail} />}
     </main>
   );
 }

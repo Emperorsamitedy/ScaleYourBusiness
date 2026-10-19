@@ -31,6 +31,14 @@
 //     budget change by the approved share, or a paused create. The op
 //     follows the change the owner approved, never a caller; the real-write
 //     gate covers it exactly as it covers publishing
+//   - a campaign (P4-15): lib/crm/campaign-send's campaignPlanFor routes
+//     a crm customer_email proposal to { email_campaign, send_campaign,
+//     {proposal_id} }. Its schedule floor is set when the owner approves
+//     the email itself, so an approved campaign whose email nobody
+//     approved is never selected. A run held "remaining" (its per-run cap,
+//     or the email service asking it to slow down) is selected again and
+//     sends only the recipients still pending; a run that died mid-send is
+//     closed as held first (reclaimStaleCampaignRuns)
 //   - module "site": applySiteChange, which does its own drift check,
 //     health check and auto-rollback through the engine
 //   - anything else is UNROUTABLE: counted, logged, left approved. The
@@ -66,6 +74,7 @@ import type { ReconcileSummary } from "../content/publishing";
 import { publishPlan, reconcilePublishing } from "../content/publishing";
 import { isPublishProposal } from "../content/publish";
 import { adsPlan, isAdProposal } from "../ads/executing";
+import { campaignPlanFor, reclaimStaleCampaignRuns } from "../crm/campaign-send";
 import { applySiteChange } from "../site/apply";
 import { SiteChangeError } from "../site/changes";
 import { activeExecutionConnection } from "./connections";
@@ -126,6 +135,8 @@ export interface DueRunSummary {
   reconciled: ReconcileSummary;
   /** P3-24b: work a reconnect freed, put back in motion before anything ran. */
   resumed: ResumeOutcome[];
+  /** P4-15: campaign runs that died mid-send, closed as held for this pass. */
+  reclaimed_campaigns: number;
   outcomes: DueOutcome[];
 }
 
@@ -159,6 +170,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     unroutable: 0,
     reconciled: { checked: 0, published: 0, not_sent: 0, uncertain: 0 },
     resumed: [],
+    reclaimed_campaigns: 0,
     outcomes: [],
   };
 
@@ -166,6 +178,8 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
   summary.resumed = await resumeAfterReconnect(
     opts.profileId ? { accountId: await accountOf(opts.profileId) } : {},
   );
+  // P4-15: a campaign run that died mid-send is held, so it is selected below.
+  summary.reclaimed_campaigns = await reclaimStaleCampaignRuns(now());
   summary.reconciled = await reconcilePublishing({
     now,
     ...(opts.profileId ? { profileId: opts.profileId } : {}),
@@ -220,6 +234,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
       unroutable: summary.unroutable,
       reconciled: summary.reconciled,
       resumed: summary.resumed.length,
+      reclaimed_campaigns: summary.reclaimed_campaigns,
     }),
   );
   return summary;
@@ -265,6 +280,7 @@ async function runOne(
       }
       plan = routed.plan;
     }
+    if (!plan) plan = campaignPlanFor(proposal);
     if (!plan && isAdProposal(proposal)) {
       const routed = adsPlan(proposal);
       if ("unroutable" in routed) {

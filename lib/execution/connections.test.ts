@@ -208,6 +208,9 @@ describe("P3-20b — the invariants", () => {
       "ads_read",
       "read_orders",
       "https://www.googleapis.com/auth/analytics.readonly",
+      // P4-15: sending is a write, on both sides of the mirror.
+      "email.send_marketing",
+      "send_mail",
     ];
     for (const scope of sample) {
       const attempt = db.insert(connections).values({

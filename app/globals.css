@@ -699,6 +699,23 @@ a.auth-cta {
 .ops-mono {
   font-family: var(--mono);
   font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+/* P4-15: the email-law review form on /ops. */
+.ops-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.ops-form input {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px;
+  font: inherit;
+  border: 1px solid var(--hair);
+  border-radius: 0;
 }
 
 /* ── mode decision + watching (Session H) ── */

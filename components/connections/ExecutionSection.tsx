@@ -622,7 +622,10 @@ export function ExecutionSection({
     // Read once, on arrival: the query is cleared above, so a re-render finds nothing.
   }, []);
 
-  const live = view.connections.filter((c) => c.status !== "disconnected");
+  // Meta's write access only: campaign email (P4-15) has its own section.
+  const live = view.connections.filter(
+    (c) => c.status !== "disconnected" && view.providers.some((p) => p.id === c.provider),
+  );
   const anyPaused = live.some((c) => c.status === "paused");
   const done = async (message: string) => {
     setNotice(message);

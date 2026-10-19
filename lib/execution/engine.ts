@@ -46,6 +46,11 @@
 //     through EVERY guard above; nothing is skipped because it ran before.
 //   - each attempt row carries the rate-limit usage the platform reported
 //     on that attempt's own requests (execution_attempts.usage).
+//
+// Phase 4 Session F (P4-15): campaign email is a provider like Meta's, and
+// adds one hold, "remaining" — a campaign run that reached its per-run
+// recipient cap, or that the email service asked to slow down, with
+// recipients still unsent. Journaled and re-run exactly like the others.
 
 import { logSafeError } from "../core/log-safe";
 import { and, eq, sql } from "drizzle-orm";

@@ -13,6 +13,8 @@ import {
   storageSummary,
 } from "../../lib/ops/summary";
 import type { StorageSummary } from "../../lib/ops/summary";
+import { REGIMES } from "../../lib/crm/jurisdiction";
+import { jurisdictionTableHash, latestLawReview, lawReviewVerdict } from "../../lib/crm/law-review";
 
 export const metadata: Metadata = { title: "Ops — Ledgerline" };
 export const dynamic = "force-dynamic";
@@ -42,7 +44,7 @@ function storageLine(st: StorageSummary): string {
 export default async function OpsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ key?: string; days?: string }>;
+  searchParams: Promise<{ key?: string; days?: string; law_review?: string }>;
 }) {
   const params = await searchParams;
   const secret = process.env.OPS_KEY;
@@ -55,12 +57,16 @@ export default async function OpsPage({
   }
   const days = Math.min(365, Math.max(1, Number.parseInt(params.days ?? "30", 10) || 30));
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
-  const [funnel, abandonment, costs, storage] = await Promise.all([
+  const [funnel, abandonment, costs, storage, review] = await Promise.all([
     funnelSummary(since),
     abandonmentSummary(since),
     costSummary(since),
     storageSummary(),
+    latestLawReview(),
   ]);
+  // P4-15: the email-law review — the table as it is now, and whether a review covers it.
+  const tableHash = jurisdictionTableHash();
+  const verdict = lawReviewVerdict(review, tableHash);
 
   return (
     <main className="ops-shell">
@@ -150,6 +156,74 @@ export default async function OpsPage({
           </table>
         )}
         <p className="auth-copy">Blob storage · {storageLine(storage)}</p>
+      </section>
+
+      <section className="card ops-card" aria-labelledby="ops-law-title">
+        <span className="auth-eyebrow" id="ops-law-title">
+          email-law review · {verdict.state}
+        </span>
+        <p className="auth-copy">
+          {verdict.words} No campaign sends unless the latest review&rsquo;s hash matches the table
+          below. Editing the table voids the review.
+          {review && ` Last review: ${review.reviewer}, ${review.reviewed_on}.`}
+        </p>
+        {params.law_review && (
+          <p className="auth-copy" role="status">
+            {params.law_review === "recorded" ? "Review recorded." : params.law_review}
+          </p>
+        )}
+        <p className="auth-copy">
+          Table hash <span className="ops-mono">{tableHash}</span>
+        </p>
+        <table className="ops-table">
+          <thead>
+            <tr>
+              <th>regime</th>
+              <th>countries</th>
+              <th>each message must carry</th>
+              <th>unsubscribe honoured within</th>
+              <th>link must work for</th>
+              <th>source</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.values(REGIMES).map((r) => (
+              <tr key={r.id}>
+                <td>{r.label}</td>
+                <td className="ops-mono">{r.countries.join(" ")}</td>
+                <td>{r.requires.join(", ").replace(/_/g, " ")}</td>
+                <td>
+                  {r.honour_unsubscribe_business_days === null
+                    ? "without undue delay"
+                    : `${r.honour_unsubscribe_business_days} business days`}
+                </td>
+                <td>
+                  {r.unsubscribe_link_min_days === null
+                    ? "no stated minimum"
+                    : `${r.unsubscribe_link_min_days} days`}
+                </td>
+                <td>{r.source}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <form className="ops-form" method="post" action="/api/ops/law-review">
+          <input type="hidden" name="key" value={params.key ?? ""} />
+          <input type="hidden" name="table_sha256" value={tableHash} />
+          <label className="auth-copy">
+            Reviewer (a person&rsquo;s name){" "}
+            <input name="reviewer" required maxLength={200} autoComplete="off" />
+          </label>
+          <label className="auth-copy">
+            Reviewed on <input name="reviewed_on" type="date" required />
+          </label>
+          <label className="auth-copy">
+            Note (optional) <input name="note" maxLength={500} autoComplete="off" />
+          </label>
+          <button type="submit" className="next">
+            Record that this table was reviewed against current law
+          </button>
+        </form>
       </section>
     </main>
   );

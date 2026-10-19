@@ -146,6 +146,35 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // P4-15, 2026-10-19: campaign email from SYB's own Resend account. One
+      // write scope, one irreversible op, and two consent lines on that scope
+      // — what SYB may do, and what it will never do.
+      email_campaign: {
+        label: "Campaign email",
+        write_scopes: ["email.send_marketing"],
+        readback_scopes: [],
+        operations: [
+          {
+            // Irreversible: a sent email can't be recalled.
+            op: "send_campaign",
+            description:
+              "Send an approved campaign email to the customers who explicitly agreed to hear from you, each one checked again at the moment it goes.",
+            reversible: false,
+          },
+        ],
+        consent: [
+          {
+            scope: "email.send_marketing",
+            grant: "your consent here (SYB's own email service)",
+            why: "SYB may send the campaigns you approve, from {sender}, to customers who explicitly agreed to hear from you.",
+          },
+          {
+            scope: "email.send_marketing",
+            grant: "your consent here (SYB's own email service)",
+            why: "SYB will never email anyone who hasn't explicitly agreed, or who unsubscribed.",
+          },
+        ],
+      },
     });
   });
 
@@ -177,9 +206,16 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
 
   it("every consent line explains a registered scope, and every scope has one", () => {
     for (const spec of Object.values(EXECUTION_SCOPE_REGISTRY)) {
-      const consented = spec.consent.map((c) => c.scope).sort();
+      // P4-15: a scope may carry more than one line (email_campaign's promise
+      // and its restraint), so the comparison is over the SET of scopes named.
+      const consented = [...new Set(spec.consent.map((c) => c.scope as string))].sort();
       expect(consented).toEqual([...spec.write_scopes].sort());
     }
+  });
+
+  it("P4-15: sending is write-shaped by the measurement audit's own vocabulary", () => {
+    expect(isWriteCapable("email.send_marketing")).toBe(true);
+    expect(isWriteCapable("read_email_stats")).toBe(false);
   });
 
   it("no execution scope appears in the measurement registry — a read connection cannot gain a write scope by name collision", () => {

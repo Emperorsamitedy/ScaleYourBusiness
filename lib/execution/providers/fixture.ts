@@ -31,14 +31,17 @@ export interface ExecutionContext {
  * failed authentication and paused itself; "stop": the emergency stop came
  * on before anything was sent. The engine journals the run as failed with
  * that hold, and the due runner picks it up again once the cause clears.
+ * P4-15 adds "remaining": a campaign run ended at its per-run recipient
+ * cap (or the email service asked it to slow down) with recipients still
+ * unsent; the next run sends only those.
  */
-export type HeldFor = "reconnect" | "stop";
+export type HeldFor = "reconnect" | "stop" | "remaining";
 
 /** Pure: the hold an error carries, or null. */
 export function heldFor(error: unknown): HeldFor | null {
   if (error === null || typeof error !== "object") return null;
   const v = (error as { held_for?: unknown }).held_for;
-  return v === "reconnect" || v === "stop" ? v : null;
+  return v === "reconnect" || v === "stop" || v === "remaining" ? v : null;
 }
 
 /**

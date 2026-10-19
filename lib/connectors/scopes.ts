@@ -196,6 +196,8 @@ const WRITE_CAPABLE = [
   /modify/i,
   /edit/i,
   /publish/i,
+  // P4-15: sending email is a write (migration 0048 mirrors it in the trigger).
+  /send/i,
   /full[_.-]?access/i,
   /^\*$/,
   /^all$/i,

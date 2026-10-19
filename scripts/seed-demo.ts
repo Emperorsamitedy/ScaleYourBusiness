@@ -194,7 +194,10 @@ async function seed(): Promise<void> {
   const { proposeSiteChange } = await import("../lib/site/changes");
   const { importContacts } = await import("../lib/crm/import");
   const { proposeFromSegments } = await import("../lib/crm/segment-proposals");
-  const { draftCampaign } = await import("../lib/crm/campaign-draft");
+  const { draftCampaign, campaignDraftFor } = await import("../lib/crm/campaign-draft");
+  const { approveCampaignEmail, campaignGates } = await import("../lib/crm/campaign-send");
+  const { consentToCampaignEmail } = await import("../lib/execution/email-consent");
+  const { sha256: sha256Hex } = await import("../lib/execution/providers/email-campaign");
   const { generateProposals } = await import("../lib/proposals/generate");
   const { approveProposal, rejectProposal } = await import("../lib/proposals/service");
 
@@ -1629,6 +1632,35 @@ async function seed(): Promise<void> {
         text: "Thank you.\n\nYou're one of the people who keeps coming back to the studio, and it's because of you that we can keep making things slowly. The winter glazes go up on the shop next week — you'll hear first.\n\nAoife and Niall",
       }),
     });
+    // P4-15: the owner grants campaign email and approves the drafted email
+    // itself. Nothing is sent: the seed never asks for a send, and the engine
+    // would hold it anyway (the business is still being watched, the real-send
+    // switch is off, no law review is on record locally). The card on
+    // /customers shows those gates in words. No network, no model.
+    await consentToCampaignEmail({
+      accountId: ids.account,
+      senderName: "Fernhill Ceramics",
+      replyTo: "studio@fernhill-ceramics.example",
+      confirmation: "allow campaign email",
+    });
+    const vipDraft = await campaignDraftFor(vip.id);
+    if (vipDraft) {
+      await approveCampaignEmail({
+        profileId: ids.profile,
+        proposalId: vip.id,
+        userId: ids.user,
+        subject: "Thank you, from the studio",
+        bodySha256: sha256Hex(vipDraft.body),
+      });
+    }
+    const [vipRow] = await db
+      .select()
+      .from(schema.proposals)
+      .where(eq(schema.proposals.id, vip.id));
+    if (vipRow) {
+      const gates = await campaignGates(vipRow, ids.account);
+      log(`  thank-you campaign approved and held: ${gates.map((g) => g.code).join(", ")}`);
+    }
   }
 
   const classify = async ({ user }: { user: string }) => {
