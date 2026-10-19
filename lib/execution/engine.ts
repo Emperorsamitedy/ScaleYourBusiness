@@ -310,7 +310,22 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
 
   // Undo payload BEFORE attempt one (rule 16), kept forever.
   if (opSpec.reversible && execution.undo_payload === null) {
-    const undoPayload = await args.provider.captureUndo(args.op, args.params, runCtx);
+    let undoPayload: unknown;
+    try {
+      undoPayload = await args.provider.captureUndo(args.op, args.params, runCtx);
+    } catch (error) {
+      // Nothing has run, and nothing will without its undo. Close the claimed
+      // row as failed (never left `running`, which nothing would ever reclaim).
+      await db
+        .update(executions)
+        .set({
+          status: "failed",
+          error: `the undo could not be captured: ${logSafeError(error).error_message}`,
+          finished_at: now().toISOString(),
+        })
+        .where(eq(executions.id, execution.id));
+      throw error;
+    }
     if (undoPayload === null) {
       await db
         .update(executions)

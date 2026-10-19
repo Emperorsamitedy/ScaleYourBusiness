@@ -13,7 +13,10 @@ import {
   FACEBOOK_LOGIN_OFF,
   OFFERED_EXECUTION,
   TESTER_NOTE,
+  ADS_ACCESS_TIER_NOTE,
+  ADS_ACCESS_TIER_UNSEEN,
   accessLevelCopy,
+  accessTierWords,
   confirmationMatches,
 } from "./setup";
 
@@ -116,5 +119,20 @@ describe("P3-20i — access-level honesty", () => {
     expect(
       accessLevelCopy("advanced", true).routes.find((r) => /Facebook/.test(r.title)),
     ).toMatchObject({ available: true });
+  });
+});
+
+describe("P3-22d — access-tier honesty on the screen", () => {
+  it("says the tier Meta reported in words, says plainly when none was seen, and never invents one", () => {
+    expect(accessTierWords("development_access")).toMatch(/development tier/);
+    expect(accessTierWords("standard_access")).toMatch(/300 \+ 40 × active ads calls an hour/);
+    expect(accessTierWords(null)).toBe(ADS_ACCESS_TIER_UNSEEN);
+    expect(accessTierWords("advanced_access")).toBe("advanced_access"); // unknown: Meta's own word
+  });
+
+  it("the note names the limit, the 75% wait, and what lifts it", () => {
+    expect(ADS_ACCESS_TIER_NOTE).toMatch(/enough for one business, not a customer base/);
+    expect(ADS_ACCESS_TIER_NOTE).toMatch(/75%/);
+    expect(ADS_ACCESS_TIER_NOTE).toMatch(/500 successful calls in 15 days/);
   });
 });

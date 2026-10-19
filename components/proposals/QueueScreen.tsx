@@ -94,6 +94,8 @@ interface Proposal {
       rationale?: string;
       manual_limits?: string[];
       publish_at?: string;
+      /** P3-22b: approving without a time queues it for the next run (the ad changes). */
+      execute_on_approval?: boolean;
       sending?: string;
       [k: string]: unknown;
     };
@@ -161,11 +163,16 @@ const HISTORY_WORD: Record<string, string> = {
   expired: "EXPIRED",
 };
 
-function scheduleOptions(publishAt: string | undefined): { key: ScheduleKey; label: string }[] {
+function scheduleOptions(
+  publishAt: string | undefined,
+  onApproval = false,
+): { key: ScheduleKey; label: string }[] {
   const planned =
     publishAt && !Number.isNaN(Date.parse(publishAt))
       ? `at its planned time, ${dayWord(publishAt)} ${clockWord(publishAt)}`
-      : "with no set time";
+      : onApproval
+        ? "on the next run after you approve"
+        : "with no set time";
   return [
     { key: "now", label: planned },
     { key: "tomorrow", label: "no earlier than tomorrow" },
@@ -178,7 +185,9 @@ function runAtFor(p: Proposal, key: ScheduleKey, nowMs: number): string | null {
   const picked = executeNotBefore(key, nowMs);
   if (picked) return picked;
   const at = p.action.detail?.publish_at;
-  return typeof at === "string" && !Number.isNaN(Date.parse(at)) ? at : null;
+  if (typeof at === "string" && !Number.isNaN(Date.parse(at))) return at;
+  // P3-22b: the server schedules these for the moment of approval (carriedSchedule).
+  return p.action.detail?.execute_on_approval === true ? new Date(nowMs).toISOString() : null;
 }
 
 async function fetchQueue(): Promise<Queue | "signedout"> {
@@ -1080,7 +1089,10 @@ export function QueueScreen() {
                 setSchedules((cur) => ({ ...cur, [p.id]: e.target.value as ScheduleKey }))
               }
             >
-              {scheduleOptions(p.action.detail?.publish_at).map((s) => (
+              {scheduleOptions(
+                p.action.detail?.publish_at,
+                p.action.detail?.execute_on_approval === true,
+              ).map((s) => (
                 <option key={s.key} value={s.key}>
                   {s.label}
                 </option>

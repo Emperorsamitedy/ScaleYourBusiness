@@ -176,3 +176,27 @@ export const NOTHING_SENT_YET =
 /** Said beside disconnect: SYB's side forgets; Meta's side is the owner's to revoke. */
 export const DISCONNECT_NOTE =
   "Disconnecting deletes the token here at once. It revokes nothing on Meta's side: to withdraw the permissions there, remove the app from your business settings.";
+
+/**
+ * P3-22d: the Marketing API access tier, said honestly. Meta reports it on
+ * every ads call (`ads_api_access_tier`); the executor stores the last one
+ * on the connection and the screen shows it verbatim beside these words.
+ */
+export const ADS_ACCESS_TIER_WORDS: Readonly<Record<string, string>> = {
+  development_access: "development tier: Meta's lowest limits, meant for building",
+  standard_access: "standard access: about 300 + 40 × active ads calls an hour on this ad account",
+};
+
+/** Before the first ads call there is nothing to show — and the screen says so. */
+export const ADS_ACCESS_TIER_UNSEEN =
+  "not seen yet — Meta reports it on SYB's first call for an ad change";
+
+/** Beside the tier: what it means for the owner, and what lifts it. */
+export const ADS_ACCESS_TIER_NOTE =
+  "Meta limits how many calls SYB may make on this ad account each hour, by tier. That is enough for one business, not a customer base. SYB waits for the next run whenever Meta reports 75% of the limit used. Higher limits need Meta's review, which SYB applies for once 500 successful calls in 15 days exist.";
+
+/** Pure: the tier as the owner reads it. Unknown tiers are shown as Meta named them. */
+export function accessTierWords(tier: string | null): string {
+  if (tier === null) return ADS_ACCESS_TIER_UNSEEN;
+  return ADS_ACCESS_TIER_WORDS[tier] ?? tier;
+}

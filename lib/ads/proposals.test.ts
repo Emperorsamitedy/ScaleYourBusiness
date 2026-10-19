@@ -3,7 +3,8 @@
 // measured days; a raise needs ROAS at or above 3.0 over 28 days with 14
 // measured; fewer than 14 measured days proposes nothing; a change beyond
 // ±50% or over a stated ceiling is refused with the number named;
-// proposals are deduped, limited, never executed, and never made while a
+// proposals are deduped, limited, never pre-bound to a plan (the runner
+// builds one from the row once approved — P3-22b), and never made while a
 // business is being watched.
 
 import "dotenv/config";
@@ -230,7 +231,9 @@ describe("P3-22a — proposeAdChanges", () => {
         roas: 0.6,
       },
     });
-    expect(preboundPlan(pause)).toBeNull(); // nothing for the runner to execute yet
+    // No pre-bound plan: the runner builds it from this row (P3-22b, adsPlan), on approval.
+    expect(preboundPlan(pause)).toBeNull();
+    expect(pause.action).toMatchObject({ detail: { execute_on_approval: true } });
     expect(run.skipped.find((s) => s.ref === "120000003")?.reason).toMatch(
       /nothing the measured days/,
     );

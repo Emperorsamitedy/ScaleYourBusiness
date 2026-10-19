@@ -12,7 +12,8 @@
 // 33, "object missing or no permission"), rate limit 4/17/32/613, and
 // 80001, the Page business-use-case limit. Codes met at build time are
 // added here with the test that met them. Anything else gets the honest
-// default: "Meta refused with code N; nothing was published".
+// default: "Meta refused with code N; nothing was published" (or "changed",
+// for an ad change — P3-22b).
 
 import { AUTH_CODES, PERMISSION_CODES, RATE_LIMIT_CODES } from "../connectors/providers/meta-ads";
 
@@ -60,8 +61,11 @@ export function classifyMetaError(args: {
   status: number;
   code: number | null;
   subcode?: number | null;
+  /** What was being done, for the sentence: a publish (default) or an ad change (P3-22b). */
+  subject?: "publish" | "ad_change";
 }): MetaFailure {
   const { status, code } = args;
+  const done = args.subject === "ad_change" ? "changed" : "published";
   const subcode = args.subcode ?? null;
   const base = { code, subcode };
 
@@ -118,7 +122,7 @@ export function classifyMetaError(args: {
     return {
       ...base,
       kind: "unavailable",
-      owner_sentence: "Meta didn't answer just now. Nothing was published — I'll try again.",
+      owner_sentence: `Meta didn't answer just now. Nothing was ${done} — I'll try again.`,
       connection_state: "connected",
       next_step: "wait",
       retryable: true,
@@ -127,7 +131,7 @@ export function classifyMetaError(args: {
   return {
     ...base,
     kind: "unknown",
-    owner_sentence: `Meta refused with ${code !== null ? `code ${code}` : `status ${status}`}; nothing was published.`,
+    owner_sentence: `Meta refused with ${code !== null ? `code ${code}` : `status ${status}`}; nothing was ${done}.`,
     connection_state: "connected",
     next_step: "check_item",
     retryable: false,

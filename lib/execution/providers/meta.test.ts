@@ -14,7 +14,12 @@
 //     No registered path under act_* names a money surface.
 //   · NO PUBLISH WITHOUT ITS DISCLOSURE (rule 17). Every publishing request
 //     passes one check before it is sent; the scan proves none can skip it.
-//   · THE AD OPS ARE NAMED, NOT BUILT. They refuse by name until D3.
+//   · THE AD WRITES (P3-22b). POST only on a campaign by id and the ad
+//     account's campaigns edge; only the fields AD_WRITE_FIELDS lists; a
+//     status of PAUSED or ACTIVE only — DELETED and ARCHIVED, both permanent
+//     on Meta, appear nowhere in the code. Rule 18 re-proven: no registered
+//     op, path or ad field names billing, funding, payment methods or
+//     payment cycles. (The ops themselves: meta-ads-exec.test.ts.)
 
 import "dotenv/config";
 import { readFileSync } from "node:fs";
@@ -32,6 +37,7 @@ import {
 import type { MetaResponse } from "../../connectors/providers/meta-ads";
 import { metaError, metaJson } from "../../connectors/providers/meta-fake";
 import { decryptSecret } from "../../connectors/secrets";
+import { EXECUTION_SCOPE_REGISTRY, touchesMoneySurface } from "../scopes";
 import { bootstrapIntake } from "../../intake/service";
 import {
   ExecutionConnectionError,
@@ -48,7 +54,11 @@ import {
   DISCLOSED_TEXT_FIELD,
   META_EXEC_MAX_ATTEMPTS,
   META_EXEC_REQUESTS,
-  MetaOpNotBuiltError,
+  AD_STATUSES,
+  AD_WRITE_FIELDS,
+  VALIDATE_ONLY,
+  adWriteViolation,
+  adsAccessTier,
   auditMetaRequests,
   createMetaExecution,
   disclosureViolation,
@@ -311,6 +321,10 @@ describe("rules 13 and 18 — what the connector can send", () => {
       // P3-21c, added deliberately: undo is deletion.
       page_post_delete: { method: "DELETE", path: "/{post_id}" },
       ig_media_delete: { method: "DELETE", path: "/{ig_media_id}" },
+      // P3-22b, added deliberately: the ad ops.
+      campaign: { method: "GET", path: "/{campaign_id}" },
+      campaign_update: { method: "POST", path: "/{campaign_id}" },
+      campaign_create: { method: "POST", path: "/act_{ad_account_id}/campaigns" },
     });
     // Every non-GET, named: the token exchange, the publish POSTs, the two undo DELETEs.
     const nonGet = Object.entries(META_EXEC_REQUESTS)
@@ -326,6 +340,8 @@ describe("rules 13 and 18 — what the connector can send", () => {
       "POST ig_publish",
       "DELETE page_post_delete",
       "DELETE ig_media_delete",
+      "POST campaign_update",
+      "POST campaign_create",
     ]);
 
     const source = readFileSync(fileURLToPath(new URL("./meta.ts", import.meta.url)), "utf8");
@@ -344,6 +360,8 @@ describe("rules 13 and 18 — what the connector can send", () => {
       'reel_upload: { method: "POST", path: "/{video_id}", origin: "rupload" },',
       'ig_container: { method: "POST", path: "/{ig_user_id}/media" },',
       'ig_publish: { method: "POST", path: "/{ig_user_id}/media_publish" },',
+      'campaign_update: { method: "POST", path: "/{campaign_id}" },',
+      'campaign_create: { method: "POST", path: "/act_{ad_account_id}/campaigns" },',
       'method: "GET" | "POST" | "DELETE";',
       'const asBody = "bearer" in auth && method === "POST";',
     ]);
@@ -377,7 +395,11 @@ describe("rules 13 and 18 — what the connector can send", () => {
     const checked = new Set(["ig_container", ...Object.keys(DISCLOSED_TEXT_FIELD)]);
     // reel_upload sends the file, ig_publish a container id: neither carries text.
     const captionless = new Set(["token_exchange", "reel_upload", "ig_publish"]);
-    for (const k of posts) expect(checked.has(k) || captionless.has(k)).toBe(true);
+    // The ad writes publish nothing; their own check (adWriteViolation) bounds every field.
+    const adWrites = new Set(Object.keys(AD_WRITE_FIELDS));
+    for (const k of posts) {
+      expect(checked.has(k) || captionless.has(k) || adWrites.has(k)).toBe(true);
+    }
     expect(Object.keys(DISCLOSED_TEXT_FIELD).sort()).toEqual([
       "page_feed",
       "page_photos",
@@ -443,22 +465,142 @@ describe("rules 13 and 18 — what the connector can send", () => {
   });
 });
 
-describe("P3-22b pending — the ad ops are named, not built", () => {
-  it("every ad op refuses by name, and capturing an undo refuses rather than claiming irreversibility", async () => {
+describe("P3-22b — what an ad write may carry", () => {
+  it("THE BUILD GATE: DELETED and ARCHIVED appear nowhere in the code, and the only statuses sent are PAUSED and ACTIVE", () => {
+    const source = readFileSync(fileURLToPath(new URL("./meta.ts", import.meta.url)), "utf8");
+    const code = source
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => !l.startsWith("//") && !l.startsWith("*") && !l.startsWith("/*"));
+    // Both are permanent on Meta, so "delete campaign" is not an op.
+    expect(code.join("\n")).not.toMatch(/DELETED|ARCHIVED/);
+    expect([...AD_STATUSES]).toEqual(["PAUSED", "ACTIVE"]);
+    // Every status literal the code sends is one of the two.
+    const literals = [...code.join("\n").matchAll(/status: "([A-Z_]+)"/g)].map((m) => m[1]);
+    expect(literals.length).toBeGreaterThan(0);
+    for (const l of literals) expect(AD_STATUSES).toContain(l);
+    // One function sends the dry run, and every ad write goes through it.
+    expect(code.filter((l) => l.includes("execution_options: VALIDATE_ONLY"))).toHaveLength(1);
+  });
+
+  it("adWriteViolation: passes the writes SYB makes, refuses every other field and status", () => {
+    const dry = { execution_options: VALIDATE_ONLY };
+    expect(adWriteViolation("campaign_update", { status: "PAUSED" })).toBeNull();
+    expect(adWriteViolation("campaign_update", { status: "ACTIVE", ...dry })).toBeNull();
+    expect(adWriteViolation("campaign_update", { daily_budget: "1200" })).toBeNull();
+    for (const status of ["DELE" + "TED", "ARCH" + "IVED", "paused", ""]) {
+      expect(adWriteViolation("campaign_update", { status })).toMatch(/PAUSED or ACTIVE only/);
+    }
+    expect(adWriteViolation("campaign_update", { spend_cap: "100" })).toMatch(/"spend_cap"/);
+    expect(adWriteViolation("campaign_update", { lifetime_budget: "100" })).toMatch(
+      /"lifetime_budget"/,
+    );
+    expect(adWriteViolation("campaign_update", { daily_budget: "0" })).toMatch(/positive whole/);
+    expect(adWriteViolation("campaign_update", { daily_budget: "12.5" })).toMatch(/positive whole/);
+    expect(adWriteViolation("campaign_update", {})).toMatch(/status or a daily budget/);
+    expect(
+      adWriteViolation("campaign_update", { status: "PAUSED", execution_options: "[]" }),
+    ).toMatch(/validate_only/);
+    const create = {
+      name: "Winter",
+      objective: "OUTCOME_TRAFFIC",
+      status: "PAUSED",
+      special_ad_categories: "[]",
+      buying_type: "AUCTION",
+    };
+    expect(adWriteViolation("campaign_create", create)).toBeNull();
+    expect(adWriteViolation("campaign_create", { ...create, status: "ACTIVE" })).toMatch(
+      /created PAUSED/,
+    );
+    expect(adWriteViolation("campaign_create", { ...create, buying_type: "RESERVED" })).toMatch(
+      /AUCTION/,
+    );
+    expect(adWriteViolation("campaign_create", { ...create, objective: "LINK_CLICKS" })).toMatch(
+      /objectives/,
+    );
+    expect(
+      adWriteViolation("campaign_create", { ...create, special_ad_categories: '["CASINO"]' }),
+    ).toMatch(/special_ad_categories/);
+    expect(adWriteViolation("page", { status: "anything" })).toBeNull(); // not an ad write
+  });
+
+  it("an op the registry doesn't name never reaches Meta", async () => {
     const { exec, calls } = meta();
     const ctx = { profile_id: "p", account_id: "a" };
-    await expect(exec.ads.execute("pause_campaign", {}, ctx)).rejects.toThrow(MetaOpNotBuiltError);
-    await expect(exec.ads.captureUndo("set_daily_budget", {}, ctx)).rejects.toThrow(/P3-22b/);
-    await expect(exec.ads.undo("set_daily_budget", {}, ctx)).rejects.toThrow(
-      /nothing was sent to Meta/,
+    await expect(exec.ads.execute("delete_campaign", {}, ctx)).rejects.toThrow(
+      /not an ad change SYB makes/,
     );
     expect(calls).toHaveLength(0);
+  });
+
+  it("THE BUILD GATE (rule 18, re-proven): no registered op, path or ad field names billing, funding, payment methods or payment cycles", () => {
+    const money = (v: string) => touchesMoneySurface(v) || /cycle|spend_cap/i.test(v);
+    const ops = Object.values(EXECUTION_SCOPE_REGISTRY).flatMap((p) =>
+      p.operations.map((o) => o.op),
+    );
+    expect(ops.filter(money)).toEqual([]);
+    expect(
+      Object.values(META_EXEC_REQUESTS)
+        .map((r) => r.path)
+        .filter(money),
+    ).toEqual([]);
+    expect(Object.values(AD_WRITE_FIELDS).flat().filter(money)).toEqual([]);
+    // And the check bites: planted money surfaces are caught.
+    for (const planted of [
+      "/act_{ad_account_id}/adspaymentcycle",
+      "/act_{ad_account_id}/funding_source_details",
+      "/act_{ad_account_id}/payment_methods",
+      "/act_{ad_account_id}/billing_events",
+      "spend_cap",
+      "set_payment_method",
+    ]) {
+      expect(money(planted)).toBe(true);
+    }
   });
 
   it("both Meta providers write to a real platform, so the Session D gate covers them", () => {
     const { exec } = meta();
     expect(exec.publish.external).toBe(true);
     expect(exec.ads.external).toBe(true);
+  });
+
+  it("P3-22d: reads ads_api_access_tier from whichever usage header carries it", () => {
+    const h = (o: Record<string, string>) => (n: string) => o[n] ?? null;
+    expect(adsAccessTier(h({}))).toBeNull();
+    expect(
+      adsAccessTier(
+        h({
+          "x-business-use-case-usage": JSON.stringify({
+            "1": [
+              { type: "ads_management", call_count: 3, ads_api_access_tier: "standard_access" },
+            ],
+          }),
+        }),
+      ),
+    ).toBe("standard_access");
+    expect(
+      adsAccessTier(
+        h({
+          "x-ad-account-usage": JSON.stringify({
+            acc_id_util_pct: 9,
+            ads_api_access_tier: "development_access",
+          }),
+        }),
+      ),
+    ).toBe("development_access");
+    expect(
+      adsAccessTier(
+        h({
+          "x-fb-ads-insights-throttle": JSON.stringify({ ads_api_access_tier: "standard_access" }),
+        }),
+      ),
+    ).toBe("standard_access");
+    // Only a short word is stored and shown.
+    expect(
+      adsAccessTier(
+        h({ "x-ad-account-usage": JSON.stringify({ ads_api_access_tier: "<b>x</b>" }) }),
+      ),
+    ).toBeNull();
   });
 });
 
