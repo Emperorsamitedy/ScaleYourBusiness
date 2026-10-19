@@ -24,6 +24,7 @@ import { db } from "../../db";
 import { businessProfiles, contentItems, executions } from "../../db/schema";
 import type { ProposalRow } from "../proposals/service";
 import { campaignOutcome } from "./campaign-readback";
+import { emailCampaignOutcome } from "./email-readback";
 import { postOutcome } from "./post-readback";
 import type { WindowStat } from "./series";
 import { dailySeries, shiftDay, windowStat } from "./series";
@@ -45,8 +46,8 @@ export const READBACK = {
 
 export type OutcomeVerdict = "helped" | "did_nothing" | "backfired" | "too_early" | "unmeasured";
 
-/** What a proposal is judged on (P3-23b). */
-export type JudgedOn = "revenue" | "post" | "campaign";
+/** What a proposal is judged on (P3-23b; "email" since P4-17). */
+export type JudgedOn = "revenue" | "post" | "campaign" | "email";
 
 export interface ProposalOutcome {
   proposal_id: string;
@@ -114,6 +115,7 @@ export async function readbackForProposal(
   const kind = judgedOn(proposal);
   if (kind === "post") return publishedItemReadback(proposal, base);
   if (kind === "campaign") return adChangeReadback(proposal, base, day, now);
+  if (kind === "email") return emailReadback(proposal, base);
 
   const from = shiftDay(day, -READBACK.before_days);
   const today = now.toISOString().slice(0, 10);
@@ -180,6 +182,8 @@ export function judgedOn(proposal: Pick<ProposalRow, "module" | "action">): Judg
   if (action.kind === "content_publishing" && typeof action.detail?.item_id === "string") {
     return "post";
   }
+  // A customer email campaign (P4-14/15): judged on who bought again (P4-17).
+  if (proposal.module === "crm" && action.kind === "customer_email") return "email";
   // An ad change (P3-22a): module "ads", on one campaign.
   if (proposal.module === "ads" && typeof action.detail?.campaign_ref === "string") {
     return "campaign";
@@ -218,6 +222,19 @@ async function publishedItemReadback(proposal: ProposalRow, base: Base): Promise
     verdict: post.verdict,
     delta_pct: post.delta_pct,
     arithmetic: post.arithmetic,
+  };
+}
+
+async function emailReadback(proposal: ProposalRow, base: Base): Promise<ProposalOutcome> {
+  const e = await emailCampaignOutcome(proposal);
+  return {
+    ...base,
+    judged_on: "email",
+    metric: "customers.bought_again",
+    verdict: e.verdict,
+    // Points, not a percentage change: the lift lives in the arithmetic.
+    delta_pct: null,
+    arithmetic: e.arithmetic,
   };
 }
 

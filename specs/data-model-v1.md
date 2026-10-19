@@ -781,7 +781,7 @@ interface DecisionLogEntry {
   profile_id: BusinessProfileId;
   at: ISODateTime;
   actor: "system" | "owner";
-  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send" | "law_review" | "campaign_approval" | "unsubscribe";
+  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send" | "law_review" | "campaign_approval" | "unsubscribe" | "complaint";
   ref_id: string;
   payload_hash: string;
 }
@@ -818,6 +818,7 @@ interface GoalBaseline {
 - **`law_review`**: a person reviewed the jurisdiction table (`lib/crm/jurisdiction.ts` REGIMES) against current law. Its `ref_id` is a `jurisdiction_reviews` row: the reviewer's name, the day, an optional note, and `table_sha256`, the sha256 of the table's canonical serialisation (keys sorted at every depth, arrays in order). A campaign sends only while the LATEST review's hash equals the table as it is now, so editing the table voids the review. The review covers the product, not one business, so the entry is filed under the nil uuid as `profile_id` (no business profile can hold it) with actor `system`. Its hash covers the review id, the sha256 of the reviewer's name (never the name itself), the day, the table hash and the time.
 - **`campaign_approval`**: the owner approved the exact campaign email. Its `ref_id` is the campaign proposal. Its hash covers the proposal and draft ids, the approving user, the time, the sha256 of the body as approved and the sha256 of the subject line. The draft's own row keeps the same four facts (`content_items.approved_by/at/sha256/subject`). What goes out to each recipient is that body with the `{{unsubscribe_url}}` slot filled and nothing else changed, which the executor proves before each send.
 - **`unsubscribe`**: a recipient used their link. Its `ref_id` is the `campaign_sends` row. It is written by the system, and its hash covers the send id, the account and the time. It never holds the address, its hash or the token.
+- **`complaint`** (P4-17, rule 23): the email service reported that a recipient marked a campaign email as spam (Resend's `email.complained`, Svix-signed, matched by Resend's email id). The address is suppressed permanently in the same transaction (`contact_suppressions`, reason `complained`, from the send row's keyed hash), exactly as an unsubscribe is. Its `ref_id` is the `campaign_sends` row; written by the system; its hash covers the send id, the account and the time. Like `unsubscribe`, it never holds the address, its hash or Resend's id. An event for an erased recipient matches nothing (erasure nulls the provider id) and is dropped; the erasure's own suppression already holds.
 
 ```ts
 // P4-15: one row per recipient per campaign (table campaign_sends), materialised from the
@@ -838,9 +839,31 @@ interface CampaignSend {
   body_sha256: string | null;     // the exact text this recipient was sent
   provider_status: number | null; // a definitive refusal's HTTP status, never the provider's message
   unsubscribed_at: ISODateTime | null;
+  // P4-17: what the email service reported — the first event of each kind only, so a
+  // redelivered event changes nothing. Opens and clicks are never stored.
+  delivered_at: ISODateTime | null;
+  bounced_at: ISODateTime | null;
+  bounce_type: "permanent" | "temporary" | "suppressed" | "other" | null; // with bounced_at; a code, never the server's message
+  complained_at: ISODateTime | null;   // marked as spam: suppresses the address for good
 }
 // UNIQUE (proposal_id, contact_id) and UNIQUE (proposal_id, email_hash): once per recipient,
 // structurally. `unknown` is never sent again, by any run.
+
+// P4-17: the comparison group for a campaign's readback (table campaign_comparisons) — the
+// segment's members NOT on the approved list, as they stood when the send began. Ids only.
+interface CampaignComparison {
+  id: string;
+  proposal_id: ProposalId;
+  contact_id: ContactId | null;   // nulled by erasure (rule 22)
+  snapshot_at: ISODateTime;       // "bought again since" is measured from here for this group
+}
+// Contacts gain purchase_refreshed_at: when a shop export with a last-order column last covered
+// them. A later import refreshes an existing contact's purchase history (never its consent; the
+// last order date never moves backwards). The readback (lib/trust/email-readback.ts) counts a
+// recipient as "bought again" when an export at least the scenario's wait after their send
+// (14 days for a win-back, 28 for a thank-you) shows a last order on a later day, and compares
+// that rate with the comparison group's. Observational, not randomised; without a comparison of
+// at least 5 measured, a lift is never "helped".
 ```
 
 **`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
