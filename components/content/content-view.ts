@@ -15,6 +15,8 @@ export interface QueueItem {
   status: ContentStatus;
   publish_proposal_id: string | null;
   published_at: string | null;
+  /** The owner's sentence: why it failed, why it's waiting, or that Meta didn't confirm it. */
+  last_error?: string | null;
 }
 
 export interface ChannelStrip {
@@ -83,7 +85,10 @@ export function stateWord(
         tone: "ok",
       };
     case "publishing":
-      return { word: "publishing", tone: "live" };
+      // P3-21d: a run that lost Meta's answer leaves it here with a sentence — never re-sent.
+      return item.last_error
+        ? { word: "unconfirmed", tone: "drift" }
+        : { word: "publishing", tone: "live" };
     case "published":
       return {
         word: item.published_at ? `posted ${dayWord(item.published_at.slice(0, 10))}` : "posted",
@@ -139,6 +144,42 @@ export function contentHeadline(args: {
   if (blocked >= drafts.length) return `${first} None can post yet.`;
   if (nextDate) return `${first} The next one is due ${nextDate}.`;
   return first;
+}
+
+const PLATFORM_WORD: Readonly<Record<string, string>> = {
+  facebook: "Facebook",
+  instagram: "Instagram",
+};
+
+/** The platform's own name for a stored platform value ("instagram" → "Instagram"). */
+export function platformWord(platform: string | null): string {
+  return platform ? (PLATFORM_WORD[platform] ?? platform) : "the platform";
+}
+
+/**
+ * P3-21e: the one line under an item that says where it stands on its way
+ * out — published where, waiting why, or that publishing is switched off
+ * (the Session D real-write gate). Null when the row's state word is enough.
+ */
+export function publishLine(
+  item: QueueItem & { platform: string | null },
+  realWrites: boolean,
+): string | null {
+  switch (item.status) {
+    case "queued":
+      if (item.last_error) return item.last_error;
+      return realWrites
+        ? "Approved. It goes out at its posting time, through the runner; the emergency stop halts it."
+        : "Approved, and waiting for publishing to be switched on. Nothing is sent to Meta until then.";
+    case "publishing":
+      return item.last_error ?? `Going out to ${platformWord(item.platform)} now.`;
+    case "published":
+      return `Live on ${platformWord(item.platform)}.`;
+    case "withdrawn":
+      return `Withdrawn: deleted from ${platformWord(item.platform)}. Its record stays here.`;
+    default:
+      return null;
+  }
 }
 
 /** A short, real handle for an item: the first four hex digits of its id. */

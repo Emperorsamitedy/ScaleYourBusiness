@@ -12,7 +12,7 @@
 import { createHash } from "node:crypto";
 import { and, desc, eq, gt, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { decisionLog, proposals } from "../../db/schema";
+import { contentItems, decisionLog, proposals } from "../../db/schema";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 
 export class ProposalError extends Error {
@@ -268,6 +268,25 @@ async function decide(args: {
         );
       }
       throw new ProposalError(`this proposal is already ${cur.status}`, 409);
+    }
+    // P3-21e: approving a per-item publish proposal puts its item in the
+    // publishing queue (drafted → queued), in the same transaction.
+    const act = row.action as { kind?: unknown; detail?: { item_id?: unknown } } | null;
+    if (
+      args.to === "approved" &&
+      act?.kind === "content_publishing" &&
+      typeof act.detail?.item_id === "string"
+    ) {
+      await tx
+        .update(contentItems)
+        .set({ status: "queued" })
+        .where(
+          and(
+            eq(contentItems.id, act.detail.item_id),
+            eq(contentItems.publish_proposal_id, row.id),
+            eq(contentItems.status, "drafted"),
+          ),
+        );
     }
     const kind = LOG_KIND[args.to];
     await tx.insert(decisionLog).values({

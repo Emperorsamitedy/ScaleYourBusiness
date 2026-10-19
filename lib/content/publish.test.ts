@@ -300,7 +300,7 @@ describe("P3-21a — proposePublishing", () => {
     expect(Date.parse(approved.execute_not_before ?? "")).toBe(
       zonedInstant(inDays(10), DEFAULT_POSTING_HOUR, "Europe/Budapest").getTime(),
     );
-    // The runner leaves it approved until the publish ops exist (P3-21b).
+    // Nothing is pre-bound: the runner routes it through publishPlan, from the item itself (P3-21b).
     expect(preboundPlan(approved)).toBeNull();
 
     const pick = new Date(now.getTime() + 11 * 86_400_000 + 3_600_000).toISOString();

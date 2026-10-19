@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { type QueueItem, channelStrips, contentHeadline, shortId, stateWord } from "./content-view";
+import {
+  type QueueItem,
+  channelStrips,
+  contentHeadline,
+  publishLine,
+  shortId,
+  stateWord,
+} from "./content-view";
 
 const item = (over: Partial<QueueItem>): QueueItem => ({
   id: "64e2a1a7-b362-4bef-9f5f-318a2d4a0aaa",
@@ -72,5 +79,41 @@ describe("stateWord and shortId", () => {
 
   it("takes the first four hex digits of the real id", () => {
     expect(shortId("C", "64e2a1a7-b362")).toBe("C-64E2");
+  });
+});
+
+describe("P3-21d/e — the publishing queue's words", () => {
+  it("a publish Meta never confirmed reads 'unconfirmed', never plain 'publishing'", () => {
+    const day = (iso: string) => iso.slice(8);
+    expect(stateWord(item({ status: "publishing" }), day)).toEqual({
+      word: "publishing",
+      tone: "live",
+    });
+    expect(
+      stateWord(
+        item({ status: "publishing", last_error: "I may have posted this — check the Page." }),
+        day,
+      ),
+    ).toEqual({ word: "unconfirmed", tone: "drift" });
+  });
+
+  it("an approved item says plainly when publishing is switched off, and what happens when it's on", () => {
+    const queued = { ...item({ status: "queued" }), platform: null };
+    expect(publishLine(queued, false)).toMatch(
+      /^Approved, and waiting for publishing to be switched on\. Nothing is sent to Meta/,
+    );
+    expect(publishLine(queued, true)).toMatch(/goes out at its posting time, through the runner/);
+    expect(publishLine({ ...queued, last_error: "Meta says this Page has used 80%" }, true)).toBe(
+      "Meta says this Page has used 80%",
+    );
+  });
+
+  it("published and withdrawn items name the platform; drafts need no line", () => {
+    const at = (status: QueueItem["status"]) => ({ ...item({ status }), platform: "instagram" });
+    expect(publishLine(at("published"), true)).toBe("Live on Instagram.");
+    expect(publishLine(at("withdrawn"), true)).toBe(
+      "Withdrawn: deleted from Instagram. Its record stays here.",
+    );
+    expect(publishLine(at("drafted"), false)).toBeNull();
   });
 });
