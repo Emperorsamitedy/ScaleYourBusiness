@@ -379,3 +379,15 @@ describe("the third answer's stamp", () => {
     ).toBe("CHANGES REQUESTED 14:02 · ref 3f2a9c1b");
   });
 });
+
+describe("evidenceLines — P3-23c, a line computed from measured rows", () => {
+  it("shows a measured evidence line as DERIVED with its source, not ASSUMED", () => {
+    const [line] = evidenceLines(
+      [{ statement: "Your three Reels…", source_field: null, measured: "measured per post · x" }],
+      {},
+    );
+    expect(line).toMatchObject({ basis: "DERIVED", source: "measured per post · x" });
+    const [plain] = evidenceLines([{ statement: "a guess", source_field: null }], {});
+    expect(plain?.basis).toBe("ASSUMED");
+  });
+});

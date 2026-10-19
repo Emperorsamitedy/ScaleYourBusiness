@@ -11,13 +11,20 @@
 //
 // Deterministic throughout: thresholds in code, tested at their
 // boundaries in both directions (the anomaly-detection discipline).
-// Today every kind is judged on revenue.daily — the honest default
-// until per-post readback (P3-23, Session D) gives finer attribution.
+//
+// P3-23b: the series follows the kind. A published content item is judged
+// on its own reach and interactions against the account's previous ten
+// posts on that platform (post-readback.ts); an ad change on that
+// campaign's return on ad spend before and after (campaign-readback.ts);
+// everything else on revenue.daily, as before. The verdicts are the same
+// five, so the scorecard needs no change.
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
-import { executions } from "../../db/schema";
+import { businessProfiles, contentItems, executions } from "../../db/schema";
 import type { ProposalRow } from "../proposals/service";
+import { campaignOutcome } from "./campaign-readback";
+import { postOutcome } from "./post-readback";
 import type { WindowStat } from "./series";
 import { dailySeries, shiftDay, windowStat } from "./series";
 
@@ -38,9 +45,13 @@ export const READBACK = {
 
 export type OutcomeVerdict = "helped" | "did_nothing" | "backfired" | "too_early" | "unmeasured";
 
+/** What a proposal is judged on (P3-23b). */
+export type JudgedOn = "revenue" | "post" | "campaign";
+
 export interface ProposalOutcome {
   proposal_id: string;
   verdict: OutcomeVerdict;
+  judged_on: JudgedOn;
   executed_on: string | null;
   metric: string;
   currency: string | null;
@@ -80,6 +91,7 @@ export async function readbackForProposal(
   } | null;
   const base: Omit<ProposalOutcome, "verdict" | "arithmetic"> = {
     proposal_id: proposal.id,
+    judged_on: "revenue",
     executed_on: null,
     metric: "revenue.daily",
     currency: null,
@@ -98,6 +110,10 @@ export async function readbackForProposal(
     return { ...base, verdict: "unmeasured", arithmetic: "never executed — nothing to measure" };
   }
   base.executed_on = day;
+
+  const kind = judgedOn(proposal);
+  if (kind === "post") return publishedItemReadback(proposal, base);
+  if (kind === "campaign") return adChangeReadback(proposal, base, day, now);
 
   const from = shiftDay(day, -READBACK.before_days);
   const today = now.toISOString().slice(0, 10);
@@ -148,4 +164,100 @@ export async function readbackForProposal(
     `${base.delta_pct >= 0 ? "+" : ""}${base.delta_pct}%` +
     ` (thresholds: helped at +${READBACK.helped_at * 100}%, backfired at ${READBACK.backfired_at * 100}%)`;
   return { ...base, verdict, arithmetic };
+}
+
+type Base = Omit<ProposalOutcome, "verdict" | "arithmetic">;
+
+interface KindDetail {
+  kind?: unknown;
+  detail?: { item_id?: unknown; campaign_ref?: unknown; campaign_name?: unknown };
+}
+
+/** Pure: which series a proposal is judged on. */
+export function judgedOn(proposal: Pick<ProposalRow, "module" | "action">): JudgedOn {
+  const action = (proposal.action ?? {}) as KindDetail;
+  // A per-item publish proposal (P3-21a) — the calendar shares its kind but names no item.
+  if (action.kind === "content_publishing" && typeof action.detail?.item_id === "string") {
+    return "post";
+  }
+  // An ad change (P3-22a): module "ads", on one campaign.
+  if (proposal.module === "ads" && typeof action.detail?.campaign_ref === "string") {
+    return "campaign";
+  }
+  return "revenue";
+}
+
+async function publishedItemReadback(proposal: ProposalRow, base: Base): Promise<ProposalOutcome> {
+  const itemId = (proposal.action as KindDetail).detail?.item_id as string;
+  const [item] = await db
+    .select({
+      id: contentItems.id,
+      profile_id: contentItems.profile_id,
+      status: contentItems.status,
+      platform: contentItems.platform,
+      platform_post_id: contentItems.platform_post_id,
+      published_at: contentItems.published_at,
+    })
+    .from(contentItems)
+    .where(and(eq(contentItems.id, itemId), eq(contentItems.profile_id, proposal.profile_id)));
+  const metric = item?.platform === "facebook" ? "content.views.daily" : "content.reach.daily";
+  if (!item) {
+    return {
+      ...base,
+      judged_on: "post",
+      metric,
+      verdict: "unmeasured",
+      arithmetic: "the published item is not on record — nothing to measure",
+    };
+  }
+  const post = await postOutcome(item);
+  return {
+    ...base,
+    judged_on: "post",
+    metric,
+    verdict: post.verdict,
+    delta_pct: post.delta_pct,
+    arithmetic: post.arithmetic,
+  };
+}
+
+async function adChangeReadback(
+  proposal: ProposalRow,
+  base: Base,
+  day: string,
+  now: Date,
+): Promise<ProposalOutcome> {
+  const detail = (proposal.action as KindDetail).detail ?? {};
+  const ref = detail.campaign_ref as string;
+  const name = typeof detail.campaign_name === "string" ? detail.campaign_name : ref;
+  const [profile] = await db
+    .select({ account_id: businessProfiles.account_id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.id, proposal.profile_id));
+  const metric = "roas.campaign";
+  if (!profile) {
+    return {
+      ...base,
+      judged_on: "campaign",
+      metric,
+      verdict: "unmeasured",
+      arithmetic: "no business for this proposal",
+    };
+  }
+  const c = await campaignOutcome({
+    accountId: profile.account_id,
+    campaignRef: ref,
+    campaignName: name,
+    changedOn: day,
+    now,
+  });
+  return {
+    ...base,
+    judged_on: "campaign",
+    metric,
+    currency: c.currency,
+    verdict: c.verdict,
+    delta_pct: c.delta_pct,
+    arithmetic: c.arithmetic,
+  };
 }

@@ -440,6 +440,12 @@ export function shortReversibility(rev: ReversibilityLike | null | undefined): s
 export interface AssumptionLike {
   statement: string;
   source_field?: string | null;
+  /**
+   * P3-23c: computed from measured rows rather than read from one fact —
+   * the per-post evidence line. Its own source text; basis DERIVED (the
+   * arithmetic is in the text).
+   */
+  measured?: string | null;
   sensitivity?: string;
 }
 
@@ -467,6 +473,9 @@ export function evidenceLines(
     const key = str(a.source_field);
     const leansHard = a.sensitivity === "high";
     if (!key) {
+      const measured = str(a.measured);
+      if (measured)
+        return { statement: a.statement, source: measured, basis: "DERIVED", leansHard };
       return { statement: a.statement, source: "no source field", basis: "ASSUMED", leansHard };
     }
     const fact = facts[key];

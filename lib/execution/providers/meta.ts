@@ -36,7 +36,8 @@
 // its upload, the Instagram container and media_publish) and DELETE only
 // on a post or media id, for undo (P3-21c). The ad ops (P3-22b) widened it
 // again, by three: GET and POST on a campaign by its id, and POST on the
-// ad account's campaigns edge (create, paused). An ad write may carry only
+// ad account's campaigns edge (create, paused). The readback (P3-23a) added
+// two GETs, a post's and a media's insights, under readback scopes only. An ad write may carry only
 // the fields AD_WRITE_FIELDS names and only the statuses PAUSED and ACTIVE
 // — checked at the same choke point as the disclosure, so DELETED and
 // ARCHIVED (both permanent on Meta) cannot be sent. No registered path
@@ -118,6 +119,9 @@ export const META_EXEC_REQUESTS = {
   campaign: { method: "GET", path: "/{campaign_id}" },
   campaign_update: { method: "POST", path: "/{campaign_id}" },
   campaign_create: { method: "POST", path: "/act_{ad_account_id}/campaigns" },
+  // P3-23a, added deliberately: the per-post readback. GET only, under readback scopes only.
+  page_post_insights: { method: "GET", path: "/{post_id}/insights" },
+  ig_media_insights: { method: "GET", path: "/{ig_media_id}/insights" },
 } as const;
 
 type MetaExecRequest = keyof typeof META_EXEC_REQUESTS;
@@ -647,6 +651,8 @@ export interface MetaExecution {
   publish: MetaPublishProvider;
   /** The ad ops (P3-22b), guardrails re-checked (P3-22c), the access tier read (P3-22d). */
   ads: ExecutionProvider;
+  /** P3-23a: per-post insights, GET only, under the readback scopes only. */
+  readback: MetaReadback;
   /**
    * The Instagram publisher on its own: one image, a Reel, or a CAROUSEL of
    * up to ten. Content items carry one render today, so the executor sends
@@ -2682,6 +2688,217 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
   };
 }
 
+/* ══════════ THE READBACK — P3-23a (Session D, layer D4) ══════════
+ *
+ * One published post's own figures, read through the execute connection's
+ * READ-ONLY readback scopes and nothing else. Every request below is a GET
+ * (META_EXEC_REQUESTS), and each one relies only on scopes meta_publish
+ * declares as readback_scopes — META_READBACK_REQUESTS names them, and
+ * meta.test.ts pins that none is a write scope. A token cannot be split, so
+ * the guarantee is in what is sent: no insight read touches a write path.
+ *
+ * What is read, views-based only (Meta retired the *_unique Page metrics on
+ * 2026-06-15, and Instagram `impressions` for media created after
+ * 2024-07-02 — so neither is ever asked for):
+ *
+ *   Instagram  GET /{ig-media-id}/insights?metric=views,reach,total_interactions
+ *              with the system-user token (instagram_basic,
+ *              instagram_manage_insights, pages_read_engagement)
+ *   Facebook   GET /{post-id}/insights?metric=post_media_view,post_reactions_by_type_total
+ *              with the Page token (read_insights, pages_read_engagement);
+ *              Facebook's views-based reach is a *_unique metric, so a
+ *              Facebook post carries views and interactions only
+ *   FB Reels   NOT read: /{video-id}/video_insights needs
+ *              pages_manage_engagement, which this consent does not hold
+ *
+ * Meta reports post insights as LIFETIME totals (docs read 2026-10-19), so
+ * each read is the post's total to date. A metric Meta leaves out is null —
+ * "unavailable" is not zero (rule 5). _verify at build_: the exact metric
+ * names on v26.0, the response shape (values[0].value vs total_value.value),
+ * and whether a system-user token needs ads_read for media of a Page with a
+ * Business Manager role (Meta's media-insights page says so).
+ */
+
+/** The readback reads, and the readback scopes each one relies on. Never a write scope. */
+export const META_READBACK_REQUESTS = {
+  page: ["pages_show_list", "pages_read_engagement"],
+  page_post_insights: ["read_insights", "pages_read_engagement"],
+  ig_media_insights: ["instagram_basic", "instagram_manage_insights", "pages_read_engagement"],
+} as const satisfies Partial<Record<MetaExecRequest, readonly string[]>>;
+
+/** Instagram media metrics asked for: views-based, no impressions. */
+export const IG_POST_METRICS = ["views", "reach", "total_interactions"] as const;
+/** Facebook post metrics asked for: views-based, no *_unique. */
+export const FB_POST_METRICS = ["post_media_view", "post_reactions_by_type_total"] as const;
+
+export interface PostInsightsTarget {
+  platform: PublishPlatform;
+  platform_post_id: string;
+  /** A Facebook Reel (published by its video id): not readable under this consent. */
+  reel: boolean;
+}
+
+/** A post's lifetime totals as Meta reports them; null = Meta gave no figure. */
+export interface PostFigures {
+  views: number | null;
+  reach: number | null;
+  interactions: number | null;
+}
+
+export type PostInsights = { figures: PostFigures } | { unreadable: string };
+
+export interface MetaReadback {
+  /** Read every post's insights. Throws only when the connection itself is refused (auth, permission). */
+  read(
+    cred: MetaExecutionCredential,
+    posts: readonly PostInsightsTarget[],
+    accountId: string,
+  ): Promise<{ post: PostInsightsTarget; insights: PostInsights }[]>;
+}
+
+export const FB_REEL_UNREADABLE =
+  "Facebook Reel insights need pages_manage_engagement, which this consent does not hold, so they are not read";
+
+/** A non-negative whole count, or null. */
+function count(v: unknown): number | null {
+  return typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.round(v) : null;
+}
+
+/** One insights entry's value: values[0].value, else total_value.value. */
+function insightValue(entry: Record<string, unknown>): unknown {
+  const values = entry["values"];
+  if (Array.isArray(values) && values.length > 0) {
+    const first = values[0] as { value?: unknown } | null;
+    if (first && first.value !== undefined) return first.value;
+  }
+  const total = entry["total_value"] as { value?: unknown } | null | undefined;
+  return total?.value;
+}
+
+function insightEntries(body: Record<string, unknown>): Map<string, unknown> {
+  const out = new Map<string, unknown>();
+  const data = Array.isArray(body["data"]) ? body["data"] : [];
+  for (const d of data) {
+    if (d === null || typeof d !== "object") continue;
+    const e = d as Record<string, unknown>;
+    if (typeof e["name"] === "string") out.set(e["name"], insightValue(e));
+  }
+  return out;
+}
+
+/** Pure: an Instagram media insights answer → figures. Missing metrics stay null. */
+export function parseIgInsights(body: Record<string, unknown>): PostFigures {
+  const e = insightEntries(body);
+  return {
+    views: count(e.get("views")),
+    reach: count(e.get("reach")),
+    interactions: count(e.get("total_interactions")),
+  };
+}
+
+/** Pure: a Facebook post insights answer → figures. Reactions are summed across types. */
+export function parseFbPostInsights(body: Record<string, unknown>): PostFigures {
+  const e = insightEntries(body);
+  const reactions = e.get("post_reactions_by_type_total");
+  let interactions: number | null = null;
+  if (reactions !== null && typeof reactions === "object") {
+    interactions = 0;
+    for (const v of Object.values(reactions as Record<string, unknown>)) {
+      interactions += count(v) ?? 0;
+    }
+  } else if (reactions !== undefined) {
+    interactions = count(reactions);
+  }
+  return { views: count(e.get("post_media_view")), reach: null, interactions };
+}
+
+/**
+ * A refusal about the connection, not the one post: stop the run. Code 100
+ * with subcode 33 ("object does not exist or missing permissions") is what
+ * Meta says of a post deleted on the platform, so it stays that post's gap.
+ */
+function connectionRefused(error: unknown): boolean {
+  if (!(error instanceof MetaRequestError)) return false;
+  const f = error.failure;
+  return f.kind === "auth" || (f.kind === "permission" && f.code !== 100);
+}
+
+function readbackCalls(ctx: Context): MetaReadback {
+  return {
+    async read(cred, posts, accountId) {
+      const out: { post: PostInsightsTarget; insights: PostInsights }[] = [];
+      let pageToken: string | null = null;
+      for (const post of posts) {
+        if (post.platform === "facebook" && post.reel) {
+          out.push({ post, insights: { unreadable: FB_REEL_UNREADABLE } });
+          continue;
+        }
+        try {
+          if (post.platform === "instagram") {
+            const body = await metaRequest(
+              ctx,
+              { bearer: cred.access_token },
+              "ig_media_insights",
+              { ig_media_id: post.platform_post_id },
+              { metric: IG_POST_METRICS.join(",") },
+              `Instagram post ${post.platform_post_id}`,
+              { account_id: accountId },
+            );
+            out.push({ post, insights: { figures: parseIgInsights(body) } });
+            continue;
+          }
+          if (cred.page_id === null) {
+            out.push({ post, insights: { unreadable: "no Page on this connection" } });
+            continue;
+          }
+          if (pageToken === null) {
+            const page = await metaRequest(
+              ctx,
+              { bearer: cred.access_token },
+              "page",
+              { page_id: cred.page_id },
+              { fields: "id,access_token" },
+              `Page ${cred.page_id}`,
+              { account_id: accountId },
+            );
+            pageToken = stringId(page, "access_token");
+            if (pageToken === null) {
+              throw new MetaRequestError(
+                classifyMetaError({ status: 200, code: 200 }),
+                `Page ${cred.page_id}`,
+              );
+            }
+          }
+          const body = await metaRequest(
+            ctx,
+            { bearer: pageToken },
+            "page_post_insights",
+            { post_id: post.platform_post_id },
+            { metric: FB_POST_METRICS.join(",") },
+            `Facebook post ${post.platform_post_id}`,
+            { account_id: accountId },
+          );
+          out.push({ post, insights: { figures: parseFbPostInsights(body) } });
+        } catch (error) {
+          if (connectionRefused(error)) throw error;
+          // One post Meta won't answer for (deleted on the platform, too new,
+          // too few viewers) is that post's gap, not the run's failure.
+          out.push({
+            post,
+            insights: {
+              unreadable:
+                error instanceof MetaRequestError
+                  ? error.message
+                  : "Meta gave no usable answer for this post",
+            },
+          });
+        }
+      }
+      return out;
+    },
+  };
+}
+
 export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExecution {
   const ctx: Context = {
     fetch: options.fetch ?? defaultFetch,
@@ -2736,6 +2953,7 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
       const { dbAdsBackend } = await import("../../ads/executing");
       return dbAdsBackend();
     }),
+    readback: readbackCalls(ctx),
     instagram: (a) =>
       publishInstagram(ctx, {
         igUserId: a.igUserId,
@@ -2750,3 +2968,4 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
 export const metaExecution = createMetaExecution();
 export const metaPublishExecutor = metaExecution.publish;
 export const metaAdsExecutor = metaExecution.ads;
+export const metaReadback = metaExecution.readback;

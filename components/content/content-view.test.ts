@@ -3,6 +3,7 @@ import {
   type QueueItem,
   channelStrips,
   contentHeadline,
+  performanceLine,
   publishLine,
   shortId,
   stateWord,
@@ -115,5 +116,44 @@ describe("P3-21d/e — the publishing queue's words", () => {
       "Withdrawn: deleted from Instagram. Its record stays here.",
     );
     expect(publishLine(at("drafted"), false)).toBeNull();
+  });
+});
+
+describe("performanceLine — P3-23b, a published item's measured line", () => {
+  it("shows the figures on the day judged, the verdict word and its tone, and the arithmetic", () => {
+    const line = performanceLine({
+      verdict: "helped",
+      audience_metric: "reach",
+      age_days: 7,
+      figures: { views: 2400, reach: 1240, interactions: 86 },
+      arithmetic: "on day 7 after posting: reach 1240 against a median of 800 (+55%)",
+    });
+    expect(line).toEqual({
+      figures: "day 7 · reach 1 240 · views 2 400 · interactions 86",
+      word: "helped",
+      tone: "ok",
+      arithmetic: "on day 7 after posting: reach 1240 against a median of 800 (+55%)",
+    });
+  });
+
+  it("a too-early item has no figures yet but still says why; nothing measured is no line", () => {
+    const line = performanceLine({
+      verdict: "too_early",
+      audience_metric: "views",
+      age_days: null,
+      figures: null,
+      arithmetic: "1 measured day(s) since 2026-10-18 — the verdict needs 3",
+    });
+    expect(line).toMatchObject({ figures: null, word: "too early", tone: "low" });
+    expect(performanceLine(undefined)).toBeNull();
+    expect(
+      performanceLine({
+        verdict: "backfired",
+        audience_metric: "views",
+        age_days: 4,
+        figures: { views: 10, reach: null, interactions: null },
+        arithmetic: "x",
+      }),
+    ).toMatchObject({ figures: "day 4 · views 10", tone: "alarm" });
   });
 });

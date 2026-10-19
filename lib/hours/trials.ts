@@ -511,6 +511,7 @@ export async function trialOutcome(
   return {
     proposal_id: row.id,
     verdict: v.verdict,
+    judged_on: "revenue",
     executed_on: row.decided_at ? row.decided_at.slice(0, 10) : null,
     metric: `revenue.hourly (${detail ? DAY_WORD[detail.weekday] : "trial weekday"}, net of the hour)`,
     currency: detail?.currency ?? null,

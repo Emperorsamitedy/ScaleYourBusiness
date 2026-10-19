@@ -49,6 +49,20 @@ export const METRIC_KEYS = [
    */
   "ad_spend.campaign.daily",
   "ad_purchase_value.campaign.daily",
+  /**
+   * P3-23a: one published post's own figures, dimensions {platform,
+   * platform_post_id}, read through the EXECUTE connection's read-only
+   * readback scopes (lib/content/insights.ts). Meta reports post insights
+   * as LIFETIME totals only (Instagram: "period is lifetime and can't be
+   * changed"; Facebook post_media_view: lifetime — docs read 2026-10-19), so
+   * each row is the post's lifetime total as read on period_date, one
+   * snapshot a day. Views-based only: no *_unique metric, no Instagram
+   * impressions. Never business-wide: the dimension filter keeps them out
+   * of every sum, the anomaly check and the watch.
+   */
+  "content.views.daily",
+  "content.reach.daily",
+  "content.interactions.daily",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -102,6 +116,10 @@ export interface ObservationDimensions {
   campaign_ref?: string;
   /** The campaign's current name: a label, not part of the key (LABEL_DIMENSIONS). */
   campaign_name?: string;
+  /** "facebook" | "instagram" — the platform a content.* figure was read from (P3-23a). */
+  platform?: string;
+  /** The platform's own id for the post (content_items.platform_post_id) — the series key of content.* (P3-23a). */
+  platform_post_id?: string;
 }
 
 /** One provider figure for one day. Exactly one of value_minor / value_num is set. */

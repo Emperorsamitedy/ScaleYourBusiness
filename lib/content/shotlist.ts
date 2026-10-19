@@ -4,10 +4,12 @@
 // WHY it earns its place — anchored to the profile's own facts (the
 // offer that actually sells, the channel it will run on, the goal it
 // serves). Deterministic: a shot list is a checklist derived from
-// evidence, not a mood board. When per-post readback exists (P3-23 /
-// Session E), "what performed before" sharpens these; today the
-// honest evidence is measured volume and stated goals, and each shot
-// names its source.
+// evidence, not a mood board. The evidence is measured volume and
+// stated goals, each shot naming its source — and, once per-post
+// readback has measured enough (P3-23c, lib/content/performance.ts),
+// what performed before: "your three Reels out-performed your four
+// photo posts 4:1", counted and divided here, never worded by a model.
+// Too little measured data and the line is simply absent.
 
 import { desc, eq } from "drizzle-orm";
 import { db } from "../../db";
@@ -18,6 +20,7 @@ import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/ha
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { listGoals } from "./goals";
+import { evidenceAssumption, performanceEvidence } from "./performance";
 import { listChannels } from "./plan";
 import { ContentError } from "./plan";
 
@@ -128,6 +131,7 @@ export async function proposeShotList(
 
   const { limits } = await ensureHardLimits(profileId, args.limitLlm);
   const verdict = checkHardLimits(limits, "content_publishing");
+  const performed = await performanceEvidence(profileId);
 
   return createProposal({
     profile_id: profileId,
@@ -142,10 +146,12 @@ export async function proposeShotList(
         manual_limits: verdict.manual.map((l) => l.quote),
         rationale:
           "Real footage only. You film these on a phone; the cutting room trims, captions and crops per platform. No generated video, ever.",
+        ...(performed ? { performance: performed } : {}),
       },
     },
     scenario: {
       assumptions: [
+        ...(performed ? [evidenceAssumption(performed)] : []),
         {
           statement:
             bestVolume >= 0

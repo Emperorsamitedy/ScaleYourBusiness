@@ -186,3 +186,47 @@ export function publishLine(
 export function shortId(prefix: string, id: string): string {
   return `${prefix}-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
 }
+
+/** P3-23b: what /content needs of a published item's measured outcome (lib/trust/post-readback). */
+export interface PerformanceLike {
+  verdict: "helped" | "did_nothing" | "backfired" | "too_early" | "unmeasured";
+  audience_metric: "reach" | "views" | null;
+  age_days: number | null;
+  figures: { views: number | null; reach: number | null; interactions: number | null } | null;
+  arithmetic: string;
+}
+
+const VERDICT_WORD: Readonly<Record<PerformanceLike["verdict"], { word: string; tone: Tone }>> = {
+  helped: { word: "helped", tone: "ok" },
+  did_nothing: { word: "did nothing", tone: "low" },
+  backfired: { word: "backfired", tone: "alarm" },
+  too_early: { word: "too early", tone: "low" },
+  unmeasured: { word: "unmeasured", tone: "low" },
+};
+
+const grouped = (n: number) => n.toLocaleString("en-GB").replace(/,/g, " ");
+
+/**
+ * P3-23b: the measured line under a published item — its own figures on
+ * the day it is judged, the verdict word, and the arithmetic behind it.
+ * Null when nothing has been measured yet (the verdict says why).
+ */
+export function performanceLine(p: PerformanceLike | undefined): {
+  figures: string | null;
+  word: string;
+  tone: Tone;
+  arithmetic: string;
+} | null {
+  if (!p) return null;
+  const v = VERDICT_WORD[p.verdict];
+  const f = p.figures;
+  const parts: string[] = [];
+  if (f) {
+    if (f.reach !== null) parts.push(`reach ${grouped(f.reach)}`);
+    if (f.views !== null) parts.push(`views ${grouped(f.views)}`);
+    if (f.interactions !== null) parts.push(`interactions ${grouped(f.interactions)}`);
+  }
+  const figures =
+    parts.length > 0 && p.age_days !== null ? `day ${p.age_days} · ${parts.join(" · ")}` : null;
+  return { figures, word: v.word, tone: v.tone, arithmetic: p.arithmetic };
+}

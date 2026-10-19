@@ -26,6 +26,7 @@ import { isPublishProposal, publishNotes } from "../../../lib/content/publish";
 import { withdrawItem } from "../../../lib/content/publishing";
 import { proposeShotList } from "../../../lib/content/shotlist";
 import { ProposalError } from "../../../lib/proposals/service";
+import { postOutcomes } from "../../../lib/trust/post-readback";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -72,6 +73,8 @@ export async function GET(): Promise<NextResponse> {
       publish_notes: await publishNotes(profileId, items),
       // The Session D real-write gate (lib/env.ts): off until the two-week test completes.
       real_writes: sessionDRealWritesOn(),
+      // P3-23b: each published item's own measured figures and verdict.
+      performance: await postOutcomes(profileId),
       // A publish proposal publishes one finished item; it never produces.
       producible: producible
         .filter((p) => !isPublishProposal(p.action))

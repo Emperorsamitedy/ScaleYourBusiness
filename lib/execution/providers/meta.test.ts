@@ -52,8 +52,11 @@ import type {
 } from "./meta";
 import {
   DISCLOSED_TEXT_FIELD,
+  FB_POST_METRICS,
+  IG_POST_METRICS,
   META_EXEC_MAX_ATTEMPTS,
   META_EXEC_REQUESTS,
+  META_READBACK_REQUESTS,
   AD_STATUSES,
   AD_WRITE_FIELDS,
   VALIDATE_ONLY,
@@ -62,6 +65,8 @@ import {
   auditMetaRequests,
   createMetaExecution,
   disclosureViolation,
+  parseFbPostInsights,
+  parseIgInsights,
   parseMetaExecutionCredential,
 } from "./meta";
 
@@ -325,6 +330,9 @@ describe("rules 13 and 18 — what the connector can send", () => {
       campaign: { method: "GET", path: "/{campaign_id}" },
       campaign_update: { method: "POST", path: "/{campaign_id}" },
       campaign_create: { method: "POST", path: "/act_{ad_account_id}/campaigns" },
+      // P3-23a, added deliberately: the per-post readback, GET only.
+      page_post_insights: { method: "GET", path: "/{post_id}/insights" },
+      ig_media_insights: { method: "GET", path: "/{ig_media_id}/insights" },
     });
     // Every non-GET, named: the token exchange, the publish POSTs, the two undo DELETEs.
     const nonGet = Object.entries(META_EXEC_REQUESTS)
@@ -462,6 +470,62 @@ describe("rules 13 and 18 — what the connector can send", () => {
       "GET /act_{ad_account_id}/payment_methods",
       "GET /act_{ad_account_id}/billing_events",
     ]);
+  });
+});
+
+describe("P3-23a — the readback reads only, under the readback scopes only", () => {
+  it("THE BUILD GATE: every readback request is a registered GET relying on declared readback scopes, never a write scope", () => {
+    const spec = EXECUTION_SCOPE_REGISTRY.meta_publish;
+    const readback = new Set<string>(spec.readback_scopes);
+    const writes = new Set<string>(spec.write_scopes);
+    for (const [request, scopes] of Object.entries(META_READBACK_REQUESTS)) {
+      const registered = META_EXEC_REQUESTS[request as keyof typeof META_EXEC_REQUESTS];
+      expect(registered?.method, request).toBe("GET");
+      for (const scope of scopes) {
+        expect(readback.has(scope), `${request} relies on ${scope}`).toBe(true);
+        expect(writes.has(scope), `${request} relies on write scope ${scope}`).toBe(false);
+      }
+    }
+    // The insight paths are exactly these two, and nothing else ends in /insights.
+    expect(
+      Object.entries(META_EXEC_REQUESTS)
+        .filter(([, r]) => r.path.endsWith("/insights"))
+        .map(([k]) => k)
+        .sort(),
+    ).toEqual(["ig_media_insights", "page_post_insights"]);
+  });
+
+  it("views-based metrics only: no *_unique metric and no impressions are ever asked for", () => {
+    for (const metric of [...IG_POST_METRICS, ...FB_POST_METRICS]) {
+      expect(metric).not.toMatch(/_unique$|impressions/);
+    }
+    expect([...IG_POST_METRICS]).toEqual(["views", "reach", "total_interactions"]);
+    expect([...FB_POST_METRICS]).toEqual(["post_media_view", "post_reactions_by_type_total"]);
+    // The failing case the check exists for.
+    expect("post_impressions_unique").toMatch(/_unique$|impressions/);
+  });
+
+  it("parses both answer shapes; a metric Meta leaves out is null, never zero", () => {
+    expect(
+      parseIgInsights({
+        data: [
+          { name: "views", period: "lifetime", values: [{ value: 120 }] },
+          { name: "reach", period: "lifetime", total_value: { value: 80 } },
+        ],
+      }),
+    ).toEqual({ views: 120, reach: 80, interactions: null });
+    expect(parseIgInsights({ data: [] })).toEqual({ views: null, reach: null, interactions: null });
+    expect(
+      parseFbPostInsights({
+        data: [
+          { name: "post_media_view", values: [{ value: 300 }] },
+          { name: "post_reactions_by_type_total", values: [{ value: { like: 5, love: 2 } }] },
+        ],
+      }),
+    ).toEqual({ views: 300, reach: null, interactions: 7 });
+    expect(
+      parseFbPostInsights({ data: [{ name: "post_media_view", values: [{ value: -1 }] }] }),
+    ).toEqual({ views: null, reach: null, interactions: null });
   });
 });
 

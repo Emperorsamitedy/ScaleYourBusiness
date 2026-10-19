@@ -31,6 +31,7 @@ import { db } from "../../db";
 import { connections, connectorSyncs } from "../../db/schema";
 import type { DeriveOutcome } from "./derive";
 import type { AnomalyOutcome } from "../anomaly/detect";
+import type { MetaReadback } from "../execution/providers/meta";
 import { detectAnomalies } from "../anomaly/detect";
 import { recordSyncActivity } from "./activity";
 import { deriveFactsFromObservations } from "./derive";
@@ -66,8 +67,9 @@ function lockKey(connectionId: string): string {
   return `connector_sync:${connectionId}`;
 }
 
-async function withConnectionLock<T>(
-  connectionId: string,
+/** A session-level advisory lock on a dedicated client; shared with the post readback (P3-23a). */
+export async function withAdvisoryLock<T>(
+  key: string,
   run: () => Promise<T>,
   onLocked: () => T,
 ): Promise<T> {
@@ -75,17 +77,25 @@ async function withConnectionLock<T>(
   try {
     const res = await client.query<{ locked: boolean }>(
       "select pg_try_advisory_lock(hashtext($1)) as locked",
-      [lockKey(connectionId)],
+      [key],
     );
     if (res.rows[0]?.locked !== true) return onLocked();
     try {
       return await run();
     } finally {
-      await client.query("select pg_advisory_unlock(hashtext($1))", [lockKey(connectionId)]);
+      await client.query("select pg_advisory_unlock(hashtext($1))", [key]);
     }
   } finally {
     client.release();
   }
+}
+
+function withConnectionLock<T>(
+  connectionId: string,
+  run: () => Promise<T>,
+  onLocked: () => T,
+): Promise<T> {
+  return withAdvisoryLock(lockKey(connectionId), run, onLocked);
 }
 
 function errorText(error: unknown): string {
@@ -256,7 +266,7 @@ async function recordSync(outcome: SyncOutcome): Promise<void> {
   }
 }
 
-export interface SyncRunSummary {
+export interface ReadbackRunSummary {
   connections: number;
   ok: number;
   failed: number;
@@ -264,8 +274,30 @@ export interface SyncRunSummary {
   observations: number;
 }
 
+export interface SyncRunSummary {
+  connections: number;
+  ok: number;
+  failed: number;
+  skipped: number;
+  observations: number;
+  /**
+   * P3-23a: the per-post readback, run by this same cron after the measure
+   * connections — reads only, through the execute connection's readback
+   * scopes (lib/content/insights.ts). Null when it could not run at all.
+   */
+  readback: ReadbackRunSummary | null;
+}
+
+export interface SyncRunOptions {
+  /** The post readback's Meta reads; the real Graph API by default. Tests pass a fake. */
+  postReadback?: MetaReadback;
+}
+
 /** The daily cron's body: every connected connection, one after another. */
-export async function runConnectorSync(now = new Date()): Promise<SyncRunSummary> {
+export async function runConnectorSync(
+  now = new Date(),
+  opts: SyncRunOptions = {},
+): Promise<SyncRunSummary> {
   const rows = await db
     .select({ id: connections.id })
     .from(connections)
@@ -277,6 +309,7 @@ export async function runConnectorSync(now = new Date()): Promise<SyncRunSummary
     failed: 0,
     skipped: 0,
     observations: 0,
+    readback: null,
   };
   for (const { id } of rows) {
     const outcome = await syncConnection(id, now);
@@ -284,6 +317,17 @@ export async function runConnectorSync(now = new Date()): Promise<SyncRunSummary
     else if (outcome.ok) summary.ok += 1;
     else summary.failed += 1;
     summary.observations += outcome.observations;
+  }
+  // P3-23a: same runner, reads only. Loaded on use: lib/content sits above
+  // this module, and a readback failure never fails the measure sync.
+  try {
+    const { runPostReadback } = await import("../content/insights");
+    summary.readback = await runPostReadback(
+      now,
+      opts.postReadback ? { readback: opts.postReadback } : {},
+    );
+  } catch (error) {
+    console.error(JSON.stringify({ event: "post_readback_run_failed", message: errorText(error) }));
   }
   return summary;
 }
