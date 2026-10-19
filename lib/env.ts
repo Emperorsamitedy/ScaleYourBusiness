@@ -78,3 +78,16 @@ export function metaLoginEnv(): MetaLoginEnv | null {
     app_url: appUrl(),
   };
 }
+
+/**
+ * THE REAL-WRITE GATE (Session D, D2's done-when). The first real publish
+ * waits for Phase 2's two-week unattended clock to complete
+ * (TASKS-PHASE3.md, "The gate, amended"). Until SESSION_D_REAL_WRITES is
+ * exactly "on", the engine refuses every op of a provider that writes to a
+ * real platform — before anything is claimed or sent — and the proposal
+ * stays approved. Anything but "on" reads as off: the safe reading is the
+ * default, as with META_ACCESS_LEVEL.
+ */
+export function sessionDRealWritesOn(): boolean {
+  return process.env.SESSION_D_REAL_WRITES?.trim() === "on";
+}

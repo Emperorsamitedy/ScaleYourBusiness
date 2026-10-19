@@ -6,8 +6,14 @@
 // no invented targets); the draft queue as a ruled table beside the open
 // draft's record (caption, what it was written from, its disclosure);
 // then the goals the content serves and the two proposal buttons, which
-// put PROPOSALS in the approval queue rather than doing anything. The
-// honesty line is structural: nothing posts from this screen.
+// put PROPOSALS in the approval queue rather than doing anything.
+//
+// P3-21e: it is also the publishing queue — each item's state on its way
+// out, the platform's link once it is live, and Withdraw, which runs the
+// stored undo through the engine. Nothing is ever published FROM this
+// screen: an item goes out after its own yes in the queue, at its time,
+// through the runner. While the Session D real-write gate is off the
+// screen says so plainly.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -18,6 +24,8 @@ import {
   type ContentStatus,
   channelStrips,
   contentHeadline,
+  platformWord,
+  publishLine,
   shortId,
   stateWord,
 } from "./content-view";
@@ -49,6 +57,7 @@ interface ContentItem {
   status: ContentStatus;
   platform: string | null;
   platform_post_id: string | null;
+  platform_url: string | null;
   published_at: string | null;
   publish_proposal_id: string | null;
   last_error: string | null;
@@ -70,6 +79,10 @@ type State =
       producible: Producible[];
       /** P3-21a: item id → why it isn't headed for publishing. */
       publishNotes: Record<string, string>;
+      /** The Session D real-write gate: false until the two-week test completes. */
+      realWrites: boolean;
+      /** The item whose Withdraw is waiting on a second click. */
+      confirmWithdraw: string | null;
       busy: boolean;
       notice: string | null;
       newGoal: string;
@@ -127,6 +140,7 @@ export function ContentScreen() {
       items: ContentItem[];
       producible: Producible[];
       publish_notes?: Record<string, string>;
+      real_writes?: boolean;
     };
     const goals = (await goalsRes.json()) as { goals: Goal[]; suggestions: Suggestion[] };
     setState((cur) => ({
@@ -136,6 +150,8 @@ export function ContentScreen() {
       items: content.items,
       producible: content.producible,
       publishNotes: content.publish_notes ?? {},
+      realWrites: content.real_writes === true,
+      confirmWithdraw: null,
       busy: false,
       notice: null,
       newGoal: "",
@@ -321,7 +337,15 @@ export function ContentScreen() {
       )}
 
       <div className="ct-grid">
-        <SheetCard label="Drafts" title="Everything written, nothing posted" className="ct-queue">
+        <SheetCard
+          label="Queue"
+          title={
+            s.realWrites
+              ? "Written, scheduled, posted"
+              : "Written and scheduled — publishing is off"
+          }
+          className="ct-queue"
+        >
           {s.items.length === 0 ? (
             <p className="ct-empty">
               The queue is empty. Propose a calendar below — once you approve it in the queue, I
@@ -428,14 +452,75 @@ export function ContentScreen() {
                   <span className="word alarm">failed</span> {open.last_error}
                 </p>
               )}
-              {(open.status === "published" || open.status === "withdrawn") && open.platform && (
+              {publishLine(open, s.realWrites) && (
                 <p className="ct-why">
-                  {open.status === "published" ? "Live on" : "Was on"} {open.platform} as{" "}
-                  {open.platform_post_id}
-                  {open.published_at && ` · ${dayWord(open.published_at)}`}
+                  {open.status === "publishing" && open.last_error && (
+                    <>
+                      <span className="word drift">unconfirmed</span>{" "}
+                    </>
+                  )}
+                  {publishLine(open, s.realWrites)}
+                  {(open.status === "published" || open.status === "withdrawn") &&
+                    open.platform_post_id && (
+                      <span className="src ct-sub">
+                        {platformWord(open.platform)} id {open.platform_post_id}
+                        {open.published_at && ` · posted ${dayWord(open.published_at)}`}
+                      </span>
+                    )}
+                </p>
+              )}
+              {open.status === "published" && s.confirmWithdraw === open.id && (
+                <p className="ct-why">
+                  Withdraw it? This deletes the post on {platformWord(open.platform)}. The record
+                  stays here; the post can&apos;t be put back.
                 </p>
               )}
               <div className="ct-actions">
+                {open.status === "published" && open.platform_url && (
+                  <a
+                    className="prop-btn"
+                    href={open.platform_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open on {platformWord(open.platform)} <span aria-hidden="true">→</span>
+                  </a>
+                )}
+                {open.status === "published" &&
+                  (s.confirmWithdraw === open.id ? (
+                    <>
+                      <button
+                        type="button"
+                        className="prop-btn"
+                        disabled={s.busy}
+                        onClick={() =>
+                          void act(
+                            { action: "withdraw", item_id: open.id },
+                            `Withdrawn from ${platformWord(open.platform)}.`,
+                          )
+                        }
+                      >
+                        Yes, withdraw it
+                      </button>
+                      <button
+                        type="button"
+                        className="prop-btn quiet"
+                        disabled={s.busy}
+                        onClick={() => setState({ ...s, confirmWithdraw: null })}
+                      >
+                        Keep it
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      className="prop-btn"
+                      disabled={s.busy}
+                      onClick={() => setState({ ...s, confirmWithdraw: open.id })}
+                    >
+                      Withdraw
+                    </button>
+                  ))}
                 {open.publish_proposal_id !== null && open.status === "drafted" && (
                   <Link className="prop-btn ct-wide" href="/proposals">
                     Decide in the queue <span aria-hidden="true">→</span>
@@ -448,8 +533,9 @@ export function ContentScreen() {
                 )}
               </div>
               <p className="ct-fine">
-                Nothing posts from this screen. Publishing needs your yes in the queue and its own
-                permission; until then every draft waits here.
+                {s.realWrites
+                  ? "Nothing is published from this screen. An item goes out only after its own yes in the queue, at its time, through the runner; the emergency stop halts it, and Withdraw deletes it again."
+                  : "Publishing is switched off until the two-week unattended test completes. Approved posts wait here, scheduled; nothing is sent to Meta until it is switched on."}
               </p>
             </footer>
           </section>

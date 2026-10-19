@@ -261,6 +261,131 @@ describe("P3-10/13 — retries, caps, and the attempt journal", () => {
     const resumed = await run(p.id);
     expect(resumed.status).toBe("succeeded");
   });
+
+  it("P3-21d: an error marked retryable:false stops the loop at once; an unmarked one spends the cap", async () => {
+    const s = await fresh();
+    let calls = 0;
+    const final = {
+      ...fixtureExecutor,
+      execute: async () => {
+        calls += 1;
+        throw Object.assign(new Error("a refusal another attempt would only repeat"), {
+          retryable: false,
+        });
+      },
+    };
+    const p = await approved(s);
+    const stopped = await executeProposal({
+      proposalId: p.id,
+      provider: final,
+      op: "set_value",
+      params: { key: "k", value: 1 },
+      sleep: noSleep,
+    });
+    expect(stopped).toMatchObject({ status: "failed", attempts: 1 });
+    expect(calls).toBe(1);
+
+    calls = 0;
+    const plain = {
+      ...final,
+      execute: async () => {
+        calls += 1;
+        throw new Error("transient");
+      },
+    };
+    const q = await approved(s);
+    const spent = await executeProposal({
+      proposalId: q.id,
+      provider: plain,
+      op: "set_value",
+      params: { key: "k", value: 1 },
+      sleep: noSleep,
+    });
+    expect(spent).toMatchObject({ status: "failed", attempts: 3 });
+    expect(calls).toBe(3);
+  });
+});
+
+describe("Session D — the real-write gate (guard 6a) and the provider's pre-flight (6b)", () => {
+  const gateBefore = process.env.SESSION_D_REAL_WRITES;
+  afterAll(() => {
+    if (gateBefore === undefined) delete process.env.SESSION_D_REAL_WRITES;
+    else process.env.SESSION_D_REAL_WRITES = gateBefore;
+  });
+
+  it("an external provider is refused unclaimed while the gate is off; the fixtures are not external", async () => {
+    delete process.env.SESSION_D_REAL_WRITES;
+    const s = await fresh();
+    let touched = 0;
+    const external = {
+      ...fixtureExecutor,
+      external: true,
+      captureUndo: async () => {
+        touched += 1;
+        return { k: 1 };
+      },
+      execute: async () => {
+        touched += 1;
+        return { ok: true };
+      },
+    };
+    const p = await approved(s);
+    const refused = await executeProposal({
+      proposalId: p.id,
+      provider: external,
+      op: "set_value",
+      params: { key: "k", value: 1 },
+      sleep: noSleep,
+    }).catch((e: unknown) => e as ExecutionRefused);
+    expect(refused).toMatchObject({ code: "real_writes_off" });
+    expect((refused as Error).message).toMatch(/switched off until the two-week unattended test/);
+    expect(touched).toBe(0);
+    expect(await db.select().from(executions).where(eq(executions.proposal_id, p.id))).toEqual([]);
+    const [prop] = await db.select().from(proposals).where(eq(proposals.id, p.id));
+    expect(prop?.status).toBe("approved");
+
+    // The fixture, gate off, runs as it always has.
+    expect((await run(p.id)).status).toBe("succeeded");
+
+    process.env.SESSION_D_REAL_WRITES = "on";
+    const q = await approved(s);
+    const done = await executeProposal({
+      proposalId: q.id,
+      provider: external,
+      op: "set_value",
+      params: { key: "k", value: 1 },
+      sleep: noSleep,
+    });
+    expect(done.status).toBe("succeeded");
+  });
+
+  it("a pre-flight refusal leaves no execution row and the proposal approved; null goes ahead", async () => {
+    const s = await fresh();
+    const deferring = {
+      ...fixtureExecutor,
+      preflight: async () => ({ code: "deferred" as const, message: "not now" }),
+    };
+    const p = await approved(s);
+    await expect(
+      executeProposal({
+        proposalId: p.id,
+        provider: deferring,
+        op: "set_value",
+        params: { key: "k", value: 1 },
+        sleep: noSleep,
+      }),
+    ).rejects.toMatchObject({ code: "deferred", message: "not now" });
+    expect(await db.select().from(executions).where(eq(executions.proposal_id, p.id))).toEqual([]);
+    const ahead = { ...fixtureExecutor, preflight: async () => null };
+    const done = await executeProposal({
+      proposalId: p.id,
+      provider: ahead,
+      op: "set_value",
+      params: { key: "k", value: 2 },
+      sleep: noSleep,
+    });
+    expect(done.status).toBe("succeeded");
+  });
 });
 
 describe("P3-11 — the rollback store (rule 16)", () => {

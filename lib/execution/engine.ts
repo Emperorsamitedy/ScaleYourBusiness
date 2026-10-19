@@ -19,6 +19,17 @@
 //   7. idempotency (P3-10, rule 16) — one executions row per proposal,
 //      held by a unique index; the losing racer reads, never runs
 //
+// Between 6 and 7, two Session D checks (P3-21b/d) that must refuse
+// WITHOUT claiming, so the proposal stays approved and nothing burns:
+//
+//   6a. the real-write gate — a provider that writes to a real platform
+//       (provider.external) runs only when SESSION_D_REAL_WRITES=on. Off
+//       by default until Phase 2's two-week unattended clock completes
+//       (TASKS-PHASE3.md, Session D gate). Nothing is sent, not even a
+//       read. The emergency stop (guard 1) still comes first.
+//   6b. the provider's own pre-flight (reads only): a rate limit defers,
+//       an item that changed since approval refuses.
+//
 // Then: undo captured BEFORE attempt one and kept forever; a capped
 // retry loop with per-attempt journal rows (P3-13); on success the
 // proposal flips to executed through the Session A service, which
@@ -28,6 +39,7 @@ import { logSafeError } from "../core/log-safe";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { executionAttempts, executionHalts, executions, proposals } from "../../db/schema";
+import { sessionDRealWritesOn } from "../env";
 import { latestDecision } from "../mode/service";
 import { recordExecution } from "../proposals/service";
 import type { ExecutionProviderId } from "./scopes";
@@ -36,6 +48,24 @@ import type { ExecutionContext, ExecutionProvider } from "./providers/fixture";
 import { executionProvider } from "./providers/index";
 
 export const MAX_ATTEMPTS = 3;
+
+/** The real-write gate's refusal, in the owner's words (guard 6a). */
+export function realWritesOffSentence(label: string): string {
+  return `${label} is switched off until the two-week unattended test completes. Nothing was sent; this stays approved and goes out on the first run after it is switched on.`;
+}
+
+/**
+ * A provider marks an error `retryable: false` when another attempt could
+ * only repeat it or, worse, repeat a post Meta may already hold (P3-21d).
+ * The loop stops there instead of spending the rest of its cap.
+ */
+function isFinal(error: unknown): boolean {
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    (error as { retryable?: unknown }).retryable === false
+  );
+}
 
 export class ExecutionRefused extends Error {
   readonly code:
@@ -48,7 +78,10 @@ export class ExecutionRefused extends Error {
     | "reversibility_lie"
     | "in_flight"
     | "not_undoable"
-    | "not_found";
+    | "not_found"
+    | "real_writes_off"
+    | "deferred"
+    | "preflight_refused";
   readonly status: number;
   constructor(code: ExecutionRefused["code"], message: string, status = 409) {
     super(message);
@@ -206,6 +239,35 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     );
   }
 
+  // Guard 6a — the real-write gate. Before the claim: no row, nothing sent.
+  if (args.provider.external === true && !sessionDRealWritesOn()) {
+    console.log(
+      JSON.stringify({
+        event: "execution_refused",
+        account_id: ctx.account_id,
+        proposal_id: proposal.id,
+        provider: args.provider.id,
+        op: args.op,
+        code: "real_writes_off",
+      }),
+    );
+    throw new ExecutionRefused(
+      "real_writes_off",
+      realWritesOffSentence(spec?.label ?? args.provider.id),
+    );
+  }
+
+  // Guard 6b — the provider's own pre-flight. Reads only; refuses unclaimed.
+  if (args.provider.preflight) {
+    const refusal = await args.provider.preflight(args.op, args.params, ctx);
+    if (refusal) {
+      throw new ExecutionRefused(
+        refusal.code === "deferred" ? "deferred" : "preflight_refused",
+        refusal.message,
+      );
+    }
+  }
+
   // Guard 7 — the idempotency claim. The unique index arbitrates.
   const [claimedRow] = await db
     .insert(executions)
@@ -244,9 +306,11 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     execution = reclaimed;
   }
 
+  const runCtx: ExecutionContext = { ...ctx, execution_id: execution.id };
+
   // Undo payload BEFORE attempt one (rule 16), kept forever.
   if (opSpec.reversible && execution.undo_payload === null) {
-    const undoPayload = await args.provider.captureUndo(args.op, args.params, ctx);
+    const undoPayload = await args.provider.captureUndo(args.op, args.params, runCtx);
     if (undoPayload === null) {
       await db
         .update(executions)
@@ -278,7 +342,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     }
     const started = Date.now();
     try {
-      const result = await args.provider.execute(args.op, args.params, ctx);
+      const result = await args.provider.execute(args.op, args.params, runCtx);
       await recordAttempt(execution.id, ctx.account_id, attempt, started, true, null);
       await recordExecution({ proposalId: proposal.id, result });
       const [done] = await db
@@ -300,6 +364,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
         .update(executions)
         .set({ attempts: attempt, error: lastError })
         .where(eq(executions.id, execution.id));
+      if (isFinal(error)) break;
       if (attempt < MAX_ATTEMPTS) await sleep(200 * attempt);
     }
   }
@@ -353,6 +418,9 @@ export async function undoExecution(args: {
   if (await isHalted(ctx.account_id)) {
     throw new ExecutionRefused("halted", "the emergency stop is on — resume before undoing");
   }
+  // The Session D real-write gate (guard 6a) deliberately does NOT apply
+  // here: an undo only removes what an open gate let out, and refusing it
+  // would keep up a post the owner wants down. The stop above still does.
   // The watching block applies to undo like any other write (the comment
   // above said so; the code didn't check — security review 2026-10-17).
   const decision = await latestDecision(ctx.profile_id);

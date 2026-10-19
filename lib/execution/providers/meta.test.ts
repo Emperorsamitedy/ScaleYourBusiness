@@ -7,10 +7,14 @@
 //     scope too many or too few is refused by name before any asset is
 //     touched; the asset itself (Page, Instagram account, ad account) must
 //     answer to the token.
-//   · WHAT IT CAN SEND. Only the registered requests, GET only, the token
-//     in a header and never in a URL; the source scan fails the build
-//     otherwise. No registered path under act_* names a money surface.
-//   · THE OPS ARE NAMED, NOT BUILT. Every op refuses by name until D2/D3.
+//   · WHAT IT CAN SEND. Only the registered requests, the token in a header
+//     and never in a URL; the source scan fails the build otherwise. POST
+//     only on the registered publish paths (P3-21b) and the token exchange,
+//     DELETE only on a post or media id (P3-21c), no native scheduling.
+//     No registered path under act_* names a money surface.
+//   · NO PUBLISH WITHOUT ITS DISCLOSURE (rule 17). Every publishing request
+//     passes one check before it is sent; the scan proves none can skip it.
+//   · THE AD OPS ARE NAMED, NOT BUILT. They refuse by name until D3.
 
 import "dotenv/config";
 import { readFileSync } from "node:fs";
@@ -41,11 +45,13 @@ import type {
   MetaRequestError,
 } from "./meta";
 import {
+  DISCLOSED_TEXT_FIELD,
   META_EXEC_MAX_ATTEMPTS,
   META_EXEC_REQUESTS,
   MetaOpNotBuiltError,
   auditMetaRequests,
   createMetaExecution,
+  disclosureViolation,
   parseMetaExecutionCredential,
 } from "./meta";
 
@@ -288,32 +294,136 @@ describe("rules 13 and 18 — what the connector can send", () => {
       token_exchange: { method: "POST", path: "/oauth/access_token" },
       my_pages: { method: "GET", path: "/me/accounts" },
       my_ad_accounts: { method: "GET", path: "/me/adaccounts" },
+      // P3-21b, added deliberately: the publish path.
+      page_feed: { method: "POST", path: "/{page_id}/feed" },
+      page_photos: { method: "POST", path: "/{page_id}/photos" },
+      page_reels: { method: "POST", path: "/{page_id}/video_reels" },
+      reel_upload: { method: "POST", path: "/{video_id}", origin: "rupload" },
+      ig_container: { method: "POST", path: "/{ig_user_id}/media" },
+      ig_publish: { method: "POST", path: "/{ig_user_id}/media_publish" },
+      ig_publishing_limit: { method: "GET", path: "/{ig_user_id}/content_publishing_limit" },
+      ig_container_status: { method: "GET", path: "/{container_id}" },
+      ig_media: { method: "GET", path: "/{ig_media_id}" },
+      ig_media_list: { method: "GET", path: "/{ig_user_id}/media" },
+      page_post: { method: "GET", path: "/{post_id}" },
+      page_published_posts: { method: "GET", path: "/{page_id}/published_posts" },
+      reel_status: { method: "GET", path: "/{video_id}" },
+      // P3-21c, added deliberately: undo is deletion.
+      page_post_delete: { method: "DELETE", path: "/{post_id}" },
+      ig_media_delete: { method: "DELETE", path: "/{ig_media_id}" },
     });
-    // The one non-GET is the OAuth token exchange, which writes to no Page or ad account.
-    const nonGet = Object.values(META_EXEC_REQUESTS).filter((r) => r.method !== "GET");
-    expect(nonGet).toEqual([{ method: "POST", path: "/oauth/access_token" }]);
+    // Every non-GET, named: the token exchange, the publish POSTs, the two undo DELETEs.
+    const nonGet = Object.entries(META_EXEC_REQUESTS)
+      .filter(([, r]) => r.method !== "GET")
+      .map(([k, r]) => `${r.method} ${k}`);
+    expect(nonGet).toEqual([
+      "POST token_exchange",
+      "POST page_feed",
+      "POST page_photos",
+      "POST page_reels",
+      "POST reel_upload",
+      "POST ig_container",
+      "POST ig_publish",
+      "DELETE page_post_delete",
+      "DELETE ig_media_delete",
+    ]);
 
     const source = readFileSync(fileURLToPath(new URL("./meta.ts", import.meta.url)), "utf8");
-    expect(source).not.toMatch(/\b(PUT|PATCH|DELETE)\b/);
-    // POST appears only in the token_exchange registration and the type that allows it.
-    const postLines = source.split("\n").filter((line) => /\bPOST\b/.test(line));
-    expect(postLines.map((l) => l.trim())).toEqual([
+    // Code only: comments may name a verb; code may not use one unregistered.
+    const code = source
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => !l.startsWith("//") && !l.startsWith("*") && !l.startsWith("/*"));
+    expect(code.join("\n")).not.toMatch(/\b(PUT|PATCH)\b/);
+    // POST and DELETE appear only in their registrations, the type, and the form-body check.
+    expect(code.filter((l) => /\bPOST\b/.test(l))).toEqual([
       'token_exchange: { method: "POST", path: "/oauth/access_token" },',
-      'method: "GET" | "POST";',
+      'page_feed: { method: "POST", path: "/{page_id}/feed" },',
+      'page_photos: { method: "POST", path: "/{page_id}/photos" },',
+      'page_reels: { method: "POST", path: "/{page_id}/video_reels" },',
+      'reel_upload: { method: "POST", path: "/{video_id}", origin: "rupload" },',
+      'ig_container: { method: "POST", path: "/{ig_user_id}/media" },',
+      'ig_publish: { method: "POST", path: "/{ig_user_id}/media_publish" },',
+      'method: "GET" | "POST" | "DELETE";',
+      'const asBody = "bearer" in auth && method === "POST";',
+    ]);
+    expect(code.filter((l) => /\bDELETE\b/.test(l))).toEqual([
+      'page_post_delete: { method: "DELETE", path: "/{post_id}" },',
+      'ig_media_delete: { method: "DELETE", path: "/{ig_media_id}" },',
+      'method: "GET" | "POST" | "DELETE";',
     ]);
     expect(source).not.toMatch(/access_token=/);
+    // No native scheduling (P3-21b): a post Meta holds would go out after an emergency stop.
+    expect(code.join("\n")).not.toMatch(/scheduled_publish_time|unpublished_content_type/);
     const methods = [...source.matchAll(/method:\s*([^,;\n}]+)/g)].map((m) => m[1]?.trim());
     expect(methods.length).toBeGreaterThan(0);
     for (const method of methods) {
       expect([
         '"GET"',
         '"POST"',
-        '"GET" | "POST"',
+        '"DELETE"',
+        '"GET" | "POST" | "DELETE"',
         'MetaRequestSpec["method"]',
         "init.method",
-        "META_EXEC_REQUESTS[which].method",
       ]).toContain(method);
     }
+  });
+
+  it("THE BUILD GATE (rule 17): no publish call path can skip is_ai_generated or the caption disclosure", () => {
+    // Every POST is either disclosure-checked, or carries no caption at all.
+    const posts = Object.entries(META_EXEC_REQUESTS)
+      .filter(([, r]) => r.method === "POST")
+      .map(([k]) => k);
+    const checked = new Set(["ig_container", ...Object.keys(DISCLOSED_TEXT_FIELD)]);
+    // reel_upload sends the file, ig_publish a container id: neither carries text.
+    const captionless = new Set(["token_exchange", "reel_upload", "ig_publish"]);
+    for (const k of posts) expect(checked.has(k) || captionless.has(k)).toBe(true);
+    expect(Object.keys(DISCLOSED_TEXT_FIELD).sort()).toEqual([
+      "page_feed",
+      "page_photos",
+      "page_reels",
+    ]);
+
+    const source = readFileSync(fileURLToPath(new URL("./meta.ts", import.meta.url)), "utf8");
+    // The check is the first thing the one request helper does, before anything is fetched.
+    const helper = source.slice(source.indexOf("async function metaCall("));
+    const check = helper.indexOf(
+      "if (disclosureViolation(which, params) !== null) throw new UndisclosedPublishError(which);",
+    );
+    expect(check).toBeGreaterThan(0);
+    expect(check).toBeLessThan(helper.indexOf("ctx.fetch(url, init)"));
+    // One function makes Instagram containers, and it sets is_ai_generated last.
+    expect(source.match(/"ig_container",/g)).toHaveLength(1);
+    const maker = source.slice(source.indexOf("async function igContainer("));
+    expect(maker.slice(0, maker.indexOf("\n}\n"))).toContain(
+      '{ ...params, is_ai_generated: "true" }',
+    );
+  });
+
+  it("the disclosure check: passes a disclosed caption and a flagged container, refuses the rest", () => {
+    const disclosed = "The soup is back.\n\nWritten with AI assistance.";
+    expect(disclosureViolation("page_feed", { message: disclosed })).toBeNull();
+    expect(disclosureViolation("page_feed", { message: "The soup is back." })).toBe("page_feed");
+    expect(disclosureViolation("page_photos", { url: "u", message: disclosed })).toBeNull();
+    expect(disclosureViolation("page_photos", { url: "u" })).toBe("page_photos");
+    expect(
+      disclosureViolation("page_reels", {
+        upload_phase: "finish",
+        description: "AI-assisted edit of real footage. No AI-generated imagery.",
+      }),
+    ).toBeNull();
+    expect(disclosureViolation("page_reels", { upload_phase: "finish", description: "x" })).toBe(
+      "page_reels",
+    );
+    expect(disclosureViolation("page_reels", { upload_phase: "start" })).toBeNull();
+    expect(
+      disclosureViolation("ig_container", { image_url: "u", is_ai_generated: "true" }),
+    ).toBeNull();
+    expect(disclosureViolation("ig_container", { image_url: "u" })).toBe("ig_container");
+    expect(disclosureViolation("ig_container", { image_url: "u", is_ai_generated: "false" })).toBe(
+      "ig_container",
+    );
+    expect(disclosureViolation("page", {})).toBeNull();
   });
 
   it("THE BUILD GATE (rule 18): no registered path under act_* names billing, funding or payment methods", () => {
@@ -333,19 +443,22 @@ describe("rules 13 and 18 — what the connector can send", () => {
   });
 });
 
-describe("P3-20g — the ops are named, not built", () => {
-  it("every op refuses by name, and capturing an undo refuses rather than claiming irreversibility", async () => {
+describe("P3-22b pending — the ad ops are named, not built", () => {
+  it("every ad op refuses by name, and capturing an undo refuses rather than claiming irreversibility", async () => {
     const { exec, calls } = meta();
     const ctx = { profile_id: "p", account_id: "a" };
-    await expect(exec.publish.execute("publish_page_post", {}, ctx)).rejects.toThrow(
-      MetaOpNotBuiltError,
-    );
-    await expect(exec.publish.captureUndo("publish_ig_media", {}, ctx)).rejects.toThrow(/P3-21b/);
-    await expect(exec.ads.execute("pause_campaign", {}, ctx)).rejects.toThrow(/P3-22b/);
+    await expect(exec.ads.execute("pause_campaign", {}, ctx)).rejects.toThrow(MetaOpNotBuiltError);
+    await expect(exec.ads.captureUndo("set_daily_budget", {}, ctx)).rejects.toThrow(/P3-22b/);
     await expect(exec.ads.undo("set_daily_budget", {}, ctx)).rejects.toThrow(
       /nothing was sent to Meta/,
     );
     expect(calls).toHaveLength(0);
+  });
+
+  it("both Meta providers write to a real platform, so the Session D gate covers them", () => {
+    const { exec } = meta();
+    expect(exec.publish.external).toBe(true);
+    expect(exec.ads.external).toBe(true);
   });
 });
 

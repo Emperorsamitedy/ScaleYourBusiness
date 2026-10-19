@@ -1410,6 +1410,16 @@ export const contentItems = pgTable(
     publish_execution_id: uuid("publish_execution_id").references(() => executions.id),
     /** Why it failed, in the owner's language (D5). */
     last_error: text("last_error"),
+    /** The post's own address on the platform, once Meta has said where it is (P3-21e). */
+    platform_url: text("platform_url"),
+    /**
+     * P3-21d — what the publish run sent and when: started_at, sent_at (set
+     * just BEFORE the publishing call), the caption's hash, and the
+     * platform's interim ids (Instagram container, Facebook Reel video id).
+     * The next sweep reconciles a `publishing` item from this by reading
+     * back, never by posting again.
+     */
+    publish_attempt: jsonb("publish_attempt"),
   },
   (t) => [
     index("content_items_profile_idx").on(t.profile_id, t.scheduled_for),

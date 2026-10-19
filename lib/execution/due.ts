@@ -20,12 +20,21 @@
 //     = { provider, op, params } with a registered provider. Modules
 //     that know the call at proposal time (D2's publish proposals) put
 //     it there, where the owner approved it
+//   - a per-item publish proposal (P3-21b): lib/content/publishing's
+//     publishPlan builds { meta_publish, op, {item_id, platform, target} }
+//     from the approved proposal and its own item — the op follows the
+//     item's media, never a caller. While the Session D real-write gate
+//     is off the engine refuses it unclaimed: counted as refused, the
+//     proposal left approved, the item untouched
 //   - module "site": applySiteChange, which does its own drift check,
 //     health check and auto-rollback through the engine
 //   - anything else is UNROUTABLE: counted, logged, left approved. The
 //     runner never guesses what an approval meant.
 //
-// It also sweeps expiry first (P3-06 was lazy, at queue-read time).
+// It also sweeps expiry first (P3-06 was lazy, at queue-read time), then
+// reconciles any item a dead or failed run left `publishing` by READING
+// BACK (P3-21d) — never by posting it again. A proposal with an execution
+// row is never selected here, so the read-back is the only way back.
 //
 // Scheduling precision is the hosting decision recorded in
 // TASKS-PHASE3.md: Vercel Hobby runs this once a day with ±59 minutes
@@ -37,10 +46,15 @@ import { db } from "../../db";
 import { businessProfiles, executions, proposals } from "../../db/schema";
 import type { ProposalRow } from "../proposals/service";
 import { expireAllDueProposals } from "../proposals/service";
+import type { ReconcileSummary } from "../content/publishing";
+import { publishPlan, reconcilePublishing } from "../content/publishing";
+import { isPublishProposal } from "../content/publish";
 import { applySiteChange } from "../site/apply";
 import { SiteChangeError } from "../site/changes";
 import { ExecutionRefused, executeProposal, isHalted } from "./engine";
+import type { ExecutionProvider } from "./providers/fixture";
 import { executionProvider } from "./providers/index";
+import type { MetaPublishProvider } from "./providers/meta";
 import type { ExecutionProviderId } from "./scopes";
 import { isExecutionProviderId } from "./scopes";
 
@@ -86,6 +100,8 @@ export interface DueRunSummary {
   refused: number;
   halted: number;
   unroutable: number;
+  /** P3-21d: items a dead or failed run left `publishing`, read back. */
+  reconciled: ReconcileSummary;
   outcomes: DueOutcome[];
 }
 
@@ -95,6 +111,10 @@ export interface DueRunOptions {
   sleep?: (ms: number) => Promise<void>;
   /** Scope the run to one profile (tests, a manual trigger). */
   profileId?: string;
+  /** Tests: a provider object in place of the registered one (a fake Graph behind Meta). */
+  providers?: { meta_publish?: MetaPublishProvider } & Partial<
+    Record<ExecutionProviderId, ExecutionProvider>
+  >;
 }
 
 function errorText(error: unknown): string {
@@ -112,10 +132,16 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     refused: 0,
     halted: 0,
     unroutable: 0,
+    reconciled: { checked: 0, published: 0, not_sent: 0, uncertain: 0 },
     outcomes: [],
   };
 
   summary.expired = await expireAllDueProposals(now());
+  summary.reconciled = await reconcilePublishing({
+    now,
+    ...(opts.profileId ? { profileId: opts.profileId } : {}),
+    ...(opts.providers?.meta_publish ? { provider: opts.providers.meta_publish } : {}),
+  });
 
   const conditions = [
     eq(proposals.status, "approved"),
@@ -161,6 +187,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
       refused: summary.refused,
       halted: summary.halted,
       unroutable: summary.unroutable,
+      reconciled: summary.reconciled,
     }),
   );
   return summary;
@@ -185,11 +212,18 @@ async function runOne(
   }
 
   try {
-    const plan = preboundPlan(proposal);
+    let plan = preboundPlan(proposal);
+    if (!plan && isPublishProposal(proposal.action)) {
+      const routed = await publishPlan(proposal);
+      if ("unroutable" in routed) {
+        return { ...base, result: "unroutable", detail: `${routed.unroutable} — left approved` };
+      }
+      plan = routed.plan;
+    }
     if (plan) {
       const execution = await executeProposal({
         proposalId: proposal.id,
-        provider: executionProvider(plan.provider),
+        provider: opts.providers?.[plan.provider] ?? executionProvider(plan.provider),
         op: plan.op,
         params: plan.params,
         ...(opts.sleep ? { sleep: opts.sleep } : {}),

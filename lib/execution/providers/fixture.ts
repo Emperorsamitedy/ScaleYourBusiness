@@ -12,6 +12,20 @@ import type { ExecutionProviderId } from "../scopes";
 export interface ExecutionContext {
   profile_id: string;
   account_id: string;
+  /** The engine's executions row for this run (P3-21d) — the publish path's handle. Unset for undo. */
+  execution_id?: string;
+}
+
+/**
+ * A provider's own pre-flight verdict (P3-21d): checked by the engine
+ * AFTER every guard and BEFORE the idempotency claim, so a refusal here
+ * leaves no execution row and the proposal stays approved for the next
+ * run. "deferred" = not now (a rate limit); "refused" = not as things
+ * stand (the item changed, the connection is paused).
+ */
+export interface PreflightRefusal {
+  code: "deferred" | "refused";
+  message: string;
 }
 
 /**
@@ -22,6 +36,18 @@ export interface ExecutionContext {
  */
 export interface ExecutionProvider {
   id: ExecutionProviderId;
+  /**
+   * True for a provider that writes to a REAL platform (Meta). The engine
+   * refuses every one of its ops while the Session D real-write gate is
+   * off (lib/env.ts, sessionDRealWritesOn). The fixtures leave it unset.
+   */
+  readonly external?: boolean;
+  /** Optional; null = go ahead. Reads only — nothing here may write. */
+  preflight?(
+    op: string,
+    params: Record<string, unknown>,
+    ctx: ExecutionContext,
+  ): Promise<PreflightRefusal | null>;
   /** null = this op cannot be undone (must be labelled before approval). */
   captureUndo(
     op: string,

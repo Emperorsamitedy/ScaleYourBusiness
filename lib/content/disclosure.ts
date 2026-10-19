@@ -36,3 +36,14 @@ export function withDisclosure(kind: ContentKind, body: string): string {
   if (body.trimEnd().endsWith(label)) return body;
   return `${body.trimEnd()}\n\n${label}`;
 }
+
+/**
+ * P3-21b: does this caption END with one of the disclosure labels? The
+ * Meta publish path refuses to send a Facebook caption that doesn't —
+ * Facebook has no AI-disclosure field, so the label in the text is the
+ * disclosure (rule 17). Checks, never strips.
+ */
+export function isDisclosed(text: string): boolean {
+  const end = text.trimEnd();
+  return Object.values(LABELS).some((label) => end.endsWith(label));
+}

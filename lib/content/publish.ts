@@ -7,9 +7,10 @@
 // recorded human approval the publish path will execute under.
 //
 // What this does NOT do: send anything. The proposal names its item,
-// platform and target; it carries no pre-bound execution plan, so the
-// due runner leaves an approved one alone ("no executor knows how to run
-// it") until the publish ops exist (P3-21b). Nothing here calls Meta.
+// platform and target and carries no pre-bound execution plan; since
+// P3-21b the due runner routes an approved one to the Meta executor
+// through lib/content/publishing's publishPlan, which picks the op from
+// the item itself. Nothing here calls Meta.
 //
 // Which items qualify is data, not code (rule 4): the item's channel has
 // a `platform` field from the channel_platform vocabulary, and
@@ -122,6 +123,12 @@ export function publishReadiness(args: {
     return {
       ok: false,
       reason: `${spec.label} needs an image or a video, and this item has none yet`,
+    };
+  }
+  if (platform === "instagram" && item.media_path !== null && /\.png$/i.test(item.media_path)) {
+    return {
+      ok: false,
+      reason: "Instagram takes JPEG images only, and this item's image is a PNG",
     };
   }
   if (item.scheduled_for === null) return { ok: false, reason: "it has no date to go out on" };
