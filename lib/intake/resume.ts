@@ -89,6 +89,25 @@ export interface ResolvedLink {
  * Exchange a token for the profile it opens. Expired, revoked and unknown
  * tokens are all the same answer — a caller learns nothing by probing.
  */
+/**
+ * What a resume link points at, with no side effect — the confirm page
+ * shows it before the browser is switched to that interview (login CSRF,
+ * security audit 2026-10-17). Same refusals as resolveResumeToken.
+ */
+export async function peekResumeToken(token: string): Promise<ResolvedLink> {
+  if (typeof token !== "string" || token.length < 20) {
+    throw new ResumeError("this link isn't valid", 404);
+  }
+  const [row] = await db
+    .select()
+    .from(resumeTokens)
+    .where(and(eq(resumeTokens.token_hash, hash(token)), isNull(resumeTokens.revoked_at)));
+  if (!row || Date.parse(row.expires_at) <= Date.now()) {
+    throw new ResumeError("this link has expired or is no longer valid", 404);
+  }
+  return { profile_id: row.profile_id, email: row.email };
+}
+
 export async function resolveResumeToken(token: string): Promise<ResolvedLink> {
   if (typeof token !== "string" || token.length < 20) {
     throw new ResumeError("this link isn't valid", 404);
