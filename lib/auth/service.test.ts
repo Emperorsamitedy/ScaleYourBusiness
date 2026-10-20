@@ -15,7 +15,10 @@ import {
   users,
 } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
-import { currentSession, redeemLogin, requestLogin, revokeSession } from "./service";
+import { NextRequest } from "next/server";
+import { GET as redeemGET, POST as redeemPOST } from "../../app/api/auth/redeem/route";
+import { appOriginOf } from "./same-origin";
+import { currentSession, peekLogin, redeemLogin, requestLogin, revokeSession } from "./service";
 
 const cleanupEmails: string[] = [];
 const cleanupProfiles: { account_id: string; profile_id: string }[] = [];
@@ -105,5 +108,65 @@ describe("P1-49 — email + signed link auth", () => {
     expect(await currentSession(redeemed.session_token)).not.toBeNull();
     await revokeSession(redeemed.session_token);
     expect(await currentSession(redeemed.session_token)).toBeNull();
+  });
+});
+
+// Login CSRF (security audit 2026-10-17): opening a link only asks; the
+// one way in is a POST from our own page.
+describe("a sign-in link asks before it signs in", () => {
+  const ORIGIN = appOriginOf("http://localhost:3000/");
+
+  function post(token: string, headers: Record<string, string>): NextRequest {
+    const body = new URLSearchParams({ token });
+    return new NextRequest(`${ORIGIN}/api/auth/redeem`, {
+      method: "POST",
+      body,
+      headers: { "content-type": "application/x-www-form-urlencoded", ...headers },
+    });
+  }
+
+  it("peeking names the address and leaves the link usable", async () => {
+    const login = await requestLogin(testEmail(), null);
+    expect(await peekLogin(login.token)).toEqual({ email: login.email });
+    expect(await peekLogin(login.token)).toEqual({ email: login.email });
+    await redeemLogin(login.token);
+    await expect(peekLogin(login.token)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("opening the link (GET) sets no cookie and doesn't burn it — it goes to the confirm page", async () => {
+    const login = await requestLogin(testEmail(), null);
+    const res = redeemGET(
+      new NextRequest(`${ORIGIN}/api/auth/redeem?token=${encodeURIComponent(login.token)}`),
+    );
+    expect(res.status).toBe(303);
+    const to = new URL(res.headers.get("location")!);
+    expect(to.pathname).toBe("/login/confirm");
+    expect(to.searchParams.get("token")).toBe(login.token);
+    expect(res.headers.get("set-cookie")).toBeNull();
+    expect(await peekLogin(login.token)).toEqual({ email: login.email });
+  });
+
+  it("an attacker's cross-site form can't sign a victim in, and the link survives", async () => {
+    const login = await requestLogin(testEmail(), null);
+    for (const headers of [
+      { "sec-fetch-site": "cross-site" },
+      { origin: "https://evil.example" },
+      {},
+    ]) {
+      const res = await redeemPOST(post(login.token, headers));
+      expect(res.status).toBe(303);
+      expect(new URL(res.headers.get("location")!).pathname).toBe("/login");
+      expect(res.headers.get("set-cookie")).toBeNull();
+    }
+    expect(await peekLogin(login.token)).toEqual({ email: login.email });
+  });
+
+  it("our own page's POST signs in once", async () => {
+    const login = await requestLogin(testEmail(), null);
+    const res = await redeemPOST(post(login.token, { "sec-fetch-site": "same-origin" }));
+    expect(res.status).toBe(303);
+    expect(res.headers.get("set-cookie")).toContain("=");
+    const again = await redeemPOST(post(login.token, { origin: ORIGIN }));
+    expect(new URL(again.headers.get("location")!).pathname).toBe("/login");
   });
 });

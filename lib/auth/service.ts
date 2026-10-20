@@ -81,6 +81,27 @@ export interface RedeemedSession {
  * Redeem a login link. One-shot: a token that has been used, expired,
  * or never existed all fail the same way, with nothing to enumerate.
  */
+/**
+ * The address a sign-in link was sent to, WITHOUT using the link up — the
+ * confirm page (login CSRF, security audit 2026-10-17) shows it before the
+ * person signs in, so a link someone else sent them names its real owner.
+ * A GET also never burns the link, so a mail scanner opening it can't.
+ */
+export async function peekLogin(token: string): Promise<{ email: string }> {
+  const [row] = await db
+    .select({ email: loginTokens.email })
+    .from(loginTokens)
+    .where(
+      and(
+        eq(loginTokens.token_hash, hash(token)),
+        isNull(loginTokens.used_at),
+        gt(loginTokens.expires_at, new Date().toISOString()),
+      ),
+    );
+  if (!row) throw new AuthError("that sign-in link is no longer valid", 401);
+  return { email: row.email };
+}
+
 export async function redeemLogin(token: string): Promise<RedeemedSession> {
   const now = new Date().toISOString();
   const [row] = await db

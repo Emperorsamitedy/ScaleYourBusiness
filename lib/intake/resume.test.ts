@@ -6,12 +6,16 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { NextRequest } from "next/server";
+import { GET as resumeGET, POST as resumePOST } from "../../app/resume/[token]/route";
 import { db } from "../../db";
+import { appOriginOf } from "../auth/same-origin";
 import { accounts, businessProfiles, resumeTokens } from "../../db/schema";
 import {
   emailForProfile,
   issueResumeLink,
   normaliseEmail,
+  peekResumeToken,
   RESUME_TTL_DAYS,
   ResumeError,
   resolveResumeToken,
@@ -172,5 +176,52 @@ describe("helpers the finish screen needs", () => {
     expect(resumeUrl("https://syb-kappa.vercel.app/", "abc")).toBe(
       "https://syb-kappa.vercel.app/resume/abc",
     );
+  });
+});
+
+// Login CSRF (security audit 2026-10-17): a resume link only asks; this
+// browser switches interview on a POST from our own page and nothing else.
+describe("a resume link asks before it switches this browser", () => {
+  const ORIGIN = appOriginOf("http://localhost:3000/");
+  const ctx = (token: string) => ({ params: Promise.resolve({ token }) });
+
+  it("peeking touches nothing — not even last_used_at", async () => {
+    const link = await issueResumeLink(profileId, "eszter@szorp.hu");
+    expect((await peekResumeToken(link.token)).profile_id).toBe(profileId);
+    const [row] = await db
+      .select()
+      .from(resumeTokens)
+      .where(eq(resumeTokens.token_hash, createHash("sha256").update(link.token).digest("hex")));
+    expect(row?.last_used_at ?? null).toBeNull();
+    await revokeResumeToken(link.token);
+    await expect(peekResumeToken(link.token)).rejects.toBeInstanceOf(ResumeError);
+  });
+
+  it("opening it (GET) sets no cookie and lands on the confirm page", async () => {
+    const link = await issueResumeLink(profileId, "eszter@szorp.hu");
+    const res = await resumeGET(new NextRequest(`${ORIGIN}/resume/${link.token}`), ctx(link.token));
+    expect(res.status).toBe(303);
+    const to = new URL(res.headers.get("location")!);
+    expect(to.pathname).toBe("/resume");
+    expect(to.searchParams.get("token")).toBe(link.token);
+    expect(res.headers.get("set-cookie")).toBeNull();
+  });
+
+  it("a cross-site POST sets nothing; our own page's POST sets the intake cookie", async () => {
+    const link = await issueResumeLink(profileId, "eszter@szorp.hu");
+    const req = (headers: Record<string, string>) =>
+      new NextRequest(`${ORIGIN}/resume/${link.token}`, { method: "POST", headers });
+    for (const headers of [
+      { "sec-fetch-site": "cross-site" },
+      { origin: "https://evil.example" },
+      {},
+    ]) {
+      const res = await resumePOST(req(headers), ctx(link.token));
+      expect(res.headers.get("location")).toContain("resume=expired");
+      expect(res.headers.get("set-cookie")).toBeNull();
+    }
+    const ok = await resumePOST(req({ "sec-fetch-site": "same-origin" }), ctx(link.token));
+    expect(ok.headers.get("location")).toContain("resume=ok");
+    expect(ok.headers.get("set-cookie")).toContain("=");
   });
 });
