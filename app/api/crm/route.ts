@@ -52,6 +52,9 @@ import {
 } from "../../../lib/crm/segment-proposals";
 import { computeSegments, lifecycleOf } from "../../../lib/crm/segments";
 import { ProposalError } from "../../../lib/proposals/service";
+import { resendEventsWebhookSecret } from "../../../lib/env";
+import { activeExecutionConnection } from "../../../lib/execution/connections";
+import { emailCampaignOutcome } from "../../../lib/trust/email-readback";
 
 const CONSENT: readonly ConsentStatus[] = [
   "explicit_consent",
@@ -150,6 +153,7 @@ async function campaignsFor(profileId: string, accountId: string) {
     value(COUNTRY_KEY),
   ]);
   const compliance = campaignCompliance({ businessCountry: country, senderName, postalAddress });
+  const conn = await activeExecutionConnection(accountId, "email_campaign");
   const out = [];
   for (const r of rows) {
     const action = r.action as { kind?: string; summary?: string; detail?: { label?: string } };
@@ -167,9 +171,24 @@ async function campaignsFor(profileId: string, accountId: string) {
       recipients: approvedRecipients(r.action).length,
       irreversible: (r.reversibility as { level?: string } | null)?.level === "hard",
       send: await campaignSendView(r, accountId),
+      // P4-17: the readback, once the campaign has gone out.
+      readback: r.status === "executed" ? await readbackFor(r, conn?.reply_to ?? null) : null,
     });
   }
   return out;
+}
+
+/** P4-17: a sent campaign's readback, with what the screen needs to say what wasn't measured. */
+async function readbackFor(proposal: typeof proposals.$inferSelect, repliesTo: string | null) {
+  const outcome = await emailCampaignOutcome(proposal);
+  const d = outcome.delivery;
+  return {
+    ...outcome,
+    // Reported once the webhook is set up — or when events already came in for this campaign.
+    delivery_reported:
+      resendEventsWebhookSecret() !== null || d.delivered + d.bounced + d.complained > 0,
+    replies_to: repliesTo,
+  };
 }
 
 async function answeredText(profileId: string, key: string): Promise<string | null> {

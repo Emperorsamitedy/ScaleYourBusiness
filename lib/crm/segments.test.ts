@@ -88,6 +88,7 @@ function contact(over: Partial<ContactRow>): ContactRow {
     total_spent_minor: null,
     spent_currency: null,
     country: null,
+    purchase_refreshed_at: null,
     ...over,
   };
 }
@@ -213,6 +214,7 @@ describe("P4-13 — purchase history from the owner's export", () => {
     expect(result.purchase).toEqual({
       columns: ["last_purchase", "orders", "spent"],
       unreadable: 3,
+      refreshed: 0,
     });
     const rows = await db.select().from(contacts).where(eq(contacts.account_id, s.account_id));
     const anna = rows.find((r) => r.email === "anna@example.com")!;

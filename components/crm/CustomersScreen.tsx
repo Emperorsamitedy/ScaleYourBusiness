@@ -104,6 +104,7 @@ function importNotice(j: Record<string, unknown>): string {
   const purchase = (j.purchase ?? { columns: [], unreadable: 0 }) as {
     columns: string[];
     unreadable: number;
+    refreshed?: number;
   };
   const country = (j.country ?? { column: false, unreadable: 0 }) as {
     column: boolean;
@@ -123,6 +124,12 @@ function importNotice(j: Record<string, unknown>): string {
   if (purchase.columns.length > 0) {
     parts.push(
       `Purchase history read from ${purchase.columns.length} column${purchase.columns.length === 1 ? "" : "s"}${purchase.unreadable > 0 ? `; ${purchase.unreadable} value${purchase.unreadable === 1 ? "" : "s"} couldn't be read and were left empty` : ""}.`,
+    );
+  }
+  if ((purchase.refreshed ?? 0) > 0) {
+    const n = purchase.refreshed ?? 0;
+    parts.push(
+      `Updated the purchase history of ${n} customer${n === 1 ? "" : "s"} already here; their consent stays as recorded.`,
     );
   }
   if (country.column && country.unreadable > 0) {

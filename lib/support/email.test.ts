@@ -31,6 +31,8 @@ import { bootstrapIntake } from "../intake/service";
 import {
   emailThread,
   inboundAddress,
+  MAX_LOCAL_PART,
+  newThreadToken,
   receiveInboundEmail,
   referencedIds,
   routingFrom,
@@ -236,6 +238,20 @@ describe("P4-09 — the adapter normalises Resend's two shapes into one", () => 
     expect(routingFrom([`s-${t.slice(1)}@${DOMAIN}`], DOMAIN)).toBeNull();
     expect(referencedIds("<a@x>", "<b@x> <a@x>")).toEqual(["<a@x>", "<b@x>"]);
   });
+
+  it("a reply address fits RFC 5321's 64-char local part, and older 32-char threads still parse", () => {
+    const t = "0123456789abcdef0123456789abcdef";
+    const fresh = newThreadToken();
+    const local = threadAddress(t, fresh, DOMAIN).split("@")[0]!;
+    expect(local.length).toBeLessThanOrEqual(MAX_LOCAL_PART);
+    expect(routingFrom([threadAddress(t, fresh, DOMAIN)], DOMAIN)).toEqual({
+      routing: t,
+      thread: fresh,
+    });
+    const old = "fedcba9876543210fedcba9876543210";
+    expect(routingFrom([`s-${t}+${old}@${DOMAIN}`], DOMAIN)).toEqual({ routing: t, thread: old });
+    expect(routingFrom([`s-${t}+${old.slice(1)}@${DOMAIN}`], DOMAIN)).toBeNull();
+  });
 });
 
 describe("P4-09 — routing, threading and idempotency", () => {
@@ -257,7 +273,7 @@ describe("P4-09 — routing, threading and idempotency", () => {
       summary: "Where is my order?",
       suppressed_address: false,
     });
-    expect(ticket?.thread_token).toMatch(/^[0-9a-f]{32}$/);
+    expect(ticket?.thread_token).toMatch(/^[0-9a-f]{24}$/);
     const [contact] = await db.select().from(contacts).where(eq(contacts.id, ticket!.contact_id!));
     expect(contact).toMatchObject({
       email: "ana.p409@example.com",
