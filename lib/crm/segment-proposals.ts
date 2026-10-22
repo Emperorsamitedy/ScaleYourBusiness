@@ -22,6 +22,9 @@ import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/ha
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { suppressedKinds } from "../trust/suppression";
+import type { ScenarioBlock } from "../diagnosis/recommendations";
+import type { SimulationAttachment } from "../simulate/scenario";
+import { attachSimulation } from "../simulate/scenario";
 import { outboundPosture } from "./contacts";
 import type { Segment } from "./segments";
 import { computeSegments } from "./segments";
@@ -84,7 +87,14 @@ const CAMPAIGNS: Record<"lapsed" | "vip", Campaign> = {
  */
 export async function proposeFromSegments(
   profileId: string,
-  opts: { now?: Date; limitLlm?: LimitLlm } = {},
+  opts: {
+    now?: Date;
+    limitLlm?: LimitLlm;
+    /** Feature 36: one segment only, when the owner proposes it from the simulator. */
+    only?: "lapsed" | "vip";
+    /** Feature 36: the simulated scenario that proposal carries. */
+    simulation?: SimulationAttachment;
+  } = {},
 ): Promise<SegmentProposalOutcome> {
   const now = opts.now ?? new Date();
   const out: SegmentProposalOutcome = { created: [], blocked: [], skipped: [] };
@@ -115,6 +125,7 @@ export async function proposeFromSegments(
   const seen = new Set(existing.map((r) => r.ref));
 
   for (const campaign of Object.values(CAMPAIGNS)) {
+    if (opts.only !== undefined && campaign.segment !== opts.only) continue;
     const segment = report.segments.find((s) => s.key === campaign.segment)!;
     const ref = `crm:${campaign.ref}:${monthKey(now)}`;
     if (seen.has(ref)) {
@@ -162,43 +173,46 @@ export async function proposeFromSegments(
           manual_limits: verdict.manual.map((l) => l.quote),
         },
       },
-      scenario: {
-        assumptions: [
-          {
-            statement: `${n} recipients hold explicit consent and no suppression, decided per contact at proposal time; re-decided at send time`,
-            value: null,
-            source_field: null,
-            sensitivity: "low",
+      scenario: attachSimulation(
+        {
+          assumptions: [
+            {
+              statement: `${n} recipients hold explicit consent and no suppression, decided per contact at proposal time; re-decided at send time`,
+              value: null,
+              source_field: null,
+              sensitivity: "low",
+            },
+            ...segment.evidence.map((e) => ({
+              statement: e,
+              value: null,
+              source_field: null,
+              sensitivity: "low" as const,
+            })),
+          ],
+          base_case: {
+            case: "base",
+            statement: campaign.base,
+            profit_delta_monthly: null,
+            formula: null,
           },
-          ...segment.evidence.map((e) => ({
-            statement: e,
-            value: null,
-            source_field: null,
-            sensitivity: "low" as const,
-          })),
-        ],
-        base_case: {
-          case: "base",
-          statement: campaign.base,
-          profit_delta_monthly: null,
-          formula: null,
-        },
-        downside_case: {
-          case: "downside",
-          statement:
-            "Nobody answers, and a few unsubscribe — honoured immediately and permanently.",
-          profit_delta_monthly: null,
-          formula: null,
-        },
-        upside_case: {
-          case: "upside",
-          statement: campaign.upside,
-          profit_delta_monthly: null,
-          formula: null,
-        },
-        breakeven_condition:
-          "not computed — no per-customer revenue series exists yet to compute it from",
-      } as never,
+          downside_case: {
+            case: "downside",
+            statement:
+              "Nobody answers, and a few unsubscribe — honoured immediately and permanently.",
+            profit_delta_monthly: null,
+            formula: null,
+          },
+          upside_case: {
+            case: "upside",
+            statement: campaign.upside,
+            profit_delta_monthly: null,
+            formula: null,
+          },
+          breakeven_condition:
+            "not computed — no per-customer revenue series exists yet to compute it from",
+        } as ScenarioBlock,
+        opts.simulation,
+      ) as never,
       // P4-15: labelled irreversible BEFORE approval (rule 16) — the engine
       // refuses to send a campaign approved as undoable.
       reversibility: {
