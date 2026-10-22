@@ -32,6 +32,7 @@ import type { Basis } from "../../components/report/basis";
 import { BASES } from "../../components/report/basis";
 import { moneyText, num } from "../../components/sheet/num";
 import { MAX_CHANGE_SHARE, spendGuard } from "../ads/guard";
+import { minorUnitExponent } from "../core/money";
 
 /**
  * The pinned thresholds and windows — one place, boundary-tested
@@ -404,8 +405,16 @@ export function spread(values: readonly number[]): Range | null {
 
 /* ── formatting, by the number grammar ── */
 
-const money = (minor: number, currency: string): string =>
-  minor < 0 ? `−${moneyText(-minor, currency)}` : moneyText(minor, currency);
+/**
+ * Money in whole major units, every figure alike — one column, one decimal
+ * count (ux-spec §2). The amounts stay integer minor units underneath; only
+ * the print rounds.
+ */
+const money = (minor: number, currency: string): string => {
+  const whole = Math.round(Math.abs(minor) / 10 ** minorUnitExponent(currency));
+  const body = moneyText(whole * 10 ** minorUnitExponent(currency), currency);
+  return minor < 0 && whole !== 0 ? `−${body}` : body;
+};
 const pct = (x: number): string => `${num(x * 100, 1)}%`;
 const twoDp = (x: number): string => num(x, 2);
 const count = (x: number): string => (Number.isInteger(x) ? num(x, 0) : num(x, 1));
@@ -687,11 +696,7 @@ function simulateEmail(o: Extract<SimOption, { kind: "email" }>, x: SimInputs): 
       prof.bases,
       `${term(revenue, "money", cur)} × ${term(prof.vals[3]!, "rate", cur)} margin − ${money(0, cur)}`,
     );
-    measures.worst = cell(
-      point(0),
-      orderBases([prof.bases[0] ?? null]),
-      "nobody buys again: nothing in, nothing spent",
-    );
+    measures.worst = cell(point(0), [], "nobody buys again: nothing in, nothing spent");
   } else if (!prof.ok) {
     measures.profit = missingCell(prof);
     measures.worst = cell(point(0), [], "nobody buys again: nothing in, nothing spent");
@@ -1046,13 +1051,13 @@ function simulateContent(o: Extract<SimOption, { kind: "content" }>, x: SimInput
   const inputs: SimInput[] = [];
   inputs.push({
     key: "posts",
-    label: "Posts in the plan",
+    label: "Social posts in the plan",
     range: posts > 0 ? point(posts) : null,
     unit: "count",
     basis: posts > 0 ? "DERIVED" : null,
     source:
       posts > 0
-        ? `${plural(c.social_channels, "social channel")} × ${c.per_week} a week × ${CONTENT_WEEKS} weeks`
+        ? `${plural(c.social_channels, "social channel")} × ${c.per_week} a week × ${CONTENT_WEEKS} weeks — the calendar's social posts; its email and website pieces aren't simulated`
         : "no social channel on your profile",
     needs: posts > 0 ? null : "a social channel you post on, added to your profile",
   });
@@ -1230,14 +1235,15 @@ function emptyMeasures(): Record<MeasureKey, Cell> {
 
 /** Pure: one option's chain, measures and worst case. */
 export function simulateOption(o: SimOption, x: SimInputs): OptionResult {
-  switch (o.kind) {
-    case "email":
-      return simulateEmail(o, x);
-    case "ads":
-      return simulateAds(o, x);
-    case "content":
-      return simulateContent(o, x);
-  }
+  const r =
+    o.kind === "email"
+      ? simulateEmail(o, x)
+      : o.kind === "ads"
+        ? simulateAds(o, x)
+        : simulateContent(o, x);
+  // The worst case is one scenario, not a spread: it prints as one figure.
+  if (r.measures.worst.status === "range") r.measures.worst.exact = true;
+  return r;
 }
 
 export interface ComparisonRow {

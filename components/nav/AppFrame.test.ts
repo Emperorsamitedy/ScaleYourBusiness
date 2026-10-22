@@ -27,6 +27,7 @@ describe("app navigation", () => {
     for (const href of hrefs) expect(groupFor(href)).not.toBeNull();
     expect(groupFor("/customers")?.key).toBe("customers");
     expect(groupFor("/site")?.key).toBe("grow");
+    expect(groupFor("/simulate")?.key).toBe("grow");
   });
 
   it("shows the rail on owner screens and the chat", () => {

@@ -1,0 +1,295 @@
+/* Grow · Campaign simulator (feature 36), on the sheet system
+   (app/sheet.css): the picker, the side-by-side ruled table, a whisker
+   per option, and each option's chain. Square, ruled, no shadows, no
+   icons; cobalt only on the live dot while a proposal is being made.
+   Scoped under .sim-screen. */
+
+.sim-screen .ph-aside {
+  align-self: flex-end;
+  line-height: 1.6;
+}
+
+.sim-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+.sim-stack > * {
+  min-width: 0;
+}
+
+.sim-note {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+.sim-note a {
+  color: var(--desk-ink);
+}
+
+.sim-wrap {
+  position: relative; /* holds the screen-reader labels inside the scroll box */
+  overflow-x: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+
+/* ── the picker ── */
+
+.sim-pick {
+  min-width: 760px;
+}
+.sim-pick tbody th {
+  font-weight: 500;
+}
+.sim-pick tbody td,
+.sim-pick tbody th {
+  vertical-align: middle;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+.sim-acts-cell {
+  width: 1%;
+  white-space: nowrap;
+}
+.sim-acts {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+.sim-screen .sim-toggle {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 11.5px;
+}
+.sim-share select,
+.sim-budget input {
+  min-height: 38px;
+  padding: 0 8px;
+  border: var(--line);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+}
+.sim-budget {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+.sim-budget input {
+  width: 7ch;
+  text-align: right;
+}
+
+/* ── the side by side ── */
+
+.sim-table {
+  min-width: 720px;
+  table-layout: fixed;
+}
+.sim-table thead th.num {
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sheet-ink);
+  vertical-align: bottom;
+}
+.sim-table thead th:first-child {
+  width: 17%;
+}
+.sim-table tbody th small {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+  white-space: normal;
+}
+.sim-table tbody td.num {
+  white-space: normal;
+}
+.sim-table .fig {
+  display: block;
+  font-size: 13.5px;
+}
+.sim-table .flag {
+  display: inline-block;
+  margin-top: 3px;
+}
+.sim-basis {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--sheet-ink-2);
+}
+.sim-inputs .sim-basis {
+  display: inline;
+  margin: 0;
+}
+
+/* ── the whiskers ── */
+
+.sim-chart {
+  margin: 0;
+}
+.sim-chart-grid {
+  display: grid;
+  grid-template-columns: minmax(140px, 24%) minmax(0, 1fr) minmax(170px, 24%);
+  gap: 12px;
+  align-items: start;
+}
+.sim-chart-labels,
+.sim-chart-values {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+.sim-chart-labels li,
+.sim-chart-values li {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  line-height: 1.2;
+}
+.sim-chart-labels li {
+  font-size: 12.5px;
+}
+.sim-chart-values li {
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.sim-svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.sim-svg line {
+  vector-effect: non-scaling-stroke;
+}
+.sim-grid {
+  stroke: var(--rule-soft);
+  stroke-width: 1;
+}
+.sim-zero {
+  stroke: var(--sheet-ink);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.sim-whisker {
+  stroke: var(--sheet-ink);
+  stroke-width: 2;
+}
+.sim-worst {
+  stroke: var(--sheet-ink);
+  stroke-width: 7;
+}
+.sim-ticks {
+  position: relative;
+  height: 16px;
+  margin: 2px calc(24% + 12px) 0 calc(24% + 12px);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--sheet-ink-2);
+}
+.sim-ticks span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* ── each option's chain ── */
+
+.sim-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+.sim-what {
+  margin: 0 0 10px;
+  max-width: var(--measure);
+}
+.sim-inputs {
+  min-width: 460px;
+}
+.sim-inputs tbody th,
+.sim-inputs tbody td {
+  font-size: 13px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.sim-inputs .src {
+  font-size: 12px;
+}
+.sim-math {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0 0;
+}
+.sim-math div {
+  display: grid;
+  grid-template-columns: 9ch minmax(0, 1fr);
+  gap: 10px;
+}
+.sim-math dt {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.sim-math dd {
+  margin: 0;
+  font-size: 12.5px;
+  white-space: normal;
+}
+.sim-worst-words,
+.sim-guard,
+.sim-check {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+}
+.sim-worst-words .cs-label,
+.sim-check .cs-label {
+  display: block;
+  margin: 0 0 3px;
+}
+.sim-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.sim-foot .act {
+  min-height: 40px;
+}
+.sim-done a {
+  color: var(--sheet-ink);
+}
+
+@media (max-width: 719px) {
+  .sim-screen .ph-aside {
+    text-align: left;
+  }
+  .sim-chart-grid {
+    grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+  }
+  .sim-chart-values {
+    display: none;
+  }
+  .sim-ticks {
+    margin: 2px 0 0 calc(38% + 12px);
+  }
+}

@@ -50,7 +50,7 @@ export function simulationRecord(result: OptionResult, asOf: string): Simulation
     key_rate: result.key_rate,
     inputs: result.inputs.map((i) => ({
       label: i.label,
-      value: i.range ? valueText(i.range, i.unit, result.currency) : null,
+      value: i.range ? valueText(i.range, i.unit, result.currency, true) : null,
       basis: i.basis,
       source: i.source,
     })),
@@ -98,10 +98,10 @@ export function withSimulation(
   const inputs: Assumption[] = result.inputs
     .filter((i) => i.range !== null)
     .map((i) => ({
-      statement: `${i.label}: ${valueText(i.range!, i.unit, cur)}`,
+      statement: `${i.label}: ${valueText(i.range!, i.unit, cur, true)}`,
       value: null,
       source_field: null,
-      measured: `${i.basis ?? "NOT RECORDED"} · ${i.source}`,
+      measured: i.source,
       sensitivity: "medium" as const,
     }));
   const projection: Assumption[] = result.assumptions.map((a) => ({

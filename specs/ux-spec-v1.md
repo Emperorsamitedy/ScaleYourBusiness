@@ -106,6 +106,7 @@ Motion reports state, and is subtler the more often it plays: 100ms press, 220ms
 | Profile | Everything known, editable, with sources | v1 |
 | Approval queue | Decide on proposals | v2, patterned here |
 | Module pages | Marketing, finance, support detail | v3+ |
+| Campaign simulator | Compare 2–4 campaign options' likely ranges before anything is spent | v3 (feature 36) |
 
 Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame.tsx`). It is a 248px ink rail with:
 - the wordmark, the business name and the live state ("WATCHING · DAY 19 / 28") over a cobalt rule;
@@ -114,6 +115,8 @@ Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame
 - "Ask me anything →" at the foot.
 
 There are no icons and no section tabs. Under 900px the rail folds into a top bar with a Menu button.
+
+**Campaign simulator** (`/simulate`, under Grow; feature 36). It lives on its own screen rather than in "Waiting for you" or on Customers: it compares email, ad and content options before any proposal exists, and the queue is a focused view for deciding, not for exploring. The owner picks two to four options in a ruled picker; a `.rt` table puts measures in rows (what it costs, people it reaches, orders, expected revenue, expected profit, worst case) and options in columns, each cell "low – high" in mono with the basis words of what it rests on, or a worded MISSING / NOT READ flag — a gap is never a number. A plain-SVG whisker per option shows expected profit against zero, the worst case as a square. Under it, each option shows its chain: every input with its value, basis and source (missing ones say what would fill them), the projection's own ASSUMED line, the arithmetic per measure, the worst case in words, and what the trust layer can say about similar past proposals. "Propose this" makes the normal proposal for its kind with the simulation attached; nothing executes. Money prints in whole major units, one decimal count throughout.
 
 Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
