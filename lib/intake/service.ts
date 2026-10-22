@@ -326,6 +326,7 @@ async function toIntakeQuestion(
     allow_unknown: spec.allow_unknown !== false,
     currency,
     entity_schema: spec.entity_schema ?? null,
+    writes_to: q.writes_to,
     section: q.section,
     area_position: area.position,
     already_read: area.alreadyRead,

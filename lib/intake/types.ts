@@ -30,6 +30,8 @@ export interface IntakeQuestion {
   entity_schema: string | null;
   /** For entity_list: the row sub-fields (P0-68). */
   entity_fields?: EntityField[];
+  /** The field this question writes (the bank's writes_to). */
+  writes_to: string;
   /** The profile section (area) the bank files this question under. */
   section: string;
   /** 1-based position within its area: earlier answers and skips there, plus one. */
