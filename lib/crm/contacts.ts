@@ -28,6 +28,7 @@ import { createHash, createHmac } from "node:crypto";
 import { derivedKey } from "../core/derived-key";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
+import { forgetBookingClient } from "../bookings/erase";
 import {
   businessProfiles,
   campaignComparisons,
@@ -327,6 +328,9 @@ export async function eraseContact(accountId: string, contactId: string): Promis
       });
     }
   });
+  // Their bookings stop being linkable to them: the keyed client hash their
+  // email or phone produced is cleared (specs/bookings.md §3).
+  await forgetBookingClient(accountId, { email: contact.email, phone: contact.phone });
   console.log(
     JSON.stringify({
       event: "contact_erased",

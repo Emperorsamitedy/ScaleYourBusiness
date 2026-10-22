@@ -228,19 +228,19 @@ describe("P1-11 — cost per acquisition", () => {
   it("counts only new customers", async () => {
     await w("marketing.monthly_ad_spend", money(20_000_000, HUF)); // 200 000
     await w("revenue.order_count_monthly", 300);
-    await w("revenue.repeat_customer_rate", 0.2); // 240 new
+    await w("revenue.repeat_customer_rate", 20); // 20 % repeat → 240 new
     const e = await economics();
 
     expect(e.cost_per_acquisition?.value).toEqual(money(83_333, HUF)); // ≈833 HUF
     expect(e.cost_per_acquisition?.formula).toBe("ad spend ÷ (orders × (1 − repeat rate))");
   });
 
-  it("treats a repeat rate given as a percentage the same as a fraction", async () => {
+  it("reads the repeat rate as the percentage the bank asks for — 1 means 1 %, not 100 %", async () => {
     await w("marketing.monthly_ad_spend", money(20_000_000, HUF));
     await w("revenue.order_count_monthly", 300);
-    await w("revenue.repeat_customer_rate", 20); // 20, not 0.2
+    await w("revenue.repeat_customer_rate", 1); // 297 new
     const e = await economics();
-    expect(e.cost_per_acquisition?.value).toEqual(money(83_333, HUF));
+    expect(e.cost_per_acquisition?.value).toEqual(money(67_340, HUF)); // 20 000 000 ÷ 297
   });
 
   it("refuses without a repeat rate, and explains why it matters", async () => {
@@ -257,7 +257,7 @@ describe("P1-11 — cost per acquisition", () => {
   it("refuses to convert ad spend held in another currency", async () => {
     await w("marketing.monthly_ad_spend", money(50_000, "EUR"));
     await w("revenue.order_count_monthly", 300);
-    await w("revenue.repeat_customer_rate", 0.2);
+    await w("revenue.repeat_customer_rate", 20);
     const e = await economics();
 
     expect(e.cost_per_acquisition).toBeNull();

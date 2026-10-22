@@ -22,6 +22,7 @@ import type { ExecView } from "./ExecutionSection";
 import { ExecutionSection } from "./ExecutionSection";
 import type { EmailView } from "./EmailCampaignSection";
 import { EmailCampaignSection } from "./EmailCampaignSection";
+import { BookingsImportSection } from "./BookingsImportSection";
 import { gives, headline, lastRead, parseTs } from "./patch";
 import "../../app/connections.css";
 
@@ -399,7 +400,8 @@ function Steps({ provider }: { provider: ProviderOption }) {
           </li>
           <li>
             Paste the token below. Payments rung up in Square — card and cash — are read; cash that
-            never goes through the till can&rsquo;t be seen by anything.
+            never goes through the till can&rsquo;t be seen by anything. With the two appointment
+            permissions, your Square Appointments bookings are read too.
           </li>
         </ol>
       );
@@ -1006,6 +1008,9 @@ export function ConnectionsScreen() {
           </p>
         </footer>
       </section>
+
+      {/* Bookings (specs/bookings.md §5): an export from any booking system, read once. */}
+      <BookingsImportSection />
 
       {/* P3-20h: write access, visibly apart from everything above. */}
       {exec !== null && <ExecutionSection view={exec} onChanged={loadExec} />}

@@ -1,0 +1,156 @@
+{
+  "version": "1.0.0",
+  "note": "The bookings import's column and status map — data, not code (rule 4). specs/bookings.md explains it. Headers and status words are matched after normalising: lower-cased, every character outside a-z and 0-9 removed, so 'Client e-mail', 'client_email' and 'CLIENT EMAIL' are one name. A platform's own names are tried first, then the generic ones. 'verified' says whether the names were read from the platform's own documentation or a real export; most were not (specs/bookings.md, 'What is unverified'), which is why the generic fallback is wide and the screen shows which columns were understood. lib/bookings/import-map.test.ts holds this file to its shape.",
+  "roles": {
+    "ref": "The appointment's own id or booking reference. The idempotency key when present.",
+    "start": "Date and time in one column.",
+    "date": "The appointment's date, when the time is in its own column.",
+    "time": "The appointment's start time.",
+    "status": "What happened to the appointment. Required: without it a kept appointment and a no-show look the same.",
+    "service": "The service or class booked.",
+    "staff": "The team member, chair or room.",
+    "client_id": "The booking system's own client id. Preferred client identity: hashed, never stored.",
+    "client_email": "The client's email. Second choice of identity: hashed, never stored.",
+    "client_phone": "The client's phone. Third choice of identity: hashed, never stored.",
+    "price": "What the appointment cost, in the currency the owner names for the batch.",
+    "duration": "Minutes booked.",
+    "cancelled_at": "When a cancellation was made. With it, a cancellation under the late-cancellation notice counts as late."
+  },
+  "generic": {
+    "columns": {
+      "ref": ["appointment id", "appointmentid", "booking id", "bookingid", "booking ref", "booking reference", "reference", "ref", "ref #", "booking code", "code", "id", "visit id"],
+      "start": ["start", "starts at", "start date time", "start datetime", "appointment start", "scheduled at", "date time", "datetime", "begins"],
+      "date": ["date", "appointment date", "booking date", "scheduled date", "visit date", "class date", "day"],
+      "time": ["time", "start time", "appointment time", "booking time", "scheduled time", "start hour", "from"],
+      "status": ["status", "appointment status", "booking status", "visit status", "state", "outcome", "attendance"],
+      "service": ["service", "service name", "services", "treatment", "appointment type", "type", "class", "class name", "session type", "item"],
+      "staff": ["staff", "staff member", "staff name", "team member", "employee", "provider", "stylist", "therapist", "trainer", "instructor", "resource", "calendar", "chair", "room"],
+      "client_id": ["client id", "clientid", "customer id", "customerid", "member id", "memberid", "client number", "client ref"],
+      "client_email": ["email", "e-mail", "client email", "customer email", "member email", "email address"],
+      "client_phone": ["phone", "mobile", "client phone", "customer phone", "phone number", "mobile number", "telephone"],
+      "price": ["price", "amount", "total", "value", "service price", "appointment price", "revenue", "gross", "sale price"],
+      "duration": ["duration", "duration minutes", "duration (min)", "length", "minutes", "mins"],
+      "cancelled_at": ["cancelled at", "canceled at", "cancellation date", "cancelled on", "canceled on", "cancellation time", "date cancelled", "date canceled"]
+    },
+    "statuses": {
+      "completed": ["completed", "complete", "finished", "done", "attended", "arrived", "checked out", "checked in", "checkedout", "checkedin", "started", "in progress", "paid", "visited", "showed", "signed in", "fulfilled"],
+      "no_show": ["no show", "no-show", "noshow", "no showed", "did not show", "didnt show", "missed", "absent", "not arrived"],
+      "cancelled_late": ["late cancel", "late cancelled", "late canceled", "late cancellation", "cancelled late", "canceled late"],
+      "cancelled": ["cancelled", "canceled", "cancel", "cancelled by client", "canceled by client", "cancelled by customer", "canceled by customer", "cancelled by staff", "cancelled by business", "cancelled by seller", "cancelled by provider", "declined", "rejected"],
+      "booked": ["booked", "confirmed", "pending", "scheduled", "new", "accepted", "approved", "requested", "unconfirmed", "reserved", "upcoming", "waiting"]
+    }
+  },
+  "platforms": {
+    "fresha": {
+      "label": "Fresha",
+      "verified": false,
+      "basis": "Fresha publishes no column list. A migration guide (support.heygoldie.com, read 2026-10-22) gives the path, Sales > Appointments > Export > CSV, not the headers. The names below are the ones Fresha's appointments list shows on screen, unconfirmed against a real file.",
+      "columns": {
+        "ref": ["ref #", "ref", "booking ref"],
+        "date": ["scheduled date", "date"],
+        "time": ["time", "scheduled time"],
+        "status": ["status"],
+        "service": ["service"],
+        "staff": ["team member"],
+        "client_email": ["client email"],
+        "client_phone": ["client mobile", "client phone"],
+        "price": ["price", "total sale"],
+        "duration": ["duration"]
+      },
+      "statuses": {}
+    },
+    "mindbody": {
+      "label": "Mindbody",
+      "verified": false,
+      "basis": "Mindbody's appointment reports (Schedule at a Glance, Attendance) export CSV (docs.gymdesk.com and support.juvonno.com, read 2026-10-22); neither lists headers. The status words are Mindbody's visit states, including its own Late Cancel.",
+      "columns": {
+        "date": ["date", "visit date", "class date"],
+        "time": ["time", "start time", "class time"],
+        "status": ["status", "visit status"],
+        "service": ["session type", "service category", "description", "class name"],
+        "staff": ["staff", "staff name", "teacher", "instructor"],
+        "client_id": ["client id"],
+        "client_email": ["email"],
+        "price": ["price", "revenue", "amount"],
+        "duration": ["duration"]
+      },
+      "statuses": {
+        "completed": ["signed in", "completed", "arrived"],
+        "no_show": ["no show", "noshow"],
+        "cancelled_late": ["late cancel", "late cancelled", "latecancelled"],
+        "booked": ["booked", "confirmed", "requested", "unpaid"]
+      }
+    },
+    "booksy": {
+      "label": "Booksy",
+      "verified": false,
+      "basis": "Booksy has no self-service appointment export; its support sends a CSV on request (support.heygoldie.com, read 2026-10-22). The headers are not published, so the generic names carry most of this.",
+      "columns": {
+        "date": ["appointment date", "date"],
+        "time": ["appointment time", "time"],
+        "status": ["status", "appointment status"],
+        "service": ["service", "service name"],
+        "staff": ["staff member", "staffer"],
+        "client_email": ["customer email", "client email"],
+        "client_phone": ["customer phone", "client phone"],
+        "price": ["price", "service price"]
+      },
+      "statuses": {
+        "completed": ["finished"],
+        "booked": ["confirmed", "pending", "awaiting"]
+      }
+    },
+    "simplybook": {
+      "label": "SimplyBook.me",
+      "verified": false,
+      "basis": "SimplyBook.me exports bookings to Excel from Reports (Client or Detailed reports; support.juvonno.com, read 2026-10-22). Save as CSV first. Headers unconfirmed.",
+      "columns": {
+        "ref": ["code", "booking code", "id", "booking id"],
+        "start": ["start date", "start date time", "booking start", "date start"],
+        "status": ["status", "booking status"],
+        "service": ["service", "event"],
+        "staff": ["provider", "performer", "unit"],
+        "client_email": ["client email", "email"],
+        "client_phone": ["client phone", "phone"],
+        "price": ["price", "booking price", "amount"]
+      },
+      "statuses": {
+        "booked": ["confirmed", "approved", "pending", "not confirmed"]
+      }
+    },
+    "timely": {
+      "label": "Timely",
+      "verified": false,
+      "basis": "Timely's Appointment Schedule report downloads as CSV for a date range (support.heygoldie.com, read 2026-10-22). Headers unconfirmed.",
+      "columns": {
+        "date": ["date", "appointment date"],
+        "time": ["start time", "time"],
+        "status": ["status"],
+        "service": ["service"],
+        "staff": ["staff", "staff member"],
+        "client_email": ["customer email", "email"],
+        "client_phone": ["customer mobile", "mobile"],
+        "price": ["price", "cost"]
+      },
+      "statuses": {}
+    },
+    "generic": {
+      "label": "another booking system",
+      "verified": false,
+      "basis": "The generic names alone, for any other system or a spreadsheet.",
+      "columns": {},
+      "statuses": {}
+    }
+  },
+  "square_api": {
+    "basis": "Square's BookingStatus enum (developer.squareup.com/reference/square/enums/BookingStatus, read 2026-10-22). Square has no completed status: an ACCEPTED booking whose start has passed and that the seller did not mark NO_SHOW is the attended one, so 'accepted' counts as completed once it is in the past. A PENDING one in the past was never accepted, and is left out.",
+    "statuses": {
+      "ACCEPTED": "accepted",
+      "PENDING": "booked",
+      "NO_SHOW": "no_show",
+      "CANCELLED_BY_CUSTOMER": "cancelled",
+      "CANCELLED_BY_SELLER": "cancelled",
+      "DECLINED": "cancelled"
+    }
+  }
+}

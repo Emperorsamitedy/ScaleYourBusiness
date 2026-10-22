@@ -152,3 +152,21 @@ export function format(m: Money, locale = "en"): string {
     maximumFractionDigits: exponent,
   }).format(major);
 }
+
+/** "1 234.50", "1,234.50", "€1234.5", "1234" → integer minor units for the currency. */
+export function parseMoneyMinor(raw: string, currency: string): number | null {
+  let v = raw.trim().replace(/[^\d.,-]/g, "");
+  if (v === "" || v === "-") return null;
+  // Two separators: the last one is the decimal mark. One: decimal if followed by 1–2 digits.
+  const lastComma = v.lastIndexOf(",");
+  const lastDot = v.lastIndexOf(".");
+  if (lastComma !== -1 && lastDot !== -1) {
+    v = lastComma > lastDot ? v.replace(/\./g, "").replace(",", ".") : v.replace(/,/g, "");
+  } else if (lastComma !== -1) {
+    v = /,\d{1,2}$/.test(v) ? v.replace(",", ".") : v.replace(/,/g, "");
+  }
+  if (!/^-?\d+(\.\d+)?$/.test(v)) return null;
+  const exponent = minorUnitExponent(currency);
+  const minor = Math.round(Number.parseFloat(v) * 10 ** exponent);
+  return Number.isFinite(minor) ? minor : null;
+}

@@ -1105,6 +1105,109 @@ export const connectorSyncs = pgTable(
   (t) => [index("connector_syncs_connection_idx").on(t.connection_id, t.started_at)],
 );
 
+/* ---------- Bookings: appointments from Square or an owner's export (specs/bookings.md) ---------- */
+
+// A gym's or salon's numbers live in its booking system. Two sources write
+// here: the Square connector's Bookings read (APPOINTMENTS_READ), and an
+// export file the owner imports from any other system. Both land as
+// appointments under a connection, and the daily measures are computed
+// from these rows into metric_observations, the same table every connector
+// feeds, so measured facts supersede estimates the same way.
+//
+// Idempotency is structural: one row per (connection, source_ref), so an
+// overlapping re-import updates an appointment (booked → completed) and
+// never counts it twice. No client PII is stored: client_key is a keyed
+// hash (HMAC, lib/bookings/client-key.ts), enough to see that a client
+// came back, never who they are.
+
+export const bookingStatus = pgEnum("booking_status", [
+  "completed",
+  "no_show",
+  "cancelled_late",
+  "cancelled",
+  "booked_future",
+]);
+
+/** One import of one export file: what it understood, and what it counted and left out. */
+export const bookingImports = pgTable(
+  "booking_imports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id),
+    /** A platform key from specs/bookings-import-map-v1.json ("fresha", "generic"). */
+    platform: text("platform").notNull(),
+    /** ISO 4217, named by the owner for the batch (rule 1). Null when the file has no price column. */
+    currency: text("currency"),
+    imported_at: timestamp("imported_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    rows_read: integer("rows_read").notNull(),
+    added: integer("added").notNull(),
+    updated: integer("updated").notNull(),
+    unchanged: integer("unchanged").notNull(),
+    /** Reason → count. Every row left out is counted under a reason, never guessed. */
+    skipped: jsonb("skipped").$type<Record<string, number>>().notNull().default({}),
+    /** Role → the header as the file wrote it: what the import understood. */
+    columns: jsonb("columns").$type<Record<string, string>>().notNull().default({}),
+  },
+  (t) => [index("booking_imports_account_idx").on(t.account_id, t.imported_at)],
+);
+
+export const bookingAppointments = pgTable(
+  "booking_appointments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id),
+    /** The source's own appointment id, or a content key when the export has none. */
+    source_ref: text("source_ref").notNull(),
+    /** The import that last wrote the row; null for Square. */
+    batch_id: uuid("batch_id").references(() => bookingImports.id),
+    /** The day it counts on: the export's own local date, or the UTC date for Square. */
+    day: date("day", { mode: "string" }).notNull(),
+    /** "HH:MM", when the source gives a time. */
+    start_time: text("start_time"),
+    status: bookingStatus("status").notNull(),
+    service: text("service"),
+    staff_ref: text("staff_ref"),
+    /** Keyed hash of the client's id, email or phone. Never the value itself (rule 22's spirit). */
+    client_key: text("client_key"),
+    duration_minutes: integer("duration_minutes"),
+    price_minor: bigint("price_minor", { mode: "number" }),
+    currency: text("currency"),
+    first_seen_at: timestamp("first_seen_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("booking_appointments_source_idx").on(t.connection_id, t.source_ref),
+    index("booking_appointments_day_idx").on(t.connection_id, t.day),
+    index("booking_appointments_client_idx")
+      .on(t.account_id, t.client_key)
+      .where(sql`client_key IS NOT NULL`),
+    check(
+      "booking_appointments_money_whole",
+      sql`(${t.price_minor} IS NULL) = (${t.currency} IS NULL)`,
+    ),
+    check(
+      "booking_appointments_duration_sane",
+      sql`${t.duration_minutes} IS NULL OR (${t.duration_minutes} >= 0 AND ${t.duration_minutes} <= 1440)`,
+    ),
+  ],
+);
+
 /* ---------- Phase 2 Session E — anomalies (P2-22..25) ---------- */
 
 // An anomaly is a run of days on one measured series beyond the

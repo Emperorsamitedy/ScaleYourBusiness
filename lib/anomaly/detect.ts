@@ -60,7 +60,20 @@ const METRIC_NOUN: Readonly<Record<string, string>> = {
   "ad_spend.daily": "Ad spend",
   "ad_purchases.daily": "Ad purchases",
   "units.daily": "Units sold",
+  "appointments_completed.daily": "Completed appointments",
+  "booking_revenue.daily": "Booking revenue",
 };
+
+/**
+ * Series the anomaly rule does not judge (specs/bookings.md §4): daily
+ * no-show and cancellation counts are small and mostly zero, so a single
+ * no-show would read as a spike. They are judged as 28-day rates instead.
+ */
+export const NOT_ANOMALY_CHECKED: ReadonlySet<string> = new Set([
+  "appointments_no_show.daily",
+  "appointments_cancelled_late.daily",
+  "appointments_cancelled.daily",
+]);
 
 function formatValue(value: number, currency: string | null): string {
   if (currency !== null) {
@@ -137,6 +150,7 @@ async function loadSeries(connectionId: string, latest: string): Promise<LoadedS
   const series = new Map<string, LoadedSeries>();
   for (const row of rows) {
     if (!isMetricKey(row.metric_key)) continue;
+    if (NOT_ANOMALY_CHECKED.has(row.metric_key)) continue;
     if (!Object.keys(row.dimensions ?? {}).every((k) => k === "currency")) continue;
     const key = `${row.metric_key}|${row.dimension_key}`;
     const entry = series.get(key) ?? {

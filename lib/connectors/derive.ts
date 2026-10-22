@@ -164,8 +164,8 @@ function sameValue(a: unknown, b: unknown): boolean {
 
 type ConnectionRow = typeof connections.$inferSelect;
 
-/** Write a measured fact unless the current one already says exactly this. */
-async function writeMeasured(args: {
+/** Write a measured fact unless the current one already says exactly this. Shared with lib/bookings/store.ts. */
+export async function writeMeasured(args: {
   profileId: string;
   fieldKey: string;
   value: unknown;

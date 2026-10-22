@@ -6,6 +6,7 @@
 // has no method for it, and the scope registry (scopes.ts) makes sure the
 // credentials it holds could not either.
 
+import type { BookingInput } from "../bookings/types";
 import type { ProviderId } from "./scopes";
 
 export const METRIC_KEYS = [
@@ -63,6 +64,18 @@ export const METRIC_KEYS = [
   "content.views.daily",
   "content.reach.daily",
   "content.interactions.daily",
+  /**
+   * Bookings (specs/bookings.md): appointments per day by what happened to
+   * them, from Square's Bookings read or an owner's bookings export. Counted
+   * on the day the appointment was for. cancelled_late is emitted only by a
+   * source that separates late cancellations (Square does not).
+   */
+  "appointments_completed.daily",
+  "appointments_no_show.daily",
+  "appointments_cancelled_late.daily",
+  "appointments_cancelled.daily",
+  /** The price of completed appointments, per currency — list price, not takings. */
+  "booking_revenue.daily",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -78,6 +91,7 @@ export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
   "revenue.hourly",
   "ad_spend.campaign.daily",
   "ad_purchase_value.campaign.daily",
+  "booking_revenue.daily",
 ]);
 
 /**
@@ -142,6 +156,18 @@ export interface PullPage {
   cursor: string | null;
   /** True when the provider has nothing further up to `now`. */
   done: boolean;
+  /**
+   * Bookings sources only (specs/bookings.md): the appointments read for
+   * this page. The sync stores them with the page, hashing each client
+   * identity on the way in; the daily counts are already in observations.
+   */
+  appointments?: BookingInput[];
+}
+
+/** What the sync knows about the connection that a provider may need. */
+export interface PullContext {
+  /** Verbatim from the connection row, as verified at connect time. */
+  granted_scopes: readonly string[];
 }
 
 /** Something on the provider's side an owner can match to their profile: a product, a channel. */
@@ -188,7 +214,7 @@ export interface Provider {
    * returned cursor — idempotent ingestion is the upsert's job, but a
    * provider must not skip or duplicate days between pages.
    */
-  pull(secret: string, cursor: string | null, now: Date): Promise<PullPage>;
+  pull(secret: string, cursor: string | null, now: Date, context?: PullContext): Promise<PullPage>;
   /** Stores only (P2-15): every product, for mapping to the owner's offers. */
   listProducts?(secret: string): Promise<ExternalItem[]>;
   /** Analytics only (P2-18): the traffic channels seen, for mapping to the owner's channels. */

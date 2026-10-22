@@ -16,6 +16,7 @@ import { db } from "../../db";
 import { connections, metricObservations } from "../../db/schema";
 import { isoDate, isoDateTime } from "../core/iso";
 import { money } from "../core/money";
+import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
 import type { Observation, ObservationDimensions } from "./provider";
 import { LABEL_DIMENSIONS, MONEY_METRICS, ProviderError, isMetricKey } from "./provider";
 import { getProvider } from "./registry";
@@ -228,7 +229,14 @@ export async function listConnections(accountId: string): Promise<PublicConnecti
   const rows = await db
     .select()
     .from(connections)
-    .where(and(eq(connections.account_id, accountId), eq(connections.purpose, "measure")))
+    .where(
+      and(
+        eq(connections.account_id, accountId),
+        eq(connections.purpose, "measure"),
+        // A bookings import source isn't a connection: it has its own sheet.
+        ne(connections.provider, BOOKINGS_IMPORT_PROVIDER),
+      ),
+    )
     .orderBy(connections.created_at);
   return rows.map(toPublicConnection);
 }

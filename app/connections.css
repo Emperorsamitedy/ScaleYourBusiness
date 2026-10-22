@@ -572,3 +572,68 @@
     flex-direction: column;
   }
 }
+
+/* import bookings (specs/bookings.md §5): its own sheet under the patch panel */
+.bk-card {
+  margin-top: 20px;
+}
+.bk-body {
+  padding: 4px 17px 17px;
+}
+.bk-measures {
+  margin-bottom: 12px;
+}
+.bk-table {
+  width: 100%;
+  max-width: 980px;
+}
+.bk-table .bk-how {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+  max-width: 52ch;
+}
+.bk-mono {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.bk-result {
+  margin-top: 18px;
+  border-top: 1px solid var(--rule-soft);
+}
+.bk-result .flag {
+  margin-right: 4px;
+}
+
+/* the bookings tables stack at phone width: measure, then value, then how */
+@media (max-width: 599px) {
+  .bk-card .cn-table-wrap {
+    padding: 0;
+  }
+  .bk-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .bk-table,
+  .bk-table tbody,
+  .bk-table tbody tr,
+  .bk-table tbody tr > * {
+    display: block;
+  }
+  .bk-table tbody tr {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .bk-table tbody tr > * {
+    padding: 2px 0 !important;
+    border: 0 !important;
+    text-align: left !important;
+  }
+  .bk-table .bk-how {
+    max-width: none;
+  }
+}

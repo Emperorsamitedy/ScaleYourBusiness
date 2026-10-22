@@ -195,6 +195,15 @@ describe("P1-59 — the sheet reads from a snapshot", () => {
     const c = await ensureSnapshot(profileId);
     expect(c.id).not.toBe(a.id);
   });
+
+  it("files a bank namespace under its section: service.* shows under offers", async () => {
+    // specs/bookings.md §4: the bookings measures and the weekly capacity
+    // live at service.*, which the sheet used to drop.
+    await ownerSays("service.capacity_per_week", 40);
+    const sheet = await buildFactSheet(profileId);
+    const offers = sheet.sections.find((s) => s.section === "offers");
+    expect(offers?.facts.find((f) => f.key === "service.capacity_per_week")?.value).toBe("40");
+  });
 });
 
 describe("P1-60 — gaps say what answering them buys", () => {

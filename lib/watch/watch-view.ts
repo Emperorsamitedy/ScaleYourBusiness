@@ -66,6 +66,9 @@ export const WATCHED_METRICS = [
   "sessions.daily",
   "ad_spend.daily",
   "ad_purchases.daily",
+  // Bookings (specs/bookings.md §4): watched like orders and revenue.
+  "appointments_completed.daily",
+  "booking_revenue.daily",
 ] as const;
 export type WatchedMetric = (typeof WATCHED_METRICS)[number];
 
@@ -75,6 +78,8 @@ export const SIGNAL_NOUN: Readonly<Record<WatchedMetric, string>> = {
   "sessions.daily": "Website visits",
   "ad_spend.daily": "Ad spend",
   "ad_purchases.daily": "Ad purchases",
+  "appointments_completed.daily": "Completed appointments",
+  "booking_revenue.daily": "Booking revenue",
 };
 
 export type SignalStatus = "steady" | "drifting" | "interrupted" | "thin";

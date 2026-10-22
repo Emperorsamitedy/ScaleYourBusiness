@@ -351,6 +351,13 @@
       "when": 1792443561031,
       "tag": "0049_tough_shen",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1792688454126,
+      "tag": "0050_bookings",
+      "breakpoints": true
     }
   ]
 }
