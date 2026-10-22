@@ -20,7 +20,15 @@ import type { Field } from "../core/field";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "./size-band";
 import { ensureSnapshot, readSnapshot } from "./snapshot";
 import type { ProfileSection } from "./sections";
-import { isProfileSection } from "./sections";
+import { sectionOfFieldKey } from "./sections";
+
+function sectionFor(key: string): ProfileSection | null {
+  try {
+    return sectionOfFieldKey(key);
+  } catch {
+    return null;
+  }
+}
 
 /* ── the view ── */
 
@@ -430,8 +438,11 @@ export async function buildFactSheet(profileId: string): Promise<FactSheet> {
       continue;
     }
 
-    const section = key.split(".")[0] ?? "";
-    if (!isProfileSection(section)) continue;
+    // The section a key is filed under, bank namespaces included: service.*
+    // (booking, capacity, the bookings measures) lives in offers. Splitting on
+    // the first dot alone dropped every service.* fact from the sheet.
+    const section = sectionFor(key);
+    if (section === null) continue;
     const rows = sections.get(section) ?? [];
     rows.push(row);
     sections.set(section, rows);
