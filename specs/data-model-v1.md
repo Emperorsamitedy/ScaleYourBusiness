@@ -802,7 +802,7 @@ interface DecisionLogEntry {
   profile_id: BusinessProfileId;
   at: ISODateTime;
   actor: "system" | "owner";
-  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send" | "law_review" | "campaign_approval" | "unsubscribe" | "complaint";
+  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send" | "law_review" | "campaign_approval" | "unsubscribe" | "complaint" | "assistant_change";
   ref_id: string;
   payload_hash: string;
 }
@@ -840,6 +840,8 @@ interface GoalBaseline {
 - **`campaign_approval`**: the owner approved the exact campaign email. Its `ref_id` is the campaign proposal. Its hash covers the proposal and draft ids, the approving user, the time, the sha256 of the body as approved and the sha256 of the subject line. The draft's own row keeps the same four facts (`content_items.approved_by/at/sha256/subject`). What goes out to each recipient is that body with the `{{unsubscribe_url}}` slot filled and nothing else changed, which the executor proves before each send.
 - **`unsubscribe`**: a recipient used their link. Its `ref_id` is the `campaign_sends` row. It is written by the system, and its hash covers the send id, the account and the time. It never holds the address, its hash or the token.
 - **`complaint`** (P4-17, rule 23): the email service reported that a recipient marked a campaign email as spam (Resend's `email.complained`, Svix-signed, matched by Resend's email id). The address is suppressed permanently in the same transaction (`contact_suppressions`, reason `complained`, from the send row's keyed hash), exactly as an unsubscribe is. Its `ref_id` is the `campaign_sends` row; written by the system; its hash covers the send id, the account and the time. Like `unsubscribe`, it never holds the address, its hash or Resend's id. An event for an erased recipient matches nothing (erasure nulls the provider id) and is dropped; the erasure's own suppression already holds.
+
+**`assistant_change`** (feature 33, conversation-channel §9): the owner pressed a chat change card's button, confirming one change the assistant had drafted. Its `ref_id` is the `assistant_changes` row (the draft: kind, summary, now and new, the payload, what it was drafted against). Written by the owner; its hash covers the profile, the change id, the kind, the summary, the payload and what the click wrote (`result_ref`: a field record, a proposal, a settings row, the stop). A fact the click writes also logs its own `profile_change`, as every field write does.
 
 ```ts
 // P4-15: one row per recipient per campaign (table campaign_sends), materialised from the

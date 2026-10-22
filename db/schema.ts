@@ -409,6 +409,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "campaign_approval", // P4-15: the owner approved the exact campaign email; ref is the proposal
   "unsubscribe", // P4-15: a recipient unsubscribed; ref is the campaign_sends row, no PII
   "complaint", // P4-17: a recipient marked a campaign email as spam; ref is the campaign_sends row, no PII
+  "assistant_change", // feature 33: the owner confirmed a change the assistant prepared in chat; ref is the assistant_changes row
 ]);
 
 export const decisionLog = pgTable(
@@ -2245,5 +2246,65 @@ export const jurisdictionReviews = pgTable(
     index("jurisdiction_reviews_recorded_idx").on(t.recorded_at),
     check("jurisdiction_reviews_reviewer_named", sql`length(trim(${t.reviewer})) > 0`),
     check("jurisdiction_reviews_hash_shape", sql`${t.table_sha256} ~ '^[0-9a-f]{64}$'`),
+  ],
+);
+
+// assistant_changes — feature 33, "the assistant acts". When the owner
+// asks the chat to change something, the assistant maps it to ONE entry
+// of the closed change catalogue (lib/assistant/catalogue.ts) and
+// PREPARES it here: nothing is written to the profile, a setting or the
+// queue until the owner presses the card's button. The row is the
+// pending item, the clarifying question when the request was ambiguous
+// ("Which day?"), and afterwards the record of what the click did.
+//
+// `basis` pins what the change was prepared against (the current field
+// record id, or the setting's value); a confirm that finds the world
+// moved since refuses instead of overwriting something unseen.
+export const assistantChangeStatus = pgEnum("assistant_change_status", [
+  "asked", // the request was ambiguous; the reply asked a question
+  "prepared", // drafted, waiting for the owner's click
+  "applied", // the click wrote it
+  "queued", // the click put it in the approval queue as a proposal
+  "stale", // the value moved between prepare and click; nothing written
+  "superseded", // a later message answered or replaced it
+  "link_only", // only a link was offered — nothing to confirm
+]);
+
+export const assistantChanges = pgTable(
+  "assistant_changes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The owner's message that asked for it. */
+    owner_utterance_id: uuid("owner_utterance_id").notNull(),
+    /** The assistant's reply that carries the card. */
+    reply_utterance_id: uuid("reply_utterance_id"),
+    /** A change-catalogue kind (lib/assistant/catalogue.ts). */
+    kind: text("kind").notNull(),
+    status: assistantChangeStatus("status").notNull(),
+    /** The change in plain words: "Set your Saturday opening hours to 10:00–16:00". */
+    summary: text("summary").notNull(),
+    current_text: text("current_text"),
+    proposed_text: text("proposed_text"),
+    /** The deep link: route plus ?focus= for the exact section. */
+    link: text("link").notNull(),
+    /** What the confirm needs, validated at prepare time. */
+    payload: jsonb("payload").$type<Record<string, unknown>>().notNull().default({}),
+    /** What it was prepared against; a confirm finding anything else refuses. */
+    basis: text("basis"),
+    /** The worded outcome of the click. */
+    result_text: text("result_text"),
+    /** What the click wrote: a field record id, a proposal id, a settings row. */
+    result_ref: text("result_ref"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    decided_at: timestamp("decided_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    index("assistant_changes_profile_idx").on(t.profile_id, t.created_at),
+    index("assistant_changes_reply_idx").on(t.reply_utterance_id),
   ],
 );

@@ -170,5 +170,19 @@ Insert into `build-sequence.md`:
 
 - **Step 13a** — add `SourceKind.conversation` and the `Utterance` table now, with the rest of the primitives.
 - **Step 46a** (Phase 1) — read-tier chat over the profile and report.
-- **Step 60a** (Phase 2) — intent classification, extraction, confirmation loop, validation triggering.
+- **Step 60a** (Phase 2) — intent classification, extraction, confirmation loop, validation triggering. *Partly delivered by feature 33 (§9): the confirmation loop for the changes the catalogue covers.*
 - **Step 70a** (Phase 3) — `request` intent producing proposals, gated by hard limits and watching mode.
+
+---
+
+## 9. Acting on a change — the change catalogue (feature 33, 2026-10-22)
+
+The co-founder's finding from customer interviews: with this many functions, the owner wants to tell the chat what to change, and either have the assistant do it, or get a link to the exact place where they can change it by hand and see what is already there. Built as follows. It delivers the write tier's confirmation loop (§3) for the changes it covers.
+
+**One closed catalogue** (`lib/assistant/catalogue.ts`): change kind → screen, route, section, the field or setting it changes, how it may be prepared (`direct` — one click writes it; `proposal` — one click puts it in the approval queue; `link` — only a link), the button's words, whether the click needs a signed-in session, and the cues that recognise it. Rule 4 holds: the mapping is data. A request no row covers is either a question or an action in the world (§4's request tier, a proposal).
+
+**The intent step:** the catalogue's cues and small deterministic parsers first (a weekday, a time range, a number of hours, a size word); one Haiku call only when they are not enough, which classifies the §2.2 intent and names at most one kind and its parameters. Code coerces the model's output; a kind outside the catalogue is no change. No model is called for "pause everything" or "set Saturday to 10–4".
+
+**Nothing is written until the owner clicks.** The reply quotes the current value and says the change is drafted; an `assistant_changes` row holds the draft beside the reply: `asked` (ambiguous — "Which day?"; the owner's short answer is read together with the message it answers), `prepared`, `link_only`, then `applied` / `queued` / `stale` / `superseded`. The click writes through the path the screen itself uses: a fact through the supersession store with `source: { kind: "conversation", utterance_id }` at 0.70 (confirmed, §2.3), a setting through its settings service, the stop through the stop's own call, and customer-facing words or anything published through a proposal (Phase 3 rule 12). One message changes one thing: two days, or two changes, is a question back. A confirm whose basis moved since the draft writes nothing and says what the value is now. Each confirmed change logs `assistant_change` in the decision log (rule 7), beside the `profile_change` a fact write already logs.
+
+**Limits** are the `standing_rule` row: drafted, then appended on the click — "confirm explicitly before writing" for limits (§3). Removing a limit stays link-only (§5). During the watch, `proposal` rows are link-only (§5); `direct` rows are the write tier and stay available, and the stop always is.
