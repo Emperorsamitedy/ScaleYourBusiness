@@ -444,8 +444,10 @@ function costPerAcquisition(
     return null;
   }
 
-  // repeat rate arrives as a fraction (0.22) or a percentage (22).
-  const repeatFraction = repeat! > 1 ? repeat! / 100 : repeat!;
+  // The bank asks the repeat rate as a percentage, 0–100 (question 4.1d), and
+  // every writer stores it so: an owner's answer and the bookings measure
+  // alike. Guessing "fraction or percent" from the size read 1 % as 100 %.
+  const repeatFraction = repeat! / 100;
   const newCustomers = orders! * (1 - repeatFraction);
   if (newCustomers <= 0) {
     refusals.push({
