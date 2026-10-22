@@ -195,8 +195,11 @@ interface IdentitySection {
   current_focus: Field<EnumValue[]>;       // 1.5.1
   founded: Field<ISODate>;
   team_size: Field<number>;
+  size_band: Field<EnumValue>;             // 1.6a, business_size: solo | small | medium | large
 }
 ```
+
+`size_band` (bank 1.6.0) is the owner's own sense of the business's size, asked as 1.6a with the bank's words for each code ("Just me", "A small team", "A medium-sized business", "A larger business", carried in the question's `option_labels`). It decides what the app shows them, through the size-feature table in `lib/core/size-features.ts`, and nothing else. Until the owner answers it, a band is inferred from `team_size` on read: an `inferred` Field with `derived_from: ["identity.team_size"]` and the formula at the EU SME headcount boundaries, 1 → solo, 2–9 → small, 10–49 → medium, 50+ → large (`lib/profile/size-band.ts`). The inference is never stored, so it cannot overwrite the owner's answer and does not count as a response: the intake still asks 1.6a. An explicit "I don't know" on the band stays a gap, with no inference over it (rule 5). With neither a band nor a headcount, every feature shows.
 
 `sells` is the single most consequential field in the schema. It determines which of the 1.4.x branches exist at all, and it feeds the mode decision. It is asked early and its answer is confirmed rather than assumed when later answers contradict it — for example, an owner who selects "services" but then describes holding inventory triggers a reconciliation prompt.
 
@@ -477,6 +480,7 @@ interface InputSpec {
   type: "text" | "long_text" | "number" | "money" | "single_select"
       | "multi_select" | "boolean" | "date" | "entity_list" | "file";
   vocabulary_id?: VocabularyId;     // for selects
+  option_labels?: Record<string, LocalizedText>; // the owner's words per code; unlabelled codes are humanised
   entity_schema?: "offer" | "supplier" | "competitor" | "channel" | "staff_role";
   min?: number;
   max?: number;

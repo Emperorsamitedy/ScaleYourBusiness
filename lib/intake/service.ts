@@ -297,7 +297,11 @@ async function optionsFor(profileId: string, spec: InputSpec): Promise<IntakeOpt
     return dynamicVocabularyOptions(profileId, spec.vocabulary_id);
   }
   const codes = await vocabularyCodes(spec.vocabulary_id);
-  return codes.map((code) => ({ code, label: humanizeCode(code) }));
+  // The bank's own words for a code when it carries them ("solo" reads "Just me").
+  return codes.map((code) => ({
+    code,
+    label: spec.option_labels?.[code]?.en?.trim() || humanizeCode(code),
+  }));
 }
 
 async function toIntakeQuestion(

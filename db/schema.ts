@@ -350,7 +350,7 @@ export const goals = pgTable(
 );
 
 // ---------------------------------------------------------------------------
-// Vocabularies — §3.4 / step 16. The 55 controlled lists from the question
+// Vocabularies — §3.4 / step 16. The 56 controlled lists from the question
 // bank, stored verbatim (including their "other" entries) so the database
 // mirrors the bank exactly; whether a vocabulary accepts "other" is a fact
 // about its entries, not a flag that can drift from them.

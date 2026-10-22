@@ -85,6 +85,24 @@ def lint(bank):
                 issues["select_without_vocabulary"].append(label)
             elif not vid.startswith("__") and vid not in vocabs:
                 issues["missing_vocabulary"].append(f"{label} -> {vid}")
+        # option_labels: the owner's words for a select's codes ("solo" reads
+        # "Just me"). Each key must be a code of the question's own static
+        # vocabulary, and each label needs English, or the intake would
+        # print a label for an option that cannot be chosen.
+        labels = spec.get("option_labels")
+        if labels is not None:
+            vid = spec.get("vocabulary_id")
+            if kind not in ("single_select", "multi_select") or not isinstance(labels, dict):
+                issues["option_labels_on_non_select"].append(label)
+            elif not vid or vid.startswith("__") or vid not in vocabs:
+                issues["option_labels_without_static_vocabulary"].append(label)
+            else:
+                codes = set(vocabs[vid])
+                for code, text in labels.items():
+                    if code not in codes:
+                        issues["option_label_for_unknown_code"].append(f"{label} -> {code}")
+                    elif not isinstance(text, dict) or not str(text.get("en", "")).strip():
+                        issues["option_label_missing_english"].append(f"{label} -> {code}")
         if kind == "entity_list":
             es = spec.get("entity_schema")
             if not es:

@@ -41,11 +41,11 @@ afterAll(async () => {
 });
 
 describe("P0-30 — vocabulary tables loaded from the bank JSON", () => {
-  it("loads all 55 vocabularies verbatim and is idempotent", async () => {
+  it("loads all 56 vocabularies verbatim and is idempotent", async () => {
     const bank = readBankVocabularies("specs/question-bank-v1.json");
     const first = await loadVocabularies(bank);
-    expect(first.vocabularies).toBe(55);
-    expect(first.entries).toBeGreaterThan(55);
+    expect(first.vocabularies).toBe(56);
+    expect(first.entries).toBeGreaterThan(56);
 
     // Reload replaces, never accumulates.
     const second = await loadVocabularies(bank);

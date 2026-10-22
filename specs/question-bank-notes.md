@@ -8,15 +8,17 @@ Companion to `question-bank-v1.json`. Explains how the bank is structured, what 
 
 | | Count |
 |---|---|
-| Questions | 153 |
-| Controlled vocabularies | 55 |
+| Questions | 157 |
+| Controlled vocabularies | 56 |
 | Entity schemas | 8 |
 | Core questions, always asked | 25 |
 | Core questions including conditional branches | 44 |
-| Important | 100 |
-| Deep | 9 |
+| Important | 105 |
+| Deep | 8 |
 
-MAIN.txt contains roughly 300 bullet points. The bank is 153 questions because repeated per-item fields collapse into entity schemas: instead of nine questions per product, there is one `entity_list` question with an offer schema attached. An owner with five products answers one question that expands into five rows, rather than 45 separate prompts.
+Counts as of bank 1.6.0, as `lint_bank.py` prints them. The first cut was 153 questions and 55 vocabularies; later additions are recorded in `data-model-v1.md` §5 next to the fields they write.
+
+MAIN.txt contains roughly 300 bullet points. The first cut of the bank was 153 questions because repeated per-item fields collapse into entity schemas: instead of nine questions per product, there is one `entity_list` question with an offer schema attached. An owner with five products answers one question that expands into five rows, rather than 45 separate prompts.
 
 A lint script (`lint_bank.py`) checks for dangling condition references, `unlocks` pointing at questions that don't exist, selects without a vocabulary, and entity lists without a schema. It currently reports clean.
 
@@ -118,13 +120,14 @@ You said the `if`s in MAIN.txt weren't fully correct. Fifteen issues found. Thes
 
 ## 5. Deliberate additions beyond MAIN.txt
 
-Six questions were added. Each exists because a later module cannot function without it.
+Six questions were added in the first cut, and 1.6a in bank 1.6.0. Each exists because a later module cannot function without it.
 
 | ID | Question | Why |
 |---|---|---|
 | 1.1b | Country of operation | Legal, tax and advertising constraints; needed before any plan |
 | 1.5b | When the business started | Direct mode-decision input (months operating) |
 | 1.6 | Headcount | Direct mode-decision input |
+| 1.6a | Size, in the owner's own words | Decides what the app shows them (`lib/core/size-features.ts`). `important`, not core: nothing in the diagnosis waits on it, and until it is answered a band is inferred from 1.6 |
 | 6.4b | Marketing consent status | Nothing can be emailed without this; GDPR exposure |
 | 10.1c | Existing automations | Direct mode-decision input |
 | 13.5 | Hard limits | Binds every future proposal |

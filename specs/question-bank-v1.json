@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.5.0",
+  "bank_version": "1.6.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -23,6 +23,12 @@
       "declining",
       "paused",
       "rebuilding"
+    ],
+    "business_size": [
+      "solo",
+      "small",
+      "medium",
+      "large"
     ],
     "focus_area": [
       "launch",
@@ -1472,6 +1478,40 @@
       },
       "condition": null,
       "priority": "core",
+      "cost": 1
+    },
+    {
+      "id": "1.6a",
+      "version": 1,
+      "section": "identity",
+      "writes_to": "identity.size_band",
+      "prompt": {
+        "en": "How would you describe the size of the business?"
+      },
+      "help_text": {
+        "en": "Your own sense of it, not a headcount rule. I use it to decide how much detail is worth showing you."
+      },
+      "input": {
+        "type": "single_select",
+        "vocabulary_id": "business_size",
+        "option_labels": {
+          "solo": {
+            "en": "Just me"
+          },
+          "small": {
+            "en": "A small team"
+          },
+          "medium": {
+            "en": "A medium-sized business"
+          },
+          "large": {
+            "en": "A larger business"
+          }
+        },
+        "allow_unknown": false
+      },
+      "condition": null,
+      "priority": "important",
       "cost": 1
     },
     {
