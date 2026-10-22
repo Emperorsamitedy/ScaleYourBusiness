@@ -291,6 +291,7 @@ function GoalCard({
     return (
       <SheetCard
         className="gl-card"
+        id={`goal-${goal.goal_id}`}
         label={label}
         title={goal.statement ?? "A goal without words yet"}
         meta={<span className={`word ${word.cls}`}>{word.text}</span>}
@@ -310,6 +311,7 @@ function GoalCard({
   return (
     <SheetCard
       className="gl-card"
+      id={`goal-${goal.goal_id}`}
       label={label}
       title={
         goal.statement ??

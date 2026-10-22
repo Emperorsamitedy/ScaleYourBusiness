@@ -905,7 +905,7 @@ export function ConnectionsScreen() {
                 const panelId = `cn-row-${r.id}`;
                 return (
                   <Fragment key={r.id}>
-                    <tr className={isOpen ? "on" : undefined}>
+                    <tr id={`cn-src-${r.id}`} className={isOpen ? "on" : undefined}>
                       <th scope="row" className="cn-name" data-label="Source">
                         {r.label}
                       </th>

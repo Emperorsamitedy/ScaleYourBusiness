@@ -16,6 +16,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { NavCounts } from "../../app/api/nav/route";
+import { DeepLinkMark } from "../sheet/DeepLinkMark";
 import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
 import { showsFor } from "../../lib/core/size-features";
 
@@ -199,7 +200,14 @@ export function AppFrame({ children }: { children: ReactNode }) {
   const counts = useCounts(path);
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
-  if (!showsNav(path)) return <>{children}</>;
+  if (!showsNav(path)) {
+    return (
+      <>
+        <DeepLinkMark />
+        {children}
+      </>
+    );
+  }
 
   return (
     <div className="app-frame">
@@ -259,7 +267,10 @@ export function AppFrame({ children }: { children: ReactNode }) {
         </Link>
         <SignOut />
       </nav>
-      <div className="app-main">{children}</div>
+      <div className="app-main">
+        <DeepLinkMark />
+        {children}
+      </div>
     </div>
   );
 }

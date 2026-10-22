@@ -331,6 +331,18 @@ The decision controls:
 
 Not built yet, and waiting on owner decisions: a "Request changes" answer, an AI recommendation, pausing similar proposals after a decline, standing pre-approval policies, and snooze.
 
+### 8.1 The change card in the chat (feature 33, 2026-10-22)
+
+When the owner asks the chat to change one thing, the reply carries a change card (`components/chat/ChangeCard.tsx`), built on the same pattern:
+
+1. A mono kicker saying what state it is in ("Drafted, not yet made · Fact sheet", "Drafted for your queue · Support", "Yours to change · Connections").
+2. The change in plain words, one Zilla line: "Set your Saturday opening hours to 10:00–16:00."
+3. NOW beside NEW, read from the record at the moment the change was drafted.
+4. Two `.act` controls of equal weight, set apart: the confirming verb ("Make this change"; "Put it in my queue" where the click only queues a proposal; "Add this rule"; "Stop everything") and "Open the page →", a deep link to the exact section. A link-only card has only the second.
+5. After the click, a worded `.flag` and a sentence: CHANGED / IN YOUR QUEUE / NOT CHANGED (the value moved since the draft — nothing is overwritten unseen). Cobalt appears only while the change is being made. NEW turns to "Now set to" on the marker.
+
+A deep link is `route?focus=<element id>`. The landing screen scrolls the element into view and marks it with `--marker` behind ink for 2.4 s (`components/sheet/DeepLinkMark.tsx`); no hash jump, because the screens load their data after the page.
+
 ---
 
 ## 9. Notifications

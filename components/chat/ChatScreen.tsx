@@ -8,6 +8,10 @@
 // only ever becomes a proposal in the queue — nothing runs on phrasing —
 // and the link to it is the one thing that asks for a decision.
 //
+// Feature 33: when the owner asks for a CHANGE, the reply carries a change
+// card (ChangeCard.tsx) — the drafted change, what is set now, "Make this
+// change" and "Open the page". The card is the only place a click writes.
+//
 // The design's "sources for this answer" side sheet is not drawn: the
 // chat service returns no citations, and a source list made up on this
 // side would be exactly the unexplainable number rule 6 forbids.
@@ -15,15 +19,30 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { businessNoun } from "../../lib/core/business-noun";
-import type { Turn } from "./chat-view";
-import { earlierQuestions, latestQuestion, paragraphs, stamp } from "./chat-view";
+import { ChangeCard } from "./ChangeCard";
+import type { ChangeCardView, Turn } from "./chat-view";
+import {
+  cardsFor,
+  earlierQuestions,
+  latestQuestion,
+  paragraphs,
+  stamp,
+  upsertCard,
+} from "./chat-view";
 import "../../app/chat.css";
 
 type State =
   | { phase: "loading" }
   | { phase: "signedout" }
   | { phase: "error" }
-  | { phase: "ready"; turns: Turn[]; draft: string; busy: boolean; lastProposal: string | null };
+  | {
+      phase: "ready";
+      turns: Turn[];
+      cards: ChangeCardView[];
+      draft: string;
+      busy: boolean;
+      lastProposal: string | null;
+    };
 
 /** The service's own ceiling on one message (lib/chat/service.ts). */
 const MAX_CHARS = 4000;
@@ -43,8 +62,15 @@ export function ChatScreen() {
       const res = await fetch("/api/chat");
       if (res.status === 401) return setState({ phase: "signedout" });
       if (!res.ok) return setState({ phase: "error" });
-      const j = (await res.json()) as { turns: Turn[] };
-      setState({ phase: "ready", turns: j.turns, draft: "", busy: false, lastProposal: null });
+      const j = (await res.json()) as { turns: Turn[]; changes?: ChangeCardView[] };
+      setState({
+        phase: "ready",
+        turns: j.turns,
+        cards: j.changes ?? [],
+        draft: "",
+        busy: false,
+        lastProposal: null,
+      });
     } catch {
       setState({ phase: "error" });
     }
@@ -132,6 +158,7 @@ export function ChatScreen() {
     let reply: Turn | null = null;
     let error: string | null = null;
     let proposal: string | null = null;
+    let card: ChangeCardView | null = null;
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -141,11 +168,13 @@ export function ChatScreen() {
       const j = (await res.json().catch(() => ({}))) as {
         reply?: Turn;
         proposal_id?: string | null;
+        change?: ChangeCardView | null;
         error?: string;
       };
       reply = j.reply ? { ...j.reply, intent: j.reply.intent ?? null } : null;
       error = j.error ?? null;
       proposal = j.proposal_id ?? null;
+      card = j.change ?? null;
     } catch {
       // Unreachable server: the fallback line below says so.
     }
@@ -163,9 +192,20 @@ export function ChatScreen() {
               intent: null,
             },
           ];
-      return { ...cur, turns, busy: false, lastProposal: proposal };
+      return {
+        ...cur,
+        turns,
+        cards: card ? upsertCard(cur.cards, card) : cur.cards,
+        busy: false,
+        lastProposal: proposal,
+      };
     });
   };
+
+  const onChanged = (card: ChangeCardView) =>
+    setState((cur) =>
+      cur.phase === "ready" ? { ...cur, cards: upsertCard(cur.cards, card) } : cur,
+    );
 
   const newQuestion = () => {
     setState({ ...s, draft: "" });
@@ -194,8 +234,10 @@ export function ChatScreen() {
             {s.turns.length === 0 && (
               <p className="ak-copy ak-empty">
                 Ask me anything about {noun} — why the report said what it said, what your numbers
-                show, what I&rsquo;d watch. If you ask me to <em>do</em> something, it becomes a
-                proposal in your queue; nothing runs on phrasing alone.
+                show, what I&rsquo;d watch. Ask me to <em>change</em> something — your hours, a
+                goal, your reply time — and I&rsquo;ll draft it for your yes, or take you to the
+                page where it lives. If you ask me to <em>do</em> something out in the world, it
+                becomes a proposal in your queue; nothing runs on phrasing alone.
               </p>
             )}
             {s.turns.map((t) => (
@@ -210,6 +252,10 @@ export function ChatScreen() {
                   ) : (
                     paragraphs(t.text).map((p, i) => <p key={i}>{p}</p>)
                   )}
+                  {t.role === "system" &&
+                    cardsFor(t.id, s.cards).map((c) => (
+                      <ChangeCard key={c.id} card={c} onChanged={onChanged} />
+                    ))}
                 </div>
               </article>
             ))}
@@ -273,8 +319,8 @@ export function ChatScreen() {
               </button>
             </div>
             <p className="ak-rule" id="ak-rule">
-              I answer only from what your profile and report hold. Anything I suggest becomes a
-              proposal you approve; limits you state here stick.
+              I answer only from what your profile and report hold. A change you ask for is drafted
+              first — nothing is written until you press its button; limits you state here stick.
             </p>
           </form>
         </section>

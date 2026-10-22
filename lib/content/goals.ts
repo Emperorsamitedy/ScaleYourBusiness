@@ -18,6 +18,7 @@ import { confidence } from "../core/confidence";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
+import type { SourceRef } from "../core/source-ref";
 import { readCurrentField, writeField } from "../profile/field-store";
 import type { StoredRecommendation } from "../report/service";
 import { vocabularyCodes } from "../vocab/validate";
@@ -95,29 +96,65 @@ async function validateCodes(input: Partial<GoalInput>): Promise<void> {
   }
 }
 
+/**
+ * Who stated it. The goals screen writes owner_input at 0.75; the chat
+ * (feature 33) writes the owner's confirmed message — conversation at
+ * 0.70, naming the utterance (conversation-channel §2.1, §2.3).
+ */
+export interface GoalWriteSource {
+  source: SourceRef;
+  confidence: number;
+}
+const OWNER_INPUT: GoalWriteSource = { source: { kind: "owner_input" }, confidence: 0.75 };
+
 async function writeAttr(
   profileId: string,
   goalId: string,
   attr: GoalAttr,
   value: string,
-): Promise<void> {
+  by: GoalWriteSource = OWNER_INPUT,
+): Promise<string> {
   const at = isoDateTime(new Date().toISOString());
-  await writeField(
+  return writeField(
     profileId,
     createField<string>({
       id: fieldId(`goals.${goalId}.${attr}`),
       value,
       status: "answered",
-      confidence: confidence(0.75),
-      source: { kind: "owner_input" },
+      confidence: confidence(by.confidence),
+      source: by.source,
       observed_at: at,
       recorded_at: at,
     }),
   );
 }
 
+/**
+ * One attribute of one goal, superseding — the chat's single-change
+ * write (feature 33). Returns the new field record's id.
+ */
+export async function setGoalAttr(
+  profileId: string,
+  goalId: string,
+  attr: "statement" | "target_value",
+  value: string,
+  by: GoalWriteSource,
+): Promise<string> {
+  const [spine] = await db
+    .select({ id: goals.id, profile_id: goals.profile_id })
+    .from(goals)
+    .where(eq(goals.id, goalId));
+  if (!spine || spine.profile_id !== profileId) throw new GoalError("no such goal", 404);
+  if (value.trim() === "") throw new GoalError("a goal needs words", 422);
+  return writeAttr(profileId, goalId, attr, value.trim(), by);
+}
+
 /** Add a goal the owner states outside the interview. */
-export async function addGoal(profileId: string, input: GoalInput): Promise<GoalView> {
+export async function addGoal(
+  profileId: string,
+  input: GoalInput,
+  by: GoalWriteSource = OWNER_INPUT,
+): Promise<GoalView> {
   if (input.statement.trim() === "") {
     throw new GoalError("a goal needs a statement — what do you want to achieve?", 422);
   }
@@ -127,10 +164,12 @@ export async function addGoal(profileId: string, input: GoalInput): Promise<Goal
     .values({ profile_id: profileId })
     .returning({ id: goals.id, created_at: goals.created_at });
   if (!row) throw new GoalError("could not create the goal", 500);
-  await writeAttr(profileId, row.id, "statement", input.statement.trim());
-  if (input.horizon) await writeAttr(profileId, row.id, "horizon", input.horizon);
-  if (input.area) await writeAttr(profileId, row.id, "area", input.area);
-  if (input.target_value) await writeAttr(profileId, row.id, "target_value", input.target_value);
+  await writeAttr(profileId, row.id, "statement", input.statement.trim(), by);
+  if (input.horizon) await writeAttr(profileId, row.id, "horizon", input.horizon, by);
+  if (input.area) await writeAttr(profileId, row.id, "area", input.area, by);
+  if (input.target_value) {
+    await writeAttr(profileId, row.id, "target_value", input.target_value, by);
+  }
   const [view] = (await listGoals(profileId)).filter((g) => g.goal_id === row.id);
   return view as GoalView;
 }
