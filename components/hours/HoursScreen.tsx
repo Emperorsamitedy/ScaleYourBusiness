@@ -388,7 +388,8 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
           <SheetCard label="Margin by the hour" title="What this needs">
             <p className="hr-copy">
               Your opening hours from the interview, your timezone, and hourly card sales from a
-              connected till or store. {a.reason.charAt(0).toUpperCase() + a.reason.slice(1)}.{" "}
+              connected till, payment account or online shop.{" "}
+              {a.reason.charAt(0).toUpperCase() + a.reason.slice(1)}.{" "}
               <Link href="/connections">Connections</Link>
             </p>
             {view.timezone.zone === null && <ZonePicker onSaved={() => location.reload()} />}

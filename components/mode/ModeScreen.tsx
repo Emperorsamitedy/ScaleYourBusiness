@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import type { ModeDecision } from "./mode-view";
 import { chosenLine, dayMonth, headline, humanise, parseTs, watchDay } from "./mode-view";
@@ -27,6 +28,7 @@ const KICKER = "Your business · How I work";
 
 export function ModeScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
+  const noun = useBusinessNoun();
 
   const load = useCallback(async () => {
     const res = await fetch("/api/mode");
@@ -143,8 +145,8 @@ export function ModeScreen() {
       {watching && weeks !== null ? (
         <>
           <p className="md-mode-copy">
-            I spend {weeks * 7} days learning how your business actually behaves before proposing
-            anything. Changing things quickly could cost you sales. Nothing changes without you.
+            I spend {weeks * 7} days learning how {noun} actually behaves before proposing anything.
+            Changing things quickly could cost you sales. Nothing changes without you.
           </p>
           <p className="md-mode-lines">
             {day && (
@@ -178,7 +180,7 @@ export function ModeScreen() {
             sales I haven&rsquo;t measured.
           </p>
           <p className="md-mode-lines">
-            Chosen with 10+ orders a month, staff, paid ads, a support process or 3+ months trading
+            Chosen with 10+ sales a month, staff, paid ads, a support process or 3+ months trading
             <br />
             Every proposal still needs your yes
           </p>
@@ -221,7 +223,7 @@ export function ModeScreen() {
             change could break.
           </p>
           <p className="md-mode-lines">
-            Only under 10 orders a month, no staff, no paid ads, no support process, under 3 months
+            Only under 10 sales a month, no staff, no paid ads, no support process, under 3 months
             <br />
             Every proposal still needs your yes
           </p>

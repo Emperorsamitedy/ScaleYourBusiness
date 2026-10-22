@@ -24,7 +24,7 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     n: "01",
     title: "Connect",
-    caption: "Connect your store — read-only, two minutes.",
+    caption: "Connect your accounts — read-only, two minutes.",
     crumb: "Connections",
     state: "connecting",
   },

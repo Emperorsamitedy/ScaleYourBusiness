@@ -176,7 +176,7 @@ describe("P4-17 — the readback as the owner reads it", () => {
   it("one first-person sentence on what was measured and what wasn't", () => {
     const s = measuredSentence(readback());
     expect(s).toMatch(/^I counted delivery, bounces and spam reports/);
-    expect(s).toContain("purchases from your shop export of 2026-10-16");
+    expect(s).toContain("purchases from your customer export of 2026-10-16");
     expect(s).toContain("I don't count opens");
     expect(s).toContain("replies, which go straight to you at hello@emberworks.test");
     expect(s).toContain("isn't a controlled test");
@@ -188,7 +188,7 @@ describe("P4-17 — the readback as the owner reads it", () => {
         comparison: { ...readback().comparison, measured: 0, measured_through: null },
       }),
     );
-    expect(none).toContain("purchases from your next shop export, once it comes in");
+    expect(none).toContain("purchases from your next customer export, once it comes in");
     expect(none).toContain("the email service's webhook isn't set up yet");
     expect(none).not.toContain("controlled");
   });

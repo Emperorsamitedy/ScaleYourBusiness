@@ -198,7 +198,7 @@ describe("P4-17 — the verdict arithmetic, every boundary both ways", () => {
   it("too_early with no import since the send, said plainly", () => {
     const j = judge(delivery({ sent: 40 }), group(0, 0, 40), group(0, 0, 30));
     expect(j.verdict).toBe("too_early");
-    expect(j.arithmetic).toContain("no shop export covering them has come in at least 14 days");
+    expect(j.arithmetic).toContain("no customer export covering them has come in at least 14 days");
   });
 
   it("recipients: exactly the minimum measured is judged; one fewer waits — or can never be judged", () => {

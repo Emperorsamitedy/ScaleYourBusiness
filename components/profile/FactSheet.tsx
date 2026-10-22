@@ -14,6 +14,7 @@
 import "../../app/factsheet.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { PageHead } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { fmtDay } from "../report/figures";
@@ -269,6 +270,7 @@ export function FactSheetScreen() {
   const [showSuperseded, setShowSuperseded] = useState(true);
   const [active, setActive] = useState<string>("");
   const pane = useRef<HTMLDivElement>(null);
+  const noun = useBusinessNoun();
 
   const load = useCallback(async (): Promise<void> => {
     try {
@@ -371,8 +373,8 @@ export function FactSheetScreen() {
         kicker="Your business · Fact sheet"
         title={
           <>
-            {num(allFacts.length)} fact{allFacts.length === 1 ? "" : "s"}. Every one shows where it
-            came from.
+            {num(allFacts.length)} fact{allFacts.length === 1 ? "" : "s"} about {noun}. Every one
+            shows where it came from.
           </>
         }
       >

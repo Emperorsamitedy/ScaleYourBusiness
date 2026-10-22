@@ -214,8 +214,8 @@ export function judgeEmailCampaign(input: EmailJudgeInput): EmailJudgement {
   if (r.measured < R.min_measured) {
     const why =
       r.measured === 0 && r.waiting > 0
-        ? `no shop export covering them has come in at least ${wait} days after the email${input.sent_on ? ` of ${input.sent_on}` : ""} — import one and the verdict becomes possible`
-        : `${plural(r.measured, "recipient")} measured by a shop export at least ${wait} days after the email — the verdict needs ${R.min_measured}`;
+        ? `no customer export covering them has come in at least ${wait} days after the email${input.sent_on ? ` of ${input.sent_on}` : ""} — import one and the verdict becomes possible`
+        : `${plural(r.measured, "recipient")} measured by a customer export at least ${wait} days after the email — the verdict needs ${R.min_measured}`;
     const verdict: EmailVerdict =
       r.measured + r.waiting >= R.min_measured ? "too_early" : "unmeasured";
     return result(verdict, [

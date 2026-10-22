@@ -91,7 +91,7 @@ export function Walkthrough() {
                 Step 1 · Connect
               </div>
               <div className="ll-s" style={{ fontSize: 26, fontWeight: 600, marginTop: 6 }}>
-                Connect your store, read-only.
+                Connect your accounts, read-only.
               </div>
               <div className="ll-mini-card" style={{ marginTop: 16, maxWidth: 420 }}>
                 <div

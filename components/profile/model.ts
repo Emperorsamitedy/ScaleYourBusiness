@@ -69,7 +69,7 @@ export interface FactSheet {
 export const SECTION_LABEL: Record<string, string> = {
   identity: "Who you are",
   presence: "Where you trade",
-  offers: "Products & costs",
+  offers: "What you sell",
   revenue: "Revenue",
   costs: "Costs",
   customers: "Customers",

@@ -819,8 +819,8 @@ export function ConnectionsScreen() {
         <PageHead kicker={KICKER} title="Sign in to connect your numbers." aside={ASIDE} />
         <SheetCard label="Connections" title="Connections belong to your account.">
           <p className="cn-copy">
-            A payment account, a store or an ad account connects to your account, not just to this
-            browser.
+            A payment account, a till or online shop, or an ad account connects to your account, not
+            just to this browser.
           </p>
           <Link className="next" href="/login">
             Sign in <span aria-hidden="true">→</span>

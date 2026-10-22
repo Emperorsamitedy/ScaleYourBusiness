@@ -305,7 +305,7 @@ export function CustomersScreen() {
             {visible.length === 0 ? (
               <p className="cu-empty">
                 {s.contacts.length === 0
-                  ? "No customers yet. Import your shop's export below — under your own attestation of what they consented to."
+                  ? "No customers yet. Import your customer list below — under your own attestation of what they consented to."
                   : "Nobody matches that."}
               </p>
             ) : (
@@ -314,13 +314,13 @@ export function CustomersScreen() {
                   <tr>
                     <th scope="col">Customer</th>
                     <th scope="col" className="num">
-                      Orders
+                      Purchases
                     </th>
                     <th scope="col" className="num">
                       Spent
                     </th>
                     <th scope="col" className="num">
-                      Last order
+                      Last purchase
                     </th>
                     <th scope="col">Pattern</th>
                     <th scope="col">
@@ -337,13 +337,13 @@ export function CustomersScreen() {
                           <span className="cu-name">{who(c)}</span>
                           {c.name && <span className="src cu-sub">{maskEmail(c.email)}</span>}
                         </th>
-                        <td className="num" data-label="Orders">
+                        <td className="num" data-label="Purchases">
                           {c.orders_count ?? "—"}
                         </td>
                         <td className="num" data-label="Spent">
                           {spent(c)}
                         </td>
-                        <td className="num" data-label="Last order">
+                        <td className="num" data-label="Last purchase">
                           {lastOrder(c.last_purchase_at)}
                         </td>
                         <td data-label="Pattern">
@@ -403,7 +403,7 @@ export function CustomersScreen() {
             </header>
             <dl className="cu-stats">
               <div>
-                <dt>Orders</dt>
+                <dt>Purchases</dt>
                 <dd>{open.orders_count ?? "—"}</dd>
               </div>
               <div>
@@ -427,7 +427,8 @@ export function CustomersScreen() {
                 )}
               </ul>
               <p className="cu-rec-note">
-                Order-by-order history isn&rsquo;t imported — these are the totals from your export.
+                Purchase-by-purchase history isn&rsquo;t imported — these are the totals from your
+                export.
               </p>
             </div>
             <div className="cu-rec-block cu-erase">
@@ -561,10 +562,10 @@ export function CustomersScreen() {
 
         <SheetCard label="Import" title="Under your attestation">
           <p className="cu-prose">
-            Paste a CSV from your shop or spreadsheet. Columns it understands: email, name, phone,
-            country (so each customer&rsquo;s own email rules apply), and — for lifecycle — last
-            order date, order count, total spent. You state what these contacts consented to and
-            how; that statement lands on every row.
+            Paste a CSV from your till, booking system, online shop or spreadsheet. Columns it
+            understands: email, name, phone, country (so each customer&rsquo;s own email rules
+            apply), and — for lifecycle — last order date, order count, total spent. You state what
+            these contacts consented to and how; that statement lands on every row.
           </p>
           <form
             className="cu-form"
@@ -621,7 +622,7 @@ export function CustomersScreen() {
             <input
               id="cu-statement"
               className="cu-input"
-              placeholder="e.g. checkout checkbox since 2024"
+              placeholder="e.g. sign-up form checkbox since 2024"
               value={s.statement}
               onChange={(e) => setState({ ...s, statement: e.target.value })}
             />
@@ -666,7 +667,7 @@ export function CustomersScreen() {
       )}
 
       <p className="cu-fine">
-        Per-customer history comes from your own shop export, not from your connected accounts,
+        Per-customer history comes from your own customer export, not from your connected accounts,
         which measure the business as a whole. Erasing a customer is GDPR erasure: their details go,
         and the record keeps only anonymous ids.
       </p>

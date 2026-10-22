@@ -23,15 +23,15 @@ import { moneyText, num } from "../sheet/num";
 
 /** Owner-facing names for the fourteen profile sections — the one map. */
 export const AREA_NAME: Readonly<Record<string, string>> = {
-  identity: "Store basics",
-  presence: "Shop & website",
-  offers: "Products & costs",
+  identity: "Business basics",
+  presence: "Premises & website",
+  offers: "What you sell",
   revenue: "Sales & revenue",
   costs: "Running costs",
   customers: "Customers",
   channels: "Sales channels",
   marketing: "Marketing",
-  operations: "Shipping & fulfilment",
+  operations: "Operations & delivery",
   tooling: "Tools & software",
   legal: "Legal & tax",
   competitors: "Competitors",

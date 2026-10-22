@@ -22,7 +22,7 @@ const STEPS = [
   {
     when: "Day 0 · 12 min",
     t: "Answer a few questions",
-    d: "Only what your store can’t tell us.",
+    d: "Only what your numbers can’t tell us.",
   },
   { when: "Day 7", t: "Get your results", d: "Every leak priced, charted, and three fixes first." },
 ] as const;
@@ -38,12 +38,12 @@ const INCLUDED = [
 const FAQ = [
   ["Do you need my password?", "No. A read-only connection you can remove any time."],
   [
-    "Will anything change in my store?",
+    "Will anything change in my accounts?",
     "No. We only read. Nothing ever runs without your approval.",
   ],
   [
-    "Is my store big enough?",
-    "Built for stores doing about $10k–$50k a month. Too small to read? We tell you before you pay.",
+    "Is my business big enough?",
+    "Built for businesses doing about $10k–$50k a month. Too small to read? We tell you before you pay.",
   ],
 ] as const;
 
@@ -82,16 +82,16 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
         <section id="top" className="ll-w ll-hero" aria-labelledby="ll-h1">
           <div className="ll-hero-copy">
             <div className="ll-m ll-pill">
-              <span className="ll-beat" aria-hidden="true" />A blood test for your online store
+              <span className="ll-beat" aria-hidden="true" />A blood test for your business
             </div>
             <h1 id="ll-h1" className="ll-s ll-hd">
-              Your store looks healthy.
+              Your business looks healthy.
               <br />
               <span style={{ fontStyle: "italic", color: "#FF9C8F" }}>Its numbers</span> might not.
             </h1>
             <p className="ll-lede">
-              We run 36 checks on your Shopify or WooCommerce store, price every leak in euros, and
-              hand you a signed report in {days} days.
+              We run 36 checks on your sales, bookings, payments and ads, price every leak in euros,
+              and hand you a signed report in {days} days.
             </p>
             <div className="ll-ctas">
               <Link className="ll-go" href="/signup">
@@ -124,7 +124,7 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
                   The chart
                 </div>
                 <h2 id="ll-h-chart" className="ll-s ll-h2" style={{ maxWidth: "13em" }}>
-                  Your store, read like a stock.
+                  Your business, read like a stock.
                 </h2>
               </div>
               <p className="ll-sec-aside">
@@ -188,7 +188,7 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
             <div className="ll-price-card">
               <div className="ll-price-top">
                 <span className="ll-s" style={{ fontSize: 24, fontWeight: 600 }}>
-                  Full store panel
+                  Full business panel
                 </span>
                 <span>
                   <span className="ll-s ll-price-fig">{priceText}</span>{" "}

@@ -86,7 +86,8 @@ export const MEASURES: readonly MeasureDef[] = [
   {
     id: "average_order_value",
     name: "Average order value",
-    words: "Your monthly revenue divided by the number of orders in the month.",
+    words:
+      "Your monthly revenue divided by the number of sales — orders, bookings or visits — in the month.",
     refusal: "average order value",
     get: (e) => e.average_order_value,
     fig: (v) => money(v),
@@ -95,7 +96,7 @@ export const MEASURES: readonly MeasureDef[] = [
     id: "cost_per_acquisition",
     name: "Cost to acquire a customer",
     words:
-      "What you spend on ads in a month, divided by the orders that came from customers buying for the first time.",
+      "What you spend on ads in a month, divided by the sales that came from customers buying for the first time.",
     refusal: "cost per acquisition",
     get: (e) => e.cost_per_acquisition,
     fig: (v) => money(v),

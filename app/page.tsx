@@ -7,9 +7,9 @@ import { reportPrice } from "@/lib/payments/stripe";
 import "./landing.css";
 
 export const metadata: Metadata = {
-  title: "Ledgerline — a blood test for your online store",
+  title: "Ledgerline — a blood test for your business",
   description:
-    "36 checks on your Shopify or WooCommerce store, every leak priced in euros, and a signed report.",
+    "36 checks on your sales, bookings, payments and ads, every leak priced in euros, and a signed report.",
 };
 
 export default function Home() {
