@@ -42,6 +42,13 @@ import type {
 import { SIM, adsWindow } from "./model";
 import type { SimulationRecord } from "./scenario";
 
+/** A sent campaign as the readback judged it. */
+interface PastWithVerdict {
+  row: ProposalRow;
+  campaign: PastEmailCampaign;
+  verdict: string;
+}
+
 /** The basis of a profile fact, or null when it holds no value. */
 function factBasis(f: Field<unknown> | null): Basis | null {
   if (!f) return null;
@@ -157,13 +164,14 @@ export async function gatherInputs(profileId: string, now: Date = new Date()): P
       ),
     )
     .orderBy(desc(proposals.created_at));
-  const emailPast: { row: ProposalRow; campaign: PastEmailCampaign }[] = [];
+  const emailPast: PastWithVerdict[] = [];
   for (const row of emailRows) {
     if ((row.action as { kind?: unknown }).kind !== SEGMENT_KIND) continue;
     const o = await emailCampaignOutcome(row);
     if (o.delivery.sent === 0) continue;
     emailPast.push({
       row,
+      verdict: o.verdict,
       campaign: {
         kind: campaignKind(row.action),
         sent_on: o.sent_on,
@@ -416,7 +424,9 @@ export function crossCheckLine(args: {
   };
 }
 
-function emailCrossCheck(past: { row: ProposalRow; campaign: PastEmailCampaign }[]): CrossCheck {
+function emailCrossCheck(past: PastWithVerdict[]): CrossCheck {
+  const verdicts = { helped: 0, did_nothing: 0, backfired: 0 };
+  for (const p of past) if (p.verdict in verdicts) verdicts[p.verdict as keyof typeof verdicts]++;
   const withSim = past.filter((p) => simulationOf(p.row)?.key_rate?.name === "bought_again_rate");
   const recent = withSim.slice(0, SIM.cross_check_last);
   const measured = recent.filter((p) => p.campaign.measured >= SIM.email_min_measured);
@@ -428,6 +438,7 @@ function emailCrossCheck(past: { row: ProposalRow; campaign: PastEmailCampaign }
     simulated: recent.length,
     checked: measured.length,
     inside: hits,
+    verdicts,
   });
 }
 
