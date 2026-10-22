@@ -59,6 +59,7 @@ import { NumberControl } from "./controls/Number";
 import { OptionRow, OptionRows } from "./controls/Rows";
 import type { RowSpec } from "./controls/Rows";
 import { TextControl } from "./controls/Text";
+import { clearPrefill, prefillFor } from "../../lib/intake/browser-prefill";
 
 interface QuestionCardProps {
   question: IntakeQuestion;
@@ -148,6 +149,11 @@ export function QuestionCard({
 
   const type = question.input_type;
   const isChoice = CHOICE_TYPES.has(type);
+  // Read after mount: storage is browser-only, and the server render must match.
+  const [prefill, setPrefill] = useState<string | null>(null);
+  useEffect(() => {
+    setPrefill(prefillFor(question.writes_to));
+  }, [question.writes_to]);
   const labelId = `q-${question.id}`;
 
   useEffect(() => {
@@ -175,6 +181,7 @@ export function QuestionCard({
     (action: AnswerAction): void => {
       if (leaving || committing.current) return;
       committing.current = true;
+      clearPrefill(question.writes_to);
       onAnswer(action);
       // The card stays mounted if the server refuses; let it try again.
       window.setTimeout(() => {
@@ -299,10 +306,11 @@ export function QuestionCard({
   }, []);
 
   const field = ((): ReactNode => {
-    const props = { question, onChange: handleChange, onCommit: record };
+    const props = { question, onChange: handleChange, onCommit: record, initial: prefill };
     switch (type) {
       case "text":
-        return <TextControl {...props} />;
+        // Keyed on the draft: storage is read after mount, so a waiting draft re-creates the field with it.
+        return <TextControl key={prefill ?? ""} {...props} />;
       case "long_text":
         return <LongTextControl {...props} />;
       case "number":

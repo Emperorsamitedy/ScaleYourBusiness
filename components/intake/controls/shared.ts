@@ -14,4 +14,6 @@ export interface ControlProps {
   onChange: (change: ControlChange) => void;
   /** Immediate submit — Enter in a field, or the single-select confirm beat. */
   onCommit: (change: ControlChange) => void;
+  /** A draft waiting in this browser (lib/intake/browser-prefill.ts) — shown, never recorded until Record. */
+  initial?: string | null;
 }

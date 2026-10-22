@@ -19,6 +19,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { BROWSER_PREFILL } from "../../lib/intake/browser-prefill";
 import { DELIVERY_DAYS } from "../../lib/marketing/offer";
 import { AuthMasthead } from "./AuthMasthead";
 import "../../app/auth.css";
@@ -31,9 +32,9 @@ type Phase = "form" | "sending" | "sent";
 const LINK_TTL_MINUTES = 15;
 
 // The website address is not part of the login API (email only). It is
-// kept in this browser so the intake can prefill it later. The key keeps
-// its first name ("pending_store") so anything already saved still reads.
-const PENDING_STORE_KEY = "syb.pending_store";
+// kept in this browser and offered back as a draft in the intake's website
+// question (lib/intake/browser-prefill.ts names the key).
+const PENDING_STORE_KEY = BROWSER_PREFILL["presence.website_url"]!;
 
 const SSO_PROVIDERS = [
   { id: "google", label: "Google" },
