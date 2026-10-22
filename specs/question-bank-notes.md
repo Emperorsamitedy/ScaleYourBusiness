@@ -16,7 +16,7 @@ Companion to `question-bank-v1.json`. Explains how the bank is structured, what 
 | Important | 105 |
 | Deep | 8 |
 
-Counts as of bank 1.6.0, as `lint_bank.py` prints them. The first cut was 153 questions and 55 vocabularies; later additions are recorded in `data-model-v1.md` §5 next to the fields they write.
+Counts as of bank 1.7.0, as `lint_bank.py` prints them (1.7.0 added two fields to the competitor entity schema, `listing_url` and `price_pages`, and no question). The first cut was 153 questions and 55 vocabularies; later additions are recorded in `data-model-v1.md` §5 next to the fields they write.
 
 MAIN.txt contains roughly 300 bullet points. The first cut of the bank was 153 questions because repeated per-item fields collapse into entity schemas: instead of nine questions per product, there is one `entity_list` question with an offer schema attached. An owner with five products answers one question that expands into five rows, rather than 45 separate prompts.
 

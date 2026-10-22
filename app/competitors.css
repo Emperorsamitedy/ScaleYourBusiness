@@ -1,0 +1,242 @@
+/* Insights · Competitors — feature 35, on the sheet system (app/sheet.css):
+   who I watch and when I last read them, what moved, and their prices
+   beside yours. Square corners, rules for separation, cobalt only while a
+   read is genuinely running. */
+
+.cp-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.cp-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: 15px;
+  align-items: start;
+  margin-bottom: 15px;
+}
+.cp-grid .cs {
+  min-width: 0;
+}
+
+.cp-copy {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+}
+.cp-src {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+.cp-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.cp-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+.cp-notice {
+  margin: 0 0 15px;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-size: 13.5px;
+}
+
+/* the watch list */
+.cp-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cp-list > li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.cp-list > li:last-child {
+  border-bottom: 0;
+}
+.cp-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+.cp-who strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+.cp-state {
+  font-size: 13px;
+}
+.cp-read {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+}
+.cp-read.failed {
+  color: var(--alarm);
+}
+.cp-read.partial {
+  color: var(--drift);
+}
+.cp-read.unread {
+  color: var(--sheet-ink-2);
+}
+.cp-state .live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+}
+.cp-row-acts {
+  display: flex;
+  gap: 6px;
+}
+.cp-row-acts .act,
+.cp-actions .act {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 11.5px;
+}
+.cp-foot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.cp-foot-row .act {
+  min-height: 38px;
+}
+
+/* the add / edit form */
+.cp-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+  padding: 4px 0 6px;
+}
+.cp-form label {
+  display: grid;
+  gap: 4px;
+}
+.cp-form label > span {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.cp-form input,
+.cp-form textarea {
+  min-height: 38px;
+  padding: 6px 9px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 13px;
+}
+.cp-form textarea {
+  resize: vertical;
+}
+.cp-form input:focus-visible,
+.cp-form textarea:focus-visible,
+.cp-match:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.cp-wide {
+  grid-column: 1 / -1;
+}
+.cp-form .cp-note {
+  margin: 0;
+}
+.cp-error {
+  margin: 0;
+  color: var(--alarm);
+  font-size: 13px;
+}
+.cp-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* recent changes */
+.cp-changes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cp-changes li {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.cp-changes li:last-child {
+  border-bottom: 0;
+}
+.cp-changes p {
+  margin: 0;
+  font-size: 13.5px;
+}
+.cp-at {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+  white-space: nowrap;
+}
+
+/* their prices beside yours */
+.cp-table-wrap {
+  overflow-x: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+.cp-table {
+  min-width: 760px;
+}
+.cp-how {
+  font-size: 11.5px;
+  font-weight: 400;
+}
+.cp-match {
+  max-width: 190px;
+  min-height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+}
+.cp-gap .word {
+  white-space: normal;
+}
+
+@media (max-width: 1099px) {
+  .cp-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .cp-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cp-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -174,6 +174,7 @@ export const NOTED_KINDS: ReadonlySet<string> = new Set([
   "anomaly_cleared",
   "hours_findings",
   "goal_alert",
+  "competitor_change", // feature 35: a competitor's price, offer or rating moved
 ]);
 
 /** The watch day a log entry fell on; null when it predates the watch. */
