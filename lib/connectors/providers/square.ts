@@ -17,15 +17,26 @@
 // the registry. This module knows three paths on one Square host and uses
 // GET for every read; square.test.ts scans the source.
 //
+// BOOKINGS (specs/bookings.md §2). When the token also carries Square's two
+// read-only Bookings permissions, APPOINTMENTS_READ and APPOINTMENTS_ALL_READ
+// (seller-level: every booking at the seller's locations), the same windows
+// read GET /v2/bookings: status, start, service, team member, duration, and
+// the customer id, which the sync turns into a keyed hash before storing.
+// Notes and addresses are never read. They are optional: a payments-only
+// token reads payments exactly as before.
+//
 // WHAT IS READ. COMPLETED payments per location, created in the window:
 // revenue = amount_money − refunded_money (tips are the staff's, not
 // takings, and amount_money excludes them), orders = one per payment, by
 // UTC day and by UTC hour (P2-27). Money is already integer minor units
 // with an ISO currency (rule 1).
 
+import { squareStatusTarget } from "../../bookings/import-map";
+import { dailyBookingObservations } from "../../bookings/measures";
+import type { BookingInput } from "../../bookings/types";
 import { addDays, advanceCursor, dayString, planWindow } from "../days";
 import { HourlyBuckets } from "../hourly";
-import type { Observation, Provider, PullPage } from "../provider";
+import type { Observation, Provider, PullContext, PullPage } from "../provider";
 import { ProviderError } from "../provider";
 
 export const SQUARE_VERSION = "2026-09-16";
@@ -40,6 +51,15 @@ export const SQUARE_WINDOW_DAYS = 30;
 export const SQUARE_PAGE_LIMIT = 100;
 export const SQUARE_MAX_PAGES = 200;
 export const SQUARE_MAX_ATTEMPTS = 3;
+/** ListBookings page size. Square's guide caps one request's start-time range at 31 days; windows are 30. */
+export const SQUARE_BOOKINGS_PAGE_LIMIT = 100;
+/** Both are needed for seller-level reads (Square's permissions table, read 2026-10-22). */
+export const SQUARE_BOOKINGS_SCOPES = ["APPOINTMENTS_READ", "APPOINTMENTS_ALL_READ"] as const;
+
+/** Bookings are read only when the token was granted both read permissions. */
+export function readsBookings(granted: readonly string[]): boolean {
+  return SQUARE_BOOKINGS_SCOPES.every((s) => granted.includes(s));
+}
 
 export interface SquareRequestInit {
   method: "GET" | "POST";
@@ -104,7 +124,7 @@ interface Context {
 async function call(
   ctx: Context,
   cred: SquareCredential,
-  path: "/oauth2/token/status" | "/v2/locations" | "/v2/payments",
+  path: "/oauth2/token/status" | "/v2/locations" | "/v2/payments" | "/v2/bookings",
   query?: Record<string, string>,
 ): Promise<{ status: number; body: unknown }> {
   const host = SQUARE_HOSTS[cred.environment];
@@ -222,6 +242,93 @@ async function paymentsIn(
 }
 
 /**
+ * Pure: one Square Booking → an appointment, or null when it doesn't count.
+ * Statuses come from the map file's square_api table: ACCEPTED in the past
+ * is the attended booking (Square has no "completed"), PENDING in the past
+ * was never accepted and is left out. `today` is the UTC date of the read.
+ */
+export function toBookingInput(raw: unknown, today: string): BookingInput | null {
+  const b = raw as {
+    id?: unknown;
+    status?: unknown;
+    start_at?: unknown;
+    customer_id?: unknown;
+    appointment_segments?: unknown;
+  } | null;
+  if (!b || typeof b.id !== "string" || typeof b.status !== "string") return null;
+  if (typeof b.start_at !== "string") return null;
+  const at = Date.parse(b.start_at);
+  if (!Number.isFinite(at)) return null;
+  const iso = new Date(at).toISOString();
+  const day = iso.slice(0, 10);
+  const target = squareStatusTarget(b.status);
+  if (target === null) return null;
+  let status: BookingInput["status"];
+  if (target === "accepted" || target === "booked") {
+    if (day > today) status = "booked_future";
+    else if (target === "accepted") status = "completed";
+    else return null; // a pending request whose day has passed: never closed out
+  } else {
+    status = target;
+  }
+  const segments = (Array.isArray(b.appointment_segments) ? b.appointment_segments : []) as {
+    duration_minutes?: unknown;
+    service_variation_id?: unknown;
+    team_member_id?: unknown;
+  }[];
+  const minutes = segments.reduce(
+    (sum, seg) => sum + (typeof seg?.duration_minutes === "number" ? seg.duration_minutes : 0),
+    0,
+  );
+  const first = segments[0];
+  return {
+    source_ref: `square:${b.id}`,
+    day,
+    start_time: iso.slice(11, 16),
+    status,
+    service: typeof first?.service_variation_id === "string" ? first.service_variation_id : null,
+    staff_ref: typeof first?.team_member_id === "string" ? first.team_member_id : null,
+    client:
+      typeof b.customer_id === "string" && b.customer_id !== ""
+        ? { kind: "id", value: b.customer_id }
+        : null,
+    duration_minutes: segments.length > 0 && minutes <= 1440 ? minutes : null,
+    // Square bookings carry no price; Square takings come from the payments read.
+    price_minor: null,
+    currency: null,
+  };
+}
+
+async function bookingsIn(
+  ctx: Context,
+  cred: SquareCredential,
+  start: Date,
+  end: Date,
+  today: string,
+): Promise<BookingInput[]> {
+  const out: BookingInput[] = [];
+  let cursor: string | null = null;
+  for (let page = 0; page < SQUARE_MAX_PAGES; page++) {
+    const { body } = await call(ctx, cred, "/v2/bookings", {
+      // No location_id: Square then returns every location's bookings.
+      start_at_min: start.toISOString(),
+      start_at_max: addDays(end, 1).toISOString(),
+      limit: String(SQUARE_BOOKINGS_PAGE_LIMIT),
+      ...(cursor ? { cursor } : {}),
+    });
+    const res = body as { bookings?: unknown[]; cursor?: unknown } | null;
+    for (const raw of res?.bookings ?? []) {
+      const b = toBookingInput(raw, today);
+      // The window's own days only: a booking at the next midnight belongs to the next window.
+      if (b && b.day >= dayString(start) && b.day <= dayString(end)) out.push(b);
+    }
+    cursor = typeof res?.cursor === "string" && res.cursor !== "" ? res.cursor : null;
+    if (!cursor) return out;
+  }
+  throw new ProviderError("square: more bookings in one window than one sync reads");
+}
+
+/**
  * Pure: completed payments → daily and hourly revenue and orders, for every
  * day in [start, end] (zero days included). Currencies are never blended.
  */
@@ -309,10 +416,19 @@ export function createSquareProvider(
       const locations = await locationIds(ctx, cred);
       if (locations.length === 0)
         throw new ProviderError("square: the account has no locations to read");
+      // With the Bookings permissions, prove that read too: one day, one row.
+      if (readsBookings(granted)) {
+        const now = new Date();
+        await call(ctx, cred, "/v2/bookings", {
+          start_at_min: addDays(now, -1).toISOString(),
+          start_at_max: now.toISOString(),
+          limit: "1",
+        });
+      }
       return { granted_scopes: granted };
     },
 
-    async pull(secret, cursor, now): Promise<PullPage> {
+    async pull(secret, cursor, now, context?: PullContext): Promise<PullPage> {
       const cred = parseSquareCredential(secret);
       const plan = planWindow({
         cursor,
@@ -327,10 +443,26 @@ export function createSquareProvider(
       for (const location of await locationIds(ctx, cred)) {
         payments.push(...(await paymentsIn(ctx, cred, location, plan.start, plan.end)));
       }
+      const observations = aggregatePayments(payments, plan.start, plan.end, now.toISOString());
+      let appointments: BookingInput[] | undefined;
+      if (readsBookings(context?.granted_scopes ?? [])) {
+        appointments = await bookingsIn(ctx, cred, plan.start, plan.end, dayString(now));
+        observations.push(
+          ...dailyBookingObservations(
+            appointments,
+            dayString(plan.start),
+            dayString(plan.end),
+            now.toISOString(),
+            // Square's NO_SHOW covers a cancellation without enough notice.
+            { lateSeparated: false },
+          ),
+        );
+      }
       return {
-        observations: aggregatePayments(payments, plan.start, plan.end, now.toISOString()),
+        observations,
         cursor: advanceCursor(cursor, plan.end),
         done: plan.end.getTime() === plan.yesterday.getTime(),
+        ...(appointments !== undefined ? { appointments } : {}),
       };
     },
   };

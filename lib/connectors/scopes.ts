@@ -60,8 +60,16 @@ export const SCOPE_REGISTRY = {
    * Square (P2-28). POST /oauth2/token/status reports a token's scopes, so
    * registry membership is a real check. Permission names from Square's
    * docs, checked 2026-10-13.
+   *
+   * Bookings (specs/bookings.md §2), added 2026-10-22 deliberately: the two
+   * read-only Bookings permissions, APPOINTMENTS_READ and the seller-level
+   * APPOINTMENTS_ALL_READ, so a salon's or gym's appointments are measured.
+   * Square's permissions table lists them as the read side of ListBookings;
+   * the write side (APPOINTMENTS_WRITE, APPOINTMENTS_ALL_WRITE) stays out,
+   * and the audit would refuse it. Optional: a payments-only token still
+   * connects, and bookings are read only when both are granted.
    */
-  square: ["PAYMENTS_READ", "MERCHANT_PROFILE_READ"],
+  square: ["PAYMENTS_READ", "MERCHANT_PROFILE_READ", "APPOINTMENTS_READ", "APPOINTMENTS_ALL_READ"],
 } as const satisfies Record<string, readonly string[]>;
 
 export interface ScopeGuideEntry {
@@ -170,6 +178,16 @@ export const SCOPE_GUIDE: Readonly<
       scope: "MERCHANT_PROFILE_READ",
       grant: "MERCHANT_PROFILE_READ",
       why: "Your list of locations, so payments from every till are read, not just the main one.",
+    },
+    {
+      scope: "APPOINTMENTS_READ",
+      grant: "APPOINTMENTS_READ (optional, for bookings)",
+      why: "Your appointments: which were kept, which were no-shows or cancelled, and whether clients came back. Not their notes.",
+    },
+    {
+      scope: "APPOINTMENTS_ALL_READ",
+      grant: "APPOINTMENTS_ALL_READ (optional, with the one above)",
+      why: "Square needs this with the one above to read every booking at your locations, not only ones made through Ledgerline. It can't change a booking.",
     },
   ],
 };

@@ -60,7 +60,7 @@ export interface MeasureOptions {
   sourceName: string;
 }
 
-const inWindow = (a: MeasuredAppointment, from: string, to: string) => a.day >= from && a.day <= to;
+const inWindow = (a: { day: string }, from: string, to: string) => a.day >= from && a.day <= to;
 
 /** A booking that counts as "booked again": kept, or still held when its time came. */
 const HELD = new Set(["completed", "no_show", "cancelled_late", "booked_future"]);
@@ -215,7 +215,7 @@ export function bookingMeasures(
  * the source has prices, per currency seen in the range (rule 1).
  */
 export function dailyBookingObservations(
-  appointments: readonly MeasuredAppointment[],
+  appointments: readonly Omit<MeasuredAppointment, "client_key">[],
   from: string,
   to: string,
   observedAt: string,
