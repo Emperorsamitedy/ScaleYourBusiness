@@ -208,8 +208,8 @@ function NotedCard({ log, w }: { log: LogEntry[]; w: WatchDays }) {
     <SheetCard label="Noted, not acted on" title="What I would have said">
       {noted.length === 0 ? (
         <p className="wt-empty">
-          Nothing yet. When a figure leaves its usual range, or your hours show a signal, I note it
-          here, and act on none of it.
+          Nothing yet. When a figure leaves its usual range, your hours show a signal, or a competitor
+          changes a price, I note it here, and act on none of it.
         </p>
       ) : (
         <ul className="wt-notes">

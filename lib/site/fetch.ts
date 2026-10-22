@@ -195,7 +195,36 @@ export interface FetchedPage {
 /** The seam: tests and the fixture site inject their own. */
 export type PageFetcher = (url: string) => Promise<FetchedPage>;
 
-export const livePageFetcher: PageFetcher = async (rawUrl) => {
+/** What a caller of the guarded fetcher may tune. Never the address checks. */
+export interface GuardedFetchOptions {
+  /** Sent on every hop. Defaults to the site reader's own. */
+  userAgent?: string;
+  /** Per hop. Defaults to FETCH_TIMEOUT_MS. */
+  timeoutMs?: number;
+  /** Bytes read before the body is cut off. Defaults to MAX_BYTES; never above it. */
+  maxBytes?: number;
+}
+
+export const SITE_USER_AGENT = "Ledgerline-SiteRead/1.0 (owner-requested)";
+
+/**
+ * The hardened fetcher with its tunables set. Every reader of a public
+ * page goes through this (the site audit, competitor research, the
+ * competitor reader): resolve once, vet, pin, re-vet every redirect hop.
+ */
+export function createGuardedFetcher(opts: GuardedFetchOptions = {}): PageFetcher {
+  const userAgent = opts.userAgent ?? SITE_USER_AGENT;
+  const timeoutMs = opts.timeoutMs ?? FETCH_TIMEOUT_MS;
+  const maxBytes = Math.min(opts.maxBytes ?? MAX_BYTES, MAX_BYTES);
+  return (rawUrl) => guardedFetch(rawUrl, userAgent, timeoutMs, maxBytes);
+}
+
+async function guardedFetch(
+  rawUrl: string,
+  userAgent: string,
+  timeoutMs: number,
+  maxBytes: number,
+): Promise<FetchedPage> {
   let url: URL;
   try {
     url = new URL(rawUrl.includes("://") ? rawUrl : `https://${rawUrl}`);
@@ -215,8 +244,8 @@ export const livePageFetcher: PageFetcher = async (rawUrl) => {
       response = await undiciFetch(current, {
         dispatcher: agent,
         redirect: "manual",
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-        headers: { "user-agent": "Ledgerline-SiteRead/1.0 (owner-requested)" },
+        signal: AbortSignal.timeout(timeoutMs),
+        headers: { "user-agent": userAgent },
       });
 
       if (response.status >= 300 && response.status < 400) {
@@ -238,7 +267,7 @@ export const livePageFetcher: PageFetcher = async (rawUrl) => {
           const { done, value } = await reader.read();
           if (done) break;
           bytes += value.byteLength;
-          if (bytes > MAX_BYTES) {
+          if (bytes > maxBytes) {
             await reader.cancel();
             break;
           }
@@ -261,4 +290,6 @@ export const livePageFetcher: PageFetcher = async (rawUrl) => {
     }
   }
   throw new SiteFetchError("too many redirects — the site never settled");
-};
+}
+
+export const livePageFetcher: PageFetcher = createGuardedFetcher();

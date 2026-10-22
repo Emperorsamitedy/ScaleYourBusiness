@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/faq-cluster",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/competitor-read",
+      "schedule": "0 7 * * 1"
     }
   ]
 }
