@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { GROUPS, connectionsCount, groupFor, showsNav, supportCount } from "./AppFrame";
+import { SIZE_BANDS } from "../../lib/core/size-features";
+import {
+  GROUPS,
+  connectionsCount,
+  groupFor,
+  showsNav,
+  supportCount,
+  visibleGroups,
+} from "./AppFrame";
 
 // The owner's menu design: five labelled groups, every owner screen in one.
 describe("app navigation", () => {
@@ -49,5 +57,18 @@ describe("app navigation", () => {
     expect(supportCount({ support_open: 0, by_module: {} })).toBeNull();
     const item = GROUPS.flatMap((g) => g.items).find((i) => i.href === "/support");
     expect(item?.count).toBe(supportCount);
+  });
+
+  // Size: the menu reads the size-feature table; an unknown band shows everything.
+  it("shows every item when the size band is unknown", () => {
+    expect(visibleGroups(null)).toEqual(GROUPS);
+  });
+
+  it("shows each band a deterministic menu, every group still holding an item", () => {
+    for (const band of SIZE_BANDS) {
+      const a = visibleGroups(band);
+      expect(visibleGroups(band)).toEqual(a);
+      for (const g of a) expect(g.items.length).toBeGreaterThan(0);
+    }
   });
 });

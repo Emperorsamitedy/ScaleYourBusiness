@@ -16,10 +16,14 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { NavCounts } from "../../app/api/nav/route";
+import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
+import { showsFor } from "../../lib/core/size-features";
 
 interface Item {
   href: string;
   label: string;
+  /** Its row in the size-feature table (lib/core/size-features.ts). */
+  feature: SizeFeatureKey;
   count?: (c: NavCounts) => string | null;
 }
 
@@ -54,50 +58,85 @@ export const GROUPS: readonly Group[] = [
   {
     key: "approve",
     label: "To approve",
-    items: [{ href: "/proposals", label: "Waiting for you", count: (c) => n(c.pending) }],
+    items: [
+      {
+        href: "/proposals",
+        label: "Waiting for you",
+        feature: "nav.proposals",
+        count: (c) => n(c.pending),
+      },
+    ],
   },
   {
     key: "insights",
     label: "Insights",
     items: [
-      { href: "/report", label: "Report" },
+      { href: "/report", label: "Report", feature: "nav.report" },
       {
         href: "/watch",
         label: "Watching",
+        feature: "nav.watch",
         count: (c) => (c.watch ? `${c.watch.day}/${c.watch.of}` : null),
       },
-      { href: "/progress", label: "Goals", count: (c) => n(c.goals) },
-      { href: "/hours", label: "Trading hours" },
-      { href: "/blindspots", label: "Blindspots" },
+      { href: "/progress", label: "Goals", feature: "nav.goals", count: (c) => n(c.goals) },
+      { href: "/hours", label: "Trading hours", feature: "nav.hours" },
+      { href: "/blindspots", label: "Blindspots", feature: "nav.blindspots" },
     ],
   },
   {
     key: "grow",
     label: "Grow",
     items: [
-      { href: "/content", label: "Content", count: (c) => n(c.by_module.content ?? 0) },
-      { href: "/site", label: "Website", count: (c) => n(c.by_module.site ?? 0) },
+      {
+        href: "/content",
+        label: "Content",
+        feature: "nav.content",
+        count: (c) => n(c.by_module.content ?? 0),
+      },
+      {
+        href: "/site",
+        label: "Website",
+        feature: "nav.site",
+        count: (c) => n(c.by_module.site ?? 0),
+      },
     ],
   },
   {
     key: "customers",
     label: "Customers",
     items: [
-      { href: "/customers", label: "Customers" },
-      { href: "/support", label: "Support", count: supportCount },
+      { href: "/customers", label: "Customers", feature: "nav.customers" },
+      { href: "/support", label: "Support", feature: "nav.support", count: supportCount },
     ],
   },
   {
     key: "business",
     label: "Your business",
     items: [
-      { href: "/profile", label: "Fact sheet", count: (c) => n(c.facts) },
-      { href: "/connections", label: "Connections", count: connectionsCount },
-      { href: "/mode", label: "How I work" },
-      { href: "/history", label: "History" },
+      { href: "/profile", label: "Fact sheet", feature: "nav.factsheet", count: (c) => n(c.facts) },
+      {
+        href: "/connections",
+        label: "Connections",
+        feature: "nav.connections",
+        count: connectionsCount,
+      },
+      { href: "/mode", label: "How I work", feature: "nav.mode" },
+      { href: "/history", label: "History", feature: "nav.history" },
     ],
   },
 ];
+
+/**
+ * Pure: the groups as a business of this size sees them — items the
+ * size-feature table hides are left out, and a group left empty drops.
+ * A null band (nothing stated, no headcount) shows every item.
+ */
+export function visibleGroups(band: SizeBand | null): Group[] {
+  return GROUPS.map((g) => ({
+    ...g,
+    items: g.items.filter((i) => showsFor(i.feature, band)),
+  })).filter((g) => g.items.length > 0);
+}
 
 /** Focused views: their own masthead, no rail. */
 const FOCUSED = ["/report", "/proposals"];
@@ -185,7 +224,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
           </button>
         </div>
         <div className="app-rail-groups">
-          {GROUPS.map((g) => (
+          {visibleGroups(counts?.size_band?.band ?? null).map((g) => (
             <div key={g.key} className="app-rail-group">
               <p className="app-rail-label">{g.label}</p>
               <ul>
