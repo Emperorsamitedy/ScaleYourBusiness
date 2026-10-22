@@ -29,7 +29,7 @@ import { createSquareProvider } from "../connectors/providers/square";
 import type { SquareFetch } from "../connectors/providers/square";
 import { connect, listConnections } from "../connectors/service";
 import { statedVsMeasured } from "../connectors/stated-vs-measured";
-import { runConnectorSync, syncConnection } from "../connectors/sync";
+import { syncConnection } from "../connectors/sync";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
@@ -304,8 +304,13 @@ describe("the import", () => {
     expect(conn?.encrypted_secret).toBeNull();
     expect(conn?.granted_scopes).toEqual([]);
     expect((await syncConnection(conn!.id, NOW)).skipped).toBe("imported");
-    const run = await runConnectorSync(NOW);
-    expect(run.failed).toBe(0);
+    // Skipped, not failed: no failure counted, no sync recorded against it.
+    const [after] = await db.select().from(connections).where(eq(connections.id, conn!.id));
+    expect(after?.failure_count).toBe(0);
+    expect(after?.status).toBe("connected");
+    expect(
+      await db.select().from(connectorSyncs).where(eq(connectorSyncs.connection_id, conn!.id)),
+    ).toEqual([]);
   });
 
   it("erasing a customer clears the client key their email made", async () => {
