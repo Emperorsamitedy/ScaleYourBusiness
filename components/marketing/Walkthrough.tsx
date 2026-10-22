@@ -5,16 +5,13 @@
 // a play/pause button and a chapter list, as the owner's landing design
 // (2026-10-17) sets it. Under prefers-reduced-motion it opens paused on
 // the report, exactly as the design does; the visitor can still press
-// play. Nothing is sent anywhere — the clock is component state.
+// play. Nothing is sent anywhere — the clock is component state. The
+// business on screen is the demo the visitor picked (./Demos): the
+// webshop by default, or the salon; switching keeps the clock.
 
 import { useEffect, useState, type CSSProperties } from "react";
 import { moneyText, num } from "../sheet/num";
-import {
-  SAMPLE_CURRENCY,
-  SAMPLE_MARKERS,
-  SAMPLE_PROPOSAL,
-  SAMPLE_RECORD,
-} from "../../lib/marketing/sample-diagnosis";
+import type { SampleRecordRow } from "../../lib/marketing/sample-diagnosis";
 import {
   CHAPTERS,
   REDUCED_MOTION_SECOND,
@@ -23,13 +20,19 @@ import {
   WALK_SECONDS,
   frame,
 } from "../../lib/marketing/walkthrough";
+import { useDemo } from "./Demos";
 
 const TOTAL_TICKS = WALK_SECONDS * 10;
-const eur = (minor: number) => moneyText(minor, SAMPLE_CURRENCY);
 const pressed: CSSProperties = { background: "#F3DF4E", color: "#132119" };
 const FLAG_COLOR = { ACT: "#A3261B", HIGH: "#8A5300", LOW: "#8A5300", OK: "#2E6B47" } as const;
+/** "1.4", "11" — a whole figure prints whole. */
+const pct = (v: number) => (Number.isInteger(v) ? num(v) : num(v, 1));
 
 export function Walkthrough() {
+  const { sample } = useDemo();
+  const eur = (minor: number) => moneyText(minor, sample.currency);
+  const figure = (f: SampleRecordRow["figure"]) =>
+    "count" in f ? num(f.count) : "money_minor" in f ? eur(f.money_minor) : f.words;
   // Tenths of a second, so the clock never drifts on float addition.
   const [tick, setTick] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -54,7 +57,7 @@ export function Walkthrough() {
   }, [playing]);
 
   const t = tick / 10;
-  const f = frame(t);
+  const f = frame(t, sample);
   const chap = CHAPTERS[f.scene] ?? CHAPTERS[0]!;
 
   return (
@@ -83,10 +86,10 @@ export function Walkthrough() {
         <div
           className="ll-stage"
           role="img"
-          aria-label={`Walkthrough, chapter ${f.scene + 1}: ${chap.caption}`}
+          aria-label={`Walkthrough with an illustrative ${sample.noun}, chapter ${f.scene + 1}: ${chap.caption}`}
         >
           {f.scene === 0 && (
-            <div className="ll-sc" key="s1">
+            <div className="ll-sc" key={`s1-${sample.id}`}>
               <div className="ll-k" style={{ color: "#3E5248" }}>
                 Step 1 · Connect
               </div>
@@ -98,7 +101,7 @@ export function Walkthrough() {
                   style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
                 >
                   <span className="ll-s" style={{ fontSize: 17, fontWeight: 600 }}>
-                    Shopify
+                    {sample.connect.source}
                   </span>
                   <span className="ll-m ll-tagg">READ-ONLY</span>
                 </div>
@@ -106,7 +109,7 @@ export function Walkthrough() {
                   className="ll-m"
                   style={{ fontSize: 12, color: "#3E5248", marginTop: 8, lineHeight: 1.7 }}
                 >
-                  Orders · Products · Customers · Inventory
+                  {sample.connect.reads}
                 </div>
                 {f.connect.done ? (
                   <>
@@ -136,7 +139,7 @@ export function Walkthrough() {
           )}
 
           {f.scene === 1 && (
-            <div className="ll-sc" key="s2" style={{ display: "flex", gap: 18 }}>
+            <div className="ll-sc" key={`s2-${sample.id}`} style={{ display: "flex", gap: 18 }}>
               <div style={{ flex: "3 1 0", minWidth: 0 }}>
                 <div className="ll-k" style={{ color: "#3E5248" }}>
                   Step 2 · A few questions
@@ -145,7 +148,7 @@ export function Walkthrough() {
                   className="ll-s"
                   style={{ fontSize: 22, fontWeight: 600, marginTop: 6, lineHeight: 1.15 }}
                 >
-                  {SAMPLE_RECORD.question}
+                  {sample.record.question}
                 </div>
                 <div
                   style={{
@@ -155,8 +158,8 @@ export function Walkthrough() {
                     marginTop: 16,
                   }}
                 >
-                  {SAMPLE_RECORD.options.map((label, i) => {
-                    const mine = i === SAMPLE_RECORD.picked;
+                  {sample.record.options.map((label, i) => {
+                    const mine = i === sample.record.picked;
                     const style: CSSProperties =
                       mine && f.question.picked
                         ? { background: "#132119", color: "#F2F7F4" }
@@ -188,24 +191,24 @@ export function Walkthrough() {
                 </div>
                 {f.question.fact && (
                   <div className="ll-m ll-slidein ll-rec-row">
-                    <span className="ll-mark">{SAMPLE_RECORD.fact}</span> · you
+                    <span className="ll-mark">{sample.record.fact}</span> · you
                   </div>
                 )}
-                <div className="ll-m ll-rec-row">
-                  Orders, 28 d · {num(SAMPLE_RECORD.orders_28d)} · Shopify
-                </div>
-                <div className="ll-m ll-rec-row">
-                  Avg order · {eur(SAMPLE_RECORD.avg_order_minor)} · Shopify
-                </div>
-                <div className="ll-m ll-rec-row" style={{ borderBottom: 0 }}>
-                  Fulfilment · in-house · you
-                </div>
+                {sample.record.rows.map((r, i) => (
+                  <div
+                    key={r.what}
+                    className="ll-m ll-rec-row"
+                    style={i === sample.record.rows.length - 1 ? { borderBottom: 0 } : undefined}
+                  >
+                    {r.what} · {figure(r.figure)} · {r.source}
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
           {f.scene === 2 && (
-            <div className="ll-sc" key="s3">
+            <div className="ll-sc" key={`s3-${sample.id}`}>
               <div
                 style={{
                   display: "flex",
@@ -271,7 +274,7 @@ export function Walkthrough() {
           )}
 
           {f.scene === 3 && (
-            <div className="ll-sc" key="s4">
+            <div className="ll-sc" key={`s4-${sample.id}`}>
               <div
                 style={{
                   display: "flex",
@@ -301,7 +304,7 @@ export function Walkthrough() {
                 </div>
               </div>
               <div style={{ marginTop: 10 }}>
-                {SAMPLE_MARKERS.map((r, i) => {
+                {sample.markers.map((r, i) => {
                   const vis = i < f.report.shown;
                   const pc = (q: number) => ((q - r.scale[0]) / (r.scale[1] - r.scale[0])) * 100;
                   return (
@@ -342,14 +345,14 @@ export function Walkthrough() {
           )}
 
           {f.scene === 4 && (
-            <div className="ll-sc" key="s5">
+            <div className="ll-sc" key={`s5-${sample.id}`}>
               <div className="ll-k" style={{ color: "#3E5248" }}>
                 Step 5 · You decide
               </div>
               <div className="ll-mini-card" style={{ marginTop: 10, position: "relative" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                   <span className="ll-m" style={{ fontSize: 11, color: "#3E5248" }}>
-                    Proposal · checkout
+                    Proposal · {sample.proposal.area}
                   </span>
                   <span
                     className="ll-m"
@@ -362,7 +365,7 @@ export function Walkthrough() {
                   className="ll-s"
                   style={{ fontSize: 21, fontWeight: 600, marginTop: 6, lineHeight: 1.15 }}
                 >
-                  {SAMPLE_PROPOSAL.title}
+                  {sample.proposal.title}
                 </div>
                 <div className="ll-s5-figs">
                   <div>
@@ -370,8 +373,8 @@ export function Walkthrough() {
                       Expected
                     </div>
                     <div className="ll-m" style={{ fontSize: 16, fontWeight: 600 }}>
-                      +{eur(SAMPLE_PROPOSAL.expected_low_minor)}–
-                      {eur(SAMPLE_PROPOSAL.expected_high_minor)} / mo
+                      +{eur(sample.proposal.expected_low_minor)}–
+                      {eur(sample.proposal.expected_high_minor)} / mo
                     </div>
                   </div>
                   <div>
@@ -397,7 +400,7 @@ export function Walkthrough() {
           )}
 
           {f.scene === 5 && (
-            <div className="ll-sc" key="s6">
+            <div className="ll-sc" key={`s6-${sample.id}`}>
               <div
                 style={{
                   display: "flex",
@@ -435,13 +438,15 @@ export function Walkthrough() {
                 <path d={f.results.down} fill="#EF5350" />
               </svg>
               <div className="ll-m ll-s6-legend">
-                <span>Before · conversion 1.4 %</span>
+                <span>
+                  Before · {sample.outcome.metric} {pct(sample.outcome.before)} %
+                </span>
                 <span style={{ color: "#2962FF" }}>A = approved</span>
                 <span>
                   After ·{" "}
-                  {f.results.conversion === null
+                  {f.results.metric === null
                     ? "measuring…"
-                    : `conversion ${num(f.results.conversion, 1)} %`}
+                    : `${sample.outcome.metric} ${num(f.results.metric, 1)} %`}
                 </span>
               </div>
             </div>
@@ -539,7 +544,7 @@ export function Walkthrough() {
         ))}
       </div>
       <figcaption className="ll-m" style={{ fontSize: 10.5, color: "#6F8577", marginTop: 8 }}>
-        Demo with an illustrative store. Your numbers will be your own.
+        Demo with an illustrative {sample.noun}. Your numbers will be your own.
       </figcaption>
     </figure>
   );

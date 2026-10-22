@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SAMPLE_LEAK, SAMPLE_MARKERS, SAMPLE_OUTCOME } from "./sample-diagnosis";
+import { DEMO_SAMPLES, SALON_SAMPLE, SHOP_SAMPLE } from "./sample-diagnosis";
 import { CHAPTERS, REDUCED_MOTION_SECOND, WALK_SECONDS, frame } from "./walkthrough";
 
 describe("the walkthrough's clock", () => {
@@ -33,25 +33,37 @@ describe("the walkthrough's clock", () => {
     expect(frame(5.9).connect.bar).toBe(100);
   });
 
-  it("ends each scene with its full figures", () => {
-    expect(frame(17.9).watch.filled).toBe(28);
-    expect(frame(17.9).watch.readings).toBe(4212);
-    const report = frame(23.9).report;
-    expect(report.shown).toBe(SAMPLE_MARKERS.length);
-    expect(report.total).toEqual(SAMPLE_LEAK);
-    expect(frame(29.9).approve.approved).toBe(true);
-    const results = frame(35.9).results;
-    expect(results.recovered_minor).toBe(SAMPLE_OUTCOME.recovered_minor);
-    expect(results.conversion).toBeCloseTo(SAMPLE_OUTCOME.conversion_after);
-  });
+  it.each(DEMO_SAMPLES.map((s) => [s.label, s] as const))(
+    "ends each scene with its full figures (%s)",
+    (_, sample) => {
+      expect(frame(17.9, sample).watch.filled).toBe(28);
+      expect(frame(17.9, sample).watch.readings).toBe(4212);
+      const report = frame(23.9, sample).report;
+      expect(report.shown).toBe(sample.markers.length);
+      expect(report.total).toEqual(sample.leak);
+      expect(frame(29.9, sample).approve.approved).toBe(true);
+      const results = frame(35.9, sample).results;
+      expect(results.recovered_minor).toBe(sample.outcome.recovered_minor);
+      expect(results.metric).toBeCloseTo(sample.outcome.after);
+      expect(frame(33.01, sample).results.metric).toBeCloseTo(sample.outcome.before, 1);
+    },
+  );
 
-  it("keeps the running leak total in whole euros of minor units", () => {
-    for (let t = 18; t < 24; t += 0.1) {
-      const total = frame(t).report.total;
-      if (total) {
-        expect(total.low_minor % 100).toBe(0);
-        expect(total.low_minor).toBeLessThanOrEqual(total.high_minor);
+  it.each(DEMO_SAMPLES.map((s) => [s.label, s] as const))(
+    "keeps the running leak total in whole euros of minor units (%s)",
+    (_, sample) => {
+      for (let t = 18; t < 24; t += 0.1) {
+        const total = frame(t, sample).report.total;
+        if (total) {
+          expect(total.low_minor % 100).toBe(0);
+          expect(total.low_minor).toBeLessThanOrEqual(total.high_minor);
+        }
       }
-    }
+    },
+  );
+
+  it("plays the webshop by default, and the salon's own figures when asked", () => {
+    expect(frame(23.9).report.total).toEqual(SHOP_SAMPLE.leak);
+    expect(frame(23.9, SALON_SAMPLE).report.total).toEqual(SALON_SAMPLE.leak);
   });
 });

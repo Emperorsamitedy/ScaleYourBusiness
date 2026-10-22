@@ -286,20 +286,22 @@ Recommendations carry two actions — "Look into this" and "Not for us". Declini
 
 ### 7.1 Landing page
 
-The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx` and `StoreChart.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
+The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx`, `StoreChart.tsx` and `Demos.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
 
 The page, top to bottom:
 1. Header.
 2. Hero: "Its numbers" in coral italic.
 3. A six-chapter product walkthrough player: cursor, captions, chapters, play/pause, and reduced-motion opening paused on the report chapter.
-4. A 90-day candlestick store chart with leak shading, 1D/1W and a crosshair.
+4. A 90-day candlestick revenue chart ("Your business, read like a stock.") with leak shading, 1D/1W and a crosshair.
 5. Nine test panels (`lib/marketing/areas.ts`).
 6. How it works.
 7. Price.
 8. Questions.
 9. Footer.
 
-Every sample is labelled "Illustrative store". `lib/marketing/sample-diagnosis.test.ts` holds each flag to its range and act-now line, and every sample amount is in integer minor units.
+The walkthrough and the chart show one of two fictional demos: a webshop (the default) and a hair and beauty salon, so a booking business sees itself as clearly as a webshop. The visitor switches with a segmented control ("A webshop" / "A salon") above the player and again above the chart; both show the same choice. It is worded, square, keyboard-reachable buttons in a group, with `aria-pressed` on the demo showing. Each demo carries its own connector, record question, markers, leak range, proposal, outcome and 90-day series (`lib/marketing/sample-diagnosis.ts`, `sample-chart.ts`).
+
+Every sample is labelled as illustrative: "Illustrative store" for the webshop, "Illustrative salon" for the salon. `lib/marketing/sample-diagnosis.test.ts` holds each demo's flags to their range and act-now line, under the same tests for both, and every sample amount is in integer minor units.
 
 The price on every button is `reportPrice()`. The examiner, guarantee count and delivery days come from `lib/marketing/offer.ts`, and print as the mockup's bracketed placeholders until supplied.
 

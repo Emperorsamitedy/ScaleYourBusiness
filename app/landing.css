@@ -512,6 +512,57 @@ body:has(.ll) {
   border-color: #f2f7f4;
 }
 
+/* ── the demo switch: which illustrative business the page shows ──
+   Worded, square, the chapter buttons' ink; the one showing is paper. */
+.ll-hero-demo {
+  flex: 1 1 600px;
+  min-width: 0;
+}
+.ll-demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.ll-demo-k {
+  color: #a9bdb2;
+  margin-right: 8px;
+}
+.ll-demo-b {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  min-height: 40px;
+  padding: 0 14px;
+  background: transparent;
+  color: #c9d8cf;
+  border: 1px solid rgba(242, 247, 244, 0.25);
+  border-radius: 0;
+  cursor: pointer;
+  transition:
+    background-color 0.1s,
+    color 0.1s;
+}
+.ll-demo-b:hover {
+  color: #f2f7f4;
+  border-color: rgba(242, 247, 244, 0.5);
+}
+.ll-demo-b.on {
+  color: #132119;
+  background: #f2f7f4;
+  border-color: #f2f7f4;
+}
+.ll-sec-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.ll-sec-side .ll-demo {
+  margin-bottom: 0;
+}
+
 /* ── the chart ── */
 .ll-band-deep {
   background: #0b140f;

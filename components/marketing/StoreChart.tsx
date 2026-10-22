@@ -1,26 +1,20 @@
 "use client";
 
-// "Your store, read like a stock." — the illustrative store's revenue as
-// a candlestick chart, with the day each leak began marked and the gap to
-// the no-leak line shaded, as the owner's landing design (2026-10-17)
-// draws it. 1D / 1W switch the bucket, "Leak overlay" toggles the shading,
-// and the crosshair follows the pointer. Local state only.
+// "Your business, read like a stock." — the chosen illustrative business's
+// revenue as a candlestick chart (./Demos: the webshop by default, or the
+// salon), with the day each leak began marked and the gap to the no-leak
+// line shaded, as the owner's landing design (2026-10-17) draws it. 1D /
+// 1W switch the bucket, "Leak overlay" toggles the shading, and the
+// crosshair follows the pointer. Local state only.
 
 import { useMemo, useState, type PointerEvent } from "react";
 import { num } from "../sheet/num";
-import {
-  CHART_DAYS,
-  CHART_EVENTS,
-  CHART_WEEKS,
-  chartDate,
-  type Candle,
-} from "../../lib/marketing/sample-chart";
+import { chartDate, type Candle, type ChartSeries } from "../../lib/marketing/sample-chart";
+import { useDemo } from "./Demos";
 
 // Plot geometry, in viewBox units (1000 × 420).
 const X0 = 10;
 const X1 = 900;
-const LO = 900;
-const HI = 1900;
 const Y0 = 20;
 const Y1 = 300;
 const V0 = 318;
@@ -29,15 +23,22 @@ const UP = "#26A69A";
 const DOWN = "#EF5350";
 
 const euros = (minor: number) => minor / 100;
-const Y = (v: number) => Y1 - ((v - LO) / (HI - LO)) * (Y1 - Y0);
 const eur = (v: number) => `€${num(Math.round(v))}`;
 
-function geometry(data: readonly Candle[], weekly: boolean) {
+/** The price axis, in euros, and the y of a value on it. */
+function axisOf(series: ChartSeries) {
+  const LO = euros(series.axis.lo_minor);
+  const HI = euros(series.axis.hi_minor);
+  return { LO, HI, Y: (v: number) => Y1 - ((v - LO) / (HI - LO)) * (Y1 - Y0) };
+}
+
+function geometry(series: ChartSeries, data: readonly Candle[], weekly: boolean) {
+  const { LO, HI, Y } = axisOf(series);
   const N = data.length;
   const slot = (X1 - X0) / N;
   const bw = Math.max(3, slot * 0.66);
   const X = (i: number) => X0 + slot * (i + 0.5);
-  const maxV = Math.max(...data.map((k) => k.orders));
+  const maxV = Math.max(...data.map((k) => k.volume));
   let bU = "";
   let bD = "";
   let wU = "";
@@ -57,7 +58,7 @@ function geometry(data: readonly Candle[], weekly: boolean) {
     const hh = Math.max(1, Math.abs(yo - yc));
     const body = `M${(x - bw / 2).toFixed(1)} ${t.toFixed(1)}h${bw.toFixed(1)}v${hh.toFixed(1)}h${(-bw).toFixed(1)}Z`;
     const wick = `M${x.toFixed(1)} ${Y(euros(k.high_minor)).toFixed(1)}V${Y(euros(k.low_minor)).toFixed(1)}`;
-    const vh = (k.orders / maxV) * (V1 - V0);
+    const vh = (k.volume / maxV) * (V1 - V0);
     const vol = `M${(x - bw / 2).toFixed(1)} ${(V1 - vh).toFixed(1)}h${bw.toFixed(1)}V${V1}h${(-bw).toFixed(1)}Z`;
     if (up) {
       bU += body;
@@ -89,12 +90,13 @@ function geometry(data: readonly Candle[], weekly: boolean) {
     xl.push({ x: X(q).toFixed(1), l: chartDate(data[q]!.day) });
   }
 
-  const events = CHART_EVENTS.map((e) => {
+  const events = series.events.map((e, i) => {
     const idx = weekly ? Math.min(N - 1, Math.floor(e.day / 7)) : e.day;
     const x = X(idx);
     const yl = Y(euros(data[idx]!.low_minor)) + 10;
     const lw = e.label.length * 6.6 + 16;
-    const ly = 30 + (e.key === "S" ? 26 : 0);
+    // Every other label steps down, so neighbours never overlap.
+    const ly = 30 + (i % 2 === 1 ? 26 : 0);
     return { ...e, x, yl, lw, ly };
   });
 
@@ -118,14 +120,16 @@ function geometry(data: readonly Candle[], weekly: boolean) {
 }
 
 export function StoreChart() {
+  const { chart } = useDemo();
   const [tf, setTf] = useState<"D" | "W">("D");
   const [gap, setGap] = useState(true);
   const [hover, setHover] = useState(-1);
   const [hoverY, setHoverY] = useState(0);
 
   const weekly = tf === "W";
-  const data = weekly ? CHART_WEEKS : CHART_DAYS;
-  const g = useMemo(() => geometry(data, weekly), [data, weekly]);
+  const data = weekly ? chart.weeks : chart.days;
+  const g = useMemo(() => geometry(chart, data, weekly), [chart, data, weekly]);
+  const { LO, HI, Y } = axisOf(chart);
 
   const last = data[g.N - 1]!;
   const lastC = euros(last.close_minor);
@@ -159,7 +163,7 @@ export function StoreChart() {
               className="ll-m"
               style={{ fontWeight: 600, fontSize: 13, padding: "0 10px 0 4px" }}
             >
-              STORE · REVENUE
+              {chart.title}
             </span>
             <span className="ll-tv-sep" aria-hidden="true" />
             <button
@@ -195,7 +199,7 @@ export function StoreChart() {
             </button>
           </div>
           <span className="ll-m" style={{ fontSize: 11.5, color: "#5D6B78" }}>
-            Illustrative store · 90 days
+            Illustrative {chart.noun} · 90 days
           </span>
         </div>
         <div className="ll-m ll-tv-legend">
@@ -216,7 +220,7 @@ export function StoreChart() {
             C <span style={legendColor}>{eur(euros(hk.close_minor))}</span>
           </span>
           <span>
-            Orders <span style={legendColor}>{hk.orders}</span>
+            {chart.volume_label} <span style={legendColor}>{hk.volume}</span>
           </span>
           {gap && (
             <>
@@ -230,7 +234,7 @@ export function StoreChart() {
         <svg
           viewBox="0 0 1000 420"
           role="img"
-          aria-label="Candlestick chart of an illustrative store's daily revenue over 90 days. A dotted line shows revenue without leaks; the shaded gap between them is money lost. Three markers show where leaks began: a theme update, a stock-out and a shipping change."
+          aria-label={chart.description}
           onPointerMove={onMove}
           onPointerLeave={() => setHover(-1)}
           className="ll-chart"
@@ -350,7 +354,7 @@ export function StoreChart() {
         </svg>
       </div>
       <div className="ll-chart-key">
-        {CHART_EVENTS.map((e) => (
+        {chart.events.map((e) => (
           <div key={e.key} className="ll-m">
             <span className="ll-chart-keybox" aria-hidden="true">
               {e.key}
