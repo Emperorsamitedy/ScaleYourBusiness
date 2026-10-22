@@ -14,6 +14,8 @@ import { fieldRecords, profileSnapshots, snapshotRecords } from "../../db/schema
 import { COST_PER_PURCHASE_KEY, DERIVATIONS, ENTITY_MEASURE_KEY } from "./derive";
 import type { StatedVsMeasured } from "./measured";
 import { displaySourceKind, isMeasuredSource, measuredProvider } from "./measured";
+import { BOOKING_STATED_KEYS } from "../bookings/store";
+import { NON_CONNECTOR_SOURCE_LABELS } from "../bookings/source";
 import { getProvider } from "./registry";
 import { isProviderId } from "./scopes";
 
@@ -68,7 +70,13 @@ export async function statedVsMeasured(snapshotId: string): Promise<StatedVsMeas
     .where(eq(profileSnapshots.id, snapshotId));
   if (!snapshot) return [];
 
-  const businessKeys = [...DERIVATIONS.map((d) => d.field_key), COST_PER_PURCHASE_KEY];
+  const businessKeys = [
+    ...DERIVATIONS.map((d) => d.field_key),
+    COST_PER_PURCHASE_KEY,
+    // Bookings (specs/bookings.md §4): the owner's words on no-shows and
+    // their repeat-customer estimate, against the booking system.
+    ...BOOKING_STATED_KEYS,
+  ];
   const frozen = await db
     .select({
       id: fieldRecords.id,
@@ -143,7 +151,7 @@ export async function statedVsMeasured(snapshotId: string): Promise<StatedVsMeas
       provider:
         providerId !== null && isProviderId(providerId)
           ? getProvider(providerId).label
-          : (providerId ?? "a connector"),
+          : (NON_CONNECTOR_SOURCE_LABELS[providerId ?? ""] ?? providerId ?? "a connector"),
       stated: {
         value: stated.value,
         status: stated.status,

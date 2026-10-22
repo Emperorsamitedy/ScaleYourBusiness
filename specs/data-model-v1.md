@@ -361,6 +361,21 @@ and `marketing.cost_per_purchase` measured as ad spend over the purchases the
 ad platform attributes (the intake asks the owner's estimate of the same
 thing; measurement supersedes it, rule 11).
 
+Bookings (specs/bookings.md, 2026-10-22), measured from Square's Bookings
+read or an owner's bookings export over the 28 days ending on the latest
+measured day, never asked in the intake: `service.appointments_completed_28d`
+(number), `service.no_show_rate_28d` and `service.late_cancellation_rate_28d`
+(percentages of due appointments), `service.booking_revenue_28d`
+(`Field<Money>`, list price of completed appointments, not takings), and
+`service.utilisation_28d` (percentage of the owner-stated
+`service.capacity_per_week`, written only when that was stated). Two bank
+fields are superseded by measurement, the owner's figure kept in history
+and shown beside it (rule 11): `service.no_show_rate` (1.4.2.3c, long text)
+takes the measured rates in words, and `revenue.repeat_customer_rate` (4.1d)
+takes the rebooking rate as a percentage. The appointments themselves live
+in `booking_appointments`, outside the profile, with a keyed client hash
+and no client PII.
+
 Trading hours (Phase 2 Session F, bank 1.3.0):
 
 - `presence.opening_hours` stays the owner's own words (question 2.1.1.7,

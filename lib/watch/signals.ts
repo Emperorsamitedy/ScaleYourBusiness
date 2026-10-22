@@ -15,6 +15,7 @@ import {
 } from "../../db/schema";
 import { BASELINE_WINDOW_DAYS, shiftDay } from "../anomaly/baseline";
 import { MONEY_METRICS } from "../connectors/provider";
+import { NON_CONNECTOR_SOURCE_LABELS } from "../bookings/source";
 import { getProvider } from "../connectors/registry";
 import { isProviderId } from "../connectors/scopes";
 import type { OpenAnomaly, WatchSignal, WatchedMetric } from "./watch-view";
@@ -29,7 +30,9 @@ export interface WatchReading {
 }
 
 function providerLabel(provider: string): string {
-  return isProviderId(provider) ? getProvider(provider).label : provider;
+  return isProviderId(provider)
+    ? getProvider(provider).label
+    : (NON_CONNECTOR_SOURCE_LABELS[provider] ?? provider);
 }
 
 export async function loadWatchReading(

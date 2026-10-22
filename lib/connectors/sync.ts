@@ -26,7 +26,7 @@
 // changes. Until it is measured, a queue is speculation.
 
 import { logSafeError } from "../core/log-safe";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { connections, connectorSyncs } from "../../db/schema";
 import type { DeriveOutcome } from "./derive";
@@ -35,6 +35,8 @@ import type { MetaReadback } from "../execution/providers/meta";
 import { detectAnomalies } from "../anomaly/detect";
 import { recordSyncActivity } from "./activity";
 import { deriveFactsFromObservations } from "./derive";
+import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
+import { deriveBookingFacts, storeAppointments } from "../bookings/store";
 import { getProvider } from "./registry";
 import { decryptSecret } from "./secrets";
 import { isProviderId } from "./scopes";
@@ -52,8 +54,12 @@ export interface SyncOutcome {
   provider: string | null;
   kind: SyncKind | null;
   ok: boolean;
-  /** Set when nothing ran, and why. "not_measurement": an execute connection (P3-20b) — never synced. */
-  skipped: "locked" | "not_found" | "not_connected" | "not_measurement" | null;
+  /**
+   * Set when nothing ran, and why. "not_measurement": an execute connection
+   * (P3-20b) — never synced. "imported": a bookings import source
+   * (specs/bookings.md) — the owner hands its data over; there is nothing to pull.
+   */
+  skipped: "locked" | "not_found" | "not_connected" | "not_measurement" | "imported" | null;
   pages: number;
   observations: number;
   duration_ms: number;
@@ -142,6 +148,10 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
         outcome.skipped = "not_connected";
         return outcome;
       }
+      if (row.provider === BOOKINGS_IMPORT_PROVIDER) {
+        outcome.skipped = "imported";
+        return outcome;
+      }
       outcome.kind = row.cursor === null ? "backfill" : "incremental";
 
       try {
@@ -157,7 +167,9 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
         let cursor = row.cursor;
         let done = false;
         while (!done && outcome.pages < MAX_PAGES_PER_RUN) {
-          const page = await provider.pull(secret, cursor, now);
+          const page = await provider.pull(secret, cursor, now, {
+            granted_scopes: row.granted_scopes,
+          });
           // Page and cursor land together or not at all.
           await db.transaction(async (tx) => {
             outcome.observations += await upsertObservations(
@@ -166,6 +178,14 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
               page.observations,
               tx,
             );
+            // Bookings (specs/bookings.md): the page's appointments land with
+            // it, client ids hashed on the way in.
+            if (page.appointments && page.appointments.length > 0) {
+              await storeAppointments(tx, row, page.appointments, {
+                batchId: null,
+                scope: row.provider,
+              });
+            }
             await tx
               .update(connections)
               .set({ cursor: page.cursor })
@@ -182,6 +202,8 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
           .where(eq(connections.id, row.id));
         outcome.ok = true;
         outcome.derived = await deriveFactsFromObservations(row.id);
+        // Bookings: the 28-day measures, when this connection reads appointments.
+        outcome.derived.push(...(await deriveBookingFacts(row.id, now)));
         // P2-13: one honest line in the watch log, only for real work.
         await recordSyncActivity({
           connectionId: row.id,
@@ -301,7 +323,13 @@ export async function runConnectorSync(
   const rows = await db
     .select({ id: connections.id })
     .from(connections)
-    .where(and(eq(connections.status, "connected"), eq(connections.purpose, "measure")))
+    .where(
+      and(
+        eq(connections.status, "connected"),
+        eq(connections.purpose, "measure"),
+        ne(connections.provider, BOOKINGS_IMPORT_PROVIDER),
+      ),
+    )
     .orderBy(connections.created_at);
   const summary: SyncRunSummary = {
     connections: rows.length,
