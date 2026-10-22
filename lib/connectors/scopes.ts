@@ -127,7 +127,9 @@ export const SCOPE_GUIDE: Readonly<
     {
       scope: "read_products",
       grant: "read_products",
-      why: "Your product list, so each product can be matched to what you sell.",
+      // Feature 34: the same scope covers variants' stock and inventory items' unit cost
+      // (Shopify's docs, read 2026-10-22), so stock needs no further permission.
+      why: "Your product list, so each product can be matched to what you sell, and how many of each you have in stock with what they cost you, so I can point out stock that isn't selling.",
     },
     {
       scope: "read_all_orders",
@@ -144,7 +146,7 @@ export const SCOPE_GUIDE: Readonly<
     {
       scope: "read_products",
       grant: "Read access (covers products)",
-      why: "Your product list, so each product can be matched to what you sell.",
+      why: "Your product list, so each product can be matched to what you sell, and its stock level, so I can point out stock that isn't selling.",
     },
   ],
   ga4: [

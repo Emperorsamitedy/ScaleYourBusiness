@@ -34,11 +34,21 @@
 // 30 days; a refund issued more than 30 days after its order is not
 // reflected. Units per product are line items' current quantity, keyed by
 // Shopify's product id (product_ref), which P2-15 maps to the owner's offers.
+//
+// STOCK (feature 34). Once per sync, a snapshot of every product's stock:
+// the sum of its tracked variants' sellable quantity, valued at each
+// variant's price and at its inventory item's unit cost. Both live under
+// read_products, which the connector already holds: Shopify's docs (read
+// 2026-10-22) say ProductVariant "Requires read_products access scope" and
+// InventoryItem "Requires read_inventory access scope or read_products
+// access scope", so no scope was added. A product with no tracked variant
+// is counted, not guessed; a stocked variant without a unit cost makes the
+// product's cash tied up unknown, never a partial sum.
 
 import { addDays, advanceCursor, dayString, isoSeconds, oneNewDay, planWindow } from "../days";
 import { DecimalError, decimalToMinor } from "../decimal";
 import { HourlyBuckets } from "../hourly";
-import type { ExternalProduct, Observation, Provider, PullPage } from "../provider";
+import type { ExternalProduct, Observation, Provider, PullPage, StockRead } from "../provider";
 import { ProviderError } from "../provider";
 
 /** Pinned to the latest stable version (supported for at least 12 months). */
@@ -58,6 +68,10 @@ export const SHOPIFY_MAX_PAGES_PER_WINDOW = 100;
 export const SHOPIFY_MAX_LINE_ITEM_PAGES = 20;
 export const SHOPIFY_MAX_PRODUCT_PAGES = 40;
 export const SHOPIFY_MAX_ATTEMPTS = 3;
+/** Products per stock page × variants per product stays under the 1,000-point query cost cap. */
+export const SHOPIFY_STOCK_PAGE = 10;
+export const SHOPIFY_STOCK_VARIANTS = 50;
+export const SHOPIFY_MAX_STOCK_PAGES = 200;
 
 /**
  * Every document this module can send. All are read queries; the source
@@ -131,6 +145,37 @@ export const SHOPIFY_QUERIES = {
       id
       title
       status
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}`,
+  stock: `query Stock($first: Int!, $variants: Int!, $after: String) {
+  shop {
+    currencyCode
+  }
+  products(first: $first, after: $after) {
+    nodes {
+      id
+      title
+      variants(first: $variants) {
+        nodes {
+          inventoryQuantity
+          price
+          inventoryItem {
+            tracked
+            unitCost {
+              amount
+              currencyCode
+            }
+          }
+        }
+        pageInfo {
+          hasNextPage
+        }
+      }
     }
     pageInfo {
       hasNextPage
@@ -600,6 +645,127 @@ export function aggregateOrders(
   return out;
 }
 
+/* ── stock (feature 34) ── */
+
+export interface ShopifyStockVariant {
+  quantity: number | null;
+  price: string;
+  tracked: boolean;
+  unitCost: { amount: string; currencyCode: string } | null;
+}
+
+export interface ShopifyStockProduct {
+  id: string;
+  title: string;
+  variants: ShopifyStockVariant[];
+  /** More variants than one page reads: the product is counted, not summed short. */
+  truncated: boolean;
+}
+
+export function parseStockProduct(value: unknown): ShopifyStockProduct {
+  const p = value as { id?: unknown; title?: unknown; variants?: unknown } | null;
+  if (!p || typeof p.id !== "string" || typeof p.title !== "string") {
+    throw new ProviderError("shopify: a product is missing its id or title");
+  }
+  const v = p.variants as { nodes?: unknown; pageInfo?: { hasNextPage?: unknown } } | null;
+  if (!v || !Array.isArray(v.nodes)) {
+    throw new ProviderError("shopify: unexpected variants response shape");
+  }
+  const variants = v.nodes.map((node): ShopifyStockVariant => {
+    const n = node as {
+      inventoryQuantity?: unknown;
+      price?: unknown;
+      inventoryItem?: { tracked?: unknown; unitCost?: unknown } | null;
+    } | null;
+    if (!n || typeof n.price !== "string") {
+      throw new ProviderError("shopify: a variant is missing its price");
+    }
+    const cost = n.inventoryItem?.unitCost as { amount?: unknown; currencyCode?: unknown } | null;
+    return {
+      quantity: Number.isSafeInteger(n.inventoryQuantity) ? (n.inventoryQuantity as number) : null,
+      price: n.price,
+      tracked: n.inventoryItem?.tracked === true,
+      unitCost:
+        cost && typeof cost.amount === "string" && typeof cost.currencyCode === "string"
+          ? { amount: cost.amount, currencyCode: cost.currencyCode }
+          : null,
+    };
+  });
+  return { id: p.id, title: p.title, variants, truncated: v.pageInfo?.hasNextPage === true };
+}
+
+/**
+ * Pure: one snapshot day's observations from the store's products. Per
+ * product: units on hand (tracked variants, an oversold negative counting
+ * as none), their value at price, and at cost when every stocked variant
+ * has a cost in the shop's currency.
+ */
+export function aggregateStock(
+  products: readonly ShopifyStockProduct[],
+  currency: string,
+  day: string,
+  observedAt: string,
+): StockRead {
+  const out: Observation[] = [];
+  let untracked = 0;
+  let costUnknown = 0;
+  const code = currency.toUpperCase();
+  for (const p of products) {
+    const tracked = p.variants.filter((v) => v.tracked && v.quantity !== null);
+    if (p.truncated || tracked.length === 0) {
+      untracked += 1;
+      continue;
+    }
+    let onHand = 0;
+    let atPrice = 0;
+    let atCost: number | null = 0;
+    try {
+      for (const v of tracked) {
+        const q = Math.max(0, v.quantity ?? 0);
+        onHand += q;
+        atPrice += q * decimalToMinor(v.price, code);
+        if (q === 0 || atCost === null) continue;
+        atCost =
+          v.unitCost && v.unitCost.currencyCode.toUpperCase() === code
+            ? atCost + q * decimalToMinor(v.unitCost.amount, code)
+            : null;
+      }
+    } catch (error) {
+      if (error instanceof DecimalError) {
+        throw new ProviderError(`shopify: product ${p.id}: ${error.message}`);
+      }
+      throw error;
+    }
+    const dims = { product_ref: p.id, item_name: p.title };
+    out.push({
+      metric_key: "stock.on_hand",
+      period_date: day,
+      dimensions: dims,
+      value_num: onHand,
+      observed_at: observedAt,
+    });
+    out.push({
+      metric_key: "stock.value_at_price",
+      period_date: day,
+      dimensions: { ...dims, currency: code },
+      value_minor: atPrice,
+      observed_at: observedAt,
+    });
+    if (atCost === null) {
+      costUnknown += 1;
+    } else {
+      out.push({
+        metric_key: "stock.value_at_cost",
+        period_date: day,
+        dimensions: { ...dims, currency: code },
+        value_minor: atCost,
+        observed_at: observedAt,
+      });
+    }
+  }
+  return { observations: out, untracked, cost_unknown: costUnknown };
+}
+
 /* ── the provider ── */
 
 export function historyDaysFor(scopes: readonly string[]): number {
@@ -713,6 +879,30 @@ export function createShopifyProvider(options: ShopifyProviderOptions = {}): Pro
         after = products.endCursor;
       }
       throw new ProviderError("shopify: more products than one listing reads");
+    },
+
+    async readStock(secret, now): Promise<StockRead> {
+      const cred = parseShopifyCredential(secret);
+      const products: ShopifyStockProduct[] = [];
+      let after: string | null = null;
+      for (let page = 0; page < SHOPIFY_MAX_STOCK_PAGES; page += 1) {
+        const data = await graphql(ctx, cred, "stock", {
+          first: SHOPIFY_STOCK_PAGE,
+          variants: SHOPIFY_STOCK_VARIANTS,
+          after,
+        });
+        const shop = data["shop"] as { currencyCode?: unknown } | null;
+        if (typeof shop?.currencyCode !== "string") {
+          throw new ProviderError("shopify: the shop's currency is missing");
+        }
+        const listed = parseConnection(data["products"], "products");
+        products.push(...listed.nodes.map(parseStockProduct));
+        if (!listed.hasNextPage) {
+          return aggregateStock(products, shop.currencyCode, dayString(now), now.toISOString());
+        }
+        after = listed.endCursor;
+      }
+      throw new ProviderError("shopify: more products than one stock read reads");
     },
   };
 }

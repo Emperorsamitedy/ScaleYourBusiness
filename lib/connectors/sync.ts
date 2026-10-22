@@ -26,9 +26,10 @@
 // changes. Until it is measured, a queue is speculation.
 
 import { logSafeError } from "../core/log-safe";
-import { and, eq, ne } from "drizzle-orm";
+import { and, desc, eq, ne } from "drizzle-orm";
 import { db } from "../../db";
-import { connections, connectorSyncs } from "../../db/schema";
+import { connections, connectorSyncs, metricObservations } from "../../db/schema";
+import type { Provider } from "./provider";
 import type { DeriveOutcome } from "./derive";
 import type { AnomalyOutcome } from "../anomaly/detect";
 import type { MetaReadback } from "../execution/providers/meta";
@@ -67,6 +68,59 @@ export interface SyncOutcome {
   derived: DeriveOutcome[];
   /** P2-22: the nightly anomaly check, run after derivation. */
   anomalies: AnomalyOutcome[];
+  /** Feature 34: the stock snapshot a store provider took, or null (none, or it failed). */
+  stock: { observations: number; untracked: number; cost_unknown: number } | null;
+}
+
+/**
+ * Feature 34: take a store's stock snapshot. Read-only like every pull, and
+ * never fatal: a failed snapshot is logged and the sync stays a success, so
+ * the slow-stock screen reads the last snapshot that landed, with its date.
+ */
+async function readStockSnapshot(
+  row: typeof connections.$inferSelect,
+  provider: Provider,
+  secret: string,
+  now: Date,
+): Promise<SyncOutcome["stock"]> {
+  if (!provider.readStock) return null;
+  try {
+    const [latest] = await db
+      .select({ currency: metricObservations.currency })
+      .from(metricObservations)
+      .where(
+        and(
+          eq(metricObservations.connection_id, row.id),
+          eq(metricObservations.metric_key, "revenue.daily"),
+        ),
+      )
+      .orderBy(desc(metricObservations.period_date))
+      .limit(1);
+    const read = await provider.readStock(secret, now, { currency: latest?.currency ?? null });
+    const stored = await upsertObservations(row.id, row.provider, read.observations);
+    console.log(
+      JSON.stringify({
+        event: "stock_snapshot",
+        account_id: row.account_id,
+        connection_id: row.id,
+        provider: row.provider,
+        observations: stored,
+        untracked: read.untracked,
+        cost_unknown: read.cost_unknown,
+      }),
+    );
+    return { observations: stored, untracked: read.untracked, cost_unknown: read.cost_unknown };
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "stock_snapshot_failed",
+        account_id: row.account_id,
+        connection_id: row.id,
+        message: errorText(error),
+      }),
+    );
+    return null;
+  }
 }
 
 function lockKey(connectionId: string): string {
@@ -126,6 +180,7 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
     error: null,
     derived: [],
     anomalies: [],
+    stock: null,
   };
 
   return withConnectionLock(
@@ -201,6 +256,9 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
           .set({ last_sync_at: now.toISOString(), failure_count: 0, last_error: null })
           .where(eq(connections.id, row.id));
         outcome.ok = true;
+        // Feature 34: a store's stock snapshot, once per run, after the pages.
+        outcome.stock = await readStockSnapshot(row, provider, secret, now);
+        if (outcome.stock) outcome.observations += outcome.stock.observations;
         outcome.derived = await deriveFactsFromObservations(row.id);
         // Bookings: the 28-day measures, when this connection reads appointments.
         outcome.derived.push(...(await deriveBookingFacts(row.id, now)));

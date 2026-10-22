@@ -25,11 +25,21 @@
 // cancelled and draft orders are not sales. Every sync re-reads the last 30
 // days, because refunds change past orders. Units are line item quantities
 // by product id.
+//
+// STOCK (feature 34). The product list the connector already reads carries
+// manage_stock, stock_quantity and price, so a stock snapshot needs no new
+// path and no new permission. A product whose stock WooCommerce doesn't
+// manage (or a variable product managed per variation, which lives on a
+// path this module doesn't call) is counted as untracked, not guessed.
+// WooCommerce core has no unit cost on that list, so cash tied up comes
+// from the owner's own cost for the matched offer, or stays unknown; and
+// the list carries no currency, so prices are valued in the currency the
+// store's own orders report (the sync passes it as a hint), or not at all.
 
 import { vetAddresses } from "../../site/fetch";
 import { addDays, advanceCursor, dayString, oneNewDay, planWindow } from "../days";
 import { DecimalError, decimalToMinor } from "../decimal";
-import type { ExternalProduct, Observation, Provider, PullPage } from "../provider";
+import type { ExternalProduct, Observation, Provider, PullPage, StockRead } from "../provider";
 import { ProviderError } from "../provider";
 
 /** Every path this module may call, keyed by the registry capability it proves. */
@@ -386,6 +396,84 @@ export function aggregateWooOrders(
   return out;
 }
 
+/* ── stock (feature 34) ── */
+
+export interface WooStockProduct {
+  id: number;
+  name: string;
+  manageStock: boolean;
+  quantity: number | null;
+  price: string | null;
+}
+
+export function parseWooStockProduct(value: unknown): WooStockProduct {
+  const p = value as {
+    id?: unknown;
+    name?: unknown;
+    manage_stock?: unknown;
+    stock_quantity?: unknown;
+    price?: unknown;
+  } | null;
+  if (!p || typeof p.id !== "number" || typeof p.name !== "string") {
+    throw new ProviderError("woocommerce: a product is missing its id or name");
+  }
+  return {
+    id: p.id,
+    name: p.name,
+    manageStock: p.manage_stock === true,
+    quantity: Number.isSafeInteger(p.stock_quantity) ? (p.stock_quantity as number) : null,
+    price: typeof p.price === "string" && p.price.trim() !== "" ? p.price.trim() : null,
+  };
+}
+
+/** Pure: one snapshot day's observations from the store's products. */
+export function aggregateWooStock(
+  products: readonly WooStockProduct[],
+  currency: string | null,
+  day: string,
+  observedAt: string,
+): StockRead {
+  const out: Observation[] = [];
+  let untracked = 0;
+  let costUnknown = 0;
+  const code = currency?.toUpperCase() ?? null;
+  for (const p of products) {
+    if (!p.manageStock || p.quantity === null) {
+      untracked += 1;
+      continue;
+    }
+    const onHand = Math.max(0, p.quantity);
+    const dims = { product_ref: String(p.id), item_name: p.name };
+    out.push({
+      metric_key: "stock.on_hand",
+      period_date: day,
+      dimensions: dims,
+      value_num: onHand,
+      observed_at: observedAt,
+    });
+    if (code !== null && p.price !== null) {
+      let unit: number;
+      try {
+        unit = decimalToMinor(p.price, code);
+      } catch (error) {
+        if (error instanceof DecimalError) {
+          throw new ProviderError(`woocommerce: product ${p.id}: ${error.message}`);
+        }
+        throw error;
+      }
+      out.push({
+        metric_key: "stock.value_at_price",
+        period_date: day,
+        dimensions: { ...dims, currency: code },
+        value_minor: onHand * unit,
+        observed_at: observedAt,
+      });
+    }
+    if (onHand > 0) costUnknown += 1; // no unit cost in WooCommerce core's product list
+  }
+  return { observations: out, untracked, cost_unknown: costUnknown };
+}
+
 /* ── the provider ── */
 
 /** A store sync that stalls must not hang the sync cron. */
@@ -497,6 +585,26 @@ export function createWooCommerceProvider(options: WooProviderOptions = {}): Pro
         if (lastPage || body.length === 0) return out;
       }
       throw new ProviderError("woocommerce: more products than one listing reads");
+    },
+
+    async readStock(secret, now, hint): Promise<StockRead> {
+      const cred = parseWooCredential(secret);
+      const products: WooStockProduct[] = [];
+      for (let page = 1; page <= WOO_MAX_PRODUCT_PAGES; page += 1) {
+        const { body, totalPages } = await wooGet(ctx, cred, WOO_READ_ENDPOINTS.read_products, {
+          per_page: String(WOO_PAGE_SIZE),
+          page: String(page),
+        });
+        if (!Array.isArray(body)) {
+          throw new ProviderError("woocommerce: unexpected products response shape");
+        }
+        products.push(...body.map(parseWooStockProduct));
+        const lastPage = totalPages === null ? body.length < WOO_PAGE_SIZE : page >= totalPages;
+        if (lastPage || body.length === 0) {
+          return aggregateWooStock(products, hint.currency, dayString(now), now.toISOString());
+        }
+      }
+      throw new ProviderError("woocommerce: more products than one stock read reads");
     },
   };
 }
