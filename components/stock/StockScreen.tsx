@@ -116,7 +116,7 @@ function Ranking({ item }: { item: StockItemView }) {
     <SheetCard
       label={`How I'd clear it · ${item.flag.toLowerCase()} · ${item.why}`}
       title={`${item.name}: cash likely back, per euro given up`}
-      meta="Cheapest first; costed options by their ratio"
+      meta="Most cash back first, after what each gives up"
     >
       <ol className="st-rank">
         {item.options.map((o, i) => {

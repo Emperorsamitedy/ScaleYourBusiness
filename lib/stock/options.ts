@@ -13,11 +13,12 @@
 //   selloff   sell it off to a clearance buyer or return it to the
 //             supplier — advice only: nothing contacts anyone
 //
-// "Most efficient" is cash likely recovered per euro of cost or margin
-// given up, with the arithmetic shown. An option that gives nothing up has
-// no ratio (dividing by zero is not efficiency), so it ranks ahead of every
-// costed one, by the cash it is likely to bring back; costed options follow
-// by their ratio. The rates below are ASSUMPTIONS, pinned here and stated
+// "Most efficient" is the most cash likely back once what it gives up is
+// paid for: expected recovered minus expected cost or margin given up, with
+// the arithmetic shown. Cash per euro given up is shown beside it and breaks
+// ties (an option giving nothing up beats any ratio). Ranking free options
+// first regardless of size put a ~€44 email above a ~€12,600 markdown —
+// efficient per euro, useless for the stock. The rates below are ASSUMPTIONS, pinned here and stated
 // on every proposal as assumptions with high sensitivity — nobody measured
 // how a post moves a mug. The readback (P3-25) will, once options run.
 
@@ -276,28 +277,26 @@ export function clearanceOptions(item: StockItem, ctx: OptionContext): Clearance
 }
 
 /**
- * Pure: the ranking. Proposable options first; among them, those that give
- * nothing up by likely cash recovered, then costed ones by cash recovered
- * per unit given up; options that can't be proposed last, in candidate
- * order. Ties keep the cheapest-first candidate order.
+ * Pure: the ranking. Proposable options first; among them, by net cash
+ * likely back (recovered − given up, expected values), most first; ties by
+ * cash back per unit given up (nothing given up counts as best), then the
+ * cheapest-first candidate order. Options that can't be proposed go last,
+ * in candidate order.
  */
+export function netBack(o: ClearanceOption): number {
+  return o.recovered.expected - o.given_up.expected;
+}
+
 export function rankOptions(options: readonly ClearanceOption[]): ClearanceOption[] {
   const order = (o: ClearanceOption) => OPTION_ORDER.indexOf(o.key);
+  const ratio = (o: ClearanceOption) => (o.per_euro === null ? Infinity : o.per_euro);
   return [...options].sort((a, b) => {
     const ua = a.unavailable === null ? 0 : 1;
     const ub = b.unavailable === null ? 0 : 1;
     if (ua !== ub) return ua - ub;
     if (ua === 1) return order(a) - order(b);
-    const fa = a.per_euro === null ? 0 : 1;
-    const fb = b.per_euro === null ? 0 : 1;
-    if (fa !== fb) return fa - fb;
-    if (fa === 0) {
-      if (a.recovered.expected !== b.recovered.expected) {
-        return b.recovered.expected - a.recovered.expected;
-      }
-      return order(a) - order(b);
-    }
-    if (a.per_euro !== b.per_euro) return (b.per_euro ?? 0) - (a.per_euro ?? 0);
+    if (netBack(a) !== netBack(b)) return netBack(b) - netBack(a);
+    if (ratio(a) !== ratio(b)) return ratio(b) > ratio(a) ? 1 : -1;
     return order(a) - order(b);
   });
 }
@@ -307,5 +306,5 @@ export function efficiencyLine(o: ClearanceOption, fmt: (minor: number) => strin
   if (o.per_euro === null) {
     return `${fmt(o.recovered.expected)} likely back, nothing given up`;
   }
-  return `${fmt(o.recovered.expected)} likely back ÷ ${fmt(o.given_up.expected)} given up = ${o.per_euro.toFixed(2)} back for every 1 given up`;
+  return `${fmt(o.recovered.expected)} likely back − ${fmt(o.given_up.expected)} given up = ${fmt(netBack(o))} net (${o.per_euro.toFixed(2)} back for every 1 given up)`;
 }

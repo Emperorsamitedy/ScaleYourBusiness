@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import type { StockItem } from "./assess";
 import type { OptionContext } from "./options";
-import { CLEARANCE, clearanceOptions, efficiencyLine, rankOptions } from "./options";
+import { CLEARANCE, clearanceOptions, efficiencyLine, netBack, rankOptions } from "./options";
 
 const fmt = (m: number) => `€${(m / 100).toFixed(2)}`;
 
@@ -73,11 +73,32 @@ describe("the five options, each with its arithmetic", () => {
 });
 
 describe("the ranking — cash likely back per euro given up", () => {
-  it("zero-cost options first by cash back, then costed ones by their ratio", () => {
+  it("ranks by net cash back, so a costly option that clears more beats a free one that clears little", () => {
     const ranked = rankOptions(clearanceOptions(item, ctx));
-    // The pairing's 5 units (€445) lead; the post and the email tie at 4 units (€356) and keep
-    // the cheapest-first order; then the markdown (3.00) beats the sell-off (0.10).
-    expect(ranked.map((o) => o.key)).toEqual(["bundle", "content", "email", "markdown", "selloff"]);
+    // The markdown nets €801 (€1201.50 back − €400.50 given up) and leads; the pairing nets €445;
+    // the post and the email tie at €356 with nothing given up and keep the cheapest-first order;
+    // the sell-off recovers less than it gives up and comes last.
+    expect(ranked.map((o) => o.key)).toEqual(["markdown", "bundle", "content", "email", "selloff"]);
+    expect(netBack(ranked[0]!)).toBe(80_100);
+  });
+
+  it("on equal net cash back, the better ratio wins — nothing given up counts as best", () => {
+    const base = clearanceOptions(item, ctx).find((o) => o.key === "markdown")!;
+    const costed = {
+      ...base,
+      key: "markdown" as const,
+      recovered: { low: 0, high: 0, expected: 2000 },
+      given_up: { low: 0, high: 0, expected: 1000 },
+      per_euro: 2,
+    };
+    const free = {
+      ...base,
+      key: "selloff" as const,
+      recovered: { low: 0, high: 0, expected: 1000 },
+      given_up: { low: 0, high: 0, expected: 0 },
+      per_euro: null,
+    };
+    expect(rankOptions([costed, free]).map((o) => o.key)).toEqual(["selloff", "markdown"]);
   });
 
   it("an option that can't be proposed sinks to the end, saying why", () => {
@@ -103,7 +124,7 @@ describe("the ranking — cash likely back per euro given up", () => {
   it("states the arithmetic of the ratio in words", () => {
     const md = clearanceOptions(item, ctx).find((o) => o.key === "markdown")!;
     expect(efficiencyLine(md, fmt)).toBe(
-      "€1201.50 likely back ÷ €400.50 given up = 3.00 back for every 1 given up",
+      "€1201.50 likely back − €400.50 given up = €801.00 net (3.00 back for every 1 given up)",
     );
     const post = clearanceOptions(item, ctx).find((o) => o.key === "content")!;
     expect(efficiencyLine(post, fmt)).toBe("€356.00 likely back, nothing given up");
