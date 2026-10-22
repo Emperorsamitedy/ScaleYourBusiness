@@ -193,7 +193,7 @@ function SectionTable({
           const b = basisWord(d.fact);
           const past = showSuperseded ? (history[d.key] ?? []) : [];
           return [
-            <tr key={d.key} className={v.gap ? "fs-gap" : undefined}>
+            <tr key={d.key} id={`fact-${d.key}`} className={v.gap ? "fs-gap" : undefined}>
               <th scope="row">
                 {d.label}
                 {basisOf(d.fact) === "ASSUMED" && (

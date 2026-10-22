@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
-import type { Turn } from "./chat-view";
-import { earlierQuestions, latestQuestion, paragraphs, stamp } from "./chat-view";
+import type { ChangeCardView, Turn } from "./chat-view";
+import {
+  canConfirm,
+  cardFlag,
+  cardKicker,
+  cardsFor,
+  earlierQuestions,
+  latestQuestion,
+  paragraphs,
+  stamp,
+  upsertCard,
+} from "./chat-view";
 
 const t = (id: string, role: Turn["role"], text: string, at = "2026-10-17 12:10:00+00"): Turn => ({
   id,
@@ -45,5 +55,54 @@ describe("chat view", () => {
 
   it("splits a reply into its paragraphs", () => {
     expect(paragraphs("One.\n\nTwo.\n\n\n  Three. ")).toEqual(["One.", "Two.", "Three."]);
+  });
+});
+
+describe("the change card (feature 33)", () => {
+  const card = (over: Partial<ChangeCardView> = {}): ChangeCardView => ({
+    id: "c1",
+    reply_id: "r1",
+    status: "prepared",
+    summary: "Set your Saturday opening hours to 10:00–16:00",
+    current: "09:00–14:00",
+    proposed: "10:00–16:00",
+    link: "/profile?focus=fact-presence.opening_hours",
+    screen: "Fact sheet",
+    confirm: "Make this change",
+    prepare: "direct",
+    result: null,
+    ...over,
+  });
+
+  it("a reply carries its own cards; a question asked or answered draws none", () => {
+    const cards = [
+      card(),
+      card({ id: "c2", status: "asked" }),
+      card({ id: "c3", reply_id: "r2" }),
+      card({ id: "c4", status: "superseded" }),
+    ];
+    expect(cardsFor("r1", cards).map((c) => c.id)).toEqual(["c1"]);
+  });
+
+  it("the button only while it is still a draft, and never on a link-only card", () => {
+    expect(canConfirm(card())).toBe(true);
+    expect(canConfirm(card({ status: "applied" }))).toBe(false);
+    expect(canConfirm(card({ status: "link_only", confirm: null }))).toBe(false);
+  });
+
+  it("the worded result: changed, queued, or not changed — never before the click", () => {
+    expect(cardFlag(card())).toBeNull();
+    expect(cardFlag(card({ status: "applied" }))?.word).toBe("Changed");
+    expect(cardFlag(card({ status: "queued", prepare: "proposal" }))?.word).toBe("In your queue");
+    expect(cardFlag(card({ status: "stale" }))).toEqual({ word: "Not changed", tone: "drift" });
+    expect(cardKicker(card())).toBe("Drafted, not yet made · Fact sheet");
+    expect(cardKicker(card({ status: "link_only" }))).toBe("Yours to change · Fact sheet");
+    expect(cardKicker(card({ status: "applied" }))).toBe("Made · Fact sheet");
+  });
+
+  it("a click's result replaces the card in place", () => {
+    const after = upsertCard([card(), card({ id: "c9" })], card({ status: "applied" }));
+    expect(after.map((c) => `${c.id}:${c.status}`)).toEqual(["c1:applied", "c9:prepared"]);
+    expect(upsertCard([], card()).length).toBe(1);
   });
 });

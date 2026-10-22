@@ -97,7 +97,7 @@ export function EmergencyStop({
   if (variant === "masthead") {
     if (!s.halt.halted) {
       return (
-        <div className="es-mast">
+        <div className="es-mast" data-focus="emergency-stop">
           <button
             type="button"
             className="es-mast-stop"
@@ -119,7 +119,7 @@ export function EmergencyStop({
       );
     }
     return (
-      <div className="es-mast es-mast-halted" role="status">
+      <div className="es-mast es-mast-halted" role="status" data-focus="emergency-stop">
         <span className="es-mast-word">
           Stopped{s.halt.halted_at ? ` ${shortWhen(s.halt.halted_at)}` : ""} · nothing executes
         </span>
@@ -164,7 +164,7 @@ export function EmergencyStop({
 
   if (!s.halt.halted) {
     return (
-      <div className="es-bar es-run">
+      <div className="es-bar es-run" data-focus="emergency-stop">
         <button
           type="button"
           className="es-stop es-verb"
@@ -193,7 +193,7 @@ export function EmergencyStop({
   }
 
   return (
-    <section className="card ops-card es-halted es-sheet" role="alert">
+    <section className="card ops-card es-halted es-sheet" role="alert" data-focus="emergency-stop">
       <p className="flag es-flag">stopped · nothing will execute</p>
       <h2 className="prop-title small es-title">
         Everything is stopped

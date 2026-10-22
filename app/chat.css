@@ -117,6 +117,83 @@
   font-size: 14px;
 }
 
+/* the change card (feature 33) — an inset on the sheet: the change in
+   plain words, now beside new, two equal answers set apart. Square, no
+   icons; cobalt only while the change is being made. */
+.ak-change {
+  margin: 14px 0 0;
+  padding: 14px 16px 15px;
+  max-width: var(--measure);
+}
+.ak-turn .ak-text .ak-change p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: normal;
+}
+.ak-turn .ak-text .ak-change .ak-change-k {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ak-turn .ak-text .ak-change .ak-change-what {
+  margin-top: 6px;
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ak-change-vals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+  margin: 12px 0 0;
+  border-top: var(--hair);
+  padding-top: 10px;
+}
+.ak-change-vals dt {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ak-change-vals dd {
+  margin: 3px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.ak-change-acts {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+.ak-change-acts .act {
+  flex: 0 1 220px;
+  min-height: 44px;
+}
+.ak-turn .ak-text .ak-change .ak-change-live {
+  margin-top: 10px;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  color: var(--live);
+}
+.ak-change-live .live-dot {
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+.ak-turn .ak-text .ak-change .ak-change-result {
+  margin-top: 10px;
+}
+.ak-change-result .flag {
+  margin-right: 6px;
+}
+
 /* the composer */
 .ak-composer {
   padding: 15px 20px 17px;
@@ -227,6 +304,16 @@
   }
   .ak-side-body {
     padding: 15px 14px 14px;
+  }
+  .ak-change-vals {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 8px;
+  }
+  .ak-change-acts {
+    flex-direction: column;
+  }
+  .ak-change-acts .act {
+    flex: none;
   }
 }
 

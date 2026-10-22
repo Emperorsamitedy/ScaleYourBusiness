@@ -285,6 +285,15 @@ textarea {
   padding: 0 2px;
 }
 
+/* A deep link's target (?focus=, components/sheet/DeepLinkMark.tsx):
+   scrolled into view and marked for a moment — the marker behind ink. */
+.deeplink-mark,
+.deeplink-mark > th,
+.deeplink-mark > td {
+  background: var(--marker) !important;
+  color: var(--sheet-ink) !important;
+}
+
 /* The machine is working — only while it genuinely is. */
 .live {
   color: var(--live);

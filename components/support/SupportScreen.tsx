@@ -718,7 +718,7 @@ export function SupportScreen() {
 
       <div className="sp-grid">
         {/* ── what it may say ── */}
-        <section className="cs sp-answers" aria-labelledby="sp-answers-title">
+        <section className="cs sp-answers" id="sp-answers" aria-labelledby="sp-answers-title">
           <header className="cs-head">
             <div>
               <p className="cs-label">Approved answers · {publicEntries.length}</p>
@@ -1021,7 +1021,7 @@ function ReplyTime({
   const n = Number(hours);
   const valid = /^\d+$/.test(hours.trim()) && n >= 1 && n <= 720;
   return (
-    <section className="cs sp-widget" aria-labelledby="sp-time-title">
+    <section className="cs sp-widget" id="sp-time" aria-labelledby="sp-time-title">
       <header className="cs-head">
         <div>
           <p className="cs-label">Your reply time</p>

@@ -358,6 +358,7 @@ export function ContentScreen() {
               : "Written and scheduled — publishing is off"
           }
           className="ct-queue"
+          id="ct-calendar"
         >
           {s.items.length === 0 ? (
             <p className="ct-empty">
