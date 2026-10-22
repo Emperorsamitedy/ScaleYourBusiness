@@ -69,6 +69,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "A blindspot is by definition what the owner doesn't know offhand.",
   },
+  "nav.competitors": {
+    bands: EVERY,
+    reason:
+      "A one-person salon loses customers to the one down the road too; their prices are worth seeing.",
+  },
   "nav.content": {
     bands: EVERY,
     reason: "A solo owner has the least time to write posts, so drafts help most there.",
