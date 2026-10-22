@@ -103,7 +103,7 @@ describe("the ranking — cash likely back per euro given up", () => {
   it("states the arithmetic of the ratio in words", () => {
     const md = clearanceOptions(item, ctx).find((o) => o.key === "markdown")!;
     expect(efficiencyLine(md, fmt)).toBe(
-      "€1201.50 likely back ÷ €400.50 given up = 3.00 per unit given up",
+      "€1201.50 likely back ÷ €400.50 given up = 3.00 back for every 1 given up",
     );
     const post = clearanceOptions(item, ctx).find((o) => o.key === "content")!;
     expect(efficiencyLine(post, fmt)).toBe("€356.00 likely back, nothing given up");

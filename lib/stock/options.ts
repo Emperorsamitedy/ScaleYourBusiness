@@ -307,5 +307,5 @@ export function efficiencyLine(o: ClearanceOption, fmt: (minor: number) => strin
   if (o.per_euro === null) {
     return `${fmt(o.recovered.expected)} likely back, nothing given up`;
   }
-  return `${fmt(o.recovered.expected)} likely back ÷ ${fmt(o.given_up.expected)} given up = ${o.per_euro.toFixed(2)} per unit given up`;
+  return `${fmt(o.recovered.expected)} likely back ÷ ${fmt(o.given_up.expected)} given up = ${o.per_euro.toFixed(2)} back for every 1 given up`;
 }

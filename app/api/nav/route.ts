@@ -16,6 +16,7 @@ import type { SizeBand } from "../../../lib/core/size-features";
 import { latestDecision } from "../../../lib/mode/service";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "../../../lib/profile/size-band";
 import { watchDays } from "../../../lib/watch/watch-view";
+import { stockApplies } from "../../../lib/stock/load";
 
 export interface NavCounts {
   business: string | null;
@@ -45,6 +46,12 @@ export interface NavCounts {
    * and the menu then shows everything (lib/core/size-features.ts).
    */
   size_band: { band: SizeBand; via: "stated" | "inferred" } | null;
+  /**
+   * Feature 34: whether the business holds stock (lib/stock/load's
+   * STOCK_APPLIES, a condition over the bank's own answers). The Slow
+   * stock item shows only when true; a services-only business never sees it.
+   */
+  stock: boolean;
 }
 
 const NAME_KEY = "identity.legal_name";
@@ -65,6 +72,7 @@ export async function GET(): Promise<NextResponse> {
       decision,
       openRows,
       sizeRows,
+      stock,
     ] = await Promise.all([
       db
         .select({ module: proposals.module, n: count() })
@@ -114,6 +122,7 @@ export async function GET(): Promise<NextResponse> {
             isNull(fieldRecords.superseded_at),
           ),
         ),
+      stockApplies(profileId),
     ]);
 
     const by_module: Record<string, number> = {};
@@ -142,6 +151,7 @@ export async function GET(): Promise<NextResponse> {
       needs_reconnect: pausedCount,
       support_open: Number(openRows[0]?.n ?? 0),
       size_band: sized ? { band: sized.band, via: sized.via } : null,
+      stock,
     };
     return NextResponse.json(body);
   } catch (error) {

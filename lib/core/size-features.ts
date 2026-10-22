@@ -65,6 +65,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Whether an hour pays for itself depends on the till, not the headcount.",
   },
+  "nav.stock": {
+    bands: EVERY,
+    reason:
+      "Cash sitting on a shelf hurts a one-person shop most; only businesses that hold stock see it.",
+  },
   "nav.blindspots": {
     bands: EVERY,
     reason: "A blindspot is by definition what the owner doesn't know offhand.",
