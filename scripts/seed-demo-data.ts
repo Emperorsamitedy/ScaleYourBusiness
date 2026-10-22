@@ -77,6 +77,8 @@ export interface DemoProduct {
   description: string;
   problems: string[];
   purchase_type: "one_time" | "repeat";
+  /** Feature 34: units on hand when Shopify's stock is read. */
+  on_hand: number;
 }
 
 export const PRODUCTS: readonly DemoProduct[] = [
@@ -92,6 +94,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "350 ml thrown mug in the oatmeal speckle glaze. Our best seller since 2022.",
     problems: ["too_cheap"],
     purchase_type: "repeat",
+    on_hand: 140,
   },
   {
     key: "plate",
@@ -105,6 +108,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "27 cm dinner plate, sold singly; most people buy two or four.",
     problems: ["none"],
     purchase_type: "repeat",
+    on_hand: 90,
   },
   {
     key: "bowl",
@@ -118,6 +122,8 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "30 cm serving bowl. Slow to glaze and the piece most likely to chip in transit.",
     problems: ["hard_to_deliver", "too_many_refunds"],
     purchase_type: "one_time",
+    // Over-made in the spring: far more than it sells, so it reads as slow stock.
+    on_hand: 420,
   },
   {
     key: "vase",
@@ -132,6 +138,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
       "Three small bud vases in mixed glazes — the gift people buy without thinking twice.",
     problems: ["none"],
     purchase_type: "one_time",
+    on_hand: 60,
   },
   {
     key: "pourover",
@@ -145,6 +152,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "Dripper, carafe and two cups. The highest margin per piece we make.",
     problems: ["too_manual"],
     purchase_type: "one_time",
+    on_hand: 24,
   },
   {
     key: "seconds",
@@ -159,14 +167,28 @@ export const PRODUCTS: readonly DemoProduct[] = [
       "A box of four pieces with small glaze flaws. Released once a month and gone in a day.",
     problems: ["low_margin"],
     purchase_type: "repeat",
+    on_hand: 0,
   },
 ];
 
 /** Shopify carries two things the owner never listed as offers: these stay unmatched. */
 export const SHOPIFY_PRODUCTS: readonly FakeShopifyProduct[] = [
-  ...PRODUCTS.map((p) => ({ id: p.ref, title: p.shopify_title, status: "ACTIVE" })),
+  ...PRODUCTS.map((p) => ({
+    id: p.ref,
+    title: p.shopify_title,
+    status: "ACTIVE",
+    // Feature 34: Shopify's stock, valued at the product's price and its cost.
+    variants: [{ quantity: p.on_hand, price: euros(p.price_minor), cost: euros(p.cost_minor) }],
+  })),
+  // A gift card has no stock to count: it reads as untracked.
   { id: "gid://shopify/Product/7720007", title: "Gift Card", status: "DRAFT" },
-  { id: "gid://shopify/Product/7720008", title: "Glaze Test Tile", status: "ARCHIVED" },
+  // Archived, never sold online, and still on the shelf: stuck stock.
+  {
+    id: "gid://shopify/Product/7720008",
+    title: "Glaze Test Tile",
+    status: "ARCHIVED",
+    variants: [{ quantity: 120, price: "6.00", cost: "1.50" }],
+  },
 ];
 
 /** Online shipping: €6.50 under the free-shipping threshold of €75. */
