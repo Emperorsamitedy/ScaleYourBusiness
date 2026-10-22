@@ -20,6 +20,7 @@ import "../../app/report.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { quietLine, splitByMateriality } from "../../lib/connectors/materiality";
 import { delta, moneyFig, moneyText, num } from "../sheet/num";
 import { SheetCard } from "../sheet/PageHead";
 import type { Basis } from "./basis";
@@ -603,6 +604,51 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
   );
 }
 
+/**
+ * Rule 11, with materiality (lib/connectors/materiality.ts): a delta that
+ * matters is shown in full; the rest collapse into one quiet line with
+ * their detail one click away. Nothing is dropped, and the analysis uses
+ * the measured figure either way.
+ */
+function StatedVsMeasuredCard({ rows, map }: { rows: StatedVsMeasuredRow[]; map: FactMap }) {
+  const split = useMemo(() => splitByMateriality(rows), [rows]);
+  const [open, setOpen] = useState(false);
+  const line = quietLine(split.quiet, rows.length);
+  return (
+    <SheetCard
+      className="rq-card"
+      label="Stated against measured"
+      title={
+        split.material.length === 0
+          ? "What you said held up against what was measured."
+          : "What you said, against what was measured."
+      }
+      foot="The analysis uses the measured figure. What you said stays in your history."
+    >
+      {split.material.length > 0 && <StatedVsMeasured rows={split.material} map={map} />}
+      {line !== null && (
+        <div className="rq-svm-quiet">
+          <p className="rq-summary">{line}</p>
+          <button
+            type="button"
+            className="act"
+            aria-expanded={open}
+            aria-controls="rq-svm-quiet-detail"
+            onClick={() => setOpen((o) => !o)}
+          >
+            {open ? "Hide them" : "Show them"}
+          </button>
+          {open && (
+            <div id="rq-svm-quiet-detail" className="rq-svm-quiet-detail">
+              <StatedVsMeasured rows={split.quiet.map((q) => q.row)} map={map} />
+            </div>
+          )}
+        </div>
+      )}
+    </SheetCard>
+  );
+}
+
 function Decline({ onSubmit, busy }: { onSubmit: (reason: string) => void; busy: boolean }) {
   const [reason, setReason] = useState("");
   return (
@@ -1032,16 +1078,7 @@ export function ReportScreen() {
       </SheetCard>
 
       {/* Rule 11 (P2-11): a measurement replaced an estimate, and both are shown. */}
-      {measured.length > 0 && (
-        <SheetCard
-          className="rq-card"
-          label="Stated against measured"
-          title="What you said, against what was measured."
-          foot="The analysis uses the measured figure. What you said stays in your history."
-        >
-          <StatedVsMeasured rows={measured} map={map} />
-        </SheetCard>
-      )}
+      {measured.length > 0 && <StatedVsMeasuredCard rows={measured} map={map} />}
 
       {/* ── recommendations with scenarios and the two equal actions ── */}
       <SheetCard

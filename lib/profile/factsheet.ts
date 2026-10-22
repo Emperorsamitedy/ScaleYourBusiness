@@ -17,6 +17,7 @@ import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
 import { displaySourceKind } from "../connectors/measured";
 import type { Field } from "../core/field";
+import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "./size-band";
 import { ensureSnapshot, readSnapshot } from "./snapshot";
 import type { ProfileSection } from "./sections";
 import { isProfileSection } from "./sections";
@@ -203,10 +204,10 @@ export function sourceDetail(source: unknown): string | null {
   return null;
 }
 
-function toRow(key: string, field: Field<unknown>): FactRow {
+function toRow(key: string, field: Field<unknown>, labels: OptionLabels = new Map()): FactRow {
   return {
     key,
-    value: displayValue(field.value),
+    value: labelledValue(key, field.value, labels),
     status: field.status,
     confidence: field.confidence,
     // "connector" for a measured fact, so its pill says "measured" (P2-10).
@@ -312,6 +313,51 @@ export async function readSupersededFacts(
   return groupHistory(rows.map(toSupersededFact).filter((f): f is SupersededFact => f !== null));
 }
 
+/* ── the bank's own words for a code ── */
+
+/** field key → code → the owner-facing label, from the questions' option_labels. */
+export type OptionLabels = ReadonlyMap<string, Readonly<Record<string, string>>>;
+
+/** Pure: the English option labels each question carries, by the key it writes. */
+export function optionLabelsOf(
+  questions: readonly Pick<ApplicableQuestion, "writes_to" | "input">[],
+): OptionLabels {
+  const out = new Map<string, Record<string, string>>();
+  for (const q of questions) {
+    const labels = (q.input as { option_labels?: unknown } | null)?.option_labels;
+    if (typeof labels !== "object" || labels === null) continue;
+    const words: Record<string, string> = {};
+    for (const [code, text] of Object.entries(labels as Record<string, unknown>)) {
+      const en = (text as { en?: unknown } | null)?.en;
+      if (typeof en === "string" && en.trim() !== "") words[code] = en.trim();
+    }
+    if (Object.keys(words).length > 0) out.set(q.writes_to, words);
+  }
+  return out;
+}
+
+/**
+ * Pure: a value in the bank's words when its question labels its codes
+ * ("solo" → "Just me"); otherwise exactly displayValue(). Display only.
+ */
+export function labelledValue(key: string, value: unknown, labels: OptionLabels): string | null {
+  const words = labels.get(key);
+  if (words !== undefined) {
+    const label = (v: unknown): string | null => {
+      const code = (v as { code?: unknown } | null)?.code;
+      return typeof code === "string" && words[code] !== undefined ? words[code] : null;
+    };
+    if (Array.isArray(value)) {
+      const parts = value.map((v) => label(v) ?? repr(v));
+      if (parts.every((p): p is string => p !== null) && parts.length > 0) return parts.join(", ");
+    } else {
+      const one = label(value);
+      if (one !== null) return one;
+    }
+  }
+  return displayValue(value);
+}
+
 /** "competitors.<uuid>.name" → the entity prefix and trailing field. */
 const ENTITY_KEY =
   /^(offers|competitors|suppliers|channels|staff_roles|locations)\.([0-9a-f-]{36})\.(.+)$/;
@@ -345,13 +391,32 @@ export async function buildFactSheet(profileId: string): Promise<FactSheet> {
     readSupersededFacts(profileId),
   ]);
   const since = monthStart(new Date());
+  const labels = optionLabelsOf(applicable);
+  // History lines were humanised by repr() ("small team" for small_team);
+  // a labelled code reads in the bank's words there too.
+  for (const list of Object.values(history)) {
+    for (const h of list) {
+      const words = labels.get(h.key);
+      if (words === undefined || h.value === null) continue;
+      const code = Object.keys(words).find((c) => c.replace(/_/g, " ") === h.value);
+      if (code !== undefined) h.value = words[code] ?? h.value;
+    }
+  }
+
+  // The size band: until the owner states it (1.6a), the band inferred
+  // from their headcount shows as a DERIVED fact with its formula, in
+  // place of the gap row; the open question stays in "Still open", so
+  // the owner can put it in their own words. Never stored (size-band.ts).
+  const facts = new Map(view.facts);
+  const sized = resolveSizeBand(facts.get(SIZE_BAND_KEY), facts.get(TEAM_SIZE_KEY));
+  if (sized?.via === "inferred") facts.set(SIZE_BAND_KEY, sized.field);
 
   const sections = new Map<ProfileSection, FactRow[]>();
   const entities = new Map<string, EntityGroup>();
   const provenance = new Map<string, number>();
 
-  for (const [key, field] of view.facts) {
-    const row = toRow(key, field);
+  for (const [key, field] of facts) {
+    const row = toRow(key, field, labels);
     provenance.set(row.source_kind, (provenance.get(row.source_kind) ?? 0) + 1);
 
     const entity = ENTITY_KEY.exec(key);

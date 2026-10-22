@@ -195,8 +195,11 @@ interface IdentitySection {
   current_focus: Field<EnumValue[]>;       // 1.5.1
   founded: Field<ISODate>;
   team_size: Field<number>;
+  size_band: Field<EnumValue>;             // 1.6a, business_size: solo | small | medium | large
 }
 ```
+
+`size_band` (bank 1.6.0) is the owner's own sense of the business's size, asked as 1.6a with the bank's words for each code ("Just me", "A small team", "A medium-sized business", "A larger business", carried in the question's `option_labels`). It decides what the app shows them, through the size-feature table in `lib/core/size-features.ts`, and nothing else. Until the owner answers it, a band is inferred from `team_size` on read: an `inferred` Field with `derived_from: ["identity.team_size"]` and the formula at the EU SME headcount boundaries, 1 → solo, 2–9 → small, 10–49 → medium, 50+ → large (`lib/profile/size-band.ts`). The inference is never stored, so it cannot overwrite the owner's answer and does not count as a response: the intake still asks 1.6a. An explicit "I don't know" on the band stays a gap, with no inference over it (rule 5). With neither a band nor a headcount, every feature shows.
 
 `sells` is the single most consequential field in the schema. It determines which of the 1.4.x branches exist at all, and it feeds the mode decision. It is asked early and its answer is confirmed rather than assumed when later answers contradict it — for example, an owner who selects "services" but then describes holding inventory triggers a reconciliation prompt.
 
@@ -477,6 +480,7 @@ interface InputSpec {
   type: "text" | "long_text" | "number" | "money" | "single_select"
       | "multi_select" | "boolean" | "date" | "entity_list" | "file";
   vocabulary_id?: VocabularyId;     // for selects
+  option_labels?: Record<string, LocalizedText>; // the owner's words per code; unlabelled codes are humanised
   entity_schema?: "offer" | "supplier" | "competitor" | "channel" | "staff_role";
   min?: number;
   max?: number;
@@ -625,6 +629,8 @@ Completeness weights `core` questions heavily and `optional` barely at all, so a
 ### 8.3 Conflict between stated and computed
 
 When `margin_stated` and `margin_computed` disagree, neither wins automatically. The computed value is used for analysis with a contradiction finding attached, and the report states both. Owners are frequently wrong about their margins, and the moment the system silently overrides an owner's number is the moment it loses their trust — surfacing the discrepancy is more valuable than resolving it quietly.
+
+The same holds when a connector supersedes an owner's figure (Phase 2 rule 11): the report shows what they said against what was measured. Presentation weighs each pair by materiality (`lib/connectors/materiality.ts`), the same at every business size: a pair is shown in full when the gap is at least 15% of the stated figure AND clears an absolute floor for its unit (money: about €50 of value per currency, held in major units and converted to minor units by the currency's ISO exponent, rule 1; orders and units: 5; sessions: 100). A stated "I don't know" or a pair in two currencies is always shown in full. Every other pair collapses into one line ("4 of the 6 figures you gave me matched your accounts within 15%") with its detail one click away; none is dropped, and supersession underneath is unchanged.
 
 ---
 

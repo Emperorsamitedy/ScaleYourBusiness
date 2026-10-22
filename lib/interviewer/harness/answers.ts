@@ -43,6 +43,8 @@ export interface InputSpec {
     | "entity_list"
     | "file";
   vocabulary_id?: string;
+  /** The owner's words for a select's codes (data-model §6.1); a code without one is humanised. */
+  option_labels?: Readonly<Record<string, Readonly<Record<string, string>>>>;
   entity_schema?: string;
   allow_unknown?: boolean;
 }
