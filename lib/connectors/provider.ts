@@ -76,6 +76,29 @@ export const METRIC_KEYS = [
   "appointments_cancelled.daily",
   /** The price of completed appointments, per currency — list price, not takings. */
   "booking_revenue.daily",
+  /**
+   * Feature 34, slow stock: one stock SNAPSHOT per item, read on
+   * period_date (the day it was read or, for an imported file, the day the
+   * owner says it was counted). Dimensions {product_ref, item_name}. Never
+   * a daily flow: nothing sums these across days.
+   *
+   *   stock.on_hand          units on hand that day (count)
+   *   stock.value_at_cost    on hand × unit cost (money) — absent when any
+   *                          stocked unit's cost is unknown, never partial
+   *   stock.value_at_price   on hand × selling price (money)
+   *
+   * Two more come only from an imported stock file, which carries what a
+   * till knows instead of order lines (lib/stock/import.ts):
+   *
+   *   stock.units_sold_window  units sold in the file's stated window,
+   *                            dimension window_days ("90")
+   *   stock.days_since_sale    days from the last sale to period_date
+   */
+  "stock.on_hand",
+  "stock.value_at_cost",
+  "stock.value_at_price",
+  "stock.units_sold_window",
+  "stock.days_since_sale",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -92,6 +115,17 @@ export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
   "ad_spend.campaign.daily",
   "ad_purchase_value.campaign.daily",
   "booking_revenue.daily",
+  "stock.value_at_cost",
+  "stock.value_at_price",
+]);
+
+/** Feature 34: the snapshot metrics — read as of one day, never summed across days. */
+export const STOCK_METRICS: ReadonlySet<MetricKey> = new Set([
+  "stock.on_hand",
+  "stock.value_at_cost",
+  "stock.value_at_price",
+  "stock.units_sold_window",
+  "stock.days_since_sale",
 ]);
 
 /**
@@ -99,7 +133,7 @@ export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
  * row (the latest re-read wins) but left out of the natural key, so a
  * renamed campaign keeps one history instead of splitting into two.
  */
-export const LABEL_DIMENSIONS: ReadonlySet<string> = new Set(["campaign_name"]);
+export const LABEL_DIMENSIONS: ReadonlySet<string> = new Set(["campaign_name", "item_name"]);
 
 /** Which slice of the business a daily figure belongs to. All optional. */
 export interface ObservationDimensions {
@@ -134,6 +168,10 @@ export interface ObservationDimensions {
   platform?: string;
   /** The platform's own id for the post (content_items.platform_post_id) — the series key of content.* (P3-23a). */
   platform_post_id?: string;
+  /** Feature 34: the item's current name on a stock.* snapshot — a label, not part of the key. */
+  item_name?: string;
+  /** Feature 34: the window an imported units-sold figure covers, in days ("90"). */
+  window_days?: string;
 }
 
 /** One provider figure for one day. Exactly one of value_minor / value_num is set. */
@@ -219,6 +257,24 @@ export interface Provider {
   listProducts?(secret: string): Promise<ExternalItem[]>;
   /** Analytics only (P2-18): the traffic channels seen, for mapping to the owner's channels. */
   listChannels?(secret: string): Promise<ExternalItem[]>;
+  /**
+   * Stores only (feature 34): today's stock snapshot, per product — on
+   * hand, and its value at cost and at price where the store says them.
+   * Read with the same read-only credential as everything else; the sync
+   * runner calls it once per run, after the pages, and a failure here never
+   * fails the sync. `hint.currency` is the store's currency as its own
+   * orders report it, for a platform whose product list doesn't say.
+   */
+  readStock?(secret: string, now: Date, hint: { currency: string | null }): Promise<StockRead>;
+}
+
+/** One stock snapshot: the observations, and what couldn't be read (counted, never guessed). */
+export interface StockRead {
+  observations: Observation[];
+  /** Products whose stock level could not be read (not tracked, or a shape we can't read). */
+  untracked: number;
+  /** Stocked products with no unit cost on the platform: their cash tied up is unknown. */
+  cost_unknown: number;
 }
 
 export class ProviderError extends Error {

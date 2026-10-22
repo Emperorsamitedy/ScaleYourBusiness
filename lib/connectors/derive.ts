@@ -30,7 +30,7 @@
 // Confidence is the §8.1 connector base (0.95), not min(inputs) × 0.9 —
 // the inputs are measurements, not other inferences.
 
-import { and, desc, eq, gte, lte } from "drizzle-orm";
+import { and, desc, eq, gte, lte, notInArray } from "drizzle-orm";
 import { db } from "../../db";
 import {
   businessProfiles,
@@ -50,6 +50,7 @@ import type { MappingKind } from "./mapping";
 import { mappingKey } from "./mapping";
 import { connectorSeriesId } from "./measured";
 import type { MetricKey } from "./provider";
+import { STOCK_METRICS } from "./provider";
 import { ConnectorError, canonicalDimensions } from "./service";
 
 /** data-model §8.1: connector-sourced facts start at 0.95. */
@@ -126,12 +127,22 @@ export function trailingWindow(to: ISODate, days = DEFAULT_WINDOW_DAYS): DeriveW
   return { from: isoDate(start.toISOString().slice(0, 10)), to };
 }
 
-/** The most recent day the connection has any observation for. */
+/**
+ * The most recent day the connection has any daily figure for. Stock
+ * snapshots (feature 34) are left out: they are dated the day they were
+ * read, today, while every daily series ends yesterday, and a window
+ * ending on a day with no sales figures would read as a day of zero.
+ */
 export async function latestObservedDate(connectionId: string): Promise<ISODate | null> {
   const [row] = await db
     .select({ period_date: metricObservations.period_date })
     .from(metricObservations)
-    .where(eq(metricObservations.connection_id, connectionId))
+    .where(
+      and(
+        eq(metricObservations.connection_id, connectionId),
+        notInArray(metricObservations.metric_key, [...STOCK_METRICS]),
+      ),
+    )
     .orderBy(desc(metricObservations.period_date))
     .limit(1);
   return row ? isoDate(row.period_date) : null;

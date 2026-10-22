@@ -26,6 +26,12 @@ interface Item {
   /** Its row in the size-feature table (lib/core/size-features.ts). */
   feature: SizeFeatureKey;
   count?: (c: NavCounts) => string | null;
+  /**
+   * Feature 34: whether the screen exists for this business at all, read
+   * from data the menu's counts carry (never an if on a business type). An
+   * item with this shows only once the counts say yes.
+   */
+  appliesTo?: (c: NavCounts) => boolean;
 }
 
 interface Group {
@@ -81,6 +87,13 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/progress", label: "Goals", feature: "nav.goals", count: (c) => n(c.goals) },
       { href: "/hours", label: "Trading hours", feature: "nav.hours" },
+      {
+        href: "/stock",
+        label: "Slow stock",
+        feature: "nav.stock",
+        appliesTo: (c) => c.stock === true,
+        count: (c) => n(c.by_module.stock ?? 0),
+      },
       { href: "/blindspots", label: "Blindspots", feature: "nav.blindspots" },
       { href: "/competitors", label: "Competitors", feature: "nav.competitors" },
     ],
@@ -132,12 +145,16 @@ export const GROUPS: readonly Group[] = [
 /**
  * Pure: the groups as a business of this size sees them — items the
  * size-feature table hides are left out, and a group left empty drops.
- * A null band (nothing stated, no headcount) shows every item.
+ * A null band (nothing stated, no headcount) shows every item. With
+ * `counts` given, an item that exists only for some businesses (appliesTo)
+ * shows when they say it applies; null counts (still loading) hide it.
  */
-export function visibleGroups(band: SizeBand | null): Group[] {
+export function visibleGroups(band: SizeBand | null, counts?: NavCounts | null): Group[] {
+  const applies = (i: Item) =>
+    i.appliesTo === undefined || counts === undefined || (counts !== null && i.appliesTo(counts));
   return GROUPS.map((g) => ({
     ...g,
-    items: g.items.filter((i) => showsFor(i.feature, band)),
+    items: g.items.filter((i) => showsFor(i.feature, band) && applies(i)),
   })).filter((g) => g.items.length > 0);
 }
 
@@ -234,7 +251,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
           </button>
         </div>
         <div className="app-rail-groups">
-          {visibleGroups(counts?.size_band?.band ?? null).map((g) => (
+          {visibleGroups(counts?.size_band?.band ?? null, counts).map((g) => (
             <div key={g.key} className="app-rail-group">
               <p className="app-rail-label">{g.label}</p>
               <ul>

@@ -11,6 +11,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { runProgressChecks } from "../../../../lib/care/progress";
 import { runAdProposals } from "../../../../lib/ads/proposals";
 import { runHoursTrials } from "../../../../lib/hours/trials";
+import { runStockProposals } from "../../../../lib/stock/propose";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -26,8 +27,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const trials = await runHoursTrials();
     // P3-22a: measured campaigns become pause / raise proposals — never executed here.
     const ads = await runAdProposals();
-    console.log(JSON.stringify({ event: "weekly_watch", ...result, progress, trials, ads }));
-    return NextResponse.json({ ...result, progress, trials, ads });
+    // Feature 34: slow stock becomes ways to clear it — proposals only, never executed here.
+    const stock = await runStockProposals();
+    console.log(JSON.stringify({ event: "weekly_watch", ...result, progress, trials, ads, stock }));
+    return NextResponse.json({ ...result, progress, trials, ads, stock });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_watch_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "job failed" }, { status: 500 });

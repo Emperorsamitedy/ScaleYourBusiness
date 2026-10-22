@@ -1,0 +1,1 @@
+ALTER TYPE "public"."connection_purpose" ADD VALUE 'import';

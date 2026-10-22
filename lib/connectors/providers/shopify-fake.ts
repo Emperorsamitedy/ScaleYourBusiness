@@ -42,6 +42,21 @@ export interface FakeShopifyProduct {
   id: string;
   title: string;
   status: string;
+  /**
+   * Feature 34: the product's variants as the Stock query returns them.
+   * Absent: one untracked variant (a product nobody counts stock for).
+   */
+  variants?: FakeShopifyVariant[];
+}
+
+export interface FakeShopifyVariant {
+  /** inventoryQuantity; null when Shopify sends none. */
+  quantity: number | null;
+  /** Decimal string in the shop's currency, as Shopify sends Money. */
+  price: string;
+  /** inventoryItem.unitCost.amount; null when no cost is set. */
+  cost: string | null;
+  tracked?: boolean;
 }
 
 export interface FakeShopifyCall {
@@ -55,6 +70,8 @@ export interface FakeShopifyOptions {
   orders?: FakeShopifyOrder[];
   products?: FakeShopifyProduct[];
   scopes?: string[];
+  /** The shop's currency (shop.currencyCode). Default EUR. */
+  currency?: string;
   /** The clock Shopify's 60-day rule is measured against. */
   now?: Date;
   respond?: (call: FakeShopifyCall, n: number) => ShopifyResponse | null;
@@ -214,6 +231,47 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
       });
     }
 
+    if (query?.startsWith("query Stock")) {
+      const after = variables["after"];
+      const first = Number(variables["first"]);
+      const variantFirst = Number(variables["variants"]);
+      const from = typeof after === "string" ? Number(after) : 0;
+      const page = products.slice(from, from + first);
+      const next = from + page.length;
+      const currency = options.currency ?? "EUR";
+      return shopifyJson(200, {
+        data: {
+          shop: { currencyCode: currency },
+          products: {
+            nodes: page.map((p) => {
+              const variants = p.variants ?? [
+                { quantity: null, price: "0.00", cost: null, tracked: false },
+              ];
+              return {
+                id: p.id,
+                title: p.title,
+                variants: {
+                  nodes: variants.slice(0, variantFirst).map((v) => ({
+                    inventoryQuantity: v.quantity,
+                    price: v.price,
+                    inventoryItem: {
+                      tracked: v.tracked ?? true,
+                      unitCost: v.cost === null ? null : { amount: v.cost, currencyCode: currency },
+                    },
+                  })),
+                  pageInfo: { hasNextPage: variants.length > variantFirst },
+                },
+              };
+            }),
+            pageInfo: {
+              hasNextPage: next < products.length,
+              endCursor: next < products.length ? String(next) : null,
+            },
+          },
+        },
+      });
+    }
+
     if (query?.startsWith("query Products")) {
       const after = variables["after"];
       const from = typeof after === "string" ? Number(after) : 0;
@@ -222,7 +280,7 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
       return shopifyJson(200, {
         data: {
           products: {
-            nodes: page,
+            nodes: page.map((p) => ({ id: p.id, title: p.title, status: p.status })),
             pageInfo: {
               hasNextPage: next < products.length,
               endCursor: next < products.length ? String(next) : null,

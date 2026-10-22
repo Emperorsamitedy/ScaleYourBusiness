@@ -29,6 +29,10 @@ export interface FakeWooProduct {
   id: number;
   name: string;
   status: string;
+  /** Feature 34: the stock fields the product list carries, when set. */
+  manage_stock?: boolean;
+  stock_quantity?: number | null;
+  price?: string;
 }
 
 export interface FakeWooCall {
