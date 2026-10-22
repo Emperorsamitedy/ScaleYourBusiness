@@ -518,6 +518,30 @@ a.rq-sub-i:hover {
 
 /* ── the cards below the panel ── */
 
+/* Stated against measured: the deltas that don't matter, on one quiet
+   line with their detail a click away — collapsed, never hidden (rule 11). */
+.rq-svm-quiet {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-4);
+  margin-top: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule-soft);
+}
+.rq-svm-quiet:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.rq-svm-quiet .rq-summary {
+  flex: 1 1 260px;
+  margin: 0;
+}
+.rq-svm-quiet-detail {
+  flex-basis: 100%;
+}
+
 .rq-card {
   margin-top: 18px;
   --hair: var(--rule-soft);

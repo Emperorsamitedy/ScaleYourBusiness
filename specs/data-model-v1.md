@@ -630,6 +630,8 @@ Completeness weights `core` questions heavily and `optional` barely at all, so a
 
 When `margin_stated` and `margin_computed` disagree, neither wins automatically. The computed value is used for analysis with a contradiction finding attached, and the report states both. Owners are frequently wrong about their margins, and the moment the system silently overrides an owner's number is the moment it loses their trust — surfacing the discrepancy is more valuable than resolving it quietly.
 
+The same holds when a connector supersedes an owner's figure (Phase 2 rule 11): the report shows what they said against what was measured. Presentation weighs each pair by materiality (`lib/connectors/materiality.ts`), the same at every business size: a pair is shown in full when the gap is at least 15% of the stated figure AND clears an absolute floor for its unit (money: about €50 of value per currency, held in major units and converted to minor units by the currency's ISO exponent, rule 1; orders and units: 5; sessions: 100). A stated "I don't know" or a pair in two currencies is always shown in full. Every other pair collapses into one line ("4 of the 6 figures you gave me matched your accounts within 15%") with its detail one click away; none is dropped, and supersession underneath is unchanged.
+
 ---
 
 ## 9. Mode decision
