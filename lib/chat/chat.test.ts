@@ -13,6 +13,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { db } from "../../db";
 import {
   accounts,
+  assistantChanges,
   businessProfiles,
   fieldRecords,
   intakeEvents,
@@ -26,7 +27,8 @@ import type { ClassifyLlm } from "../proposals/generate";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { BOUNDARIES_KEY } from "../proposals/hard-limits";
 import type { AnswerLlm, IntentLlm } from "./service";
-import { coerceIntent, postMessage, readThread } from "./service";
+import { answerSystemBlocks, coerceIntent, postMessage, readThread } from "./service";
+import { confirmChange } from "../assistant/changes";
 
 const created: { account_id: string; profile_id: string }[] = [];
 
@@ -66,6 +68,7 @@ const limitsOf =
 afterAll(async () => {
   const ids = created.map((s) => s.profile_id);
   if (ids.length > 0) {
+    await db.delete(assistantChanges).where(inArray(assistantChanges.profile_id, ids));
     await db.delete(proposals).where(inArray(proposals.profile_id, ids));
     await db.delete(utterances).where(inArray(utterances.profile_id, ids));
     await db.delete(modeDecisions).where(inArray(modeDecisions.profile_id, ids));
@@ -142,9 +145,16 @@ describe("P3-36 — the request tier", () => {
 
   it("a limit set IN CHAT blocks a later request — born blocked, restraint explained plainly", async () => {
     const s = await fresh();
-    // First the owner states the limit conversationally (the §5 path)…
-    await postMessage(s.profile_id, s.account_id, "We never discount, ever", {
+    // First the owner states the limit conversationally (the §5 path),
+    // and confirms the drafted rule with one click (feature 33, §3)…
+    const limit = await postMessage(s.profile_id, s.account_id, "We never discount, ever", {
       intentLlm: intentAs("limit"),
+    });
+    await confirmChange({
+      profileId: s.profile_id,
+      accountId: s.account_id,
+      changeId: limit.change?.id as string,
+      signedIn: false,
     });
     // …then asks for the very thing it forbids.
     const out = await postMessage(s.profile_id, s.account_id, "Run a 20% off sale this weekend", {
@@ -192,13 +202,22 @@ describe("P3-36 — the request tier", () => {
   });
 });
 
-describe("P3-36 — limits through chat (§5)", () => {
-  it("a limit APPENDS to the boundaries fact as a conversation-sourced write naming its utterance, and the reply says it can't be removed here", async () => {
+describe("P3-36 — limits through chat (§5), confirmed first (feature 33, §3)", () => {
+  it("a limit is DRAFTED — nothing written — and the click APPENDS it as a conversation-sourced fact naming its utterance", async () => {
     const s = await fresh();
     const out = await postMessage(s.profile_id, s.account_id, "Never advertise on TikTok", {
       intentLlm: intentAs("limit"),
     });
-    expect(out.reply.text).toContain("can't be removed here");
+    expect(out.change?.kind).toBe("standing_rule");
+    expect(out.change?.status).toBe("prepared");
+    expect(out.reply.text).toContain("can't be removed from chat");
+    expect(await readFieldHistory(s.profile_id, BOUNDARIES_KEY)).toHaveLength(0);
+    await confirmChange({
+      profileId: s.profile_id,
+      accountId: s.account_id,
+      changeId: out.change?.id as string,
+      signedIn: false,
+    });
     const history = await readFieldHistory<string>(s.profile_id, BOUNDARIES_KEY);
     expect(history).toHaveLength(1);
     const field = history[0]?.field;
@@ -208,12 +227,42 @@ describe("P3-36 — limits through chat (§5)", () => {
 
     // A second limit appends and supersedes — the parse-once machinery
     // sees a newer boundaries fact and will re-parse on next use.
-    await postMessage(s.profile_id, s.account_id, "And never do cold calls", {
+    const second = await postMessage(s.profile_id, s.account_id, "And never do cold calls", {
       intentLlm: intentAs("limit"),
+    });
+    await confirmChange({
+      profileId: s.profile_id,
+      accountId: s.account_id,
+      changeId: second.change?.id as string,
+      signedIn: false,
     });
     const after = await readFieldHistory<string>(s.profile_id, BOUNDARIES_KEY);
     expect(after).toHaveLength(2);
     expect(after[1]?.field.value).toContain("Never advertise on TikTok");
     expect(after[1]?.field.value).toContain("And never do cold calls");
+  });
+});
+
+describe("rule 8 — the answer's context is cached from turn two", () => {
+  it("the system prompt goes out as one block with a cache breakpoint, byte-identical across turns", async () => {
+    const s = await fresh();
+    const systems: string[] = [];
+    const capture: AnswerLlm = async ({ system }) => {
+      systems.push(system);
+      return { text: "Based on what you gave, about that.", calls: [] };
+    };
+    for (const q of ["What's my margin?", "And my busiest day?"]) {
+      await postMessage(s.profile_id, s.account_id, q, {
+        intentLlm: intentAs("ask"),
+        answerLlm: capture,
+      });
+    }
+    expect(systems).toHaveLength(2);
+    // The cached prefix must not drift between turns, or turn two pays full price.
+    expect(systems[1]).toBe(systems[0]);
+    const blocks = answerSystemBlocks(systems[0] as string);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.cache_control).toEqual({ type: "ephemeral" });
+    expect(blocks[0]?.text).toBe(systems[0]);
   });
 });
