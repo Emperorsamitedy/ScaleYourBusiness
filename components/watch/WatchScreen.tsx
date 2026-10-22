@@ -141,8 +141,8 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
         <p className="wt-empty">
           {reading.connections === 0 ? (
             <>
-              Connect your payments, store, analytics or ads, and every business-wide figure they
-              hold is read here every day. <Link href="/connections">Connections</Link>
+              Connect your payments, till or online shop, analytics or ads, and every business-wide
+              figure they hold is read here every day. <Link href="/connections">Connections</Link>
             </>
           ) : (
             "Your connections hold no daily figures yet — they arrive with the next sync."

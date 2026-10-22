@@ -30,8 +30,9 @@ type Phase = "form" | "sending" | "sent";
 // component; change both together.
 const LINK_TTL_MINUTES = 15;
 
-// The store address is not part of the login API (email only). It is
-// kept in this browser so the intake can prefill it later.
+// The website address is not part of the login API (email only). It is
+// kept in this browser so the intake can prefill it later. The key keeps
+// its first name ("pending_store") so anything already saved still reads.
 const PENDING_STORE_KEY = "syb.pending_store";
 
 const SSO_PROVIDERS = [
@@ -41,7 +42,7 @@ const SSO_PROVIDERS = [
 ] as const;
 
 const SIGNUP_STEPS: { n: string; text: string; takes: string }[] = [
-  { n: "01", text: "Connect your store, read-only", takes: "2 min" },
+  { n: "01", text: "Connect your accounts, read-only", takes: "2 min" },
   { n: "02", text: "Answer the core questions", takes: "~12 min" },
   {
     n: "03",
@@ -52,7 +53,7 @@ const SIGNUP_STEPS: { n: string; text: string; takes: string }[] = [
 ];
 
 const SIGNIN_POINTS = [
-  "Nothing runs in your store without your approval.",
+  "Nothing runs in your business without your approval.",
   "Every number shows where it came from.",
   "Nothing is ever erased — old facts are superseded and kept.",
 ];
@@ -210,7 +211,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
               <header className="au-sheet-head">
                 <p className="au-sheet-label">{signup ? "Create account" : "Sign in"}</p>
                 <h2 className="au-sheet-title" id="au-sheet-title">
-                  {signup ? "Open your store’s record" : "Welcome back"}
+                  {signup ? "Open your business’s record" : "Welcome back"}
                 </h2>
               </header>
 
@@ -227,7 +228,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                       required
                       autoFocus
                       autoComplete="email"
-                      placeholder="you@yourstore.com"
+                      placeholder="you@yourbusiness.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={sending}
@@ -237,7 +238,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                   {signup && (
                     <div className="au-field">
                       <label className="au-label" htmlFor="au-store">
-                        Store address <span className="au-opt">(optional)</span>
+                        Website <span className="au-opt">(optional)</span>
                       </label>
                       <input
                         id="au-store"
@@ -247,7 +248,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                         autoComplete="url"
                         autoCapitalize="none"
                         spellCheck={false}
-                        placeholder="yourstore.com"
+                        placeholder="yourbusiness.com"
                         value={store}
                         onChange={(e) => setStore(e.target.value)}
                         disabled={sending}

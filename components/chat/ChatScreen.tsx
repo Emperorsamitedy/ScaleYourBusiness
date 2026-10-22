@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { businessNoun } from "../../lib/core/business-noun";
 import type { Turn } from "./chat-view";
 import { earlierQuestions, latestQuestion, paragraphs, stamp } from "./chat-view";
 import "../../app/chat.css";
@@ -30,6 +31,8 @@ const MAX_CHARS = 4000;
 export function ChatScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
   const [business, setBusiness] = useState<string | null>(null);
+  // "your salon", "your gym" — from the business_type answer; "your business" until known.
+  const [noun, setNoun] = useState(businessNoun(null));
   const endRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const turnCount = state.phase === "ready" ? state.turns.length : 0;
@@ -49,10 +52,17 @@ export function ChatScreen() {
 
   useEffect(() => {
     void load();
-    // The business's name, as the menu reads it; absent stays absent.
+    // The business's name and type, as the menu reads them; absent stays absent.
     void fetch("/api/nav")
-      .then((r) => (r.ok ? (r.json() as Promise<{ business: string | null }>) : null))
-      .then((j) => setBusiness(j?.business ?? null))
+      .then((r) =>
+        r.ok
+          ? (r.json() as Promise<{ business: string | null; business_type?: string | null }>)
+          : null,
+      )
+      .then((j) => {
+        setBusiness(j?.business ?? null);
+        setNoun(businessNoun(j?.business_type));
+      })
       .catch(() => setBusiness(null));
   }, [load]);
 
@@ -61,7 +71,7 @@ export function ChatScreen() {
     if (turnCount > 0) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [turnCount, busy]);
 
-  const kicker = `Ask me anything · About ${business ?? "your business"}`;
+  const kicker = `Ask me anything · About ${business ?? noun}`;
 
   if (state.phase === "loading") {
     return (
@@ -183,9 +193,9 @@ export function ChatScreen() {
           <div className="ak-thread" aria-live="polite">
             {s.turns.length === 0 && (
               <p className="ak-copy ak-empty">
-                Ask me anything about your business — why the report said what it said, what your
-                numbers show, what I&rsquo;d watch. If you ask me to <em>do</em> something, it
-                becomes a proposal in your queue; nothing runs on phrasing alone.
+                Ask me anything about {noun} — why the report said what it said, what your numbers
+                show, what I&rsquo;d watch. If you ask me to <em>do</em> something, it becomes a
+                proposal in your queue; nothing runs on phrasing alone.
               </p>
             )}
             {s.turns.map((t) => (
@@ -233,7 +243,7 @@ export function ChatScreen() {
             }}
           >
             <label className="ak-label" htmlFor="ak-input">
-              Ask about your business
+              Ask about {noun}
             </label>
             <div className="ak-row">
               <textarea

@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 import { db } from "../../../db";
 import { connections, fieldRecords, goals, proposals, supportTickets } from "../../../db/schema";
 import { resolveAccess } from "../../../lib/auth/access";
+import { enumCode } from "../../../lib/core/enum-value";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { countPausedExecutionConnections } from "../../../lib/execution/connections";
 import type { SizeBand } from "../../../lib/core/size-features";
@@ -18,6 +19,11 @@ import { watchDays } from "../../../lib/watch/watch-view";
 
 export interface NavCounts {
   business: string | null;
+  /**
+   * The profile's business_type code (identity.business_type), so a screen
+   * can say "your salon" through lib/core/business-noun; null unanswered.
+   */
+  business_type: string | null;
   watch: { day: number; of: number } | null;
   pending: number;
   /** Pending proposals per module, for Content / Website / Support. */
@@ -41,6 +47,9 @@ export interface NavCounts {
   size_band: { band: SizeBand; via: "stated" | "inferred" } | null;
 }
 
+const NAME_KEY = "identity.legal_name";
+const TYPE_KEY = "identity.business_type";
+
 export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
@@ -52,7 +61,7 @@ export async function GET(): Promise<NextResponse> {
       factRows,
       connRows,
       pausedCount,
-      nameRow,
+      idRows,
       decision,
       openRows,
       sizeRows,
@@ -75,12 +84,12 @@ export async function GET(): Promise<NextResponse> {
         ),
       countPausedExecutionConnections(access.account_id),
       db
-        .select({ value: fieldRecords.value })
+        .select({ key: fieldRecords.field_key, value: fieldRecords.value })
         .from(fieldRecords)
         .where(
           and(
             eq(fieldRecords.profile_id, profileId),
-            eq(fieldRecords.field_key, "identity.legal_name"),
+            inArray(fieldRecords.field_key, [NAME_KEY, TYPE_KEY]),
             isNull(fieldRecords.superseded_at),
           ),
         ),
@@ -120,9 +129,10 @@ export async function GET(): Promise<NextResponse> {
       sizeRows.find((r) => r.field_key === TEAM_SIZE_KEY),
     );
 
-    const name = nameRow[0]?.value;
+    const name = idRows.find((r) => r.key === NAME_KEY)?.value;
     const body: NavCounts = {
       business: typeof name === "string" && name.trim() ? name.trim() : null,
+      business_type: enumCode(idRows.find((r) => r.key === TYPE_KEY)?.value),
       watch,
       pending,
       by_module,

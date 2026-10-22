@@ -65,8 +65,8 @@ const area = (over: Partial<IntakeArea>): IntakeArea => ({
 describe("area tiles", () => {
   it("names every profile section in plain words", () => {
     expect(Object.keys(AREA_NAME)).toHaveLength(14);
-    expect(AREA_NAME.identity).toBe("Store basics");
-    expect(AREA_NAME.operations).toBe("Shipping & fulfilment");
+    expect(AREA_NAME.identity).toBe("Business basics");
+    expect(AREA_NAME.operations).toBe("Operations & delivery");
   });
 
   it("words each status; a blocked area names the channel it needs", () => {
@@ -80,7 +80,7 @@ describe("area tiles", () => {
     });
     // With no channel to name, the area's own name stands in.
     expect(areaStatusWord(area({ status: "blocked", needs: "operations" })).word).toBe(
-      "Needs Shipping & fulfilment",
+      "Needs Operations & delivery",
     );
   });
 

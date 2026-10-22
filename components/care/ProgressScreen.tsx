@@ -71,7 +71,7 @@ interface CareView {
 
 const METRIC_WORD: Record<Measure["metric"], string> = {
   revenue: "revenue",
-  orders: "orders",
+  orders: "number of sales",
   sessions: "website visits",
 };
 
@@ -172,7 +172,7 @@ function MeasureForm({ goal, onSaved }: { goal: CareGoal; onSaved: () => Promise
         onChange={(e) => setMetric(e.target.value as Measure["metric"])}
       >
         <option value="revenue">revenue</option>
-        <option value="orders">orders</option>
+        <option value="orders">number of sales</option>
         <option value="sessions">website visits</option>
       </select>
       <span className="gl-word">to</span>
@@ -442,9 +442,9 @@ export function ProgressScreen({ charts }: { charts: GoalChart[] | null }) {
         <SheetCard label="How goals work" title="State one goal, in your own words">
           <p className="gl-copy">
             Goals are set on Content, where every planned piece names the goal it serves. Make one
-            measurable (revenue, orders or website visits, by a date) and each week it is checked
-            against a straight path from where it started to where you want it. Nothing is judged in
-            the first eight weeks or while I&apos;m still watching.
+            measurable (revenue, number of sales or website visits, by a date) and each week it is
+            checked against a straight path from where it started to where you want it. Nothing is
+            judged in the first eight weeks or while I&apos;m still watching.
           </p>
         </SheetCard>
       ) : (

@@ -5,10 +5,10 @@
 // a control, a ripple marks the click, and the screen answers. frame(t)
 // returns everything the player draws at second t, so the timings live in
 // one place and are testable; components/marketing/Walkthrough.tsx only
-// ticks the clock and renders. The store is the illustrative one in
-// sample-diagnosis.ts.
+// ticks the clock and renders. The business is whichever illustrative one
+// in sample-diagnosis.ts the visitor picked; the webshop by default.
 
-import { SAMPLE_LEAK, SAMPLE_MARKERS, SAMPLE_OUTCOME } from "./sample-diagnosis";
+import { SHOP_SAMPLE, type DemoSample } from "./sample-diagnosis";
 
 export interface Chapter {
   n: string;
@@ -24,7 +24,7 @@ export const CHAPTERS: readonly Chapter[] = [
   {
     n: "01",
     title: "Connect",
-    caption: "Connect your store — read-only, two minutes.",
+    caption: "Connect your accounts — read-only, two minutes.",
     crumb: "Connections",
     state: "connecting",
   },
@@ -84,7 +84,8 @@ export interface Frame {
   watch: { filled: number; day: number; readings: number };
   report: { shown: number; total: { low_minor: number; high_minor: number } | null };
   approve: { pressed: boolean; approved: boolean };
-  results: { up: string; down: string; recovered_minor: number; conversion: number | null };
+  /** `metric` runs from the outcome's before to its after; null until measured. */
+  results: { up: string; down: string; recovered_minor: number; metric: number | null };
 }
 
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
@@ -152,7 +153,8 @@ function resultCandles(upto: number): { up: string; down: string } {
   return { up: up || "M0 0", down: down || "M0 0" };
 }
 
-export function frame(t: number): Frame {
+export function frame(t: number, sample: DemoSample = SHOP_SAMPLE): Frame {
+  const { leak, markers, outcome } = sample;
   const scene = Math.min(5, Math.floor(t / SCENE_SECONDS));
   const p = (t - scene * SCENE_SECONDS) / SCENE_SECONDS;
 
@@ -196,25 +198,21 @@ export function frame(t: number): Frame {
     question: { hovered: p > 0.4, picked: p > 0.5, fact: p > 0.58 },
     watch: { filled, day: Math.max(1, filled), readings: Math.round(clamp(p / 0.9) * 4212) },
     report: {
-      shown: Math.floor(clamp(p / 0.75) * (SAMPLE_MARKERS.length + 0.01)),
+      shown: Math.floor(clamp(p / 0.75) * (markers.length + 0.01)),
       total:
         tot > 0
           ? {
-              low_minor: wholeEuros(SAMPLE_LEAK.low_minor, tot),
-              high_minor: wholeEuros(SAMPLE_LEAK.high_minor, tot),
+              low_minor: wholeEuros(leak.low_minor, tot),
+              high_minor: wholeEuros(leak.high_minor, tot),
             }
           : null,
     },
     approve: { pressed: p > 0.45, approved: p > 0.52 },
     results: {
       ...resultCandles(Math.floor(clamp(p / 0.85) * 40)),
-      recovered_minor: wholeEuros(SAMPLE_OUTCOME.recovered_minor, clamp((p - 0.45) / 0.45)),
-      conversion:
-        p > 0.5
-          ? SAMPLE_OUTCOME.conversion_before +
-            clamp((p - 0.5) / 0.4) *
-              (SAMPLE_OUTCOME.conversion_after - SAMPLE_OUTCOME.conversion_before)
-          : null,
+      recovered_minor: wholeEuros(outcome.recovered_minor, clamp((p - 0.45) / 0.45)),
+      metric:
+        p > 0.5 ? outcome.before + clamp((p - 0.5) / 0.4) * (outcome.after - outcome.before) : null,
     },
   };
 }

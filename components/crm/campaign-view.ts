@@ -217,8 +217,8 @@ export function measuredSentence(r: ReadbackView): string {
     r.delivery_reported ? "delivery, bounces and spam reports from the email service" : null,
     "unsubscribes from the links in each email",
     through
-      ? `purchases from your shop export of ${through.slice(0, 10)}`
-      : "purchases from your next shop export, once it comes in",
+      ? `purchases from your customer export of ${through.slice(0, 10)}`
+      : "purchases from your next customer export, once it comes in",
   ].filter((x): x is string => x !== null);
   const notCounted = [
     r.delivery_reported
