@@ -19,9 +19,9 @@
   "generic": {
     "columns": {
       "ref": ["appointment id", "appointmentid", "booking id", "bookingid", "booking ref", "booking reference", "reference", "ref", "ref #", "booking code", "code", "id", "visit id"],
-      "start": ["start", "start time", "starts at", "start date time", "start datetime", "appointment start", "scheduled at", "date time", "datetime", "begins"],
+      "start": ["start", "starts at", "start date time", "start datetime", "appointment start", "scheduled at", "date time", "datetime", "begins"],
       "date": ["date", "appointment date", "booking date", "scheduled date", "visit date", "class date", "day"],
-      "time": ["time", "appointment time", "booking time", "scheduled time", "start hour", "from"],
+      "time": ["time", "start time", "appointment time", "booking time", "scheduled time", "start hour", "from"],
       "status": ["status", "appointment status", "booking status", "visit status", "state", "outcome", "attendance"],
       "service": ["service", "service name", "services", "treatment", "appointment type", "type", "class", "class name", "session type", "item"],
       "staff": ["staff", "staff member", "staff name", "team member", "employee", "provider", "stylist", "therapist", "trainer", "instructor", "resource", "calendar", "chair", "room"],
