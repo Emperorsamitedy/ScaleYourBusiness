@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.6.0",
+  "bank_version": "1.7.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -957,6 +957,28 @@
             "allow_unknown": true
           },
           "priority": "important"
+        },
+        {
+          "key": "listing_url",
+          "prompt": {
+            "en": "Their booking or listing page (Fresha, Treatwell, Booksy, Google, a shop page)"
+          },
+          "input": {
+            "type": "text",
+            "allow_unknown": true
+          },
+          "priority": "important"
+        },
+        {
+          "key": "price_pages",
+          "prompt": {
+            "en": "Other pages of theirs that show prices, one link per line"
+          },
+          "input": {
+            "type": "long_text",
+            "allow_unknown": true
+          },
+          "priority": "deep"
         },
         {
           "key": "what_they_sell",

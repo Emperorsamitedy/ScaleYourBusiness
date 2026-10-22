@@ -415,6 +415,15 @@ interface Competitor {
 }
 ```
 
+Competitor pages (feature 35, bank 1.7.0). The competitor entity schema gains two owner fields: `listing_url`, their booking or listing page (Fresha, Treatwell, Booksy, Google, a shop page), and `price_pages`, other pages of theirs that show prices, one link per line. Those, with `url`, are the ONLY pages ever read for a competitor (`lib/competitors`): at most five per competitor, robots.txt honoured, never a page behind a login, every fetch through the hardened site fetcher. This reading discovers no page and no competitor on its own. Five more keys sit beside the bank's fields under `competitors.<id>.`:
+
+- `observed_offers` — `web_research`, confidence 0.5: `{ label_raw, offers: ObservedOffer[] }`, where `ObservedOffer` is `{ key, name, price: Money, from, url, method, fetched_at }` and `method` is `jsonld | og | pattern | model`. `label_raw` is the one readable line the fact sheet and the diagnosis print. A new record supersedes the old one only when what was seen changed, so the history of their prices is the history of this field (rule 3).
+- `observed_rating` — `web_research`: `{ label_raw, rating, best, count, url, method, fetched_at }`, from a business-level schema.org `AggregateRating` only.
+- `read_status` — `web_research`: `{ read_at, pages: [{ url, outcome: read | refused | failed, reason }], offers_seen, model }`, written on every read so "not read yet" and "couldn't read: <reason>" are stated, not guessed.
+- `tracked` (`Field<boolean>`, owner) — false when the owner removed the competitor; the record and its history stay. `offer_matches` (owner) — `{ [observed offer key]: owner offer id | "none" }`, the owner's correction of the deterministic match table.
+
+Extraction is deterministic first — JSON-LD `Product`/`Service`/`Offer`/`AggregateRating`, then OpenGraph price tags, then visible price patterns — and Haiku only reads a page that shows prices the parsers could not pair with names, batched once per business per run under the caps pinned in `lib/competitors/model.ts`. A price change, an offer added or removed, and a rating that moved are written to the watch log as worded changes. A price comparison with the owner's own offer is arithmetic in one currency (never converted, rule 1), and it is evidence only: nothing changes a price.
+
 `Competitor.positioning_angle` and `source` exist specifically for the Bobby's Windows scenario: the system needs to distinguish what the owner believes about a competitor from what research actually found, and it needs a structured place to record "this competitor's marketing is built on reviews" so the positioning recommendation can deliberately choose a different axis.
 
 ### 5.5 Revenue, costs, and the financial spine
