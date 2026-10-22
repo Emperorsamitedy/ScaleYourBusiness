@@ -182,12 +182,12 @@ export const SCOPE_GUIDE: Readonly<
     {
       scope: "APPOINTMENTS_READ",
       grant: "APPOINTMENTS_READ (optional, for bookings)",
-      why: "Your appointments: which were kept, which were no-shows or cancelled, and whether clients came back. Not their notes.",
+      why: "Your appointments. Which were kept, which were no-shows or cancelled, and whether clients came back, but not their notes.",
     },
     {
       scope: "APPOINTMENTS_ALL_READ",
       grant: "APPOINTMENTS_ALL_READ (optional, with the one above)",
-      why: "Square needs this with the one above to read every booking at your locations, not only ones made through Ledgerline. It can't change a booking.",
+      why: "Your appointments. Square needs this with the one above to read every booking at your locations, not only ones made through Ledgerline. It can't change a booking.",
     },
   ],
 };

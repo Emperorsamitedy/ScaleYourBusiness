@@ -535,6 +535,8 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
   const show = (v: unknown): ReactNode => {
     if (typeof v === "number") return num(v, numberDecimals([v]));
     if (isMoneyLike(v)) return `${moneyFig(v.amount_minor, v.currency, dec)} ${v.currency}`;
+    // Words against a measurement (no-shows, specs/bookings.md §4): shown, not subtracted.
+    if (typeof v === "string" && v.trim() !== "") return v;
     return NONE;
   };
   return (
