@@ -770,6 +770,25 @@ interface ScenarioBlock {
   downside_case: ScenarioOutcome;
   upside_case: ScenarioOutcome;
   breakeven_condition: string;          // "requires ≥18% volume lift to break even"
+  simulation?: SimulationRecord;        // feature 36: the campaign simulation it was proposed from
+}
+
+// Feature 36 (the campaign simulator, lib/simulate). Present only on a
+// proposal made with "Propose this": the option, the day its inputs were
+// read, each worked-out measure as a range in integer minor units (a
+// missing measure is absent, never zero), every input with its basis and
+// source, the inputs that were missing with what would fill them, and the
+// key rate (bought-again rate, return on ad spend, reach per post) the
+// trust layer later checks against what actually happened.
+interface SimulationRecord {
+  version: 1;
+  as_of: ISODate;
+  horizon_days: number;                 // 28
+  option: SimOption;
+  measures: Partial<Record<"cost" | "reached" | "orders" | "revenue" | "profit" | "worst", { low: number; high: number }>>;
+  key_rate: { name: "bought_again_rate" | "roas" | "reach_per_post"; range: { low: number; high: number } } | null;
+  inputs: { label: string; value: string | null; basis: Basis | null; source: string }[];
+  missing: string[];
 }
 
 interface Assumption {

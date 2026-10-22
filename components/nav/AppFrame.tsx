@@ -101,6 +101,7 @@ export const GROUPS: readonly Group[] = [
         feature: "nav.site",
         count: (c) => n(c.by_module.site ?? 0),
       },
+      { href: "/simulate", label: "Campaign simulator", feature: "nav.simulate" },
     ],
   },
   {

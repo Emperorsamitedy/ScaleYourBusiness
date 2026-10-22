@@ -23,6 +23,9 @@ import { createProposal } from "../proposals/service";
 import { listGoals } from "./goals";
 import { evidenceAssumption, performanceEvidence } from "./performance";
 import { enumCode } from "../core/enum-value";
+import type { ScenarioBlock } from "../diagnosis/recommendations";
+import type { SimulationAttachment } from "../simulate/scenario";
+import { attachSimulation } from "../simulate/scenario";
 
 export class ContentError extends Error {
   readonly status: number;
@@ -57,8 +60,8 @@ export async function listChannels(profileId: string): Promise<ChannelView[]> {
   return views;
 }
 
-/** Weekly cadence per channel type — deliberate, small, sustainable. */
-const CADENCE: Readonly<Record<string, { per_week: number; format: PlanFormat }>> = {
+/** Weekly cadence per channel type — deliberate, small, sustainable. Read by the simulator (lib/simulate). */
+export const CADENCE: Readonly<Record<string, { per_week: number; format: PlanFormat }>> = {
   social_organic: { per_week: 3, format: "short_video" },
   email: { per_week: 1, format: "email" },
   website: { per_week: 1, format: "post" },
@@ -109,6 +112,8 @@ export interface PlanArgs {
   weeks?: number;
   now?: Date;
   limitLlm?: LimitLlm;
+  /** Feature 36: proposed from the campaign simulator — its scenario rides along. */
+  simulation?: SimulationAttachment;
 }
 
 /**
@@ -175,6 +180,49 @@ export async function proposeContentPlan(
   // P3-23c: what performed before, when enough has been measured per post.
   const performed = await performanceEvidence(profileId);
 
+  const planScenario: ScenarioBlock = {
+    assumptions: [
+      ...(performed ? [evidenceAssumption(performed)] : []),
+      {
+        statement: `${plannable.length} plannable channel(s) on the profile`,
+        value: null,
+        source_field: `channels.${plannable[0]?.channel_id}.type`,
+        sensitivity: "high",
+      },
+      ...(focus
+        ? [
+            {
+              statement: `${focus.name} is the strongest offer on current numbers`,
+              value: null,
+              source_field: focus.evidence[focus.evidence.length - 1] ?? null,
+              sensitivity: "medium" as const,
+            },
+          ]
+        : []),
+    ],
+    base_case: {
+      case: "base",
+      statement: "Consistent presence on channels you already run, at a sustainable cadence.",
+      profit_delta_monthly: null,
+      formula: null,
+    },
+    downside_case: {
+      case: "downside",
+      statement:
+        "The time spent drafting reviews is the whole cost — drafts you decline cost nothing else.",
+      profit_delta_monthly: null,
+      formula: null,
+    },
+    upside_case: {
+      case: "upside",
+      statement: "A working cadence the readback (Session E) can finally measure per post.",
+      profit_delta_monthly: null,
+      formula: null,
+    },
+    breakeven_condition:
+      "no spend — the cost is your review time, and every draft waits for your yes",
+  };
+
   return createProposal({
     profile_id: profileId,
     module: "content",
@@ -188,48 +236,7 @@ export async function proposeContentPlan(
         ...(performed ? { performance: performed } : {}),
       },
     },
-    scenario: {
-      assumptions: [
-        ...(performed ? [evidenceAssumption(performed)] : []),
-        {
-          statement: `${plannable.length} plannable channel(s) on the profile`,
-          value: null,
-          source_field: `channels.${plannable[0]?.channel_id}.type`,
-          sensitivity: "high",
-        },
-        ...(focus
-          ? [
-              {
-                statement: `${focus.name} is the strongest offer on current numbers`,
-                value: null,
-                source_field: focus.evidence[focus.evidence.length - 1] ?? null,
-                sensitivity: "medium" as const,
-              },
-            ]
-          : []),
-      ],
-      base_case: {
-        case: "base",
-        statement: "Consistent presence on channels you already run, at a sustainable cadence.",
-        profit_delta_monthly: null,
-        formula: null,
-      },
-      downside_case: {
-        case: "downside",
-        statement:
-          "The time spent drafting reviews is the whole cost — drafts you decline cost nothing else.",
-        profit_delta_monthly: null,
-        formula: null,
-      },
-      upside_case: {
-        case: "upside",
-        statement: "A working cadence the readback (Session E) can finally measure per post.",
-        profit_delta_monthly: null,
-        formula: null,
-      },
-      breakeven_condition:
-        "no spend — the cost is your review time, and every draft waits for your yes",
-    } as never,
+    scenario: attachSimulation(planScenario, args.simulation) as never,
     reversibility: {
       level: "easy",
       if_you_change_your_mind: "Drafts are drafts. Delete any of them; nothing has been published.",

@@ -30,6 +30,7 @@ import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { applicableQuestions } from "../resolver/applicability";
 import type { DiagnosisFinding } from "./findings";
+import type { SimulationRecord } from "../simulate/scenario";
 import { DIAGNOSIS_MODEL, DiagnosisError } from "./findings";
 
 /* ── the types (data-model §10) ── */
@@ -39,6 +40,12 @@ export interface Assumption {
   value: number | Money | null;
   /** The snapshot field the value came from; null for a true assumption. */
   source_field: string | null;
+  /**
+   * Computed from measured rows rather than read from one field: the
+   * source in words (P3-23c's per-post evidence, feature 36's simulated
+   * inputs). The queue shows it as the line's source.
+   */
+  measured?: string;
   /** How much the conclusion depends on it — computed where possible. */
   sensitivity: "high" | "medium" | "low";
 }
@@ -59,6 +66,12 @@ export interface ScenarioBlock {
   upside_case: ScenarioOutcome;
   /** "requires ≥124% volume lift to break even — 900 ÷ 401 …" */
   breakeven_condition: string;
+  /**
+   * Feature 36: the campaign simulation a proposal was made from, kept so
+   * the trust layer can check what happened against the predicted range.
+   * Absent on every scenario not made from the simulator.
+   */
+  simulation?: SimulationRecord;
 }
 
 export interface Recommendation {

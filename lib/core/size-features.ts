@@ -82,6 +82,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Every business with a website can lose customers on it.",
   },
+  "nav.simulate": {
+    bands: EVERY,
+    reason:
+      "Before any spend, the likely range from your own numbers; a solo owner can least afford a campaign that misses.",
+  },
   "nav.customers": {
     bands: EVERY,
     reason: "Lapsed customers are lost revenue whoever serves them.",

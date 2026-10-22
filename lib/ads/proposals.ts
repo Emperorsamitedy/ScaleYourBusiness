@@ -59,6 +59,9 @@ import { readCurrentField } from "../profile/field-store";
 import { shiftDay } from "../trust/series";
 import { MAX_CHANGE_SHARE, spendGuard } from "./guard";
 import { suppressedKinds } from "../trust/suppression";
+import type { ScenarioBlock } from "../diagnosis/recommendations";
+import type { SimulationAttachment } from "../simulate/scenario";
+import { attachSimulation } from "../simulate/scenario";
 
 export const ADS_MODULE = "ads";
 /** Question 8.1i: the most the owner wants to spend on ads in a month (money). */
@@ -118,7 +121,13 @@ export function windowOf(series: CampaignSeries, from: string, to: string): Camp
 
 export type AdChange =
   | { change: "pause"; window: CampaignWindow; window_days: number }
-  | { change: "raise_budget"; share: number; window: CampaignWindow; window_days: number };
+  | {
+      change: "raise_budget" | "lower_budget";
+      /** Positive: the size of the move, whichever way it goes. */
+      share: number;
+      window: CampaignWindow;
+      window_days: number;
+    };
 
 /**
  * Pure: what the measured days say to do with one campaign, if anything.
@@ -288,41 +297,43 @@ export interface AdRun {
   skipped: { ref: string; reason: string }[];
 }
 
-/** Propose pauses and raises for one profile from its measured campaigns. */
-export async function proposeAdChanges(
+/** What every ad proposal for one profile is checked against, read once per run. */
+interface AdContext {
+  profileId: string;
+  now: Date;
+  today: string;
+  month: string;
+  campaigns: CampaignSeries[];
+  ceiling: Awaited<ReturnType<typeof monthlyAdCeiling>>;
+  existing: Set<string | null>;
+  suppressed: Awaited<ReturnType<typeof suppressedKinds>>;
+  limits: () => Promise<Awaited<ReturnType<typeof ensureHardLimits>>["limits"]>;
+}
+
+/** The care check (rule 15) and everything a run reads; `skip` says why nothing is proposed. */
+async function adContext(
   profileId: string,
-  opts: { now?: Date; limitLlm?: LimitLlm } = {},
-): Promise<AdRun> {
-  const now = opts.now ?? new Date();
-  const out: AdRun = { created: [], skipped: [] };
+  now: Date,
+  limitLlm: LimitLlm | undefined,
+): Promise<AdContext | { skip: string }> {
   const care = await careState(profileId);
-  if (!care) {
-    out.skipped.push({ ref: "profile", reason: "not in care yet — no mode decision" });
-    return out;
-  }
+  if (!care) return { skip: "not in care yet — no mode decision" };
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
-    out.skipped.push({
-      ref: "profile",
-      reason: `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
-    });
-    return out;
+    return {
+      skip: `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
+    };
   }
   const [profile] = await db
     .select({ account_id: businessProfiles.account_id })
     .from(businessProfiles)
     .where(eq(businessProfiles.id, profileId));
-  if (!profile) return out;
+  if (!profile) return { skip: "no such business" };
 
   const today = now.toISOString().slice(0, 10);
   const from = shiftDay(today, -(Math.max(ADS.pause_window_days, ADS.raise_window_days) + 1));
   const campaigns = await loadCampaignSeries(profile.account_id, from, shiftDay(today, -1));
-  if (campaigns.length === 0) {
-    out.skipped.push({ ref: "profile", reason: "no campaign is measured yet" });
-    return out;
-  }
+  if (campaigns.length === 0) return { skip: "no campaign is measured yet" };
 
-  const month = today.slice(0, 7);
-  const ceiling = await monthlyAdCeiling(profileId);
   const existing = new Set(
     (
       await db
@@ -331,153 +342,277 @@ export async function proposeAdChanges(
         .where(and(eq(proposals.profile_id, profileId), eq(proposals.module, ADS_MODULE)))
     ).map((r) => r.ref),
   );
-  const suppressed = await suppressedKinds(profileId);
   let limits: Awaited<ReturnType<typeof ensureHardLimits>>["limits"] | null = null;
+  return {
+    profileId,
+    now,
+    today,
+    month: today.slice(0, 7),
+    campaigns,
+    ceiling: await monthlyAdCeiling(profileId),
+    existing,
+    suppressed: await suppressedKinds(profileId),
+    limits: async () =>
+      (limits ??= (await ensureHardLimits(profileId, limitLlm ?? liveLimitLlm)).limits),
+  };
+}
 
-  for (const c of campaigns) {
-    const change = adChangeFor(c, today);
+/**
+ * One ad change through every gate — dedupe, suppression (P3-28), the
+ * spend guard (P3-22c), the hard limits (rule 14) — recorded as a pending
+ * (or born-blocked) proposal. Nothing is executed: approving it is the
+ * owner's, and the runner builds the op from the row (P3-22b).
+ */
+async function recordAdChange(
+  ctx: AdContext,
+  c: CampaignSeries,
+  change: AdChange,
+  simulation?: SimulationAttachment,
+): Promise<{ created: ProposalRow } | { skipped: { ref: string; reason: string } }> {
+  const kind =
+    change.change === "raise_budget" ? "paid_ads_start_or_increase" : "paid_ads_decrease_or_pause";
+  const ref = `ads:${c.campaign_ref}:${change.change}:${ctx.month}`;
+  if (ctx.existing.has(ref)) return { skipped: { ref, reason: "already proposed this month" } };
+  const silenced = ctx.suppressed.get(kind);
+  if (silenced) {
+    return {
+      skipped: {
+        ref,
+        reason: `you've declined this kind of ad change ${silenced.rejections} times — I've stopped proposing it`,
+      },
+    };
+  }
+  const w = change.window;
+  const fmt = (m: number) => format(money(m, c.currency));
+  const dailySpend = Math.round(w.spend_minor / Math.max(1, w.measured_days));
+  const ceiling = ctx.ceiling;
+  if (change.change !== "pause") {
+    if (
+      change.change === "raise_budget" &&
+      ceiling &&
+      ceiling.currency.toUpperCase() !== c.currency.toUpperCase()
+    ) {
+      return {
+        skipped: {
+          ref,
+          reason: `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${c.currency} — I won't convert to compare them`,
+        },
+      };
+    }
+    const refused = budgetGuard({
+      share: change.change === "raise_budget" ? change.share : -change.share,
+      daily_spend_minor: dailySpend,
+      account_daily_spend_minor: accountDailySpend(ctx.campaigns, ctx.today, c.currency),
+      currency: c.currency,
+      monthly_ceiling_minor: ceiling?.amount_minor ?? null,
+    });
+    if (refused) return { skipped: { ref, reason: refused } };
+  }
+  const verdict = checkHardLimits(await ctx.limits(), kind);
+
+  const arithmetic = `${fmt(w.spend_minor)} spent, ${fmt(w.value_minor)} in purchases Meta attributes, over ${w.measured_days} measured days: return on ad spend ${roasWord(w.roas)}`;
+  const monthlyLoss = Math.round(((w.spend_minor - w.value_minor) / w.measured_days) * 30);
+  const sharePct = change.change === "pause" ? 0 : Math.round(change.share * 100);
+  const deltaDaily = change.change === "pause" ? 0 : Math.round(dailySpend * change.share);
+  const attributed = fmt(Math.round(deltaDaily * 30 * (w.roas ?? 0)));
+  const scenario: ScenarioBlock = {
+    assumptions: [
+      {
+        statement: arithmetic,
+        value: null,
+        source_field: null,
+        sensitivity: "medium",
+      },
+      {
+        statement:
+          "Meta's attribution is its own — some of these purchases might have happened anyway",
+        value: null,
+        source_field: null,
+        sensitivity: "high",
+      },
+    ],
+    base_case: {
+      case: "base",
+      statement:
+        change.change === "pause"
+          ? `About ${fmt(Math.max(0, monthlyLoss))} a month stops going out beyond what Meta says comes back.`
+          : change.change === "raise_budget"
+            ? `About ${fmt(deltaDaily * 30)} more a month in spend, with about ${attributed} in attributed purchases at the same return.`
+            : `About ${fmt(deltaDaily * 30)} less a month in spend, and about ${attributed} less in attributed purchases at the same return.`,
+      profit_delta_monthly: null,
+      formula:
+        change.change === "pause"
+          ? `(${fmt(w.spend_minor)} − ${fmt(w.value_minor)}) ÷ ${w.measured_days} days × 30`
+          : `${fmt(dailySpend)} a day × ${sharePct}% × 30 × ROAS ${roasWord(w.roas)}`,
+    },
+    downside_case: {
+      case: "downside",
+      statement:
+        change.change === "pause"
+          ? "Some sales the campaign did drive stop — resuming it restores it."
+          : change.change === "raise_budget"
+            ? "The extra spend returns less than the campaign's average — restoring the budget undoes it."
+            : "The spend you cut was earning more than the average — restoring the budget undoes it.",
+      profit_delta_monthly: null,
+      formula: null,
+    },
+    upside_case: {
+      case: "upside",
+      statement:
+        change.change === "pause"
+          ? "The budget goes to a campaign that pays for itself."
+          : change.change === "raise_budget"
+            ? "The return holds at the higher budget."
+            : "The return holds on what's left.",
+      profit_delta_monthly: null,
+      formula: null,
+    },
+    breakeven_condition:
+      change.change === "pause"
+        ? "a return on ad spend of 1.0 — the campaign paying for itself"
+        : change.change === "raise_budget"
+          ? "the extra spend returning at least what it costs"
+          : "the spend you cut returning less than it cost",
+  };
+  const row = await createProposal({
+    profile_id: ctx.profileId,
+    module: ADS_MODULE,
+    originating_finding: ref,
+    action: {
+      kind,
+      summary:
+        change.change === "pause"
+          ? w.roas !== null && w.roas < ADS.pause_roas_below
+            ? `Pause "${c.campaign_name}" — it spent more than Meta says it brought back over ${w.measured_days} days`
+            : `Pause "${c.campaign_name}" — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
+          : change.change === "raise_budget"
+            ? `Raise "${c.campaign_name}"'s daily budget by ${sharePct}% — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
+            : `Cut "${c.campaign_name}"'s daily budget by ${sharePct}% — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`,
+      detail: {
+        campaign_ref: c.campaign_ref,
+        campaign_name: c.campaign_name,
+        change: change.change,
+        // P3-22b: a cut carries a negative share; adsPlan refuses one in the wrong direction.
+        ...(change.change === "raise_budget"
+          ? { share: change.share }
+          : change.change === "lower_budget"
+            ? { share: -change.share }
+            : {}),
+        window_days: change.window_days,
+        measured_days: w.measured_days,
+        spend_minor: w.spend_minor,
+        value_minor: w.value_minor,
+        currency: c.currency,
+        roas: w.roas,
+        arithmetic,
+        attribution: "Purchases are the ones Meta attributes to the campaign, by Meta's own rules.",
+        // P3-22b: approving queues it for the next due run (no set time needed).
+        execute_on_approval: true,
+        sending:
+          "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+        manual_limits: verdict.manual.map((l) => l.quote),
+        ...(simulation ? { requested_from: "simulator" } : {}),
+      },
+    },
+    scenario: attachSimulation(scenario, simulation) as never,
+    reversibility: {
+      level: "easy",
+      if_you_change_your_mind:
+        change.change === "pause"
+          ? "Resume the campaign — it picks up where it stopped."
+          : "Restore the previous daily budget.",
+    },
+    expires_at: new Date(ctx.now.getTime() + ADS.expiry_days * 86_400_000).toISOString(),
+    blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,
+  });
+  ctx.existing.add(ref);
+  return { created: row };
+}
+
+/** Propose pauses and raises for one profile from its measured campaigns. */
+export async function proposeAdChanges(
+  profileId: string,
+  opts: { now?: Date; limitLlm?: LimitLlm } = {},
+): Promise<AdRun> {
+  const now = opts.now ?? new Date();
+  const out: AdRun = { created: [], skipped: [] };
+  const ctx = await adContext(profileId, now, opts.limitLlm);
+  if ("skip" in ctx) {
+    out.skipped.push({ ref: "profile", reason: ctx.skip });
+    return out;
+  }
+  for (const c of ctx.campaigns) {
+    const change = adChangeFor(c, ctx.today);
     if (!change) {
       out.skipped.push({ ref: c.campaign_ref, reason: "nothing the measured days call for" });
       continue;
     }
-    const kind =
-      change.change === "pause" ? "paid_ads_decrease_or_pause" : "paid_ads_start_or_increase";
-    const ref = `ads:${c.campaign_ref}:${change.change}:${month}`;
-    if (existing.has(ref)) {
-      out.skipped.push({ ref, reason: "already proposed this month" });
-      continue;
-    }
-    const silenced = suppressed.get(kind);
-    if (silenced) {
-      out.skipped.push({
-        ref,
-        reason: `you've declined this kind of ad change ${silenced.rejections} times — I've stopped proposing it`,
-      });
-      continue;
-    }
-    const w = change.window;
-    const fmt = (m: number) => format(money(m, c.currency));
-    const dailySpend = Math.round(w.spend_minor / Math.max(1, w.measured_days));
-    if (change.change === "raise_budget") {
-      if (ceiling && ceiling.currency.toUpperCase() !== c.currency.toUpperCase()) {
-        out.skipped.push({
-          ref,
-          reason: `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${c.currency} — I won't convert to compare them`,
-        });
-        continue;
-      }
-      const refused = budgetGuard({
-        share: change.share,
-        daily_spend_minor: dailySpend,
-        account_daily_spend_minor: accountDailySpend(campaigns, today, c.currency),
-        currency: c.currency,
-        monthly_ceiling_minor: ceiling?.amount_minor ?? null,
-      });
-      if (refused) {
-        out.skipped.push({ ref, reason: refused });
-        continue;
-      }
-    }
-    limits ??= (await ensureHardLimits(profileId, opts.limitLlm ?? liveLimitLlm)).limits;
-    const verdict = checkHardLimits(limits, kind);
-
-    const arithmetic = `${fmt(w.spend_minor)} spent, ${fmt(w.value_minor)} in purchases Meta attributes, over ${w.measured_days} measured days: return on ad spend ${roasWord(w.roas)}`;
-    const monthlyLoss = Math.round(((w.spend_minor - w.value_minor) / w.measured_days) * 30);
-    const extraDaily = Math.round(dailySpend * ADS.raise_share);
-    const row = await createProposal({
-      profile_id: profileId,
-      module: ADS_MODULE,
-      originating_finding: ref,
-      action: {
-        kind,
-        summary:
-          change.change === "pause"
-            ? `Pause "${c.campaign_name}" — it spent more than Meta says it brought back over ${w.measured_days} days`
-            : `Raise "${c.campaign_name}"'s daily budget by ${Math.round(change.share * 100)}% — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`,
-        detail: {
-          campaign_ref: c.campaign_ref,
-          campaign_name: c.campaign_name,
-          change: change.change,
-          ...(change.change === "raise_budget" ? { share: change.share } : {}),
-          window_days: change.window_days,
-          measured_days: w.measured_days,
-          spend_minor: w.spend_minor,
-          value_minor: w.value_minor,
-          currency: c.currency,
-          roas: w.roas,
-          arithmetic,
-          attribution:
-            "Purchases are the ones Meta attributes to the campaign, by Meta's own rules.",
-          // P3-22b: approving queues it for the next due run (no set time needed).
-          execute_on_approval: true,
-          sending:
-            "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
-          manual_limits: verdict.manual.map((l) => l.quote),
-        },
-      },
-      scenario: {
-        assumptions: [
-          {
-            statement: arithmetic,
-            value: null,
-            source_field: null,
-            sensitivity: "medium",
-          },
-          {
-            statement:
-              "Meta's attribution is its own — some of these purchases might have happened anyway",
-            value: null,
-            source_field: null,
-            sensitivity: "high",
-          },
-        ],
-        base_case: {
-          case: "base",
-          statement:
-            change.change === "pause"
-              ? `About ${fmt(Math.max(0, monthlyLoss))} a month stops going out beyond what Meta says comes back.`
-              : `About ${fmt(extraDaily * 30)} more a month in spend, with about ${fmt(Math.round(extraDaily * 30 * (w.roas ?? 0)))} in attributed purchases at the same return.`,
-          profit_delta_monthly: null,
-          formula:
-            change.change === "pause"
-              ? `(${fmt(w.spend_minor)} − ${fmt(w.value_minor)}) ÷ ${w.measured_days} days × 30`
-              : `${fmt(dailySpend)} a day × ${Math.round(ADS.raise_share * 100)}% × 30 × ROAS ${roasWord(w.roas)}`,
-        },
-        downside_case: {
-          case: "downside",
-          statement:
-            change.change === "pause"
-              ? "Some sales the campaign did drive stop — resuming it restores it."
-              : "The extra spend returns less than the campaign's average — restoring the budget undoes it.",
-          profit_delta_monthly: null,
-          formula: null,
-        },
-        upside_case: {
-          case: "upside",
-          statement:
-            change.change === "pause"
-              ? "The budget goes to a campaign that pays for itself."
-              : "The return holds at the higher budget.",
-          profit_delta_monthly: null,
-          formula: null,
-        },
-        breakeven_condition:
-          change.change === "pause"
-            ? "a return on ad spend of 1.0 — the campaign paying for itself"
-            : "the extra spend returning at least what it costs",
-      } as never,
-      reversibility: {
-        level: "easy",
-        if_you_change_your_mind:
-          change.change === "pause"
-            ? "Resume the campaign — it picks up where it stopped."
-            : "Restore the previous daily budget.",
-      },
-      expires_at: new Date(now.getTime() + ADS.expiry_days * 86_400_000).toISOString(),
-      blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,
-    });
-    out.created.push(row);
+    const result = await recordAdChange(ctx, c, change);
+    if ("created" in result) out.created.push(result.created);
+    else out.skipped.push(result.skipped);
   }
+  return out;
+}
+
+/**
+ * Feature 36: the change the owner asked for from the campaign simulator,
+ * through the same gates as the generator's own — the watch, dedupe,
+ * suppression, the spend guard and the hard limits — with the simulated
+ * scenario attached. The generator's thresholds (pause below 1.0, raise at
+ * 3.0) say what I'd suggest unprompted; an owner's own ask still needs the
+ * 14 measured days every ad proposal needs. Nothing executes (rule 12).
+ */
+export async function proposeRequestedAdChange(
+  profileId: string,
+  args: {
+    campaign_ref: string;
+    change: "pause" | "raise_budget" | "lower_budget";
+    /** Positive, for a raise or a cut. */
+    share?: number;
+    now?: Date;
+    limitLlm?: LimitLlm;
+    simulation?: SimulationAttachment;
+  },
+): Promise<AdRun> {
+  const now = args.now ?? new Date();
+  const out: AdRun = { created: [], skipped: [] };
+  const ctx = await adContext(profileId, now, args.limitLlm);
+  if ("skip" in ctx) {
+    out.skipped.push({ ref: "profile", reason: ctx.skip });
+    return out;
+  }
+  const c = ctx.campaigns.find((s) => s.campaign_ref === args.campaign_ref);
+  if (!c) {
+    out.skipped.push({ ref: args.campaign_ref, reason: "that campaign isn't measured" });
+    return out;
+  }
+  const end = shiftDay(ctx.today, -1);
+  const windowDays = args.change === "pause" ? ADS.pause_window_days : ADS.raise_window_days;
+  const w = windowOf(c, shiftDay(end, -(windowDays - 1)), end);
+  if (w.measured_days < ADS.min_measured_days) {
+    out.skipped.push({
+      ref: args.campaign_ref,
+      reason: `${w.measured_days} measured days — an ad proposal needs ${ADS.min_measured_days}`,
+    });
+    return out;
+  }
+  let change: AdChange;
+  if (args.change === "pause") {
+    change = { change: "pause", window: w, window_days: windowDays };
+  } else {
+    const share = args.share ?? NaN;
+    if (!(share > 0 && share <= ADS.max_change_share + 1e-9)) {
+      out.skipped.push({
+        ref: args.campaign_ref,
+        reason: `a change of ${Number.isFinite(share) ? Math.round(share * 100) : "?"}% is outside the ${ADS.max_change_share * 100}% allowed in one approval`,
+      });
+      return out;
+    }
+    change = { change: args.change, share, window: w, window_days: windowDays };
+  }
+  const result = await recordAdChange(ctx, c, change, args.simulation);
+  if ("created" in result) out.created.push(result.created);
+  else out.skipped.push(result.skipped);
   return out;
 }
 
