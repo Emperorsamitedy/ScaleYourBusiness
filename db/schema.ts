@@ -973,7 +973,14 @@ export const connectionStatus = pgEnum("connection_status", [
 // credential produced it (D4's readback). A Postgres trigger (migration
 // 0030) refuses a write-capable scope on a measure row, mirroring
 // isWriteCapable, so the invariant holds even for a hand-written row.
-export const connectionPurpose = pgEnum("connection_purpose", ["measure", "execute"]);
+//
+// Feature 34 adds "import": a file the owner uploads (a stock count from a
+// till or a spreadsheet) has no credential and nothing to sync, but its
+// figures are observations like any connector's, so they need a
+// connection_id for provenance. An "import" row holds no secret and no
+// scopes, the sync runner never walks it (it walks "measure" only), and the
+// measurement side never lists it.
+export const connectionPurpose = pgEnum("connection_purpose", ["measure", "execute", "import"]);
 
 export const connections = pgTable(
   "connections",
