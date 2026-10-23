@@ -36,7 +36,9 @@
 // the list carries no currency, so prices are valued in the currency the
 // store's own orders report (the sync passes it as a hint), or not at all.
 
-import { vetAddresses } from "../../site/fetch";
+import { Agent, fetch as undiciFetch } from "undici";
+import type { VettedAddress } from "../../site/fetch";
+import { pinnedLookup, vetAddresses } from "../../site/fetch";
 import { addDays, advanceCursor, dayString, oneNewDay, planWindow } from "../days";
 import { DecimalError, decimalToMinor } from "../decimal";
 import type { ExternalProduct, Observation, Provider, PullPage, StockRead } from "../provider";
@@ -479,29 +481,45 @@ export function aggregateWooStock(
 /** A store sync that stalls must not hang the sync cron. */
 export const WOO_FETCH_TIMEOUT_MS = 20_000;
 
-const defaultFetch: WooFetch = async (url, init) => {
-  // The owner typed this address. Resolve it and refuse private, loopback
-  // and link-local targets BEFORE the request carrying the store's key
-  // goes out (the security review of 2026-10-17: the hostname check alone
-  // let a public name that resolves inside a network through).
+/**
+ * The live fetch every WooCommerce read goes through — orders, products and
+ * the stock read alike. The owner typed this address: it is resolved ONCE,
+ * every address vetted (private, loopback and link-local refused, the
+ * security review of 2026-10-17), and the connection PINNED to exactly the
+ * vetted addresses, so no second, unvetted resolution can happen between
+ * the check and the request carrying the store's key (review 2026-10-23,
+ * #24). TLS still validates against the hostname. Exported for its tests.
+ */
+export const wooLiveFetch: WooFetch = async (url, init) => {
+  let vetted: VettedAddress[];
   try {
-    await vetAddresses(new URL(url));
+    vetted = await vetAddresses(new URL(url));
   } catch {
     throw new ProviderError("woocommerce: that store address doesn't resolve to a public server");
   }
-  const response = await fetch(url, {
-    method: init.method,
-    headers: init.headers,
-    cache: "no-store",
-    redirect: "error",
-    signal: AbortSignal.timeout(WOO_FETCH_TIMEOUT_MS),
-  });
-  return {
-    status: response.status,
-    json: () => response.json() as Promise<unknown>,
-    header: (name) => response.headers.get(name),
-  };
+  const agent = new Agent({ connect: { lookup: pinnedLookup(vetted) } });
+  try {
+    const response = await undiciFetch(url, {
+      dispatcher: agent,
+      method: init.method,
+      headers: init.headers,
+      redirect: "error",
+      signal: AbortSignal.timeout(WOO_FETCH_TIMEOUT_MS),
+    });
+    // Read the body before the pinned agent closes; the caller parses it.
+    const text = await response.text();
+    const headers = response.headers;
+    return {
+      status: response.status,
+      json: async () => JSON.parse(text) as unknown,
+      header: (name) => headers.get(name),
+    };
+  } finally {
+    await agent.close();
+  }
 };
+
+const defaultFetch: WooFetch = wooLiveFetch;
 
 export function createWooCommerceProvider(options: WooProviderOptions = {}): Provider {
   const ctx: Context = {

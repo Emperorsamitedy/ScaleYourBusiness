@@ -383,15 +383,22 @@ export function aggregatePayments(
   return out;
 }
 
-const defaultFetch: SquareFetch = async (url, init) => {
+/** A Square call that stalls must not hang the sync cron (review 2026-10-23, #24). */
+export const SQUARE_FETCH_TIMEOUT_MS = 20_000;
+
+/** The live fetch, with its timeout. Exported for its test. */
+export const squareLiveFetch: SquareFetch = async (url, init) => {
   const response = await fetch(url, {
     method: init.method,
     headers: init.headers,
     ...(init.body !== undefined ? { body: init.body } : {}),
     cache: "no-store",
+    signal: AbortSignal.timeout(SQUARE_FETCH_TIMEOUT_MS),
   });
   return { status: response.status, json: () => response.json() as Promise<unknown> };
 };
+
+const defaultFetch: SquareFetch = squareLiveFetch;
 
 export function createSquareProvider(
   options: { fetch?: SquareFetch; sleep?: (ms: number) => Promise<void> } = {},

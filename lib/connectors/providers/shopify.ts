@@ -774,15 +774,22 @@ export function historyDaysFor(scopes: readonly string[]): number {
     : SHOPIFY_DEFAULT_HISTORY_DAYS;
 }
 
-const defaultFetch: ShopifyFetch = async (url, init) => {
+/** A Shopify call that stalls must not hang the sync cron (review 2026-10-23, #24). */
+export const SHOPIFY_FETCH_TIMEOUT_MS = 20_000;
+
+/** The live fetch, with its timeout. Exported for its test. */
+export const shopifyLiveFetch: ShopifyFetch = async (url, init) => {
   const response = await fetch(url, {
     method: init.method,
     headers: init.headers,
     body: init.body,
     cache: "no-store",
+    signal: AbortSignal.timeout(SHOPIFY_FETCH_TIMEOUT_MS),
   });
   return { status: response.status, json: () => response.json() as Promise<unknown> };
 };
+
+const defaultFetch: ShopifyFetch = shopifyLiveFetch;
 
 export function createShopifyProvider(options: ShopifyProviderOptions = {}): Provider {
   const ctx: Context = {

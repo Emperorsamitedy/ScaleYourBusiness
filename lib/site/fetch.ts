@@ -175,7 +175,7 @@ export function isPrivateAddress(ip: string): boolean {
   return true; // not an IP at all — never connectable
 }
 
-interface VettedAddress {
+export interface VettedAddress {
   address: string;
   family: 4 | 6;
 }
