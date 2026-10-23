@@ -236,7 +236,9 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     screen: "Content",
     route: "/content",
     section: "ct-calendar",
-    target: "content_items (through a content_publishing proposal)",
+    // Review 2026-10-23, #8: approving the proposal makes the edit itself
+    // (lib/content/calendar.ts), re-checked against what the card quoted.
+    target: "content_items: a draft's day or title, made when its proposal is approved",
     prepare: "proposal",
     confirm: "Put it in my queue",
     signed_in: false,
@@ -244,7 +246,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
       /\b(content\s+)?calendar\b/i,
       /\b(reschedule|move|change|edit|rename|retitle|rewrite|swap|cancel|drop)\b[^.?!]{0,30}\b(post|posts|reel|video|caption|item)\b/i,
     ],
-    note: "Anything that would be published goes through your approval queue first; nothing here posts on its own.",
+    note: "From chat I can move a draft to another day or rename it. It goes through your approval queue, and approving it there makes the change on your calendar; nothing here posts on its own.",
   },
   {
     kind: "connection",

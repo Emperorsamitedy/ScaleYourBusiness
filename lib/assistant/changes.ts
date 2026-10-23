@@ -41,6 +41,7 @@ import {
   connections,
   decisionLog,
   fieldRecords,
+  proposals,
   utterances,
 } from "../../db/schema";
 import { confidence } from "../core/confidence";
@@ -51,6 +52,8 @@ import { isoDateTime } from "../core/iso";
 import { isIsoCurrency, readAmount } from "../core/money";
 import type { SizeBand } from "../core/size-features";
 import { addGoal, listGoals, setGoalAttr } from "../content/goals";
+import type { CalendarBasis, CalendarEdit } from "../content/calendar";
+import { EDITABLE_STATUS, isCalendarBasis, isCalendarEdit } from "../content/calendar";
 import { contentQueue } from "../content/produce";
 import { proposeCustomKnowledge, listKnowledge } from "../crm/knowledge";
 import { ensureSupportSettings, setNotifyOwner, setReplyHours } from "../crm/support-settings";
@@ -1257,6 +1260,75 @@ const knowledgeHandler: Handler = {
 const dayOf = (iso: string | null) =>
   iso ? (WEEKDAYS[(new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7] as Weekday) : null;
 
+const addDays = (iso: string, n: number) =>
+  new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+
+const TARGET_DAY =
+  /\b(?:to|on|for|until|till)\s+(?:next\s+|this\s+)?(mon(?:day)?|tues?(?:day)?|wed(?:nesday)?|thu(?:rs?)?(?:day)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)s?\b/i;
+const TARGET_ISO = /\b(?:to|on|for)\s+(\d{4}-\d{2}-\d{2})\b/i;
+const TARGET_TOMORROW = /\b(?:to|for|until|till)?\s*tomorrow\b/i;
+const RETITLE =
+  /\b(?:rename|retitle|re-title)\b[^.?!]*?\b(?:to|as)\s+["“'‘]?(.+?)["”'’]?\s*[.!]?$|\bcall it\s+["“'‘]?(.+?)["”'’]?\s*[.!]?$/i;
+
+/**
+ * What the owner asked of a calendar item, as one edit the content module
+ * can make (review 2026-10-23, #8): another day ("move Friday's reel to
+ * Saturday", "to 2026-11-02", "to tomorrow"), or another title ("rename it
+ * to Autumn colours"). A weekday lands in the item's own Monday-to-Sunday
+ * week, so Friday's reel moved to Saturday is the next day; one already
+ * past moves a week on. Null when it is neither, so the chat says what it
+ * can do instead of guessing. Pure.
+ */
+export function calendarEditFrom(
+  text: string,
+  item: { title: string; scheduled_for: string | null },
+  today: string,
+): { edit: CalendarEdit; rest: string } | { past: string } | null {
+  const iso = TARGET_ISO.exec(text);
+  const day = TARGET_DAY.exec(text);
+  const tomorrow = TARGET_TOMORROW.exec(text);
+  let to: string | null = null;
+  let clause: string | null = null;
+  if (iso?.[1]) {
+    to = iso[1];
+    clause = iso[0];
+  } else if (day?.[1]) {
+    const weekday = parseDays(day[1])[0] as Weekday;
+    const anchor = item.scheduled_for ?? today;
+    const monday = addDays(anchor, -WEEKDAYS.indexOf(dayOf(anchor) as Weekday));
+    to = addDays(monday, WEEKDAYS.indexOf(weekday));
+    if (item.scheduled_for === null || to <= today) {
+      while (to <= today) to = addDays(to, 7);
+    }
+    clause = day[0];
+  } else if (tomorrow) {
+    to = addDays(today, 1);
+    clause = tomorrow[0];
+  }
+  if (to !== null && clause !== null) {
+    if (Number.isNaN(Date.parse(`${to}T00:00:00Z`))) return null;
+    if (to < today) return { past: to };
+    return {
+      edit: { op: "reschedule", from: item.scheduled_for, to },
+      rest: text.replace(clause, " "),
+    };
+  }
+  const m = RETITLE.exec(text);
+  const title = (m?.[1] ?? m?.[2])?.trim();
+  if (title && title.length >= 2 && title.length <= 200 && title !== item.title) {
+    return { edit: { op: "retitle", from: item.title, to: title }, rest: text };
+  }
+  return null;
+}
+
+const itemBasis = (i: {
+  id: string;
+  status: string;
+  scheduled_for: string | null;
+  title: string;
+}) =>
+  `item:${i.id}:${i.status}:${i.scheduled_for ?? "unscheduled"}:${createHash("sha256").update(i.title).digest("hex").slice(0, 16)}`;
+
 const contentHandler: Handler = {
   async prepare(ctx, change, entry) {
     const watching = await watchingLink(ctx, entry);
@@ -1267,7 +1339,11 @@ const contentHandler: Handler = {
     if (items.length === 0) {
       return linkOnly(entry, "There's nothing on your content calendar yet.", "nothing scheduled");
     }
-    const days = parseDays(`${change.params.subject ?? ""} ${ctx.ownerText}`);
+    const text = `${change.params.subject ?? ""} ${ctx.ownerText}`;
+    const today = new Date().toISOString().slice(0, 10);
+    // The day the owner names the item BY, not the day they move it TO.
+    const named = text.replace(TARGET_DAY, " ").replace(TARGET_ISO, " ");
+    const days = parseDays(named);
     const subject = change.params.subject ?? "";
     let pool = items;
     if (days.length > 0) {
@@ -1286,48 +1362,106 @@ const contentHandler: Handler = {
         pool = [scored[0].i];
       }
     }
-    const describe = (i: (typeof items)[number]) =>
+    const describe = (i: { title: string; scheduled_for: string | null }) =>
       `${quote(i.title)}${i.scheduled_for ? ` on ${i.scheduled_for}` : ""}`;
     if (pool.length > 1) {
       return asked(entry, `Which one — ${pool.slice(0, 3).map(describe).join(" or ")}?`);
     }
     const item = pool[0] as (typeof items)[number];
-    const what = change.params.value ?? ctx.ownerText;
+    if (item.status !== EDITABLE_STATUS) {
+      return linkOnly(
+        entry,
+        `${describe(item)} is ${item.status === "queued" ? "already queued to publish" : item.status} — I only change drafts from chat.`,
+        describe(item),
+      );
+    }
+    if (item.publish_proposal_id !== null) {
+      const [publish] = await db
+        .select({ status: proposals.status })
+        .from(proposals)
+        .where(eq(proposals.id, item.publish_proposal_id));
+      if (publish && (publish.status === "pending" || publish.status === "approved")) {
+        return linkOnly(
+          entry,
+          `${describe(item)} already has a publish proposal in your queue, which carries its own day and title. Decline that one first, then ask me again.`,
+          describe(item),
+        );
+      }
+    }
+    const read = calendarEditFrom(change.params.value ?? ctx.ownerText, item, today);
+    if (read === null) {
+      return asked(
+        entry,
+        `From chat I can move ${describe(item)} to another day, or rename it. Which day should it be, or what should it be called?`,
+      );
+    }
+    if ("past" in read) {
+      return asked(
+        entry,
+        `${read.past} has already passed. Which day should ${describe(item)} move to?`,
+      );
+    }
+    const { edit } = read;
+    const basis: CalendarBasis = {
+      status: item.status,
+      scheduled_for: item.scheduled_for,
+      title: item.title,
+    };
+    const after =
+      edit.op === "reschedule"
+        ? describe({ title: item.title, scheduled_for: edit.to })
+        : describe({ title: edit.to, scheduled_for: item.scheduled_for });
     return prepared(entry, {
       nowLine: `On your calendar now: ${describe(item)}.`,
-      summary: `Change ${describe(item)}: ${what}`,
+      summary:
+        edit.op === "reschedule"
+          ? `Move ${quote(item.title)} from ${item.scheduled_for ?? "no day"} to ${edit.to}`
+          : `Rename ${quote(item.title)} to ${quote(edit.to)}`,
       current: describe(item),
-      proposed: what,
-      payload: { item_id: item.id, title: item.title, what },
-      basis: `item:${item.id}:${item.status}:${item.scheduled_for ?? "unscheduled"}`,
+      proposed: after,
+      payload: { item_id: item.id, title: item.title, edit, basis },
+      basis: itemBasis(item),
     });
   },
   async basisNow(ctx, row) {
     const item = (await contentQueue(ctx.profileId)).find((i) => i.id === row.payload.item_id);
     return {
-      basis: item
-        ? `item:${item.id}:${item.status}:${item.scheduled_for ?? "unscheduled"}`
-        : "gone",
+      basis: item ? itemBasis(item) : "gone",
       now: item
         ? `${quote(item.title)}${item.scheduled_for ? ` on ${item.scheduled_for}` : ""}`
         : "no longer on the calendar",
     };
   },
-  async apply(ctx, row) {
+  refuse: watchRefusal,
+  before: warmLimits,
+  async apply(ctx, row, tx) {
+    const edit = row.payload.edit;
+    const basis = row.payload.basis;
+    if (!isCalendarEdit(edit) || !isCalendarBasis(basis)) {
+      throw new ChangeError("the drafted change names no calendar edit", 500);
+    }
     const { proposal } = await proposeFromChat({
       profileId: ctx.profileId,
       ownerUtteranceId: ctx.ownerUtteranceId,
       kind: "content_publishing",
       summary: row.summary,
-      extra: { content_item_id: row.payload.item_id, requested_change: row.payload.what },
+      rationale:
+        "You asked for this in chat. Approving it makes the change on your calendar, once, if the item is still as quoted here; nothing is posted by it.",
+      extra: {
+        content_item_id: row.payload.item_id,
+        requested_change: row.summary,
+        calendar_edit: edit,
+        calendar_basis: basis,
+      },
       ...(ctx.seams.limitLlm ? { limitLlm: ctx.seams.limitLlm } : {}),
+      tx,
     });
     return {
       status: "queued",
       result_text:
         proposal.status === "blocked"
           ? "Held back: one of your standing rules forbids it. It's in the queue's held-back section."
-          : "It's in your approval queue. Nothing on the calendar changes until you approve it there.",
+          : "It's in your approval queue. Approving it there makes the change on your calendar; nothing changes before that.",
       result_ref: `proposal:${proposal.id}`,
     };
   },

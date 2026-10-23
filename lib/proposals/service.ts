@@ -14,6 +14,7 @@ import { and, desc, eq, gt, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
 import type { DbOrTx } from "../../db";
 import { contentItems, decisionLog, proposals } from "../../db/schema";
+import { applyCalendarEdit, calendarEditOf } from "../content/calendar";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 
 export class ProposalError extends Error {
@@ -300,6 +301,21 @@ async function decide(args: {
           ),
         );
     }
+    // Review 2026-10-23, #8: a calendar edit drafted in chat (move an item
+    // to another day, or rename it) is MADE by its approval, in this same
+    // transaction, through the content module's own write — which re-checks
+    // the item is still as the card quoted it. If it isn't, nothing is
+    // approved and nothing changes.
+    const calendar = args.to === "approved" ? calendarEditOf(row.action) : null;
+    if (calendar) {
+      const edited = await applyCalendarEdit(tx, { profileId: row.profile_id, ...calendar });
+      if (!edited) {
+        throw new ProposalError(
+          "that calendar item has changed since this was proposed, or it's already headed for publishing, so nothing was changed — decline this one and ask me again",
+          409,
+        );
+      }
+    }
     const kind = LOG_KIND[args.to];
     await tx.insert(decisionLog).values({
       profile_id: row.profile_id,
@@ -315,6 +331,34 @@ async function decide(args: {
         ...(row.change_request ? { detail: { change_request: row.change_request } } : {}),
       }),
     });
+    if (calendar) {
+      const result = {
+        content_item_id: calendar.itemId,
+        op: calendar.edit.op,
+        from: calendar.edit.from,
+        to: calendar.edit.to,
+      };
+      const [executed] = await tx
+        .update(proposals)
+        .set({ status: "executed", execution_result: sql`${JSON.stringify(result)}::jsonb` })
+        .where(and(eq(proposals.id, row.id), eq(proposals.status, "approved")))
+        .returning();
+      if (!executed) throw new ProposalError("could not record the calendar change", 500);
+      await tx.insert(decisionLog).values({
+        profile_id: executed.profile_id,
+        actor: "system",
+        kind: "execution",
+        ref_id: executed.id,
+        payload_hash: hashProposalPayload("execution", {
+          proposal_id: executed.id,
+          profile_id: executed.profile_id,
+          status: executed.status,
+          decided_by: executed.decided_by,
+          detail: result,
+        }),
+      });
+      return executed;
+    }
     return row;
   });
 }
