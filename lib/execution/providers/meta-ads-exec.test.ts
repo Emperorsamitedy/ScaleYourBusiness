@@ -39,7 +39,7 @@ import {
   users,
   watchActivity,
 } from "../../../db/schema";
-import { metaError } from "../../connectors/providers/meta-fake";
+import { metaError, metaJson } from "../../connectors/providers/meta-fake";
 import { confidence } from "../../core/confidence";
 import { createField } from "../../core/field";
 import { fieldId } from "../../core/ids";
@@ -964,6 +964,39 @@ describe("P3-22b — create_campaign_paused, irreversible and at most once", () 
       /I may have created this campaign — check Ads Manager/,
     );
     expect((await run(b)).due).toBe(0); // the runner never re-runs it
+    expect(graph.writes()).toHaveLength(1);
+  });
+
+  it("review D #2: a create answered 500 code 2 is never sent again — one create POST, the owner told to check", async () => {
+    const b = await business();
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "POST" &&
+        c.url.pathname.endsWith("/campaigns") &&
+        c.form.get("execution_options") !== VALIDATE_ONLY
+          ? metaJson(500, { error: { message: "Service unavailable", code: 2 } })
+          : null,
+    });
+    const id = await adProposal(b, create, { level: "hard" });
+    expect((await run(b)).failed).toBe(1);
+    expect(graph.writes()).toHaveLength(1);
+    const execution = await executionFor(id);
+    expect(execution?.attempts).toBe(1);
+    expect(execution?.error).toMatch(/I may have created this campaign — check Ads Manager/);
+  });
+
+  it("review D #2, the control: a dry run answered 500 code 2 is retried — it creates nothing", async () => {
+    const b = await business();
+    let flaky = 1;
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "POST" && c.form.get("execution_options") === VALIDATE_ONLY && flaky-- > 0
+          ? metaJson(500, { error: { message: "Service unavailable", code: 2 } })
+          : null,
+    });
+    await adProposal(b, create, { level: "hard" });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.dryRuns()).toHaveLength(2);
     expect(graph.writes()).toHaveLength(1);
   });
 });

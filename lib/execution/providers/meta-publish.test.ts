@@ -37,7 +37,7 @@ import {
   users,
   watchActivity,
 } from "../../../db/schema";
-import { metaError } from "../../connectors/providers/meta-fake";
+import { metaError, metaJson } from "../../connectors/providers/meta-fake";
 import { PUBLISH_UNDO, publishReadiness } from "../../content/publish";
 import { dbPublishBackend, withdrawItem } from "../../content/publishing";
 import { memoryMediaStore } from "../../content/media";
@@ -61,6 +61,7 @@ import {
   mediaKindOf,
   publishCaption,
   publishOpFor,
+  publishingNoAnswer,
   usagePercent,
 } from "./meta";
 
@@ -104,6 +105,8 @@ interface FakeOptions {
   respond?: (call: Call) => MetaExecResponse | "no_answer" | null;
   /** The publishing call lands on Meta, then its answer is lost. */
   loseAnswerOf?: "page_feed" | "ig_publish";
+  /** The publishing call lands on Meta, then Meta answers with this instead (review D #2). */
+  answerAfter?: { of: "page_feed" | "ig_publish"; response: () => MetaExecResponse };
   /** IN_PROGRESS answers before a container is FINISHED (Infinity = never). */
   containerPolls?: number;
   /** The Page's business-use-case usage, in percent, on the Page read. */
@@ -173,6 +176,7 @@ function fakeGraph(opts: FakeOptions = {}) {
       const id = `${PAGE}_${next()}`;
       posts.set(id, { message: form.get("message") ?? "", created_time: nowIso() });
       if (opts.loseAnswerOf === "page_feed") throw new Error("socket hang up after the post");
+      if (opts.answerAfter?.of === "page_feed") return opts.answerAfter.response();
       return ok({ id });
     }
     if (m === "POST" && path === `${V}/${PAGE}/photos` && asPage) {
@@ -219,6 +223,7 @@ function fakeGraph(opts: FakeOptions = {}) {
       const id = `1791${next()}`;
       media.set(id, { caption: c.params["caption"] ?? "", timestamp: nowIso() });
       if (opts.loseAnswerOf === "ig_publish") throw new Error("socket hang up after publish");
+      if (opts.answerAfter?.of === "ig_publish") return opts.answerAfter.response();
       return ok({ id });
     }
     if (m === "GET" && path === `${V}/${IG}/media`) {
@@ -1088,6 +1093,104 @@ describe("P3-21d — at-most-once, stated honestly", () => {
     const item = await itemRow(item_id);
     expect(item.status).toBe("published");
     expect(item.platform_post_id).toBe([...graph.media.keys()][0]);
+  });
+});
+
+/* ── review 2026-10-23, Session D #2: no retries when publishing ── */
+
+/** Meta's 500 with code 2, "Service temporarily unavailable" — not a refusal: it may have landed. */
+const unavailable =
+  (code = 2) =>
+  () =>
+    metaJson(500, {
+      error: { message: "Service temporarily unavailable", type: "FacebookApiException", code },
+    });
+
+describe("Review D #2 — a publishing call is never retried on a 5xx or codes 1 and 2", () => {
+  it("the pure rule: for a publishing call, a 5xx or code 1/2 is no answer; a 4xx refusal and every read are answers", () => {
+    expect(publishingNoAnswer({ publishing: true }, 500, 2)).toBe(true);
+    expect(publishingNoAnswer({ publishing: true }, 400, 1)).toBe(true);
+    expect(publishingNoAnswer({ publishing: true }, 503, 17)).toBe(true);
+    expect(publishingNoAnswer({ publishing: true }, 400, null)).toBe(true);
+    expect(publishingNoAnswer({ publishing: true }, 400, 17)).toBe(false);
+    expect(publishingNoAnswer({ publishing: true }, 400, 100)).toBe(false);
+    expect(publishingNoAnswer({}, 500, 2)).toBe(false);
+    expect(publishingNoAnswer({ publishing: false }, 500, null)).toBe(false);
+  });
+
+  it("page_feed: a 500 code 2 is sent once; Meta had nothing, so it stays uncertain and is never re-sent", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "POST" && c.url.pathname.endsWith("/feed") ? unavailable()() : null,
+    });
+    expect((await run(b)).failed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "publishing",
+      last_error: MAY_HAVE_POSTED.facebook,
+    });
+    expect((await executionFor(proposal_id))?.status).toBe("failed");
+    await run(b);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+  });
+
+  it("page_feed: Meta posted and then answered 500 code 2 — read back, recorded, one post", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, run } = harness({ answerAfter: { of: "page_feed", response: unavailable() } });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+    expect(graph.posts.size).toBe(1);
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "published",
+      platform_post_id: [...graph.posts.keys()][0],
+    });
+  });
+
+  it("ig_publish: Meta published and then answered 500 code 1 — read back from the container, one post", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = harness({ answerAfter: { of: "ig_publish", response: unavailable(1) } });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/media_publish")).toHaveLength(1);
+    expect(graph.media.size).toBe(1);
+    expect((await itemRow(item_id)).platform_post_id).toBe([...graph.media.keys()][0]);
+  });
+
+  it("ig_publish: a 500 code 2 that published nothing is sent once", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "POST" && c.url.pathname.endsWith("/media_publish") ? unavailable()() : null,
+    });
+    await run(b);
+    expect(graph.where("POST", "/media_publish")).toHaveLength(1);
+    expect(graph.media.size).toBe(0);
+    expect((await itemRow(item_id)).status).not.toBe("published");
+  });
+
+  it("the control: a READ answered 500 code 2 is still retried to the cap, and the post then goes once", async () => {
+    const b = await business();
+    let flaky = 2;
+    const { item_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "GET" && c.url.pathname === `${V}/${PAGE}` && flaky-- > 0
+          ? unavailable()()
+          : null,
+    });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+    expect((await itemRow(item_id)).status).toBe("published");
   });
 });
 

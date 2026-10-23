@@ -84,7 +84,12 @@ import {
 } from "../../ads/guard";
 import { noteRequestUsage } from "../attempt-usage";
 import type { MetaFailure } from "../meta-errors";
-import { PAUSED_WORK_SENTENCE, classifyMetaError, pausesConnection } from "../meta-errors";
+import {
+  PAUSED_WORK_SENTENCE,
+  TEMPORARY_CODES,
+  classifyMetaError,
+  pausesConnection,
+} from "../meta-errors";
 import type { CredentialVerifier } from "../verify";
 import { ExecutionConnectionError, verifyExecutionScopes } from "../verify";
 import { touchesMoneySurface } from "../scopes";
@@ -313,7 +318,8 @@ export function disclosureViolation(
 
 /**
  * Meta gave no usable answer to a PUBLISHING request: no response, a
- * timeout, a 5xx with no error code, or a 200 we can't read. The post may
+ * timeout, any 5xx, Meta's temporary codes 1 and 2, an answer with no error
+ * code, or a 200 we can't read (publishingNoAnswer). The post may
  * or may not exist — the at-most-once path reconciles by reading back and
  * never sends it again (P3-21d).
  */
@@ -371,9 +377,10 @@ async function checkStop(
 
 interface CallOptions {
   /**
-   * A call that makes something public. Silence is never retried: a
-   * definite refusal (an error code) is retried to the cap, since Meta did
-   * nothing; no answer throws MetaNoAnswerError at once.
+   * A call that makes something public. Silence is never retried, and
+   * neither is a 5xx or Meta's temporary codes 1 and 2 — each throws
+   * MetaNoAnswerError at once (publishingNoAnswer). Only a definite 4xx
+   * refusal (a rate limit, say) is retried to the cap, since Meta did nothing.
    */
   publishing?: boolean;
   /** For the usage log line (P3-21d); never a token. */
@@ -489,6 +496,22 @@ export function usageHeaders(header: (name: string) => string | null): Record<st
   return out;
 }
 
+/**
+ * Pure: an answer to a PUBLISHING call that must be read as no answer at all
+ * (P3-21d, review 2026-10-23 #2) — no error code, any 5xx, or Meta's
+ * temporary codes 1 and 2. A post may exist behind each, so none is retried.
+ * A definite 4xx refusal (a rate limit, a bad parameter) is an answer: Meta
+ * did nothing, and the cap's retries stay as they are. Reads: always false.
+ */
+export function publishingNoAnswer(
+  options: Pick<CallOptions, "publishing">,
+  status: number,
+  code: number | null,
+): boolean {
+  if (!options.publishing) return false;
+  return code === null || status >= 500 || TEMPORARY_CODES.has(code);
+}
+
 async function metaCall(
   ctx: Context,
   auth: MetaAuth,
@@ -582,7 +605,10 @@ async function metaCall(
     }
     const code = typeof error?.code === "number" ? error.code : null;
     // A publishing call answered with silence, not a refusal: it may have landed.
-    if (options.publishing && code === null) throw new MetaNoAnswerError(which);
+    // So is a 5xx of any kind, and Meta's own "temporary" codes 1 and 2: each
+    // says Meta didn't finish answering, not that it did nothing (review
+    // 2026-10-23, Session D #2). Never sent again — the read-back settles it.
+    if (publishingNoAnswer(options, response.status, code)) throw new MetaNoAnswerError(which);
 
     // One mapping for every refusal (P3-24a): the sentence, the connection's
     // fate, the next step and whether to retry all come from meta-errors.
