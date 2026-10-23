@@ -54,6 +54,7 @@ import type {
   PublishPlatform,
 } from "./meta";
 import {
+  IG_FINISHED_GRACE_MS,
   IG_POLL_MAX,
   MAY_HAVE_POSTED,
   captionHash,
@@ -1176,6 +1177,105 @@ describe("Review D #2 — a publishing call is never retried on a 5xx or codes 1
     expect(graph.where("POST", "/media_publish")).toHaveLength(1);
     expect(graph.media.size).toBe(0);
     expect((await itemRow(item_id)).status).not.toBe("published");
+  });
+});
+
+describe("Review D #3 — a container still FINISHED after a lost media_publish is uncertain, not 'nothing went out'", () => {
+  const lostPublish = (container: () => string | null = () => null) => {
+    let sent = false;
+    return harness({
+      respond: (c) => {
+        if (c.method === "POST" && c.url.pathname.endsWith("/media_publish")) {
+          sent = true;
+          return "no_answer";
+        }
+        const status = sent ? container() : null;
+        return c.method === "GET" && status !== null && c.url.pathname.startsWith(`${V}/1790`)
+          ? { status: 200, json: async () => ({ status_code: status }), header: () => null }
+          : null;
+      },
+    });
+  };
+  const backdate = async (itemId: string, ms: number) => {
+    const row = await itemRow(itemId);
+    const attempt = row.publish_attempt as Record<string, unknown>;
+    await db
+      .update(contentItems)
+      .set({
+        publish_attempt: { ...attempt, sent_at: new Date(Date.now() - ms).toISOString() },
+      })
+      .where(eq(contentItems.id, itemId));
+  };
+
+  it("inside the grace window: FINISHED stays publishing with the owner's sentence, held for the sweep", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = lostPublish();
+    await run(b);
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "publishing",
+      last_error: MAY_HAVE_POSTED.instagram,
+    });
+    expect((await executionFor(proposal_id))?.status).toBe("failed");
+    // The next sweep, still inside the window: read back again, still uncertain, nothing re-sent.
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, uncertain: 1 });
+    expect(graph.where("POST", "/media_publish")).toHaveLength(1);
+  });
+
+  it("after the grace window: still FINISHED and no post found → not sent, in words", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = lostPublish();
+    await run(b);
+    await backdate(item_id, IG_FINISHED_GRACE_MS + 60_000);
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, not_sent: 1 });
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "failed",
+      last_error: expect.stringMatching(/^Instagram never published it/),
+    });
+    expect(graph.where("POST", "/media_publish")).toHaveLength(1);
+  });
+
+  it("FINISHED, but the post is there after all: found and recorded, never re-sent", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = lostPublish();
+    await run(b);
+    // Meta finished publishing after the answer was lost; the container lags behind.
+    graph.media.set("17919999", {
+      caption: publishCaption({ body: BODY, disclosure: LABEL }),
+      timestamp: new Date().toISOString(),
+    });
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, published: 1 });
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "published",
+      platform_post_id: "17919999",
+    });
+  });
+
+  it("ERROR or EXPIRED is proof: not sent at once", async () => {
+    for (const status of ["ERROR", "EXPIRED"]) {
+      const b = await business();
+      const { item_id } = await approvedItem(b, {
+        platform: "instagram",
+        media_path: await render("jpg"),
+      });
+      const { run } = lostPublish(() => status);
+      await run(b);
+      expect(await itemRow(item_id)).toMatchObject({
+        status: "failed",
+        last_error: "Instagram never published it. Nothing went out.",
+      });
+    }
   });
 
   it("the control: a READ answered 500 code 2 is still retried to the cap, and the post then goes once", async () => {

@@ -1033,6 +1033,15 @@ export const META_USAGE_BACKOFF_PCT = 75;
 export const IG_POLL_MAX = 10;
 /** How far before sent_at a read-back looks, for clock skew between us and Meta. */
 const READBACK_SKEW_S = 300;
+/**
+ * Review 2026-10-23 (Session D #3): how long after sent_at an Instagram
+ * container still reading FINISHED, with no post found, stays "I may have
+ * posted this". media_publish normally completes inside its own 20 s
+ * request; an hour is generous for a slow Meta, and well inside the 24 h
+ * after which Meta expires an unpublished container (EXPIRED, not_sent).
+ * The sweep settles it on its next pass after the window.
+ */
+export const IG_FINISHED_GRACE_MS = 60 * 60_000;
 
 export const MAY_HAVE_POSTED: Readonly<Record<PublishPlatform, string>> = {
   facebook:
@@ -1469,6 +1478,7 @@ async function readBack(
     targetId: string;
     item: PublishItem;
     accountId: string;
+    now: Date;
   },
 ): Promise<ReconcileOutcome> {
   const { cred, platform, targetId, item, accountId } = args;
@@ -1554,10 +1564,14 @@ async function readBack(
       who,
     );
     const status = stringId(container, "status_code");
-    if (status === "FINISHED" || status === "ERROR" || status === "EXPIRED") {
+    if (status === "ERROR" || status === "EXPIRED") {
       return { kind: "not_sent", sentence: "Instagram never published it. Nothing went out." };
     }
-    if (status !== "PUBLISHED") return uncertain;
+    // FINISHED is NOT proof of nothing (review 2026-10-23, Session D #3): right
+    // after a lost media_publish answer Meta may still be publishing it. Look
+    // for the post either way; only once the grace window has passed with the
+    // container still FINISHED and no post found is it called not sent.
+    if (status !== "PUBLISHED" && status !== "FINISHED") return uncertain;
     const list = await metaRequest(
       ctx,
       { bearer: cred.access_token },
@@ -1577,12 +1591,24 @@ async function readBack(
     );
     const only = ours.length === 1 ? ours[0] : undefined;
     const id = only ? stringId(only, "id") : null;
-    return only && id
-      ? {
-          kind: "found",
-          post: { platform, platform_post_id: id, url: stringId(only, "permalink") },
-        }
-      : uncertain;
+    if (only && id) {
+      return {
+        kind: "found",
+        post: { platform, platform_post_id: id, url: stringId(only, "permalink") },
+      };
+    }
+    if (
+      status === "FINISHED" &&
+      ours.length === 0 &&
+      args.now.getTime() - Date.parse(attempt.sent_at) > IG_FINISHED_GRACE_MS
+    ) {
+      return {
+        kind: "not_sent",
+        sentence:
+          "Instagram never published it — the media was ready, but no post appeared. Nothing went out.",
+      };
+    }
+    return uncertain;
   } catch {
     // Can't read back right now: still unknown, still never re-sent.
     return uncertain;
@@ -1810,6 +1836,7 @@ function publishProvider(
           targetId: p.target_id,
           item,
           accountId: pctx.account_id,
+          now: now(),
         });
         return settle(b, outcome, item, pctx, p.platform);
       }
@@ -2012,6 +2039,7 @@ function publishProvider(
         targetId: p.target_id,
         item,
         accountId: pctx.account_id,
+        now: now(),
       });
       try {
         await settle(b, outcome, item, pctx, p.platform);
