@@ -1,7 +1,7 @@
 // The bookings API — specs/bookings.md §3–5.
 //
 //   GET   /api/bookings   what has been imported, and the 28-day measures per source
-//   POST  /api/bookings   { csv, platform, currency?, date_order? }: import one export
+//   POST  /api/bookings   { csv, platform, currency?, date_order?, decimal_style? }: import one export
 //
 // Importing measurement into an account is an account-level act, like
 // connecting a source, so both need a signed-in session. Nothing here logs
@@ -18,6 +18,7 @@ import {
   isBookingPlatform,
 } from "../../../lib/bookings/import-map";
 import { BookingImportError } from "../../../lib/bookings/rows";
+import { isDecimalStyle } from "../../../lib/core/money";
 import { bookingsView, importBookings } from "../../../lib/bookings/store";
 
 const AUTH_COOKIE = "syb_session";
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       platform?: unknown;
       currency?: unknown;
       date_order?: unknown;
+      decimal_style?: unknown;
     } | null;
     if (typeof body?.csv !== "string" || body.csv.trim() === "") {
       return NextResponse.json({ error: "the export's text is required" }, { status: 422 });
@@ -87,6 +89,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       platform,
       currency,
       dateOrder,
+      decimalStyle: isDecimalStyle(body.decimal_style) ? body.decimal_style : null,
     });
     return NextResponse.json(
       {

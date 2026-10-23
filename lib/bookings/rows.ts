@@ -6,7 +6,13 @@
 // out, counted. Nothing is guessed.
 
 import { createHash } from "node:crypto";
-import { parseMoneyMinor } from "../core/money";
+import type { DecimalStyle } from "../core/money";
+import {
+  DECIMAL_STYLE_MESSAGES,
+  isIsoCurrency,
+  parseAmountMinor,
+  settleDecimalStyle,
+} from "../core/money";
 import type { BookingPlatform, ColumnMap, ColumnRole } from "./import-map";
 import { mapColumns, statusTarget } from "./import-map";
 import type { DateOrder, ParsedDateTime } from "./parse";
@@ -45,7 +51,15 @@ export const ROW_SKIP_REASONS = [
 export type RowSkipReason = (typeof ROW_SKIP_REASONS)[number];
 
 /** Which single values were left out of rows that were kept. */
-export const CELL_GAPS = ["time", "price", "duration", "cancelled_at", "client"] as const;
+export const CELL_GAPS = [
+  "time",
+  "price",
+  "duration",
+  "cancelled_at",
+  "client",
+  /** A client erased (or unsubscribed): their visit is kept, never linked (review 2026-10-23, #3). */
+  "client_erased",
+] as const;
 export type CellGap = (typeof CELL_GAPS)[number];
 
 export interface ExportOptions {
@@ -54,6 +68,12 @@ export interface ExportOptions {
   currency: string | null;
   /** For slash dates the file itself can't settle (03/04/2026). */
   dateOrder: DateOrder | null;
+  /**
+   * Which mark is the decimal one in the price column, when the file can't
+   * prove it (only prices like "1.200"); asked like the date order, never
+   * guessed (review 2026-10-23, #4). Omitted means "work it out".
+   */
+  decimalStyle?: DecimalStyle | null;
   /** "YYYY-MM-DD" — the import's day: a booked appointment after it is booked_future. */
   today: string;
 }
@@ -119,12 +139,15 @@ function settleDateOrder(
   return null;
 }
 
+/**
+ * The caller's hashing of a client: the keyed hash, null when the identity
+ * identifies nobody, or false when it names a client who was erased or
+ * unsubscribed, whose visits must stay unlinked.
+ */
+export type KeyOf = (identity: ClientIdentity) => string | null | false;
+
 /** Read one export. Throws BookingImportError for a file it can't honestly read at all. */
-export function readExport(
-  text: string,
-  options: ExportOptions,
-  keyOf: (identity: ClientIdentity) => string | null,
-): ReadExport {
+export function readExport(text: string, options: ExportOptions, keyOf: KeyOf): ReadExport {
   if (text.length > MAX_IMPORT_BYTES) {
     throw new BookingImportError("that file is too large for one import — split it by date", 413);
   }
@@ -164,7 +187,7 @@ export function readExport(
     );
   }
   const currency = options.currency?.trim().toUpperCase() ?? "";
-  if (map.price !== undefined && !/^[A-Z]{3}$/.test(currency)) {
+  if (map.price !== undefined && !isIsoCurrency(currency)) {
     throw new BookingImportError(
       "the file has a price column — say which currency it is in (three letters, e.g. EUR)",
     );
@@ -180,6 +203,11 @@ export function readExport(
     options.dateOrder,
   );
   const order = dateOrder?.order ?? null;
+  const priceStyle = settleDecimalStyle(
+    body.map((r) => cell(r, "price")),
+    options.decimalStyle ?? null,
+  );
+  if (!priceStyle.ok) throw new BookingImportError(DECIMAL_STYLE_MESSAGES[priceStyle.reason]);
 
   const identity: ReadExport["identity"] =
     map.client_id !== undefined
@@ -256,9 +284,10 @@ export function readExport(
     let price_minor: number | null = null;
     const priceRaw = cell(row, "price");
     if (priceRaw !== "") {
-      const p = parseMoneyMinor(priceRaw, currency);
-      if (p === null || p < 0) bump(gaps, "price");
-      else price_minor = p;
+      // The one exact path: no float, no rounding, extra precision refused.
+      const p = parseAmountMinor(priceRaw, currency, priceStyle.style);
+      if (!p.ok || p.minor < 0) bump(gaps, "price");
+      else price_minor = p.minor;
     }
     let duration: number | null = null;
     const durationRaw = cell(row, "duration");
@@ -272,8 +301,10 @@ export function readExport(
       const raw = cell(row, identity);
       const kind =
         identity === "client_id" ? "id" : identity === "client_email" ? "email" : "phone";
-      client_key = raw === "" ? null : keyOf({ kind, value: raw });
-      if (client_key === null) bump(gaps, "client");
+      const key = raw === "" ? null : keyOf({ kind, value: raw });
+      if (key === false) bump(gaps, "client_erased");
+      else if (key === null) bump(gaps, "client");
+      else client_key = key;
     }
     const service = clip(cell(row, "service"));
     const staff = clip(cell(row, "staff"));
@@ -313,10 +344,12 @@ export function readExport(
     }
     // No reference: a content key, numbered within the file so a class of
     // twelve stays twelve, and the same file re-imported gives the same keys.
+    // It never contains the client key (review 2026-10-23, #11): a row's
+    // identity must survive the erasure of its client unchanged, and an
+    // erased client's key must not live on inside source_ref. Migration
+    // 0053 re-keyed the rows stored under the older form.
     const content = createHash("sha256")
-      .update(
-        [when.day, when.time ?? "", client_key ?? "", service ?? "", staff ?? ""].join("\u0000"),
-      )
+      .update([when.day, when.time ?? "", service ?? "", staff ?? ""].join("\u0000"))
       .digest("hex")
       .slice(0, 32);
     const n = (ordinals.get(content) ?? 0) + 1;

@@ -10,6 +10,7 @@ import {
   coerceChangeIntent,
   detectByRules,
   isQuestion,
+  looksPasted,
   parseDays,
   parseReplyHours,
   parseTimeRange,
@@ -17,6 +18,37 @@ import {
 import { CHANGE_KINDS } from "./kinds";
 
 const kindOf = (text: string) => detectByRules(text).change?.kind ?? null;
+
+describe("review 2026-10-23, #21", () => {
+  it('"10-24" closes at midnight, never at noon', () => {
+    expect(parseTimeRange("10-24")).toEqual({ open: "10:00", close: "00:00" });
+    expect(parseTimeRange("10:00-24:00")).toEqual({ open: "10:00", close: "00:00" });
+    expect(detectByRules("Set Friday hours to 10-24").change?.params).toMatchObject({
+      days: ["fri"],
+      open: "10:00",
+      close: "00:00",
+    });
+    // The afternoon reading is untouched for a bare close under twelve.
+    expect(parseTimeRange("10-12")).toEqual({ open: "10:00", close: "12:00" });
+    expect(parseTimeRange("10-4")).toEqual({ open: "10:00", close: "16:00" });
+  });
+
+  it("pasted or quoted text never drafts a card by the rules; the model path reads it", () => {
+    expect(kindOf("pause everything")).toBe("stop");
+    for (const text of [
+      'A customer wrote: "you should pull the plug on this, pause everything"',
+      "> pause everything\n> before it's too late",
+      "From: anna@example.com\nSubject: complaint\nPlease pause everything you send me",
+      "Thanks for the order.\nI want you to pause everything.\nRegards, Bea",
+      `${"This is a long review someone left on our page. ".repeat(7)}pause everything`,
+    ]) {
+      expect(looksPasted(text)).toBe(true);
+      expect(detectByRules(text)).toEqual({ kinds: [], change: null, final: false });
+    }
+    expect(looksPasted("Set my Saturday hours to 10:00–16:00")).toBe(false);
+    expect(looksPasted("we don't open on Sundays")).toBe(false);
+  });
+});
 
 describe("the small parsers", () => {
   it("reads weekdays, plurals and the weekend", () => {

@@ -15,6 +15,7 @@
 import { createHash } from "node:crypto";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbTx } from "../../db";
 import { decisionLog, fieldRecords } from "../../db/schema";
 import type { Field } from "../core/field";
 import { fieldRecordId } from "../core/ids";
@@ -55,9 +56,20 @@ export interface HistoricalFieldRecord<T> {
  * Write a field: mark the current record (if any) superseded and insert
  * the new one, atomically. Returns the new record's storage id.
  */
-export async function writeField<T>(profileId: string, field: Field<T>): Promise<string> {
+export async function writeField<T>(
+  profileId: string,
+  field: Field<T>,
+  opts: {
+    /**
+     * Join the caller's transaction (the chat's confirm, review 2026-10-23
+     * #21). Validation then waits for the caller: it reads committed rows,
+     * so the caller runs runFieldValidation after its commit.
+     */
+    tx?: DbTx;
+  } = {},
+): Promise<string> {
   const newId = crypto.randomUUID();
-  await db.transaction(async (tx) => {
+  await (opts.tx ?? db).transaction(async (tx) => {
     // 1. Retire the current record. superseded_at frees the partial unique
     //    index for the incoming insert; superseded_by must wait until the
     //    successor row exists (self-FK).
@@ -98,13 +110,22 @@ export async function writeField<T>(profileId: string, field: Field<T>): Promise
       payload_hash: hashFieldPayload(profileId, field),
     });
   });
+  if (opts.tx) return newId;
+  await runFieldValidation(profileId, field.id);
+  return newId;
+}
+
+/**
+ * P0-81: validation runs on EVERY field write, not as a batch. Exported for
+ * a caller whose write joined its own transaction, to run after the commit.
+ */
+export async function runFieldValidation(profileId: string, fieldKey: string): Promise<void> {
   // P0-81: validation runs on EVERY field write, not as a batch. The
   // dynamic import breaks the module cycle (the engine reads back through
   // this store); the engine contains its own failures, so a validation
   // bug can never turn into a failed write.
   const { runValidationForWrite } = await import("../validation/engine");
-  await runValidationForWrite(profileId, field.id);
-  return newId;
+  await runValidationForWrite(profileId, fieldKey);
 }
 
 /**

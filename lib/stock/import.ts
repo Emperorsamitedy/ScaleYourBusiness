@@ -21,7 +21,13 @@ import { createHash } from "node:crypto";
 import { and, eq, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, connections, decisionLog } from "../../db/schema";
-import { DecimalError, decimalToMinor } from "../connectors/decimal";
+import type { DecimalStyle } from "../core/money";
+import {
+  DECIMAL_STYLE_MESSAGES,
+  isIsoCurrency,
+  parseAmountMinor,
+  settleDecimalStyle,
+} from "../core/money";
 import type { Observation } from "../connectors/provider";
 import { upsertObservations } from "../connectors/service";
 import { parseCsv, parseDate } from "../crm/import";
@@ -110,25 +116,18 @@ export function parseUnits(raw: string): number | null {
 
 /**
  * "€12.50", "12,50", "1.234,50", "1,234.50" → integer minor units, through
- * the exact decimal path (no float). Null when unreadable or more precise
- * than the currency allows.
+ * the one exact path (lib/core/money.ts readAmount → digitsToMinor, no
+ * float). Null when unreadable, negative, more precise than the currency
+ * allows, or ambiguous ("1.200") without the file's style to settle it
+ * (review 2026-10-23, #4: "12.000" HUF had been read as 12 Ft).
  */
-export function parseStockMoney(raw: string, currency: string): number | null {
-  let v = raw.trim().replace(/[^\d.,-]/g, "");
-  if (v === "" || v.startsWith("-")) return null;
-  const lastComma = v.lastIndexOf(",");
-  const lastDot = v.lastIndexOf(".");
-  if (lastComma !== -1 && lastDot !== -1) {
-    v = lastComma > lastDot ? v.replace(/\./g, "").replace(",", ".") : v.replace(/,/g, "");
-  } else if (lastComma !== -1) {
-    v = /,\d{1,3}$/.test(v) && !/,\d{3}$/.test(v) ? v.replace(",", ".") : v.replace(/,/g, "");
-  }
-  try {
-    return decimalToMinor(v, currency);
-  } catch (error) {
-    if (error instanceof DecimalError) return null;
-    throw error;
-  }
+export function parseStockMoney(
+  raw: string,
+  currency: string,
+  style: DecimalStyle | null = null,
+): number | null {
+  const r = parseAmountMinor(raw, currency, style);
+  return r.ok && r.minor >= 0 ? r.minor : null;
 }
 
 /** The key an imported item's series is stored under: its SKU, else its name, normalised. */
@@ -141,6 +140,11 @@ export function itemRef(sku: string, name: string): string | null {
 export interface StockImportOptions {
   /** ISO 4217 for the cost and price columns. Required when the file has either. */
   currency?: string;
+  /**
+   * Which mark is the decimal one in the money columns, when the file can't
+   * prove it itself (only values like "1.200"). Asked, never guessed.
+   */
+  decimal_style?: DecimalStyle | null;
   /** The window the units-sold column covers, in days. Required when the file has one. */
   window_days?: number;
   /** "YYYY-MM-DD": the day the stock was counted. Defaults to the day of import. */
@@ -191,11 +195,18 @@ export function stockFileObservations(
     );
   }
   const currency = options.currency?.trim().toUpperCase() ?? "";
-  if ((col.unit_cost !== -1 || col.price !== -1) && !/^[A-Z]{3}$/.test(currency)) {
+  if ((col.unit_cost !== -1 || col.price !== -1) && !isIsoCurrency(currency)) {
     throw new StockImportError(
       "the file has a cost or price column — say which currency it is in (three letters, e.g. EUR)",
     );
   }
+  // The money columns' style, settled by the file or the owner's word, as a date order is.
+  const moneyCells = rows
+    .slice(1)
+    .flatMap((r) => [col.unit_cost, col.price].filter((i) => i !== -1).map((i) => r[i] ?? ""));
+  const settled = settleDecimalStyle(moneyCells, options.decimal_style ?? null);
+  if (!settled.ok) throw new StockImportError(DECIMAL_STYLE_MESSAGES[settled.reason]);
+  const style = settled.style;
   const windowDays = options.window_days;
   if (
     col.units_sold !== -1 &&
@@ -249,7 +260,7 @@ export function stockFileObservations(
     const money = (role: "unit_cost" | "price") => {
       const text = cell(col[role]);
       if (text === "") return null;
-      const minor = parseStockMoney(text, currency);
+      const minor = parseStockMoney(text, currency, style);
       if (minor === null) unreadable[role]++;
       return minor;
     };

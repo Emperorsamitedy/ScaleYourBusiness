@@ -21,12 +21,15 @@ import { and, desc, eq, gte, inArray, lte, max, ne, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
   bookingAppointments,
+  bookingClientErasures,
   bookingImports,
   businessProfiles,
   connections,
+  contactSuppressions,
   decisionLog,
   metricObservations,
 } from "../../db/schema";
+import { emailHash, legacyEmailHash } from "../crm/contacts";
 import { detectAnomalies } from "../anomaly/detect";
 import type { DeriveOutcome, DeriveWindow } from "../connectors/derive";
 import { writeMeasured } from "../connectors/derive";
@@ -34,6 +37,7 @@ import type { MetricKey } from "../connectors/provider";
 import type { Executor } from "../connectors/service";
 import { upsertObservations } from "../connectors/service";
 import { isoDate, isoDateTime } from "../core/iso";
+import type { DecimalStyle } from "../core/money";
 import { readCurrentField } from "../profile/field-store";
 import { clientKey } from "./client-key";
 import type { BookingPlatform, ColumnRole } from "./import-map";
@@ -47,7 +51,7 @@ import {
   shiftDate,
 } from "./measures";
 import type { DateOrder } from "./parse";
-import type { CellGap, RowSkipReason } from "./rows";
+import type { CellGap, KeyOf, RowSkipReason } from "./rows";
 import { BookingImportError, readExport } from "./rows";
 import { BOOKINGS_IMPORT_PROVIDER } from "./source";
 import type { BookingInput, MeasuredAppointment } from "./types";
@@ -281,10 +285,47 @@ function lateSeparated(provider: string): boolean {
 
 /* ── the import ── */
 
+/**
+ * The import's client hashing, with erasure honoured (review 2026-10-23,
+ * #3, rule 22): a client whose key an erasure cleared, or whose email is on
+ * the account's suppression list (erased or unsubscribed), is never linked
+ * again, so re-importing the usual overlapping export can't undo an
+ * erasure. Both lists are hashes; the identity goes no further than here.
+ */
+export async function importKeyOf(accountId: string, scope: string): Promise<KeyOf> {
+  const [erased, suppressed] = await Promise.all([
+    db
+      .select({ key: bookingClientErasures.client_key })
+      .from(bookingClientErasures)
+      .where(eq(bookingClientErasures.account_id, accountId)),
+    db
+      .select({ hash: contactSuppressions.email_hash })
+      .from(contactSuppressions)
+      .where(eq(contactSuppressions.account_id, accountId)),
+  ]);
+  const erasedKeys = new Set(erased.map((r) => r.key));
+  const suppressedHashes = new Set(suppressed.map((r) => r.hash));
+  return (identity) => {
+    const key = clientKey(accountId, identity, scope);
+    if (key === null) return null;
+    if (erasedKeys.has(key)) return false;
+    if (
+      identity.kind === "email" &&
+      (suppressedHashes.has(emailHash(identity.value)) ||
+        suppressedHashes.has(legacyEmailHash(identity.value)))
+    ) {
+      return false;
+    }
+    return key;
+  };
+}
+
 export interface ImportRequest {
   platform: BookingPlatform;
   currency: string | null;
   dateOrder: DateOrder | null;
+  /** Which mark is the decimal one in the price column, when the file can't prove it. */
+  decimalStyle?: DecimalStyle | null;
 }
 
 export interface ImportOutcome {
@@ -323,15 +364,17 @@ export async function importBookings(
   now = new Date(),
 ): Promise<ImportOutcome> {
   const today = dayOf(now);
+  const keyOf = await importKeyOf(accountId, request.platform);
   const read = readExport(
     csv,
     {
       platform: request.platform,
       currency: request.currency,
       dateOrder: request.dateOrder,
+      decimalStyle: request.decimalStyle ?? null,
       today,
     },
-    (identity) => clientKey(accountId, identity, request.platform),
+    keyOf,
   );
   if (read.appointments.length === 0) {
     const reasons = Object.entries(read.skipped)

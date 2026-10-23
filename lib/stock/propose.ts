@@ -49,6 +49,27 @@ import { CLEARANCE, clearanceOptions, efficiencyLine, rankOptions } from "./opti
 
 export const STOCK_MODULE = "stock";
 
+/** The partial unique index that makes a stock proposal's ref once-only (migration 0053). */
+export const STOCK_FINDING_INDEX = "proposals_stock_finding_idx";
+
+/**
+ * Create a stock proposal at most once per ref. The read of existing refs
+ * above is the fast path; two runs racing past it both reach the insert,
+ * and the database's unique index lets one in (review 2026-10-23, #22).
+ * The loser's transaction rolls back whole, its log entry with it.
+ */
+async function createOnce(
+  input: Parameters<typeof createProposal>[0],
+): Promise<ProposalRow | null> {
+  try {
+    return await createProposal(input);
+  } catch (error) {
+    const cause = (error as { cause?: { constraint?: string }; constraint?: string }) ?? {};
+    if ((cause.cause?.constraint ?? cause.constraint) === STOCK_FINDING_INDEX) return null;
+    throw error;
+  }
+}
+
 /** The email recipients: the campaign path's own best-customers segment. */
 const EMAIL_SEGMENT = "vip";
 
@@ -248,7 +269,7 @@ export async function proposeClearance(
       }
       limits ??= (await ensureHardLimits(profileId, opts.limitLlm ?? liveLimitLlm)).limits;
       const verdict = checkHardLimits(limits, option.kind);
-      const row = await createProposal({
+      const row = await createOnce({
         profile_id: profileId,
         module: option.key === "content" ? "content" : STOCK_MODULE,
         originating_finding: ref,
@@ -272,6 +293,10 @@ export async function proposeClearance(
         expires_at: expires,
         blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,
       });
+      if (row === null) {
+        out.skipped.push({ ref, reason: "already proposed this month" });
+        continue;
+      }
       (verdict.verdict === "blocked" ? out.blocked : out.created).push(row);
     }
   }
@@ -289,10 +314,11 @@ export async function proposeClearance(
     } else {
       limits ??= (await ensureHardLimits(profileId, opts.limitLlm ?? liveLimitLlm)).limits;
       const verdict = checkHardLimits(limits, SEGMENT_KIND);
-      const row = await createProposal(
+      const row = await createOnce(
         emailProposal(profileId, ref, emailItems, shared, verdict, expires, labelOf),
       );
-      (verdict.verdict === "blocked" ? out.blocked : out.created).push(row);
+      if (row === null) out.skipped.push({ ref, reason: "already proposed this month" });
+      else (verdict.verdict === "blocked" ? out.blocked : out.created).push(row);
     }
   }
 

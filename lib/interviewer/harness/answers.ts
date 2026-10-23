@@ -47,6 +47,9 @@ export interface InputSpec {
   option_labels?: Readonly<Record<string, Readonly<Record<string, string>>>>;
   entity_schema?: string;
   allow_unknown?: boolean;
+  /** A number question's bounds, from the bank (inclusive). */
+  min?: number;
+  max?: number;
 }
 
 export class HarnessAnswerError extends Error {

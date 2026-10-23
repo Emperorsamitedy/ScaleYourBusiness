@@ -8,6 +8,7 @@
 import { randomBytes } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbOrTx } from "../../db";
 import { businessProfiles, supportSettings } from "../../db/schema";
 import { readCurrentField } from "../profile/field-store";
 import type { SupportSettingsRow } from "../support/settings";
@@ -100,12 +101,13 @@ export async function rotateInboundToken(profileId: string): Promise<SupportSett
 export async function setReplyHours(
   profileId: string,
   hours: number | null,
+  executor: DbOrTx = db,
 ): Promise<SupportSettingsRow> {
   if (hours !== null && (!Number.isInteger(hours) || hours < 1 || hours > 720)) {
     throw new SupportSettingsError("a reply time is a whole number of hours, from 1 to 720", 422);
   }
   await ensureSupportSettings(profileId);
-  const [row] = await db
+  const [row] = await executor
     .update(supportSettings)
     .set({
       reply_hours: hours,
@@ -118,9 +120,13 @@ export async function setReplyHours(
 }
 
 /** P4-11: whether a new email ticket emails the owner's own account address. */
-export async function setNotifyOwner(profileId: string, on: boolean): Promise<SupportSettingsRow> {
+export async function setNotifyOwner(
+  profileId: string,
+  on: boolean,
+  executor: DbOrTx = db,
+): Promise<SupportSettingsRow> {
   await ensureSupportSettings(profileId);
-  const [row] = await db
+  const [row] = await executor
     .update(supportSettings)
     .set({ notify_owner: on })
     .where(eq(supportSettings.profile_id, profileId))

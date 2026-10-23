@@ -161,6 +161,7 @@ function ImportCard({ onDone }: { onDone: () => void }) {
   const [currency, setCurrency] = useState("EUR");
   const [windowDays, setWindowDays] = useState("90");
   const [asOf, setAsOf] = useState("");
+  const [decimalStyle, setDecimalStyle] = useState<"" | "dot_decimal" | "comma_decimal">("");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
@@ -177,6 +178,7 @@ function ImportCard({ onDone }: { onDone: () => void }) {
           currency,
           window_days: windowDays,
           as_of: asOf,
+          ...(decimalStyle !== "" ? { decimal_style: decimalStyle } : {}),
         }),
       });
       const body = (await res.json()) as {
@@ -246,6 +248,20 @@ function ImportCard({ onDone }: { onDone: () => void }) {
         <label className="st-field">
           <span className="label">Counted on</span>
           <input type="date" value={asOf} onChange={(e) => setAsOf(e.target.value)} />
+        </label>
+        <label className="st-field">
+          <span className="label">How amounts are written, if they look like 1.200</span>
+          <select
+            value={decimalStyle}
+            onChange={(e) =>
+              setDecimalStyle(e.target.value as "" | "dot_decimal" | "comma_decimal")
+            }
+            disabled={busy}
+          >
+            <option value="">Work it out from the file</option>
+            <option value="dot_decimal">1,234.56 (the comma separates thousands)</option>
+            <option value="comma_decimal">1.234,56 (the dot separates thousands)</option>
+          </select>
         </label>
         <button type="button" className="act" disabled={busy || csv.trim() === ""} onClick={submit}>
           {busy ? "Reading…" : "Import stock →"}

@@ -3,6 +3,7 @@ import type { DeltaInput } from "./materiality";
 import {
   MATERIALITY,
   countFloor,
+  isPercentField,
   materialityOf,
   moneyFloorMinor,
   quietLine,
@@ -57,6 +58,31 @@ describe("the thresholds, pinned", () => {
     for (const c of ["EUR", "HUF", "JPY", "KWD", "XYZ"]) {
       expect(Number.isSafeInteger(moneyFloorMinor(c))).toBe(true);
     }
+  });
+});
+
+describe("percent fields — their own floor in percentage points (review 2026-10-23, #23)", () => {
+  const rate = (s: number, m: number) => pair("revenue.repeat_customer_rate", s, m);
+
+  it("pins the floor at 2 points and knows a percent field by its key", () => {
+    expect(MATERIALITY.percent_floor_pp).toBe(2);
+    expect(isPercentField("revenue.repeat_customer_rate")).toBe(true);
+    expect(isPercentField("service.no_show_rate_28d")).toBe(true);
+    expect(isPercentField("revenue.gross_margin")).toBe(true);
+    expect(isPercentField("revenue.order_count_monthly")).toBe(false);
+  });
+
+  it("shows a 10 % → 14 % repeat rate as material (the count floor of 5 hid it)", () => {
+    expect(materialityOf(rate(10, 14))).toEqual({ material: true, reason: "material" });
+  });
+
+  it("boundary both ways: exactly 2 points is material, 1.9 is below the floor", () => {
+    expect(materialityOf(rate(10, 12)).material).toBe(true);
+    expect(materialityOf(rate(10, 11.9))).toEqual({ material: false, reason: "below_floor" });
+  });
+
+  it("still needs the relative test: 50 % → 57 % is within 15 %", () => {
+    expect(materialityOf(rate(50, 57))).toEqual({ material: false, reason: "within_relative" });
   });
 });
 

@@ -33,6 +33,7 @@
 import { createHash } from "node:crypto";
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbTx } from "../../db";
 import {
   accounts,
   assistantChanges,
@@ -40,6 +41,7 @@ import {
   connections,
   decisionLog,
   fieldRecords,
+  proposals,
   utterances,
 } from "../../db/schema";
 import { confidence } from "../core/confidence";
@@ -47,11 +49,14 @@ import { createField } from "../core/field";
 import type { Field } from "../core/field";
 import { fieldId, utteranceId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
+import { isIsoCurrency, readAmount } from "../core/money";
 import type { SizeBand } from "../core/size-features";
 import { addGoal, listGoals, setGoalAttr } from "../content/goals";
+import type { CalendarBasis, CalendarEdit } from "../content/calendar";
+import { EDITABLE_STATUS, isCalendarBasis, isCalendarEdit } from "../content/calendar";
 import { contentQueue } from "../content/produce";
 import { proposeCustomKnowledge, listKnowledge } from "../crm/knowledge";
-import { setNotifyOwner, setReplyHours } from "../crm/support-settings";
+import { ensureSupportSettings, setNotifyOwner, setReplyHours } from "../crm/support-settings";
 import { haltExecutions, haltState } from "../execution/engine";
 import type { OpenPeriod, OpeningSchedule, ScheduleLlm, Weekday } from "../hours/schedule";
 import {
@@ -69,10 +74,10 @@ import { isDynamicVocabulary } from "../profile/dynamic-vocab";
 import type { FieldRecordRow } from "../profile/field-codec";
 import { rowToField } from "../profile/field-codec";
 import { buildFactSheet, repr } from "../profile/factsheet";
-import { readCurrentField, writeField } from "../profile/field-store";
+import { readCurrentField, runFieldValidation, writeField } from "../profile/field-store";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "../profile/size-band";
 import type { LimitLlm } from "../proposals/hard-limits";
-import { BOUNDARIES_KEY } from "../proposals/hard-limits";
+import { BOUNDARIES_KEY, ensureHardLimits } from "../proposals/hard-limits";
 import { applicableQuestions } from "../resolver/applicability";
 import { overlapScore, tokenize } from "../support/knowledge";
 import { settingsForProfile } from "../support/settings";
@@ -137,13 +142,24 @@ interface Applied {
   status: "applied" | "queued";
   result_text: string;
   result_ref: string;
+  /** Fact keys written in the transaction: validation runs on them after the commit. */
+  validate?: string[];
 }
 
 interface Handler {
   prepare(ctx: Ctx, change: DetectedChange, entry: CatalogueEntry): Promise<Prepared>;
   /** What the row was drafted against, read again now, and its words. */
   basisNow?(ctx: Ctx, row: AssistantChangeRow): Promise<{ basis: string | null; now: string }>;
-  apply?(ctx: Ctx, row: AssistantChangeRow): Promise<Applied>;
+  /** At the click: a reason the change may not go ahead now (the watch), or null. */
+  refuse?(ctx: Ctx, row: AssistantChangeRow): Promise<string | null>;
+  /**
+   * Before the transaction opens: work that may call a model or create a
+   * default row (the hard limits, the settings row), so no model call ever
+   * runs inside the confirm's transaction.
+   */
+  before?(ctx: Ctx, row: AssistantChangeRow): Promise<void>;
+  /** The write itself, inside the confirm's one transaction (review 2026-10-23, #21). */
+  apply?(ctx: Ctx, row: AssistantChangeRow, tx: DbTx): Promise<Applied>;
 }
 
 /* ── shared reading and writing ── */
@@ -188,7 +204,12 @@ async function currentRecord(
 }
 
 /** The one fact write: superseding, conversation-sourced, naming the owner's message. */
-async function writeConversationFact(ctx: Ctx, key: string, value: unknown): Promise<string> {
+async function writeConversationFact(
+  ctx: Ctx,
+  key: string,
+  value: unknown,
+  tx: DbTx,
+): Promise<string> {
   const at = isoDateTime(new Date().toISOString());
   const recordId = await writeField(
     ctx.profileId,
@@ -202,9 +223,10 @@ async function writeConversationFact(ctx: Ctx, key: string, value: unknown): Pro
       recorded_at: at,
       note: "confirmed in chat",
     }),
+    { tx },
   );
   // The owner's message now wrote something: say so on it (§2.2).
-  await db
+  await tx
     .update(utterances)
     .set({
       confirmed: true,
@@ -394,11 +416,16 @@ async function factBasisNow(ctx: Ctx, row: AssistantChangeRow) {
 }
 
 function applyFact(words: string) {
-  return async (ctx: Ctx, row: AssistantChangeRow): Promise<Applied> => {
+  return async (ctx: Ctx, row: AssistantChangeRow, tx: DbTx): Promise<Applied> => {
     const key = String(row.payload.key ?? "");
     if (key === "") throw new ChangeError("the drafted change names no fact", 500);
-    const recordId = await writeConversationFact(ctx, key, row.payload.value);
-    return { status: "applied", result_text: words, result_ref: `field_record:${recordId}` };
+    const recordId = await writeConversationFact(ctx, key, row.payload.value, tx);
+    return {
+      status: "applied",
+      result_text: words,
+      result_ref: `field_record:${recordId}`,
+      validate: [key],
+    };
   };
 }
 
@@ -422,7 +449,55 @@ const CURRENCY_WORDS: readonly [RegExp, string][] = [
   [/\bforints?\b|\bft\b/i, "HUF"],
 ];
 
-/** The owner's words → the parser's neutral wire value for this input type, or null. */
+/** A question back to the owner instead of a value: the words can be read two ways. */
+export interface AskBack {
+  ask: string;
+}
+
+export function isAskBack(v: unknown): v is AskBack {
+  return typeof v === "object" && v !== null && typeof (v as { ask?: unknown }).ask === "string";
+}
+
+/** The first amount in the owner's words, as they wrote it ("1 500", "12,50", "1.234,56"). */
+function amountToken(text: string): string | null {
+  const m = /-?\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?:[.,]\d+)?|-?\d[\d.,]*/.exec(text);
+  return m ? m[0].replace(/[.,]+$/, "") : null;
+}
+
+/**
+ * The owner's amount, read by the one exact reader (lib/core/money.ts): a
+ * canonical decimal string ("1234.5"), or a question back when "1.500"
+ * could be fifteen hundred or one and a half (review 2026-10-23, #4).
+ */
+function readOwnerAmount(text: string): string | AskBack | null {
+  const token = amountToken(text);
+  if (token === null) return null;
+  const read = readAmount(token, null);
+  if (!read.ok) {
+    if (read.reason !== "ambiguous") return null;
+    const [lead = "", tail = ""] = token.replace(/^-/, "").split(/[.,]/);
+    const thousands = `${lead}${tail}`;
+    const fraction = tail.replace(/0+$/, "");
+    const decimal = fraction === "" ? lead : `${lead}.${fraction}`;
+    return {
+      ask: `Did you mean ${thousands} or ${decimal}? Write it as ${thousands} or ${decimal} and I'll take it exactly.`,
+    };
+  }
+  return `${read.negative ? "-" : ""}${read.whole}${read.fraction === "" ? "" : `.${read.fraction}`}`;
+}
+
+/** The first ISO 4217 code the owner wrote ("incl VAT 27 EUR" is EUR, never "VAT"). */
+function isoCodeIn(text: string): string | undefined {
+  for (const m of text.matchAll(/\b([A-Z]{3})\b/g)) {
+    if (m[1] !== undefined && isIsoCurrency(m[1])) return m[1];
+  }
+  return undefined;
+}
+
+/**
+ * The owner's words → the parser's neutral wire value for this input type,
+ * null when there is none, or an AskBack when the words read two ways.
+ */
 export function wireFor(
   spec: InputSpec,
   raw: string,
@@ -430,21 +505,19 @@ export function wireFor(
   currentCurrency: string | null,
 ): unknown {
   const text = raw.trim();
-  const number = () => {
-    const m = /-?\d[\d,]*(?:\.\d+)?/.exec(text.replace(/\s(?=\d{3}\b)/g, ""));
-    return m ? Number(m[0].replace(/,/g, "")) : null;
-  };
   switch (spec.type) {
     case "text":
     case "long_text":
       return text.replace(/^["“']|["”']$/g, "");
-    case "number":
-      return number();
+    case "number": {
+      const amount = readOwnerAmount(text);
+      return typeof amount === "string" ? Number(amount) : amount;
+    }
     case "money": {
-      const amount = number();
-      if (amount === null) return null;
+      const amount = readOwnerAmount(text);
+      if (amount === null || isAskBack(amount)) return amount;
       const code =
-        /\b([A-Z]{3})\b/.exec(text)?.[1] ??
+        isoCodeIn(text) ??
         CURRENCY_WORDS.find(([re]) => re.test(text))?.[1] ??
         currentCurrency ??
         undefined;
@@ -470,6 +543,11 @@ export function wireFor(
     default:
       return null;
   }
+}
+
+/** A bank question that asks a percent: a number bounded by 100 (0–100, or −100–100 for a change). */
+export function isPercentSpec(spec: InputSpec): boolean {
+  return spec.type === "number" && spec.max === 100 && (spec.min === 0 || spec.min === -100);
 }
 
 const TYPE_WORD: Partial<Record<InputSpec["type"], string>> = {
@@ -539,6 +617,23 @@ async function prepareFact(
       ? (((rec.field.value as { currency?: unknown }).currency as string | undefined) ?? null)
       : null;
   const wire = wireFor(spec, rawValue, codes, currentCurrency);
+  if (isAskBack(wire)) return asked(entry, wire.ask, slot);
+  // A share asked as a percent, answered as a fraction: "0.35" is 35 %, or a
+  // typo for 0.35 % — ask, never store 0.35 points (review 2026-10-23, #13).
+  if (
+    typeof wire === "number" &&
+    isPercentSpec(spec) &&
+    wire !== 0 &&
+    Math.abs(wire) <= 1 &&
+    !/%/.test(rawValue)
+  ) {
+    const pct = Math.round(wire * 100 * 1000) / 1000;
+    return asked(
+      entry,
+      `Did you mean ${pct} %? I keep your ${label} as the number of percent — ${pct} for ${pct} %. Say ${pct} %, or ${wire} % if it really is that small.`,
+      slot,
+    );
+  }
   const [account] = await db
     .select({ currency: accounts.reporting_currency })
     .from(accounts)
@@ -552,7 +647,9 @@ async function prepareFact(
     const want =
       spec.type === "single_select"
         ? `one of: ${codes.map((c) => optionLabel(spec, c)).join(", ")}`
-        : (TYPE_WORD[spec.type] ?? "a value");
+        : spec.type === "number" && (spec.min !== undefined || spec.max !== undefined)
+          ? `a number${spec.min !== undefined ? ` from ${spec.min}` : ""}${spec.max !== undefined ? ` ${spec.min !== undefined ? "to" : "up to"} ${spec.max}` : ""}`
+          : (TYPE_WORD[spec.type] ?? "a value");
     return asked(entry, `I need ${want} for your ${label} — what should it be?`, slot);
   }
   const value = coerced.value;
@@ -819,18 +916,24 @@ const goalHandler: Handler = {
     }
     return factBasisNow(ctx, row);
   },
-  async apply(ctx, row) {
+  async apply(ctx, row, tx) {
     const by = {
       source: { kind: "conversation" as const, utterance_id: utteranceId(ctx.ownerUtteranceId) },
       confidence: CONFIRMED_CONVERSATION,
     };
     if (row.payload.op === "add") {
-      const goal = await addGoal(ctx.profileId, { statement: String(row.payload.statement) }, by);
-      await markUtterance(ctx, `goals.${goal.goal_id}.statement`);
+      const goal = await addGoal(
+        ctx.profileId,
+        { statement: String(row.payload.statement) },
+        by,
+        tx,
+      );
+      await markUtterance(ctx, `goals.${goal.goal_id}.statement`, tx);
       return {
         status: "applied",
         result_text: "Added. It's on your Goals page; content and proposals will name it.",
         result_ref: `goal:${goal.goal_id}`,
+        validate: [`goals.${goal.goal_id}.statement`],
       };
     }
     const attr = row.payload.attr === "target_value" ? "target_value" : "statement";
@@ -840,18 +943,21 @@ const goalHandler: Handler = {
       attr,
       String(row.payload.value),
       by,
+      tx,
     );
-    await markUtterance(ctx, `goals.${String(row.payload.goal_id)}.${attr}`);
+    const key = `goals.${String(row.payload.goal_id)}.${attr}`;
+    await markUtterance(ctx, key, tx);
     return {
       status: "applied",
       result_text: "Changed. The goal's earlier wording stays in its history.",
       result_ref: `field_record:${recordId}`,
+      validate: [key],
     };
   },
 };
 
-async function markUtterance(ctx: Ctx, key: string): Promise<void> {
-  await db
+async function markUtterance(ctx: Ctx, key: string, tx: DbTx): Promise<void> {
+  await tx
     .update(utterances)
     .set({
       confirmed: true,
@@ -899,9 +1005,12 @@ const replyTimeHandler: Handler = {
     const current = (await settingsForProfile(ctx.profileId))?.reply_hours ?? null;
     return { basis: String(current ?? "none"), now: hoursWords(current) };
   },
-  async apply(ctx, row) {
+  before: async (ctx) => {
+    await ensureSupportSettings(ctx.profileId);
+  },
+  async apply(ctx, row, tx) {
     const hours = row.payload.hours === null ? null : Number(row.payload.hours);
-    const settings = await setReplyHours(ctx.profileId, hours);
+    const settings = await setReplyHours(ctx.profileId, hours, tx);
     return {
       status: "applied",
       result_text:
@@ -938,9 +1047,12 @@ const notifyHandler: Handler = {
     const current = (await settingsForProfile(ctx.profileId))?.notify_owner ?? true;
     return { basis: String(current), now: current ? "on" : "off" };
   },
-  async apply(ctx, row) {
+  before: async (ctx) => {
+    await ensureSupportSettings(ctx.profileId);
+  },
+  async apply(ctx, row, tx) {
     const on = row.payload.on === true;
-    const settings = await setNotifyOwner(ctx.profileId, on);
+    const settings = await setNotifyOwner(ctx.profileId, on, tx);
     return {
       status: "applied",
       result_text: on
@@ -979,12 +1091,13 @@ const stopHandler: Handler = {
       now: state.halted ? "stopped" : "running",
     };
   },
-  async apply(ctx, row) {
+  async apply(ctx, row, tx) {
     void row;
     await haltExecutions({
       accountId: ctx.accountId,
       userId: ctx.userId ?? null,
       reason: "stopped from chat",
+      tx,
     });
     return {
       status: "applied",
@@ -1061,6 +1174,21 @@ async function watchingLink(ctx: Ctx, entry: CatalogueEntry): Promise<Prepared |
   );
 }
 
+/**
+ * The watch, re-checked at the click (review 2026-10-23, #21): a card
+ * drafted before the watch began must not queue anything once it runs.
+ */
+async function watchRefusal(ctx: Ctx): Promise<string | null> {
+  const decision = await latestDecision(ctx.profileId);
+  if (decision?.mode !== "watching") return null;
+  return `Not queued: I'm watching until ${decision.review_at.slice(0, 10)}, and nothing can be queued while the watch runs.`;
+}
+
+/** The hard limits, read (and parsed once, by a model if need be) before the transaction. */
+async function warmLimits(ctx: Ctx): Promise<void> {
+  await ensureHardLimits(ctx.profileId, ctx.seams.limitLlm);
+}
+
 const knowledgeHandler: Handler = {
   async prepare(ctx, change, entry) {
     const watching = await watchingLink(ctx, entry);
@@ -1110,11 +1238,13 @@ const knowledgeHandler: Handler = {
       now: live ? live.answer : "no answer",
     };
   },
-  async apply(ctx, row) {
+  refuse: watchRefusal,
+  before: warmLimits,
+  async apply(ctx, row, tx) {
     const proposal = await proposeCustomKnowledge(
       ctx.profileId,
       { question: String(row.payload.question), answer: String(row.payload.answer) },
-      ctx.seams.limitLlm ? { limitLlm: ctx.seams.limitLlm } : {},
+      { ...(ctx.seams.limitLlm ? { limitLlm: ctx.seams.limitLlm } : {}), tx },
     );
     return {
       status: "queued",
@@ -1130,6 +1260,75 @@ const knowledgeHandler: Handler = {
 const dayOf = (iso: string | null) =>
   iso ? (WEEKDAYS[(new Date(`${iso}T12:00:00Z`).getUTCDay() + 6) % 7] as Weekday) : null;
 
+const addDays = (iso: string, n: number) =>
+  new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+
+const TARGET_DAY =
+  /\b(?:to|on|for|until|till)\s+(?:next\s+|this\s+)?(mon(?:day)?|tues?(?:day)?|wed(?:nesday)?|thu(?:rs?)?(?:day)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)s?\b/i;
+const TARGET_ISO = /\b(?:to|on|for)\s+(\d{4}-\d{2}-\d{2})\b/i;
+const TARGET_TOMORROW = /\b(?:to|for|until|till)?\s*tomorrow\b/i;
+const RETITLE =
+  /\b(?:rename|retitle|re-title)\b[^.?!]*?\b(?:to|as)\s+["“'‘]?(.+?)["”'’]?\s*[.!]?$|\bcall it\s+["“'‘]?(.+?)["”'’]?\s*[.!]?$/i;
+
+/**
+ * What the owner asked of a calendar item, as one edit the content module
+ * can make (review 2026-10-23, #8): another day ("move Friday's reel to
+ * Saturday", "to 2026-11-02", "to tomorrow"), or another title ("rename it
+ * to Autumn colours"). A weekday lands in the item's own Monday-to-Sunday
+ * week, so Friday's reel moved to Saturday is the next day; one already
+ * past moves a week on. Null when it is neither, so the chat says what it
+ * can do instead of guessing. Pure.
+ */
+export function calendarEditFrom(
+  text: string,
+  item: { title: string; scheduled_for: string | null },
+  today: string,
+): { edit: CalendarEdit; rest: string } | { past: string } | null {
+  const iso = TARGET_ISO.exec(text);
+  const day = TARGET_DAY.exec(text);
+  const tomorrow = TARGET_TOMORROW.exec(text);
+  let to: string | null = null;
+  let clause: string | null = null;
+  if (iso?.[1]) {
+    to = iso[1];
+    clause = iso[0];
+  } else if (day?.[1]) {
+    const weekday = parseDays(day[1])[0] as Weekday;
+    const anchor = item.scheduled_for ?? today;
+    const monday = addDays(anchor, -WEEKDAYS.indexOf(dayOf(anchor) as Weekday));
+    to = addDays(monday, WEEKDAYS.indexOf(weekday));
+    if (item.scheduled_for === null || to <= today) {
+      while (to <= today) to = addDays(to, 7);
+    }
+    clause = day[0];
+  } else if (tomorrow) {
+    to = addDays(today, 1);
+    clause = tomorrow[0];
+  }
+  if (to !== null && clause !== null) {
+    if (Number.isNaN(Date.parse(`${to}T00:00:00Z`))) return null;
+    if (to < today) return { past: to };
+    return {
+      edit: { op: "reschedule", from: item.scheduled_for, to },
+      rest: text.replace(clause, " "),
+    };
+  }
+  const m = RETITLE.exec(text);
+  const title = (m?.[1] ?? m?.[2])?.trim();
+  if (title && title.length >= 2 && title.length <= 200 && title !== item.title) {
+    return { edit: { op: "retitle", from: item.title, to: title }, rest: text };
+  }
+  return null;
+}
+
+const itemBasis = (i: {
+  id: string;
+  status: string;
+  scheduled_for: string | null;
+  title: string;
+}) =>
+  `item:${i.id}:${i.status}:${i.scheduled_for ?? "unscheduled"}:${createHash("sha256").update(i.title).digest("hex").slice(0, 16)}`;
+
 const contentHandler: Handler = {
   async prepare(ctx, change, entry) {
     const watching = await watchingLink(ctx, entry);
@@ -1140,7 +1339,11 @@ const contentHandler: Handler = {
     if (items.length === 0) {
       return linkOnly(entry, "There's nothing on your content calendar yet.", "nothing scheduled");
     }
-    const days = parseDays(`${change.params.subject ?? ""} ${ctx.ownerText}`);
+    const text = `${change.params.subject ?? ""} ${ctx.ownerText}`;
+    const today = new Date().toISOString().slice(0, 10);
+    // The day the owner names the item BY, not the day they move it TO.
+    const named = text.replace(TARGET_DAY, " ").replace(TARGET_ISO, " ");
+    const days = parseDays(named);
     const subject = change.params.subject ?? "";
     let pool = items;
     if (days.length > 0) {
@@ -1159,48 +1362,106 @@ const contentHandler: Handler = {
         pool = [scored[0].i];
       }
     }
-    const describe = (i: (typeof items)[number]) =>
+    const describe = (i: { title: string; scheduled_for: string | null }) =>
       `${quote(i.title)}${i.scheduled_for ? ` on ${i.scheduled_for}` : ""}`;
     if (pool.length > 1) {
       return asked(entry, `Which one — ${pool.slice(0, 3).map(describe).join(" or ")}?`);
     }
     const item = pool[0] as (typeof items)[number];
-    const what = change.params.value ?? ctx.ownerText;
+    if (item.status !== EDITABLE_STATUS) {
+      return linkOnly(
+        entry,
+        `${describe(item)} is ${item.status === "queued" ? "already queued to publish" : item.status} — I only change drafts from chat.`,
+        describe(item),
+      );
+    }
+    if (item.publish_proposal_id !== null) {
+      const [publish] = await db
+        .select({ status: proposals.status })
+        .from(proposals)
+        .where(eq(proposals.id, item.publish_proposal_id));
+      if (publish && (publish.status === "pending" || publish.status === "approved")) {
+        return linkOnly(
+          entry,
+          `${describe(item)} already has a publish proposal in your queue, which carries its own day and title. Decline that one first, then ask me again.`,
+          describe(item),
+        );
+      }
+    }
+    const read = calendarEditFrom(change.params.value ?? ctx.ownerText, item, today);
+    if (read === null) {
+      return asked(
+        entry,
+        `From chat I can move ${describe(item)} to another day, or rename it. Which day should it be, or what should it be called?`,
+      );
+    }
+    if ("past" in read) {
+      return asked(
+        entry,
+        `${read.past} has already passed. Which day should ${describe(item)} move to?`,
+      );
+    }
+    const { edit } = read;
+    const basis: CalendarBasis = {
+      status: item.status,
+      scheduled_for: item.scheduled_for,
+      title: item.title,
+    };
+    const after =
+      edit.op === "reschedule"
+        ? describe({ title: item.title, scheduled_for: edit.to })
+        : describe({ title: edit.to, scheduled_for: item.scheduled_for });
     return prepared(entry, {
       nowLine: `On your calendar now: ${describe(item)}.`,
-      summary: `Change ${describe(item)}: ${what}`,
+      summary:
+        edit.op === "reschedule"
+          ? `Move ${quote(item.title)} from ${item.scheduled_for ?? "no day"} to ${edit.to}`
+          : `Rename ${quote(item.title)} to ${quote(edit.to)}`,
       current: describe(item),
-      proposed: what,
-      payload: { item_id: item.id, title: item.title, what },
-      basis: `item:${item.id}:${item.status}:${item.scheduled_for ?? "unscheduled"}`,
+      proposed: after,
+      payload: { item_id: item.id, title: item.title, edit, basis },
+      basis: itemBasis(item),
     });
   },
   async basisNow(ctx, row) {
     const item = (await contentQueue(ctx.profileId)).find((i) => i.id === row.payload.item_id);
     return {
-      basis: item
-        ? `item:${item.id}:${item.status}:${item.scheduled_for ?? "unscheduled"}`
-        : "gone",
+      basis: item ? itemBasis(item) : "gone",
       now: item
         ? `${quote(item.title)}${item.scheduled_for ? ` on ${item.scheduled_for}` : ""}`
         : "no longer on the calendar",
     };
   },
-  async apply(ctx, row) {
+  refuse: watchRefusal,
+  before: warmLimits,
+  async apply(ctx, row, tx) {
+    const edit = row.payload.edit;
+    const basis = row.payload.basis;
+    if (!isCalendarEdit(edit) || !isCalendarBasis(basis)) {
+      throw new ChangeError("the drafted change names no calendar edit", 500);
+    }
     const { proposal } = await proposeFromChat({
       profileId: ctx.profileId,
       ownerUtteranceId: ctx.ownerUtteranceId,
       kind: "content_publishing",
       summary: row.summary,
-      extra: { content_item_id: row.payload.item_id, requested_change: row.payload.what },
+      rationale:
+        "You asked for this in chat. Approving it makes the change on your calendar, once, if the item is still as quoted here; nothing is posted by it.",
+      extra: {
+        content_item_id: row.payload.item_id,
+        requested_change: row.summary,
+        calendar_edit: edit,
+        calendar_basis: basis,
+      },
       ...(ctx.seams.limitLlm ? { limitLlm: ctx.seams.limitLlm } : {}),
+      tx,
     });
     return {
       status: "queued",
       result_text:
         proposal.status === "blocked"
           ? "Held back: one of your standing rules forbids it. It's in the queue's held-back section."
-          : "It's in your approval queue. Nothing on the calendar changes until you approve it there.",
+          : "It's in your approval queue. Approving it there makes the change on your calendar; nothing changes before that.",
       result_ref: `proposal:${proposal.id}`,
     };
   },
@@ -1366,48 +1627,55 @@ export async function confirmChange(args: {
     seams: args.seams ?? {},
   };
 
-  // Claim it once: a double click finds it claimed and changes nothing.
-  const [claimed] = await db
-    .update(assistantChanges)
-    .set({ decided_at: new Date().toISOString() })
-    .where(
-      and(
-        eq(assistantChanges.id, row.id),
-        eq(assistantChanges.status, "prepared"),
-        isNull(assistantChanges.decided_at),
-      ),
-    )
-    .returning();
-  if (!claimed) {
-    const [now] = await db.select().from(assistantChanges).where(eq(assistantChanges.id, row.id));
-    return now as AssistantChangeRow;
-  }
+  if (!handler.apply) throw new ChangeError("that one is changed on its own page", 409);
+  const apply = handler.apply;
+  // Work that may call a model, or create a default row, runs before the transaction.
+  if (handler.before) await handler.before(ctx, row);
 
-  try {
+  // ONE transaction (review 2026-10-23, #21): the claim, the write, its
+  // decision-log entry and the status. A crash leaves all or nothing, so a
+  // write can't exist without its log row and a proposal can't be queued
+  // twice. A second click waits on the row's lock, then finds it decided.
+  const outcome = await db.transaction(async (tx) => {
+    const [claimed] = await tx
+      .update(assistantChanges)
+      .set({ decided_at: new Date().toISOString() })
+      .where(
+        and(
+          eq(assistantChanges.id, row.id),
+          eq(assistantChanges.status, "prepared"),
+          isNull(assistantChanges.decided_at),
+        ),
+      )
+      .returning();
+    if (!claimed) return null;
+    const settle = async (result_text: string) => {
+      const [stale] = await tx
+        .update(assistantChanges)
+        .set({ status: "stale", result_text })
+        .where(eq(assistantChanges.id, row.id))
+        .returning();
+      return { row: stale as AssistantChangeRow, validate: [] as string[] };
+    };
+    const refusal = handler.refuse ? await handler.refuse(ctx, row) : null;
+    if (refusal !== null) return settle(refusal);
     if (handler.basisNow && row.basis !== null) {
       const live = await handler.basisNow(ctx, row);
       if (live.basis !== row.basis) {
-        const [stale] = await db
-          .update(assistantChanges)
-          .set({
-            status: "stale",
-            result_text: `Not changed: it moved since I drafted this — it's ${live.now} now. Ask me again if you still want it.`,
-          })
-          .where(eq(assistantChanges.id, row.id))
-          .returning();
-        return stale as AssistantChangeRow;
+        return settle(
+          `Not changed: it moved since I drafted this — it's ${live.now} now. Ask me again if you still want it.`,
+        );
       }
     }
-    if (!handler.apply) throw new ChangeError("that one is changed on its own page", 409);
-    const applied = await handler.apply(ctx, row);
-    await db.insert(decisionLog).values({
+    const applied = await apply(ctx, row, tx);
+    await tx.insert(decisionLog).values({
       profile_id: args.profileId,
       actor: "owner",
       kind: "assistant_change",
       ref_id: row.id,
       payload_hash: hashConfirmed(row, applied.result_ref),
     });
-    const [done] = await db
+    const [done] = await tx
       .update(assistantChanges)
       .set({
         status: applied.status,
@@ -1416,15 +1684,15 @@ export async function confirmChange(args: {
       })
       .where(eq(assistantChanges.id, row.id))
       .returning();
-    return done as AssistantChangeRow;
-  } catch (error) {
-    // Nothing landed: release the claim so the owner can try again.
-    await db
-      .update(assistantChanges)
-      .set({ decided_at: null })
-      .where(and(eq(assistantChanges.id, row.id), eq(assistantChanges.status, "prepared")));
-    throw error;
+    return { row: done as AssistantChangeRow, validate: applied.validate ?? [] };
+  });
+  if (outcome === null) {
+    const [now] = await db.select().from(assistantChanges).where(eq(assistantChanges.id, row.id));
+    return now as AssistantChangeRow;
   }
+  // Validation reads committed rows, so it runs after the commit (P0-81).
+  for (const key of outcome.validate) await runFieldValidation(args.profileId, key);
+  return outcome.row;
 }
 
 function isKind(v: string): v is ChangeKind {

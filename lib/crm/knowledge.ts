@@ -18,6 +18,7 @@
 
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbTx } from "../../db";
 import { knowledgeEntries, offers, proposals } from "../../db/schema";
 import type { Field } from "../core/field";
 import { repr } from "../profile/factsheet";
@@ -289,64 +290,68 @@ async function propose(
   entries: KnowledgeCandidate[],
   summary: string,
   limitLlm: LimitLlm | undefined,
+  tx?: DbTx,
 ): Promise<ProposalRow> {
   const { limits } = await ensureHardLimits(profileId, limitLlm);
   const verdict = checkHardLimits(limits, KNOWLEDGE_KIND);
-  return createProposal({
-    profile_id: profileId,
-    module: KNOWLEDGE_MODULE,
-    originating_finding: null,
-    action: {
-      kind: KNOWLEDGE_KIND,
-      summary,
-      detail: {
-        rationale:
-          "The customer assistant answers ONLY from entries you approve. These are rendered from facts you already gave; nothing here is guessed.",
-        entries,
-        manual_limits: verdict.manual.map((l) => l.quote),
-      },
-    },
-    scenario: {
-      assumptions: [
-        {
-          statement:
-            "Each answer is rendered from a fact you gave in the intake, or written by you",
-          value: null,
-          source_field: null,
-          sensitivity: "low",
+  return createProposal(
+    {
+      profile_id: profileId,
+      module: KNOWLEDGE_MODULE,
+      originating_finding: null,
+      action: {
+        kind: KNOWLEDGE_KIND,
+        summary,
+        detail: {
+          rationale:
+            "The customer assistant answers ONLY from entries you approve. These are rendered from facts you already gave; nothing here is guessed.",
+          entries,
+          manual_limits: verdict.manual.map((l) => l.quote),
         },
-      ],
-      base_case: {
-        case: "base",
-        statement:
-          "Customers asking these questions get an immediate, accurate answer on your site.",
-        profit_delta_monthly: null,
-        formula: null,
       },
-      downside_case: {
-        case: "downside",
-        statement:
-          "An answer goes stale when a fact changes — retire it and re-propose; the assistant stops saying it at once.",
-        profit_delta_monthly: null,
-        formula: null,
+      scenario: {
+        assumptions: [
+          {
+            statement:
+              "Each answer is rendered from a fact you gave in the intake, or written by you",
+            value: null,
+            source_field: null,
+            sensitivity: "low",
+          },
+        ],
+        base_case: {
+          case: "base",
+          statement:
+            "Customers asking these questions get an immediate, accurate answer on your site.",
+          profit_delta_monthly: null,
+          formula: null,
+        },
+        downside_case: {
+          case: "downside",
+          statement:
+            "An answer goes stale when a fact changes — retire it and re-propose; the assistant stops saying it at once.",
+          profit_delta_monthly: null,
+          formula: null,
+        },
+        upside_case: {
+          case: "upside",
+          statement:
+            "Fewer repeat questions reach you; your support page will show which ones it answers.",
+          profit_delta_monthly: null,
+          formula: null,
+        },
+        breakeven_condition: "not computed — publishing answers carries no spend",
+      } as never,
+      reversibility: {
+        level: "easy",
+        if_you_change_your_mind:
+          "Retire any entry on the support screen; the assistant stops using it immediately.",
       },
-      upside_case: {
-        case: "upside",
-        statement:
-          "Fewer repeat questions reach you; your support page will show which ones it answers.",
-        profit_delta_monthly: null,
-        formula: null,
-      },
-      breakeven_condition: "not computed — publishing answers carries no spend",
-    } as never,
-    reversibility: {
-      level: "easy",
-      if_you_change_your_mind:
-        "Retire any entry on the support screen; the assistant stops using it immediately.",
+      expires_at: new Date(Date.now() + KNOWLEDGE_EXPIRY_DAYS * 86_400_000).toISOString(),
+      blocked_by_limit: verdict.verdict === "blocked" ? verdict.limit.quote : null,
     },
-    expires_at: new Date(Date.now() + KNOWLEDGE_EXPIRY_DAYS * 86_400_000).toISOString(),
-    blocked_by_limit: verdict.verdict === "blocked" ? verdict.limit.quote : null,
-  });
+    tx,
+  );
 }
 
 /** Suggest entries from facts, as one proposal. 422 when there is nothing new. */
@@ -373,7 +378,8 @@ export async function proposeKnowledgeEntries(
 export async function proposeCustomKnowledge(
   profileId: string,
   input: { question: string; answer: string },
-  opts: { limitLlm?: LimitLlm } = {},
+  /** tx: join the caller's transaction (the chat's confirm, review 2026-10-23 #21). */
+  opts: { limitLlm?: LimitLlm; tx?: DbTx } = {},
 ): Promise<ProposalRow> {
   const question = input.question.trim();
   const answer = input.answer.trim();
@@ -391,6 +397,7 @@ export async function proposeCustomKnowledge(
     [{ question, answer, source_keys: ["owner:written"] }],
     `Publish an answer you wrote: "${question.length > 60 ? `${question.slice(0, 57)}…` : question}"`,
     opts.limitLlm,
+    opts.tx,
   );
 }
 

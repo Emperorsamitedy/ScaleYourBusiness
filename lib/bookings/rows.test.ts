@@ -166,3 +166,35 @@ describe("dates", () => {
     expect(r.columns).toEqual({ start: "Start", status: "Status", staff: "Staff" });
   });
 });
+
+describe("prices written the European way (review 2026-10-23, #4)", () => {
+  it("a lone 1.200 asks which mark separates thousands; the owner's answer reads it exactly", () => {
+    const csv = "Date,Status,Price\n2026-10-01,Completed,12.000\n2026-10-02,Completed,1.200";
+    expect(() => read(csv, { currency: "HUF" })).toThrow(/dot or the comma separates thousands/);
+    const dot = read(csv, { currency: "HUF", decimalStyle: "comma_decimal" });
+    expect(dot.appointments.map((a) => a.price_minor)).toEqual([1_200_000, 120_000]);
+    const comma = read(csv, { currency: "EUR", decimalStyle: "dot_decimal" });
+    expect(comma.appointments.map((a) => a.price_minor)).toEqual([1_200, 120]);
+  });
+
+  it("a file that proves its style settles 1.200 itself; one that proves both is refused", () => {
+    const proven = read(
+      "Date;Status;Price\n2026-10-01;Completed;1.200\n2026-10-02;Completed;12,50",
+    );
+    expect(proven.appointments.map((a) => a.price_minor)).toEqual([120_000, 1_250]);
+    expect(() =>
+      read("Date;Status;Price\n2026-10-01;Completed;1.234,56\n2026-10-02;Completed;1,234.56"),
+    ).toThrow(/written both ways/);
+    expect(() =>
+      read("Date;Status;Price\n2026-10-01;Completed;12,50", { decimalStyle: "dot_decimal" }),
+    ).toThrow(/only read the other way/);
+  });
+
+  it("no float: 1.234 EUR in a dot-decimal file is too precise and counted, never rounded to 123", () => {
+    const r = read("Date,Status,Price\n2026-10-01,Completed,1.234", {
+      decimalStyle: "dot_decimal",
+    });
+    expect(r.appointments[0]?.price_minor).toBeNull();
+    expect(r.gaps.price).toBe(1);
+  });
+});

@@ -2,11 +2,14 @@
 //
 // Shopify and WooCommerce send money as decimal strings ("12.50"). Parsing
 // those through a float would put 0.1-style rounding into revenue before it
-// ever reached Money. This splits the string instead: whole digits and
-// fraction digits are concatenated at the currency's ISO exponent, and
-// anything more precise than the currency allows is a refusal, not a round.
+// ever reached Money. This reads the API's own machine format (a dot, no
+// grouping) and hands the digits to lib/core/money.ts's digitsToMinor, the
+// one exact conversion every import, connector and chat amount shares
+// (review 2026-10-23, #4): anything more precise than the currency allows
+// is a refusal, not a round. Amounts people wrote ("1.234,56") go through
+// readAmount there instead, which knows a lone "1.200" is ambiguous.
 
-import { minorUnitExponent } from "../core/money";
+import { digitsToMinor } from "../core/money";
 
 export class DecimalError extends Error {
   constructor(message: string) {
@@ -21,21 +24,11 @@ const DECIMAL_RE = /^(-)?(\d+)(?:\.(\d+))?$/;
 export function decimalToMinor(amount: string, currency: string): number {
   const match = DECIMAL_RE.exec(amount.trim());
   if (!match) throw new DecimalError(`"${amount}" is not a decimal amount`);
-  const negative = match[1] === "-";
-  const whole = match[2] ?? "";
-  const fraction = match[3] ?? "";
-  const exponent = minorUnitExponent(currency.toUpperCase());
-
-  if (fraction.length > exponent && /[^0]/.test(fraction.slice(exponent))) {
-    throw new DecimalError(
-      `"${amount}" is more precise than ${currency.toUpperCase()} minor units allow`,
-    );
-  }
-  const digits = `${whole}${fraction.slice(0, exponent).padEnd(exponent, "0")}`;
-  const value = Number(digits);
-  if (!Number.isSafeInteger(value)) {
-    throw new DecimalError(`"${amount}" is too large to hold exactly`);
-  }
-  if (value === 0) return 0;
-  return negative ? -value : value;
+  const r = digitsToMinor(match[1] === "-", match[2] ?? "", match[3] ?? "", currency);
+  if (r.ok) return r.minor;
+  throw new DecimalError(
+    r.reason === "too_precise"
+      ? `"${amount}" is more precise than ${currency.toUpperCase()} minor units allow`
+      : `"${amount}" is too large to hold exactly`,
+  );
 }
