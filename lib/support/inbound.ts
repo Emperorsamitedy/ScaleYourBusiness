@@ -185,6 +185,39 @@ export function capBody(text: string): { text: string; truncated: boolean } {
     : { text: clean, truncated: false };
 }
 
+/* ── threading headers (review 2026-10-23, #17) ── */
+
+/** The longest Message-ID kept. Real ones are under 100 characters; this leaves room. */
+export const MESSAGE_ID_MAX_CHARS = 250;
+/** The most ids kept from a References header (the newest: they are the nearest parents). */
+export const REFERENCES_MAX_IDS = 50;
+/** The most addresses stored per email (routing reads them all first). */
+export const STORED_ADDRESSES_MAX = 50;
+export const ADDRESS_MAX_CHARS = 254;
+
+/**
+ * One Message-ID, angle brackets included, or null when it isn't one:
+ * printable ASCII, a single "@", nothing that could fold or break a
+ * header (no spaces, no CR/LF, no brackets inside), and bounded in length.
+ * A bare id without brackets (as Resend's `message_id` may give it) is bracketed.
+ */
+export function normaliseMessageId(raw: string | null | undefined): string | null {
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  const id = trimmed.startsWith("<") ? trimmed : `<${trimmed}>`;
+  if (id.length > MESSAGE_ID_MAX_CHARS) return null;
+  return /^<[\x21-\x3b\x3d\x3f-\x7e]+>$/.test(id) && /^<[^@]+@[^@]+>$/.test(id) ? id : null;
+}
+
+/** Every valid Message-ID a header names, in order, deduplicated, at most `max` (the newest). */
+export function messageIdsIn(header: string | null, max = REFERENCES_MAX_IDS): string[] {
+  if (!header) return [];
+  const ids = (header.match(/<[^<>\s]*>/g) ?? [])
+    .map((id) => normaliseMessageId(id))
+    .filter((id): id is string => id !== null);
+  return [...new Set(ids)].slice(-max);
+}
+
 /** A header from Resend's name → value map, whatever case the name came in. */
 function header(headers: unknown, name: string): string | null {
   if (typeof headers !== "object" || headers === null) return null;
@@ -229,12 +262,16 @@ export function normaliseReceived(event: ReceivedEvent, content: unknown): Inbou
     subject,
     text: body.text,
     truncated: body.truncated,
-    message_id:
+    // Stored and later copied into our replies' headers, so only well-formed,
+    // bounded ids are kept: a malformed or huge header must not be able to
+    // make every reply on the ticket refused (#17).
+    message_id: normaliseMessageId(
       (typeof c.message_id === "string" && c.message_id.trim()) ||
-      header(c.headers, "message-id") ||
-      event.message_id,
-    in_reply_to: header(c.headers, "in-reply-to"),
-    references: header(c.headers, "references"),
+        header(c.headers, "message-id") ||
+        event.message_id,
+    ),
+    in_reply_to: messageIdsIn(header(c.headers, "in-reply-to"))[0] ?? null,
+    references: messageIdsIn(header(c.headers, "references")).join(" ") || null,
     received_at: typeof c.created_at === "string" ? c.created_at : event.created_at,
   };
 }

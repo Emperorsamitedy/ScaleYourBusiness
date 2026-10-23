@@ -32,6 +32,12 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { supportEmailMessages, supportSettings, supportTickets } from "../../db/schema";
 import type { InboundEmail } from "./inbound";
+import {
+  ADDRESS_MAX_CHARS,
+  STORED_ADDRESSES_MAX,
+  messageIdsIn,
+  normaliseMessageId,
+} from "./inbound";
 import { contactForSupport, emailedSource } from "./support-contact";
 
 export type EmailMessageRow = typeof supportEmailMessages.$inferSelect;
@@ -76,10 +82,40 @@ export function routingFrom(
   return found;
 }
 
-/** The Message-IDs named by In-Reply-To and References, angle brackets kept. */
+/** The valid Message-IDs named by In-Reply-To and References, angle brackets kept, at most 50. */
 export function referencedIds(inReplyTo: string | null, references: string | null): string[] {
-  const ids = `${inReplyTo ?? ""} ${references ?? ""}`.match(/<[^<>\s]+>/g) ?? [];
-  return [...new Set(ids)].slice(-50);
+  return messageIdsIn(`${inReplyTo ?? ""} ${references ?? ""}`);
+}
+
+/** The References header we send stays on one header line (RFC 5322 §2.1.1's 998, with room). */
+export const OUTBOUND_REFERENCES_MAX_CHARS = 900;
+
+/**
+ * In-Reply-To and References for a reply to `parent`, REBUILT from what we
+ * stored, never copied (review 2026-10-23, #17): a malformed or huge header
+ * on one customer email must not make Resend refuse every reply on the
+ * ticket — rows stored before the inbound side validated included. The
+ * parent's id must be a valid Message-ID or it is dropped; References keep
+ * the thread's root and its newest ids, within one header line.
+ */
+export function replyThreadHeaders(
+  parent: { message_id_header: string | null; references_header: string | null } | null,
+): { in_reply_to: string | null; references: string | null } {
+  if (!parent) return { in_reply_to: null, references: null };
+  const inReplyTo = normaliseMessageId(parent.message_id_header);
+  const chain = referencedIds(null, parent.references_header).filter((id) => id !== inReplyTo);
+  const ids = inReplyTo ? [...chain, inReplyTo] : chain;
+  // Drop from just after the root until it fits: the root and the nearest parents matter most.
+  while (ids.length > 2 && ids.join(" ").length > OUTBOUND_REFERENCES_MAX_CHARS) ids.splice(1, 1);
+  if (ids.join(" ").length > OUTBOUND_REFERENCES_MAX_CHARS) ids.splice(0, ids.length - 1);
+  return { in_reply_to: inReplyTo, references: ids.length > 0 ? ids.join(" ") : null };
+}
+
+/** The addresses stored on a message row: well-formed, bounded, at most STORED_ADDRESSES_MAX. */
+export function storedAddresses(addresses: readonly string[]): string[] {
+  return [...new Set(addresses)]
+    .filter((a) => a.length <= ADDRESS_MAX_CHARS)
+    .slice(0, STORED_ADDRESSES_MAX);
 }
 
 /* ── our own mail (review 2026-10-23, #12) ── */
@@ -274,12 +310,13 @@ export async function receiveInboundEmail(
           account_id: settings.account_id,
           direction: "inbound",
           provider_id: email.provider_id,
-          message_id_header: email.message_id,
-          in_reply_to: email.in_reply_to,
-          references_header: email.references,
+          // Validated and bounded again here, whatever built the InboundEmail (#17).
+          message_id_header: normaliseMessageId(email.message_id),
+          in_reply_to: referencedIds(email.in_reply_to, null)[0] ?? null,
+          references_header: referencedIds(null, email.references).join(" ") || null,
           from_address: email.from.address,
           from_name: email.from.name,
-          to_addresses: email.to,
+          to_addresses: storedAddresses(email.to),
           subject: email.subject,
           body: email.text,
           truncated: email.truncated,

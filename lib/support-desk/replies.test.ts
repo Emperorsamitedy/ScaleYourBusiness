@@ -557,6 +557,40 @@ describe("P4-10 — the send, honest in every outcome", () => {
   });
 });
 
+describe("review #17 — a stored header can't break the replies on a ticket", () => {
+  it("a legacy row with a huge References and a malformed Message-ID still sends, with headers rebuilt and bounded", async () => {
+    const b = await business();
+    const { ticketId } = await emailTicket(b);
+    // As a row stored before the inbound side validated: written straight to the table.
+    const junk = `${Array.from({ length: 4000 }, (_, i) => `<legacy-${i}@x.example>`).join(" ")} <bad id>`;
+    await db
+      .update(supportEmailMessages)
+      .set({ message_id_header: "<broken\r\nBcc: someone@evil.example>", references_header: junk })
+      .where(eq(supportEmailMessages.ticket_id, ticketId));
+    const r = await saveReplyText(b.profile_id, ticketId, "Two working days.");
+    await approveReply({ profileId: b.profile_id, replyId: r.id, userId: b.user_id, body: r.body });
+    const resend = fakeResend();
+    expect(
+      await sendApprovedReply({ profileId: b.profile_id, replyId: r.id, fetchImpl: resend.impl }),
+    ).toEqual({ status: "sent", note: null });
+    const headers = resend.calls[0]!.body.headers as Record<string, string>;
+    expect(headers["In-Reply-To"]).toBeUndefined();
+    expect(headers.References!.length).toBeLessThanOrEqual(900);
+    expect(headers.References).not.toMatch(/[\r\n]|evil|bad id/);
+    // The newest ids are kept, the root first.
+    expect(headers.References!.startsWith("<legacy-3950@x.example>")).toBe(true);
+    expect(headers.References!.endsWith("<legacy-3999@x.example>")).toBe(true);
+    // The outbound row stores what was sent, not the junk.
+    const rows = await db
+      .select()
+      .from(supportEmailMessages)
+      .where(eq(supportEmailMessages.ticket_id, ticketId));
+    const outbound = rows.find((m) => m.direction === "outbound")!;
+    expect(outbound.references_header).toBe(headers.References);
+    expect(outbound.in_reply_to).toBeNull();
+  });
+});
+
 describe("P4-11 — a chat ticket with an address is answered by email through the same path", () => {
   it("escalate in the widget, leave an address, approve a reply: one send to that address, unthreaded", async () => {
     const { startConversation, postCustomerMessage } = await import("../support/chat");

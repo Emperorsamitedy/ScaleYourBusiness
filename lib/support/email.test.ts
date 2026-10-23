@@ -32,15 +32,21 @@ import {
   emailThread,
   inboundAddress,
   MAX_LOCAL_PART,
+  OUTBOUND_REFERENCES_MAX_CHARS,
   newThreadToken,
   receiveInboundEmail,
   referencedIds,
+  replyThreadHeaders,
   routingFrom,
   threadAddress,
 } from "./email-tickets";
 import type { InboundEmail } from "./inbound";
 import {
+  MESSAGE_ID_MAX_CHARS,
+  REFERENCES_MAX_IDS,
+  STORED_ADDRESSES_MAX,
   SUPPORT_EMAIL_BODY_MAX_CHARS,
+  normaliseMessageId,
   WEBHOOK_TOLERANCE_SECONDS,
   htmlToText,
   normaliseReceived,
@@ -414,6 +420,77 @@ describe("P4-09 — routing, threading and idempotency", () => {
     expect(
       await db.select().from(supportTickets).where(eq(supportTickets.profile_id, b.profile_id)),
     ).toHaveLength(1);
+  });
+});
+
+describe("review #17 — a huge or malformed reference header can't break threading", () => {
+  it("a Message-ID is kept only when well-formed and bounded", () => {
+    expect(normaliseMessageId("<abc.123@mail.example.com>")).toBe("<abc.123@mail.example.com>");
+    expect(normaliseMessageId(" abc@mail.example.com ")).toBe("<abc@mail.example.com>");
+    for (const bad of [
+      "",
+      "not-an-id",
+      "<a b@c>",
+      "<a@b@c>",
+      "<a@b>\r\nBcc: victim@example.com",
+      "<ä@example.com>",
+      `<${"x".repeat(MESSAGE_ID_MAX_CHARS)}@example.com>`,
+      null,
+    ]) {
+      expect(normaliseMessageId(bad), String(bad)).toBeNull();
+    }
+  });
+
+  it("references keep only valid ids, the newest 50", () => {
+    const many = Array.from({ length: 5000 }, (_, i) => `<id-${i}@x.example>`).join(" ");
+    const ids = referencedIds(null, `${many} <broken> <a b@c> <${"y".repeat(400)}@x>`);
+    expect(ids).toHaveLength(REFERENCES_MAX_IDS);
+    expect(ids.at(-1)).toBe("<id-4999@x.example>");
+    expect(ids.every((id) => normaliseMessageId(id) === id)).toBe(true);
+  });
+
+  it("outbound headers are rebuilt within one header line, root and parent kept; a bad parent is dropped", () => {
+    const chain = Array.from({ length: 50 }, (_, i) => `<${"r".repeat(60)}-${i}@x.example>`);
+    const h = replyThreadHeaders({
+      message_id_header: "<parent@x.example>",
+      references_header: chain.join(" "),
+    });
+    expect(h.in_reply_to).toBe("<parent@x.example>");
+    expect(h.references!.length).toBeLessThanOrEqual(OUTBOUND_REFERENCES_MAX_CHARS);
+    const ids = h.references!.split(" ");
+    expect(ids[0]).toBe(chain[0]);
+    expect(ids.at(-1)).toBe("<parent@x.example>");
+    // The passing case, unchanged: a short, valid chain goes out as it was.
+    expect(
+      replyThreadHeaders({ message_id_header: "<p@x>", references_header: "<a@x> <b@x>" }),
+    ).toEqual({ in_reply_to: "<p@x>", references: "<a@x> <b@x> <p@x>" });
+    // A legacy row with a malformed id and junk references: no In-Reply-To, only valid ids.
+    expect(
+      replyThreadHeaders({
+        message_id_header: "garbage\r\nX-Injected: 1",
+        references_header: "<ok@x> nonsense <also bad>",
+      }),
+    ).toEqual({ in_reply_to: null, references: "<ok@x>" });
+    expect(replyThreadHeaders(null)).toEqual({ in_reply_to: null, references: null });
+  });
+
+  it("an inbound email with a huge References, a malformed Message-ID and 500 recipients is stored bounded", async () => {
+    const b = await business();
+    const recipients = Array.from({ length: 500 }, (_, i) => `cc${i}@shop.example`);
+    const f = fixture({
+      to: [b.address, ...recipients],
+      message_id: "not a message id",
+      in_reply_to: "junk",
+      references: Array.from({ length: 3000 }, (_, i) => `<ref-${i}@x.example>`).join(" "),
+    });
+    const out = await receiveInboundEmail(normalised(f), DOMAIN);
+    if (out.kind !== "filed") throw new Error("not filed");
+    const [row] = await emailThread(out.ticket_id);
+    expect(row?.message_id_header).toBeNull();
+    expect(row?.in_reply_to).toBeNull();
+    expect(row?.references_header?.split(" ")).toHaveLength(REFERENCES_MAX_IDS);
+    expect(row?.to_addresses.length).toBeLessThanOrEqual(STORED_ADDRESSES_MAX);
+    expect(row?.to_addresses).toContain(b.address);
   });
 });
 
