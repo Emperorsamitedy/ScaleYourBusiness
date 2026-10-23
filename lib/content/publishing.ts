@@ -245,6 +245,17 @@ export function dbPublishBackend(opts: { store?: MediaStore } = {}): PublishBack
       });
     },
 
+    async lapsed(itemId, sentence, accountId) {
+      const [row] = await db
+        .update(contentItems)
+        .set({ status: "failed", last_error: sentence })
+        .where(
+          and(eq(contentItems.id, itemId), inArray(contentItems.status, ["drafted", "queued"])),
+        )
+        .returning();
+      if (row) await releaseMedia(toPublishItem(row), store(), accountId);
+    },
+
     async unclaim(itemId, sentence) {
       // Only while nothing was sent: sent_at goes down just before the call
       // that makes a post public, so its absence proves nothing went out.

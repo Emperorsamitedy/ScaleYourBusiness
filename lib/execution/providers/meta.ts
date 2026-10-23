@@ -94,6 +94,7 @@ import {
 import type { CredentialVerifier } from "../verify";
 import { ExecutionConnectionError, verifyExecutionScopes } from "../verify";
 import { touchesMoneySurface } from "../scopes";
+import { staleAdChange, stalePublish } from "../stale";
 import type { ExecutionContext, ExecutionProvider, PreflightRefusal } from "./fixture";
 
 export const META_EXEC_API_VERSION = "v26.0";
@@ -996,6 +997,11 @@ export interface PublishBackend {
    * the stop came on between steps, before the one that makes it public.
    */
   unclaim(itemId: string, sentence: string): Promise<void>;
+  /**
+   * Review 2026-10-23 (Session D #1): the approval lapsed before it could
+   * run. drafted|queued → failed with the sentence, and the render released.
+   */
+  lapsed(itemId: string, sentence: string, accountId: string): Promise<void>;
 }
 
 /**
@@ -1729,6 +1735,36 @@ function publishProvider(
   return {
     id: "meta_publish",
     external: true,
+
+    async staleApproval(_op, params, pctx, approval) {
+      // Review 2026-10-23 (Session D #1): a post far past its time isn't posted late.
+      const sentence = stalePublish(approval, approval.now);
+      if (sentence === null) return null;
+      let p: PublishParams;
+      try {
+        p = publishParams(params);
+      } catch {
+        return null; // the pre-flight refuses a malformed plan by name
+      }
+      const b = await loadBackend();
+      const item = await b.item(p.item_id, pctx.profile_id);
+      // In flight or done: never lapsed — a post that may be up is read back, not forgotten.
+      if (!item || (item.status !== "drafted" && item.status !== "queued")) return null;
+      return sentence;
+    },
+
+    async lapsed(_op, params, pctx, sentence) {
+      const b = await loadBackend();
+      const p = publishParams(params);
+      await b.lapsed(p.item_id, sentence, pctx.account_id);
+      logPublish({
+        account_id: pctx.account_id,
+        platform: p.platform,
+        item_id: p.item_id,
+        phase: "stale",
+        outcome: "lapsed",
+      });
+    },
 
     async preflight(op, params, pctx) {
       const b = await loadBackend();
@@ -2629,6 +2665,16 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
   return {
     id: "meta_ads",
     external: true,
+
+    async staleApproval(op, _params, pctx, approval) {
+      // Review 2026-10-23 (Session D #1): an ad change rests on measured days
+      // that go stale; an old approval isn't acted on. Reads nothing.
+      const sentence = staleAdChange(approval, approval.now);
+      if (sentence !== null) {
+        logAdChange({ account_id: pctx.account_id, op, phase: "stale", outcome: "lapsed" });
+      }
+      return sentence;
+    },
 
     async preflight(op, params, pctx) {
       const log = (outcome: string, run?: Run) =>

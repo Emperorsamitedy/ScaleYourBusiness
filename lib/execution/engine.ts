@@ -8,6 +8,10 @@
 //   2. the proposal's status — only "approved" executes; pending,
 //      rejected, blocked, expired and executed each refuse distinctly
 //   3. the schedule floor — execute_not_before is honoured (P3-05)
+//   3a. staleness (review 2026-10-23, Session D #1) — a provider that can
+//      tell (Meta's two) refuses an approval gone stale: a post more than
+//      30 hours past its time, an ad change approved more than 14 days ago.
+//      The proposal becomes expired with the owner's sentence; nothing sent
 //   4. the watching block (P3-09, step 67) — a profile in watching
 //      mode, or with NO mode decision at all, cannot be written for.
 //      "This test protects a real business from you."
@@ -56,7 +60,13 @@ import { logSafeError } from "../core/log-safe";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import type { DbOrTx } from "../../db";
-import { executionAttempts, executionHalts, executions, proposals } from "../../db/schema";
+import {
+  executionAttempts,
+  executionHalts,
+  executions,
+  proposals,
+  watchActivity,
+} from "../../db/schema";
 import { sessionDRealWritesOn } from "../env";
 import { latestDecision } from "../mode/service";
 import { recordExecution } from "../proposals/service";
@@ -67,12 +77,17 @@ import { emptyUsage, withUsage } from "./attempt-usage";
 import type { ExecutionContext, ExecutionProvider, HeldFor } from "./providers/fixture";
 import { heldFor, holdRetryAfterMs } from "./providers/fixture";
 import { executionProvider } from "./providers/index";
+import { STALE_NOTE } from "./stale";
 
 export const MAX_ATTEMPTS = 3;
 
-/** The real-write gate's refusal, in the owner's words (guard 6a). */
-export function realWritesOffSentence(label: string): string {
-  return `${label} is switched off until the two-week unattended test completes. Nothing was sent; this stays approved and goes out on the first run after it is switched on.`;
+/**
+ * The real-write gate's refusal, in the owner's words (guard 6a). A provider
+ * whose approvals can go stale says what really happens once the gate is on
+ * (review 2026-10-23, Session D #1): it goes out only while still timely.
+ */
+export function realWritesOffSentence(label: string, staleNote?: string): string {
+  return `${label} is switched off until the two-week unattended test completes. Nothing was sent; this stays approved. ${staleNote ?? "It goes out on the first run after it is switched on."}`;
 }
 
 /** Guard 6a on an undo that would raise spend (review 2026-10-23, Session D #4). */
@@ -105,6 +120,7 @@ export class ExecutionRefused extends Error {
     | "in_flight"
     | "not_undoable"
     | "not_found"
+    | "stale"
     | "real_writes_off"
     | "deferred"
     | "preflight_refused";
@@ -234,6 +250,27 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     );
   }
 
+  // Guard 3a — a schedule long past is not a schedule (review 2026-10-23,
+  // Session D #1). An approved post far past its time, or an ad change
+  // approved on numbers that have since gone stale, is not acted on late:
+  // the proposal becomes `expired`, the owner is told in words, and nothing
+  // is sent — not even a read. Before the real-write gate, so approvals that
+  // waited out the gate, a long stop or a reconnect lapse the same way.
+  if (args.provider.staleApproval) {
+    const sentence = await args.provider.staleApproval(args.op, args.params, ctx, {
+      decided_at: proposal.decided_at,
+      execute_not_before: proposal.execute_not_before,
+      action: proposal.action,
+      now: now(),
+    });
+    if (sentence !== null) {
+      if (await lapseApproval(proposal, sentence, ctx.account_id, now())) {
+        await args.provider.lapsed?.(args.op, args.params, ctx, sentence);
+      }
+      throw new ExecutionRefused("stale", sentence);
+    }
+  }
+
   // Guard 4 — the watching block (step 67). No decision is also a block:
   // a profile the mode rule has never cleared does not get written for.
   const decision = await latestDecision(proposal.profile_id);
@@ -283,7 +320,12 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     );
     throw new ExecutionRefused(
       "real_writes_off",
-      realWritesOffSentence(spec?.label ?? args.provider.id),
+      realWritesOffSentence(
+        spec?.label ?? args.provider.id,
+        args.provider.staleApproval
+          ? STALE_NOTE[args.provider.id as keyof typeof STALE_NOTE]
+          : undefined,
+      ),
     );
   }
 
@@ -477,6 +519,49 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     .returning();
   if (!failed) throw lostRun(execution, ctx.account_id);
   return failed;
+}
+
+/**
+ * Guard 3a's write: approved → expired, conditionally, carrying the owner's
+ * sentence in execution_result (the engine is that column's one writer), and
+ * one watch-log line. decided_by and decided_at stay, so every screen can
+ * tell "approved, then lapsed" from "ran out of time undecided". No
+ * decision-log row, as for any expiry: it is the absence of an execution.
+ * False when the row had already moved on (another run, a click).
+ */
+async function lapseApproval(
+  proposal: { id: string; profile_id: string },
+  sentence: string,
+  accountId: string,
+  at: Date,
+): Promise<boolean> {
+  const flipped = await db.transaction(async (tx) => {
+    const [row] = await tx
+      .update(proposals)
+      .set({
+        status: "expired",
+        execution_result: sql`${JSON.stringify({ lapsed: true, at: at.toISOString(), sentence })}::jsonb`,
+      })
+      .where(and(eq(proposals.id, proposal.id), eq(proposals.status, "approved")))
+      .returning({ id: proposals.id });
+    if (!row) return false;
+    await tx.insert(watchActivity).values({
+      profile_id: proposal.profile_id,
+      kind: "approval_lapsed",
+      detail: sentence,
+      meta: { proposal_id: proposal.id },
+    });
+    return true;
+  });
+  console.log(
+    JSON.stringify({
+      event: "approval_lapsed",
+      account_id: accountId,
+      proposal_id: proposal.id,
+      flipped,
+    }),
+  );
+  return flipped;
 }
 
 /**

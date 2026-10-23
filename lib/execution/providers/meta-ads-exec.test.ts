@@ -674,6 +674,60 @@ describe("P3-22b — pause, from 14 seeded loss-making days, and undo to ACTIVE"
   });
 });
 
+/* ── review 2026-10-23, Session D #1: an approved ad change goes stale ── */
+
+describe("Review D #1 — an ad change approved more than 14 days ago is not made", () => {
+  const backdate = (id: string, days: number) =>
+    db
+      .update(proposals)
+      .set({ decided_at: new Date(Date.now() - days * 86_400_000).toISOString() })
+      .where(eq(proposals.id, id));
+
+  it("15 days after approval: nothing sent, expired with the decision kept, the owner told", async () => {
+    const b = await business();
+    const { graph, run, campaign } = harness();
+    campaign("120000070");
+    const id = await adProposal(b, { change: "pause", campaign_ref: "120000070" });
+    await backdate(id, 15);
+    const summary = await run(b);
+    expect(summary.refused).toBe(1);
+    expect(summary.outcomes[0]?.detail).toMatch(
+      /^stale: I didn't make this change — you approved it on .+, and the numbers behind it are more than 14 days old now\./,
+    );
+    expect(graph.calls).toHaveLength(0);
+    const row = await proposalRow(id);
+    expect(row.status).toBe("expired");
+    expect(row.decided_by).toBe(b.user_id);
+    expect(row.execution_result).toMatchObject({ lapsed: true });
+    expect(graph.campaigns.get("120000070")?.status).toBe("ACTIVE");
+    expect((await watchLines(b.profile_id)).some((l) => l.startsWith("I didn't make this"))).toBe(
+      true,
+    );
+  });
+
+  it("the control: 13 days after approval it still runs", async () => {
+    const b = await business();
+    const { run, campaign, graph } = harness();
+    campaign("120000071");
+    const id = await adProposal(b, { change: "pause", campaign_ref: "120000071" });
+    await backdate(id, 13);
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.campaigns.get("120000071")?.status).toBe("PAUSED");
+  });
+
+  it("while the gate is off, the refusal no longer promises it goes out whenever the gate opens", async () => {
+    const b = await business();
+    const { run, campaign } = harness();
+    campaign("120000072");
+    await adProposal(b, { change: "pause", campaign_ref: "120000072" });
+    gate(false);
+    const detail = (await run(b)).outcomes[0]?.detail ?? "";
+    expect(detail).toMatch(/^real_writes_off: /);
+    expect(detail).not.toMatch(/goes out on the first run after it is switched on/);
+    expect(detail).toMatch(/approved it within the last 14 days/);
+  });
+});
+
 /* ── review 2026-10-23, Session D #4: the undo is guarded too ── */
 
 describe("Review D #4 — an ad undo never overrides the owner, and never raises spend unguarded", () => {

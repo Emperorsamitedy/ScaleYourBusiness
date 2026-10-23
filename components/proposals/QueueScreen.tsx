@@ -62,6 +62,7 @@ import {
   shortReversibility,
   signedMoney,
   stampText,
+  lapsedSentence,
 } from "./queue-model";
 import "../../app/queue.css";
 
@@ -115,6 +116,8 @@ interface Proposal {
   rejection_reason: string | null;
   change_request?: string | null;
   execute_not_before: string | null;
+  /** Review D #1: an approval that lapsed carries {lapsed, at, sentence} here. */
+  execution_result?: unknown;
 }
 
 interface Disagreement {
@@ -1335,7 +1338,8 @@ export function QueueScreen() {
                     <p className="q-side-title">{p.action.summary}</p>
                     {p.status === "expired" && (
                       <p className="q-side-note">
-                        Not approved — nothing ran. It ran out of time undecided; that is not a no.
+                        {lapsedSentence(p) ??
+                          "Not approved — nothing ran. It ran out of time undecided; that is not a no."}
                       </p>
                     )}
                     {p.rejection_reason && (

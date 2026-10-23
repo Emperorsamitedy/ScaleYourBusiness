@@ -26,6 +26,8 @@ export interface LedgerProposal {
   rejection_reason: string | null;
   blocked_by_limit: string | null;
   action: { summary: string };
+  /** Review D #1: a lapsed approval carries {lapsed, at, sentence}. */
+  execution_result?: unknown;
 }
 
 export interface LedgerOutcome {
@@ -146,6 +148,40 @@ export function proposalRows(
     note: p.status === "pending" ? "waiting for you" : "",
     tone: null,
   });
+
+  // Review 2026-10-23 (Session D #1): approved, then lapsed before it could
+  // run — the approval stays on the record, and the lapse is Ledgerline's.
+  const lapse = p.execution_result as { lapsed?: unknown; at?: unknown; sentence?: unknown } | null;
+  if (p.status === "expired" && p.decided_at && lapse?.lapsed === true) {
+    rows.push({
+      key: `${p.id}:approved`,
+      kind: "approved",
+      at: parseTs(p.decided_at),
+      timed: true,
+      title,
+      ref,
+      detail: null,
+      actor: "you",
+      note: "",
+      tone: null,
+    });
+    const at = typeof lapse.at === "string" ? parseTs(lapse.at) : null;
+    if (at !== null) {
+      rows.push({
+        key: `${p.id}:expired`,
+        kind: "expired",
+        at,
+        timed: true,
+        title,
+        ref,
+        detail: typeof lapse.sentence === "string" ? lapse.sentence : null,
+        actor: "Ledgerline",
+        note: "lapsed after approval · never ran",
+        tone: null,
+      });
+    }
+    return rows;
+  }
 
   if (p.status === "expired") {
     const at = p.expires_at ? parseTs(p.expires_at) : p.decided_at ? parseTs(p.decided_at) : null;

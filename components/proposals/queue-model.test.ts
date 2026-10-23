@@ -24,6 +24,7 @@ import {
   shortRef,
   signedMoney,
   stampText,
+  lapsedSentence,
 } from "./queue-model";
 
 const NB = ",";
@@ -389,5 +390,21 @@ describe("evidenceLines — P3-23c, a line computed from measured rows", () => {
     expect(line).toMatchObject({ basis: "DERIVED", source: "measured per post · x" });
     const [plain] = evidenceLines([{ statement: "a guess", source_field: null }], {});
     expect(plain?.basis).toBe("ASSUMED");
+  });
+});
+
+describe("review 2026-10-23, Session D #1 — lapsedSentence", () => {
+  it("an approval that lapsed says so, with its reason; an undecided expiry gets nothing", () => {
+    expect(
+      lapsedSentence({
+        status: "expired",
+        decided_at: "2026-10-01T09:00:00Z",
+        execution_result: { lapsed: true, sentence: "I didn't post this." },
+      }),
+    ).toBe(
+      "You approved this, but it lapsed before it could run — nothing ran. I didn't post this.",
+    );
+    expect(lapsedSentence({ status: "expired", decided_at: null })).toBeNull();
+    expect(lapsedSentence({ status: "approved", decided_at: "2026-10-01T09:00:00Z" })).toBeNull();
   });
 });

@@ -406,6 +406,8 @@ async function approvedItem(
     target?: string;
     approve?: boolean;
     provenance?: Record<string, unknown>;
+    /** When it was approved to go out (default: an hour ago). */
+    executeNotBefore?: string;
   },
 ) {
   const [item] = await db
@@ -449,7 +451,7 @@ async function approvedItem(
       proposalId: proposal.id,
       userId: b.user_id,
       profileId: b.profile_id,
-      executeNotBefore: PAST,
+      executeNotBefore: args.executeNotBefore ?? PAST,
     });
   }
   return { item_id: item!.id, proposal_id: proposal.id };
@@ -1110,6 +1112,121 @@ describe("P3-21d — at-most-once, stated honestly", () => {
     const item = await itemRow(item_id);
     expect(item.status).toBe("published");
     expect(item.platform_post_id).toBe([...graph.media.keys()][0]);
+  });
+});
+
+/* ── review 2026-10-23, Session D #1: an approved post goes stale ── */
+
+describe("Review D #1 — an approved post far past its time is not posted late", () => {
+  const ago = (hours: number) => new Date(Date.now() - hours * 3_600_000).toISOString();
+
+  it("31 hours late: nothing sent, the proposal expired with the decision kept, the item failed in words, the render released", async () => {
+    const b = await business();
+    const media = await render("jpg");
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "facebook",
+      media_path: media,
+      executeNotBefore: ago(31),
+    });
+    const { graph, run } = harness();
+    const summary = await run(b);
+    expect(summary.refused).toBe(1);
+    expect(summary.outcomes[0]?.detail).toMatch(/^stale: I didn't post this — it was due on /);
+    expect(graph.calls).toHaveLength(0);
+    const proposal = await proposalRow(proposal_id);
+    expect(proposal.status).toBe("expired");
+    expect(proposal.decided_by).toBe(b.user_id);
+    expect(proposal.execution_result).toMatchObject({
+      lapsed: true,
+      sentence: expect.stringMatching(/propose it again if it still fits\.$/),
+    });
+    expect(await executionFor(proposal_id)).toBeUndefined();
+    const item = await itemRow(item_id);
+    expect(item.status).toBe("failed");
+    expect(item.last_error).toMatch(/^I didn't post this — it was due on /);
+    expect(item.media_path).toBeNull();
+    expect(store.read(media)).toBeNull();
+    expect((await watchLines(b.profile_id)).some((l) => l.startsWith("I didn't post this"))).toBe(
+      true,
+    );
+    // Nothing comes back for it on the next run.
+    expect((await run(b)).due).toBe(0);
+    expect(graph.calls).toHaveLength(0);
+  });
+
+  it("the control: 29 hours late is the daily runner's own slack — it goes out", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, { platform: "facebook", executeNotBefore: ago(29) });
+    const { graph, run } = harness();
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+    expect((await itemRow(item_id)).status).toBe("published");
+  });
+
+  it("with the gate off it lapses too — so the day the gate opens, nothing stale goes out", async () => {
+    const b = await business();
+    const { proposal_id } = await approvedItem(b, {
+      platform: "facebook",
+      executeNotBefore: ago(24 * 40),
+    });
+    gate(false);
+    const { graph, run } = harness();
+    expect((await run(b)).outcomes[0]?.detail).toMatch(/^stale: /);
+    gate(true);
+    expect((await run(b)).due).toBe(0);
+    expect(graph.calls).toHaveLength(0);
+    expect((await proposalRow(proposal_id)).status).toBe("expired");
+  });
+
+  it("re-queued after a reconnect (a run held for it), still stale: it lapses, never re-runs", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "facebook",
+      executeNotBefore: ago(24 * 9),
+    });
+    await db.insert(executions).values({
+      proposal_id,
+      profile_id: b.profile_id,
+      account_id: b.account_id,
+      provider: "meta_publish",
+      op: "publish_page_post",
+      status: "failed",
+      held_for: "reconnect",
+      error: "the sign-in expired",
+      undo_payload: { platform: "facebook", item_id, target: { page_id: PAGE } },
+    });
+    const { graph, run } = harness();
+    expect((await run(b)).outcomes[0]?.detail).toMatch(/^stale: /);
+    expect(graph.calls).toHaveLength(0);
+    expect((await proposalRow(proposal_id)).status).toBe("expired");
+    expect((await itemRow(item_id)).status).toBe("failed");
+    expect((await run(b)).due).toBe(0);
+  });
+
+  it("an item already in flight is never lapsed: a post that may be up is read back, not forgotten", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "facebook",
+      executeNotBefore: ago(48),
+    });
+    const sentAt = new Date().toISOString();
+    await db
+      .update(contentItems)
+      .set({
+        status: "publishing",
+        platform: "facebook",
+        publish_attempt: { started_at: sentAt, sent_at: sentAt, caption_sha256: captionHash(BODY) },
+      })
+      .where(eq(contentItems.id, item_id));
+    const { graph, run } = harness();
+    graph.posts.set(`${PAGE}_4242`, { message: BODY, created_time: sentAt });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(0);
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "published",
+      platform_post_id: `${PAGE}_4242`,
+    });
+    expect((await proposalRow(proposal_id)).status).toBe("executed");
   });
 });
 

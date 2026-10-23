@@ -8,6 +8,7 @@
 // test proves "exactly once" rather than assuming it.
 
 import type { ExecutionProviderId } from "../scopes";
+import type { ApprovalView } from "../stale";
 
 export interface ExecutionContext {
   profile_id: string;
@@ -110,6 +111,25 @@ export interface ExecutionProvider {
    * action (review 2026-10-23, Session D #4).
    */
   undoRaisesSpend?(op: string, undoPayload: unknown, result: unknown): boolean;
+  /**
+   * Optional, reads only: the owner's sentence when this approval has gone
+   * stale (a post far past its time, an ad change on old numbers), else
+   * null. The engine checks it before the real-write gate and the claim, and
+   * expires the proposal (review 2026-10-23, Session D #1).
+   */
+  staleApproval?(
+    op: string,
+    params: Record<string, unknown>,
+    ctx: ExecutionContext,
+    approval: ApprovalView & { now: Date },
+  ): Promise<string | null>;
+  /** Optional: the provider's own state for an approval that lapsed (an item, its media). */
+  lapsed?(
+    op: string,
+    params: Record<string, unknown>,
+    ctx: ExecutionContext,
+    sentence: string,
+  ): Promise<void>;
 }
 
 /** profile_id → key → value. Module-level: tests read what "the platform" holds. */
