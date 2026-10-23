@@ -188,6 +188,46 @@ export function buildPricePrompt(pages: readonly ModelPage[]): string {
     .join("\n\n");
 }
 
+/**
+ * Active ISO 4217 alphabetic codes (the List One of 2026). Anything else
+ * the model calls a currency — "VAT", "PCS", "MIN" — is not one (review
+ * 2026-10-23, finding 13).
+ */
+const ISO_4217: ReadonlySet<string> = new Set(
+  (
+    "AED AFN ALL AMD ANG AOA ARS AUD AWG AZN BAM BBD BDT BGN BHD BIF BMD BND BOB BRL BSD BTN " +
+    "BWP BYN BZD CAD CDF CHF CLP CNY COP CRC CUP CVE CZK DJF DKK DOP DZD EGP ERN ETB EUR FJD " +
+    "FKP GBP GEL GHS GIP GMD GNF GTQ GYD HKD HNL HTG HUF IDR ILS INR IQD IRR ISK JMD JOD JPY " +
+    "KES KGS KHR KMF KPW KRW KWD KYD KZT LAK LBP LKR LRD LSL LYD MAD MDL MGA MKD MMK MNT MOP " +
+    "MRU MUR MVR MWK MXN MYR MZN NAD NGN NIO NOK NPR NZD OMR PAB PEN PGK PHP PKR PLN PYG QAR " +
+    "RON RSD RUB RWF SAR SBD SCR SDG SEK SGD SHP SLE SOS SRD SSP STN SVC SYP SZL THB TJS TMT " +
+    "TND TOP TRY TTD TWD TZS UAH UGX USD UYU UZS VES VND VUV WST XAF XCD XCG XOF XPF YER ZAR " +
+    "ZMW ZWG"
+  ).split(" "),
+);
+
+/** Pure: whether a code is an active ISO 4217 currency. */
+export function isIsoCurrency(code: string): boolean {
+  return ISO_4217.has(code);
+}
+
+/**
+ * Pure: the currency of one offer the model returned. A code it gives must
+ * be ISO 4217 AND named by the page itself (a symbol the parser read, or
+ * the code written out); with no code, the page's one currency, if it
+ * names exactly one. Null drops the offer.
+ */
+export function answerCurrency(
+  raw: unknown,
+  page: Pick<ModelPage, "text" | "currencies">,
+): string | null {
+  const given = typeof raw === "string" ? raw.trim().toUpperCase() : "";
+  if (given === "") return page.currencies.length === 1 ? page.currencies[0]! : null;
+  if (!/^[A-Z]{3}$/.test(given) || !isIsoCurrency(given)) return null;
+  if (page.currencies.includes(given)) return given;
+  return new RegExp(`(^|[^A-Za-z])${given}([^A-Za-z]|$)`).test(page.text) ? given : null;
+}
+
 const squash = (s: string): string => s.toLowerCase().replace(/\s+/g, " ");
 const digitsOf = (s: string): string => s.replace(/[^\d]/g, "");
 
@@ -223,12 +263,7 @@ export function parsePriceAnswer(
       if (typeof item.name !== "string" || typeof item.price !== "string") continue;
       const name = item.name.replace(/\s+/g, " ").trim().slice(0, 90);
       if (name === "" || !pageText.includes(squash(name))) continue;
-      const code =
-        typeof item.currency === "string" && /^[A-Z]{3}$/.test(item.currency.trim())
-          ? item.currency.trim()
-          : page.currencies.length === 1
-            ? page.currencies[0]!
-            : null;
+      const code = answerCurrency(item.currency, page);
       if (code === null) continue;
       const digits = digitsOf(item.price);
       if (digits === "" || !pageDigits.includes(digits)) continue;
