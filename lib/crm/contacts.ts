@@ -322,6 +322,10 @@ export async function eraseContact(accountId: string, contactId: string): Promis
           eq(campaignComparisons.contact_id, contactId),
         ),
       );
+    // Their bookings stop being linkable to them, in the same transaction
+    // (review 2026-10-23, #11): the keyed client hash their email or phone
+    // produced is cleared and remembered (specs/bookings.md §3).
+    await forgetBookingClient(accountId, { email: contact.email, phone: contact.phone }, tx);
     await tx.delete(contacts).where(eq(contacts.id, contactId));
     if (profile) {
       await tx.insert(decisionLog).values({
@@ -338,9 +342,6 @@ export async function eraseContact(accountId: string, contactId: string): Promis
     }
     return { conversationIds, emailTicketIds };
   });
-  // Their bookings stop being linkable to them: the keyed client hash their
-  // email or phone produced is cleared (specs/bookings.md §3).
-  await forgetBookingClient(accountId, { email: contact.email, phone: contact.phone });
   console.log(
     JSON.stringify({
       event: "contact_erased",

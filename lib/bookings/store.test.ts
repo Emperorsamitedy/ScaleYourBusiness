@@ -8,7 +8,9 @@
 import "dotenv/config";
 process.env.CONNECTOR_KEY ??= "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
-import { eq, inArray } from "drizzle-orm";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { eq, inArray, sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../db";
 import {
@@ -19,6 +21,7 @@ import {
   businessProfiles,
   connections,
   connectorSyncs,
+  contactSuppressions,
   fieldRecords,
   metricObservations,
   profileSnapshots,
@@ -36,7 +39,8 @@ import { isoDateTime } from "../core/iso";
 import { bootstrapIntake } from "../intake/service";
 import { ensureSnapshot } from "../profile/snapshot";
 import { readCurrentField, readFieldHistory, writeField } from "../profile/field-store";
-import { clientKey } from "./client-key";
+import { addContact, emailHash, eraseContact } from "../crm/contacts";
+import { clientKey, clientKeyCandidates } from "./client-key";
 import { forgetBookingClient } from "./erase";
 import {
   BOOKING_FACT_KEYS,
@@ -420,6 +424,159 @@ describe("Square bookings through the sync", () => {
       expect(after).toHaveLength(rows.length);
     } finally {
       restore();
+    }
+  });
+});
+
+describe("erasure survives a re-import (review 2026-10-23, #3, #11)", () => {
+  const keysOf = async (accountId: string) =>
+    (
+      await db
+        .select({ k: bookingAppointments.client_key, ref: bookingAppointments.source_ref })
+        .from(bookingAppointments)
+        .where(eq(bookingAppointments.account_id, accountId))
+    ).map((r) => r.k);
+  const cleanup = async (accountId: string) => {
+    await db.delete(contactSuppressions).where(eq(contactSuppressions.account_id, accountId));
+  };
+
+  it("erase, then re-import the usual export: the client's rows stay unlinked", async () => {
+    const s = await scenario();
+    try {
+      await importBookings(s.account_id, salonExport({ days: 10 }), REQUEST, NOW);
+      const key = clientKey(s.account_id, { kind: "email", value: "client3@example.com" }, "");
+      expect((await keysOf(s.account_id)).filter((k) => k === key).length).toBeGreaterThan(0);
+
+      const contact = await addContact(s.account_id, {
+        email: "client3@example.com",
+        consent: { status: "unsure", source: "test fixture" },
+      });
+      await eraseContact(s.account_id, contact.id);
+      expect((await keysOf(s.account_id)).includes(key)).toBe(false);
+
+      const again = await importBookings(s.account_id, salonExport({ days: 10 }), REQUEST, NOW);
+      expect((await keysOf(s.account_id)).includes(key)).toBe(false);
+      expect(again.gaps.client_erased).toBeGreaterThan(0);
+      expect(again.added).toBe(0);
+      // Every other client is still linked.
+      const other = clientKey(s.account_id, { kind: "email", value: "client4@example.com" }, "");
+      expect((await keysOf(s.account_id)).includes(other)).toBe(true);
+    } finally {
+      await cleanup(s.account_id);
+    }
+  });
+
+  it("an unsubscribed address is never linked by an import", async () => {
+    const s = await scenario();
+    try {
+      await db.insert(contactSuppressions).values({
+        account_id: s.account_id,
+        email_hash: emailHash("client5@example.com"),
+        reason: "unsubscribed",
+      });
+      const out = await importBookings(s.account_id, salonExport({ days: 10 }), REQUEST, NOW);
+      const key = clientKey(s.account_id, { kind: "email", value: "client5@example.com" }, "");
+      expect((await keysOf(s.account_id)).includes(key)).toBe(false);
+      expect(out.gaps.client_erased).toBeGreaterThan(0);
+    } finally {
+      await cleanup(s.account_id);
+    }
+  });
+
+  it("a phone-keyed export without references: erased stays erased, and the row keys never move", async () => {
+    const s = await scenario();
+    const csv = [
+      "Date,Time,Status,Service,Phone",
+      "2026-10-01,10:00,Completed,Cut,+36 30 123 4567",
+      "2026-10-01,10:00,Completed,Cut,+36 30 765 4321",
+      "2026-10-02,11:00,No-show,Colour,+36 30 123 4567",
+    ].join("\n");
+    const generic = { platform: "generic" as const, currency: null, dateOrder: null };
+    const refs = async () =>
+      (
+        await db
+          .select({ ref: bookingAppointments.source_ref, k: bookingAppointments.client_key })
+          .from(bookingAppointments)
+          .where(eq(bookingAppointments.account_id, s.account_id))
+      )
+        .map((r) => r.ref)
+        .sort();
+    await importBookings(s.account_id, csv, generic, NOW);
+    const before = await refs();
+    expect(before).toHaveLength(3);
+    // Two clients in one slot: numbered, never told apart by their key.
+    expect(before.filter((r) => r.endsWith(":1"))).toHaveLength(2);
+    expect(before.filter((r) => r.endsWith(":2"))).toHaveLength(1);
+
+    const key = clientKey(s.account_id, { kind: "phone", value: "+36301234567" }, "");
+    await forgetBookingClient(s.account_id, { email: null, phone: "+36 30 123 4567" });
+    const again = await importBookings(s.account_id, csv, generic, NOW);
+    expect(again.added).toBe(0);
+    expect(await refs()).toEqual(before);
+    expect((await keysOf(s.account_id)).includes(key)).toBe(false);
+    expect(again.gaps.client_erased).toBe(2);
+  });
+
+  it("migration 0053 re-keys old content refs exactly as the reader now keys them", async () => {
+    const s = await scenario();
+    const csv = [
+      "Date,Time,Status,Service,Staff,Email",
+      "2026-10-01,10:00,Completed,Cut,Kata,anna@example.com",
+      "2026-10-01,10:00,Completed,Cut,Kata,bea@example.com",
+      "2026-10-03,,Completed,Colour,,cili@example.com",
+    ].join("\n");
+    await importBookings(
+      s.account_id,
+      csv,
+      { platform: "generic", currency: null, dateOrder: null },
+      NOW,
+    );
+    const rows = await db
+      .select({ id: bookingAppointments.id, ref: bookingAppointments.source_ref })
+      .from(bookingAppointments)
+      .where(eq(bookingAppointments.account_id, s.account_id));
+    const truth = new Map(rows.map((r) => [r.id, r.ref]));
+    // Put them back into the old form: a different 32-hex content, numbered 1 each.
+    for (const [i, r] of rows.entries()) {
+      await db
+        .update(bookingAppointments)
+        .set({ source_ref: `generic:k:${String(i).padStart(32, "a")}:1` })
+        .where(eq(bookingAppointments.id, r.id));
+    }
+    const migration = readFileSync(
+      fileURLToPath(new URL("../../db/migrations/0053_optimal_randall_flagg.sql", import.meta.url)),
+      "utf8",
+    );
+    const statements = migration.split("--> statement-breakpoint").slice(-2);
+    for (const statement of statements) await db.execute(sql.raw(statement));
+    const after = await db
+      .select({ id: bookingAppointments.id, ref: bookingAppointments.source_ref })
+      .from(bookingAppointments)
+      .where(eq(bookingAppointments.account_id, s.account_id));
+    expect(after.map((r) => r.ref).sort()).toEqual([...truth.values()].sort());
+    // And the slot shared by two clients still holds two distinct refs.
+    expect(new Set(after.map((r) => r.ref)).size).toBe(3);
+  });
+});
+
+describe("the client key's own derivation (review 2026-10-23, #11)", () => {
+  it("is HKDF over CONNECTOR_KEY alone: setting COOKIE_SECRET later changes nothing", () => {
+    const id = { kind: "email" as const, value: "anna@example.com" };
+    const saved = process.env.COOKIE_SECRET;
+    try {
+      delete process.env.COOKIE_SECRET;
+      const before = clientKey("acct-a", id, "");
+      expect(clientKeyCandidates("acct-a", id, "")).toEqual([before]);
+      process.env.COOKIE_SECRET = "set-later-0123456789abcdef0123456789abcdef";
+      expect(clientKey("acct-a", id, "")).toBe(before);
+      // Erasure also tries the key rows made while COOKIE_SECRET was set carry.
+      const candidates = clientKeyCandidates("acct-a", id, "");
+      expect(candidates).toHaveLength(2);
+      expect(candidates[0]).toBe(before);
+      expect(candidates[1]).not.toBe(before);
+    } finally {
+      if (saved === undefined) delete process.env.COOKIE_SECRET;
+      else process.env.COOKIE_SECRET = saved;
     }
   });
 });

@@ -103,6 +103,7 @@ const GAP_WORDS: Record<string, string> = {
   cancelled_at:
     "a cancellation time I couldn't compare with the start, so it counts as an ordinary cancellation",
   client: "client details I couldn't use, so that visit isn't followed",
+  client_erased: "a client you erased or who unsubscribed, so that visit stays unlinked to anyone",
 };
 
 const SOURCE_WORDS = { import: "Your bookings export", square: "Square" } as const;
