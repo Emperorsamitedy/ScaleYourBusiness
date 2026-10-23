@@ -70,15 +70,41 @@ export function parseRobots(body: string, token: string = ROBOTS_TOKEN): RobotsR
   return { rules: chosen.flatMap((g) => g.rules), blanket: null };
 }
 
-/** A robots pattern as an anchored regular expression. */
-function patternRegex(pattern: string): RegExp {
+/**
+ * Wildcards one rule may carry. Real robots.txt files use one or two; a
+ * rule with more is hostile or broken, and is ignored rather than run.
+ */
+export const MAX_WILDCARDS_PER_RULE = 10;
+
+/**
+ * Pure: whether a robots pattern matches a path from its start. "*" is any
+ * run of characters, a trailing "$" anchors the end. Linear in the path for
+ * each literal piece: the pieces between stars are matched greedily
+ * left-to-right, which is exact for this pattern language (no
+ * backtracking, so no hostile pattern can stall the event loop — the
+ * review of 2026-10-23, finding 2, timed the old RegExp past 120 s on a
+ * 40-character path).
+ */
+export function robotsPatternMatches(pattern: string, path: string): boolean {
   const anchored = pattern.endsWith("$");
   const body = anchored ? pattern.slice(0, -1) : pattern;
-  const escaped = body
-    .split("*")
-    .map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&"))
-    .join(".*");
-  return new RegExp(`^${escaped}${anchored ? "$" : ""}`);
+  const parts = body.split("*");
+  if (parts.length - 1 > MAX_WILDCARDS_PER_RULE) return false;
+  const first = parts[0] ?? "";
+  if (!path.startsWith(first)) return false;
+  if (parts.length === 1) return anchored ? path === first : true;
+  let at = first.length;
+  const last = parts[parts.length - 1] ?? "";
+  for (let i = 1; i < parts.length - 1; i++) {
+    const piece = parts[i] ?? "";
+    if (piece === "") continue;
+    const found = path.indexOf(piece, at);
+    if (found === -1) return false;
+    at = found + piece.length;
+  }
+  if (!anchored) return last === "" || path.indexOf(last, at) !== -1;
+  // Anchored: the last piece must end the path, after everything before it.
+  return path.length - last.length >= at && path.endsWith(last);
 }
 
 /** Pure: whether a URL's path (with its query) may be fetched under these rules. */
@@ -90,7 +116,7 @@ export function robotsAllows(rules: RobotsRules, url: URL): boolean {
   let best: Rule | null = null;
   for (const rule of rules.rules) {
     if (rule.pattern === "") continue; // "Disallow:" with nothing allows everything
-    if (!patternRegex(rule.pattern).test(path)) continue;
+    if (!robotsPatternMatches(rule.pattern, path)) continue;
     const length = rule.pattern.replace(/\*|\$$/g, "").length;
     const bestLength = best ? best.pattern.replace(/\*|\$$/g, "").length : -1;
     if (length > bestLength || (length === bestLength && rule.allow && best && !best.allow)) {
