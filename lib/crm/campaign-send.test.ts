@@ -47,10 +47,14 @@ import { consentToCampaignEmail } from "../execution/email-consent";
 import type { MailFetch } from "../execution/providers/email-campaign";
 import {
   SLOT,
+  UNKNOWN_BACKOFF_BASE_MS,
+  UNKNOWN_BACKOFF_CAP_MS,
   createEmailCampaignExecutor,
   fillSlot,
   sha256,
+  unknownBackoffMs,
   unsubscribeUrls,
+  waitWords,
 } from "../execution/providers/email-campaign";
 import { bootstrapIntake } from "../intake/service";
 import { writeField } from "../profile/field-store";
@@ -143,6 +147,21 @@ describe("P4-15 — the pure parts", () => {
     expect(consentRefusals({ email: null, consent_status: "no_consent" }, false)).toEqual([
       "no_email",
     ]);
+  });
+
+  it("review #16: the backoff after an unknown is an hour, doubling, capped at a day", () => {
+    expect(UNKNOWN_BACKOFF_BASE_MS).toBe(60 * 60_000);
+    expect(UNKNOWN_BACKOFF_CAP_MS).toBe(24 * 60 * 60_000);
+    expect(unknownBackoffMs(1)).toBe(60 * 60_000);
+    expect(unknownBackoffMs(2)).toBe(2 * 60 * 60_000);
+    expect(unknownBackoffMs(4)).toBe(8 * 60 * 60_000);
+    expect(unknownBackoffMs(6)).toBe(24 * 60 * 60_000);
+    expect(unknownBackoffMs(500)).toBe(24 * 60 * 60_000);
+    // Never zero: a nonsense count still waits the base.
+    expect(unknownBackoffMs(0)).toBe(60 * 60_000);
+    expect(waitWords(unknownBackoffMs(1))).toBe("1 hour");
+    expect(waitWords(unknownBackoffMs(3))).toBe("4 hours");
+    expect(waitWords(unknownBackoffMs(9))).toBe("a day");
   });
 
   it("campaignPlanFor routes a crm customer_email proposal and nothing else", () => {
@@ -748,11 +767,40 @@ describe("P4-15 — at send time, per recipient", () => {
     const uncertain = fake.calls[0]!.body.to[0]!;
     let rows = await sendsOf(c.proposal_id);
     expect(rows.map((r) => r.status).sort()).toEqual(["pending", "unknown"]);
+    expect(first.message).toMatch(/I'll wait 1 hour before trying the rest/);
 
-    // The due runner picks the held run up and sends only the pending one.
+    // Review 2026-10-23 (#16): the run waits out its backoff. A pass inside
+    // the hour, and a click, send nothing — an outage costs one recipient
+    // per wait, not one per cron pass.
+    const [held] = await db
+      .select()
+      .from(executions)
+      .where(eq(executions.proposal_id, c.proposal_id));
+    expect(held).toMatchObject({ status: "failed", held_for: "remaining" });
+    const waitedMs = Date.parse(held!.held_until!) - Date.now();
+    expect(waitedMs).toBeGreaterThan(UNKNOWN_BACKOFF_BASE_MS - 60_000);
+    expect(waitedMs).toBeLessThanOrEqual(UNKNOWN_BACKOFF_BASE_MS);
+    const early = await runDueExecutions({
+      profileId: b.profile_id,
+      sleep: noSleep,
+      providers: { email_campaign: provider(fake) },
+    });
+    expect(early.outcomes.find((o) => o.proposal_id === c.proposal_id)).toBeUndefined();
+    const clicked = await sendCampaignNow({
+      profileId: b.profile_id,
+      proposalId: c.proposal_id,
+      provider: provider(fake),
+    });
+    expect(clicked).toMatchObject({ result: "refused" });
+    expect(clicked.message).toMatch(/next try is no earlier than \d\d:\d\d UTC/);
+    expect(fake.calls).toHaveLength(1);
+
+    // After the hour, the due runner picks the held run up and sends only the pending one.
+    const later = new Date(Date.now() + UNKNOWN_BACKOFF_BASE_MS + 60_000);
     await runDueExecutions({
       profileId: b.profile_id,
       sleep: noSleep,
+      now: () => later,
       providers: { email_campaign: provider(fake) },
     });
     expect(fake.calls).toHaveLength(2);
@@ -1060,5 +1108,121 @@ describe("P4-15 — the owner approves the exact email", () => {
     });
     expect(summary.outcomes.find((o) => o.proposal_id === c.proposal_id)).toBeUndefined();
     expect(fake.calls).toHaveLength(0);
+  });
+});
+
+/* ── review 2026-10-23 ── */
+
+/** A fake Resend whose FIRST call waits until released — a run caught mid-send. */
+function gatedResend() {
+  const inner = fakeResend();
+  let release!: () => void;
+  const gate = new Promise<void>((r) => (release = r));
+  let arrived!: () => void;
+  const reached = new Promise<void>((r) => (arrived = r));
+  let first = true;
+  const fetchImpl: MailFetch = async (url, init) => {
+    if (first) {
+      first = false;
+      arrived();
+      await gate;
+    }
+    return inner.fetchImpl(url, init);
+  };
+  return { calls: inner.calls, fetchImpl, reached, release: () => release() };
+}
+
+async function runOf(proposalId: string) {
+  const [row] = await db.select().from(executions).where(eq(executions.proposal_id, proposalId));
+  return row!;
+}
+
+describe("review 2026-10-23 #1 — the stale-run reclaim never catches a live run", () => {
+  it("a resumed run restarts its clock: the reclaim leaves it alone while it sends", async () => {
+    const b = await business();
+    const people = await Promise.all(["r1", "r2"].map((l) => person(b, l, "explicit_consent")));
+    const c = await campaign(
+      b,
+      people.map((x) => x.id),
+    );
+    // The campaign's first run, an hour ago, ended held with recipients left.
+    const hourAgo = new Date(Date.now() - 60 * 60_000).toISOString();
+    await db.insert(executions).values({
+      proposal_id: c.proposal_id,
+      profile_id: b.profile_id,
+      account_id: b.account_id,
+      provider: "email_campaign",
+      op: "send_campaign",
+      status: "failed",
+      held_for: "remaining",
+      started_at: hourAgo,
+      finished_at: hourAgo,
+    });
+    const fake = gatedResend();
+    const running = sendCampaignNow({
+      profileId: b.profile_id,
+      proposalId: c.proposal_id,
+      provider: provider(fake),
+    });
+    await fake.reached;
+    const live = await runOf(c.proposal_id);
+    expect(live.status).toBe("running");
+    // Its started_at is this run's, not the first run's.
+    expect(Date.parse(live.started_at)).toBeGreaterThan(Date.parse(hourAgo) + 30 * 60_000);
+    expect(await reclaimStaleCampaignRuns()).toBe(0);
+    expect((await runOf(c.proposal_id)).status).toBe("running");
+    fake.release();
+    expect(await running).toMatchObject({ result: "sent" });
+    expect((await runOf(c.proposal_id)).status).toBe("succeeded");
+    expect(fake.calls).toHaveLength(2);
+  });
+
+  it("a run that lost its row writes nothing: a `succeeded` row is never overwritten", async () => {
+    const b = await business();
+    const people = await Promise.all(["o1", "o2"].map((l) => person(b, l, "explicit_consent")));
+    const c = await campaign(
+      b,
+      people.map((x) => x.id),
+    );
+    const slow = gatedResend();
+    // Run A, caught mid-send.
+    const runA = sendCampaignNow({
+      profileId: b.profile_id,
+      proposalId: c.proposal_id,
+      provider: provider(slow),
+    });
+    await slow.reached;
+    // A genuinely stale reclaim (the clock moved past the limit) closes A's row…
+    expect(
+      await reclaimStaleCampaignRuns(new Date(Date.now() + STALE_RUN_MS + 60_000)),
+    ).toBeGreaterThanOrEqual(1);
+    // …and run B resumes it and finishes the list.
+    const fast = fakeResend();
+    expect(
+      await sendCampaignNow({
+        profileId: b.profile_id,
+        proposalId: c.proposal_id,
+        provider: provider(fast),
+      }),
+    ).toMatchObject({ result: "sent" });
+    const afterB = await runOf(c.proposal_id);
+    expect(afterB.status).toBe("succeeded");
+
+    // A wakes up. Its late outcome changes nothing B recorded.
+    slow.release();
+    expect(await runA).toMatchObject({ result: "refused" });
+    const final = await runOf(c.proposal_id);
+    expect(final).toMatchObject({ status: "succeeded", started_at: afterB.started_at });
+    expect(final.finished_at).toBe(afterB.finished_at);
+    const [p] = await db.select().from(proposals).where(eq(proposals.id, c.proposal_id));
+    expect(p!.status).toBe("executed");
+    const execLog = await db
+      .select()
+      .from(decisionLog)
+      .where(and(eq(decisionLog.ref_id, c.proposal_id), eq(decisionLog.kind, "execution")));
+    expect(execLog).toHaveLength(1);
+    // Every recipient emailed at most once across both runs.
+    const to = [...slow.calls, ...fast.calls].map((x) => x.body.to[0]);
+    expect(new Set(to).size).toBe(to.length);
   });
 });

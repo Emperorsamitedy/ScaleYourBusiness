@@ -31,8 +31,9 @@
 //     unknown row is NEVER sent again by any run — it stays unknown and the
 //     owner's screen says so. A row left `sending` by a run that died is
 //     settled to unknown at the start of the next one.
-//   - after an unknown, the run stops (held "remaining"): if the service is
-//     failing, one recipient is uncertain, not the whole list.
+//   - after an unknown, the run stops (held "remaining") and waits a backoff
+//     before the next run may start (unknownBackoffMs): if the service is
+//     failing, one recipient per wait is uncertain, not one per cron pass.
 //
 // Pace and cap: at most CAMPAIGN_RUN_CAP recipients per run, CAMPAIGN_PACE_MS
 // apart. A run that reaches the cap with recipients left ends held
@@ -57,6 +58,29 @@ export const SLOT = "{{unsubscribe_url}}";
 export const CAMPAIGN_RUN_CAP = 50;
 /** Between two sends. Resend's default limit is 2 requests a second (verify at build). */
 export const CAMPAIGN_PACE_MS = 600;
+/**
+ * Review 2026-10-23 (#16): after an outcome nobody can confirm, the run waits
+ * before it may try the next recipient. An unknown is never re-sent, so a
+ * failing service costs one recipient per try; waiting an hour, doubling per
+ * unknown already on this campaign, capped at a day, turns a day-long outage
+ * into about five unconfirmed recipients rather than one per cron pass (1 440
+ * on a per-minute schedule).
+ */
+export const UNKNOWN_BACKOFF_BASE_MS = 60 * 60_000;
+export const UNKNOWN_BACKOFF_CAP_MS = 24 * 60 * 60_000;
+
+/** Pure: the wait after the campaign's n-th unknown outcome (n ≥ 1). */
+export function unknownBackoffMs(unknownSoFar: number): number {
+  const n = Math.max(1, Math.floor(unknownSoFar));
+  return Math.min(UNKNOWN_BACKOFF_CAP_MS, UNKNOWN_BACKOFF_BASE_MS * 2 ** Math.min(n - 1, 30));
+}
+
+/** Pure: a wait in the owner's words — "1 hour", "4 hours", "a day". */
+export function waitWords(ms: number): string {
+  const hours = Math.round(ms / (60 * 60_000));
+  if (hours >= 24) return "a day";
+  return hours <= 1 ? "1 hour" : `${hours} hours`;
+}
 
 const RESEND_SEND_URL = "https://api.resend.com/emails";
 const TIMEOUT_MS = 20_000;
@@ -211,10 +235,13 @@ export async function sendCampaignEmail(
 export class CampaignHold extends Error {
   readonly held_for: HeldFor;
   readonly retryable = false;
-  constructor(held: HeldFor, message: string) {
+  /** How long the next run must wait (the engine's held_until). Null = no wait. */
+  readonly retry_after_ms: number | null;
+  constructor(held: HeldFor, message: string, retryAfterMs: number | null = null) {
     super(message);
     this.name = "CampaignHold";
     this.held_for = held;
+    this.retry_after_ms = retryAfterMs;
   }
 }
 
@@ -385,9 +412,11 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
         });
         if (outcome.kind === "sent") sentThisRun += 1;
         if (outcome.kind === "unknown") {
+          const wait = unknownBackoffMs((await b.counts(proposalId)).unknown);
           throw new CampaignHold(
             "remaining",
-            "The email service didn't confirm one email either way, so I stopped there: that one stays unconfirmed and is never sent again, and the rest go out on the next run.",
+            `The email service didn't confirm one email either way, so I stopped there: that one stays unconfirmed and is never sent again. In case the service is down, I'll wait ${waitWords(wait)} before trying the rest.`,
+            wait,
           );
         }
       }

@@ -1413,6 +1413,13 @@ export const executions = pgTable(
      * down, with recipients still unsent. The next run sends only those.
      */
     held_for: text("held_for"),
+    /**
+     * Review 2026-10-23 (#16): a held run that must not resume before this
+     * time — set when a campaign send's outcome was unknown, so an email
+     * service outage costs one recipient per backoff, not one per cron pass.
+     * Null = no wait. Only ever set beside a hold.
+     */
+    held_until: timestamp("held_until", { withTimezone: true, mode: "string" }),
   },
   (t) => [
     uniqueIndex("executions_proposal_idx").on(t.proposal_id),
@@ -1421,6 +1428,7 @@ export const executions = pgTable(
       "executions_held_for_known",
       sql`${t.held_for} IS NULL OR (${t.held_for} IN ('reconnect', 'stop', 'remaining') AND ${t.status} = 'failed')`,
     ),
+    check("executions_held_until_held", sql`${t.held_until} IS NULL OR ${t.held_for} IS NOT NULL`),
   ],
 );
 

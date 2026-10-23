@@ -45,6 +45,18 @@ export function heldFor(error: unknown): HeldFor | null {
 }
 
 /**
+ * Review 2026-10-23 (#16): a hold may also say how long to wait before the
+ * next run may start — `retry_after_ms` on the error. The engine turns it
+ * into executions.held_until; the due runner skips the run until then and
+ * the engine refuses an earlier resume, unclaimed. Null = no wait.
+ */
+export function holdRetryAfterMs(error: unknown): number | null {
+  if (error === null || typeof error !== "object") return null;
+  const v = (error as { retry_after_ms?: unknown }).retry_after_ms;
+  return typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.round(v) : null;
+}
+
+/**
  * A provider's own pre-flight verdict (P3-21d): checked by the engine
  * AFTER every guard and BEFORE the idempotency claim, so a refusal here
  * leaves no execution row and the proposal stays approved for the next
