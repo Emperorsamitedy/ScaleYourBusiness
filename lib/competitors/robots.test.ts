@@ -66,10 +66,7 @@ describe("robots.txt", () => {
   it("finding 2 (review 2026-10-23): a hostile pattern finishes at once and is ignored past the cap", () => {
     const hostile = `/${"*a".repeat(30)}*b`;
     const path = `/${"a".repeat(5_000)}`;
-    const rules = parseRobots(`User-agent: *
-Disallow: ${hostile}
-Disallow: /*a*a*a*a*a*b
-`);
+    const rules = parseRobots(`User-agent: *\nDisallow: ${hostile}\nDisallow: /*a*a*a*a*a*b\n`);
     const started = performance.now();
     expect(robotsAllows(rules, u(path))).toBe(true); // neither rule matches: there is no "b"
     expect(robotsPatternMatches("/*a*a*a*a*a*a*a*a*a*b", path)).toBe(false);

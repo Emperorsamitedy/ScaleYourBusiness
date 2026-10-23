@@ -205,14 +205,22 @@ export async function readListedPages(args: {
         });
         continue;
       }
-      if (landed.origin !== url.origin) {
-        // A redirect elsewhere: that origin's robots.txt must agree too.
-        const theirs = await robotsFor(landed.origin, args.fetcher, cache);
+      if (landed.href !== url.href) {
+        // A redirect: robots.txt must agree to the page it landed on too —
+        // same origin included (review 2026-10-23, finding 20: /prices →
+        // 301 → a disallowed /members/prices used to be read).
+        const theirs =
+          landed.origin === url.origin
+            ? robots
+            : await robotsFor(landed.origin, args.fetcher, cache);
         if ("refused" in theirs || !robotsAllows(theirs, landed)) {
           out.push({
             url: normal,
             outcome: "refused",
-            reason: "it redirects to a site whose robots.txt says no",
+            reason:
+              landed.origin === url.origin
+                ? "it redirects to a page their robots.txt asks robots not to read"
+                : "it redirects to a site whose robots.txt says no",
             fetched_at: fetchedAt,
             extract: null,
           });

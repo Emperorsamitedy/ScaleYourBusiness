@@ -34,7 +34,14 @@ import * as applyModule from "./apply";
 import { HEALTH, applySiteChange, checkSiteHealth } from "./apply";
 import { proposeSiteChange } from "./changes";
 import type { FetchedPage, PageFetcher } from "./fetch";
-import { embeddedV4, isPrivateAddress, livePageFetcher, pinnedLookup } from "./fetch";
+import {
+  embeddedV4,
+  isPrivateAddress,
+  livePageFetcher,
+  pinnedLookup,
+  standardWebPort,
+  v6Groups,
+} from "./fetch";
 import { detectPlatform } from "./platform";
 
 const created: { account_id: string; profile_id: string }[] = [];
@@ -193,6 +200,44 @@ describe("the SSRF guard", () => {
     for (const ip of ["93.184.216.34", "8.8.8.8", "2606:4700::1111", "::ffff:8.8.8.8"]) {
       expect(isPrivateAddress(ip), ip).toBe(false);
     }
+  });
+
+  it("finding 20 (review 2026-10-23): ::/96 in any spelling is private, ::ffff:0:0/96 faces the IPv4 rules", async () => {
+    // The URL parser rewrites [::127.0.0.1] as [::7f00:1]: the spelling that used to pass.
+    expect(new URL("http://[::127.0.0.1]/").hostname).toBe("[::7f00:1]");
+    for (const ip of [
+      "::7f00:1",
+      "::a00:1", // ::10.0.0.1
+      "::808:808", // ::8.8.8.8 — v4-compatible is deprecated, so private whatever it wraps
+      "0:0:0:0:0:0:127.0.0.1",
+      "::ffff:a00:1", // ::ffff:10.0.0.1, as the URL parser spells it
+      "::ffff:0:a00:1", // the translated form
+      "0:0:0:0:0:ffff:127.0.0.1",
+    ]) {
+      expect(isPrivateAddress(ip), ip).toBe(true);
+    }
+    for (const ip of ["::ffff:808:808", "2001:db8::7f00:1", "2606:4700::1111"]) {
+      expect(isPrivateAddress(ip), ip).toBe(false);
+    }
+    expect(v6Groups("::7f00:1")).toEqual([0, 0, 0, 0, 0, 0, 0x7f00, 1]);
+    expect(v6Groups("not-an-ip")).toBeNull();
+    // Refused before any connection is tried.
+    for (const url of [
+      "http://[::127.0.0.1]/",
+      "http://[::ffff:10.0.0.1]/",
+      "https://[::7f00:1]:443/",
+    ]) {
+      await expect(livePageFetcher(url)).rejects.toThrow(/private network/);
+    }
+  });
+
+  it("finding 20: only ports 80 and 443, on every hop", async () => {
+    expect(standardWebPort(new URL("https://example.com/"))).toBe(true);
+    expect(standardWebPort(new URL("http://example.com:80/"))).toBe(true);
+    expect(standardWebPort(new URL("http://example.com:443/"))).toBe(true);
+    expect(standardWebPort(new URL("https://example.com:8080/"))).toBe(false);
+    expect(standardWebPort(new URL("http://example.com:6379/"))).toBe(false);
+    await expect(livePageFetcher("https://example.com:8080/")).rejects.toThrow(/ports 80 and 443/);
   });
 
   it("embeddedV4 unwraps both spellings and nothing else", () => {
