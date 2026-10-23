@@ -2,8 +2,8 @@
 //
 // The List-Unsubscribe header in every campaign email points here, with
 // List-Unsubscribe-Post: List-Unsubscribe=One-Click, so a mail client's own
-// "unsubscribe" button POSTs "List-Unsubscribe=One-Click" and gets a plain
-// 200 without anyone visiting a page. The page's button POSTs here too and
+// "unsubscribe" button POSTs "List-Unsubscribe=One-Click" (urlencoded or
+// multipart/form-data) and gets a plain 200 without anyone visiting a page. The page's button POSTs here too and
 // is sent back to the page, which then says it's done.
 //
 // GET never unsubscribes (a scanner following the header's URL changes
@@ -12,7 +12,7 @@
 // The token alone is the credential. No cookie is read or set.
 
 import { type NextRequest, NextResponse } from "next/server";
-import { TOKEN_RE, unsubscribe } from "../../../../lib/unsubscribe/unsubscribe";
+import { TOKEN_RE, isOneClickPost, unsubscribe } from "../../../../lib/unsubscribe/unsubscribe";
 
 const pageFor = (request: NextRequest, token: string) =>
   new URL(`/u/${encodeURIComponent(token)}`, request.nextUrl.origin);
@@ -31,7 +31,8 @@ export async function POST(
 ): Promise<NextResponse> {
   const { token } = await params;
   const body = await request.text().catch(() => "");
-  const oneClick = /(^|&)List-Unsubscribe=One-Click(&|$)/.test(body.trim());
+  // Urlencoded or multipart, as RFC 8058 allows: either answers a plain 200.
+  const oneClick = await isOneClickPost(request.headers.get("content-type"), body);
   if (!TOKEN_RE.test(token)) {
     return oneClick
       ? new NextResponse("not found", { status: 404 })

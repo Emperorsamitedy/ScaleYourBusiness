@@ -1228,6 +1228,22 @@ describe("review 2026-10-23 #1 — the stale-run reclaim never catches a live ru
   });
 });
 
+describe("review 2026-10-23 #24 — the routes that run a campaign have time to finish", () => {
+  it("both declare a maxDuration long enough for a run, and inside the reclaim's window", async () => {
+    const routes = [
+      await import("../../app/api/cron/execute-due/route"),
+      await import("../../app/api/crm/route"),
+    ];
+    for (const route of routes) {
+      const seconds = (route as { maxDuration?: unknown }).maxDuration;
+      expect(typeof seconds).toBe("number");
+      // 50 recipients at 600 ms is 30 s of pacing alone.
+      expect(seconds as number).toBeGreaterThanOrEqual(120);
+      expect((seconds as number) * 1000).toBeLessThan(STALE_RUN_MS);
+    }
+  });
+});
+
 describe("review 2026-10-23 #15 — disconnecting stops a run mid-way", () => {
   it("a disconnect between two sends: nobody else is emailed, and nothing resumes by itself", async () => {
     const b = await business();

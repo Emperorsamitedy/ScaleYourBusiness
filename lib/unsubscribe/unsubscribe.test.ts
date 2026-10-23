@@ -22,7 +22,7 @@ import {
 } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
 import { createProposal } from "../proposals/service";
-import { tokenHash, unsubscribe, viewUnsubscribe } from "./unsubscribe";
+import { isOneClickPost, tokenHash, unsubscribe, viewUnsubscribe } from "./unsubscribe";
 
 const created: { account_id: string; profile_id: string }[] = [];
 
@@ -127,6 +127,38 @@ describe("P4-15 — unsubscribe", () => {
     expect(await unsubscribe(r.token)).toEqual({ business: "Emberworks", done: true });
     expect(await suppressed(r.account_id)).toHaveLength(1);
     expect(await db.select().from(decisionLog).where(eq(decisionLog.ref_id, r.id))).toHaveLength(1);
+  });
+
+  it("review #24: a multipart/form-data one-click also gets a plain 200, never the page's 303", async () => {
+    const r = await sentRow();
+    const { POST } = await import("../../app/api/u/[token]/route");
+    const form = new FormData();
+    form.set("List-Unsubscribe", "One-Click");
+    // The request builds its own multipart body and boundary, as a mail client's would.
+    const res = await POST(
+      new NextRequest(`https://syb.test/api/u/${r.token}`, { method: "POST", body: form }),
+      params(r.token),
+    );
+    expect(res.headers.get("location")).toBeNull();
+    expect(res.status).toBe(200);
+    expect(await suppressed(r.account_id)).toMatchObject([{ email_hash: r.hash }]);
+  });
+
+  it("review #24: only the one-click field counts — the button's multipart, or a lookalike, is not one", async () => {
+    const boundary = "----syb";
+    const part = (name: string, value: string) =>
+      `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}\r\n`;
+    const end = `--${boundary}--\r\n`;
+    const type = `multipart/form-data; boundary=${boundary}`;
+    expect(await isOneClickPost(type, `${part("List-Unsubscribe", "One-Click")}${end}`)).toBe(true);
+    expect(await isOneClickPost(type, `${part("confirm", "1")}${end}`)).toBe(false);
+    expect(await isOneClickPost(type, "not multipart at all")).toBe(false);
+    expect(
+      await isOneClickPost("application/x-www-form-urlencoded", "List-Unsubscribe=One-Click"),
+    ).toBe(true);
+    expect(await isOneClickPost(null, "List-Unsubscribe=One-Click")).toBe(true);
+    expect(await isOneClickPost(null, "confirm=1")).toBe(false);
+    expect(await isOneClickPost(null, "X-List-Unsubscribe=One-Click")).toBe(false);
   });
 
   it("the page's button POST unsubscribes and returns to the page, which says it's done", async () => {
