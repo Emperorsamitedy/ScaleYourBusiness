@@ -57,8 +57,10 @@ import {
   IG_FINISHED_GRACE_MS,
   IG_POLL_MAX,
   MAY_HAVE_POSTED,
+  READBACK_MATCH_AFTER_S,
   captionHash,
   createMetaExecution,
+  madeBy,
   mediaKindOf,
   publishCaption,
   publishOpFor,
@@ -71,6 +73,8 @@ const PAGE_TOKEN = "EAAFakePublishPageTokenForTests";
 const PAGE = "1000000001";
 const OTHER_PAGE = "1000000009";
 const IG = "17800000000000001";
+/** The Meta app the connection's tokens belong to (GET /app). */
+const APP_ID = "4400000000000001";
 const V = "/v26.0";
 const LABEL = "Written with AI assistance.";
 const BODY = `The soup is back.\n\n${LABEL}`;
@@ -122,7 +126,10 @@ function ok(body: unknown, headers: Record<string, string> = {}): MetaExecRespon
 
 function fakeGraph(opts: FakeOptions = {}) {
   const calls: Call[] = [];
-  const posts = new Map<string, { message: string; created_time: string }>();
+  const posts = new Map<
+    string,
+    { message: string; created_time: string; from?: string; application?: string | null }
+  >();
   const reels = new Map<string, { uploaded: boolean; published: boolean }>();
   const containers = new Map<
     string,
@@ -204,9 +211,17 @@ function fakeGraph(opts: FakeOptions = {}) {
       return ok({
         data: [...posts.entries()]
           .filter(([, p]) => Date.parse(p.created_time) >= since)
-          .map(([id, p]) => ({ id, message: p.message, created_time: p.created_time })),
+          .map(([id, p]) => ({
+            id,
+            message: p.message,
+            created_time: p.created_time,
+            // Review D #5: a post the connected app made, as the Page, unless the test says otherwise.
+            from: { id: p.from ?? PAGE },
+            ...(p.application === null ? {} : { application: { id: p.application ?? APP_ID } }),
+          })),
       });
     }
+    if (m === "GET" && path === `${V}/app`) return ok({ id: APP_ID });
 
     // Instagram
     if (m === "GET" && path === `${V}/${IG}/content_publishing_limit`) {
@@ -1291,6 +1306,78 @@ describe("Review D #3 — a container still FINISHED after a lost media_publish 
     expect((await run(b)).executed).toBe(1);
     expect(graph.where("POST", "/feed")).toHaveLength(1);
     expect((await itemRow(item_id)).status).toBe("published");
+  });
+});
+
+/* ── review 2026-10-23, Session D #5: a read-back adopts only SYB's own post ── */
+
+describe("Review D #5 — a Facebook read-back needs the connected app, the Page and the time", () => {
+  const sentAt = "2026-10-23T10:00:00.000Z";
+  const ours = { pageId: PAGE, appId: APP_ID, sentAt };
+  const post = (over: Record<string, unknown> = {}) => ({
+    id: `${PAGE}_1`,
+    from: { id: PAGE },
+    application: { id: APP_ID },
+    created_time: "2026-10-23T10:00:04+0000",
+    ...over,
+  });
+
+  it("the pure rule: from the Page, by the app, within the window — and nothing else", () => {
+    expect(madeBy(post(), ours)).toBe(true);
+    expect(madeBy(post({ created_time: "2026-10-23T09:56:00+0000" }), ours)).toBe(true);
+    expect(madeBy(post({ application: { id: "350685531728" } }), ours)).toBe(false); // another app
+    expect(madeBy(post({ application: undefined }), ours)).toBe(false); // Meta left it out
+    expect(madeBy(post({ from: { id: "555" } }), ours)).toBe(false);
+    const late = new Date(Date.parse(sentAt) + (READBACK_MATCH_AFTER_S + 1) * 1000).toISOString();
+    expect(madeBy(post({ created_time: late }), ours)).toBe(false);
+    expect(madeBy(post({ created_time: "2026-10-23T09:50:00+0000" }), ours)).toBe(false);
+    expect(madeBy(post({ created_time: "yesterday" }), ours)).toBe(false);
+  });
+
+  /** The send got no answer and really failed; the owner then posted the same words by hand. */
+  async function handMadeRepost(over: { application?: string | null; minutes?: number }) {
+    const b = await business();
+    const { item_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "POST" && c.url.pathname.endsWith("/feed") ? "no_answer" : null,
+    });
+    await run(b);
+    expect((await itemRow(item_id)).status).toBe("publishing");
+    const at = new Date(Date.now() + (over.minutes ?? 0) * 60_000).toISOString();
+    graph.posts.set(`${PAGE}_8888`, {
+      message: BODY,
+      created_time: at,
+      ...(over.application !== undefined ? { application: over.application } : {}),
+    });
+    return { b, item_id, graph, run };
+  }
+
+  it("THE ATTACK: the owner's hand-made repost (another app) is never adopted, so Withdraw can't delete it", async () => {
+    const { b, item_id, run } = await handMadeRepost({ application: "350685531728" });
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, uncertain: 1, published: 0 });
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "publishing",
+      platform_post_id: null,
+      last_error: MAY_HAVE_POSTED.facebook,
+    });
+  });
+
+  it("a post with no application field, or made long after the send, stays uncertain", async () => {
+    for (const over of [{ application: null }, { minutes: 30 }]) {
+      const { b, item_id, run } = await handMadeRepost(over);
+      await run(b);
+      expect((await itemRow(item_id)).status).toBe("publishing");
+    }
+  });
+
+  it("the control: SYB's own post (the app, the Page, at the send) is found and recorded", async () => {
+    const { b, item_id, run } = await handMadeRepost({});
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, published: 1 });
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "published",
+      platform_post_id: `${PAGE}_8888`,
+    });
   });
 });
 

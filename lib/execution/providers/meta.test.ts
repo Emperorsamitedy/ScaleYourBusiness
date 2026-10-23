@@ -323,6 +323,8 @@ describe("rules 13 and 18 — what the connector can send", () => {
       page_post: { method: "GET", path: "/{post_id}" },
       page_published_posts: { method: "GET", path: "/{page_id}/published_posts" },
       reel_status: { method: "GET", path: "/{video_id}" },
+      // Review 2026-10-23 (Session D #5), added deliberately: the token's own app, for read-back.
+      token_app: { method: "GET", path: "/app" },
       // P3-21c, added deliberately: undo is deletion.
       page_post_delete: { method: "DELETE", path: "/{post_id}" },
       ig_media_delete: { method: "DELETE", path: "/{ig_media_id}" },

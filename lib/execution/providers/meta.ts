@@ -129,6 +129,9 @@ export const META_EXEC_REQUESTS = {
   page_post: { method: "GET", path: "/{post_id}" },
   page_published_posts: { method: "GET", path: "/{page_id}/published_posts" },
   reel_status: { method: "GET", path: "/{video_id}" },
+  // Review 2026-10-23 (Session D #5): which app the token belongs to, so a
+  // read-back adopts only a post that app made — never the owner's own repost.
+  token_app: { method: "GET", path: "/app" },
   // P3-21c: undo is deletion — of a Page post or Reel, or of Instagram media.
   page_post_delete: { method: "DELETE", path: "/{post_id}" },
   ig_media_delete: { method: "DELETE", path: "/{ig_media_id}" },
@@ -1455,6 +1458,36 @@ async function publishInstagram(
   return { platform: "instagram", platform_post_id: mediaId, url };
 }
 
+/**
+ * Review 2026-10-23 (Session D #5): a Facebook post counts as the one SYB
+ * sent only when it was posted from the Page itself, by the connected app,
+ * and created between READBACK_SKEW_S before sent_at and
+ * READBACK_MATCH_AFTER_S after it. Meta's v26.0 PagePost reference lists
+ * `from` ("the user, page, group or event that published the post") and
+ * `application` ("the app this post was published by"), with no access
+ * restriction stated — _verify at build_ that a published_posts read returns
+ * `application`. If Meta leaves it out, nothing matches and the item stays
+ * "I may have posted this": the safe direction.
+ */
+export const READBACK_MATCH_AFTER_S = 600;
+
+export function madeBy(
+  post: Record<string, unknown>,
+  ours: { pageId: string; appId: string; sentAt: string },
+): boolean {
+  const idIn = (v: unknown): string | null => {
+    const id = v !== null && typeof v === "object" ? (v as { id?: unknown }).id : null;
+    return typeof id === "string" ? id : null;
+  };
+  if (idIn(post["from"]) !== ours.pageId || idIn(post["application"]) !== ours.appId) return false;
+  const created = typeof post["created_time"] === "string" ? Date.parse(post["created_time"]) : NaN;
+  const sent = Date.parse(ours.sentAt);
+  if (!Number.isFinite(created) || !Number.isFinite(sent)) return false;
+  return (
+    created >= sent - READBACK_SKEW_S * 1000 && created <= sent + READBACK_MATCH_AFTER_S * 1000
+  );
+}
+
 function sinceSeconds(sentAt: string): string {
   return String(Math.floor(Date.parse(sentAt) / 1000) - READBACK_SKEW_S);
 }
@@ -1521,13 +1554,28 @@ async function readBack(
         }
         return uncertain;
       }
+      // Review 2026-10-23 (Session D #5): a matching caption is not enough —
+      // the owner may have posted the same words by hand, and Withdraw would
+      // then delete THEIR post. Ours was made by the connected app, as the
+      // Page, within minutes of sent_at; anything else stays uncertain.
+      const app = await metaRequest(
+        ctx,
+        { bearer: token },
+        "token_app",
+        {},
+        { fields: "id" },
+        "the app behind the connection",
+        who,
+      );
+      const appId = stringId(app, "id");
+      if (appId === null) return uncertain;
       const body = await metaRequest(
         ctx,
         { bearer: token },
         "page_published_posts",
         { page_id: targetId },
         {
-          fields: "id,message,created_time,permalink_url",
+          fields: "id,message,created_time,permalink_url,from,application",
           since: sinceSeconds(attempt.sent_at),
           limit: "25",
         },
@@ -1536,7 +1584,9 @@ async function readBack(
       );
       const ours = listData(body).filter(
         (p) =>
-          typeof p["message"] === "string" && captionHash(p["message"]) === attempt.caption_sha256,
+          typeof p["message"] === "string" &&
+          captionHash(p["message"]) === attempt.caption_sha256 &&
+          madeBy(p, { pageId: targetId, appId, sentAt: attempt.sent_at as string }),
       );
       const only = ours.length === 1 ? ours[0] : undefined;
       const id = only ? stringId(only, "id") : null;
