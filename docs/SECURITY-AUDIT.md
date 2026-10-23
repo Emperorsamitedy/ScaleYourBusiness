@@ -9,6 +9,34 @@ A whole-codebase review of what was built through Phase 4 Session F (P4-16), on 
 
 Every critical and high finding was then checked against the code by hand before it was fixed. Each fix has a test that names the attack it closes.
 
+## Before you deploy main (2026-10-23)
+
+Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
+
+1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
+2. **Migrations and bank:** `db:migrate` through **0055**, then `db:seed` (question bank 1.7.0).
+   - 0050 bookings
+   - 0051 the assistant's drafted changes
+   - 0052 the stock import connection
+   - 0053 support sender authentication
+   - 0054 the campaign hold time and first-campaign reviews
+   - 0055 bookings erasures, the stock-proposal unique index, and a bookings re-key
+
+   0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
+
+3. **Webhooks**, each with its own Resend signing secret:
+   - `RESEND_WEBHOOK_SECRET` for `/api/support/inbound`, the event `email.received`;
+   - `RESEND_EVENTS_WEBHOOK_SECRET` for `/api/email/events`, the events delivered, bounced, complained and suppressed.
+
+   Also set `SUPPORT_INBOUND_DOMAIN`. Turn off open and click tracking on the sending domain, because click tracking rewrites unsubscribe links.
+
+4. **Before any real campaign:**
+   - set `CAMPAIGN_EMAIL_FROM` on its own subdomain;
+   - record the law review on `/ops`;
+   - record that account's first-campaign review on `/ops`;
+   - only then set `SESSION_D_REAL_WRITES=on`, and only after the two-week unattended clock.
+5. **`APP_URL`** must be https, because unsubscribe links and emailed sign-in links use it.
+
 ## Before you deploy this branch
 
 1. **Email must work, or nobody can sign in.**
@@ -81,7 +109,7 @@ From the 2026-10-23 review, findings 6, 7, 12, 17, 18, 19 and part of 24. Run mi
 
 From the read-only review of 2026-10-23 (findings #1, #5, #14, #15, #16, #22 for the campaign draft, and #24 for the campaign routes and the one-click unsubscribe). Each fix has a test with a passing and a failing case.
 
-**Before you deploy:** run `db:migrate` for 0053 (`executions.held_until`) and 0054 (`campaign_reviews`, decision kind `campaign_review`). Before the first real campaign, record its account's review on `/ops`, and preferably set `CAMPAIGN_EMAIL_FROM` on a sending subdomain verified in Resend.
+**Before you deploy:** run `db:migrate` for 0054 (`executions.held_until`, `campaign_reviews` and decision kind `campaign_review`; generated as 0053 and 0054, renumbered at merge). Before the first real campaign, record its account's review on `/ops`, and preferably set `CAMPAIGN_EMAIL_FROM` on a sending subdomain verified in Resend.
 
 | #   | Severity | Finding                                                                                                                                                     | Fix                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | --- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -96,7 +124,7 @@ From the read-only review of 2026-10-23 (findings #1, #5, #14, #15, #16, #22 for
 
 ## Fixed 2026-10-23 — money parsing, the bookings and stock imports, the assistant, materiality
 
-From the read-only review of 2026-10-23 (its numbers). **Before deploying:** `db:migrate` through 0053. It creates `booking_client_erasures`, adds a partial unique index on stock proposals, and re-keys bookings content refs. If production already holds two stock proposals with the same `stock:` ref, the index won't build, and that needs a look first.
+From the read-only review of 2026-10-23 (its numbers). **Before deploying:** `db:migrate` through 0055 (generated as 0053, renumbered at merge). It creates `booking_client_erasures`, adds a partial unique index on stock proposals, and re-keys bookings content refs. If production already holds two stock proposals with the same `stock:` ref, the index won't build, and that needs a look first.
 
 | Review # | Severity | Finding                                                                                                                                                                      | Fix                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | -------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
