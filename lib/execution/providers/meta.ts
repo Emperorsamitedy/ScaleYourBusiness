@@ -79,6 +79,7 @@ import {
   UnknownMetaCurrencyError,
   dailyBudgetFloor,
   fromMetaBudget,
+  reactivationGuard,
   spendGuard,
   toMetaBudget,
 } from "../../ads/guard";
@@ -2908,6 +2909,18 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
       }
     },
 
+    undoRaisesSpend(op, undoPayload, result) {
+      // Pure. Undoing a pause re-activates spend; undoing a resume stops it.
+      if (op === "pause_campaign") return true;
+      if (op === "resume_campaign") return false;
+      if (op !== "set_daily_budget") return false;
+      const previous = metaInt((undoPayload as { daily_budget?: unknown } | null)?.daily_budget);
+      const sent = metaInt((result as { sent_daily_budget?: unknown } | null)?.sent_daily_budget);
+      // Not knowable from the record: treated as raising, so the gate and guards apply.
+      if (previous === null || sent === null) return true;
+      return previous > sent;
+    },
+
     async undo(op, undoPayload, pctx) {
       const u = (undoPayload ?? {}) as {
         campaign_id?: unknown;
@@ -2916,16 +2929,52 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         daily_budget_minor?: unknown;
         currency?: unknown;
       };
+      const done = (pctx.result ?? {}) as { status?: unknown; sent_daily_budget?: unknown };
       const run = await open(pctx.account_id);
       const c = await readCampaign(run, campaignIdOf({ campaign_id: u.campaign_id }));
       touchable(c);
+      // Review 2026-10-23 (Session D #4): an undo puts back what SYB changed —
+      // only while the live value is still what this execution set. If the
+      // owner has changed it since, theirs stands.
+      const changedSince = (now: string, set: string) =>
+        new AdChangeError(
+          `I didn't undo this: "${c.name}" is ${now} on Meta now, not the ${set} I set — you've changed it since, and I won't override that. Nothing was changed.`,
+        );
       if (op === "pause_campaign" || op === "resume_campaign") {
         if (typeof u.status !== "string" || !AD_STATUSES.includes(u.status)) {
           throw new AdChangeError(
             "the stored undo names no status SYB may set — nothing was changed",
           );
         }
-        if (c.status !== u.status) await setStatus(run, c, u.status);
+        const set = typeof done.status === "string" ? done.status : null;
+        if (c.status !== u.status) {
+          if (set === null || c.status !== set) {
+            throw changedSince(
+              STATUS_WORD[c.status] ?? c.status.toLowerCase(),
+              set === null ? "status" : `${STATUS_WORD[set] ?? set} status`,
+            );
+          }
+          if (u.status === "ACTIVE") {
+            // Re-activating spends again: the owner's stated ceiling bounds it.
+            const account = await readAccount(run);
+            const ceiling = await run.b.ceiling(pctx.profile_id);
+            const refusal = reactivationGuard({
+              campaign_daily_minor:
+                c.daily_budget === null ? null : fromMetaBudget(c.daily_budget, account.currency),
+              account_daily_minor: ceiling
+                ? await run.b.accountDailySpend(run.account_id, account.currency)
+                : null,
+              currency: account.currency,
+              monthly_ceiling: ceiling,
+            });
+            if (refusal !== null) {
+              throw new AdChangeError(
+                `I didn't undo the pause of "${c.name}": ${refusal}. Nothing was changed.`,
+              );
+            }
+          }
+          await setStatus(run, c, u.status);
+        }
         await run.b.changed(
           pctx.profile_id,
           `Undid: "${c.name}" is ${STATUS_WORD[u.status] ?? u.status} on Meta again.`,
@@ -2946,11 +2995,50 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         if (previous === null || typeof u.currency !== "string") {
           throw new AdChangeError("the stored undo names no budget — nothing was changed");
         }
-        if (c.daily_budget !== previous) await setBudget(run, c, previous);
+        const cur: string = u.currency;
         const minor =
           typeof u.daily_budget_minor === "number"
             ? u.daily_budget_minor
-            : fromMetaBudget(previous, u.currency);
+            : fromMetaBudget(previous, cur);
+        if (c.daily_budget !== previous) {
+          const sent = metaInt(done.sent_daily_budget);
+          const live = (v: number | null) =>
+            v === null ? "budgeted on its ad sets" : `at ${fmt(fromMetaBudget(v, cur), cur)} a day`;
+          if (sent === null || c.daily_budget !== sent) {
+            throw changedSince(
+              live(c.daily_budget),
+              sent === null ? "budget" : `${fmt(fromMetaBudget(sent, cur), cur)} budget`,
+            );
+          }
+          if (previous > sent) {
+            // Putting a lowered budget back up raises spend: the same spend
+            // guard as any raise — ±50%, Meta's floor, the stated ceiling.
+            const account = await readAccount(run);
+            if (account.currency !== cur.toUpperCase()) {
+              throw new AdChangeError(
+                `I didn't undo this: the ad account now bills in ${account.currency}, not ${cur}. Nothing was changed.`,
+              );
+            }
+            const ceiling = await run.b.ceiling(pctx.profile_id);
+            const accountDaily = ceiling
+              ? await run.b.accountDailySpend(run.account_id, account.currency)
+              : null;
+            const refusal = spendGuard({
+              current_daily_minor: fromMetaBudget(sent, account.currency),
+              proposed_daily_minor: minor,
+              currency: account.currency,
+              ...(accountDaily !== null ? { account_daily_minor: accountDaily } : {}),
+              monthly_ceiling: ceiling,
+              floor_minor: dailyBudgetFloor(account.currency, account.min_daily_minor),
+            });
+            if (refusal !== null) {
+              throw new AdChangeError(
+                `I didn't undo the change to "${c.name}": ${refusal}. Nothing was changed.`,
+              );
+            }
+          }
+          await setBudget(run, c, previous);
+        }
         await run.b.changed(
           pctx.profile_id,
           `Undid: "${c.name}"'s daily budget on Meta is ${fmt(minor, u.currency)} again.`,

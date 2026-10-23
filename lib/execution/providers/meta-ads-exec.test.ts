@@ -613,8 +613,27 @@ describe("P3-22b — pause, from 14 seeded loss-making days, and undo to ACTIVE"
     expect((await run(b)).due).toBe(0);
     expect(graph.calls).toHaveLength(before);
 
-    // Undo — even with the gate off (it only removes what an open gate let out).
+    // Undoing a pause spends again, so with the gate off it is refused and
+    // nothing is sent, not even a read (review 2026-10-23, Session D #4).
     gate(false);
+    const callsBefore = graph.calls.length;
+    await expect(
+      undoExecution({
+        executionId: execution!.id,
+        userId: b.user_id,
+        expectedProfileId: b.profile_id,
+        provider: exec.ads,
+      }),
+    ).rejects.toMatchObject({
+      code: "real_writes_off",
+      message: expect.stringMatching(/this undo would raise spend again, so I won't make it/),
+    });
+    expect(graph.calls).toHaveLength(callsBefore);
+    expect(graph.campaigns.get("120000010")?.status).toBe("PAUSED");
+    expect((await executionFor(proposal.id))?.status).toBe("succeeded");
+
+    // With the gate on, it undoes.
+    gate(true);
     const dryRunsBefore = graph.dryRuns().length;
     const row = await undoExecution({
       executionId: execution!.id,
@@ -639,8 +658,11 @@ describe("P3-22b — pause, from 14 seeded loss-making days, and undo to ACTIVE"
     expect((await run(b)).executed).toBe(1);
     expect(graph.campaigns.get("120000011")?.status).toBe("ACTIVE");
     const execution = await executionFor(resume);
+    // Undoing a resume STOPS spend: a safety action, allowed with the gate off (review D #4).
+    gate(false);
     await undoExecution({ executionId: execution!.id, userId: b.user_id, provider: exec.ads });
     expect(graph.campaigns.get("120000011")?.status).toBe("PAUSED");
+    gate(true);
 
     const pause = await adProposal(b, { change: "pause", campaign_ref: "120000011" });
     const writesBefore = graph.writes().length;
@@ -649,6 +671,134 @@ describe("P3-22b — pause, from 14 seeded loss-making days, and undo to ACTIVE"
     expect(again.outcomes[0]?.detail).toMatch(/already paused/);
     expect(graph.writes()).toHaveLength(writesBefore);
     expect((await proposalRow(pause)).status).toBe("approved");
+  });
+});
+
+/* ── review 2026-10-23, Session D #4: the undo is guarded too ── */
+
+describe("Review D #4 — an ad undo never overrides the owner, and never raises spend unguarded", () => {
+  it("the pure rule: undoing a pause or a cut raises spend; undoing a resume or a raise doesn't", () => {
+    const { exec } = harness();
+    const raises = exec.ads.undoRaisesSpend!;
+    expect(raises("pause_campaign", { status: "ACTIVE" }, { status: "PAUSED" })).toBe(true);
+    expect(raises("resume_campaign", { status: "PAUSED" }, { status: "ACTIVE" })).toBe(false);
+    expect(raises("set_daily_budget", { daily_budget: 1_000 }, { sent_daily_budget: 800 })).toBe(
+      true,
+    );
+    expect(raises("set_daily_budget", { daily_budget: 1_000 }, { sent_daily_budget: 1_200 })).toBe(
+      false,
+    );
+    expect(raises("set_daily_budget", { daily_budget: 1_000 }, null)).toBe(true); // unknown → guarded
+  });
+
+  async function cut(b: Biz, h: ReturnType<typeof harness>, id: string, share: number) {
+    h.campaign(id, { daily_budget: 1_000 });
+    const pid = await adProposal(b, {
+      change: "lower_budget",
+      campaign_ref: id,
+      share,
+      currency: "EUR",
+    });
+    expect((await h.run(b)).executed).toBe(1);
+    return (await executionFor(pid))!;
+  }
+
+  it("THE SCENARIO: SYB cut the budget, the owner then lowered it by hand — the undo refuses, theirs stands", async () => {
+    const b = await business();
+    const h = harness();
+    const execution = await cut(b, h, "120000060", -0.5); // €10.00 → €5.00
+    expect(h.graph.campaigns.get("120000060")?.daily_budget).toBe(500);
+    h.graph.campaigns.get("120000060")!.daily_budget = 200; // the owner, in Ads Manager: €2.00
+    const writes = h.graph.writes().length;
+    await expect(
+      undoExecution({ executionId: execution.id, userId: b.user_id, provider: h.exec.ads }),
+    ).rejects.toThrow(
+      `I didn't undo this: "Autumn menu" is at €2.00 a day on Meta now, not the €5.00 budget I set — you've changed it since, and I won't override that. Nothing was changed.`,
+    );
+    expect(h.graph.writes()).toHaveLength(writes);
+    expect(h.graph.campaigns.get("120000060")?.daily_budget).toBe(200);
+    expect((await executionFor(execution.proposal_id))?.status).toBe("succeeded");
+  });
+
+  it("a raise the owner has since changed by hand is not undone either; untouched, it is", async () => {
+    const b = await business();
+    const h = harness();
+    h.campaign("120000061", { daily_budget: 1_000 });
+    h.campaign("120000062", { daily_budget: 1_000 });
+    const moved = await adProposal(b, {
+      change: "raise_budget",
+      campaign_ref: "120000061",
+      share: 0.2,
+      currency: "EUR",
+    });
+    const kept = await adProposal(b, {
+      change: "raise_budget",
+      campaign_ref: "120000062",
+      share: 0.2,
+      currency: "EUR",
+    });
+    expect((await h.run(b)).executed).toBe(2);
+    h.graph.campaigns.get("120000061")!.daily_budget = 1_500;
+    const m = (await executionFor(moved))!;
+    const k = (await executionFor(kept))!;
+    await expect(
+      undoExecution({ executionId: m.id, userId: b.user_id, provider: h.exec.ads }),
+    ).rejects.toThrow(/you've changed it since, and I won't override that/);
+    expect(h.graph.campaigns.get("120000061")?.daily_budget).toBe(1_500);
+    await undoExecution({ executionId: k.id, userId: b.user_id, provider: h.exec.ads });
+    expect(h.graph.campaigns.get("120000062")?.daily_budget).toBe(1_000);
+  });
+
+  it("undoing a cut raises spend: refused with the gate off, guarded by the ceiling, put back when it fits", async () => {
+    const b = await business();
+    const h = harness();
+    const execution = await cut(b, h, "120000063", -0.2); // €10.00 → €8.00
+    const undo = () =>
+      undoExecution({ executionId: execution.id, userId: b.user_id, provider: h.exec.ads });
+
+    gate(false);
+    await expect(undo()).rejects.toMatchObject({ code: "real_writes_off" });
+    gate(true);
+
+    // €10.00 a day × 30 = €300 a month, over a stated €250 ceiling.
+    await setCeiling(b.profile_id, 25_000, "EUR");
+    const writes = h.graph.writes().length;
+    await expect(undo()).rejects.toThrow(
+      /I didn't undo the change to "Autumn menu": it would take monthly ad spend to about €300\.00, over your stated ceiling of €250\.00/,
+    );
+    expect(h.graph.writes()).toHaveLength(writes);
+    expect(h.graph.campaigns.get("120000063")?.daily_budget).toBe(800);
+
+    await setCeiling(b.profile_id, 40_000, "EUR");
+    await undo();
+    expect(h.graph.campaigns.get("120000063")?.daily_budget).toBe(1_000);
+  });
+
+  it("an undo that would put back more than +50% is refused by the same spend guard as any raise", async () => {
+    const b = await business();
+    const h = harness();
+    const execution = await cut(b, h, "120000064", -0.5); // €10.00 → €5.00; back is +100%
+    await expect(
+      undoExecution({ executionId: execution.id, userId: b.user_id, provider: h.exec.ads }),
+    ).rejects.toThrow(/a 100% change is beyond the 50% allowed in one approval/);
+    expect(h.graph.campaigns.get("120000064")?.daily_budget).toBe(500);
+  });
+
+  it("undoing a pause spends again: over the stated ceiling it is refused; under it, it runs", async () => {
+    const b = await business();
+    const h = harness();
+    h.campaign("120000065", { daily_budget: 1_000 });
+    const pid = await adProposal(b, { change: "pause", campaign_ref: "120000065" });
+    expect((await h.run(b)).executed).toBe(1);
+    const execution = (await executionFor(pid))!;
+    await setCeiling(b.profile_id, 20_000, "EUR"); // €200 a month; €10 a day × 30 = €300
+    await expect(
+      undoExecution({ executionId: execution.id, userId: b.user_id, provider: h.exec.ads }),
+    ).rejects.toThrow(/I didn't undo the pause of "Autumn menu": running it again would take/);
+    expect(h.graph.campaigns.get("120000065")?.status).toBe("PAUSED");
+    await setCeiling(b.profile_id, 40_000, "EUR");
+    await undoExecution({ executionId: execution.id, userId: b.user_id, provider: h.exec.ads });
+    expect(h.graph.campaigns.get("120000065")?.status).toBe("ACTIVE");
   });
 });
 

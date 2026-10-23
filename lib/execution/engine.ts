@@ -75,6 +75,11 @@ export function realWritesOffSentence(label: string): string {
   return `${label} is switched off until the two-week unattended test completes. Nothing was sent; this stays approved and goes out on the first run after it is switched on.`;
 }
 
+/** Guard 6a on an undo that would raise spend (review 2026-10-23, Session D #4). */
+export function undoRaisesSpendOffSentence(label: string): string {
+  return `${label} is switched off until the two-week unattended test completes, and this undo would raise spend again, so I won't make it. Nothing was changed. An undo that lowers spend still works.`;
+}
+
 /**
  * A provider marks an error `retryable: false` when another attempt could
  * only repeat it or, worse, repeat a post Meta may already hold (P3-21d).
@@ -553,13 +558,27 @@ export async function undoExecution(args: {
   const ctx: ExecutionContext = {
     profile_id: execution.profile_id,
     account_id: execution.account_id,
+    // What this execution actually set: the undo refuses when the live value has moved since.
+    result: execution.result,
   };
   if (await isHalted(ctx.account_id)) {
     throw new ExecutionRefused("halted", "the emergency stop is on — resume before undoing");
   }
-  // The Session D real-write gate (guard 6a) deliberately does NOT apply
-  // here: an undo only removes what an open gate let out, and refusing it
-  // would keep up a post the owner wants down. The stop above still does.
+  // The Session D real-write gate (guard 6a) applies to an undo only when the
+  // undo would INCREASE spend — re-activating a campaign SYB paused, or
+  // putting a lowered budget back up (review 2026-10-23, Session D #4). An
+  // undo that lowers spend or removes a post is a safety action and stays
+  // allowed with the gate off: refusing it would keep up a post or a spend
+  // the owner wants gone. The stop above applies to every undo.
+  if (
+    provider.external === true &&
+    !sessionDRealWritesOn() &&
+    (provider.undoRaisesSpend?.(execution.op, execution.undo_payload, execution.result) ?? false)
+  ) {
+    const label =
+      EXECUTION_SCOPE_REGISTRY[provider.id as ExecutionProviderId]?.label ?? provider.id;
+    throw new ExecutionRefused("real_writes_off", undoRaisesSpendOffSentence(label));
+  }
   // The watching block applies to undo like any other write (the comment
   // above said so; the code didn't check — security review 2026-10-17).
   const decision = await latestDecision(ctx.profile_id);

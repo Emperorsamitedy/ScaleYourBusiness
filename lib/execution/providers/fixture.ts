@@ -23,6 +23,12 @@ export interface ExecutionContext {
    * that makes anything public. Unset outside execute.
    */
   halted?: () => Promise<boolean>;
+  /**
+   * Undo only: the stored result of the execution being undone — what it
+   * actually set, so an undo can refuse when the live value has moved since
+   * (review 2026-10-23, Session D #4). Unset outside undo.
+   */
+  result?: unknown;
 }
 
 /**
@@ -96,6 +102,14 @@ export interface ExecutionProvider {
   ): Promise<unknown | null>;
   execute(op: string, params: Record<string, unknown>, ctx: ExecutionContext): Promise<unknown>;
   undo(op: string, undoPayload: unknown, ctx: ExecutionContext): Promise<unknown>;
+  /**
+   * Optional, pure: would undoing this execution INCREASE spend (re-activate
+   * a paused campaign, put a lowered budget back up)? The engine holds such
+   * an undo to the real-write gate (guard 6a); an undo that lowers spend or
+   * removes a post stays allowed with the gate off, since it is a safety
+   * action (review 2026-10-23, Session D #4).
+   */
+  undoRaisesSpend?(op: string, undoPayload: unknown, result: unknown): boolean;
 }
 
 /** profile_id → key → value. Module-level: tests read what "the platform" holds. */

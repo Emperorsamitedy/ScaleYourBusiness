@@ -12,6 +12,7 @@ import {
   fromMetaBudget,
   spendGuard,
   toMetaBudget,
+  reactivationGuard,
 } from "./guard";
 
 describe("P3-22b — Meta's currency offset (the Currencies page, read 2026-10-19)", () => {
@@ -122,5 +123,35 @@ describe("P3-22c — spendGuard, each rule both ways", () => {
         monthly_ceiling: { amount_minor: 10_000_000, currency: "HUF" },
       }),
     ).toMatch(/ceiling is in HUF and this campaign spends in EUR/);
+  });
+});
+
+describe("review 2026-10-23, Session D #4 — re-activating a paused campaign, against the ceiling", () => {
+  const eur = (amount_minor: number) => ({ amount_minor, currency: "EUR" });
+  it("no ceiling stated: it may run; under the ceiling: it may; over it: refused with both figures", () => {
+    const base = { campaign_daily_minor: 1_000, account_daily_minor: 500, currency: "EUR" };
+    expect(reactivationGuard({ ...base, monthly_ceiling: null })).toBeNull();
+    expect(reactivationGuard({ ...base, monthly_ceiling: eur(45_000) })).toBeNull(); // (5 + 10) × 30 = €450
+    expect(reactivationGuard({ ...base, monthly_ceiling: eur(44_999) })).toMatch(
+      /about €450\.00, over your stated ceiling of €449\.99/,
+    );
+  });
+  it("a ceiling it can't be held to refuses: another currency, or a budget on the ad sets", () => {
+    expect(
+      reactivationGuard({
+        campaign_daily_minor: 1_000,
+        account_daily_minor: null,
+        currency: "EUR",
+        monthly_ceiling: { amount_minor: 10_000_000, currency: "HUF" },
+      }),
+    ).toMatch(/won't convert/);
+    expect(
+      reactivationGuard({
+        campaign_daily_minor: null,
+        account_daily_minor: null,
+        currency: "EUR",
+        monthly_ceiling: eur(1_000_000),
+      }),
+    ).toMatch(/budget sits on its ad sets/);
   });
 });

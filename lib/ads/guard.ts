@@ -224,3 +224,33 @@ export function spendGuard(a: SpendGuardArgs): string | null {
   }
   return null;
 }
+
+/**
+ * Pure, review 2026-10-23 (Session D #4): may a paused campaign spend again —
+ * an undo of SYB's pause? Only the owner's stated ceiling bounds it (there is
+ * no ±50% for a status): the account's average day plus this campaign's
+ * daily budget, × 30, must stay under it. With a ceiling stated and no
+ * campaign budget to count (it sits on the ad sets), or a ceiling in another
+ * currency, the answer is no — the spend can't be known, so it isn't risked.
+ * Null = it may.
+ */
+export function reactivationGuard(a: {
+  campaign_daily_minor: number | null;
+  account_daily_minor: number | null;
+  currency: string;
+  monthly_ceiling: Money | null;
+}): string | null {
+  const ceiling = a.monthly_ceiling;
+  if (ceiling === null) return null;
+  if (ceiling.currency.toUpperCase() !== a.currency.toUpperCase()) {
+    return `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${a.currency} — I won't convert to compare them`;
+  }
+  if (a.campaign_daily_minor === null) {
+    return "its budget sits on its ad sets, so I can't tell what it would spend against your stated ceiling";
+  }
+  const projected = Math.round(((a.account_daily_minor ?? 0) + a.campaign_daily_minor) * 30);
+  if (projected > ceiling.amount_minor) {
+    return `running it again would take monthly ad spend to about ${fmt(projected, a.currency)}, over your stated ceiling of ${fmt(ceiling.amount_minor, a.currency)}`;
+  }
+  return null;
+}
