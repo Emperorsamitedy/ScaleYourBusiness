@@ -1,2 +1,0 @@
-ALTER TABLE "executions" ADD COLUMN "held_until" timestamp with time zone;--> statement-breakpoint
-ALTER TABLE "executions" ADD CONSTRAINT "executions_held_until_held" CHECK ("executions"."held_until" IS NULL OR "executions"."held_for" IS NOT NULL);

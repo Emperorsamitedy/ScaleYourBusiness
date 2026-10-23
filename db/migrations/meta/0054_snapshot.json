@@ -1,6 +1,6 @@
 {
-  "id": "f98fe8c4-967c-4953-bab2-37d3eb820cb7",
-  "prevId": "0e003bb9-ad05-48e0-902a-a8914c46ba41",
+  "id": "3c7aedeb-2315-43e2-841c-1d6a1499d30e",
+  "prevId": "9c7fd064-db7a-4e26-851f-4076afe1e8e0",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -5775,6 +5775,13 @@
           "notNull": true,
           "default": false
         },
+        "sender_auth": {
+          "name": "sender_auth",
+          "type": "support_sender_auth",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
         "at": {
           "name": "at",
           "type": "timestamp with time zone",
@@ -7242,6 +7249,11 @@
       "name": "support_role",
       "schema": "public",
       "values": ["customer", "assistant"]
+    },
+    "public.support_sender_auth": {
+      "name": "support_sender_auth",
+      "schema": "public",
+      "values": ["verified", "unverified", "failed"]
     },
     "public.support_ticket_reason": {
       "name": "support_ticket_reason",
