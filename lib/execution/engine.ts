@@ -64,7 +64,7 @@ import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 import type { AttemptUsage } from "./attempt-usage";
 import { emptyUsage, withUsage } from "./attempt-usage";
 import type { ExecutionContext, ExecutionProvider, HeldFor } from "./providers/fixture";
-import { heldFor } from "./providers/fixture";
+import { heldFor, holdRetryAfterMs } from "./providers/fixture";
 import { executionProvider } from "./providers/index";
 
 export const MAX_ATTEMPTS = 3;
@@ -217,7 +217,9 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
   }
 
   // Guard 3 — the schedule the owner set is a floor, not a suggestion.
-  if (proposal.execute_not_before && proposal.execute_not_before > now().toISOString()) {
+  // Compared as instants, not strings: Postgres answers "2026-10-23 09:00:00+00",
+  // which sorts below any ISO "2026-10-23T…" of the same day (review 2026-10-23).
+  if (proposal.execute_not_before && Date.parse(proposal.execute_not_before) > now().getTime()) {
     throw new ExecutionRefused(
       "scheduled_later",
       `approved to run no earlier than ${proposal.execute_not_before.slice(0, 10)}`,
@@ -314,12 +316,31 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     if (existing.status === "running") {
       throw new ExecutionRefused("in_flight", "this proposal is already executing");
     }
+    // A hold that named a wait (review 2026-10-23, #16) is honoured here too,
+    // so no caller (the due runner or a click) resumes it early. Unclaimed.
+    if (existing.held_until && Date.parse(existing.held_until) > now().getTime()) {
+      throw new ExecutionRefused(
+        "deferred",
+        `${existing.error ?? "This is waiting before it tries again."} The next try is no earlier than ${new Date(existing.held_until).toISOString().slice(11, 16)} UTC.`,
+      );
+    }
     // failed → resume: reclaim by flipping failed → running, conditionally.
     // The attempt counter resets — the cap bounds one run, and a
     // deliberate re-run is a new run, not a continuation of the old cap.
+    // started_at resets too (review 2026-10-23, #1): it is the run's own
+    // start, so the stale-run reclaim measures THIS run, never the first
+    // one, and it is the token the terminal updates below match on.
     const [reclaimed] = await db
       .update(executions)
-      .set({ status: "running", error: null, attempts: 0, held_for: null })
+      .set({
+        status: "running",
+        error: null,
+        attempts: 0,
+        held_for: null,
+        held_until: null,
+        started_at: now().toISOString(),
+        finished_at: null,
+      })
       .where(and(eq(executions.id, existing.id), eq(executions.status, "failed")))
       .returning();
     if (!reclaimed) throw new ExecutionRefused("in_flight", "this proposal is already executing");
@@ -346,14 +367,14 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
           finished_at: now().toISOString(),
           held_for: heldFor(error) === "reconnect" ? "reconnect" : null,
         })
-        .where(eq(executions.id, execution.id));
+        .where(ownRun(execution));
       throw error;
     }
     if (undoPayload === null) {
       await db
         .update(executions)
         .set({ status: "failed", error: "undo promised but not capturable" })
-        .where(eq(executions.id, execution.id));
+        .where(ownRun(execution));
       throw new ExecutionRefused(
         "reversibility_lie",
         "the undo this op promises could not be captured — refusing to run without it",
@@ -369,10 +390,11 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
   // offered to the provider between its own steps (P3-24c).
   let lastError: string;
   let hold: HeldFor | null = null;
+  let retryAfter: number | null = null;
   const halted = () => isHalted(ctx.account_id);
   for (let attempt = execution.attempts + 1; attempt <= MAX_ATTEMPTS; attempt++) {
     if (await halted()) {
-      await holdForStop(execution.id, attempt - 1, now());
+      await holdForStop(execution, attempt - 1, now());
       throw new ExecutionRefused(
         "halted",
         "the emergency stop came on mid-flight — execution halted",
@@ -384,11 +406,36 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     const usage = args.provider.external === true ? emptyUsage() : null;
     const attemptCtx: ExecutionContext = { ...runCtx, attempt, halted };
     const run = () => args.provider.execute(args.op, args.params, attemptCtx);
+    let result: unknown;
     try {
-      const result = await (usage ? withUsage(usage, run) : run());
-      await recordAttempt(execution.id, ctx.account_id, attempt, started, true, null, usage);
-      await recordExecution({ proposalId: proposal.id, result });
-      const [done] = await db
+      result = await (usage ? withUsage(usage, run) : run());
+    } catch (error) {
+      lastError = logSafeError(error).error_message;
+      await recordAttempt(execution.id, ctx.account_id, attempt, started, false, lastError, usage);
+      await db
+        .update(executions)
+        .set({ attempts: attempt, error: lastError })
+        .where(ownRun(execution));
+      hold = heldFor(error);
+      retryAfter = holdRetryAfterMs(error);
+      if (hold === "stop") {
+        // The provider saw the stop between its own steps and sent nothing further.
+        await holdForStop(execution, attempt, now(), lastError);
+        throw new ExecutionRefused(
+          "halted",
+          "the emergency stop came on mid-flight — execution halted",
+        );
+      }
+      if (hold !== null || isFinal(error)) break;
+      if (attempt < MAX_ATTEMPTS) await sleep(200 * attempt);
+      continue;
+    }
+    await recordAttempt(execution.id, ctx.account_id, attempt, started, true, null, usage);
+    // The success, and the proposal's flip to executed, in ONE transaction —
+    // and only for the run that still owns the row (review 2026-10-23, #1).
+    // Outside the try: a failure to record never re-runs a write that happened.
+    const done = await db.transaction(async (tx) => {
+      const [row] = await tx
         .update(executions)
         .set({
           status: "succeeded",
@@ -397,41 +444,65 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
           finished_at: now().toISOString(),
           error: null,
         })
-        .where(eq(executions.id, execution.id))
+        .where(ownRun(execution))
         .returning();
-      return done as ExecutionRow;
-    } catch (error) {
-      lastError = logSafeError(error).error_message;
-      await recordAttempt(execution.id, ctx.account_id, attempt, started, false, lastError, usage);
-      await db
-        .update(executions)
-        .set({ attempts: attempt, error: lastError })
-        .where(eq(executions.id, execution.id));
-      hold = heldFor(error);
-      if (hold === "stop") {
-        // The provider saw the stop between its own steps and sent nothing further.
-        await holdForStop(execution.id, attempt, now(), lastError);
-        throw new ExecutionRefused(
-          "halted",
-          "the emergency stop came on mid-flight — execution halted",
-        );
-      }
-      if (hold !== null || isFinal(error)) break;
-      if (attempt < MAX_ATTEMPTS) await sleep(200 * attempt);
-    }
+      if (!row) return null;
+      await recordExecution({ proposalId: proposal.id, result }, tx);
+      return row;
+    });
+    if (!done) throw lostRun(execution, ctx.account_id);
+    return done;
   }
 
   const [failed] = await db
     .update(executions)
-    .set({ status: "failed", finished_at: now().toISOString(), held_for: hold })
-    .where(eq(executions.id, execution.id))
+    .set({
+      status: "failed",
+      finished_at: now().toISOString(),
+      held_for: hold,
+      held_until:
+        hold !== null && retryAfter !== null
+          ? new Date(now().getTime() + retryAfter).toISOString()
+          : null,
+    })
+    .where(ownRun(execution))
     .returning();
-  return failed as ExecutionRow;
+  if (!failed) throw lostRun(execution, ctx.account_id);
+  return failed;
+}
+
+/**
+ * The row this run owns: still `running`, and started when this run started.
+ * A run the stale reclaim closed (and another run then resumed) no longer
+ * matches, so its late terminal update changes nothing — a `succeeded` row,
+ * or another run's `running` one, is never overwritten (review 2026-10-23, #1).
+ */
+function ownRun(execution: Pick<ExecutionRow, "id" | "started_at">) {
+  return and(
+    eq(executions.id, execution.id),
+    eq(executions.status, "running"),
+    eq(executions.started_at, execution.started_at),
+  );
+}
+
+/** This run lost its row (reclaimed, then resumed elsewhere): it says so and writes nothing. */
+function lostRun(execution: Pick<ExecutionRow, "id">, accountId: string): ExecutionRefused {
+  console.warn(
+    JSON.stringify({
+      event: "execution_run_lost",
+      account_id: accountId,
+      execution_id: execution.id,
+    }),
+  );
+  return new ExecutionRefused(
+    "in_flight",
+    "another run took this over while it was still going; it carries on from there",
+  );
 }
 
 /** P3-24c: the stop came on mid-run. Failed and held for the resume — never left `running`. */
 async function holdForStop(
-  executionId: string,
+  execution: Pick<ExecutionRow, "id" | "started_at">,
   attempts: number,
   at: Date,
   error = "halted by the emergency stop",
@@ -439,7 +510,7 @@ async function holdForStop(
   await db
     .update(executions)
     .set({ status: "failed", error, attempts, finished_at: at.toISOString(), held_for: "stop" })
-    .where(eq(executions.id, executionId));
+    .where(ownRun(execution));
 }
 
 /**

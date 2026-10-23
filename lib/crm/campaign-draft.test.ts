@@ -5,7 +5,7 @@
 // say on the draft, before any send exists.
 
 import "dotenv/config";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
 import { db } from "../../db";
 import {
@@ -29,6 +29,7 @@ import { approveProposal, createProposal } from "../proposals/service";
 import {
   UNSUBSCRIBE_SLOT,
   campaignCompliance,
+  campaignDraftFor,
   complianceFooter,
   draftCampaign,
 } from "./campaign-draft";
@@ -227,5 +228,64 @@ describe("P4-16 — draftCampaign", () => {
         expectedProfileId: pending.profile_id,
       }),
     ).rejects.toMatchObject({ status: 404 });
+  });
+});
+
+describe("review 2026-10-23 #22 — a double-click drafts one email, and every reader names it", () => {
+  it("two drafts at once store ONE row, and both clicks are shown the same body", async () => {
+    const c = await campaign("approved");
+    // Both calls reach the model before either stores: the race a double-click makes.
+    let arrived = 0;
+    let open!: () => void;
+    const both = new Promise<void>((r) => (open = r));
+    const llm: DraftLlm = async () => {
+      arrived += 1;
+      if (arrived === 2) open();
+      await both;
+      return { text: `Draft number ${arrived}. The fire's lit again.` };
+    };
+    const [a, b] = await Promise.all([
+      draftCampaign(c.proposal_id, { draftLlm: llm, limitLlm: limitsLlm }),
+      draftCampaign(c.proposal_id, { draftLlm: llm, limitLlm: limitsLlm }),
+    ]);
+    const rows = await db
+      .select()
+      .from(contentItems)
+      .where(and(eq(contentItems.proposal_id, c.proposal_id), eq(contentItems.kind, "email")));
+    expect(rows).toHaveLength(1);
+    expect(a.draft.id).toBe(rows[0]!.id);
+    expect(b.draft.id).toBe(rows[0]!.id);
+    expect(a.draft.body).toBe(b.draft.body);
+    expect([a.fresh, b.fresh].sort()).toEqual([false, true]);
+  });
+
+  it("with a double on record, every lookup names the earliest stored, not the heap's first", async () => {
+    const c = await campaign("approved");
+    const { draft } = await draftCampaign(c.proposal_id, {
+      draftLlm: fakeDraft(),
+      limitLlm: limitsLlm,
+    });
+    // A legacy double from before the lock, written second but stamped
+    // earlier: a lookup without an order would name the first row written.
+    const rest: Partial<typeof draft> = { ...draft };
+    delete rest.id;
+    delete rest.created_at;
+    const [legacy] = await db
+      .insert(contentItems)
+      .values({
+        ...(rest as Omit<typeof draft, "id" | "created_at">),
+        body: `${draft.body}\n(a second body)`,
+        created_at: new Date(Date.parse(draft.created_at) - 60_000).toISOString(),
+      })
+      .returning();
+    for (let i = 0; i < 3; i++) {
+      expect((await campaignDraftFor(c.proposal_id))?.id).toBe(legacy!.id);
+    }
+    // And a fresh draft call returns that same row, so the sha shown is the sha approved.
+    const again = await draftCampaign(c.proposal_id, {
+      draftLlm: fakeDraft(),
+      limitLlm: limitsLlm,
+    });
+    expect(again).toMatchObject({ fresh: false, draft: { id: legacy!.id } });
   });
 });

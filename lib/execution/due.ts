@@ -191,7 +191,15 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     isNotNull(proposals.execute_not_before),
     lte(proposals.execute_not_before, now().toISOString()),
     // Never run before — or failed only because it was held (P3-24b/c).
-    or(isNull(executions.id), and(eq(executions.status, "failed"), isNotNull(executions.held_for))),
+    or(
+      isNull(executions.id),
+      and(
+        eq(executions.status, "failed"),
+        isNotNull(executions.held_for),
+        // A hold that named a wait is left alone until then (review 2026-10-23, #16).
+        or(isNull(executions.held_until), lte(executions.held_until, now().toISOString())),
+      ),
+    ),
   ];
   if (opts.profileId) conditions.push(eq(proposals.profile_id, opts.profileId));
 

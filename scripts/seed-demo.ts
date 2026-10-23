@@ -1764,6 +1764,7 @@ async function seed(): Promise<void> {
   {
     const { consentToCampaignEmail: grant } = await import("../lib/execution/email-consent");
     const { dbCampaignBackend, sendCampaignNow } = await import("../lib/crm/campaign-send");
+    const { campaignReviewVerdict } = await import("../lib/crm/campaign-review");
     const { createEmailCampaignExecutor } =
       await import("../lib/execution/providers/email-campaign");
     const { jurisdictionTableHash, lawReviewVerdict } = await import("../lib/crm/law-review");
@@ -1933,7 +1934,12 @@ async function seed(): Promise<void> {
             sleep: async () => undefined,
             provider: createEmailCampaignExecutor({
               sleep: async () => undefined,
-              backend: dbCampaignBackend({ lawReview: async () => current }),
+              // Stand-ins, like the law review: the demo records no operator's review
+              // of this account's first campaign (review 2026-10-23, #5c).
+              backend: dbCampaignBackend({
+                lawReview: async () => current,
+                campaignReview: async () => campaignReviewVerdict({ reviewed_on: today }),
+              }),
               fetch: async (_url, init) => {
                 const body = JSON.parse(String(init.body)) as { to: string[]; text: string };
                 sentTo.push({ to: body.to[0] ?? "", text: body.text });

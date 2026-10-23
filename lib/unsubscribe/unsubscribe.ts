@@ -34,6 +34,34 @@ import { campaignSends, contactSuppressions, decisionLog } from "../../db/schema
 /** A token as minted: 43 base64url characters. Checked before any query. */
 export const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 
+/** A one-click body is a single field; anything much bigger isn't one. */
+const ONE_CLICK_MAX_BYTES = 8 * 1024;
+
+/**
+ * Is this POST an RFC 8058 one-click? The body carries the field
+ * `List-Unsubscribe` = `One-Click`, and RFC 8058 §3.1 lets a mail client send
+ * it urlencoded OR as multipart/form-data — Gmail and Apple Mail differ.
+ * Both are read; the page's own button sends `confirm=1` and is not one.
+ * Review 2026-10-23 (#24): a multipart one-click used to get the page's 303.
+ */
+export async function isOneClickPost(contentType: string | null, body: string): Promise<boolean> {
+  if (body.length > ONE_CLICK_MAX_BYTES) return false;
+  const type = (contentType ?? "").toLowerCase();
+  if (type.startsWith("multipart/form-data")) {
+    try {
+      const form = await new Response(body, {
+        headers: { "content-type": contentType! },
+      }).formData();
+      const value = form.get("List-Unsubscribe");
+      return typeof value === "string" && value.trim() === "One-Click";
+    } catch {
+      return false;
+    }
+  }
+  // urlencoded, or a client that named no type at all.
+  return new URLSearchParams(body.trim()).get("List-Unsubscribe") === "One-Click";
+}
+
 export const tokenHash = (token: string): string =>
   createHash("sha256").update(token).digest("hex");
 

@@ -10,6 +10,12 @@ import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { runDueExecutions } from "../../../../lib/execution/due";
 
+// Review 2026-10-23 (#24): one campaign run of 50 recipients paced 600 ms
+// apart takes about 40–60 s, and a pass can hold several. 300 s is the
+// ceiling Vercel allows, and it stays well inside the campaign reclaim's
+// 15 minutes (STALE_RUN_MS), so a live run is never mistaken for a dead one.
+export const maxDuration = 300;
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
   if (!bearerMatches(request.headers.get("authorization"), secret)) {

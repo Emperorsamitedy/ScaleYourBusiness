@@ -16,7 +16,7 @@ export type FixtureEventType =
 export function deliveryEvent(
   type: FixtureEventType,
   emailId: string,
-  opts: { to?: string; at?: string; bounceType?: string } = {},
+  opts: { to?: string; at?: string; bounceType?: string; sendId?: string } = {},
 ) {
   const at = opts.at ?? new Date().toISOString();
   const data: Record<string, unknown> = {
@@ -27,7 +27,8 @@ export function deliveryEvent(
     from: '"Emberworks via Ledgerline" <hello@send.syb.test>',
     to: [opts.to ?? "someone@customers.test"],
     subject: "A note from Emberworks",
-    tags: { category: "campaign" },
+    // Resend echoes the send's tags; SYB tags each send with its row id (review #14).
+    tags: { category: "campaign", ...(opts.sendId ? { syb_send: opts.sendId } : {}) },
   };
   if (type === "email.bounced") {
     data.bounce = {

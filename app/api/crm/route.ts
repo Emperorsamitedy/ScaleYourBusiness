@@ -56,6 +56,11 @@ import { resendEventsWebhookSecret } from "../../../lib/env";
 import { activeExecutionConnection } from "../../../lib/execution/connections";
 import { emailCampaignOutcome } from "../../../lib/trust/email-readback";
 
+// Review 2026-10-23 (#24): approving a campaign's email tries the send at once,
+// and a 50-recipient run paced 600 ms apart takes about 40–60 s. 300 s is
+// Vercel's ceiling and stays inside the campaign reclaim's 15 minutes.
+export const maxDuration = 300;
+
 const CONSENT: readonly ConsentStatus[] = [
   "explicit_consent",
   "implied_consent",

@@ -186,6 +186,18 @@ describe("P3-10 — approved-only, exactly once", () => {
     await expect(run(p.id)).rejects.toMatchObject({ code: "scheduled_later" });
   });
 
+  it("honours a floor later the same day (instants compared, not Postgres' strings)", async () => {
+    // Review 2026-10-23: "2026-10-23 10:00:00+00" sorts below "2026-10-23T09:…"
+    // as text, so a same-day floor used to pass. Five minutes ahead stays the
+    // same day except in the day's last five minutes, when it still must refuse.
+    const s = await fresh();
+    const p = await approved(s, {
+      executeNotBefore: new Date(Date.now() + 5 * 60_000).toISOString(),
+    });
+    await expect(run(p.id)).rejects.toMatchObject({ code: "scheduled_later" });
+    expect(fixtureExecuteCalls()).toBe(0);
+  });
+
   it("executes an approved proposal, flips it to executed, and a second call changes nothing", async () => {
     const s = await fresh();
     const p = await approved(s);

@@ -31,8 +31,9 @@
 //     unknown row is NEVER sent again by any run — it stays unknown and the
 //     owner's screen says so. A row left `sending` by a run that died is
 //     settled to unknown at the start of the next one.
-//   - after an unknown, the run stops (held "remaining"): if the service is
-//     failing, one recipient is uncertain, not the whole list.
+//   - after an unknown, the run stops (held "remaining") and waits a backoff
+//     before the next run may start (unknownBackoffMs): if the service is
+//     failing, one recipient per wait is uncertain, not one per cron pass.
 //
 // Pace and cap: at most CAMPAIGN_RUN_CAP recipients per run, CAMPAIGN_PACE_MS
 // apart. A run that reaches the cap with recipients left ends held
@@ -57,6 +58,41 @@ export const SLOT = "{{unsubscribe_url}}";
 export const CAMPAIGN_RUN_CAP = 50;
 /** Between two sends. Resend's default limit is 2 requests a second (verify at build). */
 export const CAMPAIGN_PACE_MS = 600;
+/**
+ * Review 2026-10-23 (#16): after an outcome nobody can confirm, the run waits
+ * before it may try the next recipient. An unknown is never re-sent, so a
+ * failing service costs one recipient per try; waiting an hour, doubling per
+ * unknown already on this campaign, capped at a day, turns a day-long outage
+ * into about five unconfirmed recipients rather than one per cron pass (1 440
+ * on a per-minute schedule).
+ */
+export const UNKNOWN_BACKOFF_BASE_MS = 60 * 60_000;
+export const UNKNOWN_BACKOFF_CAP_MS = 24 * 60 * 60_000;
+
+/**
+ * Review 2026-10-23 (#5b): at most this many campaign emails per ACCOUNT per
+ * UTC day, across all its campaigns, counted from campaign_sends at the
+ * moment of each send. Why 500: a small business's whole consented list is
+ * usually a few hundred, so a real campaign still goes out in a day; and it
+ * bounds what one self-signed-up account can do to the shared sending
+ * domain in a day, a tenth of the 5 000 a day at which Gmail starts treating
+ * a sender as bulk. A run that reaches it is held until midnight UTC, with
+ * the reason in words. Pinned here; raising it is a reviewed code change.
+ */
+export const CAMPAIGN_DAILY_RECIPIENT_CAP = 500;
+
+/** Pure: the wait after the campaign's n-th unknown outcome (n ≥ 1). */
+export function unknownBackoffMs(unknownSoFar: number): number {
+  const n = Math.max(1, Math.floor(unknownSoFar));
+  return Math.min(UNKNOWN_BACKOFF_CAP_MS, UNKNOWN_BACKOFF_BASE_MS * 2 ** Math.min(n - 1, 30));
+}
+
+/** Pure: a wait in the owner's words — "1 hour", "4 hours", "a day". */
+export function waitWords(ms: number): string {
+  const hours = Math.round(ms / (60 * 60_000));
+  if (hours >= 24) return "a day";
+  return hours <= 1 ? "1 hour" : `${hours} hours`;
+}
 
 const RESEND_SEND_URL = "https://api.resend.com/emails";
 const TIMEOUT_MS = 20_000;
@@ -81,6 +117,8 @@ export interface CampaignPlan {
   disclosure: string;
   /** https origin for the unsubscribe page and the one-click endpoint. */
   base_url: string;
+  /** The campaign-email connection the plan was read from — re-checked before every send. */
+  connection_id: string;
 }
 
 export interface PendingRecipient {
@@ -133,6 +171,18 @@ export interface CampaignBackend {
   record(sendId: string, outcome: CampaignMailOutcome): Promise<void>;
   /** sending → pending: the service refused before doing anything, for every recipient alike. */
   release(sendId: string): Promise<void>;
+  /**
+   * Review 2026-10-23 (#5b): how many more campaign emails this account may
+   * hand to the service today (CAMPAIGN_DAILY_RECIPIENT_CAP, UTC day), and
+   * how long until the count resets.
+   */
+  dailyRoom(ctx: ExecutionContext): Promise<{ used: number; room: number; resets_in_ms: number }>;
+  /**
+   * Review 2026-10-23 (#15): is the connection the plan was read from still
+   * the account's live, connected campaign-email grant? Read before every
+   * send, beside the stop, so disconnecting stops a run mid-way.
+   */
+  stillConnected(connectionId: string, ctx: ExecutionContext): Promise<boolean>;
   counts(proposalId: string): Promise<CampaignCounts>;
 }
 
@@ -147,7 +197,12 @@ export interface CampaignMail {
   /** RFC 8058: the one-click POST endpoint. */
   one_click_url: string;
   idempotency_key: string;
+  /** The campaign_sends row id, sent as a Resend tag so events can find an `unknown` row (#14). */
+  send_id: string;
 }
+
+/** The Resend tag naming the campaign_sends row (review 2026-10-23, #14). */
+export const SEND_TAG = "syb_send";
 
 export type MailFetch = (url: string, init: RequestInit) => Promise<Response>;
 
@@ -182,6 +237,9 @@ export async function sendCampaignEmail(
           "List-Unsubscribe": `<${mail.one_click_url}>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
+        // The row's own id, never anything personal: Resend echoes it on every
+        // event, so a complaint on a row whose send answer was lost still finds it.
+        tags: [{ name: SEND_TAG, value: mail.send_id }],
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
@@ -211,10 +269,13 @@ export async function sendCampaignEmail(
 export class CampaignHold extends Error {
   readonly held_for: HeldFor;
   readonly retryable = false;
-  constructor(held: HeldFor, message: string) {
+  /** How long the next run must wait (the engine's held_until). Null = no wait. */
+  readonly retry_after_ms: number | null;
+  constructor(held: HeldFor, message: string, retryAfterMs: number | null = null) {
     super(message);
     this.name = "CampaignHold";
     this.held_for = held;
+    this.retry_after_ms = retryAfterMs;
   }
 }
 
@@ -326,6 +387,23 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
             "The emergency stop came on mid-send. Nobody else was emailed; the rest go out after you resume.",
           );
         }
+        // The grant, before every single send too (review 2026-10-23, #15):
+        // "Disconnecting stops every campaign send at once." Final, not held —
+        // a disconnect is the owner saying stop, so nothing resumes by itself.
+        if (!(await b.stillConnected(plan.connection_id, ctx))) {
+          throw new CampaignRefused(
+            "Campaign email was disconnected mid-send, so I stopped: nobody else was emailed. The rest stay unsent unless you connect it again and send.",
+          );
+        }
+        // The account's daily cap, counted now (review 2026-10-23, #5b).
+        const day = await b.dailyRoom(ctx);
+        if (day.room <= 0) {
+          throw new CampaignHold(
+            "remaining",
+            `Your account has sent its ${CAMPAIGN_DAILY_RECIPIENT_CAP} campaign emails for today, the most Ledgerline sends for one business in a day, so I stopped there. The rest go out after midnight UTC.`,
+            day.resets_in_ms,
+          );
+        }
         const token = newUnsubscribeToken();
         const urls = unsubscribeUrls(plan.base_url, token);
         const body = fillSlot(plan.body, urls.page);
@@ -363,6 +441,7 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
             text: body,
             one_click_url: urls.one_click,
             idempotency_key: row.idempotency_key,
+            send_id: row.send_id,
           },
           plan.api_key,
           fetchImpl,
@@ -385,9 +464,11 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
         });
         if (outcome.kind === "sent") sentThisRun += 1;
         if (outcome.kind === "unknown") {
+          const wait = unknownBackoffMs((await b.counts(proposalId)).unknown);
           throw new CampaignHold(
             "remaining",
-            "The email service didn't confirm one email either way, so I stopped there: that one stays unconfirmed and is never sent again, and the rest go out on the next run.",
+            `The email service didn't confirm one email either way, so I stopped there: that one stays unconfirmed and is never sent again. In case the service is down, I'll wait ${waitWords(wait)} before trying the rest.`,
+            wait,
           );
         }
       }

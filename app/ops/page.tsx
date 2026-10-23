@@ -15,6 +15,7 @@ import {
 import type { StorageSummary } from "../../lib/ops/summary";
 import { REGIMES } from "../../lib/crm/jurisdiction";
 import { jurisdictionTableHash, latestLawReview, lawReviewVerdict } from "../../lib/crm/law-review";
+import { campaignsAwaitingReview } from "../../lib/crm/campaign-review";
 
 export const metadata: Metadata = { title: "Ops — Ledgerline" };
 export const dynamic = "force-dynamic";
@@ -44,7 +45,12 @@ function storageLine(st: StorageSummary): string {
 export default async function OpsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ key?: string; days?: string; law_review?: string }>;
+  searchParams: Promise<{
+    key?: string;
+    days?: string;
+    law_review?: string;
+    campaign_review?: string;
+  }>;
 }) {
   const params = await searchParams;
   const secret = process.env.OPS_KEY;
@@ -57,12 +63,13 @@ export default async function OpsPage({
   }
   const days = Math.min(365, Math.max(1, Number.parseInt(params.days ?? "30", 10) || 30));
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
-  const [funnel, abandonment, costs, storage, review] = await Promise.all([
+  const [funnel, abandonment, costs, storage, review, awaiting] = await Promise.all([
     funnelSummary(since),
     abandonmentSummary(since),
     costSummary(since),
     storageSummary(),
     latestLawReview(),
+    campaignsAwaitingReview(),
   ]);
   // P4-15: the email-law review — the table as it is now, and whether a review covers it.
   const tableHash = jurisdictionTableHash();
@@ -224,6 +231,54 @@ export default async function OpsPage({
             Record that this table was reviewed against current law
           </button>
         </form>
+      </section>
+
+      <section className="card ops-card" aria-labelledby="ops-first-campaign-title">
+        <span className="auth-eyebrow" id="ops-first-campaign-title">
+          first campaigns · {awaiting.length} waiting
+        </span>
+        <p className="auth-copy">
+          Each account&rsquo;s first campaign waits for a person to read it before it sends, because
+          every campaign goes out from Ledgerline&rsquo;s own sending address. Read the email and
+          the sender it goes out as; record it only if it reads like a real business writing to its
+          own customers. Later campaigns from the same account don&rsquo;t wait.
+        </p>
+        {params.campaign_review && (
+          <p className="auth-copy" role="status">
+            {params.campaign_review === "recorded" ? "Review recorded." : params.campaign_review}
+          </p>
+        )}
+        {awaiting.length === 0 ? (
+          <p className="auth-copy">No first campaign is waiting.</p>
+        ) : (
+          awaiting.map((c) => (
+            <div key={c.proposal_id} className="ops-review">
+              <p className="auth-copy">
+                Account <span className="ops-mono">{c.account_id.slice(0, 8)}</span> · campaign{" "}
+                <span className="ops-mono">{c.proposal_id}</span> · {c.recipients} recipients
+                approved · sent as &ldquo;{c.sender_name ?? "not connected yet"} via
+                Ledgerline&rdquo;
+              </p>
+              <p className="auth-copy">{c.summary}</p>
+              <p className="auth-copy">Subject: {c.subject ?? "not approved yet"}</p>
+              <pre className="ops-mono ops-body">{c.body ?? "No email drafted yet."}</pre>
+              <form className="ops-form" method="post" action="/api/ops/campaign-review">
+                <input type="hidden" name="key" value={params.key ?? ""} />
+                <input type="hidden" name="proposal_id" value={c.proposal_id} />
+                <label className="auth-copy">
+                  Reviewer (a person&rsquo;s name){" "}
+                  <input name="reviewer" required maxLength={200} autoComplete="off" />
+                </label>
+                <label className="auth-copy">
+                  Reviewed on <input name="reviewed_on" type="date" required />
+                </label>
+                <button type="submit" className="next">
+                  Record that I read this account&rsquo;s first campaign
+                </button>
+              </form>
+            </div>
+          ))
+        )}
       </section>
     </main>
   );

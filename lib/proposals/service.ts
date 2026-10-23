@@ -321,11 +321,17 @@ async function decide(args: {
  * stop, idempotency) sit in front of it — this is the last step, not
  * the doorway.
  */
-export async function recordExecution(args: {
-  proposalId: string;
-  result: unknown;
-}): Promise<ProposalRow> {
-  return db.transaction(async (tx) => {
+/** A transaction handle, so a caller can make the flip part of its own transaction. */
+export type DbTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+export async function recordExecution(
+  args: {
+    proposalId: string;
+    result: unknown;
+  },
+  outer?: DbTx,
+): Promise<ProposalRow> {
+  const inTx = async (tx: DbTx): Promise<ProposalRow> => {
     const [row] = await tx
       .update(proposals)
       .set({ status: "executed", execution_result: sql`${JSON.stringify(args.result)}::jsonb` })
@@ -356,7 +362,8 @@ export async function recordExecution(args: {
       }),
     });
     return row;
-  });
+  };
+  return outer ? inTx(outer) : db.transaction(inTx);
 }
 
 /* ── P3-06: expiry, and the queue read ── */
