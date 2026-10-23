@@ -764,20 +764,9 @@ export interface MetaExecution {
   ads: ExecutionProvider;
   /** P3-23a: per-post insights, GET only, under the readback scopes only. */
   readback: MetaReadback;
-  /**
-   * The Instagram publisher on its own: one image, a Reel, or a CAROUSEL of
-   * up to ten. Content items carry one render today, so the executor sends
-   * one; a carousel is reachable here until multi-image items exist.
-   */
-  instagram(args: {
-    igUserId: string;
-    token: string;
-    media: readonly string[];
-    caption: string;
-    account_id: string;
-    /** P3-24c: the emergency stop, checked before every container and before media_publish. */
-    halted?: () => Promise<boolean>;
-  }): Promise<PublishedPost>;
+  // No standalone Instagram publisher (review 2026-10-23, Session D #6): it
+  // published past approval, the real-write gate, idempotency and the
+  // journal. Every post goes out through `publish`, under executeProposal.
 }
 
 const defaultFetch: MetaExecFetch = async (url, init) => {
@@ -3250,19 +3239,41 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
       return dbAdsBackend();
     }),
     readback: readbackCalls(ctx),
-    instagram: (a) =>
-      publishInstagram(ctx, {
-        igUserId: a.igUserId,
-        token: a.token,
-        media: a.media,
-        caption: a.caption,
-        hooks: {
-          account_id: a.account_id,
-          note: async () => undefined,
-          ...(a.halted ? { halted: a.halted } : {}),
-        },
-      }),
   };
+}
+
+/**
+ * TESTS ONLY — the carousel path (P3-24c's mid-carousel stop), which no
+ * content item reaches yet because items carry one render. It takes the
+ * fetch as a required argument and has no default transport, so it cannot
+ * reach Meta unless a caller hands it one; meta.test.ts fails the build if
+ * any file other than a test names it (review 2026-10-23, Session D #6).
+ */
+export function instagramPublishForTests(
+  fetch: MetaExecFetch,
+  args: {
+    igUserId: string;
+    token: string;
+    media: readonly string[];
+    caption: string;
+    account_id: string;
+    halted?: () => Promise<boolean>;
+  },
+): Promise<PublishedPost> {
+  return publishInstagram(
+    { fetch, sleep: async () => undefined },
+    {
+      igUserId: args.igUserId,
+      token: args.token,
+      media: args.media,
+      caption: args.caption,
+      hooks: {
+        account_id: args.account_id,
+        note: async () => undefined,
+        ...(args.halted ? { halted: args.halted } : {}),
+      },
+    },
+  );
 }
 
 export const metaExecution = createMetaExecution();

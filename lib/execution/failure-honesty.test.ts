@@ -72,6 +72,7 @@ import {
   StopError,
   VALIDATE_ONLY,
   createMetaExecution,
+  instagramPublishForTests,
   usageHeaders,
 } from "./providers/meta";
 import { fixtureExecutor } from "./providers/fixture";
@@ -907,13 +908,13 @@ describe("P3-24c — a halt mid-carousel leaves no container published", () => {
 
   it("the stop after the first child: no more containers, no parent, no media_publish", async () => {
     let stopped = false;
-    const { graph, exec } = harness({
+    const { graph } = harness({
       onCall: async (c) => {
         if (c.method === "POST" && c.url.pathname.endsWith(`/${IG}/media`)) stopped = true;
       },
     });
     await expect(
-      exec.instagram({
+      instagramPublishForTests(graph.fetch, {
         igUserId: IG,
         token: TOKEN,
         media: images,
@@ -929,13 +930,13 @@ describe("P3-24c — a halt mid-carousel leaves no container published", () => {
 
   it("the stop after the parent is built: refused before media_publish, every container unpublished", async () => {
     let stopped = false;
-    const { graph, exec } = harness({
+    const { graph } = harness({
       onCall: async (c) => {
         if (c.method === "POST" && c.form.get("media_type") === "CAROUSEL") stopped = true;
       },
     });
     await expect(
-      exec.instagram({
+      instagramPublishForTests(graph.fetch, {
         igUserId: IG,
         token: TOKEN,
         media: images,
@@ -950,8 +951,8 @@ describe("P3-24c — a halt mid-carousel leaves no container published", () => {
   });
 
   it("no stop: the same carousel publishes once (the control)", async () => {
-    const { graph, exec } = harness();
-    const post = await exec.instagram({
+    const { graph } = harness();
+    const post = await instagramPublishForTests(graph.fetch, {
       igUserId: IG,
       token: TOKEN,
       media: images,

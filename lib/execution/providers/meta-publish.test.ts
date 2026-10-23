@@ -60,6 +60,7 @@ import {
   READBACK_MATCH_AFTER_S,
   captionHash,
   createMetaExecution,
+  instagramPublishForTests,
   madeBy,
   mediaKindOf,
   publishCaption,
@@ -833,9 +834,9 @@ describe("P3-21b — Instagram", () => {
   });
 
   it("a carousel: every child and the parent flagged, one media_publish of the parent", async () => {
-    const { graph, exec } = harness();
+    const { graph } = harness();
     const urls = ["https://b.test/a/1.jpg", "https://b.test/a/2.jpg", "https://b.test/a/3.jpg"];
-    const post = await exec.instagram({
+    const post = await instagramPublishForTests(graph.fetch, {
       igUserId: IG,
       token: TOKEN,
       media: urls,
@@ -864,7 +865,7 @@ describe("P3-21b — Instagram", () => {
     // A carousel with a PNG in it is refused before any container exists.
     const png = harness();
     await expect(
-      png.exec.instagram({
+      instagramPublishForTests(png.graph.fetch, {
         igUserId: IG,
         token: TOKEN,
         media: ["https://b.test/a/1.jpg", "https://b.test/a/2.png"],
