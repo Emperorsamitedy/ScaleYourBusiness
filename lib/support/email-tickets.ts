@@ -109,12 +109,26 @@ export async function receiveInboundEmail(
   if (already) return { kind: "duplicate", ticket_id: already.ticket_id };
 
   const route = routingFrom(email.to, domain);
-  const [settings] = route
+  let [settings] = route
     ? await db
         .select()
         .from(supportSettings)
         .where(eq(supportSettings.inbound_token, route.routing))
     : [];
+  // Review 2026-10-23 (#6): every reply we send carries s-<routing>+<thread>
+  // in its Reply-To, so after the owner rotates the inbound address a
+  // customer answering an old email names a routing token that no longer
+  // exists. The thread token is unique across all tickets and unguessable
+  // (96 bits), so it alone finds the ticket and, through it, the business.
+  // A bare old address (no thread) stays dropped — that is what rotating is for.
+  if (route && !settings && route.thread) {
+    const [threaded] = await db
+      .select({ settings: supportSettings })
+      .from(supportTickets)
+      .innerJoin(supportSettings, eq(supportSettings.profile_id, supportTickets.profile_id))
+      .where(eq(supportTickets.thread_token, route.thread));
+    settings = threaded?.settings;
+  }
   if (!route || !settings) {
     // No PII: not the address, not the subject — only that it happened.
     console.log(JSON.stringify({ event: "support_inbound_unrouted", account_id: null }));

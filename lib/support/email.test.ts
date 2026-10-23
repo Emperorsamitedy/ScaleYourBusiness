@@ -378,6 +378,43 @@ describe("P4-09 — routing, threading and idempotency", () => {
       await db.select().from(supportTickets).where(eq(supportTickets.profile_id, b.profile_id)),
     ).toHaveLength(0);
   });
+
+  it("review #6: after a rotation, a reply to an old thread still lands on its ticket by the thread token", async () => {
+    const b = await business();
+    const opened = await receiveInboundEmail(normalised(fixture({ to: [b.address] })), DOMAIN);
+    if (opened.kind !== "filed") throw new Error("not filed");
+    const [t] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, opened.ticket_id));
+    // The Reply-To our earlier reply carried, under the token as it was then.
+    const oldReplyTo = threadAddress(b.token, t!.thread_token!, DOMAIN);
+    await rotateInboundToken(b.profile_id);
+    const [now] = await db
+      .select()
+      .from(supportSettings)
+      .where(eq(supportSettings.profile_id, b.profile_id));
+    expect(now?.inbound_token).not.toBe(b.token);
+
+    const reply = fixture({ to: [oldReplyTo], subject: "Re: Where is my order?" });
+    expect(await receiveInboundEmail(normalised(reply), DOMAIN)).toMatchObject({
+      kind: "filed",
+      created: false,
+      ticket_id: opened.ticket_id,
+      profile_id: b.profile_id,
+    });
+    expect(await emailThread(opened.ticket_id)).toHaveLength(2);
+
+    // The failing cases: the bare old address, and an old token with a thread no ticket has.
+    expect(await receiveInboundEmail(normalised(fixture({ to: [b.address] })), DOMAIN)).toEqual({
+      kind: "unrouted",
+    });
+    const stray = fixture({ to: [threadAddress(b.token, newThreadToken(), DOMAIN)] });
+    expect(await receiveInboundEmail(normalised(stray), DOMAIN)).toEqual({ kind: "unrouted" });
+    expect(
+      await db.select().from(supportTickets).where(eq(supportTickets.profile_id, b.profile_id)),
+    ).toHaveLength(1);
+  });
 });
 
 describe("P4-09 — contacts under rule 19", () => {
