@@ -55,6 +55,7 @@
 import { logSafeError } from "../core/log-safe";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbOrTx } from "../../db";
 import { executionAttempts, executionHalts, executions, proposals } from "../../db/schema";
 import { sessionDRealWritesOn } from "../env";
 import { latestDecision } from "../mode/service";
@@ -126,8 +127,10 @@ export async function haltExecutions(args: {
   accountId: string;
   userId?: string | null;
   reason?: string;
+  /** Join the caller's transaction (the chat's confirm). */
+  tx?: DbOrTx;
 }): Promise<void> {
-  await db
+  await (args.tx ?? db)
     .insert(executionHalts)
     .values({
       account_id: args.accountId,

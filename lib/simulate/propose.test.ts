@@ -37,6 +37,7 @@ import { proposalQueue } from "../proposals/service";
 import { shiftDay } from "../trust/series";
 import { crossCheckLine, gatherInputs } from "./inputs";
 import { simulateOption } from "./model";
+import { proposeFromSegments } from "../crm/segment-proposals";
 import { proposeFromSimulation } from "./propose";
 import type { SimulationRecord } from "./scenario";
 
@@ -314,6 +315,46 @@ describe('"Propose this" — the normal proposal, pending, executing nothing', (
     expect(
       await db.select().from(proposals).where(eq(proposals.profile_id, watched.profile_id)),
     ).toEqual([]);
+  });
+
+  it("the content and email paths respect the watch too (review 2026-10-23, #21)", async () => {
+    const watched = await business("watching");
+    const out = await proposeFromSimulation(
+      watched.profile_id,
+      { kind: "content" },
+      { now: NOW, limitLlm: noLimits },
+    );
+    expect(out.proposal).toBeNull();
+    expect(out.skipped).toMatch(/still watching/);
+    // The segment generator itself, before any segment is even read.
+    const segments = await proposeFromSegments(watched.profile_id, {
+      now: NOW,
+      limitLlm: noLimits,
+    });
+    expect(segments.created).toEqual([]);
+    expect(segments.skipped[0]?.reason).toMatch(/still watching/);
+    expect(
+      await db.select().from(proposals).where(eq(proposals.profile_id, watched.profile_id)),
+    ).toEqual([]);
+  });
+
+  it("proposing the same content calendar twice queues one (review 2026-10-23, #21)", async () => {
+    const b = await business();
+    const first = await proposeFromSimulation(
+      b.profile_id,
+      { kind: "content" },
+      { now: NOW, limitLlm: noLimits },
+    );
+    expect(first.proposal?.status).toBe("pending");
+    const second = await proposeFromSimulation(
+      b.profile_id,
+      { kind: "content" },
+      { now: NOW, limitLlm: noLimits },
+    );
+    expect(second.proposal).toBeNull();
+    expect(second.skipped).toMatch(/already waiting in your queue/);
+    const rows = await db.select().from(proposals).where(eq(proposals.profile_id, b.profile_id));
+    expect(rows.filter((r) => r.module === "content")).toHaveLength(1);
   });
 });
 

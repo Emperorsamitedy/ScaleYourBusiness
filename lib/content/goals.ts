@@ -13,6 +13,7 @@
 
 import { desc, eq } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbTx } from "../../db";
 import { diagnosisReports, goals } from "../../db/schema";
 import { confidence } from "../core/confidence";
 import { createField } from "../core/field";
@@ -113,6 +114,7 @@ async function writeAttr(
   attr: GoalAttr,
   value: string,
   by: GoalWriteSource = OWNER_INPUT,
+  tx?: DbTx,
 ): Promise<string> {
   const at = isoDateTime(new Date().toISOString());
   return writeField(
@@ -126,6 +128,7 @@ async function writeAttr(
       observed_at: at,
       recorded_at: at,
     }),
+    tx ? { tx } : {},
   );
 }
 
@@ -139,6 +142,8 @@ export async function setGoalAttr(
   attr: "statement" | "target_value",
   value: string,
   by: GoalWriteSource,
+  /** Join the caller's transaction (the chat's confirm, #21); validation is then the caller's. */
+  tx?: DbTx,
 ): Promise<string> {
   const [spine] = await db
     .select({ id: goals.id, profile_id: goals.profile_id })
@@ -146,7 +151,7 @@ export async function setGoalAttr(
     .where(eq(goals.id, goalId));
   if (!spine || spine.profile_id !== profileId) throw new GoalError("no such goal", 404);
   if (value.trim() === "") throw new GoalError("a goal needs words", 422);
-  return writeAttr(profileId, goalId, attr, value.trim(), by);
+  return writeAttr(profileId, goalId, attr, value.trim(), by, tx);
 }
 
 /** Add a goal the owner states outside the interview. */
@@ -154,21 +159,34 @@ export async function addGoal(
   profileId: string,
   input: GoalInput,
   by: GoalWriteSource = OWNER_INPUT,
+  /** Join the caller's transaction (the chat's confirm, #21); validation is then the caller's. */
+  tx?: DbTx,
 ): Promise<GoalView> {
   if (input.statement.trim() === "") {
     throw new GoalError("a goal needs a statement — what do you want to achieve?", 422);
   }
   await validateCodes(input);
-  const [row] = await db
+  const [row] = await (tx ?? db)
     .insert(goals)
     .values({ profile_id: profileId })
     .returning({ id: goals.id, created_at: goals.created_at });
   if (!row) throw new GoalError("could not create the goal", 500);
-  await writeAttr(profileId, row.id, "statement", input.statement.trim(), by);
-  if (input.horizon) await writeAttr(profileId, row.id, "horizon", input.horizon, by);
-  if (input.area) await writeAttr(profileId, row.id, "area", input.area, by);
+  await writeAttr(profileId, row.id, "statement", input.statement.trim(), by, tx);
+  if (input.horizon) await writeAttr(profileId, row.id, "horizon", input.horizon, by, tx);
+  if (input.area) await writeAttr(profileId, row.id, "area", input.area, by, tx);
   if (input.target_value) {
-    await writeAttr(profileId, row.id, "target_value", input.target_value, by);
+    await writeAttr(profileId, row.id, "target_value", input.target_value, by, tx);
+  }
+  if (tx) {
+    // Uncommitted: the read path can't see it yet, so the view is what was written.
+    return {
+      goal_id: row.id,
+      created_at: row.created_at,
+      statement: input.statement.trim(),
+      horizon: input.horizon ?? null,
+      area: input.area ?? null,
+      target_value: input.target_value ?? null,
+    };
   }
   const [view] = (await listGoals(profileId)).filter((g) => g.goal_id === row.id);
   return view as GoalView;

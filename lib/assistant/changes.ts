@@ -33,6 +33,7 @@
 import { createHash } from "node:crypto";
 import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbTx } from "../../db";
 import {
   accounts,
   assistantChanges,
@@ -52,7 +53,7 @@ import type { SizeBand } from "../core/size-features";
 import { addGoal, listGoals, setGoalAttr } from "../content/goals";
 import { contentQueue } from "../content/produce";
 import { proposeCustomKnowledge, listKnowledge } from "../crm/knowledge";
-import { setNotifyOwner, setReplyHours } from "../crm/support-settings";
+import { ensureSupportSettings, setNotifyOwner, setReplyHours } from "../crm/support-settings";
 import { haltExecutions, haltState } from "../execution/engine";
 import type { OpenPeriod, OpeningSchedule, ScheduleLlm, Weekday } from "../hours/schedule";
 import {
@@ -70,10 +71,10 @@ import { isDynamicVocabulary } from "../profile/dynamic-vocab";
 import type { FieldRecordRow } from "../profile/field-codec";
 import { rowToField } from "../profile/field-codec";
 import { buildFactSheet, repr } from "../profile/factsheet";
-import { readCurrentField, writeField } from "../profile/field-store";
+import { readCurrentField, runFieldValidation, writeField } from "../profile/field-store";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "../profile/size-band";
 import type { LimitLlm } from "../proposals/hard-limits";
-import { BOUNDARIES_KEY } from "../proposals/hard-limits";
+import { BOUNDARIES_KEY, ensureHardLimits } from "../proposals/hard-limits";
 import { applicableQuestions } from "../resolver/applicability";
 import { overlapScore, tokenize } from "../support/knowledge";
 import { settingsForProfile } from "../support/settings";
@@ -138,13 +139,24 @@ interface Applied {
   status: "applied" | "queued";
   result_text: string;
   result_ref: string;
+  /** Fact keys written in the transaction: validation runs on them after the commit. */
+  validate?: string[];
 }
 
 interface Handler {
   prepare(ctx: Ctx, change: DetectedChange, entry: CatalogueEntry): Promise<Prepared>;
   /** What the row was drafted against, read again now, and its words. */
   basisNow?(ctx: Ctx, row: AssistantChangeRow): Promise<{ basis: string | null; now: string }>;
-  apply?(ctx: Ctx, row: AssistantChangeRow): Promise<Applied>;
+  /** At the click: a reason the change may not go ahead now (the watch), or null. */
+  refuse?(ctx: Ctx, row: AssistantChangeRow): Promise<string | null>;
+  /**
+   * Before the transaction opens: work that may call a model or create a
+   * default row (the hard limits, the settings row), so no model call ever
+   * runs inside the confirm's transaction.
+   */
+  before?(ctx: Ctx, row: AssistantChangeRow): Promise<void>;
+  /** The write itself, inside the confirm's one transaction (review 2026-10-23, #21). */
+  apply?(ctx: Ctx, row: AssistantChangeRow, tx: DbTx): Promise<Applied>;
 }
 
 /* ── shared reading and writing ── */
@@ -189,7 +201,12 @@ async function currentRecord(
 }
 
 /** The one fact write: superseding, conversation-sourced, naming the owner's message. */
-async function writeConversationFact(ctx: Ctx, key: string, value: unknown): Promise<string> {
+async function writeConversationFact(
+  ctx: Ctx,
+  key: string,
+  value: unknown,
+  tx: DbTx,
+): Promise<string> {
   const at = isoDateTime(new Date().toISOString());
   const recordId = await writeField(
     ctx.profileId,
@@ -203,9 +220,10 @@ async function writeConversationFact(ctx: Ctx, key: string, value: unknown): Pro
       recorded_at: at,
       note: "confirmed in chat",
     }),
+    { tx },
   );
   // The owner's message now wrote something: say so on it (§2.2).
-  await db
+  await tx
     .update(utterances)
     .set({
       confirmed: true,
@@ -395,11 +413,16 @@ async function factBasisNow(ctx: Ctx, row: AssistantChangeRow) {
 }
 
 function applyFact(words: string) {
-  return async (ctx: Ctx, row: AssistantChangeRow): Promise<Applied> => {
+  return async (ctx: Ctx, row: AssistantChangeRow, tx: DbTx): Promise<Applied> => {
     const key = String(row.payload.key ?? "");
     if (key === "") throw new ChangeError("the drafted change names no fact", 500);
-    const recordId = await writeConversationFact(ctx, key, row.payload.value);
-    return { status: "applied", result_text: words, result_ref: `field_record:${recordId}` };
+    const recordId = await writeConversationFact(ctx, key, row.payload.value, tx);
+    return {
+      status: "applied",
+      result_text: words,
+      result_ref: `field_record:${recordId}`,
+      validate: [key],
+    };
   };
 }
 
@@ -890,18 +913,24 @@ const goalHandler: Handler = {
     }
     return factBasisNow(ctx, row);
   },
-  async apply(ctx, row) {
+  async apply(ctx, row, tx) {
     const by = {
       source: { kind: "conversation" as const, utterance_id: utteranceId(ctx.ownerUtteranceId) },
       confidence: CONFIRMED_CONVERSATION,
     };
     if (row.payload.op === "add") {
-      const goal = await addGoal(ctx.profileId, { statement: String(row.payload.statement) }, by);
-      await markUtterance(ctx, `goals.${goal.goal_id}.statement`);
+      const goal = await addGoal(
+        ctx.profileId,
+        { statement: String(row.payload.statement) },
+        by,
+        tx,
+      );
+      await markUtterance(ctx, `goals.${goal.goal_id}.statement`, tx);
       return {
         status: "applied",
         result_text: "Added. It's on your Goals page; content and proposals will name it.",
         result_ref: `goal:${goal.goal_id}`,
+        validate: [`goals.${goal.goal_id}.statement`],
       };
     }
     const attr = row.payload.attr === "target_value" ? "target_value" : "statement";
@@ -911,18 +940,21 @@ const goalHandler: Handler = {
       attr,
       String(row.payload.value),
       by,
+      tx,
     );
-    await markUtterance(ctx, `goals.${String(row.payload.goal_id)}.${attr}`);
+    const key = `goals.${String(row.payload.goal_id)}.${attr}`;
+    await markUtterance(ctx, key, tx);
     return {
       status: "applied",
       result_text: "Changed. The goal's earlier wording stays in its history.",
       result_ref: `field_record:${recordId}`,
+      validate: [key],
     };
   },
 };
 
-async function markUtterance(ctx: Ctx, key: string): Promise<void> {
-  await db
+async function markUtterance(ctx: Ctx, key: string, tx: DbTx): Promise<void> {
+  await tx
     .update(utterances)
     .set({
       confirmed: true,
@@ -970,9 +1002,12 @@ const replyTimeHandler: Handler = {
     const current = (await settingsForProfile(ctx.profileId))?.reply_hours ?? null;
     return { basis: String(current ?? "none"), now: hoursWords(current) };
   },
-  async apply(ctx, row) {
+  before: async (ctx) => {
+    await ensureSupportSettings(ctx.profileId);
+  },
+  async apply(ctx, row, tx) {
     const hours = row.payload.hours === null ? null : Number(row.payload.hours);
-    const settings = await setReplyHours(ctx.profileId, hours);
+    const settings = await setReplyHours(ctx.profileId, hours, tx);
     return {
       status: "applied",
       result_text:
@@ -1009,9 +1044,12 @@ const notifyHandler: Handler = {
     const current = (await settingsForProfile(ctx.profileId))?.notify_owner ?? true;
     return { basis: String(current), now: current ? "on" : "off" };
   },
-  async apply(ctx, row) {
+  before: async (ctx) => {
+    await ensureSupportSettings(ctx.profileId);
+  },
+  async apply(ctx, row, tx) {
     const on = row.payload.on === true;
-    const settings = await setNotifyOwner(ctx.profileId, on);
+    const settings = await setNotifyOwner(ctx.profileId, on, tx);
     return {
       status: "applied",
       result_text: on
@@ -1050,12 +1088,13 @@ const stopHandler: Handler = {
       now: state.halted ? "stopped" : "running",
     };
   },
-  async apply(ctx, row) {
+  async apply(ctx, row, tx) {
     void row;
     await haltExecutions({
       accountId: ctx.accountId,
       userId: ctx.userId ?? null,
       reason: "stopped from chat",
+      tx,
     });
     return {
       status: "applied",
@@ -1132,6 +1171,21 @@ async function watchingLink(ctx: Ctx, entry: CatalogueEntry): Promise<Prepared |
   );
 }
 
+/**
+ * The watch, re-checked at the click (review 2026-10-23, #21): a card
+ * drafted before the watch began must not queue anything once it runs.
+ */
+async function watchRefusal(ctx: Ctx): Promise<string | null> {
+  const decision = await latestDecision(ctx.profileId);
+  if (decision?.mode !== "watching") return null;
+  return `Not queued: I'm watching until ${decision.review_at.slice(0, 10)}, and nothing can be queued while the watch runs.`;
+}
+
+/** The hard limits, read (and parsed once, by a model if need be) before the transaction. */
+async function warmLimits(ctx: Ctx): Promise<void> {
+  await ensureHardLimits(ctx.profileId, ctx.seams.limitLlm);
+}
+
 const knowledgeHandler: Handler = {
   async prepare(ctx, change, entry) {
     const watching = await watchingLink(ctx, entry);
@@ -1181,11 +1235,13 @@ const knowledgeHandler: Handler = {
       now: live ? live.answer : "no answer",
     };
   },
-  async apply(ctx, row) {
+  refuse: watchRefusal,
+  before: warmLimits,
+  async apply(ctx, row, tx) {
     const proposal = await proposeCustomKnowledge(
       ctx.profileId,
       { question: String(row.payload.question), answer: String(row.payload.answer) },
-      ctx.seams.limitLlm ? { limitLlm: ctx.seams.limitLlm } : {},
+      { ...(ctx.seams.limitLlm ? { limitLlm: ctx.seams.limitLlm } : {}), tx },
     );
     return {
       status: "queued",
@@ -1437,48 +1493,55 @@ export async function confirmChange(args: {
     seams: args.seams ?? {},
   };
 
-  // Claim it once: a double click finds it claimed and changes nothing.
-  const [claimed] = await db
-    .update(assistantChanges)
-    .set({ decided_at: new Date().toISOString() })
-    .where(
-      and(
-        eq(assistantChanges.id, row.id),
-        eq(assistantChanges.status, "prepared"),
-        isNull(assistantChanges.decided_at),
-      ),
-    )
-    .returning();
-  if (!claimed) {
-    const [now] = await db.select().from(assistantChanges).where(eq(assistantChanges.id, row.id));
-    return now as AssistantChangeRow;
-  }
+  if (!handler.apply) throw new ChangeError("that one is changed on its own page", 409);
+  const apply = handler.apply;
+  // Work that may call a model, or create a default row, runs before the transaction.
+  if (handler.before) await handler.before(ctx, row);
 
-  try {
+  // ONE transaction (review 2026-10-23, #21): the claim, the write, its
+  // decision-log entry and the status. A crash leaves all or nothing, so a
+  // write can't exist without its log row and a proposal can't be queued
+  // twice. A second click waits on the row's lock, then finds it decided.
+  const outcome = await db.transaction(async (tx) => {
+    const [claimed] = await tx
+      .update(assistantChanges)
+      .set({ decided_at: new Date().toISOString() })
+      .where(
+        and(
+          eq(assistantChanges.id, row.id),
+          eq(assistantChanges.status, "prepared"),
+          isNull(assistantChanges.decided_at),
+        ),
+      )
+      .returning();
+    if (!claimed) return null;
+    const settle = async (result_text: string) => {
+      const [stale] = await tx
+        .update(assistantChanges)
+        .set({ status: "stale", result_text })
+        .where(eq(assistantChanges.id, row.id))
+        .returning();
+      return { row: stale as AssistantChangeRow, validate: [] as string[] };
+    };
+    const refusal = handler.refuse ? await handler.refuse(ctx, row) : null;
+    if (refusal !== null) return settle(refusal);
     if (handler.basisNow && row.basis !== null) {
       const live = await handler.basisNow(ctx, row);
       if (live.basis !== row.basis) {
-        const [stale] = await db
-          .update(assistantChanges)
-          .set({
-            status: "stale",
-            result_text: `Not changed: it moved since I drafted this — it's ${live.now} now. Ask me again if you still want it.`,
-          })
-          .where(eq(assistantChanges.id, row.id))
-          .returning();
-        return stale as AssistantChangeRow;
+        return settle(
+          `Not changed: it moved since I drafted this — it's ${live.now} now. Ask me again if you still want it.`,
+        );
       }
     }
-    if (!handler.apply) throw new ChangeError("that one is changed on its own page", 409);
-    const applied = await handler.apply(ctx, row);
-    await db.insert(decisionLog).values({
+    const applied = await apply(ctx, row, tx);
+    await tx.insert(decisionLog).values({
       profile_id: args.profileId,
       actor: "owner",
       kind: "assistant_change",
       ref_id: row.id,
       payload_hash: hashConfirmed(row, applied.result_ref),
     });
-    const [done] = await db
+    const [done] = await tx
       .update(assistantChanges)
       .set({
         status: applied.status,
@@ -1487,15 +1550,15 @@ export async function confirmChange(args: {
       })
       .where(eq(assistantChanges.id, row.id))
       .returning();
-    return done as AssistantChangeRow;
-  } catch (error) {
-    // Nothing landed: release the claim so the owner can try again.
-    await db
-      .update(assistantChanges)
-      .set({ decided_at: null })
-      .where(and(eq(assistantChanges.id, row.id), eq(assistantChanges.status, "prepared")));
-    throw error;
+    return { row: done as AssistantChangeRow, validate: applied.validate ?? [] };
+  });
+  if (outcome === null) {
+    const [now] = await db.select().from(assistantChanges).where(eq(assistantChanges.id, row.id));
+    return now as AssistantChangeRow;
   }
+  // Validation reads committed rows, so it runs after the commit (P0-81).
+  for (const key of outcome.validate) await runFieldValidation(args.profileId, key);
+  return outcome.row;
 }
 
 function isKind(v: string): v is ChangeKind {

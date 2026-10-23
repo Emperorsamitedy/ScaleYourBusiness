@@ -15,6 +15,7 @@
 // because the send it leads to can't be recalled (P4-15).
 
 import { and, eq } from "drizzle-orm";
+import { careState } from "../care/day-zero";
 import { db } from "../../db";
 import { businessProfiles, proposals } from "../../db/schema";
 import type { LimitLlm } from "../proposals/hard-limits";
@@ -104,6 +105,17 @@ export async function proposeFromSegments(
     .from(businessProfiles)
     .where(eq(businessProfiles.id, profileId));
   if (!profile) throw new SegmentProposalError("no such profile", 404);
+
+  // The watch blocks proposing, as for every other generator (rule 15;
+  // review 2026-10-23, #21).
+  const care = await careState(profileId);
+  if (care?.watch_ends_at && now.toISOString() < care.watch_ends_at) {
+    out.skipped.push({
+      segment: "all",
+      reason: `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
+    });
+    return out;
+  }
 
   const posture = await outboundPosture(profileId);
   if (posture === "disabled") {

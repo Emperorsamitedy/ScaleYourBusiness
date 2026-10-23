@@ -12,6 +12,7 @@
 import { createHash } from "node:crypto";
 import { and, desc, eq, gt, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbOrTx } from "../../db";
 import { contentItems, decisionLog, proposals } from "../../db/schema";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 
@@ -88,9 +89,13 @@ export function hashProposalPayload(
  * named (P3-03 calls it that way). Both are "proposal" log entries: the
  * restraint view is part of the record, not an off-books shadow.
  */
-export async function createProposal(input: NewProposal): Promise<ProposalRow> {
+export async function createProposal(
+  input: NewProposal,
+  /** Join the caller's transaction (a savepoint inside it): the chat's confirm, #21. */
+  executor: DbOrTx = db,
+): Promise<ProposalRow> {
   const blocked = typeof input.blocked_by_limit === "string" && input.blocked_by_limit !== "";
-  return db.transaction(async (tx) => {
+  return executor.transaction(async (tx) => {
     const [row] = await tx
       .insert(proposals)
       .values({

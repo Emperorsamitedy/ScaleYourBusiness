@@ -12,9 +12,10 @@
 // a new platform is a different proposal kind (channel_expansion) with
 // its own 13.5 exposure — a calendar never smuggles a new platform in.
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
-import { channels, offers } from "../../db/schema";
+import { channels, offers, proposals } from "../../db/schema";
+import { careState } from "../care/day-zero";
 import { readCurrentField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/hard-limits";
@@ -116,6 +117,12 @@ export interface PlanArgs {
   simulation?: SimulationAttachment;
 }
 
+/** A calendar proposal (its slots in detail.items), not a shot list or a per-item publish. */
+function isPlanAction(action: unknown): boolean {
+  const a = action as { kind?: unknown; detail?: { items?: unknown } } | null;
+  return a?.kind === "content_publishing" && Array.isArray(a.detail?.items);
+}
+
 /**
  * Propose a content calendar. One proposal, all slots in its detail;
  * the queue renders it; approval hands it to produce (P3-16/produce.ts).
@@ -126,6 +133,34 @@ export async function proposeContentPlan(
 ): Promise<ProposalRow> {
   const weeks = args.weeks ?? 2;
   const now = args.now ?? new Date();
+
+  // The watch blocks proposing, as for every other generator (rule 15;
+  // review 2026-10-23, #21): a watched business gets no calendar yet.
+  const care = await careState(profileId);
+  if (care?.watch_ends_at && now.toISOString() < care.watch_ends_at) {
+    throw new ContentError(
+      `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
+      409,
+    );
+  }
+  // One calendar waiting at a time: a second "plan" (or "Propose this" on
+  // the simulator, twice) is the same proposal, not a duplicate in the queue.
+  const waiting = await db
+    .select({ id: proposals.id, action: proposals.action })
+    .from(proposals)
+    .where(
+      and(
+        eq(proposals.profile_id, profileId),
+        eq(proposals.module, "content"),
+        eq(proposals.status, "pending"),
+      ),
+    );
+  if (waiting.some((p) => isPlanAction(p.action))) {
+    throw new ContentError(
+      "a content calendar is already waiting in your queue — approve or decline that one first",
+      409,
+    );
+  }
 
   const allChannels = await listChannels(profileId);
   const plannable = allChannels.filter((c) => c.type !== null && c.type in CADENCE);
