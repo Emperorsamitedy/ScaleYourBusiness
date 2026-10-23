@@ -24,7 +24,7 @@ import {
   supportSettings,
   supportTickets,
 } from "../../db/schema";
-import { addContact, emailHash } from "../crm/contacts";
+import { addContact, emailHash, eraseContact } from "../crm/contacts";
 import { openQuestions } from "../crm/faq";
 import { ensureSupportSettings, rotateInboundToken } from "../crm/support-settings";
 import { bootstrapIntake } from "../intake/service";
@@ -60,7 +60,7 @@ import {
 } from "./inbound";
 import type { ReceivedFixture } from "./resend-fixtures";
 import { fakeResendReceiving, receivedEmail, receivedEvent } from "./resend-fixtures";
-import { suppressionHash } from "./support-contact";
+import { lockSupportWrites, suppressionHash } from "./support-contact";
 
 const DOMAIN = "inbound.syb.test";
 const SECRET = `whsec_${Buffer.from("p4-09-test-secret-material-32by").toString("base64")}`;
@@ -672,6 +672,102 @@ describe("P4-09 — contacts under rule 19", () => {
   it("the support tier's suppression hash is lib/crm's, character for character", () => {
     for (const e of ["a@b.example", "  Mixed.Case@Example.COM "])
       expect(suppressionHash(e)).toBe(emailHash(e));
+  });
+});
+
+describe("review #19 — an email racing an erasure never survives it with its PII", () => {
+  /** Resolves once `ready` is called; `hold` keeps a transaction open until `release`. */
+  function gate() {
+    let open!: () => void;
+    const opened = new Promise<void>((r) => (open = r));
+    return { open, opened };
+  }
+
+  it("an email filed while the erasure waits is seen by it and erased", async () => {
+    const b = await business();
+    const address = "racing.p409@example.com";
+    const c = await addContact(b.account_id, {
+      email: address,
+      consent: { status: "unsure", source: "fixture" },
+    });
+    const locked = gate();
+    const release = gate();
+    // An inbound filing in flight: the lock taken, its ticket and message written, not yet committed.
+    let ticketId = "";
+    const filing = db.transaction(async (tx) => {
+      await lockSupportWrites(tx, b.account_id);
+      const [t] = await tx
+        .insert(supportTickets)
+        .values({
+          profile_id: b.profile_id,
+          account_id: b.account_id,
+          channel: "email",
+          reason: "emailed",
+          summary: "mid-erasure",
+          thread_token: newThreadToken(),
+        })
+        .returning({ id: supportTickets.id });
+      ticketId = t!.id;
+      await tx.insert(supportEmailMessages).values({
+        ticket_id: t!.id,
+        profile_id: b.profile_id,
+        account_id: b.account_id,
+        direction: "inbound",
+        provider_id: crypto.randomUUID(),
+        from_address: address,
+        body: "my order number is 2231",
+      });
+      locked.open();
+      await release.opened;
+    });
+    await locked.opened;
+    const erasing = eraseContact(b.account_id, c.id);
+    // The erasure is now waiting on the lock; let the filing commit.
+    await new Promise((r) => setTimeout(r, 150));
+    release.open();
+    await filing;
+    await erasing;
+    expect(await db.select().from(supportTickets).where(eq(supportTickets.id, ticketId))).toEqual(
+      [],
+    );
+    expect(
+      await db
+        .select()
+        .from(supportEmailMessages)
+        .where(eq(supportEmailMessages.from_address, address)),
+    ).toEqual([]);
+  });
+
+  it("an email arriving while the erasure is in flight is filed after it: suppressed, no contact recreated", async () => {
+    const b = await business();
+    const address = "racing2.p409@example.com";
+    const locked = gate();
+    const release = gate();
+    // An erasure in flight: the lock taken, its suppression written, not yet committed.
+    const erasure = db.transaction(async (tx) => {
+      await lockSupportWrites(tx, b.account_id);
+      await tx
+        .insert(contactSuppressions)
+        .values({ account_id: b.account_id, email_hash: emailHash(address), reason: "erasure" });
+      locked.open();
+      await release.opened;
+    });
+    await locked.opened;
+    const filing = receiveInboundEmail(
+      normalised(fixture({ to: [b.address], from: `Racer <${address}>` })),
+      DOMAIN,
+    );
+    await new Promise((r) => setTimeout(r, 150));
+    release.open();
+    await erasure;
+    const out = await filing;
+    if (out.kind !== "filed") throw new Error("not filed");
+    expect(await db.select().from(contacts).where(eq(contacts.email, address))).toHaveLength(0);
+    const [ticket] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, out.ticket_id));
+    expect(ticket).toMatchObject({ contact_id: null, suppressed_address: true });
   });
 });
 

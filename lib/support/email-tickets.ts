@@ -38,7 +38,7 @@ import {
   messageIdsIn,
   normaliseMessageId,
 } from "./inbound";
-import { contactForSupport, emailedSource } from "./support-contact";
+import { contactForSupport, emailedSource, lockSupportWrites } from "./support-contact";
 
 export type EmailMessageRow = typeof supportEmailMessages.$inferSelect;
 
@@ -255,18 +255,33 @@ export async function receiveInboundEmail(
     ticket = row?.ticket ?? null;
   }
 
-  const contact = await contactForSupport({
-    accountId: settings.account_id,
-    email: email.from.address,
-    name: email.from.name,
-    source: emailedSource(email.received_at),
-    at: email.received_at,
-  });
-  const contactId = contact.kind === "suppressed" ? null : contact.contact_id;
-  const suppressed = contact.kind === "suppressed";
-
   try {
     const result = await db.transaction(async (tx) => {
+      // Serialised against an erasure of this sender (review #19, see
+      // lockSupportWrites): the contact, its suppression and the thread are
+      // all read after the lock, so a just-committed erasure is honoured.
+      await lockSupportWrites(tx, settings.account_id);
+      if (ticket) {
+        const [still] = await tx
+          .select({ id: supportTickets.id })
+          .from(supportTickets)
+          .where(eq(supportTickets.id, ticket.id));
+        if (!still) ticket = null; // erased a moment ago: this mail opens a ticket of its own
+      }
+      const contact = await contactForSupport(
+        {
+          accountId: settings.account_id,
+          email: email.from.address,
+          name: email.from.name,
+          source: emailedSource(email.received_at),
+          at: email.received_at,
+          linkExisting: true,
+        },
+        tx,
+      );
+      const contactId =
+        contact.kind === "existing" || contact.kind === "created" ? contact.contact_id : null;
+      const suppressed = contact.kind === "suppressed";
       let ticketId: string;
       let created = false;
       if (ticket) {
@@ -326,7 +341,7 @@ export async function receiveInboundEmail(
         .returning({ id: supportEmailMessages.id });
       // The same delivery, racing itself: roll the ticket back with it.
       if (inserted.length === 0) throw new Duplicate();
-      return { ticketId, created };
+      return { ticketId, created, contact: contact.kind };
     });
     console.log(
       JSON.stringify({
@@ -335,7 +350,7 @@ export async function receiveInboundEmail(
         profile_id: settings.profile_id,
         ticket_id: result.ticketId,
         created: result.created,
-        contact: contact.kind,
+        contact: result.contact,
         truncated: email.truncated,
       }),
     );
