@@ -25,6 +25,7 @@ import { contentQueue, produceFromProposal } from "../../../lib/content/produce"
 import { isPublishProposal, publishNotes } from "../../../lib/content/publish";
 import { withdrawItem } from "../../../lib/content/publishing";
 import { proposeShotList } from "../../../lib/content/shotlist";
+import { contentWatchUntil } from "../../../lib/content/watch";
 import { ProposalError } from "../../../lib/proposals/service";
 import { postOutcomes } from "../../../lib/trust/post-readback";
 
@@ -73,6 +74,8 @@ export async function GET(): Promise<NextResponse> {
       publish_notes: await publishNotes(profileId, items),
       // The Session D real-write gate (lib/env.ts): off until the two-week test completes.
       real_writes: sessionDRealWritesOn(),
+      // Rule 15: while the watch runs, nothing is proposed — the screen says so up front.
+      watching_until: await contentWatchUntil(profileId),
       // P3-23b: each published item's own measured figures and verdict.
       performance: await postOutcomes(profileId),
       // A publish proposal publishes one finished item; it never produces.

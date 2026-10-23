@@ -15,7 +15,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { channels, offers, proposals } from "../../db/schema";
-import { careState } from "../care/day-zero";
 import { readCurrentField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/hard-limits";
@@ -27,6 +26,8 @@ import { enumCode } from "../core/enum-value";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 import type { SimulationAttachment } from "../simulate/scenario";
 import { attachSimulation } from "../simulate/scenario";
+// watch.ts imports ContentError back from here; both are used only at call time, so the cycle is safe.
+import { assertNotWatching } from "./watch";
 
 export class ContentError extends Error {
   readonly status: number;
@@ -136,13 +137,7 @@ export async function proposeContentPlan(
 
   // The watch blocks proposing, as for every other generator (rule 15;
   // review 2026-10-23, #21): a watched business gets no calendar yet.
-  const care = await careState(profileId);
-  if (care?.watch_ends_at && now.toISOString() < care.watch_ends_at) {
-    throw new ContentError(
-      `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
-      409,
-    );
-  }
+  await assertNotWatching(profileId, now);
   // One calendar waiting at a time: a second "plan" (or "Propose this" on
   // the simulator, twice) is the same proposal, not a duplicate in the queue.
   const waiting = await db

@@ -90,6 +90,8 @@ type State =
       publishNotes: Record<string, string>;
       /** The Session D real-write gate: false until the two-week test completes. */
       realWrites: boolean;
+      /** YYYY-MM-DD the watch ends, while it runs: nothing is proposed before then (rule 15). */
+      watchingUntil: string | null;
       /** P3-23b: item id → its measured figures and verdict, published items only. */
       performance: Record<string, PerformanceLike>;
       /** The item whose Withdraw is waiting on a second click. */
@@ -138,6 +140,16 @@ function todayIso(): string {
 /** The id that produced a "channels.<id>.type" style key, if any. */
 const EVIDENCE = /^(channels|goals)\.([0-9a-f-]{36})\.(\w+)$/;
 
+/** "1 November" from YYYY-MM-DD, read as a calendar day (no time zone shift). */
+function watchDay(day: string): string {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y!, m! - 1, d!)).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  });
+}
+
 export function ContentScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
   const detailRef = useRef<HTMLElement | null>(null);
@@ -152,6 +164,7 @@ export function ContentScreen() {
       producible: Producible[];
       publish_notes?: Record<string, string>;
       real_writes?: boolean;
+      watching_until?: string | null;
       performance?: Record<string, PerformanceLike>;
     };
     const goals = (await goalsRes.json()) as { goals: Goal[]; suggestions: Suggestion[] };
@@ -163,6 +176,7 @@ export function ContentScreen() {
       producible: content.producible,
       publishNotes: content.publish_notes ?? {},
       realWrites: content.real_writes === true,
+      watchingUntil: content.watching_until ?? null,
       performance: content.performance ?? {},
       confirmWithdraw: null,
       busy: false,
@@ -362,8 +376,9 @@ export function ContentScreen() {
         >
           {s.items.length === 0 ? (
             <p className="ct-empty">
-              The queue is empty. Propose a calendar below — once you approve it in the queue, I
-              draft it here.
+              {s.watchingUntil
+                ? `The queue is empty. Proposals start once the watch ends on ${watchDay(s.watchingUntil)}.`
+                : "The queue is empty. Propose a calendar below — once you approve it in the queue, I draft it here."}
             </p>
           ) : (
             <table className="rt ct-table">
@@ -635,11 +650,18 @@ export function ContentScreen() {
             Both of these create a proposal in your <Link href="/proposals">approval queue</Link>.
             Not a single word is drafted before you say yes there.
           </p>
+          {s.watchingUntil && (
+            <p className="ct-prose">
+              Not yet: I&rsquo;m watching the business until {watchDay(s.watchingUntil)}, and I
+              propose nothing before the watch ends. Your goals above still shape what I&rsquo;ll
+              propose then.
+            </p>
+          )}
           <div className="ct-actions">
             <button
               type="button"
               className="prop-btn"
-              disabled={s.busy}
+              disabled={s.busy || s.watchingUntil !== null}
               onClick={() =>
                 void act({ action: "plan" }, "The calendar is in your approval queue.")
               }
@@ -649,7 +671,7 @@ export function ContentScreen() {
             <button
               type="button"
               className="prop-btn"
-              disabled={s.busy}
+              disabled={s.busy || s.watchingUntil !== null}
               onClick={() =>
                 void act({ action: "shotlist" }, "The shot list is in your approval queue.")
               }

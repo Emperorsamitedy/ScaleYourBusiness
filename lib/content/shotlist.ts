@@ -23,6 +23,7 @@ import { listGoals } from "./goals";
 import { evidenceAssumption, performanceEvidence } from "./performance";
 import { listChannels } from "./plan";
 import { ContentError } from "./plan";
+import { assertNotWatching } from "./watch";
 
 export interface Shot {
   order: number;
@@ -43,6 +44,7 @@ export async function proposeShotList(
   args: { now?: Date; limitLlm?: LimitLlm } = {},
 ): Promise<ProposalRow> {
   const now = args.now ?? new Date();
+  await assertNotWatching(profileId, now);
 
   const spine = await db
     .select({ id: offers.id })
