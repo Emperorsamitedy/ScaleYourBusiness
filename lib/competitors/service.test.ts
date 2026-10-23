@@ -420,6 +420,34 @@ describe("when reads run", () => {
     await readOneNow(profileId, id, { ...deps, now: clock("2026-10-12T14:00:00Z") });
   });
 
+  it("finding 22 (review 2026-10-23): two clicks at once read once, the other is refused", async () => {
+    const id = await novaWith(false);
+    const web = fakeWeb({ "https://nova.example/": fixture("salon-pricelist") });
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((r) => (release = r));
+    const slow: PageFetcher = async (url) => {
+      await gate;
+      return web.fetcher(url);
+    };
+    const deps = {
+      fetcher: slow,
+      llm: noModel,
+      usage: noUsage,
+      now: clock("2026-10-12T07:00:00Z"),
+    };
+    const first = readOneNow(profileId, id, deps);
+    // The first click holds the read; give it time to take the lock.
+    await new Promise((r) => setTimeout(r, 200));
+    const second = readOneNow(profileId, id, deps);
+    await expect(second).rejects.toThrow(/reading their pages right now/);
+    release();
+    await expect(first).resolves.toMatchObject({ competitor_id: id });
+    // And after it finished, the cooldown — checked inside the lock — holds.
+    await expect(readOneNow(profileId, id, deps)).rejects.toThrow(/last six hours/);
+    // Robots and the page, once: the refused click fetched nothing.
+    expect(web.asked).toEqual(["https://nova.example/robots.txt", "https://nova.example/"]);
+  });
+
   it("re-reads weekly, skipping what was read in the last six days", async () => {
     await novaWith(false);
     const web = fakeWeb({ "https://nova.example/": fixture("salon-pricelist") });
@@ -430,6 +458,61 @@ describe("when reads run", () => {
     expect(b.competitors_read).toBe(0);
     const c = await runCompetitorReads({ ...deps, now: clock("2026-10-19T07:00:00Z") });
     expect(c.competitors_read).toBe(1);
+  });
+
+  it("finding 10 (review 2026-10-23): a slow business can't starve the rest", async () => {
+    // Business A lists two sites that answer only after 100 s each; B is quick.
+    const slowProfile = profileId;
+    const slow1 = await addCompetitor(slowProfile, { name: "Slow One", url: "slow1.example" });
+    const slow2 = await addCompetitor(slowProfile, { name: "Slow Two", url: "slow2.example" });
+    const [account] = await db.insert(accounts).values({ reporting_currency: "EUR" }).returning();
+    const [quick] = await db
+      .insert(businessProfiles)
+      .values({ account_id: account!.id, schema_version: "1.0.0" })
+      .returning();
+    accountIds.push(account!.id);
+    profileIds.push(quick!.id);
+    const quickId = await addCompetitor(quick!.id, { name: "Quick", url: "quick.example" });
+
+    // A fake clock the slow sites advance: no real waiting in the test.
+    let t = 0;
+    const web = fakeWeb({
+      "https://slow1.example/": fixture("salon-pricelist"),
+      "https://slow2.example/": fixture("salon-pricelist"),
+      "https://quick.example/": fixture("salon-pricelist"),
+    });
+    const fetcher: PageFetcher = (url) => {
+      t += url.includes("slow") ? 100_000 : 10;
+      return web.fetcher(url);
+    };
+    const deps = {
+      fetcher,
+      llm: noModel,
+      usage: noUsage,
+      clock: () => t,
+      deadlineMs: 240_000,
+      profileIds: [slowProfile, quick!.id],
+    };
+
+    const first = await runCompetitorReads({ ...deps, now: clock("2026-10-12T07:00:00Z") });
+    expect(first.stopped_early).toBe(true);
+    // No request starts after the deadline: at most the one in flight overshoots it.
+    expect(t).toBeLessThanOrEqual(240_000 + 100_000);
+    expect(web.asked.filter((u) => u.includes("slow2"))).not.toContain("https://slow2.example/");
+    // What finished was written as it finished; the page it had no time for says so.
+    const slow = await loadCompetitors(slowProfile);
+    expect(slow.find((c) => c.id === slow1)?.offers?.offers.length).toBeGreaterThan(0);
+    expect(slow.find((c) => c.id === slow2)?.status?.pages[0]?.reason).toBe(
+      "the weekly run ran out of time before this page",
+    );
+
+    // Next week the business that wasn't reached goes first, and is read.
+    t = 0;
+    const second = await runCompetitorReads({ ...deps, now: clock("2026-10-19T07:00:00Z") });
+    expect(second.competitors_read).toBeGreaterThanOrEqual(1);
+    const [quickRead] = await loadCompetitors(quick!.id);
+    expect(quickRead?.id).toBe(quickId);
+    expect(quickRead?.status?.pages[0]?.outcome).toBe("read");
   });
 });
 

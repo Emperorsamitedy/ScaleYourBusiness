@@ -1,7 +1,15 @@
 // Feature 35 — robots.txt, RFC 9309. Pure.
 
 import { describe, expect, it } from "vitest";
-import { ALLOW_ALL, DISALLOW_ALL, parseRobots, robotsAllows, robotsFromResponse } from "./robots";
+import {
+  ALLOW_ALL,
+  DISALLOW_ALL,
+  MAX_WILDCARDS_PER_RULE,
+  parseRobots,
+  robotsAllows,
+  robotsFromResponse,
+  robotsPatternMatches,
+} from "./robots";
 
 const u = (path: string) => new URL(`https://studionova.example${path}`);
 
@@ -40,5 +48,34 @@ describe("robots.txt", () => {
     expect(robotsFromResponse(503, "")).toBe(DISALLOW_ALL);
     expect(robotsAllows(DISALLOW_ALL, u("/"))).toBe(false);
     expect(robotsAllows(ALLOW_ALL, u("/anything"))).toBe(true);
+  });
+
+  it("matches wildcards exactly: pieces in order, $ only at the end", () => {
+    expect(robotsPatternMatches("/a*b*c", "/axxbyyc")).toBe(true);
+    expect(robotsPatternMatches("/a*b*c", "/axxcyyb")).toBe(false);
+    expect(robotsPatternMatches("/a*c$", "/abcbc")).toBe(true);
+    expect(robotsPatternMatches("/a*c$", "/abcb")).toBe(false);
+    expect(robotsPatternMatches("/ab*b$", "/ab")).toBe(false); // the pieces may not overlap
+    expect(robotsPatternMatches("/ab*b$", "/abb")).toBe(true);
+    expect(robotsPatternMatches("/x$", "/x")).toBe(true);
+    expect(robotsPatternMatches("/x$", "/xy")).toBe(false);
+    expect(robotsPatternMatches("*", "/anything")).toBe(true);
+    expect(robotsPatternMatches("/p", "/q")).toBe(false);
+  });
+
+  it("finding 2 (review 2026-10-23): a hostile pattern finishes at once and is ignored past the cap", () => {
+    const hostile = `/${"*a".repeat(30)}*b`;
+    const path = `/${"a".repeat(5_000)}`;
+    const rules = parseRobots(`User-agent: *\nDisallow: ${hostile}\nDisallow: /*a*a*a*a*a*b\n`);
+    const started = performance.now();
+    expect(robotsAllows(rules, u(path))).toBe(true); // neither rule matches: there is no "b"
+    expect(robotsPatternMatches("/*a*a*a*a*a*a*a*a*a*b", path)).toBe(false);
+    expect(performance.now() - started).toBeLessThan(50);
+    // More stars than any real file uses: the rule is not run at all.
+    const many = `/${"*x".repeat(MAX_WILDCARDS_PER_RULE + 1)}`;
+    expect(robotsPatternMatches(many, `/${"x".repeat(20)}`)).toBe(false);
+    expect(
+      robotsPatternMatches(`/${"*x".repeat(MAX_WILDCARDS_PER_RULE)}`, `/${"x".repeat(20)}`),
+    ).toBe(true);
   });
 });

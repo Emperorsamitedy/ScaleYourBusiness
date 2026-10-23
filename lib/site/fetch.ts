@@ -52,6 +52,15 @@ const MAX_BYTES = 1_500_000; // a marketing page, not a data dump
 const MAX_REDIRECTS = 3;
 export const FETCH_TIMEOUT_MS = 15_000;
 
+/**
+ * Pure: whether a URL names a standard web port. A user-supplied address
+ * on :8080, :6379 or :22 is an internal service, not a public page
+ * (review 2026-10-23, finding 20); every hop, redirects included, faces it.
+ */
+export function standardWebPort(url: URL): boolean {
+  return url.port === "" || url.port === "80" || url.port === "443";
+}
+
 function privateV4(ip: string): boolean {
   const [a, b] = ip.split(".").map(Number);
   if (a === 10 || a === 127 || a === 0) return true;
@@ -69,23 +78,71 @@ function privateV4(ip: string): boolean {
 }
 
 /**
- * An IPv6 address that embeds an IPv4 one (v4-mapped ::ffff:a.b.c.d,
- * its hex spelling ::ffff:xxxx:yyyy, or the deprecated v4-compatible
- * ::a.b.c.d) yields that IPv4; everything else yields null. The
- * embedded address must then face the IPv4 rules — this is the
- * review's finding 1.
+ * Pure: an IPv6 address as its eight 16-bit groups, whatever its spelling
+ * ("::7f00:1", "0:0:0:0:0:0:127.0.0.1", "::ffff:10.0.0.1"), or null.
+ */
+export function v6Groups(ip: string): number[] | null {
+  let s = ip.toLowerCase().replace(/^\[|\]$/g, "");
+  if (isIP(s) !== 6) return null;
+  s = s.replace(/%.*$/, ""); // a zone id names an interface, not an address
+  const dotted = /(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(s);
+  if (dotted) {
+    const [a, b, c, d] = dotted.slice(1).map(Number) as [number, number, number, number];
+    s = `${s.slice(0, dotted.index)}${((a << 8) | b).toString(16)}:${((c << 8) | d).toString(16)}`;
+  }
+  const halves = s.split("::");
+  if (halves.length > 2) return null;
+  const head = halves[0] === "" || halves[0] === undefined ? [] : halves[0].split(":");
+  const tail = halves.length === 2 && halves[1] !== "" ? (halves[1] ?? "").split(":") : [];
+  const fill = halves.length === 2 ? 8 - head.length - tail.length : 0;
+  if (fill < 0) return null;
+  const groups = [...head, ...Array<string>(fill).fill("0"), ...tail].map((g) =>
+    Number.parseInt(g, 16),
+  );
+  if (groups.length !== 8 || groups.some((g) => !Number.isInteger(g) || g < 0 || g > 0xffff)) {
+    return null;
+  }
+  return groups;
+}
+
+const v4Of = (hi: number, lo: number): string => `${hi >> 8}.${hi & 0xff}.${lo >> 8}.${lo & 0xff}`;
+
+/**
+ * An IPv6 address that embeds an IPv4 one (v4-mapped ::ffff:a.b.c.d in
+ * any spelling, the translated ::ffff:0:a.b.c.d, or the deprecated
+ * v4-compatible ::a.b.c.d, also in its hex spelling ::7f00:1) yields that
+ * IPv4; everything else yields null — "::" and "::1" are themselves, not
+ * wrapped IPv4. The embedded address must then face the IPv4 rules — this
+ * is the 2026-09-26 review's finding 1, and the hex v4-compatible spelling
+ * the 2026-10-23 review's finding 20.
  */
 export function embeddedV4(ip: string): string | null {
-  const lower = ip.toLowerCase();
-  const dotted = /^::(?:ffff:)?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/.exec(lower);
-  if (dotted?.[1] && isIP(dotted[1]) === 4) return dotted[1];
-  const hex = /^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/.exec(lower);
-  if (hex?.[1] && hex[2]) {
-    const hi = Number.parseInt(hex[1], 16);
-    const lo = Number.parseInt(hex[2], 16);
-    return `${hi >> 8}.${hi & 0xff}.${lo >> 8}.${lo & 0xff}`;
+  const g = v6Groups(ip);
+  if (!g) return null;
+  const [g0, g1, g2, g3, g4, g5, g6, g7] = g as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
+  if (g0 !== 0 || g1 !== 0 || g2 !== 0) return null;
+  if (g3 === 0 && g4 === 0 && g5 === 0xffff) return v4Of(g6, g7); // ::ffff:0:0/96, mapped
+  if (g3 === 0 && g4 === 0xffff && g5 === 0) return v4Of(g6, g7); // ::ffff:0:0:0/96, translated
+  if (g3 === 0 && g4 === 0 && g5 === 0) {
+    if (g6 === 0 && g7 <= 1) return null; // "::" and "::1"
+    return v4Of(g6, g7); // ::/96, v4-compatible
   }
   return null;
+}
+
+/** Pure: whether an IPv6 address lies in ::/96, the deprecated v4-compatible block. */
+function inV4CompatibleBlock(ip: string): boolean {
+  const g = v6Groups(ip);
+  return g !== null && g.slice(0, 6).every((x) => x === 0);
 }
 
 function privateV6(ip: string): boolean {
@@ -108,6 +165,9 @@ export function isPrivateAddress(ip: string): boolean {
   const family = isIP(ip);
   if (family === 4) return privateV4(ip);
   if (family === 6) {
+    // ::/96 is deprecated (RFC 4291 §2.5.5.1) and never a real site:
+    // private whole, whatever IPv4 it seems to wrap.
+    if (inV4CompatibleBlock(ip)) return true;
     const v4 = embeddedV4(ip);
     if (v4 !== null) return privateV4(v4);
     return privateV6(ip);
@@ -235,6 +295,9 @@ async function guardedFetch(
   const started = Date.now();
   let current = url;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    if (!standardWebPort(current)) {
+      throw new SiteFetchError("only http(s) on the standard ports 80 and 443 can be read");
+    }
     // Resolve once, vet, and pin the connection to exactly those
     // addresses. TLS still validates against the hostname.
     const vetted = await vetAddresses(current);

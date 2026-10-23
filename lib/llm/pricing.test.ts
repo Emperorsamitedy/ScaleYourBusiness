@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildCallRecord, summarizeCalls } from "./cost-log";
-import { costEur, UnknownModelError, USD_TO_EUR } from "./pricing";
+import { costEur, UnknownModelError, USD_TO_EUR, webSearchCostEur } from "./pricing";
 
 describe("costEur", () => {
   it("prices uncached input, output, cache writes and cache reads distinctly", () => {
@@ -73,5 +73,23 @@ describe("diagnosis model pricing (Session E)", () => {
       cache_read_input_tokens: 0,
     });
     expect(eur).toBeCloseTo(30 * 0.92, 6);
+  });
+});
+
+describe("web search fees (review 2026-10-23, finding 9)", () => {
+  const usage = {
+    input_tokens: 0,
+    output_tokens: 0,
+    cache_creation_input_tokens: 0,
+    cache_read_input_tokens: 0,
+  };
+  it("adds $10 per 1,000 searches to the call's cost", () => {
+    const base = { workload: "research_search", account_id: "a", model: "claude-haiku-4-5" };
+    const none = buildCallRecord({ ...base, duration_ms: 1, usage });
+    const three = buildCallRecord({ ...base, duration_ms: 1, usage, web_search_requests: 3 });
+    expect(none.cost_eur).toBe(0);
+    expect(three.cost_eur).toBeCloseTo(0.03 * USD_TO_EUR, 9);
+    expect(webSearchCostEur(-1)).toBe(0);
+    expect(webSearchCostEur(Number.NaN)).toBe(0);
   });
 });

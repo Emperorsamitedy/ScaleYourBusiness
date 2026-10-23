@@ -98,6 +98,44 @@ describe("robots.txt is honoured", () => {
   });
 });
 
+describe("finding 20 (review 2026-10-23): robots.txt judges the page a redirect lands on", () => {
+  const robots = {
+    html: "User-agent: *\nDisallow: /members\n",
+    headers: { "content-type": "text/plain" },
+  };
+
+  it("refuses a same-origin redirect into a disallowed path", async () => {
+    const web = fakeWeb({
+      "https://nova.example/robots.txt": robots,
+      "https://nova.example/prices": {
+        url: "https://nova.example/members/prices",
+        html: PRICELIST,
+      },
+    });
+    const out = await readListedPages({
+      urls: ["https://nova.example/prices"],
+      fetcher: web.fetcher,
+      now,
+    });
+    expect(out[0]?.outcome).toBe("refused");
+    expect(out[0]?.reason).toBe("it redirects to a page their robots.txt asks robots not to read");
+    expect(out[0]?.extract).toBeNull();
+  });
+
+  it("still reads a same-origin redirect into an allowed path", async () => {
+    const web = fakeWeb({
+      "https://nova.example/robots.txt": robots,
+      "https://nova.example/prices": { url: "https://nova.example/price-list", html: PRICELIST },
+    });
+    const out = await readListedPages({
+      urls: ["https://nova.example/prices"],
+      fetcher: web.fetcher,
+      now,
+    });
+    expect(out[0]?.outcome).toBe("read");
+  });
+});
+
 describe("never behind a login", () => {
   it("refuses a sign-in or account address before fetching it", async () => {
     const web = fakeWeb({});
@@ -167,11 +205,19 @@ describe("SSRF: every request goes through the hardened helper", () => {
     "http://[::1]/",
     "http://[::ffff:169.254.169.254]/",
     "http://[::ffff:a9fe:a9fe]/",
-    "http://localhost:5433/",
   ])("refuses %s before connecting", async (url) => {
     await expect(competitorFetcher(url)).rejects.toThrow(SiteFetchError);
     await expect(competitorFetcher(url)).rejects.toThrow(/private network/);
   });
+
+  it.each(["http://localhost:5433/", "https://nova.example:8080/", "http://[::127.0.0.1]:6379/"])(
+    "refuses %s for its port before resolving anything (finding 20)",
+    async (url) => {
+      await expect(competitorFetcher(url)).rejects.toThrow(/ports 80 and 443/);
+      const out = await readListedPages({ urls: [url], fetcher: competitorFetcher, now });
+      expect(out[0]).toMatchObject({ outcome: "refused", extract: null });
+    },
+  );
 
   it("refuses credentials and non-web schemes", async () => {
     await expect(competitorFetcher("https://user:pw@nova.example/")).rejects.toThrow(/credentials/);

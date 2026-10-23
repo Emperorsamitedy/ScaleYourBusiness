@@ -18,6 +18,7 @@ import { money } from "../core/money";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { withAdvisoryLock } from "../../db/advisory-lock";
 import type { SeenOffer } from "./extract";
 import { MAX_OFFERS_PER_PAGE, offerKey, parseAmount } from "./extract";
 
@@ -188,6 +189,46 @@ export function buildPricePrompt(pages: readonly ModelPage[]): string {
     .join("\n\n");
 }
 
+/**
+ * Active ISO 4217 alphabetic codes (the List One of 2026). Anything else
+ * the model calls a currency — "VAT", "PCS", "MIN" — is not one (review
+ * 2026-10-23, finding 13).
+ */
+const ISO_4217: ReadonlySet<string> = new Set(
+  (
+    "AED AFN ALL AMD ANG AOA ARS AUD AWG AZN BAM BBD BDT BGN BHD BIF BMD BND BOB BRL BSD BTN " +
+    "BWP BYN BZD CAD CDF CHF CLP CNY COP CRC CUP CVE CZK DJF DKK DOP DZD EGP ERN ETB EUR FJD " +
+    "FKP GBP GEL GHS GIP GMD GNF GTQ GYD HKD HNL HTG HUF IDR ILS INR IQD IRR ISK JMD JOD JPY " +
+    "KES KGS KHR KMF KPW KRW KWD KYD KZT LAK LBP LKR LRD LSL LYD MAD MDL MGA MKD MMK MNT MOP " +
+    "MRU MUR MVR MWK MXN MYR MZN NAD NGN NIO NOK NPR NZD OMR PAB PEN PGK PHP PKR PLN PYG QAR " +
+    "RON RSD RUB RWF SAR SBD SCR SDG SEK SGD SHP SLE SOS SRD SSP STN SVC SYP SZL THB TJS TMT " +
+    "TND TOP TRY TTD TWD TZS UAH UGX USD UYU UZS VES VND VUV WST XAF XCD XCG XOF XPF YER ZAR " +
+    "ZMW ZWG"
+  ).split(" "),
+);
+
+/** Pure: whether a code is an active ISO 4217 currency. */
+export function isIsoCurrency(code: string): boolean {
+  return ISO_4217.has(code);
+}
+
+/**
+ * Pure: the currency of one offer the model returned. A code it gives must
+ * be ISO 4217 AND named by the page itself (a symbol the parser read, or
+ * the code written out); with no code, the page's one currency, if it
+ * names exactly one. Null drops the offer.
+ */
+export function answerCurrency(
+  raw: unknown,
+  page: Pick<ModelPage, "text" | "currencies">,
+): string | null {
+  const given = typeof raw === "string" ? raw.trim().toUpperCase() : "";
+  if (given === "") return page.currencies.length === 1 ? page.currencies[0]! : null;
+  if (!/^[A-Z]{3}$/.test(given) || !isIsoCurrency(given)) return null;
+  if (page.currencies.includes(given)) return given;
+  return new RegExp(`(^|[^A-Za-z])${given}([^A-Za-z]|$)`).test(page.text) ? given : null;
+}
+
 const squash = (s: string): string => s.toLowerCase().replace(/\s+/g, " ");
 const digitsOf = (s: string): string => s.replace(/[^\d]/g, "");
 
@@ -223,12 +264,7 @@ export function parsePriceAnswer(
       if (typeof item.name !== "string" || typeof item.price !== "string") continue;
       const name = item.name.replace(/\s+/g, " ").trim().slice(0, 90);
       if (name === "" || !pageText.includes(squash(name))) continue;
-      const code =
-        typeof item.currency === "string" && /^[A-Z]{3}$/.test(item.currency.trim())
-          ? item.currency.trim()
-          : page.currencies.length === 1
-            ? page.currencies[0]!
-            : null;
+      const code = answerCurrency(item.currency, page);
       if (code === null) continue;
       const digits = digitsOf(item.price);
       if (digits === "" || !pageDigits.includes(digits)) continue;
@@ -270,28 +306,43 @@ export async function readWithModel(args: {
 }): Promise<ModelRead> {
   const result: ModelRead = { byUrl: new Map(), skipped: [], calls: [] };
   if (args.pages.length === 0) return result;
-  const usage = await (args.usage ?? monthlyUsage)(args.accountId, args.now);
-  const refusal = capRefusal(usage, args.budget);
-  if (refusal !== null) {
-    result.skipped = args.pages.map((p) => ({ url: p.url, reason: refusal }));
-    return result;
-  }
-  const batch = args.pages.slice(0, MODEL_CAPS.max_pages_per_call);
-  for (const p of args.pages.slice(MODEL_CAPS.max_pages_per_call)) {
-    result.skipped.push({ url: p.url, reason: "more pages waited than one model read takes" });
-  }
-  args.budget.calls++;
-  try {
-    const { text, calls } = await args.llm({
-      system: PRICE_SYSTEM,
-      user: buildPricePrompt(batch),
-      accountId: args.accountId,
-    });
-    result.calls = calls;
-    result.byUrl = parsePriceAnswer(text, batch);
-  } catch (error) {
-    const reason = `the model read failed: ${error instanceof Error ? error.message : String(error)}`;
-    for (const p of batch) result.skipped.push({ url: p.url, reason: reason.slice(0, 160) });
-  }
-  return result;
+  // The count and the call it permits are one step (review 2026-10-23,
+  // finding 22): an advisory lock per account, held until the call's
+  // llm_calls row is written, so two reads at once can't both see "4 of 5
+  // used". The second is refused, not queued; its pages wait for next time.
+  return withAdvisoryLock(
+    `competitor_model:${args.accountId}`,
+    async () => {
+      const usage = await (args.usage ?? monthlyUsage)(args.accountId, args.now);
+      const refusal = capRefusal(usage, args.budget);
+      if (refusal !== null) {
+        result.skipped = args.pages.map((p) => ({ url: p.url, reason: refusal }));
+        return result;
+      }
+      const batch = args.pages.slice(0, MODEL_CAPS.max_pages_per_call);
+      for (const p of args.pages.slice(MODEL_CAPS.max_pages_per_call)) {
+        result.skipped.push({ url: p.url, reason: "more pages waited than one model read takes" });
+      }
+      args.budget.calls++;
+      try {
+        const { text, calls } = await args.llm({
+          system: PRICE_SYSTEM,
+          user: buildPricePrompt(batch),
+          accountId: args.accountId,
+        });
+        result.calls = calls;
+        result.byUrl = parsePriceAnswer(text, batch);
+      } catch (error) {
+        const reason = `the model read failed: ${error instanceof Error ? error.message : String(error)}`;
+        for (const p of batch) result.skipped.push({ url: p.url, reason: reason.slice(0, 160) });
+      }
+      return result;
+    },
+    () => {
+      result.skipped = args.pages.map((p) => ({ url: p.url, reason: MODEL_BUSY_REASON }));
+      return result;
+    },
+  );
 }
+
+export const MODEL_BUSY_REASON = "another model read for this business was running";
