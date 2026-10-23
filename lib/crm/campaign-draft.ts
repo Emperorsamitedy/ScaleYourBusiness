@@ -18,7 +18,7 @@
 // postal address under CAN-SPAM or CASL, or no known regime at all, is
 // named on the draft, not discovered at the send.
 
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, contentItems, proposals } from "../../db/schema";
 import type { DraftLlm } from "../content/draft";
@@ -103,12 +103,17 @@ export function campaignCompliance(args: {
   return { regimes: lookup.regimes.map((r) => r.id), refused: null, gaps, at_send, ask };
 }
 
-/** The draft for a campaign proposal, if there is one. */
+/**
+ * The draft for a campaign proposal, if there is one. Ordered, so every
+ * reader — the screen that shows the body's sha, the approval, the send —
+ * names the same row even if an older double draft exists (review 2026-10-23, #22).
+ */
 export async function campaignDraftFor(proposalId: string): Promise<CampaignDraftRow | null> {
   const [row] = await db
     .select()
     .from(contentItems)
     .where(and(eq(contentItems.proposal_id, proposalId), eq(contentItems.kind, "email")))
+    .orderBy(asc(contentItems.created_at), asc(contentItems.id))
     .limit(1);
   return row ?? null;
 }
@@ -186,29 +191,45 @@ export async function draftCampaign(
     ...(opts.draftLlm ? { llm: opts.draftLlm } : {}),
   });
 
-  const [row] = await db
-    .insert(contentItems)
-    .values({
-      profile_id: profileId,
-      proposal_id: proposal.id,
-      kind: "email",
-      channel_label: `email · ${label}`,
-      scheduled_for: null,
-      title: `${label} — campaign email`,
-      body: `${draft.body}\n\n${complianceFooter(senderName, postalAddress)}`,
-      disclosure: disclosureLabel("email"),
-      provenance: {
-        ...draft.provenance,
-        evidence: item.evidence,
-        // A count, never a contact (rule 22): who receives it is decided again at send time.
-        campaign: {
-          segment: detail.segment ?? null,
-          recipients_at_proposal: detail.contact_ids?.length ?? 0,
+  // The insert is conditional (review 2026-10-23, #22): under a lock per
+  // proposal, a draft that appeared while this one was being written wins,
+  // so a double-click stores ONE email and both clicks are shown the same.
+  const stored = await db.transaction(async (tx) => {
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(hashtext(${`campaign-draft:${proposal.id}`}))`,
+    );
+    const [already] = await tx
+      .select()
+      .from(contentItems)
+      .where(and(eq(contentItems.proposal_id, proposal.id), eq(contentItems.kind, "email")))
+      .orderBy(asc(contentItems.created_at), asc(contentItems.id))
+      .limit(1);
+    if (already) return { row: already, fresh: false };
+    const [inserted] = await tx
+      .insert(contentItems)
+      .values({
+        profile_id: profileId,
+        proposal_id: proposal.id,
+        kind: "email",
+        channel_label: `email · ${label}`,
+        scheduled_for: null,
+        title: `${label} — campaign email`,
+        body: `${draft.body}\n\n${complianceFooter(senderName, postalAddress)}`,
+        disclosure: disclosureLabel("email"),
+        provenance: {
+          ...draft.provenance,
+          evidence: item.evidence,
+          // A count, never a contact (rule 22): who receives it is decided again at send time.
+          campaign: {
+            segment: detail.segment ?? null,
+            recipients_at_proposal: detail.contact_ids?.length ?? 0,
+          },
+          compliance,
         },
-        compliance,
-      },
-    })
-    .returning();
-  if (!row) throw new SegmentProposalError("the draft could not be stored", 500);
-  return { draft: row, compliance, fresh: true };
+      })
+      .returning();
+    return { row: inserted, fresh: true };
+  });
+  if (!stored.row) throw new SegmentProposalError("the draft could not be stored", 500);
+  return { draft: stored.row, compliance, fresh: stored.fresh };
 }
