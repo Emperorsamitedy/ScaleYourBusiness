@@ -274,8 +274,7 @@ describe("review 2026-10-23 #22 — a double-click drafts one email, and every r
       .insert(contentItems)
       .values({
         ...(rest as Omit<typeof draft, "id" | "created_at">),
-        body: `${draft.body}
-(a second body)`,
+        body: `${draft.body}\n(a second body)`,
         created_at: new Date(Date.parse(draft.created_at) - 60_000).toISOString(),
       })
       .returning();
