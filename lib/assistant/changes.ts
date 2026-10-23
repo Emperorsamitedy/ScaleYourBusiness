@@ -47,6 +47,7 @@ import { createField } from "../core/field";
 import type { Field } from "../core/field";
 import { fieldId, utteranceId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
+import { isIsoCurrency, readAmount } from "../core/money";
 import type { SizeBand } from "../core/size-features";
 import { addGoal, listGoals, setGoalAttr } from "../content/goals";
 import { contentQueue } from "../content/produce";
@@ -422,7 +423,55 @@ const CURRENCY_WORDS: readonly [RegExp, string][] = [
   [/\bforints?\b|\bft\b/i, "HUF"],
 ];
 
-/** The owner's words → the parser's neutral wire value for this input type, or null. */
+/** A question back to the owner instead of a value: the words can be read two ways. */
+export interface AskBack {
+  ask: string;
+}
+
+export function isAskBack(v: unknown): v is AskBack {
+  return typeof v === "object" && v !== null && typeof (v as { ask?: unknown }).ask === "string";
+}
+
+/** The first amount in the owner's words, as they wrote it ("1 500", "12,50", "1.234,56"). */
+function amountToken(text: string): string | null {
+  const m = /-?\d{1,3}(?:[   ]\d{3})+(?:[.,]\d+)?|-?\d[\d.,]*/.exec(text);
+  return m ? m[0].replace(/[.,]+$/, "") : null;
+}
+
+/**
+ * The owner's amount, read by the one exact reader (lib/core/money.ts): a
+ * canonical decimal string ("1234.5"), or a question back when "1.500"
+ * could be fifteen hundred or one and a half (review 2026-10-23, #4).
+ */
+function readOwnerAmount(text: string): string | AskBack | null {
+  const token = amountToken(text);
+  if (token === null) return null;
+  const read = readAmount(token, null);
+  if (!read.ok) {
+    if (read.reason !== "ambiguous") return null;
+    const [lead = "", tail = ""] = token.replace(/^-/, "").split(/[.,]/);
+    const thousands = `${lead}${tail}`;
+    const fraction = tail.replace(/0+$/, "");
+    const decimal = fraction === "" ? lead : `${lead}.${fraction}`;
+    return {
+      ask: `Did you mean ${thousands} or ${decimal}? Write it as ${thousands} or ${decimal} and I'll take it exactly.`,
+    };
+  }
+  return `${read.negative ? "-" : ""}${read.whole}${read.fraction === "" ? "" : `.${read.fraction}`}`;
+}
+
+/** The first ISO 4217 code the owner wrote ("incl VAT 27 EUR" is EUR, never "VAT"). */
+function isoCodeIn(text: string): string | undefined {
+  for (const m of text.matchAll(/\b([A-Z]{3})\b/g)) {
+    if (m[1] !== undefined && isIsoCurrency(m[1])) return m[1];
+  }
+  return undefined;
+}
+
+/**
+ * The owner's words → the parser's neutral wire value for this input type,
+ * null when there is none, or an AskBack when the words read two ways.
+ */
 export function wireFor(
   spec: InputSpec,
   raw: string,
@@ -430,21 +479,19 @@ export function wireFor(
   currentCurrency: string | null,
 ): unknown {
   const text = raw.trim();
-  const number = () => {
-    const m = /-?\d[\d,]*(?:\.\d+)?/.exec(text.replace(/\s(?=\d{3}\b)/g, ""));
-    return m ? Number(m[0].replace(/,/g, "")) : null;
-  };
   switch (spec.type) {
     case "text":
     case "long_text":
       return text.replace(/^["“']|["”']$/g, "");
-    case "number":
-      return number();
+    case "number": {
+      const amount = readOwnerAmount(text);
+      return typeof amount === "string" ? Number(amount) : amount;
+    }
     case "money": {
-      const amount = number();
-      if (amount === null) return null;
+      const amount = readOwnerAmount(text);
+      if (amount === null || isAskBack(amount)) return amount;
       const code =
-        /\b([A-Z]{3})\b/.exec(text)?.[1] ??
+        isoCodeIn(text) ??
         CURRENCY_WORDS.find(([re]) => re.test(text))?.[1] ??
         currentCurrency ??
         undefined;
@@ -470,6 +517,11 @@ export function wireFor(
     default:
       return null;
   }
+}
+
+/** A bank question that asks a percent: a number bounded by 100 (0–100, or −100–100 for a change). */
+export function isPercentSpec(spec: InputSpec): boolean {
+  return spec.type === "number" && spec.max === 100 && (spec.min === 0 || spec.min === -100);
 }
 
 const TYPE_WORD: Partial<Record<InputSpec["type"], string>> = {
@@ -539,6 +591,23 @@ async function prepareFact(
       ? (((rec.field.value as { currency?: unknown }).currency as string | undefined) ?? null)
       : null;
   const wire = wireFor(spec, rawValue, codes, currentCurrency);
+  if (isAskBack(wire)) return asked(entry, wire.ask, slot);
+  // A share asked as a percent, answered as a fraction: "0.35" is 35 %, or a
+  // typo for 0.35 % — ask, never store 0.35 points (review 2026-10-23, #13).
+  if (
+    typeof wire === "number" &&
+    isPercentSpec(spec) &&
+    wire !== 0 &&
+    Math.abs(wire) <= 1 &&
+    !/%/.test(rawValue)
+  ) {
+    const pct = Math.round(wire * 100 * 1000) / 1000;
+    return asked(
+      entry,
+      `Did you mean ${pct} %? I keep your ${label} as the number of percent — ${pct} for ${pct} %. Say ${pct} %, or ${wire} % if it really is that small.`,
+      slot,
+    );
+  }
   const [account] = await db
     .select({ currency: accounts.reporting_currency })
     .from(accounts)
@@ -552,7 +621,9 @@ async function prepareFact(
     const want =
       spec.type === "single_select"
         ? `one of: ${codes.map((c) => optionLabel(spec, c)).join(", ")}`
-        : (TYPE_WORD[spec.type] ?? "a value");
+        : spec.type === "number" && (spec.min !== undefined || spec.max !== undefined)
+          ? `a number${spec.min !== undefined ? ` from ${spec.min}` : ""}${spec.max !== undefined ? ` ${spec.min !== undefined ? "to" : "up to"} ${spec.max}` : ""}`
+          : (TYPE_WORD[spec.type] ?? "a value");
     return asked(entry, `I need ${want} for your ${label} — what should it be?`, slot);
   }
   const value = coerced.value;

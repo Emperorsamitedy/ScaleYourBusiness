@@ -332,6 +332,28 @@ describe("a fact — prepared from 'change my X to Y', refused when it moved", (
     expect(out.change?.status).toBe("asked");
     expect(out.reply.text).toContain("I need a number");
   });
+
+  it("holds a percent to the bank's 0–100 and asks back on a fraction (review 2026-10-23, #13)", async () => {
+    const s = await fresh();
+    await ownerFact(s.profile_id, "revenue.generates_revenue", { code: "yes", label_raw: null });
+    await ownerFact(s.profile_id, "revenue.repeat_customer_rate", 20);
+    const say = (text: string) =>
+      postMessage(s.profile_id, s.account_id, text, { intentLlm: noModel });
+
+    const fraction = await say("Change my repeat customer rate to 0.35");
+    expect(fraction.change?.status).toBe("asked");
+    expect(fraction.reply.text).toContain("Did you mean 35 %?");
+
+    const huge = await say("Change my repeat customer rate to 4000");
+    expect(huge.change?.status).toBe("asked");
+    expect(huge.reply.text).toContain("a number from 0 to 100");
+
+    const fine = await say("Change my repeat customer rate to 35");
+    expect(fine.change?.status).toBe("prepared");
+    expect(fine.change?.proposed_text).toBe("35");
+    // Nothing was written by any of the three.
+    expect(await readFieldHistory(s.profile_id, "revenue.repeat_customer_rate")).toHaveLength(1);
+  });
 });
 
 describe("a standing rule and a goal", () => {
