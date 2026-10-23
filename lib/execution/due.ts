@@ -68,6 +68,7 @@ import { logSafeError } from "../core/log-safe";
 import { and, eq, isNotNull, isNull, lte, or } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, executions, proposals } from "../../db/schema";
+import type { MediaStore } from "../content/media";
 import type { ProposalRow } from "../proposals/service";
 import { expireAllDueProposals } from "../proposals/service";
 import type { ReconcileSummary } from "../content/publishing";
@@ -146,6 +147,8 @@ export interface DueRunOptions {
   sleep?: (ms: number) => Promise<void>;
   /** Scope the run to one profile (tests, a manual trigger). */
   profileId?: string;
+  /** Tests: the media store the expiry sweep releases renders from (Blob by default). */
+  store?: MediaStore;
   /** Tests: a provider object in place of the registered one (a fake Graph behind Meta). */
   providers?: { meta_publish?: MetaPublishProvider } & Partial<
     Record<ExecutionProviderId, ExecutionProvider>
@@ -174,7 +177,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     outcomes: [],
   };
 
-  summary.expired = await expireAllDueProposals(now());
+  summary.expired = await expireAllDueProposals(now(), opts.store);
   summary.resumed = await resumeAfterReconnect(
     opts.profileId ? { accountId: await accountOf(opts.profileId) } : {},
   );

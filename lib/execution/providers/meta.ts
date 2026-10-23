@@ -948,6 +948,8 @@ export interface PublishItem {
   platform_url: string | null;
   publish_proposal_id: string | null;
   publish_attempt: PublishAttempt | null;
+  /** Review D #10: the hash of the caption and media as approved (approvedPublishHash), or null. */
+  publish_approved_sha256: string | null;
   /** A link the post carries (provenance.link, https only) — Facebook text posts send it as `link`. */
   link: string | null;
 }
@@ -976,7 +978,12 @@ export interface PublishBackend {
   /** Progress on the in-flight attempt: sent_at, the interim ids. */
   note(itemId: string, attempt: PublishAttempt): Promise<void>;
   published(item: PublishItem, post: PublishedPost, accountId: string): Promise<void>;
-  failed(itemId: string, sentence: string): Promise<void>;
+  /**
+   * Nothing went out. The render is released from public storage (review
+   * D #10) unless `keepMedia` — a failure held for the reconnect (P3-24b),
+   * which re-queues the item as it was.
+   */
+  failed(itemId: string, sentence: string, opts?: { keepMedia?: boolean }): Promise<void>;
   /** Stays `publishing`, carrying the sentence. */
   uncertain(itemId: string, sentence: string): Promise<void>;
   /** Status untouched; the sentence shows on /content. */
@@ -1091,6 +1098,35 @@ export function publishCaption(item: { body: string; disclosure: string }): stri
 
 export function captionHash(text: string): string {
   return createHash("sha256").update(text.trim()).digest("hex");
+}
+
+/**
+ * Review 2026-10-23 (Session D #10), pure: what the owner approved, as one
+ * hash — the caption exactly as it goes out (publishCaption) and the media
+ * URL it goes out with. Stored at approval (content_items.
+ * publish_approved_sha256) and checked before anything is sent, as campaign
+ * emails check approved_sha256. A render's URL carries 16 random bytes, so a
+ * replaced render is a different URL and a different hash.
+ */
+export function approvedPublishHash(item: {
+  body: string;
+  disclosure: string;
+  media_path: string | null;
+}): string {
+  return createHash("sha256")
+    .update(JSON.stringify({ v: 1, caption: publishCaption(item), media: item.media_path ?? null }))
+    .digest("hex");
+}
+
+/** The refusal when what would go out isn't what was approved. */
+export const NOT_AS_APPROVED =
+  "What would go out isn't what you approved: the caption or the media changed after you approved it. Nothing was sent; it needs approving again.";
+
+function asApproved(item: PublishItem): boolean {
+  return (
+    item.publish_approved_sha256 !== null &&
+    item.publish_approved_sha256 === approvedPublishHash(item)
+  );
 }
 
 interface PublishParams {
@@ -1796,6 +1832,8 @@ function publishProvider(
         };
       }
       try {
+        // Review D #10: what goes out is what was approved, by hash.
+        if (!asApproved(item)) return refuse({ code: "refused", message: NOT_AS_APPROVED });
         expectOp(op, p.platform, item);
         if (p.platform === "instagram") {
           const kind = item.media_path ? mediaKindOf(item.media_path) : null;
@@ -1919,6 +1957,7 @@ function publishProvider(
       if (item.status !== "drafted" && item.status !== "queued") {
         throw new PublishError(`it is ${item.status}, so it isn't published — nothing was sent`);
       }
+      if (!asApproved(item)) throw new PublishError(NOT_AS_APPROVED);
       const publishOp = expectOp(op, p.platform, item);
       const caption = publishCaption(item);
       const attempt: PublishAttempt = {
@@ -2002,7 +2041,7 @@ function publishProvider(
         // The item fails with the one sentence, the connection pauses itself
         // and holds everything queued on it, and the run waits for the reconnect.
         if (error instanceof MetaRequestError && pausesConnection(error.failure)) {
-          await b.failed(item.id, PAUSED_WORK_SENTENCE.publish);
+          await b.failed(item.id, PAUSED_WORK_SENTENCE.publish, { keepMedia: true });
           await b.paused({ account_id: pctx.account_id, failure: error.failure, item_id: item.id });
           log("paused");
           throw new ConnectionPausedError(error.failure, "publish");

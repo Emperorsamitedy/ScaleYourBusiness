@@ -21,6 +21,8 @@ import { bootstrapIntake } from "../intake/service";
 import { createProposal } from "../proposals/service";
 import { ffmpegAvailable, makeTestClip } from "./edit";
 import {
+  BLOB_PUT_TIMEOUT_MS,
+  BLOB_TIMEOUT_MS,
   MediaError,
   attachRenderedMedia,
   contentTypeFor,
@@ -28,7 +30,9 @@ import {
   publicUrl,
   releaseRenderedMedia,
   renderPath,
+  vercelBlobStore,
 } from "./media";
+import type { BlobSdk } from "./media";
 
 const TMP = path.join(process.cwd(), ".data", "test-renders");
 const created: { account_id: string; profile_id: string }[] = [];
@@ -191,4 +195,52 @@ describe("P3-20c — attach and release", () => {
     },
     60_000,
   );
+});
+
+describe("review 2026-10-23, Session D #10 — every Blob call gives up", () => {
+  /** A fake SDK: records each call's options; `hang` never answers until the signal aborts. */
+  function fakeSdk(hang: boolean) {
+    const seen: { call: string; signal: AbortSignal | undefined }[] = [];
+    const wait = (
+      call: string,
+      opts: { abortSignal?: AbortSignal } | undefined,
+      value: unknown,
+    ) => {
+      seen.push({ call, signal: opts?.abortSignal });
+      if (!hang) return Promise.resolve(value);
+      return new Promise((_, reject) => {
+        opts?.abortSignal?.addEventListener("abort", () => reject(new Error(`${call} aborted`)));
+      });
+    };
+    const sdk = {
+      put: (pathname: string, _body: unknown, opts: { abortSignal?: AbortSignal }) =>
+        wait("put", opts, { url: `https://blob.test/${pathname}`, pathname }),
+      del: (_url: unknown, opts: { abortSignal?: AbortSignal }) => wait("del", opts, undefined),
+      list: (opts: { abortSignal?: AbortSignal }) =>
+        wait("list", opts, { blobs: [], hasMore: false, cursor: undefined }),
+    } as unknown as BlobSdk;
+    return { sdk, seen };
+  }
+
+  it("put, del and list each carry an AbortSignal, and answer normally when the store answers", async () => {
+    const { sdk, seen } = fakeSdk(false);
+    const store = vercelBlobStore({ sdk, token: "test" });
+    await store.put("renders/p/i/x.jpg", new Uint8Array([1]), "image/jpeg");
+    await store.del("https://blob.test/renders/p/i/x.jpg");
+    expect(await store.usage()).toEqual({ objects: 0, bytes: 0, truncated: false });
+    expect(seen.map((s) => s.call)).toEqual(["put", "del", "list"]);
+    for (const s of seen) expect(s.signal).toBeInstanceOf(AbortSignal);
+    expect(BLOB_PUT_TIMEOUT_MS).toBe(120_000);
+    expect(BLOB_TIMEOUT_MS).toBe(20_000);
+  });
+
+  it("a store that never answers is given up on, instead of holding the run", async () => {
+    const { sdk } = fakeSdk(true);
+    const store = vercelBlobStore({ sdk, token: "test", putTimeoutMs: 20, timeoutMs: 20 });
+    await expect(store.del("https://blob.test/x.jpg")).rejects.toThrow(/del aborted/);
+    await expect(store.put("renders/p/i/x.jpg", new Uint8Array([1]), "image/jpeg")).rejects.toThrow(
+      /put aborted/,
+    );
+    await expect(store.usage()).rejects.toThrow(/list aborted/);
+  });
 });

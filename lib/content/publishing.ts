@@ -77,6 +77,7 @@ function toPublishItem(row: ItemRow): PublishItem {
     platform_url: row.platform_url,
     publish_proposal_id: row.publish_proposal_id,
     publish_attempt: (row.publish_attempt as PublishAttempt | null) ?? null,
+    publish_approved_sha256: row.publish_approved_sha256,
     link: linkOf(row.provenance),
   };
 }
@@ -94,7 +95,15 @@ function linkOf(provenance: unknown): string | null {
 
 const json = (value: unknown) => sql`${JSON.stringify(value)}::jsonb`;
 
-async function releaseMedia(item: PublishItem, store: MediaStore, accountId: string) {
+async function accountOfProfile(profileId: string): Promise<string | null> {
+  const [row] = await db
+    .select({ account_id: businessProfiles.account_id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.id, profileId));
+  return row?.account_id ?? null;
+}
+
+async function releaseMedia(item: PublishItem, store: MediaStore, accountId: string | null) {
   if (!item.media_path) return;
   try {
     await store.del(item.media_path);
@@ -198,11 +207,16 @@ export function dbPublishBackend(opts: { store?: MediaStore } = {}): PublishBack
       await releaseMedia(item, store(), accountId);
     },
 
-    async failed(itemId, sentence) {
-      await db
+    async failed(itemId, sentence, opts = {}) {
+      const [row] = await db
         .update(contentItems)
         .set({ status: "failed", last_error: sentence })
-        .where(eq(contentItems.id, itemId));
+        .where(eq(contentItems.id, itemId))
+        .returning();
+      // Review D #10: a render that will never go out leaves public storage.
+      if (row && !opts.keepMedia) {
+        await releaseMedia(toPublishItem(row), store(), await accountOfProfile(row.profile_id));
+      }
     },
 
     async uncertain(itemId, sentence) {
