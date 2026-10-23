@@ -8,6 +8,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { extractPage } from "./extract";
 import type { ModelPage, PriceLlm } from "./model";
 import {
+  MODEL_BUSY_REASON,
   MODEL_CAPS,
   PRICE_SYSTEM,
   buildPricePrompt,
@@ -112,6 +113,34 @@ describe("the model fallback", () => {
       "more pages waited than one model read takes",
       "more pages waited than one model read takes",
     ]);
+  });
+
+  it("finding 22 (review 2026-10-23): two reads at once can't both pass the monthly cap", async () => {
+    // Four of five used; each call that runs makes it five.
+    let used = MODEL_CAPS.max_calls_per_account_per_month - 1;
+    const usage = () => Promise.resolve({ account_calls: used, total_eur: 0 });
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((r) => (release = r));
+    let made = 0;
+    const llm: PriceLlm = async () => {
+      made++;
+      await gate;
+      used++; // the call's llm_calls row, written before the lock is let go
+      return { text: ANSWER, calls: [] };
+    };
+    const accountId = `race-${Date.now()}`;
+    const run = () =>
+      readWithModel({ pages: [page()], accountId, budget: newRunBudget(), llm, now, usage });
+    const first = run();
+    await new Promise((r) => setTimeout(r, 200));
+    const second = await run();
+    expect(second.skipped.map((s) => s.reason)).toEqual([MODEL_BUSY_REASON]);
+    release();
+    expect((await first).byUrl.size).toBe(1);
+    // After the first finished, the cap — counted inside the lock — refuses.
+    const third = await run();
+    expect(third.skipped[0]?.reason).toMatch(/this month's 5 model reads/);
+    expect(made).toBe(1);
   });
 
   it("refuses past the run cap, the account's monthly calls and the monthly euros", async () => {

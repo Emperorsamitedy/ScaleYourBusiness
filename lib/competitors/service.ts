@@ -28,6 +28,7 @@ import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import type { Money } from "../core/money";
 import type { SourceRef } from "../core/source-ref";
+import { withAdvisoryLock } from "../../db/advisory-lock";
 import { writeField } from "../profile/field-store";
 import type { PageFetcher } from "../site/fetch";
 import type { CompetitorChange, ObservedOffer, ObservedOffers, ObservedRating } from "./changes";
@@ -626,17 +627,30 @@ export async function readOneNow(
   id: string,
   deps: ReadDeps = {},
 ): Promise<CompetitorReadResult> {
-  const c = await ownCompetitor(profileId, id);
-  if (!c.tracked) throw new CompetitorError("that competitor was removed from your list");
-  if (pagesOf(c).length === 0)
-    throw new CompetitorError("add their website or a listing page first");
-  const now = (deps.now ?? (() => new Date()))();
-  if (c.status && now.getTime() - Date.parse(c.status.read_at) < OWNER_READ_COOLDOWN_MS) {
-    throw new CompetitorError("I read their pages in the last six hours; try again later", 429);
-  }
-  const [result] = await readCompetitors(profileId, [id], deps);
-  if (!result) throw new CompetitorError("nothing to read");
-  return result;
+  await ownCompetitor(profileId, id); // a stranger's id never takes a lock
+  // The cooldown check and the read it permits are one step (review
+  // 2026-10-23, finding 22): an advisory lock per competitor, held until
+  // the read's status is written, so a second click at the same moment is
+  // refused instead of reading (and paying) twice.
+  return withAdvisoryLock(
+    `competitor_read:${id}`,
+    async () => {
+      const c = await ownCompetitor(profileId, id);
+      if (!c.tracked) throw new CompetitorError("that competitor was removed from your list");
+      if (pagesOf(c).length === 0)
+        throw new CompetitorError("add their website or a listing page first");
+      const now = (deps.now ?? (() => new Date()))();
+      if (c.status && now.getTime() - Date.parse(c.status.read_at) < OWNER_READ_COOLDOWN_MS) {
+        throw new CompetitorError("I read their pages in the last six hours; try again later", 429);
+      }
+      const [result] = await readCompetitors(profileId, [id], deps);
+      if (!result) throw new CompetitorError("nothing to read");
+      return result;
+    },
+    () => {
+      throw new CompetitorError("I'm reading their pages right now; try again in a minute", 429);
+    },
+  );
 }
 
 /* ── the weekly run ── */

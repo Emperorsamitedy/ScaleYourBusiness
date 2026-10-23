@@ -28,6 +28,7 @@
 import { logSafeError } from "../core/log-safe";
 import { and, desc, eq, ne } from "drizzle-orm";
 import { db } from "../../db";
+import { withAdvisoryLock } from "../../db/advisory-lock";
 import { connections, connectorSyncs, metricObservations } from "../../db/schema";
 import type { Provider } from "./provider";
 import type { DeriveOutcome } from "./derive";
@@ -128,27 +129,7 @@ function lockKey(connectionId: string): string {
 }
 
 /** A session-level advisory lock on a dedicated client; shared with the post readback (P3-23a). */
-export async function withAdvisoryLock<T>(
-  key: string,
-  run: () => Promise<T>,
-  onLocked: () => T,
-): Promise<T> {
-  const client = await db.$client.connect();
-  try {
-    const res = await client.query<{ locked: boolean }>(
-      "select pg_try_advisory_lock(hashtext($1)) as locked",
-      [key],
-    );
-    if (res.rows[0]?.locked !== true) return onLocked();
-    try {
-      return await run();
-    } finally {
-      await client.query("select pg_advisory_unlock(hashtext($1))", [key]);
-    }
-  } finally {
-    client.release();
-  }
-}
+export { withAdvisoryLock };
 
 function withConnectionLock<T>(
   connectionId: string,

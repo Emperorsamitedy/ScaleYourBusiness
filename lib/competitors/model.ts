@@ -18,6 +18,7 @@ import { money } from "../core/money";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { withAdvisoryLock } from "../../db/advisory-lock";
 import type { SeenOffer } from "./extract";
 import { MAX_OFFERS_PER_PAGE, offerKey, parseAmount } from "./extract";
 
@@ -305,28 +306,43 @@ export async function readWithModel(args: {
 }): Promise<ModelRead> {
   const result: ModelRead = { byUrl: new Map(), skipped: [], calls: [] };
   if (args.pages.length === 0) return result;
-  const usage = await (args.usage ?? monthlyUsage)(args.accountId, args.now);
-  const refusal = capRefusal(usage, args.budget);
-  if (refusal !== null) {
-    result.skipped = args.pages.map((p) => ({ url: p.url, reason: refusal }));
-    return result;
-  }
-  const batch = args.pages.slice(0, MODEL_CAPS.max_pages_per_call);
-  for (const p of args.pages.slice(MODEL_CAPS.max_pages_per_call)) {
-    result.skipped.push({ url: p.url, reason: "more pages waited than one model read takes" });
-  }
-  args.budget.calls++;
-  try {
-    const { text, calls } = await args.llm({
-      system: PRICE_SYSTEM,
-      user: buildPricePrompt(batch),
-      accountId: args.accountId,
-    });
-    result.calls = calls;
-    result.byUrl = parsePriceAnswer(text, batch);
-  } catch (error) {
-    const reason = `the model read failed: ${error instanceof Error ? error.message : String(error)}`;
-    for (const p of batch) result.skipped.push({ url: p.url, reason: reason.slice(0, 160) });
-  }
-  return result;
+  // The count and the call it permits are one step (review 2026-10-23,
+  // finding 22): an advisory lock per account, held until the call's
+  // llm_calls row is written, so two reads at once can't both see "4 of 5
+  // used". The second is refused, not queued; its pages wait for next time.
+  return withAdvisoryLock(
+    `competitor_model:${args.accountId}`,
+    async () => {
+      const usage = await (args.usage ?? monthlyUsage)(args.accountId, args.now);
+      const refusal = capRefusal(usage, args.budget);
+      if (refusal !== null) {
+        result.skipped = args.pages.map((p) => ({ url: p.url, reason: refusal }));
+        return result;
+      }
+      const batch = args.pages.slice(0, MODEL_CAPS.max_pages_per_call);
+      for (const p of args.pages.slice(MODEL_CAPS.max_pages_per_call)) {
+        result.skipped.push({ url: p.url, reason: "more pages waited than one model read takes" });
+      }
+      args.budget.calls++;
+      try {
+        const { text, calls } = await args.llm({
+          system: PRICE_SYSTEM,
+          user: buildPricePrompt(batch),
+          accountId: args.accountId,
+        });
+        result.calls = calls;
+        result.byUrl = parsePriceAnswer(text, batch);
+      } catch (error) {
+        const reason = `the model read failed: ${error instanceof Error ? error.message : String(error)}`;
+        for (const p of batch) result.skipped.push({ url: p.url, reason: reason.slice(0, 160) });
+      }
+      return result;
+    },
+    () => {
+      result.skipped = args.pages.map((p) => ({ url: p.url, reason: MODEL_BUSY_REASON }));
+      return result;
+    },
+  );
 }
+
+export const MODEL_BUSY_REASON = "another model read for this business was running";

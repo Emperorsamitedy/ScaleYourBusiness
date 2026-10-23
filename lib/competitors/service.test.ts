@@ -420,6 +420,34 @@ describe("when reads run", () => {
     await readOneNow(profileId, id, { ...deps, now: clock("2026-10-12T14:00:00Z") });
   });
 
+  it("finding 22 (review 2026-10-23): two clicks at once read once, the other is refused", async () => {
+    const id = await novaWith(false);
+    const web = fakeWeb({ "https://nova.example/": fixture("salon-pricelist") });
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((r) => (release = r));
+    const slow: PageFetcher = async (url) => {
+      await gate;
+      return web.fetcher(url);
+    };
+    const deps = {
+      fetcher: slow,
+      llm: noModel,
+      usage: noUsage,
+      now: clock("2026-10-12T07:00:00Z"),
+    };
+    const first = readOneNow(profileId, id, deps);
+    // The first click holds the read; give it time to take the lock.
+    await new Promise((r) => setTimeout(r, 200));
+    const second = readOneNow(profileId, id, deps);
+    await expect(second).rejects.toThrow(/reading their pages right now/);
+    release();
+    await expect(first).resolves.toMatchObject({ competitor_id: id });
+    // And after it finished, the cooldown — checked inside the lock — holds.
+    await expect(readOneNow(profileId, id, deps)).rejects.toThrow(/last six hours/);
+    // Robots and the page, once: the refused click fetched nothing.
+    expect(web.asked).toEqual(["https://nova.example/robots.txt", "https://nova.example/"]);
+  });
+
   it("re-reads weekly, skipping what was read in the last six days", async () => {
     await novaWith(false);
     const web = fakeWeb({ "https://nova.example/": fixture("salon-pricelist") });
