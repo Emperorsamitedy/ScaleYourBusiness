@@ -544,7 +544,7 @@ describe("erasure survives a re-import (review 2026-10-23, #3, #11)", () => {
         .where(eq(bookingAppointments.id, r.id));
     }
     const migration = readFileSync(
-      fileURLToPath(new URL("../../db/migrations/0053_optimal_randall_flagg.sql", import.meta.url)),
+      fileURLToPath(new URL("../../db/migrations/0055_gorgeous_shriek.sql", import.meta.url)),
       "utf8",
     );
     const statements = migration.split("--> statement-breakpoint").slice(-2);

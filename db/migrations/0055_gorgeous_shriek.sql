@@ -7,8 +7,7 @@ CREATE TABLE "booking_client_erasures" (
 --> statement-breakpoint
 ALTER TABLE "booking_client_erasures" ADD CONSTRAINT "booking_client_erasures_account_id_accounts_id_fk" FOREIGN KEY ("account_id") REFERENCES "public"."accounts"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "booking_client_erasures_idx" ON "booking_client_erasures" USING btree ("account_id","client_key");--> statement-breakpoint
-CREATE UNIQUE INDEX "proposals_stock_finding_idx" ON "proposals" USING btree ("profile_id","originating_finding") WHERE "proposals"."originating_finding" LIKE 'stock:%';
---> statement-breakpoint
+CREATE UNIQUE INDEX "proposals_stock_finding_idx" ON "proposals" USING btree ("profile_id","originating_finding") WHERE "proposals"."originating_finding" LIKE 'stock:%';--> statement-breakpoint
 -- Review 2026-10-23, #11: a bookings import row without the export's own
 -- reference was keyed by sha256(day, time, CLIENT KEY, service, staff), so an
 -- erased client's key lived on inside source_ref, and re-importing after an
