@@ -29,6 +29,8 @@ import { openQuestions } from "../crm/faq";
 import { ensureSupportSettings, rotateInboundToken } from "../crm/support-settings";
 import { bootstrapIntake } from "../intake/service";
 import {
+  GIVEN_IN_CHAT,
+  SENDER_NOT_VERIFIED,
   emailThread,
   inboundAddress,
   MAX_LOCAL_PART,
@@ -38,6 +40,7 @@ import {
   referencedIds,
   replyThreadHeaders,
   routingFrom,
+  senderNote,
   threadAddress,
 } from "./email-tickets";
 import type { InboundEmail } from "./inbound";
@@ -55,6 +58,7 @@ import {
   normaliseReceived,
   parseAddress,
   parseReceivedEvent,
+  senderAuthOf,
   signWebhook,
   verifyWebhook,
 } from "./inbound";
@@ -610,6 +614,102 @@ describe("review #12 — Ledgerline's own mail, forwarded back, is never a ticke
       kind: "filed",
       created: true,
     });
+  });
+});
+
+describe("review #18 — an unverified sender is never tied to an existing contact", () => {
+  it("reads Resend's own authentication result, and never a header the sender wrote", () => {
+    const base = receivedEmail(fixture({ to: ["x@y.example"] }));
+    const auth = (a: unknown) => senderAuthOf({ ...base, authentication: a });
+    expect(auth({ spf: "fail", dkim: "pass", dmarc: "gray" })).toBe("verified");
+    expect(auth({ spf: "pass", dkim: "gray", dmarc: "pass" })).toBe("verified");
+    expect(auth({ spf: "pass", dkim: "fail", dmarc: "fail" })).toBe("failed");
+    expect(auth({ spf: "pass", dkim: "gray", dmarc: "gray" })).toBe("unverified");
+    expect(auth({ spf: "pass", dkim: "unknown", dmarc: "processing_failed" })).toBe("unverified");
+    expect(auth(null)).toBe("unverified");
+    expect(senderAuthOf(null)).toBe("unverified");
+    // A forged Authentication-Results header proves nothing.
+    expect(
+      senderAuthOf({
+        ...base,
+        authentication: null,
+        headers: {
+          ...base.headers,
+          "authentication-results": "mx.resend.com; dkim=pass; dmarc=pass header.from=example.com",
+        },
+      }),
+    ).toBe("unverified");
+  });
+
+  it("a forged From naming an existing customer files a ticket that isn't theirs, and leaves them untouched", async () => {
+    const b = await business();
+    const c = await addContact(b.account_id, {
+      email: "real.customer.p409@example.com",
+      name: "Real Customer",
+      consent: { status: "explicit_consent", source: "checkout checkbox" },
+    });
+    const [before] = await db.select().from(contacts).where(eq(contacts.id, c.id));
+    for (const authentication of [null, { spf: "fail", dkim: "fail", dmarc: "fail" } as const]) {
+      const forged = fixture({
+        to: [b.address],
+        from: "Real Customer <real.customer.p409@example.com>",
+        authentication,
+      });
+      const out = await receiveInboundEmail(normalised(forged), DOMAIN);
+      if (out.kind !== "filed") throw new Error("not filed");
+      const [ticket] = await db
+        .select()
+        .from(supportTickets)
+        .where(eq(supportTickets.id, out.ticket_id));
+      expect(ticket?.contact_id).toBeNull();
+      const [row] = await emailThread(out.ticket_id);
+      expect(row?.sender_auth).toBe(authentication === null ? "unverified" : "failed");
+    }
+    const [after] = await db.select().from(contacts).where(eq(contacts.id, c.id));
+    expect(after).toEqual(before);
+
+    // The passing case: the same customer, authenticated, is tied to their contact.
+    const real = fixture({
+      to: [b.address],
+      from: "Real Customer <real.customer.p409@example.com>",
+    });
+    const out = await receiveInboundEmail(normalised(real), DOMAIN);
+    if (out.kind !== "filed") throw new Error("not filed");
+    const [ticket] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, out.ticket_id));
+    expect(ticket?.contact_id).toBe(c.id);
+    expect((await emailThread(out.ticket_id))[0]?.sender_auth).toBe("verified");
+  });
+
+  it("an unverified stranger is treated as any unknown sender: a consent-unsure contact", async () => {
+    const b = await business();
+    const out = await receiveInboundEmail(
+      normalised(
+        fixture({ to: [b.address], from: "new.unverified.p409@example.com", authentication: null }),
+      ),
+      DOMAIN,
+    );
+    if (out.kind !== "filed") throw new Error("not filed");
+    const [contact] = await db
+      .select()
+      .from(contacts)
+      .where(eq(contacts.email, "new.unverified.p409@example.com"));
+    expect(contact?.consent_status).toBe("unsure");
+  });
+
+  it("the owner's screen words: unverified email and typed chat addresses say so; a verified sender says nothing", () => {
+    expect(senderNote({ channel: "email", has_address: true, from_auth: "verified" })).toBeNull();
+    for (const from_auth of ["unverified", "failed", null] as const) {
+      expect(senderNote({ channel: "email", has_address: true, from_auth })).toBe(
+        SENDER_NOT_VERIFIED,
+      );
+    }
+    expect(senderNote({ channel: "chat", has_address: true, from_auth: null })).toBe(GIVEN_IN_CHAT);
+    expect(GIVEN_IN_CHAT).toBe("given in chat, not verified");
+    expect(SENDER_NOT_VERIFIED).toBe("sender not verified");
+    expect(senderNote({ channel: "chat", has_address: false, from_auth: null })).toBeNull();
   });
 });
 

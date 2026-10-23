@@ -43,6 +43,41 @@ export interface InboundEmail {
   in_reply_to: string | null;
   references: string | null;
   received_at: string;
+  /** Review #18: did the sender pass authentication, by the receiving server's own result? */
+  sender_auth: SenderAuth;
+}
+
+/* ── sender authentication (review 2026-10-23, #18) ── */
+
+export type SenderAuth = "verified" | "unverified" | "failed";
+
+/**
+ * Whether the From address is the sender's own, from Resend's
+ * `authentication` object on the retrieved email ({ spf, dkim, dmarc },
+ * each "pass" | "fail" | "gray" | "processing_failed" | "unknown", or the
+ * whole object null for mail received before Resend added it). Resend's
+ * docs (read 2026-10-23) say these come from its receiving server, not
+ * from the message headers, so the sender cannot forge them.
+ *
+ * Deliberately NOT read: an Authentication-Results header in the mail.
+ * Headers are the sender's to write, and a forged "dmarc=pass" is exactly
+ * what this check exists to catch.
+ *
+ *   verified    dmarc "pass", or dkim "pass" (Resend calls a DKIM
+ *               signature for another domain "gray", so a pass is aligned);
+ *   failed      dmarc or dkim "fail" with no pass;
+ *   unverified  anything else — no result, no DMARC policy, unsigned. SPF
+ *               alone proves nothing about the From line, and forwarding
+ *               (how this inbox is fed) breaks it anyway.
+ */
+export function senderAuthOf(content: unknown): SenderAuth {
+  if (typeof content !== "object" || content === null) return "unverified";
+  const auth = (content as { authentication?: unknown }).authentication;
+  if (typeof auth !== "object" || auth === null) return "unverified";
+  const { dkim, dmarc } = auth as { dkim?: unknown; dmarc?: unknown };
+  if (dmarc === "pass" || dkim === "pass") return "verified";
+  if (dmarc === "fail" || dkim === "fail") return "failed";
+  return "unverified";
 }
 
 /* ── signature verification (Svix scheme) ── */
@@ -273,6 +308,7 @@ export function normaliseReceived(event: ReceivedEvent, content: unknown): Inbou
     in_reply_to: messageIdsIn(header(c.headers, "in-reply-to"))[0] ?? null,
     references: messageIdsIn(header(c.headers, "references")).join(" ") || null,
     received_at: typeof c.created_at === "string" ? c.created_at : event.created_at,
+    sender_auth: senderAuthOf(c),
   };
 }
 

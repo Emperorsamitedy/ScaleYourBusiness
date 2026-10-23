@@ -71,6 +71,8 @@ interface Ticket {
   /** The customer's name or address, when there is one. */
   from: string | null;
   has_address: boolean;
+  /** Review #18: "sender not verified" or "given in chat, not verified" — null when the sender is proven. */
+  sender_note: string | null;
   /** The first word of theirs not yet answered; null when we wrote last. */
   waiting_since: string | null;
   last_reply_at: string | null;
@@ -84,6 +86,8 @@ interface Email {
   subject: string;
   body: string;
   truncated: boolean;
+  /** Inbound only: did the sender pass authentication? Null on our own emails. */
+  sender_verified: boolean | null;
   at: string;
 }
 
@@ -453,6 +457,9 @@ export function SupportScreen() {
                           >
                             {line ? line.who : "Visitor"}
                           </button>
+                          {t.ticket?.sender_note && (
+                            <span className="sp-fine"> {t.ticket.sender_note}</span>
+                          )}
                         </th>
                         <td className="sp-what">
                           {line?.what ??
@@ -480,7 +487,8 @@ export function SupportScreen() {
               <div className="sp-thread-view">
                 {selected && (
                   <p className="sp-via">
-                    {whoOf(ticket)} ·{" "}
+                    {whoOf(ticket)}
+                    {ticket?.sender_note && ` (${ticket.sender_note})`} ·{" "}
                     {conversation
                       ? "via the widget"
                       : ticket?.channel === "email"
@@ -535,8 +543,9 @@ export function SupportScreen() {
                         <p className="sp-msg-meta">
                           {m.direction === "inbound"
                             ? (m.from_name ?? m.from_address)
-                            : "You, by email"}{" "}
-                          · {whenShort(m.at)}
+                            : "You, by email"}
+                          {m.sender_verified === false && " · sender not verified"} ·{" "}
+                          {whenShort(m.at)}
                         </p>
                       </li>
                     ))}

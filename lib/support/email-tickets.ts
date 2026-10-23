@@ -31,7 +31,7 @@ import { randomBytes } from "node:crypto";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { supportEmailMessages, supportSettings, supportTickets } from "../../db/schema";
-import type { InboundEmail } from "./inbound";
+import type { InboundEmail, SenderAuth } from "./inbound";
 import {
   ADDRESS_MAX_CHARS,
   STORED_ADDRESSES_MAX,
@@ -275,7 +275,9 @@ export async function receiveInboundEmail(
           name: email.from.name,
           source: emailedSource(email.received_at),
           at: email.received_at,
-          linkExisting: true,
+          // Review #18: a sender who didn't pass authentication may be anyone,
+          // so they are never tied to the contact the From line names.
+          linkExisting: email.sender_auth === "verified",
         },
         tx,
       );
@@ -335,6 +337,7 @@ export async function receiveInboundEmail(
           subject: email.subject,
           body: email.text,
           truncated: email.truncated,
+          sender_auth: email.sender_auth,
           at: email.received_at,
         })
         .onConflictDoNothing()
@@ -351,6 +354,7 @@ export async function receiveInboundEmail(
         ticket_id: result.ticketId,
         created: result.created,
         contact: result.contact,
+        sender_auth: email.sender_auth,
         truncated: email.truncated,
       }),
     );
@@ -380,6 +384,8 @@ export interface TicketEmailFacts {
   /** The first inbound sender, as name (when given) and address. */
   from_name: string | null;
   from_address: string | null;
+  /** Review #18: the first inbound sender's authentication; null for rows filed before it was recorded. */
+  from_auth: SenderAuth | null;
   last_inbound_at: string | null;
   last_outbound_at: string | null;
   /** The first customer email not yet followed by one of ours; null when we wrote last. */
@@ -394,6 +400,7 @@ export async function ticketEmailFacts(profileId: string): Promise<Map<string, T
       direction: supportEmailMessages.direction,
       from_name: supportEmailMessages.from_name,
       from_address: supportEmailMessages.from_address,
+      sender_auth: supportEmailMessages.sender_auth,
       at: supportEmailMessages.at,
     })
     .from(supportEmailMessages)
@@ -406,6 +413,7 @@ export async function ticketEmailFacts(profileId: string): Promise<Map<string, T
       f = {
         from_name: null,
         from_address: null,
+        from_auth: null,
         last_inbound_at: null,
         last_outbound_at: null,
         unanswered_since: null,
@@ -417,6 +425,7 @@ export async function ticketEmailFacts(profileId: string): Promise<Map<string, T
       if (f.from_address === null) {
         f.from_name = r.from_name;
         f.from_address = r.from_address;
+        f.from_auth = r.sender_auth;
       }
       f.last_inbound_at = at;
       f.unanswered_since ??= at;
@@ -426,4 +435,23 @@ export async function ticketEmailFacts(profileId: string): Promise<Map<string, T
     }
   }
   return facts;
+}
+
+/** Review #18: the owner-facing words for an unproven sender. */
+export const SENDER_NOT_VERIFIED = "sender not verified";
+export const GIVEN_IN_CHAT = "given in chat, not verified";
+
+/**
+ * What the owner's screen says about who a ticket is from, or null when
+ * there is nothing to say: an emailed ticket whose first sender did not
+ * pass authentication (or predates the check) is "sender not verified";
+ * an address typed into the widget can never be verified, and says so.
+ */
+export function senderNote(t: {
+  channel: "chat" | "email";
+  has_address: boolean;
+  from_auth: SenderAuth | null;
+}): string | null {
+  if (t.channel === "chat") return t.has_address ? GIVEN_IN_CHAT : null;
+  return t.from_auth === "verified" ? null : SENDER_NOT_VERIFIED;
 }

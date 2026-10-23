@@ -2041,6 +2041,20 @@ export const supportReplies = pgTable(
 // twice. The headers kept are the ones threading needs.
 export const supportEmailDirection = pgEnum("support_email_direction", ["inbound", "outbound"]);
 
+// Review 2026-10-23 (#18): whether an inbound sender passed authentication,
+// from Resend's own `authentication` result (computed by its receiving
+// server, which the sender cannot forge — never from a header in the mail):
+//   verified    DMARC passed, or DKIM passed aligned with the From domain;
+//   failed      DMARC (or DKIM) failed outright;
+//   unverified  no result, or one that proves nothing (no DMARC policy,
+//               unsigned, processing failed).
+// Null on outbound rows and on rows filed before the column existed.
+export const supportSenderAuth = pgEnum("support_sender_auth", [
+  "verified",
+  "unverified",
+  "failed",
+]);
+
 export const supportEmailMessages = pgTable(
   "support_email_messages",
   {
@@ -2069,6 +2083,8 @@ export const supportEmailMessages = pgTable(
     /** Plain text, capped (SUPPORT_EMAIL_BODY_MAX_CHARS); `truncated` says when it was cut. */
     body: text("body").notNull(),
     truncated: boolean("truncated").notNull().default(false),
+    /** Review #18: inbound only — did the sender pass authentication? An unverified one is never tied to an existing contact. */
+    sender_auth: supportSenderAuth("sender_auth"),
     at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
   },
   (t) => [

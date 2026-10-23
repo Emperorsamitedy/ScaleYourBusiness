@@ -17,6 +17,18 @@ export interface ReceivedFixture {
   in_reply_to?: string;
   references?: string;
   created_at: string;
+  /**
+   * Resend's own result from its receiving server (review #18); null as for mail
+   * received before Resend added the field. Defaults to all "pass".
+   */
+  authentication?: ResendAuthentication | null;
+}
+
+export type ResendAuthResult = "pass" | "fail" | "gray" | "processing_failed" | "unknown";
+export interface ResendAuthentication {
+  spf: ResendAuthResult;
+  dkim: ResendAuthResult;
+  dmarc: ResendAuthResult;
 }
 
 /** The webhook event body, exactly as Resend posts it: metadata only, no body or headers. */
@@ -66,7 +78,10 @@ export function receivedEmail(f: ReceivedFixture) {
     cc: [],
     reply_to: [],
     received_for: f.received_for ?? [],
-    authentication: { spf: "pass", dkim: "pass", dmarc: "pass" },
+    authentication:
+      f.authentication === undefined
+        ? { spf: "pass", dkim: "pass", dmarc: "pass" }
+        : f.authentication,
     message_id: f.message_id,
     raw: null,
     attachments: [],

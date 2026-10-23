@@ -161,6 +161,7 @@ function inbound(
     in_reply_to: null,
     references: null,
     received_at: new Date(Date.now() - 3_600_000).toISOString(),
+    sender_auth: "verified",
     ...over,
   };
 }
