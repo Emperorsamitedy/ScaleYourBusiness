@@ -42,7 +42,10 @@ import {
 } from "./email-tickets";
 import type { InboundEmail } from "./inbound";
 import {
+  InboundFetchError,
   MESSAGE_ID_MAX_CHARS,
+  RECEIVED_FETCH_TIMEOUT_MS,
+  fetchReceivedEmail,
   REFERENCES_MAX_IDS,
   STORED_ADDRESSES_MAX,
   SUPPORT_EMAIL_BODY_MAX_CHARS,
@@ -420,6 +423,38 @@ describe("P4-09 — routing, threading and idempotency", () => {
     expect(
       await db.select().from(supportTickets).where(eq(supportTickets.profile_id, b.profile_id)),
     ).toHaveLength(1);
+  });
+});
+
+describe("review #24 — reading the received email has a timeout", () => {
+  /** A Resend that never answers, but gives up when the caller's signal aborts. */
+  const hanging = (seen: (AbortSignal | null | undefined)[]) => (_url: string, init: RequestInit) =>
+    new Promise<Response>((_, reject) => {
+      seen.push(init.signal);
+      init.signal?.addEventListener("abort", () => reject(init.signal!.reason));
+    });
+
+  it("a Resend that never answers is abandoned, as a retryable failure", async () => {
+    const seen: (AbortSignal | null | undefined)[] = [];
+    const started = Date.now();
+    const error = await fetchReceivedEmail("abc-123", "re_x", hanging(seen), 50).catch((e) => e);
+    expect(error).toBeInstanceOf(InboundFetchError);
+    expect((error as InboundFetchError).retryable).toBe(true);
+    expect(Date.now() - started).toBeLessThan(5_000);
+    expect(seen[0]).toBeInstanceOf(AbortSignal);
+  });
+
+  it("the passing case: a prompt answer is read, and every request carries a signal by default", async () => {
+    const f = fixture({ to: ["x@y.example"] });
+    let signal: AbortSignal | null | undefined;
+    const fake = fakeResendReceiving([f]);
+    const content = await fetchReceivedEmail(f.email_id, "re_x", (url, init) => {
+      signal = init.signal;
+      return fake.impl(url, init);
+    });
+    expect((content as { id: string }).id).toBe(f.email_id);
+    expect(signal).toBeInstanceOf(AbortSignal);
+    expect(RECEIVED_FETCH_TIMEOUT_MS).toBeLessThanOrEqual(15_000);
   });
 });
 

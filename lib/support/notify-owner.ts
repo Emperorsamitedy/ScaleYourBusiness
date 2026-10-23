@@ -20,6 +20,8 @@ import { supportSettings, users } from "../../db/schema";
 import { appUrl, resendApiKey } from "../env";
 
 export const OWNER_NOTICE_GAP_MS = 60 * 60 * 1000;
+/** A notice Resend hasn't answered by now is given up on (review 2026-10-23, #24): the webhook waits on it. */
+export const OWNER_NOTICE_TIMEOUT_MS = 10_000;
 
 export type NoticeOutcome =
   "sent" | "not_configured" | "off" | "recently_sent" | "no_owner" | "failed";
@@ -31,6 +33,7 @@ export async function notifyOwnerOfEmailTicket(args: {
   ticketId: string;
   fetchImpl?: NoticeFetch;
   now?: Date;
+  timeoutMs?: number;
 }): Promise<NoticeOutcome> {
   const now = args.now ?? new Date();
   const key = resendApiKey();
@@ -94,6 +97,7 @@ export async function notifyOwnerOfEmailTicket(args: {
         `Nothing has been sent to them. A reply goes only when you approve it.\n\n` +
         `You get at most one of these an hour. Switch them off on the Support screen.`,
     }),
+    signal: AbortSignal.timeout(args.timeoutMs ?? OWNER_NOTICE_TIMEOUT_MS),
   }).catch(() => null);
   return done(res && res.ok ? "sent" : "failed");
 }

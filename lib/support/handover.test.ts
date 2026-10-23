@@ -241,4 +241,40 @@ describe("P4-11 — the owner's notice", () => {
     ).toBe("no_owner");
     expect(f.calls).toHaveLength(0);
   });
+
+  it("review #24: a Resend that never answers is abandoned — the notice fails, the webhook isn't held", async () => {
+    process.env.RESEND_API_KEY = "re_test_fixture";
+    const b = await owned();
+    const signals: (AbortSignal | null | undefined)[] = [];
+    const hanging = (_url: string, init: RequestInit) =>
+      new Promise<Response>((_, reject) => {
+        signals.push(init.signal);
+        init.signal?.addEventListener("abort", () => reject(init.signal!.reason));
+      });
+    const started = Date.now();
+    expect(
+      await notifyOwnerOfEmailTicket({
+        profileId: b.profile_id,
+        ticketId: crypto.randomUUID(),
+        fetchImpl: hanging,
+        timeoutMs: 50,
+      }),
+    ).toBe("failed");
+    expect(Date.now() - started).toBeLessThan(5_000);
+    expect(signals[0]).toBeInstanceOf(AbortSignal);
+    // The passing case carries a signal too, by default.
+    const c = await owned();
+    const seen: (AbortSignal | null | undefined)[] = [];
+    expect(
+      await notifyOwnerOfEmailTicket({
+        profileId: c.profile_id,
+        ticketId: crypto.randomUUID(),
+        fetchImpl: async (_url, init) => {
+          seen.push(init.signal);
+          return new Response(JSON.stringify({ id: "re_x" }), { status: 200 });
+        },
+      }),
+    ).toBe("sent");
+    expect(seen[0]).toBeInstanceOf(AbortSignal);
+  });
 });

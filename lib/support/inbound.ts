@@ -289,19 +289,31 @@ export class InboundFetchError extends Error {
   }
 }
 
+/** A read Resend hasn't answered by now is retried later, not waited on (review 2026-10-23, #24). */
+export const RECEIVED_FETCH_TIMEOUT_MS = 10_000;
+
 /** GET the received email's body and headers. A read of our own Resend account, nothing more. */
 export async function fetchReceivedEmail(
   emailId: string,
   apiKey: string,
   fetchImpl: FetchLike = fetch,
+  timeoutMs: number = RECEIVED_FETCH_TIMEOUT_MS,
 ): Promise<unknown> {
   if (!/^[A-Za-z0-9-]{1,100}$/.test(emailId)) {
     throw new InboundFetchError("the email id is not one Resend issues", false);
   }
-  const res = await fetchImpl(`https://api.resend.com/emails/receiving/${emailId}`, {
-    method: "GET",
-    headers: { Authorization: `Bearer ${apiKey}` },
-  });
+  let res: Response;
+  try {
+    res = await fetchImpl(`https://api.resend.com/emails/receiving/${emailId}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (error) {
+    // A timeout or a dropped connection: the webhook answers 5xx and Resend redelivers.
+    const name = error instanceof Error ? error.name : "network";
+    throw new InboundFetchError(`Resend did not answer (${name})`, true);
+  }
   if (!res.ok) {
     throw new InboundFetchError(
       `Resend answered ${res.status}`,
