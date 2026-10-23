@@ -76,12 +76,47 @@ export function pageAsksForLogin(html: string): boolean {
   return /<input\b[^>]*\btype\s*=\s*["']?password\b/i.test(html);
 }
 
+/** A page the weekly run had no time left for: not read, so not "gone". */
+export const DEADLINE_REASON = "the weekly run ran out of time before this page";
+
+class DeadlineError extends Error {
+  constructor() {
+    super(DEADLINE_REASON);
+    this.name = "DeadlineError";
+  }
+}
+
+/**
+ * A request raced against the run's deadline (review 2026-10-23, finding
+ * 10): one blackholed page can no longer carry the run past it. The
+ * request itself still ends on its own timer; its answer is ignored.
+ */
+function withinDeadline<T>(
+  start: () => Promise<T>,
+  deadline: number | undefined,
+  clock: () => number,
+): Promise<T> {
+  if (deadline === undefined) return start();
+  const left = deadline - clock();
+  if (left <= 0) return Promise.reject(new DeadlineError()); // never started
+  const work = start();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    work,
+    new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new DeadlineError()), left);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
+
 const reasonOf = (error: unknown): string =>
-  error instanceof SiteFetchError
-    ? error.message
-    : /abort|timeout/i.test(String((error as { name?: string })?.name ?? error))
-      ? `no answer within ${READ_CAPS.page_timeout_ms / 1000} seconds`
-      : "the page couldn't be reached";
+  error instanceof DeadlineError
+    ? DEADLINE_REASON
+    : error instanceof SiteFetchError
+      ? error.message
+      : /abort|timeout/i.test(String((error as { name?: string })?.name ?? error))
+        ? `no answer within ${READ_CAPS.page_timeout_ms / 1000} seconds`
+        : "the page couldn't be reached";
 
 /** The helper's refusals (a private address, credentials, a non-web scheme), as opposed to failures. */
 function refusedByHelper(error: unknown): boolean {
@@ -120,8 +155,14 @@ export async function readListedPages(args: {
   fetcher: PageFetcher;
   now: () => Date;
   robotsCache?: Map<string, RobotsRules | { refused: string }>;
+  /** Epoch ms after which no page is started and none is waited on. */
+  deadline?: number;
+  /** The clock the deadline is read against; real time unless a test says otherwise. */
+  clock?: () => number;
 }): Promise<PageOutcome[]> {
   const cache = args.robotsCache ?? new Map();
+  const clock = args.clock ?? Date.now;
+  const within = <T>(start: () => Promise<T>) => withinDeadline(start, args.deadline, clock);
   const out: PageOutcome[] = [];
   const seen = new Set<string>();
   let attempted = 0;
@@ -162,7 +203,31 @@ export async function readListedPages(args: {
       });
       continue;
     }
-    const robots = await robotsFor(url.origin, args.fetcher, cache);
+    if (args.deadline !== undefined && clock() >= args.deadline) {
+      // Not started at all: no request goes out after the deadline.
+      out.push({
+        url: normal,
+        outcome: "failed",
+        reason: DEADLINE_REASON,
+        fetched_at: at(),
+        extract: null,
+      });
+      continue;
+    }
+    let robots: RobotsRules | { refused: string };
+    try {
+      robots = await within(() => robotsFor(url.origin, args.fetcher, cache));
+    } catch {
+      // Only the deadline rejects here: robotsFor itself never throws.
+      out.push({
+        url: normal,
+        outcome: "failed",
+        reason: DEADLINE_REASON,
+        fetched_at: at(),
+        extract: null,
+      });
+      continue;
+    }
     if ("refused" in robots) {
       out.push({
         url: normal,
@@ -187,7 +252,7 @@ export async function readListedPages(args: {
       continue;
     }
     try {
-      const page = await args.fetcher(normal);
+      const page = await within(() => args.fetcher(normal));
       const fetchedAt = at();
       const landed = new URL(page.url);
       if (
@@ -212,7 +277,7 @@ export async function readListedPages(args: {
         const theirs =
           landed.origin === url.origin
             ? robots
-            : await robotsFor(landed.origin, args.fetcher, cache);
+            : await within(() => robotsFor(landed.origin, args.fetcher, cache));
         if ("refused" in theirs || !robotsAllows(theirs, landed)) {
           out.push({
             url: normal,

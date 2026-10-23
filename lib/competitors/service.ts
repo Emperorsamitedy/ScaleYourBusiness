@@ -41,6 +41,7 @@ import {
   ratingSignature,
 } from "./changes";
 import type { OwnOffer } from "./compare";
+import type { SeenOffer } from "./extract";
 import { METHOD_ORDER, needsModel } from "./extract";
 import type { ModelPage, PriceLlm, RunBudget } from "./model";
 import { livePriceLlm, newRunBudget, readWithModel } from "./model";
@@ -393,7 +394,14 @@ export interface ReadDeps {
   budget?: RunBudget;
   now?: () => Date;
   usage?: (accountId: string, now: Date) => Promise<{ account_calls: number; total_eur: number }>;
+  /** Epoch ms (on `clock`) after which no page or model read is started. */
+  deadline?: number;
+  /** The clock the deadline is read against: real time unless a test says otherwise. */
+  clock?: () => number;
 }
+
+/** Why a page that wanted the model didn't get it: the run's time was spent. */
+export const MODEL_DEADLINE_REASON = "the weekly run ran out of time for the model read";
 
 export interface CompetitorReadResult {
   competitor_id: string;
@@ -455,170 +463,214 @@ export async function readCompetitors(
   const chosen = competitorIds === null ? all : all.filter((c) => competitorIds.includes(c.id));
   const robotsCache = new Map<string, RobotsRules | { refused: string }>();
 
-  // 1 · fetch and parse, deterministic only
-  const read: { c: CompetitorRecord; pages: PageOutcome[] }[] = [];
+  const clock = deps.clock ?? Date.now;
+  const late = () => deps.deadline !== undefined && clock() >= deps.deadline;
+  const results: CompetitorReadResult[] = [];
+  const noModel = { byUrl: new Map<string, SeenOffer[]>(), skipped: new Map<string, string>() };
+
+  // 1 · fetch and parse, deterministic only. A competitor none of whose
+  // pages wants the model is recorded at once; the rest wait for the one
+  // batched model read below.
+  const waitingFor: { c: CompetitorRecord; pages: PageOutcome[] }[] = [];
   for (const c of chosen) {
+    if (late()) break; // not started: still the oldest read, first next week
     const urls = pagesOf(c);
     if (urls.length === 0) continue;
-    read.push({ c, pages: await readListedPages({ urls, fetcher, now, robotsCache }) });
+    const pages = await readListedPages({
+      urls,
+      fetcher,
+      now,
+      robotsCache,
+      ...(deps.deadline !== undefined ? { deadline: deps.deadline, clock } : {}),
+    });
+    if (pages.some((p) => p.extract && needsModel(p.extract))) waitingFor.push({ c, pages });
+    else results.push(await recordRead(profileId, c, pages, noModel, now));
   }
+  if (waitingFor.length === 0) return results;
 
   // 2 · the model, once for the whole business, only for pages that need it
   const waiting: ModelPage[] = [];
-  for (const { pages } of read) {
+  for (const { pages } of waitingFor) {
     for (const p of pages) {
       if (p.extract && needsModel(p.extract)) {
         waiting.push({ url: p.url, text: p.extract.text, currencies: p.extract.currencies });
       }
     }
   }
-  const model = await readWithModel({
-    pages: waiting,
-    accountId: profile.account_id,
-    budget,
-    llm: deps.llm ?? livePriceLlm,
-    now: now(),
-    ...(deps.usage ? { usage: deps.usage } : {}),
-  });
-  const skippedModel = new Map(model.skipped.map((s) => [s.url, s.reason]));
-
-  // 3 · record
-  const results: CompetitorReadResult[] = [];
-  for (const { c, pages } of read) {
-    const before = c.offers?.offers ?? [];
-    const fresh: ObservedOffer[] = [];
-    const freshUrls = new Set<string>();
-    const carried: ObservedOffer[] = [];
-    let modelNote: string | null = null;
-    for (const p of pages) {
-      const previous = before.filter((o) => o.url === p.url);
-      if (p.outcome !== "read" || !p.extract) {
-        carried.push(...previous); // not reading is not the same as gone
-        continue;
+  const model = late()
+    ? {
+        byUrl: new Map<string, SeenOffer[]>(),
+        skipped: waiting.map((p) => ({ url: p.url, reason: MODEL_DEADLINE_REASON })),
       }
-      const seen = [...p.extract.offers];
-      const wantedModel = needsModel(p.extract);
-      if (wantedModel) {
-        const byModel = model.byUrl.get(p.url);
-        if (byModel) {
-          seen.push(...byModel);
-          modelNote = "used";
-        } else {
-          modelNote = skippedModel.get(p.url) ?? "not used";
-          // Unverified this week: keep what the model saw before.
-          carried.push(...previous.filter((o) => o.method === "model"));
-        }
+    : await readWithModel({
+        pages: waiting,
+        accountId: profile.account_id,
+        budget,
+        llm: deps.llm ?? livePriceLlm,
+        now: now(),
+        ...(deps.usage ? { usage: deps.usage } : {}),
+      });
+  const modelSeen = {
+    byUrl: model.byUrl,
+    skipped: new Map(model.skipped.map((s) => [s.url, s.reason])),
+  };
+
+  // 3 · record the ones that waited for it
+  for (const { c, pages } of waitingFor) {
+    results.push(await recordRead(profileId, c, pages, modelSeen, now));
+  }
+  // In the order asked for, whichever finished first.
+  const order = new Map(chosen.map((c, i) => [c.id, i]));
+  return results.sort(
+    (a, b) => (order.get(a.competitor_id) ?? 0) - (order.get(b.competitor_id) ?? 0),
+  );
+}
+
+/**
+ * Record one competitor's read: what was seen, what changed, the watch
+ * log. Called as soon as that competitor is done (review 2026-10-23,
+ * finding 10), so a run cut short keeps everything it finished.
+ */
+async function recordRead(
+  profileId: string,
+  c: CompetitorRecord,
+  pages: PageOutcome[],
+  model: { byUrl: Map<string, SeenOffer[]>; skipped: Map<string, string> },
+  now: () => Date,
+): Promise<CompetitorReadResult> {
+  const skippedModel = model.skipped;
+  const before = c.offers?.offers ?? [];
+  const fresh: ObservedOffer[] = [];
+  const freshUrls = new Set<string>();
+  const carried: ObservedOffer[] = [];
+  let modelNote: string | null = null;
+  for (const p of pages) {
+    const previous = before.filter((o) => o.url === p.url);
+    if (p.outcome !== "read" || !p.extract) {
+      carried.push(...previous); // not reading is not the same as gone
+      continue;
+    }
+    const seen = [...p.extract.offers];
+    const wantedModel = needsModel(p.extract);
+    if (wantedModel) {
+      const byModel = model.byUrl.get(p.url);
+      if (byModel) {
+        seen.push(...byModel);
+        modelNote = "used";
+      } else {
+        modelNote = skippedModel.get(p.url) ?? "not used";
+        // Unverified this week: keep what the model saw before.
+        carried.push(...previous.filter((o) => o.method === "model"));
       }
-      if (!wantedModel || model.byUrl.has(p.url)) freshUrls.add(p.url);
-      for (const o of seen) fresh.push({ ...o, url: p.url, fetched_at: p.fetched_at });
     }
+    if (!wantedModel || model.byUrl.has(p.url)) freshUrls.add(p.url);
+    for (const o of seen) fresh.push({ ...o, url: p.url, fetched_at: p.fetched_at });
+  }
 
-    // One offer per key: the stronger method, then the earlier page.
-    const merged = new Map<string, ObservedOffer>();
-    for (const o of [...fresh, ...carried]) {
-      const had = merged.get(o.key);
-      if (!had || METHOD_ORDER.indexOf(o.method) < METHOD_ORDER.indexOf(had.method))
-        merged.set(o.key, o);
-    }
-    const after = [...merged.values()].slice(0, MAX_OFFERS_PER_COMPETITOR);
+  // One offer per key: the stronger method, then the earlier page.
+  const merged = new Map<string, ObservedOffer>();
+  for (const o of [...fresh, ...carried]) {
+    const had = merged.get(o.key);
+    if (!had || METHOD_ORDER.indexOf(o.method) < METHOD_ORDER.indexOf(had.method))
+      merged.set(o.key, o);
+  }
+  const after = [...merged.values()].slice(0, MAX_OFFERS_PER_COMPETITOR);
 
-    const ratingPage = pages.find((p) => p.extract?.rating);
-    const ratingSeen = ratingPage?.extract?.rating ?? null;
-    const ratingAfter: ObservedRating | null = ratingSeen
-      ? {
-          label_raw: ratingLabel(ratingSeen),
-          rating: ratingSeen.rating,
-          best: ratingSeen.best,
-          count: ratingSeen.count,
-          url: ratingPage!.url,
-          method: ratingSeen.method,
-          fetched_at: ratingPage!.fetched_at,
-        }
-      : null;
+  const ratingPage = pages.find((p) => p.extract?.rating);
+  const ratingSeen = ratingPage?.extract?.rating ?? null;
+  const ratingAfter: ObservedRating | null = ratingSeen
+    ? {
+        label_raw: ratingLabel(ratingSeen),
+        rating: ratingSeen.rating,
+        best: ratingSeen.best,
+        count: ratingSeen.count,
+        url: ratingPage!.url,
+        method: ratingSeen.method,
+        fetched_at: ratingPage!.fetched_at,
+      }
+    : null;
 
-    const anyRead = pages.some((p) => p.outcome === "read");
-    const firstRead = c.offers === null && c.rating === null;
-    const name = c.name ?? "A competitor";
-    const changes = firstRead
-      ? []
-      : detectChanges({
-          competitor: name,
-          before,
-          after,
-          freshUrls,
-          ratingBefore: c.rating,
-          ratingAfter: ratingAfter ?? c.rating,
-        });
-
-    const firstUrl = pages[0]?.url;
-    const readAt = now().toISOString();
-    let wroteOffers = false;
-    if (anyRead && (c.offers === null || offersSignature(before) !== offersSignature(after))) {
-      const value: ObservedOffers = { label_raw: offersLabel(after), offers: after };
-      await writeObserved(profileId, key(c.id, "observed_offers"), value, firstUrl, readAt);
-      wroteOffers = true;
-    }
-    if (ratingAfter && ratingSignature(ratingAfter) !== ratingSignature(c.rating)) {
-      await writeObserved(
-        profileId,
-        key(c.id, "observed_rating"),
-        ratingAfter,
-        ratingAfter.url,
-        ratingAfter.fetched_at,
-      );
-    }
-    const status: ReadStatus = {
-      read_at: readAt,
-      pages: pages.map((p) => ({ url: p.url, outcome: p.outcome, reason: p.reason })),
-      offers_seen: fresh.length,
-      model: modelNote,
-    };
-    await writeObserved(profileId, key(c.id, "read_status"), status, firstUrl, readAt);
-
-    // The watch log: one line per change, or the baseline on a first read.
-    const base = Date.parse(readAt);
-    if (firstRead && anyRead) {
-      await db.insert(watchActivity).values({
-        profile_id: profileId,
-        at: new Date(base).toISOString(),
-        kind: WATCH_KIND_FIRST_READ,
-        detail:
-          `I read ${name}'s pages for the first time: ` +
-          (after.length === 0
-            ? "no prices on them"
-            : `${after.length} price${after.length === 1 ? "" : "s"}`) +
-          (ratingAfter ? `, ${ratingLabel(ratingAfter)}` : "") +
-          ".",
-        meta: { competitor_id: c.id },
+  const anyRead = pages.some((p) => p.outcome === "read");
+  const firstRead = c.offers === null && c.rating === null;
+  const name = c.name ?? "A competitor";
+  const changes = firstRead
+    ? []
+    : detectChanges({
+        competitor: name,
+        before,
+        after,
+        freshUrls,
+        ratingBefore: c.rating,
+        ratingAfter: ratingAfter ?? c.rating,
       });
-    }
-    for (const [i, ch] of changes.entries()) {
-      await db.insert(watchActivity).values({
-        profile_id: profileId,
-        at: new Date(base + i + 1).toISOString(), // distinct instants keep the log's order
-        kind: WATCH_KIND_CHANGE,
-        detail: ch.sentence,
-        meta: {
-          competitor_id: c.id,
-          flag: ch.flag,
-          key: ch.key,
-          before: ch.before,
-          after: ch.after,
-        },
-      });
-    }
 
-    results.push({
-      competitor_id: c.id,
-      pages: status.pages,
-      offers_seen: status.offers_seen,
-      changes,
-      first_read: firstRead,
-      wrote_offers: wroteOffers,
-      model: modelNote,
+  const firstUrl = pages[0]?.url;
+  const readAt = now().toISOString();
+  let wroteOffers = false;
+  if (anyRead && (c.offers === null || offersSignature(before) !== offersSignature(after))) {
+    const value: ObservedOffers = { label_raw: offersLabel(after), offers: after };
+    await writeObserved(profileId, key(c.id, "observed_offers"), value, firstUrl, readAt);
+    wroteOffers = true;
+  }
+  if (ratingAfter && ratingSignature(ratingAfter) !== ratingSignature(c.rating)) {
+    await writeObserved(
+      profileId,
+      key(c.id, "observed_rating"),
+      ratingAfter,
+      ratingAfter.url,
+      ratingAfter.fetched_at,
+    );
+  }
+  const status: ReadStatus = {
+    read_at: readAt,
+    pages: pages.map((p) => ({ url: p.url, outcome: p.outcome, reason: p.reason })),
+    offers_seen: fresh.length,
+    model: modelNote,
+  };
+  await writeObserved(profileId, key(c.id, "read_status"), status, firstUrl, readAt);
+
+  // The watch log: one line per change, or the baseline on a first read.
+  const base = Date.parse(readAt);
+  if (firstRead && anyRead) {
+    await db.insert(watchActivity).values({
+      profile_id: profileId,
+      at: new Date(base).toISOString(),
+      kind: WATCH_KIND_FIRST_READ,
+      detail:
+        `I read ${name}'s pages for the first time: ` +
+        (after.length === 0
+          ? "no prices on them"
+          : `${after.length} price${after.length === 1 ? "" : "s"}`) +
+        (ratingAfter ? `, ${ratingLabel(ratingAfter)}` : "") +
+        ".",
+      meta: { competitor_id: c.id },
     });
   }
-  return results;
+  for (const [i, ch] of changes.entries()) {
+    await db.insert(watchActivity).values({
+      profile_id: profileId,
+      at: new Date(base + i + 1).toISOString(), // distinct instants keep the log's order
+      kind: WATCH_KIND_CHANGE,
+      detail: ch.sentence,
+      meta: {
+        competitor_id: c.id,
+        flag: ch.flag,
+        key: ch.key,
+        before: ch.before,
+        after: ch.after,
+      },
+    });
+  }
+
+  return {
+    competitor_id: c.id,
+    pages: status.pages,
+    offers_seen: status.offers_seen,
+    changes,
+    first_read: firstRead,
+    wrote_offers: wroteOffers,
+    model: modelNote,
+  };
 }
 
 /** The owner's "read now": one competitor, at most once per cooldown. */
@@ -664,10 +716,15 @@ export interface WeeklyReadResult {
 }
 
 export async function runCompetitorReads(
-  opts: ReadDeps & { profileIds?: readonly string[] } = {},
+  opts: ReadDeps & { profileIds?: readonly string[]; deadlineMs?: number } = {},
 ): Promise<WeeklyReadResult> {
   const now = opts.now ?? (() => new Date());
-  const started = Date.now();
+  const clock = opts.clock ?? Date.now;
+  // One deadline for the whole run, checked before every page and raced
+  // by every request (review 2026-10-23, finding 10): a profile of
+  // blackholed pages used to run the cron past its 300 s and lose it all.
+  const deadline = clock() + (opts.deadlineMs ?? RUN_CAPS.run_deadline_ms);
+  const late = () => clock() >= deadline;
   const budget = opts.budget ?? newRunBudget();
   const profileRows = await db
     .selectDistinct({ profile_id: competitors.profile_id })
@@ -681,46 +738,61 @@ export async function runCompetitorReads(
     model_calls: 0,
     stopped_early: false,
   };
+
+  // What is due, per business, oldest read first; and the businesses in
+  // the order of their oldest due read, so one that was cut short last
+  // week isn't first again ahead of one that wasn't reached at all.
+  const queue: { profile_id: string; due: CompetitorRecord[] }[] = [];
   for (const { profile_id } of profileRows) {
-    if (
-      Date.now() - started > RUN_CAPS.run_deadline_ms ||
-      result.competitors_read >= RUN_CAPS.max_competitors_per_run
-    ) {
-      result.stopped_early = true;
-      break;
-    }
     try {
       const due = (await loadCompetitors(profile_id))
         .filter((c) => c.tracked && pagesOf(c).length > 0)
         .filter(
           (c) => !c.status || now().getTime() - Date.parse(c.status.read_at) >= WEEKLY_MIN_AGE_MS,
         )
-        // Oldest read first, so a capped run is fair over the weeks.
-        .sort((a, b) => (a.status?.read_at ?? "").localeCompare(b.status?.read_at ?? ""))
-        .slice(
-          0,
-          Math.min(
-            RUN_CAPS.max_competitors_per_profile,
-            RUN_CAPS.max_competitors_per_run - result.competitors_read,
-          ),
-        );
-      if (due.length === 0) continue;
-      const callsBefore = budget.calls;
-      const reads = await readCompetitors(
-        profile_id,
-        due.map((c) => c.id),
-        { ...opts, budget },
-      );
-      result.profiles++;
-      result.competitors_read += reads.length;
-      result.changes += reads.reduce((s, r) => s + r.changes.length, 0);
-      result.model_calls += budget.calls - callsBefore;
+        .sort((a, b) => (a.status?.read_at ?? "").localeCompare(b.status?.read_at ?? ""));
+      if (due.length > 0) queue.push({ profile_id, due });
     } catch (error) {
       console.error(
         JSON.stringify({ event: "competitor_read_failed", profile_id, ...logSafeError(error) }),
       );
     }
   }
+  queue.sort((a, b) =>
+    (a.due[0]?.status?.read_at ?? "").localeCompare(b.due[0]?.status?.read_at ?? ""),
+  );
+
+  for (const { profile_id, due } of queue) {
+    if (late() || result.competitors_read >= RUN_CAPS.max_competitors_per_run) {
+      result.stopped_early = true;
+      break;
+    }
+    try {
+      const chosen = due.slice(
+        0,
+        Math.min(
+          RUN_CAPS.max_competitors_per_profile,
+          RUN_CAPS.max_competitors_per_run - result.competitors_read,
+        ),
+      );
+      const callsBefore = budget.calls;
+      const reads = await readCompetitors(
+        profile_id,
+        chosen.map((c) => c.id),
+        { ...opts, budget, deadline, clock },
+      );
+      result.profiles++;
+      result.competitors_read += reads.length;
+      result.changes += reads.reduce((s, r) => s + r.changes.length, 0);
+      result.model_calls += budget.calls - callsBefore;
+      if (reads.length < chosen.length) result.stopped_early = true;
+    } catch (error) {
+      console.error(
+        JSON.stringify({ event: "competitor_read_failed", profile_id, ...logSafeError(error) }),
+      );
+    }
+  }
+  if (late()) result.stopped_early = true;
   return result;
 }
 
