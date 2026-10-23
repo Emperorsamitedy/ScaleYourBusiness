@@ -19,6 +19,7 @@ import {
   fieldRecords,
   goals as goalsTable,
   intakeEvents,
+  modeDecisions,
   offers,
   proposals,
   users,
@@ -40,6 +41,7 @@ import { addGoal, listGoals, suggestGoalsFromReport, updateGoal } from "./goals"
 import { listChannels, proposeContentPlan } from "./plan";
 import { contentQueue, produceFromProposal } from "./produce";
 import { proposeShotList } from "./shotlist";
+import { contentWatchUntil } from "./watch";
 import { buildVoiceCard, renderVoiceCard } from "./voice";
 
 const created: { account_id: string; profile_id: string }[] = [];
@@ -116,6 +118,7 @@ afterAll(async () => {
   if (ids.length > 0) {
     await db.delete(contentItems).where(inArray(contentItems.profile_id, ids));
     await db.delete(proposals).where(inArray(proposals.profile_id, ids));
+    await db.delete(modeDecisions).where(inArray(modeDecisions.profile_id, ids));
     await db.delete(utterances).where(inArray(utterances.profile_id, ids));
     await db.delete(goalsTable).where(inArray(goalsTable.profile_id, ids));
     await db.delete(channels).where(inArray(channels.profile_id, ids));
@@ -322,5 +325,46 @@ describe("vocabulary fields read the intake's answer shape", () => {
     await owner(s.profile_id, `goals.${g!.id}.horizon`, { code: "6_months" });
     const [goal] = await listGoals(s.profile_id);
     expect(goal).toMatchObject({ statement: "Grow repeat orders", horizon: "6_months" });
+  });
+});
+
+// Rule 15 (P3-36): nothing is proposed during the watch, whoever asks — the
+// calendar and the shot list alike, and the screen is told the end date.
+describe("the watch holds every content proposal", () => {
+  async function watched(weeks: number) {
+    const s = await business();
+    await db.insert(modeDecisions).values({
+      profile_id: s.profile_id,
+      mode: "watching",
+      watch_weeks: weeks,
+      inputs: {},
+      reasoning: "fixture",
+      confidence: "0.800",
+      review_at: new Date(Date.now() + 60 * 86_400_000).toISOString(),
+    });
+    return s;
+  }
+
+  it("refuses a calendar and a shot list while watching, and names the end day", async () => {
+    const s = await watched(6);
+    const until = await contentWatchUntil(s.profile_id);
+    expect(until).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    await expect(proposeContentPlan(s.profile_id, { limitLlm: limitsLlm })).rejects.toThrow(
+      new RegExp(`still watching until ${until}`),
+    );
+    await expect(proposeShotList(s.profile_id, { limitLlm: limitsLlm })).rejects.toThrow(
+      /still watching until/,
+    );
+    const made = await db.select().from(proposals).where(eq(proposals.profile_id, s.profile_id));
+    expect(made).toHaveLength(0);
+  });
+
+  it("proposes once the watch is over, and reports no end day", async () => {
+    const s = await watched(6);
+    // Well past any watch start plus six weeks.
+    const later = new Date(Date.now() + 26 * 7 * 86_400_000);
+    expect(await contentWatchUntil(s.profile_id, later)).toBeNull();
+    const shot = await proposeShotList(s.profile_id, { limitLlm: limitsLlm, now: later });
+    expect(shot.status).toBe("pending");
   });
 });

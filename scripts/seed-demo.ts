@@ -1596,17 +1596,9 @@ async function seed(): Promise<void> {
     return { text };
   };
 
-  const plan = await phase("content calendar proposed", at(4, "19:00"), () =>
-    proposeContentPlan(ids.profile, { weeks: 2, now: new Date() }),
-  );
-  await phase("content calendar approved and drafted", at(3, "08:45"), async () => {
-    await approveProposal({ proposalId: plan.id, userId: ids.user, profileId: ids.profile });
-    const produced = await produceFromProposal(plan.id, {
-      draftLlm,
-      expectedProfileId: ids.profile,
-    });
-    log(`  content: ${produced.items.length} items`);
-  });
+  // No content calendar for Fernhill: it is still in its watch, and nothing
+  // is proposed during one, whoever asks (rule 15; P3-36). The calendar is
+  // demonstrated on Emberworks below, which is past its watch.
 
   const fixtureFetcher = async (url: string) => {
     const normalised = url.replace(/\/$/, "") === data.SITE ? `${data.SITE}/` : url;
@@ -1837,6 +1829,35 @@ async function seed(): Promise<void> {
           kind: "value",
           wire: "Ireland",
         });
+        // One channel the content calendar can plan onto (type and platform
+        // as plain codes, as for Fernhill's channels above).
+        // Written as a row plus its type and platform facts: 7.1 isn't askable
+        // on this minimal intake, and the planner reads the channels table.
+        const [row] = await db
+          .insert(schema.channels)
+          .values({ profile_id: outbound.profile })
+          .returning({ id: schema.channels.id });
+        const channel = row?.id;
+        if (!channel) throw new Error("Emberworks: the channel row didn't land");
+        for (const [key, value] of [
+          [`channels.${channel}.type`, "social_organic"],
+          [`channels.${channel}.platform`, "instagram"],
+        ] as const) {
+          const now = isoDateTime(new Date().toISOString());
+          await writeField(
+            outbound.profile,
+            createField<unknown>({
+              id: fieldId(key),
+              value,
+              status: "answered",
+              confidence: 0.75,
+              source: { kind: "owner_input" },
+              observed_at: now,
+              recorded_at: now,
+              note: null,
+            }),
+          );
+        }
         await importContacts(
           outbound.account,
           csv(YES, 0, lapsedDay, (i) => 1 + (i % 3)),
@@ -1868,6 +1889,25 @@ async function seed(): Promise<void> {
           confidence: "0.800",
           review_at: new Date(Date.now() + 42 * DAY_MS).toISOString(),
         });
+      },
+      who,
+    );
+
+    await phase(
+      "Emberworks: content calendar proposed, approved and drafted",
+      at(6, "09:30"),
+      async () => {
+        const plan = await proposeContentPlan(outbound.profile, { weeks: 2, now: new Date() });
+        await approveProposal({
+          proposalId: plan.id,
+          userId: outbound.user,
+          profileId: outbound.profile,
+        });
+        const produced = await produceFromProposal(plan.id, {
+          draftLlm,
+          expectedProfileId: outbound.profile,
+        });
+        log(`  content: ${produced.items.length} items`);
       },
       who,
     );

@@ -251,6 +251,13 @@ select,
 textarea {
   border-radius: 0;
 }
+/* Native controls don't inherit the page's type by default; an <option>
+   fell back to the system sans. Every control speaks the sheet's fonts. */
+select,
+option,
+optgroup {
+  font: inherit;
+}
 
 /* ── worded flags: the word carries meaning, colour only tints it ── */
 
