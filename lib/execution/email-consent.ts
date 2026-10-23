@@ -46,6 +46,17 @@ export const EMAIL_DISCONNECT_NOTE =
 
 export { emailConsentLines, senderIdentity } from "./email-sender";
 
+/**
+ * Review 2026-10-23 (#5a): said on /connections while CAMPAIGN_EMAIL_FROM is
+ * unset — campaigns and Ledgerline's sign-in emails then go from one address.
+ * Null once campaigns have a sender of their own.
+ */
+export function sharedSenderNote(campaignFrom: string | null): string | null {
+  return campaignFrom
+    ? null
+    : "For now, campaigns and Ledgerline's own sign-in emails go out from the same sending address. If a campaign drew many spam complaints, sign-in emails could be slowed too.";
+}
+
 const EMAIL_RE = /^[^@\s<>"]+@[^@\s<>"]+\.[^@\s<>"]+$/;
 
 /** Pure: the owner's sender identity, checked. Throws by name. */

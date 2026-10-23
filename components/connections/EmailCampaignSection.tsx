@@ -25,6 +25,8 @@ export interface EmailView {
   disconnect_note: string;
   /** The real-send switch, in the engine's own sentence, while it is off. */
   real_sends: string | null;
+  /** Review #5a: said while campaigns and sign-in share one sending address. */
+  shared_sender: string | null;
   connection: {
     id: string;
     status: "connected" | "paused" | "failed" | "disconnected";
@@ -267,6 +269,7 @@ export function EmailCampaignSection({
           every email carries its own unsubscribe link, honoured at once and for good.
         </p>
         {view.real_sends && <p className="cn-access-body">{view.real_sends}</p>}
+        {view.shared_sender && <p className="cn-access-body">{view.shared_sender}</p>}
       </section>
     </div>
   );

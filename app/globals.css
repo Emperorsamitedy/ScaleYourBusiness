@@ -701,6 +701,18 @@ a.auth-cta {
   font-size: 12.5px;
   overflow-wrap: anywhere;
 }
+/* Review 2026-10-23 (#5c): one first campaign waiting for its review on /ops. */
+.ops-review {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--hair);
+}
+.ops-body {
+  white-space: pre-wrap;
+  margin: 8px 0 0;
+  padding: 10px;
+  border: 1px solid var(--hair);
+}
 /* P4-15: the email-law review form on /ops. */
 .ops-form {
   display: flex;

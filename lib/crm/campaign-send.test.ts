@@ -20,6 +20,7 @@ import { db } from "../../db";
 import {
   accounts,
   businessProfiles,
+  campaignReviews,
   campaignSends,
   connections,
   contactSuppressions,
@@ -43,10 +44,11 @@ import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { haltExecutions, realWritesOffSentence, resumeExecutions } from "../execution/engine";
 import { runDueExecutions } from "../execution/due";
-import { consentToCampaignEmail } from "../execution/email-consent";
+import { consentToCampaignEmail, sharedSenderNote } from "../execution/email-consent";
 import { disconnectExecution } from "../execution/connections";
 import type { MailFetch } from "../execution/providers/email-campaign";
 import {
+  CAMPAIGN_DAILY_RECIPIENT_CAP,
   SLOT,
   UNKNOWN_BACKOFF_BASE_MS,
   UNKNOWN_BACKOFF_CAP_MS,
@@ -83,6 +85,14 @@ import { addContact, emailHash, eraseContact } from "./contacts";
 import { importContacts } from "./import";
 import { consentRefusals } from "./jurisdiction";
 import type { LawReviewVerdict } from "./law-review";
+import {
+  FIRST_CAMPAIGN_UNREVIEWED,
+  accountCampaignReview,
+  campaignReviewVerdict,
+  campaignsAwaitingReview,
+  recordCampaignReview,
+} from "./campaign-review";
+import type { CampaignReviewLookup } from "./campaign-send";
 import { jurisdictionTableHash, lawReviewVerdict } from "./law-review";
 
 /* ── pure ── */
@@ -185,7 +195,15 @@ const CURRENT: LawReviewVerdict = lawReviewVerdict(
   { table_sha256: jurisdictionTableHash(), reviewed_on: "2026-10-18" },
   jurisdictionTableHash(),
 );
-const ENV_KEYS = ["SESSION_D_REAL_WRITES", "RESEND_API_KEY", "APP_URL", "EMAIL_FROM"] as const;
+/** The operator's first-campaign review, stood in (review #5c has its own tests below). */
+const REVIEWED = campaignReviewVerdict({ reviewed_on: "2026-10-20" });
+const ENV_KEYS = [
+  "SESSION_D_REAL_WRITES",
+  "RESEND_API_KEY",
+  "APP_URL",
+  "EMAIL_FROM",
+  "CAMPAIGN_EMAIL_FROM",
+] as const;
 const saved: Partial<Record<(typeof ENV_KEYS)[number], string | undefined>> = {};
 
 beforeEach(() => {
@@ -194,6 +212,7 @@ beforeEach(() => {
   process.env.RESEND_API_KEY = "re_test_campaigns";
   process.env.APP_URL = "https://syb.test";
   process.env.EMAIL_FROM = "Ledgerline <hello@send.syb.test>";
+  delete process.env.CAMPAIGN_EMAIL_FROM;
   vi.stubGlobal("fetch", async () => {
     throw new Error("the network was touched");
   });
@@ -230,6 +249,7 @@ afterAll(async () => {
   }
   await db.delete(executions).where(inArray(executions.profile_id, ids));
   await db.delete(contentItems).where(inArray(contentItems.profile_id, ids));
+  await db.delete(campaignReviews).where(inArray(campaignReviews.account_id, accountIds));
   await db.delete(proposals).where(inArray(proposals.profile_id, ids));
   await db.delete(contacts).where(inArray(contacts.account_id, accountIds));
   await db.delete(contactSuppressions).where(inArray(contactSuppressions.account_id, accountIds));
@@ -400,12 +420,21 @@ function fakeResend(script: (number | "throw")[] = []) {
 
 function provider(
   fake: { fetchImpl: MailFetch },
-  opts: { lawReview?: () => Promise<LawReviewVerdict>; runCap?: number } = {},
+  opts: {
+    lawReview?: () => Promise<LawReviewVerdict>;
+    campaignReview?: CampaignReviewLookup;
+    runCap?: number;
+    now?: () => Date;
+  } = {},
 ) {
   return createEmailCampaignExecutor({
     fetch: fake.fetchImpl,
     sleep: noSleep,
-    backend: dbCampaignBackend({ lawReview: opts.lawReview ?? (async () => CURRENT) }),
+    backend: dbCampaignBackend({
+      lawReview: opts.lawReview ?? (async () => CURRENT),
+      campaignReview: opts.campaignReview ?? (async () => REVIEWED),
+      ...(opts.now ? { now: opts.now } : {}),
+    }),
     ...(opts.runCap ? { runCap: opts.runCap } : {}),
   });
 }
@@ -685,6 +714,8 @@ describe("P4-15 — each gate refuses on its own, sending nothing and keeping th
       "real_sends_off",
       "not_connected",
       "law_review_missing",
+      // Review #5c, read for real here: no operator has reviewed this account's first campaign.
+      "first_campaign_unreviewed",
     ]);
     const view = await campaignSendView(p!, b.account_id);
     expect(view.phase).toBe("held");
@@ -1282,5 +1313,267 @@ describe("review 2026-10-23 #15 — disconnecting stops a run mid-way", () => {
       providers: { email_campaign: provider(inner) },
     });
     expect(inner.calls).toHaveLength(1);
+  });
+});
+
+describe("review 2026-10-23 #5a — campaigns can send from a sender of their own", () => {
+  it("CAMPAIGN_EMAIL_FROM, when set, is the From; unset, campaigns share EMAIL_FROM and the screen says so", async () => {
+    const b = await business();
+    const ann = await person(b, "ann", "explicit_consent");
+    const ben = await person(b, "ben", "explicit_consent");
+    // Unset: the sign-in sender.
+    const shared = fakeResend();
+    await sendCampaignNow({
+      profileId: b.profile_id,
+      proposalId: (await campaign(b, [ann.id])).proposal_id,
+      provider: provider(shared),
+    });
+    expect(shared.calls[0]!.body.from).toBe('"Emberworks via Ledgerline" <hello@send.syb.test>');
+    expect(sharedSenderNote(null)).toMatch(/same sending address/);
+    // Set: its own.
+    process.env.CAMPAIGN_EMAIL_FROM = "Ledgerline Campaigns <news@campaigns.syb.test>";
+    const own = fakeResend();
+    await sendCampaignNow({
+      profileId: b.profile_id,
+      proposalId: (await campaign(b, [ben.id])).proposal_id,
+      provider: provider(own),
+    });
+    expect(own.calls[0]!.body.from).toBe('"Emberworks via Ledgerline" <news@campaigns.syb.test>');
+    expect(sharedSenderNote("Ledgerline Campaigns <news@campaigns.syb.test>")).toBeNull();
+  });
+});
+
+describe("review 2026-10-23 #5b — a per-account daily recipient cap, counted at send time", () => {
+  it("is pinned at 500 a day", () => {
+    expect(CAMPAIGN_DAILY_RECIPIENT_CAP).toBe(500);
+  });
+
+  it("one under the cap sends; at the cap the run holds until midnight UTC, in words, and goes on after", async () => {
+    const b = await business();
+    // Earlier today this account handed 499 campaign emails to the service.
+    const filler = await campaign(b, []);
+    const [fillerRun] = await db
+      .insert(executions)
+      .values({
+        proposal_id: filler.proposal_id,
+        profile_id: b.profile_id,
+        account_id: b.account_id,
+        provider: "email_campaign",
+        op: "send_campaign",
+        status: "succeeded",
+      })
+      .returning();
+    const at = new Date().toISOString();
+    await db.insert(campaignSends).values(
+      Array.from({ length: CAMPAIGN_DAILY_RECIPIENT_CAP - 1 }, (_, i) => {
+        const id = crypto.randomUUID();
+        return {
+          id,
+          proposal_id: filler.proposal_id,
+          execution_id: fillerRun!.id,
+          profile_id: b.profile_id,
+          account_id: b.account_id,
+          status: "sent" as const,
+          email_hash: `cap-${b.tag}-${i}`,
+          unsubscribe_token_hash: `tok-${id}`,
+          idempotency_key: `syb-campaign-${id}`,
+          claimed_at: at,
+          sent_at: at,
+        };
+      }),
+    );
+    const people = await Promise.all(["c1", "c2"].map((l) => person(b, l, "explicit_consent")));
+    const c = await campaign(
+      b,
+      people.map((x) => x.id),
+    );
+    const fake = fakeResend();
+    const out = await sendCampaignNow({
+      profileId: b.profile_id,
+      proposalId: c.proposal_id,
+      provider: provider(fake),
+    });
+    // The 500th goes; the 501st does not.
+    expect(fake.calls).toHaveLength(1);
+    expect(out).toMatchObject({ result: "held" });
+    expect(out.message).toMatch(
+      /sent its 500 campaign emails for today.*The rest go out after midnight UTC\./,
+    );
+    const run = await runOf(c.proposal_id);
+    expect(run).toMatchObject({ status: "failed", held_for: "remaining" });
+    const midnight = new Date();
+    midnight.setUTCHours(24, 0, 0, 0);
+    expect(Date.parse(run.held_until!)).toBeGreaterThanOrEqual(midnight.getTime() - 5_000);
+    expect(Date.parse(run.held_until!)).toBeLessThanOrEqual(midnight.getTime() + 5_000);
+    expect((await sendsOf(c.proposal_id)).map((r) => r.status).sort()).toEqual(["pending", "sent"]);
+    // Later today: nothing. After midnight: the day's count is fresh and the rest goes.
+    await runDueExecutions({
+      profileId: b.profile_id,
+      sleep: noSleep,
+      providers: { email_campaign: provider(fake) },
+    });
+    expect(fake.calls).toHaveLength(1);
+    const tomorrow = new Date(midnight.getTime() + 60_000);
+    await runDueExecutions({
+      profileId: b.profile_id,
+      sleep: noSleep,
+      now: () => tomorrow,
+      providers: { email_campaign: provider(fake, { now: () => tomorrow }) },
+    });
+    expect(fake.calls).toHaveLength(2);
+    expect((await runOf(c.proposal_id)).status).toBe("succeeded");
+  });
+});
+
+describe("review 2026-10-23 #5c — an operator reviews each account's first campaign", () => {
+  const post = async (fields: Record<string, string>) => {
+    const { NextRequest } = await import("next/server");
+    const { POST } = await import("../../app/api/ops/campaign-review/route");
+    return POST(
+      new NextRequest("https://syb.test/api/ops/campaign-review", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(fields).toString(),
+      }),
+    );
+  };
+
+  it("the first campaign is refused at pre-flight until a person records the review; later ones don't wait", async () => {
+    const saved = process.env.OPS_KEY;
+    process.env.OPS_KEY = "ops-test-key";
+    try {
+      const b = await business();
+      const ann = await person(b, "ann", "explicit_consent");
+      const ben = await person(b, "ben", "explicit_consent");
+      const first = await campaign(b, [ann.id]);
+      const fake = fakeResend();
+      const real = provider(fake, { campaignReview: accountCampaignReview });
+
+      // Refused, in words, unclaimed: nothing sent, still approved, no run.
+      const refused = await sendCampaignNow({
+        profileId: b.profile_id,
+        proposalId: first.proposal_id,
+        provider: real,
+      });
+      expect(refused).toMatchObject({ result: "refused" });
+      expect(refused.message).toBe(
+        `${FIRST_CAMPAIGN_UNREVIEWED} Nothing was sent; this stays approved.`,
+      );
+      expect(fake.calls).toHaveLength(0);
+      expect(
+        await db.select().from(executions).where(eq(executions.proposal_id, first.proposal_id)),
+      ).toEqual([]);
+      // /ops lists it for the operator: the business's words and a count, no recipient.
+      const waiting = (await campaignsAwaitingReview(500)).find(
+        (w) => w.proposal_id === first.proposal_id,
+      );
+      expect(waiting).toMatchObject({ recipients: 1, sender_name: "Emberworks" });
+      expect(JSON.stringify(waiting)).not.toContain("customers.test");
+
+      // A wrong key records nothing.
+      const wrong = await post({
+        key: "wrong",
+        proposal_id: first.proposal_id,
+        reviewer: "Ops Person",
+        reviewed_on: "2026-10-23",
+      });
+      expect(wrong.status).toBe(404);
+      expect((await accountCampaignReview(b.account_id)).reviewed).toBe(false);
+
+      // The operator records it from /ops.
+      const ok = await post({
+        key: "ops-test-key",
+        proposal_id: first.proposal_id,
+        reviewer: "Ops Person",
+        reviewed_on: new Date().toISOString().slice(0, 10),
+      });
+      expect(ok.status).toBe(303);
+      expect(ok.headers.get("location")).toContain("campaign_review=recorded");
+      const [row] = await db
+        .select()
+        .from(campaignReviews)
+        .where(eq(campaignReviews.account_id, b.account_id));
+      expect(row).toMatchObject({ proposal_id: first.proposal_id, reviewer: "Ops Person" });
+      const [entry] = await db
+        .select()
+        .from(decisionLog)
+        .where(and(eq(decisionLog.kind, "campaign_review"), eq(decisionLog.ref_id, row!.id)));
+      expect(entry).toMatchObject({ profile_id: b.profile_id, actor: "system" });
+      expect(JSON.stringify(entry)).not.toContain("Ops Person");
+      // Twice is refused, in words.
+      const again = await post({
+        key: "ops-test-key",
+        proposal_id: first.proposal_id,
+        reviewer: "Ops Person",
+        reviewed_on: "2026-10-23",
+      });
+      expect(again.headers.get("location")).toContain("already+recorded");
+      expect(
+        (await campaignsAwaitingReview(500)).some((w) => w.proposal_id === first.proposal_id),
+      ).toBe(false);
+
+      // Now it sends, and the account's next campaign needs no review of its own.
+      expect(
+        await sendCampaignNow({
+          profileId: b.profile_id,
+          proposalId: first.proposal_id,
+          provider: real,
+        }),
+      ).toMatchObject({ result: "sent" });
+      const second = await campaign(b, [ben.id]);
+      expect(
+        await sendCampaignNow({
+          profileId: b.profile_id,
+          proposalId: second.proposal_id,
+          provider: real,
+        }),
+      ).toMatchObject({ result: "sent" });
+      expect(fake.calls).toHaveLength(2);
+
+      // Another account's first campaign still waits.
+      const other = await business();
+      const zoe = await person(other, "zoe", "explicit_consent");
+      const theirs = await campaign(other, [zoe.id]);
+      expect(
+        await sendCampaignNow({
+          profileId: other.profile_id,
+          proposalId: theirs.proposal_id,
+          provider: real,
+        }),
+      ).toMatchObject({ result: "refused" });
+      expect(fake.calls).toHaveLength(2);
+    } finally {
+      if (saved === undefined) delete process.env.OPS_KEY;
+      else process.env.OPS_KEY = saved;
+    }
+  });
+
+  it("refuses a nameless reviewer, a malformed or future day, and anything that isn't a campaign", async () => {
+    const b = await business();
+    const c = await campaign(b, []);
+    await expect(
+      recordCampaignReview({ proposalId: c.proposal_id, reviewer: "  ", reviewedOn: "2026-10-23" }),
+    ).rejects.toMatchObject({ status: 422 });
+    await expect(
+      recordCampaignReview({ proposalId: c.proposal_id, reviewer: "A", reviewedOn: "23/10/2026" }),
+    ).rejects.toMatchObject({ status: 422 });
+    await expect(
+      recordCampaignReview({
+        proposalId: c.proposal_id,
+        reviewer: "A",
+        reviewedOn: "2026-10-24",
+        now: new Date("2026-10-23T12:00:00Z"),
+      }),
+    ).rejects.toThrow(/future/);
+    await expect(
+      recordCampaignReview({
+        proposalId: crypto.randomUUID(),
+        reviewer: "A",
+        reviewedOn: "2026-10-23",
+      }),
+    ).rejects.toMatchObject({ status: 404 });
+    expect((await accountCampaignReview(b.account_id)).reviewed).toBe(false);
+    expect(campaignReviewVerdict(null)).toMatchObject({ reviewed: false });
+    expect(campaignReviewVerdict({ reviewed_on: "2026-10-23" }).words).toMatch(/2026-10-23/);
   });
 });

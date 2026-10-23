@@ -50,6 +50,7 @@ import {
   sendIdTag,
 } from "../crm/campaign-events";
 import { approveCampaignEmail, dbCampaignBackend, sendCampaignNow } from "../crm/campaign-send";
+import { campaignReviewVerdict } from "../crm/campaign-review";
 import type { ConsentStatus } from "../crm/contacts";
 import { addContact, eraseContact } from "../crm/contacts";
 import { importContacts } from "../crm/import";
@@ -479,7 +480,10 @@ async function send(b: Business, proposalId: string, fake: { fetchImpl: MailFetc
     provider: createEmailCampaignExecutor({
       fetch: fake.fetchImpl,
       sleep: async () => undefined,
-      backend: dbCampaignBackend({ lawReview: async () => CURRENT }),
+      backend: dbCampaignBackend({
+        lawReview: async () => CURRENT,
+        campaignReview: async () => campaignReviewVerdict({ reviewed_on: "2026-10-20" }),
+      }),
     }),
   });
 }

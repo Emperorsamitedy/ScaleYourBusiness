@@ -410,6 +410,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "unsubscribe", // P4-15: a recipient unsubscribed; ref is the campaign_sends row, no PII
   "complaint", // P4-17: a recipient marked a campaign email as spam; ref is the campaign_sends row, no PII
   "assistant_change", // feature 33: the owner confirmed a change the assistant prepared in chat; ref is the assistant_changes row
+  "campaign_review", // review 2026-10-23 (#5c): an operator reviewed an account's first campaign; ref is the campaign_reviews row, no PII
 ]);
 
 export const decisionLog = pgTable(
@@ -2277,6 +2278,40 @@ export const jurisdictionReviews = pgTable(
     index("jurisdiction_reviews_recorded_idx").on(t.recorded_at),
     check("jurisdiction_reviews_reviewer_named", sql`length(trim(${t.reviewer})) > 0`),
     check("jurisdiction_reviews_hash_shape", sql`${t.table_sha256} ~ '^[0-9a-f]{64}$'`),
+  ],
+);
+
+// campaign_reviews — review 2026-10-23 (#5c). Campaigns go out from
+// Ledgerline's own sending domain, so one self-signed-up account sending to
+// scraped addresses could get that domain throttled for everyone. A person
+// at Ledgerline reviews each account's FIRST campaign before it sends: who,
+// on what day, and which campaign. Until a row exists for the account, its
+// campaign is refused at pre-flight (guard 6b, beside the law review), in
+// words; once one exists, later campaigns don't need another. Recorded from
+// /ops behind OPS_KEY, with a decision-log entry (kind campaign_review) whose
+// hash covers the sha256 of the reviewer's name, never the name.
+export const campaignReviews = pgTable(
+  "campaign_reviews",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** The campaign proposal the operator read. */
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id),
+    /** The operator's own name, as they gave it — a person, never "the team". */
+    reviewer: text("reviewer").notNull(),
+    reviewed_on: date("reviewed_on", { mode: "string" }).notNull(),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("campaign_reviews_proposal_idx").on(t.proposal_id),
+    index("campaign_reviews_account_idx").on(t.account_id, t.recorded_at),
+    check("campaign_reviews_reviewer_named", sql`length(trim(${t.reviewer})) > 0`),
   ],
 );
 

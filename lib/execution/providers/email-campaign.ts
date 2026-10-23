@@ -69,6 +69,18 @@ export const CAMPAIGN_PACE_MS = 600;
 export const UNKNOWN_BACKOFF_BASE_MS = 60 * 60_000;
 export const UNKNOWN_BACKOFF_CAP_MS = 24 * 60 * 60_000;
 
+/**
+ * Review 2026-10-23 (#5b): at most this many campaign emails per ACCOUNT per
+ * UTC day, across all its campaigns, counted from campaign_sends at the
+ * moment of each send. Why 500: a small business's whole consented list is
+ * usually a few hundred, so a real campaign still goes out in a day; and it
+ * bounds what one self-signed-up account can do to the shared sending
+ * domain in a day, a tenth of the 5 000 a day at which Gmail starts treating
+ * a sender as bulk. A run that reaches it is held until midnight UTC, with
+ * the reason in words. Pinned here; raising it is a reviewed code change.
+ */
+export const CAMPAIGN_DAILY_RECIPIENT_CAP = 500;
+
 /** Pure: the wait after the campaign's n-th unknown outcome (n ≥ 1). */
 export function unknownBackoffMs(unknownSoFar: number): number {
   const n = Math.max(1, Math.floor(unknownSoFar));
@@ -159,6 +171,12 @@ export interface CampaignBackend {
   record(sendId: string, outcome: CampaignMailOutcome): Promise<void>;
   /** sending → pending: the service refused before doing anything, for every recipient alike. */
   release(sendId: string): Promise<void>;
+  /**
+   * Review 2026-10-23 (#5b): how many more campaign emails this account may
+   * hand to the service today (CAMPAIGN_DAILY_RECIPIENT_CAP, UTC day), and
+   * how long until the count resets.
+   */
+  dailyRoom(ctx: ExecutionContext): Promise<{ used: number; room: number; resets_in_ms: number }>;
   /**
    * Review 2026-10-23 (#15): is the connection the plan was read from still
    * the account's live, connected campaign-email grant? Read before every
@@ -375,6 +393,15 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
         if (!(await b.stillConnected(plan.connection_id, ctx))) {
           throw new CampaignRefused(
             "Campaign email was disconnected mid-send, so I stopped: nobody else was emailed. The rest stay unsent unless you connect it again and send.",
+          );
+        }
+        // The account's daily cap, counted now (review 2026-10-23, #5b).
+        const day = await b.dailyRoom(ctx);
+        if (day.room <= 0) {
+          throw new CampaignHold(
+            "remaining",
+            `Your account has sent its ${CAMPAIGN_DAILY_RECIPIENT_CAP} campaign emails for today, the most Ledgerline sends for one business in a day, so I stopped there. The rest go out after midnight UTC.`,
+            day.resets_in_ms,
           );
         }
         const token = newUnsubscribeToken();

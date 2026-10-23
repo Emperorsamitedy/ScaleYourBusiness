@@ -28,9 +28,10 @@ import {
   consentToCampaignEmail,
   emailConsentLines,
   senderIdentity,
+  sharedSenderNote,
 } from "../../../../lib/execution/email-consent";
 import { EXECUTION_SCOPE_REGISTRY } from "../../../../lib/execution/scopes";
-import { sessionDRealWritesOn } from "../../../../lib/env";
+import { campaignEmailFrom, sessionDRealWritesOn } from "../../../../lib/env";
 import { realWritesOffSentence } from "../../../../lib/execution/engine";
 import { db } from "../../../../db";
 import { businessProfiles } from "../../../../db/schema";
@@ -96,6 +97,8 @@ export async function GET(): Promise<NextResponse> {
       nothing_sent: EMAIL_NOTHING_SENT,
       disconnect_note: EMAIL_DISCONNECT_NOTE,
       real_sends: sessionDRealWritesOn() ? null : realWritesOffSentence(spec.label),
+      // Review 2026-10-23 (#5a): said plainly while campaigns share sign-in's sender.
+      shared_sender: sharedSenderNote(campaignEmailFrom()),
       connection: row ? toPublicExecutionConnection(row) : null,
     });
   } catch (error) {

@@ -122,6 +122,17 @@ export function supportInboundDomain(): string | null {
   return /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(raw) ? raw : null;
 }
 
+/**
+ * Review 2026-10-23 (#5a): the From address campaigns send from — ideally a
+ * sending subdomain of its own (e.g. "Ledgerline <hello@campaigns.example.com>"),
+ * so a complaint spike on campaigns can't throttle the address sign-in links
+ * come from. Null = unset: campaigns share EMAIL_FROM with sign-in, and
+ * /connections says so plainly.
+ */
+export function campaignEmailFrom(): string | null {
+  return process.env.CAMPAIGN_EMAIL_FROM?.trim() || null;
+}
+
 /** RESEND_API_KEY, or null — every Resend call is honest about its absence. */
 export function resendApiKey(): string | null {
   return process.env.RESEND_API_KEY?.trim() || null;

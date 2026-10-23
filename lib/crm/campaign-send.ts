@@ -23,7 +23,7 @@
 // Resend's id.
 
 import { createHash, randomUUID } from "node:crypto";
-import { and, asc, count, eq, inArray, isNotNull, lt, sql } from "drizzle-orm";
+import { and, asc, count, eq, gte, inArray, isNotNull, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
   businessProfiles,
@@ -35,7 +35,7 @@ import {
   executions,
   proposals,
 } from "../../db/schema";
-import { appUrl, resendApiKey, sessionDRealWritesOn } from "../env";
+import { appUrl, campaignEmailFrom, resendApiKey, sessionDRealWritesOn } from "../env";
 import { activeExecutionConnection } from "../execution/connections";
 import {
   ExecutionRefused,
@@ -49,7 +49,12 @@ import type {
   CampaignMailOutcome,
   CampaignPlan,
 } from "../execution/providers/email-campaign";
-import { CAMPAIGN_OP, SLOT, sha256 } from "../execution/providers/email-campaign";
+import {
+  CAMPAIGN_DAILY_RECIPIENT_CAP,
+  CAMPAIGN_OP,
+  SLOT,
+  sha256,
+} from "../execution/providers/email-campaign";
 import { executionProvider } from "../execution/providers/index";
 import type { ExecutionContext, ExecutionProvider } from "../execution/providers/fixture";
 import type { DispatchPlan } from "../execution/due";
@@ -64,6 +69,8 @@ import { emailHash, normalizeEmail, outboundPosture } from "./contacts";
 import { canSendMarketing } from "./jurisdiction";
 import type { LawReviewVerdict } from "./law-review";
 import { currentLawReview } from "./law-review";
+import type { CampaignReviewVerdict } from "./campaign-review";
+import { accountCampaignReview } from "./campaign-review";
 import { SEGMENT_KIND, SEGMENT_MODULE } from "./segment-proposals";
 import { computeSegments } from "./segments";
 
@@ -86,9 +93,14 @@ const STILL_APPROVED = "Nothing was sent; this stays approved.";
 
 /* ── the sender identity ── */
 
-/** SYB's verified sending address: EMAIL_FROM's address part, or Resend's test sender. */
+/**
+ * SYB's verified campaign sending address: CAMPAIGN_EMAIL_FROM's address part
+ * when set (review 2026-10-23, #5a: kept apart from sign-in's sender), else
+ * EMAIL_FROM's, else Resend's test sender.
+ */
 export function sendingAddress(): string {
-  const raw = process.env.EMAIL_FROM?.trim() || "Ledgerline <onboarding@resend.dev>";
+  const raw =
+    campaignEmailFrom() ?? (process.env.EMAIL_FROM?.trim() || "Ledgerline <onboarding@resend.dev>");
   return (/<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw).trim();
 }
 
@@ -141,6 +153,7 @@ export type GateCode =
   | "not_connected"
   | "law_review_missing"
   | "law_review_stale"
+  | "first_campaign_unreviewed"
   | "outbound_off"
   | "email_not_set_up"
   | "no_draft"
@@ -154,7 +167,13 @@ export interface Gate {
 }
 
 export const GATE_WORDS: Readonly<
-  Record<Exclude<GateCode, "law_review_missing" | "law_review_stale" | "real_sends_off">, string>
+  Record<
+    Exclude<
+      GateCode,
+      "law_review_missing" | "law_review_stale" | "real_sends_off" | "first_campaign_unreviewed"
+    >,
+    string
+  >
 > = {
   stopped: "Everything is stopped (the emergency stop is on). Nothing sends until you resume.",
   no_mode_decision: "There's no decision yet on how I work with your business, so nothing sends.",
@@ -203,11 +222,18 @@ export function unsubscribeBase(url: string | null): string | null {
   }
 }
 
-/** Gates 6b, the provider's own: connection, law review, posture, set-up, the approved draft. */
+/** How a run reads the operator's first-campaign review (tests and the demo seed stand in). */
+export type CampaignReviewLookup = (accountId: string) => Promise<CampaignReviewVerdict>;
+
+/**
+ * Gates 6b, the provider's own: connection, law review, the first-campaign
+ * review (#5c), posture, set-up, the approved draft.
+ */
 async function readinessGates(
   proposal: ProposalRow,
   accountId: string,
   lawReview: () => Promise<LawReviewVerdict>,
+  campaignReview: CampaignReviewLookup,
 ): Promise<Gate[]> {
   const gates: Gate[] = [];
   const conn = await activeExecutionConnection(accountId, "email_campaign");
@@ -220,6 +246,11 @@ async function readinessGates(
       code: review.state === "missing" ? "law_review_missing" : "law_review_stale",
       words: review.words,
     });
+  }
+  // Review 2026-10-23 (#5c): an account's first campaign waits for a person.
+  const first = await campaignReview(accountId);
+  if (!first.reviewed) {
+    gates.push({ code: "first_campaign_unreviewed", words: first.words });
   }
   if ((await outboundPosture(proposal.profile_id)) === "disabled") {
     gates.push({ code: "outbound_off", words: GATE_WORDS.outbound_off });
@@ -245,7 +276,7 @@ async function readinessGates(
 export async function campaignGates(
   proposal: ProposalRow,
   accountId: string,
-  opts: { lawReview?: () => Promise<LawReviewVerdict> } = {},
+  opts: { lawReview?: () => Promise<LawReviewVerdict>; campaignReview?: CampaignReviewLookup } = {},
 ): Promise<Gate[]> {
   const gates: Gate[] = [];
   if ((await haltState(accountId)).halted)
@@ -263,7 +294,14 @@ export async function campaignGates(
       words: realWritesOffSentence(EXECUTION_SCOPE_REGISTRY.email_campaign.label),
     });
   }
-  gates.push(...(await readinessGates(proposal, accountId, opts.lawReview ?? currentLawReview)));
+  gates.push(
+    ...(await readinessGates(
+      proposal,
+      accountId,
+      opts.lawReview ?? currentLawReview,
+      opts.campaignReview ?? accountCampaignReview,
+    )),
+  );
   return gates;
 }
 
@@ -281,16 +319,19 @@ async function ownedProposal(
 export interface CampaignBackendOptions {
   /** Tests: stand in for the recorded law review (a global fact). */
   lawReview?: () => Promise<LawReviewVerdict>;
+  /** Tests and the demo seed: stand in for the operator's first-campaign review. */
+  campaignReview?: CampaignReviewLookup;
   now?: () => Date;
 }
 
 export function dbCampaignBackend(opts: CampaignBackendOptions = {}): CampaignBackend {
   const now = opts.now ?? (() => new Date());
   const lawReview = opts.lawReview ?? currentLawReview;
+  const campaignReview = opts.campaignReview ?? accountCampaignReview;
   const readiness = async (proposalId: string, ctx: ExecutionContext): Promise<string | null> => {
     const proposal = await ownedProposal(proposalId, ctx);
     if (!proposal) return "This isn't one of your campaigns. Nothing was sent.";
-    const [first] = await readinessGates(proposal, ctx.account_id, lawReview);
+    const [first] = await readinessGates(proposal, ctx.account_id, lawReview, campaignReview);
     return first ? `${first.words} ${STILL_APPROVED}` : null;
   };
 
@@ -506,6 +547,30 @@ export function dbCampaignBackend(opts: CampaignBackendOptions = {}): CampaignBa
           claimed_at: null,
         })
         .where(and(eq(campaignSends.id, sendId), eq(campaignSends.status, "sending")));
+    },
+
+    async dailyRoom(ctx) {
+      // Review 2026-10-23 (#5b): this account's campaign emails handed to the
+      // service since midnight UTC — every row claimed today that may have
+      // gone out (sending, sent or unknown). Counted at the moment of each send.
+      const at = now();
+      const midnight = new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), at.getUTCDate()));
+      const [row] = await db
+        .select({ n: count() })
+        .from(campaignSends)
+        .where(
+          and(
+            eq(campaignSends.account_id, ctx.account_id),
+            inArray(campaignSends.status, ["sending", "sent", "unknown"]),
+            gte(campaignSends.claimed_at, midnight.toISOString()),
+          ),
+        );
+      const used = Number(row?.n ?? 0);
+      return {
+        used,
+        room: Math.max(0, CAMPAIGN_DAILY_RECIPIENT_CAP - used),
+        resets_in_ms: midnight.getTime() + 86_400_000 - at.getTime(),
+      };
     },
 
     async stillConnected(connectionId, ctx) {
