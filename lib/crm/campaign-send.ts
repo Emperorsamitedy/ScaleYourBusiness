@@ -327,6 +327,7 @@ export function dbCampaignBackend(opts: CampaignBackendOptions = {}): CampaignBa
         approved_sha256: draft.approved_sha256,
         disclosure: draft.disclosure,
         base_url: base,
+        connection_id: conn.id,
       };
       return plan;
     },
@@ -505,6 +506,11 @@ export function dbCampaignBackend(opts: CampaignBackendOptions = {}): CampaignBa
           claimed_at: null,
         })
         .where(and(eq(campaignSends.id, sendId), eq(campaignSends.status, "sending")));
+    },
+
+    async stillConnected(connectionId, ctx) {
+      const conn = await activeExecutionConnection(ctx.account_id, "email_campaign");
+      return conn !== null && conn.id === connectionId && conn.status === "connected";
     },
 
     counts: campaignCounts,

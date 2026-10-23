@@ -24,6 +24,7 @@ const MAIL = {
   text: "Hello.\n\nUnsubscribe: https://syb.test/u/tok",
   one_click_url: "https://syb.test/api/u/tok",
   idempotency_key: "syb-campaign-1",
+  send_id: "0b6f3a52-6a1e-4c55-9d8e-2f0a1c3b4d5e",
 };
 
 const answering = (status: number, body: unknown) => async () =>
@@ -53,6 +54,8 @@ describe("P4-15 — sendCampaignEmail, the one way out", () => {
         "List-Unsubscribe": "<https://syb.test/api/u/tok>",
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
+      // Review 2026-10-23 (#14): the row's id rides along as a tag, nothing personal.
+      tags: [{ name: "syb_send", value: MAIL.send_id }],
     });
   });
 

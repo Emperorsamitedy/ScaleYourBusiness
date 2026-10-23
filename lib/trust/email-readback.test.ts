@@ -43,7 +43,12 @@ import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { draftCampaign } from "../crm/campaign-draft";
-import { applyDeliveryEvent, bounceCode, parseDeliveryEvent } from "../crm/campaign-events";
+import {
+  applyDeliveryEvent,
+  bounceCode,
+  parseDeliveryEvent,
+  sendIdTag,
+} from "../crm/campaign-events";
 import { approveCampaignEmail, dbCampaignBackend, sendCampaignNow } from "../crm/campaign-send";
 import type { ConsentStatus } from "../crm/contacts";
 import { addContact, eraseContact } from "../crm/contacts";
@@ -234,7 +239,17 @@ describe("P4-17 — Resend's delivery events, read defensively", () => {
       email_id: "e-1",
       at,
       bounce: null,
+      send_id: null,
     });
+    // Review #14: the send-row tag, either shape Resend uses, uuids only.
+    const sid = "0B6F3A52-6A1E-4C55-9D8E-2F0A1C3B4D5E";
+    expect(
+      parseDeliveryEvent(deliveryEvent("email.complained", "e-1", { sendId: sid }))?.send_id,
+    ).toBe(sid.toLowerCase());
+    expect(sendIdTag([{ name: "syb_send", value: sid }])).toBe(sid.toLowerCase());
+    expect(sendIdTag({ syb_send: "not-a-uuid" })).toBeNull();
+    expect(sendIdTag({ other: sid })).toBeNull();
+    expect(sendIdTag("syb_send")).toBeNull();
     expect(parseDeliveryEvent(deliveryEvent("email.bounced", "e-1"))?.bounce).toBe("permanent");
     expect(
       parseDeliveryEvent(deliveryEvent("email.bounced", "e-1", { bounceType: "Temporary" }))
@@ -699,6 +714,49 @@ describe("P4-17 — the delivery webhook", () => {
     expect(again.skipped.suppressed).toBe(1);
   });
 
+  it("review #14: a complaint on an `unknown` row finds it by the send's tag and suppresses", async () => {
+    const b = await business();
+    const ann = await person(b, "ann");
+    const pid = await campaign(b, [ann.id]);
+    // Resend took the email but its answer was lost: the row is `unknown`, no provider id.
+    const calls: { tags: unknown }[] = [];
+    const lost: MailFetch = async (_url, init) => {
+      calls.push(JSON.parse(String(init.body)) as { tags: unknown });
+      return new Response("upstream timeout", { status: 504 });
+    };
+    await send(b, pid, { fetchImpl: lost });
+    const [row] = await sendsOf(pid);
+    expect(row).toMatchObject({ status: "unknown", provider_message_id: null });
+    expect(calls[0]!.tags).toEqual([{ name: "syb_send", value: row!.id }]);
+
+    // Without the tag (the failing case): nothing to attach it to.
+    const untagged = await deliver(deliveryEvent("email.complained", "re_never_seen"));
+    expect(await untagged.json()).toEqual({ outcome: "unmatched" });
+    // With it: recorded, and the address is suppressed for good.
+    const tagged = await deliver(
+      deliveryEvent("email.complained", "re_never_seen", { sendId: row!.id }),
+    );
+    expect(await tagged.json()).toEqual({ outcome: "recorded" });
+    const [after] = await sendsOf(pid);
+    expect(after!.complained_at).not.toBeNull();
+    expect(after!.status).toBe("unknown");
+    const sup = await db
+      .select()
+      .from(contactSuppressions)
+      .where(eq(contactSuppressions.account_id, b.account_id));
+    expect(sup).toEqual([
+      expect.objectContaining({ email_hash: row!.email_hash, reason: "complained" }),
+    ]);
+    // A tag naming a row that already has its provider id is not a second door.
+    const other = await campaign(b, [(await person(b, "ben")).id]);
+    await send(b, other, fakeResend());
+    const [benRow] = await sendsOf(other);
+    const stray = await deliver(
+      deliveryEvent("email.complained", "re_someone_else", { sendId: benRow!.id }),
+    );
+    expect(await stray.json()).toEqual({ outcome: "unmatched" });
+  });
+
   it("an erased recipient's later events are dropped, with nothing personal anywhere", async () => {
     const logs: string[] = [];
     vi.spyOn(console, "log").mockImplementation((line: unknown) => {
@@ -715,7 +773,7 @@ describe("P4-17 — the delivery webhook", () => {
 
     for (const type of ["email.delivered", "email.complained", "email.bounced"] as const) {
       const res = await deliver(
-        deliveryEvent(type, resendId, { to: `ann-${b.tag}@customers.test` }),
+        deliveryEvent(type, resendId, { to: `ann-${b.tag}@customers.test`, sendId: row!.id }),
       );
       expect(await res.json()).toEqual({ outcome: "unmatched" });
     }
@@ -739,6 +797,8 @@ describe("P4-17 — the delivery webhook", () => {
         email_id: resendId,
         at: new Date().toISOString(),
         bounce: null,
+        // Review #14: the tag fallback never reaches an erased recipient's row either.
+        send_id: row!.id,
       }),
     ).toEqual({ kind: "unmatched" });
   });

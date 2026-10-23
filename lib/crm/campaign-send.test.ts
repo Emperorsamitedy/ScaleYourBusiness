@@ -44,6 +44,7 @@ import { isoDateTime } from "../core/iso";
 import { haltExecutions, realWritesOffSentence, resumeExecutions } from "../execution/engine";
 import { runDueExecutions } from "../execution/due";
 import { consentToCampaignEmail } from "../execution/email-consent";
+import { disconnectExecution } from "../execution/connections";
 import type { MailFetch } from "../execution/providers/email-campaign";
 import {
   SLOT,
@@ -1224,5 +1225,46 @@ describe("review 2026-10-23 #1 — the stale-run reclaim never catches a live ru
     // Every recipient emailed at most once across both runs.
     const to = [...slow.calls, ...fast.calls].map((x) => x.body.to[0]);
     expect(new Set(to).size).toBe(to.length);
+  });
+});
+
+describe("review 2026-10-23 #15 — disconnecting stops a run mid-way", () => {
+  it("a disconnect between two sends: nobody else is emailed, and nothing resumes by itself", async () => {
+    const b = await business();
+    const people = await Promise.all(
+      ["x1", "x2", "x3"].map((l) => person(b, l, "explicit_consent")),
+    );
+    const c = await campaign(
+      b,
+      people.map((x) => x.id),
+    );
+    const [conn] = await db
+      .select()
+      .from(connections)
+      .where(and(eq(connections.account_id, b.account_id), eq(connections.status, "connected")));
+    const inner = fakeResend();
+    // The owner disconnects while the first email is on its way.
+    const fetchImpl: MailFetch = async (url, init) => {
+      if (inner.calls.length === 0) await disconnectExecution(b.account_id, conn!.id);
+      return inner.fetchImpl(url, init);
+    };
+    const out = await sendCampaignNow({
+      profileId: b.profile_id,
+      proposalId: c.proposal_id,
+      provider: provider({ fetchImpl }),
+    });
+    expect(out).toMatchObject({ result: "failed" });
+    expect(out.message).toMatch(/^Campaign email was disconnected mid-send/);
+    expect(inner.calls).toHaveLength(1);
+    const rows = await sendsOf(c.proposal_id);
+    expect(rows.map((r) => r.status).sort()).toEqual(["pending", "pending", "sent"]);
+    expect(await runOf(c.proposal_id)).toMatchObject({ status: "failed", held_for: null });
+    // The due runner never picks it back up.
+    await runDueExecutions({
+      profileId: b.profile_id,
+      sleep: noSleep,
+      providers: { email_campaign: provider(inner) },
+    });
+    expect(inner.calls).toHaveLength(1);
   });
 });

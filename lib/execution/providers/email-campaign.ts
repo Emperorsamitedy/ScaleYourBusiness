@@ -105,6 +105,8 @@ export interface CampaignPlan {
   disclosure: string;
   /** https origin for the unsubscribe page and the one-click endpoint. */
   base_url: string;
+  /** The campaign-email connection the plan was read from — re-checked before every send. */
+  connection_id: string;
 }
 
 export interface PendingRecipient {
@@ -157,6 +159,12 @@ export interface CampaignBackend {
   record(sendId: string, outcome: CampaignMailOutcome): Promise<void>;
   /** sending → pending: the service refused before doing anything, for every recipient alike. */
   release(sendId: string): Promise<void>;
+  /**
+   * Review 2026-10-23 (#15): is the connection the plan was read from still
+   * the account's live, connected campaign-email grant? Read before every
+   * send, beside the stop, so disconnecting stops a run mid-way.
+   */
+  stillConnected(connectionId: string, ctx: ExecutionContext): Promise<boolean>;
   counts(proposalId: string): Promise<CampaignCounts>;
 }
 
@@ -171,7 +179,12 @@ export interface CampaignMail {
   /** RFC 8058: the one-click POST endpoint. */
   one_click_url: string;
   idempotency_key: string;
+  /** The campaign_sends row id, sent as a Resend tag so events can find an `unknown` row (#14). */
+  send_id: string;
 }
+
+/** The Resend tag naming the campaign_sends row (review 2026-10-23, #14). */
+export const SEND_TAG = "syb_send";
 
 export type MailFetch = (url: string, init: RequestInit) => Promise<Response>;
 
@@ -206,6 +219,9 @@ export async function sendCampaignEmail(
           "List-Unsubscribe": `<${mail.one_click_url}>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
+        // The row's own id, never anything personal: Resend echoes it on every
+        // event, so a complaint on a row whose send answer was lost still finds it.
+        tags: [{ name: SEND_TAG, value: mail.send_id }],
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
@@ -353,6 +369,14 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
             "The emergency stop came on mid-send. Nobody else was emailed; the rest go out after you resume.",
           );
         }
+        // The grant, before every single send too (review 2026-10-23, #15):
+        // "Disconnecting stops every campaign send at once." Final, not held —
+        // a disconnect is the owner saying stop, so nothing resumes by itself.
+        if (!(await b.stillConnected(plan.connection_id, ctx))) {
+          throw new CampaignRefused(
+            "Campaign email was disconnected mid-send, so I stopped: nobody else was emailed. The rest stay unsent unless you connect it again and send.",
+          );
+        }
         const token = newUnsubscribeToken();
         const urls = unsubscribeUrls(plan.base_url, token);
         const body = fillSlot(plan.body, urls.page);
@@ -390,6 +414,7 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
             text: body,
             one_click_url: urls.one_click,
             idempotency_key: row.idempotency_key,
+            send_id: row.send_id,
           },
           plan.api_key,
           fetchImpl,

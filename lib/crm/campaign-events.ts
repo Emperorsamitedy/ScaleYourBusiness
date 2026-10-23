@@ -41,11 +41,19 @@
 // with a log line holding nothing but its type. An erased recipient's
 // address is already suppressed by the erasure itself, so dropping a later
 // complaint loses nothing.
+//
+// Review 2026-10-23 (#14): a send whose answer never came back (`unknown`,
+// or still `sending`) has no provider id, yet the email may well have gone
+// out. Every send carries its row id as a Resend tag (SEND_TAG), so an event
+// no provider id matches falls back to that tag — only onto a row with no
+// provider id, still `sending` or `unknown`, whose contact is not erased.
+// A complaint on such a row now suppresses the address like any other.
 
 import { createHash } from "node:crypto";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { campaignSends, contactSuppressions, decisionLog } from "../../db/schema";
+import { SEND_TAG } from "../execution/providers/email-campaign";
 
 export type DeliveryEventKind = "delivered" | "bounced" | "suppressed" | "complained";
 export type BounceCode = "permanent" | "temporary" | "suppressed" | "other";
@@ -57,6 +65,28 @@ export interface DeliveryEvent {
   /** When Resend says it happened (the event's own time). */
   at: string;
   bounce: BounceCode | null;
+  /** Our campaign_sends row id, from the send's Resend tag — null when absent or not a uuid. */
+  send_id: string | null;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Pure: the send-row tag, read defensively. Resend's events give `tags` as an
+ * object ({ name: value }); its send API takes an array of { name, value },
+ * so both shapes are read. Anything not a uuid is ignored.
+ */
+export function sendIdTag(tags: unknown): string | null {
+  let value: unknown;
+  if (Array.isArray(tags)) {
+    value = (
+      tags.find((t) => (t as { name?: unknown } | null)?.name === SEND_TAG) as
+        { value?: unknown } | undefined
+    )?.value;
+  } else if (typeof tags === "object" && tags !== null) {
+    value = (tags as Record<string, unknown>)[SEND_TAG];
+  }
+  return typeof value === "string" && UUID_RE.test(value) ? value.toLowerCase() : null;
 }
 
 const TYPES: Readonly<Record<string, DeliveryEventKind>> = {
@@ -86,7 +116,7 @@ export function parseDeliveryEvent(body: unknown, now: Date = new Date()): Deliv
   const b = body as { type?: unknown; created_at?: unknown; data?: unknown };
   const kind = typeof b.type === "string" ? TYPES[b.type] : undefined;
   if (!kind || typeof b.data !== "object" || b.data === null) return null;
-  const d = b.data as { email_id?: unknown; bounce?: unknown };
+  const d = b.data as { email_id?: unknown; bounce?: unknown; tags?: unknown };
   if (typeof d.email_id !== "string" || !/^[A-Za-z0-9_-]{1,100}$/.test(d.email_id)) return null;
   const at =
     typeof b.created_at === "string" &&
@@ -100,7 +130,7 @@ export function parseDeliveryEvent(body: unknown, now: Date = new Date()): Deliv
       : kind === "suppressed"
         ? "suppressed"
         : null;
-  return { kind, email_id: d.email_id, at, bounce };
+  return { kind, email_id: d.email_id, at, bounce, send_id: sendIdTag(d.tags) };
 }
 
 export function hashComplaint(p: { send_id: string; account_id: string; at: string }): string {
@@ -122,15 +152,30 @@ export type EventOutcome =
 
 /** Record one delivery event against its send row. Idempotent; no PII read or written. */
 export async function applyDeliveryEvent(event: DeliveryEvent): Promise<EventOutcome> {
-  const [row] = await db
-    .select({
-      id: campaignSends.id,
-      account_id: campaignSends.account_id,
-      profile_id: campaignSends.profile_id,
-      email_hash: campaignSends.email_hash,
-    })
+  const columns = {
+    id: campaignSends.id,
+    account_id: campaignSends.account_id,
+    profile_id: campaignSends.profile_id,
+    email_hash: campaignSends.email_hash,
+  };
+  let [row] = await db
+    .select(columns)
     .from(campaignSends)
     .where(eq(campaignSends.provider_message_id, event.email_id));
+  if (!row && event.send_id) {
+    // The fallback (#14): our own tag, onto a row whose send answer was lost.
+    [row] = await db
+      .select(columns)
+      .from(campaignSends)
+      .where(
+        and(
+          eq(campaignSends.id, event.send_id),
+          isNull(campaignSends.provider_message_id),
+          inArray(campaignSends.status, ["sending", "unknown"]),
+          isNotNull(campaignSends.contact_id),
+        ),
+      );
+  }
   if (!row) {
     // Unknown, or erased (erasure nulls the id): nothing to attach it to.
     console.log(
