@@ -25,7 +25,12 @@ import { emailHash } from "../crm/contacts";
 import { ensureSupportSettings, setNotifyOwner, setReplyHours } from "../crm/support-settings";
 import { bootstrapIntake } from "../intake/service";
 import { postCustomerMessage, startConversation } from "./chat";
-import { ADDRESS_SAVED, leaveAddress } from "./handover";
+import {
+  ADDRESS_SAVED,
+  SUPPORT_MAX_ADDRESSES_PER_CLIENT_PER_DAY,
+  SUPPORT_MAX_ADDRESSES_PER_DAY,
+  leaveAddress,
+} from "./handover";
 import { notifyOwnerOfEmailTicket } from "./notify-owner";
 
 const created: { account_id: string; profile_id: string }[] = [];
@@ -140,6 +145,49 @@ describe("P4-11 — the optional address", () => {
       .where(eq(supportTickets.id, out.ticket_id!));
     expect(ticket).toMatchObject({ contact_id: null, suppressed_address: true });
   });
+
+  it("review #19: parallel posts on one ticket create one contact and tie exactly one address", async () => {
+    const b = await business();
+    const { token, out } = await handedOver(b.site_key);
+    const emails = Array.from({ length: 6 }, (_, i) => `race${i}.p411@example.com`);
+    const results = await Promise.allSettled(emails.map((e) => leaveAddress(token, e)));
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    for (const r of results.filter((r) => r.status === "rejected")) {
+      expect((r as PromiseRejectedResult).reason).toMatchObject({ status: 409 });
+    }
+    const made = await db.select().from(contacts).where(eq(contacts.account_id, b.account_id));
+    expect(made).toHaveLength(1);
+    const [ticket] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, out.ticket_id!));
+    expect(ticket?.contact_id).toBe(made[0]!.id);
+  });
+
+  it("review #19: one visitor can leave only a few addresses a day; another visitor still can", async () => {
+    const b = await business();
+    const visitor = async (ip: string) => {
+      const started = await startConversation(b.site_key, { clientIp: ip });
+      await postCustomerMessage(started.token, "Can I talk to a real person please?");
+      return started.token;
+    };
+    for (let i = 0; i < SUPPORT_MAX_ADDRESSES_PER_CLIENT_PER_DAY; i += 1) {
+      expect(await leaveAddress(await visitor("203.0.113.7"), `v${i}.p411@example.com`)).toEqual({
+        message: ADDRESS_SAVED,
+      });
+    }
+    await expect(
+      leaveAddress(await visitor("203.0.113.7"), "one-more.p411@example.com"),
+    ).rejects.toMatchObject({ status: 429 });
+    expect(
+      await db.select().from(contacts).where(eq(contacts.email, "one-more.p411@example.com")),
+    ).toHaveLength(0);
+    // The passing case: someone else, the same day.
+    expect(await leaveAddress(await visitor("198.51.100.9"), "other.p411@example.com")).toEqual({
+      message: ADDRESS_SAVED,
+    });
+    expect(SUPPORT_MAX_ADDRESSES_PER_DAY).toBeGreaterThan(SUPPORT_MAX_ADDRESSES_PER_CLIENT_PER_DAY);
+  });
 });
 
 describe("P4-11 — the owner's notice", () => {
@@ -240,5 +288,41 @@ describe("P4-11 — the owner's notice", () => {
       }),
     ).toBe("no_owner");
     expect(f.calls).toHaveLength(0);
+  });
+
+  it("review #24: a Resend that never answers is abandoned — the notice fails, the webhook isn't held", async () => {
+    process.env.RESEND_API_KEY = "re_test_fixture";
+    const b = await owned();
+    const signals: (AbortSignal | null | undefined)[] = [];
+    const hanging = (_url: string, init: RequestInit) =>
+      new Promise<Response>((_, reject) => {
+        signals.push(init.signal);
+        init.signal?.addEventListener("abort", () => reject(init.signal!.reason));
+      });
+    const started = Date.now();
+    expect(
+      await notifyOwnerOfEmailTicket({
+        profileId: b.profile_id,
+        ticketId: crypto.randomUUID(),
+        fetchImpl: hanging,
+        timeoutMs: 50,
+      }),
+    ).toBe("failed");
+    expect(Date.now() - started).toBeLessThan(5_000);
+    expect(signals[0]).toBeInstanceOf(AbortSignal);
+    // The passing case carries a signal too, by default.
+    const c = await owned();
+    const seen: (AbortSignal | null | undefined)[] = [];
+    expect(
+      await notifyOwnerOfEmailTicket({
+        profileId: c.profile_id,
+        ticketId: crypto.randomUUID(),
+        fetchImpl: async (_url, init) => {
+          seen.push(init.signal);
+          return new Response(JSON.stringify({ id: "re_x" }), { status: 200 });
+        },
+      }),
+    ).toBe("sent");
+    expect(seen[0]).toBeInstanceOf(AbortSignal);
   });
 });

@@ -16,7 +16,7 @@
 // and every check also matches the legacy plain sha256 form.
 
 import { createHash, createHmac, hkdfSync } from "node:crypto";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { contactSuppressions, contacts } from "../../db/schema";
 
@@ -67,40 +67,71 @@ export async function suppressionFor(accountId: string, email: string): Promise<
 export type SupportContactOutcome =
   | { kind: "existing"; contact_id: string }
   | { kind: "created"; contact_id: string }
-  | { kind: "suppressed"; reason: string };
+  | { kind: "suppressed"; reason: string }
+  /**
+   * Review 2026-10-23 (#18): the address belongs to an existing contact,
+   * but the sender couldn't be verified, so the ticket is NOT tied to them
+   * — a forged From must not put a real customer's name on a stranger's
+   * ticket. The contact row is not touched either.
+   */
+  | { kind: "unlinked" };
+
+/** The database, or a transaction on it — the contact write can join the caller's. */
+export type SupportExecutor = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+type SupportTx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/**
+ * Review 2026-10-23 (#19): one per-account lock, held to the end of the
+ * caller's transaction, that serialises support writes carrying a
+ * customer's address (an inbound email's filing, a chat address) against
+ * a contact's erasure (lib/crm/contacts.ts takes the same lock). Whoever
+ * waits reads after the other committed: the erasure sees the new ticket
+ * and takes it, or the filing sees the new suppression and honours it.
+ */
+export async function lockSupportWrites(tx: SupportTx, accountId: string): Promise<void> {
+  await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`support-writes:${accountId}`}))`);
+}
 
 /**
  * The contact behind a support address: found, created as "unsure", or
  * refused because the address is suppressed. Found contacts get their
- * last activity stamped and nothing else — consent is untouched.
+ * last activity stamped and nothing else — consent is untouched. With
+ * `linkExisting` false (an unverified sender), an existing contact is
+ * never returned: the address is treated as one we don't know.
  */
-export async function contactForSupport(args: {
-  accountId: string;
-  email: string;
-  name: string | null;
-  /** Provenance in words, e.g. "emailed support 2026-10-19 — a support request is not marketing consent". */
-  source: string;
-  at: string;
-}): Promise<SupportContactOutcome> {
+export async function contactForSupport(
+  args: {
+    accountId: string;
+    email: string;
+    name: string | null;
+    /** Provenance in words, e.g. "emailed support 2026-10-19 — a support request is not marketing consent". */
+    source: string;
+    at: string;
+    /** False when the sender is unverified: never tie the ticket to a contact that already exists. */
+    linkExisting: boolean;
+  },
+  q: SupportExecutor = db,
+): Promise<SupportContactOutcome> {
   const email = normaliseAddress(args.email);
   const find = async () => {
-    const [row] = await db
+    const [row] = await q
       .select({ id: contacts.id })
       .from(contacts)
       .where(and(eq(contacts.account_id, args.accountId), eq(contacts.email, email)));
     return row ?? null;
   };
   const existing = await find();
+  if (existing && !args.linkExisting) {
+    const suppressed = await suppressionFor(args.accountId, email);
+    return suppressed ? { kind: "suppressed", reason: suppressed } : { kind: "unlinked" };
+  }
   if (existing) {
-    await db
-      .update(contacts)
-      .set({ last_activity_at: args.at })
-      .where(eq(contacts.id, existing.id));
+    await q.update(contacts).set({ last_activity_at: args.at }).where(eq(contacts.id, existing.id));
     return { kind: "existing", contact_id: existing.id };
   }
   const suppressed = await suppressionFor(args.accountId, email);
   if (suppressed) return { kind: "suppressed", reason: suppressed };
-  const [row] = await db
+  const [row] = await q
     .insert(contacts)
     .values({
       account_id: args.accountId,
@@ -115,9 +146,11 @@ export async function contactForSupport(args: {
     .onConflictDoNothing()
     .returning({ id: contacts.id });
   if (row) return { kind: "created", contact_id: row.id };
-  // Another delivery created it a moment ago: use theirs, consent untouched.
+  // Another delivery created it a moment ago: use theirs, consent untouched
+  // (an unverified sender still doesn't get tied to it).
   const raced = await find();
   if (!raced) throw new Error("the support contact could not be recorded");
+  if (!args.linkExisting) return { kind: "unlinked" };
   return { kind: "existing", contact_id: raced.id };
 }
 

@@ -24,34 +24,47 @@ import {
   supportSettings,
   supportTickets,
 } from "../../db/schema";
-import { addContact, emailHash } from "../crm/contacts";
+import { addContact, emailHash, eraseContact } from "../crm/contacts";
 import { openQuestions } from "../crm/faq";
 import { ensureSupportSettings, rotateInboundToken } from "../crm/support-settings";
 import { bootstrapIntake } from "../intake/service";
 import {
+  GIVEN_IN_CHAT,
+  SENDER_NOT_VERIFIED,
   emailThread,
   inboundAddress,
   MAX_LOCAL_PART,
+  OUTBOUND_REFERENCES_MAX_CHARS,
   newThreadToken,
   receiveInboundEmail,
   referencedIds,
+  replyThreadHeaders,
   routingFrom,
+  senderNote,
   threadAddress,
 } from "./email-tickets";
 import type { InboundEmail } from "./inbound";
 import {
+  InboundFetchError,
+  MESSAGE_ID_MAX_CHARS,
+  RECEIVED_FETCH_TIMEOUT_MS,
+  fetchReceivedEmail,
+  REFERENCES_MAX_IDS,
+  STORED_ADDRESSES_MAX,
   SUPPORT_EMAIL_BODY_MAX_CHARS,
+  normaliseMessageId,
   WEBHOOK_TOLERANCE_SECONDS,
   htmlToText,
   normaliseReceived,
   parseAddress,
   parseReceivedEvent,
+  senderAuthOf,
   signWebhook,
   verifyWebhook,
 } from "./inbound";
 import type { ReceivedFixture } from "./resend-fixtures";
 import { fakeResendReceiving, receivedEmail, receivedEvent } from "./resend-fixtures";
-import { suppressionHash } from "./support-contact";
+import { lockSupportWrites, suppressionHash } from "./support-contact";
 
 const DOMAIN = "inbound.syb.test";
 const SECRET = `whsec_${Buffer.from("p4-09-test-secret-material-32by").toString("base64")}`;
@@ -378,6 +391,326 @@ describe("P4-09 — routing, threading and idempotency", () => {
       await db.select().from(supportTickets).where(eq(supportTickets.profile_id, b.profile_id)),
     ).toHaveLength(0);
   });
+
+  it("review #6: after a rotation, a reply to an old thread still lands on its ticket by the thread token", async () => {
+    const b = await business();
+    const opened = await receiveInboundEmail(normalised(fixture({ to: [b.address] })), DOMAIN);
+    if (opened.kind !== "filed") throw new Error("not filed");
+    const [t] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, opened.ticket_id));
+    // The Reply-To our earlier reply carried, under the token as it was then.
+    const oldReplyTo = threadAddress(b.token, t!.thread_token!, DOMAIN);
+    await rotateInboundToken(b.profile_id);
+    const [now] = await db
+      .select()
+      .from(supportSettings)
+      .where(eq(supportSettings.profile_id, b.profile_id));
+    expect(now?.inbound_token).not.toBe(b.token);
+
+    const reply = fixture({ to: [oldReplyTo], subject: "Re: Where is my order?" });
+    expect(await receiveInboundEmail(normalised(reply), DOMAIN)).toMatchObject({
+      kind: "filed",
+      created: false,
+      ticket_id: opened.ticket_id,
+      profile_id: b.profile_id,
+    });
+    expect(await emailThread(opened.ticket_id)).toHaveLength(2);
+
+    // The failing cases: the bare old address, and an old token with a thread no ticket has.
+    expect(await receiveInboundEmail(normalised(fixture({ to: [b.address] })), DOMAIN)).toEqual({
+      kind: "unrouted",
+    });
+    const stray = fixture({ to: [threadAddress(b.token, newThreadToken(), DOMAIN)] });
+    expect(await receiveInboundEmail(normalised(stray), DOMAIN)).toEqual({ kind: "unrouted" });
+    expect(
+      await db.select().from(supportTickets).where(eq(supportTickets.profile_id, b.profile_id)),
+    ).toHaveLength(1);
+  });
+});
+
+describe("review #24 — reading the received email has a timeout", () => {
+  /** A Resend that never answers, but gives up when the caller's signal aborts. */
+  const hanging = (seen: (AbortSignal | null | undefined)[]) => (_url: string, init: RequestInit) =>
+    new Promise<Response>((_, reject) => {
+      seen.push(init.signal);
+      init.signal?.addEventListener("abort", () => reject(init.signal!.reason));
+    });
+
+  it("a Resend that never answers is abandoned, as a retryable failure", async () => {
+    const seen: (AbortSignal | null | undefined)[] = [];
+    const started = Date.now();
+    const error = await fetchReceivedEmail("abc-123", "re_x", hanging(seen), 50).catch((e) => e);
+    expect(error).toBeInstanceOf(InboundFetchError);
+    expect((error as InboundFetchError).retryable).toBe(true);
+    expect(Date.now() - started).toBeLessThan(5_000);
+    expect(seen[0]).toBeInstanceOf(AbortSignal);
+  });
+
+  it("the passing case: a prompt answer is read, and every request carries a signal by default", async () => {
+    const f = fixture({ to: ["x@y.example"] });
+    let signal: AbortSignal | null | undefined;
+    const fake = fakeResendReceiving([f]);
+    const content = await fetchReceivedEmail(f.email_id, "re_x", (url, init) => {
+      signal = init.signal;
+      return fake.impl(url, init);
+    });
+    expect((content as { id: string }).id).toBe(f.email_id);
+    expect(signal).toBeInstanceOf(AbortSignal);
+    expect(RECEIVED_FETCH_TIMEOUT_MS).toBeLessThanOrEqual(15_000);
+  });
+});
+
+describe("review #17 — a huge or malformed reference header can't break threading", () => {
+  it("a Message-ID is kept only when well-formed and bounded", () => {
+    expect(normaliseMessageId("<abc.123@mail.example.com>")).toBe("<abc.123@mail.example.com>");
+    expect(normaliseMessageId(" abc@mail.example.com ")).toBe("<abc@mail.example.com>");
+    for (const bad of [
+      "",
+      "not-an-id",
+      "<a b@c>",
+      "<a@b@c>",
+      "<a@b>\r\nBcc: victim@example.com",
+      "<ä@example.com>",
+      `<${"x".repeat(MESSAGE_ID_MAX_CHARS)}@example.com>`,
+      null,
+    ]) {
+      expect(normaliseMessageId(bad), String(bad)).toBeNull();
+    }
+  });
+
+  it("references keep only valid ids, the newest 50", () => {
+    const many = Array.from({ length: 5000 }, (_, i) => `<id-${i}@x.example>`).join(" ");
+    const ids = referencedIds(null, `${many} <broken> <a b@c> <${"y".repeat(400)}@x>`);
+    expect(ids).toHaveLength(REFERENCES_MAX_IDS);
+    expect(ids.at(-1)).toBe("<id-4999@x.example>");
+    expect(ids.every((id) => normaliseMessageId(id) === id)).toBe(true);
+  });
+
+  it("outbound headers are rebuilt within one header line, root and parent kept; a bad parent is dropped", () => {
+    const chain = Array.from({ length: 50 }, (_, i) => `<${"r".repeat(60)}-${i}@x.example>`);
+    const h = replyThreadHeaders({
+      message_id_header: "<parent@x.example>",
+      references_header: chain.join(" "),
+    });
+    expect(h.in_reply_to).toBe("<parent@x.example>");
+    expect(h.references!.length).toBeLessThanOrEqual(OUTBOUND_REFERENCES_MAX_CHARS);
+    const ids = h.references!.split(" ");
+    expect(ids[0]).toBe(chain[0]);
+    expect(ids.at(-1)).toBe("<parent@x.example>");
+    // The passing case, unchanged: a short, valid chain goes out as it was.
+    expect(
+      replyThreadHeaders({ message_id_header: "<p@x>", references_header: "<a@x> <b@x>" }),
+    ).toEqual({ in_reply_to: "<p@x>", references: "<a@x> <b@x> <p@x>" });
+    // A legacy row with a malformed id and junk references: no In-Reply-To, only valid ids.
+    expect(
+      replyThreadHeaders({
+        message_id_header: "garbage\r\nX-Injected: 1",
+        references_header: "<ok@x> nonsense <also bad>",
+      }),
+    ).toEqual({ in_reply_to: null, references: "<ok@x>" });
+    expect(replyThreadHeaders(null)).toEqual({ in_reply_to: null, references: null });
+  });
+
+  it("an inbound email with a huge References, a malformed Message-ID and 500 recipients is stored bounded", async () => {
+    const b = await business();
+    const recipients = Array.from({ length: 500 }, (_, i) => `cc${i}@shop.example`);
+    const f = fixture({
+      to: [b.address, ...recipients],
+      message_id: "not a message id",
+      in_reply_to: "junk",
+      references: Array.from({ length: 3000 }, (_, i) => `<ref-${i}@x.example>`).join(" "),
+    });
+    const out = await receiveInboundEmail(normalised(f), DOMAIN);
+    if (out.kind !== "filed") throw new Error("not filed");
+    const [row] = await emailThread(out.ticket_id);
+    expect(row?.message_id_header).toBeNull();
+    expect(row?.in_reply_to).toBeNull();
+    expect(row?.references_header?.split(" ")).toHaveLength(REFERENCES_MAX_IDS);
+    expect(row?.to_addresses.length).toBeLessThanOrEqual(STORED_ADDRESSES_MAX);
+    expect(row?.to_addresses).toContain(b.address);
+  });
+});
+
+describe("review #12 — Ledgerline's own mail, forwarded back, is never a ticket", () => {
+  const saved = { from: process.env.EMAIL_FROM, campaign: process.env.CAMPAIGN_EMAIL_FROM };
+  afterEach(() => {
+    if (saved.from === undefined) delete process.env.EMAIL_FROM;
+    else process.env.EMAIL_FROM = saved.from;
+    if (saved.campaign === undefined) delete process.env.CAMPAIGN_EMAIL_FROM;
+    else process.env.CAMPAIGN_EMAIL_FROM = saved.campaign;
+  });
+
+  async function nothingFiledFor(b: { profile_id: string; account_id: string }) {
+    expect(
+      await db.select().from(supportTickets).where(eq(supportTickets.profile_id, b.profile_id)),
+    ).toHaveLength(0);
+    expect(
+      await db
+        .select()
+        .from(supportEmailMessages)
+        .where(eq(supportEmailMessages.profile_id, b.profile_id)),
+    ).toHaveLength(0);
+    expect(
+      await db.select().from(contacts).where(eq(contacts.account_id, b.account_id)),
+    ).toHaveLength(0);
+  }
+
+  it("a sign-in link sent to the forwarded mailbox is dropped with a no-PII log line", async () => {
+    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
+    const b = await business();
+    const link = "https://syb.example/api/auth/redeem?token=SECRET-SIGN-IN-TOKEN";
+    const magic = fixture({
+      from: "Ledgerline <login@ledgerline-mail.test>",
+      to: ["info@shop.example"],
+      received_for: [b.address],
+      subject: "Your sign-in link — Ledgerline",
+      text: `Click to sign in to Ledgerline:\n\n${link}\n\nThe link works once.`,
+    });
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      expect(await receiveInboundEmail(normalised(magic), DOMAIN)).toEqual({ kind: "own_mail" });
+      const lines = log.mock.calls.map((c) => String(c[0])).join("\n");
+      expect(lines).toContain("support_inbound_own_mail_dropped");
+      expect(lines).toContain(b.account_id);
+      expect(lines).not.toContain("SECRET-SIGN-IN-TOKEN");
+      expect(lines).not.toContain("login@ledgerline-mail.test");
+      expect(lines).not.toContain("sign-in link");
+    } finally {
+      log.mockRestore();
+    }
+    // The same domain from another of our addresses (an owner notice), and a subdomain.
+    for (const from of ["notices@ledgerline-mail.test", "bounce@eu.ledgerline-mail.test"]) {
+      expect(
+        await receiveInboundEmail(normalised(fixture({ from, to: [b.address] })), DOMAIN),
+      ).toEqual({ kind: "own_mail" });
+    }
+    await nothingFiledFor(b);
+  });
+
+  it("CAMPAIGN_EMAIL_FROM, when set, is ours too; unset, Resend's default sender is", async () => {
+    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
+    process.env.CAMPAIGN_EMAIL_FROM = "Fernhill via Ledgerline <news@campaigns-mail.test>";
+    const b = await business();
+    const campaign = fixture({ from: "news@campaigns-mail.test", to: [b.address] });
+    expect(await receiveInboundEmail(normalised(campaign), DOMAIN)).toEqual({ kind: "own_mail" });
+    delete process.env.CAMPAIGN_EMAIL_FROM;
+    delete process.env.EMAIL_FROM;
+    const fallback = fixture({ from: "Ledgerline <onboarding@resend.dev>", to: [b.address] });
+    expect(await receiveInboundEmail(normalised(fallback), DOMAIN)).toEqual({ kind: "own_mail" });
+    await nothingFiledFor(b);
+  });
+
+  it("the passing case: a customer's mail — even one mentioning our domain — is filed", async () => {
+    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
+    const b = await business();
+    const customer = fixture({
+      from: "Ana <ana@not-ledgerline-mail.test>",
+      to: [b.address],
+      text: "I got an email from login@ledgerline-mail.test, is that you?",
+    });
+    expect(await receiveInboundEmail(normalised(customer), DOMAIN)).toMatchObject({
+      kind: "filed",
+      created: true,
+    });
+  });
+});
+
+describe("review #18 — an unverified sender is never tied to an existing contact", () => {
+  it("reads Resend's own authentication result, and never a header the sender wrote", () => {
+    const base = receivedEmail(fixture({ to: ["x@y.example"] }));
+    const auth = (a: unknown) => senderAuthOf({ ...base, authentication: a });
+    expect(auth({ spf: "fail", dkim: "pass", dmarc: "gray" })).toBe("verified");
+    expect(auth({ spf: "pass", dkim: "gray", dmarc: "pass" })).toBe("verified");
+    expect(auth({ spf: "pass", dkim: "fail", dmarc: "fail" })).toBe("failed");
+    expect(auth({ spf: "pass", dkim: "gray", dmarc: "gray" })).toBe("unverified");
+    expect(auth({ spf: "pass", dkim: "unknown", dmarc: "processing_failed" })).toBe("unverified");
+    expect(auth(null)).toBe("unverified");
+    expect(senderAuthOf(null)).toBe("unverified");
+    // A forged Authentication-Results header proves nothing.
+    expect(
+      senderAuthOf({
+        ...base,
+        authentication: null,
+        headers: {
+          ...base.headers,
+          "authentication-results": "mx.resend.com; dkim=pass; dmarc=pass header.from=example.com",
+        },
+      }),
+    ).toBe("unverified");
+  });
+
+  it("a forged From naming an existing customer files a ticket that isn't theirs, and leaves them untouched", async () => {
+    const b = await business();
+    const c = await addContact(b.account_id, {
+      email: "real.customer.p409@example.com",
+      name: "Real Customer",
+      consent: { status: "explicit_consent", source: "checkout checkbox" },
+    });
+    const [before] = await db.select().from(contacts).where(eq(contacts.id, c.id));
+    for (const authentication of [null, { spf: "fail", dkim: "fail", dmarc: "fail" } as const]) {
+      const forged = fixture({
+        to: [b.address],
+        from: "Real Customer <real.customer.p409@example.com>",
+        authentication,
+      });
+      const out = await receiveInboundEmail(normalised(forged), DOMAIN);
+      if (out.kind !== "filed") throw new Error("not filed");
+      const [ticket] = await db
+        .select()
+        .from(supportTickets)
+        .where(eq(supportTickets.id, out.ticket_id));
+      expect(ticket?.contact_id).toBeNull();
+      const [row] = await emailThread(out.ticket_id);
+      expect(row?.sender_auth).toBe(authentication === null ? "unverified" : "failed");
+    }
+    const [after] = await db.select().from(contacts).where(eq(contacts.id, c.id));
+    expect(after).toEqual(before);
+
+    // The passing case: the same customer, authenticated, is tied to their contact.
+    const real = fixture({
+      to: [b.address],
+      from: "Real Customer <real.customer.p409@example.com>",
+    });
+    const out = await receiveInboundEmail(normalised(real), DOMAIN);
+    if (out.kind !== "filed") throw new Error("not filed");
+    const [ticket] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, out.ticket_id));
+    expect(ticket?.contact_id).toBe(c.id);
+    expect((await emailThread(out.ticket_id))[0]?.sender_auth).toBe("verified");
+  });
+
+  it("an unverified stranger is treated as any unknown sender: a consent-unsure contact", async () => {
+    const b = await business();
+    const out = await receiveInboundEmail(
+      normalised(
+        fixture({ to: [b.address], from: "new.unverified.p409@example.com", authentication: null }),
+      ),
+      DOMAIN,
+    );
+    if (out.kind !== "filed") throw new Error("not filed");
+    const [contact] = await db
+      .select()
+      .from(contacts)
+      .where(eq(contacts.email, "new.unverified.p409@example.com"));
+    expect(contact?.consent_status).toBe("unsure");
+  });
+
+  it("the owner's screen words: unverified email and typed chat addresses say so; a verified sender says nothing", () => {
+    expect(senderNote({ channel: "email", has_address: true, from_auth: "verified" })).toBeNull();
+    for (const from_auth of ["unverified", "failed", null] as const) {
+      expect(senderNote({ channel: "email", has_address: true, from_auth })).toBe(
+        SENDER_NOT_VERIFIED,
+      );
+    }
+    expect(senderNote({ channel: "chat", has_address: true, from_auth: null })).toBe(GIVEN_IN_CHAT);
+    expect(GIVEN_IN_CHAT).toBe("given in chat, not verified");
+    expect(SENDER_NOT_VERIFIED).toBe("sender not verified");
+    expect(senderNote({ channel: "chat", has_address: false, from_auth: null })).toBeNull();
+  });
 });
 
 describe("P4-09 — contacts under rule 19", () => {
@@ -439,6 +772,102 @@ describe("P4-09 — contacts under rule 19", () => {
   it("the support tier's suppression hash is lib/crm's, character for character", () => {
     for (const e of ["a@b.example", "  Mixed.Case@Example.COM "])
       expect(suppressionHash(e)).toBe(emailHash(e));
+  });
+});
+
+describe("review #19 — an email racing an erasure never survives it with its PII", () => {
+  /** Resolves once `ready` is called; `hold` keeps a transaction open until `release`. */
+  function gate() {
+    let open!: () => void;
+    const opened = new Promise<void>((r) => (open = r));
+    return { open, opened };
+  }
+
+  it("an email filed while the erasure waits is seen by it and erased", async () => {
+    const b = await business();
+    const address = "racing.p409@example.com";
+    const c = await addContact(b.account_id, {
+      email: address,
+      consent: { status: "unsure", source: "fixture" },
+    });
+    const locked = gate();
+    const release = gate();
+    // An inbound filing in flight: the lock taken, its ticket and message written, not yet committed.
+    let ticketId = "";
+    const filing = db.transaction(async (tx) => {
+      await lockSupportWrites(tx, b.account_id);
+      const [t] = await tx
+        .insert(supportTickets)
+        .values({
+          profile_id: b.profile_id,
+          account_id: b.account_id,
+          channel: "email",
+          reason: "emailed",
+          summary: "mid-erasure",
+          thread_token: newThreadToken(),
+        })
+        .returning({ id: supportTickets.id });
+      ticketId = t!.id;
+      await tx.insert(supportEmailMessages).values({
+        ticket_id: t!.id,
+        profile_id: b.profile_id,
+        account_id: b.account_id,
+        direction: "inbound",
+        provider_id: crypto.randomUUID(),
+        from_address: address,
+        body: "my order number is 2231",
+      });
+      locked.open();
+      await release.opened;
+    });
+    await locked.opened;
+    const erasing = eraseContact(b.account_id, c.id);
+    // The erasure is now waiting on the lock; let the filing commit.
+    await new Promise((r) => setTimeout(r, 150));
+    release.open();
+    await filing;
+    await erasing;
+    expect(await db.select().from(supportTickets).where(eq(supportTickets.id, ticketId))).toEqual(
+      [],
+    );
+    expect(
+      await db
+        .select()
+        .from(supportEmailMessages)
+        .where(eq(supportEmailMessages.from_address, address)),
+    ).toEqual([]);
+  });
+
+  it("an email arriving while the erasure is in flight is filed after it: suppressed, no contact recreated", async () => {
+    const b = await business();
+    const address = "racing2.p409@example.com";
+    const locked = gate();
+    const release = gate();
+    // An erasure in flight: the lock taken, its suppression written, not yet committed.
+    const erasure = db.transaction(async (tx) => {
+      await lockSupportWrites(tx, b.account_id);
+      await tx
+        .insert(contactSuppressions)
+        .values({ account_id: b.account_id, email_hash: emailHash(address), reason: "erasure" });
+      locked.open();
+      await release.opened;
+    });
+    await locked.opened;
+    const filing = receiveInboundEmail(
+      normalised(fixture({ to: [b.address], from: `Racer <${address}>` })),
+      DOMAIN,
+    );
+    await new Promise((r) => setTimeout(r, 150));
+    release.open();
+    await erasure;
+    const out = await filing;
+    if (out.kind !== "filed") throw new Error("not filed");
+    expect(await db.select().from(contacts).where(eq(contacts.email, address))).toHaveLength(0);
+    const [ticket] = await db
+      .select()
+      .from(supportTickets)
+      .where(eq(supportTickets.id, out.ticket_id));
+    expect(ticket).toMatchObject({ contact_id: null, suppressed_address: true });
   });
 });
 

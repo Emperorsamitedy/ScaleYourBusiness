@@ -31,8 +31,14 @@ import { randomBytes } from "node:crypto";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { supportEmailMessages, supportSettings, supportTickets } from "../../db/schema";
-import type { InboundEmail } from "./inbound";
-import { contactForSupport, emailedSource } from "./support-contact";
+import type { InboundEmail, SenderAuth } from "./inbound";
+import {
+  ADDRESS_MAX_CHARS,
+  STORED_ADDRESSES_MAX,
+  messageIdsIn,
+  normaliseMessageId,
+} from "./inbound";
+import { contactForSupport, emailedSource, lockSupportWrites } from "./support-contact";
 
 export type EmailMessageRow = typeof supportEmailMessages.$inferSelect;
 
@@ -76,10 +82,78 @@ export function routingFrom(
   return found;
 }
 
-/** The Message-IDs named by In-Reply-To and References, angle brackets kept. */
+/** The valid Message-IDs named by In-Reply-To and References, angle brackets kept, at most 50. */
 export function referencedIds(inReplyTo: string | null, references: string | null): string[] {
-  const ids = `${inReplyTo ?? ""} ${references ?? ""}`.match(/<[^<>\s]+>/g) ?? [];
-  return [...new Set(ids)].slice(-50);
+  return messageIdsIn(`${inReplyTo ?? ""} ${references ?? ""}`);
+}
+
+/** The References header we send stays on one header line (RFC 5322 §2.1.1's 998, with room). */
+export const OUTBOUND_REFERENCES_MAX_CHARS = 900;
+
+/**
+ * In-Reply-To and References for a reply to `parent`, REBUILT from what we
+ * stored, never copied (review 2026-10-23, #17): a malformed or huge header
+ * on one customer email must not make Resend refuse every reply on the
+ * ticket — rows stored before the inbound side validated included. The
+ * parent's id must be a valid Message-ID or it is dropped; References keep
+ * the thread's root and its newest ids, within one header line.
+ */
+export function replyThreadHeaders(
+  parent: { message_id_header: string | null; references_header: string | null } | null,
+): { in_reply_to: string | null; references: string | null } {
+  if (!parent) return { in_reply_to: null, references: null };
+  const inReplyTo = normaliseMessageId(parent.message_id_header);
+  const chain = referencedIds(null, parent.references_header).filter((id) => id !== inReplyTo);
+  const ids = inReplyTo ? [...chain, inReplyTo] : chain;
+  // Drop from just after the root until it fits: the root and the nearest parents matter most.
+  while (ids.length > 2 && ids.join(" ").length > OUTBOUND_REFERENCES_MAX_CHARS) ids.splice(1, 1);
+  if (ids.join(" ").length > OUTBOUND_REFERENCES_MAX_CHARS) ids.splice(0, ids.length - 1);
+  return { in_reply_to: inReplyTo, references: ids.length > 0 ? ids.join(" ") : null };
+}
+
+/** The addresses stored on a message row: well-formed, bounded, at most STORED_ADDRESSES_MAX. */
+export function storedAddresses(addresses: readonly string[]): string[] {
+  return [...new Set(addresses)]
+    .filter((a) => a.length <= ADDRESS_MAX_CHARS)
+    .slice(0, STORED_ADDRESSES_MAX);
+}
+
+/* ── our own mail (review 2026-10-23, #12) ── */
+
+/** What every Ledgerline send uses when EMAIL_FROM is unset (lib/auth/email.ts and the rest). */
+const DEFAULT_FROM = "Ledgerline <onboarding@resend.dev>";
+
+function addressPart(raw: string): string | null {
+  const address = (/<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw).trim().toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? address : null;
+}
+
+/**
+ * The addresses Ledgerline itself sends from: EMAIL_FROM (sign-in links,
+ * owner notices, support replies), and CAMPAIGN_EMAIL_FROM when set —
+ * optional, since campaigns may share EMAIL_FROM.
+ */
+export function ownSenderAddresses(): string[] {
+  const raws = [
+    process.env.EMAIL_FROM?.trim() || DEFAULT_FROM,
+    process.env.CAMPAIGN_EMAIL_FROM?.trim() || "",
+  ];
+  return [...new Set(raws.map(addressPart).filter((a): a is string => a !== null && a !== ""))];
+}
+
+/**
+ * Mail from one of our sending addresses, or its domain (or a subdomain of
+ * it). An owner who signs in with the address they forward to us would
+ * otherwise have their own magic links and notices filed as tickets — a
+ * sign-in link stored in plaintext and offered to "Draft a reply".
+ */
+export function isOwnMail(fromAddress: string): boolean {
+  const from = fromAddress.trim().toLowerCase();
+  const fromDomain = from.split("@")[1] ?? "";
+  return ownSenderAddresses().some((own) => {
+    const domain = own.split("@")[1]!;
+    return from === own || fromDomain === domain || fromDomain.endsWith(`.${domain}`);
+  });
 }
 
 /** The line the owner's list shows: the subject, or the start of the body. */
@@ -93,7 +167,9 @@ export function summaryOf(email: Pick<InboundEmail, "subject" | "text">): string
 export type InboundOutcome =
   | { kind: "filed"; ticket_id: string; created: boolean; account_id: string; profile_id: string }
   | { kind: "duplicate"; ticket_id: string | null }
-  | { kind: "unrouted" };
+  | { kind: "unrouted" }
+  /** Our own mail (a sign-in link, a notice) forwarded back to us: dropped, never a ticket. */
+  | { kind: "own_mail" };
 
 class Duplicate extends Error {}
 
@@ -109,16 +185,43 @@ export async function receiveInboundEmail(
   if (already) return { kind: "duplicate", ticket_id: already.ticket_id };
 
   const route = routingFrom(email.to, domain);
-  const [settings] = route
+  let [settings] = route
     ? await db
         .select()
         .from(supportSettings)
         .where(eq(supportSettings.inbound_token, route.routing))
     : [];
+  // Review 2026-10-23 (#6): every reply we send carries s-<routing>+<thread>
+  // in its Reply-To, so after the owner rotates the inbound address a
+  // customer answering an old email names a routing token that no longer
+  // exists. The thread token is unique across all tickets and unguessable
+  // (96 bits), so it alone finds the ticket and, through it, the business.
+  // A bare old address (no thread) stays dropped — that is what rotating is for.
+  if (route && !settings && route.thread) {
+    const [threaded] = await db
+      .select({ settings: supportSettings })
+      .from(supportTickets)
+      .innerJoin(supportSettings, eq(supportSettings.profile_id, supportTickets.profile_id))
+      .where(eq(supportTickets.thread_token, route.thread));
+    settings = threaded?.settings;
+  }
   if (!route || !settings) {
     // No PII: not the address, not the subject — only that it happened.
     console.log(JSON.stringify({ event: "support_inbound_unrouted", account_id: null }));
     return { kind: "unrouted" };
+  }
+
+  // Before any contact or ticket is touched: our own mail is never a customer's.
+  if (isOwnMail(email.from.address)) {
+    // No PII: not the address, not the subject (a sign-in link could be in it).
+    console.log(
+      JSON.stringify({
+        event: "support_inbound_own_mail_dropped",
+        account_id: settings.account_id,
+        profile_id: settings.profile_id,
+      }),
+    );
+    return { kind: "own_mail" };
   }
 
   // The existing thread, if this is a reply.
@@ -152,18 +255,35 @@ export async function receiveInboundEmail(
     ticket = row?.ticket ?? null;
   }
 
-  const contact = await contactForSupport({
-    accountId: settings.account_id,
-    email: email.from.address,
-    name: email.from.name,
-    source: emailedSource(email.received_at),
-    at: email.received_at,
-  });
-  const contactId = contact.kind === "suppressed" ? null : contact.contact_id;
-  const suppressed = contact.kind === "suppressed";
-
   try {
     const result = await db.transaction(async (tx) => {
+      // Serialised against an erasure of this sender (review #19, see
+      // lockSupportWrites): the contact, its suppression and the thread are
+      // all read after the lock, so a just-committed erasure is honoured.
+      await lockSupportWrites(tx, settings.account_id);
+      if (ticket) {
+        const [still] = await tx
+          .select({ id: supportTickets.id })
+          .from(supportTickets)
+          .where(eq(supportTickets.id, ticket.id));
+        if (!still) ticket = null; // erased a moment ago: this mail opens a ticket of its own
+      }
+      const contact = await contactForSupport(
+        {
+          accountId: settings.account_id,
+          email: email.from.address,
+          name: email.from.name,
+          source: emailedSource(email.received_at),
+          at: email.received_at,
+          // Review #18: a sender who didn't pass authentication may be anyone,
+          // so they are never tied to the contact the From line names.
+          linkExisting: email.sender_auth === "verified",
+        },
+        tx,
+      );
+      const contactId =
+        contact.kind === "existing" || contact.kind === "created" ? contact.contact_id : null;
+      const suppressed = contact.kind === "suppressed";
       let ticketId: string;
       let created = false;
       if (ticket) {
@@ -207,22 +327,24 @@ export async function receiveInboundEmail(
           account_id: settings.account_id,
           direction: "inbound",
           provider_id: email.provider_id,
-          message_id_header: email.message_id,
-          in_reply_to: email.in_reply_to,
-          references_header: email.references,
+          // Validated and bounded again here, whatever built the InboundEmail (#17).
+          message_id_header: normaliseMessageId(email.message_id),
+          in_reply_to: referencedIds(email.in_reply_to, null)[0] ?? null,
+          references_header: referencedIds(null, email.references).join(" ") || null,
           from_address: email.from.address,
           from_name: email.from.name,
-          to_addresses: email.to,
+          to_addresses: storedAddresses(email.to),
           subject: email.subject,
           body: email.text,
           truncated: email.truncated,
+          sender_auth: email.sender_auth,
           at: email.received_at,
         })
         .onConflictDoNothing()
         .returning({ id: supportEmailMessages.id });
       // The same delivery, racing itself: roll the ticket back with it.
       if (inserted.length === 0) throw new Duplicate();
-      return { ticketId, created };
+      return { ticketId, created, contact: contact.kind };
     });
     console.log(
       JSON.stringify({
@@ -231,7 +353,8 @@ export async function receiveInboundEmail(
         profile_id: settings.profile_id,
         ticket_id: result.ticketId,
         created: result.created,
-        contact: contact.kind,
+        contact: result.contact,
+        sender_auth: email.sender_auth,
         truncated: email.truncated,
       }),
     );
@@ -261,6 +384,8 @@ export interface TicketEmailFacts {
   /** The first inbound sender, as name (when given) and address. */
   from_name: string | null;
   from_address: string | null;
+  /** Review #18: the first inbound sender's authentication; null for rows filed before it was recorded. */
+  from_auth: SenderAuth | null;
   last_inbound_at: string | null;
   last_outbound_at: string | null;
   /** The first customer email not yet followed by one of ours; null when we wrote last. */
@@ -275,6 +400,7 @@ export async function ticketEmailFacts(profileId: string): Promise<Map<string, T
       direction: supportEmailMessages.direction,
       from_name: supportEmailMessages.from_name,
       from_address: supportEmailMessages.from_address,
+      sender_auth: supportEmailMessages.sender_auth,
       at: supportEmailMessages.at,
     })
     .from(supportEmailMessages)
@@ -287,6 +413,7 @@ export async function ticketEmailFacts(profileId: string): Promise<Map<string, T
       f = {
         from_name: null,
         from_address: null,
+        from_auth: null,
         last_inbound_at: null,
         last_outbound_at: null,
         unanswered_since: null,
@@ -298,6 +425,7 @@ export async function ticketEmailFacts(profileId: string): Promise<Map<string, T
       if (f.from_address === null) {
         f.from_name = r.from_name;
         f.from_address = r.from_address;
+        f.from_auth = r.sender_auth;
       }
       f.last_inbound_at = at;
       f.unanswered_since ??= at;
@@ -307,4 +435,23 @@ export async function ticketEmailFacts(profileId: string): Promise<Map<string, T
     }
   }
   return facts;
+}
+
+/** Review #18: the owner-facing words for an unproven sender. */
+export const SENDER_NOT_VERIFIED = "sender not verified";
+export const GIVEN_IN_CHAT = "given in chat, not verified";
+
+/**
+ * What the owner's screen says about who a ticket is from, or null when
+ * there is nothing to say: an emailed ticket whose first sender did not
+ * pass authentication (or predates the check) is "sender not verified";
+ * an address typed into the widget can never be verified, and says so.
+ */
+export function senderNote(t: {
+  channel: "chat" | "email";
+  has_address: boolean;
+  from_auth: SenderAuth | null;
+}): string | null {
+  if (t.channel === "chat") return t.has_address ? GIVEN_IN_CHAT : null;
+  return t.from_auth === "verified" ? null : SENDER_NOT_VERIFIED;
 }

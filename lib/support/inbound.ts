@@ -43,6 +43,41 @@ export interface InboundEmail {
   in_reply_to: string | null;
   references: string | null;
   received_at: string;
+  /** Review #18: did the sender pass authentication, by the receiving server's own result? */
+  sender_auth: SenderAuth;
+}
+
+/* ── sender authentication (review 2026-10-23, #18) ── */
+
+export type SenderAuth = "verified" | "unverified" | "failed";
+
+/**
+ * Whether the From address is the sender's own, from Resend's
+ * `authentication` object on the retrieved email ({ spf, dkim, dmarc },
+ * each "pass" | "fail" | "gray" | "processing_failed" | "unknown", or the
+ * whole object null for mail received before Resend added it). Resend's
+ * docs (read 2026-10-23) say these come from its receiving server, not
+ * from the message headers, so the sender cannot forge them.
+ *
+ * Deliberately NOT read: an Authentication-Results header in the mail.
+ * Headers are the sender's to write, and a forged "dmarc=pass" is exactly
+ * what this check exists to catch.
+ *
+ *   verified    dmarc "pass", or dkim "pass" (Resend calls a DKIM
+ *               signature for another domain "gray", so a pass is aligned);
+ *   failed      dmarc or dkim "fail" with no pass;
+ *   unverified  anything else — no result, no DMARC policy, unsigned. SPF
+ *               alone proves nothing about the From line, and forwarding
+ *               (how this inbox is fed) breaks it anyway.
+ */
+export function senderAuthOf(content: unknown): SenderAuth {
+  if (typeof content !== "object" || content === null) return "unverified";
+  const auth = (content as { authentication?: unknown }).authentication;
+  if (typeof auth !== "object" || auth === null) return "unverified";
+  const { dkim, dmarc } = auth as { dkim?: unknown; dmarc?: unknown };
+  if (dmarc === "pass" || dkim === "pass") return "verified";
+  if (dmarc === "fail" || dkim === "fail") return "failed";
+  return "unverified";
 }
 
 /* ── signature verification (Svix scheme) ── */
@@ -185,6 +220,39 @@ export function capBody(text: string): { text: string; truncated: boolean } {
     : { text: clean, truncated: false };
 }
 
+/* ── threading headers (review 2026-10-23, #17) ── */
+
+/** The longest Message-ID kept. Real ones are under 100 characters; this leaves room. */
+export const MESSAGE_ID_MAX_CHARS = 250;
+/** The most ids kept from a References header (the newest: they are the nearest parents). */
+export const REFERENCES_MAX_IDS = 50;
+/** The most addresses stored per email (routing reads them all first). */
+export const STORED_ADDRESSES_MAX = 50;
+export const ADDRESS_MAX_CHARS = 254;
+
+/**
+ * One Message-ID, angle brackets included, or null when it isn't one:
+ * printable ASCII, a single "@", nothing that could fold or break a
+ * header (no spaces, no CR/LF, no brackets inside), and bounded in length.
+ * A bare id without brackets (as Resend's `message_id` may give it) is bracketed.
+ */
+export function normaliseMessageId(raw: string | null | undefined): string | null {
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  const id = trimmed.startsWith("<") ? trimmed : `<${trimmed}>`;
+  if (id.length > MESSAGE_ID_MAX_CHARS) return null;
+  return /^<[\x21-\x3b\x3d\x3f-\x7e]+>$/.test(id) && /^<[^@]+@[^@]+>$/.test(id) ? id : null;
+}
+
+/** Every valid Message-ID a header names, in order, deduplicated, at most `max` (the newest). */
+export function messageIdsIn(header: string | null, max = REFERENCES_MAX_IDS): string[] {
+  if (!header) return [];
+  const ids = (header.match(/<[^<>\s]*>/g) ?? [])
+    .map((id) => normaliseMessageId(id))
+    .filter((id): id is string => id !== null);
+  return [...new Set(ids)].slice(-max);
+}
+
 /** A header from Resend's name → value map, whatever case the name came in. */
 function header(headers: unknown, name: string): string | null {
   if (typeof headers !== "object" || headers === null) return null;
@@ -229,13 +297,18 @@ export function normaliseReceived(event: ReceivedEvent, content: unknown): Inbou
     subject,
     text: body.text,
     truncated: body.truncated,
-    message_id:
+    // Stored and later copied into our replies' headers, so only well-formed,
+    // bounded ids are kept: a malformed or huge header must not be able to
+    // make every reply on the ticket refused (#17).
+    message_id: normaliseMessageId(
       (typeof c.message_id === "string" && c.message_id.trim()) ||
-      header(c.headers, "message-id") ||
-      event.message_id,
-    in_reply_to: header(c.headers, "in-reply-to"),
-    references: header(c.headers, "references"),
+        header(c.headers, "message-id") ||
+        event.message_id,
+    ),
+    in_reply_to: messageIdsIn(header(c.headers, "in-reply-to"))[0] ?? null,
+    references: messageIdsIn(header(c.headers, "references")).join(" ") || null,
     received_at: typeof c.created_at === "string" ? c.created_at : event.created_at,
+    sender_auth: senderAuthOf(c),
   };
 }
 
@@ -252,19 +325,31 @@ export class InboundFetchError extends Error {
   }
 }
 
+/** A read Resend hasn't answered by now is retried later, not waited on (review 2026-10-23, #24). */
+export const RECEIVED_FETCH_TIMEOUT_MS = 10_000;
+
 /** GET the received email's body and headers. A read of our own Resend account, nothing more. */
 export async function fetchReceivedEmail(
   emailId: string,
   apiKey: string,
   fetchImpl: FetchLike = fetch,
+  timeoutMs: number = RECEIVED_FETCH_TIMEOUT_MS,
 ): Promise<unknown> {
   if (!/^[A-Za-z0-9-]{1,100}$/.test(emailId)) {
     throw new InboundFetchError("the email id is not one Resend issues", false);
   }
-  const res = await fetchImpl(`https://api.resend.com/emails/receiving/${emailId}`, {
-    method: "GET",
-    headers: { Authorization: `Bearer ${apiKey}` },
-  });
+  let res: Response;
+  try {
+    res = await fetchImpl(`https://api.resend.com/emails/receiving/${emailId}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (error) {
+    // A timeout or a dropped connection: the webhook answers 5xx and Resend redelivers.
+    const name = error instanceof Error ? error.name : "network";
+    throw new InboundFetchError(`Resend did not answer (${name})`, true);
+  }
   if (!res.ok) {
     throw new InboundFetchError(
       `Resend answered ${res.status}`,

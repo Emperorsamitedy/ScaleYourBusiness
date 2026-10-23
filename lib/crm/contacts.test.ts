@@ -452,6 +452,7 @@ describe("P4-09 — erasure takes the contact's email tickets, and the trail sta
       in_reply_to: null,
       references: null,
       received_at: new Date().toISOString(),
+      sender_auth: "verified" as const,
     });
     const filed = await receiveInboundEmail(mail("A broken bowl"), domain);
     if (filed.kind !== "filed") throw new Error("not filed");

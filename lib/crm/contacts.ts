@@ -29,6 +29,7 @@ import { derivedKey } from "../core/derived-key";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { forgetBookingClient } from "../bookings/erase";
+import { lockSupportWrites } from "../support/support-contact";
 import {
   businessProfiles,
   campaignComparisons,
@@ -212,55 +213,63 @@ export async function eraseContact(accountId: string, contactId: string): Promis
     .from(businessProfiles)
     .where(eq(businessProfiles.account_id, accountId));
 
-  // Their support traces go too (the security review of 2026-10-17 found
-  // erasure left every ticket and widget transcript behind): the tickets
-  // tied to the contact, the conversations behind them, and any widget
-  // conversation in which the customer typed their own email address.
-  const ticketConversations = await db
-    .select({ id: supportTickets.conversation_id })
-    .from(supportTickets)
-    .where(and(eq(supportTickets.contact_id, contactId), eq(supportTickets.account_id, accountId)));
-  const emailConversations = contact.email
-    ? await db
-        .selectDistinct({ id: supportMessages.conversation_id })
-        .from(supportMessages)
-        .innerJoin(
-          supportConversations,
-          eq(supportConversations.id, supportMessages.conversation_id),
-        )
-        .where(
-          and(
-            eq(supportConversations.account_id, accountId),
-            sql`position(${contact.email.toLowerCase()} in lower(${supportMessages.text})) > 0`,
-          ),
-        )
-    : [];
-  // P4-09: every email ticket this address wrote or was written to — a
-  // suppressed sender's tickets carry no contact_id, so the address finds them.
-  const emailTickets = contact.email
-    ? await db
-        .selectDistinct({ id: supportEmailMessages.ticket_id })
-        .from(supportEmailMessages)
-        .where(
-          and(
-            eq(supportEmailMessages.account_id, accountId),
-            or(
-              eq(supportEmailMessages.from_address, normalizeEmail(contact.email)),
-              sql`${supportEmailMessages.to_addresses} ? ${normalizeEmail(contact.email)}`,
+  // Review 2026-10-23 (#19): the affected tickets and conversations are
+  // found INSIDE the transaction, after taking the support tier's per-account
+  // lock (lib/support's inbound filing takes the same one), so an email
+  // committing mid-erasure is either seen and erased here, or filed after
+  // the suppression exists — never left behind with its PII.
+  const { conversationIds, emailTicketIds } = await db.transaction(async (tx) => {
+    await lockSupportWrites(tx, accountId);
+    // Their support traces go too (the security review of 2026-10-17 found
+    // erasure left every ticket and widget transcript behind): the tickets
+    // tied to the contact, the conversations behind them, and any widget
+    // conversation in which the customer typed their own email address.
+    const ticketConversations = await tx
+      .select({ id: supportTickets.conversation_id })
+      .from(supportTickets)
+      .where(
+        and(eq(supportTickets.contact_id, contactId), eq(supportTickets.account_id, accountId)),
+      );
+    const emailConversations = contact.email
+      ? await tx
+          .selectDistinct({ id: supportMessages.conversation_id })
+          .from(supportMessages)
+          .innerJoin(
+            supportConversations,
+            eq(supportConversations.id, supportMessages.conversation_id),
+          )
+          .where(
+            and(
+              eq(supportConversations.account_id, accountId),
+              sql`position(${contact.email.toLowerCase()} in lower(${supportMessages.text})) > 0`,
             ),
-          ),
-        )
-    : [];
-  const emailTicketIds = emailTickets.map((r) => r.id);
-  const conversationIds = [
-    ...new Set(
-      [...ticketConversations, ...emailConversations]
-        .map((r) => r.id)
-        .filter((id): id is string => id !== null),
-    ),
-  ];
+          )
+      : [];
+    // P4-09: every email ticket this address wrote or was written to — a
+    // suppressed sender's tickets carry no contact_id, so the address finds them.
+    const emailTickets = contact.email
+      ? await tx
+          .selectDistinct({ id: supportEmailMessages.ticket_id })
+          .from(supportEmailMessages)
+          .where(
+            and(
+              eq(supportEmailMessages.account_id, accountId),
+              or(
+                eq(supportEmailMessages.from_address, normalizeEmail(contact.email)),
+                sql`${supportEmailMessages.to_addresses} ? ${normalizeEmail(contact.email)}`,
+              ),
+            ),
+          )
+      : [];
+    const emailTicketIds = emailTickets.map((r) => r.id);
+    const conversationIds = [
+      ...new Set(
+        [...ticketConversations, ...emailConversations]
+          .map((r) => r.id)
+          .filter((id): id is string => id !== null),
+      ),
+    ];
 
-  await db.transaction(async (tx) => {
     if (hash) {
       await tx
         .insert(contactSuppressions)
@@ -327,6 +336,7 @@ export async function eraseContact(accountId: string, contactId: string): Promis
           .digest("hex"),
       });
     }
+    return { conversationIds, emailTicketIds };
   });
   // Their bookings stop being linkable to them: the keyed client hash their
   // email or phone produced is cleared (specs/bookings.md §3).

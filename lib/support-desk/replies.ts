@@ -39,7 +39,7 @@ import {
 } from "../../db/schema";
 import { canEmailTransactional, isSuppressed } from "../crm/contacts";
 import { resendApiKey, supportInboundDomain } from "../env";
-import { newThreadToken, threadAddress } from "../support/email-tickets";
+import { newThreadToken, replyThreadHeaders, threadAddress } from "../support/email-tickets";
 import { settingsForProfile } from "../support/settings";
 import type { MailFetch } from "./mailer";
 import { replyDisclosure } from "./disclosure";
@@ -447,9 +447,8 @@ export async function sendApprovedReply(args: {
   }
 
   const last = target.last_inbound;
-  const references = last?.message_id_header
-    ? [last.references_header, last.message_id_header].filter(Boolean).join(" ")
-    : null;
+  // Rebuilt from validated ids, never the stored headers copied (review 2026-10-23, #17).
+  const { in_reply_to: inReplyTo, references } = replyThreadHeaders(last);
   const outcome = await sendSupportEmail(
     {
       from: fromHeader(settings.business_name),
@@ -457,7 +456,7 @@ export async function sendApprovedReply(args: {
       reply_to: threadAddress(settings.inbound_token, threadToken, domain),
       subject: subjectFor(last, settings.business_name),
       text: claimed.sent_text,
-      in_reply_to: last?.message_id_header ?? null,
+      in_reply_to: inReplyTo,
       references,
       idempotency_key: `syb-support-reply-${claimed.id}`,
     },
@@ -504,7 +503,7 @@ export async function sendApprovedReply(args: {
         account_id: claimed.account_id,
         direction: "outbound",
         provider_id: outcome.provider_id,
-        in_reply_to: last?.message_id_header ?? null,
+        in_reply_to: inReplyTo,
         references_header: references,
         from_address: fromHeader(settings.business_name),
         to_addresses: [target.address],

@@ -22,6 +22,7 @@
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
+import { appOriginOf, isSameOriginPost } from "../../../lib/auth/same-origin";
 import { type NextRequest, NextResponse } from "next/server";
 import {
   ContactError,
@@ -57,7 +58,12 @@ import {
 import { inArray } from "drizzle-orm";
 import { db } from "../../../db";
 import { contacts } from "../../../db/schema";
-import { emailThread, inboundAddress, ticketEmailFacts } from "../../../lib/support/email-tickets";
+import {
+  emailThread,
+  inboundAddress,
+  senderNote,
+  ticketEmailFacts,
+} from "../../../lib/support/email-tickets";
 import { draftReply } from "../../../lib/support-desk/draft";
 import {
   ReplyError,
@@ -128,6 +134,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           subject: m.subject,
           body: m.body,
           truncated: m.truncated,
+          // Review #18: an inbound sender who didn't pass authentication says so.
+          sender_verified: m.direction === "inbound" ? m.sender_auth === "verified" : null,
           at: m.at,
         })),
       });
@@ -181,6 +189,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         suppressed_address: refused,
         from: person?.name ?? f?.from_name ?? address,
         has_address: address !== null,
+        // Review #18: "sender not verified" / "given in chat, not verified", or null.
+        sender_note: senderNote({
+          channel: t.channel,
+          has_address: address !== null || t.suppressed_address,
+          from_auth: f?.from_auth ?? null,
+        }),
         // P4-11's waited clock: from the first word of theirs we haven't answered.
         // A ticket with no email side waits from when it was handed over.
         waiting_since: f ? f.unanswered_since : t.created_at,
@@ -215,6 +229,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Review 2026-10-23 (#24): every action here is the owner's, from the
+  // owner's own screen, so a POST that can't show it came from our origin is
+  // refused before anything is read — SameSite=Lax alone was the only CSRF
+  // guard. The widget's public route (/api/support/public) is a separate
+  // file and stays cross-origin.
+  if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
+    console.warn(JSON.stringify({ event: "support_cross_site_refused", account_id: null }));
+    return NextResponse.json({ error: "this request didn't come from our page" }, { status: 403 });
+  }
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const session = await matchingSession();
