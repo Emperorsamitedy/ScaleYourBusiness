@@ -23,4 +23,6 @@ Commit-sized tasks from Vilsta's customer-interview feedback (2026-10-19 to 2026
 - [ ] **F-35a** Decide whether the fact sheet's existing "Find my competitors" flow (`lib/research/competitor.ts`) may keep reading pages that came from web search, or should only suggest and let the owner list them.
 - [ ] **F-37** Ask Vilsta what "for the 23, I rather meant the functions" referred to.
 
-**Production, before these are live:** `db:migrate` through 0052, then `db:seed` for bank 1.7.0.
+**Review, 2026-10-23:** a read-only review of everything merged since the 17 October audit found no critical or high issues and 24 medium-to-low ones. All are fixed (PRs #27–#30) except one, "sell it off ranks last", which was judged not a defect: it is scored on the same net-cash basis as every option. See `docs/SECURITY-AUDIT.md`.
+
+**Production, before these are live:** follow "Before you deploy main (2026-10-23)" in `docs/SECURITY-AUDIT.md`. It covers `db:migrate` through 0055, `db:seed` for bank 1.7.0, the webhooks, and the campaign gates.
