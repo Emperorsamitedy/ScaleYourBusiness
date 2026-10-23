@@ -355,6 +355,55 @@ describe("proposeClearance", () => {
     expect(run.created.some((p) => kindOf(p) === "offer_change")).toBe(true);
   });
 
+  it("two runs racing past the read create each proposal once (review 2026-10-23, #22)", async () => {
+    const s = await shop();
+    const [a, b] = await Promise.all([
+      proposeClearance(s.profile_id, { now: NOW, limitLlm: noLimits }),
+      proposeClearance(s.profile_id, { now: NOW, limitLlm: noLimits }),
+    ]);
+    const rows = await db.select().from(proposals).where(eq(proposals.profile_id, s.profile_id));
+    expect(rows).toHaveLength(9);
+    expect(new Set(rows.map((r) => r.originating_finding)).size).toBe(9);
+    expect(a.created.length + b.created.length).toBe(9);
+    // The loser of each race says so rather than failing.
+    const skipped = [...a.skipped, ...b.skipped].filter(
+      (x) => x.reason === "already proposed this month",
+    );
+    expect(skipped.length).toBe(9);
+  });
+
+  it("the database refuses a duplicate stock ref outright", async () => {
+    const s = await shop({ customers: 0 });
+    const run = await proposeClearance(s.profile_id, { now: NOW, limitLlm: noLimits });
+    const first = run.created[0]!;
+    await expect(
+      db.insert(proposals).values({
+        profile_id: s.profile_id,
+        module: first.module,
+        originating_finding: first.originating_finding,
+        action: first.action,
+        scenario: first.scenario,
+        reversibility: first.reversibility,
+        status: "pending",
+        expires_at: first.expires_at,
+      }),
+    ).rejects.toThrow();
+    // A ref outside "stock:" is not held to it.
+    const other = { ...first, originating_finding: "utterance:x" };
+    for (let i = 0; i < 2; i++) {
+      await db.insert(proposals).values({
+        profile_id: s.profile_id,
+        module: other.module,
+        originating_finding: other.originating_finding,
+        action: other.action,
+        scenario: other.scenario,
+        reversibility: other.reversibility,
+        status: "pending",
+        expires_at: other.expires_at,
+      });
+    }
+  });
+
   it("a watched business gets nothing (rule 15)", async () => {
     const s = await shop({ mode: "watching", customers: 0 });
     const run = await proposeClearance(s.profile_id, { now: NOW, limitLlm: noLimits });

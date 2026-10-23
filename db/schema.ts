@@ -1217,6 +1217,26 @@ export const bookingAppointments = pgTable(
   ],
 );
 
+// The client keys an erasure cleared (review 2026-10-23, #3, rule 22): the
+// keyed hash only, never the email or phone it came from, so a re-import of
+// the usual overlapping export writes no key back onto an erased client's
+// rows. It survives erasure on purpose, like contact_suppressions.
+
+export const bookingClientErasures = pgTable(
+  "booking_client_erasures",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // Goes with the account if the account itself is ever deleted.
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    /** lib/bookings/client-key.ts's keyed hash. No PII here, by design. */
+    client_key: text("client_key").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("booking_client_erasures_idx").on(t.account_id, t.client_key)],
+);
+
 /* ---------- Phase 2 Session E — anomalies (P2-22..25) ---------- */
 
 // An anomaly is a run of days on one measured series beyond the
@@ -1335,6 +1355,11 @@ export const proposals = pgTable(
   },
   (t) => [
     index("proposals_profile_status_idx").on(t.profile_id, t.status),
+    // A stock clearance proposal is once per item, option and month: two
+    // runs racing past the read can't both insert (review 2026-10-23, #22).
+    uniqueIndex("proposals_stock_finding_idx")
+      .on(t.profile_id, t.originating_finding)
+      .where(sql`${t.originating_finding} LIKE 'stock:%'`),
     check("proposals_requires_approval_true", sql`${t.requires_approval} = true`),
     check(
       "proposals_blocked_names_limit",
