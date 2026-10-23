@@ -52,7 +52,19 @@ export const MATERIALITY = {
   /** Absolute floor for a count, by what is counted, in a month. */
   count_floor: { orders: 5, units: 5, sessions: 100 },
   count_floor_default: 5,
+  /**
+   * Absolute floor for a percent field (a rate or a margin), in PERCENTAGE
+   * POINTS, never the count floor: a repeat rate stated at 10 % and
+   * measured at 14 % is a 4-point gap that a count floor of 5 hid
+   * (review 2026-10-23, #23).
+   */
+  percent_floor_pp: 2,
 } as const;
+
+/** Pure: whether a field holds a percent (in points, 0–100), by its key. */
+export function isPercentField(fieldKey: string): boolean {
+  return /(_rate|_pct|_percent|margin)(_\d+d)?$/.test(fieldKey);
+}
 
 /** Pure: the money floor for a currency, in its minor units — an integer. */
 export function moneyFloorMinor(currency: string): number {
@@ -116,7 +128,12 @@ export function materialityOf(row: DeltaInput): Materiality {
   if (base > 0 && gap * 100 < MATERIALITY.min_relative_pct * base) {
     return { material: false, reason: "within_relative" };
   }
-  const floor = d.currency !== null ? moneyFloorMinor(d.currency) : countFloor(row.field_key);
+  const floor =
+    d.currency !== null
+      ? moneyFloorMinor(d.currency)
+      : isPercentField(row.field_key)
+        ? MATERIALITY.percent_floor_pp
+        : countFloor(row.field_key);
   if (gap < floor) return { material: false, reason: "below_floor" };
   return { material: true, reason: "material" };
 }
