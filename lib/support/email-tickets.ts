@@ -82,6 +82,44 @@ export function referencedIds(inReplyTo: string | null, references: string | nul
   return [...new Set(ids)].slice(-50);
 }
 
+/* ── our own mail (review 2026-10-23, #12) ── */
+
+/** What every Ledgerline send uses when EMAIL_FROM is unset (lib/auth/email.ts and the rest). */
+const DEFAULT_FROM = "Ledgerline <onboarding@resend.dev>";
+
+function addressPart(raw: string): string | null {
+  const address = (/<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw).trim().toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? address : null;
+}
+
+/**
+ * The addresses Ledgerline itself sends from: EMAIL_FROM (sign-in links,
+ * owner notices, support replies), and CAMPAIGN_EMAIL_FROM when set —
+ * optional, since campaigns may share EMAIL_FROM.
+ */
+export function ownSenderAddresses(): string[] {
+  const raws = [
+    process.env.EMAIL_FROM?.trim() || DEFAULT_FROM,
+    process.env.CAMPAIGN_EMAIL_FROM?.trim() || "",
+  ];
+  return [...new Set(raws.map(addressPart).filter((a): a is string => a !== null && a !== ""))];
+}
+
+/**
+ * Mail from one of our sending addresses, or its domain (or a subdomain of
+ * it). An owner who signs in with the address they forward to us would
+ * otherwise have their own magic links and notices filed as tickets — a
+ * sign-in link stored in plaintext and offered to "Draft a reply".
+ */
+export function isOwnMail(fromAddress: string): boolean {
+  const from = fromAddress.trim().toLowerCase();
+  const fromDomain = from.split("@")[1] ?? "";
+  return ownSenderAddresses().some((own) => {
+    const domain = own.split("@")[1]!;
+    return from === own || fromDomain === domain || fromDomain.endsWith(`.${domain}`);
+  });
+}
+
 /** The line the owner's list shows: the subject, or the start of the body. */
 export function summaryOf(email: Pick<InboundEmail, "subject" | "text">): string {
   const subject = email.subject.trim();
@@ -93,7 +131,9 @@ export function summaryOf(email: Pick<InboundEmail, "subject" | "text">): string
 export type InboundOutcome =
   | { kind: "filed"; ticket_id: string; created: boolean; account_id: string; profile_id: string }
   | { kind: "duplicate"; ticket_id: string | null }
-  | { kind: "unrouted" };
+  | { kind: "unrouted" }
+  /** Our own mail (a sign-in link, a notice) forwarded back to us: dropped, never a ticket. */
+  | { kind: "own_mail" };
 
 class Duplicate extends Error {}
 
@@ -133,6 +173,19 @@ export async function receiveInboundEmail(
     // No PII: not the address, not the subject — only that it happened.
     console.log(JSON.stringify({ event: "support_inbound_unrouted", account_id: null }));
     return { kind: "unrouted" };
+  }
+
+  // Before any contact or ticket is touched: our own mail is never a customer's.
+  if (isOwnMail(email.from.address)) {
+    // No PII: not the address, not the subject (a sign-in link could be in it).
+    console.log(
+      JSON.stringify({
+        event: "support_inbound_own_mail_dropped",
+        account_id: settings.account_id,
+        profile_id: settings.profile_id,
+      }),
+    );
+    return { kind: "own_mail" };
   }
 
   // The existing thread, if this is a reply.

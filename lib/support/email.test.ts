@@ -417,6 +417,90 @@ describe("P4-09 — routing, threading and idempotency", () => {
   });
 });
 
+describe("review #12 — Ledgerline's own mail, forwarded back, is never a ticket", () => {
+  const saved = { from: process.env.EMAIL_FROM, campaign: process.env.CAMPAIGN_EMAIL_FROM };
+  afterEach(() => {
+    if (saved.from === undefined) delete process.env.EMAIL_FROM;
+    else process.env.EMAIL_FROM = saved.from;
+    if (saved.campaign === undefined) delete process.env.CAMPAIGN_EMAIL_FROM;
+    else process.env.CAMPAIGN_EMAIL_FROM = saved.campaign;
+  });
+
+  async function nothingFiledFor(b: { profile_id: string; account_id: string }) {
+    expect(
+      await db.select().from(supportTickets).where(eq(supportTickets.profile_id, b.profile_id)),
+    ).toHaveLength(0);
+    expect(
+      await db
+        .select()
+        .from(supportEmailMessages)
+        .where(eq(supportEmailMessages.profile_id, b.profile_id)),
+    ).toHaveLength(0);
+    expect(
+      await db.select().from(contacts).where(eq(contacts.account_id, b.account_id)),
+    ).toHaveLength(0);
+  }
+
+  it("a sign-in link sent to the forwarded mailbox is dropped with a no-PII log line", async () => {
+    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
+    const b = await business();
+    const link = "https://syb.example/api/auth/redeem?token=SECRET-SIGN-IN-TOKEN";
+    const magic = fixture({
+      from: "Ledgerline <login@ledgerline-mail.test>",
+      to: ["info@shop.example"],
+      received_for: [b.address],
+      subject: "Your sign-in link — Ledgerline",
+      text: `Click to sign in to Ledgerline:\n\n${link}\n\nThe link works once.`,
+    });
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    try {
+      expect(await receiveInboundEmail(normalised(magic), DOMAIN)).toEqual({ kind: "own_mail" });
+      const lines = log.mock.calls.map((c) => String(c[0])).join("\n");
+      expect(lines).toContain("support_inbound_own_mail_dropped");
+      expect(lines).toContain(b.account_id);
+      expect(lines).not.toContain("SECRET-SIGN-IN-TOKEN");
+      expect(lines).not.toContain("login@ledgerline-mail.test");
+      expect(lines).not.toContain("sign-in link");
+    } finally {
+      log.mockRestore();
+    }
+    // The same domain from another of our addresses (an owner notice), and a subdomain.
+    for (const from of ["notices@ledgerline-mail.test", "bounce@eu.ledgerline-mail.test"]) {
+      expect(
+        await receiveInboundEmail(normalised(fixture({ from, to: [b.address] })), DOMAIN),
+      ).toEqual({ kind: "own_mail" });
+    }
+    await nothingFiledFor(b);
+  });
+
+  it("CAMPAIGN_EMAIL_FROM, when set, is ours too; unset, Resend's default sender is", async () => {
+    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
+    process.env.CAMPAIGN_EMAIL_FROM = "Fernhill via Ledgerline <news@campaigns-mail.test>";
+    const b = await business();
+    const campaign = fixture({ from: "news@campaigns-mail.test", to: [b.address] });
+    expect(await receiveInboundEmail(normalised(campaign), DOMAIN)).toEqual({ kind: "own_mail" });
+    delete process.env.CAMPAIGN_EMAIL_FROM;
+    delete process.env.EMAIL_FROM;
+    const fallback = fixture({ from: "Ledgerline <onboarding@resend.dev>", to: [b.address] });
+    expect(await receiveInboundEmail(normalised(fallback), DOMAIN)).toEqual({ kind: "own_mail" });
+    await nothingFiledFor(b);
+  });
+
+  it("the passing case: a customer's mail — even one mentioning our domain — is filed", async () => {
+    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
+    const b = await business();
+    const customer = fixture({
+      from: "Ana <ana@not-ledgerline-mail.test>",
+      to: [b.address],
+      text: "I got an email from login@ledgerline-mail.test, is that you?",
+    });
+    expect(await receiveInboundEmail(normalised(customer), DOMAIN)).toMatchObject({
+      kind: "filed",
+      created: true,
+    });
+  });
+});
+
 describe("P4-09 — contacts under rule 19", () => {
   it("an existing contact's consent is never changed by emailing in", async () => {
     const b = await business();
