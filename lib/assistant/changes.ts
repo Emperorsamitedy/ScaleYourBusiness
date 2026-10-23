@@ -460,7 +460,7 @@ export function isAskBack(v: unknown): v is AskBack {
 
 /** The first amount in the owner's words, as they wrote it ("1 500", "12,50", "1.234,56"). */
 function amountToken(text: string): string | null {
-  const m = /-?\d{1,3}(?:[   ]\d{3})+(?:[.,]\d+)?|-?\d[\d.,]*/.exec(text);
+  const m = /-?\d{1,3}(?:[ \u00a0\u202f]\d{3})+(?:[.,]\d+)?|-?\d[\d.,]*/.exec(text);
   return m ? m[0].replace(/[.,]+$/, "") : null;
 }
 

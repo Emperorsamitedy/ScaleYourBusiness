@@ -20,10 +20,12 @@ import {
   utterances,
 } from "../../db/schema";
 
+import type * as ProposalService from "../proposals/service";
+
 const failAfterProposal = vi.hoisted(() => ({ on: false }));
 
 vi.mock("../proposals/service", async (importOriginal) => {
-  const real = await importOriginal<typeof import("../proposals/service")>();
+  const real = await importOriginal<typeof ProposalService>();
   return {
     ...real,
     // The real insert runs; then, when asked, the confirm dies right after it.

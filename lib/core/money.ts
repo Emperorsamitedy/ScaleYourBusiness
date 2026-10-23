@@ -186,8 +186,8 @@ export type AmountReading =
       reason: "unreadable" | "ambiguous" | "style_conflict";
     };
 
-const GROUP_RE = /[    ']/;
-const GROUP_RE_G = /[    ']/g;
+const GROUP_RE = /[ \u00a0\u202f\u2009']/;
+const GROUP_RE_G = /[ \u00a0\u202f\u2009']/g;
 
 /**
  * Read an amount as written ("1.234,56", "1,234.50", "12,50", "1 200",
@@ -199,7 +199,7 @@ const GROUP_RE_G = /[    ']/g;
 export function readAmount(raw: string, style: DecimalStyle | null = null): AmountReading {
   const unreadable = { ok: false, reason: "unreadable" } as const;
   let s = raw
-    .replace(/[^\d.,\-    ']/g, "")
+    .replace(/[^\d.,\- \u00a0\u202f\u2009']/g, "")
     .trim()
     .replace(/^'+|'+$/g, "")
     .trim();
@@ -221,7 +221,7 @@ export function readAmount(raw: string, style: DecimalStyle | null = null): Amou
 
   // Spaces (or apostrophes) group the thousands, so any mark left is the decimal.
   if (GROUP_RE.test(s)) {
-    const m = /^(\d{1,3}(?:[    ']\d{3})+)(?:([.,])(\d+))?$/.exec(s);
+    const m = /^(\d{1,3}(?:[ \u00a0\u202f\u2009']\d{3})+)(?:([.,])(\d+))?$/.exec(s);
     if (!m || m[1] === undefined) return unreadable;
     const whole = m[1].replace(GROUP_RE_G, "");
     return m[2] === undefined ? done(whole, "", null) : done(whole, m[3] ?? "", styleOf(m[2]));

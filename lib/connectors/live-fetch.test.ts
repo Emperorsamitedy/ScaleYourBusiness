@@ -6,12 +6,14 @@ import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import type * as SiteFetch from "../site/fetch";
+
 const vetted = vi.hoisted(() => ({
   addresses: null as { address: string; family: 4 | 6 }[] | null,
 }));
 
 vi.mock("../site/fetch", async (importOriginal) => {
-  const real = await importOriginal<typeof import("../site/fetch")>();
+  const real = await importOriginal<typeof SiteFetch>();
   return {
     ...real,
     // The test decides what "vetted" answers; the pinning itself is real.
