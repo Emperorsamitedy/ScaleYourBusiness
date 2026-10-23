@@ -275,9 +275,14 @@ describe("proposeClearance", () => {
     expect(markdown.reversibility).toMatchObject({ level: "moderate" });
 
     // The post rides the content calendar path; the email the campaign path.
-    const post = rows.find((p) => p.module === "content")!;
+    // One post per item, in no guaranteed order: pick the bowl's by its focus.
+    const posts = rows.filter((p) => p.module === "content");
+    expect(posts).toHaveLength(2);
+    const post = posts.find(
+      (p) => (detailOf(p).items as { focus: string }[])[0]!.focus === "Large Serving Bowl",
+    )!;
+    expect(post).toBeDefined();
     expect(kindOf(post)).toBe("content_publishing");
-    expect((detailOf(post).items as { focus: string }[])[0]!.focus).toBe("Large Serving Bowl");
     const email = rows.filter((p) => p.module === "crm");
     expect(email).toHaveLength(1);
     expect(kindOf(email[0]!)).toBe("customer_email");
