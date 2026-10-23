@@ -10,12 +10,13 @@
 // the tool-result blocks — the model's prose is never the data path.
 
 import type { PageFetcher as GuardedFetch } from "../site/fetch";
-import { livePageFetcher as guardedFetch } from "../site/fetch";
+import { createGuardedFetcher } from "../site/fetch";
 import type Anthropic from "@anthropic-ai/sdk";
+import { readListedPages } from "../competitors/read";
 import { anthropicClient } from "../llm/client";
-import { buildCallRecord, logLlmCall } from "../llm/cost-log";
+import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { FetchedPage, SearchHit, SearchProvider, PageFetcher } from "./competitor";
-import { RESEARCH_MODEL, ResearchError } from "./competitor";
+import { CAPS, RESEARCH_MODEL, RESEARCH_WORKLOADS, ResearchError } from "./competitor";
 import { extractTitle, stripHtml } from "../site/html-text";
 
 export { extractTitle, stripHtml };
@@ -41,7 +42,7 @@ export function parseSearchResults(content: readonly Anthropic.ContentBlock[]): 
 
 /* ── live search (rule 2: one search per call, capped by the API) ── */
 
-export const liveSearchProvider: SearchProvider = async (query, limit) => {
+export const liveSearchProvider: SearchProvider = async (query, limit, accountId) => {
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: RESEARCH_MODEL,
@@ -51,10 +52,13 @@ export const liveSearchProvider: SearchProvider = async (query, limit) => {
     messages: [{ role: "user", content: query }],
     tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 1 }],
   });
-  logLlmCall(
+  // Persisted with the real account id: the daily cap counts these rows
+  // (review 2026-10-23, finding 9 — this used to log account "search" to
+  // the console only, with the search fee uncosted).
+  await recordLlmCall(
     buildCallRecord({
-      workload: "research",
-      account_id: "search",
+      workload: RESEARCH_WORKLOADS.search,
+      account_id: accountId,
       model: RESEARCH_MODEL,
       duration_ms: Date.now() - started,
       usage: {
@@ -63,6 +67,7 @@ export const liveSearchProvider: SearchProvider = async (query, limit) => {
         cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
         cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
       },
+      web_search_requests: response.usage.server_tool_use?.web_search_requests ?? 0,
     }),
   );
   return parseSearchResults(response.content).slice(0, limit);
@@ -75,35 +80,54 @@ export const liveSearchProvider: SearchProvider = async (query, limit) => {
 export const MAX_FETCH_CHARS = 300_000;
 
 /**
- * Research reads the public web through the SAME guarded fetcher the site
- * audit uses (lib/site/fetch): every hop resolved once, its addresses
- * vetted against private, loopback and link-local ranges, the connection
- * pinned to them, redirects re-vetted, bytes capped. Before the security
- * review of 2026-10-17 this was a bare fetch that followed redirects
- * anywhere — a page ranked for a competitor's name could bounce the
- * server to localhost or a metadata address and read the answer back.
+ * Honest about who we are and why: these are pages a search found for a
+ * business the owner named, read once on their request. robots.txt groups
+ * match on "Ledgerline", as for the weekly reader.
  */
-export function createLivePageFetcher(fetchGuarded: GuardedFetch = guardedFetch): PageFetcher {
+export const RESEARCH_USER_AGENT =
+  "Ledgerline-CompetitorResearch/1.0 (reads a few public pages about a business a customer asked about, on request; honours robots.txt)";
+
+/** The hardened site fetcher with research's own agent, timeout and byte cap. */
+const researchGuardedFetch: GuardedFetch = createGuardedFetcher({
+  userAgent: RESEARCH_USER_AGENT,
+  timeoutMs: CAPS.page_timeout_ms,
+  maxBytes: MAX_FETCH_CHARS,
+});
+
+/**
+ * Research reads the public web through the competitor reader's own path
+ * (lib/competitors/read: readListedPages): robots.txt read and obeyed for
+ * the page and wherever it redirects, sign-in and account pages refused,
+ * and every request through the hardened fetcher (each hop resolved once,
+ * vetted against private ranges, pinned, ports 80/443 only, bytes capped).
+ * Before the review of 2026-10-23 (finding 9) research never read
+ * robots.txt; before the 2026-10-17 review it was a bare fetch that
+ * followed redirects anywhere.
+ */
+export function createLivePageFetcher(
+  fetchGuarded: GuardedFetch = researchGuardedFetch,
+): PageFetcher {
   return async (url, timeoutMs) => {
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const page = await Promise.race([
-        fetchGuarded(url),
+      const read = readListedPages({
+        urls: [url],
+        fetcher: fetchGuarded,
+        now: () => new Date(),
+      }).then(([outcome]) => outcome ?? null);
+      const outcome = await Promise.race([
+        read,
         new Promise<null>((resolve) => {
           timer = setTimeout(() => resolve(null), timeoutMs);
         }),
       ]);
-      if (!page || page.status < 200 || page.status >= 300) return null;
-      const type = page.headers["content-type"] ?? "";
-      if (!/text\/html|application\/xhtml|text\/plain/.test(type)) return null;
-      const raw = page.html.slice(0, MAX_FETCH_CHARS);
-      const text = stripHtml(raw);
+      if (!outcome || outcome.outcome !== "read" || !outcome.extract) return null;
+      const text = outcome.extract.text.trim();
       if (text === "") return null;
-      return { url: page.url, title: extractTitle(raw), text } satisfies FetchedPage;
+      return { url: outcome.url, title: outcome.title ?? "", text } satisfies FetchedPage;
     } catch {
-      // Refused address, timeout, DNS failure, TLS error — a page that cannot
-      // be read is a page skipped, never a run killed (competitor.ts decides
-      // when nothing at all loaded).
+      // readListedPages never throws; this is belt and braces. A page that
+      // cannot be read is a page skipped, never a run killed.
       return null;
     } finally {
       if (timer) clearTimeout(timer);

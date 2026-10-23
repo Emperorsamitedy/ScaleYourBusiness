@@ -62,3 +62,16 @@ export function costEur(model: string, usage: UsageTokens): number {
     1_000_000;
   return usd * USD_TO_EUR;
 }
+
+/**
+ * Anthropic's server-side web search is billed per search on top of the
+ * tokens: $10 per 1,000 searches. The response reports the count in
+ * usage.server_tool_use.web_search_requests (review 2026-10-23, finding 9:
+ * these fees were uncosted).
+ */
+export const WEB_SEARCH_USD_PER_REQUEST = 0.01;
+
+export function webSearchCostEur(requests: number): number {
+  if (!Number.isFinite(requests) || requests <= 0) return 0;
+  return Math.floor(requests) * WEB_SEARCH_USD_PER_REQUEST * USD_TO_EUR;
+}

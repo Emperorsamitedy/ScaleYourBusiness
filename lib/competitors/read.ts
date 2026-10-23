@@ -10,6 +10,7 @@
 
 import type { PageFetcher } from "../site/fetch";
 import { createGuardedFetcher, SiteFetchError } from "../site/fetch";
+import { extractTitle } from "../site/html-text";
 import type { PageExtract } from "./extract";
 import { extractPage } from "./extract";
 import type { RobotsRules } from "./robots";
@@ -44,6 +45,8 @@ export interface PageOutcome {
   reason: string | null;
   fetched_at: string;
   extract: PageExtract | null;
+  /** The page's <title>, when read. */
+  title?: string;
 }
 
 /** Paths that are a sign-in, an account, or a till — never read. */
@@ -319,6 +322,7 @@ export async function readListedPages(args: {
         reason: null,
         fetched_at: fetchedAt,
         extract: extractPage(page.html),
+        title: extractTitle(page.html),
       });
     } catch (error) {
       out.push({

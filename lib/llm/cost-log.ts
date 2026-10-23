@@ -7,7 +7,7 @@
 
 import { logSafeError } from "../core/log-safe";
 import type { UsageTokens } from "./pricing";
-import { costEur } from "./pricing";
+import { costEur, webSearchCostEur } from "./pricing";
 
 export interface LlmCallRecord {
   at: string;
@@ -30,6 +30,8 @@ export function buildCallRecord(args: {
   model: string;
   duration_ms: number;
   usage: UsageTokens;
+  /** Server-side web searches the call ran, billed per search on top of tokens. */
+  web_search_requests?: number;
 }): LlmCallRecord {
   return {
     at: new Date().toISOString(),
@@ -39,7 +41,7 @@ export function buildCallRecord(args: {
     model: args.model,
     duration_ms: args.duration_ms,
     ...args.usage,
-    cost_eur: costEur(args.model, args.usage),
+    cost_eur: costEur(args.model, args.usage) + webSearchCostEur(args.web_search_requests ?? 0),
   };
 }
 
