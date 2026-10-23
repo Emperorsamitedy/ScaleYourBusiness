@@ -32,6 +32,7 @@ import {
   parseStockMoney,
   stockFileObservations,
 } from "./import";
+import type { StockImportOptions } from "./import";
 
 const AS_OF = "2026-10-20";
 const NOW = "2026-10-22T09:00:00.000Z";
@@ -248,5 +249,36 @@ describe("importStockFile", () => {
         now: new Date(NOW),
       }),
     ).rejects.toThrow(/future/);
+  });
+});
+
+describe("money columns written the European way (review 2026-10-23, #4)", () => {
+  const read = (text: string, opts: Partial<StockImportOptions> = {}) =>
+    stockFileObservations(text, { as_of: AS_OF, currency: "HUF", ...opts }, NOW);
+  const values = (text: string, opts: Partial<StockImportOptions> = {}) =>
+    read(text, opts)
+      .observations.filter((o) => o.metric_key === "stock.value_at_price")
+      .map((o) => o.value_minor);
+
+  it("12.000 HUF asks which mark separates thousands, and then reads 12 000 Ft exactly", () => {
+    const csv = "item,on hand,price\nWax,1,12.000";
+    expect(() => read(csv)).toThrow(/dot or the comma separates thousands/);
+    expect(values(csv, { decimal_style: "comma_decimal" })).toEqual([1_200_000]);
+    expect(values(csv, { decimal_style: "dot_decimal" })).toEqual([1_200]);
+  });
+
+  it("a file proving its style needs no answer; one proving both is refused", () => {
+    expect(values('item,on hand,price\nWax,1,1.200\nOil,2,"4,50"', { currency: "EUR" })).toEqual([
+      120_000, 900,
+    ]);
+    expect(() =>
+      read('item,on hand,price\nWax,1,"1.234,56"\nOil,1,"1,234.56"', { currency: "EUR" }),
+    ).toThrow(/written both ways/);
+  });
+
+  it("a currency must be an ISO 4217 code (#13)", () => {
+    expect(() => read("item,on hand,price\nWax,1,9", { currency: "VAT" })).toThrow(
+      /which currency/,
+    );
   });
 });

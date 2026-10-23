@@ -34,6 +34,7 @@ import type { MetricKey } from "../connectors/provider";
 import type { Executor } from "../connectors/service";
 import { upsertObservations } from "../connectors/service";
 import { isoDate, isoDateTime } from "../core/iso";
+import type { DecimalStyle } from "../core/money";
 import { readCurrentField } from "../profile/field-store";
 import { clientKey } from "./client-key";
 import type { BookingPlatform, ColumnRole } from "./import-map";
@@ -285,6 +286,8 @@ export interface ImportRequest {
   platform: BookingPlatform;
   currency: string | null;
   dateOrder: DateOrder | null;
+  /** Which mark is the decimal one in the price column, when the file can't prove it. */
+  decimalStyle?: DecimalStyle | null;
 }
 
 export interface ImportOutcome {
@@ -329,6 +332,7 @@ export async function importBookings(
       platform: request.platform,
       currency: request.currency,
       dateOrder: request.dateOrder,
+      decimalStyle: request.decimalStyle ?? null,
       today,
     },
     (identity) => clientKey(accountId, identity, request.platform),

@@ -7,6 +7,10 @@
 // by currency. FX conversion is not this module's job: aggregates that
 // cross currencies carry their own rate and date (§3.3), in a later session.
 
+import { isIsoCurrency } from "./currencies";
+
+export { isIsoCurrency };
+
 export interface Money {
   /** Integer count of minor units (fillér, cent). Never a float. */
   amount_minor: number;
@@ -30,8 +34,6 @@ export class InvalidMoneyError extends Error {
     this.name = "InvalidMoneyError";
   }
 }
-
-const CURRENCY_RE = /^[A-Z]{3}$/;
 
 // Minor-unit exponent per ISO 4217. Default is 2; zero- and three-decimal
 // currencies are listed. HUF is 2 — amount_minor is fillér (§3.3), even
@@ -74,7 +76,7 @@ export function money(amount_minor: number, currency: string): Money {
         `floats and unsafe magnitudes silently corrupt totals`,
     );
   }
-  if (!CURRENCY_RE.test(currency)) {
+  if (!isIsoCurrency(currency)) {
     throw new InvalidMoneyError(`currency must be a three-letter ISO 4217 code, got "${currency}"`);
   }
   return { amount_minor, currency };
@@ -153,20 +155,206 @@ export function format(m: Money, locale = "en"): string {
   }).format(major);
 }
 
-/** "1 234.50", "1,234.50", "€1234.5", "1234" → integer minor units for the currency. */
-export function parseMoneyMinor(raw: string, currency: string): number | null {
-  let v = raw.trim().replace(/[^\d.,-]/g, "");
-  if (v === "" || v === "-") return null;
-  // Two separators: the last one is the decimal mark. One: decimal if followed by 1–2 digits.
-  const lastComma = v.lastIndexOf(",");
-  const lastDot = v.lastIndexOf(".");
-  if (lastComma !== -1 && lastDot !== -1) {
-    v = lastComma > lastDot ? v.replace(/\./g, "").replace(",", ".") : v.replace(/,/g, "");
-  } else if (lastComma !== -1) {
-    v = /,\d{1,2}$/.test(v) ? v.replace(",", ".") : v.replace(/,/g, "");
+/* ── reading amounts people write (review 2026-10-23, #4) ── */
+
+/**
+ * Which mark is the decimal one. "dot_decimal" is 1,234.56 (a comma, a
+ * space or nothing groups the thousands); "comma_decimal" is 1.234,56.
+ */
+export type DecimalStyle = "dot_decimal" | "comma_decimal";
+
+export type AmountReading =
+  | {
+      ok: true;
+      negative: boolean;
+      /** Whole digits, no separators. */
+      whole: string;
+      /** Fraction digits as written, no separators. */
+      fraction: string;
+      /** The style this value alone proves, or null when it proves none. */
+      proves: DecimalStyle | null;
+    }
+  | {
+      ok: false;
+      /**
+       * unreadable: not an amount at all.
+       * ambiguous: a lone separator before exactly three digits ("1.200",
+       *   "12,000") is a thousands mark in one style and a decimal in the
+       *   other, and no style was given to settle it.
+       * style_conflict: the value only reads in the other style.
+       */
+      reason: "unreadable" | "ambiguous" | "style_conflict";
+    };
+
+const GROUP_RE = /[    ']/;
+const GROUP_RE_G = /[    ']/g;
+
+/**
+ * Read an amount as written ("1.234,56", "1,234.50", "12,50", "1 200",
+ * "€ 12.50", "1.200 Ft") into exact digits, with no float anywhere.
+ * Symbols and currency letters around it are ignored. A lone "." or ","
+ * before exactly three digits is AMBIGUOUS unless `style` settles it;
+ * everything else reads one way only.
+ */
+export function readAmount(raw: string, style: DecimalStyle | null = null): AmountReading {
+  const unreadable = { ok: false, reason: "unreadable" } as const;
+  let s = raw
+    .replace(/[^\d.,\-    ']/g, "")
+    .trim()
+    .replace(/^'+|'+$/g, "")
+    .trim();
+  let negative = false;
+  if (s.startsWith("-")) {
+    negative = true;
+    s = s.slice(1).trim();
   }
-  if (!/^-?\d+(\.\d+)?$/.test(v)) return null;
-  const exponent = minorUnitExponent(currency);
-  const minor = Math.round(Number.parseFloat(v) * 10 ** exponent);
-  return Number.isFinite(minor) ? minor : null;
+  if (s === "" || s.includes("-") || !/\d/.test(s)) return unreadable;
+
+  const styleOf = (decimalMark: string): DecimalStyle =>
+    decimalMark === "." ? "dot_decimal" : "comma_decimal";
+  const done = (whole: string, fraction: string, proves: DecimalStyle | null): AmountReading => {
+    if (proves !== null && style !== null && proves !== style) {
+      return { ok: false, reason: "style_conflict" };
+    }
+    return { ok: true, negative, whole: whole === "" ? "0" : whole, fraction, proves };
+  };
+
+  // Spaces (or apostrophes) group the thousands, so any mark left is the decimal.
+  if (GROUP_RE.test(s)) {
+    const m = /^(\d{1,3}(?:[    ']\d{3})+)(?:([.,])(\d+))?$/.exec(s);
+    if (!m || m[1] === undefined) return unreadable;
+    const whole = m[1].replace(GROUP_RE_G, "");
+    return m[2] === undefined ? done(whole, "", null) : done(whole, m[3] ?? "", styleOf(m[2]));
+  }
+
+  const dots = (s.match(/\./g) ?? []).length;
+  const commas = (s.match(/,/g) ?? []).length;
+  if (dots === 0 && commas === 0) return /^\d+$/.test(s) ? done(s, "", null) : unreadable;
+
+  if (dots > 0 && commas > 0) {
+    // Both: the last one is the decimal mark, the other groups thousands.
+    const decimal = s.lastIndexOf(".") > s.lastIndexOf(",") ? "." : ",";
+    const group = decimal === "." ? "," : ".";
+    const g = group === "." ? "\\." : ",";
+    const d = decimal === "." ? "\\." : ",";
+    const m = new RegExp(`^(\\d{1,3}(?:${g}\\d{3})+)${d}(\\d+)$`).exec(s);
+    if (!m || m[1] === undefined) return unreadable;
+    return done(m[1].split(group).join(""), m[2] ?? "", styleOf(decimal));
+  }
+
+  const mark = dots > 0 ? "." : ",";
+  if (dots + commas > 1) {
+    // Repeated, so it can only be the thousands mark.
+    const g = mark === "." ? "\\." : ",";
+    if (!new RegExp(`^\\d{1,3}(?:${g}\\d{3})+$`).test(s)) return unreadable;
+    return done(s.split(mark).join(""), "", mark === "." ? "comma_decimal" : "dot_decimal");
+  }
+  const [lead = "", tail = ""] = s.split(mark);
+  if (!/^\d*$/.test(lead) || !/^\d+$/.test(tail)) return unreadable;
+  const couldGroup = tail.length === 3 && lead.length >= 1 && lead.length <= 3 && lead[0] !== "0";
+  if (!couldGroup) return done(lead, tail, styleOf(mark));
+  // "1.200": a thousands mark in one style, a decimal in the other.
+  if (style === null) return { ok: false, reason: "ambiguous" };
+  return style === styleOf(mark) ? done(lead, tail, null) : done(`${lead}${tail}`, "", null);
 }
+
+export type MinorReading =
+  { ok: true; minor: number } | { ok: false; reason: "too_precise" | "too_large" };
+
+/**
+ * Exact digits → integer minor units at the currency's ISO 4217 exponent.
+ * THE one conversion every import, connector and chat amount goes through
+ * (rule 1): digits are concatenated, never multiplied as a float, and a
+ * fraction more precise than the currency allows is refused, never
+ * rounded. Trailing zeros past the exponent are not extra precision.
+ */
+export function digitsToMinor(
+  negative: boolean,
+  whole: string,
+  fraction: string,
+  currency: string,
+): MinorReading {
+  const exponent = minorUnitExponent(currency.toUpperCase());
+  if (fraction.length > exponent && /[^0]/.test(fraction.slice(exponent))) {
+    return { ok: false, reason: "too_precise" };
+  }
+  const value = Number(`${whole}${fraction.slice(0, exponent).padEnd(exponent, "0")}`);
+  if (!Number.isSafeInteger(value)) return { ok: false, reason: "too_large" };
+  return { ok: true, minor: value === 0 ? 0 : negative ? -value : value };
+}
+
+export type AmountMinorResult =
+  | { ok: true; minor: number; proves: DecimalStyle | null }
+  | {
+      ok: false;
+      reason: "unreadable" | "ambiguous" | "style_conflict" | "too_precise" | "too_large";
+    };
+
+/** readAmount, then digitsToMinor: an amount as written → exact minor units, or why not. */
+export function parseAmountMinor(
+  raw: string,
+  currency: string,
+  style: DecimalStyle | null = null,
+): AmountMinorResult {
+  const read = readAmount(raw, style);
+  if (!read.ok) return read;
+  const minor = digitsToMinor(read.negative, read.whole, read.fraction, currency);
+  return minor.ok ? { ok: true, minor: minor.minor, proves: read.proves } : minor;
+}
+
+/**
+ * "1 234,50", "1,234.50", "€1234.5", "1234" → integer minor units for the
+ * currency, exactly. Null when unreadable, more precise than the currency
+ * allows, or ambiguous ("1.200") with no style to settle it.
+ */
+export function parseMoneyMinor(
+  raw: string,
+  currency: string,
+  style: DecimalStyle | null = null,
+): number | null {
+  const r = parseAmountMinor(raw, currency, style);
+  return r.ok ? r.minor : null;
+}
+
+/**
+ * What a column of written amounts says about its style, the way a file's
+ * dates settle day-first or month-first: proven by the file, or the
+ * owner's word when only ambiguous values appear. A file that proves both
+ * styles, or contradicts what the owner said, is refused.
+ */
+export function settleDecimalStyle(
+  cells: readonly string[],
+  stated: DecimalStyle | null,
+):
+  | { ok: true; style: DecimalStyle | null; proven: boolean }
+  | { ok: false; reason: "both" | "contradicts_stated" | "ambiguous" } {
+  const proven = new Set<DecimalStyle>();
+  let ambiguous = false;
+  for (const c of cells) {
+    if (c.trim() === "") continue;
+    const r = readAmount(c, null);
+    if (r.ok && r.proves !== null) proven.add(r.proves);
+    else if (!r.ok && r.reason === "ambiguous") ambiguous = true;
+  }
+  if (proven.size > 1) return { ok: false, reason: "both" };
+  const [only] = [...proven];
+  if (only !== undefined) {
+    if (stated !== null && stated !== only) return { ok: false, reason: "contradicts_stated" };
+    return { ok: true, style: only, proven: true };
+  }
+  if (ambiguous && stated === null) return { ok: false, reason: "ambiguous" };
+  return { ok: true, style: stated, proven: false };
+}
+
+export function isDecimalStyle(v: unknown): v is DecimalStyle {
+  return v === "dot_decimal" || v === "comma_decimal";
+}
+
+/** The refusal sentences an import uses, so every import asks the same question. */
+export const DECIMAL_STYLE_MESSAGES = {
+  ambiguous:
+    "amounts like 1.200 could be one thousand two hundred or one point two — say whether the dot or the comma separates thousands",
+  both: "the amounts in this file are written both ways (1.234,56 and 1,234.56), so I can't read them",
+  contradicts_stated:
+    "you said which mark separates thousands, but the file has amounts that only read the other way",
+} as const;

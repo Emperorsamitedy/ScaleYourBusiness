@@ -8,7 +8,7 @@
 // the database; only values that survive this layer do.
 
 import { enumValue } from "../core/enum-value";
-import { minorUnitExponent, money } from "../core/money";
+import { digitsToMinor, isIsoCurrency, money } from "../core/money";
 import { isoDate } from "../core/iso";
 import type { InputSpec } from "../interviewer/harness/answers";
 
@@ -38,20 +38,44 @@ export function coerceParsedValue(
     }
     case "number": {
       if (typeof wire !== "number" || !Number.isFinite(wire)) return fail("expected finite number");
+      // The bank's own bounds (review 2026-10-23, #13): "4000" is not a share
+      // of customers, whichever channel it came through.
+      if (typeof spec.min === "number" && wire < spec.min) {
+        return fail(`must be at least ${spec.min}`);
+      }
+      if (typeof spec.max === "number" && wire > spec.max) {
+        return fail(`must be at most ${spec.max}`);
+      }
       return { ok: true, value: wire };
     }
     case "money": {
       if (wire === null || typeof wire !== "object")
         return fail("expected {amount_major, currency?}");
       const w = wire as { amount_major?: unknown; currency?: unknown };
-      if (typeof w.amount_major !== "number" || !Number.isFinite(w.amount_major)) {
-        return fail("money needs a finite amount_major");
-      }
+      // A number from the model, or a canonical decimal string ("12.50") from
+      // the chat's own reader — both through the one exact digit path.
+      const decimal =
+        typeof w.amount_major === "number" && Number.isFinite(w.amount_major)
+          ? String(w.amount_major)
+          : typeof w.amount_major === "string"
+            ? w.amount_major.trim()
+            : null;
+      const parts = decimal === null ? null : /^(-)?(\d+)(?:\.(\d+))?$/.exec(decimal);
+      if (!parts) return fail("money needs a finite amount_major");
       const currency =
         typeof w.currency === "string" && w.currency.trim() !== ""
           ? w.currency.trim().toUpperCase()
           : reportingCurrency;
-      const minor = Math.round(w.amount_major * 10 ** minorUnitExponent(currency));
+      if (!isIsoCurrency(currency)) return fail(`"${currency}" is not an ISO 4217 currency`);
+      const exact = digitsToMinor(parts[1] === "-", parts[2] ?? "", parts[3] ?? "", currency);
+      if (!exact.ok) {
+        return fail(
+          exact.reason === "too_precise"
+            ? `more precise than ${currency} allows`
+            : "too large to hold exactly",
+        );
+      }
+      const minor = exact.minor;
       try {
         return { ok: true, value: money(minor, currency) };
       } catch (error) {

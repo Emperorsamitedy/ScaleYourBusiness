@@ -278,6 +278,7 @@ export function BookingsImportSection() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [currency, setCurrency] = useState("");
   const [dateOrder, setDateOrder] = useState<"" | "dmy" | "mdy">("");
+  const [decimalStyle, setDecimalStyle] = useState<"" | "dot_decimal" | "comma_decimal">("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
@@ -308,6 +309,7 @@ export function BookingsImportSection() {
           platform,
           currency: currency.trim(),
           ...(dateOrder !== "" ? { date_order: dateOrder } : {}),
+          ...(decimalStyle !== "" ? { decimal_style: decimalStyle } : {}),
         }),
       });
       const payload = (await res.json().catch(() => null)) as
@@ -436,6 +438,21 @@ export function BookingsImportSection() {
               <option value="">Work it out from the file</option>
               <option value="dmy">Day first (3 April)</option>
               <option value="mdy">Month first (March 4)</option>
+            </select>
+          </label>
+          <label className="cn-field">
+            <span className="cn-field-label">How amounts are written, if they look like 1.200</span>
+            <select
+              className="cn-input"
+              value={decimalStyle}
+              onChange={(e) =>
+                setDecimalStyle(e.target.value as "" | "dot_decimal" | "comma_decimal")
+              }
+              disabled={busy}
+            >
+              <option value="">Work it out from the file</option>
+              <option value="dot_decimal">1,234.56 (the comma separates thousands)</option>
+              <option value="comma_decimal">1.234,56 (the dot separates thousands)</option>
             </select>
           </label>
           {error !== null && (

@@ -3,7 +3,7 @@
 //   GET  /api/stock                                   what isn't selling, ranked by cash tied up,
 //                                                     each item's ranked ways to clear it, and the
 //                                                     proposal each option already has
-//   POST /api/stock {action:"import", csv, currency?, window_days?, as_of?}
+//   POST /api/stock {action:"import", csv, currency?, window_days?, as_of?, decimal_style?}
 //                                                     a stock file, for a business with no store
 //   POST /api/stock {action:"propose"}                put the options in the approval queue
 //
@@ -21,6 +21,7 @@ import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { careState } from "../../../lib/care/day-zero";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { STOCK } from "../../../lib/stock/assess";
+import { isDecimalStyle } from "../../../lib/core/money";
 import { StockImportError, importStockFile } from "../../../lib/stock/import";
 import { loadStock, stockApplies } from "../../../lib/stock/load";
 import { CLEARANCE, efficiencyLine } from "../../../lib/stock/options";
@@ -229,6 +230,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       currency?: unknown;
       window_days?: unknown;
       as_of?: unknown;
+      decimal_style?: unknown;
     };
     if (body.action === "import") {
       if (typeof body.csv !== "string") {
@@ -243,6 +245,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const result = await importStockFile(access.account_id, body.csv, {
         ...(typeof body.currency === "string" ? { currency: body.currency } : {}),
         ...(windowDays !== undefined ? { window_days: windowDays } : {}),
+        ...(isDecimalStyle(body.decimal_style) ? { decimal_style: body.decimal_style } : {}),
         ...(typeof body.as_of === "string" && body.as_of.trim() !== ""
           ? { as_of: body.as_of }
           : {}),

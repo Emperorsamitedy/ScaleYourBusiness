@@ -6,7 +6,13 @@
 // out, counted. Nothing is guessed.
 
 import { createHash } from "node:crypto";
-import { parseMoneyMinor } from "../core/money";
+import type { DecimalStyle } from "../core/money";
+import {
+  DECIMAL_STYLE_MESSAGES,
+  isIsoCurrency,
+  parseAmountMinor,
+  settleDecimalStyle,
+} from "../core/money";
 import type { BookingPlatform, ColumnMap, ColumnRole } from "./import-map";
 import { mapColumns, statusTarget } from "./import-map";
 import type { DateOrder, ParsedDateTime } from "./parse";
@@ -54,6 +60,12 @@ export interface ExportOptions {
   currency: string | null;
   /** For slash dates the file itself can't settle (03/04/2026). */
   dateOrder: DateOrder | null;
+  /**
+   * Which mark is the decimal one in the price column, when the file can't
+   * prove it (only prices like "1.200"); asked like the date order, never
+   * guessed (review 2026-10-23, #4). Omitted means "work it out".
+   */
+  decimalStyle?: DecimalStyle | null;
   /** "YYYY-MM-DD" — the import's day: a booked appointment after it is booked_future. */
   today: string;
 }
@@ -164,7 +176,7 @@ export function readExport(
     );
   }
   const currency = options.currency?.trim().toUpperCase() ?? "";
-  if (map.price !== undefined && !/^[A-Z]{3}$/.test(currency)) {
+  if (map.price !== undefined && !isIsoCurrency(currency)) {
     throw new BookingImportError(
       "the file has a price column — say which currency it is in (three letters, e.g. EUR)",
     );
@@ -180,6 +192,11 @@ export function readExport(
     options.dateOrder,
   );
   const order = dateOrder?.order ?? null;
+  const priceStyle = settleDecimalStyle(
+    body.map((r) => cell(r, "price")),
+    options.decimalStyle ?? null,
+  );
+  if (!priceStyle.ok) throw new BookingImportError(DECIMAL_STYLE_MESSAGES[priceStyle.reason]);
 
   const identity: ReadExport["identity"] =
     map.client_id !== undefined
@@ -256,9 +273,10 @@ export function readExport(
     let price_minor: number | null = null;
     const priceRaw = cell(row, "price");
     if (priceRaw !== "") {
-      const p = parseMoneyMinor(priceRaw, currency);
-      if (p === null || p < 0) bump(gaps, "price");
-      else price_minor = p;
+      // The one exact path: no float, no rounding, extra precision refused.
+      const p = parseAmountMinor(priceRaw, currency, priceStyle.style);
+      if (!p.ok || p.minor < 0) bump(gaps, "price");
+      else price_minor = p.minor;
     }
     let duration: number | null = null;
     const durationRaw = cell(row, "duration");

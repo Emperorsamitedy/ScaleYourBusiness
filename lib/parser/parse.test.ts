@@ -81,6 +81,40 @@ describe("coercion — P0-58's arithmetic, deterministic", () => {
     expect(coerceParsedValue({ type: "entity_list" }, [], [], HUF).ok).toBe(false);
     expect(coerceParsedValue({ type: "file" }, "x", [], HUF).ok).toBe(false);
   });
+
+  it("holds a number to the bank's min and max, inclusive (review 2026-10-23, #13)", () => {
+    const share = { type: "number" as const, min: 0, max: 100 };
+    expect(coerceParsedValue(share, 35, [], HUF)).toEqual({ ok: true, value: 35 });
+    expect(coerceParsedValue(share, 0, [], HUF).ok).toBe(true);
+    expect(coerceParsedValue(share, 100, [], HUF).ok).toBe(true);
+    expect(coerceParsedValue(share, 4000, [], HUF)).toEqual({
+      ok: false,
+      reason: "must be at most 100",
+    });
+    expect(coerceParsedValue(share, -1, [], HUF)).toEqual({
+      ok: false,
+      reason: "must be at least 0",
+    });
+  });
+
+  it("money goes through the exact digit path, and only ISO 4217 currencies pass", () => {
+    const m = { type: "money" as const };
+    expect(coerceParsedValue(m, { amount_major: "12.50", currency: "EUR" }, [], HUF)).toEqual({
+      ok: true,
+      value: money(1_250, "EUR"),
+    });
+    expect(coerceParsedValue(m, { amount_major: 0.07, currency: "EUR" }, [], HUF)).toEqual({
+      ok: true,
+      value: money(7, "EUR"),
+    });
+    // More precise than the currency allows: refused, never rounded.
+    expect(coerceParsedValue(m, { amount_major: 12.345, currency: "EUR" }, [], HUF).ok).toBe(false);
+    expect(coerceParsedValue(m, { amount_major: 1.5, currency: "JPY" }, [], HUF).ok).toBe(false);
+    expect(coerceParsedValue(m, { amount_major: 250, currency: "VAT" }, [], HUF)).toEqual({
+      ok: false,
+      reason: '"VAT" is not an ISO 4217 currency',
+    });
+  });
 });
 
 describe("parser behaviors over a live profile (fake LLM)", () => {
