@@ -137,7 +137,10 @@ export function parseTimeRange(text: string): { open: string; close: string } | 
   let open = clock(h1, m1, s1);
   let close = clock(h2, m2, s2);
   if (open === null || close === null) return null;
-  if (!s1 && !s2 && close <= open && close < 12 * 60 && close + 12 * 60 > open) {
+  // "10-24" closes at midnight, not at noon (review 2026-10-23, #21): a bare
+  // 24 is the end of the day, never a 12-hour reading to push past noon.
+  const midnight = !s2 && Number(h2) === 24 && (m2 === undefined || Number(m2) === 0);
+  if (!midnight && !s1 && !s2 && close <= open && close < 12 * 60 && close + 12 * 60 > open) {
     close += 12 * 60;
   }
   if (!s1 && s2?.toLowerCase() === "pm" && open < 12 * 60 && open + 12 * 60 <= close) {
@@ -207,6 +210,22 @@ function stripPoliteness(text: string): string {
 const QUESTION_START =
   /^(what|what's|whats|why|when|where|who|how|which|is|are|do|does|did|should|will|was|were|have|has)\b/i;
 
+/**
+ * Text the owner pasted or quoted, rather than words they wrote to us: a
+ * quoted span, a block-quote line, mail headers, or a message that is
+ * mostly someone else's text (several lines, or long). The rules never
+ * read it for a command; it goes to the model path, whose prompt treats
+ * quoted text as content under discussion (review 2026-10-23, #21: a
+ * customer's "pull the plug" drafted a Stop card).
+ */
+export function looksPasted(text: string): boolean {
+  if (/["“„«][^"“”„«»\n]{3,}["”“»]|‘[^’\n]{3,}’/.test(text)) return true;
+  if (/^\s*>/m.test(text)) return true;
+  if (/^(from|to|subject|sent|date|cc|re|fwd?):\s/im.test(text)) return true;
+  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "");
+  return lines.length >= 3 || text.length > 300;
+}
+
 /** A question about the business, not an instruction: the answer path handles it. */
 export function isQuestion(text: string): boolean {
   return QUESTION_START.test(stripPoliteness(text));
@@ -256,7 +275,7 @@ export function detectByRules(text: string): {
   change: DetectedChange | null;
   final: boolean;
 } {
-  if (isQuestion(text)) return { kinds: [], change: null, final: false };
+  if (isQuestion(text) || looksPasted(text)) return { kinds: [], change: null, final: false };
   let kinds = CHANGE_CATALOGUE.filter((e) => e.cues.some((c) => c.test(text))).map((e) => e.kind);
   // The generic fact phrase gives way to any specific row it overlaps.
   if (kinds.length > 1) kinds = kinds.filter((k) => k !== "fact_value");
