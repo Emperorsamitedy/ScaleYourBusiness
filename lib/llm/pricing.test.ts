@@ -104,10 +104,7 @@ describe("Haiku 5.5's two rate cards, chosen by prompt length (2026-10-24)", () 
 
   it("bills a prompt of 100K tokens or fewer at $0.10 in / $0.50 out", () => {
     // 100,000 in at $0.10/M = $0.01; 10,000 out at $0.50/M = $0.005.
-    expect(costEur("claude-haiku-5-5", usage(100_000, 10_000))).toBeCloseTo(
-      0.015 * USD_TO_EUR,
-      9,
-    );
+    expect(costEur("claude-haiku-5-5", usage(100_000, 10_000))).toBeCloseTo(0.015 * USD_TO_EUR, 9);
   });
 
   it("bills a longer prompt at $0.50 in / $2.50 out, output included", () => {
@@ -146,10 +143,7 @@ describe("Haiku 5.5's two rate cards, chosen by prompt length (2026-10-24)", () 
   });
 
   it("keeps Haiku 4.5 priced at $1/$5 at any length, for the rows it already wrote", () => {
-    expect(costEur("claude-haiku-4-5", usage(1_000_000, 1_000_000))).toBeCloseTo(
-      6 * USD_TO_EUR,
-      6,
-    );
+    expect(costEur("claude-haiku-4-5", usage(1_000_000, 1_000_000))).toBeCloseTo(6 * USD_TO_EUR, 6);
     expect(costEur("claude-haiku-4-5", usage(200_000, 0)) * 5).toBeCloseTo(
       costEur("claude-haiku-4-5", usage(1_000_000, 0)),
       9,

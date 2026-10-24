@@ -49,9 +49,7 @@ describe("a refusal is never data", () => {
 
   it("names a refusal without a category 'unspecified', and the error says what declined", () => {
     vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    expect(readAnswer({ stop_reason: "refusal", content: [] }, record).refusal).toBe(
-      "unspecified",
-    );
+    expect(readAnswer({ stop_reason: "refusal", content: [] }, record).refusal).toBe("unspecified");
     const error = new ModelRefusalError(record, "cyber");
     expect(error.category).toBe("cyber");
     expect(error.message).toMatch(/declined.*claude-haiku-5-5.*parser.*cyber/);
