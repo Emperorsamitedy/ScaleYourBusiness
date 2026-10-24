@@ -57,7 +57,9 @@ import type {
   MetaExecutionProviderId,
   MetaPageCandidate,
 } from "./providers/meta";
-import { META_EXEC_API_VERSION } from "./providers/meta";
+import { META_EXEC_API_VERSION, MetaRequestError } from "./providers/meta";
+import type { MetaFailure } from "./meta-errors";
+import type { ConnectionsReason } from "./meta-login-reasons";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 import { EXECUTION_SETUP, OFFERED_EXECUTION, confirmationMatches } from "./setup";
 
@@ -368,33 +370,66 @@ export function openPending(
 export type CallbackOutcome =
   | { kind: "pick"; provider: MetaExecutionProviderId; pending: string; count: number }
   | { kind: "cancelled"; provider: MetaExecutionProviderId | null }
-  | { kind: "failed"; provider: MetaExecutionProviderId | null; message: string };
+  | {
+      kind: "failed";
+      provider: MetaExecutionProviderId | null;
+      /** What the URL carries (review D #9): a code from a closed set, never text. */
+      reason: ConnectionsReason;
+      /** The server's own sentence, for the log line and tests — never put in a URL. */
+      message: string;
+    };
 
-/** /connections with the flow's outcome in the query: what the Execution section reads. */
+/**
+ * /connections with the flow's outcome in the query: what the Execution
+ * section reads. A failure carries its reason CODE only (review 2026-10-23,
+ * Session D #9); the screen maps it to a fixed sentence (connectionsMessage),
+ * so no text from a URL is ever shown as SYB's.
+ */
 export function connectionsReturnUrl(
   origin: string,
   outcome:
     | { kind: "pick" | "cancelled"; provider: MetaExecutionProviderId | null }
-    | { kind: "failed"; provider: MetaExecutionProviderId | null; message: string },
+    | { kind: "failed"; provider: MetaExecutionProviderId | null; reason: ConnectionsReason },
 ): string {
   const url = new URL("/connections", origin);
   url.searchParams.set("meta", outcome.kind === "failed" ? "error" : outcome.kind);
   if (outcome.provider !== null) url.searchParams.set("provider", outcome.provider);
-  if (outcome.kind === "failed") url.searchParams.set("message", outcome.message);
+  if (outcome.kind === "failed") url.searchParams.set("reason", outcome.reason);
   return url.toString();
+}
+
+/** A flow refusal's reason code, for the way back to /connections (review D #9). */
+export function reasonForLoginFailure(reason: MetaLoginFailure): ConnectionsReason {
+  switch (reason) {
+    case "unavailable":
+    case "provider":
+    case "phrase":
+    case "already_connected":
+    case "foreign":
+      return reason;
+    default:
+      return "start_again";
+  }
+}
+
+/** A Meta refusal's reason code, by the P3-24a taxonomy (review D #9). */
+export function reasonForMetaFailure(failure: MetaFailure | null): ConnectionsReason {
+  switch (failure?.kind) {
+    case "auth":
+      return "meta_auth";
+    case "permission":
+      return "meta_permission";
+    case "rate_limit":
+    case "page_limit":
+    case "unavailable":
+      return "meta_busy";
+    default:
+      return "meta_refused";
+  }
 }
 
 function log(event: string, accountId: string | null, fields: Record<string, unknown> = {}): void {
   console.log(JSON.stringify({ event, account_id: accountId, ...fields }));
-}
-
-/**
- * A start that another site set off: a link or form elsewhere carrying the
- * phrase in it, so the owner never typed it here. Browsers say so in
- * Sec-Fetch-Site; "same-origin" and "none" (typed or bookmarked) pass.
- */
-export function startedElsewhere(secFetchSite: string | null): boolean {
-  return secFetchSite === "cross-site" || secFetchSite === "same-site";
 }
 
 /* ── the steps ─────────────────────────────────────────────────────── */
@@ -518,6 +553,7 @@ export async function completeMetaCallback(args: {
       {
         kind: "failed",
         provider: hinted,
+        reason: "meta_error",
         message: "Facebook sign-in didn't finish. Nothing was connected.",
       },
       { reason: "meta_error" },
@@ -528,6 +564,7 @@ export async function completeMetaCallback(args: {
       {
         kind: "failed",
         provider: hinted,
+        reason: "unavailable",
         message: "Facebook sign-in isn't available yet. Nothing was connected.",
       },
       { reason: "unavailable" },
@@ -538,6 +575,7 @@ export async function completeMetaCallback(args: {
       {
         kind: "failed",
         provider: hinted,
+        reason: "signed_out",
         message: "Sign in to SYB first, then connect Meta again.",
       },
       { reason: "signed_out" },
@@ -552,7 +590,7 @@ export async function completeMetaCallback(args: {
     });
     if (!query.code) {
       return done(
-        { kind: "failed", provider: state.provider, message: START_AGAIN },
+        { kind: "failed", provider: state.provider, reason: "start_again", message: START_AGAIN },
         { reason: "no_code" },
       );
     }
@@ -567,7 +605,12 @@ export async function completeMetaCallback(args: {
     const found = await candidatesFor(args.exec, state.provider, longLived);
     if (found.length === 0) {
       return done(
-        { kind: "failed", provider: state.provider, message: nothingToPick(state.provider) },
+        {
+          kind: "failed",
+          provider: state.provider,
+          reason: state.provider === "meta_publish" ? "no_pages" : "no_ad_accounts",
+          message: nothingToPick(state.provider),
+        },
         { reason: "no_candidates" },
       );
     }
@@ -587,7 +630,12 @@ export async function completeMetaCallback(args: {
   } catch (error) {
     if (error instanceof MetaLoginError) {
       return done(
-        { kind: "failed", provider: hinted, message: error.message },
+        {
+          kind: "failed",
+          provider: hinted,
+          reason: reasonForLoginFailure(error.reason),
+          message: error.message,
+        },
         { reason: error.reason },
       );
     }
@@ -597,6 +645,7 @@ export async function completeMetaCallback(args: {
         {
           kind: "failed",
           provider: hinted,
+          reason: reasonForMetaFailure(error instanceof MetaRequestError ? error.failure : null),
           message: `Facebook sign-in didn't finish. ${error.message}`,
         },
         { reason: "meta_refused", ...logSafeError(error) },
@@ -612,6 +661,7 @@ export async function completeMetaCallback(args: {
     return {
       kind: "failed",
       provider: hinted,
+      reason: "internal",
       message: "Something went wrong on our side. Nothing was connected.",
     };
   }

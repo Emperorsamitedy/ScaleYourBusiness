@@ -56,9 +56,12 @@ import {
   sealPending,
   startMetaLogin,
   signLoginState,
-  startedElsewhere,
+  reasonForLoginFailure,
+  reasonForMetaFailure,
   verifyLoginState,
 } from "./meta-login";
+import { CONNECTIONS_GENERIC, CONNECTIONS_REASONS, connectionsMessage } from "./meta-login-reasons";
+import { classifyMetaError } from "./meta-errors";
 import type { MetaExecFetch, MetaExecRequestInit } from "./providers/meta";
 import { createMetaExecution } from "./providers/meta";
 
@@ -411,28 +414,52 @@ describe("P3-20j — configuration and cookies", () => {
     expect((await refusal(() => openPending(null, args))).reason).toBe("no_pending");
   });
 
-  it("THE ATTACK: a start another site set off (the phrase carried in its link) is refused; our own screen passes", () => {
-    expect(startedElsewhere("cross-site")).toBe(true);
-    expect(startedElsewhere("same-site")).toBe(true);
-    expect(startedElsewhere("same-origin")).toBe(false);
-    expect(startedElsewhere("none")).toBe(false);
-    expect(startedElsewhere(null)).toBe(false);
-  });
-
-  it("the way back to /connections names the outcome, and a failure's sentence", () => {
+  it("review D #9: the way back to /connections names the outcome and a reason CODE, never text", () => {
     const url = new URL(
       connectionsReturnUrl("https://syb.test", {
         kind: "failed",
         provider: "meta_ads",
-        message: "Nope.",
+        reason: "start_again",
       }),
     );
     expect(url.pathname).toBe("/connections");
     expect(Object.fromEntries(url.searchParams)).toEqual({
       meta: "error",
       provider: "meta_ads",
-      message: "Nope.",
+      reason: "start_again",
     });
+  });
+
+  it("review D #9: every reason code is a fixed sentence; an unknown code or planted text reads generic", () => {
+    for (const [code, sentence] of Object.entries(CONNECTIONS_REASONS)) {
+      expect(connectionsMessage(code)).toBe(sentence);
+    }
+    for (const planted of [
+      "Your account is locked — call +36 1 234 5678",
+      "constructor",
+      "__proto__",
+      "",
+      null,
+      undefined,
+    ]) {
+      expect(connectionsMessage(planted)).toBe(CONNECTIONS_GENERIC);
+    }
+  });
+
+  it("review D #9: a flow refusal and a Meta refusal each map to a code", () => {
+    expect(reasonForLoginFailure("nonce_mismatch")).toBe("start_again");
+    expect(reasonForLoginFailure("tampered")).toBe("start_again");
+    expect(reasonForLoginFailure("phrase")).toBe("phrase");
+    expect(reasonForLoginFailure("foreign")).toBe("foreign");
+    expect(reasonForMetaFailure(classifyMetaError({ status: 400, code: 190 }))).toBe("meta_auth");
+    expect(reasonForMetaFailure(classifyMetaError({ status: 400, code: 200 }))).toBe(
+      "meta_permission",
+    );
+    expect(reasonForMetaFailure(classifyMetaError({ status: 400, code: 17 }))).toBe("meta_busy");
+    expect(reasonForMetaFailure(classifyMetaError({ status: 400, code: 100 }))).toBe(
+      "meta_refused",
+    );
+    expect(reasonForMetaFailure(null)).toBe("meta_refused");
   });
 });
 
@@ -696,6 +723,10 @@ describe("P3-20j — the flow, end to end against the fake Graph API", () => {
     expect(outcome.message).toBe(
       "Facebook sign-in didn't finish. Meta refused with code 100; nothing was published.",
     );
+    expect(outcome.reason).toBe("meta_refused");
+    expect(new URL(connectionsReturnUrl("https://syb.test", outcome)).search).toBe(
+      "?meta=error&provider=meta_publish&reason=meta_refused",
+    );
     for (const secret of [BAD_CODE, APP_SECRET]) expect(outcome.message).not.toContain(secret);
     expect(graph.calls).toHaveLength(1); // not retryable: one exchange, no swap, no list
   });
@@ -729,7 +760,10 @@ describe("P3-20j — the flow, end to end against the fake Graph API", () => {
       now: NOW,
     });
     expect(foreign).toMatchObject({ kind: "failed" });
-    if (foreign.kind === "failed") expect(foreign.message).toMatch(/different SYB account/);
+    if (foreign.kind === "failed") {
+      expect(foreign.message).toMatch(/different SYB account/);
+      expect(foreign.reason).toBe("foreign");
+    }
     expect(graph.calls).toHaveLength(0);
   });
 
