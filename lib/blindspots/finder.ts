@@ -24,6 +24,7 @@ import { confidence } from "../core/confidence";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
+import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -49,7 +50,7 @@ export const FINDER = {
 } as const;
 
 export const TOPICS_KEY = "presence.demand_topics";
-export const GROUP_MODEL = "claude-haiku-4-5";
+export const GROUP_MODEL = "claude-haiku-5-5";
 
 export interface Blindspot {
   code: string;
@@ -274,9 +275,14 @@ export const liveGroupLlm: GroupLlm = async ({ system, user, accountId }) => {
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: GROUP_MODEL,
-    max_tokens: 1_500,
+    // Room for adaptive thinking ahead of up to 100 phrases' grouping.
+    max_tokens: 3_000,
     system,
-    output_config: { format: { type: "json_schema", schema: GROUP_SCHEMA } },
+    output_config: {
+      // Grouping phrases by meaning is classification: the lowest effort.
+      effort: "low",
+      format: { type: "json_schema", schema: GROUP_SCHEMA },
+    },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
@@ -292,8 +298,11 @@ export const liveGroupLlm: GroupLlm = async ({ system, user, accountId }) => {
     },
   });
   await recordLlmCall(record);
-  const block = response.content[0];
-  return { text: block && block.type === "text" ? block.text : "", calls: [record] };
+  // A refusal throws: an empty grouping would be written as this week's
+  // topics and reused for seven days, a decline passed off as a finding.
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new ModelRefusalError(record, refusal);
+  return { text, calls: [record] };
 };
 
 /** Pure: validate the grouping. Code decides the counts; the model only names and groups. */

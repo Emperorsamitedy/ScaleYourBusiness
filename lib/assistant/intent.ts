@@ -17,6 +17,7 @@
 // there is no application retry: an unreadable answer degrades to the
 // harmless path — a question, answered.
 
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -27,7 +28,7 @@ import { CHANGE_CATALOGUE } from "./catalogue";
 import type { ChangeKind } from "./kinds";
 import { CHANGE_KINDS, isChangeKind } from "./kinds";
 
-export const CHANGE_INTENT_MODEL = "claude-haiku-4-5";
+export const CHANGE_INTENT_MODEL = "claude-haiku-5-5";
 /** The per-call retry cap for the intent step — explicit, never unbounded. */
 export const CHANGE_INTENT_MAX_RETRIES = 2;
 
@@ -417,11 +418,16 @@ export const liveChangeIntentLlm: ChangeIntentLlm = async ({ system, user, accou
   const response = await anthropicClient().messages.create(
     {
       model: CHANGE_INTENT_MODEL,
-      max_tokens: 300,
-      // The prompt is identical on every turn; the breakpoint lets it cache
-      // once it outgrows the model's minimum cacheable length (rule 8).
+      // Room for adaptive thinking ahead of the ~100-token JSON.
+      max_tokens: 1_000,
+      // The prompt is identical on every turn; the breakpoint caches it now
+      // that Haiku 5.5's minimum cacheable prompt is 512 tokens (rule 8).
       system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-      output_config: { format: { type: "json_schema", schema: CHANGE_INTENT_SCHEMA } },
+      output_config: {
+        // Classification and parameter extraction: the lowest effort.
+        effort: "low",
+        format: { type: "json_schema", schema: CHANGE_INTENT_SCHEMA },
+      },
       messages: [{ role: "user", content: user }],
     },
     { maxRetries: CHANGE_INTENT_MAX_RETRIES },
@@ -439,8 +445,10 @@ export const liveChangeIntentLlm: ChangeIntentLlm = async ({ system, user, accou
     },
   });
   await recordLlmCall(record);
-  const block = response.content[0];
-  return { text: block && block.type === "text" ? block.text : "", calls: [record] };
+  // A refusal comes back as no text: the unreadable-answer path, "ask" with
+  // no change, so nothing is written from it and the owner is answered.
+  const { text } = readAnswer(response, record);
+  return { text, calls: [record] };
 };
 
 const str = (v: unknown, max = 2000): string | undefined =>

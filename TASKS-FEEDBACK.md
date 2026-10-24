@@ -22,6 +22,8 @@ Commit-sized tasks from Vilsta's customer-interview feedback (2026-10-19 to 2026
 - [ ] **F-32a** Confirm the bookings import's column names against a real export from each platform (Fresha first). Every header in `specs/bookings-import-map-v1.json` is `verified: false` until then.
 - [ ] **F-35a** Decide whether the fact sheet's existing "Find my competitors" flow (`lib/research/competitor.ts`) may keep reading pages that came from web search, or should only suggest and let the owner list them.
 - [ ] **F-37** Ask Vilsta what "for the 23, I rather meant the functions" referred to.
+- [ ] **M-1** Check the Haiku 5.5 move (PR #34) against the real API once a key is on hand: the eight calls listed in that PR.
+- [ ] **M-2** Move Sonnet 5 → Sonnet 5.5 and the diagnosis Opus 4.8 → Opus 5.5 (about 20 % cheaper), after a recalibration run on the five real businesses. Sonnet 5.5 rejects the interviewer's `thinking: {type: "disabled"}`, so it needs `between_tools` instead. The owner chose "Haiku now, the rest later" on 2026-10-24.
 
 **Review, 2026-10-23:** a read-only review of everything merged since the 17 October audit found no critical or high issues and 24 medium-to-low ones. All are fixed (PRs #27–#30) except one, "sell it off ranks last", which was judged not a defect: it is scored on the same net-cash basis as every option. See `docs/SECURITY-AUDIT.md`.
 

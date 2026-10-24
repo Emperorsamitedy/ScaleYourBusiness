@@ -12,6 +12,7 @@
 // The seam is injectable like every model boundary in this repo
 // (parser, limits, classifier): deterministic tests, live verify.
 
+import { textOf } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { PlannedItem } from "./plan";
@@ -60,8 +61,8 @@ export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
       },
     }),
   );
-  const block = response.content[0];
-  return { text: block && block.type === "text" ? block.text : "" };
+  // By type, not position: a model that thinks first puts its answer later.
+  return { text: textOf(response.content) };
 };
 
 export interface DraftResult {

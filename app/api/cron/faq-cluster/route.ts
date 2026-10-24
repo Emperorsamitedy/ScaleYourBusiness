@@ -21,12 +21,32 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const rows = await db
       .select({ profile_id: supportSettings.profile_id, account_id: supportSettings.account_id })
       .from(supportSettings);
-    const summary = { businesses: rows.length, proposed: 0, unanswered: 0, cost_eur: 0 };
+    const summary = {
+      businesses: rows.length,
+      proposed: 0,
+      unanswered: 0,
+      failed: 0,
+      cost_eur: 0,
+    };
+    // One business failing (an API error, or the model declining) is logged
+    // and counted; it never stops the rest of the night's run.
     for (const row of rows) {
-      const outcome = await clusterQuestions(row.profile_id, row.account_id);
-      if (outcome.proposal_id) summary.proposed += 1;
-      summary.unanswered += outcome.unanswered.length;
-      summary.cost_eur += outcome.cost_eur;
+      try {
+        const outcome = await clusterQuestions(row.profile_id, row.account_id);
+        if (outcome.proposal_id) summary.proposed += 1;
+        summary.unanswered += outcome.unanswered.length;
+        summary.cost_eur += outcome.cost_eur;
+      } catch (error) {
+        summary.failed += 1;
+        console.error(
+          JSON.stringify({
+            event: "faq_cluster_business_failed",
+            account_id: row.account_id,
+            profile_id: row.profile_id,
+            ...logSafeError(error),
+          }),
+        );
+      }
     }
     console.log(JSON.stringify({ event: "faq_cluster_cron", ...summary }));
     return NextResponse.json(summary);

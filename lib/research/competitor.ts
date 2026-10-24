@@ -26,13 +26,14 @@ import { normalizePageUrl } from "../competitors/read";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { readCurrentField, writeField } from "../profile/field-store";
 import { BUSINESS_TYPE_KEY, CHECKS, checksFor, detects } from "../blindspots/checks";
 
-export const RESEARCH_MODEL = "claude-haiku-4-5";
+export const RESEARCH_MODEL = "claude-haiku-5-5";
 
 /** §8.1 — a competitor's website is weaker evidence than the owner. */
 export const RESEARCH_CONFIDENCE = 0.5;
@@ -158,6 +159,11 @@ export class ResearchError extends Error {
   }
 }
 
+/** The owner-facing sentence for a declined research call. */
+export function declined(category: string): string {
+  return `the research model declined this request (${category}); nothing was recorded`;
+}
+
 /* ── the injectable outside world ── */
 
 export interface SearchHit {
@@ -257,9 +263,14 @@ export const liveResearchLlm: ResearchLlm = async ({ system, user, accountId }) 
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: RESEARCH_MODEL,
-    max_tokens: 1200,
+    // Room for adaptive thinking ahead of nine fields of up to 240 characters.
+    max_tokens: 3_000,
     system,
-    output_config: { format: { type: "json_schema", schema: EXTRACTION_SCHEMA } },
+    output_config: {
+      // Copying what the pages say into fields is extraction: the lowest effort.
+      effort: "low",
+      format: { type: "json_schema", schema: EXTRACTION_SCHEMA },
+    },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
@@ -276,10 +287,12 @@ export const liveResearchLlm: ResearchLlm = async ({ system, user, accountId }) 
   });
   // Persisted: the daily cap counts these rows (review 2026-10-23, finding 9).
   await recordLlmCall(record);
+  // A refusal is checked first and never parsed: no competitor field is written from it.
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new ResearchError(declined(refusal));
   if (response.stop_reason !== "end_turn") {
     throw new ResearchError(`unexpected stop_reason "${response.stop_reason}"`);
   }
-  const text = response.content.find((b) => b.type === "text")?.text ?? "";
   return { text, calls: [record] };
 };
 

@@ -28,6 +28,7 @@ import { createHmac, hkdfSync, randomBytes } from "node:crypto";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { llmCalls, supportConversations, supportMessages } from "../../db/schema";
+import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -46,7 +47,7 @@ export const SUPPORT_WORKLOAD = "support";
  * monthly support cap (monthlySupportSpendEur) — one support budget.
  */
 export const SUPPORT_DRAFT_WORKLOAD = "support_draft";
-export const SUPPORT_INTENT_MODEL = "claude-haiku-4-5";
+export const SUPPORT_INTENT_MODEL = "claude-haiku-5-5";
 export const SUPPORT_ANSWER_MODEL = "claude-sonnet-5";
 
 /** The caps, in code (TASKS-PHASE4 cost discipline). Past either, a human takes over and nothing is spent. */
@@ -170,13 +171,15 @@ async function call(
   accountId: string,
   maxTokens: number,
   schema: Record<string, unknown>,
+  effort?: "low",
 ): Promise<{ text: string; calls: LlmCallRecord[] }> {
   const started = Date.now();
+  const format = { type: "json_schema" as const, schema };
   const response = await anthropicClient().messages.create({
     model,
     max_tokens: maxTokens,
     system,
-    output_config: { format: { type: "json_schema", schema } },
+    output_config: effort ? { effort, format } : { format },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
@@ -192,12 +195,19 @@ async function call(
     },
   });
   await recordLlmCall(record);
-  const block = response.content[0];
-  return { text: block && block.type === "text" ? block.text : "", calls: [record] };
+  const { text, refusal } = readAnswer(response, record);
+  // A declined classification throws: postCustomerMessage's unavailable path hands
+  // the customer to a person. (The Sonnet answer keeps its own path: no
+  // text is no grounded answer, and a person takes over.)
+  if (refusal !== null && model === SUPPORT_INTENT_MODEL) {
+    throw new ModelRefusalError(record, refusal);
+  }
+  return { text, calls: [record] };
 }
 
+/** Classification into three intents: the lowest effort, with room for thinking before the JSON. */
 export const liveSupportIntentLlm: SupportIntentLlm = ({ system, user, accountId }) =>
-  call(SUPPORT_INTENT_MODEL, system, user, accountId, 60, INTENT_SCHEMA);
+  call(SUPPORT_INTENT_MODEL, system, user, accountId, 1_000, INTENT_SCHEMA, "low");
 
 export const liveSupportAnswerLlm: SupportAnswerLlm = ({ system, user, accountId }) =>
   call(SUPPORT_ANSWER_MODEL, system, user, accountId, 400, ANSWER_SCHEMA);
