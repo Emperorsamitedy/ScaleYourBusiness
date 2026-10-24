@@ -609,3 +609,19 @@ export function approvalNote(args: {
   if (sending) parts.push(sending);
   return parts.join(" ");
 }
+
+/**
+ * Review 2026-10-23 (Session D #1): an approval that went stale before it
+ * could run is expired with the decision kept — "you approved this", never
+ * "ran out of time undecided". Null for an ordinary, undecided expiry.
+ */
+export function lapsedSentence(p: {
+  status: string;
+  decided_at: string | null;
+  execution_result?: unknown;
+}): string | null {
+  if (p.status !== "expired" || !p.decided_at) return null;
+  const r = p.execution_result as { lapsed?: unknown; sentence?: unknown } | null | undefined;
+  const why = r?.lapsed === true && typeof r.sentence === "string" ? ` ${r.sentence}` : "";
+  return `You approved this, but it lapsed before it could run — nothing ran.${why}`;
+}

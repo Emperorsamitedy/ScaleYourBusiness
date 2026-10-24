@@ -22,7 +22,8 @@
 //     payment cycles. (The ops themselves: meta-ads-exec.test.ts.)
 
 import "dotenv/config";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
@@ -323,6 +324,8 @@ describe("rules 13 and 18 — what the connector can send", () => {
       page_post: { method: "GET", path: "/{post_id}" },
       page_published_posts: { method: "GET", path: "/{page_id}/published_posts" },
       reel_status: { method: "GET", path: "/{video_id}" },
+      // Review 2026-10-23 (Session D #5), added deliberately: the token's own app, for read-back.
+      token_app: { method: "GET", path: "/app" },
       // P3-21c, added deliberately: undo is deletion.
       page_post_delete: { method: "DELETE", path: "/{post_id}" },
       ig_media_delete: { method: "DELETE", path: "/{ig_media_id}" },
@@ -393,6 +396,32 @@ describe("rules 13 and 18 — what the connector can send", () => {
         "init.method",
       ]).toContain(method);
     }
+  });
+
+  it("THE BUILD GATE (review D #6): no publisher outside executeProposal — the carousel seam is for tests only", () => {
+    const root = fileURLToPath(new URL("../../../", import.meta.url));
+    const self = join(root, "lib", "execution", "providers", "meta.ts");
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const name of readdirSync(dir)) {
+        if (name === "node_modules" || name.startsWith(".")) continue;
+        const full = join(dir, name);
+        if (statSync(full).isDirectory()) walk(full);
+        else if (/\.(ts|tsx)$/.test(name) && !/\.test\.tsx?$/.test(name) && full !== self) {
+          if (readFileSync(full, "utf8").includes("instagramPublishForTests")) offenders.push(full);
+        }
+      }
+    };
+    for (const dir of ["lib", "app", "components", "scripts", "db"]) walk(join(root, dir));
+    expect(offenders).toEqual([]);
+    // The execution object offers no publisher of its own beside the engine's provider.
+    const exec = createMetaExecution({
+      fetch: async () => ({ status: 500, json: async () => ({}) }),
+    });
+    expect(Object.keys(exec).sort()).toEqual(["ads", "login", "publish", "readback", "verifier"]);
+    // The seam has no default transport: its fetch is a required argument.
+    const source = readFileSync(self, "utf8");
+    expect(source).toMatch(/export function instagramPublishForTests\(\s*fetch: MetaExecFetch,/);
   });
 
   it("THE BUILD GATE (rule 17): no publish call path can skip is_ai_generated or the caption disclosure", () => {

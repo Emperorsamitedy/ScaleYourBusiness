@@ -207,3 +207,35 @@ describe("filters, grouping and CSV", () => {
     expect(toCsv([{ ...rows[0]!, title: 'a, "b"' }])).toContain('"a, ""b"""');
   });
 });
+
+describe("review 2026-10-23, Session D #1 — an approval that lapsed", () => {
+  it("keeps the approval on the record and says Ledgerline let it lapse, with the sentence", () => {
+    const rows = proposalRows(
+      proposal({
+        status: "expired",
+        decided_at: "2026-10-01 09:00:00+00",
+        execution_result: {
+          lapsed: true,
+          at: "2026-10-17T05:00:00.000Z",
+          sentence:
+            "I didn't post this — it was due on 2 October; propose it again if it still fits.",
+        },
+      }),
+      null,
+      NOW,
+    );
+    expect(rows.map((r) => [r.kind, r.actor])).toEqual([
+      ["proposed", "Ledgerline"],
+      ["approved", "you"],
+      ["expired", "Ledgerline"],
+    ]);
+    expect(rows[2]?.note).toBe("lapsed after approval · never ran");
+    expect(rows[2]?.detail).toMatch(/^I didn't post this/);
+  });
+
+  it("an undecided expiry is unchanged: nobody answered", () => {
+    const rows = proposalRows(proposal({ status: "expired" }), null, NOW);
+    expect(rows.map((r) => r.kind)).toEqual(["proposed", "expired"]);
+    expect(rows[1]?.actor).toBe("no answer");
+  });
+});

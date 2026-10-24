@@ -37,7 +37,7 @@ import {
   users,
   watchActivity,
 } from "../../../db/schema";
-import { metaError } from "../../connectors/providers/meta-fake";
+import { metaError, metaJson } from "../../connectors/providers/meta-fake";
 import { PUBLISH_UNDO, publishReadiness } from "../../content/publish";
 import { dbPublishBackend, withdrawItem } from "../../content/publishing";
 import { memoryMediaStore } from "../../content/media";
@@ -54,13 +54,20 @@ import type {
   PublishPlatform,
 } from "./meta";
 import {
+  IG_FINISHED_GRACE_MS,
   IG_POLL_MAX,
   MAY_HAVE_POSTED,
+  NOT_AS_APPROVED,
+  READBACK_MATCH_AFTER_S,
   captionHash,
+  approvedPublishHash,
   createMetaExecution,
+  instagramPublishForTests,
+  madeBy,
   mediaKindOf,
   publishCaption,
   publishOpFor,
+  publishingNoAnswer,
   usagePercent,
 } from "./meta";
 
@@ -69,6 +76,8 @@ const PAGE_TOKEN = "EAAFakePublishPageTokenForTests";
 const PAGE = "1000000001";
 const OTHER_PAGE = "1000000009";
 const IG = "17800000000000001";
+/** The Meta app the connection's tokens belong to (GET /app). */
+const APP_ID = "4400000000000001";
 const V = "/v26.0";
 const LABEL = "Written with AI assistance.";
 const BODY = `The soup is back.\n\n${LABEL}`;
@@ -104,6 +113,8 @@ interface FakeOptions {
   respond?: (call: Call) => MetaExecResponse | "no_answer" | null;
   /** The publishing call lands on Meta, then its answer is lost. */
   loseAnswerOf?: "page_feed" | "ig_publish";
+  /** The publishing call lands on Meta, then Meta answers with this instead (review D #2). */
+  answerAfter?: { of: "page_feed" | "ig_publish"; response: () => MetaExecResponse };
   /** IN_PROGRESS answers before a container is FINISHED (Infinity = never). */
   containerPolls?: number;
   /** The Page's business-use-case usage, in percent, on the Page read. */
@@ -118,7 +129,10 @@ function ok(body: unknown, headers: Record<string, string> = {}): MetaExecRespon
 
 function fakeGraph(opts: FakeOptions = {}) {
   const calls: Call[] = [];
-  const posts = new Map<string, { message: string; created_time: string }>();
+  const posts = new Map<
+    string,
+    { message: string; created_time: string; from?: string; application?: string | null }
+  >();
   const reels = new Map<string, { uploaded: boolean; published: boolean }>();
   const containers = new Map<
     string,
@@ -173,6 +187,7 @@ function fakeGraph(opts: FakeOptions = {}) {
       const id = `${PAGE}_${next()}`;
       posts.set(id, { message: form.get("message") ?? "", created_time: nowIso() });
       if (opts.loseAnswerOf === "page_feed") throw new Error("socket hang up after the post");
+      if (opts.answerAfter?.of === "page_feed") return opts.answerAfter.response();
       return ok({ id });
     }
     if (m === "POST" && path === `${V}/${PAGE}/photos` && asPage) {
@@ -199,9 +214,17 @@ function fakeGraph(opts: FakeOptions = {}) {
       return ok({
         data: [...posts.entries()]
           .filter(([, p]) => Date.parse(p.created_time) >= since)
-          .map(([id, p]) => ({ id, message: p.message, created_time: p.created_time })),
+          .map(([id, p]) => ({
+            id,
+            message: p.message,
+            created_time: p.created_time,
+            // Review D #5: a post the connected app made, as the Page, unless the test says otherwise.
+            from: { id: p.from ?? PAGE },
+            ...(p.application === null ? {} : { application: { id: p.application ?? APP_ID } }),
+          })),
       });
     }
+    if (m === "GET" && path === `${V}/app`) return ok({ id: APP_ID });
 
     // Instagram
     if (m === "GET" && path === `${V}/${IG}/content_publishing_limit`) {
@@ -219,6 +242,7 @@ function fakeGraph(opts: FakeOptions = {}) {
       const id = `1791${next()}`;
       media.set(id, { caption: c.params["caption"] ?? "", timestamp: nowIso() });
       if (opts.loseAnswerOf === "ig_publish") throw new Error("socket hang up after publish");
+      if (opts.answerAfter?.of === "ig_publish") return opts.answerAfter.response();
       return ok({ id });
     }
     if (m === "GET" && path === `${V}/${IG}/media`) {
@@ -384,6 +408,8 @@ async function approvedItem(
     target?: string;
     approve?: boolean;
     provenance?: Record<string, unknown>;
+    /** When it was approved to go out (default: an hour ago). */
+    executeNotBefore?: string;
   },
 ) {
   const [item] = await db
@@ -427,7 +453,7 @@ async function approvedItem(
       proposalId: proposal.id,
       userId: b.user_id,
       profileId: b.profile_id,
-      executeNotBefore: PAST,
+      executeNotBefore: args.executeNotBefore ?? PAST,
     });
   }
   return { item_id: item!.id, proposal_id: proposal.id };
@@ -812,9 +838,9 @@ describe("P3-21b — Instagram", () => {
   });
 
   it("a carousel: every child and the parent flagged, one media_publish of the parent", async () => {
-    const { graph, exec } = harness();
+    const { graph } = harness();
     const urls = ["https://b.test/a/1.jpg", "https://b.test/a/2.jpg", "https://b.test/a/3.jpg"];
-    const post = await exec.instagram({
+    const post = await instagramPublishForTests(graph.fetch, {
       igUserId: IG,
       token: TOKEN,
       media: urls,
@@ -843,7 +869,7 @@ describe("P3-21b — Instagram", () => {
     // A carousel with a PNG in it is refused before any container exists.
     const png = harness();
     await expect(
-      png.exec.instagram({
+      instagramPublishForTests(png.graph.fetch, {
         igUserId: IG,
         token: TOKEN,
         media: ["https://b.test/a/1.jpg", "https://b.test/a/2.png"],
@@ -1088,6 +1114,551 @@ describe("P3-21d — at-most-once, stated honestly", () => {
     const item = await itemRow(item_id);
     expect(item.status).toBe("published");
     expect(item.platform_post_id).toBe([...graph.media.keys()][0]);
+  });
+});
+
+/* ── review 2026-10-23, Session D #1: an approved post goes stale ── */
+
+describe("Review D #1 — an approved post far past its time is not posted late", () => {
+  const ago = (hours: number) => new Date(Date.now() - hours * 3_600_000).toISOString();
+
+  it("31 hours late: nothing sent, the proposal expired with the decision kept, the item failed in words, the render released", async () => {
+    const b = await business();
+    const media = await render("jpg");
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "facebook",
+      media_path: media,
+      executeNotBefore: ago(31),
+    });
+    const { graph, run } = harness();
+    const summary = await run(b);
+    expect(summary.refused).toBe(1);
+    expect(summary.outcomes[0]?.detail).toMatch(/^stale: I didn't post this — it was due on /);
+    expect(graph.calls).toHaveLength(0);
+    const proposal = await proposalRow(proposal_id);
+    expect(proposal.status).toBe("expired");
+    expect(proposal.decided_by).toBe(b.user_id);
+    expect(proposal.execution_result).toMatchObject({
+      lapsed: true,
+      sentence: expect.stringMatching(/propose it again if it still fits\.$/),
+    });
+    expect(await executionFor(proposal_id)).toBeUndefined();
+    const item = await itemRow(item_id);
+    expect(item.status).toBe("failed");
+    expect(item.last_error).toMatch(/^I didn't post this — it was due on /);
+    expect(item.media_path).toBeNull();
+    expect(store.read(media)).toBeNull();
+    expect((await watchLines(b.profile_id)).some((l) => l.startsWith("I didn't post this"))).toBe(
+      true,
+    );
+    // Nothing comes back for it on the next run.
+    expect((await run(b)).due).toBe(0);
+    expect(graph.calls).toHaveLength(0);
+  });
+
+  it("the control: 29 hours late is the daily runner's own slack — it goes out", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, { platform: "facebook", executeNotBefore: ago(29) });
+    const { graph, run } = harness();
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+    expect((await itemRow(item_id)).status).toBe("published");
+  });
+
+  it("with the gate off it lapses too — so the day the gate opens, nothing stale goes out", async () => {
+    const b = await business();
+    const { proposal_id } = await approvedItem(b, {
+      platform: "facebook",
+      executeNotBefore: ago(24 * 40),
+    });
+    gate(false);
+    const { graph, run } = harness();
+    expect((await run(b)).outcomes[0]?.detail).toMatch(/^stale: /);
+    gate(true);
+    expect((await run(b)).due).toBe(0);
+    expect(graph.calls).toHaveLength(0);
+    expect((await proposalRow(proposal_id)).status).toBe("expired");
+  });
+
+  it("re-queued after a reconnect (a run held for it), still stale: it lapses, never re-runs", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "facebook",
+      executeNotBefore: ago(24 * 9),
+    });
+    await db.insert(executions).values({
+      proposal_id,
+      profile_id: b.profile_id,
+      account_id: b.account_id,
+      provider: "meta_publish",
+      op: "publish_page_post",
+      status: "failed",
+      held_for: "reconnect",
+      error: "the sign-in expired",
+      undo_payload: { platform: "facebook", item_id, target: { page_id: PAGE } },
+    });
+    const { graph, run } = harness();
+    expect((await run(b)).outcomes[0]?.detail).toMatch(/^stale: /);
+    expect(graph.calls).toHaveLength(0);
+    expect((await proposalRow(proposal_id)).status).toBe("expired");
+    expect((await itemRow(item_id)).status).toBe("failed");
+    expect((await run(b)).due).toBe(0);
+  });
+
+  it("an item already in flight is never lapsed: a post that may be up is read back, not forgotten", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "facebook",
+      executeNotBefore: ago(48),
+    });
+    const sentAt = new Date().toISOString();
+    await db
+      .update(contentItems)
+      .set({
+        status: "publishing",
+        platform: "facebook",
+        publish_attempt: { started_at: sentAt, sent_at: sentAt, caption_sha256: captionHash(BODY) },
+      })
+      .where(eq(contentItems.id, item_id));
+    const { graph, run } = harness();
+    graph.posts.set(`${PAGE}_4242`, { message: BODY, created_time: sentAt });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(0);
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "published",
+      platform_post_id: `${PAGE}_4242`,
+    });
+    expect((await proposalRow(proposal_id)).status).toBe("executed");
+  });
+});
+
+/* ── review 2026-10-23, Session D #10: what goes out is what was approved ── */
+
+describe("Review D #10 — the approved caption and media are tied by hash", () => {
+  it("the pure hash: the caption as it goes out and the media URL, nothing else", () => {
+    const item = { body: "Soup.", disclosure: LABEL, media_path: "https://b.test/r/a1.jpg" };
+    const h = approvedPublishHash(item);
+    expect(approvedPublishHash({ ...item })).toBe(h);
+    // The body already ending with its label goes out the same, so it hashes the same.
+    expect(approvedPublishHash({ ...item, body: `Soup.\n\n${LABEL}` })).toBe(h);
+    expect(approvedPublishHash({ ...item, body: "Soup!" })).not.toBe(h);
+    expect(approvedPublishHash({ ...item, media_path: "https://b.test/r/b2.jpg" })).not.toBe(h);
+    expect(approvedPublishHash({ ...item, media_path: null })).not.toBe(h);
+    expect(approvedPublishHash({ ...item, disclosure: "Made with AI." })).not.toBe(h);
+  });
+
+  it("approval stores the hash; an unchanged item publishes", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, { platform: "facebook" });
+    const row = await itemRow(item_id);
+    expect(row.publish_approved_sha256).toBe(
+      approvedPublishHash({ body: BODY, disclosure: LABEL, media_path: null }),
+    );
+    const { graph, run } = harness();
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+  });
+
+  it("a caption edited after approval is refused before anything is sent; the proposal stays approved", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, { platform: "facebook" });
+    await db
+      .update(contentItems)
+      .set({ body: `Half price on everything!\n\n${LABEL}` })
+      .where(eq(contentItems.id, item_id));
+    const { graph, run } = harness();
+    const summary = await run(b);
+    expect(summary.refused).toBe(1);
+    expect(summary.outcomes[0]?.detail).toBe(`preflight_refused: ${NOT_AS_APPROVED}`);
+    expect(graph.calls).toHaveLength(0);
+    expect((await proposalRow(proposal_id)).status).toBe("approved");
+    expect((await itemRow(item_id)).last_error).toBe(NOT_AS_APPROVED);
+  });
+
+  it("media replaced after approval is refused; so is an approval that carries no hash", async () => {
+    const b = await business();
+    const replaced = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    await db
+      .update(contentItems)
+      .set({ media_path: await render("jpg") })
+      .where(eq(contentItems.id, replaced.item_id));
+    const unhashed = await approvedItem(b, { platform: "facebook" });
+    await db
+      .update(contentItems)
+      .set({ publish_approved_sha256: null })
+      .where(eq(contentItems.id, unhashed.item_id));
+    const { graph, run } = harness();
+    const summary = await run(b);
+    expect(summary.refused).toBe(2);
+    expect(graph.where("POST", "/media")).toHaveLength(0);
+    expect(graph.where("POST", "/feed")).toHaveLength(0);
+  });
+
+  it("execute checks again, after the pre-flight: a change in between sends nothing", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, exec } = harness();
+    const params = { item_id, platform: "facebook", target: { page_id: PAGE } };
+    const ctx = { profile_id: b.profile_id, account_id: b.account_id };
+    expect(await exec.publish.preflight!("publish_page_post", params, ctx)).toBeNull();
+    await db.update(contentItems).set({ body: "Changed." }).where(eq(contentItems.id, item_id));
+    await expect(exec.publish.execute("publish_page_post", params, ctx)).rejects.toThrow(
+      NOT_AS_APPROVED,
+    );
+    expect(graph.where("POST", "/feed")).toHaveLength(0);
+    expect((await itemRow(item_id)).status).toBe("queued");
+  });
+});
+
+describe("Review D #10 — a render leaves public storage when its post never will go out", () => {
+  it("declined: released", async () => {
+    const b = await business();
+    const media = await render("jpg");
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: media,
+      approve: false,
+    });
+    await rejectProposal({
+      proposalId: proposal_id,
+      userId: b.user_id,
+      reason: "not this one",
+      store,
+    });
+    expect(store.read(media)).toBeNull();
+    expect((await itemRow(item_id)).media_path).toBeNull();
+  });
+
+  it("expired undecided: released by the due runner's sweep", async () => {
+    const b = await business();
+    const media = await render("jpg");
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: media,
+      approve: false,
+    });
+    await db
+      .update(proposals)
+      .set({ expires_at: new Date(Date.now() - 60_000).toISOString() })
+      .where(eq(proposals.id, proposal_id));
+    await runDueExecutions({ profileId: b.profile_id, sleep: noSleep, store });
+    expect((await proposalRow(proposal_id)).status).toBe("expired");
+    expect(store.read(media)).toBeNull();
+    expect((await itemRow(item_id)).media_path).toBeNull();
+  });
+
+  it("failed on a definite refusal: released; failed waiting for a reconnect: kept, to go out as approved", async () => {
+    const b = await business();
+    const refusedMedia = await render("jpg");
+    const refused = await approvedItem(b, { platform: "facebook", media_path: refusedMedia });
+    const { run } = harness({
+      respond: (c) =>
+        c.method === "POST" && c.url.pathname.endsWith("/photos")
+          ? metaError(100, "Invalid parameter")
+          : null,
+    });
+    await run(b);
+    expect((await itemRow(refused.item_id)).status).toBe("failed");
+    expect(store.read(refusedMedia)).toBeNull();
+
+    const b2 = await business();
+    const heldMedia = await render("jpg");
+    const held = await approvedItem(b2, { platform: "facebook", media_path: heldMedia });
+    const expired = harness({
+      respond: (c) =>
+        c.method === "POST" && c.url.pathname.endsWith("/photos")
+          ? metaError(190, "Session has expired", 463)
+          : null,
+    });
+    await expired.run(b2);
+    expect((await itemRow(held.item_id)).status).toBe("failed");
+    expect(store.read(heldMedia)).not.toBeNull();
+    expect((await itemRow(held.item_id)).media_path).toBe(heldMedia);
+  });
+
+  it("an item in flight keeps its render: a post that may be up is never stripped", async () => {
+    const b = await business();
+    const media = await render("jpg");
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: media,
+      approve: false,
+    });
+    await db.update(contentItems).set({ status: "publishing" }).where(eq(contentItems.id, item_id));
+    await rejectProposal({ proposalId: proposal_id, userId: b.user_id, reason: "no", store });
+    expect(store.read(media)).not.toBeNull();
+  });
+});
+
+/* ── review 2026-10-23, Session D #2: no retries when publishing ── */
+
+/** Meta's 500 with code 2, "Service temporarily unavailable" — not a refusal: it may have landed. */
+const unavailable =
+  (code = 2) =>
+  () =>
+    metaJson(500, {
+      error: { message: "Service temporarily unavailable", type: "FacebookApiException", code },
+    });
+
+describe("Review D #2 — a publishing call is never retried on a 5xx or codes 1 and 2", () => {
+  it("the pure rule: for a publishing call, a 5xx or code 1/2 is no answer; a 4xx refusal and every read are answers", () => {
+    expect(publishingNoAnswer({ publishing: true }, 500, 2)).toBe(true);
+    expect(publishingNoAnswer({ publishing: true }, 400, 1)).toBe(true);
+    expect(publishingNoAnswer({ publishing: true }, 503, 17)).toBe(true);
+    expect(publishingNoAnswer({ publishing: true }, 400, null)).toBe(true);
+    expect(publishingNoAnswer({ publishing: true }, 400, 17)).toBe(false);
+    expect(publishingNoAnswer({ publishing: true }, 400, 100)).toBe(false);
+    expect(publishingNoAnswer({}, 500, 2)).toBe(false);
+    expect(publishingNoAnswer({ publishing: false }, 500, null)).toBe(false);
+  });
+
+  it("page_feed: a 500 code 2 is sent once; Meta had nothing, so it stays uncertain and is never re-sent", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "POST" && c.url.pathname.endsWith("/feed") ? unavailable()() : null,
+    });
+    expect((await run(b)).failed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "publishing",
+      last_error: MAY_HAVE_POSTED.facebook,
+    });
+    expect((await executionFor(proposal_id))?.status).toBe("failed");
+    await run(b);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+  });
+
+  it("page_feed: Meta posted and then answered 500 code 2 — read back, recorded, one post", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, run } = harness({ answerAfter: { of: "page_feed", response: unavailable() } });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+    expect(graph.posts.size).toBe(1);
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "published",
+      platform_post_id: [...graph.posts.keys()][0],
+    });
+  });
+
+  it("ig_publish: Meta published and then answered 500 code 1 — read back from the container, one post", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = harness({ answerAfter: { of: "ig_publish", response: unavailable(1) } });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/media_publish")).toHaveLength(1);
+    expect(graph.media.size).toBe(1);
+    expect((await itemRow(item_id)).platform_post_id).toBe([...graph.media.keys()][0]);
+  });
+
+  it("ig_publish: a 500 code 2 that published nothing is sent once", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "POST" && c.url.pathname.endsWith("/media_publish") ? unavailable()() : null,
+    });
+    await run(b);
+    expect(graph.where("POST", "/media_publish")).toHaveLength(1);
+    expect(graph.media.size).toBe(0);
+    expect((await itemRow(item_id)).status).not.toBe("published");
+  });
+});
+
+describe("Review D #3 — a container still FINISHED after a lost media_publish is uncertain, not 'nothing went out'", () => {
+  const lostPublish = (container: () => string | null = () => null) => {
+    let sent = false;
+    return harness({
+      respond: (c) => {
+        if (c.method === "POST" && c.url.pathname.endsWith("/media_publish")) {
+          sent = true;
+          return "no_answer";
+        }
+        const status = sent ? container() : null;
+        return c.method === "GET" && status !== null && c.url.pathname.startsWith(`${V}/1790`)
+          ? { status: 200, json: async () => ({ status_code: status }), header: () => null }
+          : null;
+      },
+    });
+  };
+  const backdate = async (itemId: string, ms: number) => {
+    const row = await itemRow(itemId);
+    const attempt = row.publish_attempt as Record<string, unknown>;
+    await db
+      .update(contentItems)
+      .set({
+        publish_attempt: { ...attempt, sent_at: new Date(Date.now() - ms).toISOString() },
+      })
+      .where(eq(contentItems.id, itemId));
+  };
+
+  it("inside the grace window: FINISHED stays publishing with the owner's sentence, held for the sweep", async () => {
+    const b = await business();
+    const { item_id, proposal_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = lostPublish();
+    await run(b);
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "publishing",
+      last_error: MAY_HAVE_POSTED.instagram,
+    });
+    expect((await executionFor(proposal_id))?.status).toBe("failed");
+    // The next sweep, still inside the window: read back again, still uncertain, nothing re-sent.
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, uncertain: 1 });
+    expect(graph.where("POST", "/media_publish")).toHaveLength(1);
+  });
+
+  it("after the grace window: still FINISHED and no post found → not sent, in words", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = lostPublish();
+    await run(b);
+    await backdate(item_id, IG_FINISHED_GRACE_MS + 60_000);
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, not_sent: 1 });
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "failed",
+      last_error: expect.stringMatching(/^Instagram never published it/),
+    });
+    expect(graph.where("POST", "/media_publish")).toHaveLength(1);
+  });
+
+  it("FINISHED, but the post is there after all: found and recorded, never re-sent", async () => {
+    const b = await business();
+    const { item_id } = await approvedItem(b, {
+      platform: "instagram",
+      media_path: await render("jpg"),
+    });
+    const { graph, run } = lostPublish();
+    await run(b);
+    // Meta finished publishing after the answer was lost; the container lags behind.
+    graph.media.set("17919999", {
+      caption: publishCaption({ body: BODY, disclosure: LABEL }),
+      timestamp: new Date().toISOString(),
+    });
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, published: 1 });
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "published",
+      platform_post_id: "17919999",
+    });
+  });
+
+  it("ERROR or EXPIRED is proof: not sent at once", async () => {
+    for (const status of ["ERROR", "EXPIRED"]) {
+      const b = await business();
+      const { item_id } = await approvedItem(b, {
+        platform: "instagram",
+        media_path: await render("jpg"),
+      });
+      const { run } = lostPublish(() => status);
+      await run(b);
+      expect(await itemRow(item_id)).toMatchObject({
+        status: "failed",
+        last_error: "Instagram never published it. Nothing went out.",
+      });
+    }
+  });
+
+  it("the control: a READ answered 500 code 2 is still retried to the cap, and the post then goes once", async () => {
+    const b = await business();
+    let flaky = 2;
+    const { item_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "GET" && c.url.pathname === `${V}/${PAGE}` && flaky-- > 0
+          ? unavailable()()
+          : null,
+    });
+    expect((await run(b)).executed).toBe(1);
+    expect(graph.where("POST", "/feed")).toHaveLength(1);
+    expect((await itemRow(item_id)).status).toBe("published");
+  });
+});
+
+/* ── review 2026-10-23, Session D #5: a read-back adopts only SYB's own post ── */
+
+describe("Review D #5 — a Facebook read-back needs the connected app, the Page and the time", () => {
+  const sentAt = "2026-10-23T10:00:00.000Z";
+  const ours = { pageId: PAGE, appId: APP_ID, sentAt };
+  const post = (over: Record<string, unknown> = {}) => ({
+    id: `${PAGE}_1`,
+    from: { id: PAGE },
+    application: { id: APP_ID },
+    created_time: "2026-10-23T10:00:04+0000",
+    ...over,
+  });
+
+  it("the pure rule: from the Page, by the app, within the window — and nothing else", () => {
+    expect(madeBy(post(), ours)).toBe(true);
+    expect(madeBy(post({ created_time: "2026-10-23T09:56:00+0000" }), ours)).toBe(true);
+    expect(madeBy(post({ application: { id: "350685531728" } }), ours)).toBe(false); // another app
+    expect(madeBy(post({ application: undefined }), ours)).toBe(false); // Meta left it out
+    expect(madeBy(post({ from: { id: "555" } }), ours)).toBe(false);
+    const late = new Date(Date.parse(sentAt) + (READBACK_MATCH_AFTER_S + 1) * 1000).toISOString();
+    expect(madeBy(post({ created_time: late }), ours)).toBe(false);
+    expect(madeBy(post({ created_time: "2026-10-23T09:50:00+0000" }), ours)).toBe(false);
+    expect(madeBy(post({ created_time: "yesterday" }), ours)).toBe(false);
+  });
+
+  /** The send got no answer and really failed; the owner then posted the same words by hand. */
+  async function handMadeRepost(over: { application?: string | null; minutes?: number }) {
+    const b = await business();
+    const { item_id } = await approvedItem(b, { platform: "facebook" });
+    const { graph, run } = harness({
+      respond: (c) =>
+        c.method === "POST" && c.url.pathname.endsWith("/feed") ? "no_answer" : null,
+    });
+    await run(b);
+    expect((await itemRow(item_id)).status).toBe("publishing");
+    const at = new Date(Date.now() + (over.minutes ?? 0) * 60_000).toISOString();
+    graph.posts.set(`${PAGE}_8888`, {
+      message: BODY,
+      created_time: at,
+      ...(over.application !== undefined ? { application: over.application } : {}),
+    });
+    return { b, item_id, graph, run };
+  }
+
+  it("THE ATTACK: the owner's hand-made repost (another app) is never adopted, so Withdraw can't delete it", async () => {
+    const { b, item_id, run } = await handMadeRepost({ application: "350685531728" });
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, uncertain: 1, published: 0 });
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "publishing",
+      platform_post_id: null,
+      last_error: MAY_HAVE_POSTED.facebook,
+    });
+  });
+
+  it("a post with no application field, or made long after the send, stays uncertain", async () => {
+    for (const over of [{ application: null }, { minutes: 30 }]) {
+      const { b, item_id, run } = await handMadeRepost(over);
+      await run(b);
+      expect((await itemRow(item_id)).status).toBe("publishing");
+    }
+  });
+
+  it("the control: SYB's own post (the app, the Page, at the send) is found and recorded", async () => {
+    const { b, item_id, run } = await handMadeRepost({});
+    expect((await run(b)).reconciled).toMatchObject({ checked: 1, published: 1 });
+    expect(await itemRow(item_id)).toMatchObject({
+      status: "published",
+      platform_post_id: `${PAGE}_8888`,
+    });
   });
 });
 

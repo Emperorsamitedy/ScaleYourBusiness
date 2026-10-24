@@ -23,9 +23,10 @@
 import { randomBytes } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { db } from "../../db";
 import { contentItems } from "../../db/schema";
+import type { del as blobDel, list as blobList, put as blobPut } from "@vercel/blob";
 import { env } from "../env";
 
 export class MediaError extends Error {
@@ -71,11 +72,31 @@ export const USAGE_MAX_PAGES = 20;
 
 /* ── the production store ── */
 
-export function vercelBlobStore(): MediaStore {
+/**
+ * Review 2026-10-23 (Session D #10): every Blob call gives up. An upload of a
+ * rendered clip gets two minutes; a delete or a listing page, twenty seconds
+ * (the Meta helper's own figure). The SDK takes an AbortSignal on each.
+ */
+export const BLOB_PUT_TIMEOUT_MS = 120_000;
+export const BLOB_TIMEOUT_MS = 20_000;
+
+/** The three SDK calls the store makes — injectable so the timeouts are tested without a network. */
+export interface BlobSdk {
+  put: typeof blobPut;
+  del: typeof blobDel;
+  list: typeof blobList;
+}
+
+export function vercelBlobStore(
+  opts: { sdk?: BlobSdk; token?: string; putTimeoutMs?: number; timeoutMs?: number } = {},
+): MediaStore {
+  const token = () => opts.token ?? env.BLOB_READ_WRITE_TOKEN;
+  const sdk = async (): Promise<BlobSdk> => opts.sdk ?? (await import("@vercel/blob"));
+  const signal = (ms: number | undefined, fallback: number) => AbortSignal.timeout(ms ?? fallback);
   return {
     kind: "vercel_blob",
     async put(pathname, body, contentType) {
-      const { put } = await import("@vercel/blob");
+      const { put } = await sdk();
       // The SDK's body type is Buffer | Blob | stream; a Uint8Array view
       // becomes a Buffer without copying when it already is one.
       const result = await put(
@@ -87,7 +108,8 @@ export function vercelBlobStore(): MediaStore {
           // only make the pathname differ from what we recorded.
           addRandomSuffix: false,
           contentType,
-          token: env.BLOB_READ_WRITE_TOKEN,
+          token: token(),
+          abortSignal: signal(opts.putTimeoutMs, BLOB_PUT_TIMEOUT_MS),
         },
       );
       return {
@@ -98,18 +120,22 @@ export function vercelBlobStore(): MediaStore {
       };
     },
     async del(url) {
-      const { del } = await import("@vercel/blob");
-      await del(url, { token: env.BLOB_READ_WRITE_TOKEN });
+      const { del } = await sdk();
+      await del(url, {
+        token: token(),
+        abortSignal: signal(opts.timeoutMs, BLOB_TIMEOUT_MS),
+      });
     },
     async usage() {
-      const { list } = await import("@vercel/blob");
+      const { list } = await sdk();
       const out: StoreUsage = { objects: 0, bytes: 0, truncated: false };
       let cursor: string | undefined;
       for (let page = 1; ; page += 1) {
         const res = await list({
           prefix: RENDER_PREFIX,
           limit: 1000,
-          token: env.BLOB_READ_WRITE_TOKEN,
+          token: token(),
+          abortSignal: signal(opts.timeoutMs, BLOB_TIMEOUT_MS),
           ...(cursor ? { cursor } : {}),
         });
         for (const b of res.blobs) {
@@ -239,6 +265,59 @@ export async function attachRenderedMedia(args: AttachArgs): Promise<StoredMedia
     }),
   );
   return stored;
+}
+
+/**
+ * Review 2026-10-23 (Session D #10): release the renders of items whose
+ * publish will never happen — declined, expired, failed or lapsed — so a
+ * public URL doesn't outlive its purpose. Only items not published or in
+ * flight (drafted, queued, failed): a post that is or may be up keeps its
+ * record, and publish/withdraw release theirs themselves. Never throws: a
+ * render left in storage is logged and tidied later, never a failed decision.
+ */
+export async function releaseUnpublishedMedia(
+  itemIds: readonly string[],
+  store?: MediaStore,
+): Promise<number> {
+  if (itemIds.length === 0) return 0;
+  const s = store ?? vercelBlobStore();
+  const rows = await db
+    .select()
+    .from(contentItems)
+    .where(
+      and(
+        inArray(contentItems.id, [...itemIds]),
+        inArray(contentItems.status, ["drafted", "queued", "failed"]),
+        isNotNull(contentItems.media_path),
+      ),
+    );
+  let released = 0;
+  for (const item of rows) {
+    try {
+      await s.del(item.media_path as string);
+      await db.update(contentItems).set({ media_path: null }).where(eq(contentItems.id, item.id));
+      released += 1;
+      console.log(
+        JSON.stringify({
+          event: "content_media_released",
+          profile_id: item.profile_id,
+          item_id: item.id,
+          store: s.kind,
+          why: item.status,
+        }),
+      );
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          event: "content_media_release_failed",
+          profile_id: item.profile_id,
+          item_id: item.id,
+          error: error instanceof Error ? error.name : "unknown",
+        }),
+      );
+    }
+  }
+  return released;
 }
 
 /** The URL the platform is handed, or null when the item carries no media. */

@@ -17,9 +17,10 @@
 //
 // How a proposal says what to run:
 //   - a pre-bound plan on the proposal itself: action.detail.execution
-//     = { provider, op, params } with a registered provider. Modules
-//     that know the call at proposal time (D2's publish proposals) put
-//     it there, where the owner approved it
+//     = { provider, op, params }, admitted ONLY when PREBOUND_ALLOWED names
+//     that module, provider and op — today the in-repo fixture alone
+//     (review 2026-10-23, Session D #7). No real provider is ever run from
+//     a plan carried in the detail
 //   - a per-item publish proposal (P3-21b): lib/content/publishing's
 //     publishPlan builds { meta_publish, op, {item_id, platform, target} }
 //     from the approved proposal and its own item — the op follows the
@@ -68,6 +69,7 @@ import { logSafeError } from "../core/log-safe";
 import { and, eq, isNotNull, isNull, lte, or } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, executions, proposals } from "../../db/schema";
+import type { MediaStore } from "../content/media";
 import type { ProposalRow } from "../proposals/service";
 import { expireAllDueProposals } from "../proposals/service";
 import type { ReconcileSummary } from "../content/publishing";
@@ -93,8 +95,27 @@ export interface DispatchPlan {
   params: Record<string, unknown>;
 }
 
-/** What the proposal itself says should run, if it says anything. */
-export function preboundPlan(proposal: ProposalRow): DispatchPlan | null {
+/**
+ * The only pre-bound plans the runner will run (review 2026-10-23, Session
+ * D #7): module → the one provider and the ops it may name. A proposal's
+ * action.detail can be shaped by more than one caller (the assistant spreads
+ * its extras into it), so a plan carried there must never reach a real
+ * provider: Meta, campaign email and site changes are each routed from the
+ * approved row by their own module's planner (publishPlan, adsPlan,
+ * campaignPlanFor, applySiteChange), never from the detail. What remains is
+ * the in-repo fixture, the engine's proving ground — no network, no account.
+ * Widening this is a deliberate, reviewed edit; due.test.ts pins it.
+ */
+export const PREBOUND_ALLOWED: Readonly<
+  Record<string, { provider: ExecutionProviderId; ops: readonly string[] }>
+> = {
+  diagnosis: { provider: "fixture", ops: ["set_value", "append_note"] },
+};
+
+/** What the proposal itself says should run, if it says anything the allow-list admits. */
+export function preboundPlan(
+  proposal: Pick<ProposalRow, "module" | "action">,
+): DispatchPlan | null {
   const detail = (proposal.action as { detail?: { execution?: unknown } } | null)?.detail;
   const execution = detail?.execution;
   if (!execution || typeof execution !== "object") return null;
@@ -105,6 +126,13 @@ export function preboundPlan(proposal: ProposalRow): DispatchPlan | null {
   };
   if (typeof provider !== "string" || !isExecutionProviderId(provider)) return null;
   if (typeof op !== "string" || op === "") return null;
+  const allowed = Object.hasOwn(PREBOUND_ALLOWED, proposal.module)
+    ? PREBOUND_ALLOWED[proposal.module]
+    : undefined;
+  // Not on the list: no plan — the runner logs it unroutable, with the account, and runs nothing.
+  if (allowed === undefined || allowed.provider !== provider || !allowed.ops.includes(op)) {
+    return null;
+  }
   if (params !== undefined && (typeof params !== "object" || params === null)) return null;
   return { provider, op, params: (params as Record<string, unknown> | undefined) ?? {} };
 }
@@ -146,6 +174,8 @@ export interface DueRunOptions {
   sleep?: (ms: number) => Promise<void>;
   /** Scope the run to one profile (tests, a manual trigger). */
   profileId?: string;
+  /** Tests: the media store the expiry sweep releases renders from (Blob by default). */
+  store?: MediaStore;
   /** Tests: a provider object in place of the registered one (a fake Graph behind Meta). */
   providers?: { meta_publish?: MetaPublishProvider } & Partial<
     Record<ExecutionProviderId, ExecutionProvider>
@@ -174,7 +204,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     outcomes: [],
   };
 
-  summary.expired = await expireAllDueProposals(now());
+  summary.expired = await expireAllDueProposals(now(), opts.store);
   summary.resumed = await resumeAfterReconnect(
     opts.profileId ? { accountId: await accountOf(opts.profileId) } : {},
   );

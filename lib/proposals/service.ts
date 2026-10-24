@@ -15,6 +15,9 @@ import { db } from "../../db";
 import type { DbOrTx } from "../../db";
 import { contentItems, decisionLog, proposals } from "../../db/schema";
 import { applyCalendarEdit, calendarEditOf } from "../content/calendar";
+import type { MediaStore } from "../content/media";
+import { releaseUnpublishedMedia } from "../content/media";
+import { approvedPublishHash } from "../execution/providers/meta";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 
 export class ProposalError extends Error {
@@ -157,16 +160,31 @@ export async function rejectProposal(args: {
   reason: string;
   /** Ownership scope: when set, only this profile's proposals decide. */
   profileId?: string;
+  /** The media store a declined publish's render is released from (Blob by default). */
+  store?: MediaStore;
 }): Promise<ProposalRow> {
   if (args.reason.trim() === "") {
     throw new ProposalError("declining asks why — the reason is required", 422);
   }
-  return decide({
+  const row = await decide({
     proposalId: args.proposalId,
     userId: args.userId,
     to: "rejected",
     reason: args.reason.trim(),
     ...(args.profileId ? { profileId: args.profileId } : {}),
+  });
+  // Review 2026-10-23 (Session D #10): a declined post's render leaves public storage.
+  await releaseUnpublishedMedia(publishItemIds([row]), args.store);
+  return row;
+}
+
+/** The items per-item publish proposals name (P3-21a) — for releasing their renders. */
+function publishItemIds(rows: readonly { action: unknown }[]): string[] {
+  return rows.flatMap((r) => {
+    const a = r.action as { kind?: unknown; detail?: { item_id?: unknown } } | null;
+    return a?.kind === "content_publishing" && typeof a.detail?.item_id === "string"
+      ? [a.detail.item_id]
+      : [];
   });
 }
 
@@ -284,22 +302,37 @@ async function decide(args: {
     }
     // P3-21e: approving a per-item publish proposal puts its item in the
     // publishing queue (drafted → queued), in the same transaction.
+    // Review 2026-10-23 (Session D #10): and records what was approved, by
+    // hash — the caption as it goes out and the media URL — so the publish
+    // path can refuse anything else.
     const act = row.action as { kind?: unknown; detail?: { item_id?: unknown } } | null;
+    let contentSha256: string | null = null;
     if (
       args.to === "approved" &&
       act?.kind === "content_publishing" &&
       typeof act.detail?.item_id === "string"
     ) {
-      await tx
-        .update(contentItems)
-        .set({ status: "queued" })
-        .where(
-          and(
-            eq(contentItems.id, act.detail.item_id),
-            eq(contentItems.publish_proposal_id, row.id),
-            eq(contentItems.status, "drafted"),
-          ),
-        );
+      const mine = and(
+        eq(contentItems.id, act.detail.item_id),
+        eq(contentItems.publish_proposal_id, row.id),
+        eq(contentItems.status, "drafted"),
+      );
+      const [item] = await tx
+        .select({
+          body: contentItems.body,
+          disclosure: contentItems.disclosure,
+          media_path: contentItems.media_path,
+        })
+        .from(contentItems)
+        .where(mine)
+        .for("update");
+      if (item) {
+        contentSha256 = approvedPublishHash(item);
+        await tx
+          .update(contentItems)
+          .set({ status: "queued", publish_approved_sha256: contentSha256 })
+          .where(mine);
+      }
     }
     // Review 2026-10-23, #8: a calendar edit drafted in chat (move an item
     // to another day, or rename it) is MADE by its approval, in this same
@@ -329,6 +362,7 @@ async function decide(args: {
         decided_by: row.decided_by,
         rejection_reason: row.rejection_reason,
         ...(row.change_request ? { detail: { change_request: row.change_request } } : {}),
+        ...(contentSha256 ? { detail: { content_sha256: contentSha256 } } : {}),
       }),
     });
     if (calendar) {
@@ -423,7 +457,7 @@ export async function recordExecution(
  * Runs deterministically at queue-read time; no cron needed for
  * correctness, only for tidiness.
  */
-export async function expireDueProposals(profileId: string): Promise<number> {
+export async function expireDueProposals(profileId: string, store?: MediaStore): Promise<number> {
   const now = new Date().toISOString();
   const rows = await db
     .update(proposals)
@@ -435,7 +469,9 @@ export async function expireDueProposals(profileId: string): Promise<number> {
         lte(proposals.expires_at, now),
       ),
     )
-    .returning({ id: proposals.id });
+    .returning({ id: proposals.id, action: proposals.action });
+  // Review 2026-10-23 (Session D #10): an expired post's render leaves public storage.
+  await releaseUnpublishedMedia(publishItemIds(rows), store);
   return rows.length;
 }
 
@@ -443,12 +479,13 @@ export async function expireDueProposals(profileId: string): Promise<number> {
  * The same sweep across every profile — the due runner's first step
  * (P3-20e), so expiry is tidy on a clock as well as at queue-read time.
  */
-export async function expireAllDueProposals(now = new Date()): Promise<number> {
+export async function expireAllDueProposals(now = new Date(), store?: MediaStore): Promise<number> {
   const rows = await db
     .update(proposals)
     .set({ status: "expired" })
     .where(and(eq(proposals.status, "pending"), lte(proposals.expires_at, now.toISOString())))
-    .returning({ id: proposals.id });
+    .returning({ id: proposals.id, action: proposals.action });
+  await releaseUnpublishedMedia(publishItemIds(rows), store);
   return rows.length;
 }
 

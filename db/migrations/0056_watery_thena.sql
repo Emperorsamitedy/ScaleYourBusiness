@@ -1,0 +1,1 @@
+ALTER TABLE "content_items" ADD COLUMN "publish_approved_sha256" text;

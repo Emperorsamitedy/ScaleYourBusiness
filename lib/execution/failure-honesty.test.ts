@@ -72,6 +72,7 @@ import {
   StopError,
   VALIDATE_ONLY,
   createMetaExecution,
+  instagramPublishForTests,
   usageHeaders,
 } from "./providers/meta";
 import { fixtureExecutor } from "./providers/fixture";
@@ -85,6 +86,8 @@ const NEW_ADS_TOKEN = "EAAFakeHonestyNewAdsToken";
 const ALL_TOKENS = [TOKEN, NEW_TOKEN, PAGE_TOKEN, NEW_PAGE_TOKEN, ADS_TOKEN, NEW_ADS_TOKEN];
 const PAGE = "1000000001";
 const IG = "17800000000000001";
+/** The Meta app the connection's tokens belong to (GET /app). */
+const APP_ID = "4400000000000001";
 const ACT = "2000000002";
 const V = "/v26.0";
 const LABEL = "Written with AI assistance.";
@@ -137,7 +140,10 @@ const expiredAnswer = () =>
 function fakeGraph(opts: FakeOptions = {}) {
   const calls: Call[] = [];
   const expired = opts.expired ?? new Set<string>();
-  const posts = new Map<string, { message: string; created_time: string }>();
+  const posts = new Map<
+    string,
+    { message: string; created_time: string; from?: string; application?: string | null }
+  >();
   const containers = new Map<string, { params: Record<string, string>; published: boolean }>();
   const media = new Map<string, { caption: string; timestamp: string }>();
   const campaigns = new Map<string, { status: string; daily_budget: number }>();
@@ -187,9 +193,17 @@ function fakeGraph(opts: FakeOptions = {}) {
       return ok({
         data: [...posts.entries()]
           .filter(([, p]) => Date.parse(p.created_time) >= since)
-          .map(([id, p]) => ({ id, message: p.message, created_time: p.created_time })),
+          .map(([id, p]) => ({
+            id,
+            message: p.message,
+            created_time: p.created_time,
+            // Review D #5: a post the connected app made, as the Page, unless the test says otherwise.
+            from: { id: p.from ?? PAGE },
+            ...(p.application === null ? {} : { application: { id: p.application ?? APP_ID } }),
+          })),
       });
     }
+    if (m === "GET" && path === `${V}/app`) return ok({ id: APP_ID });
     if (m === "GET" && path === `${V}/${IG}/content_publishing_limit`) {
       return ok({ data: [{ quota_usage: 3, config: { quota_total: 100 } }] });
     }
@@ -894,13 +908,13 @@ describe("P3-24c — a halt mid-carousel leaves no container published", () => {
 
   it("the stop after the first child: no more containers, no parent, no media_publish", async () => {
     let stopped = false;
-    const { graph, exec } = harness({
+    const { graph } = harness({
       onCall: async (c) => {
         if (c.method === "POST" && c.url.pathname.endsWith(`/${IG}/media`)) stopped = true;
       },
     });
     await expect(
-      exec.instagram({
+      instagramPublishForTests(graph.fetch, {
         igUserId: IG,
         token: TOKEN,
         media: images,
@@ -916,13 +930,13 @@ describe("P3-24c — a halt mid-carousel leaves no container published", () => {
 
   it("the stop after the parent is built: refused before media_publish, every container unpublished", async () => {
     let stopped = false;
-    const { graph, exec } = harness({
+    const { graph } = harness({
       onCall: async (c) => {
         if (c.method === "POST" && c.form.get("media_type") === "CAROUSEL") stopped = true;
       },
     });
     await expect(
-      exec.instagram({
+      instagramPublishForTests(graph.fetch, {
         igUserId: IG,
         token: TOKEN,
         media: images,
@@ -937,8 +951,8 @@ describe("P3-24c — a halt mid-carousel leaves no container published", () => {
   });
 
   it("no stop: the same carousel publishes once (the control)", async () => {
-    const { graph, exec } = harness();
-    const post = await exec.instagram({
+    const { graph } = harness();
+    const post = await instagramPublishForTests(graph.fetch, {
       igUserId: IG,
       token: TOKEN,
       media: images,

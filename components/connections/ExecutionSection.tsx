@@ -24,6 +24,7 @@
 // off. No icons: the state is a mono status word and a sentence.
 
 import { useEffect, useState } from "react";
+import { connectionsMessage } from "../../lib/execution/meta-login-reasons";
 
 interface ConsentEntry {
   scope: string;
@@ -114,20 +115,22 @@ type Candidates =
 interface LoginReturn {
   kind: "pick" | "cancelled" | "error";
   provider: string | null;
-  message: string | null;
+  /** A reason CODE (review 2026-10-23, Session D #9), never a sentence: mapped to fixed words. */
+  reason: string | null;
 }
 
 function readLoginReturn(): LoginReturn | null {
   const q = new URLSearchParams(window.location.search);
   const meta = q.get("meta");
   if (meta !== "pick" && meta !== "cancelled" && meta !== "error") return null;
-  return { kind: meta, provider: q.get("provider"), message: q.get("message") };
+  return { kind: meta, provider: q.get("provider"), reason: q.get("reason") };
 }
 
 /** The flow's query off the address bar, so a reload doesn't replay it. */
 function clearLoginReturn(): void {
   const url = new URL(window.location.href);
-  for (const key of ["meta", "provider", "message"]) url.searchParams.delete(key);
+  // "message" too: a link still carrying the old free-text parameter is cleared, never shown.
+  for (const key of ["meta", "provider", "reason", "message"]) url.searchParams.delete(key);
   window.history.replaceState(null, "", url.pathname + url.search + url.hash);
 }
 
@@ -616,7 +619,7 @@ export function ExecutionSection({
     } else if (back.kind === "cancelled") {
       setNotice("You cancelled the Facebook sign-in. Nothing was connected.");
     } else {
-      setFailure(back.message ?? "Facebook sign-in didn't finish. Nothing was connected.");
+      setFailure(connectionsMessage(back.reason));
       if (known) setOpen(back.provider);
     }
     // Read once, on arrival: the query is cleared above, so a re-render finds nothing.

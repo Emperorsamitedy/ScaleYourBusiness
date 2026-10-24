@@ -79,15 +79,22 @@ import {
   UnknownMetaCurrencyError,
   dailyBudgetFloor,
   fromMetaBudget,
+  reactivationGuard,
   spendGuard,
   toMetaBudget,
 } from "../../ads/guard";
 import { noteRequestUsage } from "../attempt-usage";
 import type { MetaFailure } from "../meta-errors";
-import { PAUSED_WORK_SENTENCE, classifyMetaError, pausesConnection } from "../meta-errors";
+import {
+  PAUSED_WORK_SENTENCE,
+  TEMPORARY_CODES,
+  classifyMetaError,
+  pausesConnection,
+} from "../meta-errors";
 import type { CredentialVerifier } from "../verify";
 import { ExecutionConnectionError, verifyExecutionScopes } from "../verify";
 import { touchesMoneySurface } from "../scopes";
+import { staleAdChange, stalePublish } from "../stale";
 import type { ExecutionContext, ExecutionProvider, PreflightRefusal } from "./fixture";
 
 export const META_EXEC_API_VERSION = "v26.0";
@@ -124,6 +131,9 @@ export const META_EXEC_REQUESTS = {
   page_post: { method: "GET", path: "/{post_id}" },
   page_published_posts: { method: "GET", path: "/{page_id}/published_posts" },
   reel_status: { method: "GET", path: "/{video_id}" },
+  // Review 2026-10-23 (Session D #5): which app the token belongs to, so a
+  // read-back adopts only a post that app made — never the owner's own repost.
+  token_app: { method: "GET", path: "/app" },
   // P3-21c: undo is deletion — of a Page post or Reel, or of Instagram media.
   page_post_delete: { method: "DELETE", path: "/{post_id}" },
   ig_media_delete: { method: "DELETE", path: "/{ig_media_id}" },
@@ -313,7 +323,8 @@ export function disclosureViolation(
 
 /**
  * Meta gave no usable answer to a PUBLISHING request: no response, a
- * timeout, a 5xx with no error code, or a 200 we can't read. The post may
+ * timeout, any 5xx, Meta's temporary codes 1 and 2, an answer with no error
+ * code, or a 200 we can't read (publishingNoAnswer). The post may
  * or may not exist — the at-most-once path reconciles by reading back and
  * never sends it again (P3-21d).
  */
@@ -371,9 +382,10 @@ async function checkStop(
 
 interface CallOptions {
   /**
-   * A call that makes something public. Silence is never retried: a
-   * definite refusal (an error code) is retried to the cap, since Meta did
-   * nothing; no answer throws MetaNoAnswerError at once.
+   * A call that makes something public. Silence is never retried, and
+   * neither is a 5xx or Meta's temporary codes 1 and 2 — each throws
+   * MetaNoAnswerError at once (publishingNoAnswer). Only a definite 4xx
+   * refusal (a rate limit, say) is retried to the cap, since Meta did nothing.
    */
   publishing?: boolean;
   /** For the usage log line (P3-21d); never a token. */
@@ -489,6 +501,22 @@ export function usageHeaders(header: (name: string) => string | null): Record<st
   return out;
 }
 
+/**
+ * Pure: an answer to a PUBLISHING call that must be read as no answer at all
+ * (P3-21d, review 2026-10-23 #2) — no error code, any 5xx, or Meta's
+ * temporary codes 1 and 2. A post may exist behind each, so none is retried.
+ * A definite 4xx refusal (a rate limit, a bad parameter) is an answer: Meta
+ * did nothing, and the cap's retries stay as they are. Reads: always false.
+ */
+export function publishingNoAnswer(
+  options: Pick<CallOptions, "publishing">,
+  status: number,
+  code: number | null,
+): boolean {
+  if (!options.publishing) return false;
+  return code === null || status >= 500 || TEMPORARY_CODES.has(code);
+}
+
 async function metaCall(
   ctx: Context,
   auth: MetaAuth,
@@ -582,7 +610,10 @@ async function metaCall(
     }
     const code = typeof error?.code === "number" ? error.code : null;
     // A publishing call answered with silence, not a refusal: it may have landed.
-    if (options.publishing && code === null) throw new MetaNoAnswerError(which);
+    // So is a 5xx of any kind, and Meta's own "temporary" codes 1 and 2: each
+    // says Meta didn't finish answering, not that it did nothing (review
+    // 2026-10-23, Session D #2). Never sent again — the read-back settles it.
+    if (publishingNoAnswer(options, response.status, code)) throw new MetaNoAnswerError(which);
 
     // One mapping for every refusal (P3-24a): the sentence, the connection's
     // fate, the next step and whether to retry all come from meta-errors.
@@ -735,20 +766,9 @@ export interface MetaExecution {
   ads: ExecutionProvider;
   /** P3-23a: per-post insights, GET only, under the readback scopes only. */
   readback: MetaReadback;
-  /**
-   * The Instagram publisher on its own: one image, a Reel, or a CAROUSEL of
-   * up to ten. Content items carry one render today, so the executor sends
-   * one; a carousel is reachable here until multi-image items exist.
-   */
-  instagram(args: {
-    igUserId: string;
-    token: string;
-    media: readonly string[];
-    caption: string;
-    account_id: string;
-    /** P3-24c: the emergency stop, checked before every container and before media_publish. */
-    halted?: () => Promise<boolean>;
-  }): Promise<PublishedPost>;
+  // No standalone Instagram publisher (review 2026-10-23, Session D #6): it
+  // published past approval, the real-write gate, idempotency and the
+  // journal. Every post goes out through `publish`, under executeProposal.
 }
 
 const defaultFetch: MetaExecFetch = async (url, init) => {
@@ -928,6 +948,8 @@ export interface PublishItem {
   platform_url: string | null;
   publish_proposal_id: string | null;
   publish_attempt: PublishAttempt | null;
+  /** Review D #10: the hash of the caption and media as approved (approvedPublishHash), or null. */
+  publish_approved_sha256: string | null;
   /** A link the post carries (provenance.link, https only) — Facebook text posts send it as `link`. */
   link: string | null;
 }
@@ -956,7 +978,12 @@ export interface PublishBackend {
   /** Progress on the in-flight attempt: sent_at, the interim ids. */
   note(itemId: string, attempt: PublishAttempt): Promise<void>;
   published(item: PublishItem, post: PublishedPost, accountId: string): Promise<void>;
-  failed(itemId: string, sentence: string): Promise<void>;
+  /**
+   * Nothing went out. The render is released from public storage (review
+   * D #10) unless `keepMedia` — a failure held for the reconnect (P3-24b),
+   * which re-queues the item as it was.
+   */
+  failed(itemId: string, sentence: string, opts?: { keepMedia?: boolean }): Promise<void>;
   /** Stays `publishing`, carrying the sentence. */
   uncertain(itemId: string, sentence: string): Promise<void>;
   /** Status untouched; the sentence shows on /content. */
@@ -977,6 +1004,11 @@ export interface PublishBackend {
    * the stop came on between steps, before the one that makes it public.
    */
   unclaim(itemId: string, sentence: string): Promise<void>;
+  /**
+   * Review 2026-10-23 (Session D #1): the approval lapsed before it could
+   * run. drafted|queued → failed with the sentence, and the render released.
+   */
+  lapsed(itemId: string, sentence: string, accountId: string): Promise<void>;
 }
 
 /**
@@ -1007,6 +1039,15 @@ export const META_USAGE_BACKOFF_PCT = 75;
 export const IG_POLL_MAX = 10;
 /** How far before sent_at a read-back looks, for clock skew between us and Meta. */
 const READBACK_SKEW_S = 300;
+/**
+ * Review 2026-10-23 (Session D #3): how long after sent_at an Instagram
+ * container still reading FINISHED, with no post found, stays "I may have
+ * posted this". media_publish normally completes inside its own 20 s
+ * request; an hour is generous for a slow Meta, and well inside the 24 h
+ * after which Meta expires an unpublished container (EXPIRED, not_sent).
+ * The sweep settles it on its next pass after the window.
+ */
+export const IG_FINISHED_GRACE_MS = 60 * 60_000;
 
 export const MAY_HAVE_POSTED: Readonly<Record<PublishPlatform, string>> = {
   facebook:
@@ -1057,6 +1098,35 @@ export function publishCaption(item: { body: string; disclosure: string }): stri
 
 export function captionHash(text: string): string {
   return createHash("sha256").update(text.trim()).digest("hex");
+}
+
+/**
+ * Review 2026-10-23 (Session D #10), pure: what the owner approved, as one
+ * hash — the caption exactly as it goes out (publishCaption) and the media
+ * URL it goes out with. Stored at approval (content_items.
+ * publish_approved_sha256) and checked before anything is sent, as campaign
+ * emails check approved_sha256. A render's URL carries 16 random bytes, so a
+ * replaced render is a different URL and a different hash.
+ */
+export function approvedPublishHash(item: {
+  body: string;
+  disclosure: string;
+  media_path: string | null;
+}): string {
+  return createHash("sha256")
+    .update(JSON.stringify({ v: 1, caption: publishCaption(item), media: item.media_path ?? null }))
+    .digest("hex");
+}
+
+/** The refusal when what would go out isn't what was approved. */
+export const NOT_AS_APPROVED =
+  "What would go out isn't what you approved: the caption or the media changed after you approved it. Nothing was sent; it needs approving again.";
+
+function asApproved(item: PublishItem): boolean {
+  return (
+    item.publish_approved_sha256 !== null &&
+    item.publish_approved_sha256 === approvedPublishHash(item)
+  );
 }
 
 interface PublishParams {
@@ -1420,6 +1490,36 @@ async function publishInstagram(
   return { platform: "instagram", platform_post_id: mediaId, url };
 }
 
+/**
+ * Review 2026-10-23 (Session D #5): a Facebook post counts as the one SYB
+ * sent only when it was posted from the Page itself, by the connected app,
+ * and created between READBACK_SKEW_S before sent_at and
+ * READBACK_MATCH_AFTER_S after it. Meta's v26.0 PagePost reference lists
+ * `from` ("the user, page, group or event that published the post") and
+ * `application` ("the app this post was published by"), with no access
+ * restriction stated — _verify at build_ that a published_posts read returns
+ * `application`. If Meta leaves it out, nothing matches and the item stays
+ * "I may have posted this": the safe direction.
+ */
+export const READBACK_MATCH_AFTER_S = 600;
+
+export function madeBy(
+  post: Record<string, unknown>,
+  ours: { pageId: string; appId: string; sentAt: string },
+): boolean {
+  const idIn = (v: unknown): string | null => {
+    const id = v !== null && typeof v === "object" ? (v as { id?: unknown }).id : null;
+    return typeof id === "string" ? id : null;
+  };
+  if (idIn(post["from"]) !== ours.pageId || idIn(post["application"]) !== ours.appId) return false;
+  const created = typeof post["created_time"] === "string" ? Date.parse(post["created_time"]) : NaN;
+  const sent = Date.parse(ours.sentAt);
+  if (!Number.isFinite(created) || !Number.isFinite(sent)) return false;
+  return (
+    created >= sent - READBACK_SKEW_S * 1000 && created <= sent + READBACK_MATCH_AFTER_S * 1000
+  );
+}
+
 function sinceSeconds(sentAt: string): string {
   return String(Math.floor(Date.parse(sentAt) / 1000) - READBACK_SKEW_S);
 }
@@ -1443,6 +1543,7 @@ async function readBack(
     targetId: string;
     item: PublishItem;
     accountId: string;
+    now: Date;
   },
 ): Promise<ReconcileOutcome> {
   const { cred, platform, targetId, item, accountId } = args;
@@ -1485,13 +1586,28 @@ async function readBack(
         }
         return uncertain;
       }
+      // Review 2026-10-23 (Session D #5): a matching caption is not enough —
+      // the owner may have posted the same words by hand, and Withdraw would
+      // then delete THEIR post. Ours was made by the connected app, as the
+      // Page, within minutes of sent_at; anything else stays uncertain.
+      const app = await metaRequest(
+        ctx,
+        { bearer: token },
+        "token_app",
+        {},
+        { fields: "id" },
+        "the app behind the connection",
+        who,
+      );
+      const appId = stringId(app, "id");
+      if (appId === null) return uncertain;
       const body = await metaRequest(
         ctx,
         { bearer: token },
         "page_published_posts",
         { page_id: targetId },
         {
-          fields: "id,message,created_time,permalink_url",
+          fields: "id,message,created_time,permalink_url,from,application",
           since: sinceSeconds(attempt.sent_at),
           limit: "25",
         },
@@ -1500,7 +1616,9 @@ async function readBack(
       );
       const ours = listData(body).filter(
         (p) =>
-          typeof p["message"] === "string" && captionHash(p["message"]) === attempt.caption_sha256,
+          typeof p["message"] === "string" &&
+          captionHash(p["message"]) === attempt.caption_sha256 &&
+          madeBy(p, { pageId: targetId, appId, sentAt: attempt.sent_at as string }),
       );
       const only = ours.length === 1 ? ours[0] : undefined;
       const id = only ? stringId(only, "id") : null;
@@ -1528,10 +1646,14 @@ async function readBack(
       who,
     );
     const status = stringId(container, "status_code");
-    if (status === "FINISHED" || status === "ERROR" || status === "EXPIRED") {
+    if (status === "ERROR" || status === "EXPIRED") {
       return { kind: "not_sent", sentence: "Instagram never published it. Nothing went out." };
     }
-    if (status !== "PUBLISHED") return uncertain;
+    // FINISHED is NOT proof of nothing (review 2026-10-23, Session D #3): right
+    // after a lost media_publish answer Meta may still be publishing it. Look
+    // for the post either way; only once the grace window has passed with the
+    // container still FINISHED and no post found is it called not sent.
+    if (status !== "PUBLISHED" && status !== "FINISHED") return uncertain;
     const list = await metaRequest(
       ctx,
       { bearer: cred.access_token },
@@ -1551,12 +1673,24 @@ async function readBack(
     );
     const only = ours.length === 1 ? ours[0] : undefined;
     const id = only ? stringId(only, "id") : null;
-    return only && id
-      ? {
-          kind: "found",
-          post: { platform, platform_post_id: id, url: stringId(only, "permalink") },
-        }
-      : uncertain;
+    if (only && id) {
+      return {
+        kind: "found",
+        post: { platform, platform_post_id: id, url: stringId(only, "permalink") },
+      };
+    }
+    if (
+      status === "FINISHED" &&
+      ours.length === 0 &&
+      args.now.getTime() - Date.parse(attempt.sent_at) > IG_FINISHED_GRACE_MS
+    ) {
+      return {
+        kind: "not_sent",
+        sentence:
+          "Instagram never published it — the media was ready, but no post appeared. Nothing went out.",
+      };
+    }
+    return uncertain;
   } catch {
     // Can't read back right now: still unknown, still never re-sent.
     return uncertain;
@@ -1638,6 +1772,36 @@ function publishProvider(
     id: "meta_publish",
     external: true,
 
+    async staleApproval(_op, params, pctx, approval) {
+      // Review 2026-10-23 (Session D #1): a post far past its time isn't posted late.
+      const sentence = stalePublish(approval, approval.now);
+      if (sentence === null) return null;
+      let p: PublishParams;
+      try {
+        p = publishParams(params);
+      } catch {
+        return null; // the pre-flight refuses a malformed plan by name
+      }
+      const b = await loadBackend();
+      const item = await b.item(p.item_id, pctx.profile_id);
+      // In flight or done: never lapsed — a post that may be up is read back, not forgotten.
+      if (!item || (item.status !== "drafted" && item.status !== "queued")) return null;
+      return sentence;
+    },
+
+    async lapsed(_op, params, pctx, sentence) {
+      const b = await loadBackend();
+      const p = publishParams(params);
+      await b.lapsed(p.item_id, sentence, pctx.account_id);
+      logPublish({
+        account_id: pctx.account_id,
+        platform: p.platform,
+        item_id: p.item_id,
+        phase: "stale",
+        outcome: "lapsed",
+      });
+    },
+
     async preflight(op, params, pctx) {
       const b = await loadBackend();
       let p: PublishParams;
@@ -1668,6 +1832,8 @@ function publishProvider(
         };
       }
       try {
+        // Review D #10: what goes out is what was approved, by hash.
+        if (!asApproved(item)) return refuse({ code: "refused", message: NOT_AS_APPROVED });
         expectOp(op, p.platform, item);
         if (p.platform === "instagram") {
           const kind = item.media_path ? mediaKindOf(item.media_path) : null;
@@ -1784,12 +1950,14 @@ function publishProvider(
           targetId: p.target_id,
           item,
           accountId: pctx.account_id,
+          now: now(),
         });
         return settle(b, outcome, item, pctx, p.platform);
       }
       if (item.status !== "drafted" && item.status !== "queued") {
         throw new PublishError(`it is ${item.status}, so it isn't published — nothing was sent`);
       }
+      if (!asApproved(item)) throw new PublishError(NOT_AS_APPROVED);
       const publishOp = expectOp(op, p.platform, item);
       const caption = publishCaption(item);
       const attempt: PublishAttempt = {
@@ -1873,7 +2041,7 @@ function publishProvider(
         // The item fails with the one sentence, the connection pauses itself
         // and holds everything queued on it, and the run waits for the reconnect.
         if (error instanceof MetaRequestError && pausesConnection(error.failure)) {
-          await b.failed(item.id, PAUSED_WORK_SENTENCE.publish);
+          await b.failed(item.id, PAUSED_WORK_SENTENCE.publish, { keepMedia: true });
           await b.paused({ account_id: pctx.account_id, failure: error.failure, item_id: item.id });
           log("paused");
           throw new ConnectionPausedError(error.failure, "publish");
@@ -1986,6 +2154,7 @@ function publishProvider(
         targetId: p.target_id,
         item,
         accountId: pctx.account_id,
+        now: now(),
       });
       try {
         await settle(b, outcome, item, pctx, p.platform);
@@ -2536,6 +2705,16 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     id: "meta_ads",
     external: true,
 
+    async staleApproval(op, _params, pctx, approval) {
+      // Review 2026-10-23 (Session D #1): an ad change rests on measured days
+      // that go stale; an old approval isn't acted on. Reads nothing.
+      const sentence = staleAdChange(approval, approval.now);
+      if (sentence !== null) {
+        logAdChange({ account_id: pctx.account_id, op, phase: "stale", outcome: "lapsed" });
+      }
+      return sentence;
+    },
+
     async preflight(op, params, pctx) {
       const log = (outcome: string, run?: Run) =>
         logAdChange({
@@ -2815,6 +2994,18 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
       }
     },
 
+    undoRaisesSpend(op, undoPayload, result) {
+      // Pure. Undoing a pause re-activates spend; undoing a resume stops it.
+      if (op === "pause_campaign") return true;
+      if (op === "resume_campaign") return false;
+      if (op !== "set_daily_budget") return false;
+      const previous = metaInt((undoPayload as { daily_budget?: unknown } | null)?.daily_budget);
+      const sent = metaInt((result as { sent_daily_budget?: unknown } | null)?.sent_daily_budget);
+      // Not knowable from the record: treated as raising, so the gate and guards apply.
+      if (previous === null || sent === null) return true;
+      return previous > sent;
+    },
+
     async undo(op, undoPayload, pctx) {
       const u = (undoPayload ?? {}) as {
         campaign_id?: unknown;
@@ -2823,16 +3014,52 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         daily_budget_minor?: unknown;
         currency?: unknown;
       };
+      const done = (pctx.result ?? {}) as { status?: unknown; sent_daily_budget?: unknown };
       const run = await open(pctx.account_id);
       const c = await readCampaign(run, campaignIdOf({ campaign_id: u.campaign_id }));
       touchable(c);
+      // Review 2026-10-23 (Session D #4): an undo puts back what SYB changed —
+      // only while the live value is still what this execution set. If the
+      // owner has changed it since, theirs stands.
+      const changedSince = (now: string, set: string) =>
+        new AdChangeError(
+          `I didn't undo this: "${c.name}" is ${now} on Meta now, not the ${set} I set — you've changed it since, and I won't override that. Nothing was changed.`,
+        );
       if (op === "pause_campaign" || op === "resume_campaign") {
         if (typeof u.status !== "string" || !AD_STATUSES.includes(u.status)) {
           throw new AdChangeError(
             "the stored undo names no status SYB may set — nothing was changed",
           );
         }
-        if (c.status !== u.status) await setStatus(run, c, u.status);
+        const set = typeof done.status === "string" ? done.status : null;
+        if (c.status !== u.status) {
+          if (set === null || c.status !== set) {
+            throw changedSince(
+              STATUS_WORD[c.status] ?? c.status.toLowerCase(),
+              set === null ? "status" : `${STATUS_WORD[set] ?? set} status`,
+            );
+          }
+          if (u.status === "ACTIVE") {
+            // Re-activating spends again: the owner's stated ceiling bounds it.
+            const account = await readAccount(run);
+            const ceiling = await run.b.ceiling(pctx.profile_id);
+            const refusal = reactivationGuard({
+              campaign_daily_minor:
+                c.daily_budget === null ? null : fromMetaBudget(c.daily_budget, account.currency),
+              account_daily_minor: ceiling
+                ? await run.b.accountDailySpend(run.account_id, account.currency)
+                : null,
+              currency: account.currency,
+              monthly_ceiling: ceiling,
+            });
+            if (refusal !== null) {
+              throw new AdChangeError(
+                `I didn't undo the pause of "${c.name}": ${refusal}. Nothing was changed.`,
+              );
+            }
+          }
+          await setStatus(run, c, u.status);
+        }
         await run.b.changed(
           pctx.profile_id,
           `Undid: "${c.name}" is ${STATUS_WORD[u.status] ?? u.status} on Meta again.`,
@@ -2853,11 +3080,50 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         if (previous === null || typeof u.currency !== "string") {
           throw new AdChangeError("the stored undo names no budget — nothing was changed");
         }
-        if (c.daily_budget !== previous) await setBudget(run, c, previous);
+        const cur: string = u.currency;
         const minor =
           typeof u.daily_budget_minor === "number"
             ? u.daily_budget_minor
-            : fromMetaBudget(previous, u.currency);
+            : fromMetaBudget(previous, cur);
+        if (c.daily_budget !== previous) {
+          const sent = metaInt(done.sent_daily_budget);
+          const live = (v: number | null) =>
+            v === null ? "budgeted on its ad sets" : `at ${fmt(fromMetaBudget(v, cur), cur)} a day`;
+          if (sent === null || c.daily_budget !== sent) {
+            throw changedSince(
+              live(c.daily_budget),
+              sent === null ? "budget" : `${fmt(fromMetaBudget(sent, cur), cur)} budget`,
+            );
+          }
+          if (previous > sent) {
+            // Putting a lowered budget back up raises spend: the same spend
+            // guard as any raise — ±50%, Meta's floor, the stated ceiling.
+            const account = await readAccount(run);
+            if (account.currency !== cur.toUpperCase()) {
+              throw new AdChangeError(
+                `I didn't undo this: the ad account now bills in ${account.currency}, not ${cur}. Nothing was changed.`,
+              );
+            }
+            const ceiling = await run.b.ceiling(pctx.profile_id);
+            const accountDaily = ceiling
+              ? await run.b.accountDailySpend(run.account_id, account.currency)
+              : null;
+            const refusal = spendGuard({
+              current_daily_minor: fromMetaBudget(sent, account.currency),
+              proposed_daily_minor: minor,
+              currency: account.currency,
+              ...(accountDaily !== null ? { account_daily_minor: accountDaily } : {}),
+              monthly_ceiling: ceiling,
+              floor_minor: dailyBudgetFloor(account.currency, account.min_daily_minor),
+            });
+            if (refusal !== null) {
+              throw new AdChangeError(
+                `I didn't undo the change to "${c.name}": ${refusal}. Nothing was changed.`,
+              );
+            }
+          }
+          await setBudget(run, c, previous);
+        }
         await run.b.changed(
           pctx.profile_id,
           `Undid: "${c.name}"'s daily budget on Meta is ${fmt(minor, u.currency)} again.`,
@@ -3146,19 +3412,41 @@ export function createMetaExecution(options: MetaExecutionOptions = {}): MetaExe
       return dbAdsBackend();
     }),
     readback: readbackCalls(ctx),
-    instagram: (a) =>
-      publishInstagram(ctx, {
-        igUserId: a.igUserId,
-        token: a.token,
-        media: a.media,
-        caption: a.caption,
-        hooks: {
-          account_id: a.account_id,
-          note: async () => undefined,
-          ...(a.halted ? { halted: a.halted } : {}),
-        },
-      }),
   };
+}
+
+/**
+ * TESTS ONLY — the carousel path (P3-24c's mid-carousel stop), which no
+ * content item reaches yet because items carry one render. It takes the
+ * fetch as a required argument and has no default transport, so it cannot
+ * reach Meta unless a caller hands it one; meta.test.ts fails the build if
+ * any file other than a test names it (review 2026-10-23, Session D #6).
+ */
+export function instagramPublishForTests(
+  fetch: MetaExecFetch,
+  args: {
+    igUserId: string;
+    token: string;
+    media: readonly string[];
+    caption: string;
+    account_id: string;
+    halted?: () => Promise<boolean>;
+  },
+): Promise<PublishedPost> {
+  return publishInstagram(
+    { fetch, sleep: async () => undefined },
+    {
+      igUserId: args.igUserId,
+      token: args.token,
+      media: args.media,
+      caption: args.caption,
+      hooks: {
+        account_id: args.account_id,
+        note: async () => undefined,
+        ...(args.halted ? { halted: args.halted } : {}),
+      },
+    },
+  );
 }
 
 export const metaExecution = createMetaExecution();

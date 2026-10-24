@@ -1637,6 +1637,14 @@ export const contentItems = pgTable(
     approved_at: timestamp("approved_at", { withTimezone: true, mode: "string" }),
     approved_sha256: text("approved_sha256"),
     approved_subject: text("approved_subject"),
+    /**
+     * Review 2026-10-23 (Session D #10), migration 0056: for a per-item
+     * publish proposal, the sha256 of the caption and the media URL the
+     * owner approved (approvedPublishHash), written in the approval's own
+     * transaction. The publish pre-flight and execute refuse an item whose
+     * caption or media no longer hash to it — what goes out is what was seen.
+     */
+    publish_approved_sha256: text("publish_approved_sha256"),
   },
   (t) => [
     index("content_items_profile_idx").on(t.profile_id, t.scheduled_for),
