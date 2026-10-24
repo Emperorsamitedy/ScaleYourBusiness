@@ -74,7 +74,8 @@ import {
   saveReplyText,
   sendApprovedReply,
 } from "../../../lib/support-desk/replies";
-import { settingsForProfile, widgetSnippet } from "../../../lib/support/settings";
+import { settingsForProfile } from "../../../lib/support/settings";
+import { widgetSnippet } from "../../../lib/support/snippet";
 import { TicketError, listTickets, resolveTicket } from "../../../lib/support/tickets";
 
 async function resolveProfile(): Promise<string | null> {
