@@ -74,7 +74,7 @@ import {
   saveReplyText,
   sendApprovedReply,
 } from "../../../lib/support-desk/replies";
-import { settingsForProfile } from "../../../lib/support/settings";
+import { settingsForProfile, widgetSnippet } from "../../../lib/support/settings";
 import { TicketError, listTickets, resolveTicket } from "../../../lib/support/tickets";
 
 async function resolveProfile(): Promise<string | null> {
@@ -97,10 +97,6 @@ function onError(error: unknown): NextResponse {
   }
   console.error(JSON.stringify({ event: "support_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
-}
-
-function widgetSnippet(origin: string, siteKey: string): string {
-  return `<script src="${origin}/support-widget.js" data-site-key="${siteKey}" async></script>`;
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {

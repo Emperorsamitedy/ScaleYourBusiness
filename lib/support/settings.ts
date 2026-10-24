@@ -20,6 +20,11 @@ export const DEFAULT_BUSINESS_NAME = "this business";
 /** 16 random bytes as hex. Checked before any query so junk never reaches the database. */
 export const SITE_KEY_RE = /^[0-9a-f]{32}$/;
 
+/** The script tag an owner pastes into their site: public by design, as the site key is. */
+export function widgetSnippet(origin: string, siteKey: string): string {
+  return `<script src="${origin}/support-widget.js" data-site-key="${siteKey}" async></script>`;
+}
+
 export async function settingsBySiteKey(siteKey: string): Promise<SupportSettingsRow | null> {
   if (!SITE_KEY_RE.test(siteKey)) return null;
   const [row] = await db
