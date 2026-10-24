@@ -83,8 +83,6 @@ export interface ReadinessFacts {
   bundled_bank_version: string;
   law_review: { state: "missing" | "stale" | "current"; words: string } | null;
   first_campaigns_waiting: number | null;
-  /** Suppression rows in the keyed (h1:) form — they bind COOKIE_SECRET's choice. */
-  keyed_suppressions: number | null;
 }
 
 export type ReadinessEnv = Readonly<Record<string, string | undefined>>;
@@ -363,7 +361,7 @@ function databaseGroup(facts: ReadinessFacts): ReadinessGroup {
   };
 }
 
-function coreGroup(env: ReadinessEnv, facts: ReadinessFacts): ReadinessGroup {
+function coreGroup(env: ReadinessEnv): ReadinessGroup {
   const mode = env.INTERVIEWER_MODE?.trim() ?? "";
   let interviewer: ReadinessItem;
   if (mode === "llm") {
@@ -391,32 +389,23 @@ function coreGroup(env: ReadinessEnv, facts: ReadinessFacts): ReadinessGroup {
     );
   }
 
-  let cookie: ReadinessItem;
-  if (has(env, "COOKIE_SECRET")) {
-    cookie = item(
-      "COOKIE_SECRET",
-      "ready",
-      "It's set, and the cookie, suppression and visitor keys are derived from it. Never change or remove it: the suppression list is keyed by it.",
-      null,
-      { how: GENERATE_32, where_text: GENERATED },
-    );
-  } else if (facts.keyed_suppressions !== null && facts.keyed_suppressions > 0) {
-    cookie = item(
-      "COOKIE_SECRET",
-      "off",
-      `It's optional and unset, and it should stay unset: ${facts.keyed_suppressions} suppression ${facts.keyed_suppressions === 1 ? "entry is" : "entries are"} keyed from CONNECTOR_KEY, and setting it now would stop them matching.`,
-      null,
-      { where_text: GENERATED },
-    );
-  } else {
-    cookie = item(
-      "COOKIE_SECRET",
-      "off",
-      "It's optional; without it the keys are derived from CONNECTOR_KEY. If you want a separate key, set it now, before the first unsubscribe or erasure, because setting it later stops the suppression list matching.",
-      null,
-      { how: GENERATE_32, where_text: GENERATED },
-    );
-  }
+  // The suppression list is keyed from CONNECTOR_KEY alone (stableKey), so
+  // COOKIE_SECRET can be set at any time; it only re-keys sign-in cookies.
+  const cookie: ReadinessItem = has(env, "COOKIE_SECRET")
+    ? item(
+        "COOKIE_SECRET",
+        "ready",
+        "It's set, and the sign-in cookie and visitor keys are derived from it. Changing it later signs everyone out once; the suppression list doesn't depend on it.",
+        null,
+        { how: GENERATE_32, where_text: GENERATED },
+      )
+    : item(
+        "COOKIE_SECRET",
+        "off",
+        "It's optional; without it the sign-in cookie and visitor keys come from CONNECTOR_KEY. You can set it any time: it signs everyone out once, and the suppression list doesn't depend on it.",
+        null,
+        { how: GENERATE_32, where_text: GENERATED },
+      );
 
   return {
     key: "core",
@@ -941,7 +930,7 @@ export function launchReadiness(env: ReadinessEnv, facts: ReadinessFacts): Readi
   const groups = [
     emailGroup(env),
     databaseGroup(facts),
-    coreGroup(env, facts),
+    coreGroup(env),
     supportGroup(env),
     campaignGroup(env, facts),
     metaGroup(env),

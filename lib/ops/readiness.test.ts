@@ -28,7 +28,6 @@ const FACTS: ReadinessFacts = {
     words: "The email-law rules were reviewed against current law on 2026-10-20.",
   },
   first_campaigns_waiting: 0,
-  keyed_suppressions: 0,
 };
 
 const GOOD: ReadinessEnv = {
@@ -195,15 +194,12 @@ describe("core", () => {
     expect(odd.says).not.toContain("sk-ant");
   });
 
-  it("COOKIE_SECRET: set is READY; unset is OFF, and says to leave it unset once suppressions are keyed", () => {
+  it("COOKIE_SECRET: set is READY; unset is OFF; either way safe to set, suppressions don't depend on it", () => {
     expect(status({ ...GOOD, COOKIE_SECRET: "c" }, "COOKIE_SECRET")).toBe("ready");
     const fresh = find(GOOD, "COOKIE_SECRET");
     expect(fresh.status).toBe("off");
-    expect(fresh.says).toContain("set it now");
-    const bound = find(GOOD, "COOKIE_SECRET", { ...FACTS, keyed_suppressions: 3 });
-    expect(bound.status).toBe("off");
-    expect(bound.says).toContain("should stay unset");
-    expect(bound.says).toContain("3 suppression entries");
+    expect(fresh.says).toContain("set it any time");
+    expect(fresh.says).toContain("doesn't depend on it");
   });
 });
 
@@ -524,7 +520,6 @@ describe("no secret value appears anywhere in the readiness output", () => {
       bank: null,
       law_review: null,
       first_campaigns_waiting: null,
-      keyed_suppressions: 4,
     });
   });
 

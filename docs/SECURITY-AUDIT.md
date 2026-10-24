@@ -45,7 +45,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - `npm run smoke:erasure -- --account <id> --yes` erases a throwaway reserved-domain contact and checks the row, the suppression and the log;
    - `npm run smoke:widget -- --profile <id>` prints the site key, the snippet and what to check on `/support/test`.
 
-   `COOKIE_SECRET` is decided once: the suppression list's hashes are keyed from it (or from `CONNECTOR_KEY` when it is unset), so setting it after the first unsubscribe or erasure stops those entries matching. The readiness section says which case you are in.
+   `COOKIE_SECRET` can be set at any time. The suppression list is keyed from `CONNECTOR_KEY` alone (`stableKey`, fixed 2026-10-24), so setting it never unblocks an unsubscribed or erased address; it only re-keys sign-in cookies, which signs everyone out once.
 
 ## Before you deploy this branch
 

@@ -30,7 +30,6 @@ describe("readReadinessFacts — what the database says", () => {
     expect(facts.migrations!.latest_applied_at).toBe(facts.bundled_migrations.latest_when);
     expect(facts.migrations!.latest_applied_tag).toBe(facts.bundled_migrations.latest_tag);
     expect(facts.bank).toEqual({ seeded: BUNDLED_BANK_VERSION });
-    expect(typeof facts.keyed_suppressions).toBe("number");
 
     const items = launchReadiness({}, facts).groups.find((g) => g.key === "database")!.items;
     expect(items.map((i) => i.status)).toEqual(["ready", "ready"]);
