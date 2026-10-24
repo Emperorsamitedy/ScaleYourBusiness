@@ -61,3 +61,13 @@
     width: 20%;
   }
 }
+/* Links are ink, never cobalt (sheet.css: cobalt means the machine is working). */
+.lr a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.lr a:hover {
+  text-decoration-thickness: 2px;
+}
