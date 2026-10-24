@@ -426,7 +426,7 @@ export function SupportScreen() {
         ) : (
           <>
             <div className="sp-table-wrap">
-              <table className="rt sp-tickets">
+              <table className="rt rt-stack sp-tickets">
                 <thead>
                   <tr>
                     <th scope="col">Channel</th>
@@ -447,7 +447,9 @@ export function SupportScreen() {
                     const w = conversationWord(t.conversation?.status ?? "escalated", t.ticket);
                     return (
                       <tr key={t.key} className={on ? "on" : undefined}>
-                        <td className="src">{line?.channel ?? "Chat"}</td>
+                        <td className="src" data-label="Channel">
+                          {line?.channel ?? "Chat"}
+                        </td>
                         <th scope="row">
                           <button
                             type="button"
@@ -461,12 +463,14 @@ export function SupportScreen() {
                             <span className="sp-fine"> {t.ticket.sender_note}</span>
                           )}
                         </th>
-                        <td className="sp-what">
+                        <td className="sp-what" data-label="Subject or question">
                           {line?.what ??
                             `${t.conversation?.turns ?? 0} ${t.conversation?.turns === 1 ? "message" : "messages"} · ${whenShort(t.at)}`}
                         </td>
-                        <td className="num">{line?.waited ?? ""}</td>
-                        <td>
+                        <td className="num" data-label="Waited">
+                          {line?.waited ?? ""}
+                        </td>
+                        <td data-label="Against your reply time">
                           {line ? (
                             <>
                               <span className={`flag ${line.tone}`}>{line.flag}</span>

@@ -293,3 +293,13 @@
     margin: 2px 0 0 calc(38% + 12px);
   }
 }
+
+/* Stacked on a phone (sheet.css .rt-stack): the actions sit under the row's
+   text, from the left, with room to wrap. */
+@media (max-width: 719px) {
+  .rt-stack .sim-acts {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding-top: 6px;
+  }
+}

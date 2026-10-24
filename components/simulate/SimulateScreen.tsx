@@ -171,7 +171,7 @@ function Picker({
       meta={`${picks.length} picked${full ? " · that's the most I compare at once" : ""}`}
     >
       <div className="sim-wrap">
-        <table className="rt sim-pick">
+        <table className="rt rt-stack sim-pick">
           <thead>
             <tr>
               <th scope="col">Kind</th>
@@ -185,9 +185,11 @@ function Picker({
           <tbody>
             {catalog.email.map((e) => (
               <tr key={e.key} className={picks.includes(`email:${e.key}`) ? "on" : undefined}>
-                <td className="src">Email</td>
+                <td className="src" data-label="Kind">
+                  Email
+                </td>
                 <th scope="row">{e.title}</th>
-                <td className="src">
+                <td className="src" data-label="From your numbers">
                   {e.emailable > 0
                     ? `${num(e.emailable)} said yes to email`
                     : "nobody here said yes to email"}
@@ -210,9 +212,11 @@ function Picker({
               );
               return (
                 <tr key={c.ref} className={any ? "on" : undefined}>
-                  <td className="src">Meta ads</td>
+                  <td className="src" data-label="Kind">
+                    Meta ads
+                  </td>
                   <th scope="row">&ldquo;{c.name}&rdquo;</th>
-                  <td className="src">
+                  <td className="src" data-label="From your numbers">
                     {c.measured_days > 0
                       ? `${moneyText(c.daily_minor, c.currency)} a day · ${c.measured_days} measured days`
                       : "no measured spend lately"}
@@ -251,9 +255,11 @@ function Picker({
               );
             })}
             <tr className={picks.includes("ads:new") ? "on" : undefined}>
-              <td className="src">Meta ads</td>
+              <td className="src" data-label="Kind">
+                Meta ads
+              </td>
               <th scope="row">A new campaign</th>
-              <td className="src">
+              <td className="src" data-label="From your numbers">
                 {catalog.campaigns.length > 0
                   ? "judged on what your other campaigns return"
                   : catalog.ads_connected
@@ -276,9 +282,11 @@ function Picker({
               </td>
             </tr>
             <tr className={picks.includes("content") ? "on" : undefined}>
-              <td className="src">Content</td>
+              <td className="src" data-label="Kind">
+                Content
+              </td>
               <th scope="row">A {SIM.horizon_days / 7}-week content calendar</th>
-              <td className="src">
+              <td className="src" data-label="From your numbers">
                 {catalog.content.posts > 0
                   ? `${num(catalog.content.posts)} social posts on the channels you run`
                   : "no social channel on your profile"}
@@ -472,7 +480,7 @@ function OptionCard({
     >
       <p className="sim-what">{r.what}</p>
       <div className="sim-wrap">
-        <table className="rt sim-inputs">
+        <table className="rt rt-stack sim-inputs">
           <thead>
             <tr>
               <th scope="col">What it rests on</th>
@@ -487,25 +495,33 @@ function OptionCard({
             {r.inputs.map((i) => (
               <tr key={i.key}>
                 <th scope="row">{i.label}</th>
-                <td className="num">{i.range ? valueText(i.range, i.unit, cur, true) : "—"}</td>
-                <td>
+                <td className="num" data-label="Value">
+                  {i.range ? valueText(i.range, i.unit, cur, true) : "—"}
+                </td>
+                <td data-label="Basis">
                   {i.basis ? (
                     <span className="sim-basis">{i.basis}</span>
                   ) : (
                     <span className="flag drift">Missing</span>
                   )}
                 </td>
-                <td className="src">{i.range ? i.source : `needs ${i.needs ?? "a source"}`}</td>
+                <td className="src" data-label="Where it came from">
+                  {i.range ? i.source : `needs ${i.needs ?? "a source"}`}
+                </td>
               </tr>
             ))}
             {r.assumptions.map((a) => (
               <tr key={a.statement}>
                 <th scope="row">{a.statement}</th>
-                <td className="num">—</td>
-                <td>
+                <td className="num" data-label="Value">
+                  —
+                </td>
+                <td data-label="Basis">
                   <span className="sim-basis">ASSUMED</span>
                 </td>
-                <td className="src">{a.source}</td>
+                <td className="src" data-label="Where it came from">
+                  {a.source}
+                </td>
               </tr>
             ))}
           </tbody>
