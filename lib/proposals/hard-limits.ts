@@ -24,6 +24,7 @@ import { confidence } from "../core/confidence";
 import type { Confidence } from "../core/confidence";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
+import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -33,7 +34,7 @@ import { businessProfiles } from "../../db/schema";
 export const HARD_LIMITS_KEY = "goals.hard_limits";
 export const BOUNDARIES_KEY = "goals.owner_boundaries";
 export const LIMIT_EXTRACTION_METHOD = "haiku-limit-extraction-v1";
-export const LIMIT_MODEL = "claude-haiku-4-5";
+export const LIMIT_MODEL = "claude-haiku-5-5";
 
 /**
  * An interpretation of the owner's own written boundary: below precise
@@ -169,9 +170,17 @@ export const liveLimitLlm: LimitLlm = async ({ system, user, accountId }) => {
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: LIMIT_MODEL,
-    max_tokens: 800,
+    // Room for medium-effort thinking ahead of the limits and their quotes.
+    max_tokens: 3_000,
     system,
-    output_config: { format: { type: "json_schema", schema: LIMIT_SCHEMA } },
+    output_config: {
+      // Medium, not low: this is the one judgement behind rule 14 — which
+      // action kinds the owner's words forbid — made once per answer and
+      // then enforced by code, so a mis-mapping would quietly unblock
+      // proposals. Parse-once, so the extra thinking costs almost nothing.
+      effort: "medium",
+      format: { type: "json_schema", schema: LIMIT_SCHEMA },
+    },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
@@ -187,8 +196,9 @@ export const liveLimitLlm: LimitLlm = async ({ system, user, accountId }) => {
     },
   });
   await recordLlmCall(record);
-  const block = response.content[0];
-  const text = block && block.type === "text" ? block.text : "";
+  // A refusal throws: no hard_limits fact is written from a decline.
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new ModelRefusalError(record, refusal);
   return { text, calls: [record] };
 };
 

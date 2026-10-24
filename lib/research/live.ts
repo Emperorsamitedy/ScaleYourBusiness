@@ -13,10 +13,11 @@ import type { PageFetcher as GuardedFetch } from "../site/fetch";
 import { createGuardedFetcher } from "../site/fetch";
 import type Anthropic from "@anthropic-ai/sdk";
 import { readListedPages } from "../competitors/read";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { FetchedPage, SearchHit, SearchProvider, PageFetcher } from "./competitor";
-import { CAPS, RESEARCH_MODEL, RESEARCH_WORKLOADS, ResearchError } from "./competitor";
+import { CAPS, RESEARCH_MODEL, RESEARCH_WORKLOADS, ResearchError, declined } from "./competitor";
 import { extractTitle, stripHtml } from "../site/html-text";
 
 export { extractTitle, stripHtml };
@@ -46,7 +47,10 @@ export const liveSearchProvider: SearchProvider = async (query, limit, accountId
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: RESEARCH_MODEL,
-    max_tokens: 300,
+    // Room for adaptive thinking before the one search call and "done".
+    max_tokens: 1_000,
+    // One search for a given name, no judgement: the lowest effort.
+    output_config: { effort: "low" },
     system:
       "Run exactly one web search for the user's query, then reply with the single word: done. Do not summarise the results.",
     messages: [{ role: "user", content: query }],
@@ -55,21 +59,24 @@ export const liveSearchProvider: SearchProvider = async (query, limit, accountId
   // Persisted with the real account id: the daily cap counts these rows
   // (review 2026-10-23, finding 9 — this used to log account "search" to
   // the console only, with the search fee uncosted).
-  await recordLlmCall(
-    buildCallRecord({
-      workload: RESEARCH_WORKLOADS.search,
-      account_id: accountId,
-      model: RESEARCH_MODEL,
-      duration_ms: Date.now() - started,
-      usage: {
-        input_tokens: response.usage.input_tokens,
-        output_tokens: response.usage.output_tokens,
-        cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
-        cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
-      },
-      web_search_requests: response.usage.server_tool_use?.web_search_requests ?? 0,
-    }),
-  );
+  const record = buildCallRecord({
+    workload: RESEARCH_WORKLOADS.search,
+    account_id: accountId,
+    model: RESEARCH_MODEL,
+    duration_ms: Date.now() - started,
+    usage: {
+      input_tokens: response.usage.input_tokens,
+      output_tokens: response.usage.output_tokens,
+      cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
+      cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
+    },
+    web_search_requests: response.usage.server_tool_use?.web_search_requests ?? 0,
+  });
+  await recordLlmCall(record);
+  // A refusal throws before any block is read: a declined search has no results.
+  const { refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new ResearchError(declined(refusal));
+  // The hits are read by block type, so leading thinking blocks are skipped.
   return parseSearchResults(response.content).slice(0, limit);
 };
 

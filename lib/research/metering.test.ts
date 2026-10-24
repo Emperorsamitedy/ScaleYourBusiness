@@ -98,7 +98,7 @@ async function spent(n: number, workload: string = RESEARCH_WORKLOADS.search) {
     Array.from({ length: n }, () => ({
       account_id: accountId,
       workload,
-      model: "claude-haiku-4-5",
+      model: "claude-haiku-5-5",
       duration_ms: 1,
       input_tokens: 1,
       output_tokens: 1,
@@ -267,11 +267,13 @@ describe("every paid call is persisted with the real account id and its search f
     expect([...by.keys()].sort()).toEqual(
       [RESEARCH_WORKLOADS.discovery, RESEARCH_WORKLOADS.extract, RESEARCH_WORKLOADS.search].sort(),
     );
-    // Haiku: 1,000 in at $1/M and 100 out at $5/M = $0.0015, plus $0.01 a search.
-    const tokens = 0.0015 * USD_TO_EUR;
+    // Haiku 5.5, short card: 1,000 in at $0.10/M and 100 out at $0.50/M =
+    // $0.00015, plus $0.01 a search.
+    const tokens = 0.00015 * USD_TO_EUR;
     expect(by.get(RESEARCH_WORKLOADS.extract)).toBeCloseTo(tokens, 6);
     expect(by.get(RESEARCH_WORKLOADS.search)).toBeCloseTo(tokens + 0.01 * USD_TO_EUR, 6);
     expect(by.get(RESEARCH_WORKLOADS.discovery)).toBeCloseTo(tokens + 0.03 * USD_TO_EUR, 6);
+    expect(new Set(rows.map((r) => r.model))).toEqual(new Set(["claude-haiku-5-5"]));
   });
 });
 

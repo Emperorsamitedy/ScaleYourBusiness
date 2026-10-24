@@ -20,6 +20,7 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { anomalies, businessProfiles, diagnosisReports, proposals } from "../../db/schema";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { StoredRecommendation } from "../report/service";
@@ -36,7 +37,7 @@ import { createProposal } from "./service";
 import { suppressedKinds } from "../trust/suppression";
 
 export const PROPOSAL_EXPIRY_DAYS = 14;
-export const CLASSIFY_MODEL = "claude-haiku-4-5";
+export const CLASSIFY_MODEL = "claude-haiku-5-5";
 
 /** The classification seam — text in, one ACTION_KINDS member out. */
 export type ClassifyLlm = (args: {
@@ -61,27 +62,33 @@ export const liveClassifyLlm: ClassifyLlm = async ({ system, user, accountId }) 
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: CLASSIFY_MODEL,
-    max_tokens: 100,
+    // Thinking counts toward max_tokens: 100 left no room before the one-word kind.
+    max_tokens: 1_000,
     system,
-    output_config: { format: { type: "json_schema", schema: CLASSIFY_SCHEMA } },
+    output_config: {
+      // One enum value out of a closed set is classification: the lowest effort.
+      effort: "low",
+      format: { type: "json_schema", schema: CLASSIFY_SCHEMA },
+    },
     messages: [{ role: "user", content: user }],
   });
-  await recordLlmCall(
-    buildCallRecord({
-      workload: "parser",
-      account_id: accountId,
-      model: CLASSIFY_MODEL,
-      duration_ms: Date.now() - started,
-      usage: {
-        input_tokens: response.usage.input_tokens,
-        output_tokens: response.usage.output_tokens,
-        cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
-        cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
-      },
-    }),
-  );
-  const block = response.content[0];
-  return { text: block && block.type === "text" ? block.text : "" };
+  const record = buildCallRecord({
+    workload: "parser",
+    account_id: accountId,
+    model: CLASSIFY_MODEL,
+    duration_ms: Date.now() - started,
+    usage: {
+      input_tokens: response.usage.input_tokens,
+      output_tokens: response.usage.output_tokens,
+      cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
+      cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
+    },
+  });
+  await recordLlmCall(record);
+  // A refusal comes back as no text: coerceKind gives null and the
+  // recommendation is skipped as unclassifiable, never given a guessed kind.
+  const { text } = readAnswer(response, record);
+  return { text };
 };
 
 /** null = unclassifiable; the caller SKIPS rather than guessing a kind. */

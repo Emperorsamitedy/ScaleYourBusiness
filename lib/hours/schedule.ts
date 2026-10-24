@@ -23,6 +23,7 @@ import { confidence } from "../core/confidence";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
+import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -31,7 +32,7 @@ import { readCurrentField, writeField } from "../profile/field-store";
 export const HOURS_KEY = "presence.opening_hours";
 export const SCHEDULE_KEY = "presence.opening_schedule";
 export const SCHEDULE_METHOD = "haiku-opening-hours-v1";
-export const SCHEDULE_MODEL = "claude-haiku-4-5";
+export const SCHEDULE_MODEL = "claude-haiku-5-5";
 /** An interpretation of the owner's own words — the hard-limits level. */
 export const SCHEDULE_CONFIDENCE: Confidence = confidence(0.7);
 
@@ -138,9 +139,14 @@ export const liveScheduleLlm: ScheduleLlm = async ({ system, user, accountId }) 
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: SCHEDULE_MODEL,
-    max_tokens: 1_200,
+    // Room for adaptive thinking ahead of seven days with their quotes.
+    max_tokens: 2_000,
     system,
-    output_config: { format: { type: "json_schema", schema: SCHEDULE_SCHEMA } },
+    output_config: {
+      // Turning stated hours into periods is extraction: the lowest effort.
+      effort: "low",
+      format: { type: "json_schema", schema: SCHEDULE_SCHEMA },
+    },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
@@ -156,8 +162,9 @@ export const liveScheduleLlm: ScheduleLlm = async ({ system, user, accountId }) 
     },
   });
   await recordLlmCall(record);
-  const block = response.content[0];
-  const text = block && block.type === "text" ? block.text : "";
+  // A refusal throws, the same failure as an unreadable parse: no schedule is written.
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new ModelRefusalError(record, refusal);
   return { text, calls: [record] };
 };
 

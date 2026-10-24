@@ -11,10 +11,14 @@
 // behavior is provable offline; the live path is exercised by
 // verify-parser.ts (P0-58) alongside Session L's deferred runs.
 //
-// No prompt caching here, deliberately: the parser's stable prefix is
-// ~1k tokens, under Haiku 4.5's 4096-token cacheable minimum — a
-// breakpoint would be a silent no-op. Revisit if the prompt grows.
+// No prompt caching here, deliberately: the parser's stable prefix (the
+// system prompt, ~1.1k characters — roughly 350–450 tokens on Haiku 5.5's
+// tokenizer) is under even Haiku 5.5's 512-token cacheable minimum, so a
+// breakpoint would be a silent no-op. Everything after it (the question
+// lines, the reply) changes per turn. Revisit with count_tokens against
+// claude-haiku-5-5 once a key exists, or if the prompt grows.
 
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { LlmCallRecord } from "../llm/cost-log";
@@ -27,7 +31,7 @@ import { vocabularyCodes } from "../vocab/validate";
 import type { InputSpec } from "../interviewer/harness/answers";
 import { coerceParsedValue } from "./coerce";
 
-export const PARSER_MODEL = "claude-haiku-4-5";
+export const PARSER_MODEL = "claude-haiku-5-5";
 
 /** §8.1 base confidences: owner input, precise vs estimated. */
 export const CONFIDENCE_PRECISE = 0.75;
@@ -138,9 +142,14 @@ export const liveExtractionLlm: ExtractionLlm = async ({ system, user, accountId
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: PARSER_MODEL,
-    max_tokens: 1000,
+    // Room for adaptive thinking ahead of the extracted fields.
+    max_tokens: 2_000,
     system,
-    output_config: { format: { type: "json_schema", schema: EXTRACTION_SCHEMA } },
+    output_config: {
+      // Free text to typed wire values is extraction: the lowest effort.
+      effort: "low",
+      format: { type: "json_schema", schema: EXTRACTION_SCHEMA },
+    },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
@@ -156,10 +165,13 @@ export const liveExtractionLlm: ExtractionLlm = async ({ system, user, accountId
     },
   });
   await recordLlmCall(record);
+  // A refusal is checked first and never parsed: nothing is written from it.
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null)
+    throw new ParserError(`the model declined to parse this reply (${refusal})`);
   if (response.stop_reason !== "end_turn") {
     throw new ParserError(`unexpected stop_reason "${response.stop_reason}"`);
   }
-  const text = response.content.find((b) => b.type === "text")?.text ?? "";
   return { text, calls: [record] };
 };
 

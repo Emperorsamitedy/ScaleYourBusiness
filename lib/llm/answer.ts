@@ -12,12 +12,13 @@ import type { LlmCallRecord } from "./cost-log";
 
 interface Block {
   type: string;
+  text?: unknown;
 }
 
 /** Every text block's text, in order, joined — found by type, never by position. */
 export function textOf(content: readonly Block[]): string {
   return content
-    .filter((b): b is Block & { text: string } => b.type === "text" && "text" in b)
+    .filter((b): b is Block & { text: string } => b.type === "text" && typeof b.text === "string")
     .map((b) => b.text)
     .join("");
 }

@@ -21,6 +21,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { knowledgeEntries, proposals, supportTickets } from "../../db/schema";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -29,7 +30,7 @@ import type { KnowledgeCandidate } from "./knowledge";
 import { KNOWLEDGE_KIND, KNOWLEDGE_MODULE, entriesOf, proposeEntries } from "./knowledge";
 
 export const FAQ_WORKLOAD = "faq";
-export const FAQ_MODEL = "claude-haiku-4-5";
+export const FAQ_MODEL = "claude-haiku-5-5";
 /** The done-when's number: fewer than this many askers is not yet a frequently asked question. */
 export const FAQ_MIN_CLUSTER = 3;
 /** One batched call per run, over at most this many questions — the cost cap. */
@@ -95,9 +96,14 @@ export const liveFaqLlm: FaqLlm = async ({ system, user, accountId }) => {
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: FAQ_MODEL,
-    max_tokens: 2000,
+    // Room for adaptive thinking ahead of up to 200 ticket ids in clusters.
+    max_tokens: 6_000,
     system,
-    output_config: { format: { type: "json_schema", schema: CLUSTER_SCHEMA } },
+    output_config: {
+      // Grouping questions that ask the same thing is classification: the lowest effort.
+      effort: "low",
+      format: { type: "json_schema", schema: CLUSTER_SCHEMA },
+    },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
@@ -113,8 +119,12 @@ export const liveFaqLlm: FaqLlm = async ({ system, user, accountId }) => {
     },
   });
   await recordLlmCall(record);
-  const block = response.content[0];
-  return { text: block && block.type === "text" ? block.text : "", calls: [record] };
+  // A refusal fails the run, said plainly — never "nobody asks the same thing".
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) {
+    throw new FaqError("the grouping model declined these questions; nothing was proposed", 502);
+  }
+  return { text, calls: [record] };
 };
 
 /** Only clusters of known ids, each id once, each cluster big enough. Junk is dropped, never guessed at. */

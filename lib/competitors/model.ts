@@ -15,6 +15,7 @@ import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { llmCalls } from "../../db/schema";
 import { money } from "../core/money";
+import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -23,7 +24,7 @@ import type { SeenOffer } from "./extract";
 import { MAX_OFFERS_PER_PAGE, offerKey, parseAmount } from "./extract";
 
 /** CLAUDE.md routing: Haiku for parsing and extraction. */
-export const PRICE_MODEL = "claude-haiku-4-5";
+export const PRICE_MODEL = "claude-haiku-5-5";
 /** The budget line in llm_calls. */
 export const PRICE_WORKLOAD = "competitor_prices";
 
@@ -33,8 +34,8 @@ export const MODEL_CAPS = {
   max_pages_per_call: 6,
   /** Characters of one page's text in the prompt. */
   max_chars_per_page: 4_000,
-  /** The answer's ceiling. */
-  max_output_tokens: 1_500,
+  /** The answer's ceiling, adaptive thinking included (Haiku 5.5 thinks before it answers). */
+  max_output_tokens: 3_000,
   /** Calls for one business in one run (the batch). */
   max_calls_per_profile_per_run: 1,
   /** Calls in one cron run, across every business. */
@@ -96,7 +97,11 @@ export const livePriceLlm: PriceLlm = async ({ system, user, accountId }) => {
     model: PRICE_MODEL,
     max_tokens: MODEL_CAPS.max_output_tokens,
     system,
-    output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
+    output_config: {
+      // Copying names and prices off a page is extraction: the lowest effort.
+      effort: "low",
+      format: { type: "json_schema", schema: OUTPUT_SCHEMA },
+    },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
@@ -113,7 +118,9 @@ export const livePriceLlm: PriceLlm = async ({ system, user, accountId }) => {
   });
   // Persisted: the monthly caps count these rows.
   await recordLlmCall(record);
-  const text = response.content.find((b) => b.type === "text")?.text ?? "";
+  // A refusal throws: readWithModel's failure path skips the pages, with why.
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new ModelRefusalError(record, refusal);
   return { text, calls: [record] };
 };
 

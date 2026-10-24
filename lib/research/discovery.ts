@@ -14,6 +14,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { competitors } from "../../db/schema";
 import type { Field } from "../core/field";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -24,6 +25,7 @@ import {
   RESEARCH_MODEL,
   RESEARCH_WORKLOADS,
   ResearchError,
+  declined,
   withResearchAllowance,
 } from "./competitor";
 import { isPublicHttpUrl } from "./live";
@@ -88,8 +90,15 @@ export const liveDiscoveryLlm: DiscoveryLlm = async ({ system, user, accountId }
   const started = Date.now();
   const response = await anthropicClient().messages.create({
     model: RESEARCH_MODEL,
-    max_tokens: 1500,
-    system,
+    // Room for medium-effort thinking across up to three searches, then the JSON.
+    max_tokens: 4_000,
+    // Medium, not low: choosing which businesses really compete is
+    // judgement, and at low effort the model is likelier to skip a search.
+    // JSON is asked for in the prompt, not output_config, so thinking stays
+    // on alongside the search tool (Haiku 5.5 notes). The date grounds it
+    // in recent results.
+    output_config: { effort: "medium" },
+    system: `${system}\n\nThe current date is ${new Date().toISOString().slice(0, 10)}.`,
     messages: [{ role: "user", content: user }],
     tools: [
       { type: "web_search_20250305", name: "web_search", max_uses: DISCOVERY_CAPS.max_searches },
@@ -110,10 +119,9 @@ export const liveDiscoveryLlm: DiscoveryLlm = async ({ system, user, accountId }
     web_search_requests: response.usage.server_tool_use?.web_search_requests ?? 0,
   });
   await recordLlmCall(record);
-  const text = response.content
-    .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+  // A refusal throws, never parsed: no candidate is proposed from a decline.
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new ResearchError(declined(refusal));
   return { text, calls: [record] };
 };
 
