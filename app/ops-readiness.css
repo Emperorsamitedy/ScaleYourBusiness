@@ -1,0 +1,73 @@
+/* Launch readiness on /ops — components/ops/LaunchReadiness.tsx. Built on
+   sheet.css: the page head on the desk, one .cs paper sheet per deploy
+   step, the .rt ruled table (stacking on a phone with .rt-stack) and the
+   worded .flag. Square, ruled, no icons; the word carries the status. */
+
+.lr {
+  display: flex;
+  flex-direction: column;
+}
+.lr .ph {
+  margin-bottom: var(--s-4);
+}
+.lr-note {
+  margin: 0;
+  max-width: var(--measure);
+}
+.lr-foot {
+  margin-top: var(--s-4);
+  color: var(--desk-ink-2);
+  font-size: 13px;
+}
+.lr-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.lr-table tbody th.lr-name {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+.lr-table tbody td {
+  overflow-wrap: anywhere;
+}
+/* What to paste somewhere else: a URL or a command, one per line, in an inset. */
+.lr-paste {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin-top: var(--s-2);
+}
+.lr-paste code {
+  display: block;
+  padding: 4px 8px;
+  background: var(--inset);
+  border: var(--line);
+  font-size: var(--t-mono-s);
+  overflow-wrap: anywhere;
+}
+.lr-none {
+  color: var(--sheet-ink-2);
+}
+@media (min-width: 720px) {
+  .lr-table thead th:nth-child(1) {
+    width: 22%;
+  }
+  .lr-table thead th:nth-child(2) {
+    width: 10%;
+  }
+  .lr-table thead th:nth-child(4) {
+    width: 20%;
+  }
+}
+/* Links are ink, never cobalt (sheet.css: cobalt means the machine is working). */
+.lr a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.lr a:hover {
+  text-decoration-thickness: 2px;
+}

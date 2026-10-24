@@ -19,7 +19,11 @@
     "verify:parser": "tsx lib/parser/verify-parser.ts",
     "db:seed": "tsx scripts/seed-bank.ts",
     "db:seed-demo": "tsx scripts/seed-demo.ts",
-    "cost:report": "tsx scripts/cost-report.ts"
+    "cost:report": "tsx scripts/cost-report.ts",
+    "smoke:email": "tsx scripts/smoke-email.ts",
+    "smoke:inbound": "tsx scripts/smoke-inbound.ts",
+    "smoke:erasure": "tsx scripts/smoke-erasure.ts",
+    "smoke:widget": "tsx scripts/smoke-widget.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
