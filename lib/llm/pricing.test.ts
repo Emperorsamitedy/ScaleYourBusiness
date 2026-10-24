@@ -76,6 +76,53 @@ describe("diagnosis model pricing (Session E)", () => {
   });
 });
 
+describe("the 5.5 Sonnet and Opus (M-2 prep)", () => {
+  const zero = {
+    input_tokens: 0,
+    output_tokens: 0,
+    cache_creation_input_tokens: 0,
+    cache_read_input_tokens: 0,
+  };
+  const mtok = (over: Partial<Record<keyof typeof zero, number>>) => ({ ...zero, ...over });
+
+  it("prices claude-sonnet-5-5 like Sonnet 5: $2/$10, writes $2.50, reads $0.20", () => {
+    expect(costEur("claude-sonnet-5-5", mtok({ input_tokens: 1e6 }))).toBeCloseTo(2 * 0.92, 9);
+    expect(costEur("claude-sonnet-5-5", mtok({ output_tokens: 1e6 }))).toBeCloseTo(10 * 0.92, 9);
+    expect(costEur("claude-sonnet-5-5", mtok({ cache_creation_input_tokens: 1e6 }))).toBeCloseTo(
+      2.5 * 0.92,
+      9,
+    );
+    expect(costEur("claude-sonnet-5-5", mtok({ cache_read_input_tokens: 1e6 }))).toBeCloseTo(
+      0.2 * 0.92,
+      9,
+    );
+  });
+
+  it("prices claude-opus-5-5 at $4/$20, writes $5, reads $0.20 (0.05×, not 0.1×)", () => {
+    expect(costEur("claude-opus-5-5", mtok({ input_tokens: 1e6 }))).toBeCloseTo(4 * 0.92, 9);
+    expect(costEur("claude-opus-5-5", mtok({ output_tokens: 1e6 }))).toBeCloseTo(20 * 0.92, 9);
+    expect(costEur("claude-opus-5-5", mtok({ cache_creation_input_tokens: 1e6 }))).toBeCloseTo(
+      5 * 0.92,
+      9,
+    );
+    expect(costEur("claude-opus-5-5", mtok({ cache_read_input_tokens: 1e6 }))).toBeCloseTo(
+      0.2 * 0.92,
+      9,
+    );
+  });
+
+  it("records the model the call actually used", () => {
+    const usage = mtok({ input_tokens: 1_000, output_tokens: 500 });
+    const base = { workload: "diagnosis", account_id: "a", duration_ms: 1, usage };
+    const old = buildCallRecord({ ...base, model: "claude-opus-4-8" });
+    const next = buildCallRecord({ ...base, model: "claude-opus-5-5" });
+    expect(old.model).toBe("claude-opus-4-8");
+    expect(next.model).toBe("claude-opus-5-5");
+    expect(next.cost_eur).toBeLessThan(old.cost_eur); // about 20 % cheaper
+    expect(next.cost_eur / old.cost_eur).toBeCloseTo(0.8, 9);
+  });
+});
+
 describe("web search fees (review 2026-10-23, finding 9)", () => {
   const usage = {
     input_tokens: 0,
