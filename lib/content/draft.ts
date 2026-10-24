@@ -12,16 +12,20 @@
 // The seam is injectable like every model boundary in this repo
 // (parser, limits, classifier): deterministic tests, live verify.
 
-import { textOf } from "../llm/answer";
+import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { sonnetAnswerShape, sonnetModel } from "../llm/models";
 import type { PlannedItem } from "./plan";
 import type { VoiceCard } from "./voice";
 import { renderVoiceCard } from "./voice";
 import type { ContentKind } from "./disclosure";
 import { withDisclosure } from "./disclosure";
 
-export const DRAFT_MODEL = "claude-sonnet-5";
+/** The drafting model: SONNET_MODEL (lib/llm/models.ts), unset = claude-sonnet-5. */
+export function draftModel(): string {
+  return sonnetModel();
+}
 
 export type DraftLlm = (args: {
   system: string;
@@ -41,28 +45,34 @@ Hard rules:
 
 export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
   const started = Date.now();
+  // Sonnet 5: exactly today's request. Sonnet 5.5: an explicit effort and
+  // room for thinking (lib/llm/models.ts says why).
+  const shape = sonnetAnswerShape("content", 900);
   const response = await anthropicClient().messages.create({
-    model: DRAFT_MODEL,
-    max_tokens: 900,
+    model: shape.model,
+    max_tokens: shape.max_tokens,
     system,
+    ...(shape.effort.effort ? { output_config: shape.effort } : {}),
     messages: [{ role: "user", content: user }],
   });
-  await recordLlmCall(
-    buildCallRecord({
-      workload: "content",
-      account_id: accountId,
-      model: DRAFT_MODEL,
-      duration_ms: Date.now() - started,
-      usage: {
-        input_tokens: response.usage.input_tokens,
-        output_tokens: response.usage.output_tokens,
-        cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
-        cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
-      },
-    }),
-  );
+  const record = buildCallRecord({
+    workload: "content",
+    account_id: accountId,
+    model: shape.model,
+    duration_ms: Date.now() - started,
+    usage: {
+      input_tokens: response.usage.input_tokens,
+      output_tokens: response.usage.output_tokens,
+      cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
+      cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
+    },
+  });
+  await recordLlmCall(record);
   // By type, not position: a model that thinks first puts its answer later.
-  return { text: textOf(response.content) };
+  // A refusal throws: no draft is made from a decline (cost already logged).
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new ModelRefusalError(record, refusal);
+  return { text };
 };
 
 export interface DraftResult {
@@ -96,6 +106,6 @@ export async function draftItem(args: {
   if (body === "") throw new Error("the draft came back empty");
   return {
     body: withDisclosure(args.kind, body),
-    provenance: { model: DRAFT_MODEL, voice_card: args.card, brief },
+    provenance: { model: draftModel(), voice_card: args.card, brief },
   };
 }

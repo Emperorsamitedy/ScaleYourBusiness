@@ -47,7 +47,7 @@ import {
   liveChangeIntentLlm,
 } from "../assistant/intent";
 import { proposeFromChat } from "../assistant/proposal";
-import { textOf } from "../llm/answer";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -56,9 +56,10 @@ import { buildFactSheet } from "../profile/factsheet";
 import type { ClassifyLlm } from "../proposals/generate";
 import { coerceKind, liveClassifyLlm } from "../proposals/generate";
 import type { LimitLlm } from "../proposals/hard-limits";
+import { sonnetAnswerShape } from "../llm/models";
 
 export const INTENT_MODEL = "claude-haiku-5-5";
-export const ANSWER_MODEL = "claude-sonnet-5";
+// The answer model is SONNET_MODEL (lib/llm/models.ts), unset = claude-sonnet-5.
 
 export class ChatError extends Error {
   readonly status: number;
@@ -106,16 +107,20 @@ export function answerSystemBlocks(
 
 export const liveAnswerLlm: AnswerLlm = async ({ system, user, accountId }) => {
   const started = Date.now();
+  // Sonnet 5: exactly today's request. Sonnet 5.5: an explicit effort and
+  // room for thinking (lib/llm/models.ts says why).
+  const shape = sonnetAnswerShape("chat", 400);
   const response = await anthropicClient().messages.create({
-    model: ANSWER_MODEL,
-    max_tokens: 400,
+    model: shape.model,
+    max_tokens: shape.max_tokens,
     system: answerSystemBlocks(system),
+    ...(shape.effort.effort ? { output_config: shape.effort } : {}),
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
     workload: "chat",
     account_id: accountId,
-    model: ANSWER_MODEL,
+    model: shape.model,
     duration_ms: Date.now() - started,
     usage: {
       input_tokens: response.usage.input_tokens,
@@ -126,7 +131,10 @@ export const liveAnswerLlm: AnswerLlm = async ({ system, user, accountId }) => {
   });
   await recordLlmCall(record);
   // By type, not position: a model that thinks first puts its answer later.
-  return { text: textOf(response.content), calls: [record] };
+  // A refusal is logged and comes back as no text: the reply says there is
+  // no answer worth giving, never the declined text.
+  const { text } = readAnswer(response, record);
+  return { text, calls: [record] };
 };
 
 export function coerceIntent(text: string): Intent {
