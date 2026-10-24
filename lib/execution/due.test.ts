@@ -23,7 +23,7 @@ import {
 import { bootstrapIntake } from "../intake/service";
 import { approveProposal, createProposal } from "../proposals/service";
 import type { ProposalRow } from "../proposals/service";
-import { preboundPlan, runDueExecutions } from "./due";
+import { PREBOUND_ALLOWED, preboundPlan, runDueExecutions } from "./due";
 import { haltExecutions, resumeExecutions } from "./engine";
 import {
   fixtureExecuteCalls,
@@ -139,9 +139,10 @@ afterAll(async () => {
 
 describe("P3-20e — preboundPlan", () => {
   it("reads a well-formed plan and refuses anything else", () => {
-    const base = { action: {} } as unknown as ProposalRow;
+    const base = { module: "diagnosis", action: {} } as unknown as ProposalRow;
     expect(preboundPlan(base)).toBeNull();
     const ok = {
+      module: "diagnosis",
       action: {
         detail: { execution: { provider: "fixture", op: "set_value", params: { key: "k" } } },
       },
@@ -152,17 +153,72 @@ describe("P3-20e — preboundPlan", () => {
       params: { key: "k" },
     });
     const unregistered = {
+      module: "diagnosis",
       action: { detail: { execution: { provider: "meta", op: "publish", params: {} } } },
     } as unknown as ProposalRow;
     expect(preboundPlan(unregistered)).toBeNull();
     const noOp = {
+      module: "diagnosis",
       action: { detail: { execution: { provider: "fixture", op: "", params: {} } } },
     } as unknown as ProposalRow;
     expect(preboundPlan(noOp)).toBeNull();
     const noParams = {
+      module: "diagnosis",
       action: { detail: { execution: { provider: "fixture", op: "set_value" } } },
     } as unknown as ProposalRow;
     expect(preboundPlan(noParams)).toEqual({ provider: "fixture", op: "set_value", params: {} });
+  });
+});
+
+describe("review 2026-10-23, Session D #7 — a pre-bound plan is allow-listed by module and op", () => {
+  const plan = (module: string, provider: string, op: string) =>
+    ({
+      module,
+      action: { detail: { execution: { provider, op, params: { item_id: "x" } } } },
+    }) as unknown as ProposalRow;
+
+  it("the allow-list is exactly the in-repo fixture, under diagnosis", () => {
+    expect(PREBOUND_ALLOWED).toEqual({
+      diagnosis: { provider: "fixture", ops: ["set_value", "append_note"] },
+    });
+  });
+
+  it("THE ATTACK: a registered real provider carried in the detail is never run from it", () => {
+    expect(preboundPlan(plan("content", "meta_publish", "publish_page_post"))).toBeNull();
+    expect(preboundPlan(plan("ads", "meta_ads", "set_daily_budget"))).toBeNull();
+    expect(preboundPlan(plan("crm", "email_campaign", "send_campaign"))).toBeNull();
+    expect(preboundPlan(plan("site", "fixture_site", "apply_site_change"))).toBeNull();
+    expect(preboundPlan(plan("diagnosis", "meta_publish", "publish_page_post"))).toBeNull();
+    expect(preboundPlan(plan("diagnosis", "fixture", "drop_everything"))).toBeNull();
+    expect(preboundPlan(plan("constructor", "fixture", "set_value"))).toBeNull();
+    expect(preboundPlan(plan("diagnosis", "fixture", "append_note"))).not.toBeNull();
+  });
+
+  it("through the runner: an approved proposal carrying a Meta plan runs nothing and stays approved", async () => {
+    const s = await fresh();
+    const row = await createProposal({
+      profile_id: s.profile_id,
+      module: "diagnosis",
+      action: {
+        kind: "operations_change",
+        summary: "smuggled",
+        detail: {
+          execution: {
+            provider: "meta_publish",
+            op: "publish_page_post",
+            params: { item_id: "x" },
+          },
+        },
+      },
+      scenario,
+      reversibility: { level: "easy", if_you_change_your_mind: "n/a" },
+      expires_at: FUTURE,
+    });
+    await approveProposal({ proposalId: row.id, userId: s.user_id, executeNotBefore: PAST });
+    const summary = await run(s.profile_id);
+    expect(summary.unroutable).toBe(1);
+    const rows = await db.select().from(executions).where(eq(executions.proposal_id, row.id));
+    expect(rows).toHaveLength(0);
   });
 });
 
