@@ -18,6 +18,12 @@ export interface SendResult {
    * sign-in as anybody); "failed" when the send did not happen.
    */
   delivered_via: "resend" | "screen" | "failed";
+  /**
+   * Resend's answer when a request was made: the HTTP status and the email
+   * id it assigned (null when it gave none). Neither is a secret; the smoke
+   * test (scripts/smoke-email.ts) reports them, and nothing else does.
+   */
+  provider?: { status: number; id: string | null };
 }
 
 const FROM = () => process.env.EMAIL_FROM ?? "Ledgerline <onboarding@resend.dev>";
@@ -53,7 +59,9 @@ export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
         to_domain: mail.to.split("@")[1],
       }),
     );
-    return { delivered_via: "failed" };
+    return { delivered_via: "failed", provider: { status: res.status, id: null } };
   }
-  return { delivered_via: "resend" };
+  const body = (await res.json().catch(() => null)) as { id?: unknown } | null;
+  const id = typeof body?.id === "string" ? body.id : null;
+  return { delivered_via: "resend", provider: { status: res.status, id } };
 }

@@ -125,6 +125,24 @@ describe("the login never shows the link outside local development", () => {
     vi.stubGlobal("fetch", async () => new Response("rate limited", { status: 429 }));
     expect(await sendLoginEmail({ to: "o@example.com", link: "https://x/redeem" })).toEqual({
       delivered_via: "failed",
+      provider: { status: 429, id: null },
+    });
+  });
+
+  it("a send Resend accepts reports its status and email id, and nothing more", async () => {
+    process.env.RESEND_API_KEY = "re_test_key";
+    vi.stubGlobal(
+      "fetch",
+      async () => new Response(JSON.stringify({ id: "email_123" }), { status: 200 }),
+    );
+    expect(await sendLoginEmail({ to: "o@example.com", link: "https://x/redeem" })).toEqual({
+      delivered_via: "resend",
+      provider: { status: 200, id: "email_123" },
+    });
+    vi.stubGlobal("fetch", async () => new Response("not json", { status: 200 }));
+    expect(await sendLoginEmail({ to: "o@example.com", link: "https://x/redeem" })).toEqual({
+      delivered_via: "resend",
+      provider: { status: 200, id: null },
     });
   });
 
