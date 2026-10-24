@@ -181,7 +181,7 @@ describe("P2-06 — failure discipline", () => {
     }
 
     // Parked: the daily run no longer picks it up.
-    const summary = await runConnectorSync(NOW);
+    const summary = await runConnectorSync(NOW, { accountIds: [s.account_id] });
     const [row] = await db
       .select()
       .from(connectorSyncs)

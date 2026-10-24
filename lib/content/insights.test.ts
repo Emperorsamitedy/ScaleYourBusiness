@@ -177,7 +177,10 @@ describe("P3-23a — the reads, through the readback scopes only", () => {
       fb: { [`${FX_PAGE}_501`]: { views: 900, reactions: { like: 30, love: 4 } } },
     });
 
-    const summary = await runConnectorSync(NOW, { postReadback: graph.readback });
+    const summary = await runConnectorSync(NOW, {
+      postReadback: graph.readback,
+      accountIds: [b.account_id],
+    });
     expect(summary.readback).toMatchObject({ ok: 1, failed: 0 });
     expect(summary.readback?.connections).toBeGreaterThanOrEqual(1);
 
