@@ -1,5 +1,7 @@
 // /ops?key=… — the P1-53 dashboard: funnel, abandonment, cost — and, since
-// P3-24d, what Blob storage holds and costs, read from the store itself.
+// P3-24d, what Blob storage holds and costs, read from the store itself —
+// and the launch-readiness checklist, computed live from the environment
+// and the database (lib/ops/readiness.ts), presence only, never a value.
 // Server component; reads the summaries directly, no client fetch. The
 // same OPS_KEY gates it, and a wrong key renders the same nothing a
 // wrong URL would.
@@ -16,6 +18,9 @@ import type { StorageSummary } from "../../lib/ops/summary";
 import { REGIMES } from "../../lib/crm/jurisdiction";
 import { jurisdictionTableHash, latestLawReview, lawReviewVerdict } from "../../lib/crm/law-review";
 import { campaignsAwaitingReview } from "../../lib/crm/campaign-review";
+import { launchReadiness } from "../../lib/ops/readiness";
+import { readReadinessFacts } from "../../lib/ops/readiness-facts";
+import { LaunchReadiness } from "../../components/ops/LaunchReadiness";
 
 export const metadata: Metadata = { title: "Ops — Ledgerline" };
 export const dynamic = "force-dynamic";
@@ -74,13 +79,24 @@ export default async function OpsPage({
   // P4-15: the email-law review — the table as it is now, and whether a review covers it.
   const tableHash = jurisdictionTableHash();
   const verdict = lawReviewVerdict(review, tableHash);
+  // The deploy checklist: this deployment's env and a few database facts, never a secret's value.
+  const readiness = launchReadiness(
+    process.env,
+    await readReadinessFacts({
+      law_review: { state: verdict.state, words: verdict.words },
+      first_campaigns_waiting: awaiting.length,
+    }),
+  );
 
   return (
     <main className="ops-shell">
       <header className="ops-head">
         <span className="wordmark">Ledgerline</span>
         <span className="ops-meta">
-          ops · last {days} days · {new Date().toISOString().slice(0, 10)}
+          ops · last {days} days · {new Date().toISOString().slice(0, 10)} ·{" "}
+          <a href="#launch-readiness">
+            launch readiness: {readiness.counts.missing} missing, {readiness.counts.check} to check
+          </a>
         </span>
       </header>
 
@@ -280,6 +296,8 @@ export default async function OpsPage({
           ))
         )}
       </section>
+
+      <LaunchReadiness report={readiness} />
     </main>
   );
 }
