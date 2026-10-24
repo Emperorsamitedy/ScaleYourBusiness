@@ -53,7 +53,8 @@ const CLASSIFY_SCHEMA = {
   additionalProperties: false,
 };
 
-const CLASSIFY_SYSTEM = `You classify a business recommendation into exactly one action kind. The kinds:
+/** Exported for the live check (npm run verify:models). */
+export const CLASSIFY_SYSTEM = `You classify a business recommendation into exactly one action kind. The kinds:
 ${ACTION_KINDS.map((k) => `  · ${k}`).join("\n")}
 
 Pick the kind that names what the recommendation would DO if acted on — not its goal. A price rise is price_increase even if the goal is margin. Anything that is purely internal process is operations_change. Return JSON only: {"kind": "<one of the kinds>"}`;

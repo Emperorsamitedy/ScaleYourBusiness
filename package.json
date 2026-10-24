@@ -19,7 +19,8 @@
     "verify:parser": "tsx lib/parser/verify-parser.ts",
     "db:seed": "tsx scripts/seed-bank.ts",
     "db:seed-demo": "tsx scripts/seed-demo.ts",
-    "cost:report": "tsx scripts/cost-report.ts"
+    "cost:report": "tsx scripts/cost-report.ts",
+    "verify:models": "tsx scripts/verify-models.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
