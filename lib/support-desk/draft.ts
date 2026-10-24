@@ -25,6 +25,7 @@
 import { and, eq, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { supportMessages, supportTickets } from "../../db/schema";
+import { textOf } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -89,8 +90,8 @@ export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
     },
   });
   await recordLlmCall(record);
-  const block = response.content[0];
-  return { text: block && block.type === "text" ? block.text : "", calls: [record] };
+  // By type, not position: a model that thinks first puts its answer later.
+  return { text: textOf(response.content), calls: [record] };
 };
 
 export function draftSystem(businessName: string, entries: readonly KnowledgeEntryRow[]): string {
