@@ -515,6 +515,52 @@ optgroup {
 .rt tbody tr.on {
   background: var(--inset);
 }
+/* Under 720px a table opted in with .rt-stack becomes one block per row,
+   each cell led by its column name (data-label) — the spec's phone rule
+   (ux-spec §2: "rows stack and each cell shows its column name"). The
+   header stays in the accessibility tree; only its box is hidden. */
+@media (max-width: 719px) {
+  .rt.rt-stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .rt.rt-stack,
+  .rt.rt-stack tbody,
+  .rt.rt-stack tbody tr {
+    display: block;
+    width: 100%;
+  }
+  /* A wide-screen minimum width (set per screen) would leave an empty
+     sideways scroll once the rows have stacked. */
+  .rt.rt-stack {
+    min-width: 0;
+  }
+  .rt.rt-stack tbody tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .rt.rt-stack tbody th,
+  .rt.rt-stack tbody td {
+    display: block;
+    width: auto;
+    padding: 2px 0;
+    border: 0;
+    text-align: left;
+    white-space: normal;
+  }
+  .rt.rt-stack tbody td[data-label]::before {
+    content: attr(data-label) " · ";
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sheet-ink-2);
+  }
+}
 
 /* worded status in mono caps — STEADY, DRIFTING, IN RANGE … */
 .word {

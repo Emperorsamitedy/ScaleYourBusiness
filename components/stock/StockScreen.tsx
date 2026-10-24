@@ -44,7 +44,7 @@ function Frame({
 function SlowTable({ items }: { items: StockItemView[] }) {
   return (
     <div className="st-table-wrap" tabIndex={0} aria-label="Stock that isn't selling">
-      <table className="rt st-table">
+      <table className="rt rt-stack st-table">
         <thead>
           <tr>
             <th scope="col">Item</th>
@@ -76,18 +76,26 @@ function SlowTable({ items }: { items: StockItemView[] }) {
                   {item.name}
                   <span className="st-src">{item.source}</span>
                 </th>
-                <td className="num">{num(item.on_hand)}</td>
-                <td className="num">{item.sold[90] === null ? "—" : num(item.sold[90])}</td>
-                <td className="num">{coverText(item)}</td>
-                <td className="num">{quietText(item)}</td>
-                <td className="num">
+                <td className="num" data-label="On hand">
+                  {num(item.on_hand)}
+                </td>
+                <td className="num" data-label="Sold 90 d">
+                  {item.sold[90] === null ? "—" : num(item.sold[90])}
+                </td>
+                <td className="num" data-label="Days of cover">
+                  {coverText(item)}
+                </td>
+                <td className="num" data-label="Days since sale">
+                  {quietText(item)}
+                </td>
+                <td className="num" data-label="Cash tied up">
                   {cashText(item.cash_tied_minor, item.currency)}
                   {item.cost_basis === "stated" && <span className="st-src">your cost</span>}
                 </td>
-                <td>
+                <td data-label="Flag">
                   <span className={`flag ${flagClass(item.flag)}`}>{item.flag}</span>
                 </td>
-                <td>
+                <td data-label="Cheapest ways to clear it">
                   <ol className="st-opts">
                     {usable.map((o) => {
                       const w = proposalWord(o);
