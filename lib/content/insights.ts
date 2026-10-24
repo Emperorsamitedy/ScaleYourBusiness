@@ -307,7 +307,7 @@ async function recordReadback(outcome: PostReadbackOutcome): Promise<void> {
 /** Every connected meta_publish execute connection, one after another. */
 export async function runPostReadback(
   now = new Date(),
-  opts: { readback?: MetaReadback } = {},
+  opts: { readback?: MetaReadback; accountIds?: readonly string[] } = {},
 ): Promise<ReadbackRunSummary> {
   const rows = await db
     .select({ id: connections.id })
@@ -317,6 +317,7 @@ export async function runPostReadback(
         eq(connections.purpose, "execute"),
         eq(connections.provider, "meta_publish"),
         eq(connections.status, "connected"),
+        opts.accountIds ? inArray(connections.account_id, [...opts.accountIds]) : undefined,
       ),
     )
     .orderBy(connections.created_at);

@@ -26,7 +26,7 @@
 // changes. Until it is measured, a queue is speculation.
 
 import { logSafeError } from "../core/log-safe";
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { withAdvisoryLock } from "../../db/advisory-lock";
 import { connections, connectorSyncs, metricObservations } from "../../db/schema";
@@ -352,6 +352,12 @@ export interface SyncRunSummary {
 export interface SyncRunOptions {
   /** The post readback's Meta reads; the real Graph API by default. Tests pass a fake. */
   postReadback?: MetaReadback;
+  /**
+   * Only these accounts' connections. The cron passes none (every account);
+   * tests pass their own, so the run never reaches other rows in a shared
+   * database, such as the local demo's fake shops.
+   */
+  accountIds?: readonly string[];
 }
 
 /** The daily cron's body: every connected connection, one after another. */
@@ -367,6 +373,7 @@ export async function runConnectorSync(
         eq(connections.status, "connected"),
         eq(connections.purpose, "measure"),
         ne(connections.provider, BOOKINGS_IMPORT_PROVIDER),
+        opts.accountIds ? inArray(connections.account_id, [...opts.accountIds]) : undefined,
       ),
     )
     .orderBy(connections.created_at);
@@ -389,10 +396,10 @@ export async function runConnectorSync(
   // this module, and a readback failure never fails the measure sync.
   try {
     const { runPostReadback } = await import("../content/insights");
-    summary.readback = await runPostReadback(
-      now,
-      opts.postReadback ? { readback: opts.postReadback } : {},
-    );
+    summary.readback = await runPostReadback(now, {
+      ...(opts.postReadback ? { readback: opts.postReadback } : {}),
+      ...(opts.accountIds ? { accountIds: opts.accountIds } : {}),
+    });
   } catch (error) {
     console.error(JSON.stringify({ event: "post_readback_run_failed", message: errorText(error) }));
   }
