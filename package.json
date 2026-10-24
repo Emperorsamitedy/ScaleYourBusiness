@@ -20,7 +20,8 @@
     "db:seed": "tsx scripts/seed-bank.ts",
     "db:seed-demo": "tsx scripts/seed-demo.ts",
     "cost:report": "tsx scripts/cost-report.ts",
-    "verify:models": "tsx scripts/verify-models.ts"
+    "verify:models": "tsx scripts/verify-models.ts",
+    "recalibrate:diagnosis": "tsx scripts/recalibrate-diagnosis.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

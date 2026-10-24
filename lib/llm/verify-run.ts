@@ -15,6 +15,7 @@ import { randomUUID } from "node:crypto";
 import { and, desc, eq, gte } from "drizzle-orm";
 import { db } from "../../db";
 import { llmCalls } from "../../db/schema";
+import { captureLoggedCalls } from "./call-capture";
 import { anthropicClient } from "./client";
 import { CHANGE_INTENT_SYSTEM, liveChangeIntentLlm } from "../assistant/intent";
 import { CLASSIFY_SYSTEM, coerceKind, liveClassifyLlm } from "../proposals/generate";
@@ -175,7 +176,7 @@ export async function runVerifyModels(opts: {
   // The tape: the real client, its responses recorded on the way back.
   const client = anthropicClient();
   const tape: Exchange[] = [];
-  const original = { create: client.messages.create, log: console.log };
+  const originalCreate = client.messages.create;
   const create = client.messages.create.bind(client.messages);
   client.messages.create = ((params: { max_tokens: number }, options?: unknown) =>
     (create as (p: unknown, o?: unknown) => Promise<Exchange["response"]>)(params, options).then(
@@ -186,30 +187,15 @@ export async function runVerifyModels(opts: {
     )) as unknown as typeof client.messages.create;
 
   // The app's own cost lines, captured as it logs them.
-  const logged: LoggedCall[] = [];
-  const passThrough = console.log.bind(console);
-  const print = opts.print ?? ((line: string) => passThrough(line));
-  console.log = (...parts: unknown[]) => {
-    const [first] = parts;
-    if (typeof first === "string" && first.startsWith('{"at"')) {
-      try {
-        const r = JSON.parse(first) as { event?: string } & LoggedCall;
-        if (r.event === "llm_call") {
-          logged.push({ model: r.model, workload: r.workload, cost_eur: r.cost_eur });
-          return;
-        }
-      } catch {
-        /* not ours — print it */
-      }
-    }
-    passThrough(...parts);
-  };
+  const capture = captureLoggedCalls();
+  const logged: LoggedCall[] = capture.logged;
+  const print = opts.print ?? ((line: string) => capture.print(line));
 
   try {
     return await checks();
   } finally {
-    console.log = original.log;
-    client.messages.create = original.create;
+    capture.restore();
+    client.messages.create = originalCreate;
   }
 
   async function checks(): Promise<{ verdicts: Verdict[]; spent_eur: number }> {
