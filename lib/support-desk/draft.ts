@@ -25,17 +25,17 @@
 import { and, eq, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { supportMessages, supportTickets } from "../../db/schema";
-import { textOf } from "../llm/answer";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import {
   CUSTOMER_TEXT_IS_CONTENT,
-  SUPPORT_ANSWER_MODEL,
   SUPPORT_DRAFT_WORKLOAD,
   SUPPORT_MONTHLY_CAP_EUR,
   coerceAnswer,
   monthlySupportSpendEur,
+  supportSonnetShape,
 } from "../support/chat";
 import { emailThread } from "../support/email-tickets";
 import type { KnowledgeEntryRow } from "../support/knowledge";
@@ -70,17 +70,21 @@ const DRAFT_SCHEMA = {
 
 export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
   const started = Date.now();
+  // Sonnet 5: exactly today's request. Sonnet 5.5: an explicit effort and
+  // room for thinking (lib/llm/models.ts says why).
+  const shape = supportSonnetShape("support_draft", 700);
+  const format = { type: "json_schema" as const, schema: DRAFT_SCHEMA };
   const response = await anthropicClient().messages.create({
-    model: SUPPORT_ANSWER_MODEL,
-    max_tokens: 700,
+    model: shape.model,
+    max_tokens: shape.max_tokens,
     system,
-    output_config: { format: { type: "json_schema", schema: DRAFT_SCHEMA } },
+    output_config: shape.effort ? { effort: shape.effort, format } : { format },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
     workload: SUPPORT_DRAFT_WORKLOAD,
     account_id: accountId,
-    model: SUPPORT_ANSWER_MODEL,
+    model: shape.model,
     duration_ms: Date.now() - started,
     usage: {
       input_tokens: response.usage.input_tokens,
@@ -91,7 +95,10 @@ export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
   });
   await recordLlmCall(record);
   // By type, not position: a model that thinks first puts its answer later.
-  return { text: textOf(response.content), calls: [record] };
+  // A refusal is logged and comes back as no text, which coerceAnswer reads
+  // as ungrounded: "write it yourself", never the declined text as a draft.
+  const { text } = readAnswer(response, record);
+  return { text, calls: [record] };
 };
 
 export function draftSystem(businessName: string, entries: readonly KnowledgeEntryRow[]): string {

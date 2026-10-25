@@ -8,12 +8,16 @@
 // this function no matter what the model says. One retry with feedback,
 // then a hard error (retry caps per cost discipline).
 
+import type Anthropic from "@anthropic-ai/sdk";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { fieldRecords } from "../../db/schema";
-import { anthropicClient, INTERVIEWER_MODEL } from "../llm/client";
+import { readAnswer } from "../llm/answer";
+import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { LlmCallRecord } from "../llm/cost-log";
+import type { SonnetModel } from "../llm/models";
+import { sonnetModel, thinkingOff } from "../llm/models";
 import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
 import {
@@ -79,6 +83,33 @@ function cachedSystem(): Promise<{ bank: InterviewerBank; system: SystemBlock[] 
 /** Test/bank-reload hook. */
 export function resetInterviewerBankCache(): void {
   bankCache = null;
+}
+
+/**
+ * The interviewer's request, built in one place so its shape is testable
+ * without a database. Selection is a small structured decision: no
+ * thinking, low effort. "No thinking" is {type:"disabled"} on Sonnet 5 and
+ * {type:"between_tools"} on Sonnet 5.5, where "disabled" is a 400 and
+ * between_tools needs effort high or below — low is. The system blocks
+ * (the bank, with its cache breakpoint) come first and unchanged on both
+ * models: rule 8's prefix does not depend on the model choice.
+ */
+export function interviewerRequest(
+  model: SonnetModel,
+  system: SystemBlock[],
+  userMessage: string,
+): Anthropic.MessageCreateParamsNonStreaming {
+  return {
+    model,
+    max_tokens: MAX_TOKENS,
+    thinking: thinkingOff(model),
+    output_config: {
+      effort: "low",
+      format: { type: "json_schema", schema: OUTPUT_SCHEMA },
+    },
+    system,
+    messages: [{ role: "user", content: userMessage }],
+  };
 }
 
 const SPINES = [
@@ -149,7 +180,10 @@ export async function pickNextQuestion(args: {
   accountId: string;
   profileId: string;
   asked: readonly AskedEntry[];
+  /** SONNET_MODEL unless a caller (the recalibration harness) names one. */
+  model?: SonnetModel;
 }): Promise<NextQuestion | null> {
+  const model = args.model ?? sonnetModel();
   const [{ system }, applicable, state] = await Promise.all([
     cachedSystem(),
     applicableQuestions(args.profileId),
@@ -174,23 +208,14 @@ export async function pickNextQuestion(args: {
     });
 
     const started = Date.now();
-    const response = await anthropicClient().messages.create({
-      model: INTERVIEWER_MODEL,
-      max_tokens: MAX_TOKENS,
-      // Selection is a small structured decision: no thinking, low effort.
-      thinking: { type: "disabled" },
-      output_config: {
-        effort: "low",
-        format: { type: "json_schema", schema: OUTPUT_SCHEMA },
-      },
-      system,
-      messages: [{ role: "user", content: userMessage }],
-    });
+    const response = await anthropicClient().messages.create(
+      interviewerRequest(model, system, userMessage),
+    );
 
     const record = buildCallRecord({
       workload: "interviewer",
       account_id: args.accountId,
-      model: INTERVIEWER_MODEL,
+      model,
       duration_ms: Date.now() - started,
       usage: {
         input_tokens: response.usage.input_tokens,
@@ -202,13 +227,15 @@ export async function pickNextQuestion(args: {
     await recordLlmCall(record);
     calls.push(record);
 
-    if (response.stop_reason === "refusal") {
-      throw new InterviewerError("model refused the selection request");
+    // Refusal first (logged with the account id), never parsed; then the
+    // answer by block type — a 5.5 reply can carry thinking blocks ahead of it.
+    const { text, refusal } = readAnswer(response, record);
+    if (refusal !== null) {
+      throw new InterviewerError(`model refused the selection request (${refusal})`);
     }
     if (response.stop_reason !== "end_turn") {
       throw new InterviewerError(`unexpected stop_reason "${response.stop_reason}"`);
     }
-    const text = response.content.find((b) => b.type === "text")?.text ?? "";
     let payload: SelectionPayload;
     try {
       payload = JSON.parse(text) as SelectionPayload;

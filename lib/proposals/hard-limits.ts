@@ -155,7 +155,8 @@ const LIMIT_SCHEMA = {
   additionalProperties: false,
 };
 
-const SYSTEM = `You extract hard limits from a small-business owner's answer to: "What would you never want the business to do, regardless of results?"
+/** Exported for the live check (npm run verify:models). */
+export const LIMIT_SYSTEM = `You extract hard limits from a small-business owner's answer to: "What would you never want the business to do, regardless of results?"
 
 A hard limit is something the owner rules out absolutely. For each one, return:
 - code: the best match from this list, or "other" if none genuinely fits:
@@ -271,7 +272,7 @@ export async function ensureHardLimits(
 
   const accountId = await accountIdOf(profileId);
   const { text } = await llm({
-    system: SYSTEM,
+    system: LIMIT_SYSTEM,
     user: boundaries.value,
     accountId,
   });

@@ -25,5 +25,5 @@ export function anthropicClient(): Anthropic {
   return client;
 }
 
-/** Interviewer model per CLAUDE.md routing: Sonnet for the interviewer. */
-export const INTERVIEWER_MODEL = "claude-sonnet-5";
+// Which Sonnet the interviewer (and every Sonnet site) runs on is read in
+// one place, lib/llm/models.ts — SONNET_MODEL, unset = claude-sonnet-5.

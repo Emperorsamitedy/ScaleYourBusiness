@@ -106,7 +106,8 @@ const EXTRACTION_SCHEMA = {
   additionalProperties: false,
 };
 
-const SYSTEM = `You extract structured answers from a small-business owner's free-text reply during an intake interview.
+/** Exported for the live check (npm run verify:models). */
+export const PARSER_SYSTEM = `You extract structured answers from a small-business owner's free-text reply during an intake interview.
 
 You are given the question that was asked, plus other still-open questions the reply might also answer. Extract a value for every question the reply genuinely answers — owners often answer three questions in one sentence. Never guess or fill fields the reply does not address.
 
@@ -123,7 +124,9 @@ Estimates: if the owner hedges a value ("about", "roughly", "maybe", "körülbel
 
 Return JSON only: {"fields": [{"field_key", "value", "is_estimate", "estimate_wording"}]}`;
 
-function questionLine(q: ApplicableQuestion, codes: readonly string[]): string {
+type PromptQuestion = Pick<ApplicableQuestion, "writes_to" | "input" | "prompt">;
+
+function questionLine(q: PromptQuestion, codes: readonly string[]): string {
   const spec = q.input as InputSpec;
   const codesPart = codes.length > 0 ? ` codes=[${codes.join(", ")}]` : "";
   const promptEn = ((q.prompt as Record<string, string> | null)?.en ?? "").trim();
@@ -135,6 +138,24 @@ async function codesFor(q: ApplicableQuestion): Promise<string[]> {
   if (spec.type !== "single_select" && spec.type !== "multi_select") return [];
   if (!spec.vocabulary_id || spec.vocabulary_id.startsWith("__")) return [];
   return vocabularyCodes(spec.vocabulary_id);
+}
+
+/** The parser's user turn: the asked question, the other open ones, the reply. Pure. */
+export function parserUserMessage(
+  asked: PromptQuestion,
+  otherOpen: readonly PromptQuestion[],
+  codesByKey: ReadonlyMap<string, readonly string[]>,
+  rawText: string,
+): string {
+  return [
+    "QUESTION ASKED:",
+    questionLine(asked, codesByKey.get(asked.writes_to) ?? []),
+    "",
+    "OTHER OPEN QUESTIONS (extract only if the reply answers them):",
+    ...otherOpen.map((q) => questionLine(q, codesByKey.get(q.writes_to) ?? [])),
+    "",
+    `OWNER'S REPLY: ${rawText}`,
+  ].join("\n");
 }
 
 /** Default live implementation of the LLM seam. */
@@ -196,17 +217,8 @@ export async function parseAndWriteAnswer(args: {
   const codesByKey = new Map<string, string[]>();
   for (const q of all) codesByKey.set(q.writes_to, await codesFor(q));
 
-  const user = [
-    "QUESTION ASKED:",
-    questionLine(args.asked, codesByKey.get(args.asked.writes_to) ?? []),
-    "",
-    "OTHER OPEN QUESTIONS (extract only if the reply answers them):",
-    ...args.otherOpen.map((q) => questionLine(q, codesByKey.get(q.writes_to) ?? [])),
-    "",
-    `OWNER'S REPLY: ${args.rawText}`,
-  ].join("\n");
-
-  const { text, calls } = await llm({ system: SYSTEM, user, accountId: args.accountId });
+  const user = parserUserMessage(args.asked, args.otherOpen, codesByKey, args.rawText);
+  const { text, calls } = await llm({ system: PARSER_SYSTEM, user, accountId: args.accountId });
 
   let payload: { fields: ExtractedField[] };
   try {

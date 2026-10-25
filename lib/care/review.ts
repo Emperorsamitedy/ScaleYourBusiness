@@ -24,7 +24,8 @@
 import { and, desc, eq, gte, isNotNull, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { alertReviews, businessProfiles, llmCalls, watchActivity } from "../../db/schema";
-import { DIAGNOSIS_MODEL } from "../diagnosis/findings";
+import { readAnswer } from "../llm/answer";
+import { opusShape } from "../llm/models";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -174,18 +175,22 @@ export type ReviewLlm = (args: {
 // caching to reuse (amended at build — P3-46's "the prompt is cached").
 export const liveReviewLlm: ReviewLlm = async ({ system, user, accountId }) => {
   const started = Date.now();
+  // DIAGNOSIS_MODEL: Opus 4.8 exactly as today; Opus 5.5 with an explicit
+  // effort and room for its thinking (lib/llm/models.ts says why).
+  const shape = opusShape(REVIEW.max_tokens);
+  const format = { type: "json_schema" as const, schema: OUTPUT_SCHEMA };
   const response = await anthropicClient().messages.create({
-    model: DIAGNOSIS_MODEL,
-    max_tokens: REVIEW.max_tokens,
-    thinking: { type: "adaptive" },
+    model: shape.model,
+    max_tokens: shape.max_tokens,
+    thinking: shape.thinking,
     system,
-    output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
+    output_config: { ...shape.effort, format },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
     workload: REVIEW_WORKLOAD,
     account_id: accountId,
-    model: DIAGNOSIS_MODEL,
+    model: shape.model,
     duration_ms: Date.now() - started,
     usage: {
       input_tokens: response.usage.input_tokens,
@@ -195,10 +200,9 @@ export const liveReviewLlm: ReviewLlm = async ({ system, user, accountId }) => {
     },
   });
   await recordLlmCall(record);
-  const text = response.content
-    .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+  // Refusal first (logged), never parsed: a declined review comes back as
+  // no text, which the run records as unusable and hands to a person.
+  const { text } = readAnswer(response, record);
   return { text, calls: [record] };
 };
 

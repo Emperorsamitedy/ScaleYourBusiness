@@ -24,14 +24,16 @@ import type { Money } from "../core/money";
 import { minorUnitExponent, money, subtract } from "../core/money";
 import { computeEconomics } from "../economics/unit-economics";
 import type { OfferEconomics } from "../economics/unit-economics";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { opusShape } from "../llm/models";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { applicableQuestions } from "../resolver/applicability";
 import type { DiagnosisFinding } from "./findings";
 import type { SimulationRecord } from "../simulate/scenario";
-import { DIAGNOSIS_MODEL, DiagnosisError } from "./findings";
+import { DiagnosisError, DiagnosisRefusalError } from "./findings";
 
 /* ── the types (data-model §10) ── */
 
@@ -351,18 +353,22 @@ export type RecommendationsLlm = (args: {
 
 export const liveRecommendationsLlm: RecommendationsLlm = async ({ system, user, accountId }) => {
   const started = Date.now();
+  // DIAGNOSIS_MODEL: Opus 4.8 exactly as today; Opus 5.5 with an explicit
+  // effort and room for its thinking (lib/llm/models.ts says why).
+  const shape = opusShape(6_000);
+  const format = { type: "json_schema" as const, schema: OUTPUT_SCHEMA };
   const response = await anthropicClient().messages.create({
-    model: DIAGNOSIS_MODEL,
-    max_tokens: 6_000,
-    thinking: { type: "adaptive" },
+    model: shape.model,
+    max_tokens: shape.max_tokens,
+    thinking: shape.thinking,
     system,
-    output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
+    output_config: { ...shape.effort, format },
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
     workload: "diagnosis",
     account_id: accountId,
-    model: DIAGNOSIS_MODEL,
+    model: shape.model,
     duration_ms: Date.now() - started,
     usage: {
       input_tokens: response.usage.input_tokens,
@@ -372,10 +378,9 @@ export const liveRecommendationsLlm: RecommendationsLlm = async ({ system, user,
     },
   });
   await recordLlmCall(record);
-  const text = response.content
-    .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+  // Refusal first, never parsed; the answer by block type, behind thinking.
+  const { text, refusal } = readAnswer(response, record);
+  if (refusal !== null) throw new DiagnosisRefusalError("recommendations", shape.model, refusal);
   return { text, calls: [record] };
 };
 

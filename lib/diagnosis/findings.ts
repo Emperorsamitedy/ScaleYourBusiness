@@ -27,20 +27,33 @@
 import { computeCompleteness } from "../scorer/completeness";
 import { displaySourceKind } from "../connectors/measured";
 import type { Field } from "../core/field";
+import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import type { DiagnosisModel } from "../llm/models";
+import { diagnosisModel, opusShape } from "../llm/models";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { repr } from "../profile/factsheet";
 import { openFindings } from "../validation/engine";
 
-/** CLAUDE.md routing: Opus only for the diagnosis report. */
-export const DIAGNOSIS_MODEL = "claude-opus-4-8";
+// CLAUDE.md routing: Opus only for the diagnosis report. WHICH Opus is
+// DIAGNOSIS_MODEL (lib/llm/models.ts), unset = claude-opus-4-8.
 
 export class DiagnosisError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "DiagnosisError";
+  }
+}
+
+/** The model declined (stop_reason "refusal"): nothing is parsed from it, the cost is logged. */
+export class DiagnosisRefusalError extends DiagnosisError {
+  readonly category: string;
+  constructor(workload: string, model: string, category: string) {
+    super(`the model declined the ${workload} (${model}: ${category})`);
+    this.name = "DiagnosisRefusalError";
+    this.category = category;
   }
 }
 
@@ -151,39 +164,50 @@ export type DiagnosisLlm = (args: {
   system: string;
   user: string;
   accountId: string;
-}) => Promise<{ text: string; calls: LlmCallRecord[] }>;
+}) => Promise<{ text: string; calls: LlmCallRecord[]; stop_reason?: string | null }>;
 
-export const liveDiagnosisLlm: DiagnosisLlm = async ({ system, user, accountId }) => {
-  const started = Date.now();
-  const response = await anthropicClient().messages.create({
-    model: DIAGNOSIS_MODEL,
-    max_tokens: 8_000,
+/** Today's cap on Opus 4.8; Opus 5.5 gets twice it (lib/llm/models.ts). */
+const MAX_TOKENS = 8_000;
+
+/** The live call on a named model — the recalibration harness runs both. */
+export function diagnosisLlmFor(model: DiagnosisModel): DiagnosisLlm {
+  return async ({ system, user, accountId }) => {
+    const started = Date.now();
     // Opus 4.8 runs without thinking unless asked; the diagnosis is the
-    // one workload where the thinking is worth its tokens.
-    thinking: { type: "adaptive" },
-    system,
-    output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
-    messages: [{ role: "user", content: user }],
-  });
-  const record = buildCallRecord({
-    workload: "diagnosis",
-    account_id: accountId,
-    model: DIAGNOSIS_MODEL,
-    duration_ms: Date.now() - started,
-    usage: {
-      input_tokens: response.usage.input_tokens,
-      output_tokens: response.usage.output_tokens,
-      cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
-      cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
-    },
-  });
-  await recordLlmCall(record);
-  const text = response.content
-    .filter((b): b is Extract<typeof b, { type: "text" }> => b.type === "text")
-    .map((b) => b.text)
-    .join("");
-  return { text, calls: [record] };
-};
+    // one workload where the thinking is worth its tokens. On Opus 5.5
+    // thinking is always on and effort — sent explicitly — is the control.
+    const shape = opusShape(MAX_TOKENS, model);
+    const format = { type: "json_schema" as const, schema: OUTPUT_SCHEMA };
+    const response = await anthropicClient().messages.create({
+      model: shape.model,
+      max_tokens: shape.max_tokens,
+      thinking: shape.thinking,
+      system,
+      output_config: { ...shape.effort, format },
+      messages: [{ role: "user", content: user }],
+    });
+    const record = buildCallRecord({
+      workload: "diagnosis",
+      account_id: accountId,
+      model: shape.model,
+      duration_ms: Date.now() - started,
+      usage: {
+        input_tokens: response.usage.input_tokens,
+        output_tokens: response.usage.output_tokens,
+        cache_creation_input_tokens: response.usage.cache_creation_input_tokens ?? 0,
+        cache_read_input_tokens: response.usage.cache_read_input_tokens ?? 0,
+      },
+    });
+    await recordLlmCall(record);
+    // Refusal first, never parsed; the answer by block type, behind thinking.
+    const { text, refusal } = readAnswer(response, record);
+    if (refusal !== null) throw new DiagnosisRefusalError("diagnosis", shape.model, refusal);
+    return { text, calls: [record], stop_reason: response.stop_reason };
+  };
+}
+
+/** The live diagnosis on DIAGNOSIS_MODEL, read per call. */
+export const liveDiagnosisLlm: DiagnosisLlm = (args) => diagnosisLlmFor(diagnosisModel())(args);
 
 /* ── deterministic machinery, exported for tests ── */
 
@@ -275,17 +299,30 @@ export function factLine(key: string, field: Field<unknown>): string {
 
 /* ── the run ── */
 
-export async function runDiagnosis(args: {
-  accountId: string;
-  profileId: string;
-  llm?: DiagnosisLlm;
-}): Promise<DiagnosisResult> {
-  // The diagnosis reads a frozen snapshot — reproducible, never shifting.
-  const summary = await ensureSnapshot(args.profileId, "report");
+/** Exactly what the diagnosis sends for one snapshot, and what it checks the answer against. */
+export interface DiagnosisPrompt {
+  snapshot_id: string;
+  system: string;
+  user: string;
+  /** The snapshot's field keys — the only evidence a finding may cite (P1-24). */
+  fact_keys: ReadonlySet<string>;
+  completeness: number;
+}
+
+/**
+ * The prompt for a STORED snapshot. Read-only: it takes no snapshot and
+ * writes nothing, so the recalibration harness can run the diagnosis on a
+ * real business without touching its profile. Completeness and the open
+ * validation findings are the live profile's, as in every report.
+ */
+export async function buildDiagnosisPrompt(
+  profileId: string,
+  snapshotId: string,
+): Promise<DiagnosisPrompt> {
   const [view, completeness, validation] = await Promise.all([
-    readSnapshot(summary.id),
-    computeCompleteness(args.profileId),
-    openFindings(args.profileId),
+    readSnapshot(snapshotId),
+    computeCompleteness(profileId),
+    openFindings(profileId),
   ]);
 
   if (view.facts.size === 0) {
@@ -310,17 +347,55 @@ export async function runDiagnosis(args: {
     ),
   ].join("\n");
 
-  const llm = args.llm ?? liveDiagnosisLlm;
-  const { text, calls } = await llm({ system: SYSTEM, user, accountId: args.accountId });
+  return {
+    snapshot_id: snapshotId,
+    system: SYSTEM,
+    user,
+    fact_keys: factKeys,
+    completeness: completeness.overall,
+  };
+}
 
-  let payload: { summary?: unknown; findings?: unknown };
+/** The model's text → payload. Pure; throws DiagnosisError on non-JSON. */
+export function parseDiagnosisText(text: string): { summary?: unknown; findings?: unknown } {
   try {
-    payload = JSON.parse(text) as typeof payload;
+    return JSON.parse(text) as { summary?: unknown; findings?: unknown };
   } catch {
     throw new DiagnosisError(`diagnosis returned non-JSON: ${text.slice(0, 160)}`);
   }
+}
 
-  const { kept, rejected } = validateFindings(payload.findings, factKeys);
+export async function runDiagnosis(args: {
+  accountId: string;
+  profileId: string;
+  llm?: DiagnosisLlm;
+}): Promise<DiagnosisResult> {
+  // The diagnosis reads a frozen snapshot — reproducible, never shifting.
+  const summary = await ensureSnapshot(args.profileId, "report");
+  return diagnoseSnapshot({ ...args, snapshotId: summary.id });
+}
+
+/**
+ * The diagnosis of one stored snapshot — the dry-run entry point. Writes
+ * nothing but the llm_calls row every model call writes; runDiagnosis is
+ * this after ensureSnapshot.
+ */
+export async function diagnoseSnapshot(args: {
+  accountId: string;
+  profileId: string;
+  snapshotId: string;
+  llm?: DiagnosisLlm;
+}): Promise<DiagnosisResult> {
+  const prompt = await buildDiagnosisPrompt(args.profileId, args.snapshotId);
+  const llm = args.llm ?? liveDiagnosisLlm;
+  const { text, calls } = await llm({
+    system: prompt.system,
+    user: prompt.user,
+    accountId: args.accountId,
+  });
+
+  const payload = parseDiagnosisText(text);
+  const { kept, rejected } = validateFindings(payload.findings, prompt.fact_keys);
   if (kept.length === 0) {
     throw new DiagnosisError(
       `every finding was rejected (${rejected.map((r) => r.reason).join(" | ")})`,
@@ -328,11 +403,11 @@ export async function runDiagnosis(args: {
   }
 
   return {
-    snapshot_id: summary.id,
+    snapshot_id: prompt.snapshot_id,
     summary: threeSentences(typeof payload.summary === "string" ? payload.summary : ""),
     findings: sortFindings(kept),
     rejected,
-    completeness: completeness.overall,
+    completeness: prompt.completeness,
     calls,
     // P1-27: measured against the €1.78 estimate, per run.
     cost_eur: calls.reduce((sum, c) => sum + c.cost_eur, 0),

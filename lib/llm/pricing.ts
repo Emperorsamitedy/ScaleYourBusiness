@@ -4,13 +4,21 @@
 // Prices are USD per million tokens, checked against the pricing page on
 // 2026-08-21. Sonnet 5 carries introductory pricing ($2/$10) through
 // 2026-08-31; it reverts to $3/$15 after — update then. Cache multipliers
-// are Anthropic-wide: writes 1.25× input (5-minute TTL), reads 0.1×. No
-// call here uses the 1-hour TTL (2× writes), so it isn't modelled.
+// are per model: writes 1.25× input (5-minute TTL), reads 0.1× (Opus 5.5:
+// 0.05×). No call here uses the 1-hour TTL (2× writes), so it isn't
+// modelled.
 //
 // Claude Haiku 5.5 (owner-approved move, 2026-10-24) has two rate cards,
 // chosen by the prompt's length — every input token the call sent, cached
 // or not: $0.10/$0.50 at 100K tokens or fewer, $0.50/$2.50 above. Haiku
 // 4.5 stays priced for the llm_calls rows it already wrote.
+//
+// The 5.5 Sonnet and Opus (M-2, behind SONNET_MODEL / DIAGNOSIS_MODEL,
+// off by default), from the model migration notes of 2026-10:
+//   · Sonnet 5.5 — $2/$10, the same as Sonnet 5; 5-minute cache writes
+//     $2.50 (1.25×), cache reads $0.20 (0.1×).
+//   · Opus 5.5 — $4/$20; 5-minute cache writes $5 (1.25×), cache reads
+//     $0.20, which is 0.05× input — deeper than every other model here.
 
 export interface RateCard {
   input_usd_per_mtok: number;
@@ -31,7 +39,19 @@ export const PRICING: Readonly<Record<string, ModelPricing>> = {
     cache_write_multiplier: 1.25,
     cache_read_multiplier: 0.1,
   },
+  "claude-opus-5-5": {
+    input_usd_per_mtok: 4,
+    output_usd_per_mtok: 20,
+    cache_write_multiplier: 1.25,
+    cache_read_multiplier: 0.05,
+  },
   "claude-sonnet-5": {
+    input_usd_per_mtok: 2,
+    output_usd_per_mtok: 10,
+    cache_write_multiplier: 1.25,
+    cache_read_multiplier: 0.1,
+  },
+  "claude-sonnet-5-5": {
     input_usd_per_mtok: 2,
     output_usd_per_mtok: 10,
     cache_write_multiplier: 1.25,
