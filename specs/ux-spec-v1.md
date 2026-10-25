@@ -240,6 +240,7 @@ The intake now follows the owner's "calibrating the record" design (`components/
 **Channel bank:** one tile per bank section.
 - Each tile has one bar per applicable question, in bank order. The bar kinds are owner, measured, derived, current, open, unknown and skipped, each with its own fill pattern.
 - Each tile shows the percentage answered and a status word: DONE, MEASURING, READ ONLY, NOT STARTED, NEEDS CH nn or IN PROGRESS.
+- The bank starts folded to one ruled line so the question owns the screen. The line shows the channel being asked with its percentage, one cell per area filled to its share answered, and how many areas are done. "All channels" unfolds the tiles unchanged; choosing a tile folds it again.
 
 **Question panel:**
 - a dark band showing the question, the channel, and how many questions and minutes are left (45 seconds a question)
