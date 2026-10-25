@@ -2,7 +2,14 @@ import { describe, expect, it } from "vitest";
 import { shiftDay } from "../anomaly/baseline";
 import { bucketCandles } from "./candles";
 import type { DrawnModel, MarketInputs } from "./model";
-import { MIN_DRAWN_DAYS, buildMarketModel, chartSummary, chartTable, chartTitle } from "./model";
+import {
+  MIN_DRAWN_DAYS,
+  buildMarketModel,
+  chartSummary,
+  chartTable,
+  chartTitle,
+  groupEvents,
+} from "./model";
 import type { BookingsInput } from "./opportunity";
 import { CHART_ARCHETYPES } from "./profiles";
 
@@ -156,6 +163,25 @@ describe("a drawn chart", () => {
   it("is JSON-safe: the API sends it as is", () => {
     const m = drawn();
     expect(JSON.parse(JSON.stringify(m))).toEqual(m);
+  });
+});
+
+describe("event markers", () => {
+  it("fold same-day events of one kind into one marker, oldest first", () => {
+    const e = (date: string, kind: "approved" | "anomaly", label: string) => ({
+      date,
+      kind,
+      label,
+      detail: `${label}.`,
+    });
+    const g = groupEvents([
+      e("2026-10-09", "approved", "B"),
+      e("2026-10-01", "anomaly", "Z"),
+      e("2026-10-09", "approved", "A"),
+      e("2026-10-09", "anomaly", "Y"),
+    ]);
+    expect(g.map((x) => x.label)).toEqual(["Z", "2 changes: B; A", "Y"]);
+    expect(g[1]!.detail).toBe("B. A.");
   });
 });
 

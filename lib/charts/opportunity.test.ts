@@ -216,6 +216,20 @@ describe("empty capacity — only on a capacity the owner gave", () => {
     );
   });
 
+  it("puts a week's empty slots on its open days, not the days it was shut", () => {
+    // Closed Mondays (index 0 and 7): nothing held.
+    const b = bookings((i) =>
+      i % 7 === 0 ? { completed: 0, revenue_minor: 0 } : { completed: 9, revenue_minor: 9 * 4000 },
+    );
+    const c = priced(emptyCapacity(b, stated, W));
+    // 70 − 54 = 16 empty × €40 = €640 a week, over 6 open days.
+    expect(c.total.high_minor).toBe(2 * 16 * 4000);
+    expect(c.daily.some((d) => d.date === MON)).toBe(false);
+    const week1 = c.daily.filter((d) => d.date < shiftDay(MON, 7));
+    expect(week1).toHaveLength(6);
+    expect(week1.reduce((n, d) => n + d.high_minor, 0)).toBe(16 * 4000);
+  });
+
   it("names an estimated capacity as estimated", () => {
     const b = bookings((i) => (i === 3 ? { completed: 9, revenue_minor: 9 * 4000 } : {}));
     expect(priced(emptyCapacity(b, { per_week: 70, basis: "ESTIMATED" }, W)).basis_note).toMatch(

@@ -43,6 +43,8 @@ import { HISTORY_DAYS, MIN_DRAWN_DAYS, buildMarketModel } from "./model";
 import { CHART_ARCHETYPES, archetypeFor } from "./profiles";
 import type { BookingsChartModel, AdsChartModel } from "./small";
 import { buildAdsChart, buildBookingsChart } from "./small";
+import type { SlowItemKey, SnapshotRow, StockHistoryModel } from "./stock-history";
+import { HISTORY_ITEMS, buildStockHistory } from "./stock-history";
 
 export const TYPE_KEY = "identity.business_type";
 export const SELLS_KEY = "identity.sells";
@@ -476,4 +478,43 @@ async function chartEvents(profileId: string, drawn: readonly ConnInfo[]): Promi
     });
   }
   return events;
+}
+
+/** The value-at-cost snapshots of the given items, every day they were read. */
+export async function loadStockHistory(
+  slow: readonly SlowItemKey[],
+): Promise<StockHistoryModel | null> {
+  const wanted = slow.slice(0, HISTORY_ITEMS);
+  if (wanted.length === 0) return null;
+  const conns = [...new Set(wanted.map((w) => w.connection_id))];
+  const rows = await db
+    .select({
+      connection_id: metricObservations.connection_id,
+      dimensions: metricObservations.dimensions,
+      period_date: metricObservations.period_date,
+      value_minor: metricObservations.value_minor,
+      currency: metricObservations.currency,
+    })
+    .from(metricObservations)
+    .where(
+      and(
+        inArray(metricObservations.connection_id, conns),
+        eq(metricObservations.metric_key, "stock.value_at_cost"),
+      ),
+    );
+  const refs = new Set(wanted.map((w) => `${w.connection_id}:${w.ref}`));
+  const snapshots: SnapshotRow[] = [];
+  for (const r of rows) {
+    const ref = r.dimensions?.["product_ref"];
+    if (!ref || r.value_minor === null || !r.currency) continue;
+    if (!refs.has(`${r.connection_id}:${ref}`)) continue;
+    snapshots.push({
+      connection_id: r.connection_id,
+      product_ref: ref,
+      period_date: r.period_date,
+      value_minor: Number(r.value_minor),
+      currency: r.currency,
+    });
+  }
+  return buildStockHistory(snapshots, wanted);
 }

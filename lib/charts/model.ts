@@ -32,7 +32,7 @@ import {
   losingAds,
   noShows,
   onTheTable,
-  rangeText,
+  rangeWhole,
   revenueDips,
   slowStock,
   windowEnding,
@@ -107,6 +107,8 @@ export interface DrawnModel {
   /** "Your salon, read like a stock". */
   title: string;
   archetype: ArchetypeKey;
+  /** The candle period the chart opens on (the profile row's). */
+  bucket: Bucket;
   currency: string;
   price: {
     metric: string;
@@ -277,6 +279,7 @@ export function buildMarketModel(input: MarketInputs): MarketChartModel {
     noun: input.noun,
     title,
     archetype: input.archetype,
+    bucket: base.bucket,
     currency: price.currency,
     price: {
       metric: price.candidate.metric,
@@ -296,14 +299,40 @@ export function buildMarketModel(input: MarketInputs): MarketChartModel {
         }
       : null,
     days,
-    events: input.events
-      .filter((e) => e.date >= from && e.date <= input.today)
-      .sort((a, b) => a.date.localeCompare(b.date)),
+    events: groupEvents(input.events.filter((e) => e.date >= from && e.date <= input.today)),
     components,
     headline: headline(components, price.currency),
     window: { from: w.from, to: w.to, days: daysInclusive(w.from, w.to) },
     notes,
   };
+}
+
+const GROUP_NOUN: Readonly<Record<EventKind, string>> = {
+  anomaly: "changes detected",
+  approved: "changes",
+  connected: "sources",
+};
+
+/**
+ * Oldest first, with same-day events of one kind folded into one marker
+ * ("4 changes: …"), so a busy day doesn't bury the chart in numbers.
+ */
+export function groupEvents(events: readonly MarketEvent[]): MarketEvent[] {
+  const groups = new Map<string, MarketEvent[]>();
+  for (const e of [...events].sort((a, b) => a.date.localeCompare(b.date))) {
+    const k = `${e.date}|${e.kind}`;
+    groups.set(k, [...(groups.get(k) ?? []), e]);
+  }
+  return [...groups.values()].map((list) =>
+    list.length === 1
+      ? list[0]!
+      : {
+          date: list[0]!.date,
+          kind: list[0]!.kind,
+          label: `${list.length} ${GROUP_NOUN[list[0]!.kind]}: ${list.map((e) => e.label).join("; ")}`,
+          detail: list.map((e) => e.detail).join(" "),
+        },
+  );
 }
 
 /** A component with no price series to read against: its own reason, or the series'. */
@@ -414,10 +443,10 @@ export function chartTable(
     dayMoney(c.close_minor, cur),
     ...(model.volume ? [c.volume === null ? "not measured" : num(c.volume)] : []),
     c.slip_high_minor > 0
-      ? rangeText({ low_minor: c.slip_low_minor, high_minor: c.slip_high_minor, currency: cur })
+      ? rangeWhole({ low_minor: c.slip_low_minor, high_minor: c.slip_high_minor, currency: cur })
       : "none",
     c.slip_high_minor > 0
-      ? rangeText({ low_minor: c.kept_low_minor, high_minor: c.kept_high_minor, currency: cur })
+      ? rangeWhole({ low_minor: c.kept_low_minor, high_minor: c.kept_high_minor, currency: cur })
       : "—",
   ]);
   return {

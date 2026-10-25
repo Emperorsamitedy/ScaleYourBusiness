@@ -9,8 +9,17 @@
 //   close   the last measured day's value
 //   high    the best day
 //   low     the worst day
+//
+// A one-day bucket is the exception: a single figure has no body, so a
+// day opens at the previous measured day's value and closes at its own
+// (the close-only candle), its high and low the larger and smaller of the
+// two. Up means "better than the day before" — the one reading a daily
+// series supports.
 //   volume  the sum of the volume series over the bucket's days — orders,
 //           appointments and visits are daily flows, so they add up
+//
+// A closed day (nothing taken, nothing sold or booked) is left out of the
+// candles, like a market holiday; each candle counts how many it skipped.
 //
 // The opportunity overlay rides on the same buckets. Each day may carry
 // the money that slipped that day, per component, as a low–high range
@@ -68,8 +77,10 @@ export interface Candle {
   high_minor: number;
   low_minor: number;
   close_minor: number;
-  /** Measured days in the bucket. */
+  /** Trading days in the bucket: measured, and not closed. */
   days: number;
+  /** Closed days in the bucket (nothing sold, nothing booked): no price, like a market holiday. */
+  closed: number;
   /** Summed volume, or null when no day in the bucket measured it. */
   volume: number | null;
   /** Slip summed over the bucket, per component (only components that slipped). */
@@ -79,6 +90,17 @@ export interface Candle {
   /** close + the bucket's average slip per measured day: the dotted line. */
   kept_low_minor: number;
   kept_high_minor: number;
+}
+
+/**
+ * A closed day: nothing taken AND nothing sold or booked, both measured.
+ * It prints no candle, the way a market holiday doesn't: a salon shut on
+ * Mondays would otherwise open and close every week at zero. A day with a
+ * zero price but an unmeasured volume can't be told from a bad day, so it
+ * stays a trading day.
+ */
+export function isClosedDay(p: DayPoint): boolean {
+  return p.value_minor === 0 && p.volume === 0;
 }
 
 /** The first day of the bucket a day falls in. */
@@ -91,22 +113,30 @@ export function bucketStart(date: string, bucket: Bucket): string {
 /** Pure: the candles of a daily series, oldest first. Days are read in date order. */
 export function bucketCandles(points: readonly DayPoint[], bucket: Bucket): Candle[] {
   const sorted = [...points].sort((a, b) => a.date.localeCompare(b.date));
+  const closedBy = new Map<string, number>();
   const out: Candle[] = [];
   const parts = new Map<string, Map<string, SlipPart>>();
   let current: Candle | null = null;
+  let previous: number | null = null;
   for (const p of sorted) {
     if (!Number.isSafeInteger(p.value_minor)) continue;
     const start = bucketStart(p.date, bucket);
+    if (isClosedDay(p)) {
+      closedBy.set(start, (closedBy.get(start) ?? 0) + 1);
+      continue;
+    }
     if (current === null || current.start !== start) {
+      const open = bucket === "day" && previous !== null ? previous : p.value_minor;
       current = {
         start,
         first: p.date,
         last: p.date,
-        open_minor: p.value_minor,
-        high_minor: p.value_minor,
-        low_minor: p.value_minor,
+        open_minor: open,
+        high_minor: Math.max(open, p.value_minor),
+        low_minor: Math.min(open, p.value_minor),
         close_minor: p.value_minor,
         days: 0,
+        closed: 0,
         volume: null,
         slip: [],
         slip_low_minor: 0,
@@ -122,6 +152,7 @@ export function bucketCandles(points: readonly DayPoint[], bucket: Bucket): Cand
     current.high_minor = Math.max(current.high_minor, p.value_minor);
     current.low_minor = Math.min(current.low_minor, p.value_minor);
     current.days += 1;
+    previous = p.value_minor;
     if (p.volume !== null && Number.isFinite(p.volume)) {
       current.volume = (current.volume ?? 0) + p.volume;
     }
@@ -134,6 +165,7 @@ export function bucketCandles(points: readonly DayPoint[], bucket: Bucket): Cand
     }
   }
   for (const c of out) {
+    c.closed = closedBy.get(c.start) ?? 0;
     c.slip = [...(parts.get(c.start)?.values() ?? [])].filter(
       (s) => s.low_minor > 0 || s.high_minor > 0,
     );

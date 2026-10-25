@@ -34,17 +34,31 @@ describe("bucketStart", () => {
 });
 
 describe("bucketCandles — OHLC by hand", () => {
-  it("1D: every measured day is its own candle, open = close = high = low", () => {
+  it("1D: every measured day is a candle from the day before's value to its own", () => {
     const c = bucketCandles(DAYS, "day");
     expect(c).toHaveLength(DAYS.length);
+    // The first day has nothing before it: a flat candle.
+    expect(c[0]).toMatchObject({
+      open_minor: 1000,
+      close_minor: 1000,
+      high_minor: 1000,
+      low_minor: 1000,
+    });
     expect(c[1]).toMatchObject({
       start: "2026-09-29",
-      open_minor: 1400,
+      open_minor: 1000,
       high_minor: 1400,
-      low_minor: 1400,
+      low_minor: 1000,
       close_minor: 1400,
       days: 1,
       volume: 6,
+    });
+    // Over the gap: 10-03 opens at 10-01's value, the last one measured.
+    expect(c.find((x) => x.start === "2026-10-03")).toMatchObject({
+      open_minor: 1200,
+      close_minor: 900,
+      high_minor: 1200,
+      low_minor: 900,
     });
     expect(c.find((x) => x.start === "2026-10-02")).toBeUndefined();
     expect(c.find((x) => x.start === "2026-10-03")?.volume).toBeNull();
@@ -148,6 +162,7 @@ describe("the overlay rides on the buckets", () => {
   it("a day with nothing slipped keeps the line on the close", () => {
     const d = bucketCandles(slipped, "day");
     expect(d[2]).toMatchObject({ kept_low_minor: 1100, kept_high_minor: 1100, slip: [] });
+    expect(d[1]).toMatchObject({ open_minor: 1000, close_minor: 1200 });
     expect(d[0]).toMatchObject({ kept_low_minor: 1080, kept_high_minor: 1090 });
   });
 
@@ -163,6 +178,32 @@ describe("the overlay rides on the buckets", () => {
         expect(c.high_minor).toBeGreaterThanOrEqual(Math.max(c.open_minor, c.close_minor));
       }
     }
+  });
+});
+
+describe("closed days", () => {
+  it("a day with nothing taken and nothing sold prints no candle, and is counted", () => {
+    const week: DayPoint[] = [
+      P("2026-10-05", 0, 0), // Monday, closed
+      P("2026-10-06", 900, 9),
+      P("2026-10-07", 1200, 12),
+      P("2026-10-11", 0, 0), // Sunday, closed
+    ];
+    const [w] = bucketCandles(week, "week");
+    expect(w).toMatchObject({
+      open_minor: 900,
+      close_minor: 1200,
+      low_minor: 900,
+      days: 2,
+      closed: 2,
+    });
+    const d = bucketCandles(week, "day");
+    expect(d.map((x) => x.start)).toEqual(["2026-10-06", "2026-10-07"]);
+  });
+
+  it("a zero price with an unmeasured volume is still a trading day: it can't be told from a bad one", () => {
+    const [w] = bucketCandles([P("2026-10-06", 900, null), P("2026-10-07", 0, null)], "week");
+    expect(w).toMatchObject({ close_minor: 0, low_minor: 0, days: 2, closed: 0 });
   });
 });
 

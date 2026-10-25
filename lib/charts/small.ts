@@ -15,7 +15,7 @@ import { weekStart } from "../care/chart-view";
 import type { MarketChartModel } from "./model";
 import { shortDate } from "./model";
 import type { BookingsInput, CampaignWindow, PricedComponent, Window } from "./opportunity";
-import { OPPORTUNITY, daysInclusive, lateCancellations, noShows, rangeText } from "./opportunity";
+import { OPPORTUNITY, daysInclusive, lateCancellations, noShows, rangeWhole } from "./opportunity";
 
 export interface BookingsWeek {
   /** The Monday. */
@@ -108,7 +108,7 @@ export function buildBookingsChart(
     `${num(totals.completed)} completed, ${num(totals.no_show)} no-shows` +
     (totals.late !== null ? `, ${num(totals.late)} late cancellations` : "") +
     (priced.length > 0 && b.currency
-      ? `; the missed slots were worth ${rangeText({ low_minor: lostTotal.lo, high_minor: lostTotal.hi, currency: b.currency })}.`
+      ? `; the missed slots were worth ${rangeWhole({ low_minor: lostTotal.lo, high_minor: lostTotal.hi, currency: b.currency })}.`
       : ".");
   return {
     source: b.source,

@@ -31,7 +31,8 @@
 //                       over the window.
 //   empty_capacity      ONLY with a capacity the owner gave: per week,
 //                       (capacity × measured days ÷ 7 − appointments still
-//                       held when their time came) × the same price range.
+//                       held when their time came) × the same price range,
+//                       spread over the week's open days for the line.
 //   losing_ads          per campaign with return on ad spend below 1 over
 //                       the last 14 days (the pause rule's window): spend −
 //                       the purchase value Meta attributes to it. Meta's
@@ -170,6 +171,16 @@ export function rangeText(r: { low_minor: number; high_minor: number; currency: 
   return r.low_minor === r.high_minor
     ? fig(r.low_minor, r.currency)
     : `${fig(r.low_minor, r.currency)}–${fig(r.high_minor, r.currency)}`;
+}
+
+/** The same, in whole major units: what a chart's readout and a "a month" column print. */
+export function rangeWhole(r: { low_minor: number; high_minor: number; currency: string }): string {
+  const unit = 10 ** minorUnitExponent(r.currency);
+  return rangeText({
+    low_minor: Math.round(r.low_minor / unit) * unit,
+    high_minor: Math.round(r.high_minor / unit) * unit,
+    currency: r.currency,
+  });
 }
 
 export function daysInclusive(from: string, to: string): number {
@@ -422,11 +433,15 @@ export function emptyCapacity(
     const hi = Math.round(empty * price.high_minor);
     low += lo;
     high += hi;
-    // Spread evenly over the week's measured days; the remainder lands on the last.
-    list.forEach((d, i) => {
-      const last = i === list.length - 1;
+    // Spread over the week's open days (any appointment held); the remainder lands on the last.
+    const open = list.filter((d) => d.completed + d.no_show + (d.late ?? 0) > 0);
+    const spread = open.length > 0 ? open : list;
+    spread.forEach((d, i) => {
+      const last = i === spread.length - 1;
       const share = (v: number) =>
-        last ? v - Math.floor(v / list.length) * (list.length - 1) : Math.floor(v / list.length);
+        last
+          ? v - Math.floor(v / spread.length) * (spread.length - 1)
+          : Math.floor(v / spread.length);
       if (lo > 0 || hi > 0)
         daily.push({ date: d.date, low_minor: share(lo), high_minor: share(hi) });
     });

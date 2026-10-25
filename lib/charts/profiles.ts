@@ -23,6 +23,7 @@
 
 import type { MetricKey } from "../connectors/provider";
 import { enumCode } from "../core/enum-value";
+import type { Bucket } from "./candles";
 import type { ComponentKey } from "./opportunity";
 
 export const ARCHETYPE_KEYS = [
@@ -55,6 +56,8 @@ export interface ChartArchetype {
   volume: readonly VolumeCandidate[];
   /** The opportunity components this kind of business is priced on, in order. */
   components: readonly ComponentKey[];
+  /** The candle period the chart opens on: a week where closed days make a daily chart saw-toothed. */
+  bucket: Bucket;
   /** The empty state's invitation: what to connect, in the owner's words. */
   connect: string;
   /** Why this row reads what it reads — for the spec and the reviewer. */
@@ -80,6 +83,7 @@ const VISITS: VolumeCandidate = { metric: "sessions.daily", word: "visits" };
 
 export const CHART_ARCHETYPES: Readonly<Record<ArchetypeKey, ChartArchetype>> = {
   shop: {
+    bucket: "day",
     price: [REVENUE],
     volume: [ORDERS, VISITS],
     components: ["revenue_dips", "losing_ads", "slow_stock", "on_the_table"],
@@ -87,6 +91,7 @@ export const CHART_ARCHETYPES: Readonly<Record<ArchetypeKey, ChartArchetype>> = 
     why: "A shop's takings are its price; orders are the volume, visits when no orders are measured. Stock ties up cash, so slow stock shows beside the month.",
   },
   hospitality: {
+    bucket: "day",
     price: [REVENUE, BOOKING_REVENUE],
     // Till orders, not covers: no source SYB reads measures guests per table.
     volume: [ORDERS, VISITS],
@@ -95,6 +100,7 @@ export const CHART_ARCHETYPES: Readonly<Record<ArchetypeKey, ChartArchetype>> = 
     why: "Takings a day are the price and till orders the volume. Orders are bills, not covers — nothing measured counts guests, so the chart doesn't call them covers.",
   },
   appointments: {
+    bucket: "week",
     price: [BOOKING_REVENUE, REVENUE],
     volume: [APPOINTMENTS, ORDERS],
     components: [
@@ -109,6 +115,7 @@ export const CHART_ARCHETYPES: Readonly<Record<ArchetypeKey, ChartArchetype>> = 
     why: "An appointment book is the business: booked revenue is the price, completed appointments the volume, and missed or empty slots are where money slips first.",
   },
   services: {
+    bucket: "week",
     price: [REVENUE],
     volume: [ORDERS, VISITS],
     components: ["revenue_dips", "losing_ads", "on_the_table"],
@@ -116,6 +123,7 @@ export const CHART_ARCHETYPES: Readonly<Record<ArchetypeKey, ChartArchetype>> = 
     why: "Payments taken are the price; each payment is one order.",
   },
   default: {
+    bucket: "day",
     price: [REVENUE, BOOKING_REVENUE],
     volume: [ORDERS, APPOINTMENTS, VISITS],
     components: [
