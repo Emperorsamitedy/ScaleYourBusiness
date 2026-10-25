@@ -29,7 +29,7 @@ import {
   decisionLog,
   metricObservations,
 } from "../../db/schema";
-import { emailHash, legacyEmailHash } from "../crm/contacts";
+import { emailHashCandidates } from "../crm/contacts";
 import { detectAnomalies } from "../anomaly/detect";
 import type { DeriveOutcome, DeriveWindow } from "../connectors/derive";
 import { writeMeasured } from "../connectors/derive";
@@ -311,8 +311,7 @@ export async function importKeyOf(accountId: string, scope: string): Promise<Key
     if (erasedKeys.has(key)) return false;
     if (
       identity.kind === "email" &&
-      (suppressedHashes.has(emailHash(identity.value)) ||
-        suppressedHashes.has(legacyEmailHash(identity.value)))
+      emailHashCandidates(identity.value).some((h) => suppressedHashes.has(h))
     ) {
       return false;
     }

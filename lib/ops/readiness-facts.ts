@@ -71,17 +71,6 @@ async function seededBank(): Promise<ReadinessFacts["bank"]> {
   }
 }
 
-async function keyedSuppressions(): Promise<number | null> {
-  try {
-    const result = await db.execute<{ n: string | number }>(
-      sql`select count(*) as n from contact_suppressions where email_hash like 'h1:%'`,
-    );
-    return Number(result.rows[0]?.n ?? 0);
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Everything launchReadiness needs from the database. The law review and
  * the first-campaign queue are passed in: /ops has already read them for
@@ -91,11 +80,7 @@ export async function readReadinessFacts(known: {
   law_review: ReadinessFacts["law_review"];
   first_campaigns_waiting: number | null;
 }): Promise<ReadinessFacts> {
-  const [migrations, bankRow, keyed] = await Promise.all([
-    appliedMigrations(),
-    seededBank(),
-    keyedSuppressions(),
-  ]);
+  const [migrations, bankRow] = await Promise.all([appliedMigrations(), seededBank()]);
   return {
     migrations,
     bundled_migrations: bundledMigrations(),
@@ -103,6 +88,5 @@ export async function readReadinessFacts(known: {
     bundled_bank_version: BUNDLED_BANK_VERSION,
     law_review: known.law_review,
     first_campaigns_waiting: known.first_campaigns_waiting,
-    keyed_suppressions: keyed,
   };
 }

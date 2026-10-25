@@ -22,19 +22,30 @@ import { contactSuppressions, contacts } from "../../db/schema";
 
 let suppressionKey: Buffer | null = null;
 
+// CONNECTOR_KEY only, as lib/core/derived-key's stableKey (rule 21 keeps
+// this tier off that import): a suppression must match for ever, and
+// COOKIE_SECRET may be set later. While it is unset the two are identical.
 function key(): Buffer {
   if (!suppressionKey) {
-    const material = process.env.COOKIE_SECRET || process.env.CONNECTOR_KEY || "";
+    const material = process.env.CONNECTOR_KEY || "";
     if (material === "") {
-      throw new Error(
-        'Missing COOKIE_SECRET (or CONNECTOR_KEY) — the "syb-suppression-v1" key can\'t be derived',
-      );
+      throw new Error('Missing CONNECTOR_KEY — the "syb-suppression-v1" key can\'t be derived');
     }
     suppressionKey = Buffer.from(
       hkdfSync("sha256", Buffer.from(material, "utf8"), Buffer.alloc(0), "syb-suppression-v1", 32),
     );
   }
   return suppressionKey;
+}
+
+/** The form a suppression written while COOKIE_SECRET was set carries; null otherwise. Matching only. */
+function cookieEraHash(email: string): string | null {
+  const cookie = process.env.COOKIE_SECRET;
+  if (!cookie || cookie === process.env.CONNECTOR_KEY) return null;
+  const k = Buffer.from(
+    hkdfSync("sha256", Buffer.from(cookie, "utf8"), Buffer.alloc(0), "syb-suppression-v1", 32),
+  );
+  return `h1:${createHmac("sha256", k).update(normaliseAddress(email)).digest("hex")}`;
 }
 
 export function normaliseAddress(email: string): string {
@@ -58,7 +69,12 @@ export async function suppressionFor(accountId: string, email: string): Promise<
     .where(
       and(
         eq(contactSuppressions.account_id, accountId),
-        inArray(contactSuppressions.email_hash, [suppressionHash(email), legacyHash(email)]),
+        inArray(
+          contactSuppressions.email_hash,
+          [suppressionHash(email), cookieEraHash(email), legacyHash(email)].filter(
+            (h): h is string => h !== null,
+          ),
+        ),
       ),
     );
   return row?.reason ?? null;
