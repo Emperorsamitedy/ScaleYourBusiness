@@ -15,6 +15,7 @@ import "../../app/factsheet.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useBusinessNoun } from "../nav/useBusinessNoun";
+import { ChartsPanel } from "../charts/ChartsPanel";
 import { PageHead } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { fmtDay } from "../report/figures";
@@ -398,6 +399,8 @@ export function FactSheetScreen() {
           )}
         </p>
       </PageHead>
+
+      <ChartsPanel />
 
       <section className="fs-card" aria-label="The record">
         <div className="fs-top">

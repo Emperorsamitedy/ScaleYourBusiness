@@ -1,0 +1,531 @@
+/* The trading-style charts (components/charts/*) on the sheet system —
+   specs/ux-spec-v1.md §2.1. Sheet tokens only: no new colour is defined
+   here. Tints are an existing token mixed into the paper.
+
+   What carries meaning, and what repeats it:
+     direction     up = a FILLED body, down = a HOLLOW one; --ok / --alarm
+                   only tint the stroke, so it reads in grayscale
+     slipped       two steps of --drift mixed into paper: the low end of
+                   the range solid, the rest lighter; the dotted --drift
+                   line on top is "what you'd have kept"
+     on the table  the --ok-band with a dashed --ok outline: a forecast
+     events        ink shapes — hollow square detected, filled square
+                   approved, a hairline for a source connected — and a
+                   number keyed in words below the chart
+   Cobalt never appears: nothing here is the machine working right now.
+   Square corners, no shadows, no icons. */
+
+.mk,
+.sc {
+  margin-bottom: var(--s-6);
+}
+
+.mk-headline {
+  margin: 8px 0 0;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(17px, 1.6vw, 22px);
+  line-height: 1.2;
+  max-width: 44ch;
+}
+.mk-sub {
+  margin: 6px 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  color: var(--sheet-ink-2);
+  max-width: var(--measure);
+}
+
+.mk-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 8px 20px 0;
+}
+.mk-switch {
+  display: inline-flex;
+  border: var(--line-ink);
+}
+.mk-tf {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 var(--s-3);
+  border: 0;
+  border-right: var(--line-ink);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.mk-tf:last-child {
+  border-right: 0;
+}
+.mk-tf:hover,
+.mk-tf.on {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+
+.mk-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.mk-keys li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.mk-key-candle {
+  display: inline-block;
+  width: 7px;
+  height: 12px;
+  border: 1.5px solid var(--ok);
+  background: var(--ok);
+}
+.mk-key-candle.down {
+  border-color: var(--alarm);
+  background: var(--paper);
+}
+.mk-key-slip {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--drift) 34%, var(--paper)) 50%,
+    color-mix(in srgb, var(--drift) 14%, var(--paper)) 50%
+  );
+}
+.mk-key-kept {
+  display: inline-block;
+  width: 18px;
+  border-top: 2px dotted var(--drift);
+}
+.mk-key-table {
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  background: var(--ok-band);
+  border: 1px dashed var(--ok);
+}
+
+.mk-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  min-height: 1.6em;
+  margin: 6px 20px 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-variant-numeric: tabular-nums;
+  color: var(--sheet-ink-2);
+}
+.mk-readout b {
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+
+.mk-plot {
+  padding: 6px 20px 0;
+}
+.mk-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+}
+.mk-svg:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 3px;
+}
+.mk-svg .grid {
+  stroke: var(--rule-soft);
+  stroke-width: 1;
+}
+.mk-svg .axis {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+.mk-svg .tick,
+.mk-svg .pane-label,
+.mk-svg .ev-n,
+.mk-svg .ahead-label {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  fill: var(--sheet-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.mk-svg .pane-label,
+.mk-svg .ahead-label {
+  letter-spacing: 0.08em;
+}
+.mk-svg .ahead-label {
+  fill: var(--ok);
+  font-weight: 600;
+}
+.mk-svg .ev-n {
+  fill: var(--sheet-ink);
+  font-weight: 600;
+}
+
+.mk-svg .up .wick,
+.mk-svg .up .body {
+  stroke: var(--ok);
+  fill: var(--ok);
+}
+.mk-svg .down .wick,
+.mk-svg .down .body {
+  stroke: var(--alarm);
+  fill: var(--paper);
+}
+.mk-svg .wick {
+  stroke-width: 1;
+}
+.mk-svg .body {
+  stroke-width: 1.25;
+}
+.mk-svg .vol {
+  fill: color-mix(in srgb, var(--sheet-ink-2) 30%, var(--paper));
+  stroke: none;
+}
+
+.mk-svg .mk-slip .solid {
+  fill: color-mix(in srgb, var(--drift) 34%, var(--paper));
+  stroke: none;
+}
+.mk-svg .mk-slip .range {
+  fill: color-mix(in srgb, var(--drift) 14%, var(--paper));
+  stroke: none;
+}
+.mk-svg .mk-slip .kept {
+  fill: none;
+  stroke: var(--drift);
+  stroke-width: 1.5;
+  stroke-dasharray: 1.5 3;
+  stroke-linecap: round;
+}
+
+.mk-svg .mk-ahead .band {
+  fill: var(--ok-band);
+  stroke: var(--ok);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+.mk-svg .mk-ahead .base {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.mk-svg .mk-event .conn {
+  stroke: var(--sheet-ink-2);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.mk-svg .mk-event .mark {
+  stroke: var(--sheet-ink);
+  stroke-width: 1.5;
+  fill: var(--paper);
+}
+.mk-svg .mk-event .mark.approved {
+  fill: var(--sheet-ink);
+}
+
+.mk-svg .tag rect {
+  fill: var(--sheet-ink);
+}
+.mk-svg .tag text {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  fill: var(--paper);
+}
+
+.mk-svg .mk-cross line {
+  stroke: var(--sheet-ink);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.mk-events {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 10px 20px 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.mk-events li {
+  display: block;
+  max-width: 100%;
+}
+.mk-events li > span + span {
+  margin-left: 6px;
+}
+.mk-ev-n {
+  font-weight: 600;
+  color: var(--sheet-ink);
+}
+.mk-ev-shape {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--sheet-ink);
+  vertical-align: -1px;
+}
+.mk-ev-shape[data-kind="approved"] {
+  background: var(--sheet-ink);
+}
+.mk-ev-shape[data-kind="connected"] {
+  width: 0;
+  height: 11px;
+  border-width: 0 0 0 1px;
+  border-style: dashed;
+}
+
+.mk-components {
+  padding: 14px 20px 16px;
+}
+.mk-components .rt tbody td.src {
+  max-width: 62ch;
+}
+.mk-components .num {
+  white-space: nowrap;
+}
+.mk-apart-head th {
+  padding-top: 18px !important;
+  font-family: var(--f-mono);
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+  border-bottom: 1px solid var(--sheet-ink) !important;
+}
+.mk-absent th,
+.mk-absent td {
+  color: var(--sheet-ink-2);
+}
+.mk-note,
+.mk-unit {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.mk-legend {
+  margin: 10px 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+  max-width: var(--measure);
+}
+
+.mk-empty .mk-would {
+  margin: 10px 0 0;
+  padding-left: 1.2em;
+  max-width: var(--measure);
+  line-height: 1.6;
+}
+
+@media (max-width: 719px) {
+  .mk-bar,
+  .mk-plot,
+  .mk-components {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .mk-readout,
+  .mk-events {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+  .mk-keys {
+    display: none;
+  }
+  .mk-components .rt tbody td.src {
+    max-width: none;
+  }
+}
+
+/* ── the smaller charts ── */
+
+.sc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: var(--s-5);
+  margin-bottom: var(--s-6);
+}
+.sc-grid > .sc {
+  margin-bottom: 0;
+}
+.sc-plot {
+  padding: 4px 0 0;
+}
+.sc-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.sc-svg:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 3px;
+}
+.sc-bars .grid,
+.sc-svg .grid {
+  stroke: var(--rule-soft);
+  stroke-width: 1;
+}
+.sc-svg .tick,
+.sc-svg .pane-label,
+.sc-svg .val {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  fill: var(--sheet-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.sc-svg .pane-label {
+  letter-spacing: 0.08em;
+}
+.sc-svg .val {
+  fill: var(--sheet-ink);
+}
+.sc-svg .completed {
+  fill: var(--ok);
+}
+.sc-svg .noshow {
+  fill: var(--paper);
+  stroke: var(--alarm);
+  stroke-width: 1.5;
+}
+.sc-svg .late {
+  fill: color-mix(in srgb, var(--drift) 34%, var(--paper));
+  stroke: var(--drift);
+  stroke-width: 1;
+}
+.sc-svg .lost-lo {
+  fill: color-mix(in srgb, var(--drift) 34%, var(--paper));
+}
+.sc-svg .lost-hi {
+  fill: color-mix(in srgb, var(--drift) 14%, var(--paper));
+}
+.sc-bars {
+  display: block;
+  width: 100%;
+  min-width: 120px;
+  height: 30px;
+}
+.sc-ads th[scope="row"] {
+  max-width: 22ch;
+}
+.sc-bars .spend,
+.sc-svg .spend {
+  fill: var(--paper);
+  stroke: var(--sheet-ink);
+  stroke-width: 1.5;
+}
+.sc-bars .ret,
+.sc-svg .ret {
+  fill: var(--sheet-ink-2);
+}
+.sc-bars .even,
+.sc-svg .even {
+  stroke: var(--sheet-ink);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+.sc-bars .line,
+.sc-svg .line {
+  fill: none;
+  stroke: var(--sheet-ink);
+  stroke-width: 1.5;
+}
+.sc-svg .dot {
+  fill: var(--sheet-ink);
+}
+.sc-svg .on rect,
+.sc-svg rect.on {
+  stroke: var(--sheet-ink);
+  stroke-width: 2;
+}
+.sc-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.sc-keys li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sc-key {
+  display: inline-block;
+  width: 12px;
+  height: 10px;
+}
+.sc-key.completed {
+  background: var(--ok);
+}
+.sc-key.noshow {
+  border: 1.5px solid var(--alarm);
+  background: var(--paper);
+}
+.sc-key.late {
+  border: 1px solid var(--drift);
+  background: color-mix(in srgb, var(--drift) 34%, var(--paper));
+}
+.sc-key.spend {
+  border: 1.5px solid var(--sheet-ink);
+  background: var(--paper);
+}
+.sc-key.ret {
+  background: var(--sheet-ink-2);
+}
+.sc-readout {
+  min-height: 1.6em;
+  margin: 6px 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-variant-numeric: tabular-nums;
+  color: var(--sheet-ink-2);
+}
+.sc-readout b {
+  color: var(--sheet-ink);
+}
+.sc-note {
+  margin: 8px 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+  max-width: var(--measure);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-tf {
+    transition: none;
+  }
+}
