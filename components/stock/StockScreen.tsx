@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { StockItemView, StockView } from "../../app/api/stock/route";
+import { StockHistoryChart } from "../charts/StockHistoryChart";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import {
@@ -432,6 +433,8 @@ export function StockScreen() {
           </p>
         </SheetCard>
       )}
+
+      {view.history && <StockHistoryChart model={view.history} />}
 
       <div className="st-grid">
         {slow[0] ? (

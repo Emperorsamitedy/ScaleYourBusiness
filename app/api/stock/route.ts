@@ -24,6 +24,8 @@ import { STOCK } from "../../../lib/stock/assess";
 import { isDecimalStyle } from "../../../lib/core/money";
 import { StockImportError, importStockFile } from "../../../lib/stock/import";
 import { loadStock, stockApplies } from "../../../lib/stock/load";
+import { loadStockHistory } from "../../../lib/charts/load";
+import type { StockHistoryModel } from "../../../lib/charts/stock-history";
 import { CLEARANCE, efficiencyLine } from "../../../lib/stock/options";
 import {
   fmtFor,
@@ -82,6 +84,8 @@ export interface StockView {
   thresholds?: { stuck_no_sale_days: number; slow_cover_days: number; max_items: number };
   /** Why proposals can't be made yet, when they can't (rule 15). */
   held?: string | null;
+  /** Cash tied up per slow item on each stock count, when there are two counts or more. */
+  history?: StockHistoryModel | null;
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -197,6 +201,13 @@ export async function GET(): Promise<NextResponse> {
         max_items: CLEARANCE.max_items,
       },
       held,
+      history: await loadStockHistory(
+        view.slow.map((r) => ({
+          connection_id: r.item.connection_id,
+          ref: r.item.ref,
+          name: r.item.name,
+        })),
+      ),
     };
     return NextResponse.json(body);
   } catch (error) {
