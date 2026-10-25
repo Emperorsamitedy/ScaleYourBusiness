@@ -43,6 +43,8 @@ import { localDatabaseHost } from "./seed-demo-guard";
 const DEMO_EMAIL = "demo@syb.test";
 /** P4-17: the second demo owner, whose campaign has gone out and been read back. */
 const OUTBOUND_EMAIL = "demo-outbound@syb.test";
+/** The charts' booking business: a salon whose numbers live in its bookings export. */
+const SALON_EMAIL = "demo-salon@syb.test";
 const DAY_MS = 86_400_000;
 
 /* ── the simulated clock ── */
@@ -120,6 +122,16 @@ async function main(): Promise<void> {
         .set({ email: archived.replace("demo-archived-", "demo-outbound-archived-") })
         .where(eq(users.id, second.id));
     }
+    const [salon] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, SALON_EMAIL));
+    if (salon) {
+      await db
+        .update(users)
+        .set({ email: archived.replace("demo-archived-", "demo-salon-archived-") })
+        .where(eq(users.id, salon.id));
+    }
   } else if (existing) {
     log(
       `demo already seeded (${DEMO_EMAIL}) — nothing written. Re-seed around today with --fresh.`,
@@ -157,6 +169,12 @@ async function printSignIn(): Promise<void> {
     const other = await requestLogin(OUTBOUND_EMAIL, null);
     console.log(`Sign in as ${OUTBOUND_EMAIL}: a campaign that went out, read back on /customers:`);
     console.log(`  ${origin}/api/auth/redeem?token=${other.token}`);
+  }
+  const [salon] = await db.select({ id: users.id }).from(users).where(eq(users.email, SALON_EMAIL));
+  if (salon) {
+    const third = await requestLogin(SALON_EMAIL, null);
+    console.log(`Sign in as ${SALON_EMAIL}: a salon read from its bookings export, on /profile:`);
+    console.log(`  ${origin}/api/auth/redeem?token=${third.token}`);
   }
   console.log("A fresh link any time: npm run db:seed-demo -- --link");
 }
@@ -2065,6 +2083,199 @@ async function seed(): Promise<void> {
       .update(schema.users)
       .set({ email: OUTBOUND_EMAIL })
       .where(eq(schema.users.id, outbound.user));
+  }
+
+  /* ── 12. a booking business: the salon the charts read from its bookings (no network, no model) ── */
+
+  // Lumen Hair Studio: a three-chair salon whose numbers live in its booking
+  // system. The owner answers who they are and how many appointments they
+  // can take a week, then imports a Fresha-shaped export through the real
+  // import path (client emails hashed on the way in), which measures the
+  // days and runs the anomaly layer. One proposal waits, priced from the
+  // salon's own measured no-shows, its one unmeasured assumption saying so.
+  {
+    const salon = { account: "", profile: "", user: "" };
+    const who = { account: "", profile: "" };
+    const { importBookings, CAPACITY_KEY } = await import("../lib/bookings/store");
+    const { createProposal } = await import("../lib/proposals/service");
+
+    await phase(
+      "Lumen Hair Studio: who they are and their weekly capacity",
+      at(30, "20:00"),
+      async () => {
+        const boot = await bootstrapIntake();
+        salon.account = who.account = boot.account_id;
+        salon.profile = who.profile = boot.profile_id;
+        const session = await signInWithEmail(
+          `demo-salon-seeding-${crypto.randomUUID()}@syb.test`,
+          salon.profile,
+        );
+        salon.user = session.user_id;
+        await db
+          .update(schema.users)
+          .set({ display_name: "Niamh" })
+          .where(eq(schema.users.id, salon.user));
+        const say = (qid: string, wire: unknown) =>
+          submitAnswer(salon.account, salon.profile, qid, { kind: "value", wire });
+        await say("1.1", "Lumen Hair Studio");
+        await say("1.1b", "Ireland");
+        await say("1.2", "salon_beauty");
+        await say("1.4", ["services"]);
+        // The weekly capacity is the owner's own figure, written through the
+        // store like any answer (1.4.2.3b isn't askable this early on).
+        const now = isoDateTime(new Date().toISOString());
+        await writeField(
+          salon.profile,
+          createField<unknown>({
+            id: fieldId(CAPACITY_KEY),
+            value: data.SALON_CAPACITY_PER_WEEK,
+            status: "answered",
+            confidence: 0.75,
+            source: { kind: "owner_input" },
+            observed_at: now,
+            recorded_at: now,
+            note: null,
+          }),
+        );
+        await db.insert(schema.modeDecisions).values({
+          profile_id: salon.profile,
+          mode: "instant",
+          watch_weeks: null,
+          decided_at: new Date().toISOString(),
+          inputs: { reasons: ["demo: a booking business, read from its bookings export"] },
+          reasoning: "Demo fixture: the bookings history is long enough to read straight away.",
+          confidence: "0.800",
+          review_at: new Date(Date.now() + 42 * DAY_MS).toISOString(),
+        });
+      },
+      who,
+    );
+
+    const imported = await phase(
+      "Lumen Hair Studio: the bookings export imported",
+      new RealDate(RealDate.now() - 60_000).toISOString(),
+      async () =>
+        importBookings(
+          salon.account,
+          data.salonBookingsCsv(today),
+          { platform: "fresha", currency: "EUR", dateOrder: null },
+          new Date(),
+        ),
+      who,
+    );
+    log(
+      `  salon: ${imported.rows_read} rows read, ${imported.added} appointments, measured ${imported.measured_days?.from} to ${imported.measured_days?.to}`,
+    );
+
+    // The proposal's gain rests on the salon's own last 28 days — no-shows ×
+    // the average completed price — and one assumption nobody measured (the
+    // share a deposit prevents), which says so.
+    const [conn] = await db
+      .select({ id: schema.connections.id })
+      .from(schema.connections)
+      .where(
+        and(
+          eq(schema.connections.account_id, salon.account),
+          eq(schema.connections.provider, "bookings_import"),
+        ),
+      );
+    const rows = conn
+      ? await db
+          .select({
+            metric_key: schema.metricObservations.metric_key,
+            value_minor: schema.metricObservations.value_minor,
+            value_num: schema.metricObservations.value_num,
+            period_date: schema.metricObservations.period_date,
+          })
+          .from(schema.metricObservations)
+          .where(eq(schema.metricObservations.connection_id, conn.id))
+      : [];
+    const from28 = data.shiftDay(today, -28);
+    const total = (metric: string) =>
+      rows
+        .filter((r) => r.metric_key === metric && r.period_date >= from28)
+        .reduce((n, r) => n + (r.value_minor ?? Number(r.value_num ?? 0)), 0);
+    const noShows = total("appointments_no_show.daily");
+    const completed = total("appointments_completed.daily");
+    const avg = completed > 0 ? Math.round(total("booking_revenue.daily") / completed) : 0;
+    const monthlyLoss = Math.round((noShows * avg * 30) / 28);
+    const share = (pct: number) => money(Math.round((monthlyLoss * pct) / 100), "EUR");
+    const whole = (minor: number) => `€${Math.round(minor / 100)}`;
+    const formula = (pct: number) =>
+      `${noShows} no-shows × ${whole(avg)} × 30 ÷ 28 × ${pct}% = ${whole(share(pct).amount_minor)}`;
+    await phase(
+      "Lumen Hair Studio: a deposit rule proposed",
+      new RealDate(RealDate.now() - 30_000).toISOString(),
+      async () => {
+        await createProposal({
+          profile_id: salon.profile,
+          module: "diagnosis",
+          action: {
+            kind: "operations_change",
+            summary: "Take a €15 deposit when a new client books",
+            detail: {
+              rationale:
+                "No-shows are the largest measured leak; a small deposit, taken off the bill, is the usual remedy.",
+            },
+          },
+          scenario: {
+            assumptions: [
+              {
+                statement: `${noShows} no-shows in the last 28 days`,
+                value: noShows,
+                source_field: null,
+                measured: "your bookings export, the last 28 days",
+                sensitivity: "medium",
+              },
+              {
+                statement: `the average completed appointment is ${whole(avg)}`,
+                value: money(avg, "EUR"),
+                source_field: null,
+                measured: "your bookings export, the last 28 days",
+                sensitivity: "low",
+              },
+              {
+                statement:
+                  "a deposit prevents a third of no-shows (downside a tenth, upside half) — assumed: nobody has measured it here yet",
+                value: 33,
+                source_field: null,
+                sensitivity: "high",
+              },
+            ],
+            base_case: {
+              case: "base",
+              statement: `a third fewer no-shows → +${whole(share(33).amount_minor)}/month`,
+              profit_delta_monthly: share(33),
+              formula: formula(33),
+            },
+            downside_case: {
+              case: "downside",
+              statement: `a tenth fewer → +${whole(share(10).amount_minor)}/month`,
+              profit_delta_monthly: share(10),
+              formula: formula(10),
+            },
+            upside_case: {
+              case: "upside",
+              statement: `half as many → +${whole(share(50).amount_minor)}/month`,
+              profit_delta_monthly: share(50),
+              formula: formula(50),
+            },
+            breakeven_condition: "costs nothing unless new clients stop booking because of it",
+          },
+          reversibility: {
+            level: "easy",
+            if_you_change_your_mind:
+              "Turn the deposit off in your booking system; nothing else changes.",
+          },
+          expires_at: new Date(Date.now() + 14 * DAY_MS).toISOString(),
+        });
+      },
+      who,
+    );
+    await db
+      .update(schema.users)
+      .set({ email: SALON_EMAIL })
+      .where(eq(schema.users.id, salon.user));
   }
 
   // Finished: the demo address now exists, so a re-run stops at the door.

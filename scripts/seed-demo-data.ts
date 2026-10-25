@@ -724,3 +724,72 @@ export const SITE_PAGES: Readonly<Record<string, string>> = {
 <form action="/cart/add" method="post"><button type="submit">Add to cart</button></form>`,
   ),
 };
+
+/* ── a booking business: "Lumen Hair Studio" (the salon demo) ── */
+
+/** Services, their list price (minor units, EUR) and how often each is booked. */
+export const SALON_SERVICES: readonly { name: string; price_minor: number; weight: number }[] = [
+  { name: "Cut & finish", price_minor: 4500, weight: 5 },
+  { name: "Colour", price_minor: 9500, weight: 2 },
+  { name: "Blow-dry", price_minor: 3500, weight: 3 },
+  { name: "Balayage", price_minor: 14000, weight: 1 },
+];
+
+/** Appointments the salon says it can take a week (question 1.4.2.3b): five days × 24 slots. */
+export const SALON_CAPACITY_PER_WEEK = 120;
+
+/** How many days of bookings the export covers, ending yesterday. */
+export const SALON_HISTORY_DAYS = 120;
+
+/**
+ * The salon's bookings export, Fresha-shaped, for the last
+ * SALON_HISTORY_DAYS days to yesterday. Open Tuesday to Saturday; about
+ * 22 appointments a day against 24 slots; a no-show about one in twelve
+ * (one in seven on Tuesdays), a late cancellation about one in twenty-five;
+ * forty regular clients. The last two open days a stylist was off sick and
+ * the book ran at half — the dip the anomaly layer catches. Deterministic
+ * for a given day; no network, no model.
+ */
+export function salonBookingsCsv(today: string): string {
+  const rand = prng(seedOf(`salon:${today}`));
+  const lines = ["Ref #,Scheduled date,Time,Status,Service,Team member,Client email,Price"];
+  const open = (day: string) => {
+    const w = weekdayOf(day);
+    return w >= 2 && w <= 6; // Tuesday..Saturday
+  };
+  const openDays: string[] = [];
+  for (let i = SALON_HISTORY_DAYS; i >= 1; i--) {
+    const day = shiftDay(today, -i);
+    if (open(day)) openDays.push(day);
+  }
+  const sick = new Set(openDays.slice(-2));
+  const staff = ["Aoife", "Sinead", "Marta"];
+  let n = 0;
+  for (const day of openDays) {
+    const tuesday = weekdayOf(day) === 2;
+    const booked = Math.round((sick.has(day) ? 11 : 20 + rand() * 5) * (tuesday ? 0.9 : 1));
+    for (let k = 0; k < booked; k++) {
+      n += 1;
+      const service = weighted(
+        rand,
+        SALON_SERVICES.map((s) => ({ item: s, weight: s.weight })),
+      );
+      const roll = rand();
+      const status =
+        roll < (tuesday ? 0.14 : 0.08)
+          ? "No-show"
+          : roll < (tuesday ? 0.18 : 0.12)
+            ? "Late cancel"
+            : roll < (tuesday ? 0.23 : 0.17)
+              ? "Cancelled"
+              : "Completed";
+      const hour = 9 + Math.floor((k / booked) * 9);
+      const minute = k % 2 === 0 ? "00" : "30";
+      const price = (service.price_minor / 100).toFixed(2);
+      lines.push(
+        `L-${n},${day},${String(hour).padStart(2, "0")}:${minute},${status},${service.name},${staff[k % staff.length]},client${Math.floor(rand() * 40)}@lumen-clients.example,${price}`,
+      );
+    }
+  }
+  return lines.join("\n");
+}

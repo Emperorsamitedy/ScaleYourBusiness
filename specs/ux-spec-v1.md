@@ -92,6 +92,42 @@ Motion reports state, and is subtler the more often it plays: 100ms press, 220ms
 - **Text reveals:** at most one marketing headline, masked as a single text node.
 - **Reduced motion:** under `prefers-reduced-motion` every duration is zero.
 
+### 2.1 Charts — the business read like a stock (2026-10-25)
+
+The landing's candlestick idea, built on the business's own measured data (`components/charts/`, `lib/charts/`, `app/charts.css`). The landing chart (`components/marketing/StoreChart.tsx`) stays fictional and scoped to `.ll`; nothing here reuses it.
+
+**The market chart** (`MarketChart.tsx`) sits on the fact sheet (`/profile`), the first screen after sign-in, between the page head and the record. Its head names it ("Your salon, read like a stock", the noun from `lib/core/business-noun`) and states the opportunity cost as a range from real data: "About €1,180–€1,950 a month is slipping away — mostly no-shows." It draws:
+
+- **Candles** from one source's daily money series (never a sum across two sources, business-wide rows only, one currency). In a week or month bucket, open is the first measured day, close the last, high and low the best and worst day. A one-day bucket opens at the previous measured day's value, since one figure has no body. A closed day prints no candle, the way a market holiday doesn't: nothing taken and nothing sold or booked, both measured. The readout counts closed days. The 1D / 1W / 1M switch is a group of pressed-state buttons. The period it opens on is the profile row's.
+- **A volume pane** for orders, appointments or visits per bucket.
+- **The overlay.** What slipped each day is drawn above the close as a two-step band: the low end of the range solid, the rest lighter, both tints of `--drift`. A dotted `--drift` line on top is "what you'd have kept". Its unit is money a day, like the candle's, so a week sits above its close by the week's average slip per trading day. Ad spend that didn't pay back is counted in the month but never drawn on revenue candles. The waiting proposals' monthly range ("on the table", ESTIMATED) is a dashed `--ok-band` band ahead of today, above the recent average day.
+- **Event markers**, each shown by shape and keyed by number in words below the chart. A hollow square marks something detected (an anomaly row), a filled square something the owner approved, and a dashed hairline the day the drawn source came in. Same-day events of one kind fold into one marker.
+- **A mono crosshair readout** (O H L C, volume, closed days, slipped per component with DERIVED, kept), driven by pointer or keyboard (← / →, Home / End, Esc).
+- **A table of every component**, visible rather than behind a hover. Each shows its figure a month (or "tied up now" for stock), its basis word, and its arithmetic with real numbers. An absent component says what would fill it. Stock and forecast rows sit apart under "Not added to the month".
+
+**Rules.** Plain SVG, with no chart library. Sheet tokens only, with no new colour. Up is a **filled** body and down a **hollow** one, so direction reads in grayscale and the `--ok` / `--alarm` tint only repeats it. No cobalt, because nothing here is the machine working. Square corners, no shadows, no icons. The SVG is drawn at its container's pixel width (one unit = one CSS pixel), so text stays at 11.5 px from a phone to a desk. Under 560 px it draws fewer buckets (30 days / 13 weeks / 6 months) and hides the volume pane. There is no horizontal page scroll. The text alternative is the summary sentence as the figure's accessible name, plus a visually-hidden table of every plotted value. There are no animations, so reduced motion holds.
+
+**Opportunity cost** (`lib/charts/opportunity.ts`). Each part is computed deterministically, with its basis word, `derived_from` and formula. Each is an ordered range in integer minor units with one currency. Where nothing estimated enters, low = high and one figure prints. Flows are read over 90 days ending on the latest measured day (ads over the pause rule's 14) and scaled to 30 days.
+
+- *Revenue dips* are DERIVED from the anomaly detector's own baseline, on days in a run of 2+ beyond its range. The high end is expected − actual. The low end also leaves out one usual variation. Whatever that day's no-shows, late cancellations and empty slots already price is taken off.
+- *No-shows* and *late cancellations* are DERIVED: the count × the measured average booking price. The price ranges from the lowest to the highest weekly average.
+- *Empty slots* are DERIVED, only from a capacity the owner STATED or ESTIMATED; otherwise the line is absent and says it won't assume one. The arithmetic is (capacity × measured days ÷ 7 − appointments still held) × the price range, spread over open days.
+- *Ads that lose money* are DERIVED from Meta's own attribution: spend − attributed value on campaigns with a return below 1.0.
+- *Cash in slow stock* is OBSERVED, or DERIVED where a stated cost stands in. It is a stock, never added to the month.
+- *On the table* is ESTIMATED: the waiting proposals' base case to upside case.
+
+A missing input is never filled with an industry number, and two currencies are never added.
+
+**Personalised as data** (`lib/charts/profiles.ts`). Every bank `business_type` code maps to an archetype: shop, hospitality, appointments, services or default ("other" and unknown codes). Each archetype names its price candidates in order (the first with 14+ measured days is drawn), its volume and the word for it, its components in order, the period it opens on, and what to connect when nothing is measured. `sells_type` refines only the default row. A business with no data sees the empty state: "Import your bookings export or connect Square, and I'll draw this.", a link to Connections, and every component's reason.
+
+**Smaller charts**, each drawn only where it tells a data story:
+
+- *Bookings, week by week*, on `/profile` beneath the market chart. Completed appointments are filled, no-shows hollow and late cancellations tinted, stacked. A separate pane on its own axis shows what the missed slots were worth (never a dual axis).
+- *Ads, the last 14 days*, on `/profile`. Each campaign shows spend as a hollow bar against Meta's attributed value as a filled bar on one scale, with LOSING / PAYS BACK flags.
+- *Slow stock, count by count*, on `/stock`. Each item's value at cost on each stock count is joined into a line, never summed across days. It is drawn only with two counts or more.
+
+The Goals screen already carries its own weekly candles against the path (`components/care/CandleChart.tsx`), so no second chart is added there. The diagnosis report has no priced money-leak column yet ("Money a month is printed only where a measure's gap is priced; none is"), and it is a dated snapshot, so a live chart beside it would contradict its date. No chart is added there.
+
 ---
 
 ## 3. Screen inventory
