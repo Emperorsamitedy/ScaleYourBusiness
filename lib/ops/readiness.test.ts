@@ -31,10 +31,10 @@ const FACTS: ReadinessFacts = {
 };
 
 const GOOD: ReadinessEnv = {
-  APP_URL: "https://app.ledgerline.example",
+  APP_URL: "https://app.syb.example",
   RESEND_API_KEY: "re_live_key",
-  EMAIL_FROM: "Ledgerline <hello@ledgerline.example>",
-  CAMPAIGN_EMAIL_FROM: "Ledgerline <hello@campaigns.ledgerline.example>",
+  EMAIL_FROM: "SYB <hello@syb.example>",
+  CAMPAIGN_EMAIL_FROM: "SYB <hello@campaigns.syb.example>",
   CONNECTOR_KEY: KEY_32_BASE64,
   CRON_SECRET: "cron",
   OPS_KEY: "ops",
@@ -42,10 +42,10 @@ const GOOD: ReadinessEnv = {
   INTERVIEWER_MODE: "llm",
   RESEND_WEBHOOK_SECRET: "whsec_inbound",
   RESEND_EVENTS_WEBHOOK_SECRET: "whsec_events",
-  SUPPORT_INBOUND_DOMAIN: "inbound.ledgerline.example",
+  SUPPORT_INBOUND_DOMAIN: "inbound.syb.example",
   META_APP_ID: "123",
   META_APP_SECRET: "meta-secret",
-  META_OAUTH_REDIRECT_URI: "https://app.ledgerline.example/api/connections/meta/callback",
+  META_OAUTH_REDIRECT_URI: "https://app.syb.example/api/connections/meta/callback",
   META_ACCESS_LEVEL: "standard",
   BLOB_READ_WRITE_TOKEN: "vercel_blob_rw_x",
   STRIPE_SECRET_KEY: "sk_test_abc",
@@ -78,7 +78,7 @@ describe("launch readiness — the order and the counts", () => {
     ]);
     const total = report.groups.reduce((n, g) => n + g.items.length, 0);
     expect(Object.values(report.counts).reduce((a, b) => a + b, 0)).toBe(total);
-    expect(report.app_origin).toBe("https://app.ledgerline.example");
+    expect(report.app_origin).toBe("https://app.syb.example");
   });
 
   it("every item says where its value comes from: a dashboard link, or words", () => {
@@ -113,20 +113,18 @@ describe("email", () => {
   it("EMAIL_FROM: a real domain is READY and named; absent, the Resend default or unreadable is MISSING", () => {
     const ok = find(GOOD, "EMAIL_FROM");
     expect(ok.status).toBe("ready");
-    expect(ok.says).toContain("ledgerline.example");
+    expect(ok.says).toContain("syb.example");
     expect(status({ ...GOOD, EMAIL_FROM: undefined }, "EMAIL_FROM")).toBe("missing");
-    expect(
-      status({ ...GOOD, EMAIL_FROM: "Ledgerline <onboarding@resend.dev>" }, "EMAIL_FROM"),
-    ).toBe("missing");
+    expect(status({ ...GOOD, EMAIL_FROM: "SYB <onboarding@resend.dev>" }, "EMAIL_FROM")).toBe(
+      "missing",
+    );
     expect(status({ ...GOOD, EMAIL_FROM: "not an address" }, "EMAIL_FROM")).toBe("missing");
   });
 
   it("APP_URL: https is READY; http, junk or absent is MISSING", () => {
     expect(status(GOOD, "APP_URL")).toBe("ready");
-    expect(status({ ...GOOD, APP_URL: "http://app.ledgerline.example" }, "APP_URL")).toBe(
-      "missing",
-    );
-    expect(status({ ...GOOD, APP_URL: "ledgerline" }, "APP_URL")).toBe("missing");
+    expect(status({ ...GOOD, APP_URL: "http://app.syb.example" }, "APP_URL")).toBe("missing");
+    expect(status({ ...GOOD, APP_URL: "syb" }, "APP_URL")).toBe("missing");
     expect(status({ ...GOOD, APP_URL: undefined }, "APP_URL")).toBe("missing");
   });
 });
@@ -207,9 +205,9 @@ describe("support inbox", () => {
   it("webhook secrets: present is READY with the URL to paste; absent is MISSING; the same value twice is CHECK", () => {
     const inbound = find(GOOD, "RESEND_WEBHOOK_SECRET");
     expect(inbound.status).toBe("ready");
-    expect(inbound.paste).toContain("https://app.ledgerline.example/api/support/inbound");
+    expect(inbound.paste).toContain("https://app.syb.example/api/support/inbound");
     const events = find(GOOD, "RESEND_EVENTS_WEBHOOK_SECRET");
-    expect(events.paste).toContain("https://app.ledgerline.example/api/email/events");
+    expect(events.paste).toContain("https://app.syb.example/api/email/events");
     expect(status({ ...GOOD, RESEND_WEBHOOK_SECRET: "" }, "RESEND_WEBHOOK_SECRET")).toBe("missing");
     expect(
       status({ ...GOOD, RESEND_EVENTS_WEBHOOK_SECRET: "" }, "RESEND_EVENTS_WEBHOOK_SECRET"),
@@ -229,7 +227,7 @@ describe("support inbox", () => {
   });
 
   it("SUPPORT_INBOUND_DOMAIN: a domain is READY and named; absent or junk is MISSING", () => {
-    expect(find(GOOD, "SUPPORT_INBOUND_DOMAIN").says).toContain("inbound.ledgerline.example");
+    expect(find(GOOD, "SUPPORT_INBOUND_DOMAIN").says).toContain("inbound.syb.example");
     expect(status({ ...GOOD, SUPPORT_INBOUND_DOMAIN: "" }, "SUPPORT_INBOUND_DOMAIN")).toBe(
       "missing",
     );
@@ -249,10 +247,7 @@ describe("campaigns", () => {
     expect(status(GOOD, "CAMPAIGN_EMAIL_FROM")).toBe("ready");
     expect(status({ ...GOOD, CAMPAIGN_EMAIL_FROM: "" }, "CAMPAIGN_EMAIL_FROM")).toBe("off");
     expect(
-      status(
-        { ...GOOD, CAMPAIGN_EMAIL_FROM: "News <news@ledgerline.example>" },
-        "CAMPAIGN_EMAIL_FROM",
-      ),
+      status({ ...GOOD, CAMPAIGN_EMAIL_FROM: "News <news@syb.example>" }, "CAMPAIGN_EMAIL_FROM"),
     ).toBe("missing");
     expect(status({ ...GOOD, CAMPAIGN_EMAIL_FROM: "campaigns" }, "CAMPAIGN_EMAIL_FROM")).toBe(
       "missing",
@@ -312,7 +307,7 @@ describe("Meta", () => {
     const wrong = find({ ...GOOD, META_OAUTH_REDIRECT_URI: "https://elsewhere.example/cb" }, name);
     expect(wrong.status).toBe("missing");
     expect(wrong.says).not.toContain("elsewhere");
-    expect(wrong.paste).toEqual(["https://app.ledgerline.example/api/connections/meta/callback"]);
+    expect(wrong.paste).toEqual(["https://app.syb.example/api/connections/meta/callback"]);
     expect(status({ ...GOOD, META_OAUTH_REDIRECT_URI: "" }, name)).toBe("check");
     expect(status({ ...GOOD, APP_URL: "" }, name)).toBe("missing");
   });
@@ -387,9 +382,9 @@ describe("optional", () => {
 
 describe("the pure readers", () => {
   it("fromDomain reads the address's domain, or null", () => {
-    expect(fromDomain("Ledgerline <Hello@Mail.Example.COM>")).toBe("mail.example.com");
+    expect(fromDomain("SYB <Hello@Mail.Example.COM>")).toBe("mail.example.com");
     expect(fromDomain("hello@example.com")).toBe("example.com");
-    expect(fromDomain("Ledgerline")).toBeNull();
+    expect(fromDomain("SYB")).toBeNull();
     expect(fromDomain(undefined)).toBeNull();
   });
 
@@ -478,10 +473,10 @@ describe("no secret value appears anywhere in the readiness output", () => {
 
   function sentinelEnv(): Record<string, string> {
     const env: Record<string, string> = {
-      APP_URL: "https://app.ledgerline.example",
-      EMAIL_FROM: "Ledgerline <hello@ledgerline.example>",
-      CAMPAIGN_EMAIL_FROM: "Ledgerline <hello@campaigns.ledgerline.example>",
-      SUPPORT_INBOUND_DOMAIN: "inbound.ledgerline.example",
+      APP_URL: "https://app.syb.example",
+      EMAIL_FROM: "SYB <hello@syb.example>",
+      CAMPAIGN_EMAIL_FROM: "SYB <hello@campaigns.syb.example>",
+      SUPPORT_INBOUND_DOMAIN: "inbound.syb.example",
       // Non-secret settings holding a secret by mistake must not echo it either.
       INTERVIEWER_MODE: token("INTERVIEWERMODE"),
       META_ACCESS_LEVEL: token("METAACCESSLEVEL"),

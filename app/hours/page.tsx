@@ -13,7 +13,7 @@ import { logSafeError } from "../../lib/core/log-safe";
 import { OPEN_HOUR_COST_KEY } from "../../lib/hours/trading";
 import { readCurrentField } from "../../lib/profile/field-store";
 
-export const metadata: Metadata = { title: "Trading hours — Ledgerline" };
+export const metadata: Metadata = { title: "Trading hours — SYB" };
 export const dynamic = "force-dynamic";
 
 async function hourCost(): Promise<HourCost | null> {

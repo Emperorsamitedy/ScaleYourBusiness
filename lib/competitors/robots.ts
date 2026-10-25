@@ -15,7 +15,7 @@
 //     The second is the conservative half: not knowing is not consent.
 
 /** The token our user agent starts with, matched case-insensitively. */
-export const ROBOTS_TOKEN = "ledgerline";
+export const ROBOTS_TOKEN = "syb";
 
 interface Rule {
   allow: boolean;
@@ -63,7 +63,7 @@ export function parseRobots(body: string, token: string = ROBOTS_TOKEN): RobotsR
     }
   }
 
-  // "Ledgerline" and "Ledgerline-CompetitorRead" both name us.
+  // "SYB" and "SYB-CompetitorRead" both name us.
   const ours = groups.filter((g) => g.agents.some((a) => a.startsWith(token)));
   const star = groups.filter((g) => g.agents.includes("*"));
   const chosen = ours.length > 0 ? ours : star;

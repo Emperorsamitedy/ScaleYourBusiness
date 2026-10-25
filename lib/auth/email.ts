@@ -26,7 +26,7 @@ export interface SendResult {
   provider?: { status: number; id: string | null };
 }
 
-const FROM = () => process.env.EMAIL_FROM ?? "Ledgerline <onboarding@resend.dev>";
+const FROM = () => process.env.EMAIL_FROM ?? "SYB <onboarding@resend.dev>";
 
 export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY;
@@ -41,9 +41,9 @@ export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
     body: JSON.stringify({
       from: FROM(),
       to: [mail.to],
-      subject: "Your sign-in link — Ledgerline",
+      subject: "Your sign-in link — SYB",
       text:
-        `Click to sign in to Ledgerline:\n\n${mail.link}\n\n` +
+        `Click to sign in to SYB:\n\n${mail.link}\n\n` +
         `The link works once and expires in 15 minutes. ` +
         `If you didn't ask for it, ignore this email — nothing happens without the link.`,
     }),

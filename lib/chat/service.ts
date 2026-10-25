@@ -84,7 +84,7 @@ export type AnswerLlm = (args: {
   accountId: string;
 }) => Promise<{ text: string; calls: LlmCallRecord[] }>;
 
-const ANSWER_SYSTEM = `You are Ledgerline, a small business's own agent, answering in first person, plainly (ux-spec §10).
+const ANSWER_SYSTEM = `You are SYB, a small business's own agent, answering in first person, plainly (ux-spec §10).
 
 Rules that are not negotiable:
 - Answer ONLY from the business context below. Every number you cite exists there. If the answer isn't in it, say what's missing and name the question that would make it answerable. Never drift into generic business advice.

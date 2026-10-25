@@ -1,10 +1,10 @@
 // The first-campaign review — review 2026-10-23 (#5c), rule 23.
 //
-// Campaigns go out from Ledgerline's own sending domain and Resend account.
+// Campaigns go out from SYB's own sending domain and Resend account.
 // A self-signed-up account can import scraped addresses, attest "explicit
 // consent" and send under any sender name; the complaints that follow land
 // on the shared domain, and owners stop getting their sign-in links. So a
-// PERSON at Ledgerline reads each account's FIRST campaign before it sends,
+// PERSON at SYB reads each account's FIRST campaign before it sends,
 // and that reading is a fact, the way the law review is:
 //
 //   - a review is a row: the operator's name, the day, the campaign they
@@ -51,7 +51,7 @@ export interface CampaignReviewVerdict {
 
 /** Said while an account's first campaign waits for its review. */
 export const FIRST_CAMPAIGN_UNREVIEWED =
-  "This is your first campaign, so a person at Ledgerline reads it before it goes out. Campaigns share Ledgerline's sending address, and this keeps it trusted for everyone. It sends once that review is recorded.";
+  "This is your first campaign, so a person at SYB reads it before it goes out. Campaigns share SYB's sending address, and this keeps it trusted for everyone. It sends once that review is recorded.";
 
 /** Pure: the verdict from the account's latest review, or none. */
 export function campaignReviewVerdict(
@@ -62,7 +62,7 @@ export function campaignReviewVerdict(
   }
   return {
     reviewed: true,
-    words: `Your first campaign was reviewed by Ledgerline on ${latest.reviewed_on}.`,
+    words: `Your first campaign was reviewed by SYB on ${latest.reviewed_on}.`,
     reviewed_on: latest.reviewed_on,
   };
 }

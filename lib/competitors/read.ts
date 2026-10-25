@@ -25,9 +25,9 @@ export const READ_CAPS = {
   max_bytes: 600_000,
 } as const;
 
-/** Plain and honest: who we are and what we do. robots.txt groups match on "Ledgerline". */
+/** Plain and honest: who we are and what we do. robots.txt groups match on "SYB". */
 export const COMPETITOR_USER_AGENT =
-  "Ledgerline-CompetitorRead/1.0 (reads public pages a customer listed, weekly; honours robots.txt)";
+  "SYB-CompetitorRead/1.0 (reads public pages a customer listed, weekly; honours robots.txt)";
 
 /** The live fetcher: the hardened helper with this reader's agent, timeout and byte cap. */
 export const competitorFetcher: PageFetcher = createGuardedFetcher({

@@ -46,7 +46,7 @@ export async function runSmokeEmail(args: {
   const from = fromAddress(env.EMAIL_FROM);
   if (!from)
     return r.refuse(
-      `EMAIL_FROM isn't an address I can read; write it as "Ledgerline <hello@your-domain>".`,
+      `EMAIL_FROM isn't an address I can read; write it as "SYB <hello@your-domain>".`,
     );
   if (from === "onboarding@resend.dev") {
     return r.refuse(

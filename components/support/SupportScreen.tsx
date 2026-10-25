@@ -294,7 +294,7 @@ export function SupportScreen() {
     return (
       <main className="auth-stage">
         <div className="auth-col">
-          <span className="wordmark">Ledgerline</span>
+          <span className="wordmark">SYB</span>
           <section className="card auth-card">
             <span className="auth-eyebrow">support</span>
             <h1 className="auth-title">Start with the intake.</h1>

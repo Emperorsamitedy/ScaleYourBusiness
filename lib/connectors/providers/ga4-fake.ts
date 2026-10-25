@@ -19,7 +19,7 @@ export interface FakeServiceAccount {
 }
 
 export function makeServiceAccount(
-  email = "ledgerline-reader@ember-oak.iam.gserviceaccount.com",
+  email = "syb-reader@ember-oak.iam.gserviceaccount.com",
   tokenUri = "https://oauth2.googleapis.com/token",
 ): FakeServiceAccount {
   const { privateKey, publicKey } = generateKeyPairSync("rsa", {

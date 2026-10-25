@@ -195,7 +195,7 @@ describe("the page cap", () => {
 
 describe("SSRF: every request goes through the hardened helper", () => {
   it("identifies itself plainly", () => {
-    expect(COMPETITOR_USER_AGENT).toMatch(/^Ledgerline-CompetitorRead\/1\.0 \(/);
+    expect(COMPETITOR_USER_AGENT).toMatch(/^SYB-CompetitorRead\/1\.0 \(/);
   });
 
   it.each([

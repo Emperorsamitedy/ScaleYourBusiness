@@ -74,7 +74,7 @@ _"Payments are the most reliable truth about revenue."_
 
 - [x] **P2-18** GA4 read-only: sessions/users by channel per day → channel-dimension observations mapped to the profile's `channels` entities (same confirm-the-mapping pattern as P2-15).
 - [x] **P2-19** Meta Ads read-only: daily spend + attributed purchases → `ad_spend.daily`; measured spend supersedes `marketing.monthly_ad_spend`, and the 8-week watch rule (Session H) starts firing on measured truth.
-- [ ] **P2-20** Google Ads read-only, same shape. **⏸ Blocked, owner decision 2026-09-15 (deferred until approved):** Google Ads needs Ledgerline's own developer token and Google OAuth app verification of the `adwords` scope, and it has no read-only scope at all; read-only would rest on the owner connecting with a Read-only user in their Ads account. Nothing can be tested for real until both approvals exist. Ad spend is measured from Meta until then.
+- [ ] **P2-20** Google Ads read-only, same shape. **⏸ Blocked, owner decision 2026-09-15 (deferred until approved):** Google Ads needs SYB's own developer token and Google OAuth app verification of the `adwords` scope, and it has no read-only scope at all; read-only would rest on the owner connecting with a Read-only user in their Ads account. Nothing can be tested for real until both approvals exist. Ad spend is measured from Meta until then.
 - [x] **P2-21** CAC and ROAS computed (not asserted) when spend and orders are both measured — with the economics engine's existing refusal discipline when either side is missing.
 
 **Done when:** the FTGU-class finding "you advertise but can't measure if it pays off" can be answered by the system itself for a connected business.

@@ -153,12 +153,12 @@ const OUTPUT_SCHEMA = {
 // PROMPT STATUS: UNCALIBRATED — written 2026-10-13, never run against a
 // real stalled business. Calibrate on the first real alert, as the
 // diagnosis prompt was (findings.ts header).
-export const REVIEW_SYSTEM = `A small business has been in Ledgerline's care and is not moving towards its owner's goal. You are reviewing everything that happened, to find out why and what to try next.
+export const REVIEW_SYSTEM = `A small business has been in SYB's care and is not moving towards its owner's goal. You are reviewing everything that happened, to find out why and what to try next.
 
 You are given a case file. Every line starts with an evidence id in square brackets. Rules that code checks after you answer — violating them discards that part of your answer:
 - causes: each names a category, states the cause plainly, and cites evidence ids copied EXACTLY from the case file. A cause with no evidence, or citing an id that is not in the case file, is discarded.
 - Weigh every category: ${CAUSE_CATEGORIES.join(", ")}. Each must appear either as a cause or in "considered" with the reason you set it aside. A skipped category is recorded as a failure of this review.
-- "our_advice_was_wrong" is Ledgerline's own suggestions failing — proposals that executed and did nothing or backfired. Name it when the evidence says so. Protecting the product is not your job; finding the truth is.
+- "our_advice_was_wrong" is SYB's own suggestions failing — proposals that executed and did nothing or backfired. Name it when the evidence says so. Protecting the product is not your job; finding the truth is.
 - "goal_unrealistic" is the target asking for more than the business could plausibly do in the time. Say so when the evidence says so.
 - Never invent numbers. Use the case file's figures.
 - suggestions: 1 to 4 concrete next steps, each citing evidence ids. Use an action kind when one fits; "revise_goal" and "stop_strategy" are suggestions the owner acts on. Do not suggest anything the case file shows the owner has refused or limited.
@@ -376,7 +376,7 @@ async function logWatch(profileId: string, kind: string, detail: string, meta: o
 }
 
 const ESCALATED_DETAIL =
-  "A person at Ledgerline is now looking at this goal — the automatic review has done what it can.";
+  "A person at SYB is now looking at this goal — the automatic review has done what it can.";
 
 /** Run the review for a goal in alert. Guards first; one model call at most. */
 export async function runAlertReview(

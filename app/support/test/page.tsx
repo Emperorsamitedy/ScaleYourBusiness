@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { WidgetTestPage } from "../../../components/support/WidgetTestPage";
 
-export const metadata: Metadata = { title: "Widget test page — Ledgerline" };
+export const metadata: Metadata = { title: "Widget test page — SYB" };
 
 export default function SupportTestPage() {
   return <WidgetTestPage />;

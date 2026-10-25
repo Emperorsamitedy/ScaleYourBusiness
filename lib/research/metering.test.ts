@@ -351,7 +351,7 @@ describe("pages are read the competitor reader's way", () => {
   });
 
   it("says who it is: not 'owner-requested', and that it honours robots.txt", () => {
-    expect(RESEARCH_USER_AGENT).toMatch(/^Ledgerline-/);
+    expect(RESEARCH_USER_AGENT).toMatch(/^SYB-/);
     expect(RESEARCH_USER_AGENT).toMatch(/honours robots\.txt/);
     expect(RESEARCH_USER_AGENT).not.toMatch(/owner-requested/);
   });

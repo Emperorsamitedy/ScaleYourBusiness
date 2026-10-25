@@ -483,7 +483,7 @@ export function QueueScreen() {
     return (
       <main className="auth-stage">
         <div className="auth-col">
-          <span className="wordmark">Ledgerline</span>
+          <span className="wordmark">SYB</span>
           <section className="card auth-card">
             <span className="auth-eyebrow">proposals</span>
             <h1 className="auth-title">Sign in to decide.</h1>
@@ -791,7 +791,7 @@ export function QueueScreen() {
     <header className="q-mast">
       <div className="q-mast-left">
         <Link href="/watch" className="q-wordmark">
-          Ledgerline
+          SYB
         </Link>
         <span className="q-mast-meta">{q.business ? `${q.business} · ` : ""}Decisions</span>
       </div>
@@ -986,7 +986,7 @@ export function QueueScreen() {
         <header className="q-mast q-mast-m">
           <div className="q-mast-row">
             <Link href="/watch" className="q-wordmark">
-              Ledgerline
+              SYB
             </Link>
             {q.business && <span className="q-mast-meta">{q.business}</span>}
           </div>

@@ -87,7 +87,7 @@ function download(rows: readonly LedgerRow[], filter: LedgerFilter) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `ledgerline-history-${filter}-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = `syb-history-${filter}-${new Date().toISOString().slice(0, 10)}.csv`;
   document.body.appendChild(a);
   a.click();
   a.remove();

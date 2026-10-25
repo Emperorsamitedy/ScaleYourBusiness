@@ -165,7 +165,7 @@ export function EmailCampaignSection({
                     </span>
                   </dd>
                   <dt>sent as</dt>
-                  <dd>{c.sender_name} via Ledgerline</dd>
+                  <dd>{c.sender_name} via SYB</dd>
                   <dt>replies go to</dt>
                   <dd>{c.reply_to}</dd>
                 </dl>
@@ -196,8 +196,8 @@ export function EmailCampaignSection({
                   ))}
                 </ul>
                 <p className="cn-note">
-                  Campaigns go out from Ledgerline&rsquo;s own email service, under your business
-                  name. You don&rsquo;t give Ledgerline any password or key for this.
+                  Campaigns go out from SYB&rsquo;s own email service, under your business name. You
+                  don&rsquo;t give SYB any password or key for this.
                 </p>
                 <form className="cn-form" onSubmit={(e) => void grant(e)}>
                   <label className="cn-field">
@@ -261,10 +261,10 @@ export function EmailCampaignSection({
       <section className="cn-access" aria-labelledby="cn-email-how">
         <p className="cn-access-label">How campaigns are sent</p>
         <h2 className="cn-access-title" id="cn-email-how">
-          From Ledgerline&rsquo;s own email service, under your name.
+          From SYB&rsquo;s own email service, under your name.
         </h2>
         <p className="cn-access-body">
-          You give Ledgerline no password or key for this. Each campaign goes only to customers who
+          You give SYB no password or key for this. Each campaign goes only to customers who
           explicitly agreed to hear from you, each one checked again at the moment it goes, and
           every email carries its own unsubscribe link, honoured at once and for good.
         </p>

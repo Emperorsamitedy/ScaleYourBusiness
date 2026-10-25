@@ -10,7 +10,7 @@ import { logSafeError } from "../../lib/core/log-safe";
 import type { FactChange } from "../../lib/trust/fact-changes";
 import { factChanges } from "../../lib/trust/fact-changes";
 
-export const metadata: Metadata = { title: "History — Ledgerline" };
+export const metadata: Metadata = { title: "History — SYB" };
 
 export default async function HistoryPage() {
   let facts: FactChange[] | null = null;

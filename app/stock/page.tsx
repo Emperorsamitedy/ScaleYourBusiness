@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { StockScreen } from "../../components/stock/StockScreen";
 
-export const metadata: Metadata = { title: "Slow stock — Ledgerline" };
+export const metadata: Metadata = { title: "Slow stock — SYB" };
 
 export default function StockPage() {
   return <StockScreen />;

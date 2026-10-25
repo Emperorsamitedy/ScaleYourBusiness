@@ -6,7 +6,7 @@ import { ConfirmLink } from "../../../components/auth/ConfirmLink";
 import { AuthError, peekLogin } from "../../../lib/auth/service";
 
 export const metadata: Metadata = {
-  title: "Confirm sign-in — Ledgerline",
+  title: "Confirm sign-in — SYB",
   // The token is in this page's address; never hand it on.
   referrer: "no-referrer",
   robots: { index: false, follow: false },

@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { IntakeStage } from "@/components/intake/IntakeStage";
 
 export const metadata: Metadata = {
-  title: "Setting up the record — Ledgerline",
+  title: "Setting up the record — SYB",
 };
 
 export default function IntakePage() {

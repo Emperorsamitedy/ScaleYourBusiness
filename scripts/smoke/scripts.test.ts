@@ -27,9 +27,9 @@ const SENTINELS = {
 
 const ENV = {
   ...SENTINELS,
-  EMAIL_FROM: "Ledgerline <hello@ledgerline.example>",
-  APP_URL: "https://app.ledgerline.example",
-  SUPPORT_INBOUND_DOMAIN: "inbound.ledgerline.example",
+  EMAIL_FROM: "SYB <hello@syb.example>",
+  APP_URL: "https://app.syb.example",
+  SUPPORT_INBOUND_DOMAIN: "inbound.syb.example",
 };
 
 const PROFILE = "11111111-2222-4333-8444-555555555555";
@@ -53,13 +53,10 @@ describe("smoke:email", () => {
   it("refuses without its keys, an address, a real sender, https or --yes — and sends nothing", async () => {
     const send = vi.fn(async () => accepted);
     const cases: [Record<string, string | undefined>, string[]][] = [
-      [{ ...ENV, RESEND_API_KEY: "" }, ["--to", "me@ledgerline.example", "--yes"]],
+      [{ ...ENV, RESEND_API_KEY: "" }, ["--to", "me@syb.example", "--yes"]],
       [ENV, ["--yes"]],
-      [
-        { ...ENV, EMAIL_FROM: "Ledgerline <onboarding@resend.dev>" },
-        ["--to", "me@x.example", "--yes"],
-      ],
-      [{ ...ENV, APP_URL: "http://app.ledgerline.example" }, ["--to", "me@x.example", "--yes"]],
+      [{ ...ENV, EMAIL_FROM: "SYB <onboarding@resend.dev>" }, ["--to", "me@x.example", "--yes"]],
+      [{ ...ENV, APP_URL: "http://app.syb.example" }, ["--to", "me@x.example", "--yes"]],
       [ENV, ["--to", "me@x.example"]],
     ];
     for (const [env, argv] of cases) {
@@ -78,15 +75,15 @@ describe("smoke:email", () => {
     const out = capture();
     const code = await runSmokeEmail({
       env: ENV,
-      argv: ["--to", "me@ledgerline.example", "--yes"],
+      argv: ["--to", "me@syb.example", "--yes"],
       print: out.print,
       deps: { send },
     });
     expect(code).toBe(EXIT_PASS);
     expect(send).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith({
-      to: "me@ledgerline.example",
-      link: "https://app.ledgerline.example/login",
+      to: "me@syb.example",
+      link: "https://app.syb.example/login",
     });
     expect(out.text()).toContain("1. PASS  Resend accepted the email: status 200, id em_42.");
     expect(out.text()).toContain("db.prod.example:5432/syb as syb, password ***");
@@ -97,7 +94,7 @@ describe("smoke:email", () => {
     const out = capture();
     const code = await runSmokeEmail({
       env: ENV,
-      argv: ["--to", "me@ledgerline.example", "--yes"],
+      argv: ["--to", "me@syb.example", "--yes"],
       print: out.print,
       deps: {
         send: async () => ({ delivered_via: "failed", provider: { status: 403, id: null } }),
@@ -139,12 +136,12 @@ function inboundDeps(over: Partial<InboundDeps> = {}, landingAfter = 2): Inbound
 }
 
 describe("smoke:inbound", () => {
-  it("refuses without its keys, a profile id, a sender, or when the sender is Ledgerline's own", async () => {
+  it("refuses without its keys, a profile id, a sender, or when the sender is SYB's own", async () => {
     const cases: [Record<string, string | undefined>, string[]][] = [
       [{ ...ENV, SUPPORT_INBOUND_DOMAIN: "" }, ["--profile", PROFILE, "--from", "me@x.example"]],
       [ENV, ["--profile", "nope", "--from", "me@x.example"]],
       [ENV, ["--profile", PROFILE]],
-      [ENV, ["--profile", PROFILE, "--from", "hello@ledgerline.example"]],
+      [ENV, ["--profile", PROFILE, "--from", "hello@syb.example"]],
     ];
     for (const [env, argv] of cases) {
       const findLanding = vi.fn(async () => null);
@@ -166,7 +163,7 @@ describe("smoke:inbound", () => {
       deps: inboundDeps(),
     });
     expect(code).toBe(EXIT_PASS);
-    expect(out.text()).toContain(`s-${"a".repeat(32)}@inbound.ledgerline.example`);
+    expect(out.text()).toContain(`s-${"a".repeat(32)}@inbound.syb.example`);
     expect(out.text()).toContain("From me@x.example, write a new email");
     expect(out.text()).toMatch(/2\. PASS {2}A ticket landed from me@x\.example: ticket t-1/);
     expect(out.text()).toContain("3. PASS  The ticket's channel is email.");
@@ -183,7 +180,7 @@ describe("smoke:inbound", () => {
     });
     expect(code).toBe(EXIT_FAIL);
     expect(out.text()).toContain("No ticket from me@x.example within 30 seconds");
-    expect(out.text()).toContain("https://app.ledgerline.example/api/support/inbound");
+    expect(out.text()).toContain("https://app.syb.example/api/support/inbound");
     assertNoSecret(out.text());
   });
 
@@ -364,9 +361,9 @@ describe("smoke:widget", () => {
     const t = out.text();
     expect(t).toContain(`Site key (public by design): ${"b".repeat(32)}`);
     expect(t).toContain(
-      `<script src="https://app.ledgerline.example/support-widget.js" data-site-key="${"b".repeat(32)}" async></script>`,
+      `<script src="https://app.syb.example/support-widget.js" data-site-key="${"b".repeat(32)}" async></script>`,
     );
-    expect(t).toContain("https://app.ledgerline.example/support/test");
+    expect(t).toContain("https://app.syb.example/support/test");
     expect(t).toContain("automated assistant");
     expect(t).toContain("ask for a person");
     assertNoSecret(t);

@@ -17,7 +17,7 @@ import {
 import { executionProvider } from "./index";
 
 const MAIL = {
-  from: '"Emberworks via Ledgerline" <hello@send.syb.test>',
+  from: '"Emberworks via SYB" <hello@send.syb.test>',
   to: "ann@customers.test",
   reply_to: "hello@emberworks.test",
   subject: "A note",

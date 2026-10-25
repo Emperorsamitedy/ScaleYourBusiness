@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { SimulateScreen } from "../../components/simulate/SimulateScreen";
 
-export const metadata: Metadata = { title: "Campaign simulator — Ledgerline" };
+export const metadata: Metadata = { title: "Campaign simulator — SYB" };
 
 export default function SimulatePage() {
   return <SimulateScreen />;

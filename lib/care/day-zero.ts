@@ -1,6 +1,6 @@
 // Day zero — P3-43 (Session J, alert mode).
 //
-// The moment a business enters Ledgerline's care is the "before" every
+// The moment a business enters SYB's care is the "before" every
 // later judgement compares against: where the business stood, what it
 // wanted, what it held. It is recorded once, at the first mode decision,
 // as a frozen snapshot (rule 3 makes that a list of record ids, not a

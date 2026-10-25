@@ -1962,7 +1962,7 @@ async function seed(): Promise<void> {
         process.env.SESSION_D_REAL_WRITES = "on";
         process.env.RESEND_API_KEY = "re_demo_in_process_fake";
         process.env.APP_URL = "https://demo.syb.test";
-        process.env.EMAIL_FROM = "Ledgerline <campaigns@syb.test>";
+        process.env.EMAIL_FROM = "SYB <campaigns@syb.test>";
         const current = lawReviewVerdict(
           { table_sha256: jurisdictionTableHash(), reviewed_on: today },
           jurisdictionTableHash(),

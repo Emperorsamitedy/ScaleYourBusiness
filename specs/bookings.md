@@ -31,7 +31,7 @@ Checked against public documentation on 2026-10-22, about an hour in total. "Rea
 **What this decided.**
 
 - **Square is the only one connected now.** It is the only platform here with a read-only permission a small business grants itself, verified by the provider (Square reports a token's scopes), so the scope audit is a real check.
-- **Mindbody** has a real read API, but needs Ledgerline's own developer account and a per-site activation. Re-judge it when a Mindbody studio asks.
+- **Mindbody** has a real read API, but needs SYB's own developer account and a per-site activation. Re-judge it when a Mindbody studio asks.
 - **SimplyBook.me and Acuity** have APIs, but their keys are full admin keys with no read-only scope. Connecting them would break rule 9's spirit (a key that could write), so they come in by export.
 - **Calendly** is scoped and read-only-capable (`scheduled_events:read`) but is a meeting scheduler rather than a salon or gym system; deferred until asked.
 - **Everyone else comes in by export.** That is why the import exists, and why its column map is wide.

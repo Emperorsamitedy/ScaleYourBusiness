@@ -1003,8 +1003,8 @@ export function ConnectionsScreen() {
           )}
           <p>
             Measured figures replace your estimates in the report, and your estimates stay in your
-            history. Google Ads isn&rsquo;t available yet: it needs Ledgerline&rsquo;s own approval
-            from Google before any account can connect.
+            history. Google Ads isn&rsquo;t available yet: it needs SYB&rsquo;s own approval from
+            Google before any account can connect.
           </p>
         </footer>
       </section>

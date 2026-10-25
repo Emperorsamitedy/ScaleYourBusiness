@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { FactSheetScreen } from "@/components/profile/FactSheet";
 
 export const metadata: Metadata = {
-  title: "Your fact sheet — Ledgerline",
+  title: "Your fact sheet — SYB",
 };
 
 export default function ProfilePage() {

@@ -11,7 +11,7 @@ import type { GoalChart } from "../../lib/care/charts";
 import { loadGoalCharts } from "../../lib/care/charts";
 import { logSafeError } from "../../lib/core/log-safe";
 
-export const metadata: Metadata = { title: "Goals — Ledgerline" };
+export const metadata: Metadata = { title: "Goals — SYB" };
 export const dynamic = "force-dynamic";
 
 export default async function ProgressPage() {

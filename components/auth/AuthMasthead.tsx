@@ -8,7 +8,7 @@ export function AuthMasthead({ href, children }: { href?: string; children?: Rea
   return (
     <header className="au-mast">
       <Link href="/" className="au-mark">
-        Ledgerline
+        SYB
       </Link>
       {href && children ? (
         <Link href={href} className="au-mast-link">

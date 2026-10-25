@@ -340,12 +340,12 @@ export interface SendOutcome {
   note: string | null;
 }
 
-/** "Fernhill Ceramics via Ledgerline <support@…>": our verified sending address, their name. */
+/** "Fernhill Ceramics via SYB <support@…>": our verified sending address, their name. */
 function fromHeader(businessName: string): string {
-  const raw = process.env.EMAIL_FROM?.trim() || "Ledgerline <onboarding@resend.dev>";
+  const raw = process.env.EMAIL_FROM?.trim() || "SYB <onboarding@resend.dev>";
   const address = /<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw;
   const name = businessName.replace(/["<>\r\n\\]/g, "").trim() || "Support";
-  return `"${name} via Ledgerline" <${address.trim()}>`;
+  return `"${name} via SYB" <${address.trim()}>`;
 }
 
 function subjectFor(last: ReplyTarget["last_inbound"], businessName: string): string {

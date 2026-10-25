@@ -44,7 +44,7 @@ export function Masthead({
 
   return (
     <header className="ix-mast">
-      <span className="ix-mark">Ledgerline</span>
+      <span className="ix-mark">SYB</span>
       <span className="ix-mast-sub">
         Calibrating the record
         {businessName && <> · {businessName}</>}
