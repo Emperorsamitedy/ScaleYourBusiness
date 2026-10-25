@@ -39,6 +39,13 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - record that account's first-campaign review on `/ops`;
    - only then set `SESSION_D_REAL_WRITES=on`, and only after the two-week unattended clock.
 5. **`APP_URL`** must be https, because unsubscribe links and emailed sign-in links use it.
+6. **Launch readiness.** `/ops?key=…` ends with a launch-readiness section: this list, worked out live from the deployment's environment and database (applied migrations against the bundled journal, the seeded bank, every key present or not, the webhook URLs to paste, the law review, the real-write gate), each item READY, MISSING, CHECK or OFF, with where to get the value. It shows presence only, never a value (`lib/ops/readiness.ts`). Then prove the real paths with the smoke tests, run from a machine with production's `DATABASE_URL` and keys; each names the database, refuses without its keys and writes nothing without `--yes`:
+   - `npm run smoke:email -- --to you@your-domain --yes` sends one sign-in email and reports Resend's status and id;
+   - `npm run smoke:inbound -- --profile <id> --from you@your-domain` prints the inbound address and waits for your test email's ticket;
+   - `npm run smoke:erasure -- --account <id> --yes` erases a throwaway reserved-domain contact and checks the row, the suppression and the log;
+   - `npm run smoke:widget -- --profile <id>` prints the site key, the snippet and what to check on `/support/test`.
+
+   `COOKIE_SECRET` can be set at any time. The suppression list is keyed from `CONNECTOR_KEY` alone (`stableKey`, fixed 2026-10-24), so setting it never unblocks an unsubscribed or erased address; it only re-keys sign-in cookies, which signs everyone out once.
 
 ## Before you deploy this branch
 

@@ -25,7 +25,7 @@
 // customer's own recorded action sets a status.
 
 import { createHash, createHmac } from "node:crypto";
-import { derivedKey } from "../core/derived-key";
+import { cookieEraKey, stableKey } from "../core/derived-key";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { forgetBookingClient } from "../bookings/erase";
@@ -69,7 +69,26 @@ export function normalizeEmail(email: string): string {
  * (security review 2026-10-17).
  */
 export function emailHash(email: string): string {
-  return `h1:${createHmac("sha256", derivedKey("syb-suppression-v1")).update(normalizeEmail(email)).digest("hex")}`;
+  return `h1:${createHmac("sha256", stableKey(SUPPRESSION_LABEL)).update(normalizeEmail(email)).digest("hex")}`;
+}
+
+const SUPPRESSION_LABEL = "syb-suppression-v1";
+
+/**
+ * Every form a suppression for this address may be stored under: the
+ * current keyed hash, the keyed hash from a time COOKIE_SECRET was set (when
+ * it is), and the plain sha256 rows before 2026-10-17 carry. Every check
+ * matches all of them, so no unsubscribe or erasure is ever lost.
+ */
+export function emailHashCandidates(email: string): string[] {
+  const cookie = cookieEraKey(SUPPRESSION_LABEL);
+  return [
+    emailHash(email),
+    ...(cookie
+      ? [`h1:${createHmac("sha256", cookie).update(normalizeEmail(email)).digest("hex")}`]
+      : []),
+    legacyEmailHash(email),
+  ];
 }
 
 /**
@@ -88,7 +107,7 @@ export async function isSuppressed(accountId: string, email: string): Promise<st
     .where(
       and(
         eq(contactSuppressions.account_id, accountId),
-        inArray(contactSuppressions.email_hash, [emailHash(email), legacyEmailHash(email)]),
+        inArray(contactSuppressions.email_hash, emailHashCandidates(email)),
       ),
     );
   return row?.reason ?? null;

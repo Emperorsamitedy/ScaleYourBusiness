@@ -21,7 +21,11 @@
     "db:seed-demo": "tsx scripts/seed-demo.ts",
     "cost:report": "tsx scripts/cost-report.ts",
     "verify:models": "tsx scripts/verify-models.ts",
-    "recalibrate:diagnosis": "tsx scripts/recalibrate-diagnosis.ts"
+    "recalibrate:diagnosis": "tsx scripts/recalibrate-diagnosis.ts",
+    "smoke:email": "tsx scripts/smoke-email.ts",
+    "smoke:inbound": "tsx scripts/smoke-inbound.ts",
+    "smoke:erasure": "tsx scripts/smoke-erasure.ts",
+    "smoke:widget": "tsx scripts/smoke-widget.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
