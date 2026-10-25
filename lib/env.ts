@@ -124,7 +124,7 @@ export function supportInboundDomain(): string | null {
 
 /**
  * Review 2026-10-23 (#5a): the From address campaigns send from — ideally a
- * sending subdomain of its own (e.g. "Ledgerline <hello@campaigns.example.com>"),
+ * sending subdomain of its own (e.g. "SYB <hello@campaigns.example.com>"),
  * so a complaint spike on campaigns can't throttle the address sign-in links
  * come from. Null = unset: campaigns share EMAIL_FROM with sign-in, and
  * /connections says so plainly.

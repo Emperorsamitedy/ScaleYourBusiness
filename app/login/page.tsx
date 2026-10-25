@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { LoginScreen } from "../../components/auth/Login";
 
 export const metadata: Metadata = {
-  title: "Sign in — Ledgerline",
+  title: "Sign in — SYB",
 };
 
 export default function LoginPage() {

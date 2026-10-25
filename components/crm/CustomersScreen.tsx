@@ -199,7 +199,7 @@ export function CustomersScreen() {
     return (
       <main className="auth-stage">
         <div className="auth-col">
-          <span className="wordmark">Ledgerline</span>
+          <span className="wordmark">SYB</span>
           <section className="card auth-card">
             <span className="auth-eyebrow">customers</span>
             <h1 className="auth-title">Start with the intake.</h1>
@@ -435,8 +435,8 @@ export function CustomersScreen() {
               <p className="cu-erase-title">Erase this customer</p>
               <p className="cu-erase-copy">
                 For a deletion request. Removes their name, email, details and support conversations
-                from Ledgerline for good. Their address stays on the unsubscribe list as a hash, so
-                they are never emailed again; the audit log keeps only anonymous ids.
+                from SYB for good. Their address stays on the unsubscribe list as a hash, so they
+                are never emailed again; the audit log keeps only anonymous ids.
               </p>
               {s.confirmErase === open.id ? (
                 <div className="cu-erase-confirm">

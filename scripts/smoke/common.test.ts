@@ -87,7 +87,7 @@ describe("secrets are scrubbed from every line", () => {
     RESEND_API_KEY: "re_live_abcdefgh12345",
     DATABASE_URL: "postgresql://syb:pa55word-x@db.example/syb",
     CONNECTOR_KEY: "Y29ubmVjdG9yLWtleS1zZW50aW5lbA==",
-    EMAIL_FROM: "Ledgerline <hello@ledgerline.example>",
+    EMAIL_FROM: "SYB <hello@syb.example>",
     SESSION_D_REAL_WRITES: "on",
   };
 
@@ -168,9 +168,9 @@ describe("isReservedTestAddress — only names no real mailbox can have", () => 
 
 describe("addresses and origins", () => {
   it("fromAddress and domainOf read a From value", () => {
-    expect(fromAddress("Ledgerline <Hello@Ledgerline.Example>")).toBe("hello@ledgerline.example");
-    expect(domainOf("hello@campaigns.ledgerline.example")).toBe("campaigns.ledgerline.example");
-    expect(fromAddress("Ledgerline")).toBeNull();
+    expect(fromAddress("SYB <Hello@Syb.Example>")).toBe("hello@syb.example");
+    expect(domainOf("hello@campaigns.syb.example")).toBe("campaigns.syb.example");
+    expect(fromAddress("SYB")).toBeNull();
   });
 
   it("httpsOrigin accepts https only", () => {
@@ -182,10 +182,10 @@ describe("addresses and origins", () => {
   it("ownSenderAddresses: EMAIL_FROM (or the Resend default) and CAMPAIGN_EMAIL_FROM", () => {
     expect(
       ownSenderAddresses({
-        EMAIL_FROM: "L <a@ledgerline.example>",
-        CAMPAIGN_EMAIL_FROM: "L <b@campaigns.ledgerline.example>",
+        EMAIL_FROM: "L <a@syb.example>",
+        CAMPAIGN_EMAIL_FROM: "L <b@campaigns.syb.example>",
       }),
-    ).toEqual(["a@ledgerline.example", "b@campaigns.ledgerline.example"]);
+    ).toEqual(["a@syb.example", "b@campaigns.syb.example"]);
     expect(ownSenderAddresses({})).toEqual(["onboarding@resend.dev"]);
   });
 });

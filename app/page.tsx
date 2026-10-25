@@ -7,7 +7,7 @@ import { reportPrice } from "@/lib/payments/stripe";
 import "./landing.css";
 
 export const metadata: Metadata = {
-  title: "Ledgerline — a blood test for your business",
+  title: "SYB — a blood test for your business",
   description:
     "36 checks on your sales, bookings, payments and ads, every leak priced in euros, and a signed report.",
 };

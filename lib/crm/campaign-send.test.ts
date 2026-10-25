@@ -118,13 +118,11 @@ describe("P4-15 — the pure parts", () => {
     expect(unsubscribeBase("not a url")).toBeNull();
   });
 
-  it("the From header is their name via Ledgerline, at SYB's verified address", () => {
+  it("the From header is their name via SYB, at SYB's verified address", () => {
     expect(campaignFromHeader("Emberworks", "hello@send.syb.test")).toBe(
-      '"Emberworks via Ledgerline" <hello@send.syb.test>',
+      '"Emberworks via SYB" <hello@send.syb.test>',
     );
-    expect(campaignFromHeader('Bad "<name>\r\n', "a@b.c")).toBe(
-      '"Bad name via Ledgerline" <a@b.c>',
-    );
+    expect(campaignFromHeader('Bad "<name>\r\n', "a@b.c")).toBe('"Bad name via SYB" <a@b.c>');
   });
 
   it("the approved recipients are the proposal's ids, deduplicated, nothing else", () => {
@@ -211,7 +209,7 @@ beforeEach(() => {
   process.env.SESSION_D_REAL_WRITES = "on";
   process.env.RESEND_API_KEY = "re_test_campaigns";
   process.env.APP_URL = "https://syb.test";
-  process.env.EMAIL_FROM = "Ledgerline <hello@send.syb.test>";
+  process.env.EMAIL_FROM = "SYB <hello@send.syb.test>";
   delete process.env.CAMPAIGN_EMAIL_FROM;
   vi.stubGlobal("fetch", async () => {
     throw new Error("the network was touched");
@@ -486,7 +484,7 @@ describe("P4-15 — THE DONE-WHEN", () => {
         "List-Unsubscribe": `<https://syb.test/api/u/${token}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       });
-      expect(call.body.from).toBe('"Emberworks via Ledgerline" <hello@send.syb.test>');
+      expect(call.body.from).toBe('"Emberworks via SYB" <hello@send.syb.test>');
       expect(call.body.reply_to).toBe("hello@emberworks.test");
       expect(call.body.subject).toBe("A note from Emberworks");
       expect(call.headers["Idempotency-Key"]).toMatch(/^syb-campaign-[0-9a-f-]{36}$/);
@@ -1328,18 +1326,18 @@ describe("review 2026-10-23 #5a — campaigns can send from a sender of their ow
       proposalId: (await campaign(b, [ann.id])).proposal_id,
       provider: provider(shared),
     });
-    expect(shared.calls[0]!.body.from).toBe('"Emberworks via Ledgerline" <hello@send.syb.test>');
+    expect(shared.calls[0]!.body.from).toBe('"Emberworks via SYB" <hello@send.syb.test>');
     expect(sharedSenderNote(null)).toMatch(/same sending address/);
     // Set: its own.
-    process.env.CAMPAIGN_EMAIL_FROM = "Ledgerline Campaigns <news@campaigns.syb.test>";
+    process.env.CAMPAIGN_EMAIL_FROM = "SYB Campaigns <news@campaigns.syb.test>";
     const own = fakeResend();
     await sendCampaignNow({
       profileId: b.profile_id,
       proposalId: (await campaign(b, [ben.id])).proposal_id,
       provider: provider(own),
     });
-    expect(own.calls[0]!.body.from).toBe('"Emberworks via Ledgerline" <news@campaigns.syb.test>');
-    expect(sharedSenderNote("Ledgerline Campaigns <news@campaigns.syb.test>")).toBeNull();
+    expect(own.calls[0]!.body.from).toBe('"Emberworks via SYB" <news@campaigns.syb.test>');
+    expect(sharedSenderNote("SYB Campaigns <news@campaigns.syb.test>")).toBeNull();
   });
 });
 

@@ -533,7 +533,7 @@ describe("review #17 — a huge or malformed reference header can't break thread
   });
 });
 
-describe("review #12 — Ledgerline's own mail, forwarded back, is never a ticket", () => {
+describe("review #12 — SYB's own mail, forwarded back, is never a ticket", () => {
   const saved = { from: process.env.EMAIL_FROM, campaign: process.env.CAMPAIGN_EMAIL_FROM };
   afterEach(() => {
     if (saved.from === undefined) delete process.env.EMAIL_FROM;
@@ -558,15 +558,15 @@ describe("review #12 — Ledgerline's own mail, forwarded back, is never a ticke
   }
 
   it("a sign-in link sent to the forwarded mailbox is dropped with a no-PII log line", async () => {
-    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
+    process.env.EMAIL_FROM = "SYB <login@syb-mail.test>";
     const b = await business();
     const link = "https://syb.example/api/auth/redeem?token=SECRET-SIGN-IN-TOKEN";
     const magic = fixture({
-      from: "Ledgerline <login@ledgerline-mail.test>",
+      from: "SYB <login@syb-mail.test>",
       to: ["info@shop.example"],
       received_for: [b.address],
-      subject: "Your sign-in link — Ledgerline",
-      text: `Click to sign in to Ledgerline:\n\n${link}\n\nThe link works once.`,
+      subject: "Your sign-in link — SYB",
+      text: `Click to sign in to SYB:\n\n${link}\n\nThe link works once.`,
     });
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
     try {
@@ -575,13 +575,13 @@ describe("review #12 — Ledgerline's own mail, forwarded back, is never a ticke
       expect(lines).toContain("support_inbound_own_mail_dropped");
       expect(lines).toContain(b.account_id);
       expect(lines).not.toContain("SECRET-SIGN-IN-TOKEN");
-      expect(lines).not.toContain("login@ledgerline-mail.test");
+      expect(lines).not.toContain("login@syb-mail.test");
       expect(lines).not.toContain("sign-in link");
     } finally {
       log.mockRestore();
     }
     // The same domain from another of our addresses (an owner notice), and a subdomain.
-    for (const from of ["notices@ledgerline-mail.test", "bounce@eu.ledgerline-mail.test"]) {
+    for (const from of ["notices@syb-mail.test", "bounce@eu.syb-mail.test"]) {
       expect(
         await receiveInboundEmail(normalised(fixture({ from, to: [b.address] })), DOMAIN),
       ).toEqual({ kind: "own_mail" });
@@ -590,25 +590,25 @@ describe("review #12 — Ledgerline's own mail, forwarded back, is never a ticke
   });
 
   it("CAMPAIGN_EMAIL_FROM, when set, is ours too; unset, Resend's default sender is", async () => {
-    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
-    process.env.CAMPAIGN_EMAIL_FROM = "Fernhill via Ledgerline <news@campaigns-mail.test>";
+    process.env.EMAIL_FROM = "SYB <login@syb-mail.test>";
+    process.env.CAMPAIGN_EMAIL_FROM = "Fernhill via SYB <news@campaigns-mail.test>";
     const b = await business();
     const campaign = fixture({ from: "news@campaigns-mail.test", to: [b.address] });
     expect(await receiveInboundEmail(normalised(campaign), DOMAIN)).toEqual({ kind: "own_mail" });
     delete process.env.CAMPAIGN_EMAIL_FROM;
     delete process.env.EMAIL_FROM;
-    const fallback = fixture({ from: "Ledgerline <onboarding@resend.dev>", to: [b.address] });
+    const fallback = fixture({ from: "SYB <onboarding@resend.dev>", to: [b.address] });
     expect(await receiveInboundEmail(normalised(fallback), DOMAIN)).toEqual({ kind: "own_mail" });
     await nothingFiledFor(b);
   });
 
   it("the passing case: a customer's mail — even one mentioning our domain — is filed", async () => {
-    process.env.EMAIL_FROM = "Ledgerline <login@ledgerline-mail.test>";
+    process.env.EMAIL_FROM = "SYB <login@syb-mail.test>";
     const b = await business();
     const customer = fixture({
-      from: "Ana <ana@not-ledgerline-mail.test>",
+      from: "Ana <ana@not-syb-mail.test>",
       to: [b.address],
-      text: "I got an email from login@ledgerline-mail.test, is that you?",
+      text: "I got an email from login@syb-mail.test, is that you?",
     });
     expect(await receiveInboundEmail(normalised(customer), DOMAIN)).toMatchObject({
       kind: "filed",

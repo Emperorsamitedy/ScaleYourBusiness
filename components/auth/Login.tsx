@@ -301,7 +301,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                     <Link href="/privacy">privacy notice</Link>.
                   </>
                 ) : (
-                  <>New to Ledgerline? Create an account from the top right.</>
+                  <>New to SYB? Create an account from the top right.</>
                 )}
               </footer>
             </>

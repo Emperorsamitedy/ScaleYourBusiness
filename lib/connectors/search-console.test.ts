@@ -24,7 +24,7 @@ import { ScopeViolationError, verifyGrantedScopes } from "./scopes";
 
 const NOW = new Date("2026-10-13T12:00:00Z");
 const SITE = "sc-domain:rival-bar.hu";
-const ACCOUNT = makeServiceAccount("ledgerline-reader@ember-oak.iam.gserviceaccount.com");
+const ACCOUNT = makeServiceAccount("syb-reader@ember-oak.iam.gserviceaccount.com");
 const SECRET = JSON.stringify({ site_url: SITE, service_account_json: ACCOUNT.json });
 
 function fakeGoogle(

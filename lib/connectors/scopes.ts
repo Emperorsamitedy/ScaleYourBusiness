@@ -189,7 +189,7 @@ export const SCOPE_GUIDE: Readonly<
     {
       scope: "APPOINTMENTS_ALL_READ",
       grant: "APPOINTMENTS_ALL_READ (optional, with the one above)",
-      why: "Your appointments. Square needs this with the one above to read every booking at your locations, not only ones made through Ledgerline. It can't change a booking.",
+      why: "Your appointments. Square needs this with the one above to read every booking at your locations, not only ones made through SYB. It can't change a booking.",
     },
   ],
 };

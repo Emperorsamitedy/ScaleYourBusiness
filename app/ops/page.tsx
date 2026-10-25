@@ -22,7 +22,7 @@ import { launchReadiness } from "../../lib/ops/readiness";
 import { readReadinessFacts } from "../../lib/ops/readiness-facts";
 import { LaunchReadiness } from "../../components/ops/LaunchReadiness";
 
-export const metadata: Metadata = { title: "Ops — Ledgerline" };
+export const metadata: Metadata = { title: "Ops — SYB" };
 export const dynamic = "force-dynamic";
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
@@ -91,7 +91,7 @@ export default async function OpsPage({
   return (
     <main className="ops-shell">
       <header className="ops-head">
-        <span className="wordmark">Ledgerline</span>
+        <span className="wordmark">SYB</span>
         <span className="ops-meta">
           ops · last {days} days · {new Date().toISOString().slice(0, 10)} ·{" "}
           <a href="#launch-readiness">
@@ -255,9 +255,9 @@ export default async function OpsPage({
         </span>
         <p className="auth-copy">
           Each account&rsquo;s first campaign waits for a person to read it before it sends, because
-          every campaign goes out from Ledgerline&rsquo;s own sending address. Read the email and
-          the sender it goes out as; record it only if it reads like a real business writing to its
-          own customers. Later campaigns from the same account don&rsquo;t wait.
+          every campaign goes out from SYB&rsquo;s own sending address. Read the email and the
+          sender it goes out as; record it only if it reads like a real business writing to its own
+          customers. Later campaigns from the same account don&rsquo;t wait.
         </p>
         {params.campaign_review && (
           <p className="auth-copy" role="status">
@@ -272,8 +272,7 @@ export default async function OpsPage({
               <p className="auth-copy">
                 Account <span className="ops-mono">{c.account_id.slice(0, 8)}</span> · campaign{" "}
                 <span className="ops-mono">{c.proposal_id}</span> · {c.recipients} recipients
-                approved · sent as &ldquo;{c.sender_name ?? "not connected yet"} via
-                Ledgerline&rdquo;
+                approved · sent as &ldquo;{c.sender_name ?? "not connected yet"} via SYB&rdquo;
               </p>
               <p className="auth-copy">{c.summary}</p>
               <p className="auth-copy">Subject: {c.subject ?? "not approved yet"}</p>

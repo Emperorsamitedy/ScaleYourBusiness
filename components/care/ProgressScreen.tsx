@@ -215,7 +215,7 @@ function Review({ review }: { review: NonNullable<CareGoal["review"]> }) {
     <div className="gl-review">
       <h3>
         Alert review · {dayText(review.at)}
-        {review.with_a_person && " · a person at Ledgerline has this now"}
+        {review.with_a_person && " · a person at SYB has this now"}
       </h3>
       {review.with_a_person && (
         <p>

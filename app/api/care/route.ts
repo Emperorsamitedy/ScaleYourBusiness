@@ -3,7 +3,7 @@
 // Per measurable goal: the measure, the baseline, the latest weekly
 // verdict with its arithmetic, and the latest alert review — what we
 // think went wrong, with evidence, what it suggested, and whether a
-// person at Ledgerline now has the case. Read-only: the suggestions it
+// person at SYB now has the case. Read-only: the suggestions it
 // made are ordinary proposals in the queue.
 
 import { logSafeError } from "../../../lib/core/log-safe";

@@ -120,8 +120,8 @@ export function storedAddresses(addresses: readonly string[]): string[] {
 
 /* ── our own mail (review 2026-10-23, #12) ── */
 
-/** What every Ledgerline send uses when EMAIL_FROM is unset (lib/auth/email.ts and the rest). */
-const DEFAULT_FROM = "Ledgerline <onboarding@resend.dev>";
+/** What every SYB send uses when EMAIL_FROM is unset (lib/auth/email.ts and the rest). */
+const DEFAULT_FROM = "SYB <onboarding@resend.dev>";
 
 function addressPart(raw: string): string | null {
   const address = (/<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw).trim().toLowerCase();
@@ -129,7 +129,7 @@ function addressPart(raw: string): string | null {
 }
 
 /**
- * The addresses Ledgerline itself sends from: EMAIL_FROM (sign-in links,
+ * The addresses SYB itself sends from: EMAIL_FROM (sign-in links,
  * owner notices, support replies), and CAMPAIGN_EMAIL_FROM when set —
  * optional, since campaigns may share EMAIL_FROM.
  */

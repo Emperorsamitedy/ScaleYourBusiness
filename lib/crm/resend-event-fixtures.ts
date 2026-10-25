@@ -24,7 +24,7 @@ export function deliveryEvent(
     created_at: at,
     email_id: emailId,
     message_id: "<111-222-333@email.example.com>",
-    from: '"Emberworks via Ledgerline" <hello@send.syb.test>',
+    from: '"Emberworks via SYB" <hello@send.syb.test>',
     to: [opts.to ?? "someone@customers.test"],
     subject: "A note from Emberworks",
     // Resend echoes the send's tags; SYB tags each send with its row id (review #14).

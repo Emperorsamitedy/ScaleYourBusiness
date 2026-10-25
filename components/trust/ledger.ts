@@ -104,9 +104,9 @@ const SOURCE_WORD: Record<string, string> = {
   owner_input: "you",
   conversation: "you",
   connector: "measured",
-  inferred: "Ledgerline",
-  web_research: "Ledgerline",
-  system_default: "Ledgerline",
+  inferred: "SYB",
+  web_research: "SYB",
+  system_default: "SYB",
 };
 
 /** Every line one proposal has put on the record. */
@@ -129,7 +129,7 @@ export function proposalRows(
       title,
       ref,
       detail: p.blocked_by_limit ? p.blocked_by_limit.replace(/^13\.5:\s*/, "") : null,
-      actor: "Ledgerline",
+      actor: "SYB",
       note: "withheld by your limit",
       tone: null,
     });
@@ -144,13 +144,13 @@ export function proposalRows(
     title,
     ref,
     detail: null,
-    actor: "Ledgerline",
+    actor: "SYB",
     note: p.status === "pending" ? "waiting for you" : "",
     tone: null,
   });
 
   // Review 2026-10-23 (Session D #1): approved, then lapsed before it could
-  // run — the approval stays on the record, and the lapse is Ledgerline's.
+  // run — the approval stays on the record, and the lapse is SYB's.
   const lapse = p.execution_result as { lapsed?: unknown; at?: unknown; sentence?: unknown } | null;
   if (p.status === "expired" && p.decided_at && lapse?.lapsed === true) {
     rows.push({
@@ -175,7 +175,7 @@ export function proposalRows(
         title,
         ref,
         detail: typeof lapse.sentence === "string" ? lapse.sentence : null,
-        actor: "Ledgerline",
+        actor: "SYB",
         note: "lapsed after approval · never ran",
         tone: null,
       });
@@ -245,7 +245,7 @@ export function proposalRows(
         title,
         ref,
         detail: null,
-        actor: p.module === "hours" ? "you" : "Ledgerline",
+        actor: p.module === "hours" ? "you" : "SYB",
         note: "done",
         tone: null,
       });
@@ -269,7 +269,7 @@ export function proposalRows(
         outcome.judged_on && outcome.judged_on !== "revenue"
           ? `${JUDGED_ON[outcome.judged_on]}: ${outcome.arithmetic}`
           : outcome.arithmetic,
-      actor: "Ledgerline",
+      actor: "SYB",
       note: `${delta}${v.word}`,
       tone: v.tone,
     });

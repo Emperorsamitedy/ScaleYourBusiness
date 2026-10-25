@@ -7,7 +7,7 @@ import { ConfirmLink } from "../../components/auth/ConfirmLink";
 import { ResumeError, peekResumeToken } from "../../lib/intake/resume";
 
 export const metadata: Metadata = {
-  title: "Carry on — Ledgerline",
+  title: "Carry on — SYB",
   // The token is in this page's address; never hand it on.
   referrer: "no-referrer",
   robots: { index: false, follow: false },

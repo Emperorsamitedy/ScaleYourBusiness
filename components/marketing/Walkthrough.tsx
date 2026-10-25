@@ -64,7 +64,7 @@ export function Walkthrough() {
     <figure className="ll-player" aria-label="Product walkthrough video">
       <div className="ll-vbar">
         <span className="ll-m" style={{ fontSize: 11, letterSpacing: ".12em", color: "#A9BDB2" }}>
-          LEDGERLINE · PRODUCT WALKTHROUGH
+          SYB · PRODUCT WALKTHROUGH
         </span>
         <span className="ll-m" style={{ fontSize: 11, color: "#A9BDB2" }}>
           Chapter {f.scene + 1} of 6 · {chap.title}
@@ -74,7 +74,7 @@ export function Walkthrough() {
       <div className="ll-screen">
         <div className="ll-appbar">
           <span className="ll-s" style={{ fontWeight: 700, fontSize: 14 }}>
-            Ledgerline
+            SYB
           </span>
           <span className="ll-m" style={{ fontSize: 10.5, color: "#3E5248" }}>
             {chap.crumb}

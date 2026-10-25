@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { ChatScreen } from "../../components/chat/ChatScreen";
 
-export const metadata: Metadata = { title: "Ask me anything — Ledgerline" };
+export const metadata: Metadata = { title: "Ask me anything — SYB" };
 
 export default function ChatPage() {
   return <ChatScreen />;

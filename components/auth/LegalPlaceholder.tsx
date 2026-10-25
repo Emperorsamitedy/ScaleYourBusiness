@@ -1,4 +1,4 @@
-// The terms and the privacy notice, until Ledgerline supplies them. The
+// The terms and the privacy notice, until SYB supplies them. The
 // sign-up footer links here; nothing on this page is legal text, so
 // nothing on it can be mistaken for an agreement nobody wrote.
 
@@ -18,7 +18,7 @@ export function LegalPlaceholder({ label, title }: { label: string; title: strin
             </h1>
           </header>
           <div className="au-sheet-body">
-            <p>This document is to be supplied by Ledgerline before launch.</p>
+            <p>This document is to be supplied by SYB before launch.</p>
           </div>
         </section>
       </main>

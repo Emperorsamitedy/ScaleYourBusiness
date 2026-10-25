@@ -1,4 +1,4 @@
-# Ledgerline — plain-English overview
+# SYB — plain-English overview
 
 A one-page orientation for anyone new to the project. The detail lives in
 `CLAUDE.md`, `specs/` and the `TASKS*.md` files; this page only says what the
@@ -7,7 +7,7 @@ product is, what works today, and what is still to come. Last updated
 
 ## What it is
 
-Ledgerline is an AI business assistant for small business owners. It
+SYB is an AI business assistant for small business owners. It
 interviews the owner, builds a fact sheet about the business, diagnoses what
 is wrong, and then helps do the work — marketing, customers, support — but
 never acts without the owner's approval.
@@ -58,7 +58,7 @@ contradictions are visible.
 - **Alert mode, in real use** — built (`/progress`, `TASKS-PHASE3.md`
   Session J) and tested on sample data; its review prompt is tuned on
   the first real business that stalls.
-- **Ledgerline markets itself** — once posting works, it runs SYB's own
+- **SYB markets itself** — once posting works, it runs SYB's own
   marketing for 3–4 weeks, then publishes the honest results as the
   launch story (Phase 3 Session H, `TASKS-PHASE3.md`). Step one, running
   SYB through its own interview and report, can start today.

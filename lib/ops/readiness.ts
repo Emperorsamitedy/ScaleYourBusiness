@@ -255,7 +255,7 @@ function emailGroup(env: ReadinessEnv): ReadinessGroup {
             ? item(
                 "EMAIL_FROM",
                 "missing",
-                `I can't read an email address in the sender, so I can't tell which domain it uses. Write it as "Ledgerline <hello@your-domain>".`,
+                `I can't read an email address in the sender, so I can't tell which domain it uses. Write it as "SYB <hello@your-domain>".`,
                 LINKS.resendDomains,
               )
             : item(
@@ -578,7 +578,7 @@ function campaignGroup(env: ReadinessEnv, facts: ReadinessFacts): ReadinessGroup
     from = item(
       "CAMPAIGN_EMAIL_FROM",
       "missing",
-      `It's set but I can't read an email address in it. Write it as "Ledgerline <hello@campaigns.your-domain>".`,
+      `It's set but I can't read an email address in it. Write it as "SYB <hello@campaigns.your-domain>".`,
       LINKS.resendDomains,
     );
   } else if (campaignDomain === signInDomain) {

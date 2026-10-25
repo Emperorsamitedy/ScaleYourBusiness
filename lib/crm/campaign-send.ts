@@ -100,14 +100,14 @@ const STILL_APPROVED = "Nothing was sent; this stays approved.";
  */
 export function sendingAddress(): string {
   const raw =
-    campaignEmailFrom() ?? (process.env.EMAIL_FROM?.trim() || "Ledgerline <onboarding@resend.dev>");
+    campaignEmailFrom() ?? (process.env.EMAIL_FROM?.trim() || "SYB <onboarding@resend.dev>");
   return (/<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw).trim();
 }
 
-/** Pure: '"Fernhill Ceramics via Ledgerline" <address>' — their name, our verified address. */
+/** Pure: '"Fernhill Ceramics via SYB" <address>' — their name, our verified address. */
 export function campaignFromHeader(senderName: string, address = sendingAddress()): string {
   const name = senderName.replace(/["<>\r\n\\]/g, "").trim() || "A business";
-  return `"${name} via Ledgerline" <${address}>`;
+  return `"${name} via SYB" <${address}>`;
 }
 
 /* ── is it a campaign ── */

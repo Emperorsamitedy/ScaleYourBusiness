@@ -329,15 +329,15 @@ Conversation-channel step 70a.
 
 ---
 
-## Session H — Ledgerline markets itself _(~0.5 wk build, then a 3–4 week run)_
+## Session H — SYB markets itself _(~0.5 wk build, then a 3–4 week run)_
 
-Owner idea, recorded 2026-10-13: Ledgerline runs SYB's own marketing through the product for a few weeks, then publishes that it did, with the scorecard as the proof. The Glass Business turned on ourselves. If the marketing was good, the campaign is the pitch; if it was mediocre, publishing that anyway is the pitch.
+Owner idea, recorded 2026-10-13: SYB runs SYB's own marketing through the product for a few weeks, then publishes that it did, with the scorecard as the proof. The Glass Business turned on ourselves. If the marketing was good, the campaign is the pitch; if it was mediocre, publishing that anyway is the pitch.
 
 **Where it sits, and why.** After Session D: nothing publishes before D2, and "it was good" means nothing without D4's per-post readback. Ad spend needs D3. It does **not** wait on company registration: Meta's Standard Access covers an app acting on its own business's assets without App Review, and SYB's own Page, Instagram account and ad account already exist (owner-side checklist item 1). SYB can be the "real business" in Session D's done-when.
 
 **Constraints, decided now so the run can't drift from them:**
 
-- **No secret reveal.** Rule 17 and P3-21b label every post as AI-assisted on the platform (`is_ai_generated` on Instagram, the disclosure line on Facebook). The story is "every post was proposed by Ledgerline and approved by a person, and here are the numbers", never "surprise, it was AI".
+- **No secret reveal.** Rule 17 and P3-21b label every post as AI-assisted on the platform (`is_ai_generated` on Instagram, the disclosure line on Facebook). The story is "every post was proposed by SYB and approved by a person, and here are the numbers", never "surprise, it was AI".
 - **Rule 12 unchanged.** Samuel or Tedi approves each item in the queue like any owner. The approvals are part of the story, not a shortcut around it.
 - **Results published whatever they say.** The write-up quotes the scorecard (helped / did nothing / backfired) as rendered, with the arithmetic. Choosing to publish only after seeing good numbers turns it into an ad and is out of scope.
 - **A week is too short.** Per-post verdicts are `too_early` under 3 measured days, and the comparison needs a baseline, so the run is 3–4 weeks. A new Page has no audience, so either a small ad budget through D3 (inside P3-22c's guardrails) or a baseline stated up front, never raw reach presented as success.
@@ -394,7 +394,7 @@ The second half of `TASKS-PHASE2.md` Session F (P2-26..31). Data can only sugges
 
 ## Session J — Alert mode: when the business isn't improving _(planned 2026-10-13, owner idea)_
 
-When a business has been under Ledgerline's care for a decent time and isn't moving towards what the owner wants, or is moving far slower than the gap demands, the system escalates. A high-alert review goes through everything: where the business stood on day zero, everything proposed, approved, declined, executed and undone since, and what each did. It names the most likely reasons, with evidence, and proposes a recovery plan. Gate 2 asks "does it work?" across all customers; this asks it for one business, every week.
+When a business has been under SYB's care for a decent time and isn't moving towards what the owner wants, or is moving far slower than the gap demands, the system escalates. A high-alert review goes through everything: where the business stood on day zero, everything proposed, approved, declined, executed and undone since, and what each did. It names the most likely reasons, with evidence, and proposes a recovery plan. Gate 2 asks "does it work?" across all customers; this asks it for one business, every week.
 
 **Principles, decided now:**
 
@@ -481,7 +481,7 @@ When a business has been under Ledgerline's care for a decent time and isn't mov
   - the review is unusable (no evidenced cause); or
   - the budget is spent.
 
-  The owner sees "a person at Ledgerline is now looking" on `/progress` (and as a watch-activity entry). `/api/ops` lists open `escalations`. No automatic review runs while a person holds the case. `scripts/resolve-escalation.ts` closes it.
+  The owner sees "a person at SYB is now looking" on `/progress` (and as a watch-activity entry). `/api/ops` lists open `escalations`. No automatic review runs while a person holds the case. `scripts/resolve-escalation.ts` closes it.
 
 - Stored in `alert_reviews` (migration 0036). `GET /api/care` gives the owner, per goal: measure, baseline, latest verdict, latest review and whether a person has it.
 

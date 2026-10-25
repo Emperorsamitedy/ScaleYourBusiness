@@ -13,7 +13,7 @@ import type { WatchReading } from "../../lib/watch/signals";
 import { loadWatchReading } from "../../lib/watch/signals";
 import { watchDays } from "../../lib/watch/watch-view";
 
-export const metadata: Metadata = { title: "Watching — Ledgerline" };
+export const metadata: Metadata = { title: "Watching — SYB" };
 export const dynamic = "force-dynamic";
 
 async function reading(): Promise<WatchReading | null> {

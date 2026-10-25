@@ -1021,7 +1021,7 @@ export const connections = pgTable(
     access_tier_seen_at: timestamp("access_tier_seen_at", { withTimezone: true, mode: "string" }),
     /**
      * P4-15, the email_campaign execute row only (migration 0048): the name
-     * campaigns are sent as ("<name> via Ledgerline") and the address replies
+     * campaigns are sent as ("<name> via SYB") and the address replies
      * go to. That row holds NO secret: campaigns send from SYB's own Resend
      * account, so the connection is the owner's recorded consent and the
      * sender identity, nothing else. A check keeps the pair on that row only.
@@ -2315,9 +2315,9 @@ export const jurisdictionReviews = pgTable(
 );
 
 // campaign_reviews — review 2026-10-23 (#5c). Campaigns go out from
-// Ledgerline's own sending domain, so one self-signed-up account sending to
+// SYB's own sending domain, so one self-signed-up account sending to
 // scraped addresses could get that domain throttled for everyone. A person
-// at Ledgerline reviews each account's FIRST campaign before it sends: who,
+// at SYB reviews each account's FIRST campaign before it sends: who,
 // on what day, and which campaign. Until a row exists for the account, its
 // campaign is refused at pre-flight (guard 6b, beside the law review), in
 // words; once one exists, later campaigns don't need another. Recorded from

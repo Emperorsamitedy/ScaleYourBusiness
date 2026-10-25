@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { BlindspotsScreen } from "../../components/blindspots/BlindspotsScreen";
 
-export const metadata: Metadata = { title: "Blindspots — Ledgerline" };
+export const metadata: Metadata = { title: "Blindspots — SYB" };
 
 export default function BlindspotsPage() {
   return <BlindspotsScreen />;

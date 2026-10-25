@@ -88,9 +88,9 @@ export async function notifyOwnerOfEmailTicket(args: {
       "Idempotency-Key": `syb-owner-notice-${args.ticketId}`,
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM?.trim() || "Ledgerline <onboarding@resend.dev>",
+      from: process.env.EMAIL_FROM?.trim() || "SYB <onboarding@resend.dev>",
       to: [owner.email],
-      subject: "A customer emailed you — Ledgerline",
+      subject: "A customer emailed you — SYB",
       text:
         `A customer emailed ${settings.business_name}, and it's waiting for you in Support` +
         `${origin ? `: ${origin}/support` : "."}\n\n` +

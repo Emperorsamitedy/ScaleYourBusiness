@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { SupportScreen } from "../../components/support/SupportScreen";
 
-export const metadata: Metadata = { title: "Support — Ledgerline" };
+export const metadata: Metadata = { title: "Support — SYB" };
 
 export default function SupportPage() {
   return <SupportScreen />;

@@ -62,7 +62,7 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
       <header className="ll-head">
         <div className="ll-w ll-head-in">
           <a href="#top" className="ll-s ll-logo">
-            Ledgerline
+            SYB
           </a>
           <nav aria-label="Main" className="ll-nav">
             <a className="ll-nl" href="#chart">
@@ -248,7 +248,7 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
       <footer className="ll-foot">
         <div className="ll-w ll-foot-in">
           <span className="ll-s" style={{ fontSize: 20, fontWeight: 700 }}>
-            Ledgerline
+            SYB
           </span>
           <Link className="ll-go line" href="/signup" style={{ minHeight: 46 }}>
             Book your test — {priceText} →

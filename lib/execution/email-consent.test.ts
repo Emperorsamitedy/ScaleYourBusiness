@@ -43,7 +43,7 @@ afterAll(async () => {
 describe("P4-15 — the consent wording", () => {
   it("the registry's two lines, verbatim, the sender filled in", () => {
     expect(emailConsentLines(senderIdentity("Emberworks", "Hello@Emberworks.test"))).toEqual([
-      'SYB may send the campaigns you approve, from "Emberworks via Ledgerline", with replies going to hello@emberworks.test, to customers who explicitly agreed to hear from you.',
+      'SYB may send the campaigns you approve, from "Emberworks via SYB", with replies going to hello@emberworks.test, to customers who explicitly agreed to hear from you.',
       "SYB will never email anyone who hasn't explicitly agreed, or who unsubscribed.",
     ]);
   });

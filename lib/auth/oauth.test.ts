@@ -59,7 +59,7 @@ describe("oauthProvider — armed only by keys", () => {
 
   it("apple needs all four keys and mints an ES256 client secret", () => {
     const { privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
-    vi.stubEnv("APPLE_CLIENT_ID", "com.ledgerline.web");
+    vi.stubEnv("APPLE_CLIENT_ID", "com.syb.web");
     vi.stubEnv("APPLE_TEAM_ID", "TEAM123");
     vi.stubEnv("APPLE_KEY_ID", "KEY456");
     vi.stubEnv("APPLE_PRIVATE_KEY", privateKey.export({ type: "pkcs8", format: "pem" }).toString());

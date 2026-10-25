@@ -209,7 +209,7 @@ describe("filters, grouping and CSV", () => {
 });
 
 describe("review 2026-10-23, Session D #1 — an approval that lapsed", () => {
-  it("keeps the approval on the record and says Ledgerline let it lapse, with the sentence", () => {
+  it("keeps the approval on the record and says SYB let it lapse, with the sentence", () => {
     const rows = proposalRows(
       proposal({
         status: "expired",
@@ -225,9 +225,9 @@ describe("review 2026-10-23, Session D #1 — an approval that lapsed", () => {
       NOW,
     );
     expect(rows.map((r) => [r.kind, r.actor])).toEqual([
-      ["proposed", "Ledgerline"],
+      ["proposed", "SYB"],
       ["approved", "you"],
-      ["expired", "Ledgerline"],
+      ["expired", "SYB"],
     ]);
     expect(rows[2]?.note).toBe("lapsed after approval · never ran");
     expect(rows[2]?.detail).toMatch(/^I didn't post this/);

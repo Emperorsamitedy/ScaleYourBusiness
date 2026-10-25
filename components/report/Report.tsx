@@ -136,7 +136,7 @@ function Masthead({
     <header className="rq-mast">
       <div className="rq-mast-l">
         <Link href="/watch" className="rq-mark">
-          Ledgerline
+          SYB
         </Link>
         {context.length > 0 && <span className="rq-ctx">{context.join(" · ")}</span>}
       </div>

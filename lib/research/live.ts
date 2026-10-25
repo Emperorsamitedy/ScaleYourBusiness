@@ -89,10 +89,10 @@ export const MAX_FETCH_CHARS = 300_000;
 /**
  * Honest about who we are and why: these are pages a search found for a
  * business the owner named, read once on their request. robots.txt groups
- * match on "Ledgerline", as for the weekly reader.
+ * match on "SYB", as for the weekly reader.
  */
 export const RESEARCH_USER_AGENT =
-  "Ledgerline-CompetitorResearch/1.0 (reads a few public pages about a business a customer asked about, on request; honours robots.txt)";
+  "SYB-CompetitorResearch/1.0 (reads a few public pages about a business a customer asked about, on request; honours robots.txt)";
 
 /** The hardened site fetcher with research's own agent, timeout and byte cap. */
 const researchGuardedFetch: GuardedFetch = createGuardedFetcher({

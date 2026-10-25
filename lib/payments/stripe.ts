@@ -77,7 +77,7 @@ export async function startCheckout(profileId: string, appUrl: string): Promise<
     mode: "payment",
     "line_items[0][price_data][currency]": price.currency,
     "line_items[0][price_data][unit_amount]": String(price.amount_minor),
-    "line_items[0][price_data][product_data][name]": "Ledgerline business diagnosis",
+    "line_items[0][price_data][product_data][name]": "SYB business diagnosis",
     "line_items[0][quantity]": "1",
     success_url: `${appUrl}/report?checkout=success`,
     cancel_url: `${appUrl}/report?checkout=cancelled`,

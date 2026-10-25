@@ -22,10 +22,10 @@ describe("robots.txt", () => {
   });
 
   it("uses our own group over *, case-insensitively", () => {
-    const rules = parseRobots("User-agent: *\nDisallow:\n\nUser-agent: Ledgerline\nDisallow: /\n");
+    const rules = parseRobots("User-agent: *\nDisallow:\n\nUser-agent: SYB\nDisallow: /\n");
     expect(robotsAllows(rules, u("/"))).toBe(false);
     const ours = parseRobots(
-      "User-agent: *\nDisallow: /\n\nUser-agent: ledgerline-competitorread\nAllow: /\n",
+      "User-agent: *\nDisallow: /\n\nUser-agent: syb-competitorread\nAllow: /\n",
     );
     expect(robotsAllows(ours, u("/prices"))).toBe(true);
   });

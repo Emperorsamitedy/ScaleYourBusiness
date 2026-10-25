@@ -128,7 +128,7 @@ One question per screen on a paper sheet; beside it, a second sheet that is the 
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ LEDGERLINE   6 core facts on record · 6 core questions open  │
+│ SYB   6 core facts on record · 6 core questions open  │
 ├──────────────────────────────────────────────────────────────┤
 │  ┌───────────────────────────┐   ┌────────────────────────┐  │
 │  │ 1.4 · CORE                │   │ RECORD                 │  │
@@ -387,7 +387,7 @@ Keyboard operable end to end, with a visible 2px focus ring in the ink of the su
 
 ## 12. Open questions
 
-1. **Product name.** The mockup uses "Ledgerline" as a placeholder so the topbar isn't empty. Your call entirely.
+1. **Product name.** The mockup uses "SYB" as a placeholder so the topbar isn't empty. Your call entirely.
 2. **Intake length before the first report.** The mockup shows 12 core questions; the bank defines 25 always-asked. Twelve is a better first session and the rest can come after the mode decision — but that means the first report is thinner. Worth deciding deliberately.
 3. **Does the owner see the confidence score?** I've exposed provenance per fact but kept the overall score internal. Showing it is more honest; it also invites arguing with the number.
 4. **Report delivery.** In-app only, or emailed as a PDF? Emailed reports get forwarded to business partners, which is free distribution — but they leave the product, where the actions are.

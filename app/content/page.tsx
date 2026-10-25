@@ -3,7 +3,7 @@
 import type { Metadata } from "next";
 import { ContentScreen } from "../../components/content/ContentScreen";
 
-export const metadata: Metadata = { title: "Content — Ledgerline" };
+export const metadata: Metadata = { title: "Content — SYB" };
 
 export default function ContentPage() {
   return <ContentScreen />;

@@ -38,8 +38,8 @@ export default async function UnsubscribePage({ params }: { params: Promise<{ to
               You&rsquo;re unsubscribed from {view.business}.
             </h1>
             <p className="prose">
-              They won&rsquo;t send you marketing email through Ledgerline again. This is permanent;
-              you don&rsquo;t need to do anything else.
+              They won&rsquo;t send you marketing email through SYB again. This is permanent; you
+              don&rsquo;t need to do anything else.
             </p>
           </>
         ) : (

@@ -225,7 +225,7 @@ export function httpsOrigin(raw: string | undefined): string | null {
   }
 }
 
-/** Ledgerline's own sending addresses: mail from them is dropped by the inbox, by design. */
+/** SYB's own sending addresses: mail from them is dropped by the inbox, by design. */
 export function ownSenderAddresses(env: Env): string[] {
   return [
     fromAddress(env.EMAIL_FROM) ?? "onboarding@resend.dev",

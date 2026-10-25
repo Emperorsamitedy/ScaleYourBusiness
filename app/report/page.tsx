@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { ReportScreen } from "@/components/report/Report";
 
 export const metadata: Metadata = {
-  title: "Your diagnosis — Ledgerline",
+  title: "Your diagnosis — SYB",
 };
 
 export default function ReportPage() {

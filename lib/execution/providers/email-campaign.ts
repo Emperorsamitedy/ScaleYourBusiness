@@ -104,7 +104,7 @@ export interface CampaignPlan {
   proposal_id: string;
   /** SYB's own Resend key. Never the owner's; never logged. */
   api_key: string;
-  /** '"<name> via Ledgerline" <address>' — SYB's verified sending address. */
+  /** '"<name> via SYB" <address>' — SYB's verified sending address. */
   from: string;
   /** The bare sending address, for the sender-identity check. */
   from_address: string;
@@ -400,7 +400,7 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
         if (day.room <= 0) {
           throw new CampaignHold(
             "remaining",
-            `Your account has sent its ${CAMPAIGN_DAILY_RECIPIENT_CAP} campaign emails for today, the most Ledgerline sends for one business in a day, so I stopped there. The rest go out after midnight UTC.`,
+            `Your account has sent its ${CAMPAIGN_DAILY_RECIPIENT_CAP} campaign emails for today, the most SYB sends for one business in a day, so I stopped there. The rest go out after midnight UTC.`,
             day.resets_in_ms,
           );
         }

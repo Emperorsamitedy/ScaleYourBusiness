@@ -31,7 +31,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ledgerline",
+  title: "SYB",
   description: "Find out where your business actually leaks money.",
 };
 

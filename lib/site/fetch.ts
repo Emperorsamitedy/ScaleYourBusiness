@@ -265,7 +265,7 @@ export interface GuardedFetchOptions {
   maxBytes?: number;
 }
 
-export const SITE_USER_AGENT = "Ledgerline-SiteRead/1.0 (owner-requested)";
+export const SITE_USER_AGENT = "SYB-SiteRead/1.0 (owner-requested)";
 
 /**
  * The hardened fetcher with its tunables set. Every reader of a public

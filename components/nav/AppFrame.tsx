@@ -232,7 +232,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
       <nav className={`app-rail${open ? " open" : ""}`} aria-label="Main">
         <div className="app-rail-head">
           <Link href="/watch" className="app-rail-mark">
-            Ledgerline
+            SYB
           </Link>
           {counts?.business && <p className="app-rail-biz">{counts.business}</p>}
           {counts?.watch && (

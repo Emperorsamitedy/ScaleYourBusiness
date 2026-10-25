@@ -10,7 +10,7 @@ import { SITE_CHECKS_KEY, type SiteChecks, checkLabel } from "../../lib/blindspo
 import { readCurrentField } from "../../lib/profile/field-store";
 import { type SiteAudit, SiteScreen } from "../../components/site/SiteScreen";
 
-export const metadata: Metadata = { title: "Your site — Ledgerline" };
+export const metadata: Metadata = { title: "Your site — SYB" };
 export const dynamic = "force-dynamic";
 
 async function lastAudit(): Promise<SiteAudit | null> {
