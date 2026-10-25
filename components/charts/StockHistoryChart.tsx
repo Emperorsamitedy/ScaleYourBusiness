@@ -84,7 +84,13 @@ export function StockHistoryChart({ model }: { model: StockHistoryModel }) {
                   <span className="sc-note">
                     {item.points.length === 1
                       ? `one count, ${shortDate(first.date)}`
-                      : `${shortDate(first.date)} → ${shortDate(last.date)}`}
+                      : `${shortDate(first.date)} → ${shortDate(last.date)} · ${
+                          last.cash_minor === first.cash_minor
+                            ? "unchanged"
+                            : last.cash_minor < first.cash_minor
+                              ? `down ${dayMoney(first.cash_minor - last.cash_minor, cur)}`
+                              : `up ${dayMoney(last.cash_minor - first.cash_minor, cur)}`
+                        }`}
                   </span>
                 </td>
                 <td className="num" data-label={`First (${cur})`}>
