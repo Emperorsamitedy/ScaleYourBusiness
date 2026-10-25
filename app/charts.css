@@ -529,3 +529,9 @@
     transition: none;
   }
 }
+
+/* The market chart's head is tighter than a plain card's: the chart is the content. */
+.mk > .cs-head {
+  padding-top: 12px;
+  padding-bottom: 10px;
+}

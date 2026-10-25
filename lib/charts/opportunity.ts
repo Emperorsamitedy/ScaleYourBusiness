@@ -823,7 +823,7 @@ export function headline(components: readonly OpportunityComponent[], currency: 
       ? ` — all of it ${COMPONENT_NOUN[lead.key]}`
       : share >= 0.5
         ? ` — mostly ${COMPONENT_NOUN[lead.key]}`
-        : ` — the largest part ${COMPONENT_NOUN[lead.key]}`;
+        : ` — the biggest share in ${COMPONENT_NOUN[lead.key]}`;
   return {
     text: `About ${rangeText(about)} a month is slipping away${tail}.`,
     monthly,

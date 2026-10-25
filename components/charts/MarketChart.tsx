@@ -55,10 +55,11 @@ const PAD_L = 4;
 const AXIS_W = 70;
 const AXIS_W_NARROW = 58;
 const TOP = 14;
-const PRICE_H = 180;
+const PRICE_H = 170;
 const PRICE_H_NARROW = 180;
-const GAP = 8;
-const VOL_H = 40;
+/** The event strip between the price pane and what follows it. */
+const STRIP = 20;
+const VOL_H = 34;
 const XAXIS_H = 24;
 
 interface Placed {
@@ -80,8 +81,8 @@ export function layout(
   const showVol = !narrow && model.volume !== null && candles.some((c) => c.volume !== null);
   const priceH = narrow ? PRICE_H_NARROW : PRICE_H;
   const priceBottom = TOP + priceH;
-  const volTop = priceBottom + GAP;
-  const volBottom = showVol ? volTop + VOL_H : priceBottom;
+  const volTop = priceBottom + STRIP + 4;
+  const volBottom = showVol ? volTop + VOL_H : priceBottom + STRIP;
   const height = volBottom + XAXIS_H;
   const plotR = width - axisW;
   const ahead = table ? Math.max(4, Math.round(candles.length * 0.14)) : 0;
@@ -421,18 +422,18 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
             return (
               <g key={`e${i}`} className="mk-event">
                 {kinds.has("connected") && (
-                  <line className="conn" x1={cx} x2={cx} y1={TOP} y2={g.priceBottom} />
+                  <line className="conn" x1={cx} x2={cx} y1={TOP} y2={g.priceBottom + 4} />
                 )}
                 {(kinds.has("anomaly") || kinds.has("approved")) && (
                   <rect
                     className={kinds.has("approved") ? "mark approved" : "mark anomaly"}
-                    x={cx - 5}
-                    y={g.priceBottom - 14}
-                    width={10}
-                    height={10}
+                    x={cx - 4}
+                    y={g.priceBottom + 6}
+                    width={9}
+                    height={9}
                   />
                 )}
-                <text className="ev-n" x={cx} y={g.priceBottom - 18} textAnchor="middle">
+                <text className="ev-n" x={cx + 8} y={g.priceBottom + 15}>
                   {label}
                 </text>
               </g>

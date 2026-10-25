@@ -746,7 +746,7 @@ export const SALON_HISTORY_DAYS = 120;
  * SALON_HISTORY_DAYS days to yesterday. Open Tuesday to Saturday; about
  * 22 appointments a day against 24 slots; a no-show about one in twelve
  * (one in seven on Tuesdays), a late cancellation about one in twenty-five;
- * forty regular clients. The last two open days a stylist was off sick and
+ * six hundred clients over the months. The last two open days a stylist was off sick and
  * the book ran at half — the dip the anomaly layer catches. Deterministic
  * for a given day; no network, no model.
  */
@@ -787,7 +787,7 @@ export function salonBookingsCsv(today: string): string {
       const minute = k % 2 === 0 ? "00" : "30";
       const price = (service.price_minor / 100).toFixed(2);
       lines.push(
-        `L-${n},${day},${String(hour).padStart(2, "0")}:${minute},${status},${service.name},${staff[k % staff.length]},client${Math.floor(rand() * 40)}@lumen-clients.example,${price}`,
+        `L-${n},${day},${String(hour).padStart(2, "0")}:${minute},${status},${service.name},${staff[k % staff.length]},client${Math.floor(rand() * 600)}@lumen-clients.example,${price}`,
       );
     }
   }
