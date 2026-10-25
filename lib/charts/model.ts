@@ -1,0 +1,457 @@
+// The market chart's model — pure. The loader (./load) reads the database
+// into MarketInputs; this turns them into what the screen draws: the days
+// (price, volume and what slipped each day), the event markers, every
+// opportunity component in the profile's order, the headline, and the
+// text alternative. JSON-serialisable, so the API hands it to the client
+// as is, and the client buckets it (./candles) for the 1D/1W/1M switch.
+
+import { moneyText, num } from "../../components/sheet/num";
+import type { Basis } from "../../components/report/basis";
+import type { Bucket, Candle, DayPoint, SlipPart } from "./candles";
+import type {
+  AbsentComponent,
+  BookingsInput,
+  CampaignInput,
+  CapacityInput,
+  ComponentKey,
+  Headline,
+  OpportunityComponent,
+  PricedComponent,
+  SlowItemInput,
+  WaitingProposal,
+  Window,
+} from "./opportunity";
+import {
+  COMPONENT_KIND,
+  OPPORTUNITY,
+  absent,
+  daysInclusive,
+  emptyCapacity,
+  headline,
+  lateCancellations,
+  losingAds,
+  noShows,
+  onTheTable,
+  rangeWhole,
+  revenueDips,
+  slowStock,
+  windowEnding,
+} from "./opportunity";
+import type { ArchetypeKey, PriceCandidate, VolumeCandidate } from "./profiles";
+import { CHART_ARCHETYPES } from "./profiles";
+
+/** Fewer measured days than this and a series isn't drawn: two weeks, the detector's own floor. */
+export const MIN_DRAWN_DAYS = 14;
+/** How far back the chart reads. */
+export const HISTORY_DAYS = 365;
+
+export type EventKind = "anomaly" | "approved" | "connected";
+
+export interface MarketEvent {
+  date: string;
+  kind: EventKind;
+  /** Short, for the key: "Visits rose 41% above the usual level". */
+  label: string;
+  /** The arithmetic or the decision, in full. */
+  detail: string;
+}
+
+/** The words for each kind of marker, printed in the key — the shape carries it too. */
+export const EVENT_WORD: Readonly<Record<EventKind, string>> = {
+  anomaly: "Detected",
+  approved: "You approved",
+  connected: "Connected",
+};
+
+export interface PriceSeriesInput {
+  candidate: PriceCandidate;
+  /** "Shopify", "your bookings export". */
+  source: string;
+  /** "connector:shopify:revenue.daily". */
+  series_id: string;
+  currency: string;
+  values: ReadonlyMap<string, number>;
+}
+
+export interface VolumeSeriesInput {
+  candidate: VolumeCandidate;
+  source: string;
+  values: ReadonlyMap<string, number>;
+}
+
+export interface MarketInputs {
+  /** The run day; the chart reads up to yesterday. */
+  today: string;
+  /** "your salon". */
+  noun: string;
+  archetype: ArchetypeKey;
+  price: PriceSeriesInput | null;
+  volume: VolumeSeriesInput | null;
+  bookings: BookingsInput | null;
+  capacity: CapacityInput | null;
+  /** Null when Meta Ads isn't connected. */
+  campaigns: CampaignInput[] | null;
+  /** Null when no stock source exists. */
+  stock: { items: SlowItemInput[]; as_of: string | null } | null;
+  waiting: WaitingProposal[];
+  events: MarketEvent[];
+  /** Price series measured in another currency, not drawn (one currency per chart). */
+  other_currencies: string[];
+  /** Components the profile lists that don't apply here (a business that holds no stock). */
+  skip?: readonly ComponentKey[];
+}
+
+export interface DrawnModel {
+  status: "drawn";
+  noun: string;
+  /** "Your salon, read like a stock". */
+  title: string;
+  archetype: ArchetypeKey;
+  /** The candle period the chart opens on (the profile row's). */
+  bucket: Bucket;
+  currency: string;
+  price: {
+    metric: string;
+    label: string;
+    noun: string;
+    source: string;
+    basis: Basis;
+    from: string;
+    to: string;
+    days_measured: number;
+  };
+  volume: { metric: string; word: string; source: string } | null;
+  days: DayPoint[];
+  events: MarketEvent[];
+  components: OpportunityComponent[];
+  headline: Headline;
+  window: { from: string; to: string; days: number };
+  notes: string[];
+}
+
+export interface EmptyModel {
+  status: "empty";
+  noun: string;
+  title: string;
+  /** "Connect Shopify or WooCommerce … and I'll draw this." */
+  message: string;
+  href: string;
+  /** What each component would need, so the owner sees what the data would buy. */
+  components: AbsentComponent[];
+}
+
+export type MarketChartModel = DrawnModel | EmptyModel;
+
+const capitalise = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+export function chartTitle(noun: string): string {
+  return `${capitalise(noun)}, read like a stock`;
+}
+
+/** Components drawn on the revenue line: the flows that are lost revenue (ads are spend, not revenue). */
+export const ON_THE_LINE: ReadonlySet<ComponentKey> = new Set([
+  "revenue_dips",
+  "no_shows",
+  "late_cancellations",
+  "empty_capacity",
+]);
+
+/** Pure: the model the screen draws, or the empty state. */
+export function buildMarketModel(input: MarketInputs): MarketChartModel {
+  const base = CHART_ARCHETYPES[input.archetype];
+  const row = { ...base, components: base.components.filter((k) => !input.skip?.includes(k)) };
+  const title = chartTitle(input.noun);
+  const measured = input.price ? [...input.price.values.keys()].sort() : [];
+  if (input.price === null || measured.length < MIN_DRAWN_DAYS) {
+    // Nothing to draw. Each component still says what it would need.
+    const components = row.components.map((key) => absentFor(key, input));
+    return {
+      status: "empty",
+      noun: input.noun,
+      title,
+      message: `${row.connect}.`,
+      href: "/connections",
+      components,
+    };
+  }
+  const price = input.price;
+  const to = measured.at(-1)!;
+  const w: Window = windowEnding(to);
+
+  // The bookings lines first: the dips then take off what they already explain.
+  const byKey = new Map<ComponentKey, OpportunityComponent>();
+  const want = new Set(row.components);
+  if (want.has("no_shows")) byKey.set("no_shows", noShows(input.bookings, w));
+  if (want.has("late_cancellations")) {
+    byKey.set("late_cancellations", lateCancellations(input.bookings, w));
+  }
+  if (want.has("empty_capacity")) {
+    byKey.set("empty_capacity", emptyCapacity(input.bookings, input.capacity, w));
+  }
+  const explained = new Map<string, { low_minor: number; high_minor: number }>();
+  for (const c of byKey.values()) {
+    if (c.status !== "priced" || c.total.currency !== price.currency) continue;
+    for (const d of c.daily) {
+      const acc = explained.get(d.date) ?? { low_minor: 0, high_minor: 0 };
+      acc.low_minor += d.low_minor;
+      acc.high_minor += d.high_minor;
+      explained.set(d.date, acc);
+    }
+  }
+  if (want.has("revenue_dips")) {
+    byKey.set(
+      "revenue_dips",
+      revenueDips(
+        {
+          series: price.values,
+          currency: price.currency,
+          series_id: price.series_id,
+          noun: price.candidate.noun,
+        },
+        w,
+        explained,
+      ),
+    );
+  }
+  if (want.has("losing_ads")) {
+    byKey.set(
+      "losing_ads",
+      losingAds(input.campaigns, windowEnding(to, OPPORTUNITY.ads_window_days), price.currency),
+    );
+  }
+  if (want.has("slow_stock")) {
+    byKey.set(
+      "slow_stock",
+      slowStock(input.stock?.items ?? null, price.currency, input.stock?.as_of ?? null),
+    );
+  }
+  if (want.has("on_the_table")) {
+    byKey.set("on_the_table", onTheTable(input.waiting, price.currency, input.today));
+  }
+  const components = row.components.map((k) => byKey.get(k)!);
+
+  // A component in another currency is priced, but never drawn or added.
+  const onLine = components.filter(
+    (c): c is PricedComponent =>
+      c.status === "priced" && ON_THE_LINE.has(c.key) && c.total.currency === price.currency,
+  );
+  const slipByDay = new Map<string, SlipPart[]>();
+  for (const c of onLine) {
+    for (const d of c.daily) {
+      slipByDay.set(d.date, [
+        ...(slipByDay.get(d.date) ?? []),
+        { key: c.key, low_minor: d.low_minor, high_minor: d.high_minor },
+      ]);
+    }
+  }
+
+  const from = measured.find((d) => daysInclusive(d, to) <= HISTORY_DAYS) ?? measured[0]!;
+  const days: DayPoint[] = measured
+    .filter((d) => d >= from)
+    .map((date) => {
+      const v = input.volume?.values.get(date);
+      const slip = slipByDay.get(date);
+      return {
+        date,
+        value_minor: price.values.get(date)!,
+        volume: v === undefined ? null : v,
+        ...(slip ? { slip } : {}),
+      };
+    });
+
+  const notes: string[] = [];
+  if (input.other_currencies.length > 0) {
+    notes.push(
+      `${capitalise(price.candidate.noun)} in ${input.other_currencies.join(", ")} isn't drawn: one currency per chart, and currencies never blend.`,
+    );
+  }
+  const offLine = components.filter(
+    (c) => c.status === "priced" && c.kind === "flow" && !ON_THE_LINE.has(c.key),
+  );
+  if (offLine.length > 0) {
+    notes.push(
+      "Ad spend that didn't pay back is counted in the month above but not drawn on the revenue candles: it is money spent, not revenue missed.",
+    );
+  }
+
+  return {
+    status: "drawn",
+    noun: input.noun,
+    title,
+    archetype: input.archetype,
+    bucket: base.bucket,
+    currency: price.currency,
+    price: {
+      metric: price.candidate.metric,
+      label: price.candidate.label,
+      noun: price.candidate.noun,
+      source: price.source,
+      basis: "OBSERVED",
+      from,
+      to,
+      days_measured: days.length,
+    },
+    volume: input.volume
+      ? {
+          metric: input.volume.candidate.metric,
+          word: input.volume.candidate.word,
+          source: input.volume.source,
+        }
+      : null,
+    days,
+    events: groupEvents(input.events.filter((e) => e.date >= from && e.date <= input.today)),
+    components,
+    headline: headline(components, price.currency),
+    window: { from: w.from, to: w.to, days: daysInclusive(w.from, w.to) },
+    notes,
+  };
+}
+
+const GROUP_NOUN: Readonly<Record<EventKind, string>> = {
+  anomaly: "changes detected",
+  approved: "changes",
+  connected: "sources",
+};
+
+/**
+ * Oldest first, with same-day events of one kind folded into one marker
+ * ("4 changes: …"), so a busy day doesn't bury the chart in numbers.
+ */
+export function groupEvents(events: readonly MarketEvent[]): MarketEvent[] {
+  const groups = new Map<string, MarketEvent[]>();
+  for (const e of [...events].sort((a, b) => a.date.localeCompare(b.date))) {
+    const k = `${e.date}|${e.kind}`;
+    groups.set(k, [...(groups.get(k) ?? []), e]);
+  }
+  return [...groups.values()].map((list) =>
+    list.length === 1
+      ? list[0]!
+      : {
+          date: list[0]!.date,
+          kind: list[0]!.kind,
+          label: `${list.length} ${GROUP_NOUN[list[0]!.kind]}: ${list.map((e) => e.label).join("; ")}`,
+          detail: list.map((e) => e.detail).join(" "),
+        },
+  );
+}
+
+/** A component with no price series to read against: its own reason, or the series'. */
+function absentFor(key: ComponentKey, input: MarketInputs): AbsentComponent {
+  const w = windowEnding(input.today);
+  const currency = input.bookings?.currency ?? "EUR";
+  const c =
+    key === "no_shows"
+      ? noShows(input.bookings, w)
+      : key === "late_cancellations"
+        ? lateCancellations(input.bookings, w)
+        : key === "empty_capacity"
+          ? emptyCapacity(input.bookings, input.capacity, w)
+          : key === "losing_ads"
+            ? losingAds(
+                input.campaigns,
+                windowEnding(input.today, OPPORTUNITY.ads_window_days),
+                currency,
+              )
+            : key === "revenue_dips"
+              ? revenueDips(null, w)
+              : null;
+  if (c && c.status === "absent") return c;
+  return absent(
+    key,
+    COMPONENT_KIND[key] === "flow"
+      ? "I need a measured revenue series to read this against"
+      : key === "slow_stock"
+        ? "connect your store or import a stock file and I'll show the cash sitting on the shelf"
+        : "nothing is waiting for your approval right now",
+  );
+}
+
+/* ── the text alternative ── */
+
+const PERIOD_WORD: Readonly<Record<Bucket, string>> = {
+  day: "daily",
+  week: "weekly",
+  month: "monthly",
+};
+
+/** "3 Oct" — the axis and the readout's date. */
+export function shortDate(day: string): string {
+  const d = new Date(`${day}T00:00:00Z`);
+  const m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${d.getUTCDate()} ${m[d.getUTCMonth()]}`;
+}
+
+export function periodLabel(c: Candle, bucket: Bucket): string {
+  if (bucket === "day") return shortDate(c.start);
+  if (bucket === "week") return `Week of ${shortDate(c.start)}`;
+  const d = new Date(`${c.start}T00:00:00Z`);
+  return d.toLocaleString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+}
+
+/** The chart's figures: whole major units (a candle's day is never a cents question). */
+export function dayMoney(minor: number, currency: string): string {
+  return moneyText(Math.round(minor), currency).replace(/\.\d+$/, "");
+}
+
+/** One sentence: what the chart shows and its main fact. */
+export function chartSummary(
+  model: DrawnModel,
+  candles: readonly Candle[],
+  bucket: Bucket,
+): string {
+  const last = candles.at(-1);
+  if (!last) return `${model.title}: nothing measured in this range.`;
+  const move = last.close_minor >= last.open_minor ? "up" : "down";
+  return (
+    `${model.title}: ${num(candles.length)} ${PERIOD_WORD[bucket]} candles of ${model.price.noun} a day from ${model.price.source}, ` +
+    `${shortDate(candles[0]!.first)} to ${shortDate(last.last)}; the last ${bucket} closed ${move} at ${dayMoney(last.close_minor, model.currency)}. ` +
+    `${model.headline.text}` +
+    (model.events.length > 0
+      ? ` ${num(model.events.length)} event${model.events.length === 1 ? "" : "s"} marked.`
+      : "")
+  );
+}
+
+export interface ChartTable {
+  caption: string;
+  head: string[];
+  rows: string[][];
+}
+
+/** The visually-hidden table of every plotted value, one row per candle. */
+export function chartTable(
+  model: DrawnModel,
+  candles: readonly Candle[],
+  bucket: Bucket,
+): ChartTable {
+  const cur = model.currency;
+  const head = [
+    bucket === "day" ? "Day" : bucket === "week" ? "Week" : "Month",
+    `Open (${cur})`,
+    `High (${cur})`,
+    `Low (${cur})`,
+    `Close (${cur})`,
+    ...(model.volume ? [capitalise(model.volume.word)] : []),
+    `Slipped (${cur})`,
+    `What you'd have kept, a day (${cur})`,
+  ];
+  const rows = candles.map((c) => [
+    periodLabel(c, bucket),
+    dayMoney(c.open_minor, cur),
+    dayMoney(c.high_minor, cur),
+    dayMoney(c.low_minor, cur),
+    dayMoney(c.close_minor, cur),
+    ...(model.volume ? [c.volume === null ? "not measured" : num(c.volume)] : []),
+    c.slip_high_minor > 0
+      ? rangeWhole({ low_minor: c.slip_low_minor, high_minor: c.slip_high_minor, currency: cur })
+      : "none",
+    c.slip_high_minor > 0
+      ? rangeWhole({ low_minor: c.kept_low_minor, high_minor: c.kept_high_minor, currency: cur })
+      : "—",
+  ]);
+  return {
+    caption: `${model.title}: ${PERIOD_WORD[bucket]} open, high, low and close of ${model.price.noun} a day, with what slipped`,
+    head,
+    rows,
+  };
+}
