@@ -267,8 +267,22 @@ export interface OrderStats {
  * about 6% of orders over the last three weeks: the courier breakage the
  * owner describes.
  */
+/**
+ * Idea 48: what customers buy together, on top of the independent picks. A
+ * pour-over set often goes out with a bud vase trio (the gift pairing), and
+ * a serving bowl with a dinner plate. Drawn from its own random stream, so
+ * the main stream — and every other number of the demo's story — is the
+ * same as without it. The bowl is the second item of neither pair: its slow
+ * stock stays slow.
+ */
+export const AFFINITY: readonly { with: string; add: string; share: number }[] = [
+  { with: "pourover", add: "vase", share: 0.35 },
+  { with: "bowl", add: "plate", share: 0.45 },
+];
+
 export function shopOrders(today: string): FakeShopifyOrder[] {
   const rand = prng(seedOf(`orders:${today}`));
+  const together = prng(seedOf(`together:${today}`));
   const days = historyDays(today);
   const orders: FakeShopifyOrder[] = [];
   let sequence = 1000;
@@ -288,6 +302,13 @@ export function shopOrders(today: string): FakeShopifyOrder[] {
       );
       const qty = (p.key === "mug" || p.key === "plate") && rand() < 0.15 ? 2 : 1;
       chosen.set(p.ref, (chosen.get(p.ref) ?? 0) + qty);
+    }
+    for (const a of AFFINITY) {
+      const base = PRODUCTS.find((p) => p.key === a.with)!;
+      const add = PRODUCTS.find((p) => p.key === a.add)!;
+      if (chosen.has(base.ref) && !chosen.has(add.ref) && together() < a.share) {
+        chosen.set(add.ref, 1);
+      }
     }
     return [...chosen.entries()].map(([productId, quantity]) => ({ productId, quantity }));
   };
@@ -735,6 +756,19 @@ export const SALON_SERVICES: readonly { name: string; price_minor: number; weigh
   { name: "Balayage", price_minor: 14000, weight: 1 },
 ];
 
+/**
+ * Idea 48: the add-on a colour client often takes in the same visit — the
+ * next slot, the same client. It replaces that slot's own booking, so the
+ * day's count (and capacity) is unchanged, and it is drawn from its own
+ * random stream so the rest of the export is as before.
+ */
+export const SALON_ADD_ON = {
+  name: "Gloss treatment",
+  price_minor: 2500,
+  after: ["Colour", "Balayage"],
+  share: 0.4,
+} as const;
+
 /** Appointments the salon says it can take a week (question 1.4.2.3b): five days × 24 slots. */
 export const SALON_CAPACITY_PER_WEEK = 120;
 
@@ -752,6 +786,7 @@ export const SALON_HISTORY_DAYS = 120;
  */
 export function salonBookingsCsv(today: string): string {
   const rand = prng(seedOf(`salon:${today}`));
+  const addOn = prng(seedOf(`salon-add-on:${today}`));
   const lines = ["Ref #,Scheduled date,Time,Status,Service,Team member,Client email,Price"];
   const open = (day: string) => {
     const w = weekdayOf(day);
@@ -768,14 +803,15 @@ export function salonBookingsCsv(today: string): string {
   for (const day of openDays) {
     const tuesday = weekdayOf(day) === 2;
     const booked = Math.round((sick.has(day) ? 11 : 20 + rand() * 5) * (tuesday ? 0.9 : 1));
+    let prev: { service: string; status: string; client: number } | null = null;
     for (let k = 0; k < booked; k++) {
       n += 1;
-      const service = weighted(
+      const picked = weighted(
         rand,
         SALON_SERVICES.map((s) => ({ item: s, weight: s.weight })),
       );
       const roll = rand();
-      const status =
+      const rolled =
         roll < (tuesday ? 0.14 : 0.08)
           ? "No-show"
           : roll < (tuesday ? 0.18 : 0.12)
@@ -783,12 +819,24 @@ export function salonBookingsCsv(today: string): string {
             : roll < (tuesday ? 0.23 : 0.17)
               ? "Cancelled"
               : "Completed";
+      const drawn = Math.floor(rand() * 600);
+      // The add-on: the previous slot's colour client stays for a gloss.
+      const stays: boolean =
+        prev !== null &&
+        (SALON_ADD_ON.after as readonly string[]).includes(prev.service) &&
+        addOn() < SALON_ADD_ON.share;
+      const service: { name: string; price_minor: number } = stays
+        ? { name: SALON_ADD_ON.name, price_minor: SALON_ADD_ON.price_minor }
+        : picked;
+      const status: string = stays ? prev!.status : rolled;
+      const client: number = stays ? prev!.client : drawn;
       const hour = 9 + Math.floor((k / booked) * 9);
       const minute = k % 2 === 0 ? "00" : "30";
       const price = (service.price_minor / 100).toFixed(2);
       lines.push(
-        `L-${n},${day},${String(hour).padStart(2, "0")}:${minute},${status},${service.name},${staff[k % staff.length]},client${Math.floor(rand() * 600)}@lumen-clients.example,${price}`,
+        `L-${n},${day},${String(hour).padStart(2, "0")}:${minute},${status},${service.name},${staff[k % staff.length]},client${client}@lumen-clients.example,${price}`,
       );
+      prev = stays ? null : { service: service.name, status, client };
     }
   }
   return lines.join("\n");
