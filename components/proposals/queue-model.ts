@@ -91,14 +91,23 @@ const LEVELS = new Set(["easy", "moderate", "hard"]);
  * treated as permanent (db/schema.ts — null undo = irreversible,
  * labelled before approval).
  */
-export function reversibilityLabel(rev: ReversibilityLike | null | undefined): {
+export function reversibilityLabel(
+  rev: ReversibilityLike | null | undefined,
+  /**
+   * P3-54: the proposal's own detail says it creates what can't be removed
+   * (detail.irreversible — an ad's campaign, ad set, creative and ad). Its
+   * "hard" level is the engine's irreversibility label, so it reads IRREVERSIBLE.
+   */
+  detail?: unknown,
+): {
   reversible: boolean;
   word: string;
   note: string;
 } {
   const level = rev?.level ?? null;
   const note = rev?.if_you_change_your_mind?.trim() ?? "";
-  if (level !== null && LEVELS.has(level)) {
+  const declared = asDetail(detail)?.irreversible === true;
+  if (level !== null && LEVELS.has(level) && !declared) {
     return {
       reversible: true,
       word: `REVERSIBLE · ${level.toUpperCase()} TO UNDO`,

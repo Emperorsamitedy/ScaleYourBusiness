@@ -598,7 +598,7 @@ describe("P3-54 — the proposal", () => {
       paused_note: CREATES_PAUSED_NOTE,
       // €1 floor × 5, inside a €300 ceiling with nothing else measured.
       budget: { daily_minor: 500, currency: "EUR", run_days: 7, total_minor: 3_500 },
-      audience: { location: "everyone in HU", age: "18–65+" },
+      audience: { location: "everyone in Hungary", age: "18–65+" },
       goal: "visits to your website",
     });
     const ad = d["ad"] as Record<string, unknown>;
@@ -727,6 +727,16 @@ describe("P3-54 — the proposal", () => {
         daily_budget_minor: 50,
       }),
     ).toMatchObject({ skipped: expect.stringMatching(/under Meta's minimum/) });
+  });
+
+  it("a ceiling with no room left for Meta's minimum is refused in figures, never a zero budget", async () => {
+    // €20 a month: not even €1 a day fits.
+    const b = await business({ ceiling: { amount_minor: 2_000, currency: "EUR" } });
+    expect(
+      await proposeAdRun(b.profile_id, { item_id: b.item_id, limitLlm: noLimits }),
+    ).toMatchObject({
+      skipped: expect.stringMatching(/30.*over your stated ceiling of .*20/),
+    });
   });
 
   it("rule 14: a 'no paid ads' limit makes it born blocked — shown as restraint", async () => {

@@ -420,7 +420,7 @@ describe("P3-54 — an ad created paused, and its separate go-live", () => {
       ad: { name: "Autumn menu" },
       budget: { daily_minor: 500, currency: "EUR", run_days: 7, total_minor: 3_500 },
       audience: {
-        location: "everyone in HU",
+        location: "everyone in Hungary",
         age: "18–65+",
         interests: "left broad — Meta finds the people",
         placements: "Facebook feed, Instagram feed",
@@ -455,6 +455,12 @@ describe("P3-54 — an ad created paused, and its separate go-live", () => {
       },
     ]);
     expect(consequence(runAd)).toBe("Create the ad, paused");
+    // Its "hard" level is the engine's irreversibility label: the card says IRREVERSIBLE.
+    expect(
+      reversibilityLabel({ level: "hard", if_you_change_your_mind: "x" }, { irreversible: true })
+        .word,
+    ).toBe("IRREVERSIBLE");
+    expect(reversibilityLabel({ level: "hard" }, {}).word).toBe("REVERSIBLE · HARD TO UNDO");
     expect(effectSpan(runAd)).toBe("over 7 days");
   });
   it("going live is its own proposal: paused → live, and a plain change keeps 'a month'", () => {

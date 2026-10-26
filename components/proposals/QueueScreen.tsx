@@ -902,7 +902,7 @@ export function QueueScreen() {
   };
 
   const mobileCard = (p: Proposal) => {
-    const rev = reversibilityLabel(p.reversibility);
+    const rev = reversibilityLabel(p.reversibility, p.action.detail);
     const lines = evidenceLines(p.scenario.assumptions, facts);
     const shown = evidenceOpen[p.id] === true;
     const range = effectOf(p);
@@ -1046,7 +1046,7 @@ export function QueueScreen() {
   /* ── desktop: the list and the sheet ── */
 
   const sheet = (p: Proposal) => {
-    const rev = reversibilityLabel(p.reversibility);
+    const rev = reversibilityLabel(p.reversibility, p.action.detail);
     const titleId = `t-${p.id}`;
     const origin = originWord(p.originating_finding);
     const range = effectOf(p);

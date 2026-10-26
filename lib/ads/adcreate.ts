@@ -269,7 +269,9 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
   let daily: number;
   try {
     const asked =
-      args.daily_budget_minor ?? Math.min(floor * ADCREATE.default_floor_multiple, headroomDaily);
+      args.daily_budget_minor ??
+      // Never under Meta's floor: with no room under the ceiling, the guard below says so in figures.
+      Math.max(floor, Math.min(floor * ADCREATE.default_floor_multiple, headroomDaily));
     daily = toMetaBudget(Math.max(0, Math.floor(asked)), currency).sent_minor;
   } catch (error) {
     return { skipped: error instanceof Error ? error.message : "the budget can't be sent to Meta" };
@@ -405,6 +407,8 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
           "ad",
         ],
         paused_note: CREATES_PAUSED_NOTE,
+        // What it creates can't be removed (Meta's DELETED and ARCHIVED are permanent).
+        irreversible: true,
         currency,
         execute_on_approval: true,
         sending: AD_RUN_SENDING,

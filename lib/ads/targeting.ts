@@ -177,6 +177,15 @@ export interface TargetingResult {
   notes: string[];
 }
 
+/** "HU" → "Hungary", for the owner's card; the code itself when the runtime can't name it. */
+function regionName(code: string): string {
+  try {
+    return new Intl.DisplayNames(["en-GB"], { type: "region" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
 /** Pure: the targeting an ad is created with, or why there is none. */
@@ -232,11 +241,11 @@ export function buildTargeting(args: {
     }
     if (loc.label && loc.label.trim() !== "") {
       notes.push(
-        `"${loc.label.trim()}" isn't a place I can put on Meta's map yet, so it shows across ${country}`,
+        `"${loc.label.trim()}" isn't a place I can put on Meta's map yet, so it shows across ${regionName(country)}`,
       );
     }
     geo = { countries: [country] };
-    where = `everyone in ${country}`;
+    where = `everyone in ${regionName(country)}`;
   }
 
   let ageMin = finite(a.age_min) ? Math.round(a.age_min) : AD_AGE.min;
