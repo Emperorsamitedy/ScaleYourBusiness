@@ -59,6 +59,9 @@ import {
   viewSharedReport,
 } from "./share";
 
+// The setup and teardown write and delete across many tables; under a full
+// suite's load on one shared Postgres they have been seen to pass 10 s.
+const HOOK_TIMEOUT_MS = 60_000;
 const stamp = Date.now();
 const ownerEmail = `share-owner-${stamp}@example.test`;
 const customerEmail = `share-customer-${stamp}@example.test`;
@@ -194,7 +197,7 @@ beforeAll(async () => {
   const session = await signInWithEmail(ownerEmail, profileId);
   userId = session.user_id;
   sessionToken = session.session_token;
-});
+}, HOOK_TIMEOUT_MS);
 
 afterAll(async () => {
   // decision_log rows stay — append-only by trigger, and that is the feature.
@@ -225,7 +228,7 @@ afterAll(async () => {
     .delete(businessProfiles)
     .where(inArray(businessProfiles.id, [profileId, otherProfileId]));
   await db.delete(accounts).where(inArray(accounts.id, [accountId, otherAccountId]));
-});
+}, HOOK_TIMEOUT_MS);
 
 const quiet = () => vi.spyOn(console, "log").mockImplementation(() => {});
 

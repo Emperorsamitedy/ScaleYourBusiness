@@ -160,6 +160,9 @@ describe("rows — money in major units, provenance kept", () => {
 
 /* ── against the database: scope, history, and the route's door ── */
 
+// The setup and teardown write and delete across many tables; under a full
+// suite's load on one shared Postgres they have been seen to pass 10 s.
+const HOOK_TIMEOUT_MS = 60_000;
 const stamp = Date.now();
 const ownerEmail = `export-owner-${stamp}@example.test`;
 let accountId: string;
@@ -217,7 +220,7 @@ beforeAll(async () => {
   await write(profileId, `offers.${offerId}.price`, { amount_minor: 499_000, currency: "HUF" });
   await write(profileId, "identity.team_size", 4);
   await write(otherProfileId, "revenue.monthly_revenue", { amount_minor: 1, currency: "EUR" });
-});
+}, HOOK_TIMEOUT_MS);
 
 afterAll(async () => {
   const userRows = await db.select().from(users).where(eq(users.email, ownerEmail));
@@ -235,7 +238,7 @@ afterAll(async () => {
     .delete(businessProfiles)
     .where(inArray(businessProfiles.id, [profileId, otherProfileId]));
   await db.delete(accounts).where(inArray(accounts.id, [accountId, otherAccountId]));
-});
+}, HOOK_TIMEOUT_MS);
 
 describe("the read — one business's money facts", () => {
   it("current: the corrected revenue, the unknown debt, the offer price; no non-money facts", async () => {
