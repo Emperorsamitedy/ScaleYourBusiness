@@ -159,10 +159,11 @@ export const EXECUTION_SCOPE_REGISTRY = {
     ],
   },
   /**
-   * Meta ad management (P3-20f). Creating a campaign is the one
-   * irreversible op: Meta's DELETED and ARCHIVED states are both
-   * permanent, so a campaign once created cannot be un-created. Billing,
-   * funding and payment methods are fenced by the money audit below.
+   * Meta ad management (P3-20f). Creating anything is irreversible: Meta's
+   * DELETED and ARCHIVED states are both permanent, so a campaign, ad set,
+   * creative or ad once created cannot be un-created (P3-54 adds the last
+   * three and the video upload, each labelled so). Billing, funding and
+   * payment methods are fenced by the money audit below.
    */
   meta_ads: {
     label: "Meta ad management",
@@ -189,12 +190,46 @@ export const EXECUTION_SCOPE_REGISTRY = {
         description: "Create a new campaign in the paused state.",
         reversible: false,
       },
+      // P3-54 (Session K), added deliberately: ad creation. Every create is
+      // irreversible for the same reason as the campaign's — Meta's DELETED
+      // and ARCHIVED are permanent — so nothing created can be un-created,
+      // only paused. The four steps run inside create_ad_paused, one after
+      // another, each journaled; none runs on its own.
+      {
+        op: "upload_ad_video",
+        description: "Upload an approved item's video to the ad account, for its ad.",
+        reversible: false,
+      },
+      {
+        op: "create_adset_paused",
+        description:
+          "Create an ad set in the paused state: its daily budget, schedule, placements and audience.",
+        reversible: false,
+      },
+      {
+        op: "create_adcreative",
+        description:
+          "Create an ad creative from an approved item's media and caption, carrying its AI disclosure.",
+        reversible: false,
+      },
+      {
+        op: "create_ad_paused",
+        description:
+          "Create an ad in the paused state, with its campaign, ad set and creative, each created paused.",
+        reversible: false,
+      },
+      // Going live (P3-54) is a separate approval: resume_campaign resumes the
+      // ad and its ad set first. Undo pauses them again.
+      { op: "resume_adset", description: "Resume a paused ad set.", reversible: true },
+      { op: "pause_adset", description: "Pause a running ad set.", reversible: true },
+      { op: "resume_ad", description: "Resume a paused ad.", reversible: true },
+      { op: "pause_ad", description: "Pause a running ad.", reversible: true },
     ],
     consent: [
       {
         scope: "ads_management",
         grant: "ads_management",
-        why: "SYB may pause, resume or change the daily budget of campaigns, and create new campaigns paused. SYB will never touch billing or payment methods.",
+        why: "SYB may pause, resume or change the daily budget of campaigns, and create new campaigns, ad sets, creatives and ads paused, from posts you approve. SYB will never touch billing or payment methods.",
       },
     ],
   },
@@ -267,6 +302,18 @@ const MONEY_SURFACE = [
 export const VENDOR_MISNAMED_READS: Readonly<Record<string, string>> = {
   instagram_manage_insights:
     "Meta's name; it grants reads of Instagram account and media insights, nothing else",
+};
+
+/**
+ * Ad-write FIELD names a vendor made with money vocabulary, exempt from the
+ * rule-18 field audit (meta.test.ts) only as the one value pinned beside
+ * them in adWriteViolation. Pinned in scopes.test.ts with its reason, the
+ * same deliberate edit as VENDOR_MISNAMED_READS. P3-54: Meta REQUIRES
+ * billing_event on every ad set; SYB sends only IMPRESSIONS.
+ */
+export const VENDOR_MISNAMED_AD_FIELDS: Readonly<Record<string, string>> = {
+  billing_event:
+    "Meta's name for the unit an ad set is charged per; sent only as IMPRESSIONS, and it sets no billing, funding or payment method",
 };
 
 export function touchesMoneySurface(value: string): boolean {
