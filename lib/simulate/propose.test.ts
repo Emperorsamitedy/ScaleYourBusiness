@@ -303,7 +303,7 @@ describe('"Propose this" — the normal proposal, pending, executing nothing', (
       { now: NOW, limitLlm: noLimits },
     );
     expect(fresh.proposal).toBeNull();
-    expect(fresh.skipped).toMatch(/don't propose new campaigns yet/);
+    expect(fresh.skipped).toMatch(/Run this as an ad/);
 
     const watched = await business("watching");
     const out = await proposeFromSimulation(watched.profile_id, RAISE, {

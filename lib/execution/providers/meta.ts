@@ -79,10 +79,12 @@ import {
   UnknownMetaCurrencyError,
   dailyBudgetFloor,
   fromMetaBudget,
+  newSpendGuard,
   reactivationGuard,
   spendGuard,
   toMetaBudget,
 } from "../../ads/guard";
+import { OPTIMIZATION_FOR_OBJECTIVE, targetingViolation } from "../../ads/targeting";
 import { noteRequestUsage } from "../attempt-usage";
 import type { MetaFailure } from "../meta-errors";
 import {
@@ -93,7 +95,7 @@ import {
 } from "../meta-errors";
 import type { CredentialVerifier } from "../verify";
 import { ExecutionConnectionError, verifyExecutionScopes } from "../verify";
-import { touchesMoneySurface } from "../scopes";
+import { EXECUTION_SCOPE_REGISTRY, touchesMoneySurface } from "../scopes";
 import { staleAdChange, stalePublish } from "../stale";
 import type { ExecutionContext, ExecutionProvider, PreflightRefusal } from "./fixture";
 
@@ -144,6 +146,24 @@ export const META_EXEC_REQUESTS = {
   // P3-23a, added deliberately: the per-post readback. GET only, under readback scopes only.
   page_post_insights: { method: "GET", path: "/{post_id}/insights" },
   ig_media_insights: { method: "GET", path: "/{ig_media_id}/insights" },
+  // P3-54, added deliberately: ad creation. Every create is on the ad account's
+  // own edges and is sent PAUSED; an ad video is uploaded by its public URL.
+  advideo_upload: { method: "POST", path: "/act_{ad_account_id}/advideos" },
+  adset_create: { method: "POST", path: "/act_{ad_account_id}/adsets" },
+  adcreative_create: { method: "POST", path: "/act_{ad_account_id}/adcreatives" },
+  ad_create: { method: "POST", path: "/act_{ad_account_id}/ads" },
+  // ...an ad set and an ad read and written by id (status, and the ad set's end date)...
+  adset: { method: "GET", path: "/{adset_id}" },
+  adset_update: { method: "POST", path: "/{adset_id}" },
+  ad: { method: "GET", path: "/{ad_id}" },
+  ad_update: { method: "POST", path: "/{ad_id}" },
+  advideo_status: { method: "GET", path: "/{video_id}" },
+  // ...and the read-backs that find a create whose answer was lost, by its build tag.
+  account_campaigns: { method: "GET", path: "/act_{ad_account_id}/campaigns" },
+  account_adsets: { method: "GET", path: "/act_{ad_account_id}/adsets" },
+  account_adcreatives: { method: "GET", path: "/act_{ad_account_id}/adcreatives" },
+  account_ads: { method: "GET", path: "/act_{ad_account_id}/ads" },
+  account_advideos: { method: "GET", path: "/act_{ad_account_id}/advideos" },
 } as const;
 
 type MetaExecRequest = keyof typeof META_EXEC_REQUESTS;
@@ -308,12 +328,36 @@ export class UndisclosedPublishError extends Error {
   }
 }
 
+/**
+ * P3-54, pure: the text an ad creative shows — its object_story_spec's
+ * message (link and video ads) — or null when it has none. Meta's Marketing
+ * API has no `is_ai_generated` for ads (_verify at build_), so the caption's
+ * own label is the disclosure, as on a Facebook post.
+ */
+export function creativeMessage(spec: string | undefined): string | null {
+  if (spec === undefined) return null;
+  try {
+    const s = JSON.parse(spec) as {
+      link_data?: { message?: unknown };
+      video_data?: { message?: unknown };
+    };
+    const m = s.link_data?.message ?? s.video_data?.message;
+    return typeof m === "string" ? m : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Pure: the request that may not be sent as it stands, or null. */
 export function disclosureViolation(
   which: MetaExecRequest,
   params: Readonly<Record<string, string>>,
 ): string | null {
   if (which === "ig_container" && params["is_ai_generated"] !== "true") return which;
+  // P3-54: an ad creative carries its caption, and the caption ends with its label (rule 17).
+  if (which === "adcreative_create") {
+    return isDisclosed(creativeMessage(params["object_story_spec"]) ?? "") ? null : which;
+  }
   const field = DISCLOSED_TEXT_FIELD[which];
   if (field === undefined) return null;
   // A Reel's start phase carries no caption; its finish phase publishes and must.
@@ -2200,8 +2244,30 @@ function publishProvider(
  * separate resume proposal.
  */
 
+/** The ops the engine runs on Meta's ad side. The P3-54 build's steps are not among them. */
 export type AdOp =
-  "pause_campaign" | "resume_campaign" | "set_daily_budget" | "create_campaign_paused";
+  | "pause_campaign"
+  | "resume_campaign"
+  | "set_daily_budget"
+  | "create_campaign_paused"
+  | "create_ad_paused";
+
+/**
+ * P3-54: the steps of create_ad_paused (and of going live), each a registered
+ * op of its own so the consent names it and the registry labels it; none is
+ * ever run by the engine on its own. assertStepRegistered refuses any step
+ * the registry doesn't declare before anything is sent.
+ */
+export type AdStepOp =
+  | "create_campaign_paused"
+  | "upload_ad_video"
+  | "create_adset_paused"
+  | "create_adcreative"
+  | "create_ad_paused"
+  | "resume_adset"
+  | "pause_adset"
+  | "resume_ad"
+  | "pause_ad";
 
 /** The only fields an ad write may carry, per request (rule 18: nothing billing-shaped). */
 export const AD_WRITE_FIELDS: Readonly<Partial<Record<MetaExecRequest, readonly string[]>>> = {
@@ -2213,9 +2279,149 @@ export const AD_WRITE_FIELDS: Readonly<Partial<Record<MetaExecRequest, readonly 
     "special_ad_categories",
     "buying_type",
     "daily_budget",
+    // P3-54: a campaign whose budget sits on its ad set says so (sent only as "false").
+    "is_adset_budget_sharing_enabled",
     "execution_options",
   ],
+  // P3-54, added deliberately: the ad build's creates and the go-live updates.
+  advideo_upload: ["name", "file_url"],
+  adset_create: [
+    "name",
+    "campaign_id",
+    "daily_budget",
+    // Meta's name (VENDOR_MISNAMED_AD_FIELDS): what the ad set is charged per — IMPRESSIONS only.
+    "billing_event",
+    "optimization_goal",
+    "bid_strategy",
+    "destination_type",
+    "targeting",
+    "end_time",
+    "dsa_beneficiary",
+    "dsa_payor",
+    "status",
+    "execution_options",
+  ],
+  adset_update: ["status", "end_time", "execution_options"],
+  adcreative_create: ["name", "object_story_spec", "execution_options"],
+  ad_create: ["name", "adset_id", "creative", "status", "execution_options"],
+  ad_update: ["status", "execution_options"],
 };
+
+/** P3-54: the optimisation goals an ad set is created with. */
+export const META_OPTIMIZATION_GOALS: readonly string[] = ["LINK_CLICKS", "REACH"];
+/** P3-54: the one bid strategy SYB sends — Meta's lowest cost, no cap, no bid amount. */
+export const AD_BID_STRATEGY = "LOWEST_COST_WITHOUT_CAP";
+/** P3-54: the one unit an ad set is charged per. */
+export const AD_BILLING_EVENT = "IMPRESSIONS";
+/** P3-54: the calls to action a creative may carry. */
+export const AD_CALLS_TO_ACTION: readonly string[] = ["LEARN_MORE"];
+
+const ID_DIGITS = /^\d{5,}$/;
+
+function jsonOf(raw: string | undefined): unknown {
+  if (raw === undefined) return undefined;
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
+const isoTime = (v: string | undefined) =>
+  v !== undefined && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})$/.test(v);
+
+/** P3-54, pure: an ad-build write that may not go, or null. Field lists are AD_WRITE_FIELDS'. */
+function adBuildViolation(
+  which: MetaExecRequest,
+  params: Readonly<Record<string, string>>,
+): string | null {
+  const name = params["name"];
+  const named = () => name !== undefined && name.trim() !== "" && name.length <= 400;
+  if (which === "campaign_create") {
+    const sharing = params["is_adset_budget_sharing_enabled"];
+    if (sharing !== undefined && sharing !== "false") {
+      return "a campaign's ad set budget is never shared";
+    }
+    return null;
+  }
+  if (which === "advideo_upload") {
+    if (!named()) return "an ad video needs a name";
+    if (!/^https:\/\/\S+$/.test(params["file_url"] ?? "")) {
+      return "an ad video is uploaded from its public https address only";
+    }
+    return null;
+  }
+  if (which === "adset_create") {
+    if (params["status"] !== "PAUSED")
+      return "an ad set is created PAUSED; going live is a separate approval";
+    if (!named()) return "an ad set needs a name";
+    if (!ID_DIGITS.test(params["campaign_id"] ?? "")) return "an ad set names its campaign";
+    if (params["daily_budget"] === undefined) return "an ad set is created with a daily budget";
+    if (params["billing_event"] !== AD_BILLING_EVENT) {
+      return `an ad set is charged per ${AD_BILLING_EVENT}, nothing else`;
+    }
+    if (params["bid_strategy"] !== AD_BID_STRATEGY) {
+      return `an ad set bids ${AD_BID_STRATEGY}, with no bid amount`;
+    }
+    if (!META_OPTIMIZATION_GOALS.includes(params["optimization_goal"] ?? "")) {
+      return "an ad set needs one of the optimisation goals SYB uses";
+    }
+    const dest = params["destination_type"];
+    if (dest !== undefined && dest !== "WEBSITE") return "an ad set sends people to a website only";
+    if (!isoTime(params["end_time"])) return "an ad set is created with an end date";
+    const t = jsonOf(params["targeting"]);
+    if (t === undefined || t === null || typeof t !== "object") return "an ad set needs targeting";
+    const dsa = [params["dsa_beneficiary"], params["dsa_payor"]];
+    if (dsa.some((v) => v !== undefined && (v.trim() === "" || v.length > 200))) {
+      return "an ad set names who it is for and who pays for it in words";
+    }
+    return null;
+  }
+  if (which === "adset_update") {
+    if (params["status"] === undefined && params["end_time"] === undefined) {
+      return "adset_update changes a status or an end date, nothing else";
+    }
+    if (params["end_time"] !== undefined && !isoTime(params["end_time"])) {
+      return "an ad set's end date is a time";
+    }
+    return null;
+  }
+  if (which === "adcreative_create") {
+    if (!named()) return "a creative needs a name";
+    const spec = jsonOf(params["object_story_spec"]) as Record<string, unknown> | undefined;
+    if (!spec || typeof spec !== "object") return "a creative needs its story";
+    if (!ID_DIGITS.test(String(spec["page_id"] ?? ""))) return "a creative runs as a Page";
+    const keys = Object.keys(spec).filter((k) => k !== "page_id" && k !== "instagram_user_id");
+    if (keys.length !== 1 || !["link_data", "video_data"].includes(keys[0]!)) {
+      return "a creative is one image or one video, nothing else";
+    }
+    const body = spec[keys[0]!] as { call_to_action?: { type?: unknown } } | undefined;
+    const cta = body?.call_to_action?.type;
+    if (cta !== undefined && !AD_CALLS_TO_ACTION.includes(String(cta))) {
+      return "a creative's call to action is LEARN_MORE or none";
+    }
+    return null;
+  }
+  if (which === "ad_create") {
+    if (params["status"] !== "PAUSED")
+      return "an ad is created PAUSED; going live is a separate approval";
+    if (!named()) return "an ad needs a name";
+    if (!ID_DIGITS.test(params["adset_id"] ?? "")) return "an ad names its ad set";
+    const creative = jsonOf(params["creative"]) as Record<string, unknown> | undefined;
+    if (
+      !creative ||
+      Object.keys(creative).join() !== "creative_id" ||
+      !ID_DIGITS.test(String(creative["creative_id"]))
+    ) {
+      return "an ad names its creative by id, nothing else";
+    }
+    return null;
+  }
+  if (which === "ad_update" && params["status"] === undefined) {
+    return "ad_update changes a status, nothing else";
+  }
+  return null;
+}
 
 /** The only campaign statuses SYB ever sends. Meta's other two are permanent. */
 export const AD_STATUSES: readonly string[] = ["PAUSED", "ACTIVE"];
@@ -2298,7 +2504,7 @@ export function adWriteViolation(
     const name = params["name"] ?? "";
     if (name.trim() === "" || name.length > 400) return "a campaign needs a name";
   }
-  return null;
+  return adBuildViolation(which, params);
 }
 
 /**
@@ -2308,10 +2514,17 @@ export function adWriteViolation(
  */
 export class AdChangeError extends Error {
   readonly retryable: boolean;
-  constructor(message: string, retryable = false) {
+  /**
+   * P3-54: Meta definitely did nothing and would take it later (a rate limit,
+   * Meta unavailable) — a create the engine never retries can still WAIT, so
+   * an ad build holds and resumes rather than ending half-made.
+   */
+  readonly waitable: boolean;
+  constructor(message: string, retryable = false, waitable = retryable) {
     super(message);
     this.name = "AdChangeError";
     this.retryable = retryable;
+    this.waitable = waitable;
   }
 }
 
@@ -2331,6 +2544,254 @@ export interface AdsBackend {
   changed(profileId: string, detail: string, meta: Record<string, unknown>): Promise<void>;
   /** P3-24b: Meta refused the connection's sign-in — pause the ad connection. */
   paused(args: { account_id: string; failure: MetaFailure }): Promise<void>;
+
+  /* ── P3-54: the ad build ── */
+
+  /**
+   * The ad connection's recorded consent covers TODAY's consent lines. A
+   * connection agreed before ad creation was in the consent didn't agree to
+   * it (rule 13): the new ops refuse until the owner reconnects.
+   */
+  consentCurrent(accountId: string): Promise<boolean>;
+  /** The Page (and Instagram account) the ad runs as: the publish connection's asset ids, never its token. */
+  adIdentity(
+    accountId: string,
+  ): Promise<{ page_id: string; ig_user_id: string | null } | { refused: string }>;
+  /** The item still hashes to what the owner approved (caption as it goes out, and its media). */
+  itemAsApproved(profileId: string, itemId: string, approvedHash: string): Promise<boolean>;
+  /** The build's journal for this execution — created on first read, kept for ever. */
+  adBuild(
+    executionId: string,
+    init: { build_tag: string; item_id: string },
+  ): Promise<AdBuildJournal>;
+  /** One step's progress: `sent_at` just before its create, `id` the moment Meta answers. */
+  adStep(executionId: string, step: AdBuildStepKey, patch: Partial<AdBuildStep>): Promise<void>;
+  /** The build's end: built (and the go-live proposal made), uncertain, or failed — with the sentence. */
+  adBuildSettled(
+    executionId: string,
+    outcome: { status: "built" | "uncertain" | "failed"; error?: string },
+  ): Promise<void>;
+}
+
+/** P3-54: the build's steps, in the order they run. A video is uploaded only for a video ad. */
+export const AD_BUILD_STEPS = ["campaign", "adset", "video", "creative", "ad"] as const;
+export type AdBuildStepKey = (typeof AD_BUILD_STEPS)[number];
+
+export interface AdBuildStep {
+  /** Written just before the create is sent — after its dry run and the stop check. */
+  sent_at: string | null;
+  /** Meta's id, the moment Meta answers. */
+  id: string | null;
+  /** A video's thumbnail, once Meta has processed it (the creative needs one). */
+  thumbnail?: string | null;
+}
+
+export interface AdBuildJournal {
+  status: "building" | "built" | "uncertain" | "failed";
+  steps: Partial<Record<AdBuildStepKey, AdBuildStep>>;
+}
+
+/** Which registered op each step is. */
+export const AD_STEP_OP: Readonly<Record<AdBuildStepKey, AdStepOp>> = {
+  campaign: "create_campaign_paused",
+  adset: "create_adset_paused",
+  video: "upload_ad_video",
+  creative: "create_adcreative",
+  ad: "create_ad_paused",
+};
+
+/** Which read-back finds a step whose answer was lost, by its exact name. */
+const AD_STEP_READBACK: Readonly<Record<AdBuildStepKey, MetaExecRequest>> = {
+  campaign: "account_campaigns",
+  adset: "account_adsets",
+  video: "account_advideos",
+  creative: "account_adcreatives",
+  ad: "account_ads",
+};
+
+const AD_STEP_WORD: Readonly<Record<AdBuildStepKey, string>> = {
+  campaign: "campaign",
+  adset: "ad set",
+  video: "ad video",
+  creative: "creative",
+  ad: "ad",
+};
+
+/** Pure: the name every object of one build carries — what a read-back finds it by. */
+export function adObjectName(name: string, step: AdBuildStepKey, tag: string): string {
+  const base = name.trim().slice(0, 120);
+  return step === "campaign" ? `${base} · ${tag}` : `${base} · ${AD_STEP_WORD[step]} · ${tag}`;
+}
+
+/** Polls of an uploaded video's processing within one attempt; then the run waits and resumes. */
+export const AD_VIDEO_POLL_MAX = 6;
+/** How long a build waits before a resume reads back a lost answer or a video still processing. */
+export const AD_BUILD_RETRY_MS = 10 * 60_000;
+
+/**
+ * P3-54: the build must WAIT, not end — Meta is still processing the video,
+ * or a create's answer was lost and a read-back will settle it. The engine
+ * journals the run failed, held "remaining" until `retry_after_ms`, and the
+ * due runner resumes it from the journal, through every guard again.
+ */
+/** P3-54: a create Meta never confirmed and a read-back couldn't find — never sent again. */
+export class AdBuildUncertainError extends AdChangeError {
+  constructor(message: string) {
+    super(message);
+    this.name = "AdBuildUncertainError";
+  }
+}
+
+export class AdBuildWaitError extends Error {
+  readonly retryable = false;
+  readonly held_for = "remaining" as const;
+  readonly retry_after_ms = AD_BUILD_RETRY_MS;
+  constructor(message: string) {
+    super(message);
+    this.name = "AdBuildWaitError";
+  }
+}
+
+/** P3-54: the go-live and undo sub-steps, by the object they set. */
+const LIVE_STEP_OP = {
+  adset: { ACTIVE: "resume_adset", PAUSED: "pause_adset" },
+  ad: { ACTIVE: "resume_ad", PAUSED: "pause_ad" },
+} as const;
+
+/** P3-54: a step the registry doesn't declare never reaches Meta. */
+export function assertStepRegistered(op: AdStepOp): void {
+  const ops = EXECUTION_SCOPE_REGISTRY.meta_ads.operations.map((o) => o.op as string);
+  if (!ops.includes(op)) {
+    throw new AdChangeError(
+      `"${op}" is not a registered operation for meta_ads — nothing was sent`,
+    );
+  }
+}
+
+/** P3-54: what an approved "Run this ad" carries — built from the approved row (lib/ads/adcreate). */
+export interface AdRunParams {
+  build_tag: string;
+  item_id: string;
+  approved_hash: string;
+  name: string;
+  objective: string;
+  optimization_goal: string;
+  destination_type: string | null;
+  special_ad_categories: string[];
+  daily_budget_minor: number;
+  currency: string;
+  run_days: number;
+  targeting: Record<string, unknown>;
+  page_id: string;
+  ig_user_id: string | null;
+  media: { kind: "image" | "video"; url: string };
+  caption: string;
+  link: string;
+  call_to_action: string | null;
+  dsa: { beneficiary: string; payor: string } | null;
+}
+
+/** P3-54: an ad run's days, at least and at most. */
+export const AD_RUN_DAYS = { min: 1, max: 30 } as const;
+
+/** Pure: the approved ad, re-read from the plan; anything out of shape refuses before a send. */
+export function adRunParams(params: Record<string, unknown>): AdRunParams {
+  const bad = (what: string): never => {
+    throw new AdChangeError(`the approved ad ${what} — nothing was sent`);
+  };
+  const str = (k: string) => (typeof params[k] === "string" ? (params[k] as string) : null);
+  const tag = str("build_tag");
+  if (!tag || !/^SYB-[0-9a-f]{8}$/.test(tag)) bad("has no build tag");
+  const item = str("item_id");
+  if (!item || !/^[0-9a-f-]{36}$/.test(item)) bad("names no item");
+  const hash = str("approved_hash");
+  if (!hash || !/^[0-9a-f]{64}$/.test(hash)) bad("carries no record of what was approved");
+  const name = str("name");
+  if (!name || name.trim() === "" || name.length > 120) bad("has no name");
+  const objective = str("objective");
+  const goal = str("optimization_goal");
+  if (!objective || !META_CAMPAIGN_OBJECTIVES.includes(objective))
+    bad("has no objective Meta accepts");
+  if (!goal || !META_OPTIMIZATION_GOALS.includes(goal)) bad("has no optimisation goal SYB uses");
+  const dest = params["destination_type"];
+  if (dest !== null && dest !== undefined && dest !== "WEBSITE") bad("sends people somewhere odd");
+  const cats = params["special_ad_categories"];
+  if (
+    !Array.isArray(cats) ||
+    !cats.every((c) => typeof c === "string" && META_SPECIAL_AD_CATEGORIES.includes(c))
+  ) {
+    bad("has special ad categories that aren't Meta's");
+  }
+  const budget = params["daily_budget_minor"];
+  if (typeof budget !== "number" || !Number.isSafeInteger(budget) || budget <= 0) {
+    bad("has no whole daily budget");
+  }
+  const currency = str("currency");
+  if (!currency || !/^[A-Z]{3}$/.test(currency)) bad("names no currency");
+  const days = params["run_days"];
+  if (
+    typeof days !== "number" ||
+    !Number.isInteger(days) ||
+    days < AD_RUN_DAYS.min ||
+    days > AD_RUN_DAYS.max
+  ) {
+    bad(`runs for a number of days outside ${AD_RUN_DAYS.min}–${AD_RUN_DAYS.max}`);
+  }
+  const targeting = params["targeting"];
+  if (!targeting || typeof targeting !== "object" || Array.isArray(targeting))
+    bad("has no audience");
+  const page = str("page_id");
+  if (!page || !ID_DIGITS.test(page)) bad("names no Page");
+  const ig = params["ig_user_id"];
+  if (ig !== null && ig !== undefined && (typeof ig !== "string" || !ID_DIGITS.test(ig))) {
+    bad("names an Instagram account that isn't one");
+  }
+  const media = params["media"] as { kind?: unknown; url?: unknown } | undefined;
+  if (
+    !media ||
+    (media.kind !== "image" && media.kind !== "video") ||
+    typeof media.url !== "string" ||
+    !/^https:\/\/\S+$/.test(media.url)
+  ) {
+    bad("has no media at a public https address");
+  }
+  const caption = str("caption");
+  if (!caption || !isDisclosed(caption)) bad("caption doesn't carry its AI disclosure (rule 17)");
+  const link = str("link");
+  if (!link || !/^https:\/\/\S+$/.test(link)) bad("sends people nowhere");
+  const cta = params["call_to_action"];
+  if (cta !== null && cta !== undefined && !AD_CALLS_TO_ACTION.includes(String(cta))) {
+    bad("has a call to action SYB doesn't use");
+  }
+  const dsa = params["dsa"] as { beneficiary?: unknown; payor?: unknown } | null | undefined;
+  if (
+    dsa !== null &&
+    dsa !== undefined &&
+    (typeof dsa.beneficiary !== "string" || typeof dsa.payor !== "string")
+  ) {
+    bad("names who it is for in a shape Meta won't take");
+  }
+  return {
+    build_tag: tag!,
+    item_id: item!,
+    approved_hash: hash!,
+    name: name!.trim(),
+    objective: objective!,
+    optimization_goal: goal!,
+    destination_type: (dest as string | null | undefined) ?? null,
+    special_ad_categories: cats as string[],
+    daily_budget_minor: budget as number,
+    currency: currency!,
+    run_days: days as number,
+    targeting: targeting as Record<string, unknown>,
+    page_id: page!,
+    ig_user_id: (ig as string | null | undefined) ?? null,
+    media: media as AdRunParams["media"],
+    caption: caption!,
+    link: link!,
+    call_to_action: (cta as string | null | undefined) ?? null,
+    dsa: dsa ? { beneficiary: dsa.beneficiary as string, payor: dsa.payor as string } : null,
+  };
 }
 
 /** Back off once Meta reports this much of the ad account's hourly limit used (P3-22d). */
@@ -2445,8 +2906,38 @@ function isAdOp(op: string): op is AdOp {
     op === "pause_campaign" ||
     op === "resume_campaign" ||
     op === "set_daily_budget" ||
-    op === "create_campaign_paused"
+    op === "create_campaign_paused" ||
+    op === "create_ad_paused"
   );
+}
+
+/** P3-54: a go-live names the build's ad set and ad beside the campaign; an ordinary resume doesn't. */
+interface LiveParams {
+  adset_id: string;
+  ad_id: string;
+  run_days: number;
+}
+
+function liveParams(params: Record<string, unknown>): LiveParams | null {
+  const adset = params["adset_id"];
+  const ad = params["ad_id"];
+  if (adset === undefined && ad === undefined) return null;
+  if (typeof adset !== "string" || !ID_DIGITS.test(adset)) {
+    throw new AdChangeError("the go-live names no ad set — nothing was sent");
+  }
+  if (typeof ad !== "string" || !ID_DIGITS.test(ad)) {
+    throw new AdChangeError("the go-live names no ad — nothing was sent");
+  }
+  const days = params["run_days"];
+  if (
+    typeof days !== "number" ||
+    !Number.isInteger(days) ||
+    days < AD_RUN_DAYS.min ||
+    days > AD_RUN_DAYS.max
+  ) {
+    throw new AdChangeError("the go-live names no run length — nothing was sent");
+  }
+  return { adset_id: adset, ad_id: ad, run_days: days };
 }
 
 const STATUS_WORD: Readonly<Record<string, string>> = { PAUSED: "paused", ACTIVE: "active" };
@@ -2621,39 +3112,65 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     return { meta_value, sent_minor };
   }
 
+  interface WriteOptions {
+    /** A create: at most once — an answer that never came is never sent again. Default: campaign_create. */
+    once?: boolean;
+    /** P3-54: what a lost answer becomes (the build waits and reads back). Default: "I may have created…". */
+    noAnswer?: () => Error;
+    /** P3-54: run after the dry run and the stop check, just before the real write (the journal's sent_at). */
+    beforeWrite?: () => Promise<void>;
+    /** P3-54: no dry run for this request (an ad video upload has none — _verify at build_). */
+    noDryRun?: boolean;
+  }
+
   /** The identical call with validate_only first, refused on any error before anything changes. */
   async function validatedWrite(
     run: Run,
-    which: "campaign_update" | "campaign_create",
+    which:
+      | "campaign_update"
+      | "campaign_create"
+      | "adset_create"
+      | "adset_update"
+      | "adcreative_create"
+      | "ad_create"
+      | "ad_update"
+      | "advideo_upload",
     ids: Readonly<Record<string, string>>,
     fields: Record<string, string>,
     reach: string,
+    opts: WriteOptions = {},
   ): Promise<Record<string, unknown>> {
-    try {
-      await call(run, which, ids, { ...fields, execution_options: VALIDATE_ONLY }, reach);
-    } catch (error) {
-      // A refused sign-in pauses the connection (P3-24b): passed up as it is.
-      if (error instanceof MetaRequestError && !pausesConnection(error.failure)) {
-        throw adRefusal(error.failure, true);
+    const once = opts.once ?? which === "campaign_create";
+    if (!opts.noDryRun) {
+      try {
+        await call(run, which, ids, { ...fields, execution_options: VALIDATE_ONLY }, reach);
+      } catch (error) {
+        // A refused sign-in pauses the connection (P3-24b): passed up as it is.
+        if (error instanceof MetaRequestError && !pausesConnection(error.failure)) {
+          throw adRefusal(error.failure, true);
+        }
+        throw error;
       }
-      throw error;
     }
     // P3-24c: the stop, between Meta's dry run and the real change.
     await checkStop(run.halted, STOPPED_BEFORE_CHANGE);
+    if (opts.beforeWrite) await opts.beforeWrite();
     try {
       return await call(run, which, ids, fields, reach, {
         // A create that gets no usable answer is never sent again (at most once).
-        ...(which === "campaign_create" ? { publishing: true } : {}),
+        ...(once ? { publishing: true } : {}),
       });
     } catch (error) {
       if (error instanceof MetaNoAnswerError) {
-        throw new AdChangeError(
-          "I may have created this campaign — check Ads Manager. Meta didn't confirm it, and I won't create it again.",
-        );
+        throw opts.noAnswer
+          ? opts.noAnswer()
+          : new AdChangeError(
+              "I may have created this campaign — check Ads Manager. Meta didn't confirm it, and I won't create it again.",
+            );
       }
       if (error instanceof MetaRequestError && !pausesConnection(error.failure)) {
         const refusal = adRefusal(error.failure, false);
-        throw which === "campaign_create" ? new AdChangeError(refusal.message) : refusal;
+        throw once ? new AdChangeError(refusal.message, false, refusal.waitable) : refusal;
       }
       throw error;
     }
@@ -2701,6 +3218,532 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
 
   const fmt = (minor: number, currency: string) => format(money(minor, currency));
 
+  /* ── P3-54: the ad build and its go-live ── */
+
+  interface ChildState {
+    id: string;
+    name: string;
+    account_id: string;
+    /** The ad set's campaign, or the ad's ad set. */
+    parent_id: string;
+    status: string;
+    /** The ad set's daily budget in Meta's unit; null for an ad. */
+    daily_budget: number | null;
+  }
+
+  async function readChild(run: Run, kind: "adset" | "ad", id: string): Promise<ChildState> {
+    const body = await call(
+      run,
+      kind,
+      kind === "adset" ? { adset_id: id } : { ad_id: id },
+      {
+        fields:
+          kind === "adset"
+            ? "id,name,account_id,campaign_id,status,daily_budget"
+            : "id,name,account_id,adset_id,status",
+      },
+      `${kind === "adset" ? "ad set" : "ad"} ${id}`,
+    );
+    const account = String(body["account_id"] ?? "").replace(/^act_/, "");
+    if (String(body["id"] ?? "") !== id || account !== run.cred.ad_account_id) {
+      throw new AdChangeError(
+        `${kind === "adset" ? "Ad set" : "Ad"} ${id} isn't in the connected ad account (act_${run.cred.ad_account_id}). Nothing was changed.`,
+      );
+    }
+    const status = typeof body["status"] === "string" ? body["status"] : "UNKNOWN";
+    const name = typeof body["name"] === "string" && body["name"] !== "" ? body["name"] : id;
+    if (!AD_STATUSES.includes(status)) {
+      throw new AdChangeError(
+        `"${name}" is ${status.toLowerCase()} on Meta, and SYB only pauses and resumes live and paused ads. Nothing was changed.`,
+      );
+    }
+    return {
+      id,
+      name,
+      account_id: account,
+      parent_id: String(body[kind === "adset" ? "campaign_id" : "adset_id"] ?? ""),
+      status,
+      daily_budget: kind === "adset" ? metaInt(body["daily_budget"]) : null,
+    };
+  }
+
+  /** Rule 13 for the new ops: an ad connection agreed before ad creation was in its consent. */
+  async function consentCovers(run: Run): Promise<void> {
+    if (!(await run.b.consentCurrent(run.account_id))) {
+      throw new AdChangeError(
+        "Your Meta ad connection was agreed before SYB could create ads, so it hasn't agreed to this. Reconnect it on Connections to agree to the new wording. Nothing was created.",
+      );
+    }
+  }
+
+  /** P3-54: a new ad's spend — Meta's floor and the owner's ceiling over the whole account. */
+  async function newSpend(
+    run: Run,
+    args: { profile_id: string; daily_minor: number; account: AccountState; what: string },
+  ): Promise<void> {
+    const { account } = args;
+    const ceiling = await run.b.ceiling(args.profile_id);
+    const accountDaily = ceiling
+      ? await run.b.accountDailySpend(run.account_id, account.currency)
+      : null;
+    const refusal = newSpendGuard({
+      daily_minor: args.daily_minor,
+      currency: account.currency,
+      account_daily_minor: accountDaily,
+      monthly_ceiling: ceiling,
+      floor_minor: dailyBudgetFloor(account.currency, account.min_daily_minor),
+    });
+    if (refusal !== null) {
+      throw new AdChangeError(`I didn't ${args.what}: ${refusal}. Nothing was changed.`);
+    }
+  }
+
+  /**
+   * Everything a "Run this ad" is checked against before anything is sent —
+   * in the pre-flight and again in the attempt: the consent, what was
+   * approved (the item still hashes to it), the Page it runs as, the audience
+   * (special categories, no bypass), the currency, Meta's floor and the
+   * owner's ceiling. Reads only.
+   */
+  async function adRunChecks(
+    run: Run,
+    p: AdRunParams,
+    pctx: ExecutionContext,
+  ): Promise<AccountState> {
+    await consentCovers(run);
+    if (!(await run.b.itemAsApproved(pctx.profile_id, p.item_id, p.approved_hash))) {
+      throw new AdChangeError(
+        "What would go out isn't what you approved: the item's caption or media changed since. Nothing was created; it needs approving again.",
+      );
+    }
+    const identity = await run.b.adIdentity(run.account_id);
+    if ("refused" in identity) throw new AdChangeError(identity.refused);
+    if (
+      identity.page_id !== p.page_id ||
+      (p.ig_user_id !== null && identity.ig_user_id !== p.ig_user_id)
+    ) {
+      throw new AdChangeError(
+        "The Meta publishing connection no longer points at the Page or Instagram account you approved this ad for. Nothing was created; it needs approving again.",
+      );
+    }
+    const targeting = targetingViolation(p.special_ad_categories, p.targeting);
+    if (targeting !== null) {
+      throw new AdChangeError(`I didn't create "${p.name}": ${targeting}. Nothing was created.`);
+    }
+    if (
+      OPTIMIZATION_FOR_OBJECTIVE[p.objective] !== p.optimization_goal ||
+      (p.destination_type !== null && p.objective !== "OUTCOME_TRAFFIC")
+    ) {
+      throw new AdChangeError(
+        `I didn't create "${p.name}": its optimisation goal doesn't fit its objective. Nothing was created.`,
+      );
+    }
+    const account = await readAccount(run);
+    if (account.currency !== p.currency) {
+      throw new AdChangeError(
+        `You approved this ad's budget in ${p.currency}, but the ad account bills in ${account.currency}. Nothing was created; it needs approving again.`,
+      );
+    }
+    const sent = toMetaBudget(p.daily_budget_minor, account.currency).sent_minor;
+    await newSpend(run, {
+      profile_id: pctx.profile_id,
+      daily_minor: sent,
+      account,
+      what: `create "${p.name}"`,
+    });
+    return account;
+  }
+
+  /** P3-54: a create whose answer was lost, found again by its exact name — or null. */
+  async function readBackStep(
+    run: Run,
+    step: AdBuildStepKey,
+    name: string,
+    tag: string,
+  ): Promise<string | null> {
+    const which = AD_STEP_READBACK[step];
+    const field = step === "video" ? "title" : "name";
+    const body = await call(
+      run,
+      which,
+      { ad_account_id: run.cred.ad_account_id as string },
+      step === "video"
+        ? { fields: "id,title", limit: "50" }
+        : {
+            fields: "id,name",
+            limit: "50",
+            filtering: JSON.stringify([{ field: "name", operator: "CONTAIN", value: tag }]),
+          },
+      `ad account act_${run.cred.ad_account_id}`,
+    );
+    const matches = listData(body).filter((r) => r[field] === name);
+    if (matches.length !== 1) return null;
+    return stringId(matches[0]!, "id");
+  }
+
+  /**
+   * P3-54: the build, step by step from its journal. A step with an id is
+   * done (a resumed run skips it); a step sent without an answer is read back
+   * by its name, and adopted if found — otherwise it is never sent again and
+   * the build is uncertain; a step not yet sent goes now: registered, the
+   * stop checked, Meta's dry run, the stop again, `sent_at` journaled, then
+   * the create, its id journaled the moment Meta answers.
+   */
+  async function buildAd(
+    run: Run,
+    p: AdRunParams,
+    pctx: ExecutionContext,
+    account: AccountState,
+  ): Promise<Record<string, unknown>> {
+    const executionId = pctx.execution_id;
+    if (!executionId) {
+      throw new AdChangeError("the ad build has no run to journal against — nothing was sent");
+    }
+    const b = run.b;
+    const journal = await b.adBuild(executionId, { build_tag: p.build_tag, item_id: p.item_id });
+    if (journal.status === "uncertain" || journal.status === "failed") {
+      throw new AdChangeError(
+        "This ad's build stopped earlier, and SYB never creates an ad's parts twice. Check Ads Manager; everything SYB made is paused.",
+      );
+    }
+    const steps: Partial<Record<AdBuildStepKey, AdBuildStep>> = { ...journal.steps };
+    const act = run.cred.ad_account_id as string;
+    const reach = `ad account act_${act}`;
+    const budget = toMetaBudget(p.daily_budget_minor, account.currency);
+
+    const ensure = async (
+      key: AdBuildStepKey,
+      create: (
+        name: string,
+        beforeWrite: () => Promise<void>,
+        noAnswer: () => Error,
+      ) => Promise<Record<string, unknown>>,
+    ): Promise<string> => {
+      const done = steps[key];
+      if (done?.id) return done.id;
+      const name = adObjectName(p.name, key, p.build_tag);
+      const word = AD_STEP_WORD[key];
+      if (done?.sent_at) {
+        // Sent, and Meta's answer never came: read back, never send again.
+        const found = await readBackStep(run, key, name, p.build_tag);
+        if (found === null) {
+          throw new AdBuildUncertainError(
+            `I may have created the ${word} — check Ads Manager. Meta didn't confirm it and I couldn't find it, so I won't create it again. Nothing is live: everything SYB made is paused.`,
+          );
+        }
+        await b.adStep(executionId, key, { id: found });
+        steps[key] = { ...done, id: found };
+        logAdChange({
+          account_id: run.account_id,
+          op: AD_STEP_OP[key],
+          phase: "reconcile",
+          outcome: "found",
+          object_id: found,
+        });
+        return found;
+      }
+      assertStepRegistered(AD_STEP_OP[key]);
+      // P3-24c: the stop, between one create and the next.
+      await checkStop(run.halted, STOPPED_BEFORE_CHANGE);
+      const sentAt = new Date().toISOString();
+      const body = await create(
+        name,
+        async () => {
+          await b.adStep(executionId, key, { sent_at: sentAt });
+          steps[key] = { sent_at: sentAt, id: null };
+        },
+        () =>
+          new AdBuildWaitError(
+            `Meta didn't confirm the ${word}. I'll look for it on the next run and carry on from there — nothing is created twice, and nothing is live.`,
+          ),
+      );
+      const id = stringId(body, "id");
+      if (id === null) {
+        throw new AdBuildWaitError(
+          `Meta answered without the ${word}'s id. I'll look for it on the next run and carry on from there — nothing is created twice, and nothing is live.`,
+        );
+      }
+      await b.adStep(executionId, key, { id });
+      steps[key] = { sent_at: sentAt, id };
+      logAdChange({
+        account_id: run.account_id,
+        op: AD_STEP_OP[key],
+        phase: "execute",
+        outcome: "created",
+        object_id: id,
+      });
+      return id;
+    };
+
+    const campaignId = await ensure("campaign", (name, beforeWrite, noAnswer) =>
+      validatedWrite(
+        run,
+        "campaign_create",
+        { ad_account_id: act },
+        {
+          name,
+          objective: p.objective,
+          status: "PAUSED",
+          special_ad_categories: JSON.stringify(p.special_ad_categories),
+          buying_type: "AUCTION",
+          is_adset_budget_sharing_enabled: "false",
+        },
+        reach,
+        { once: true, beforeWrite, noAnswer },
+      ),
+    );
+
+    // The ad set's own end date: its run length from now. Going live sets it again from that day.
+    const endTime = new Date(Date.now() + p.run_days * 86_400_000).toISOString();
+    const adsetId = await ensure("adset", (name, beforeWrite, noAnswer) =>
+      validatedWrite(
+        run,
+        "adset_create",
+        { ad_account_id: act },
+        {
+          name,
+          campaign_id: campaignId,
+          daily_budget: String(budget.meta_value),
+          billing_event: AD_BILLING_EVENT,
+          optimization_goal: p.optimization_goal,
+          bid_strategy: AD_BID_STRATEGY,
+          ...(p.destination_type ? { destination_type: p.destination_type } : {}),
+          targeting: JSON.stringify(p.targeting),
+          end_time: endTime,
+          ...(p.dsa ? { dsa_beneficiary: p.dsa.beneficiary, dsa_payor: p.dsa.payor } : {}),
+          status: "PAUSED",
+        },
+        reach,
+        { once: true, beforeWrite, noAnswer },
+      ),
+    );
+
+    let video: { id: string; thumbnail: string } | null = null;
+    if (p.media.kind === "video") {
+      const videoId = await ensure("video", (name, beforeWrite, noAnswer) =>
+        validatedWrite(
+          run,
+          "advideo_upload",
+          { ad_account_id: act },
+          { name, file_url: p.media.url },
+          reach,
+          { once: true, noDryRun: true, beforeWrite, noAnswer },
+        ),
+      );
+      video = { id: videoId, thumbnail: await videoReady(run, executionId, videoId, steps) };
+    }
+
+    const cta = p.call_to_action ? { type: p.call_to_action, value: { link: p.link } } : null;
+    const story = {
+      page_id: p.page_id,
+      ...(p.ig_user_id ? { instagram_user_id: p.ig_user_id } : {}),
+      ...(video
+        ? {
+            video_data: {
+              video_id: video.id,
+              message: p.caption,
+              image_url: video.thumbnail,
+              ...(cta ? { call_to_action: cta } : {}),
+            },
+          }
+        : {
+            link_data: {
+              link: p.link,
+              message: p.caption,
+              picture: p.media.url,
+              ...(cta ? { call_to_action: cta } : {}),
+            },
+          }),
+    };
+    const creativeId = await ensure("creative", (name, beforeWrite, noAnswer) =>
+      validatedWrite(
+        run,
+        "adcreative_create",
+        { ad_account_id: act },
+        { name, object_story_spec: JSON.stringify(story) },
+        reach,
+        { once: true, beforeWrite, noAnswer },
+      ),
+    );
+
+    const adId = await ensure("ad", (name, beforeWrite, noAnswer) =>
+      validatedWrite(
+        run,
+        "ad_create",
+        { ad_account_id: act },
+        {
+          name,
+          adset_id: adsetId,
+          creative: JSON.stringify({ creative_id: creativeId }),
+          status: "PAUSED",
+        },
+        reach,
+        { once: true, beforeWrite, noAnswer },
+      ),
+    );
+
+    await b.adBuildSettled(executionId, { status: "built" });
+    await b.changed(
+      pctx.profile_id,
+      `Created the ad "${p.name}" on Meta, paused — its campaign, ad set, creative and ad. Nothing spends until you approve going live.`,
+      { campaign_id: campaignId, adset_id: adsetId, ad_id: adId, op: "create_ad_paused" },
+    );
+    return {
+      build_tag: p.build_tag,
+      campaign_id: campaignId,
+      adset_id: adsetId,
+      creative_id: creativeId,
+      ad_id: adId,
+      ...(video ? { video_id: video.id } : {}),
+      status: "PAUSED",
+      daily_budget_minor: budget.sent_minor,
+      currency: account.currency,
+      run_days: p.run_days,
+      access_tier: run.access_tier,
+    };
+  }
+
+  /** P3-54: an uploaded ad video, processed — its thumbnail — or the build waits for it. */
+  async function videoReady(
+    run: Run,
+    executionId: string,
+    videoId: string,
+    steps: Partial<Record<AdBuildStepKey, AdBuildStep>>,
+  ): Promise<string> {
+    const known = steps.video?.thumbnail;
+    if (typeof known === "string" && known !== "") return known;
+    for (let poll = 1; poll <= AD_VIDEO_POLL_MAX; poll++) {
+      const body = await call(
+        run,
+        "advideo_status",
+        { video_id: videoId },
+        { fields: "status,picture" },
+        `ad video ${videoId}`,
+      );
+      const state = (body["status"] as { video_status?: unknown } | undefined)?.video_status;
+      const picture = typeof body["picture"] === "string" ? body["picture"] : null;
+      if (state === "ready" && picture && /^https:\/\/\S+$/.test(picture)) {
+        await run.b.adStep(executionId, "video", { thumbnail: picture });
+        steps.video = { ...(steps.video ?? { sent_at: null, id: videoId }), thumbnail: picture };
+        return picture;
+      }
+      if (state === "error") {
+        throw new AdChangeError(
+          "Meta couldn't process the video, so there is no ad to make from it. The campaign and ad set SYB made are on Meta, paused — nothing spends.",
+        );
+      }
+      if (poll < AD_VIDEO_POLL_MAX) await ctx.sleep(Math.min(15_000, 2_000 * poll));
+    }
+    throw new AdBuildWaitError(
+      "Meta is still processing the video. I'll carry on from here on the next run — nothing is created twice, and nothing is live.",
+    );
+  }
+
+  /** P3-54: a go-live's ad set and ad, proven to belong to the campaign, and its spend guarded. */
+  async function liveChecks(
+    run: Run,
+    c: CampaignState,
+    live: LiveParams,
+    profileId: string,
+  ): Promise<{ adset: ChildState; ad: ChildState }> {
+    await consentCovers(run);
+    const adset = await readChild(run, "adset", live.adset_id);
+    const ad = await readChild(run, "ad", live.ad_id);
+    if (adset.parent_id !== c.id || ad.parent_id !== adset.id) {
+      throw new AdChangeError(
+        `The ad set and ad named here aren't "${c.name}"'s own. Nothing was changed.`,
+      );
+    }
+    if (adset.daily_budget === null) {
+      throw new AdChangeError(
+        `"${adset.name}" has no daily budget SYB can count against your ceiling. Nothing was changed.`,
+      );
+    }
+    const account = await readAccount(run);
+    await newSpend(run, {
+      profile_id: profileId,
+      daily_minor: fromMetaBudget(adset.daily_budget, account.currency),
+      account,
+      what: `put "${c.name}" live`,
+    });
+    return { adset, ad };
+  }
+
+  /** P3-54: one child's status set, registered, the stop checked, dry run first. */
+  async function setChildStatus(
+    run: Run,
+    kind: "adset" | "ad",
+    child: ChildState,
+    status: "PAUSED" | "ACTIVE",
+    extra: Record<string, string> = {},
+  ): Promise<void> {
+    assertStepRegistered(LIVE_STEP_OP[kind][status]);
+    await checkStop(run.halted, STOPPED_BEFORE_CHANGE);
+    const body = await validatedWrite(
+      run,
+      kind === "adset" ? "adset_update" : "ad_update",
+      kind === "adset" ? { adset_id: child.id } : { ad_id: child.id },
+      { status, ...extra },
+      `${kind === "adset" ? "ad set" : "ad"} ${child.id}`,
+    );
+    if (body["success"] !== true) {
+      throw new AdChangeError(
+        `Meta didn't confirm the change to "${child.name}" — I'll check again.`,
+        true,
+      );
+    }
+  }
+
+  /**
+   * P3-54: how a build that didn't finish ends. A wait (Meta processing the
+   * video, an answer to read back, Meta asking SYB to slow down) holds the run
+   * to resume from the journal; anything else ends it for good, the journal
+   * marked uncertain (a create Meta never confirmed) or failed, with the
+   * owner's sentence. Never a raw error, and never a create sent twice.
+   */
+  async function buildEnded(
+    error: unknown,
+    pctx: ExecutionContext,
+    log: (outcome: string, extra?: Record<string, unknown>) => void,
+  ): Promise<Error> {
+    if (error instanceof AdBuildWaitError) {
+      log("waiting");
+      return error;
+    }
+    if (
+      error instanceof AdChangeError &&
+      error.waitable &&
+      !(error instanceof AdBuildUncertainError)
+    ) {
+      log("waiting");
+      return new AdBuildWaitError(
+        `${error.message.replace(/ ?I'll try again\.?$/, "")} I'll carry on from here on the next run — nothing is created twice, and nothing is live.`,
+      );
+    }
+    const message =
+      error instanceof AdChangeError || error instanceof UnknownMetaCurrencyError
+        ? error.message
+        : error instanceof MetaRequestError
+          ? adRefusal(error.failure, false).message
+          : "Something went wrong creating the ad. Check Ads Manager before approving it again; everything SYB made is paused.";
+    const uncertain = error instanceof AdBuildUncertainError;
+    log(uncertain ? "uncertain" : "failed", {
+      error: error instanceof Error ? error.name : "unknown",
+    });
+    if (pctx.execution_id) {
+      try {
+        const b = await loadBackend();
+        await b.adBuildSettled(pctx.execution_id, {
+          status: uncertain ? "uncertain" : "failed",
+          error: message,
+        });
+      } catch {
+        // The journal keeps its last good state; the run's own row carries the sentence.
+      }
+    }
+    return new AdChangeError(message);
+  }
+
   return {
     id: "meta_ads",
     external: true,
@@ -2730,7 +3773,10 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         if (!isAdOp(op))
           return { code: "refused", message: `"${op}" is not an ad change SYB makes` };
         run = await open(pctx.account_id);
-        if (op === "create_campaign_paused") {
+        if (op === "create_ad_paused") {
+          // P3-54: every check the attempt makes again, reads only, before anything is claimed.
+          await adRunChecks(run, adRunParams(params), pctx);
+        } else if (op === "create_campaign_paused") {
           const p = createParams(params);
           const account = await readAccount(run);
           if (p.daily_budget_minor !== null) {
@@ -2758,6 +3804,8 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
           if (op === "resume_campaign" && c.status === "ACTIVE") {
             throw new AdChangeError(`"${c.name}" is already running. Nothing was sent.`);
           }
+          const live = op === "resume_campaign" ? liveParams(params) : null;
+          if (live) await liveChecks(run, c, live, pctx.profile_id);
           if (op === "set_daily_budget") {
             if (c.daily_budget === null) {
               throw new AdChangeError(
@@ -2810,8 +3858,8 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     },
 
     async captureUndo(op, params, pctx) {
-      // The irreversible op has no undo; the engine never asks for one (registry: reversible false).
-      if (op === "create_campaign_paused" || !isAdOp(op)) return null;
+      // The irreversible ops have no undo; the engine never asks for one (registry: reversible false).
+      if (op === "create_campaign_paused" || op === "create_ad_paused" || !isAdOp(op)) return null;
       const capture = async (): Promise<unknown> => {
         const run = await open(pctx.account_id);
         const c = await readCampaign(run, campaignIdOf(params));
@@ -2829,6 +3877,19 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
             daily_budget: c.daily_budget,
             daily_budget_minor: fromMetaBudget(c.daily_budget, account.currency),
             currency: account.currency,
+          };
+        }
+        // P3-54: a go-live also records its ad set's and ad's statuses, put back on undo.
+        const live = op === "resume_campaign" ? liveParams(params) : null;
+        if (live) {
+          const adset = await readChild(run, "adset", live.adset_id);
+          const ad = await readChild(run, "ad", live.ad_id);
+          return {
+            campaign_id: c.id,
+            campaign_name: c.name,
+            status: c.status,
+            adset: { id: adset.id, name: adset.name, status: adset.status },
+            ad: { id: ad.id, name: ad.name, status: ad.status },
           };
         }
         return { campaign_id: c.id, campaign_name: c.name, status: c.status };
@@ -2857,6 +3918,14 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
           ...extra,
         });
       try {
+        if (op === "create_ad_paused") {
+          // P3-54: every check again, then the build from its journal.
+          const p = adRunParams(params);
+          const account = await adRunChecks(run, p, pctx);
+          const result = await buildAd(run, p, pctx, account);
+          log("created", { ad_id: result["ad_id"], build_tag: p.build_tag });
+          return result;
+        }
         if (op === "create_campaign_paused") {
           const p = createParams(params);
           const account = await readAccount(run);
@@ -2915,19 +3984,36 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         touchable(c);
         if (op === "pause_campaign" || op === "resume_campaign") {
           const target = op === "pause_campaign" ? "PAUSED" : "ACTIVE";
+          // P3-54, going live: the ad, then its ad set (with its end date from today), then
+          // the campaign last — the one switch that starts spend. The stop is checked before each.
+          const live = op === "resume_campaign" ? liveParams(params) : null;
+          let liveResult: Record<string, unknown> = {};
+          if (live) {
+            const { adset, ad } = await liveChecks(run, c, live, pctx.profile_id);
+            if (ad.status !== "ACTIVE") await setChildStatus(run, "ad", ad, "ACTIVE");
+            const endTime = new Date(Date.now() + live.run_days * 86_400_000).toISOString();
+            if (adset.status !== "ACTIVE") {
+              await setChildStatus(run, "adset", adset, "ACTIVE", { end_time: endTime });
+            }
+            await checkStop(run.halted, STOPPED_BEFORE_CHANGE);
+            liveResult = { adset_id: adset.id, ad_id: ad.id, end_time: endTime };
+          }
           // Already there: an earlier attempt landed and its answer was lost. Setting a status twice is harmless.
           if (c.status !== target) await setStatus(run, c, target);
           await run.b.changed(
             pctx.profile_id,
-            `${target === "PAUSED" ? "Paused" : "Resumed"} "${c.name}" on Meta.`,
-            { campaign_id: c.id, op },
+            live
+              ? `"${c.name}" is live on Meta: its ad, ad set and campaign are running, for ${live.run_days} days.`
+              : `${target === "PAUSED" ? "Paused" : "Resumed"} "${c.name}" on Meta.`,
+            { campaign_id: c.id, op, ...liveResult },
           );
-          log("changed", { campaign_id: c.id, status: target });
+          log("changed", { campaign_id: c.id, status: target, ...liveResult });
           return {
             campaign_id: c.id,
             campaign_name: c.name,
             status: target,
             previous_status: c.status === target ? null : c.status,
+            ...liveResult,
             access_tier: run.access_tier,
           };
         }
@@ -2977,6 +4063,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
           log("paused");
           throw paused;
         }
+        if (op === "create_ad_paused") throw await buildEnded(error, pctx, log);
         log("failed", { error: error instanceof Error ? error.name : "unknown" });
         if (error instanceof MetaRequestError) {
           const refusal = adRefusal(error.failure, false);
@@ -3059,6 +4146,19 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
             }
           }
           await setStatus(run, c, u.status);
+        }
+        // P3-54: a go-live's undo — the campaign is paused first (spend stops
+        // there), then its ad set and ad go back to what they were, each only
+        // while it is still what the go-live set.
+        const children = (undoPayload ?? {}) as {
+          adset?: { id?: unknown; status?: unknown };
+          ad?: { id?: unknown; status?: unknown };
+        };
+        for (const kind of ["adset", "ad"] as const) {
+          const was = children[kind];
+          if (!was || typeof was.id !== "string" || was.status !== "PAUSED") continue;
+          const now = await readChild(run, kind, was.id);
+          if (now.status === "ACTIVE") await setChildStatus(run, kind, now, "PAUSED");
         }
         await run.b.changed(
           pctx.profile_id,

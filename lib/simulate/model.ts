@@ -996,7 +996,7 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
   if (isNew) {
     proposable = {
       ok: false,
-      why: "I don't propose new campaigns yet. Set one up paused in Ads Manager; once it has two weeks of measured days I can work with it.",
+      why: 'A new ad starts from a post or video: on Content, "Run this as an ad" makes one proposal that creates it on Meta, paused (P3-54). From here I can only size it.',
     };
   } else if (!campaign || !enoughDays) {
     proposable = {

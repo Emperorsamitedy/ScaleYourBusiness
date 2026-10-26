@@ -225,6 +225,47 @@ export function spendGuard(a: SpendGuardArgs): string | null {
   return null;
 }
 
+/** P3-54: the sentence a new ad gets when the owner hasn't stated a monthly ad ceiling. */
+export const NO_CEILING_FOR_NEW_SPEND =
+  "you haven't told me the most you want to spend on ads in a month (question 8.1i), so I won't start new spend";
+
+/**
+ * Pure, P3-54: may a NEW ad set spend this much a day? There is no current
+ * budget to hold a change to ±50% of, so two bounds apply instead: Meta's
+ * floor, and the owner's stated monthly ceiling over the whole account (the
+ * account's average day plus this budget, × 30). A new ad needs a stated
+ * ceiling — new spend is never started against a limit nobody set — and a
+ * ceiling in another currency is never converted (rule 1). Null = it may.
+ */
+export function newSpendGuard(a: {
+  daily_minor: number;
+  currency: string;
+  /** The account's measured average day in this currency, or null when nothing is measured. */
+  account_daily_minor: number | null;
+  monthly_ceiling: Money | null;
+  floor_minor: number | null;
+}): string | null {
+  if (!Number.isSafeInteger(a.daily_minor) || a.daily_minor <= 0) {
+    return "the ad's daily budget isn't a whole amount above zero";
+  }
+  if (a.floor_minor === null) {
+    return `I don't know Meta's minimum daily budget in ${a.currency}, so I won't set one`;
+  }
+  if (a.daily_minor < a.floor_minor) {
+    return `a daily budget of ${fmt(a.daily_minor, a.currency)} is under Meta's minimum of ${fmt(a.floor_minor, a.currency)} a day`;
+  }
+  const ceiling = a.monthly_ceiling;
+  if (ceiling === null) return NO_CEILING_FOR_NEW_SPEND;
+  if (ceiling.currency.toUpperCase() !== a.currency.toUpperCase()) {
+    return `your ad ceiling is in ${ceiling.currency} and this ad spends in ${a.currency} — I won't convert to compare them`;
+  }
+  const projected = Math.round(((a.account_daily_minor ?? 0) + a.daily_minor) * 30);
+  if (projected > ceiling.amount_minor) {
+    return `it would take monthly ad spend to about ${fmt(projected, a.currency)}, over your stated ceiling of ${fmt(ceiling.amount_minor, a.currency)}`;
+  }
+  return null;
+}
+
 /**
  * Pure, review 2026-10-23 (Session D #4): may a paused campaign spend again —
  * an undo of SYB's pause? Only the owner's stated ceiling bounds it (there is
