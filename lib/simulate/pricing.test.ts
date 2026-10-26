@@ -126,7 +126,7 @@ describe("the break-even of a rise", () => {
     if (floor.status !== "lose") throw new Error(floor.status);
     expect(floor.floor).toBe(true);
     expect(floor.share).toBeCloseTo(340 / 3740, 10);
-    expect(floor.words).toMatch(/^Whatever each one costs you to deliver/);
+    expect(floor.words).toMatch(/^Whatever each one costs you, a 10% rise pays/);
     // A floor: at any real cost the allowed loss is at least this big.
     for (const cost of [0, 500, 980, 2000, 3000]) {
       expect((3740 - 3400) / (3740 - cost)).toBeGreaterThanOrEqual(floor.share - 1e-12);
@@ -233,7 +233,8 @@ describe("the outcomes under the band", () => {
     const r = simulatePrice(mug(), rise10, "shop");
     const resp = r.inputs.find((i) => i.key === "response")!;
     expect(resp.basis).toBe("ASSUMED");
-    expect(resp.source).toMatch(/not a measurement/);
+    expect(resp.source).toMatch(/for each 1% on the price, 0.8% to 2.0% of sales/);
+    expect(r.assumptions[0]?.source).toMatch(/not a measurement/);
   });
 });
 
@@ -267,6 +268,10 @@ describe("the side by side", () => {
     );
     expect(cmp.results).toHaveLength(1);
     expect(cmp.refused).toHaveLength(1);
+  });
+  it("puts the columns cheapest first", () => {
+    const cmp = comparePrices(mug(), [rise10, cut10, { kind: "share", share: 0.05 }], "shop");
+    expect(cmp.results.map((r) => r.new_price_minor)).toEqual([3060, 3570, 3740]);
   });
   it("leads with the first rise's break-even", () => {
     const cmp = comparePrices(mug(), [cut10, rise10], "shop");

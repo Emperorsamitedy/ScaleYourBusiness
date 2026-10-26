@@ -227,7 +227,7 @@ const pctWords = (x: number) => {
   const v = Math.round(x * 1000) / 10;
   return `${num(v, Number.isInteger(v) ? 0 : 1)}%`;
 };
-const signedPct = (x: number) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${num(Math.abs(x) * 100, 1)}%`;
+const signedPct = (x: number) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${pctWords(Math.abs(x))}`;
 const units = (x: number) => (Number.isInteger(x) ? num(x, 0) : num(x, 1));
 
 /** What one unit is called, by the kind of item. */
@@ -297,7 +297,10 @@ function costInput(item: PriceItemRaw): PriceInput {
       ? `recorded in ${c.currency}, the price is in ${item.currency} — I don't convert between currencies`
       : "not known",
     needs: {
-      what: `what one ${item.kind === "service" ? "appointment" : "unit"} of ${item.name} costs you to deliver${c ? ` in ${item.currency}` : ""}`,
+      what:
+        item.kind === "service"
+          ? `what one ${item.name} costs you to deliver — list "${item.name}" among what you sell, with its cost, and I'll match it to your bookings`
+          : `what one ${item.name} costs you to deliver${c ? ` in ${item.currency}` : ""}`,
       href: item.asks.unit_cost,
     },
   };
@@ -330,13 +333,13 @@ function volumeInput(item: PriceItemRaw): PriceInput {
       };
 }
 
-function responseInput(band: ResponseBand): PriceInput {
+function responseInput(band: ResponseBand, noun: string): PriceInput {
   return {
     key: "response",
     label: "How customers answer the price",
     value: `${num(band.low, 1)} – ${num(band.high, 1)}`,
     basis: "ASSUMED",
-    source: `for each 1% on the price, ${num(band.low, 1)}% to ${num(band.high, 1)}% of sales move the other way — ${band.why}; ${BAND_SOURCE}`,
+    source: `for each 1% on the price, ${num(band.low, 1)}% to ${num(band.high, 1)}% of ${noun} move the other way — ${band.why}`,
     needs: null,
   };
 }
@@ -443,7 +446,7 @@ export function breakEven(item: PriceItemRaw, new_price_minor: number): BreakEve
       floor: cost === null,
       words: cost
         ? `${sentence(changeWords)} pays as long as you lose ${body}.`
-        : `Whatever each one costs you to deliver, ${changeWords} pays as long as you lose ${body} — with your cost to deliver, I could say how many more you could lose.`,
+        : `Whatever each one costs you, ${changeWords} pays as long as you lose ${body}.`,
       formula,
       bases,
     };
@@ -529,7 +532,7 @@ export function simulatePrice(
   const inputs: PriceInput[] = [priceInput(item), costInput(item), volumeInput(item)];
   const cap = capacityInput(item);
   if (cap) inputs.push(cap);
-  inputs.push(responseInput(band));
+  inputs.push(responseInput(band, noun));
 
   const needs = (keys: PriceInput["key"][]) =>
     inputs
@@ -601,7 +604,8 @@ export function simulatePrice(
 
   const assumptions = [
     {
-      statement: `Customers answer this change as the band says, rising or falling alike, and nothing else changes ${periodWords(item)}.`,
+      statement:
+        "Customers answer this change as the band says, for a rise or a cut alike, and nothing else changes in the meantime.",
       source: BAND_SOURCE,
     },
   ];
@@ -644,7 +648,7 @@ export interface PriceComparison {
   refused: { change: PriceChange; why: string }[];
 }
 
-/** Pure: up to four changes for one item, side by side. Duplicates collapse. */
+/** Pure: up to four changes for one item, side by side, cheapest first. Duplicates collapse. */
 export function comparePrices(
   item: PriceItemRaw,
   changes: readonly PriceChange[],
@@ -673,6 +677,8 @@ export function comparePrices(
     seen.add(next);
     results.push(simulatePrice(item, c, archetype));
   }
+  // Cheapest first, so the columns read as a price scale.
+  results.sort((a, b) => a.new_price_minor - b.new_price_minor);
   return { item, results, refused };
 }
 

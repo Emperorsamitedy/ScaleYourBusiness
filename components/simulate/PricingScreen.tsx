@@ -79,6 +79,16 @@ function Frame({
   );
 }
 
+function itemsMeta(items: readonly PriceItemRaw[]): string {
+  const services = items.filter((i) => i.kind === "service").length;
+  const offers = items.length - services;
+  const parts = [
+    ...(services > 0 ? [`${services} from your bookings`] : []),
+    ...(offers > 0 ? [`${offers} from your profile`] : []),
+  ];
+  return parts.join(" · ");
+}
+
 function ItemPicker({
   items,
   current,
@@ -89,11 +99,7 @@ function ItemPicker({
   onPick: (key: string) => void;
 }) {
   return (
-    <SheetCard
-      label="Pick one"
-      title="What to reprice"
-      meta={`${items.length} ${items.length === 1 ? "item" : "items"} from your profile${items.some((i) => i.kind === "service") ? " and your bookings" : ""}`}
-    >
+    <SheetCard label="Pick one" title="What to reprice" meta={itemsMeta(items)}>
       <div className="sim-wrap">
         <table className="rt rt-stack sim-pick">
           <thead>
@@ -186,6 +192,7 @@ function ChangePicker({
           <span>or exactly, {item.currency}</span>
           <input
             inputMode="decimal"
+            aria-label={`An exact new price, in ${item.currency}`}
             value={exact}
             placeholder={
               item.price
@@ -298,6 +305,15 @@ function ChangeCard({ r, item }: { r: PriceResult; item: PriceItemRaw }) {
         <span className="cs-label">Break-even</span> {be.words}
       </p>
       {"formula" in be && <p className="sim-be-math fig">{be.formula}</p>}
+      {be.status === "lose" && be.floor && (
+        <p className="sim-needs">
+          <span>
+            That&rsquo;s the cautious end: with what one costs you to deliver, I could say how many
+            more you could lose.
+          </span>
+          <Link href={item.asks.unit_cost}>Add the cost →</Link>
+        </p>
+      )}
       {be.status === "missing" && (
         <p className="sim-needs">
           {be.needs.map((n) => (
@@ -367,7 +383,7 @@ function ChangeCard({ r, item }: { r: PriceResult; item: PriceItemRaw }) {
             const c = r.measures[m];
             return c.status === "range" ? (
               <div key={m}>
-                <dt>{m === "volume" ? "Sales" : m === "worst" ? "Worst case" : m}</dt>
+                <dt>{m === "volume" ? unitNoun(item) : m === "worst" ? "Worst case" : m}</dt>
                 <dd className="fig">{c.formula}</dd>
               </div>
             ) : null;
@@ -494,12 +510,19 @@ export function PricingScreen() {
               nothing.
               {perOrder ? ` ${perOrder}` : ""}
             </p>
-            <SheetCard label="Profit, side by side" title="The spread of each price">
-              <Whiskers
-                results={cmp.results}
-                caption={`Profit change ${periodWords(cmp.item)}, low to high · the square is the worst case`}
-              />
-            </SheetCard>
+            {cmp.results.some((r) => r.measures.profit.status === "range") ? (
+              <SheetCard label="Profit, side by side" title="The spread of each price">
+                <Whiskers
+                  results={cmp.results}
+                  caption={`Profit change ${periodWords(cmp.item)}, low to high · the square is the worst case`}
+                />
+              </SheetCard>
+            ) : (
+              <p className="sim-note on-desk">
+                Profit can&rsquo;t be drawn yet: it needs what one {unitNoun(cmp.item, false)} costs
+                you to deliver. <Link href={cmp.item.asks.unit_cost}>Add it</Link>.
+              </p>
+            )}
             <div className="sim-cards">
               {cmp.results.map((r) => (
                 <ChangeCard key={r.key} r={r} item={cmp.item} />
