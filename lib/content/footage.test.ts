@@ -276,7 +276,10 @@ describe("P3-52 — the upload grant (production: straight to Blob)", () => {
       mint: async () => "t",
     });
     const url = `https://abc123.public.blob.vercel-storage.com/${grant.pathname}`;
-    const confirm = (head: Parameters<typeof confirmClipUpload>[0]["head"], now?: Date) =>
+    const confirm = (
+      head: NonNullable<Parameters<typeof confirmClipUpload>[0]["head"]>,
+      now?: Date,
+    ) =>
       confirmClipUpload({
         profileId: b.profile_id,
         itemId: sl.id,

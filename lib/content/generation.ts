@@ -75,7 +75,7 @@ import type { ContentItemRow } from "./media-item";
 import { hasFootageFor, mediaOf, mediaTargetRefusal, placeMedia } from "./media-item";
 import { mediaDisclosureLabel } from "./disclosure";
 import { ContentError } from "./plan";
-import { assertNotWatching } from "./watch";
+import { assertNotWatching, contentWatchUntil } from "./watch";
 
 export const GENERATION_KIND = "media_generation";
 /** The caps' currency. The budget is in euro (CLAUDE.md, cost discipline). */
@@ -816,6 +816,8 @@ export async function generationView(
       ),
   ]);
   const p = setup.provider;
+  // Rule 15: while the watch runs nothing is proposed — the screen says so instead of offering it.
+  const watching = await contentWatchUntil(profileId);
   const estimates = {
     image: p ? p.estimate({ media: "image" }) : null,
     video: p ? p.estimate({ media: "video", seconds: GENERATED_CLIP_SECONDS }) : null,
@@ -824,7 +826,12 @@ export async function generationView(
     const g = gens.find((x) => x.target_item_id === item.id);
     const mine = props.filter((x) => x.finding === `generate:${item.id}`);
     out[item.id] = {
-      refusal: p ? await generationRefusal(item) : setup.reason,
+      refusal: !p
+        ? setup.reason
+        : ((await generationRefusal(item)) ??
+          (watching
+            ? `I'm still watching the business until ${watching}, and propose nothing before then`
+            : null)),
       estimates,
       latest: g
         ? {

@@ -376,3 +376,39 @@
 .ct-screen .ct-stop:empty {
   display: none;
 }
+
+/* P3-52/53 — footage in and the AI fallback, under an item that can take media. */
+.ct-screen .ct-mediapanel {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-soft);
+}
+.ct-screen .ct-clips {
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.ct-screen .ct-clips li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 4px 0;
+}
+.ct-screen .ct-clips li .ct-mono {
+  flex: 1 1 160px;
+  min-width: 0;
+  word-break: break-all;
+}
+.ct-screen .ct-file {
+  padding-top: 12px;
+}
+.ct-screen .ct-textarea {
+  flex-basis: 100%;
+  min-height: 72px;
+  padding: 8px 4px;
+  resize: vertical;
+}
+.ct-screen .ct-fallback {
+  margin-top: 6px;
+}
