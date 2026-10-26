@@ -323,6 +323,12 @@ Structure, top to bottom:
 
 Recommendations carry two actions — "Look into this" and "Not for us". Declining opens a short reason field, because that reason is the training data for everything the system proposes later. The field is optional but pre-filled with three common reasons as chips, since a required field here produces junk.
 
+**Share this report (idea 51, 2026-10-26).** A card above the report's footer, in the sheet style with no icons. It has a choice of 7 or 30 days, one "Make a link →" action, and the new link shown once in a read-only field with "Copy" (it can't be shown again, since only its hash is kept). Below that is the list of links made: open, expired or revoked, when each was made, when it expires, when it was last opened and how often, and "Revoke" on each open one. Signed out, the card says sign-in is needed. It is left out of print.
+
+The shared view at `/shared/<token>` is the same report body, read only. Its masthead has the business, platform and currency, plus "Shared report · read only". There is no rail, no sub-nav and no link on the wordmark. The recommendations show without the owner's answers or the answer buttons. "Answer now" and "See every weekday" are left out. The footer says it is a shared snapshot, when it was made, and from which report. A dead link of any kind gets one plain sheet: "This link is no longer active."
+
+**Accountant export (idea 49, 2026-10-26).** On `/profile`, the page head's aside says "For your accountant" over two plain links: "Money facts, CSV" and "Earlier figures, CSV". They are file downloads, not screens.
+
 ### 7.1 Landing page
 
 The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx`, `StoreChart.tsx` and `Demos.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
