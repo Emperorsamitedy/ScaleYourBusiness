@@ -108,6 +108,7 @@ export const GROUPS: readonly Group[] = [
         feature: "nav.content",
         count: (c) => n(c.by_module.content ?? 0),
       },
+      { href: "/studio", label: "Creative studio", feature: "nav.studio" },
       {
         href: "/site",
         label: "Website",

@@ -167,7 +167,12 @@ describe("P3-50 — what is asked for", () => {
 
   it("searches a competitor's pages by id (at most ten), or its name as an exact phrase", () => {
     const ids = Array.from({ length: 12 }, (_, i) => String(1000 + i));
-    const byPage = archiveParams({ ...query, term: undefined, page_ids: ids });
+    const noTerm = {
+      country: query.country,
+      media: query.media,
+      delivered_since: query.delivered_since,
+    };
+    const byPage = archiveParams({ ...noTerm, page_ids: ids });
     expect(JSON.parse(byPage.get("search_page_ids") ?? "[]")).toHaveLength(10);
     expect(byPage.get("search_terms")).toBeNull();
     const byName = archiveParams({ ...query, term: "Saltmarsh Pottery", exact: true });

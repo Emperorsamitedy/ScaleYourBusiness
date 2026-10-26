@@ -131,6 +131,7 @@ describe("P3-50 — hooks, offers and calls to action", () => {
   it("finds the last call to action, capitalised, or null", () => {
     expect(ctaOf({ body: "Learn more about us. Then shop now.", title: null })).toBe("Shop now");
     expect(ctaOf({ body: "Two hours at the wheel. Book now.", title: null })).toBe("Book now");
+    expect(ctaOf({ body: "Ends Sunday. Shop the seconds.", title: null })).toBe("Shop the seconds");
     expect(ctaOf({ body: "We discovered clay in 2019.", title: null })).toBeNull();
     expect(ctaOf({ body: "Nothing to do here.", title: null })).toBeNull();
   });

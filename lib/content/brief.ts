@@ -909,6 +909,7 @@ export async function proposeShotListFromBrief(
 ): Promise<ProposalRow> {
   const now = args.now ?? new Date();
   await assertNotWatching(profileId, now);
+  if (!/^[0-9a-f-]{36}$/i.test(briefId)) throw new ContentError("no such brief", 404);
   const [row] = await db
     .select()
     .from(creativeBriefs)

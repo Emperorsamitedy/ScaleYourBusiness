@@ -127,6 +127,9 @@ const CTA_PHRASES: readonly string[] = [
   "download",
 ];
 
+/** Phrases that open onto a noun ("shop the seconds"): quoted with the next word. */
+const OPEN_CTA: ReadonlySet<string> = new Set(["shop the", "book a", "book your"]);
+
 function clauses(text: string): string[] {
   return text
     .split(/(?<=[.!?])\s+|\r?\n/u)
@@ -152,10 +155,15 @@ export function ctaOf(ad: Pick<LibraryAd, "body" | "title">): string | null {
   const text = `${ad.body}\n${ad.title ?? ""}`.toLowerCase();
   let best: { at: number; phrase: string } | null = null;
   for (const phrase of CTA_PHRASES) {
-    const re = new RegExp(`(^|[^\\p{L}])${phrase.replace(/ /g, "\\s+")}(?=$|[^\\p{L}])`, "giu");
+    // "Shop the…", "Book a…": an open phrase takes the word it opens onto.
+    const open = OPEN_CTA.has(phrase) ? "\\s+\\p{L}+" : "";
+    const re = new RegExp(
+      `(^|[^\\p{L}])(${phrase.replace(/ /g, "\\s+")}${open})(?=$|[^\\p{L}])`,
+      "giu",
+    );
     for (const m of text.matchAll(re)) {
       const at = (m.index ?? 0) + (m[1]?.length ?? 0);
-      if (!best || at >= best.at) best = { at, phrase };
+      if (!best || at >= best.at) best = { at, phrase: (m[2] ?? phrase).replace(/\s+/g, " ") };
     }
   }
   if (!best) return null;
