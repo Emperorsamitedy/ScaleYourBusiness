@@ -87,6 +87,7 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/progress", label: "Goals", feature: "nav.goals", count: (c) => n(c.goals) },
       { href: "/hours", label: "Trading hours", feature: "nav.hours" },
+      { href: "/patterns", label: "Seasons & bundles", feature: "nav.patterns" },
       {
         href: "/stock",
         label: "Slow stock",
