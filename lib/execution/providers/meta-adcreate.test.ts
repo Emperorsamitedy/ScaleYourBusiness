@@ -489,7 +489,8 @@ describe("P3-54 — what an ad-build write may carry", () => {
     expect(adWriteViolation("adset_create", { ...adset, lifetime_budget: "100" })).toMatch(
       /"lifetime_budget"/,
     );
-    const { end_time: _end, ...noEnd } = adset;
+    const noEnd: Record<string, string> = { ...adset };
+    delete noEnd["end_time"];
     expect(adWriteViolation("adset_create", noEnd)).toMatch(/end date/);
     const ad = {
       name: "A · ad · SYB-00000000",
