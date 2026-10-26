@@ -35,13 +35,25 @@
 // from the owner's own cost for the matched offer, or stays unknown; and
 // the list carries no currency, so prices are valued in the currency the
 // store's own orders report (the sync passes it as a hint), or not at all.
+//
+// BASKETS (idea 48). Each page also hands back, per counted order, the set
+// of product ids in its line items, for bundles: the same order list, the
+// same fields, no new path.
 
 import { Agent, fetch as undiciFetch } from "undici";
 import type { VettedAddress } from "../../site/fetch";
 import { pinnedLookup, vetAddresses } from "../../site/fetch";
+import { basketOf } from "../baskets";
 import { addDays, advanceCursor, dayString, oneNewDay, planWindow } from "../days";
 import { DecimalError, decimalToMinor } from "../decimal";
-import type { ExternalProduct, Observation, Provider, PullPage, StockRead } from "../provider";
+import type {
+  BasketWindow,
+  ExternalProduct,
+  Observation,
+  Provider,
+  PullPage,
+  StockRead,
+} from "../provider";
 import { ProviderError } from "../provider";
 
 /** Every path this module may call, keyed by the registry capability it proves. */
@@ -398,6 +410,32 @@ export function aggregateWooOrders(
   return out;
 }
 
+/**
+ * Idea 48: one basket per counted order created in [start, end] — the
+ * same statuses and the same GMT day aggregateWooOrders uses.
+ */
+export function basketsOfWooOrders(
+  orders: readonly WooOrder[],
+  start: Date,
+  end: Date,
+): BasketWindow {
+  const from = start.getTime();
+  const until = addDays(end, 1).getTime();
+  const out: BasketWindow = { from: dayString(start), to: dayString(end), orders: [] };
+  for (const o of orders) {
+    if (!WOO_COUNTED_STATUSES.has(o.status)) continue;
+    const at = Date.parse(`${o.dateCreatedGmt}Z`);
+    if (!Number.isFinite(at) || at < from || at >= until) continue;
+    const lines = o.lines.map((l) => ({
+      productRef: l.productId > 0 ? String(l.productId) : null,
+      quantity: l.quantity,
+    }));
+    const basket = basketOf(String(o.id), dayString(new Date(at)), lines);
+    if (basket) out.orders.push(basket);
+  }
+  return out;
+}
+
 /* ── stock (feature 34) ── */
 
 export interface WooStockProduct {
@@ -572,6 +610,7 @@ export function createWooCommerceProvider(options: WooProviderOptions = {}): Pro
       }
       return {
         observations: aggregateWooOrders(orders, start, end, now.toISOString()),
+        baskets: basketsOfWooOrders(orders, start, end),
         cursor: advanceCursor(cursor, end),
         done: end.getTime() === plan.yesterday.getTime(),
       };
