@@ -151,10 +151,10 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
                 y2={y(model.lines.quiet)}
               />
               <text className="tick" x={plotR + 6} y={y(model.lines.busy) - 2}>
-                {x10(model.lines.busy)}
+                {`${model.lines.busy}×`}
               </text>
               <text className="tick" x={plotR + 6} y={y(model.lines.quiet) + 12}>
-                {x10(model.lines.quiet)}
+                {`${model.lines.quiet}×`}
               </text>
             </>
           )}

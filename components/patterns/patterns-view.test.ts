@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { PatternsView } from "../../app/api/patterns/route";
 import { addDays, seasonForecast } from "../../lib/seasons/forecast";
-import { aheadRows, headline, marginText, proposalWord, seasonChartModel } from "./patterns-view";
+import {
+  aheadRows,
+  aheadTitle,
+  headline,
+  longDate,
+  marginText,
+  proposalWord,
+  seasonChartModel,
+} from "./patterns-view";
 
 const INFO = { noun: "revenue", source: "Shopify", currency: "EUR" };
 const TODAY = "2026-10-26";
@@ -84,5 +92,17 @@ describe("the words", () => {
     expect(proposalWord(undefined)).toBeNull();
     expect(proposalWord({ status: "pending" })?.word).toBe("Waiting for you");
     expect(proposalWord({ status: "blocked" })?.tone).toBe("alarm");
+  });
+});
+
+describe("the next-weeks title", () => {
+  it("says this week rather than in 0 weeks", () => {
+    const r = seasonForecast(year(), INFO, TODAY);
+    if (r.status !== "ready") throw new Error(r.status);
+    const u = r.upcoming[0]!;
+    expect(aheadTitle(u)).toBe("A busy stretch starts in 4 weeks");
+    expect(aheadTitle({ ...u, starts_in_weeks: 0 })).toBe("A busy stretch starts this week");
+    expect(aheadTitle({ ...u, in_progress: true })).toBe("A busy stretch is under way");
+    expect(longDate("2025-10-04")).toBe("4 Oct 2025");
   });
 });

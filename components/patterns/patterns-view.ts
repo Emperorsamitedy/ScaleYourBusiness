@@ -114,6 +114,18 @@ export function aheadRows(r: Ready): AheadRow[] {
   }));
 }
 
+/** "4 Oct 2025": the aside spans years, so it names them. */
+export function longDate(day: string): string {
+  return `${shortDate(day)} ${day.slice(0, 4)}`;
+}
+
+/** The next-weeks card's title for the first stretch ahead. */
+export function aheadTitle(u: Ready["upcoming"][number]): string {
+  if (u.in_progress) return `A ${u.run.kind} stretch is under way`;
+  if (u.starts_in_weeks === 0) return `A ${u.run.kind} stretch starts this week`;
+  return `A ${u.run.kind} stretch starts in ${u.starts_in_weeks} week${u.starts_in_weeks === 1 ? "" : "s"}`;
+}
+
 export function marginText(m: PairMargin): string {
   if (!m.known) return `Margin unknown: ${m.why}.`;
   return `${dayMoney(m.price_minor, m.currency)} for the pair, ${dayMoney(m.contribution_minor, m.currency)} after costs (${m.margin_pct}%).`;

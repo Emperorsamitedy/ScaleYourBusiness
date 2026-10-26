@@ -24,7 +24,15 @@ import { ratioText } from "../../lib/seasons/forecast";
 import { SeasonChart } from "../charts/SeasonChart";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
-import { aheadRows, headline, marginText, proposalWord, seasonChartModel } from "./patterns-view";
+import {
+  aheadRows,
+  aheadTitle,
+  headline,
+  longDate,
+  marginText,
+  proposalWord,
+  seasonChartModel,
+} from "./patterns-view";
 
 function Frame({
   title,
@@ -99,11 +107,7 @@ function Seasons({ view }: { view: PatternsView }) {
         <SheetCard
           label={`The next ${rows.length} weeks · beside the same weeks last year`}
           title={
-            r.upcoming.length === 0
-              ? "No busy or quiet stretch ahead"
-              : r.upcoming[0]!.in_progress
-                ? "A stretch is under way"
-                : `A ${r.upcoming[0]!.run.kind} stretch starts in ${r.upcoming[0]!.starts_in_weeks} week${r.upcoming[0]!.starts_in_weeks === 1 ? "" : "s"}`
+            r.upcoming.length === 0 ? "No busy or quiet stretch ahead" : aheadTitle(r.upcoming[0]!)
           }
           meta="Last year's week, 52 weeks back, so weekdays line up"
         >
@@ -217,7 +221,7 @@ function Pairs({
           ? "Nothing goes together more than chance"
           : `${source.pairs.length} pair${source.pairs.length === 1 ? "" : "s"} more often together than chance`
       }
-      meta={`${num(r.baskets)} ${unit}, ${shortDate(source.from)} – ${shortDate(source.to)} · OBSERVED`}
+      meta={`${num(r.baskets)} ${unit}, ${longDate(source.from)} – ${longDate(source.to)} · OBSERVED`}
       foot={`A pair shows when it shared ${t.min_together} ${unit} or more and came up at least ${t.min_lift}× as often as chance would give. ${num(r.below_count)} pair${r.below_count === 1 ? " was" : "s were"} seen too rarely, and ${num(r.below_lift)} no more often than chance${source.ungrouped > 0 ? `; ${num(source.ungrouped)} appointments with no client or service couldn't be grouped into a visit` : ""}.`}
     >
       {source.pairs.length === 0 ? (
@@ -360,7 +364,7 @@ export function PatternsScreen() {
       "Nothing measured yet"
     ) : (
       <>
-        {r.series.source} · {shortDate(r.first_day)}–{shortDate(r.last_day)} · MEASURED
+        {r.series.source} · {longDate(r.first_day)} – {longDate(r.last_day)} · MEASURED
       </>
     );
   const sources = view.bundles.sources;

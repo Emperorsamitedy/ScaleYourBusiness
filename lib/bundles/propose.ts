@@ -157,7 +157,9 @@ export async function proposeBundle(
         evidence,
         draft_only: true,
         sending:
-          "Approving records your yes. I don't change your shop, your prices or your checkout: you set the pair up yourself.",
+          source.kind === "orders"
+            ? "Approving records your yes. I don't change your shop, your prices or your checkout: you set the pair up yourself."
+            : "Approving records your yes. I don't change your booking system or your prices: you offer the pair yourself.",
         manual_limits: verdict.manual.map((l) => l.quote),
       },
     },
