@@ -27,7 +27,7 @@ import { and, eq, inArray, isNotNull } from "drizzle-orm";
 import { db } from "../../db";
 import { contentItems } from "../../db/schema";
 import type { del as blobDel, list as blobList, put as blobPut } from "@vercel/blob";
-import { env } from "../env";
+import { blobTokenSet, env } from "../env";
 
 export class MediaError extends Error {
   readonly status: number;
@@ -57,12 +57,17 @@ export interface StoreUsage {
 
 /** What any media store must do. Vercel Blob in production, memory in tests. */
 export interface MediaStore {
-  readonly kind: "vercel_blob" | "memory";
+  readonly kind: "vercel_blob" | "memory" | "local_disk";
   put(pathname: string, body: Uint8Array, contentType: string): Promise<StoredMedia>;
   /** Idempotent: deleting what is already gone is not an error. */
   del(url: string): Promise<void>;
   /** P3-24d: what is stored under renders/ — reads only. */
   usage(): Promise<StoreUsage>;
+  /**
+   * P3-52: the bytes behind a URL this store handed out — how the cutting
+   * room reads an uploaded clip back. Capped: more than `maxBytes` refuses.
+   */
+  get?(url: string, maxBytes: number): Promise<Uint8Array>;
 }
 
 /** The prefix every render is stored under (renderPath). */
@@ -79,6 +84,8 @@ export const USAGE_MAX_PAGES = 20;
  */
 export const BLOB_PUT_TIMEOUT_MS = 120_000;
 export const BLOB_TIMEOUT_MS = 20_000;
+/** P3-52: reading an uploaded clip back for the cutting room — clips are up to 200 MB. */
+export const BLOB_GET_TIMEOUT_MS = 240_000;
 
 /** The three SDK calls the store makes — injectable so the timeouts are tested without a network. */
 export interface BlobSdk {
@@ -125,6 +132,20 @@ export function vercelBlobStore(
         token: token(),
         abortSignal: signal(opts.timeoutMs, BLOB_TIMEOUT_MS),
       });
+    },
+    async get(url, maxBytes) {
+      // A public Blob URL is fetchable as it stands; the store's own host only.
+      if (!/^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//.test(url)) {
+        throw new MediaError("that address isn't in SYB's media store", 422);
+      }
+      const res = await fetch(url, { signal: signal(opts.putTimeoutMs, BLOB_GET_TIMEOUT_MS) });
+      if (!res.ok) throw new MediaError(`the stored file couldn't be read (${res.status})`, 502);
+      const declared = Number(res.headers.get("content-length") ?? "0");
+      if (declared > maxBytes) throw new MediaError("the stored file is over the size cap", 413);
+      const body = new Uint8Array(await res.arrayBuffer());
+      if (body.byteLength > maxBytes)
+        throw new MediaError("the stored file is over the size cap", 413);
+      return body;
     },
     async usage() {
       const { list } = await sdk();
@@ -181,6 +202,13 @@ export function memoryMediaStore(origin = "https://blob.test.invalid"): MemoryMe
       }
       return { objects: count, bytes, truncated: false };
     },
+    async get(url, maxBytes) {
+      const o = objects.get(url);
+      if (!o) throw new MediaError("the stored file is gone", 404);
+      if (o.body.byteLength > maxBytes)
+        throw new MediaError("the stored file is over the size cap", 413);
+      return o.body;
+    },
     read(url) {
       return objects.get(url)?.body ?? null;
     },
@@ -191,6 +219,83 @@ export function memoryMediaStore(origin = "https://blob.test.invalid"): MemoryMe
       objects.clear();
     },
   };
+}
+
+/* ── the local disk store (dev without a Blob token) ── */
+
+/** Never resolves (RFC 2606): a local "URL" can't be fetched by a platform, and never pretends to be. */
+export const LOCAL_MEDIA_ORIGIN = "https://local-media.invalid";
+
+/**
+ * P3-52: where media goes on a developer's machine with no
+ * BLOB_READ_WRITE_TOKEN — files under .data/media-local (gitignored), so an
+ * upload in one request is still there for the render in the next. Its URLs
+ * use a .invalid origin: nothing outside this machine can fetch them, and
+ * the real-write gate keeps them from ever being handed to Meta. Never used
+ * in production (configuredMediaStore).
+ */
+export function localDiskMediaStore(
+  root = path.join(process.cwd(), ".data", "media-local"),
+): MediaStore {
+  const fileOf = (url: string): string => {
+    if (!url.startsWith(`${LOCAL_MEDIA_ORIGIN}/`)) {
+      throw new MediaError("that address isn't in the local media store", 422);
+    }
+    const rel = url.slice(LOCAL_MEDIA_ORIGIN.length + 1);
+    // Only the shape renderPath/clipPath produce: no "..", no absolute paths.
+    if (!/^renders\/[0-9a-f-]{36}\/[0-9a-f-]{36}\/[a-z0-9-]+\.[a-z0-9]{2,4}$/.test(rel)) {
+      throw new MediaError("that address isn't in the local media store", 422);
+    }
+    return path.join(root, ...rel.split("/"));
+  };
+  return {
+    kind: "local_disk",
+    async put(pathname, body, contentType) {
+      const url = `${LOCAL_MEDIA_ORIGIN}/${pathname}`;
+      const file = fileOf(url);
+      await fs.mkdir(path.dirname(file), { recursive: true });
+      await fs.writeFile(file, body);
+      return { url, pathname, content_type: contentType, bytes: body.byteLength };
+    },
+    async del(url) {
+      await fs.rm(fileOf(url), { force: true });
+    },
+    async get(url, maxBytes) {
+      const file = fileOf(url);
+      const stat = await fs.stat(file).catch(() => null);
+      if (!stat) throw new MediaError("the stored file is gone", 404);
+      if (stat.size > maxBytes) throw new MediaError("the stored file is over the size cap", 413);
+      return new Uint8Array(await fs.readFile(file));
+    },
+    async usage() {
+      const out: StoreUsage = { objects: 0, bytes: 0, truncated: false };
+      const walk = async (dir: string): Promise<void> => {
+        const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
+        for (const e of entries) {
+          const p = path.join(dir, e.name);
+          if (e.isDirectory()) await walk(p);
+          else {
+            out.objects += 1;
+            out.bytes += (await fs.stat(p)).size;
+          }
+        }
+      };
+      await walk(path.join(root, "renders"));
+      return out;
+    },
+  };
+}
+
+/**
+ * P3-52: the store uploads and renders go to, by environment. A Blob token
+ * → Vercel Blob. No token outside production → the local disk store. No
+ * token IN production → null, and every caller says uploads aren't set up
+ * rather than writing somewhere that isn't public.
+ */
+export function configuredMediaStore(): MediaStore | null {
+  if (blobTokenSet()) return vercelBlobStore();
+  if (process.env.NODE_ENV === "production") return null;
+  return localDiskMediaStore();
 }
 
 /* ── paths and types ── */
