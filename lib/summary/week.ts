@@ -41,7 +41,7 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 /** A Postgres timestamp ("2026-10-27 00:00:00+00") or an ISO string, as a Date. */
 export function instant(at: string): Date {
-  return new Date(Date.parse(at.includes("T") ? at : at.replace(" ", "T").replace(/\+00$/, "Z")));
+  return new Date(parseInstant(at));
 }
 
 /** "Mon 20 Oct" in UTC, as the watch screen prints a day. */
