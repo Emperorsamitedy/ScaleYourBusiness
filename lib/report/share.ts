@@ -210,7 +210,17 @@ export async function listShares(args: {
     )
     .orderBy(desc(reportShares.created_at))
     .limit(50);
-  return rows.map((r) => ({ ...r, status: shareStatus(r, now) }));
+  // ISO 8601 out, whatever shape the driver hands back, so every browser reads the dates.
+  const iso = (v: string) => new Date(v).toISOString();
+  return rows.map((r) => ({
+    ...r,
+    report_generated_at: iso(r.report_generated_at),
+    created_at: iso(r.created_at),
+    expires_at: iso(r.expires_at),
+    revoked_at: r.revoked_at === null ? null : iso(r.revoked_at),
+    last_viewed_at: r.last_viewed_at === null ? null : iso(r.last_viewed_at),
+    status: shareStatus(r, now),
+  }));
 }
 
 /**
@@ -381,6 +391,11 @@ export function sharedView(report: ReportView, sharedAt: string): SharedReport {
   // The masthead names the business and its platform, as the owner's report does.
   for (const k of ["identity.business_name", "identity.legal_name", "presence.platforms"]) {
     cited.add(k);
+  }
+  // A cited entity field reads by its entity's name ("Bud Vase Trio · price"), so the name travels too.
+  for (const key of [...cited]) {
+    const entity = /^([a-z_]+\.[0-9a-f-]{36})\.[a-z_]+$/.exec(key);
+    if (entity) cited.add(`${entity[1]}.name`);
   }
   const visible = (key: string) => cited.has(key) && !isPersonalKey(key);
 

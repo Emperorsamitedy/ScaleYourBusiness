@@ -398,6 +398,8 @@ describe("what a reader sees — no PII, no owner answers, no way into the accou
       expect(view!.fact_map["operations.common_complaints"]).toBeUndefined();
       expect(view!.fact_map[`offers.${offerId}.price`]?.value).toContain("4 990");
       expect(view!.fact_map["identity.legal_name"]?.value).toBe("Szörp Kft.");
+      // A cited offer field brings its offer's name, so it reads as "Szörp 0.5L · price".
+      expect(view!.fact_map[`offers.${offerId}.name`]?.value).toBe("Szörp 0.5L");
       // The recommendation is there; the owner's answer to it is not.
       expect(view!.recommendations[0]!.title).toBe("Test a 12% price rise");
       expect(view!.recommendations[0]!.rejection_reason).toBeNull();

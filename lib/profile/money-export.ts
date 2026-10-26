@@ -173,14 +173,14 @@ export function toExportRow(
     source: displaySourceKind(fact.source),
     source_detail: sourceDetail(fact.source) ?? "",
     confidence: fact.confidence,
-    observed_at: fact.observed_at,
-    recorded_at: fact.recorded_at,
+    observed_at: isoInstant(fact.observed_at),
+    recorded_at: isoInstant(fact.recorded_at),
     derived_from:
       inferred && Array.isArray(src.derived_from)
         ? src.derived_from.filter((d): d is string => typeof d === "string").join(" | ")
         : "",
     formula: inferred && typeof src.method === "string" ? src.method : "",
-    ...(withSuperseded ? { superseded_at: fact.superseded_at ?? "" } : {}),
+    ...(withSuperseded ? { superseded_at: isoInstant(fact.superseded_at) } : {}),
   };
 }
 
@@ -268,18 +268,14 @@ export async function moneyExportRows(args: {
           .where(and(scope, isNotNull(fieldRecords.superseded_at)))
           .orderBy(fieldRecords.field_key, desc(fieldRecords.superseded_at));
 
-  // Entity names, so "offers.<id>.price" reads as "Szörp 0.5L · price". Current names only.
-  const names = new Map<string, string>();
+  // Entity names, so "offers.<id>.price" reads as "Szörp 0.5L · price". Current names only;
+  // an entity with no name field goes by its label, role or platform (a cost, a staff role, a channel).
   const nameRows = await db
     .select({ field_key: fieldRecords.field_key, value: fieldRecords.value })
     .from(fieldRecords)
     .innerJoin(businessProfiles, eq(businessProfiles.id, fieldRecords.profile_id))
     .where(and(scope, isNull(fieldRecords.superseded_at)));
-  for (const r of nameRows) {
-    if (r.field_key.endsWith(".name") && typeof r.value === "string") {
-      names.set(r.field_key.slice(0, -".name".length), r.value);
-    }
-  }
+  const names = entityNames(nameRows);
   const labelOf = (key: string): string => {
     const own = keys.labels.get(key);
     if (own !== undefined) return own;
@@ -296,6 +292,35 @@ export async function moneyExportRows(args: {
     .filter((f) => isMoneyFact(f.field_key, f.value, keys))
     .slice(0, EXPORT_ROW_CAP)
     .map((f) => toExportRow(f, labelOf(f.field_key), args.part === "history"));
+}
+
+/** Which field names an entity, best first. */
+const NAME_FIELDS = ["name", "label", "role_title", "platform", "type"] as const;
+
+/** Pure: entity prefix ("offers.<id>") → the words that name it, from its current facts. */
+export function entityNames(
+  rows: readonly { field_key: string; value: unknown }[],
+): Map<string, string> {
+  const best = new Map<string, { rank: number; words: string }>();
+  for (const r of rows) {
+    const m = /^(.+)\.([a-z_]+)$/.exec(r.field_key);
+    if (!m || !ENTITY_KEY.test(r.field_key) || typeof r.value !== "string") continue;
+    const rank = (NAME_FIELDS as readonly string[]).indexOf(m[2] ?? "");
+    if (rank === -1 || r.value.trim() === "") continue;
+    const prefix = m[1] ?? "";
+    const seen = best.get(prefix);
+    if (seen === undefined || rank < seen.rank) {
+      best.set(prefix, { rank, words: r.value.replace(/_/g, " ") });
+    }
+  }
+  return new Map([...best].map(([k, v]) => [k, v.words]));
+}
+
+/** Pure: a stored timestamp as ISO 8601 UTC ("2026-09-30T20:10:07.079Z"), or as stored if unreadable. */
+export function isoInstant(raw: string | null): string {
+  if (raw === null) return "";
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? raw : d.toISOString();
 }
 
 /** The download's file name: no business name in it, only the date and the part. */

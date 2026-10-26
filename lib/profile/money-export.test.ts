@@ -40,7 +40,9 @@ import type { MoneyExportRow, StoredFact } from "./money-export";
 import {
   CURRENT_COLUMNS,
   csvCell,
+  entityNames,
   isMoneyFact,
+  isoInstant,
   moneyExportRows,
   toCsv,
   toExportRow,
@@ -85,6 +87,28 @@ const fact = (over: Partial<StoredFact>): StoredFact => ({
   recorded_at: "2026-10-02T00:00:00.000Z",
   superseded_at: null,
   ...over,
+});
+
+describe("labels and dates", () => {
+  const id = "3c941b9e-a4e2-48ad-8e6a-4f22ff2b20ee";
+  it("an entity goes by its name, else its label, role or platform", () => {
+    const names = entityNames([
+      { field_key: `offers.${id}.name`, value: "Szörp 0.5L" },
+      { field_key: `offers.${id}.type`, value: "physical" },
+      { field_key: `costs.${id}.label`, value: "Studio rent" },
+      { field_key: `channels.${id}.platform`, value: "instagram_shop" },
+      { field_key: "identity.legal_name", value: "not an entity" },
+    ]);
+    expect(names.get(`offers.${id}`)).toBe("Szörp 0.5L");
+    expect(names.get(`costs.${id}`)).toBe("Studio rent");
+    expect(names.get(`channels.${id}`)).toBe("instagram shop");
+    expect(names.size).toBe(3);
+  });
+
+  it("timestamps leave as ISO 8601 UTC", () => {
+    expect(isoInstant("2026-09-30 20:10:07.079+00")).toBe("2026-09-30T20:10:07.079Z");
+    expect(isoInstant(null)).toBe("");
+  });
 });
 
 describe("rows — money in major units, provenance kept", () => {
