@@ -11,4 +11,3 @@ export const AD_RUN_UNDO =
 
 export const GO_LIVE_UNDO =
   "Pause it again: the campaign, its ad set and its ad go back to paused, and spending stops.";
-
