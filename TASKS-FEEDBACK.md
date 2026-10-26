@@ -29,3 +29,7 @@ Commit-sized tasks from Vilsta's customer-interview feedback (2026-10-19 to 2026
 **Review, 2026-10-23:** a read-only review of everything merged since the 17 October audit found no critical or high issues and 24 medium-to-low ones. All are fixed (PRs #27–#30) except one, "sell it off ranks last", which was judged not a defect: it is scored on the same net-cash basis as every option. See `docs/SECURITY-AUDIT.md`.
 
 **Production, before these are live:** follow "Before you deploy main (2026-10-23)" in `docs/SECURITY-AUDIT.md`. It covers `db:migrate` through 0055, `db:seed` for bank 1.7.0, the webhooks, and the campaign gates.
+
+## Ideas round (2026-10-26)
+
+- [x] **I-42** Weekly summary email to the owner: what SYB did and found that week, so they needn't log in. Composed in code with no model, from the watch log, changes that ran, proposals waiting, open support questions (a count, never their words), goal checks and readbacks. Money prints through `lib/core/money`, and a quiet week says it was quiet. It is sent last on the Monday beat (`/api/cron/weekly-watch`) through Resend, and does nothing without `RESEND_API_KEY` and `APP_URL`. It is claimed once per account per ISO week before sending and never retried (migration 0057, `weekly_summaries`). It is on by default once there is a mode decision. The switch is on /watch (`users.notification_prefs.weekly_summary`), and every email has a signed one-click stop link (`/summary/stop/<token>`, RFC 8058). Email only; WhatsApp waits for a provider.
