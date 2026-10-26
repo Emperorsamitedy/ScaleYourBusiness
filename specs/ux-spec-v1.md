@@ -143,6 +143,7 @@ The Goals screen already carries its own weekly candles against the path (`compo
 | Approval queue | Decide on proposals | v2, patterned here |
 | Module pages | Marketing, finance, support detail | v3+ |
 | Campaign simulator | Compare 2–4 campaign options' likely ranges before anything is spent | v3 (feature 36) |
+| Creative studio | The niche's longest-running ads, and a cited creative brief to film from | v3 (P3-50, P3-51) |
 
 Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame.tsx`). It is a 248px ink rail with:
 - the wordmark, the business name and the live state ("WATCHING · DAY 19 / 28") over a cobalt rule;
@@ -153,6 +154,15 @@ Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame
 There are no icons and no section tabs. Under 900px the rail folds into a top bar with a Menu button.
 
 **Campaign simulator** (`/simulate`, under Grow; feature 36). It lives on its own screen rather than in "Waiting for you" or on Customers: it compares email, ad and content options before any proposal exists, and the queue is a focused view for deciding, not for exploring. The owner picks two to four options in a ruled picker; a `.rt` table puts measures in rows (what it costs, people it reaches, orders, expected revenue, expected profit, worst case) and options in columns, each cell "low – high" in mono with the basis words of what it rests on, or a worded MISSING / NOT READ flag — a gap is never a number. A plain-SVG whisker per option shows expected profit against zero, the worst case as a square. Under it, each option shows its chain: every input with its value, basis and source (missing ones say what would fill them), the projection's own ASSUMED line, the arithmetic per measure, the worst case in words, and what the trust layer can say about similar past proposals. "Propose this" makes the normal proposal for its kind with the simulation attached; nothing executes. Money prints in whole major units, one decimal count throughout.
+
+**Creative studio** (`/studio`, under Grow after Content; P3-50, P3-51). It has its own screen rather than a section of `/content`. Content is the queue of things made; the studio is where they are planned from research. The head states the longest-running concept found ("Saltmarsh Pottery's video has run 143 days — the longest-running concept I found"), or in words that research isn't set up or the Library can't show the niche. The aside reads "Meta Ad Library · read-only · OBSERVED".
+
+- **The niche's ads.** The first sheet opens with an inset that is always printed and never behind a click. It says there are no results figures, that running time and versions are a proxy and not a measurement, that only the EU and UK are covered, and how far format can be told. A `.rt rt-stack` table lists the business (with a boxed YOU LISTED THEM for a listed competitor, and a link to the public Library page), the format as a mono word, running days with LIVE or STOPPED, versions, the opening line quoted, and the offer and call to action quoted or "no offer found". The staying-power arithmetic is the running cell's title.
+- **Reading again.** The foot holds the owner's search terms and "Read again →", disabled until the once-a-day refresh with its time stated. With no token, or outside the coverage, the foot says why in place of the form, and the last read still shows.
+- **The brief.** A sheet writes a brief from the owner's campaign words or a goal. It states the calls left this month and the copy rule. The brief sheet shows who it's for and the offer, each followed by its citation chips (mono, inset, `F3 · YOUR FACT`, `A1 · NICHE AD`, the source text on hover). Each hook is a Zilla line with its chips, the script with "about N s", and the numbered shots, each with its why. A collapsed list at the foot gives every source the brief was written from. The disclosure "Brief prepared with AI assistance." sits in the header.
+- **Make this.** "Make this →" under each hook proposes that shot list; the notice links to "Waiting for you". While the watch runs it is disabled with the date in words.
+
+Nothing on the screen publishes, generates, films or spends.
 
 Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
