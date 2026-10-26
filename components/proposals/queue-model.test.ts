@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  adFacts,
+  effectSpan,
   activeChip,
   applyReasonChip,
   approvalNote,
@@ -406,5 +408,66 @@ describe("review 2026-10-23, Session D #1 — lapsedSentence", () => {
     );
     expect(lapsedSentence({ status: "expired", decided_at: null })).toBeNull();
     expect(lapsedSentence({ status: "approved", decided_at: "2026-10-01T09:00:00Z" })).toBeNull();
+  });
+});
+
+describe("P3-54 — an ad created paused, and its separate go-live", () => {
+  const runAd = {
+    kind: "paid_ads_start_or_increase",
+    summary: 'Run "Autumn menu" as a Meta ad',
+    detail: {
+      change: "run_ad",
+      ad: { name: "Autumn menu" },
+      budget: { daily_minor: 500, currency: "EUR", run_days: 7, total_minor: 3_500 },
+      audience: {
+        location: "everyone in HU",
+        age: "18–65+",
+        interests: "left broad — Meta finds the people",
+        placements: "Facebook feed, Instagram feed",
+      },
+      goal: "visits to your website",
+      special_ad_categories: [],
+      creates: ["campaign", "ad set", "creative", "ad"],
+      paused_note:
+        "Creates paused; going live is a separate approval; created objects can't be deleted, only paused.",
+    },
+  };
+  it("the card states budget, duration, audience, and what can't be undone", () => {
+    const ad = adFacts(runAd)!;
+    expect(ad.facts.map((f) => f.label)).toEqual([
+      "Budget",
+      "Duration",
+      "Audience",
+      "Interests",
+      "Placements",
+      "Optimised for",
+    ]);
+    expect(ad.facts[0]!.value).toMatch(/5.*a day · at most .*35/);
+    expect(ad.note).toBe(
+      "Creates paused; going live is a separate approval; created objects can't be deleted, only paused.",
+    );
+    expect(changeLines(runAd)).toEqual([
+      {
+        line: "Ad “Autumn menu”",
+        sub: "creates its campaign, ad set, creative, ad",
+        before: "no ad",
+        after: "on Meta, paused · spends nothing",
+      },
+    ]);
+    expect(consequence(runAd)).toBe("Create the ad, paused");
+    expect(effectSpan(runAd)).toBe("over 7 days");
+  });
+  it("going live is its own proposal: paused → live, and a plain change keeps 'a month'", () => {
+    const live = {
+      ...runAd,
+      detail: { ...runAd.detail, change: "go_live", campaign_name: "Autumn menu" },
+    };
+    expect(changeLines(live)?.[0]).toMatchObject({
+      before: "paused · spends nothing",
+      after: /live · up to/,
+    });
+    expect(consequence(live)).toBe("Put the ad live");
+    expect(adFacts({ summary: "x", detail: { change: "pause" } })).toBeNull();
+    expect(effectSpan({ summary: "x", detail: {} })).toBe("a month");
   });
 });

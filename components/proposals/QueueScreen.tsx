@@ -36,6 +36,8 @@ import { moneyText } from "../sheet/num";
 import type { BasisInput } from "../report/basis";
 import {
   REASON_CHIPS,
+  adFacts,
+  effectSpan,
   type Decision,
   type ReasonChip,
   type Stamp,
@@ -672,6 +674,25 @@ export function QueueScreen() {
     );
   };
 
+  /** P3-54: an ad's budget, duration, audience and what can't be undone. */
+  const adBlock = (p: Proposal) => {
+    const ad = adFacts(p.action);
+    if (!ad) return null;
+    return (
+      <div className="q-adfacts">
+        <dl className="q-cases">
+          {ad.facts.map((f, i) => (
+            <div key={`${f.label}-${i}`} className="q-case">
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+        {ad.note && <p className="q-manual">{ad.note}</p>}
+      </div>
+    );
+  };
+
   const effectBlock = (p: Proposal, compact: boolean) => {
     const range = effectOf(p);
     const base = p.scenario.base_case;
@@ -685,7 +706,7 @@ export function QueueScreen() {
               {signedMoney(range.low)} – {signedMoney(range.high)}
             </p>
             <p className="q-mono-note">
-              profit a month, downside to upside
+              profit {effectSpan(p.action)}, downside to upside
               {!compact && base?.statement ? ` · likeliest: ${base.statement}` : ""}
             </p>
           </div>
@@ -900,9 +921,12 @@ export function QueueScreen() {
         <section className="q-msec">
           <h3 className="q-mlabel">What changes</h3>
           {changeBlock(p, true)}
+          {adBlock(p)}
         </section>
         <section className="q-msec">
-          <h3 className="q-mlabel">Expected{range ? ", a month" : ""} · estimated</h3>
+          <h3 className="q-mlabel">
+            Expected{range ? `, ${effectSpan(p.action)}` : ""} · estimated
+          </h3>
           {effectBlock(p, true)}
         </section>
         <section className="q-msec">
@@ -1054,12 +1078,13 @@ export function QueueScreen() {
             1 · What changes — before → after
           </h2>
           {changeBlock(p, false)}
+          {adBlock(p)}
           {p.action.detail?.rationale && <p className="q-prose">{p.action.detail.rationale}</p>}
         </section>
 
         <section className="q-sec" aria-labelledby={`s2-${p.id}`}>
           <h2 className="q-h" id={`s2-${p.id}`}>
-            2 · Expected effect{range ? ", a month" : ""} · estimated
+            2 · Expected effect{range ? `, ${effectSpan(p.action)}` : ""} · estimated
           </h2>
           {effectBlock(p, false)}
         </section>

@@ -230,3 +230,127 @@ export function performanceLine(p: PerformanceLike | undefined): {
     parts.length > 0 && p.age_days !== null ? `day ${p.age_days} · ${parts.join(" · ")}` : null;
   return { figures, word: v.word, tone: v.tone, arithmetic: p.arithmetic };
 }
+
+/* ── P3-54: "Run this as an ad" ── */
+
+/** What /content needs of an item's ad (lib/ads/adcreate, adItemStates). */
+export interface AdStateLike {
+  reason: string | null;
+  proposal: { id: string; status: string } | null;
+  build: { id: string; status: string; last_error: string | null } | null;
+  go_live: { id: string; status: string } | null;
+}
+
+export interface AdLine {
+  /** The state word, boxed, or null when the item has no ad yet. */
+  word: string | null;
+  tone: Tone;
+  /** One sentence: where the ad stands, or what the button will do. */
+  text: string;
+  /** The one action offered: make the proposal, decide in the queue, or propose going live. */
+  action: "run_ad" | "queue" | "go_live" | null;
+}
+
+const DECIDED_ELSEWHERE: ReadonlySet<string> = new Set([
+  "rejected",
+  "expired",
+  "changes_requested",
+]);
+
+/**
+ * P3-54, pure: the line under an item about its ad. Never offers to run an
+ * item as an ad twice; never says "live" unless the go-live ran. Null when
+ * the item can't be an ad and has no ad history.
+ */
+export function adLine(ad: AdStateLike | undefined, realWrites: boolean): AdLine | null {
+  if (!ad) return null;
+  const { proposal, build, go_live } = ad;
+  if (build) {
+    if (build.status === "built") {
+      if (go_live?.status === "executed") {
+        return {
+          word: "ad live",
+          tone: "ok",
+          text: "The ad is live on Meta for the days you approved, then it stops by itself. The emergency stop halts anything SYB is still sending.",
+          action: null,
+        };
+      }
+      if (go_live && (go_live.status === "pending" || go_live.status === "blocked")) {
+        return {
+          word: "ad paused",
+          tone: "live",
+          text:
+            go_live.status === "blocked"
+              ? "The ad is on Meta, paused. Going live is held back by a limit you set."
+              : "The ad is on Meta, paused. Going live is a separate yes, waiting in the queue.",
+          action: go_live.status === "pending" ? "queue" : null,
+        };
+      }
+      if (go_live?.status === "approved") {
+        return {
+          word: "ad paused",
+          tone: "ok",
+          text: realWrites
+            ? "Approved to go live: the ad, its ad set and its campaign switch on at the next run."
+            : "Approved to go live, waiting for Meta ad changes to be switched on. Nothing spends until then.",
+          action: null,
+        };
+      }
+      return {
+        word: "ad paused",
+        tone: "low",
+        text: "The ad is on Meta, paused, spending nothing. Going live is a separate approval.",
+        action: "go_live",
+      };
+    }
+    if (build.status === "building") {
+      return {
+        word: "ad in progress",
+        tone: "live",
+        text: "Being created on Meta, paused. It carries on from where it stopped — nothing is created twice.",
+        action: null,
+      };
+    }
+    return {
+      word: build.status === "uncertain" ? "ad unconfirmed" : "ad failed",
+      tone: build.status === "uncertain" ? "drift" : "alarm",
+      text:
+        build.last_error ??
+        "The ad's build stopped. Check Ads Manager; everything SYB made is paused.",
+      action: null,
+    };
+  }
+  if (proposal && !DECIDED_ELSEWHERE.has(proposal.status)) {
+    if (proposal.status === "blocked") {
+      return {
+        word: "ad held back",
+        tone: "low",
+        text: "Proposed as an ad, and held back by a limit you set.",
+        action: null,
+      };
+    }
+    if (proposal.status === "approved") {
+      return {
+        word: "ad approved",
+        tone: "ok",
+        text: realWrites
+          ? "Approved: the ad is created on Meta, paused, at the next run."
+          : "Approved, waiting for Meta ad changes to be switched on. Nothing is sent until then.",
+        action: null,
+      };
+    }
+    return {
+      word: "ad proposed",
+      tone: "live",
+      text: "Proposed as an ad — it needs your yes in the queue.",
+      action: "queue",
+    };
+  }
+  if (ad.reason !== null) return null;
+  return {
+    word: null,
+    tone: "low",
+    text: "Run this as an ad: one proposal with its budget, audience and expected range. Creates paused; going live is a separate approval; created objects can't be deleted, only paused.",
+    action: "run_ad",
+  };
+}
