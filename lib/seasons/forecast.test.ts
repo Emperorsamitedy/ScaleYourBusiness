@@ -100,7 +100,7 @@ describe("the not-enough-history refusal", () => {
     if (r.status !== "too_little") return;
     expect(r.covered_days).toBe(208);
     expect(r.complete_weeks).toBeLessThan(SEASONS.min_weeks);
-    expect(r.headline).toMatch(/about 6 months of your revenue/);
+    expect(r.headline).toMatch(/about 7 months of your revenue/);
     expect(r.cannot.join(" ")).toMatch(/industry average/);
     expect(r.recent.length).toBe(SEASONS.recent_weeks);
     expect(r.ready_on > TODAY).toBe(true);

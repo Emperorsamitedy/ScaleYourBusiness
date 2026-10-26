@@ -223,7 +223,9 @@ describe("a shop's orders", () => {
       contribution_minor: 11_700,
       margin_pct: 70.5,
     });
-    expect(p.sentence).toMatch(/together in 24 orders \(80% of orders with Pour-Over Coffee Set\)/);
+    expect(p.sentence).toMatch(
+      /together in 24 orders \(80% of orders with Pour-Over Coffee Set, 55% of those with Bud Vase Trio\)/,
+    );
   });
 
   it("says so when no store keeps products, rather than mining nothing", async () => {

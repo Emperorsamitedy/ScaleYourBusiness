@@ -356,7 +356,7 @@ export function seasonForecast(
     const recent = sorted.slice(-SEASONS.recent_weeks).map(([start, value]) => ({ start, value }));
     const missing = SEASONS.min_weeks - complete;
     const readyOn = addDays(thisMonday, 7 * Math.max(1, missing));
-    const months = Math.max(0, Math.floor(days.length / 30.4));
+    const months = Math.max(0, Math.round(days.length / 30.4));
     const span = months >= 2 ? `about ${months} months` : plural(days.length, "day");
     // Plenty of history, but not in the last year: a source that stopped.
     const stale = days.length >= 7 * SEASONS.year_weeks;
@@ -511,7 +511,7 @@ export function seasonForecast(
   const headline = nextBusy
     ? nextBusy.in_progress
       ? `Your busy weeks are under way: last year the same stretch ran ${times(nextBusy.run.index)} your normal week.`
-      : `Your busy stretch starts in ${plural(nextBusy.starts_in_weeks, "week")}: last year it ran ${times(nextBusy.run.index)} your normal week.`
+      : `Your busy stretch starts ${nextBusy.starts_in_weeks === 0 ? "this week" : `in ${plural(nextBusy.starts_in_weeks, "week")}`}: last year it ran ${times(nextBusy.run.index)} your normal week.`
     : busiest
       ? `Nothing busy in the next ${SEASONS.horizon_weeks} weeks last year; your busiest stretch ran ${times(busiest.index)} your normal week from ${shortDate(busiest.start)}.`
       : `No stretch of the last year ran far from your normal week: your ${series.noun} is steady through the year.`;
@@ -522,7 +522,7 @@ export function seasonForecast(
       ? "One year is one example of your seasons: it says what happened last year, not what will. The range is how far your middle half of weeks spreads."
       : `${plural(years, "year")} of your own history went into the ranges: each year's week against that year's own normal.`,
     `Normal is your median week of the last ${SEASONS.year_weeks}: ${plural(normal.weeks, "complete week")} from ${shortDate(normal.from)} to ${shortDate(normal.to)}.`,
-    `Busy is ${times(SEASONS.busy_index)} your normal or more, quiet ${times(SEASONS.quiet_index)} or less, ${SEASONS.min_run_weeks} weeks or more in a row: a single week can be a one-off.`,
+    `Busy is ${SEASONS.busy_index}× your normal or more, quiet ${SEASONS.quiet_index}× or less, ${SEASONS.min_run_weeks} weeks or more in a row: a single week can be a one-off.`,
   ];
   if (gaps > 0) {
     notes.push(

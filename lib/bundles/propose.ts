@@ -128,7 +128,7 @@ export async function proposeBundle(
   const what =
     source.kind === "orders"
       ? `Show ${pair.a_name} and ${pair.b_name} together — side by side on each product's page, or as a set — both at full price. No discount in it.`
-      : `Offer ${pair.b_name} when ${pair.a_name} is booked — at the booking or in the chair — at its full price. No discount in it.`;
+      : `Offer ${pair.a_name} and ${pair.b_name} together in one visit — at the booking, or when one of them is booked — both at full price. No discount in it.`;
   const row = await createProposal({
     profile_id: profileId,
     module: BUNDLES_MODULE,
@@ -138,7 +138,7 @@ export async function proposeBundle(
       summary:
         source.kind === "orders"
           ? `Show "${pair.a_name}" and "${pair.b_name}" together, both at full price`
-          : `Offer "${pair.b_name}" with "${pair.a_name}", at full price`,
+          : `Offer "${pair.a_name}" and "${pair.b_name}" together in one visit, at full price`,
       detail: {
         what,
         pair: {
