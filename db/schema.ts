@@ -411,6 +411,8 @@ export const decisionKind = pgEnum("decision_kind", [
   "complaint", // P4-17: a recipient marked a campaign email as spam; ref is the campaign_sends row, no PII
   "assistant_change", // feature 33: the owner confirmed a change the assistant prepared in chat; ref is the assistant_changes row
   "campaign_review", // review 2026-10-23 (#5c): an operator reviewed an account's first campaign; ref is the campaign_reviews row, no PII
+  "report_share", // idea 51: the owner made a read-only link to a report; ref is the report_shares row, never the token
+  "report_share_revoke", // idea 51: the owner revoked that link; ref is the report_shares row
 ]);
 
 export const decisionLog = pgTable(
@@ -749,6 +751,48 @@ export const diagnosisReports = pgTable(
     trading_hours: jsonb("trading_hours"),
   },
   (t) => [index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at)],
+);
+
+// ---------------------------------------------------------------------------
+// Report shares — idea 51 (2026-10-26). A read-only link to ONE report, for
+// a partner, an accountant or an investor. The link is a snapshot: it is
+// pinned to the report it was made for (and the history shown with it stops
+// at created_at), so a later report or correction never reaches a reader
+// the owner sent it to before. Only sha256(token) is stored, like every
+// other link in this app; a row is never deleted, only revoked or expired.
+// ---------------------------------------------------------------------------
+
+export const reportShares = pgTable(
+  "report_shares",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The frozen report this link shows — never "the latest". */
+    report_id: uuid("report_id")
+      .notNull()
+      .references(() => diagnosisReports.id, { onDelete: "cascade" }),
+    /** sha256 of the token in the link. Never the token itself. */
+    token_hash: text("token_hash").notNull(),
+    created_by: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    /** Revoked links stop resolving without being deleted. */
+    revoked_at: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+    last_viewed_at: timestamp("last_viewed_at", { withTimezone: true, mode: "string" }),
+    view_count: integer("view_count").notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex("report_shares_hash_idx").on(t.token_hash),
+    index("report_shares_profile_idx").on(t.account_id, t.profile_id, t.created_at),
+    check("report_shares_expiry_after_creation", sql`${t.expires_at} > ${t.created_at}`),
+  ],
 );
 
 // ---------------------------------------------------------------------------
