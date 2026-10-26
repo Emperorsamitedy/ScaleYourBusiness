@@ -179,6 +179,8 @@ export function showsNav(path: string): boolean {
 function useCounts(path: string): NavCounts | null {
   const [counts, setCounts] = useState<NavCounts | null>(null);
   useEffect(() => {
+    // A stranger's page (a shared report, idea 51) never asks for the owner's counts.
+    if (path.startsWith("/shared/")) return;
     let alive = true;
     void fetch("/api/nav")
       .then(async (res) => (res.ok ? ((await res.json()) as NavCounts) : null))
