@@ -326,7 +326,7 @@ export function blockSum(values: ReadonlyMap<string, number>, from: string): num
 const blockFrom = (today: string, j: number) => addDays(today, -7 * (j + 1));
 
 /** Every 1st of a month in [from, from + days). */
-function firsts(from: string, days: number): string[] {
+export function firsts(from: string, days: number): string[] {
   const out: string[] = [];
   const end = addDays(from, days - 1);
   let d = `${from.slice(0, 7)}-01`;
