@@ -2665,6 +2665,86 @@ export const assistantChanges = pgTable(
   ],
 );
 
+/* ---------- Phase 3 Session K — the creative studio (P3-50, P3-51) ---------- */
+
+// P3-50: one read of Meta's Ad Library for a business's niche — a CACHE,
+// not facts about the business. Read-only research (rule 9), so nothing
+// here is a Field<T>: these are other businesses' public ads, kept only as
+// far as the analysis needs them (lib/research/niche.ts). No targeting,
+// reach, spend or payer data is requested or stored, nor the snapshot URL
+// (it carries the reader's access token); page names are businesses.
+export const nicheAdReads = pgTable(
+  "niche_ad_reads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** Where the ads came from. Only the Meta Ad Library today. */
+    source: text("source").notNull().default("meta_ad_library"),
+    /** "read" — ads stored; "failed" — the Library refused or broke, `reason` says how. */
+    status: text("status").notNull(),
+    read_at: timestamp("read_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    /** ISO 3166 alpha-2 the ads were asked for (ad_reached_countries). */
+    country: text("country"),
+    /** The search terms asked, in order. */
+    terms: jsonb("terms").$type<string[]>().notNull().default([]),
+    /** What each query was for: a term, or a listed competitor (by page id or by name). */
+    targets: jsonb("targets").$type<Record<string, unknown>[]>().notNull().default([]),
+    /** HTTP requests the read made, against its cap. */
+    requests: integer("requests").notNull().default(0),
+    /** The ads, minimised (LibraryAd in lib/research/ad-library.ts), capped per read. */
+    ads: jsonb("ads").$type<Record<string, unknown>[]>().notNull().default([]),
+    reason: text("reason"),
+  },
+  (t) => [
+    index("niche_ad_reads_profile_idx").on(t.profile_id, t.read_at),
+    check("niche_ad_reads_status", sql`${t.status} IN ('read', 'failed')`),
+    check(
+      "niche_ad_reads_failed_says_why",
+      sql`${t.status} <> 'failed' OR ${t.reason} IS NOT NULL`,
+    ),
+  ],
+);
+
+// P3-51: the creative brief, one per campaign, with its provenance. The
+// brief is what Sonnet wrote AFTER the deterministic checks passed (every
+// claim cites a source it was given; nothing shares five words in a row
+// with another business's ad); `sources` is exactly what it was given,
+// id by id, so every citation resolves to a fact, finding, post or ad.
+export const creativeBriefs = pgTable(
+  "creative_briefs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The campaign, in the owner's words or the goal's statement. */
+    campaign: text("campaign").notNull(),
+    goal_id: uuid("goal_id").references(() => goals.id, { onDelete: "set null" }),
+    niche_read_id: uuid("niche_read_id").references(() => nicheAdReads.id, {
+      onDelete: "set null",
+    }),
+    /** The validated brief: audience, offer, hooks with scripts and shots (lib/content/brief.ts). */
+    brief: jsonb("brief").$type<Record<string, unknown>>().notNull(),
+    /** Every source the model saw, by its prompt id, with its reference and text. */
+    sources: jsonb("sources").$type<Record<string, unknown>[]>().notNull(),
+    model: text("model").notNull(),
+    /** Model calls this brief took (rejected attempts included), against the cap. */
+    attempts: integer("attempts").notNull(),
+    /** Why each rejected attempt was rejected, in order. */
+    rejections: jsonb("rejections").$type<string[][]>().notNull().default([]),
+    cost_eur: numeric("cost_eur").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("creative_briefs_profile_idx").on(t.profile_id, t.created_at),
+    check("creative_briefs_attempts", sql`${t.attempts} >= 1`),
+  ],
+);
+
 // ---------------------------------------------------------------------------
 // The weekly summary — idea 42 (Ideas round, 2026-10-26). One email a week
 // to the business OWNER (never a customer) saying what SYB did and found.

@@ -106,6 +106,18 @@ export function metaLoginEnv(): MetaLoginEnv | null {
 }
 
 /**
+ * P3-50: the user access token SYB reads Meta's Ad Library with — from a
+ * developer account whose identity Meta has confirmed. Optional: null
+ * means niche research is not set up, and the studio screen says exactly
+ * that instead of failing. The token is only ever sent in an
+ * Authorization header, never in a URL, and never stored.
+ */
+export function metaAdLibraryToken(): string | null {
+  const token = process.env.META_AD_LIBRARY_TOKEN?.trim() ?? "";
+  return token === "" || /\s/.test(token) ? null : token;
+}
+
+/**
  * THE REAL-WRITE GATE (Session D, D2's done-when). The first real publish
  * waits for Phase 2's two-week unattended clock to complete
  * (TASKS-PHASE3.md, "The gate, amended"). Until SESSION_D_REAL_WRITES is

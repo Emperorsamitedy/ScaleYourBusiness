@@ -88,6 +88,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "A solo owner has the least time to write posts, so drafts help most there.",
   },
+  "nav.studio": {
+    bands: EVERY,
+    reason:
+      "A one-person business can least afford an agency, so seeing what its niche keeps running, and a brief to film from, helps most there.",
+  },
   "nav.site": {
     bands: EVERY,
     reason: "Every business with a website can lose customers on it.",

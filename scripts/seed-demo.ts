@@ -1745,6 +1745,140 @@ async function seed(): Promise<void> {
 
   await weeklyCheck();
 
+  // P3-50/51, the creative studio: the niche's ads read from the in-repo
+  // recorded-shape Ad Library (fictional Irish studios; the global fetch
+  // stays sealed, the fake is passed in), and one stored brief. The brief
+  // goes through the real checks — citations, lengths, the five-word copy
+  // check against those ads — with hand-written text standing in for
+  // Sonnet, citing the ids the real prompt numbered. No network, no model.
+  {
+    const { readNicheAds } = await import("../lib/research/niche");
+    const { FAKE_AD_LIBRARY_TOKEN, ceramicsNiche, fakeAdLibrary } =
+      await import("../lib/research/ad-library-fake");
+    const { writeBrief } = await import("../lib/content/brief");
+    const niche = await readNicheAds({
+      profileId: ids.profile,
+      accountId: ids.account,
+      terms: ["mug", "pottery"],
+      token: FAKE_AD_LIBRARY_TOKEN,
+      fetch: fakeAdLibrary({ ads: ceramicsNiche(today) }).fetch,
+    });
+    if (niche.status !== "read") throw new Error(`niche read: ${niche.status}`);
+    const mugId = offerIds.get("mug") as string;
+    const standIn = async ({ user }: { user: string }) => {
+      const lines = [...user.matchAll(/^\[([A-Z]\d+)\] (.*)$/gm)].map((m) => ({
+        id: m[1] as string,
+        text: m[2] as string,
+      }));
+      const find = (test: (text: string) => boolean, prefix: string) =>
+        lines.find((l) => l.id.startsWith(prefix) && test(l.text))?.id ??
+        lines.find((l) => l.id.startsWith(prefix))?.id ??
+        (lines.find((l) => l.id.startsWith("F"))?.id as string);
+      const mug = find((t) => t.startsWith(`offers.${mugId}.name`), "F");
+      const price = find((t) => t.startsWith(`offers.${mugId}.price`), "F");
+      const who = find((t) => /^customer(s|_segments)\./.test(t), "F");
+      const voice = find(() => true, "V");
+      const salt = find((t) => t.startsWith("Saltmarsh Pottery"), "A");
+      const furnace = find((t) => t.startsWith("Little Furnace"), "A");
+      const finding = find(() => true, "D");
+      const shot = (s: string, why: string, cites: string[]) => ({ shot: s, why, cites });
+      return {
+        text: JSON.stringify({
+          audience: {
+            text: "People who already buy handmade pieces online and come back for each seasonal glaze, plus gift buyers who want something a person made.",
+            cites: [who, finding],
+          },
+          offer: {
+            text: "The Speckled Everyday Mug, thrown and glazed in the Kilkenny studio, from the shop.",
+            cites: [mug, price],
+          },
+          hooks: [
+            {
+              hook: "No two of these mugs come out of our kiln alike.",
+              script:
+                "This is the Speckled Everyday Mug. Aoife throws each one on the wheel here in Kilkenny, Niall dips it in our oatmeal glaze, and the fire decides the rest. Some speckle heavily, some hardly at all. Pick the one that looks like your mornings.",
+              cites: [salt, mug, voice],
+              shots: [
+                shot(
+                  "Hands centring clay on the wheel, close, no intro card.",
+                  "Long-running videos in the niche open on the making, not a logo.",
+                  [salt],
+                ),
+                shot(
+                  "The mug dipped into the oatmeal glaze bucket, one smooth pull.",
+                  "The glaze is what makes yours different; show it happening.",
+                  [mug],
+                ),
+                shot(
+                  "Three finished mugs side by side, turned slowly to the light.",
+                  "Shows the variation the script promises.",
+                  [mug, voice],
+                ),
+              ],
+            },
+            {
+              hook: "Twelve hours in the kiln. Here is the moment we open it.",
+              script:
+                "We load the kiln on Wednesday night and wait. Twelve hours later the door opens and we find out what the glaze did. This shelf is this week's batch of Speckled Everyday Mugs, and these are the ones going up on the shop.",
+              cites: [furnace, mug],
+              shots: [
+                shot(
+                  "The kiln door, closed, a hand on the latch.",
+                  "A reveal held for a second keeps people watching.",
+                  [furnace],
+                ),
+                shot(
+                  "The door swinging open on a full shelf, heat haze if there is any.",
+                  "The payoff of the hook, filmed for real.",
+                  [furnace],
+                ),
+                shot(
+                  "Lifting one mug off the shelf and turning it in your hand.",
+                  "Brings it from the kiln to the customer's eye line.",
+                  [mug],
+                ),
+              ],
+            },
+            {
+              hook: "Why a mug made by hand costs what it does.",
+              script:
+                "Every Speckled Everyday Mug is thrown, trimmed, handled, glazed and fired by the two of us. That is most of a week before it reaches you. You are paying for that week, and for a mug nobody else has. It is in the shop now.",
+              cites: [mug, price, finding],
+              shots: [
+                shot(
+                  "A quick cut through each step: throwing, trimming, the handle going on.",
+                  "The price makes sense once the work is visible.",
+                  [price],
+                ),
+                shot(
+                  "You, to camera, saying the last line plainly.",
+                  "The owner saying it reads as honest, not as an ad.",
+                  [voice],
+                ),
+                shot(
+                  "The mug on a breakfast table with coffee in it.",
+                  "Ends on the mug in use, the thing being bought.",
+                  [mug],
+                ),
+              ],
+            },
+          ],
+        }),
+        cost_eur: 0,
+        model: "seed-stand-in (no model call)",
+      };
+    };
+    const written = await writeBrief({
+      profileId: ids.profile,
+      accountId: ids.account,
+      campaign: { label: "Winter glazes: the everyday mug" },
+      llm: standIn,
+    });
+    log(
+      `  creative studio: ${niche.read.ads.length} niche ads read from the fake Ad Library; one brief stored (${written.attempts} attempt)`,
+    );
+  }
+
   // The demo's connections were fed by in-process fakes. Their fake
   // credentials are not kept: a "Sync now" in the app then fails locally
   // ("no credential at rest") instead of sending them to Shopify, Meta or

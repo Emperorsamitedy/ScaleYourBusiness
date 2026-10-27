@@ -72,6 +72,30 @@ export const SCOPE_REGISTRY = {
   square: ["PAYMENTS_READ", "MERCHANT_PROFILE_READ", "APPOINTMENTS_READ", "APPOINTMENTS_ALL_READ"],
 } as const satisfies Record<string, readonly string[]>;
 
+/**
+ * P3-50: read-only RESEARCH sources. Not an owner's connection: the
+ * credential is SYB's own (an environment variable), it reads public
+ * information about OTHER businesses, and nothing is synced into the
+ * business's numbers. It is registered here so the same build-failing
+ * audit covers it: auditRegistry() reads this registry beside
+ * SCOPE_REGISTRY, and a write-capable entry fails the build exactly as it
+ * would for a connector.
+ *
+ * Meta Ad Library (ads_archive). A user access token from an
+ * identity-confirmed developer account. The entries are the Graph
+ * permissions the token may carry, checked against /me/permissions at the
+ * start of every read (lib/research/ad-library.ts): anything else — a
+ * write permission above all — refuses the read before the Library is
+ * asked. public_profile, which every user token carries and which reads
+ * nothing about ads, is the only one. Whether ads_archive needs any
+ * permission beyond it is a verify-at-build item (TASKS-PHASE3.md).
+ */
+export const RESEARCH_SOURCE_REGISTRY = {
+  meta_ad_library: ["public_profile"],
+} as const satisfies Record<string, readonly string[]>;
+
+export type ResearchSourceId = keyof typeof RESEARCH_SOURCE_REGISTRY;
+
 export interface ScopeGuideEntry {
   /** The registry capability this entry explains. */
   scope: string;
@@ -235,10 +259,11 @@ export interface ScopeViolation {
 
 /**
  * The build-failing audit: returns every registered scope that is not
- * read-only. An empty array is the only acceptable answer.
+ * read-only — connectors and research sources alike (P3-50). An empty
+ * array is the only acceptable answer.
  */
 export function auditRegistry(
-  registry: Record<string, readonly string[]> = SCOPE_REGISTRY,
+  registry: Record<string, readonly string[]> = { ...SCOPE_REGISTRY, ...RESEARCH_SOURCE_REGISTRY },
 ): ScopeViolation[] {
   const violations: ScopeViolation[] = [];
   for (const [provider, scopes] of Object.entries(registry)) {
@@ -284,4 +309,23 @@ export function verifyGrantedScopes(provider: ProviderId, granted: readonly stri
   if (violations.length > 0) {
     throw new ScopeViolationError(provider, violations);
   }
+}
+
+/**
+ * P3-50, the research twin of verifyGrantedScopes: what a research
+ * source's credential carries must be read-only and registered. Throws
+ * ScopeViolationError naming every offending permission. An empty grant
+ * is allowed here — a token reporting no permissions can do nothing more.
+ */
+export function verifyResearchGrant(source: ResearchSourceId, granted: readonly string[]): void {
+  const registered: readonly string[] = RESEARCH_SOURCE_REGISTRY[source];
+  const violations: ScopeViolation[] = [];
+  for (const scope of granted) {
+    if (isWriteCapable(scope))
+      violations.push({ provider: source, scope, reason: "write_capable" });
+    else if (!registered.includes(scope)) {
+      violations.push({ provider: source, scope, reason: "not_in_registry" });
+    }
+  }
+  if (violations.length > 0) throw new ScopeViolationError(source, violations);
 }

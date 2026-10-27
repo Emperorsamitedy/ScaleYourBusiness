@@ -428,6 +428,13 @@
       "when": 1793106097046,
       "tag": "0060_known_alex_wilder",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1793106830591,
+      "tag": "0061_simple_scarlet_witch",
+      "breakpoints": true
     }
   ]
 }

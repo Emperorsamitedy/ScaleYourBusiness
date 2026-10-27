@@ -81,7 +81,8 @@ export function thinkingOff(model: SonnetModel): Anthropic.ThinkingConfigParam {
 }
 
 /** The Sonnet sites that answer or draft, as opposed to the interviewer's pick. */
-export type SonnetAnswerSite = "chat" | "content" | "support_answer" | "support_draft";
+export type SonnetAnswerSite =
+  "chat" | "content" | "support_answer" | "support_draft" | "creative_brief";
 
 /**
  * What a Sonnet answer site sends on Sonnet 5.5 — today's Sonnet 5 requests
@@ -102,6 +103,9 @@ export const SONNET_5_5_ANSWER: Readonly<
   content: { effort: "low", max_tokens: 2_000 },
   support_answer: { effort: "low", max_tokens: 1_200 },
   support_draft: { effort: "low", max_tokens: 1_600 },
+  // P3-51: one JSON brief of three to five hooks, each with a script and
+  // shots — today's cap is 2,500 for the answer; thinking gets room on top.
+  creative_brief: { effort: "low", max_tokens: 4_000 },
 };
 
 /**
