@@ -6,7 +6,9 @@
 // the mode decision, every signal is a series a connection actually
 // holds (judged by the anomaly layer's own rules, lib/watch/watch-view),
 // every note and log line is a watch_activity row for work performed.
-// Module selection (P1-48) stays at the foot: it has no other home.
+// Module selection (P1-48) stays at the foot: it has no other home, and
+// the weekly summary email's switch (idea 42) sits beside it, because the
+// email is this screen's week, sent.
 
 import "../../app/watch.css";
 import { useCallback, useEffect, useState } from "react";
@@ -48,6 +50,15 @@ interface WatchView {
 interface ModulesView {
   modules: { module: string; enabled: boolean }[];
   analytics: { enabled: boolean; fixed: boolean; why: string };
+}
+/** Idea 42: the weekly summary email switch (GET /api/summary). */
+interface SummaryView {
+  enabled: boolean;
+  owner: boolean;
+  in_care: boolean;
+  sending: boolean;
+  configured: boolean;
+  last_sent_at: string | null;
 }
 
 const DAY_MS = 86_400_000;
@@ -324,6 +335,43 @@ function ModulesCard({
   );
 }
 
+function SummaryCard({
+  summary,
+  onToggle,
+}: {
+  summary: SummaryView;
+  onToggle: (enabled: boolean) => void;
+}) {
+  const status = !summary.owner
+    ? "Sign up, and it goes to the address you sign in with."
+    : !summary.enabled
+      ? "Off. Nothing is emailed; everything stays on this screen."
+      : !summary.in_care
+        ? "It starts once How I work is decided."
+        : !summary.configured
+          ? "Email isn't set up on this server yet, so none is sent."
+          : summary.last_sent_at
+            ? `Last sent ${dayText(summary.last_sent_at)}.`
+            : "The first one goes out on the next Monday check.";
+  return (
+    <SheetCard label="Weekly email" title="A summary every Monday">
+      <label className="wt-module">
+        <input
+          type="checkbox"
+          checked={summary.enabled}
+          disabled={!summary.owner}
+          onChange={(e) => onToggle(e.target.checked)}
+        />
+        <span>email me the week</span>
+      </label>
+      <p className="wt-why">
+        What I did and found that week, and what is waiting for you. Every line is an entry on this
+        screen; a quiet week says so. {status}
+      </p>
+    </SheetCard>
+  );
+}
+
 function Frame({
   title,
   notes,
@@ -346,6 +394,7 @@ function Frame({
 export function WatchScreen({ reading }: { reading: WatchReading | null }) {
   const [view, setView] = useState<WatchView | null>(null);
   const [modules, setModules] = useState<ModulesView | null>(null);
+  const [summary, setSummary] = useState<SummaryView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
 
   const load = useCallback(async () => {
@@ -358,6 +407,13 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
     } catch {
       setFailed("error");
     }
+    // The summary switch is optional: the screen stands without it.
+    try {
+      const s = await fetch("/api/summary");
+      setSummary(s.ok ? ((await s.json()) as SummaryView) : null);
+    } catch {
+      setSummary(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -369,6 +425,15 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ module, enabled }),
+    });
+    await load();
+  };
+
+  const toggleSummary = async (enabled: boolean) => {
+    await fetch("/api/summary", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ enabled }),
     });
     await load();
   };
@@ -401,6 +466,7 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
       <div className="wt-side">
         <RulesCard thresholds={view.thresholds} />
         <ModulesCard modules={modules} onToggle={(m, on) => void toggle(m, on)} />
+        {summary && <SummaryCard summary={summary} onToggle={(on) => void toggleSummary(on)} />}
       </div>
     </div>
   );
