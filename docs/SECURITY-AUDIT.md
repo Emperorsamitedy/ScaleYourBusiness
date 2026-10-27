@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0058**, then `db:seed` (question bank 1.7.0).
+2. **Migrations and bank:** `db:migrate` through **0059**, then `db:seed` (question bank 1.7.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -24,6 +24,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0056 `content_items.publish_approved_sha256`, the hash a publish approval ties its post to
    - 0057 `weekly_summaries`, one claimed row per account per ISO week (the owner's weekly summary email, 2026-10-26)
    - 0058 `report_shares` and the decision kinds `report_share` / `report_share_revoke` (shared report links, 2026-10-26)
+   - 0059 `order_baskets`, each counted order's distinct product ids for bundles (no customer data, 2026-10-26)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 

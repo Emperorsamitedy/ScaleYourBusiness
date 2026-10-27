@@ -1158,6 +1158,43 @@ export const connectorSyncs = pgTable(
   (t) => [index("connector_syncs_connection_idx").on(t.connection_id, t.started_at)],
 );
 
+// Idea 48, bundles: which store products were bought in the same order.
+// The daily units (units.daily) say how much of each product sold, never
+// which ones went out together, so a commerce sync also keeps, per order,
+// the set of store product ids in it — read from the same order lines it
+// already reads under read_orders, so no permission was added. Nothing
+// about the customer is stored: an order is its platform id, its day and
+// its products. Every sync re-reads its window (refunds and cancellations
+// change past orders), and the window is authoritative: the rows of the
+// days it covers are replaced in the page's transaction, so a cancelled
+// order drops out. Raw connector data like metric_observations, so it goes
+// with its connection (on delete cascade), never into the decision log.
+
+export const orderBaskets = pgTable(
+  "order_baskets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id, { onDelete: "cascade" }),
+    /** The platform's own order id ("gid://shopify/Order/1001", "812"). */
+    order_ref: text("order_ref").notNull(),
+    /** The day the order counts on: the same UTC day its revenue.daily row uses. */
+    day: date("day", { mode: "string" }).notNull(),
+    /** The distinct store product ids in the order, sorted. Never empty. */
+    product_refs: text("product_refs").array().notNull(),
+    observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("order_baskets_order_idx").on(t.connection_id, t.order_ref),
+    index("order_baskets_day_idx").on(t.connection_id, t.day),
+    check("order_baskets_not_empty", sql`cardinality(${t.product_refs}) >= 1`),
+  ],
+);
+
 /* ---------- Bookings: appointments from Square or an owner's export (specs/bookings.md) ---------- */
 
 // A gym's or salon's numbers live in its booking system. Two sources write

@@ -414,6 +414,13 @@
       "when": 1793104817422,
       "tag": "0058_supreme_tinkerer",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1793105263065,
+      "tag": "0059_silly_onslaught",
+      "breakpoints": true
     }
   ]
 }

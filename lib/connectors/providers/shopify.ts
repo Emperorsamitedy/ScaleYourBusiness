@@ -44,11 +44,24 @@
 // access scope", so no scope was added. A product with no tracked variant
 // is counted, not guessed; a stocked variant without a unit cost makes the
 // product's cash tied up unknown, never a partial sum.
+//
+// BASKETS (idea 48). Each page also hands back, per counted order, the set
+// of product ids its lines still hold, so bundles can be mined. They come
+// from the product ids the Orders query already reads: no field, query or
+// scope was added.
 
+import { basketOf } from "../baskets";
 import { addDays, advanceCursor, dayString, isoSeconds, oneNewDay, planWindow } from "../days";
 import { DecimalError, decimalToMinor } from "../decimal";
 import { HourlyBuckets } from "../hourly";
-import type { ExternalProduct, Observation, Provider, PullPage, StockRead } from "../provider";
+import type {
+  BasketWindow,
+  ExternalProduct,
+  Observation,
+  Provider,
+  PullPage,
+  StockRead,
+} from "../provider";
 import { ProviderError } from "../provider";
 
 /** Pinned to the latest stable version (supported for at least 12 months). */
@@ -645,6 +658,29 @@ export function aggregateOrders(
   return out;
 }
 
+/**
+ * Idea 48: one basket per counted order created in [start, end] — the
+ * same orders aggregateOrders counts (no test or cancelled order), on the
+ * same UTC day, with the products still in it.
+ */
+export function basketsOfOrders(
+  orders: readonly ShopifyOrder[],
+  start: Date,
+  end: Date,
+): BasketWindow {
+  const from = start.getTime();
+  const until = addDays(end, 1).getTime();
+  const out: BasketWindow = { from: dayString(start), to: dayString(end), orders: [] };
+  for (const o of orders) {
+    if (o.test || o.cancelledAt !== null) continue;
+    const at = Date.parse(o.createdAt);
+    if (!Number.isFinite(at) || at < from || at >= until) continue;
+    const basket = basketOf(o.id, dayString(new Date(at)), o.lines);
+    if (basket) out.orders.push(basket);
+  }
+  return out;
+}
+
 /* ── stock (feature 34) ── */
 
 export interface ShopifyStockVariant {
@@ -859,6 +895,7 @@ export function createShopifyProvider(options: ShopifyProviderOptions = {}): Pro
 
       return {
         observations: aggregateOrders(orders, start, end, now.toISOString()),
+        baskets: basketsOfOrders(orders, start, end),
         cursor: advanceCursor(cursor, end),
         done: end.getTime() === plan.yesterday.getTime(),
       };
