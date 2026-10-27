@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.7.0",
+  "bank_version": "1.8.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -557,6 +557,13 @@
       "business_pays",
       "free_over_threshold",
       "mixed"
+    ],
+    "deal_stage": [
+      "lead",
+      "qualified",
+      "proposal_sent",
+      "won",
+      "lost"
     ]
   },
   "entity_schemas": {
@@ -3102,6 +3109,31 @@
       },
       "priority": "important",
       "cost": 2
+    },
+    {
+      "id": "6.1f",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.win_rate",
+      "prompt": {
+        "en": "Of the deals you go after with other businesses, roughly what percentage do you win?"
+      },
+      "help_text": {
+        "en": "A rough share is fine: if you win about one in four, that's 25. Your pipeline uses it to weigh open deals until it has enough closed ones of its own to measure."
+      },
+      "input": {
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "customers.type",
+        "value": "b2c"
+      },
+      "priority": "deep",
+      "cost": 1
     },
     {
       "id": "6.2",
