@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0062**, then `db:seed` (question bank 1.7.0).
+2. **Migrations and bank:** `db:migrate` through **0062**, then `db:seed` (question bank 1.8.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection

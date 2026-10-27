@@ -464,6 +464,8 @@ interface CostSection {
   cash_flow_problems: Field<boolean>;
   late_payments: Field<boolean>;
   debt: Field<Money>;
+  cash_available: Field<Money>;             // 5.3e, bank 1.8.0: the bank balance today
+  cash_buffer: Field<Money>;                // 5.3f, bank 1.8.0: the least the owner wants in it
 }
 
 interface CostItem {
