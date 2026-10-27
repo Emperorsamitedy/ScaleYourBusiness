@@ -322,6 +322,10 @@ const REVERSIBILITY: Record<
   },
   support_knowledge: { level: "easy", if_you_change_your_mind: "Retire the entry in one click." },
   customer_email: { level: "hard", if_you_change_your_mind: "A sent email cannot be unsent." },
+  deal_followup: {
+    level: "easy",
+    if_you_change_your_mind: "Nothing is sent by me; don't send the draft.",
+  },
 };
 
 function reviewScenario(rationale: string) {

@@ -13,7 +13,9 @@ import {
   deals,
   fieldRecords,
   intakeEvents,
+  llmCalls,
   proposals,
+  users,
 } from "../../db/schema";
 import { confidence } from "../core/confidence";
 import { createField } from "../core/field";
@@ -56,6 +58,20 @@ export async function freshBusiness(
   return s;
 }
 
+/** A signed-in owner for the account, to approve proposals as. */
+export async function ownerUser(accountId: string): Promise<string> {
+  const [u] = await db
+    .insert(users)
+    .values({
+      account_id: accountId,
+      email: `p5-pipeline-${crypto.randomUUID()}@test.local`,
+      display_name: "Pipeline owner",
+      role: "owner",
+    })
+    .returning({ id: users.id });
+  return u!.id;
+}
+
 export async function cleanupBusinesses(): Promise<void> {
   const ids = made.map((s) => s.profile_id);
   for (const s of made) {
@@ -70,6 +86,8 @@ export async function cleanupBusinesses(): Promise<void> {
     await db.delete(businessProfiles).where(inArray(businessProfiles.id, ids));
   }
   for (const s of made) {
+    await db.delete(llmCalls).where(eq(llmCalls.account_id, s.account_id));
+    await db.delete(users).where(eq(users.account_id, s.account_id));
     await db.delete(accounts).where(eq(accounts.id, s.account_id));
   }
   made.length = 0;
