@@ -41,6 +41,7 @@ import type { Basis } from "../../components/report/basis";
 import { moneyText, num } from "../../components/sheet/num";
 import { shortDate } from "../charts/model";
 import { enumCode } from "../core/enum-value";
+import { minorUnitExponent } from "../core/money";
 import { SEASONS, addDays, quantile } from "../seasons/forecast";
 import { CASH_ASK } from "./keys";
 import type { PayoutChoice } from "./payout";
@@ -303,7 +304,10 @@ const plural = (n: number, word: string) => `${num(n)} ${word}${n === 1 ? "" : "
 const money = (minor: number, currency: string) => moneyText(Math.round(minor), currency);
 /** Whole major units: "€6,400". */
 export function wholeMoney(minor: number, currency: string): string {
-  return moneyText(Math.round(minor), currency).replace(/\.\d+$/, "");
+  const unit = 10 ** minorUnitExponent(currency);
+  const whole = Math.round(minor / unit);
+  const body = moneyText(Math.abs(whole) * unit, currency);
+  return whole < 0 ? `−${body}` : body;
 }
 const pct = (x: number) => `${num(x * 100, 1)}%`;
 
