@@ -55,7 +55,12 @@ export async function proposeFromSimulation(
       return row ? made(row, result) : none(run.skipped[0]?.reason ?? "nothing to propose", result);
     }
     case "ads": {
-      if (option.change === "new") return none("I don't propose new campaigns yet.", result);
+      if (option.change === "new") {
+        return none(
+          'A new ad starts from a post or video: on Content, "Run this as an ad" makes one proposal that creates it paused.',
+          result,
+        );
+      }
       const run = await proposeRequestedAdChange(profileId, {
         ...shared,
         campaign_ref: option.campaign_ref,

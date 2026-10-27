@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import { SCOPE_REGISTRY, auditRegistry, isWriteCapable } from "../connectors/scopes";
 import {
   EXECUTION_SCOPE_REGISTRY,
+  VENDOR_MISNAMED_AD_FIELDS,
   VENDOR_MISNAMED_READS,
   auditExecutionRegistry,
   isExecutionProviderId,
@@ -137,12 +138,43 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
             description: "Create a new campaign in the paused state.",
             reversible: false,
           },
+          // P3-54, 2026-10-26: ad creation, edited in deliberately. Every
+          // create is irreversible for the campaign's reason; the four run as
+          // steps of create_ad_paused, never on their own.
+          {
+            op: "upload_ad_video",
+            description: "Upload an approved item's video to the ad account, for its ad.",
+            reversible: false,
+          },
+          {
+            op: "create_adset_paused",
+            description:
+              "Create an ad set in the paused state: its daily budget, schedule, placements and audience.",
+            reversible: false,
+          },
+          {
+            op: "create_adcreative",
+            description:
+              "Create an ad creative from an approved item's media and caption, carrying its AI disclosure.",
+            reversible: false,
+          },
+          {
+            op: "create_ad_paused",
+            description:
+              "Create an ad in the paused state, with its campaign, ad set and creative, each created paused.",
+            reversible: false,
+          },
+          // Going live resumes the ad and ad set before the campaign; undo pauses them.
+          { op: "resume_adset", description: "Resume a paused ad set.", reversible: true },
+          { op: "pause_adset", description: "Pause a running ad set.", reversible: true },
+          { op: "resume_ad", description: "Resume a paused ad.", reversible: true },
+          { op: "pause_ad", description: "Pause a running ad.", reversible: true },
         ],
         consent: [
           {
             scope: "ads_management",
             grant: "ads_management",
-            why: "SYB may pause, resume or change the daily budget of campaigns, and create new campaigns paused. SYB will never touch billing or payment methods.",
+            why: "SYB may pause, resume or change the daily budget of campaigns, and create new campaigns, ad sets, creatives and ads paused, from posts you approve. SYB will never touch billing or payment methods.",
           },
         ],
       },
@@ -183,6 +215,23 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
       instagram_manage_insights:
         "Meta's name; it grants reads of Instagram account and media insights, nothing else",
     });
+  });
+
+  it("P3-54: the vendor-misnamed ad-write fields are exactly this, each with its reason", () => {
+    expect(VENDOR_MISNAMED_AD_FIELDS).toEqual({
+      billing_event:
+        "Meta's name for the unit an ad set is charged per; sent only as IMPRESSIONS, and it sets no billing, funding or payment method",
+    });
+    // Still money vocabulary: only the pinned exemption lets it through the field audit.
+    expect(touchesMoneySurface("billing_event")).toBe(true);
+  });
+
+  it("P3-54: every create on Meta's ad side is labelled irreversible; only pauses, resumes and budgets undo", () => {
+    const ops = EXECUTION_SCOPE_REGISTRY.meta_ads.operations;
+    for (const o of ops) {
+      if (/^(create_|upload_)/.test(o.op)) expect(o.reversible, o.op).toBe(false);
+      if (/^(pause_|resume_)|budget/.test(o.op)) expect(o.reversible, o.op).toBe(true);
+    }
   });
 
   it("P3-20f: a misnamed read is exempt only as a readback scope — as a write scope, or any other 'manage' readback, still fails", () => {

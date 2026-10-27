@@ -15,6 +15,11 @@
 // through the runner. While the Session D real-write gate is off the
 // screen says so plainly.
 //
+// P3-54: a publish-ready item with its image or clip offers "Run this as an
+// ad" — it makes ONE proposal in the queue (budget, duration, audience,
+// scenarios), never a send. Approved, the runner creates the ad on Meta,
+// paused; going live is a second, separate proposal.
+//
 // P3-24b: an item held by a write connection that paused itself reads
 // `failed` with the one sentence ("I couldn't post — the connection
 // expired…") and offers Reconnect, which goes to /connections; the
@@ -27,9 +32,11 @@ import { EmergencyStop } from "../execution/EmergencyStop";
 import { MediaPanel } from "./MediaPanel";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import {
+  type AdStateLike,
   type ContentStatus,
   type MediaState,
   type PerformanceLike,
+  adLine,
   channelStrips,
   contentHeadline,
   mediaWord,
@@ -101,6 +108,8 @@ type State =
       watchingUntil: string | null;
       /** P3-23b: item id → its measured figures and verdict, published items only. */
       performance: Record<string, PerformanceLike>;
+      /** P3-54: item id → whether it can run as an ad, and where its ad stands. */
+      ads: Record<string, AdStateLike>;
       /** P3-52/53: footage, renders and the AI fallback, for the items that can take media. */
       media: MediaState | null;
       /** The item whose Withdraw is waiting on a second click. */
@@ -175,6 +184,7 @@ export function ContentScreen() {
       real_writes?: boolean;
       watching_until?: string | null;
       performance?: Record<string, PerformanceLike>;
+      ads?: Record<string, AdStateLike>;
       media?: MediaState;
     };
     const goals = (await goalsRes.json()) as { goals: Goal[]; suggestions: Suggestion[] };
@@ -188,6 +198,7 @@ export function ContentScreen() {
       realWrites: content.real_writes === true,
       watchingUntil: content.watching_until ?? null,
       performance: content.performance ?? {},
+      ads: content.ads ?? {},
       media: content.media ?? null,
       confirmWithdraw: null,
       busy: false,
@@ -541,6 +552,21 @@ export function ContentScreen() {
                   </p>
                 );
               })()}
+              {(() => {
+                // P3-54: "Run this as an ad" — a proposal, never a send from this screen.
+                const ad = adLine(s.ads[open.id], s.realWrites);
+                if (!ad) return null;
+                return (
+                  <p className="ct-why">
+                    {ad.word && (
+                      <>
+                        <span className={`word boxed ${ad.tone}`}>{ad.word}</span>{" "}
+                      </>
+                    )}
+                    {ad.text}
+                  </p>
+                );
+              })()}
               {open.status === "published" && s.confirmWithdraw === open.id && (
                 <p className="ct-why">
                   Withdraw it? This deletes the post on {platformWord(open.platform)}. The record
@@ -593,6 +619,53 @@ export function ContentScreen() {
                       Withdraw
                     </button>
                   ))}
+                {(() => {
+                  const ad = adLine(s.ads[open.id], s.realWrites);
+                  if (ad?.action === "run_ad") {
+                    return (
+                      <button
+                        type="button"
+                        className="prop-btn"
+                        disabled={s.busy}
+                        onClick={() =>
+                          void act(
+                            { action: "run_ad", item_id: open.id },
+                            "Proposed as an ad, in the queue. It creates the ad paused; going live is a separate approval.",
+                          )
+                        }
+                      >
+                        Run this as an ad
+                      </button>
+                    );
+                  }
+                  if (ad?.action === "go_live") {
+                    const build = s.ads[open.id]?.build;
+                    if (!build) return null;
+                    return (
+                      <button
+                        type="button"
+                        className="prop-btn"
+                        disabled={s.busy}
+                        onClick={() =>
+                          void act(
+                            { action: "go_live", build_id: build.id },
+                            "Going live is proposed, in the queue. Nothing spends until you approve it.",
+                          )
+                        }
+                      >
+                        Propose going live
+                      </button>
+                    );
+                  }
+                  if (ad?.action === "queue" && open.publish_proposal_id === null) {
+                    return (
+                      <Link className="prop-btn" href="/proposals">
+                        Decide the ad in the queue <span aria-hidden="true">→</span>
+                      </Link>
+                    );
+                  }
+                  return null;
+                })()}
                 {open.publish_proposal_id === null &&
                   open.status === "drafted" &&
                   (open.kind === "post" || open.kind === "video") &&

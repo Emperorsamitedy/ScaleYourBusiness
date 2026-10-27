@@ -412,6 +412,12 @@ When the owner asks the chat to change one thing, the reply carries a change car
 
 A deep link is `route?focus=<element id>`. The landing screen scrolls the element into view and marks it with `--marker` behind ink for 2.4 s (`components/sheet/DeepLinkMark.tsx`); no hash jump, because the screens load their data after the page.
 
+### 8.2 "Run this as an ad" (P3-54, Session K, 2026-10-26)
+
+On `/content`, a drafted or queued post or video that carries its image or clip shows one more line in its record's footer and one `.prop-btn`: "Run this as an ad". The line says what the button does before it is pressed: one proposal with its budget, audience and expected range, then the fixed sentence **"Creates paused; going live is a separate approval; created objects can't be deleted, only paused."** The button makes a proposal and nothing else; the notice says it is in the queue. After that the same line tracks the ad with a boxed state word in the existing tones: `ad proposed` (live, "Decide the ad in the queue →"), `ad held back` (low, a hard limit), `ad approved` (ok, waiting for the next run or for Meta ad changes to be switched on), `ad in progress` (live, a build carrying on from its journal), `ad paused` (created on Meta, paused; "Propose going live" when no go-live is waiting), `ad live` (ok), `ad unconfirmed` (drift: a create Meta never confirmed — "I may have created the ad set — check Ads Manager") and `ad failed` (alarm). An item that can't be an ad and has no ad history shows nothing.
+
+In the queue (§8), an ad proposal's section 1 keeps the before → after table (`no ad → on Meta, paused · spends nothing`; the go-live reads `paused · spends nothing → live · up to €5 a day for 7 days`) and adds a `.q-cases` list under a rule: BUDGET (a day, and at most in all), DURATION (days from going live, then it stops by itself), AUDIENCE (place and age band, in words), INTERESTS ("left broad"), PLACEMENTS, OPTIMISED FOR, any SPECIAL CATEGORY with "Meta's restricted targeting applies", and a NOTE per adjustment (a radius held to Meta's minimum, an age band removed). The fixed sentence sits under it in the `.q-manual` box. Section 2's range is labelled "over 7 days", not "a month". Section 4 reads IRREVERSIBLE for the create (the proposal declares `irreversible`), REVERSIBLE · EASY TO UNDO for the go-live. The primary button states the consequence: "Create the ad, paused" / "Put the ad live".
+
 ---
 
 ## 9. Notifications

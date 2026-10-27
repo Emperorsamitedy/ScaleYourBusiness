@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  type AdStateLike,
   type QueueItem,
+  adLine,
   channelStrips,
   contentHeadline,
   formatMinor,
@@ -157,6 +159,56 @@ describe("performanceLine — P3-23b, a published item's measured line", () => {
         arithmetic: "x",
       }),
     ).toMatchObject({ figures: "day 4 · views 10", tone: "alarm" });
+  });
+});
+
+describe("P3-54 — the ad line under an item", () => {
+  const none: AdStateLike = { reason: null, proposal: null, build: null, go_live: null };
+  it("a ready item offers one thing: make the proposal — with the paused note", () => {
+    expect(adLine(none, false)).toMatchObject({
+      action: "run_ad",
+      text: expect.stringMatching(/Creates paused; going live is a separate approval/),
+    });
+    // An item that can't be an ad, with no ad history, shows nothing.
+    expect(adLine({ ...none, reason: "it has no image or video yet" }, false)).toBeNull();
+  });
+  it("never offers it twice: proposed, approved, held back each say where it stands", () => {
+    const p = (status: string) => adLine({ ...none, proposal: { id: "p", status } }, false);
+    expect(p("pending")).toMatchObject({ word: "ad proposed", action: "queue" });
+    expect(p("approved")).toMatchObject({ word: "ad approved", text: /switched on/, action: null });
+    expect(p("blocked")).toMatchObject({ word: "ad held back", action: null });
+    // A declined or lapsed one can be proposed again.
+    expect(p("rejected")).toMatchObject({ action: "run_ad" });
+  });
+  it("a created ad is paused until its separate go-live runs; a lost confirmation is shown, never hidden", () => {
+    const built = { id: "b", status: "built", last_error: null };
+    expect(adLine({ ...none, build: built }, true)).toMatchObject({
+      word: "ad paused",
+      action: "go_live",
+    });
+    expect(
+      adLine({ ...none, build: built, go_live: { id: "g", status: "pending" } }, true),
+    ).toMatchObject({
+      action: "queue",
+    });
+    expect(
+      adLine({ ...none, build: built, go_live: { id: "g", status: "executed" } }, true),
+    ).toMatchObject({
+      word: "ad live",
+    });
+    expect(
+      adLine(
+        {
+          ...none,
+          build: { id: "b", status: "uncertain", last_error: "I may have created the ad set" },
+        },
+        true,
+      ),
+    ).toMatchObject({
+      word: "ad unconfirmed",
+      tone: "drift",
+      text: "I may have created the ad set",
+    });
   });
 });
 

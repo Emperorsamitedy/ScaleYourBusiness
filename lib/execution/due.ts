@@ -31,7 +31,10 @@
 //     { meta_ads, op, params } from the approved row — pause, resume, a
 //     budget change by the approved share, or a paused create. The op
 //     follows the change the owner approved, never a caller; the real-write
-//     gate covers it exactly as it covers publishing
+//     gate covers it exactly as it covers publishing. P3-54 adds "Run this
+//     ad" (create_ad_paused, the whole build) and its separate go-live
+//     (resume_campaign naming the build's ad set and ad); a build held
+//     "remaining" resumes from its journal (ad_builds), never twice
 //   - a campaign (P4-15): lib/crm/campaign-send's campaignPlanFor routes
 //     a crm customer_email proposal to { email_campaign, send_campaign,
 //     {proposal_id} }. Its schedule floor is set when the owner approves
@@ -76,6 +79,7 @@ import type { ReconcileSummary } from "../content/publishing";
 import { publishPlan, reconcilePublishing } from "../content/publishing";
 import { isPublishProposal } from "../content/publish";
 import { adsPlan, isAdProposal } from "../ads/executing";
+import { reclaimStaleAdBuilds } from "../ads/adcreate";
 import { campaignPlanFor, reclaimStaleCampaignRuns } from "../crm/campaign-send";
 import { applySiteChange } from "../site/apply";
 import { SiteChangeError } from "../site/changes";
@@ -165,6 +169,8 @@ export interface DueRunSummary {
   resumed: ResumeOutcome[];
   /** P4-15: campaign runs that died mid-send, closed as held for this pass. */
   reclaimed_campaigns: number;
+  /** P3-54: ad builds that died between two creates, closed as held to resume from their journal. */
+  reclaimed_ad_builds: number;
   outcomes: DueOutcome[];
 }
 
@@ -201,6 +207,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     reconciled: { checked: 0, published: 0, not_sent: 0, uncertain: 0 },
     resumed: [],
     reclaimed_campaigns: 0,
+    reclaimed_ad_builds: 0,
     outcomes: [],
   };
 
@@ -210,6 +217,8 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
   );
   // P4-15: a campaign run that died mid-send is held, so it is selected below.
   summary.reclaimed_campaigns = await reclaimStaleCampaignRuns(now());
+  // P3-54: an ad build that died between two creates resumes from its journal, never twice.
+  summary.reclaimed_ad_builds = await reclaimStaleAdBuilds(now());
   summary.reconciled = await reconcilePublishing({
     now,
     ...(opts.profileId ? { profileId: opts.profileId } : {}),
@@ -273,6 +282,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
       reconciled: summary.reconciled,
       resumed: summary.resumed.length,
       reclaimed_campaigns: summary.reclaimed_campaigns,
+      reclaimed_ad_builds: summary.reclaimed_ad_builds,
     }),
   );
   return summary;

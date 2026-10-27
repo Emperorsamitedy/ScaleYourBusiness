@@ -4,6 +4,7 @@
 
 import { type BasisInput, basisOfKey, sourceLabel } from "../report/basis";
 import { moneyText, num } from "../sheet/num";
+import { CREATES_PAUSED_NOTE } from "../../lib/ads/ad-words";
 
 export interface MoneyLike {
   amount_minor: number;
@@ -90,14 +91,23 @@ const LEVELS = new Set(["easy", "moderate", "hard"]);
  * treated as permanent (db/schema.ts — null undo = irreversible,
  * labelled before approval).
  */
-export function reversibilityLabel(rev: ReversibilityLike | null | undefined): {
+export function reversibilityLabel(
+  rev: ReversibilityLike | null | undefined,
+  /**
+   * P3-54: the proposal's own detail says it creates what can't be removed
+   * (detail.irreversible — an ad's campaign, ad set, creative and ad). Its
+   * "hard" level is the engine's irreversibility label, so it reads IRREVERSIBLE.
+   */
+  detail?: unknown,
+): {
   reversible: boolean;
   word: string;
   note: string;
 } {
   const level = rev?.level ?? null;
   const note = rev?.if_you_change_your_mind?.trim() ?? "";
-  if (level !== null && LEVELS.has(level)) {
+  const declared = asDetail(detail)?.irreversible === true;
+  if (level !== null && LEVELS.has(level) && !declared) {
     return {
       reversible: true,
       word: `REVERSIBLE · ${level.toUpperCase()} TO UNDO`,
@@ -300,6 +310,136 @@ const str = (v: unknown): string | null =>
   typeof v === "string" && v.trim() !== "" ? v.trim() : null;
 const int = (v: unknown): number | null => (Number.isSafeInteger(v) ? (v as number) : null);
 
+/* ── P3-54: an ad, created paused, and its separate go-live ── */
+
+interface AdBudget {
+  daily_minor: number;
+  currency: string;
+  run_days: number;
+  total_minor: number;
+}
+
+function adBudget(d: Detail): AdBudget | null {
+  const b = asDetail(d.budget);
+  if (!b) return null;
+  const daily = int(b.daily_minor);
+  const days = int(b.run_days);
+  const total = int(b.total_minor);
+  const currency = str(b.currency);
+  return daily !== null && days !== null && total !== null && currency
+    ? { daily_minor: daily, currency, run_days: days, total_minor: total }
+    : null;
+}
+
+function adName(d: Detail): string {
+  const ad = asDetail(d.ad);
+  return str(ad?.name) ?? str(d.campaign_name) ?? str(d.item_title) ?? "the ad";
+}
+
+/** The before → after of an ad: nothing → created paused; paused → live. Null for anything else. */
+function adLines(d: Detail): ChangeLine[] | null {
+  const change = str(d.change);
+  if (change !== "run_ad" && change !== "go_live") return null;
+  const budget = adBudget(d);
+  const spend = budget
+    ? `up to ${moneyText(budget.daily_minor, budget.currency)} a day for ${budget.run_days} days`
+    : "spends its daily budget";
+  if (change === "run_ad") {
+    const creates = Array.isArray(d.creates)
+      ? d.creates.filter((c): c is string => typeof c === "string")
+      : [];
+    return [
+      {
+        line: `Ad “${adName(d)}”`,
+        sub: creates.length > 0 ? `creates its ${creates.join(", ")}` : null,
+        before: "no ad",
+        after: "on Meta, paused · spends nothing",
+      },
+    ];
+  }
+  return [
+    {
+      line: `Ad “${adName(d)}”`,
+      sub: "its ad, ad set and campaign",
+      before: "paused · spends nothing",
+      after: `live · ${spend}`,
+    },
+  ];
+}
+
+export interface AdFact {
+  label: string;
+  value: string;
+}
+
+/**
+ * P3-54: what an ad proposal's card states beside its change — budget,
+ * duration, audience, placements, what it optimises for, any special ad
+ * category — and the one sentence about what can't be undone. Null for
+ * anything that isn't an ad being created or put live.
+ */
+export function adFacts(action: ActionLike): { facts: AdFact[]; note: string | null } | null {
+  const d = asDetail(action.detail);
+  if (!d) return null;
+  const change = str(d.change);
+  if (change !== "run_ad" && change !== "go_live") return null;
+  const facts: AdFact[] = [];
+  const budget = adBudget(d);
+  if (budget) {
+    facts.push({
+      label: "Budget",
+      value: `${moneyText(budget.daily_minor, budget.currency)} a day · at most ${moneyText(budget.total_minor, budget.currency)} in all`,
+    });
+    facts.push({
+      label: "Duration",
+      value: `${budget.run_days} days from the day it goes live, then it stops by itself`,
+    });
+  }
+  const audience = asDetail(d.audience);
+  if (audience) {
+    const where = str(audience.location);
+    const age = str(audience.age);
+    if (where || age)
+      facts.push({
+        label: "Audience",
+        value: [where, age && `aged ${age}`].filter(Boolean).join(" · "),
+      });
+    const interests = str(audience.interests);
+    if (interests) facts.push({ label: "Interests", value: interests });
+    const placements = str(audience.placements);
+    if (placements) facts.push({ label: "Placements", value: placements });
+  }
+  const goal = str(d.goal);
+  if (goal) facts.push({ label: "Optimised for", value: goal });
+  const special = Array.isArray(d.special_ad_categories)
+    ? d.special_ad_categories.filter((c): c is string => typeof c === "string")
+    : [];
+  if (special.length > 0) {
+    facts.push({
+      label: "Special category",
+      value: `${special.join(", ")} — Meta's restricted targeting applies`,
+    });
+  }
+  const notes = Array.isArray(d.notes)
+    ? d.notes.filter((n): n is string => typeof n === "string")
+    : [];
+  for (const n of notes) facts.push({ label: "Note", value: n });
+  return {
+    facts,
+    note:
+      change === "run_ad"
+        ? (str(d.paused_note) ?? CREATES_PAUSED_NOTE)
+        : "Switches on the ad, its ad set, then the campaign. Pausing it again stops the spend.",
+  };
+}
+
+/** The effect's span: "a month", or an ad's own run ("over 7 days"). */
+export function effectSpan(action: ActionLike): string {
+  const d = asDetail(action.detail);
+  const budget = d ? adBudget(d) : null;
+  return budget ? `over ${budget.run_days} days` : "a month";
+}
+
 /**
  * The "what changes — before → after" lines, read from what the
  * proposal's own detail states. Null when it states no before and after:
@@ -318,6 +458,9 @@ export function changeLines(action: ActionLike, timeZone?: string): ChangeLine[]
 
   const stated = changeOf(d);
   if (stated) return [{ line: "The change", sub: null, ...stated }];
+
+  const ad = adLines(d);
+  if (ad) return ad;
 
   const change = str(d.change);
   const name = str(d.campaign_name);
@@ -396,6 +539,9 @@ export function consequence(action: ActionLike): string {
   const d = asDetail(action.detail);
   if (!d) return "Approve";
   const change = str(d.change);
+  // P3-54: what approving an ad asks for — creating it paused, or putting it live.
+  if (change === "run_ad") return "Create the ad, paused";
+  if (change === "go_live") return "Put the ad live";
   const name = str(d.campaign_name);
   if (change === "pause" && name) return `Pause “${name}”`;
   if (change === "raise_budget" && name && typeof d.share === "number") {

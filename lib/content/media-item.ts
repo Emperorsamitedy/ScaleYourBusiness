@@ -196,6 +196,10 @@ export async function placeMedia(args: PlaceArgs): Promise<Placed> {
           ...(tp.item ? { item: tp.item } : {}),
           ...(Array.isArray(tp.evidence) ? { evidence: tp.evidence } : {}),
           ...(tp.voice_card ? { voice_card: tp.voice_card } : {}),
+          // Session K: a cut of a brief's shot list stays tied to that brief's hook.
+          ...(typeof tp.brief_id === "string"
+            ? { brief_id: tp.brief_id, hook_index: tp.hook_index ?? null }
+            : {}),
           made_from: target.id,
           ai_generated: media.is_ai_generated,
           media,

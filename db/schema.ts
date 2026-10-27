@@ -2785,3 +2785,70 @@ export const weeklySummaries = pgTable(
   },
   (t) => [uniqueIndex("weekly_summaries_account_week_idx").on(t.account_id, t.iso_week)],
 );
+
+/* ---------- Phase 3 Session K — ad creation on Meta (P3-54) ---------- */
+
+/**
+ * The journal of one "Run this ad" build: an approved proposal that
+ * creates, all PAUSED and one after another, a campaign, an ad set, (for a
+ * video) an uploaded ad video, a creative and the ad. Every step's
+ * `sent_at` is written just BEFORE the call that creates it and its Meta
+ * id as soon as Meta answers, so a run that stops, is halted or loses an
+ * answer resumes from here and never creates anything twice — an answer
+ * that never came is read back by the build's tag, the P3-21d honesty.
+ * Nothing Meta created can be deleted (DELETED and ARCHIVED are
+ * permanent), so the ids are kept for ever. One row per execution.
+ */
+export const adBuilds = pgTable(
+  "ad_builds",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id").notNull(),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    execution_id: uuid("execution_id")
+      .notNull()
+      .references(() => executions.id, { onDelete: "cascade" }),
+    item_id: uuid("item_id").references(() => contentItems.id, { onDelete: "set null" }),
+    /** building → built; or uncertain (a create Meta never confirmed), or failed. */
+    status: text("status").notNull().default("building"),
+    /** In every object's name ("… · SYB-1a2b3c4d"): what a read-back finds a lost create by. */
+    build_tag: text("build_tag").notNull(),
+    campaign_id: text("campaign_id"),
+    adset_id: text("adset_id"),
+    video_id: text("video_id"),
+    creative_id: text("creative_id"),
+    ad_id: text("ad_id"),
+    /** Per step: {sent_at, id} — written before and after each create. */
+    steps: jsonb("steps").notNull().default({}),
+    /** The owner's sentence when it stopped short. */
+    last_error: text("last_error"),
+    /** The separate "go live" proposal made once the build is complete. */
+    go_live_proposal_id: uuid("go_live_proposal_id").references(() => proposals.id, {
+      onDelete: "set null",
+    }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("ad_builds_execution_idx").on(t.execution_id),
+    index("ad_builds_profile_idx").on(t.profile_id, t.created_at),
+    index("ad_builds_item_idx").on(t.item_id),
+    check(
+      "ad_builds_status_known",
+      sql`${t.status} IN ('building', 'built', 'uncertain', 'failed')`,
+    ),
+    check(
+      "ad_builds_built_is_whole",
+      sql`${t.status} <> 'built' OR (${t.campaign_id} IS NOT NULL AND ${t.adset_id} IS NOT NULL AND ${t.creative_id} IS NOT NULL AND ${t.ad_id} IS NOT NULL)`,
+    ),
+  ],
+);

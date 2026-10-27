@@ -5,6 +5,12 @@
 //   POST /api/content {action:"produce"} an approved proposal → drafted, disclosed items
 //   POST /api/content {action:"withdraw", item_id}  P3-21e: a published post's stored
 //                                        undo, through the engine (deletes it on Meta)
+//   POST /api/content {action:"run_ad", item_id, audience?, daily_budget_minor?, run_days?}
+//                                        P3-54: "Run this as an ad" → ONE proposal that,
+//                                        approved, creates the ad on Meta, paused
+//   POST /api/content {action:"go_live", build_id}  P3-54: the separate go-live
+//                                        proposal for a created ad (made automatically
+//                                        when the build completes; this is the fallback)
 //
 // Proposing needs only the profile; PRODUCING spends model tokens on
 // drafts, so it demands the same signed-in user who could have
@@ -38,6 +44,8 @@ import { withdrawItem } from "../../../lib/content/publishing";
 import { proposeShotList } from "../../../lib/content/shotlist";
 import { contentWatchUntil } from "../../../lib/content/watch";
 import { ProposalError } from "../../../lib/proposals/service";
+import { adItemStates, proposeAdRun, proposeGoLive } from "../../../lib/ads/adcreate";
+import type { AdAudienceInput } from "../../../lib/ads/targeting";
 import { postOutcomes } from "../../../lib/trust/post-readback";
 
 async function resolveProfile(): Promise<string | null> {
@@ -109,6 +117,8 @@ export async function GET(): Promise<NextResponse> {
       watching_until: await contentWatchUntil(profileId),
       // P3-23b: each published item's own measured figures and verdict.
       performance: await postOutcomes(profileId),
+      // P3-54: per item, whether it can run as an ad and where its ad stands.
+      ads: await adItemStates(profileId, items),
       // A publish proposal publishes one finished item; it never produces.
       producible: producible
         .filter((p) => !isPublishProposal(p.action) && !isGenerationProposal(p.action))
@@ -130,6 +140,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       action?: unknown;
       proposal_id?: unknown;
       item_id?: unknown;
+      build_id?: unknown;
+      audience?: unknown;
+      daily_budget_minor?: unknown;
+      run_days?: unknown;
     };
 
     if (body.action === "plan") {
@@ -175,11 +189,68 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
       return NextResponse.json({ withdrawn: execution.status === "undone" });
     }
+    if (body.action === "run_ad") {
+      // P3-54: a proposal only — nothing is sent until it is approved and the runner builds it.
+      if (typeof body.item_id !== "string") {
+        return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+      }
+      const out = await proposeAdRun(profileId, {
+        item_id: body.item_id,
+        ...(audienceOf(body.audience) ? { audience: audienceOf(body.audience) } : {}),
+        ...(Number.isSafeInteger(body.daily_budget_minor)
+          ? { daily_budget_minor: body.daily_budget_minor as number }
+          : {}),
+        ...(Number.isInteger(body.run_days) ? { run_days: body.run_days as number } : {}),
+      });
+      if ("skipped" in out) return NextResponse.json({ error: out.skipped }, { status: 409 });
+      return NextResponse.json({ proposal_id: out.created.id, status: out.created.status });
+    }
+    if (body.action === "go_live") {
+      if (typeof body.build_id !== "string") {
+        return NextResponse.json({ error: "build_id is required" }, { status: 422 });
+      }
+      const out = await proposeGoLive(profileId, body.build_id);
+      if ("skipped" in out) return NextResponse.json({ error: out.skipped }, { status: 409 });
+      return NextResponse.json({ proposal_id: out.created.id, status: out.created.status });
+    }
     return NextResponse.json(
-      { error: 'action must be "plan", "shotlist", "produce" or "withdraw"' },
+      {
+        error: 'action must be "plan", "shotlist", "produce", "withdraw", "run_ad" or "go_live"',
+      },
       { status: 422 },
     );
   } catch (error) {
     return onError(error);
   }
+}
+
+/** P3-54: an audience from the client, kept to the shape the builder takes; anything else is dropped. */
+function audienceOf(raw: unknown): AdAudienceInput | null {
+  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const a = raw as Record<string, unknown>;
+  const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : undefined);
+  const text = (v: unknown) =>
+    typeof v === "string" && v.trim() !== "" ? v.trim().slice(0, 200) : undefined;
+  const loc = (a.location ?? null) as Record<string, unknown> | null;
+  const location =
+    loc && typeof loc === "object"
+      ? Object.fromEntries(
+          Object.entries({
+            country: text(loc.country),
+            latitude: num(loc.latitude),
+            longitude: num(loc.longitude),
+            radius_km: num(loc.radius_km),
+            label: text(loc.label),
+          }).filter(([, v]) => v !== undefined),
+        )
+      : undefined;
+  const out: AdAudienceInput = Object.fromEntries(
+    Object.entries({
+      location,
+      age_min: num(a.age_min),
+      age_max: num(a.age_max),
+      interests: text(a.interests),
+    }).filter(([, v]) => v !== undefined),
+  );
+  return Object.keys(out).length > 0 ? out : null;
 }

@@ -553,6 +553,12 @@
   color: var(--sheet-ink-2);
 }
 
+/* P3-54 · an ad's budget, duration and audience, under its change */
+.q-adfacts {
+  margin-top: 14px;
+  border-top: var(--line);
+}
+
 /* 3 · the evidence */
 .q-evidence {
   list-style: none;

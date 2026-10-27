@@ -62,6 +62,7 @@ import {
 import type { ProposalRow } from "../proposals/service";
 import { createProposal, recordExecution } from "../proposals/service";
 import { suppressedKinds } from "../trust/suppression";
+import { briefForItem, briefInputOf } from "./brief-links";
 import { relabel } from "./disclosure";
 import { fakeMediaProvider } from "./generate/fake";
 import { readJpegLabels, readVideoComment, stampJpeg, stampVideo } from "./generate/label";
@@ -91,7 +92,7 @@ export const GENERATION_EXPIRY_DAYS = 7;
 export const PROMPT_MAX = 1200;
 export const DIRECTION_MAX = 300;
 
-/** What a creative brief can add (Session K, P3-51 — wired at merge, never imported here). */
+/** What a creative brief adds (Session K, P3-51): read off the item through brief-links. */
 export interface BriefInput {
   hook?: string;
   script?: string;
@@ -336,6 +337,8 @@ export async function proposeGeneration(args: {
   const provider = setup.provider;
 
   const item = await ownedItem(args.profileId, args.itemId);
+  // Session K: an item made from a creative brief brings its hook and script.
+  const brief = args.brief ?? briefInputOf(await briefForItem(args.profileId, item.provenance));
   const refusal = await generationRefusal(item);
   if (refusal)
     throw new ContentError(`SYB won't propose generating media for this: ${refusal}`, 409);
@@ -364,7 +367,7 @@ export async function proposeGeneration(args: {
   const prompt = buildPrompt({
     item,
     media,
-    ...(args.brief ? { brief: args.brief } : {}),
+    ...(brief ? { brief } : {}),
     ...(direction ? { direction } : {}),
   });
   const verdict = screenPrompt(prompt, await competitorNames(args.profileId));
@@ -413,7 +416,7 @@ export async function proposeGeneration(args: {
           max_attempts: MAX_GENERATION_ATTEMPTS,
         },
         label,
-        ...(args.brief ? { brief: args.brief } : {}),
+        ...(brief ? { brief } : {}),
         ...(direction ? { direction } : {}),
         manual_limits: limit.manual.map((l) => l.quote),
         rationale:

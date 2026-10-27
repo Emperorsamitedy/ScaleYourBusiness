@@ -38,7 +38,11 @@ import {
 import type { MetaResponse } from "../../connectors/providers/meta-ads";
 import { metaError, metaJson } from "../../connectors/providers/meta-fake";
 import { decryptSecret } from "../../connectors/secrets";
-import { EXECUTION_SCOPE_REGISTRY, touchesMoneySurface } from "../scopes";
+import {
+  EXECUTION_SCOPE_REGISTRY,
+  VENDOR_MISNAMED_AD_FIELDS,
+  touchesMoneySurface,
+} from "../scopes";
 import { bootstrapIntake } from "../../intake/service";
 import {
   ExecutionConnectionError,
@@ -336,6 +340,23 @@ describe("rules 13 and 18 — what the connector can send", () => {
       // P3-23a, added deliberately: the per-post readback, GET only.
       page_post_insights: { method: "GET", path: "/{post_id}/insights" },
       ig_media_insights: { method: "GET", path: "/{ig_media_id}/insights" },
+      // P3-54, added deliberately: ad creation on the ad account's own edges, all PAUSED…
+      advideo_upload: { method: "POST", path: "/act_{ad_account_id}/advideos" },
+      adset_create: { method: "POST", path: "/act_{ad_account_id}/adsets" },
+      adcreative_create: { method: "POST", path: "/act_{ad_account_id}/adcreatives" },
+      ad_create: { method: "POST", path: "/act_{ad_account_id}/ads" },
+      // …an ad set and an ad read and set by id (going live, and its undo)…
+      adset: { method: "GET", path: "/{adset_id}" },
+      adset_update: { method: "POST", path: "/{adset_id}" },
+      ad: { method: "GET", path: "/{ad_id}" },
+      ad_update: { method: "POST", path: "/{ad_id}" },
+      advideo_status: { method: "GET", path: "/{video_id}" },
+      // …and the read-backs that find a create whose answer was lost.
+      account_campaigns: { method: "GET", path: "/act_{ad_account_id}/campaigns" },
+      account_adsets: { method: "GET", path: "/act_{ad_account_id}/adsets" },
+      account_adcreatives: { method: "GET", path: "/act_{ad_account_id}/adcreatives" },
+      account_ads: { method: "GET", path: "/act_{ad_account_id}/ads" },
+      account_advideos: { method: "GET", path: "/act_{ad_account_id}/advideos" },
     });
     // Every non-GET, named: the token exchange, the publish POSTs, the two undo DELETEs.
     const nonGet = Object.entries(META_EXEC_REQUESTS)
@@ -353,6 +374,12 @@ describe("rules 13 and 18 — what the connector can send", () => {
       "DELETE ig_media_delete",
       "POST campaign_update",
       "POST campaign_create",
+      "POST advideo_upload",
+      "POST adset_create",
+      "POST adcreative_create",
+      "POST ad_create",
+      "POST adset_update",
+      "POST ad_update",
     ]);
 
     const source = readFileSync(fileURLToPath(new URL("./meta.ts", import.meta.url)), "utf8");
@@ -373,6 +400,12 @@ describe("rules 13 and 18 — what the connector can send", () => {
       'ig_publish: { method: "POST", path: "/{ig_user_id}/media_publish" },',
       'campaign_update: { method: "POST", path: "/{campaign_id}" },',
       'campaign_create: { method: "POST", path: "/act_{ad_account_id}/campaigns" },',
+      'advideo_upload: { method: "POST", path: "/act_{ad_account_id}/advideos" },',
+      'adset_create: { method: "POST", path: "/act_{ad_account_id}/adsets" },',
+      'adcreative_create: { method: "POST", path: "/act_{ad_account_id}/adcreatives" },',
+      'ad_create: { method: "POST", path: "/act_{ad_account_id}/ads" },',
+      'adset_update: { method: "POST", path: "/{adset_id}" },',
+      'ad_update: { method: "POST", path: "/{ad_id}" },',
       'method: "GET" | "POST" | "DELETE";',
       'const asBody = "bearer" in auth && method === "POST";',
     ]);
@@ -637,7 +670,14 @@ describe("P3-22b — what an ad write may carry", () => {
         .map((r) => r.path)
         .filter(money),
     ).toEqual([]);
-    expect(Object.values(AD_WRITE_FIELDS).flat().filter(money)).toEqual([]);
+    // P3-54: billing_event is Meta's required ad-set field, pinned as a vendor
+    // misnaming (VENDOR_MISNAMED_AD_FIELDS) and sendable only as IMPRESSIONS.
+    expect(
+      Object.values(AD_WRITE_FIELDS)
+        .flat()
+        .filter((f) => money(f) && !Object.hasOwn(VENDOR_MISNAMED_AD_FIELDS, f)),
+    ).toEqual([]);
+    expect(Object.values(AD_WRITE_FIELDS).flat().filter(money)).toEqual(["billing_event"]);
     // And the check bites: planted money surfaces are caught.
     for (const planted of [
       "/act_{ad_account_id}/adspaymentcycle",
