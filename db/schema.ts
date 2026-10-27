@@ -2852,3 +2852,158 @@ export const adBuilds = pgTable(
     ),
   ],
 );
+
+/* ---------- Phase 5 Session D — the sales pipeline (P5-14..17) ---------- */
+
+// Rule 29: pipeline contacts are contacts. A deal belongs to a Phase 4
+// contact (the person, or a company's one point of contact), and goes WITH
+// that contact: erasing them cascades through deals, their history and any
+// drafted follow-up, so nothing personal outlives an erasure (rule 22). The
+// decision log never holds a deal's words — only ids and hashes, as
+// everywhere — so the cascade leaves it untouched and verifiable.
+//
+// Stages are the bank's own vocabulary (deal_stage, bank 1.8.0); the enum
+// mirrors it and a test holds the two equal. Values are integer minor units
+// plus an explicit currency, together or not at all (rule 1), and say
+// whether they were quoted or estimated (rule 2). A change to a deal is
+// recorded beside it in deal_events, the old value with the new, so the
+// row moving on never loses what it was (rule 3's spirit).
+
+export const dealStage = pgEnum("deal_stage", [
+  "lead",
+  "qualified",
+  "proposal_sent",
+  "won",
+  "lost",
+]);
+
+export const deals = pgTable(
+  "deals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The contact the deal is with. Erasing them erases the deal (rule 29). */
+    contact_id: uuid("contact_id")
+      .notNull()
+      .references(() => contacts.id, { onDelete: "cascade" }),
+    /** The organisation, as the owner wrote it. Null for a deal with a person. */
+    company: text("company"),
+    /** What the deal is, in the owner's words. */
+    title: text("title").notNull(),
+    stage: dealStage("stage").notNull().default("lead"),
+    /** When the deal entered its current stage — stage ageing counts from here. */
+    stage_entered_at: timestamp("stage_entered_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** Integer minor units + currency + basis, all or none (rules 1 and 2). */
+    value_minor: bigint("value_minor", { mode: "number" }),
+    value_currency: text("value_currency"),
+    /** "quoted": a price put to them; "estimated": the owner's guess. */
+    value_basis: text("value_basis"),
+    expected_close: date("expected_close", { mode: "string" }),
+    next_step: text("next_step"),
+    next_step_due: date("next_step_due", { mode: "string" }),
+    /** When the owner last spoke to them about it, as the owner said. Null = not stated. */
+    last_contact_at: timestamp("last_contact_at", { withTimezone: true, mode: "string" }),
+    /** Where the deal came from: the owner on /pipeline, or an attested import. */
+    source: text("source").notNull(),
+    /** "added on /pipeline", or "import batch <id>: <the owner's attestation>". */
+    source_note: text("source_note").notNull(),
+    /** Set when the deal is won or lost, cleared if it is reopened. */
+    closed_at: timestamp("closed_at", { withTimezone: true, mode: "string" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("deals_profile_stage_idx").on(t.profile_id, t.stage),
+    index("deals_contact_idx").on(t.contact_id),
+    check(
+      "deals_value_whole",
+      sql`(${t.value_minor} IS NULL) = (${t.value_currency} IS NULL) AND (${t.value_minor} IS NULL) = (${t.value_basis} IS NULL)`,
+    ),
+    check("deals_value_not_negative", sql`${t.value_minor} IS NULL OR ${t.value_minor} >= 0`),
+    check(
+      "deals_value_basis_known",
+      sql`${t.value_basis} IS NULL OR ${t.value_basis} IN ('quoted', 'estimated')`,
+    ),
+    check("deals_source_known", sql`${t.source} IN ('owner_input', 'import')`),
+    check("deals_title_present", sql`length(trim(${t.title})) > 0`),
+    check(
+      "deals_closed_iff_won_or_lost",
+      sql`(${t.closed_at} IS NOT NULL) = (${t.stage} IN ('won', 'lost'))`,
+    ),
+    check(
+      "deals_due_has_step",
+      sql`${t.next_step_due} IS NULL OR (${t.next_step} IS NOT NULL AND length(trim(${t.next_step})) > 0)`,
+    ),
+  ],
+);
+
+/** One row per change to a deal: what it was and what it became. Goes with the deal. */
+export const dealEvents = pgTable(
+  "deal_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    deal_id: uuid("deal_id")
+      .notNull()
+      .references(() => deals.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id").notNull(),
+    /** created | stage | value | next_step | expected_close | contacted */
+    kind: text("kind").notNull(),
+    before: jsonb("before"),
+    after: jsonb("after"),
+    /** owner_input | import */
+    source: text("source").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("deal_events_deal_idx").on(t.deal_id, t.at),
+    check(
+      "deal_events_kind_known",
+      sql`${t.kind} IN ('created', 'stage', 'value', 'next_step', 'expected_close', 'contacted')`,
+    ),
+  ],
+);
+
+/**
+ * P5-16: a follow-up email drafted for an approved follow-up proposal —
+ * one per proposal. It is never sent by SYB: the owner copies it into
+ * their own mail. The body holds a {{name}} slot, never the name, and goes
+ * with the deal on erasure.
+ */
+export const dealFollowups = pgTable(
+  "deal_followups",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id").notNull(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    deal_id: uuid("deal_id")
+      .notNull()
+      .references(() => deals.id, { onDelete: "cascade" }),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    body: text("body").notNull(),
+    disclosure: text("disclosure").notNull(),
+    /** The model, the voice card and the brief exactly as sent — the brief names no one. */
+    provenance: jsonb("provenance").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("deal_followups_proposal_idx").on(t.proposal_id),
+    index("deal_followups_account_idx").on(t.account_id, t.created_at),
+  ],
+);
