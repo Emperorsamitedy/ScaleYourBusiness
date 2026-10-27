@@ -58,6 +58,11 @@ function daysBetween(from: string, to: string): number {
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
+/** "Midland Clay Supplies' " / "Nore Valley's ". */
+export function possessive(name: string): string {
+  return name.endsWith("s") ? `${name}'` : `${name}'s`;
+}
+
 /** "14.9" — a rate a day, one decimal. */
 export function perDayText(x: number): string {
   return (Math.round(x * 10) / 10).toFixed(1);
@@ -318,9 +323,12 @@ export function seasonBoost(result: SeasonResult | null, today: string): SeasonB
     .map((x) => Math.max(1, x))
     .sort((a, b) => a - b) as [number, number, number];
   const multiple = { low: ends[0], mid: ends[1], high: ends[2] };
-  const when = next.in_progress
-    ? `is under way now, to ${shortDay(next.ends_on)}`
-    : `starts ${from === 0 ? "today" : `in ${plural(from, "day")}`}, on ${shortDay(next.starts_on)}`;
+  const when =
+    next.in_progress || next.starts_on < today
+      ? `is under way now, to ${shortDay(next.ends_on)}`
+      : from === 0
+        ? `starts today, to ${shortDay(next.ends_on)}`
+        : `starts in ${plural(from, "day")}, on ${shortDay(next.starts_on)}`;
   const against_text =
     recent === null
       ? "I have no complete recent week to set it against, so I count it against your normal week"
@@ -498,14 +506,14 @@ export function reorderFor(
   const moq = lead.moq;
   const rounded = moq !== null && before < moq;
   const quantity = rounded ? moq : before;
-  const who = lead.supplier?.name ?? "the supplier";
+  const whose = lead.supplier ? possessive(lead.supplier.name) : "the supplier's";
   const seasonal = boost !== null && demand.mid > rate.per_day * lead.days + 1e-9;
   const moqText =
     moq === null
       ? "; no minimum order on file"
       : rounded
-        ? `; ${who}'s minimum order is ${moq}, so ${moq}`
-        : `; over ${who}'s minimum order of ${moq}`;
+        ? `; ${whose} minimum order is ${moq}, so ${moq}`
+        : `; over ${whose} minimum order of ${moq}`;
   const arithmetic =
     `${perDayText(rate.per_day)} a day (up to ${perDayText(rate.high)}) over ${plural(lead.days, "day")}` +
     `${seasonal ? `, with the busy stretch at ${times(m.mid)}` : ""} = ${mid}, ` +
@@ -534,7 +542,7 @@ export function reorderFor(
 
 /* ── P5-02: cover and the warning, per item ── */
 
-export type CoverLevel = "out" | "before_restock" | "tight";
+export type CoverLevel = "before_restock" | "tight";
 
 export interface StockWarning {
   level: CoverLevel;
@@ -545,6 +553,12 @@ export interface StockWarning {
 
 export interface CoverAssessment {
   status: "ready" | "too_little" | "no_sales";
+  /**
+   * None on hand. Shown as SOLD OUT, never warned or reordered: the shop
+   * already shows it, a planned sell-out (a monthly drop) looks the same,
+   * and SYB can't see whether more is already on order.
+   */
+  sold_out: boolean;
   sell_through: SellThrough;
   rate: RateRange | null;
   /** Days from today until it runs out: the fast end, the middle, the slow end (null: no upper bound). */
@@ -564,11 +578,24 @@ export interface CoverAssessment {
   why: string | null;
 }
 
-function coverRangeText(c: { low: number; high: number | null }): string {
+/**
+ * Pure: the cover range in whole days, never collapsed to one point (rule
+ * 25): rounded, and widened to the floor and ceiling when rounding would
+ * make the two ends meet.
+ */
+export function wholeDays(c: { low: number; high: number }): [number, number] {
   const lo = Math.round(c.low);
-  if (c.high === null) return `about ${plural(lo, "day")} or more`;
   const hi = Math.round(c.high);
-  return lo === hi ? `about ${plural(lo, "day")}` : `about ${lo}–${hi} days`;
+  if (lo !== hi) return [lo, hi];
+  const f = Math.floor(c.low);
+  const ce = Math.ceil(c.high);
+  return f === ce ? [f, f + 1] : [f, ce];
+}
+
+function coverRangeText(c: { low: number; high: number | null }): string {
+  if (c.high === null) return `about ${plural(Math.round(c.low), "day")} or more`;
+  const [lo, hi] = wholeDays({ low: c.low, high: c.high });
+  return `about ${lo}–${hi} days`;
 }
 
 /** "Midland Clay Supplies takes 10 days" / "a delivery takes 14 days (ASSUMED)". */
@@ -592,6 +619,7 @@ export function assessCover(
   const st = sellThrough(item, today);
   const r = recentRate(item, today);
   const base = {
+    sold_out: item.on_hand <= 0,
     sell_through: st,
     lead,
     boost,
@@ -655,18 +683,18 @@ export function assessCover(
   const sources = `${window}; ${item.on_hand} on hand, read on ${item.as_of}; ${leadLine}${boosted ? `; the season from your ${boost!.read_from}` : ""}`;
 
   let warning: StockWarning | null = null;
-  if (item.on_hand <= 0) {
-    warning = {
-      level: "out",
-      flag: "ACT NOW",
-      sentence: `${item.name} is sold out: it sold ${rate.units} in the last ${plural(rate.over_days, "day")}, and ${leadPhrase(lead)}.`,
-    };
-  } else if (low < lead.days) {
+  if (item.on_hand > 0 && low < lead.days) {
     const before = high !== null && high < lead.days;
     warning = {
       level: before ? "before_restock" : "tight",
       flag: before ? "ACT NOW" : "RUNNING LOW",
-      sentence: `${item.name} runs out in ${coverRangeText(cover)}; ${leadPhrase(lead)}.${boosted ? ` That counts your busy stretch from ${shortDay(boost!.starts_on)}.` : ""}`,
+      sentence: `${item.name} runs out in ${coverRangeText(cover)}; ${leadPhrase(lead)}.${
+        boosted
+          ? boost!.from_day === 0
+            ? ` That counts the busy stretch you're in, to ${shortDay(boost!.ends_on)}.`
+            : ` That counts your busy stretch from ${shortDay(boost!.starts_on)}.`
+          : ""
+      }`,
     };
   }
   return {
@@ -684,22 +712,23 @@ export function assessCover(
   };
 }
 
-/** Pure: the cover column's text ("9–10", "365+", "—"). */
+/** Pure: the cover column's text ("9–10", "365+", "sold out", "—"). */
 export function coverColumn(c: CoverAssessment): string {
+  if (c.sold_out) return "sold out";
   if (c.cover === null) return c.status === "no_sales" ? "no sales" : "—";
   const lo = Math.round(c.cover.low);
   if (lo >= COVER.max_cover_days) return `${COVER.max_cover_days}+`;
   if (c.cover.high === null) return `${lo}+`;
-  const hi = Math.round(c.cover.high);
-  if (hi >= COVER.max_cover_days) return `${lo}–${COVER.max_cover_days}+`;
-  return lo === hi ? `${lo}` : `${lo}–${hi}`;
+  if (Math.round(c.cover.high) >= COVER.max_cover_days) return `${lo}–${COVER.max_cover_days}+`;
+  const [a, b] = wholeDays({ low: c.cover.low, high: c.cover.high });
+  return `${a}–${b}`;
 }
 
-/** Pure: warned items first — the soonest out first — then the rest by name. */
+/** Pure: the warned items, ACT NOW first, then the soonest out. */
 export function rankWarnings<T extends { name: string; cover: CoverAssessment }>(
   rows: readonly T[],
 ): T[] {
-  const order: Record<CoverLevel, number> = { out: 0, before_restock: 1, tight: 2 };
+  const order: Record<CoverLevel, number> = { before_restock: 0, tight: 1 };
   return rows
     .filter((r) => r.cover.warning !== null)
     .sort(

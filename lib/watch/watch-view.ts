@@ -167,6 +167,9 @@ export function statusTally(signals: readonly Pick<WatchSignal, "status">[]): st
     .join(" · ");
 }
 
+/** P5-02: the watch-log kind of a stock-out warning (lib/stock/warnings writes it). */
+export const STOCK_WARNING_KIND = "stock_warning";
+
 /** Watch-log kinds that are something noticed, rather than routine work. */
 export const NOTED_KINDS: ReadonlySet<string> = new Set([
   "anomaly_detected",
@@ -175,6 +178,7 @@ export const NOTED_KINDS: ReadonlySet<string> = new Set([
   "hours_findings",
   "goal_alert",
   "competitor_change", // feature 35: a competitor's price, offer or rating moved
+  STOCK_WARNING_KIND, // P5-02: an item's cover falls below its supplier's delivery time
 ]);
 
 /** The watch day a log entry fell on; null when it predates the watch. */

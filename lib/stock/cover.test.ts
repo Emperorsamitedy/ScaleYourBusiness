@@ -25,6 +25,7 @@ import {
   reorderFor,
   seasonBoost,
   sellThrough,
+  wholeDays,
 } from "./cover";
 
 const TODAY = "2026-10-27";
@@ -265,7 +266,7 @@ describe("P5-02 the rate and days of cover, as ranges", () => {
     expect(c.warning?.flag).toBe("ACT NOW");
   });
 
-  it("a sold-out item that sold recently is ACT NOW; one that didn't is not warned", () => {
+  it("a sold-out item is SOLD OUT in the column, never a warning or a reorder", () => {
     const out = assessCover(
       item(0, () => 1),
       TODAY,
@@ -273,16 +274,20 @@ describe("P5-02 the rate and days of cover, as ranges", () => {
       null,
       "Shopify",
     );
-    expect(out.warning?.level).toBe("out");
-    expect(out.warning?.sentence).toContain("is sold out: it sold 28 in the last 28 days");
-    const quiet = assessCover(
-      item(0, (i) => (i > 60 ? 1 : 0)),
+    expect(out.sold_out).toBe(true);
+    expect(coverColumn(out)).toBe("sold out");
+    expect(out.warning).toBeNull();
+    expect(out.reorder).toBeNull();
+    // One left is not sold out: it warns.
+    const last = assessCover(
+      item(1, () => 1),
       TODAY,
       stated(7),
       null,
       "Shopify",
     );
-    expect(quiet.warning).toBeNull();
+    expect(last.sold_out).toBe(false);
+    expect(last.warning?.flag).toBe("ACT NOW");
   });
 
   it("states its window, its sources and what is assumed", () => {
@@ -536,7 +541,7 @@ describe("P5-04 the busy season raises cover targets", () => {
 });
 
 describe("warnings, ranked", () => {
-  it("sold out first, then the soonest out", () => {
+  it("ACT NOW first, then the soonest out; sold out and clear items are not warnings", () => {
     const lead = stated(7);
     const rows = [
       {
@@ -580,6 +585,14 @@ describe("warnings, ranked", () => {
         ),
       },
     ];
-    expect(rankWarnings(rows).map((r) => r.name)).toEqual(["Seconds", "Mug", "Plate"]);
+    expect(rankWarnings(rows).map((r) => r.name)).toEqual(["Mug", "Plate"]);
+  });
+});
+
+describe("rule 25: a range, never a point", () => {
+  it("widens to floor and ceiling when rounding would meet", () => {
+    expect(wholeDays({ low: 6.7, high: 9.9 })).toEqual([7, 10]);
+    expect(wholeDays({ low: 3.6, high: 4.47 })).toEqual([3, 5]);
+    expect(wholeDays({ low: 4, high: 4 })).toEqual([4, 5]);
   });
 });
