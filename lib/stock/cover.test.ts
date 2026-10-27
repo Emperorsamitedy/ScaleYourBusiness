@@ -596,3 +596,35 @@ describe("rule 25: a range, never a point", () => {
     expect(wholeDays({ low: 4, high: 4 })).toEqual([4, 5]);
   });
 });
+
+describe("P5-04 from the season forecast itself", () => {
+  it("a year with a 1.7× November raises the rate from the stretch's first day", () => {
+    // Revenue a day: 1000, and 1700 for the four weeks from Monday 3 Nov 2025.
+    const s = new Map<string, number>();
+    for (let d = "2025-09-01"; d < TODAY; d = addDays(d, 1)) {
+      s.set(d, d >= "2025-11-03" && d <= "2025-11-30" ? 1700 : 1000);
+    }
+    const result = seasonForecast(
+      s,
+      { noun: "revenue", source: "Shopify", currency: "EUR" },
+      TODAY,
+    );
+    expect(result.status).toBe("ready");
+    const b = seasonBoost(result, TODAY)!;
+    expect(b).not.toBeNull();
+    expect(b.starts_on).toBe("2026-11-02");
+    expect(b.from_day).toBe(6);
+    expect(b.multiple.mid).toBeCloseTo(1.7, 1);
+    expect(b.sentence).toContain("starts in 6 days");
+    // 20 on hand at 1 a day: 20 days plain; with the stretch from day 6, about 14.
+    const c = assessCover(
+      item(20, () => 1),
+      TODAY,
+      stated(7),
+      b,
+      "Shopify",
+    );
+    expect(c.boosted).toBe(true);
+    expect(c.cover!.mid).toBeCloseTo(6 + 14 / 1.7, 0);
+  });
+});
