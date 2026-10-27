@@ -8,6 +8,7 @@ import {
   multiply,
   subtract,
   sum,
+  toDecimalString,
   totalsByCurrency,
 } from "./money";
 
@@ -127,5 +128,34 @@ describe("format", () => {
 
   it("formats a zero-decimal currency without dividing", () => {
     expect(format(money(5000, "JPY"), "en")).toBe("¥5,000");
+  });
+});
+
+describe("toDecimalString — idea 49's export, exact digits and no float", () => {
+  it("places the decimal mark by the currency's exponent", () => {
+    expect(toDecimalString(money(499_000, "HUF"))).toBe("4990.00");
+    expect(toDecimalString(money(123_456, "EUR"))).toBe("1234.56");
+    expect(toDecimalString(money(1_200, "JPY"))).toBe("1200");
+    expect(toDecimalString(money(1_234_567, "KWD"))).toBe("1234.567");
+  });
+
+  it("pads small amounts and keeps the sign", () => {
+    expect(toDecimalString(money(5, "EUR"))).toBe("0.05");
+    expect(toDecimalString(money(-5, "EUR"))).toBe("-0.05");
+    expect(toDecimalString(money(0, "EUR"))).toBe("0.00");
+    expect(toDecimalString(money(-120_050, "HUF"))).toBe("-1200.50");
+  });
+
+  it("prints the largest safe integer exactly, where dividing would round", () => {
+    expect(toDecimalString(money(Number.MAX_SAFE_INTEGER, "EUR"))).toBe("90071992547409.91");
+  });
+
+  it("refuses what money() refuses — a float or a bad currency is never printed", () => {
+    expect(() => toDecimalString({ amount_minor: 12.5, currency: "EUR" })).toThrow(
+      InvalidMoneyError,
+    );
+    expect(() => toDecimalString({ amount_minor: 100, currency: "euro" })).toThrow(
+      InvalidMoneyError,
+    );
   });
 });
