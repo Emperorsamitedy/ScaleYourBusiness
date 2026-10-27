@@ -182,12 +182,21 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
 
   const submit = (): void => onRequestSubmit();
 
+  // Tell the parent after the rows change, never from inside a state
+  // update (React forbids a parent setState during this one's render), and
+  // for every change — removing a row included. Not on mount: nothing has
+  // been typed yet, and the parent's "nothing typed" stays null.
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    report(rows);
+  }, [rows]);
+
   const setCell = (i: number, key: string, v: string | boolean | string[]): void => {
-    setRows((prev) => {
-      const next = prev.map((r, idx) => (idx === i ? { ...r, [key]: v } : r));
-      report(next);
-      return next;
-    });
+    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, [key]: v } : r)));
   };
 
   return (

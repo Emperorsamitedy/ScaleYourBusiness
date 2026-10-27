@@ -411,6 +411,8 @@ export const decisionKind = pgEnum("decision_kind", [
   "complaint", // P4-17: a recipient marked a campaign email as spam; ref is the campaign_sends row, no PII
   "assistant_change", // feature 33: the owner confirmed a change the assistant prepared in chat; ref is the assistant_changes row
   "campaign_review", // review 2026-10-23 (#5c): an operator reviewed an account's first campaign; ref is the campaign_reviews row, no PII
+  "report_share", // idea 51: the owner made a read-only link to a report; ref is the report_shares row, never the token
+  "report_share_revoke", // idea 51: the owner revoked that link; ref is the report_shares row
 ]);
 
 export const decisionLog = pgTable(
@@ -749,6 +751,48 @@ export const diagnosisReports = pgTable(
     trading_hours: jsonb("trading_hours"),
   },
   (t) => [index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at)],
+);
+
+// ---------------------------------------------------------------------------
+// Report shares — idea 51 (2026-10-26). A read-only link to ONE report, for
+// a partner, an accountant or an investor. The link is a snapshot: it is
+// pinned to the report it was made for (and the history shown with it stops
+// at created_at), so a later report or correction never reaches a reader
+// the owner sent it to before. Only sha256(token) is stored, like every
+// other link in this app; a row is never deleted, only revoked or expired.
+// ---------------------------------------------------------------------------
+
+export const reportShares = pgTable(
+  "report_shares",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The frozen report this link shows — never "the latest". */
+    report_id: uuid("report_id")
+      .notNull()
+      .references(() => diagnosisReports.id, { onDelete: "cascade" }),
+    /** sha256 of the token in the link. Never the token itself. */
+    token_hash: text("token_hash").notNull(),
+    created_by: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    /** Revoked links stop resolving without being deleted. */
+    revoked_at: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+    last_viewed_at: timestamp("last_viewed_at", { withTimezone: true, mode: "string" }),
+    view_count: integer("view_count").notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex("report_shares_hash_idx").on(t.token_hash),
+    index("report_shares_profile_idx").on(t.account_id, t.profile_id, t.created_at),
+    check("report_shares_expiry_after_creation", sql`${t.expires_at} > ${t.created_at}`),
+  ],
 );
 
 // ---------------------------------------------------------------------------
@@ -1112,6 +1156,43 @@ export const connectorSyncs = pgTable(
     error: text("error"),
   },
   (t) => [index("connector_syncs_connection_idx").on(t.connection_id, t.started_at)],
+);
+
+// Idea 48, bundles: which store products were bought in the same order.
+// The daily units (units.daily) say how much of each product sold, never
+// which ones went out together, so a commerce sync also keeps, per order,
+// the set of store product ids in it — read from the same order lines it
+// already reads under read_orders, so no permission was added. Nothing
+// about the customer is stored: an order is its platform id, its day and
+// its products. Every sync re-reads its window (refunds and cancellations
+// change past orders), and the window is authoritative: the rows of the
+// days it covers are replaced in the page's transaction, so a cancelled
+// order drops out. Raw connector data like metric_observations, so it goes
+// with its connection (on delete cascade), never into the decision log.
+
+export const orderBaskets = pgTable(
+  "order_baskets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id, { onDelete: "cascade" }),
+    /** The platform's own order id ("gid://shopify/Order/1001", "812"). */
+    order_ref: text("order_ref").notNull(),
+    /** The day the order counts on: the same UTC day its revenue.daily row uses. */
+    day: date("day", { mode: "string" }).notNull(),
+    /** The distinct store product ids in the order, sorted. Never empty. */
+    product_refs: text("product_refs").array().notNull(),
+    observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("order_baskets_order_idx").on(t.connection_id, t.order_ref),
+    index("order_baskets_day_idx").on(t.connection_id, t.day),
+    check("order_baskets_not_empty", sql`cardinality(${t.product_refs}) >= 1`),
+  ],
 );
 
 /* ---------- Bookings: appointments from Square or an owner's export (specs/bookings.md) ---------- */
@@ -2582,4 +2663,45 @@ export const assistantChanges = pgTable(
     index("assistant_changes_profile_idx").on(t.profile_id, t.created_at),
     index("assistant_changes_reply_idx").on(t.reply_utterance_id),
   ],
+);
+
+// ---------------------------------------------------------------------------
+// The weekly summary — idea 42 (Ideas round, 2026-10-26). One email a week
+// to the business OWNER (never a customer) saying what SYB did and found.
+// A row here is the claim on an (account, ISO week): it is written BEFORE
+// the provider is called, so a re-run of the weekly cron — or two racing
+// — loses the insert and sends nothing. "sending" that never settles means
+// the outcome is unknown; it is not retried. The on/off switch is the
+// owner's own users.notification_prefs.weekly_summary (data-model §4's
+// NotificationPrefs), not a column here.
+
+export const weeklySummaryStatus = pgEnum("weekly_summary_status", [
+  "sending",
+  "sent",
+  "refused",
+  "unknown",
+]);
+
+export const weeklySummaries = pgTable(
+  "weekly_summaries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    /** The ISO week it covers, "2026-W44" (UTC). */
+    iso_week: text("iso_week").notNull(),
+    status: weeklySummaryStatus("status").notNull().default("sending"),
+    /** True when the week had nothing to report and the email said so. */
+    quiet: boolean("quiet").notNull(),
+    /** How many real lines the email carried — counts, never their text. */
+    line_count: integer("line_count").notNull(),
+    /** Resend's email id once accepted; null otherwise. */
+    provider_id: text("provider_id"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    settled_at: timestamp("settled_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [uniqueIndex("weekly_summaries_account_week_idx").on(t.account_id, t.iso_week)],
 );

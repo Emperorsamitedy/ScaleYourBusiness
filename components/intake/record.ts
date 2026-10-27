@@ -135,6 +135,23 @@ export function connectorLegend(sources: IntakeRecord["sources"]): string {
 /** A tile can be chosen when its area has something to ask: open questions, or skips. */
 export const areaAskable = (area: IntakeArea): boolean => area.open > 0 || area.skipped > 0;
 
+/**
+ * The folded bank's one line: the channel being asked (null when none
+ * is), and how many areas are done out of all of them.
+ */
+export function bankSummary(
+  areas: readonly IntakeArea[],
+  active: string | null,
+): { current: { ch: string; name: string; pct: number } | null; done: number; total: number } {
+  const i = active ? areas.findIndex((a) => a.section === active) : -1;
+  const at = areas[i];
+  return {
+    current: at ? { ch: channelNo(i), name: areaName(at.section), pct: areaPercent(at) } : null,
+    done: areas.filter((a) => a.status === "completed").length,
+    total: areas.length,
+  };
+}
+
 /* ── facts ── */
 
 const isMoney = (v: unknown): v is { amount_minor: number; currency: string } =>

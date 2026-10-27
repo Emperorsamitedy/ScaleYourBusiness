@@ -44,6 +44,16 @@ const nextConfig: NextConfig = {
       // The operator panel takes its key in the URL; it must never leave in a Referer.
       { source: "/ops", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
       { source: "/api/ops", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
+      // Idea 51: a shared report's token is its URL. It must never leave in a
+      // Referer, never be indexed, and never sit in a shared cache.
+      {
+        source: "/shared/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
     ];
   },
 };

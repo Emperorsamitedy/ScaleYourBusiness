@@ -535,3 +535,43 @@
   padding-top: 12px;
   padding-bottom: 10px;
 }
+
+/* ── the busy-season chart (idea 46) ── */
+
+.sn .sc-svg .sn-busy,
+.sc-key.sn-busy {
+  fill: var(--sheet-ink);
+  background: var(--sheet-ink);
+}
+.sn .sc-svg .sn-quiet {
+  fill: var(--paper);
+  stroke: var(--drift);
+  stroke-width: 1.5;
+}
+.sc-key.sn-quiet {
+  border: 1.5px solid var(--drift);
+  background: var(--paper);
+}
+.sn .sc-svg .sn-plain,
+.sc-key.sn-plain {
+  fill: color-mix(in srgb, var(--sheet-ink-2) 45%, var(--paper));
+  background: color-mix(in srgb, var(--sheet-ink-2) 45%, var(--paper));
+}
+.sn .sc-svg .sn-band,
+.sc-key.sn-band {
+  fill: color-mix(in srgb, var(--sheet-ink-2) 12%, var(--paper));
+  background: color-mix(in srgb, var(--sheet-ink-2) 12%, var(--paper));
+}
+.sn .sc-svg .sn-normal {
+  stroke: var(--sheet-ink);
+  stroke-width: 1;
+}
+.sn .sc-svg .sn-line {
+  stroke: var(--sheet-ink-2);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.sn .sc-svg .sn-ahead line {
+  stroke: var(--sheet-ink);
+  stroke-width: 1.5;
+}

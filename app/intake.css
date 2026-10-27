@@ -199,16 +199,85 @@
 .ix-bank {
   padding: 16px var(--ix-pad) 0;
 }
-.ix-bank-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px 20px;
-  margin-bottom: 10px;
-}
 .ix-bank .ix-cap {
   color: var(--desk-ink-2);
+}
+/* Folded, the bank is one ruled line: the channel being asked, a cell
+   per area filled to its share answered, the count done. The whole line
+   is the button that unfolds the tiles. */
+.ix-bank > h2 {
+  margin: 0;
+}
+.ix-bank-fold {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--desk-rule);
+  border-radius: 0;
+  background: transparent;
+  color: var(--desk-ink-2);
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--d-press) linear;
+}
+.ix-bank-fold:hover,
+.ix-bank-fold:focus-visible {
+  border-color: var(--desk-ink-2);
+}
+.ix-bank-title {
+  color: var(--desk-ink);
+  font-weight: 600;
+}
+.ix-bank-now {
+  color: var(--desk-ink);
+}
+.ix-bank-now .fig {
+  color: var(--desk-ink);
+  font-weight: 600;
+}
+.ix-bank-strip {
+  display: flex;
+  flex: 1 1 140px;
+  gap: 3px;
+  min-width: 120px;
+  max-width: 360px;
+}
+.ix-bank-cell {
+  flex: 1 1 0;
+  height: 8px;
+  border: 1px solid var(--rule);
+}
+.ix-bank-cell > span {
+  display: block;
+  height: 100%;
+  background: var(--desk-ink);
+}
+.ix-bank-cell.live {
+  border-color: var(--live-rule);
+}
+.ix-bank-cell.live > span {
+  background: var(--live-rule);
+}
+.ix-bank-toggle {
+  margin-left: auto;
+  color: var(--desk-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ix-bank.open .ix-bank-fold {
+  margin-bottom: 8px;
+}
+.ix-bank .ix-legend {
+  margin-bottom: 10px;
+}
+.ix-tiles[hidden] {
+  display: none;
 }
 .ix-legend {
   display: inline-flex;
@@ -1344,9 +1413,6 @@ button.ix-tile:disabled {
 @media (min-width: 761px) and (max-height: 760px) {
   .ix-bank {
     padding-top: 12px;
-  }
-  .ix-bank-head {
-    margin-bottom: 8px;
   }
   .ix-tile {
     min-height: 0;

@@ -1,5 +1,5 @@
 {
-  "id": "d3d1189b-4755-409b-9a67-e0bfe9215feb",
+  "id": "97092f09-232a-48bb-ba91-36c5041f042b",
   "prevId": "af99acc7-3a63-4cfe-8558-cee74a293fcf",
   "version": "7",
   "dialect": "postgresql",
@@ -3930,366 +3930,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.footage_clips": {
-      "name": "footage_clips",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "item_id": {
-          "name": "item_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "footage_clip_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'issued'"
-        },
-        "store": {
-          "name": "store",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "pathname": {
-          "name": "pathname",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "url": {
-          "name": "url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "content_type": {
-          "name": "content_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "declared_bytes": {
-          "name": "declared_bytes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "bytes": {
-          "name": "bytes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "uploaded_at": {
-          "name": "uploaded_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "released_at": {
-          "name": "released_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "footage_clips_item_idx": {
-          "name": "footage_clips_item_idx",
-          "columns": [
-            {
-              "expression": "item_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "footage_clips_pathname_uq": {
-          "name": "footage_clips_pathname_uq",
-          "columns": [
-            {
-              "expression": "pathname",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "footage_clips_profile_id_business_profiles_id_fk": {
-          "name": "footage_clips_profile_id_business_profiles_id_fk",
-          "tableFrom": "footage_clips",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "footage_clips_item_id_content_items_id_fk": {
-          "name": "footage_clips_item_id_content_items_id_fk",
-          "tableFrom": "footage_clips",
-          "tableTo": "content_items",
-          "columnsFrom": ["item_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "footage_clips_uploaded_has_object": {
-          "name": "footage_clips_uploaded_has_object",
-          "value": "\"footage_clips\".\"status\" = 'issued' OR (\"footage_clips\".\"url\" IS NOT NULL AND \"footage_clips\".\"bytes\" IS NOT NULL)"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.footage_renders": {
-      "name": "footage_renders",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "item_id": {
-          "name": "item_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "footage_render_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'queued'"
-        },
-        "clip_ids": {
-          "name": "clip_ids",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "on_screen": {
-          "name": "on_screen",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "caption": {
-          "name": "caption",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "scheduled_for": {
-          "name": "scheduled_for",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "attempts": {
-          "name": "attempts",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "note": {
-          "name": "note",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "result_item_id": {
-          "name": "result_item_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "metrics": {
-          "name": "metrics",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "requested_by": {
-          "name": "requested_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "started_at": {
-          "name": "started_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "finished_at": {
-          "name": "finished_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "footage_renders_item_idx": {
-          "name": "footage_renders_item_idx",
-          "columns": [
-            {
-              "expression": "item_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "footage_renders_one_live_uq": {
-          "name": "footage_renders_one_live_uq",
-          "columns": [
-            {
-              "expression": "item_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"footage_renders\".\"status\" IN ('queued', 'rendering')",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "footage_renders_profile_id_business_profiles_id_fk": {
-          "name": "footage_renders_profile_id_business_profiles_id_fk",
-          "tableFrom": "footage_renders",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "footage_renders_item_id_content_items_id_fk": {
-          "name": "footage_renders_item_id_content_items_id_fk",
-          "tableFrom": "footage_renders",
-          "tableTo": "content_items",
-          "columnsFrom": ["item_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "footage_renders_result_item_id_content_items_id_fk": {
-          "name": "footage_renders_result_item_id_content_items_id_fk",
-          "tableFrom": "footage_renders",
-          "tableTo": "content_items",
-          "columnsFrom": ["result_item_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "footage_renders_requested_by_users_id_fk": {
-          "name": "footage_renders_requested_by_users_id_fk",
-          "tableFrom": "footage_renders",
-          "tableTo": "users",
-          "columnsFrom": ["requested_by"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "footage_renders_attempt_cap": {
-          "name": "footage_renders_attempt_cap",
-          "value": "\"footage_renders\".\"attempts\" >= 0 AND \"footage_renders\".\"attempts\" <= 3"
-        },
-        "footage_renders_failed_says_why": {
-          "name": "footage_renders_failed_says_why",
-          "value": "\"footage_renders\".\"status\" <> 'failed' OR \"footage_renders\".\"note\" IS NOT NULL"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.goals": {
       "name": "goals",
       "schema": "",
@@ -4832,241 +4472,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.media_generations": {
-      "name": "media_generations",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "account_id": {
-          "name": "account_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "proposal_id": {
-          "name": "proposal_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "target_item_id": {
-          "name": "target_item_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "result_item_id": {
-          "name": "result_item_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "media": {
-          "name": "media",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "media_generation_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'generating'"
-        },
-        "attempts": {
-          "name": "attempts",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "estimate_minor": {
-          "name": "estimate_minor",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cost_minor": {
-          "name": "cost_minor",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "currency": {
-          "name": "currency",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "prompt_sha256": {
-          "name": "prompt_sha256",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "error": {
-          "name": "error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "finished_at": {
-          "name": "finished_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "media_generations_proposal_uq": {
-          "name": "media_generations_proposal_uq",
-          "columns": [
-            {
-              "expression": "proposal_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "media_generations_account_idx": {
-          "name": "media_generations_account_idx",
-          "columns": [
-            {
-              "expression": "account_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "media_generations_target_idx": {
-          "name": "media_generations_target_idx",
-          "columns": [
-            {
-              "expression": "target_item_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "media_generations_profile_id_business_profiles_id_fk": {
-          "name": "media_generations_profile_id_business_profiles_id_fk",
-          "tableFrom": "media_generations",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "media_generations_account_id_accounts_id_fk": {
-          "name": "media_generations_account_id_accounts_id_fk",
-          "tableFrom": "media_generations",
-          "tableTo": "accounts",
-          "columnsFrom": ["account_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "media_generations_proposal_id_proposals_id_fk": {
-          "name": "media_generations_proposal_id_proposals_id_fk",
-          "tableFrom": "media_generations",
-          "tableTo": "proposals",
-          "columnsFrom": ["proposal_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "media_generations_target_item_id_content_items_id_fk": {
-          "name": "media_generations_target_item_id_content_items_id_fk",
-          "tableFrom": "media_generations",
-          "tableTo": "content_items",
-          "columnsFrom": ["target_item_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "media_generations_result_item_id_content_items_id_fk": {
-          "name": "media_generations_result_item_id_content_items_id_fk",
-          "tableFrom": "media_generations",
-          "tableTo": "content_items",
-          "columnsFrom": ["result_item_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "media_generations_media": {
-          "name": "media_generations_media",
-          "value": "\"media_generations\".\"media\" IN ('image', 'video')"
-        },
-        "media_generations_attempt_cap": {
-          "name": "media_generations_attempt_cap",
-          "value": "\"media_generations\".\"attempts\" >= 0 AND \"media_generations\".\"attempts\" <= 2"
-        },
-        "media_generations_money": {
-          "name": "media_generations_money",
-          "value": "\"media_generations\".\"estimate_minor\" >= 0 AND (\"media_generations\".\"cost_minor\" IS NULL OR \"media_generations\".\"cost_minor\" >= 0) AND \"media_generations\".\"currency\" ~ '^[A-Z]{3}$'"
-        },
-        "media_generations_settled_cost": {
-          "name": "media_generations_settled_cost",
-          "value": "\"media_generations\".\"status\" = 'generating' OR \"media_generations\".\"cost_minor\" IS NOT NULL"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.metric_observations": {
@@ -7722,6 +7127,109 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.weekly_summaries": {
+      "name": "weekly_summaries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iso_week": {
+          "name": "iso_week",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "weekly_summary_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'sending'"
+        },
+        "quiet": {
+          "name": "quiet",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "line_count": {
+          "name": "line_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "settled_at": {
+          "name": "settled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "weekly_summaries_account_week_idx": {
+          "name": "weekly_summaries_account_week_idx",
+          "columns": [
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "iso_week",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "weekly_summaries_account_id_accounts_id_fk": {
+          "name": "weekly_summaries_account_id_accounts_id_fk",
+          "tableFrom": "weekly_summaries",
+          "tableTo": "accounts",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -7841,16 +7349,6 @@
       "schema": "public",
       "values": ["blocking", "high", "medium", "low"]
     },
-    "public.footage_clip_status": {
-      "name": "footage_clip_status",
-      "schema": "public",
-      "values": ["issued", "uploaded", "used", "released"]
-    },
-    "public.footage_render_status": {
-      "name": "footage_render_status",
-      "schema": "public",
-      "values": ["queued", "rendering", "rendered", "failed"]
-    },
     "public.intake_event_kind": {
       "name": "intake_event_kind",
       "schema": "public",
@@ -7875,11 +7373,6 @@
       "name": "knowledge_status",
       "schema": "public",
       "values": ["public", "retired"]
-    },
-    "public.media_generation_status": {
-      "name": "media_generation_status",
-      "schema": "public",
-      "values": ["generating", "generated", "failed"]
     },
     "public.mode_kind": {
       "name": "mode_kind",
@@ -7988,6 +7481,11 @@
       "name": "utterance_role",
       "schema": "public",
       "values": ["owner", "system"]
+    },
+    "public.weekly_summary_status": {
+      "name": "weekly_summary_status",
+      "schema": "public",
+      "values": ["sending", "sent", "refused", "unknown"]
     }
   },
   "schemas": {},

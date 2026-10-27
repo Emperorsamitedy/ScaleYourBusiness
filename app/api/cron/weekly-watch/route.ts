@@ -12,6 +12,7 @@ import { runProgressChecks } from "../../../../lib/care/progress";
 import { runAdProposals } from "../../../../lib/ads/proposals";
 import { runHoursTrials } from "../../../../lib/hours/trials";
 import { runStockProposals } from "../../../../lib/stock/propose";
+import { runWeeklySummaries } from "../../../../lib/summary/run";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
@@ -29,8 +30,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const ads = await runAdProposals();
     // Feature 34: slow stock becomes ways to clear it — proposals only, never executed here.
     const stock = await runStockProposals();
-    console.log(JSON.stringify({ event: "weekly_watch", ...result, progress, trials, ads, stock }));
-    return NextResponse.json({ ...result, progress, trials, ads, stock });
+    // Idea 42: last, so it reports everything above — the owner's week, by email, once.
+    const summaries = await runWeeklySummaries();
+    console.log(
+      JSON.stringify({ event: "weekly_watch", ...result, progress, trials, ads, stock, summaries }),
+    );
+    return NextResponse.json({ ...result, progress, trials, ads, stock, summaries });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_watch_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "job failed" }, { status: 500 });
