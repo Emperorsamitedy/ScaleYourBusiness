@@ -303,3 +303,75 @@
     padding-top: 6px;
   }
 }
+
+/* ── the two halves: campaigns and what-if pricing (idea 43) ── */
+
+.sim-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 17px;
+}
+.sim-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--desk-ink);
+  background: transparent;
+  color: var(--desk-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.sim-tab:hover {
+  background: var(--raised);
+}
+.sim-tab.on {
+  background: var(--paper);
+  border-color: var(--paper);
+  color: var(--sheet-ink);
+}
+
+/* ── what-if pricing: the steps, the break-even line ── */
+
+.sim-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.sim-exact-note {
+  margin-top: 10px;
+  color: var(--sheet-ink-2);
+}
+.sim-be {
+  font-size: 15px;
+}
+.sim-be .cs-label {
+  display: block;
+  margin: 0 0 3px;
+}
+.sim-be-math {
+  margin: 0 0 12px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.sim-needs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 12px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+}
+.sim-needs a,
+.sim-inputs .src a {
+  color: var(--sheet-ink);
+}
