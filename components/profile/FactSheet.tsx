@@ -378,6 +378,18 @@ export function FactSheetScreen() {
             shows where it came from.
           </>
         }
+        aside={
+          // Idea 49: the money facts for whoever keeps the books. Signed-in owners only.
+          <p className="fs-export">
+            <span className="fs-export-l">For your accountant</span>
+            <a href="/api/profile/export?part=current" download>
+              Money facts, CSV
+            </a>
+            <a href="/api/profile/export?part=history" download>
+              Earlier figures, CSV
+            </a>
+          </p>
+        }
       >
         <p className="fs-counts">
           <span>

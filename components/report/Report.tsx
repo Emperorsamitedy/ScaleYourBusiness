@@ -23,6 +23,7 @@ import Link from "next/link";
 import { quietLine, splitByMateriality } from "../../lib/connectors/materiality";
 import { delta, moneyFig, moneyText, num } from "../sheet/num";
 import { SheetCard } from "../sheet/PageHead";
+import { ShareCard } from "./ShareCard";
 import type { Basis } from "./basis";
 import { BASES, BASIS_MEANING, basisOf, gapWord, sourceLabel } from "./basis";
 import {
@@ -748,12 +749,15 @@ function RecommendationItem({
   reportId,
   map,
   onChanged,
+  readOnly,
 }: {
   rec: Rec;
   index: number;
   reportId: string;
   map: FactMap;
   onChanged: () => Promise<void>;
+  /** A shared link (idea 51): the recommendation as written, without the owner's answers. */
+  readOnly: boolean;
 }) {
   const [declining, setDeclining] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -823,7 +827,7 @@ function RecommendationItem({
       </p>
 
       {/* §8: two actions, equal visual weight — "no" is a legitimate answer */}
-      {rec.status === "proposed" && !declining && (
+      {!readOnly && rec.status === "proposed" && !declining && (
         <div className="rp-actions">
           <button className="rp-act" onClick={() => void respond("look_into")} disabled={busy}>
             Look into this →
@@ -833,21 +837,234 @@ function RecommendationItem({
           </button>
         </div>
       )}
-      {declining && (
+      {!readOnly && declining && (
         <Decline busy={busy} onSubmit={(reason) => void respond("not_for_us", reason)} />
       )}
-      {rec.status === "accepted" && (
+      {!readOnly && rec.status === "accepted" && (
         <p className="rq-responded">
           <span className="rq-label">Recorded</span> you&rsquo;re looking into this
         </p>
       )}
-      {rec.status === "rejected" && (
+      {!readOnly && rec.status === "rejected" && (
         <p className="rq-responded">
           <span className="rq-label">Declined</span>
           {rec.rejection_reason !== null ? ` “${rec.rejection_reason}”` : " no reason given"}
         </p>
       )}
     </li>
+  );
+}
+
+/**
+ * The report itself, below the masthead — shared by the owner's screen and
+ * the read-only shared link (idea 51). Read-only drops every action and
+ * every link into the account: the recommendation answers, "Answer now",
+ * "See every weekday".
+ */
+export function ReportBody({
+  report,
+  readOnly,
+  onChanged,
+  foot,
+  children,
+}: {
+  report: ReportView;
+  readOnly: boolean;
+  onChanged: () => Promise<void>;
+  /** The footer's last line: the snapshot reference, or the shared-link note. */
+  foot: ReactNode;
+  /** Owner-only sections drawn above the footer (the share card). */
+  children?: ReactNode;
+}) {
+  const [selected, setSelected] = useState<string | null>(null);
+  const whyRef = useRef<HTMLDivElement>(null);
+  const rows = useMemo(
+    () => panelRows(report.unit_economics, report.prior?.unit_economics ?? null),
+    [report],
+  );
+  const current =
+    rows.find((r) => r.id === selected) ?? rows.find((r) => r.result !== null) ?? rows[0] ?? null;
+
+  const onWhy = useCallback((id: string) => {
+    setSelected(id);
+    // Stacked under the panel on a narrow screen: bring the sheet into view.
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      whyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
+  const eco = report.unit_economics;
+  const map = report.fact_map;
+  const measured = eco.stated_vs_measured ?? [];
+
+  return (
+    <>
+      <div className="rq-top">
+        <Panel report={report} rows={rows} selected={current?.id ?? null} onWhy={onWhy} />
+        <div ref={whyRef} className="rq-why-slot">
+          <WhySheet report={report} row={current} />
+        </div>
+      </div>
+
+      {/* ── findings: a worded flag; colour only tints the word ── */}
+      <SheetCard
+        id="rq-findings"
+        className="rq-card"
+        label="Findings · most urgent first"
+        title={
+          report.findings.length === 0
+            ? "Nothing the evidence supports strongly enough to call out."
+            : `${num(report.findings.length)} finding${report.findings.length === 1 ? "" : "s"}, each with its evidence.`
+        }
+      >
+        {report.findings.length > 0 ? (
+          <ol className="rq-list">
+            {report.findings.map((f, i) => {
+              const flag = severityFlag(f.severity);
+              return (
+                <li className="rq-item" key={f.title}>
+                  <p className="rq-item-head">
+                    <span className="rq-ref">F{i + 1}</span>
+                    <span className={`word ${flag.tone}`}>{flag.word}</span>
+                    <span className="rq-label">{f.area.replace(/_/g, " ")}</span>
+                  </p>
+                  <h3 className="rq-item-title">{f.title}</h3>
+                  <p className="rq-prose">{f.detail}</p>
+                  <Evidence keys={f.evidence} map={map} />
+                </li>
+              );
+            })}
+          </ol>
+        ) : undefined}
+      </SheetCard>
+
+      {/* Rule 11 (P2-11): a measurement replaced an estimate, and both are shown. */}
+      {measured.length > 0 && <StatedVsMeasuredCard rows={measured} map={map} />}
+
+      {/* ── recommendations with scenarios and the two equal actions ── */}
+      <SheetCard
+        className="rq-card"
+        label="What I'd do about it"
+        title={
+          report.recommendations.length === 0
+            ? "No recommendation the arithmetic can back yet."
+            : `${num(report.recommendations.length)} recommendation${report.recommendations.length === 1 ? "" : "s"}, each with its range.`
+        }
+      >
+        {report.recommendations.length > 0 ? (
+          <ol className="rq-list">
+            {report.recommendations.map((rec, i) => (
+              <RecommendationItem
+                key={rec.title}
+                rec={rec}
+                index={i}
+                reportId={report.id}
+                map={map}
+                onChanged={onChanged}
+                readOnly={readOnly}
+              />
+            ))}
+          </ol>
+        ) : undefined}
+      </SheetCard>
+
+      {/* ── trading hours (P2-30): measured, deterministic, the arithmetic shown ── */}
+      {report.trading_hours && (
+        <SheetCard
+          className="rq-card"
+          label={`Trading hours · OBSERVED · ${fmtDay(report.trading_hours.from)} – ${fmtDay(report.trading_hours.to)}`}
+          title={
+            report.trading_hours.findings.length === 0
+              ? "No signal fires on any measured day."
+              : `${num(report.trading_hours.findings.length)} signal${report.trading_hours.findings.length === 1 ? "" : "s"} in your hourly sales.`
+          }
+          meta={report.trading_hours.coverage}
+          foot={
+            <>
+              {report.trading_hours.limit}
+              {!readOnly && (
+                <>
+                  {" "}
+                  <Link href="/hours">See every weekday →</Link>
+                </>
+              )}
+            </>
+          }
+        >
+          <ul className="rq-list">
+            {report.trading_hours.findings.map((f) => (
+              <li className="rq-item" key={f.signal}>
+                <p className="rq-item-head">
+                  {f.signal === "too_early" ? (
+                    <span className="word low">Too early to say</span>
+                  ) : (
+                    <span className="rq-label">{f.weekdays.join(" · ")}</span>
+                  )}
+                </p>
+                <h3 className="rq-item-title">{f.title}</h3>
+                <p className="rq-prose">{f.detail}</p>
+                {f.arithmetic.length > 0 && (
+                  <ul className="rq-evidence">
+                    {f.arithmetic.map((a) => (
+                      <li key={a}>{a}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </SheetCard>
+      )}
+
+      {/* ── what would sharpen this ── */}
+      {report.data_gaps.length > 0 && (
+        <SheetCard
+          className="rq-card"
+          label="What would sharpen this"
+          title="The report is only as good as what it rests on."
+        >
+          <ul className="rq-list">
+            {report.data_gaps.map((g) => (
+              <li className="rq-gap" key={g.question_id}>
+                <div>
+                  <p className="rq-item-head">
+                    <span className="rq-label">{g.priority}</span>
+                    {g.blocking && <span className="word drift">Blocking</span>}
+                  </p>
+                  <p className="rq-gap-q">{g.prompt}</p>
+                  <p className="rq-gap-b">{g.buys}</p>
+                </div>
+                {!readOnly && (
+                  <Link
+                    className="ghost quiet noprint"
+                    href={`/intake?ask=${encodeURIComponent(g.question_id)}`}
+                  >
+                    Answer now →
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </SheetCard>
+      )}
+
+      {children}
+
+      <footer className="rq-foot">
+        <p>
+          {BASES.map((b, i) => (
+            <span key={b}>
+              {i > 0 && " · "}
+              <b>{b}</b> {BASIS_MEANING[b]}
+            </span>
+          ))}
+        </p>
+        <p>
+          Every figure prints where it came from. Estimates are marked as estimates; nothing is
+          invented. {foot}
+        </p>
+      </footer>
+    </>
   );
 }
 
@@ -885,8 +1102,6 @@ export function ReportScreen() {
   );
   const [step, setStep] = useState<"reading" | "checkout">("reading");
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
-  const whyRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(async (): Promise<boolean> => {
     const res = await fetch("/api/report");
@@ -959,21 +1174,6 @@ export function ReportScreen() {
     }
   }, [generate]);
 
-  const rows = useMemo(
-    () => (report ? panelRows(report.unit_economics, report.prior?.unit_economics ?? null) : []),
-    [report],
-  );
-  const current =
-    rows.find((r) => r.id === selected) ?? rows.find((r) => r.result !== null) ?? rows[0] ?? null;
-
-  const onWhy = useCallback((id: string) => {
-    setSelected(id);
-    // Stacked under the panel on a narrow screen: bring the sheet into view.
-    if (window.matchMedia("(max-width: 900px)").matches) {
-      whyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, []);
-
   /* ── P1-41: the three non-report states ── */
   if (state !== "ready" || report === null) {
     return (
@@ -1029,173 +1229,29 @@ export function ReportScreen() {
     );
   }
 
-  const eco = report.unit_economics;
-  const map = report.fact_map;
-  const measured = eco.stated_vs_measured ?? [];
-
   return (
-    <Shell map={map} currency={eco.currency} nav={nav} findings={report.findings.length}>
+    <Shell
+      map={report.fact_map}
+      currency={report.unit_economics.currency}
+      nav={nav}
+      findings={report.findings.length}
+    >
       {error !== null && (
         <p className="rq-alert" role="alert">
           {error}
         </p>
       )}
-      <div className="rq-top">
-        <Panel report={report} rows={rows} selected={current?.id ?? null} onWhy={onWhy} />
-        <div ref={whyRef} className="rq-why-slot">
-          <WhySheet report={report} row={current} />
-        </div>
-      </div>
-
-      {/* ── findings: a worded flag; colour only tints the word ── */}
-      <SheetCard
-        id="rq-findings"
-        className="rq-card"
-        label="Findings · most urgent first"
-        title={
-          report.findings.length === 0
-            ? "Nothing the evidence supports strongly enough to call out."
-            : `${num(report.findings.length)} finding${report.findings.length === 1 ? "" : "s"}, each with its evidence.`
-        }
+      <ReportBody
+        report={report}
+        readOnly={false}
+        onChanged={async () => {
+          await load();
+        }}
+        foot={<>Generated from snapshot {report.id.slice(0, 8)}.</>}
       >
-        {report.findings.length > 0 ? (
-          <ol className="rq-list">
-            {report.findings.map((f, i) => {
-              const flag = severityFlag(f.severity);
-              return (
-                <li className="rq-item" key={f.title}>
-                  <p className="rq-item-head">
-                    <span className="rq-ref">F{i + 1}</span>
-                    <span className={`word ${flag.tone}`}>{flag.word}</span>
-                    <span className="rq-label">{f.area.replace(/_/g, " ")}</span>
-                  </p>
-                  <h3 className="rq-item-title">{f.title}</h3>
-                  <p className="rq-prose">{f.detail}</p>
-                  <Evidence keys={f.evidence} map={map} />
-                </li>
-              );
-            })}
-          </ol>
-        ) : undefined}
-      </SheetCard>
-
-      {/* Rule 11 (P2-11): a measurement replaced an estimate, and both are shown. */}
-      {measured.length > 0 && <StatedVsMeasuredCard rows={measured} map={map} />}
-
-      {/* ── recommendations with scenarios and the two equal actions ── */}
-      <SheetCard
-        className="rq-card"
-        label="What I'd do about it"
-        title={
-          report.recommendations.length === 0
-            ? "No recommendation the arithmetic can back yet."
-            : `${num(report.recommendations.length)} recommendation${report.recommendations.length === 1 ? "" : "s"}, each with its range.`
-        }
-      >
-        {report.recommendations.length > 0 ? (
-          <ol className="rq-list">
-            {report.recommendations.map((rec, i) => (
-              <RecommendationItem
-                key={rec.title}
-                rec={rec}
-                index={i}
-                reportId={report.id}
-                map={map}
-                onChanged={async () => {
-                  await load();
-                }}
-              />
-            ))}
-          </ol>
-        ) : undefined}
-      </SheetCard>
-
-      {/* ── trading hours (P2-30): measured, deterministic, the arithmetic shown ── */}
-      {report.trading_hours && (
-        <SheetCard
-          className="rq-card"
-          label={`Trading hours · OBSERVED · ${fmtDay(report.trading_hours.from)} – ${fmtDay(report.trading_hours.to)}`}
-          title={
-            report.trading_hours.findings.length === 0
-              ? "No signal fires on any measured day."
-              : `${num(report.trading_hours.findings.length)} signal${report.trading_hours.findings.length === 1 ? "" : "s"} in your hourly sales.`
-          }
-          meta={report.trading_hours.coverage}
-          foot={
-            <>
-              {report.trading_hours.limit} <Link href="/hours">See every weekday →</Link>
-            </>
-          }
-        >
-          <ul className="rq-list">
-            {report.trading_hours.findings.map((f) => (
-              <li className="rq-item" key={f.signal}>
-                <p className="rq-item-head">
-                  {f.signal === "too_early" ? (
-                    <span className="word low">Too early to say</span>
-                  ) : (
-                    <span className="rq-label">{f.weekdays.join(" · ")}</span>
-                  )}
-                </p>
-                <h3 className="rq-item-title">{f.title}</h3>
-                <p className="rq-prose">{f.detail}</p>
-                {f.arithmetic.length > 0 && (
-                  <ul className="rq-evidence">
-                    {f.arithmetic.map((a) => (
-                      <li key={a}>{a}</li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
-        </SheetCard>
-      )}
-
-      {/* ── what would sharpen this ── */}
-      {report.data_gaps.length > 0 && (
-        <SheetCard
-          className="rq-card"
-          label="What would sharpen this"
-          title="The report is only as good as what it rests on."
-        >
-          <ul className="rq-list">
-            {report.data_gaps.map((g) => (
-              <li className="rq-gap" key={g.question_id}>
-                <div>
-                  <p className="rq-item-head">
-                    <span className="rq-label">{g.priority}</span>
-                    {g.blocking && <span className="word drift">Blocking</span>}
-                  </p>
-                  <p className="rq-gap-q">{g.prompt}</p>
-                  <p className="rq-gap-b">{g.buys}</p>
-                </div>
-                <Link
-                  className="ghost quiet noprint"
-                  href={`/intake?ask=${encodeURIComponent(g.question_id)}`}
-                >
-                  Answer now →
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </SheetCard>
-      )}
-
-      <footer className="rq-foot">
-        <p>
-          {BASES.map((b, i) => (
-            <span key={b}>
-              {i > 0 && " · "}
-              <b>{b}</b> {BASIS_MEANING[b]}
-            </span>
-          ))}
-        </p>
-        <p>
-          Every figure prints where it came from. Estimates are marked as estimates; nothing is
-          invented. Generated from snapshot {report.id.slice(0, 8)}.
-        </p>
-      </footer>
+        {/* Idea 51: a read-only link to this report. */}
+        <ShareCard />
+      </ReportBody>
     </Shell>
   );
 }

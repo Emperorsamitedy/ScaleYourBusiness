@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0056**, then `db:seed` (question bank 1.7.0).
+2. **Migrations and bank:** `db:migrate` through **0058**, then `db:seed` (question bank 1.7.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -22,6 +22,8 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0054 the campaign hold time and first-campaign reviews
    - 0055 bookings erasures, the stock-proposal unique index, and a bookings re-key
    - 0056 `content_items.publish_approved_sha256`, the hash a publish approval ties its post to
+   - 0057 `weekly_summaries`, one claimed row per account per ISO week (the owner's weekly summary email, 2026-10-26)
+   - 0058 `report_shares` and the decision kinds `report_share` / `report_share_revoke` (shared report links, 2026-10-26)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 
@@ -174,6 +176,11 @@ From the read-only review of Session D on 2026-10-23 (its numbers), the code tha
 | Low      | **Stripe and WooCommerce can't report a key's permissions,** so a write-capable key can be stored ("probed" providers). | The code only ever sends reads, and the connections screen says so. A stricter rule 9 would refuse those providers, which is a product call.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Low      | **The engine trusts its caller's op and params,** and `attachRenderedMedia` reads any local path.                       | No caller passes client input today. Both must stay that way when P3-21b and the cutting room are wired up. **2026-10-19, P3-21b:** the publish op and params come from the approved proposal and its own item (`publishPlan`), never the client; the executor re-derives the op and refuses a mismatch or a changed target; Withdraw takes only an item id, scoped to the session's profile, and undoes from the stored payload. **2026-10-19, P3-22b:** the ad ops' op and params come from the approved row (`adsPlan`), never the client; the executor re-reads the campaign, refuses one outside the connected ad account, and lets an ad write carry only the fields and statuses `AD_WRITE_FIELDS` / `AD_STATUSES` name. |
 | —        | **A full script CSP.**                                                                                                  | It waits until Next.js's and Sentry's inline scripts are nonce'd. A broken CSP is worse than none.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+
+## Added 2026-10-26 — shared report links and the accountant export
+
+- **Shared report links (idea 51)** are 32 random bytes, base64url (43 characters). The link carries the token; the row stores only its sha256 (`report_shares.token_hash`, unique). A token is shape-checked before any query, looked up by hash, and the hash compared again with `secretMatches`. Unknown, malformed, revoked and expired tokens all get the same page, so trying links reveals nothing. A link expires after 7 or 30 days (the owner picks; 7 by default), can be revoked at once, and is never deleted. It is pinned to one report (a snapshot), and its history stops when the link was made. Each business can hold at most 20 open links. `/shared/*` sends `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex` and `Cache-Control: private, no-store`. The page reads and sets no cookie and does not fetch `/api/nav`. Only the report's cited facts are sent, never a personal field, the owner's email, customer contacts, or the owner's answers to recommendations. Making and revoking a link need a signed-in owner and a same-origin POST (`isSameOriginPost`). Both are written to the decision log, with ids and a hash and never the token. There is no rate limit: at 256 bits, guessing is not a practical attack. A view is counted on any GET of a live link, so a chat app's link preview counts as one. The report's own text was written by the model from the profile, and is shown as it is.
+- **The accountant export (idea 49)** is `GET /api/profile/export`, for the signed-in owner only; the intake cookie alone gets a 401. Every query is scoped by account and profile. The response is an attachment with `no-store`. It reads only `field_records` (no CRM tables). Cells that start with `=`, `+`, `-`, `@`, a tab or CR get a leading `'`; plain numbers like `-12.50` are left as they are.
 
 ## Checked and sound
 
