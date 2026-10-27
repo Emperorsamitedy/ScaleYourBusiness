@@ -46,6 +46,7 @@ import type { StockView } from "./load";
 import { loadStock, stockApplies } from "./load";
 import type { ClearanceOption, OptionContext, OptionKey } from "./options";
 import { CLEARANCE, clearanceOptions, efficiencyLine, rankOptions } from "./options";
+import { proposeReorders } from "./reorder";
 
 export const STOCK_MODULE = "stock";
 
@@ -58,7 +59,7 @@ export const STOCK_FINDING_INDEX = "proposals_stock_finding_idx";
  * and the database's unique index lets one in (review 2026-10-23, #22).
  * The loser's transaction rolls back whole, its log entry with it.
  */
-async function createOnce(
+export async function createOnce(
   input: Parameters<typeof createProposal>[0],
 ): Promise<ProposalRow | null> {
   try {
@@ -539,7 +540,11 @@ function emailProposal(
   };
 }
 
-/** The weekly sweep: every business in care, one failure never stopping the rest. */
+/**
+ * The weekly sweep: every business in care, one failure never stopping the
+ * rest. Clearing slow stock (feature 34), then reorder notes for what runs
+ * low (P5-03).
+ */
 export async function runStockProposals(
   now: Date = new Date(),
   opts: { limitLlm?: LimitLlm } = {},
@@ -555,6 +560,10 @@ export async function runStockProposals(
       const run = await proposeClearance(profile_id, { now, ...opts });
       created += run.created.length;
       blocked += run.blocked.length;
+      // P5-03: items running low get a reorder note — a note, never an order.
+      const notes = await proposeReorders(profile_id, { now, ...opts });
+      created += notes.created.length;
+      blocked += notes.blocked.length;
     } catch (error) {
       failed++;
       console.error(

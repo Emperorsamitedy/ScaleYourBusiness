@@ -12,6 +12,7 @@ import { runProgressChecks } from "../../../../lib/care/progress";
 import { runAdProposals } from "../../../../lib/ads/proposals";
 import { runHoursTrials } from "../../../../lib/hours/trials";
 import { runStockProposals } from "../../../../lib/stock/propose";
+import { runStockWarnings } from "../../../../lib/stock/warnings";
 import { runWeeklySummaries } from "../../../../lib/summary/run";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
 
@@ -28,14 +29,34 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const trials = await runHoursTrials();
     // P3-22a: measured campaigns become pause / raise proposals — never executed here.
     const ads = await runAdProposals();
-    // Feature 34: slow stock becomes ways to clear it — proposals only, never executed here.
+    // P5-02: items whose cover falls below their delivery time, into the watch log.
+    const stock_warnings = await runStockWarnings();
+    // Feature 34: slow stock becomes ways to clear it, and P5-03 low stock a
+    // reorder note — proposals only, never executed here, never an order.
     const stock = await runStockProposals();
     // Idea 42: last, so it reports everything above — the owner's week, by email, once.
     const summaries = await runWeeklySummaries();
     console.log(
-      JSON.stringify({ event: "weekly_watch", ...result, progress, trials, ads, stock, summaries }),
+      JSON.stringify({
+        event: "weekly_watch",
+        ...result,
+        progress,
+        trials,
+        ads,
+        stock_warnings,
+        stock,
+        summaries,
+      }),
     );
-    return NextResponse.json({ ...result, progress, trials, ads, stock, summaries });
+    return NextResponse.json({
+      ...result,
+      progress,
+      trials,
+      ads,
+      stock_warnings,
+      stock,
+      summaries,
+    });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_watch_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "job failed" }, { status: 500 });
