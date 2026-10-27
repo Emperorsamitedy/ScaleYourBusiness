@@ -2451,3 +2451,44 @@ export const assistantChanges = pgTable(
     index("assistant_changes_reply_idx").on(t.reply_utterance_id),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// The weekly summary — idea 42 (Ideas round, 2026-10-26). One email a week
+// to the business OWNER (never a customer) saying what SYB did and found.
+// A row here is the claim on an (account, ISO week): it is written BEFORE
+// the provider is called, so a re-run of the weekly cron — or two racing
+// — loses the insert and sends nothing. "sending" that never settles means
+// the outcome is unknown; it is not retried. The on/off switch is the
+// owner's own users.notification_prefs.weekly_summary (data-model §4's
+// NotificationPrefs), not a column here.
+
+export const weeklySummaryStatus = pgEnum("weekly_summary_status", [
+  "sending",
+  "sent",
+  "refused",
+  "unknown",
+]);
+
+export const weeklySummaries = pgTable(
+  "weekly_summaries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    /** The ISO week it covers, "2026-W44" (UTC). */
+    iso_week: text("iso_week").notNull(),
+    status: weeklySummaryStatus("status").notNull().default("sending"),
+    /** True when the week had nothing to report and the email said so. */
+    quiet: boolean("quiet").notNull(),
+    /** How many real lines the email carried — counts, never their text. */
+    line_count: integer("line_count").notNull(),
+    /** Resend's email id once accepted; null otherwise. */
+    provider_id: text("provider_id"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    settled_at: timestamp("settled_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [uniqueIndex("weekly_summaries_account_week_idx").on(t.account_id, t.iso_week)],
+);

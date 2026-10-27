@@ -240,6 +240,7 @@ The intake now follows the owner's "calibrating the record" design (`components/
 **Channel bank:** one tile per bank section.
 - Each tile has one bar per applicable question, in bank order. The bar kinds are owner, measured, derived, current, open, unknown and skipped, each with its own fill pattern.
 - Each tile shows the percentage answered and a status word: DONE, MEASURING, READ ONLY, NOT STARTED, NEEDS CH nn or IN PROGRESS.
+- The bank starts folded to one ruled line so the question owns the screen. The line shows the channel being asked with its percentage, one cell per area filled to its share answered, and how many areas are done. "All channels" unfolds the tiles unchanged; choosing a tile folds it again.
 
 **Question panel:**
 - a dark band showing the question, the channel, and how many questions and minutes are left (45 seconds a question)
@@ -403,6 +404,8 @@ Three tiers:
 **Everything else** — routine activity. Visible in the log if you look, silent otherwise.
 
 The cap is a product rule, not a preference. If the system ever needs more than one urgent push per day, that is a signal it is proposing too much, and the correct fix is upstream — batching proposals — not more notifications.
+
+**The weekly summary email (idea 42, 2026-10-26).** One email a week to the owner, sent on the Monday beat, so the "worth knowing" tier reaches an owner who doesn't log in. It is the Watching screen's week, sent: what waits for you (proposals, and open support questions as a count, never their words), what I did, what I noticed, your goals, and how approved changes are doing. Every line is a row on record. A quiet week says "A quiet week" and nothing else. The email is plain HTML in the sheet tokens (ink on paper, 1px rules, mono labels, no images, no colour carrying meaning) with the same words in a text part. It has no tracking pixel. Every email carries a one-click "stop these emails" link, which opens a page with one button, like the unsubscribe page. The switch is a "Weekly email" card beside Modules on /watch, on by default once How I work is decided. The card says plainly when the server can't send email.
 
 ---
 
