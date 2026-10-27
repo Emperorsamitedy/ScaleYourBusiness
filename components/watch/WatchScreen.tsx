@@ -48,7 +48,8 @@ interface WatchView {
   log: LogEntry[];
 }
 interface ModulesView {
-  modules: { module: string; enabled: boolean }[];
+  /** `why` marks a switch that isn't "for when I start acting" (P5-18's team module). */
+  modules: { module: string; enabled: boolean; why?: string }[];
   analytics: { enabled: boolean; fixed: boolean; why: string };
 }
 /** Idea 42: the weekly summary email switch (GET /api/summary). */
@@ -315,22 +316,47 @@ function ModulesCard({
     <SheetCard label="Modules" title="For when I start acting">
       <fieldset className="wt-modules">
         <legend className="sr-only">Modules</legend>
-        {modules.modules.map((m) => (
-          <label key={m.module} className="wt-module">
-            <input
-              type="checkbox"
-              checked={m.enabled}
-              onChange={(e) => onToggle(m.module, e.target.checked)}
-            />
-            <span>{m.module}</span>
-          </label>
-        ))}
+        {modules.modules
+          .filter((m) => !m.why)
+          .map((m) => (
+            <label key={m.module} className="wt-module">
+              <input
+                type="checkbox"
+                checked={m.enabled}
+                onChange={(e) => onToggle(m.module, e.target.checked)}
+              />
+              <span>{m.module}</span>
+            </label>
+          ))}
         <label className="wt-module fixed" title={modules.analytics.why}>
           <input type="checkbox" checked disabled />
           <span>analytics, always on</span>
         </label>
       </fieldset>
       <p className="wt-why">{modules.analytics.why}</p>
+      {modules.modules
+        .filter((m) => m.why)
+        .map((m) => (
+          <div key={m.module} className="wt-module-now">
+            <label className="wt-module">
+              <input
+                type="checkbox"
+                checked={m.enabled}
+                onChange={(e) => onToggle(m.module, e.target.checked)}
+              />
+              <span>{m.module}, roles not people</span>
+            </label>
+            <p className="wt-why">
+              {m.why}
+              {m.enabled && (
+                <>
+                  {" "}
+                  <Link href="/team">See the team screen</Link>
+                </>
+              )}
+            </p>
+          </div>
+        ))}
     </SheetCard>
   );
 }

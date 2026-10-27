@@ -1,6 +1,7 @@
 // Module selection — Session H (P1-48).
 //
-//   GET /api/modules   the five selectable modules + analytics (fixed)
+//   GET /api/modules   the five selectable modules + analytics (fixed),
+//                      and P5-18's team switch (off by default, rule 28)
 //   PUT /api/modules   { module, enabled } — analytics is not a module
 //                      here and cannot be sent, so it cannot be disabled.
 
@@ -9,15 +10,35 @@ import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { accountModules } from "../../../db/schema";
+import { TEAM_DEFAULT_ON, TEAM_MODULE, TEAM_WHY } from "../../../lib/team/module";
 
-/** The Phase 2+ modules an owner can opt into ahead of time. */
+/**
+ * The Phase 2+ modules an owner can opt into ahead of time, and P5-18's
+ * team module (rule 28), which is the one that starts OFF.
+ */
 export const SELECTABLE_MODULES = [
   "marketing",
   "sales",
   "support",
   "operations",
   "finance",
+  TEAM_MODULE,
 ] as const;
+
+type SelectableModule = (typeof SELECTABLE_MODULES)[number];
+
+/** What a module is when the owner has never touched its switch. */
+const DEFAULT_ON: Record<SelectableModule, boolean> = {
+  marketing: true,
+  sales: true,
+  support: true,
+  operations: true,
+  finance: true,
+  [TEAM_MODULE]: TEAM_DEFAULT_ON,
+};
+
+/** The line beside a switch whose meaning isn't "for when I start acting". */
+const WHY: Partial<Record<SelectableModule, string>> = { [TEAM_MODULE]: TEAM_WHY };
 
 async function resolveAccount(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -33,7 +54,11 @@ export async function GET(): Promise<NextResponse> {
     .where(eq(accountModules.account_id, accountId));
   const byModule = new Map(rows.map((r) => [r.module, r.enabled]));
   return NextResponse.json({
-    modules: SELECTABLE_MODULES.map((m) => ({ module: m, enabled: byModule.get(m) ?? true })),
+    modules: SELECTABLE_MODULES.map((m) => ({
+      module: m,
+      enabled: byModule.get(m) ?? DEFAULT_ON[m],
+      ...(WHY[m] ? { why: WHY[m] } : {}),
+    })),
     // Not togglable, and the reason is part of the payload so the UI
     // never has to invent the explanation.
     analytics: {

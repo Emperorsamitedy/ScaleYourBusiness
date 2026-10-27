@@ -237,6 +237,12 @@
   font-size: 14px;
   color: var(--sheet-ink-2);
 }
+/* P5-18: the team switch, apart from the "for when I start acting" ones */
+.wt-module-now {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule-soft);
+}
 
 .wt-wait {
   padding-top: 22px;

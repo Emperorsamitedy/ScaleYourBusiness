@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { NavCounts } from "../../app/api/nav/route";
 import { SIZE_BANDS } from "../../lib/core/size-features";
 import {
   GROUPS,
@@ -71,5 +72,30 @@ describe("app navigation", () => {
       expect(visibleGroups(band)).toEqual(a);
       for (const g of a) expect(g.items.length).toBeGreaterThan(0);
     }
+  });
+
+  // P5-18 (rule 28): the team module is off by default, so its item is too.
+  it("leaves Team cover out of the menu unless the team module is switched on", () => {
+    const counts: NavCounts = {
+      business: "Lumen Hair Studio",
+      business_type: null,
+      watch: null,
+      pending: 0,
+      by_module: {},
+      goals: 0,
+      facts: 0,
+      connections: 0,
+      needs_reconnect: 0,
+      support_open: 0,
+      size_band: null,
+      stock: false,
+      team: false,
+    };
+    const hrefs = (c: NavCounts | null) =>
+      visibleGroups(null, c).flatMap((g) => g.items.map((i) => i.href));
+    expect(hrefs(counts)).not.toContain("/team");
+    expect(hrefs(null)).not.toContain("/team"); // still loading: hidden, never guessed
+    expect(hrefs({ ...counts, team: true })).toContain("/team");
+    expect(groupFor("/team")?.key).toBe("insights");
   });
 });
