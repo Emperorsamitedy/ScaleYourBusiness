@@ -23,7 +23,7 @@
 
 import { logSafeError } from "../core/log-safe";
 import { createHash } from "node:crypto";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { accounts, businessProfiles, decisionLog, diagnosisReports } from "../../db/schema";
 import { displaySourceKind } from "../connectors/measured";
@@ -177,6 +177,23 @@ export async function latestReport(profileId: string): Promise<ReportView | null
     .where(eq(diagnosisReports.profile_id, profileId))
     .orderBy(desc(diagnosisReports.generated_at))
     .limit(1);
+  if (!row) return null;
+  return viewOf(row);
+}
+
+/**
+ * One report by id, only if it belongs to this profile — what a shared link
+ * (idea 51, lib/report/share.ts) renders: the report the link was made for,
+ * never whichever is latest.
+ */
+export async function reportForProfile(
+  profileId: string,
+  reportId: string,
+): Promise<ReportView | null> {
+  const [row] = await db
+    .select()
+    .from(diagnosisReports)
+    .where(and(eq(diagnosisReports.id, reportId), eq(diagnosisReports.profile_id, profileId)));
   if (!row) return null;
   return viewOf(row);
 }

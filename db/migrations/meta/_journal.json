@@ -404,8 +404,36 @@
     {
       "idx": 57,
       "version": "7",
-      "when": 1793017522331,
-      "tag": "0057_sudden_paibok",
+      "when": 1793014668301,
+      "tag": "0057_noisy_valeria_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1793104817422,
+      "tag": "0058_supreme_tinkerer",
+      "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1793105263065,
+      "tag": "0059_silly_onslaught",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1793106097046,
+      "tag": "0060_known_alex_wilder",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1793106830591,
+      "tag": "0061_simple_scarlet_witch",
       "breakpoints": true
     }
   ]

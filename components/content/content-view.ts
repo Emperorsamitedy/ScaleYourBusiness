@@ -4,6 +4,8 @@
 // invented: a strip's "planned" is what is actually in the queue for
 // that channel, and "posted" is what actually published.
 
+import { format } from "../../lib/core/money";
+
 export type ContentStatus =
   "drafted" | "queued" | "publishing" | "published" | "failed" | "withdrawn";
 
@@ -229,4 +231,67 @@ export function performanceLine(p: PerformanceLike | undefined): {
   const figures =
     parts.length > 0 && p.age_days !== null ? `day ${p.age_days} · ${parts.join(" · ")}` : null;
   return { figures, word: v.word, tone: v.tone, arithmetic: p.arithmetic };
+}
+
+/* ── P3-52/53: footage and the AI fallback ── */
+
+export interface MoneyLike {
+  amount_minor: number;
+  currency: string;
+}
+
+/** "€0.04" from integer minor units — the money module's own formatting, never a float in transit. */
+export function formatMinor(m: MoneyLike): string {
+  return format(m);
+}
+
+export interface MediaState {
+  upload_mode: "blob" | "direct" | "off";
+  limits: { clip_bytes: number; clips_per_item: number; on_screen: number; caption: number };
+  footage: Record<
+    string,
+    {
+      clips: { id: string; label: string; bytes: number | null; status: string }[];
+      render: {
+        id: string;
+        status: "queued" | "rendering" | "rendered" | "failed";
+        note: string | null;
+        result_item_id: string | null;
+        attempts: number;
+      } | null;
+    }
+  >;
+  generation: {
+    setup: { available: boolean; reason: string | null };
+    items: Record<
+      string,
+      {
+        refusal: string | null;
+        estimates: { image: MoneyLike | null; video: MoneyLike | null };
+        latest: {
+          status: string;
+          media: string;
+          cost: MoneyLike | null;
+          error: string | null;
+          result_item_id: string | null;
+        } | null;
+        approved_proposal_id: string | null;
+        pending_proposal_id: string | null;
+      }
+    >;
+  };
+  /** Approved generated items whose footage arrived — they won't be published. */
+  superseded: string[];
+}
+
+/**
+ * What an item's media is, in the owner's words, from its provenance —
+ * "your footage", "AI-generated image" — so a generated picture is never
+ * shown as if it were filmed.
+ */
+export function mediaWord(provenance: unknown): string {
+  const origin = (provenance as { media?: { origin?: unknown } } | null)?.media?.origin;
+  if (origin === "generated_image") return "AI-generated image";
+  if (origin === "generated_video") return "AI-generated video";
+  return "your footage";
 }

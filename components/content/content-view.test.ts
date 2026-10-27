@@ -3,6 +3,8 @@ import {
   type QueueItem,
   channelStrips,
   contentHeadline,
+  formatMinor,
+  mediaWord,
   performanceLine,
   publishLine,
   shortId,
@@ -155,5 +157,19 @@ describe("performanceLine — P3-23b, a published item's measured line", () => {
         arithmetic: "x",
       }),
     ).toMatchObject({ figures: "day 4 · views 10", tone: "alarm" });
+  });
+});
+
+describe("P3-52/53 — what an item's media is, in the owner's words", () => {
+  it("never shows a generated picture as filmed", () => {
+    expect(mediaWord({ media: { origin: "footage" } })).toBe("your footage");
+    expect(mediaWord({ media: { origin: "generated_image" } })).toBe("AI-generated image");
+    expect(mediaWord({ media: { origin: "generated_video" } })).toBe("AI-generated video");
+    expect(mediaWord(null)).toBe("your footage");
+  });
+
+  it("prices come as integer minor units and print as money", () => {
+    expect(formatMinor({ amount_minor: 4, currency: "EUR" })).toBe("€0.04");
+    expect(formatMinor({ amount_minor: 50, currency: "EUR" })).toBe("€0.50");
   });
 });

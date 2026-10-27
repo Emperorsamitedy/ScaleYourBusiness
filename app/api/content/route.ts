@@ -22,6 +22,17 @@ import { ExecutionConnectionError } from "../../../lib/execution/connections";
 import { PublishError } from "../../../lib/execution/providers/meta";
 import { ContentError, proposeContentPlan } from "../../../lib/content/plan";
 import { contentQueue, produceFromProposal } from "../../../lib/content/produce";
+import {
+  CAPTION_MAX,
+  MAX_CLIPS_PER_ITEM,
+  MAX_CLIP_BYTES,
+  MAX_DIRECT_CLIP_BYTES,
+  ON_SCREEN_MAX,
+  footageView,
+  uploadMode,
+} from "../../../lib/content/footage";
+import { generationView, isGenerationProposal } from "../../../lib/content/generation";
+import { mediaTargetRefusal, supersededByFootage } from "../../../lib/content/media-item";
 import { isPublishProposal, publishNotes } from "../../../lib/content/publish";
 import { withdrawItem } from "../../../lib/content/publishing";
 import { proposeShotList } from "../../../lib/content/shotlist";
@@ -68,8 +79,28 @@ export async function GET(): Promise<NextResponse> {
           ),
         ),
     ]);
+    // P3-52/53: footage and the AI fallback, for every item that can take media.
+    const targets = items.filter((i) => mediaTargetRefusal(i) === null).map((i) => i.id);
+    const mode = uploadMode();
+    const superseded: string[] = [];
+    for (const i of items) {
+      if (i.status === "queued" && (await supersededByFootage(i))) superseded.push(i.id);
+    }
     return NextResponse.json({
       items,
+      media: {
+        upload_mode: mode,
+        limits: {
+          clip_bytes: mode === "direct" ? MAX_DIRECT_CLIP_BYTES : MAX_CLIP_BYTES,
+          clips_per_item: MAX_CLIPS_PER_ITEM,
+          on_screen: ON_SCREEN_MAX,
+          caption: CAPTION_MAX,
+        },
+        footage: await footageView(profileId, targets),
+        generation: await generationView(profileId, items),
+        // Approved generated items whose footage arrived: they won't be published (real footage wins).
+        superseded,
+      },
       // P3-21a: why each draft isn't headed for publishing, in the owner's words.
       publish_notes: await publishNotes(profileId, items),
       // The Session D real-write gate (lib/env.ts): off until the two-week test completes.
@@ -80,7 +111,7 @@ export async function GET(): Promise<NextResponse> {
       performance: await postOutcomes(profileId),
       // A publish proposal publishes one finished item; it never produces.
       producible: producible
-        .filter((p) => !isPublishProposal(p.action))
+        .filter((p) => !isPublishProposal(p.action) && !isGenerationProposal(p.action))
         .map((p) => ({
           id: p.id,
           summary: (p.action as { summary?: string }).summary ?? "content proposal",

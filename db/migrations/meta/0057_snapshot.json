@@ -1,5 +1,5 @@
 {
-  "id": "8a80d799-33f1-489e-be13-5fa93b93b77c",
+  "id": "97092f09-232a-48bb-ba91-36c5041f042b",
   "prevId": "af99acc7-3a63-4cfe-8558-cee74a293fcf",
   "version": "7",
   "dialect": "postgresql",
@@ -3152,149 +3152,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.creative_briefs": {
-      "name": "creative_briefs",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "campaign": {
-          "name": "campaign",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "goal_id": {
-          "name": "goal_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "niche_read_id": {
-          "name": "niche_read_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "brief": {
-          "name": "brief",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sources": {
-          "name": "sources",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "model": {
-          "name": "model",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "attempts": {
-          "name": "attempts",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rejections": {
-          "name": "rejections",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "cost_eur": {
-          "name": "cost_eur",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "creative_briefs_profile_idx": {
-          "name": "creative_briefs_profile_idx",
-          "columns": [
-            {
-              "expression": "profile_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "creative_briefs_profile_id_business_profiles_id_fk": {
-          "name": "creative_briefs_profile_id_business_profiles_id_fk",
-          "tableFrom": "creative_briefs",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "creative_briefs_goal_id_goals_id_fk": {
-          "name": "creative_briefs_goal_id_goals_id_fk",
-          "tableFrom": "creative_briefs",
-          "tableTo": "goals",
-          "columnsFrom": ["goal_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "creative_briefs_niche_read_id_niche_ad_reads_id_fk": {
-          "name": "creative_briefs_niche_read_id_niche_ad_reads_id_fk",
-          "tableFrom": "creative_briefs",
-          "tableTo": "niche_ad_reads",
-          "columnsFrom": ["niche_read_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "creative_briefs_attempts": {
-          "name": "creative_briefs_attempts",
-          "value": "\"creative_briefs\".\"attempts\" >= 1"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.customer_segments": {
       "name": "customer_segments",
       "schema": "",
@@ -4875,133 +4732,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.niche_ad_reads": {
-      "name": "niche_ad_reads",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'meta_ad_library'"
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "read_at": {
-          "name": "read_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "country": {
-          "name": "country",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "terms": {
-          "name": "terms",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "targets": {
-          "name": "targets",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "requests": {
-          "name": "requests",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "ads": {
-          "name": "ads",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "reason": {
-          "name": "reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "niche_ad_reads_profile_idx": {
-          "name": "niche_ad_reads_profile_idx",
-          "columns": [
-            {
-              "expression": "profile_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "read_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "niche_ad_reads_profile_id_business_profiles_id_fk": {
-          "name": "niche_ad_reads_profile_id_business_profiles_id_fk",
-          "tableFrom": "niche_ad_reads",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "niche_ad_reads_status": {
-          "name": "niche_ad_reads_status",
-          "value": "\"niche_ad_reads\".\"status\" IN ('read', 'failed')"
-        },
-        "niche_ad_reads_failed_says_why": {
-          "name": "niche_ad_reads_failed_says_why",
-          "value": "\"niche_ad_reads\".\"status\" <> 'failed' OR \"niche_ad_reads\".\"reason\" IS NOT NULL"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.offer_suppliers": {
@@ -7397,6 +7127,109 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.weekly_summaries": {
+      "name": "weekly_summaries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iso_week": {
+          "name": "iso_week",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "weekly_summary_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'sending'"
+        },
+        "quiet": {
+          "name": "quiet",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "line_count": {
+          "name": "line_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "settled_at": {
+          "name": "settled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "weekly_summaries_account_week_idx": {
+          "name": "weekly_summaries_account_week_idx",
+          "columns": [
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "iso_week",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "weekly_summaries_account_id_accounts_id_fk": {
+          "name": "weekly_summaries_account_id_accounts_id_fk",
+          "tableFrom": "weekly_summaries",
+          "tableTo": "accounts",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -7648,6 +7481,11 @@
       "name": "utterance_role",
       "schema": "public",
       "values": ["owner", "system"]
+    },
+    "public.weekly_summary_status": {
+      "name": "weekly_summary_status",
+      "schema": "public",
+      "values": ["sending", "sent", "refused", "unknown"]
     }
   },
   "schemas": {},

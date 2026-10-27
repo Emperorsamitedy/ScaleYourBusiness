@@ -24,12 +24,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "../../app/content.css";
 import { EmergencyStop } from "../execution/EmergencyStop";
+import { MediaPanel } from "./MediaPanel";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import {
   type ContentStatus,
+  type MediaState,
   type PerformanceLike,
   channelStrips,
   contentHeadline,
+  mediaWord,
   performanceLine,
   platformWord,
   publishLine,
@@ -59,7 +62,11 @@ interface ContentItem {
   disclosure: string;
   goal_id: string | null;
   media_path: string | null;
-  provenance: { evidence?: string[] } | null;
+  provenance: {
+    evidence?: string[];
+    item?: { focus?: string };
+    media?: { origin?: string };
+  } | null;
   /* P3-20d — the publish state, straight from the row. */
   status: ContentStatus;
   platform: string | null;
@@ -94,6 +101,8 @@ type State =
       watchingUntil: string | null;
       /** P3-23b: item id → its measured figures and verdict, published items only. */
       performance: Record<string, PerformanceLike>;
+      /** P3-52/53: footage, renders and the AI fallback, for the items that can take media. */
+      media: MediaState | null;
       /** The item whose Withdraw is waiting on a second click. */
       confirmWithdraw: string | null;
       busy: boolean;
@@ -166,6 +175,7 @@ export function ContentScreen() {
       real_writes?: boolean;
       watching_until?: string | null;
       performance?: Record<string, PerformanceLike>;
+      media?: MediaState;
     };
     const goals = (await goalsRes.json()) as { goals: Goal[]; suggestions: Suggestion[] };
     setState((cur) => ({
@@ -178,6 +188,7 @@ export function ContentScreen() {
       realWrites: content.real_writes === true,
       watchingUntil: content.watching_until ?? null,
       performance: content.performance ?? {},
+      media: content.media ?? null,
       confirmWithdraw: null,
       busy: false,
       notice: null,
@@ -453,7 +464,7 @@ export function ContentScreen() {
             <div className="cs-body ct-detail-body">
               {open.media_path && (
                 <div className="ct-media">
-                  <span>Media · your footage</span>
+                  <span>Media · {mediaWord(open.provenance)}</span>
                   <span className="ct-media-path">{open.media_path.split("/").pop()}</span>
                 </div>
               )}
@@ -475,6 +486,27 @@ export function ContentScreen() {
             <footer className="ct-detail-foot">
               {s.publishNotes[open.id] && (
                 <p className="ct-why">Not publishing: {s.publishNotes[open.id]}.</p>
+              )}
+              {s.media?.superseded.includes(open.id) && (
+                <p className="ct-why">
+                  Your own footage replaced this generated version, so it won&apos;t be published.
+                </p>
+              )}
+              {s.media && s.media.footage[open.id] !== undefined && (
+                <MediaPanel
+                  key={open.id}
+                  item={open}
+                  media={s.media}
+                  busy={s.busy}
+                  setBusy={(busy) =>
+                    setState((cur) => (cur.phase === "ready" ? { ...cur, busy } : cur))
+                  }
+                  onDone={async (notice) => {
+                    await load();
+                    setState((cur) => (cur.phase === "ready" ? { ...cur, notice } : cur));
+                  }}
+                  onPick={pick}
+                />
               )}
               {open.status === "failed" && open.last_error && (
                 <p className="ct-why">
@@ -561,6 +593,40 @@ export function ContentScreen() {
                       Withdraw
                     </button>
                   ))}
+                {open.publish_proposal_id === null &&
+                  open.status === "drafted" &&
+                  (open.kind === "post" || open.kind === "video") &&
+                  !s.publishNotes[open.id] && (
+                    <button
+                      type="button"
+                      className="prop-btn"
+                      disabled={s.busy}
+                      onClick={() =>
+                        void (async () => {
+                          setState({ ...s, busy: true, notice: null });
+                          const res = await fetch("/api/content/media", {
+                            method: "POST",
+                            headers: { "content-type": "application/json" },
+                            body: JSON.stringify({ action: "propose_publish", item_id: open.id }),
+                          });
+                          const j = (await res.json().catch(() => ({}))) as {
+                            error?: string;
+                            proposed?: number;
+                            reason?: string | null;
+                          };
+                          await load();
+                          const notice = !res.ok
+                            ? (j.error ?? "that didn't work")
+                            : j.proposed
+                              ? "Its publish proposal is in your queue."
+                              : `Not proposed: ${j.reason ?? "it doesn't qualify yet"}.`;
+                          setState((cur) => (cur.phase === "ready" ? { ...cur, notice } : cur));
+                        })()
+                      }
+                    >
+                      Propose for publishing
+                    </button>
+                  )}
                 {open.publish_proposal_id !== null && open.status === "drafted" && (
                   <Link className="prop-btn ct-wide" href="/proposals">
                     Decide in the queue <span aria-hidden="true">→</span>

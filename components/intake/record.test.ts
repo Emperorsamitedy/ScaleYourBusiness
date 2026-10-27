@@ -7,6 +7,7 @@ import {
   areaAskable,
   areaPercent,
   areaStatusWord,
+  bankSummary,
   channelNo,
   connectorLegend,
   dialPoint,
@@ -169,6 +170,22 @@ describe("area tiles", () => {
     expect(areaAskable(area({ open: 0, skipped: 1 }))).toBe(true);
     expect(areaAskable(area({ status: "blocked", open: 0 }))).toBe(false);
     expect(areaAskable(area({ status: "completed", open: 0, answered: 4 }))).toBe(false);
+  });
+
+  it("the folded bank names the channel being asked and counts the areas done", () => {
+    const areas = [
+      area({ section: "identity", status: "completed", answered: 4, open: 0, bars: [] }),
+      area({ section: "offers", status: "in_progress", answered: 2, open: 3 }),
+      area({ section: "costs" }),
+    ];
+    expect(bankSummary(areas, "offers")).toEqual({
+      current: { ch: "02", name: "What you sell", pct: 40 },
+      done: 1,
+      total: 3,
+    });
+    // Nothing being asked (done, or between questions): no current channel.
+    expect(bankSummary(areas, null).current).toBeNull();
+    expect(bankSummary(areas, "not-a-section").current).toBeNull();
   });
 });
 

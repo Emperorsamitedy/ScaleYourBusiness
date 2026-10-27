@@ -65,6 +65,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Whether an hour pays for itself depends on the till, not the headcount.",
   },
+  "nav.patterns": {
+    bands: EVERY,
+    reason:
+      "A one-person business feels its busy season hardest, and knowing what sells together is free money at any size.",
+  },
   "nav.stock": {
     bands: EVERY,
     reason:

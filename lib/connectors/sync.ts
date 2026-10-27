@@ -38,6 +38,7 @@ import { detectAnomalies } from "../anomaly/detect";
 import { recordSyncActivity } from "./activity";
 import { deriveFactsFromObservations } from "./derive";
 import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
+import { replaceBaskets } from "../bundles/store";
 import { deriveBookingFacts, storeAppointments } from "../bookings/store";
 import { getProvider } from "./registry";
 import { decryptSecret } from "./secrets";
@@ -214,6 +215,10 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
               page.observations,
               tx,
             );
+            // Idea 48: a store page's order baskets replace those of its days.
+            if (page.baskets) {
+              await replaceBaskets(tx, row, page.baskets, now.toISOString());
+            }
             // Bookings (specs/bookings.md): the page's appointments land with
             // it, client ids hashed on the way in.
             if (page.appointments && page.appointments.length > 0) {
