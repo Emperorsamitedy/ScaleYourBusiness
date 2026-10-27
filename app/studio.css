@@ -1,0 +1,255 @@
+/* Grow · Creative studio — P3-50/51, on the sheet system (app/sheet.css):
+   the niche's longest-running ads with their caveats, then the brief with
+   its citations. Square corners, rules for separation, no icons; cobalt
+   never appears here because nothing on this screen runs on its own. */
+
+.st-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.st-screen > .cs {
+  margin-bottom: 15px;
+}
+
+.st-copy {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+}
+.st-note {
+  margin: 10px 0 0;
+  max-width: var(--measure);
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.st-src {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+}
+.st-error {
+  margin: 10px 0 0;
+  color: var(--alarm);
+  font-size: 13px;
+}
+.st-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+.st-notice {
+  margin: 0 0 15px;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-size: 13.5px;
+}
+
+/* the caveats: printed every time, never behind a click */
+.st-caveats {
+  margin: 0 0 12px;
+  padding: 10px 12px 10px 28px;
+  border: 1px solid var(--rule);
+  background: var(--inset);
+  font-size: 12.5px;
+  max-width: none;
+}
+.st-caveats li + li {
+  margin-top: 4px;
+}
+
+/* the ads */
+.st-table-wrap {
+  overflow-x: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+.st-table {
+  min-width: 860px;
+}
+.st-table q {
+  font-size: 13px;
+}
+.st-flag {
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-size: 10.5px;
+}
+
+/* the search terms and the brief form */
+.st-terms,
+.st-brief-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 12px;
+  align-items: end;
+}
+.st-brief-form {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+.st-terms label,
+.st-brief-form label {
+  display: grid;
+  gap: 4px;
+}
+.st-terms label > span,
+.st-brief-form label > span {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.st-terms input,
+.st-brief-form input,
+.st-brief-form select {
+  min-height: 48px;
+  padding: 6px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 13px;
+}
+.st-terms input:focus-visible,
+.st-brief-form input:focus-visible,
+.st-brief-form select:focus-visible,
+.st-link:focus-visible,
+.st-sources summary:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.st-wide {
+  grid-column: 1 / -1;
+}
+.st-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.st-link[aria-pressed="true"] {
+  font-weight: 600;
+  text-decoration-thickness: 2px;
+}
+
+/* the brief */
+.st-claims {
+  margin: 0 0 16px;
+  display: grid;
+  gap: 10px;
+}
+.st-claims div {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 12px;
+}
+.st-claims dt {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+  padding-top: 2px;
+}
+.st-claims dd {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 14px;
+}
+.st-cites {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  vertical-align: middle;
+}
+.st-cite {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--rule);
+  background: var(--inset);
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  white-space: nowrap;
+  cursor: help;
+}
+.st-hooks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+.st-hook {
+  padding: 14px 0;
+  border-top: 1px solid var(--rule-soft);
+}
+.st-hook-line {
+  margin: 0 0 6px;
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.st-script {
+  margin: 10px 0;
+  max-width: var(--measure);
+  font-size: 14px;
+}
+.st-shots {
+  margin: 0 0 10px;
+  padding-left: 22px;
+  font-size: 13.5px;
+  max-width: var(--measure);
+}
+.st-shots li + li {
+  margin-top: 6px;
+}
+.st-make {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.st-make .st-note {
+  margin: 0;
+}
+.st-sources summary {
+  cursor: pointer;
+  font-family: var(--f-mono);
+  font-size: 12px;
+}
+.st-sources ol {
+  margin: 8px 0 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 12.5px;
+}
+.st-sources li + li {
+  margin-top: 4px;
+}
+
+@media (max-width: 719px) {
+  .st-terms,
+  .st-brief-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .st-claims div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .st-table {
+    min-width: 0;
+  }
+}

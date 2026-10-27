@@ -411,6 +411,8 @@ export const decisionKind = pgEnum("decision_kind", [
   "complaint", // P4-17: a recipient marked a campaign email as spam; ref is the campaign_sends row, no PII
   "assistant_change", // feature 33: the owner confirmed a change the assistant prepared in chat; ref is the assistant_changes row
   "campaign_review", // review 2026-10-23 (#5c): an operator reviewed an account's first campaign; ref is the campaign_reviews row, no PII
+  "report_share", // idea 51: the owner made a read-only link to a report; ref is the report_shares row, never the token
+  "report_share_revoke", // idea 51: the owner revoked that link; ref is the report_shares row
 ]);
 
 export const decisionLog = pgTable(
@@ -749,6 +751,48 @@ export const diagnosisReports = pgTable(
     trading_hours: jsonb("trading_hours"),
   },
   (t) => [index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at)],
+);
+
+// ---------------------------------------------------------------------------
+// Report shares — idea 51 (2026-10-26). A read-only link to ONE report, for
+// a partner, an accountant or an investor. The link is a snapshot: it is
+// pinned to the report it was made for (and the history shown with it stops
+// at created_at), so a later report or correction never reaches a reader
+// the owner sent it to before. Only sha256(token) is stored, like every
+// other link in this app; a row is never deleted, only revoked or expired.
+// ---------------------------------------------------------------------------
+
+export const reportShares = pgTable(
+  "report_shares",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The frozen report this link shows — never "the latest". */
+    report_id: uuid("report_id")
+      .notNull()
+      .references(() => diagnosisReports.id, { onDelete: "cascade" }),
+    /** sha256 of the token in the link. Never the token itself. */
+    token_hash: text("token_hash").notNull(),
+    created_by: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    /** Revoked links stop resolving without being deleted. */
+    revoked_at: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+    last_viewed_at: timestamp("last_viewed_at", { withTimezone: true, mode: "string" }),
+    view_count: integer("view_count").notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex("report_shares_hash_idx").on(t.token_hash),
+    index("report_shares_profile_idx").on(t.account_id, t.profile_id, t.created_at),
+    check("report_shares_expiry_after_creation", sql`${t.expires_at} > ${t.created_at}`),
+  ],
 );
 
 // ---------------------------------------------------------------------------
@@ -1112,6 +1156,43 @@ export const connectorSyncs = pgTable(
     error: text("error"),
   },
   (t) => [index("connector_syncs_connection_idx").on(t.connection_id, t.started_at)],
+);
+
+// Idea 48, bundles: which store products were bought in the same order.
+// The daily units (units.daily) say how much of each product sold, never
+// which ones went out together, so a commerce sync also keeps, per order,
+// the set of store product ids in it — read from the same order lines it
+// already reads under read_orders, so no permission was added. Nothing
+// about the customer is stored: an order is its platform id, its day and
+// its products. Every sync re-reads its window (refunds and cancellations
+// change past orders), and the window is authoritative: the rows of the
+// days it covers are replaced in the page's transaction, so a cancelled
+// order drops out. Raw connector data like metric_observations, so it goes
+// with its connection (on delete cascade), never into the decision log.
+
+export const orderBaskets = pgTable(
+  "order_baskets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id, { onDelete: "cascade" }),
+    /** The platform's own order id ("gid://shopify/Order/1001", "812"). */
+    order_ref: text("order_ref").notNull(),
+    /** The day the order counts on: the same UTC day its revenue.daily row uses. */
+    day: date("day", { mode: "string" }).notNull(),
+    /** The distinct store product ids in the order, sorted. Never empty. */
+    product_refs: text("product_refs").array().notNull(),
+    observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("order_baskets_order_idx").on(t.connection_id, t.order_ref),
+    index("order_baskets_day_idx").on(t.connection_id, t.day),
+    check("order_baskets_not_empty", sql`cardinality(${t.product_refs}) >= 1`),
+  ],
 );
 
 /* ---------- Bookings: appointments from Square or an owner's export (specs/bookings.md) ---------- */
@@ -1673,69 +1754,178 @@ export const contentItems = pgTable(
   ],
 );
 
-/* ---------- Phase 3 Session K — ad creation on Meta (P3-54) ---------- */
+/* ---------- Phase 3 Session K — footage in (P3-52) and generated media (P3-53) ---------- */
 
-/**
- * The journal of one "Run this ad" build: an approved proposal that
- * creates, all PAUSED and one after another, a campaign, an ad set, (for a
- * video) an uploaded ad video, a creative and the ad. Every step's
- * `sent_at` is written just BEFORE the call that creates it and its Meta
- * id as soon as Meta answers, so a run that stops, is halted or loses an
- * answer resumes from here and never creates anything twice — an answer
- * that never came is read back by the build's tag, the P3-21d honesty.
- * Nothing Meta created can be deleted (DELETED and ARCHIVED are
- * permanent), so the ids are kept for ever. One row per execution.
- */
-export const adBuilds = pgTable(
-  "ad_builds",
+// The owner's clips, uploaded against a shot list (or a post that needs
+// media). A row is born `issued` when an upload is granted — the pathname
+// is chosen HERE, never by the browser — becomes `uploaded` once the store
+// confirms the object, `used` once a render consumed it, and `released`
+// when the bytes are deleted from storage (after the render, or when the
+// owner removes it). The row is the record; the bytes do not linger.
+export const footageClipStatus = pgEnum("footage_clip_status", [
+  "issued",
+  "uploaded",
+  "used",
+  "released",
+]);
+
+export const footageClips = pgTable(
+  "footage_clips",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     profile_id: uuid("profile_id")
       .notNull()
       .references(() => businessProfiles.id, { onDelete: "cascade" }),
-    account_id: uuid("account_id").notNull(),
-    proposal_id: uuid("proposal_id")
+    /** The shot list (or post) the clip was filmed for. */
+    item_id: uuid("item_id")
       .notNull()
-      .references(() => proposals.id, { onDelete: "cascade" }),
-    execution_id: uuid("execution_id")
-      .notNull()
-      .references(() => executions.id, { onDelete: "cascade" }),
-    item_id: uuid("item_id").references(() => contentItems.id, { onDelete: "set null" }),
-    /** building → built; or uncertain (a create Meta never confirmed), or failed. */
-    status: text("status").notNull().default("building"),
-    /** In every object's name ("… · SYB-1a2b3c4d"): what a read-back finds a lost create by. */
-    build_tag: text("build_tag").notNull(),
-    campaign_id: text("campaign_id"),
-    adset_id: text("adset_id"),
-    video_id: text("video_id"),
-    creative_id: text("creative_id"),
-    ad_id: text("ad_id"),
-    /** Per step: {sent_at, id} — written before and after each create. */
-    steps: jsonb("steps").notNull().default({}),
-    /** The owner's sentence when it stopped short. */
-    last_error: text("last_error"),
-    /** The separate "go live" proposal made once the build is complete. */
-    go_live_proposal_id: uuid("go_live_proposal_id").references(() => proposals.id, {
-      onDelete: "set null",
-    }),
+      .references(() => contentItems.id, { onDelete: "cascade" }),
+    status: footageClipStatus("status").notNull().default("issued"),
+    /** "vercel_blob" | "local_disk" | "memory" — where the bytes went. */
+    store: text("store").notNull(),
+    /** Server-chosen, unguessable: renders/<profile>/<item>/clip-<32 hex>.<ext>. */
+    pathname: text("pathname").notNull(),
+    /** The stored object's URL, once the store has confirmed it. */
+    url: text("url"),
+    content_type: text("content_type").notNull(),
+    /** What the browser said it would send — checked against the cap before any grant. */
+    declared_bytes: integer("declared_bytes").notNull(),
+    /** What the store holds — checked against the cap again on confirm. */
+    bytes: integer("bytes"),
+    /** The file's own name, trimmed and cleaned, for the owner's list only. */
+    label: text("label").notNull(),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
-    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
-      .notNull()
-      .defaultNow(),
+    uploaded_at: timestamp("uploaded_at", { withTimezone: true, mode: "string" }),
+    released_at: timestamp("released_at", { withTimezone: true, mode: "string" }),
   },
   (t) => [
-    uniqueIndex("ad_builds_execution_idx").on(t.execution_id),
-    index("ad_builds_profile_idx").on(t.profile_id, t.created_at),
-    index("ad_builds_item_idx").on(t.item_id),
+    index("footage_clips_item_idx").on(t.item_id, t.created_at),
+    uniqueIndex("footage_clips_pathname_uq").on(t.pathname),
     check(
-      "ad_builds_status_known",
-      sql`${t.status} IN ('building', 'built', 'uncertain', 'failed')`,
+      "footage_clips_uploaded_has_object",
+      sql`${t.status} = 'issued' OR (${t.url} IS NOT NULL AND ${t.bytes} IS NOT NULL)`,
+    ),
+  ],
+);
+
+// A cutting-room run (P3-18) over a shot list's clips. queued → rendering
+// → rendered | failed. The render may run inside the request (after the
+// response) or on the cron sweep; either way the row says where it stands,
+// and `attempts` is capped in the database as well as in code.
+export const footageRenderStatus = pgEnum("footage_render_status", [
+  "queued",
+  "rendering",
+  "rendered",
+  "failed",
+]);
+
+export const footageRenders = pgTable(
+  "footage_renders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    item_id: uuid("item_id")
+      .notNull()
+      .references(() => contentItems.id, { onDelete: "cascade" }),
+    status: footageRenderStatus("status").notNull().default("queued"),
+    /** The clips this run cuts, in order. */
+    clip_ids: jsonb("clip_ids").notNull(),
+    /** Burned onto the frame (optional, short). */
+    on_screen: text("on_screen"),
+    /** The post's caption, for a video item made from a shot list. */
+    caption: text("caption"),
+    scheduled_for: date("scheduled_for", { mode: "string" }),
+    attempts: integer("attempts").notNull().default(0),
+    /** The owner's sentence: why it is waiting, or why it failed. */
+    note: text("note"),
+    /** The item the render landed on. */
+    result_item_id: uuid("result_item_id").references(() => contentItems.id, {
+      onDelete: "set null",
+    }),
+    /** Wall-clock, bytes, output seconds, segments — compute is a cost too (P3-18). */
+    metrics: jsonb("metrics"),
+    requested_by: uuid("requested_by").references(() => users.id, { onDelete: "set null" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    started_at: timestamp("started_at", { withTimezone: true, mode: "string" }),
+    finished_at: timestamp("finished_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    index("footage_renders_item_idx").on(t.item_id, t.created_at),
+    // One live run per item: a second "cut it" while one is queued or running is refused.
+    uniqueIndex("footage_renders_one_live_uq")
+      .on(t.item_id)
+      .where(sql`${t.status} IN ('queued', 'rendering')`),
+    check("footage_renders_attempt_cap", sql`${t.attempts} >= 0 AND ${t.attempts} <= 3`),
+    check("footage_renders_failed_says_why", sql`${t.status} <> 'failed' OR ${t.note} IS NOT NULL`),
+  ],
+);
+
+// P3-53: one row per approved generation proposal — the claim that makes
+// generating twice impossible (UNIQUE proposal_id) and the ledger that
+// makes the caps arithmetic: every attempt's cost in integer minor units
+// with its currency (rule 1).
+export const mediaGenerationStatus = pgEnum("media_generation_status", [
+  "generating",
+  "generated",
+  "failed",
+]);
+
+export const mediaGenerations = pgTable(
+  "media_generations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    /** The item that had no footage — a shot list, or a post that needs media. */
+    target_item_id: uuid("target_item_id")
+      .notNull()
+      .references(() => contentItems.id, { onDelete: "cascade" }),
+    result_item_id: uuid("result_item_id").references(() => contentItems.id, {
+      onDelete: "set null",
+    }),
+    /** "image" | "video". */
+    media: text("media").notNull(),
+    provider: text("provider").notNull(),
+    status: mediaGenerationStatus("status").notNull().default("generating"),
+    attempts: integer("attempts").notNull().default(0),
+    estimate_minor: integer("estimate_minor").notNull(),
+    /** What the provider charged across every attempt — null only while generating. */
+    cost_minor: integer("cost_minor"),
+    currency: text("currency").notNull(),
+    /** sha256 of the exact prompt sent, instruction included. */
+    prompt_sha256: text("prompt_sha256").notNull(),
+    error: text("error"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    finished_at: timestamp("finished_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("media_generations_proposal_uq").on(t.proposal_id),
+    index("media_generations_account_idx").on(t.account_id, t.created_at),
+    index("media_generations_target_idx").on(t.target_item_id),
+    check("media_generations_media", sql`${t.media} IN ('image', 'video')`),
+    check("media_generations_attempt_cap", sql`${t.attempts} >= 0 AND ${t.attempts} <= 2`),
+    check(
+      "media_generations_money",
+      sql`${t.estimate_minor} >= 0 AND (${t.cost_minor} IS NULL OR ${t.cost_minor} >= 0) AND ${t.currency} ~ '^[A-Z]{3}$'`,
     ),
     check(
-      "ad_builds_built_is_whole",
-      sql`${t.status} <> 'built' OR (${t.campaign_id} IS NOT NULL AND ${t.adset_id} IS NOT NULL AND ${t.creative_id} IS NOT NULL AND ${t.ad_id} IS NOT NULL)`,
+      "media_generations_settled_cost",
+      sql`${t.status} = 'generating' OR ${t.cost_minor} IS NOT NULL`,
     ),
   ],
 );
@@ -2472,5 +2662,193 @@ export const assistantChanges = pgTable(
   (t) => [
     index("assistant_changes_profile_idx").on(t.profile_id, t.created_at),
     index("assistant_changes_reply_idx").on(t.reply_utterance_id),
+  ],
+);
+
+/* ---------- Phase 3 Session K — the creative studio (P3-50, P3-51) ---------- */
+
+// P3-50: one read of Meta's Ad Library for a business's niche — a CACHE,
+// not facts about the business. Read-only research (rule 9), so nothing
+// here is a Field<T>: these are other businesses' public ads, kept only as
+// far as the analysis needs them (lib/research/niche.ts). No targeting,
+// reach, spend or payer data is requested or stored, nor the snapshot URL
+// (it carries the reader's access token); page names are businesses.
+export const nicheAdReads = pgTable(
+  "niche_ad_reads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** Where the ads came from. Only the Meta Ad Library today. */
+    source: text("source").notNull().default("meta_ad_library"),
+    /** "read" — ads stored; "failed" — the Library refused or broke, `reason` says how. */
+    status: text("status").notNull(),
+    read_at: timestamp("read_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    /** ISO 3166 alpha-2 the ads were asked for (ad_reached_countries). */
+    country: text("country"),
+    /** The search terms asked, in order. */
+    terms: jsonb("terms").$type<string[]>().notNull().default([]),
+    /** What each query was for: a term, or a listed competitor (by page id or by name). */
+    targets: jsonb("targets").$type<Record<string, unknown>[]>().notNull().default([]),
+    /** HTTP requests the read made, against its cap. */
+    requests: integer("requests").notNull().default(0),
+    /** The ads, minimised (LibraryAd in lib/research/ad-library.ts), capped per read. */
+    ads: jsonb("ads").$type<Record<string, unknown>[]>().notNull().default([]),
+    reason: text("reason"),
+  },
+  (t) => [
+    index("niche_ad_reads_profile_idx").on(t.profile_id, t.read_at),
+    check("niche_ad_reads_status", sql`${t.status} IN ('read', 'failed')`),
+    check(
+      "niche_ad_reads_failed_says_why",
+      sql`${t.status} <> 'failed' OR ${t.reason} IS NOT NULL`,
+    ),
+  ],
+);
+
+// P3-51: the creative brief, one per campaign, with its provenance. The
+// brief is what Sonnet wrote AFTER the deterministic checks passed (every
+// claim cites a source it was given; nothing shares five words in a row
+// with another business's ad); `sources` is exactly what it was given,
+// id by id, so every citation resolves to a fact, finding, post or ad.
+export const creativeBriefs = pgTable(
+  "creative_briefs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The campaign, in the owner's words or the goal's statement. */
+    campaign: text("campaign").notNull(),
+    goal_id: uuid("goal_id").references(() => goals.id, { onDelete: "set null" }),
+    niche_read_id: uuid("niche_read_id").references(() => nicheAdReads.id, {
+      onDelete: "set null",
+    }),
+    /** The validated brief: audience, offer, hooks with scripts and shots (lib/content/brief.ts). */
+    brief: jsonb("brief").$type<Record<string, unknown>>().notNull(),
+    /** Every source the model saw, by its prompt id, with its reference and text. */
+    sources: jsonb("sources").$type<Record<string, unknown>[]>().notNull(),
+    model: text("model").notNull(),
+    /** Model calls this brief took (rejected attempts included), against the cap. */
+    attempts: integer("attempts").notNull(),
+    /** Why each rejected attempt was rejected, in order. */
+    rejections: jsonb("rejections").$type<string[][]>().notNull().default([]),
+    cost_eur: numeric("cost_eur").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("creative_briefs_profile_idx").on(t.profile_id, t.created_at),
+    check("creative_briefs_attempts", sql`${t.attempts} >= 1`),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// The weekly summary — idea 42 (Ideas round, 2026-10-26). One email a week
+// to the business OWNER (never a customer) saying what SYB did and found.
+// A row here is the claim on an (account, ISO week): it is written BEFORE
+// the provider is called, so a re-run of the weekly cron — or two racing
+// — loses the insert and sends nothing. "sending" that never settles means
+// the outcome is unknown; it is not retried. The on/off switch is the
+// owner's own users.notification_prefs.weekly_summary (data-model §4's
+// NotificationPrefs), not a column here.
+
+export const weeklySummaryStatus = pgEnum("weekly_summary_status", [
+  "sending",
+  "sent",
+  "refused",
+  "unknown",
+]);
+
+export const weeklySummaries = pgTable(
+  "weekly_summaries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    /** The ISO week it covers, "2026-W44" (UTC). */
+    iso_week: text("iso_week").notNull(),
+    status: weeklySummaryStatus("status").notNull().default("sending"),
+    /** True when the week had nothing to report and the email said so. */
+    quiet: boolean("quiet").notNull(),
+    /** How many real lines the email carried — counts, never their text. */
+    line_count: integer("line_count").notNull(),
+    /** Resend's email id once accepted; null otherwise. */
+    provider_id: text("provider_id"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    settled_at: timestamp("settled_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [uniqueIndex("weekly_summaries_account_week_idx").on(t.account_id, t.iso_week)],
+);
+
+/* ---------- Phase 3 Session K — ad creation on Meta (P3-54) ---------- */
+
+/**
+ * The journal of one "Run this ad" build: an approved proposal that
+ * creates, all PAUSED and one after another, a campaign, an ad set, (for a
+ * video) an uploaded ad video, a creative and the ad. Every step's
+ * `sent_at` is written just BEFORE the call that creates it and its Meta
+ * id as soon as Meta answers, so a run that stops, is halted or loses an
+ * answer resumes from here and never creates anything twice — an answer
+ * that never came is read back by the build's tag, the P3-21d honesty.
+ * Nothing Meta created can be deleted (DELETED and ARCHIVED are
+ * permanent), so the ids are kept for ever. One row per execution.
+ */
+export const adBuilds = pgTable(
+  "ad_builds",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id").notNull(),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    execution_id: uuid("execution_id")
+      .notNull()
+      .references(() => executions.id, { onDelete: "cascade" }),
+    item_id: uuid("item_id").references(() => contentItems.id, { onDelete: "set null" }),
+    /** building → built; or uncertain (a create Meta never confirmed), or failed. */
+    status: text("status").notNull().default("building"),
+    /** In every object's name ("… · SYB-1a2b3c4d"): what a read-back finds a lost create by. */
+    build_tag: text("build_tag").notNull(),
+    campaign_id: text("campaign_id"),
+    adset_id: text("adset_id"),
+    video_id: text("video_id"),
+    creative_id: text("creative_id"),
+    ad_id: text("ad_id"),
+    /** Per step: {sent_at, id} — written before and after each create. */
+    steps: jsonb("steps").notNull().default({}),
+    /** The owner's sentence when it stopped short. */
+    last_error: text("last_error"),
+    /** The separate "go live" proposal made once the build is complete. */
+    go_live_proposal_id: uuid("go_live_proposal_id").references(() => proposals.id, {
+      onDelete: "set null",
+    }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("ad_builds_execution_idx").on(t.execution_id),
+    index("ad_builds_profile_idx").on(t.profile_id, t.created_at),
+    index("ad_builds_item_idx").on(t.item_id),
+    check(
+      "ad_builds_status_known",
+      sql`${t.status} IN ('building', 'built', 'uncertain', 'failed')`,
+    ),
+    check(
+      "ad_builds_built_is_whole",
+      sql`${t.status} <> 'built' OR (${t.campaign_id} IS NOT NULL AND ${t.adset_id} IS NOT NULL AND ${t.creative_id} IS NOT NULL AND ${t.ad_id} IS NOT NULL)`,
+    ),
   ],
 );

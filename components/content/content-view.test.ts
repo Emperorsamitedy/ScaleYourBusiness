@@ -5,6 +5,8 @@ import {
   adLine,
   channelStrips,
   contentHeadline,
+  formatMinor,
+  mediaWord,
   performanceLine,
   publishLine,
   shortId,
@@ -207,5 +209,19 @@ describe("P3-54 — the ad line under an item", () => {
       tone: "drift",
       text: "I may have created the ad set",
     });
+  });
+});
+
+describe("P3-52/53 — what an item's media is, in the owner's words", () => {
+  it("never shows a generated picture as filmed", () => {
+    expect(mediaWord({ media: { origin: "footage" } })).toBe("your footage");
+    expect(mediaWord({ media: { origin: "generated_image" } })).toBe("AI-generated image");
+    expect(mediaWord({ media: { origin: "generated_video" } })).toBe("AI-generated video");
+    expect(mediaWord(null)).toBe("your footage");
+  });
+
+  it("prices come as integer minor units and print as money", () => {
+    expect(formatMinor({ amount_minor: 4, currency: "EUR" })).toBe("€0.04");
+    expect(formatMinor({ amount_minor: 50, currency: "EUR" })).toBe("€0.50");
   });
 });

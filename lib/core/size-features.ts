@@ -65,6 +65,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Whether an hour pays for itself depends on the till, not the headcount.",
   },
+  "nav.patterns": {
+    bands: EVERY,
+    reason:
+      "A one-person business feels its busy season hardest, and knowing what sells together is free money at any size.",
+  },
   "nav.stock": {
     bands: EVERY,
     reason:
@@ -82,6 +87,11 @@ export const SIZE_FEATURES = {
   "nav.content": {
     bands: EVERY,
     reason: "A solo owner has the least time to write posts, so drafts help most there.",
+  },
+  "nav.studio": {
+    bands: EVERY,
+    reason:
+      "A one-person business can least afford an agency, so seeing what its niche keeps running, and a brief to film from, helps most there.",
   },
   "nav.site": {
     bands: EVERY,

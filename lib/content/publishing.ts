@@ -52,6 +52,7 @@ import { ProposalError, recordExecution } from "../proposals/service";
 import type { ProposalRow } from "../proposals/service";
 import type { MediaStore } from "./media";
 import { vercelBlobStore } from "./media";
+import { supersededByFootage } from "./media-item";
 import { ContentError } from "./plan";
 import { isPublishProposal } from "./publish";
 
@@ -321,6 +322,12 @@ export async function publishPlan(
       ),
     );
   if (!item) return { unroutable: "the item this proposal publishes is gone" };
+  // Session K: real footage wins — an approved generated version never goes out once it exists.
+  if (await supersededByFootage(item)) {
+    return {
+      unroutable: "your own footage for this replaced the generated version, so it isn't published",
+    };
+  }
   const op = publishOpFor(d.platform, item.media_path);
   if (op === null) {
     return { unroutable: `nothing SYB publishes fits this item on ${LABEL[d.platform]}` };

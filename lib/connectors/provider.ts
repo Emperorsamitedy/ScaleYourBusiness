@@ -200,6 +200,30 @@ export interface PullPage {
    * identity on the way in; the daily counts are already in observations.
    */
   appointments?: BookingInput[];
+  /**
+   * Stores only (idea 48, bundles): which products went out together, per
+   * order, for every counted order created in [from, to]. The window is
+   * authoritative — the sync replaces the stored baskets of those days
+   * with these, in the page's transaction — so a re-read drops an order
+   * since cancelled. Read from the order lines the page already read.
+   */
+  baskets?: BasketWindow;
+}
+
+/** One order's distinct store product ids — no customer, no amounts. */
+export interface BasketInput {
+  /** The platform's own order id. */
+  order_ref: string;
+  /** "YYYY-MM-DD" — the same UTC day the order's revenue.daily row uses. */
+  day: string;
+  /** Distinct, sorted, never empty. */
+  product_refs: string[];
+}
+
+export interface BasketWindow {
+  from: string;
+  to: string;
+  orders: BasketInput[];
 }
 
 /** What the sync knows about the connection that a provider may need. */

@@ -1,5 +1,5 @@
 {
-  "id": "9765a2b2-609b-4101-b43e-68468e984ddf",
+  "id": "97092f09-232a-48bb-ba91-36c5041f042b",
   "prevId": "af99acc7-3a63-4cfe-8558-cee74a293fcf",
   "version": "7",
   "dialect": "postgresql",
@@ -151,239 +151,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.ad_builds": {
-      "name": "ad_builds",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "account_id": {
-          "name": "account_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "proposal_id": {
-          "name": "proposal_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "execution_id": {
-          "name": "execution_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "item_id": {
-          "name": "item_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'building'"
-        },
-        "build_tag": {
-          "name": "build_tag",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "campaign_id": {
-          "name": "campaign_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "adset_id": {
-          "name": "adset_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "video_id": {
-          "name": "video_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "creative_id": {
-          "name": "creative_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ad_id": {
-          "name": "ad_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "steps": {
-          "name": "steps",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "last_error": {
-          "name": "last_error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "go_live_proposal_id": {
-          "name": "go_live_proposal_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "ad_builds_execution_idx": {
-          "name": "ad_builds_execution_idx",
-          "columns": [
-            {
-              "expression": "execution_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "ad_builds_profile_idx": {
-          "name": "ad_builds_profile_idx",
-          "columns": [
-            {
-              "expression": "profile_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "ad_builds_item_idx": {
-          "name": "ad_builds_item_idx",
-          "columns": [
-            {
-              "expression": "item_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "ad_builds_profile_id_business_profiles_id_fk": {
-          "name": "ad_builds_profile_id_business_profiles_id_fk",
-          "tableFrom": "ad_builds",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "ad_builds_proposal_id_proposals_id_fk": {
-          "name": "ad_builds_proposal_id_proposals_id_fk",
-          "tableFrom": "ad_builds",
-          "tableTo": "proposals",
-          "columnsFrom": ["proposal_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "ad_builds_execution_id_executions_id_fk": {
-          "name": "ad_builds_execution_id_executions_id_fk",
-          "tableFrom": "ad_builds",
-          "tableTo": "executions",
-          "columnsFrom": ["execution_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "ad_builds_item_id_content_items_id_fk": {
-          "name": "ad_builds_item_id_content_items_id_fk",
-          "tableFrom": "ad_builds",
-          "tableTo": "content_items",
-          "columnsFrom": ["item_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "ad_builds_go_live_proposal_id_proposals_id_fk": {
-          "name": "ad_builds_go_live_proposal_id_proposals_id_fk",
-          "tableFrom": "ad_builds",
-          "tableTo": "proposals",
-          "columnsFrom": ["go_live_proposal_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "ad_builds_status_known": {
-          "name": "ad_builds_status_known",
-          "value": "\"ad_builds\".\"status\" IN ('building', 'built', 'uncertain', 'failed')"
-        },
-        "ad_builds_built_is_whole": {
-          "name": "ad_builds_built_is_whole",
-          "value": "\"ad_builds\".\"status\" <> 'built' OR (\"ad_builds\".\"campaign_id\" IS NOT NULL AND \"ad_builds\".\"adset_id\" IS NOT NULL AND \"ad_builds\".\"creative_id\" IS NOT NULL AND \"ad_builds\".\"ad_id\" IS NOT NULL)"
-        }
-      },
       "isRLSEnabled": false
     },
     "public.alert_reviews": {
@@ -7360,6 +7127,109 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.weekly_summaries": {
+      "name": "weekly_summaries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iso_week": {
+          "name": "iso_week",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "weekly_summary_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'sending'"
+        },
+        "quiet": {
+          "name": "quiet",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "line_count": {
+          "name": "line_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "settled_at": {
+          "name": "settled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "weekly_summaries_account_week_idx": {
+          "name": "weekly_summaries_account_week_idx",
+          "columns": [
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "iso_week",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "weekly_summaries_account_id_accounts_id_fk": {
+          "name": "weekly_summaries_account_id_accounts_id_fk",
+          "tableFrom": "weekly_summaries",
+          "tableTo": "accounts",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -7611,6 +7481,11 @@
       "name": "utterance_role",
       "schema": "public",
       "values": ["owner", "system"]
+    },
+    "public.weekly_summary_status": {
+      "name": "weekly_summary_status",
+      "schema": "public",
+      "values": ["sending", "sent", "refused", "unknown"]
     }
   },
   "schemas": {},

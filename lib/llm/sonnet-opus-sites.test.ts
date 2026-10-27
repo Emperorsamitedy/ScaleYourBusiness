@@ -47,6 +47,7 @@ const { loadBank } = await import("../bank/loader");
 const { liveReviewLlm } = await import("../care/review");
 const { liveAnswerLlm } = await import("../chat/service");
 const { draftItem, liveDraftLlm: liveContentDraftLlm } = await import("../content/draft");
+const { liveBriefLlm } = await import("../content/brief");
 const { DiagnosisRefusalError, diagnosisLlmFor, liveDiagnosisLlm } =
   await import("../diagnosis/findings");
 const { liveRecommendationsLlm } = await import("../diagnosis/recommendations");
@@ -149,6 +150,18 @@ describe("SONNET_MODEL and DIAGNOSIS_MODEL unset: exactly today's models and req
     });
   });
 
+  it("creative brief (P3-51)", async () => {
+    fake.replies.push(thinksThen(text("{}")));
+    await liveBriefLlm(args);
+    expect(lastSent()).toStrictEqual({
+      model: "claude-sonnet-5",
+      max_tokens: 2_500,
+      system: "s",
+      messages: [{ role: "user", content: "u" }],
+    });
+    expect(fake.logged.at(-1)).toEqual({ model: "claude-sonnet-5", workload: "creative_brief" });
+  });
+
   it("support reply draft", async () => {
     fake.replies.push(thinksThen(text("{}")));
     await liveReplyDraftLlm(args);
@@ -204,6 +217,7 @@ describe("SONNET_MODEL=claude-sonnet-5-5", () => {
     { name: "content draft", run: () => liveContentDraftLlm(args), workload: "content" },
     { name: "support answer", run: () => liveSupportAnswerLlm(args), workload: "support" },
     { name: "support reply draft", run: () => liveReplyDraftLlm(args), workload: "support_draft" },
+    { name: "creative brief", run: () => liveBriefLlm(args), workload: "creative_brief" },
   ];
 
   for (const site of answerSites) {
@@ -239,12 +253,13 @@ describe("SONNET_MODEL=claude-sonnet-5-5", () => {
 
   it("refusals go down each site's own path, never read as an answer", async () => {
     const bait = '{"answer":"bait","grounded":true,"used":["x"]}';
-    fake.replies.push(refusal(bait), refusal(bait), refusal(bait), refusal(bait));
+    fake.replies.push(refusal(bait), refusal(bait), refusal(bait), refusal(bait), refusal(bait));
     expect((await liveAnswerLlm(args)).text).toBe(""); // "no answer worth giving"
     await expect(liveContentDraftLlm(args)).rejects.toBeInstanceOf(ModelRefusalError);
     expect(coerceAnswer((await liveSupportAnswerLlm(args)).text).grounded).toBe(false); // a person
     expect(coerceAnswer((await liveReplyDraftLlm(args)).text).grounded).toBe(false); // write it yourself
-    expect(fake.logged).toHaveLength(4); // every declined call still metered
+    await expect(liveBriefLlm(args)).rejects.toBeInstanceOf(ModelRefusalError); // no brief
+    expect(fake.logged).toHaveLength(5); // every declined call still metered
   });
 
   it("a declined content draft makes no draft", async () => {

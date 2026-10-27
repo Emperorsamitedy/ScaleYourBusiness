@@ -36,6 +36,32 @@ export const env: Record<RequiredKey, string> = {
   },
 };
 
+/**
+ * P3-52: is a Vercel Blob token set? Uploads choose their path by it: the
+ * browser uploads straight to Blob with a short-lived client token when it
+ * is, and to the local disk store (development only) when it isn't.
+ */
+export function blobTokenSet(): boolean {
+  return (process.env.BLOB_READ_WRITE_TOKEN?.trim() ?? "") !== "";
+}
+
+/**
+ * P3-53: which media-generation provider is switched on. Anything but a
+ * known id reads as "off" — the safe reading is the default, as with
+ * SESSION_D_REAL_WRITES. "fake" is the in-repo provider for tests and dev
+ * and is refused in production (it would publish placeholder art).
+ * "vendor" names the unimplemented adapter slot: the real provider is not
+ * chosen yet (build-sequence step 2, quotes pending).
+ */
+export type MediaProviderSetting = "off" | "fake" | "vendor";
+
+export function mediaProviderSetting(): MediaProviderSetting {
+  const raw = process.env.MEDIA_PROVIDER?.trim().toLowerCase() ?? "";
+  if (raw === "fake") return process.env.NODE_ENV === "production" ? "off" : "fake";
+  if (raw === "vendor") return "vendor";
+  return "off";
+}
+
 export type MetaAccessLevel = "standard" | "advanced";
 
 /**
@@ -77,6 +103,18 @@ export function metaLoginEnv(): MetaLoginEnv | null {
     redirect_uri: process.env.META_OAUTH_REDIRECT_URI?.trim() || null,
     app_url: appUrl(),
   };
+}
+
+/**
+ * P3-50: the user access token SYB reads Meta's Ad Library with — from a
+ * developer account whose identity Meta has confirmed. Optional: null
+ * means niche research is not set up, and the studio screen says exactly
+ * that instead of failing. The token is only ever sent in an
+ * Authorization header, never in a URL, and never stored.
+ */
+export function metaAdLibraryToken(): string | null {
+  const token = process.env.META_AD_LIBRARY_TOKEN?.trim() ?? "";
+  return token === "" || /\s/.test(token) ? null : token;
 }
 
 /**

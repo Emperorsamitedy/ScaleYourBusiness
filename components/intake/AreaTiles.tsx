@@ -16,14 +16,19 @@
 // The status word re-words the server's area status. A tile with
 // something to ask is a button: choosing it asks that area's next
 // question (preferSection on the server).
+//
+// The bank starts folded to one line — the channel being asked, a strip
+// of every area's progress, how many are done — so the question owns the
+// screen. Unfolding shows the tiles unchanged; choosing one folds it again.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { IntakeArea } from "@/lib/intake/types";
 import {
   areaAskable,
   areaName,
   areaPercent,
   areaStatusWord,
+  bankSummary,
   channelNo,
   tileColumns,
 } from "./record";
@@ -59,6 +64,8 @@ export function AreaTiles({
   connector: string;
   onChoose: (section: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const tilesId = useId();
   // When the bank scrolls inside itself, keep the active tile in view by
   // scrolling the strip — never the page.
   const activeRef = useRef<HTMLLIElement>(null);
@@ -67,27 +74,62 @@ export function AreaTiles({
     const strip = li?.parentElement;
     if (!li || !strip || strip.scrollWidth <= strip.clientWidth) return;
     strip.scrollLeft = li.offsetLeft - strip.offsetLeft - 16;
-  }, [active]);
+  }, [active, open]);
   if (areas.length === 0) return null;
 
   const channelOf = (section: string): string | null => {
     const i = areas.findIndex((a) => a.section === section);
     return i < 0 ? null : channelNo(i);
   };
+  const summary = bankSummary(areas, active);
 
   return (
-    <nav className="ix-bank" aria-labelledby="ix-bank-h">
-      <div className="ix-bank-head">
-        <h2 className="ix-cap" id="ix-bank-h">
-          Channel bank · your business, measured area by area
-        </h2>
+    <nav className={open ? "ix-bank open" : "ix-bank"} aria-labelledby="ix-bank-h">
+      <h2 className="ix-cap" id="ix-bank-h">
+        <button
+          type="button"
+          className="ix-bank-fold"
+          aria-expanded={open}
+          aria-controls={tilesId}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span className="ix-bank-title">Channel bank</span>
+          <span className="ix-bank-now">
+            {summary.current ? (
+              <>
+                CH {summary.current.ch} · {summary.current.name} ·{" "}
+                <span className="fig">{summary.current.pct}%</span>
+              </>
+            ) : (
+              "Your business, measured area by area"
+            )}
+          </span>
+          <span className="ix-bank-strip" aria-hidden="true">
+            {areas.map((a) => (
+              <span
+                key={a.section}
+                className={a.section === active ? "ix-bank-cell live" : "ix-bank-cell"}
+              >
+                <span style={{ width: `${areaPercent(a)}%` }} />
+              </span>
+            ))}
+          </span>
+          <span className="ix-bank-done">
+            <span className="fig">{summary.done}</span> of {summary.total} done
+          </span>
+          <span className="ix-bank-toggle">{open ? "Hide channels" : "All channels"}</span>
+        </button>
+      </h2>
+      {open && (
         <p className="ix-cap ix-legend">
           <span className="ix-key-sw owner" aria-hidden="true" /> from you{" "}
           <span className="ix-key-sw measured" aria-hidden="true" /> read from {connector} · any
           order is fine
         </p>
-      </div>
+      )}
       <ol
+        id={tilesId}
+        hidden={!open}
         className="ix-tiles"
         style={{ "--tile-cols": tileColumns(areas.length) } as React.CSSProperties}
       >
@@ -122,7 +164,10 @@ export function AreaTiles({
                   type="button"
                   className="ix-tile"
                   disabled={busy}
-                  onClick={() => onChoose(area.section)}
+                  onClick={() => {
+                    setOpen(false);
+                    onChoose(area.section);
+                  }}
                   aria-label={`${words} Ask from this area.`}
                 >
                   {body}

@@ -125,6 +125,7 @@ A missing input is never filled with an industry number, and two currencies are 
 - *Bookings, week by week*, on `/profile` beneath the market chart. Completed appointments are filled, no-shows hollow and late cancellations tinted, stacked. A separate pane on its own axis shows what the missed slots were worth (never a dual axis).
 - *Ads, the last 14 days*, on `/profile`. Each campaign shows spend as a hollow bar against Meta's attributed value as a filled bar on one scale, with LOSING / PAYS BACK flags.
 - *Slow stock, count by count*, on `/stock`. Each item's value at cost on each stock count is joined into a line, never summed across days. It is drawn only with two counts or more.
+- *Your year, week by week* (`SeasonChart.tsx`, idea 46), on `/patterns`. Each bar is one complete week of the business's own series against its normal week (1.0×, the median of the last 52). Busy weeks (≥ 1.25×) are filled ink and quiet ones (≤ 0.8×) hollow `--drift`, so it reads in grayscale. The middle half of weeks is a tinted band round 1.0×, the busy and quiet lines are dashed, and a bracket marks last year's weeks that line up with the next eight. With under a year it draws the weeks there are against their own median, with no lines, no band, and a title that says it isn't a season.
 
 The Goals screen already carries its own weekly candles against the path (`components/care/CandleChart.tsx`), so no second chart is added there. The diagnosis report has no priced money-leak column yet ("Money a month is printed only where a measure's gap is priced; none is"), and it is a dated snapshot, so a live chart beside it would contradict its date. No chart is added there.
 
@@ -143,6 +144,7 @@ The Goals screen already carries its own weekly candles against the path (`compo
 | Approval queue | Decide on proposals | v2, patterned here |
 | Module pages | Marketing, finance, support detail | v3+ |
 | Campaign simulator | Compare 2–4 campaign options' likely ranges before anything is spent | v3 (feature 36) |
+| Creative studio | The niche's longest-running ads, and a cited creative brief to film from | v3 (P3-50, P3-51) |
 
 Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame.tsx`). It is a 248px ink rail with:
 - the wordmark, the business name and the live state ("WATCHING · DAY 19 / 28") over a cobalt rule;
@@ -153,6 +155,24 @@ Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame
 There are no icons and no section tabs. Under 900px the rail folds into a top bar with a Menu button.
 
 **Campaign simulator** (`/simulate`, under Grow; feature 36). It lives on its own screen rather than in "Waiting for you" or on Customers: it compares email, ad and content options before any proposal exists, and the queue is a focused view for deciding, not for exploring. The owner picks two to four options in a ruled picker; a `.rt` table puts measures in rows (what it costs, people it reaches, orders, expected revenue, expected profit, worst case) and options in columns, each cell "low – high" in mono with the basis words of what it rests on, or a worded MISSING / NOT READ flag — a gap is never a number. A plain-SVG whisker per option shows expected profit against zero, the worst case as a square. Under it, each option shows its chain: every input with its value, basis and source (missing ones say what would fill them), the projection's own ASSUMED line, the arithmetic per measure, the worst case in words, and what the trust layer can say about similar past proposals. "Propose this" makes the normal proposal for its kind with the simulation attached; nothing executes. Money prints in whole major units, one decimal count throughout.
+
+**Creative studio** (`/studio`, under Grow after Content; P3-50, P3-51). It has its own screen rather than a section of `/content`. Content is the queue of things made; the studio is where they are planned from research. The head states the longest-running concept found ("Saltmarsh Pottery's video has run 143 days — the longest-running concept I found"), or in words that research isn't set up or the Library can't show the niche. The aside reads "Meta Ad Library · read-only · OBSERVED".
+
+- **The niche's ads.** The first sheet opens with an inset that is always printed and never behind a click. It says there are no results figures, that running time and versions are a proxy and not a measurement, that only the EU and UK are covered, and how far format can be told. A `.rt rt-stack` table lists the business (with a boxed YOU LISTED THEM for a listed competitor, and a link to the public Library page), the format as a mono word, running days with LIVE or STOPPED, versions, the opening line quoted, and the offer and call to action quoted or "no offer found". The staying-power arithmetic is the running cell's title.
+- **Reading again.** The foot holds the owner's search terms and "Read again →", disabled until the once-a-day refresh with its time stated. With no token, or outside the coverage, the foot says why in place of the form, and the last read still shows.
+- **The brief.** A sheet writes a brief from the owner's campaign words or a goal. It states the calls left this month and the copy rule. The brief sheet shows who it's for and the offer, each followed by its citation chips (mono, inset, `F3 · YOUR FACT`, `A1 · NICHE AD`, the source text on hover). Each hook is a Zilla line with its chips, the script with "about N s", and the numbered shots, each with its why. A collapsed list at the foot gives every source the brief was written from. The disclosure "Brief prepared with AI assistance." sits in the header.
+- **Make this.** "Make this →" under each hook proposes that shot list; the notice links to "Waiting for you". While the watch runs it is disabled with the date in words.
+
+Nothing on the screen publishes, generates, films or spends.
+
+**Footage and the AI fallback on /content** (P3-52, P3-53, 2026-10-26). They sit under the open item in the detail sheet, only for an item that can take media: a shot list, or a post that needs a picture. Top to bottom:
+- **Footage:** the clips uploaded so far (mono name, size, Remove), and a file control stating its limits (MP4 or MOV, the per-clip MB, 8 clips).
+- **The cut:** once a clip is in, a caption (shot lists only), an optional on-screen line, the date and **Cut it**. The last cut's state is a boxed word (queued, cutting, rendered, failed) with its sentence, including "FFmpeg isn't here", and "Open the video" once rendered. The fine print says what the cutting room does and the label it applies.
+- **The fallback:** shown only when there is no footage, headed "No footage? The AI fallback". It gives the estimate for an image and a clip in money words ("about €0.04") and says it is labelled as AI-generated and needs two yeses. It has an optional "what it should show" line and two buttons that put a PROPOSAL in the queue. Once approved, the one button is **Generate it**. When it is off, refused or watching, it gives one sentence ("Not offered: …") and no button.
+
+The media line in the item's dark strip says "Media · AI-generated image" (or video) for generated media, never "your footage". A drafted post or video that now qualifies but has no publish proposal gets **Propose for publishing**. An approved generated item whose footage arrived says it won't be published.
+
+**Seasons & bundles** (`/patterns`, under Insights beside Trading hours; ideas 46 and 48). Trading hours says when in the day and week; this says when in the year and what goes together. Both are deterministic readings of the business's own measured history. The head states the main fact: "Your busy stretch starts in 4 weeks: last year it ran 2.0× your normal week." The season chart comes first. Beside it, the next eight weeks each sit by the same week 52 weeks before ("Week of 23 Nov · last year €2,140 · 2.0× (1.8–2.2×) · BUSY") with the stretch in a sentence, then the months scaled to a week. Every index prints as a range: the week against the two ends of the normal middle half, widened by a second year where there is one. "How I read it" says that one year is one example, what normal is, and which weeks were left out. Under 50 complete weeks of the last 52, the screen does not name a season. It says how many days there are, from when it can, and two lists, *I can* and *I can't yet*; the second includes "borrow a season from other businesses like yours". Below, **What goes together** is a `.rt` table per source (a store's orders, or a bookings source's visits: one client's completed appointments on one day). Each row shows the pair, "together in N", "X% of orders with A" (A is the rarer item), the lift against chance with the chance count, and the pair's margin from the owner's own prices and costs, or "Margin unknown: …". The foot says the thresholds (5 together, 1.2× chance, 50 baskets) and counts what fell under each. "Propose this pair →" drafts one proposal, both items at full price with no discount. The line under the table says that nothing in the shop or the checkout changes, and that the owner sets the pair up. Before care and while watching, the button is off and says why.
 
 Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
@@ -240,6 +260,7 @@ The intake now follows the owner's "calibrating the record" design (`components/
 **Channel bank:** one tile per bank section.
 - Each tile has one bar per applicable question, in bank order. The bar kinds are owner, measured, derived, current, open, unknown and skipped, each with its own fill pattern.
 - Each tile shows the percentage answered and a status word: DONE, MEASURING, READ ONLY, NOT STARTED, NEEDS CH nn or IN PROGRESS.
+- The bank starts folded to one ruled line so the question owns the screen. The line shows the channel being asked with its percentage, one cell per area filled to its share answered, and how many areas are done. "All channels" unfolds the tiles unchanged; choosing a tile folds it again.
 
 **Question panel:**
 - a dark band showing the question, the channel, and how many questions and minutes are left (45 seconds a question)
@@ -323,6 +344,12 @@ Structure, top to bottom:
 
 Recommendations carry two actions — "Look into this" and "Not for us". Declining opens a short reason field, because that reason is the training data for everything the system proposes later. The field is optional but pre-filled with three common reasons as chips, since a required field here produces junk.
 
+**Share this report (idea 51, 2026-10-26).** A card above the report's footer, in the sheet style with no icons. It has a choice of 7 or 30 days, one "Make a link →" action, and the new link shown once in a read-only field with "Copy" (it can't be shown again, since only its hash is kept). Below that is the list of links made: open, expired or revoked, when each was made, when it expires, when it was last opened and how often, and "Revoke" on each open one. Signed out, the card says sign-in is needed. It is left out of print.
+
+The shared view at `/shared/<token>` is the same report body, read only. Its masthead has the business, platform and currency, plus "Shared report · read only". There is no rail, no sub-nav and no link on the wordmark. The recommendations show without the owner's answers or the answer buttons. "Answer now" and "See every weekday" are left out. The footer says it is a shared snapshot, when it was made, and from which report. A dead link of any kind gets one plain sheet: "This link is no longer active."
+
+**Accountant export (idea 49, 2026-10-26).** On `/profile`, the page head's aside says "For your accountant" over two plain links: "Money facts, CSV" and "Earlier figures, CSV". They are file downloads, not screens.
+
 ### 7.1 Landing page
 
 The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx`, `StoreChart.tsx` and `Demos.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
@@ -403,6 +430,8 @@ Three tiers:
 **Everything else** — routine activity. Visible in the log if you look, silent otherwise.
 
 The cap is a product rule, not a preference. If the system ever needs more than one urgent push per day, that is a signal it is proposing too much, and the correct fix is upstream — batching proposals — not more notifications.
+
+**The weekly summary email (idea 42, 2026-10-26).** One email a week to the owner, sent on the Monday beat, so the "worth knowing" tier reaches an owner who doesn't log in. It is the Watching screen's week, sent: what waits for you (proposals, and open support questions as a count, never their words), what I did, what I noticed, your goals, and how approved changes are doing. Every line is a row on record. A quiet week says "A quiet week" and nothing else. The email is plain HTML in the sheet tokens (ink on paper, 1px rules, mono labels, no images, no colour carrying meaning) with the same words in a text part. It has no tracking pixel. Every email carries a one-click "stop these emails" link, which opens a page with one button, like the unsubscribe page. The switch is a "Weekly email" card beside Modules on /watch, on by default once How I work is decided. The card says plainly when the server can't send email.
 
 ---
 

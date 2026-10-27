@@ -87,6 +87,7 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/progress", label: "Goals", feature: "nav.goals", count: (c) => n(c.goals) },
       { href: "/hours", label: "Trading hours", feature: "nav.hours" },
+      { href: "/patterns", label: "Seasons & bundles", feature: "nav.patterns" },
       {
         href: "/stock",
         label: "Slow stock",
@@ -108,6 +109,7 @@ export const GROUPS: readonly Group[] = [
         feature: "nav.content",
         count: (c) => n(c.by_module.content ?? 0),
       },
+      { href: "/studio", label: "Creative studio", feature: "nav.studio" },
       {
         href: "/site",
         label: "Website",
@@ -179,6 +181,8 @@ export function showsNav(path: string): boolean {
 function useCounts(path: string): NavCounts | null {
   const [counts, setCounts] = useState<NavCounts | null>(null);
   useEffect(() => {
+    // A stranger's page (a shared report, idea 51) never asks for the owner's counts.
+    if (path.startsWith("/shared/")) return;
     let alive = true;
     void fetch("/api/nav")
       .then(async (res) => (res.ok ? ((await res.json()) as NavCounts) : null))

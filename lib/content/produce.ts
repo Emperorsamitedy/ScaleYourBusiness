@@ -65,7 +65,16 @@ export async function produceFromProposal(
   const action = proposal.action as {
     kind?: string;
     summary?: string;
-    detail?: { items?: PlannedItem[]; shots?: Shot[]; offer_id?: string; channel_label?: string };
+    detail?: {
+      items?: PlannedItem[];
+      shots?: Shot[];
+      offer_id?: string;
+      channel_label?: string;
+      /** P3-51: a shot list made from a creative brief's hook carries its script. */
+      script?: string;
+      brief_id?: string;
+      hook_index?: number;
+    };
   };
   if (action.kind !== "content_publishing") {
     throw new ContentError("this proposal is not a content proposal", 422);
@@ -140,12 +149,21 @@ export async function produceFromProposal(
       channel_label: action.detail.channel_label ?? "video",
       scheduled_for: null,
       title: `Shot list — ${offerName}`,
-      body: withDisclosure("shot_list", renderShotList(action.detail.shots, offerName)),
+      body: withDisclosure(
+        "shot_list",
+        renderShotList(action.detail.shots, offerName) +
+          (action.detail.script
+            ? `\n\nWhat to say (in your own way):\n${action.detail.script}`
+            : ""),
+      ),
       disclosure: "Shot list prepared with AI assistance.",
       provenance: {
         shots: action.detail.shots,
         offer_id: action.detail.offer_id ?? null,
         voice_card: card,
+        ...(action.detail.brief_id
+          ? { brief_id: action.detail.brief_id, hook_index: action.detail.hook_index ?? null }
+          : {}),
       },
     });
   }

@@ -22,6 +22,53 @@ const LABELS: Readonly<Record<ContentKind, string>> = {
   video: "AI-assisted edit of real footage. No AI-generated imagery.",
 };
 
+/**
+ * P3-53 (Session K, "real first, AI fallback"): where an item's media came
+ * from. Real footage keeps the honest edit label above. GENERATED media is
+ * labelled as generated — stronger than "AI-assisted", and never softened:
+ * these are the words the caption ends with and the file's metadata holds.
+ */
+export type MediaOrigin = "footage" | "generated_image" | "generated_video";
+
+const MEDIA_LABELS: Readonly<Record<MediaOrigin, string>> = {
+  footage: LABELS.video,
+  generated_image: "AI-generated image. Not a real photo.",
+  generated_video: "AI-generated video. Not real footage.",
+};
+
+/**
+ * The label for an item carrying media of this origin. A video item's label
+ * is the media's alone; a post's says the words were AI-assisted AND what
+ * the media is. Total — every kind and origin has one.
+ */
+export function mediaDisclosureLabel(kind: ContentKind, origin: MediaOrigin): string {
+  if (kind === "video" || kind === "shot_list") return MEDIA_LABELS[origin];
+  return `${LABELS[kind]} ${MEDIA_LABELS[origin]}`;
+}
+
+/**
+ * Re-label a caption: the old trailing label (any of ours) comes off, the
+ * new one goes on — so a post that gains generated media says so, and one
+ * whose generated image is replaced by real footage stops saying it.
+ * Idempotent, and a caption always ends labelled.
+ */
+export function relabel(body: string, label: string): string {
+  let text = body.trimEnd();
+  for (;;) {
+    const known = ALL_LABELS.find((l) => text.endsWith(l));
+    if (!known) break;
+    text = text.slice(0, text.length - known.length).trimEnd();
+  }
+  return text === "" ? label : `${text}\n\n${label}`;
+}
+
+/** Is this a label for generated media? (provenance and the screen ask) */
+export function isGeneratedLabel(label: string): boolean {
+  return (
+    label.endsWith(MEDIA_LABELS.generated_image) || label.endsWith(MEDIA_LABELS.generated_video)
+  );
+}
+
 /** The label for a piece of content. Total function — every kind has one. */
 export function disclosureLabel(kind: ContentKind): string {
   return LABELS[kind];
@@ -45,5 +92,10 @@ export function withDisclosure(kind: ContentKind, body: string): string {
  */
 export function isDisclosed(text: string): boolean {
   const end = text.trimEnd();
-  return Object.values(LABELS).some((label) => end.endsWith(label));
+  return ALL_LABELS.some((label) => end.endsWith(label));
 }
+
+/** Every label a caption may end with, longest first so relabel strips whole labels. */
+const ALL_LABELS: readonly string[] = [
+  ...new Set([...Object.values(LABELS), ...Object.values(MEDIA_LABELS)]),
+].sort((a, b) => b.length - a.length);

@@ -506,3 +506,31 @@
     padding: 12px 14px;
   }
 }
+
+/* Idea 49: the accountant export, in the page head's aside — two plain links. */
+.fs-export {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  margin: 0;
+}
+.fs-export-l {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+}
+.fs-export a {
+  color: var(--desk-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.fs-export a:hover {
+  text-decoration-thickness: 2px;
+}
+@media (max-width: 719px) {
+  .fs-export {
+    align-items: flex-start;
+  }
+}
