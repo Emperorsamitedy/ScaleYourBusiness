@@ -164,6 +164,20 @@ export async function addDeal(
   now: Date = new Date(),
 ): Promise<DealRow> {
   if (!(await pipelineApplies(profileId))) throw new DealError(NOT_B2B, 409);
+  return insertDeal(accountId, profileId, input, origin, now);
+}
+
+/**
+ * addDeal without the PIPELINE_APPLIES check — for the import, which checks
+ * it once for the whole file. Every other caller uses addDeal.
+ */
+export async function insertDeal(
+  accountId: string,
+  profileId: string,
+  input: NewDeal,
+  origin: DealOrigin,
+  now: Date,
+): Promise<DealRow> {
   const title = cleanText(input.title, TITLE_MAX, "the deal's name");
   if (title === null) throw new DealError("a deal needs a name — what is it for?", 422);
   const stage = input.stage ?? "lead";

@@ -106,6 +106,26 @@ export function followUpSummary(stage: DealStage, age: DealAge): string {
 }
 
 /**
+ * Why no follow-up can be proposed right now, or null when they can: not a
+ * business that sells to businesses, the watch (rule 15), or the owner's
+ * 6.4b "no consent". Read-only — the screen asks the same question.
+ */
+export async function followUpHold(
+  profileId: string,
+  now: Date = new Date(),
+): Promise<string | null> {
+  if (!(await pipelineApplies(profileId))) return NOT_B2B;
+  const care = await careState(profileId);
+  if (care?.watch_ends_at && now.toISOString() < care.watch_ends_at) {
+    return `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`;
+  }
+  if ((await outboundPosture(profileId)) === "disabled") {
+    return 'your own answer on customer consent (6.4b) was "no consent" — I don’t propose emails until your data says otherwise';
+  }
+  return null;
+}
+
+/**
  * Propose a follow-up for each stale open deal whose contact may be emailed,
  * at most once per deal per month. Honest about every skip.
  */
@@ -123,24 +143,9 @@ export async function proposeFollowUps(
     .where(eq(businessProfiles.id, profileId));
   if (!profile) throw new DealError("no such profile", 404);
 
-  if (!(await pipelineApplies(profileId))) {
-    out.skipped.push({ deal_id: null, reason: NOT_B2B });
-    return out;
-  }
-  const care = await careState(profileId);
-  if (care?.watch_ends_at && now.toISOString() < care.watch_ends_at) {
-    out.skipped.push({
-      deal_id: null,
-      reason: `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
-    });
-    return out;
-  }
-  if ((await outboundPosture(profileId)) === "disabled") {
-    out.skipped.push({
-      deal_id: null,
-      reason:
-        'your own answer on customer consent (6.4b) was "no consent" — I don\'t propose emails until your data says otherwise',
-    });
+  const hold = await followUpHold(profileId, now);
+  if (hold !== null) {
+    out.skipped.push({ deal_id: null, reason: hold });
     return out;
   }
 
