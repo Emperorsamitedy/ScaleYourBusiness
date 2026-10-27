@@ -90,7 +90,7 @@ async function studio(staff: readonly string[]) {
   for (let week = 0; week < 8; week++) {
     const d = day(1 + week * 7);
     for (let h = 10; h < 14; h++) {
-      for (let k = 0; k < 6; k++) {
+      for (let k = 0; k < 7; k++) {
         rows.push({
           account_id: boot.account_id,
           connection_id: conn.id,
@@ -150,7 +150,7 @@ describe("P5-19 — what the loader hands coverage", () => {
       return teamCoverage(input);
     });
     const input = seen as CoverageInput | null;
-    expect(input?.bookings?.slots.length).toBe(8 * 4 * 6);
+    expect(input?.bookings?.slots.length).toBe(8 * 4 * 7);
     for (const s of input?.bookings?.slots ?? []) {
       expect(Object.keys(s).sort()).toEqual(["day", "start_time", "status"]);
     }
@@ -174,7 +174,7 @@ describe("P5-19 — what the loader hands coverage", () => {
       expect(JSON.stringify(a)).not.toContain(n);
     if (a.enabled && a.result.status === "ok") {
       expect(a.result.headline).toBe(
-        "Saturdays 10:00–14:00 ran 96% booked; one teacher covers about 6.3 appointments an hour at your stated 25 a week.",
+        "Saturdays 10:00–14:00 ran 112% booked; one teacher covers about 6.3 appointments an hour at your stated 25 a week.",
       );
     }
   });

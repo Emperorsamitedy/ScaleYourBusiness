@@ -58,15 +58,16 @@ function saturday(held: number, over: Partial<CoverageInput> = {}): CoverageInpu
 
 describe("teamCoverage — the bookings path", () => {
   it("says the role-level Saturday note in words, with its range and basis", () => {
-    const r = teamCoverage(saturday(6));
+    const r = teamCoverage(saturday(7));
     expect(r.status).toBe("ok");
     if (r.status !== "ok") return;
     expect(r.headline).toBe(
-      "Saturdays 10:00–14:00 ran 96% booked; one teacher covers about 6.3 appointments an hour at your stated 25 a week.",
+      "Saturdays 10:00–14:00 ran 112% booked; one teacher covers about 6.3 appointments an hour at your stated 25 a week.",
     );
     const f = r.findings[0];
     expect(f?.band).toBe("short");
-    expect(f?.range_words).toBe("(96–96% on the middle half of the 8 Saturdays read)");
+    expect(f?.range_words).toBe("(112–112% on the middle half of the 8 Saturdays read)");
+    expect(f?.note).toMatch(/demand ran past what your stated capacity covers/);
     expect(f?.note).toMatch(/another teacher would add cover first/);
     expect(r.basis).toMatchObject({ demand: "your bookings export", to: AS_OF, days_read: 8 });
     expect(r.capacity).toMatchObject({ per_week: 25, open_hours_per_week: 4, people_on: 1 });
@@ -74,48 +75,52 @@ describe("teamCoverage — the bookings path", () => {
     expect(r.assumed.join(" ")).toMatch(/I don't know the rota/);
   });
 
-  it("bands an hour short at the short line, and not just under it", () => {
-    // 0.9 × 6.25 = 5.625: a mean of 5.625 is short; 5.5 is not.
-    const cellAt = (input: CoverageInput) => {
-      const r = teamCoverage(input);
-      if (r.status !== "ok") throw new Error("refused");
-      return r.weekdays.find((w) => w.weekday === "sat")?.cells.find((c) => c.hour === 10);
-    };
-    // Saturdays fall on i = 0, 7, 14…: the first `sixes` of them take 6, the rest 5.
-    const split = (sixes: number) =>
+  /** Saturday 10:00–14:00 against a stated 20 a week (5 an hour), `at(i)` held at `hour` on the i-th Saturday. */
+  const cellAt = (hour: number, at: (saturday: number) => number) => {
+    const r = teamCoverage(
       saturday(0, {
+        capacityPerWeek: 20,
         bookings: {
           source: "x",
           first_day: addDays(AS_OF, -55),
-          slots: slots(56, (w, h, i) => (w === "sat" && h === 10 ? (i / 7 < sixes ? 6 : 5) : 0)),
+          slots: slots(56, (w, h, i) =>
+            w === "sat" && h >= 10 && h < 14 ? (h === hour ? at(i / 7) : 3) : 0,
+          ),
         },
-      });
-    expect(cellAt(split(5))?.share?.mean).toBeCloseTo(0.9, 10); // 45 / 8 / 6.25
-    expect(cellAt(split(5))?.band).toBe("short");
-    expect(cellAt(split(4))?.share?.mean).toBeLessThan(TEAM.short_share);
-    expect(cellAt(split(4))?.band).toBe("ok");
+      }),
+    );
+    if (r.status !== "ok") throw new Error("refused");
+    return r.weekdays.find((w) => w.weekday === "sat")?.cells.find((c) => c.hour === hour);
+  };
+
+  it("bands an hour short when even the middle half's low end reaches the line, and not under it", () => {
+    // 1 × 5 an hour. One Saturday at 4, seven at 5: the 25th percentile is 5, short.
+    // Two at 4: it is 4.75 (95%), not short — however busy the typical day.
+    expect(cellAt(10, (n) => (n < 1 ? 4 : 5))?.share?.low).toBe(TEAM.short_share);
+    expect(cellAt(10, (n) => (n < 1 ? 4 : 5))?.band).toBe("short");
+    expect(cellAt(10, (n) => (n < 2 ? 4 : 5))?.share?.low).toBeCloseTo(0.95, 10);
+    expect(cellAt(10, (n) => (n < 2 ? 4 : 5))?.band).toBe("ok");
   });
 
-  it("bands an open hour quiet at the quiet line, and not just over it", () => {
-    // 0.4 × 6.25 = 2.5: a mean of 2.5 is quiet; 2.625 is not.
-    const cellAt = (threes: number) => {
-      const r = teamCoverage(
-        saturday(0, {
-          bookings: {
-            source: "x",
-            first_day: addDays(AS_OF, -55),
-            slots: slots(56, (w, h, i) =>
-              w === "sat" && h >= 10 && h < 14 ? (h === 13 ? (i / 7 < threes ? 3 : 2) : 4) : 0,
-            ),
-          },
-        }),
-      );
-      if (r.status !== "ok") throw new Error("refused");
-      return r.weekdays.find((w) => w.weekday === "sat")?.cells.find((c) => c.hour === 13);
-    };
-    expect(cellAt(4)?.share?.mean).toBeCloseTo(TEAM.quiet_share, 10);
-    expect(cellAt(4)?.band).toBe("quiet");
-    expect(cellAt(5)?.band).toBe("ok");
+  it("bands an open hour quiet when even the middle half's high end sits at the line, and not over it", () => {
+    // 0.4 × 5 = 2. One Saturday at 3, seven at 2: the 75th percentile is 2, quiet.
+    // Two at 3: it is 2.25 (45%), not quiet.
+    expect(cellAt(13, (n) => (n < 1 ? 3 : 2))?.share?.high).toBe(TEAM.quiet_share);
+    expect(cellAt(13, (n) => (n < 1 ? 3 : 2))?.band).toBe("quiet");
+    expect(cellAt(13, (n) => (n < 2 ? 3 : 2))?.share?.high).toBeCloseTo(0.45, 10);
+    expect(cellAt(13, (n) => (n < 2 ? 3 : 2))?.band).toBe("ok");
+  });
+
+  it("never bands an hour short on one busy day", () => {
+    expect(cellAt(10, (n) => (n === 0 ? 20 : 3))?.share?.mean).toBeGreaterThan(1);
+    expect(cellAt(10, (n) => (n === 0 ? 20 : 3))?.band).toBe("ok");
+  });
+
+  it("bands on the typical day, so one sick day or holiday doesn't move it", () => {
+    const cell = cellAt(10, (n) => (n === 0 ? 1 : 5));
+    expect(cell?.share?.mean).toBe(0.9); // (1 + 7 × 5) / 8 / 5
+    expect(cell?.share?.typical).toBe(1);
+    expect(cell?.band).toBe("short");
   });
 
   it("merges consecutive hours of one band into one finding, and keeps separate runs apart", () => {
@@ -124,7 +129,7 @@ describe("teamCoverage — the bookings path", () => {
         bookings: {
           source: "x",
           first_day: addDays(AS_OF, -55),
-          slots: slots(56, (w, h) => (w === "sat" ? ({ 10: 6, 11: 1, 12: 6, 13: 6 }[h] ?? 0) : 0)),
+          slots: slots(56, (w, h) => (w === "sat" ? ({ 10: 7, 11: 1, 12: 7, 13: 7 }[h] ?? 0) : 0)),
         },
       }),
     );
@@ -336,34 +341,32 @@ describe("the busy season", () => {
         bookings: {
           source: "x",
           first_day: addDays(AS_OF, -55),
-          // 4.375 / 6.25 = 0.7 at 13:00; 6 at 10–12 (already short)
-          slots: slots(56, (w, h, i) =>
-            w === "sat" && h >= 10 && h < 14 ? (h === 13 ? (i / 7 < 3 ? 5 : 4) : 6) : 0,
-          ),
+          // 4 / 6.25 = 0.64 at 13:00; 7 at 10–12 (already short)
+          slots: slots(56, (w, h) => (w === "sat" && h >= 10 && h < 14 ? (h === 13 ? 4 : 7) : 0)),
         },
         season: {
           status: "busy_ahead",
           starts_on: "2026-12-01",
           ends_on: "2026-12-27",
           in_progress: false,
-          index: 1.5,
+          index: 1.7,
           low,
-          high: 1.7,
+          high: 1.9,
         },
       }),
     );
 
   it("names the hours even the low end of the busy stretch would push past capacity", () => {
-    const r = lifted(1.3); // 0.7 × 1.3 = 0.91
+    const r = lifted(1.6); // 0.64 × 1.6 = 1.024
     if (r.status !== "ok") throw new Error("refused");
     expect(r.season.extra).toEqual(["Saturdays 13:00–14:00"]);
     expect(r.season.words).toMatch(
-      /^Your busy stretch starts on 1 Dec: last year it ran 1\.5× \(1\.3–1\.7×\)/,
+      /^Your busy stretch starts on 1 Dec: last year it ran 1\.7× \(1\.6–1\.9×\)/,
     );
   });
 
   it("names none when the low end stays under the line", () => {
-    const r = lifted(1.25); // 0.7 × 1.25 = 0.875
+    const r = lifted(1.5); // 0.64 × 1.5 = 0.96
     if (r.status !== "ok") throw new Error("refused");
     expect(r.season.extra).toEqual([]);
     expect(r.season.words).toMatch(/no further hour/);

@@ -30,9 +30,15 @@
 //   capacity   the stated appointments a week ÷ the open hours a week, the
 //              same in every open hour (ASSUMED)
 //   share      held in the hour ÷ capacity per open hour, per day; the cell
-//              reports its mean and the middle half of the days (p25–p75)
-//   short      mean share ≥ TEAM.short_share: demand runs at or over cover
-//   quiet      mean share ≤ TEAM.quiet_share: open, and little demand
+//              reports its typical day — the mean of the middle half of
+//              the days, the lowest and highest quarter left out, so one
+//              sick day or holiday doesn't move it — and the middle half
+//              itself as the range (p25–p75)
+//   short      even the low end of the middle half ≥ TEAM.short_share
+//              (100%): on most days demand ran past what the stated
+//              capacity covers. One busy day never makes an hour short.
+//   quiet      even the high end of the middle half ≤ TEAM.quiet_share:
+//              open, and little demand on most days
 //   roles      role hours a week ÷ open hours a week = people of that role
 //              on in an average open hour (ASSUMED: the rota isn't known)
 //
@@ -52,9 +58,9 @@ export const TEAM = {
   min_history_days: 28,
   /** A weekday read on fewer days than this is too early to band. */
   min_days_per_weekday: 4,
-  /** An hour whose mean share of capacity is at or above this runs short of cover. */
-  short_share: 0.9,
-  /** An open hour whose mean share is at or below this is quiet. */
+  /** An hour whose middle half of days all reach this ran past what the stated capacity covers. */
+  short_share: 1,
+  /** An open hour whose middle half of days all sit at or below this is quiet. */
   quiet_share: 0.4,
   /** Without stated hours, an hour counts as open when appointments start in it on this share of days. */
   footprint_share: 0.25,
@@ -122,6 +128,8 @@ export type Band = "short" | "ok" | "quiet";
 
 export interface Spread {
   mean: number;
+  /** The typical day (the middle half's mean): what bands an hour and what its words say. */
+  typical: number;
   low: number;
   high: number;
 }
@@ -252,9 +260,23 @@ function quantile(values: readonly number[], q: number): number {
   return a + (b - a) * (pos - lo);
 }
 
+/** The mean of the middle half: the lowest and highest quarter of the values left out. */
+function middleMean(values: readonly number[]): number {
+  if (values.length === 0) return 0;
+  const s = [...values].sort((a, b) => a - b);
+  const cut = Math.floor(s.length / 4);
+  const mid = s.slice(cut, s.length - cut);
+  return mid.reduce((t, v) => t + v, 0) / mid.length;
+}
+
 function spreadOf(values: readonly number[]): Spread {
   const mean = values.length === 0 ? 0 : values.reduce((s, v) => s + v, 0) / values.length;
-  return { mean, low: quantile(values, 0.25), high: quantile(values, 0.75) };
+  return {
+    mean,
+    typical: middleMean(values),
+    low: quantile(values, 0.25),
+    high: quantile(values, 0.75),
+  };
 }
 
 const PLURAL: Record<Weekday, string> = {
@@ -277,6 +299,16 @@ export function dayText(day: string): string {
 
 const pct = (x: number) => Math.round(x * 100);
 const one = (x: number) => Math.round(x * 10) / 10;
+
+/** "Saturdays", "Fridays and Saturdays", "Tuesdays to Saturdays" (three or more in a row). */
+export function daysText(days: readonly Weekday[]): string {
+  const idx = days.map((d) => TEAM_WEEKDAYS.indexOf(d)).sort((a, b) => a - b);
+  const names = idx.map((i) => PLURAL[TEAM_WEEKDAYS[i] as Weekday]);
+  const consecutive = idx.every((v, i) => i === 0 || v === (idx[i - 1] ?? -2) + 1);
+  if (names.length >= 3 && consecutive) return `${names[0]} to ${names.at(-1)}`;
+  if (names.length <= 1) return names.join("");
+  return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
+}
 
 /** "10:00", on the 24-hour clock (25 is 01:00 after midnight). */
 export function clock(hour: number): string {
@@ -418,8 +450,8 @@ function seasonPart(
       : `${one(season.low)}–${one(season.high)}×`;
   const head = `Your busy stretch ${when}: last year it ran ${one(season.index)}× (${range}) your normal week.`;
   if (!canProject) return { words: head, extra: [] };
-  // Only what even the low end implies: hours not already short whose
-  // mean share × the season's low multiple reaches the short line.
+  // Only what even the low ends imply: hours not already short whose
+  // lower-quarter share × the season's low multiple reaches the short line.
   const extra: string[] = [];
   for (const w of weekdays) {
     if (w.verdict !== "read") continue;
@@ -433,7 +465,7 @@ function seasonPart(
         c.open &&
         c.band !== "short" &&
         c.share !== null &&
-        c.share.mean * season.low >= TEAM.short_share;
+        c.share.low * season.low >= TEAM.short_share;
       if (lifts) {
         if (run && run.to === c.hour) run.to = c.hour + 1;
         else {
@@ -626,9 +658,9 @@ function fromBookings(
         const share = spreadOf(counts.map((c) => c / perOpenHour));
         const band: Band | null = early
           ? null
-          : share.mean >= TEAM.short_share
+          : share.low >= TEAM.short_share
             ? "short"
-            : share.mean <= TEAM.quiet_share
+            : share.high <= TEAM.quiet_share
               ? "quiet"
               : "ok";
         return { hour, open: true, demand, share, band };
@@ -652,7 +684,6 @@ function fromBookings(
         const share = spreadOf(perDay);
         const where = runText(w.weekday, run.from, run.to);
         const range_words = `(${pct(share.low)}–${pct(share.high)}% on the middle half of the ${days.length} ${PLURAL[w.weekday]} read)`;
-        const over = share.mean >= 1;
         const reason =
           band === "short"
             ? lead !== null && perPersonOn !== null
@@ -663,7 +694,7 @@ function fromBookings(
               : `your stated ${capacity} a week is about ${appts(perOpenHour)} an hour`;
         const note =
           band === "short"
-            ? `${where}: ${over ? "demand ran past what your stated capacity covers" : "the book ran close to full"}. If you want to take more of it, this is where another ${lead !== null ? inText(lead.role) : "pair of hands"} would add cover first.`
+            ? `${where}: demand ran past what your stated capacity covers. If you want to take more of it, this is where another ${lead !== null ? inText(lead.role) : "pair of hands"} would add cover first.`
             : `${where}: the quietest open stretch. If you ever trim the rota, this is where it would cost the least demand.`;
         findings.push({
           weekday: w.weekday,
@@ -672,7 +703,7 @@ function fromBookings(
           band,
           share,
           days: days.length,
-          words: `${where} ran ${pct(share.mean)}% booked`,
+          words: `${where} ran ${pct(share.typical)}% booked`,
           range_words,
           reason,
           note,
@@ -688,8 +719,8 @@ function fromBookings(
         ? -1
         : 1
       : a.band === "short"
-        ? b.share.mean - a.share.mean || order(a) - order(b)
-        : a.share.mean - b.share.mean || order(a) - order(b),
+        ? b.share.typical - a.share.typical || order(a) - order(b)
+        : a.share.typical - b.share.typical || order(a) - order(b),
   );
 
   const footprint = plan.filter((p) => p.from === "bookings" && p.days.length > 0);
@@ -698,7 +729,7 @@ function fromBookings(
     "an appointment counts in the hour it starts",
     ...(footprint.length > 0
       ? [
-          `opening hours for ${footprint.map((p) => PLURAL[p.weekday]).join(", ")} aren't stated, so they are read from when appointments start (on at least ${pct(TEAM.footprint_share)}% of those days)`,
+          `opening hours for ${daysText(footprint.map((p) => p.weekday))} aren't stated, so they are read from when appointments start (on at least ${pct(TEAM.footprint_share)}% of those days)`,
         ]
       : []),
     ...(peopleOn !== null
@@ -841,12 +872,17 @@ function fromTakings(
       };
     }
     const early = p.days.length < TEAM.min_days_per_weekday;
-    const means = new Map<number, number>();
+    const typical = new Map<number, number>();
     for (const h of p.open) {
-      const v = p.days.map((d) => takings.byDay.get(d)?.get(h) ?? 0);
-      means.set(h, v.reduce((s, x) => s + x, 0) / v.length);
+      typical.set(
+        h,
+        quantile(
+          p.days.map((d) => takings.byDay.get(d)?.get(h) ?? 0),
+          0.5,
+        ),
+      );
     }
-    const peak = Math.max(0, ...means.values());
+    const peak = Math.max(0, ...typical.values());
     return {
       weekday: p.weekday,
       days_read: p.days.length,
@@ -858,7 +894,7 @@ function fromTakings(
         const demand = spreadOf(values);
         const share = peak > 0 ? spreadOf(values.map((v) => v / peak)) : null;
         const band: Band | null =
-          early || share === null ? null : share.mean <= TEAM.quiet_takings_share ? "quiet" : "ok";
+          early || share === null ? null : share.high <= TEAM.quiet_takings_share ? "quiet" : "ok";
         return { hour, open: true, demand, share, band };
       }),
     };
@@ -868,7 +904,7 @@ function fromTakings(
   for (const w of weekdays) {
     if (w.verdict !== "read") continue;
     const days = plan.find((p) => p.weekday === w.weekday)?.days ?? [];
-    const peak = Math.max(0, ...w.cells.map((c) => c.demand?.mean ?? 0));
+    const peak = Math.max(0, ...w.cells.map((c) => c.demand?.typical ?? 0));
     if (peak <= 0) continue;
     for (const run of runsOf(w, "quiet")) {
       const len = run.to - run.from;
@@ -886,7 +922,7 @@ function fromTakings(
         band: "quiet",
         share,
         days: days.length,
-        words: `${where} took ${pct(share.mean)}% of the day's busiest hour`,
+        words: `${where} took ${pct(share.typical)}% of the day's busiest hour`,
         range_words: `(${pct(share.low)}–${pct(share.high)}% on the middle half of the ${days.length} ${PLURAL[w.weekday]} read)`,
         reason:
           peopleOn !== null
@@ -897,14 +933,14 @@ function fromTakings(
     }
   }
   const order = (f: CoverFinding) => TEAM_WEEKDAYS.indexOf(f.weekday) * 100 + f.from_hour;
-  findings.sort((a, b) => a.share.mean - b.share.mean || order(a) - order(b));
+  findings.sort((a, b) => a.share.typical - b.share.typical || order(a) - order(b));
 
   const footprint = plan.filter((p) => p.from === "takings" && p.days.length > 0);
   const assumed = [
     "takings stand in for demand: a sale in an hour is a customer served in it",
     ...(footprint.length > 0
       ? [
-          `opening hours for ${footprint.map((p) => PLURAL[p.weekday]).join(", ")} aren't stated, so they are read from when sales come in`,
+          `opening hours for ${daysText(footprint.map((p) => p.weekday))} aren't stated, so they are read from when sales come in`,
         ]
       : []),
     ...(peopleOn !== null
