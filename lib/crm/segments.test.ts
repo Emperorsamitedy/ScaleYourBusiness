@@ -285,7 +285,7 @@ describe("P4-13/14 — segments and the win-back proposal", () => {
       "Win back 2 lapsed customers who said yes to email",
     );
 
-    const queue = await proposalQueue(s.profile_id);
+    const queue = await proposalQueue(s.profile_id, NOW);
     expect(queue.pending.map((p) => p.id)).toContain(winback.id);
 
     // Idempotent per month: the second run proposes nothing and says why.
