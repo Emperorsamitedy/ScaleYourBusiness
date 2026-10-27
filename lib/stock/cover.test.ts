@@ -17,6 +17,7 @@ import {
   COVER,
   assessCover,
   coverColumn,
+  coverFlag,
   coverDays,
   demandBetween,
   leadTimeFor,
@@ -626,5 +627,18 @@ describe("P5-04 from the season forecast itself", () => {
     );
     expect(c.boosted).toBe(true);
     expect(c.cover!.mid).toBeCloseTo(6 + 14 / 1.7, 0);
+  });
+});
+
+describe("the cover column's flag", () => {
+  it("says each state in a word", () => {
+    const lead = stated(7);
+    const flag = (it: StockItem) => coverFlag(assessCover(it, TODAY, lead, null, "S"));
+    expect(flag(item(2, () => 1))).toBe("ACT NOW");
+    expect(flag(item(8, () => 1))).toBe("RUNNING LOW");
+    expect(flag(item(30, () => 1))).toBe("IN RANGE");
+    expect(flag(item(0, () => 1))).toBe("SOLD OUT");
+    expect(flag(item(5, () => 0))).toBe("NO SALES");
+    expect(flag(item(5, () => 1, {}, 10))).toBe("TOO EARLY");
   });
 });

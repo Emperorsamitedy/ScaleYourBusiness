@@ -738,3 +738,15 @@ export function rankWarnings<T extends { name: string; cover: CoverAssessment }>
         (a.name < b.name ? -1 : 1),
     );
 }
+
+export type CoverFlag =
+  "ACT NOW" | "RUNNING LOW" | "IN RANGE" | "SOLD OUT" | "NO SALES" | "TOO EARLY";
+
+/** Pure: the worded flag of the cover column (colour never carries it alone). */
+export function coverFlag(c: CoverAssessment): CoverFlag {
+  if (c.sold_out) return "SOLD OUT";
+  if (c.warning) return c.warning.flag;
+  if (c.status === "no_sales") return "NO SALES";
+  if (c.status === "too_little") return "TOO EARLY";
+  return "IN RANGE";
+}

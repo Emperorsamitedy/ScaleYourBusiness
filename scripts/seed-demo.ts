@@ -220,6 +220,7 @@ async function seed(): Promise<void> {
   const { checkGoal } = await import("../lib/care/progress");
   const { updateGoal } = await import("../lib/content/goals");
   const { logHoursFindings } = await import("../lib/watch/job");
+  const { logStockWarnings } = await import("../lib/stock/warnings");
   const { ensureSupportSettings } = await import("../lib/crm/support-settings");
   const { proposeKnowledgeEntries, proposeCustomKnowledge, publishKnowledgeFromProposal } =
     await import("../lib/crm/knowledge");
@@ -1645,6 +1646,13 @@ async function seed(): Promise<void> {
       `  ${outcome.provider}: ${outcome.observations} observations, ${detected} anomalies opened`,
     );
   }
+
+  // P5-02/P5-05: today's stock read leaves the mug short of a clay delivery.
+  // The weekly beat's own step for this one business, so the watch log and
+  // the weekly summary carry the warning. Fernhill is still watched, so no
+  // reorder note is proposed (rule 15); /stock shows its arithmetic.
+  const stockWarnings = await logStockWarnings(ids.profile, new Date());
+  log(`  stock: ${stockWarnings} stock-out warning${stockWarnings === 1 ? "" : "s"} logged`);
 
   const people = data.demoContacts(today);
   await importContacts(

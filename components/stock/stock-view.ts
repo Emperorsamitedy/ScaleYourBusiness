@@ -1,7 +1,12 @@
-// The slow-stock screen's words — feature 34. Pure, so they are tested
+// The stock screen's words — feature 34 (slow stock) and P5-05 (what runs out). Pure, so they are tested
 // without a browser (stock-view.test.ts).
 
-import type { StockItemView, StockOptionView, StockView } from "../../app/api/stock/route";
+import type {
+  CoverItemView,
+  StockItemView,
+  StockOptionView,
+  StockView,
+} from "../../app/api/stock/route";
 import { moneyText, num } from "../sheet/num";
 
 /** The screen's one display line: the cash tied up, as a sentence. */
@@ -22,11 +27,8 @@ export function flagClass(flag: StockItemView["flag"]): "alarm" | "drift" {
   return flag === "STUCK" ? "alarm" : "drift";
 }
 
-/** What has happened to an option's proposal, in one or two words. */
-export function proposalWord(o: StockOptionView): { word: string; tone: string } | null {
-  if (o.unavailable !== null) return { word: "Can't", tone: "none" };
-  const p = o.proposal;
-  if (!p) return null;
+/** What has happened to a proposal, in one or two words. */
+export function statusWord(p: { status: string }): { word: string; tone: string } {
   switch (p.status) {
     case "pending":
       return { word: "Waiting for you", tone: "ok" };
@@ -43,6 +45,12 @@ export function proposalWord(o: StockOptionView): { word: string; tone: string }
     default:
       return { word: p.status.replace(/_/g, " "), tone: "none" };
   }
+}
+
+/** What has happened to an option's proposal, in one or two words. */
+export function proposalWord(o: StockOptionView): { word: string; tone: string } | null {
+  if (o.unavailable !== null) return { word: "Can't", tone: "none" };
+  return o.proposal ? statusWord(o.proposal) : null;
 }
 
 /** Days of cover as the table prints it. */
@@ -73,4 +81,48 @@ export function statedVsMeasured(view: StockView): string | null {
   }
   const word = t.cash_tied_minor >= stated.amount_minor ? "more" : "less";
   return `You estimated your dead stock at ${moneyText(stated.amount_minor, stated.currency)}; I measure ${moneyText(t.cash_tied_minor, t.currency)} at cost in stock that isn't selling — ${moneyText(Math.abs(t.cash_tied_minor - stated.amount_minor), t.currency)} ${word}. Your estimate stays on your fact sheet.`;
+}
+
+/* ── P5-05: what runs out, and when ── */
+
+/** The screen's display line: the soonest stock-out when there is one, else the slow-stock line. */
+export function stockHeadline(view: StockView): string {
+  const first = (view.cover?.items ?? []).find((i) => i.warning !== null);
+  if (first?.warning) return `${first.warning.split(";")[0]}.`;
+  return headline(view);
+}
+
+/** The cover flag's tint; the word carries the meaning, the tint only repeats it. */
+export function coverFlagClass(flag: CoverItemView["flag"]): "alarm" | "drift" | "ok" | "low" {
+  switch (flag) {
+    case "ACT NOW":
+      return "alarm";
+    case "RUNNING LOW":
+      return "drift";
+    case "IN RANGE":
+      return "ok";
+    default:
+      return "low";
+  }
+}
+
+/** "+23 · chance ±40" / "−12 · down" — window A against window B (P5-01). */
+export function vsPriorText(item: CoverItemView): string {
+  const v = item.vs_prior;
+  if (!v) return "—";
+  const sign = v.change > 0 ? "+" : v.change < 0 ? "−" : "±";
+  const word = v.direction === "flat" ? "about the same" : v.direction;
+  return `${sign}${num(Math.abs(v.change))} · ${word}`;
+}
+
+/** "10 d · Midland Clay Supplies" / "14 d · ASSUMED". */
+export function leadText(item: CoverItemView): string {
+  return item.lead.basis === "stated"
+    ? `${num(item.lead.days)} d · ${item.lead.supplier ?? "your supplier"}`
+    : `${num(item.lead.days)} d · ASSUMED`;
+}
+
+/** A reorder note's cost, in its own currency: "€2,802.80 at cost". */
+export function moneyLine(m: { amount_minor: number; currency: string }): string {
+  return `${moneyText(m.amount_minor, m.currency)} at cost`;
 }

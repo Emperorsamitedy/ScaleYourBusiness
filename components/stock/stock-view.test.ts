@@ -1,13 +1,25 @@
-// Feature 34 — the slow-stock screen's words, and who the screen exists for.
+// Feature 34 and P5-05 — the stock screen's words, and who the screen exists for.
 
 import { describe, expect, it } from "vitest";
-import type { StockItemView, StockView } from "../../app/api/stock/route";
+import type { CoverItemView, StockItemView, StockView } from "../../app/api/stock/route";
 import type { FieldView } from "../../lib/conditions/evaluate";
 import { evaluate } from "../../lib/conditions/evaluate";
 import { STOCK_APPLIES } from "../../lib/stock/applies";
 import { GROUPS, visibleGroups } from "../nav/AppFrame";
 import type { NavCounts } from "../../app/api/nav/route";
-import { coverText, headline, proposalWord, quietText, statedVsMeasured } from "./stock-view";
+import {
+  coverFlagClass,
+  coverText,
+  headline,
+  leadText,
+  moneyLine,
+  proposalWord,
+  quietText,
+  statedVsMeasured,
+  statusWord,
+  stockHeadline,
+  vsPriorText,
+} from "./stock-view";
 
 const item = (over: Partial<StockItemView> = {}): StockItemView => ({
   key: "c:p",
@@ -108,7 +120,7 @@ describe("who sees it — data, not an if on business type", () => {
     ).toBe(false);
   });
 
-  it("the menu shows Slow stock only when the counts say the business holds stock", () => {
+  it("the menu shows Stock only when the counts say the business holds stock", () => {
     const counts = (stock: boolean) => ({ stock, by_module: {} }) as unknown as NavCounts;
     const hrefs = (c: NavCounts | null) =>
       visibleGroups(null, c).flatMap((g) => g.items.map((i) => i.href));
@@ -117,5 +129,80 @@ describe("who sees it — data, not an if on business type", () => {
     expect(hrefs(null)).not.toContain("/stock"); // still loading: not shown on a guess
     // Without counts the size table alone decides, as before.
     expect(visibleGroups(null)).toEqual(GROUPS);
+  });
+});
+
+const coverItem = (over: Partial<CoverItemView> = {}): CoverItemView => ({
+  key: "c:mug",
+  name: "Speckled Everyday Mug",
+  source: "Shopify",
+  as_of: "2026-10-27",
+  on_hand: 90,
+  sold_recent: 416,
+  vs_prior: { change: 23, band: 40, direction: "flat" },
+  sell_through: "",
+  cover_text: "3–4",
+  runs_out: { earliest: "2026-10-30", latest: "2026-10-31" },
+  lead: { days: 10, basis: "stated", supplier: "Midland Clay Supplies", why: "" },
+  flag: "ACT NOW",
+  warning: "Speckled Everyday Mug runs out in about 3–4 days; Midland Clay Supplies takes 10 days.",
+  why: null,
+  boosted: false,
+  reorder: null,
+  assumed: [],
+  sources: "",
+  ...over,
+});
+
+describe("P5-05 — what runs out, in words", () => {
+  const base: StockView = {
+    applies: true,
+    sources: [{ label: "Shopify", as_of: "2026-10-27", items: 7 }],
+    slow: [],
+    totals: [],
+  };
+
+  it("the headline is the soonest stock-out when there is one", () => {
+    const view = { ...base, cover: { items: [coverItem()] } } as unknown as StockView;
+    expect(stockHeadline(view)).toBe("Speckled Everyday Mug runs out in about 3–4 days.");
+  });
+
+  it("without a warning the headline is the slow-stock line", () => {
+    const view = {
+      ...base,
+      cover: { items: [coverItem({ warning: null, flag: "IN RANGE" })] },
+    } as unknown as StockView;
+    expect(stockHeadline(view)).toBe(headline(view));
+    expect(stockHeadline(view)).toBe("Everything you hold is selling.");
+  });
+
+  it("tints each flag, the word carrying the meaning", () => {
+    expect(coverFlagClass("ACT NOW")).toBe("alarm");
+    expect(coverFlagClass("RUNNING LOW")).toBe("drift");
+    expect(coverFlagClass("IN RANGE")).toBe("ok");
+    expect(coverFlagClass("SOLD OUT")).toBe("low");
+    expect(coverFlagClass("TOO EARLY")).toBe("low");
+  });
+
+  it("prints the change between windows, and a dash without two windows", () => {
+    expect(vsPriorText(coverItem())).toBe("+23 · about the same");
+    expect(vsPriorText(coverItem({ vs_prior: { change: -60, band: 40, direction: "down" } }))).toBe(
+      "−60 · down",
+    );
+    expect(vsPriorText(coverItem({ vs_prior: null }))).toBe("—");
+  });
+
+  it("names the supplier, or says the delivery time is ASSUMED", () => {
+    expect(leadText(coverItem())).toBe("10 d · Midland Clay Supplies");
+    expect(
+      leadText(coverItem({ lead: { days: 14, basis: "assumed", supplier: null, why: "" } })),
+    ).toBe("14 d · ASSUMED");
+  });
+
+  it("words a note's status and cost", () => {
+    expect(statusWord({ status: "pending" })).toEqual({ word: "Waiting for you", tone: "ok" });
+    expect(statusWord({ status: "rejected" }).word).toBe("Declined");
+    expect(moneyLine({ amount_minor: 280_280, currency: "EUR" })).toBe("€2,802.80 at cost");
+    expect(proposalWord({ unavailable: "no price", proposal: null } as never)?.word).toBe("Can't");
   });
 });
