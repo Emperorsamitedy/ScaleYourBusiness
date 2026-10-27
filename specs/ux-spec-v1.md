@@ -243,6 +243,7 @@ The intake now follows the owner's "calibrating the record" design (`components/
 **Channel bank:** one tile per bank section.
 - Each tile has one bar per applicable question, in bank order. The bar kinds are owner, measured, derived, current, open, unknown and skipped, each with its own fill pattern.
 - Each tile shows the percentage answered and a status word: DONE, MEASURING, READ ONLY, NOT STARTED, NEEDS CH nn or IN PROGRESS.
+- The bank starts folded to one ruled line so the question owns the screen. The line shows the channel being asked with its percentage, one cell per area filled to its share answered, and how many areas are done. "All channels" unfolds the tiles unchanged; choosing a tile folds it again.
 
 **Question panel:**
 - a dark band showing the question, the channel, and how many questions and minutes are left (45 seconds a question)
@@ -326,6 +327,12 @@ Structure, top to bottom:
 
 Recommendations carry two actions — "Look into this" and "Not for us". Declining opens a short reason field, because that reason is the training data for everything the system proposes later. The field is optional but pre-filled with three common reasons as chips, since a required field here produces junk.
 
+**Share this report (idea 51, 2026-10-26).** A card above the report's footer, in the sheet style with no icons. It has a choice of 7 or 30 days, one "Make a link →" action, and the new link shown once in a read-only field with "Copy" (it can't be shown again, since only its hash is kept). Below that is the list of links made: open, expired or revoked, when each was made, when it expires, when it was last opened and how often, and "Revoke" on each open one. Signed out, the card says sign-in is needed. It is left out of print.
+
+The shared view at `/shared/<token>` is the same report body, read only. Its masthead has the business, platform and currency, plus "Shared report · read only". There is no rail, no sub-nav and no link on the wordmark. The recommendations show without the owner's answers or the answer buttons. "Answer now" and "See every weekday" are left out. The footer says it is a shared snapshot, when it was made, and from which report. A dead link of any kind gets one plain sheet: "This link is no longer active."
+
+**Accountant export (idea 49, 2026-10-26).** On `/profile`, the page head's aside says "For your accountant" over two plain links: "Money facts, CSV" and "Earlier figures, CSV". They are file downloads, not screens.
+
 ### 7.1 Landing page
 
 The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx`, `StoreChart.tsx` and `Demos.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
@@ -400,6 +407,8 @@ Three tiers:
 **Everything else** — routine activity. Visible in the log if you look, silent otherwise.
 
 The cap is a product rule, not a preference. If the system ever needs more than one urgent push per day, that is a signal it is proposing too much, and the correct fix is upstream — batching proposals — not more notifications.
+
+**The weekly summary email (idea 42, 2026-10-26).** One email a week to the owner, sent on the Monday beat, so the "worth knowing" tier reaches an owner who doesn't log in. It is the Watching screen's week, sent: what waits for you (proposals, and open support questions as a count, never their words), what I did, what I noticed, your goals, and how approved changes are doing. Every line is a row on record. A quiet week says "A quiet week" and nothing else. The email is plain HTML in the sheet tokens (ink on paper, 1px rules, mono labels, no images, no colour carrying meaning) with the same words in a text part. It has no tracking pixel. Every email carries a one-click "stop these emails" link, which opens a page with one button, like the unsubscribe page. The switch is a "Weekly email" card beside Modules on /watch, on by default once How I work is decided. The card says plainly when the server can't send email.
 
 ---
 

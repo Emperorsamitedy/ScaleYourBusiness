@@ -155,6 +155,25 @@ export function format(m: Money, locale = "en"): string {
   }).format(major);
 }
 
+/**
+ * The amount in major units as a plain decimal string — "4990.00" for
+ * 499 000 fillér, "1200" for ¥1 200, "-0.05" — for files a machine reads
+ * (idea 49's accountant export). Built from the integer's digits, never by
+ * dividing: no float touches it, so 9 007 199 254 740 991 minor units
+ * print exactly. A dot is the decimal mark and nothing groups thousands.
+ */
+export function toDecimalString(m: Money): string {
+  const checked = money(m.amount_minor, m.currency);
+  const exponent = minorUnitExponent(checked.currency);
+  const negative = checked.amount_minor < 0;
+  const digits = String(Math.abs(checked.amount_minor));
+  if (exponent === 0) return `${negative ? "-" : ""}${digits}`;
+  const padded = digits.padStart(exponent + 1, "0");
+  const whole = padded.slice(0, padded.length - exponent);
+  const fraction = padded.slice(padded.length - exponent);
+  return `${negative ? "-" : ""}${whole}.${fraction}`;
+}
+
 /* ── reading amounts people write (review 2026-10-23, #4) ── */
 
 /**
