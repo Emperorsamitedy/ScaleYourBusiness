@@ -27,9 +27,9 @@
 // not forecast — Meta's reach for an ad isn't read yet, and the card says so.
 // No model call anywhere here except the hard limits' one-time parse.
 //
-// Audience input: a creative brief (studio-brief's getBrief(...).audience) is
-// wired at merge; until then the builder takes an optional AdAudienceInput
-// and derives a conservative default from the profile when it is absent.
+// Audience input: an explicit AdAudienceInput, else the creative brief the
+// item was made from (lib/content/brief-links), else a conservative default
+// derived from the profile.
 
 import { randomBytes } from "node:crypto";
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
@@ -86,6 +86,7 @@ import {
   loadCampaignSeries,
   monthlyAdCeiling,
 } from "./proposals";
+import { briefAudienceOf, briefForItem } from "../content/brief-links";
 import type { AdAudienceInput, AdGoal } from "./targeting";
 import {
   AD_GOALS,
@@ -213,6 +214,8 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
   if (!item) return { skipped: "no such item" };
   const ready = adReadiness(item);
   if (!ready.ok) return { skipped: `I can't run this as an ad: ${ready.reason}` };
+  // Session K: an item made from a creative brief brings the brief's audience.
+  const audience = args.audience ?? briefAudienceOf(await briefForItem(profileId, item.provenance));
 
   const ref = `ads:run:${item.id}`;
   const [already] = await db
@@ -311,7 +314,7 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
   if (verdict.refused) return { skipped: verdict.refused };
   const profileCountry = countryRaw ? countryCode(countryRaw) : null;
   const target = buildTargeting({
-    audience: args.audience ?? null,
+    audience: audience ?? null,
     profile_country: profileCountry,
     categories: verdict.categories,
     instagram: identity.ig_user_id !== null,
@@ -413,7 +416,7 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
         execute_on_approval: true,
         sending: AD_RUN_SENDING,
         manual_limits: hard.manual.map((l) => l.quote),
-        ...(args.audience ? { audience_from: "brief" } : { audience_from: "profile" }),
+        ...(audience ? { audience_from: "brief" } : { audience_from: "profile" }),
       },
     },
     scenario: sized.scenario,
