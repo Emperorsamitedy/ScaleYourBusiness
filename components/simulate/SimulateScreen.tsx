@@ -38,6 +38,8 @@ import {
   shareSteps,
   whiskerChart,
 } from "./view";
+import type { WhiskerSource } from "./view";
+import { SimTabs } from "./SimTabs";
 
 interface Payload {
   inputs: SimInputs;
@@ -105,6 +107,7 @@ function Frame({
   return (
     <main className="screen sim-screen">
       <PageHead kicker="Grow · Campaign simulator" title={title} aside={aside} />
+      <SimTabs current="campaigns" />
       {children}
     </main>
   );
@@ -362,7 +365,13 @@ function SideBySide({ cmp }: { cmp: Comparison }) {
   );
 }
 
-function Whiskers({ results }: { results: OptionResult[] }) {
+export function Whiskers({
+  results,
+  caption = "Expected profit, low to high · the square is the worst case",
+}: {
+  results: readonly WhiskerSource[];
+  caption?: string;
+}) {
   const chart = whiskerChart(results);
   if (!chart) {
     return (
@@ -377,9 +386,7 @@ function Whiskers({ results }: { results: OptionResult[] }) {
   const h = top + chart.rows.length * rowH + 22;
   return (
     <figure className="sim-chart">
-      <figcaption className="cs-label">
-        Expected profit, low to high · the square is the worst case
-      </figcaption>
+      <figcaption className="cs-label">{caption}</figcaption>
       <div className="sim-chart-grid">
         <ol className="sim-chart-labels" style={{ paddingTop: top }}>
           {chart.rows.map((r) => (
