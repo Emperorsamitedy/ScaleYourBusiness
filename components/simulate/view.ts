@@ -127,12 +127,17 @@ function step(span: number): number {
   return 10 * mag;
 }
 
+/** What a whisker is drawn from: a campaign option, or a price change (idea 43). */
+export type WhiskerSource = Pick<OptionResult, "key" | "title" | "currency"> & {
+  measures: { profit: Cell; worst: Cell };
+};
+
 /**
  * Pure: one whisker per option on one axis that always includes zero (an
  * effect is read against "nothing changes"). Only one currency can share an
  * axis (rule 1): with two, the chart is left out.
  */
-export function whiskerChart(results: readonly OptionResult[]): WhiskerChart | null {
+export function whiskerChart(results: readonly WhiskerSource[]): WhiskerChart | null {
   const currencies = new Set(results.map((r) => r.currency.toUpperCase()));
   if (currencies.size !== 1) return null;
   const currency = results[0]?.currency ?? null;
