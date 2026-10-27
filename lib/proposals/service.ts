@@ -457,8 +457,12 @@ export async function recordExecution(
  * Runs deterministically at queue-read time; no cron needed for
  * correctness, only for tidiness.
  */
-export async function expireDueProposals(profileId: string, store?: MediaStore): Promise<number> {
-  const now = new Date().toISOString();
+export async function expireDueProposals(
+  profileId: string,
+  store?: MediaStore,
+  at: Date = new Date(),
+): Promise<number> {
+  const now = at.toISOString();
   const rows = await db
     .update(proposals)
     .set({ status: "expired" })
@@ -500,9 +504,17 @@ export interface ProposalQueue {
   expired: ProposalRow[];
 }
 
-/** The queue, swept then grouped. One read serves screen and badge both. */
-export async function proposalQueue(profileId: string): Promise<ProposalQueue> {
-  await expireDueProposals(profileId);
+/**
+ * The queue, swept then grouped. One read serves screen and badge both.
+ * `at` is the clock the sweep expires against — the real one, except in a
+ * test pinned to a date, whose proposals would otherwise expire on their
+ * own once the calendar passes it.
+ */
+export async function proposalQueue(
+  profileId: string,
+  at: Date = new Date(),
+): Promise<ProposalQueue> {
+  await expireDueProposals(profileId, undefined, at);
   const rows = await db
     .select()
     .from(proposals)
