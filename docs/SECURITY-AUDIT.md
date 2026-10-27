@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0059**, then `db:seed` (question bank 1.7.0).
+2. **Migrations and bank:** `db:migrate` through **0060**, then `db:seed` (question bank 1.7.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -25,6 +25,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0057 `weekly_summaries`, one claimed row per account per ISO week (the owner's weekly summary email, 2026-10-26)
    - 0058 `report_shares` and the decision kinds `report_share` / `report_share_revoke` (shared report links, 2026-10-26)
    - 0059 `order_baskets`, each counted order's distinct product ids for bundles (no customer data, 2026-10-26)
+   - 0060 `footage_clips`, `footage_renders`, `media_generations` (footage upload and the AI media fallback, 2026-10-26)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 
@@ -169,6 +170,16 @@ From the read-only review of Session D on 2026-10-23 (its numbers), the code tha
 | 8   | Low      | **Facebook Login started on a GET,** and passed a browser that sent no `Sec-Fetch-Site`.                                                                                                                                  | POST only, through `isSameOriginPost` (`Sec-Fetch-Site`, else `Origin`; refused with neither). A GET goes back to the button on /connections.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | 9   | Low      | **/connections showed any `?message=` text as SYB's own.**                                                                                                                                                                | The flow returns `?reason=<code>` from a closed set (`lib/execution/meta-login-reasons.ts`). The screen maps it to a fixed sentence, and an unknown code to a generic one.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | 10  | Low      | **What went out wasn't tied to what was approved, and renders stayed public.**                                                                                                                                            | Approval stores `publish_approved_sha256` (the caption as it goes out, plus the media URL), and the approval's decision-log hash includes it. Pre-flight and execute refuse a mismatch or a missing hash. Renders are released on decline, undecided expiry, failure and lapse, but not while in flight or held for a reconnect. Blob `put`/`del`/`list` carry an AbortSignal: 2 minutes for an upload, 20 s otherwise.                                                                                                                                                                                                                                                                                                                                                                 |
+
+## Added 2026-10-26: footage upload and generated media (P3-52, P3-53)
+
+Not findings. These are the controls the new upload path was built with, recorded so a later review can check them.
+
+- **Who:** every action on `POST /api/content/media` needs a session for this profile's account (`resolveAccess().session`) and `isSameOriginPost`. Without `Sec-Fetch-Site: same-origin` or a matching `Origin` it gets 403, and without a session 401. Items are looked up with the profile in the WHERE clause, so a foreign item is a 404.
+- **What:** MP4 or QuickTime only. Each clip is capped at 200 MB (100 MB through the route), each item at 400 MB and 8 clips. The route refuses an over-cap `content-length` before reading the body, and sniffs the container bytes (`ftyp`/`moov`…) on the direct path. FFprobe refuses anything with no video stream before FFmpeg cuts it.
+- **Where:** SYB chooses the pathname (`renders/<profile>/<item>/clip-<16 random bytes>.<ext>`), never the browser. The Blob client token is scoped to that one pathname, type and size, `allowOverwrite: false`, for 30 minutes. A "confirm" is believed only from Blob's own `head()`: the URL must be on `*.public.blob.vercel-storage.com` and end with the granted pathname, with the granted type and a size under the cap. The cutting room reads clips back only from that host (or the local store's fixed path shape). FFmpeg and `attachRenderedMedia` are only ever handed server-made temp paths, which keeps the "Not fixed yet" note on `attachRenderedMedia` true.
+- **How long:** the clips' bytes are deleted once their render is on the item, and their rows stay. Raw footage is PUBLIC at an unguessable URL until then, the same model as renders. _Open:_ Blob's private access would need a private store.
+- **Generation:** `MEDIA_PROVIDER` defaults to off, and `fake` is refused in production. Every request carries a fixed no-likeness/no-logo instruction behind a deterministic prompt screen. Costs are capped in code (per item, per account per month, 2 attempts) and recorded in minor units with their currency. A generation is claimed once per approved proposal by a unique index.
 
 ## Not fixed yet
 

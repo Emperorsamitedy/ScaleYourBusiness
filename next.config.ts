@@ -21,7 +21,23 @@ const SECURITY_HEADERS = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
 ];
 
+// P3-52: the cutting room shells out to the FFmpeg/ffprobe binaries these
+// packages ship. Bundled, their path resolves inside the bundle and the
+// binary isn't there (found by running it: the render waited with "FFmpeg
+// isn't here"), so they load from node_modules, and the binaries are traced
+// into the functions that cut. _Verify at build_ on Vercel: the binary lands
+// in the function and fits its size limit; if not, the render waits, honestly.
+const FFMPEG_FILES = [
+  "./node_modules/ffmpeg-static/ffmpeg*",
+  "./node_modules/ffprobe-static/bin/linux/x64/**",
+];
+
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["ffmpeg-static", "ffprobe-static"],
+  outputFileTracingIncludes: {
+    "/api/content/media": FFMPEG_FILES,
+    "/api/cron/render-footage": FFMPEG_FILES,
+  },
   async headers() {
     return [
       { source: "/(.*)", headers: SECURITY_HEADERS },

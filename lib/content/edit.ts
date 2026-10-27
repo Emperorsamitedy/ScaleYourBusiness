@@ -20,7 +20,7 @@
 // render. There is no parameter to remove it.
 
 import { execFile } from "node:child_process";
-import { promises as fs } from "node:fs";
+import { existsSync, promises as fs } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
 import ffmpegPath from "ffmpeg-static";
@@ -38,8 +38,13 @@ export class EditError extends Error {
   }
 }
 
+/**
+ * Is the binary actually here? P3-52: a path string is not a binary — a
+ * serverless bundle can carry the package's path without the file — so the
+ * file must exist too. False = the honest "not available here" path.
+ */
 export function ffmpegAvailable(): boolean {
-  return typeof ffmpegPath === "string" && ffmpegPath !== "";
+  return typeof ffmpegPath === "string" && ffmpegPath !== "" && existsSync(ffmpegPath);
 }
 
 function bin(): string {
@@ -95,6 +100,8 @@ export interface ProbeResult {
   duration_s: number;
   width: number;
   height: number;
+  /** P3-52: phone clips nearly always carry sound; a silent one gets silence, not a failed cut. */
+  has_audio: boolean;
 }
 
 export async function probe(file: string): Promise<ProbeResult> {
@@ -117,6 +124,7 @@ export async function probe(file: string): Promise<ProbeResult> {
     duration_s: Number.parseFloat(parsed.format?.duration ?? "0"),
     width: video.width,
     height: video.height,
+    has_audio: parsed.streams?.some((s) => s.codec_type === "audio") ?? false,
   };
 }
 
@@ -148,6 +156,25 @@ export interface EditArgs {
   account_id: string;
 }
 
+/** P3-52: one cut from one of the owner's clips. */
+export interface ClipCut {
+  input: string;
+  start: number;
+  duration: number;
+  /** From probe(); a silent clip is padded with silence so the cut still concatenates. */
+  has_audio: boolean;
+}
+
+export interface EditClipsArgs {
+  output: string;
+  /** Cuts from one or more clips, concatenated in order. */
+  cuts: readonly ClipCut[];
+  caption?: string;
+  aspect: Aspect;
+  music_track_id?: string;
+  account_id: string;
+}
+
 export interface EditResult {
   output: string;
   duration_ms: number;
@@ -162,42 +189,62 @@ export interface EditResult {
  * real footage out — trimmed and framed, never fabricated.
  */
 export async function editClip(args: EditArgs): Promise<EditResult> {
-  if (args.segments.length === 0) throw new EditError("at least one segment is required", 422);
+  return editClips({
+    output: args.output,
+    cuts: args.segments.map(([start, duration]) => ({
+      input: args.input,
+      start,
+      duration,
+      has_audio: true,
+    })),
+    aspect: args.aspect,
+    account_id: args.account_id,
+    ...(args.caption !== undefined ? { caption: args.caption } : {}),
+    ...(args.music_track_id !== undefined ? { music_track_id: args.music_track_id } : {}),
+  });
+}
+
+/**
+ * P3-52: the same edit over several of the owner's clips — each cut framed
+ * to the platform's size BEFORE the concat (phone clips differ in size and
+ * frame rate), then captioned and scored once. Still real footage only.
+ */
+export async function editClips(args: EditClipsArgs): Promise<EditResult> {
+  if (args.cuts.length === 0) throw new EditError("at least one segment is required", 422);
   const { w, h } = ASPECTS[args.aspect];
   const started = Date.now();
 
   const musicPath = args.music_track_id ? await licensedTrack(args.music_track_id) : null;
   const srtPath = args.caption ? await writeCaptionFile(args.output, args.caption) : null;
 
-  // Filter graph: per-segment trim → concat → scale-and-crop → caption.
+  // Filter graph: per-cut trim → frame → concat → caption.
   const parts: string[] = [];
-  const vlabels: string[] = [];
-  const alabels: string[] = [];
-  args.segments.forEach(([start, duration], i) => {
+  const pairs: string[] = [];
+  args.cuts.forEach((cut, i) => {
     parts.push(
-      `[0:v]trim=start=${start}:duration=${duration},setpts=PTS-STARTPTS[v${i}]`,
-      `[0:a]atrim=start=${start}:duration=${duration},asetpts=PTS-STARTPTS[a${i}]`,
+      `[${i}:v]trim=start=${cut.start}:duration=${cut.duration},setpts=PTS-STARTPTS,` +
+        `scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h},setsar=1,fps=30[v${i}]`,
+      cut.has_audio
+        ? `[${i}:a]atrim=start=${cut.start}:duration=${cut.duration},asetpts=PTS-STARTPTS,` +
+            `aformat=sample_rates=44100:channel_layouts=stereo[a${i}]`
+        : `anullsrc=r=44100:cl=stereo,atrim=duration=${cut.duration}[a${i}]`,
     );
-    vlabels.push(`[v${i}]`);
-    alabels.push(`[a${i}]`);
+    pairs.push(`[v${i}][a${i}]`);
   });
-  const n = args.segments.length;
-  parts.push(
-    `${vlabels.join("")}concat=n=${n}:v=1:a=0[vcat]`,
-    `${alabels.join("")}concat=n=${n}:v=0:a=1[acat]`,
-  );
-  let vchain = `[vcat]scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h}`;
+  const n = args.cuts.length;
+  parts.push(`${pairs.join("")}concat=n=${n}:v=1:a=1[vcat][acat]`);
+  let vchain = "[vcat]null";
   const captioned = srtPath !== null;
   if (srtPath) {
-    vchain += `,subtitles='${filterPath(srtPath)}':force_style='Bold=1,Fontsize=16,PrimaryColour=&HFFFFFF&,BackColour=&H80000000&,BorderStyle=4,Alignment=2,MarginV=36'`;
+    vchain = `[vcat]subtitles='${filterPath(srtPath)}':force_style='Bold=1,Fontsize=16,PrimaryColour=&HFFFFFF&,BackColour=&H80000000&,BorderStyle=4,Alignment=2,MarginV=36'`;
   }
   parts.push(`${vchain}[vout]`);
 
-  const inputs = ["-i", args.input];
+  const inputs = args.cuts.flatMap((cut) => ["-i", cut.input]);
   let audioMap: string[];
   if (musicPath) {
     inputs.push("-i", musicPath);
-    parts.push(`[1:a]volume=0.9[music]`);
+    parts.push(`[${n}:a]volume=0.9[music]`);
     audioMap = ["-map", "[music]", "-shortest"];
   } else {
     audioMap = ["-map", "[acat]"];
@@ -205,31 +252,36 @@ export async function editClip(args: EditArgs): Promise<EditResult> {
 
   await fs.mkdir(path.dirname(args.output), { recursive: true });
   const disclosure = disclosureLabel("video");
-  await run(bin(), [
-    "-y",
-    ...inputs,
-    "-filter_complex",
-    parts.join(";"),
-    "-map",
-    "[vout]",
-    ...audioMap,
-    // Rule 17 — burned into the container on EVERY render, no flag.
-    "-metadata",
-    `comment=${disclosure}`,
-    "-c:v",
-    "libx264",
-    "-preset",
-    "veryfast",
-    "-crf",
-    "23",
-    "-c:a",
-    "aac",
-    "-movflags",
-    "+faststart",
-    args.output,
-  ]);
+  try {
+    await run(bin(), [
+      "-y",
+      ...inputs,
+      "-filter_complex",
+      parts.join(";"),
+      "-map",
+      "[vout]",
+      ...audioMap,
+      // Rule 17 — burned into the container on EVERY render, no flag.
+      "-metadata",
+      `comment=${disclosure}`,
+      "-c:v",
+      "libx264",
+      "-preset",
+      "veryfast",
+      "-crf",
+      "23",
+      "-pix_fmt",
+      "yuv420p",
+      "-c:a",
+      "aac",
+      "-movflags",
+      "+faststart",
+      args.output,
+    ]);
+  } finally {
+    if (srtPath) await fs.rm(srtPath, { force: true });
+  }
 
-  if (srtPath) await fs.rm(srtPath, { force: true });
   const stat = await fs.stat(args.output);
   const result: EditResult = {
     output: args.output,
@@ -244,7 +296,7 @@ export async function editClip(args: EditArgs): Promise<EditResult> {
       event: "content_render",
       account_id: args.account_id,
       aspect: args.aspect,
-      segments: args.segments.length,
+      segments: n,
       duration_ms: result.duration_ms,
       bytes: result.bytes,
       captioned,

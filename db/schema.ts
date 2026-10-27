@@ -1754,6 +1754,182 @@ export const contentItems = pgTable(
   ],
 );
 
+/* ---------- Phase 3 Session K — footage in (P3-52) and generated media (P3-53) ---------- */
+
+// The owner's clips, uploaded against a shot list (or a post that needs
+// media). A row is born `issued` when an upload is granted — the pathname
+// is chosen HERE, never by the browser — becomes `uploaded` once the store
+// confirms the object, `used` once a render consumed it, and `released`
+// when the bytes are deleted from storage (after the render, or when the
+// owner removes it). The row is the record; the bytes do not linger.
+export const footageClipStatus = pgEnum("footage_clip_status", [
+  "issued",
+  "uploaded",
+  "used",
+  "released",
+]);
+
+export const footageClips = pgTable(
+  "footage_clips",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The shot list (or post) the clip was filmed for. */
+    item_id: uuid("item_id")
+      .notNull()
+      .references(() => contentItems.id, { onDelete: "cascade" }),
+    status: footageClipStatus("status").notNull().default("issued"),
+    /** "vercel_blob" | "local_disk" | "memory" — where the bytes went. */
+    store: text("store").notNull(),
+    /** Server-chosen, unguessable: renders/<profile>/<item>/clip-<32 hex>.<ext>. */
+    pathname: text("pathname").notNull(),
+    /** The stored object's URL, once the store has confirmed it. */
+    url: text("url"),
+    content_type: text("content_type").notNull(),
+    /** What the browser said it would send — checked against the cap before any grant. */
+    declared_bytes: integer("declared_bytes").notNull(),
+    /** What the store holds — checked against the cap again on confirm. */
+    bytes: integer("bytes"),
+    /** The file's own name, trimmed and cleaned, for the owner's list only. */
+    label: text("label").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    uploaded_at: timestamp("uploaded_at", { withTimezone: true, mode: "string" }),
+    released_at: timestamp("released_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    index("footage_clips_item_idx").on(t.item_id, t.created_at),
+    uniqueIndex("footage_clips_pathname_uq").on(t.pathname),
+    check(
+      "footage_clips_uploaded_has_object",
+      sql`${t.status} = 'issued' OR (${t.url} IS NOT NULL AND ${t.bytes} IS NOT NULL)`,
+    ),
+  ],
+);
+
+// A cutting-room run (P3-18) over a shot list's clips. queued → rendering
+// → rendered | failed. The render may run inside the request (after the
+// response) or on the cron sweep; either way the row says where it stands,
+// and `attempts` is capped in the database as well as in code.
+export const footageRenderStatus = pgEnum("footage_render_status", [
+  "queued",
+  "rendering",
+  "rendered",
+  "failed",
+]);
+
+export const footageRenders = pgTable(
+  "footage_renders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    item_id: uuid("item_id")
+      .notNull()
+      .references(() => contentItems.id, { onDelete: "cascade" }),
+    status: footageRenderStatus("status").notNull().default("queued"),
+    /** The clips this run cuts, in order. */
+    clip_ids: jsonb("clip_ids").notNull(),
+    /** Burned onto the frame (optional, short). */
+    on_screen: text("on_screen"),
+    /** The post's caption, for a video item made from a shot list. */
+    caption: text("caption"),
+    scheduled_for: date("scheduled_for", { mode: "string" }),
+    attempts: integer("attempts").notNull().default(0),
+    /** The owner's sentence: why it is waiting, or why it failed. */
+    note: text("note"),
+    /** The item the render landed on. */
+    result_item_id: uuid("result_item_id").references(() => contentItems.id, {
+      onDelete: "set null",
+    }),
+    /** Wall-clock, bytes, output seconds, segments — compute is a cost too (P3-18). */
+    metrics: jsonb("metrics"),
+    requested_by: uuid("requested_by").references(() => users.id, { onDelete: "set null" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    started_at: timestamp("started_at", { withTimezone: true, mode: "string" }),
+    finished_at: timestamp("finished_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    index("footage_renders_item_idx").on(t.item_id, t.created_at),
+    // One live run per item: a second "cut it" while one is queued or running is refused.
+    uniqueIndex("footage_renders_one_live_uq")
+      .on(t.item_id)
+      .where(sql`${t.status} IN ('queued', 'rendering')`),
+    check("footage_renders_attempt_cap", sql`${t.attempts} >= 0 AND ${t.attempts} <= 3`),
+    check("footage_renders_failed_says_why", sql`${t.status} <> 'failed' OR ${t.note} IS NOT NULL`),
+  ],
+);
+
+// P3-53: one row per approved generation proposal — the claim that makes
+// generating twice impossible (UNIQUE proposal_id) and the ledger that
+// makes the caps arithmetic: every attempt's cost in integer minor units
+// with its currency (rule 1).
+export const mediaGenerationStatus = pgEnum("media_generation_status", [
+  "generating",
+  "generated",
+  "failed",
+]);
+
+export const mediaGenerations = pgTable(
+  "media_generations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    /** The item that had no footage — a shot list, or a post that needs media. */
+    target_item_id: uuid("target_item_id")
+      .notNull()
+      .references(() => contentItems.id, { onDelete: "cascade" }),
+    result_item_id: uuid("result_item_id").references(() => contentItems.id, {
+      onDelete: "set null",
+    }),
+    /** "image" | "video". */
+    media: text("media").notNull(),
+    provider: text("provider").notNull(),
+    status: mediaGenerationStatus("status").notNull().default("generating"),
+    attempts: integer("attempts").notNull().default(0),
+    estimate_minor: integer("estimate_minor").notNull(),
+    /** What the provider charged across every attempt — null only while generating. */
+    cost_minor: integer("cost_minor"),
+    currency: text("currency").notNull(),
+    /** sha256 of the exact prompt sent, instruction included. */
+    prompt_sha256: text("prompt_sha256").notNull(),
+    error: text("error"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    finished_at: timestamp("finished_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("media_generations_proposal_uq").on(t.proposal_id),
+    index("media_generations_account_idx").on(t.account_id, t.created_at),
+    index("media_generations_target_idx").on(t.target_item_id),
+    check("media_generations_media", sql`${t.media} IN ('image', 'video')`),
+    check("media_generations_attempt_cap", sql`${t.attempts} >= 0 AND ${t.attempts} <= 2`),
+    check(
+      "media_generations_money",
+      sql`${t.estimate_minor} >= 0 AND (${t.cost_minor} IS NULL OR ${t.cost_minor} >= 0) AND ${t.currency} ~ '^[A-Z]{3}$'`,
+    ),
+    check(
+      "media_generations_settled_cost",
+      sql`${t.status} = 'generating' OR ${t.cost_minor} IS NOT NULL`,
+    ),
+  ],
+);
+
 /* ---------- Phase 4 Session A — contacts (P4-01) ---------- */
 
 // The business's customers, held to rule 22 from the first migration:

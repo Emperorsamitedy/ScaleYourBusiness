@@ -421,6 +421,13 @@
       "when": 1793105263065,
       "tag": "0059_silly_onslaught",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1793106097046,
+      "tag": "0060_known_alex_wilder",
+      "breakpoints": true
     }
   ]
 }
