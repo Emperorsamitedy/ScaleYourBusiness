@@ -73,6 +73,20 @@ export const ACTION_KINDS = [
 ] as const;
 export type ActionKind = (typeof ACTION_KINDS)[number];
 
+/**
+ * Phase 5 (P5-03, rule 27): proposal kinds that only record the owner's
+ * intent. No executor exists for them and the due runner leaves them
+ * unrouted, so approving one writes the decision and nothing else. They sit
+ * outside ACTION_KINDS on purpose: the diagnosis classifier and the alert
+ * review can never emit one; only the module that owns it makes it, with
+ * its arithmetic. They still pass through the hard-limit check, so the
+ * owner's manual limits ride along, and a code that names one blocks it.
+ */
+export const NOTE_KINDS = ["stock_reorder_note"] as const;
+export type NoteKind = (typeof NOTE_KINDS)[number];
+/** Every kind a proposal can carry through the hard-limit check. */
+export type ProposalKind = ActionKind | NoteKind;
+
 /** code → the action kinds it forbids. The whole of rule 14's arithmetic. */
 export const LIMIT_TAXONOMY = {
   no_discounts: {
@@ -116,11 +130,11 @@ export type LimitVerdict =
  * entry forbids this action kind blocks it; manual limits always ride
  * along for the card, whichever way the verdict goes.
  */
-export function checkHardLimits(limits: readonly HardLimit[], kind: ActionKind): LimitVerdict {
+export function checkHardLimits(limits: readonly HardLimit[], kind: ProposalKind): LimitVerdict {
   const manual = limits.filter((l) => l.enforcement === "manual");
   for (const limit of limits) {
     if (limit.enforcement !== "auto" || limit.code === "other") continue;
-    if (LIMIT_TAXONOMY[limit.code].forbids.includes(kind)) {
+    if ((LIMIT_TAXONOMY[limit.code].forbids as readonly ProposalKind[]).includes(kind)) {
       return { verdict: "blocked", limit, manual };
     }
   }

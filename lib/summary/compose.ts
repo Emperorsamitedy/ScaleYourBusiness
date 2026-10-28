@@ -15,7 +15,7 @@
 
 import { format, money } from "../core/money";
 import type { JudgedOn, OutcomeVerdict } from "../trust/readback";
-import { NOTED_KINDS } from "../watch/watch-view";
+import { NOTED_KINDS, STOCK_WARNING_KIND } from "../watch/watch-view";
 import type { SummaryWindow } from "./week";
 import { dayLabel, windowLabel } from "./week";
 
@@ -66,7 +66,7 @@ export interface SummaryLine {
 }
 
 export interface SummarySection {
-  key: "waiting" | "done" | "noticed" | "goals" | "readback";
+  key: "waiting" | "stock" | "done" | "noticed" | "goals" | "readback";
   title: string;
   lines: SummaryLine[];
   /** Lines held back by the cap; the link shows them all. */
@@ -201,7 +201,24 @@ export function summarySections(input: SummaryInput): SummarySection[] {
 
   const rows = chronological(input.activity);
   const goals = rows.filter((r) => r.kind === "goal_progress");
-  const noticed = rows.filter((r) => NOTED_KINDS.has(r.kind));
+  const noticed = rows.filter((r) => NOTED_KINDS.has(r.kind) && r.kind !== STOCK_WARNING_KIND);
+
+  // P5-02: running low — the latest warning of each item this week, in its
+  // own words. A warning, never a push to act: the reorder is a note on /stock.
+  const latestByItem = new Map<string, SummaryActivity>();
+  for (const r of rows.filter((x) => x.kind === STOCK_WARNING_KIND)) {
+    const key = ((r.meta ?? {}) as { key?: unknown }).key;
+    latestByItem.set(typeof key === "string" ? key : r.detail, r);
+  }
+  if (latestByItem.size > 0) {
+    sections.push({
+      key: "stock",
+      title: "Running low",
+      ...capped([...latestByItem.values()].map((r) => ({ at: dayLabel(r.at), text: r.detail }))),
+      href: "/stock",
+      link_text: "Stock",
+    });
+  }
   const syncs = syncLines(
     rows.filter((r) => r.kind === "connector_sync"),
     input.provider_labels,

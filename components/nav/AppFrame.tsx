@@ -91,7 +91,7 @@ export const GROUPS: readonly Group[] = [
       { href: "/cash", label: "Cash flow", feature: "nav.cash" },
       {
         href: "/stock",
-        label: "Slow stock",
+        label: "Stock",
         feature: "nav.stock",
         appliesTo: (c) => c.stock === true,
         count: (c) => n(c.by_module.stock ?? 0),

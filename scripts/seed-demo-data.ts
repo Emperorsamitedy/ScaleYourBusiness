@@ -94,7 +94,9 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "350 ml thrown mug in the oatmeal speckle glaze. Our best seller since 2022.",
     problems: ["too_cheap"],
     purchase_type: "repeat",
-    on_hand: 140,
+    // Phase 5 (P5-05): the one product nearing a stock-out — it sells about 15 a
+    // day and the clay supplier takes 10 days, so cover runs short of a delivery.
+    on_hand: 90,
   },
   {
     key: "plate",
@@ -108,7 +110,8 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "27 cm dinner plate, sold singly; most people buy two or four.",
     problems: ["none"],
     purchase_type: "repeat",
-    on_hand: 90,
+    // Enough to outlast a delivery, even at the fast end of a busy stretch.
+    on_hand: 220,
   },
   {
     key: "bowl",
@@ -138,7 +141,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
       "Three small bud vases in mixed glazes — the gift people buy without thinking twice.",
     problems: ["none"],
     purchase_type: "one_time",
-    on_hand: 60,
+    on_hand: 130,
   },
   {
     key: "pourover",
@@ -152,7 +155,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "Dripper, carafe and two cups. The highest margin per piece we make.",
     problems: ["too_manual"],
     purchase_type: "one_time",
-    on_hand: 24,
+    on_hand: 45,
   },
   {
     key: "seconds",

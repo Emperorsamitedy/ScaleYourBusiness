@@ -224,6 +224,7 @@ async function seed(): Promise<void> {
   const { forecastCash } = await import("../lib/cash/model");
   const { tightWeek } = await import("../lib/cash/warnings");
   const { CASH_KEY, BUFFER_KEY } = await import("../lib/cash/keys");
+  const { logStockWarnings } = await import("../lib/stock/warnings");
   const { ensureSupportSettings } = await import("../lib/crm/support-settings");
   const { proposeKnowledgeEntries, proposeCustomKnowledge, publishKnowledgeFromProposal } =
     await import("../lib/crm/knowledge");
@@ -1660,6 +1661,12 @@ async function seed(): Promise<void> {
     );
   }
 
+  // P5-02/P5-05: today's stock read leaves the mug short of a clay delivery.
+  // The weekly beat's own step for this one business, so the watch log and
+  // the weekly summary carry the warning. Fernhill is still watched, so no
+  // reorder note is proposed (rule 15); /stock shows its arithmetic.
+  const stockWarnings = await logStockWarnings(ids.profile, new Date());
+  log(`  stock: ${stockWarnings} stock-out warning${stockWarnings === 1 ? "" : "s"} logged`);
   // P5-06..08: the owner says what's in the bank and the least she wants in it.
   // Fernhill earns well in the run-up to Christmas, so whether a week of the
   // next 13 dips under her buffer depends on the day the demo is seeded. The
