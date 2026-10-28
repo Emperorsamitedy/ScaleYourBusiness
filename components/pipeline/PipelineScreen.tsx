@@ -24,12 +24,14 @@ import { minorUnitExponent } from "../../lib/core/money";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import {
+  dateWords,
   dayWords,
   followUpWord,
   money,
   pipelineHeadline,
   quietSentence,
   rateWords,
+  roughMoney,
   staleWhy,
 } from "./pipeline-view";
 
@@ -297,7 +299,7 @@ function Weighing({ view }: { view: PipelineView }) {
               <td className="num">{num(l.deals)}</td>
               <td className="num">{money(l.open_total)}</td>
               <td className="num">
-                {money(l.low)} – {money(l.high)}
+                {roughMoney(l.low)} – {roughMoney(l.high)}
               </td>
             </tr>
           ))}
@@ -316,7 +318,8 @@ function Weighing({ view }: { view: PipelineView }) {
         ))}
       </ul>
       <p className="pl-fine">
-        Window {w.window.from} to {w.window.to}. Sources: {w.sources.join("; ")}.
+        Window {dateWords(w.window.from)} to {dateWords(w.window.to)}. Sources:{" "}
+        {w.sources.join("; ")}.
         {rate.basis === "measured" && rate.stated !== null && (
           <> You told me {rate.stated}%; this uses what your own closed deals show.</>
         )}
