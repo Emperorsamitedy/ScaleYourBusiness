@@ -111,6 +111,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Lapsed customers are lost revenue whoever serves them.",
   },
+  "nav.pipeline": {
+    bands: EVERY,
+    reason:
+      "A one-person studio selling to cafés loses a deal to silence as easily as a sales team does; only businesses that sell to businesses see it.",
+  },
   "nav.support": {
     bands: EVERY,
     reason: "A solo owner answers every message personally; drafted replies save them the most.",

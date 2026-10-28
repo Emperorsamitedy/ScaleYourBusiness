@@ -1,6 +1,6 @@
 // Vocabulary loader — step 16 (P0-30).
 //
-// Loads the 56 controlled lists out of the question bank JSON into the
+// Loads the 57 controlled lists out of the question bank JSON into the
 // vocabulary tables, verbatim and transactionally. Replace-then-insert per
 // load keeps the database an exact mirror of one bank version — partial
 // merges of two versions are how vocabularies drift. Session H's bank

@@ -81,8 +81,8 @@ describe("P5-06 — the cash questions in the bank", () => {
   };
   const q = (id: string) => bank.questions.find((x) => x.id === id);
 
-  it("bank 1.8.0 carries 5.3e and 5.3f as Money, I-don't-know allowed, in the costs section", () => {
-    expect(bank.bank_version).toBe("1.8.0");
+  it("bank 1.8.0+ carries 5.3e and 5.3f as Money, I-don't-know allowed, in the costs section", () => {
+    expect(bank.bank_version).toBe("1.9.0");
     for (const [id, key] of [
       ["5.3e", CASH_KEY],
       ["5.3f", BUFFER_KEY],

@@ -125,6 +125,13 @@ export const GROUPS: readonly Group[] = [
     label: "Customers",
     items: [
       { href: "/customers", label: "Customers", feature: "nav.customers" },
+      {
+        href: "/pipeline",
+        label: "Pipeline",
+        feature: "nav.pipeline",
+        appliesTo: (c) => c.pipeline === true,
+        count: (c) => n(c.by_module.pipeline ?? 0),
+      },
       { href: "/support", label: "Support", feature: "nav.support", count: supportCount },
     ],
   },

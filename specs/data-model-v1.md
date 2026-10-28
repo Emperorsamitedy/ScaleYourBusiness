@@ -924,6 +924,40 @@ interface CampaignComparison {
 // at least 5 measured, a lift is never "helped".
 ```
 
+**Deals** (Phase 5 Session D, P5-14..17, rule 29). A deal is always with a Phase 4 contact and goes with them. Erasing the contact cascades through the deal, its history and any drafted follow-up; the decision log, which holds only ids and hashes, is untouched. Stages are the bank's `deal_stage` vocabulary (bank 1.9.0), mirrored by the `deal_stage` enum. The stated win rate is `customers.win_rate` (question 6.1f, a percentage, asked when 6.1a is answered and isn't b2c).
+
+```ts
+// table deals (migration 0063)
+interface Deal {
+  id: DealId;
+  account_id: AccountId;
+  profile_id: BusinessProfileId;
+  contact_id: ContactId;          // NOT NULL, ON DELETE CASCADE: erased with the contact
+  company: string | null;         // the organisation, as the owner wrote it
+  title: string;                  // what the deal is for
+  stage: "lead" | "qualified" | "proposal_sent" | "won" | "lost";
+  stage_entered_at: ISODateTime;  // stage ageing counts from here
+  value_minor: number | null;     // integer minor units (rule 1) …
+  value_currency: string | null;  // … with its ISO 4217 code …
+  value_basis: "quoted" | "estimated" | null; // … and where it came from (rule 2): all three or none
+  expected_close: ISODate | null;
+  next_step: string | null;
+  next_step_due: ISODate | null;  // only with a next step
+  last_contact_at: ISODateTime | null; // when the owner last spoke to them, as stated
+  source: "owner_input" | "import";
+  source_note: string;            // "added on /pipeline" | "import batch <id>: \"<attestation>\""
+  closed_at: ISODateTime | null;  // set exactly when won or lost
+}
+// table deal_events: one row per change (created | stage | value | next_step |
+// expected_close | contacted) with `before` and `after`, so a deal moving on keeps its past.
+// table deal_followups: the drafted follow-up for an approved `deal_followup` proposal, one
+// per proposal. Its body holds a {{name}} slot, never the name; it is never sent by SYB.
+```
+
+The maths is pure (`lib/pipeline/maths.ts`). The win rate is measured as won ÷ (won + lost) over deals closed in the last 365 days, with a 90% Wilson range, once there are 5. Otherwise it is the stated 6.1f figure ±10 points, labelled as the owner's estimate. Otherwise it is unknown, and the weighted value refuses rather than borrow an average (rule 25). The weighted value is open values × the rate's low and high, per currency. A deal is stale when it is open with no next step, or with a next step past its date.
+
+A follow-up proposal (module `pipeline`, kind `deal_followup`) carries the deal's and contact's ids, the stage, the days and the value, never a name, an address or the deal's words.
+
 **`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
 
 ```ts

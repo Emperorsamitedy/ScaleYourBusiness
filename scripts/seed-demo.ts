@@ -604,6 +604,8 @@ async function seed(): Promise<void> {
       "6.1e",
       "Eight stockists — gift shops and two cafés — who buy wholesale at half of retail.",
     );
+    // P5-15: the owner's own sense of their trade win rate, shown beside the measured one.
+    await answer("6.1f", 35, true);
     await entities("6.2", [
       {
         name: "Gift buyers",
@@ -1716,6 +1718,65 @@ async function seed(): Promise<void> {
     },
     { currency: "EUR" },
   );
+
+  // P5-17: the trade pipeline. Fernhill sells to cafés and shops as well
+  // (6.1a "both"), so its trade list comes in through the pipeline import
+  // under the owner's attestation, as the customer export did; two deals
+  // were added on /pipeline by hand (their contacts land "unsure"). The
+  // dates a spreadsheet can't carry — when each deal was added and entered
+  // its stage, and when the closed ones closed — are set on the rows
+  // afterwards, as the seed sets every other simulated time. Fernhill is
+  // still being watched, so no follow-up is proposed; the screen says so.
+  {
+    const { importDeals } = await import("../lib/pipeline/import");
+    const { addDeal } = await import("../lib/pipeline/deals");
+    const byHand = new Set(["Breakfast service, 40 rooms", "Shared stand at the spring fair"]);
+    const trade = await importDeals(
+      ids.account,
+      ids.profile,
+      data.dealsCsv(
+        today,
+        data.DEMO_DEALS.filter((d) => !byHand.has(d.title)),
+      ),
+      {
+        status: "explicit_consent",
+        statement:
+          "Trade buyers who ticked 'email me about trade orders' on our Showcase Ireland sign-up sheet, January 2026",
+      },
+      { currency: "EUR", value_basis: "quoted" },
+    );
+    for (const d of data.DEMO_DEALS.filter((x) => byHand.has(x.title))) {
+      await addDeal(ids.account, ids.profile, {
+        contact: { name: d.contact || null, email: d.email },
+        company: d.company,
+        title: d.title,
+        stage: d.stage,
+        value:
+          d.value === null
+            ? null
+            : { amount_minor: d.value * 100, currency: "EUR", basis: "estimated" },
+        next_step: d.next_step || null,
+        next_step_due: d.due === null ? null : data.shiftDay(today, d.due),
+        last_contact_at: d.last_contact === null ? null : at(d.last_contact),
+      });
+    }
+    for (const d of data.DEMO_DEALS) {
+      const closed = d.stage === "won" || d.stage === "lost";
+      await db
+        .update(schema.deals)
+        .set({
+          created_at: at(d.added),
+          stage_entered_at: at(d.in_stage),
+          updated_at: at(Math.min(d.in_stage, d.last_contact ?? d.in_stage)),
+          closed_at: closed ? at(d.in_stage, "15:00") : null,
+        })
+        .where(and(eq(schema.deals.profile_id, ids.profile), eq(schema.deals.title, d.title)));
+    }
+    await db.execute(
+      sql`update deal_events e set at = d.created_at from deals d where e.deal_id = d.id and d.profile_id = ${ids.profile} and e.kind = 'created'`,
+    );
+    log(`  pipeline: ${trade.imported} trade deals imported, ${byHand.size} added by hand`);
+  }
 
   const segments = await proposeFromSegments(ids.profile);
   const vip = segments.created.find(
