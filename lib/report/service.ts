@@ -20,6 +20,9 @@
 // P2-30: the trading-hours findings ride beside the economics as their
 // own deterministic block, computed from measured hourly sales at
 // generation and frozen on the row with the report.
+//
+// P5-13: the site audit's measured findings (lib/site/audit) join the
+// findings list itself, marked `kind: "measured"`, citing presence.site_audit.
 
 import { logSafeError } from "../core/log-safe";
 import { createHash } from "node:crypto";
@@ -32,7 +35,7 @@ import { format, money } from "../core/money";
 import { computeEconomics } from "../economics/unit-economics";
 import type { EconomicsResult } from "../economics/unit-economics";
 import type { DiagnosisFinding, DiagnosisLlm } from "../diagnosis/findings";
-import { DiagnosisError, runDiagnosis } from "../diagnosis/findings";
+import { DiagnosisError, runDiagnosis, sortFindings } from "../diagnosis/findings";
 import type { Recommendation, RecommendationsLlm } from "../diagnosis/recommendations";
 import { runRecommendations } from "../diagnosis/recommendations";
 import type { TradingHoursBlock } from "../hours/findings";
@@ -42,6 +45,8 @@ import { displayValue, gapBuys, readSupersededFacts, sourceDetail } from "../pro
 import type { FactHistory, GapRow } from "../profile/factsheet";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { computeCompleteness } from "../scorer/completeness";
+import { SITE_AUDIT_KEY } from "../site/audit/findings";
+import { siteFindingsForReport } from "../site/audit/service";
 import { recordFunnelEvent } from "../intake/telemetry";
 import { applicableQuestions } from "../resolver/applicability";
 
@@ -226,15 +231,33 @@ export async function generateReport(args: {
     profileId: args.profileId,
     ...(args.findingsLlm ? { llm: args.findingsLlm } : {}),
   });
+  // P5-13: the site audit's measured findings ride beside the model's —
+  // from the audit the snapshot's presence.site_audit fact names, each
+  // citing that fact (P1-24), marked measured, severest first with the rest.
+  const view = await readSnapshot(snapshot.id);
+  let findings = diagnosis.findings;
+  try {
+    const measured = await siteFindingsForReport(view.facts.get(SITE_AUDIT_KEY), args.profileId);
+    if (measured.length > 0) findings = sortFindings([...measured, ...diagnosis.findings]);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "report_site_audit_failed",
+        account_id: args.accountId,
+        profile_id: args.profileId,
+        ...logSafeError(error),
+      }),
+    );
+  }
+
   const recs = await runRecommendations({
     accountId: args.accountId,
     profileId: args.profileId,
-    findings: diagnosis.findings,
+    findings,
     ...(args.recommendationsLlm ? { llm: args.recommendationsLlm } : {}),
   });
 
   // The deterministic parts — economics and gaps, from the same snapshot.
-  const view = await readSnapshot(snapshot.id);
   const [acct] = await db
     .select({ currency: accounts.reporting_currency })
     .from(businessProfiles)
@@ -303,7 +326,7 @@ export async function generateReport(args: {
       completeness: String(diagnosis.completeness),
       cost_eur: String(diagnosis.cost_eur + recs.cost_eur),
       unit_economics: economics,
-      findings: diagnosis.findings,
+      findings,
       recommendations: stored,
       data_gaps: gaps,
       trading_hours: tradingHours,

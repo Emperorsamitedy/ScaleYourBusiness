@@ -3007,3 +3007,53 @@ export const dealFollowups = pgTable(
     index("deal_followups_account_idx").on(t.account_id, t.created_at),
   ],
 );
+
+// P5-11..13: one run of the site audit — the website as a customer meets it
+// (TASKS-PHASE5.md Session C, rule 30). What Google's PageSpeed Insights
+// measured on the home page and up to four key pages, at mobile and
+// desktop, each number with its provenance (field or lab, when, which
+// Lighthouse); what reading the site's own pages found on the path to
+// buying; and the measured SiteFindings with their thresholds. Raw
+// measurement like niche_ad_reads, not a Field<T>: the audit also writes
+// one fact (presence.site_audit) that the diagnosis cites. `pagespeed_calls`
+// is what the weekly per-site cap counts (lib/site/audit/service.ts).
+export const siteAudits = pgTable(
+  "site_audits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** "read" — measured and stored; "failed" — the home page couldn't be read, `reason` says why. */
+    status: text("status").notNull(),
+    ran_at: timestamp("ran_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    /** The home page as the owner gave it (2.1.2.1). */
+    url: text("url").notNull(),
+    /** scheme://host — the "site" the weekly cap is per. */
+    origin: text("origin").notNull(),
+    /** PlatformVerdict (lib/site/platform.ts), from the home page. */
+    platform: jsonb("platform"),
+    /** The pages walked and measured: role, clicks from home, PageSpeed results per strategy. */
+    pages: jsonb("pages").$type<Record<string, unknown>[]>().notNull().default([]),
+    /** The path to buying (lib/site/audit/walk.ts PurchasePath) and broken links. */
+    path: jsonb("path").$type<Record<string, unknown>>().notNull().default({}),
+    /** SiteFinding[] (lib/site/audit/findings.ts), severest first. */
+    findings: jsonb("findings").$type<Record<string, unknown>[]>().notNull().default([]),
+    /** PageSpeed Insights requests this run made, retries included — the weekly cap counts these. */
+    pagespeed_calls: integer("pagespeed_calls").notNull().default(0),
+    /** Page GETs the walk made. */
+    page_reads: integer("page_reads").notNull().default(0),
+    /** True when PAGESPEED_API_KEY was set; false means no key, so speed wasn't measured. */
+    pagespeed_keyed: boolean("pagespeed_keyed").notNull().default(false),
+    /** Why PageSpeed measured fewer pages than asked, in words; null when it measured all. */
+    pagespeed_note: text("pagespeed_note"),
+    reason: text("reason"),
+  },
+  (t) => [
+    index("site_audits_profile_idx").on(t.profile_id, t.ran_at),
+    index("site_audits_origin_idx").on(t.origin, t.ran_at),
+    check("site_audits_status", sql`${t.status} IN ('read', 'failed')`),
+    check("site_audits_failed_says_why", sql`${t.status} <> 'failed' OR ${t.reason} IS NOT NULL`),
+    check("site_audits_calls_nonneg", sql`${t.pagespeed_calls} >= 0 AND ${t.page_reads} >= 0`),
+  ],
+);

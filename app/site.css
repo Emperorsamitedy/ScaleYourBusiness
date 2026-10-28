@@ -326,3 +326,25 @@
     color: var(--sheet-ink-2);
   }
 }
+
+/* ── the measured audit (P5-13) ── */
+
+.st-screen .st-sub {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.st-screen .st-path {
+  padding: 0 10px;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1.9;
+}
+.st-screen .st-path .st-n {
+  display: inline-block;
+}

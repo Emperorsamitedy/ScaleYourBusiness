@@ -89,9 +89,16 @@ export const SCOPE_REGISTRY = {
  * asked. public_profile, which every user token carries and which reads
  * nothing about ads, is the only one. Whether ads_archive needs any
  * permission beyond it is a verify-at-build item (TASKS-PHASE3.md).
+ *
+ * PageSpeed Insights (P5-11, lib/site/audit/pagespeed.ts). A Google API
+ * key (the keyless quota is zero, so the audit never calls without one). An API key carries no
+ * OAuth scope: it identifies the caller and grants nothing, so the entry
+ * is empty on purpose — there is no permission to grant, and the audit
+ * would catch one that could write.
  */
 export const RESEARCH_SOURCE_REGISTRY = {
   meta_ad_library: ["public_profile"],
+  pagespeed_insights: [],
 } as const satisfies Record<string, readonly string[]>;
 
 export type ResearchSourceId = keyof typeof RESEARCH_SOURCE_REGISTRY;

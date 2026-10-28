@@ -14,6 +14,7 @@ import type {
 } from "../lib/connectors/providers/shopify-fake";
 import type { FakeMetaCampaignDay, FakeMetaDay } from "../lib/connectors/providers/meta-fake";
 import type { FakeGa4Row } from "../lib/connectors/providers/ga4-fake";
+import type { FakePageSpeedOptions } from "../lib/site/audit/pagespeed-fake";
 import { utcOfZonedHour } from "../lib/connectors/hourly";
 
 export const ZONE = "Europe/Dublin";
@@ -747,6 +748,75 @@ export const SITE_PAGES: Readonly<Record<string, string>> = {
 <p class="product-description">A 350 ml mug thrown on the wheel and dipped in our oatmeal speckle glaze. Every one is slightly different.</p>
 <form action="/cart/add" method="post"><button type="submit">Add to cart</button></form>`,
   ),
+};
+
+/**
+ * P5-11..13: the pages the site audit reads beyond the ones above — the
+ * shop's collections and its cart, so the walk can count the clicks from
+ * home to checkout. "/collections/gifts" is linked from the home page and
+ * deliberately missing: the audit's broken link. Kept apart from SITE_PAGES
+ * so the "what customers look for" check reads exactly what it always has.
+ */
+export const SITE_AUDIT_PAGES: Readonly<Record<string, string>> = {
+  ...SITE_PAGES,
+  [`${SITE}/collections/all`]: SHELL(
+    "All pottery",
+    `<h1>All pottery</h1>
+<ul><li><a href="/products/speckled-everyday-mug">Speckled Everyday Mug</a> — &euro;34.00</li></ul>`,
+  ),
+  [`${SITE}/collections/mugs`]: SHELL(
+    "Mugs",
+    `<h1>Mugs</h1>
+<ul><li><a href="/products/speckled-everyday-mug">Speckled Everyday Mug</a> — &euro;34.00</li></ul>`,
+  ),
+  [`${SITE}/cart`]: SHELL(
+    "Your cart",
+    `<h1>Your cart</h1><p>Your cart is empty.</p>
+<form action="/cart" method="post"><button type="submit" name="checkout">Check out</button></form>`,
+  ),
+};
+
+/**
+ * P5-11: what the fake PageSpeed Insights says about Fernhill's pages —
+ * a heavy, slow home page on phones (Google has real-visitor data for it),
+ * a product page that shifts as it loads and has small tap targets (lab
+ * only: too few visitors), and computers fine everywhere.
+ */
+export const SITE_SPEED: FakePageSpeedOptions = {
+  pages: {
+    [`${SITE}/`]: {
+      mobile: {
+        lcp_ms: 5100,
+        cls: 0.04,
+        tbt_ms: 260,
+        page_bytes: 3_800_000,
+        performance: 0.52,
+        contrast_failures: 2,
+        tap_target_failures: 0,
+        field: { lcp_ms: 4300, cls: 0.03, inp_ms: 190 },
+      },
+    },
+    [`${SITE}/products/speckled-everyday-mug`]: {
+      mobile: {
+        lcp_ms: 3900,
+        cls: 0.18,
+        tbt_ms: 240,
+        page_bytes: 2_900_000,
+        performance: 0.61,
+        contrast_failures: 0,
+        tap_target_failures: 6,
+      },
+    },
+  },
+  fallback: {
+    lcp_ms: 1900,
+    cls: 0.02,
+    tbt_ms: 120,
+    page_bytes: 1_600_000,
+    performance: 0.86,
+    contrast_failures: 0,
+    tap_target_failures: 0,
+  },
 };
 
 /* ── a booking business: "Lumen Hair Studio" (the salon demo) ── */

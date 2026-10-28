@@ -69,6 +69,21 @@ interface SiteFinding {
 
 `SiteFinding` feeds `DiagnosisFinding` in the report like any other finding, with the screenshot as evidence.
 
+### As built — Phase 5 Session C (P5-11..13, 2026-10-27)
+
+Tier 1's **measured layer** is built without running a browser of our own (TASKS-PHASE5.md, step 90): Google's public PageSpeed Insights API v5 loads the pages and measures them, and SYB reads the pages' HTML through the GET-only, SSRF-guarded fetcher. The **judged layer** (screenshots and a vision model) is not built, so every finding is `kind: "measured"`. Code: `lib/site/audit/`. Rule 30 governs it: the audit never logs in, never submits a form, never adds to a cart (cart action links are refused even though they are links) and never opens checkout. Checkout is counted from the outside.
+
+What changed against the schema above, deliberately:
+
+- `AuditedPage.role` gains `"booking"`. A booking link to a hosted service (Fresha, Booksy, Calendly, …) counts as the booking entry and is never fetched.
+- `AuditedPage` has no screenshots and no `dom_snapshot`. Its metrics are the PageSpeed result per strategy: field data (CrUX p75 LCP, CLS, INP, with `origin_fallback`) kept apart from lab data (LCP, CLS, Total Blocking Time as INP's stand-in, page bytes, performance score, contrast and tap-target failures). Each result carries its provenance: source, API, `measured_at`, Lighthouse version, final URL, and whether a key or the shared quota was used.
+- `SiteFinding.evidence.screenshot` is `null`. The evidence gains `unit`, `basis` (`field` | `field_origin` | `lab` | `page_read`), `strategy`, `source` and `measured_at`.
+- `SiteFinding` gains `code`, `threshold` (the stated line it crossed, in words, with whose it is) and `euro`: a monthly range with its formula, window, sources and ASSUMED lines, or `{computed: false, why}`. Only the slow-mobile-load finding carries a computed figure, and only from the owner's own visits, orders and revenue (rule 25).
+- Severity comes from `SITE_THRESHOLDS` (`lib/site/audit/findings.ts`), tested at the boundaries. The vitals use Google's bands. Page weight, failures, clicks and form fields use SYB's own stated lines.
+- Into the report: up to four findings of medium and above become `DiagnosisFinding`s (`kind: "measured"`). They cite the `presence.site_audit` fact, which names the audit it came from. A report built from a snapshot therefore reproduces its site findings.
+
+Stored in `site_audits` (migration 0064), one row per run, with the PageSpeed calls it made. The weekly per-site cap counts those calls.
+
 ---
 
 ## 3. Tier 2 — Evidence

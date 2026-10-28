@@ -88,6 +88,8 @@ export interface Finding {
   detail: string;
   evidence: string[];
   severity: Severity;
+  /** P5-13: "measured" — SYB measured it (the site audit), not the model's judgement. */
+  kind?: "measured";
 }
 export interface Outcome {
   case: string;

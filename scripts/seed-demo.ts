@@ -1649,6 +1649,42 @@ async function seed(): Promise<void> {
     if ("reason" in checked) throw new Error(`site checks: ${checked.reason}`);
   });
 
+  // P5-11..13: the site audit, read like a visitor — the walk over the
+  // fixture pages and the in-repo recorded-shape PageSpeed Insights (the
+  // global fetch stays sealed, both fakes are passed in). After the
+  // 21-day-old report, so that report is unchanged; the next one carries
+  // the measured findings. No network, no model.
+  await phase(
+    "website measured: speed, phones and the path to buying",
+    at(2, "06:45"),
+    async () => {
+      const { runSiteAudit } = await import("../lib/site/audit/service");
+      const { FAKE_PAGESPEED_KEY, fakePageSpeed } =
+        await import("../lib/site/audit/pagespeed-fake");
+      const auditFetcher = async (url: string) => {
+        const normalised = url.replace(/\/$/, "") === data.SITE ? `${data.SITE}/` : url;
+        const html = data.SITE_AUDIT_PAGES[normalised];
+        return {
+          url: normalised,
+          status: html ? 200 : 404,
+          html: html ?? "<!doctype html><title>Not found</title><h1>Not found</h1>",
+          headers: { "content-type": "text/html; charset=utf-8", "x-shopid": "fernhill-ceramics" },
+          duration_ms: 240,
+        };
+      };
+      const audited = await runSiteAudit({
+        profileId: ids.profile,
+        fetcher: auditFetcher,
+        pagespeedFetch: fakePageSpeed(data.SITE_SPEED).fetch,
+        apiKey: FAKE_PAGESPEED_KEY,
+      });
+      if (audited.status !== "read") throw new Error(`site audit: ${audited.why}`);
+      log(
+        `  site audit: ${audited.audit.findings.length} measured findings, ${audited.audit.path.clicks ?? "?"} clicks to checkout, ${audited.audit.pagespeed.calls} PageSpeed calls (fake)`,
+      );
+    },
+  );
+
   /* ── 10. today ── */
 
   log("today · sync, customers, proposals and decisions");

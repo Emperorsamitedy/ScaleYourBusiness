@@ -97,6 +97,13 @@ export interface DiagnosisFinding {
   evidence: string[];
   severity: Severity;
   confidence: number;
+  /**
+   * P5-13: "measured" for a finding SYB measured itself (the site audit,
+   * lib/site/audit) rather than the diagnosis model's judgement. Absent on
+   * the model's findings — site-audit §2: the report presents the two
+   * differently.
+   */
+  kind?: "measured";
 }
 
 export interface RejectedFinding {
