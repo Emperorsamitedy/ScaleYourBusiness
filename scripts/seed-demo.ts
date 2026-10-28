@@ -219,7 +219,11 @@ async function seed(): Promise<void> {
   const { setGoalMeasure } = await import("../lib/care/goal-measure");
   const { checkGoal } = await import("../lib/care/progress");
   const { updateGoal } = await import("../lib/content/goals");
-  const { logHoursFindings } = await import("../lib/watch/job");
+  const { logHoursFindings, logCashWarning } = await import("../lib/watch/job");
+  const { loadCashInputs } = await import("../lib/cash/load");
+  const { forecastCash } = await import("../lib/cash/model");
+  const { tightWeek } = await import("../lib/cash/warnings");
+  const { CASH_KEY, BUFFER_KEY } = await import("../lib/cash/keys");
   const { ensureSupportSettings } = await import("../lib/crm/support-settings");
   const { proposeKnowledgeEntries, proposeCustomKnowledge, publishKnowledgeFromProposal } =
     await import("../lib/crm/knowledge");
@@ -538,6 +542,14 @@ async function seed(): Promise<void> {
         label: "Studio and stock insurance",
         amount: eur(1140),
         cadence: "annual",
+      },
+      // Phase 5 (P5-07): the lumps the 13-week cash forecast places by frequency.
+      { category: "other", label: "VAT return", amount: eur(4800), cadence: "quarterly" },
+      {
+        category: "loan_payments",
+        label: "Kiln loan repayment",
+        amount: eur(450),
+        cadence: "monthly",
       },
     ]);
     await entities("5.2", [
@@ -1644,6 +1656,44 @@ async function seed(): Promise<void> {
     log(
       `  ${outcome.provider}: ${outcome.observations} observations, ${detected} anomalies opened`,
     );
+  }
+
+  // P5-06..08: the owner says what's in the bank and the least she wants in it.
+  // Fernhill earns well in the run-up to Christmas, so whether a week of the
+  // next 13 dips under her buffer depends on the day the demo is seeded. The
+  // figure she gives is therefore read off the forecast itself, from her own
+  // measured sales and stated costs (no network, no model): the cash that
+  // leaves the lowest cautious-end week about €1,800 under her €6,000
+  // buffer, rounded to €100 — so the demo always shows a tight week, with
+  // its real reason, on whatever day it is seeded. Read after today's sync,
+  // so the series it is read from is the one the screen reads.
+  log("today · the owner states cash in the bank and her buffer");
+  {
+    const realNow = new RealDate();
+    const base = await loadCashInputs(ids.account, ids.profile, realNow);
+    const zero = forecastCash({
+      ...base,
+      cash: {
+        status: "known",
+        fact: { amount_minor: 0, currency: "EUR", basis: "STATED", source: "", on: null },
+      },
+    });
+    if (zero.status !== "ready") throw new Error(`cash forecast refused: ${zero.headline}`);
+    const lowest = Math.min(...zero.weeks.map((w) => w.balance.low));
+    let buffer = 600_000;
+    let cash = Math.ceil((buffer - 180_000 - lowest) / 10_000) * 10_000;
+    if (cash < 90_000) {
+      // A season so strong the lowest week is far ahead: raise the buffer instead.
+      cash = 90_000;
+      buffer = Math.ceil((lowest + cash + 180_000) / 10_000) * 10_000;
+    }
+    await ownerFact(CASH_KEY, money(cash, "EUR"));
+    await ownerFact(BUFFER_KEY, money(buffer, "EUR"));
+    const f = forecastCash(await loadCashInputs(ids.account, ids.profile, realNow));
+    const tight = f.status === "ready" ? tightWeek(f) : null;
+    if (!tight) throw new Error("the demo's cash forecast shows no tight week");
+    log(`  cash €${cash / 100}, buffer €${buffer / 100}: ${tight.sentence}`);
+    await logCashWarning(ids.profile, realNow, async () => f);
   }
 
   const people = data.demoContacts(today);
