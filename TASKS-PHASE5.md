@@ -127,15 +127,41 @@ Step 90. The site-audit spec's Tier 1, without running browsers ourselves.
 
 Step 92. Shown only when 6.1a is `b2b` or `both`; branching lives in data (rule 4).
 
-- [ ] **P5-14** Deals. A `deals` table:
+- [x] **P5-14** Deals. A `deals` table:
   - **Who:** contact or company (Phase 4 contacts);
   - **Stage:** the bank's vocabulary; lead → qualified → proposal sent → won / lost;
   - **Value:** `Money`;
   - **Plus:** expected close, next step and its date, provenance;
   - **Erasure:** with the contact (rule 29).
-- [ ] **P5-15** Pipeline maths (pure): weighted value as a range from the business's own win rate (stated or measured), stage ageing, and stale deals (no next step, or a next step past its date).
-- [ ] **P5-16** Follow-ups as drafted proposals: "Nobody has spoken to Café Nua in 23 days". A follow-up email is drafted in the owner's voice and goes through consent (rule 23) and the approval queue; nothing is sent automatically.
-- [ ] **P5-17** The `/pipeline` screen: stages as columns, deals with value and age, the stale list, and import from CSV with the same attestation as contacts (P4-03).
+- [x] **P5-15** Pipeline maths (pure): weighted value as a range from the business's own win rate (stated or measured), stage ageing, and stale deals (no next step, or a next step past its date).
+- [x] **P5-16** Follow-ups as drafted proposals: "Nobody has spoken to Café Nua in 23 days". A follow-up email is drafted in the owner's voice and goes through consent (rule 23) and the approval queue; nothing is sent automatically.
+- [x] **P5-17** The `/pipeline` screen: stages as columns, deals with value and age, the stale list, and import from CSV with the same attestation as contacts (P4-03).
+
+**Status 2026-10-28:** Built and ticked in six commits, every rule a test with a passing and a failing case (41 tests across five files). Fixture-proven only: no real follow-up has been drafted by a live model.
+
+- **Bank 1.8.0 (the bank route, chosen over stages in code):** vocabulary `deal_stage` (lead, qualified, proposal_sent, won, lost) and question 6.1f `customers.win_rate` ("Of the deals you go after with other businesses, roughly what percentage do you win?", 0–100, unknown allowed, deep), asked under 6.1e's condition (`customers.type neq b2c`). Pins moved to 158 questions / 57 vocabularies. Production needs `db:seed`. Session B's P5-06 also bumps the bank, so the versions and count pins collide at merge.
+- **P5-14, deals (migration 0063):** `deals`, `deal_events` and `deal_followups`, and the `deal_stage` enum. A test holds the code, the enum and the bank's vocabulary equal.
+  - A deal is with a Phase 4 contact (`contact_id` NOT NULL, ON DELETE CASCADE). An existing contact is linked and keeps its consent. A new one is created through `addContact` as `unsure` ("a sales conversation is not marketing consent"). A suppressed address is refused.
+  - Value is integer minor units + currency + basis (`quoted` / `estimated`), all or none by a check.
+  - Every change writes a `deal_events` row with the old and the new value. The same stage twice is refused. Won and lost set `closed_at`; reopening clears it.
+  - Erasing the contact cascades through the deal, its events and its drafted follow-up. The test proves every earlier decision-log entry is unchanged, the only new one is the erasure, and none holds the deal's words.
+- **P5-15, maths (pure, `lib/pipeline/maths.ts`):**
+  - The win rate is measured once 5 deals have closed in the last 365 days (a 90% Wilson range). Otherwise it is the owner's 6.1f answer ±10 points, named as their estimate. Otherwise there is none, and the weighted value refuses: it says what it can and can't say, and when it will be ready. It never borrows an average (rule 25).
+  - The weighted value is per currency, never mixed, and names its window, its sources and its ASSUMED lines, including "one rate whatever the stage".
+  - Stage ageing and staleness are boundary-tested.
+- **P5-16, follow-ups (`lib/pipeline/followups.ts`):** module `pipeline`, kind `deal_followup` (added to ACTION_KINDS; no limit forbids it).
+  - A follow-up is proposed for a stale deal only when its contact passes `canEmailForMarketing` (rule 23, applied conservatively to a sales email). The check runs again at drafting. Once per deal per month, five a run.
+  - It goes through the watch, the 6.4b posture, the hard limits and P3-28 suppression.
+  - The proposal holds ids only and says nothing sends. The kind has no executor, so the due runner leaves it approved.
+  - Drafting is the owner's click: Sonnet through `draftItem` (voice card, disclosure by code), metered as workload `pipeline_followup` (`draftLlmFor`). The brief names no one: only the stage and the days. The greeting is a `{{name}}` slot the screen fills.
+  - Caps are checked before the call: one draft per proposal, 30 a month, €2 a month.
+- **P5-17, the screen and import:**
+  - `/pipeline` sits under Customers. Its menu item shows only when `PIPELINE_APPLIES` holds, carried by `/api/nav`. The API refuses every write otherwise.
+  - Import (`lib/pipeline/import.ts`) takes P4-03's attestation. Unreadable cells are counted, never guessed. Values are estimates unless the owner says quotes. The same file twice adds nothing. One `import` log entry per batch.
+- **Demo seed:** Fernhill (6.1a "both") gets 11 trade deals. Nine come through the import and two through `addDeal`. Five are open, three of them stale; six are closed, so the win rate is measured at 50% (22–78%) beside the stated 35%.
+  - Checked against the local dev server with a signed-in demo session over HTTP. `/pipeline` returns 200, `/api/nav` says `pipeline: true`, and `/api/pipeline` returns the board, three stale deals and the weighted €5,885–€20,715 of €26,600. "Propose follow-ups" answers with the watch's refusal (until 2026-11-05).
+  - The browser pane couldn't be used for a visual walk, so the layout is still to be looked at.
+- **Not done here:** a live-model draft, and a visual walk of `/pipeline` at desktop and phone widths.
 
 ## Session E — Staff planning, by role _(~2 wks)_
 
