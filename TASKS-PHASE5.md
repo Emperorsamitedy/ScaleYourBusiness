@@ -116,12 +116,44 @@ Step 89.
 
 Step 90. The site-audit spec's Tier 1, without running browsers ourselves.
 
-- [ ] **P5-11** Page speed and mobile, from Google's public PageSpeed Insights API (read-only; `PAGESPEED_API_KEY` optional, and the screen says when the shared quota is used).
+- [x] **P5-11** Page speed and mobile, from Google's public PageSpeed Insights API (read-only; `PAGESPEED_API_KEY` optional, and the screen says when the shared quota is used).
   - **Pages:** the home page and up to four key pages (a product, a service, the cart or booking entry, contact).
   - **Measures:** LCP, CLS, INP (field data where available), page weight, tap targets and contrast, at mobile and desktop.
   - **Storage:** results are kept as observations with provenance. A fake serves tests.
-- [ ] **P5-12** The path to buying, walked by reading pages (rule 30): clicks from home to checkout or booking entry, price visible on the first screen, the form-field count on contact and booking forms, broken links. Nothing is submitted.
-- [ ] **P5-13** Findings feed the report. Each is a `SiteFinding` (spec §2), `kind: "measured"`, with a severity from stated thresholds. A rule-of-thumb € figure is shown only where the owner's own conversion and traffic exist, otherwise "not computed". `/site` shows the audit beside its existing before/after wording.
+- [x] **P5-12** The path to buying, walked by reading pages (rule 30): clicks from home to checkout or booking entry, price visible on the first screen, the form-field count on contact and booking forms, broken links. Nothing is submitted.
+- [x] **P5-13** Findings feed the report. Each is a `SiteFinding` (spec §2), `kind: "measured"`, with a severity from stated thresholds. A rule-of-thumb € figure is shown only where the owner's own conversion and traffic exist, otherwise "not computed". `/site` shows the audit beside its existing before/after wording.
+
+**Status 2026-10-27 (P5-11..13):** built against fakes, in `lib/site/audit/`. Migration **0063** (`site_audits`; may be renumbered at merge). No model call anywhere, no network in tests.
+
+- **P5-11:** `pagespeed.ts` sends a GET to `runPagespeed` and nothing else (the type admits only GET). The optional `PAGESPEED_API_KEY` (`lib/env.ts`, `.env.example`) goes in the `X-Goog-Api-Key` header, never a URL. It is in `RESEARCH_SOURCE_REGISTRY` with no scope, under the scope audit. Field data (CrUX p75 LCP/CLS/INP, CLS ×100 undone, `origin_fallback` kept) stays apart from lab data (LCP, CLS, TBT as INP's stand-in, bytes, score, contrast and tap-target failures). Every result carries its provenance (measured_at, Lighthouse version, final URL, keyed or shared quota). Pages are the home page plus up to four key pages from the site's own links (product, service, cart or booking, contact; a category fills a gap), at mobile and desktop, phones first. The cap is **20 calls per site (origin) per rolling 7 days**, counted from `site_audits.pagespeed_calls` with retries included. Each call gets 2 attempts, 3 run at once, with a 90 s timeout. Each run logs a `site_audit` line with the account id. `/site` says when the shared keyless quota was used and when the week's calls return. `pagespeed-fake.ts` serves tests and the demo.
+- **P5-12:** `links.ts` classifies a link before it is followed. Login and account pages, cart action links (`/cart/add`, `?add-to-cart=`) and checkout are refused by name, and a hosted booking page (Fresha, Calendly, …) counts as the entry and is not read. `walk.ts` reads through the guarded GET-only fetcher (no cookies): 12 pages, 4 clicks deep, then 15 link checks. Its measures:
+  - clicks from home to the checkout entry (product + Add to cart + checkout, the last step ASSUMED and said) or to the booking entry;
+  - a price on the first screen (stated heuristic: the first 600 characters of the page's own text after header and nav);
+  - field counts on contact and booking forms (search and cart forms skipped);
+  - broken same-origin links.
+
+  The build gate (`audit.test.ts`) scans every source in `lib/site/audit` for a write verb, a method other than GET, or a `key=` in a URL. It also checks that `lib/site/fetch.ts` sets no method, and at run time that the walk never asked for a login, cart action or checkout URL or another origin.
+
+- **P5-13:** `findings.ts` turns the measurements into `SiteFinding`s (`kind: "measured"`, `screenshot: null`), with severity from `SITE_THRESHOLDS`, tested at the boundaries. The vitals use Google's bands (phone poor → high, phone needs-improvement or computer poor → medium); TBT is capped at medium as a stand-in. SYB's own lines: page weight >3 MB medium and >6 MB high, failures 5+ medium, clicks shop ≤4 / booking ≤2 fine, form 6+ fields medium and 9+ high, a broken link on the path high. The € figure sits only on the slow-mobile-load finding, only from the owner's own `presence.monthly_sessions`, `revenue.order_count_monthly` and `revenue.monthly_revenue` (measured or stated). It is a monthly range with its formula, window and sources. The 1–4% of orders per second over 2.5 s (at most 3 s) is named ASSUMED, as a rule of thumb that isn't theirs. Without those figures it reads "not computed" with what is missing (rule 25). The run writes `presence.site_audit` (web_research, naming the audit id). `generateReport` adds up to four medium+ site findings to the findings list, severest first, marked `kind: "measured"` and citing that fact, from the audit the snapshot names. The report shows "· measured" beside the area. `/site` has a **Measured** tab beside the wording changes (`components/site/SiteAuditSheet.tsx`), and `POST /api/site/audit` runs it (signed in, same-origin, maxDuration 300). The demo seed's Fernhill runs it from the fakes on day 2: 7 findings, 4 clicks to checkout, a broken `/collections/gifts`, and the € line from its measured connectors. That is after the 21-day-old report, so the report's hand-written recommendation indices stay valid; the next report carries them.
+- **Not built (said on screen):** the spec's judged layer (screenshots, a vision model). Tests: `audit.test.ts` 28, `service.test.ts` 6.
+- **Browser walk:** not completed. Sibling dev servers on `localhost` share the session cookie across ports, so the demo sign-in kept being replaced, and the check was dropped when the pane hung. Walk `/site` → Measured once alone on the box.
+- **Conservative calls, owner to confirm:**
+  - checkout and hosted booking pages are never sent to PageSpeed either;
+  - external links aren't checked for breakage;
+  - the cap is per origin, not per business;
+  - one run per business per hour;
+  - a model finding citing `presence.site_audit` isn't de-duplicated against the measured ones (P1-24: the model's output is never quietly dropped).
+
+### Verify at build — Session C (2026-10-27)
+
+P5-11, from PageSpeed Insights v5 as remembered, since no docs were read and no key exists yet:
+
+- **Key in a header:** that `X-Goog-Api-Key` is honoured by `runPagespeed` (the documented form is the `key` query parameter, which SYB refuses to use so the key never sits in a URL or a log).
+- **Categories:** that lowercase `category=performance&category=accessibility` is accepted (the docs show the enum in capitals).
+- **Field data:** the `loadingExperience.metrics` keys (`LARGEST_CONTENTFUL_PAINT_MS`, `CUMULATIVE_LAYOUT_SHIFT_SCORE` reported ×100, `INTERACTION_TO_NEXT_PAINT` or the older `EXPERIMENTAL_` name), `category` values `FAST`/`AVERAGE`/`SLOW`, and `origin_fallback`.
+- **Lab audits:** the ids `largest-contentful-paint`, `cumulative-layout-shift`, `total-blocking-time`, `total-byte-weight`, `color-contrast`, and which tap-target audit the current Lighthouse runs (`target-size` in accessibility; the old `tap-targets` SEO audit may be gone). A null score is read as "didn't run", not zero.
+- **Errors:** that a page Lighthouse can't load returns 400 with `FAILED_DOCUMENT_REQUEST`-style text, or 200 with `lighthouseResult.runtimeError`; that the quota answer is 429; that a bad key is 400 or 403.
+- **Quota and time:** the keyless quota's size, the keyed per-minute and per-day quota, and a typical call's duration. The 90 s timeout, 3 at once and `maxDuration = 300` assume about 20–40 s a call. Check the route fits the Vercel plan's function limit, or move the run to `after()` and the cron.
 
 ## Session D — Sales pipeline for B2B _(~2 wks)_
 

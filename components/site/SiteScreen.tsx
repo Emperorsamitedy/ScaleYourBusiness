@@ -11,8 +11,10 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import "../../app/site.css";
+import type { SiteAuditView } from "../../lib/site/audit/view";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { SiteAuditSheet } from "./SiteAuditSheet";
 
 interface SiteDetail {
   url: string;
@@ -56,7 +58,14 @@ export interface SiteAudit {
   unreadable: { url: string; reason: string }[];
 }
 
-type Tab = { kind: "change"; id: string } | { kind: "audit" } | { kind: "propose" };
+type Tab =
+  { kind: "change"; id: string } | { kind: "measured" } | { kind: "audit" } | { kind: "propose" };
+
+/** P5-13: the measured audit, read on the server by app/site/page.tsx. */
+export interface MeasuredAudit {
+  audit: SiteAuditView | null;
+  failure: { at: string; reason: string } | null;
+}
 
 type State =
   | { phase: "loading" }
@@ -130,7 +139,13 @@ function headline(proposals: SiteProposal[]): string {
   return "No site changes proposed yet.";
 }
 
-export function SiteScreen({ audit }: { audit: SiteAudit | null }) {
+export function SiteScreen({
+  audit,
+  measured = { audit: null, failure: null },
+}: {
+  audit: SiteAudit | null;
+  measured?: MeasuredAudit;
+}) {
   const [state, setState] = useState<State>({ phase: "loading" });
 
   const load = useCallback(async () => {
@@ -217,12 +232,7 @@ export function SiteScreen({ audit }: { audit: SiteAudit | null }) {
   ];
   const missing = audit ? audit.notes.filter((n) => n.found_on === null).length : 0;
   const tab: Tab =
-    s.tab ??
-    (ordered[0]
-      ? { kind: "change", id: ordered[0].id }
-      : audit
-        ? { kind: "audit" }
-        : { kind: "propose" });
+    s.tab ?? (ordered[0] ? { kind: "change", id: ordered[0].id } : { kind: "measured" });
   const current = tab.kind === "change" ? (ordered.find((p) => p.id === tab.id) ?? null) : null;
 
   const tabs: { key: string; label: string; tab: Tab }[] = [
@@ -231,6 +241,13 @@ export function SiteScreen({ audit }: { audit: SiteAudit | null }) {
       label: `${shortId(p.id)} · ${tabName(p)}`,
       tab: { kind: "change", id: p.id } as Tab,
     })),
+    {
+      key: "measured",
+      label: measured.audit
+        ? `Measured · ${measured.audit.findings.length} ${measured.audit.findings.length === 1 ? "finding" : "findings"}`
+        : "Measure the site",
+      tab: { kind: "measured" } as Tab,
+    },
     ...(audit
       ? [
           {
@@ -251,6 +268,9 @@ export function SiteScreen({ audit }: { audit: SiteAudit | null }) {
         {audit
           ? `Last site check ${dayWord(audit.checked_at)} · ${audit.pages.length} ${audit.pages.length === 1 ? "page" : "pages"} read · ${missing} of ${audit.notes.length} checks not shown`
           : "No site check on record yet"}
+        {measured.audit
+          ? ` · measured ${dayWord(measured.audit.ran_at)}: ${measured.audit.findings.length} ${measured.audit.findings.length === 1 ? "finding" : "findings"}`
+          : ""}
       </PageHead>
 
       <div className="st-stop">
@@ -282,6 +302,10 @@ export function SiteScreen({ audit }: { audit: SiteAudit | null }) {
 
       <div id="st-panel" role="tabpanel">
         {current && <ChangeSheet p={current} s={s} setState={setState} post={post} />}
+
+        {tab.kind === "measured" && (
+          <SiteAuditSheet initial={measured.audit} failure={measured.failure} />
+        )}
 
         {tab.kind === "audit" && audit && (
           <SheetCard
