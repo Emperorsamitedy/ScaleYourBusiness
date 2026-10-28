@@ -2,6 +2,9 @@
    13-week chart, the tight week, the sources, the scenarios side by side
    and the weeks. Square corners, no icons, no colour carrying meaning. */
 
+.cf-screen > p.cf-copy {
+  color: var(--desk-ink);
+}
 .cf-screen a:not(.act) {
   color: inherit;
   text-decoration: underline;
@@ -12,9 +15,10 @@
 .cf-note {
   margin: 4px 0 0;
   max-width: var(--measure);
-  font-family: var(--f-mono);
-  font-size: var(--t-mono-s);
-  color: var(--sheet-ink-2);
+  color: var(--desk-ink-2);
+}
+.cf-note:first-child {
+  color: var(--desk-ink);
 }
 
 .cf-grid {
