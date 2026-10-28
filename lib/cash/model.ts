@@ -10,7 +10,9 @@
 //                 with a year of history (lib/seasons' bar: 50 of the last
 //                 52 weeks complete), each week is the same week last year
 //                 × how the last 8 weeks compare with the same 8 a year
-//                 before (the middle half of those 8 ratios);
+//                 before (the middle half of those 8 ratios); with exactly
+//                 one year, when growth can't be told from season, the
+//                 range spans last year's same week and the recent weeks;
 //                 with less, every week is the middle half (25th–75th
 //                 percentile) of the last 13 complete weeks.
 //               A sale reaches the bank after the payout delay of the
@@ -406,8 +408,12 @@ function salesPattern(
     if (now !== null && before !== null && before > 0) ratios.push(now / before);
   }
   const normal = year.length > 0 ? quantile(year, 0.5) : 0;
-  const seasonal =
-    year.length >= SEASONS.min_weeks && ratios.length >= CASH.min_growth_weeks && normal > 0;
+  const seasonal = year.length >= SEASONS.min_weeks && normal > 0;
+  // Growth needs the recent weeks a year before too: a year and two months of history.
+  const growth =
+    seasonal && ratios.length >= CASH.min_growth_weeks
+      ? { low: quantile(ratios, 0.25), high: quantile(ratios, 0.75) }
+      : null;
   const from = seasonal
     ? blockFrom(today, SEASONS.year_weeks - 1)
     : blockFrom(today, CASH.recent_weeks - 1);
@@ -419,17 +425,23 @@ function salesPattern(
   const weekly: Range[] = [];
   const lastYear: (CashWeek["last_year"] | null)[] = [];
   const fallback: number[] = [];
-  const growth = seasonal ? { low: quantile(ratios, 0.25), high: quantile(ratios, 0.75) } : null;
   for (let k = 0; k < CASH.horizon_weeks; k++) {
-    const ly = growth ? blockSum(series.values, addDays(today, 7 * k - YEAR_DAYS)) : null;
-    if (growth && ly !== null) {
-      weekly.push({ low: ly * growth.low, high: ly * growth.high });
-      lastYear.push({ value: ly, index: ly / normal });
-    } else {
-      if (growth) fallback.push(k);
+    const ly = seasonal ? blockSum(series.values, addDays(today, 7 * k - YEAR_DAYS)) : null;
+    if (ly === null) {
+      if (seasonal) fallback.push(k);
       weekly.push({ ...recentRange });
       lastYear.push(null);
+      continue;
     }
+    lastYear.push({ value: ly, index: ly / normal });
+    weekly.push(
+      growth
+        ? // Last year's week, scaled by how the recent weeks compare with a year before.
+          { low: ly * growth.low, high: ly * growth.high }
+        : // One year only: growth and season can't be told apart, so the range spans
+          // both readings — last year's same week as it was, and the recent weeks.
+          { low: Math.min(ly, recentRange.low), high: Math.max(ly, recentRange.high) },
+    );
   }
   return {
     pattern: {
@@ -827,7 +839,11 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
 
   const assumptions: string[] = [
     pattern.kind === "season"
-      ? `Each week runs like the same week last year, scaled by how your last ${CASH.growth_weeks} weeks compare with the same weeks a year before (${times(pattern.growth!.low)}–${times(pattern.growth!.high)}).${pattern.fallback_weeks.length > 0 ? ` ${plural(pattern.fallback_weeks.length, "week")} last year weren't measured in full; those use your recent weeks instead.` : ""}`
+      ? `${
+          pattern.growth
+            ? `Each week runs like the same week last year, scaled by how your last ${CASH.growth_weeks} weeks compare with the same weeks a year before (${times(pattern.growth.low)}–${times(pattern.growth.high)}).`
+            : "Each week runs somewhere between the same week last year and your recent weeks: with one year of history I can't tell your growth from your season, so the range spans both."
+        }${pattern.fallback_weeks.length > 0 ? ` ${plural(pattern.fallback_weeks.length, "week")} last year weren't measured in full; those use your recent weeks instead.` : ""}`
       : `The coming weeks run like your last ${plural(pattern.recent_complete, "complete week")}: the middle half of them, ${wholeMoney(pattern.recent.low, currency)}–${wholeMoney(pattern.recent.high, currency)} a week. With under a year of history no season is known, so none is applied.`,
     payout.days.high === 0
       ? "Sales are money in the same day."

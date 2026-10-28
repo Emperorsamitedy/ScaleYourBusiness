@@ -127,6 +127,22 @@ describe("money in — the business's own weeks", () => {
     expect(f.assumptions[0]).toMatch(/same week last year/);
   });
 
+  it("exactly one year: growth can't be told from season, so the range spans both readings", () => {
+    // A connector's 365-day backfill. Last year's weeks 8–9 ahead ran at 300 a day; recently 1,000.
+    const quietFrom = addDays(TODAY, -364 + 56);
+    const quietTo = addDays(TODAY, -364 + 70);
+    const series = daily(TODAY, 365, (day) =>
+      day >= quietFrom && day < quietTo ? 30_000 : 100_000,
+    );
+    const f = ready(forecastCash(baseInputs({ revenue: series })));
+    expect(f.pattern.kind).toBe("season");
+    expect(f.pattern.growth).toBeNull();
+    expect(f.weeks[0]?.sales).toEqual({ low: 700_000, high: 700_000 });
+    expect(f.weeks[8]?.sales).toEqual({ low: 210_000, high: 700_000 });
+    expect(f.weeks[8]?.last_year?.index).toBeCloseTo(0.3, 10);
+    expect(f.assumptions[0]).toMatch(/can't tell your growth from your season/);
+  });
+
   it("under the season bar (49 complete weeks of 52), it stays with the recent weeks", () => {
     const series = daily(TODAY, 430, () => 100_000);
     for (let j = 0; j < 3; j++)
