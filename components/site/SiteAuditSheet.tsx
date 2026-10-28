@@ -237,7 +237,9 @@ export function SiteAuditSheet({
                     {euroLine(f.euro)}
                     {f.euro.computed && (
                       <span className="st-sub">
-                        {f.euro.formula}. {f.euro.window}. {f.euro.assumed.join(" ")}
+                        {f.euro.formula}.{" "}
+                        {f.euro.window.charAt(0).toUpperCase() + f.euro.window.slice(1)}.{" "}
+                        {f.euro.assumed.join(" ")}
                       </span>
                     )}
                   </td>

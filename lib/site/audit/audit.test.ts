@@ -512,7 +512,9 @@ describe("P5-13 / rule 25 — the € figure", () => {
     expect(euro.low_minor).toBeLessThan(euro.high_minor);
     expect(euro.assumed.every((a) => a.startsWith("ASSUMED"))).toBe(true);
     expect(euro.assumed[0]).toMatch(/rule of thumb.*not measured on your site/);
-    expect(euro.formula).toMatch(/4000 visits × 2\.0% conversion/);
+    expect(euro.formula).toMatch(/4,000 visits × 2\.0% conversion/);
+    expect(euro.formula).toMatch(/× €\d+\.\d{2} order value/);
+    expect(euro.formula).not.toMatch(/\d EUR/);
     expect(euro.window).toBe(figures.window);
   });
 
