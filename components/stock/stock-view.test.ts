@@ -190,6 +190,9 @@ describe("P5-05 — what runs out, in words", () => {
       "−60 · down",
     );
     expect(vsPriorText(coverItem({ vs_prior: null }))).toBe("—");
+    expect(vsPriorText(coverItem({ vs_prior: { change: 0, band: 0, direction: "flat" } }))).toBe(
+      "none sold",
+    );
   });
 
   it("names the supplier, or says the delivery time is ASSUMED", () => {

@@ -110,6 +110,7 @@ export function coverFlagClass(flag: CoverItemView["flag"]): "alarm" | "drift" |
 export function vsPriorText(item: CoverItemView): string {
   const v = item.vs_prior;
   if (!v) return "—";
+  if (v.change === 0 && v.band === 0) return "none sold";
   const sign = v.change > 0 ? "+" : v.change < 0 ? "−" : "±";
   const word = v.direction === "flat" ? "about the same" : v.direction;
   return `${sign}${num(Math.abs(v.change))} · ${word}`;

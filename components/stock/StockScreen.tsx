@@ -171,7 +171,9 @@ function CoverTable({ cover }: { cover: CoverBlock }) {
               </td>
               <td className="num" data-label={`vs prior ${n} d`} title={item.sell_through}>
                 {vsPriorText(item)}
-                {item.vs_prior && <span className="st-src">chance ±{num(item.vs_prior.band)}</span>}
+                {item.vs_prior && item.vs_prior.band > 0 && (
+                  <span className="st-src">chance ±{num(item.vs_prior.band)}</span>
+                )}
               </td>
               <td className="num" data-label="Days of cover" title={item.why ?? item.sources}>
                 {item.cover_text}
