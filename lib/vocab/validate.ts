@@ -3,7 +3,7 @@
 // enum-value.ts enforces the shape rules that hold for every vocabulary
 // (label_raw only with "other", never empty). This module adds the rule
 // that needs the vocabulary itself: the code must be one of its entries.
-// 39 of the 56 bank vocabularies are closed lists with no "other" — for
+// 40 of the 57 bank vocabularies are closed lists with no "other" — for
 // those, an "other" answer is a mis-capture, not an escape hatch.
 
 import { eq } from "drizzle-orm";

@@ -43,7 +43,22 @@ Hard rules:
 - Plain text only. No markdown headers, no emoji unless the owner's own sentences use them.
 - Output the content only — no preamble, no explanation.`;
 
-export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
+/**
+ * The live drafting call, metered under `workload` (P5-16: a pipeline
+ * follow-up is drafted through the same fence, but budgeted on its own line).
+ */
+export function draftLlmFor(workload: string): DraftLlm {
+  return async ({ system, user, accountId }) => liveDraft(workload, system, user, accountId);
+}
+
+export const liveDraftLlm: DraftLlm = draftLlmFor("content");
+
+async function liveDraft(
+  workload: string,
+  system: string,
+  user: string,
+  accountId: string,
+): Promise<{ text: string }> {
   const started = Date.now();
   // Sonnet 5: exactly today's request. Sonnet 5.5: an explicit effort and
   // room for thinking (lib/llm/models.ts says why).
@@ -56,7 +71,7 @@ export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
     messages: [{ role: "user", content: user }],
   });
   const record = buildCallRecord({
-    workload: "content",
+    workload,
     account_id: accountId,
     model: shape.model,
     duration_ms: Date.now() - started,
@@ -73,7 +88,7 @@ export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
   const { text, refusal } = readAnswer(response, record);
   if (refusal !== null) throw new ModelRefusalError(record, refusal);
   return { text };
-};
+}
 
 export interface DraftResult {
   body: string;

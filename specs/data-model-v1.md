@@ -396,6 +396,8 @@ Email marketing (Phase 4 Session F, bank 1.4.0): `legal.postal_address` is the o
 
 Ad spend ceiling (Phase 3 Session D, bank 1.5.0): `marketing.monthly_ad_ceiling` is `Field<Money>`, the most the owner wants to spend on ads in a month (question 8.1i, asked when they advertise). An ad budget raise (P3-22a/c) that would take the account's total monthly ad spend past it is refused at generation, naming both figures. A ceiling in a different currency from the campaign is never converted: the raise is refused instead (rule 1). A NEW ad (P3-54, "Run this as an ad") needs a stated ceiling: with none, no new spend is proposed; with one, the account's average day plus the new ad set's daily budget, × 30, must stay under it, and its budget never goes under Meta's floor (`newSpendGuard`, lib/ads/guard.ts). The build's journal is `ad_builds` (migration 0062): per step a `sent_at` written before the create and Meta's id after, so a resumed build never creates twice.
 
+Cash flow (Phase 5 Session B, bank 1.8.0): `costs.cash_available` is `Field<Money>`, the cash in the business account today, not counting money a payment provider still owes (question 5.3e, asked when `revenue.generates_revenue = yes`); `costs.cash_buffer` is `Field<Money>`, the least the owner wants in it (5.3f, asked once 5.3e has a value). Both allow "I don't know" (rule 5). The 13-week forecast (`lib/cash/model.ts`, pure) starts from 5.3e and refuses without it, saying which. Money in is one source's measured daily sales in the cash's currency: with a year (50 of 52 complete weeks) each week is the same week last year × the middle half of the last 8 weeks' ratios to a year before, or, with exactly one year, spans last year's week and the recent range; under a year, the middle half of the last 13 complete weeks; under 8 complete weeks it refuses (rule 25). Payout delay comes from 4.2b via the `PAYOUT_DAYS` table (`lib/cash/payout.ts`, ASSUMED), none when 4.2a names no provider-routed method. Money out reads 5.1 and 5.2 by `cadence`: monthly on the 1st, quarterly on the 1st of Jan/Apr/Jul/Oct, an undated yearly cost a twelfth each 1st (all named ASSUMED); per-unit (offers' `cost_to_deliver` and 5.2 `per_unit`, at the stated volumes) and per-order (5.2 `per_job`, at measured or stated orders) as a share of each week's sales. Rows in `loan_payments` are debt repayments; 5.3c is a total owed and adds no outflow on its own. Anything in another currency is left out by name. The first week whose cautious end dips under the buffer (or zero) is logged once as watch kind `cash_warning` (meta: signature, week, balance range, line, reasons), again only when it moves, and once when it clears; it is in `NOTED_KINDS`, so the weekly summary carries it. Nothing is written by `lib/cash` itself, and nothing in it moves money (rule 26, `lib/cash/fence.test.ts`).
+
 The connector metrics `revenue.hourly` and `orders.hourly` carry
 `dimensions.hour_utc` ("00"–"23"), with `period_date` the UTC date. They
 are stored in UTC and read in the business's clock with a 05:00
@@ -464,6 +466,8 @@ interface CostSection {
   cash_flow_problems: Field<boolean>;
   late_payments: Field<boolean>;
   debt: Field<Money>;
+  cash_available: Field<Money>;             // 5.3e, bank 1.8.0: the bank balance today
+  cash_buffer: Field<Money>;                // 5.3f, bank 1.8.0: the least the owner wants in it
 }
 
 interface CostItem {
@@ -919,6 +923,40 @@ interface CampaignComparison {
 // that rate with the comparison group's. Observational, not randomised; without a comparison of
 // at least 5 measured, a lift is never "helped".
 ```
+
+**Deals** (Phase 5 Session D, P5-14..17, rule 29). A deal is always with a Phase 4 contact and goes with them. Erasing the contact cascades through the deal, its history and any drafted follow-up; the decision log, which holds only ids and hashes, is untouched. Stages are the bank's `deal_stage` vocabulary (bank 1.9.0), mirrored by the `deal_stage` enum. The stated win rate is `customers.win_rate` (question 6.1f, a percentage, asked when 6.1a is answered and isn't b2c).
+
+```ts
+// table deals (migration 0063)
+interface Deal {
+  id: DealId;
+  account_id: AccountId;
+  profile_id: BusinessProfileId;
+  contact_id: ContactId;          // NOT NULL, ON DELETE CASCADE: erased with the contact
+  company: string | null;         // the organisation, as the owner wrote it
+  title: string;                  // what the deal is for
+  stage: "lead" | "qualified" | "proposal_sent" | "won" | "lost";
+  stage_entered_at: ISODateTime;  // stage ageing counts from here
+  value_minor: number | null;     // integer minor units (rule 1) …
+  value_currency: string | null;  // … with its ISO 4217 code …
+  value_basis: "quoted" | "estimated" | null; // … and where it came from (rule 2): all three or none
+  expected_close: ISODate | null;
+  next_step: string | null;
+  next_step_due: ISODate | null;  // only with a next step
+  last_contact_at: ISODateTime | null; // when the owner last spoke to them, as stated
+  source: "owner_input" | "import";
+  source_note: string;            // "added on /pipeline" | "import batch <id>: \"<attestation>\""
+  closed_at: ISODateTime | null;  // set exactly when won or lost
+}
+// table deal_events: one row per change (created | stage | value | next_step |
+// expected_close | contacted) with `before` and `after`, so a deal moving on keeps its past.
+// table deal_followups: the drafted follow-up for an approved `deal_followup` proposal, one
+// per proposal. Its body holds a {{name}} slot, never the name; it is never sent by SYB.
+```
+
+The maths is pure (`lib/pipeline/maths.ts`). The win rate is measured as won ÷ (won + lost) over deals closed in the last 365 days, with a 90% Wilson range, once there are 5. Otherwise it is the stated 6.1f figure ±10 points, labelled as the owner's estimate. Otherwise it is unknown, and the weighted value refuses rather than borrow an average (rule 25). The weighted value is open values × the rate's low and high, per currency. A deal is stale when it is open with no next step, or with a next step past its date.
+
+A follow-up proposal (module `pipeline`, kind `deal_followup`) carries the deal's and contact's ids, the stage, the days and the value, never a name, an address or the deal's words.
 
 **`takeover`** (P3-43) is day zero: written once, at a profile's first mode decision. Its `ref_id` is a snapshot taken with reason `day_zero`, and its hash covers that snapshot's content hash and the goal ids, so "this is where you started" stays checkable. Goal progress (P3-44) is judged weekly against the straight path from baseline to target, in the watch log as `goal_progress`, with `goal_alert` after three consecutive off-track weeks.
 

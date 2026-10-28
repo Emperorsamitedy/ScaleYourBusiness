@@ -118,6 +118,18 @@ export function metaAdLibraryToken(): string | null {
 }
 
 /**
+ * P5-11: the Google API key the site audit asks PageSpeed Insights with.
+ * Optional: null means the API's small keyless quota, shared with every
+ * other keyless caller — the audit still runs and /site says the shared
+ * quota was used. Restrict the key to the PageSpeed Insights API only. It
+ * is sent in the X-Goog-Api-Key header, never in a URL, and never stored.
+ */
+export function pagespeedApiKey(): string | null {
+  const key = process.env.PAGESPEED_API_KEY?.trim() ?? "";
+  return key === "" || /\s/.test(key) ? null : key;
+}
+
+/**
  * THE REAL-WRITE GATE (Session D, D2's done-when). The first real publish
  * waits for Phase 2's two-week unattended clock to complete
  * (TASKS-PHASE3.md, "The gate, amended"). Until SESSION_D_REAL_WRITES is

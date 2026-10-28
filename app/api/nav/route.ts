@@ -18,6 +18,7 @@ import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "../../../lib/prof
 import { watchDays } from "../../../lib/watch/watch-view";
 import { stockApplies } from "../../../lib/stock/load";
 import { teamModuleOn } from "../../../lib/team/module";
+import { pipelineApplies } from "../../../lib/pipeline/deals";
 
 export interface NavCounts {
   business: string | null;
@@ -58,6 +59,12 @@ export interface NavCounts {
    * Team item shows only when true; it is off by default.
    */
   team: boolean;
+  /**
+   * P5-17: whether the business sells to businesses (lib/pipeline/stages'
+   * PIPELINE_APPLIES, a condition over 6.1a). The Pipeline item shows only
+   * when true.
+   */
+  pipeline: boolean;
 }
 
 const NAME_KEY = "identity.legal_name";
@@ -80,6 +87,7 @@ export async function GET(): Promise<NextResponse> {
       sizeRows,
       stock,
       team,
+      pipeline,
     ] = await Promise.all([
       db
         .select({ module: proposals.module, n: count() })
@@ -131,6 +139,7 @@ export async function GET(): Promise<NextResponse> {
         ),
       stockApplies(profileId),
       teamModuleOn(access.account_id),
+      pipelineApplies(profileId),
     ]);
 
     const by_module: Record<string, number> = {};
@@ -161,6 +170,7 @@ export async function GET(): Promise<NextResponse> {
       size_band: sized ? { band: sized.band, via: sized.via } : null,
       stock,
       team,
+      pipeline,
     };
     return NextResponse.json(body);
   } catch (error) {

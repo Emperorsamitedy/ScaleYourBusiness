@@ -1,28 +1,41 @@
 "use client";
 
-// Insights · Slow stock — feature 34, on the sheet system (app/sheet.css).
-// What isn't selling, most cash tied up first, each item's ways to clear
-// it ranked by cash likely back per euro given up, with the arithmetic.
-// Read-only: putting the options in the queue makes proposals, and nothing
-// runs until the owner approves it (rule 12). A business without stock
-// never reaches this screen through the menu (STOCK_APPLIES).
+// Insights · Stock — feature 34 and Phase 5 Session A, on the sheet system
+// (app/sheet.css). First what runs out, and when (P5-05): every item's days
+// of cover against its supplier's delivery time, the warnings, and a
+// reorder note per warned item with its arithmetic. Then what isn't
+// selling, most cash tied up first, each item's ways to clear it ranked by
+// cash likely back per euro given up. Read-only: putting notes or options
+// in the queue makes proposals, nothing runs until the owner approves it
+// (rule 12), and a reorder note is never an order (rule 27). A business
+// without stock never reaches this screen through the menu (STOCK_APPLIES).
 
 import "../../app/stock.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { StockItemView, StockView } from "../../app/api/stock/route";
+import type {
+  CoverBlock,
+  CoverItemView,
+  StockItemView,
+  StockView,
+} from "../../app/api/stock/route";
 import { StockHistoryChart } from "../charts/StockHistoryChart";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import {
   cashText,
+  coverFlagClass,
   coverText,
   flagClass,
-  headline,
+  leadText,
+  moneyLine,
   proposalWord,
   quietText,
   statedVsMeasured,
+  statusWord,
+  stockHeadline,
+  vsPriorText,
 } from "./stock-view";
 
 function Frame({
@@ -36,7 +49,7 @@ function Frame({
 }) {
   return (
     <main className="screen st-screen">
-      <PageHead kicker="Insights · Slow stock" title={title} aside={aside} />
+      <PageHead kicker="Insights · Stock" title={title} aside={aside} />
       {children}
     </main>
   );
@@ -116,6 +129,162 @@ function SlowTable({ items }: { items: StockItemView[] }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+function CoverTable({ cover }: { cover: CoverBlock }) {
+  const n = cover.window_days;
+  return (
+    <div className="st-table-wrap" tabIndex={0} aria-label="Days of cover, item by item">
+      <table className="rt rt-stack st-table">
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col" className="num">
+              On hand
+            </th>
+            <th scope="col" className="num">
+              Sold {n} d
+            </th>
+            <th scope="col" className="num">
+              vs prior {n} d
+            </th>
+            <th scope="col" className="num">
+              Days of cover
+            </th>
+            <th scope="col">Delivery time</th>
+            <th scope="col">Flag</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cover.items.map((item) => (
+            <tr key={item.key}>
+              <th scope="row">
+                {item.name}
+                <span className="st-src">{item.source}</span>
+              </th>
+              <td className="num" data-label="On hand">
+                {num(item.on_hand)}
+              </td>
+              <td className="num" data-label={`Sold ${n} d`}>
+                {item.sold_recent === null ? "—" : num(item.sold_recent)}
+              </td>
+              <td className="num" data-label={`vs prior ${n} d`} title={item.sell_through}>
+                {vsPriorText(item)}
+                {item.vs_prior && item.vs_prior.band > 0 && (
+                  <span className="st-src">chance ±{num(item.vs_prior.band)}</span>
+                )}
+              </td>
+              <td className="num" data-label="Days of cover" title={item.why ?? item.sources}>
+                {item.cover_text}
+                {item.boosted && <span className="st-src">busy stretch counted</span>}
+              </td>
+              <td data-label="Delivery time" title={item.lead.why}>
+                <span className="st-mono">{leadText(item)}</span>
+              </td>
+              <td data-label="Flag">
+                <span className={`flag ${coverFlagClass(item.flag)}`}>{item.flag}</span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ReorderNote({ item }: { item: CoverItemView }) {
+  const r = item.reorder!;
+  const w = r.proposal ? statusWord(r.proposal) : null;
+  return (
+    <SheetCard
+      label={`Reorder note · ${item.flag.toLowerCase()}`}
+      title={`${item.name}: reorder ${num(r.quantity)}${item.lead.supplier ? ` from ${item.lead.supplier}` : ""}`}
+      meta="A note for you, not an order"
+    >
+      <p className="st-copy st-warn">
+        {item.warning}
+        {w && <span className={`word ${w.tone}`}>{w.word}</span>}
+      </p>
+      <p className="st-rank-math">{r.arithmetic}</p>
+      {r.cost && (
+        <p className="st-rank-fig">
+          {moneyLine(r.cost)}
+          {r.cost_arithmetic && <span className="st-src">{r.cost_arithmetic}</span>}
+        </p>
+      )}
+      <p className="st-rank-math">Sources: {item.sources}.</p>
+      {item.assumed.length > 0 && (
+        <ul className="st-assumed">
+          {item.assumed.map((a) => (
+            <li key={a}>{a}</li>
+          ))}
+        </ul>
+      )}
+      {r.proposal?.status === "blocked" && r.proposal.blocked_by_limit && (
+        <p className="st-rank-math">
+          I didn&apos;t put this in your queue: your rule ({r.proposal.blocked_by_limit}) rules it
+          out.
+        </p>
+      )}
+      <p className="st-copy">
+        Approving it records that you mean to reorder, and nothing else. I never contact your
+        supplier, and I never place, change or cancel an order.
+      </p>
+    </SheetCard>
+  );
+}
+
+function CoverCard({
+  cover,
+  onReorder,
+  busy,
+  note,
+}: {
+  cover: CoverBlock;
+  onReorder: () => void;
+  busy: boolean;
+  note: string | null;
+}) {
+  const warned = cover.items.filter((i) => i.reorder !== null);
+  const waiting = warned.every((i) => i.reorder?.proposal);
+  return (
+    <SheetCard
+      label={`What runs out, and when · ${num(cover.warnings)} of ${num(cover.items.length)} items below their delivery time`}
+      title={cover.warnings > 0 ? "Soonest out first" : "Nothing runs out before a delivery"}
+      meta={`Cover: on hand ÷ your last ${cover.window_days} days' rate, low–high, against each supplier's delivery time (else ${cover.default_lead_days} days, ASSUMED)`}
+      foot={
+        warned.length > 0 ? (
+          <span className="st-foot-row">
+            <span>
+              {cover.held ??
+                "A reorder note per item running low. Nothing runs until you approve it, and approving orders nothing."}
+            </span>
+            <button
+              type="button"
+              className="act"
+              disabled={busy || cover.held !== null || waiting}
+              onClick={onReorder}
+            >
+              {busy ? "Working it out…" : "Put the reorder notes in my queue →"}
+            </button>
+          </span>
+        ) : undefined
+      }
+    >
+      <CoverTable cover={cover} />
+      <p className="st-copy">{cover.season}</p>
+      {busy && (
+        <p className="st-copy live">
+          <span className="live-dot" aria-hidden="true" /> Working out the notes
+        </p>
+      )}
+      {note && (
+        <p className="st-copy">
+          {note} <Link href="/proposals">Waiting for you</Link>
+        </p>
+      )}
+    </SheetCard>
   );
 }
 
@@ -291,6 +460,8 @@ export function StockScreen() {
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
   const [proposing, setProposing] = useState(false);
   const [proposed, setProposed] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
+  const [reordered, setReordered] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -339,6 +510,39 @@ export function StockScreen() {
     }
   };
 
+  const reorder = async () => {
+    setReordering(true);
+    setReordered(null);
+    try {
+      const res = await fetch("/api/stock", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "reorder" }),
+      });
+      const body = (await res.json()) as {
+        error?: string;
+        created?: number;
+        blocked?: number;
+        skipped?: { reason: string }[];
+      };
+      if (!res.ok) setReordered(body.error ?? "That didn't work.");
+      else {
+        const c = body.created ?? 0;
+        const b = body.blocked ?? 0;
+        setReordered(
+          c + b === 0
+            ? `Nothing new to propose${body.skipped?.[0] ? `: ${body.skipped[0].reason}` : ""}.`
+            : `${c} reorder note${c === 1 ? "" : "s"} now wait${c === 1 ? "s" : ""} for you${b > 0 ? `, and ${b} ${b === 1 ? "was" : "were"} blocked by your own rules` : ""}.`,
+        );
+        await load();
+      }
+    } catch {
+      setReordered("Something went wrong on our side.");
+    } finally {
+      setReordering(false);
+    }
+  };
+
   if (failed === "signed_out") {
     return (
       <Frame title="There's no business here yet.">
@@ -350,7 +554,7 @@ export function StockScreen() {
   }
   if (failed) {
     return (
-      <Frame title="Slow stock didn't load.">
+      <Frame title="Stock didn't load.">
         <p className="st-wait">Something went wrong on our side. Refresh to try again.</p>
       </Frame>
     );
@@ -360,7 +564,7 @@ export function StockScreen() {
     return (
       <Frame title="Your business doesn't hold stock.">
         <p className="st-wait">
-          You told me you don&apos;t keep stock, so there&apos;s nothing here to clear.{" "}
+          You told me you don&apos;t keep stock, so there&apos;s nothing here to run out or clear.{" "}
           <Link href="/profile">Fact sheet</Link>
         </p>
       </Frame>
@@ -381,7 +585,28 @@ export function StockScreen() {
   const svm = statedVsMeasured(view);
 
   return (
-    <Frame title={headline(view)} aside={aside}>
+    <Frame title={stockHeadline(view)} aside={aside}>
+      {view.cover && view.cover.items.length > 0 && (
+        <>
+          <CoverCard
+            cover={view.cover}
+            onReorder={() => void reorder()}
+            busy={reordering}
+            note={reordered}
+          />
+          {view.cover.items.some((i) => i.reorder !== null) && (
+            <div className="st-grid">
+              {view.cover.items
+                .filter((i) => i.reorder !== null)
+                .slice(0, 4)
+                .map((i) => (
+                  <ReorderNote key={i.key} item={i} />
+                ))}
+            </div>
+          )}
+        </>
+      )}
+
       {slow.length > 0 ? (
         <SheetCard
           label={`What isn't selling · ${num(slow.length)} of ${num(view.counted ?? 0)} items`}

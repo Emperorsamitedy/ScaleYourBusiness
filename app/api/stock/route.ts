@@ -1,11 +1,16 @@
-// The slow-stock API — feature 34.
+// The stock API — feature 34 (slow stock) and Phase 5 Session A (what runs out).
 //
 //   GET  /api/stock                                   what isn't selling, ranked by cash tied up,
 //                                                     each item's ranked ways to clear it, and the
-//                                                     proposal each option already has
+//                                                     proposal each option already has; and every
+//                                                     item's days of cover against its delivery
+//                                                     time, the stock-out warnings and the reorder
+//                                                     notes (P5-05)
 //   POST /api/stock {action:"import", csv, currency?, window_days?, as_of?, decimal_style?}
 //                                                     a stock file, for a business with no store
 //   POST /api/stock {action:"propose"}                put the options in the approval queue
+//   POST /api/stock {action:"reorder"}                put the reorder notes in the approval queue —
+//                                                     notes only: nothing is ever ordered (rule 27)
 //
 // Reading needs the intake cookie; importing and proposing need a signed-in
 // user (an import is the owner's figures under their name; a proposal lands
@@ -23,7 +28,11 @@ import { logSafeError } from "../../../lib/core/log-safe";
 import { STOCK } from "../../../lib/stock/assess";
 import { isDecimalStyle } from "../../../lib/core/money";
 import { StockImportError, importStockFile } from "../../../lib/stock/import";
-import { loadStock, stockApplies } from "../../../lib/stock/load";
+import { stockApplies } from "../../../lib/stock/load";
+import type { CoverFlag } from "../../../lib/stock/cover";
+import { COVER, coverColumn, coverFlag } from "../../../lib/stock/cover";
+import { loadCover } from "../../../lib/stock/cover-load";
+import { proposeReorders, reorderRef } from "../../../lib/stock/reorder";
 import { loadStockHistory } from "../../../lib/charts/load";
 import type { StockHistoryModel } from "../../../lib/charts/stock-history";
 import { CLEARANCE, efficiencyLine } from "../../../lib/stock/options";
@@ -73,6 +82,52 @@ export interface StockItemView {
   options: StockOptionView[];
 }
 
+/** One item's days of cover, as the /stock screen shows it (P5-05). */
+export interface CoverItemView {
+  key: string;
+  name: string;
+  source: string;
+  as_of: string;
+  on_hand: number;
+  /** Units sold in the last 28 days; null when not measured. */
+  sold_recent: number | null;
+  /** Window A against window B (P5-01), when two windows are measured. */
+  vs_prior: { change: number; band: number; direction: "up" | "down" | "flat" } | null;
+  sell_through: string;
+  /** "9–10", "sold out", "—". */
+  cover_text: string;
+  runs_out: { earliest: string; latest: string | null } | null;
+  lead: { days: number; basis: "stated" | "assumed"; supplier: string | null; why: string };
+  flag: CoverFlag;
+  warning: string | null;
+  /** Why it isn't judged, when it isn't. */
+  why: string | null;
+  boosted: boolean;
+  reorder: {
+    quantity: number;
+    arithmetic: string;
+    moq: number | null;
+    rounded_to_moq: boolean;
+    cost: { amount_minor: number; currency: string } | null;
+    cost_arithmetic: string | null;
+    proposal: { id: string; status: string; blocked_by_limit: string | null } | null;
+  } | null;
+  assumed: string[];
+  sources: string;
+}
+
+export interface CoverBlock {
+  window_days: number;
+  default_lead_days: number;
+  /** Warned items first (ACT NOW, then the soonest out), then the rest by cover. */
+  items: CoverItemView[];
+  warnings: number;
+  /** The busy-season line: what was counted, or why nothing was. */
+  season: string;
+  /** Why reorder notes can't be proposed yet, when they can't (rule 15). */
+  held: string | null;
+}
+
 export interface StockView {
   applies: boolean;
   today?: string;
@@ -86,6 +141,8 @@ export interface StockView {
   held?: string | null;
   /** Cash tied up per slow item on each stock count, when there are two counts or more. */
   history?: StockHistoryModel | null;
+  /** P5-05: what runs out, and when. */
+  cover?: CoverBlock;
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -96,7 +153,8 @@ export async function GET(): Promise<NextResponse> {
       return NextResponse.json({ applies: false } satisfies StockView);
     }
     const now = new Date();
-    const view = await loadStock(access.account_id, access.profile_id, now);
+    const coverView = await loadCover(access.account_id, access.profile_id, now);
+    const view = coverView.stock;
     const shared = await sharedContext(access.profile_id, access.account_id, now);
     const care = await careState(access.profile_id);
     const held = !care
@@ -129,6 +187,99 @@ export async function GET(): Promise<NextResponse> {
               ),
             );
     const byRef = new Map(existing.map((p) => [p.ref, p]));
+
+    // P5-05: every item's cover, warned items first, with any reorder note it has.
+    const warnedKeys = new Set(coverView.warnings.map((r) => r.key));
+    const coverRows = [
+      ...coverView.warnings,
+      ...coverView.rows
+        .filter((r) => !warnedKeys.has(r.key))
+        .sort(
+          (a, b) =>
+            (a.cover.cover?.low ?? Infinity) - (b.cover.cover?.low ?? Infinity) ||
+            (a.name < b.name ? -1 : 1),
+        ),
+    ];
+    const noteRefs = coverView.warnings.map((r) => reorderRef(r, now));
+    const notes =
+      noteRefs.length === 0
+        ? []
+        : await db
+            .select({
+              id: proposals.id,
+              ref: proposals.originating_finding,
+              status: proposals.status,
+              blocked_by_limit: proposals.blocked_by_limit,
+            })
+            .from(proposals)
+            .where(
+              and(
+                eq(proposals.profile_id, access.profile_id),
+                inArray(proposals.originating_finding, noteRefs),
+              ),
+            );
+    const noteByRef = new Map(notes.map((p) => [p.ref, p]));
+    const cover: CoverBlock = {
+      window_days: COVER.window_days,
+      default_lead_days: COVER.default_lead_days,
+      warnings: coverView.warnings.length,
+      season: coverView.season_note,
+      held: !care
+        ? "I put reorder notes in your queue once you've chosen how I work for you."
+        : care.watch_ends_at && now.toISOString() < care.watch_ends_at
+          ? `I'm watching until ${care.watch_ends_at.slice(0, 10)}, and I propose nothing before then.`
+          : null,
+      items: coverRows.map((r) => {
+        const c = r.cover;
+        const st = c.sell_through;
+        const note = noteByRef.get(reorderRef(r, now));
+        return {
+          key: r.key,
+          name: r.name,
+          source: r.source,
+          as_of: r.item.as_of,
+          on_hand: r.item.on_hand,
+          sold_recent:
+            st.status === "ready"
+              ? st.a.units
+              : c.rate && c.rate.over_days === COVER.window_days
+                ? c.rate.units
+                : null,
+          vs_prior:
+            st.status === "ready"
+              ? { change: st.change, band: st.band, direction: st.direction }
+              : null,
+          sell_through: st.sentence,
+          cover_text: coverColumn(c),
+          runs_out: c.runs_out,
+          lead: {
+            days: c.lead.days,
+            basis: c.lead.basis,
+            supplier: c.lead.supplier?.name ?? null,
+            why: c.lead.why,
+          },
+          flag: coverFlag(c),
+          warning: c.warning?.sentence ?? null,
+          why: c.why,
+          boosted: c.boosted,
+          reorder: c.reorder
+            ? {
+                quantity: c.reorder.quantity,
+                arithmetic: c.reorder.arithmetic,
+                moq: c.reorder.moq,
+                rounded_to_moq: c.reorder.rounded_to_moq,
+                cost: c.reorder.cost,
+                cost_arithmetic: c.reorder.cost_arithmetic,
+                proposal: note
+                  ? { id: note.id, status: note.status, blocked_by_limit: note.blocked_by_limit }
+                  : null,
+              }
+            : null,
+          assumed: c.assumed,
+          sources: c.sources,
+        };
+      }),
+    };
 
     const slow: StockItemView[] = shown.map((r, i) => {
       const fmt = fmtFor(r.item.currency);
@@ -201,6 +352,7 @@ export async function GET(): Promise<NextResponse> {
         max_items: CLEARANCE.max_items,
       },
       held,
+      cover,
       history: await loadStockHistory(
         view.slow.map((r) => ({
           connection_id: r.item.connection_id,
@@ -262,6 +414,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           : {}),
       });
       return NextResponse.json(result, { status: 201 });
+    }
+    if (body.action === "reorder") {
+      const run = await proposeReorders(access.profile_id);
+      return NextResponse.json({
+        created: run.created.length,
+        blocked: run.blocked.length,
+        skipped: run.skipped,
+      });
     }
     if (body.action === "propose") {
       const run = await proposeClearance(access.profile_id);

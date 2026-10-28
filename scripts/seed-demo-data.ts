@@ -14,6 +14,7 @@ import type {
 } from "../lib/connectors/providers/shopify-fake";
 import type { FakeMetaCampaignDay, FakeMetaDay } from "../lib/connectors/providers/meta-fake";
 import type { FakeGa4Row } from "../lib/connectors/providers/ga4-fake";
+import type { FakePageSpeedOptions } from "../lib/site/audit/pagespeed-fake";
 import { utcOfZonedHour } from "../lib/connectors/hourly";
 
 export const ZONE = "Europe/Dublin";
@@ -94,7 +95,9 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "350 ml thrown mug in the oatmeal speckle glaze. Our best seller since 2022.",
     problems: ["too_cheap"],
     purchase_type: "repeat",
-    on_hand: 140,
+    // Phase 5 (P5-05): the one product nearing a stock-out — it sells about 15 a
+    // day and the clay supplier takes 10 days, so cover runs short of a delivery.
+    on_hand: 90,
   },
   {
     key: "plate",
@@ -108,7 +111,8 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "27 cm dinner plate, sold singly; most people buy two or four.",
     problems: ["none"],
     purchase_type: "repeat",
-    on_hand: 90,
+    // Enough to outlast a delivery, even at the fast end of a busy stretch.
+    on_hand: 220,
   },
   {
     key: "bowl",
@@ -138,7 +142,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
       "Three small bud vases in mixed glazes — the gift people buy without thinking twice.",
     problems: ["none"],
     purchase_type: "one_time",
-    on_hand: 60,
+    on_hand: 130,
   },
   {
     key: "pourover",
@@ -152,7 +156,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
     description: "Dripper, carafe and two cups. The highest margin per piece we make.",
     problems: ["too_manual"],
     purchase_type: "one_time",
-    on_hand: 24,
+    on_hand: 45,
   },
   {
     key: "seconds",
@@ -746,6 +750,75 @@ export const SITE_PAGES: Readonly<Record<string, string>> = {
   ),
 };
 
+/**
+ * P5-11..13: the pages the site audit reads beyond the ones above — the
+ * shop's collections and its cart, so the walk can count the clicks from
+ * home to checkout. "/collections/gifts" is linked from the home page and
+ * deliberately missing: the audit's broken link. Kept apart from SITE_PAGES
+ * so the "what customers look for" check reads exactly what it always has.
+ */
+export const SITE_AUDIT_PAGES: Readonly<Record<string, string>> = {
+  ...SITE_PAGES,
+  [`${SITE}/collections/all`]: SHELL(
+    "All pottery",
+    `<h1>All pottery</h1>
+<ul><li><a href="/products/speckled-everyday-mug">Speckled Everyday Mug</a> — &euro;34.00</li></ul>`,
+  ),
+  [`${SITE}/collections/mugs`]: SHELL(
+    "Mugs",
+    `<h1>Mugs</h1>
+<ul><li><a href="/products/speckled-everyday-mug">Speckled Everyday Mug</a> — &euro;34.00</li></ul>`,
+  ),
+  [`${SITE}/cart`]: SHELL(
+    "Your cart",
+    `<h1>Your cart</h1><p>Your cart is empty.</p>
+<form action="/cart" method="post"><button type="submit" name="checkout">Check out</button></form>`,
+  ),
+};
+
+/**
+ * P5-11: what the fake PageSpeed Insights says about Fernhill's pages —
+ * a heavy, slow home page on phones (Google has real-visitor data for it),
+ * a product page that shifts as it loads and has small tap targets (lab
+ * only: too few visitors), and computers fine everywhere.
+ */
+export const SITE_SPEED: FakePageSpeedOptions = {
+  pages: {
+    [`${SITE}/`]: {
+      mobile: {
+        lcp_ms: 5100,
+        cls: 0.04,
+        tbt_ms: 260,
+        page_bytes: 3_800_000,
+        performance: 0.52,
+        contrast_failures: 2,
+        tap_target_failures: 0,
+        field: { lcp_ms: 4300, cls: 0.03, inp_ms: 190 },
+      },
+    },
+    [`${SITE}/products/speckled-everyday-mug`]: {
+      mobile: {
+        lcp_ms: 3900,
+        cls: 0.18,
+        tbt_ms: 240,
+        page_bytes: 2_900_000,
+        performance: 0.61,
+        contrast_failures: 0,
+        tap_target_failures: 6,
+      },
+    },
+  },
+  fallback: {
+    lcp_ms: 1900,
+    cls: 0.02,
+    tbt_ms: 120,
+    page_bytes: 1_600_000,
+    performance: 0.86,
+    contrast_failures: 0,
+    tap_target_failures: 0,
+  },
+};
+
 /* ── a booking business: "Lumen Hair Studio" (the salon demo) ── */
 
 /** Services, their list price (minor units, EUR) and how often each is booked. */
@@ -871,4 +944,205 @@ export function salonBookingsCsv(today: string): string {
     }
   }
   return lines.join("\n");
+}
+
+/* ── P5-17: the trade pipeline (Fernhill sells to cafés and shops too, 6.1a "both") ── */
+
+export interface DemoDeal {
+  company: string;
+  contact: string;
+  email: string;
+  title: string;
+  stage: "lead" | "qualified" | "proposal_sent" | "won" | "lost";
+  /** Whole euros, or null for a deal with no value yet. */
+  value: number | null;
+  /** Days ago the deal was added and entered its stage (closed, for won and lost). */
+  added: number;
+  in_stage: number;
+  next_step: string;
+  /** Days from today; negative is overdue. Null = no date. */
+  due: number | null;
+  /** Days ago they last spoke; null = not recorded. */
+  last_contact: number | null;
+}
+
+/**
+ * Eleven trade deals: five open — one gone quiet with no next step, one
+ * whose next step is overdue, one never spoken to — and six closed in the
+ * last year (three won, three lost), enough for a measured win rate.
+ */
+export const DEMO_DEALS: readonly DemoDeal[] = [
+  {
+    company: "Café Nua",
+    contact: "Aoife Brennan",
+    email: "aoife@cafenua.example",
+    title: "House mugs for the new Kilkenny café",
+    stage: "proposal_sent",
+    value: 4_800,
+    added: 41,
+    in_stage: 30,
+    next_step: "",
+    due: null,
+    last_contact: 23,
+  },
+  {
+    company: "The Long Table",
+    contact: "Ciarán Walsh",
+    email: "ciaran@thelongtable.example",
+    title: "Dinner plates and bowls, 60 covers",
+    stage: "qualified",
+    value: 7_200,
+    added: 34,
+    in_stage: 18,
+    next_step: "Send glaze test tiles",
+    due: -6,
+    last_contact: 14,
+  },
+  {
+    company: "Hotel Saoirse",
+    contact: "Saoirse Doyle",
+    email: "saoirse@hotelsaoirse.example",
+    title: "Breakfast service, 40 rooms",
+    stage: "lead",
+    value: 12_000,
+    added: 9,
+    in_stage: 9,
+    next_step: "Visit with samples",
+    due: 5,
+    last_contact: 9,
+  },
+  {
+    company: "Paper & Clay",
+    contact: "Róisín Kelly",
+    email: "roisin@paperandclay.example",
+    title: "Christmas restock, bud vase trios",
+    stage: "proposal_sent",
+    value: 2_600,
+    added: 20,
+    in_stage: 6,
+    next_step: "Confirm the delivery date",
+    due: 3,
+    last_contact: 2,
+  },
+  {
+    company: "Kilkenny Design Collective",
+    contact: "",
+    email: "hello@kdcollective.example",
+    title: "Shared stand at the spring fair",
+    stage: "lead",
+    value: null,
+    added: 12,
+    in_stage: 12,
+    next_step: "",
+    due: null,
+    last_contact: null,
+  },
+  {
+    company: "Ballyhale Farm Shop",
+    contact: "Declan Nolan",
+    email: "declan@ballyhalefarm.example",
+    title: "Own-label honey jars",
+    stage: "won",
+    value: 1_800,
+    added: 70,
+    in_stage: 40,
+    next_step: "",
+    due: null,
+    last_contact: 40,
+  },
+  {
+    company: "The Tea Rooms, Inistioge",
+    contact: "Mary Phelan",
+    email: "mary@tearooms.example",
+    title: "Teapots and cups",
+    stage: "won",
+    value: 3_400,
+    added: 130,
+    in_stage: 95,
+    next_step: "",
+    due: null,
+    last_contact: 95,
+  },
+  {
+    company: "Marble City Bakery",
+    contact: "Tom Ryan",
+    email: "tom@marblecitybakery.example",
+    title: "Cake stands",
+    stage: "won",
+    value: 950,
+    added: 180,
+    in_stage: 150,
+    next_step: "",
+    due: null,
+    last_contact: 150,
+  },
+  {
+    company: "Gallery 7",
+    contact: "Niamh Daly",
+    email: "niamh@gallery7.example",
+    title: "Exhibition pieces",
+    stage: "lost",
+    value: 5_200,
+    added: 85,
+    in_stage: 60,
+    next_step: "",
+    due: null,
+    last_contact: 62,
+  },
+  {
+    company: "Nore Hotel",
+    contact: "Brian Keane",
+    email: "brian@norehotel.example",
+    title: "Room trays",
+    stage: "lost",
+    value: 8_800,
+    added: 160,
+    in_stage: 120,
+    next_step: "",
+    due: null,
+    last_contact: 121,
+  },
+  {
+    company: "Castle Yard Café",
+    contact: "Eimear Fitz",
+    email: "eimear@castleyard.example",
+    title: "Takeaway cups",
+    stage: "lost",
+    value: 2_100,
+    added: 230,
+    in_stage: 200,
+    next_step: "",
+    due: null,
+    last_contact: 201,
+  },
+];
+
+/** The trade list as the owner keeps it: a spreadsheet the pipeline import reads. */
+export function dealsCsv(today: string, rows: readonly DemoDeal[] = DEMO_DEALS): string {
+  const quote = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const stage = {
+    lead: "Lead",
+    qualified: "Qualified",
+    proposal_sent: "Proposal sent",
+    won: "Won",
+    lost: "Lost",
+  };
+  return [
+    "Company,Contact,Email,Deal,Stage,Value,Next step,Next step due,Last contact",
+    ...rows.map((r) =>
+      [
+        r.company,
+        r.contact,
+        r.email,
+        r.title,
+        stage[r.stage],
+        r.value === null ? "" : String(r.value),
+        r.next_step,
+        r.due === null ? "" : shiftDay(today, r.due),
+        r.last_contact === null ? "" : shiftDay(today, -r.last_contact),
+      ]
+        .map(quote)
+        .join(","),
+    ),
+  ].join("\n");
 }

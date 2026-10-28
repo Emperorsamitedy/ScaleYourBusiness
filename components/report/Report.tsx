@@ -927,6 +927,11 @@ export function ReportBody({
                     <span className="rq-ref">F{i + 1}</span>
                     <span className={`word ${flag.tone}`}>{flag.word}</span>
                     <span className="rq-label">{f.area.replace(/_/g, " ")}</span>
+                    {f.kind === "measured" && (
+                      <span className="rq-label" title="Measured on your site, not judged">
+                        · measured
+                      </span>
+                    )}
                   </p>
                   <h3 className="rq-item-title">{f.title}</h3>
                   <p className="rq-prose">{f.detail}</p>

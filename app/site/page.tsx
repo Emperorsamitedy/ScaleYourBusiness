@@ -3,12 +3,15 @@
 // The audit tab reads the owner's last recorded site check (the
 // presence.site_checks fact, written by the blindspots check) — read
 // only, on the server; this page never fetches the site itself.
+// P5-13: the measured tab reads the latest stored site audit
+// (lib/site/audit); running a new one is POST /api/site/audit.
 
 import type { Metadata } from "next";
 import { resolveAccess } from "../../lib/auth/access";
 import { SITE_CHECKS_KEY, type SiteChecks, checkLabel } from "../../lib/blindspots/checks";
 import { readCurrentField } from "../../lib/profile/field-store";
-import { type SiteAudit, SiteScreen } from "../../components/site/SiteScreen";
+import { lastSiteAuditFailure, latestSiteAudit } from "../../lib/site/audit/service";
+import { type MeasuredAudit, type SiteAudit, SiteScreen } from "../../components/site/SiteScreen";
 
 export const metadata: Metadata = { title: "Your site — SYB" };
 export const dynamic = "force-dynamic";
@@ -36,6 +39,22 @@ async function lastAudit(): Promise<SiteAudit | null> {
   }
 }
 
+async function measuredAudit(): Promise<MeasuredAudit> {
+  try {
+    const access = await resolveAccess();
+    if (!access) return { audit: null, failure: null };
+    const [audit, failure] = await Promise.all([
+      latestSiteAudit(access.profile_id),
+      lastSiteAuditFailure(access.profile_id),
+    ]);
+    return { audit, failure };
+  } catch {
+    // Like the checks tab: a courtesy, never a reason for the screen to fail.
+    return { audit: null, failure: null };
+  }
+}
+
 export default async function SitePage() {
-  return <SiteScreen audit={await lastAudit()} />;
+  const [audit, measured] = await Promise.all([lastAudit(), measuredAudit()]);
+  return <SiteScreen audit={audit} measured={measured} />;
 }

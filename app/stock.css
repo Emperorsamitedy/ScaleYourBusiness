@@ -1,4 +1,4 @@
-/* Insights · Slow stock (feature 34), on the sheet system (app/sheet.css):
+/* Insights · Stock (feature 34, P5-05), on the sheet system (app/sheet.css):
    what isn't selling, most cash tied up first, and the cheapest ways to
    clear it with their arithmetic. Square corners, no icons; cobalt only
    while a request is genuinely running. */
@@ -193,4 +193,30 @@
   .st-form {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* P5-05: what runs out, and when */
+.st-screen > .cs + .st-grid,
+.st-screen > .st-grid + .cs,
+.st-screen > .cs + .cs {
+  margin-top: 15px;
+}
+.st-mono {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+}
+.st-warn {
+  margin-top: 0;
+  font-weight: 500;
+}
+.st-warn .word {
+  margin-left: 8px;
+}
+.st-assumed {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
 }

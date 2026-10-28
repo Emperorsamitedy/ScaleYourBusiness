@@ -29,6 +29,7 @@ describe("app navigation", () => {
     expect(groupFor("/customers")?.key).toBe("customers");
     expect(groupFor("/site")?.key).toBe("grow");
     expect(groupFor("/simulate")?.key).toBe("grow");
+    expect(groupFor("/cash")?.key).toBe("insights");
   });
 
   it("shows the rail on owner screens and the chat", () => {
@@ -90,6 +91,7 @@ describe("app navigation", () => {
       size_band: null,
       stock: false,
       team: false,
+      pipeline: false,
     };
     const hrefs = (c: NavCounts | null) =>
       visibleGroups(null, c).flatMap((g) => g.items.map((i) => i.href));

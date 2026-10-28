@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0062**, then `db:seed` (question bank 1.7.0).
+2. **Migrations and bank:** `db:migrate` through **0064**, then `db:seed` (question bank 1.9.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -28,6 +28,8 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0060 `footage_clips`, `footage_renders`, `media_generations` (footage upload and the AI media fallback, 2026-10-26)
    - 0061 `niche_ad_reads`, `creative_briefs` (the creative studio's niche ad research and briefs, 2026-10-26)
    - 0062 `ad_builds`, the journal of each paused Meta ad build (2026-10-26)
+   - 0063 `deals`, `deal_events`, `deal_followups` and the `deal_stage` enum, the B2B pipeline (P5-14, 2026-10-28)
+   - 0064 `site_audits`, one row per site audit run with its PageSpeed calls (Phase 5 Session C, 2026-10-27)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 
@@ -195,6 +197,11 @@ Not findings. These are the controls the new upload path was built with, recorde
 
 - **Shared report links (idea 51)** are 32 random bytes, base64url (43 characters). The link carries the token; the row stores only its sha256 (`report_shares.token_hash`, unique). A token is shape-checked before any query, looked up by hash, and the hash compared again with `secretMatches`. Unknown, malformed, revoked and expired tokens all get the same page, so trying links reveals nothing. A link expires after 7 or 30 days (the owner picks; 7 by default), can be revoked at once, and is never deleted. It is pinned to one report (a snapshot), and its history stops when the link was made. Each business can hold at most 20 open links. `/shared/*` sends `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex` and `Cache-Control: private, no-store`. The page reads and sets no cookie and does not fetch `/api/nav`. Only the report's cited facts are sent, never a personal field, the owner's email, customer contacts, or the owner's answers to recommendations. Making and revoking a link need a signed-in owner and a same-origin POST (`isSameOriginPost`). Both are written to the decision log, with ids and a hash and never the token. There is no rate limit: at 256 bits, guessing is not a practical attack. A view is counted on any GET of a live link, so a chat app's link preview counts as one. The report's own text was written by the model from the profile, and is shown as it is.
 - **The accountant export (idea 49)** is `GET /api/profile/export`, for the signed-in owner only; the intake cookie alone gets a 401. Every query is scoped by account and profile. The response is an attachment with `no-store`. It reads only `field_records` (no CRM tables). Cells that start with `=`, `+`, `-`, `@`, a tab or CR get a leading `'`; plain numbers like `-12.50` are left as they are.
+
+## Added 2026-10-27 — the site audit's external reads (P5-11..13)
+
+- **PageSpeed Insights (a new external read).** `lib/site/audit/pagespeed.ts` sends a GET to `https://www.googleapis.com/pagespeedonline/v5/runPagespeed` and to nothing else. Its fetch type admits only GET, and `audit.test.ts` scans every source in `lib/site/audit` and fails the build on a write verb, on a method other than GET, or on a `key=` query parameter. The optional `PAGESPEED_API_KEY` travels in the `X-Goog-Api-Key` header, never in a URL, a log line or a row. Restrict it in Google Cloud to the PageSpeed Insights API alone. It is in `RESEARCH_SOURCE_REGISTRY` with no scope, so the build-failing scope audit covers it. Calls are capped at 20 per site (origin) per rolling 7 days. The cap is counted from `site_audits.pagespeed_calls`, retries included, and each run logs a `site_audit` line with its account id. Each call is capped at 2 attempts, 3 at once, and a 90 s timeout. The URL handed to Google is a page of the owner's own site that the guarded fetcher already read. Google fetches it from Google's network, not ours, so it adds no SSRF surface.
+- **The walk (page reads).** It goes through `createGuardedFetcher`, the same resolve-once, vet, pin and re-vet-every-redirect path as every other site read. It is capped at 12 pages read plus 15 link checks per run, 4 clicks deep, one run per business per hour, and one at a time (an advisory lock). Same-origin links only. Login and account pages, cart action links and checkout are refused by classification before any request, and the fetcher keeps no cookies. Running an audit needs a signed-in owner and `isSameOriginPost` (`POST /api/site/audit`).
 
 ## Checked and sound
 

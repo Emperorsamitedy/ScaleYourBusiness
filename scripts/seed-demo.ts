@@ -221,7 +221,12 @@ async function seed(): Promise<void> {
   const { setGoalMeasure } = await import("../lib/care/goal-measure");
   const { checkGoal } = await import("../lib/care/progress");
   const { updateGoal } = await import("../lib/content/goals");
-  const { logHoursFindings } = await import("../lib/watch/job");
+  const { logHoursFindings, logCashWarning } = await import("../lib/watch/job");
+  const { loadCashInputs } = await import("../lib/cash/load");
+  const { forecastCash } = await import("../lib/cash/model");
+  const { tightWeek } = await import("../lib/cash/warnings");
+  const { CASH_KEY, BUFFER_KEY } = await import("../lib/cash/keys");
+  const { logStockWarnings } = await import("../lib/stock/warnings");
   const { ensureSupportSettings } = await import("../lib/crm/support-settings");
   const { proposeKnowledgeEntries, proposeCustomKnowledge, publishKnowledgeFromProposal } =
     await import("../lib/crm/knowledge");
@@ -541,6 +546,14 @@ async function seed(): Promise<void> {
         amount: eur(1140),
         cadence: "annual",
       },
+      // Phase 5 (P5-07): the lumps the 13-week cash forecast places by frequency.
+      { category: "other", label: "VAT return", amount: eur(4800), cadence: "quarterly" },
+      {
+        category: "loan_payments",
+        label: "Kiln loan repayment",
+        amount: eur(450),
+        cadence: "monthly",
+      },
     ]);
     await entities("5.2", [
       {
@@ -594,6 +607,8 @@ async function seed(): Promise<void> {
       "6.1e",
       "Eight stockists — gift shops and two cafés — who buy wholesale at half of retail.",
     );
+    // P5-15: the owner's own sense of their trade win rate, shown beside the measured one.
+    await answer("6.1f", 35, true);
     await entities("6.2", [
       {
         name: "Gift buyers",
@@ -1636,6 +1651,41 @@ async function seed(): Promise<void> {
     if ("reason" in checked) throw new Error(`site checks: ${checked.reason}`);
   });
 
+  // P5-11..13: the site audit, read like a visitor — the walk over the
+  // fixture pages and the in-repo recorded-shape PageSpeed Insights (the
+  // global fetch stays sealed, both fakes are passed in). After the
+  // 21-day-old report, so that report is unchanged; the next one carries
+  // the measured findings. No network, no model.
+  await phase(
+    "website measured: speed, phones and the path to buying",
+    at(2, "06:45"),
+    async () => {
+      const { runSiteAudit } = await import("../lib/site/audit/service");
+      const { fakePageSpeed } = await import("../lib/site/audit/pagespeed-fake");
+      const auditFetcher = async (url: string) => {
+        const normalised = url.replace(/\/$/, "") === data.SITE ? `${data.SITE}/` : url;
+        const html = data.SITE_AUDIT_PAGES[normalised];
+        return {
+          url: normalised,
+          status: html ? 200 : 404,
+          html: html ?? "<!doctype html><title>Not found</title><h1>Not found</h1>",
+          headers: { "content-type": "text/html; charset=utf-8", "x-shopid": "fernhill-ceramics" },
+          duration_ms: 240,
+        };
+      };
+      const audited = await runSiteAudit({
+        profileId: ids.profile,
+        fetcher: auditFetcher,
+        pagespeedFetch: fakePageSpeed(data.SITE_SPEED).fetch,
+        apiKey: null,
+      });
+      if (audited.status !== "read") throw new Error(`site audit: ${audited.why}`);
+      log(
+        `  site audit: ${audited.audit.findings.length} measured findings, ${audited.audit.path.clicks ?? "?"} clicks to checkout, ${audited.audit.pagespeed.calls} PageSpeed calls (fake)`,
+      );
+    },
+  );
+
   /* ── 10. today ── */
 
   log("today · sync, customers, proposals and decisions");
@@ -1646,6 +1696,50 @@ async function seed(): Promise<void> {
     log(
       `  ${outcome.provider}: ${outcome.observations} observations, ${detected} anomalies opened`,
     );
+  }
+
+  // P5-02/P5-05: today's stock read leaves the mug short of a clay delivery.
+  // The weekly beat's own step for this one business, so the watch log and
+  // the weekly summary carry the warning. Fernhill is still watched, so no
+  // reorder note is proposed (rule 15); /stock shows its arithmetic.
+  const stockWarnings = await logStockWarnings(ids.profile, new Date());
+  log(`  stock: ${stockWarnings} stock-out warning${stockWarnings === 1 ? "" : "s"} logged`);
+  // P5-06..08: the owner says what's in the bank and the least she wants in it.
+  // Fernhill earns well in the run-up to Christmas, so whether a week of the
+  // next 13 dips under her buffer depends on the day the demo is seeded. The
+  // figure she gives is therefore read off the forecast itself, from her own
+  // measured sales and stated costs (no network, no model): the cash that
+  // leaves the lowest cautious-end week about €1,800 under her €6,000
+  // buffer, rounded to €100 — so the demo always shows a tight week, with
+  // its real reason, on whatever day it is seeded. Read after today's sync,
+  // so the series it is read from is the one the screen reads.
+  log("today · the owner states cash in the bank and her buffer");
+  {
+    const realNow = new RealDate();
+    const base = await loadCashInputs(ids.account, ids.profile, realNow);
+    const zero = forecastCash({
+      ...base,
+      cash: {
+        status: "known",
+        fact: { amount_minor: 0, currency: "EUR", basis: "STATED", source: "", on: null },
+      },
+    });
+    if (zero.status !== "ready") throw new Error(`cash forecast refused: ${zero.headline}`);
+    const lowest = Math.min(...zero.weeks.map((w) => w.balance.low));
+    let buffer = 600_000;
+    let cash = Math.ceil((buffer - 180_000 - lowest) / 10_000) * 10_000;
+    if (cash < 90_000) {
+      // A season so strong the lowest week is far ahead: raise the buffer instead.
+      cash = 90_000;
+      buffer = Math.ceil((lowest + cash + 180_000) / 10_000) * 10_000;
+    }
+    await ownerFact(CASH_KEY, money(cash, "EUR"));
+    await ownerFact(BUFFER_KEY, money(buffer, "EUR"));
+    const f = forecastCash(await loadCashInputs(ids.account, ids.profile, realNow));
+    const tight = f.status === "ready" ? tightWeek(f) : null;
+    if (!tight) throw new Error("the demo's cash forecast shows no tight week");
+    log(`  cash €${cash / 100}, buffer €${buffer / 100}: ${tight.sentence}`);
+    await logCashWarning(ids.profile, realNow, async () => f);
   }
 
   const people = data.demoContacts(today);
@@ -1668,6 +1762,65 @@ async function seed(): Promise<void> {
     },
     { currency: "EUR" },
   );
+
+  // P5-17: the trade pipeline. Fernhill sells to cafés and shops as well
+  // (6.1a "both"), so its trade list comes in through the pipeline import
+  // under the owner's attestation, as the customer export did; two deals
+  // were added on /pipeline by hand (their contacts land "unsure"). The
+  // dates a spreadsheet can't carry — when each deal was added and entered
+  // its stage, and when the closed ones closed — are set on the rows
+  // afterwards, as the seed sets every other simulated time. Fernhill is
+  // still being watched, so no follow-up is proposed; the screen says so.
+  {
+    const { importDeals } = await import("../lib/pipeline/import");
+    const { addDeal } = await import("../lib/pipeline/deals");
+    const byHand = new Set(["Breakfast service, 40 rooms", "Shared stand at the spring fair"]);
+    const trade = await importDeals(
+      ids.account,
+      ids.profile,
+      data.dealsCsv(
+        today,
+        data.DEMO_DEALS.filter((d) => !byHand.has(d.title)),
+      ),
+      {
+        status: "explicit_consent",
+        statement:
+          "Trade buyers who ticked 'email me about trade orders' on our Showcase Ireland sign-up sheet, January 2026",
+      },
+      { currency: "EUR", value_basis: "quoted" },
+    );
+    for (const d of data.DEMO_DEALS.filter((x) => byHand.has(x.title))) {
+      await addDeal(ids.account, ids.profile, {
+        contact: { name: d.contact || null, email: d.email },
+        company: d.company,
+        title: d.title,
+        stage: d.stage,
+        value:
+          d.value === null
+            ? null
+            : { amount_minor: d.value * 100, currency: "EUR", basis: "estimated" },
+        next_step: d.next_step || null,
+        next_step_due: d.due === null ? null : data.shiftDay(today, d.due),
+        last_contact_at: d.last_contact === null ? null : at(d.last_contact),
+      });
+    }
+    for (const d of data.DEMO_DEALS) {
+      const closed = d.stage === "won" || d.stage === "lost";
+      await db
+        .update(schema.deals)
+        .set({
+          created_at: at(d.added),
+          stage_entered_at: at(d.in_stage),
+          updated_at: at(Math.min(d.in_stage, d.last_contact ?? d.in_stage)),
+          closed_at: closed ? at(d.in_stage, "15:00") : null,
+        })
+        .where(and(eq(schema.deals.profile_id, ids.profile), eq(schema.deals.title, d.title)));
+    }
+    await db.execute(
+      sql`update deal_events e set at = d.created_at from deals d where e.deal_id = d.id and d.profile_id = ${ids.profile} and e.kind = 'created'`,
+    );
+    log(`  pipeline: ${trade.imported} trade deals imported, ${byHand.size} added by hand`);
+  }
 
   const segments = await proposeFromSegments(ids.profile);
   const vip = segments.created.find(
