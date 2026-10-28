@@ -2862,7 +2862,7 @@ export const adBuilds = pgTable(
 // decision log never holds a deal's words — only ids and hashes, as
 // everywhere — so the cascade leaves it untouched and verifiable.
 //
-// Stages are the bank's own vocabulary (deal_stage, bank 1.8.0); the enum
+// Stages are the bank's own vocabulary (deal_stage, bank 1.9.0); the enum
 // mirrors it and a test holds the two equal. Values are integer minor units
 // plus an explicit currency, together or not at all (rule 1), and say
 // whether they were quoted or estimated (rule 2). A change to a deal is

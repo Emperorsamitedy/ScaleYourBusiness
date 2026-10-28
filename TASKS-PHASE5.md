@@ -93,24 +93,28 @@ Steps 88 and 91 (the stock half).
 
 Step 89.
 
-- [ ] **P5-06** Two bank questions (bank version bump; `lint_bank.py` passes):
+- [x] **P5-06** Two bank questions (bank version bump; `lint_bank.py` passes):
   - "Roughly how much cash does the business have available today?" (Money);
   - "What's the least you'd want in the account at any time?" (Money, the buffer).
 
   Both are `Field<Money>` with provenance, and "I don't know" is allowed (rule 5).
 
-- [ ] **P5-07** The 13-week cash model (pure, rule 25). It starts from the stated cash, or from Stripe balance transactions where connected.
+  _Done 2026-10-28: bank 1.8.0, 5.3e `costs.cash_available` (asked under 5.3b's condition, money coming in) and 5.3f `costs.cash_buffer` (asked once 5.3e has a value); data conditions only, DB-tested through the resolver; lint_bank and db:seed pass._
+
+- [x] **P5-07** The 13-week cash model (pure, rule 25). It starts from the stated cash, or from Stripe balance transactions where connected.
   - **Money in:** the business's own weekly revenue pattern, with `lib/seasons` where a year of history exists, as a range. Payout timing comes from the payment provider answer.
   - **Money out:**
     - fixed costs by their stated frequency (5.1);
     - per-unit costs × expected volume (5.2);
     - debt (5.3c) where a repayment is stated.
   - **Currency:** amounts are integer minor units per currency, never mixed (rule 1).
-- [ ] **P5-08** "Money gets tight" warnings: the first week whose low end dips under the buffer, with the reason, e.g. "quarterly VAT and a quiet February". They go to the watch log and the weekly summary, never a push to act.
-- [ ] **P5-09** Scenarios, side by side, in the campaign simulator's pattern: a slow month (−x%), a big order (+€y in week n), a hire (+€z a month), a price change (taken from what-if pricing). Pure, with a range per scenario.
-- [ ] **P5-10** The `/cash` screen (under Insights): the 13-week chart from the chart family, with its range band, the buffer line, the warnings and the scenarios.
+  - _Done: `lib/cash/model.ts` (pure), `payout.ts` (ASSUMED payout table), `inputs.ts` + `load.ts` (read-only). Starts from stated cash only; Stripe/Shopify balance transactions give the sales series and the in-transit days, not a bank balance. Refuses under 8 complete weeks of the last 13. Exactly one year of history spans last year's week and the recent range (growth can't be separated). Debt counts only via 5.1 `loan_payments` rows._
+- [x] **P5-08** "Money gets tight" warnings: the first week whose low end dips under the buffer, with the reason, e.g. "quarterly VAT and a quiet February". They go to the watch log and the weekly summary, never a push to act. _Done: `lib/cash/warnings.ts`; watch kind `cash_warning` (logged on appear/move/clear), in NOTED_KINDS so the summary carries it; push words tested out._
+- [x] **P5-09** Scenarios, side by side, in the campaign simulator's pattern: a slow month (−x%), a big order (+€y in week n), a hire (+€z a month), a price change (taken from what-if pricing). Pure, with a range per scenario. _Done: `lib/cash/scenarios.ts`; defaults from the business's own numbers (a typical week, the largest stated salary, what-if pricing's first step); a missing figure is a named MISSING cell._
+- [x] **P5-10** The `/cash` screen (under Insights): the 13-week chart from the chart family, with its range band, the buffer line, the warnings and the scenarios.
   - **Notes:** a "planning aid, not financial advice" note and the sources line, always shown.
   - **Gate test:** rule 26's build-failing test asserts no money-moving op, path or scope exists in `lib/cash`.
+  - _Done: `/cash` under Insights (nav + size-features row), `components/charts/CashChart.tsx`, `GET /api/cash` only, `lib/cash/fence.test.ts` (scans lib/cash, the route, the screen and the chart; planted failing cases). The demo seed (Fernhill) states cash and a €6,000 buffer read off its own forecast, so it always shows a tight week._
 
 ## Session C — The website as a customer meets it _(~2 wks)_
 
@@ -139,7 +143,7 @@ Step 92. Shown only when 6.1a is `b2b` or `both`; branching lives in data (rule 
 
 **Status 2026-10-28:** Built and ticked in six commits, every rule a test with a passing and a failing case (41 tests across five files). Fixture-proven only: no real follow-up has been drafted by a live model.
 
-- **Bank 1.8.0 (the bank route, chosen over stages in code):** vocabulary `deal_stage` (lead, qualified, proposal_sent, won, lost) and question 6.1f `customers.win_rate` ("Of the deals you go after with other businesses, roughly what percentage do you win?", 0–100, unknown allowed, deep), asked under 6.1e's condition (`customers.type neq b2c`). Pins moved to 158 questions / 57 vocabularies. Production needs `db:seed`. Session B's P5-06 also bumps the bank, so the versions and count pins collide at merge.
+- **Bank 1.9.0 (the bank route, chosen over stages in code):** vocabulary `deal_stage` (lead, qualified, proposal_sent, won, lost) and question 6.1f `customers.win_rate` ("Of the deals you go after with other businesses, roughly what percentage do you win?", 0–100, unknown allowed, deep), asked under 6.1e's condition (`customers.type neq b2c`). Pins moved to 160 questions / 57 vocabularies with Session B merged. Production needs `db:seed`. Session B's P5-06 also bumps the bank, so this became 1.9.0 at merge.
 - **P5-14, deals (migration 0063):** `deals`, `deal_events` and `deal_followups`, and the `deal_stage` enum. A test holds the code, the enum and the bank's vocabulary equal.
   - A deal is with a Phase 4 contact (`contact_id` NOT NULL, ON DELETE CASCADE). An existing contact is linked and keeps its consent. A new one is created through `addContact` as `unsure` ("a sales conversation is not marketing consent"). A suppressed address is refused.
   - Value is integer minor units + currency + basis (`quoted` / `estimated`), all or none by a check.

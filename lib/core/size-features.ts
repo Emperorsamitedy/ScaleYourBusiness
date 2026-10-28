@@ -70,6 +70,11 @@ export const SIZE_FEATURES = {
     reason:
       "A one-person business feels its busy season hardest, and knowing what sells together is free money at any size.",
   },
+  "nav.cash": {
+    bands: EVERY,
+    reason:
+      "A one-person business has the thinnest cushion, so seeing the tight week coming matters most there.",
+  },
   "nav.stock": {
     bands: EVERY,
     reason:

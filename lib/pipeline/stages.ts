@@ -2,7 +2,7 @@
 // (P5-14, P5-17). Pure, so the menu, the screen, the services and their
 // tests read the same definitions without a database.
 //
-// Stages are the bank's own vocabulary (`deal_stage`, bank 1.8.0), in the
+// Stages are the bank's own vocabulary (`deal_stage`, bank 1.9.0), in the
 // bank's order; the database enum mirrors it, and a test holds all three
 // equal. The owner's words for each code live here beside them.
 //

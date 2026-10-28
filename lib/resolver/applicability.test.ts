@@ -59,7 +59,7 @@ describe("P0-42 — currently applicable questions for a profile", () => {
   it("an empty profile gets exactly the unconditioned questions, none answered", async () => {
     const applicable = await applicableQuestions(profileId);
     expect(applicable.length).toBeGreaterThan(0);
-    // 70 of 158 carry no condition; an empty profile satisfies no condition.
+    // 70 of 160 carry no condition; an empty profile satisfies no condition.
     expect(applicable.every((q) => q.already_answered === false)).toBe(true);
     const ids = new Set(applicable.map((q) => q.id));
     expect(ids.has("1.1")).toBe(true); // business name, always asked
