@@ -90,10 +90,28 @@ export async function loadEntityFields(
   );
 }
 
+/**
+ * Which cost list a row was entered on is its question's target, so the
+ * spine's bucket follows it: 5.1 (costs.fixed_monthly) files fixed, 5.2
+ * (costs.variable) files variable. Until 2026-10-28 every row was filed
+ * fixed, and unit economics counted per-sale costs among the monthly ones;
+ * migration 0065 refiled the rows 5.2's answer names.
+ */
+export const COST_BUCKET_BY_TARGET: Readonly<Record<string, "fixed" | "variable">> = {
+  "costs.fixed_monthly": "fixed",
+  "costs.variable": "variable",
+};
+
+/** The bucket a cost row entered on this question belongs in; fixed when the target isn't a cost list. */
+export function costBucketFor(writesTo: string): "fixed" | "variable" {
+  return COST_BUCKET_BY_TARGET[writesTo] ?? "fixed";
+}
+
 async function createSpineRow(
   profileId: string,
   schemaKey: string,
   kindCode: string | null,
+  writesTo: string,
 ): Promise<string> {
   switch (schemaKey) {
     case "offer": {
@@ -138,9 +156,10 @@ async function createSpineRow(
       return r.id;
     }
     case "cost_item": {
+      const bucket = costBucketFor(writesTo);
       const [r] = await db
         .insert(costItems)
-        .values({ profile_id: profileId, bucket: "fixed" })
+        .values({ profile_id: profileId, bucket, scales_with_sales: bucket === "variable" })
         .returning({ id: costItems.id });
       if (!r) throw new Error("cost_item insert failed");
       return r.id;
@@ -242,7 +261,12 @@ export async function writeEntityRows(args: {
 
   for (const { row, values } of prepared) {
     const kindWire = typeof row.kind === "string" ? row.kind : null;
-    const entityId = await createSpineRow(args.profileId, args.schemaKey, kindWire);
+    const entityId = await createSpineRow(
+      args.profileId,
+      args.schemaKey,
+      kindWire,
+      args.question.writes_to,
+    );
     entityIds.push(entityId);
 
     let rowHasCost = false;

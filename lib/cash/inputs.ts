@@ -80,9 +80,11 @@ export function costLines(
   facts: Facts,
   items: readonly { id: string; bucket: "fixed" | "variable" }[],
 ): CostLine[] {
-  // Which list a row was entered on is the 5.2 answer's own entity ids: the
-  // intake files every cost row under the "fixed" bucket, so the bucket alone
-  // can't say. The forecast reads the cadence either way; this is the label.
+  // Which list a row was entered on is the 5.2 answer's own entity ids. The
+  // intake files 5.2's rows variable since 2026-10-28 (and 0065 refiled the
+  // older ones), so the ids and the bucket agree; reading the ids keeps a row
+  // the migration couldn't place honest. The forecast reads the cadence
+  // either way; this is the label.
   const variableIds = new Set(entityIds(facts.get("costs.variable")));
   return items.map((item) => {
     const fact = (k: string) => facts.get(`costs.${item.id}.${k}`);
