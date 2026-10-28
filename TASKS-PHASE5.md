@@ -208,13 +208,16 @@ Step 92. Shown only when 6.1a is `b2b` or `both`; branching lives in data (rule 
 
 Step 93. Off by default (rule 28).
 
-- [ ] **P5-18** The team module switch on `/watch` (Modules), off by default. When off, nothing in this session runs or shows.
-- [ ] **P5-19** Coverage by hour (pure).
+- [x] **P5-18** The team module switch on `/watch` (Modules), off by default. When off, nothing in this session runs or shows.
+  - _Done 2026-10-27:_ `lib/team/module.ts`; a missing `account_modules` row is OFF for `team` only (the five earlier modules keep default-on). No migration. While off, `teamView` returns `{ enabled: false }` before reading a booking or a role (tested with a compute spy and at `/api/team`), and the menu item needs `/api/nav`'s `team: true` (tested).
+- [x] **P5-19** Coverage by hour (pure).
   - **Demand side:** bookings utilisation (`lib/bookings`), trading-hours demand (`lib/hours`), and the busy season.
   - **Supply side:** role hours from 9.2 (role, hours a week).
   - **Output:** hours where demand runs over the stated capacity, and hours staffed with little demand, as ranges.
   - **Rule 28:** names are never read, and a test passes a named roster and proves the output is identical with the names removed.
-- [ ] **P5-20** The `/team` screen: a role × hour grid of over- and under-cover, with the reasoning in words ("Saturdays 10:00–14:00 ran 96% booked; one teacher covers 8 seats"). Suggestions are notes for the owner; nothing about any person.
+  - _Done 2026-10-27:_ `lib/team/coverage.ts` (pure) + `lib/team/load.ts`. Held appointments (completed, no-show, late-cancelled) by weekday × start hour over the last 56 days, against the stated 1.4.2.3b capacity spread evenly over the open hours (stated, else read from when appointments start, ASSUMED). An hour runs short only when the middle half's low end reaches 100%; quiet when its high end is at or under 40%; words quote the middle half's mean. Hourly takings stand in without bookings (quiet only). The busy season's low end names further hours. Under 28 days it refuses with the count and a ready date. Roles: 9.2 title and hours only, grouped by title. Tests: a named roster (and named team-member/client columns in the database) gives byte-identical output; a source scan proves no scoring/ranking function and no read of a name or per-person column.
+- [x] **P5-20** The `/team` screen: a role × hour grid of over- and under-cover, with the reasoning in words ("Saturdays 10:00–14:00 ran 96% booked; one teacher covers 8 seats"). Suggestions are notes for the owner; nothing about any person.
+  - _Done 2026-10-27:_ `components/team/TeamScreen.tsx`, `/api/team`, ux-spec §3 "Team cover". Demo: the salon (Lumen Hair Studio) answers 1.6 and 9.2 (owner-stylist, two stylists), has the module switched on, and its export's Saturdays now fill 10:00–14:00 (start times only; counts, statuses and the random stream unchanged), so `/team` opens on "Saturdays 10:00–14:00 ran ~125% booked; one stylist covers about 1.1 appointments an hour". No network, no model.
 
 ---
 

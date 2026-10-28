@@ -65,6 +65,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Whether an hour pays for itself depends on the till, not the headcount.",
   },
+  "nav.team": {
+    bands: EVERY,
+    reason:
+      "Off by default and switched on by the owner; once on, a small team feels a short-staffed Saturday as much as a big one.",
+  },
   "nav.patterns": {
     bands: EVERY,
     reason:

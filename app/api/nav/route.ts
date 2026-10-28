@@ -17,6 +17,7 @@ import { latestDecision } from "../../../lib/mode/service";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "../../../lib/profile/size-band";
 import { watchDays } from "../../../lib/watch/watch-view";
 import { stockApplies } from "../../../lib/stock/load";
+import { teamModuleOn } from "../../../lib/team/module";
 import { pipelineApplies } from "../../../lib/pipeline/deals";
 
 export interface NavCounts {
@@ -54,6 +55,11 @@ export interface NavCounts {
    */
   stock: boolean;
   /**
+   * P5-18 (rule 28): whether the owner switched the team module on. The
+   * Team item shows only when true; it is off by default.
+   */
+  team: boolean;
+  /**
    * P5-17: whether the business sells to businesses (lib/pipeline/stages'
    * PIPELINE_APPLIES, a condition over 6.1a). The Pipeline item shows only
    * when true.
@@ -80,6 +86,7 @@ export async function GET(): Promise<NextResponse> {
       openRows,
       sizeRows,
       stock,
+      team,
       pipeline,
     ] = await Promise.all([
       db
@@ -131,6 +138,7 @@ export async function GET(): Promise<NextResponse> {
           ),
         ),
       stockApplies(profileId),
+      teamModuleOn(access.account_id),
       pipelineApplies(profileId),
     ]);
 
@@ -161,6 +169,7 @@ export async function GET(): Promise<NextResponse> {
       support_open: Number(openRows[0]?.n ?? 0),
       size_band: sized ? { band: sized.band, via: sized.via } : null,
       stock,
+      team,
       pipeline,
     };
     return NextResponse.json(body);

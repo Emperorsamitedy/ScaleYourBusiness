@@ -173,7 +173,9 @@ async function printSignIn(): Promise<void> {
   const [salon] = await db.select({ id: users.id }).from(users).where(eq(users.email, SALON_EMAIL));
   if (salon) {
     const third = await requestLogin(SALON_EMAIL, null);
-    console.log(`Sign in as ${SALON_EMAIL}: a salon read from its bookings export, on /profile:`);
+    console.log(
+      `Sign in as ${SALON_EMAIL}: a salon read from its bookings export, on /profile and /team:`,
+    );
     console.log(`  ${origin}/api/auth/redeem?token=${third.token}`);
   }
   console.log("A fresh link any time: npm run db:seed-demo -- --link");
@@ -2381,10 +2383,13 @@ async function seed(): Promise<void> {
   // import path (client emails hashed on the way in), which measures the
   // days and runs the anomaly layer. One proposal waits, priced from the
   // salon's own measured no-shows, its one unmeasured assumption saying so.
+  // Its three roles and the team module, switched on, give /team its
+  // role-level Saturday note (P5-20): the export's Saturdays fill 10:00–14:00.
   {
     const salon = { account: "", profile: "", user: "" };
     const who = { account: "", profile: "" };
     const { importBookings, CAPACITY_KEY } = await import("../lib/bookings/store");
+    const { TEAM_MODULE } = await import("../lib/team/module");
     const { createProposal } = await import("../lib/proposals/service");
 
     await phase(
@@ -2409,6 +2414,36 @@ async function seed(): Promise<void> {
         await say("1.1b", "Ireland");
         await say("1.2", "salon_beauty");
         await say("1.4", ["services"]);
+        // P5-20: who works in the salon, as roles (9.2), and the team module
+        // switched on the way the owner would on /watch (it is off by
+        // default, rule 28). Coverage reads each row's role and hours only.
+        await say("1.6", 3);
+        await submitEntities(salon.account, salon.profile, "9.2", [
+          {
+            role_title: "Owner and stylist",
+            engagement: "owner",
+            main_tasks: "Colour, cuts, the books and the rota.",
+            hours_per_week: 40,
+            replaceability: "single_point_of_failure",
+          },
+          {
+            role_title: "Stylist",
+            engagement: "employee",
+            main_tasks: "Cuts, colour and blow-dries.",
+            hours_per_week: 38,
+            replaceability: "hard",
+          },
+          {
+            role_title: "Stylist",
+            engagement: "employee",
+            main_tasks: "Cuts and blow-dries, and the Saturday book.",
+            hours_per_week: 32,
+            replaceability: "hard",
+          },
+        ]);
+        await db
+          .insert(schema.accountModules)
+          .values({ account_id: salon.account, module: TEAM_MODULE, enabled: true });
         // The weekly capacity is the owner's own figure, written through the
         // store like any answer (1.4.2.3b isn't askable this early on).
         const now = isoDateTime(new Date().toISOString());

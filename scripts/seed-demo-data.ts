@@ -842,6 +842,37 @@ export const SALON_ADD_ON = {
   share: 0.4,
 } as const;
 
+/**
+ * P5-20's Saturday rush: on Saturdays the book fills 10:00–14:00 first;
+ * Tuesday to Friday it spreads evenly over 09:00–18:00, each appointment
+ * placed at the middle of its share of the day. Only the start
+ * times move: the count, the statuses and the random stream are as before,
+ * so every other figure the salon shows is unchanged.
+ */
+export const SALON_SATURDAY_SHAPE: readonly { hour: number; share: number }[] = [
+  { hour: 9, share: 0.04 },
+  { hour: 10, share: 0.16 },
+  { hour: 11, share: 0.16 },
+  { hour: 12, share: 0.16 },
+  { hour: 13, share: 0.16 },
+  { hour: 14, share: 0.09 },
+  { hour: 15, share: 0.09 },
+  { hour: 16, share: 0.09 },
+  { hour: 17, share: 0.05 },
+];
+
+/** The hour the k-th of a day's `booked` appointments starts in. Deterministic. */
+export function salonHour(weekday: number, k: number, booked: number): number {
+  if (weekday !== 6) return 9 + Math.floor(((k + 0.5) / booked) * 9);
+  const at = (k + 0.5) / booked;
+  let cum = 0;
+  for (const s of SALON_SATURDAY_SHAPE) {
+    cum += s.share;
+    if (at <= cum + 1e-9) return s.hour;
+  }
+  return 17;
+}
+
 /** Appointments the salon says it can take a week (question 1.4.2.3b): five days × 24 slots. */
 export const SALON_CAPACITY_PER_WEEK = 120;
 
@@ -903,7 +934,7 @@ export function salonBookingsCsv(today: string): string {
         : picked;
       const status: string = stays ? prev!.status : rolled;
       const client: number = stays ? prev!.client : drawn;
-      const hour = 9 + Math.floor((k / booked) * 9);
+      const hour = salonHour(weekdayOf(day), k, booked);
       const minute = k % 2 === 0 ? "00" : "30";
       const price = (service.price_minor / 100).toFixed(2);
       lines.push(

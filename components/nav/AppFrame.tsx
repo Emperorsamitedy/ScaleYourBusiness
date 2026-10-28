@@ -87,6 +87,13 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/progress", label: "Goals", feature: "nav.goals", count: (c) => n(c.goals) },
       { href: "/hours", label: "Trading hours", feature: "nav.hours" },
+      {
+        href: "/team",
+        label: "Team cover",
+        feature: "nav.team",
+        // P5-18 (rule 28): off by default; only the owner's switch on /watch shows it.
+        appliesTo: (c) => c.team === true,
+      },
       { href: "/patterns", label: "Seasons & bundles", feature: "nav.patterns" },
       { href: "/cash", label: "Cash flow", feature: "nav.cash" },
       {
