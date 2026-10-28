@@ -17,6 +17,7 @@ import { latestDecision } from "../../../lib/mode/service";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "../../../lib/profile/size-band";
 import { watchDays } from "../../../lib/watch/watch-view";
 import { stockApplies } from "../../../lib/stock/load";
+import { pipelineApplies } from "../../../lib/pipeline/deals";
 
 export interface NavCounts {
   business: string | null;
@@ -52,6 +53,12 @@ export interface NavCounts {
    * stock item shows only when true; a services-only business never sees it.
    */
   stock: boolean;
+  /**
+   * P5-17: whether the business sells to businesses (lib/pipeline/stages'
+   * PIPELINE_APPLIES, a condition over 6.1a). The Pipeline item shows only
+   * when true.
+   */
+  pipeline: boolean;
 }
 
 const NAME_KEY = "identity.legal_name";
@@ -73,6 +80,7 @@ export async function GET(): Promise<NextResponse> {
       openRows,
       sizeRows,
       stock,
+      pipeline,
     ] = await Promise.all([
       db
         .select({ module: proposals.module, n: count() })
@@ -123,6 +131,7 @@ export async function GET(): Promise<NextResponse> {
           ),
         ),
       stockApplies(profileId),
+      pipelineApplies(profileId),
     ]);
 
     const by_module: Record<string, number> = {};
@@ -152,6 +161,7 @@ export async function GET(): Promise<NextResponse> {
       support_open: Number(openRows[0]?.n ?? 0),
       size_band: sized ? { band: sized.band, via: sized.via } : null,
       stock,
+      pipeline,
     };
     return NextResponse.json(body);
   } catch (error) {

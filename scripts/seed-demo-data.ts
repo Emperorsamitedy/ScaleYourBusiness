@@ -844,3 +844,204 @@ export function salonBookingsCsv(today: string): string {
   }
   return lines.join("\n");
 }
+
+/* ── P5-17: the trade pipeline (Fernhill sells to cafés and shops too, 6.1a "both") ── */
+
+export interface DemoDeal {
+  company: string;
+  contact: string;
+  email: string;
+  title: string;
+  stage: "lead" | "qualified" | "proposal_sent" | "won" | "lost";
+  /** Whole euros, or null for a deal with no value yet. */
+  value: number | null;
+  /** Days ago the deal was added and entered its stage (closed, for won and lost). */
+  added: number;
+  in_stage: number;
+  next_step: string;
+  /** Days from today; negative is overdue. Null = no date. */
+  due: number | null;
+  /** Days ago they last spoke; null = not recorded. */
+  last_contact: number | null;
+}
+
+/**
+ * Eleven trade deals: five open — one gone quiet with no next step, one
+ * whose next step is overdue, one never spoken to — and six closed in the
+ * last year (three won, three lost), enough for a measured win rate.
+ */
+export const DEMO_DEALS: readonly DemoDeal[] = [
+  {
+    company: "Café Nua",
+    contact: "Aoife Brennan",
+    email: "aoife@cafenua.example",
+    title: "House mugs for the new Kilkenny café",
+    stage: "proposal_sent",
+    value: 4_800,
+    added: 41,
+    in_stage: 30,
+    next_step: "",
+    due: null,
+    last_contact: 23,
+  },
+  {
+    company: "The Long Table",
+    contact: "Ciarán Walsh",
+    email: "ciaran@thelongtable.example",
+    title: "Dinner plates and bowls, 60 covers",
+    stage: "qualified",
+    value: 7_200,
+    added: 34,
+    in_stage: 18,
+    next_step: "Send glaze test tiles",
+    due: -6,
+    last_contact: 14,
+  },
+  {
+    company: "Hotel Saoirse",
+    contact: "Saoirse Doyle",
+    email: "saoirse@hotelsaoirse.example",
+    title: "Breakfast service, 40 rooms",
+    stage: "lead",
+    value: 12_000,
+    added: 9,
+    in_stage: 9,
+    next_step: "Visit with samples",
+    due: 5,
+    last_contact: 9,
+  },
+  {
+    company: "Paper & Clay",
+    contact: "Róisín Kelly",
+    email: "roisin@paperandclay.example",
+    title: "Christmas restock, bud vase trios",
+    stage: "proposal_sent",
+    value: 2_600,
+    added: 20,
+    in_stage: 6,
+    next_step: "Confirm the delivery date",
+    due: 3,
+    last_contact: 2,
+  },
+  {
+    company: "Kilkenny Design Collective",
+    contact: "",
+    email: "hello@kdcollective.example",
+    title: "Shared stand at the spring fair",
+    stage: "lead",
+    value: null,
+    added: 12,
+    in_stage: 12,
+    next_step: "",
+    due: null,
+    last_contact: null,
+  },
+  {
+    company: "Ballyhale Farm Shop",
+    contact: "Declan Nolan",
+    email: "declan@ballyhalefarm.example",
+    title: "Own-label honey jars",
+    stage: "won",
+    value: 1_800,
+    added: 70,
+    in_stage: 40,
+    next_step: "",
+    due: null,
+    last_contact: 40,
+  },
+  {
+    company: "The Tea Rooms, Inistioge",
+    contact: "Mary Phelan",
+    email: "mary@tearooms.example",
+    title: "Teapots and cups",
+    stage: "won",
+    value: 3_400,
+    added: 130,
+    in_stage: 95,
+    next_step: "",
+    due: null,
+    last_contact: 95,
+  },
+  {
+    company: "Marble City Bakery",
+    contact: "Tom Ryan",
+    email: "tom@marblecitybakery.example",
+    title: "Cake stands",
+    stage: "won",
+    value: 950,
+    added: 180,
+    in_stage: 150,
+    next_step: "",
+    due: null,
+    last_contact: 150,
+  },
+  {
+    company: "Gallery 7",
+    contact: "Niamh Daly",
+    email: "niamh@gallery7.example",
+    title: "Exhibition pieces",
+    stage: "lost",
+    value: 5_200,
+    added: 85,
+    in_stage: 60,
+    next_step: "",
+    due: null,
+    last_contact: 62,
+  },
+  {
+    company: "Nore Hotel",
+    contact: "Brian Keane",
+    email: "brian@norehotel.example",
+    title: "Room trays",
+    stage: "lost",
+    value: 8_800,
+    added: 160,
+    in_stage: 120,
+    next_step: "",
+    due: null,
+    last_contact: 121,
+  },
+  {
+    company: "Castle Yard Café",
+    contact: "Eimear Fitz",
+    email: "eimear@castleyard.example",
+    title: "Takeaway cups",
+    stage: "lost",
+    value: 2_100,
+    added: 230,
+    in_stage: 200,
+    next_step: "",
+    due: null,
+    last_contact: 201,
+  },
+];
+
+/** The trade list as the owner keeps it: a spreadsheet the pipeline import reads. */
+export function dealsCsv(today: string, rows: readonly DemoDeal[] = DEMO_DEALS): string {
+  const quote = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const stage = {
+    lead: "Lead",
+    qualified: "Qualified",
+    proposal_sent: "Proposal sent",
+    won: "Won",
+    lost: "Lost",
+  };
+  return [
+    "Company,Contact,Email,Deal,Stage,Value,Next step,Next step due,Last contact",
+    ...rows.map((r) =>
+      [
+        r.company,
+        r.contact,
+        r.email,
+        r.title,
+        stage[r.stage],
+        r.value === null ? "" : String(r.value),
+        r.next_step,
+        r.due === null ? "" : shiftDay(today, r.due),
+        r.last_contact === null ? "" : shiftDay(today, -r.last_contact),
+      ]
+        .map(quote)
+        .join(","),
+    ),
+  ].join("\n");
+}

@@ -8,15 +8,15 @@ Companion to `question-bank-v1.json`. Explains how the bank is structured, what 
 
 | | Count |
 |---|---|
-| Questions | 157 |
-| Controlled vocabularies | 56 |
+| Questions | 160 |
+| Controlled vocabularies | 57 |
 | Entity schemas | 8 |
 | Core questions, always asked | 25 |
 | Core questions including conditional branches | 44 |
-| Important | 105 |
-| Deep | 8 |
+| Important | 107 |
+| Deep | 9 |
 
-Counts as of bank 1.7.0, as `lint_bank.py` prints them (1.7.0 added two fields to the competitor entity schema, `listing_url` and `price_pages`, and no question). The first cut was 153 questions and 55 vocabularies; later additions are recorded in `data-model-v1.md` §5 next to the fields they write.
+Counts as of bank 1.9.0, as `lint_bank.py` prints them (1.7.0 added two fields to the competitor entity schema, `listing_url` and `price_pages`, and no question; 1.8.0, Phase 5 Session B, added 5.3e and 5.3f, the cash today and the buffer, for the 13-week cash forecast; 1.9.0, Phase 5 Session D, added the `deal_stage` vocabulary and question 6.1f, the owner's stated win rate). The first cut was 153 questions and 55 vocabularies; later additions are recorded in `data-model-v1.md` §5 next to the fields they write.
 
 MAIN.txt contains roughly 300 bullet points. The first cut of the bank was 153 questions because repeated per-item fields collapse into entity schemas: instead of nine questions per product, there is one `entity_list` question with an offer schema attached. An owner with five products answers one question that expands into five rows, rather than 45 separate prompts.
 
@@ -120,7 +120,7 @@ You said the `if`s in MAIN.txt weren't fully correct. Fifteen issues found. Thes
 
 ## 5. Deliberate additions beyond MAIN.txt
 
-Six questions were added in the first cut, and 1.6a in bank 1.6.0. Each exists because a later module cannot function without it.
+Six questions were added in the first cut, 1.6a in bank 1.6.0, 5.3e and 5.3f in bank 1.8.0, and 6.1f in bank 1.9.0. Each exists because a later module cannot function without it.
 
 | ID | Question | Why |
 |---|---|---|
@@ -128,6 +128,8 @@ Six questions were added in the first cut, and 1.6a in bank 1.6.0. Each exists b
 | 1.5b | When the business started | Direct mode-decision input (months operating) |
 | 1.6 | Headcount | Direct mode-decision input |
 | 1.6a | Size, in the owner's own words | Decides what the app shows them (`lib/core/size-features.ts`). `important`, not core: nothing in the diagnosis waits on it, and until it is answered a band is inferred from 1.6 |
+| 5.3e | Cash available today (Money) | The 13-week cash forecast's starting point (Phase 5, P5-06/07). `important`, asked beside 5.3b when money is coming in (`revenue.generates_revenue = yes`), "I don't know" allowed; with no figure the forecast refuses and says so. It means the bank balance, not money a payment provider still owes: that is added from the measured sales of the last few days |
+| 5.3f | The least the owner wants in the account (Money, the buffer) | The line the forecast's tight-week warning is drawn against (P5-08). Conditioned on 5.3e having a value (`answered`), and unlocked by it; "I don't know" allowed, and then the line is zero |
 | 6.4b | Marketing consent status | Nothing can be emailed without this; GDPR exposure |
 | 10.1c | Existing automations | Direct mode-decision input |
 | 13.5 | Hard limits | Binds every future proposal |

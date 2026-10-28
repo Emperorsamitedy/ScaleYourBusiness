@@ -1,5 +1,5 @@
 {
-  "bank_version": "1.7.0",
+  "bank_version": "1.9.0",
   "schema_version": "1.0.0",
   "locale_base": "en",
   "source_document": "MAIN.txt",
@@ -557,6 +557,13 @@
       "business_pays",
       "free_over_threshold",
       "mixed"
+    ],
+    "deal_stage": [
+      "lead",
+      "qualified",
+      "proposal_sent",
+      "won",
+      "lost"
     ]
   },
   "entity_schemas": {
@@ -2996,6 +3003,64 @@
       "cost": 2
     },
     {
+      "id": "5.3e",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "costs.cash_available",
+      "prompt": {
+        "en": "Roughly how much cash does the business have available today?"
+      },
+      "help_text": {
+        "en": "What's in the business account now, not counting money a payment provider still has to pay out to you. A rough figure is fine: I use it to see when money could get tight over the next 13 weeks."
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "eq",
+        "field": "revenue.generates_revenue",
+        "value": "yes"
+      },
+      "priority": "important",
+      "cost": 1,
+      "unlocks": [
+        "5.3f"
+      ]
+    },
+    {
+      "id": "5.3f",
+      "version": 1,
+      "section": "costs",
+      "writes_to": "costs.cash_buffer",
+      "prompt": {
+        "en": "What's the least you'd want in the account at any time?"
+      },
+      "help_text": {
+        "en": "Your safety margin. I flag the first week the cautious end of the 13-week forecast dips under it. It's a planning aid: I never move, pay or collect money."
+      },
+      "input": {
+        "type": "money",
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "and",
+        "terms": [
+          {
+            "op": "eq",
+            "field": "revenue.generates_revenue",
+            "value": "yes"
+          },
+          {
+            "op": "answered",
+            "field": "costs.cash_available"
+          }
+        ]
+      },
+      "priority": "important",
+      "cost": 1
+    },
+    {
       "id": "5.4",
       "version": 1,
       "section": "costs",
@@ -3102,6 +3167,31 @@
       },
       "priority": "important",
       "cost": 2
+    },
+    {
+      "id": "6.1f",
+      "version": 1,
+      "section": "customers",
+      "writes_to": "customers.win_rate",
+      "prompt": {
+        "en": "Of the deals you go after with other businesses, roughly what percentage do you win?"
+      },
+      "help_text": {
+        "en": "A rough share is fine: if you win about one in four, that's 25. Your pipeline uses it to weigh open deals until it has enough closed ones of its own to measure."
+      },
+      "input": {
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "allow_unknown": true
+      },
+      "condition": {
+        "op": "neq",
+        "field": "customers.type",
+        "value": "b2c"
+      },
+      "priority": "deep",
+      "cost": 1
     },
     {
       "id": "6.2",

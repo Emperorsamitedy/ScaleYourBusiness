@@ -179,6 +179,7 @@ export const NOTED_KINDS: ReadonlySet<string> = new Set([
   "goal_alert",
   "competitor_change", // feature 35: a competitor's price, offer or rating moved
   STOCK_WARNING_KIND, // P5-02: an item's cover falls below its supplier's delivery time
+  "cash_warning", // P5-08: the cash forecast's first tight week, or its clearing
 ]);
 
 /** The watch day a log entry fell on; null when it predates the watch. */

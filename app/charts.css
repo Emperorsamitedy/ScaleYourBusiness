@@ -575,3 +575,47 @@
   stroke: var(--sheet-ink);
   stroke-width: 1.5;
 }
+
+/* ── the 13-week cash chart (P5-10) ── */
+
+.cf .sc-svg .cf-band,
+.sc-key.cf-band {
+  fill: color-mix(in srgb, var(--sheet-ink-2) 14%, var(--paper));
+  background: color-mix(in srgb, var(--sheet-ink-2) 14%, var(--paper));
+}
+.cf .sc-svg .cf-low {
+  fill: none;
+  stroke: var(--sheet-ink);
+  stroke-width: 2;
+}
+.sc-key.cf-low {
+  width: 16px;
+  height: 0;
+  border-top: 2px solid var(--sheet-ink);
+  background: none;
+}
+.cf .sc-svg .cf-high {
+  fill: none;
+  stroke: var(--sheet-ink-2);
+  stroke-width: 1;
+}
+.cf .sc-svg .cf-line {
+  stroke: var(--drift);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.sc-key.cf-line {
+  width: 16px;
+  height: 0;
+  border-top: 2px dashed var(--drift);
+  background: none;
+}
+.cf .sc-svg .cf-cross {
+  stroke: var(--sheet-ink-2);
+  stroke-width: 1;
+}
+.cf .sc-svg .cf-tight rect {
+  fill: var(--paper);
+  stroke: var(--sheet-ink);
+  stroke-width: 1.5;
+}

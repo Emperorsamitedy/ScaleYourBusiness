@@ -64,6 +64,12 @@ export const ACTION_KINDS = [
   "support_knowledge",
   /** Phase 4 (P4-14): email to customers who gave explicit consent — not cold outreach. */
   "customer_email",
+  /**
+   * Phase 5 (P5-16): a follow-up on a deal that has gone quiet, drafted for
+   * the owner to send themselves, to a contact with explicit consent — not
+   * cold outreach.
+   */
+  "deal_followup",
 ] as const;
 export type ActionKind = (typeof ACTION_KINDS)[number];
 
