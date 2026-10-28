@@ -1661,7 +1661,8 @@ async function seed(): Promise<void> {
     at(2, "06:45"),
     async () => {
       const { runSiteAudit } = await import("../lib/site/audit/service");
-      const { fakePageSpeed } = await import("../lib/site/audit/pagespeed-fake");
+      const { FAKE_PAGESPEED_KEY, fakePageSpeed } =
+        await import("../lib/site/audit/pagespeed-fake");
       const auditFetcher = async (url: string) => {
         const normalised = url.replace(/\/$/, "") === data.SITE ? `${data.SITE}/` : url;
         const html = data.SITE_AUDIT_PAGES[normalised];
@@ -1677,7 +1678,7 @@ async function seed(): Promise<void> {
         profileId: ids.profile,
         fetcher: auditFetcher,
         pagespeedFetch: fakePageSpeed(data.SITE_SPEED).fetch,
-        apiKey: null,
+        apiKey: FAKE_PAGESPEED_KEY,
       });
       if (audited.status !== "read") throw new Error(`site audit: ${audited.why}`);
       log(

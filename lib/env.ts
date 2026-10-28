@@ -119,8 +119,9 @@ export function metaAdLibraryToken(): string | null {
 
 /**
  * P5-11: the Google API key the site audit asks PageSpeed Insights with.
- * Optional: null means the API's small keyless quota, shared with every
- * other keyless caller — the audit still runs and /site says the shared
+ * Needed for page speed: Google's keyless quota is zero (every keyless call
+ * answers 429), so null means speed isn't measured — the audit still walks
+ * the path to buying, and /site says a free key is needed and
  * quota was used. Restrict the key to the PageSpeed Insights API only. It
  * is sent in the X-Goog-Api-Key header, never in a URL, and never stored.
  */

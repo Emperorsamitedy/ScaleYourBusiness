@@ -176,7 +176,7 @@ export interface RunSiteAuditArgs {
   profileId: string;
   fetcher?: PageFetcher;
   pagespeedFetch?: PageSpeedFetch;
-  /** Overrides PAGESPEED_API_KEY; null forces the keyless shared quota. */
+  /** Overrides PAGESPEED_API_KEY; null means no key, so speed isn't measured. */
   apiKey?: string | null;
   sleep?: (ms: number) => Promise<void>;
   now?: Date;
@@ -234,6 +234,10 @@ interface SpeedRun {
   calls: number;
   note: string | null;
 }
+
+/** What /site says when no PAGESPEED_API_KEY is set. */
+export const NO_KEY_NOTE =
+  "Page speed wasn't measured: Google's PageSpeed service needs a free API key (PAGESPEED_API_KEY) and refuses every request without one. The path to buying and the broken links were still read.";
 
 async function measure(
   pages: { url: string }[],
@@ -322,7 +326,13 @@ async function runLocked(
   const budget = PAGESPEED_CAPS.max_calls_per_site_per_week - used;
   const key = args.apiKey === undefined ? pagespeedApiKey() : args.apiKey;
   const picks = keyPages(walk, PAGESPEED_CAPS.max_pages);
-  const speed = await measure(picks, budget, args, key, now);
+  // Google's keyless quota is zero (checked against the live API 2026-10-28:
+  // every keyless call answers 429, "limit value 0"), so without a key the
+  // audit asks Google nothing and says why; the path is still walked.
+  const speed: SpeedRun =
+    key === null
+      ? { results: [], errors: new Map(), calls: 0, note: NO_KEY_NOTE }
+      : await measure(picks, budget, args, key, now);
   const figures = await ownerSiteFigures(args.profileId);
   const findings = siteFindings({
     walk,

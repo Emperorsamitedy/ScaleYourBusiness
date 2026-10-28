@@ -38,6 +38,7 @@ import {
   callsThisWeek,
   latestSiteAudit,
   lastSiteAuditFailure,
+  NO_KEY_NOTE,
   ownerSiteFigures,
   runSiteAudit,
   siteFindingsForReport,
@@ -184,11 +185,11 @@ describe("P5-11 — a run, stored with its provenance", () => {
         profileId: b.profile_id,
         fetcher: b.fetcher,
         pagespeedFetch: psi.fetch,
-        apiKey: null,
+        apiKey: FAKE_PAGESPEED_KEY,
         now: at,
       });
     const first = await run(t0);
-    expect(first.status === "read" && first.audit.pagespeed.keyed).toBe(false);
+    expect(first.status === "read" && first.audit.pagespeed.keyed).toBe(true);
     // Inside the cooldown: refused before anything is read.
     const asked = b.fetcher.asked.length;
     const early = await run(new Date(t0.getTime() + 10 * 60_000));
@@ -213,6 +214,36 @@ describe("P5-11 — a run, stored with its provenance", () => {
     expect(
       (await callsThisWeek(b.origin, new Date(t0.getTime() + 7 * 86_400_000 + 1000))).used,
     ).toBe(10);
+  });
+
+  it("without a key asks Google nothing, says a free key is needed, and still walks the path", async () => {
+    const b = await business(`audit-${crypto.randomUUID().slice(0, 8)}.example`);
+    const psi = fakePageSpeed();
+    const outcome = await runSiteAudit({
+      profileId: b.profile_id,
+      fetcher: b.fetcher,
+      pagespeedFetch: psi.fetch,
+      apiKey: null,
+    });
+    expect(outcome.status).toBe("read");
+    if (outcome.status !== "read") return;
+    expect(psi.calls).toHaveLength(0);
+    expect(outcome.audit.pagespeed).toMatchObject({ keyed: false, calls: 0, note: NO_KEY_NOTE });
+    expect(outcome.audit.path.clicks).toBe(4);
+    expect(outcome.audit.findings.some((f) => f.code === "lcp_slow")).toBe(false);
+  });
+
+  it("with a key, measures through Google", async () => {
+    const b = await business(`audit-${crypto.randomUUID().slice(0, 8)}.example`);
+    const psi = fakePageSpeed();
+    const outcome = await runSiteAudit({
+      profileId: b.profile_id,
+      fetcher: b.fetcher,
+      pagespeedFetch: psi.fetch,
+      apiKey: FAKE_PAGESPEED_KEY,
+    });
+    expect(outcome.status === "read" && outcome.audit.pagespeed.note).not.toBe(NO_KEY_NOTE);
+    expect(psi.calls.length).toBeGreaterThan(0);
   });
 
   it("records a home page that can't be read as a failed run, with its reason", async () => {
@@ -263,7 +294,7 @@ describe("P5-13 / rule 25 — the owner's own figures, and the report", () => {
       profileId: b.profile_id,
       fetcher: b.fetcher,
       pagespeedFetch: fakePageSpeed({ pages: { [`${b.origin}/`]: { mobile: slowPhone } } }).fetch,
-      apiKey: null,
+      apiKey: FAKE_PAGESPEED_KEY,
     });
     expect(outcome.status).toBe("read");
     if (outcome.status !== "read") return;
@@ -300,7 +331,7 @@ describe("P5-13 / rule 25 — the owner's own figures, and the report", () => {
       profileId: b.profile_id,
       fetcher: b.fetcher,
       pagespeedFetch: fakePageSpeed({ pages: { [`${b.origin}/`]: { mobile: slowPhone } } }).fetch,
-      apiKey: null,
+      apiKey: FAKE_PAGESPEED_KEY,
     });
     expect(outcome.status).toBe("read");
     const findingsLlm: DiagnosisLlm = async () => ({

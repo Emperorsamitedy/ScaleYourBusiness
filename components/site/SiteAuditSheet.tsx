@@ -7,7 +7,7 @@
 // phone and computer widths and whether the numbers are real visitors'
 // (field) or one test load (lab), and what the audit refused to open.
 // "Run the audit" asks the server to read the site again; the screen says
-// when Google's shared keyless quota was used and when the week's calls run out.
+// when no PageSpeed key is set (speed isn't measured) and when the week's calls run out.
 
 import { useState } from "react";
 import type { SiteAuditView } from "../../lib/site/audit/view";
@@ -184,12 +184,6 @@ export function SiteAuditSheet({
       {notice && (
         <p className="st-note" aria-live="polite">
           {notice}
-        </p>
-      )}
-      {!ps.keyed && ps.calls > 0 && (
-        <p className="st-note">
-          Measured on Google&rsquo;s shared PageSpeed quota — no API key is set, so a busy hour can
-          cut a run short.
         </p>
       )}
       {ps.note && <p className="st-note">{ps.note}</p>}
