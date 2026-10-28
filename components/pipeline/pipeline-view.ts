@@ -5,11 +5,18 @@
 
 import type { Money } from "../../lib/core/money";
 import type { DealAge, Staleness, Weighted, WinRate } from "../../lib/pipeline/maths";
+import { minorUnitExponent } from "../../lib/core/money";
 import { moneyText } from "../sheet/num";
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 export const money = (m: Money) => moneyText(m.amount_minor, m.currency);
+
+/** A weighted figure in whole units: the range is an estimate, so cents would be false precision. */
+export const roughMoney = (m: Money) => {
+  const unit = 10 ** minorUnitExponent(m.currency);
+  return moneyText(Math.round(m.amount_minor / unit) * unit, m.currency);
+};
 
 /** "Nobody has spoken to Café Nua in 23 days" — the follow-up's own words. */
 export function quietSentence(who: string, age: DealAge): string {
@@ -30,6 +37,18 @@ const DAY_FMT = new Intl.DateTimeFormat("en-GB", {
 
 export function dayWords(day: string): string {
   return DAY_FMT.format(new Date(`${day}T00:00:00Z`));
+}
+
+const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+/** "28 Oct 2025": a day with its year, for a window that spans one. */
+export function dateWords(day: string): string {
+  return DATE_FMT.format(new Date(`${day.slice(0, 10)}T00:00:00Z`));
 }
 
 export function staleWhy(stale: Staleness): string {
@@ -65,7 +84,7 @@ export function pipelineHeadline(open: number, weighted: Weighted | undefined): 
     weighted.lines.length > 1
       ? `, and more in ${plural(weighted.lines.length - 1, "other currency", "other currencies")}`
       : "";
-  return `${money(first.low)}–${money(first.high)} of your ${money(first.open_total)} open is likely to close${more}.`;
+  return `${roughMoney(first.low)}–${roughMoney(first.high)} of your ${money(first.open_total)} open is likely to close${more}.`;
 }
 
 export type FollowUpTone = "ok" | "drift" | "low" | "alarm";
