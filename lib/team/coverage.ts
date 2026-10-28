@@ -298,6 +298,23 @@ export function dayText(day: string): string {
 }
 
 const pct = (x: number) => Math.round(x * 100);
+
+/**
+ * "(91–100% on the middle half of the 8 Saturdays read)", or, when the
+ * middle half all ran the same, "(113% on every day of the middle half of
+ * the 8 Thursdays read)" rather than "113–113%".
+ */
+export function rangeWords(
+  share: { low: number; high: number },
+  days: number,
+  plural: string,
+): string {
+  const low = pct(share.low);
+  const high = pct(share.high);
+  return low === high
+    ? `(${low}% on every day of the middle half of the ${days} ${plural} read)`
+    : `(${low}–${high}% on the middle half of the ${days} ${plural} read)`;
+}
 const one = (x: number) => Math.round(x * 10) / 10;
 
 /** "Saturdays", "Fridays and Saturdays", "Tuesdays to Saturdays" (three or more in a row). */
@@ -683,7 +700,7 @@ function fromBookings(
         });
         const share = spreadOf(perDay);
         const where = runText(w.weekday, run.from, run.to);
-        const range_words = `(${pct(share.low)}–${pct(share.high)}% on the middle half of the ${days.length} ${PLURAL[w.weekday]} read)`;
+        const range_words = rangeWords(share, days.length, PLURAL[w.weekday]);
         const reason =
           band === "short"
             ? lead !== null && perPersonOn !== null
@@ -923,7 +940,7 @@ function fromTakings(
         share,
         days: days.length,
         words: `${where} took ${pct(share.typical)}% of the day's busiest hour`,
-        range_words: `(${pct(share.low)}–${pct(share.high)}% on the middle half of the ${days.length} ${PLURAL[w.weekday]} read)`,
+        range_words: rangeWords(share, days.length, PLURAL[w.weekday]),
         reason:
           peopleOn !== null
             ? `about ${one(peopleOn)} people are on in an average open hour, by the role hours you gave`

@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import type { BookingStatus } from "../bookings/types";
 import type { Weekday } from "../hours/schedule";
 import type { CoverageInput, RoleInput, SlotInput } from "./coverage";
-import { TEAM, rolesOf, teamCoverage } from "./coverage";
+import { TEAM, rangeWords, rolesOf, teamCoverage } from "./coverage";
 
 const AS_OF = "2026-10-24"; // a Saturday
 const DAY_MS = 86_400_000;
@@ -66,7 +66,7 @@ describe("teamCoverage — the bookings path", () => {
     );
     const f = r.findings[0];
     expect(f?.band).toBe("short");
-    expect(f?.range_words).toBe("(112–112% on the middle half of the 8 Saturdays read)");
+    expect(f?.range_words).toBe("(112% on every day of the middle half of the 8 Saturdays read)");
     expect(f?.note).toMatch(/demand ran past what your stated capacity covers/);
     expect(f?.note).toMatch(/another teacher would add cover first/);
     expect(r.basis).toMatchObject({ demand: "your bookings export", to: AS_OF, days_read: 8 });
@@ -434,5 +434,19 @@ describe("teamCoverage — the takings path", () => {
     const r = teamCoverage(takings(25, 20));
     expect(r.status).toBe("refused");
     if (r.status === "refused") expect(r.history_days).toBe(20);
+  });
+});
+
+describe("P5-19 — a range in words", () => {
+  it("prints a spread as low–high", () => {
+    expect(rangeWords({ low: 1.03, high: 1.13 }, 8, "Fridays")).toBe(
+      "(103–113% on the middle half of the 8 Fridays read)",
+    );
+  });
+
+  it("never prints 113–113%: a range that collapsed says every day", () => {
+    const words = rangeWords({ low: 1.13, high: 1.13 }, 8, "Thursdays");
+    expect(words).toBe("(113% on every day of the middle half of the 8 Thursdays read)");
+    expect(words).not.toMatch(/(\d+)–\1%/);
   });
 });
