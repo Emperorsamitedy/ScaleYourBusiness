@@ -38,7 +38,7 @@ export interface SiteAuditView {
   page_reads: number;
   pagespeed: {
     calls: number;
-    /** False: Google's shared keyless quota was used (no PAGESPEED_API_KEY). */
+    /** False: no PAGESPEED_API_KEY, so speed wasn't measured (the keyless quota is zero). */
     keyed: boolean;
     /** Why fewer pages were measured than asked, in words. */
     note: string | null;

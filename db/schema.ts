@@ -3043,7 +3043,7 @@ export const siteAudits = pgTable(
     pagespeed_calls: integer("pagespeed_calls").notNull().default(0),
     /** Page GETs the walk made. */
     page_reads: integer("page_reads").notNull().default(0),
-    /** True when PAGESPEED_API_KEY was set; false means Google's shared keyless quota. */
+    /** True when PAGESPEED_API_KEY was set; false means no key, so speed wasn't measured. */
     pagespeed_keyed: boolean("pagespeed_keyed").notNull().default(false),
     /** Why PageSpeed measured fewer pages than asked, in words; null when it measured all. */
     pagespeed_note: text("pagespeed_note"),

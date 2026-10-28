@@ -7,8 +7,10 @@
 // build if that changes. Google loads the page in its own browser; SYB
 // runs no browser and renders nothing itself.
 //
-// THE KEY. PAGESPEED_API_KEY is optional. Without it the API still answers
-// on a small quota shared by every keyless caller, and the screen says so.
+// THE KEY. PAGESPEED_API_KEY is needed in practice: the keyless quota is
+// zero (every keyless call answered 429, "limit value 0", checked against
+// the live API 2026-10-28), so the service never calls without one. The
+// client still accepts null so its tests can prove a keyless call sends no key.
 // With it, the key travels in the X-Goog-Api-Key header, never in a URL
 // (verify at build: that the header is honoured for this API as for other
 // Google REST APIs; the documented form is a "key" query parameter). A Google API key
@@ -139,7 +141,7 @@ export interface PageSpeedResult {
     lighthouse_version: string | null;
     /** The page Lighthouse ended on, after redirects. */
     final_url: string | null;
-    /** True when PAGESPEED_API_KEY was set; false means the shared keyless quota. */
+    /** True when PAGESPEED_API_KEY was set; false means no key was sent. */
     keyed: boolean;
   };
 }
@@ -268,7 +270,7 @@ export interface PageSpeedClient {
 }
 
 export interface PageSpeedClientOptions {
-  /** PAGESPEED_API_KEY, or null for the shared keyless quota. */
+  /** PAGESPEED_API_KEY, or null to send none (the service never calls keyless). */
   apiKey: string | null;
   fetch?: PageSpeedFetch;
   sleep?: (ms: number) => Promise<void>;

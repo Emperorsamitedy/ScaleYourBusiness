@@ -91,7 +91,7 @@ export const SCOPE_REGISTRY = {
  * permission beyond it is a verify-at-build item (TASKS-PHASE3.md).
  *
  * PageSpeed Insights (P5-11, lib/site/audit/pagespeed.ts). A Google API
- * key, or none at all (the keyless shared quota). An API key carries no
+ * key (the keyless quota is zero, so the audit never calls without one). An API key carries no
  * OAuth scope: it identifies the caller and grants nothing, so the entry
  * is empty on purpose — there is no permission to grant, and the audit
  * would catch one that could write.
