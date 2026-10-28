@@ -16,6 +16,7 @@
 // pattern and never the owner's own number. With no traffic or conversion
 // of their own it says "not computed" and what is missing.
 
+import { format, money } from "../../core/money";
 import type { DiagnosisFinding, Severity } from "../../diagnosis/findings";
 import type { PageSpeedResult, Strategy } from "./pagespeed";
 import type { WalkResult } from "./walk";
@@ -196,7 +197,7 @@ export function speedEuro(
     high_minor: round(monthly * SPEED_RULE_OF_THUMB.lost_per_second.high * over),
     currency: figures.currency,
     per: "month",
-    formula: `${Math.round(figures.sessions_per_month)} visits × ${conversion.toFixed(1)}% conversion × ${(figures.aov_minor / 100).toFixed(2)} ${figures.currency} order value × ${(SPEED_RULE_OF_THUMB.lost_per_second.low * 100).toFixed(0)}–${(SPEED_RULE_OF_THUMB.lost_per_second.high * 100).toFixed(0)}% per second × ${over.toFixed(1)} s over the good line`,
+    formula: `${Math.round(figures.sessions_per_month).toLocaleString("en")} visits × ${conversion.toFixed(1)}% conversion × ${format(money(Math.round(figures.aov_minor), figures.currency))} order value × ${(SPEED_RULE_OF_THUMB.lost_per_second.low * 100).toFixed(0)}–${(SPEED_RULE_OF_THUMB.lost_per_second.high * 100).toFixed(0)}% per second × ${over.toFixed(1)} s over the good line`,
     window: figures.window,
     sources: figures.sources,
     assumed: [

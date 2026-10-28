@@ -40,6 +40,15 @@ import { NEVER_LINES, NOT_BUILT } from "./view";
 import type { BrokenLink, PurchasePath, WalkResult } from "./walk";
 import { SiteWalkError, keyPages, walkSite } from "./walk";
 
+const DAY_FMT = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+/** "5 Oct 2026": the day a figure is as of, in words. */
+const dayWords = (iso: string) => DAY_FMT.format(new Date(`${iso.slice(0, 10)}T00:00:00Z`));
+
 export const WEBSITE_KEY = "presence.website_url";
 
 export const AUDIT_CAPS = {
@@ -152,8 +161,8 @@ export async function ownerSiteFigures(
     currency: r.currency,
     basis: allMeasured ? "measured" : "stated",
     window: allMeasured
-      ? `your connectors' last month, as of ${latest.slice(0, 10)}`
-      : `your own monthly figures, as of ${latest.slice(0, 10)}`,
+      ? `your connectors' last month, as of ${dayWords(latest)}`
+      : `your own monthly figures, as of ${dayWords(latest)}`,
     sources: fields.map(
       ([name, f], i) =>
         `${name}: ${kinds[i] === "connector" ? "measured" : kinds[i]?.replace(/_/g, " ")} (${f === sessions ? "presence.monthly_sessions" : f === orders ? "revenue.order_count_monthly" : "revenue.monthly_revenue"})`,

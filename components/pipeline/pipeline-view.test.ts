@@ -4,10 +4,12 @@ import { describe, expect, it } from "vitest";
 import { money as m } from "../../lib/core/money";
 import type { Weighted, WinRate } from "../../lib/pipeline/maths";
 import {
+  dateWords,
   followUpWord,
   pipelineHeadline,
   quietSentence,
   rateWords,
+  roughMoney,
   staleWhy,
 } from "./pipeline-view";
 
@@ -112,5 +114,42 @@ describe("P5-17 — the pipeline in words", () => {
     expect(followUpWord({ status: "blocked", draft: null, blocked_by_limit: "x" }).tone).toBe(
       "alarm",
     );
+  });
+});
+
+describe("P5-17 — the weighted range reads as an estimate", () => {
+  it("rounds a weighted figure to whole units, and leaves a whole one alone", () => {
+    expect(roughMoney(m(588_506, "EUR"))).toBe("€5,885");
+    expect(roughMoney(m(2_071_494, "EUR"))).toBe("€20,715");
+    expect(roughMoney(m(840_000, "EUR"))).toBe("€8,400");
+  });
+
+  it("never shows cents on the headline's range", () => {
+    const w: Weighted = {
+      ok: true,
+      lines: [
+        {
+          currency: "EUR",
+          deals: 4,
+          open_total: m(2_660_000, "EUR"),
+          low: m(588_506, "EUR"),
+          high: m(2_071_494, "EUR"),
+        },
+      ],
+      unvalued: 1,
+      estimated: 1,
+      basis: "measured",
+      window: { from: closed.from, to: closed.to },
+      sources: [],
+      assumed: [],
+    };
+    const line = pipelineHeadline(5, w);
+    expect(line).toBe("€5,885–€20,715 of your €26,600 open is likely to close.");
+    expect(line).not.toMatch(/[.]\d{2}/);
+  });
+
+  it("dates a window with its year, from a day or a timestamp", () => {
+    expect(dateWords("2025-10-28")).toBe("28 Oct 2025");
+    expect(dateWords("2026-10-28T09:00:00.000Z")).toBe("28 Oct 2026");
   });
 });
