@@ -4,6 +4,7 @@
 
 import { careState } from "../care/day-zero";
 import { ContentError } from "./plan";
+import { watchingUntil } from "../care/watch-words";
 
 /** The day the watch ends (YYYY-MM-DD) while it is running, else null. */
 export async function contentWatchUntil(
@@ -18,9 +19,6 @@ export async function contentWatchUntil(
 export async function assertNotWatching(profileId: string, now: Date = new Date()): Promise<void> {
   const until = await contentWatchUntil(profileId, now);
   if (until) {
-    throw new ContentError(
-      `still watching until ${until} — nothing is proposed before then (rule 15)`,
-      409,
-    );
+    throw new ContentError(watchingUntil(until), 409);
   }
 }

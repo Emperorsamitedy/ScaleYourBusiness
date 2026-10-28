@@ -29,6 +29,7 @@ import { attachSimulation } from "../simulate/scenario";
 import { outboundPosture } from "./contacts";
 import type { Segment } from "./segments";
 import { computeSegments } from "./segments";
+import { watchingUntil } from "../care/watch-words";
 
 export const SEGMENT_MODULE = "crm";
 export const SEGMENT_KIND = "customer_email";
@@ -112,7 +113,7 @@ export async function proposeFromSegments(
   if (care?.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     out.skipped.push({
       segment: "all",
-      reason: `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
+      reason: watchingUntil(care.watch_ends_at),
     });
     return out;
   }

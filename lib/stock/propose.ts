@@ -47,6 +47,7 @@ import { loadStock, stockApplies } from "./load";
 import type { ClearanceOption, OptionContext, OptionKey } from "./options";
 import { CLEARANCE, clearanceOptions, efficiencyLine, rankOptions } from "./options";
 import { proposeReorders } from "./reorder";
+import { watchingUntil } from "../care/watch-words";
 
 export const STOCK_MODULE = "stock";
 
@@ -212,7 +213,7 @@ export async function proposeClearance(
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     out.skipped.push({
       ref: "profile",
-      reason: `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
+      reason: watchingUntil(care.watch_ends_at),
     });
     return out;
   }

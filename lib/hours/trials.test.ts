@@ -284,7 +284,7 @@ describe("P3-41 — proposing trials", () => {
     });
     const out = await proposeHoursTrials(s.profile_id);
     expect(out.created).toHaveLength(0);
-    expect(out.skipped[0]?.reason).toContain("still watching");
+    expect(out.skipped[0]?.reason).toContain("I'm watching until");
   });
 });
 

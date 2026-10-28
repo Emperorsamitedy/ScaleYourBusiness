@@ -62,6 +62,7 @@ import { suppressedKinds } from "../trust/suppression";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 import type { SimulationAttachment } from "../simulate/scenario";
 import { attachSimulation } from "../simulate/scenario";
+import { watchingUntil } from "../care/watch-words";
 
 export const ADS_MODULE = "ads";
 /** Question 8.1i: the most the owner wants to spend on ads in a month (money). */
@@ -320,7 +321,7 @@ async function adContext(
   if (!care) return { skip: "not in care yet — no mode decision" };
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     return {
-      skip: `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
+      skip: watchingUntil(care.watch_ends_at),
     };
   }
   const [profile] = await db

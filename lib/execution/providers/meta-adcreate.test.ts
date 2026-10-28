@@ -754,7 +754,7 @@ describe("P3-54 — the proposal", () => {
     expect(
       await proposeAdRun(b.profile_id, { item_id: b.item_id, limitLlm: noLimits }),
     ).toMatchObject({
-      skipped: expect.stringMatching(/still watching/),
+      skipped: expect.stringMatching(/I'm watching until/),
     });
   });
 

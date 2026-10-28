@@ -43,6 +43,7 @@ import { contentQueue, produceFromProposal } from "./produce";
 import { proposeShotList } from "./shotlist";
 import { contentWatchUntil } from "./watch";
 import { buildVoiceCard, renderVoiceCard } from "./voice";
+import { watchingUntil } from "../care/watch-words";
 
 const created: { account_id: string; profile_id: string }[] = [];
 
@@ -350,10 +351,10 @@ describe("the watch holds every content proposal", () => {
     const until = await contentWatchUntil(s.profile_id);
     expect(until).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     await expect(proposeContentPlan(s.profile_id, { limitLlm: limitsLlm })).rejects.toThrow(
-      new RegExp(`still watching until ${until}`),
+      watchingUntil(until!),
     );
     await expect(proposeShotList(s.profile_id, { limitLlm: limitsLlm })).rejects.toThrow(
-      /still watching until/,
+      /I'm watching until/,
     );
     const made = await db.select().from(proposals).where(eq(proposals.profile_id, s.profile_id));
     expect(made).toHaveLength(0);

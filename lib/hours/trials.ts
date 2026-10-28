@@ -50,6 +50,7 @@ import { DAY_WORD } from "./findings";
 import type { Weekday } from "./schedule";
 import type { WeekdayAnalysis } from "./trading";
 import { TRIALS_KEY, label, loadTradingSales, openHourCost, tradingAnalysis } from "./trading";
+import { watchingUntil } from "../care/watch-words";
 
 export const HOURS_MODULE = "hours";
 export const TRIAL_KIND = "operations_change";
@@ -299,7 +300,7 @@ export async function proposeHoursTrials(
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     out.skipped.push({
       ref: "profile",
-      reason: `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`,
+      reason: watchingUntil(care.watch_ends_at),
     });
     return out;
   }

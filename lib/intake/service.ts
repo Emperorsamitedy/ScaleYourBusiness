@@ -64,7 +64,7 @@ import type { SnapshotEntity } from "../profile/snapshot";
 import { sectionOfFieldKey } from "../profile/sections";
 import { currentRecordsView, liveReadingOf } from "./live-reading";
 import { vocabularyCodes } from "../vocab/validate";
-import { entityChipDisplay, loadEntityFields, writeEntityRows } from "./entities";
+import { costBucketFor, entityChipDisplay, loadEntityFields, writeEntityRows } from "./entities";
 import type {
   AnswerAction,
   AnswerResponse,
@@ -1004,7 +1004,10 @@ export async function submitEntityCount(
     const table = ENTITY_TABLES[spec.entity_schema];
     if (!table) throw new IntakeError(`unknown entity schema ${spec.entity_schema}`, 422);
     const base = { profile_id: profileId } as Record<string, unknown>;
-    if (spec.entity_schema === "cost_item") base.bucket = "fixed";
+    if (spec.entity_schema === "cost_item") {
+      base.bucket = costBucketFor(question.writes_to);
+      base.scales_with_sales = base.bucket === "variable";
+    }
     if (spec.entity_schema === "competitor") base.source = { kind: "owner_input" };
     const rows = await db
       .insert(table)

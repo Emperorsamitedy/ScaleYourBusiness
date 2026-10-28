@@ -33,6 +33,7 @@ import { createProposal } from "../proposals/service";
 import { suppressedKinds } from "../trust/suppression";
 import type { BundleSource, PairView } from "./load";
 import { loadBundles } from "./load";
+import { watchingUntil } from "../care/watch-words";
 
 export const BUNDLES_MODULE = "bundles";
 export const BUNDLE_KIND = "offer_change";
@@ -92,7 +93,7 @@ export async function proposeBundle(
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     return {
       status: "held",
-      reason: `I'm watching until ${care.watch_ends_at.slice(0, 10)}, and I propose nothing before then.`,
+      reason: watchingUntil(care.watch_ends_at),
     };
   }
 

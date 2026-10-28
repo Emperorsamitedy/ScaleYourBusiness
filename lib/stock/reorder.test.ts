@@ -378,7 +378,7 @@ describe("P5-03 reorder notes", () => {
     const s = await shop({ mode: "watching" });
     const run = await proposeReorders(s.profile_id, { now: NOW, limitLlm: noLimits });
     expect(run.created).toHaveLength(0);
-    expect(run.skipped[0]?.reason).toMatch(/still watching/);
+    expect(run.skipped[0]?.reason).toMatch(/I'm watching until/);
     expect(await logStockWarnings(s.profile_id, NOW)).toBe(1);
   });
 });

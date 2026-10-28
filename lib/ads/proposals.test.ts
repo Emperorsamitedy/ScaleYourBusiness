@@ -273,7 +273,7 @@ describe("P3-22a — proposeAdChanges", () => {
     await b.campaign("320000001", "Loss", 14, 2_000, 0);
     const run = await proposeAdChanges(b.profile_id, { now: NOW, limitLlm: noLimits });
     expect(run.created).toHaveLength(0);
-    expect(run.skipped[0]?.reason).toMatch(/still watching/);
+    expect(run.skipped[0]?.reason).toMatch(/I'm watching until/);
   });
 });
 

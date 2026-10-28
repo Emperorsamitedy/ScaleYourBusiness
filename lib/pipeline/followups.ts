@@ -57,6 +57,7 @@ import type { DealAge, Staleness } from "./maths";
 import { dealAge, staleDeals, staleness } from "./maths";
 import type { DealStage } from "./stages";
 import { STAGE_LABELS, isOpenStage } from "./stages";
+import { watchingUntil } from "../care/watch-words";
 
 export const PIPELINE_MODULE = "pipeline";
 export const FOLLOWUP_KIND = "deal_followup";
@@ -117,7 +118,7 @@ export async function followUpHold(
   if (!(await pipelineApplies(profileId))) return NOT_B2B;
   const care = await careState(profileId);
   if (care?.watch_ends_at && now.toISOString() < care.watch_ends_at) {
-    return `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`;
+    return watchingUntil(care.watch_ends_at);
   }
   if ((await outboundPosture(profileId)) === "disabled") {
     return 'your own answer on customer consent (6.4b) was "no consent" — I don’t propose emails until your data says otherwise';
