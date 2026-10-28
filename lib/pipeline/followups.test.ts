@@ -184,7 +184,7 @@ describe("P5-16 — a quiet deal becomes a proposal", () => {
     });
     const held = await proposeFollowUps(watched.s.profile_id, { now: NOW, limitLlm });
     expect(held.created).toHaveLength(0);
-    expect(held.skipped[0]?.reason).toMatch(/still watching/);
+    expect(held.skipped[0]?.reason).toMatch(/I'm watching until/);
 
     const off = await quietDeal();
     await answer(off.s.profile_id, "customers.marketing_consent_status", { code: "no_consent" });

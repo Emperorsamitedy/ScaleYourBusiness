@@ -95,6 +95,7 @@ import {
   buildTargeting,
   specialCategories,
 } from "./targeting";
+import { watchingUntil } from "../care/watch-words";
 
 export { ADCREATE, AD_RUN_UNDO, CREATES_PAUSED_NOTE, GO_LIVE_UNDO, adReadiness, adScenario };
 export type { AdItemLike };
@@ -181,7 +182,7 @@ async function watchSkip(profileId: string, now: Date): Promise<string | null> {
   const care = await careState(profileId);
   if (!care) return "not in care yet — no mode decision";
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
-    return `still watching until ${care.watch_ends_at.slice(0, 10)} — nothing is proposed before then (rule 15)`;
+    return watchingUntil(care.watch_ends_at);
   }
   return null;
 }

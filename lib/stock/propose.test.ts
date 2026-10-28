@@ -413,7 +413,7 @@ describe("proposeClearance", () => {
     const s = await shop({ mode: "watching", customers: 0 });
     const run = await proposeClearance(s.profile_id, { now: NOW, limitLlm: noLimits });
     expect(run.created).toHaveLength(0);
-    expect(run.skipped[0]?.reason).toMatch(/still watching/);
+    expect(run.skipped[0]?.reason).toMatch(/I'm watching until/);
   });
 
   it("a services-only business never gets a stock proposal, whatever the data", async () => {

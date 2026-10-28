@@ -311,7 +311,7 @@ describe('"Propose this" — the normal proposal, pending, executing nothing', (
       limitLlm: noLimits,
     });
     expect(out.proposal).toBeNull();
-    expect(out.skipped).toMatch(/still watching/);
+    expect(out.skipped).toMatch(/I'm watching until/);
     expect(
       await db.select().from(proposals).where(eq(proposals.profile_id, watched.profile_id)),
     ).toEqual([]);
@@ -325,14 +325,14 @@ describe('"Propose this" — the normal proposal, pending, executing nothing', (
       { now: NOW, limitLlm: noLimits },
     );
     expect(out.proposal).toBeNull();
-    expect(out.skipped).toMatch(/still watching/);
+    expect(out.skipped).toMatch(/I'm watching until/);
     // The segment generator itself, before any segment is even read.
     const segments = await proposeFromSegments(watched.profile_id, {
       now: NOW,
       limitLlm: noLimits,
     });
     expect(segments.created).toEqual([]);
-    expect(segments.skipped[0]?.reason).toMatch(/still watching/);
+    expect(segments.skipped[0]?.reason).toMatch(/I'm watching until/);
     expect(
       await db.select().from(proposals).where(eq(proposals.profile_id, watched.profile_id)),
     ).toEqual([]);
