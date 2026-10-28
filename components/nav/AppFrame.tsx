@@ -88,9 +88,10 @@ export const GROUPS: readonly Group[] = [
       { href: "/progress", label: "Goals", feature: "nav.goals", count: (c) => n(c.goals) },
       { href: "/hours", label: "Trading hours", feature: "nav.hours" },
       { href: "/patterns", label: "Seasons & bundles", feature: "nav.patterns" },
+      { href: "/cash", label: "Cash flow", feature: "nav.cash" },
       {
         href: "/stock",
-        label: "Slow stock",
+        label: "Stock",
         feature: "nav.stock",
         appliesTo: (c) => c.stock === true,
         count: (c) => n(c.by_module.stock ?? 0),
@@ -124,6 +125,13 @@ export const GROUPS: readonly Group[] = [
     label: "Customers",
     items: [
       { href: "/customers", label: "Customers", feature: "nav.customers" },
+      {
+        href: "/pipeline",
+        label: "Pipeline",
+        feature: "nav.pipeline",
+        appliesTo: (c) => c.pipeline === true,
+        count: (c) => n(c.by_module.pipeline ?? 0),
+      },
       { href: "/support", label: "Support", feature: "nav.support", count: supportCount },
     ],
   },

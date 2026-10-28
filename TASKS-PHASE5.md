@@ -77,40 +77,49 @@ Checkout is measured from the outside and reported with instructions (site-audit
 
 Steps 88 and 91 (the stock half).
 
-- [ ] **P5-01** Two-window sell-through. From the inventory reads and the order baskets that already exist (`lib/stock`, `order_baskets`), compare the last N days with the N before, per product: units sold, the change between windows, and its noise band. The window A / window B comparison of step 88 is pure, deterministic and tested.
-- [ ] **P5-02** Days of cover and stock-out warnings.
+- [x] **P5-01** Two-window sell-through. From the inventory reads and the order baskets that already exist (`lib/stock`, `order_baskets`), compare the last N days with the N before, per product: units sold, the change between windows, and its noise band. The window A / window B comparison of step 88 is pure, deterministic and tested.
+  - **Built** (`lib/stock/cover.ts` `sellThrough`): N = 28 days ending yesterday, against the 28 before. The noise band is 2√(A + B), since the difference of two Poisson counts has variance A + B; a change inside it is "about the same — within chance (±N)", outside it "up" or "down" with the percent. Under 56 measured days it refuses with the days there are and the day it will be ready; a stock file has one window and says so.
+- [x] **P5-02** Days of cover and stock-out warnings.
   - **Days of cover** is stock on hand ÷ the recent daily sales rate, as a range.
   - **The warning** fires when cover falls below the supplier's lead time (1.4.1.3 "delivery time in days", else a stated default marked ASSUMED). It reads "the blue mug runs out in about 6–9 days; your clay supplier takes 7".
   - **Where it goes:** the warnings land in the watch log and the weekly summary.
-- [ ] **P5-03** Reorder suggestions as proposals (rule 27).
+  - **Built** (`lib/stock/cover.ts`, `cover-load.ts`, `warnings.ts`). The rate is the last 28 days' units ± one standard deviation (√count); cover is on hand over it, counted from the day the stock was read, so it is always a low–high range and never collapses to one day. The delivery time is the longest stated "Delivery time in days" among the suppliers the owner named for the matched offer (an item can't be restocked before its slowest input), with that supplier's minimum order and the fact it came from; else 14 days, ASSUMED, saying why (unmatched item, no supplier, no time on file). The warning fires when cover's low end is under the delivery time: ACT NOW when even the high end is, RUNNING LOW otherwise. Under 28 measured days: TOO EARLY, with the ready date. Every result states its window and sources and lists what is ASSUMED (rule 25). **Conservative call:** a sold-out item shows as SOLD OUT and is never warned or reordered, since the shop already shows it, a planned sell-out (Fernhill's monthly Seconds Box) looks identical, and SYB can't see what is on order. Warnings land in `watch_activity` as `stock_warning`, one row per item, level and ISO week, for every business in care, watched or not (watching forbids proposing, not noticing), with the figures in `meta`. The weekly cron logs them before the summary, and the summary lists each item's latest under **Running low** with a link to `/stock`.
+- [x] **P5-03** Reorder suggestions as proposals (rule 27).
   - **Quantity:** sales over lead time + a safety margin, rounded up to the supplier's minimum order quantity, with its arithmetic shown.
   - **It's a note, not an order:** the action is `stock_reorder_note`, which the engine leaves unrouted. Approving it records the owner's intent and nothing else.
   - **Guards:** hard limits and suppression apply.
-- [ ] **P5-04** The busy season feeds stock (closes I-46a's stock half). An approaching busy stretch from `lib/seasons` raises cover targets for that period, and says so: "last year this stretch ran 1.7× normal".
-- [ ] **P5-05** The `/stock` screen gains the cover column, the warnings and the reorder notes (sheet design system). The demo seed shows one product nearing a stock-out.
+  - **Built** (`lib/stock/reorder.ts`). Quantity = units over the delivery time at the fast end of the rate, so the safety margin is the gap to the middle (from the owner's own sales, never a pinned share), with any busy stretch counted for its days; then rounded up to the supplier's minimum order, with the arithmetic in words and the cost at the item's own unit cost (integer minor units, its currency). `stock_reorder_note` sits in a new `NOTE_KINDS` beside `ACTION_KINDS`, not in it, so the diagnosis classifier and alert review can never emit one. It passes `checkHardLimits` (manual limits ride along; no 13.5 code forbids it today) and suppression (three declines), and is held before care and while watching (rule 15). One per item per month (the 0053 stock index), 14-day expiry, reversibility easy. Approved and due, the runner leaves it unroutable with no execution row (tested). `rule27.test.ts` fails the build if anything in `lib/stock` gains a fetch, an executor or provider import, a URL or an order operation, or if any execution provider declares one. No migration.
+- [x] **P5-04** The busy season feeds stock (closes I-46a's stock half). An approaching busy stretch from `lib/seasons` raises cover targets for that period, and says so: "last year this stretch ran 1.7× normal".
+  - **Built** (`seasonBoost`): the forecast's first busy stretch ahead or under way, its index set against the business's last four complete weeks so the recent rate isn't counted twice, never below 1×, as a low–mid–high multiple from the stretch's own range. Cover and the reorder walk it piecewise, for the stretch's days only; the warning adds "That counts your busy stretch from …", and the item following the business's own season is listed as ASSUMED. With the forecast refusing (under 50 of 52 weeks), nothing is raised and the screen says why.
+- [x] **P5-05** The `/stock` screen gains the cover column, the warnings and the reorder notes (sheet design system). The demo seed shows one product nearing a stock-out.
+  - **Built** (`components/stock/StockScreen.tsx`, `/api/stock` `cover` block and `{action:"reorder"}`; ux-spec §3 "Stock"). The screen is now "Insights · Stock" (menu "Stock"); its head is the soonest stock-out. The demo seed's stock is retuned so only the Speckled Everyday Mug (90 on hand, about 15 a day, Midland Clay's 10 days) runs short, even at the fast end of Christmas; plate, vase and pour-over set hold more. The seed logs the warning into Fernhill's watch log. Fernhill is still watched, so its reorder note is shown with its arithmetic and held (rule 15), never proposed.
 
 ## Session B — Cash flow: when money gets tight _(~3 wks)_
 
 Step 89.
 
-- [ ] **P5-06** Two bank questions (bank version bump; `lint_bank.py` passes):
+- [x] **P5-06** Two bank questions (bank version bump; `lint_bank.py` passes):
   - "Roughly how much cash does the business have available today?" (Money);
   - "What's the least you'd want in the account at any time?" (Money, the buffer).
 
   Both are `Field<Money>` with provenance, and "I don't know" is allowed (rule 5).
 
-- [ ] **P5-07** The 13-week cash model (pure, rule 25). It starts from the stated cash, or from Stripe balance transactions where connected.
+  _Done 2026-10-28: bank 1.8.0, 5.3e `costs.cash_available` (asked under 5.3b's condition, money coming in) and 5.3f `costs.cash_buffer` (asked once 5.3e has a value); data conditions only, DB-tested through the resolver; lint_bank and db:seed pass._
+
+- [x] **P5-07** The 13-week cash model (pure, rule 25). It starts from the stated cash, or from Stripe balance transactions where connected.
   - **Money in:** the business's own weekly revenue pattern, with `lib/seasons` where a year of history exists, as a range. Payout timing comes from the payment provider answer.
   - **Money out:**
     - fixed costs by their stated frequency (5.1);
     - per-unit costs × expected volume (5.2);
     - debt (5.3c) where a repayment is stated.
   - **Currency:** amounts are integer minor units per currency, never mixed (rule 1).
-- [ ] **P5-08** "Money gets tight" warnings: the first week whose low end dips under the buffer, with the reason, e.g. "quarterly VAT and a quiet February". They go to the watch log and the weekly summary, never a push to act.
-- [ ] **P5-09** Scenarios, side by side, in the campaign simulator's pattern: a slow month (−x%), a big order (+€y in week n), a hire (+€z a month), a price change (taken from what-if pricing). Pure, with a range per scenario.
-- [ ] **P5-10** The `/cash` screen (under Insights): the 13-week chart from the chart family, with its range band, the buffer line, the warnings and the scenarios.
+  - _Done: `lib/cash/model.ts` (pure), `payout.ts` (ASSUMED payout table), `inputs.ts` + `load.ts` (read-only). Starts from stated cash only; Stripe/Shopify balance transactions give the sales series and the in-transit days, not a bank balance. Refuses under 8 complete weeks of the last 13. Exactly one year of history spans last year's week and the recent range (growth can't be separated). Debt counts only via 5.1 `loan_payments` rows._
+- [x] **P5-08** "Money gets tight" warnings: the first week whose low end dips under the buffer, with the reason, e.g. "quarterly VAT and a quiet February". They go to the watch log and the weekly summary, never a push to act. _Done: `lib/cash/warnings.ts`; watch kind `cash_warning` (logged on appear/move/clear), in NOTED_KINDS so the summary carries it; push words tested out._
+- [x] **P5-09** Scenarios, side by side, in the campaign simulator's pattern: a slow month (−x%), a big order (+€y in week n), a hire (+€z a month), a price change (taken from what-if pricing). Pure, with a range per scenario. _Done: `lib/cash/scenarios.ts`; defaults from the business's own numbers (a typical week, the largest stated salary, what-if pricing's first step); a missing figure is a named MISSING cell._
+- [x] **P5-10** The `/cash` screen (under Insights): the 13-week chart from the chart family, with its range band, the buffer line, the warnings and the scenarios.
   - **Notes:** a "planning aid, not financial advice" note and the sources line, always shown.
   - **Gate test:** rule 26's build-failing test asserts no money-moving op, path or scope exists in `lib/cash`.
+  - _Done: `/cash` under Insights (nav + size-features row), `components/charts/CashChart.tsx`, `GET /api/cash` only, `lib/cash/fence.test.ts` (scans lib/cash, the route, the screen and the chart; planted failing cases). The demo seed (Fernhill) states cash and a €6,000 buffer read off its own forecast, so it always shows a tight week._
 
 ## Session C — The website as a customer meets it _(~2 wks)_
 
@@ -123,7 +132,7 @@ Step 90. The site-audit spec's Tier 1, without running browsers ourselves.
 - [x] **P5-12** The path to buying, walked by reading pages (rule 30): clicks from home to checkout or booking entry, price visible on the first screen, the form-field count on contact and booking forms, broken links. Nothing is submitted.
 - [x] **P5-13** Findings feed the report. Each is a `SiteFinding` (spec §2), `kind: "measured"`, with a severity from stated thresholds. A rule-of-thumb € figure is shown only where the owner's own conversion and traffic exist, otherwise "not computed". `/site` shows the audit beside its existing before/after wording.
 
-**Status 2026-10-27 (P5-11..13):** built against fakes, in `lib/site/audit/`. Migration **0063** (`site_audits`; may be renumbered at merge). No model call anywhere, no network in tests.
+**Status 2026-10-27 (P5-11..13):** built against fakes, in `lib/site/audit/`. Migration **0064** (`site_audits`; renumbered from 0063 at merge). No model call anywhere, no network in tests.
 
 - **P5-11:** `pagespeed.ts` sends a GET to `runPagespeed` and nothing else (the type admits only GET). The optional `PAGESPEED_API_KEY` (`lib/env.ts`, `.env.example`) goes in the `X-Goog-Api-Key` header, never a URL. It is in `RESEARCH_SOURCE_REGISTRY` with no scope, under the scope audit. Field data (CrUX p75 LCP/CLS/INP, CLS ×100 undone, `origin_fallback` kept) stays apart from lab data (LCP, CLS, TBT as INP's stand-in, bytes, score, contrast and tap-target failures). Every result carries its provenance (measured_at, Lighthouse version, final URL, keyed or shared quota). Pages are the home page plus up to four key pages from the site's own links (product, service, cart or booking, contact; a category fills a gap), at mobile and desktop, phones first. The cap is **20 calls per site (origin) per rolling 7 days**, counted from `site_audits.pagespeed_calls` with retries included. Each call gets 2 attempts, 3 run at once, with a 90 s timeout. Each run logs a `site_audit` line with the account id. `/site` says when the shared keyless quota was used and when the week's calls return. `pagespeed-fake.ts` serves tests and the demo.
 - **P5-12:** `links.ts` classifies a link before it is followed. Login and account pages, cart action links (`/cart/add`, `?add-to-cart=`) and checkout are refused by name, and a hosted booking page (Fresha, Calendly, …) counts as the entry and is not read. `walk.ts` reads through the guarded GET-only fetcher (no cookies): 12 pages, 4 clicks deep, then 15 link checks. Its measures:
@@ -159,15 +168,41 @@ P5-11, from PageSpeed Insights v5 as remembered, since no docs were read and no 
 
 Step 92. Shown only when 6.1a is `b2b` or `both`; branching lives in data (rule 4).
 
-- [ ] **P5-14** Deals. A `deals` table:
+- [x] **P5-14** Deals. A `deals` table:
   - **Who:** contact or company (Phase 4 contacts);
   - **Stage:** the bank's vocabulary; lead → qualified → proposal sent → won / lost;
   - **Value:** `Money`;
   - **Plus:** expected close, next step and its date, provenance;
   - **Erasure:** with the contact (rule 29).
-- [ ] **P5-15** Pipeline maths (pure): weighted value as a range from the business's own win rate (stated or measured), stage ageing, and stale deals (no next step, or a next step past its date).
-- [ ] **P5-16** Follow-ups as drafted proposals: "Nobody has spoken to Café Nua in 23 days". A follow-up email is drafted in the owner's voice and goes through consent (rule 23) and the approval queue; nothing is sent automatically.
-- [ ] **P5-17** The `/pipeline` screen: stages as columns, deals with value and age, the stale list, and import from CSV with the same attestation as contacts (P4-03).
+- [x] **P5-15** Pipeline maths (pure): weighted value as a range from the business's own win rate (stated or measured), stage ageing, and stale deals (no next step, or a next step past its date).
+- [x] **P5-16** Follow-ups as drafted proposals: "Nobody has spoken to Café Nua in 23 days". A follow-up email is drafted in the owner's voice and goes through consent (rule 23) and the approval queue; nothing is sent automatically.
+- [x] **P5-17** The `/pipeline` screen: stages as columns, deals with value and age, the stale list, and import from CSV with the same attestation as contacts (P4-03).
+
+**Status 2026-10-28:** Built and ticked in six commits, every rule a test with a passing and a failing case (41 tests across five files). Fixture-proven only: no real follow-up has been drafted by a live model.
+
+- **Bank 1.9.0 (the bank route, chosen over stages in code):** vocabulary `deal_stage` (lead, qualified, proposal_sent, won, lost) and question 6.1f `customers.win_rate` ("Of the deals you go after with other businesses, roughly what percentage do you win?", 0–100, unknown allowed, deep), asked under 6.1e's condition (`customers.type neq b2c`). Pins moved to 160 questions / 57 vocabularies with Session B merged. Production needs `db:seed`. Session B's P5-06 also bumps the bank, so this became 1.9.0 at merge.
+- **P5-14, deals (migration 0063):** `deals`, `deal_events` and `deal_followups`, and the `deal_stage` enum. A test holds the code, the enum and the bank's vocabulary equal.
+  - A deal is with a Phase 4 contact (`contact_id` NOT NULL, ON DELETE CASCADE). An existing contact is linked and keeps its consent. A new one is created through `addContact` as `unsure` ("a sales conversation is not marketing consent"). A suppressed address is refused.
+  - Value is integer minor units + currency + basis (`quoted` / `estimated`), all or none by a check.
+  - Every change writes a `deal_events` row with the old and the new value. The same stage twice is refused. Won and lost set `closed_at`; reopening clears it.
+  - Erasing the contact cascades through the deal, its events and its drafted follow-up. The test proves every earlier decision-log entry is unchanged, the only new one is the erasure, and none holds the deal's words.
+- **P5-15, maths (pure, `lib/pipeline/maths.ts`):**
+  - The win rate is measured once 5 deals have closed in the last 365 days (a 90% Wilson range). Otherwise it is the owner's 6.1f answer ±10 points, named as their estimate. Otherwise there is none, and the weighted value refuses: it says what it can and can't say, and when it will be ready. It never borrows an average (rule 25).
+  - The weighted value is per currency, never mixed, and names its window, its sources and its ASSUMED lines, including "one rate whatever the stage".
+  - Stage ageing and staleness are boundary-tested.
+- **P5-16, follow-ups (`lib/pipeline/followups.ts`):** module `pipeline`, kind `deal_followup` (added to ACTION_KINDS; no limit forbids it).
+  - A follow-up is proposed for a stale deal only when its contact passes `canEmailForMarketing` (rule 23, applied conservatively to a sales email). The check runs again at drafting. Once per deal per month, five a run.
+  - It goes through the watch, the 6.4b posture, the hard limits and P3-28 suppression.
+  - The proposal holds ids only and says nothing sends. The kind has no executor, so the due runner leaves it approved.
+  - Drafting is the owner's click: Sonnet through `draftItem` (voice card, disclosure by code), metered as workload `pipeline_followup` (`draftLlmFor`). The brief names no one: only the stage and the days. The greeting is a `{{name}}` slot the screen fills.
+  - Caps are checked before the call: one draft per proposal, 30 a month, €2 a month.
+- **P5-17, the screen and import:**
+  - `/pipeline` sits under Customers. Its menu item shows only when `PIPELINE_APPLIES` holds, carried by `/api/nav`. The API refuses every write otherwise.
+  - Import (`lib/pipeline/import.ts`) takes P4-03's attestation. Unreadable cells are counted, never guessed. Values are estimates unless the owner says quotes. The same file twice adds nothing. One `import` log entry per batch.
+- **Demo seed:** Fernhill (6.1a "both") gets 11 trade deals. Nine come through the import and two through `addDeal`. Five are open, three of them stale; six are closed, so the win rate is measured at 50% (22–78%) beside the stated 35%.
+  - Checked against the local dev server with a signed-in demo session over HTTP. `/pipeline` returns 200, `/api/nav` says `pipeline: true`, and `/api/pipeline` returns the board, three stale deals and the weighted €5,885–€20,715 of €26,600. "Propose follow-ups" answers with the watch's refusal (until 2026-11-05).
+  - The browser pane couldn't be used for a visual walk, so the layout is still to be looked at.
+- **Not done here:** a live-model draft, and a visual walk of `/pipeline` at desktop and phone widths.
 
 ## Session E — Staff planning, by role _(~2 wks)_
 

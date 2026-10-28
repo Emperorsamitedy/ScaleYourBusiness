@@ -296,3 +296,52 @@ describe("I-42 — the switch and the stop token", () => {
     expect(verifyStopToken(id)).toBeNull();
   });
 });
+
+describe("P5-02 — stock-out warnings in the weekly summary", () => {
+  const warn = (at: string, key: string, detail: string) =>
+    row(at, "stock_warning", detail, { key, level: "tight" });
+
+  it("lists each item's latest warning under Running low, linking to Stock", () => {
+    const c = composeSummary(
+      input({
+        activity: [
+          warn(
+            "2026-10-20 06:00:00+00",
+            "c:mug",
+            "Blue Mug runs out in about 9–12 days; Clay Co takes 7 days.",
+          ),
+          warn(
+            "2026-10-23 06:00:00+00",
+            "c:mug",
+            "Blue Mug runs out in about 6–9 days; Clay Co takes 7 days.",
+          ),
+          warn(
+            "2026-10-23 06:00:00+00",
+            "c:plate",
+            "Plate runs out in about 5–6 days; Clay Co takes 7 days.",
+          ),
+        ],
+      }),
+    );
+    const stock = c.sections.find((s) => s.key === "stock")!;
+    expect(stock.title).toBe("Running low");
+    expect(stock.href).toBe("/stock");
+    expect(stock.lines.map((l) => l.text)).toEqual([
+      "Blue Mug runs out in about 6–9 days; Clay Co takes 7 days.",
+      "Plate runs out in about 5–6 days; Clay Co takes 7 days.",
+    ]);
+    expect(c.text).toContain("RUNNING LOW");
+    expect(c.text).toContain("https://app.example/stock");
+    // Not said twice: neither under What I noticed nor What I did.
+    expect(c.sections.find((s) => s.key === "noticed")).toBeUndefined();
+    expect(c.sections.find((s) => s.key === "done")).toBeUndefined();
+    expect(c.quiet).toBe(false);
+  });
+
+  it("a week with no warning has no Running low section", () => {
+    const c = composeSummary(
+      input({ activity: [row("2026-10-21 09:00:00+00", "anomaly_detected", "Orders fell.")] }),
+    );
+    expect(c.sections.map((s) => s.key)).toEqual(["noticed"]);
+  });
+});

@@ -82,7 +82,7 @@ What changed against the schema above, deliberately:
 - Severity comes from `SITE_THRESHOLDS` (`lib/site/audit/findings.ts`), tested at the boundaries. The vitals use Google's bands. Page weight, failures, clicks and form fields use SYB's own stated lines.
 - Into the report: up to four findings of medium and above become `DiagnosisFinding`s (`kind: "measured"`). They cite the `presence.site_audit` fact, which names the audit it came from. A report built from a snapshot therefore reproduces its site findings.
 
-Stored in `site_audits` (migration 0063), one row per run, with the PageSpeed calls it made. The weekly per-site cap counts those calls.
+Stored in `site_audits` (migration 0064), one row per run, with the PageSpeed calls it made. The weekly per-site cap counts those calls.
 
 ---
 

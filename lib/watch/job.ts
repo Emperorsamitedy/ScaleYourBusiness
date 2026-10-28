@@ -7,11 +7,19 @@
 // P2-30: the same beat reads the trading-hours findings and logs them
 // when the signals move — which fire, on which days — so an unchanged
 // finding is said once, not every week.
+//
+// P5-08: and the 13-week cash forecast's tight week, the same way: logged
+// when it first appears or moves, and once more when it clears. A warning
+// is a line to read, never a push to act; nothing is proposed or sent.
 
 import { logSafeError } from "../core/log-safe";
 import { and, desc, eq, gt, inArray } from "drizzle-orm";
 import { db } from "../../db";
-import { modeDecisions, watchActivity } from "../../db/schema";
+import { businessProfiles, modeDecisions, watchActivity } from "../../db/schema";
+import { loadCashInputs } from "../cash/load";
+import type { CashForecast } from "../cash/model";
+import { forecastCash } from "../cash/model";
+import { clearedSentence, tightWeek } from "../cash/warnings";
 import { format, money } from "../core/money";
 import type { TradingHoursBlock } from "../hours/findings";
 import { findingsSignature, tradingFindings } from "../hours/findings";
@@ -25,6 +33,73 @@ export interface WatchRunResult {
   completed: number;
   /** P2-30: profiles whose trading-hours findings moved and were logged. */
   hours_logged: number;
+  /** P5-08: profiles whose cash warning appeared, moved or cleared, and was logged. */
+  cash_logged: number;
+}
+
+export const CASH_WARNING_KIND = "cash_warning";
+
+async function readCashForecast(profileId: string, now: Date): Promise<CashForecast> {
+  const [profile] = await db
+    .select({ account_id: businessProfiles.account_id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.id, profileId));
+  if (!profile) throw new Error("no such business");
+  return forecastCash(await loadCashInputs(profile.account_id, profileId, now));
+}
+
+/**
+ * P5-08: log the cash forecast's first tight week when it differs from the
+ * last one logged, and say once when a logged warning no longer holds.
+ * A forecast that refuses (too little history, no cash figure) logs
+ * nothing: the /cash screen says why. Returns whether an entry was
+ * written; a failure here never stops the watch.
+ */
+export async function logCashWarning(
+  profileId: string,
+  now: Date,
+  read: (profileId: string, now: Date) => Promise<CashForecast> = readCashForecast,
+): Promise<boolean> {
+  let forecast: CashForecast;
+  try {
+    forecast = await read(profileId, now);
+  } catch (error) {
+    console.error(
+      JSON.stringify({ event: "watch_cash_failed", profile_id: profileId, ...logSafeError(error) }),
+    );
+    return false;
+  }
+  if (forecast.status !== "ready") return false;
+  const tight = tightWeek(forecast);
+  const signature = tight?.signature ?? "";
+
+  const [last] = await db
+    .select({ meta: watchActivity.meta })
+    .from(watchActivity)
+    .where(and(eq(watchActivity.profile_id, profileId), eq(watchActivity.kind, CASH_WARNING_KIND)))
+    .orderBy(desc(watchActivity.at))
+    .limit(1);
+  const previous = (last?.meta as { signature?: string } | null)?.signature ?? "";
+  if (signature === previous) return false; // unchanged, or nothing to say and nothing said
+
+  await db.insert(watchActivity).values({
+    profile_id: profileId,
+    kind: CASH_WARNING_KIND,
+    detail: tight ? tight.sentence : clearedSentence(forecast),
+    meta: tight
+      ? {
+          signature,
+          week_start: tight.start,
+          week_end: tight.end,
+          currency: forecast.currency,
+          balance: tight.balance,
+          line: tight.line,
+          line_kind: tight.line_kind,
+          reasons: tight.reasons,
+        }
+      : { signature: "", cleared: true },
+  });
+  return true;
 }
 
 export const HOURS_FINDINGS_KIND = "hours_findings";
@@ -118,6 +193,7 @@ export async function runWeeklyWatch(
   let snapshots = 0;
   let completed = 0;
   let hoursLogged = 0;
+  let cashLogged = 0;
 
   for (const watch of watches) {
     if (Date.parse(watch.review_at) <= now.getTime()) {
@@ -145,6 +221,7 @@ export async function runWeeklyWatch(
     }
 
     if (await logHoursFindings(watch.profile_id, now)) hoursLogged++;
+    if (await logCashWarning(watch.profile_id, now)) cashLogged++;
 
     const before = await listSnapshots(watch.profile_id);
     const summary = await ensureSnapshot(watch.profile_id, "watching_weekly");
@@ -188,6 +265,7 @@ export async function runWeeklyWatch(
     snapshots_taken: snapshots,
     completed,
     hours_logged: hoursLogged,
+    cash_logged: cashLogged,
   };
 }
 
