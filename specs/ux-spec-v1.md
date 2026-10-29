@@ -149,6 +149,7 @@ The Goals screen already carries its own weekly candles against the path (`compo
 | What-if pricing | What a price change can lose and still pay, beside its range of outcomes | v3 (idea 43) |
 | Creative studio | The niche's longest-running ads, and a cited creative brief to film from | v3 (P3-50, P3-51) |
 | Team cover | Where the week runs short of cover or sits quiet, by role and hour; off by default | v5 (P5-18–P5-20) |
+| Compared with similar businesses | A few of the owner's own numbers beside one named, dated Eurostat cell each | v5 (idea 44) |
 
 Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame.tsx`). It is a 248px ink rail with:
 - the wordmark, the business name and the live state ("WATCHING · DAY 19 / 28") over a cobalt rule;
@@ -189,6 +190,19 @@ The media line in the item's dark strip says "Media · AI-generated image" (or v
 - **Week by week**: money in, going out and the balance as "low – high" per week, what is due that week, and a boxed UNDER THE LINE on weeks whose cautious end is under it.
 
 With under 8 complete weeks of the last 13, no cash figure, nothing measured, or cash and sales in two currencies, the screen shows no chart: it says how much there is, when it will be ready, and two lists, *I can* and *I can't yet* (the second includes borrowing a sales pattern from other businesses). Nothing on the screen pays, moves, transfers or collects money, and nothing on it makes a proposal.
+
+**Compared with similar businesses** (`/benchmarks`, under Insights after Competitors; idea 44). The kicker is "Insights · Compared with similar businesses"; the menu item is "Similar businesses", because the full name wraps to two lines in the 248 px rail. The head is the group in words, from the map and the headcount: "Compared with online and mail-order shops with up to 9 people in Ireland." Under it, a mono line says what the NACE code covers, and a line says when the size is unknown and the group is every size, with a link to 1.6. The aside reads "Eurostat · read-only" and "N of 3 compared". Then one sheet per line (operating margin, turnover a year per person, staff cost a year per employee):
+- **A compared line.** The sheet's title is the sentence "Yours is 33.4%, theirs 1.2%: 32.2 points above." Beside it is a boxed neutral word: ABOVE, BELOW or ABOUT THE SAME (within ±15 %). It is never coloured, because a figure above or below a group isn't good or bad. Then:
+  - Yours and Theirs, as two large mono figures.
+  - "Theirs: all online and mail-order shops with up to 9 people in Ireland, 2024, Eurostat", with Eurostat's flag in words when there is one, the fallback sentence when the first group had no figure ("Eurostat doesn't publish this for … so this is … of every size …"), and the conversion rate and year for a non-euro business.
+  - The line's one definition gap, in an inset.
+  - The owner's arithmetic, in mono with the numbers.
+  - A `.rt rt-stack` table, "What yours rests on": each input's value, basis (OBSERVED, STATED, ESTIMATED, DERIVED) and where it came from.
+  - "Not counted", listing each cost left out and why. A missing figure is a link to its question.
+- **A line it can't compute** says "Not compared yet" (boxed NOT YET), what it needs, a link per question ("Add your monthly revenue →"), and its definition gap.
+- **A line with no Eurostat figure, no employees or no rate** says "No comparison" and why.
+
+With no business type, a type with no honest match (agriculture, events, nonprofit, other), no readable country, or a country outside the EU27, the head says so in a sentence and one sheet says why, with a link where a question would fix it. Every state with lines ends with the foot: "Source: Eurostat, sbs_sc_ovw (doi.org/10.2908/SBS_SC_OVW), updated 30 Sep 2026, retrieved 29 Oct 2026, reused with the source acknowledged. I keep each group's latest year and convert euros to your currency; Eurostat isn't responsible for that. These are totals across every business in the group, not a typical business." No model and no network: the screen reads the committed snapshot through `/api/benchmarks`. Nothing on it is a finding or a proposal.
 
 **Team cover** (`/team`, under Insights after Trading hours; P5-18–P5-20, rule 28). Off by default. The switch is the last row of the Modules card on `/watch`, set apart from the "for when I start acting" switches with its own line: by role and hour, never about a person, off unless switched on. While it is off the menu has no item, `/api/team` answers only `{ enabled: false }`, and `/team` says how to switch it on and nothing else. Switched on, the head states the main fact from the business's own bookings as a sentence: "Saturdays 10:00–14:00 ran 127% booked; one stylist covers about 1.1 appointments an hour at your stated 120 a week." The aside reads "Roles and hours · never people".
 - **The grid.** One weekday at a time, picked from mono buttons (the screen opens on the top finding's day), as a role × hour table in the Trading hours grid's pattern. The first row is "Booked, of stated capacity": each hour's typical day as a percentage, its middle-half range on hover. Then one row per role, with its title as the owner wrote it and "on, average hour": its stated hours a week over the open hours. Cells are tinted runs short (the middle half's low end at or over 100%), covered, or quiet (its high end at or under 40%). Closed hours are hatched. Without bookings, takings stand in ("of the busiest hour"), and nothing can run short.

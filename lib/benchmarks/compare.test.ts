@@ -257,14 +257,20 @@ describe("which Eurostat cell", () => {
     { geo: "IE", nace: "I", size: "10-19", values: { NETTUR_EMP_TEUR: { value: 70, year: 2023 } } },
   ]);
 
-  it("uses the size class when it has the figure", () => {
+  it("passes over a size class Eurostat never publishes, naming no gap for it", () => {
     const p = pickCell(s, "IE", RESTAURANT, ["2-9", "0-9"], "NETTUR_EMP_TEUR");
     expect(p?.cell).toMatchObject({ size: "0-9", flag: "estimated" });
     expect(p?.cell.words).toBe(
       "all restaurants, cafés and bars with up to 9 people in Ireland, 2024, Eurostat",
     );
+    expect(p?.cell.fallback).toBeNull();
+  });
+
+  it("names the gap when a published size class lacks the figure", () => {
+    const p = pickCell(s, "IE", RESTAURANT, ["0-9"], "GOR_PC");
+    expect(p?.cell).toMatchObject({ size: "TOTAL" });
     expect(p?.cell.fallback).toBe(
-      "Eurostat doesn't publish this for restaurants, cafés and bars with 2–9 people in Ireland, so this is restaurants, cafés and bars with up to 9 people in Ireland.",
+      "Eurostat doesn't publish this for restaurants, cafés and bars with up to 9 people in Ireland, so this is restaurants, cafés and bars of every size in Ireland.",
     );
   });
 
@@ -386,7 +392,7 @@ describe("the three lines together", () => {
     expect(r.head).toMatchObject({
       group: "restaurants, cafés and bars",
       country: "Ireland",
-      size: "2-9",
+      size: "0-9",
       size_via: "team_size",
     });
     const [m, t, sc] = r.lines;
@@ -503,7 +509,7 @@ describe("against the committed snapshot", () => {
     const m = compared(r.lines[0]);
     expect(m.cell).toMatchObject({ nace: "G479", size: "TOTAL" });
     expect(m.cell.fallback).toMatch(
-      /^Eurostat doesn't publish this for online and mail-order shops with 2–9 people in Ireland/,
+      /^Eurostat doesn't publish this for online and mail-order shops with up to 9 people in Ireland/,
     );
   });
 });

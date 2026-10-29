@@ -258,10 +258,27 @@ interface Pick {
 }
 
 /**
+ * Pure: the size classes Eurostat publishes anything for at this country
+ * and code, in the order given. A class it never publishes (today `2-9`
+ * and `0_1`, everywhere) isn't a group to name, so it is passed over in
+ * silence rather than reported missing on every line.
+ */
+export function publishedSizes(
+  s: Snapshot,
+  geo: string,
+  nace: string,
+  sizes: readonly string[],
+): string[] {
+  const at = cellIndex(s);
+  return sizes.filter((size) => at(geo, nace, size) !== null);
+}
+
+/**
  * Pure: the first cell with a figure for `metric`. Tried in order: each
- * size class that holds the headcount (narrowest first), then every size,
- * at the type's own code; then the same at its parent. Says what was
- * missing when the first cell tried wasn't the one used.
+ * size class that holds the headcount (narrowest first, and only those
+ * Eurostat publishes for the code), then every size, at the type's own
+ * code; then the same at its parent. Says what was missing when the first
+ * cell tried wasn't the one used.
  */
 export function pickCell(
   s: Snapshot,
@@ -277,7 +294,7 @@ export function pickCell(
     `${groupOf(nace)} ${sizeWords(size)} in ${country}`;
   const order: { nace: string; size: string }[] = [];
   for (const nace of [type.nace, ...(type.parent ? [type.parent] : [])]) {
-    for (const size of [...sizes, ALL_SIZES.code]) {
+    for (const size of [...publishedSizes(s, geo, nace, sizes), ALL_SIZES.code]) {
       if (!order.some((o) => o.nace === nace && o.size === size)) order.push({ nace, size });
     }
   }
@@ -522,14 +539,14 @@ export function ownMargin(x: BenchInputs):
   if (perSale > 0)
     inputs.push({
       label: "Per-sale costs a month",
-      value: money(perSale, cur),
+      value: wholeMoney(perSale, cur),
       basis: "DERIVED",
       source: "your per-piece and per-order costs, at your volumes",
     });
   if (running > 0)
     inputs.push({
       label: "Running costs a month",
-      value: money(running, cur),
+      value: wholeMoney(running, cur),
       basis: "DERIVED",
       source: `your costs list, made monthly${staff.source === "costs" ? ", staff pay included" : ""}`,
     });
@@ -538,15 +555,15 @@ export function ownMargin(x: BenchInputs):
   const surplus = r.amount_minor - costOfSales - perSale - running - staff.minor;
   const pct = Math.round((surplus / r.amount_minor) * 1000) / 10;
   const parts = [
-    `${money(r.amount_minor, cur)} revenue`,
-    `${money(costOfSales, cur)} cost of sales`,
-    ...(perSale > 0 ? [`${money(perSale, cur)} per-sale costs`] : []),
-    ...(running > 0 ? [`${money(running, cur)} running costs`] : []),
-    ...(staff.minor > 0 ? [`${money(staff.minor, cur)} staff pay`] : []),
+    `${wholeMoney(r.amount_minor, cur)} revenue`,
+    `${wholeMoney(costOfSales, cur)} cost of sales`,
+    ...(perSale > 0 ? [`${wholeMoney(perSale, cur)} per-sale costs`] : []),
+    ...(running > 0 ? [`${wholeMoney(running, cur)} running costs`] : []),
+    ...(staff.minor > 0 ? [`${wholeMoney(staff.minor, cur)} staff pay`] : []),
   ];
   return {
     pct,
-    formula: `(${parts.join(" − ")}) ÷ ${money(r.amount_minor, cur)} × 100 = ${pctText(pct)}`,
+    formula: `(${parts.join(" − ")}) ÷ ${wholeMoney(r.amount_minor, cur)} × 100 = ${pctText(pct)}`,
     derived_from: [...new Set(derived)],
     inputs,
     left_out: leftOut,
@@ -867,7 +884,7 @@ export function compareWithSimilar(x: BenchInputs, s: Snapshot = SNAPSHOT): Benc
     };
   }
   const size = sizeClassesFor(x.team_size?.value ?? null, x.size_band);
-  const first = size.codes[0] ?? ALL_SIZES.code;
+  const first = publishedSizes(s, geo.geo, entry.nace, size.codes)[0] ?? ALL_SIZES.code;
   const head: BenchHead = {
     group: entry.group,
     nace: entry.nace,

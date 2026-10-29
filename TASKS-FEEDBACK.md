@@ -197,12 +197,29 @@ The owner sees a few of their own numbers set against businesses like theirs: sa
   - **Rates.** An exact year only: with no rate for the cell's year, the line refuses rather than borrow another year's.
   - **The status shown.** It is the basis class (`components/report/basis.ts`), read through the cash module's own readers (`lib/cash/inputs.ts`), so a revenue Stripe measured shows OBSERVED and the owner's estimate ESTIMATED.
 
-- [ ] **I-44.4** The screen, under Insights as "Compared with similar businesses" (`/benchmarks`, sheet design, 360 px):
+- [x] **I-44.4** The screen, under Insights as "Compared with similar businesses" (`/benchmarks`, sheet design, 360 px):
   - the head is the cell in words;
   - then the lines, with each one's definition gap in a sentence;
   - then the source foot: "Source: Eurostat, sbs_sc_ovw, updated 30 Sep 2026, retrieved 29 Oct 2026, CC BY 4.0. These are totals across every business in the group, not a typical business."
 
   No model, no network.
+
+  **Done 2026-10-29.** `/benchmarks` is built from:
+  - `app/benchmarks/page.tsx` and `components/benchmarks/BenchmarksScreen.tsx`, the screen;
+  - `components/benchmarks/view.ts`, its words, which are pure;
+  - `app/benchmarks.css`, on the sheet system;
+  - `GET /api/benchmarks`, behind `resolveAccess` and with no POST;
+  - `lib/benchmarks/load.ts`, which reads only the current facts. It reuses the cash module's pure readers and `countryCode`, and writes nothing.
+
+  The menu item sits under Insights after Competitors, with a size-feature row `nav.benchmarks` shown at every size. `lib/benchmarks/fence.test.ts` now reads all four roots. It checks there is no `fetch` other than `/api/benchmarks`, no URL other than the DOI, no database or Field write, no model import and no non-GET verb. It also checks that diagnosis, proposals, report, mode, validation, watch, execution, scorer, interviewer and profile code never import `lib/benchmarks`. `view.test.ts` checks the head, the foot and that no sentence judges. The screen is in `specs/ux-spec-v1.md` §3.
+
+  Checked in the browser on Fernhill (all three lines compared), Lumen (turnover compared, margin and staff cost "Not compared yet" with their links) and Emberworks (no business type: one sheet with the link to 1.2). Each was checked at 375 px with no horizontal scroll (the formula is `.fig`, so it needed `white-space: normal` to wrap), and Fernhill also at 1280 px.
+
+  Judgement calls:
+  - **The menu label is "Similar businesses".** "Compared with similar businesses" wrapped to two lines in the rail; the kicker and page title keep the full name.
+  - **The foot does not say "CC BY 4.0".** Eurostat's copyright notice applies CC BY 4.0 to its editorial content, and says statistical data may be reused "provided the source is acknowledged". The foot says "reused with the source acknowledged", then names the dataset, its DOI and both dates. It states the modifications and carries the non-responsibility line that the notice asks for.
+  - **The reading word is neutral ink, never a colour.** A margin above the group isn't "good", and a staff cost below it isn't either.
+  - **Size classes Eurostat never publishes are passed over silently.** Today that is `2-9` and `0_1` everywhere. The head names the first class that exists, so Fernhill's head reads "up to 9 people", not "2–9 people". A fallback sentence appears only when a published class lacks the figure.
 
 - [ ] **I-44.5** Demo seed: no new rows needed if Fernhill and Lumen already carry country, type, size and revenue; otherwise add the minimum. Browser check at 375 px.
 
