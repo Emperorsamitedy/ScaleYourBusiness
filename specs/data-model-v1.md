@@ -1043,6 +1043,8 @@ Two rules hold it, conservatively. **Nothing is recorded after the fact**: a for
 
 Two kinds are recorded (`lib/forecasts/claims.ts`). `stock_out` is a stock-out warning's "runs out in about 4–6 days" as dates from the day it was said, written on the weekly beat once per item per ISO week, unit `date`. `season_week` is one of the next eight weeks on `/patterns`: last year's range against the normal week, times the normal week now, in the series' units (`money` or `count`), written the first time the week is shown. The cash forecast's balances and the pipeline's weighted value are not recorded: no balance is measured, and the weighted value has no window (TASKS-FEEDBACK.md I-54a, I-54b).
 
+Grading runs on the weekly beat (`lib/forecasts/run.ts`, pure rules in `grade.ts`) once a window's last day is two or more days past. A `season_week` is the week's seven measured business-wide days from the same connection, metric and currency; a missing day is a gap. A `stock_out` runs out on the first day the item's measured count is zero: `inside` when the span from the last count above zero to the first at zero sits within the dates, `below` when it came sooner, `above` when a count is above zero on the latest day or later, and `cant_tell` when a count rose (a delivery) or the span crosses an end. Rows not yet in wait up to 14 days past the window, then grade as `cant_tell`.
+
 The decision log is append-only. It serves three purposes at once: the learning corpus, the debugging trail, and the compliance record showing that a human approved every consequential action — which matters directly given GDPR Article 22 exposure on anything touching individuals.
 
 ---
