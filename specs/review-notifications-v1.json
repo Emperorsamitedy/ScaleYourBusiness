@@ -1,0 +1,176 @@
+{
+  "version": "1.0.0",
+  "researched": "2026-10-29",
+  "note": "How a forwarded review notification is recognised and read: data, not code (rule 4). lib/reviews/parse.ts reads this file and lib/reviews/parse.test.ts holds it to its shape. A notification is recognised by its ORIGINAL sender: the From line of an auto-forwarded email, or the From line of the forwarded-message block in a manually forwarded one. A sender on a platform's domain counts only when the address is listed, or the subject carries one of the platform's review words, so a forwarded sign-in or security email from the same company is never read as a review. Mail from any other sender is dropped. Patterns are JavaScript regular expressions, matched case-insensitively against single lines of the plain-text body. 'verified' says whether the format was seen in a real forwarded notification: none has been yet, because no platform publishes its notification email and no real one has passed through SYB. 'found' records what the 2026-10-29 research did and did not find. Until a real email has passed through a parser, a sender's mail that doesn't parse goes to the capped model fallback, and failing that is filed as a review I couldn't read, with its link.",
+  "platforms": {
+    "google": {
+      "label": "Google",
+      "verified": false,
+      "found": "Google's Business Profile help confirms owners can switch on an email for each new review (Settings or Notifications, 'Customer reviews' under customer activity), sent to the managing Google account. No help page shows the email's sender, subject or body. The sender addresses below are the ones seen in owners' inboxes over the years (businessprofile-noreply, the older noreply-mybusiness), unconfirmed. The body is expected to carry the reviewer's public name, a star rating (as glyphs or 'N stars'), the review's words and a reply link on business.google.com.",
+      "sender_addresses": [
+        "businessprofile-noreply@google.com",
+        "noreply-mybusiness@google.com"
+      ],
+      "sender_domains": [
+        "google.com"
+      ],
+      "review_words": [
+        "review",
+        "rezension",
+        "avis",
+        "reseña",
+        "recensione",
+        "értékelés"
+      ],
+      "link_hosts": [
+        "business.google.com",
+        "www.google.com",
+        "google.com",
+        "g.page",
+        "maps.app.goo.gl",
+        "search.google.com"
+      ]
+    },
+    "trustpilot": {
+      "label": "Trustpilot",
+      "verified": false,
+      "found": "Trustpilot's help centre now sits behind a login-gated site and its new-review email is not documented publicly. What is public: Trustpilot Business sends notifications to its users, and offers a 'New review' webhook (Integrations, Webhook notifications), which needs a Trustpilot integration SYB doesn't have. The sender domains below are Trustpilot's own; no address is confirmed. The body is expected to carry the star rating out of 5, the reviewer's public name, the review title and words, and a link on businessapp.b2b.trustpilot.com or trustpilot.com.",
+      "sender_addresses": [],
+      "sender_domains": [
+        "trustpilot.com",
+        "trustpilotmail.com"
+      ],
+      "review_words": [
+        "review",
+        "rated",
+        "bewertung",
+        "avis",
+        "anmeldelse"
+      ],
+      "link_hosts": [
+        "trustpilot.com",
+        "www.trustpilot.com",
+        "businessapp.b2b.trustpilot.com",
+        "uk.trustpilot.com",
+        "ie.trustpilot.com"
+      ]
+    },
+    "booksy": {
+      "label": "Booksy",
+      "verified": false,
+      "found": "Booksy's own pages describe reviews only from the client side (a review request 30 minutes after a completed appointment, a reminder after 24 hours). Nothing public says whether Booksy Biz emails the business for each new review; it may only notify in the app. Kept so that a Booksy email that does arrive is recognised.",
+      "sender_addresses": [],
+      "sender_domains": [
+        "booksy.com",
+        "booksy.net"
+      ],
+      "review_words": [
+        "review",
+        "rated",
+        "opinia",
+        "recenzja"
+      ],
+      "link_hosts": [
+        "booksy.com",
+        "biz.booksy.com",
+        "www.booksy.com"
+      ]
+    },
+    "fresha": {
+      "label": "Fresha",
+      "verified": false,
+      "found": "Fresha's help centre says team members can receive notifications when a new review is submitted, managed in their personal notification settings, without saying whether by email, push or in the app; an older Fresha post mentions a daily or weekly email summary of reviews. A summary carries several reviews, which this parser does not split: one that doesn't read as a single review goes to the model fallback, then to 'couldn't read'.",
+      "sender_addresses": [],
+      "sender_domains": [
+        "fresha.com"
+      ],
+      "review_words": [
+        "review",
+        "rated",
+        "feedback"
+      ],
+      "link_hosts": [
+        "fresha.com",
+        "www.fresha.com",
+        "partners.fresha.com"
+      ]
+    }
+  },
+  "subject_exclude": [
+    "security",
+    "sign-in",
+    "sign in",
+    "password",
+    "verification",
+    "verify",
+    "code",
+    "account activity",
+    "review your",
+    "review the",
+    "privacy",
+    "terms of service",
+    "invoice",
+    "receipt",
+    "payment"
+  ],
+  "patterns": {
+    "stars": [
+      "(?:^|\\s)([1-5])\\s*(?:out of|of|/)\\s*5(?:\\s*stars?)?\\b",
+      "\\brated\\s+(?:you\\s+|us\\s+|your business\\s+)?([1-5])(?:\\s*stars?)?\\b",
+      "\\b([1-5])[- ]stars?\\b",
+      "\\b(one|two|three|four|five)[- ]stars?\\b",
+      "\\b(?:rating|stars|értékelés|bewertung|note)\\s*:\\s*([1-5])\\b"
+    ],
+    "star_glyphs": "^[\\s★☆✩✭✮⭐]*$",
+    "reviewer": [
+      "^(.{1,80}?)\\s+(?:left|wrote|posted|gave|has left|has written)\\s+(?:a\\s+|you\\s+a\\s+|your business\\s+a\\s+)?(?:new\\s+)?(?:[1-5][- ]star\\s+)?review\\b",
+      "^(?:new\\s+)?review\\s+(?:from|by)\\s+(.{1,80}?):?$",
+      "^(?:written|posted|reviewed)\\s+by\\s+(.{1,80}?)$",
+      "^(?:reviewer|from|by|name)\\s*:\\s*(.{1,80})$"
+    ],
+    "review_date": [
+      "^(?:date|reviewed|posted|written)\\s*:\\s*(.{6,60})$"
+    ],
+    "stop": [
+      "^(?:reply|respond|reply to (?:this )?review|view (?:the )?review|see (?:the )?review|read (?:the )?(?:full )?review|manage reviews|respond to review)\\b",
+      "^(?:unsubscribe|manage (?:your )?notifications|notification settings|you(?:'re| are) receiving|you received this|this email was sent|©|copyright|privacy policy|google llc|trustpilot a/s|help center|help centre)\\b",
+      "^https?://"
+    ],
+    "skip": [
+      "^(?:new review|you have a new review|you've got a new review|a customer left a review|someone left a review)\\b",
+      "^(?:hi|hello|dear)\\b.{0,60}[,!]?$",
+      "^(?:service|services|appointment|staff|team member|location|booked)\\s*:"
+    ]
+  },
+  "forwarded_markers": [
+    "^-{2,}\\s*forwarded message\\s*-{2,}$",
+    "^begin forwarded message:?$",
+    "^-{2,}\\s*original message\\s*-{2,}$",
+    "^_{5,}$"
+  ],
+  "flag_words": [
+    "refund",
+    "money back",
+    "rude",
+    "never again",
+    "never going back",
+    "won't be back",
+    "worst",
+    "terrible",
+    "awful",
+    "horrible",
+    "disgusting",
+    "dirty",
+    "unhygienic",
+    "scam",
+    "rip off",
+    "ripped off",
+    "avoid",
+    "waste of money",
+    "unprofessional",
+    "disappointed",
+    "complaint",
+    "burnt",
+    "damaged"
+  ]
+}

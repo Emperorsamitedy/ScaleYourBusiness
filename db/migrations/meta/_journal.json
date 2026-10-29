@@ -470,6 +470,13 @@
       "when": 1793271230877,
       "tag": "0066_abandoned_checkouts",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1793284231118,
+      "tag": "0067_reviews",
+      "breakpoints": true
     }
   ]
 }

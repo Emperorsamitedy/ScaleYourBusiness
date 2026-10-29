@@ -15,8 +15,13 @@
 //   · A failure to fetch the body from Resend answers 5xx, so Resend
 //     retries the delivery — the email is not lost and not half-filed.
 //
+// Idea 45: mail addressed to a business's REVIEWS address (r-<token>@…)
+// goes to lib/reviews instead of opening a ticket: a forwarded review
+// notification becomes a review row, anything else sent there is dropped.
+//
 // Nothing here drafts or sends a reply: a stranger emailing in can never
-// spend money on a model or make a reply go out. The one email it may
+// make a reply go out. The one model call mail can cause is the review
+// parser's capped Haiku fallback, and only for a recognised review sender. The one email it may
 // cause is a short notice to the business's OWN account address that a
 // ticket opened (P4-11): at most one an hour, with no customer text in it.
 
@@ -31,6 +36,7 @@ import {
   parseReceivedEvent,
   verifyWebhook,
 } from "../../../../lib/support/inbound";
+import { receiveReviewEmail, reviewRoutingFrom } from "../../../../lib/reviews/inbound";
 
 /** The largest webhook body accepted. Resend's event is metadata only, a few KB. */
 const MAX_WEBHOOK_BYTES = 256 * 1024;
@@ -93,6 +99,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!email) {
       console.warn(JSON.stringify({ event: "support_inbound_unreadable", account_id: null }));
       return json({ ignored: true });
+    }
+    if (reviewRoutingFrom(email.to, domain)) {
+      const review = await receiveReviewEmail(email, domain);
+      return json({ outcome: review.kind });
     }
     const outcome = await receiveInboundEmail(email, domain);
     if (outcome.kind === "filed" && outcome.created) {
