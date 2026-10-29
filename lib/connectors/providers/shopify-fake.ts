@@ -307,6 +307,8 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
       const search = String(variables["search"] ?? "");
       const gte = /created_at:>='([^']+)'/.exec(search)?.[1];
       const matching = carts
+        // A checkout not yet started (the demo seed moves the clock) isn't there to read.
+        .filter((c) => Date.parse(c.createdAt) <= Date.now())
         .filter((c) => gte === undefined || Date.parse(c.createdAt) >= Date.parse(gte))
         .sort(
           (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt) || (a.id < b.id ? -1 : 1),

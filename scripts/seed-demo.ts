@@ -243,6 +243,9 @@ async function seed(): Promise<void> {
   const { proposeSiteChange } = await import("../lib/site/changes");
   const { importContacts } = await import("../lib/crm/import");
   const { proposeFromSegments } = await import("../lib/crm/segment-proposals");
+  const { emailHash } = await import("../lib/crm/contacts");
+  const { storeCarts } = await import("../lib/carts/store");
+  const { CARTS } = await import("../lib/carts/measure");
   const { draftCampaign, campaignDraftFor } = await import("../lib/crm/campaign-draft");
   const { approveCampaignEmail, campaignGates } = await import("../lib/crm/campaign-send");
   const { consentToCampaignEmail } = await import("../lib/execution/email-consent");
@@ -997,8 +1000,11 @@ async function seed(): Promise<void> {
   /* ── 2. connectors, 22 days ago ── */
 
   const orders = data.shopOrders(today);
+  // Idea 47: about forty days of abandoned checkouts; the fake shows each only once started.
+  const carts = data.shopCarts(today);
   const shop = fakeShopify({
     orders,
+    carts,
     products: [...data.SHOPIFY_PRODUCTS],
     scopes: ["read_orders", "read_products", "read_all_orders"],
   });
@@ -1699,6 +1705,44 @@ async function seed(): Promise<void> {
     );
   }
 
+  // Idea 47: that sync read Fernhill's abandoned checkouts WITHOUT their
+  // shoppers: Shopify keeps a checkout's email on its customer, which needs
+  // read_customers, and SYB doesn't ask for it (TASKS-FEEDBACK.md I-47b). So
+  // that /carts shows what matching does once the owner allows it, the seed
+  // stands in for that read: it writes the keyed hash the store would write
+  // for the planned shoppers, and no address. Fernhill is still watched, so
+  // its reminder waits and the screen says why; Emberworks shows one proposed.
+  const hashCarts = async (
+    connectionId: string,
+    list: readonly { id: string; email?: string | null }[],
+  ) => {
+    let n = 0;
+    for (const c of list) {
+      if (!c.email) continue;
+      await db
+        .update(schema.abandonedCheckouts)
+        .set({ email_hash: emailHash(c.email) })
+        .where(
+          and(
+            eq(schema.abandonedCheckouts.connection_id, connectionId),
+            eq(schema.abandonedCheckouts.checkout_ref, c.id),
+          ),
+        );
+      n += 1;
+    }
+    return n;
+  };
+  {
+    const stored = await db
+      .select({ id: schema.abandonedCheckouts.id })
+      .from(schema.abandonedCheckouts)
+      .where(eq(schema.abandonedCheckouts.connection_id, conns.shopify));
+    const hashed = await hashCarts(conns.shopify, carts);
+    log(
+      `  carts: ${stored.length} abandoned checkouts read; ${hashed} shoppers hashed by the seed (I-47b)`,
+    );
+  }
+
   // P5-02/P5-05: today's stock read leaves the mug short of a clay delivery.
   // The weekly beat's own step for this one business, so the watch log and
   // the weekly summary carry the warning. Fernhill is still watched, so no
@@ -2363,6 +2407,46 @@ async function seed(): Promise<void> {
       },
       who,
     );
+
+    // Idea 47: Emberworks' Shopify, connected for its abandoned carts. Past
+    // its watch, so a cart reminder is proposed for real: the cart read goes
+    // through the connector's own query against a fake shop, the store keeps
+    // no address, and the seed hashes the planned shoppers as for Fernhill
+    // (I-47b). Its orders aren't read, so nothing else on Emberworks moves.
+    {
+      const emberCarts = data.emberworksCarts(
+        today,
+        YES.map((n, i) => address(n, i)),
+        UNSURE.map((n, i) => address(n, i + 100)),
+      );
+      const emberShop = fakeShopify({
+        carts: emberCarts,
+        scopes: ["read_orders", "read_products"],
+      });
+      const emberProvider = createShopifyProvider({ fetch: emberShop.fetch, sleep: noSleep });
+      overrideProviderForTests("shopify", emberProvider);
+      const secret = JSON.stringify({
+        shop: "emberworks-candles.myshopify.com",
+        client_id: FAKE_SHOPIFY_CREDENTIAL.client_id,
+        client_secret: FAKE_SHOPIFY_CREDENTIAL.client_secret,
+      });
+      const conn = await connect(outbound.account, "shopify", secret);
+      const read = await emberProvider.readAbandonedCheckouts!(secret, new Date(), CARTS.read_days);
+      await storeCarts({ id: conn.id, account_id: outbound.account }, read, new Date());
+      const hashed = await hashCarts(conn.id, emberCarts);
+      const reminder = await proposeFromSegments(outbound.profile, {
+        only: "abandoned_cart",
+        limitLlm: async () => ({ text: JSON.stringify({ limits: [] }), calls: [] }),
+      });
+      if (reminder.created.length !== 1) {
+        throw new Error(
+          `Emberworks: no cart reminder proposed (${reminder.skipped.map((x) => x.reason).join("; ")})`,
+        );
+      }
+      log(
+        `  Emberworks carts: ${read.carts.length} read, ${hashed} shoppers hashed; ${(reminder.created[0]!.action as { summary: string }).summary}`,
+      );
+    }
 
     const outcome = await emailCampaignOutcome({
       id: winbackId,
