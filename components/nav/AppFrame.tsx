@@ -133,6 +133,13 @@ export const GROUPS: readonly Group[] = [
     items: [
       { href: "/customers", label: "Customers", feature: "nav.customers" },
       {
+        href: "/carts",
+        label: "Abandoned carts",
+        feature: "nav.carts",
+        // Idea 47: only with a store connection that reads carts (Shopify today).
+        appliesTo: (c) => c.carts === true,
+      },
+      {
         href: "/pipeline",
         label: "Pipeline",
         feature: "nav.pipeline",

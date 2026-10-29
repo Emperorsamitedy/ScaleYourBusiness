@@ -13,8 +13,15 @@
 // contact IDS only — never a name or an address (rule 22: the record is
 // hashes and ids). It is labelled irreversible ("hard") before approval,
 // because the send it leads to can't be recalled (P4-15).
+//
+// Idea 47 adds a third, asked for by name from /carts (only:
+// "abandoned_cart"): a reminder to contacts who left a cart 1–7 days ago
+// and said yes to email (lib/carts/segment.ts). It runs through every gate
+// above, is keyed per day rather than per month, and leaves out anyone
+// proposed a reminder in the last 30 days. It names the products left
+// behind, never the person.
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, gte, like } from "drizzle-orm";
 import { careState } from "../care/day-zero";
 import { db } from "../../db";
 import { businessProfiles, proposals } from "../../db/schema";
@@ -30,6 +37,10 @@ import { outboundPosture } from "./contacts";
 import type { Segment } from "./segments";
 import { computeSegments } from "./segments";
 import { watchingUntil } from "../care/watch-words";
+import { loadCartFacts, productNamer } from "../carts/load";
+import { CARTS } from "../carts/measure";
+import type { CartSegment } from "../carts/segment";
+import { abandonedCartSegment } from "../carts/segment";
 
 export const SEGMENT_MODULE = "crm";
 export const SEGMENT_KIND = "customer_email";
@@ -82,6 +93,52 @@ const CAMPAIGNS: Record<"lapsed" | "vip", Campaign> = {
   },
 };
 
+/** Idea 47: at most this many products named in a cart reminder. */
+export const CART_PRODUCTS_NAMED = 5;
+
+/** Idea 47: the cart reminder's proposals are keyed per day: `crm:cart:YYYY-MM-DD`. */
+export const CART_REF_PREFIX = "crm:cart:";
+
+function cartCampaign(products: readonly string[]): Campaign {
+  const named =
+    products.length === 0
+      ? "what they left in it"
+      : products.length === 1
+        ? products[0]!
+        : `${products.slice(0, -1).join(", ")} and ${products.at(-1)!}`;
+  return {
+    segment: "abandoned_cart",
+    ref: "cart",
+    summary: (n) =>
+      `Remind ${n} shopper${n === 1 ? "" : "s"} who left a cart this week and said yes to email`,
+    what: `One email, in your voice, to shoppers who left a cart in the last week and gave explicit consent to hear from you, about what they left behind: ${named}.`,
+    base: "Some of them finish the order; the readback counts the orders that follow.",
+    upside: "A shopper who nearly bought is the easiest one to win.",
+  };
+}
+
+/** Contacts proposed a cart reminder in the last CARTS.recontact_days days, whatever became of it. */
+export async function recentCartRecipients(profileId: string, now: Date): Promise<Set<string>> {
+  const since = new Date(now.getTime() - CARTS.recontact_days * 86_400_000).toISOString();
+  const rows = await db
+    .select({ action: proposals.action })
+    .from(proposals)
+    .where(
+      and(
+        eq(proposals.profile_id, profileId),
+        eq(proposals.module, SEGMENT_MODULE),
+        like(proposals.originating_finding, `${CART_REF_PREFIX}%`),
+        gte(proposals.created_at, since),
+      ),
+    );
+  const out = new Set<string>();
+  for (const r of rows) {
+    const ids = (r.action as { detail?: { contact_ids?: unknown } }).detail?.contact_ids;
+    if (Array.isArray(ids)) for (const id of ids) if (typeof id === "string") out.add(id);
+  }
+  return out;
+}
+
 /**
  * Propose a campaign per qualifying segment, once per month. Honest
  * about every skip: posture, suppression, nobody emailable, already
@@ -93,7 +150,7 @@ export async function proposeFromSegments(
     now?: Date;
     limitLlm?: LimitLlm;
     /** Feature 36: one segment only, when the owner proposes it from the simulator. */
-    only?: "lapsed" | "vip";
+    only?: "lapsed" | "vip" | "abandoned_cart";
     /** Feature 36: the simulated scenario that proposal carries. */
     simulation?: SimulationAttachment;
   } = {},
@@ -128,7 +185,40 @@ export async function proposeFromSegments(
     return out;
   }
 
-  const report = await computeSegments(profile.account_id, now);
+  // What to consider: the cart reminder alone when asked for, else the monthly two.
+  const targets: {
+    campaign: Campaign;
+    segment: Segment;
+    ref: string;
+    cart?: { segment: CartSegment; products: string[] };
+  }[] = [];
+  if (opts.only === "abandoned_cart") {
+    const facts = await loadCartFacts(profile.account_id, now);
+    const segment = abandonedCartSegment(facts, await recentCartRecipients(profileId, now));
+    const name = await productNamer(
+      profileId,
+      facts.sources.map((x) => x.provider),
+    );
+    const products = segment.products
+      .slice(0, CART_PRODUCTS_NAMED)
+      .map((x) => name(x.ref, x.provider, x.title));
+    targets.push({
+      campaign: cartCampaign(products),
+      segment,
+      ref: `${CART_REF_PREFIX}${facts.today}`,
+      cart: { segment, products },
+    });
+  } else {
+    const report = await computeSegments(profile.account_id, now);
+    for (const campaign of Object.values(CAMPAIGNS)) {
+      if (opts.only !== undefined && campaign.segment !== opts.only) continue;
+      targets.push({
+        campaign,
+        segment: report.segments.find((x) => x.key === campaign.segment)!,
+        ref: `crm:${campaign.ref}:${monthKey(now)}`,
+      });
+    }
+  }
   const { limits } = await ensureHardLimits(profileId, opts.limitLlm);
   const suppressed = await suppressedKinds(profileId);
   const existing = await db
@@ -137,21 +227,25 @@ export async function proposeFromSegments(
     .where(and(eq(proposals.profile_id, profileId), eq(proposals.module, SEGMENT_MODULE)));
   const seen = new Set(existing.map((r) => r.ref));
 
-  for (const campaign of Object.values(CAMPAIGNS)) {
-    if (opts.only !== undefined && campaign.segment !== opts.only) continue;
-    const segment = report.segments.find((s) => s.key === campaign.segment)!;
-    const ref = `crm:${campaign.ref}:${monthKey(now)}`;
+  for (const { campaign, segment, ref, cart } of targets) {
     if (seen.has(ref)) {
-      out.skipped.push({ segment: segment.key, reason: "already proposed this month" });
+      out.skipped.push({
+        segment: segment.key,
+        reason: cart ? "already proposed today" : "already proposed this month",
+      });
       continue;
     }
     if (segment.emailable_ids.length === 0) {
       out.skipped.push({
         segment: segment.key,
         reason:
-          segment.contact_ids.length === 0
-            ? "nobody is in this segment"
-            : `${segment.contact_ids.length} in the segment, none with explicit email consent — nothing to send to`,
+          cart && cart.segment.recently_proposed > 0
+            ? `everyone who left a cart this week and said yes to email was already proposed a reminder in the last ${CARTS.recontact_days} days`
+            : segment.contact_ids.length === 0
+              ? cart
+                ? "no contact who said yes to email left a cart in the last week"
+                : "nobody is in this segment"
+              : `${segment.contact_ids.length} in the segment, none with explicit email consent — nothing to send to`,
       });
       continue;
     }
@@ -181,6 +275,13 @@ export async function proposeFromSegments(
           excluded: segment.excluded,
           evidence: segment.evidence,
           posture,
+          ...(cart
+            ? {
+                products: cart.products,
+                recently_proposed: cart.segment.recently_proposed,
+                unmatched_carts: cart.segment.unmatched_carts,
+              }
+            : {}),
           sending:
             "Nothing sends on approval. Approving lets me draft the email; nothing sends until you approve the finished email itself, and then every recipient's consent is checked again at the moment it goes.",
           manual_limits: verdict.manual.map((l) => l.quote),

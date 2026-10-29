@@ -92,6 +92,7 @@ describe("app navigation", () => {
       stock: false,
       team: false,
       pipeline: false,
+      carts: false,
     };
     const hrefs = (c: NavCounts | null) =>
       visibleGroups(null, c).flatMap((g) => g.items.map((i) => i.href));
@@ -99,5 +100,32 @@ describe("app navigation", () => {
     expect(hrefs(null)).not.toContain("/team"); // still loading: hidden, never guessed
     expect(hrefs({ ...counts, team: true })).toContain("/team");
     expect(groupFor("/team")?.key).toBe("insights");
+  });
+
+  // Idea 47: Abandoned carts sits under Customers, only with a store connection that reads carts.
+  it("shows Abandoned carts under Customers only when a shop connection reads carts", () => {
+    const counts: NavCounts = {
+      business: "Fernhill Ceramics",
+      business_type: null,
+      watch: null,
+      pending: 0,
+      by_module: {},
+      goals: 0,
+      facts: 0,
+      connections: 1,
+      needs_reconnect: 0,
+      support_open: 0,
+      size_band: null,
+      stock: true,
+      team: false,
+      pipeline: false,
+      carts: false,
+    };
+    const hrefs = (c: NavCounts | null) =>
+      visibleGroups(null, c).flatMap((g) => g.items.map((i) => i.href));
+    expect(hrefs(counts)).not.toContain("/carts");
+    expect(hrefs(null)).not.toContain("/carts"); // still loading: hidden, never guessed
+    expect(hrefs({ ...counts, carts: true })).toContain("/carts");
+    expect(groupFor("/carts")?.key).toBe("customers");
   });
 });

@@ -39,6 +39,8 @@ import { recordSyncActivity } from "./activity";
 import { deriveFactsFromObservations } from "./derive";
 import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
 import { replaceBaskets } from "../bundles/store";
+import { CARTS } from "../carts/measure";
+import { storeCarts } from "../carts/store";
 import { deriveBookingFacts, storeAppointments } from "../bookings/store";
 import { getProvider } from "./registry";
 import { decryptSecret } from "./secrets";
@@ -72,6 +74,47 @@ export interface SyncOutcome {
   anomalies: AnomalyOutcome[];
   /** Feature 34: the stock snapshot a store provider took, or null (none, or it failed). */
   stock: { observations: number; untracked: number; cost_unknown: number } | null;
+  /** Idea 47: the abandoned checkouts a store provider read, or null (none, or it failed). */
+  carts: { stored: number; hashed: number; pruned: number } | null;
+}
+
+/**
+ * Idea 47: read a store's abandoned checkouts. Read-only like every pull,
+ * and never fatal: a failed read is logged and the sync stays a success,
+ * so the carts screen reads what the last good read stored. The log line
+ * carries counts only, never an address.
+ */
+async function readCarts(
+  row: typeof connections.$inferSelect,
+  provider: Provider,
+  secret: string,
+  now: Date,
+): Promise<SyncOutcome["carts"]> {
+  if (!provider.readAbandonedCheckouts) return null;
+  try {
+    const read = await provider.readAbandonedCheckouts(secret, now, CARTS.read_days);
+    const stored = await storeCarts(row, read, now);
+    console.log(
+      JSON.stringify({
+        event: "carts_read",
+        account_id: row.account_id,
+        connection_id: row.id,
+        provider: row.provider,
+        ...stored,
+      }),
+    );
+    return stored;
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "carts_read_failed",
+        account_id: row.account_id,
+        connection_id: row.id,
+        message: errorText(error),
+      }),
+    );
+    return null;
+  }
 }
 
 /**
@@ -163,6 +206,7 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
     derived: [],
     anomalies: [],
     stock: null,
+    carts: null,
   };
 
   return withConnectionLock(
@@ -245,6 +289,8 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
         // Feature 34: a store's stock snapshot, once per run, after the pages.
         outcome.stock = await readStockSnapshot(row, provider, secret, now);
         if (outcome.stock) outcome.observations += outcome.stock.observations;
+        // Idea 47: the store's abandoned checkouts, once per run, after the stock.
+        outcome.carts = await readCarts(row, provider, secret, now);
         outcome.derived = await deriveFactsFromObservations(row.id);
         // Bookings: the 28-day measures, when this connection reads appointments.
         outcome.derived.push(...(await deriveBookingFacts(row.id, now)));

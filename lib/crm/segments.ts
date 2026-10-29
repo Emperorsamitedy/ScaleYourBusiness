@@ -63,7 +63,8 @@ export function lifecycleOf(
   return "lapsed";
 }
 
-export type SegmentKey = "lapsed" | "lapsing" | "new" | "vip";
+/** "abandoned_cart" (idea 47) is computed from stored carts by lib/carts/segment.ts, not here. */
+export type SegmentKey = "lapsed" | "lapsing" | "new" | "vip" | "abandoned_cart";
 
 export interface Segment {
   key: SegmentKey;

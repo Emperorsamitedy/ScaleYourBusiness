@@ -378,6 +378,25 @@ takes the rebooking rate as a percentage. The appointments themselves live
 in `booking_appointments`, outside the profile, with a keyed client hash
 and no client PII.
 
+Abandoned carts (idea 47, 2026-10-29), read from Shopify's
+`abandonedCheckouts` under `read_orders` and never asked in the intake,
+live in `abandoned_checkouts` (migration 0066), outside the profile like
+`order_baskets`. One row per (connection, checkout id): when it started
+and was last updated, its UTC `day`, `completed_at` when the shopper
+later finished it (a recovered cart, already counted as an order), its
+total as `total_minor` plus `currency` (rule 1), its `lines`
+(`{ product_ref, title, quantity, unit_price_minor }`, the product ref
+mapped to offers as orders are), `lines_truncated`, `email_hash` and
+`accepts_marketing`. No address is ever stored: an email a store gives is
+turned into the same keyed hash contacts and suppressions use and dropped,
+and a hash matching an erasure suppression is dropped too. Shopify gives
+the email only to an app that may read customers (`read_customers`, not
+held), so from Shopify `email_hash` and `accepts_marketing` are null
+today; whether to ask is an owner decision (I-47b). `accepts_marketing` is
+never consent (rule 19): who may be emailed is decided by the contact's
+own recorded consent (I-47a). Rows are deleted after 90 days, go with their
+connection, and erasing a contact deletes the carts their address hashes to.
+
 Trading hours (Phase 2 Session F, bank 1.3.0):
 
 - `presence.opening_hours` stays the owner's own words (question 2.1.1.7,

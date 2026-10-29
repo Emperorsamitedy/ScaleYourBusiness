@@ -8,6 +8,7 @@
 // Nothing in this file touches the database or the network.
 
 import type {
+  FakeShopifyCart,
   FakeShopifyLine,
   FakeShopifyOrder,
   FakeShopifyProduct,
@@ -366,6 +367,155 @@ export function shopOrders(today: string): FakeShopifyOrder[] {
     for (let i = 0; i < studio; i++) place("studio");
   });
   return orders;
+}
+
+/* ── abandoned carts (idea 47) ── */
+
+/**
+ * Who left a demo cart, by plan: a few of the customers who said yes to
+ * email, two studio customers who never did, some shoppers who aren't
+ * customers at all, and the rest with no address. The address rides on the
+ * fake checkout as Shopify holds it; the connector never reads it (that needs
+ * read_customers, I-47b), so the seed hashes these itself (seed-demo.ts).
+ */
+export interface DemoCartShopper {
+  /** Days before today the cart was started. */
+  days_ago: number;
+  email: string;
+}
+
+/** Fernhill's planned shoppers, from its own contacts (demoContacts). */
+export function demoCartShoppers(today: string): DemoCartShopper[] {
+  const people = demoContacts(today);
+  // Lapsing and lapsed customers (last order 95+ days ago), so no order of
+  // theirs falls after the cart; two in the reminder's week, one just in it,
+  // two before it.
+  const yes = (i: number) => (people.explicit[i] as DemoContact).email;
+  const studio = (i: number) => (people.studio[i] as DemoContact).email;
+  return [
+    { days_ago: 2, email: yes(3) },
+    { days_ago: 4, email: yes(4) },
+    { days_ago: 6, email: yes(8) },
+    { days_ago: 12, email: yes(9) },
+    { days_ago: 19, email: yes(13) },
+    { days_ago: 3, email: studio(1) },
+    { days_ago: 9, email: studio(2) },
+    ...[1, 5, 8, 14, 21, 27].map((d, i) => ({
+      days_ago: d,
+      email: `shopper.${i + 1}@example.${i % 2 === 0 ? "com" : "net"}`,
+    })),
+  ];
+}
+
+/**
+ * About forty days of abandoned checkouts, one to three a day, built from
+ * the same catalogue and shipping rule as the orders. About one in seven
+ * was finished later (Shopify's recovered carts, already among the orders).
+ */
+export function shopCarts(today: string): FakeShopifyCart[] {
+  const rand = prng(seedOf(`carts:${today}`));
+  const planned = demoCartShoppers(today);
+  const carts: FakeShopifyCart[] = [];
+  let sequence = 5000;
+  const make = (daysAgo: number, email: string | null, finished: boolean) => {
+    const lineCount = weighted(rand, [
+      { item: 1, weight: 70 },
+      { item: 2, weight: 25 },
+      { item: 3, weight: 5 },
+    ]);
+    const chosen = new Map<string, number>();
+    for (let i = 0; i < lineCount; i++) {
+      const p = weighted(
+        rand,
+        PRODUCTS.map((product) => ({ item: product, weight: product.weight })),
+      );
+      chosen.set(p.ref, (chosen.get(p.ref) ?? 0) + 1);
+    }
+    const lines = [...chosen.entries()].map(([ref, quantity]) => {
+      const p = PRODUCTS.find((x) => x.ref === ref) as DemoProduct;
+      return { title: p.shopify_title, quantity, price: euros(p.price_minor), productId: ref };
+    });
+    const subtotal = lines.reduce(
+      (sum, l) =>
+        sum + (PRODUCTS.find((x) => x.ref === l.productId)?.price_minor ?? 0) * l.quantity,
+      0,
+    );
+    const total = subtotal + (subtotal < FREE_SHIPPING_FROM_MINOR ? SHIPPING_MINOR : 0);
+    const day = shiftDay(today, -daysAgo);
+    const hour = weighted(
+      rand,
+      ONLINE_HOUR_WEIGHTS.map((weight, h) => ({ item: h, weight })),
+    );
+    const createdAt = localInstant(day, hour, Math.floor(rand() * 60));
+    sequence += 1;
+    carts.push({
+      id: `gid://shopify/AbandonedCheckout/${sequence}`,
+      createdAt,
+      updatedAt: createdAt,
+      completedAt: finished ? new Date(Date.parse(createdAt) + 3 * 3_600_000).toISOString() : null,
+      total: euros(total),
+      currency: CURRENCY,
+      lines,
+      email,
+    });
+  };
+  for (const p of planned) make(p.days_ago, p.email, false);
+  for (let d = 1; d <= 40; d++) {
+    const n = Math.floor(rand() * 3) + (rand() < 0.3 ? 1 : 0);
+    for (let i = 0; i < n; i++) make(d, null, rand() < 0.14);
+  }
+  return carts;
+}
+
+/**
+ * Emberworks' shop, connected for its abandoned carts only (no orders read):
+ * three of the customers who said yes, one who since unsubscribed, two who
+ * never did, two strangers, and
+ * the rest with no address — enough carts over four weeks to be measured.
+ */
+export function emberworksCarts(
+  today: string,
+  yes: readonly string[],
+  unsure: readonly string[],
+): FakeShopifyCart[] {
+  const rand = prng(seedOf(`ember-carts:${today}`));
+  const candles = [
+    { id: "gid://shopify/Product/8810001", title: "Fig & Cedar Candle", price: "28.00" },
+    { id: "gid://shopify/Product/8810002", title: "Smoked Oak Candle", price: "32.00" },
+    { id: "gid://shopify/Product/8810003", title: "Wick Trimmer", price: "14.00" },
+  ];
+  const shoppers: (string | null)[] = [
+    yes[1] ?? null,
+    yes[2] ?? null,
+    yes[5] ?? null,
+    unsure[3] ?? null,
+    unsure[4] ?? null,
+    "candle.fan@example.com",
+    "gift.hunter@example.net",
+    yes[7] ?? null, // unsubscribed after the win-back: never emailed again
+    ...Array.from({ length: 10 }, () => null),
+  ];
+  const daysAgo = [2, 3, 5, 3, 6, 4, 16, 1, 4, 7, 9, 11, 13, 15, 18, 21, 24, 27];
+  return shoppers.map((email, i) => {
+    const first = candles[i % 2] as (typeof candles)[number];
+    const lines = [{ title: first.title, quantity: 1, price: first.price, productId: first.id }];
+    if (rand() < 0.4) {
+      const t = candles[2] as (typeof candles)[number];
+      lines.push({ title: t.title, quantity: 1, price: t.price, productId: t.id });
+    }
+    const subtotal = lines.reduce((sum, l) => sum + Math.round(Number(l.price) * 100), 0);
+    const createdAt = `${shiftDay(today, -(daysAgo[i] ?? 10))}T${String(10 + (i % 9)).padStart(2, "0")}:20:00Z`;
+    return {
+      id: `gid://shopify/AbandonedCheckout/${9100 + i}`,
+      createdAt,
+      updatedAt: createdAt,
+      completedAt: null,
+      total: euros(subtotal + 495),
+      currency: CURRENCY,
+      lines,
+      email,
+    };
+  });
 }
 
 /** Net revenue and order counts over [from, to] by the order's UTC date, as Shopify buckets them. */

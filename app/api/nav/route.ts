@@ -19,6 +19,7 @@ import { watchDays } from "../../../lib/watch/watch-view";
 import { stockApplies } from "../../../lib/stock/load";
 import { teamModuleOn } from "../../../lib/team/module";
 import { pipelineApplies } from "../../../lib/pipeline/deals";
+import { cartsApply } from "../../../lib/carts/load";
 
 export interface NavCounts {
   business: string | null;
@@ -65,6 +66,12 @@ export interface NavCounts {
    * when true.
    */
   pipeline: boolean;
+  /**
+   * Idea 47: whether a store connection reads abandoned carts (Shopify
+   * today; lib/carts/load's cartsApply, from the provider registry). The
+   * Abandoned carts item shows only when true.
+   */
+  carts: boolean;
 }
 
 const NAME_KEY = "identity.legal_name";
@@ -88,6 +95,7 @@ export async function GET(): Promise<NextResponse> {
       stock,
       team,
       pipeline,
+      carts,
     ] = await Promise.all([
       db
         .select({ module: proposals.module, n: count() })
@@ -140,6 +148,7 @@ export async function GET(): Promise<NextResponse> {
       stockApplies(profileId),
       teamModuleOn(access.account_id),
       pipelineApplies(profileId),
+      cartsApply(access.account_id),
     ]);
 
     const by_module: Record<string, number> = {};
@@ -171,6 +180,7 @@ export async function GET(): Promise<NextResponse> {
       stock,
       team,
       pipeline,
+      carts,
     };
     return NextResponse.json(body);
   } catch (error) {

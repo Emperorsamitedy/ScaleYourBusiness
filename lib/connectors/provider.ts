@@ -290,6 +290,42 @@ export interface Provider {
    * orders report it, for a platform whose product list doesn't say.
    */
   readStock?(secret: string, now: Date, hint: { currency: string | null }): Promise<StockRead>;
+  /**
+   * Stores only (idea 47): the checkouts started in the last `days` days,
+   * finished or not (a later finish is completed_at). Read-only, once per
+   * run after the stock snapshot; a failure never fails the sync.
+   */
+  readAbandonedCheckouts?(secret: string, now: Date, days: number): Promise<CartRead>;
+}
+
+/** One abandoned checkout as the platform reports it. Amounts already in minor units. */
+export interface ExternalCart {
+  /** The platform's own id. */
+  ref: string;
+  started_at: string;
+  updated_at: string;
+  completed_at: string | null;
+  total_minor: number;
+  currency: string;
+  lines: {
+    product_ref: string | null;
+    title: string | null;
+    quantity: number;
+    unit_price_minor: number;
+  }[];
+  lines_truncated: boolean;
+  /**
+   * The shopper's email: hashed by the store on the way in, never kept.
+   * Null when there is none, or the platform doesn't share it with this
+   * credential (Shopify: only with read_customers, which SYB doesn't hold).
+   */
+  email: string | null;
+  /** The platform's own "email me" tick; null when not read. Never consent (I-47a). */
+  accepts_marketing: boolean | null;
+}
+
+export interface CartRead {
+  carts: ExternalCart[];
 }
 
 /** One stock snapshot: the observations, and what couldn't be read (counted, never guessed). */

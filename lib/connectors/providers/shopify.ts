@@ -49,6 +49,23 @@
 // of product ids its lines still hold, so bundles can be mined. They come
 // from the product ids the Orders query already reads: no field, query or
 // scope was added.
+//
+// ABANDONED CARTS (idea 47). Once per sync, the checkouts started in the
+// last 60 days, finished or not, through abandonedCheckouts. Shopify's docs
+// (read 2026-10-29, Admin GraphQL 2026-10): the query and AbandonedCheckout
+// "Requires read_orders access scope", which the connector already holds,
+// so no scope was added. Fields read: id, createdAt, updatedAt,
+// completedAt, totalPriceSet, and per line title, quantity,
+// originalUnitPriceSet and product { id } (Product sits under
+// read_products, also held). NOT read, on purpose: the shopper. The
+// checkout has no email field of its own; the address is on its customer
+// (customer.email, deprecated for defaultEmailAddress.emailAddress), and
+// the Customer type "Requires read_customers access scope". The marketing
+// tick lives there too (defaultEmailAddress.marketingState). SYB doesn't
+// hold read_customers and doesn't add it here, so every cart is read
+// without its shopper: `email` and `accepts_marketing` are null. Asking for
+// read_customers is an owner decision (TASKS-FEEDBACK.md I-47b), and so is
+// the protected customer data access Shopify puts email under (level 2).
 
 import { basketOf } from "../baskets";
 import { addDays, advanceCursor, dayString, isoSeconds, oneNewDay, planWindow } from "../days";
@@ -56,6 +73,8 @@ import { DecimalError, decimalToMinor } from "../decimal";
 import { HourlyBuckets } from "../hourly";
 import type {
   BasketWindow,
+  CartRead,
+  ExternalCart,
   ExternalProduct,
   Observation,
   Provider,
@@ -85,6 +104,10 @@ export const SHOPIFY_MAX_ATTEMPTS = 3;
 export const SHOPIFY_STOCK_PAGE = 10;
 export const SHOPIFY_STOCK_VARIANTS = 50;
 export const SHOPIFY_MAX_STOCK_PAGES = 200;
+/** Carts per page × lines per cart stays under the 1,000-point query cost cap. */
+export const SHOPIFY_CARTS_PAGE = 50;
+export const SHOPIFY_CART_LINES = 15;
+export const SHOPIFY_MAX_CART_PAGES = 40;
 
 /**
  * Every document this module can send. All are read queries; the source
@@ -183,6 +206,44 @@ export const SHOPIFY_QUERIES = {
               amount
               currencyCode
             }
+          }
+        }
+        pageInfo {
+          hasNextPage
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}`,
+  abandoned_checkouts: `query AbandonedCheckouts($first: Int!, $lineItems: Int!, $after: String, $search: String!) {
+  abandonedCheckouts(first: $first, after: $after, sortKey: CREATED_AT, query: $search) {
+    nodes {
+      id
+      createdAt
+      updatedAt
+      completedAt
+      totalPriceSet {
+        shopMoney {
+          amount
+          currencyCode
+        }
+      }
+      lineItems(first: $lineItems) {
+        nodes {
+          title
+          quantity
+          originalUnitPriceSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+          product {
+            id
           }
         }
         pageInfo {
@@ -802,6 +863,78 @@ export function aggregateStock(
   return { observations: out, untracked, cost_unknown: costUnknown };
 }
 
+/* ── abandoned carts (idea 47) ── */
+
+/**
+ * Pure: one cart from the AbandonedCheckouts response, amounts in minor
+ * units of the shop's currency. The shopper is never part of it: the
+ * document doesn't ask (see the header).
+ */
+export function parseCart(value: unknown): ExternalCart {
+  const c = value as {
+    id?: unknown;
+    createdAt?: unknown;
+    updatedAt?: unknown;
+    completedAt?: unknown;
+    totalPriceSet?: unknown;
+    lineItems?: { nodes?: unknown; pageInfo?: { hasNextPage?: unknown } } | null;
+  } | null;
+  const total = money(c?.totalPriceSet);
+  if (
+    !c ||
+    typeof c.id !== "string" ||
+    typeof c.createdAt !== "string" ||
+    typeof c.updatedAt !== "string" ||
+    (c.completedAt !== null && typeof c.completedAt !== "string") ||
+    total === null ||
+    !Array.isArray(c.lineItems?.nodes)
+  ) {
+    throw new ProviderError("shopify: a checkout is missing a field the connector relies on");
+  }
+  const id = c.id;
+  const currency = total.currencyCode.toUpperCase();
+  try {
+    const lines = (c.lineItems.nodes as unknown[]).map((node) => {
+      const l = node as {
+        title?: unknown;
+        quantity?: unknown;
+        originalUnitPriceSet?: unknown;
+        product?: { id?: unknown } | null;
+      } | null;
+      const price = money(l?.originalUnitPriceSet);
+      if (!l || !Number.isSafeInteger(l.quantity) || price === null) {
+        throw new ProviderError(`shopify: checkout ${id} has a line without its quantity or price`);
+      }
+      if (price.currencyCode.toUpperCase() !== currency) {
+        throw new ProviderError(`shopify: checkout ${id} mixes currencies`);
+      }
+      return {
+        product_ref: typeof l.product?.id === "string" ? l.product.id : null,
+        title: typeof l.title === "string" ? l.title : null,
+        quantity: l.quantity as number,
+        unit_price_minor: decimalToMinor(price.amount, currency),
+      };
+    });
+    return {
+      ref: id,
+      started_at: c.createdAt,
+      updated_at: c.updatedAt,
+      completed_at: c.completedAt as string | null,
+      total_minor: decimalToMinor(total.amount, currency),
+      currency,
+      lines,
+      lines_truncated: c.lineItems.pageInfo?.hasNextPage === true,
+      email: null,
+      accepts_marketing: null,
+    };
+  } catch (error) {
+    if (error instanceof DecimalError) {
+      throw new ProviderError(`shopify: checkout ${id}: ${error.message}`);
+    }
+    throw error;
+  }
+}
+
 /* ── the provider ── */
 
 export function historyDaysFor(scopes: readonly string[]): number {
@@ -947,6 +1080,32 @@ export function createShopifyProvider(options: ShopifyProviderOptions = {}): Pro
         after = listed.endCursor;
       }
       throw new ProviderError("shopify: more products than one stock read reads");
+    },
+
+    async readAbandonedCheckouts(secret, now, days): Promise<CartRead> {
+      const cred = parseShopifyCredential(secret);
+      const search = `created_at:>='${isoSeconds(addDays(now, -days))}'`;
+      const carts: ExternalCart[] = [];
+      let after: string | null = null;
+      for (let page = 0; page < SHOPIFY_MAX_CART_PAGES; page += 1) {
+        const data = await graphql(ctx, cred, "abandoned_checkouts", {
+          first: SHOPIFY_CARTS_PAGE,
+          lineItems: SHOPIFY_CART_LINES,
+          after,
+          search,
+        });
+        const listed = parseConnection(data["abandonedCheckouts"], "abandoned checkouts");
+        carts.push(...listed.nodes.map(parseCart));
+        if (!listed.hasNextPage) return { carts };
+        if (listed.endCursor === null) {
+          throw new ProviderError("shopify: hasNextPage without a cursor to continue from");
+        }
+        after = listed.endCursor;
+      }
+      // Never a partial count: a short read would understate what was left.
+      throw new ProviderError(
+        `shopify: more than ${SHOPIFY_CARTS_PAGE * SHOPIFY_MAX_CART_PAGES} checkouts in ${days} days, which one sync cannot read yet`,
+      );
     },
   };
 }
