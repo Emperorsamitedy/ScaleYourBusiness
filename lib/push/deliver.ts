@@ -29,8 +29,10 @@ export const TEST_PAYLOAD: PushPayload = {
 export async function sendTestPush(
   accountId: string,
   service: PushService,
+  /** Idea 52: the person pressing it — a test goes to their own devices only. */
+  userId: string | null = null,
 ): Promise<DeviceOutcome[]> {
-  const devices = await openDevices(accountId);
+  const devices = await openDevices(accountId, userId);
   return (await deliverAll(accountId, devices, TEST_PAYLOAD, service, "test")).outcomes;
 }
 

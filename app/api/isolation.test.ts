@@ -40,6 +40,7 @@ export const PUBLIC: Record<string, string> = {
   "cron/connector-sync/route.ts": "Vercel cron, CRON_SECRET",
   "cron/execute-due/route.ts": "Vercel cron, CRON_SECRET",
   "cron/faq-cluster/route.ts": "Vercel cron, CRON_SECRET",
+  "cron/push-held/route.ts": "Vercel cron, CRON_SECRET (idea 53's held phone alerts)",
   "cron/render-footage/route.ts": "Vercel cron, CRON_SECRET",
   "cron/weekly-watch/route.ts": "Vercel cron, CRON_SECRET",
   "debug-sentry/route.ts": "throws on purpose, SENTRY_TEST_KEY",

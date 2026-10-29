@@ -19,7 +19,12 @@ import {
 import type { AuthedSession } from "./service";
 
 /** The plan: a viewer reads and presses stop. */
-const VIEWER_MAY: readonly RoleAction[] = ["stop.press", "intake.open", "telemetry.record"];
+const VIEWER_MAY: readonly RoleAction[] = [
+  "stop.press",
+  "intake.open",
+  "telemetry.record",
+  "alerts.remove_device",
+];
 /** The plan: a manager approves or declines, drafts, answers support and presses stop. */
 const MANAGER_MAY: readonly RoleAction[] = [
   ...VIEWER_MAY,
@@ -29,6 +34,7 @@ const MANAGER_MAY: readonly RoleAction[] = [
   "content.draft",
   "support.answer",
   "chat.ask",
+  "alerts.subscribe",
 ];
 /** And what the plan names as never a manager's — each must be owner-only. */
 const NEVER_A_MANAGER: readonly RoleAction[] = [

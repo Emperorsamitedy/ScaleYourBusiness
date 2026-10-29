@@ -22,6 +22,8 @@ export const ROLE_ACTIONS = {
   "stop.press": { min: "viewer", what: "press the emergency stop" },
   "intake.open": { min: "viewer", what: "open the interview" },
   "telemetry.record": { min: "viewer", what: "record how the screens are used" },
+  // Idea 53: taking one of your own phones off alerts is always allowed.
+  "alerts.remove_device": { min: "viewer", what: "remove one of your own phones from alerts" },
 
   // ── managers and owners ──
   "proposals.decide": { min: "manager", what: "approve or decline proposals" },
@@ -30,6 +32,8 @@ export const ROLE_ACTIONS = {
   "content.draft": { min: "manager", what: "draft content" },
   "support.answer": { min: "manager", what: "answer support" },
   "chat.ask": { min: "manager", what: "ask me things in the chat" },
+  // Idea 53: an alert asks for a decision, so only those who may decide get them.
+  "alerts.subscribe": { min: "manager", what: "get phone alerts for proposals" },
 
   // ── owners only ──
   "connections.manage": { min: "owner", what: "connect or disconnect accounts" },

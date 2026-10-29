@@ -31,6 +31,7 @@ import {
   businessProfiles,
   decisionLog,
   fieldRecords,
+  pushSubscriptions,
   teamInvites,
   users,
 } from "../../db/schema";
@@ -647,6 +648,8 @@ export async function removeMember(args: {
         .update(authSessions)
         .set({ revoked_at: at })
         .where(and(eq(authSessions.user_id, target.id), isNull(authSessions.revoked_at)));
+      // Idea 53's phone alerts go with them, as a sign-out takes its own.
+      await tx.delete(pushSubscriptions).where(eq(pushSubscriptions.user_id, target.id));
       await logTeamDecision(tx, {
         kind: "team_remove",
         profileId: args.profileId,

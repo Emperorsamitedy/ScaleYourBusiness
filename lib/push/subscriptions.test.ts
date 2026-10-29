@@ -145,3 +145,51 @@ describe("Send a test", () => {
     expect(await listDevices(b.account_id, null)).toHaveLength(0);
   });
 });
+
+// Idea 52: a phone is its person's; an alert asks for a decision, so it goes
+// only to owners and managers still on the team.
+describe("devices on a team", () => {
+  async function teammate(b: { account_id: string }, role: "owner" | "manager" | "viewer") {
+    const [u] = await db
+      .insert(users)
+      .values({
+        account_id: b.account_id,
+        email: `i52-${crypto.randomUUID()}@test.local`,
+        display_name: "teammate",
+        role,
+      })
+      .returning({ id: users.id });
+    if (!u) throw new Error("no user");
+    return { account_id: b.account_id, user_id: u.id };
+  }
+
+  it("lists and removes only the person's own devices", async () => {
+    const b = await business();
+    const mine = await device(b);
+    const theirs = await device(await teammate(b, "manager"));
+    expect((await listDevices(b.account_id, null, b.user_id)).map((d) => d.id)).toEqual([mine.id]);
+    expect(await removeDevice(b.account_id, theirs.id, b.user_id)).toBe(false);
+    expect(await removeDevice(b.account_id, mine.id, b.user_id)).toBe(true);
+    expect(await listDevices(b.account_id, null)).toHaveLength(1);
+  });
+
+  it("sends only to owners and managers, never a viewer or someone taken off", async () => {
+    const b = await business();
+    const owner = await device(b);
+    const managerUser = await teammate(b, "manager");
+    const manager = await device(managerUser);
+    await device(await teammate(b, "viewer"));
+    const gone = await teammate(b, "manager");
+    await device(gone);
+    await db
+      .update(users)
+      .set({ removed_at: new Date().toISOString() })
+      .where(eq(users.id, gone.user_id));
+    const ids = (await openDevices(b.account_id)).map((d) => d.id).sort();
+    expect(ids).toEqual([owner.id, manager.id].sort());
+    // "Send a test" reaches the presser's own devices only.
+    expect((await openDevices(b.account_id, managerUser.user_id)).map((d) => d.id)).toEqual([
+      manager.id,
+    ]);
+  });
+});
