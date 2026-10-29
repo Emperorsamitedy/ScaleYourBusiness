@@ -207,6 +207,21 @@ export function historyDays(today: string): string[] {
   return Array.from({ length: HISTORY_DAYS }, (_, i) => shiftDay(today, i - HISTORY_DAYS));
 }
 
+/**
+ * Idea 54: the shop also traded in the days before that year, back to a
+ * year before its first sync (22 days ago, seed-demo.ts), which reads a
+ * year back. So the season forecast made the day after connecting has a
+ * whole last year to set its weeks beside, as a real shop's would.
+ */
+export const PRE_HISTORY_DAYS = 22;
+
+/** The days before the history, oldest first: D-387 … D-366. */
+export function preHistoryDays(today: string): string[] {
+  return Array.from({ length: PRE_HISTORY_DAYS }, (_, i) =>
+    shiftDay(today, i - HISTORY_DAYS - PRE_HISTORY_DAYS),
+  );
+}
+
 /** The studio shop's hours, as the owner states them (2.1.1.7) — local time. */
 export const STUDIO_HOURS: Readonly<Record<number, readonly [number, number] | null>> = {
   0: [12, 17], // Sunday
@@ -324,7 +339,7 @@ export function shopOrders(today: string): FakeShopifyOrder[] {
       0,
     );
 
-  days.forEach((day) => {
+  const placeDay = (day: string) => {
     const wd = weekdayOf(day);
     const refundRate =
       day < breakageFrom
@@ -365,7 +380,10 @@ export function shopOrders(today: string): FakeShopifyOrder[] {
     };
     for (let i = 0; i < online; i++) place("online");
     for (let i = 0; i < studio; i++) place("studio");
-  });
+  };
+  days.forEach(placeDay);
+  // Drawn after the year above, so none of its orders change.
+  preHistoryDays(today).forEach(placeDay);
   return orders;
 }
 

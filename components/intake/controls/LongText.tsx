@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { MicButton } from "../../voice/MicButton";
 import type { ControlProps } from "./shared";
+import { SPOKEN_AFTER } from "./shared";
 
 export function LongTextControl({ question, onChange, onCommit }: ControlProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -11,19 +13,33 @@ export function LongTextControl({ question, onChange, onCommit }: ControlProps) 
 
   const wireOf = (raw: string): unknown => (raw.trim() === "" ? null : raw.trim());
 
+  // Idea 50: spoken words land in the box as a draft, exactly as if typed.
+  const setSpoken = (next: string): void => {
+    if (ref.current) ref.current.value = next;
+    onChange({ wire: wireOf(next) });
+  };
+
   return (
-    <textarea
-      ref={ref}
-      aria-labelledby={`q-${question.id}`}
-      className="ix-input ix-textarea"
-      rows={3}
-      onChange={(e) => onChange({ wire: wireOf(e.target.value) })}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-          e.preventDefault();
-          onCommit({ wire: wireOf(e.currentTarget.value) });
-        }
-      }}
-    />
+    <div>
+      <textarea
+        ref={ref}
+        aria-labelledby={`q-${question.id}`}
+        className="ix-input ix-textarea"
+        rows={3}
+        onChange={(e) => onChange({ wire: wireOf(e.target.value) })}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            onCommit({ wire: wireOf(e.currentTarget.value) });
+          }
+        }}
+      />
+      <MicButton
+        label="Speak your answer"
+        getText={() => ref.current?.value ?? ""}
+        setText={setSpoken}
+        after={SPOKEN_AFTER}
+      />
+    </div>
   );
 }

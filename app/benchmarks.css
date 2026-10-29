@@ -1,0 +1,144 @@
+/* Insights · Compared with similar businesses (idea 44), on the sheet
+   system (app/sheet.css): one sheet per line — both figures, the cell in
+   words, the definition gap, the arithmetic and what it rests on — then
+   the source foot. Square, ruled, no icons; the reading word is neutral
+   ink, never a colour that grades it. Scoped under .bm-screen. */
+
+.bm-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.bm-screen .ph-aside {
+  align-self: flex-end;
+  line-height: 1.6;
+}
+.bm-note {
+  margin: 0;
+  max-width: var(--measure);
+}
+
+.bm-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 15px;
+}
+.bm-stack > * {
+  min-width: 0;
+}
+
+.bm-copy {
+  margin: 12px 0 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.bm-copy:first-child {
+  margin-top: 0;
+}
+.bm-copy.on-desk {
+  color: var(--desk-ink-2);
+}
+.bm-gap {
+  padding: 8px 10px;
+  background: var(--inset);
+  border-left: 2px solid var(--rule);
+}
+
+.bm-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: 0 40px;
+  margin: 0;
+}
+.bm-pair dt {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.bm-pair dd {
+  margin: 2px 0 0;
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.bm-math.fig {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  white-space: normal; /* .fig is nowrap; a formula must wrap at 360 px */
+  overflow-wrap: anywhere;
+}
+
+.bm-wrap {
+  position: relative;
+  overflow-x: auto;
+  margin: 12px -8px 0;
+  padding: 0 8px;
+}
+.bm-inputs {
+  min-width: 620px;
+}
+.bm-inputs tbody th {
+  font-weight: 500;
+}
+.bm-basis {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--sheet-ink-2);
+}
+
+.bm-sub {
+  margin: 14px 0 4px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.bm-list {
+  margin: 0;
+  padding: 0 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.bm-list li + li {
+  margin-top: 4px;
+}
+
+.bm-needs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 12px 0 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+}
+.bm-needs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.bm-foot {
+  margin: 18px 0 0;
+  max-width: var(--measure);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--desk-ink-2);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 719px) {
+  .bm-pair {
+    gap: 0 24px;
+  }
+  .bm-pair dd {
+    font-size: 22px;
+  }
+}

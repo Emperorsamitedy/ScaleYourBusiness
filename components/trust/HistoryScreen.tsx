@@ -1,7 +1,8 @@
 "use client";
 
 // History — the ledger (the owner's History design, 2026-10-17), on the
-// Session E record (P3-26/27). Every suggestion ever made, what the owner
+// Session E record (P3-26/27), with SYB's own forecast track record above
+// it (idea 54, ./TrackRecord). Every suggestion ever made, what the owner
 // decided, what ran and what measurement then said about it, plus every
 // fact that was superseded (rule 3), as one dated, append-only list. The
 // figures in the head are counted from the same record; a verdict renders
@@ -12,9 +13,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { keyWords } from "../report/figures";
+import type { TrackView } from "../../lib/forecasts/view";
 import type { FactChange } from "../../lib/trust/fact-change-view";
 import type { LedgerFilter, LedgerKind, LedgerOutcome, LedgerProposal, LedgerRow } from "./ledger";
 import { byDay, factRow, filterRows, proposalRows, toCsv } from "./ledger";
+import { TrackRecord } from "./TrackRecord";
 import "../../app/history.css";
 
 interface Entry {
@@ -94,7 +97,13 @@ function download(rows: readonly LedgerRow[], filter: LedgerFilter) {
   URL.revokeObjectURL(url);
 }
 
-export function HistoryScreen({ facts }: { facts: FactChange[] | null }) {
+export function HistoryScreen({
+  facts,
+  track = null,
+}: {
+  facts: FactChange[] | null;
+  track?: TrackView | null;
+}) {
   const [state, setState] = useState<State>({ phase: "loading" });
   const [filter, setFilter] = useState<LedgerFilter>("everything");
 
@@ -164,6 +173,9 @@ export function HistoryScreen({ facts }: { facts: FactChange[] | null }) {
     { label: "Decided", value: String(decided) },
     { label: "Ran", value: String(scorecard.executed) },
     ...(judged > 0 ? [{ label: "Helped", value: `${scorecard.outcomes.helped} / ${judged}` }] : []),
+    ...(track && !track.too_soon
+      ? [{ label: "Forecasts inside", value: `${track.inside} / ${track.graded}` }]
+      : []),
   ];
 
   const tabs = facts === null ? TABS.filter((t) => t.id !== "facts") : TABS;
@@ -186,6 +198,8 @@ export function HistoryScreen({ facts }: { facts: FactChange[] | null }) {
           </dl>
         }
       />
+
+      {track && <TrackRecord track={track} />}
 
       <section className="cs hi-sheet" aria-labelledby="hi-tabs-label">
         <header className="cs-head hi-head">

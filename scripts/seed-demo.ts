@@ -4,6 +4,8 @@
 //
 //   npm run db:seed-demo             seed once, print a sign-in link
 //   npm run db:seed-demo -- --link   already seeded: print a fresh link
+//   npm run db:seed-demo -- --phone  idea 53: give the demo owner a fake
+//                                    phone and show the alert it would get
 //   npm run db:seed-demo -- --fresh  the demo is anchored to the day it was
 //                                    seeded; this archives the current demo
 //                                    owner (renamed, nothing deleted) and
@@ -54,6 +56,11 @@ const MANAGER_EMAIL = "demo-manager@syb.test";
 const VIEWER_EMAIL = "demo-viewer@syb.test";
 const INVITED_EMAIL = "demo-invited@syb.test";
 const DAY_MS = 86_400_000;
+/** Idea 54: the two products the backdated stock forecasts are about (scripts/seed-demo-data.ts). */
+const MUG_REF = "gid://shopify/Product/7720001";
+const VASE_REF = "gid://shopify/Product/7720004";
+/** The bud vases on the shelf at the first sync, before the restock to today's 130. */
+const VASE_FIRST_COUNT = 30;
 
 /* ── the simulated clock ── */
 
@@ -150,6 +157,9 @@ async function main(): Promise<void> {
         .set({ email: archived.replace("demo-archived-", "demo-salon-archived-") })
         .where(eq(users.id, salon.id));
     }
+  } else if (existing && process.argv.includes("--phone")) {
+    await demoPhone(existing.id);
+    process.exit(0);
   } else if (existing) {
     log(
       `demo already seeded (${DEMO_EMAIL}) — nothing written. Re-seed around today with --fresh.`,
@@ -168,6 +178,83 @@ async function main(): Promise<void> {
   await ensureTeam();
   await printSignIn();
   process.exit(0);
+}
+
+/**
+ * Idea 53: a phone for the demo owner, on the fake push service. The
+ * device is a real P-256 subscription whose endpoint is on push.syb.invalid
+ * (it never resolves), sealed like any other. The demo's pending proposals
+ * are queued as createProposal would have queued them had the phone been on
+ * already, and the flush runs through the fake push service, which records
+ * what it would send and touches no network. During quiet hours it shows
+ * the hold, then what goes at 08:00.
+ */
+async function demoPhone(userId: string): Promise<void> {
+  const { and, eq } = await import("drizzle-orm");
+  const { createECDH, randomBytes } = await import("node:crypto");
+  const { db } = await import("../db");
+  const schema = await import("../db/schema");
+  const { FAKE_PUSH_HOST, saveSubscription } = await import("../lib/push/subscriptions");
+  const { enqueuePush, flushPushes } = await import("../lib/push/flush");
+  const { fakePushService } = await import("../lib/push/send");
+  const { pushWords } = await import("../lib/push/plan");
+  const [user] = await db
+    .select({ account_id: schema.users.account_id })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId));
+  if (!user) return;
+  const [profile] = await db
+    .select({ id: schema.businessProfiles.id })
+    .from(schema.businessProfiles)
+    .where(eq(schema.businessProfiles.account_id, user.account_id));
+  if (!profile) return;
+  const ecdh = createECDH("prime256v1");
+  ecdh.generateKeys();
+  await saveSubscription({
+    accountId: user.account_id,
+    userId,
+    sessionId: null,
+    userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X)",
+    target: {
+      endpoint: `https://${FAKE_PUSH_HOST}/demo-${userId}`,
+      p256dh: ecdh.getPublicKey().toString("base64url"),
+      auth: randomBytes(16).toString("base64url"),
+    },
+    timeZone: "Europe/Budapest",
+  });
+  const pending = await db
+    .select({
+      id: schema.proposals.id,
+      profile_id: schema.proposals.profile_id,
+      status: schema.proposals.status,
+      action: schema.proposals.action,
+      expires_at: schema.proposals.expires_at,
+    })
+    .from(schema.proposals)
+    .where(
+      and(eq(schema.proposals.profile_id, profile.id), eq(schema.proposals.status, "pending")),
+    );
+  for (const p of pending) await enqueuePush(db, p);
+  const fake = fakePushService();
+  const first = await flushPushes(profile.id, { service: fake });
+  if (first.plan === "hold") {
+    // Held stays held: the morning beat (/api/cron/push-held) sends it. Say what it will say.
+    const words = pushWords(
+      pending.map((p) => ({
+        proposal_id: p.id,
+        status: p.status,
+        kind: (p.action as { kind?: string } | null)?.kind ?? null,
+        expires_at: p.expires_at,
+      })),
+    );
+    log(
+      `phone: held (${first.why}) until ${first.until}, when it will say "${words.body}" → ${words.url}`,
+    );
+  }
+  const shown = fake.sent.map((s) => `"${s.payload.body}" → ${s.payload.url}`);
+  log(
+    `phone: a fake iPhone is on for ${DEMO_EMAIL}; ${pending.length} pending proposal${pending.length === 1 ? "" : "s"}; the fake push service recorded ${shown.length === 0 ? "nothing (see the plan line above)" : shown.join("; ")}. No network was touched.`,
+  );
 }
 
 async function printSignIn(): Promise<void> {
@@ -332,6 +419,12 @@ async function seed(): Promise<void> {
   const { tightWeek } = await import("../lib/cash/warnings");
   const { CASH_KEY, BUFFER_KEY } = await import("../lib/cash/keys");
   const { logStockWarnings } = await import("../lib/stock/warnings");
+  const { assessCover, seasonBoost } = await import("../lib/stock/cover");
+  const { loadCover } = await import("../lib/stock/cover-load");
+  const { loadSeasons } = await import("../lib/seasons/load");
+  const { seasonClaims, stockClaims } = await import("../lib/forecasts/claims");
+  const { recordForecasts } = await import("../lib/forecasts/record");
+  const { runForecastGrading } = await import("../lib/forecasts/run");
   const { ensureSupportSettings } = await import("../lib/crm/support-settings");
   const { proposeKnowledgeEntries, proposeCustomKnowledge, publishKnowledgeFromProposal } =
     await import("../lib/crm/knowledge");
@@ -1107,10 +1200,21 @@ async function seed(): Promise<void> {
   const orders = data.shopOrders(today);
   // Idea 47: about forty days of abandoned checkouts; the fake shows each only once started.
   const carts = data.shopCarts(today);
+  // Idea 54: the bud vases were low when the shop was first read and have
+  // been restocked since, so the first sync counts 30 and today's the 130 on
+  // the shelf. The forecast the seed backdates from that first count is
+  // graded "can't tell": a delivery came in (see the track record below).
+  const shopProducts = [...data.SHOPIFY_PRODUCTS];
+  const vaseAt = shopProducts.findIndex((p) => p.id === VASE_REF);
+  const vaseNow = shopProducts[vaseAt]!;
+  shopProducts[vaseAt] = {
+    ...vaseNow,
+    variants: (vaseNow.variants ?? []).map((v) => ({ ...v, quantity: VASE_FIRST_COUNT })),
+  };
   const shop = fakeShopify({
     orders,
     carts,
-    products: [...data.SHOPIFY_PRODUCTS],
+    products: shopProducts,
     scopes: ["read_orders", "read_products", "read_all_orders"],
   });
   const noSleep = async () => {};
@@ -1159,6 +1263,8 @@ async function seed(): Promise<void> {
           `  ${outcome.provider}: ${outcome.observations} observations, ${outcome.derived.filter((d) => d.outcome === "written").length} facts`,
         );
       }
+      // The restock: from here on the shop holds the 130 vases of the data.
+      shopProducts[vaseAt] = vaseNow;
 
       // The owner matches Shopify's products to their offers, and GA4's
       // channels to theirs; the next derivation measures each one.
@@ -1854,6 +1960,78 @@ async function seed(): Promise<void> {
   // reorder note is proposed (rule 15); /stock shows its arithmetic.
   const stockWarnings = await logStockWarnings(ids.profile, new Date());
   log(`  stock: ${stockWarnings} stock-out warning${stockWarnings === 1 ? "" : "s"} logged`);
+
+  // Idea 54: Fernhill's track record. A REAL ACCOUNT NEVER BACKDATES: a
+  // forecast is recorded by the code that shows it, the moment it shows it
+  // (lib/forecasts/record), and the warning just logged put today's mug
+  // forecast on the record that way. The demo needs a past, so the seed
+  // writes the forecasts SYB would have shown the day after the first
+  // sync, and dates them then: it runs the same code over only what was
+  // measured by that day (the season forecast reads up to the day before
+  // `now`; the stock arithmetic is given the first sync's counts and the
+  // sales to that day). Postgres stamps recorded_at with its own clock, so
+  // /history marks every one of them as written later than it is dated.
+  // Then the real grader grades them against the seeded measured rows:
+  // the closed weeks against the shop's revenue, the mug "above" (the fake
+  // shop's count hasn't moved since the first read) and the vases "can't
+  // tell" (restocked between the two reads). No network, no model.
+  {
+    const realNow = new RealDate();
+    const firstRead = data.shiftDay(today, -22);
+    const then = new RealDate(at(21, "09:10"));
+    const thenDay = then.toISOString().slice(0, 10);
+    const owner = { account_id: ids.account, profile_id: ids.profile };
+    const seasonsThen = await loadSeasons(ids.account, ids.profile, then);
+    const weeks = await recordForecasts(seasonClaims(owner, seasonsThen, then));
+
+    const cover = await loadCover(ids.account, ids.profile, realNow);
+    const counts = await db
+      .select({
+        ref: sql<string>`${schema.metricObservations.dimensions}->>'product_ref'`,
+        on_hand: schema.metricObservations.value_num,
+      })
+      .from(schema.metricObservations)
+      .where(
+        and(
+          eq(schema.metricObservations.connection_id, conns.shopify),
+          eq(schema.metricObservations.metric_key, "stock.on_hand"),
+          eq(schema.metricObservations.period_date, firstRead),
+        ),
+      );
+    const boost = seasonBoost(seasonsThen.result, thenDay);
+    const rows = cover.rows
+      .filter((r) => r.item.ref === MUG_REF || r.item.ref === VASE_REF)
+      .map((r) => {
+        const count = counts.find((c) => c.ref === r.item.ref);
+        if (!count || count.on_hand === null || r.item.sales.kind !== "series") return null;
+        const sales = r.item.sales;
+        const item = {
+          ...r.item,
+          as_of: firstRead,
+          on_hand: Number(count.on_hand),
+          sales: {
+            kind: "series" as const,
+            covered_days: Math.max(
+              0,
+              sales.covered_days -
+                Math.round((RealDate.parse(today) - RealDate.parse(thenDay)) / DAY_MS),
+            ),
+            daily: new Map([...sales.daily].filter(([day]) => day < thenDay)),
+          },
+        };
+        return { ...r, item, cover: assessCover(item, thenDay, r.cover.lead, boost, r.source) };
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+    const warned = rows.filter((r) => r.cover.warning !== null);
+    const items = await recordForecasts(
+      stockClaims(owner, { ...cover, today: thenDay, rows, warnings: warned }, then),
+    );
+    const graded = await runForecastGrading(realNow, { profileIds: [ids.profile] });
+    log(
+      `  track record: ${weeks} season weeks and ${items} stock forecasts backdated to ${thenDay}; ${graded.graded} graded, ${graded.waiting} waiting for their rows`,
+    );
+    if (items < 2) throw new Error("the demo's backdated stock forecasts weren't both warned");
+  }
   // P5-06..08: the owner says what's in the bank and the least she wants in it.
   // Fernhill earns well in the run-up to Christmas, so whether a week of the
   // next 13 dips under her buffer depends on the day the demo is seeded. The
@@ -2630,6 +2808,16 @@ async function seed(): Promise<void> {
             replaceability: "hard",
           },
         ]);
+        // Idea 44: the owner's monthly takings, an estimate, so "Compared with
+        // similar businesses" can set turnover per person against Eurostat's
+        // personal-services cell. Her staff's pay isn't given, so the margin
+        // and staff-cost lines show what they still need.
+        await say("4.1", "yes");
+        await submitAnswer(salon.account, salon.profile, "4.1a", {
+          kind: "value",
+          wire: { amount_major: 21_000, currency: "EUR" },
+          estimate: true,
+        });
         await db
           .insert(schema.accountModules)
           .values({ account_id: salon.account, module: TEAM_MODULE, enabled: true });
@@ -2792,6 +2980,7 @@ async function seed(): Promise<void> {
 
   // Finished: the demo address now exists, so a re-run stops at the door.
   await db.update(schema.users).set({ email: DEMO_EMAIL }).where(eq(schema.users.id, ids.user));
+  await demoPhone(ids.user);
 
   const [latest] = await db
     .select({ id: schema.diagnosisReports.id })

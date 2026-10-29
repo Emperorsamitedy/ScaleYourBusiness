@@ -18,6 +18,7 @@ import { applyCalendarEdit, calendarEditOf } from "../content/calendar";
 import type { MediaStore } from "../content/media";
 import { releaseUnpublishedMedia } from "../content/media";
 import { approvedPublishHash } from "../execution/providers/meta";
+import { enqueuePush, schedulePushFlush } from "../push/flush";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 
 export class ProposalError extends Error {
@@ -92,6 +93,10 @@ export function hashProposalPayload(
  * Create a proposal — pending, or born blocked when a 13.5 limit is
  * named (P3-03 calls it that way). Both are "proposal" log entries: the
  * restraint view is part of the record, not an off-books shadow.
+ *
+ * Idea 53: this is the one place a proposal becomes pending, so it is
+ * where a phone alert is queued — in the same transaction, in a savepoint
+ * that can't fail it (lib/push/flush.ts), and sent after the response.
  */
 export async function createProposal(
   input: NewProposal,
@@ -99,7 +104,8 @@ export async function createProposal(
   executor: DbOrTx = db,
 ): Promise<ProposalRow> {
   const blocked = typeof input.blocked_by_limit === "string" && input.blocked_by_limit !== "";
-  return executor.transaction(async (tx) => {
+  let queued = false;
+  const created = await executor.transaction(async (tx) => {
     const [row] = await tx
       .insert(proposals)
       .values({
@@ -127,8 +133,11 @@ export async function createProposal(
         detail: { action: input.action, blocked_by_limit: row.blocked_by_limit },
       }),
     });
+    queued = await enqueuePush(tx, row);
     return row;
   });
+  if (queued) schedulePushFlush(created.profile_id);
+  return created;
 }
 
 /**

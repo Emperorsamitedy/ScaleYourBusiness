@@ -8,13 +8,15 @@
 // every note and log line is a watch_activity row for work performed.
 // Module selection (P1-48) stays at the foot: it has no other home, and
 // the weekly summary email's switch (idea 42) sits beside it, because the
-// email is this screen's week, sent.
+// email is this screen's week, sent. Phone alerts (idea 53) follow it: the
+// other way the owner hears from SYB without opening it.
 
 import "../../app/watch.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { PhoneAlertsCard } from "./PhoneAlertsCard";
 import { moneyText, num } from "../sheet/num";
 import { minorUnitExponent } from "../../lib/core/money";
 import type { WatchReading } from "../../lib/watch/signals";
@@ -493,6 +495,7 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
         <RulesCard thresholds={view.thresholds} />
         <ModulesCard modules={modules} onToggle={(m, on) => void toggle(m, on)} />
         {summary && <SummaryCard summary={summary} onToggle={(on) => void toggleSummary(on)} />}
+        <PhoneAlertsCard />
       </div>
     </div>
   );

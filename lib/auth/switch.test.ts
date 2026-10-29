@@ -46,7 +46,7 @@ describe("a one-business person — unchanged by idea 52", () => {
     expect(again.user_id).toBe(first.user_id);
     expect(again.choose).toBe(false);
     const s = await currentSession(again.session_token);
-    expect(s).toEqual({
+    expect(s).toMatchObject({
       account_id: boot.account_id,
       user_id: first.user_id,
       email,

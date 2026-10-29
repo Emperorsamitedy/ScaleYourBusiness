@@ -32,7 +32,8 @@ CREATE UNIQUE INDEX "team_invites_hash_idx" ON "team_invites" USING btree ("toke
 CREATE UNIQUE INDEX "team_invites_open_idx" ON "team_invites" USING btree ("account_id","email") WHERE "team_invites"."accepted_at" IS NULL AND "team_invites"."revoked_at" IS NULL;--> statement-breakpoint
 ALTER TABLE "login_tokens" ADD CONSTRAINT "login_tokens_invite_id_team_invites_id_fk" FOREIGN KEY ("invite_id") REFERENCES "public"."team_invites"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "users_account_email_idx" ON "users" USING btree ("account_id","email");--> statement-breakpoint
-CREATE INDEX "users_email_idx" ON "users" USING btree ("email");--> statement-breakpoint
+CREATE INDEX "users_email_idx" ON "users" USING btree ("email");
+--> statement-breakpoint
 -- Idea 52: an account with anyone on it always keeps at least one owner
 -- (an active users row with role 'owner'), held by the database so no
 -- route, script or race can leave a business without one. A DEFERRED

@@ -8,6 +8,7 @@
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { INTAKE_COOKIE, claimableProfile } from "../../../../lib/auth/access";
+import { RETURN_COOKIE, returnCookieOptions, returnPath } from "../../../../lib/auth/return-to";
 import { sendLoginEmail } from "../../../../lib/auth/email";
 import { AuthError, requestLogin } from "../../../../lib/auth/service";
 import { ResumeError } from "../../../../lib/intake/resume";
@@ -18,7 +19,7 @@ function appUrl(request: NextRequest): string {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = (await request.json()) as { email?: unknown };
+    const body = (await request.json()) as { email?: unknown; next?: unknown };
     if (typeof body.email !== "string") {
       return NextResponse.json({ error: "an email address is needed" }, { status: 422 });
     }
@@ -36,13 +37,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       email: login.email,
       expires_at: login.expires_at,
       delivered_via: sent.delivered_via,
       // Only in local development with no email provider configured.
       ...(sent.delivered_via === "screen" ? { link } : {}),
     });
+    // Idea 53: a sign-in started from a proposal's card comes back to it.
+    const back = returnPath(body.next);
+    if (back) response.cookies.set(RETURN_COOKIE, back, returnCookieOptions());
+    return response;
   } catch (error) {
     if (error instanceof AuthError || error instanceof ResumeError) {
       return NextResponse.json({ error: error.message }, { status: error.status });

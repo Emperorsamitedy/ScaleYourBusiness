@@ -11,6 +11,7 @@
 // makes login-from-a-new-device just work with zero route changes.
 
 import { logSafeError } from "../../../../lib/core/log-safe";
+import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import {
   AUTH_COOKIE,
@@ -19,6 +20,7 @@ import {
   intakeCookieOptions,
   signProfileCookie,
 } from "../../../../lib/auth/access";
+import { RETURN_COOKIE, returnPath } from "../../../../lib/auth/return-to";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { AuthError, redeemLogin } from "../../../../lib/auth/service";
 
@@ -49,9 +51,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   try {
     const session = await redeemLogin(token);
-    // Idea 52: an email on several businesses' teams is asked which one.
-    const landing = session.choose ? "/login/choose" : session.profile_id ? "/profile" : "/intake";
+    // Idea 53: back to the proposal card the sign-in started from, once.
+    const back = session.profile_id
+      ? returnPath((await cookies()).get(RETURN_COOKIE)?.value)
+      : null;
+    // Idea 52: an email on several businesses' teams is asked which one
+    // first — the card it started from may belong to another of them.
+    const landing = session.choose
+      ? "/login/choose"
+      : (back ?? (session.profile_id ? "/profile" : "/intake"));
     const response = NextResponse.redirect(new URL(landing, origin), 303);
+    response.cookies.delete(RETURN_COOKIE);
     response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
     if (session.profile_id) {
       response.cookies.set(

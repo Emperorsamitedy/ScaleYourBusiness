@@ -23,6 +23,10 @@
     {
       "path": "/api/cron/render-footage",
       "schedule": "45 5 * * *"
+    },
+    {
+      "path": "/api/cron/push-held",
+      "schedule": "0 7 * * *"
     }
   ]
 }
