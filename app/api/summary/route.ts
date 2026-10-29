@@ -14,6 +14,7 @@ import { resolveAccess } from "../../../lib/auth/access";
 import { ownerEmailConfigured } from "../../../lib/auth/email";
 import { appUrl } from "../../../lib/env";
 import { accountOwner, setSummaryPref, summaryOn, summaryPref } from "../../../lib/summary/prefs";
+import { requireRole } from "../../../lib/auth/roles";
 
 export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
@@ -48,6 +49,8 @@ export async function GET(): Promise<NextResponse> {
 export async function PUT(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "summary.settings");
+  if (denied) return denied;
   const body = (await request.json().catch(() => ({}))) as { enabled?: unknown };
   if (typeof body.enabled !== "boolean") {
     return NextResponse.json({ error: "enabled must be a boolean" }, { status: 422 });

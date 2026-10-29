@@ -710,6 +710,7 @@ export async function approveCampaignEmail(args: {
     await tx.insert(decisionLog).values({
       profile_id: proposal.profile_id,
       actor: "owner",
+      user_id: args.userId,
       kind: "campaign_approval",
       ref_id: proposal.id,
       payload_hash: hashCampaignApproval({

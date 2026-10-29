@@ -20,6 +20,7 @@ import { SegmentProposalError } from "../../../lib/crm/segment-proposals";
 import { gatherInputs } from "../../../lib/simulate/inputs";
 import { SimulateError, catalogOf, parseOption } from "../../../lib/simulate/model";
 import { proposeFromSimulation } from "../../../lib/simulate/propose";
+import { requireRole } from "../../../lib/auth/roles";
 
 function onError(event: string, error: unknown): NextResponse {
   if (
@@ -50,6 +51,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!(await matchingSession())) {
     return NextResponse.json({ error: "proposing needs you signed in" }, { status: 401 });
   }
+  const denied = requireRole(access, "proposals.generate");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => ({}))) as { action?: unknown; option?: unknown };
     if (body.action !== "propose") {

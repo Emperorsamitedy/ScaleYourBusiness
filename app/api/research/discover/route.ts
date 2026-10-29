@@ -11,11 +11,12 @@ import { resolveAccess } from "../../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import { ResearchError } from "../../../../lib/research/competitor";
 import { discoverCompetitors } from "../../../../lib/research/discovery";
+import { requireRole } from "../../../../lib/auth/roles";
+import type { Access } from "../../../../lib/auth/access";
 
-async function resolveSession(): Promise<{ account_id: string; profile_id: string } | null> {
+async function resolveSession(): Promise<Access | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
-  const access = await resolveAccess();
-  return access ? { profile_id: access.profile_id, account_id: access.account_id } : null;
+  return resolveAccess();
 }
 
 export async function POST(): Promise<NextResponse> {
@@ -23,6 +24,8 @@ export async function POST(): Promise<NextResponse> {
   if (!session) {
     return NextResponse.json({ error: "no intake session" }, { status: 401 });
   }
+  const denied = requireRole(session, "competitors.manage");
+  if (denied) return denied;
   try {
     const result = await discoverCompetitors({
       accountId: session.account_id,

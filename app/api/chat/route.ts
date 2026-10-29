@@ -17,6 +17,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { ChangeError, confirmChange, listChanges } from "../../../lib/assistant/changes";
 import { cardView } from "../../../lib/assistant/view";
 import { ChatError, postMessage, readThread } from "../../../lib/chat/service";
+import { requireRole, roleOf } from "../../../lib/auth/roles";
 
 export async function GET(): Promise<NextResponse> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -41,6 +42,8 @@ export async function GET(): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "chat.ask");
+  if (denied) return denied;
   try {
     const body = (await request.json()) as {
       text?: unknown;
@@ -56,6 +59,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         accountId: access.account_id,
         changeId: body.change_id,
         signedIn: access.session !== null,
+        // The drafted change asks for its own screen's role too (lib/assistant/catalogue).
+        role: roleOf(access),
         userId: access.session?.user_id ?? null,
       });
       console.log(

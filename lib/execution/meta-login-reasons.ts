@@ -12,6 +12,7 @@ export const CONNECTIONS_REASONS = {
   start_here:
     "Start Facebook sign-in from SYB's Connections screen, with the button there. Nothing was sent to Meta.",
   signed_out: "Sign in to SYB first, then connect Meta again.",
+  owner_only: "Only an owner can grant or take back write access. Nothing was sent to Meta.",
   unavailable: "Facebook sign-in isn't available yet. Use your own Meta app instead.",
   provider: "That isn't a Meta connection SYB offers.",
   phrase: "The confirmation phrase didn't match. Type it as shown, then start again.",

@@ -25,6 +25,7 @@
 // `section` names the element the deep link scrolls to and marks; a
 // "{slot}" in it is filled per change (the fact's key, the goal's id).
 
+import type { RoleAction } from "../auth/roles";
 import type { ChangeKind } from "./kinds";
 
 export type { ChangeKind } from "./kinds";
@@ -49,6 +50,11 @@ export interface CatalogueEntry {
   confirm: string | null;
   /** Confirming needs a signed-in session, as the screen's own route does. */
   signed_in: boolean;
+  /**
+   * Idea 52: the action the screen's own route checks (lib/auth/roles), so
+   * a click in the chat needs the same role the screen would.
+   */
+  role_action: RoleAction;
   /** Recognised deterministically when any of these match the owner's words. */
   cues: readonly RegExp[];
   /** Said to the owner when the change is link-only, or what the click does. */
@@ -69,6 +75,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "direct",
     confirm: "Stop everything",
     signed_in: false,
+    role_action: "stop.press",
     cues: [
       /\b(pause|stop|halt|freeze)\b[^.?!]{0,24}\b(everything|all of it|it all|all work|the lot|all)\b/i,
       /\bemergency stop\b/i,
@@ -86,6 +93,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "link",
     confirm: null,
     signed_in: true,
+    role_action: "stop.resume",
     cues: [
       /\b(resume|unpause|un-pause|restart)\b/i,
       /\b(start|turn)\b[^.?!]{0,16}\b(back on|up again|again)\b/i,
@@ -103,6 +111,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "direct",
     confirm: "Make this change",
     signed_in: true,
+    role_action: "support.settings",
     cues: [
       /\breply[- ]time\b/i,
       /\b(reply|replies|answer|respond|get back)\w*\b[^.?!]{0,30}\b(within|in under|in)\s+(\d+|an?|one)\b[^.?!]{0,6}\b(hours?|hrs?|h|days?)\b/i,
@@ -119,6 +128,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "direct",
     confirm: "Make this change",
     signed_in: true,
+    role_action: "support.settings",
     cues: [
       /\b(notif\w*|email\w*|tell|alert\w*|ping)\b[^.?!]{0,12}\bme\b[^.?!]{0,30}\b(tickets?|support|messages?|emails?)\b/i,
       /\b(ticket|support)\b[^.?!]{0,20}\b(notifications?|emails? to me|alerts?)\b/i,
@@ -135,6 +145,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "direct",
     confirm: "Make this change",
     signed_in: false,
+    role_action: "profile.edit",
     cues: [
       /\b(opening|trading|business|shop|store)\s+hours\b/i,
       new RegExp(String.raw`\b${DAY}\s+hours\b`, "i"),
@@ -159,6 +170,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "direct",
     confirm: "Make this change",
     signed_in: false,
+    role_action: "profile.edit",
     cues: [
       /\bsize\s+band\b/i,
       /\b(business|company)\s+size\b/i,
@@ -177,6 +189,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "link",
     confirm: null,
     signed_in: false,
+    role_action: "profile.edit",
     cues: [
       /\b(remove|drop|delete|lift|scrap|cancel|undo|forget)\b[^.?!]{0,30}\b(rule|limit|boundary|boundaries)\b/i,
       /\bwe can (discount|advertise|cold[- ]call)\b/i,
@@ -193,6 +206,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "direct",
     confirm: "Add this rule",
     signed_in: false,
+    role_action: "profile.edit",
     cues: [
       /^\s*(we\s+|i\s+)?(never|don'?t ever|do not ever)\b/i,
       /\b(add|set|make)\b[^.?!]{0,16}\b(a\s+)?(standing\s+rule|hard\s+limit|rule|limit)\b/i,
@@ -210,6 +224,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "direct",
     confirm: "Make this change",
     signed_in: false,
+    role_action: "profile.edit",
     cues: [/\b(goal|goals|target)\b/i],
     note: "A goal edited here still shows what it said before; outcomes are scored against the statement that held at the time.",
   },
@@ -223,6 +238,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "proposal",
     confirm: "Put it in my queue",
     signed_in: true,
+    role_action: "support.answer",
     cues: [
       /\b(customer|support|site)\s+(assistant|bot|chat)\b/i,
       /\b(faq|knowledge base|knowledge)\b/i,
@@ -242,6 +258,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "proposal",
     confirm: "Put it in my queue",
     signed_in: false,
+    role_action: "content.draft",
     cues: [
       /\b(content\s+)?calendar\b/i,
       /\b(reschedule|move|change|edit|rename|retitle|rewrite|swap|cancel|drop)\b[^.?!]{0,30}\b(post|posts|reel|video|caption|item)\b/i,
@@ -258,6 +275,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "link",
     confirm: null,
     signed_in: true,
+    role_action: "connections.manage",
     cues: [
       /\b(connect|disconnect|reconnect|unplug|plug in|link|unlink|hook up)\b[^.?!]{0,30}\b(stripe|shopify|square|woo\s?commerce|google analytics|ga4|analytics|search console|meta|facebook|instagram|till|account|shop)\b/i,
       /\bconnections?\b/i,
@@ -274,6 +292,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
     prepare: "direct",
     confirm: "Make this change",
     signed_in: false,
+    role_action: "profile.edit",
     cues: [
       /\b(change|set|update|correct|fix|make)\s+(my|our|the)\s+.+?\s+(to|as|=)\s+\S/i,
       /\b(my|our|the)\s+.+?\s+is\s+(actually|now|really)\s+\S/i,

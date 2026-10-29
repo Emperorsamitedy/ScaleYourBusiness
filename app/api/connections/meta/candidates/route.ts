@@ -21,6 +21,7 @@ import {
 } from "../../../../../lib/execution/meta-login";
 import { metaLoginEnv } from "../../../../../lib/env";
 import { metaExecution } from "../../../../../lib/execution/providers/meta";
+import { requireRole } from "../../../../../lib/auth/roles";
 
 function cookieOrigin(request: NextRequest): string {
   const requestOrigin = new URL(request.url).origin;
@@ -61,6 +62,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   if (!session) {
     return NextResponse.json({ error: "sign in to manage connections" }, { status: 401 });
   }
+  const denied = requireRole(session, "write_access.manage");
+  if (denied) return denied;
   console.log(JSON.stringify({ event: "meta_login_cancelled", account_id: session.account_id }));
   const response = NextResponse.json({ cancelled: true });
   response.cookies.set(META_LOGIN_PENDING_COOKIE, "", loginCookieOptions(cookieOrigin(request), 0));

@@ -363,6 +363,7 @@ async function decide(args: {
       profile_id: row.profile_id,
       actor: "owner",
       kind,
+      user_id: args.userId,
       ref_id: row.id,
       payload_hash: hashProposalPayload(kind, {
         proposal_id: row.id,

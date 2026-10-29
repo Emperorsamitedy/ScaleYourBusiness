@@ -19,6 +19,7 @@ import { readEvidence, sourceFieldsOf } from "../../../../lib/proposals/evidence
 import type { HardLimit } from "../../../../lib/proposals/hard-limits";
 import { HARD_LIMITS_KEY } from "../../../../lib/proposals/hard-limits";
 import { expireDueProposals } from "../../../../lib/proposals/service";
+import { refusalFor, roleAllows, roleOf } from "../../../../lib/auth/roles";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -74,6 +75,11 @@ export async function GET(
       // Null: the owner never answered 13.5, so there was nothing to check against.
       limits,
       signed_in: access.session !== null,
+      // Idea 52: a viewer reads the card; deciding is an owner's or a manager's.
+      decide_why:
+        roleOf(access) !== null && !roleAllows(roleOf(access)!, "proposals.decide")
+          ? refusalFor("proposals.decide")
+          : null,
     });
   } catch (error) {
     console.error(

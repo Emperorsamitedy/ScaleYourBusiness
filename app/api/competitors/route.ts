@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { addCompetitor } from "../../../lib/competitors/service";
 import { buildCompetitorsView } from "../../../lib/competitors/view";
 import { body, failure, session, signedOut } from "./shared";
+import { requireRole } from "../../../lib/auth/roles";
 
 export async function GET(): Promise<NextResponse> {
   const s = await session();
@@ -20,6 +21,8 @@ export async function GET(): Promise<NextResponse> {
 export async function POST(request: Request): Promise<NextResponse> {
   const s = await session();
   if (!s) return signedOut();
+  const denied = requireRole(s, "competitors.manage");
+  if (denied) return denied;
   const input = await body(request);
   if (!input) return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });
   try {

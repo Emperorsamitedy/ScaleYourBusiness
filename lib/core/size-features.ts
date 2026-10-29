@@ -155,6 +155,10 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "The decision log is the audit trail; it is never hidden.",
   },
+  "nav.team_access": {
+    bands: EVERY,
+    reason: "Who can sign in to the business is the owner's to see, at any size.",
+  },
 } as const satisfies Record<string, SizeFeatureRow>;
 
 export type SizeFeatureKey = keyof typeof SIZE_FEATURES;

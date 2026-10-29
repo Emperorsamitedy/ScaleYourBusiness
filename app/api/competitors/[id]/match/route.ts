@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server";
 import { setOfferMatch } from "../../../../../lib/competitors/service";
 import { body, failure, session, signedOut } from "../../shared";
+import { requireRole } from "../../../../../lib/auth/roles";
 
 export async function POST(
   request: Request,
@@ -12,6 +13,8 @@ export async function POST(
 ): Promise<NextResponse> {
   const s = await session();
   if (!s) return signedOut();
+  const denied = requireRole(s, "competitors.manage");
+  if (denied) return denied;
   const { id } = await params;
   const input = await body(request);
   const key = typeof input?.key === "string" ? input.key : "";

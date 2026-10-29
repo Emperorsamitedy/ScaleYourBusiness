@@ -6,12 +6,20 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { generateVapidKeys } from "../../../lib/push/webpush";
 
-const session = {
+const session: {
+  account_id: string;
+  user_id: string;
+  email: string;
+  profile_id: string;
+  session_id: string;
+  role: "owner" | "manager" | "viewer";
+} = {
   account_id: "acc-1",
   user_id: "user-1",
   email: "o@x",
   profile_id: "p-1",
   session_id: "sess-1",
+  role: "owner",
 };
 let signedIn = true;
 
@@ -155,8 +163,26 @@ describe("POST /api/push", () => {
     const { POST } = await import("./route");
     const id = "0f8fad5b-d9cb-469f-a165-70867728950e";
     expect((await POST(post({ action: "remove", id }))).status).toBe(200);
-    expect(removeDevice).toHaveBeenCalledWith("acc-1", id);
+    // Idea 52: only this person's own device.
+    expect(removeDevice).toHaveBeenCalledWith("acc-1", id, "user-1");
     expect((await POST(post({ action: "remove", id: "x" }))).status).toBe(422);
+  });
+
+  it("idea 52: a viewer can't switch alerts on or send a test, but can remove their own phone", async () => {
+    const { POST } = await import("./route");
+    session.role = "viewer";
+    try {
+      const on = await POST(post({ action: "subscribe", subscription: {} }));
+      expect(on.status).toBe(403);
+      expect((await on.json()).error).toBe(
+        "Only an owner or a manager can get phone alerts for proposals.",
+      );
+      expect((await POST(post({ action: "test" }))).status).toBe(403);
+      const id = "0f8fad5b-d9cb-469f-a165-70867728950e";
+      expect((await POST(post({ action: "remove", id }))).status).toBe(200);
+    } finally {
+      session.role = "owner";
+    }
   });
 
   it("sends a test and says how each device took it", async () => {

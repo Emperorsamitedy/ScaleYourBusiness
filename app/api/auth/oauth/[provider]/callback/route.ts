@@ -69,7 +69,11 @@ async function finish(
     // Idea 53: back to the proposal card the sign-in started from, once.
     const back = session.profile_id ? returnPath(store.get(RETURN_COOKIE)?.value) : null;
     const response = NextResponse.redirect(
-      new URL(back ?? (session.profile_id ? "/profile" : "/intake"), origin),
+      // Idea 52: an email on several businesses' teams is asked which one first.
+      new URL(
+        session.choose ? "/login/choose" : (back ?? (session.profile_id ? "/profile" : "/intake")),
+        origin,
+      ),
     );
     response.cookies.delete(STATE_COOKIE);
     response.cookies.delete(RETURN_COOKIE);

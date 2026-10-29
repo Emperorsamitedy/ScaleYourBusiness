@@ -14,6 +14,7 @@ import {
   latestDecision,
   overrideWatch,
 } from "../../../lib/mode/service";
+import { requireRole } from "../../../lib/auth/roles";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -40,8 +41,11 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(): Promise<NextResponse> {
-  const profileId = await resolveProfile();
+  const access = await resolveAccess();
+  const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "rules.manage");
+  if (denied) return denied;
   try {
     return NextResponse.json(await decideForProfile(profileId));
   } catch (error) {
@@ -50,8 +54,11 @@ export async function POST(): Promise<NextResponse> {
 }
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
-  const profileId = await resolveProfile();
+  const access = await resolveAccess();
+  const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "rules.manage");
+  if (denied) return denied;
   try {
     const body = (await request.json()) as {
       to_weeks?: unknown;

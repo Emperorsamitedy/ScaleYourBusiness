@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import { CHANGE_CATALOGUE, deepLink, entryFor, entryOwningField, sectionId } from "./catalogue";
 import { HANDLED_KINDS } from "./changes";
 import { CHANGE_KINDS } from "./kinds";
+import { ROLE_ACTIONS, isRoleAction } from "../auth/roles";
 
 const ROOT = join(__dirname, "..", "..");
 
@@ -21,6 +22,16 @@ function sources(dir: string): string[] {
 }
 
 describe("the change catalogue", () => {
+  it("idea 52: every row names the role action its screen's route checks", () => {
+    for (const e of CHANGE_CATALOGUE) expect(isRoleAction(e.role_action), e.kind).toBe(true);
+    // Stopping is anyone's; starting again, connections and facts are an owner's.
+    expect(ROLE_ACTIONS[entryFor("stop").role_action].min).toBe("viewer");
+    expect(ROLE_ACTIONS[entryFor("resume").role_action].min).toBe("owner");
+    expect(ROLE_ACTIONS[entryFor("connection").role_action].min).toBe("owner");
+    expect(ROLE_ACTIONS[entryFor("standing_rule").role_action].min).toBe("owner");
+    expect(ROLE_ACTIONS[entryFor("content_item").role_action].min).toBe("manager");
+  });
+
   it("has exactly one row per kind, and the dispatch table handles every kind", () => {
     expect(CHANGE_CATALOGUE.map((e) => e.kind).sort()).toEqual([...CHANGE_KINDS].sort());
     expect([...HANDLED_KINDS].sort()).toEqual([...CHANGE_KINDS].sort());

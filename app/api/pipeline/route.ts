@@ -66,6 +66,8 @@ import {
   isDealStage,
   isOpenStage,
 } from "../../../lib/pipeline/stages";
+import { requireRole } from "../../../lib/auth/roles";
+import type { RoleAction } from "../../../lib/auth/roles";
 
 /** Won and lost deals stay on the board this long after they close. */
 const CLOSED_SHOWN_DAYS = 90;
@@ -224,6 +226,15 @@ function parseValue(v: unknown): DealValueInput | null {
   };
 }
 
+/** Idea 52: the role each action needs (lib/auth/roles); an action not listed asks for an owner. */
+const PIPELINE_ROLE: Record<string, RoleAction> = {
+  add: "pipeline.edit",
+  update: "pipeline.edit",
+  import: "data.import",
+  propose_followups: "proposals.generate",
+  draft_followup: "content.draft",
+};
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
@@ -236,6 +247,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   try {
     const body = (await request.json()) as Record<string, unknown>;
+    const denied = requireRole(session, PIPELINE_ROLE[String(body.action)] ?? "pipeline.edit");
+    if (denied) return denied;
     switch (body.action) {
       case "add": {
         const d = (body.deal ?? {}) as Record<string, unknown>;

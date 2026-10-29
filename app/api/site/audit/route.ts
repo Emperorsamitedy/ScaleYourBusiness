@@ -14,6 +14,7 @@ import { resolveAccess } from "../../../../lib/auth/access";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { latestSiteAudit, runSiteAudit } from "../../../../lib/site/audit/service";
+import { requireRole } from "../../../../lib/auth/roles";
 
 /** Google loads up to ten pages in its own browser; give it time. */
 export const maxDuration = 300;
@@ -34,6 +35,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!access.session) {
     return NextResponse.json({ error: "auditing your site needs you signed in" }, { status: 401 });
   }
+  const denied = requireRole(access, "site.audit");
+  if (denied) return denied;
   try {
     const outcome = await runSiteAudit({ profileId: access.profile_id });
     if (outcome.status === "read") return NextResponse.json({ audit: outcome.audit });

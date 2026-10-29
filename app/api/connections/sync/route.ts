@@ -10,6 +10,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { currentSession } from "../../../../lib/auth/service";
 import { ConnectorError, ownedConnection } from "../../../../lib/connectors/service";
 import { syncConnection } from "../../../../lib/connectors/sync";
+import { requireRole } from "../../../../lib/auth/roles";
 
 export const maxDuration = 60;
 
@@ -21,6 +22,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!session) {
     return NextResponse.json({ error: "sign in to manage connections" }, { status: 401 });
   }
+  const denied = requireRole(session, "connections.manage");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => null)) as { id?: unknown } | null;
     if (typeof body?.id !== "string") {

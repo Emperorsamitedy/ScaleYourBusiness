@@ -24,6 +24,7 @@ import {
   removeDevice,
   saveSubscription,
 } from "../../../lib/push/subscriptions";
+import { requireRole } from "../../../lib/auth/roles";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -47,7 +48,12 @@ export async function GET(): Promise<NextResponse> {
       configured,
       // The VAPID PUBLIC key: the browser's applicationServerKey. Public by design.
       public_key: cfg.ok ? cfg.publicKey : null,
-      devices: await listDevices(who.session.account_id, who.session.session_id ?? null),
+      // Idea 52: your own devices only.
+      devices: await listDevices(
+        who.session.account_id,
+        who.session.session_id ?? null,
+        who.session.user_id,
+      ),
     });
   } catch (error) {
     console.error(
@@ -87,6 +93,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const accountId = who.session.account_id;
   const body = (await request.json().catch(() => ({}))) as PushBody;
+  // Idea 52: alerts are for people who may decide; removing your own phone is always allowed.
+  const denied = requireRole(
+    who.session,
+    body.action === "remove" ? "alerts.remove_device" : "alerts.subscribe",
+  );
+  if (denied) return denied;
   try {
     if (body.action === "subscribe") {
       const cfg = pushConfig();
@@ -125,7 +137,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (typeof body.id !== "string" || !UUID_RE.test(body.id)) {
         return NextResponse.json({ error: "which device?" }, { status: 422 });
       }
-      const removed = await removeDevice(accountId, body.id);
+      const removed = await removeDevice(accountId, body.id, who.session.user_id);
       if (!removed) return NextResponse.json({ error: "no such device" }, { status: 404 });
       console.log(
         JSON.stringify({
@@ -145,7 +157,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           { status: 409 },
         );
       }
-      const outcomes = await sendTestPush(accountId, cfg.service);
+      const outcomes = await sendTestPush(accountId, cfg.service, who.session.user_id);
       if (outcomes.length === 0) {
         return NextResponse.json({ error: "no device is switched on yet" }, { status: 409 });
       }

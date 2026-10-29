@@ -14,6 +14,7 @@ import type { AuthedSession } from "../../../../lib/auth/service";
 import { currentSession } from "../../../../lib/auth/service";
 import { confirmMapping, mappingView } from "../../../../lib/connectors/mapping";
 import { ConnectorError } from "../../../../lib/connectors/service";
+import { requireRole } from "../../../../lib/auth/roles";
 
 const AUTH_COOKIE = "syb_session";
 
@@ -56,6 +57,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   if (!session) {
     return NextResponse.json({ error: "sign in to manage connections" }, { status: 401 });
   }
+  const denied = requireRole(session, "connections.manage");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => null)) as {
       id?: unknown;

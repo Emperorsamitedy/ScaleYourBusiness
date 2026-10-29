@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server";
 import { editCompetitor, removeCompetitor } from "../../../../lib/competitors/service";
 import { body, failure, session, signedOut } from "../shared";
+import { requireRole } from "../../../../lib/auth/roles";
 
 export async function PATCH(
   request: Request,
@@ -12,6 +13,8 @@ export async function PATCH(
 ): Promise<NextResponse> {
   const s = await session();
   if (!s) return signedOut();
+  const denied = requireRole(s, "competitors.manage");
+  if (denied) return denied;
   const { id } = await params;
   const input = await body(request);
   if (!input) return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });
@@ -29,6 +32,8 @@ export async function DELETE(
 ): Promise<NextResponse> {
   const s = await session();
   if (!s) return signedOut();
+  const denied = requireRole(s, "competitors.manage");
+  if (denied) return denied;
   const { id } = await params;
   try {
     await removeCompetitor(s.profile_id, id);

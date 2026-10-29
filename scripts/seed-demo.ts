@@ -47,6 +47,14 @@ const DEMO_EMAIL = "demo@syb.test";
 const OUTBOUND_EMAIL = "demo-outbound@syb.test";
 /** The charts' booking business: a salon whose numbers live in its bookings export. */
 const SALON_EMAIL = "demo-salon@syb.test";
+/**
+ * Idea 52, several businesses and a team: demo@syb.test is also an owner of
+ * Lumen Hair Studio (so a sign-in asks "Which business?"), and Fernhill has
+ * a manager, a viewer and one invite still waiting.
+ */
+const MANAGER_EMAIL = "demo-manager@syb.test";
+const VIEWER_EMAIL = "demo-viewer@syb.test";
+const INVITED_EMAIL = "demo-invited@syb.test";
 const DAY_MS = 86_400_000;
 /** Idea 54: the two products the backdated stock forecasts are about (scripts/seed-demo-data.ts). */
 const MUG_REF = "gid://shopify/Product/7720001";
@@ -117,7 +125,17 @@ async function main(): Promise<void> {
     .where(eq(users.email, DEMO_EMAIL));
   if (existing && process.argv.includes("--fresh")) {
     const archived = `demo-archived-${new Date().toISOString().replace(/\D/g, "").slice(0, 14)}@syb.test`;
-    await db.update(users).set({ email: archived }).where(eq(users.id, existing.id));
+    // Every business demo@ is on (idea 52), and Fernhill's manager and viewer.
+    await db.update(users).set({ email: archived }).where(eq(users.email, DEMO_EMAIL));
+    for (const [email, tag] of [
+      [MANAGER_EMAIL, "manager"],
+      [VIEWER_EMAIL, "viewer"],
+    ] as const) {
+      await db
+        .update(users)
+        .set({ email: archived.replace("demo-archived-", `demo-${tag}-archived-`) })
+        .where(eq(users.email, email));
+    }
     log(`archived the previous demo owner as ${archived} (its account is kept, nothing deleted).`);
     const [second] = await db
       .select({ id: users.id })
@@ -146,6 +164,7 @@ async function main(): Promise<void> {
     log(
       `demo already seeded (${DEMO_EMAIL}) — nothing written. Re-seed around today with --fresh.`,
     );
+    await ensureTeam();
     await printSignIn();
     process.exit(0);
   }
@@ -156,6 +175,7 @@ async function main(): Promise<void> {
 
   installClock();
   await seed();
+  await ensureTeam();
   await printSignIn();
   process.exit(0);
 }
@@ -265,7 +285,92 @@ async function printSignIn(): Promise<void> {
     );
     console.log(`  ${origin}/api/auth/redeem?token=${third.token}`);
   }
+  for (const [email, what] of [
+    [MANAGER_EMAIL, "Fernhill's manager: approves and declines, can't connect accounts"],
+    [VIEWER_EMAIL, "Fernhill's viewer: reads everything, presses stop, approves nothing"],
+  ] as const) {
+    const [member] = await db.select({ id: users.id }).from(users).where(eq(users.email, email));
+    if (!member) continue;
+    const link = await requestLogin(email, null);
+    console.log(`Sign in as ${email} — ${what}:`);
+    console.log(`  ${origin}/api/auth/redeem?token=${link.token}`);
+  }
   console.log("A fresh link any time: npm run db:seed-demo -- --link");
+}
+
+/**
+ * Idea 52: demo@ on two businesses, and a team on Fernhill — through the
+ * real invite path (lib/auth/members: an invite, then a join proven for
+ * exactly the invited address), so every row and decision-log entry is
+ * what the product itself writes. Idempotent: an existing member or an
+ * open invite is left as it is, so `--link` can run it on a seeded database.
+ */
+async function ensureTeam(): Promise<void> {
+  offsetMs = 0;
+  const { and, eq, isNull } = await import("drizzle-orm");
+  const { db } = await import("../db");
+  const { accounts, businessProfiles, teamInvites, users } = await import("../db/schema");
+  const { createInvite, joinByInviteId } = await import("../lib/auth/members");
+
+  // Fernhill is the business demo@ founded; Lumen is the salon's.
+  const [fern] = await db
+    .select({ account_id: users.account_id, user_id: users.id, profile_id: businessProfiles.id })
+    .from(users)
+    .innerJoin(accounts, eq(accounts.owner_user_id, users.id))
+    .innerJoin(businessProfiles, eq(businessProfiles.account_id, users.account_id))
+    .where(eq(users.email, DEMO_EMAIL));
+  const [salon] = await db
+    .select({ account_id: users.account_id, user_id: users.id, profile_id: businessProfiles.id })
+    .from(users)
+    .innerJoin(businessProfiles, eq(businessProfiles.account_id, users.account_id))
+    .where(eq(users.email, SALON_EMAIL));
+  if (!fern) return;
+
+  const join = async (
+    biz: { account_id: string; user_id: string; profile_id: string },
+    email: string,
+    role: "owner" | "manager" | "viewer",
+  ) => {
+    const [already] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(and(eq(users.account_id, biz.account_id), eq(users.email, email)));
+    if (already) return;
+    const { invite } = await createInvite({
+      accountId: biz.account_id,
+      profileId: biz.profile_id,
+      invitedBy: biz.user_id,
+      email,
+      role,
+    });
+    await joinByInviteId(invite.id, email);
+    log(`team: ${email} joined as ${role}.`);
+  };
+  if (salon) await join(salon, DEMO_EMAIL, "owner");
+  await join(fern, MANAGER_EMAIL, "manager");
+  await join(fern, VIEWER_EMAIL, "viewer");
+
+  const [open] = await db
+    .select({ id: teamInvites.id })
+    .from(teamInvites)
+    .where(
+      and(
+        eq(teamInvites.account_id, fern.account_id),
+        eq(teamInvites.email, INVITED_EMAIL),
+        isNull(teamInvites.accepted_at),
+        isNull(teamInvites.revoked_at),
+      ),
+    );
+  if (!open) {
+    await createInvite({
+      accountId: fern.account_id,
+      profileId: fern.profile_id,
+      invitedBy: fern.user_id,
+      email: INVITED_EMAIL,
+      role: "viewer",
+    });
+    log(`team: an invite waits for ${INVITED_EMAIL}.`);
+  }
 }
 
 /* ── the seed ── */

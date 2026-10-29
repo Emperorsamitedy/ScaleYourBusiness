@@ -1,0 +1,184 @@
+/* /settings/team — Team access (idea 52, components/members/TeamAccessScreen.tsx).
+   The sheet system's tokens (app/sheet.css); every class here is .ta-*. */
+
+.ta-screen > .cs {
+  margin-top: 15px;
+}
+.ta-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.ta-banner {
+  margin: 14px 0 0;
+  padding: 12px 15px;
+  max-width: var(--measure);
+  border: 1px solid var(--rule);
+  background: var(--inset);
+  color: var(--sheet-ink);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.ta-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--desk-ink-2);
+}
+.ta-copy {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.ta-note {
+  margin: 8px 0 0;
+  max-width: var(--measure);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--sheet-ink-2);
+}
+
+.ta-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.ta-table {
+  width: 100%;
+}
+.ta-who {
+  overflow-wrap: anywhere;
+  font-weight: 500;
+}
+.ta-you {
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+}
+.ta-table select,
+.ta-form select,
+.ta-form input,
+.ta-link input {
+  min-height: 40px;
+  padding: 0 8px;
+  border: var(--line-ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font: inherit;
+  font-size: 14px;
+  max-width: 100%;
+}
+.ta-act {
+  text-align: right;
+}
+.ta-confirm {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.ta-invites {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ta-invites li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ta-meta {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+.ta-invites .prop-btn {
+  margin-left: auto;
+}
+
+.ta-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 12px;
+  margin-top: 16px;
+}
+.ta-form .ta-note {
+  flex-basis: 100%;
+}
+.ta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ta-field input {
+  width: 280px;
+}
+
+.ta-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.ta-link .ta-note {
+  flex-basis: 100%;
+}
+.ta-link input {
+  flex: 1 1 260px;
+  min-width: 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+}
+
+.ta-roles {
+  margin: 0;
+}
+.ta-roles div {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ta-roles dt {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.ta-roles dd {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+@media (max-width: 719px) {
+  .ta-field,
+  .ta-field input {
+    width: 100%;
+  }
+  .ta-form .act {
+    width: 100%;
+  }
+  .ta-act {
+    text-align: left;
+  }
+  .ta-roles div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}

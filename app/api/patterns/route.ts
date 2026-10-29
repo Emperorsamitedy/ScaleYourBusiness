@@ -25,6 +25,7 @@ import { seasonClaims } from "../../../lib/forecasts/claims";
 import { recordForecastsQuietly } from "../../../lib/forecasts/record";
 import type { SeasonsView } from "../../../lib/seasons/load";
 import { loadSeasons } from "../../../lib/seasons/load";
+import { requireRole } from "../../../lib/auth/roles";
 
 export interface PatternsView {
   seasons: SeasonsView;
@@ -102,6 +103,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!(await matchingSession())) {
     return NextResponse.json({ error: "proposing needs you signed in" }, { status: 401 });
   }
+  const denied = requireRole(access, "proposals.generate");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => ({}))) as { action?: unknown; key?: unknown };
     if (body.action !== "propose" || typeof body.key !== "string" || body.key.length > 600) {

@@ -77,6 +77,8 @@ import {
 import { settingsForProfile } from "../../../lib/support/settings";
 import { widgetSnippet } from "../../../lib/support/snippet";
 import { TicketError, listTickets, resolveTicket } from "../../../lib/support/tickets";
+import { requireRole } from "../../../lib/auth/roles";
+import type { RoleAction } from "../../../lib/auth/roles";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -225,6 +227,28 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 }
 
+/** Idea 52: the role each action needs (lib/auth/roles); an action not listed asks for an owner. */
+const SUPPORT_ROLE: Record<string, RoleAction> = {
+  enable: "support.settings",
+  rotate: "support.settings",
+  rotate_inbound: "support.settings",
+  set_reply_hours: "support.settings",
+  set_notify: "support.settings",
+  erase_ticket: "erasure.run",
+  erase_conversation: "erasure.run",
+  propose_knowledge: "proposals.generate",
+  propose_custom: "proposals.generate",
+  cluster_faq: "proposals.generate",
+  publish: "support.answer",
+  retire: "support.answer",
+  resolve_ticket: "support.answer",
+  draft_reply: "support.answer",
+  save_reply: "support.answer",
+  approve_reply: "support.answer",
+  send_reply: "support.answer",
+  decline_reply: "support.answer",
+};
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // Review 2026-10-23 (#24): every action here is the owner's, from the
   // owner's own screen, so a POST that can't show it came from our origin is
@@ -259,6 +283,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       question?: unknown;
       conversation_id?: unknown;
     };
+    const denied = requireRole(session, SUPPORT_ROLE[String(body.action)] ?? "support.settings");
+    if (denied) return denied;
     switch (body.action) {
       case "enable": {
         const settings = await ensureSupportSettings(profileId);

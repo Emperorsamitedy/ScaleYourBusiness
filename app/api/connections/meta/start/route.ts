@@ -35,6 +35,7 @@ import {
   startMetaLogin,
 } from "../../../../../lib/execution/meta-login";
 import type { ConnectionsReason } from "../../../../../lib/execution/meta-login-reasons";
+import { requireRole } from "../../../../../lib/auth/roles";
 
 function backTo(request: NextRequest, provider: unknown, reason: ConnectionsReason): NextResponse {
   const requestOrigin = new URL(request.url).origin;
@@ -102,6 +103,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.warn(JSON.stringify({ event: "meta_login_start_refused", account_id: null }));
     return backTo(request, null, "start_here");
   }
+  // Idea 52: write access is the owner's own consent (rule 13).
+  const denied = requireRole(await resolveAccess(), "write_access.manage");
+  if (denied) return backTo(request, null, denied.status === 401 ? "signed_out" : "owner_only");
   const type = request.headers.get("content-type") ?? "";
   if (type.includes("application/json")) {
     const body = (await request.json().catch(() => null)) as {

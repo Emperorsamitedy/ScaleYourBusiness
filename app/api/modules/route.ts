@@ -11,6 +11,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { accountModules } from "../../../db/schema";
 import { TEAM_DEFAULT_ON, TEAM_MODULE, TEAM_WHY } from "../../../lib/team/module";
+import { requireRole } from "../../../lib/auth/roles";
 
 /**
  * The Phase 2+ modules an owner can opt into ahead of time, and P5-18's
@@ -70,8 +71,11 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
-  const accountId = await resolveAccount();
+  const access = await resolveAccess();
+  const accountId = access?.account_id ?? null;
   if (!accountId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "rules.manage");
+  if (denied) return denied;
   const body = (await request.json()) as { module?: unknown; enabled?: unknown };
   const module = body.module;
   if (typeof module !== "string" || !SELECTABLE_MODULES.includes(module as never)) {

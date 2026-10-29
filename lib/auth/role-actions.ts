@@ -1,0 +1,97 @@
+// The role table — idea 52 (I-52.3). Pure data and arithmetic, safe in the
+// browser: the screens disable what a role can't do with these same words.
+// lib/auth/roles.ts re-exports all of it beside requireRole, the server's
+// check; that file's header says what the three roles may do and why.
+
+export type Role = "owner" | "manager" | "viewer";
+
+/** Most to least. A role may do what its rank or any lower rank may. */
+export const ROLES: readonly Role[] = ["owner", "manager", "viewer"];
+
+const RANK: Record<Role, number> = { owner: 3, manager: 2, viewer: 1 };
+
+export interface RoleActionRow {
+  /** The least role that may take the action. */
+  min: Role;
+  /** The action in the owner's words, finishing "Only an owner can …". */
+  what: string;
+}
+
+export const ROLE_ACTIONS = {
+  // ── anyone on the team ──
+  "stop.press": { min: "viewer", what: "press the emergency stop" },
+  "intake.open": { min: "viewer", what: "open the interview" },
+  "telemetry.record": { min: "viewer", what: "record how the screens are used" },
+  // Idea 53: taking one of your own phones off alerts is always allowed.
+  "alerts.remove_device": { min: "viewer", what: "remove one of your own phones from alerts" },
+
+  // ── managers and owners ──
+  "proposals.decide": { min: "manager", what: "approve or decline proposals" },
+  "proposals.generate": { min: "manager", what: "ask me for new proposals" },
+  "proposals.carry_out": { min: "manager", what: "carry out or undo an approved proposal" },
+  "content.draft": { min: "manager", what: "draft content" },
+  "support.answer": { min: "manager", what: "answer support" },
+  // Idea 45: filing, answering and removing reviews is answering customers, like support.
+  "reviews.answer": { min: "manager", what: "file, answer or remove reviews" },
+  "chat.ask": { min: "manager", what: "ask me things in the chat" },
+  // Idea 53: an alert asks for a decision, so only those who may decide get them.
+  "alerts.subscribe": { min: "manager", what: "get phone alerts for proposals" },
+
+  // ── owners only ──
+  "connections.manage": { min: "owner", what: "connect or disconnect accounts" },
+  "write_access.manage": { min: "owner", what: "grant or take back write access" },
+  "billing.manage": { min: "owner", what: "pay for the report" },
+  "erasure.run": { min: "owner", what: "erase a customer's details" },
+  "data.import": { min: "owner", what: "import a file of customers, stock or bookings" },
+  "team.manage": { min: "owner", what: "invite, change or remove people on the team" },
+  "rules.manage": { min: "owner", what: "change how I work for this business" },
+  "profile.edit": { min: "owner", what: "change the business's facts, goals or limits" },
+  "report.generate": { min: "owner", what: "make a new report" },
+  "report.respond": { min: "owner", what: "answer the report's findings" },
+  "report.share": { min: "owner", what: "share the report outside SYB" },
+  "competitors.manage": { min: "owner", what: "change or research the competitor list" },
+  "site.audit": { min: "owner", what: "check the website" },
+  "pipeline.edit": { min: "owner", what: "change the sales pipeline" },
+  "support.settings": { min: "owner", what: "change how support is set up" },
+  "reviews.settings": { min: "owner", what: "change the address reviews are forwarded to" },
+  "summary.settings": { min: "owner", what: "switch the weekly summary on or off" },
+  "stop.resume": { min: "owner", what: "start things up again after a stop" },
+} as const satisfies Record<string, RoleActionRow>;
+
+export type RoleAction = keyof typeof ROLE_ACTIONS;
+
+export const ROLE_ACTION_KEYS = Object.keys(ROLE_ACTIONS) as RoleAction[];
+
+export function isRole(v: unknown): v is Role {
+  return typeof v === "string" && (ROLES as readonly string[]).includes(v);
+}
+
+export function isRoleAction(v: unknown): v is RoleAction {
+  return typeof v === "string" && Object.hasOwn(ROLE_ACTIONS, v);
+}
+
+/** Pure: whether a role may take an action. */
+export function roleAllows(role: Role, action: RoleAction): boolean {
+  return RANK[role] >= RANK[ROLE_ACTIONS[action].min];
+}
+
+/** Pure: every action, and whether this role may take it — what the screens read. */
+export function permissionsFor(role: Role): Record<RoleAction, boolean> {
+  const out = {} as Record<RoleAction, boolean>;
+  for (const a of ROLE_ACTION_KEYS) out[a] = roleAllows(role, a);
+  return out;
+}
+
+/** Pure: the sentence a refused person reads ("Only an owner can connect accounts."). */
+export function refusalFor(action: RoleAction): string {
+  const row: RoleActionRow = ROLE_ACTIONS[action];
+  const who = row.min === "owner" ? "an owner" : "an owner or a manager";
+  return `Only ${who} can ${row.what}.`;
+}
+
+/** The plain name of a role, for the screens. */
+export const ROLE_WORD: Record<Role, string> = {
+  owner: "Owner",
+  manager: "Manager",
+  viewer: "Viewer",
+};

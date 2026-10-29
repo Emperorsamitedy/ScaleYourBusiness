@@ -11,6 +11,7 @@
 // has one, then normal order resumes. An unknown section is ignored.
 
 import { logSafeError } from "../../../lib/core/log-safe";
+import type { Access } from "../../../lib/auth/access";
 import {
   INTAKE_COOKIE,
   intakeCookieOptions,
@@ -29,11 +30,12 @@ import {
   submitEntityCount,
 } from "../../../lib/intake/service";
 import type { AnswerAction } from "../../../lib/intake/types";
+import { requireRole } from "../../../lib/auth/roles";
 
-async function resolveSession(): Promise<{ account_id: string; profile_id: string } | null> {
+async function resolveSession(): Promise<Access | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
-  const access = await resolveAccess();
-  return access ? { profile_id: access.profile_id, account_id: access.account_id } : null;
+  // The whole access, so answering can check the role (idea 52).
+  return resolveAccess();
 }
 
 function errorResponse(error: unknown): NextResponse {
@@ -46,8 +48,14 @@ function errorResponse(error: unknown): NextResponse {
 
 export async function POST(): Promise<NextResponse> {
   try {
-    let session = await resolveSession();
-    session ??= await bootstrapIntake();
+    const access = await resolveSession();
+    // Resuming reads the interview; with no access at all this is a new
+    // visitor's first step (the intake before any account), which has no role.
+    if (access) {
+      const denied = requireRole(access, "intake.open");
+      if (denied) return denied;
+    }
+    const session = access ?? (await bootstrapIntake());
     const state = await getIntakeState(session.account_id, session.profile_id);
     const response = NextResponse.json(state);
     response.cookies.set(
@@ -102,6 +110,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await resolveSession();
     if (!session) return NextResponse.json({ error: "no intake session" }, { status: 404 });
+    const denied = requireRole(session, "profile.edit");
+    if (denied) return denied;
     const body = (await request.json()) as {
       question_id?: string;
       action?: AnswerAction;
@@ -128,6 +138,8 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     const session = await resolveSession();
     if (!session) return NextResponse.json({ error: "no intake session" }, { status: 404 });
+    const denied = requireRole(session, "profile.edit");
+    if (denied) return denied;
     const body = (await request.json()) as {
       question_id?: string;
       count?: number;

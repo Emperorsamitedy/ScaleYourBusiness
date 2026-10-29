@@ -13,11 +13,15 @@ import { db } from "../../../../db";
 import { businessProfiles } from "../../../../db/schema";
 import { DiagnosisError } from "../../../../lib/diagnosis/findings";
 import { respondToRecommendation } from "../../../../lib/report/service";
+import { requireRole } from "../../../../lib/auth/roles";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
-  const profileId = (await resolveAccess())?.profile_id;
+  const access = await resolveAccess();
+  const profileId = access?.profile_id;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "report.respond");
+  if (denied) return denied;
   const [row] = await db
     .select({ id: businessProfiles.id })
     .from(businessProfiles)

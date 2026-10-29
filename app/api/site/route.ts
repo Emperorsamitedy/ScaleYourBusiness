@@ -16,6 +16,8 @@ import { applySiteChange } from "../../../lib/site/apply";
 import { SiteChangeError, proposeSiteChange } from "../../../lib/site/changes";
 import { SiteFetchError } from "../../../lib/site/fetch";
 import { ProposalError } from "../../../lib/proposals/service";
+import { requireRole } from "../../../lib/auth/roles";
+import type { RoleAction } from "../../../lib/auth/roles";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -63,8 +65,15 @@ export async function GET(): Promise<NextResponse> {
   });
 }
 
+/** Idea 52: the role each action needs (lib/auth/roles); a body with no action is a proposal. */
+const SITE_ROLE: Record<string, RoleAction> = {
+  apply: "proposals.carry_out",
+  undo: "proposals.carry_out",
+};
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const profileId = await resolveProfile();
+  const access = await resolveAccess();
+  const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
     const body = (await request.json()) as {
@@ -75,6 +84,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       proposal_id?: unknown;
       execution_id?: unknown;
     };
+    const denied = requireRole(access, SITE_ROLE[String(body.action)] ?? "proposals.generate");
+    if (denied) return denied;
 
     if (body.action === "apply" || body.action === "undo") {
       const session = await matchingSession();

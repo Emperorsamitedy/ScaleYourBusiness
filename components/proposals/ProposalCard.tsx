@@ -42,6 +42,8 @@ interface CardData {
   business: string | null;
   limits: CardLimit[] | null;
   signed_in: boolean;
+  /** Idea 52: why this role can't decide here, or null when it may. */
+  decide_why?: string | null;
 }
 
 type Phase =
@@ -279,7 +281,7 @@ export function ProposalCard({ id }: { id: string }) {
                 <button
                   type="button"
                   className="q-btn"
-                  disabled={busy}
+                  disabled={busy || Boolean(data.decide_why)}
                   onClick={() => void decide("approve")}
                 >
                   {consequence(p.action)} <span aria-hidden="true">→</span>
@@ -287,7 +289,7 @@ export function ProposalCard({ id }: { id: string }) {
                 <button
                   type="button"
                   className="q-btn"
-                  disabled={busy}
+                  disabled={busy || Boolean(data.decide_why)}
                   aria-expanded={declining}
                   onClick={() => setDeclining((d) => !d)}
                 >
@@ -328,7 +330,7 @@ export function ProposalCard({ id }: { id: string }) {
                   <button
                     type="button"
                     className="q-btn q-btn-inline"
-                    disabled={busy || reason.trim() === ""}
+                    disabled={busy || Boolean(data.decide_why) || reason.trim() === ""}
                     onClick={() => void decide("reject")}
                   >
                     Record the decline <span aria-hidden="true">→</span>
@@ -339,6 +341,11 @@ export function ProposalCard({ id }: { id: string }) {
                 {approvalNote({ runAt, sending: p.action.detail?.sending })}
                 {halted && " Everything is stopped right now: nothing runs until you start again."}
               </p>
+              {data.decide_why && (
+                <p className="q-role-note" role="note">
+                  {data.decide_why} You can read everything here.
+                </p>
+              )}
               <Link className="q-quiet" href="/proposals">
                 See the whole queue
               </Link>

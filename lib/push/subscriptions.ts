@@ -9,9 +9,9 @@
 // label and two dates. The pure checks are in ./endpoints.
 
 import { createHmac } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "../../db";
-import { pushSubscriptions } from "../../db/schema";
+import { pushSubscriptions, users } from "../../db/schema";
 import { decryptSecret, encryptSecret } from "../connectors/secrets";
 import { stableKey } from "../core/derived-key";
 import { logSafeError } from "../core/log-safe";
@@ -104,6 +104,8 @@ export interface DeviceView {
 export async function listDevices(
   accountId: string,
   sessionId: string | null,
+  /** Idea 52: only this person's own devices — a teammate's phones are theirs. */
+  userId: string | null = null,
 ): Promise<DeviceView[]> {
   const rows = await db
     .select({
@@ -114,7 +116,12 @@ export async function listDevices(
       session_id: pushSubscriptions.session_id,
     })
     .from(pushSubscriptions)
-    .where(eq(pushSubscriptions.account_id, accountId))
+    .where(
+      and(
+        eq(pushSubscriptions.account_id, accountId),
+        ...(userId ? [eq(pushSubscriptions.user_id, userId)] : []),
+      ),
+    )
     .orderBy(pushSubscriptions.created_at);
   return rows.map((r) => ({
     id: r.id,
@@ -125,11 +132,24 @@ export async function listDevices(
   }));
 }
 
-/** Remove one of the account's devices. False when it isn't this account's (or is gone). */
-export async function removeDevice(accountId: string, id: string): Promise<boolean> {
+/**
+ * Remove one of the account's devices. False when it isn't this account's
+ * (or is gone) — and, with `userId` (idea 52), when it isn't this person's.
+ */
+export async function removeDevice(
+  accountId: string,
+  id: string,
+  userId: string | null = null,
+): Promise<boolean> {
   const rows = await db
     .delete(pushSubscriptions)
-    .where(and(eq(pushSubscriptions.account_id, accountId), eq(pushSubscriptions.id, id)))
+    .where(
+      and(
+        eq(pushSubscriptions.account_id, accountId),
+        eq(pushSubscriptions.id, id),
+        ...(userId ? [eq(pushSubscriptions.user_id, userId)] : []),
+      ),
+    )
     .returning({ id: pushSubscriptions.id });
   return rows.length > 0;
 }
@@ -147,12 +167,30 @@ export interface SealedDevice {
  * decrypts (the key changed) or no longer parses is skipped and logged by
  * id: it can't be sent to, and the owner can remove it from the card.
  */
-export async function openDevices(accountId: string): Promise<SealedDevice[]> {
-  const rows = await db
-    .select()
-    .from(pushSubscriptions)
-    .where(eq(pushSubscriptions.account_id, accountId))
-    .orderBy(pushSubscriptions.created_at);
+export async function openDevices(
+  accountId: string,
+  /** Idea 52: only this person's devices (the card's "Send a test"). */
+  userId: string | null = null,
+): Promise<SealedDevice[]> {
+  // Idea 52: alerts ask for a decision, so they go only to people on the
+  // team who may make one (owner or manager, not taken off); a phone whose
+  // person became a viewer simply stops getting them.
+  const rows = (
+    await db
+      .select({ sub: pushSubscriptions })
+      .from(pushSubscriptions)
+      .innerJoin(users, eq(users.id, pushSubscriptions.user_id))
+      .where(
+        and(
+          eq(pushSubscriptions.account_id, accountId),
+          eq(users.account_id, accountId),
+          isNull(users.removed_at),
+          inArray(users.role, ["owner", "manager"]),
+          ...(userId ? [eq(pushSubscriptions.user_id, userId)] : []),
+        ),
+      )
+      .orderBy(pushSubscriptions.created_at)
+  ).map((r) => r.sub);
   const out: SealedDevice[] = [];
   for (const r of rows) {
     try {

@@ -58,6 +58,7 @@ const session = (account_id: string): AuthedSession => ({
   user_id: "u",
   email: "o@example.com",
   profile_id: null,
+  role: "owner",
 });
 const signed: ParsedCookie = { profileId: ID, signed: true };
 const legacy: ParsedCookie = { profileId: ID, signed: false };

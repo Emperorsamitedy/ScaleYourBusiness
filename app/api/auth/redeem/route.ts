@@ -55,10 +55,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const back = session.profile_id
       ? returnPath((await cookies()).get(RETURN_COOKIE)?.value)
       : null;
-    const response = NextResponse.redirect(
-      new URL(back ?? (session.profile_id ? "/profile" : "/intake"), origin),
-      303,
-    );
+    // Idea 52: an email on several businesses' teams is asked which one
+    // first — the card it started from may belong to another of them.
+    const landing = session.choose
+      ? "/login/choose"
+      : (back ?? (session.profile_id ? "/profile" : "/intake"));
+    const response = NextResponse.redirect(new URL(landing, origin), 303);
     response.cookies.delete(RETURN_COOKIE);
     response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
     if (session.profile_id) {
