@@ -208,6 +208,8 @@ export interface CartsView {
   measure: CartsMeasure;
   /** Measured products, named for the owner. */
   product_names: Record<string, string>;
+  /** What it was measured from, for the segment (never sent to a browser: it holds contacts). */
+  facts: CartFacts;
 }
 
 /** The screen's read: the facts, measured, with the products named. */
@@ -231,5 +233,5 @@ export async function loadCarts(
       product_names[p.product_ref] = name(p.product_ref, provider, p.title);
     }
   }
-  return { today: facts.today, sources: facts.sources, measure, product_names };
+  return { today: facts.today, sources: facts.sources, measure, product_names, facts };
 }

@@ -116,6 +116,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Lapsed customers are lost revenue whoever serves them.",
   },
+  "nav.carts": {
+    bands: EVERY,
+    reason:
+      "A one-person shop feels every cart left at the till; only businesses whose shop connection reads carts see it.",
+  },
   "nav.pipeline": {
     bands: EVERY,
     reason:

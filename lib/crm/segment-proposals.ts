@@ -118,7 +118,7 @@ function cartCampaign(products: readonly string[]): Campaign {
 }
 
 /** Contacts proposed a cart reminder in the last CARTS.recontact_days days, whatever became of it. */
-async function recentCartRecipients(profileId: string, now: Date): Promise<Set<string>> {
+export async function recentCartRecipients(profileId: string, now: Date): Promise<Set<string>> {
   const since = new Date(now.getTime() - CARTS.recontact_days * 86_400_000).toISOString();
   const rows = await db
     .select({ action: proposals.action })

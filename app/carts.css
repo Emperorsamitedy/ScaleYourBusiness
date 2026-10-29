@@ -1,0 +1,139 @@
+/* Customers · Abandoned carts (idea 47), on the sheet system (app/sheet.css):
+   what was left in carts, the products left behind, the likely-to-win-back
+   range with its rule of thumb, and who can be emailed, every line a count.
+   Square corners, no icons; cobalt only while a request is genuinely running. */
+
+.ct-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.ct-screen .ph-aside {
+  max-width: 46ch;
+}
+.ct-screen > .cs,
+.ct-screen > .ct-grid {
+  margin-top: 15px;
+}
+
+.ct-line {
+  margin: 14px 0 0;
+  max-width: var(--measure);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--desk-ink-2);
+}
+
+.ct-table-wrap {
+  overflow-x: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+.ct-table tbody th {
+  font-weight: 500;
+}
+
+.ct-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  align-items: start;
+}
+.ct-grid .cs {
+  min-width: 0;
+}
+
+.ct-fig {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.ct-src {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+
+.ct-copy {
+  margin: 12px 0 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.ct-copy:first-child {
+  margin-top: 0;
+}
+.ct-quiet {
+  color: var(--sheet-ink-2);
+  font-size: 12.5px;
+}
+.ct-copy.live {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+}
+
+.ct-assumed {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.ct-notes {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.ct-notes li + li {
+  margin-top: 4px;
+}
+
+.ct-foot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+.ct-foot-row .word {
+  margin-left: 8px;
+}
+.ct-foot-row .act {
+  min-height: 44px;
+}
+
+.ct-foot {
+  margin: 22px 0 0;
+  max-width: var(--measure);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--desk-ink-2);
+}
+.ct-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+
+@media (max-width: 1099px) {
+  .ct-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .ct-screen .ph-aside {
+    text-align: left;
+  }
+}
