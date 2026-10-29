@@ -146,6 +146,7 @@ const { POST: switchPOST } = await import("./auth/switch/route");
 const { POST: connectionsPOST } = await import("./connections/route");
 const { POST: stopPOST, DELETE: stopDELETE } = await import("./stop/route");
 const { GET: navGET } = await import("./nav/route");
+const { POST: reviewsPOST } = await import("./reviews/route");
 
 const scenario = {
   assumptions: [],
@@ -364,6 +365,32 @@ describe("real requests: the roles on the same routes", () => {
     expect((await stopDELETE()).status).toBe(403);
     signInAs(biz.owner.token, biz.profile_id);
     expect((await stopDELETE()).status).toBe(200);
+  });
+
+  it("reviews: a viewer can't paste one, and a manager can't change the forwarding address", async () => {
+    const biz = await business();
+    const viewer = await addMember(
+      biz.account_id,
+      `iso-v-${crypto.randomUUID().slice(0, 6)}@example.com`,
+      "viewer",
+    );
+    const manager = await addMember(
+      biz.account_id,
+      `iso-m-${crypto.randomUUID().slice(0, 6)}@example.com`,
+      "manager",
+    );
+    signInAs(viewer.token, biz.profile_id);
+    const paste = await reviewsPOST(json("/api/reviews", "POST", { action: "paste", stars: "1" }));
+    expect(paste.status).toBe(403);
+    expect((await paste.json()).error).toBe(
+      "Only an owner or a manager can file, answer or remove reviews.",
+    );
+    signInAs(manager.token, biz.profile_id);
+    const rotate = await reviewsPOST(json("/api/reviews", "POST", { action: "rotate" }));
+    expect(rotate.status).toBe(403);
+    expect((await rotate.json()).error).toBe(
+      "Only an owner can change the address reviews are forwarded to.",
+    );
   });
 
   it("a removed member's session opens nothing", async () => {

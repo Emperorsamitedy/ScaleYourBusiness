@@ -31,6 +31,8 @@ export const ROLE_ACTIONS = {
   "proposals.carry_out": { min: "manager", what: "carry out or undo an approved proposal" },
   "content.draft": { min: "manager", what: "draft content" },
   "support.answer": { min: "manager", what: "answer support" },
+  // Idea 45: filing, answering and removing reviews is answering customers, like support.
+  "reviews.answer": { min: "manager", what: "file, answer or remove reviews" },
   "chat.ask": { min: "manager", what: "ask me things in the chat" },
   // Idea 53: an alert asks for a decision, so only those who may decide get them.
   "alerts.subscribe": { min: "manager", what: "get phone alerts for proposals" },
@@ -51,6 +53,7 @@ export const ROLE_ACTIONS = {
   "site.audit": { min: "owner", what: "check the website" },
   "pipeline.edit": { min: "owner", what: "change the sales pipeline" },
   "support.settings": { min: "owner", what: "change how support is set up" },
+  "reviews.settings": { min: "owner", what: "change the address reviews are forwarded to" },
   "summary.settings": { min: "owner", what: "switch the weekly summary on or off" },
   "stop.resume": { min: "owner", what: "start things up again after a stop" },
 } as const satisfies Record<string, RoleActionRow>;

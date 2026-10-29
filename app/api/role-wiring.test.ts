@@ -41,7 +41,9 @@ export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
   "support/public/route.ts": {
     POST: "the public widget: strangers on the owner's site, a site key and a conversation token",
   },
-  "support/inbound/route.ts": { POST: "Resend's inbound webhook, Svix-signed" },
+  "support/inbound/route.ts": {
+    POST: "Resend's inbound webhook, Svix-signed — support mail and idea 45's r-<token> review mail alike",
+  },
   "email/events/route.ts": { POST: "Resend's delivery-events webhook, Svix-signed" },
   "stripe/webhook/route.ts": { POST: "Stripe's webhook, signature-verified" },
   "u/[token]/route.ts": { POST: "one-click unsubscribe: the signed token is the credential" },

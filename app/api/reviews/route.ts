@@ -13,6 +13,8 @@
 
 import { type NextRequest, NextResponse } from "next/server";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
+import { requireRole } from "../../../lib/auth/roles";
+import type { RoleAction } from "../../../lib/auth/roles";
 import { appOriginOf, isSameOriginPost } from "../../../lib/auth/same-origin";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { draftReviewReply } from "../../../lib/review-desk/draft";
@@ -43,6 +45,14 @@ export async function GET(): Promise<NextResponse> {
   }
 }
 
+/** Idea 52: the role each action needs (lib/auth/roles); an action not listed asks for an owner. */
+const REVIEWS_ROLE: Record<string, RoleAction> = {
+  paste: "reviews.answer",
+  draft: "reviews.answer",
+  remove: "reviews.answer",
+  rotate: "reviews.settings",
+};
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
     return NextResponse.json({ error: "this has to come from SYB's own page" }, { status: 403 });
@@ -53,6 +63,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "this needs you signed in" }, { status: 401 });
   }
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  const denied = requireRole(access, REVIEWS_ROLE[String(body.action)] ?? "reviews.settings");
+  if (denied) return denied;
   const id = typeof body.id === "string" && UUID_RE.test(body.id) ? body.id : null;
   try {
     switch (body.action) {

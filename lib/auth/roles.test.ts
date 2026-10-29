@@ -35,6 +35,7 @@ const MANAGER_MAY: readonly RoleAction[] = [
   "support.answer",
   "chat.ask",
   "alerts.subscribe",
+  "reviews.answer",
 ];
 /** And what the plan names as never a manager's — each must be owner-only. */
 const NEVER_A_MANAGER: readonly RoleAction[] = [

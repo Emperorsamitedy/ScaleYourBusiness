@@ -14,6 +14,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { ReviewItem, ReviewsView } from "../../lib/review-desk/view";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { useRole } from "../auth/RoleContext";
 import {
   SETUP_STEPS,
   asideLine,
@@ -63,6 +64,8 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
   const [note, setNote] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [copied, setCopied] = useState(false);
+  // Idea 52: a viewer reads the reviews; answering them is an owner's or a manager's.
+  const answerWhy = useRole().why("reviews.answer");
   useEffect(() => setDraft(r.draft ?? ""), [r.draft]);
   const unread = r.stars === null && r.text === null;
   const read = readNote(r);
@@ -135,7 +138,7 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
           <button
             type="button"
             className="act"
-            disabled={busy !== null || r.drafts_left === 0}
+            disabled={busy !== null || r.drafts_left === 0 || answerWhy !== null}
             onClick={() => void suggest()}
           >
             {busy === "draft" ? "Drafting…" : r.draft ? "Suggest another →" : "Suggest a reply →"}
@@ -160,9 +163,10 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
         </p>
       )}
       {note && <p className="rv-note">{note}</p>}
+      {answerWhy && <p className="rv-fine">{answerWhy}</p>}
 
       <p className="rv-remove">
-        {confirm ? (
+        {answerWhy ? null : confirm ? (
           <>
             Remove this review, the name on it and any suggested reply?{" "}
             <button
@@ -190,6 +194,8 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
 function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
   const [copied, setCopied] = useState(false);
   const [confirm, setConfirm] = useState(false);
+  // Idea 52: the forwarding address is a setting, so a new one is an owner's.
+  const rotateWhy = useRole().why("reviews.settings");
   const address = view.forwarding.address;
   if (!view.forwarding.configured || !address) {
     return (
@@ -208,7 +214,9 @@ function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
       title="Forward review emails here"
       foot={
         <span className="rv-foot-row">
-          {confirm ? (
+          {rotateWhy ? (
+            <span>{rotateWhy}</span>
+          ) : confirm ? (
             <>
               <span>A new address stops this one working. Update your forwarding after.</span>
               <button
@@ -261,6 +269,7 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
   });
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const pasteWhy = useRole().why("reviews.answer");
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm({ ...form, [k]: e.target.value });
 
@@ -280,87 +289,94 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
 
   return (
     <SheetCard label="Paste a review" title="Saw one somewhere else?">
+      {pasteWhy && <p className="rv-fine">{pasteWhy}</p>}
       <form className="rv-form" onSubmit={(e) => void submit(e)}>
-        <label className="cs-label" htmlFor="rv-platform">
-          Where it was left
-        </label>
-        <select
-          id="rv-platform"
-          className="rv-input"
-          value={form.platform}
-          onChange={set("platform")}
-        >
-          {view.platforms.map((p) => (
-            <option key={p.key} value={p.key}>
-              {p.label}
-            </option>
-          ))}
-        </select>
-        <label className="cs-label" htmlFor="rv-stars">
-          Stars
-        </label>
-        <select
-          id="rv-stars"
-          className="rv-input"
-          value={form.stars}
-          onChange={set("stars")}
-          required
-        >
-          <option value="">Choose</option>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <option key={n} value={n}>
-              {n} of 5
-            </option>
-          ))}
-        </select>
-        <label className="cs-label" htmlFor="rv-text">
-          What they wrote
-        </label>
-        <textarea
-          id="rv-text"
-          className="rv-textarea"
-          rows={4}
-          value={form.text}
-          onChange={set("text")}
-        />
-        <label className="cs-label" htmlFor="rv-reviewer">
-          Their name as the site shows it · optional
-        </label>
-        <input
-          id="rv-reviewer"
-          className="rv-input"
-          value={form.reviewer}
-          onChange={set("reviewer")}
-        />
-        <label className="cs-label" htmlFor="rv-link">
-          Link to the review · optional
-        </label>
-        <input
-          id="rv-link"
-          className="rv-input"
-          type="url"
-          inputMode="url"
-          placeholder="https://"
-          value={form.link}
-          onChange={set("link")}
-        />
-        <label className="cs-label" htmlFor="rv-date">
-          When it was left · optional, else today
-        </label>
-        <input
-          id="rv-date"
-          className="rv-input"
-          type="date"
-          max={view.today}
-          value={form.date}
-          onChange={set("date")}
-        />
-        <div className="rv-actions">
-          <button type="submit" className="act solid" disabled={busy || form.stars === ""}>
-            {busy ? "Filing…" : "File this review"}
-          </button>
-        </div>
-        {note && <p className="rv-note">{note}</p>}
+        <fieldset className="role-lock" disabled={pasteWhy !== null}>
+          <label className="cs-label" htmlFor="rv-platform">
+            Where it was left
+          </label>
+          <select
+            id="rv-platform"
+            className="rv-input"
+            value={form.platform}
+            onChange={set("platform")}
+          >
+            {view.platforms.map((p) => (
+              <option key={p.key} value={p.key}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+          <label className="cs-label" htmlFor="rv-stars">
+            Stars
+          </label>
+          <select
+            id="rv-stars"
+            className="rv-input"
+            value={form.stars}
+            onChange={set("stars")}
+            required
+          >
+            <option value="">Choose</option>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <option key={n} value={n}>
+                {n} of 5
+              </option>
+            ))}
+          </select>
+          <label className="cs-label" htmlFor="rv-text">
+            What they wrote
+          </label>
+          <textarea
+            id="rv-text"
+            className="rv-textarea"
+            rows={4}
+            value={form.text}
+            onChange={set("text")}
+          />
+          <label className="cs-label" htmlFor="rv-reviewer">
+            Their name as the site shows it · optional
+          </label>
+          <input
+            id="rv-reviewer"
+            className="rv-input"
+            value={form.reviewer}
+            onChange={set("reviewer")}
+          />
+          <label className="cs-label" htmlFor="rv-link">
+            Link to the review · optional
+          </label>
+          <input
+            id="rv-link"
+            className="rv-input"
+            type="url"
+            inputMode="url"
+            placeholder="https://"
+            value={form.link}
+            onChange={set("link")}
+          />
+          <label className="cs-label" htmlFor="rv-date">
+            When it was left · optional, else today
+          </label>
+          <input
+            id="rv-date"
+            className="rv-input"
+            type="date"
+            max={view.today}
+            value={form.date}
+            onChange={set("date")}
+          />
+          <div className="rv-actions">
+            <button
+              type="submit"
+              className="act solid"
+              disabled={busy || form.stars === "" || pasteWhy !== null}
+            >
+              {busy ? "Filing…" : "File this review"}
+            </button>
+          </div>
+          {note && <p className="rv-note">{note}</p>}
+        </fieldset>
       </form>
     </SheetCard>
   );
