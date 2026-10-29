@@ -10,9 +10,14 @@
 // weekly summary's reviews section reads the same rows). The line names
 // the platform and the stars, never the reviewer and never the words.
 //
-// PHONE ALERTS (idea 53) ARE NOT ON THIS BRANCH. `phoneAlertHook` below is
-// where they plug in: it is handed only `lockScreenLine` — "A 2-star
-// review on Google" — and today does nothing but say so in the log.
+// PHONE ALERTS: idea 53 (lib/push) has merged, but this hook is NOT wired
+// to it (TASKS-FEEDBACK I-45d says why). `phoneAlertHook` below is where it
+// plugs in: it is handed only `lockScreenLine` — "A 2-star review on
+// Google" — and today does nothing but say so in the log. In short: this
+// hook runs inside the stranger-reachable inbound path, and lib/push reaches
+// lib/profile and lib/hours, which rule 21's structural test forbids there;
+// and lib/push's outbox, plan and words are proposal-shaped (a proposal id
+// with a foreign key, "N things wait for your yes", a tap to /proposals).
 //
 // Stranger-reachable (the inbound webhook files reviews): this module
 // writes the watch_activity table through the database alone and imports
@@ -54,8 +59,8 @@ export type PhoneAlertHook = (args: {
 }) => Promise<"sent" | "not_built" | "failed">;
 
 /**
- * Idea 53's push goes here. Until it merges this sends nothing: it logs
- * that a phone alert would have gone, with ids only.
+ * Idea 53's push would go here. It sends nothing today (see the header and
+ * TASKS-FEEDBACK I-45d): it logs that a phone alert would have gone, with ids only.
  */
 export const phoneAlertHook: PhoneAlertHook = async (args) => {
   console.log(
