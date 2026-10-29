@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0065**, then `db:seed` (question bank 1.9.0).
+2. **Migrations and bank:** `db:migrate` through **0066**, then `db:seed` (question bank 1.9.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -31,6 +31,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0063 `deals`, `deal_events`, `deal_followups` and the `deal_stage` enum, the B2B pipeline (P5-14, 2026-10-28)
    - 0064 `site_audits`, one row per site audit run with its PageSpeed calls (Phase 5 Session C, 2026-10-27)
    - 0065 a data fix, no schema change: cost rows entered on 5.2 (costs that rise with sales) are refiled from `fixed` to `variable` (2026-10-28)
+   - 0066 `abandoned_checkouts`, Shopify's unfinished checkouts with an email hash and never an address (idea 47, 2026-10-29)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 
@@ -203,6 +204,10 @@ Not findings. These are the controls the new upload path was built with, recorde
 
 - **PageSpeed Insights (a new external read).** `lib/site/audit/pagespeed.ts` sends a GET to `https://www.googleapis.com/pagespeedonline/v5/runPagespeed` and to nothing else. Its fetch type admits only GET, and `audit.test.ts` scans every source in `lib/site/audit` and fails the build on a write verb, on a method other than GET, or on a `key=` query parameter. The `PAGESPEED_API_KEY` (free, and needed for speed: the keyless quota is zero) travels in the `X-Goog-Api-Key` header, never in a URL, a log line or a row. Restrict it in Google Cloud to the PageSpeed Insights API alone. It is in `RESEARCH_SOURCE_REGISTRY` with no scope, so the build-failing scope audit covers it. Calls are capped at 20 per site (origin) per rolling 7 days. The cap is counted from `site_audits.pagespeed_calls`, retries included, and each run logs a `site_audit` line with its account id. Each call is capped at 2 attempts, 3 at once, and a 90 s timeout. The URL handed to Google is a page of the owner's own site that the guarded fetcher already read. Google fetches it from Google's network, not ours, so it adds no SSRF surface.
 - **The walk (page reads).** It goes through `createGuardedFetcher`, the same resolve-once, vet, pin and re-vet-every-redirect path as every other site read. It is capped at 12 pages read plus 15 link checks per run, 4 clicks deep, one run per business per hour, and one at a time (an advisory lock). Same-origin links only. Login and account pages, cart action links and checkout are refused by classification before any request, and the fetcher keeps no cookies. Running an audit needs a signed-in owner and `isSameOriginPost` (`POST /api/site/audit`).
+
+## Added 2026-10-29 — abandoned carts (idea 47)
+
+- **Shopify's abandoned checkouts (a new external read, no new scope).** `lib/connectors/providers/shopify.ts` gains one fixed document, `SHOPIFY_QUERIES.abandoned_checkouts` (`query AbandonedCheckouts`), sent through the same `graphql()` path as every other read, to the store's own myshopify.com host. Shopify's docs (read 2026-10-29) put the query under `read_orders`, which the connector already held, so `SCOPE_REGISTRY.shopify` is unchanged and the scope audit stays green; `shopify.test.ts` pins the list of documents, and `carts.test.ts` pins the registry. The document reads no shopper: the email is on the checkout's customer, and Customer needs `read_customers`, which SYB doesn't ask for (the fake refuses such a document, as Shopify does). Carts land with a null `email_hash`; any store that does give an email has it turned into the keyed suppression hash on the way in, never stored, and a hash matching an erasure is dropped. Rows are deleted after 90 days and with their connection, and `eraseContact` deletes the carts its address hashes to, in its own transaction. The read runs once per sync after the stock snapshot, is capped at 40 pages of 50, never counts a partial read, and never fails the sync; its log line (`carts_read`) carries the account id and counts only.
 
 ## Checked and sound
 

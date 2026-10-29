@@ -1195,6 +1195,71 @@ export const orderBaskets = pgTable(
   ],
 );
 
+// Idea 47, abandoned carts: checkouts a shopper started and didn't finish,
+// read from Shopify's abandonedCheckouts under read_orders (no scope was
+// added). Raw connector data like order_baskets: it goes with its
+// connection (on delete cascade), never into the decision log, and is
+// deleted after 90 days (lib/carts/store.ts). No shopper's address is
+// stored, ever: `email_hash` is the keyed hash contacts and suppressions
+// use (lib/crm/contacts.ts emailHash), so a cart can be matched to a
+// contact who already said yes, and a shopper who isn't one leaves nothing
+// personal behind. Shopify gives the email only to an app that can read
+// customers, which SYB doesn't ask for, so from the connector it is null
+// today (TASKS-FEEDBACK.md I-47b). `accepts_marketing` is Shopify's own
+// tick, stored and never used as consent (I-47a); null when not read.
+// Erasing a contact deletes the carts their address hashes to.
+
+/** One line of a cart: the product, how many, at what unit price (the cart's currency). */
+export interface CartLine {
+  /** The store's product id; null for a custom line or a product deleted since. */
+  product_ref: string | null;
+  /** The line's own title (the product's, by default) — a label, not part of any key. */
+  title: string | null;
+  quantity: number;
+  /** Before discounts, in the cart's currency's minor units. */
+  unit_price_minor: number;
+}
+
+export const abandonedCheckouts = pgTable(
+  "abandoned_checkouts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    connection_id: uuid("connection_id")
+      .notNull()
+      .references(() => connections.id, { onDelete: "cascade" }),
+    /** The platform's own id ("gid://shopify/AbandonedCheckout/123"). */
+    checkout_ref: text("checkout_ref").notNull(),
+    /** When the shopper started the checkout, and when Shopify last saw it change. */
+    started_at: timestamp("started_at", { withTimezone: true, mode: "string" }).notNull(),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull(),
+    /** The UTC day it started — the same day grammar as order_baskets and orders.daily. */
+    day: date("day", { mode: "string" }).notNull(),
+    /** Set when the shopper later finished it: a recovered cart, already counted as an order. */
+    completed_at: timestamp("completed_at", { withTimezone: true, mode: "string" }),
+    /** The checkout's grand total (rule 1: minor units + currency). */
+    total_minor: bigint("total_minor", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    lines: jsonb("lines").$type<CartLine[]>().notNull().default([]),
+    /** More lines than one read takes: the cart's total stands, its products are counted short. */
+    lines_truncated: boolean("lines_truncated").notNull().default(false),
+    /** The keyed hash of the shopper's email, or null (none given, or not read). */
+    email_hash: text("email_hash"),
+    /** Shopify's "email me" tick at checkout. Stored, never consent (I-47a). Null: not read. */
+    accepts_marketing: boolean("accepts_marketing"),
+    observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("abandoned_checkouts_ref_idx").on(t.connection_id, t.checkout_ref),
+    index("abandoned_checkouts_day_idx").on(t.connection_id, t.day),
+    index("abandoned_checkouts_hash_idx").on(t.account_id, t.email_hash),
+    check("abandoned_checkouts_total_nonneg", sql`${t.total_minor} >= 0`),
+    check("abandoned_checkouts_currency", sql`${t.currency} ~ '^[A-Z]{3}$'`),
+  ],
+);
+
 /* ---------- Bookings: appointments from Square or an owner's export (specs/bookings.md) ---------- */
 
 // A gym's or salon's numbers live in its booking system. Two sources write

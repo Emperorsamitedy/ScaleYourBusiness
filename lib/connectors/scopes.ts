@@ -153,7 +153,8 @@ export const SCOPE_GUIDE: Readonly<
     {
       scope: "read_orders",
       grant: "read_orders",
-      why: "Your orders, which is where daily revenue, order count and units sold come from.",
+      // Idea 47: abandonedCheckouts sits under read_orders too (Shopify docs, read 2026-10-29).
+      why: "Your orders, which is where daily revenue, order count and units sold come from, and the checkouts left unfinished, with what was in them.",
     },
     {
       scope: "read_products",

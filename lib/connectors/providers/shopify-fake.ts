@@ -5,7 +5,11 @@
 // whose scope readback matches the installation, orders filtered by
 // created_at and sorted by CREATED_AT, cursor pagination, nested line item
 // pages, and orders older than 60 days HIDDEN unless read_all_orders is
-// granted. Nothing in app code imports this file.
+// granted. Abandoned checkouts (idea 47) are filtered by created_at and
+// sorted by CREATED_AT, and a document that asks for a checkout's customer
+// is refused the way Shopify refuses a type outside the token's scopes
+// (Customer "Requires read_customers access scope"), unless the fake was
+// given read_customers. Nothing in app code imports this file.
 
 import type {
   ShopifyCredential,
@@ -59,6 +63,19 @@ export interface FakeShopifyVariant {
   tracked?: boolean;
 }
 
+/** Idea 47: one abandoned checkout, amounts as Shopify's decimal strings. */
+export interface FakeShopifyCart {
+  id: string;
+  createdAt: string;
+  updatedAt?: string;
+  completedAt?: string | null;
+  total: string;
+  currency?: string;
+  lines: { title: string | null; quantity: number; price: string; productId: string | null }[];
+  /** The shopper's address: Shopify holds it, and shows it only with read_customers. */
+  email?: string | null;
+}
+
 export interface FakeShopifyCall {
   url: URL;
   init: ShopifyRequestInit;
@@ -69,6 +86,7 @@ export interface FakeShopifyCall {
 export interface FakeShopifyOptions {
   orders?: FakeShopifyOrder[];
   products?: FakeShopifyProduct[];
+  carts?: FakeShopifyCart[];
   scopes?: string[];
   /** The shop's currency (shop.currencyCode). Default EUR. */
   currency?: string;
@@ -272,6 +290,64 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
       });
     }
 
+    if (query?.startsWith("query AbandonedCheckouts")) {
+      if (/\bcustomer\b/.test(query) && !scopes.includes("read_customers")) {
+        return shopifyJson(200, {
+          data: null,
+          errors: [
+            {
+              message:
+                "Access denied for customer field. Required access: `read_customers` access scope.",
+              extensions: { code: "ACCESS_DENIED" },
+            },
+          ],
+        });
+      }
+      const carts = options.carts ?? [];
+      const search = String(variables["search"] ?? "");
+      const gte = /created_at:>='([^']+)'/.exec(search)?.[1];
+      const matching = carts
+        .filter((c) => gte === undefined || Date.parse(c.createdAt) >= Date.parse(gte))
+        .sort(
+          (a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt) || (a.id < b.id ? -1 : 1),
+        );
+      const first = Number(variables["first"]);
+      const lineFirst = Number(variables["lineItems"]);
+      const after = variables["after"];
+      const startIndex = typeof after === "string" ? Number(after) : 0;
+      const page = matching.slice(startIndex, startIndex + first);
+      const next = startIndex + page.length;
+      return shopifyJson(200, {
+        data: {
+          abandonedCheckouts: {
+            nodes: page.map((c) => {
+              const currency = c.currency ?? options.currency ?? "EUR";
+              return {
+                id: c.id,
+                createdAt: c.createdAt,
+                updatedAt: c.updatedAt ?? c.createdAt,
+                completedAt: c.completedAt ?? null,
+                totalPriceSet: moneyBag(c.total, currency),
+                lineItems: {
+                  nodes: c.lines.slice(0, lineFirst).map((l) => ({
+                    title: l.title,
+                    quantity: l.quantity,
+                    originalUnitPriceSet: moneyBag(l.price, currency),
+                    product: l.productId === null ? null : { id: l.productId },
+                  })),
+                  pageInfo: { hasNextPage: c.lines.length > lineFirst },
+                },
+              };
+            }),
+            pageInfo: {
+              hasNextPage: next < matching.length,
+              endCursor: next < matching.length ? String(next) : null,
+            },
+          },
+        },
+      });
+    }
+
     if (query?.startsWith("query Products")) {
       const after = variables["after"];
       const from = typeof after === "string" ? Number(after) : 0;
@@ -315,5 +391,24 @@ export function shopOrder(
     refunded: extra.refunded ?? "0.00",
     currency: extra.currency ?? "EUR",
     lines,
+  };
+}
+
+let cartSequence = 0;
+
+/** Idea 47: one abandoned checkout. Amounts are decimal strings, as Shopify sends them. */
+export function shopCart(
+  createdAt: string,
+  total: string,
+  lines: FakeShopifyCart["lines"] = [],
+  extra: Partial<Pick<FakeShopifyCart, "completedAt" | "currency" | "email" | "updatedAt">> = {},
+): FakeShopifyCart {
+  cartSequence += 1;
+  return {
+    id: `gid://shopify/AbandonedCheckout/${cartSequence}`,
+    createdAt,
+    total,
+    lines,
+    ...extra,
   };
 }

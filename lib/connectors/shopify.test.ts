@@ -192,6 +192,8 @@ describe("rule 9 — the connector can only read", () => {
     await provider.connect(FAKE_SHOPIFY_SECRET);
     await runToDone(provider);
     await provider.listProducts?.(FAKE_SHOPIFY_SECRET);
+    await provider.readStock?.(FAKE_SHOPIFY_SECRET, NOW, { currency: null });
+    await provider.readAbandonedCheckouts?.(FAKE_SHOPIFY_SECRET, NOW, 60);
 
     const queries: string[] = Object.values(SHOPIFY_QUERIES);
     expect(fake.calls.length).toBeGreaterThan(10);
@@ -215,6 +217,17 @@ describe("rule 9 — the connector can only read", () => {
     const methods = [...source.matchAll(/method:\s*([^,;\n}]+)/g)].map((m) => m[1]?.trim());
     expect(methods.length).toBeGreaterThan(0);
     for (const method of methods) expect(['"POST"', "init.method"]).toContain(method);
+  });
+
+  it("THE LIST: these documents and no others (idea 47 added abandoned_checkouts, nothing else)", () => {
+    expect(Object.keys(SHOPIFY_QUERIES)).toEqual([
+      "access_scopes",
+      "orders",
+      "order_line_items",
+      "products",
+      "stock",
+      "abandoned_checkouts",
+    ]);
   });
 });
 

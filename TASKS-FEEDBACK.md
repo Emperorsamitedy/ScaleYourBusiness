@@ -53,19 +53,23 @@ Shopify only for now: WooCommerce has no abandoned-checkout API without a plugin
 - **Who may be emailed is decided by the contacts SYB already holds.** A cart is matched to a contact by the existing email hash (`lib/crm/contacts.ts`), and only a contact whose recorded consent passes `canEmailForMarketing` is ever proposed for a win-back. Shopify's own "buyer accepts marketing" tick is stored as a flag on the cart, but it does not create a contact or count as consent. Whether it may is **I-47a**, an owner decision.
 - **No raw shopper email is stored from the connector.** A cart keeps the email's hash, never the address, so a shopper who isn't already a contact leaves nothing personal behind. Carts are deleted after 90 days, and erasing a contact deletes the carts that match their hash.
 
-- [ ] **I-47.1** Read abandoned checkouts. Add one fixed read query to `SHOPIFY_QUERIES` (`abandonedCheckouts`, under the `read_orders` scope already granted). Check Shopify's docs at build for the scope, and for whether reading the email needs protected customer data level 2 on an owner-created app. If it does, the connections screen says so in plain words. A cart is stored with:
+- [x] **I-47.1** Read abandoned checkouts. Add one fixed read query to `SHOPIFY_QUERIES` (`abandonedCheckouts`, under the `read_orders` scope already granted). Check Shopify's docs at build for the scope, and for whether reading the email needs protected customer data level 2 on an owner-created app. If it does, the connections screen says so in plain words. A cart is stored with:
   - its Shopify id, when it was created and updated;
   - its value as integer minor units and currency;
   - its line items (product ref, quantity and price);
   - the email hash, the marketing flag, and whether it was later completed.
 
   The new table `abandoned_checkouts` uses migration **0066**. Build the fake in `shopify-fake.ts`, update the query-list test, and add the scope audit test unchanged-green. No write and no new scope.
+
+  **Done 2026-10-29.** `SHOPIFY_QUERIES.abandoned_checkouts`, read once per sync after the stock snapshot (the last 60 days, never fatal, never a partial count), stored by `lib/carts/store.ts`, migration 0066. Shopify's docs (read 2026-10-29, Admin GraphQL 2026-10): the query and `AbandonedCheckout` need `read_orders`, held, so no scope was added and the registry and audit are unchanged. Fields: `id`, `createdAt`, `updatedAt`, `completedAt`, `totalPriceSet`, and per line `title`, `quantity`, `originalUnitPriceSet`, `product { id }`. **The plan's email doesn't hold:** a checkout has no email of its own. It sits on its customer (`customer.email`, deprecated for `defaultEmailAddress.emailAddress`), and the Customer type needs `read_customers`; the marketing tick is there too (`defaultEmailAddress.marketingState`). Email is also level 2 protected customer data (for a Dev Dashboard app on the owner's own store, Shopify's page doesn't say). So the document reads no shopper, every Shopify cart lands with a null `email_hash` and `accepts_marketing`, and the connections screen says in plain words that no cart is matched to the owner's contacts. The hashing, the erasure link and the 90-day deletion are built and tested for any store that does give an email. See I-47b.
+
 - [ ] **I-47.2** The arithmetic (pure), over the last 30 days against the 30 before:
   - carts started, carts left, and the share left out of all checkouts (carts plus the orders the sync already counts);
   - the value left in carts, per currency, never mixed;
   - the products left behind most, mapped to the owner's offers as orders are.
 
   "Likely to win back" is a range from a stated rule of thumb (ASSUMED, named, never the owner's own number), shown beside how many of the shoppers can actually be emailed. It refuses (rule 25) with under 14 days of carts or under 10 carts, and says how many there are and when it will be ready. Test at the boundaries.
+
 - [ ] **I-47.3** Win-back proposals. Add a segment `abandoned_cart`: contacts whose hash matches a cart left 1–7 days ago with no later order. Each contact is gated by `canEmailForMarketing` and suppression every time.
   - It goes through the existing customer-email proposal path (`lib/crm/segment-proposals.ts`), with hard limits, the three-declines rule and nothing while watching (`watchingUntil`).
   - At most once per contact per 30 days.
@@ -80,3 +84,4 @@ Shopify only for now: WooCommerce has no abandoned-checkout API without a plugin
 **Done when:** the demo shows `/carts` with a measured headline, a refusal path tested, a proposal made only for consented contacts, erasure removing a contact's carts, and the scope audit unchanged.
 
 - [ ] **I-47a** Decide whether Shopify's "buyer accepts marketing" tick at checkout may create a contact with that consent recorded (source: the Shopify checkout, with its time). Until then it is stored but not used.
+- [ ] **I-47b** Decide whether SYB should ask Shopify for `read_customers` (optional, like `read_all_orders`), so a cart's shopper can be hashed and matched to a contact. Without it no Shopify cart matches anyone and no win-back is proposed from real data; with it, SYB's credential can read the whole customer list, and Shopify's protected customer data rules for email apply. Found at build (I-47.1); the registry and the scope audit are unchanged until the owner decides. I-47a's tick also lives on the customer, so it depends on this.

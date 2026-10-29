@@ -518,6 +518,16 @@ function SourceSettings({
             ? " Shopify only shows 60 days without read_all_orders, which Shopify must approve."
             : ""}
         </dd>
+        {c.provider === "shopify" && (
+          <>
+            <dt>carts</dt>
+            <dd>
+              I read the checkouts left unfinished, with what was in them, under the same
+              read_orders. Shopify only says who left a cart to an app that may read your customers,
+              and I don&apos;t ask for that, so no cart is matched to your contacts.
+            </dd>
+          </>
+        )}
         {c.last_error !== null && (
           <>
             <dt>last error</dt>

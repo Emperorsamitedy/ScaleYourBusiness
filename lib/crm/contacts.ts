@@ -29,6 +29,7 @@ import { cookieEraKey, stableKey } from "../core/derived-key";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { forgetBookingClient } from "../bookings/erase";
+import { eraseCartsFor } from "../carts/erase";
 import { lockSupportWrites } from "../support/support-contact";
 import {
   businessProfiles,
@@ -345,6 +346,10 @@ export async function eraseContact(accountId: string, contactId: string): Promis
     // (review 2026-10-23, #11): the keyed client hash their email or phone
     // produced is cleared and remembered (specs/bookings.md §3).
     await forgetBookingClient(accountId, { email: contact.email, phone: contact.phone }, tx);
+    // Idea 47: the carts their address hashes to go too, in the same transaction.
+    if (contact.email) {
+      await eraseCartsFor(accountId, emailHashCandidates(contact.email), tx);
+    }
     await tx.delete(contacts).where(eq(contacts.id, contactId));
     if (profile) {
       await tx.insert(decisionLog).values({
