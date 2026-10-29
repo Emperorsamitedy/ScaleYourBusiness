@@ -34,6 +34,9 @@ export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
   "auth/business/route.ts": {
     POST: "identity: makes a NEW business the person owns; nothing in this one changes",
   },
+  "members/join/route.ts": {
+    POST: "joining: not on the team yet — the invite and the exact verified address are the check",
+  },
   "intake/route.ts": { DELETE: "clears this browser's interview cookie; changes no data" },
   "support/public/route.ts": {
     POST: "the public widget: strangers on the owner's site, a site key and a conversation token",

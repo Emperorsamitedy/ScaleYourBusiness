@@ -140,3 +140,63 @@ export async function sendOwnerEmail(
   }
   return { kind: "refused", status: res.status };
 }
+
+// ---------------------------------------------------------------------------
+// Team invites — idea 52. The same provider and key. An invite link is not
+// a sign-in: it says WHICH invite, and joining still needs a sign-in proven
+// for the invited address. So with no key, in any environment, the owner
+// is told email isn't set up and the screen shows the link to copy and
+// send themselves — the honest fallback, never a promised email.
+
+export interface InviteEmail {
+  to: string;
+  link: string;
+  /** The business's own name, when it has one. */
+  business: string | null;
+  role: "owner" | "manager" | "viewer";
+}
+
+export interface InviteSendResult {
+  /** "resend" when emailed; "not_configured" with no key; "failed" when the send didn't happen. */
+  delivered_via: "resend" | "not_configured" | "failed";
+}
+
+export async function sendInviteEmail(
+  mail: InviteEmail,
+  fetchImpl: EmailFetch = fetch,
+): Promise<InviteSendResult> {
+  const key = process.env.RESEND_API_KEY?.trim();
+  if (!key) return { delivered_via: "not_configured" };
+  const where = mail.business ?? "a business";
+  const as = mail.role === "owner" ? "an owner" : `a ${mail.role}`;
+  try {
+    const res = await fetchImpl("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: FROM(),
+        to: [mail.to],
+        subject: `You're invited to ${where} on SYB`,
+        text:
+          `You've been invited to join ${where} on SYB as ${as}.\n\n` +
+          `Open this link to accept:\n\n${mail.link}\n\n` +
+          `It works once and expires in 7 days. You'll sign in with this address, ${mail.to}. ` +
+          `If you weren't expecting it, ignore this email — nothing happens without you.`,
+      }),
+      signal: AbortSignal.timeout(OWNER_EMAIL_TIMEOUT_MS),
+    });
+    if (!res.ok) {
+      console.error(JSON.stringify({ event: "invite_email_failed", status: res.status }));
+      return { delivered_via: "failed" };
+    }
+    return { delivered_via: "resend" };
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "invite_email_failed",
+        name: error instanceof Error ? error.name : "network",
+      }),
+    );
+    return { delivered_via: "failed" };
+  }
+}
