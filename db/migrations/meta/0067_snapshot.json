@@ -1,5 +1,5 @@
 {
-  "id": "1f3f41f8-22e4-4f43-a763-a93ab06c111b",
+  "id": "c43d349f-e3eb-47a3-a37f-35dc7a1d0d9f",
   "prevId": "6c854d20-17fe-46d5-8b7e-99132da3bda2",
   "version": "7",
   "dialect": "postgresql",
@@ -5331,6 +5331,310 @@
       },
       "isRLSEnabled": false
     },
+    "public.forecast_checks": {
+      "name": "forecast_checks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "forecast_key": {
+          "name": "forecast_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "made_at": {
+          "name": "made_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_at": {
+          "name": "recorded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "subject": {
+          "name": "subject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_ref": {
+          "name": "subject_ref",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metric": {
+          "name": "metric",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit": {
+          "name": "unit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "window_start": {
+          "name": "window_start",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "window_end": {
+          "name": "window_end",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "low_minor": {
+          "name": "low_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "high_minor": {
+          "name": "high_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "low_num": {
+          "name": "low_num",
+          "type": "numeric(18, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "high_num": {
+          "name": "high_num",
+          "type": "numeric(18, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "low_date": {
+          "name": "low_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "high_date": {
+          "name": "high_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "claim": {
+          "name": "claim",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "basis": {
+          "name": "basis",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "graded_at": {
+          "name": "graded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verdict": {
+          "name": "verdict",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_minor": {
+          "name": "actual_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_num": {
+          "name": "actual_num",
+          "type": "numeric(18, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_date": {
+          "name": "actual_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_note": {
+          "name": "actual_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actual_source": {
+          "name": "actual_source",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "forecast_checks_key_idx": {
+          "name": "forecast_checks_key_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "forecast_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "forecast_checks_due_idx": {
+          "name": "forecast_checks_due_idx",
+          "columns": [
+            {
+              "expression": "window_end",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"forecast_checks\".\"graded_at\" IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "forecast_checks_profile_idx": {
+          "name": "forecast_checks_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "made_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "forecast_checks_account_id_accounts_id_fk": {
+          "name": "forecast_checks_account_id_accounts_id_fk",
+          "tableFrom": "forecast_checks",
+          "tableTo": "accounts",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "forecast_checks_profile_id_business_profiles_id_fk": {
+          "name": "forecast_checks_profile_id_business_profiles_id_fk",
+          "tableFrom": "forecast_checks",
+          "tableTo": "business_profiles",
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "forecast_checks_kind": {
+          "name": "forecast_checks_kind",
+          "value": "\"forecast_checks\".\"kind\" IN ('stock_out', 'season_week')"
+        },
+        "forecast_checks_unit": {
+          "name": "forecast_checks_unit",
+          "value": "\"forecast_checks\".\"unit\" IN ('money', 'count', 'date')"
+        },
+        "forecast_checks_window": {
+          "name": "forecast_checks_window",
+          "value": "\"forecast_checks\".\"window_start\" <= \"forecast_checks\".\"window_end\""
+        },
+        "forecast_checks_money": {
+          "name": "forecast_checks_money",
+          "value": "\"forecast_checks\".\"unit\" <> 'money' OR (\"forecast_checks\".\"low_minor\" IS NOT NULL AND \"forecast_checks\".\"high_minor\" IS NOT NULL AND \"forecast_checks\".\"low_minor\" <= \"forecast_checks\".\"high_minor\" AND \"forecast_checks\".\"currency\" IS NOT NULL AND \"forecast_checks\".\"currency\" ~ '^[A-Z]{3}$')"
+        },
+        "forecast_checks_count": {
+          "name": "forecast_checks_count",
+          "value": "\"forecast_checks\".\"unit\" <> 'count' OR (\"forecast_checks\".\"low_num\" IS NOT NULL AND \"forecast_checks\".\"high_num\" IS NOT NULL AND \"forecast_checks\".\"low_num\" <= \"forecast_checks\".\"high_num\")"
+        },
+        "forecast_checks_date": {
+          "name": "forecast_checks_date",
+          "value": "\"forecast_checks\".\"unit\" <> 'date' OR (\"forecast_checks\".\"low_date\" IS NOT NULL AND \"forecast_checks\".\"high_date\" IS NOT NULL AND \"forecast_checks\".\"low_date\" <= \"forecast_checks\".\"high_date\")"
+        },
+        "forecast_checks_verdict": {
+          "name": "forecast_checks_verdict",
+          "value": "\"forecast_checks\".\"verdict\" IS NULL OR \"forecast_checks\".\"verdict\" IN ('inside', 'above', 'below', 'cant_tell')"
+        },
+        "forecast_checks_graded_whole": {
+          "name": "forecast_checks_graded_whole",
+          "value": "(\"forecast_checks\".\"graded_at\" IS NULL) = (\"forecast_checks\".\"verdict\" IS NULL) AND (\"forecast_checks\".\"graded_at\" IS NULL) = (\"forecast_checks\".\"actual_note\" IS NULL)"
+        },
+        "forecast_checks_actual_measured": {
+          "name": "forecast_checks_actual_measured",
+          "value": "\"forecast_checks\".\"verdict\" IS NULL OR \"forecast_checks\".\"verdict\" = 'cant_tell' OR \"forecast_checks\".\"actual_source\" IS NOT NULL"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.goals": {
       "name": "goals",
       "schema": "",
@@ -7465,366 +7769,6 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.review_settings": {
-      "name": "review_settings",
-      "schema": "",
-      "columns": {
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "account_id": {
-          "name": "account_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "inbound_token": {
-          "name": "inbound_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "replace(gen_random_uuid()::text, '-', '')"
-        },
-        "inbound_rotated_at": {
-          "name": "inbound_rotated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "parse_month": {
-          "name": "parse_month",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "parse_calls": {
-          "name": "parse_calls",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        }
-      },
-      "indexes": {
-        "review_settings_inbound_token_idx": {
-          "name": "review_settings_inbound_token_idx",
-          "columns": [
-            {
-              "expression": "inbound_token",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "review_settings_profile_id_business_profiles_id_fk": {
-          "name": "review_settings_profile_id_business_profiles_id_fk",
-          "tableFrom": "review_settings",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "review_settings_account_id_accounts_id_fk": {
-          "name": "review_settings_account_id_accounts_id_fk",
-          "tableFrom": "review_settings",
-          "tableTo": "accounts",
-          "columnsFrom": ["account_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "review_settings_parse_calls_nonneg": {
-          "name": "review_settings_parse_calls_nonneg",
-          "value": "\"review_settings\".\"parse_calls\" >= 0"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.reviews": {
-      "name": "reviews",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "account_id": {
-          "name": "account_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "platform": {
-          "name": "platform",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "source": {
-          "name": "source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "read_by": {
-          "name": "read_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "stars": {
-          "name": "stars",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reviewer": {
-          "name": "reviewer",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "text": {
-          "name": "text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "link": {
-          "name": "link",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reviewed_at": {
-          "name": "reviewed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "received_at": {
-          "name": "received_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "provider_id": {
-          "name": "provider_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "dedupe_key": {
-          "name": "dedupe_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sender_auth": {
-          "name": "sender_auth",
-          "type": "support_sender_auth",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "worth_knowing": {
-          "name": "worth_knowing",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "alerted_at": {
-          "name": "alerted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "draft": {
-          "name": "draft",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "drafted_at": {
-          "name": "drafted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "draft_calls": {
-          "name": "draft_calls",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "reviews_dedupe_idx": {
-          "name": "reviews_dedupe_idx",
-          "columns": [
-            {
-              "expression": "profile_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "platform",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "dedupe_key",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "reviews_provider_idx": {
-          "name": "reviews_provider_idx",
-          "columns": [
-            {
-              "expression": "provider_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "reviews_profile_received_idx": {
-          "name": "reviews_profile_received_idx",
-          "columns": [
-            {
-              "expression": "profile_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "received_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "reviews_expires_idx": {
-          "name": "reviews_expires_idx",
-          "columns": [
-            {
-              "expression": "expires_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "reviews_profile_id_business_profiles_id_fk": {
-          "name": "reviews_profile_id_business_profiles_id_fk",
-          "tableFrom": "reviews",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "reviews_account_id_accounts_id_fk": {
-          "name": "reviews_account_id_accounts_id_fk",
-          "tableFrom": "reviews",
-          "tableTo": "accounts",
-          "columnsFrom": ["account_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "reviews_stars_range": {
-          "name": "reviews_stars_range",
-          "value": "\"reviews\".\"stars\" IS NULL OR \"reviews\".\"stars\" BETWEEN 1 AND 5"
-        },
-        "reviews_source": {
-          "name": "reviews_source",
-          "value": "\"reviews\".\"source\" IN ('email', 'paste')"
-        },
-        "reviews_read_by": {
-          "name": "reviews_read_by",
-          "value": "\"reviews\".\"read_by\" IN ('parser', 'model', 'owner', 'unread')"
-        },
-        "reviews_draft_calls_range": {
-          "name": "reviews_draft_calls_range",
-          "value": "\"reviews\".\"draft_calls\" BETWEEN 0 AND 3"
-        },
-        "reviews_expiry_after_receipt": {
-          "name": "reviews_expiry_after_receipt",
-          "value": "\"reviews\".\"expires_at\" > \"reviews\".\"received_at\""
-        }
-      },
       "isRLSEnabled": false
     },
     "public.site_audits": {

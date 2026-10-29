@@ -23,6 +23,7 @@ import {
   connections,
   executions,
   fieldRecords,
+  forecastChecks,
   intakeEvents,
   metricObservations,
   modeDecisions,
@@ -282,6 +283,30 @@ describe("P5-02 warnings into the watch log", () => {
     // The same week again: nothing new. Next week: said again.
     expect(await logStockWarnings(s.profile_id, new Date(NOW.getTime() + 3_600_000))).toBe(0);
     expect(await logStockWarnings(s.profile_id, new Date(NOW.getTime() + 7 * 86_400_000))).toBe(1);
+  });
+
+  it("idea 54: each warning goes on the track record as said, once per item a week", async () => {
+    const s = await shop({ mode: "watching" });
+    const claims = () =>
+      db.select().from(forecastChecks).where(eq(forecastChecks.profile_id, s.profile_id));
+    await logStockWarnings(s.profile_id, NOW);
+    const [c] = await claims();
+    expect(c).toMatchObject({
+      kind: "stock_out",
+      subject: "Blue Mug",
+      unit: "date",
+      window_start: TODAY,
+      graded_at: null,
+      verdict: null,
+    });
+    // 12 on hand at 3 a day, give or take chance: the days the warning said.
+    expect(c!.claim).toMatch(/^Blue Mug runs out in about \d+–\d+ days/);
+    expect(c!.subject_ref).toMatchObject({ on_hand: 12, as_of: TODAY });
+    expect(c!.basis).toMatch(/measured by Shopify/);
+    await logStockWarnings(s.profile_id, new Date(NOW.getTime() + 3_600_000));
+    expect(await claims()).toHaveLength(1);
+    await logStockWarnings(s.profile_id, new Date(NOW.getTime() + 7 * 86_400_000));
+    expect(await claims()).toHaveLength(2);
   });
 });
 

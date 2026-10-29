@@ -105,6 +105,11 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/blindspots", label: "Blindspots", feature: "nav.blindspots" },
       { href: "/competitors", label: "Competitors", feature: "nav.competitors" },
+      {
+        href: "/benchmarks",
+        label: "Similar businesses",
+        feature: "nav.benchmarks",
+      },
     ],
   },
   {

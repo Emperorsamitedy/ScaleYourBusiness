@@ -8,7 +8,14 @@ import { describe, expect, it } from "vitest";
 process.env.CONNECTOR_KEY ??= "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 import type { SummaryActivity, SummaryInput, SummaryReadback } from "./compose";
-import { QUIET_LINE, SECTION_CAP, composeSummary, readbackLine, summarySections } from "./compose";
+import {
+  QUIET_LINE,
+  SECTION_CAP,
+  composeSummary,
+  forecastsLine,
+  readbackLine,
+  summarySections,
+} from "./compose";
 import { stopToken, summaryOn, summaryPref, verifyStopToken } from "./switch";
 import { dayLabel, isoWeek, summaryWindow } from "./week";
 
@@ -343,6 +350,35 @@ describe("P5-02 — stock-out warnings in the weekly summary", () => {
       input({ activity: [row("2026-10-21 09:00:00+00", "anomaly_detected", "Orders fell.")] }),
     );
     expect(c.sections.map((s) => s.key)).toEqual(["noticed"]);
+  });
+});
+
+describe("idea 54 — one line when forecasts were graded that week", () => {
+  it("says how they came out, a miss as plainly as a hit, can't tell apart", () => {
+    const c = composeSummary(input({ forecasts: { inside: 2, above: 1, below: 0, cant_tell: 1 } }));
+    const s = c.sections.find((x) => x.key === "forecasts")!;
+    expect(s.lines.map((l) => l.text)).toEqual([
+      "I graded 4 of my forecasts this week: 2 landed inside the range I gave, 1 missed (1 came in above it), and I couldn't tell on 1.",
+    ]);
+    expect(s.href).toBe("/history");
+    expect(c.quiet).toBe(false);
+    expect(c.text).toContain("HOW MY FORECASTS DID");
+  });
+
+  it("says nothing when nothing was graded", () => {
+    expect(forecastsLine({ inside: 0, above: 0, below: 0, cant_tell: 0 })).toBeNull();
+    expect(forecastsLine(undefined)).toBeNull();
+    const c = composeSummary(input({ forecasts: { inside: 0, above: 0, below: 0, cant_tell: 0 } }));
+    expect(c.quiet).toBe(true);
+  });
+
+  it("all inside says none missed", () => {
+    expect(forecastsLine({ inside: 3, above: 0, below: 0, cant_tell: 0 })).toBe(
+      "I graded 3 of my forecasts this week: 3 landed inside the range I gave, none missed.",
+    );
+    expect(forecastsLine({ inside: 0, above: 1, below: 2, cant_tell: 0 })).toMatch(
+      /3 missed \(1 came in above it, 2 below it\)/,
+    );
   });
 });
 

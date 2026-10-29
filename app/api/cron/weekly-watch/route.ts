@@ -10,6 +10,7 @@ import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { runProgressChecks } from "../../../../lib/care/progress";
 import { runAdProposals } from "../../../../lib/ads/proposals";
+import { runForecastGrading } from "../../../../lib/forecasts/run";
 import { runHoursTrials } from "../../../../lib/hours/trials";
 import { runStockProposals } from "../../../../lib/stock/propose";
 import { runStockWarnings } from "../../../../lib/stock/warnings";
@@ -35,6 +36,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Feature 34: slow stock becomes ways to clear it, and P5-03 low stock a
     // reorder note — proposals only, never executed here, never an order.
     const stock = await runStockProposals();
+    // Idea 54: SYB's own forecasts whose window has closed, graded from
+    // measured rows — before the summary, so the week's grades are in it.
+    const forecasts = await runForecastGrading();
     // Idea 45: reviews (and the reviewer names on them) don't outlive their year,
     // even for a business that gets no new review and never opens /reviews.
     const reviews_expired = await pruneExpiredReviews(new Date());
@@ -49,6 +53,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         ads,
         stock_warnings,
         stock,
+        forecasts,
         reviews_expired,
         summaries,
       }),
@@ -60,6 +65,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ads,
       stock_warnings,
       stock,
+      forecasts,
       reviews_expired,
       summaries,
     });

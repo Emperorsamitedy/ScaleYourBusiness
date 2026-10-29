@@ -133,6 +133,25 @@ interface User {
 
 One account holds exactly one business profile in v1. Multi-business accounts (an owner with three restaurants) are a v2 concern, but the one-to-one is expressed through a foreign key rather than by embedding, so the change is additive rather than structural.
 
+**Phone alerts (idea 53, migration 0068).** One row per browser that switched alerts on, in `push_subscriptions`:
+
+```ts
+interface PushSubscriptionRow {
+  id: string;
+  account_id: AccountId;           // ON DELETE CASCADE: erased with the account
+  user_id: UserId;                 // ON DELETE CASCADE
+  session_id: string | null;       // the sign-in that switched it on; signing out of it deletes the row
+  device_label: "iPhone" | "iPad" | "Android" | "Mac" | "Windows" | "Linux" | "Browser"; // coarse, from the user agent; never the agent string
+  endpoint_hash: string;           // UNIQUE: HMAC-SHA-256 of the endpoint under a stable key
+  encrypted_subscription: string;  // {endpoint, keys: {p256dh, auth}} sealed with AES-256-GCM under CONNECTOR_KEY (rule 10)
+  time_zone: string | null;        // the browser's IANA zone, read for quiet hours only when the business's own zone is unknown
+  created_at: ISODateTime;
+  last_sent_at: ISODateTime | null; // the last alert (a test doesn't count): the one-a-day cap reads it
+}
+```
+
+A subscription is a capability: whoever holds the endpoint and its keys can push to that phone. So it is stored like a connection secret, sealed and never logged or returned by any API; screens see the label and the dates. The endpoint must be on a known browser push service (Google's FCM, `*.push.apple.com`, Mozilla's, Windows'), checked when it is saved and again before every send. A row is deleted on sign-out from its browser, on a 404 or 410 from the push service, from the "Phone alerts" card, and with its user or account.
+
 ---
 
 ## 5. The business profile
@@ -400,7 +419,7 @@ connection, and erasing a contact deletes the carts their address hashes to.
 Reviews (idea 45, 2026-10-29) are never asked in the intake and never a
 profile fact. They arrive as the platforms' own notification emails,
 forwarded to `r-<token>@<SUPPORT_INBOUND_DOMAIN>`, or pasted by the owner,
-and live in `reviews` (migration 0067) beside `review_settings`.
+and live in `reviews` (migration 0069) beside `review_settings`.
 `review_settings` holds one row per profile: the rotatable `inbound_token`
 and the model fallback's monthly counter (`parse_month`, `parse_calls`).
 A `reviews` row holds `platform` (a key from
@@ -885,6 +904,21 @@ interface DecisionLogEntry {
   payload_hash: string;
 }
 
+// Idea 53 (migration 0068): a proposal that became pending while its account
+// had a phone switched on, waiting for its alert. Written by createProposal
+// in the proposal's own transaction (a savepoint that can't fail it), so a
+// rolled-back proposal leaves none; deleted when the flush sends or drops it.
+// pushPlan decides: only pending proposals inside their window; nothing while
+// the emergency stop is on (dropped, not held); nothing 21:00–08:00 in the
+// business's zone (held to 08:00); at most one alert a day per account
+// (ux-spec §9); everything waiting goes as one alert, worded by kind, never
+// by the proposal's own text.
+interface PushOutboxRow {
+  proposal_id: ProposalId;           // PRIMARY KEY, ON DELETE CASCADE
+  profile_id: BusinessProfileId;     // ON DELETE CASCADE
+  created_at: ISODateTime;
+}
+
 // P3-42 (alert mode): a goal made measurable. Stored as two fields beside
 // the goal's other attributes, both superseded, never overwritten:
 //   goals.<id>.measure   — owner_input: what to move, how far, by when
@@ -968,6 +1002,15 @@ interface CampaignComparison {
 // at least 5 measured, a lift is never "helped".
 ```
 
+**Benchmarks** (idea 44, `/benchmarks`). A benchmark is a published reference and never a fact about the business. It is never a `Field`, is stored in no table, and is not fed to the diagnosis, a proposal or the report. `lib/benchmarks/fence.test.ts` enforces this, and whether that may change is I-44a. The only source is the committed snapshot `specs/benchmarks-eurostat-v1.json`, Eurostat `sbs_sc_ovw`, fetched by hand with `npm run benchmarks:fetch`. A cell is (geo, NACE code, size class); each figure in it is Eurostat's number as published, with its year and flag, or `{missing: "confidential", year}`, and an unpublished figure is absent, never zero. `specs/benchmark-map-v1.json` maps `identity.business_type` to a NACE code and its parent (rule 4). Euro figures are converted to the business's currency only at the point of comparison, into integer minor units (rule 1), at `ert_bil_eur_a`'s average rate for the cell's year, and the rate and year are shown. The owner's side of each line is worked out on read with `derived_from` and its formula (rule 6), never stored:
+- **Operating margin** = (revenue.monthly_revenue − cost of sales − per-sale costs − running costs − staff pay) ÷ revenue × 100, against `GOR_PC` (gross operating surplus ÷ turnover).
+  - Cost of sales is the offers' cost_to_deliver × volume_period ÷ their price × volume_period when every selling offer has a cost; otherwise it is 100 % − costs.gross_margin.
+  - Per-sale costs are 5.2's per_unit lines × the offers' monthly units, and per_job lines × revenue.order_count_monthly.
+  - Running costs are 5.1 and 5.2's monthly, quarterly and annual lines made monthly. `loan_payments` is left out and named.
+  - Staff pay is the `salaries` lines when there are any, else the employees' cost_monthly on 9.2. It is never the owner's own row.
+- **Turnover per person** = revenue.monthly_revenue × 12 ÷ identity.team_size, against `NETTUR_EMP_TEUR`.
+- **Staff cost per employee** = staff pay × 12 ÷ the 9.2 rows marked employee, against `AVG_EXPN_SAL_BEN_TEUR`. `LC_EMP_TEUR` isn't used, because it is per person employed, owners included.
+
 **Deals** (Phase 5 Session D, P5-14..17, rule 29). A deal is always with a Phase 4 contact and goes with them. Erasing the contact cascades through the deal, its history and any drafted follow-up; the decision log, which holds only ids and hashes, is untouched. Stages are the bank's `deal_stage` vocabulary (bank 1.9.0), mirrored by the `deal_stage` enum. The stated win rate is `customers.win_rate` (question 6.1f, a percentage, asked when 6.1a is answered and isn't b2c).
 
 ```ts
@@ -1025,6 +1068,50 @@ interface AlertReview {
 ```
 
 A cause must cite evidence ids the case file holds; every cause category (`our_advice_was_wrong`, `goal_unrealistic`, `owner_declined_key_actions`, `approved_actions_not_executed`, `execution_failed`, `data_incomplete`, `external_change`, `other`) must be named or set aside, or the gap is recorded in `rejected`.
+
+**`forecast_checks`** (idea 54, migration 0067) is SYB's own track record: each forecast it shows, recorded when it is made, graded once its window has passed. It sits outside the profile, like the scorecard's readbacks, because it is about SYB rather than the business.
+
+```ts
+// One row per forecast per window: unique (profile_id, forecast_key).
+interface ForecastCheck {
+  id: string;
+  account_id: AccountId;
+  profile_id: BusinessProfileId;     // ON DELETE CASCADE: it leaves only with its business
+  kind: "stock_out" | "season_week";
+  forecast_key: string;              // e.g. "stock_out|<connection>:<product>|2026-W44"
+  made_at: ISODateTime;              // when it was shown
+  recorded_at: ISODateTime;          // Postgres's own now(): a backdated row shows as one
+  subject: string;                   // the item's name, "revenue"
+  subject_ref: object;               // where the actual is read, and what the claim started from
+  metric: string;                    // the measured metric that grades it
+  unit: "money" | "count" | "date";
+  window_start: ISODate;
+  window_end: ISODate;
+  low_minor: number | null;          // money: integer minor units …
+  high_minor: number | null;
+  currency: string | null;           // … with its ISO 4217 code (rule 1)
+  low_num: string | null;            // a count
+  high_num: string | null;
+  low_date: ISODate | null;          // dates
+  high_date: ISODate | null;
+  claim: string;                     // what I said, as shown
+  basis: string;                     // what it rested on (rule 25)
+  // The grade: all empty at insert, written once.
+  graded_at: ISODateTime | null;
+  verdict: "inside" | "above" | "below" | "cant_tell" | null;
+  actual_minor: number | null;
+  actual_num: string | null;
+  actual_date: ISODate | null;
+  actual_note: string | null;        // what happened, in words; for "can't tell", why
+  actual_source: { table: string; ids: string[] } | null; // required unless "can't tell"
+}
+```
+
+Two rules hold it, conservatively. **Nothing is recorded after the fact**: a forecast is written by the code path that shows it, at the time, with the range shown then, and never rebuilt later from a model run over old data. **Only measured actuals grade**: a verdict other than `cant_tell` must cite the measured rows it was read from, and without them the forecast is `cant_tell`, counted apart and never as right. Triggers refuse a row inserted already graded, any change to a claim, any second grading, a delete on its own, and TRUNCATE.
+
+Two kinds are recorded (`lib/forecasts/claims.ts`). `stock_out` is a stock-out warning's "runs out in about 4–6 days" as dates from the day it was said, written on the weekly beat once per item per ISO week, unit `date`. `season_week` is one of the next eight weeks on `/patterns`: last year's range against the normal week, times the normal week now, in the series' units (`money` or `count`), written the first time the week is shown. The cash forecast's balances and the pipeline's weighted value are not recorded: no balance is measured, and the weighted value has no window (TASKS-FEEDBACK.md I-54a, I-54b).
+
+Grading runs on the weekly beat (`lib/forecasts/run.ts`, pure rules in `grade.ts`) once a window's last day is two or more days past. A `season_week` is the week's seven measured business-wide days from the same connection, metric and currency; a missing day is a gap. A `stock_out` runs out on the first day the item's measured count is zero: `inside` when the span from the last count above zero to the first at zero sits within the dates, `below` when it came sooner, `above` when a count is above zero on the latest day or later, and `cant_tell` when a count rose (a delivery) or the span crosses an end. Rows not yet in wait up to 14 days past the window, then grade as `cant_tell`.
 
 The decision log is append-only. It serves three purposes at once: the learning corpus, the debugging trail, and the compliance record showing that a human approved every consequential action — which matters directly given GDPR Article 22 exposure on anything touching individuals.
 

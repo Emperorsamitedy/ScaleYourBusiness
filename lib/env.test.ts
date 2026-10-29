@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { env } from "./env";
+import { env, pushServiceSetting, vapidEnv } from "./env";
 
 const saved = { ...process.env };
 
@@ -29,5 +29,31 @@ describe("env", () => {
     // Touching DATABASE_URL alone must not throw about the Anthropic key:
     // nothing before Session L needs it.
     expect(env.DATABASE_URL).toBe("postgresql://example");
+  });
+});
+
+describe("idea 53: phone alert settings", () => {
+  it("offers VAPID keys only when all three are set", () => {
+    process.env.VAPID_PUBLIC_KEY = " pub ";
+    process.env.VAPID_PRIVATE_KEY = "priv";
+    process.env.VAPID_SUBJECT = "mailto:o@example.com";
+    expect(vapidEnv()).toEqual({
+      publicKey: "pub",
+      privateKey: "priv",
+      subject: "mailto:o@example.com",
+    });
+    process.env.VAPID_SUBJECT = "";
+    expect(vapidEnv()).toBeNull();
+    delete process.env.VAPID_PRIVATE_KEY;
+    expect(vapidEnv()).toBeNull();
+  });
+
+  it("uses the fake push service only when asked, and never in production", () => {
+    delete process.env.PUSH_SERVICE;
+    expect(pushServiceSetting()).toBe("real");
+    process.env.PUSH_SERVICE = "FAKE";
+    expect(pushServiceSetting()).toBe("fake");
+    Object.assign(process.env, { NODE_ENV: "production" });
+    expect(pushServiceSetting()).toBe("real");
   });
 });

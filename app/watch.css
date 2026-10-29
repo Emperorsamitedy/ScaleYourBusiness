@@ -278,3 +278,27 @@
     gap: var(--s-3);
   }
 }
+
+/* Idea 53: the Phone alerts card's devices — a label and dates, each removable. */
+.wt-devices {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule-soft);
+}
+.wt-devices li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  min-width: 0;
+}
+.wt-devices li span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

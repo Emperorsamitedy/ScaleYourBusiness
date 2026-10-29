@@ -57,6 +57,16 @@ export interface SummaryInput {
   readbacks: readonly SummaryReadback[];
   /** Connector labels by provider id, for the collapsed sync lines. */
   provider_labels: Readonly<Record<string, string>>;
+  /** Idea 54: SYB's own forecasts graded this week, by verdict. */
+  forecasts?: ForecastsGraded;
+}
+
+/** Idea 54: how the week's graded forecasts came out. */
+export interface ForecastsGraded {
+  inside: number;
+  above: number;
+  below: number;
+  cant_tell: number;
 }
 
 export interface SummaryLine {
@@ -66,7 +76,7 @@ export interface SummaryLine {
 }
 
 export interface SummarySection {
-  key: "waiting" | "stock" | "reviews" | "done" | "noticed" | "goals" | "readback";
+  key: "waiting" | "stock" | "reviews" | "done" | "noticed" | "goals" | "readback" | "forecasts";
   title: string;
   lines: SummaryLine[];
   /** Lines held back by the cap; the link shows them all. */
@@ -149,6 +159,30 @@ export function readbackLine(r: SummaryReadback): string | null {
     );
   }
   return `${r.summary}: ${VERDICT_WORD[r.verdict]} — judged on ${JUDGED_NOUN[r.judged_on]}${pct}, measured.`;
+}
+
+/**
+ * Idea 54: the week's graded forecasts as one line, or null when none was
+ * graded. A miss is said as plainly as a hit; "can't tell" is named apart
+ * and never counted as right.
+ */
+export function forecastsLine(f: ForecastsGraded | undefined): string | null {
+  if (!f) return null;
+  const total = f.inside + f.above + f.below + f.cant_tell;
+  if (total === 0) return null;
+  const missed = f.above + f.below;
+  const misses =
+    missed === 0
+      ? "none missed"
+      : `${missed} missed (${[
+          ...(f.above > 0 ? [`${f.above} came in above it`] : []),
+          ...(f.below > 0 ? [`${f.below} below it`] : []),
+        ].join(", ")})`;
+  const cant = f.cant_tell > 0 ? `, and I couldn't tell on ${f.cant_tell}` : "";
+  return (
+    `I graded ${total} of my forecasts this week: ` +
+    `${f.inside} landed inside the range I gave, ${misses}${cant}.`
+  );
 }
 
 /** The connector syncs of a week, one line per source: the days add up. */
@@ -305,6 +339,17 @@ export function summarySections(input: SummaryInput): SummarySection[] {
       ...capped(readbacks),
       href: "/history",
       link_text: "History",
+    });
+  }
+  const graded = forecastsLine(input.forecasts);
+  if (graded) {
+    sections.push({
+      key: "forecasts",
+      title: "How my forecasts did",
+      lines: [{ text: graded }],
+      more: 0,
+      href: "/history",
+      link_text: "My track record",
     });
   }
   return sections;
