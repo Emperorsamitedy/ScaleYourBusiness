@@ -161,10 +161,15 @@ export function trackEntry(r: TrackRow, today: string): TrackEntry | null {
 
 /** The whole record: the headline, the kinds, every forecast newest first. */
 export function trackView(rows: readonly TrackRow[], today: string): TrackView {
-  const entries = rows
+  // Newest said first; forecasts said together, in the order of their windows.
+  const entries = [...rows]
+    .sort(
+      (a, b) =>
+        instant(b.made_at) - instant(a.made_at) ||
+        (a.window_end < b.window_end ? -1 : a.window_end > b.window_end ? 1 : 0),
+    )
     .map((r) => trackEntry(r, today))
-    .filter((e): e is TrackEntry => e !== null)
-    .sort((a, b) => instant(b.made_at) - instant(a.made_at));
+    .filter((e): e is TrackEntry => e !== null);
   const count = (list: readonly TrackEntry[], w: TrackWord) =>
     list.filter((e) => e.word === w).length;
   const inside = count(entries, "inside");

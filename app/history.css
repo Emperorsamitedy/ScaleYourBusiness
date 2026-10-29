@@ -272,6 +272,9 @@
     padding-left: 14px;
     padding-right: 14px;
   }
+  .hi-track-row .hi-what {
+    grid-column: 1;
+  }
   .hi-tab {
     padding: 0 10px;
   }

@@ -174,3 +174,20 @@ describe("ranges in their own units", () => {
     );
   });
 });
+
+describe("the order", () => {
+  it("lists the newest said first, and those said together by their windows", () => {
+    const at = "2026-10-08 09:10:00+00";
+    const late = row({ made_at: at, recorded_at: at, window_end: "2026-11-15" });
+    const soon = row({ made_at: at, recorded_at: at, window_end: "2026-10-14" });
+    const newest = row({
+      made_at: "2026-10-29 09:00:00+00",
+      recorded_at: "2026-10-29 09:00:00+00",
+    });
+    expect(trackView([late, newest, soon], TODAY).entries.map((e) => e.id)).toEqual([
+      newest.id,
+      soon.id,
+      late.id,
+    ]);
+  });
+});

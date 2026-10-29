@@ -166,7 +166,7 @@ export function seasonClaims(owner: Owner, view: SeasonsView, now: Date): Foreca
       basis:
         `Last year the week of ${longDay(a.last_year_start)} ran ${ratioText(ly)} your normal week, ` +
         `and your normal week is ${value(median)} (the median of ${r.normal.weeks} complete weeks, ` +
-        `${shortDate(r.normal.from)} to ${longDay(r.normal.to)}), measured by ${r.series.source}. ` +
+        `${longDay(r.normal.from)} to ${longDay(r.normal.to)}), measured by ${r.series.source}. ` +
         `One year is one example: it says what happened last year, not what will.`,
     });
   }
