@@ -95,3 +95,54 @@ Shopify only for now: WooCommerce has no abandoned-checkout API without a plugin
 
 - [ ] **I-47a** Decide whether Shopify's "buyer accepts marketing" tick at checkout may create a contact with that consent recorded (source: the Shopify checkout, with its time). Until then it is stored but not used.
 - [ ] **I-47b** Decide whether SYB should ask Shopify for `read_customers` (optional, like `read_all_orders`), so a cart's shopper can be hashed and matched to a contact. Without it no Shopify cart matches anyone and no win-back is proposed from real data; with it, SYB's credential can read the whole customer list, and Shopify's protected customer data rules for email apply. Found at build (I-47.1); the registry and the scope audit are unchanged until the owner decides. I-47a's tick also lives on the customer, so it depends on this.
+
+## Idea 54: its own track record (owner, 2026-10-29: "go to the next one")
+
+The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ran: helped, did nothing or backfired. What it doesn't grade is SYB's **forecasts**: the cash range, the stock-out dates, the busy seasons and the pipeline's likely close. Idea 54 records each forecast at the moment it is shown, with its range, and grades it once its window has passed, against measured data only. Rule 25 holds: every forecast states its basis. Two choices are made here, conservatively:
+
+- **Nothing is recorded after the fact.** A forecast enters the record only when it was made, with the range shown then. There is no backfill from today's model run over old data, because a forecast written knowing the answer isn't a forecast. (The demo seed backdates its claims explicitly, and says so.)
+- **Only measured actuals grade.** A stated or estimated figure never marks a forecast right. With no measured actual, the forecast is "can't tell", counted apart and never folded into "right".
+
+- [ ] **I-54.1** The record. A new table `forecast_checks` (migration **0067**) holds:
+  - profile, kind, made_at, and the forecast's own key, so it is recorded once per window (for example the cash low of the week starting 2 Nov, as forecast in the week of 26 Oct);
+  - the claim: metric, window start and end, low and high (money as integer minor units with currency, rule 1; counts or dates as such), and the basis sentence shown with it;
+  - grading, filled once and never changed: graded_at, the actual and its source row, and a verdict of `inside`, `above`, `below` or `cant_tell`.
+
+  A database trigger refuses any change to a claim, and any second grading.
+- [ ] **I-54.2** Record what is already forecast, where it is made. Check each forecast's code and pick those whose actual is measured later:
+  - the cash forecast's next four weekly closing balances (P5 cash, `lib/cash`), but only where the balance is measured (Stripe balance or a bank import), otherwise none;
+  - the stock-out warnings' "runs out around" date range (`lib/stock`), graded by the measured stock reaching zero, or not, within the range;
+  - the busy-season forecast's next eight weeks (`lib/seasons`), graded by each week's measured series against the stated band;
+  - the pipeline's likely close for deals due in the window (`lib/pipeline`), graded by the deals the owner marks won.
+
+  Each is recorded at most once per window, on the beat or screen that already computes it. Nothing new is computed. If a forecast can't be graded from measured data, it isn't recorded, and the task note says which and why.
+- [ ] **I-54.3** Grading. A pure grader, plus a step on the weekly beat (`/api/cron/weekly-watch`): every claim whose window closed at least a day ago and has no grade gets one from measured rows. It is deterministic, with no model and no retry loop.
+- [ ] **I-54.4** "My track record" on `/history`, beside the scorecard:
+  - the headline counts graded forecasts, for example "7 of my last 9 forecasts landed inside the range I gave". It names how many it couldn't tell, and is broken down by kind;
+  - each forecast is listed: what I said, when, on what basis, and what happened;
+  - with fewer than three graded forecasts it says it is too soon to judge, and how many are waiting;
+  - misses are shown as plainly as hits, with how far off they were in the forecast's own units.
+
+  The weekly summary email gets one line when something was graded that week.
+- [ ] **I-54.5** Demo seed: Fernhill gets backdated claims, graded against its seeded data, including at least one miss and one "can't tell". The seed comments that real accounts never backdate. No network, no model.
+
+**Done when:** a graded forecast can't be edited, a miss shows as plainly as a hit, "can't tell" never counts as right, and the demo's `/history` shows the record.
+
+## Idea 50: answer with your voice (owner, 2026-10-29)
+
+The owner taps a microphone, speaks, and the words appear in the answer box. They read and fix them, then record the answer as always. It uses the browser's own speech recognition (the Web Speech API), so there is no new provider, no key, no model call and no server change. Conservative choices:
+
+- **Nothing is sent or recorded by SYB.** No audio reaches SYB's server, and none is stored. Only the text the owner chooses to record is saved, exactly as if typed. Speech never records an answer by itself.
+- **Say who hears it.** Where the browser can recognise on the device, use that. Otherwise the first use shows one plain line: "Your browser turns your speech into text. In Chrome, Google does this; SYB never receives the audio." Check MDN and the spec at build, for on-device options (`processLocally` / `available()`) and which browsers support them. The privacy page says the same.
+
+- [ ] **I-50.1** A pure helper and a hook:
+  - `lib/voice/transcript.ts` merges recognised text into what is already typed: spacing and capitals, interim versus final results, and never overwriting the owner's own text;
+  - `useSpeechAnswer`, a feature-detecting hook, which hides itself where the API doesn't exist (Firefox, for example) without an error. It uses the profile's language if known, else the browser's. It stops on a second tap, after silence, or at a 60-second cap.
+- [ ] **I-50.2** A microphone button, `components/voice/MicButton.tsx`, on free-text answers only:
+  - the intake's text and long-text controls (`components/intake/controls`), the owner chat on `/chat`, and the support reply drafts' edit box;
+  - not on number, money, date or choice answers, where a misheard word is a wrong fact.
+
+  It is labelled, with `aria-pressed`, an `aria-live` "Listening…" line, keyboard operable, and a 2px focus ring (ux-spec §11). It works at 360 px. A permission refusal says what happened and how to allow it, with no apology.
+- [ ] **I-50.3** Tests run against a fake SpeechRecognition: the merge helper's cases, hidden when unsupported, nothing submitted by speech, the cap, and a permission error. Then a browser check on the intake at phone width; real recognition can't run headless, so say what was and wasn't verified. Update `/privacy`, `docs/SECURITY-AUDIT.md` (the browser vendor's processing, and that SYB receives no audio) and the ux-spec.
+
+**Done when:** an owner can speak an answer into the intake and the chat, see it, fix it and record it, where nothing is recorded without their click and no audio reaches SYB.
