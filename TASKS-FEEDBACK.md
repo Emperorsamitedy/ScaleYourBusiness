@@ -95,3 +95,37 @@ Shopify only for now: WooCommerce has no abandoned-checkout API without a plugin
 
 - [ ] **I-47a** Decide whether Shopify's "buyer accepts marketing" tick at checkout may create a contact with that consent recorded (source: the Shopify checkout, with its time). Until then it is stored but not used.
 - [ ] **I-47b** Decide whether SYB should ask Shopify for `read_customers` (optional, like `read_all_orders`), so a cart's shopper can be hashed and matched to a contact. Without it no Shopify cart matches anyone and no win-back is proposed from real data; with it, SYB's credential can read the whole customer list, and Shopify's protected customer data rules for email apply. Found at build (I-47.1); the registry and the scope audit are unchanged until the owner decides. I-47a's tick also lives on the customer, so it depends on this.
+
+## Idea 44: compared with similar businesses (owner, 2026-10-29)
+
+The owner sees a few of their own numbers set against businesses like theirs: same activity, same country, same size. The source is Eurostat's structural business statistics, the dataset `sbs_sc_ovw` ("Enterprise statistics by size class and NACE Rev. 2 activity, from 2021 onwards"). It is free and keyless, reusable under CC BY 4.0 with attribution, and was checked live on 2026-10-29: the dataset was updated 2026-09-30 and covers HU, `I56`, 2022. It has size classes `0_1`, `2-9`, `10-19`, `20-49`, `50-249` and `GE250`, NACE down to three digits, and indicators including `GOR_PC` (gross operating rate), `NETTUR_EMP_TEUR` (turnover per person employed), `LC_EMP_TEUR` (labour cost per employee) and `PUR_MEUR` / `NETTUR_MEUR`. Conservative choices:
+
+- **A benchmark is a reference, not a fact about the business.** It never becomes a `Field` on the profile, never feeds the diagnosis or a proposal, and never speaks as a finding. Whether it may is **I-44a**.
+- **Say exactly what it is.** Eurostat's figures are ratios of totals across every enterprise in the cell, not a median, and not "typical". Each line names the cell and year: "all restaurants and cafés with 2–9 people in Hungary, 2022, Eurostat". Each also names the one definition gap that matters most. For example, the gross operating rate is before the owner's own pay in a business where the owner isn't on the payroll.
+- **No runtime network.** A script fetches a dated snapshot into the repo, and the app reads only that file.
+
+- [ ] **I-44.1** The snapshot. `scripts/fetch-benchmarks.ts` (`npm run benchmarks:fetch`, run by hand, never at build or in CI) writes `specs/benchmarks-eurostat-v1.json`:
+  - per EU country (EU27, plus the `EU27_2020` aggregate), for the NACE codes the mapping uses and every size class, the latest year with a value for `GOR_PC`, `NETTUR_EMP_TEUR`, `LC_EMP_TEUR`, and the purchases share (`PUR_MEUR` ÷ `NETTUR_MEUR`);
+  - Eurostat's status flags kept: confidential or missing cells are recorded as missing, never zero;
+  - the dataset code, its `updated` date, the retrieval date, the API URL pattern and the licence line;
+  - the annual euro reference rates for the same years (Eurostat `ert_bil_eur_a`), so a non-euro business's figures are compared in its own currency, rule 1, with the rate and year shown.
+
+  Commit the snapshot. A test validates its shape and that no value is fabricated: every value carries its dataset, geo, nace, size and year.
+- [ ] **I-44.2** The mapping, as data, `specs/benchmark-map-v1.json` (rule 4): each `business_type` value maps to one NACE code, for example `restaurant` and `cafe` to `I56`, `salon_beauty` and `barber` to `S96` (the dataset stops at `S960`, so the line says it covers all personal services), `gym_fitness` to `R93`, `ecommerce_store` to `G479` or `G47`, and `clinic_health` to `Q86`. Every mapping has a one-line note on what the code covers. Types with no honest match (`nonprofit`, `other`, and `agriculture`, since section A isn't in SBS) map to none, and the screen says there is no comparison for them. `identity.size_band` and team size pick the size class (persons employed, the owner included). The country comes from the profile; outside the EU the screen says Eurostat doesn't cover it.
+- [ ] **I-44.3** The comparison, pure, in `lib/benchmarks/compare.ts`. Up to three lines, each computed only when the owner's own inputs exist (measured first, then stated, with the status shown, rule 2):
+  - operating margin against `GOR_PC`, with revenue minus purchases, other operating costs and staff costs, before the owner's own pay, interest, depreciation and tax; the formula is spelled out with `derived_from` (rule 6);
+  - turnover a year per person employed against `NETTUR_EMP_TEUR`, converted to the business's currency;
+  - staff cost per employee against `LC_EMP_TEUR`, only when there are employees and a staff cost.
+
+  Each line reads "above", "below" or "about the same" (within ±15 %), with both numbers and the gap. No grade, score or "you should". A missing input says which question would fill it and links to it. A cell missing in Eurostat falls back to the next size class, then the NACE parent, saying which. Tests at the ±15 % boundaries, the fallbacks, the currency conversion, and every refusal.
+- [ ] **I-44.4** The screen, under Insights as "Compared with similar businesses" (`/benchmarks`, sheet design, 360 px):
+  - the head is the cell in words;
+  - then the lines, with each one's definition gap in a sentence;
+  - then the source foot: "Source: Eurostat, sbs_sc_ovw, updated 30 Sep 2026, retrieved 29 Oct 2026, CC BY 4.0. These are totals across every business in the group, not a typical business."
+
+  No model, no network.
+- [ ] **I-44.5** Demo seed: no new rows needed if Fernhill and Lumen already carry country, type, size and revenue; otherwise add the minimum. Browser check at 375 px.
+
+**Done when:** a demo business sees its own margin and turnover per person next to a named, dated Eurostat cell; a missing input or cell says what's missing instead of guessing; and nothing from it reaches the diagnosis or a proposal.
+
+- [ ] **I-44a** Decide whether a benchmark gap may ever appear in the diagnosis or prompt a proposal (for example a margin far below the sector's). Until then it only shows.
