@@ -17,6 +17,11 @@
 // business is would still want from it (lib/crm/jurisdiction): a missing
 // postal address under CAN-SPAM or CASL, or no known regime at all, is
 // named on the draft, not discovered at the send.
+//
+// Idea 47, the cart reminder: the brief names the products left behind and
+// never the person; the model writes no greeting, and the greeting is
+// CART_GREETING, put in by code, the same words for every recipient. The
+// AI disclosure is added in code after the model, as for every draft.
 
 import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
@@ -36,6 +41,11 @@ import { BUSINESS_NAME_KEY } from "./support-settings";
 export const POSTAL_ADDRESS_KEY = "legal.postal_address";
 export const POSTAL_ADDRESS_QUESTION = "11.1e";
 export const BUSINESS_NAME_QUESTION = "1.1";
+/**
+ * Idea 47: the cart reminder's greeting. Put in by code, never by the model,
+ * and the same for every recipient: nothing here knows who they are.
+ */
+export const CART_GREETING = "Hello,";
 /** The slot the send executor fills per recipient (P4-15). Never a real link in a draft. */
 export const UNSUBSCRIBE_SLOT = "{{unsubscribe_url}}";
 
@@ -139,6 +149,7 @@ export async function draftCampaign(
       what?: string;
       contact_ids?: unknown[];
       evidence?: string[];
+      products?: unknown[];
     };
   };
   if (proposal.module !== SEGMENT_MODULE || action.kind !== SEGMENT_KIND) {
@@ -169,6 +180,8 @@ export async function draftCampaign(
   const detail = action.detail ?? {};
   const label = detail.label ?? "your customers";
   const today = (opts.now ?? new Date()).toISOString().slice(0, 10);
+  const cart = detail.segment === "abandoned_cart";
+  const products = (detail.products ?? []).filter((x): x is string => typeof x === "string");
   const item: PlannedItem = {
     date: today,
     channel_id: "",
@@ -176,10 +189,16 @@ export async function draftCampaign(
     format: "email",
     goal_id: null,
     focus: label,
-    brief:
-      `${detail.what ?? "One email to this group of customers"}. One email for everyone in the group — ` +
-      "no names, no personal details, no greeting by name. Don't invent offers, prices or discounts. " +
-      "No sign-off block: the footer is added separately.",
+    brief: cart
+      ? `${detail.what ?? "One email to shoppers who left a cart"} One email for everyone in the group: ` +
+        `they left ${products.length > 0 ? products.join(", ") : "items"} in their cart. ` +
+        "Never name or describe the person, and don't say how you know who they are. " +
+        "Start straight after the greeting: no greeting line, it is added separately. " +
+        "Don't invent offers, prices, discounts, stock levels or deadlines. " +
+        "No sign-off block: the footer is added separately."
+      : `${detail.what ?? "One email to this group of customers"}. One email for everyone in the group — ` +
+        "no names, no personal details, no greeting by name. Don't invent offers, prices or discounts. " +
+        "No sign-off block: the footer is added separately.",
     evidence: detail.evidence ?? [],
   };
   const card = await buildVoiceCard(profileId, opts.limitLlm);
@@ -214,7 +233,7 @@ export async function draftCampaign(
         channel_label: `email · ${label}`,
         scheduled_for: null,
         title: `${label} — campaign email`,
-        body: `${draft.body}\n\n${complianceFooter(senderName, postalAddress)}`,
+        body: `${cart ? `${CART_GREETING}\n\n` : ""}${draft.body}\n\n${complianceFooter(senderName, postalAddress)}`,
         disclosure: disclosureLabel("email"),
         provenance: {
           ...draft.provenance,

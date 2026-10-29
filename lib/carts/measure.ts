@@ -36,6 +36,11 @@ export const CARTS = {
   min_carts: 10,
   /** Products listed as left behind. */
   top_products: 5,
+  /** I-47.3: a reminder is proposed for carts left this many days ago… */
+  winback_min_days: 1,
+  winback_max_days: 7,
+  /** …and to one contact at most once in this many days. */
+  recontact_days: 30,
 } as const;
 
 /**
