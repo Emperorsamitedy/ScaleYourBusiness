@@ -1,0 +1,243 @@
+{
+  "version": "1",
+  "dataset": "sbs_sc_ovw",
+  "about": "Which Eurostat group a business is compared with (idea 44, I-44.2). Rule 4: the mapping is data; lib/benchmarks/map.ts only applies it. Each business_type names one NACE Rev. 2 code and the code one level up (its parent, used when the code's own cell is missing), the group in the owner's words, and one line on what the code covers. A type with no honest match names none, and says why.",
+  "business_types": {
+    "retail_shop": {
+      "nace": "G47",
+      "parent": "G",
+      "group": "shops",
+      "covers": "All retail except cars: shops of every kind, market stalls and online sellers (NACE G47)."
+    },
+    "ecommerce_store": {
+      "nace": "G479",
+      "parent": "G47",
+      "group": "online and mail-order shops",
+      "covers": "Retail that isn't in a shop, stall or market: online and mail-order sellers (NACE G47.9). A business that also has its own shop is counted here when most of its sales are online."
+    },
+    "restaurant": {
+      "nace": "I56",
+      "parent": "I",
+      "group": "restaurants, cafés and bars",
+      "covers": "All food and drink service: restaurants, cafés, bars, takeaways and caterers together (NACE I56)."
+    },
+    "cafe": {
+      "nace": "I56",
+      "parent": "I",
+      "group": "restaurants, cafés and bars",
+      "covers": "All food and drink service: restaurants, cafés, bars, takeaways and caterers together (NACE I56)."
+    },
+    "bar": {
+      "nace": "I56",
+      "parent": "I",
+      "group": "restaurants, cafés and bars",
+      "covers": "All food and drink service: restaurants, cafés, bars, takeaways and caterers together (NACE I56)."
+    },
+    "food_production": {
+      "nace": "C10",
+      "parent": "C",
+      "group": "food makers",
+      "covers": "Making food products, bakeries among them (NACE C10)."
+    },
+    "salon_beauty": {
+      "nace": "S96",
+      "parent": null,
+      "group": "personal service businesses",
+      "covers": "All other personal services: hairdressing and beauty, spas and saunas, laundries and funeral services together (NACE S96). Eurostat doesn't split it further."
+    },
+    "barber": {
+      "nace": "S96",
+      "parent": null,
+      "group": "personal service businesses",
+      "covers": "All other personal services: hairdressing and beauty, spas and saunas, laundries and funeral services together (NACE S96). Eurostat doesn't split it further."
+    },
+    "wellness_spa": {
+      "nace": "S96",
+      "parent": null,
+      "group": "personal service businesses",
+      "covers": "All other personal services: hairdressing and beauty, spas and saunas, laundries and funeral services together (NACE S96). Eurostat doesn't split it further."
+    },
+    "gym_fitness": {
+      "nace": "R931",
+      "parent": "R93",
+      "group": "sports businesses",
+      "covers": "Sports activities: gyms, sports clubs and sports facilities (NACE R93.1)."
+    },
+    "clinic_health": {
+      "nace": "Q86",
+      "parent": "Q",
+      "group": "health businesses",
+      "covers": "All human health activities: hospitals, medical and dental practices, and other care such as physiotherapy, together (NACE Q86)."
+    },
+    "construction": {
+      "nace": "F",
+      "parent": null,
+      "group": "construction businesses",
+      "covers": "All construction: buildings, civil engineering and the specialised trades (NACE F)."
+    },
+    "trades_services": {
+      "nace": "F43",
+      "parent": "F",
+      "group": "building trades",
+      "covers": "Specialised construction: electricians, plumbers, joiners, plasterers, painters and roofers (NACE F43). A trade outside building isn't here."
+    },
+    "cleaning_services": {
+      "nace": "N812",
+      "parent": "N81",
+      "group": "cleaning businesses",
+      "covers": "Cleaning of buildings, homes and industrial premises (NACE N81.2)."
+    },
+    "automotive": {
+      "nace": "G452",
+      "parent": "G45",
+      "group": "garages",
+      "covers": "Maintenance and repair of motor vehicles (NACE G45.2). A car dealer is counted in G45.1 instead."
+    },
+    "professional_services": {
+      "nace": "M",
+      "parent": null,
+      "group": "professional firms",
+      "covers": "All professional, scientific and technical activities: law, accounting, architecture, engineering, consulting, design and more (NACE M)."
+    },
+    "consulting": {
+      "nace": "M702",
+      "parent": "M70",
+      "group": "management consultancies",
+      "covers": "Management consultancy (NACE M70.2)."
+    },
+    "agency_marketing": {
+      "nace": "M731",
+      "parent": "M73",
+      "group": "advertising agencies",
+      "covers": "Advertising agencies and selling media space (NACE M73.1)."
+    },
+    "it_services": {
+      "nace": "J62",
+      "parent": "J",
+      "group": "IT firms",
+      "covers": "Computer programming, IT consultancy and running computers for others (NACE J62)."
+    },
+    "software_saas": {
+      "nace": "J582",
+      "parent": "J58",
+      "group": "software publishers",
+      "covers": "Software publishing (NACE J58.2). Software firms that mostly build to order are counted in J62 instead."
+    },
+    "education_training": {
+      "nace": "P855",
+      "parent": "P85",
+      "group": "training providers",
+      "covers": "Other education: tutoring, language and driving schools, and training courses (NACE P85.5). Schools themselves are counted elsewhere."
+    },
+    "childcare": {
+      "nace": "Q889",
+      "parent": "Q88",
+      "group": "day-care and social care services",
+      "covers": "Other social work without accommodation, child day-care among it (NACE Q88.9)."
+    },
+    "real_estate": {
+      "nace": "L68",
+      "parent": "L",
+      "group": "real estate businesses",
+      "covers": "All real estate: buying, selling and letting property, and agents (NACE L68)."
+    },
+    "logistics": {
+      "nace": "H",
+      "parent": null,
+      "group": "transport and storage businesses",
+      "covers": "All transport and storage: haulage, warehousing, couriers and the rest (NACE H)."
+    },
+    "manufacturing": {
+      "nace": "C",
+      "parent": null,
+      "group": "manufacturers",
+      "covers": "All manufacturing (NACE C)."
+    },
+    "wholesale": {
+      "nace": "G46",
+      "parent": "G",
+      "group": "wholesalers",
+      "covers": "Wholesale trade except cars (NACE G46)."
+    },
+    "agriculture": {
+      "nace": null,
+      "why": "Farming (NACE section A) isn't in Eurostat's business statistics."
+    },
+    "events": {
+      "nace": null,
+      "why": "Events businesses span venues, planners and caterers, which Eurostat counts in different groups, so no one group is honest."
+    },
+    "photography_creative": {
+      "nace": "M74",
+      "parent": "M",
+      "group": "design and photography businesses",
+      "covers": "Other professional activities: design, photography, translation and more, together (NACE M74)."
+    },
+    "tourism_accommodation": {
+      "nace": "I55",
+      "parent": "I",
+      "group": "places to stay",
+      "covers": "Accommodation: hotels, holiday lets and campsites (NACE I55). A tour operator is counted in N79 instead."
+    },
+    "transport": {
+      "nace": "H49",
+      "parent": "H",
+      "group": "land transport businesses",
+      "covers": "Land transport: taxis, buses, coaches and road haulage (NACE H49)."
+    },
+    "nonprofit": {
+      "nace": null,
+      "why": "Eurostat's business statistics count businesses that sell; a nonprofit's figures mean something different."
+    },
+    "other": {
+      "nace": null,
+      "why": "There's no one group to compare a business described as other with."
+    }
+  },
+  "size_classes": [
+    { "code": "0_1", "min": 0, "max": 1, "words": "up to 1 person" },
+    { "code": "2-9", "min": 2, "max": 9, "words": "2–9 people" },
+    { "code": "0-9", "min": 0, "max": 9, "words": "up to 9 people" },
+    { "code": "10-19", "min": 10, "max": 19, "words": "10–19 people" },
+    { "code": "20-49", "min": 20, "max": 49, "words": "20–49 people" },
+    { "code": "50-249", "min": 50, "max": 249, "words": "50–249 people" },
+    { "code": "GE250", "min": 250, "max": null, "words": "250 or more people" }
+  ],
+  "all_sizes": { "code": "TOTAL", "words": "of every size" },
+  "size_bands": {
+    "about": "Used only when there is no headcount (1.6). A band that spans two of Eurostat's classes names none, and the line uses every size.",
+    "solo": ["0_1", "0-9"],
+    "small": ["2-9", "0-9"],
+    "medium": [],
+    "large": []
+  },
+  "countries": {
+    "about": "Eurostat's geo codes are ISO 3166 alpha-2, except Greece, which is EL.",
+    "eurostat_geo": { "GR": "EL" },
+    "eu27": [
+      "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "EL", "ES", "FI", "FR", "HR", "HU",
+      "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK"
+    ]
+  },
+  "cost_categories": {
+    "about": "How each cost on 5.1 and 5.2 enters the operating margin. running: a purchase of goods or services, which Eurostat takes off before the gross operating surplus. staff: pay, which Eurostat also takes off, as personnel costs. financing: a loan repayment, which Eurostat's rate is before (interest) or doesn't count at all (the loan itself), so it is left out and named.",
+    "rent": "running",
+    "salaries": "staff",
+    "contractors": "running",
+    "software": "running",
+    "insurance": "running",
+    "utilities": "running",
+    "loan_payments": "financing",
+    "accounting": "running",
+    "hosting": "running",
+    "vehicle": "running",
+    "warehouse": "running",
+    "marketing": "running",
+    "materials": "running",
+    "packaging": "running",
+    "shipping": "running",
+    "payment_fees": "running",
+    "platform_fees": "running",
+    "other": "running"
+  }
+}
