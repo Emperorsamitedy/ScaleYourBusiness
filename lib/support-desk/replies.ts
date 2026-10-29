@@ -278,6 +278,7 @@ export async function approveReply(args: {
     await tx.insert(decisionLog).values({
       profile_id: row.profile_id,
       actor: "owner",
+      user_id: args.userId,
       kind: "reply_approval",
       ref_id: row.id,
       payload_hash: logHash("reply_approval", {
@@ -313,6 +314,7 @@ export async function declineReply(args: {
     await tx.insert(decisionLog).values({
       profile_id: row.profile_id,
       actor: "owner",
+      user_id: args.userId,
       kind: "reply_decline",
       ref_id: row.id,
       payload_hash: logHash("reply_decline", {

@@ -123,15 +123,41 @@ interface Account {
 
 interface User {
   id: UserId;
-  account_id: AccountId;
-  email: string;
+  account_id: AccountId;        // ONE account: a person is a row per business, never a row across two
+  email: string;                // normalised; unique per account (account_id, email), not globally
   display_name: string;
   role: "owner" | "manager" | "viewer";
   notification_prefs: NotificationPrefs;
+  created_at: ISODateTime;      // idea 52: when they joined this business
+  removed_at: ISODateTime | null; // idea 52: taken off the team — kept, signs in to nothing
+}
+
+// Idea 52: an invite into one business with a role.
+interface TeamInvite {
+  id: InviteId;
+  account_id: AccountId;
+  email: string;                // normalised, compared exactly with the joiner's PROVEN address
+  role: "owner" | "manager" | "viewer";
+  token_hash: string;           // sha256 of the link's token — never the token
+  invited_by: UserId | null;
+  created_at: ISODateTime;
+  expires_at: ISODateTime;      // created_at + 7 days
+  accepted_at: ISODateTime | null;   // single use
+  accepted_user_id: UserId | null;
+  revoked_at: ISODateTime | null;    // withdrawn, or replaced by a newer invite to the same address
 }
 ```
 
-One account holds exactly one business profile in v1. Multi-business accounts (an owner with three restaurants) are a v2 concern, but the one-to-one is expressed through a foreign key rather than by embedding, so the change is additive rather than structural.
+One account holds exactly one business profile (`business_profiles.account_id` is UNIQUE). **Several businesses (idea 52, 2026-10-29):** one email may have a `users` row in several accounts — an owner with three restaurants signs in once, is asked "Which business?", and switches between them; each switch is a new session for that account's own row. Nothing spans two accounts, so every route keeps resolving its account and profile from the session alone.
+
+**Roles (idea 52).** `owner` does everything. `manager` approves or declines proposals, asks for them, drafts content, answers support and presses the stop — never connections, write access (rule 13), hard limits, billing, erasure, the team or the business's own rules. `viewer` reads and presses the stop. The table is `ROLE_ACTIONS` in `lib/auth/roles.ts` (data, tested exhaustively); every mutating route checks it through `requireRole`. A role says what a person may do here and nothing else: a team member is never an employee record (rule 28).
+
+**Rules (idea 52), each with a passing and a failing test:**
+
+- An account with anyone on it keeps at least one active owner. Held by the database: the deferred constraint trigger `users_keep_an_owner` (migration 0067) refuses a demotion, removal or delete that would leave none, and serialises two owners stepping down at once.
+- An invite joins only the address it names, proven by a sign-in for exactly that address; it works once and for seven days; a newer invite to the same address withdraws the older one (at most one open invite per address, a partial unique index).
+- Removing a member keeps the row and revokes every session it has, in one transaction.
+- A switch opens a session for the target account's row only when its email equals the current session's verified email exactly.
 
 ---
 
@@ -855,9 +881,12 @@ interface DecisionLogEntry {
   profile_id: BusinessProfileId;
   at: ISODateTime;
   actor: "system" | "owner";
-  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send" | "law_review" | "campaign_approval" | "unsubscribe" | "complaint" | "assistant_change" | "campaign_review";
-  ref_id: string;
-  payload_hash: string;
+  kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send" | "law_review" | "campaign_approval" | "unsubscribe" | "complaint" | "assistant_change" | "campaign_review" | "report_share" | "report_share_revoke"
+    // idea 52 — membership, ids only (never an email or a token):
+    | "team_invite" | "team_invite_revoke" | "team_join" | "team_role" | "team_remove" | "account_switch";
+  ref_id: string;               // team_invite/_revoke: the invite; team_join/_role/_remove and account_switch: the users row
+  payload_hash: string;         // team kinds: sha256 of {kind, account_id, ref_id, by_user_id, role, detail, at}
+  user_id: UserId | null;       // idea 52: WHICH person acted (approved, declined, invited, switched); null for the system and before 0067
 }
 
 // P3-42 (alert mode): a goal made measurable. Stored as two fields beside

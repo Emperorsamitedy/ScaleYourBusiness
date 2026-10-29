@@ -2,7 +2,7 @@
 // the stop token are pure, in ./switch; this is the database side: the
 // owner row, the preference write, and the stop link's page and POST.
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import { SUMMARY_PREF_KEY, summaryPref, verifyStopToken } from "./switch";
@@ -16,7 +16,8 @@ export async function accountOwner(
   const [row] = await db
     .select({ id: users.id, email: users.email, prefs: users.notification_prefs })
     .from(users)
-    .where(and(eq(users.account_id, accountId), eq(users.role, "owner")))
+    .where(and(eq(users.account_id, accountId), eq(users.role, "owner"), isNull(users.removed_at)))
+    .orderBy(asc(users.created_at))
     .limit(1);
   return row ?? null;
 }

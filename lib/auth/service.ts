@@ -12,12 +12,19 @@
 // profile id: the caller sets the auth cookie (durable identity) and
 // re-points the existing intake cookie (working credential). Every
 // intake/profile/report route keeps working untouched.
+//
+// Idea 52: one email may now be on several businesses' teams — a users
+// row in each, never one row across them. A sign-in for such an email
+// opens a session for the business used most recently and says so
+// (`choose`), so the screen can ask "Which business?". Moving to another
+// is a switch (lib/auth/switch.ts), never a session that spans two.
 
 import { createHash, randomBytes } from "node:crypto";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { accounts, authSessions, businessProfiles, loginTokens, users } from "../../db/schema";
 import { normaliseEmail } from "../intake/resume";
+import type { Role } from "./role-actions";
 
 export class AuthError extends Error {
   readonly status: number;
@@ -32,7 +39,7 @@ const TOKEN_BYTES = 32;
 export const LOGIN_TTL_MINUTES = 15;
 export const SESSION_TTL_DAYS = 90;
 
-function hash(token: string): string {
+export function hash(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
@@ -51,6 +58,8 @@ export interface LoginRequest {
 export async function requestLogin(
   rawEmail: string,
   profileId: string | null,
+  /** Idea 52: the invite this link was asked for from — redeeming it joins that business. */
+  inviteId: string | null = null,
 ): Promise<LoginRequest> {
   const email = normaliseEmail(rawEmail);
   const token = randomBytes(TOKEN_BYTES).toString("base64url");
@@ -61,6 +70,7 @@ export async function requestLogin(
     token_hash: hash(token),
     profile_id: profileId,
     expires_at: expires,
+    invite_id: inviteId,
   });
 
   return { token, email, expires_at: expires };
@@ -75,6 +85,12 @@ export interface RedeemedSession {
   email: string;
   /** The account's profile — re-point the intake cookie here. */
   profile_id: string | null;
+  /**
+   * Idea 52: this email belongs to more than one business, so the sign-in
+   * lands on "Which business?" rather than straight in. The session is for
+   * the one used most recently; choosing another is a switch.
+   */
+  choose: boolean;
 }
 
 /**
@@ -125,6 +141,11 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
     .returning({ id: loginTokens.id });
   if (claimed.length === 0) throw new AuthError("that sign-in link is no longer valid", 401);
 
+  if (row.invite_id) {
+    // Imported here: members.ts builds its sessions with this file's helpers.
+    const { joinByInviteId } = await import("./members");
+    return joinByInviteId(row.invite_id, row.email);
+  }
   return signInWithEmail(row.email, row.profile_id);
 }
 
@@ -133,17 +154,27 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
  * and the OAuth callbacks, which each prove email ownership their own
  * way before landing here.
  *
- * Existing user for this email → their account. Otherwise create the
- * user on the account of the profile the browser held — the "claim
- * your anonymous intake" path. With neither, a fresh account: the
- * intake starts after sign-in instead of before.
+ * Existing user for this email → their account (the most recently used
+ * one, when there are several). Otherwise create the user on the account
+ * of the profile the browser held — the "claim your anonymous intake"
+ * path. With neither, a fresh account: the intake starts after sign-in
+ * instead of before.
  */
 export async function signInWithEmail(
   rawEmail: string,
   profileId: string | null,
 ): Promise<RedeemedSession> {
   const email = normaliseEmail(rawEmail);
-  let user = (await db.select().from(users).where(eq(users.email, email)))[0];
+  // Removed rows sign in to nothing. The most recently used business first.
+  const rows = await db
+    .select()
+    .from(users)
+    .where(and(eq(users.email, email), isNull(users.removed_at)))
+    .orderBy(
+      sql`(select max(${authSessions.created_at}) from ${authSessions} where ${authSessions.user_id} = ${users.id}) desc nulls last`,
+      users.created_at,
+    );
+  let user = rows[0];
   if (!user) {
     let accountId: string | null = null;
     if (profileId) {
@@ -170,23 +201,37 @@ export async function signInWithEmail(
       if (!account) throw new AuthError("could not create the account", 500);
       accountId = account.id;
     }
-    const [created] = await db
-      .insert(users)
-      .values({
-        account_id: accountId,
-        email,
-        display_name: email.split("@")[0] ?? email,
-        role: "owner",
-      })
-      .returning();
-    if (!created) throw new AuthError("could not create the account", 500);
-    user = created;
-    await db
-      .update(accounts)
-      .set({ owner_user_id: created.id })
-      .where(and(eq(accounts.id, accountId), isNull(accounts.owner_user_id)));
+    user = await createOwner(accountId, email);
   }
 
+  return { ...(await openSession(user)), choose: rows.length > 1 };
+}
+
+export type UserRow = typeof users.$inferSelect;
+
+/** The first owner of an account: the users row, and the account's pointer to it. */
+export async function createOwner(accountId: string, email: string): Promise<UserRow> {
+  const [created] = await db
+    .insert(users)
+    .values({
+      account_id: accountId,
+      email,
+      display_name: email.split("@")[0] ?? email,
+      role: "owner",
+    })
+    .returning();
+  if (!created) throw new AuthError("could not create the account", 500);
+  await db
+    .update(accounts)
+    .set({ owner_user_id: created.id })
+    .where(and(eq(accounts.id, accountId), isNull(accounts.owner_user_id)));
+  return created;
+}
+
+/** A fresh auth session for one users row — a sign-in, a switch, a join. */
+export async function openSession(
+  user: Pick<UserRow, "id" | "account_id" | "email">,
+): Promise<Omit<RedeemedSession, "choose">> {
   const sessionToken = randomBytes(TOKEN_BYTES).toString("base64url");
   const sessionExpires = new Date(Date.now() + SESSION_TTL_DAYS * 86_400_000).toISOString();
   await db.insert(authSessions).values({
@@ -216,6 +261,8 @@ export interface AuthedSession {
   user_id: string;
   email: string;
   profile_id: string | null;
+  /** Idea 52: the users row's role, read on every request — a change applies at once. */
+  role: Role;
 }
 
 /** Resolve the auth cookie's token to a live session, or null. */
@@ -227,6 +274,7 @@ export async function currentSession(token: string | undefined): Promise<AuthedS
       account_id: authSessions.account_id,
       user_id: authSessions.user_id,
       email: users.email,
+      role: users.role,
     })
     .from(authSessions)
     .innerJoin(users, eq(users.id, authSessions.user_id))
@@ -235,6 +283,10 @@ export async function currentSession(token: string | undefined): Promise<AuthedS
         eq(authSessions.token_hash, hash(token)),
         isNull(authSessions.revoked_at),
         gt(authSessions.expires_at, now),
+        // Written together, so they never disagree; checked anyway. And a
+        // member taken off the team signs in to nothing (idea 52).
+        eq(users.account_id, authSessions.account_id),
+        isNull(users.removed_at),
       ),
     );
   if (!row) return null;

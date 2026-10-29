@@ -14,7 +14,7 @@
 //   · with no RESEND_API_KEY nothing is sent and nothing claims it was;
 //   · the owner can switch it off on /support.
 
-import { and, eq, isNull, lt, or } from "drizzle-orm";
+import { and, asc, eq, isNull, lt, or } from "drizzle-orm";
 import { db } from "../../db";
 import { supportSettings, users } from "../../db/schema";
 import { appUrl, resendApiKey } from "../env";
@@ -58,7 +58,14 @@ export async function notifyOwnerOfEmailTicket(args: {
   const [owner] = await db
     .select({ email: users.email })
     .from(users)
-    .where(and(eq(users.account_id, settings.account_id), eq(users.role, "owner")))
+    .where(
+      and(
+        eq(users.account_id, settings.account_id),
+        eq(users.role, "owner"),
+        isNull(users.removed_at),
+      ),
+    )
+    .orderBy(asc(users.created_at))
     .limit(1);
   if (!owner) return done("no_owner");
 

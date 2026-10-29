@@ -149,6 +149,7 @@ export async function createShare(args: {
       actor: "owner",
       kind: "report_share",
       ref_id: inserted.id,
+      user_id: args.userId,
       payload_hash: hashShareDecision({
         kind: "report_share",
         share_id: inserted.id,

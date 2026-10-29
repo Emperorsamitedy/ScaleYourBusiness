@@ -73,8 +73,24 @@ export const users = pgTable(
     // Shape unspecified in the v1 spec (§4 names the type only) — typed
     // when notifications exist; JSONB so adding keys is not a migration.
     notification_prefs: jsonb("notification_prefs").notNull().default({}),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /**
+     * Idea 52: taken off the team. The row stays — proposals, stops and
+     * the decision log name it — but it signs in to nothing, and every
+     * session it had is revoked in the same act. Re-inviting the address
+     * brings this same row back.
+     */
+    removed_at: timestamp("removed_at", { withTimezone: true, mode: "string" }),
   },
-  (t) => [uniqueIndex("users_email_idx").on(t.email)],
+  (t) => [
+    // Idea 52: one email may belong to several businesses, once in each.
+    // A person is still one row in ONE account; "at least one owner per
+    // account" is a deferred constraint trigger in migration 0067.
+    uniqueIndex("users_account_email_idx").on(t.account_id, t.email),
+    index("users_email_idx").on(t.email),
+  ],
 );
 
 export const businessProfiles = pgTable("business_profiles", {
@@ -413,6 +429,12 @@ export const decisionKind = pgEnum("decision_kind", [
   "campaign_review", // review 2026-10-23 (#5c): an operator reviewed an account's first campaign; ref is the campaign_reviews row, no PII
   "report_share", // idea 51: the owner made a read-only link to a report; ref is the report_shares row, never the token
   "report_share_revoke", // idea 51: the owner revoked that link; ref is the report_shares row
+  "team_invite", // idea 52: an owner invited an address with a role; ref is the team_invites row, never the email or token
+  "team_invite_revoke", // idea 52: an owner withdrew a pending invite; ref is the team_invites row
+  "team_join", // idea 52: an invite was accepted by its own verified address; ref is the users row
+  "team_role", // idea 52: an owner changed a member's role; ref is the users row
+  "team_remove", // idea 52: an owner took a member off the team (their sessions revoked); ref is the users row
+  "account_switch", // idea 52: a person moved this browser to another business they belong to; ref is the users row
 ]);
 
 export const decisionLog = pgTable(
@@ -427,6 +449,13 @@ export const decisionLog = pgTable(
     ref_id: text("ref_id").notNull(),
     /** sha256 of the canonical payload, so any later tampering is detectable. */
     payload_hash: text("payload_hash").notNull(),
+    /**
+     * Idea 52: WHICH person acted, now that a business can have several —
+     * the users row that approved, declined, invited or switched. Null for
+     * the system's own entries and for every entry written before 0067.
+     * Not a foreign key, like profile_id: the audit trail outlives its subject.
+     */
+    user_id: uuid("user_id"),
   },
   (t) => [index("decision_log_profile_at_idx").on(t.profile_id, t.at)],
 );
@@ -820,6 +849,14 @@ export const loginTokens = pgTable(
     expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
     /** A login token is one-shot: set on redeem, checked on redeem. */
     used_at: timestamp("used_at", { withTimezone: true, mode: "string" }),
+    /**
+     * Idea 52: a sign-in link asked for from an invite. Redeeming it joins
+     * that invite's business — only when the invite's address is exactly
+     * this token's address, and the invite is still open.
+     */
+    invite_id: uuid("invite_id").references((): AnyPgColumn => teamInvites.id, {
+      onDelete: "set null",
+    }),
   },
   (t) => [
     uniqueIndex("login_tokens_hash_idx").on(t.token_hash),
@@ -847,6 +884,49 @@ export const authSessions = pgTable(
   (t) => [
     uniqueIndex("auth_sessions_hash_idx").on(t.token_hash),
     index("auth_sessions_account_idx").on(t.account_id),
+  ],
+);
+
+// Idea 52: an invite into ONE business, with a role. The token is the
+// link's credential for WHICH invite — never for who you are: joining
+// also needs a sign-in proven for exactly this address. Only sha256 of
+// the token is stored; one use (accepted_at), seven days, revocable.
+export const teamInvites = pgTable(
+  "team_invites",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    /** Normalised (lower-case, trimmed), compared exactly. */
+    email: text("email").notNull(),
+    role: userRole("role").notNull(),
+    /** sha256 of the token in the invite link. Never the token itself. */
+    token_hash: text("token_hash").notNull(),
+    invited_by: uuid("invited_by").references(() => users.id, { onDelete: "set null" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    accepted_at: timestamp("accepted_at", { withTimezone: true, mode: "string" }),
+    /** The users row the invite became, once accepted. */
+    accepted_user_id: uuid("accepted_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    revoked_at: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("team_invites_hash_idx").on(t.token_hash),
+    // At most one open invite per address per business: a new invite
+    // replaces the old one (revoking it) in one transaction.
+    uniqueIndex("team_invites_open_idx")
+      .on(t.account_id, t.email)
+      .where(sql`${t.accepted_at} IS NULL AND ${t.revoked_at} IS NULL`),
+    check("team_invites_expiry_after_creation", sql`${t.expires_at} > ${t.created_at}`),
+    check(
+      "team_invites_accepted_or_revoked",
+      sql`${t.accepted_at} IS NULL OR ${t.revoked_at} IS NULL`,
+    ),
   ],
 );
 
