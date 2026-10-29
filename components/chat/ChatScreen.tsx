@@ -19,6 +19,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { businessNoun } from "../../lib/core/business-noun";
+import { MicButton } from "../voice/MicButton";
 import { ChangeCard } from "./ChangeCard";
 import type { ChangeCardView, Turn } from "./chat-view";
 import {
@@ -54,6 +55,9 @@ export function ChatScreen() {
   const [noun, setNoun] = useState(businessNoun(null));
   const endRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  // The composer's text as of the last change, kept in step on every write
+  // so the microphone (idea 50) can tell the owner's typing from its own.
+  const draftRef = useRef("");
   const turnCount = state.phase === "ready" ? state.turns.length : 0;
   const busy = state.phase === "ready" && state.busy;
 
@@ -154,6 +158,7 @@ export function ChatScreen() {
       at: new Date().toISOString(),
       intent: null,
     };
+    draftRef.current = "";
     setState({ ...s, turns: [...s.turns, optimistic], draft: "", busy: true });
     let reply: Turn | null = null;
     let error: string | null = null;
@@ -207,8 +212,13 @@ export function ChatScreen() {
       cur.phase === "ready" ? { ...cur, cards: upsertCard(cur.cards, card) } : cur,
     );
 
+  const setDraft = (draft: string) => {
+    draftRef.current = draft;
+    setState((cur) => (cur.phase === "ready" ? { ...cur, draft } : cur));
+  };
+
   const newQuestion = () => {
-    setState({ ...s, draft: "" });
+    setDraft("");
     inputRef.current?.focus();
   };
 
@@ -300,7 +310,7 @@ export function ChatScreen() {
                 maxLength={MAX_CHARS}
                 placeholder="Type a question…"
                 value={s.draft}
-                onChange={(e) => setState({ ...s, draft: e.target.value })}
+                onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault();
@@ -318,6 +328,13 @@ export function ChatScreen() {
                 Ask <span aria-hidden="true">→</span>
               </button>
             </div>
+            <MicButton
+              label="Speak your question"
+              getText={() => draftRef.current}
+              setText={(next) => setDraft(next.slice(0, MAX_CHARS))}
+              after="Read it over and fix anything, then press Ask."
+              disabled={s.busy}
+            />
             <p className="ak-rule" id="ak-rule">
               I answer only from what your profile and report hold. A change you ask for is drafted
               first — nothing is written until you press its button; limits you state here stick.

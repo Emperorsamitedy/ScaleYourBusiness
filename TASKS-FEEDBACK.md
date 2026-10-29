@@ -149,11 +149,19 @@ The owner taps a microphone, speaks, and the words appear in the answer box. The
   - The owner typing while listening ends listening, rather than re-basing on their edit, so their text is never overwritten and a guess can't land twice.
   - Capitals are only added at a sentence start, never removed, so names keep theirs. Silence is 8 s with nothing heard (SYB's own timer; the engines also stop by themselves). The cap is 60 s and says so when it stops.
 
-- [ ] **I-50.2** A microphone button, `components/voice/MicButton.tsx`, on free-text answers only:
+- [x] **I-50.2** A microphone button, `components/voice/MicButton.tsx`, on free-text answers only:
   - the intake's text and long-text controls (`components/intake/controls`), the owner chat on `/chat`, and the support reply drafts' edit box;
   - not on number, money, date or choice answers, where a misheard word is a wrong fact.
 
   It is labelled, with `aria-pressed`, an `aria-live` "Listening…" line, keyboard operable, and a 2px focus ring (ux-spec §11). It works at 360 px. A permission refusal says what happened and how to allow it, with no apology.
+
+  **Done 2026-10-29.** "Speak" sits under the intake's `TextControl` and `LongTextControl`, the `/chat` composer and the reply box's draft (`ReplyBox.tsx`). Spoken words go through the same path as typing: the intake control's `onChange` (a draft, never `onCommit`), the chat's draft and the reply's text. Recording, asking, saving and approving stay the owner's own buttons. It is the sheet's `.act` button with a mic glyph, styled in `app/voice.css`; listening fills it with ink and the live line says so in words. **Judgement calls:**
+  - The visible word is "Speak" and the name is "Speak your answer" / "your question" / "your reply". The name starts with the visible word (WCAG 2.5.3) and never changes; `aria-pressed` carries the state. The live line says "Listening… Press Speak again to stop.", the notice, or what happened.
+  - It isn't disabled while the browser's availability check runs, because a disabled button drops keyboard focus; a tap during the check is ignored instead. It is disabled while its box is busy (the chat sending, the reply box acting), and that stops listening.
+  - **Not on entity-list rows** (the competitor and offer tables), file answers, or the other free-text boxes in the app (CRM, pipeline, queue, stock notes). The plan names the text and long-text controls, the chat and the reply draft only, and entity rows mix names with numbers and money.
+  - The chat's spoken text is clipped to the service's 4,000 characters, as the box's `maxLength` clips typing.
+  - The failures: a blocked microphone says it is blocked and to allow it in the site settings, by the icon beside the address, then press Speak. No speech, no microphone, no network and an unsupported language each say what happened and what to do, with no apology.
+  - The intake's top bar already says "Listening" for the interview session. That is the interview's own status, unchanged; the microphone's line sits under the box.
 
 - [ ] **I-50.3** Tests run against a fake SpeechRecognition: the merge helper's cases, hidden when unsupported, nothing submitted by speech, the cap, and a permission error. Then a browser check on the intake at phone width; real recognition can't run headless, so say what was and wasn't verified. Update `/privacy`, `docs/SECURITY-AUDIT.md` (the browser vendor's processing, and that SYB receives no audio) and the ux-spec.
 
