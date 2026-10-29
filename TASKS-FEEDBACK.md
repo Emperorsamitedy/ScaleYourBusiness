@@ -104,17 +104,21 @@ When something new waits for the owner's yes, their phone gets a notification. T
 - **The notification says almost nothing.** It names the proposal in a few words: no money figures, no customer names, no contact detail, because a lock screen is public.
 - **A subscription is a secret.** Whoever holds an endpoint and its keys can push to that phone. Subscriptions are encrypted at rest with the connector secrets' key path (`lib/connectors/secrets.ts`, rule 10), deleted on sign-out from that device, on a 404 or 410 from the push service, and when the account is erased.
 
-- [ ] **I-53.1** The installable app:
+- [x] **I-53.1** The installable app:
   - `app/manifest.ts` with name, icons and `display: standalone`;
   - `public/sw.js`, which only handles `push` and `notificationclick`. It caches no pages, because private data has no place in an offline cache.
 
   Check the iOS rules at build in Apple's and MDN's docs: Home Screen web apps only, iOS 16.4 or later, and permission asked from a tap. Write down what holds. The page that asks says plainly, on an iPhone, "Add SYB to your Home Screen first, then switch this on there."
+
+  **Done 2026-10-29.** `app/manifest.ts` (served at `/manifest.webmanifest`, linked by Next on every page): name and short name "SYB", `display: standalone`, `start_url: /proposals`, the masthead and desk colours, and two PNG icons. The icons are drawn by `next/og` from `components/sheet/AppIcon.tsx` (the wordmark on the ink masthead over its cobalt rule), at `/icon/192`, `/icon/512` and `/apple-icon` (180 px, the iPhone's Home Screen icon), so the repo holds no image files. `public/sw.js` has two handlers plus its own lifecycle (install, activate) and nothing else: `push` shows the server's few words at once (a fallback sentence if the push can't be read), and `notificationclick` opens `/proposals/<id>` or the queue, focusing and navigating an open SYB window when there is one. It accepts only a same-origin `/proposals` or `/proposals/<uuid>` path; anything else opens the queue. It has no fetch handler, no cache and no notification action buttons. `lib/push/app-shell.test.ts` runs the worker in a sandbox with a stand-in `self` (9 tests, passing and failing cases). **What the docs say (read 2026-10-29).** Apple, "Sending web push notifications in web apps and browsers": web push works in Home Screen web apps on iOS 16.4 or later and in Safari 16 on macOS 13 or later, with no Apple Developer Program membership. Permission comes from a gesture: call the subscribe method immediately from the gesture's event handler. Safari doesn't support invisible pushes: a push not shown at once gets the site's permission revoked. The server must be able to reach `https://*.push.apple.com`. The VAPID JWT's key must match the one given to `subscribe`, its `sub` must be a URL or `mailto:`, its `exp` at most a day ahead, and Apple asks that the JWT be refreshed no more than once an hour. `TTL` is required; the payload limit is 4 KB; 410 means the subscription expired and 404 an invalid path. MDN's browser-compat data for PushManager agrees: Safari on iOS from 16.4, "supported in web apps saved to the home screen"; Safari 16 on macOS Ventura and later. MDN's `subscribe()` page: call it in response to a user gesture, Chrome and Edge reject it unless `userVisibleOnly` is true, and the endpoint is a capability URL to keep secret. MDN's Notifications API page: `requestPermission()` should only be called while handling a user gesture, and mobile browsers need persistent notifications from a service worker. MDN's manifest guide: `.webmanifest` served as `application/manifest+json`, with 192 and 512 px icons in its example. All three iOS rules in the plan hold. **Judgement calls:** the start URL is the approval queue, because deciding is what the phone app is for. The worker calls `skipWaiting` and `clients.claim` so a fixed worker takes over at once, which is harmless because it caches nothing. `pushsubscriptionchange` is not handled: the worker has no signed-in way to register a replacement, so a dead subscription removes itself on the push service's 404 or 410 (I-53.3) and the owner switches the device on again.
+
 - [ ] **I-53.2** Subscriptions. A new table `push_subscriptions` (migration **0067**, renumbered at merge if needed) holds the user, the device label (from the user agent, coarse: "iPhone", "Android", "Mac"), the encrypted subscription, created_at and last_sent_at. A "Phone alerts" card on `/watch` beside "Weekly email" offers:
   - switch on for this device (permission asked from the tap);
   - the list of devices, each removable;
   - a "Send a test" button.
 
   With no VAPID keys set, it says the server can't send phone alerts yet. Same-origin POSTs, signed-in owner only.
+
 - [ ] **I-53.3** Sending. Implement Web Push in code with `node:crypto`, with no dependency:
   - payload encryption by RFC 8291 (aes128gcm), and VAPID by RFC 8292 (an ES256 JWT);
   - unit-tested against the RFCs' own test vectors;
@@ -123,6 +127,7 @@ When something new waits for the owner's yes, their phone gets a notification. T
   - a 404 or 410 deletes that subscription; any other failure is logged with the account id.
 
   Push services are SYB's own channel to the owner, like Resend, not a business's connected account. The scope audit is unchanged, and a test proves that sending never touches a connector.
+
 - [ ] **I-53.4** When to send:
   - a proposal becoming `pending` queues one push per subscribed device: "1 thing waits for your yes: <title, cut to 60 characters>";
   - proposals made in the same run are grouped ("3 things wait for your yes"), at most one push per account per hour;
@@ -131,6 +136,7 @@ When something new waits for the owner's yes, their phone gets a notification. T
   - nothing for blocked proposals.
 
   The tap opens `/proposals/<id>` (one, or the queue when grouped). The decision is the pure function `pushPlan(…)`, tested at the boundaries.
+
 - [ ] **I-53.5** The card `/proposals/<id>`, built for a phone and at 360 px in the sheet design:
   - the proposal's title, what it changes, the gain range, the worst case, undoable or not, and what limits it was checked against;
   - Approve and Decline through the existing decision endpoint;
