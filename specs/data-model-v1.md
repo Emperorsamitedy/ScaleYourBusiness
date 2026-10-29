@@ -879,6 +879,21 @@ interface DecisionLogEntry {
   payload_hash: string;
 }
 
+// Idea 53 (migration 0067): a proposal that became pending while its account
+// had a phone switched on, waiting for its alert. Written by createProposal
+// in the proposal's own transaction (a savepoint that can't fail it), so a
+// rolled-back proposal leaves none; deleted when the flush sends or drops it.
+// pushPlan decides: only pending proposals inside their window; nothing while
+// the emergency stop is on (dropped, not held); nothing 21:00–08:00 in the
+// business's zone (held to 08:00); at most one alert a day per account
+// (ux-spec §9); everything waiting goes as one alert, worded by kind, never
+// by the proposal's own text.
+interface PushOutboxRow {
+  proposal_id: ProposalId;           // PRIMARY KEY, ON DELETE CASCADE
+  profile_id: BusinessProfileId;     // ON DELETE CASCADE
+  created_at: ISODateTime;
+}
+
 // P3-42 (alert mode): a goal made measurable. Stored as two fields beside
 // the goal's other attributes, both superseded, never overwritten:
 //   goals.<id>.measure   — owner_input: what to move, how far, by when
