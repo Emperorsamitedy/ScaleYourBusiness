@@ -1041,6 +1041,8 @@ interface ForecastCheck {
 
 Two rules hold it, conservatively. **Nothing is recorded after the fact**: a forecast is written by the code path that shows it, at the time, with the range shown then, and never rebuilt later from a model run over old data. **Only measured actuals grade**: a verdict other than `cant_tell` must cite the measured rows it was read from, and without them the forecast is `cant_tell`, counted apart and never as right. Triggers refuse a row inserted already graded, any change to a claim, any second grading, a delete on its own, and TRUNCATE.
 
+Two kinds are recorded (`lib/forecasts/claims.ts`). `stock_out` is a stock-out warning's "runs out in about 4–6 days" as dates from the day it was said, written on the weekly beat once per item per ISO week, unit `date`. `season_week` is one of the next eight weeks on `/patterns`: last year's range against the normal week, times the normal week now, in the series' units (`money` or `count`), written the first time the week is shown. The cash forecast's balances and the pipeline's weighted value are not recorded: no balance is measured, and the weighted value has no window (TASKS-FEEDBACK.md I-54a, I-54b).
+
 The decision log is append-only. It serves three purposes at once: the learning corpus, the debugging trail, and the compliance record showing that a human approved every consequential action — which matters directly given GDPR Article 22 exposure on anything touching individuals.
 
 ---
