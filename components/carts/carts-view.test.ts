@@ -11,6 +11,7 @@ import {
   moneyList,
   proposeBlock,
   sourcesLine,
+  weekLine,
   winBackText,
   windowLine,
 } from "./carts-view";
@@ -121,10 +122,20 @@ describe("who can be emailed, in words", () => {
       "9 carts are from contacts who said yes to email.",
       "12 carts are from contacts with no recorded yes to email, so they aren't emailed.",
       "4 carts are from shoppers who aren't among your contacts, so they aren't emailed.",
-      "1 cart is from people who unsubscribed or asked to be forgotten, so it isn't emailed.",
+      "1 cart is from someone who unsubscribed or asked to be forgotten, so it isn't emailed.",
       "15 carts carry no email I can read, so they aren't matched to anyone. Shopify only says who left a cart to an app that may read your customers, and I don't ask for that.",
     ]);
     for (const n of notes) expect(n).not.toMatch(/@/);
+  });
+
+  it("says who of the reminder's week won't get one, and why", () => {
+    expect(weekLine(view())).toBe(
+      "Of the contacts who left a cart in the last week, 2 can't be emailed.",
+    );
+    expect(weekLine(view({ reminder: { ...view().reminder!, recently_proposed: 3 } }))).toBe(
+      "Of the contacts who left a cart in the last week, 2 can't be emailed, and 3 were already proposed a reminder in the last 30 days.",
+    );
+    expect(weekLine(view({ reminder: { ...view().reminder!, no_consent: 0 } }))).toBeNull();
   });
 
   it("the range is per currency, and absent when nobody can be emailed", () => {

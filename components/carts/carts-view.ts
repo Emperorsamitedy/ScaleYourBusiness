@@ -59,7 +59,7 @@ const NOTE: Record<Exclude<CartReach, "emailable">, (n: string, one: boolean) =>
   no_consent: (n, one) =>
     `${n} ${one ? "cart is" : "carts are"} from contacts with no recorded yes to email, so ${one ? "it isn't" : "they aren't"} emailed.`,
   suppressed: (n, one) =>
-    `${n} ${one ? "cart is" : "carts are"} from people who unsubscribed or asked to be forgotten, so ${one ? "it isn't" : "they aren't"} emailed.`,
+    `${n} ${one ? "cart is from someone" : "carts are from people"} who unsubscribed or asked to be forgotten, so ${one ? "it isn't" : "they aren't"} emailed.`,
 };
 
 /** The consent notes: who can't be emailed, counted, in words. Never an address. */
@@ -76,6 +76,24 @@ export function consentNotes(m: Measured): string[] {
     if (n > 0) out.push(NOTE[k](num(n), n === 1));
   }
   return out;
+}
+
+/** The contacts of the reminder's week who won't get one, and why, or null when there are none. */
+export function weekLine(view: CartsScreenView): string | null {
+  const r = view.reminder;
+  if (!r) return null;
+  const cant = r.no_consent + r.suppressed;
+  const parts = [
+    ...(cant > 0 ? [`${num(cant)} can't be emailed`] : []),
+    ...(r.recently_proposed > 0
+      ? [
+          `${num(r.recently_proposed)} ${r.recently_proposed === 1 ? "was" : "were"} already proposed a reminder in the last ${view.thresholds?.recontact_days ?? 30} days`,
+        ]
+      : []),
+  ];
+  return parts.length === 0
+    ? null
+    : `Of the contacts who left a cart in the last week, ${parts.join(", and ")}.`;
 }
 
 /** "€37–€124", per currency. */

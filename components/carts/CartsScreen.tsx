@@ -25,6 +25,7 @@ import {
   proposalWord,
   proposeBlock,
   sourcesLine,
+  weekLine,
   winBackText,
   windowLine,
 } from "./carts-view";
@@ -194,7 +195,7 @@ function WinBackCard({
 
 function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
   const notes = consentNotes(m);
-  const r = view.reminder;
+  const week = weekLine(view);
   return (
     <SheetCard label="Who can be emailed" title="Only people who said yes">
       <ul className="ct-notes">
@@ -202,16 +203,7 @@ function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
           <li key={n}>{n}</li>
         ))}
       </ul>
-      {r && r.in_segment > r.emailable && (
-        <p className="ct-copy ct-quiet">
-          Of the contacts who left a cart in the last week,{" "}
-          {num(r.in_segment - r.emailable - r.recently_proposed)} can&apos;t be emailed
-          {r.recently_proposed > 0
-            ? `, and ${num(r.recently_proposed)} had a reminder proposed in the last ${view.thresholds?.recontact_days ?? 30} days`
-            : ""}
-          .
-        </p>
-      )}
+      {week && <p className="ct-copy ct-quiet">{week}</p>}
       <p className="ct-copy ct-quiet">
         Shopify&apos;s own &ldquo;email me&rdquo; tick at checkout isn&apos;t counted as a yes. Only
         what you recorded on your contacts is.
