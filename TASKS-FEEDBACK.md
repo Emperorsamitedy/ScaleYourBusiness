@@ -109,6 +109,7 @@ The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ra
   - grading, filled once and never changed: graded_at, the actual and its source row, and a verdict of `inside`, `above`, `below` or `cant_tell`.
 
   A database trigger refuses any change to a claim, and any second grading.
+
 - [ ] **I-54.2** Record what is already forecast, where it is made. Check each forecast's code and pick those whose actual is measured later:
   - the cash forecast's next four weekly closing balances (P5 cash, `lib/cash`), but only where the balance is measured (Stripe balance or a bank import), otherwise none;
   - the stock-out warnings' "runs out around" date range (`lib/stock`), graded by the measured stock reaching zero, or not, within the range;
@@ -116,6 +117,7 @@ The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ra
   - the pipeline's likely close for deals due in the window (`lib/pipeline`), graded by the deals the owner marks won.
 
   Each is recorded at most once per window, on the beat or screen that already computes it. Nothing new is computed. If a forecast can't be graded from measured data, it isn't recorded, and the task note says which and why.
+
 - [ ] **I-54.3** Grading. A pure grader, plus a step on the weekly beat (`/api/cron/weekly-watch`): every claim whose window closed at least a day ago and has no grade gets one from measured rows. It is deterministic, with no model and no retry loop.
 - [ ] **I-54.4** "My track record" on `/history`, beside the scorecard:
   - the headline counts graded forecasts, for example "7 of my last 9 forecasts landed inside the range I gave". It names how many it couldn't tell, and is broken down by kind;
@@ -124,6 +126,7 @@ The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ra
   - misses are shown as plainly as hits, with how far off they were in the forecast's own units.
 
   The weekly summary email gets one line when something was graded that week.
+
 - [ ] **I-54.5** Demo seed: Fernhill gets backdated claims, graded against its seeded data, including at least one miss and one "can't tell". The seed comments that real accounts never backdate. No network, no model.
 
 **Done when:** a graded forecast can't be edited, a miss shows as plainly as a hit, "can't tell" never counts as right, and the demo's `/history` shows the record.
@@ -135,14 +138,25 @@ The owner taps a microphone, speaks, and the words appear in the answer box. The
 - **Nothing is sent or recorded by SYB.** No audio reaches SYB's server, and none is stored. Only the text the owner chooses to record is saved, exactly as if typed. Speech never records an answer by itself.
 - **Say who hears it.** Where the browser can recognise on the device, use that. Otherwise the first use shows one plain line: "Your browser turns your speech into text. In Chrome, Google does this; SYB never receives the audio." Check MDN and the spec at build, for on-device options (`processLocally` / `available()`) and which browsers support them. The privacy page says the same.
 
-- [ ] **I-50.1** A pure helper and a hook:
+- [x] **I-50.1** A pure helper and a hook:
   - `lib/voice/transcript.ts` merges recognised text into what is already typed: spacing and capitals, interim versus final results, and never overwriting the owner's own text;
   - `useSpeechAnswer`, a feature-detecting hook, which hides itself where the API doesn't exist (Firefox, for example) without an error. It uses the profile's language if known, else the browser's. It stops on a second tap, after silence, or at a 60-second cap.
+
+  **Done 2026-10-29.** `lib/voice/transcript.ts` (pure: `joinSpoken`, `spokenOf`, `mergeSpoken`), `lib/voice/session.ts` (`SpeechSession`, the listening logic with no React in it, so it can be tested against a fake) and `components/voice/useSpeechAnswer.ts` (a thin hook that feature-detects after mount, so the server render and Firefox draw nothing and log nothing). **What the docs said** (MDN and its compatibility data, the W3C draft of 27 Oct 2026 and Microsoft's Edge page, read 2026-10-29): `SpeechRecognition` is unprefixed from Chrome 139, and `webkitSpeechRecognition` exists from Chrome 33 and Safari 14.1; Firefox has it only in preview. MDN says that in Chrome the audio goes to a server. `processLocally`, `available()` and `install()` are experimental, in Chrome desktop 139+ only (not Chrome Android, not Safari). Edge has on-device only in Canary/Dev 150, behind a flag. With `processLocally` and no language pack, `start()` fails with `language-not-supported`. Error codes worded: `not-allowed`, `service-not-allowed`, `no-speech`, `audio-capture`, `network`, `language-not-supported`, and anything else; `aborted` says nothing. **Judgement calls:**
+  - On-device only when `available({ langs: [lang], processLocally: true })` says `available`. `install()` is never called: it downloads a language pack the owner didn't ask for. A `downloadable` language, a missing `available()`, or one that throws, all take the notice path.
+  - The notice comes before any audio. In a browser that hasn't seen it, the first tap shows it and listening starts only on the next tap. "Seen" is `syb.voice_notice_seen` in localStorage, inside try/catch; blocked storage means the notice shows again.
+  - **The profile's language isn't known in the browser.** `accounts.locale` is set to "en-GB" by code at sign-up (`lib/auth/service.ts`, `lib/intake/service.ts`), never by the owner, and no route sends it to the page. Sending it would be a server change, so the hook takes an optional `lang` and falls back to `navigator.language`. See I-50a.
+  - The owner typing while listening ends listening, rather than re-basing on their edit, so their text is never overwritten and a guess can't land twice.
+  - Capitals are only added at a sentence start, never removed, so names keep theirs. Silence is 8 s with nothing heard (SYB's own timer; the engines also stop by themselves). The cap is 60 s and says so when it stops.
+
 - [ ] **I-50.2** A microphone button, `components/voice/MicButton.tsx`, on free-text answers only:
   - the intake's text and long-text controls (`components/intake/controls`), the owner chat on `/chat`, and the support reply drafts' edit box;
   - not on number, money, date or choice answers, where a misheard word is a wrong fact.
 
   It is labelled, with `aria-pressed`, an `aria-live` "Listening…" line, keyboard operable, and a 2px focus ring (ux-spec §11). It works at 360 px. A permission refusal says what happened and how to allow it, with no apology.
+
 - [ ] **I-50.3** Tests run against a fake SpeechRecognition: the merge helper's cases, hidden when unsupported, nothing submitted by speech, the cap, and a permission error. Then a browser check on the intake at phone width; real recognition can't run headless, so say what was and wasn't verified. Update `/privacy`, `docs/SECURITY-AUDIT.md` (the browser vendor's processing, and that SYB receives no audio) and the ux-spec.
+
+- [ ] **I-50a** Decide whether the profile's language should reach the browser for speech (an owner-chosen locale, sent with the intake or `/api/nav`). Today every account's `locale` is "en-GB" set by code, so the microphone listens in the browser's own language. Found at build (I-50.1).
 
 **Done when:** an owner can speak an answer into the intake and the chat, see it, fix it and record it, where nothing is recorded without their click and no audio reaches SYB.
