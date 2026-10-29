@@ -45,3 +45,38 @@ Ideas 46 and 48 of the owner-facing feature list, on one new screen, Insights ·
 - [ ] **I-48a** Decide whether Square's till orders should feed baskets too (its line items, under the existing `PAYMENTS_READ`?). It needs Square's docs checked for the scope.
 
 Demo seed: Fernhill's orders now carry two buying habits, each drawn from its own random stream so the rest of the story is unchanged: a pour-over set with a bud vase trio, and a serving bowl with a dinner plate (the bowl stays slow stock). Lumen's colour clients often stay for a gloss treatment in the next slot. Fernhill has a year of orders, so its seasons show. Lumen's 120 days of bookings show the refusal. Emberworks has no order history in the seed and shows the empty states.
+
+## Idea 47: abandoned carts (owner, 2026-10-29: "build 47")
+
+Shopify only for now: WooCommerce has no abandoned-checkout API without a plugin, and Square's online checkout isn't read. The existing rules hold, read-only (rule 9) and consent as a recorded fact (rules 19 and 23) in particular, and two choices are made here, conservatively:
+
+- **Who may be emailed is decided by the contacts SYB already holds.** A cart is matched to a contact by the existing email hash (`lib/crm/contacts.ts`), and only a contact whose recorded consent passes `canEmailForMarketing` is ever proposed for a win-back. Shopify's own "buyer accepts marketing" tick is stored as a flag on the cart, but it does not create a contact or count as consent. Whether it may is **I-47a**, an owner decision.
+- **No raw shopper email is stored from the connector.** A cart keeps the email's hash, never the address, so a shopper who isn't already a contact leaves nothing personal behind. Carts are deleted after 90 days, and erasing a contact deletes the carts that match their hash.
+
+- [ ] **I-47.1** Read abandoned checkouts. Add one fixed read query to `SHOPIFY_QUERIES` (`abandonedCheckouts`, under the `read_orders` scope already granted). Check Shopify's docs at build for the scope, and for whether reading the email needs protected customer data level 2 on an owner-created app. If it does, the connections screen says so in plain words. A cart is stored with:
+  - its Shopify id, when it was created and updated;
+  - its value as integer minor units and currency;
+  - its line items (product ref, quantity and price);
+  - the email hash, the marketing flag, and whether it was later completed.
+
+  The new table `abandoned_checkouts` uses migration **0066**. Build the fake in `shopify-fake.ts`, update the query-list test, and add the scope audit test unchanged-green. No write and no new scope.
+- [ ] **I-47.2** The arithmetic (pure), over the last 30 days against the 30 before:
+  - carts started, carts left, and the share left out of all checkouts (carts plus the orders the sync already counts);
+  - the value left in carts, per currency, never mixed;
+  - the products left behind most, mapped to the owner's offers as orders are.
+
+  "Likely to win back" is a range from a stated rule of thumb (ASSUMED, named, never the owner's own number), shown beside how many of the shoppers can actually be emailed. It refuses (rule 25) with under 14 days of carts or under 10 carts, and says how many there are and when it will be ready. Test at the boundaries.
+- [ ] **I-47.3** Win-back proposals. Add a segment `abandoned_cart`: contacts whose hash matches a cart left 1–7 days ago with no later order. Each contact is gated by `canEmailForMarketing` and suppression every time.
+  - It goes through the existing customer-email proposal path (`lib/crm/segment-proposals.ts`), with hard limits, the three-declines rule and nothing while watching (`watchingUntil`).
+  - At most once per contact per 30 days.
+  - The draft (the existing campaign drafting, capped as it is) names the products left behind, never the person. The greeting is a slot, and the AI disclosure is added in code.
+  - Shoppers who can't be emailed are counted and said in words ("12 carts are from people with no recorded consent, so they aren't emailed"). They are never listed by address.
+- [ ] **I-47.4** The `/carts` screen (sheet design system), under Customers, shown only when a Shopify connection exists:
+  - The head is the main fact: "€1,240 was left in carts in the last 30 days; 9 of the 41 shoppers can be emailed."
+  - Then the products left behind, the likely-to-win-back range with its assumptions and sources, and "Propose win-back emails" (off while watching, saying why).
+  - The consent notes, and a foot: "SYB never emails a shopper who hasn't said yes. Shopify's own abandoned-checkout email, if you use it, is separate."
+- [ ] **I-47.5** Demo seed: Fernhill's fake shop gets about 30 days of abandoned carts. A few match its consented contacts, so the screen shows a real win-back proposal and the "can't be emailed" count. No network, no model.
+
+**Done when:** the demo shows `/carts` with a measured headline, a refusal path tested, a proposal made only for consented contacts, erasure removing a contact's carts, and the scope audit unchanged.
+
+- [ ] **I-47a** Decide whether Shopify's "buyer accepts marketing" tick at checkout may create a contact with that consent recorded (source: the Shopify checkout, with its time). Until then it is stored but not used.
