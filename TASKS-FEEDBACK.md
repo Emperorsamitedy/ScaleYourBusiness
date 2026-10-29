@@ -95,3 +95,48 @@ Shopify only for now: WooCommerce has no abandoned-checkout API without a plugin
 
 - [ ] **I-47a** Decide whether Shopify's "buyer accepts marketing" tick at checkout may create a contact with that consent recorded (source: the Shopify checkout, with its time). Until then it is stored but not used.
 - [ ] **I-47b** Decide whether SYB should ask Shopify for `read_customers` (optional, like `read_all_orders`), so a cart's shopper can be hashed and matched to a contact. Without it no Shopify cart matches anyone and no win-back is proposed from real data; with it, SYB's credential can read the whole customer list, and Shopify's protected customer data rules for email apply. Found at build (I-47.1); the registry and the scope audit are unchanged until the owner decides. I-47a's tick also lives on the customer, so it depends on this.
+
+## Idea 53: one-tap approvals on your phone (owner, 2026-10-29)
+
+When something new waits for the owner's yes, their phone gets a notification. Tapping it opens a single card for that proposal, which shows the gain, the worst case and whether it can be undone, with Approve and Decline. It is built from standard web parts, with no app store and no new provider: an installable web app (manifest and service worker) and Web Push, signed with VAPID keys the owner generates and puts in Vercel. Rule 12 (nothing executes without a recorded human approval) and the rest hold. Conservative choices:
+
+- **The notification never approves.** It has no Approve action button. The yes is recorded only from the card, by a signed-in owner, through the same approval path as `/proposals` (same checks, same decision log). "One tap" means one tap on the card after reading it.
+- **The notification says almost nothing.** It names the proposal in a few words: no money figures, no customer names, no contact detail, because a lock screen is public.
+- **A subscription is a secret.** Whoever holds an endpoint and its keys can push to that phone. Subscriptions are encrypted at rest with the connector secrets' key path (`lib/connectors/secrets.ts`, rule 10), deleted on sign-out from that device, on a 404 or 410 from the push service, and when the account is erased.
+
+- [ ] **I-53.1** The installable app:
+  - `app/manifest.ts` with name, icons and `display: standalone`;
+  - `public/sw.js`, which only handles `push` and `notificationclick`. It caches no pages, because private data has no place in an offline cache.
+
+  Check the iOS rules at build in Apple's and MDN's docs: Home Screen web apps only, iOS 16.4 or later, and permission asked from a tap. Write down what holds. The page that asks says plainly, on an iPhone, "Add SYB to your Home Screen first, then switch this on there."
+- [ ] **I-53.2** Subscriptions. A new table `push_subscriptions` (migration **0067**, renumbered at merge if needed) holds the user, the device label (from the user agent, coarse: "iPhone", "Android", "Mac"), the encrypted subscription, created_at and last_sent_at. A "Phone alerts" card on `/watch` beside "Weekly email" offers:
+  - switch on for this device (permission asked from the tap);
+  - the list of devices, each removable;
+  - a "Send a test" button.
+
+  With no VAPID keys set, it says the server can't send phone alerts yet. Same-origin POSTs, signed-in owner only.
+- [ ] **I-53.3** Sending. Implement Web Push in code with `node:crypto`, with no dependency:
+  - payload encryption by RFC 8291 (aes128gcm), and VAPID by RFC 8292 (an ES256 JWT);
+  - unit-tested against the RFCs' own test vectors;
+  - env `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (`lib/env.ts`, `.env.example`), and `npm run vapid:generate`, which prints a fresh pair for the owner to paste into Vercel themselves;
+  - one attempt per message, no retry loop, and a 10-second timeout;
+  - a 404 or 410 deletes that subscription; any other failure is logged with the account id.
+
+  Push services are SYB's own channel to the owner, like Resend, not a business's connected account. The scope audit is unchanged, and a test proves that sending never touches a connector.
+- [ ] **I-53.4** When to send:
+  - a proposal becoming `pending` queues one push per subscribed device: "1 thing waits for your yes: <title, cut to 60 characters>";
+  - proposals made in the same run are grouped ("3 things wait for your yes"), at most one push per account per hour;
+  - nothing between 21:00 and 08:00 in the business's timezone; held pushes go at 08:00;
+  - nothing while the emergency stop is on;
+  - nothing for blocked proposals.
+
+  The tap opens `/proposals/<id>` (one, or the queue when grouped). The decision is the pure function `pushPlan(…)`, tested at the boundaries.
+- [ ] **I-53.5** The card `/proposals/<id>`, built for a phone and at 360 px in the sheet design:
+  - the proposal's title, what it changes, the gain range, the worst case, undoable or not, and what limits it was checked against;
+  - Approve and Decline through the existing decision endpoint;
+  - an already decided or expired proposal says so, with no buttons;
+  - signed out, it goes through sign-in and comes back.
+
+  Demo seed: a fake push service records what would be sent (no network). Do a browser check of the card and the `/watch` card at 375 px. Real delivery can't be shown headless: say so.
+
+**Done when:** a new proposal reaches a subscribed phone as a few words, a tap opens its card, the yes is recorded only from the card, quiet hours and the stop hold, and a dead subscription removes itself.
