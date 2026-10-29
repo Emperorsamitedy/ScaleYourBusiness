@@ -49,6 +49,11 @@ export const SUPPORT_WORKLOAD = "support";
  * monthly support cap (monthlySupportSpendEur) — one support budget.
  */
 export const SUPPORT_DRAFT_WORKLOAD = "support_draft";
+/**
+ * Idea 45: the owner's suggested replies to reviews (lib/review-desk/draft).
+ * Named here because they share the support cap below, which this file sums.
+ */
+export const REVIEW_REPLY_WORKLOAD = "review_reply";
 export const SUPPORT_INTENT_MODEL = "claude-haiku-5-5";
 /**
  * The answer and the owner's reply draft run on SONNET_MODEL
@@ -457,7 +462,11 @@ export async function monthlySupportSpendEur(accountId: string, now = new Date()
     .where(
       and(
         eq(llmCalls.account_id, accountId),
-        inArray(llmCalls.workload, [SUPPORT_WORKLOAD, SUPPORT_DRAFT_WORKLOAD]),
+        inArray(llmCalls.workload, [
+          SUPPORT_WORKLOAD,
+          SUPPORT_DRAFT_WORKLOAD,
+          REVIEW_REPLY_WORKLOAD,
+        ]),
         gte(llmCalls.at, startOfMonthUtc(now)),
       ),
     );

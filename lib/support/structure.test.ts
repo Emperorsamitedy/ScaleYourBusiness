@@ -32,6 +32,12 @@ const ENTRY_POINTS = [
   "lib/support/handover.ts",
   "lib/support/sla.ts",
   "lib/support/notify-owner.ts",
+  // Idea 45: review notifications arrive on the same webhook, routed by the r- prefix.
+  "lib/reviews/inbound.ts",
+  "lib/reviews/parse.ts",
+  "lib/reviews/fallback.ts",
+  "lib/reviews/store.ts",
+  "lib/reviews/alert.ts",
 ];
 
 /** Anything under these may never be reached from the support tier. */
@@ -58,6 +64,8 @@ const FORBIDDEN_PREFIXES = [
   "lib/watch/",
   // P4-10: the owner's drafting and sending. A stranger must never reach it.
   "lib/support-desk/",
+  // Idea 45: the owner's review replies, removals and screen. A stranger must never reach them.
+  "lib/review-desk/",
 ];
 
 /**
@@ -197,6 +205,9 @@ describe("P4-08 — rule 21, held by the module graph", () => {
         file.startsWith("app/api/support/inbound/") ||
         file.startsWith("db/") ||
         file.startsWith("lib/llm/") ||
+        // Idea 45: filing forwarded reviews (and its data file of notification formats).
+        file.startsWith("lib/reviews/") ||
+        file === "specs/review-notifications-v1.json" ||
         file === "lib/env.ts" ||
         // Added deliberately by the 2026-10-17 security review: a pure
         // function with no imports, reached through the model metering's

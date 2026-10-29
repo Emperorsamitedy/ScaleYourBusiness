@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0068**, then `db:seed` (question bank 1.9.0).
+2. **Migrations and bank:** `db:migrate` through **0069**, then `db:seed` (question bank 1.9.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -34,6 +34,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0066 `abandoned_checkouts`, Shopify's unfinished checkouts with an email hash and never an address (idea 47, 2026-10-29)
    - 0067 `forecast_checks`, SYB's own forecasts recorded when made and graded once, with triggers that refuse changing a claim, a second grading and a delete on its own (idea 54, 2026-10-29)
    - 0068 `push_subscriptions` (each phone's Web Push subscription, sealed under `CONNECTOR_KEY`) and `push_outbox` (proposal ids waiting for an alert), for phone alerts (idea 53, 2026-10-29; renumbered at merge if another branch took 0067)
+   - 0069 `review_settings` and `reviews`, forwarded or pasted reviews with the reviewer's public name, kept 365 days (idea 45, 2026-10-29)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 
@@ -230,6 +231,13 @@ Not findings. These are the controls the new upload path was built with, recorde
 - **New environment variables.** `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (all three, or phone alerts are off and the card says so). The private key is as secret as `CONNECTOR_KEY`; `npm run vapid:generate` prints a pair and writes it nowhere, and the owner pastes it into Vercel. A pair that doesn't belong together is refused and logged without the key. Replacing the pair means every phone switches on again. `PUSH_SERVICE=fake` (development only, refused in production) records instead of sending.
 - **The routes.** `/api/push`: every POST must pass `isSameOriginPost`, every call needs a signed-in session for the account (`matchingSession`), and subscribing refuses a non-push endpoint. `GET /api/proposals/:id` is read-only and returns only the caller's own proposal (a foreign id is a 404). `/api/cron/push-held` takes `CRON_SECRET` like the other crons.
 - **Sign-in return.** A sign-in started from a proposal's card comes back to it through a 15-minute httpOnly cookie (`syb_return`) that may only ever hold `/proposals` or `/proposals/<uuid>` (`lib/auth/return-to.ts`), so it can't become an open redirect.
+
+## Added 2026-10-29 — bad-review alerts (idea 45)
+
+- **New inbound routing on the support webhook.** `/api/support/inbound` still verifies the Svix signature before it reads anything. After it fetches the email from Resend, mail addressed to an `r-<32 hex>@<SUPPORT_INBOUND_DOMAIN>` address goes to `lib/reviews/inbound.ts` and never opens a ticket. The token is on `review_settings`, unguessable and rotatable from `/reviews`; knowing it lets someone file a review, nothing more. Mail for an unknown token, SYB's own mail, and mail whose ORIGINAL sender (the From line, or the From line inside a forwarded-message block) isn't on a platform's list in `specs/review-notifications-v1.json` is dropped, with log lines that carry ids only. A From line in the body counts only inside a forwarded block, and a platform's sign-in, security or billing mail is excluded by subject. Redelivery and re-forwarding file nothing twice (Resend's id and a content hash are UNIQUE). `lib/reviews` is an entry point of the rule-21 structural test, which also forbids `lib/review-desk/` (the owner's drafting and removal) from the stranger tier.
+- **A model call that inbound mail can cause: `review_parse` (Haiku 5.5, effort low).** Only for a recognised review sender whose notification the deterministic parser couldn't read. Caps are checked before the call: 20 calls per account per UTC month, reserved atomically on `review_settings`, and €1 a month on the workload across all accounts. Email addresses are masked before the call, the prompt carries rule 24 verbatim, and the answer is held to the email: stars must be 1–5, and the reviewer, words and link must each appear in the email or they are dropped. Past a cap, or on a refusal or error, the review is filed unread with only its platform, date and link. Each call is metered in `llm_calls` with the account id.
+- **A model call only the owner can cause: `review_reply` (Sonnet).** `POST /api/reviews {action:"draft"}` needs a signed-in owner and a same-origin POST. Three calls per review, reserved atomically, and the support monthly cap (€5 per account), which now counts `review_reply` with `support_answer` and `support_draft`. The reviewer's name never reaches the model, and email addresses and phone numbers in the words are masked. A draft that offers money, a refund, a discount or something free, or that names the reviewer or carries an address or phone number, is thrown away, never shown. SYB never posts a reply: there is no write to any review platform and no new scope. The Google Business Profile API was ruled out because its only scope (`business.manage`) can write (I-45a).
+- **PII.** The reviewer's public name and the words live on the `reviews` row only: no contact, log line, watch line or summary line holds them. Rows expire 365 days after filing (deleted on filing, on the screen's read and by the weekly cron), and "Remove this review" deletes the row with an `erasure` decision that holds ids and a hash only.
 
 ## Checked and sound
 

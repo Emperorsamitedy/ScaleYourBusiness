@@ -41,6 +41,8 @@ import { ParserError, liveExtractionLlm } from "../parser/parse";
 import { coerceKind, liveClassifyLlm } from "../proposals/generate";
 import { coerceLimits, liveLimitLlm } from "../proposals/hard-limits";
 import { ResearchError, liveResearchLlm } from "../research/competitor";
+import { coerceFallback, liveReviewParseLlm } from "../reviews/fallback";
+import { originalMail } from "../reviews/parse";
 import { liveDiscoveryLlm } from "../research/discovery";
 import { liveSearchProvider } from "../research/live";
 import { liveDraftLlm as liveReplyDraftLlm } from "../support-desk/draft";
@@ -275,6 +277,29 @@ describe("competitor web search: low effort; a refusal yields no hits, it throws
   it("throws on a refusal, even with result blocks present", async () => {
     fake.replies.push({ ...refusal("done"), content: [hit] });
     await expect(liveSearchProvider("Bodza Bár", 5, "acct-haiku")).rejects.toThrow(ResearchError);
+  });
+});
+
+describe("review notification fallback (idea 45): low effort; a refusal files it unread", () => {
+  const json = '{"stars":2,"reviewer":null,"text":"slow","link":null}';
+  const mail = originalMail({
+    from: "businessprofile-noreply@google.com",
+    subject: "New review",
+    text: "slow",
+  })!;
+  it("reads the JSON behind thinking, under the review_parse workload", async () => {
+    fake.replies.push(thinksThen(text(json)));
+    const got = await liveReviewParseLlm(args);
+    expect(coerceFallback(got.text, mail)).toMatchObject({ stars: 2, text: "slow" });
+    expectHaiku("low");
+    expect(got.calls[0]?.workload).toBe("review_parse");
+  });
+  it("gives no text on a refusal: nothing is copied, never the declined text", async () => {
+    fake.replies.push(refusal(json));
+    const got = await liveReviewParseLlm(args);
+    expect(got.text).toBe("");
+    expect(coerceFallback(got.text, mail)).toMatchObject({ stars: null, text: null });
+    expect(got.calls).toHaveLength(1); // still metered
   });
 });
 

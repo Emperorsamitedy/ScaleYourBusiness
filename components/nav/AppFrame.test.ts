@@ -128,4 +128,13 @@ describe("app navigation", () => {
     expect(hrefs({ ...counts, carts: true })).toContain("/carts");
     expect(groupFor("/carts")?.key).toBe("customers");
   });
+
+  // Idea 45: Reviews sits under Customers, for every business, right after Customers.
+  it("shows Reviews under Customers for every business", () => {
+    const customers = GROUPS.find((g) => g.key === "customers")!;
+    const hrefs = customers.items.map((i) => i.href);
+    expect(hrefs.indexOf("/reviews")).toBe(hrefs.indexOf("/customers") + 1);
+    expect(groupFor("/reviews")?.key).toBe("customers");
+    expect(customers.items.find((i) => i.href === "/reviews")?.appliesTo).toBeUndefined();
+  });
 });

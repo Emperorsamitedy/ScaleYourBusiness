@@ -121,6 +121,10 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Lapsed customers are lost revenue whoever serves them.",
   },
+  "nav.reviews": {
+    bands: EVERY,
+    reason: "One poor review costs a one-chair salon as much as a chain, often more.",
+  },
   "nav.carts": {
     bands: EVERY,
     reason:
