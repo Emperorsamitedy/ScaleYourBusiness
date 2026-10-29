@@ -95,3 +95,53 @@ Shopify only for now: WooCommerce has no abandoned-checkout API without a plugin
 
 - [ ] **I-47a** Decide whether Shopify's "buyer accepts marketing" tick at checkout may create a contact with that consent recorded (source: the Shopify checkout, with its time). Until then it is stored but not used.
 - [ ] **I-47b** Decide whether SYB should ask Shopify for `read_customers` (optional, like `read_all_orders`), so a cart's shopper can be hashed and matched to a contact. Without it no Shopify cart matches anyone and no win-back is proposed from real data; with it, SYB's credential can read the whole customer list, and Shopify's protected customer data rules for email apply. Found at build (I-47.1); the registry and the scope audit are unchanged until the owner decides. I-47a's tick also lives on the customer, so it depends on this.
+
+## Idea 52: several businesses and your team (owner, 2026-10-29: "go ahead with 52 too")
+
+**Recorded override:** CLAUDE.md's "Do not build yet" fences auth beyond what the intake needs. The owner asked for this explicitly on 2026-10-29, the same deliberate override as P0-86 and the phase openings, and CLAUDE.md now says so. It is scoped to what's below: no single sign-on, no organisations above accounts, and no per-person permissions beyond three roles.
+
+**The shape, chosen to keep every existing screen and API untouched:** one account is still one business with one profile (the `business_profiles.account_id` UNIQUE stays). A person is still a `users` row in one account. What changes:
+
+- **One email can belong to several accounts.** `users_email_idx` becomes unique on (account_id, email). Signing in with an email that belongs to several businesses shows "Which business?". A switcher in the frame lists the others, and switching issues a new session for that account's user row, only when the current session's verified email matches it exactly.
+- **Teammates are invited** into one account with a role from the existing `user_role` enum (`owner`, `manager`, `viewer`, unused until now).
+
+Because every route already resolves the account and profile from the session, a switch changes everything a screen sees, and nothing reads across accounts. Conservative choices:
+
+- **Roles, by default:**
+  - `owner` does everything;
+  - `manager` can approve or decline proposals, answer support, draft content and press the stop. They cannot connect or disconnect accounts, grant or revoke write access (rule 13's separate consent stays the owner's), change hard limits, billing, erasure, the team, or the business's own rules;
+  - `viewer` reads, and can press the emergency stop (stopping is always safe).
+
+  Each server action checks the role, through one helper and one table of action → minimum role, kept as data and tested exhaustively. The decision log records which user approved (rule 7).
+- **The last owner can't leave or be demoted.** An account always has at least one owner, held by the database.
+- **Each business pays on its own.** The Stripe gate stays per account. Combined billing is **I-52a**.
+- **A team member is never an employee record.** Rule 28 holds: SYB never scores or judges a person, including its own users.
+
+- [ ] **I-52.1** Migration **0067** (renumbered at merge):
+  - the per-account email unique;
+  - `team_invites`: account, email, role, the token hash, invited_by, created_at, expires_at (7 days), accepted_at and revoked_at; single use;
+  - a trigger or constraint keeping one owner or more per account;
+  - membership changes (invite, accept, role change, removal) logged as decision kinds, with ids only, no email (spec updated).
+
+  The sign-in, redeem and `currentSession` paths still work for a one-business person, and a test proves that unchanged.
+- [ ] **I-52.2** Sign-in and switching:
+  - redeeming a link for an email in several accounts lands on a chooser listing each business by name, never another person's data;
+  - `POST /api/auth/switch` checks the email match, revokes nothing else, and logs the switch;
+  - "Add another business" makes a new account, profile and owner row for the same email, and starts the intake;
+  - the intake cookie path (`lib/auth/access.ts`) is unchanged for new visitors.
+
+  Tests prove that a session for account A can never read account B's profile through any API route: a structural test over `app/api/**`, like the existing rule tests, plus a cross-account request test on a sample of routes.
+- [ ] **I-52.3** Roles enforced:
+  - `lib/auth/roles.ts` holds `ROLE_ACTIONS` (data) and `requireRole(session, action)`, wired into every mutating route;
+  - the structural test fails if a mutating route under `app/api` has no `requireRole` call, apart from a listed few (sign-in, the public widget and webhooks);
+  - the UI hides or disables what a role can't do, and says why ("Only an owner can connect accounts").
+- [ ] **I-52.4** The Team screen (`/settings/team`, or the existing settings place):
+  - lists members and pending invites;
+  - invite by email with a role: the email goes through Resend if set, and otherwise the screen shows the link to copy and says email isn't set up;
+  - role change, removal (which revokes that user's sessions) and revoking invites;
+  - an invite opened while signed in as another email says so, and never joins the wrong person.
+- [ ] **I-52.5** The frame: a business switcher (only when there are two or more), and the signed-in role shown quietly. Demo seed: `demo@syb.test` belongs to Fernhill and Lumen. Fernhill has a manager and a viewer (`demo-manager@syb.test`, `demo-viewer@syb.test`) and one pending invite. Browser check: switch businesses, sign in as the viewer and see approve disabled with the reason, at 375 px.
+
+**Done when:** one email reaches two businesses and switches between them, a manager can approve but not connect, a viewer can only read and stop, the last owner can't be removed, and no route lets one account read another's data.
+
+- [ ] **I-52a** Decide whether several businesses should share one bill (one Stripe customer, several plans) or stay billed one by one.
