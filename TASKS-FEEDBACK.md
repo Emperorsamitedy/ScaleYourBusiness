@@ -104,13 +104,29 @@ The owner sees a few of their own numbers set against businesses like theirs: sa
 - **Say exactly what it is.** Eurostat's figures are ratios of totals across every enterprise in the cell, not a median, and not "typical". Each line names the cell and year: "all restaurants and cafés with 2–9 people in Hungary, 2022, Eurostat". Each also names the one definition gap that matters most. For example, the gross operating rate is before the owner's own pay in a business where the owner isn't on the payroll.
 - **No runtime network.** A script fetches a dated snapshot into the repo, and the app reads only that file.
 
-- [ ] **I-44.1** The snapshot. `scripts/fetch-benchmarks.ts` (`npm run benchmarks:fetch`, run by hand, never at build or in CI) writes `specs/benchmarks-eurostat-v1.json`:
+- [x] **I-44.1** The snapshot. `scripts/fetch-benchmarks.ts` (`npm run benchmarks:fetch`, run by hand, never at build or in CI) writes `specs/benchmarks-eurostat-v1.json`:
   - per EU country (EU27, plus the `EU27_2020` aggregate), for the NACE codes the mapping uses and every size class, the latest year with a value for `GOR_PC`, `NETTUR_EMP_TEUR`, `LC_EMP_TEUR`, and the purchases share (`PUR_MEUR` ÷ `NETTUR_MEUR`);
   - Eurostat's status flags kept: confidential or missing cells are recorded as missing, never zero;
   - the dataset code, its `updated` date, the retrieval date, the API URL pattern and the licence line;
   - the annual euro reference rates for the same years (Eurostat `ert_bil_eur_a`), so a non-euro business's figures are compared in its own currency, rule 1, with the rate and year shown.
 
   Commit the snapshot. A test validates its shape and that no value is fabricated: every value carries its dataset, geo, nace, size and year.
+
+  **Done 2026-10-29.** `scripts/fetch-benchmarks.ts` (`npm run benchmarks:fetch`) wrote `specs/benchmarks-eurostat-v1.json` in 29 requests: one per country (the 27 members and `EU27_2020`), each naming all 38 NACE codes the map uses and five indicators from 2021 on, then one for the rates. It is 1.0 MB, 6,259 cells, one cell per line; `specs/` was already in `.prettierignore`, so prettier never touches it. The JSON-stat decoding is pure, in `lib/benchmarks/jsonstat.ts`; the app reads the file through `lib/benchmarks/snapshot.ts` and never the network. `snapshot.test.ts` checks the shape, that every figure names its cell and year, that no zero stands in for a missing figure, that confidential figures stay missing by name, and one cell against the live value.
+
+  What Eurostat's docs and answers said:
+  - **The API.** It is `…/statistics/1.0/data/{dataset}?format=JSON&lang=EN&{dim}={code}`, with a filter repeated for several codes. Only one time parameter is allowed per query (`time`, `sinceTimePeriod`, `untilTimePeriod` or `lastTimePeriod`; since and until may be combined). A 413 means "treated asynchronously, try again later". The detailed-guidelines wiki is behind an EU login, so the flag meanings come from each answer's own `extension.status.label`.
+  - **The JSON-stat 2.0 shape.** `id` and `size` give the dimensions; `value` and `status` are sparse objects keyed by the row-major position. The flags seen were `e` (estimated), `b` (break in series), `|C` and `b|C` (confidential, with no value).
+  - **Time parameter.** I used `sinceTimePeriod=2021`, not `lastTimePeriod`. With `lastTimePeriod=1`, a cell whose 2024 is confidential but whose 2023 was published would be lost. Every cell keeps its own latest year. 10,189 of 10,592 figures are 2024; the rest are 2021–2023.
+  - **The finding that changes the plan.** For every service activity, sbs_sc_ovw publishes size classes only for persons employed, turnover and value added. `GOR_PC`, labour costs and purchases exist only at `TOTAL`, all sizes together. Only industry and construction (`C`, `C10`, `F`, `F43`) have them by size. The classes `0_1` and `2-9` are empty everywhere; micro businesses are published only as `0-9`. So for a salon, café or shop, the margin and staff-cost lines compare against that activity's businesses of every size, and say so. Turnover per person is the one line that can match the size class.
+  - **The licence.** Eurostat's copyright notice (`/eurostat/web/main/help/copyright-notice`) allows free reuse, commercial or not, with the source acknowledged; editorial content is under CC BY 4.0. A customised dataset is cited as "Source: [dataset code link], [access date]". Modifications must be stated, along with a disclaimer that Eurostat is not responsible. Data for countries outside the EU, EFTA and candidates is restricted, which is one more reason only the EU27 is fetched. The file's `source` carries the attribution, a `modified` line and the disclaimer.
+  - **Exchange rates.** `ert_bil_eur_a` has `statinfo` AVG or END and `unit` NAC (national currency per euro). The snapshot keeps AVG for 2021–2025 for CZK, DKK, HUF, PLN, RON, SEK, GBP, USD, CHF and NOK. It has no BGN: Eurostat returned none, as Bulgaria uses the euro.
+
+  Judgement calls:
+  - **`LC_EMP_TEUR` is per person employed, not per employee**, whatever the plan says. Eurostat's own label is "Labour costs per person employed", and for personal services in Hungary it is €3.0k against €16.2k per employee, because most of the people working in that sector aren't on a payroll. The staff-cost line therefore uses `AVG_EXPN_SAL_BEN_TEUR` ("Average employee benefits expense", i.e. personnel costs ÷ employees), and `LC_EMP_TEUR` isn't fetched.
+  - **Purchases share** is stored, worked out as `PUR_MEUR ÷ NETTUR_MEUR` from one year, with `derived_from`. It is shown nowhere yet (see I-44b).
+  - **Unpublished figures** are left out of a cell (the file's `absent` line says so). Confidential ones are kept as `{"missing":"confidential","year":…}`. Neither is ever a zero.
+
 - [ ] **I-44.2** The mapping, as data, `specs/benchmark-map-v1.json` (rule 4): each `business_type` value maps to one NACE code, for example `restaurant` and `cafe` to `I56`, `salon_beauty` and `barber` to `S96` (the dataset stops at `S960`, so the line says it covers all personal services), `gym_fitness` to `R93`, `ecommerce_store` to `G479` or `G47`, and `clinic_health` to `Q86`. Every mapping has a one-line note on what the code covers. Types with no honest match (`nonprofit`, `other`, and `agriculture`, since section A isn't in SBS) map to none, and the screen says there is no comparison for them. `identity.size_band` and team size pick the size class (persons employed, the owner included). The country comes from the profile; outside the EU the screen says Eurostat doesn't cover it.
 - [ ] **I-44.3** The comparison, pure, in `lib/benchmarks/compare.ts`. Up to three lines, each computed only when the owner's own inputs exist (measured first, then stated, with the status shown, rule 2):
   - operating margin against `GOR_PC`, with revenue minus purchases, other operating costs and staff costs, before the owner's own pay, interest, depreciation and tax; the formula is spelled out with `derived_from` (rule 6);
@@ -118,14 +134,17 @@ The owner sees a few of their own numbers set against businesses like theirs: sa
   - staff cost per employee against `LC_EMP_TEUR`, only when there are employees and a staff cost.
 
   Each line reads "above", "below" or "about the same" (within ±15 %), with both numbers and the gap. No grade, score or "you should". A missing input says which question would fill it and links to it. A cell missing in Eurostat falls back to the next size class, then the NACE parent, saying which. Tests at the ±15 % boundaries, the fallbacks, the currency conversion, and every refusal.
+
 - [ ] **I-44.4** The screen, under Insights as "Compared with similar businesses" (`/benchmarks`, sheet design, 360 px):
   - the head is the cell in words;
   - then the lines, with each one's definition gap in a sentence;
   - then the source foot: "Source: Eurostat, sbs_sc_ovw, updated 30 Sep 2026, retrieved 29 Oct 2026, CC BY 4.0. These are totals across every business in the group, not a typical business."
 
   No model, no network.
+
 - [ ] **I-44.5** Demo seed: no new rows needed if Fernhill and Lumen already carry country, type, size and revenue; otherwise add the minimum. Browser check at 375 px.
 
 **Done when:** a demo business sees its own margin and turnover per person next to a named, dated Eurostat cell; a missing input or cell says what's missing instead of guessing; and nothing from it reaches the diagnosis or a proposal.
 
 - [ ] **I-44a** Decide whether a benchmark gap may ever appear in the diagnosis or prompt a proposal (for example a margin far below the sector's). Until then it only shows.
+- [ ] **I-44b** Decide whether the purchases share (`PUR_SHARE_PC`, in the snapshot since I-44.1) gets a line of its own beside the margin, and whether the `EU27_2020` aggregate is ever a fallback when a country's cell is missing. Until then both are kept in the snapshot and shown nowhere: an EU-wide turnover per person compared against a Hungarian shop would mix price levels.
