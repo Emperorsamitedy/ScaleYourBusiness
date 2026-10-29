@@ -221,7 +221,14 @@ The owner sees a few of their own numbers set against businesses like theirs: sa
   - **The reading word is neutral ink, never a colour.** A margin above the group isn't "good", and a staff cost below it isn't either.
   - **Size classes Eurostat never publishes are passed over silently.** Today that is `2-9` and `0_1` everywhere. The head names the first class that exists, so Fernhill's head reads "up to 9 people", not "2–9 people". A fallback sentence appears only when a published class lacks the figure.
 
-- [ ] **I-44.5** Demo seed: no new rows needed if Fernhill and Lumen already carry country, type, size and revenue; otherwise add the minimum. Browser check at 375 px.
+- [x] **I-44.5** Demo seed: no new rows needed if Fernhill and Lumen already carry country, type, size and revenue; otherwise add the minimum. Browser check at 375 px.
+
+  **Done 2026-10-29.** Fernhill needed nothing. It carries Ireland, `ecommerce_store`, a team of 2, monthly revenue (Shopify-measured, so OBSERVED), offers with costs and volumes, the costs lists and a team list with one paid employee. All three lines compare:
+  - margin 33.4% against 1.2% for Irish online shops of every size;
+  - turnover per person €265,854 against €730,550 for up to 9 people;
+  - staff cost €22,800 against €40,840.
+
+  Lumen carried country, type and size, but no revenue. The seed now answers 4.1 "yes" and 4.1a €21,000 a month, marked an estimate, through the normal `submitAnswer` path. That is the minimum: its turnover per person (€84,000 against €56,740 for Irish personal services with up to 9 people) compares as ESTIMATED. Its margin and staff-cost lines still show "Not compared yet", with links to the gross margin and the employees' pay, which demonstrates the refusals. Emberworks, never asked its type, shows the no-type sheet with the link to 1.2. Checked in the browser at 375 px on all three with no horizontal scroll, after `npm run db:seed-demo -- --fresh` on `syb_bench`.
 
 **Done when:** a demo business sees its own margin and turnover per person next to a named, dated Eurostat cell; a missing input or cell says what's missing instead of guessing; and nothing from it reaches the diagnosis or a proposal.
 
