@@ -149,6 +149,9 @@ The Goals screen already carries its own weekly candles against the path (`compo
 | What-if pricing | What a price change can lose and still pay, beside its range of outcomes | v3 (idea 43) |
 | Creative studio | The niche's longest-running ads, and a cited creative brief to film from | v3 (P3-50, P3-51) |
 | Team cover | Where the week runs short of cover or sits quiet, by role and hour; off by default | v5 (P5-18–P5-20) |
+| Which business? | After sign-in, when one email belongs to several businesses | idea 52 |
+| Team access | Who can sign in to this business, with which role; invites | idea 52 |
+| Invite | Where a team invite lands; joining needs a sign-in as exactly the invited address | idea 52 |
 
 Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame.tsx`). It is a 248px ink rail with:
 - the wordmark, the business name and the live state ("WATCHING · DAY 19 / 28") over a cobalt rule;
@@ -224,6 +227,21 @@ In the report (§7), a measured site finding sits in the findings list by severi
 - **Add a deal and Import** sit side by side. The import carries the same attestation as Customers (what the people consented to, and how, in the owner's words), a currency, and whether the values are quotes or estimates.
 
 Nothing on the screen sends anything.
+
+**Several businesses and your team** (idea 52, 2026-10-29). One email can belong to several businesses, and each business can have a team with three roles (owner, manager, viewer; lib/auth/roles.ts).
+
+- **Which business?** (`/login/choose`). A sign-in for an email on two or more businesses lands here instead of the profile. It uses the entrance screens' sheet (§2): the kicker "Signed in as name@example.com", the headline "Which business?", then one door per business, "Fernhill Ceramics · Owner", with the arrow at the far right. Only the name and the role are shown, never anything inside a business. The business already open continues straight in; any other is a plain form post that switches. **Add another business** makes a new one under the same email and starts its interview. The foot reads "Each business keeps its own facts, team and bill. Nothing from one is ever shown in another."
+- **The switcher.** In the rail head, under the business name, and only with two or more businesses: a mono "SWITCH BUSINESS" disclosure listing the others by name as ruled buttons, each a form post. One business, no switcher.
+- **The role, quietly.** A mono line above "Sign out": "You're an owner here", "You're a manager here", or "You're a viewer here: you can read, and press stop". Under 760px it shows with the open menu, beside Sign out.
+- **What a role can't do** is disabled, not hidden, with the server's own sentence beside it ("Only an owner can connect or disconnect accounts.", "Only an owner or a manager can approve or decline proposals."). In "Waiting for you" the three answers grey out and the sentence sits under the approval note. On Connections a note heads the panel and the patch panel and consent sections are disabled as a whole. On the stop, "Start things up again" becomes "Only an owner can start things up again after a stop." Pressing stop is never disabled.
+- **Team access** (`/settings/team`, under Your business after History, shown once someone has signed up). The kicker is "Your business · Team access" and the head states the fact: "Only you can sign in here." or "3 people can sign in here." The aside reads "You're an owner". Four sheets follow:
+  - **Who can sign in**: a `.rt rt-stack` table of each person (their email, "(you)"), their role (a select for an owner), since when, and "Take off the team" with a confirm ("Yes, take them off" / "Keep"). The last owner has no select and no remove, and says "A business always keeps one owner."
+  - **Waiting to join**: each open invite, its role and "works until 5 Nov" (or "ran out …"), with Withdraw. Under it, for an owner, the invite form: email, role and **Invite →**, with what that role can do in one line beneath. Email goes through Resend when it is set up. Otherwise the notice says "Email isn't set up here, so I can't send it. Copy the link below and send it yourself." and the link sits in a read-only field with **Copy**. The line above it says the link works once, for seven days, and only for the invited address.
+  - **What each role can do**: the three roles in a definition list, the same words as the table.
+  - **Run more than one business?**: one line and **Add another business →**.
+  
+  A manager or viewer sees the same list with no controls and the note "Only an owner can invite, change or remove people on the team. You can see who's here." The screen shows no activity, no counts and nothing about how anyone works (rule 28).
+- **The invite** (`/invite?token=…`) uses the entrance sheet. "Join Fernhill Ceramics." names the role and the invited address ("As a manager, for sam@example.com"). Opening it changes nothing. Signed in as that address, the one button is **Join**. Signed out, it is "Email a sign-in link to sam@example.com", and opening that link joins. Signed in as anyone else, the sheet says "This invite is for … and you're signed in as … I won't add the wrong person: sign out, then open this link again." and offers only **Sign out**. A used, withdrawn or expired invite says which and asks for a new one.
 
 Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 

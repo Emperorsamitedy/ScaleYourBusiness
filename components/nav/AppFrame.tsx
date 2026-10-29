@@ -17,6 +17,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { NavCounts } from "../../app/api/nav/route";
 import { DeepLinkMark } from "../sheet/DeepLinkMark";
+import { AccessProvider } from "../auth/RoleContext";
+import type { NavAccess } from "../../app/api/nav/route";
 import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
 import { showsFor } from "../../lib/core/size-features";
 
@@ -162,6 +164,13 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/mode", label: "How I work", feature: "nav.mode" },
       { href: "/history", label: "History", feature: "nav.history" },
+      {
+        href: "/settings/team",
+        label: "Team access",
+        feature: "nav.team_access",
+        // Idea 52: who can sign in — there is a team once someone has signed up.
+        appliesTo: (c) => c.access?.signed_in === true,
+      },
     ],
   },
 ];
@@ -219,6 +228,37 @@ function useCounts(path: string): NavCounts | null {
   return counts;
 }
 
+/**
+ * Idea 52: the other businesses this person belongs to, as plain form posts
+ * to /api/auth/switch — shown only when there are two or more. Names only.
+ */
+export function Switcher({ access }: { access: NavAccess | null | undefined }) {
+  const others = access?.businesses.filter((b) => !b.current) ?? [];
+  if (!access || access.businesses.length < 2) return null;
+  return (
+    <details className="app-rail-switch">
+      <summary>Switch business</summary>
+      <form method="post" action="/api/auth/switch">
+        {others.map((b) => (
+          <button key={b.account_id} type="submit" name="account_id" value={b.account_id}>
+            {b.name ?? "A business not named yet"}
+          </button>
+        ))}
+      </form>
+    </details>
+  );
+}
+
+/** Pure: the quiet line under the menu saying who you are here. */
+export function roleLine(access: NavAccess | null | undefined): string | null {
+  if (!access || !access.signed_in) return null;
+  return access.role === "owner"
+    ? "You're an owner here"
+    : access.role === "manager"
+      ? "You're a manager here"
+      : "You're a viewer here: you can read, and press stop";
+}
+
 // Not in the menu design, which has no way out; kept small under the foot.
 function SignOut() {
   const router = useRouter();
@@ -244,12 +284,13 @@ export function AppFrame({ children }: { children: ReactNode }) {
   const counts = useCounts(path);
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
+  const access = counts?.access ?? null;
   if (!showsNav(path)) {
     return (
-      <>
+      <AccessProvider value={access}>
         <DeepLinkMark />
         {children}
-      </>
+      </AccessProvider>
     );
   }
 
@@ -261,6 +302,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
             SYB
           </Link>
           {counts?.business && <p className="app-rail-biz">{counts.business}</p>}
+          <Switcher access={access} />
           {counts?.watch && (
             <p className="app-rail-live">
               <span className="app-rail-sq" aria-hidden="true" />
@@ -309,11 +351,14 @@ export function AppFrame({ children }: { children: ReactNode }) {
           <span>Ask me anything</span>
           <span aria-hidden="true">→</span>
         </Link>
+        {roleLine(access) && <p className="app-rail-who">{roleLine(access)}</p>}
         <SignOut />
       </nav>
       <div className="app-main">
-        <DeepLinkMark />
-        {children}
+        <AccessProvider value={access}>
+          <DeepLinkMark />
+          {children}
+        </AccessProvider>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import {
   GROUPS,
   connectionsCount,
   groupFor,
+  roleLine,
   showsNav,
   supportCount,
   visibleGroups,
@@ -93,6 +94,7 @@ describe("app navigation", () => {
       team: false,
       pipeline: false,
       carts: false,
+      access: { role: "owner", signed_in: true, businesses: [] },
     };
     const hrefs = (c: NavCounts | null) =>
       visibleGroups(null, c).flatMap((g) => g.items.map((i) => i.href));
@@ -120,6 +122,7 @@ describe("app navigation", () => {
       team: false,
       pipeline: false,
       carts: false,
+      access: { role: "owner", signed_in: true, businesses: [] },
     };
     const hrefs = (c: NavCounts | null) =>
       visibleGroups(null, c).flatMap((g) => g.items.map((i) => i.href));
@@ -127,5 +130,54 @@ describe("app navigation", () => {
     expect(hrefs(null)).not.toContain("/carts"); // still loading: hidden, never guessed
     expect(hrefs({ ...counts, carts: true })).toContain("/carts");
     expect(groupFor("/carts")?.key).toBe("customers");
+  });
+});
+
+// Idea 52: the team screen exists once someone has signed up; the role is said quietly.
+describe("several businesses and the team", () => {
+  const base = {
+    business: "Fernhill Ceramics",
+    business_type: null,
+    watch: null,
+    pending: 0,
+    by_module: {},
+    goals: 0,
+    facts: 0,
+    connections: 0,
+    needs_reconnect: 0,
+    support_open: 0,
+    size_band: null,
+    stock: false,
+    team: false,
+    pipeline: false,
+    carts: false,
+  };
+  const hrefs = (c: NavCounts) => visibleGroups(null, c).flatMap((g) => g.items.map((i) => i.href));
+
+  it("lists Team access under Your business for a signed-in person only", () => {
+    const signedIn: NavCounts = {
+      ...base,
+      access: { role: "viewer", signed_in: true, businesses: [] },
+    };
+    const anonymous: NavCounts = {
+      ...base,
+      access: { role: "owner", signed_in: false, businesses: [] },
+    };
+    expect(hrefs(signedIn)).toContain("/settings/team");
+    expect(hrefs(anonymous)).not.toContain("/settings/team");
+    expect(groupFor("/settings/team")?.key).toBe("business");
+    expect(showsNav("/settings/team")).toBe(true);
+    // Counts from before idea 52 (no access field) hide it rather than throw.
+    expect(hrefs(base as unknown as NavCounts)).not.toContain("/settings/team");
+  });
+
+  it("says the role in plain words, and nothing before sign-up", () => {
+    const line = (role: "owner" | "manager" | "viewer", signed_in = true) =>
+      roleLine({ role, signed_in, businesses: [] });
+    expect(line("owner")).toBe("You're an owner here");
+    expect(line("manager")).toBe("You're a manager here");
+    expect(line("viewer")).toBe("You're a viewer here: you can read, and press stop");
+    expect(line("owner", false)).toBeNull();
+    expect(roleLine(null)).toBeNull();
   });
 });
