@@ -16,7 +16,14 @@
 import { createHash, randomBytes } from "node:crypto";
 import { and, eq, gt, isNull } from "drizzle-orm";
 import { db } from "../../db";
-import { accounts, authSessions, businessProfiles, loginTokens, users } from "../../db/schema";
+import {
+  accounts,
+  authSessions,
+  businessProfiles,
+  loginTokens,
+  pushSubscriptions,
+  users,
+} from "../../db/schema";
 import { normaliseEmail } from "../intake/resume";
 
 export class AuthError extends Error {
@@ -216,6 +223,8 @@ export interface AuthedSession {
   user_id: string;
   email: string;
   profile_id: string | null;
+  /** The auth_sessions row: idea 53 ties a phone's alerts to the sign-in that switched them on. */
+  session_id?: string;
 }
 
 /** Resolve the auth cookie's token to a live session, or null. */
@@ -224,6 +233,7 @@ export async function currentSession(token: string | undefined): Promise<AuthedS
   const now = new Date().toISOString();
   const [row] = await db
     .select({
+      session_id: authSessions.id,
       account_id: authSessions.account_id,
       user_id: authSessions.user_id,
       email: users.email,
@@ -245,11 +255,21 @@ export async function currentSession(token: string | undefined): Promise<AuthedS
   return { ...row, profile_id: profile?.id ?? null };
 }
 
-/** Sign out: the session stops resolving without being deleted. */
+/**
+ * Sign out: the session stops resolving without being deleted. Idea 53:
+ * the phone alerts switched on in this sign-in go with it, in the same
+ * transaction: a signed-out phone gets nothing more.
+ */
 export async function revokeSession(token: string | undefined): Promise<void> {
   if (!token) return;
-  await db
-    .update(authSessions)
-    .set({ revoked_at: new Date().toISOString() })
-    .where(eq(authSessions.token_hash, hash(token)));
+  await db.transaction(async (tx) => {
+    const revoked = await tx
+      .update(authSessions)
+      .set({ revoked_at: new Date().toISOString() })
+      .where(eq(authSessions.token_hash, hash(token)))
+      .returning({ id: authSessions.id });
+    for (const r of revoked) {
+      await tx.delete(pushSubscriptions).where(eq(pushSubscriptions.session_id, r.id));
+    }
+  });
 }

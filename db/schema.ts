@@ -3122,3 +3122,76 @@ export const siteAudits = pgTable(
     check("site_audits_calls_nonneg", sql`${t.pagespeed_calls} >= 0 AND ${t.page_reads} >= 0`),
   ],
 );
+
+/* ---------- Idea 53 — one-tap approvals on your phone ---------- */
+
+/**
+ * One browser's Web Push subscription (idea 53, I-53.2). Whoever holds an
+ * endpoint and its keys can push to that phone, so the subscription is a
+ * secret: `encrypted_subscription` is the JSON {endpoint, keys: {p256dh,
+ * auth}} sealed with the connector secrets' AES-256-GCM key path
+ * (lib/connectors/secrets.ts, rule 10), never logged and never returned by
+ * any API. `endpoint_hash` is a keyed HMAC of the endpoint, so the same
+ * browser switching on twice updates one row without the endpoint being
+ * readable. A row goes when its device signs out (the session it was made
+ * in), when the push service answers 404 or 410, and with its user or
+ * account. `device_label` is the coarse word from the user agent ("iPhone",
+ * "Android", "Mac"), never the agent string. `time_zone` is the browser's
+ * own IANA zone, read only when the business's timezone isn't known, for
+ * quiet hours. `last_sent_at` is the last alert sent to it (a test doesn't
+ * count): the daily cap reads it.
+ */
+export const pushSubscriptions = pgTable(
+  "push_subscriptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    user_id: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    /** The sign-in it was switched on in: signing out of that browser removes it. */
+    session_id: uuid("session_id").references(() => authSessions.id, { onDelete: "cascade" }),
+    device_label: text("device_label").notNull(),
+    endpoint_hash: text("endpoint_hash").notNull(),
+    encrypted_subscription: text("encrypted_subscription").notNull(),
+    time_zone: text("time_zone"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    last_sent_at: timestamp("last_sent_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("push_subscriptions_endpoint_idx").on(t.endpoint_hash),
+    index("push_subscriptions_account_idx").on(t.account_id),
+    check(
+      "push_subscriptions_label",
+      sql`${t.device_label} IN ('iPhone', 'iPad', 'Android', 'Mac', 'Windows', 'Linux', 'Browser')`,
+    ),
+  ],
+);
+
+/**
+ * Proposals that became pending and haven't been pushed yet (idea 53,
+ * I-53.4). Written in createProposal's own transaction, only when the
+ * account has a subscribed device, so a proposal that rolls back leaves no
+ * push behind. The flush reads an account's rows, lets pushPlan decide
+ * (send grouped, hold for quiet hours or the daily cap, or drop), and
+ * deletes what it sent or dropped. Holds ids only.
+ */
+export const pushOutbox = pgTable(
+  "push_outbox",
+  {
+    proposal_id: uuid("proposal_id")
+      .primaryKey()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("push_outbox_profile_idx").on(t.profile_id)],
+);
