@@ -188,3 +188,142 @@ The owner taps a microphone, speaks, and the words appear in the answer box. The
 - [ ] **I-50a** Decide whether the profile's language should reach the browser for speech (an owner-chosen locale, sent with the intake or `/api/nav`). Today every account's `locale` is "en-GB" set by code, so the microphone listens in the browser's own language. Found at build (I-50.1).
 
 **Done when:** an owner can speak an answer into the intake and the chat, see it, fix it and record it, where nothing is recorded without their click and no audio reaches SYB.
+
+## Idea 44: compared with similar businesses (owner, 2026-10-29)
+
+The owner sees a few of their own numbers set against businesses like theirs: same activity, same country, same size. The source is Eurostat's structural business statistics, the dataset `sbs_sc_ovw` ("Enterprise statistics by size class and NACE Rev. 2 activity, from 2021 onwards"). It is free and keyless, reusable under CC BY 4.0 with attribution, and was checked live on 2026-10-29: the dataset was updated 2026-09-30 and covers HU, `I56`, 2022. It has size classes `0_1`, `2-9`, `10-19`, `20-49`, `50-249` and `GE250`, NACE down to three digits, and indicators including `GOR_PC` (gross operating rate), `NETTUR_EMP_TEUR` (turnover per person employed), `LC_EMP_TEUR` (labour cost per employee) and `PUR_MEUR` / `NETTUR_MEUR`. Conservative choices:
+
+- **A benchmark is a reference, not a fact about the business.** It never becomes a `Field` on the profile, never feeds the diagnosis or a proposal, and never speaks as a finding. Whether it may is **I-44a**.
+- **Say exactly what it is.** Eurostat's figures are ratios of totals across every enterprise in the cell, not a median, and not "typical". Each line names the cell and year: "all restaurants and cafés with 2–9 people in Hungary, 2022, Eurostat". Each also names the one definition gap that matters most. For example, the gross operating rate is before the owner's own pay in a business where the owner isn't on the payroll.
+- **No runtime network.** A script fetches a dated snapshot into the repo, and the app reads only that file.
+
+- [x] **I-44.1** The snapshot. `scripts/fetch-benchmarks.ts` (`npm run benchmarks:fetch`, run by hand, never at build or in CI) writes `specs/benchmarks-eurostat-v1.json`:
+  - per EU country (EU27, plus the `EU27_2020` aggregate), for the NACE codes the mapping uses and every size class, the latest year with a value for `GOR_PC`, `NETTUR_EMP_TEUR`, `LC_EMP_TEUR`, and the purchases share (`PUR_MEUR` ÷ `NETTUR_MEUR`);
+  - Eurostat's status flags kept: confidential or missing cells are recorded as missing, never zero;
+  - the dataset code, its `updated` date, the retrieval date, the API URL pattern and the licence line;
+  - the annual euro reference rates for the same years (Eurostat `ert_bil_eur_a`), so a non-euro business's figures are compared in its own currency, rule 1, with the rate and year shown.
+
+  Commit the snapshot. A test validates its shape and that no value is fabricated: every value carries its dataset, geo, nace, size and year.
+
+  **Done 2026-10-29.** `scripts/fetch-benchmarks.ts` (`npm run benchmarks:fetch`) wrote `specs/benchmarks-eurostat-v1.json` in 29 requests: one per country (the 27 members and `EU27_2020`), each naming all 38 NACE codes the map uses and five indicators from 2021 on, then one for the rates. It is 1.0 MB, 6,259 cells, one cell per line; `specs/` was already in `.prettierignore`, so prettier never touches it. The JSON-stat decoding is pure, in `lib/benchmarks/jsonstat.ts`; the app reads the file through `lib/benchmarks/snapshot.ts` and never the network. `snapshot.test.ts` checks the shape, that every figure names its cell and year, that no zero stands in for a missing figure, that confidential figures stay missing by name, and one cell against the live value.
+
+  What Eurostat's docs and answers said:
+  - **The API.** It is `…/statistics/1.0/data/{dataset}?format=JSON&lang=EN&{dim}={code}`, with a filter repeated for several codes. Only one time parameter is allowed per query (`time`, `sinceTimePeriod`, `untilTimePeriod` or `lastTimePeriod`; since and until may be combined). A 413 means "treated asynchronously, try again later". The detailed-guidelines wiki is behind an EU login, so the flag meanings come from each answer's own `extension.status.label`.
+  - **The JSON-stat 2.0 shape.** `id` and `size` give the dimensions; `value` and `status` are sparse objects keyed by the row-major position. The flags seen were `e` (estimated), `b` (break in series), `|C` and `b|C` (confidential, with no value).
+  - **Time parameter.** I used `sinceTimePeriod=2021`, not `lastTimePeriod`. With `lastTimePeriod=1`, a cell whose 2024 is confidential but whose 2023 was published would be lost. Every cell keeps its own latest year. 10,189 of 10,592 figures are 2024; the rest are 2021–2023.
+  - **The finding that changes the plan.** For every service activity, sbs_sc_ovw publishes size classes only for persons employed, turnover and value added. `GOR_PC`, labour costs and purchases exist only at `TOTAL`, all sizes together. Only industry and construction (`C`, `C10`, `F`, `F43`) have them by size. The classes `0_1` and `2-9` are empty everywhere; micro businesses are published only as `0-9`. So for a salon, café or shop, the margin and staff-cost lines compare against that activity's businesses of every size, and say so. Turnover per person is the one line that can match the size class.
+  - **The licence.** Eurostat's copyright notice (`/eurostat/web/main/help/copyright-notice`) allows free reuse, commercial or not, with the source acknowledged; editorial content is under CC BY 4.0. A customised dataset is cited as "Source: [dataset code link], [access date]". Modifications must be stated, along with a disclaimer that Eurostat is not responsible. Data for countries outside the EU, EFTA and candidates is restricted, which is one more reason only the EU27 is fetched. The file's `source` carries the attribution, a `modified` line and the disclaimer.
+  - **Exchange rates.** `ert_bil_eur_a` has `statinfo` AVG or END and `unit` NAC (national currency per euro). The snapshot keeps AVG for 2021–2025 for CZK, DKK, HUF, PLN, RON, SEK, GBP, USD, CHF and NOK. It has no BGN: Eurostat returned none, as Bulgaria uses the euro.
+
+  Judgement calls:
+  - **`LC_EMP_TEUR` is per person employed, not per employee**, whatever the plan says. Eurostat's own label is "Labour costs per person employed", and for personal services in Hungary it is €3.0k against €16.2k per employee, because most of the people working in that sector aren't on a payroll. The staff-cost line therefore uses `AVG_EXPN_SAL_BEN_TEUR` ("Average employee benefits expense", i.e. personnel costs ÷ employees), and `LC_EMP_TEUR` isn't fetched.
+  - **Purchases share** is stored, worked out as `PUR_MEUR ÷ NETTUR_MEUR` from one year, with `derived_from`. It is shown nowhere yet (see I-44b).
+  - **Unpublished figures** are left out of a cell (the file's `absent` line says so). Confidential ones are kept as `{"missing":"confidential","year":…}`. Neither is ever a zero.
+
+- [x] **I-44.2** The mapping, as data, `specs/benchmark-map-v1.json` (rule 4): each `business_type` value maps to one NACE code, for example `restaurant` and `cafe` to `I56`, `salon_beauty` and `barber` to `S96` (the dataset stops at `S960`, so the line says it covers all personal services), `gym_fitness` to `R93`, `ecommerce_store` to `G479` or `G47`, and `clinic_health` to `Q86`. Every mapping has a one-line note on what the code covers. Types with no honest match (`nonprofit`, `other`, and `agriculture`, since section A isn't in SBS) map to none, and the screen says there is no comparison for them. `identity.size_band` and team size pick the size class (persons employed, the owner included). The country comes from the profile; outside the EU the screen says Eurostat doesn't cover it.
+
+  **Done 2026-10-29.** `specs/benchmark-map-v1.json` is applied by `lib/benchmarks/map.ts`, which is pure. Each of the bank's 33 `business_type` codes has an entry. A match names its NACE code, its parent (the code one level up, tried when a cell is missing), the group in the owner's words, and a line on what the code covers. A non-match says why. `map.test.ts` holds the entries to the bank's vocabulary. It also checks that the map's codes are exactly the snapshot's 38, that each parent is a prefix of its child, and that every cost category is treated. The mapping, with the judgement on each:
+
+  | business_type                      | NACE (parent) | Why this code                                                                                                                    |
+  | ---------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+  | retail_shop                        | G47 (G)       | all retail except cars                                                                                                           |
+  | ecommerce_store                    | G479 (G47)    | retail not in stores; the plan's first choice, and published at every size class for turnover                                    |
+  | restaurant, cafe, bar              | I56 (I)       | the plan's choice. I561 and I563 exist, but one group for all three keeps the line honest about what it covers                   |
+  | food_production                    | C10 (C)       | food manufacture, bakeries included                                                                                              |
+  | salon_beauty, barber, wellness_spa | S96 (none)    | S960 is S96's only child, and the dataset has no section S, so there's no parent. Spas are 96.04, inside S96                     |
+  | gym_fitness                        | R931 (R93)    | narrower than the plan's R93: sports activities (fitness facilities are 93.13) without amusement parks; published in all 28 geos |
+  | clinic_health                      | Q86 (Q)       | the plan's choice; the line says it includes hospitals. Q862 would suit a GP or dentist but not a physio                         |
+  | construction                       | F (none)      | the section                                                                                                                      |
+  | trades_services                    | F43 (F)       | the building trades: electricians, plumbers, joiners                                                                             |
+  | cleaning_services                  | N812 (N81)    | cleaning activities                                                                                                              |
+  | automotive                         | G452 (G45)    | repair and maintenance, since the product calls this business "your garage" (`lib/core/business-noun.ts`)                        |
+  | professional_services              | M (none)      | too broad for anything narrower to be honest                                                                                     |
+  | consulting                         | M702 (M70)    | management consultancy                                                                                                           |
+  | agency_marketing                   | M731 (M73)    | advertising agencies                                                                                                             |
+  | it_services                        | J62 (J)       | programming and IT consultancy                                                                                                   |
+  | software_saas                      | J582 (J58)    | software publishing; the line says build-to-order firms sit in J62                                                               |
+  | education_training                 | P855 (P85)    | tutoring, language and driving schools, courses                                                                                  |
+  | childcare                          | Q889 (Q88)    | child day-care is 88.91                                                                                                          |
+  | real_estate                        | L68 (L)       | all real estate                                                                                                                  |
+  | logistics                          | H (none)      | haulage, warehousing and couriers are split across H49–H53, so the section                                                       |
+  | manufacturing                      | C (none)      | the section                                                                                                                      |
+  | wholesale                          | G46 (G)       | wholesale except cars                                                                                                            |
+  | photography_creative               | M74 (M)       | design, photography and translation together                                                                                     |
+  | tourism_accommodation              | I55 (I)       | accommodation; the line says tour operators are N79                                                                              |
+  | transport                          | H49 (H)       | land transport                                                                                                                   |
+  | agriculture                        | none          | section A isn't in SBS                                                                                                           |
+  | events                             | none          | venues, planners and caterers sit in three different groups (N82.3, I56.2, R90)                                                  |
+  | nonprofit, other                   | none          | no honest group                                                                                                                  |
+
+  More judgement calls:
+  - **Size.** Classes come from the headcount (1.6, "including you", which matches Eurostat's persons employed, owners included). Every class that holds it is tried, narrowest first: 2 people tries `2-9`, then `0-9`. Without a headcount the band is used: solo is `0_1` then `0-9`, small is `2-9` then `0-9`. Medium (10–49) and large (50+) each span two of Eurostat's classes, so they pick none, and the line compares with every size. `0_1` and `2-9` are kept although Eurostat publishes neither today, so a later snapshot that has them is used without a code change.
+  - **Country.** The profile's free-text `legal.country` is read by the existing `countryCode` (`lib/hours/timezone.ts`); Greece becomes `EL`. Anything outside the EU27 is "outside", and the screen says Eurostat's figures don't cover it.
+  - **Costs.** `cost_categories` is data too: `salaries` is staff, `loan_payments` is financing (left out and named), and everything else, unknown included, is a running cost that Eurostat counts among purchases.
+
+- [x] **I-44.3** The comparison, pure, in `lib/benchmarks/compare.ts`. Up to three lines, each computed only when the owner's own inputs exist (measured first, then stated, with the status shown, rule 2):
+  - operating margin against `GOR_PC`, with revenue minus purchases, other operating costs and staff costs, before the owner's own pay, interest, depreciation and tax; the formula is spelled out with `derived_from` (rule 6);
+  - turnover a year per person employed against `NETTUR_EMP_TEUR`, converted to the business's currency;
+  - staff cost per employee against `LC_EMP_TEUR`, only when there are employees and a staff cost.
+
+  Each line reads "above", "below" or "about the same" (within ±15 %), with both numbers and the gap. No grade, score or "you should". A missing input says which question would fill it and links to it. A cell missing in Eurostat falls back to the next size class, then the NACE parent, saying which. Tests at the ±15 % boundaries, the fallbacks, the currency conversion, and every refusal.
+
+  **Done 2026-10-29.** `lib/benchmarks/compare.ts` is pure: no database, network, model or clock. `compareWithSimilar(inputs, snapshot)` refuses before any line when it lacks something it needs: no business type (link to 1.2), a type with no honest match (the map's reason), no country or one it can't read (link to 1.1b), or a country outside the EU27. Otherwise it gives the head (group, country, first size class tried, and why that size) and three lines. Each line is compared, missing (with what it needs, linked to its question) or refused (no Eurostat figure, no employees, no euro rate). A compared line carries:
+  - both figures and the reading, with the gap in points or money and percent;
+  - the owner's formula with the numbers, its `derived_from` keys and each input with its basis (OBSERVED for a measured revenue, STATED, ESTIMATED or DERIVED);
+  - what was left out and why;
+  - the exact cell, as "all online and mail-order shops with up to 9 people in Ireland, 2024, Eurostat", with Eurostat's flag in words and any fallback sentence;
+  - the conversion rate and year.
+
+  `compare.test.ts` has 31 tests: the ±15 % boundaries both sides (inclusive, negative and zero benchmarks), every fallback step, the forint conversion, each refusal, and one case run against the committed snapshot.
+
+  Judgement calls:
+  - **Fallback order.** The plan said "the next size class". I took each class that holds the headcount, narrowest first, then every size, then the parent code. A neighbouring class (10–19 for a business of 3) is a different size, and calling it "businesses like yours" would be less honest than "of every size". The sentence names what was missing ("doesn't publish this" or "keeps this confidential (2024)") and what the figure is instead. Because services publish margins only for every size (I-44.1), the margin and staff lines of a salon, café or shop always fall back to every size, and say so.
+  - **The operating margin.** It is revenue minus cost of sales, per-sale costs, running costs and staff pay, all over revenue: before the owner's own pay, interest, depreciation and tax, like Eurostat's gross operating surplus over turnover.
+    - Cost of sales: the offers' cost to deliver at their volumes, when every selling offer has a cost (§8.3: computed beats stated); otherwise 100% minus the stated gross margin (5.3a); otherwise the line asks for one or the other.
+    - Per-sale costs: 5.2's per-piece costs × units, and its per-order costs × orders a month. When the count is missing, the cost is left out and named.
+    - Running costs: every dated cost on 5.1 and 5.2, made monthly. A loan repayment is left out and named, because Eurostat's rate is before interest and the loan itself isn't a cost. A cost in another currency, or with no amount or frequency, is left out and named.
+    - Staff pay: the `salaries` lines if any; otherwise the 9.2 rows marked employee, which must all have a cost. The owner's row is never counted, so this is the "before the owner's own pay" side. Contractor rows aren't added, as a contractor is assumed to be on the costs list. When staff pay can't be known (someone may be paid but nothing says what), the line refuses rather than leave the biggest cost out. A one-person business needs no staff pay.
+    - A cost on the costs list that isn't operating (Fernhill lists its VAT return under "other") is counted as given. The category vocabulary has no "tax", and I don't branch on a label's words.
+  - **Turnover per person** is monthly revenue × 12 ÷ the headcount, owner included, which matches Eurostat's persons employed. The definition gap shown is VAT, because Eurostat's turnover excludes it.
+  - **Staff cost per employee** uses the employees on 9.2, each counted once (Eurostat counts part-timers as one too). Pay comes from their own monthly costs, else the costs list's salaries. The gap shown is the employer's social contributions, which Eurostat includes.
+  - **"About the same"** means within 15% of Eurostat's own figure, either side, the boundary included. For a margin that is relative too: a 12% sector margin gives a band of ±1.8 points.
+  - **Rates.** An exact year only: with no rate for the cell's year, the line refuses rather than borrow another year's.
+  - **The status shown.** It is the basis class (`components/report/basis.ts`), read through the cash module's own readers (`lib/cash/inputs.ts`), so a revenue Stripe measured shows OBSERVED and the owner's estimate ESTIMATED.
+
+- [x] **I-44.4** The screen, under Insights as "Compared with similar businesses" (`/benchmarks`, sheet design, 360 px):
+  - the head is the cell in words;
+  - then the lines, with each one's definition gap in a sentence;
+  - then the source foot: "Source: Eurostat, sbs_sc_ovw, updated 30 Sep 2026, retrieved 29 Oct 2026, CC BY 4.0. These are totals across every business in the group, not a typical business."
+
+  No model, no network.
+
+  **Done 2026-10-29.** `/benchmarks` is built from:
+  - `app/benchmarks/page.tsx` and `components/benchmarks/BenchmarksScreen.tsx`, the screen;
+  - `components/benchmarks/view.ts`, its words, which are pure;
+  - `app/benchmarks.css`, on the sheet system;
+  - `GET /api/benchmarks`, behind `resolveAccess` and with no POST;
+  - `lib/benchmarks/load.ts`, which reads only the current facts. It reuses the cash module's pure readers and `countryCode`, and writes nothing.
+
+  The menu item sits under Insights after Competitors, with a size-feature row `nav.benchmarks` shown at every size. `lib/benchmarks/fence.test.ts` now reads all four roots. It checks there is no `fetch` other than `/api/benchmarks`, no URL other than the DOI, no database or Field write, no model import and no non-GET verb. It also checks that diagnosis, proposals, report, mode, validation, watch, execution, scorer, interviewer and profile code never import `lib/benchmarks`. `view.test.ts` checks the head, the foot and that no sentence judges. The screen is in `specs/ux-spec-v1.md` §3.
+
+  Checked in the browser on Fernhill (all three lines compared), Lumen (turnover compared, margin and staff cost "Not compared yet" with their links) and Emberworks (no business type: one sheet with the link to 1.2). Each was checked at 375 px with no horizontal scroll (the formula is `.fig`, so it needed `white-space: normal` to wrap), and Fernhill also at 1280 px.
+
+  Judgement calls:
+  - **The menu label is "Similar businesses".** "Compared with similar businesses" wrapped to two lines in the rail; the kicker and page title keep the full name.
+  - **The foot does not say "CC BY 4.0".** Eurostat's copyright notice applies CC BY 4.0 to its editorial content, and says statistical data may be reused "provided the source is acknowledged". The foot says "reused with the source acknowledged", then names the dataset, its DOI and both dates. It states the modifications and carries the non-responsibility line that the notice asks for.
+  - **The reading word is neutral ink, never a colour.** A margin above the group isn't "good", and a staff cost below it isn't either.
+  - **Size classes Eurostat never publishes are passed over silently.** Today that is `2-9` and `0_1` everywhere. The head names the first class that exists, so Fernhill's head reads "up to 9 people", not "2–9 people". A fallback sentence appears only when a published class lacks the figure.
+
+- [x] **I-44.5** Demo seed: no new rows needed if Fernhill and Lumen already carry country, type, size and revenue; otherwise add the minimum. Browser check at 375 px.
+
+  **Done 2026-10-29.** Fernhill needed nothing. It carries Ireland, `ecommerce_store`, a team of 2, monthly revenue (Shopify-measured, so OBSERVED), offers with costs and volumes, the costs lists and a team list with one paid employee. All three lines compare:
+  - margin 33.4% against 1.2% for Irish online shops of every size;
+  - turnover per person €265,854 against €730,550 for up to 9 people;
+  - staff cost €22,800 against €40,840.
+
+  Lumen carried country, type and size, but no revenue. The seed now answers 4.1 "yes" and 4.1a €21,000 a month, marked an estimate, through the normal `submitAnswer` path. That is the minimum: its turnover per person (€84,000 against €56,740 for Irish personal services with up to 9 people) compares as ESTIMATED. Its margin and staff-cost lines still show "Not compared yet", with links to the gross margin and the employees' pay, which demonstrates the refusals. Emberworks, never asked its type, shows the no-type sheet with the link to 1.2. Checked in the browser at 375 px on all three with no horizontal scroll, after `npm run db:seed-demo -- --fresh` on `syb_bench`.
+
+**Done when:** a demo business sees its own margin and turnover per person next to a named, dated Eurostat cell; a missing input or cell says what's missing instead of guessing; and nothing from it reaches the diagnosis or a proposal.
+
+- [ ] **I-44a** Decide whether a benchmark gap may ever appear in the diagnosis or prompt a proposal (for example a margin far below the sector's). Until then it only shows.
+- [ ] **I-44b** Decide whether the purchases share (`PUR_SHARE_PC`, in the snapshot since I-44.1) gets a line of its own beside the margin, and whether the `EU27_2020` aggregate is ever a fallback when a country's cell is missing. Until then both are kept in the snapshot and shown nowhere: an EU-wide turnover per person compared against a Hungarian shop would mix price levels.

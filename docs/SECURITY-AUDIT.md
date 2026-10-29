@@ -217,6 +217,10 @@ Not findings. These are the controls the new upload path was built with, recorde
 - **Permissions and storage.** The browser asks for the microphone; SYB doesn't ask ahead and sets no Permissions-Policy, so `on-device-speech-recognition` keeps its default (`self`). A refusal (`not-allowed`) is shown in words and nothing retries. The only storage is a per-browser flag, `syb.voice_notice_seen`, in localStorage inside try/catch.
 - **Spoken text is content, like typed text.** It lands in the box for the owner to read and fix, then goes through the same validation; in the chat, the same rule holds that nothing runs on phrasing alone.
 
+## Added 2026-10-29 — compared with similar businesses (idea 44)
+
+- **Eurostat's dissemination API (a new outbound fetch, by hand only).** `scripts/fetch-benchmarks.ts` (`npm run benchmarks:fetch`) sends GETs to `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/` and to nothing else, for two public datasets (`sbs_sc_ovw`, `ert_bil_eur_a`). It is keyless, so there is no secret. It sends nothing about any business: the query is fixed country codes, NACE codes and indicator codes. The script runs only when someone types the command. It is never run at build time, in CI, from a route or from a cron, and it is capped at 40 requests, 3 attempts each, 1.5 s apart, with a 90 s timeout. It writes one committed file, `specs/benchmarks-eurostat-v1.json`, and the app reads only that file. `lib/benchmarks/fence.test.ts` fails the build if anything under `lib/benchmarks`, `components/benchmarks` or the `/benchmarks` routes calls `fetch`, imports a database writer or a model client, or if the diagnosis, proposals or report code imports `lib/benchmarks`. The figures are public statistics, not personal data.
+
 ## Checked and sound
 
 - **Encryption at rest:** AES-256-GCM with a fresh IV every time, and a strict key length.

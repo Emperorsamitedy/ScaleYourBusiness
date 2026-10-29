@@ -2621,6 +2621,16 @@ async function seed(): Promise<void> {
             replaceability: "hard",
           },
         ]);
+        // Idea 44: the owner's monthly takings, an estimate, so "Compared with
+        // similar businesses" can set turnover per person against Eurostat's
+        // personal-services cell. Her staff's pay isn't given, so the margin
+        // and staff-cost lines show what they still need.
+        await say("4.1", "yes");
+        await submitAnswer(salon.account, salon.profile, "4.1a", {
+          kind: "value",
+          wire: { amount_major: 21_000, currency: "EUR" },
+          estimate: true,
+        });
         await db
           .insert(schema.accountModules)
           .values({ account_id: salon.account, module: TEAM_MODULE, enabled: true });

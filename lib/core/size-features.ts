@@ -94,6 +94,11 @@ export const SIZE_FEATURES = {
     reason:
       "A one-person salon loses customers to the one down the road too; their prices are worth seeing.",
   },
+  "nav.benchmarks": {
+    bands: EVERY,
+    reason:
+      "A one-person business has nobody to compare notes with; a named group of businesses like it is a reference at any size.",
+  },
   "nav.content": {
     bands: EVERY,
     reason: "A solo owner has the least time to write posts, so drafts help most there.",

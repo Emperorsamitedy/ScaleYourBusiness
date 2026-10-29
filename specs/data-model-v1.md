@@ -943,6 +943,15 @@ interface CampaignComparison {
 // at least 5 measured, a lift is never "helped".
 ```
 
+**Benchmarks** (idea 44, `/benchmarks`). A benchmark is a published reference and never a fact about the business. It is never a `Field`, is stored in no table, and is not fed to the diagnosis, a proposal or the report. `lib/benchmarks/fence.test.ts` enforces this, and whether that may change is I-44a. The only source is the committed snapshot `specs/benchmarks-eurostat-v1.json`, Eurostat `sbs_sc_ovw`, fetched by hand with `npm run benchmarks:fetch`. A cell is (geo, NACE code, size class); each figure in it is Eurostat's number as published, with its year and flag, or `{missing: "confidential", year}`, and an unpublished figure is absent, never zero. `specs/benchmark-map-v1.json` maps `identity.business_type` to a NACE code and its parent (rule 4). Euro figures are converted to the business's currency only at the point of comparison, into integer minor units (rule 1), at `ert_bil_eur_a`'s average rate for the cell's year, and the rate and year are shown. The owner's side of each line is worked out on read with `derived_from` and its formula (rule 6), never stored:
+- **Operating margin** = (revenue.monthly_revenue − cost of sales − per-sale costs − running costs − staff pay) ÷ revenue × 100, against `GOR_PC` (gross operating surplus ÷ turnover).
+  - Cost of sales is the offers' cost_to_deliver × volume_period ÷ their price × volume_period when every selling offer has a cost; otherwise it is 100 % − costs.gross_margin.
+  - Per-sale costs are 5.2's per_unit lines × the offers' monthly units, and per_job lines × revenue.order_count_monthly.
+  - Running costs are 5.1 and 5.2's monthly, quarterly and annual lines made monthly. `loan_payments` is left out and named.
+  - Staff pay is the `salaries` lines when there are any, else the employees' cost_monthly on 9.2. It is never the owner's own row.
+- **Turnover per person** = revenue.monthly_revenue × 12 ÷ identity.team_size, against `NETTUR_EMP_TEUR`.
+- **Staff cost per employee** = staff pay × 12 ÷ the 9.2 rows marked employee, against `AVG_EXPN_SAL_BEN_TEUR`. `LC_EMP_TEUR` isn't used, because it is per person employed, owners included.
+
 **Deals** (Phase 5 Session D, P5-14..17, rule 29). A deal is always with a Phase 4 contact and goes with them. Erasing the contact cascades through the deal, its history and any drafted follow-up; the decision log, which holds only ids and hashes, is untouched. Stages are the bank's `deal_stage` vocabulary (bank 1.9.0), mirrored by the `deal_stage` enum. The stated win rate is `customers.win_rate` (question 6.1f, a percentage, asked when 6.1a is answered and isn't b2c).
 
 ```ts
