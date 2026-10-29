@@ -267,3 +267,24 @@ describe("pasting a review, and removing one", () => {
     await expect(eraseReview(b.profile_id, b.review.id)).rejects.toThrow(/no such review/);
   });
 });
+
+describe("the owner's route", () => {
+  it("every POST is same-origin and signed in before any action runs", () => {
+    const source = readFileSync(path.resolve(process.cwd(), "app/api/reviews/route.ts"), "utf8");
+    const post = source.slice(source.indexOf("export async function POST"));
+    const origin = post.indexOf("isSameOriginPost(");
+    const signedIn = post.indexOf("matchingSession()");
+    expect(origin).toBeGreaterThan(0);
+    expect(signedIn).toBeGreaterThan(origin);
+    for (const action of [
+      "pasteReview(",
+      "draftReviewReply(",
+      "eraseReview(",
+      "rotateReviewToken(",
+    ]) {
+      expect(post.indexOf(action), action).toBeGreaterThan(signedIn);
+    }
+    // Nothing on this route writes to a review platform.
+    expect(source).not.toMatch(/fetch\(/);
+  });
+});

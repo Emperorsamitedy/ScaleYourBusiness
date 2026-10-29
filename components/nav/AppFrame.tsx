@@ -132,6 +132,8 @@ export const GROUPS: readonly Group[] = [
     label: "Customers",
     items: [
       { href: "/customers", label: "Customers", feature: "nav.customers" },
+      // Idea 45: every business has reviews somewhere, so it always shows.
+      { href: "/reviews", label: "Reviews", feature: "nav.reviews" },
       {
         href: "/carts",
         label: "Abandoned carts",
