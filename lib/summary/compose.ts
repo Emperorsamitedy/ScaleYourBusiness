@@ -15,7 +15,7 @@
 
 import { format, money } from "../core/money";
 import type { JudgedOn, OutcomeVerdict } from "../trust/readback";
-import { NOTED_KINDS, STOCK_WARNING_KIND } from "../watch/watch-view";
+import { NOTED_KINDS, REVIEW_ALERT_KIND, STOCK_WARNING_KIND } from "../watch/watch-view";
 import type { SummaryWindow } from "./week";
 import { dayLabel, windowLabel } from "./week";
 
@@ -66,7 +66,7 @@ export interface SummaryLine {
 }
 
 export interface SummarySection {
-  key: "waiting" | "stock" | "done" | "noticed" | "goals" | "readback";
+  key: "waiting" | "stock" | "reviews" | "done" | "noticed" | "goals" | "readback";
   title: string;
   lines: SummaryLine[];
   /** Lines held back by the cap; the link shows them all. */
@@ -201,7 +201,9 @@ export function summarySections(input: SummaryInput): SummarySection[] {
 
   const rows = chronological(input.activity);
   const goals = rows.filter((r) => r.kind === "goal_progress");
-  const noticed = rows.filter((r) => NOTED_KINDS.has(r.kind) && r.kind !== STOCK_WARNING_KIND);
+  const noticed = rows.filter(
+    (r) => NOTED_KINDS.has(r.kind) && r.kind !== STOCK_WARNING_KIND && r.kind !== REVIEW_ALERT_KIND,
+  );
 
   // P5-02: running low — the latest warning of each item this week, in its
   // own words. A warning, never a push to act: the reorder is a note on /stock.
@@ -217,6 +219,19 @@ export function summarySections(input: SummaryInput): SummarySection[] {
       ...capped([...latestByItem.values()].map((r) => ({ at: dayLabel(r.at), text: r.detail }))),
       href: "/stock",
       link_text: "Stock",
+    });
+  }
+  // Idea 45: reviews worth knowing, one line each and never folded together
+  // (two 2-star reviews on Google are two reviews). Platform and stars only:
+  // the reviewer and the words stay on /reviews.
+  const reviewAlerts = rows.filter((r) => r.kind === REVIEW_ALERT_KIND);
+  if (reviewAlerts.length > 0) {
+    sections.push({
+      key: "reviews",
+      title: "Reviews worth knowing",
+      ...capped(reviewAlerts.map((r) => ({ at: dayLabel(r.at), text: r.detail }))),
+      href: "/reviews",
+      link_text: "Reviews",
     });
   }
   const syncs = syncLines(
