@@ -8,8 +8,9 @@
 // An AI draft shows the disclosure line that will be added when it is
 // sent — added in code, so it is not in the box to edit.
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { replyDisclosure } from "../../lib/support-desk/disclosure";
+import { MicButton } from "../voice/MicButton";
 import { replyStateWord } from "./support-view";
 
 export interface Reply {
@@ -51,7 +52,16 @@ export function ReplyBox({
   const [writing, setWriting] = useState(false);
   const key = live?.id ?? `new:${ticketId}`;
   const text = texts[key] ?? live?.body ?? (writing ? (lastFailed?.body ?? "") : "");
-  const setText = (v: string) => setTexts({ ...texts, [key]: v });
+  // Kept in step on every write, so the microphone (idea 50) can tell the
+  // owner's typing from its own words; the effect catches a draft arriving.
+  const textRef = useRef(text);
+  useEffect(() => {
+    textRef.current = text;
+  }, [text]);
+  const setText = (v: string) => {
+    textRef.current = v;
+    setTexts((cur) => ({ ...cur, [key]: v }));
+  };
 
   if (!reachable) {
     return (
@@ -112,6 +122,13 @@ export function ReplyBox({
             rows={6}
             value={text}
             onChange={(e) => setText(e.target.value)}
+          />
+          <MicButton
+            label="Speak your reply"
+            getText={() => textRef.current}
+            setText={setText}
+            after="Read it over and fix anything before you save or approve it."
+            disabled={busy}
           />
           {live?.ai_drafted && (
             <p className="sp-fine sp-disclosure">
