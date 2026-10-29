@@ -281,7 +281,7 @@ async function printSignIn(): Promise<void> {
   if (salon) {
     const third = await requestLogin(SALON_EMAIL, null);
     console.log(
-      `Sign in as ${SALON_EMAIL}: a salon read from its bookings export, on /profile and /team:`,
+      `Sign in as ${SALON_EMAIL}: a salon read from its bookings export, on /profile, /team and /reviews:`,
     );
     console.log(`  ${origin}/api/auth/redeem?token=${third.token}`);
   }
@@ -2972,6 +2972,122 @@ async function seed(): Promise<void> {
       },
       who,
     );
+
+    // Idea 45: six reviews, each a notification email in the shape the
+    // research expected (lib/reviews/fixtures.ts), forwarded to the salon's
+    // reviews address and filed through the real inbound path and parser.
+    // The 2-star one gets a suggested reply from a stand-in model: no
+    // network, no model, and nothing is ever posted.
+    {
+      const { ensureReviewSettings } = await import("../lib/review-desk/settings");
+      const { draftReviewReply } = await import("../lib/review-desk/draft");
+      const { receiveReviewEmail, reviewAddress } = await import("../lib/reviews/inbound");
+      const rf = await import("../lib/reviews/fixtures");
+      const REVIEWS_DOMAIN = "inbound.syb.test";
+      const settings = await ensureReviewSettings(salon.profile);
+      const to = reviewAddress(settings.inbound_token, REVIEWS_DOMAIN);
+      const OWNER = "Niamh Kelly <niamh@lumenhair.example>";
+      const BUSINESS = "Lumen Hair Studio";
+      const noModel = async (): Promise<never> => {
+        throw new Error("the demo's notifications all parse");
+      };
+      const file = async (n: { from: string; subject: string; text: string }, hoursAgo: number) => {
+        const createdAt = new RealDate(RealDate.now() - hoursAgo * 3_600_000).toISOString();
+        const f = rf.reviewEmailFixture(n, to, {
+          to: ["niamh@lumenhair.example"],
+          created_at: createdAt,
+        });
+        const email = normaliseReceived(parseReceivedEvent(receivedEvent(f))!, receivedEmail(f));
+        if (!email) throw new Error("demo review email did not normalise");
+        const out = await receiveReviewEmail(email, REVIEWS_DOMAIN, {
+          llm: noModel,
+          now: new RealDate(createdAt),
+        });
+        if (out.kind !== "filed" || out.read_by !== "parser") {
+          throw new Error(`demo review not parsed: ${out.kind}`);
+        }
+        return out.review_id;
+      };
+      const poor = await file(
+        rf.googleNotification({
+          business: BUSINESS,
+          reviewer: "Aoife M.",
+          stars: 2,
+          words:
+            "Waited 40 minutes past my appointment time and nobody said sorry. The colour was fine in the end but I won't be back.",
+          reviewId: "ChdDSUhNMG9nS0VJQ0FnSUR",
+        }),
+        20,
+      );
+      await file(
+        rf.freshaNotification({
+          reviewer: "Orla B.",
+          stars: 3,
+          service: "Cut & blow-dry",
+          words: "Nice cut, but the salon was very busy and it felt rushed at the end.",
+          reviewId: "fr-81734",
+        }),
+        3 * 24 + 4,
+      );
+      await file(
+        rf.googleNotification({
+          business: BUSINESS,
+          reviewer: "Tom Byrne",
+          stars: 5,
+          words: "Best fade I've had in Galway. Booked my next one before I left.",
+          reviewId: "ChdDSUhNMG9nS0VJQ0FnSUQ",
+        }),
+        6 * 24 + 2,
+      );
+      await file(
+        rf.trustpilotForwarded({
+          owner: OWNER,
+          business: BUSINESS,
+          reviewer: "Ciara D.",
+          stars: 5,
+          title: "Best balayage I've had",
+          words: "Took her time, listened to what I wanted and the salon is lovely and calm.",
+          reviewId: "6720b1c4e9d1a2f0",
+          date: new RealDate(RealDate.now() - 9 * DAY_MS).toUTCString(),
+        }),
+        9 * 24 - 3,
+      );
+      await file(
+        rf.booksyNotification({
+          business: BUSINESS,
+          reviewer: "Siobhan K.",
+          stars: 4,
+          words: "Quick and friendly, and the cut has grown out nicely.",
+          reviewId: "bk-55102",
+        }),
+        14 * 24,
+      );
+      await file(
+        rf.googleNotification({
+          business: BUSINESS,
+          reviewer: "Declan R.",
+          stars: 5,
+          words: null,
+          reviewId: "ChdDSUhNMG9nS0VJQ0FnSUM",
+        }),
+        20 * 24,
+      );
+      const drafted = await draftReviewReply({
+        profileId: salon.profile,
+        reviewId: poor,
+        now: new RealDate(RealDate.now() - 2 * 3_600_000),
+        llm: async () => ({
+          text: JSON.stringify({
+            reply:
+              "Thank you for telling us, and we're sorry you were kept waiting with no word from us. That isn't how we want anyone's visit to go. Please get in touch with us directly so we can talk it over.",
+          }),
+          calls: [],
+        }),
+      });
+      if (!drafted.drafted) throw new Error(`demo reply not drafted: ${drafted.message}`);
+      log("  salon: six reviews filed from forwarded notifications, one 2-star with a reply");
+    }
+
     await db
       .update(schema.users)
       .set({ email: SALON_EMAIL })

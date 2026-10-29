@@ -16,7 +16,7 @@
 // Every change — invite, withdrawal, join, role, removal — goes into the
 // append-only decision log (rule 7) with ids and a hash, never an email
 // or a token. The last owner can't be removed or demoted: the database
-// refuses it (the users_keep_an_owner trigger, migration 0069), and this
+// refuses it (the users_keep_an_owner trigger, migration 0070), and this
 // file turns that refusal into a sentence.
 //
 // A team member is never an employee record (rule 28): nothing here

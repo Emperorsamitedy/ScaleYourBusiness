@@ -154,7 +154,7 @@ One account holds exactly one business profile (`business_profiles.account_id` i
 
 **Rules (idea 52), each with a passing and a failing test:**
 
-- An account with anyone on it keeps at least one active owner. Held by the database: the deferred constraint trigger `users_keep_an_owner` (migration 0069) refuses a demotion, removal or delete that would leave none, and serialises two owners stepping down at once.
+- An account with anyone on it keeps at least one active owner. Held by the database: the deferred constraint trigger `users_keep_an_owner` (migration 0070) refuses a demotion, removal or delete that would leave none, and serialises two owners stepping down at once.
 - An invite joins only the address it names, proven by a sign-in for exactly that address; it works once and for seven days; a newer invite to the same address withdraws the older one (at most one open invite per address, a partial unique index).
 - Removing a member keeps the row and revokes every session it has, in one transaction.
 - A switch opens a session for the target account's row only when its email equals the current session's verified email exactly.
@@ -441,6 +441,31 @@ today; whether to ask is an owner decision (I-47b). `accepts_marketing` is
 never consent (rule 19): who may be emailed is decided by the contact's
 own recorded consent (I-47a). Rows are deleted after 90 days, go with their
 connection, and erasing a contact deletes the carts their address hashes to.
+
+Reviews (idea 45, 2026-10-29) are never asked in the intake and never a
+profile fact. They arrive as the platforms' own notification emails,
+forwarded to `r-<token>@<SUPPORT_INBOUND_DOMAIN>`, or pasted by the owner,
+and live in `reviews` (migration 0069) beside `review_settings`.
+`review_settings` holds one row per profile: the rotatable `inbound_token`
+and the model fallback's monthly counter (`parse_month`, `parse_calls`).
+A `reviews` row holds `platform` (a key from
+`specs/review-notifications-v1.json`, or `other`), `source` (`email` |
+`paste`), `read_by` (`parser` | `model` | `owner` | `unread`), `stars`
+(1–5 or null), `reviewer` (only the name the platform showed publicly),
+`text`, `link`, `reviewed_at`, `received_at`, Resend's `provider_id`
+(UNIQUE), a `dedupe_key` (sha256 of the platform, link, stars, words and
+reviewer; an unread one hashes its Message-ID) unique per profile and
+platform, `sender_auth`, `worth_knowing` (3 stars or fewer; with no stars,
+a flagged word from the spec's list), `alerted_at` (claimed once), the
+suggested reply (`draft`, `drafted_at`, `draft_calls`, at most 3) and
+`expires_at`, 365 days after `received_at`. Rows past it are deleted on
+the next filing for that business, on its next `/reviews` read and by the
+weekly cron. No reviewer becomes a contact and no review is consent (rule
+19). Removing a review deletes the row and writes an `erasure` decision
+whose `ref_id` is the review id and whose hash covers the account and
+review ids only, so the log holds nothing personal (rule 22). The watch
+line an alert writes (kind `review_alert`) names the platform and the
+stars, never the reviewer or the words.
 
 Trading hours (Phase 2 Session F, bank 1.3.0):
 
@@ -905,7 +930,7 @@ interface DecisionLogEntry {
     | "team_invite" | "team_invite_revoke" | "team_join" | "team_role" | "team_remove" | "account_switch";
   ref_id: string;               // team_invite/_revoke: the invite; team_join/_role/_remove and account_switch: the users row
   payload_hash: string;         // team kinds: sha256 of {kind, account_id, ref_id, by_user_id, role, detail, at}
-  user_id: UserId | null;       // idea 52: WHICH person acted (approved, declined, invited, switched); null for the system and before 0069
+  user_id: UserId | null;       // idea 52: WHICH person acted (approved, declined, invited, switched); null for the system and before 0070
 }
 
 // Idea 53 (migration 0068): a proposal that became pending while its account

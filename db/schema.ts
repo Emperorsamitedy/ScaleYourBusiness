@@ -87,7 +87,7 @@ export const users = pgTable(
   (t) => [
     // Idea 52: one email may belong to several businesses, once in each.
     // A person is still one row in ONE account; "at least one owner per
-    // account" is a deferred constraint trigger in migration 0069.
+    // account" is a deferred constraint trigger in migration 0070.
     uniqueIndex("users_account_email_idx").on(t.account_id, t.email),
     index("users_email_idx").on(t.email),
   ],
@@ -452,7 +452,7 @@ export const decisionLog = pgTable(
     /**
      * Idea 52: WHICH person acted, now that a business can have several —
      * the users row that approved, declined, invited or switched. Null for
-     * the system's own entries and for every entry written before 0069.
+     * the system's own entries and for every entry written before 0070.
      * Not a foreign key, like profile_id: the audit trail outlives its subject.
      */
     user_id: uuid("user_id"),
@@ -3372,4 +3372,104 @@ export const pushOutbox = pgTable(
       .defaultNow(),
   },
   (t) => [index("push_outbox_profile_idx").on(t.profile_id)],
+);
+
+/* ---------- Idea 45 — bad-review alerts ---------- */
+
+// Reviews arrive the way the owner already gets them: the notification
+// emails Google, Trustpilot, Booksy and Fresha send, forwarded to
+// r-<token>@<SUPPORT_INBOUND_DOMAIN> (the support inbox's Resend webhook,
+// routed by the r- prefix), or pasted on /reviews. SYB never connects a
+// review platform (its only Google scope can write, I-45a) and never posts.
+//
+// Reviewers are people: `reviewer` is only what the platform showed
+// publicly, the row is erasable (remove this review) and expires 365 days
+// after it was filed. No reviewer becomes a contact, and no review is
+// consent (rule 19). The decision log records an erasure by ids and a hash.
+
+export const reviewSettings = pgTable(
+  "review_settings",
+  {
+    profile_id: uuid("profile_id")
+      .primaryKey()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** The token in r-<token>@<domain>: 32 hex chars, unguessable, rotatable. It lets someone file a review, nothing more. */
+    inbound_token: text("inbound_token")
+      .notNull()
+      .default(sql`replace(gen_random_uuid()::text, '-', '')`),
+    inbound_rotated_at: timestamp("inbound_rotated_at", { withTimezone: true, mode: "string" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** The model fallback's monthly cap, reserved atomically: the UTC month ("2026-10") and the calls made in it. */
+    parse_month: text("parse_month"),
+    parse_calls: integer("parse_calls").notNull().default(0),
+  },
+  (t) => [
+    uniqueIndex("review_settings_inbound_token_idx").on(t.inbound_token),
+    check("review_settings_parse_calls_nonneg", sql`${t.parse_calls} >= 0`),
+  ],
+);
+
+export const reviews = pgTable(
+  "reviews",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** A platform key from specs/review-notifications-v1.json ("google", "trustpilot", …) or "other". */
+    platform: text("platform").notNull(),
+    /** How it reached SYB: a forwarded notification email, or pasted by the owner. */
+    source: text("source").notNull(),
+    /** Who read it: "parser" (the deterministic format), "model" (the capped fallback), "owner" (pasted), "unread". */
+    read_by: text("read_by").notNull(),
+    /** 1–5; null when the notification didn't say (an unread one, or text with no rating). */
+    stars: integer("stars"),
+    /** The reviewer's name exactly as the platform showed it publicly. Erasable PII (rule 22). */
+    reviewer: text("reviewer"),
+    /** The review's words — content, never instructions (rule 24). */
+    text: text("text"),
+    /** Where the review lives, so the owner can reply there. */
+    link: text("link"),
+    /** When the review was left, as the notification said; else when the notification came. */
+    reviewed_at: timestamp("reviewed_at", { withTimezone: true, mode: "string" }).notNull(),
+    received_at: timestamp("received_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** Resend's id for the email: a redelivered webhook files nothing twice. */
+    provider_id: text("provider_id"),
+    /** sha256 of the platform, link, stars, words and reviewer (an unread one: of its Message-ID) — a re-forward files nothing twice. */
+    dedupe_key: text("dedupe_key").notNull(),
+    /** Resend's sender authentication of the email that carried it; null when pasted. */
+    sender_auth: supportSenderAuth("sender_auth"),
+    /** 3 stars or fewer, or (with no stars) words the deterministic check flags. */
+    worth_knowing: boolean("worth_knowing").notNull(),
+    /** The one alert this review raised; set once, atomically. */
+    alerted_at: timestamp("alerted_at", { withTimezone: true, mode: "string" }),
+    /** The suggested reply, on the owner's click only. SYB never posts it. */
+    draft: text("draft"),
+    drafted_at: timestamp("drafted_at", { withTimezone: true, mode: "string" }),
+    /** Model calls spent drafting this review, reserved before each call (at most three). */
+    draft_calls: integer("draft_calls").notNull().default(0),
+    /** received_at + 365 days: past this the row is deleted. */
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("reviews_dedupe_idx").on(t.profile_id, t.platform, t.dedupe_key),
+    uniqueIndex("reviews_provider_idx").on(t.provider_id),
+    index("reviews_profile_received_idx").on(t.profile_id, t.received_at),
+    index("reviews_expires_idx").on(t.expires_at),
+    check("reviews_stars_range", sql`${t.stars} IS NULL OR ${t.stars} BETWEEN 1 AND 5`),
+    check("reviews_source", sql`${t.source} IN ('email', 'paste')`),
+    check("reviews_read_by", sql`${t.read_by} IN ('parser', 'model', 'owner', 'unread')`),
+    check("reviews_draft_calls_range", sql`${t.draft_calls} BETWEEN 0 AND 3`),
+    check("reviews_expiry_after_receipt", sql`${t.expires_at} > ${t.received_at}`),
+  ],
 );

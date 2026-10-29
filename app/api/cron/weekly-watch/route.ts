@@ -16,6 +16,7 @@ import { runStockProposals } from "../../../../lib/stock/propose";
 import { runStockWarnings } from "../../../../lib/stock/warnings";
 import { runWeeklySummaries } from "../../../../lib/summary/run";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
+import { pruneExpiredReviews } from "../../../../lib/reviews/store";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
@@ -38,6 +39,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Idea 54: SYB's own forecasts whose window has closed, graded from
     // measured rows — before the summary, so the week's grades are in it.
     const forecasts = await runForecastGrading();
+    // Idea 45: reviews (and the reviewer names on them) don't outlive their year,
+    // even for a business that gets no new review and never opens /reviews.
+    const reviews_expired = await pruneExpiredReviews(new Date());
     // Idea 42: last, so it reports everything above — the owner's week, by email, once.
     const summaries = await runWeeklySummaries();
     console.log(
@@ -50,6 +54,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         stock_warnings,
         stock,
         forecasts,
+        reviews_expired,
         summaries,
       }),
     );
@@ -61,6 +66,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       stock_warnings,
       stock,
       forecasts,
+      reviews_expired,
       summaries,
     });
   } catch (error) {

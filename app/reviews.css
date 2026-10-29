@@ -1,0 +1,255 @@
+/* Customers · Reviews (idea 45), on the sheet system (app/sheet.css): every
+   review on file with its stars in words, the suggested reply to edit and
+   copy, the forwarding address and the paste form. Square corners, no
+   icons, no stars drawn: the words carry it. Cobalt only while a request
+   is genuinely running. */
+
+.rv-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.rv-screen .ph-aside {
+  max-width: 46ch;
+}
+.rv-screen > .cs,
+.rv-screen > .rv-grid {
+  margin-top: 15px;
+}
+
+.rv-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rv-item {
+  padding: 14px 0 14px 12px;
+  border-left: 3px solid transparent;
+}
+.rv-item + .rv-item {
+  border-top: var(--hair);
+}
+/* A rule on the left marks one worth knowing; the word says it too. */
+.rv-item.rv-worth {
+  border-left-color: var(--drift);
+}
+
+.rv-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.rv-platform {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.rv-who {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.rv-text {
+  margin: 8px 0 0;
+  max-width: var(--measure);
+  font-size: 15px;
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.rv-quiet {
+  color: var(--sheet-ink-2);
+  font-size: 13.5px;
+}
+
+.rv-draft {
+  margin-top: 12px;
+}
+.rv-draft .cs-label {
+  display: block;
+  margin: 0 0 6px;
+}
+.rv-textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--measure);
+  padding: 10px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.rv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 12px;
+}
+.rv-actions .act {
+  min-height: 44px;
+}
+.rv-link {
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+}
+
+.rv-fine {
+  margin: 8px 0 0;
+  max-width: var(--measure);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--sheet-ink-2);
+}
+.rv-fine.live {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.rv-note {
+  margin: 10px 0 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.rv-error {
+  margin-top: 15px;
+}
+
+.rv-remove {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.rv-textbtn {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sheet-ink);
+  font: inherit;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.rv-textbtn:disabled {
+  cursor: not-allowed;
+  color: var(--sheet-ink-2);
+}
+
+.rv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  align-items: start;
+}
+.rv-grid .cs {
+  min-width: 0;
+}
+
+.rv-address {
+  margin: 0 0 10px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  /* One long token: break anywhere, so "r-" never sits alone on a line. */
+  word-break: break-all;
+}
+.rv-copy {
+  margin: 12px 0 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.rv-copy:first-child {
+  margin-top: 0;
+}
+.rv-steps {
+  margin-top: 14px;
+}
+.rv-steps .cs-label {
+  margin: 0;
+}
+.rv-steps ol {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.rv-steps li + li {
+  margin-top: 4px;
+}
+
+.rv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rv-form .cs-label {
+  margin: 8px 0 0;
+}
+.rv-form .cs-label:first-child {
+  margin-top: 0;
+}
+.rv-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 4px;
+  border: 0;
+  border-bottom: 1px solid var(--sheet-ink);
+  background: transparent;
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 14px;
+}
+
+.rv-foot-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+}
+
+.rv-foot {
+  margin: 22px 0 0;
+  max-width: var(--measure);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--desk-ink-2);
+}
+.rv-wait {
+  padding-top: 22px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+
+@media (max-width: 1099px) {
+  .rv-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .rv-screen .ph-aside {
+    text-align: left;
+  }
+  .rv-item {
+    padding-left: 10px;
+  }
+}

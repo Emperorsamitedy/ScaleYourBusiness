@@ -381,3 +381,36 @@ describe("idea 54 — one line when forecasts were graded that week", () => {
     );
   });
 });
+
+describe("idea 45 — reviews worth knowing in the weekly summary", () => {
+  const alert = (at: string, detail: string, stars: number) =>
+    row(at, "review_alert", detail, { review_id: crypto.randomUUID(), platform: "google", stars });
+
+  it("lists every alert, the same sentence twice included, linking to Reviews", () => {
+    const c = composeSummary(
+      input({
+        activity: [
+          alert("2026-10-21 10:00:00+00", "A 2-star review came in on Google.", 2),
+          alert("2026-10-23 15:00:00+00", "A 2-star review came in on Google.", 2),
+        ],
+      }),
+    );
+    const section = c.sections.find((s) => s.key === "reviews")!;
+    expect(section.title).toBe("Reviews worth knowing");
+    expect(section.href).toBe("/reviews");
+    expect(section.lines.map((l) => l.text)).toEqual([
+      "A 2-star review came in on Google.",
+      "A 2-star review came in on Google.",
+    ]);
+    expect(c.text).toContain("https://app.example/reviews");
+    expect(c.sections.find((s) => s.key === "noticed")).toBeUndefined();
+    expect(c.sections.find((s) => s.key === "done")).toBeUndefined();
+  });
+
+  it("a week with no alert has no reviews section", () => {
+    const c = composeSummary(
+      input({ activity: [row("2026-10-21 09:00:00+00", "anomaly_detected", "Orders fell.")] }),
+    );
+    expect(c.sections.find((s) => s.key === "reviews")).toBeUndefined();
+  });
+});

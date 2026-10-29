@@ -1,0 +1,101 @@
+// Idea 45 (I-45.4) — the /reviews screen's words. Pure.
+
+import { describe, expect, it } from "vitest";
+import type { ReviewItem } from "../../lib/review-desk/view";
+import {
+  SETUP_STEPS,
+  asideLine,
+  dayLabel,
+  readNote,
+  reviewsHeadline,
+  starsWords,
+  thisMonth,
+} from "./reviews-view";
+
+const TODAY = "2026-10-29";
+
+function item(
+  stars: number | null,
+  reviewed_at: string,
+  over: Partial<ReviewItem> = {},
+): ReviewItem {
+  return {
+    id: crypto.randomUUID(),
+    platform: "google",
+    platform_label: "Google",
+    stars,
+    reviewer: null,
+    text: null,
+    link: null,
+    reviewed_at,
+    read_by: "parser",
+    source: "email",
+    worth_knowing: stars !== null && stars <= 3,
+    draft: null,
+    drafts_left: 3,
+    ...over,
+  };
+}
+
+describe("the head states the month's main fact", () => {
+  it("counts this month's reviews of 3 stars or fewer, of all this month's", () => {
+    const reviews = [
+      item(2, "2026-10-27T10:00:00Z"),
+      item(3, "2026-10-12T10:00:00Z"),
+      item(5, "2026-10-02T10:00:00Z"),
+      item(1, "2026-09-30T10:00:00Z"), // last month: not counted
+    ];
+    expect(reviewsHeadline({ reviews, today: TODAY })).toBe(
+      "2 reviews of 3 stars or fewer this month, of 3.",
+    );
+    expect(thisMonth(reviews, TODAY)).toHaveLength(3);
+  });
+
+  it("singular, none poor, none this month, none at all", () => {
+    expect(reviewsHeadline({ reviews: [item(1, "2026-10-01T00:00:00Z")], today: TODAY })).toBe(
+      "1 review of 3 stars or fewer this month, of 1.",
+    );
+    expect(
+      reviewsHeadline({
+        reviews: [item(5, "2026-10-01T00:00:00Z"), item(null, "2026-10-02T00:00:00Z")],
+        today: TODAY,
+      }),
+    ).toBe("None of this month's 2 reviews is 3 stars or fewer.");
+    expect(reviewsHeadline({ reviews: [item(4, "2026-10-01T00:00:00Z")], today: TODAY })).toBe(
+      "This month's one review isn't 3 stars or fewer.",
+    );
+    expect(reviewsHeadline({ reviews: [item(4, "2026-09-01T00:00:00Z")], today: TODAY })).toBe(
+      "No new reviews this month.",
+    );
+    expect(reviewsHeadline({ reviews: [], today: TODAY })).toBe("No reviews here yet.");
+  });
+});
+
+describe("the list's words", () => {
+  it("stars as words, never drawn", () => {
+    expect(starsWords(2)).toBe("2 of 5");
+    expect(starsWords(null)).toBe("No rating");
+  });
+  it("dates are short, with the year only when it isn't this one", () => {
+    expect(dayLabel("2026-10-27T10:00:00Z", TODAY)).toBe("27 Oct");
+    expect(dayLabel("2025-12-03T10:00:00Z", TODAY)).toBe("3 Dec 2025");
+    expect(dayLabel("not a date", TODAY)).toBe("");
+  });
+  it("says how a review was read when it isn't plain", () => {
+    expect(readNote({ read_by: "unread", source: "email" })).toMatch(/couldn't read/);
+    expect(readNote({ read_by: "model", source: "email" })).toMatch(/check it/);
+    expect(readNote({ read_by: "owner", source: "paste" })).toBe("You pasted this one.");
+    expect(readNote({ read_by: "parser", source: "email" })).toBeNull();
+  });
+  it("the aside counts what's on file and how long it's kept", () => {
+    expect(asideLine({ reviews: [item(2, "2026-10-01T00:00:00Z")], retention_days: 365 })).toBe(
+      "1 review on file · kept 365 days",
+    );
+  });
+  it("setup steps exist for Google and Trustpilot, in plain words", () => {
+    expect(SETUP_STEPS.map((s) => s.platform)).toEqual(["Google", "Trustpilot"]);
+    for (const s of SETUP_STEPS) {
+      for (const step of s.steps) expect(step).not.toMatch(/MX|webhook|API|DNS/);
+    }
+  });
+});
