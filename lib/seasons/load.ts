@@ -28,6 +28,8 @@ export interface SeasonsView {
   connect: string;
   /** Currencies of the same series left out, when the business is paid in more than one. */
   other_currencies: string[];
+  /** Which connection and metric the series is (idea 54 grades a week against the same one). */
+  series_ref?: { connection_id: string; metric: MetricKey } | null;
 }
 
 interface Candidate {
@@ -149,6 +151,7 @@ export async function loadSeasons(
       result: seasonForecast(g.values, info, today),
       connect: row.connect,
       other_currencies: others,
+      series_ref: { connection_id: g.connection.id, metric: g.metric },
     };
     if (view.result.status === "ready") return view;
     fallback ??= { view };

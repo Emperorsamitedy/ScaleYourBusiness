@@ -48,6 +48,11 @@ const OUTBOUND_EMAIL = "demo-outbound@syb.test";
 /** The charts' booking business: a salon whose numbers live in its bookings export. */
 const SALON_EMAIL = "demo-salon@syb.test";
 const DAY_MS = 86_400_000;
+/** Idea 54: the two products the backdated stock forecasts are about (scripts/seed-demo-data.ts). */
+const MUG_REF = "gid://shopify/Product/7720001";
+const VASE_REF = "gid://shopify/Product/7720004";
+/** The bud vases on the shelf at the first sync, before the restock to today's 130. */
+const VASE_FIRST_COUNT = 30;
 
 /* ── the simulated clock ── */
 
@@ -309,6 +314,12 @@ async function seed(): Promise<void> {
   const { tightWeek } = await import("../lib/cash/warnings");
   const { CASH_KEY, BUFFER_KEY } = await import("../lib/cash/keys");
   const { logStockWarnings } = await import("../lib/stock/warnings");
+  const { assessCover, seasonBoost } = await import("../lib/stock/cover");
+  const { loadCover } = await import("../lib/stock/cover-load");
+  const { loadSeasons } = await import("../lib/seasons/load");
+  const { seasonClaims, stockClaims } = await import("../lib/forecasts/claims");
+  const { recordForecasts } = await import("../lib/forecasts/record");
+  const { runForecastGrading } = await import("../lib/forecasts/run");
   const { ensureSupportSettings } = await import("../lib/crm/support-settings");
   const { proposeKnowledgeEntries, proposeCustomKnowledge, publishKnowledgeFromProposal } =
     await import("../lib/crm/knowledge");
@@ -1084,10 +1095,21 @@ async function seed(): Promise<void> {
   const orders = data.shopOrders(today);
   // Idea 47: about forty days of abandoned checkouts; the fake shows each only once started.
   const carts = data.shopCarts(today);
+  // Idea 54: the bud vases were low when the shop was first read and have
+  // been restocked since, so the first sync counts 30 and today's the 130 on
+  // the shelf. The forecast the seed backdates from that first count is
+  // graded "can't tell": a delivery came in (see the track record below).
+  const shopProducts = [...data.SHOPIFY_PRODUCTS];
+  const vaseAt = shopProducts.findIndex((p) => p.id === VASE_REF);
+  const vaseNow = shopProducts[vaseAt]!;
+  shopProducts[vaseAt] = {
+    ...vaseNow,
+    variants: (vaseNow.variants ?? []).map((v) => ({ ...v, quantity: VASE_FIRST_COUNT })),
+  };
   const shop = fakeShopify({
     orders,
     carts,
-    products: [...data.SHOPIFY_PRODUCTS],
+    products: shopProducts,
     scopes: ["read_orders", "read_products", "read_all_orders"],
   });
   const noSleep = async () => {};
@@ -1136,6 +1158,8 @@ async function seed(): Promise<void> {
           `  ${outcome.provider}: ${outcome.observations} observations, ${outcome.derived.filter((d) => d.outcome === "written").length} facts`,
         );
       }
+      // The restock: from here on the shop holds the 130 vases of the data.
+      shopProducts[vaseAt] = vaseNow;
 
       // The owner matches Shopify's products to their offers, and GA4's
       // channels to theirs; the next derivation measures each one.
@@ -1831,6 +1855,78 @@ async function seed(): Promise<void> {
   // reorder note is proposed (rule 15); /stock shows its arithmetic.
   const stockWarnings = await logStockWarnings(ids.profile, new Date());
   log(`  stock: ${stockWarnings} stock-out warning${stockWarnings === 1 ? "" : "s"} logged`);
+
+  // Idea 54: Fernhill's track record. A REAL ACCOUNT NEVER BACKDATES: a
+  // forecast is recorded by the code that shows it, the moment it shows it
+  // (lib/forecasts/record), and the warning just logged put today's mug
+  // forecast on the record that way. The demo needs a past, so the seed
+  // writes the forecasts SYB would have shown the day after the first
+  // sync, and dates them then: it runs the same code over only what was
+  // measured by that day (the season forecast reads up to the day before
+  // `now`; the stock arithmetic is given the first sync's counts and the
+  // sales to that day). Postgres stamps recorded_at with its own clock, so
+  // /history marks every one of them as written later than it is dated.
+  // Then the real grader grades them against the seeded measured rows:
+  // the closed weeks against the shop's revenue, the mug "above" (the fake
+  // shop's count hasn't moved since the first read) and the vases "can't
+  // tell" (restocked between the two reads). No network, no model.
+  {
+    const realNow = new RealDate();
+    const firstRead = data.shiftDay(today, -22);
+    const then = new RealDate(at(21, "09:10"));
+    const thenDay = then.toISOString().slice(0, 10);
+    const owner = { account_id: ids.account, profile_id: ids.profile };
+    const seasonsThen = await loadSeasons(ids.account, ids.profile, then);
+    const weeks = await recordForecasts(seasonClaims(owner, seasonsThen, then));
+
+    const cover = await loadCover(ids.account, ids.profile, realNow);
+    const counts = await db
+      .select({
+        ref: sql<string>`${schema.metricObservations.dimensions}->>'product_ref'`,
+        on_hand: schema.metricObservations.value_num,
+      })
+      .from(schema.metricObservations)
+      .where(
+        and(
+          eq(schema.metricObservations.connection_id, conns.shopify),
+          eq(schema.metricObservations.metric_key, "stock.on_hand"),
+          eq(schema.metricObservations.period_date, firstRead),
+        ),
+      );
+    const boost = seasonBoost(seasonsThen.result, thenDay);
+    const rows = cover.rows
+      .filter((r) => r.item.ref === MUG_REF || r.item.ref === VASE_REF)
+      .map((r) => {
+        const count = counts.find((c) => c.ref === r.item.ref);
+        if (!count || count.on_hand === null || r.item.sales.kind !== "series") return null;
+        const sales = r.item.sales;
+        const item = {
+          ...r.item,
+          as_of: firstRead,
+          on_hand: Number(count.on_hand),
+          sales: {
+            kind: "series" as const,
+            covered_days: Math.max(
+              0,
+              sales.covered_days -
+                Math.round((RealDate.parse(today) - RealDate.parse(thenDay)) / DAY_MS),
+            ),
+            daily: new Map([...sales.daily].filter(([day]) => day < thenDay)),
+          },
+        };
+        return { ...r, item, cover: assessCover(item, thenDay, r.cover.lead, boost, r.source) };
+      })
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+    const warned = rows.filter((r) => r.cover.warning !== null);
+    const items = await recordForecasts(
+      stockClaims(owner, { ...cover, today: thenDay, rows, warnings: warned }, then),
+    );
+    const graded = await runForecastGrading(realNow, { profileIds: [ids.profile] });
+    log(
+      `  track record: ${weeks} season weeks and ${items} stock forecasts backdated to ${thenDay}; ${graded.graded} graded, ${graded.waiting} waiting for their rows`,
+    );
+    if (items < 2) throw new Error("the demo's backdated stock forecasts weren't both warned");
+  }
   // P5-06..08: the owner says what's in the bank and the least she wants in it.
   // Fernhill earns well in the run-up to Christmas, so whether a week of the
   // next 13 dips under her buffer depends on the day the demo is seeded. The

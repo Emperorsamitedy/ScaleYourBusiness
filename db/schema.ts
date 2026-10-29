@@ -3123,6 +3123,104 @@ export const siteAudits = pgTable(
   ],
 );
 
+// Idea 54: SYB's own track record — its forecasts, recorded when they are
+// made and graded once their window has passed, against measured rows only
+// (TASKS-FEEDBACK.md I-54.1). One row per forecast per window
+// (`forecast_key`, unique per profile). The claim is what was shown then:
+// the range (money as integer minor units with its currency, rule 1; a
+// count; or dates), the sentence and the basis sentence (rule 25). The
+// grading columns are empty at insert and filled exactly once, by the
+// grader (lib/forecasts/grade.ts). Triggers in migration 0067 refuse a row
+// inserted already graded, any change to a claim, any second grading, and a
+// delete that doesn't come with the business's own (a cascade). `made_at` is
+// when the forecast was shown; `recorded_at` is Postgres's own clock, so a
+// backdated row (the demo seed's, and only the seed's) shows as one.
+export const forecastChecks = pgTable(
+  "forecast_checks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** "stock_out" (lib/stock) | "season_week" (lib/seasons). */
+    kind: text("kind").notNull(),
+    /** Once per window: e.g. "season_week|<connection>|revenue.daily|EUR|2026-11-02". */
+    forecast_key: text("forecast_key").notNull(),
+    made_at: timestamp("made_at", { withTimezone: true, mode: "string" }).notNull(),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** What it is about, in the owner's words: an item's name, "revenue". */
+    subject: text("subject").notNull(),
+    /** Where the actual will be read: connection, product or metric, and what the claim started from. */
+    subject_ref: jsonb("subject_ref").$type<Record<string, unknown>>().notNull(),
+    /** The measured metric that grades it: "stock.on_hand", "revenue.daily". */
+    metric: text("metric").notNull(),
+    /** Which pair of low/high columns holds the range. */
+    unit: text("unit").notNull(),
+    window_start: date("window_start", { mode: "string" }).notNull(),
+    window_end: date("window_end", { mode: "string" }).notNull(),
+    low_minor: bigint("low_minor", { mode: "number" }),
+    high_minor: bigint("high_minor", { mode: "number" }),
+    currency: text("currency"),
+    low_num: numeric("low_num", { precision: 18, scale: 4 }),
+    high_num: numeric("high_num", { precision: 18, scale: 4 }),
+    low_date: date("low_date", { mode: "string" }),
+    high_date: date("high_date", { mode: "string" }),
+    /** What I said, as it was shown. */
+    claim: text("claim").notNull(),
+    /** What it rested on, in words (rule 25). */
+    basis: text("basis").notNull(),
+    graded_at: timestamp("graded_at", { withTimezone: true, mode: "string" }),
+    /** "inside" | "above" | "below" | "cant_tell". */
+    verdict: text("verdict"),
+    actual_minor: bigint("actual_minor", { mode: "number" }),
+    actual_num: numeric("actual_num", { precision: 18, scale: 4 }),
+    actual_date: date("actual_date", { mode: "string" }),
+    /** What happened, in words; for "can't tell", why not. */
+    actual_note: text("actual_note"),
+    /** The measured rows it was read from: { table, ids }. */
+    actual_source: jsonb("actual_source").$type<Record<string, unknown>>(),
+  },
+  (t) => [
+    uniqueIndex("forecast_checks_key_idx").on(t.profile_id, t.forecast_key),
+    index("forecast_checks_due_idx")
+      .on(t.window_end)
+      .where(sql`${t.graded_at} IS NULL`),
+    index("forecast_checks_profile_idx").on(t.profile_id, t.made_at),
+    check("forecast_checks_kind", sql`${t.kind} IN ('stock_out', 'season_week')`),
+    check("forecast_checks_unit", sql`${t.unit} IN ('money', 'count', 'date')`),
+    check("forecast_checks_window", sql`${t.window_start} <= ${t.window_end}`),
+    check(
+      "forecast_checks_money",
+      sql`${t.unit} <> 'money' OR (${t.low_minor} IS NOT NULL AND ${t.high_minor} IS NOT NULL AND ${t.low_minor} <= ${t.high_minor} AND ${t.currency} IS NOT NULL AND ${t.currency} ~ '^[A-Z]{3}$')`,
+    ),
+    check(
+      "forecast_checks_count",
+      sql`${t.unit} <> 'count' OR (${t.low_num} IS NOT NULL AND ${t.high_num} IS NOT NULL AND ${t.low_num} <= ${t.high_num})`,
+    ),
+    check(
+      "forecast_checks_date",
+      sql`${t.unit} <> 'date' OR (${t.low_date} IS NOT NULL AND ${t.high_date} IS NOT NULL AND ${t.low_date} <= ${t.high_date})`,
+    ),
+    check(
+      "forecast_checks_verdict",
+      sql`${t.verdict} IS NULL OR ${t.verdict} IN ('inside', 'above', 'below', 'cant_tell')`,
+    ),
+    check(
+      "forecast_checks_graded_whole",
+      sql`(${t.graded_at} IS NULL) = (${t.verdict} IS NULL) AND (${t.graded_at} IS NULL) = (${t.actual_note} IS NULL)`,
+    ),
+    check(
+      "forecast_checks_actual_measured",
+      sql`${t.verdict} IS NULL OR ${t.verdict} = 'cant_tell' OR ${t.actual_source} IS NOT NULL`,
+    ),
+  ],
+);
+
 /* ---------- Idea 53 — one-tap approvals on your phone ---------- */
 
 /**

@@ -1,0 +1,42 @@
+/* Idea 50 — "Speak" under a free-text box (components/voice/MicButton.tsx).
+   Always on paper: the intake sheet, the chat composer, the reply box.
+   The button is the sheet's own .act; listening fills it with ink, and the
+   live line says so in words, so colour is never the only sign. */
+
+.vx {
+  margin-top: 8px;
+  min-width: 0;
+}
+.vx-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+.vx .vx-mic {
+  min-height: 44px;
+  padding: 0 14px;
+}
+.vx-icon {
+  flex: none;
+}
+.vx-live,
+.vx-notice {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.vx-live {
+  flex: 1 1 14em;
+}
+.vx-live .live-dot {
+  margin-right: 8px;
+  vertical-align: 1px;
+}
+.vx-notice {
+  margin-top: 6px;
+}

@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0067**, then `db:seed` (question bank 1.9.0).
+2. **Migrations and bank:** `db:migrate` through **0068**, then `db:seed` (question bank 1.9.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -32,7 +32,8 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0064 `site_audits`, one row per site audit run with its PageSpeed calls (Phase 5 Session C, 2026-10-27)
    - 0065 a data fix, no schema change: cost rows entered on 5.2 (costs that rise with sales) are refiled from `fixed` to `variable` (2026-10-28)
    - 0066 `abandoned_checkouts`, Shopify's unfinished checkouts with an email hash and never an address (idea 47, 2026-10-29)
-   - 0067 `push_subscriptions` (each phone's Web Push subscription, sealed under `CONNECTOR_KEY`) and `push_outbox` (proposal ids waiting for an alert), for phone alerts (idea 53, 2026-10-29; renumbered at merge if another branch took 0067)
+   - 0067 `forecast_checks`, SYB's own forecasts recorded when made and graded once, with triggers that refuse changing a claim, a second grading and a delete on its own (idea 54, 2026-10-29)
+   - 0068 `push_subscriptions` (each phone's Web Push subscription, sealed under `CONNECTOR_KEY`) and `push_outbox` (proposal ids waiting for an alert), for phone alerts (idea 53, 2026-10-29; renumbered at merge if another branch took 0067)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 
@@ -209,6 +210,13 @@ Not findings. These are the controls the new upload path was built with, recorde
 ## Added 2026-10-29 — abandoned carts (idea 47)
 
 - **Shopify's abandoned checkouts (a new external read, no new scope).** `lib/connectors/providers/shopify.ts` gains one fixed document, `SHOPIFY_QUERIES.abandoned_checkouts` (`query AbandonedCheckouts`), sent through the same `graphql()` path as every other read, to the store's own myshopify.com host. Shopify's docs (read 2026-10-29) put the query under `read_orders`, which the connector already held, so `SCOPE_REGISTRY.shopify` is unchanged and the scope audit stays green; `shopify.test.ts` pins the list of documents, and `carts.test.ts` pins the registry. The document reads no shopper: the email is on the checkout's customer, and Customer needs `read_customers`, which SYB doesn't ask for (the fake refuses such a document, as Shopify does). Carts land with a null `email_hash`; any store that does give an email has it turned into the keyed suppression hash on the way in, never stored, and a hash matching an erasure is dropped. Rows are deleted after 90 days and with their connection, and `eraseContact` deletes the carts its address hashes to, in its own transaction. The read runs once per sync after the stock snapshot, is capped at 40 pages of 50, never counts a partial read, and never fails the sync; its log line (`carts_read`) carries the account id and counts only.
+
+## Added 2026-10-29 — answering by voice (idea 50)
+
+- **SYB receives no audio.** The microphone (`components/voice/MicButton.tsx`, `lib/voice/session.ts`) uses the browser's own `SpeechRecognition` (or `webkitSpeechRecognition`). No route, upload, socket or `getUserMedia` call was added, and SYB's server code is unchanged. The text reaches SYB only when the owner presses the box's own Record, Ask, Save or Approve, through the same requests as typed text. Nothing is recorded, asked or sent by speech alone, and SYB stores and logs no audio and no transcript.
+- **The browser vendor's processing.** Where the browser reports on-device recognition for the language (`SpeechRecognition.available({ processLocally: true })` resolves `available`; Chrome desktop 139+ per MDN), the session sets `processLocally = true` and the audio stays on the device. Otherwise the browser chooses. MDN says Chrome sends the audio to a server (Google's); Safari and Edge use their makers' services. That processing is between the owner and their browser's maker, under its terms; SYB is not a party to it. Before the first such session in a browser, the page shows "Your browser turns your speech into text. In Chrome, Google does this; SYB never receives the audio." and listens only on the next tap. `/privacy` says the same. SYB never calls `install()`, so it never makes the browser download a language pack.
+- **Permissions and storage.** The browser asks for the microphone; SYB doesn't ask ahead and sets no Permissions-Policy, so `on-device-speech-recognition` keeps its default (`self`). A refusal (`not-allowed`) is shown in words and nothing retries. The only storage is a per-browser flag, `syb.voice_notice_seen`, in localStorage inside try/catch.
+- **Spoken text is content, like typed text.** It lands in the box for the owner to read and fix, then goes through the same validation; in the chat, the same rule holds that nothing runs on phrasing alone.
 
 ## Added 2026-10-29 — phone alerts (idea 53)
 

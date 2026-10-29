@@ -225,6 +225,14 @@ In the report (§7), a measured site finding sits in the findings list by severi
 
 Nothing on the screen sends anything.
 
+**My track record** (on `/history`, above the ledger; idea 54). SYB grading its own forecasts beside the scorecard that grades its proposals. It is a `.cs` sheet labelled "My track record". Its title is the headline, a sentence counted from the record: "5 of my last 7 forecasts landed inside the range I gave; 2 missed." "Can't tell" is named after it and kept apart: "I couldn't tell on 1: the measured figures weren't there, or something I didn't forecast got in the way. It isn't counted either way." Under three graded forecasts it reads "Too soon to judge my forecasts: 2 graded so far, 3 forecasts waiting for their time to pass." With none at all, it says what will appear there. The head's figures gain "Forecasts inside 5 / 7" once three are graded.
+
+- **By kind**, one mono line each: "Stock run-out dates: 1 of 2 inside, 1 couldn't tell." and "Weeks against last year: 4 of 5 inside, 1 waiting."
+- **Each forecast**, newest first, is a row with a boxed word: `inside`, `above`, `below`, `can't tell` or `waiting`. `inside`, `above` and `below` share one ink: a miss is as plain as a hit, and the word carries it, not a colour. Then come what I said (the sentence as it was shown), a mono line with the kind, "Said on 26 Oct 2026" and the range in its own units, "On what basis:" with the basis sentence, and "What happened:" with how far off a miss was in its own units ("It came to €5,010, measured by Shopify: €510 over the top of the range."; "It lasted longer: 3 still on hand on 5 Nov 2026 … 2 days after the latest day I gave"). A waiting one says when its window closes. A row written to the record days after the day it is dated (only the demo seed's) says so in a line of its own.
+- **The foot** says that each forecast is recorded the moment it is shown, graded once from measured figures only, and never changed, and that "can't tell" never counts as right.
+
+At 360 px each row stacks the word above the text, with no horizontal scroll. The weekly summary email adds one section, "How my forecasts did", only in a week when something was graded: "I graded 4 of my forecasts this week: 2 landed inside the range I gave, 1 missed (1 came in above it), and I couldn't tell on 1." It links to `/history`.
+
 Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
 ---
@@ -277,6 +285,8 @@ Under `prefers-reduced-motion` all three are instant, and so are the depart wait
 **Progress is the record filling up:** `6 core facts on record · 6 core questions open`, never an `N / M` counter and never a percentage. The core count changes as branches open and close, so a counter or a percentage would jump backwards, and that destroys trust. Two plain counts that each only grow or shrink for a visible reason are honest.
 
 **Validation** is inline and specific: "Answer this, or choose I don't know to move on." It appears under the control, in ink, and clears on the next keystroke. Errors never block with a modal and never apologise.
+
+**Speaking an answer (idea 50, 2026-10-29).** A "Speak" button sits under free-text boxes only: the intake's text and long-text answers, the `/chat` composer and the support reply draft. Never on number, money, date, choice or entity-list answers, where a misheard word is a wrong fact. Speech fills the box as a draft, appended after what is typed; the owner reads it, fixes it and presses the box's own button, so nothing is recorded by speaking. It is the sheet's `.act` button: a fixed name ("Speak your answer") with `aria-pressed`, filled with ink while listening, and one `aria-live` line beside it saying "Listening… Press Speak again to stop.", the notice, or what happened. Listening stops on a second press, after 8 seconds of silence, at one minute, or as soon as the owner types. It uses the browser's own recognition, on the device where the browser has it; otherwise the first press in a browser shows "Your browser turns your speech into text. In Chrome, Google does this; SYB never receives the audio." and listening starts on the next press. Failures say what happened and what to do ("The microphone is blocked for this site. Allow it in your browser's site settings…"). Where the browser has no recognition (Firefox), the button isn't drawn.
 
 ### 4.3 Entity-list questions
 
