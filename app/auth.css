@@ -379,6 +379,12 @@
   line-height: 1.55;
   color: var(--sheet-ink);
 }
+.au-legal .au-legal-facts {
+  border-top: 1px solid var(--rule-soft);
+}
+.au-legal .au-legal-facts .au-sheet-label {
+  margin-bottom: var(--s-2);
+}
 
 /* ── narrower: the promise stacks above the sheet ── */
 

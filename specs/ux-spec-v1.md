@@ -278,6 +278,8 @@ Under `prefers-reduced-motion` all three are instant, and so are the depart wait
 
 **Validation** is inline and specific: "Answer this, or choose I don't know to move on." It appears under the control, in ink, and clears on the next keystroke. Errors never block with a modal and never apologise.
 
+**Speaking an answer (idea 50, 2026-10-29).** A "Speak" button sits under free-text boxes only: the intake's text and long-text answers, the `/chat` composer and the support reply draft. Never on number, money, date, choice or entity-list answers, where a misheard word is a wrong fact. Speech fills the box as a draft, appended after what is typed; the owner reads it, fixes it and presses the box's own button, so nothing is recorded by speaking. It is the sheet's `.act` button: a fixed name ("Speak your answer") with `aria-pressed`, filled with ink while listening, and one `aria-live` line beside it saying "Listening… Press Speak again to stop.", the notice, or what happened. Listening stops on a second press, after 8 seconds of silence, at one minute, or as soon as the owner types. It uses the browser's own recognition, on the device where the browser has it; otherwise the first press in a browser shows "Your browser turns your speech into text. In Chrome, Google does this; SYB never receives the audio." and listening starts on the next press. Failures say what happened and what to do ("The microphone is blocked for this site. Allow it in your browser's site settings…"). Where the browser has no recognition (Firefox), the button isn't drawn.
+
 ### 4.3 Entity-list questions
 
 The one place a single centred question doesn't work. "List what the business sells" needs a sub-form, not a text field.
