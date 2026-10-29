@@ -17,6 +17,7 @@ import { db } from "../../db";
 import {
   businessProfiles,
   executions,
+  forecastChecks,
   modeDecisions,
   proposals,
   supportTickets,
@@ -31,7 +32,7 @@ import { logSafeError } from "../core/log-safe";
 import { appUrl } from "../env";
 import { readCurrentField } from "../profile/field-store";
 import { READBACK, readbackForProposal } from "../trust/readback";
-import type { ComposedSummary, SummaryInput, SummaryReadback } from "./compose";
+import type { ComposedSummary, ForecastsGraded, SummaryInput, SummaryReadback } from "./compose";
 import { composeSummary } from "./compose";
 import { accountOwner, stopToken, summaryOn, summaryPref } from "./prefs";
 import { isoWeek, summaryWindow } from "./week";
@@ -139,6 +140,25 @@ export async function gatherSummary(args: {
     });
   }
 
+  // Idea 54: SYB's own forecasts graded this week (the beat grades them just before).
+  const gradedRows = await db
+    .select({ verdict: forecastChecks.verdict, n: sql<number>`count(*)::int` })
+    .from(forecastChecks)
+    .where(
+      and(
+        eq(forecastChecks.profile_id, profileId),
+        gt(forecastChecks.graded_at, window.from),
+        lte(forecastChecks.graded_at, window.to),
+      ),
+    )
+    .groupBy(forecastChecks.verdict);
+  const forecasts: ForecastsGraded = { inside: 0, above: 0, below: 0, cant_tell: 0 };
+  for (const r of gradedRows) {
+    if (r.verdict && r.verdict in forecasts) {
+      forecasts[r.verdict as keyof ForecastsGraded] = Number(r.n);
+    }
+  }
+
   const providerLabels: Record<string, string> = {};
   for (const row of activity) {
     const provider = ((row.meta ?? {}) as { provider?: unknown }).provider;
@@ -163,6 +183,7 @@ export async function gatherSummary(args: {
     open_tickets: Number(tickets?.n ?? 0),
     readbacks,
     provider_labels: providerLabels,
+    forecasts,
   };
 }
 
