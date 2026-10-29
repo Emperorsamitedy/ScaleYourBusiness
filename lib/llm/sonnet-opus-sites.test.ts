@@ -55,6 +55,7 @@ const { InterviewerError, interviewerRequest, pickNextQuestion } =
   await import("../interviewer/interviewer");
 const { buildSystemBlocks, loadInterviewerBank } = await import("../interviewer/prompt");
 const { liveDraftLlm: liveReplyDraftLlm } = await import("../support-desk/draft");
+const { coerceReply, liveReviewReplyLlm } = await import("../review-desk/draft");
 const { coerceAnswer, liveSupportAnswerLlm } = await import("../support/chat");
 const { ModelRefusalError } = await import("./answer");
 
@@ -174,6 +175,19 @@ describe("SONNET_MODEL and DIAGNOSIS_MODEL unset: exactly today's models and req
     });
   });
 
+  it("review reply suggestion (idea 45)", async () => {
+    fake.replies.push(thinksThen(text("{}")));
+    await liveReviewReplyLlm(args);
+    expect(lastSent()).toStrictEqual({
+      model: "claude-sonnet-5",
+      max_tokens: 600,
+      system: "s",
+      output_config: { format: schemaFormat },
+      messages: [{ role: "user", content: "u" }],
+    });
+    expect(fake.logged.at(-1)).toEqual({ model: "claude-sonnet-5", workload: "review_reply" });
+  });
+
   it("diagnosis, recommendations and care review", async () => {
     const opus = (max_tokens: number) => ({
       model: "claude-opus-4-8",
@@ -218,6 +232,7 @@ describe("SONNET_MODEL=claude-sonnet-5-5", () => {
     { name: "support answer", run: () => liveSupportAnswerLlm(args), workload: "support" },
     { name: "support reply draft", run: () => liveReplyDraftLlm(args), workload: "support_draft" },
     { name: "creative brief", run: () => liveBriefLlm(args), workload: "creative_brief" },
+    { name: "review reply", run: () => liveReviewReplyLlm(args), workload: "review_reply" },
   ];
 
   for (const site of answerSites) {
@@ -260,6 +275,14 @@ describe("SONNET_MODEL=claude-sonnet-5-5", () => {
     expect(coerceAnswer((await liveReplyDraftLlm(args)).text).grounded).toBe(false); // write it yourself
     await expect(liveBriefLlm(args)).rejects.toBeInstanceOf(ModelRefusalError); // no brief
     expect(fake.logged).toHaveLength(5); // every declined call still metered
+  });
+
+  it("a declined review reply is no draft, never the declined text", async () => {
+    fake.replies.push(refusal('{"reply":"We will refund you in full."}'));
+    const got = await liveReviewReplyLlm(args);
+    expect(got.text).toBe("");
+    expect(coerceReply(got.text)).toBeNull();
+    expect(lastSent().output_config).toStrictEqual({ effort: "low", format: schemaFormat });
   });
 
   it("a declined content draft makes no draft", async () => {
