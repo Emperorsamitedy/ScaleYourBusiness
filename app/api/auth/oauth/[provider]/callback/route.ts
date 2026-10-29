@@ -22,6 +22,7 @@ import {
   intakeCookieOptions,
   signProfileCookie,
 } from "../../../../../../lib/auth/access";
+import { RETURN_COOKIE, returnPath } from "../../../../../../lib/auth/return-to";
 import { AuthError, signInWithEmail } from "../../../../../../lib/auth/service";
 
 async function finish(
@@ -65,10 +66,13 @@ async function finish(
       }),
     );
 
+    // Idea 53: back to the proposal card the sign-in started from, once.
+    const back = session.profile_id ? returnPath(store.get(RETURN_COOKIE)?.value) : null;
     const response = NextResponse.redirect(
-      new URL(session.profile_id ? "/profile" : "/intake", origin),
+      new URL(back ?? (session.profile_id ? "/profile" : "/intake"), origin),
     );
     response.cookies.delete(STATE_COOKIE);
+    response.cookies.delete(RETURN_COOKIE);
     response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
     if (session.profile_id) {
       response.cookies.set(

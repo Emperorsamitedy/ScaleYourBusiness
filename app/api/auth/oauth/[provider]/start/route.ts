@@ -13,6 +13,11 @@ import {
   oauthProvider,
   STATE_COOKIE,
 } from "../../../../../../lib/auth/oauth";
+import {
+  RETURN_COOKIE,
+  returnCookieOptions,
+  returnPath,
+} from "../../../../../../lib/auth/return-to";
 
 export async function GET(
   request: NextRequest,
@@ -44,5 +49,8 @@ export async function GET(
     sameSite: provider.responseMode === "form_post" ? "none" : "lax",
     secure: provider.responseMode === "form_post" || origin.startsWith("https"),
   });
+  // Idea 53: a sign-in started from a proposal's card comes back to it.
+  const back = returnPath(request.nextUrl.searchParams.get("next"));
+  if (back) response.cookies.set(RETURN_COOKIE, back, returnCookieOptions());
   return response;
 }
