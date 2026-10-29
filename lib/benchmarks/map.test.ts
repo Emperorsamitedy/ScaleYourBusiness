@@ -10,6 +10,7 @@ import {
   geoFor,
   isMapped,
   mappedNaceCodes,
+  parentGroup,
   sizeClassesFor,
   sizeWords,
   typeEntry,
@@ -52,6 +53,18 @@ describe("the mapping covers the bank (rule 4)", () => {
       expect(e.nace.startsWith(e.parent), e.nace).toBe(true);
       expect(e.nace.length).toBeGreaterThan(e.parent.length);
     }
+  });
+
+  it("words every parent, and nothing else", () => {
+    const parents = new Set(
+      Object.values(BENCHMARK_MAP.business_types).flatMap((e) =>
+        e.nace !== null && e.parent !== null ? [e.parent] : [],
+      ),
+    );
+    const worded = Object.keys(BENCHMARK_MAP.parent_groups).filter((k) => k !== "about");
+    expect(worded.sort()).toEqual([...parents].sort());
+    expect(parentGroup("G47")).toBe("shops");
+    expect(parentGroup("ZZ")).toBe("ZZ");
   });
 
   it("treats every cost category in the bank", () => {

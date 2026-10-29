@@ -35,6 +35,7 @@ interface MapSpec {
   version: string;
   dataset: string;
   business_types: Record<string, TypeEntry>;
+  parent_groups: Record<string, string>;
   size_classes: SizeClass[];
   all_sizes: { code: string; words: string };
   size_bands: Record<SizeBand, string[]> & { about: string };
@@ -121,6 +122,13 @@ export function costTreatment(
       ? map.cost_categories[category]
       : null;
   return t === "staff" || t === "financing" ? t : "running";
+}
+
+/** Pure: the group in words for a parent code. */
+export function parentGroup(code: string, map: MapSpec = BENCHMARK_MAP): string {
+  return Object.hasOwn(map.parent_groups, code) && code !== "about"
+    ? map.parent_groups[code]!
+    : code;
 }
 
 /** Every NACE code the map names, as a type's code or its parent. */

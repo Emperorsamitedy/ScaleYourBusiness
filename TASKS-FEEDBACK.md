@@ -167,12 +167,35 @@ The owner sees a few of their own numbers set against businesses like theirs: sa
   - **Country.** The profile's free-text `legal.country` is read by the existing `countryCode` (`lib/hours/timezone.ts`); Greece becomes `EL`. Anything outside the EU27 is "outside", and the screen says Eurostat's figures don't cover it.
   - **Costs.** `cost_categories` is data too: `salaries` is staff, `loan_payments` is financing (left out and named), and everything else, unknown included, is a running cost that Eurostat counts among purchases.
 
-- [ ] **I-44.3** The comparison, pure, in `lib/benchmarks/compare.ts`. Up to three lines, each computed only when the owner's own inputs exist (measured first, then stated, with the status shown, rule 2):
+- [x] **I-44.3** The comparison, pure, in `lib/benchmarks/compare.ts`. Up to three lines, each computed only when the owner's own inputs exist (measured first, then stated, with the status shown, rule 2):
   - operating margin against `GOR_PC`, with revenue minus purchases, other operating costs and staff costs, before the owner's own pay, interest, depreciation and tax; the formula is spelled out with `derived_from` (rule 6);
   - turnover a year per person employed against `NETTUR_EMP_TEUR`, converted to the business's currency;
   - staff cost per employee against `LC_EMP_TEUR`, only when there are employees and a staff cost.
 
   Each line reads "above", "below" or "about the same" (within ±15 %), with both numbers and the gap. No grade, score or "you should". A missing input says which question would fill it and links to it. A cell missing in Eurostat falls back to the next size class, then the NACE parent, saying which. Tests at the ±15 % boundaries, the fallbacks, the currency conversion, and every refusal.
+
+  **Done 2026-10-29.** `lib/benchmarks/compare.ts` is pure: no database, network, model or clock. `compareWithSimilar(inputs, snapshot)` refuses before any line when it lacks something it needs: no business type (link to 1.2), a type with no honest match (the map's reason), no country or one it can't read (link to 1.1b), or a country outside the EU27. Otherwise it gives the head (group, country, first size class tried, and why that size) and three lines. Each line is compared, missing (with what it needs, linked to its question) or refused (no Eurostat figure, no employees, no euro rate). A compared line carries:
+  - both figures and the reading, with the gap in points or money and percent;
+  - the owner's formula with the numbers, its `derived_from` keys and each input with its basis (OBSERVED for a measured revenue, STATED, ESTIMATED or DERIVED);
+  - what was left out and why;
+  - the exact cell, as "all online and mail-order shops with up to 9 people in Ireland, 2024, Eurostat", with Eurostat's flag in words and any fallback sentence;
+  - the conversion rate and year.
+
+  `compare.test.ts` has 31 tests: the ±15 % boundaries both sides (inclusive, negative and zero benchmarks), every fallback step, the forint conversion, each refusal, and one case run against the committed snapshot.
+
+  Judgement calls:
+  - **Fallback order.** The plan said "the next size class". I took each class that holds the headcount, narrowest first, then every size, then the parent code. A neighbouring class (10–19 for a business of 3) is a different size, and calling it "businesses like yours" would be less honest than "of every size". The sentence names what was missing ("doesn't publish this" or "keeps this confidential (2024)") and what the figure is instead. Because services publish margins only for every size (I-44.1), the margin and staff lines of a salon, café or shop always fall back to every size, and say so.
+  - **The operating margin.** It is revenue minus cost of sales, per-sale costs, running costs and staff pay, all over revenue: before the owner's own pay, interest, depreciation and tax, like Eurostat's gross operating surplus over turnover.
+    - Cost of sales: the offers' cost to deliver at their volumes, when every selling offer has a cost (§8.3: computed beats stated); otherwise 100% minus the stated gross margin (5.3a); otherwise the line asks for one or the other.
+    - Per-sale costs: 5.2's per-piece costs × units, and its per-order costs × orders a month. When the count is missing, the cost is left out and named.
+    - Running costs: every dated cost on 5.1 and 5.2, made monthly. A loan repayment is left out and named, because Eurostat's rate is before interest and the loan itself isn't a cost. A cost in another currency, or with no amount or frequency, is left out and named.
+    - Staff pay: the `salaries` lines if any; otherwise the 9.2 rows marked employee, which must all have a cost. The owner's row is never counted, so this is the "before the owner's own pay" side. Contractor rows aren't added, as a contractor is assumed to be on the costs list. When staff pay can't be known (someone may be paid but nothing says what), the line refuses rather than leave the biggest cost out. A one-person business needs no staff pay.
+    - A cost on the costs list that isn't operating (Fernhill lists its VAT return under "other") is counted as given. The category vocabulary has no "tax", and I don't branch on a label's words.
+  - **Turnover per person** is monthly revenue × 12 ÷ the headcount, owner included, which matches Eurostat's persons employed. The definition gap shown is VAT, because Eurostat's turnover excludes it.
+  - **Staff cost per employee** uses the employees on 9.2, each counted once (Eurostat counts part-timers as one too). Pay comes from their own monthly costs, else the costs list's salaries. The gap shown is the employer's social contributions, which Eurostat includes.
+  - **"About the same"** means within 15% of Eurostat's own figure, either side, the boundary included. For a margin that is relative too: a 12% sector margin gives a band of ±1.8 points.
+  - **Rates.** An exact year only: with no rate for the cell's year, the line refuses rather than borrow another year's.
+  - **The status shown.** It is the basis class (`components/report/basis.ts`), read through the cash module's own readers (`lib/cash/inputs.ts`), so a revenue Stripe measured shows OBSERVED and the owner's estimate ESTIMATED.
 
 - [ ] **I-44.4** The screen, under Insights as "Compared with similar businesses" (`/benchmarks`, sheet design, 360 px):
   - the head is the cell in words;

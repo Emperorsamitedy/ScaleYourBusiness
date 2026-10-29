@@ -194,6 +194,27 @@
       "why": "There's no one group to compare a business described as other with."
     }
   },
+  "parent_groups": {
+    "about": "The group in words for each parent code, used when a line falls back to it.",
+    "C": "manufacturers",
+    "F": "construction businesses",
+    "G": "wholesalers, shops and motor trades",
+    "G45": "car dealers and garages",
+    "G47": "shops",
+    "H": "transport and storage businesses",
+    "I": "places to stay, restaurants, cafés and bars",
+    "J": "information and communication businesses",
+    "J58": "publishers",
+    "L": "real estate businesses",
+    "M": "professional firms",
+    "M70": "head offices and consultancies",
+    "M73": "advertising and market research businesses",
+    "N81": "building services and cleaning businesses",
+    "P85": "education businesses",
+    "Q": "health and social care services",
+    "Q88": "social care services without accommodation",
+    "R93": "sports and recreation businesses"
+  },
   "size_classes": [
     { "code": "0_1", "min": 0, "max": 1, "words": "up to 1 person" },
     { "code": "2-9", "min": 2, "max": 9, "words": "2–9 people" },
