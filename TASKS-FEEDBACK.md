@@ -103,12 +103,15 @@ The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ra
 - **Nothing is recorded after the fact.** A forecast enters the record only when it was made, with the range shown then. There is no backfill from today's model run over old data, because a forecast written knowing the answer isn't a forecast. (The demo seed backdates its claims explicitly, and says so.)
 - **Only measured actuals grade.** A stated or estimated figure never marks a forecast right. With no measured actual, the forecast is "can't tell", counted apart and never folded into "right".
 
-- [ ] **I-54.1** The record. A new table `forecast_checks` (migration **0067**) holds:
+- [x] **I-54.1** The record. A new table `forecast_checks` (migration **0067**) holds:
   - profile, kind, made_at, and the forecast's own key, so it is recorded once per window (for example the cash low of the week starting 2 Nov, as forecast in the week of 26 Oct);
   - the claim: metric, window start and end, low and high (money as integer minor units with currency, rule 1; counts or dates as such), and the basis sentence shown with it;
   - grading, filled once and never changed: graded_at, the actual and its source row, and a verdict of `inside`, `above`, `below` or `cant_tell`.
 
   A database trigger refuses any change to a claim, and any second grading.
+
+  **Done 2026-10-29.** `forecast_checks` (`db/schema.ts`, migration 0067), tested against live Postgres in `lib/forecasts/guard.test.ts`. The key is unique per profile (`forecast_key`), so a second record of the same window is a no-op. Money is `low_minor`/`high_minor` plus `currency`, a count is `low_num`/`high_num`, dates are `low_date`/`high_date`; a `unit` column says which, and a check holds each set whole. The basis sentence and the claim as shown are both stored. `subject_ref` says where the actual will be read and what the claim started from, for example the units on hand it was worked out from. The grade is `graded_at`, `verdict`, `actual_minor`/`actual_num`/`actual_date`, `actual_note` (what happened, in words) and `actual_source` (the measured rows). Judgement calls: the triggers also refuse a row **inserted** already graded (a grade comes later or it isn't one), an update that isn't the grading, a **delete** on its own, and TRUNCATE. A delete through the business's own cascade passes, because the foreign key's trigger runs it (`pg_trigger_depth() > 1`); otherwise erasing a business or a test's cleanup would fail. A check refuses `inside`, `above` or `below` without `actual_source`, so a right or wrong verdict always cites measured rows; `cant_tell` needs none. `made_at` is when it was shown, and `recorded_at` is Postgres's own clock, so a backdated row shows as one.
+
 - [ ] **I-54.2** Record what is already forecast, where it is made. Check each forecast's code and pick those whose actual is measured later:
   - the cash forecast's next four weekly closing balances (P5 cash, `lib/cash`), but only where the balance is measured (Stripe balance or a bank import), otherwise none;
   - the stock-out warnings' "runs out around" date range (`lib/stock`), graded by the measured stock reaching zero, or not, within the range;
@@ -116,6 +119,7 @@ The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ra
   - the pipeline's likely close for deals due in the window (`lib/pipeline`), graded by the deals the owner marks won.
 
   Each is recorded at most once per window, on the beat or screen that already computes it. Nothing new is computed. If a forecast can't be graded from measured data, it isn't recorded, and the task note says which and why.
+
 - [ ] **I-54.3** Grading. A pure grader, plus a step on the weekly beat (`/api/cron/weekly-watch`): every claim whose window closed at least a day ago and has no grade gets one from measured rows. It is deterministic, with no model and no retry loop.
 - [ ] **I-54.4** "My track record" on `/history`, beside the scorecard:
   - the headline counts graded forecasts, for example "7 of my last 9 forecasts landed inside the range I gave". It names how many it couldn't tell, and is broken down by kind;
@@ -124,6 +128,7 @@ The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ra
   - misses are shown as plainly as hits, with how far off they were in the forecast's own units.
 
   The weekly summary email gets one line when something was graded that week.
+
 - [ ] **I-54.5** Demo seed: Fernhill gets backdated claims, graded against its seeded data, including at least one miss and one "can't tell". The seed comments that real accounts never backdate. No network, no model.
 
 **Done when:** a graded forecast can't be edited, a miss shows as plainly as a hit, "can't tell" never counts as right, and the demo's `/history` shows the record.
@@ -143,6 +148,7 @@ The owner taps a microphone, speaks, and the words appear in the answer box. The
   - not on number, money, date or choice answers, where a misheard word is a wrong fact.
 
   It is labelled, with `aria-pressed`, an `aria-live` "Listening…" line, keyboard operable, and a 2px focus ring (ux-spec §11). It works at 360 px. A permission refusal says what happened and how to allow it, with no apology.
+
 - [ ] **I-50.3** Tests run against a fake SpeechRecognition: the merge helper's cases, hidden when unsupported, nothing submitted by speech, the cap, and a permission error. Then a browser check on the intake at phone width; real recognition can't run headless, so say what was and wasn't verified. Update `/privacy`, `docs/SECURITY-AUDIT.md` (the browser vendor's processing, and that SYB receives no audio) and the ux-spec.
 
 **Done when:** an owner can speak an answer into the intake and the chat, see it, fix it and record it, where nothing is recorded without their click and no audio reaches SYB.

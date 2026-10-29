@@ -1001,6 +1001,46 @@ interface AlertReview {
 
 A cause must cite evidence ids the case file holds; every cause category (`our_advice_was_wrong`, `goal_unrealistic`, `owner_declined_key_actions`, `approved_actions_not_executed`, `execution_failed`, `data_incomplete`, `external_change`, `other`) must be named or set aside, or the gap is recorded in `rejected`.
 
+**`forecast_checks`** (idea 54, migration 0067) is SYB's own track record: each forecast it shows, recorded when it is made, graded once its window has passed. It sits outside the profile, like the scorecard's readbacks, because it is about SYB rather than the business.
+
+```ts
+// One row per forecast per window: unique (profile_id, forecast_key).
+interface ForecastCheck {
+  id: string;
+  account_id: AccountId;
+  profile_id: BusinessProfileId;     // ON DELETE CASCADE: it leaves only with its business
+  kind: "stock_out" | "season_week";
+  forecast_key: string;              // e.g. "stock_out|<connection>:<product>|2026-W44"
+  made_at: ISODateTime;              // when it was shown
+  recorded_at: ISODateTime;          // Postgres's own now(): a backdated row shows as one
+  subject: string;                   // the item's name, "revenue"
+  subject_ref: object;               // where the actual is read, and what the claim started from
+  metric: string;                    // the measured metric that grades it
+  unit: "money" | "count" | "date";
+  window_start: ISODate;
+  window_end: ISODate;
+  low_minor: number | null;          // money: integer minor units …
+  high_minor: number | null;
+  currency: string | null;           // … with its ISO 4217 code (rule 1)
+  low_num: string | null;            // a count
+  high_num: string | null;
+  low_date: ISODate | null;          // dates
+  high_date: ISODate | null;
+  claim: string;                     // what I said, as shown
+  basis: string;                     // what it rested on (rule 25)
+  // The grade: all empty at insert, written once.
+  graded_at: ISODateTime | null;
+  verdict: "inside" | "above" | "below" | "cant_tell" | null;
+  actual_minor: number | null;
+  actual_num: string | null;
+  actual_date: ISODate | null;
+  actual_note: string | null;        // what happened, in words; for "can't tell", why
+  actual_source: { table: string; ids: string[] } | null; // required unless "can't tell"
+}
+```
+
+Two rules hold it, conservatively. **Nothing is recorded after the fact**: a forecast is written by the code path that shows it, at the time, with the range shown then, and never rebuilt later from a model run over old data. **Only measured actuals grade**: a verdict other than `cant_tell` must cite the measured rows it was read from, and without them the forecast is `cant_tell`, counted apart and never as right. Triggers refuse a row inserted already graded, any change to a claim, any second grading, a delete on its own, and TRUNCATE.
+
 The decision log is append-only. It serves three purposes at once: the learning corpus, the debugging trail, and the compliance record showing that a human approved every consequential action — which matters directly given GDPR Article 22 exposure on anything touching individuals.
 
 ---
