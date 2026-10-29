@@ -25,7 +25,8 @@
     "smoke:email": "tsx scripts/smoke-email.ts",
     "smoke:inbound": "tsx scripts/smoke-inbound.ts",
     "smoke:erasure": "tsx scripts/smoke-erasure.ts",
-    "smoke:widget": "tsx scripts/smoke-widget.ts"
+    "smoke:widget": "tsx scripts/smoke-widget.ts",
+    "vapid:generate": "tsx scripts/vapid-generate.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
