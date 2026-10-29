@@ -18,6 +18,8 @@ import { and, eq, gt } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, modeDecisions, watchActivity } from "../../db/schema";
 import { logSafeError } from "../core/log-safe";
+import { stockClaims } from "../forecasts/claims";
+import { recordForecastsQuietly } from "../forecasts/record";
 import { isoWeek } from "../summary/week";
 import { STOCK_WARNING_KIND } from "../watch/watch-view";
 import type { CoverRow, CoverView } from "./cover-load";
@@ -77,6 +79,12 @@ export async function logStockWarnings(
   if (!(await stockApplies(profileId))) return 0;
   const cover = view ?? (await loadCover(profile.account_id, profileId, now));
   if (cover.warnings.length === 0) return 0;
+  // Idea 54: each warning's "runs out in about 4–6 days" goes on SYB's own
+  // track record as it is said, once per item a week, to be graded later.
+  await recordForecastsQuietly(
+    stockClaims({ account_id: profile.account_id, profile_id: profileId }, cover, now),
+    { account_id: profile.account_id, event: "forecasts_recorded_stock" },
+  );
 
   const recent = await db
     .select({ meta: watchActivity.meta })

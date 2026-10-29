@@ -21,6 +21,8 @@ import { loadBundles } from "../../../lib/bundles/load";
 import { bundleRef, proposeBundle } from "../../../lib/bundles/propose";
 import { careState } from "../../../lib/care/day-zero";
 import { logSafeError } from "../../../lib/core/log-safe";
+import { seasonClaims } from "../../../lib/forecasts/claims";
+import { recordForecastsQuietly } from "../../../lib/forecasts/record";
 import type { SeasonsView } from "../../../lib/seasons/load";
 import { loadSeasons } from "../../../lib/seasons/load";
 
@@ -43,6 +45,15 @@ export async function GET(): Promise<NextResponse> {
       loadBundles(access.account_id, access.profile_id, now),
       careState(access.profile_id),
     ]);
+    // Idea 54: the next weeks, as shown here, go on SYB's own track record
+    // the first time each is shown, to be graded once the week is over.
+    await recordForecastsQuietly(
+      seasonClaims({ account_id: access.account_id, profile_id: access.profile_id }, seasons, now),
+      {
+        account_id: access.account_id,
+        event: "forecasts_recorded_season",
+      },
+    );
     const keys = bundles.sources.flatMap((s) => s.pairs.map((p) => p.key));
     const refs = new Map(keys.map((k) => [bundleRef(k, now), k]));
     const rows =

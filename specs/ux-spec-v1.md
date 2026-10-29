@@ -225,6 +225,14 @@ In the report (§7), a measured site finding sits in the findings list by severi
 
 Nothing on the screen sends anything.
 
+**My track record** (on `/history`, above the ledger; idea 54). SYB grading its own forecasts beside the scorecard that grades its proposals. It is a `.cs` sheet labelled "My track record". Its title is the headline, a sentence counted from the record: "5 of my last 7 forecasts landed inside the range I gave; 2 missed." "Can't tell" is named after it and kept apart: "I couldn't tell on 1: the measured figures weren't there, or something I didn't forecast got in the way. It isn't counted either way." Under three graded forecasts it reads "Too soon to judge my forecasts: 2 graded so far, 3 forecasts waiting for their time to pass." With none at all, it says what will appear there. The head's figures gain "Forecasts inside 5 / 7" once three are graded.
+
+- **By kind**, one mono line each: "Stock run-out dates: 1 of 2 inside, 1 couldn't tell." and "Weeks against last year: 4 of 5 inside, 1 waiting."
+- **Each forecast**, newest first, is a row with a boxed word: `inside`, `above`, `below`, `can't tell` or `waiting`. `inside`, `above` and `below` share one ink: a miss is as plain as a hit, and the word carries it, not a colour. Then come what I said (the sentence as it was shown), a mono line with the kind, "Said on 26 Oct 2026" and the range in its own units, "On what basis:" with the basis sentence, and "What happened:" with how far off a miss was in its own units ("It came to €5,010, measured by Shopify: €510 over the top of the range."; "It lasted longer: 3 still on hand on 5 Nov 2026 … 2 days after the latest day I gave"). A waiting one says when its window closes. A row written to the record days after the day it is dated (only the demo seed's) says so in a line of its own.
+- **The foot** says that each forecast is recorded the moment it is shown, graded once from measured figures only, and never changed, and that "can't tell" never counts as right.
+
+At 360 px each row stacks the word above the text, with no horizontal scroll. The weekly summary email adds one section, "How my forecasts did", only in a week when something was graded: "I graded 4 of my forecasts this week: 2 landed inside the range I gave, 1 missed (1 came in above it), and I couldn't tell on 1." It links to `/history`.
+
 Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
 ---
