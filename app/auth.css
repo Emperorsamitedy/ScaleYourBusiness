@@ -429,3 +429,12 @@
     grid-template-columns: 32px minmax(0, 1fr);
   }
 }
+
+/* Idea 52: "Which business?" — one door per business, stacked. */
+.au-choose {
+  gap: 8px;
+}
+.au-choose .au-door {
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}

@@ -49,10 +49,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   try {
     const session = await redeemLogin(token);
-    const response = NextResponse.redirect(
-      new URL(session.profile_id ? "/profile" : "/intake", origin),
-      303,
-    );
+    // Idea 52: an email on several businesses' teams is asked which one.
+    const landing = session.choose ? "/login/choose" : session.profile_id ? "/profile" : "/intake";
+    const response = NextResponse.redirect(new URL(landing, origin), 303);
     response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
     if (session.profile_id) {
       response.cookies.set(
