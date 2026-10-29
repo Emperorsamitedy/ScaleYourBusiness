@@ -19,6 +19,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { returnPath } from "../../lib/auth/return-to";
 import { BROWSER_PREFILL } from "../../lib/intake/browser-prefill";
 import { DELIVERY_DAYS } from "../../lib/marketing/offer";
 import { AuthMasthead } from "./AuthMasthead";
@@ -67,6 +68,12 @@ function Arrow() {
   );
 }
 
+/** Idea 53: the card a sign-in should come back to, from ?next=. The server checks it again. */
+function nextPath(): string | null {
+  if (typeof window === "undefined") return null;
+  return returnPath(new URLSearchParams(window.location.search).get("next"));
+}
+
 function rememberStore(value: string) {
   try {
     const v = value.trim();
@@ -98,7 +105,8 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
+        // Idea 53: ?next=/proposals/<id> brings the owner back to that card (the server allowlists it).
+        body: JSON.stringify({ email, ...(nextPath() ? { next: nextPath() } : {}) }),
       });
       const payload = (await res.json()) as {
         error?: string;
@@ -119,7 +127,8 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
   };
 
   const sso = (provider: string) => {
-    window.location.href = `/api/auth/oauth/${provider}/start?from=${variant}`;
+    const next = nextPath();
+    window.location.href = `/api/auth/oauth/${provider}/start?from=${variant}${next ? `&next=${encodeURIComponent(next)}` : ""}`;
   };
 
   return (

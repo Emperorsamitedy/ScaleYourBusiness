@@ -188,3 +188,39 @@ export function campaignEmailFrom(): string | null {
 export function resendApiKey(): string | null {
   return process.env.RESEND_API_KEY?.trim() || null;
 }
+
+/** Idea 53: SYB's own VAPID key pair and contact, as the environment holds them. */
+export interface VapidEnv {
+  /** base64url, 65-byte uncompressed P-256 point: the browser's applicationServerKey. */
+  publicKey: string;
+  /** base64url, 32 bytes. Never logged, never sent anywhere. */
+  privateKey: string;
+  /** mailto: or https: — the contact a push service sees (RFC 8292 §2.1). */
+  subject: string;
+}
+
+/**
+ * Idea 53 (I-53.3): phone alerts are offered only when ALL THREE of
+ * VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT are set. Null
+ * otherwise, and the "Phone alerts" card says the server can't send them
+ * yet. `npm run vapid:generate` prints a pair; the owner pastes it into
+ * Vercel. Whether the pair is valid is checked in lib/push/config.ts.
+ */
+export function vapidEnv(): VapidEnv | null {
+  const publicKey = process.env.VAPID_PUBLIC_KEY?.trim() ?? "";
+  const privateKey = process.env.VAPID_PRIVATE_KEY?.trim() ?? "";
+  const subject = process.env.VAPID_SUBJECT?.trim() ?? "";
+  if (publicKey === "" || privateKey === "" || subject === "") return null;
+  return { publicKey, privateKey, subject };
+}
+
+/**
+ * Idea 53: which push service phone alerts go through. "fake" records what
+ * would be sent, in memory and in the log, and touches no network: for
+ * tests, development and the demo. It is refused in production, where
+ * anything but a real send would be a silent lie. Anything else is "real".
+ */
+export function pushServiceSetting(): "real" | "fake" {
+  const raw = process.env.PUSH_SERVICE?.trim().toLowerCase() ?? "";
+  return raw === "fake" && process.env.NODE_ENV !== "production" ? "fake" : "real";
+}

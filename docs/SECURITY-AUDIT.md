@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0067**, then `db:seed` (question bank 1.9.0).
+2. **Migrations and bank:** `db:migrate` through **0068**, then `db:seed` (question bank 1.9.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -33,6 +33,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0065 a data fix, no schema change: cost rows entered on 5.2 (costs that rise with sales) are refiled from `fixed` to `variable` (2026-10-28)
    - 0066 `abandoned_checkouts`, Shopify's unfinished checkouts with an email hash and never an address (idea 47, 2026-10-29)
    - 0067 `forecast_checks`, SYB's own forecasts recorded when made and graded once, with triggers that refuse changing a claim, a second grading and a delete on its own (idea 54, 2026-10-29)
+   - 0068 `push_subscriptions` (each phone's Web Push subscription, sealed under `CONNECTOR_KEY`) and `push_outbox` (proposal ids waiting for an alert), for phone alerts (idea 53, 2026-10-29; renumbered at merge if another branch took 0067)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 
@@ -220,6 +221,15 @@ Not findings. These are the controls the new upload path was built with, recorde
 ## Added 2026-10-29 — compared with similar businesses (idea 44)
 
 - **Eurostat's dissemination API (a new outbound fetch, by hand only).** `scripts/fetch-benchmarks.ts` (`npm run benchmarks:fetch`) sends GETs to `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/` and to nothing else, for two public datasets (`sbs_sc_ovw`, `ert_bil_eur_a`). It is keyless, so there is no secret. It sends nothing about any business: the query is fixed country codes, NACE codes and indicator codes. The script runs only when someone types the command. It is never run at build time, in CI, from a route or from a cron, and it is capped at 40 requests, 3 attempts each, 1.5 s apart, with a 90 s timeout. It writes one committed file, `specs/benchmarks-eurostat-v1.json`, and the app reads only that file. `lib/benchmarks/fence.test.ts` fails the build if anything under `lib/benchmarks`, `components/benchmarks` or the `/benchmarks` routes calls `fetch`, imports a database writer or a model client, or if the diagnosis, proposals or report code imports `lib/benchmarks`. The figures are public statistics, not personal data.
+
+## Added 2026-10-29 — phone alerts (idea 53)
+
+- **A new outbound channel: the browsers' push services.** When something waits for the owner's yes, `lib/push/send.ts` POSTs an encrypted message to the phone's own push service (Google's FCM, Apple's `*.push.apple.com`, Mozilla's, Windows'), which delivers it to the device. It is SYB's own channel to its owner, like Resend, not a business's connected account: no connector, no scope and no execution provider is involved, and `lib/push/no-connector.test.ts` walks the send path's imports and fails on anything under `lib/connectors` but the shared cipher, or anything under `lib/execution`. One request per message, a 10-second timeout, no retry, no redirect followed. A 404 or 410 deletes that subscription; anything else is logged with the account id. The endpoint must be on that host allowlist (`lib/push/endpoints.ts`), checked when it is saved and again before every send, so a stored URL can never point the server anywhere else. The network must reach those hosts (Apple names `https://*.push.apple.com`).
+- **What leaves.** The payload is encrypted for the one browser (RFC 8291, aes128gcm, a fresh key and salt each time): the push service sees ciphertext, the request headers and SYB's public VAPID key. The words are fixed per proposal kind ("1 thing waits for your yes: a price change", "3 things wait for your yes") and never a proposal's own title, so no money figure, customer name or contact detail reaches a lock screen or a push service. The notification has no action button. It opens the card, where the yes is given signed in, through the queue's own decision path (rule 12).
+- **Subscriptions are secrets (rule 10).** Whoever holds an endpoint and its keys can push to that phone. `push_subscriptions.encrypted_subscription` is the subscription sealed with `encryptSecret` (AES-256-GCM under `CONNECTOR_KEY`), the endpoint is looked up by an HMAC under `stableKey`, and no API returns either. A row is deleted on sign-out from the browser that made it (`revokeSession`, same transaction), on a 404 or 410, from the card, and with its user or account (`ON DELETE CASCADE`). Rotating `CONNECTOR_KEY` makes existing rows unreadable: they are skipped and logged by id, and each phone switches on again.
+- **New environment variables.** `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (all three, or phone alerts are off and the card says so). The private key is as secret as `CONNECTOR_KEY`; `npm run vapid:generate` prints a pair and writes it nowhere, and the owner pastes it into Vercel. A pair that doesn't belong together is refused and logged without the key. Replacing the pair means every phone switches on again. `PUSH_SERVICE=fake` (development only, refused in production) records instead of sending.
+- **The routes.** `/api/push`: every POST must pass `isSameOriginPost`, every call needs a signed-in session for the account (`matchingSession`), and subscribing refuses a non-push endpoint. `GET /api/proposals/:id` is read-only and returns only the caller's own proposal (a foreign id is a 404). `/api/cron/push-held` takes `CRON_SECRET` like the other crons.
+- **Sign-in return.** A sign-in started from a proposal's card comes back to it through a 15-minute httpOnly cookie (`syb_return`) that may only ever hold `/proposals` or `/proposals/<uuid>` (`lib/auth/return-to.ts`), so it can't become an open redirect.
 
 ## Checked and sound
 

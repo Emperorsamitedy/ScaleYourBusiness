@@ -4,6 +4,8 @@
 //
 //   npm run db:seed-demo             seed once, print a sign-in link
 //   npm run db:seed-demo -- --link   already seeded: print a fresh link
+//   npm run db:seed-demo -- --phone  idea 53: give the demo owner a fake
+//                                    phone and show the alert it would get
 //   npm run db:seed-demo -- --fresh  the demo is anchored to the day it was
 //                                    seeded; this archives the current demo
 //                                    owner (renamed, nothing deleted) and
@@ -137,6 +139,9 @@ async function main(): Promise<void> {
         .set({ email: archived.replace("demo-archived-", "demo-salon-archived-") })
         .where(eq(users.id, salon.id));
     }
+  } else if (existing && process.argv.includes("--phone")) {
+    await demoPhone(existing.id);
+    process.exit(0);
   } else if (existing) {
     log(
       `demo already seeded (${DEMO_EMAIL}) — nothing written. Re-seed around today with --fresh.`,
@@ -153,6 +158,83 @@ async function main(): Promise<void> {
   await seed();
   await printSignIn();
   process.exit(0);
+}
+
+/**
+ * Idea 53: a phone for the demo owner, on the fake push service. The
+ * device is a real P-256 subscription whose endpoint is on push.syb.invalid
+ * (it never resolves), sealed like any other. The demo's pending proposals
+ * are queued as createProposal would have queued them had the phone been on
+ * already, and the flush runs through the fake push service, which records
+ * what it would send and touches no network. During quiet hours it shows
+ * the hold, then what goes at 08:00.
+ */
+async function demoPhone(userId: string): Promise<void> {
+  const { and, eq } = await import("drizzle-orm");
+  const { createECDH, randomBytes } = await import("node:crypto");
+  const { db } = await import("../db");
+  const schema = await import("../db/schema");
+  const { FAKE_PUSH_HOST, saveSubscription } = await import("../lib/push/subscriptions");
+  const { enqueuePush, flushPushes } = await import("../lib/push/flush");
+  const { fakePushService } = await import("../lib/push/send");
+  const { pushWords } = await import("../lib/push/plan");
+  const [user] = await db
+    .select({ account_id: schema.users.account_id })
+    .from(schema.users)
+    .where(eq(schema.users.id, userId));
+  if (!user) return;
+  const [profile] = await db
+    .select({ id: schema.businessProfiles.id })
+    .from(schema.businessProfiles)
+    .where(eq(schema.businessProfiles.account_id, user.account_id));
+  if (!profile) return;
+  const ecdh = createECDH("prime256v1");
+  ecdh.generateKeys();
+  await saveSubscription({
+    accountId: user.account_id,
+    userId,
+    sessionId: null,
+    userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X)",
+    target: {
+      endpoint: `https://${FAKE_PUSH_HOST}/demo-${userId}`,
+      p256dh: ecdh.getPublicKey().toString("base64url"),
+      auth: randomBytes(16).toString("base64url"),
+    },
+    timeZone: "Europe/Budapest",
+  });
+  const pending = await db
+    .select({
+      id: schema.proposals.id,
+      profile_id: schema.proposals.profile_id,
+      status: schema.proposals.status,
+      action: schema.proposals.action,
+      expires_at: schema.proposals.expires_at,
+    })
+    .from(schema.proposals)
+    .where(
+      and(eq(schema.proposals.profile_id, profile.id), eq(schema.proposals.status, "pending")),
+    );
+  for (const p of pending) await enqueuePush(db, p);
+  const fake = fakePushService();
+  const first = await flushPushes(profile.id, { service: fake });
+  if (first.plan === "hold") {
+    // Held stays held: the morning beat (/api/cron/push-held) sends it. Say what it will say.
+    const words = pushWords(
+      pending.map((p) => ({
+        proposal_id: p.id,
+        status: p.status,
+        kind: (p.action as { kind?: string } | null)?.kind ?? null,
+        expires_at: p.expires_at,
+      })),
+    );
+    log(
+      `phone: held (${first.why}) until ${first.until}, when it will say "${words.body}" → ${words.url}`,
+    );
+  }
+  const shown = fake.sent.map((s) => `"${s.payload.body}" → ${s.payload.url}`);
+  log(
+    `phone: a fake iPhone is on for ${DEMO_EMAIL}; ${pending.length} pending proposal${pending.length === 1 ? "" : "s"}; the fake push service recorded ${shown.length === 0 ? "nothing (see the plan line above)" : shown.join("; ")}. No network was touched.`,
+  );
 }
 
 async function printSignIn(): Promise<void> {
@@ -2793,6 +2875,7 @@ async function seed(): Promise<void> {
 
   // Finished: the demo address now exists, so a re-run stops at the door.
   await db.update(schema.users).set({ email: DEMO_EMAIL }).where(eq(schema.users.id, ids.user));
+  await demoPhone(ids.user);
 
   const [latest] = await db
     .select({ id: schema.diagnosisReports.id })

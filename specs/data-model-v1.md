@@ -133,6 +133,25 @@ interface User {
 
 One account holds exactly one business profile in v1. Multi-business accounts (an owner with three restaurants) are a v2 concern, but the one-to-one is expressed through a foreign key rather than by embedding, so the change is additive rather than structural.
 
+**Phone alerts (idea 53, migration 0068).** One row per browser that switched alerts on, in `push_subscriptions`:
+
+```ts
+interface PushSubscriptionRow {
+  id: string;
+  account_id: AccountId;           // ON DELETE CASCADE: erased with the account
+  user_id: UserId;                 // ON DELETE CASCADE
+  session_id: string | null;       // the sign-in that switched it on; signing out of it deletes the row
+  device_label: "iPhone" | "iPad" | "Android" | "Mac" | "Windows" | "Linux" | "Browser"; // coarse, from the user agent; never the agent string
+  endpoint_hash: string;           // UNIQUE: HMAC-SHA-256 of the endpoint under a stable key
+  encrypted_subscription: string;  // {endpoint, keys: {p256dh, auth}} sealed with AES-256-GCM under CONNECTOR_KEY (rule 10)
+  time_zone: string | null;        // the browser's IANA zone, read for quiet hours only when the business's own zone is unknown
+  created_at: ISODateTime;
+  last_sent_at: ISODateTime | null; // the last alert (a test doesn't count): the one-a-day cap reads it
+}
+```
+
+A subscription is a capability: whoever holds the endpoint and its keys can push to that phone. So it is stored like a connection secret, sealed and never logged or returned by any API; screens see the label and the dates. The endpoint must be on a known browser push service (Google's FCM, `*.push.apple.com`, Mozilla's, Windows'), checked when it is saved and again before every send. A row is deleted on sign-out from its browser, on a 404 or 410 from the push service, from the "Phone alerts" card, and with its user or account.
+
 ---
 
 ## 5. The business profile
@@ -858,6 +877,21 @@ interface DecisionLogEntry {
   kind: "proposal" | "approval" | "rejection" | "execution" | "measurement" | "profile_change" | "erasure" | "import" | "takeover" | "consent" | "change_request" | "reply_approval" | "reply_decline" | "reply_send" | "law_review" | "campaign_approval" | "unsubscribe" | "complaint" | "assistant_change" | "campaign_review";
   ref_id: string;
   payload_hash: string;
+}
+
+// Idea 53 (migration 0068): a proposal that became pending while its account
+// had a phone switched on, waiting for its alert. Written by createProposal
+// in the proposal's own transaction (a savepoint that can't fail it), so a
+// rolled-back proposal leaves none; deleted when the flush sends or drops it.
+// pushPlan decides: only pending proposals inside their window; nothing while
+// the emergency stop is on (dropped, not held); nothing 21:00–08:00 in the
+// business's zone (held to 08:00); at most one alert a day per account
+// (ux-spec §9); everything waiting goes as one alert, worded by kind, never
+// by the proposal's own text.
+interface PushOutboxRow {
+  proposal_id: ProposalId;           // PRIMARY KEY, ON DELETE CASCADE
+  profile_id: BusinessProfileId;     // ON DELETE CASCADE
+  created_at: ISODateTime;
 }
 
 // P3-42 (alert mode): a goal made measurable. Stored as two fields beside
