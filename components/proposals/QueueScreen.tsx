@@ -67,6 +67,7 @@ import {
   lapsedSentence,
 } from "./queue-model";
 import "../../app/queue.css";
+import { useRole } from "../auth/RoleContext";
 
 interface Money {
   amount_minor: number;
@@ -232,6 +233,10 @@ function effectOf(p: Proposal) {
 
 export function QueueScreen() {
   const narrow = useNarrow();
+  // Idea 52: a viewer reads the queue; deciding is an owner's or a manager's.
+  const role = useRole();
+  const mayDecide = role.can("proposals.decide");
+  const decideWhy = role.why("proposals.decide");
   const [state, setState] = useState<State>({ phase: "loading" });
   // Per proposal, keyed by id (and BULK for the bulk sheet): one sheet's
   // choice never leaks into another's.
@@ -452,7 +457,7 @@ export function QueueScreen() {
         focusItem(next);
         return;
       }
-      if (bulk || !current) return;
+      if (bulk || !current || !mayDecide) return;
       const p = state.queue.pending.find((x) => x.id === current);
       if (!p) return;
       if (k === "a") {
@@ -574,7 +579,7 @@ export function QueueScreen() {
         <button
           type="button"
           className="q-btn q-btn-inline"
-          disabled={busy || reason.trim() === ""}
+          disabled={busy || !mayDecide || reason.trim() === ""}
           onClick={() => (key === BULK ? declineFor(BULK, [...picked]) : declineFor(key, [key]))}
         >
           Record the decline{count > 1 ? ` for ${count}` : ""} <span aria-hidden="true">→</span>
@@ -612,7 +617,7 @@ export function QueueScreen() {
         <button
           type="button"
           className="q-btn q-btn-inline"
-          disabled={busy || words.trim() === ""}
+          disabled={busy || !mayDecide || words.trim() === ""}
           onClick={() => changesFor(id)}
         >
           Record the request <span aria-hidden="true">→</span>
@@ -854,7 +859,8 @@ export function QueueScreen() {
       <button
         type="button"
         className="q-btn q-btn-inline"
-        disabled={busy}
+        disabled={busy || !role.can("proposals.generate")}
+        title={role.why("proposals.generate") ?? undefined}
         onClick={() => void generate()}
       >
         Check the latest report for proposals <span aria-hidden="true">→</span>
@@ -956,7 +962,7 @@ export function QueueScreen() {
           <button
             type="button"
             className="q-btn q-primary"
-            disabled={busy}
+            disabled={busy || !mayDecide}
             onClick={() => approveFor(p)}
           >
             <span>{consequence(p.action)}</span> <span aria-hidden="true">→</span>
@@ -965,7 +971,7 @@ export function QueueScreen() {
             <button
               type="button"
               className="q-btn"
-              disabled={busy}
+              disabled={busy || !mayDecide}
               onClick={() => declineFor(p.id, [p.id])}
             >
               Decline
@@ -982,7 +988,7 @@ export function QueueScreen() {
           <button
             type="button"
             className="q-quiet"
-            disabled={busy}
+            disabled={busy || !mayDecide}
             onClick={() => changesFor(p.id)}
           >
             Request changes instead
@@ -993,6 +999,11 @@ export function QueueScreen() {
             {approvalNote({ runAt, sending: p.action.detail?.sending })}
             {halted && " Everything is stopped right now: nothing runs until you start again."}
           </p>
+          {decideWhy && (
+            <p className="q-role-note" role="note">
+              {decideWhy} You can read everything here.
+            </p>
+          )}
         </section>
       </article>
     );
@@ -1131,7 +1142,7 @@ export function QueueScreen() {
             <button
               type="button"
               className="q-btn q-answer"
-              disabled={busy}
+              disabled={busy || !mayDecide}
               aria-keyshortcuts="A"
               onClick={() => approveFor(p)}
             >
@@ -1144,7 +1155,7 @@ export function QueueScreen() {
             <button
               type="button"
               className="q-btn q-answer"
-              disabled={busy}
+              disabled={busy || !mayDecide}
               aria-keyshortcuts="R"
               aria-expanded={panels[p.id] === "changes"}
               onClick={() => changesFor(p.id)}
@@ -1155,7 +1166,7 @@ export function QueueScreen() {
             <button
               type="button"
               className="q-btn q-answer"
-              disabled={busy}
+              disabled={busy || !mayDecide}
               aria-keyshortcuts="D"
               aria-expanded={panels[p.id] === "decline"}
               onClick={() => declineFor(p.id, [p.id])}
@@ -1170,6 +1181,11 @@ export function QueueScreen() {
             {approvalNote({ runAt, sending: p.action.detail?.sending })}
             {halted && " Everything is stopped right now: nothing runs until you start again."}
           </p>
+          {decideWhy && (
+            <p className="q-role-note" role="note">
+              {decideWhy} You can read everything here.
+            </p>
+          )}
         </section>
       </article>
     );
@@ -1217,7 +1233,7 @@ export function QueueScreen() {
             <button
               type="button"
               className="q-btn q-answer"
-              disabled={busy}
+              disabled={busy || !mayDecide}
               onClick={() => {
                 if (bulkSchedule === "") {
                   setNeed(BULK, "schedule");
@@ -1237,13 +1253,18 @@ export function QueueScreen() {
             <button
               type="button"
               className="q-btn q-answer"
-              disabled={busy}
+              disabled={busy || !mayDecide}
               onClick={() => declineFor(BULK, [...picked])}
             >
               <span>Decline {picked.size}</span>
             </button>
           </div>
           {panels[BULK] === "decline" && reasonBox(BULK, picked.size)}
+          {decideWhy && (
+            <p className="q-role-note" role="note">
+              {decideWhy}
+            </p>
+          )}
         </section>
       )}
     </section>

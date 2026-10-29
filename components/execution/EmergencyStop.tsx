@@ -25,6 +25,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import "../../app/queue.css";
+import { useRole } from "../auth/RoleContext";
 
 interface Halt {
   halted: boolean;
@@ -64,6 +65,8 @@ export function EmergencyStop({
   onState?: (halted: boolean) => void;
 } = {}) {
   const [state, setState] = useState<State>({ phase: "hidden" });
+  // Idea 52: anyone on the team can stop; starting again is an owner's.
+  const resumeWhy = useRole().why("stop.resume");
   const halted = state.phase === "ready" ? state.halt.halted : null;
   useEffect(() => {
     if (halted !== null) onState?.(halted);
@@ -144,6 +147,8 @@ export function EmergencyStop({
               Starting again lets approved actions run. It needs you signed in.
             </span>
           </>
+        ) : resumeWhy ? (
+          <span className="es-mast-note">{resumeWhy}</span>
         ) : (
           <button
             type="button"
@@ -233,6 +238,8 @@ export function EmergencyStop({
             Stay stopped
           </button>
         </div>
+      ) : resumeWhy ? (
+        <p className="conn-note">{resumeWhy}</p>
       ) : (
         <div className="es-actions">
           <button

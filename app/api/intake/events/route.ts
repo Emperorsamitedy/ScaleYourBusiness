@@ -10,12 +10,16 @@ import { eq } from "drizzle-orm";
 import { db } from "../../../../db";
 import { businessProfiles } from "../../../../db/schema";
 import { recordIntakeEvents } from "../../../../lib/intake/telemetry";
+import { requireRole } from "../../../../lib/auth/roles";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
-    const profileId = (await resolveAccess())?.profile_id;
+    const access = await resolveAccess();
+    const profileId = access?.profile_id;
     if (!profileId) return new NextResponse(null, { status: 204 });
+    // Telemetry never errors the intake: a refusal is the same quiet 204.
+    if (requireRole(access, "telemetry.record")) return new NextResponse(null, { status: 204 });
     const exists = await db
       .select({ id: businessProfiles.id })
       .from(businessProfiles)

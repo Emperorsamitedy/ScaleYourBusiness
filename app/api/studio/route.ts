@@ -26,6 +26,8 @@ import { logSafeError } from "../../../lib/core/log-safe";
 import { ModelRefusalError } from "../../../lib/llm/answer";
 import { ProposalError } from "../../../lib/proposals/service";
 import { nicheView, readNicheAds } from "../../../lib/research/niche";
+import { requireRole } from "../../../lib/auth/roles";
+import type { RoleAction } from "../../../lib/auth/roles";
 
 function onError(error: unknown, accountId: string): NextResponse {
   if (
@@ -78,6 +80,13 @@ export async function GET(): Promise<NextResponse> {
   }
 }
 
+/** Idea 52: the role each action needs (lib/auth/roles); an action not listed asks for an owner. */
+const STUDIO_ROLE: Record<string, RoleAction> = {
+  research: "content.draft",
+  brief: "content.draft",
+  make: "proposals.generate",
+};
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
@@ -89,6 +98,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch {
     return NextResponse.json({ error: "body must be a JSON object" }, { status: 400 });
   }
+  const denied = requireRole(access, STUDIO_ROLE[String(body.action)] ?? "content.draft");
+  if (denied) return denied;
   try {
     if (body.action === "research") {
       if (!(await matchingSession())) {

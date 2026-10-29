@@ -27,6 +27,7 @@ import {
   rejectProposal,
   requestChanges,
 } from "../../../lib/proposals/service";
+import { requireRole } from "../../../lib/auth/roles";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -80,8 +81,11 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(): Promise<NextResponse> {
-  const profileId = await resolveProfile();
+  const access = await resolveAccess();
+  const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "proposals.generate");
+  if (denied) return denied;
   try {
     const outcome = await generateProposals(profileId);
     return NextResponse.json({
@@ -114,6 +118,8 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       { status: 401 },
     );
   }
+  const denied = requireRole(session, "proposals.decide");
+  if (denied) return denied;
 
   const body = (await request.json()) as DecideBody;
   const ids = Array.isArray(body.ids) ? body.ids.filter((x) => typeof x === "string") : [];

@@ -23,6 +23,7 @@ import {
   listShares,
   revokeShare,
 } from "../../../../lib/report/share";
+import { requireRole } from "../../../../lib/auth/roles";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -59,6 +60,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const access = await owner();
   if (!access) return NextResponse.json({ error: "sign in to share your report" }, { status: 401 });
+  const denied = requireRole(access, "report.share");
+  if (denied) return denied;
 
   let body: { action?: unknown; days?: unknown; share_id?: unknown };
   try {

@@ -42,6 +42,7 @@ import { MediaError, configuredMediaStore } from "../../../../lib/content/media"
 import { ContentError } from "../../../../lib/content/plan";
 import { proposePublishing } from "../../../../lib/content/publish";
 import { ProposalError } from "../../../../lib/proposals/service";
+import { requireRole } from "../../../../lib/auth/roles";
 
 // A render runs after the response, inside this function's lifetime.
 export const maxDuration = 300;
@@ -82,6 +83,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 401 },
     );
   }
+  const denied = requireRole(session, "content.draft");
+  if (denied) return denied;
   const profileId = access.profile_id;
 
   try {

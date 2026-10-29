@@ -38,6 +38,7 @@ import { businessProfiles } from "../../../../db/schema";
 import { asc, eq } from "drizzle-orm";
 import { readCurrentField } from "../../../../lib/profile/field-store";
 import { BUSINESS_NAME_KEY } from "../../../../lib/crm/support-settings";
+import { requireRole } from "../../../../lib/auth/roles";
 
 const AUTH_COOKIE = "syb_session";
 
@@ -109,6 +110,8 @@ export async function GET(): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await signedIn();
   if (!session) return unauthorised();
+  const denied = requireRole(session, "write_access.manage");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => null)) as {
       sender_name?: unknown;
@@ -140,6 +143,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const session = await signedIn();
   if (!session) return unauthorised();
+  const denied = requireRole(session, "write_access.manage");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => null)) as { id?: unknown } | null;
     if (typeof body?.id !== "string") {

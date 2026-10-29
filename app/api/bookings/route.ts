@@ -20,6 +20,7 @@ import {
 import { BookingImportError } from "../../../lib/bookings/rows";
 import { isDecimalStyle } from "../../../lib/core/money";
 import { bookingsView, importBookings } from "../../../lib/bookings/store";
+import { requireRole } from "../../../lib/auth/roles";
 
 const AUTH_COOKIE = "syb_session";
 
@@ -66,6 +67,8 @@ export async function GET(): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await signedIn();
   if (!session) return NextResponse.json({ error: "sign in to import bookings" }, { status: 401 });
+  const denied = requireRole(session, "data.import");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => null)) as {
       csv?: unknown;

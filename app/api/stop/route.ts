@@ -17,6 +17,7 @@
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
 import { haltExecutions, haltState, resumeExecutions } from "../../../lib/execution/engine";
+import { requireRole } from "../../../lib/auth/roles";
 
 async function resolveAccount(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -30,8 +31,11 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const accountId = await resolveAccount();
+  const access = await resolveAccess();
+  const accountId = access?.account_id ?? null;
   if (!accountId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "stop.press");
+  if (denied) return denied;
   const session = await matchingSession();
   let reason: string | undefined;
   try {
@@ -56,8 +60,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(): Promise<NextResponse> {
-  const accountId = await resolveAccount();
+  const access = await resolveAccess();
+  const accountId = access?.account_id ?? null;
   if (!accountId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "stop.resume");
+  if (denied) return denied;
   const session = await matchingSession();
   if (!session) {
     return NextResponse.json(

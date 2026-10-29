@@ -88,6 +88,8 @@ import type { ChangeParams, DetectedChange } from "./intent";
 import { parseBand, parseDays, parseTimeRange } from "./intent";
 import type { ChangeKind } from "./kinds";
 import { proposeFromChat } from "./proposal";
+import type { Role } from "../auth/roles";
+import { refusalFor, roleAllows } from "../auth/roles";
 
 export class ChangeError extends Error {
   readonly status: number;
@@ -1596,6 +1598,12 @@ export async function confirmChange(args: {
   changeId: string;
   signedIn: boolean;
   userId?: string | null;
+  /**
+   * Idea 52: the confirming person's role. A change asks for the role its
+   * screen's own route asks for (the catalogue's role_action); omitted, the
+   * caller is the business's only person (the anonymous intake, or a test).
+   */
+  role?: Role | null;
   seams?: ChangeSeams;
 }): Promise<AssistantChangeRow> {
   const [row] = await db
@@ -1616,6 +1624,11 @@ export async function confirmChange(args: {
       `changing ${entry.thing} needs you signed in — the ${entry.screen} page asks the same`,
       401,
     );
+  }
+  if (args.role !== undefined) {
+    if (args.role === null || !roleAllows(args.role, entry.role_action)) {
+      throw new ChangeError(refusalFor(entry.role_action), args.role === null ? 401 : 403);
+    }
   }
   const handler = HANDLERS[row.kind];
   const ctx: Ctx = {
@@ -1673,6 +1686,7 @@ export async function confirmChange(args: {
       actor: "owner",
       kind: "assistant_change",
       ref_id: row.id,
+      user_id: args.userId ?? null,
       payload_hash: hashConfirmed(row, applied.result_ref),
     });
     const [done] = await tx

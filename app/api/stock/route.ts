@@ -43,6 +43,8 @@ import {
   proposeClearance,
   sharedContext,
 } from "../../../lib/stock/propose";
+import { requireRole } from "../../../lib/auth/roles";
+import type { RoleAction } from "../../../lib/auth/roles";
 
 /** How many slow items the screen lists. */
 const SHOWN = 25;
@@ -374,6 +376,13 @@ export async function GET(): Promise<NextResponse> {
   }
 }
 
+/** Idea 52: the role each action needs (lib/auth/roles); an action not listed asks for an owner. */
+const STOCK_ROLE: Record<string, RoleAction> = {
+  import: "data.import",
+  propose: "proposals.generate",
+  reorder: "proposals.generate",
+};
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
@@ -395,6 +404,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       as_of?: unknown;
       decimal_style?: unknown;
     };
+    const denied = requireRole(access, STOCK_ROLE[String(body.action)] ?? "data.import");
+    if (denied) return denied;
     if (body.action === "import") {
       if (typeof body.csv !== "string") {
         return NextResponse.json({ error: "csv is required" }, { status: 422 });

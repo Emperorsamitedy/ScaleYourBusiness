@@ -35,6 +35,7 @@ import {
   proposeFromSegments,
   recentCartRecipients,
 } from "../../../lib/crm/segment-proposals";
+import { requireRole } from "../../../lib/auth/roles";
 
 export interface CartsScreenView {
   applies: boolean;
@@ -156,6 +157,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!(await matchingSession())) {
     return NextResponse.json({ error: "proposing needs you signed in" }, { status: 401 });
   }
+  const denied = requireRole(access, "proposals.generate");
+  if (denied) return denied;
   try {
     if (!(await cartsApply(access.account_id))) {
       return NextResponse.json({ error: "no shop connection reads carts" }, { status: 409 });

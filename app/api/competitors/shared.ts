@@ -1,14 +1,15 @@
 // Shared by the /api/competitors routes: the one door, and errors in words.
 
 import { NextResponse } from "next/server";
+import type { Access } from "../../../lib/auth/access";
 import { resolveAccess } from "../../../lib/auth/access";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { CompetitorError } from "../../../lib/competitors/service";
 
-export async function session(): Promise<{ account_id: string; profile_id: string } | null> {
+export async function session(): Promise<Access | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
-  const access = await resolveAccess();
-  return access ? { account_id: access.account_id, profile_id: access.profile_id } : null;
+  // The whole access, so the routes can check the role (idea 52).
+  return resolveAccess();
 }
 
 export const signedOut = () => NextResponse.json({ error: "no intake session" }, { status: 401 });

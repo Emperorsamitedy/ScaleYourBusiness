@@ -20,6 +20,21 @@ import { stockApplies } from "../../../lib/stock/load";
 import { teamModuleOn } from "../../../lib/team/module";
 import { pipelineApplies } from "../../../lib/pipeline/deals";
 import { cartsApply } from "../../../lib/carts/load";
+import { membershipsFor } from "../../../lib/auth/members";
+import type { Role } from "../../../lib/auth/role-actions";
+import { roleOf } from "../../../lib/auth/roles";
+
+/**
+ * Idea 52: who is signed in here, quietly — the role on this business, and
+ * the other businesses the same verified email belongs to (by name only),
+ * for the switcher. A business nobody owns yet (the anonymous interview)
+ * has its one person as owner and nothing to switch to.
+ */
+export interface NavAccess {
+  role: Role;
+  signed_in: boolean;
+  businesses: { account_id: string; name: string | null; role: Role; current: boolean }[];
+}
 
 export interface NavCounts {
   business: string | null;
@@ -72,6 +87,8 @@ export interface NavCounts {
    * Abandoned carts item shows only when true.
    */
   carts: boolean;
+  /** Idea 52: the signed-in role and the businesses to switch between. */
+  access: NavAccess;
 }
 
 const NAME_KEY = "identity.legal_name";
@@ -150,6 +167,7 @@ export async function GET(): Promise<NextResponse> {
       pipelineApplies(profileId),
       cartsApply(access.account_id),
     ]);
+    const memberships = access.session ? await membershipsFor(access.session.email) : [];
 
     const by_module: Record<string, number> = {};
     for (const r of pendingRows) by_module[r.module] = Number(r.n);
@@ -181,6 +199,16 @@ export async function GET(): Promise<NextResponse> {
       team,
       pipeline,
       carts,
+      access: {
+        role: roleOf(access) ?? "viewer",
+        signed_in: access.session !== null,
+        businesses: memberships.map((m) => ({
+          account_id: m.account_id,
+          name: m.business,
+          role: m.role,
+          current: m.account_id === access.account_id,
+        })),
+      },
     };
     return NextResponse.json(body);
   } catch (error) {

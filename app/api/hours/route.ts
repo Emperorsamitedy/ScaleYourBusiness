@@ -16,6 +16,7 @@ import { parseCompetitorHours } from "../../../lib/hours/competitors";
 import { ensureOpeningSchedule } from "../../../lib/hours/schedule";
 import { ensureTimezone, isValidZone, setTimezone } from "../../../lib/hours/timezone";
 import { tradingAnalysis } from "../../../lib/hours/trading";
+import { requireRole } from "../../../lib/auth/roles";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -24,8 +25,11 @@ async function resolveProfile(): Promise<string | null> {
 
 /** POST /api/hours { timezone } — the owner states their zone (multi-zone countries). */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const profileId = await resolveProfile();
+  const access = await resolveAccess();
+  const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "profile.edit");
+  if (denied) return denied;
   const body = (await request.json().catch(() => ({}))) as { timezone?: unknown };
   if (typeof body.timezone !== "string" || !isValidZone(body.timezone)) {
     return NextResponse.json(

@@ -217,11 +217,25 @@ describe("opening hours — ambiguity, then one superseding fact on the click", 
     expect(await readFieldHistory(s.profile_id, SCHEDULE_KEY)).toHaveLength(0);
     expect(await changeLogEntries(s.profile_id)).toHaveLength(0);
 
+    // Idea 52: the click asks for the role the screen's own route asks for —
+    // a manager can't change the business's facts from the chat either.
+    await expect(
+      confirmChange({
+        profileId: s.profile_id,
+        accountId: s.account_id,
+        changeId: card?.id as string,
+        signedIn: true,
+        role: "manager",
+      }),
+    ).rejects.toThrow("Only an owner can change the business's facts, goals or limits.");
+    expect(await readFieldHistory(s.profile_id, HOURS_KEY)).toHaveLength(1);
+
     const done = await confirmChange({
       profileId: s.profile_id,
       accountId: s.account_id,
       changeId: card?.id as string,
       signedIn: false,
+      role: "owner",
     });
     expect(done.status).toBe("applied");
     expect(done.result_text).toMatch(/^Changed\./);

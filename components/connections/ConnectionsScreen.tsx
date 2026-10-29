@@ -25,6 +25,7 @@ import { EmailCampaignSection } from "./EmailCampaignSection";
 import { BookingsImportSection } from "./BookingsImportSection";
 import { gives, headline, lastRead, parseTs } from "./patch";
 import "../../app/connections.css";
+import { useRole } from "../auth/RoleContext";
 
 type Verification = "reported" | "probed";
 type Matching = "product" | "channel" | null;
@@ -709,6 +710,10 @@ function ReadBox({ c }: { c: Connection | null }) {
 }
 
 export function ConnectionsScreen() {
+  // Idea 52: connecting, and granting write access, are an owner's (lib/auth/roles).
+  const role = useRole();
+  const connectWhy = role.why("connections.manage");
+  const consentWhy = role.why("write_access.manage");
   const [view, setView] = useState<View | null>(null);
   const [exec, setExec] = useState<ExecView | null>(null);
   // P4-15: campaign email, its own consent.
@@ -873,160 +878,174 @@ export function ConnectionsScreen() {
           {notice}
         </p>
       )}
+      {connectWhy !== null && (
+        <p className="cn-banner" role="note">
+          {connectWhy} You can see what&rsquo;s plugged in.
+        </p>
+      )}
 
-      <section className="cs cn-panel" aria-labelledby="cn-panel-title">
-        <header className="cs-head">
-          <div>
-            <p className="cs-label">Patch panel</p>
-            <h2 className="cs-title" id="cn-panel-title">
-              What&rsquo;s plugged in
-            </h2>
-          </div>
-          <p className="cs-meta cn-legend" aria-hidden="true">
-            <span className="cn-box on" /> on <span className="cn-box" /> off{" "}
-            <span className="cn-dash">—</span> never
-          </p>
-        </header>
-        <div className="cn-table-wrap">
-          <table className="rt cn-table">
-            <thead>
-              <tr>
-                <th scope="col">Source</th>
-                <th scope="col">What it gives</th>
-                <th scope="col" className="cn-c">
-                  Read
-                </th>
-                <th scope="col" className="cn-c">
-                  Write
-                </th>
-                <th scope="col" className="num">
-                  Last read
-                </th>
-                <th scope="col">
-                  <span className="sr-only">Action</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => {
-                const c = r.connection;
-                const isOpen = open === r.id;
-                const canConnect = c === null && r.provider !== null;
-                const panelId = `cn-row-${r.id}`;
-                return (
-                  <Fragment key={r.id}>
-                    <tr id={`cn-src-${r.id}`} className={isOpen ? "on" : undefined}>
-                      <th scope="row" className="cn-name" data-label="Source">
-                        {r.label}
-                      </th>
-                      <td className="cn-gives" data-label="What it gives">
-                        {r.gives}
-                      </td>
-                      <td className="cn-c" data-label="Read">
-                        <ReadBox c={c} />
-                      </td>
-                      <td className="cn-c" data-label="Write">
-                        <span className="cn-dash" aria-hidden="true">
-                          —
-                        </span>
-                        <span className="sr-only">never — read-only by design</span>
-                      </td>
-                      <td className="num cn-last" data-label="Last read">
-                        {lastRead(c?.last_sync_at ?? null, now)}
-                        {c !== null && c.status !== "connected" && (
-                          <span className={`word ${c.status === "failed" ? "alarm" : "drift"}`}>
-                            {c.status}
+      <fieldset className="role-lock" disabled={connectWhy !== null}>
+        <section className="cs cn-panel" aria-labelledby="cn-panel-title">
+          <header className="cs-head">
+            <div>
+              <p className="cs-label">Patch panel</p>
+              <h2 className="cs-title" id="cn-panel-title">
+                What&rsquo;s plugged in
+              </h2>
+            </div>
+            <p className="cs-meta cn-legend" aria-hidden="true">
+              <span className="cn-box on" /> on <span className="cn-box" /> off{" "}
+              <span className="cn-dash">—</span> never
+            </p>
+          </header>
+          <div className="cn-table-wrap">
+            <table className="rt cn-table">
+              <thead>
+                <tr>
+                  <th scope="col">Source</th>
+                  <th scope="col">What it gives</th>
+                  <th scope="col" className="cn-c">
+                    Read
+                  </th>
+                  <th scope="col" className="cn-c">
+                    Write
+                  </th>
+                  <th scope="col" className="num">
+                    Last read
+                  </th>
+                  <th scope="col">
+                    <span className="sr-only">Action</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => {
+                  const c = r.connection;
+                  const isOpen = open === r.id;
+                  const canConnect = c === null && r.provider !== null;
+                  const panelId = `cn-row-${r.id}`;
+                  return (
+                    <Fragment key={r.id}>
+                      <tr id={`cn-src-${r.id}`} className={isOpen ? "on" : undefined}>
+                        <th scope="row" className="cn-name" data-label="Source">
+                          {r.label}
+                        </th>
+                        <td className="cn-gives" data-label="What it gives">
+                          {r.gives}
+                        </td>
+                        <td className="cn-c" data-label="Read">
+                          <ReadBox c={c} />
+                        </td>
+                        <td className="cn-c" data-label="Write">
+                          <span className="cn-dash" aria-hidden="true">
+                            —
                           </span>
-                        )}
-                      </td>
-                      <td className="cn-act">
-                        {(c !== null || canConnect) && (
-                          <button
-                            type="button"
-                            className="prop-btn"
-                            aria-expanded={isOpen}
-                            aria-controls={panelId}
-                            onClick={() => {
-                              setOpen(isOpen ? null : r.id);
-                              setConfirming(null);
-                            }}
-                          >
-                            {isOpen ? (
-                              "Close"
-                            ) : c !== null ? (
-                              "Settings"
-                            ) : (
-                              <>
-                                Connect <span aria-hidden="true">→</span>
-                              </>
-                            )}
-                            <span className="sr-only"> {r.label}</span>
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                    {isOpen && (
-                      <tr className="cn-open" id={panelId}>
-                        <td colSpan={6}>
-                          {c !== null ? (
-                            <SourceSettings
-                              connection={c}
-                              busy={busy === c.id}
-                              confirming={confirming === c.id}
-                              onSync={() => void syncNow(c)}
-                              onAskDisconnect={() => setConfirming(c.id)}
-                              onCancel={() => setConfirming(null)}
-                              onDisconnect={() => void disconnectOne(c)}
-                            />
-                          ) : r.provider !== null ? (
-                            <ConnectPanel
-                              provider={r.provider}
-                              onConnected={async (message) => {
-                                setNotice(message);
-                                setOpen(null);
-                                await load();
+                          <span className="sr-only">never — read-only by design</span>
+                        </td>
+                        <td className="num cn-last" data-label="Last read">
+                          {lastRead(c?.last_sync_at ?? null, now)}
+                          {c !== null && c.status !== "connected" && (
+                            <span className={`word ${c.status === "failed" ? "alarm" : "drift"}`}>
+                              {c.status}
+                            </span>
+                          )}
+                        </td>
+                        <td className="cn-act">
+                          {(c !== null || canConnect) && (
+                            <button
+                              type="button"
+                              className="prop-btn"
+                              aria-expanded={isOpen}
+                              aria-controls={panelId}
+                              onClick={() => {
+                                setOpen(isOpen ? null : r.id);
+                                setConfirming(null);
                               }}
-                            />
-                          ) : null}
+                            >
+                              {isOpen ? (
+                                "Close"
+                              ) : c !== null ? (
+                                "Settings"
+                              ) : (
+                                <>
+                                  Connect <span aria-hidden="true">→</span>
+                                </>
+                              )}
+                              <span className="sr-only"> {r.label}</span>
+                            </button>
+                          )}
                         </td>
                       </tr>
-                    )}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <footer className="cs-foot cn-foot">
-          {past.length > 0 && (
-            <ul className="cn-past">
-              {past.map((c) => (
-                <li key={c.id}>
-                  <span className="cn-past-at">
-                    {(c.disconnected_at ?? c.created_at).slice(0, 10)}
-                  </span>{" "}
-                  {c.label} disconnected. The credential was deleted; the measured history it
-                  produced stays in your profile.
-                </li>
-              ))}
-            </ul>
-          )}
-          <p>
-            Measured figures replace your estimates in the report, and your estimates stay in your
-            history. Google Ads isn&rsquo;t available yet: it needs SYB&rsquo;s own approval from
-            Google before any account can connect.
+                      {isOpen && (
+                        <tr className="cn-open" id={panelId}>
+                          <td colSpan={6}>
+                            {c !== null ? (
+                              <SourceSettings
+                                connection={c}
+                                busy={busy === c.id}
+                                confirming={confirming === c.id}
+                                onSync={() => void syncNow(c)}
+                                onAskDisconnect={() => setConfirming(c.id)}
+                                onCancel={() => setConfirming(null)}
+                                onDisconnect={() => void disconnectOne(c)}
+                              />
+                            ) : r.provider !== null ? (
+                              <ConnectPanel
+                                provider={r.provider}
+                                onConnected={async (message) => {
+                                  setNotice(message);
+                                  setOpen(null);
+                                  await load();
+                                }}
+                              />
+                            ) : null}
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <footer className="cs-foot cn-foot">
+            {past.length > 0 && (
+              <ul className="cn-past">
+                {past.map((c) => (
+                  <li key={c.id}>
+                    <span className="cn-past-at">
+                      {(c.disconnected_at ?? c.created_at).slice(0, 10)}
+                    </span>{" "}
+                    {c.label} disconnected. The credential was deleted; the measured history it
+                    produced stays in your profile.
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p>
+              Measured figures replace your estimates in the report, and your estimates stay in your
+              history. Google Ads isn&rsquo;t available yet: it needs SYB&rsquo;s own approval from
+              Google before any account can connect.
+            </p>
+          </footer>
+        </section>
+
+        {/* Bookings (specs/bookings.md §5): an export from any booking system, read once. */}
+        <BookingsImportSection />
+      </fieldset>
+
+      <fieldset className="role-lock" disabled={consentWhy !== null}>
+        {consentWhy !== null && (
+          <p className="cn-banner" role="note">
+            {consentWhy}
           </p>
-        </footer>
-      </section>
+        )}
+        {/* P3-20h: write access, visibly apart from everything above. */}
+        {exec !== null && <ExecutionSection view={exec} onChanged={loadExec} />}
 
-      {/* Bookings (specs/bookings.md §5): an export from any booking system, read once. */}
-      <BookingsImportSection />
-
-      {/* P3-20h: write access, visibly apart from everything above. */}
-      {exec !== null && <ExecutionSection view={exec} onChanged={loadExec} />}
-
-      {/* P4-15: campaign email — no token of yours, SYB's own email service, your consent. */}
-      {email !== null && <EmailCampaignSection view={email} onChanged={loadEmail} />}
+        {/* P4-15: campaign email — no token of yours, SYB's own email service, your consent. */}
+        {email !== null && <EmailCampaignSection view={email} onChanged={loadEmail} />}
+      </fieldset>
     </main>
   );
 }

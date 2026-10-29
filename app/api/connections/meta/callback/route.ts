@@ -21,6 +21,7 @@ import {
   metaLoginConfig,
 } from "../../../../../lib/execution/meta-login";
 import { metaExecution } from "../../../../../lib/execution/providers/meta";
+import { requireRole } from "../../../../../lib/auth/roles";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const requestOrigin = new URL(request.url).origin;
@@ -30,6 +31,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const store = await cookies();
   const access = await resolveAccess();
+  // Idea 52: write access is the owner's own consent (rule 13).
+  if (access?.session && requireRole(access, "write_access.manage")) {
+    const refused = NextResponse.redirect(
+      connectionsReturnUrl(origin, { kind: "failed", provider: null, reason: "owner_only" }),
+      303,
+    );
+    refused.cookies.set(META_LOGIN_NONCE_COOKIE, "", loginCookieOptions(origin, 0));
+    return refused;
+  }
   const outcome = await completeMetaCallback({
     accountId: access?.session?.account_id ?? null,
     query: {

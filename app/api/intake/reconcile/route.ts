@@ -9,12 +9,16 @@ import { eq } from "drizzle-orm";
 import { db } from "../../../../db";
 import { businessProfiles } from "../../../../db/schema";
 import { IntakeError, reconcileFinding } from "../../../../lib/intake/service";
+import { requireRole } from "../../../../lib/auth/roles";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
-    const profileId = (await resolveAccess())?.profile_id;
+    const access = await resolveAccess();
+    const profileId = access?.profile_id;
     if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 404 });
+    const denied = requireRole(access, "profile.edit");
+    if (denied) return denied;
     const rows = await db
       .select({ account_id: businessProfiles.account_id })
       .from(businessProfiles)

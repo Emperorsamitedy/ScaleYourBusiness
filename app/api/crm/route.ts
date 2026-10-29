@@ -55,6 +55,8 @@ import { ProposalError } from "../../../lib/proposals/service";
 import { resendEventsWebhookSecret } from "../../../lib/env";
 import { activeExecutionConnection } from "../../../lib/execution/connections";
 import { emailCampaignOutcome } from "../../../lib/trust/email-readback";
+import { requireRole } from "../../../lib/auth/roles";
+import type { RoleAction } from "../../../lib/auth/roles";
 
 // Review 2026-10-23 (#24): approving a campaign's email tries the send at once,
 // and a 50-recipient run paced 600 ms apart takes about 40–60 s. 300 s is
@@ -203,6 +205,16 @@ async function answeredText(profileId: string, key: string): Promise<string | nu
     : null;
 }
 
+/** Idea 52: the role each action needs (lib/auth/roles); an action not listed asks for an owner. */
+const CRM_ROLE: Record<string, RoleAction> = {
+  import: "data.import",
+  erase: "erasure.run",
+  propose_segments: "proposals.generate",
+  draft_campaign: "content.draft",
+  approve_campaign_email: "proposals.decide",
+  send_campaign: "proposals.decide",
+};
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const who = await resolveProfile();
   if (!who) return NextResponse.json({ error: "no intake session" }, { status: 401 });
@@ -225,6 +237,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       subject?: unknown;
       body_sha256?: unknown;
     };
+    const denied = requireRole(session, CRM_ROLE[String(body.action)] ?? "rules.manage");
+    if (denied) return denied;
     switch (body.action) {
       case "import": {
         if (typeof body.csv !== "string" || typeof body.statement !== "string") {

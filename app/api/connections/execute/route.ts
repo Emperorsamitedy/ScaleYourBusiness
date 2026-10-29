@@ -36,6 +36,7 @@ import {
   accessLevelCopy,
   accessTierWords,
 } from "../../../../lib/execution/setup";
+import { requireRole } from "../../../../lib/auth/roles";
 
 const AUTH_COOKIE = "syb_session";
 
@@ -108,6 +109,8 @@ export async function GET(): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const session = await signedIn();
   if (!session) return unauthorised();
+  const denied = requireRole(session, "write_access.manage");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => null)) as {
       provider?: unknown;
@@ -140,6 +143,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   const session = await signedIn();
   if (!session) return unauthorised();
+  const denied = requireRole(session, "write_access.manage");
+  if (denied) return denied;
   try {
     const body = (await request.json().catch(() => null)) as { id?: unknown } | null;
     if (typeof body?.id !== "string") {

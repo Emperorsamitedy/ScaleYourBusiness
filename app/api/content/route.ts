@@ -47,6 +47,8 @@ import { ProposalError } from "../../../lib/proposals/service";
 import { adItemStates, proposeAdRun, proposeGoLive } from "../../../lib/ads/adcreate";
 import type { AdAudienceInput } from "../../../lib/ads/targeting";
 import { postOutcomes } from "../../../lib/trust/post-readback";
+import { requireRole } from "../../../lib/auth/roles";
+import type { RoleAction } from "../../../lib/auth/roles";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -132,8 +134,19 @@ export async function GET(): Promise<NextResponse> {
   }
 }
 
+/** Idea 52: the role each action needs (lib/auth/roles); an action not listed asks for an owner. */
+const CONTENT_ROLE: Record<string, RoleAction> = {
+  plan: "proposals.generate",
+  shotlist: "proposals.generate",
+  run_ad: "proposals.generate",
+  go_live: "proposals.generate",
+  produce: "content.draft",
+  withdraw: "proposals.carry_out",
+};
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const profileId = await resolveProfile();
+  const access = await resolveAccess();
+  const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
     const body = (await request.json()) as {
@@ -145,6 +158,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       daily_budget_minor?: unknown;
       run_days?: unknown;
     };
+    const denied = requireRole(access, CONTENT_ROLE[String(body.action)] ?? "rules.manage");
+    if (denied) return denied;
 
     if (body.action === "plan") {
       const proposal = await proposeContentPlan(profileId);

@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { readOneNow } from "../../../../../lib/competitors/service";
 import { failure, session, signedOut } from "../../shared";
+import { requireRole } from "../../../../../lib/auth/roles";
 
 export const maxDuration = 60;
 
@@ -15,6 +16,8 @@ export async function POST(
 ): Promise<NextResponse> {
   const s = await session();
   if (!s) return signedOut();
+  const denied = requireRole(s, "competitors.manage");
+  if (denied) return denied;
   const { id } = await params;
   try {
     const result = await readOneNow(s.profile_id, id);

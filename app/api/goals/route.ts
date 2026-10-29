@@ -16,6 +16,7 @@ import {
   suggestGoalsFromReport,
   updateGoal,
 } from "../../../lib/content/goals";
+import { requireRole } from "../../../lib/auth/roles";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -48,8 +49,11 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const profileId = await resolveProfile();
+  const access = await resolveAccess();
+  const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "profile.edit");
+  if (denied) return denied;
   try {
     const body = (await request.json()) as {
       statement?: unknown;
@@ -73,8 +77,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
-  const profileId = await resolveProfile();
+  const access = await resolveAccess();
+  const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "profile.edit");
+  if (denied) return denied;
   try {
     const body = (await request.json()) as { goal_id?: unknown } & Record<string, unknown>;
     if (typeof body.goal_id !== "string") {

@@ -22,6 +22,7 @@ import {
   metaLoginConfig,
 } from "../../../../../lib/execution/meta-login";
 import { metaExecution } from "../../../../../lib/execution/providers/meta";
+import { requireRole } from "../../../../../lib/auth/roles";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
@@ -29,6 +30,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!access || !session) {
     return NextResponse.json({ error: "sign in to manage connections" }, { status: 401 });
   }
+  const denied = requireRole(session, "write_access.manage");
+  if (denied) return denied;
   const requestOrigin = new URL(request.url).origin;
   const origin = flowOrigin(metaLoginConfig(metaLoginEnv(), requestOrigin), requestOrigin);
   const forget = (response: NextResponse) => {

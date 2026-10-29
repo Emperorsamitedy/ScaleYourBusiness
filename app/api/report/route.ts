@@ -12,11 +12,12 @@ import { NextResponse } from "next/server";
 import { DiagnosisError } from "../../../lib/diagnosis/findings";
 import { hasPaidReport, paymentsConfigured } from "../../../lib/payments/stripe";
 import { generateReport, latestReport } from "../../../lib/report/service";
+import { requireRole } from "../../../lib/auth/roles";
+import type { Access } from "../../../lib/auth/access";
 
-async function resolveSession(): Promise<{ account_id: string; profile_id: string } | null> {
+async function resolveSession(): Promise<Access | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
-  const access = await resolveAccess();
-  return access ? { profile_id: access.profile_id, account_id: access.account_id } : null;
+  return resolveAccess();
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -41,6 +42,8 @@ export async function GET(): Promise<NextResponse> {
 export async function POST(): Promise<NextResponse> {
   const session = await resolveSession();
   if (!session) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(session, "report.generate");
+  if (denied) return denied;
   try {
     // The payment gate (P1-50). Armed only when Stripe is configured, so
     // an environment without keys behaves exactly as before — logged, so

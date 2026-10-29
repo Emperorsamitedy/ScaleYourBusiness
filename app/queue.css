@@ -747,6 +747,17 @@
   line-height: 1.6;
   color: var(--sheet-ink-2);
 }
+/* Idea 52: why the answers are greyed for this role, in the server's own words. */
+.q-role-note {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  max-width: 90ch;
+  border-left: 3px solid var(--marker);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--sheet-ink);
+}
 
 .q-panel {
   margin-top: 15px;
