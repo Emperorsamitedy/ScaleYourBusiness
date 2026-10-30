@@ -131,6 +131,11 @@ export async function receiveReviewEmail(
         reviewed_at: read.reviewed_at,
       };
       readBy = "model";
+    } else if (read.text !== null) {
+      // Review 2026-10-30: the fallback was capped or found nothing, but the
+      // parser had read the words: they stay, with no stars, so the flag-word
+      // check (worthKnowing) still runs on them.
+      readBy = "parser";
     } else {
       // Unread: nothing of the email is kept but its platform, date and link.
       read = {
