@@ -1036,7 +1036,8 @@ interface CampaignComparison {
   - Cost of sales is the offers' cost_to_deliver × volume_period ÷ their price × volume_period when every selling offer has a cost; otherwise it is 100 % − costs.gross_margin.
   - Per-sale costs are 5.2's per_unit lines × the offers' monthly units, and per_job lines × revenue.order_count_monthly.
   - Running costs are 5.1 and 5.2's monthly, quarterly and annual lines made monthly. `loan_payments` is left out and named.
-  - Staff pay is the `salaries` lines when there are any, else the employees' cost_monthly on 9.2. It is never the owner's own row.
+  - When cost of sales comes from costs.gross_margin, the categories the map flags in `inside_gross_margin` (materials, packaging, shipping, payment and platform fees) are already in it: they are not taken off again as per-sale or running costs, and each is named "already inside the gross margin you gave" (review 2026-10-30).
+  - Staff pay is the `salaries` lines when there are any, else the employees' cost_monthly on 9.2. It is never the owner's own row. A `salaries` line with no amount, no frequency or another currency refuses the margin, as an unpriced employee does (review 2026-10-30).
 - **Turnover per person** = revenue.monthly_revenue × 12 ÷ identity.team_size, against `NETTUR_EMP_TEUR`.
 - **Staff cost per employee** = staff pay × 12 ÷ the 9.2 rows marked employee, against `AVG_EXPN_SAL_BEN_TEUR`. `LC_EMP_TEUR` isn't used, because it is per person employed, owners included.
 

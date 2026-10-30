@@ -239,6 +239,50 @@ describe("the operating margin", () => {
     expect(unpriced).toMatchObject({ needs: [{ href: BENCH_ASK.staff }] });
   });
 
+  // Review 2026-10-30: a stated gross margin already took the cost of what was sold off.
+  it("with a stated gross margin, direct costs aren't taken off twice; with offers' costs they are", () => {
+    const costs = [
+      cost("rent", "rent", eur(2_000), "monthly"),
+      cost("wages", "salaries", eur(6_000), "monthly"),
+      cost("flour", "materials", eur(1_000), "monthly"),
+      cost("box", "packaging", eur(0.5), "per_unit", "variable"),
+      cost("cards", "payment_fees", eur(300), "monthly"),
+    ];
+    const stated = ownMargin(inputs({ costs }));
+    if ("why" in stated) throw new Error(stated.why);
+    // As the first test: 20,000 − 6,000 (30%) − 2,000 − 6,000 = 6,000 → 30%.
+    expect(stated.pct).toBe(30);
+    expect(stated.left_out).toEqual([
+      "box: already inside the gross margin you gave.",
+      "flour: already inside the gross margin you gave.",
+      "cards: already inside the gross margin you gave.",
+    ]);
+    expect(stated.derived_from).not.toContain("costs.flour.amount");
+    const costed = ownMargin(inputs({ costs, offers: [offer("lunch", 10, 4, 1_000)] }));
+    if ("why" in costed) throw new Error(costed.why);
+    // 20,000 − 8,000 (40%) − 500 boxes − 2,000 − 6,000 − 1,000 − 300 = 2,200 → 11%.
+    expect(costed.pct).toBe(11);
+    expect(costed.left_out).toEqual([]);
+  });
+
+  // Review 2026-10-30: a pay line that can't be counted used to drop out of the margin.
+  it("refuses when a salaries line has no amount, or is in another currency", () => {
+    for (const wages of [
+      cost("wages", "salaries", null, "monthly"),
+      cost("wages", "salaries", { ...eur(6_000), currency: "HUF" }, "monthly"),
+      cost("wages", "salaries", eur(6_000), null),
+    ]) {
+      const m = ownMargin(inputs({ costs: [cost("rent", "rent", eur(2_000), "monthly"), wages] }));
+      expect(m, JSON.stringify(wages)).toMatchObject({
+        why: expect.stringMatching(
+          /^The pay line wages on your costs list has no monthly amount in EUR/,
+        ),
+        needs: [{ href: BENCH_ASK.costs }],
+      });
+      expect("pct" in m).toBe(false);
+    }
+  });
+
   it("needs no staff pay for a one-person business", () => {
     const m = ownMargin(inputs({ costs: [], team_size: count(1) }));
     expect("pct" in m && m.pct).toBe(70);
