@@ -27,6 +27,7 @@ import { cartsApply, loadCarts } from "../../../lib/carts/load";
 import type { CartsMeasure } from "../../../lib/carts/measure";
 import { CARTS, WIN_BACK } from "../../../lib/carts/measure";
 import { abandonedCartSegment } from "../../../lib/carts/segment";
+import { checkoutConsentCounts } from "../../../lib/carts/consent";
 import type { CartShopperRead } from "../../../lib/connectors/provider";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { outboundPosture } from "../../../lib/crm/contacts";
@@ -73,6 +74,12 @@ export interface CartsScreenView {
   proposal?: { id: string; status: string; blocked_by_limit: string | null } | null;
   /** Why a reminder can't be proposed now, in the owner's words; null when it can. */
   held?: string | null;
+  /**
+   * I-47a/I-47c: the contacts who said yes at Shopify's checkout, the owner's
+   * yeses a later Shopify opt-out ended, and the owner's other answers
+   * Shopify disagrees with (left as recorded; null before a read had shoppers).
+   */
+  checkout_consent?: { said_yes: number; withdrawn: number; differs: number | null };
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -120,6 +127,10 @@ export async function GET(): Promise<NextResponse> {
         carts: s.carts,
         shopper: s.shopper,
       })),
+      checkout_consent: {
+        ...(await checkoutConsentCounts(access.account_id)),
+        differs: view.sources.find((s) => s.consent_differs !== null)?.consent_differs ?? null,
+      },
       measure: view.measure,
       product_names: view.product_names,
       rule_of_thumb: {

@@ -65,11 +65,13 @@
 // "Requires read_customers access scope", now an optional fourth scope,
 // like read_all_orders. With it the read uses a second fixed document,
 // abandoned_checkouts_shoppers, which adds exactly
-// customer { defaultEmailAddress { emailAddress marketingState } } and
-// nothing else of the customer: no name, phone or address. The email is
-// hashed by the store on the way in and never kept (lib/carts/store.ts);
-// marketingState SUBSCRIBED becomes accepts_marketing, which is never
-// consent (I-47a). Without the scope the plain document is sent, as before.
+// customer { defaultEmailAddress { emailAddress marketingState
+// marketingUpdatedAt } } and nothing else of the customer: no name, phone
+// or address. The email is hashed by the store on the way in and never
+// kept on the cart (lib/carts/store.ts); marketingState SUBSCRIBED becomes
+// accepts_marketing, and lib/carts/consent.ts turns it into a contact's
+// recorded consent, named to the checkout and marketingUpdatedAt (I-47a,
+// owner 2026-10-30). Without the scope the plain document is sent.
 // Email is protected customer data, level 2, which Shopify's page (read
 // 2026-10-30) lists as "Always available" to custom apps. If Shopify
 // withholds it anyway (ACCESS_DENIED, or "not approved to access the
@@ -280,6 +282,7 @@ export const SHOPIFY_QUERIES = {
         defaultEmailAddress {
           emailAddress
           marketingState
+          marketingUpdatedAt
         }
       }
       totalPriceSet {
@@ -994,7 +997,11 @@ export function parseCart(value: unknown, withShopper = false): ExternalCart {
 }
 
 interface Shopper {
-  defaultEmailAddress?: { emailAddress?: unknown; marketingState?: unknown } | null;
+  defaultEmailAddress?: {
+    emailAddress?: unknown;
+    marketingState?: unknown;
+    marketingUpdatedAt?: unknown;
+  } | null;
 }
 
 const MARKETING_STATES = new Set([
@@ -1008,18 +1015,22 @@ const MARKETING_STATES = new Set([
 /** Pure: a checkout customer's email and Shopify's own tick (never consent, I-47a). */
 function shopperOf(
   customer: Shopper | null | undefined,
-): Pick<ExternalCart, "email" | "accepts_marketing"> {
+): Pick<ExternalCart, "email" | "accepts_marketing" | "marketing_state" | "marketing_updated_at"> {
   const address = customer?.defaultEmailAddress;
   const email =
     typeof address?.emailAddress === "string" && address.emailAddress.trim() !== ""
       ? address.emailAddress
       : null;
   if (email === null) return { email: null, accepts_marketing: null };
-  const state = typeof address?.marketingState === "string" ? address.marketingState : null;
+  const raw = typeof address?.marketingState === "string" ? address.marketingState : null;
+  const state = raw !== null && MARKETING_STATES.has(raw) ? raw : null;
+  const updated = address?.marketingUpdatedAt;
   return {
     email,
-    accepts_marketing:
-      state !== null && MARKETING_STATES.has(state) ? state === "SUBSCRIBED" : null,
+    accepts_marketing: state === null ? null : state === "SUBSCRIBED",
+    marketing_state: state,
+    marketing_updated_at:
+      typeof updated === "string" && Number.isFinite(Date.parse(updated)) ? updated : null,
   };
 }
 

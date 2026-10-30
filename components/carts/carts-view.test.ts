@@ -7,6 +7,7 @@ import type { CartsScreenView } from "../../app/api/carts/route";
 import type { Measured } from "./carts-view";
 import {
   cartsHeadline,
+  checkoutConsentNotes,
   refusalTitle,
   consentNotes,
   moneyList,
@@ -190,5 +191,27 @@ describe("the button", () => {
     expect(proposeBlock(view({ reminder: { ...view().reminder!, emailable: 0 } }))).toBe(
       "No contact who said yes to email left a cart 1–7 days ago, so there is nobody to remind.",
     );
+  });
+});
+
+// I-47a/I-47c: what Shopify's checkout tick did to the contacts.
+describe("the checkout's yes, in words", () => {
+  it("says who said yes, whose yes ended, and what was left as recorded", () => {
+    expect(
+      checkoutConsentNotes(view({ checkout_consent: { said_yes: 4, withdrawn: 1, differs: 2 } })),
+    ).toEqual([
+      "4 contacts said yes to email at Shopify's checkout, recorded with when they did. If they unsubscribe in Shopify, I stop emailing them.",
+      "1 contact you recorded as a yes later unsubscribed in Shopify, so I no longer email them.",
+      "Shopify lists 2 contacts as subscribed whom you recorded differently. I left those answers as you recorded.",
+    ]);
+  });
+
+  it("says nothing when the tick changed nothing, or wasn't read", () => {
+    expect(
+      checkoutConsentNotes(
+        view({ checkout_consent: { said_yes: 0, withdrawn: 0, differs: null } }),
+      ),
+    ).toEqual([]);
+    expect(checkoutConsentNotes(view())).toEqual([]);
   });
 });

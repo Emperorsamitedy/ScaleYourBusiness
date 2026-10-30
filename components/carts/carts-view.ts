@@ -108,6 +108,32 @@ export function consentNotes(m: Measured, shopper: CartShopperRead | null = null
   return out;
 }
 
+/**
+ * I-47a/I-47c: what Shopify's checkout tick did to the contacts, in words,
+ * or nothing when it did nothing. Counts only.
+ */
+export function checkoutConsentNotes(view: CartsScreenView): string[] {
+  const c = view.checkout_consent;
+  if (!c) return [];
+  const out: string[] = [];
+  if (c.said_yes > 0) {
+    out.push(
+      `${num(c.said_yes)} ${c.said_yes === 1 ? "contact" : "contacts"} said yes to email at Shopify's checkout, recorded with when they did. If they unsubscribe in Shopify, I stop emailing them.`,
+    );
+  }
+  if (c.withdrawn > 0) {
+    out.push(
+      `${num(c.withdrawn)} ${c.withdrawn === 1 ? "contact" : "contacts"} you recorded as a yes later unsubscribed in Shopify, so I no longer email them.`,
+    );
+  }
+  if (c.differs !== null && c.differs > 0) {
+    out.push(
+      `Shopify lists ${num(c.differs)} ${c.differs === 1 ? "contact" : "contacts"} as subscribed whom you recorded differently. I left ${c.differs === 1 ? "that answer" : "those answers"} as you recorded.`,
+    );
+  }
+  return out;
+}
+
 /** The contacts of the reminder's week who won't get one, and why, or null when there are none. */
 export function weekLine(view: CartsScreenView): string | null {
   const r = view.reminder;
