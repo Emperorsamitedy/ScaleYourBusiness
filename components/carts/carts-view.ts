@@ -25,6 +25,11 @@ export function cartsHeadline(view: CartsScreenView): string {
   const read = (view.sources ?? []).some((s) => s.read_at !== null);
   const m = view.measure;
   if (!m || (!read && m.status === "refused")) return "I haven't read your carts yet.";
+  // Review 2026-10-30: a stale or partial read says so, not "too early".
+  if (m.status === "refused" && m.basis === "too_many") {
+    return "Too many checkouts to read in full.";
+  }
+  if (m.status === "refused" && m.basis === "stale") return "Your carts haven't been read lately.";
   if (m.status === "refused") return "Too early to measure your abandoned carts.";
   const days = view.thresholds?.window_days ?? 30;
   const value = m.current.value_left.filter((v) => v.amount_minor > 0);
@@ -33,6 +38,13 @@ export function cartsHeadline(view: CartsScreenView): string {
       ? `${plural(m.current.left, "cart was", "carts were")} left in the last ${days} days`
       : `${moneyList(value)} was left in carts in the last ${days} days`;
   return `${left}; ${num(m.reach.emailable_shoppers)} of the ${plural(m.reach.shoppers, "shopper")} can be emailed.`;
+}
+
+/** The refusal card's title. */
+export function refusalTitle(m: CartsScreenView["measure"]): string {
+  if (m?.status === "refused" && m.basis === "too_many") return "Too many checkouts to read";
+  if (m?.status === "refused" && m.basis === "stale") return "No figure from an old read";
+  return "Not enough carts to measure";
 }
 
 /** The share left, as a whole percent, or null when orders weren't measured. */

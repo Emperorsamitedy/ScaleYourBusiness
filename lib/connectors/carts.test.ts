@@ -299,6 +299,58 @@ describe("the sync reads the carts", () => {
   });
 });
 
+// Review 2026-10-30: how the reads went, for the carts screen.
+describe("the connection records its cart reads", () => {
+  const state = async (id: string) =>
+    (await db.select().from(connections).where(eq(connections.id, id)))[0]!.cart_read;
+
+  it("a good read records when; a later failure keeps it and says too many", async () => {
+    let endless = false;
+    const { conn } = await shopWith({
+      carts: [shopCart(daysAgo(2), "10.00")],
+      respond: (call) =>
+        endless && call.query?.startsWith("query AbandonedCheckouts")
+          ? {
+              status: 200,
+              json: async () => ({
+                data: {
+                  abandonedCheckouts: {
+                    nodes: [],
+                    pageInfo: { hasNextPage: true, endCursor: "more" },
+                  },
+                },
+              }),
+            }
+          : null,
+    });
+    await syncConnection(conn.id, NOW);
+    expect(await state(conn.id)).toEqual({
+      ok_at: NOW.toISOString(),
+      failed_at: null,
+      too_many: false,
+    });
+    endless = true;
+    const later = new Date(NOW.getTime() + 86_400_000);
+    expect((await syncConnection(conn.id, later)).ok).toBe(true);
+    expect(await state(conn.id)).toEqual({
+      ok_at: NOW.toISOString(),
+      failed_at: later.toISOString(),
+      too_many: true,
+    });
+  });
+
+  it("an ordinary failure isn't too many", async () => {
+    const { conn } = await shopWith({
+      respond: (call) =>
+        call.query?.startsWith("query AbandonedCheckouts")
+          ? { status: 200, json: async () => ({ errors: [{ message: "boom" }] }) }
+          : null,
+    });
+    await syncConnection(conn.id, NOW);
+    expect(await state(conn.id)).toMatchObject({ ok_at: null, too_many: false });
+  });
+});
+
 describe("the store keeps no address, and forgets on time", () => {
   it("prunes carts past 90 days and keeps the one at 89", async () => {
     const { s, conn } = await shopWith({});

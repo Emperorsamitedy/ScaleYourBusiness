@@ -93,6 +93,53 @@ describe("rule 25: refuse thin history", () => {
   });
 });
 
+// Review 2026-10-30: never a headline from a stale or partial read.
+describe("freshness of the last good read", () => {
+  const enough = [...leftCarts(9), cart(14)];
+  const read = (ok_at: string | null, too_many = false) => [{ label: "Shopify", ok_at, too_many }];
+
+  it("a read two days ago still measures; three days ago refuses and says when", () => {
+    const fresh = measureCarts({
+      today: TODAY,
+      carts: enough,
+      orders: [],
+      reads: read(`${ago(2)}T06:00:00.000Z`),
+    });
+    expect(fresh.status).toBe("measured");
+    const old = measureCarts({
+      today: TODAY,
+      carts: enough,
+      orders: [],
+      reads: read(`${ago(3)} 06:00:00+00`),
+    });
+    expect(old).toMatchObject({ status: "refused", basis: "stale", ready_from: null });
+    if (old.status === "refused") {
+      expect(old.reason).toBe(
+        "I last read your carts from Shopify on 26 Oct, so I'm not showing a figure that may be out of date. It comes back with the next good read.",
+      );
+    }
+  });
+
+  it("too many checkouts to read in full refuses, naming the last full read", () => {
+    const m = measureCarts({
+      today: TODAY,
+      carts: enough,
+      orders: [],
+      reads: read(`${ago(1)}T06:00:00.000Z`, true),
+    });
+    expect(m).toMatchObject({ status: "refused", basis: "too_many" });
+    if (m.status === "refused") {
+      expect(m.reason).toMatch(/more abandoned checkouts in the last 60 days than one read/);
+      expect(m.reason).toMatch(/The last full read was on 28 Oct\.$/);
+    }
+  });
+
+  it("thin history is still the thin refusal", () => {
+    const m = measureCarts({ today: TODAY, carts: [], orders: [], reads: read(null) });
+    expect(m).toMatchObject({ status: "refused", basis: "thin" });
+  });
+});
+
 describe("the arithmetic", () => {
   it("left, recovered, the share left against the orders counted, and money per currency", () => {
     const carts = [

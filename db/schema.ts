@@ -1156,6 +1156,12 @@ export const connections = pgTable(
       .notNull()
       .defaultNow(),
     disconnected_at: timestamp("disconnected_at", { withTimezone: true, mode: "string" }),
+    /**
+     * Idea 47, review 2026-10-30 (migration 0071): how this store's last
+     * abandoned-cart reads went, so the carts screen never headlines a stale
+     * figure. Null until a read is attempted. State only, no shopper data.
+     */
+    cart_read: jsonb("cart_read").$type<CartReadState>(),
   },
   (t) => [
     uniqueIndex("connections_active_idx")
@@ -1288,6 +1294,16 @@ export const orderBaskets = pgTable(
 // today (TASKS-FEEDBACK.md I-47b). `accepts_marketing` is Shopify's own
 // tick, stored and never used as consent (I-47a); null when not read.
 // Erasing a contact deletes the carts their address hashes to.
+
+/** A store's abandoned-cart reads (connections.cart_read). */
+export interface CartReadState {
+  /** The last read that landed in full; null when none has. */
+  ok_at: string | null;
+  /** The last read that failed, when it came after the last good one. */
+  failed_at: string | null;
+  /** That failure was the store holding more checkouts than one sync reads. */
+  too_many: boolean;
+}
 
 /** One line of a cart: the product, how many, at what unit price (the cart's currency). */
 export interface CartLine {

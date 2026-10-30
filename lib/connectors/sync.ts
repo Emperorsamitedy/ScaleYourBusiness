@@ -31,6 +31,7 @@ import { db } from "../../db";
 import { withAdvisoryLock } from "../../db/advisory-lock";
 import { connections, connectorSyncs, metricObservations } from "../../db/schema";
 import type { Provider } from "./provider";
+import { TooManyCartsError } from "./provider";
 import type { DeriveOutcome } from "./derive";
 import type { AnomalyOutcome } from "../anomaly/detect";
 import type { MetaReadback } from "../execution/providers/meta";
@@ -94,6 +95,11 @@ async function readCarts(
   try {
     const read = await provider.readAbandonedCheckouts(secret, now, CARTS.read_days);
     const stored = await storeCarts(row, read, now);
+    // Review 2026-10-30: the read's freshness, for the carts screen.
+    await db
+      .update(connections)
+      .set({ cart_read: { ok_at: now.toISOString(), failed_at: null, too_many: false } })
+      .where(eq(connections.id, row.id));
     console.log(
       JSON.stringify({
         event: "carts_read",
@@ -113,6 +119,27 @@ async function readCarts(
         message: errorText(error),
       }),
     );
+    // Review 2026-10-30: kept beside the last good read, never instead of it.
+    await db
+      .update(connections)
+      .set({
+        cart_read: {
+          ok_at: row.cart_read?.ok_at ?? null,
+          failed_at: now.toISOString(),
+          too_many: error instanceof TooManyCartsError,
+        },
+      })
+      .where(eq(connections.id, row.id))
+      .catch((e: unknown) =>
+        console.error(
+          JSON.stringify({
+            event: "carts_read_state_failed",
+            account_id: row.account_id,
+            connection_id: row.id,
+            ...logSafeError(e),
+          }),
+        ),
+      );
     return null;
   }
 }

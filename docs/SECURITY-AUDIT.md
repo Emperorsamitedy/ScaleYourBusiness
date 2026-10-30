@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0070**, then `db:seed` (question bank 1.9.0).
+2. **Migrations and bank:** `db:migrate` through **0071**, then `db:seed` (question bank 1.9.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -36,6 +36,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0068 `push_subscriptions` (each phone's Web Push subscription, sealed under `CONNECTOR_KEY`) and `push_outbox` (proposal ids waiting for an alert), for phone alerts (idea 53, 2026-10-29; renumbered at merge if another branch took 0067)
    - 0069 `review_settings` and `reviews`, forwarded or pasted reviews with the reviewer's public name, kept 365 days (idea 45, 2026-10-29)
    - 0070 `team_invites`, `users` unique per (account, email) with `removed_at`, `login_tokens.invite_id`, `decision_log.user_id`, six team decision kinds and the `users_keep_an_owner` trigger, for several businesses and teams (idea 52, 2026-10-29; generated as 0067, renumbered to 0070 at merge)
+   - 0071 `connections.cart_read`, nullable jsonb: when a store's last abandoned-cart read landed in full, when one last failed and whether it held too many checkouts to read; state only, no shopper data (review 2026-10-30)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 

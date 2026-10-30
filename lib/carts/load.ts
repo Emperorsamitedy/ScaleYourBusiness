@@ -36,11 +36,22 @@ export interface CartSource {
   /** The latest read that landed a cart, or null when none has. */
   read_at: string | null;
   carts: number;
+  /**
+   * Review 2026-10-30: the last read that landed in full (recorded since
+   * migration 0071; before that, read_at stands in), and whether the latest
+   * attempt found more checkouts than one read takes.
+   */
+  ok_at: string | null;
+  too_many: boolean;
 }
 
 async function cartConnections(accountId: string) {
   const rows = await db
-    .select({ id: connections.id, provider: connections.provider })
+    .select({
+      id: connections.id,
+      provider: connections.provider,
+      cart_read: connections.cart_read,
+    })
     .from(connections)
     .where(
       and(
@@ -163,6 +174,8 @@ export async function loadCartFacts(accountId: string, now: Date = new Date()): 
       label: sourceLabel(c.provider),
       read_at: read,
       carts: mine.length,
+      ok_at: c.cart_read?.ok_at ?? read,
+      too_many: c.cart_read?.too_many ?? false,
     };
   });
 
@@ -219,7 +232,12 @@ export async function loadCarts(
   now: Date = new Date(),
 ): Promise<CartsView> {
   const facts = await loadCartFacts(accountId, now);
-  const measure = measureCarts({ today: facts.today, carts: facts.carts, orders: facts.orders });
+  const measure = measureCarts({
+    today: facts.today,
+    carts: facts.carts,
+    orders: facts.orders,
+    reads: facts.sources.map((s) => ({ label: s.label, ok_at: s.ok_at, too_many: s.too_many })),
+  });
   const product_names: Record<string, string> = {};
   if (measure.status === "measured" && measure.products.length > 0) {
     const name = await productNamer(

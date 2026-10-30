@@ -343,3 +343,15 @@ export class ProviderError extends Error {
     this.name = "ProviderError";
   }
 }
+
+/**
+ * Review 2026-10-30: a store holding more abandoned checkouts than one read
+ * takes. Never read short (a short read would understate what was left);
+ * recorded on the connection so the carts screen can say why.
+ */
+export class TooManyCartsError extends ProviderError {
+  constructor(message: string) {
+    super(message);
+    this.name = "TooManyCartsError";
+  }
+}

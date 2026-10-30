@@ -29,6 +29,8 @@ export const CARTS = {
   read_days: 60,
   /** Stored carts older than this are deleted. */
   retention_days: 90,
+  /** Review 2026-10-30: no figure from a last good read older than this many days. */
+  stale_after_days: 2,
   window_days: 30,
   /** Rule 25: a window needs carts on this many of its days (from the first cart read)… */
   min_days: 14,
@@ -131,9 +133,20 @@ export interface Reach {
   carts: Record<CartReach, number>;
 }
 
+/** Review 2026-10-30: a cart source's reads, for freshness. */
+export interface CartReadFact {
+  label: string;
+  /** The last read that landed in full (or, before reads were recorded, the newest cart's read). */
+  ok_at: string | null;
+  /** The latest attempt failed because the store holds more checkouts than one read takes. */
+  too_many: boolean;
+}
+
 export type CartsMeasure =
   | {
       status: "refused";
+      /** Too little yet; the last good read too old; or too many checkouts to read in full. */
+      basis: "thin" | "stale" | "too_many";
       from: string;
       to: string;
       /** Days of the window with carts read (from the first cart's day). */
@@ -222,6 +235,8 @@ export function measureCarts(input: {
   today: string;
   carts: readonly CartFact[];
   orders: readonly { day: string; count: number }[];
+  /** Each cart source's reads; omitted, freshness isn't judged. */
+  reads?: readonly CartReadFact[];
 }): CartsMeasure {
   const to = shiftDay(input.today, -1);
   const from = shiftDay(input.today, -CARTS.window_days);
@@ -231,6 +246,40 @@ export function measureCarts(input: {
   );
   const days = coveredDays(firstDay, from, to);
   const current = windowStats(input.carts, input.orders, from, to);
+
+  // Review 2026-10-30: never a headline from a read that is out of date, or
+  // from part of a store's checkouts.
+  const refuse = (basis: "stale" | "too_many", reason: string): CartsMeasure => ({
+    status: "refused",
+    basis,
+    from,
+    to,
+    days,
+    left: current.left,
+    ready_from: null,
+    reason,
+  });
+  const lastRead = (r: CartReadFact) =>
+    r.ok_at === null
+      ? "No read has landed in full yet."
+      : `The last full read was on ${dayWords(r.ok_at.slice(0, 10))}.`;
+  const tooMany = (input.reads ?? []).find((r) => r.too_many);
+  if (tooMany) {
+    return refuse(
+      "too_many",
+      `${tooMany.label} has more abandoned checkouts in the last ${CARTS.read_days} days than one read can take, and I don't show part of them as the whole. ${lastRead(tooMany)}`,
+    );
+  }
+  const staleBefore = shiftDay(input.today, -CARTS.stale_after_days);
+  const stale = (input.reads ?? []).find(
+    (r) => r.ok_at !== null && r.ok_at.slice(0, 10) < staleBefore,
+  );
+  if (stale) {
+    return refuse(
+      "stale",
+      `I last read your carts from ${stale.label} on ${dayWords(stale.ok_at!.slice(0, 10))}, so I'm not showing a figure that may be out of date. It comes back with the next good read.`,
+    );
+  }
 
   if (days < CARTS.min_days || current.left < CARTS.min_carts) {
     const short: string[] = [];
@@ -257,6 +306,7 @@ export function measureCarts(input: {
         : `It will be ready once ${CARTS.min_carts} carts are left within ${CARTS.window_days} days${days < CARTS.min_days && firstDay !== null ? `, and not before ${dayWords(shiftDay(firstDay, CARTS.min_days))}` : ""}.`;
     return {
       status: "refused",
+      basis: "thin",
       from,
       to,
       days,
