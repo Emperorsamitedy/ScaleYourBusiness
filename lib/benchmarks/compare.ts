@@ -274,6 +274,10 @@ export function publishedSizes(
   return sizes.filter((size) => at(geo, nace, size) !== null);
 }
 
+/** Said when a line falls back to every size: Eurostat's ratio is of the sector's totals. */
+export const EVERY_SIZE_NOTE =
+  " Eurostat works that out from the whole sector's totals, so the biggest firms weigh most in it; read it loosely against a business your size.";
+
 /**
  * Pure: the first cell with a figure for `metric`. Tried in order: each
  * size class that holds the headcount (narrowest first, and only those
@@ -307,7 +311,8 @@ export function pickCell(
       const fallback =
         o === first
           ? null
-          : `Eurostat ${firstWhy ?? "doesn't publish this"} for ${describe(first.nace, first.size)}, so this is ${describe(o.nace, o.size)}.`;
+          : `Eurostat ${firstWhy ?? "doesn't publish this"} for ${describe(first.nace, first.size)}, so this is ${describe(o.nace, o.size)}.` +
+            (o.size === ALL_SIZES.code && first.size !== ALL_SIZES.code ? EVERY_SIZE_NOTE : "");
       return {
         value: f,
         cell: {
