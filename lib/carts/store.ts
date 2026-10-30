@@ -38,6 +38,19 @@ export function retentionCutoff(now: Date): string {
 }
 
 /**
+ * Review 2026-10-30: every business's carts past retention, gone — run on
+ * the weekly beat, so a store whose syncs stopped (paused, failed) doesn't
+ * keep carts past CARTS.retention_days just because no read came.
+ */
+export async function pruneExpiredCarts(now: Date, executor: DbOrTx = db): Promise<number> {
+  const rows = await executor
+    .delete(abandonedCheckouts)
+    .where(lt(abandonedCheckouts.started_at, retentionCutoff(now)))
+    .returning({ id: abandonedCheckouts.id });
+  return rows.length;
+}
+
+/**
  * Store one read for a connection: prune what is past retention, then
  * upsert every cart. Returns how many carts landed and how many emails were
  * hashed (a count, never an address, for the sync's log line).

@@ -17,6 +17,24 @@ import { runStockWarnings } from "../../../../lib/stock/warnings";
 import { runWeeklySummaries } from "../../../../lib/summary/run";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
 import { pruneExpiredReviews } from "../../../../lib/reviews/store";
+import { pruneExpiredCarts } from "../../../../lib/carts/store";
+
+/**
+ * Review 2026-10-30: one step that throws is logged and reported as null,
+ * and the steps after it (the owner's weekly summary above all) still run.
+ * Each step logs its own per-business failures with the account id; what
+ * reaches here is a step failing as a whole, which has no one account.
+ */
+async function isolated<T>(step: string, run: () => Promise<T>): Promise<T | null> {
+  try {
+    return await run();
+  } catch (error) {
+    console.error(
+      JSON.stringify({ event: "weekly_watch_step_failed", step, ...logSafeError(error) }),
+    );
+    return null;
+  }
+}
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.CRON_SECRET;
@@ -38,10 +56,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const stock = await runStockProposals();
     // Idea 54: SYB's own forecasts whose window has closed, graded from
     // measured rows — before the summary, so the week's grades are in it.
-    const forecasts = await runForecastGrading();
+    const forecasts = await isolated("forecast_grading", () => runForecastGrading());
     // Idea 45: reviews (and the reviewer names on them) don't outlive their year,
     // even for a business that gets no new review and never opens /reviews.
-    const reviews_expired = await pruneExpiredReviews(new Date());
+    const reviews_expired = await isolated("reviews_prune", () => pruneExpiredReviews(new Date()));
+    // Idea 47 (review 2026-10-30): nor carts their 90 days, for a store whose syncs stopped.
+    const carts_expired = await isolated("carts_prune", () => pruneExpiredCarts(new Date()));
     // Idea 42: last, so it reports everything above — the owner's week, by email, once.
     const summaries = await runWeeklySummaries();
     console.log(
@@ -55,6 +75,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         stock,
         forecasts,
         reviews_expired,
+        carts_expired,
         summaries,
       }),
     );
@@ -67,6 +88,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       stock,
       forecasts,
       reviews_expired,
+      carts_expired,
       summaries,
     });
   } catch (error) {

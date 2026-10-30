@@ -335,7 +335,10 @@ export async function revokeSession(
           .select({ id: authSessions.id })
           .from(authSessions)
           .where(
-            and(eq(authSessions.token_hash, hash(opts.handOverTo)), isNull(authSessions.revoked_at)),
+            and(
+              eq(authSessions.token_hash, hash(opts.handOverTo)),
+              isNull(authSessions.revoked_at),
+            ),
           )
       : [];
     for (const r of revoked) {

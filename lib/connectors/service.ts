@@ -13,7 +13,7 @@
 import { and, eq, ne } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { db } from "../../db";
-import { connections, metricObservations } from "../../db/schema";
+import { abandonedCheckouts, connections, metricObservations } from "../../db/schema";
 import { isoDate, isoDateTime } from "../core/iso";
 import { money } from "../core/money";
 import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
@@ -185,20 +185,25 @@ export async function connect(
 
 /**
  * Revoke locally: the secret is wiped and sync stops. The row stays —
- * every observation it produced cites it as provenance.
+ * every observation it produced cites it as provenance. Review 2026-10-30:
+ * its abandoned carts don't (they are shoppers' unfinished checkouts, not
+ * provenance), so they go in the same transaction.
  */
 export async function disconnect(connectionId: string): Promise<PublicConnection> {
-  const [row] = await db
-    .update(connections)
-    .set({
-      status: "disconnected",
-      encrypted_secret: null,
-      disconnected_at: new Date().toISOString(),
-    })
-    .where(and(eq(connections.id, connectionId), ne(connections.status, "disconnected")))
-    .returning();
-  if (!row) throw new ConnectorError("connection not found", 404);
-  return toPublicConnection(row);
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .update(connections)
+      .set({
+        status: "disconnected",
+        encrypted_secret: null,
+        disconnected_at: new Date().toISOString(),
+      })
+      .where(and(eq(connections.id, connectionId), ne(connections.status, "disconnected")))
+      .returning();
+    if (!row) throw new ConnectorError("connection not found", 404);
+    await tx.delete(abandonedCheckouts).where(eq(abandonedCheckouts.connection_id, row.id));
+    return toPublicConnection(row);
+  });
 }
 
 export async function pauseConnection(connectionId: string): Promise<PublicConnection> {

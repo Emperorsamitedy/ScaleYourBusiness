@@ -35,7 +35,7 @@ import {
   intakeEvents,
   metricObservations,
 } from "../../db/schema";
-import { storeCarts } from "../carts/store";
+import { pruneExpiredCarts, retentionCutoff, storeCarts } from "../carts/store";
 import { addContact, emailHash, eraseContact } from "../crm/contacts";
 import { bootstrapIntake } from "../intake/service";
 import type { ExternalCart } from "./provider";
@@ -49,7 +49,7 @@ import {
 import { FAKE_SHOPIFY_SECRET, fakeShopify, shopCart } from "./providers/shopify-fake";
 import { overrideProviderForTests } from "./registry";
 import { SCOPE_REGISTRY, auditRegistry } from "./scopes";
-import { connect } from "./service";
+import { connect, disconnect } from "./service";
 import { syncConnection } from "./sync";
 
 const NOW = new Date("2026-10-29T06:00:00Z");
@@ -318,6 +318,49 @@ describe("the store keeps no address, and forgets on time", () => {
     expect(out).toEqual({ stored: 0, hashed: 0, pruned: 1 });
     const left = await stored(conn.id);
     expect(left.map((r) => r.day)).toEqual([daysAgo(89).slice(0, 10)]);
+  });
+
+  // Review 2026-10-30: compared as instants — a provider's time with an offset
+  // sorted after the ISO cutoff as a string, so a cart past 90 days was kept.
+  it("a start time with an offset is judged by its instant at the 90-day edge", async () => {
+    const { s, conn } = await shopWith({});
+    const edge = retentionCutoff(NOW).slice(0, 10); // 06:00Z that day
+    const out = await storeCarts(
+      { id: conn.id, account_id: s.account_id },
+      {
+        carts: [
+          cart({ started_at: `${edge}T10:00:00+05:00` }), // 05:00Z: an hour past
+          cart({ started_at: `${edge}T12:00:00+05:00` }), // 07:00Z: an hour inside
+        ],
+      },
+      NOW,
+    );
+    expect(out.stored).toBe(1);
+  });
+
+  // Review 2026-10-30: the prune ran only after a successful sync.
+  it("the weekly prune forgets old carts for a store whose syncs stopped; newer ones stay", async () => {
+    const { s, conn } = await shopWith({});
+    await storeCarts(
+      { id: conn.id, account_id: s.account_id },
+      { carts: [cart({ started_at: daysAgo(80) }), cart({ started_at: daysAgo(30) })] },
+      NOW,
+    );
+    // Twenty days on, with no sync since.
+    const later = new Date(NOW.getTime() + 20 * 86_400_000);
+    expect(await pruneExpiredCarts(later)).toBeGreaterThanOrEqual(1);
+    expect((await stored(conn.id)).map((r) => r.day)).toEqual([daysAgo(30).slice(0, 10)]);
+  });
+
+  it("disconnecting a store deletes its carts; another store's stay", async () => {
+    const a = await shopWith({});
+    const b = await shopWith({});
+    for (const x of [a, b]) {
+      await storeCarts({ id: x.conn.id, account_id: x.s.account_id }, { carts: [cart({})] }, NOW);
+    }
+    await disconnect(a.conn.id);
+    expect(await stored(a.conn.id)).toHaveLength(0);
+    expect(await stored(b.conn.id)).toHaveLength(1);
   });
 
   it("hashes an email a store gives and never stores it; an erased address isn't linked again", async () => {
