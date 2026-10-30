@@ -30,7 +30,7 @@ import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { withAdvisoryLock } from "../../db/advisory-lock";
 import { connections, connectorSyncs, metricObservations } from "../../db/schema";
-import type { Provider } from "./provider";
+import type { CartRead, Provider } from "./provider";
 import { TooManyCartsError } from "./provider";
 import type { DeriveOutcome } from "./derive";
 import type { AnomalyOutcome } from "../anomaly/detect";
@@ -42,6 +42,8 @@ import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
 import { replaceBaskets } from "../bundles/store";
 import { CARTS } from "../carts/measure";
 import { storeCarts } from "../carts/store";
+import type { CheckoutConsentOutcome } from "../carts/consent";
+import { recordCheckoutConsent } from "../carts/consent";
 import { deriveBookingFacts, storeAppointments } from "../bookings/store";
 import { getProvider } from "./registry";
 import { decryptSecret } from "./secrets";
@@ -85,6 +87,31 @@ export interface SyncOutcome {
  * so the carts screen reads what the last good read stored. The log line
  * carries counts only, never an address.
  */
+/**
+ * I-47a/I-47c: what the read's shoppers said at checkout, recorded on the
+ * contacts. Its own failure is logged and leaves the cart read standing;
+ * counts only, never an address.
+ */
+async function checkoutConsent(
+  row: typeof connections.$inferSelect,
+  read: CartRead,
+): Promise<CheckoutConsentOutcome | null> {
+  if (read.shopper !== "read") return null;
+  try {
+    return await recordCheckoutConsent(row.account_id, read.carts);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "checkout_consent_failed",
+        account_id: row.account_id,
+        connection_id: row.id,
+        message: errorText(error),
+      }),
+    );
+    return null;
+  }
+}
+
 async function readCarts(
   row: typeof connections.$inferSelect,
   provider: Provider,
@@ -95,6 +122,7 @@ async function readCarts(
   try {
     const read = await provider.readAbandonedCheckouts(secret, now, CARTS.read_days);
     const stored = await storeCarts(row, read, now);
+    const consent = await checkoutConsent(row, read);
     // Review 2026-10-30: the read's freshness, for the carts screen.
     await db
       .update(connections)
@@ -104,6 +132,7 @@ async function readCarts(
           failed_at: null,
           too_many: false,
           shopper: read.shopper ?? null,
+          consent_differs: consent?.differs ?? row.cart_read?.consent_differs ?? null,
         },
       })
       .where(eq(connections.id, row.id));
@@ -115,6 +144,7 @@ async function readCarts(
         provider: row.provider,
         shopper: read.shopper ?? null,
         ...stored,
+        consent,
       }),
     );
     return stored;
@@ -136,6 +166,7 @@ async function readCarts(
           failed_at: now.toISOString(),
           too_many: error instanceof TooManyCartsError,
           shopper: row.cart_read?.shopper ?? null,
+          consent_differs: row.cart_read?.consent_differs ?? null,
         },
       })
       .where(eq(connections.id, row.id))

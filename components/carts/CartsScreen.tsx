@@ -20,6 +20,7 @@ import { moneyText, num } from "../sheet/num";
 import type { Measured } from "./carts-view";
 import {
   cartsHeadline,
+  checkoutConsentNotes,
   refusalTitle,
   consentNotes,
   moneyList,
@@ -196,6 +197,7 @@ function WinBackCard({
 
 function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
   const notes = consentNotes(m, view.sources?.find((s) => s.shopper)?.shopper ?? null);
+  const checkout = checkoutConsentNotes(view);
   const week = weekLine(view);
   return (
     <SheetCard label="Who can be emailed" title="Only people who said yes">
@@ -205,9 +207,17 @@ function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
         ))}
       </ul>
       {week && <p className="ct-copy ct-quiet">{week}</p>}
+      {checkout.length > 0 ? (
+        <ul className="ct-notes">
+          {checkout.map((n) => (
+            <li key={n}>{n}</li>
+          ))}
+        </ul>
+      ) : null}
       <p className="ct-copy ct-quiet">
-        Shopify&apos;s own &ldquo;email me&rdquo; tick at checkout isn&apos;t counted as a yes. Only
-        what you recorded on your contacts is.
+        A shopper who ticks &ldquo;email me&rdquo; at Shopify&apos;s checkout becomes a contact with
+        that yes recorded, once SYB may read your Shopify customers. A yes you recorded yourself
+        only gives way to a later unsubscribe in Shopify.
       </p>
     </SheetCard>
   );

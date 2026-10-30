@@ -92,7 +92,7 @@ describe("carts ride on read_orders; the shopper on optional read_customers", ()
     expect(doc).not.toMatch(/mutation/i);
     const customer = /customer \{([\s\S]*?)\n {6}\}/.exec(doc)?.[1] ?? "";
     expect(customer.replace(/\s+/g, " ").trim()).toBe(
-      "defaultEmailAddress { emailAddress marketingState }",
+      "defaultEmailAddress { emailAddress marketingState marketingUpdatedAt }",
     );
     expect(doc).not.toMatch(/phone|billingAddress|shippingAddress|firstName|lastName|displayName/i);
     // Otherwise the very same read as the plain document.
@@ -447,6 +447,7 @@ describe("the connection records its cart reads", () => {
       failed_at: null,
       too_many: false,
       shopper: "not_granted",
+      consent_differs: null,
     });
     endless = true;
     const later = new Date(NOW.getTime() + 86_400_000);
@@ -456,6 +457,7 @@ describe("the connection records its cart reads", () => {
       failed_at: later.toISOString(),
       too_many: true,
       shopper: "not_granted",
+      consent_differs: null,
     });
   });
 
@@ -477,10 +479,16 @@ describe("the connection records its cart reads", () => {
     expect(JSON.stringify(rows)).not.toMatch(/example\.com/i);
     const keen = rows.find((r) => r.email_hash !== null)!;
     expect(keen.email_hash).toBe(emailHash("keen@example.com"));
-    // Shopify's tick is kept as a flag, never as consent (I-47a): no contact appears.
+    // I-47a: Shopify's yes becomes a contact with that consent, named to the checkout.
     expect(keen.accepts_marketing).toBe(true);
     const made = await db.select().from(contacts).where(eq(contacts.account_id, s.account_id));
-    expect(made).toHaveLength(0);
+    expect(made).toHaveLength(1);
+    expect(made[0]).toMatchObject({
+      email: "keen@example.com",
+      consent_status: "explicit_consent",
+    });
+    expect(made[0]!.consent_source).toMatch(/^Shopify checkout /);
+    expect((await state(conn.id))?.consent_differs).toBe(0);
   });
 
   it("when Shopify withholds customer data, the read says refused and still stores the carts", async () => {

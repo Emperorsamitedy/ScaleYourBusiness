@@ -78,6 +78,8 @@ export interface FakeShopifyCart {
   email?: string | null;
   /** defaultEmailAddress.marketingState; default NOT_SUBSCRIBED. */
   marketingState?: string;
+  /** defaultEmailAddress.marketingUpdatedAt; default null (never updated). */
+  marketingUpdatedAt?: string | null;
 }
 
 export interface FakeShopifyCall {
@@ -357,6 +359,7 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
                             defaultEmailAddress: {
                               emailAddress: c.email,
                               marketingState: c.marketingState ?? "NOT_SUBSCRIBED",
+                              marketingUpdatedAt: c.marketingUpdatedAt ?? null,
                             },
                           }
                         : null,
@@ -437,7 +440,10 @@ export function shopCart(
   total: string,
   lines: FakeShopifyCart["lines"] = [],
   extra: Partial<
-    Pick<FakeShopifyCart, "completedAt" | "currency" | "email" | "marketingState" | "updatedAt">
+    Pick<
+      FakeShopifyCart,
+      "completedAt" | "currency" | "email" | "marketingState" | "marketingUpdatedAt" | "updatedAt"
+    >
   > = {},
 ): FakeShopifyCart {
   cartSequence += 1;

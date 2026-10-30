@@ -1292,8 +1292,9 @@ export const orderBaskets = pgTable(
 // personal behind. Shopify gives the email only to an app that can read
 // customers: with the optional read_customers (I-47b, 2026-10-30) the
 // connector reads it and the store hashes it; without, it is null.
-// `accepts_marketing` is Shopify's own
-// tick, stored and never used as consent (I-47a); null when not read.
+// `accepts_marketing` is Shopify's own tick, null when not read. The cart
+// row never counts as consent; lib/carts/consent.ts turns a yes into a
+// contact with that consent recorded (I-47a).
 // Erasing a contact deletes the carts their address hashes to.
 
 /** A store's abandoned-cart reads (connections.cart_read). */
@@ -1306,6 +1307,11 @@ export interface CartReadState {
   too_many: boolean;
   /** I-47b: whether the last good read had each cart's shopper (CartRead.shopper). */
   shopper?: "read" | "not_granted" | "refused" | null;
+  /**
+   * I-47a: contacts the owner recorded as not a yes whom Shopify lists as
+   * subscribed, left as recorded, as of the last read that had shoppers.
+   */
+  consent_differs?: number | null;
 }
 
 /** One line of a cart: the product, how many, at what unit price (the cart's currency). */
@@ -1346,7 +1352,7 @@ export const abandonedCheckouts = pgTable(
     lines_truncated: boolean("lines_truncated").notNull().default(false),
     /** The keyed hash of the shopper's email, or null (none given, or not read). */
     email_hash: text("email_hash"),
-    /** Shopify's "email me" tick at checkout. Stored, never consent (I-47a). Null: not read. */
+    /** Shopify's "email me" tick at checkout; null: not read. Never consent on the cart itself: lib/carts/consent.ts turns a yes into a contact (I-47a). */
     accepts_marketing: boolean("accepts_marketing"),
     observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
   },

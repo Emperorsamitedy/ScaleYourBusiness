@@ -46,6 +46,8 @@ export interface CartSource {
   too_many: boolean;
   /** I-47b: whether the last good read had each cart's shopper; null before it was recorded. */
   shopper: CartShopperRead | null;
+  /** I-47a: owner-recorded contacts Shopify disagrees with, left as recorded; null when not read. */
+  consent_differs: number | null;
 }
 
 async function cartConnections(accountId: string) {
@@ -180,6 +182,7 @@ export async function loadCartFacts(accountId: string, now: Date = new Date()): 
       ok_at: c.cart_read?.ok_at ?? read,
       too_many: c.cart_read?.too_many ?? false,
       shopper: c.cart_read?.shopper ?? null,
+      consent_differs: c.cart_read?.consent_differs ?? null,
     };
   });
 

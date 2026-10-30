@@ -317,11 +317,18 @@ export interface ExternalCart {
   /**
    * The shopper's email: hashed by the store on the way in, never kept.
    * Null when there is none, or the platform doesn't share it with this
-   * credential (Shopify: only with read_customers, which SYB doesn't hold).
+   * credential (Shopify: only with the optional read_customers, I-47b).
    */
   email: string | null;
-  /** The platform's own "email me" tick; null when not read. Never consent (I-47a). */
+  /**
+   * The platform's own "email me" tick; null when not read. A yes becomes a
+   * contact's recorded consent only through lib/carts/consent.ts (I-47a).
+   */
   accepts_marketing: boolean | null;
+  /** The platform's own word for the tick (Shopify: SUBSCRIBED, UNSUBSCRIBED, …); null when not read. */
+  marketing_state?: string | null;
+  /** When the shopper last set it, as the platform says; null when it doesn't. */
+  marketing_updated_at?: string | null;
 }
 
 export interface CartRead {
