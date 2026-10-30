@@ -91,7 +91,12 @@ const PRODUCTS = [
 
 describe("no new scope: stock rides on read_products", () => {
   it("the registry for both stores is unchanged, and the audit is green", () => {
-    expect(SCOPE_REGISTRY.shopify).toEqual(["read_orders", "read_products", "read_all_orders"]);
+    expect(SCOPE_REGISTRY.shopify).toEqual([
+      "read_orders",
+      "read_products",
+      "read_all_orders",
+      "read_customers",
+    ]);
     expect(SCOPE_REGISTRY.woocommerce).toEqual(["read_orders", "read_products"]);
     expect(auditRegistry()).toEqual([]);
   });

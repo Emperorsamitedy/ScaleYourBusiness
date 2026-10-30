@@ -1290,8 +1290,9 @@ export const orderBaskets = pgTable(
 // use (lib/crm/contacts.ts emailHash), so a cart can be matched to a
 // contact who already said yes, and a shopper who isn't one leaves nothing
 // personal behind. Shopify gives the email only to an app that can read
-// customers, which SYB doesn't ask for, so from the connector it is null
-// today (TASKS-FEEDBACK.md I-47b). `accepts_marketing` is Shopify's own
+// customers: with the optional read_customers (I-47b, 2026-10-30) the
+// connector reads it and the store hashes it; without, it is null.
+// `accepts_marketing` is Shopify's own
 // tick, stored and never used as consent (I-47a); null when not read.
 // Erasing a contact deletes the carts their address hashes to.
 
@@ -1303,6 +1304,8 @@ export interface CartReadState {
   failed_at: string | null;
   /** That failure was the store holding more checkouts than one sync reads. */
   too_many: boolean;
+  /** I-47b: whether the last good read had each cart's shopper (CartRead.shopper). */
+  shopper?: "read" | "not_granted" | "refused" | null;
 }
 
 /** One line of a cart: the product, how many, at what unit price (the cart's currency). */

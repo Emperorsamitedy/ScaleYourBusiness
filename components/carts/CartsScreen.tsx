@@ -195,7 +195,7 @@ function WinBackCard({
 }
 
 function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
-  const notes = consentNotes(m);
+  const notes = consentNotes(m, view.sources?.find((s) => s.shopper)?.shopper ?? null);
   const week = weekLine(view);
   return (
     <SheetCard label="Who can be emailed" title="Only people who said yes">

@@ -98,7 +98,14 @@ async function readCarts(
     // Review 2026-10-30: the read's freshness, for the carts screen.
     await db
       .update(connections)
-      .set({ cart_read: { ok_at: now.toISOString(), failed_at: null, too_many: false } })
+      .set({
+        cart_read: {
+          ok_at: now.toISOString(),
+          failed_at: null,
+          too_many: false,
+          shopper: read.shopper ?? null,
+        },
+      })
       .where(eq(connections.id, row.id));
     console.log(
       JSON.stringify({
@@ -106,6 +113,7 @@ async function readCarts(
         account_id: row.account_id,
         connection_id: row.id,
         provider: row.provider,
+        shopper: read.shopper ?? null,
         ...stored,
       }),
     );
@@ -127,6 +135,7 @@ async function readCarts(
           ok_at: row.cart_read?.ok_at ?? null,
           failed_at: now.toISOString(),
           too_many: error instanceof TooManyCartsError,
+          shopper: row.cart_read?.shopper ?? null,
         },
       })
       .where(eq(connections.id, row.id))

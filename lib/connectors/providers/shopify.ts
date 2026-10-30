@@ -57,15 +57,25 @@
 // so no scope was added. Fields read: id, createdAt, updatedAt,
 // completedAt, totalPriceSet, and per line title, quantity,
 // originalUnitPriceSet and product { id } (Product sits under
-// read_products, also held). NOT read, on purpose: the shopper. The
-// checkout has no email field of its own; the address is on its customer
-// (customer.email, deprecated for defaultEmailAddress.emailAddress), and
-// the Customer type "Requires read_customers access scope". The marketing
-// tick lives there too (defaultEmailAddress.marketingState). SYB doesn't
-// hold read_customers and doesn't add it here, so every cart is read
-// without its shopper: `email` and `accepts_marketing` are null. Asking for
-// read_customers is an owner decision (TASKS-FEEDBACK.md I-47b), and so is
-// the protected customer data access Shopify puts email under (level 2).
+// read_products, also held).
+//
+// THE SHOPPER (I-47b, owner decision 2026-10-30: "go ahead with I-47b").
+// The checkout has no email field of its own; the address is on its
+// customer (defaultEmailAddress.emailAddress), and the Customer type
+// "Requires read_customers access scope", now an optional fourth scope,
+// like read_all_orders. With it the read uses a second fixed document,
+// abandoned_checkouts_shoppers, which adds exactly
+// customer { defaultEmailAddress { emailAddress marketingState } } and
+// nothing else of the customer: no name, phone or address. The email is
+// hashed by the store on the way in and never kept (lib/carts/store.ts);
+// marketingState SUBSCRIBED becomes accepts_marketing, which is never
+// consent (I-47a). Without the scope the plain document is sent, as before.
+// Email is protected customer data, level 2, which Shopify's page (read
+// 2026-10-30) lists as "Always available" to custom apps. If Shopify
+// withholds it anyway (ACCESS_DENIED, or "not approved to access the
+// Customer object"), the read falls back to the plain document once and
+// reports shopper "refused", so carts are still counted and the screen
+// says why none is matched.
 
 import { basketOf } from "../baskets";
 import { addDays, advanceCursor, dayString, isoSeconds, oneNewDay, planWindow } from "../days";
@@ -88,6 +98,8 @@ export const SHOPIFY_API_VERSION = "2026-07";
 
 export const SHOPIFY_REQUIRED_SCOPES = ["read_orders", "read_products"] as const;
 export const SHOPIFY_ALL_ORDERS_SCOPE = "read_all_orders";
+/** Optional (I-47b): a cart's shopper, so it can be matched to a contact. */
+export const SHOPIFY_CUSTOMERS_SCOPE = "read_customers";
 export const SHOPIFY_FULL_HISTORY_DAYS = 365;
 /** What Shopify lets a token see without read_all_orders. */
 export const SHOPIFY_DEFAULT_HISTORY_DAYS = 60;
@@ -226,6 +238,50 @@ export const SHOPIFY_QUERIES = {
       createdAt
       updatedAt
       completedAt
+      totalPriceSet {
+        shopMoney {
+          amount
+          currencyCode
+        }
+      }
+      lineItems(first: $lineItems) {
+        nodes {
+          title
+          quantity
+          originalUnitPriceSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+          product {
+            id
+          }
+        }
+        pageInfo {
+          hasNextPage
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}`,
+  abandoned_checkouts_shoppers: `query AbandonedCheckoutsShoppers($first: Int!, $lineItems: Int!, $after: String, $search: String!) {
+  abandonedCheckouts(first: $first, after: $after, sortKey: CREATED_AT, query: $search) {
+    nodes {
+      id
+      createdAt
+      updatedAt
+      completedAt
+      customer {
+        defaultEmailAddress {
+          emailAddress
+          marketingState
+        }
+      }
       totalPriceSet {
         shopMoney {
           amount
@@ -867,12 +923,15 @@ export function aggregateStock(
 
 /**
  * Pure: one cart from the AbandonedCheckouts response, amounts in minor
- * units of the shop's currency. The shopper is never part of it: the
- * document doesn't ask (see the header).
+ * units of the shop's currency. With `withShopper` (the shoppers document)
+ * the customer's email and marketing tick are read too; a checkout with no
+ * customer (a draft order, an app) or no email has none. Without it the
+ * shopper is never part of it: the document didn't ask.
  */
-export function parseCart(value: unknown): ExternalCart {
+export function parseCart(value: unknown, withShopper = false): ExternalCart {
   const c = value as {
     id?: unknown;
+    customer?: Shopper | null;
     createdAt?: unknown;
     updatedAt?: unknown;
     completedAt?: unknown;
@@ -924,8 +983,7 @@ export function parseCart(value: unknown): ExternalCart {
       currency,
       lines,
       lines_truncated: c.lineItems.pageInfo?.hasNextPage === true,
-      email: null,
-      accepts_marketing: null,
+      ...(withShopper ? shopperOf(c.customer) : { email: null, accepts_marketing: null }),
     };
   } catch (error) {
     if (error instanceof DecimalError) {
@@ -933,6 +991,46 @@ export function parseCart(value: unknown): ExternalCart {
     }
     throw error;
   }
+}
+
+interface Shopper {
+  defaultEmailAddress?: { emailAddress?: unknown; marketingState?: unknown } | null;
+}
+
+const MARKETING_STATES = new Set([
+  "INVALID",
+  "NOT_SUBSCRIBED",
+  "PENDING",
+  "SUBSCRIBED",
+  "UNSUBSCRIBED",
+]);
+
+/** Pure: a checkout customer's email and Shopify's own tick (never consent, I-47a). */
+function shopperOf(
+  customer: Shopper | null | undefined,
+): Pick<ExternalCart, "email" | "accepts_marketing"> {
+  const address = customer?.defaultEmailAddress;
+  const email =
+    typeof address?.emailAddress === "string" && address.emailAddress.trim() !== ""
+      ? address.emailAddress
+      : null;
+  if (email === null) return { email: null, accepts_marketing: null };
+  const state = typeof address?.marketingState === "string" ? address.marketingState : null;
+  return {
+    email,
+    accepts_marketing:
+      state !== null && MARKETING_STATES.has(state) ? state === "SUBSCRIBED" : null,
+  };
+}
+
+/** Pure: Shopify withheld customer data from a token that holds read_customers. */
+export function customerDataRefused(error: unknown): boolean {
+  return (
+    error instanceof ProviderError &&
+    /access denied for customer|not approved to access the customer|read_customers/i.test(
+      error.message,
+    )
+  );
 }
 
 /* ── the provider ── */
@@ -1084,28 +1182,40 @@ export function createShopifyProvider(options: ShopifyProviderOptions = {}): Pro
 
     async readAbandonedCheckouts(secret, now, days): Promise<CartRead> {
       const cred = parseShopifyCredential(secret);
+      const token = await accessToken(ctx, cred);
       const search = `created_at:>='${isoSeconds(addDays(now, -days))}'`;
-      const carts: ExternalCart[] = [];
-      let after: string | null = null;
-      for (let page = 0; page < SHOPIFY_MAX_CART_PAGES; page += 1) {
-        const data = await graphql(ctx, cred, "abandoned_checkouts", {
-          first: SHOPIFY_CARTS_PAGE,
-          lineItems: SHOPIFY_CART_LINES,
-          after,
-          search,
-        });
-        const listed = parseConnection(data["abandonedCheckouts"], "abandoned checkouts");
-        carts.push(...listed.nodes.map(parseCart));
-        if (!listed.hasNextPage) return { carts };
-        if (listed.endCursor === null) {
-          throw new ProviderError("shopify: hasNextPage without a cursor to continue from");
+      const read = async (withShopper: boolean): Promise<ExternalCart[]> => {
+        const carts: ExternalCart[] = [];
+        let after: string | null = null;
+        for (let page = 0; page < SHOPIFY_MAX_CART_PAGES; page += 1) {
+          const data = await graphql(
+            ctx,
+            cred,
+            withShopper ? "abandoned_checkouts_shoppers" : "abandoned_checkouts",
+            { first: SHOPIFY_CARTS_PAGE, lineItems: SHOPIFY_CART_LINES, after, search },
+          );
+          const listed = parseConnection(data["abandonedCheckouts"], "abandoned checkouts");
+          carts.push(...listed.nodes.map((n) => parseCart(n, withShopper)));
+          if (!listed.hasNextPage) return carts;
+          if (listed.endCursor === null) {
+            throw new ProviderError("shopify: hasNextPage without a cursor to continue from");
+          }
+          after = listed.endCursor;
         }
-        after = listed.endCursor;
+        // Never a partial count: a short read would understate what was left.
+        throw new TooManyCartsError(
+          `shopify: more than ${SHOPIFY_CARTS_PAGE * SHOPIFY_MAX_CART_PAGES} checkouts in ${days} days, which one sync cannot read yet`,
+        );
+      };
+      if (!token.scopes.includes(SHOPIFY_CUSTOMERS_SCOPE)) {
+        return { carts: await read(false), shopper: "not_granted" };
       }
-      // Never a partial count: a short read would understate what was left.
-      throw new TooManyCartsError(
-        `shopify: more than ${SHOPIFY_CARTS_PAGE * SHOPIFY_MAX_CART_PAGES} checkouts in ${days} days, which one sync cannot read yet`,
-      );
+      try {
+        return { carts: await read(true), shopper: "read" };
+      } catch (error) {
+        if (!customerDataRefused(error)) throw error;
+        return { carts: await read(false), shopper: "refused" };
+      }
     },
   };
 }

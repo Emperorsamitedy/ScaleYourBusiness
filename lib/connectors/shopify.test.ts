@@ -165,9 +165,20 @@ describe("P2-14 — connecting reads the real scopes", () => {
   });
 
   it("an app with an unrelated extra read scope is refused too", async () => {
-    const { provider } = shopify({ scopes: ["read_orders", "read_products", "read_customers"] });
+    const { provider } = shopify({ scopes: ["read_orders", "read_products", "read_themes"] });
     const { granted_scopes } = await provider.connect(FAKE_SHOPIFY_SECRET);
-    expect(() => verifyGrantedScopes("shopify", granted_scopes)).toThrow(/read_customers/);
+    expect(() => verifyGrantedScopes("shopify", granted_scopes)).toThrow(/read_themes/);
+  });
+
+  // I-47b (2026-10-30): read_customers is optional, like read_all_orders.
+  it("accepts the optional read_customers, and connects without it", async () => {
+    const withIt = shopify({ scopes: ["read_orders", "read_products", "read_customers"] });
+    const granted = (await withIt.provider.connect(FAKE_SHOPIFY_SECRET)).granted_scopes;
+    expect(granted).toContain("read_customers");
+    expect(() => verifyGrantedScopes("shopify", granted)).not.toThrow();
+    const without = shopify();
+    const plain = (await without.provider.connect(FAKE_SHOPIFY_SECRET)).granted_scopes;
+    expect(() => verifyGrantedScopes("shopify", plain)).not.toThrow();
   });
 
   it("wrong credentials are reported as not accepted, and the error never repeats the secret", async () => {
@@ -219,7 +230,7 @@ describe("rule 9 — the connector can only read", () => {
     for (const method of methods) expect(['"POST"', "init.method"]).toContain(method);
   });
 
-  it("THE LIST: these documents and no others (idea 47 added abandoned_checkouts, nothing else)", () => {
+  it("THE LIST: these documents and no others (idea 47 added abandoned_checkouts, I-47b its shoppers twin)", () => {
     expect(Object.keys(SHOPIFY_QUERIES)).toEqual([
       "access_scopes",
       "orders",
@@ -227,6 +238,7 @@ describe("rule 9 — the connector can only read", () => {
       "products",
       "stock",
       "abandoned_checkouts",
+      "abandoned_checkouts_shoppers",
     ]);
   });
 });

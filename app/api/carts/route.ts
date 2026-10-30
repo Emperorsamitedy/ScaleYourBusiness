@@ -27,6 +27,7 @@ import { cartsApply, loadCarts } from "../../../lib/carts/load";
 import type { CartsMeasure } from "../../../lib/carts/measure";
 import { CARTS, WIN_BACK } from "../../../lib/carts/measure";
 import { abandonedCartSegment } from "../../../lib/carts/segment";
+import type { CartShopperRead } from "../../../lib/connectors/provider";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { outboundPosture } from "../../../lib/crm/contacts";
 import {
@@ -40,7 +41,13 @@ import { requireRole } from "../../../lib/auth/roles";
 export interface CartsScreenView {
   applies: boolean;
   today?: string;
-  sources?: { label: string; read_at: string | null; carts: number }[];
+  sources?: {
+    label: string;
+    read_at: string | null;
+    carts: number;
+    /** I-47b: whether the last read had each shopper; absent or null when unknown. */
+    shopper?: CartShopperRead | null;
+  }[];
   measure?: CartsMeasure;
   /** product_ref → the owner's offer name, else the cart line's title. */
   product_names?: Record<string, string>;
@@ -107,7 +114,12 @@ export async function GET(): Promise<NextResponse> {
     const body: CartsScreenView = {
       applies: true,
       today: view.today,
-      sources: view.sources.map((s) => ({ label: s.label, read_at: s.read_at, carts: s.carts })),
+      sources: view.sources.map((s) => ({
+        label: s.label,
+        read_at: s.read_at,
+        carts: s.carts,
+        shopper: s.shopper,
+      })),
       measure: view.measure,
       product_names: view.product_names,
       rule_of_thumb: {

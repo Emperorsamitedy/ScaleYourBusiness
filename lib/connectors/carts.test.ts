@@ -2,12 +2,15 @@
 //
 // What must hold, against a recorded-shape Shopify with the global fetch
 // stubbed to fail if anything real is touched:
-//   · NO NEW SCOPE. abandonedCheckouts rides on read_orders, which the
-//     connector already holds (Shopify's docs, read 2026-10-29). The
-//     registry is unchanged and the scope audit stays green.
-//   · NO SHOPPER. The document never asks for the customer: Shopify keeps
-//     the email on Customer, which needs read_customers. Every cart lands
-//     with a null hash, and the fake refuses a document that asks.
+//   · ONE OPTIONAL SCOPE. abandonedCheckouts rides on read_orders, which
+//     the connector already holds (Shopify's docs, read 2026-10-29). The
+//     shopper needs read_customers, optional and read-only (I-47b,
+//     2026-10-30); the scope audit stays green.
+//   · THE SHOPPER ONLY WITH IT. Without read_customers the plain document
+//     never asks for the customer, and every cart lands with a null hash.
+//     With it the shoppers document asks for the customer's email and
+//     marketing tick and nothing else; if Shopify still withholds customer
+//     data, the plain document is read instead and the read says "refused".
 //   · THE SHAPE. Totals and line prices in minor units, the cart's own
 //     currency, products by Shopify id, a later finish kept, extra lines
 //     counted as truncated rather than read short, pages followed.
@@ -46,7 +49,7 @@ import {
   createShopifyProvider,
   parseCart,
 } from "./providers/shopify";
-import { FAKE_SHOPIFY_SECRET, fakeShopify, shopCart } from "./providers/shopify-fake";
+import { FAKE_SHOPIFY_SECRET, fakeShopify, shopCart, shopifyJson } from "./providers/shopify-fake";
 import { overrideProviderForTests } from "./registry";
 import { SCOPE_REGISTRY, auditRegistry } from "./scopes";
 import { connect, disconnect } from "./service";
@@ -72,10 +75,32 @@ afterEach(() => {
   expect(realFetchUsed).toBe(false);
 });
 
-describe("no new scope: carts ride on read_orders", () => {
-  it("the registry is unchanged, and the audit is green", () => {
-    expect(SCOPE_REGISTRY.shopify).toEqual(["read_orders", "read_products", "read_all_orders"]);
+describe("carts ride on read_orders; the shopper on optional read_customers", () => {
+  it("the registry gains only read_customers, and the audit is green", () => {
+    expect(SCOPE_REGISTRY.shopify).toEqual([
+      "read_orders",
+      "read_products",
+      "read_all_orders",
+      "read_customers",
+    ]);
     expect(auditRegistry()).toEqual([]);
+  });
+
+  it("the shoppers document adds the customer's email and tick, and nothing else of them", () => {
+    const doc = SHOPIFY_QUERIES.abandoned_checkouts_shoppers;
+    expect(doc.startsWith("query AbandonedCheckoutsShoppers")).toBe(true);
+    expect(doc).not.toMatch(/mutation/i);
+    const customer = /customer \{([\s\S]*?)\n {6}\}/.exec(doc)?.[1] ?? "";
+    expect(customer.replace(/\s+/g, " ").trim()).toBe(
+      "defaultEmailAddress { emailAddress marketingState }",
+    );
+    expect(doc).not.toMatch(/phone|billingAddress|shippingAddress|firstName|lastName|displayName/i);
+    // Otherwise the very same read as the plain document.
+    expect(
+      doc
+        .replace("AbandonedCheckoutsShoppers", "AbandonedCheckouts")
+        .replace(/\n {6}customer \{[\s\S]*?\n {6}\}/, ""),
+    ).toBe(SHOPIFY_QUERIES.abandoned_checkouts);
   });
 
   it("the document is a registered read query that never asks for the shopper", () => {
@@ -108,6 +133,99 @@ describe("no new scope: carts ride on read_orders", () => {
     });
     const body = (await res.json()) as { errors?: { message: string }[] };
     expect(body.errors?.[0]?.message).toMatch(/read_customers/);
+  });
+});
+
+describe("Shopify — the shopper, with and without read_customers (I-47b)", () => {
+  const WITH = ["read_orders", "read_products", "read_customers"];
+  const carts = () => [
+    shopCart(daysAgo(2), "30.00", undefined, {
+      email: "Yes@Example.com",
+      marketingState: "SUBSCRIBED",
+    }),
+    shopCart(daysAgo(3), "20.00", undefined, {
+      email: "no@example.com",
+      marketingState: "UNSUBSCRIBED",
+    }),
+    shopCart(daysAgo(4), "10.00"), // a draft order: no customer
+  ];
+
+  it("with read_customers, each cart carries its shopper's email and Shopify's tick", async () => {
+    const fake = fakeShopify({ now: NOW, scopes: WITH, carts: carts() });
+    const provider = createShopifyProvider({ fetch: fake.fetch, sleep: noSleep });
+    const read = await provider.readAbandonedCheckouts!(FAKE_SHOPIFY_SECRET, NOW, 60);
+    expect(read.shopper).toBe("read");
+    const by = (total: number) => read.carts.find((c) => c.total_minor === total)!;
+    expect(by(3_000)).toMatchObject({ email: "Yes@Example.com", accepts_marketing: true });
+    expect(by(2_000)).toMatchObject({ email: "no@example.com", accepts_marketing: false });
+    expect(by(1_000)).toMatchObject({ email: null, accepts_marketing: null });
+    for (const c of fake.calls.filter((c) => c.query !== null && c.query.includes("Abandoned"))) {
+      expect(c.query).toBe(SHOPIFY_QUERIES.abandoned_checkouts_shoppers);
+    }
+  });
+
+  it("without it, the plain document is sent and the read says not granted", async () => {
+    const fake = fakeShopify({ now: NOW, carts: carts() });
+    const provider = createShopifyProvider({ fetch: fake.fetch, sleep: noSleep });
+    const read = await provider.readAbandonedCheckouts!(FAKE_SHOPIFY_SECRET, NOW, 60);
+    expect(read.shopper).toBe("not_granted");
+    expect(read.carts.every((c) => c.email === null && c.accepts_marketing === null)).toBe(true);
+    for (const c of fake.calls.filter((c) => c.query !== null && c.query.includes("Abandoned"))) {
+      expect(c.query).toBe(SHOPIFY_QUERIES.abandoned_checkouts);
+    }
+  });
+
+  it("when Shopify withholds customer data anyway, carts are still read, without shoppers", async () => {
+    const fake = fakeShopify({
+      now: NOW,
+      scopes: WITH,
+      customerDataWithheld: true,
+      carts: carts(),
+    });
+    const provider = createShopifyProvider({ fetch: fake.fetch, sleep: noSleep });
+    const read = await provider.readAbandonedCheckouts!(FAKE_SHOPIFY_SECRET, NOW, 60);
+    expect(read.shopper).toBe("refused");
+    expect(read.carts).toHaveLength(3);
+    expect(read.carts.every((c) => c.email === null)).toBe(true);
+    const sent = fake.calls.filter((c) => c.query?.includes("Abandoned")).map((c) => c.query);
+    expect(sent).toEqual([
+      SHOPIFY_QUERIES.abandoned_checkouts_shoppers,
+      SHOPIFY_QUERIES.abandoned_checkouts,
+    ]);
+  });
+
+  it("an unknown marketing state is not read as either answer", () => {
+    const node = {
+      id: "gid://shopify/AbandonedCheckout/7",
+      createdAt: daysAgo(1),
+      updatedAt: daysAgo(1),
+      completedAt: null,
+      totalPriceSet: { shopMoney: { amount: "10.00", currencyCode: "EUR" } },
+      lineItems: { nodes: [], pageInfo: { hasNextPage: false } },
+      customer: { defaultEmailAddress: { emailAddress: "a@example.com", marketingState: "NEW" } },
+    };
+    expect(parseCart(node, true)).toMatchObject({
+      email: "a@example.com",
+      accepts_marketing: null,
+    });
+    // The plain document's parse never takes a shopper, even one in the response.
+    expect(parseCart(node)).toMatchObject({ email: null, accepts_marketing: null });
+  });
+
+  it("another error on the shoppers document is not taken for a refusal", async () => {
+    const fake = fakeShopify({
+      now: NOW,
+      scopes: WITH,
+      carts: carts(),
+      respond: (call) =>
+        call.query?.startsWith("query AbandonedCheckoutsShoppers")
+          ? shopifyJson(200, { errors: [{ message: "Internal error" }] })
+          : null,
+    });
+    const provider = createShopifyProvider({ fetch: fake.fetch, sleep: noSleep });
+    await expect(provider.readAbandonedCheckouts!(FAKE_SHOPIFY_SECRET, NOW, 60)).rejects.toThrow(
+      /Internal error/,
+    );
   });
 });
 
@@ -328,6 +446,7 @@ describe("the connection records its cart reads", () => {
       ok_at: NOW.toISOString(),
       failed_at: null,
       too_many: false,
+      shopper: "not_granted",
     });
     endless = true;
     const later = new Date(NOW.getTime() + 86_400_000);
@@ -336,7 +455,43 @@ describe("the connection records its cart reads", () => {
       ok_at: NOW.toISOString(),
       failed_at: later.toISOString(),
       too_many: true,
+      shopper: "not_granted",
     });
+  });
+
+  it("with read_customers, the sync hashes each shopper and records that it read them", async () => {
+    const { s, conn } = await shopWith({
+      scopes: ["read_orders", "read_products", "read_customers"],
+      carts: [
+        shopCart(daysAgo(2), "10.00", [], {
+          email: "Keen@Example.com",
+          marketingState: "SUBSCRIBED",
+        }),
+        shopCart(daysAgo(3), "12.00"),
+      ],
+    });
+    const outcome = await syncConnection(conn.id, NOW);
+    expect(outcome.carts).toMatchObject({ stored: 2, hashed: 1 });
+    expect((await state(conn.id))?.shopper).toBe("read");
+    const rows = await stored(conn.id);
+    expect(JSON.stringify(rows)).not.toMatch(/example\.com/i);
+    const keen = rows.find((r) => r.email_hash !== null)!;
+    expect(keen.email_hash).toBe(emailHash("keen@example.com"));
+    // Shopify's tick is kept as a flag, never as consent (I-47a): no contact appears.
+    expect(keen.accepts_marketing).toBe(true);
+    const made = await db.select().from(contacts).where(eq(contacts.account_id, s.account_id));
+    expect(made).toHaveLength(0);
+  });
+
+  it("when Shopify withholds customer data, the read says refused and still stores the carts", async () => {
+    const { conn } = await shopWith({
+      scopes: ["read_orders", "read_products", "read_customers"],
+      customerDataWithheld: true,
+      carts: [shopCart(daysAgo(2), "10.00", [], { email: "keen@example.com" })],
+    });
+    const outcome = await syncConnection(conn.id, NOW);
+    expect(outcome.carts).toMatchObject({ stored: 1, hashed: 0 });
+    expect((await state(conn.id))?.shopper).toBe("refused");
   });
 
   it("an ordinary failure isn't too many", async () => {

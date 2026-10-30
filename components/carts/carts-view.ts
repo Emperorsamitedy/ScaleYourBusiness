@@ -4,6 +4,7 @@
 
 import type { CartsScreenView } from "../../app/api/carts/route";
 import type { CartReach, Money, WindowStats } from "../../lib/carts/measure";
+import type { CartShopperRead } from "../../lib/connectors/provider";
 import { dayWords } from "../../lib/carts/measure";
 import { moneyText, num } from "../sheet/num";
 
@@ -63,9 +64,23 @@ export function windowLine(m: Measured): string {
   return `${now} The 30 days before: ${num(p.left)} left (${moneyList(p.value_left)})${pShare ? `, ${pShare} of checkouts` : ""}.`;
 }
 
-const NOTE: Record<Exclude<CartReach, "emailable">, (n: string, one: boolean) => string> = {
-  no_email: (n, one) =>
-    `${n} ${one ? "cart carries" : "carts carry"} no email I can read, so ${one ? "it isn't" : "they aren't"} matched to anyone. Shopify only says who left a cart to an app that may read your customers, and I don't ask for that.`,
+/** I-47b: why a cart carries no email, by whether the store's last read had the shopper. */
+const NO_EMAIL_WHY: Record<CartShopperRead | "unknown", string> = {
+  read: "The checkout had no customer email: a draft order, or one made by an app.",
+  not_granted:
+    "Shopify only says who left a cart to an app that may read your customers. Add read_customers to the app in Shopify's Dev Dashboard, release it, and connect again.",
+  refused:
+    "The app has read_customers, but Shopify still withheld customer details. In the app's Dev Dashboard, allow access to customer data (email), release it, and the next sync matches carts.",
+  unknown:
+    "Shopify only says who left a cart to an app that may read your customers (read_customers).",
+};
+
+const NOTE: Record<
+  Exclude<CartReach, "emailable">,
+  (n: string, one: boolean, shopper: CartShopperRead | "unknown") => string
+> = {
+  no_email: (n, one, shopper) =>
+    `${n} ${one ? "cart carries" : "carts carry"} no email I can read, so ${one ? "it isn't" : "they aren't"} matched to anyone. ${NO_EMAIL_WHY[shopper]}`,
   not_contact: (n, one) =>
     `${n} ${one ? "cart is" : "carts are"} from shoppers who aren't among your contacts, so ${one ? "it isn't" : "they aren't"} emailed.`,
   no_consent: (n, one) =>
@@ -74,8 +89,11 @@ const NOTE: Record<Exclude<CartReach, "emailable">, (n: string, one: boolean) =>
     `${n} ${one ? "cart is from someone" : "carts are from people"} who unsubscribed or asked to be forgotten, so ${one ? "it isn't" : "they aren't"} emailed.`,
 };
 
-/** The consent notes: who can't be emailed, counted, in words. Never an address. */
-export function consentNotes(m: Measured): string[] {
+/**
+ * The consent notes: who can't be emailed, counted, in words. Never an
+ * address. `shopper` is the store's last read (I-47b); null when unknown.
+ */
+export function consentNotes(m: Measured, shopper: CartShopperRead | null = null): string[] {
   const out: string[] = [];
   const yes = m.reach.carts.emailable;
   if (yes > 0) {
@@ -85,7 +103,7 @@ export function consentNotes(m: Measured): string[] {
   }
   for (const k of ["no_consent", "not_contact", "suppressed", "no_email"] as const) {
     const n = m.reach.carts[k];
-    if (n > 0) out.push(NOTE[k](num(n), n === 1));
+    if (n > 0) out.push(NOTE[k](num(n), n === 1, shopper ?? "unknown"));
   }
   return out;
 }

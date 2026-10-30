@@ -15,10 +15,10 @@
 //
 // Erasure is lib/carts/erase.ts, called inside eraseContact's transaction.
 //
-// Shopify gives no email today (lib/connectors/providers/shopify.ts: the
-// shopper needs read_customers, which SYB doesn't hold), so its carts land
-// with a null hash and match nobody. The path is the same for any store
-// that does.
+// Shopify gives the email only when the owner granted the optional
+// read_customers (I-47b; lib/connectors/providers/shopify.ts). Without it
+// its carts land with a null hash and match nobody. The path is the same
+// for any store that gives one.
 
 import { and, eq, inArray, lt, sql } from "drizzle-orm";
 import type { DbOrTx } from "../../db";
