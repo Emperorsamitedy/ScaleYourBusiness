@@ -326,7 +326,16 @@ export interface ExternalCart {
 
 export interface CartRead {
   carts: ExternalCart[];
+  /**
+   * Whether the shopper was read (I-47b): "read", "not_granted" when the
+   * credential lacks the platform's customer permission, or "refused" when
+   * it holds it but the platform still withheld customer data. Absent for a
+   * platform that has no such permission.
+   */
+  shopper?: CartShopperRead;
 }
+
+export type CartShopperRead = "read" | "not_granted" | "refused";
 
 /** One stock snapshot: the observations, and what couldn't be read (counted, never guessed). */
 export interface StockRead {

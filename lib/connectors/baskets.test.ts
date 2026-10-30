@@ -61,7 +61,12 @@ afterEach(() => {
 
 describe("no new permission", () => {
   it("the registry for both stores is the read-only one it was, and the audit passes", () => {
-    expect(SCOPE_REGISTRY.shopify).toEqual(["read_orders", "read_products", "read_all_orders"]);
+    expect(SCOPE_REGISTRY.shopify).toEqual([
+      "read_orders",
+      "read_products",
+      "read_all_orders",
+      "read_customers",
+    ]);
     expect(SCOPE_REGISTRY.woocommerce).toEqual(["read_orders", "read_products"]);
     expect(auditRegistry()).toEqual([]);
     expect(Object.keys(WOO_READ_ENDPOINTS).sort()).toEqual(["read_orders", "read_products"]);

@@ -32,8 +32,11 @@ export const SCOPE_REGISTRY = {
    * Shopify (P2-14). Real scope handles, reported back by Shopify for every
    * token, so registry membership is a genuine check. read_all_orders is
    * optional: it needs Shopify's approval, and without it history is 60 days.
+   * read_customers is optional too (idea 47, owner decision I-47b,
+   * 2026-10-30): with it a cart's shopper is read, hashed and matched to a
+   * contact; without it no cart is matched.
    */
-  shopify: ["read_orders", "read_products", "read_all_orders"],
+  shopify: ["read_orders", "read_products", "read_all_orders", "read_customers"],
   /**
    * WooCommerce (P2-17). Like Stripe, its keys cannot report their access
    * level, so these are capabilities proven at connect time, one per entry
@@ -167,6 +170,11 @@ export const SCOPE_GUIDE: Readonly<
       scope: "read_all_orders",
       grant: "read_all_orders (optional, Shopify must approve it)",
       why: "Orders older than 60 days, for a full year of history. Without it I read the last 60 days.",
+    },
+    {
+      scope: "read_customers",
+      grant: "read_customers (optional)",
+      why: "Who left an unfinished checkout, so a cart can be matched to someone on your contact list. I read only the email of a cart's shopper, keep a scrambled copy of it and never the address, and email only people you've recorded a yes for. Without it no cart is matched.",
     },
   ],
   woocommerce: [

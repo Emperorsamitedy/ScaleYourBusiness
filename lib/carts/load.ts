@@ -16,6 +16,7 @@ import { abandonedCheckouts, connections, metricObservations, offers } from "../
 import { shiftDay } from "../anomaly/baseline";
 import { sourceLabel } from "../charts/load";
 import { mappingKey } from "../connectors/mapping";
+import type { CartShopperRead } from "../connectors/provider";
 import { getProvider } from "../connectors/registry";
 import { isProviderId } from "../connectors/scopes";
 import type { ContactRow } from "../crm/contacts";
@@ -43,6 +44,8 @@ export interface CartSource {
    */
   ok_at: string | null;
   too_many: boolean;
+  /** I-47b: whether the last good read had each cart's shopper; null before it was recorded. */
+  shopper: CartShopperRead | null;
 }
 
 async function cartConnections(accountId: string) {
@@ -176,6 +179,7 @@ export async function loadCartFacts(accountId: string, now: Date = new Date()): 
       carts: mine.length,
       ok_at: c.cart_read?.ok_at ?? read,
       too_many: c.cart_read?.too_many ?? false,
+      shopper: c.cart_read?.shopper ?? null,
     };
   });
 

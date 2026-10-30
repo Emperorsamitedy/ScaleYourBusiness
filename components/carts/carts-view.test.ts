@@ -135,9 +135,21 @@ describe("who can be emailed, in words", () => {
       "12 carts are from contacts with no recorded yes to email, so they aren't emailed.",
       "4 carts are from shoppers who aren't among your contacts, so they aren't emailed.",
       "1 cart is from someone who unsubscribed or asked to be forgotten, so it isn't emailed.",
-      "15 carts carry no email I can read, so they aren't matched to anyone. Shopify only says who left a cart to an app that may read your customers, and I don't ask for that.",
+      "15 carts carry no email I can read, so they aren't matched to anyone. Shopify only says who left a cart to an app that may read your customers (read_customers).",
     ]);
     for (const n of notes) expect(n).not.toMatch(/@/);
+  });
+
+  // I-47b: why a cart has no email depends on what the store's last read could see.
+  it("says why a cart has no email, by whether the shopper was read", () => {
+    const last = (shopper: Parameters<typeof consentNotes>[1]) =>
+      consentNotes(measured, shopper).at(-1);
+    expect(last("read")).toMatch(/no customer email: a draft order, or one made by an app\.$/);
+    expect(last("not_granted")).toMatch(/Add read_customers to the app in Shopify's Dev Dashboard/);
+    expect(last("refused")).toMatch(
+      /has read_customers, but Shopify still withheld customer details/,
+    );
+    expect(last(null)).toBe(consentNotes(measured).at(-1));
   });
 
   it("says who of the reminder's week won't get one, and why", () => {

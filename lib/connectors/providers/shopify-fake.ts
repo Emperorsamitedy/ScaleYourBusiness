@@ -9,7 +9,9 @@
 // sorted by CREATED_AT, and a document that asks for a checkout's customer
 // is refused the way Shopify refuses a type outside the token's scopes
 // (Customer "Requires read_customers access scope"), unless the fake was
-// given read_customers. Nothing in app code imports this file.
+// given read_customers; with it, the customer's default email and its
+// marketingState come back (I-47b), or the protected-data refusal when the
+// fake is told Shopify withholds it. Nothing in app code imports this file.
 
 import type {
   ShopifyCredential,
@@ -74,6 +76,8 @@ export interface FakeShopifyCart {
   lines: { title: string | null; quantity: number; price: string; productId: string | null }[];
   /** The shopper's address: Shopify holds it, and shows it only with read_customers. */
   email?: string | null;
+  /** defaultEmailAddress.marketingState; default NOT_SUBSCRIBED. */
+  marketingState?: string;
 }
 
 export interface FakeShopifyCall {
@@ -88,6 +92,11 @@ export interface FakeShopifyOptions {
   products?: FakeShopifyProduct[];
   carts?: FakeShopifyCart[];
   scopes?: string[];
+  /**
+   * I-47b: Shopify withholds protected customer data even from a token with
+   * read_customers, as for an app not approved for it.
+   */
+  customerDataWithheld?: boolean;
   /** The shop's currency (shop.currencyCode). Default EUR. */
   currency?: string;
   /** The clock Shopify's 60-day rule is measured against. */
@@ -291,7 +300,19 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
     }
 
     if (query?.startsWith("query AbandonedCheckouts")) {
-      if (/\bcustomer\b/.test(query) && !scopes.includes("read_customers")) {
+      const asksCustomer = /\bcustomer\b/.test(query);
+      if (asksCustomer && options.customerDataWithheld && scopes.includes("read_customers")) {
+        return shopifyJson(200, {
+          data: null,
+          errors: [
+            {
+              message: "This app is not approved to access the Customer object.",
+              extensions: { code: "ACCESS_DENIED" },
+            },
+          ],
+        });
+      }
+      if (asksCustomer && !scopes.includes("read_customers")) {
         return shopifyJson(200, {
           data: null,
           errors: [
@@ -329,6 +350,18 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
                 createdAt: c.createdAt,
                 updatedAt: c.updatedAt ?? c.createdAt,
                 completedAt: c.completedAt ?? null,
+                ...(asksCustomer
+                  ? {
+                      customer: c.email
+                        ? {
+                            defaultEmailAddress: {
+                              emailAddress: c.email,
+                              marketingState: c.marketingState ?? "NOT_SUBSCRIBED",
+                            },
+                          }
+                        : null,
+                    }
+                  : {}),
                 totalPriceSet: moneyBag(c.total, currency),
                 lineItems: {
                   nodes: c.lines.slice(0, lineFirst).map((l) => ({
@@ -403,7 +436,9 @@ export function shopCart(
   createdAt: string,
   total: string,
   lines: FakeShopifyCart["lines"] = [],
-  extra: Partial<Pick<FakeShopifyCart, "completedAt" | "currency" | "email" | "updatedAt">> = {},
+  extra: Partial<
+    Pick<FakeShopifyCart, "completedAt" | "currency" | "email" | "marketingState" | "updatedAt">
+  > = {},
 ): FakeShopifyCart {
   cartSequence += 1;
   return {
