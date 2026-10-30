@@ -9,9 +9,9 @@
 // label and two dates. The pure checks are in ./endpoints.
 
 import { createHmac } from "node:crypto";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import { db } from "../../db";
-import { pushSubscriptions, users } from "../../db/schema";
+import { authSessions, pushSubscriptions, users } from "../../db/schema";
 import { decryptSecret, encryptSecret } from "../connectors/secrets";
 import { stableKey } from "../core/derived-key";
 import { logSafeError } from "../core/log-safe";
@@ -175,17 +175,28 @@ export async function openDevices(
   // Idea 52: alerts ask for a decision, so they go only to people on the
   // team who may make one (owner or manager, not taken off); a phone whose
   // person became a viewer simply stops getting them.
+  // Review 2026-10-30: and only while the sign-in that switched them on is
+  // live: a session past its 90 days (or signed out) alerts nobody. A switch
+  // of business hands its alerts to the new sign-in (revokeSession), so a
+  // revoked session here really is a signed-out one. A row with no session
+  // (none is written that way today) is judged by its person alone.
+  const now = new Date().toISOString();
   const rows = (
     await db
       .select({ sub: pushSubscriptions })
       .from(pushSubscriptions)
       .innerJoin(users, eq(users.id, pushSubscriptions.user_id))
+      .leftJoin(authSessions, eq(authSessions.id, pushSubscriptions.session_id))
       .where(
         and(
           eq(pushSubscriptions.account_id, accountId),
           eq(users.account_id, accountId),
           isNull(users.removed_at),
           inArray(users.role, ["owner", "manager"]),
+          or(
+            isNull(pushSubscriptions.session_id),
+            and(isNull(authSessions.revoked_at), gt(authSessions.expires_at, now)),
+          ),
           ...(userId ? [eq(pushSubscriptions.user_id, userId)] : []),
         ),
       )

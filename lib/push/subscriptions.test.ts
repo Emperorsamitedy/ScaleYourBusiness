@@ -106,6 +106,27 @@ describe("subscriptions at rest (rule 10)", () => {
     expect(left.map((d) => d.id)).not.toContain(here.id);
   });
 
+  // Review 2026-10-30: a sign-in past its 90 days alerts nobody.
+  it("a device whose sign-in has expired gets no alerts; a live sign-in's still does", async () => {
+    const b = await business();
+    const sessionAt = async (expires_at: string) => {
+      const [row] = await db
+        .insert(authSessions)
+        .values({
+          account_id: b.account_id,
+          user_id: b.user_id,
+          token_hash: createHash("sha256").update(randomBytes(32)).digest("hex"),
+          expires_at,
+        })
+        .returning({ id: authSessions.id });
+      return row!.id;
+    };
+    const live = await device(b, { sessionId: await sessionAt("2099-01-01T00:00:00.000Z") });
+    await device(b, { sessionId: await sessionAt("2020-01-01T00:00:00.000Z") });
+    const open = await openDevices(b.account_id);
+    expect(open.map((d) => d.id)).toEqual([live.id]);
+  });
+
   it("go with the account when it is erased", async () => {
     const b = await business();
     await device(b);

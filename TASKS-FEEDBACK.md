@@ -389,6 +389,8 @@ When something new waits for the owner's yes, their phone gets a notification. T
 
 **Done when:** a new proposal reaches a subscribed phone as a few words, a tap opens its card, the yes is recorded only from the card, quiet hours and the stop hold, and a dead subscription removes itself.
 
+_Review, 2026-10-30:_ two gaps in "alerts live and die with the sign-in". Switching business (or joining one) retired the browser's session through `revokeSession`, which deleted that session's phone alerts, so the business left stopped alerting without a word; and `openDevices` never looked at the session at all, so a sign-in past its 90 days kept getting alerts. Decided: a subscription stays tied to the sign-in the browser holds now. A switch or join calls `revokeSession(old, { handOverTo: new })`, which re-points the old session's subscriptions at the new session instead of deleting them (they keep their business and person); sign-out still deletes them; and `openDevices` sends only where the session is unrevoked and unexpired (a row with no session is judged by its person alone; none is written that way today). No migration.
+
 ## Idea 45: bad-review alerts (owner, 2026-10-29)
 
 When a poor review appears, the owner hears about it the same day with a suggested reply, which they post themselves. **How reviews reach SYB is the hard part**, and it was settled conservatively before building:

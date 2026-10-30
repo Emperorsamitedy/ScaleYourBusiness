@@ -74,7 +74,10 @@ export async function switchAccount(args: {
     );
   if (!target) throw new SwitchError("no such business");
   const next = await openSession(target);
-  if (target.id !== session.user_id) await revokeSession(args.currentToken);
+  // Review 2026-10-30: the phone's alerts for the business left go on (see revokeSession).
+  if (target.id !== session.user_id) {
+    await revokeSession(args.currentToken, { handOverTo: next.session_token });
+  }
   await logSwitch(session, next, "switch");
   console.log(
     JSON.stringify({
@@ -94,7 +97,7 @@ export async function addBusiness(args: {
   const boot = await bootstrapIntake();
   const owner = await createOwner(boot.account_id, args.session.email);
   const next = await openSession(owner);
-  await revokeSession(args.currentToken);
+  await revokeSession(args.currentToken, { handOverTo: next.session_token });
   await logSwitch(args.session, next, "new_business");
   console.log(JSON.stringify({ event: "business_added", account_id: next.account_id }));
   return next;
