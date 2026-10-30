@@ -74,8 +74,11 @@ export async function fileReview(r: ReviewToFile, now = new Date()): Promise<Fil
   const link = clip(r.link, REVIEW_LIMITS.link_chars);
   const worth = worthKnowing(stars, text);
   // A review can't be dated after it reached SYB.
+  // As instants (review 2026-10-30): the two strings needn't share a format.
   const reviewedAt =
-    r.reviewed_at && r.reviewed_at <= r.received_at ? r.reviewed_at : r.received_at;
+    r.reviewed_at && Date.parse(r.reviewed_at) <= Date.parse(r.received_at)
+      ? r.reviewed_at
+      : r.received_at;
   await pruneExpiredReviews(now, r.profile_id);
   // The row and its one alert commit together: a failure files neither, so
   // the webhook's retry files the review AND raises its alert.

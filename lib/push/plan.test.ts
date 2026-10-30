@@ -177,6 +177,23 @@ describe("what is never sent", () => {
     expect(plan.act).toBe("drop");
   });
 
+  // Review 2026-10-30: the column reads back in Postgres format, which
+  // sorts before an ISO "now" of the same UTC day as a string.
+  it("a Postgres-format expiry later the same day still waits; an earlier one is stale", () => {
+    const later = pushPlan({
+      ...base,
+      now: at("2026-11-10T10:00:00Z"),
+      queued: [item(A, { expires_at: "2026-11-10 19:41:55.439+00" })],
+    });
+    expect(later).toMatchObject({ act: "send", send: [A] });
+    const earlier = pushPlan({
+      ...base,
+      now: at("2026-11-10T10:00:00Z"),
+      queued: [item(A, { expires_at: "2026-11-10 09:41:55.439+00" })],
+    });
+    expect(earlier).toMatchObject({ act: "drop", drop: [A] });
+  });
+
   it("no device: dropped, so a phone switched on later doesn't get old alerts", () => {
     const plan = pushPlan({ ...base, now: at("2026-11-10T10:00:00Z"), devices: 0 });
     expect(plan).toEqual({ act: "drop", why: "no_devices", drop: [A] });

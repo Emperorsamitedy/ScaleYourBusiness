@@ -60,7 +60,8 @@ export async function storeCarts(
   const byRef = new Map<string, CartRead["carts"][number]>();
   for (const c of read.carts) {
     const at = Date.parse(c.started_at);
-    if (!Number.isFinite(at) || c.started_at < cutoff) continue;
+    // As instants (review 2026-10-30): a provider's time may carry an offset.
+    if (!Number.isFinite(at) || at < Date.parse(cutoff)) continue;
     byRef.set(c.ref, c);
   }
   const carts = [...byRef.values()];
