@@ -23,6 +23,8 @@ import { mergeSpoken, spokenOf } from "./transcript";
 
 export const CAP_MS = 60_000;
 export const SILENCE_MS = 8_000;
+/** Review 2026-10-30: a stop whose onend never comes is forced back to idle after this. */
+export const END_GRACE_MS = 3_000;
 
 /** The one plain line (TASKS-FEEDBACK.md, idea 50), shown before audio leaves the device. */
 export const NOTICE =
@@ -139,9 +141,12 @@ export class SpeechSession {
   private lastWritten = "";
   private cap: ReturnType<typeof setTimeout> | null = null;
   private quiet: ReturnType<typeof setTimeout> | null = null;
+  private grace: ReturnType<typeof setTimeout> | null = null;
   private endWords: string | null = null;
   private stopping = false;
   private disposed = false;
+  /** Review 2026-10-30: the box is busy or sending; no session may start. */
+  private disabled = false;
 
   constructor(deps: SessionDeps) {
     this.deps = deps;
@@ -161,9 +166,21 @@ export class SpeechSession {
     this.deps.onState?.(this.state);
   }
 
+  /**
+   * The box became busy (or free again). Review 2026-10-30: kept here, not
+   * only as a stop, because a tap may be awaiting `available()` when the
+   * box turns busy; the mic must not start after it.
+   */
+  setDisabled(on: boolean): void {
+    this.disabled = on;
+    if (!on) return;
+    if (this.rec) this.stop(null);
+    else if (this.state.phase !== "idle") this.set({ phase: "idle", message: null });
+  }
+
   /** The microphone was tapped. */
   async toggle(): Promise<void> {
-    if (this.disposed || !this.deps.Recognition) return;
+    if (this.disposed || this.disabled || !this.deps.Recognition) return;
     const { phase } = this.state;
     if (phase === "listening") return this.stop(this.deps.after);
     if (phase === "checking") return;
@@ -174,6 +191,10 @@ export class SpeechSession {
     this.set({ phase: "checking", message: null });
     const onDevice = await this.canRecogniseHere();
     if (this.disposed) return;
+    if (this.disabled) {
+      this.set({ phase: "idle", message: null });
+      return;
+    }
     if (!onDevice && !seen(this.deps.store)) {
       this.set({ phase: "notice", onDevice, notice: NOTICE });
       return;
@@ -199,6 +220,10 @@ export class SpeechSession {
   private listen(onDevice: boolean): void {
     const Ctor = this.deps.Recognition;
     if (!Ctor) return;
+    if (this.disabled) {
+      this.set({ phase: "idle", message: null });
+      return;
+    }
     const rec = new Ctor();
     rec.lang = this.deps.lang;
     rec.continuous = true;
@@ -269,10 +294,24 @@ export class SpeechSession {
     this.stopping = true;
     this.endWords = words;
     this.clearTimers();
+    const rec = this.rec;
     try {
-      this.rec.stop();
+      rec.stop();
     } catch {
-      this.ended(this.rec);
+      this.ended(rec);
+      return;
+    }
+    // Review 2026-10-30: a browser whose onend never fires would leave the
+    // button on "Listening" for good; after END_GRACE_MS, abort and go idle.
+    if (this.rec === rec) {
+      this.grace = setTimeout(() => {
+        try {
+          rec.abort();
+        } catch {
+          /* already stopped */
+        }
+        this.ended(rec);
+      }, END_GRACE_MS);
     }
   }
 
@@ -287,8 +326,10 @@ export class SpeechSession {
   private clearTimers(): void {
     if (this.cap) clearTimeout(this.cap);
     if (this.quiet) clearTimeout(this.quiet);
+    if (this.grace) clearTimeout(this.grace);
     this.cap = null;
     this.quiet = null;
+    this.grace = null;
   }
 
   /** The box is going away: drop the audio and any words still on their way. */
