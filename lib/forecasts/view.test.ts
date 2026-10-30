@@ -127,6 +127,32 @@ describe("each forecast", () => {
     expect(late.happened).toMatch(/waiting for Shopify's figures/);
   });
 
+  // Review 2026-10-30: the day after a window closes it isn't due yet, so it
+  // isn't "waiting for figures".
+  it("just closed, it says when it will be checked; once due, that it waits for figures", () => {
+    const closed = (today: string) =>
+      trackView([waiting({ window_end: "2026-11-18" })], today).entries[0]!.happened;
+    expect(closed("2026-11-19")).toBe(
+      "Not graded yet: I'll check it on the first weekly check after 19 Nov 2026.",
+    );
+    expect(closed("2026-11-20")).toMatch(/waiting for Shopify's figures/);
+  });
+
+  it("with a tally, counts every forecast and says how many aren't listed", () => {
+    const v = trackView([row(), waiting()], TODAY, [
+      { kind: "season_week", verdict: "inside", n: 4 },
+      { kind: "season_week", verdict: "below", n: 1 },
+      { kind: "season_week", verdict: null, n: 2 },
+      { kind: "not_a_kind", verdict: null, n: 9 },
+    ]);
+    expect(v).toMatchObject({ graded: 5, inside: 4, below: 1, waiting: 2, older: 5 });
+    expect(v.headline).toMatch(/^4 of my last 5 forecasts landed inside/);
+    expect(v.older_line).toBe(
+      "5 older forecasts aren't listed here; the counts above include them.",
+    );
+    expect(trackView([row()], TODAY).older_line).toBeNull();
+  });
+
   it("marks a row written to the record days after its date (the demo's), and only that", () => {
     const back = row({ made_at: "2026-10-01 09:00:00+00", recorded_at: "2026-11-19 10:00:00+00" });
     const v = trackView([back, row()], TODAY);
