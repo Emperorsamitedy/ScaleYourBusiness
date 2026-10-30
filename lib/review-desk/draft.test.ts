@@ -216,6 +216,60 @@ describe("I-45.3 — a suggested reply, on the owner's click only", () => {
   });
 });
 
+// Review 2026-10-30: offers and names the old checks missed.
+describe("the reply rules, wider", () => {
+  it("any offer of something free, on us, or off is an offer", () => {
+    for (const reply of [
+      "We'd love to give you a free haircut next time.",
+      "Your next visit is on us.",
+      "Come back and the coffee's on us.",
+      "Dessert is on the house.",
+      "We'll take 20 percent off your next booking.",
+      "Here is 15 per cent off.",
+      "Take 10 % off.",
+      "We'll add a credit to your account.",
+      "Let us make it up to you.",
+      "Enjoy a complimentary drink.",
+      "We've sent you a voucher.",
+      "A discount is waiting for you.",
+      "FREE parking for you next time.",
+    ]) {
+      expect(replyProblem(reply, null), reply).toBe("offer");
+    }
+  });
+
+  it("ordinary replies still pass", () => {
+    for (const reply of [
+      "Please feel free to get in touch with us directly.",
+      "Our gluten-free menu is on the board by the door.",
+      "You can count on us to do better.",
+      "Thank you for the kind words.",
+      GOOD,
+    ]) {
+      expect(replyProblem(reply, null), reply).toBeNull();
+    }
+  });
+
+  it("names beyond ASCII are masked and caught; regex characters in a name are plain", () => {
+    expect(withoutName("Ádám was lovely, thanks Zoé", "Ádám Zoé")).toBe(
+      "[name] was lovely, thanks [name]",
+    );
+    expect(replyProblem("Thank you, Ádám.", "Ádám K.")).toBe("name");
+    expect(replyProblem("Thank you, Zoé!", "Zoé")).toBe("name");
+    // Inside a longer word it is not the name.
+    expect(withoutName("Ádámné", "Ádám")).toBe("Ádámné");
+    expect(withoutName("C++ fan (Bob)", "Bob (C++)")).toBe("C++ fan ([name])");
+  });
+
+  it("a two-letter name part is masked as written, but not a common short word", () => {
+    expect(withoutName("Jo said it was fine", "Jo")).toBe("[name] said it was fine");
+    expect(replyProblem("Thanks, Li.", "Li Wei")).toBe("name");
+    expect(withoutName("an apple, An", "An Nguyen")).toBe("an apple, An");
+    expect(replyProblem("It was an honour.", "An Nguyen")).toBeNull();
+    expect(withoutName("J. was here", "J. Smith")).toBe("J. was here");
+  });
+});
+
 describe("pasting a review, and removing one", () => {
   it("a paste is checked: platform, stars 1–5, an https link on the platform, no future date", () => {
     expect(() => readPaste({ platform: "myspace", stars: 2 }, NOW)).toThrow(/where the review/);
