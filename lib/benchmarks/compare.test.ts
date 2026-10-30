@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import type { CostLine, CountFact, MoneyFact, OfferLine } from "../cash/model";
 import type { BenchInputs, BenchLine, ComparedLine } from "./compare";
 import {
+  EVERY_SIZE_NOTE,
   BENCH_ASK,
   compareWithSimilar,
   ownMargin,
@@ -314,7 +315,8 @@ describe("which Eurostat cell", () => {
     const p = pickCell(s, "IE", RESTAURANT, ["0-9"], "GOR_PC");
     expect(p?.cell).toMatchObject({ size: "TOTAL" });
     expect(p?.cell.fallback).toBe(
-      "Eurostat doesn't publish this for restaurants, cafés and bars with up to 9 people in Ireland, so this is restaurants, cafés and bars of every size in Ireland.",
+      "Eurostat doesn't publish this for restaurants, cafés and bars with up to 9 people in Ireland, so this is restaurants, cafés and bars of every size in Ireland." +
+        EVERY_SIZE_NOTE,
     );
   });
 
@@ -326,8 +328,15 @@ describe("which Eurostat cell", () => {
     const p = pickCell(s, "IE", RESTAURANT, ["10-19"], "GOR_PC");
     expect(p?.cell).toMatchObject({ nace: "I56", size: "TOTAL", year: 2024 });
     expect(p?.cell.fallback).toBe(
-      "Eurostat keeps this confidential (2024) for restaurants, cafés and bars with 10–19 people in Ireland, so this is restaurants, cafés and bars of every size in Ireland.",
+      "Eurostat keeps this confidential (2024) for restaurants, cafés and bars with 10–19 people in Ireland, so this is restaurants, cafés and bars of every size in Ireland." +
+        EVERY_SIZE_NOTE,
     );
+  });
+
+  it("adds no every-size note when every size was the first cell tried", () => {
+    const p = pickCell(s, "IE", RESTAURANT, [], "GOR_PC");
+    expect(p?.cell).toMatchObject({ size: "TOTAL" });
+    expect(p?.cell.fallback).toBeNull();
   });
 
   it("falls back to the parent code when the code has nothing", () => {
