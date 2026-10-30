@@ -18,6 +18,7 @@ import { useRole } from "../auth/RoleContext";
 import {
   SETUP_STEPS,
   asideLine,
+  gmailConfirmationLine,
   dayLabel,
   monthName,
   readNote,
@@ -197,6 +198,7 @@ function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
   // Idea 52: the forwarding address is a setting, so a new one is an owner's.
   const rotateWhy = useRole().why("reviews.settings");
   const address = view.forwarding.address;
+  const gmail = view.forwarding.gmail;
   if (!view.forwarding.configured || !address) {
     return (
       <SheetCard label="Forwarding" title="Forwarding isn't set up yet">
@@ -239,6 +241,20 @@ function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
       <button type="button" className="act" onClick={() => void copyText(address).then(setCopied)}>
         {copied ? "Copied" : "Copy the address"}
       </button>
+      {gmail && (
+        <p className="rv-copy">
+          <strong>{gmailConfirmationLine(gmail)}</strong>{" "}
+          <span className="rv-quiet">Received {dayLabel(gmail.at, view.today)}.</span>
+          {gmail.link && (
+            <>
+              {" "}
+              <a href={gmail.link} target="_blank" rel="noopener noreferrer">
+                Open Gmail&apos;s confirmation link
+              </a>
+            </>
+          )}
+        </p>
+      )}
       <p className="rv-copy">
         Each review email you forward becomes a review here. A poor one goes on your Watching screen
         the day it comes in, and into your weekly summary. Mail from anyone but a review site is

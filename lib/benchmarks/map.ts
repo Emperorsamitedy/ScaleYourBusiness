@@ -41,6 +41,7 @@ interface MapSpec {
   size_bands: Record<SizeBand, string[]> & { about: string };
   countries: { eurostat_geo: Record<string, string>; eu27: string[] };
   cost_categories: Record<string, CostTreatment | string>;
+  inside_gross_margin: Record<string, boolean | string>;
 }
 
 export const BENCHMARK_MAP = mapSpec as unknown as MapSpec;
@@ -122,6 +123,15 @@ export function costTreatment(
       ? map.cost_categories[category]
       : null;
   return t === "staff" || t === "financing" ? t : "running";
+}
+
+/** Pure: whether a stated gross margin already takes this cost category off (the map's flag). */
+export function insideGrossMargin(category: string | null, map: MapSpec = BENCHMARK_MAP): boolean {
+  return (
+    category !== null &&
+    Object.hasOwn(map.inside_gross_margin, category) &&
+    map.inside_gross_margin[category] === true
+  );
 }
 
 /** Pure: the group in words for a parent code. */

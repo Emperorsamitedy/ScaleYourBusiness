@@ -117,6 +117,17 @@ export function maskAddresses(text: string): string {
 }
 
 /**
+ * Review 2026-10-30: the rating, like every other copied value, must be in
+ * the email: its digit standing alone ("4/5", "4 stars", but not the
+ * "5" of "/5" or "out of 5"), or a run of exactly that many filled star glyphs. Otherwise the stars are null.
+ */
+export function starsShown(stars: number, body: string): boolean {
+  const alone = new RegExp(String.raw`(?<![\d.,/]|of\s)${stars}(?!\d|[.,]\d)`, "i");
+  if (alone.test(body)) return true;
+  return (body.match(/[★⭐]+/gu) ?? []).some((run) => [...run].length === stars);
+}
+
+/**
  * The model's JSON, held to what the email actually says. Pure. Anything
  * not found verbatim in the body (whitespace aside) is dropped.
  */
@@ -147,7 +158,8 @@ export function coerceFallback(text: string, mail: OriginalMail): ParsedReview {
     typeof parsed.stars === "number" &&
     Number.isInteger(parsed.stars) &&
     parsed.stars >= 1 &&
-    parsed.stars <= 5
+    parsed.stars <= 5 &&
+    starsShown(parsed.stars, body)
       ? parsed.stars
       : null;
   const linkRaw = present(parsed.link, REVIEW_LIMITS.link_chars);

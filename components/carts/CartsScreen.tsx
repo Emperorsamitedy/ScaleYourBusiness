@@ -20,6 +20,7 @@ import { moneyText, num } from "../sheet/num";
 import type { Measured } from "./carts-view";
 import {
   cartsHeadline,
+  refusalTitle,
   consentNotes,
   moneyList,
   proposalWord,
@@ -306,13 +307,16 @@ export function CartsScreen() {
   if (!m || m.status === "refused") {
     return (
       <Frame title={cartsHeadline(view)} aside={aside}>
-        <SheetCard label="Abandoned carts" title="Not enough carts to measure">
+        <SheetCard label="Abandoned carts" title={refusalTitle(m)}>
           <p className="ct-copy">{m?.reason ?? "I haven't read any carts yet."}</p>
-          <p className="ct-copy ct-quiet">
-            I measure once there are {view.thresholds?.min_days ?? 14} days of carts and{" "}
-            {view.thresholds?.min_carts ?? 10} carts left in the last{" "}
-            {view.thresholds?.window_days ?? 30} days, so a quiet week isn&apos;t read as a pattern.
-          </p>
+          {m?.basis === "stale" || m?.basis === "too_many" ? null : (
+            <p className="ct-copy ct-quiet">
+              I measure once there are {view.thresholds?.min_days ?? 14} days of carts and{" "}
+              {view.thresholds?.min_carts ?? 10} carts left in the last{" "}
+              {view.thresholds?.window_days ?? 30} days, so a quiet week isn&apos;t read as a
+              pattern.
+            </p>
+          )}
           <p className="ct-copy ct-quiet">{sourcesLine(view)}</p>
         </SheetCard>
       </Frame>

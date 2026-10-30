@@ -18,8 +18,9 @@
 // postal address under CAN-SPAM or CASL, or no known regime at all, is
 // named on the draft, not discovered at the send.
 //
-// Idea 47, the cart reminder: the brief names the products left behind and
-// never the person; the model writes no greeting, and the greeting is
+// Idea 47, the cart reminder: the brief names products left in carts, as
+// "items from the shop, such as …" (one email reaches every shopper, so it
+// never says what any one of them left), and never the person; the model writes no greeting, and the greeting is
 // CART_GREETING, put in by code, the same words for every recipient. The
 // AI disclosure is added in code after the model, as for every draft.
 
@@ -191,7 +192,11 @@ export async function draftCampaign(
     focus: label,
     brief: cart
       ? `${detail.what ?? "One email to shoppers who left a cart"} One email for everyone in the group: ` +
-        `they left ${products.length > 0 ? products.join(", ") : "items"} in their cart. ` +
+        // Review 2026-10-30: the same words reach every shopper, so they can't say
+        // what this one left, nor hint at what anyone else did.
+        "Each of them left a cart, but not the same things, so speak of items from the shop" +
+        `${products.length > 0 ? `, such as ${products.join(", ")}` : ""}; ` +
+        "never say or imply the reader left all of these, or what anyone else left. " +
         "Never name or describe the person, and don't say how you know who they are. " +
         "Start straight after the greeting: no greeting line, it is added separately. " +
         "Don't invent offers, prices, discounts, stock levels or deadlines. " +

@@ -149,34 +149,64 @@ export function maskContacts(text: string): string {
     .replace(/\+?\d[\d ()./-]{6,}\d/g, "[phone number]");
 }
 
-/** The reviewer's name, every word of it of three letters or more, taken out of the words. */
+// Review 2026-10-30: word edges by Unicode letters and digits, not JS `\b`
+// (ASCII-only, so "Ádám" or "Zoé" slipped through), as lib/reviews/parse.ts does.
+const word = (body: string) => String.raw`(?<![\p{L}\p{N}])(?:${body})(?![\p{L}\p{N}])`;
+
+/** The reviewer's name, every word of it, taken out of the words. */
 export function withoutName(text: string, reviewer: string | null): string {
   let out = text;
-  for (const part of nameParts(reviewer)) {
-    out = out.replace(new RegExp(`\\b${escape(part)}\\b`, "giu"), "[name]");
-  }
+  for (const re of nameRes(reviewer, "g")) out = out.replace(re, "[name]");
   return out;
 }
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-function nameParts(reviewer: string | null): string[] {
+/**
+ * Short English words a two-letter name part would otherwise mask
+ * everywhere ("An", "Bo" is fine; "an" is not a name in a reply).
+ */
+const SHORT_WORDS = new Set(
+  "am an as at be by do go he hi if in is it me my no of oh ok on or so to up us we ye".split(" "),
+);
+
+/**
+ * One pattern per word of the reviewer's shown name. Three letters or more
+ * match in any case; a two-letter part ("Jo", "Li") matches only as written,
+ * and not when it is a common short word; a lone initial is left alone.
+ */
+function nameRes(reviewer: string | null, flags = ""): RegExp[] {
   if (!reviewer) return [];
   return reviewer
-    .split(/[\s.,]+/)
+    .split(/[\s.,]+/u)
     .map((p) => p.trim())
-    .filter((p) => p.length >= 3);
+    .filter((p) => /\p{L}/u.test(p) && [...p].length >= 2)
+    .filter((p) => [...p].length >= 3 || !SHORT_WORDS.has(p.toLowerCase()))
+    .map((p) => new RegExp(word(escape(p)), `${flags}u${[...p].length >= 3 ? "i" : ""}`));
 }
 
-const OFFER_RE =
-  /\b(refunds?|refunded|refunding|reimburs\w*|compensat\w*|money back|discounts?|vouchers?|coupons?|gift cards?|credit note|free of charge|on the house|complimentary|for free|free (?:treatment|session|appointment|cut|visit|service|meal|drink|night|stay|item|product|delivery)|\d+\s?% off|half price)\b/i;
+// Review 2026-10-30: "a free haircut", "your next visit is on us" and
+// "20 percent off" got through. Any "free" counts, except "feel free" and a
+// "-free" compound ("gluten-free"), which are taken out before the check.
+const OFFER_RE = new RegExp(
+  word(
+    [
+      String.raw`refunds?|refunded|refunding|reimburs\p{L}*|compensat\p{L}*|money back`,
+      String.raw`discount\p{L}*|vouchers?|coupons?|gift cards?|credits?|complimentary`,
+      // "on us" only after a "be" ("the next visit is on us"): "count on us" is no offer.
+      String.raw`free|(?:is|are|be)\s+on us|on the house|half price|make (?:it|this|that) up to you`,
+      String.raw`\d+\s*(?:%|percent|per cent)\s*off`,
+    ].join("|"),
+  ) + String.raw`|['’]s\s+on us(?![\p{L}\p{N}])`,
+  "iu",
+);
+const OFFER_EXCUSED_RE =
+  /(?<![\p{L}\p{N}])feel free(?![\p{L}\p{N}])|(?<=[\p{L}\p{N}])-free(?![\p{L}\p{N}])/giu;
 
 /** Why a draft can't be shown, or null when it passes. Pure: the rules, in code. */
 export function replyProblem(reply: string, reviewer: string | null): string | null {
-  if (OFFER_RE.test(reply)) return "offer";
-  for (const part of nameParts(reviewer)) {
-    if (new RegExp(`\\b${escape(part)}\\b`, "iu").test(reply)) return "name";
-  }
+  if (OFFER_RE.test(reply.replace(OFFER_EXCUSED_RE, " "))) return "offer";
+  if (nameRes(reviewer).some((re) => re.test(reply))) return "name";
   if (maskContacts(reply) !== reply) return "contact";
   return null;
 }

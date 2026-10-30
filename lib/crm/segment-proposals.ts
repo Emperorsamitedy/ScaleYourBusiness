@@ -100,18 +100,22 @@ export const CART_PRODUCTS_NAMED = 5;
 export const CART_REF_PREFIX = "crm:cart:";
 
 function cartCampaign(products: readonly string[]): Campaign {
+  // Review 2026-10-30: one email goes to every shopper, so it names items
+  // from the shop ("such as …"), never what any one of them left.
   const named =
     products.length === 0
-      ? "what they left in it"
-      : products.length === 1
-        ? products[0]!
-        : `${products.slice(0, -1).join(", ")} and ${products.at(-1)!}`;
+      ? "items from your shop"
+      : `items from your shop, such as ${
+          products.length === 1
+            ? products[0]!
+            : `${products.slice(0, -1).join(", ")} and ${products.at(-1)!}`
+        }`;
   return {
     segment: "abandoned_cart",
     ref: "cart",
     summary: (n) =>
       `Remind ${n} shopper${n === 1 ? "" : "s"} who left a cart this week and said yes to email`,
-    what: `One email, in your voice, to shoppers who left a cart in the last week and gave explicit consent to hear from you, about what they left behind: ${named}.`,
+    what: `One email, in your voice, to shoppers who left a cart in the last week and gave explicit consent to hear from you, reminding them of ${named}.`,
     base: "Some of them finish the order; the readback counts the orders that follow.",
     upside: "A shopper who nearly bought is the easiest one to win.",
   };

@@ -71,8 +71,10 @@ export function useSpeechAnswer(options: SpeechAnswerOptions): SpeechAnswer {
   });
 
   const { disabled } = options;
+  // Review 2026-10-30: a flag on the session, so a tap still awaiting the
+  // browser's answer can't start the mic once the box is busy.
   useEffect(() => {
-    if (disabled) session.current?.stop(null);
+    session.current?.setDisabled(disabled === true);
   }, [disabled]);
 
   return {

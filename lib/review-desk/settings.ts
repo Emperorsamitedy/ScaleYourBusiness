@@ -55,6 +55,8 @@ export async function rotateReviewToken(profileId: string): Promise<ReviewSettin
     .set({
       inbound_token: randomBytes(16).toString("hex"),
       inbound_rotated_at: new Date().toISOString(),
+      // Review 2026-10-30: a code Gmail sent for the old address confirms nothing now.
+      gmail_confirmation: null,
     })
     .where(eq(reviewSettings.profile_id, profileId))
     .returning();

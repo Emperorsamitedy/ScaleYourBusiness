@@ -10,7 +10,16 @@ import { db } from "../../db";
 import { accounts, authSessions, businessProfiles, decisionLog, users } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
 import type { Role } from "./role-actions";
-import { currentSession, openSession, redeemLogin, requestLogin, signInWithEmail } from "./service";
+import { openDevices } from "../push/subscriptions";
+import { device } from "../push/test-fixtures";
+import {
+  currentSession,
+  openSession,
+  redeemLogin,
+  requestLogin,
+  revokeSession,
+  signInWithEmail,
+} from "./service";
 import { SwitchError, addBusiness, switchAccount } from "./switch";
 
 const mail = (tag: string) => `sw-${tag}-${crypto.randomUUID().slice(0, 8)}@example.com`;
@@ -105,6 +114,33 @@ describe("one email on several businesses", () => {
     expect(entry?.profile_id).toBe(b.profile_id);
     expect(entry?.user_id).toBe(there.id);
     expect(JSON.stringify(entry)).not.toContain(email);
+  });
+
+  // Review 2026-10-30: switching business used to delete the phone's alerts
+  // for the business left, silently.
+  it("a switch keeps this phone's alerts for the business left; signing out then ends them", async () => {
+    const email = mail("push");
+    const a = await ownedBusiness(email);
+    const b = await bootstrapIntake();
+    await join(b.account_id, mail("pbowner"), "owner");
+    await join(b.account_id, email, "manager");
+    const here = await openSession(a.owner);
+    const session = await currentSession(here.session_token);
+    if (!session?.session_id) throw new Error("fixture session");
+    const phone = await device(
+      { account_id: a.account_id, user_id: a.owner.id },
+      { sessionId: session.session_id },
+    );
+
+    const next = await switchAccount({
+      session,
+      currentToken: here.session_token,
+      targetAccountId: b.account_id,
+    });
+    expect((await openDevices(a.account_id)).map((d) => d.id)).toEqual([phone.id]);
+
+    await revokeSession(next.session_token); // signing out of the browser
+    expect(await openDevices(a.account_id)).toEqual([]);
   });
 
   it("refuses a business this email isn't on, or was taken off", async () => {

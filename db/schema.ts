@@ -1156,6 +1156,12 @@ export const connections = pgTable(
       .notNull()
       .defaultNow(),
     disconnected_at: timestamp("disconnected_at", { withTimezone: true, mode: "string" }),
+    /**
+     * Idea 47, review 2026-10-30 (migration 0071): how this store's last
+     * abandoned-cart reads went, so the carts screen never headlines a stale
+     * figure. Null until a read is attempted. State only, no shopper data.
+     */
+    cart_read: jsonb("cart_read").$type<CartReadState>(),
   },
   (t) => [
     uniqueIndex("connections_active_idx")
@@ -1288,6 +1294,16 @@ export const orderBaskets = pgTable(
 // today (TASKS-FEEDBACK.md I-47b). `accepts_marketing` is Shopify's own
 // tick, stored and never used as consent (I-47a); null when not read.
 // Erasing a contact deletes the carts their address hashes to.
+
+/** A store's abandoned-cart reads (connections.cart_read). */
+export interface CartReadState {
+  /** The last read that landed in full; null when none has. */
+  ok_at: string | null;
+  /** The last read that failed, when it came after the last good one. */
+  failed_at: string | null;
+  /** That failure was the store holding more checkouts than one sync reads. */
+  too_many: boolean;
+}
 
 /** One line of a cart: the product, how many, at what unit price (the cart's currency). */
 export interface CartLine {
@@ -3387,6 +3403,13 @@ export const pushOutbox = pgTable(
 // after it was filed. No reviewer becomes a contact, and no review is
 // consent (rule 19). The decision log records an erasure by ids and a hash.
 
+/** Gmail's forwarding confirmation, as kept (review_settings.gmail_confirmation). */
+export interface GmailConfirmation {
+  code: string | null;
+  link: string | null;
+  at: string;
+}
+
 export const reviewSettings = pgTable(
   "review_settings",
   {
@@ -3407,6 +3430,12 @@ export const reviewSettings = pgTable(
     /** The model fallback's monthly cap, reserved atomically: the UTC month ("2026-10") and the calls made in it. */
     parse_month: text("parse_month"),
     parse_calls: integer("parse_calls").notNull().default(0),
+    /**
+     * Review 2026-10-30 (migration 0072): the code and link from Gmail's
+     * forwarding confirmation to this address, and when it came; the next
+     * one overwrites it, a new address clears it. Nothing else of that mail.
+     */
+    gmail_confirmation: jsonb("gmail_confirmation").$type<GmailConfirmation>(),
   },
   (t) => [
     uniqueIndex("review_settings_inbound_token_idx").on(t.inbound_token),

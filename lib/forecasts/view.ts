@@ -11,11 +11,26 @@
 import { wholeMoney } from "../cash/model";
 import { shortDate } from "../charts/model";
 import { parseInstant } from "../watch/watch-view";
+import { addDays } from "../seasons/forecast";
 import type { ForecastKind } from "./claims";
 import type { Verdict } from "./grade";
+import { GRADE, isDue } from "./grade";
 
 /** Graded forecasts needed before the headline judges anything. */
 export const TRACK_MIN_GRADED = 3;
+
+/** Review 2026-10-30: the newest this many are listed; the counts cover every one. */
+export const TRACK_LISTED = 50;
+
+/**
+ * Every forecast of the business, counted by kind and grade (verdict null:
+ * not graded yet), so the headline never needs every row in the page.
+ */
+export interface TrackTally {
+  kind: string;
+  verdict: string | null;
+  n: number;
+}
 
 /** The columns the view reads, as Postgres returns them. */
 export interface TrackRow {
@@ -84,8 +99,11 @@ export interface TrackView {
   cant_tell: number;
   waiting: number;
   kinds: TrackKindLine[];
-  /** Newest first. */
+  /** Newest first, at most TRACK_LISTED. */
   entries: TrackEntry[];
+  /** Review 2026-10-30: forecasts counted above but not listed, and the line saying so. */
+  older: number;
+  older_line: string | null;
 }
 
 const KIND_LABEL: Record<ForecastKind, { one: string; many: string }> = {
@@ -132,6 +150,10 @@ function waitingWords(r: TrackRow, today: string): string {
   if (r.window_end >= today) {
     return `Not graded yet: its window closes on ${dayWords(r.window_end)}, and I grade it on the first weekly check after.`;
   }
+  // Review 2026-10-30: just closed is not yet due, which is no wait for figures.
+  if (!isDue(r.window_end, today)) {
+    return `Not graded yet: I'll check it on the first weekly check after ${dayWords(addDays(r.window_end, GRADE.after_days))}.`;
+  }
   return `Not graded yet: waiting for ${typeof source === "string" ? `${source}'s` : "the measured"} figures for those days.`;
 }
 
@@ -159,8 +181,15 @@ export function trackEntry(r: TrackRow, today: string): TrackEntry | null {
   };
 }
 
-/** The whole record: the headline, the kinds, every forecast newest first. */
-export function trackView(rows: readonly TrackRow[], today: string): TrackView {
+/**
+ * The whole record: the headline and the kinds over every forecast (from
+ * `tally` when given, else from `rows`), and the rows given listed newest first.
+ */
+export function trackView(
+  rows: readonly TrackRow[],
+  today: string,
+  tally?: readonly TrackTally[],
+): TrackView {
   // Newest said first; forecasts said together, in the order of their windows.
   const entries = [...rows]
     .sort(
@@ -170,13 +199,25 @@ export function trackView(rows: readonly TrackRow[], today: string): TrackView {
     )
     .map((r) => trackEntry(r, today))
     .filter((e): e is TrackEntry => e !== null);
-  const count = (list: readonly TrackEntry[], w: TrackWord) =>
-    list.filter((e) => e.word === w).length;
-  const inside = count(entries, "inside");
-  const above = count(entries, "above");
-  const below = count(entries, "below");
-  const cantTell = count(entries, "cant_tell");
-  const waiting = count(entries, "waiting");
+  // Review 2026-10-30: counted over the tally, which covers rows not listed.
+  const counted: { kind: ForecastKind; word: TrackWord; n: number }[] = (
+    tally ??
+    rows.map((r) => ({
+      kind: r.kind,
+      verdict: r.graded_at !== null ? r.verdict : null,
+      n: 1,
+    }))
+  )
+    .filter((t): t is TrackTally & { kind: ForecastKind } => isKind(t.kind))
+    .map((t) => ({ kind: t.kind, word: isVerdict(t.verdict) ? t.verdict : "waiting", n: t.n }));
+  const count = (list: readonly { word: TrackWord; n: number }[], w: TrackWord) =>
+    list.filter((e) => e.word === w).reduce((s, e) => s + e.n, 0);
+  const total = counted.reduce((s, e) => s + e.n, 0);
+  const inside = count(counted, "inside");
+  const above = count(counted, "above");
+  const below = count(counted, "below");
+  const cantTell = count(counted, "cant_tell");
+  const waiting = count(counted, "waiting");
   const graded = inside + above + below;
   const tooSoon = graded < TRACK_MIN_GRADED;
 
@@ -185,7 +226,7 @@ export function trackView(rows: readonly TrackRow[], today: string): TrackView {
       ? ` I couldn't tell on ${cantTell}: the measured figures weren't there, or something I didn't forecast got in the way. ${cantTell === 1 ? "It isn't" : "They aren't"} counted either way.`
       : "";
   const headline =
-    entries.length === 0
+    total === 0
       ? "No forecasts on record yet. When I give one, it goes here with its range, and once its time has passed, what happened."
       : tooSoon
         ? `Too soon to judge my forecasts: ${graded === 0 ? "none" : graded} graded so far, ${plural(waiting, "forecast", "forecasts")} waiting for ${waiting === 1 ? "its" : "their"} time to pass.${couldnt}`
@@ -193,10 +234,10 @@ export function trackView(rows: readonly TrackRow[], today: string): TrackView {
 
   const kinds: TrackKindLine[] = [];
   for (const kind of Object.keys(KIND_LABEL) as ForecastKind[]) {
-    const list = entries.filter((e) => e.kind === kind);
+    const list = counted.filter((e) => e.kind === kind);
     if (list.length === 0) continue;
     const k = {
-      graded: list.filter((e) => e.word !== "waiting" && e.word !== "cant_tell").length,
+      graded: count(list, "inside") + count(list, "above") + count(list, "below"),
       inside: count(list, "inside"),
       cant_tell: count(list, "cant_tell"),
       waiting: count(list, "waiting"),
@@ -225,5 +266,10 @@ export function trackView(rows: readonly TrackRow[], today: string): TrackView {
     waiting,
     kinds,
     entries,
+    older: Math.max(0, total - entries.length),
+    older_line:
+      total > entries.length
+        ? `${plural(total - entries.length, "older forecast isn't", "older forecasts aren't")} listed here; the counts above include ${total - entries.length === 1 ? "it" : "them"}.`
+        : null,
   };
 }

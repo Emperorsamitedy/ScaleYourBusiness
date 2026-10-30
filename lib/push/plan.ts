@@ -148,8 +148,13 @@ export function pushWords(waiting: readonly QueuedItem[]): PushPayload {
 }
 
 export function pushPlan(input: PushPlanInput): PushPlan {
-  const nowIso = input.now.toISOString();
-  const waiting = input.queued.filter((q) => q.status === "pending" && q.expires_at > nowIso);
+  // Review 2026-10-30: compared as instants. A Postgres timestamptz string
+  // ("2026-10-29 19:41:55+00") sorts before any ISO string of the same UTC
+  // day ("2026-10-29T…Z"), so a string compare called live proposals stale.
+  const nowMs = input.now.getTime();
+  const waiting = input.queued.filter(
+    (q) => q.status === "pending" && Date.parse(q.expires_at) > nowMs,
+  );
   const stale = input.queued.filter((q) => !waiting.includes(q)).map((q) => q.proposal_id);
   const all = input.queued.map((q) => q.proposal_id);
 

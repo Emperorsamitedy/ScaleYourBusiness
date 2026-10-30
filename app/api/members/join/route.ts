@@ -59,7 +59,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
       }
       const joined = await joinWithSession(token, session);
-      if (joined.user_id !== session.user_id) await revokeSession(current);
+      if (joined.user_id !== session.user_id) {
+        // Still signed in, to one more business: this phone's alerts go on.
+        await revokeSession(current, { handOverTo: joined.session_token });
+      }
       const response = NextResponse.json({ joined: true, redirect: "/profile" });
       response.cookies.set(AUTH_COOKIE, joined.session_token, authCookieOptions());
       if (joined.profile_id) {

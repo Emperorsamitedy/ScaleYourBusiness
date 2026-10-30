@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RecognitionCtor, RecognitionErrorLike, RecognitionEventLike } from "./session";
 import {
   CAP_MS,
+  END_GRACE_MS,
   NOTICE,
   NOTICE_KEY,
   SILENCE_MS,
@@ -312,5 +313,67 @@ describe("failures say what happened and what to do", () => {
       expect(w, code).not.toMatch(/sorry|apolog/i);
     }
     expect(errorWords("language-not-supported", "cy-GB")).toMatch(/cy-GB/);
+  });
+});
+
+// Review 2026-10-30: the box turning busy while a tap awaits the browser's
+// availability answer, and a stop whose onend never comes.
+describe("busy box, and a browser that never ends", () => {
+  it("disabled while the availability check is in flight: the mic never starts", async () => {
+    let answer: (v: string) => void = () => {};
+    class Slow extends FakeRecognition {
+      static available = () => new Promise<string>((r) => (answer = r));
+    }
+    const { session } = rig({ ctor: Slow });
+    const tap = session.toggle();
+    expect(session.current.phase).toBe("checking");
+    session.setDisabled(true);
+    expect(session.current.phase).toBe("idle");
+    answer("available");
+    await tap;
+    expect(session.current.phase).toBe("idle");
+    expect(FakeRecognition.made).toHaveLength(0);
+    // A tap while disabled does nothing; once free again, a tap listens.
+    await session.toggle();
+    expect(FakeRecognition.made).toHaveLength(0);
+    session.setDisabled(false);
+    const again = session.toggle();
+    answer("available");
+    await again;
+    expect(session.current.phase).toBe("listening");
+  });
+
+  it("disabled while listening stops it, with no words", async () => {
+    const { session, rec } = rig();
+    await session.toggle();
+    session.setDisabled(true);
+    expect(rec().stopped).toBe(1);
+    expect(session.current).toMatchObject({ phase: "idle", message: null });
+  });
+
+  it("a stop whose onend never fires goes back to idle after the grace, aborting the mic", async () => {
+    class Stuck extends FakeRecognition {
+      stop(): void {
+        this.stopped += 1; // and no onend
+      }
+    }
+    const { session, rec } = rig({ ctor: Stuck });
+    await session.toggle();
+    session.stop("done");
+    expect(session.current.phase).toBe("listening");
+    vi.advanceTimersByTime(END_GRACE_MS - 1);
+    expect(session.current.phase).toBe("listening");
+    vi.advanceTimersByTime(1);
+    expect(session.current).toMatchObject({ phase: "idle", message: "done" });
+    expect(rec().aborted).toBe(true);
+  });
+
+  it("an onend that does come in time leaves no late timer behind", async () => {
+    const { session, rec } = rig();
+    await session.toggle();
+    session.stop("done");
+    expect(session.current.phase).toBe("idle");
+    vi.advanceTimersByTime(END_GRACE_MS);
+    expect(rec().aborted).toBe(false);
   });
 });

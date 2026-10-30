@@ -260,5 +260,13 @@
     "payment_fees": "running",
     "platform_fees": "running",
     "other": "running"
+  },
+  "inside_gross_margin": {
+    "about": "Review 2026-10-30: cost categories a stated gross margin (5.3a) already takes off, as the cost of what was sold. When the margin's cost of sales comes from 5.3a, these are not taken off again as running or per-sale costs; each is named as already inside the gross margin. When it comes from the offers' own costs to deliver, they count as before.",
+    "materials": true,
+    "packaging": true,
+    "shipping": true,
+    "payment_fees": true,
+    "platform_fees": true
   }
 }

@@ -301,7 +301,9 @@ async function decide(args: {
           ),
         );
       if (!cur) throw new ProposalError("no such proposal", 404);
-      if (cur.status === "pending" && cur.expires_at <= now) {
+      // As instants (review 2026-10-30): the column reads back in Postgres
+      // format, `now` is ISO, and the two don't sort alike as strings.
+      if (cur.status === "pending" && Date.parse(cur.expires_at) <= Date.parse(now)) {
         throw new ProposalError(
           "this proposal has expired — it needs re-proposing, not deciding",
           409,

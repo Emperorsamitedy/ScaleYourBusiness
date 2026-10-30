@@ -7,6 +7,7 @@ import type { CartsScreenView } from "../../app/api/carts/route";
 import type { Measured } from "./carts-view";
 import {
   cartsHeadline,
+  refusalTitle,
   consentNotes,
   moneyList,
   proposeBlock,
@@ -89,6 +90,7 @@ describe("the head", () => {
     );
     const refused = {
       status: "refused" as const,
+      basis: "thin" as const,
       from: "2026-09-29",
       to: "2026-10-28",
       days: 5,
@@ -104,6 +106,16 @@ describe("the head", () => {
         view({ measure: refused, sources: [{ label: "Shopify", read_at: null, carts: 0 }] }),
       ),
     ).toBe("I haven't read your carts yet.");
+    // Review 2026-10-30: a stale or partial read says so.
+    const read = [{ label: "Shopify", read_at: "2026-10-20 06:00:00+00", carts: 12 }];
+    expect(cartsHeadline(view({ measure: { ...refused, basis: "stale" }, sources: read }))).toBe(
+      "Your carts haven't been read lately.",
+    );
+    expect(cartsHeadline(view({ measure: { ...refused, basis: "too_many" }, sources: read }))).toBe(
+      "Too many checkouts to read in full.",
+    );
+    expect(refusalTitle({ ...refused, basis: "too_many" })).toBe("Too many checkouts to read");
+    expect(refusalTitle(refused)).toBe("Not enough carts to measure");
   });
 
   it("the window line uses short days and the share of checkouts", () => {

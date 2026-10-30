@@ -311,8 +311,18 @@ export async function currentSession(token: string | undefined): Promise<AuthedS
  * Sign out: the session stops resolving without being deleted. Idea 53:
  * the phone alerts switched on in this sign-in go with it, in the same
  * transaction: a signed-out phone gets nothing more.
+ *
+ * Review 2026-10-30: a switch of business (or joining one) also retires the
+ * browser's session, but the browser is still signed in, just to another
+ * business. With `handOverTo` (the new session's token) its phone alerts are
+ * re-pointed at the new sign-in instead of deleted: they keep their business
+ * and person, and from then on live and die with the sign-in this browser
+ * actually holds (signing out of it, or its 90 days, ends them).
  */
-export async function revokeSession(token: string | undefined): Promise<void> {
+export async function revokeSession(
+  token: string | undefined,
+  opts: { handOverTo?: string } = {},
+): Promise<void> {
   if (!token) return;
   await db.transaction(async (tx) => {
     const revoked = await tx
@@ -320,8 +330,26 @@ export async function revokeSession(token: string | undefined): Promise<void> {
       .set({ revoked_at: new Date().toISOString() })
       .where(eq(authSessions.token_hash, hash(token)))
       .returning({ id: authSessions.id });
+    const [next] = opts.handOverTo
+      ? await tx
+          .select({ id: authSessions.id })
+          .from(authSessions)
+          .where(
+            and(
+              eq(authSessions.token_hash, hash(opts.handOverTo)),
+              isNull(authSessions.revoked_at),
+            ),
+          )
+      : [];
     for (const r of revoked) {
-      await tx.delete(pushSubscriptions).where(eq(pushSubscriptions.session_id, r.id));
+      if (next) {
+        await tx
+          .update(pushSubscriptions)
+          .set({ session_id: next.id })
+          .where(eq(pushSubscriptions.session_id, r.id));
+      } else {
+        await tx.delete(pushSubscriptions).where(eq(pushSubscriptions.session_id, r.id));
+      }
     }
   });
 }

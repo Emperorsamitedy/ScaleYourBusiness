@@ -318,6 +318,13 @@ describe("the win-back proposal", () => {
     const { draft } = await draftCampaign(p.id, { draftLlm: llm, limitLlm: noLimits });
     expect(brief).toContain("Large Serving Bowl");
     expect(brief).toMatch(/Never name or describe the person/);
+    // Review 2026-10-30: one email for every shopper says "such as", never "they left X".
+    expect(brief).toMatch(/items from the shop, such as Large Serving Bowl/);
+    expect(brief).toMatch(/never say or imply the reader left all of these/);
+    expect(brief).not.toMatch(/they left Large Serving Bowl/);
+    expect((p.action as { detail: { what: string } }).detail.what).toMatch(
+      /reminding them of items from your shop, such as Large Serving Bowl\.$/,
+    );
     expect(brief).not.toMatch(/@example\.com/);
     expect(draft.body.startsWith(`${CART_GREETING}\n\n`)).toBe(true);
     expect(draft.body).toContain("Written with AI assistance.");

@@ -73,13 +73,28 @@ export function readNote(r: Pick<ReviewItem, "read_by" | "source">): string | nu
   return null;
 }
 
+/**
+ * Review 2026-10-30: Gmail's forwarding confirmation, said plainly. Null
+ * when none came.
+ */
+export function gmailConfirmationLine(
+  gmail: { code: string | null; link: string | null } | null,
+): string | null {
+  if (!gmail) return null;
+  if (gmail.code) {
+    return `Gmail sent a confirmation code: ${gmail.code}. Enter it in Gmail's forwarding settings.`;
+  }
+  return "Gmail sent a confirmation link: open it to switch on the forwarding.";
+}
+
 /** Plain setup steps, per platform with an email to forward. */
 export const SETUP_STEPS: readonly { platform: string; steps: string[] }[] = [
   {
     platform: "Google",
     steps: [
       "In your Business Profile, open Notifications (or Settings) and switch on emails for customer reviews.",
-      "In the mailbox those emails reach, make a rule: mail from Google about a review is forwarded to the address above.",
+      "If those emails reach Gmail, first add the address above in Gmail's Settings, under Forwarding and POP/IMAP, Add a forwarding address. Gmail sends a confirmation code to it: the code shows up on this page, and you enter it in Gmail to finish.",
+      "Then, in the mailbox those emails reach, make a rule: mail from Google about a review is forwarded to the address above.",
       "Or forward any review email to it by hand. Either way works.",
     ],
   },

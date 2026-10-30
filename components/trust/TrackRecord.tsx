@@ -55,6 +55,7 @@ export function TrackRecord({ track }: { track: TrackView }) {
               );
             })}
           </ol>
+          {track.older_line && <p className="hi-detail">{track.older_line}</p>}
         </div>
       )}
       <footer className="cs-foot hi-foot">

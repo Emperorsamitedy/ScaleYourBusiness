@@ -81,7 +81,7 @@ import type {
   PullPage,
   StockRead,
 } from "../provider";
-import { ProviderError } from "../provider";
+import { ProviderError, TooManyCartsError } from "../provider";
 
 /** Pinned to the latest stable version (supported for at least 12 months). */
 export const SHOPIFY_API_VERSION = "2026-07";
@@ -1103,7 +1103,7 @@ export function createShopifyProvider(options: ShopifyProviderOptions = {}): Pro
         after = listed.endCursor;
       }
       // Never a partial count: a short read would understate what was left.
-      throw new ProviderError(
+      throw new TooManyCartsError(
         `shopify: more than ${SHOPIFY_CARTS_PAGE * SHOPIFY_MAX_CART_PAGES} checkouts in ${days} days, which one sync cannot read yet`,
       );
     },

@@ -285,7 +285,8 @@ describe("review notification fallback (idea 45): low effort; a refusal files it
   const mail = originalMail({
     from: "businessprofile-noreply@google.com",
     subject: "New review",
-    text: "slow",
+    // Review 2026-10-30: the rating the model copies must be in the email.
+    text: "Rated 2/5\nslow",
   })!;
   it("reads the JSON behind thinking, under the review_parse workload", async () => {
     fake.replies.push(thinksThen(text(json)));

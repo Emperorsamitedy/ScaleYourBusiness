@@ -7,6 +7,7 @@ import bank from "../../specs/question-bank-v1.json";
 import {
   BENCHMARK_MAP,
   costTreatment,
+  insideGrossMargin,
   geoFor,
   isMapped,
   mappedNaceCodes,
@@ -75,6 +76,16 @@ describe("the mapping covers the bank (rule 4)", () => {
     expect(costTreatment("rent")).toBe("running");
     expect(costTreatment(null)).toBe("running");
     expect(costTreatment("something_new")).toBe("running");
+  });
+
+  it("flags the categories a stated gross margin already takes off, and only bank categories", () => {
+    const flagged = Object.keys(BENCHMARK_MAP.inside_gross_margin).filter((k) => k !== "about");
+    for (const c of flagged) expect(CATEGORIES, c).toContain(c);
+    expect(insideGrossMargin("materials")).toBe(true);
+    expect(insideGrossMargin("platform_fees")).toBe(true);
+    expect(insideGrossMargin("rent")).toBe(false);
+    expect(insideGrossMargin("about")).toBe(false);
+    expect(insideGrossMargin(null)).toBe(false);
   });
 
   it("uses only size classes Eurostat names", () => {

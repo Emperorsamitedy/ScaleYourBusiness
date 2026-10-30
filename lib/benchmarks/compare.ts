@@ -43,6 +43,7 @@ import type { MappedType, SizePick } from "./map";
 import {
   ALL_SIZES,
   costTreatment,
+  insideGrossMargin,
   geoFor,
   parentGroup,
   sizeClassesFor,
@@ -438,6 +439,7 @@ export function ownMargin(x: BenchInputs):
   const costed = sold.length > 0 && sold.every((o) => same(o.cost));
   let costShare: number;
   let units: number | null = null;
+  let fromGrossMargin = false;
   if (costed) {
     const sales = sold.reduce((n, o) => n + o.price!.amount_minor * o.volume_month!.value, 0);
     const deliver = sold.reduce((n, o) => n + o.cost!.amount_minor * o.volume_month!.value, 0);
@@ -452,6 +454,7 @@ export function ownMargin(x: BenchInputs):
       source: `what your ${sold.length === 1 ? "offer costs" : `${sold.length} offers cost`} to deliver, at your prices and monthly volumes`,
     });
   } else if (x.gross_margin && x.gross_margin.value >= 0 && x.gross_margin.value <= 100) {
+    fromGrossMargin = true;
     costShare = 1 - x.gross_margin.value / 100;
     derived.push("costs.gross_margin");
     inputs.push({
@@ -471,20 +474,36 @@ export function ownMargin(x: BenchInputs):
   }
   const costOfSales = r.amount_minor * costShare;
 
+  // Review 2026-10-30: a stated gross margin already took these off; never twice.
+  const alreadyIn = (c: CostLine): boolean => {
+    if (!fromGrossMargin || !insideGrossMargin(enumCode(c.category))) return false;
+    leftOut.push(`${c.label}: already inside the gross margin you gave.`);
+    return true;
+  };
+  // Review 2026-10-30: a salaries line that can't be counted refuses the margin,
+  // as an unpriced employee does: staff pay is too big a part to leave out.
+  const staffMissed: string[] = [];
+  const missed = (c: CostLine) => {
+    if (costTreatment(enumCode(c.category)) === "staff") staffMissed.push(c.label);
+  };
+
   // Per-sale costs from 5.2: per piece × units sold, per order × orders.
   let perSale = 0;
   for (const c of x.costs) {
     const cadence = enumCode(c.cadence);
     if (cadence !== "per_unit" && cadence !== "per_job") continue;
+    if (alreadyIn(c)) continue;
     const amount = c.amount;
     if (!amount || amount.currency !== cur) {
       leftOut.push(
         `${c.label}: ${amount ? `it's in ${amount.currency}, not ${cur}` : "it has no amount"}.`,
       );
+      missed(c);
       continue;
     }
     const count = cadence === "per_unit" ? units : (x.orders_month?.value ?? null);
     if (count === null) {
+      missed(c);
       leftOut.push(
         cadence === "per_unit"
           ? `${c.label}: it's per piece, and your offers list doesn't say how many you sell a month.`
@@ -507,6 +526,7 @@ export function ownMargin(x: BenchInputs):
   for (const c of x.costs) {
     const cadence = enumCode(c.cadence);
     if (cadence === "per_unit" || cadence === "per_job") continue;
+    if (alreadyIn(c)) continue;
     if (costTreatment(enumCode(c.category)) === "financing") {
       leftOut.push(
         `${c.label}: a loan repayment, and Eurostat's rate is before interest and doesn't count the loan itself.`,
@@ -516,22 +536,34 @@ export function ownMargin(x: BenchInputs):
     if (!c.amount) {
       leftOut.push(`${c.label}: it has no amount.`);
       needs.push({ what: `the amount of ${c.label}`, href: BENCH_ASK.costs });
+      missed(c);
       continue;
     }
     if (c.amount.currency !== cur) {
       leftOut.push(`${c.label}: it's in ${c.amount.currency}, and I don't convert your own costs.`);
+      missed(c);
       continue;
     }
     const months = cadence === null ? undefined : MONTHS[cadence];
     if (months === undefined) {
       leftOut.push(`${c.label}: it has no frequency, so I can't make it a month.`);
       needs.push({ what: `how often you pay ${c.label}`, href: BENCH_ASK.costs });
+      missed(c);
       continue;
     }
     running += c.amount.amount_minor / months;
     derived.push(`${c.key}.amount`, `${c.key}.cadence`);
   }
 
+  if (staffMissed.length > 0) {
+    const one = staffMissed.length === 1;
+    return {
+      why: `${one ? `The pay line ${staffMissed[0]!}` : `${staffMissed.length} pay lines`} on your costs list ${one ? "has" : "have"} no monthly amount in ${cur} I can count, and staff pay is too big a part of a margin to leave out.`,
+      needs: [
+        { what: `what you pay in salaries, in ${cur}, and how often`, href: BENCH_ASK.costs },
+      ],
+    };
+  }
   const staff = staffPay(x, cur);
   if ("needs" in staff) return { why: staff.why, needs: staff.needs };
   derived.push(...staff.from);

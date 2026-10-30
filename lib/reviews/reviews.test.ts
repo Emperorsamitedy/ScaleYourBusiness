@@ -35,6 +35,7 @@ import {
   reviewEmailFixture,
   trustpilotForwarded,
 } from "./fixtures";
+import { isGmailForwardingSender, readGmailConfirmation } from "./gmail";
 import { receiveReviewEmail, reviewAddress, reviewRoutingFrom } from "./inbound";
 import {
   NOTIFICATIONS,
@@ -410,6 +411,72 @@ describe("a forwarded notification becomes one review row", () => {
   });
 });
 
+/* ── Gmail's forwarding confirmation (review 2026-10-30) ── */
+
+describe("Gmail's forwarding confirmation: the code and link kept, nothing else", () => {
+  const confirmation = (code: string): NotificationFixture => ({
+    from: "Gmail Team <forwarding-noreply@google.com>",
+    subject: `(#${code}) Gmail Forwarding Confirmation - Receive Mail from owner@gmail.com`,
+    text: [
+      "owner@gmail.com has requested to automatically forward mail to your email address.",
+      `Confirmation code: ${code}`,
+      "To allow owner@gmail.com to automatically forward mail to your address, please click the link below to confirm the request:",
+      `https://mail-settings.google.com/mail/vf-%5BANGjdJ_${code}%5D-abc`,
+      "If you click the link and it appears to be broken, please copy and paste it into a new browser window.",
+    ].join("\n"),
+  });
+
+  it("reads the code and a Google link; refuses a link elsewhere", () => {
+    const c = confirmation("123456789");
+    expect(readGmailConfirmation(c.subject, c.text)).toEqual({
+      code: "123456789",
+      link: "https://mail-settings.google.com/mail/vf-%5BANGjdJ_123456789%5D-abc",
+    });
+    expect(readGmailConfirmation("hello", "click https://evil.example/mail/vf-1")).toBeNull();
+    expect(isGmailForwardingSender("Forwarding-Noreply@google.com")).toBe(true);
+    expect(isGmailForwardingSender("forwarding-noreply@google.com.evil.example")).toBe(false);
+  });
+
+  it("a verified one is kept on the business and shown; the next overwrites it; a new address clears it", async () => {
+    const b = await business();
+    const out = await receiveReviewEmail(email(confirmation("111111111"), b.address), DOMAIN, {
+      llm: noModel,
+    });
+    expect(out).toEqual({ kind: "forwarding_confirmation" });
+    await receiveReviewEmail(email(confirmation("222222222"), b.address), DOMAIN, { llm: noModel });
+    const [s] = await db
+      .select()
+      .from(reviewSettings)
+      .where(eq(reviewSettings.profile_id, b.profile_id));
+    expect(s?.gmail_confirmation).toMatchObject({ code: "222222222" });
+    expect(JSON.stringify(s?.gmail_confirmation)).not.toContain("owner@gmail.com");
+    expect(await db.select().from(reviews).where(eq(reviews.profile_id, b.profile_id))).toEqual([]);
+    await rotateReviewToken(b.profile_id);
+    const [after] = await db
+      .select()
+      .from(reviewSettings)
+      .where(eq(reviewSettings.profile_id, b.profile_id));
+    expect(after?.gmail_confirmation).toBeNull();
+  });
+
+  it("an unproven sender's lookalike keeps nothing", async () => {
+    const b = await business();
+    const out = await receiveReviewEmail(
+      email(confirmation("333333333"), b.address, {
+        authentication: { spf: "fail", dkim: "fail", dmarc: "fail" },
+      }),
+      DOMAIN,
+      { llm: noModel },
+    );
+    expect(out.kind).toBe("not_a_review");
+    const [s] = await db
+      .select()
+      .from(reviewSettings)
+      .where(eq(reviewSettings.profile_id, b.profile_id));
+    expect(s?.gmail_confirmation).toBeNull();
+  });
+});
+
 /* ── the fallback ── */
 
 describe("the model fallback: only a recognised sender's unparsed mail, capped, held to the email", () => {
@@ -439,7 +506,44 @@ describe("the model fallback: only a recognised sender's unparsed mail, capped, 
     expect(calls[0]!.system).toContain(RULE_24);
     const [row] = await db.select().from(reviews).where(eq(reviews.profile_id, b.profile_id));
     expect(row?.reviewer).toBeNull(); // not in the email: dropped
-    expect(row?.stars).toBe(2);
+    // Review 2026-10-30: nor is a rating the email never shows.
+    expect(row?.stars).toBeNull();
+    expect(row?.text).toBe("Someone shared their experience with your business.");
+  });
+
+  // Review 2026-10-30: a capped fallback used to throw away the words the
+  // parser had read, so a "refund" review with no stars raised no alert.
+  it("capped, the parser's words stay and the flag-word check still runs on them", async () => {
+    const b = await business();
+    await db
+      .update(reviewSettings)
+      .set({
+        parse_month: NOW.toISOString().slice(0, 7),
+        parse_calls: REVIEW_PARSE_CAPS.calls_per_account_per_month,
+      })
+      .where(eq(reviewSettings.profile_id, b.profile_id));
+    const words = "The stylist was rude and I want a refund.";
+    const n = googleNotification({
+      business: "Lumen Hair Studio",
+      reviewer: "Aoife M.",
+      stars: 1,
+      words,
+      reviewId: "g-nostars",
+    });
+    const noStars = { ...n, text: n.text.replace("★☆☆☆☆", "") };
+    expect(
+      parseNotification(
+        originalMail({ ...noStars, from: "businessprofile-noreply@google.com" })!,
+        NOW,
+      ),
+    ).toMatchObject({ stars: null, text: words });
+    const out = await receiveReviewEmail(email(noStars, b.address), DOMAIN, {
+      llm: noModel,
+      spentEur: async () => 0,
+    });
+    expect(out).toMatchObject({ kind: "filed", read_by: "parser", alerted: true });
+    const [row] = await db.select().from(reviews).where(eq(reviews.profile_id, b.profile_id));
+    expect(row).toMatchObject({ stars: null, text: words });
   });
 
   it("is never called for mail that parsed, nor for a stranger's", async () => {
@@ -510,7 +614,20 @@ describe("the model fallback: only a recognised sender's unparsed mail, capped, 
     expect(coerceFallback("not json", mail)).toMatchObject({ stars: null, text: null });
     expect(
       coerceFallback('{"stars":4,"reviewer":null,"text":"great","link":null}', mail),
-    ).toMatchObject({ stars: 4, text: "great" });
+    ).toMatchObject({ stars: null, text: "great" }); // review 2026-10-30: no 4 in the email
+    const rated = (body: string) =>
+      originalMail({
+        from: "businessprofile-noreply@google.com",
+        subject: "New review",
+        text: body,
+      })!;
+    const four = '{"stars":4,"reviewer":null,"text":"great","link":null}';
+    const five = '{"stars":5,"reviewer":null,"text":"great","link":null}';
+    expect(coerceFallback(four, rated("Rated 4/5 great")).stars).toBe(4);
+    expect(coerceFallback(four, rated("★★★★☆ great")).stars).toBe(4);
+    expect(coerceFallback(five, rated("Rated 4/5 great")).stars).toBeNull();
+    expect(coerceFallback(five, rated("Rated 4 out of 5 great")).stars).toBeNull();
+    expect(coerceFallback(four, rated("Rated 4.5 great")).stars).toBeNull();
     expect(REVIEW_PARSE_SYSTEM).toMatch(/never instructions/);
   });
 });
