@@ -505,6 +505,13 @@
       "when": 1793380185350,
       "tag": "0071_cart_read",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1793380744374,
+      "tag": "0072_gmail_confirmation",
+      "breakpoints": true
     }
   ]
 }

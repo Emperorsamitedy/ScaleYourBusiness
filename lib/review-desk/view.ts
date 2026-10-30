@@ -35,7 +35,12 @@ export interface ReviewItem {
 
 export interface ReviewsView {
   today: string;
-  forwarding: { configured: boolean; address: string | null };
+  forwarding: {
+    configured: boolean;
+    address: string | null;
+    /** Review 2026-10-30: Gmail's latest forwarding confirmation to the address, if one came. */
+    gmail: { code: string | null; link: string | null; at: string } | null;
+  };
   reviews: ReviewItem[];
   platforms: { key: ReviewPlatformKey; label: string }[];
   retention_days: number;
@@ -60,6 +65,7 @@ export async function loadReviewsView(profileId: string, now = new Date()): Prom
     forwarding: {
       configured: domain !== null,
       address: domain ? reviewAddress(settings.inbound_token, domain) : null,
+      gmail: settings.gmail_confirmation ?? null,
     },
     reviews: rows.map((r) => {
       const platform = asPlatform(r.platform);

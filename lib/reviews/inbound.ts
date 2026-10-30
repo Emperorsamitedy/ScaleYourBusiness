@@ -34,6 +34,7 @@ import { isOwnMail } from "../support/email-tickets";
 import type { InboundEmail } from "../support/inbound";
 import type { ReviewParseLlm } from "./fallback";
 import { readWithFallback } from "./fallback";
+import { isGmailForwardingSender, readGmailConfirmation } from "./gmail";
 import type { ParsedReview } from "./parse";
 import { isReviewNotification, originalMail, parseNotification } from "./parse";
 import type { ReadBy } from "./store";
@@ -61,6 +62,8 @@ export type ReviewInboundOutcome =
   | { kind: "duplicate" }
   | { kind: "unrouted" }
   | { kind: "own_mail" }
+  /** Gmail's forwarding confirmation: its code and link kept for /reviews, nothing else. */
+  | { kind: "forwarding_confirmation" }
   /** Not from a review platform, or not a review notification: dropped. */
   | { kind: "not_a_review" };
 
@@ -90,6 +93,21 @@ export async function receiveReviewEmail(
   if (isOwnMail(email.from.address)) {
     console.log(JSON.stringify({ event: "review_inbound_own_mail_dropped", ...who }));
     return { kind: "own_mail" };
+  }
+
+  // Review 2026-10-30: Gmail's forwarding confirmation comes TO this address,
+  // so the owner never sees it. Kept: the code, the link and when. Only with
+  // the sender proven (./gmail.ts says why).
+  if (isGmailForwardingSender(email.from.address) && email.sender_auth === "verified") {
+    const got = readGmailConfirmation(email.subject, email.text);
+    if (got) {
+      await db
+        .update(reviewSettings)
+        .set({ gmail_confirmation: { ...got, at: now.toISOString() } })
+        .where(eq(reviewSettings.profile_id, settings.profile_id));
+      console.log(JSON.stringify({ event: "review_gmail_confirmation_kept", ...who }));
+      return { kind: "forwarding_confirmation" };
+    }
   }
 
   const mail = originalMail({

@@ -6,6 +6,7 @@ import {
   SETUP_STEPS,
   asideLine,
   dayLabel,
+  gmailConfirmationLine,
   readNote,
   reviewsHeadline,
   starsWords,
@@ -97,5 +98,17 @@ describe("the list's words", () => {
     for (const s of SETUP_STEPS) {
       for (const step of s.steps) expect(step).not.toMatch(/MX|webhook|API|DNS/);
     }
+    // Review 2026-10-30: Gmail's confirmation step is spelled out.
+    expect(SETUP_STEPS[0]!.steps.join(" ")).toMatch(/Gmail sends a confirmation code/);
+  });
+
+  it("Gmail's confirmation, said plainly; nothing when none came", () => {
+    expect(gmailConfirmationLine({ code: "123456789", link: null })).toBe(
+      "Gmail sent a confirmation code: 123456789. Enter it in Gmail's forwarding settings.",
+    );
+    expect(gmailConfirmationLine({ code: null, link: "https://mail-settings.google.com/x" })).toBe(
+      "Gmail sent a confirmation link: open it to switch on the forwarding.",
+    );
+    expect(gmailConfirmationLine(null)).toBeNull();
   });
 });

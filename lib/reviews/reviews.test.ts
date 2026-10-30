@@ -35,6 +35,7 @@ import {
   reviewEmailFixture,
   trustpilotForwarded,
 } from "./fixtures";
+import { isGmailForwardingSender, readGmailConfirmation } from "./gmail";
 import { receiveReviewEmail, reviewAddress, reviewRoutingFrom } from "./inbound";
 import {
   NOTIFICATIONS,
@@ -407,6 +408,72 @@ describe("a forwarded notification becomes one review row", () => {
     const said = log.mock.calls.map((c) => String(c[0])).join("\n");
     expect(said).toContain("review_inbound_unrouted");
     expect(said).not.toContain("Aoife");
+  });
+});
+
+/* ── Gmail's forwarding confirmation (review 2026-10-30) ── */
+
+describe("Gmail's forwarding confirmation: the code and link kept, nothing else", () => {
+  const confirmation = (code: string): NotificationFixture => ({
+    from: "Gmail Team <forwarding-noreply@google.com>",
+    subject: `(#${code}) Gmail Forwarding Confirmation - Receive Mail from owner@gmail.com`,
+    text: [
+      "owner@gmail.com has requested to automatically forward mail to your email address.",
+      `Confirmation code: ${code}`,
+      "To allow owner@gmail.com to automatically forward mail to your address, please click the link below to confirm the request:",
+      `https://mail-settings.google.com/mail/vf-%5BANGjdJ_${code}%5D-abc`,
+      "If you click the link and it appears to be broken, please copy and paste it into a new browser window.",
+    ].join("\n"),
+  });
+
+  it("reads the code and a Google link; refuses a link elsewhere", () => {
+    const c = confirmation("123456789");
+    expect(readGmailConfirmation(c.subject, c.text)).toEqual({
+      code: "123456789",
+      link: "https://mail-settings.google.com/mail/vf-%5BANGjdJ_123456789%5D-abc",
+    });
+    expect(readGmailConfirmation("hello", "click https://evil.example/mail/vf-1")).toBeNull();
+    expect(isGmailForwardingSender("Forwarding-Noreply@google.com")).toBe(true);
+    expect(isGmailForwardingSender("forwarding-noreply@google.com.evil.example")).toBe(false);
+  });
+
+  it("a verified one is kept on the business and shown; the next overwrites it; a new address clears it", async () => {
+    const b = await business();
+    const out = await receiveReviewEmail(email(confirmation("111111111"), b.address), DOMAIN, {
+      llm: noModel,
+    });
+    expect(out).toEqual({ kind: "forwarding_confirmation" });
+    await receiveReviewEmail(email(confirmation("222222222"), b.address), DOMAIN, { llm: noModel });
+    const [s] = await db
+      .select()
+      .from(reviewSettings)
+      .where(eq(reviewSettings.profile_id, b.profile_id));
+    expect(s?.gmail_confirmation).toMatchObject({ code: "222222222" });
+    expect(JSON.stringify(s?.gmail_confirmation)).not.toContain("owner@gmail.com");
+    expect(await db.select().from(reviews).where(eq(reviews.profile_id, b.profile_id))).toEqual([]);
+    await rotateReviewToken(b.profile_id);
+    const [after] = await db
+      .select()
+      .from(reviewSettings)
+      .where(eq(reviewSettings.profile_id, b.profile_id));
+    expect(after?.gmail_confirmation).toBeNull();
+  });
+
+  it("an unproven sender's lookalike keeps nothing", async () => {
+    const b = await business();
+    const out = await receiveReviewEmail(
+      email(confirmation("333333333"), b.address, {
+        authentication: { spf: "fail", dkim: "fail", dmarc: "fail" },
+      }),
+      DOMAIN,
+      { llm: noModel },
+    );
+    expect(out.kind).toBe("not_a_review");
+    const [s] = await db
+      .select()
+      .from(reviewSettings)
+      .where(eq(reviewSettings.profile_id, b.profile_id));
+    expect(s?.gmail_confirmation).toBeNull();
   });
 });
 
