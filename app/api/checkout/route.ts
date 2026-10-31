@@ -1,17 +1,80 @@
-// POST /api/checkout — start paying for the report (P1-50).
+// /api/checkout — start paying for the report (P1-50).
 //
-// Session-scoped like everything else. Returns the Stripe Checkout URL;
-// the browser goes there, Stripe takes the card, and the webhook —
+// Session-scoped like everything else. POST returns the Stripe Checkout
+// URL; the browser goes there, Stripe takes the card, and the webhook —
 // never this route, never the redirect — marks the payment real.
+//
+// I-52a (owner, 2026-10-31): one bill for several businesses. GET lists
+// the signed-in person's other businesses whose report isn't paid for,
+// where they are an owner, with the prices. POST { also: [profile_id] }
+// adds those to the same checkout, each at the extra price. A business
+// is only ever added if the person's own verified email is an owner of
+// it: the ids come from the browser, and the list they're checked
+// against comes from the session.
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
+import type { Access } from "../../../lib/auth/access";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
-import { PaymentError, startCheckout } from "../../../lib/payments/stripe";
+import { membershipsFor } from "../../../lib/auth/members";
+import type { AlsoBusiness } from "../../../lib/payments/stripe";
+import {
+  MAX_CHECKOUT_BUSINESSES,
+  PaymentError,
+  extraReportPrice,
+  paidProfiles,
+  paymentsConfigured,
+  reportPrice,
+  startCheckout,
+} from "../../../lib/payments/stripe";
 import { requireRole } from "../../../lib/auth/roles";
+
+export interface CheckoutOptions {
+  configured: boolean;
+  price: { amount_minor: number; currency: string };
+  extra_price: { amount_minor: number; currency: string };
+  /** The person's other businesses they own whose report isn't paid for. */
+  others: { profile_id: string; business: string | null }[];
+}
+
+/** The person's other owned businesses, not yet paid for. Empty for an anonymous intake. */
+async function otherUnpaid(access: Access): Promise<AlsoBusiness[]> {
+  const session = access.session;
+  if (!session) return [];
+  const owned = (await membershipsFor(session.email)).filter(
+    (m) => m.role === "owner" && m.profile_id !== null && m.account_id !== access.account_id,
+  );
+  const paid = await paidProfiles(owned.map((m) => m.profile_id!));
+  return owned
+    .filter((m) => !paid.has(m.profile_id!))
+    .map((m) => ({ profile_id: m.profile_id!, name: m.business }));
+}
+
+export async function GET(): Promise<NextResponse> {
+  try {
+    const access = await resolveAccess();
+    if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+    const denied = requireRole(access, "billing.manage");
+    if (denied) return denied;
+    const others = await otherUnpaid(access);
+    const body: CheckoutOptions = {
+      configured: paymentsConfigured(),
+      price: reportPrice(),
+      extra_price: extraReportPrice(),
+      others: others.map((o) => ({ profile_id: o.profile_id, business: o.name })),
+    };
+    return NextResponse.json(body);
+  } catch (error) {
+    if (error instanceof PaymentError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    console.error(JSON.stringify({ event: "checkout_options_failed", ...logSafeError(error) }));
+    return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -27,8 +90,33 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .where(eq(businessProfiles.id, profileId));
     if (!profile) return NextResponse.json({ error: "no intake session" }, { status: 401 });
 
+    // An empty body is the one-business checkout, as before.
+    const raw = (await request.json().catch(() => null)) as { also?: unknown } | null;
+    const asked = raw?.also ?? [];
+    if (
+      !Array.isArray(asked) ||
+      asked.length >= MAX_CHECKOUT_BUSINESSES ||
+      !asked.every((id): id is string => typeof id === "string")
+    ) {
+      return NextResponse.json(
+        { error: "also must be a short list of business ids" },
+        { status: 400 },
+      );
+    }
+    let also: AlsoBusiness[] = [];
+    if (asked.length > 0) {
+      const allowed = new Map((await otherUnpaid(access)).map((o) => [o.profile_id, o]));
+      if (!asked.every((id) => allowed.has(id))) {
+        return NextResponse.json(
+          { error: "You can only add businesses you own whose report isn't paid for yet." },
+          { status: 403 },
+        );
+      }
+      also = asked.map((id) => allowed.get(id)!);
+    }
+
     const appUrl = process.env.APP_URL || new URL(request.url).origin;
-    const checkout = await startCheckout(profile.id, appUrl);
+    const checkout = await startCheckout(profile.id, appUrl, also);
     return NextResponse.json(checkout);
   } catch (error) {
     if (error instanceof PaymentError) {

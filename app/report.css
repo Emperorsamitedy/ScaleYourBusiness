@@ -950,3 +950,19 @@ a.rq-sub-i:hover {
 .rq-share-item.off {
   color: var(--sheet-ink-2);
 }
+
+/* I-52a: the owner's other businesses, offered in the same checkout. */
+.rp-also {
+  list-style: none;
+  margin: 0 0 var(--space-3, 12px);
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.rp-also label {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}

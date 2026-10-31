@@ -10,9 +10,16 @@
 //   · When STRIPE_SECRET_KEY is absent, payments are NOT configured and
 //     the report gate stands down (today's behaviour, logged). The gate
 //     arms itself the moment the key exists.
+//   · One bill for several businesses (I-52a, owner 2026-10-31: one
+//     checkout, the first business at the report price, each extra one
+//     at EXTRA_REPORT_PRICE_MINOR, default €29.00). One Checkout Session
+//     carries a line per business and a payments row per business, all
+//     joined by the session id, and the webhook marks them paid together.
+//     The extra price applies only inside one checkout: a business paid
+//     for alone later pays the full price (I-52e).
 
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, payments } from "../../db/schema";
 
@@ -40,6 +47,41 @@ export function reportPrice(): { amount_minor: number; currency: string } {
   return { amount_minor: amount, currency: (process.env.REPORT_CURRENCY || "eur").toLowerCase() };
 }
 
+/**
+ * I-52a: each business after the first in one checkout. Same currency as
+ * the report; never more than the report price.
+ */
+export function extraReportPrice(): { amount_minor: number; currency: string } {
+  const full = reportPrice();
+  const raw = process.env.EXTRA_REPORT_PRICE_MINOR || "2900";
+  const amount = Number.parseInt(raw, 10);
+  if (!Number.isInteger(amount) || amount <= 0) {
+    throw new PaymentError(
+      "EXTRA_REPORT_PRICE_MINOR must be a positive integer of minor units",
+      500,
+    );
+  }
+  if (amount > full.amount_minor) {
+    throw new PaymentError("EXTRA_REPORT_PRICE_MINOR can't be more than the report price", 500);
+  }
+  return { amount_minor: amount, currency: full.currency };
+}
+
+/** Pure: what each of `n` businesses costs in one checkout: the first in full, the rest at the extra price. */
+export function checkoutAmounts(n: number, full: number, extra: number): number[] {
+  return Array.from({ length: Math.max(0, n) }, (_, i) => (i === 0 ? full : extra));
+}
+
+/** The businesses of `profileIds` that already have a verified payment. */
+export async function paidProfiles(profileIds: readonly string[]): Promise<Set<string>> {
+  if (profileIds.length === 0) return new Set();
+  const rows = await db
+    .select({ profile_id: payments.profile_id })
+    .from(payments)
+    .where(and(inArray(payments.profile_id, [...profileIds]), eq(payments.status, "paid")));
+  return new Set(rows.map((r) => r.profile_id));
+}
+
 /** Has this profile a verified payment? The report gate's one question. */
 export async function hasPaidReport(profileId: string): Promise<boolean> {
   const [row] = await db
@@ -53,36 +95,80 @@ export async function hasPaidReport(profileId: string): Promise<boolean> {
 export interface CheckoutStart {
   checkout_url: string;
   checkout_session_id: string;
+  /** The whole checkout: every business in it. */
   amount_minor: number;
   currency: string;
+  /** I-52a: how many businesses it pays for. */
+  businesses: number;
 }
 
+/** I-52a: another business the same owner pays for in this checkout. */
+export interface AlsoBusiness {
+  profile_id: string;
+  /** Its own name, for the Stripe line and receipt; null before the interview names it. */
+  name: string | null;
+}
+
+/** I-52a: at most this many businesses in one checkout. */
+export const MAX_CHECKOUT_BUSINESSES = 20;
+
 /**
- * Create a Stripe Checkout Session for this profile's report and record
- * the attempt as pending. Repeat calls create new attempts; only a
- * webhook can make any of them paid.
+ * Create a Stripe Checkout Session for this profile's report, and for
+ * the `also` businesses' reports in the same payment (I-52a), and record
+ * one pending row per business. Repeat calls create new attempts; only a
+ * webhook can make any of them paid. The caller decides who may pay for
+ * which business; this refuses an `also` business that is this one,
+ * repeated, already paid, or not a business.
  */
-export async function startCheckout(profileId: string, appUrl: string): Promise<CheckoutStart> {
+export async function startCheckout(
+  profileId: string,
+  appUrl: string,
+  also: readonly AlsoBusiness[] = [],
+): Promise<CheckoutStart> {
   if (!paymentsConfigured()) throw new PaymentError("payments are not configured", 503);
   const key = process.env.STRIPE_SECRET_KEY as string;
   const price = reportPrice();
+  const extra = also.length > 0 ? extraReportPrice() : price;
 
-  const [profile] = await db
-    .select({ account_id: businessProfiles.account_id })
+  const ids = [profileId, ...also.map((a) => a.profile_id)];
+  if (new Set(ids).size !== ids.length) {
+    throw new PaymentError("a business can be in a checkout only once", 400);
+  }
+  if (ids.length > MAX_CHECKOUT_BUSINESSES) {
+    throw new PaymentError(
+      `one checkout pays for at most ${MAX_CHECKOUT_BUSINESSES} businesses`,
+      400,
+    );
+  }
+  const found = await db
+    .select({ id: businessProfiles.id, account_id: businessProfiles.account_id })
     .from(businessProfiles)
-    .where(eq(businessProfiles.id, profileId));
-  if (!profile) throw new PaymentError("no such profile", 404);
+    .where(inArray(businessProfiles.id, ids));
+  const accountOf = new Map(found.map((p) => [p.id, p.account_id]));
+  if (!accountOf.has(profileId)) throw new PaymentError("no such profile", 404);
+  if (also.some((a) => !accountOf.has(a.profile_id))) {
+    throw new PaymentError("no such business", 404);
+  }
+  if (also.length > 0) {
+    const paid = await paidProfiles(also.map((a) => a.profile_id));
+    if (paid.size > 0) throw new PaymentError("that business is already paid for", 409);
+  }
 
+  const amounts = checkoutAmounts(ids.length, price.amount_minor, extra.amount_minor);
   const params = new URLSearchParams({
     mode: "payment",
-    "line_items[0][price_data][currency]": price.currency,
-    "line_items[0][price_data][unit_amount]": String(price.amount_minor),
-    "line_items[0][price_data][product_data][name]": "SYB business diagnosis",
-    "line_items[0][quantity]": "1",
     success_url: `${appUrl}/report?checkout=success`,
     cancel_url: `${appUrl}/report?checkout=cancelled`,
     "metadata[profile_id]": profileId,
   });
+  const names = ["SYB business diagnosis", ...also.map((a) => alsoLine(a.name))];
+  names.forEach((name, i) => {
+    params.set(`line_items[${i}][price_data][currency]`, price.currency);
+    params.set(`line_items[${i}][price_data][unit_amount]`, String(amounts[i]));
+    params.set(`line_items[${i}][price_data][product_data][name]`, name);
+    params.set(`line_items[${i}][quantity]`, "1");
+  });
+  if (also.length > 0) params.set("metadata[businesses]", String(ids.length));
 
   const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
@@ -104,20 +190,32 @@ export async function startCheckout(profileId: string, appUrl: string): Promise<
     throw new PaymentError("could not start the payment", 502);
   }
 
-  await db.insert(payments).values({
-    account_id: profile.account_id,
-    profile_id: profileId,
-    checkout_session_id: body.id,
-    amount_minor: price.amount_minor,
-    currency: price.currency,
-  });
+  const sessionId = body.id;
+  await db.insert(payments).values(
+    ids.map((id, i) => ({
+      account_id: accountOf.get(id)!,
+      profile_id: id,
+      checkout_session_id: sessionId,
+      amount_minor: amounts[i]!,
+      currency: price.currency,
+    })),
+  );
 
   return {
     checkout_url: body.url,
-    checkout_session_id: body.id,
-    amount_minor: price.amount_minor,
+    checkout_session_id: sessionId,
+    amount_minor: amounts.reduce((a, b) => a + b, 0),
     currency: price.currency,
+    businesses: ids.length,
   };
+}
+
+/** Pure: the Stripe line for another business; its name, else a plain stand-in. */
+export function alsoLine(name: string | null): string {
+  const n = name?.trim();
+  return n
+    ? `SYB business diagnosis: ${n.slice(0, 80)}`
+    : "SYB business diagnosis: another business";
 }
 
 /** Signature window — Stripe's own recommendation. */
@@ -157,21 +255,22 @@ export function verifyStripeSignature(
 }
 
 /**
- * Mark a checkout session paid. Idempotent: Stripe retries webhooks, and
- * a second delivery of the same event must change nothing.
+ * Mark a checkout session paid: every business it paid for (I-52a), in
+ * one statement. Idempotent: Stripe retries webhooks, and a second
+ * delivery of the same event must change nothing.
  */
 export async function markCheckoutPaid(
   checkoutSessionId: string,
 ): Promise<"paid" | "already" | "unknown"> {
-  const [row] = await db
-    .select({ id: payments.id, status: payments.status })
+  const rows = await db
+    .select({ id: payments.id })
     .from(payments)
     .where(eq(payments.checkout_session_id, checkoutSessionId));
-  if (!row) return "unknown";
-  if (row.status === "paid") return "already";
-  await db
+  if (rows.length === 0) return "unknown";
+  const marked = await db
     .update(payments)
     .set({ status: "paid", paid_at: new Date().toISOString() })
-    .where(eq(payments.id, row.id));
-  return "paid";
+    .where(and(eq(payments.checkout_session_id, checkoutSessionId), ne(payments.status, "paid")))
+    .returning({ id: payments.id });
+  return marked.length > 0 ? "paid" : "already";
 }
