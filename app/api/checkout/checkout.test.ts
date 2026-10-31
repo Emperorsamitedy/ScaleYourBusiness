@@ -11,6 +11,9 @@
 //   · An id the person doesn't own, or one already paid, is refused before
 //     Stripe is called. A manager can't pay at all.
 //   · The verified webhook marks every business of the session paid, once.
+//   · I-52e: once any of the person's owned businesses is paid, this one
+//     is at the extra price too. Never because of a business they only
+//     manage.
 
 import "dotenv/config";
 import { createHmac } from "node:crypto";
@@ -126,16 +129,44 @@ describe("I-52a — the businesses offered", () => {
 
   it("leaves out a business already paid for", async () => {
     const { b } = await world();
-    await db.insert(payments).values({
-      account_id: b.account_id,
-      profile_id: b.profile_id,
-      checkout_session_id: `cs_paid_${crypto.randomUUID()}`,
-      amount_minor: 4900,
-      currency: "eur",
-      status: "paid",
-    });
+    await paidFor(b);
     const body = (await (await GET()).json()) as { others: unknown[] };
     expect(body.others).toEqual([]);
+  });
+});
+
+const paidFor = (biz: { account_id: string; profile_id: string }) =>
+  db.insert(payments).values({
+    account_id: biz.account_id,
+    profile_id: biz.profile_id,
+    checkout_session_id: `cs_paid_${crypto.randomUUID()}`,
+    amount_minor: 4900,
+    currency: "eur",
+    status: "paid",
+  });
+
+describe("I-52e — an owner who has paid before", () => {
+  it("pays the extra price for this business, alone, and is told so first", async () => {
+    const { b } = await world();
+    await paidFor(b);
+    const opts = (await (await GET()).json()) as {
+      first_price: { amount_minor: number };
+      price: { amount_minor: number };
+    };
+    expect(opts.first_price.amount_minor).toBe(2900);
+    expect(opts.price.amount_minor).toBe(4900);
+    const res = await POST(post({}));
+    expect(await res.json()).toMatchObject({ amount_minor: 2900, businesses: 1 });
+    expect(stripeCalls[0]!.get("line_items[0][price_data][unit_amount]")).toBe("2900");
+    expect(stripeCalls[0]!.get("metadata[returning_owner]")).toBe("true");
+  });
+
+  it("a paid business they only manage doesn't count", async () => {
+    const { c } = await world();
+    await paidFor(c);
+    const opts = (await (await GET()).json()) as { first_price: { amount_minor: number } };
+    expect(opts.first_price.amount_minor).toBe(4900);
+    expect(await (await POST(post({}))).json()).toMatchObject({ amount_minor: 4900 });
   });
 });
 

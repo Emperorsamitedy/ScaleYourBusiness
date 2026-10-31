@@ -184,6 +184,13 @@ describe("I-52a — one bill for several businesses", () => {
     expect(checkoutAmounts(0, 4900, 2900)).toEqual([]);
   });
 
+  // I-52e (owner, 2026-10-31): an owner who already paid for one business pays the extra price for all.
+  it("an owner who has paid before pays the extra price for every business, the first too", () => {
+    expect(checkoutAmounts(1, 4900, 2900, true)).toEqual([2900]);
+    expect(checkoutAmounts(2, 4900, 2900, true)).toEqual([2900, 2900]);
+    expect(checkoutAmounts(1, 4900, 2900, false)).toEqual([4900]);
+  });
+
   it("the extra price defaults to €29.00, follows env, and is never more than the report", () => {
     vi.stubEnv("REPORT_PRICE_MINOR", "");
     vi.stubEnv("REPORT_CURRENCY", "");

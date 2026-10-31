@@ -11,6 +11,10 @@
 // is only ever added if the person's own verified email is an owner of
 // it: the ids come from the browser, and the list they're checked
 // against comes from the session.
+//
+// I-52e (owner, 2026-10-31): a person who has already paid for any
+// business they own pays the extra price for this one too. That is also
+// read from the session's own businesses, never from the request.
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
@@ -36,21 +40,32 @@ export interface CheckoutOptions {
   configured: boolean;
   price: { amount_minor: number; currency: string };
   extra_price: { amount_minor: number; currency: string };
+  /** I-52e: what this business costs now: the extra price once another owned business is paid. */
+  first_price: { amount_minor: number; currency: string };
   /** The person's other businesses they own whose report isn't paid for. */
   others: { profile_id: string; business: string | null }[];
 }
 
-/** The person's other owned businesses, not yet paid for. Empty for an anonymous intake. */
-async function otherUnpaid(access: Access): Promise<AlsoBusiness[]> {
+/**
+ * The person's businesses where they're an owner: the others not yet paid
+ * for, and whether any other one is paid (I-52e). Nothing for an
+ * anonymous intake.
+ */
+async function ownedBusinesses(
+  access: Access,
+): Promise<{ others: AlsoBusiness[]; paidBefore: boolean }> {
   const session = access.session;
-  if (!session) return [];
+  if (!session) return { others: [], paidBefore: false };
   const owned = (await membershipsFor(session.email)).filter(
     (m) => m.role === "owner" && m.profile_id !== null && m.account_id !== access.account_id,
   );
   const paid = await paidProfiles(owned.map((m) => m.profile_id!));
-  return owned
-    .filter((m) => !paid.has(m.profile_id!))
-    .map((m) => ({ profile_id: m.profile_id!, name: m.business }));
+  return {
+    others: owned
+      .filter((m) => !paid.has(m.profile_id!))
+      .map((m) => ({ profile_id: m.profile_id!, name: m.business })),
+    paidBefore: paid.size > 0,
+  };
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -59,11 +74,12 @@ export async function GET(): Promise<NextResponse> {
     if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
     const denied = requireRole(access, "billing.manage");
     if (denied) return denied;
-    const others = await otherUnpaid(access);
+    const { others, paidBefore } = await ownedBusinesses(access);
     const body: CheckoutOptions = {
       configured: paymentsConfigured(),
       price: reportPrice(),
       extra_price: extraReportPrice(),
+      first_price: paidBefore ? extraReportPrice() : reportPrice(),
       others: others.map((o) => ({ profile_id: o.profile_id, business: o.name })),
     };
     return NextResponse.json(body);
@@ -103,9 +119,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 },
       );
     }
+    const owned = await ownedBusinesses(access);
     let also: AlsoBusiness[] = [];
     if (asked.length > 0) {
-      const allowed = new Map((await otherUnpaid(access)).map((o) => [o.profile_id, o]));
+      const allowed = new Map(owned.others.map((o) => [o.profile_id, o]));
       if (!asked.every((id) => allowed.has(id))) {
         return NextResponse.json(
           { error: "You can only add businesses you own whose report isn't paid for yet." },
@@ -116,7 +133,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const appUrl = process.env.APP_URL || new URL(request.url).origin;
-    const checkout = await startCheckout(profile.id, appUrl, also);
+    const checkout = await startCheckout(profile.id, appUrl, also, owned.paidBefore);
     return NextResponse.json(checkout);
   } catch (error) {
     if (error instanceof PaymentError) {

@@ -1118,31 +1118,40 @@ export function CheckoutChoice({
   onPay: () => void;
   onCancel: () => void;
 }) {
-  const { price, extra_price } = options;
+  const { first_price: price, extra_price } = options;
   const total = checkoutTotal(price.amount_minor, extra_price.amount_minor, also.length);
+  const returning = price.amount_minor !== options.price.amount_minor;
   return (
     <>
       <p className="rq-prose">
-        This report is {moneyText(price.amount_minor, price.currency)}. You own{" "}
-        {options.others.length === 1 ? "another business" : "other businesses"} without a paid
-        report: add {options.others.length === 1 ? "it" : "them"} to the same payment at{" "}
-        {moneyText(extra_price.amount_minor, extra_price.currency)} each.
+        This report is {moneyText(price.amount_minor, price.currency)}
+        {returning ? ", since you've already paid for another of your businesses" : ""}.
+        {options.others.length > 0 && (
+          <>
+            {" "}
+            You own {options.others.length === 1 ? "another business" : "other businesses"} without
+            a paid report: add {options.others.length === 1 ? "it" : "them"} to the same payment at{" "}
+            {moneyText(extra_price.amount_minor, extra_price.currency)} each.
+          </>
+        )}
       </p>
-      <ul className="rp-also">
-        {options.others.map((o) => (
-          <li key={o.profile_id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={also.includes(o.profile_id)}
-                onChange={() => onToggle(o.profile_id)}
-              />{" "}
-              {o.business ?? "A business not named yet"} ·{" "}
-              {moneyText(extra_price.amount_minor, extra_price.currency)}
-            </label>
-          </li>
-        ))}
-      </ul>
+      {options.others.length > 0 && (
+        <ul className="rp-also">
+          {options.others.map((o) => (
+            <li key={o.profile_id}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={also.includes(o.profile_id)}
+                  onChange={() => onToggle(o.profile_id)}
+                />{" "}
+                {o.business ?? "A business not named yet"} ·{" "}
+                {moneyText(extra_price.amount_minor, extra_price.currency)}
+              </label>
+            </li>
+          ))}
+        </ul>
+      )}
       <p className="rq-prose">
         Total: {moneyText(total, price.currency)} for {also.length + 1}{" "}
         {also.length === 0 ? "report" : "reports"}, one payment. Each business&apos;s report is
@@ -1240,7 +1249,11 @@ export function ReportScreen() {
         const opts = await fetch("/api/checkout")
           .then((r) => (r.ok ? (r.json() as Promise<CheckoutOptions>) : null))
           .catch(() => null);
-        if (opts && opts.others.length > 0) {
+        // I-52e: a lower first price is said before Stripe opens, too.
+        if (
+          opts &&
+          (opts.others.length > 0 || opts.first_price.amount_minor !== opts.price.amount_minor)
+        ) {
           setOptions(opts);
           setAlso([]);
           setState("choosing");

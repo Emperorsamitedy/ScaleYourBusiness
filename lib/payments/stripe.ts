@@ -15,8 +15,9 @@
 //     at EXTRA_REPORT_PRICE_MINOR, default €29.00). One Checkout Session
 //     carries a line per business and a payments row per business, all
 //     joined by the session id, and the webhook marks them paid together.
-//     The extra price applies only inside one checkout: a business paid
-//     for alone later pays the full price (I-52e).
+//     I-52e (owner 2026-10-31: "go ahead with I-52e too"): once a person
+//     has paid for any business they own, every business in a later
+//     checkout is at the extra price, the first included.
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { and, eq, inArray, ne } from "drizzle-orm";
@@ -67,9 +68,18 @@ export function extraReportPrice(): { amount_minor: number; currency: string } {
   return { amount_minor: amount, currency: full.currency };
 }
 
-/** Pure: what each of `n` businesses costs in one checkout: the first in full, the rest at the extra price. */
-export function checkoutAmounts(n: number, full: number, extra: number): number[] {
-  return Array.from({ length: Math.max(0, n) }, (_, i) => (i === 0 ? full : extra));
+/**
+ * Pure: what each of `n` businesses costs in one checkout: the first in
+ * full, the rest at the extra price. I-52e: an owner who has already paid
+ * for one of their businesses pays the extra price for all of them.
+ */
+export function checkoutAmounts(
+  n: number,
+  full: number,
+  extra: number,
+  paidBefore = false,
+): number[] {
+  return Array.from({ length: Math.max(0, n) }, (_, i) => (i === 0 && !paidBefore ? full : extra));
 }
 
 /** The businesses of `profileIds` that already have a verified payment. */
@@ -124,11 +134,13 @@ export async function startCheckout(
   profileId: string,
   appUrl: string,
   also: readonly AlsoBusiness[] = [],
+  /** I-52e: the payer has already paid for another business they own (the caller checks). */
+  paidBefore = false,
 ): Promise<CheckoutStart> {
   if (!paymentsConfigured()) throw new PaymentError("payments are not configured", 503);
   const key = process.env.STRIPE_SECRET_KEY as string;
   const price = reportPrice();
-  const extra = also.length > 0 ? extraReportPrice() : price;
+  const extra = also.length > 0 || paidBefore ? extraReportPrice() : price;
 
   const ids = [profileId, ...also.map((a) => a.profile_id)];
   if (new Set(ids).size !== ids.length) {
@@ -154,7 +166,7 @@ export async function startCheckout(
     if (paid.size > 0) throw new PaymentError("that business is already paid for", 409);
   }
 
-  const amounts = checkoutAmounts(ids.length, price.amount_minor, extra.amount_minor);
+  const amounts = checkoutAmounts(ids.length, price.amount_minor, extra.amount_minor, paidBefore);
   const params = new URLSearchParams({
     mode: "payment",
     success_url: `${appUrl}/report?checkout=success`,
@@ -169,6 +181,7 @@ export async function startCheckout(
     params.set(`line_items[${i}][quantity]`, "1");
   });
   if (also.length > 0) params.set("metadata[businesses]", String(ids.length));
+  if (paidBefore) params.set("metadata[returning_owner]", "true");
 
   const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
