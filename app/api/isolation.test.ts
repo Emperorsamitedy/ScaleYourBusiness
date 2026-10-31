@@ -59,6 +59,8 @@ export const PUBLIC: Record<string, string> = {
 const ID_FROM_REQUEST: Record<string, string> = {
   "auth/switch/route.ts":
     "the business to move to — opened only for the users row whose email is exactly the session's",
+  "checkout/route.ts":
+    "I-52a: other businesses to add to the same payment — each must be one the session's own email owns, from membershipsFor, never acted on beyond a payment row",
 };
 
 const DOOR = /\bresolveAccess\(|\bmatchingSession\(|\bcurrentSession\(|\bsession\(\)/;

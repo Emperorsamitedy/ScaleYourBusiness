@@ -19,6 +19,7 @@
 import "../../app/report.css";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import type { CheckoutOptions } from "../../app/api/checkout/route";
 import Link from "next/link";
 import { quietLine, splitByMateriality } from "../../lib/connectors/materiality";
 import { delta, moneyFig, moneyText, num } from "../sheet/num";
@@ -1099,14 +1100,91 @@ function Shell({
   );
 }
 
+/**
+ * I-52a: one checkout for several businesses. This business at the report
+ * price, each ticked one at the extra price; the total is shown before
+ * Stripe opens.
+ */
+export function CheckoutChoice({
+  options,
+  also,
+  onToggle,
+  onPay,
+  onCancel,
+}: {
+  options: CheckoutOptions;
+  also: string[];
+  onToggle: (profileId: string) => void;
+  onPay: () => void;
+  onCancel: () => void;
+}) {
+  const { first_price: price, extra_price } = options;
+  const total = checkoutTotal(price.amount_minor, extra_price.amount_minor, also.length);
+  const returning = price.amount_minor !== options.price.amount_minor;
+  return (
+    <>
+      <p className="rq-prose">
+        This report is {moneyText(price.amount_minor, price.currency)}
+        {returning ? ", since you've already paid for another of your businesses" : ""}.
+        {options.others.length > 0 && (
+          <>
+            {" "}
+            You own {options.others.length === 1 ? "another business" : "other businesses"} without
+            a paid report: add {options.others.length === 1 ? "it" : "them"} to the same payment at{" "}
+            {moneyText(extra_price.amount_minor, extra_price.currency)} each.
+          </>
+        )}
+      </p>
+      {options.others.length > 0 && (
+        <ul className="rp-also">
+          {options.others.map((o) => (
+            <li key={o.profile_id}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={also.includes(o.profile_id)}
+                  onChange={() => onToggle(o.profile_id)}
+                />{" "}
+                {o.business ?? "A business not named yet"} ·{" "}
+                {moneyText(extra_price.amount_minor, extra_price.currency)}
+              </label>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="rq-prose">
+        Total: {moneyText(total, price.currency)} for {also.length + 1}{" "}
+        {also.length === 0 ? "report" : "reports"}, one payment. Each business&apos;s report is
+        written when you open it there.
+      </p>
+      <div className="rp-actions">
+        <button className="rp-act" onClick={onPay}>
+          Pay {moneyText(total, price.currency)} →
+        </button>
+        <button className="rp-act" onClick={onCancel}>
+          Not now
+        </button>
+      </div>
+    </>
+  );
+}
+
+/** Pure: one checkout's total, this business in full and each added one at the extra price. */
+export function checkoutTotal(full: number, extra: number, added: number): number {
+  return full + extra * Math.max(0, added);
+}
+
 export function ReportScreen() {
   const nav = useNav();
   const [report, setReport] = useState<ReportView | null>(null);
-  const [state, setState] = useState<"loading" | "none" | "generating" | "ready" | "error">(
-    "loading",
-  );
+  const [state, setState] = useState<
+    "loading" | "none" | "generating" | "choosing" | "ready" | "error"
+  >("loading");
   const [step, setStep] = useState<"reading" | "checkout">("reading");
   const [error, setError] = useState<string | null>(null);
+  // I-52a: the owner's other unpaid businesses, offered in the same checkout.
+  const [options, setOptions] = useState<CheckoutOptions | null>(null);
+  const [also, setAlso] = useState<string[]>([]);
 
   const load = useCallback(async (): Promise<boolean> => {
     const res = await fetch("/api/report");
@@ -1128,6 +1206,34 @@ export function ReportScreen() {
     })();
   }, [load]);
 
+  const pay = useCallback(
+    async (ids: string[]) => {
+      setState("generating");
+      setStep("checkout");
+      setError(null);
+      try {
+        const checkout = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ also: ids }),
+        });
+        const payload = (await checkout.json().catch(() => null)) as {
+          checkout_url?: string;
+          error?: string;
+        } | null;
+        if (checkout.ok && payload?.checkout_url) {
+          window.location.href = payload.checkout_url;
+          return;
+        }
+        setError(payload?.error ?? "payment could not be started");
+      } catch {
+        setError("I couldn't reach the server — nothing was charged; try again.");
+      }
+      setState(report ? "ready" : "none");
+    },
+    [report],
+  );
+
   const generate = useCallback(async () => {
     setState("generating");
     setStep("reading");
@@ -1138,18 +1244,22 @@ export function ReportScreen() {
         // P1-50: the report is paid. Start checkout and hand the browser
         // to Stripe; the webhook makes it real, and coming back here with
         // ?checkout=success retries generation against the paid record.
+        // I-52a: an owner with other unpaid businesses is offered them first.
         setStep("checkout");
-        const checkout = await fetch("/api/checkout", { method: "POST" });
-        const payload = (await checkout.json().catch(() => null)) as {
-          checkout_url?: string;
-          error?: string;
-        } | null;
-        if (checkout.ok && payload?.checkout_url) {
-          window.location.href = payload.checkout_url;
+        const opts = await fetch("/api/checkout")
+          .then((r) => (r.ok ? (r.json() as Promise<CheckoutOptions>) : null))
+          .catch(() => null);
+        // I-52e: a lower first price is said before Stripe opens, too.
+        if (
+          opts &&
+          (opts.others.length > 0 || opts.first_price.amount_minor !== opts.price.amount_minor)
+        ) {
+          setOptions(opts);
+          setAlso([]);
+          setState("choosing");
           return;
         }
-        setError(payload?.error ?? "payment could not be started");
-        setState(report ? "ready" : "none");
+        await pay([]);
         return;
       }
       if (!res.ok) {
@@ -1164,7 +1274,7 @@ export function ReportScreen() {
       setError("I couldn't reach the server — your answers are safe; try again.");
       setState(report ? "ready" : "none");
     }
-  }, [report]);
+  }, [report, pay]);
 
   // Back from Stripe: kick generation once; if the webhook is still in
   // flight the 402 path shows the pay button again rather than
@@ -1212,6 +1322,17 @@ export function ReportScreen() {
                 about a minute; the arithmetic is checked before anything reaches the page.
               </p>
             </>
+          )}
+          {state === "choosing" && options && (
+            <CheckoutChoice
+              options={options}
+              also={also}
+              onToggle={(id) =>
+                setAlso((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]))
+              }
+              onPay={() => void pay(also)}
+              onCancel={() => setState(report ? "ready" : "none")}
+            />
           )}
           {(state === "none" || (state === "ready" && report === null)) && (
             <>

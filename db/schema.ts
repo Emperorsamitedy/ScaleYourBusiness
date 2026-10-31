@@ -948,7 +948,10 @@ export const payments = pgTable(
       .notNull()
       .references(() => businessProfiles.id),
     provider: text("provider").notNull().default("stripe"),
-    /** Stripe Checkout Session id — the join key for the webhook. */
+    /**
+     * Stripe Checkout Session id — the join key for the webhook. I-52a: one
+     * session can pay for several businesses, one row each.
+     */
     checkout_session_id: text("checkout_session_id").notNull(),
     amount_minor: integer("amount_minor").notNull(),
     currency: text("currency").notNull(),
@@ -959,7 +962,8 @@ export const payments = pgTable(
     paid_at: timestamp("paid_at", { withTimezone: true, mode: "string" }),
   },
   (t) => [
-    uniqueIndex("payments_checkout_idx").on(t.checkout_session_id),
+    uniqueIndex("payments_checkout_profile_idx").on(t.checkout_session_id, t.profile_id),
+    index("payments_checkout_idx").on(t.checkout_session_id),
     index("payments_profile_idx").on(t.profile_id, t.status),
   ],
 );

@@ -11,6 +11,9 @@ import { db } from "../../db";
 import { accounts, businessProfiles, fieldRecords, payments } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
 import {
+  alsoLine,
+  checkoutAmounts,
+  extraReportPrice,
   hasPaidReport,
   markCheckoutPaid,
   paymentsConfigured,
@@ -170,5 +173,67 @@ describe("security review 2026-10-17 — paid means paid", () => {
       data: { object: { id: p.sessionId, payment_status: "paid" } },
     });
     expect(await hasPaidReport(p.profile_id)).toBe(true);
+  });
+});
+
+// I-52a (owner, 2026-10-31): one checkout, the first business in full and each extra at €29.
+describe("I-52a — one bill for several businesses", () => {
+  it("prices the first in full and the rest at the extra price", () => {
+    expect(checkoutAmounts(1, 4900, 2900)).toEqual([4900]);
+    expect(checkoutAmounts(3, 4900, 2900)).toEqual([4900, 2900, 2900]);
+    expect(checkoutAmounts(0, 4900, 2900)).toEqual([]);
+  });
+
+  // I-52e (owner, 2026-10-31): an owner who already paid for one business pays the extra price for all.
+  it("an owner who has paid before pays the extra price for every business, the first too", () => {
+    expect(checkoutAmounts(1, 4900, 2900, true)).toEqual([2900]);
+    expect(checkoutAmounts(2, 4900, 2900, true)).toEqual([2900, 2900]);
+    expect(checkoutAmounts(1, 4900, 2900, false)).toEqual([4900]);
+  });
+
+  it("the extra price defaults to €29.00, follows env, and is never more than the report", () => {
+    vi.stubEnv("REPORT_PRICE_MINOR", "");
+    vi.stubEnv("REPORT_CURRENCY", "");
+    vi.stubEnv("EXTRA_REPORT_PRICE_MINOR", "");
+    expect(extraReportPrice()).toEqual({ amount_minor: 2900, currency: "eur" });
+    vi.stubEnv("EXTRA_REPORT_PRICE_MINOR", "3900");
+    expect(extraReportPrice().amount_minor).toBe(3900);
+    vi.stubEnv("EXTRA_REPORT_PRICE_MINOR", "5000");
+    expect(() => extraReportPrice()).toThrow(/more than the report price/);
+    vi.stubEnv("EXTRA_REPORT_PRICE_MINOR", "-1");
+    expect(() => extraReportPrice()).toThrow();
+  });
+
+  it("names the extra business on its line, or says another business", () => {
+    expect(alsoLine("Lumen Studio")).toBe("SYB business diagnosis: Lumen Studio");
+    expect(alsoLine("  ")).toBe("SYB business diagnosis: another business");
+    expect(alsoLine(null)).toBe("SYB business diagnosis: another business");
+  });
+
+  it("the webhook's mark pays every business of the session, and only once", async () => {
+    const one = await bootstrapIntake();
+    const two = await bootstrapIntake();
+    created.push(one, two);
+    const session = `cs_test_two_${crypto.randomUUID()}`;
+    await db.insert(payments).values([
+      {
+        account_id: one.account_id,
+        profile_id: one.profile_id,
+        checkout_session_id: session,
+        amount_minor: 4900,
+        currency: "eur",
+      },
+      {
+        account_id: two.account_id,
+        profile_id: two.profile_id,
+        checkout_session_id: session,
+        amount_minor: 2900,
+        currency: "eur",
+      },
+    ]);
+    expect(await markCheckoutPaid(session)).toBe("paid");
+    expect(await hasPaidReport(one.profile_id)).toBe(true);
+    expect(await hasPaidReport(two.profile_id)).toBe(true);
+    expect(await markCheckoutPaid(session)).toBe("already");
   });
 });

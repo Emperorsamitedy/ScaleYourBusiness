@@ -480,7 +480,7 @@ Because every route already resolves the account and profile from the session, a
   Each server action checks the role, through one helper and one table of action → minimum role, kept as data and tested exhaustively. The decision log records which user approved (rule 7).
 
 - **The last owner can't leave or be demoted.** An account always has at least one owner, held by the database.
-- **Each business pays on its own.** The Stripe gate stays per account. Combined billing is **I-52a**.
+- **Each business pays on its own.** The Stripe gate stays per account. Combined billing is **I-52a** (decided 2026-10-31: one checkout, extras cheaper).
 - **A team member is never an employee record.** Rule 28 holds: SYB never scores or judges a person, including its own users.
 
 - [x] **I-52.1** Migration **0070** (renumbered from 0067 at merge):
@@ -531,4 +531,10 @@ Because every route already resolves the account and profile from the session, a
 - [ ] **I-52b** Decide whether managers should edit the sales pipeline (add a deal, move a stage, "spoke today") and press Sync now on a connection. Both went to the owner as the stricter reading; managers may want the pipeline's day-to-day.
 - [ ] **I-52c** Decide whether a viewer may ask the chat questions. Today the chat is a manager's, since a message can draft changes and proposals and spends a model call.
 - [ ] **I-52d** Record the acting person on the write-access consent entries (`consent`) and on the stop. The consent services don't receive a user id today, so those rows keep `user_id` null.
-- [ ] **I-52a** Decide whether several businesses should share one bill (one Stripe customer, several plans) or stay billed one by one.
+- [x] **I-52a** Decide whether several businesses should share one bill (one Stripe customer, several plans) or stay billed one by one.
+
+  **Decided 2026-10-31, owner: "go ahead with I-52a", then, asked how: one checkout with cheaper extras, at €29 each.** SYB has no plans, only the one-off report, so "one bill" is one Stripe Checkout Session. It covers this business at the report price (€49) and any of the owner's other unpaid businesses at `EXTRA_REPORT_PRICE_MINOR` (default €29.00, never above the report price), with one line, one receipt and one `payments` row per business under the session id (migration **0073**). The webhook marks them all paid. `GET /api/checkout` lists the other businesses: those where the person's verified email is an owner and the report isn't paid. When there are any, `/report` offers them with ticks and a total before Stripe opens; with none, checkout opens straight away, as before. Each business's report is written when the owner opens it there. Tests: `app/api/checkout/checkout.test.ts` (real sessions; someone else's business, a managed one, this one again and a paid one all refused before Stripe) and `lib/payments/stripe.test.ts`.
+
+- [x] **I-52e** (found building I-52a) Decide whether a business paid for on its own, after another of the owner's was paid, gets the extra price. Today the €29 applies only inside one checkout; paying later, alone, is €49.
+
+  **Decided 2026-10-31, owner: "go ahead with I-52e too".** Once any business where the person's verified email is an owner has a paid report, every business in a later checkout is at the extra price, the first included (`checkoutAmounts(…, paidBefore)`). The route reads it from the session's own businesses, never the request. A paid business the person only manages or views doesn't count. `GET /api/checkout` returns `first_price`, and `/report` says "since you've already paid for another of your businesses" before Stripe opens. The Stripe session carries `metadata[returning_owner]`.
