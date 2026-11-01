@@ -1,0 +1,1222 @@
+{
+  "about": "French words for question bank 1.9.0, keyed by the bank's ids. A draft by Claude from specs/glossary-v1.json; in review until the native reviewer checks it (TASKS-LANGUAGES.md, L-7).",
+  "locale": "fr-FR",
+  "bank_version": "1.9.0",
+  "questions": {
+    "1.1": {
+      "prompt": "Quel est le nom de l’entreprise ?"
+    },
+    "1.1b": {
+      "prompt": "Dans quel pays l’entreprise exerce-t-elle son activité ?",
+      "help_text": "Cela détermine la fiscalité, les règles publicitaires et les obligations en matière de protection des données."
+    },
+    "1.2": {
+      "prompt": "De quel type d’entreprise s’agit-il ?"
+    },
+    "1.3": {
+      "prompt": "En quelques phrases, que fait l’entreprise ?"
+    },
+    "1.4": {
+      "prompt": "Que vend l’entreprise ?",
+      "help_text": "Sélectionnez tout ce qui s’applique."
+    },
+    "1.4.4": {
+      "prompt": "Parmi ces choix, lequel rapporte le plus d’argent ?"
+    },
+    "1.5": {
+      "prompt": "À quel stade en est l’entreprise aujourd’hui ?"
+    },
+    "1.5b": {
+      "prompt": "Depuis quand l’entreprise est-elle en activité ?",
+      "help_text": "Un mois approximatif suffit."
+    },
+    "1.5.1": {
+      "prompt": "Quelle est votre priorité du moment ?"
+    },
+    "1.6": {
+      "prompt": "Combien de personnes travaillent dans l’entreprise, vous compris ?"
+    },
+    "1.6a": {
+      "prompt": "Comment décririez-vous la taille de l’entreprise ?",
+      "help_text": "Votre propre ressenti, pas une règle d’effectif. Je m’en sers pour décider du niveau de détail utile à vous montrer.",
+      "option_labels": {
+        "solo": "Juste moi",
+        "small": "Une petite équipe",
+        "medium": "Une entreprise de taille moyenne",
+        "large": "Une entreprise plus grande"
+      }
+    },
+    "2.1": {
+      "prompt": "L’entreprise est-elle en ligne, physique, ou les deux ?"
+    },
+    "2.1.1.1": {
+      "prompt": "Combien d’établissements physiques y a-t-il ?"
+    },
+    "2.1.1.2": {
+      "prompt": "De quel type de lieu s’agit-il ?"
+    },
+    "2.1.1.3": {
+      "prompt": "Vos clients viennent-ils sur place ?"
+    },
+    "2.1.1.7": {
+      "prompt": "Quels sont vos horaires d’ouverture ?",
+      "help_text": "Par jour, comme vous l’écririez sur la porte — par ex. lun.–jeu. 20:00–01:00, ven.–sam. 18:00–02:00, dim. fermé."
+    },
+    "2.1.1.7a": {
+      "prompt": "Combien vous coûte environ une heure d’ouverture — personnel en poste et énergie compris ?",
+      "help_text": "Un chiffre approximatif suffit. Il nous indique si vos premières et dernières heures sont rentables."
+    },
+    "2.1.1.8": {
+      "prompt": "Qu’est-ce qui limite votre capacité ? Par exemple les places assises, les rendez-vous par jour ou l’espace de stockage."
+    },
+    "2.1.2.1": {
+      "prompt": "Quelle est l’adresse de votre site web ?"
+    },
+    "2.1.2.2": {
+      "prompt": "Vos clients peuvent-ils acheter directement sur le site web ?"
+    },
+    "2.1.2.4": {
+      "prompt": "Sur quelles plateformes vendez-vous ou publiez-vous ?"
+    },
+    "2.2.1": {
+      "prompt": "Vendez-vous localement, dans tout le pays ou à l’international ?"
+    },
+    "2.2.3": {
+      "prompt": "À quoi sert principalement le site web ?"
+    },
+    "3.1": {
+      "prompt": "Listez ce que vend l’entreprise.",
+      "help_text": "Ajoutez chaque produit ou service. Vous pouvez commencer par les principaux et en ajouter d’autres plus tard."
+    },
+    "3.2": {
+      "prompt": "Lequel se vend le mieux ?"
+    },
+    "3.3": {
+      "prompt": "Lequel dégage la meilleure marge bénéficiaire ?"
+    },
+    "3.4": {
+      "prompt": "Lequel souhaitez-vous le plus développer ?"
+    },
+    "1.4.1.2": {
+      "prompt": "Avez-vous un stock de vos produits physiques ?"
+    },
+    "1.4.1.2.1a": {
+      "prompt": "Comment suivez-vous vos niveaux de stock ?"
+    },
+    "1.4.1.2.1b": {
+      "prompt": "À quelle fréquence vous réapprovisionnez-vous ?"
+    },
+    "1.4.1.2.1c": {
+      "prompt": "Quels produits sont le plus souvent en rupture ?"
+    },
+    "1.4.1.2.1d": {
+      "prompt": "Quels produits se vendent lentement ou restent invendus ?",
+      "help_text": "L’argent immobilisé dans un stock qui tourne lentement est l’un des problèmes cachés les plus courants."
+    },
+    "1.4.1.2.1e": {
+      "prompt": "Combien vous coûte le stockage par mois ?"
+    },
+    "1.4.1.2.1f": {
+      "prompt": "Quelle est la valeur approximative de votre stock abîmé, périmé ou invendable ?",
+      "help_text": "Saisissez 0 s’il n’y en a pas."
+    },
+    "1.4.1.2.2": {
+      "prompt": "Comment les produits parviennent-ils au client si vous n’avez pas de stock ?"
+    },
+    "1.4.1.3": {
+      "prompt": "Qui vous fournit vos produits ?"
+    },
+    "1.4.1.4": {
+      "prompt": "Fabriquez-vous ou personnalisez-vous vous-même les produits ?"
+    },
+    "1.4.1.4a": {
+      "prompt": "Combien pouvez-vous produire par semaine ?"
+    },
+    "1.4.1.4b": {
+      "prompt": "Qu’est-ce qui ralentit le plus la production ?"
+    },
+    "1.4.1.5": {
+      "prompt": "Expédiez-vous des produits à vos clients ?"
+    },
+    "1.4.1.5a": {
+      "prompt": "Quels transporteurs utilisez-vous ?"
+    },
+    "1.4.1.5b": {
+      "prompt": "Qui paie la livraison ?"
+    },
+    "1.4.1.5c": {
+      "prompt": "Quels problèmes rencontrez-vous avec les retours ou les colis perdus et abîmés, le cas échéant ?"
+    },
+    "1.4.1.6": {
+      "prompt": "Livrez-vous vous-même localement ?"
+    },
+    "1.4.1.6a": {
+      "prompt": "Quels sont les principaux problèmes de la livraison locale ?"
+    },
+    "1.4.2.2": {
+      "prompt": "Décrivez-moi comment une prestation se déroule, du premier contact à la fin."
+    },
+    "1.4.2.3": {
+      "prompt": "Vos clients prennent-ils rendez-vous ?"
+    },
+    "1.4.2.3a": {
+      "prompt": "Comment réservent-ils, et avec quel outil ?"
+    },
+    "1.4.2.3b": {
+      "prompt": "Combien de rendez-vous pouvez-vous assurer par semaine ?"
+    },
+    "1.4.2.3c": {
+      "prompt": "Dans quelle mesure les absences et les annulations tardives posent-elles problème, le cas échéant ?"
+    },
+    "1.4.2.4": {
+      "prompt": "Quelqu’un d’autre pourrait-il assurer la prestation si vous n’étiez pas disponible ?",
+      "help_text": "C’est l’un des plus grands risques pour une entreprise de services."
+    },
+    "1.4.2.5": {
+      "prompt": "Comment garantissez-vous une qualité de service constante ?"
+    },
+    "1.4.3.1": {
+      "prompt": "De quel type de produit numérique s’agit-il ?"
+    },
+    "1.4.3.2": {
+      "prompt": "À quel stade en est le produit ?"
+    },
+    "1.4.3.4a": {
+      "prompt": "Combien d’utilisateurs inscrits y a-t-il ?"
+    },
+    "1.4.3.4b": {
+      "prompt": "Combien sont payants ?"
+    },
+    "1.4.3.4c": {
+      "prompt": "Quel est votre taux d’attrition mensuel, si vous le connaissez ?"
+    },
+    "1.4.3.4d": {
+      "prompt": "Pourquoi les utilisateurs résilient-ils généralement ?"
+    },
+    "1.4.3.5a": {
+      "prompt": "Sur quelle technologie repose-t-il et où est-il hébergé ?"
+    },
+    "1.4.3.5b": {
+      "prompt": "Quels bugs ou fonctionnalités manquantes freinent la croissance, le cas échéant ?"
+    },
+    "4.1": {
+      "prompt": "L’entreprise encaisse-t-elle de l’argent en ce moment ?",
+      "help_text": "Toute vente compte, même si l’entreprise n’est pas encore rentable."
+    },
+    "4.1a": {
+      "prompt": "Quel est votre chiffre d’affaires mensuel approximatif ?"
+    },
+    "4.1b": {
+      "prompt": "Combien de ventes ou de commandes par mois ?"
+    },
+    "4.1c": {
+      "prompt": "Votre chiffre d’affaires est-il en hausse, stable ou en baisse ?"
+    },
+    "4.1d": {
+      "prompt": "Quelle part approximative de vos clients achète à nouveau ?"
+    },
+    "4.1e": {
+      "prompt": "Quel a été votre meilleur mois et votre pire mois, et pour quels montants environ ?",
+      "help_text": "Cela me donne deux points de repère, même sans comptabilité complète."
+    },
+    "4.1f": {
+      "prompt": "L’activité de l’entreprise est-elle saisonnière ?"
+    },
+    "4.1n1": {
+      "prompt": "Que vous manque-t-il pour commencer à vendre ?"
+    },
+    "4.1n2": {
+      "prompt": "Comment comptez-vous trouver vos premiers clients ?"
+    },
+    "4.1p": {
+      "prompt": "Pourquoi l’entreprise a-t-elle cessé de rapporter de l’argent ?"
+    },
+    "4.2a": {
+      "prompt": "Comment vos clients paient-ils ?"
+    },
+    "4.2b": {
+      "prompt": "Quel prestataire de paiement utilisez-vous ?"
+    },
+    "4.2c": {
+      "prompt": "Quelle est votre politique de remboursement ?"
+    },
+    "4.3a": {
+      "prompt": "Avez-vous modifié vos prix ? Qu’est-ce qui a changé et pourquoi ?"
+    },
+    "4.3b": {
+      "prompt": "Trouvez-vous vos prix trop bas, trop élevés ou à peu près justes ?"
+    },
+    "5.1": {
+      "prompt": "Que paie l’entreprise chaque mois, indépendamment des ventes ?",
+      "help_text": "Loyer, salaires, logiciels, assurances, prêts, abonnements, etc."
+    },
+    "5.2": {
+      "prompt": "Quels coûts augmentent quand vous vendez davantage, en plus du coût de revient déjà indiqué pour chaque produit ?"
+    },
+    "5.3a": {
+      "prompt": "Quelle est votre marge brute ?",
+      "help_text": "Le pourcentage de chaque vente qui reste après son coût direct de réalisation. Si vous ne l’avez jamais calculé, dites que vous ne savez pas."
+    },
+    "5.3b": {
+      "prompt": "Avez-vous des problèmes de trésorerie ou des clients qui paient en retard ?"
+    },
+    "5.3c": {
+      "prompt": "Quel est le montant des dettes ou financements que porte l’entreprise ?",
+      "help_text": "Saisissez 0 s’il n’y en a pas. Prêts, lignes de crédit, paiement différé sur le stock, fonds d’investisseurs à rembourser."
+    },
+    "5.3d": {
+      "prompt": "Où pensez-vous que de l’argent est gaspillé ?"
+    },
+    "5.3e": {
+      "prompt": "De combien de liquidités l’entreprise dispose-t-elle aujourd’hui, environ ?",
+      "help_text": "Ce qu’il y a sur le compte de l’entreprise aujourd’hui, sans compter l’argent qu’un prestataire de paiement doit encore vous verser. Un chiffre approximatif suffit : je m’en sers pour voir quand l’argent pourrait manquer au cours des 13 prochaines semaines."
+    },
+    "5.3f": {
+      "prompt": "Quel montant minimum souhaitez-vous garder sur le compte en permanence ?",
+      "help_text": "Votre marge de sécurité. Je signale la première semaine où l’hypothèse prudente de la prévision sur 13 semaines passe en dessous. C’est une aide à la planification : je ne déplace, ne paie ni n’encaisse jamais d’argent."
+    },
+    "5.4": {
+      "prompt": "Pouvez-vous importer des documents financiers ? Rapports de chiffre d’affaires, compte de résultat ou grille tarifaire."
+    },
+    "6.1a": {
+      "prompt": "Vendez-vous à des particuliers, à des entreprises, ou aux deux ?"
+    },
+    "6.1b": {
+      "prompt": "Quel problème vos clients cherchent-ils à résoudre en venant vous voir ?"
+    },
+    "6.1c": {
+      "prompt": "Qu’est-ce qui fait hésiter les gens avant d’acheter ?"
+    },
+    "6.1d": {
+      "prompt": "Décrivez votre client type. Âge, lieu de résidence, tout ce qui est pertinent."
+    },
+    "6.1e": {
+      "prompt": "Quels types d’entreprises achètent chez vous, et qui prend la décision ?"
+    },
+    "6.1f": {
+      "prompt": "Parmi les affaires que vous visez auprès d’autres entreprises, quel pourcentage remportez-vous environ ?",
+      "help_text": "Une estimation suffit : si vous en remportez environ une sur quatre, indiquez 25. Votre pipeline s’en sert pour pondérer les affaires en cours, jusqu’à disposer d’assez d’affaires conclues pour mesurer lui-même."
+    },
+    "6.2": {
+      "prompt": "Avez-vous des types de clients nettement différents ?"
+    },
+    "6.3a": {
+      "prompt": "Comment vos clients vous trouvent-ils généralement ?"
+    },
+    "6.3b": {
+      "prompt": "Combien de temps leur faut-il pour se décider à acheter ?"
+    },
+    "6.3c": {
+      "prompt": "Vos clients vous recommandent-ils à d’autres personnes ?"
+    },
+    "6.4": {
+      "prompt": "Conservez-vous quelque part une liste de contacts clients ?",
+      "help_text": "Même un tableur compte."
+    },
+    "6.4a": {
+      "prompt": "Combien de contacts, environ ?"
+    },
+    "6.4b": {
+      "prompt": "Avez-vous l’autorisation d’envoyer des e-mails marketing à ces contacts ?",
+      "help_text": "C’est une question juridique à régler avant tout envoi."
+    },
+    "7.1": {
+      "prompt": "D’où viennent vos ventes ?"
+    },
+    "7.3a": {
+      "prompt": "Quel est votre principal canal de vente ?"
+    },
+    "7.3b": {
+      "prompt": "Quel canal est en dessous des attentes ?"
+    },
+    "7.4": {
+      "prompt": "Que se passe-t-il entre le moment où quelqu’un entend parler de vous et celui où il paie ?"
+    },
+    "7.5": {
+      "prompt": "Utilisez-vous des supports de vente ? Argumentaires, propositions commerciales, grilles tarifaires, pages d’atterrissage, témoignages."
+    },
+    "8.1": {
+      "prompt": "Faites-vous de la publicité payante ?"
+    },
+    "8.1a": {
+      "prompt": "Combien dépensez-vous en publicité par mois ?"
+    },
+    "8.1i": {
+      "prompt": "Quel montant maximum accepteriez-vous de dépenser en publicité sur un mois ?",
+      "help_text": "Un plafond, pas une cible. SYB ne propose jamais de dépasser ce budget publicitaire."
+    },
+    "8.1b": {
+      "prompt": "Sur quelles plateformes faites-vous de la publicité ?"
+    },
+    "8.1c": {
+      "prompt": "Combien vous coûte environ une vente obtenue par la publicité ?"
+    },
+    "8.1d": {
+      "prompt": "Que s’est-il passé quand vous avez fait de la publicité auparavant, et pourquoi avez-vous arrêté ?"
+    },
+    "8.1e": {
+      "prompt": "Publiez-vous du contenu quelque part ?",
+      "help_text": "Réseaux sociaux, vidéo, blog, newsletter — tout ce que vous publiez vous-même."
+    },
+    "8.1f": {
+      "prompt": "À quelle fréquence publiez-vous ?"
+    },
+    "8.1g": {
+      "prompt": "Quel contenu a le mieux fonctionné jusqu’ici ?"
+    },
+    "8.1h": {
+      "prompt": "Quels comptes sur les réseaux sociaux l’entreprise possède-t-elle ? Indiquez les noms d’utilisateur."
+    },
+    "8.2a": {
+      "prompt": "Avez-vous un logo et des couleurs de marque ?"
+    },
+    "8.2b": {
+      "prompt": "Si vous deviez dire en une phrase pourquoi vous choisir, que diriez-vous ?"
+    },
+    "8.2c": {
+      "prompt": "Que doivent ressentir vos clients à propos de la marque ?"
+    },
+    "8.2d": {
+      "prompt": "Qui incarne l’entreprise, le cas échéant ?"
+    },
+    "8.3a": {
+      "prompt": "Collectez-vous des adresses e-mail ou des prospects auprès des personnes qui n’achètent pas tout de suite ?"
+    },
+    "8.3b": {
+      "prompt": "Où peut-on lire des avis ou des témoignages sur vous, le cas échéant ?"
+    },
+    "9.1": {
+      "prompt": "L’entreprise fonctionne-t-elle normalement en ce moment ?"
+    },
+    "9.1a": {
+      "prompt": "Décrivez une journée de travail normale dans l’entreprise."
+    },
+    "9.1b": {
+      "prompt": "Qu’est-ce qui prend le plus de temps chaque semaine ?"
+    },
+    "9.1c": {
+      "prompt": "Qu’est-ce qui pose problème le plus souvent ?"
+    },
+    "9.2": {
+      "prompt": "Qui travaille dans l’entreprise et que fait chacun ?"
+    },
+    "9.2b": {
+      "prompt": "À quoi consacrez-vous personnellement la plus grande partie de votre temps ?"
+    },
+    "9.3a": {
+      "prompt": "Comment vos clients vous contactent-ils lorsqu’ils ont un problème ?"
+    },
+    "9.3b": {
+      "prompt": "Existe-t-il une méthode établie pour traiter les questions des clients, ou est-ce au cas par cas ?"
+    },
+    "9.3c": {
+      "prompt": "Sur quoi vos clients posent-ils le plus souvent des questions ?"
+    },
+    "9.3d": {
+      "prompt": "De quoi vos clients se plaignent-ils le plus souvent ?"
+    },
+    "9.4a": {
+      "prompt": "Certains de vos processus sont-ils écrits sous forme d’instructions ou de listes de contrôle ?"
+    },
+    "9.4b": {
+      "prompt": "Quelle partie de la gestion de l’entreprise vous cause le plus de stress ?"
+    },
+    "10.1": {
+      "prompt": "Quels outils et logiciels utilisez-vous pour gérer l’entreprise ?",
+      "help_text": "Site web, paiements, comptabilité, réservations, e-mail, tableurs, tout ce que vous utilisez."
+    },
+    "10.1b": {
+      "prompt": "Pour lesquels de ces domaines avez-vous déjà un outil ?"
+    },
+    "10.1c": {
+      "prompt": "Avez-vous déjà mis en place des automatisations ?",
+      "help_text": "E-mails automatiques, synchronisation des commandes, publications programmées, tout ce qui fonctionne tout seul."
+    },
+    "10.2": {
+      "prompt": "Lesquelles de ces tâches faites-vous encore à la main ?"
+    },
+    "10.3": {
+      "prompt": "Si une tâche pouvait disparaître demain, laquelle serait-ce ?"
+    },
+    "10.4a": {
+      "prompt": "Quels chiffres suivez-vous déjà, et où sont-ils conservés ?"
+    },
+    "10.4b": {
+      "prompt": "Pourriez-vous exporter ces données si nécessaire ?"
+    },
+    "11.1a": {
+      "prompt": "Quelle est la forme juridique de l’entreprise ?"
+    },
+    "11.1b": {
+      "prompt": "Quelle est votre situation au regard de la TVA ?"
+    },
+    "11.1c": {
+      "prompt": "De quelles licences, autorisations ou assurances l’entreprise a-t-elle besoin pour exercer, le cas échéant ?"
+    },
+    "11.1d": {
+      "prompt": "Avez-vous publié des conditions générales et une politique de confidentialité ?"
+    },
+    "11.1e": {
+      "prompt": "Quelle adresse postale doit figurer en bas de vos e-mails marketing ?",
+      "help_text": "Les États-Unis et le Canada exigent une véritable adresse postale dans chaque e-mail marketing ; ailleurs, c’est une bonne pratique. Une boîte postale que vous consultez convient."
+    },
+    "11.2a": {
+      "prompt": "Quelle plateforme ou quel compte l’entreprise ne pourrait-elle pas se permettre de perdre, le cas échéant ?"
+    },
+    "11.2b": {
+      "prompt": "Qu’est-ce qui pourrait arrêter l’entreprise demain ?"
+    },
+    "11.3": {
+      "prompt": "Quelles restrictions publicitaires ou sectorielles s’appliquent à votre domaine, le cas échéant ?",
+      "help_text": "Par exemple des limites d’âge, des allégations de santé ou des produits réglementés."
+    },
+    "12.1": {
+      "prompt": "Qui sont vos principaux concurrents ?",
+      "help_text": "Des noms et des liens suffisent pour commencer. Je rechercherai le reste."
+    },
+    "12.2a": {
+      "prompt": "Qu’est-ce qui vous distingue d’eux ?"
+    },
+    "12.2b": {
+      "prompt": "Quelles preuves en avez-vous ? Avis, résultats, chiffres."
+    },
+    "12.2c": {
+      "prompt": "Sur quels points vos concurrents sont-ils nettement meilleurs que vous ?"
+    },
+    "12.3a": {
+      "prompt": "La demande sur votre marché est-elle en hausse, stable ou en baisse ?"
+    },
+    "12.3b": {
+      "prompt": "Sur votre marché, les clients choisissent-ils surtout en fonction du prix ?"
+    },
+    "13.1": {
+      "prompt": "Que voulez-vous accomplir dans les 3, 6 et 12 prochains mois ?"
+    },
+    "13.2": {
+      "prompt": "Quel est aujourd’hui le principal frein à votre croissance ?"
+    },
+    "13.3a": {
+      "prompt": "Qu’avez-vous déjà essayé pour développer l’entreprise ?"
+    },
+    "13.3b": {
+      "prompt": "Qu’est-ce qui n’a pas marché, et pourquoi selon vous ?"
+    },
+    "13.3c": {
+      "prompt": "Qu’est-ce qu’il ne faut surtout pas retenter, le cas échéant ?"
+    },
+    "13.4": {
+      "prompt": "Envisagez-vous l’un de ces projets ?"
+    },
+    "13.5": {
+      "prompt": "Qu’est-ce que vous ne voudriez jamais que l’entreprise fasse, quels que soient les résultats ?",
+      "help_text": "Ton, tactiques, plateformes, remises. Je les traiterai comme des limites absolues."
+    },
+    "14.1": {
+      "prompt": "Importez tout ce que vous avez déjà et qui pourrait être utile.",
+      "help_text": "Photos, logo, vidéos, grilles tarifaires, avis, rapports. Plus vous fournissez de matière, meilleurs seront les résultats par la suite."
+    },
+    "14.1b": {
+      "prompt": "Lesquels de ces éléments avez-vous à disposition, même s’ils ne sont pas encore importés ?"
+    }
+  },
+  "entity_schemas": {
+    "offer": {
+      "label": "Produit ou service",
+      "fields": {
+        "name": "Nom",
+        "kind": "De quel type s’agit-il ?",
+        "description": "Brève description",
+        "price": "Prix",
+        "price_model": "Comment est-il facturé ?",
+        "cost_to_deliver": "Quel est votre coût de revient pour une unité ?",
+        "margin_stated": "Marge bénéficiaire, si vous la connaissez (%)",
+        "volume_period": "Combien en vendez-vous environ par mois ?",
+        "purchase_type": "Achat unique, récurrent ou renouvelé ?",
+        "lifecycle": "Statut",
+        "main_customer_segment": "Qui l’achète principalement ?",
+        "problems": "Des problèmes avec cette offre ?"
+      }
+    },
+    "supplier": {
+      "label": "Fournisseur",
+      "fields": {
+        "name": "Nom du fournisseur",
+        "country": "Pays",
+        "supplies_offers": "Quels produits fournit-il ?",
+        "purchase_price": "Prix d’achat habituel",
+        "moq": "Quantité minimale de commande",
+        "lead_time_days": "Délai de livraison en jours",
+        "payment_terms": "Conditions de paiement",
+        "reliability_issues": "Des problèmes de fiabilité ?",
+        "has_alternative": "Avez-vous un autre fournisseur pour cela ?",
+        "import_duties_apply": "Des droits d’importation ou de douane s’appliquent-ils ?"
+      }
+    },
+    "channel": {
+      "label": "Canal de vente",
+      "fields": {
+        "type": "Type de canal",
+        "platform": "Plateforme",
+        "monthly_sales": "Ventes par mois via ce canal",
+        "revenue_monthly": "Chiffre d’affaires mensuel de ce canal",
+        "cost_monthly": "Combien coûte ce canal par mois ?",
+        "monthly_leads": "Prospects par mois",
+        "conversion_rate": "Taux de conversion (%)",
+        "effort_level": "Quel effort demande-t-il ?",
+        "customer_quality": "Qualité des clients issus de ce canal",
+        "trend": "En hausse ou en baisse ?"
+      }
+    },
+    "competitor": {
+      "label": "Concurrent",
+      "fields": {
+        "name": "Nom",
+        "url": "Site web ou lien vers un réseau social",
+        "listing_url": "Leur page de réservation ou d’annonce (Fresha, Treatwell, Booksy, Google, une page boutique)",
+        "price_pages": "Autres pages de leur site qui affichent des prix, un lien par ligne",
+        "what_they_sell": "Que vendent-ils ?",
+        "price_points": "Leurs prix habituels",
+        "delivery_promise": "Que promettent-ils en matière de livraison ou d’exécution ?",
+        "opening_hours": "Leurs horaires d’ouverture",
+        "strengths": "Leurs points forts",
+        "weaknesses": "Leurs points faibles",
+        "why_customers_choose_them": "Pourquoi les clients les choisissent-ils ?",
+        "why_customers_choose_us": "Pourquoi les clients vous choisissent-ils plutôt ?"
+      }
+    },
+    "staff_role": {
+      "label": "Personne ou rôle",
+      "fields": {
+        "role_title": "Rôle",
+        "engagement": "Type",
+        "main_tasks": "Tâches principales",
+        "hours_per_week": "Heures par semaine",
+        "cost_monthly": "Coût mensuel",
+        "replaceability": "Ce rôle est-il facile à remplacer ?"
+      }
+    },
+    "cost_item": {
+      "label": "Coût",
+      "fields": {
+        "category": "Catégorie",
+        "label": "De quoi s’agit-il ?",
+        "amount": "Montant",
+        "cadence": "À quelle fréquence ?"
+      }
+    },
+    "customer_segment": {
+      "label": "Segment de clientèle",
+      "fields": {
+        "name": "Nom du segment",
+        "who_they_are": "Qui sont-ils ?",
+        "what_they_buy": "Qu’achètent-ils ?",
+        "purchase_frequency": "À quelle fréquence achètent-ils ?",
+        "average_spend": "Dépense moyenne",
+        "acquisition_source": "D’où viennent-ils ?"
+      }
+    },
+    "goal": {
+      "label": "Objectif",
+      "fields": {
+        "horizon": "Horizon",
+        "area": "Domaine",
+        "statement": "Que voulez-vous accomplir ?",
+        "target_value": "Valeur cible, s’il y en a une"
+      }
+    }
+  },
+  "vocabularies": {
+    "sells_type": {
+      "physical_products": "Produits physiques",
+      "services": "Services",
+      "software": "Logiciels",
+      "digital_products": "Produits numériques",
+      "subscriptions": "Abonnements",
+      "marketplace_access": "Accès à une place de marché",
+      "other": "Autre"
+    },
+    "business_stage": {
+      "idea": "Idée",
+      "preparing_to_launch": "Préparation du lancement",
+      "recently_launched": "Lancement récent",
+      "operating": "En activité",
+      "growing": "En croissance",
+      "stable": "Stable",
+      "declining": "En déclin",
+      "paused": "En pause",
+      "rebuilding": "En reconstruction"
+    },
+    "business_size": {
+      "solo": "En solo",
+      "small": "Petite structure",
+      "medium": "Structure moyenne",
+      "large": "Grande structure"
+    },
+    "focus_area": {
+      "launch": "Lancement",
+      "first_customers": "Premiers clients",
+      "increase_revenue": "Augmenter le chiffre d’affaires",
+      "reduce_costs": "Réduire les coûts",
+      "automate_work": "Automatiser le travail",
+      "improve_marketing": "Améliorer le marketing",
+      "hire_people": "Recruter",
+      "expand_locations": "Ouvrir de nouveaux sites",
+      "improve_profit": "Améliorer la rentabilité",
+      "other": "Autre"
+    },
+    "presence_type": {
+      "online_only": "En ligne uniquement",
+      "physical_only": "Physique uniquement",
+      "both": "Les deux"
+    },
+    "location_type": {
+      "store": "Boutique",
+      "office": "Bureau",
+      "warehouse": "Entrepôt",
+      "restaurant": "Restaurant",
+      "salon": "Salon",
+      "gym": "Salle de sport",
+      "studio": "Studio",
+      "clinic": "Cabinet",
+      "other": "Autre"
+    },
+    "ecommerce_platform": {
+      "shopify": "Shopify",
+      "woocommerce": "WooCommerce",
+      "wordpress": "WordPress",
+      "webflow": "Webflow",
+      "wix": "Wix",
+      "squarespace": "Squarespace",
+      "amazon": "Amazon",
+      "etsy": "Etsy",
+      "ebay": "eBay",
+      "tiktok_shop": "TikTok Shop",
+      "instagram_shop": "Boutique Instagram",
+      "facebook_shop": "Boutique Facebook",
+      "custom": "Sur mesure",
+      "none": "Aucune",
+      "other": "Autre"
+    },
+    "market_scope": {
+      "local": "Local",
+      "national": "National",
+      "international": "International",
+      "mixed": "Mixte"
+    },
+    "website_purpose": {
+      "sales": "Ventes",
+      "lead_generation": "Génération de prospects",
+      "booking": "Réservations",
+      "branding": "Image de marque",
+      "information": "Informations",
+      "mixed": "Mixte"
+    },
+    "offer_kind": {
+      "physical": "Physique",
+      "service": "Service",
+      "digital": "Numérique",
+      "subscription": "Abonnement",
+      "marketplace_access": "Accès à une place de marché"
+    },
+    "price_model": {
+      "one_time": "Paiement unique",
+      "subscription": "Abonnement",
+      "usage_based": "À l’usage",
+      "freemium": "Freemium",
+      "lifetime": "Accès à vie",
+      "license": "Licence",
+      "commission": "Commission",
+      "mixed": "Mixte"
+    },
+    "purchase_type": {
+      "one_time": "Unique",
+      "recurring": "Récurrent",
+      "repeat": "Renouvelé"
+    },
+    "offer_lifecycle": {
+      "active": "Actif",
+      "planned": "Prévu",
+      "discontinued": "Arrêté"
+    },
+    "offer_problem": {
+      "too_cheap": "Trop bon marché",
+      "too_expensive": "Trop cher",
+      "low_demand": "Faible demande",
+      "hard_to_deliver": "Difficile à réaliser",
+      "low_margin": "Marge faible",
+      "too_manual": "Trop manuel",
+      "too_many_refunds": "Trop de remboursements",
+      "bad_positioning": "Mauvais positionnement",
+      "none": "Aucun",
+      "other": "Autre"
+    },
+    "yes_no_partly": {
+      "yes": "Oui",
+      "no": "Non",
+      "partly": "En partie"
+    },
+    "no_inventory_model": {
+      "dropshipping": "Dropshipping",
+      "made_to_order": "Fabrication à la commande",
+      "preorder": "Précommande",
+      "supplier_shipped": "Expédié par le fournisseur",
+      "hybrid": "Hybride",
+      "other": "Autre"
+    },
+    "inventory_tracking": {
+      "spreadsheet": "Tableur",
+      "pos_system": "Logiciel de caisse",
+      "erp": "ERP",
+      "ecommerce_platform": "Plateforme e-commerce",
+      "paper": "Papier",
+      "none": "Aucun suivi",
+      "other": "Autre"
+    },
+    "restock_frequency": {
+      "weekly": "Chaque semaine",
+      "biweekly": "Toutes les deux semaines",
+      "monthly": "Chaque mois",
+      "quarterly": "Chaque trimestre",
+      "irregular": "Irrégulièrement",
+      "never": "Jamais"
+    },
+    "service_standardization": {
+      "standardized": "Standardisé",
+      "custom": "Sur mesure",
+      "mixed": "Mixte"
+    },
+    "quality_process": {
+      "checklists": "Listes de contrôle",
+      "sops": "Procédures écrites",
+      "training": "Formation",
+      "customer_feedback": "Retours clients",
+      "review_process": "Processus de vérification",
+      "complaint_handling": "Gestion des réclamations",
+      "none": "Aucun"
+    },
+    "digital_product_type": {
+      "saas": "SaaS",
+      "mobile_app": "Application mobile",
+      "web_app": "Application web",
+      "online_course": "Formation en ligne",
+      "template": "Modèle",
+      "digital_file": "Fichier numérique",
+      "membership_platform": "Plateforme d’adhésion",
+      "community": "Communauté",
+      "paid_newsletter": "Newsletter payante",
+      "other": "Autre"
+    },
+    "digital_stage": {
+      "idea": "Idée",
+      "prototype": "Prototype",
+      "mvp": "MVP",
+      "beta": "Bêta",
+      "launched": "Lancé",
+      "growing": "En croissance",
+      "mature": "Mature",
+      "needs_rebuilding": "À refondre"
+    },
+    "revenue_status": {
+      "yes": "Oui",
+      "no": "Non",
+      "not_launched": "Pas encore lancé",
+      "previously": "Auparavant, plus maintenant"
+    },
+    "revenue_trend": {
+      "growing": "En hausse",
+      "stable": "Stable",
+      "declining": "En baisse",
+      "unknown": "Inconnu"
+    },
+    "payment_method": {
+      "cash": "Espèces",
+      "card": "Carte",
+      "bank_transfer": "Virement bancaire",
+      "online_payment": "Paiement en ligne",
+      "installments": "Paiement en plusieurs fois",
+      "deposits": "Acomptes",
+      "invoice_terms": "Paiement sur facture"
+    },
+    "payment_provider": {
+      "stripe": "Stripe",
+      "paypal": "PayPal",
+      "square": "Square",
+      "adyen": "Adyen",
+      "mollie": "Mollie",
+      "klarna": "Klarna",
+      "shopify_payments": "Shopify Payments",
+      "apple_google_pay": "Apple Pay / Google Pay",
+      "local_provider": "Prestataire local",
+      "bank_only": "Banque uniquement",
+      "other": "Autre"
+    },
+    "cost_category": {
+      "rent": "Loyer",
+      "salaries": "Salaires",
+      "contractors": "Prestataires",
+      "software": "Logiciels",
+      "insurance": "Assurances",
+      "utilities": "Énergie et charges",
+      "loan_payments": "Remboursements d’emprunt",
+      "accounting": "Comptabilité",
+      "hosting": "Hébergement",
+      "vehicle": "Véhicule",
+      "warehouse": "Entrepôt",
+      "marketing": "Marketing",
+      "materials": "Matières premières",
+      "packaging": "Emballage",
+      "shipping": "Expédition",
+      "payment_fees": "Frais de paiement",
+      "platform_fees": "Frais de plateforme",
+      "other": "Autre"
+    },
+    "cost_cadence": {
+      "monthly": "Mensuel",
+      "quarterly": "Trimestriel",
+      "annual": "Annuel",
+      "per_unit": "Par unité",
+      "per_job": "Par prestation"
+    },
+    "customer_type": {
+      "b2c": "Particuliers (B2C)",
+      "b2b": "Entreprises (B2B)",
+      "both": "Les deux"
+    },
+    "purchase_frequency": {
+      "one_time": "Une seule fois",
+      "occasional": "Occasionnellement",
+      "monthly": "Chaque mois",
+      "weekly": "Chaque semaine",
+      "daily": "Chaque jour"
+    },
+    "channel_type": {
+      "website": "Site web",
+      "physical_store": "Magasin physique",
+      "marketplace": "Place de marché",
+      "social_organic": "Réseaux sociaux (organique)",
+      "paid_ads": "Publicité payante",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "direct_message": "Messages privés",
+      "sales_calls": "Appels commerciaux",
+      "referrals": "Recommandations",
+      "appointments": "Rendez-vous",
+      "events": "Événements",
+      "partners": "Partenaires",
+      "resellers": "Revendeurs",
+      "other": "Autre"
+    },
+    "channel_platform": {
+      "own_website": "Votre propre site web",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "youtube": "YouTube",
+      "google_search": "Recherche Google",
+      "google_ads": "Google Ads",
+      "meta_ads": "Meta Ads",
+      "tiktok_ads": "TikTok Ads",
+      "amazon": "Amazon",
+      "etsy": "Etsy",
+      "ebay": "eBay",
+      "shopify_shop": "Boutique Shopify",
+      "linkedin": "LinkedIn",
+      "pinterest": "Pinterest",
+      "whatsapp": "WhatsApp",
+      "messenger": "Messenger",
+      "local_marketplace": "Place de marché locale",
+      "in_person": "En personne",
+      "other": "Autre"
+    },
+    "effort_level": {
+      "low": "Faible",
+      "medium": "Moyen",
+      "high": "Élevé"
+    },
+    "customer_quality": {
+      "poor": "Médiocre",
+      "mixed": "Variable",
+      "good": "Bonne",
+      "excellent": "Excellente"
+    },
+    "advertising_status": {
+      "yes": "Oui",
+      "no": "Non",
+      "previously": "Auparavant, plus maintenant"
+    },
+    "marketing_channel": {
+      "facebook_ads": "Publicités Facebook",
+      "instagram_ads": "Publicités Instagram",
+      "tiktok_ads": "Publicités TikTok",
+      "google_ads": "Google Ads",
+      "youtube": "YouTube",
+      "seo": "Référencement naturel (SEO)",
+      "email_marketing": "E-mailing",
+      "influencers": "Influenceurs",
+      "organic_social": "Réseaux sociaux (organique)",
+      "content_marketing": "Marketing de contenu",
+      "partnerships": "Partenariats",
+      "offline_print": "Imprimés et hors ligne",
+      "events": "Événements",
+      "cold_outreach": "Prospection à froid",
+      "other": "Autre"
+    },
+    "content_frequency": {
+      "daily": "Chaque jour",
+      "several_weekly": "Plusieurs fois par semaine",
+      "weekly": "Chaque semaine",
+      "monthly": "Chaque mois",
+      "irregular": "Irrégulièrement",
+      "never": "Jamais"
+    },
+    "operating_status": {
+      "operating": "En activité",
+      "being_set_up": "En cours de création",
+      "paused": "En pause",
+      "seasonal": "Saisonnier",
+      "temporarily_closed": "Temporairement fermé"
+    },
+    "engagement_type": {
+      "owner": "Propriétaire",
+      "employee": "Salarié",
+      "contractor": "Prestataire",
+      "agency": "Agence",
+      "freelancer": "Freelance",
+      "partner": "Associé",
+      "external_service": "Service externe"
+    },
+    "replaceability": {
+      "easy": "Facile",
+      "hard": "Difficile",
+      "single_point_of_failure": "Irremplaçable"
+    },
+    "tool_category": {
+      "website_platform": "Plateforme de site web",
+      "crm": "CRM",
+      "booking": "Réservations",
+      "payments": "Paiements",
+      "accounting": "Comptabilité",
+      "inventory": "Gestion des stocks",
+      "email_marketing": "E-mailing",
+      "analytics": "Statistiques",
+      "project_management": "Gestion de projet",
+      "customer_support": "Assistance client",
+      "ads_manager": "Gestionnaire de publicités",
+      "design": "Design",
+      "ai_tools": "Outils d’IA",
+      "automation": "Automatisation",
+      "spreadsheets": "Tableurs"
+    },
+    "manual_task": {
+      "answering_messages": "Répondre aux messages",
+      "creating_invoices": "Établir les factures",
+      "posting_content": "Publier du contenu",
+      "checking_stock": "Vérifier le stock",
+      "following_up_leads": "Relancer les prospects",
+      "booking_appointments": "Prendre les rendez-vous",
+      "sending_reminders": "Envoyer des rappels",
+      "reporting": "Établir des rapports",
+      "customer_support": "Assistance client",
+      "data_entry": "Saisie de données",
+      "order_processing": "Traitement des commandes",
+      "other": "Autre"
+    },
+    "legal_entity_type": {
+      "sole_trader": "Entreprise individuelle",
+      "single_member_llc": "Société unipersonnelle (EURL, SASU)",
+      "llc_ltd": "SARL ou SAS",
+      "partnership": "Société de personnes",
+      "corporation": "Société anonyme (SA)",
+      "nonprofit": "Association à but non lucratif",
+      "not_registered": "Non immatriculée",
+      "other": "Autre"
+    },
+    "vat_status": {
+      "registered": "Assujetti à la TVA",
+      "exempt": "Exonéré",
+      "below_threshold": "Sous le seuil (franchise en base)",
+      "not_applicable": "Non applicable",
+      "unsure": "Je ne sais pas"
+    },
+    "growth_blocker": {
+      "not_enough_leads": "Pas assez de prospects",
+      "low_conversion": "Faible conversion",
+      "bad_offer": "Offre peu attractive",
+      "weak_marketing": "Marketing insuffisant",
+      "expensive_ads": "Publicité trop chère",
+      "operational_chaos": "Désorganisation",
+      "lack_of_time": "Manque de temps",
+      "lack_of_staff": "Manque de personnel",
+      "low_profit": "Rentabilité faible",
+      "poor_website": "Site web peu efficace",
+      "poor_retention": "Faible fidélisation",
+      "no_strategy": "Pas de stratégie",
+      "owner_overload": "Surcharge du propriétaire",
+      "cash_flow": "Trésorerie",
+      "product_quality": "Qualité du produit",
+      "other": "Autre"
+    },
+    "expansion_type": {
+      "new_products": "Nouveaux produits",
+      "new_locations": "Nouveaux sites",
+      "new_markets": "Nouveaux marchés",
+      "hiring": "Recrutement",
+      "franchising": "Franchise",
+      "online_expansion": "Développement en ligne",
+      "international": "À l’international",
+      "more_automation": "Plus d’automatisation",
+      "more_paid_ads": "Plus de publicité payante",
+      "none": "Aucun"
+    },
+    "asset_type": {
+      "product_photos": "Photos de produits",
+      "service_photos": "Photos de prestations",
+      "location_photos": "Photos des locaux",
+      "packaging_photos": "Photos d’emballage",
+      "team_photos": "Photos d’équipe",
+      "videos": "Vidéos",
+      "logo": "Logo",
+      "brand_guide": "Charte graphique",
+      "ads": "Publicités",
+      "content_examples": "Exemples de contenu",
+      "testimonials": "Témoignages",
+      "sales_materials": "Supports de vente",
+      "price_list": "Grille tarifaire",
+      "financial_reports": "Rapports financiers",
+      "crm_export": "Export CRM",
+      "analytics_export": "Export de statistiques",
+      "inventory_sheet": "Inventaire des stocks",
+      "sops": "Procédures écrites",
+      "contracts": "Contrats"
+    },
+    "seasonality": {
+      "none": "Aucune",
+      "mild": "Légère",
+      "strong": "Forte",
+      "highly_seasonal": "Très saisonnière"
+    },
+    "demand_trend": {
+      "growing": "En hausse",
+      "stable": "Stable",
+      "declining": "En baisse",
+      "unsure": "Je ne sais pas"
+    },
+    "support_channel": {
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "website_chat": "Chat sur le site web",
+      "social_dm": "Messages sur les réseaux sociaux",
+      "in_person": "En personne",
+      "whatsapp": "WhatsApp",
+      "contact_form": "Formulaire de contact",
+      "none": "Aucun"
+    },
+    "business_type": {
+      "retail_shop": "Commerce de détail",
+      "ecommerce_store": "Boutique en ligne",
+      "restaurant": "Restaurant",
+      "cafe": "Café",
+      "bar": "Bar",
+      "food_production": "Production alimentaire",
+      "salon_beauty": "Salon de beauté",
+      "barber": "Barbier",
+      "gym_fitness": "Salle de sport",
+      "wellness_spa": "Bien-être et spa",
+      "clinic_health": "Cabinet de santé",
+      "construction": "Bâtiment et construction",
+      "trades_services": "Artisanat et dépannage",
+      "cleaning_services": "Nettoyage",
+      "automotive": "Automobile",
+      "professional_services": "Services professionnels",
+      "consulting": "Conseil",
+      "agency_marketing": "Agence marketing",
+      "it_services": "Services informatiques",
+      "software_saas": "Logiciel et SaaS",
+      "education_training": "Éducation et formation",
+      "childcare": "Garde d’enfants",
+      "real_estate": "Immobilier",
+      "logistics": "Logistique",
+      "manufacturing": "Industrie",
+      "wholesale": "Commerce de gros",
+      "agriculture": "Agriculture",
+      "events": "Événementiel",
+      "photography_creative": "Photographie et création",
+      "tourism_accommodation": "Tourisme et hébergement",
+      "transport": "Transport",
+      "nonprofit": "Association",
+      "other": "Autre"
+    },
+    "consent_status": {
+      "explicit_consent": "Consentement explicite",
+      "implied_consent": "Consentement implicite",
+      "no_consent": "Pas de consentement",
+      "unsure": "Je ne sais pas"
+    },
+    "goal_horizon": {
+      "3_months": "3 mois",
+      "6_months": "6 mois",
+      "12_months": "12 mois"
+    },
+    "price_feeling": {
+      "too_low": "Trop bas",
+      "about_right": "Corrects",
+      "too_high": "Trop élevés",
+      "unsure": "Je ne sais pas"
+    },
+    "sales_asset": {
+      "scripts": "Argumentaires",
+      "proposals": "Propositions commerciales",
+      "price_lists": "Grilles tarifaires",
+      "product_pages": "Pages produits",
+      "landing_pages": "Pages d’atterrissage",
+      "presentations": "Présentations",
+      "before_after": "Avant / après",
+      "testimonials": "Témoignages",
+      "none": "Aucun"
+    },
+    "shipping_payer": {
+      "customer_pays": "Le client",
+      "business_pays": "L’entreprise",
+      "free_over_threshold": "Gratuite au-delà d’un montant",
+      "mixed": "Variable"
+    },
+    "deal_stage": {
+      "lead": "Prospect",
+      "qualified": "Qualifié",
+      "proposal_sent": "Proposition envoyée",
+      "won": "Gagné",
+      "lost": "Perdu"
+    }
+  },
+  "same_as_english": {
+    "vocabularies/sells_type/services": "same word in French",
+    "vocabularies/business_stage/stable": "same word in French",
+    "vocabularies/location_type/restaurant": "same word in French",
+    "vocabularies/location_type/salon": "same word in French",
+    "vocabularies/location_type/studio": "same word in French",
+    "vocabularies/market_scope/local": "same word in French",
+    "vocabularies/market_scope/national": "same word in French",
+    "vocabularies/market_scope/international": "same word in French",
+    "vocabularies/offer_kind/service": "same word in French",
+    "vocabularies/price_model/freemium": "loanword used in French",
+    "vocabularies/price_model/commission": "same word in French",
+    "vocabularies/no_inventory_model/dropshipping": "loanword used in French",
+    "vocabularies/digital_stage/prototype": "same word in French",
+    "vocabularies/digital_stage/mature": "same word in French",
+    "vocabularies/revenue_trend/stable": "same word in French",
+    "vocabularies/cost_category/marketing": "loanword used in French",
+    "vocabularies/tool_category/design": "loanword used in French",
+    "vocabularies/asset_type/logo": "same word in French",
+    "vocabularies/demand_trend/stable": "same word in French",
+    "vocabularies/business_type/restaurant": "same word in French",
+    "vocabularies/business_type/bar": "same word in French",
+    "vocabularies/business_type/agriculture": "same word in French",
+    "vocabularies/business_type/transport": "same word in French",
+    "entity_schemas/staff_role/fields/engagement": "same word in French"
+  },
+  "glossary_exceptions": {
+    "vocabularies/quality_process/review_process": {
+      "review": "an internal quality check, not customer reviews"
+    }
+  }
+}

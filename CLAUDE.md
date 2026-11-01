@@ -14,21 +14,23 @@ An AI business operating system for small businesses. It interviews an owner, bu
 
 ## The specs are the source of truth
 
-| File                                 | What it defines                                                   |
-| ------------------------------------ | ----------------------------------------------------------------- |
-| `specs/data-model-v1.md`             | Every entity, field, rule and score. The spine.                   |
-| `specs/question-bank-v1.json`        | 160 questions, 57 vocabularies, 8 entity schemas                  |
-| `specs/question-bank-notes.md`       | Structure, the core 25, branching fixes                           |
-| `specs/ux-spec-v1.md`                | Design tokens, screens, interaction detail                        |
-| `specs/conversation-channel.md`      | Conversation as a fact source; confidence bases                   |
-| `specs/site-audit.md`                | Site audit inputs to the profile                                  |
-| `specs/intake-mockup.html`           | Reference mockup for the intake UI                                |
-| `specs/build-sequence.md`            | 99 numbered steps                                                 |
-| `specs/benchmark-map-v1.json`        | Business type → Eurostat NACE group, size classes, cost treatment |
-| `specs/benchmarks-eurostat-v1.json`  | Eurostat SBS snapshot, dated; the app's only benchmark source     |
-| `specs/review-notifications-v1.json` | Review notification email formats per platform (all unverified)   |
-| `specs/glossary-v1.json`             | Business terms per language; one term, one translation (L-1)      |
-| `scripts/lint_bank.py`               | Validates the question bank. Must pass in CI.                     |
+| File                                   | What it defines                                                     |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| `specs/data-model-v1.md`               | Every entity, field, rule and score. The spine.                     |
+| `specs/question-bank-v1.json`          | 160 questions, 57 vocabularies, 8 entity schemas                    |
+| `specs/question-bank-v1.<locale>.json` | The bank's words per language (L-2): words only, keyed by bank ids  |
+| `specs/glossary-v1.json`               | One term, one translation, per language (rule 2 of TASKS-LANGUAGES) |
+| `specs/question-bank-notes.md`         | Structure, the core 25, branching fixes                             |
+| `specs/ux-spec-v1.md`                  | Design tokens, screens, interaction detail                          |
+| `specs/conversation-channel.md`        | Conversation as a fact source; confidence bases                     |
+| `specs/site-audit.md`                  | Site audit inputs to the profile                                    |
+| `specs/intake-mockup.html`             | Reference mockup for the intake UI                                  |
+| `specs/build-sequence.md`              | 99 numbered steps                                                   |
+| `specs/benchmark-map-v1.json`          | Business type → Eurostat NACE group, size classes, cost treatment   |
+| `specs/benchmarks-eurostat-v1.json`    | Eurostat SBS snapshot, dated; the app's only benchmark source       |
+| `specs/review-notifications-v1.json`   | Review notification email formats per platform (all unverified)     |
+| `specs/glossary-v1.json`               | Business terms per language; one term, one translation (L-1)        |
+| `scripts/lint_bank.py`                 | Validates the question bank. Must pass in CI.                       |
 
 If a spec and this file disagree, the spec wins. If the spec is wrong, change the spec in the same commit — don't work around it in code.
 

@@ -573,6 +573,35 @@ export const bankEntitySchemas = pgTable(
   (t) => [uniqueIndex("bank_entity_schemas_pk").on(t.bank_version, t.key)],
 );
 
+/**
+ * L-2 (TASKS-LANGUAGES.md): a language's words for one bank version — the
+ * overlay file beside the bank (specs/question-bank-v1.<locale>.json),
+ * stored verbatim under the version it was written for, so an old
+ * version's words stay with its questions. Words only: the structure
+ * (codes, conditions, writes_to, types) is the English bank's alone.
+ * English has no row; it is the bank itself.
+ */
+export const bankOverlays = pgTable(
+  "bank_overlays",
+  {
+    bank_version: text("bank_version")
+      .notNull()
+      .references(() => bankVersions.version),
+    locale: text("locale").notNull(),
+    /** The overlay's questions / entity_schemas / vocabularies, as the file holds them. */
+    words: jsonb("words").notNull(),
+    /** sha256 of the overlay file, for byte-level provenance. */
+    source_hash: text("source_hash").notNull(),
+  },
+  (t) => [
+    uniqueIndex("bank_overlays_pk").on(t.bank_version, t.locale),
+    check(
+      "bank_overlays_locale_known",
+      sql`${t.locale} in ('es-ES', 'de-DE', 'fr-FR', 'hu-HU', 'ru-RU', 'zh-Hans')`,
+    ),
+  ],
+);
+
 export const utteranceRole = pgEnum("utterance_role", ["owner", "system"]);
 
 export const utteranceIntent = pgEnum("utterance_intent", [

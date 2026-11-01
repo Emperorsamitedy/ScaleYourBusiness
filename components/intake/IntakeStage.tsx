@@ -20,6 +20,7 @@
 // first question rises when state arrives from a single POST on mount.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type {
   AnswerAction,
   AnswerResponse,
@@ -45,36 +46,43 @@ import {
   leftInArea,
   previousQuestion,
 } from "./record";
+import { num } from "../sheet/num";
+import { INTAKE_ERROR_CODES, useIntakeWords } from "./words";
 
 type Phase = "boot" | "boot_error" | "answering" | "leaving";
 
 /** The closing readout renders completeness as a word, never a percentage. */
-const completenessWord = (overall: number): string => (overall >= 0.7 ? "good" : "moderate");
+const completenessWord = (overall: number): "good" | "moderate" =>
+  overall >= 0.7 ? "good" : "moderate";
+
+/** A refusal from the intake routes: its code worded in the person's language (L-2). */
+interface ErrorPayload {
+  error?: string;
+  code?: string;
+  values?: Record<string, string | number>;
+}
 
 function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> }) {
+  const t = useTranslations("intake.done");
+  const { locale } = useIntakeWords();
   return (
     <article className="ix-q sheet ix-done" aria-labelledby="ix-done-h">
-      <p className="ix-cap">The interview · complete</p>
+      <p className="ix-cap">{t("cap")}</p>
       <h2 className="ix-prompt" id="ix-done-h">
-        The interview is complete.
+        {t("title")}
       </h2>
-      <p className="ix-done-lede">
-        I have the record I need for a first read on the business. Deeper questions come later, once
-        you have seen the first report.
-      </p>
+      <p className="ix-done-lede">{t("lede")}</p>
       <dl className="ix-readout">
-        <dt className="ix-cap">Answers on record</dt>
-        <dd className="fig">{readout.answered}</dd>
-        <dt className="ix-cap">Gaps to revisit</dt>
-        <dd className="fig">{readout.gaps}</dd>
-        <dt className="ix-cap">Profile completeness</dt>
-        <dd>{completenessWord(readout.completeness)}</dd>
-        <dt className="ix-cap">Next</dt>
-        <dd>deciding how carefully to move</dd>
+        <dt className="ix-cap">{t("answers")}</dt>
+        <dd className="fig">{num(readout.answered, 0, locale)}</dd>
+        <dt className="ix-cap">{t("gaps")}</dt>
+        <dd className="fig">{num(readout.gaps, 0, locale)}</dd>
+        <dt className="ix-cap">{t("completeness")}</dt>
+        <dd>{t(completenessWord(readout.completeness))}</dd>
+        <dt className="ix-cap">{t("next")}</dt>
+        <dd>{t("nextValue")}</dd>
       </dl>
-      <p className="ix-done-lede">
-        Leave an email and I&rsquo;ll give you a link back to this profile. No password, no account.
-      </p>
+      <p className="ix-done-lede">{t("keep")}</p>
       <KeepAccess />
     </article>
   );
@@ -107,17 +115,29 @@ export function IntakeStage() {
   // When this page opened, for the masthead's session clock.
   const [openedAt] = useState(() => Date.now());
   const [pauseOpen, setPauseOpen] = useState(false);
+  const t = useTranslations("intake");
+  const { tr, locale } = useIntakeWords();
+  // The words are read inside callbacks; a ref keeps them current without re-creating every callback.
+  const words = useRef({ tr, locale });
+  words.current = { tr, locale };
+  /** A server refusal in the person's language: its code when the catalogue has it. */
+  const refusal = useCallback((payload: ErrorPayload | null, fallback: string): string => {
+    const w = words.current.tr;
+    const code = payload?.code;
+    if (!code || !INTAKE_ERROR_CODES.has(code)) return w(fallback);
+    const values = payload?.values ?? {};
+    const problem = w(`error.${code}`, values);
+    return typeof values.field === "string"
+      ? w("error.field", { field: values.field, problem })
+      : problem;
+  }, []);
 
   // P1-57: arriving from a resume link. An expired link still lands here
   // with a usable intake rather than an apology page.
   useEffect(() => {
     const flag = new URLSearchParams(window.location.search).get("resume");
-    if (flag === "ok") setResumeNotice("Resumed from your link. Earlier answers are on record.");
-    if (flag === "expired") {
-      setResumeNotice(
-        "That link had expired, so this is a new profile. You can get a new link at the end.",
-      );
-    }
+    if (flag === "ok") setResumeNotice(words.current.tr("stage.resumed"));
+    if (flag === "expired") setResumeNotice(words.current.tr("stage.expired"));
     if (flag) window.history.replaceState({}, "", window.location.pathname);
   }, []);
 
@@ -214,29 +234,34 @@ export function IntakeStage() {
         await departed;
         if (res.ok) {
           const { chip, state: next } = (await res.json()) as AnswerResponse;
+          void chip;
           const newest = next.record.facts[0] ?? null;
           setFreshKey(newest?.key ?? null);
+          const w = words.current;
           setAnnounce(
             newest
-              ? `Recorded. ${factLabel(newest)}: ${factValue(newest).full}.`
-              : `Recorded: ${chip.display}.`,
+              ? w.tr("stage.recorded", {
+                  label: factLabel(newest),
+                  value: factValue(newest, w.tr, w.locale).full,
+                })
+              : w.tr("stage.recordedPlain"),
           );
           adopt(next, focusSection);
           setPhase("answering");
         } else {
-          const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+          const payload = (await res.json().catch(() => null)) as ErrorPayload | null;
           setPhase("answering");
-          setServerError(payload?.error ?? "Something went wrong on our side. Try again.");
+          setServerError(refusal(payload, "error.server"));
         }
       } catch {
         await departed;
         setPhase("answering");
-        setServerError("I couldn't reach the server. Check your connection and try again.");
+        setServerError(words.current.tr("error.unreachable"));
       } finally {
         end();
       }
     },
-    [adopt, begin, end, focusSection],
+    [adopt, begin, end, focusSection, refusal],
   );
 
   /** Read a state with a preference: an area from the tiles, or one question. */
@@ -247,13 +272,13 @@ export function IntakeStage() {
       try {
         const res = await fetch(`/api/intake?${query}`);
         if (!res.ok) {
-          setServerError("I couldn't open that. Try again.");
+          setServerError(words.current.tr("error.open"));
           return;
         }
         adopt((await res.json()) as IntakeState, focus);
         setPhase("answering");
       } catch {
-        setServerError("I couldn't reach the server. Check your connection and try again.");
+        setServerError(words.current.tr("error.unreachable"));
       } finally {
         end();
       }
@@ -342,23 +367,23 @@ export function IntakeStage() {
           body: JSON.stringify({ question_id: questionId, action: { kind: "reopen", reason } }),
         });
         if (!res.ok) {
-          const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-          setServerError(payload?.error ?? "I couldn't reopen that. Try again.");
+          const payload = (await res.json().catch(() => null)) as ErrorPayload | null;
+          setServerError(refusal(payload, "error.reopen"));
           return;
         }
         const { state: next } = (await res.json()) as AnswerResponse;
         track({ kind: "reopened", question_id: questionId });
         setFreshKey(null);
-        setAnnounce("Reopened. The question is back on the left.");
+        setAnnounce(words.current.tr("stage.reopened"));
         adopt(next, null);
         setPhase("answering");
       } catch {
-        setServerError("I couldn't reach the server. Check your connection and try again.");
+        setServerError(words.current.tr("error.unreachable"));
       } finally {
         end();
       }
     },
-    [adopt, begin, end, track],
+    [adopt, begin, end, track, refusal],
   );
 
   const clearServerError = useCallback((): void => {
@@ -380,8 +405,8 @@ export function IntakeStage() {
           body: JSON.stringify({ finding_id: findingId, choice }),
         });
         if (!res.ok) {
-          const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-          setServerError(payload?.error ?? "I couldn't record that. Try again.");
+          const payload = (await res.json().catch(() => null)) as ErrorPayload | null;
+          setServerError(refusal(payload, "error.record"));
           return;
         }
         const { reopened, state: next } = (await res.json()) as ReconcileResponse;
@@ -390,13 +415,13 @@ export function IntakeStage() {
         adopt(next, null);
         setPhase("answering");
       } catch {
-        setServerError("I couldn't reach the server. Check your connection and try again.");
+        setServerError(words.current.tr("error.unreachable"));
       } finally {
         setReconcileBusy(false);
         end();
       }
     },
-    [adopt, begin, end, track],
+    [adopt, begin, end, track, refusal],
   );
 
   // The panel surfaces contradictions and implausibilities; plain gaps
@@ -440,16 +465,13 @@ export function IntakeStage() {
         <section id="ix-pause-panel" className="ix-pause-panel sheet" aria-labelledby="ix-pause-h">
           <div>
             <h2 className="ix-cap" id="ix-pause-h">
-              Pause · finish later
+              {t("pause.title")}
             </h2>
-            <p className="ix-pause-lede">
-              Everything so far is already on record. Leave an email and I&rsquo;ll give you a link
-              that reopens this profile on any device. No password, no account.
-            </p>
+            <p className="ix-pause-lede">{t("pause.lede")}</p>
           </div>
           <KeepAccess />
           <button type="button" className="ix-link" onClick={() => setPauseOpen(false)}>
-            Keep going
+            {t("pause.keepGoing")}
           </button>
         </section>
       )}
@@ -458,30 +480,28 @@ export function IntakeStage() {
           areas={areas}
           active={activeSection}
           busy={phase !== "answering"}
-          connector={connectorLegend(state.record.sources)}
+          connector={connectorLegend(state.record.sources, tr)}
           onChoose={chooseArea}
         />
       )}
       {resumeNotice && <p className="ix-notice">{resumeNotice}</p>}
       {focusSection && question && (
         <p className="ix-notice">
-          Asking from {areaName(focusSection)} while it has questions open.{" "}
+          {t("stage.focus", { area: areaName(focusSection, tr) })}{" "}
           <button type="button" className="ix-link" onClick={() => setFocusSection(null)}>
-            Back to the usual order
+            {t("stage.focusBack")}
           </button>
         </p>
       )}
       <main className="ix-main">
-        <div className="ix-left" aria-live="polite" aria-label="Current question">
+        <div className="ix-left" aria-live="polite" aria-label={t("stage.current")}>
           {phase === "boot_error" && (
             <article className="ix-q sheet ix-plain">
-              <h2 className="ix-prompt">I couldn&rsquo;t reach the server.</h2>
-              <p className="ix-done-lede">
-                Nothing was lost. Try again and I&rsquo;ll pick up where we left off.
-              </p>
+              <h2 className="ix-prompt">{t("stage.bootTitle")}</h2>
+              <p className="ix-done-lede">{t("stage.bootLede")}</p>
               <div className="ix-actions">
                 <button type="button" className="act solid" onClick={() => void boot()}>
-                  Try again &rarr;
+                  {t("stage.retry")} &rarr;
                 </button>
               </div>
             </article>
@@ -517,7 +537,7 @@ export function IntakeStage() {
           )}
         </div>
         {state && (
-          <aside className="ix-right" aria-label="The record as it stands">
+          <aside className="ix-right" aria-label={t("stage.record")}>
             {state.live_reading && <LiveReading reading={state.live_reading} />}
             <Readiness fraction={state.readiness} />
             {state.area_record && (

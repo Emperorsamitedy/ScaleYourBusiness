@@ -7,13 +7,15 @@
 // language and currency change in settings.
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { IntakeStage } from "@/components/intake/IntakeStage";
 import { FirstStepScreen } from "@/components/locale/FirstStepScreen";
 import { pickerContext } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Setting up the record — SYB",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("intake.meta");
+  return { title: t("title") };
+}
 
 export default async function IntakePage() {
   const picker = await pickerContext();

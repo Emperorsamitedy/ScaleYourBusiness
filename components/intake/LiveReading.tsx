@@ -10,9 +10,14 @@
 // owner stated a margin of their own, it is marked on the dial as theirs.
 // The card is not drawn at all when no figure can be computed.
 
+"use client";
+
+import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { LiveReading as Reading } from "@/lib/intake/types";
 import { dialPoint, readinessCells } from "./record";
 import { num } from "../sheet/num";
+import { useIntakeWords } from "./words";
 
 const CX = 110;
 const CY = 108;
@@ -31,10 +36,20 @@ export function LiveReading({ reading }: { reading: Reading }) {
   const ticks = Array.from({ length: 21 }, (_, i) => i * 5);
   const stated = reading.stated_pct;
   const statedAt = stated !== null ? dialPoint(stated, CX, CY, R + 9) : null;
+  const t = useTranslations("intake.live");
+  const { locale } = useIntakeWords();
+  const fig = (chunks: ReactNode) => <span className="fig">{chunks}</span>;
+  const value = num(reading.value_pct, 1, locale);
+  const dialWords = {
+    label: reading.label,
+    value,
+    min: num(0, 0, locale),
+    max: num(100, 0, locale),
+  };
   return (
     <section className="ix-card" aria-labelledby="ix-live-h">
       <header className="ix-card-head">
-        <p className="ix-cap">Live reading · moves as you answer</p>
+        <p className="ix-cap">{t("cap")}</p>
         <h2 className="ix-card-title" id="ix-live-h">
           {reading.label}
         </h2>
@@ -44,9 +59,11 @@ export function LiveReading({ reading }: { reading: Reading }) {
           className="ix-dial"
           viewBox="0 0 220 128"
           role="img"
-          aria-label={`${reading.label} ${num(reading.value_pct, 1)} percent on a 0 to 100 dial${
-            stated !== null ? `; you stated ${num(stated, 1)} percent` : ""
-          }`}
+          aria-label={
+            stated !== null
+              ? t("dialStated", { ...dialWords, stated: num(stated, 1, locale) })
+              : t("dial", dialWords)
+          }
         >
           <path className="ix-dial-track" d={arc(0, 100, R)} />
           {ticks.map((t) => {
@@ -73,7 +90,7 @@ export function LiveReading({ reading }: { reading: Reading }) {
                 y={t === 50 ? p.y - 5 : p.y + 16}
                 textAnchor={t === 0 ? "start" : t === 100 ? "end" : "middle"}
               >
-                {t}
+                {num(t, 0, locale)}
               </text>
             );
           })}
@@ -83,21 +100,24 @@ export function LiveReading({ reading }: { reading: Reading }) {
         </svg>
         <div className="ix-live-fig">
           <p className="ix-big fig">
-            {num(reading.value_pct, 1)} <span className="ix-big-unit">%</span>
+            {value} <span className="ix-big-unit">%</span>
           </p>
-          <p className="ix-note">no reference range yet</p>
+          <p className="ix-note">{t("noRange")}</p>
           {stated !== null && (
             <p className="ix-note">
-              <span className="ix-stated-sw" aria-hidden="true" /> you stated{" "}
-              <span className="fig">{num(stated, 1)} %</span>
+              <span className="ix-stated-sw" aria-hidden="true" />{" "}
+              {t.rich("stated", { value: num(stated, 1, locale), fig })}
             </p>
           )}
         </div>
       </div>
       <p className="ix-card-foot ix-note">
-        <strong>Derived</strong> · {reading.formula} · from{" "}
-        <span className="fig">{reading.inputs}</span> recorded{" "}
-        {reading.inputs === 1 ? "fact" : "facts"}
+        {t.rich("foot", {
+          formula: reading.formula,
+          inputs: reading.inputs,
+          fig,
+          strong: (chunks) => <strong>{chunks}</strong>,
+        })}
       </p>
     </section>
   );
@@ -107,13 +127,15 @@ export function Readiness({ fraction }: { fraction: number }) {
   const cells = 25;
   const filled = readinessCells(fraction, cells);
   const pct = Math.round(Math.min(1, Math.max(0, fraction)) * 100);
+  const t = useTranslations("intake.live");
+  const { locale } = useIntakeWords();
   return (
     <section className="ix-card" aria-labelledby="ix-ready-h">
       <header className="ix-card-head row">
         <h2 className="ix-cap" id="ix-ready-h">
-          Report readiness
+          {t("readiness")}
         </h2>
-        <p className="ix-ready-pct fig">{pct} %</p>
+        <p className="ix-ready-pct fig">{t("readinessPct", { pct: num(pct, 0, locale) })}</p>
       </header>
       <div
         className="ix-cells"
@@ -127,7 +149,7 @@ export function Readiness({ fraction }: { fraction: number }) {
           <span key={i} className={i < filled ? "ix-cell on" : "ix-cell"} />
         ))}
       </div>
-      <p className="ix-note">each answer narrows the ranges in your report</p>
+      <p className="ix-note">{t("readinessNote")}</p>
     </section>
   );
 }

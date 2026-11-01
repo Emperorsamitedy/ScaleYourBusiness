@@ -10,19 +10,21 @@
 import { useEffect, useState } from "react";
 import type { RecordFact } from "@/lib/intake/types";
 import { tapeEntries } from "./record";
+import { useIntakeWords } from "./words";
 
 export function Tape({ facts }: { facts: readonly RecordFact[] }) {
   // The clock is read in the browser only, so server and client render alike.
   const [now, setNow] = useState<Date | null>(null);
+  const { tr, locale } = useIntakeWords();
   useEffect(() => {
     setNow(new Date());
   }, [facts]);
   if (facts.length === 0 || now === null) return null;
-  const entries = tapeEntries(facts, now);
+  const entries = tapeEntries(facts, now, tr, locale);
   return (
-    <section className="ix-tape" aria-label="The tape: facts on file, newest first">
+    <section className="ix-tape" aria-label={tr("tape.label")}>
       <span className="ix-tape-head" aria-hidden="true">
-        Tape &#9656;
+        {tr("tape.head")} &#9656;
       </span>
       <ol className="ix-tape-line" tabIndex={0}>
         {entries.map((e) => (

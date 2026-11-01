@@ -167,6 +167,29 @@ Three rules held throughout:
 3. **Section 14 asset handling.** Currently one upload question plus a checklist of what exists. Whether v1 parses uploads or merely stores them is open decision 5 from the data model spec.
 4. **Entity list minimums.** Only `offer` has `min_items: 1`. Whether costs and channels should also require at least one entry is a UX call — requiring them improves data quality and increases abandonment.
 
+7b. **Language overlays (L-2, 2026-11-01).** The owner opened six languages
+   beside English (TASKS-LANGUAGES.md). The English bank stays the single
+   source of structure; each language's words live in an overlay beside it,
+   `question-bank-v1.<locale>.json` — es-ES, de-DE, fr-FR, hu-HU, ru-RU,
+   zh-Hans. An overlay holds only words, keyed by the bank's own ids:
+   `questions.<id>.prompt`, `.help_text`, `.option_labels.<code>`;
+   `entity_schemas.<name>.label`, `.fields.<key>`; `vocabularies.<id>.<code>`
+   (a code's English is its humanised code unless a question's
+   `option_labels` gives its own words). Codes, conditions, `writes_to` and
+   types never appear in one, and answers are stored as codes and values
+   exactly as before — a translation changes what a person reads, never a
+   fact. Each overlay names the bank version it was written for and is
+   loaded with that version (`bank_overlays`); changing the English bank
+   means bumping the version and the overlays with it. `lint_bank.py` holds
+   every overlay to the bank: every string present, nothing unknown, the
+   English figures and placeholders kept, nothing left in English beyond
+   names, acronyms and listed cognates, the glossary's term
+   (`glossary-v1.json`) wherever English uses one, and each language's
+   typography. Two lists in an overlay are the lint's, not words:
+   `same_as_english` (a cognate, with its reason) and `glossary_exceptions`
+   (the English word used in another sense, with its reason). Each language
+   stays in review until its native reviewer has read its file.
+
 ---
 
 ## 8. Next step

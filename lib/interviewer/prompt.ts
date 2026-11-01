@@ -11,10 +11,20 @@
 // Determinism matters at the byte level: the bank block is built with a
 // fixed key order and a lexicographic id sort, and must never embed
 // timestamps, ids, or anything per-request.
+//
+// L-2 (TASKS-LANGUAGES.md, rule 5): the owner may read the interview in
+// another language. The cached prefix is then per language — the same
+// instructions, and a bank block that names the language and carries each
+// question's words in it (the overlay) beside the English. One cache entry
+// per language, each byte-stable across turns and profiles. English's
+// prefix is exactly what it was before L-2. The model still only chooses an
+// id; what the owner reads is the overlay's text, never the model's.
 
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { bankQuestions, bankVersions } from "../../db/schema";
+import { loadBankWords } from "../bank/words";
+import type { AppLocale } from "../i18n/locales";
 
 export interface PromptBankQuestion {
   id: string;
@@ -24,12 +34,27 @@ export interface PromptBankQuestion {
   cost: number;
   prompt_en: string;
   unlocks: readonly string[];
+  /** The prompt as the owner reads it, when their language is not English (L-2). */
+  prompt_local?: string;
 }
 
 export interface InterviewerBank {
   version: string;
   questions: readonly PromptBankQuestion[];
+  /** The language the owner reads the interview in; English when absent. */
+  locale?: AppLocale;
 }
+
+/** Each language's English name, for the model: what the owner reads. */
+export const LANGUAGE_FOR_MODEL: Readonly<Record<AppLocale, string>> = {
+  en: "English",
+  "es-ES": "Spanish (Spain)",
+  "de-DE": "German",
+  "fr-FR": "French (France)",
+  "hu-HU": "Hungarian",
+  "ru-RU": "Russian",
+  "zh-Hans": "Simplified Chinese",
+};
 
 export class PromptBuildError extends Error {
   constructor(message: string) {
@@ -38,8 +63,12 @@ export class PromptBuildError extends Error {
   }
 }
 
-/** Load the current bank in prompt-ready, deterministically ordered form. */
-export async function loadInterviewerBank(): Promise<InterviewerBank> {
+/**
+ * Load the current bank in prompt-ready, deterministically ordered form —
+ * with the owner's language's words beside each English prompt when that
+ * language is not English.
+ */
+export async function loadInterviewerBank(locale: AppLocale = "en"): Promise<InterviewerBank> {
   const [current] = await db.select().from(bankVersions).where(eq(bankVersions.is_current, true));
   if (!current) throw new PromptBuildError("no current bank version — run the bank loader first");
   const rows = await db
@@ -57,7 +86,15 @@ export async function loadInterviewerBank(): Promise<InterviewerBank> {
       unlocks: (r.unlocks as string[] | null) ?? [],
     }))
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  return { version: current.version, questions };
+  if (locale === "en") return { version: current.version, questions };
+  const words = await loadBankWords(locale);
+  // An overlay missing for this version leaves the interview in English.
+  if (words.locale === "en") return { version: current.version, questions };
+  return {
+    version: current.version,
+    locale,
+    questions: questions.map((q) => ({ ...q, prompt_local: words.prompt(q.id, q.prompt_en) })),
+  };
 }
 
 const INSTRUCTIONS = `You are the interviewer for a small-business intake. Each turn you choose exactly ONE next question to ask the owner.
@@ -73,18 +110,40 @@ Respond with JSON only: {"next_question_id": "<id>", "selection_reason": "<sente
 The full question bank follows, one JSON object per line (id, section, writes_to, priority, cost, unlocks, prompt).`;
 
 function bankBlock(bank: InterviewerBank): string {
+  const local = bank.locale && bank.locale !== "en" ? bank.locale : null;
   const lines = bank.questions.map((q) =>
-    JSON.stringify({
-      id: q.id,
-      section: q.section,
-      writes_to: q.writes_to,
-      priority: q.priority,
-      cost: q.cost,
-      unlocks: q.unlocks,
-      prompt: q.prompt_en,
-    }),
+    JSON.stringify(
+      local
+        ? {
+            id: q.id,
+            section: q.section,
+            writes_to: q.writes_to,
+            priority: q.priority,
+            cost: q.cost,
+            unlocks: q.unlocks,
+            prompt: q.prompt_en,
+            prompt_local: q.prompt_local ?? q.prompt_en,
+          }
+        : {
+            id: q.id,
+            section: q.section,
+            writes_to: q.writes_to,
+            priority: q.priority,
+            cost: q.cost,
+            unlocks: q.unlocks,
+            prompt: q.prompt_en,
+          },
+    ),
   );
-  return `QUESTION BANK ${bank.version} (${bank.questions.length} questions)\n${lines.join("\n")}`;
+  const head = `QUESTION BANK ${bank.version} (${bank.questions.length} questions)`;
+  if (!local) return `${head}\n${lines.join("\n")}`;
+  const name = LANGUAGE_FOR_MODEL[local];
+  // Per language, byte-stable: nothing here varies by turn or by profile.
+  return [
+    `${head} · LANGUAGE ${local}`,
+    `The owner reads this interview in ${name}. Each question is shown to them exactly as its prompt_local reads; the English prompt is the source it was translated from. Their answers so far may be in ${name}. Choose by id exactly as you would in English. Write selection_reason in English: it is an audit record, never shown to the owner.`,
+    ...lines,
+  ].join("\n");
 }
 
 export interface SystemBlock {

@@ -1,0 +1,1026 @@
+{
+  "about": "Hungarian words for question bank 1.9.0, keyed by the bank's ids. A draft by Claude from specs/glossary-v1.json; in review until the native reviewer checks it (TASKS-LANGUAGES.md, L-7).",
+  "locale": "hu-HU",
+  "bank_version": "1.9.0",
+  "questions": {
+    "1.1": { "prompt": "Mi a vállalkozás neve?" },
+    "1.1b": {
+      "prompt": "Melyik országban működik a vállalkozás?",
+      "help_text": "Ez befolyásolja az adózást, a reklámszabályokat és az adatvédelmi követelményeket."
+    },
+    "1.2": { "prompt": "Milyen típusú vállalkozásról van szó?" },
+    "1.3": { "prompt": "Néhány mondatban: mivel foglalkozik a vállalkozás?" },
+    "1.4": {
+      "prompt": "Mit értékesít a vállalkozás?",
+      "help_text": "Jelöljön be mindent, ami érvényes."
+    },
+    "1.4.4": { "prompt": "Ezek közül melyik hozza a legtöbb pénzt?" },
+    "1.5": { "prompt": "Jelenleg milyen szakaszban tart a vállalkozás?" },
+    "1.5b": {
+      "prompt": "Mikor kezdte meg működését a vállalkozás?",
+      "help_text": "Elég egy hozzávetőleges hónap."
+    },
+    "1.5.1": { "prompt": "Jelenleg mire összpontosít leginkább?" },
+    "1.6": { "prompt": "Hányan dolgoznak a vállalkozásban, Önt is beleszámítva?" },
+    "1.6a": {
+      "prompt": "Hogyan jellemezné a vállalkozás méretét?",
+      "help_text": "Az Ön saját megítélése számít, nem egy létszám szerinti szabály. Ebből döntöm el, mennyi részletet érdemes megmutatnom Önnek.",
+      "option_labels": {
+        "solo": "Csak én",
+        "small": "Egy kis csapat",
+        "medium": "Közepes méretű vállalkozás",
+        "large": "Nagyobb vállalkozás"
+      }
+    },
+    "2.1": { "prompt": "A vállalkozás online működik, fizikai helyszínen, vagy mindkét módon?" },
+    "2.1.1.1": { "prompt": "Hány fizikai helyszín van?" },
+    "2.1.1.2": { "prompt": "Milyen jellegű helyről van szó?" },
+    "2.1.1.3": { "prompt": "Az ügyfelek felkeresik ezt a helyszínt?" },
+    "2.1.1.7": {
+      "prompt": "Mi a nyitvatartási idő?",
+      "help_text": "Naponként, ahogy az ajtóra kiírná – pl. H–Cs 20:00–01:00, P–Szo 18:00–02:00, V zárva."
+    },
+    "2.1.1.7a": {
+      "prompt": "Nagyjából mennyibe kerül Önnek egy nyitvatartási óra – a műszakban lévő személyzet és az energia együtt?",
+      "help_text": "Elég egy hozzávetőleges összeg. Ebből látjuk, hogy az első és az utolsó órák kitermelik-e a saját költségüket."
+    },
+    "2.1.1.8": {
+      "prompt": "Mi szab határt annak, mennyit tud kiszolgálni? Például az ülőhelyek, a napi időpontok száma vagy a tárolóhely."
+    },
+    "2.1.2.1": { "prompt": "Mi a weboldala címe?" },
+    "2.1.2.2": { "prompt": "Az ügyfelek közvetlenül a weboldalon is vásárolhatnak?" },
+    "2.1.2.4": { "prompt": "Mely platformokon értékesít vagy tesz közzé?" },
+    "2.2.1": { "prompt": "Helyben, országosan vagy nemzetközileg értékesít?" },
+    "2.2.3": { "prompt": "Mire szolgál elsősorban a weboldal?" },
+    "3.1": {
+      "prompt": "Sorolja fel, mit értékesít a vállalkozás.",
+      "help_text": "Vegyen fel minden terméket vagy szolgáltatást. Kezdheti a legfontosabbakkal, és később bővítheti a listát."
+    },
+    "3.2": { "prompt": "Melyikből ad el a legtöbbet?" },
+    "3.3": { "prompt": "Melyiknél a legnagyobb az árrés?" },
+    "3.4": { "prompt": "Melyik értékesítését szeretné leginkább növelni?" },
+    "1.4.1.2": { "prompt": "Tart készletet a fizikai termékeiből?" },
+    "1.4.1.2.1a": { "prompt": "Hogyan követi a készletszintet?" },
+    "1.4.1.2.1b": { "prompt": "Milyen gyakran tölti fel a készletet?" },
+    "1.4.1.2.1c": { "prompt": "Mely termékek fogynak ki a leggyakrabban?" },
+    "1.4.1.2.1d": {
+      "prompt": "Mely termékek fogynak lassan, vagy állnak eladatlanul?",
+      "help_text": "A lassan forgó készletben lekötött pénz az egyik leggyakoribb rejtett probléma."
+    },
+    "1.4.1.2.1e": { "prompt": "Mennyibe kerül Önnek havonta a tárolás?" },
+    "1.4.1.2.1f": {
+      "prompt": "Nagyjából mennyit ér a sérült, lejárt vagy eladhatatlan készlete?",
+      "help_text": "Ha nincs ilyen, írjon 0-t."
+    },
+    "1.4.1.2.2": { "prompt": "Ha nem tart készletet, hogyan jutnak el a termékek az ügyfélhez?" },
+    "1.4.1.3": { "prompt": "Kik a termékei beszállítói?" },
+    "1.4.1.4": { "prompt": "Ön maga készíti vagy szabja személyre a termékeket?" },
+    "1.4.1.4a": { "prompt": "Mennyit tud hetente előállítani?" },
+    "1.4.1.4b": { "prompt": "Mi lassítja leginkább a termelést?" },
+    "1.4.1.5": { "prompt": "Szállít termékeket az ügyfeleknek?" },
+    "1.4.1.5a": { "prompt": "Mely futárszolgálatokat használja?" },
+    "1.4.1.5b": { "prompt": "Ki fizeti a szállítást?" },
+    "1.4.1.5c": {
+      "prompt": "Milyen gondok szoktak lenni a visszaküldésekkel vagy az elveszett, sérült csomagokkal, ha vannak?"
+    },
+    "1.4.1.6": { "prompt": "Saját maga szállít ki helyben?" },
+    "1.4.1.6a": { "prompt": "Mik a helyi kiszállítás fő problémái?" },
+    "1.4.2.2": {
+      "prompt": "Mondja el lépésről lépésre, hogyan zajlik egy szolgáltatás az első kapcsolatfelvételtől a befejezésig."
+    },
+    "1.4.2.3": { "prompt": "Foglalnak időpontot az ügyfelek?" },
+    "1.4.2.3a": { "prompt": "Hogyan foglalnak, és milyen eszközzel?" },
+    "1.4.2.3b": { "prompt": "Hetente hány időpontot tud vállalni?" },
+    "1.4.2.3c": {
+      "prompt": "Mekkora gondot okoznak a meg nem jelenések és a késői lemondások, ha egyáltalán?"
+    },
+    "1.4.2.4": {
+      "prompt": "El tudná végezni valaki más a szolgáltatást, ha Ön nem érne rá?",
+      "help_text": "Ez az egyik legnagyobb kockázat egy szolgáltató vállalkozásban."
+    },
+    "1.4.2.5": { "prompt": "Hogyan biztosítja az egyenletes szolgáltatási minőséget?" },
+    "1.4.3.1": { "prompt": "Milyen digitális termékről van szó?" },
+    "1.4.3.2": { "prompt": "Milyen szakaszban tart a termék?" },
+    "1.4.3.4a": { "prompt": "Hány regisztrált felhasználó van?" },
+    "1.4.3.4b": { "prompt": "Közülük hányan fizetnek?" },
+    "1.4.3.4c": { "prompt": "Mekkora a havi lemorzsolódási arány, ha tudja?" },
+    "1.4.3.4d": { "prompt": "Miért szoktak lemondani a felhasználók?" },
+    "1.4.3.5a": { "prompt": "Milyen technológiára épül, és hol van a tárhelye?" },
+    "1.4.3.5b": {
+      "prompt": "Mely hibák vagy hiányzó funkciók fogják vissza a növekedést, ha vannak ilyenek?"
+    },
+    "4.1": {
+      "prompt": "Jelenleg érkezik pénz a vállalkozásba?",
+      "help_text": "Bármilyen eladás számít, akkor is, ha a vállalkozás még nem nyereséges."
+    },
+    "4.1a": { "prompt": "Nagyjából mekkora a havi árbevétel?" },
+    "4.1b": { "prompt": "Havonta hány eladás vagy rendelés van?" },
+    "4.1c": { "prompt": "Az árbevétel nő, stabil vagy csökken?" },
+    "4.1d": { "prompt": "Az ügyfelek nagyjából mekkora része vásárol újra?" },
+    "4.1e": {
+      "prompt": "Melyik volt a legjobb és melyik a legrosszabb hónapja, és nagyjából mekkora összeggel?",
+      "help_text": "Így teljes nyilvántartás nélkül is van két pontom, amelyből kiindulhatok."
+    },
+    "4.1f": { "prompt": "Szezonális a vállalkozás?" },
+    "4.1n1": { "prompt": "Mi hiányzik még ahhoz, hogy elkezdhesse az értékesítést?" },
+    "4.1n2": { "prompt": "Hogyan tervezi megszerezni az első ügyfeleit?" },
+    "4.1p": { "prompt": "Miért nem hoz már pénzt a vállalkozás?" },
+    "4.2a": { "prompt": "Hogyan fizetnek az ügyfelek?" },
+    "4.2b": { "prompt": "Melyik fizetési szolgáltatót használja?" },
+    "4.2c": { "prompt": "Mi a visszatérítési szabályzata?" },
+    "4.3a": { "prompt": "Változtatott az árain? Mi változott, és miért?" },
+    "4.3b": {
+      "prompt": "Úgy érzi, az árai túl alacsonyak, túl magasak, vagy nagyjából megfelelők?"
+    },
+    "5.1": {
+      "prompt": "Mit fizet a vállalkozás havonta, az eladásoktól függetlenül?",
+      "help_text": "Bérleti díj, fizetések, szoftverek, biztosítás, hitelek, előfizetések és így tovább."
+    },
+    "5.2": {
+      "prompt": "Mely költségek nőnek, ha többet ad el – azon a teljesítési költségen felül, amelyet termékenként már megadott?"
+    },
+    "5.3a": {
+      "prompt": "Mekkora a bruttó árrése?",
+      "help_text": "Az egyes eladásokból a közvetlen teljesítési költség levonása után megmaradó rész, százalékban. Ha még sosem számolta ki, jelezze, hogy nem tudja."
+    },
+    "5.3b": { "prompt": "Vannak pénzáramlási gondjai vagy későn fizető ügyfelei?" },
+    "5.3c": {
+      "prompt": "Mekkora adóssága vagy finanszírozása van a vállalkozásnak?",
+      "help_text": "Ha nincs ilyen, írjon 0-t. Hitelek, hitelkeretek, a készletre igénybe vett halasztott fizetés, visszafizetendő befektetői pénz."
+    },
+    "5.3d": { "prompt": "Ön szerint hol folyik el feleslegesen pénz?" },
+    "5.3e": {
+      "prompt": "Nagyjából mennyi pénz áll ma a vállalkozás rendelkezésére?",
+      "help_text": "Ami most a vállalkozás bankszámláján van, a fizetési szolgáltató által még ki nem fizetett összeg nélkül. Elég egy hozzávetőleges összeg: ebből látom, mikor lehet szűkös a pénz a következő 13 hétben."
+    },
+    "5.3f": {
+      "prompt": "Legalább mennyi pénzt szeretne mindig a bankszámláján tartani?",
+      "help_text": "Ez az Ön biztonsági tartaléka. Jelzem az első hetet, amikor a 13 hetes előrejelzés óvatos becslése ez alá esik. Ez tervezési segédlet: soha nem mozgatok, fizetek ki vagy szedek be pénzt."
+    },
+    "5.4": {
+      "prompt": "Fel tud tölteni pénzügyi kimutatásokat? Árbevételi jelentéseket, eredménykimutatást vagy árlistát."
+    },
+    "6.1a": { "prompt": "Magánszemélyeknek, vállalkozásoknak, vagy mindkettőnek értékesít?" },
+    "6.1b": {
+      "prompt": "Milyen problémát szeretnének megoldani az ügyfelek, amikor Önhöz fordulnak?"
+    },
+    "6.1c": { "prompt": "Mi miatt haboznak az emberek a vásárlás előtt?" },
+    "6.1d": { "prompt": "Írja le a tipikus ügyfelét. Életkor, lakóhely, bármi, ami lényeges." },
+    "6.1e": { "prompt": "Milyen cégek vásárolnak Öntől, és ki dönt náluk?" },
+    "6.1f": {
+      "prompt": "A más vállalkozásokkal folytatott üzletek közül, amelyekért elindul, nagyjából hány százalékot nyer meg?",
+      "help_text": "Elég egy hozzávetőleges arány: ha nagyjából minden negyediket megnyeri, az 25. Az értékesítési tölcsére ezzel súlyozza a nyitott üzleteket, amíg nincs elég saját lezárt üzlete a méréshez."
+    },
+    "6.2": { "prompt": "Vannak egyértelműen eltérő ügyféltípusok?" },
+    "6.3a": { "prompt": "Hogyan találnak rá általában az ügyfelek?" },
+    "6.3b": { "prompt": "Mennyi idő alatt döntenek a vásárlásról?" },
+    "6.3c": { "prompt": "Ajánlják Önt az ügyfelek másoknak?" },
+    "6.4": {
+      "prompt": "Vezet valahol listát az ügyfelek elérhetőségeiről?",
+      "help_text": "Egy táblázat is számít."
+    },
+    "6.4a": { "prompt": "Nagyjából hány elérhetőséget tartalmaz?" },
+    "6.4b": {
+      "prompt": "Van engedélye arra, hogy marketingcélú e-maileket küldjön ezekre az elérhetőségekre?",
+      "help_text": "Ez jogilag fontos, mielőtt bármit kiküldene."
+    },
+    "7.1": { "prompt": "Honnan származnak az eladásai?" },
+    "7.3a": { "prompt": "Melyik a fő értékesítési csatornája?" },
+    "7.3b": { "prompt": "Melyik csatorna teljesít a várakozás alatt?" },
+    "7.4": {
+      "prompt": "Mi történik attól, hogy valaki először hall Önről, addig, amíg ténylegesen fizet?"
+    },
+    "7.5": {
+      "prompt": "Használ értékesítési anyagokat? Forgatókönyveket, ajánlatokat, árlistákat, landing oldalakat, ügyfélvéleményeket."
+    },
+    "8.1": { "prompt": "Futtat fizetett hirdetéseket?" },
+    "8.1a": { "prompt": "Havonta mennyit költ hirdetésekre?" },
+    "8.1i": {
+      "prompt": "Legfeljebb mennyit szeretne egy hónapban hirdetésekre költeni?",
+      "help_text": "Ez felső határ, nem cél. Az SYB soha nem javasolja, hogy a hirdetési keret ezt túllépje."
+    },
+    "8.1b": { "prompt": "Mely platformokon hirdet?" },
+    "8.1c": { "prompt": "Nagyjából mennyibe kerül Önnek egy hirdetésből származó eladás?" },
+    "8.1d": { "prompt": "Mi történt, amikor korábban hirdetett, és miért hagyta abba?" },
+    "8.1e": {
+      "prompt": "Tesz közzé valahol tartalmat?",
+      "help_text": "Közösségi média, videó, blog, hírlevél – bármi, amit saját maga tesz közzé."
+    },
+    "8.1f": { "prompt": "Milyen gyakran posztol?" },
+    "8.1g": { "prompt": "Eddig milyen tartalom vált be a legjobban?" },
+    "8.1h": {
+      "prompt": "Milyen közösségimédia-fiókjai vannak a vállalkozásnak? Kérjük, adja meg a felhasználóneveket is."
+    },
+    "8.2a": { "prompt": "Van logója és márkaszínei?" },
+    "8.2b": {
+      "prompt": "Ha egyetlen mondatban kellene elmondania valakinek, miért válassza Önt, mi lenne az?"
+    },
+    "8.2c": { "prompt": "Mit érezzenek az ügyfelek a márkával kapcsolatban?" },
+    "8.2d": { "prompt": "Ki a vállalkozás arca, ha van ilyen?" },
+    "8.3a": {
+      "prompt": "Gyűjt e-mail-címeket vagy érdeklődői adatokat azoktól, akik nem vásárolnak azonnal?"
+    },
+    "8.3b": {
+      "prompt": "Hol olvashatnak az emberek értékeléseket vagy véleményeket Önről, ha van ilyen hely?"
+    },
+    "9.1": { "prompt": "Jelenleg rendesen működik a vállalkozás?" },
+    "9.1a": { "prompt": "Írjon le egy átlagos munkanapot a vállalkozásban." },
+    "9.1b": { "prompt": "Mi viszi el hetente a legtöbb időt?" },
+    "9.1c": { "prompt": "Mi szokott a leggyakrabban félremenni?" },
+    "9.2": { "prompt": "Kik dolgoznak a vállalkozásban, és mi a feladatuk?" },
+    "9.2b": { "prompt": "Ön személyesen mivel tölti az ideje legnagyobb részét?" },
+    "9.3a": { "prompt": "Hogyan lépnek kapcsolatba Önnel az ügyfelek, ha problémájuk van?" },
+    "9.3b": {
+      "prompt": "Van kialakult módja az ügyfélkérdések kezelésének, vagy eseti alapon történik?"
+    },
+    "9.3c": { "prompt": "Mit kérdeznek az ügyfelek a leggyakrabban?" },
+    "9.3d": { "prompt": "Mire panaszkodnak az ügyfelek a leggyakrabban?" },
+    "9.4a": {
+      "prompt": "Le van írva bármelyik folyamata utasításként vagy ellenőrzőlistaként?"
+    },
+    "9.4b": { "prompt": "A vállalkozás vezetésének melyik része okozza Önnek a legtöbb stresszt?" },
+    "10.1": {
+      "prompt": "Milyen eszközöket és szoftvereket használ a vállalkozás működtetéséhez?",
+      "help_text": "Weboldal, fizetések, könyvelés, foglalások, e-mail, táblázatok, bármi."
+    },
+    "10.1b": { "prompt": "Ezek közül mely területekre van már eszköze?" },
+    "10.1c": {
+      "prompt": "Van már beállított automatizálása?",
+      "help_text": "Automatikus e-mailek, rendelésszinkronizálás, időzített posztok – bármi, ami magától fut."
+    },
+    "10.2": { "prompt": "Ezek közül mit végez még kézzel?" },
+    "10.3": { "prompt": "Ha holnap eltűnhetne egy feladat, melyik lenne az?" },
+    "10.4a": { "prompt": "Milyen számokat követ már, és hol tárolja őket?" },
+    "10.4b": { "prompt": "Szükség esetén ki tudná exportálni ezeket az adatokat?" },
+    "11.1a": { "prompt": "Milyen jogi formában működik a vállalkozás?" },
+    "11.1b": { "prompt": "Mi az ÁFA-státusza?" },
+    "11.1c": {
+      "prompt": "Milyen engedélyek, hatósági engedélyek vagy biztosítások kellenek a vállalkozás működéséhez, ha vannak ilyenek?"
+    },
+    "11.1d": {
+      "prompt": "Van közzétett általános szerződési feltétele és adatvédelmi tájékoztatója?"
+    },
+    "11.1e": {
+      "prompt": "Milyen postai cím szerepeljen a marketing-e-mailjei alján?",
+      "help_text": "Az Egyesült Államok és Kanada minden marketing-e-mailben valódi postai címet ír elő; máshol ez bevált gyakorlat. Egy rendszeresen ellenőrzött postafiók is megfelel."
+    },
+    "11.2a": {
+      "prompt": "Melyik az az egy platform vagy fiók, amelynek elvesztését a vállalkozás nem élné túl, ha van ilyen?"
+    },
+    "11.2b": { "prompt": "Mi állíthatná le holnap a vállalkozást?" },
+    "11.3": {
+      "prompt": "Milyen reklámozási vagy ágazati korlátozások vonatkoznak a területére, ha vannak ilyenek?",
+      "help_text": "Például korhatárok, egészségre vonatkozó állítások vagy szabályozott termékek."
+    },
+    "12.1": {
+      "prompt": "Kik a fő versenytársai?",
+      "help_text": "Kezdésnek elég a név és a link. A többinek én nézek utána."
+    },
+    "12.2a": { "prompt": "Miben különbözik tőlük?" },
+    "12.2b": {
+      "prompt": "Mivel tudja bizonyítani, hogy ez igaz? Értékelések, eredmények, számok."
+    },
+    "12.2c": { "prompt": "Miben jobbak egyértelműen a versenytársak Önnél?" },
+    "12.3a": { "prompt": "A piacán a kereslet nő, stabil vagy csökken?" },
+    "12.3b": { "prompt": "A piacán az ügyfelek főleg az ár alapján vásárolnak?" },
+    "13.1": { "prompt": "Mit szeretne elérni a következő 3, 6 és 12 hónapban?" },
+    "13.2": {
+      "prompt": "Jelenleg mi az az egyetlen dolog, amely leginkább gátolja a növekedést?"
+    },
+    "13.3a": { "prompt": "Mivel próbálkozott már a vállalkozás növekedése érdekében?" },
+    "13.3b": { "prompt": "Mi nem vált be, és Ön szerint miért?" },
+    "13.3c": { "prompt": "Mit nem szabad semmiképp újra megpróbálni, ha van ilyen?" },
+    "13.4": { "prompt": "Tervezi ezek közül bármelyiket?" },
+    "13.5": {
+      "prompt": "Mit ne tegyen soha a vállalkozás, az eredményektől függetlenül?",
+      "help_text": "Hangnem, taktikák, platformok, kedvezmények. Ezeket szigorú korlátként kezelem."
+    },
+    "14.1": {
+      "prompt": "Töltsön fel bármit, ami már megvan, és hasznos lehet.",
+      "help_text": "Fotók, logó, videók, árlisták, értékelések, jelentések. Minél több az anyag, annál jobb lesz később az eredmény."
+    },
+    "14.1b": {
+      "prompt": "Ezek közül mi áll rendelkezésére, akkor is, ha még nem töltötte fel?"
+    }
+  },
+  "entity_schemas": {
+    "offer": {
+      "label": "Termék vagy szolgáltatás",
+      "fields": {
+        "name": "Név",
+        "kind": "Milyen típusú?",
+        "description": "Rövid leírás",
+        "price": "Ár",
+        "price_model": "Hogyan fizetnek érte?",
+        "cost_to_deliver": "Mennyibe kerül Önnek egy egység teljesítése?",
+        "margin_stated": "Árrés, ha tudja (%)",
+        "volume_period": "Nagyjából hányat ad el belőle havonta?",
+        "purchase_type": "Egyszeri, rendszeres vagy ismételt vásárlás?",
+        "lifecycle": "Állapot",
+        "main_customer_segment": "Kik vásárolják főként?",
+        "problems": "Van gond ezzel a termékkel vagy szolgáltatással?"
+      }
+    },
+    "supplier": {
+      "label": "Beszállító",
+      "fields": {
+        "name": "Beszállító neve",
+        "country": "Ország",
+        "supplies_offers": "Milyen termékeket szállít?",
+        "purchase_price": "Szokásos beszerzési ár",
+        "moq": "Minimális rendelési mennyiség",
+        "lead_time_days": "Szállítási idő napokban",
+        "payment_terms": "Fizetési feltételek",
+        "reliability_issues": "Vannak megbízhatósági problémák?",
+        "has_alternative": "Van erre alternatív beszállítója?",
+        "import_duties_apply": "Vonatkozik rá importvám vagy vámeljárás?"
+      }
+    },
+    "channel": {
+      "label": "Értékesítési csatorna",
+      "fields": {
+        "type": "Csatorna típusa",
+        "platform": "Platform",
+        "monthly_sales": "Havi eladások ebből a csatornából",
+        "revenue_monthly": "Havi árbevétel ebből a csatornából",
+        "cost_monthly": "Mennyibe kerül ez a csatorna havonta?",
+        "monthly_leads": "Havi érdeklődők száma",
+        "conversion_rate": "Konverziós arány (%)",
+        "effort_level": "Mennyi erőfeszítést igényel?",
+        "customer_quality": "Az innen érkező ügyfelek minősége",
+        "trend": "Nő vagy csökken?"
+      }
+    },
+    "competitor": {
+      "label": "Versenytárs",
+      "fields": {
+        "name": "Név",
+        "url": "Weboldal vagy közösségimédia-link",
+        "listing_url": "Foglalási vagy adatlapoldaluk (Fresha, Treatwell, Booksy, Google, egy webshopoldal)",
+        "price_pages": "További oldalaik, ahol árak szerepelnek, soronként egy link",
+        "what_they_sell": "Mit árulnak?",
+        "price_points": "Jellemző áraik",
+        "delivery_promise": "Mit ígérnek a szállításra vagy a teljesítésre?",
+        "opening_hours": "Nyitvatartásuk",
+        "strengths": "Erősségeik",
+        "weaknesses": "Gyengeségeik",
+        "why_customers_choose_them": "Miért őket választják az ügyfelek?",
+        "why_customers_choose_us": "Miért Önt választják helyettük az ügyfelek?"
+      }
+    },
+    "staff_role": {
+      "label": "Személy vagy szerepkör",
+      "fields": {
+        "role_title": "Szerepkör",
+        "engagement": "Típus",
+        "main_tasks": "Fő feladatok",
+        "hours_per_week": "Heti óraszám",
+        "cost_monthly": "Havi költség",
+        "replaceability": "Mennyire pótolható ez a szerepkör?"
+      }
+    },
+    "cost_item": {
+      "label": "Költség",
+      "fields": {
+        "category": "Kategória",
+        "label": "Mi ez?",
+        "amount": "Összeg",
+        "cadence": "Milyen gyakran?"
+      }
+    },
+    "customer_segment": {
+      "label": "Ügyfélszegmens",
+      "fields": {
+        "name": "Szegmens neve",
+        "who_they_are": "Kik ők?",
+        "what_they_buy": "Mit vásárolnak?",
+        "purchase_frequency": "Milyen gyakran vásárolnak?",
+        "average_spend": "Átlagos költés",
+        "acquisition_source": "Honnan érkeznek?"
+      }
+    },
+    "goal": {
+      "label": "Cél",
+      "fields": {
+        "horizon": "Időtáv",
+        "area": "Terület",
+        "statement": "Mit szeretne elérni?",
+        "target_value": "Célszám, ha van"
+      }
+    }
+  },
+  "vocabularies": {
+    "sells_type": {
+      "physical_products": "Fizikai termékek",
+      "services": "Szolgáltatások",
+      "software": "Szoftver",
+      "digital_products": "Digitális termékek",
+      "subscriptions": "Előfizetések",
+      "marketplace_access": "Piactéri hozzáférés",
+      "other": "Egyéb"
+    },
+    "business_stage": {
+      "idea": "Ötlet",
+      "preparing_to_launch": "Indulás előtt",
+      "recently_launched": "Nemrég indult",
+      "operating": "Működik",
+      "growing": "Növekszik",
+      "stable": "Stabil",
+      "declining": "Hanyatlik",
+      "paused": "Szünetel",
+      "rebuilding": "Újjáépítés alatt"
+    },
+    "business_size": {
+      "solo": "Egyszemélyes",
+      "small": "Kicsi",
+      "medium": "Közepes",
+      "large": "Nagy"
+    },
+    "focus_area": {
+      "launch": "Indulás",
+      "first_customers": "Első ügyfelek",
+      "increase_revenue": "Árbevétel növelése",
+      "reduce_costs": "Költségcsökkentés",
+      "automate_work": "Munka automatizálása",
+      "improve_marketing": "Marketing fejlesztése",
+      "hire_people": "Munkaerő-felvétel",
+      "expand_locations": "Új helyszínek nyitása",
+      "improve_profit": "Nyereség javítása",
+      "other": "Egyéb"
+    },
+    "presence_type": {
+      "online_only": "Csak online",
+      "physical_only": "Csak fizikai helyszín",
+      "both": "Mindkettő"
+    },
+    "location_type": {
+      "store": "Üzlet",
+      "office": "Iroda",
+      "warehouse": "Raktár",
+      "restaurant": "Étterem",
+      "salon": "Szalon",
+      "gym": "Edzőterem",
+      "studio": "Stúdió",
+      "clinic": "Rendelő",
+      "other": "Egyéb"
+    },
+    "ecommerce_platform": {
+      "shopify": "Shopify",
+      "woocommerce": "WooCommerce",
+      "wordpress": "WordPress",
+      "webflow": "Webflow",
+      "wix": "Wix",
+      "squarespace": "Squarespace",
+      "amazon": "Amazon",
+      "etsy": "Etsy",
+      "ebay": "eBay",
+      "tiktok_shop": "TikTok Shop",
+      "instagram_shop": "Instagram-bolt",
+      "facebook_shop": "Facebook-bolt",
+      "custom": "Egyedi fejlesztés",
+      "none": "Nincs",
+      "other": "Egyéb"
+    },
+    "market_scope": {
+      "local": "Helyi",
+      "national": "Országos",
+      "international": "Nemzetközi",
+      "mixed": "Vegyes"
+    },
+    "website_purpose": {
+      "sales": "Értékesítés",
+      "lead_generation": "Érdeklődők szerzése",
+      "booking": "Időpontfoglalás",
+      "branding": "Márkaépítés",
+      "information": "Tájékoztatás",
+      "mixed": "Vegyes"
+    },
+    "offer_kind": {
+      "physical": "Fizikai termék",
+      "service": "Szolgáltatás",
+      "digital": "Digitális",
+      "subscription": "Előfizetés",
+      "marketplace_access": "Piactéri hozzáférés"
+    },
+    "price_model": {
+      "one_time": "Egyszeri díj",
+      "subscription": "Előfizetés",
+      "usage_based": "Használatalapú",
+      "freemium": "Freemium",
+      "lifetime": "Örökös hozzáférés",
+      "license": "Licenc",
+      "commission": "Jutalék",
+      "mixed": "Vegyes"
+    },
+    "purchase_type": {
+      "one_time": "Egyszeri",
+      "recurring": "Rendszeres",
+      "repeat": "Ismétlődő"
+    },
+    "offer_lifecycle": {
+      "active": "Aktív",
+      "planned": "Tervezett",
+      "discontinued": "Megszűnt"
+    },
+    "offer_problem": {
+      "too_cheap": "Túl olcsó",
+      "too_expensive": "Túl drága",
+      "low_demand": "Alacsony kereslet",
+      "hard_to_deliver": "Nehezen teljesíthető",
+      "low_margin": "Alacsony árrés",
+      "too_manual": "Túl sok kézi munka",
+      "too_many_refunds": "Túl sok visszatérítés",
+      "bad_positioning": "Rossz pozicionálás",
+      "none": "Nincs",
+      "other": "Egyéb"
+    },
+    "yes_no_partly": {
+      "yes": "Igen",
+      "no": "Nem",
+      "partly": "Részben"
+    },
+    "no_inventory_model": {
+      "dropshipping": "Dropshipping",
+      "made_to_order": "Rendelésre gyártás",
+      "preorder": "Előrendelés",
+      "supplier_shipped": "A beszállító szállítja ki",
+      "hybrid": "Vegyes",
+      "other": "Egyéb"
+    },
+    "inventory_tracking": {
+      "spreadsheet": "Táblázat",
+      "pos_system": "Kasszarendszer (POS)",
+      "erp": "ERP-rendszer",
+      "ecommerce_platform": "Webshopplatform",
+      "paper": "Papíron",
+      "none": "Sehogy",
+      "other": "Egyéb"
+    },
+    "restock_frequency": {
+      "weekly": "Hetente",
+      "biweekly": "Kéthetente",
+      "monthly": "Havonta",
+      "quarterly": "Negyedévente",
+      "irregular": "Rendszertelenül",
+      "never": "Soha"
+    },
+    "service_standardization": {
+      "standardized": "Egységes",
+      "custom": "Egyedi",
+      "mixed": "Vegyes"
+    },
+    "quality_process": {
+      "checklists": "Ellenőrzőlisták",
+      "sops": "Írásos munkautasítások (SOP)",
+      "training": "Képzés",
+      "customer_feedback": "Ügyfél-visszajelzések",
+      "review_process": "Belső ellenőrzési folyamat",
+      "complaint_handling": "Panaszkezelés",
+      "none": "Nincs"
+    },
+    "digital_product_type": {
+      "saas": "SaaS",
+      "mobile_app": "Mobilalkalmazás",
+      "web_app": "Webalkalmazás",
+      "online_course": "Online kurzus",
+      "template": "Sablon",
+      "digital_file": "Digitális fájl",
+      "membership_platform": "Tagsági platform",
+      "community": "Közösség",
+      "paid_newsletter": "Fizetős hírlevél",
+      "other": "Egyéb"
+    },
+    "digital_stage": {
+      "idea": "Ötlet",
+      "prototype": "Prototípus",
+      "mvp": "MVP",
+      "beta": "Béta",
+      "launched": "Elindult",
+      "growing": "Növekszik",
+      "mature": "Kiforrott",
+      "needs_rebuilding": "Újra kell építeni"
+    },
+    "revenue_status": {
+      "yes": "Igen",
+      "no": "Nem",
+      "not_launched": "Még nem indult el",
+      "previously": "Korábban igen"
+    },
+    "revenue_trend": {
+      "growing": "Nő",
+      "stable": "Stabil",
+      "declining": "Csökken",
+      "unknown": "Nem tudom"
+    },
+    "payment_method": {
+      "cash": "Készpénz",
+      "card": "Bankkártya",
+      "bank_transfer": "Banki átutalás",
+      "online_payment": "Online fizetés",
+      "installments": "Részletfizetés",
+      "deposits": "Előleg",
+      "invoice_terms": "Számla, halasztott fizetéssel"
+    },
+    "payment_provider": {
+      "stripe": "Stripe",
+      "paypal": "PayPal",
+      "square": "Square",
+      "adyen": "Adyen",
+      "mollie": "Mollie",
+      "klarna": "Klarna",
+      "shopify_payments": "Shopify Payments",
+      "apple_google_pay": "Apple Pay / Google Pay",
+      "local_provider": "Helyi szolgáltató",
+      "bank_only": "Csak bankon keresztül",
+      "other": "Egyéb"
+    },
+    "cost_category": {
+      "rent": "Bérleti díj",
+      "salaries": "Bérek",
+      "contractors": "Alvállalkozók",
+      "software": "Szoftver",
+      "insurance": "Biztosítás",
+      "utilities": "Rezsi",
+      "loan_payments": "Hiteltörlesztés",
+      "accounting": "Könyvelés",
+      "hosting": "Tárhely",
+      "vehicle": "Jármű",
+      "warehouse": "Raktár",
+      "marketing": "Marketing",
+      "materials": "Alapanyagok",
+      "packaging": "Csomagolás",
+      "shipping": "Szállítás",
+      "payment_fees": "Fizetési díjak",
+      "platform_fees": "Platformdíjak",
+      "other": "Egyéb"
+    },
+    "cost_cadence": {
+      "monthly": "Havonta",
+      "quarterly": "Negyedévente",
+      "annual": "Évente",
+      "per_unit": "Darabonként",
+      "per_job": "Munkánként"
+    },
+    "customer_type": {
+      "b2c": "Magánszemélyek (B2C)",
+      "b2b": "Cégek (B2B)",
+      "both": "Mindkettő"
+    },
+    "purchase_frequency": {
+      "one_time": "Egyszer",
+      "occasional": "Alkalmanként",
+      "monthly": "Havonta",
+      "weekly": "Hetente",
+      "daily": "Naponta"
+    },
+    "channel_type": {
+      "website": "Weboldal",
+      "physical_store": "Fizikai üzlet",
+      "marketplace": "Online piactér",
+      "social_organic": "Közösségi média (organikus)",
+      "paid_ads": "Fizetett hirdetések",
+      "phone": "Telefon",
+      "email": "E-mail",
+      "direct_message": "Közvetlen üzenet",
+      "sales_calls": "Értékesítési hívások",
+      "referrals": "Ajánlások",
+      "appointments": "Időpontfoglalások",
+      "events": "Rendezvények",
+      "partners": "Partnerek",
+      "resellers": "Viszonteladók",
+      "other": "Egyéb"
+    },
+    "channel_platform": {
+      "own_website": "Saját weboldal",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "youtube": "YouTube",
+      "google_search": "Google Keresés",
+      "google_ads": "Google Ads",
+      "meta_ads": "Meta-hirdetések",
+      "tiktok_ads": "TikTok-hirdetések",
+      "amazon": "Amazon",
+      "etsy": "Etsy",
+      "ebay": "eBay",
+      "shopify_shop": "Shopify-bolt",
+      "linkedin": "LinkedIn",
+      "pinterest": "Pinterest",
+      "whatsapp": "WhatsApp",
+      "messenger": "Messenger",
+      "local_marketplace": "Helyi piactér",
+      "in_person": "Személyesen",
+      "other": "Egyéb"
+    },
+    "effort_level": {
+      "low": "Alacsony",
+      "medium": "Közepes",
+      "high": "Magas"
+    },
+    "customer_quality": {
+      "poor": "Gyenge",
+      "mixed": "Vegyes",
+      "good": "Jó",
+      "excellent": "Kiváló"
+    },
+    "advertising_status": {
+      "yes": "Igen",
+      "no": "Nem",
+      "previously": "Korábban igen"
+    },
+    "marketing_channel": {
+      "facebook_ads": "Facebook-hirdetések",
+      "instagram_ads": "Instagram-hirdetések",
+      "tiktok_ads": "TikTok-hirdetések",
+      "google_ads": "Google Ads",
+      "youtube": "YouTube",
+      "seo": "Keresőoptimalizálás (SEO)",
+      "email_marketing": "E-mail-marketing",
+      "influencers": "Influenszerek",
+      "organic_social": "Organikus közösségi média",
+      "content_marketing": "Tartalommarketing",
+      "partnerships": "Partnerségek",
+      "offline_print": "Nyomtatott offline anyagok",
+      "events": "Rendezvények",
+      "cold_outreach": "Hideg megkeresés",
+      "other": "Egyéb"
+    },
+    "content_frequency": {
+      "daily": "Naponta",
+      "several_weekly": "Hetente többször",
+      "weekly": "Hetente",
+      "monthly": "Havonta",
+      "irregular": "Rendszertelenül",
+      "never": "Soha"
+    },
+    "operating_status": {
+      "operating": "Működik",
+      "being_set_up": "Kialakítás alatt",
+      "paused": "Szünetel",
+      "seasonal": "Szezonálisan működik",
+      "temporarily_closed": "Ideiglenesen zárva"
+    },
+    "engagement_type": {
+      "owner": "Tulajdonos",
+      "employee": "Alkalmazott",
+      "contractor": "Alvállalkozó",
+      "agency": "Ügynökség",
+      "freelancer": "Szabadúszó",
+      "partner": "Partner",
+      "external_service": "Külső szolgáltató"
+    },
+    "replaceability": {
+      "easy": "Könnyen pótolható",
+      "hard": "Nehezen pótolható",
+      "single_point_of_failure": "Pótolhatatlan, minden rajta múlik"
+    },
+    "tool_category": {
+      "website_platform": "Weboldal-platform",
+      "crm": "CRM",
+      "booking": "Időpontfoglalás",
+      "payments": "Fizetések",
+      "accounting": "Könyvelés",
+      "inventory": "Készletkezelés",
+      "email_marketing": "E-mail-marketing",
+      "analytics": "Analitika",
+      "project_management": "Projektmenedzsment",
+      "customer_support": "Ügyfélszolgálati támogatás",
+      "ads_manager": "Hirdetéskezelő",
+      "design": "Grafikai tervezés",
+      "ai_tools": "MI-eszközök",
+      "automation": "Automatizálás",
+      "spreadsheets": "Táblázatok"
+    },
+    "manual_task": {
+      "answering_messages": "Üzenetek megválaszolása",
+      "creating_invoices": "Számlák kiállítása",
+      "posting_content": "Tartalom közzététele",
+      "checking_stock": "Készlet ellenőrzése",
+      "following_up_leads": "Érdeklődők utánkövetése",
+      "booking_appointments": "Időpontok egyeztetése",
+      "sending_reminders": "Emlékeztetők küldése",
+      "reporting": "Kimutatások készítése",
+      "customer_support": "Ügyfélszolgálati támogatás",
+      "data_entry": "Adatrögzítés",
+      "order_processing": "Rendelések feldolgozása",
+      "other": "Egyéb"
+    },
+    "legal_entity_type": {
+      "sole_trader": "Egyéni vállalkozó",
+      "single_member_llc": "Egyszemélyes Kft.",
+      "llc_ltd": "Kft.",
+      "partnership": "Betéti vagy közkereseti társaság (Bt., Kkt.)",
+      "corporation": "Részvénytársaság (Zrt., Nyrt.)",
+      "nonprofit": "Nonprofit szervezet",
+      "not_registered": "Nincs bejegyezve",
+      "other": "Egyéb"
+    },
+    "vat_status": {
+      "registered": "ÁFA-körös",
+      "exempt": "ÁFA-mentes",
+      "below_threshold": "Alanyi adómentes (értékhatár alatt)",
+      "not_applicable": "Nem vonatkozik rám",
+      "unsure": "Nem tudom biztosan"
+    },
+    "growth_blocker": {
+      "not_enough_leads": "Kevés érdeklődő",
+      "low_conversion": "Alacsony konverzió",
+      "bad_offer": "Gyenge ajánlat",
+      "weak_marketing": "Gyenge marketing",
+      "expensive_ads": "Drága hirdetések",
+      "operational_chaos": "Működési káosz",
+      "lack_of_time": "Időhiány",
+      "lack_of_staff": "Munkaerőhiány",
+      "low_profit": "Alacsony nyereség",
+      "poor_website": "Gyenge weboldal",
+      "poor_retention": "Gyenge ügyfélmegtartás",
+      "no_strategy": "Nincs stratégia",
+      "owner_overload": "A tulajdonos túlterheltsége",
+      "cash_flow": "Pénzáramlási gondok",
+      "product_quality": "Termékminőség",
+      "other": "Egyéb"
+    },
+    "expansion_type": {
+      "new_products": "Új termékek",
+      "new_locations": "Új helyszínek",
+      "new_markets": "Új piacok",
+      "hiring": "Munkaerő-felvétel",
+      "franchising": "Franchise",
+      "online_expansion": "Online terjeszkedés",
+      "international": "Nemzetközi terjeszkedés",
+      "more_automation": "Több automatizálás",
+      "more_paid_ads": "Több fizetett hirdetés",
+      "none": "Egyik sem"
+    },
+    "asset_type": {
+      "product_photos": "Termékfotók",
+      "service_photos": "Fotók a szolgáltatásról",
+      "location_photos": "Fotók a helyszínről",
+      "packaging_photos": "Csomagolásfotók",
+      "team_photos": "Csapatfotók",
+      "videos": "Videók",
+      "logo": "Logó",
+      "brand_guide": "Arculati kézikönyv",
+      "ads": "Hirdetések",
+      "content_examples": "Tartalompéldák",
+      "testimonials": "Ügyfélvélemények",
+      "sales_materials": "Értékesítési anyagok",
+      "price_list": "Árlista",
+      "financial_reports": "Pénzügyi jelentések",
+      "crm_export": "CRM-export",
+      "analytics_export": "Analitikai export",
+      "inventory_sheet": "Készletnyilvántartás",
+      "sops": "Írásos munkautasítások (SOP)",
+      "contracts": "Szerződések"
+    },
+    "seasonality": {
+      "none": "Nincs",
+      "mild": "Enyhe",
+      "strong": "Erős",
+      "highly_seasonal": "Erősen szezonális"
+    },
+    "demand_trend": {
+      "growing": "Nő",
+      "stable": "Stabil",
+      "declining": "Csökken",
+      "unsure": "Nem tudom biztosan"
+    },
+    "support_channel": {
+      "email": "E-mail",
+      "phone": "Telefon",
+      "website_chat": "Csevegés a weboldalon",
+      "social_dm": "Közösségi médiás üzenet",
+      "in_person": "Személyesen",
+      "whatsapp": "WhatsApp",
+      "contact_form": "Kapcsolatfelvételi űrlap",
+      "none": "Nincs"
+    },
+    "business_type": {
+      "retail_shop": "Kiskereskedelmi üzlet",
+      "ecommerce_store": "Webáruház",
+      "restaurant": "Étterem",
+      "cafe": "Kávézó",
+      "bar": "Bár",
+      "food_production": "Élelmiszer-előállítás",
+      "salon_beauty": "Szépségszalon",
+      "barber": "Borbély",
+      "gym_fitness": "Edzőterem, fitnesz",
+      "wellness_spa": "Wellness, spa",
+      "clinic_health": "Egészségügyi rendelő",
+      "construction": "Építőipar",
+      "trades_services": "Szakipari szolgáltatások",
+      "cleaning_services": "Takarítás",
+      "automotive": "Autós szolgáltatások",
+      "professional_services": "Szakmai szolgáltatások",
+      "consulting": "Tanácsadás",
+      "agency_marketing": "Marketingügynökség",
+      "it_services": "IT-szolgáltatások",
+      "software_saas": "Szoftver, SaaS",
+      "education_training": "Oktatás, képzés",
+      "childcare": "Gyermekfelügyelet",
+      "real_estate": "Ingatlan",
+      "logistics": "Logisztika",
+      "manufacturing": "Gyártás",
+      "wholesale": "Nagykereskedelem",
+      "agriculture": "Mezőgazdaság",
+      "events": "Rendezvények",
+      "photography_creative": "Fotózás, kreatív szolgáltatások",
+      "tourism_accommodation": "Turizmus, szálláshely",
+      "transport": "Szállítás, fuvarozás",
+      "nonprofit": "Nonprofit szervezet",
+      "other": "Egyéb"
+    },
+    "consent_status": {
+      "explicit_consent": "Kifejezett hozzájárulás",
+      "implied_consent": "Vélelmezett hozzájárulás",
+      "no_consent": "Nincs hozzájárulás",
+      "unsure": "Nem tudom biztosan"
+    },
+    "goal_horizon": {
+      "3_months": "3 hónap",
+      "6_months": "6 hónap",
+      "12_months": "12 hónap"
+    },
+    "price_feeling": {
+      "too_low": "Túl alacsonyak",
+      "about_right": "Nagyjából megfelelők",
+      "too_high": "Túl magasak",
+      "unsure": "Nem tudom biztosan"
+    },
+    "sales_asset": {
+      "scripts": "Értékesítési forgatókönyvek",
+      "proposals": "Árajánlatok",
+      "price_lists": "Árlisták",
+      "product_pages": "Termékoldalak",
+      "landing_pages": "Landing oldalak",
+      "presentations": "Prezentációk",
+      "before_after": "Előtte–utána képek",
+      "testimonials": "Ügyfélvélemények",
+      "none": "Egyik sem"
+    },
+    "shipping_payer": {
+      "customer_pays": "Az ügyfél fizeti",
+      "business_pays": "A vállalkozás fizeti",
+      "free_over_threshold": "Értékhatár felett ingyenes",
+      "mixed": "Vegyes"
+    },
+    "deal_stage": {
+      "lead": "Érdeklődő",
+      "qualified": "Minősített",
+      "proposal_sent": "Ajánlat elküldve",
+      "won": "Megnyert",
+      "lost": "Elveszett"
+    }
+  },
+  "same_as_english": {
+    "entity_schemas/channel/fields/platform": "the same word in Hungarian",
+    "vocabularies/price_model/freemium": "loanword used as is in Hungarian",
+    "vocabularies/no_inventory_model/dropshipping": "loanword used as is in Hungarian",
+    "vocabularies/cost_category/marketing": "the same word in Hungarian",
+    "vocabularies/engagement_type/partner": "the same word in Hungarian"
+  },
+  "glossary_exceptions": {
+    "questions/1.4.2.2/prompt": {
+      "contact": "first contact is a moment (kapcsolatfelvétel), not a contact person"
+    },
+    "questions/9.3a/prompt": {
+      "contact": "a verb: customers get in touch (kapcsolatba lépnek), not a contact person"
+    },
+    "questions/6.4/prompt": {
+      "contact": "customers' contact details (elérhetőségek), not a business contact person"
+    },
+    "questions/6.4a/prompt": {
+      "contact": "customers' contact details (elérhetőségek), not a business contact person"
+    },
+    "questions/6.4b/prompt": {
+      "contact": "customers' contact details (elérhetőségek), not a business contact person"
+    },
+    "vocabularies/support_channel/contact_form": {
+      "contact": "a contact form is kapcsolatfelvételi űrlap, not a contact person"
+    },
+    "questions/5.3e/help_text": {
+      "account": "a bank account (bankszámla), not an online account (fiók)"
+    },
+    "questions/5.3f/prompt": {
+      "account": "a bank account (bankszámla), not an online account (fiók)"
+    },
+    "questions/5.3f/help_text": {
+      "margin": "a safety margin (biztonsági tartalék), not a profit margin"
+    },
+    "questions/7.5/prompt": {
+      "proposal": "a sales proposal sent to a client is an ajánlat, not an SYB javaslat"
+    },
+    "vocabularies/sales_asset/proposals": {
+      "proposal": "a sales proposal sent to a client is an árajánlat, not an SYB javaslat"
+    },
+    "vocabularies/deal_stage/proposal_sent": {
+      "proposal": "a sales proposal sent to a client is an ajánlat, not an SYB javaslat"
+    },
+    "vocabularies/tool_category/ads_manager": {
+      "manager": "a tool (Hirdetéskezelő, as the ad platforms call it), not the team role"
+    },
+    "vocabularies/quality_process/review_process": {
+      "review": "an internal quality check (ellenőrzés), not a customer review"
+    }
+  }
+}

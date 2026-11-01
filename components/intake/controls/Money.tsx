@@ -10,10 +10,20 @@
 // ("Under €6", "€6–€9") drawn: the bank carries no per-question ranges,
 // and inventing buckets would put numbers on screen nothing backs. The
 // measured reference ruler lives in QuestionCard, from already_read.
+//
+// L-2: in English the box groups as it always did. In another language it
+// takes the figure as the person writes it ("1.234,56", "1 234,56") and
+// reads it through lib/intake/amount-input; a figure that reads two ways
+// ("1.200") is asked about, never guessed (AmountChoice).
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
+import { useTranslations } from "next-intl";
+import { readTypedAmount } from "@/lib/intake/amount-input";
+import { num } from "../../sheet/num";
 import { currencyMark } from "../record";
+import { useIntakeWords } from "../words";
+import { AmountChoice, settledDecimal } from "./AmountChoice";
 import type { ControlProps } from "./shared";
 
 /** "1234567.5" → "1,234,567.5" (integer part grouped, decimals kept). */
@@ -39,6 +49,10 @@ export function MoneyControl({
   const caretRef = useRef<number | null>(null);
   const [display, setDisplay] = useState("");
   const [estimate, setEstimate] = useState(false);
+  const [picked, setPicked] = useState<string | null>(null);
+  const { locale } = useIntakeWords();
+  const t = useTranslations("intake.amount");
+  const local = locale !== "en";
 
   // With option rows above, focus stays off the field so the number keys
   // can pick a row; alone, the field takes focus.
@@ -54,7 +68,11 @@ export function MoneyControl({
     }
   }, [display]);
 
-  const wireOf = (formatted: string): unknown => {
+  const wireOf = (formatted: string, choice: string | null = picked): unknown => {
+    if (local) {
+      const decimal = settledDecimal(readTypedAmount(formatted), choice);
+      return decimal === null ? null : { amount_major: decimal };
+    }
     const { intPart, decPart } = parse(formatted);
     if (intPart === "" && (decPart === undefined || decPart === "")) return null;
     const n = Number(`${intPart === "" ? "0" : intPart}.${decPart ?? "0"}`);
@@ -63,6 +81,13 @@ export function MoneyControl({
 
   const handleInput = (e: ChangeEvent<HTMLInputElement>): void => {
     const el = e.target;
+    if (local) {
+      // As written: no regrouping under the caret, read on every change.
+      setPicked(null);
+      setDisplay(el.value);
+      onChange({ wire: wireOf(el.value, null), estimate });
+      return;
+    }
     const before = el.value.slice(0, el.selectionStart ?? el.value.length);
     const significantBefore = before.replace(/[^\d.]/g, "").length;
     const { intPart, decPart } = parse(el.value);
@@ -85,13 +110,22 @@ export function MoneyControl({
     onChange({ wire: wireOf(display), estimate: next });
   };
 
-  const { mark, before } = currencyMark(question.currency);
+  const pick = (decimal: string): void => {
+    setPicked(decimal);
+    onChange({ wire: wireOf(display, decimal), estimate });
+  };
+
+  const { mark, before } = currencyMark(question.currency, locale);
   const inputId = `money-${question.id}`;
+  const reading = local ? readTypedAmount(display) : null;
   return (
     <div className="ix-money">
       <div className="ix-money-box">
         <label className="ix-money-label" htmlFor={inputId}>
-          Exact<span className="sr-only"> amount, {question.currency}</span>
+          {t.rich("exact", {
+            currency: question.currency,
+            sr: (chunks) => <span className="sr-only">{chunks}</span>,
+          })}
         </label>
         {before && (
           <span className="ix-money-mark" aria-hidden="true">
@@ -106,7 +140,7 @@ export function MoneyControl({
           type="text"
           inputMode="decimal"
           autoComplete="off"
-          placeholder="0.00"
+          placeholder={num(0, 2, locale)}
           value={display}
           onChange={handleInput}
           onKeyDown={(e) => {
@@ -118,11 +152,12 @@ export function MoneyControl({
         />
         {!before && <span className="ix-money-mark">{mark}</span>}
       </div>
+      {reading && <AmountChoice reading={reading} picked={picked} onPick={pick} locale={locale} />}
       <div className="ix-estimate">
         <button type="button" className="ix-link" aria-pressed={estimate} onClick={toggleEstimate}>
-          {estimate ? "Marked as an estimate" : "This is an estimate"}
+          {estimate ? t("estimated") : t("estimate")}
         </button>
-        {estimate && <span className="ix-note">Basis: estimated</span>}
+        {estimate && <span className="ix-note">{t("basis")}</span>}
       </div>
     </div>
   );

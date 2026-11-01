@@ -1,0 +1,948 @@
+{
+  "about": "Simplified Chinese words for question bank 1.9.0, keyed by the bank's ids. A draft by Claude from specs/glossary-v1.json; in review until the native reviewer checks it (TASKS-LANGUAGES.md, L-7).",
+  "locale": "zh-Hans",
+  "bank_version": "1.9.0",
+  "questions": {
+    "1.1": { "prompt": "您的企业叫什么名字？" },
+    "1.1b": {
+      "prompt": "您的企业在哪个国家经营？",
+      "help_text": "这会影响税务、广告规则和数据保护要求。"
+    },
+    "1.2": { "prompt": "这是一家什么类型的企业？" },
+    "1.3": { "prompt": "请用几句话说明，您的企业是做什么的？" },
+    "1.4": { "prompt": "您的企业销售什么？", "help_text": "请选择所有适用项。" },
+    "1.4.4": { "prompt": "其中哪一项带来的收入最多？" },
+    "1.5": { "prompt": "您的企业目前处于哪个阶段？" },
+    "1.5b": { "prompt": "您的企业是什么时候开始经营的？", "help_text": "填写大致月份即可。" },
+    "1.5.1": { "prompt": "您目前的重点是什么？" },
+    "1.6": { "prompt": "包括您在内，企业里有多少人工作？" },
+    "1.6a": {
+      "prompt": "您如何描述企业的规模？",
+      "help_text": "按您自己的感觉来，不必按人数标准。我会据此决定向您展示多少细节。",
+      "option_labels": {
+        "solo": "只有我一个人",
+        "small": "一个小团队",
+        "medium": "一家中型企业",
+        "large": "一家较大的企业"
+      }
+    },
+    "2.1": { "prompt": "您的企业是线上、线下实体，还是两者都有？" },
+    "2.1.1.1": { "prompt": "共有几个实体门店或经营场所？" },
+    "2.1.1.2": { "prompt": "这是什么类型的场所？" },
+    "2.1.1.3": { "prompt": "客户会来这个场所吗？" },
+    "2.1.1.7": {
+      "prompt": "营业时间是怎样的？",
+      "help_text": "按天填写，就像贴在门上那样，例如：周一至周四 20:00–01:00，周五至周六 18:00–02:00，周日休息。"
+    },
+    "2.1.1.7a": {
+      "prompt": "每营业一小时大约要花多少钱？包括当班员工和能源费用。",
+      "help_text": "给个大概数字即可。这能告诉我们，开门后的第一个小时和打烊前的最后一个小时是否能收回成本。"
+    },
+    "2.1.1.8": { "prompt": "什么因素限制了您的接待能力？例如座位数、每天的预约数或仓储空间。" },
+    "2.1.2.1": { "prompt": "您的网站网址是什么？" },
+    "2.1.2.2": { "prompt": "客户能直接在网站上购买吗？" },
+    "2.1.2.4": { "prompt": "您在哪些平台上销售或发布内容？" },
+    "2.2.1": { "prompt": "您的销售范围是本地、全国还是国际？" },
+    "2.2.3": { "prompt": "网站主要用来做什么？" },
+    "3.1": {
+      "prompt": "请列出企业销售的产品和服务。",
+      "help_text": "逐个添加每项产品或服务。可以先填主要的，以后再补充。"
+    },
+    "3.2": { "prompt": "哪一项卖得最多？" },
+    "3.3": { "prompt": "哪一项的利润率最高？" },
+    "3.4": { "prompt": "您最想发展哪一项？" },
+    "1.4.1.2": { "prompt": "您的实体产品有库存吗？" },
+    "1.4.1.2.1a": { "prompt": "您如何跟踪库存水平？" },
+    "1.4.1.2.1b": { "prompt": "您多久补一次货？" },
+    "1.4.1.2.1c": { "prompt": "哪些产品最常断货？" },
+    "1.4.1.2.1d": {
+      "prompt": "哪些产品卖得慢或一直积压未售？",
+      "help_text": "资金被滞销库存占用，是最常见的隐性问题之一。"
+    },
+    "1.4.1.2.1e": { "prompt": "仓储每月要花多少钱？" },
+    "1.4.1.2.1f": {
+      "prompt": "您的损坏、过期或滞销库存大约值多少钱？",
+      "help_text": "如果没有，请填 0。"
+    },
+    "1.4.1.2.2": { "prompt": "如果您不备库存，产品如何送到客户手中？" },
+    "1.4.1.3": { "prompt": "您的产品由哪些供应商提供？" },
+    "1.4.1.4": { "prompt": "产品是您自己制作或定制的吗？" },
+    "1.4.1.4a": { "prompt": "您每周能生产多少？" },
+    "1.4.1.4b": { "prompt": "拖慢生产的主要原因是什么？" },
+    "1.4.1.5": { "prompt": "您会把产品寄送给客户吗？" },
+    "1.4.1.5a": { "prompt": "您使用哪些快递或物流公司？" },
+    "1.4.1.5b": { "prompt": "运费由谁承担？" },
+    "1.4.1.5c": { "prompt": "退货、包裹丢失或损坏方面有什么问题吗？" },
+    "1.4.1.6": { "prompt": "您自己做本地配送吗？" },
+    "1.4.1.6a": { "prompt": "本地配送的主要问题是什么？" },
+    "1.4.2.2": { "prompt": "请给我讲讲一项服务是如何完成的，从第一次接触客户到结束。" },
+    "1.4.2.3": { "prompt": "客户需要预约吗？" },
+    "1.4.2.3a": { "prompt": "他们如何预约，用什么工具？" },
+    "1.4.2.3b": { "prompt": "您每周能接待多少个预约？" },
+    "1.4.2.3c": { "prompt": "爽约和临时取消是否是个问题？严重程度如何？" },
+    "1.4.2.4": {
+      "prompt": "如果您不在，其他人能提供这项服务吗？",
+      "help_text": "这是服务型企业最大的风险之一。"
+    },
+    "1.4.2.5": { "prompt": "您如何保持服务质量稳定一致？" },
+    "1.4.3.1": { "prompt": "这是什么类型的数字产品？" },
+    "1.4.3.2": { "prompt": "产品处于哪个阶段？" },
+    "1.4.3.4a": { "prompt": "有多少注册用户？" },
+    "1.4.3.4b": { "prompt": "其中有多少是付费用户？" },
+    "1.4.3.4c": { "prompt": "如果您知道的话，每月用户流失率是多少？" },
+    "1.4.3.4d": { "prompt": "用户通常为什么取消？" },
+    "1.4.3.5a": { "prompt": "它基于什么技术构建，托管在哪里？" },
+    "1.4.3.5b": { "prompt": "有哪些缺陷或缺失的功能在阻碍增长？" },
+    "4.1": {
+      "prompt": "企业目前有收入进账吗？",
+      "help_text": "只要有任何销售都算，即使企业还没有盈利。"
+    },
+    "4.1a": { "prompt": "每月营收大约多少？" },
+    "4.1b": { "prompt": "每月有多少笔销售或订单？" },
+    "4.1c": { "prompt": "营收是在增长、持平还是下降？" },
+    "4.1d": { "prompt": "大约有多大比例的客户会再次购买？" },
+    "4.1e": {
+      "prompt": "您最好的月份和最差的月份分别是哪个月，大约各有多少？",
+      "help_text": "即使没有完整记录，这也能给我两个参考点。"
+    },
+    "4.1f": { "prompt": "您的企业有季节性吗？" },
+    "4.1n1": { "prompt": "开始销售之前还缺什么？" },
+    "4.1n2": { "prompt": "您打算如何获得第一批客户？" },
+    "4.1p": { "prompt": "企业为什么不再有收入了？" },
+    "4.2a": { "prompt": "客户如何付款？" },
+    "4.2b": { "prompt": "您使用哪家支付服务商？" },
+    "4.2c": { "prompt": "您的退款政策是什么？" },
+    "4.3a": { "prompt": "您调整过价格吗？改了什么，为什么？" },
+    "4.3b": { "prompt": "您觉得自己的价格偏低、偏高，还是差不多合适？" },
+    "5.1": {
+      "prompt": "无论销售情况如何，企业每月都要支付哪些费用？",
+      "help_text": "例如房租、工资、软件、保险、贷款、订阅费等。"
+    },
+    "5.2": {
+      "prompt": "除了您已为每项产品填写的交付成本之外，还有哪些成本会随着销量增加而上升？"
+    },
+    "5.3a": {
+      "prompt": "您的毛利率是多少？",
+      "help_text": "即每笔销售扣除交付它的直接成本后剩下的百分比。如果您从未算过，请选择“不知道”。"
+    },
+    "5.3b": { "prompt": "您是否有现金流问题，或客户拖欠付款？" },
+    "5.3c": {
+      "prompt": "企业目前背负多少债务或融资？",
+      "help_text": "如果没有，请填 0。包括贷款、授信额度、采购库存时的先买后付，以及需要偿还的投资款。"
+    },
+    "5.3d": { "prompt": "您认为钱浪费在了哪里？" },
+    "5.3e": {
+      "prompt": "企业目前大约有多少可用现金？",
+      "help_text": "指企业账户里现有的钱，不包括支付服务商尚未结算给您的款项。给个大概数字即可：我会用它来判断未来 13 周内资金何时可能吃紧。"
+    },
+    "5.3f": {
+      "prompt": "您希望账户里任何时候至少保留多少钱？",
+      "help_text": "这是您的安全垫。当 13 周预测中偏保守的一端首次低于这个数时，我会标出那一周。这只是规划工具：我从不转账、付款或收款。"
+    },
+    "5.4": { "prompt": "您能上传一些财务记录吗？例如营收报告、利润表或价目表。" },
+    "6.1a": { "prompt": "您的客户是个人消费者、企业，还是两者都有？" },
+    "6.1b": { "prompt": "客户来找您时，想解决什么问题？" },
+    "6.1c": { "prompt": "人们在购买前会因为什么而犹豫？" },
+    "6.1d": { "prompt": "请描述您的典型客户：年龄、所在地以及任何相关信息。" },
+    "6.1e": { "prompt": "哪些类型的公司向您购买？由谁做决定？" },
+    "6.1f": {
+      "prompt": "在您争取的企业客户交易中，大约能赢下百分之多少？",
+      "help_text": "给个大概比例即可：如果大约每四笔赢一笔，就填 25。在您的销售管道积累足够多已结束的交易、能自行计算之前，会用这个数来估算进行中的交易。"
+    },
+    "6.2": { "prompt": "您的客户是否明显分为不同类型？" },
+    "6.3a": { "prompt": "客户通常是怎么找到您的？" },
+    "6.3b": { "prompt": "他们需要多长时间才决定购买？" },
+    "6.3c": { "prompt": "客户会把您推荐给别人吗？" },
+    "6.4": {
+      "prompt": "您有没有在某处保存客户联系人名单？",
+      "help_text": "哪怕是一张电子表格也算。"
+    },
+    "6.4a": { "prompt": "大约有多少个联系人？" },
+    "6.4b": {
+      "prompt": "您是否获得了向这些联系人发送营销邮件的许可？",
+      "help_text": "在发送任何邮件之前，这一点在法律上很重要。"
+    },
+    "7.1": { "prompt": "您的销售来自哪里？" },
+    "7.3a": { "prompt": "您的主要销售渠道是哪个？" },
+    "7.3b": { "prompt": "哪个渠道表现不佳？" },
+    "7.4": { "prompt": "从有人第一次听说您到真正付款，中间会经历什么？" },
+    "7.5": {
+      "prompt": "您使用任何销售资料吗？例如话术脚本、商务提案、价目表、落地页、客户推荐语。"
+    },
+    "8.1": { "prompt": "您投放付费广告吗？" },
+    "8.1a": { "prompt": "您每月在广告上花费多少？" },
+    "8.1i": {
+      "prompt": "您每月最多愿意在广告上花多少钱？",
+      "help_text": "这是上限，不是目标。SYB 绝不会建议把广告预算提高到超过这个数。"
+    },
+    "8.1b": { "prompt": "您在哪些平台上投放广告？" },
+    "8.1c": { "prompt": "通过广告获得一笔销售，大约要花多少钱？" },
+    "8.1d": { "prompt": "您以前投放广告时效果如何，为什么停了？" },
+    "8.1e": {
+      "prompt": "您在任何地方发布内容吗？",
+      "help_text": "社交媒体、视频、博客、电子报，任何您自己发布的东西都算。"
+    },
+    "8.1f": { "prompt": "您多久发布一次？" },
+    "8.1g": { "prompt": "到目前为止，哪类内容效果最好？" },
+    "8.1h": { "prompt": "企业有哪些社交媒体账户？请附上账号名。" },
+    "8.2a": { "prompt": "您有品牌标志和品牌色吗？" },
+    "8.2b": { "prompt": "如果只用一句话告诉别人为什么选择您，您会怎么说？" },
+    "8.2c": { "prompt": "您希望客户对品牌有什么样的感受？" },
+    "8.2d": { "prompt": "企业有没有代言人或门面人物？是谁？" },
+    "8.3a": { "prompt": "对于没有立即购买的人，您会收集他们的邮箱地址或潜在客户信息吗？" },
+    "8.3b": { "prompt": "人们可以在哪里看到关于您的评价或推荐语？" },
+    "9.1": { "prompt": "您的企业目前在正常经营吗？" },
+    "9.1a": { "prompt": "请描述企业里普通的一个工作日。" },
+    "9.1b": { "prompt": "每周什么事情占用的时间最多？" },
+    "9.1c": { "prompt": "最常出问题的是什么？" },
+    "9.2": { "prompt": "企业里有哪些人工作，他们各自做什么？" },
+    "9.2b": { "prompt": "您本人把大部分时间花在什么上？" },
+    "9.3a": { "prompt": "客户遇到问题时，如何联系您？" },
+    "9.3b": { "prompt": "处理客户问题有固定流程，还是临时应对？" },
+    "9.3c": { "prompt": "客户最常问什么？" },
+    "9.3d": { "prompt": "客户最常抱怨什么？" },
+    "9.4a": { "prompt": "您有没有把某些流程写成操作说明或检查清单？" },
+    "9.4b": { "prompt": "经营企业的哪一部分让您压力最大？" },
+    "10.1": {
+      "prompt": "您用哪些工具和软件来经营企业？",
+      "help_text": "网站、收款、记账、预约、邮件、电子表格，什么都算。"
+    },
+    "10.1b": { "prompt": "以下哪些方面您已经有工具了？" },
+    "10.1c": {
+      "prompt": "您是否已经设置了任何自动化？",
+      "help_text": "自动邮件、订单同步、定时发布，任何能自动运行的都算。"
+    },
+    "10.2": { "prompt": "以下哪些事情您仍在手动完成？" },
+    "10.3": { "prompt": "如果明天可以让一项工作消失，您希望是哪一项？" },
+    "10.4a": { "prompt": "您已经在跟踪哪些数据，它们存放在哪里？" },
+    "10.4b": { "prompt": "需要时，您能导出这些数据吗？" },
+    "11.1a": { "prompt": "企业的法律形式是什么？" },
+    "11.1b": { "prompt": "您的增值税登记状态是什么？" },
+    "11.1c": { "prompt": "企业经营需要哪些执照、许可证或保险（如有）？" },
+    "11.1d": { "prompt": "您是否已发布服务条款和隐私政策？" },
+    "11.1e": {
+      "prompt": "营销邮件底部应显示哪个邮寄地址？",
+      "help_text": "美国和加拿大要求每封营销邮件都附上真实的邮寄地址；在其他地方，这也是良好做法。使用您会定期查看的邮政信箱也可以。"
+    },
+    "11.2a": { "prompt": "如果失去哪一个平台或账户，企业就无法生存（如有）？" },
+    "11.2b": { "prompt": "什么情况可能让企业明天就停摆？" },
+    "11.3": {
+      "prompt": "您所在领域有哪些广告或行业限制（如有）？",
+      "help_text": "例如年龄限制、健康功效宣称或受监管产品。"
+    },
+    "12.1": {
+      "prompt": "您的主要竞争对手有哪些？",
+      "help_text": "先提供名称和链接就够了，其余的我来研究。"
+    },
+    "12.2a": { "prompt": "您和他们有什么不同？" },
+    "12.2b": { "prompt": "您有什么证据证明这一点？例如评价、成果、数据。" },
+    "12.2c": { "prompt": "竞争对手在哪些方面明显比您强？" },
+    "12.3a": { "prompt": "您所在市场的需求是在增长、持平还是萎缩？" },
+    "12.3b": { "prompt": "您所在市场的客户主要看价格购买吗？" },
+    "13.1": { "prompt": "在未来 3 个月、6 个月和 12 个月里，您想实现什么？" },
+    "13.2": { "prompt": "目前阻碍增长的最大因素是什么？" },
+    "13.3a": { "prompt": "为了发展企业，您已经尝试过哪些做法？" },
+    "13.3b": { "prompt": "哪些失败了？您认为原因是什么？" },
+    "13.3c": { "prompt": "有哪些做法绝对不应再尝试（如有）？" },
+    "13.4": { "prompt": "您是否在计划以下任何一项？" },
+    "13.5": {
+      "prompt": "无论效果如何，您绝不希望企业做哪些事？",
+      "help_text": "例如语气、手段、平台、打折。我会把这些当作不可逾越的底线。"
+    },
+    "14.1": {
+      "prompt": "请上传您手头任何可能有用的资料。",
+      "help_text": "照片、标志、视频、价目表、评价、报告。资料越多，之后的产出越好。"
+    },
+    "14.1b": { "prompt": "以下哪些资料您手头已有，即使还没上传？" }
+  },
+  "entity_schemas": {
+    "offer": {
+      "label": "产品或服务",
+      "fields": {
+        "name": "名称",
+        "kind": "属于什么类型？",
+        "description": "简短描述",
+        "price": "价格",
+        "price_model": "如何收费？",
+        "cost_to_deliver": "每交付一份的成本是多少？",
+        "margin_stated": "利润率，如果您知道（%）",
+        "volume_period": "每月大约卖多少？",
+        "purchase_type": "一次性、定期还是回头购买？",
+        "lifecycle": "状态",
+        "main_customer_segment": "主要是谁在买？",
+        "problems": "这项产品有什么问题吗？"
+      }
+    },
+    "supplier": {
+      "label": "供应商",
+      "fields": {
+        "name": "供应商名称",
+        "country": "国家",
+        "supplies_offers": "他们供应哪些产品？",
+        "purchase_price": "典型采购价",
+        "moq": "最低起订量",
+        "lead_time_days": "交货时间（天）",
+        "payment_terms": "付款条件",
+        "reliability_issues": "有什么可靠性问题吗？",
+        "has_alternative": "这项是否有备用供应商？",
+        "import_duties_apply": "是否涉及进口关税或海关手续？"
+      }
+    },
+    "channel": {
+      "label": "销售渠道",
+      "fields": {
+        "type": "渠道类型",
+        "platform": "平台",
+        "monthly_sales": "该渠道每月销售笔数",
+        "revenue_monthly": "该渠道每月营收",
+        "cost_monthly": "该渠道每月花费多少？",
+        "monthly_leads": "每月潜在客户数",
+        "conversion_rate": "转化率（%）",
+        "effort_level": "需要投入多少精力？",
+        "customer_quality": "这里来的客户质量",
+        "trend": "在增长还是下降？"
+      }
+    },
+    "competitor": {
+      "label": "竞争对手",
+      "fields": {
+        "name": "名称",
+        "url": "网站或社交媒体链接",
+        "listing_url": "他们的预约或商品页面（Fresha、Treatwell、Booksy、Google、店铺页面）",
+        "price_pages": "他们其他显示价格的页面，每行一个链接",
+        "what_they_sell": "他们卖什么？",
+        "price_points": "他们的常见价格",
+        "delivery_promise": "他们在配送或履约方面承诺什么？",
+        "opening_hours": "他们的营业时间",
+        "strengths": "他们的优势",
+        "weaknesses": "他们的劣势",
+        "why_customers_choose_them": "客户为什么选择他们？",
+        "why_customers_choose_us": "客户为什么选择您而不是他们？"
+      }
+    },
+    "staff_role": {
+      "label": "人员或岗位",
+      "fields": {
+        "role_title": "岗位",
+        "engagement": "用工类型",
+        "main_tasks": "主要工作",
+        "hours_per_week": "每周工时",
+        "cost_monthly": "每月成本",
+        "replaceability": "这个岗位有多容易被替代？"
+      }
+    },
+    "cost_item": {
+      "label": "成本",
+      "fields": {
+        "category": "类别",
+        "label": "这是什么？",
+        "amount": "金额",
+        "cadence": "多久一次？"
+      }
+    },
+    "customer_segment": {
+      "label": "客户群体",
+      "fields": {
+        "name": "群体名称",
+        "who_they_are": "他们是谁？",
+        "what_they_buy": "他们买什么？",
+        "purchase_frequency": "他们多久买一次？",
+        "average_spend": "平均消费",
+        "acquisition_source": "他们从哪里来？"
+      }
+    },
+    "goal": {
+      "label": "目标",
+      "fields": {
+        "horizon": "时间范围",
+        "area": "方面",
+        "statement": "您想实现什么？",
+        "target_value": "目标数值（如有）"
+      }
+    }
+  },
+  "vocabularies": {
+    "sells_type": {
+      "physical_products": "实体产品",
+      "services": "服务",
+      "software": "软件",
+      "digital_products": "数字产品",
+      "subscriptions": "订阅",
+      "marketplace_access": "平台准入服务",
+      "other": "其他"
+    },
+    "business_stage": {
+      "idea": "构想阶段",
+      "preparing_to_launch": "准备开业",
+      "recently_launched": "刚开业",
+      "operating": "正常经营",
+      "growing": "增长中",
+      "stable": "稳定",
+      "declining": "下滑中",
+      "paused": "暂停",
+      "rebuilding": "重建中"
+    },
+    "business_size": {
+      "solo": "个人",
+      "small": "小型",
+      "medium": "中型",
+      "large": "大型"
+    },
+    "focus_area": {
+      "launch": "开业上线",
+      "first_customers": "获得首批客户",
+      "increase_revenue": "提高营收",
+      "reduce_costs": "降低成本",
+      "automate_work": "工作自动化",
+      "improve_marketing": "改进营销",
+      "hire_people": "招聘人员",
+      "expand_locations": "拓展门店",
+      "improve_profit": "提高利润",
+      "other": "其他"
+    },
+    "presence_type": {
+      "online_only": "仅线上",
+      "physical_only": "仅线下实体",
+      "both": "两者都有"
+    },
+    "location_type": {
+      "store": "门店",
+      "office": "办公室",
+      "warehouse": "仓库",
+      "restaurant": "餐厅",
+      "salon": "美容美发店",
+      "gym": "健身房",
+      "studio": "工作室",
+      "clinic": "诊所",
+      "other": "其他"
+    },
+    "ecommerce_platform": {
+      "shopify": "Shopify",
+      "woocommerce": "WooCommerce",
+      "wordpress": "WordPress",
+      "webflow": "Webflow",
+      "wix": "Wix",
+      "squarespace": "Squarespace",
+      "amazon": "Amazon",
+      "etsy": "Etsy",
+      "ebay": "eBay",
+      "tiktok_shop": "TikTok Shop",
+      "instagram_shop": "Instagram 商店",
+      "facebook_shop": "Facebook 商店",
+      "custom": "自建",
+      "none": "无",
+      "other": "其他"
+    },
+    "market_scope": {
+      "local": "本地",
+      "national": "全国",
+      "international": "国际",
+      "mixed": "混合"
+    },
+    "website_purpose": {
+      "sales": "销售",
+      "lead_generation": "获取潜在客户",
+      "booking": "预约",
+      "branding": "品牌展示",
+      "information": "信息介绍",
+      "mixed": "混合"
+    },
+    "offer_kind": {
+      "physical": "实体产品",
+      "service": "服务",
+      "digital": "数字产品",
+      "subscription": "订阅",
+      "marketplace_access": "平台准入服务"
+    },
+    "price_model": {
+      "one_time": "一次性付费",
+      "subscription": "订阅",
+      "usage_based": "按用量计费",
+      "freemium": "免费增值",
+      "lifetime": "终身买断",
+      "license": "授权许可",
+      "commission": "佣金",
+      "mixed": "混合"
+    },
+    "purchase_type": {
+      "one_time": "一次性",
+      "recurring": "定期",
+      "repeat": "回头购买"
+    },
+    "offer_lifecycle": {
+      "active": "在售",
+      "planned": "计划中",
+      "discontinued": "已停售"
+    },
+    "offer_problem": {
+      "too_cheap": "价格太低",
+      "too_expensive": "价格太高",
+      "low_demand": "需求低",
+      "hard_to_deliver": "难以交付",
+      "low_margin": "利润率低",
+      "too_manual": "太依赖手工",
+      "too_many_refunds": "退款太多",
+      "bad_positioning": "定位不当",
+      "none": "没有问题",
+      "other": "其他"
+    },
+    "yes_no_partly": {
+      "yes": "是",
+      "no": "否",
+      "partly": "部分"
+    },
+    "no_inventory_model": {
+      "dropshipping": "一件代发",
+      "made_to_order": "按单生产",
+      "preorder": "预售",
+      "supplier_shipped": "供应商直发",
+      "hybrid": "混合模式",
+      "other": "其他"
+    },
+    "inventory_tracking": {
+      "spreadsheet": "电子表格",
+      "pos_system": "POS 收银系统",
+      "erp": "ERP 系统",
+      "ecommerce_platform": "电商平台",
+      "paper": "纸质记录",
+      "none": "不跟踪",
+      "other": "其他"
+    },
+    "restock_frequency": {
+      "weekly": "每周",
+      "biweekly": "每两周",
+      "monthly": "每月",
+      "quarterly": "每季度",
+      "irregular": "不定期",
+      "never": "从不"
+    },
+    "service_standardization": {
+      "standardized": "标准化",
+      "custom": "定制",
+      "mixed": "混合"
+    },
+    "quality_process": {
+      "checklists": "检查清单",
+      "sops": "SOP 标准作业程序",
+      "training": "培训",
+      "customer_feedback": "客户反馈",
+      "review_process": "内部审核流程",
+      "complaint_handling": "投诉处理",
+      "none": "没有"
+    },
+    "digital_product_type": {
+      "saas": "SaaS 软件",
+      "mobile_app": "手机应用",
+      "web_app": "网页应用",
+      "online_course": "在线课程",
+      "template": "模板",
+      "digital_file": "数字文件",
+      "membership_platform": "会员平台",
+      "community": "社群",
+      "paid_newsletter": "付费电子报",
+      "other": "其他"
+    },
+    "digital_stage": {
+      "idea": "构想",
+      "prototype": "原型",
+      "mvp": "MVP 最小可行产品",
+      "beta": "测试版",
+      "launched": "已上线",
+      "growing": "增长中",
+      "mature": "成熟",
+      "needs_rebuilding": "需要重建"
+    },
+    "revenue_status": {
+      "yes": "有",
+      "no": "没有",
+      "not_launched": "尚未开业",
+      "previously": "以前有过"
+    },
+    "revenue_trend": {
+      "growing": "增长",
+      "stable": "持平",
+      "declining": "下降",
+      "unknown": "不清楚"
+    },
+    "payment_method": {
+      "cash": "现金",
+      "card": "银行卡",
+      "bank_transfer": "银行转账",
+      "online_payment": "在线支付",
+      "installments": "分期付款",
+      "deposits": "定金",
+      "invoice_terms": "凭发票账期付款"
+    },
+    "payment_provider": {
+      "stripe": "Stripe",
+      "paypal": "PayPal",
+      "square": "Square",
+      "adyen": "Adyen",
+      "mollie": "Mollie",
+      "klarna": "Klarna",
+      "shopify_payments": "Shopify Payments",
+      "apple_google_pay": "Apple Pay / Google Pay",
+      "local_provider": "本地支付服务商",
+      "bank_only": "仅银行",
+      "other": "其他"
+    },
+    "cost_category": {
+      "rent": "房租",
+      "salaries": "工资",
+      "contractors": "外包人员",
+      "software": "软件",
+      "insurance": "保险",
+      "utilities": "水电燃气",
+      "loan_payments": "贷款还款",
+      "accounting": "会计记账",
+      "hosting": "主机托管",
+      "vehicle": "车辆",
+      "warehouse": "仓库",
+      "marketing": "营销",
+      "materials": "原材料",
+      "packaging": "包装",
+      "shipping": "运费",
+      "payment_fees": "支付手续费",
+      "platform_fees": "平台费用",
+      "other": "其他"
+    },
+    "cost_cadence": {
+      "monthly": "每月",
+      "quarterly": "每季度",
+      "annual": "每年",
+      "per_unit": "按件",
+      "per_job": "按单"
+    },
+    "customer_type": {
+      "b2c": "B2C 个人消费者",
+      "b2b": "B2B 企业客户",
+      "both": "两者都有"
+    },
+    "purchase_frequency": {
+      "one_time": "一次性",
+      "occasional": "偶尔",
+      "monthly": "每月",
+      "weekly": "每周",
+      "daily": "每天"
+    },
+    "channel_type": {
+      "website": "网站",
+      "physical_store": "实体店",
+      "marketplace": "电商平台",
+      "social_organic": "社交媒体自然流量",
+      "paid_ads": "付费广告",
+      "phone": "电话",
+      "email": "邮件",
+      "direct_message": "私信",
+      "sales_calls": "销售电话",
+      "referrals": "转介绍",
+      "appointments": "预约",
+      "events": "活动",
+      "partners": "合作伙伴",
+      "resellers": "经销商",
+      "other": "其他"
+    },
+    "channel_platform": {
+      "own_website": "自有网站",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "youtube": "YouTube",
+      "google_search": "Google 搜索",
+      "google_ads": "Google Ads",
+      "meta_ads": "Meta 广告",
+      "tiktok_ads": "TikTok 广告",
+      "amazon": "Amazon",
+      "etsy": "Etsy",
+      "ebay": "eBay",
+      "shopify_shop": "Shopify 店铺",
+      "linkedin": "LinkedIn",
+      "pinterest": "Pinterest",
+      "whatsapp": "WhatsApp",
+      "messenger": "Messenger",
+      "local_marketplace": "本地电商平台",
+      "in_person": "线下面对面",
+      "other": "其他"
+    },
+    "effort_level": {
+      "low": "低",
+      "medium": "中",
+      "high": "高"
+    },
+    "customer_quality": {
+      "poor": "差",
+      "mixed": "参差不齐",
+      "good": "好",
+      "excellent": "非常好"
+    },
+    "advertising_status": {
+      "yes": "是",
+      "no": "否",
+      "previously": "以前投放过"
+    },
+    "marketing_channel": {
+      "facebook_ads": "Facebook 广告",
+      "instagram_ads": "Instagram 广告",
+      "tiktok_ads": "TikTok 广告",
+      "google_ads": "Google Ads",
+      "youtube": "YouTube",
+      "seo": "SEO 搜索优化",
+      "email_marketing": "邮件营销",
+      "influencers": "达人合作",
+      "organic_social": "社交媒体自然运营",
+      "content_marketing": "内容营销",
+      "partnerships": "合作推广",
+      "offline_print": "线下印刷品",
+      "events": "活动",
+      "cold_outreach": "陌生拓客",
+      "other": "其他"
+    },
+    "content_frequency": {
+      "daily": "每天",
+      "several_weekly": "每周数次",
+      "weekly": "每周",
+      "monthly": "每月",
+      "irregular": "不定期",
+      "never": "从不"
+    },
+    "operating_status": {
+      "operating": "正常经营",
+      "being_set_up": "筹备中",
+      "paused": "暂停",
+      "seasonal": "季节性经营",
+      "temporarily_closed": "暂时关闭"
+    },
+    "engagement_type": {
+      "owner": "所有者",
+      "employee": "员工",
+      "contractor": "外包",
+      "agency": "代理机构",
+      "freelancer": "自由职业者",
+      "partner": "合伙人",
+      "external_service": "外部服务"
+    },
+    "replaceability": {
+      "easy": "容易",
+      "hard": "困难",
+      "single_point_of_failure": "不可替代"
+    },
+    "tool_category": {
+      "website_platform": "网站平台",
+      "crm": "CRM 客户管理",
+      "booking": "预约",
+      "payments": "收款",
+      "accounting": "会计记账",
+      "inventory": "库存管理",
+      "email_marketing": "邮件营销",
+      "analytics": "数据分析",
+      "project_management": "项目管理",
+      "customer_support": "客户支持",
+      "ads_manager": "广告管理工具",
+      "design": "设计",
+      "ai_tools": "AI 工具",
+      "automation": "自动化",
+      "spreadsheets": "电子表格"
+    },
+    "manual_task": {
+      "answering_messages": "回复消息",
+      "creating_invoices": "开具发票",
+      "posting_content": "发布内容",
+      "checking_stock": "盘点库存",
+      "following_up_leads": "跟进潜在客户",
+      "booking_appointments": "安排预约",
+      "sending_reminders": "发送提醒",
+      "reporting": "制作报表",
+      "customer_support": "客户支持",
+      "data_entry": "数据录入",
+      "order_processing": "订单处理",
+      "other": "其他"
+    },
+    "legal_entity_type": {
+      "sole_trader": "个体工商户",
+      "single_member_llc": "一人有限责任公司",
+      "llc_ltd": "有限责任公司",
+      "partnership": "合伙企业",
+      "corporation": "股份有限公司",
+      "nonprofit": "非营利组织",
+      "not_registered": "未注册",
+      "other": "其他"
+    },
+    "vat_status": {
+      "registered": "已办理增值税登记",
+      "exempt": "免税",
+      "below_threshold": "低于起征点",
+      "not_applicable": "不适用",
+      "unsure": "不确定"
+    },
+    "growth_blocker": {
+      "not_enough_leads": "潜在客户不足",
+      "low_conversion": "转化率低",
+      "bad_offer": "产品方案不佳",
+      "weak_marketing": "营销乏力",
+      "expensive_ads": "广告太贵",
+      "operational_chaos": "运营混乱",
+      "lack_of_time": "时间不够",
+      "lack_of_staff": "人手不足",
+      "low_profit": "利润低",
+      "poor_website": "网站不好",
+      "poor_retention": "客户留存差",
+      "no_strategy": "没有策略",
+      "owner_overload": "所有者负担过重",
+      "cash_flow": "现金流",
+      "product_quality": "产品质量",
+      "other": "其他"
+    },
+    "expansion_type": {
+      "new_products": "新产品",
+      "new_locations": "新门店",
+      "new_markets": "新市场",
+      "hiring": "招聘",
+      "franchising": "特许加盟",
+      "online_expansion": "拓展线上",
+      "international": "走向国际",
+      "more_automation": "更多自动化",
+      "more_paid_ads": "更多付费广告",
+      "none": "都没有"
+    },
+    "asset_type": {
+      "product_photos": "产品照片",
+      "service_photos": "服务照片",
+      "location_photos": "门店照片",
+      "packaging_photos": "包装照片",
+      "team_photos": "团队照片",
+      "videos": "视频",
+      "logo": "品牌标志",
+      "brand_guide": "品牌手册",
+      "ads": "广告素材",
+      "content_examples": "内容示例",
+      "testimonials": "客户推荐语",
+      "sales_materials": "销售资料",
+      "price_list": "价目表",
+      "financial_reports": "财务报告",
+      "crm_export": "CRM 导出数据",
+      "analytics_export": "数据分析导出",
+      "inventory_sheet": "库存表",
+      "sops": "SOP 文档",
+      "contracts": "合同"
+    },
+    "seasonality": {
+      "none": "没有",
+      "mild": "轻微",
+      "strong": "明显",
+      "highly_seasonal": "高度季节性"
+    },
+    "demand_trend": {
+      "growing": "增长",
+      "stable": "持平",
+      "declining": "下降",
+      "unsure": "不确定"
+    },
+    "support_channel": {
+      "email": "邮件",
+      "phone": "电话",
+      "website_chat": "网站在线聊天",
+      "social_dm": "社交媒体私信",
+      "in_person": "当面",
+      "whatsapp": "WhatsApp",
+      "contact_form": "联系表单",
+      "none": "没有"
+    },
+    "business_type": {
+      "retail_shop": "零售店",
+      "ecommerce_store": "网店",
+      "restaurant": "餐厅",
+      "cafe": "咖啡馆",
+      "bar": "酒吧",
+      "food_production": "食品生产",
+      "salon_beauty": "美容美发",
+      "barber": "理发店",
+      "gym_fitness": "健身",
+      "wellness_spa": "养生水疗",
+      "clinic_health": "医疗诊所",
+      "construction": "建筑施工",
+      "trades_services": "技工服务",
+      "cleaning_services": "保洁服务",
+      "automotive": "汽车服务",
+      "professional_services": "专业服务",
+      "consulting": "咨询",
+      "agency_marketing": "营销代理",
+      "it_services": "IT 服务",
+      "software_saas": "SaaS 软件",
+      "education_training": "教育培训",
+      "childcare": "托育",
+      "real_estate": "房地产",
+      "logistics": "物流",
+      "manufacturing": "制造",
+      "wholesale": "批发",
+      "agriculture": "农业",
+      "events": "活动策划",
+      "photography_creative": "摄影与创意",
+      "tourism_accommodation": "旅游住宿",
+      "transport": "运输",
+      "nonprofit": "非营利组织",
+      "other": "其他"
+    },
+    "consent_status": {
+      "explicit_consent": "明确同意",
+      "implied_consent": "默示同意",
+      "no_consent": "未获同意",
+      "unsure": "不确定"
+    },
+    "goal_horizon": {
+      "3_months": "3 个月",
+      "6_months": "6 个月",
+      "12_months": "12 个月"
+    },
+    "price_feeling": {
+      "too_low": "偏低",
+      "about_right": "差不多合适",
+      "too_high": "偏高",
+      "unsure": "不确定"
+    },
+    "sales_asset": {
+      "scripts": "话术脚本",
+      "proposals": "商务提案",
+      "price_lists": "价目表",
+      "product_pages": "产品页面",
+      "landing_pages": "落地页",
+      "presentations": "演示文稿",
+      "before_after": "前后对比",
+      "testimonials": "客户推荐语",
+      "none": "没有"
+    },
+    "shipping_payer": {
+      "customer_pays": "客户承担",
+      "business_pays": "企业承担",
+      "free_over_threshold": "满额包邮",
+      "mixed": "视情况而定"
+    },
+    "deal_stage": {
+      "lead": "潜在客户",
+      "qualified": "已确认意向",
+      "proposal_sent": "已发送提案",
+      "won": "已赢单",
+      "lost": "已丢单"
+    }
+  },
+  "same_as_english": {},
+  "glossary_exceptions": {
+    "questions/1.4.2.2/prompt": {
+      "contact": "first contact is a moment (首次接触), not a contact person (联系人)"
+    },
+    "questions/9.3a/prompt": {
+      "contact": "the verb: customers contact you, not a contact person"
+    },
+    "questions/5.3f/help_text": {
+      "margin": "safety margin (安全垫), not a profit margin"
+    },
+    "vocabularies/quality_process/review_process": {
+      "review": "an internal quality check (内部审核), not a customer review"
+    },
+    "vocabularies/tool_category/ads_manager": {
+      "manager": "an ad-management tool (广告管理工具), not the team role"
+    },
+    "vocabularies/support_channel/contact_form": {
+      "contact": "a contact form (联系表单) on a website, not a contact person"
+    }
+  }
+}

@@ -17,6 +17,7 @@ import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { LlmCallRecord } from "../llm/cost-log";
 import type { SonnetModel } from "../llm/models";
+import type { AppLocale } from "../i18n/locales";
 import { sonnetModel, thinkingOff } from "../llm/models";
 import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
@@ -72,17 +73,29 @@ const OUTPUT_SCHEMA = {
   additionalProperties: false,
 };
 
-let bankCache: Promise<{ bank: InterviewerBank; system: SystemBlock[] }> | null = null;
+const bankCache = new Map<AppLocale, Promise<{ bank: InterviewerBank; system: SystemBlock[] }>>();
 
-/** Bank + system blocks are per-process constants — byte-stable for the cache. */
-function cachedSystem(): Promise<{ bank: InterviewerBank; system: SystemBlock[] }> {
-  bankCache ??= loadInterviewerBank().then((bank) => ({ bank, system: buildSystemBlocks(bank) }));
-  return bankCache;
+/**
+ * Bank + system blocks are per-process constants per language — byte-stable
+ * for the cache (rule 8). L-2: one prefix per language the owner reads in.
+ */
+function cachedSystem(
+  locale: AppLocale = "en",
+): Promise<{ bank: InterviewerBank; system: SystemBlock[] }> {
+  let pending = bankCache.get(locale);
+  if (!pending) {
+    pending = loadInterviewerBank(locale).then((bank) => ({
+      bank,
+      system: buildSystemBlocks(bank),
+    }));
+    bankCache.set(locale, pending);
+  }
+  return pending;
 }
 
 /** Test/bank-reload hook. */
 export function resetInterviewerBankCache(): void {
-  bankCache = null;
+  bankCache.clear();
 }
 
 /**
@@ -182,10 +195,12 @@ export async function pickNextQuestion(args: {
   asked: readonly AskedEntry[];
   /** SONNET_MODEL unless a caller (the recalibration harness) names one. */
   model?: SonnetModel;
+  /** The language the owner reads the interview in (L-2); English when absent. */
+  locale?: AppLocale;
 }): Promise<NextQuestion | null> {
   const model = args.model ?? sonnetModel();
   const [{ system }, applicable, state] = await Promise.all([
-    cachedSystem(),
+    cachedSystem(args.locale ?? "en"),
     applicableQuestions(args.profileId),
     loadProfileState(args.profileId),
   ]);

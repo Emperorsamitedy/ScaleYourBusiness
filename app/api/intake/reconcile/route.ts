@@ -10,6 +10,7 @@ import { db } from "../../../../db";
 import { businessProfiles } from "../../../../db/schema";
 import { IntakeError, reconcileFinding } from "../../../../lib/intake/service";
 import { requireRole } from "../../../../lib/auth/roles";
+import { requestLocale } from "../../../../lib/i18n/server";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -31,11 +32,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "finding_id and choice required" }, { status: 400 });
     }
     return NextResponse.json(
-      await reconcileFinding(profile.account_id, profileId, body.finding_id, body.choice),
+      await reconcileFinding(
+        profile.account_id,
+        profileId,
+        body.finding_id,
+        body.choice,
+        await requestLocale(),
+      ),
     );
   } catch (error) {
     if (error instanceof IntakeError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+      return NextResponse.json(
+        { error: error.message, code: error.code, values: error.values },
+        { status: error.status },
+      );
     }
     return NextResponse.json({ error: "internal error" }, { status: 500 });
   }

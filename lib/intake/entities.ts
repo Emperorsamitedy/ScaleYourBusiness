@@ -28,6 +28,8 @@ import type { InputSpec } from "../interviewer/harness/answers";
 import { coerceParsedValue } from "../parser/coerce";
 import { writeField } from "../profile/field-store";
 import type { ApplicableQuestion } from "../resolver/applicability";
+import type { BankWords } from "../bank/words";
+import { ENGLISH_WORDS } from "../bank/words";
 import type { EntityField, IntakeOption } from "./types";
 
 export interface EntityFieldSpec extends EntityField {
@@ -62,11 +64,12 @@ interface RawSchemaField {
   priority?: EntityField["priority"];
 }
 
-/** Load an entity schema's fields from the current bank. */
+/** Load an entity schema's fields from the current bank, worded in the person's language (L-2). */
 export async function loadEntityFields(
   schemaKey: string,
   optionsFor: (spec: InputSpec) => Promise<IntakeOption[]>,
   currency: string,
+  words: BankWords = ENGLISH_WORDS,
 ): Promise<EntityFieldSpec[]> {
   const [current] = await db.select().from(bankVersions).where(eq(bankVersions.is_current, true));
   if (!current) return [];
@@ -80,7 +83,7 @@ export async function loadEntityFields(
   return Promise.all(
     fields.map(async (f) => ({
       key: f.key,
-      prompt: (f.prompt?.en ?? f.key).trim(),
+      prompt: words.entityField(schemaKey, f.key, (f.prompt?.en ?? f.key).trim()),
       input_type: f.input.type,
       options: await optionsFor(f.input),
       priority: f.priority ?? "important",
@@ -242,7 +245,7 @@ export async function writeEntityRows(args: {
           new Error(
             `unknown field "${key}" for ${args.schemaKey} — expected one of: ${[...byKey.keys()].join(", ")}`,
           ),
-          { status: 422 },
+          { status: 422, code: "unknown_field", values: { field: key } },
         );
       }
       const coerced = coerceParsedValue(
@@ -252,7 +255,13 @@ export async function writeEntityRows(args: {
         args.currency,
       );
       if (!coerced.ok) {
-        throw Object.assign(new Error(`${field.prompt}: ${coerced.reason}`), { status: 422 });
+        // The field's own words travel with the code, so the screen can say
+        // which field in the person's language (intake.error.field).
+        throw Object.assign(new Error(`${field.prompt}: ${coerced.reason}`), {
+          status: 422,
+          code: coerced.code,
+          values: { ...(coerced.values ?? {}), field: field.prompt },
+        });
       }
       values.push([key, coerced.value]);
     }

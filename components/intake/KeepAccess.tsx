@@ -7,12 +7,15 @@
 // "Pause — finish later".
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function KeepAccess() {
   const [email, setEmail] = useState("");
   const [link, setLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const t = useTranslations("intake.keep");
+  const tErr = useTranslations("intake.error");
 
   const submit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -27,12 +30,13 @@ export function KeepAccess() {
       });
       const payload = (await res.json()) as { url?: string; error?: string };
       if (!res.ok) {
-        setError(payload.error ?? "I couldn't make the link. Try again.");
+        // The server's sentences are English; the screen says it in the person's language.
+        setError(res.status === 422 ? t("badEmail") : t("failed"));
         return;
       }
       setLink(payload.url ?? null);
     } catch {
-      setError("I couldn't reach the server. Check your connection and try again.");
+      setError(tErr("unreachable"));
     } finally {
       setBusy(false);
     }
@@ -41,8 +45,7 @@ export function KeepAccess() {
   if (link) {
     return (
       <div className="ix-linkbox inset">
-        <span className="ix-cap">Your link</span> It reopens this profile on any device for 30 days.
-        Keep a copy somewhere you&rsquo;ll find it.
+        <span className="ix-cap">{t("linkCap")}</span> {t("linkNote", { days: 30 })}
         <code>{link}</code>
       </div>
     );
@@ -55,11 +58,11 @@ export function KeepAccess() {
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@yourbusiness.hu"
-        aria-label="Your email address"
+        placeholder={t("placeholder")}
+        aria-label={t("label")}
       />
       <button type="submit" className="act solid" disabled={busy || email.trim() === ""}>
-        {busy ? "Making the link" : <>Get my link &rarr;</>}
+        {busy ? t("making") : <>{t("get")} &rarr;</>}
       </button>
       {error && <p className="ix-err">{error}</p>}
     </form>
