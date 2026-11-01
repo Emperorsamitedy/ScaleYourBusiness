@@ -519,6 +519,13 @@
       "when": 1793458765789,
       "tag": "0073_shared_bill",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1793520714343,
+      "tag": "0074_cash_close",
+      "breakpoints": true
     }
   ]
 }

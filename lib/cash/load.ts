@@ -11,8 +11,14 @@
 // and a payment account can both report the same sale, so two sources are
 // never added together. Business-wide rows only, as everywhere else. The
 // series in the cash's currency wins; others are named and left out.
+//
+// Cash today (I-54a, owner 2026-11-01): the closing balance of an imported
+// bank statement, when its last day is no more than BALANCE_FRESH_DAYS
+// old, is cash today, measured; the owner's own figure is kept beside it
+// so the screen shows both (stated against measured, never silently
+// swapped). An older statement leaves the owner's figure in place.
 
-import { and, eq, gte, inArray, isNull, like, lte, or } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNull, like, lte, or } from "drizzle-orm";
 import { db } from "../../db";
 import { connections, costItems, fieldRecords, metricObservations, offers } from "../../db/schema";
 import { SELLS_KEY, TYPE_KEY, sourceLabel } from "../charts/load";
@@ -22,6 +28,7 @@ import { MONEY_METRICS, type MetricKey } from "../connectors/provider";
 import type { FieldRecordRow } from "../profile/field-codec";
 import { rowToField } from "../profile/field-codec";
 import { SEASONS, addDays } from "../seasons/forecast";
+import { BALANCE_FRESH_DAYS, BALANCE_IMPORT_PROVIDER, BALANCE_METRIC } from "../balance/source";
 import { codesOf, costLines, countFactOf, moneyAnswer, offerLines } from "./inputs";
 import {
   BUFFER_KEY,
@@ -31,7 +38,7 @@ import {
   PAYMENT_METHODS_KEY,
   PAYMENT_PROVIDER_KEY,
 } from "./keys";
-import type { CashInputs, CountSeries, DailySeries } from "./model";
+import type { Answer, CashInputs, CountSeries, DailySeries, MoneyFact } from "./model";
 import { CASH } from "./model";
 
 /** Days read back: a year of weeks, the growth weeks a year before them, and a margin. */
@@ -73,6 +80,61 @@ async function currentFacts(profileId: string): Promise<Map<string, Field<unknow
   return facts;
 }
 
+/**
+ * I-54a: the latest closing balance an imported statement gives, up to
+ * today, with its connection; null when there is none.
+ */
+export async function latestBalance(
+  accountId: string,
+  today: string,
+): Promise<{ fact: MoneyFact; connection_id: string } | null> {
+  const [row] = await db
+    .select({
+      connection_id: metricObservations.connection_id,
+      period_date: metricObservations.period_date,
+      value_minor: metricObservations.value_minor,
+      currency: metricObservations.currency,
+    })
+    .from(metricObservations)
+    .innerJoin(connections, eq(connections.id, metricObservations.connection_id))
+    .where(
+      and(
+        eq(connections.account_id, accountId),
+        eq(connections.provider, BALANCE_IMPORT_PROVIDER),
+        eq(metricObservations.metric_key, BALANCE_METRIC),
+        lte(metricObservations.period_date, today),
+      ),
+    )
+    .orderBy(desc(metricObservations.period_date))
+    .limit(1);
+  if (!row || row.value_minor === null || !row.currency) return null;
+  return {
+    connection_id: row.connection_id,
+    fact: {
+      amount_minor: Number(row.value_minor),
+      currency: row.currency.toUpperCase(),
+      basis: "OBSERVED",
+      source: "your bank statement's closing balance",
+      on: row.period_date,
+    },
+  };
+}
+
+/** Pure: cash today, measured when a fresh statement says so, with the owner's figure kept beside it. */
+export function cashToday(
+  stated: Answer<MoneyFact>,
+  measured: MoneyFact | null,
+  today: string,
+): { cash: Answer<MoneyFact>; stated_cash: MoneyFact | null } {
+  if (measured && measured.on && measured.on >= addDays(today, -BALANCE_FRESH_DAYS)) {
+    return {
+      cash: { status: "known", fact: measured },
+      stated_cash: stated.status === "known" ? stated.fact : null,
+    };
+  }
+  return { cash: stated, stated_cash: null };
+}
+
 /** Everything the forecast needs for one business, as of `now`. */
 export async function loadCashInputs(
   accountId: string,
@@ -81,7 +143,11 @@ export async function loadCashInputs(
 ): Promise<CashInputs> {
   const today = now.toISOString().slice(0, 10);
   const facts = await currentFacts(profileId);
-  const cash = moneyAnswer(facts.get(CASH_KEY));
+  const { cash, stated_cash } = cashToday(
+    moneyAnswer(facts.get(CASH_KEY)),
+    (await latestBalance(accountId, today))?.fact ?? null,
+    today,
+  );
   const row =
     CHART_ARCHETYPES[
       archetypeFor(
@@ -187,6 +253,7 @@ export async function loadCashInputs(
   return {
     today,
     cash,
+    stated_cash,
     buffer: moneyAnswer(facts.get(BUFFER_KEY)),
     debt: moneyAnswer(facts.get(DEBT_KEY)),
     revenue,

@@ -11,10 +11,17 @@
 // route grows one). Reading needs the intake cookie, as /api/simulate
 // does. Arithmetic over rows the profile and the connectors already hold:
 // no model, no network.
+//
+// I-54a: when cash today is an imported bank statement's balance, the
+// plain forecast's next four weekly closing balances go on SYB's own track
+// record (lib/forecasts), once per week, as the seasons screen does. That
+// is a record of what was said, never a change to any money.
 
 import { type NextRequest, NextResponse } from "next/server";
 import { resolveAccess } from "../../../lib/auth/access";
-import { loadCashInputs } from "../../../lib/cash/load";
+import { latestBalance, loadCashInputs } from "../../../lib/cash/load";
+import { cashClaims } from "../../../lib/forecasts/claims";
+import { recordForecastsQuietly } from "../../../lib/forecasts/record";
 import type { CashForecast } from "../../../lib/cash/model";
 import { forecastCash } from "../../../lib/cash/model";
 import type { PriceEffect, ScenarioCell, ScenarioChoice } from "../../../lib/cash/scenarios";
@@ -69,6 +76,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         choice: null,
         price: null,
       } satisfies CashView);
+    }
+
+    if (forecast.start.basis === "OBSERVED") {
+      await recordForecastsQuietly(
+        cashClaims(
+          { account_id: access.account_id, profile_id: access.profile_id },
+          forecast,
+          await latestBalance(access.account_id, inputs.today),
+          now,
+        ),
+        { account_id: access.account_id, event: "forecast_cash_recorded" },
+      );
     }
 
     const q = Object.fromEntries(request.nextUrl.searchParams.entries());

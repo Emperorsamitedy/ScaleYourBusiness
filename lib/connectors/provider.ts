@@ -99,6 +99,12 @@ export const METRIC_KEYS = [
   "stock.value_at_price",
   "stock.units_sold_window",
   "stock.days_since_sale",
+  /**
+   * I-54a: the account's closing balance that day (money), only from an
+   * imported bank statement (lib/balance/import.ts). A snapshot, never
+   * summed across days. No connector reads a balance.
+   */
+  "cash.balance",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -117,6 +123,7 @@ export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
   "booking_revenue.daily",
   "stock.value_at_cost",
   "stock.value_at_price",
+  "cash.balance",
 ]);
 
 /** Feature 34: the snapshot metrics — read as of one day, never summed across days. */
