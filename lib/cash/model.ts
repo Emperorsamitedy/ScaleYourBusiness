@@ -136,6 +136,11 @@ export interface CashInputs {
   /** The owner's date; the series is read up to the day before. */
   today: string;
   cash: Answer<MoneyFact>;
+  /**
+   * I-54a: when cash today is a bank statement's balance, the figure the
+   * owner gave, shown beside it (stated against measured). Absent otherwise.
+   */
+  stated_cash?: MoneyFact | null;
   buffer: Answer<MoneyFact>;
   debt: Answer<MoneyFact>;
   revenue: DailySeries | null;
@@ -862,10 +867,17 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
     );
   }
   if (variable.ratio > 0) assumptions.push("Per-sale costs are paid in the week of the sale.");
+  // I-54a: a statement a few days old is cash today; the days since aren't in it.
+  if (start.basis === "OBSERVED" && start.on && start.on < inputs.today) {
+    assumptions.push(
+      `Cash today is your bank statement's closing balance on ${shortDate(start.on)}; what came in or went out since then isn't counted.`,
+    );
+  }
   assumptions.push(
     "Nothing else changes: no cost, payment or one-off beyond what you listed. Tax counts only where it is on your costs list.",
   );
 
+  const stated = inputs.stated_cash ?? null;
   const sources: SourceLine[] = [
     {
       label: "Cash today",
@@ -873,6 +885,17 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
       basis: start.basis,
       source: start.on ? `${start.source}, on ${shortDate(start.on)}` : start.source,
     },
+    // I-54a: the owner's own figure beside the statement's, never silently replaced.
+    ...(stated && stated.amount_minor !== start.amount_minor
+      ? [
+          {
+            label: "Cash you told me",
+            value: wholeMoney(stated.amount_minor, stated.currency),
+            basis: stated.basis,
+            source: `${stated.source}; the bank statement is used instead`,
+          },
+        ]
+      : []),
     {
       label: "Money in",
       value: `${series.source} ${series.noun}, ${plural(pattern.covered_days, "measured day")} to ${shortDate(history.last_day)}`,

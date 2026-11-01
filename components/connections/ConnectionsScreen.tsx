@@ -24,6 +24,7 @@ import type { EmailView } from "./EmailCampaignSection";
 import { EmailCampaignSection } from "./EmailCampaignSection";
 import type { GoogleView } from "./GoogleBusinessSection";
 import { GoogleBusinessSection } from "./GoogleBusinessSection";
+import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
 import { gives, headline, lastRead, parseTs } from "./patch";
 import "../../app/connections.css";
@@ -1048,6 +1049,7 @@ export function ConnectionsScreen() {
 
         {/* Bookings (specs/bookings.md §5): an export from any booking system, read once. */}
         <BookingsImportSection />
+        <BankStatementSection />
       </fieldset>
 
       <fieldset className="role-lock" disabled={consentWhy !== null}>

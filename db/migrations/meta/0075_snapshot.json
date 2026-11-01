@@ -1,6 +1,6 @@
 {
-  "id": "b84bab54-6b59-4f19-95a9-197d05b242ca",
-  "prevId": "6ad3a586-4321-4c10-aad4-60e70f137b96",
+  "id": "ec2fd46a-1824-450e-a1d9-625ecd1b1c15",
+  "prevId": "c54877b9-794c-47c1-b73b-3c4a39ee61aa",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -5610,7 +5610,7 @@
       "checkConstraints": {
         "forecast_checks_kind": {
           "name": "forecast_checks_kind",
-          "value": "\"forecast_checks\".\"kind\" IN ('stock_out', 'season_week')"
+          "value": "\"forecast_checks\".\"kind\" IN ('stock_out', 'season_week', 'cash_close')"
         },
         "forecast_checks_unit": {
           "name": "forecast_checks_unit",

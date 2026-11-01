@@ -76,7 +76,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (typeof body.text !== "string") {
       return NextResponse.json({ error: "text is required" }, { status: 422 });
     }
-    const outcome = await postMessage(access.profile_id, access.account_id, body.text);
+    // I-52c: anyone on the team may ask; a message does only what the asker's role may.
+    const outcome = await postMessage(
+      access.profile_id,
+      access.account_id,
+      body.text,
+      {},
+      roleOf(access) ?? "owner",
+    );
     return NextResponse.json({
       intent: outcome.intent,
       proposal_id: outcome.proposal_id,

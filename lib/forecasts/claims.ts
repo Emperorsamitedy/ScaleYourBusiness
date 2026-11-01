@@ -14,11 +14,17 @@
 //                week, times the normal week now, in the series' own units.
 //                Graded by that week's measured total from the same source.
 //
-// Not recorded, and why (TASKS-FEEDBACK.md I-54.2): the cash forecast's
-// balances, because no balance is ever measured (the cash in the bank is
-// the owner's own answer, and no connector reads a balance); and the
-// pipeline's weighted value, because it has no window: it weighs every open
-// deal, whenever it closes, so no date ever closes the claim.
+//   cash_close   the cash forecast's next four weekly closing balances
+//                (lib/cash), recorded only when cash today is an imported
+//                bank statement's balance (I-54a, owner 2026-11-01): a
+//                forecast that started from the owner's own figure could
+//                only be graded against another statement it never had.
+//                Graded by the statement's closing balance on the week's
+//                last day.
+//
+// Not recorded, and why (TASKS-FEEDBACK.md I-54.2): the pipeline's
+// weighted value, because it has no window: it weighs every open deal,
+// whenever it closes, so no date ever closes the claim.
 
 import type { forecastChecks } from "../../db/schema";
 import { wholeMoney } from "../cash/model";
@@ -26,10 +32,14 @@ import { shortDate } from "../charts/model";
 import type { CoverView } from "../stock/cover-load";
 import { wholeDays } from "../stock/cover";
 import type { SeasonsView } from "../seasons/load";
+import type { CashForecast } from "../cash/model";
 import { addDays, ratioText } from "../seasons/forecast";
 import { isoWeek } from "../summary/week";
 
-export type ForecastKind = "stock_out" | "season_week";
+export type ForecastKind = "stock_out" | "season_week" | "cash_close";
+
+/** I-54a: how many of the forecast's weeks go on the record. */
+export const CASH_CLAIM_WEEKS = 4;
 
 /** What one forecast writes, ungraded. */
 export type ForecastClaim = Omit<
@@ -171,4 +181,58 @@ export function seasonClaims(owner: Owner, view: SeasonsView, now: Date): Foreca
     });
   }
   return out;
+}
+
+/**
+ * I-54a: the cash forecast's next four weekly closing balances, as claims,
+ * when cash today is a bank statement's balance (OBSERVED, from the
+ * balance import). Each week's range is the one on screen: the cautious
+ * end to the hopeful end of the balance at the week's end. Once per ISO
+ * week the forecast is made in: the first showing of a week is the one on
+ * record, so looking at the screen every day doesn't record the same
+ * forecast seven times.
+ */
+export function cashClaims(
+  owner: Owner,
+  forecast: CashForecast,
+  balance: { connection_id: string } | null,
+  now: Date,
+): ForecastClaim[] {
+  if (forecast.status !== "ready" || balance === null) return [];
+  const start = forecast.start;
+  const on = start.on;
+  if (start.basis !== "OBSERVED" || !on) return [];
+  const currency = forecast.currency;
+  const week = isoWeek(now);
+  return forecast.weeks.slice(0, CASH_CLAIM_WEEKS).map((w) => {
+    const low = Math.min(w.balance.low, w.balance.high);
+    const high = Math.max(w.balance.low, w.balance.high);
+    return {
+      account_id: owner.account_id,
+      profile_id: owner.profile_id,
+      kind: "cash_close",
+      forecast_key: `cash_close|${currency}|${week}|${w.index}`,
+      made_at: now.toISOString(),
+      subject: "cash in the bank",
+      subject_ref: {
+        connection_id: balance.connection_id,
+        source: "your bank statement",
+        currency,
+        started_from: { amount_minor: start.amount_minor, on },
+        week_index: w.index,
+      },
+      metric: "cash.balance",
+      unit: "money",
+      window_start: w.start,
+      window_end: w.end,
+      low_minor: Math.floor(low),
+      high_minor: Math.ceil(high),
+      currency,
+      claim: `Cash in the bank at the end of ${shortDate(w.end)}: ${wholeMoney(Math.floor(low), currency)}–${wholeMoney(Math.ceil(high), currency)}.`,
+      basis:
+        `Started from your bank statement's closing balance of ${wholeMoney(start.amount_minor, currency)} on ${longDay(on)}, ` +
+        `with money in from ${forecast.series.source} ${forecast.series.noun} and money out from your costs list. ` +
+        `Assumed: ${forecast.assumptions.join(" ")}`,
+    };
+  });
 }
