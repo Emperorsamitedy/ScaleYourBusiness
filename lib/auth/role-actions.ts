@@ -36,6 +36,10 @@ export const ROLE_ACTIONS = {
   "support.answer": { min: "manager", what: "answer support" },
   // Idea 45: filing, answering and removing reviews is answering customers, like support.
   "reviews.answer": { min: "manager", what: "file, answer or remove reviews" },
+  // I-52b (owner, 2026-11-01): the pipeline's day-to-day, and reading a
+  // connected source again now. Connecting, disconnecting and importing stay an owner's.
+  "pipeline.edit": { min: "manager", what: "change the sales pipeline" },
+  "connections.sync": { min: "manager", what: "read a connected account again now" },
   // Idea 53: an alert asks for a decision, so only those who may decide get them.
   "alerts.subscribe": { min: "manager", what: "get phone alerts for proposals" },
 
@@ -53,7 +57,7 @@ export const ROLE_ACTIONS = {
   "report.share": { min: "owner", what: "share the report outside SYB" },
   "competitors.manage": { min: "owner", what: "change or research the competitor list" },
   "site.audit": { min: "owner", what: "check the website" },
-  "pipeline.edit": { min: "owner", what: "change the sales pipeline" },
+
   "support.settings": { min: "owner", what: "change how support is set up" },
   "reviews.settings": { min: "owner", what: "change the address reviews are forwarded to" },
   "summary.settings": { min: "owner", what: "switch the weekly summary on or off" },

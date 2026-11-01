@@ -718,6 +718,8 @@ export function ConnectionsScreen() {
   // Idea 52: connecting, and granting write access, are an owner's (lib/auth/roles).
   const role = useRole();
   const connectWhy = role.why("connections.manage");
+  // I-52b: a manager may read a connected source again, though the panel stays locked.
+  const syncWhy = role.why("connections.sync");
   const consentWhy = role.why("write_access.manage");
   const [view, setView] = useState<View | null>(null);
   const [exec, setExec] = useState<ExecView | null>(null);
@@ -897,8 +899,26 @@ export function ConnectionsScreen() {
       )}
       {connectWhy !== null && (
         <p className="cn-banner" role="note">
-          {connectWhy} You can see what&rsquo;s plugged in.
+          {connectWhy} You can see what&rsquo;s plugged in
+          {syncWhy === null ? ", and read any of it again now" : ""}.
         </p>
+      )}
+      {connectWhy !== null && syncWhy === null && live.some((c) => c.status === "connected") && (
+        <div className="cn-acts" aria-label="Read again now">
+          {live
+            .filter((c) => c.status === "connected")
+            .map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                className="ghost"
+                disabled={busy !== null}
+                onClick={() => void syncNow(c)}
+              >
+                {busy === c.id ? `Reading ${c.label}…` : `Read ${c.label} again now`}
+              </button>
+            ))}
+        </div>
       )}
 
       <fieldset className="role-lock" disabled={connectWhy !== null}>

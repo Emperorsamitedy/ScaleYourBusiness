@@ -226,7 +226,11 @@ function parseValue(v: unknown): DealValueInput | null {
   };
 }
 
-/** Idea 52: the role each action needs (lib/auth/roles); an action not listed asks for an owner. */
+/**
+ * Idea 52: the role each action needs (lib/auth/roles); an action not
+ * listed asks for an owner. I-52b: adding and updating deals are a
+ * manager's (pipeline.edit); importing a file stays an owner's.
+ */
 const PIPELINE_ROLE: Record<string, RoleAction> = {
   add: "pipeline.edit",
   update: "pipeline.edit",

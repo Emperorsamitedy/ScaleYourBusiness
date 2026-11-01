@@ -36,6 +36,9 @@ const MANAGER_MAY: readonly RoleAction[] = [
   "support.answer",
   "alerts.subscribe",
   "reviews.answer",
+  // I-52b (owner, 2026-11-01): the pipeline's day-to-day, and reading a connection again.
+  "pipeline.edit",
+  "connections.sync",
 ];
 /** And what the plan names as never a manager's — each must be owner-only. */
 const NEVER_A_MANAGER: readonly RoleAction[] = [
