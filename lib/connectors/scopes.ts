@@ -174,7 +174,7 @@ export const SCOPE_GUIDE: Readonly<
     {
       scope: "read_customers",
       grant: "read_customers (optional)",
-      why: "Who left an unfinished checkout, so a cart can be matched to someone on your contact list. I read only the email of a cart's shopper, keep a scrambled copy of it and never the address, and email only people you've recorded a yes for. Without it no cart is matched.",
+      why: "Who left an unfinished checkout, so a cart can be matched to someone on your contact list. I read only the email of a cart's shopper and whether they're subscribed to your email marketing in Shopify. Carts keep a scrambled copy of the email. Shoppers Shopify lists as subscribed are added to your contacts with their email, where you can erase them, and the rest keep only the scrambled copy. Without it no cart is matched.",
     },
   ],
   woocommerce: [

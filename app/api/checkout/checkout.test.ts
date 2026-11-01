@@ -161,6 +161,17 @@ describe("I-52e — an owner who has paid before", () => {
     expect(stripeCalls[0]!.get("metadata[returning_owner]")).toBe("true");
   });
 
+  // Review 2026-11-01: a paid business can't be paid for again, added or this one.
+  it("refuses a paid business of theirs as an extra, and this one when it's paid", async () => {
+    const { a, b } = await world();
+    await paidFor(b);
+    expect((await POST(post({ also: [b.profile_id] }))).status).toBe(403);
+    await paidFor(a);
+    const res = await POST(post({}));
+    expect(res.status).toBe(409);
+    expect(stripeCalls).toHaveLength(0);
+  });
+
   it("a paid business they only manage doesn't count", async () => {
     const { c } = await world();
     await paidFor(c);

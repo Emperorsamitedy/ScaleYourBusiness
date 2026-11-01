@@ -28,6 +28,7 @@ import {
   SHOPIFY_FULL_HISTORY_DAYS,
   SHOPIFY_MAX_ATTEMPTS,
   SHOPIFY_QUERIES,
+  marketingSearch,
   SHOPIFY_REREAD_DAYS,
   aggregateOrders,
   createShopifyProvider,
@@ -230,7 +231,7 @@ describe("rule 9 — the connector can only read", () => {
     for (const method of methods) expect(['"POST"', "init.method"]).toContain(method);
   });
 
-  it("THE LIST: these documents and no others (idea 47 added abandoned_checkouts, I-47b its shoppers twin)", () => {
+  it("THE LIST: these documents and no others (idea 47 added abandoned_checkouts, I-47b its shoppers twin, review 2026-11-01 the re-check)", () => {
     expect(Object.keys(SHOPIFY_QUERIES)).toEqual([
       "access_scopes",
       "orders",
@@ -239,7 +240,62 @@ describe("rule 9 — the connector can only read", () => {
       "stock",
       "abandoned_checkouts",
       "abandoned_checkouts_shoppers",
+      "customer_marketing",
     ]);
+  });
+});
+
+// Review 2026-11-01: the re-check of contacts made from a checkout.
+describe("the marketing re-check", () => {
+  it("asks by exact address, ten at a time, and leaves out one it can't quote", () => {
+    expect(marketingSearch(["a@x.com", "b@x.com"])).toBe('email:"a@x.com" OR email:"b@x.com"');
+    expect(marketingSearch(['bad"q@x.com', "c@x.com"])).toBe('email:"c@x.com"');
+    expect(marketingSearch([])).toBe("");
+  });
+
+  it("reads only the addresses asked about, and says when it may not", async () => {
+    const withIt = shopify({
+      scopes: ["read_orders", "read_products", "read_customers"],
+      customers: [
+        {
+          email: "a@example.com",
+          marketingState: "UNSUBSCRIBED",
+          marketingUpdatedAt: "2026-10-01T00:00:00Z",
+        },
+        { email: "z@example.com", marketingState: "SUBSCRIBED" },
+      ],
+    });
+    const many = Array.from({ length: 25 }, (_, i) => `n${i}@example.com`);
+    const read = await withIt.provider.readMarketingStates!(FAKE_SHOPIFY_SECRET, [
+      "A@example.com",
+      ...many,
+    ]);
+    expect(read).toEqual({
+      kind: "read",
+      states: [
+        {
+          email: "a@example.com",
+          state: "UNSUBSCRIBED",
+          updated_at: "2026-10-01T00:00:00Z",
+          opt_in_level: null,
+        },
+      ],
+    });
+    expect(
+      withIt.fake.calls.filter((c) => c.query === SHOPIFY_QUERIES.customer_marketing),
+    ).toHaveLength(3);
+
+    const without = shopify();
+    expect(
+      await without.provider.readMarketingStates!(FAKE_SHOPIFY_SECRET, ["a@example.com"]),
+    ).toEqual({ kind: "not_granted" });
+    const withheld = shopify({
+      scopes: ["read_orders", "read_products", "read_customers"],
+      customerDataWithheld: true,
+    });
+    expect(
+      await withheld.provider.readMarketingStates!(FAKE_SHOPIFY_SECRET, ["a@example.com"]),
+    ).toEqual({ kind: "refused" });
   });
 });
 

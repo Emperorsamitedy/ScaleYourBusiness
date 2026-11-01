@@ -1174,13 +1174,17 @@ export function checkoutTotal(full: number, extra: number, added: number): numbe
   return full + extra * Math.max(0, added);
 }
 
+/** Review 2026-11-01: how long to wait for Stripe's confirmation after coming back (about 30 s). */
+const CONFIRM_TRIES = 10;
+const CONFIRM_WAIT_MS = 3_000;
+
 export function ReportScreen() {
   const nav = useNav();
   const [report, setReport] = useState<ReportView | null>(null);
   const [state, setState] = useState<
     "loading" | "none" | "generating" | "choosing" | "ready" | "error"
   >("loading");
-  const [step, setStep] = useState<"reading" | "checkout">("reading");
+  const [step, setStep] = useState<"reading" | "checkout" | "confirming">("reading");
   const [error, setError] = useState<string | null>(null);
   // I-52a: the owner's other unpaid businesses, offered in the same checkout.
   const [options, setOptions] = useState<CheckoutOptions | null>(null);
@@ -1234,58 +1238,78 @@ export function ReportScreen() {
     [report],
   );
 
-  const generate = useCallback(async () => {
-    setState("generating");
-    setStep("reading");
-    setError(null);
-    try {
-      const res = await fetch("/api/report", { method: "POST" });
-      if (res.status === 402) {
-        // P1-50: the report is paid. Start checkout and hand the browser
-        // to Stripe; the webhook makes it real, and coming back here with
-        // ?checkout=success retries generation against the paid record.
-        // I-52a: an owner with other unpaid businesses is offered them first.
-        setStep("checkout");
-        const opts = await fetch("/api/checkout")
-          .then((r) => (r.ok ? (r.json() as Promise<CheckoutOptions>) : null))
-          .catch(() => null);
-        // I-52e: a lower first price is said before Stripe opens, too.
-        if (
-          opts &&
-          (opts.others.length > 0 || opts.first_price.amount_minor !== opts.price.amount_minor)
+  const generate = useCallback(
+    async (afterPayment = false) => {
+      setState("generating");
+      setStep(afterPayment ? "confirming" : "reading");
+      setError(null);
+      try {
+        let res = await fetch("/api/report", { method: "POST" });
+        // Review 2026-11-01: back from Stripe, the webhook may still be on its
+        // way. Wait for it rather than open another checkout, which could
+        // charge twice (and, since I-52a, offer just-paid businesses again).
+        for (
+          let tries = 0;
+          afterPayment && res.status === 402 && tries < CONFIRM_TRIES;
+          tries += 1
         ) {
-          setOptions(opts);
-          setAlso([]);
-          setState("choosing");
+          await new Promise((r) => setTimeout(r, CONFIRM_WAIT_MS));
+          res = await fetch("/api/report", { method: "POST" });
+        }
+        if (res.status === 402 && afterPayment) {
+          setError(
+            "Stripe hasn't confirmed your payment yet. Refresh this page in a minute: you won't be charged again, and the report starts once it's confirmed.",
+          );
+          setState(report ? "ready" : "none");
           return;
         }
-        await pay([]);
-        return;
-      }
-      if (!res.ok) {
-        const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-        setError(payload?.error ?? "generation failed");
+        if (res.status === 402) {
+          // P1-50: the report is paid. Start checkout and hand the browser
+          // to Stripe; the webhook makes it real, and coming back here with
+          // ?checkout=success retries generation against the paid record.
+          // I-52a: an owner with other unpaid businesses is offered them first.
+          setStep("checkout");
+          const opts = await fetch("/api/checkout")
+            .then((r) => (r.ok ? (r.json() as Promise<CheckoutOptions>) : null))
+            .catch(() => null);
+          // I-52e: a lower first price is said before Stripe opens, too.
+          if (
+            opts &&
+            (opts.others.length > 0 || opts.first_price.amount_minor !== opts.price.amount_minor)
+          ) {
+            setOptions(opts);
+            setAlso([]);
+            setState("choosing");
+            return;
+          }
+          await pay([]);
+          return;
+        }
+        if (!res.ok) {
+          const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+          setError(payload?.error ?? "generation failed");
+          setState(report ? "ready" : "none");
+          return;
+        }
+        setReport((await res.json()) as ReportView);
+        setState("ready");
+      } catch {
+        setError("I couldn't reach the server — your answers are safe; try again.");
         setState(report ? "ready" : "none");
-        return;
       }
-      setReport((await res.json()) as ReportView);
-      setState("ready");
-    } catch {
-      setError("I couldn't reach the server — your answers are safe; try again.");
-      setState(report ? "ready" : "none");
-    }
-  }, [report, pay]);
+    },
+    [report, pay],
+  );
 
-  // Back from Stripe: kick generation once; if the webhook is still in
-  // flight the 402 path shows the pay button again rather than
-  // double-charging. Deliberately mount-only.
+  // Back from Stripe: kick generation once, waiting for the webhook if it
+  // is still in flight (never a second checkout). Deliberately mount-only.
   const kicked = useRef(false);
   useEffect(() => {
     if (kicked.current) return;
     kicked.current = true;
     if (new URLSearchParams(window.location.search).get("checkout") === "success") {
       window.history.replaceState(null, "", "/report");
-      void generate();
+      void generate(true);
     }
   }, [generate]);
 
@@ -1315,7 +1339,9 @@ export function ReportScreen() {
                 <span className="live-dot" aria-hidden="true" />{" "}
                 {step === "checkout"
                   ? "Opening checkout — the report is paid for before it is written"
-                  : "Reading your profile — the request is running"}
+                  : step === "confirming"
+                    ? "Waiting for Stripe to confirm your payment"
+                    : "Reading your profile — the request is running"}
               </p>
               <p className="rq-prose">
                 Margins, break-even, the findings and what to do about them. This usually takes

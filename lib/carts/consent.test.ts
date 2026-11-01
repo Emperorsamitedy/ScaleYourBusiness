@@ -29,6 +29,8 @@ import { bootstrapIntake } from "../intake/service";
 import {
   SHOPIFY_CHECKOUT_SOURCE,
   checkoutSource,
+  followShopify,
+  followedContactEmails,
   isShopifyConsent,
   recordCheckoutConsent,
   shoppersOf,
@@ -94,16 +96,23 @@ describe("the pure parts", () => {
         email: "ana@example.com",
         subscribed: true,
         unsubscribed: false,
+        stated_at: "2026-10-26T08:00:00.000Z",
         at: "2026-10-26T08:00:00.000Z",
         first_seen_at: "2026-10-20T09:00:00.000Z",
+        opt_in: null,
       },
     ]);
   });
 
-  it("names the checkout and the day, and knows its own sources", () => {
+  // Review 2026-11-01: it says what Shopify lists, not that they ticked a box at this checkout.
+  it("names the checkout read, the day and the opt-in level, and knows its own sources", () => {
     expect(checkoutSource(true, "2026-10-26")).toBe(
-      "Shopify checkout 2026-10-26: said yes to email marketing (Shopify lists them as subscribed)",
+      "Shopify checkout 2026-10-26: Shopify lists them as subscribed to email marketing (how they opted in isn't recorded; their setting in Shopify, which they or the shop can change)",
     );
+    expect(checkoutSource(true, "2026-10-26", false, "CONFIRMED_OPT_IN")).toMatch(
+      /\(confirmed opt-in; /,
+    );
+    expect(checkoutSource(true, "2026-10-26")).not.toMatch(/said yes|ticked/);
     expect(isShopifyConsent(checkoutSource(false, "2026-10-26"))).toBe(true);
     expect(isShopifyConsent("import batch 1: owner attests")).toBe(false);
     expect(isShopifyConsent(SHOPIFY_CHECKOUT_SOURCE)).toBe(false);
@@ -300,5 +309,147 @@ describe("recording the checkout's yes", () => {
       withdrawn: 0,
       differs: 0,
     });
+  });
+});
+
+// Review 2026-11-01, finding 4: an owner's yes ends only on Shopify's own, later time.
+describe("an owner's yes needs Shopify's own time to end", () => {
+  it("an UNSUBSCRIBED with no time of Shopify's, on a checkout touched later, changes nothing", async () => {
+    const id = await account();
+    await addContact(id, {
+      email: "kept@example.com",
+      consent: { status: "explicit_consent", source: "signed up in the shop" },
+    });
+    const out = await recordCheckoutConsent(id, [
+      cart({
+        email: "kept@example.com",
+        accepts_marketing: false,
+        marketing_state: "UNSUBSCRIBED",
+        marketing_updated_at: null,
+        updated_at: new Date(Date.now() + 86_400_000).toISOString(),
+      }),
+    ]);
+    expect(out.withdrawn).toBe(0);
+    expect((await contactsOf(id))[0]!.consent_status).toBe("explicit_consent");
+  });
+});
+
+// Review 2026-11-01, finding 1: a contact made from a checkout keeps following Shopify after its cart ages out.
+describe("re-checking the contacts made from a checkout", () => {
+  it("lists only contacts made from a checkout, not those this read saw", async () => {
+    const id = await account();
+    await recordCheckoutConsent(id, [
+      cart({ email: "old@example.com", accepts_marketing: true }),
+      cart({ email: "fresh@example.com", accepts_marketing: true }),
+    ]);
+    await addContact(id, {
+      email: "owners@example.com",
+      consent: { status: "explicit_consent", source: "newsletter form" },
+    });
+    expect(await followedContactEmails(id, ["fresh@example.com"])).toEqual(["old@example.com"]);
+    expect((await followedContactEmails(id, [], 1)).length).toBe(1);
+  });
+
+  it("an unsubscribe found later moves them to no consent, with or without Shopify's time", async () => {
+    const id = await account();
+    await recordCheckoutConsent(id, [
+      cart({
+        email: "a@example.com",
+        accepts_marketing: true,
+        marketing_updated_at: "2026-08-01T00:00:00.000Z",
+      }),
+      cart({
+        email: "b@example.com",
+        accepts_marketing: true,
+        marketing_updated_at: "2026-08-01T00:00:00.000Z",
+      }),
+    ]);
+    const now = new Date("2026-11-01T06:00:00.000Z");
+    const out = await followShopify(
+      id,
+      [
+        {
+          email: "A@example.com",
+          state: "UNSUBSCRIBED",
+          updated_at: "2026-10-15T00:00:00.000Z",
+          opt_in_level: null,
+        },
+        { email: "b@example.com", state: "NOT_SUBSCRIBED", updated_at: null, opt_in_level: null },
+      ],
+      undefined,
+      now,
+    );
+    expect(out).toEqual({ added: 0, followed: 2, withdrawn: 0, differs: 0 });
+    const rows = await contactsOf(id);
+    const by = (e: string) => rows.find((r) => r.email === e)!;
+    expect(by("a@example.com").consent_status).toBe("no_consent");
+    expect(Date.parse(by("a@example.com").consent_captured_at)).toBe(
+      Date.parse("2026-10-15T00:00:00.000Z"),
+    );
+    expect(by("b@example.com").consent_status).toBe("no_consent");
+    expect(Date.parse(by("b@example.com").consent_captured_at)).toBe(now.getTime());
+    expect((await canEmailForMarketing(by("a@example.com"))).allowed).toBe(false);
+  });
+
+  it("never adds anyone, never touches an owner's contact, and raises only on Shopify's later time", async () => {
+    const id = await account();
+    await recordCheckoutConsent(id, [
+      cart({
+        email: "down@example.com",
+        accepts_marketing: false,
+        marketing_state: "UNSUBSCRIBED",
+      }),
+    ]);
+    await recordCheckoutConsent(id, [
+      cart({
+        email: "back@example.com",
+        accepts_marketing: true,
+        marketing_updated_at: "2026-08-01T00:00:00.000Z",
+      }),
+    ]);
+    await followShopify(id, [
+      {
+        email: "back@example.com",
+        state: "UNSUBSCRIBED",
+        updated_at: "2026-09-01T00:00:00.000Z",
+        opt_in_level: null,
+      },
+    ]);
+    await addContact(id, {
+      email: "owner-no@example.com",
+      consent: { status: "no_consent", source: "asked not to be emailed" },
+    });
+    const out = await followShopify(id, [
+      {
+        email: "stranger@example.com",
+        state: "SUBSCRIBED",
+        updated_at: "2026-10-01T00:00:00.000Z",
+        opt_in_level: null,
+      },
+      {
+        email: "owner-no@example.com",
+        state: "SUBSCRIBED",
+        updated_at: "2026-10-01T00:00:00.000Z",
+        opt_in_level: null,
+      },
+      // No time of Shopify's: not enough to raise.
+      { email: "back@example.com", state: "SUBSCRIBED", updated_at: null, opt_in_level: null },
+    ]);
+    expect(out).toEqual({ added: 0, followed: 0, withdrawn: 0, differs: 1 });
+    const later = await followShopify(id, [
+      {
+        email: "back@example.com",
+        state: "SUBSCRIBED",
+        updated_at: "2026-10-20T00:00:00.000Z",
+        opt_in_level: "CONFIRMED_OPT_IN",
+      },
+    ]);
+    expect(later.followed).toBe(1);
+    const rows = await contactsOf(id);
+    expect(rows.find((r) => r.email === "stranger@example.com")).toBeUndefined();
+    expect(rows.find((r) => r.email === "owner-no@example.com")!.consent_status).toBe("no_consent");
+    const back = rows.find((r) => r.email === "back@example.com")!;
+    expect(back.consent_status).toBe("explicit_consent");
+    expect(back.consent_source).toMatch(/confirmed opt-in/);
   });
 });

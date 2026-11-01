@@ -161,10 +161,10 @@ export async function startCheckout(
   if (also.some((a) => !accountOf.has(a.profile_id))) {
     throw new PaymentError("no such business", 404);
   }
-  if (also.length > 0) {
-    const paid = await paidProfiles(also.map((a) => a.profile_id));
-    if (paid.size > 0) throw new PaymentError("that business is already paid for", 409);
-  }
+  // Review 2026-11-01: this business too, so a direct POST can't charge a paid report again.
+  const paid = await paidProfiles(ids);
+  if (paid.has(profileId)) throw new PaymentError("this report is already paid for", 409);
+  if (paid.size > 0) throw new PaymentError("that business is already paid for", 409);
 
   const amounts = checkoutAmounts(ids.length, price.amount_minor, extra.amount_minor, paidBefore);
   const params = new URLSearchParams({

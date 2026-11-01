@@ -526,7 +526,7 @@ function SourceSettings({
               I read the checkouts left unfinished, with what was in them, under the same
               read_orders.{" "}
               {c.granted_scopes.includes("read_customers")
-                ? "With read_customers I also read each cart's shopper email, keep only a scrambled copy to match it to your contacts, and never the address itself."
+                ? "With read_customers I also read each cart's shopper email and their email marketing setting. Carts keep only a scrambled copy. Shoppers Shopify lists as subscribed become contacts, with their email, which you can erase."
                 : "Shopify only says who left a cart to an app that may read your customers. Add the optional read_customers and I match carts to your contacts; without it none is matched."}
             </dd>
           </>

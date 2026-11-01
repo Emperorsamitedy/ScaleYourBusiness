@@ -129,7 +129,10 @@ export async function GET(): Promise<NextResponse> {
       })),
       checkout_consent: {
         ...(await checkoutConsentCounts(access.account_id)),
-        differs: view.sources.find((s) => s.consent_differs !== null)?.consent_differs ?? null,
+        // Review 2026-11-01: every store's count, added; null when none has read shoppers.
+        differs: view.sources.some((s) => s.consent_differs !== null)
+          ? view.sources.reduce((n, s) => n + (s.consent_differs ?? 0), 0)
+          : null,
       },
       measure: view.measure,
       product_names: view.product_names,
