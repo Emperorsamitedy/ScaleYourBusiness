@@ -22,9 +22,16 @@
 //                Graded by the statement's closing balance on the week's
 //                last day.
 //
+//   pipeline_close  of the open deals the owner expects to close in the
+//                next 30 days, how much is likely won (lib/pipeline,
+//                I-54b, owner 2026-11-01). Graded by the deals the owner
+//                marks won by that day, read from the deals' own stage
+//                history, so reopening a deal later doesn't rewrite it.
+//
 // Not recorded, and why (TASKS-FEEDBACK.md I-54.2): the pipeline's
 // weighted value, because it has no window: it weighs every open deal,
-// whenever it closes, so no date ever closes the claim.
+// whenever it closes, so no date ever closes the claim. Its windowed twin,
+// pipeline_close above, is the one on record.
 
 import type { forecastChecks } from "../../db/schema";
 import { wholeMoney } from "../cash/model";
@@ -33,10 +40,11 @@ import type { CoverView } from "../stock/cover-load";
 import { wholeDays } from "../stock/cover";
 import type { SeasonsView } from "../seasons/load";
 import type { CashForecast } from "../cash/model";
+import type { DueForecast } from "../pipeline/maths";
 import { addDays, ratioText } from "../seasons/forecast";
 import { isoWeek } from "../summary/week";
 
-export type ForecastKind = "stock_out" | "season_week" | "cash_close";
+export type ForecastKind = "stock_out" | "season_week" | "cash_close" | "pipeline_close";
 
 /** I-54a: how many of the forecast's weeks go on the record. */
 export const CASH_CLAIM_WEEKS = 4;
@@ -233,6 +241,49 @@ export function cashClaims(
         `Started from your bank statement's closing balance of ${wholeMoney(start.amount_minor, currency)} on ${longDay(on)}, ` +
         `with money in from ${forecast.series.source} ${forecast.series.noun} and money out from your costs list. ` +
         `Assumed: ${forecast.assumptions.join(" ")}`,
+    };
+  });
+}
+
+/**
+ * I-54b: the pipeline's "likely won by" range, one claim per currency, as
+ * shown: the due deals' total × the win rate's low and high. The deals and
+ * the values they had go in subject_ref, so the grade reads the same deals.
+ * Once per ISO week the forecast is made in.
+ */
+export function pipelineClaims(
+  owner: Owner,
+  due: DueForecast,
+  today: string,
+  now: Date,
+): ForecastClaim[] {
+  if (!due.ok) return [];
+  const week = isoWeek(now);
+  return due.lines.map((l) => {
+    const n = l.deals.length;
+    return {
+      account_id: owner.account_id,
+      profile_id: owner.profile_id,
+      kind: "pipeline_close",
+      forecast_key: `pipeline_close|${l.currency}|${week}`,
+      made_at: now.toISOString(),
+      subject: "deals won",
+      subject_ref: {
+        source: "your pipeline",
+        currency: l.currency,
+        deals: l.deals,
+        total_minor: l.total.amount_minor,
+        rate_basis: due.basis,
+      },
+      metric: "deals.won",
+      unit: "money",
+      window_start: today,
+      window_end: due.by,
+      low_minor: Math.floor(l.low.amount_minor),
+      high_minor: Math.ceil(l.high.amount_minor),
+      currency: l.currency,
+      claim: `Of the ${n} deal${n === 1 ? "" : "s"} you expect to close by ${longDay(due.by)} (${wholeMoney(l.total.amount_minor, l.currency)} in all), about ${wholeMoney(Math.floor(l.low.amount_minor), l.currency)}–${wholeMoney(Math.ceil(l.high.amount_minor), l.currency)} is likely won.`,
+      basis: `${due.sources.join("; ")}. Assumed: ${due.assumed.join("; ")}.`,
     };
   });
 }

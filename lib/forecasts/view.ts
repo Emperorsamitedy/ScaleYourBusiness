@@ -110,10 +110,11 @@ const KIND_LABEL: Record<ForecastKind, { one: string; many: string }> = {
   stock_out: { one: "Stock run-out", many: "Stock run-out dates" },
   season_week: { one: "Week against last year", many: "Weeks against last year" },
   cash_close: { one: "Cash at a week's end", many: "Cash at weeks' ends" },
+  pipeline_close: { one: "Deals won by a date", many: "Deals won by a date" },
 };
 
 const isKind = (k: string): k is ForecastKind =>
-  k === "stock_out" || k === "season_week" || k === "cash_close";
+  k === "stock_out" || k === "season_week" || k === "cash_close" || k === "pipeline_close";
 const isVerdict = (v: string | null): v is Verdict =>
   v === "inside" || v === "above" || v === "below" || v === "cant_tell";
 

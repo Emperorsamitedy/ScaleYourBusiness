@@ -11,11 +11,11 @@
 
 import { and, asc, eq, gt, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { forecastChecks, metricObservations } from "../../db/schema";
+import { dealEvents, deals, forecastChecks, metricObservations } from "../../db/schema";
 import { logSafeError } from "../core/log-safe";
 import { addDays } from "../seasons/forecast";
-import type { ClaimRow, DayValue, Grade, StockCount } from "./grade";
-import { GRADE, gradeCashClose, gradeSeasonWeek, gradeStockOut } from "./grade";
+import type { ClaimRow, DayValue, DealOutcome, Grade, StockCount } from "./grade";
+import { GRADE, gradeCashClose, gradePipelineClose, gradeSeasonWeek, gradeStockOut } from "./grade";
 
 type Row = typeof forecastChecks.$inferSelect;
 
@@ -89,6 +89,61 @@ async function weekDays(claim: Row): Promise<DayValue[]> {
   return out;
 }
 
+/**
+ * I-54b: each of the claim's deals as it stands: whether its stage history
+ * moved it to won between the forecast and the end of the window's last
+ * day, and its value now in the claim's currency.
+ */
+async function dealOutcomes(claim: Row): Promise<DealOutcome[]> {
+  const ref = claim.subject_ref as { deals?: unknown };
+  const listed = Array.isArray(ref.deals)
+    ? ref.deals.flatMap((d) =>
+        typeof (d as { id?: unknown })?.id === "string" ? [(d as { id: string }).id] : [],
+      )
+    : [];
+  if (listed.length === 0) return [];
+  const [rows, events] = await Promise.all([
+    db
+      .select({ id: deals.id, value_minor: deals.value_minor, currency: deals.value_currency })
+      .from(deals)
+      .where(inArray(deals.id, listed)),
+    db
+      .select({
+        id: dealEvents.id,
+        deal_id: dealEvents.deal_id,
+        at: dealEvents.at,
+        after: dealEvents.after,
+      })
+      .from(dealEvents)
+      .where(
+        and(
+          inArray(dealEvents.deal_id, listed),
+          eq(dealEvents.kind, "stage"),
+          gte(dealEvents.at, claim.made_at),
+          lte(dealEvents.at, `${addDays(claim.window_end, 1)}T00:00:00Z`),
+        ),
+      )
+      .orderBy(asc(dealEvents.at)),
+  ]);
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  return listed.map((id) => {
+    const row = byId.get(id);
+    const won = events.find(
+      (e) => e.deal_id === id && (e.after as { stage?: unknown } | null)?.stage === "won",
+    );
+    return {
+      id,
+      won_at: won ? won.at : null,
+      event_id: won ? won.id : null,
+      value_minor:
+        row && row.value_minor !== null && row.currency?.toUpperCase() === claim.currency
+          ? Number(row.value_minor)
+          : null,
+      gone: !row,
+    };
+  });
+}
+
 /** One claim's grade from its measured rows, or null while they aren't in. */
 export async function gradeOne(claim: Row, today: string): Promise<Grade | null> {
   const c: ClaimRow = claim;
@@ -97,6 +152,11 @@ export async function gradeOne(claim: Row, today: string): Promise<Grade | null>
   // I-54a: the statement's balance on the week's last day: weekDays reads the same
   // business-wide, same-currency rows of the claim's metric over its window.
   if (claim.kind === "cash_close") return gradeCashClose(c, await weekDays(claim), today);
+  if (claim.kind === "pipeline_close") {
+    // Not before the settle days: don't read the deals until it can be graded.
+    if (claim.window_end > addDays(today, -GRADE.pipeline_settle_days)) return null;
+    return gradePipelineClose(c, await dealOutcomes(claim), today);
+  }
   return null;
 }
 

@@ -43,8 +43,11 @@ import {
   proposeFollowUps,
 } from "../../../lib/pipeline/followups";
 import { importDeals } from "../../../lib/pipeline/import";
+import { pipelineClaims } from "../../../lib/forecasts/claims";
+import { recordForecastsQuietly } from "../../../lib/forecasts/record";
 import type {
   DealAge,
+  DueForecast,
   StageAgeing,
   Staleness,
   Weighted,
@@ -55,6 +58,7 @@ import {
   stageAgeing,
   staleness,
   weightedValue,
+  dueByForecast,
   winRate,
 } from "../../../lib/pipeline/maths";
 import type { DealStage } from "../../../lib/pipeline/stages";
@@ -103,6 +107,8 @@ export interface PipelineView {
   stale?: StaleView[];
   win_rate?: WinRate;
   weighted?: Weighted;
+  /** I-54b: of the deals expected to close in the next 30 days, how much is likely won. */
+  due?: DueForecast;
   win_rate_question?: string;
   /** Why follow-ups can't be proposed now, or null. */
   held?: string | null;
@@ -167,6 +173,17 @@ export async function GET(): Promise<NextResponse> {
             CLOSED_SHOWN_DAYS * 86_400_000),
     );
     const rate = winRate({ deals: facts, stated, today });
+    // I-54b: the windowed forecast goes on SYB's own track record, once a week.
+    const due = dueByForecast(facts, rate, today);
+    await recordForecastsQuietly(
+      pipelineClaims(
+        { account_id: access.account_id, profile_id: access.profile_id },
+        due,
+        today,
+        new Date(),
+      ),
+      { account_id: access.account_id, event: "forecast_pipeline_recorded" },
+    );
     const stale: StaleView[] = cards
       .filter((c) => c.stale !== null)
       .sort((a, b) => b.age.days_quiet - a.age.days_quiet)
@@ -193,6 +210,7 @@ export async function GET(): Promise<NextResponse> {
       stale,
       win_rate: rate,
       weighted: weightedValue(facts, rate),
+      due,
       win_rate_question: WIN_RATE_QUESTION,
       held,
       counts: {

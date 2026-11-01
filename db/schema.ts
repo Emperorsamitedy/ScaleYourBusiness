@@ -3256,7 +3256,7 @@ export const forecastChecks = pgTable(
     profile_id: uuid("profile_id")
       .notNull()
       .references(() => businessProfiles.id, { onDelete: "cascade" }),
-    /** "stock_out" (lib/stock) | "season_week" (lib/seasons) | "cash_close" (lib/cash, I-54a). */
+    /** "stock_out" (lib/stock) | "season_week" (lib/seasons) | "cash_close" (lib/cash, I-54a) | "pipeline_close" (lib/pipeline, I-54b). */
     kind: text("kind").notNull(),
     /** Once per window: e.g. "season_week|<connection>|revenue.daily|EUR|2026-11-02". */
     forecast_key: text("forecast_key").notNull(),
@@ -3302,7 +3302,10 @@ export const forecastChecks = pgTable(
       .on(t.window_end)
       .where(sql`${t.graded_at} IS NULL`),
     index("forecast_checks_profile_idx").on(t.profile_id, t.made_at),
-    check("forecast_checks_kind", sql`${t.kind} IN ('stock_out', 'season_week', 'cash_close')`),
+    check(
+      "forecast_checks_kind",
+      sql`${t.kind} IN ('stock_out', 'season_week', 'cash_close', 'pipeline_close')`,
+    ),
     check("forecast_checks_unit", sql`${t.unit} IN ('money', 'count', 'date')`),
     check("forecast_checks_window", sql`${t.window_start} <= ${t.window_end}`),
     check(

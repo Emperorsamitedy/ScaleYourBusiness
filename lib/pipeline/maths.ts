@@ -10,6 +10,11 @@
 //   · Stage ageing: days in the current stage, and days since the owner
 //     last spoke to them (or since the deal was added, said so).
 //   · Stale: an open deal with no next step, or a next step past its date.
+//   · Due by a date (I-54b, owner 2026-11-01): the open deals the owner
+//     expects to close by PIPELINE.due_days from today (their own expected
+//     close date, past ones included), their values × the same win rate.
+//     Unlike the weighted value it has a window, so SYB's track record can
+//     record it and grade it by the deals marked won by that day.
 //
 // The thresholds are pinned in PIPELINE and tested at their boundaries.
 
@@ -27,6 +32,8 @@ export const PIPELINE = {
   stated_band_points: 10,
   /** The measured rate's range: a Wilson score interval at 90% (z = 1.645). */
   z: 1.645,
+  /** I-54b: the window of the "due by" forecast, in days from today. */
+  due_days: 30,
 } as const;
 
 const DAY_MS = 86_400_000;
@@ -44,6 +51,8 @@ export interface DealFacts {
   next_step: string | null;
   /** YYYY-MM-DD. */
   next_step_due: string | null;
+  /** YYYY-MM-DD: when the owner expects it to close; null or absent when they haven't said. */
+  expected_close?: string | null;
 }
 
 /** Whole days from an instant to the start of `today` (YYYY-MM-DD, UTC); never negative. */
@@ -359,6 +368,128 @@ export function weightedValue(deals: readonly DealFacts[], rate: WinRate): Weigh
       ...(estimated > 0
         ? [
             `${estimated} value${estimated === 1 ? " is" : "s are"} your estimate rather than a quote, and count the same`,
+          ]
+        : []),
+    ],
+  };
+}
+
+/* ── due by a date (I-54b) ── */
+
+export interface DueLine {
+  currency: string;
+  /** The deals in it, with the value each had when this was worked out. */
+  deals: { id: string; amount_minor: number }[];
+  total: Money;
+  low: Money;
+  high: Money;
+}
+
+export type DueForecast =
+  | {
+      ok: true;
+      /** YYYY-MM-DD: the last day of the window. */
+      by: string;
+      lines: DueLine[];
+      /** Deals due in the window with no value: left out of every figure, and counted. */
+      unvalued: number;
+      /** Of the deals in it, those whose expected close date has already passed. */
+      overdue: number;
+      /** Open deals with no expected close date: not in this forecast, and counted. */
+      undated: number;
+      basis: "measured" | "stated";
+      sources: string[];
+      assumed: string[];
+    }
+  | {
+      ok: false;
+      by: string;
+      reason: string;
+      undated: number;
+    };
+
+/** Pure: today + PIPELINE.due_days, YYYY-MM-DD. */
+export function dueBy(today: string): string {
+  return new Date(Date.parse(`${today}T00:00:00Z`) + PIPELINE.due_days * DAY_MS)
+    .toISOString()
+    .slice(0, 10);
+}
+
+/**
+ * Pure: of the open deals the owner expects to close by dueBy(today), how
+ * much is likely won, low to high, per currency, from the same win rate as
+ * the weighted value. It refuses without a win rate (rule 25), and when no
+ * deal is due by then with a value; deals with no expected close date are
+ * counted, never guessed into the window.
+ */
+export function dueByForecast(
+  deals: readonly DealFacts[],
+  rate: WinRate,
+  today: string,
+): DueForecast {
+  const by = dueBy(today);
+  const open = deals.filter((d) => isOpenStage(d.stage));
+  const undated = open.filter((d) => !d.expected_close).length;
+  if (rate.basis === "none") return { ok: false, by, reason: rate.reason, undated };
+  const due = open.filter((d) => d.expected_close && d.expected_close <= by);
+  const byCurrency = new Map<string, { id: string; amount_minor: number }[]>();
+  let unvalued = 0;
+  for (const d of due) {
+    if (d.value === null) {
+      unvalued++;
+      continue;
+    }
+    const list = byCurrency.get(d.value.currency) ?? [];
+    list.push({ id: d.id, amount_minor: d.value.amount_minor });
+    byCurrency.set(d.value.currency, list);
+  }
+  if (byCurrency.size === 0) {
+    return {
+      ok: false,
+      by,
+      reason:
+        due.length === 0
+          ? `No open deal has an expected close date on or before ${by}. Give your deals an expected close date and I can say how much is likely won by then.`
+          : `The deals expected to close by ${by} have no value yet, so I can't say how much is likely won.`,
+      undated,
+    };
+  }
+  const lines: DueLine[] = [...byCurrency.keys()].sort().map((currency) => {
+    const list = byCurrency.get(currency)!;
+    const total = money(
+      list.reduce((s, d) => s + d.amount_minor, 0),
+      currency,
+    );
+    return {
+      currency,
+      deals: list,
+      total,
+      low: multiply(total, rate.low),
+      high: multiply(total, rate.high),
+    };
+  });
+  const overdue = due.filter((d) => d.expected_close! < today).length;
+  return {
+    ok: true,
+    by,
+    lines,
+    unvalued,
+    overdue,
+    undated,
+    basis: rate.basis,
+    sources: [
+      `the expected close dates you gave on ${due.length} open deal${due.length === 1 ? "" : "s"}`,
+      rate.basis === "measured"
+        ? `your own win rate, from ${rate.closed.won + rate.closed.lost} deals you closed between ${rate.closed.from} and ${rate.closed.to}`
+        : `your answer to question ${WIN_RATE_QUESTION}`,
+    ],
+    assumed: [
+      ...rate.assumed,
+      "each of these deals is won at that one rate, whatever its stage",
+      "a deal counts as won by the date only if you mark it won in the pipeline by then",
+      ...(overdue > 0
+        ? [
+            `${overdue} of them ${overdue === 1 ? "was" : "were"} expected earlier and ${overdue === 1 ? "is" : "are"} still open; ${overdue === 1 ? "it counts" : "they count"} as due now`,
           ]
         : []),
     ],

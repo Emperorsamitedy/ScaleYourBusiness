@@ -540,6 +540,13 @@
       "when": 1793531752044,
       "tag": "0076_stop_log",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1793534132633,
+      "tag": "0077_pipeline_close",
+      "breakpoints": true
     }
   ]
 }
