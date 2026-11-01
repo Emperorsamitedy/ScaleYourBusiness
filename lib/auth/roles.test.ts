@@ -18,12 +18,13 @@ import {
 } from "./roles";
 import type { AuthedSession } from "./service";
 
-/** The plan: a viewer reads and presses stop. */
+/** The plan: a viewer reads and presses stop; and asks the chat (I-52c, owner 2026-11-01). */
 const VIEWER_MAY: readonly RoleAction[] = [
   "stop.press",
   "intake.open",
   "telemetry.record",
   "alerts.remove_device",
+  "chat.ask",
 ];
 /** The plan: a manager approves or declines, drafts, answers support and presses stop. */
 const MANAGER_MAY: readonly RoleAction[] = [
@@ -33,7 +34,6 @@ const MANAGER_MAY: readonly RoleAction[] = [
   "proposals.carry_out",
   "content.draft",
   "support.answer",
-  "chat.ask",
   "alerts.subscribe",
   "reviews.answer",
 ];

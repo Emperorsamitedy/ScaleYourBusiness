@@ -22,6 +22,9 @@ export const ROLE_ACTIONS = {
   "stop.press": { min: "viewer", what: "press the emergency stop" },
   "intake.open": { min: "viewer", what: "open the interview" },
   "telemetry.record": { min: "viewer", what: "record how the screens are used" },
+  // I-52c (owner, 2026-11-01): anyone on the team may ask; what a message may DO
+  // still asks for the role of the screen it would act on (lib/chat/service.ts).
+  "chat.ask": { min: "viewer", what: "ask me things in the chat" },
   // Idea 53: taking one of your own phones off alerts is always allowed.
   "alerts.remove_device": { min: "viewer", what: "remove one of your own phones from alerts" },
 
@@ -33,7 +36,6 @@ export const ROLE_ACTIONS = {
   "support.answer": { min: "manager", what: "answer support" },
   // Idea 45: filing, answering and removing reviews is answering customers, like support.
   "reviews.answer": { min: "manager", what: "file, answer or remove reviews" },
-  "chat.ask": { min: "manager", what: "ask me things in the chat" },
   // Idea 53: an alert asks for a decision, so only those who may decide get them.
   "alerts.subscribe": { min: "manager", what: "get phone alerts for proposals" },
 

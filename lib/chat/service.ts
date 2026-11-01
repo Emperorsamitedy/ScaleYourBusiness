@@ -57,6 +57,9 @@ import type { ClassifyLlm } from "../proposals/generate";
 import { coerceKind, liveClassifyLlm } from "../proposals/generate";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { sonnetAnswerShape } from "../llm/models";
+import { entryFor } from "../assistant/catalogue";
+import type { Role, RoleAction } from "../auth/role-actions";
+import { refusalFor, roleAllows } from "../auth/role-actions";
 
 export const INTENT_MODEL = "claude-haiku-5-5";
 // The answer model is SONNET_MODEL (lib/llm/models.ts), unset = claude-sonnet-5.
@@ -222,6 +225,11 @@ export interface ChatOutcome {
   change: AssistantChangeRow | null;
 }
 
+/** I-52c: the reply to a message asking for something the asker's role can't do. */
+export function notYours(action: RoleAction): string {
+  return `${refusalFor(action)} I can answer your questions about the business, and anyone on the team can press the stop.`;
+}
+
 /** A short follow-up after the assistant asked ("Which day?" → "Saturday"). */
 const MAX_FOLLOW_UP_WORDS = 12;
 
@@ -276,12 +284,21 @@ async function readIntent(
   return { intent: read.intent, change, calls, answered: change ? answered : null };
 }
 
-/** One owner turn, handled end to end. */
+/**
+ * One turn, handled end to end. `role` is the asker's (I-52c): anyone on
+ * the team may ask, but a message only does what that role may do. A
+ * change is drafted only for someone whose role may make it on its own
+ * screen (the catalogue's role_action), and a request becomes a proposal
+ * only for someone who may ask for proposals. Otherwise the reply says who
+ * can, and nothing is drafted or queued. Omitted, the asker is the owner
+ * (the anonymous intake's one person, and the callers before idea 52).
+ */
 export async function postMessage(
   profileId: string,
   accountId: string,
   text: string,
   seams: ChatSeams = {},
+  role: Role = "owner",
 ): Promise<ChatOutcome> {
   const trimmed = text.trim();
   if (trimmed === "") throw new ChatError("say something and I'll answer", 422);
@@ -310,9 +327,19 @@ export async function postMessage(
   const ownerRow = owner as ChatTurn;
 
   if (change !== null) {
+    const action = entryFor(change.kind).role_action;
+    if (!roleAllows(role, action)) {
+      const reply = await say(profileId, notYours(action), 0);
+      return { owner: ownerRow, reply, intent, proposal_id: null, change: null };
+    }
     if (answered !== null) await supersede(answered);
     const outcome = await handleChange(profileId, accountId, trimmed, ownerRow, change, seams);
     return { owner: ownerRow, ...outcome, intent, proposal_id: null };
+  }
+
+  if (intent === "request" && !roleAllows(role, "proposals.generate")) {
+    const reply = await say(profileId, notYours("proposals.generate"), 0);
+    return { owner: ownerRow, reply, intent, proposal_id: null, change: null };
   }
 
   if (intent === "request") {

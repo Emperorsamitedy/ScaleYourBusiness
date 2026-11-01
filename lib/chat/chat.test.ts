@@ -243,6 +243,70 @@ describe("P3-36 — limits through chat (§5), confirmed first (feature 33, §3)
   });
 });
 
+// I-52c (owner, 2026-11-01): a viewer may ask; a message does only what the asker's role may.
+describe("I-52c — a viewer in the chat", () => {
+  it("gets answers to questions", async () => {
+    const s = await fresh();
+    const out = await postMessage(
+      s.profile_id,
+      s.account_id,
+      "What's my margin?",
+      { intentLlm: intentAs("ask"), answerLlm: answerWith("About 31%.") },
+      "viewer",
+    );
+    expect(out.reply.text).toContain("31%");
+  });
+
+  it("asking for a proposal queues nothing, and the reply says who can", async () => {
+    const s = await fresh();
+    const out = await postMessage(
+      s.profile_id,
+      s.account_id,
+      "Post something about the new product",
+      {
+        intentLlm: intentAs("request"),
+        classifyLlm: classifyAs("content_publishing"),
+        limitLlm: limitsOf([]),
+      },
+      "viewer",
+    );
+    expect(out.proposal_id).toBeNull();
+    expect(out.reply.text).toMatch(/^Only an owner or a manager can ask me for new proposals\./);
+    const queued = await db.select().from(proposals).where(eq(proposals.profile_id, s.profile_id));
+    expect(queued).toHaveLength(0);
+  });
+
+  it("asking for a change drafts nothing, and says who can make it", async () => {
+    const s = await fresh();
+    const out = await postMessage(
+      s.profile_id,
+      s.account_id,
+      "Never advertise on TikTok",
+      { intentLlm: intentAs("limit") },
+      "viewer",
+    );
+    expect(out.change).toBeNull();
+    expect(out.reply.text).toMatch(/^Only an owner can /);
+    expect(await readFieldHistory(s.profile_id, BOUNDARIES_KEY)).toHaveLength(0);
+  });
+
+  it("a manager still gets the same request queued and the change drafted", async () => {
+    const s = await fresh();
+    const asked = await postMessage(
+      s.profile_id,
+      s.account_id,
+      "Post something about the new product",
+      {
+        intentLlm: intentAs("request"),
+        classifyLlm: classifyAs("content_publishing"),
+        limitLlm: limitsOf([]),
+      },
+      "manager",
+    );
+    expect(asked.proposal_id).not.toBeNull();
+  });
+});
+
 describe("rule 8 — the answer's context is cached from turn two", () => {
   it("the system prompt goes out as one block with a cache breakpoint, byte-identical across turns", async () => {
     const s = await fresh();
