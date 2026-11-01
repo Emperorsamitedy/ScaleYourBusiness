@@ -38,6 +38,8 @@ const ENTRY_POINTS = [
   "lib/reviews/fallback.ts",
   "lib/reviews/store.ts",
   "lib/reviews/alert.ts",
+  // I-45a: the same Google review by email and from Google files once.
+  "lib/reviews/twin.ts",
 ];
 
 /** Anything under these may never be reached from the support tier. */
@@ -66,6 +68,8 @@ const FORBIDDEN_PREFIXES = [
   "lib/support-desk/",
   // Idea 45: the owner's review replies, removals and screen. A stranger must never reach them.
   "lib/review-desk/",
+  // I-45a: the Google Business Profile access and its reader hold a write-capable grant.
+  "lib/google-business/",
 ];
 
 /**

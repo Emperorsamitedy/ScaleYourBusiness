@@ -3449,10 +3449,23 @@ export const reviewSettings = pgTable(
      * one overwrites it, a new address clears it. Nothing else of that mail.
      */
     gmail_confirmation: jsonb("gmail_confirmation").$type<GmailConfirmation>(),
+    /**
+     * I-45a (migration 0075): the Google Business Profile location the owner
+     * consented to SYB reading, by its public title; null when none is
+     * connected. The access itself is on the execute connection, encrypted.
+     */
+    google_location_title: text("google_location_title"),
+    /** I-45a: when SYB last tried to read reviews from Google, and how that went (a closed code). */
+    google_read_at: timestamp("google_read_at", { withTimezone: true, mode: "string" }),
+    google_read_outcome: text("google_read_outcome"),
   },
   (t) => [
     uniqueIndex("review_settings_inbound_token_idx").on(t.inbound_token),
     check("review_settings_parse_calls_nonneg", sql`${t.parse_calls} >= 0`),
+    check(
+      "review_settings_google_read_outcome",
+      sql`${t.google_read_outcome} IS NULL OR ${t.google_read_outcome} IN ('ok', 'auth', 'permission', 'quota', 'unavailable', 'refused', 'fence', 'internal')`,
+    ),
   ],
 );
 
@@ -3468,9 +3481,9 @@ export const reviews = pgTable(
       .references(() => accounts.id),
     /** A platform key from specs/review-notifications-v1.json ("google", "trustpilot", …) or "other". */
     platform: text("platform").notNull(),
-    /** How it reached SYB: a forwarded notification email, or pasted by the owner. */
+    /** How it reached SYB: a forwarded notification email, pasted by the owner, or read from Google Business Profile (I-45a). */
     source: text("source").notNull(),
-    /** Who read it: "parser" (the deterministic format), "model" (the capped fallback), "owner" (pasted), "unread". */
+    /** Who read it: "parser" (the deterministic format), "model" (the capped fallback), "owner" (pasted), "unread", "api" (Google's own API, I-45a). */
     read_by: text("read_by").notNull(),
     /** 1–5; null when the notification didn't say (an unread one, or text with no rating). */
     stars: integer("stars"),
@@ -3509,8 +3522,9 @@ export const reviews = pgTable(
     index("reviews_profile_received_idx").on(t.profile_id, t.received_at),
     index("reviews_expires_idx").on(t.expires_at),
     check("reviews_stars_range", sql`${t.stars} IS NULL OR ${t.stars} BETWEEN 1 AND 5`),
-    check("reviews_source", sql`${t.source} IN ('email', 'paste')`),
-    check("reviews_read_by", sql`${t.read_by} IN ('parser', 'model', 'owner', 'unread')`),
+    // I-45a (migration 0075): 'google' — read from the owner's Business Profile, by the API ('api').
+    check("reviews_source", sql`${t.source} IN ('email', 'paste', 'google')`),
+    check("reviews_read_by", sql`${t.read_by} IN ('parser', 'model', 'owner', 'unread', 'api')`),
     check("reviews_draft_calls_range", sql`${t.draft_calls} BETWEEN 0 AND 3`),
     check("reviews_expiry_after_receipt", sql`${t.expires_at} > ${t.received_at}`),
   ],

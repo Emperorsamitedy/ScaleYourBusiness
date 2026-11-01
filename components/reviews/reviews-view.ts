@@ -1,6 +1,7 @@
 // The /reviews screen's words — idea 45 (I-45.4). Pure: the headline, the
 // stars in words, the month's count, the setup steps.
 
+import { GOOGLE_READ_NOTE } from "../../lib/google-business/words";
 import type { ReviewItem, ReviewsView } from "../../lib/review-desk/view";
 
 /** Stars as words: "2 of 5". */
@@ -70,6 +71,7 @@ export function readNote(r: Pick<ReviewItem, "read_by" | "source">): string | nu
   }
   if (r.read_by === "model") return "Read by my fallback reader: check it against the original.";
   if (r.source === "paste") return "You pasted this one.";
+  if (r.source === "google") return GOOGLE_READ_NOTE;
   return null;
 }
 

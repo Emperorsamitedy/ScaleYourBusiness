@@ -57,6 +57,7 @@ export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
 /** GET handlers that change something anyway, held to the same rule. */
 export const MUTATING_GETS: readonly string[] = [
   "connections/meta/callback/route.ts", // finishes a write-access consent (rule 13)
+  "connections/google-business/callback/route.ts", // I-45a: finishes the Google consent (rule 13)
 ];
 
 type Method = "POST" | "PUT" | "PATCH" | "DELETE" | "GET";

@@ -28,7 +28,7 @@ import {
 } from "./reviews-view";
 
 const FOOT =
-  "SYB never posts a reply and never signs in to your review sites. A reviewer's name is kept for a year, and you can remove any review at once.";
+  "SYB never posts a reply and never signs in to your review sites. It reads your Google reviews only if you connect Google Business Profile, and only reads them. A reviewer's name is kept for a year, and you can remove any review at once.";
 
 type Post = (body: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
 
@@ -274,6 +274,64 @@ function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
   );
 }
 
+/**
+ * I-45a: reading reviews straight from Google Business Profile. Granted on
+ * Connections, under its own consent; this card says what that permission
+ * can do, what SYB does with it, and what has to be in place first.
+ */
+function GoogleCard({ view }: { view: ReviewsView }) {
+  const g = view.google;
+  const title = g.connected
+    ? g.failed
+      ? "Google stopped accepting SYB's access"
+      : `Reading your Google reviews${g.location_title ? ` for ${g.location_title}` : ""}`
+    : g.configured
+      ? "Read your Google reviews directly"
+      : "Reading from Google isn't set up yet";
+  return (
+    <SheetCard
+      label="Google Business Profile"
+      title={title}
+      foot={
+        <span className="rv-foot-row">
+          <Link href="/connections">
+            {g.connected ? "Manage or revoke it on Connections" : "Connect it on Connections"}
+          </Link>
+        </span>
+      }
+    >
+      <p className="rv-copy">{g.what_it_can_do}</p>
+      {g.connected ? (
+        <p className="rv-copy">
+          SYB reads your reviews once a day and files new ones here, alongside any you forward. The
+          same review arriving both ways is listed once.
+          {g.last_read && (
+            <>
+              {" "}
+              <span className="rv-quiet">
+                Last read {dayLabel(g.last_read.at, view.today)}.
+                {g.last_read.words ? ` ${g.last_read.words}` : ""}
+              </span>
+            </>
+          )}
+        </p>
+      ) : (
+        <>
+          {g.not_set_up && <p className="rv-copy">{g.not_set_up}</p>}
+          <div className="rv-steps">
+            <p className="cs-label">Before it can work</p>
+            <ol>
+              {g.needs.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ol>
+          </div>
+        </>
+      )}
+    </SheetCard>
+  );
+}
+
 function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
   const [form, setForm] = useState({
     platform: "google",
@@ -477,6 +535,7 @@ export function ReviewsScreen() {
           </p>
         )}
       </SheetCard>
+      <GoogleCard view={view} />
       <div className="rv-grid">
         <ForwardingCard view={view} post={post} />
         <PasteCard view={view} post={post} />

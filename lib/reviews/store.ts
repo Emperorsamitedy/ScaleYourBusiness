@@ -10,7 +10,7 @@
 // Stranger-reachable through the inbound webhook: lib/reviews and the
 // database only.
 
-import { and, eq, lt } from "drizzle-orm";
+import { and, eq, lt, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { reviews } from "../../db/schema";
 import type { reviewSettings } from "../../db/schema";
@@ -19,6 +19,7 @@ import type { AlertableReview } from "./alert";
 import { claimReviewAlert, pushReviewAlert } from "./alert";
 import type { ParsedReview, ReviewPlatformKey } from "./parse";
 import { REVIEW_LIMITS, dedupeKey, worthKnowing } from "./parse";
+import { twinOf } from "./twin";
 
 export type ReviewRow = typeof reviews.$inferSelect;
 export type ReviewSettingsRow = typeof reviewSettings.$inferSelect;
@@ -31,23 +32,39 @@ export function expiryOf(receivedAt: string): string {
   return new Date(Date.parse(receivedAt) + REVIEW_RETENTION_DAYS * DAY_MS).toISOString();
 }
 
-export type ReadBy = "parser" | "model" | "owner" | "unread";
+export type ReadBy = "parser" | "model" | "owner" | "unread" | "api";
 
 export interface ReviewToFile extends ParsedReview {
   profile_id: string;
   account_id: string;
   platform: ReviewPlatformKey;
-  source: "email" | "paste";
+  /** I-45a: "google" — read from the owner's Business Profile by Google's API. */
+  source: "email" | "paste" | "google";
   read_by: ReadBy;
   received_at: string;
   provider_id: string | null;
   /** What an unread one keys on: its Message-ID, else the provider's id. */
   fallback_id: string | null;
   sender_auth: SenderAuth | null;
+  /**
+   * I-45a: the key to file on instead of the content hash, for a review that
+   * has its own id at its platform (Google's review name). Two text-less
+   * reviews with the same stars are two reviews there.
+   */
+  dedupe_basis?: string;
+  /**
+   * I-45a: false files the review quietly — still marked worth knowing, but
+   * with no alert line. For a review read back from before SYB was
+   * connected: old news isn't "a review came in". Default true.
+   */
+  alert?: boolean;
 }
 
 export type FileOutcome =
   { kind: "filed"; review: ReviewRow; alerted: boolean } | { kind: "duplicate" };
+
+/** I-45a: a review keyed on its own platform id hashes that id alone. */
+const NO_CONTENT = { stars: null, reviewer: null, text: null, link: null } as const;
 
 const clip = (s: string | null, max: number) => (s === null ? null : s.slice(0, max));
 
@@ -83,6 +100,24 @@ export async function fileReview(r: ReviewToFile, now = new Date()): Promise<Fil
   // The row and its one alert commit together: a failure files neither, so
   // the webhook's retry files the review AND raises its alert.
   const filed = await db.transaction(async (tx) => {
+    if (r.platform === "google") {
+      // I-45a: the same review by email and from Google's API files once. One
+      // business's Google reviews are filed one at a time, so two arrivals of
+      // one review can't both miss each other.
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(hashtext(${`reviews-google:${r.profile_id}`}))`,
+      );
+      const twin = await twinOf(tx, {
+        profile_id: r.profile_id,
+        platform: r.platform,
+        source: r.source,
+        stars,
+        text,
+        reviewer,
+        reviewed_at: reviewedAt,
+      });
+      if (twin !== null) return null;
+    }
     const [inserted] = await tx
       .insert(reviews)
       .values({
@@ -98,7 +133,10 @@ export async function fileReview(r: ReviewToFile, now = new Date()): Promise<Fil
         reviewed_at: reviewedAt,
         received_at: r.received_at,
         provider_id: r.provider_id,
-        dedupe_key: dedupeKey(r.platform, { stars, reviewer, text, link }, r.fallback_id),
+        dedupe_key:
+          r.dedupe_basis !== undefined
+            ? dedupeKey(r.platform, NO_CONTENT, r.dedupe_basis)
+            : dedupeKey(r.platform, { stars, reviewer, text, link }, r.fallback_id),
         sender_auth: r.sender_auth,
         worth_knowing: worth,
         expires_at: expiryOf(r.received_at),
@@ -114,7 +152,8 @@ export async function fileReview(r: ReviewToFile, now = new Date()): Promise<Fil
       stars: inserted.stars,
       worth_knowing: inserted.worth_knowing,
     };
-    const claimed = await claimReviewAlert(alertable, { now, executor: tx });
+    const claimed =
+      r.alert === false ? false : await claimReviewAlert(alertable, { now, executor: tx });
     return { row: inserted, alertable, claimed };
   });
   if (!filed) return { kind: "duplicate" };

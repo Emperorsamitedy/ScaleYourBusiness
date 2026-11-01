@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import { SCOPE_REGISTRY, auditRegistry, isWriteCapable } from "../connectors/scopes";
 import {
   EXECUTION_SCOPE_REGISTRY,
+  FENCED_SCOPES,
   VENDOR_MISNAMED_AD_FIELDS,
   VENDOR_MISNAMED_READS,
   auditExecutionRegistry,
@@ -207,7 +208,121 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // I-45a, 2026-11-01: Google Business Profile, held as a write consent
+      // because its only scope can write, and used to read reviews alone —
+      // no operations, so nothing could ever be executed with it.
+      google_business_reviews: {
+        label: "Google Business Profile reviews",
+        write_scopes: ["https://www.googleapis.com/auth/business.manage"],
+        readback_scopes: [],
+        operations: [],
+        consent: [
+          {
+            scope: "https://www.googleapis.com/auth/business.manage",
+            grant: "Google Business Profile (business.manage)",
+            why: "Google offers one permission for Business Profiles, and it lets an app post and change replies to your reviews and edit your listing as well as read them.",
+          },
+          {
+            scope: "https://www.googleapis.com/auth/business.manage",
+            grant: "Google Business Profile (business.manage)",
+            why: "SYB uses it only to read your reviews. SYB never posts a reply or changes your listing: suggested replies stay drafts you post yourself.",
+          },
+          {
+            scope: "https://www.googleapis.com/auth/business.manage",
+            grant: "Google Business Profile (business.manage)",
+            why: "You can revoke it here at any time, and SYB deletes the access it holds at once.",
+          },
+        ],
+      },
     });
+  });
+
+  it("I-45a: the fenced scopes are exactly this", () => {
+    expect(FENCED_SCOPES).toEqual({
+      "https://www.googleapis.com/auth/business.manage": "google_business_reviews",
+    });
+  });
+
+  it("I-45a: business.manage is accepted under its own provider, which has no operations", () => {
+    const fenced = auditExecutionRegistry(
+      {
+        google_business_reviews: {
+          write_scopes: ["https://www.googleapis.com/auth/business.manage"],
+          readback_scopes: [],
+          operations: [],
+        },
+      },
+      isWriteCapable,
+    );
+    expect(fenced).toEqual([]);
+    // And it sits under no other provider in the real registry.
+    const holders = Object.entries(EXECUTION_SCOPE_REGISTRY)
+      .filter(([, spec]) =>
+        [...spec.write_scopes, ...spec.readback_scopes].some(
+          (s) => (s as string) === "https://www.googleapis.com/auth/business.manage",
+        ),
+      )
+      .map(([id]) => id);
+    expect(holders).toEqual(["google_business_reviews"]);
+  });
+
+  it("I-45a: business.manage planted under another provider, as a readback, or beside an operation is caught", () => {
+    const violations = auditExecutionRegistry(
+      {
+        meta_publish: {
+          write_scopes: ["https://www.googleapis.com/auth/business.manage"],
+          operations: [],
+        },
+        sneaky: {
+          write_scopes: ["publish_things"],
+          readback_scopes: ["https://www.googleapis.com/auth/business.manage"],
+          operations: [],
+        },
+        google_business_reviews: {
+          write_scopes: ["https://www.googleapis.com/auth/business.manage"],
+          operations: [{ op: "reply_to_review", description: "", reversible: true }],
+        },
+      },
+      isWriteCapable,
+    );
+    expect(violations).toEqual([
+      {
+        provider: "meta_publish",
+        value: "https://www.googleapis.com/auth/business.manage",
+        reason: "fenced_scope_elsewhere",
+      },
+      {
+        provider: "sneaky",
+        value: "https://www.googleapis.com/auth/business.manage",
+        reason: "readback_write_shaped",
+      },
+      {
+        provider: "sneaky",
+        value: "https://www.googleapis.com/auth/business.manage",
+        reason: "fenced_scope_elsewhere",
+      },
+      {
+        provider: "google_business_reviews",
+        value: "reply_to_review",
+        reason: "fenced_provider_operation",
+      },
+    ]);
+  });
+
+  it("I-45a: the measurement audit still refuses business.manage — rule 9 is unchanged", () => {
+    expect(isWriteCapable("https://www.googleapis.com/auth/business.manage")).toBe(true);
+    expect(
+      auditRegistry({ google_business: ["https://www.googleapis.com/auth/business.manage"] }),
+    ).toEqual([
+      {
+        provider: "google_business",
+        scope: "https://www.googleapis.com/auth/business.manage",
+        reason: "write_capable",
+      },
+    ]);
+    const readScopes = Object.values(SCOPE_REGISTRY).flat() as string[];
+    expect(readScopes.some((s) => s.includes("business.manage"))).toBe(false);
+    expect(auditRegistry()).toEqual([]);
   });
 
   it("P3-20f: the vendor-misnamed reads are exactly this, each with its reason", () => {
