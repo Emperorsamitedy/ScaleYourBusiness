@@ -27,6 +27,11 @@ export const GRADE = {
   after_days: 1,
   /** Past its window by this many days, missing rows make it "can't tell" instead of waiting. */
   patience_days: 14,
+  /**
+   * I-54a: a cash balance comes from a statement the owner uploads, often
+   * monthly, so its grade waits longer for one that covers the day.
+   */
+  cash_patience_days: 42,
 } as const;
 
 export type Verdict = "inside" | "above" | "below" | "cant_tell";
@@ -83,8 +88,12 @@ export function isDue(windowEnd: string, today: string): boolean {
 }
 
 /** Waiting for rows is over: from here, missing rows mean "can't tell". */
-function patienceOver(windowEnd: string, today: string): boolean {
-  return windowEnd <= addDays(today, -GRADE.patience_days);
+function patienceOver(
+  windowEnd: string,
+  today: string,
+  days: number = GRADE.patience_days,
+): boolean {
+  return windowEnd <= addDays(today, -days);
 }
 
 const sourceOf = (c: ClaimRow) => {
@@ -273,6 +282,51 @@ export function gradeSeasonWeek(
       verdict: "below",
       ...base,
       actual_note: `${said}: ${n(lo - total)} under the bottom of the range.`,
+    };
+  }
+  return { verdict: "inside", ...base, actual_note: `${said}: inside the range.` };
+}
+
+/**
+ * I-54a: a week's closing balance, against the statement's closing balance
+ * on the week's last day (the balance import fills every day the statement
+ * covers, so a quiet day still has one). Waits for a statement that covers
+ * the day, up to GRADE.cash_patience_days.
+ */
+export function gradeCashClose(
+  claim: ClaimRow,
+  values: readonly DayValue[],
+  today: string,
+): Grade | null {
+  const day = values.find((v) => v.date === claim.window_end);
+  if (!day) {
+    if (!patienceOver(claim.window_end, today, GRADE.cash_patience_days)) return null;
+    return cantTell(
+      `No bank statement covering ${longDay(claim.window_end)} was uploaded, so I can't tell what was in the bank that day.`,
+    );
+  }
+  const cur = claim.currency!;
+  const lo = claim.low_minor!;
+  const hi = claim.high_minor!;
+  const said = `Your bank statement says ${moneyWords(day.value, cur)} at the end of ${longDay(claim.window_end)}`;
+  const base = {
+    actual_minor: day.value,
+    actual_num: null,
+    actual_date: claim.window_end,
+    actual_source: { table: "metric_observations" as const, ids: [day.id] },
+  };
+  if (day.value > hi) {
+    return {
+      verdict: "above",
+      ...base,
+      actual_note: `${said}: ${moneyWords(day.value - hi, cur)} over the top of the range.`,
+    };
+  }
+  if (day.value < lo) {
+    return {
+      verdict: "below",
+      ...base,
+      actual_note: `${said}: ${moneyWords(lo - day.value, cur)} under the bottom of the range.`,
     };
   }
   return { verdict: "inside", ...base, actual_note: `${said}: inside the range.` };

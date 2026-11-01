@@ -1,0 +1,2 @@
+ALTER TABLE "forecast_checks" DROP CONSTRAINT "forecast_checks_kind";--> statement-breakpoint
+ALTER TABLE "forecast_checks" ADD CONSTRAINT "forecast_checks_kind" CHECK ("forecast_checks"."kind" IN ('stock_out', 'season_week', 'cash_close'));

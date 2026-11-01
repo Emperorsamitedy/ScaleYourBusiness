@@ -15,7 +15,7 @@ import { forecastChecks, metricObservations } from "../../db/schema";
 import { logSafeError } from "../core/log-safe";
 import { addDays } from "../seasons/forecast";
 import type { ClaimRow, DayValue, Grade, StockCount } from "./grade";
-import { GRADE, gradeSeasonWeek, gradeStockOut } from "./grade";
+import { GRADE, gradeCashClose, gradeSeasonWeek, gradeStockOut } from "./grade";
 
 type Row = typeof forecastChecks.$inferSelect;
 
@@ -94,6 +94,9 @@ export async function gradeOne(claim: Row, today: string): Promise<Grade | null>
   const c: ClaimRow = claim;
   if (claim.kind === "stock_out") return gradeStockOut(c, await stockCounts(claim), today);
   if (claim.kind === "season_week") return gradeSeasonWeek(c, await weekDays(claim), today);
+  // I-54a: the statement's balance on the week's last day: weekDays reads the same
+  // business-wide, same-currency rows of the claim's metric over its window.
+  if (claim.kind === "cash_close") return gradeCashClose(c, await weekDays(claim), today);
   return null;
 }
 

@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0073**, then `db:seed` (question bank 1.9.0).
+2. **Migrations and bank:** `db:migrate` through **0074**, then `db:seed` (question bank 1.9.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -39,6 +39,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0071 `connections.cart_read`, nullable jsonb: when a store's last abandoned-cart read landed in full, when one last failed and whether it held too many checkouts to read; state only, no shopper data (review 2026-10-30)
    - 0072 `review_settings.gmail_confirmation`, nullable jsonb: the code and link of Gmail's forwarding confirmation to the reviews address and when it came, kept only from `forwarding-noreply@google.com` with the sender verified, a link only on Google's mail-settings hosts; overwritten by the next, cleared by a new address (review 2026-10-30)
    - 0073 `payments`: the unique index on `checkout_session_id` becomes unique on (`checkout_session_id`, `profile_id`) plus a plain index, so one Stripe Checkout Session can pay for several businesses, one row each (I-52a)
+   - 0074 `forecast_checks`: the kind check admits `cash_close`, a cash forecast's weekly closing balance graded by an imported bank statement (I-54a)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 
@@ -223,6 +224,7 @@ Not findings. These are the controls the new upload path was built with, recorde
 
 - **Consent from Shopify's checkout (I-47a, I-47c, owner 2026-10-30).** `lib/carts/consent.ts` writes contacts from a cart read, the first code that keeps a shopper's address the platform sent. It keeps only the email, and only for a shopper Shopify lists as `SUBSCRIBED`, on the `contacts` row, which `eraseContact` erases. Any suppression (unsubscribe or erasure) blocks adding or changing that address. Consent is recorded with its provenance (rule 19): the source names the Shopify checkout and the day, and the captured time is Shopify's `marketingUpdatedAt`. Owner-recorded consent is only ever lowered, never raised, and only by a later Shopify `UNSUBSCRIBED`. Nothing here sends: every email still goes through `canEmailForMarketing`, the approval queue and the send executor. Its log line carries counts only.
 - **One bill for several businesses (I-52a, owner 2026-10-31).** `POST /api/checkout { also: [profile_id] }` is the one route that names other businesses from the request (listed in `isolation.test.ts`'s `ID_FROM_REQUEST`). Each id must be in the list built from the session's own verified email (`membershipsFor`): a business where that email is an active **owner**, not this one, and not already paid for. Anything else is a 403 before Stripe is called. The route needs `billing.manage` (owner), so a manager or viewer can neither see the list nor pay. Adding a business does nothing but write its pending `payments` row and a Stripe line, which carries the business's name. "Paid" is still written only by the verified webhook, now for every row of the session in one statement, idempotently. Prices come from env: `REPORT_PRICE_MINOR` (€49.00) for the first business and `EXTRA_REPORT_PRICE_MINOR` (€29.00, never above the report price) for each added one. There are at most 20 businesses per checkout. I-52e: once any business the session's email owns is paid, every business in a later checkout is at the extra price. That too is read from `membershipsFor` and `payments`, never the request, and a business the person only manages doesn't count. `app/api/checkout/checkout.test.ts` holds it through the real door.
+- **A bank statement upload (I-54a, owner 2026-11-01).** `POST /api/bank-statement` needs a signed-in owner (`data.import`) and a same-origin request. It reads a CSV the owner exported themselves: the date and running-balance columns only, so no description, payee or amount is parsed or kept, and nothing of the file but its sha256 reaches the decision log. The closing balance of each day lands as `cash.balance` under a `balance_import` connection that holds no secret and no scope. It is outside every scope registry, so `lib/cash/fence.test.ts`'s "no provider for a bank" check stands unchanged. Nothing calls a bank, and nothing moves money: the cash forecast only reads the balance, and its route stays GET-only. Files are capped at 2 MB, 20,000 rows and 400 days. A statement can't run past today.
 
 ## Added 2026-10-29 — answering by voice (idea 50)
 
