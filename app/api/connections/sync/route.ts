@@ -22,7 +22,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!session) {
     return NextResponse.json({ error: "sign in to manage connections" }, { status: 401 });
   }
-  const denied = requireRole(session, "connections.manage");
+  // I-52b: reading again is a manager's; connecting and disconnecting stay an owner's.
+  const denied = requireRole(session, "connections.sync");
   if (denied) return denied;
   try {
     const body = (await request.json().catch(() => null)) as { id?: unknown } | null;
