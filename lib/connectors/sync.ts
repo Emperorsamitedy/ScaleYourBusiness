@@ -43,7 +43,13 @@ import { replaceBaskets } from "../bundles/store";
 import { CARTS } from "../carts/measure";
 import { storeCarts } from "../carts/store";
 import type { CheckoutConsentOutcome } from "../carts/consent";
-import { recordCheckoutConsent } from "../carts/consent";
+import {
+  addOutcomes,
+  followShopify,
+  followedContactEmails,
+  recordCheckoutConsent,
+} from "../carts/consent";
+import { normalizeEmail } from "../crm/contacts";
 import { deriveBookingFacts, storeAppointments } from "../bookings/store";
 import { getProvider } from "./registry";
 import { decryptSecret } from "./secrets";
@@ -82,23 +88,37 @@ export interface SyncOutcome {
 }
 
 /**
- * Idea 47: read a store's abandoned checkouts. Read-only like every pull,
- * and never fatal: a failed read is logged and the sync stays a success,
- * so the carts screen reads what the last good read stored. The log line
- * carries counts only, never an address.
- */
-/**
  * I-47a/I-47c: what the read's shoppers said at checkout, recorded on the
- * contacts. Its own failure is logged and leaves the cart read standing;
- * counts only, never an address.
+ * contacts. Then (review 2026-11-01) the contacts made from a checkout that
+ * this read didn't see are re-checked with the store, so an unsubscribe
+ * there is followed after their cart ages out of the 60-day read. Its own
+ * failure is logged and leaves the cart read standing; counts only, never
+ * an address.
  */
 async function checkoutConsent(
   row: typeof connections.$inferSelect,
+  provider: Provider,
+  secret: string,
   read: CartRead,
+  now: Date,
 ): Promise<CheckoutConsentOutcome | null> {
   if (read.shopper !== "read") return null;
   try {
-    return await recordCheckoutConsent(row.account_id, read.carts);
+    let out = await recordCheckoutConsent(row.account_id, read.carts, undefined, now);
+    if (provider.readMarketingStates) {
+      const seen = read.carts.flatMap((c) => (c.email ? [normalizeEmail(c.email)] : []));
+      const due = await followedContactEmails(row.account_id, seen);
+      if (due.length > 0) {
+        const states = await provider.readMarketingStates(secret, due);
+        if (states.kind === "read") {
+          out = addOutcomes(
+            out,
+            await followShopify(row.account_id, states.states, undefined, now),
+          );
+        }
+      }
+    }
+    return out;
   } catch (error) {
     console.error(
       JSON.stringify({
@@ -112,6 +132,12 @@ async function checkoutConsent(
   }
 }
 
+/**
+ * Idea 47: read a store's abandoned checkouts. Read-only like every pull,
+ * and never fatal: a failed read is logged and the sync stays a success,
+ * so the carts screen reads what the last good read stored. The log line
+ * carries counts only, never an address.
+ */
 async function readCarts(
   row: typeof connections.$inferSelect,
   provider: Provider,
@@ -122,7 +148,7 @@ async function readCarts(
   try {
     const read = await provider.readAbandonedCheckouts(secret, now, CARTS.read_days);
     const stored = await storeCarts(row, read, now);
-    const consent = await checkoutConsent(row, read);
+    const consent = await checkoutConsent(row, provider, secret, read, now);
     // Review 2026-10-30: the read's freshness, for the carts screen.
     await db
       .update(connections)
@@ -132,7 +158,11 @@ async function readCarts(
           failed_at: null,
           too_many: false,
           shopper: read.shopper ?? null,
-          consent_differs: consent?.differs ?? row.cart_read?.consent_differs ?? null,
+          // Review 2026-11-01: only a read that had shoppers can say; otherwise it's unknown, not stale.
+          consent_differs:
+            read.shopper === "read"
+              ? (consent?.differs ?? row.cart_read?.consent_differs ?? null)
+              : null,
         },
       })
       .where(eq(connections.id, row.id));

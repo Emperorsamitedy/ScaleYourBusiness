@@ -92,7 +92,7 @@ describe("carts ride on read_orders; the shopper on optional read_customers", ()
     expect(doc).not.toMatch(/mutation/i);
     const customer = /customer \{([\s\S]*?)\n {6}\}/.exec(doc)?.[1] ?? "";
     expect(customer.replace(/\s+/g, " ").trim()).toBe(
-      "defaultEmailAddress { emailAddress marketingState marketingUpdatedAt }",
+      "defaultEmailAddress { emailAddress marketingState marketingUpdatedAt marketingOptInLevel }",
     );
     expect(doc).not.toMatch(/phone|billingAddress|shippingAddress|firstName|lastName|displayName/i);
     // Otherwise the very same read as the plain document.
@@ -500,6 +500,47 @@ describe("the connection records its cart reads", () => {
     const outcome = await syncConnection(conn.id, NOW);
     expect(outcome.carts).toMatchObject({ stored: 1, hashed: 0 });
     expect((await state(conn.id))?.shopper).toBe("refused");
+  });
+
+  // Review 2026-11-01, finding 1: the cart aged out of the 60-day read; the unsubscribe is still seen.
+  it("re-checks a contact made from a checkout after its cart ages out, and follows an unsubscribe", async () => {
+    const { s, conn, fake } = await shopWith({
+      scopes: ["read_orders", "read_products", "read_customers"],
+      carts: [
+        shopCart(daysAgo(2), "10.00", [], {
+          email: "fresh@example.com",
+          marketingState: "SUBSCRIBED",
+        }),
+      ],
+      customers: [
+        {
+          email: "old@example.com",
+          marketingState: "UNSUBSCRIBED",
+          marketingUpdatedAt: daysAgo(1),
+        },
+      ],
+    });
+    // Made from a checkout 90 days ago: that cart is long out of the read.
+    await db.insert(contacts).values({
+      account_id: s.account_id,
+      email: "old@example.com",
+      consent_status: "explicit_consent",
+      consent_source:
+        "Shopify checkout 2026-07-31: Shopify lists them as subscribed to email marketing (how they opted in isn't recorded; their setting in Shopify, which they or the shop can change)",
+      consent_captured_at: daysAgo(90),
+    });
+    await syncConnection(conn.id, NOW);
+    const rows = await db.select().from(contacts).where(eq(contacts.account_id, s.account_id));
+    expect(rows.find((r) => r.email === "old@example.com")!.consent_status).toBe("no_consent");
+    expect(rows.find((r) => r.email === "fresh@example.com")!.consent_status).toBe(
+      "explicit_consent",
+    );
+    const asked = fake.calls.filter((c) => c.query === SHOPIFY_QUERIES.customer_marketing);
+    expect(asked).toHaveLength(1);
+    // Only the contact the read didn't see is asked about, as an exact match.
+    expect(JSON.parse(asked[0]!.init.body ?? "{}").variables.search).toBe(
+      'email:"old@example.com"',
+    );
   });
 
   it("an ordinary failure isn't too many", async () => {

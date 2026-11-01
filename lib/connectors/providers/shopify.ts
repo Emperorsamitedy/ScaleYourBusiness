@@ -66,12 +66,20 @@
 // like read_all_orders. With it the read uses a second fixed document,
 // abandoned_checkouts_shoppers, which adds exactly
 // customer { defaultEmailAddress { emailAddress marketingState
-// marketingUpdatedAt } } and nothing else of the customer: no name, phone
-// or address. The email is hashed by the store on the way in and never
-// kept on the cart (lib/carts/store.ts); marketingState SUBSCRIBED becomes
-// accepts_marketing, and lib/carts/consent.ts turns it into a contact's
-// recorded consent, named to the checkout and marketingUpdatedAt (I-47a,
-// owner 2026-10-30). Without the scope the plain document is sent.
+// marketingUpdatedAt marketingOptInLevel } } and nothing else of the
+// customer: no name, phone or address. The email is hashed by the store on
+// the way in and never kept on the cart (lib/carts/store.ts);
+// marketingState SUBSCRIBED becomes accepts_marketing, and
+// lib/carts/consent.ts turns it into a contact's recorded consent (I-47a,
+// owner 2026-10-30), keeping the address on that contact only. Without the
+// scope the plain document is sent.
+//
+// THE RE-CHECK (review 2026-11-01). Carts are read for 60 days, so a
+// contact made from a checkout would stop following Shopify once its cart
+// aged out. customer_marketing reads, for up to 200 such addresses a sync
+// (ten per query, quoted exact matches joined by OR, Shopify's search
+// syntax read 2026-11-01), the same four fields of defaultEmailAddress and
+// nothing else, under the same read_customers.
 // Email is protected customer data, level 2, which Shopify's page (read
 // 2026-10-30) lists as "Always available" to custom apps. If Shopify
 // withholds it anyway (ACCESS_DENIED, or "not approved to access the
@@ -88,6 +96,8 @@ import type {
   CartRead,
   ExternalCart,
   ExternalProduct,
+  MarketingState,
+  MarketingStatesRead,
   Observation,
   Provider,
   PullPage,
@@ -122,6 +132,9 @@ export const SHOPIFY_MAX_STOCK_PAGES = 200;
 export const SHOPIFY_CARTS_PAGE = 50;
 export const SHOPIFY_CART_LINES = 15;
 export const SHOPIFY_MAX_CART_PAGES = 40;
+/** Review 2026-11-01: addresses per re-check query, and per sync at most. */
+export const SHOPIFY_MARKETING_BATCH = 10;
+export const SHOPIFY_MAX_MARKETING = 200;
 
 /**
  * Every document this module can send. All are read queries; the source
@@ -283,6 +296,7 @@ export const SHOPIFY_QUERIES = {
           emailAddress
           marketingState
           marketingUpdatedAt
+          marketingOptInLevel
         }
       }
       totalPriceSet {
@@ -313,6 +327,18 @@ export const SHOPIFY_QUERIES = {
     pageInfo {
       hasNextPage
       endCursor
+    }
+  }
+}`,
+  customer_marketing: `query CustomerMarketing($first: Int!, $search: String!) {
+  customers(first: $first, query: $search) {
+    nodes {
+      defaultEmailAddress {
+        emailAddress
+        marketingState
+        marketingUpdatedAt
+        marketingOptInLevel
+      }
     }
   }
 }`,
@@ -1001,6 +1027,7 @@ interface Shopper {
     emailAddress?: unknown;
     marketingState?: unknown;
     marketingUpdatedAt?: unknown;
+    marketingOptInLevel?: unknown;
   } | null;
 }
 
@@ -1015,7 +1042,14 @@ const MARKETING_STATES = new Set([
 /** Pure: a checkout customer's email and Shopify's own tick (never consent, I-47a). */
 function shopperOf(
   customer: Shopper | null | undefined,
-): Pick<ExternalCart, "email" | "accepts_marketing" | "marketing_state" | "marketing_updated_at"> {
+): Pick<
+  ExternalCart,
+  | "email"
+  | "accepts_marketing"
+  | "marketing_state"
+  | "marketing_updated_at"
+  | "marketing_opt_in_level"
+> {
   const address = customer?.defaultEmailAddress;
   const email =
     typeof address?.emailAddress === "string" && address.emailAddress.trim() !== ""
@@ -1025,12 +1059,38 @@ function shopperOf(
   const raw = typeof address?.marketingState === "string" ? address.marketingState : null;
   const state = raw !== null && MARKETING_STATES.has(raw) ? raw : null;
   const updated = address?.marketingUpdatedAt;
+  const level = address?.marketingOptInLevel;
   return {
     email,
     accepts_marketing: state === null ? null : state === "SUBSCRIBED",
     marketing_state: state,
     marketing_updated_at:
       typeof updated === "string" && Number.isFinite(Date.parse(updated)) ? updated : null,
+    marketing_opt_in_level: typeof level === "string" ? level : null,
+  };
+}
+
+/**
+ * Pure: the search for these addresses' customers, as exact (quoted)
+ * matches joined by OR. An address holding a quote or backslash can't be
+ * quoted safely and is left out.
+ */
+export function marketingSearch(emails: readonly string[]): string {
+  return emails
+    .filter((e) => !/["\\]/.test(e))
+    .map((e) => `email:"${e}"`)
+    .join(" OR ");
+}
+
+/** Pure: one customer node of CustomerMarketing as a setting; null without an address. */
+export function parseMarketingState(node: unknown): MarketingState | null {
+  const shopper = shopperOf(node as Shopper);
+  if (shopper.email === null) return null;
+  return {
+    email: shopper.email,
+    state: shopper.marketing_state ?? null,
+    updated_at: shopper.marketing_updated_at ?? null,
+    opt_in_level: shopper.marketing_opt_in_level ?? null,
   };
 }
 
@@ -1227,6 +1287,39 @@ export function createShopifyProvider(options: ShopifyProviderOptions = {}): Pro
         if (!customerDataRefused(error)) throw error;
         return { carts: await read(false), shopper: "refused" };
       }
+    },
+
+    async readMarketingStates(secret, emails): Promise<MarketingStatesRead> {
+      const cred = parseShopifyCredential(secret);
+      const token = await accessToken(ctx, cred);
+      if (!token.scopes.includes(SHOPIFY_CUSTOMERS_SCOPE)) return { kind: "not_granted" };
+      const wanted = new Set(emails.slice(0, SHOPIFY_MAX_MARKETING).map((e) => e.toLowerCase()));
+      const list = [...wanted];
+      const states: MarketingState[] = [];
+      for (let i = 0; i < list.length; i += SHOPIFY_MARKETING_BATCH) {
+        const search = marketingSearch(list.slice(i, i + SHOPIFY_MARKETING_BATCH));
+        if (search === "") continue;
+        let data: Record<string, unknown>;
+        try {
+          data = await graphql(ctx, cred, "customer_marketing", {
+            first: SHOPIFY_MARKETING_BATCH * 2,
+            search,
+          });
+        } catch (error) {
+          if (customerDataRefused(error)) return { kind: "refused" };
+          throw error;
+        }
+        const nodes = (data["customers"] as { nodes?: unknown } | null)?.nodes;
+        if (!Array.isArray(nodes)) {
+          throw new ProviderError("shopify: unexpected customers response shape");
+        }
+        for (const node of nodes) {
+          const s = parseMarketingState(node);
+          // Only the addresses asked about: a partial match is never applied.
+          if (s && wanted.has(s.email.toLowerCase())) states.push(s);
+        }
+      }
+      return { kind: "read", states };
     },
   };
 }

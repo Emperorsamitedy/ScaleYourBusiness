@@ -296,6 +296,12 @@ export interface Provider {
    * run after the stock snapshot; a failure never fails the sync.
    */
   readAbandonedCheckouts?(secret: string, now: Date, days: number): Promise<CartRead>;
+  /**
+   * Review 2026-11-01: the email marketing setting of these addresses' customers,
+   * so a contact made from a checkout keeps following the platform after its
+   * cart ages out of the read. An address with no customer is left out.
+   */
+  readMarketingStates?(secret: string, emails: readonly string[]): Promise<MarketingStatesRead>;
 }
 
 /** One abandoned checkout as the platform reports it. Amounts already in minor units. */
@@ -329,7 +335,22 @@ export interface ExternalCart {
   marketing_state?: string | null;
   /** When the shopper last set it, as the platform says; null when it doesn't. */
   marketing_updated_at?: string | null;
+  /** How they opted in, in the platform's words (Shopify: SINGLE_OPT_IN, CONFIRMED_OPT_IN, UNKNOWN). */
+  marketing_opt_in_level?: string | null;
 }
+
+/** Review 2026-11-01: one customer's email marketing setting, re-checked by address. */
+export interface MarketingState {
+  email: string;
+  /** The platform's word (Shopify: SUBSCRIBED, UNSUBSCRIBED, …); null when unknown. */
+  state: string | null;
+  updated_at: string | null;
+  opt_in_level: string | null;
+}
+
+/** Review 2026-11-01: a re-check's answer, or why there is none. */
+export type MarketingStatesRead =
+  { kind: "read"; states: MarketingState[] } | { kind: "not_granted" } | { kind: "refused" };
 
 export interface CartRead {
   carts: ExternalCart[];

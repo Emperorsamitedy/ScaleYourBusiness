@@ -80,6 +80,16 @@ export interface FakeShopifyCart {
   marketingState?: string;
   /** defaultEmailAddress.marketingUpdatedAt; default null (never updated). */
   marketingUpdatedAt?: string | null;
+  /** defaultEmailAddress.marketingOptInLevel; default null. */
+  marketingOptInLevel?: string | null;
+}
+
+/** Review 2026-11-01: a customer as the re-check finds them. */
+export interface FakeShopifyCustomer {
+  email: string;
+  marketingState: string;
+  marketingUpdatedAt?: string | null;
+  marketingOptInLevel?: string | null;
 }
 
 export interface FakeShopifyCall {
@@ -99,6 +109,11 @@ export interface FakeShopifyOptions {
    * read_customers, as for an app not approved for it.
    */
   customerDataWithheld?: boolean;
+  /**
+   * Review 2026-11-01: customers the re-check (CustomerMarketing) finds by
+   * address, beside those the carts carry. A later entry wins.
+   */
+  customers?: FakeShopifyCustomer[];
   /** The shop's currency (shop.currencyCode). Default EUR. */
   currency?: string;
   /** The clock Shopify's 60-day rule is measured against. */
@@ -360,6 +375,7 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
                               emailAddress: c.email,
                               marketingState: c.marketingState ?? "NOT_SUBSCRIBED",
                               marketingUpdatedAt: c.marketingUpdatedAt ?? null,
+                              marketingOptInLevel: c.marketingOptInLevel ?? null,
                             },
                           }
                         : null,
@@ -383,6 +399,66 @@ export function fakeShopify(options: FakeShopifyOptions = {}): FakeShopify {
             },
           },
         },
+      });
+    }
+
+    if (query?.startsWith("query CustomerMarketing")) {
+      if (options.customerDataWithheld && scopes.includes("read_customers")) {
+        return shopifyJson(200, {
+          data: null,
+          errors: [
+            {
+              message: "This app is not approved to access the Customer object.",
+              extensions: { code: "ACCESS_DENIED" },
+            },
+          ],
+        });
+      }
+      if (!scopes.includes("read_customers")) {
+        return shopifyJson(200, {
+          data: null,
+          errors: [
+            {
+              message:
+                "Access denied for customers field. Required access: `read_customers` access scope.",
+              extensions: { code: "ACCESS_DENIED" },
+            },
+          ],
+        });
+      }
+      const known = new Map<string, FakeShopifyCustomer>();
+      for (const c of options.carts ?? []) {
+        if (c.email) {
+          known.set(c.email.toLowerCase(), {
+            email: c.email,
+            marketingState: c.marketingState ?? "NOT_SUBSCRIBED",
+            marketingUpdatedAt: c.marketingUpdatedAt ?? null,
+            marketingOptInLevel: c.marketingOptInLevel ?? null,
+          });
+        }
+      }
+      for (const c of options.customers ?? []) known.set(c.email.toLowerCase(), c);
+      // Exact (quoted) matches only, as Shopify's phrase query does.
+      const asked = [...String(variables["search"] ?? "").matchAll(/email:"([^"]+)"/g)].map((m) =>
+        m[1]!.toLowerCase(),
+      );
+      const nodes = asked.flatMap((e) => {
+        const c = known.get(e);
+        return c
+          ? [
+              {
+                defaultEmailAddress: {
+                  emailAddress: c.email,
+                  marketingState: c.marketingState,
+                  marketingUpdatedAt: c.marketingUpdatedAt ?? null,
+                  marketingOptInLevel: c.marketingOptInLevel ?? null,
+                },
+              },
+            ]
+          : [];
+      });
+      return shopifyJson(200, {
+        data: { customers: { nodes: nodes.slice(0, Number(variables["first"])) } },
       });
     }
 
@@ -442,7 +518,13 @@ export function shopCart(
   extra: Partial<
     Pick<
       FakeShopifyCart,
-      "completedAt" | "currency" | "email" | "marketingState" | "marketingUpdatedAt" | "updatedAt"
+      | "completedAt"
+      | "currency"
+      | "email"
+      | "marketingState"
+      | "marketingUpdatedAt"
+      | "marketingOptInLevel"
+      | "updatedAt"
     >
   > = {},
 ): FakeShopifyCart {
