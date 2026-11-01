@@ -57,10 +57,13 @@
 // recipients still unsent. Journaled and re-run exactly like the others.
 
 import { logSafeError } from "../core/log-safe";
-import { and, eq, sql } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import type { DbOrTx } from "../../db";
 import {
+  businessProfiles,
+  decisionLog,
   executionAttempts,
   executionHalts,
   executions,
@@ -144,6 +147,43 @@ async function isHalted(accountId: string): Promise<boolean> {
 }
 
 /** The emergency stop — one control, halts everything in flight (rule 15). */
+/**
+ * I-52d: the stop and its release on the append-only decision log, with the
+ * person who pressed it (null for a browser with no sign-in, which may
+ * always stop). The halt row is deleted on release, so the log is what
+ * keeps who stopped, who started things again, and when. Ids and a hash only.
+ */
+/** A stop's reference: the account's halt row is keyed by account, so the press is the account and its time. */
+const haltRef = (accountId: string, haltedAt: string) =>
+  `${accountId}@${new Date(haltedAt).toISOString()}`;
+
+async function logStop(
+  executor: DbOrTx,
+  accountId: string,
+  kind: "stop" | "stop_release",
+  ref: string,
+  userId: string | null,
+  reason: string | null,
+): Promise<void> {
+  const [profile] = await executor
+    .select({ id: businessProfiles.id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.account_id, accountId))
+    .orderBy(asc(businessProfiles.created_at))
+    .limit(1);
+  if (!profile) return;
+  await executor.insert(decisionLog).values({
+    profile_id: profile.id,
+    actor: userId ? "owner" : "system",
+    kind,
+    ref_id: ref,
+    user_id: userId,
+    payload_hash: createHash("sha256")
+      .update(JSON.stringify({ kind, account_id: accountId, ref, user_id: userId, reason }))
+      .digest("hex"),
+  });
+}
+
 export async function haltExecutions(args: {
   accountId: string;
   userId?: string | null;
@@ -151,18 +191,43 @@ export async function haltExecutions(args: {
   /** Join the caller's transaction (the chat's confirm). */
   tx?: DbOrTx;
 }): Promise<void> {
-  await (args.tx ?? db)
+  const executor = args.tx ?? db;
+  const [row] = await executor
     .insert(executionHalts)
     .values({
       account_id: args.accountId,
       halted_by: args.userId ?? null,
       reason: args.reason ?? null,
     })
-    .onConflictDoNothing();
+    .onConflictDoNothing()
+    .returning({ halted_at: executionHalts.halted_at });
+  // A second press while already stopped changes nothing, so it logs nothing.
+  if (row) {
+    await logStop(
+      executor,
+      args.accountId,
+      "stop",
+      haltRef(args.accountId, row.halted_at),
+      args.userId ?? null,
+      args.reason ?? null,
+    );
+  }
 }
 
-export async function resumeExecutions(accountId: string): Promise<void> {
-  await db.delete(executionHalts).where(eq(executionHalts.account_id, accountId));
+export async function resumeExecutions(
+  accountId: string,
+  /** I-52d: the signed-in person starting things again. */
+  userId: string | null = null,
+): Promise<void> {
+  await db.transaction(async (tx) => {
+    const released = await tx
+      .delete(executionHalts)
+      .where(eq(executionHalts.account_id, accountId))
+      .returning({ halted_at: executionHalts.halted_at });
+    for (const r of released) {
+      await logStop(tx, accountId, "stop_release", haltRef(accountId, r.halted_at), userId, null);
+    }
+  });
 }
 
 export interface HaltState {

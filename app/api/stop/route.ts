@@ -72,7 +72,7 @@ export async function DELETE(): Promise<NextResponse> {
       { status: 401 },
     );
   }
-  await resumeExecutions(accountId);
+  await resumeExecutions(accountId, session.user_id);
   console.log(
     JSON.stringify({
       event: "emergency_stop_released",

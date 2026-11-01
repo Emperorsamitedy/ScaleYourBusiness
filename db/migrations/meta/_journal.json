@@ -533,6 +533,13 @@
       "when": 1793528039637,
       "tag": "0075_google_business_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1793531752044,
+      "tag": "0076_stop_log",
+      "breakpoints": true
     }
   ]
 }

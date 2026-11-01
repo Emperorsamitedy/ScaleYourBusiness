@@ -133,6 +133,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       secret: body.secret,
       confirmation: body.confirmation,
       verify: metaExecution.verifier(provider),
+      userId: session.user_id,
     });
     return NextResponse.json(connection, { status: 201 });
   } catch (error) {

@@ -133,6 +133,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       senderName: body.sender_name,
       replyTo: body.reply_to,
       confirmation: body.confirmation,
+      userId: session.user_id,
     });
     return NextResponse.json(connection, { status: 201 });
   } catch (error) {

@@ -586,7 +586,13 @@ Because every route already resolves the account and profile from the session, a
 
   A viewer's questions are answered as anyone's, and so spend a model call. Pressing the stop stays everyone's. Tests: `lib/chat/chat.test.ts` (a viewer's question answered, request not queued, change not drafted; a manager's request still queued) and `lib/auth/roles.test.ts` (the plan's lists, with `chat.ask` under the viewer).
 
-- [ ] **I-52d** Record the acting person on the write-access consent entries (`consent`) and on the stop. The consent services don't receive a user id today, so those rows keep `user_id` null.
+- [x] **I-52d** Record the acting person on the write-access consent entries (`consent`) and on the stop. The consent services don't receive a user id today, so those rows keep `user_id` null.
+
+  **Done 2026-11-01, owner: "go ahead with I-52d".**
+  - **Consent entries:** `consentToExecution` (Meta, from the paste route and the sign-in finish) and `consentToCampaignEmail` take the signed-in person and write it to the `consent` entry's `user_id`. Google Business Profile's consent (I-45a) already did.
+  - **The stop:** it had no decision-log entry at all. The halt row keeps who pressed it, but releasing deletes that row. Two new kinds fix that (migration **0076**). `stop` is written when a press actually stops things; a second press while stopped logs nothing. `stop_release` is written when things start again, with the person, and refers to the same stop, so the log keeps who stopped, who started again and when. A press from a browser with no sign-in is logged as the system with no person, since anyone may always stop. Ids and a hash only.
+  - **Tests:** `lib/execution/engine.test.ts`, `consent.test.ts` and `email-consent.test.ts`.
+
 - [x] **I-52a** Decide whether several businesses should share one bill (one Stripe customer, several plans) or stay billed one by one.
 
   **Decided 2026-10-31, owner: "go ahead with I-52a", then, asked how: one checkout with cheaper extras, at €29 each.** SYB has no plans, only the one-off report, so "one bill" is one Stripe Checkout Session. It covers this business at the report price (€49) and any of the owner's other unpaid businesses at `EXTRA_REPORT_PRICE_MINOR` (default €29.00, never above the report price), with one line, one receipt and one `payments` row per business under the session id (migration **0073**). The webhook marks them all paid. `GET /api/checkout` lists the other businesses: those where the person's verified email is an owner and the report isn't paid. When there are any, `/report` offers them with ticks and a total before Stripe opens; with none, checkout opens straight away, as before. Each business's report is written when the owner opens it there. Tests: `app/api/checkout/checkout.test.ts` (real sessions; someone else's business, a managed one, this one again and a paid one all refused before Stripe) and `lib/payments/stripe.test.ts`.

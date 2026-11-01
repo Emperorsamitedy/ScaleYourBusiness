@@ -81,6 +81,21 @@ describe("P3-20h — consentToExecution", () => {
     );
   });
 
+  // I-52d (owner, 2026-11-01): the person who consented is on the entry.
+  it("records the signed-in person who consented; none given, none recorded", async () => {
+    const s = await fresh();
+    const person = crypto.randomUUID();
+    await consentToExecution({
+      accountId: s.account_id,
+      provider: "meta_publish",
+      secret: SECRET,
+      confirmation: "allow publishing",
+      verify: answering(expectedExecutionScopes("meta_publish")),
+      userId: person,
+    });
+    expect((await consentRows(s.profile_id))[0]?.user_id).toBe(person);
+  });
+
   it("the wrong phrase, an unoffered provider or a scope mismatch stores nothing and logs nothing", async () => {
     const s = await fresh();
     const scopes = expectedExecutionScopes("meta_publish");

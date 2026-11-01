@@ -63,11 +63,14 @@ describe("P4-15 — consentToCampaignEmail", () => {
   it("the typed phrase grants it: no secret, exact scopes, the sender, and a consent row over what was shown", async () => {
     const s = await bootstrapIntake();
     created.push(s);
+    // I-52d (owner, 2026-11-01): the person who consented is on the entry.
+    const person = crypto.randomUUID();
     const { connection, consent_hash } = await consentToCampaignEmail({
       accountId: s.account_id,
       senderName: "Emberworks",
       replyTo: "hello@emberworks.test",
       confirmation: " Allow Campaign Email ",
+      userId: person,
     });
     expect(connection).toMatchObject({
       provider: "email_campaign",
@@ -89,6 +92,7 @@ describe("P4-15 — consentToCampaignEmail", () => {
       actor: "owner",
       profile_id: s.profile_id,
       payload_hash: consent_hash,
+      user_id: person,
     });
     expect(consent_hash).toBe(
       hashEmailConsent({
