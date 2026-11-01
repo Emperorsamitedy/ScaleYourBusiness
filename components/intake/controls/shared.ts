@@ -17,6 +17,3 @@ export interface ControlProps {
   /** A draft waiting in this browser (lib/intake/browser-prefill.ts) — shown, never recorded until Record. */
   initial?: string | null;
 }
-
-/** Idea 50: what the live line says when listening stops on a free-text answer. */
-export const SPOKEN_AFTER = "Read it over and fix anything, then press Next to record it.";

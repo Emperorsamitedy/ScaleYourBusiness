@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "dated": "2026-11-01",
   "status": "draft — written by Claude from this glossary; each language stays in review until its native reviewer has checked it (TASKS-LANGUAGES.md, L-7)",
-  "about": "One term, one translation (rule 2 of TASKS-LANGUAGES.md). For each term: the English word and the forms that count as it (whole words, case-insensitive, plural endings allowed); and for each language the chosen term and the stems any inflected form contains. messages/glossary.test.ts fails when an English message uses a term and its translation contains none of that language's stems.",
+  "about": "One term, one translation (rule 2 of TASKS-LANGUAGES.md). For each term: the English word and the forms that count as it (whole words, case-insensitive, plural endings allowed); and for each language the chosen term and the stems any inflected form contains. messages/catalogue.test.ts fails when an English message uses a term and its translation contains none of that language's stems, and scripts/lint_bank.py fails the same way for the question bank's overlays (specs/question-bank-v1.<locale>.json). Where the bank uses the English word in another sense (\"safety margin\", \"bank account\", \"customers contact you\"), the overlay lists the key under glossary_exceptions with the reason.",
   "registers": {
     "es-ES": "usted — formal, Spain (Castilian) vocabulary and spelling",
     "de-DE": "Sie — formal; generic masculine role nouns (Inhaber, Betrachter), flagged for the reviewer",
@@ -1558,7 +1558,8 @@
       "zh-Hans": {
         "term": "利润率",
         "stems": [
-          "利润率"
+          "利润率",
+          "毛利率"
         ]
       }
     },
@@ -1746,6 +1747,524 @@
         "term": "过往准确率",
         "stems": [
           "准确率"
+        ]
+      }
+    },
+    {
+      "id": "revenue",
+      "note": "Money coming in from sales, before any cost (the bank's 4.1a; the report's revenue figures).",
+      "en": {
+        "term": "revenue",
+        "match": [
+          "revenue"
+        ]
+      },
+      "es-ES": {
+        "term": "ingresos",
+        "stems": [
+          "ingreso"
+        ]
+      },
+      "de-DE": {
+        "term": "Umsatz",
+        "stems": [
+          "umsatz",
+          "umsätz"
+        ]
+      },
+      "fr-FR": {
+        "term": "chiffre d’affaires",
+        "stems": [
+          "chiffre d’affaires"
+        ]
+      },
+      "hu-HU": {
+        "term": "árbevétel",
+        "stems": [
+          "bevétel"
+        ]
+      },
+      "ru-RU": {
+        "term": "выручка",
+        "stems": [
+          "выручк"
+        ]
+      },
+      "zh-Hans": {
+        "term": "营收",
+        "stems": [
+          "营收"
+        ]
+      }
+    },
+    {
+      "id": "gross_margin",
+      "note": "The share of each sale left after its direct cost (the bank's 5.3a). Not profit, not markup.",
+      "en": {
+        "term": "gross margin",
+        "match": [
+          "gross margin",
+          "gross profit margin"
+        ]
+      },
+      "es-ES": {
+        "term": "margen bruto",
+        "stems": [
+          "margen bruto"
+        ]
+      },
+      "de-DE": {
+        "term": "Bruttomarge",
+        "stems": [
+          "bruttomarge"
+        ]
+      },
+      "fr-FR": {
+        "term": "marge brute",
+        "stems": [
+          "marge brute"
+        ]
+      },
+      "hu-HU": {
+        "term": "bruttó árrés",
+        "stems": [
+          "bruttó árrés"
+        ]
+      },
+      "ru-RU": {
+        "term": "валовая маржа",
+        "stems": [
+          "валов"
+        ]
+      },
+      "zh-Hans": {
+        "term": "毛利率",
+        "stems": [
+          "毛利率"
+        ]
+      }
+    },
+    {
+      "id": "average_order_value",
+      "note": "Revenue divided by the number of orders; derived, never asked (question-bank-notes §6).",
+      "en": {
+        "term": "average order value",
+        "match": [
+          "average order value"
+        ]
+      },
+      "es-ES": {
+        "term": "valor medio del pedido",
+        "stems": [
+          "valor medio del pedido"
+        ]
+      },
+      "de-DE": {
+        "term": "durchschnittlicher Bestellwert",
+        "stems": [
+          "bestellwert"
+        ]
+      },
+      "fr-FR": {
+        "term": "panier moyen",
+        "stems": [
+          "panier moyen"
+        ]
+      },
+      "hu-HU": {
+        "term": "átlagos kosárérték",
+        "stems": [
+          "kosárérték"
+        ]
+      },
+      "ru-RU": {
+        "term": "средний чек",
+        "stems": [
+          "средн"
+        ]
+      },
+      "zh-Hans": {
+        "term": "客单价",
+        "stems": [
+          "客单价"
+        ]
+      }
+    },
+    {
+      "id": "churn",
+      "note": "The share of paying users who cancel in a month (the bank's 1.4.3.4c).",
+      "en": {
+        "term": "churn",
+        "match": [
+          "churn",
+          "churn rate"
+        ]
+      },
+      "es-ES": {
+        "term": "tasa de cancelación",
+        "stems": [
+          "cancelaci"
+        ]
+      },
+      "de-DE": {
+        "term": "Kündigungsrate",
+        "stems": [
+          "kündigungsrate"
+        ]
+      },
+      "fr-FR": {
+        "term": "taux d’attrition",
+        "stems": [
+          "attrition"
+        ]
+      },
+      "hu-HU": {
+        "term": "lemorzsolódási arány",
+        "stems": [
+          "lemorzsolód"
+        ]
+      },
+      "ru-RU": {
+        "term": "отток клиентов",
+        "stems": [
+          "отток"
+        ]
+      },
+      "zh-Hans": {
+        "term": "流失率",
+        "stems": [
+          "流失率"
+        ]
+      }
+    },
+    {
+      "id": "supplier",
+      "note": "A business the owner buys stock or materials from (the supplier entity).",
+      "en": {
+        "term": "supplier",
+        "match": [
+          "supplier",
+          "suppliers"
+        ]
+      },
+      "es-ES": {
+        "term": "proveedor",
+        "stems": [
+          "proveedor"
+        ]
+      },
+      "de-DE": {
+        "term": "Lieferant",
+        "stems": [
+          "lieferant"
+        ]
+      },
+      "fr-FR": {
+        "term": "fournisseur",
+        "stems": [
+          "fournisseur"
+        ]
+      },
+      "hu-HU": {
+        "term": "beszállító",
+        "stems": [
+          "beszállító"
+        ]
+      },
+      "ru-RU": {
+        "term": "поставщик",
+        "stems": [
+          "поставщик"
+        ]
+      },
+      "zh-Hans": {
+        "term": "供应商",
+        "stems": [
+          "供应商"
+        ]
+      }
+    },
+    {
+      "id": "vat",
+      "note": "Value added tax, as the business is registered for it (the bank's 11.1b).",
+      "en": {
+        "term": "VAT",
+        "match": [
+          "VAT"
+        ]
+      },
+      "es-ES": {
+        "term": "IVA",
+        "stems": [
+          "iva"
+        ]
+      },
+      "de-DE": {
+        "term": "Umsatzsteuer",
+        "stems": [
+          "umsatzsteuer"
+        ]
+      },
+      "fr-FR": {
+        "term": "TVA",
+        "stems": [
+          "tva"
+        ]
+      },
+      "hu-HU": {
+        "term": "ÁFA",
+        "stems": [
+          "áfa"
+        ]
+      },
+      "ru-RU": {
+        "term": "НДС",
+        "stems": [
+          "ндс"
+        ]
+      },
+      "zh-Hans": {
+        "term": "增值税",
+        "stems": [
+          "增值税"
+        ]
+      }
+    },
+    {
+      "id": "refund",
+      "note": "Money given back to a customer for a sale.",
+      "en": {
+        "term": "refund",
+        "match": [
+          "refund",
+          "refunds"
+        ]
+      },
+      "es-ES": {
+        "term": "reembolso",
+        "stems": [
+          "reembols"
+        ]
+      },
+      "de-DE": {
+        "term": "Rückerstattung",
+        "stems": [
+          "erstatt"
+        ]
+      },
+      "fr-FR": {
+        "term": "remboursement",
+        "stems": [
+          "rembours"
+        ]
+      },
+      "hu-HU": {
+        "term": "visszatérítés",
+        "stems": [
+          "visszatérít"
+        ]
+      },
+      "ru-RU": {
+        "term": "возврат денег",
+        "stems": [
+          "возврат"
+        ]
+      },
+      "zh-Hans": {
+        "term": "退款",
+        "stems": [
+          "退款"
+        ]
+      }
+    },
+    {
+      "id": "conversion",
+      "note": "The share of leads or visitors who buy (a channel's conversion rate).",
+      "en": {
+        "term": "conversion",
+        "match": [
+          "conversion",
+          "conversion rate"
+        ]
+      },
+      "es-ES": {
+        "term": "conversión",
+        "stems": [
+          "conversi"
+        ]
+      },
+      "de-DE": {
+        "term": "Konversion",
+        "stems": [
+          "konversion"
+        ]
+      },
+      "fr-FR": {
+        "term": "conversion",
+        "stems": [
+          "conversion"
+        ]
+      },
+      "hu-HU": {
+        "term": "konverzió",
+        "stems": [
+          "konverzi"
+        ]
+      },
+      "ru-RU": {
+        "term": "конверсия",
+        "stems": [
+          "конверси"
+        ]
+      },
+      "zh-Hans": {
+        "term": "转化率",
+        "stems": [
+          "转化"
+        ]
+      }
+    },
+    {
+      "id": "lead",
+      "note": "Someone interested who has not bought yet.",
+      "en": {
+        "term": "lead",
+        "match": [
+          "lead",
+          "leads"
+        ]
+      },
+      "es-ES": {
+        "term": "cliente potencial",
+        "stems": [
+          "potencial"
+        ]
+      },
+      "de-DE": {
+        "term": "Lead",
+        "stems": [
+          "lead"
+        ]
+      },
+      "fr-FR": {
+        "term": "prospect",
+        "stems": [
+          "prospect"
+        ]
+      },
+      "hu-HU": {
+        "term": "érdeklődő",
+        "stems": [
+          "érdeklőd"
+        ]
+      },
+      "ru-RU": {
+        "term": "лид",
+        "stems": [
+          "лид"
+        ]
+      },
+      "zh-Hans": {
+        "term": "潜在客户",
+        "stems": [
+          "潜在客户"
+        ]
+      }
+    },
+    {
+      "id": "subscription",
+      "note": "A product or service paid for on repeat, by period.",
+      "en": {
+        "term": "subscription",
+        "match": [
+          "subscription",
+          "subscriptions"
+        ]
+      },
+      "es-ES": {
+        "term": "suscripción",
+        "stems": [
+          "suscripci"
+        ]
+      },
+      "de-DE": {
+        "term": "Abonnement",
+        "stems": [
+          "abo"
+        ]
+      },
+      "fr-FR": {
+        "term": "abonnement",
+        "stems": [
+          "abonnement"
+        ]
+      },
+      "hu-HU": {
+        "term": "előfizetés",
+        "stems": [
+          "előfizet"
+        ]
+      },
+      "ru-RU": {
+        "term": "подписка",
+        "stems": [
+          "подписк"
+        ]
+      },
+      "zh-Hans": {
+        "term": "订阅",
+        "stems": [
+          "订阅"
+        ]
+      }
+    },
+    {
+      "id": "invoice",
+      "note": "A bill sent to a customer for payment.",
+      "en": {
+        "term": "invoice",
+        "match": [
+          "invoice",
+          "invoices"
+        ]
+      },
+      "es-ES": {
+        "term": "factura",
+        "stems": [
+          "factur"
+        ]
+      },
+      "de-DE": {
+        "term": "Rechnung",
+        "stems": [
+          "rechnung"
+        ]
+      },
+      "fr-FR": {
+        "term": "facture",
+        "stems": [
+          "factur"
+        ]
+      },
+      "hu-HU": {
+        "term": "számla",
+        "stems": [
+          "számlá",
+          "számla"
+        ]
+      },
+      "ru-RU": {
+        "term": "счёт",
+        "stems": [
+          "счёт",
+          "счет",
+          "счета"
+        ]
+      },
+      "zh-Hans": {
+        "term": "发票",
+        "stems": [
+          "发票"
         ]
       }
     }

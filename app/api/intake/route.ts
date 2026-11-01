@@ -9,6 +9,12 @@
 // GET ?section=, and `section` in a PUT/PATCH body, name an area the owner
 // chose on the tile row: the next question comes from that area while it
 // has one, then normal order resumes. An unknown section is ignored.
+//
+// L-2: every state is worded in the person's language — the L-1 locale
+// (the language cookie through the status gate, lib/i18n/server
+// requestLocale), so a visitor who isn't a named reviewer reads English
+// while a language is in review. A refusal carries a code the screen words
+// in that language; the English message stays beside it.
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import type { Access } from "../../../lib/auth/access";
@@ -31,7 +37,7 @@ import {
 } from "../../../lib/intake/service";
 import type { AnswerAction } from "../../../lib/intake/types";
 import { requireRole } from "../../../lib/auth/roles";
-import { pendingChoices } from "../../../lib/i18n/server";
+import { pendingChoices, requestLocale } from "../../../lib/i18n/server";
 
 async function resolveSession(): Promise<Access | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -41,7 +47,10 @@ async function resolveSession(): Promise<Access | null> {
 
 function errorResponse(error: unknown): NextResponse {
   if (error instanceof IntakeError) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
+    return NextResponse.json(
+      { error: error.message, code: error.code, values: error.values },
+      { status: error.status },
+    );
   }
   console.error(JSON.stringify({ event: "intake_error", ...logSafeError(error) }));
   return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
@@ -58,7 +67,13 @@ export async function POST(): Promise<NextResponse> {
     }
     // L-1: a new intake starts in the language and currency of the first step.
     const session = access ?? (await bootstrapIntake(await pendingChoices()));
-    const state = await getIntakeState(session.account_id, session.profile_id);
+    const state = await getIntakeState(
+      session.account_id,
+      session.profile_id,
+      undefined,
+      undefined,
+      await requestLocale(),
+    );
     const response = NextResponse.json(state);
     response.cookies.set(
       INTAKE_COOKIE,
@@ -101,7 +116,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const ask = request.nextUrl.searchParams.get("ask") ?? undefined;
     const section = parseSection(request.nextUrl.searchParams.get("section"));
     return NextResponse.json(
-      await getIntakeState(session.account_id, session.profile_id, ask, section),
+      await getIntakeState(
+        session.account_id,
+        session.profile_id,
+        ask,
+        section,
+        await requestLocale(),
+      ),
     );
   } catch (error) {
     return errorResponse(error);
@@ -129,6 +150,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
         body.question_id,
         body.action,
         parseSection(body.section),
+        await requestLocale(),
       ),
     );
   } catch (error) {
@@ -159,6 +181,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
           body.question_id,
           body.rows,
           parseSection(body.section),
+          await requestLocale(),
         ),
       );
     }

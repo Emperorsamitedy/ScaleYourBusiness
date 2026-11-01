@@ -40,7 +40,10 @@ import { currencyForCountry } from "../core/country-currency";
 import { isIsoCurrency } from "../core/currencies";
 import type { AppLocale } from "../i18n/locales";
 import { isAppLocale } from "../i18n/locales";
+import type { CoerceCode } from "../parser/coerce";
 import { coerceParsedValue } from "../parser/coerce";
+import type { BankWords } from "../bank/words";
+import { ENGLISH_WORDS, loadBankWords } from "../bank/words";
 import { dynamicVocabularyOptions, isDynamicVocabulary } from "../profile/dynamic-vocab";
 import { writeField } from "../profile/field-store";
 import { recordFunnelEvent } from "./telemetry";
@@ -83,10 +86,30 @@ import type {
   RecordFact,
 } from "./types";
 
+/**
+ * Why the intake refused something, as a code the screen words in the
+ * person's language (messages/*.json intake.error.*). The English message
+ * stays for logs and for any caller without a catalogue.
+ */
+export type IntakeErrorCode =
+  | CoerceCode
+  | "needs_answer"
+  | "reason_needed"
+  | "not_askable"
+  | "no_answer_to_reopen"
+  | "rows_range"
+  | "not_entity"
+  | "unknown_field"
+  | "finding_not_open"
+  | "invalid";
+
 export class IntakeError extends Error {
   constructor(
     message: string,
     public readonly status = 400,
+    public readonly code: IntakeErrorCode = "invalid",
+    /** The figures or names the message mentions, for the translated line. */
+    public readonly values: Record<string, string | number> = {},
   ) {
     super(message);
     this.name = "IntakeError";
@@ -103,6 +126,16 @@ export { naturalIdCompare };
 export function humanizeCode(code: string): string {
   const words = code.replace(/_/g, " ").trim();
   return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** A LocalizedText's English, trimmed: the bank's own words. */
+function englishOf(text: unknown): string {
+  return ((text as Record<string, string> | null)?.en ?? "").trim();
+}
+
+/** A question's prompt in the person's language (the bank's English underneath). */
+function promptOf(q: { id: string; prompt: unknown }, words: BankWords): string {
+  return words.prompt(q.id, englishOf(q.prompt));
 }
 
 const SPINES = [
@@ -258,7 +291,7 @@ interface BankQuestion extends AreaQuestion {
 }
 
 /** Every question of the current bank with its condition — what the area tiles read. */
-async function areaQuestions(): Promise<BankQuestion[]> {
+async function areaQuestions(words: BankWords): Promise<BankQuestion[]> {
   const rows = await db
     .select({
       id: bankQuestions.id,
@@ -275,7 +308,7 @@ async function areaQuestions(): Promise<BankQuestion[]> {
     section: r.section,
     writes_to: r.writes_to,
     condition: (r.condition as ConditionExpr | null) ?? null,
-    prompt: ((r.prompt as Record<string, string> | null)?.en ?? "").trim(),
+    prompt: words.prompt(r.id, englishOf(r.prompt)),
   }));
 }
 
@@ -292,18 +325,30 @@ export function parseSection(raw: unknown): ProfileSection | undefined {
   return typeof raw === "string" && isProfileSection(raw) ? raw : undefined;
 }
 
-async function optionsFor(profileId: string, spec: InputSpec): Promise<IntakeOption[]> {
+async function optionsFor(
+  profileId: string,
+  spec: InputSpec,
+  words: BankWords = ENGLISH_WORDS,
+  questionId?: string,
+): Promise<IntakeOption[]> {
   if (spec.type !== "single_select" && spec.type !== "multi_select") return [];
   if (!spec.vocabulary_id) return [];
   // Dynamic vocabularies are the owner's own entities, not bank codes.
   if (isDynamicVocabulary(spec.vocabulary_id)) {
     return dynamicVocabularyOptions(profileId, spec.vocabulary_id);
   }
-  const codes = await vocabularyCodes(spec.vocabulary_id);
-  // The bank's own words for a code when it carries them ("solo" reads "Just me").
+  const vocabularyId = spec.vocabulary_id;
+  const codes = await vocabularyCodes(vocabularyId);
+  // The bank's own words for a code when it carries them ("solo" reads "Just me"),
+  // in the person's language when an overlay has them (L-2). The code stays the answer.
   return codes.map((code) => ({
     code,
-    label: spec.option_labels?.[code]?.en?.trim() || humanizeCode(code),
+    label: words.option(
+      vocabularyId,
+      code,
+      spec.option_labels?.[code]?.en?.trim() || humanizeCode(code),
+      questionId,
+    ),
   }));
 }
 
@@ -316,16 +361,17 @@ async function toIntakeQuestion(
     alreadyRead: null,
     unlocks: [],
   },
+  words: BankWords = ENGLISH_WORDS,
 ): Promise<IntakeQuestion> {
   const spec = q.input as InputSpec;
   const base: IntakeQuestion = {
     id: q.id,
     priority: q.priority,
     cost: q.cost,
-    prompt: ((q.prompt as Record<string, string> | null)?.en ?? "").trim(),
-    help: ((q.help_text as Record<string, string> | null)?.en ?? "").trim() || null,
+    prompt: promptOf(q, words),
+    help: words.help(q.id, englishOf(q.help_text) || null),
     input_type: spec.type,
-    options: await optionsFor(profileId, spec),
+    options: await optionsFor(profileId, spec, words, q.id),
     allow_unknown: spec.allow_unknown !== false,
     currency,
     entity_schema: spec.entity_schema ?? null,
@@ -339,8 +385,9 @@ async function toIntakeQuestion(
   if (spec.type === "entity_list" && spec.entity_schema) {
     base.entity_fields = await loadEntityFields(
       spec.entity_schema,
-      (s) => optionsFor(profileId, s),
+      (s) => optionsFor(profileId, s, words),
       currency,
+      words,
     );
   }
   return base;
@@ -484,12 +531,14 @@ export async function getIntakeState(
   profileId: string,
   preferId?: string,
   preferSection?: ProfileSection,
+  locale: AppLocale = "en",
 ): Promise<IntakeState> {
+  const words = await loadBankWords(locale);
   const [applicable, view, currency, bank, ctx, profileRow] = await Promise.all([
     applicableQuestions(profileId),
     loadRecords(profileId),
     reportingCurrency(profileId),
-    areaQuestions(),
+    areaQuestions(words),
     buildConditionContext(profileId),
     db
       .select({ next_question_id: businessProfiles.next_question_id })
@@ -623,6 +672,7 @@ export async function getIntakeState(
         accountId,
         profileId,
         asked: await askedEntries(applicable, view),
+        locale: words.locale,
       });
       if (picked) chosen = picked.question;
     }
@@ -651,14 +701,18 @@ export async function getIntakeState(
     live_reading: live,
     area_record: areaRecord(listed, chosen.section, sectionOfFact),
     done: false,
-    question: await toIntakeQuestion(profileId, chosen, currency, {
-      position: earlierInArea + 1,
-      alreadyRead: alreadyRead(chosen.writes_to, listed),
-      unlocks: unlocksOf(chosen, bank, applicable),
-    }),
-    on_deck: onDeck
-      ? ((onDeck.prompt as Record<string, string> | null)?.en ?? "").trim() || null
-      : null,
+    question: await toIntakeQuestion(
+      profileId,
+      chosen,
+      currency,
+      {
+        position: earlierInArea + 1,
+        alreadyRead: alreadyRead(chosen.writes_to, listed),
+        unlocks: unlocksOf(chosen, bank, applicable),
+      },
+      words,
+    ),
+    on_deck: onDeck ? promptOf(onDeck, words) || null : null,
     progress,
     findings,
     readout: null,
@@ -677,14 +731,24 @@ export async function reconcileFinding(
   profileId: string,
   findingId: string,
   choice: "confirm" | "fix",
+  locale: AppLocale = "en",
 ): Promise<ReconcileResponse> {
   const findings = await openFindings(profileId);
   const finding = findings.find((f) => f.id === findingId);
-  if (!finding) throw new IntakeError(`finding ${findingId} is not open on this profile`, 404);
+  if (!finding) {
+    throw new IntakeError(
+      `finding ${findingId} is not open on this profile`,
+      404,
+      "finding_not_open",
+    );
+  }
 
   if (choice === "confirm") {
     await resolveFinding(findingId, "owner_confirmed", "both are right");
-    return { reopened: [], state: await getIntakeState(accountId, profileId) };
+    return {
+      reopened: [],
+      state: await getIntakeState(accountId, profileId, undefined, undefined, locale),
+    };
   }
 
   await resolveFinding(findingId, "owner_corrected", "let me fix one");
@@ -715,7 +779,7 @@ export async function reconcileFinding(
   }
   return {
     reopened,
-    state: await getIntakeState(accountId, profileId, reopened[0]),
+    state: await getIntakeState(accountId, profileId, reopened[0], undefined, locale),
   };
 }
 
@@ -752,7 +816,9 @@ export async function submitAnswer(
   questionId: string,
   action: AnswerAction,
   preferSection?: ProfileSection,
+  locale: AppLocale = "en",
 ): Promise<AnswerResponse> {
+  const words = await loadBankWords(locale);
   const [applicable, view, currency] = await Promise.all([
     applicableQuestions(profileId),
     loadRecords(profileId),
@@ -767,10 +833,16 @@ export async function submitAnswer(
     // checks, so a missing one used to reach .trim() and 500 — an input
     // mistake reported as our fault. It is the same 422 as an empty one.
     const reason = typeof action.reason === "string" ? action.reason.trim() : "";
-    if (reason === "") throw new IntakeError("a reason is needed to change an answer", 422);
+    if (reason === "") {
+      throw new IntakeError("a reason is needed to change an answer", 422, "reason_needed");
+    }
     const target = applicable.find((q) => q.id === questionId);
     if (!target || !view.responded.has(target.writes_to)) {
-      throw new IntakeError(`question ${questionId} has no answer to reopen`, 409);
+      throw new IntakeError(
+        `question ${questionId} has no answer to reopen`,
+        409,
+        "no_answer_to_reopen",
+      );
     }
     const reopenAt = isoDateTime(new Date().toISOString());
     await writeField(
@@ -789,12 +861,12 @@ export async function submitAnswer(
     return {
       chip: {
         question_id: target.id,
-        prompt: ((target.prompt as Record<string, string> | null)?.en ?? "").trim(),
+        prompt: promptOf(target, words),
         display: "Reopened",
         provenance: `${target.id} · reopened`,
         dot: "hollow",
       },
-      state: await getIntakeState(accountId, profileId, target.id),
+      state: await getIntakeState(accountId, profileId, target.id, undefined, locale),
     };
   }
 
@@ -811,10 +883,10 @@ export async function submitAnswer(
     selection.candidates.find((q) => q.id === questionId) ??
     applicable.find((q) => q.id === questionId && !view.responded.has(q.writes_to));
   if (!question) {
-    throw new IntakeError(`question ${questionId} is not currently askable`, 409);
+    throw new IntakeError(`question ${questionId} is not currently askable`, 409, "not_askable");
   }
   const spec = question.input as InputSpec;
-  const options = await optionsFor(profileId, spec);
+  const options = await optionsFor(profileId, spec, words, question.id);
   const at = isoDateTime(new Date().toISOString());
 
   let status: FieldStatus;
@@ -825,7 +897,7 @@ export async function submitAnswer(
 
   if (action.kind === "unknown") {
     if (spec.allow_unknown === false) {
-      throw new IntakeError("this question needs an answer", 422);
+      throw new IntakeError("this question needs an answer", 422, "needs_answer");
     }
     status = "unknown";
     display = "Not known";
@@ -839,7 +911,9 @@ export async function submitAnswer(
       options.map((o) => o.code),
       currency,
     );
-    if (!coerced.ok) throw new IntakeError(coerced.reason, 422);
+    if (!coerced.ok) {
+      throw new IntakeError(coerced.reason, 422, coerced.code, coerced.values ?? {});
+    }
     status = "answered";
     value = coerced.value;
     if (action.estimate) {
@@ -892,12 +966,15 @@ export async function submitAnswer(
 
   const chip: IntakeChip = {
     question_id: question.id,
-    prompt: ((question.prompt as Record<string, string> | null)?.en ?? "").trim(),
+    prompt: promptOf(question, words),
     display,
     provenance,
     dot: status === "answered" ? "solid" : "hollow",
   };
-  return { chip, state: await getIntakeState(accountId, profileId, undefined, preferSection) };
+  return {
+    chip,
+    state: await getIntakeState(accountId, profileId, undefined, preferSection, locale),
+  };
 }
 
 const ENTITY_TABLES: Record<string, typeof suppliers> = {
@@ -921,10 +998,15 @@ export async function submitEntities(
   questionId: string,
   rows: readonly Record<string, unknown>[],
   preferSection?: ProfileSection,
+  locale: AppLocale = "en",
 ): Promise<AnswerResponse> {
   if (!Array.isArray(rows) || rows.length < 1 || rows.length > 20) {
-    throw new IntakeError("between 1 and 20 rows required", 422);
+    throw new IntakeError("between 1 and 20 rows required", 422, "rows_range", {
+      min: 1,
+      max: 20,
+    });
   }
+  const words = await loadBankWords(locale);
   const applicable = await applicableQuestions(profileId);
   const view = await loadRecords(profileId);
   const skippedIds = new Set(
@@ -936,16 +1018,19 @@ export async function submitEntities(
   const question =
     selection.candidates.find((q) => q.id === questionId) ??
     applicable.find((q) => q.id === questionId && !view.responded.has(q.writes_to));
-  if (!question) throw new IntakeError(`question ${questionId} is not currently askable`, 409);
+  if (!question) {
+    throw new IntakeError(`question ${questionId} is not currently askable`, 409, "not_askable");
+  }
   const spec = question.input as InputSpec;
   if (spec.type !== "entity_list" || !spec.entity_schema) {
-    throw new IntakeError("not an entity question", 422);
+    throw new IntakeError("not an entity question", 422, "not_entity");
   }
   const currency = await reportingCurrency(profileId);
   const fields = await loadEntityFields(
     spec.entity_schema,
-    (s) => optionsFor(profileId, s),
+    (s) => optionsFor(profileId, s, words),
     currency,
+    words,
   );
   try {
     const result = await writeEntityRows({
@@ -958,7 +1043,7 @@ export async function submitEntities(
     });
     const chip: IntakeChip = {
       question_id: question.id,
-      prompt: ((question.prompt as Record<string, string> | null)?.en ?? "").trim(),
+      prompt: promptOf(question, words),
       display: entityChipDisplay(result),
       provenance: `${question.id} · owner · stated`,
       dot: "solid",
@@ -966,11 +1051,17 @@ export async function submitEntities(
     };
     return {
       chip,
-      state: await getIntakeState(accountId, profileId, undefined, preferSection),
+      state: await getIntakeState(accountId, profileId, undefined, preferSection, locale),
     };
   } catch (error) {
-    const status = (error as { status?: number }).status;
-    if (status === 422) throw new IntakeError((error as Error).message, 422);
+    const e = error as {
+      status?: number;
+      code?: IntakeErrorCode;
+      values?: Record<string, string | number>;
+    };
+    if (e.status === 422) {
+      throw new IntakeError((error as Error).message, 422, e.code ?? "invalid", e.values ?? {});
+    }
     throw error;
   }
 }
@@ -987,14 +1078,16 @@ export async function submitEntityCount(
   count: number,
 ): Promise<AnswerResponse> {
   if (!Number.isInteger(count) || count < 1 || count > 20) {
-    throw new IntakeError("count must be between 1 and 20", 422);
+    throw new IntakeError("count must be between 1 and 20", 422, "rows_range", { min: 1, max: 20 });
   }
   const applicable = await applicableQuestions(profileId);
   const question = applicable.find((q) => q.id === questionId);
-  if (!question) throw new IntakeError(`question ${questionId} is not applicable`, 409);
+  if (!question) {
+    throw new IntakeError(`question ${questionId} is not applicable`, 409, "not_askable");
+  }
   const spec = question.input as InputSpec;
   if (spec.type !== "entity_list" || !spec.entity_schema) {
-    throw new IntakeError("not an entity question", 422);
+    throw new IntakeError("not an entity question", 422, "not_entity");
   }
 
   let ids: string[];
@@ -1023,7 +1116,9 @@ export async function submitEntityCount(
     ids = rows.map((r) => r.id);
   } else {
     const table = ENTITY_TABLES[spec.entity_schema];
-    if (!table) throw new IntakeError(`unknown entity schema ${spec.entity_schema}`, 422);
+    if (!table) {
+      throw new IntakeError(`unknown entity schema ${spec.entity_schema}`, 422, "not_entity");
+    }
     const base = { profile_id: profileId } as Record<string, unknown>;
     if (spec.entity_schema === "cost_item") {
       base.bucket = costBucketFor(question.writes_to);
@@ -1054,7 +1149,7 @@ export async function submitEntityCount(
 
   const chip: IntakeChip = {
     question_id: question.id,
-    prompt: ((question.prompt as Record<string, string> | null)?.en ?? "").trim(),
+    prompt: englishOf(question.prompt),
     display: `${count} recorded — details next session`,
     provenance: `${question.id} · owner · stated`,
     dot: "solid",

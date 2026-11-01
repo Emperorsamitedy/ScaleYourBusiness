@@ -22,7 +22,11 @@
 // screen. Unfolding shows the tiles unchanged; choosing one folds it again.
 
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { IntakeArea } from "@/lib/intake/types";
+import { num } from "../sheet/num";
+import type { Tr } from "./words";
+import { useIntakeWords } from "./words";
 import {
   areaAskable,
   areaName,
@@ -33,21 +37,11 @@ import {
   tileColumns,
 } from "./record";
 
-const BAR_WORD: Record<IntakeArea["bars"][number], string> = {
-  owner: "from you",
-  measured: "measured",
-  derived: "worked out",
-  current: "asking now",
-  open: "open",
-  unknown: "not known",
-  skipped: "skipped",
-};
-
 /** "6 from you, 2 measured, 1 open" — the bars in words, for a screen reader. */
-function barsInWords(bars: IntakeArea["bars"]): string {
-  const counts = new Map<string, number>();
-  for (const b of bars) counts.set(BAR_WORD[b], (counts.get(BAR_WORD[b]) ?? 0) + 1);
-  return [...counts.entries()].map(([w, n]) => `${n} ${w}`).join(", ");
+function barsInWords(bars: IntakeArea["bars"], tr: Tr): string {
+  const counts = new Map<IntakeArea["bars"][number], number>();
+  for (const b of bars) counts.set(b, (counts.get(b) ?? 0) + 1);
+  return [...counts.entries()].map(([b, n]) => tr(`bank.bar.${b}`, { count: n })).join(", ");
 }
 
 export function AreaTiles({
@@ -66,6 +60,9 @@ export function AreaTiles({
 }) {
   const [open, setOpen] = useState(false);
   const tilesId = useId();
+  const t = useTranslations("intake.bank");
+  const { tr, locale } = useIntakeWords();
+  const fig = (chunks: React.ReactNode) => <span className="fig">{chunks}</span>;
   // When the bank scrolls inside itself, keep the active tile in view by
   // scrolling the strip — never the page.
   const activeRef = useRef<HTMLLIElement>(null);
@@ -81,7 +78,7 @@ export function AreaTiles({
     const i = areas.findIndex((a) => a.section === section);
     return i < 0 ? null : channelNo(i);
   };
-  const summary = bankSummary(areas, active);
+  const summary = bankSummary(areas, active, tr);
 
   return (
     <nav className={open ? "ix-bank open" : "ix-bank"} aria-labelledby="ix-bank-h">
@@ -93,16 +90,16 @@ export function AreaTiles({
           aria-controls={tilesId}
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="ix-bank-title">Channel bank</span>
+          <span className="ix-bank-title">{t("title")}</span>
           <span className="ix-bank-now">
-            {summary.current ? (
-              <>
-                CH {summary.current.ch} · {summary.current.name} ·{" "}
-                <span className="fig">{summary.current.pct}%</span>
-              </>
-            ) : (
-              "Your business, measured area by area"
-            )}
+            {summary.current
+              ? t.rich("now", {
+                  channel: summary.current.ch,
+                  area: summary.current.name,
+                  pct: num(summary.current.pct, 0, locale),
+                  fig,
+                })
+              : t("none")}
           </span>
           <span className="ix-bank-strip" aria-hidden="true">
             {areas.map((a) => (
@@ -115,16 +112,20 @@ export function AreaTiles({
             ))}
           </span>
           <span className="ix-bank-done">
-            <span className="fig">{summary.done}</span> of {summary.total} done
+            {t.rich("done", {
+              done: num(summary.done, 0, locale),
+              total: num(summary.total, 0, locale),
+              fig,
+            })}
           </span>
-          <span className="ix-bank-toggle">{open ? "Hide channels" : "All channels"}</span>
+          <span className="ix-bank-toggle">{open ? t("hide") : t("all")}</span>
         </button>
       </h2>
       {open && (
         <p className="ix-cap ix-legend">
-          <span className="ix-key-sw owner" aria-hidden="true" /> from you{" "}
-          <span className="ix-key-sw measured" aria-hidden="true" /> read from {connector} · any
-          order is fine
+          <span className="ix-key-sw owner" aria-hidden="true" /> {t("legendOwner")}{" "}
+          <span className="ix-key-sw measured" aria-hidden="true" />{" "}
+          {t("legendMeasured", { connector })}
         </p>
       )}
       <ol
@@ -135,15 +136,16 @@ export function AreaTiles({
       >
         {areas.map((area, i) => {
           const isActive = area.section === active;
-          const status = areaStatusWord(area, { active: isActive, channelOf });
+          const status = areaStatusWord(area, { active: isActive, channelOf, tr });
           const askable = areaAskable(area) && !isActive;
           const pct = areaPercent(area);
-          const name = areaName(area.section);
+          const name = areaName(area.section, tr);
+          const pctText = num(pct, 0, locale);
           const body = (
             <>
               <span className="ix-tile-top">
-                <span>CH {channelNo(i)}</span>
-                <span className="fig">{pct}%</span>
+                <span>{t("tileChannel", { channel: channelNo(i) })}</span>
+                <span className="fig">{t("tilePct", { pct: pctText })}</span>
               </span>
               <span className="ix-bars" aria-hidden="true">
                 {area.bars.map((b, j) => (
@@ -156,7 +158,13 @@ export function AreaTiles({
               </span>
             </>
           );
-          const words = `Channel ${channelNo(i)}, ${name}: ${status.word}, ${pct}% answered — ${barsInWords(area.bars)}.`;
+          const words = t("tileWords", {
+            channel: channelNo(i),
+            area: name,
+            status: status.word,
+            pct: pctText,
+            bars: barsInWords(area.bars, tr),
+          });
           return (
             <li key={area.section} ref={isActive ? activeRef : undefined}>
               {askable ? (
@@ -168,7 +176,7 @@ export function AreaTiles({
                     setOpen(false);
                     onChoose(area.section);
                   }}
-                  aria-label={`${words} Ask from this area.`}
+                  aria-label={t("tileAsk", { words })}
                 >
                   {body}
                 </button>

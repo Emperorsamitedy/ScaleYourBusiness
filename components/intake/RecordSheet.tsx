@@ -19,9 +19,11 @@
 // "imported, awaiting confirmation" status for it to act on.
 
 import { useState } from "react";
+import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { AreaRecord, IntakeUnlock, RecordFact } from "@/lib/intake/types";
 import { areaName, basisWord, factLabel, factValue, sourceWord } from "./record";
-import { num } from "../sheet/num";
+import { useIntakeWords } from "./words";
 
 function ChangeRow({
   fact,
@@ -35,18 +37,19 @@ function ChangeRow({
   onClose: () => void;
 }) {
   const [reason, setReason] = useState("");
+  const t = useTranslations("intake.record");
   const qid = fact.question_id;
   if (!qid) return null;
   const inputId = `ix-reason-${qid}`;
   if (fact.status === "skipped") {
     return (
       <li className="ix-change">
-        <span className="ix-note">Skipped earlier — it can be answered now.</span>
+        <span className="ix-note">{t("skippedEarlier")}</span>
         <button type="button" className="act" onClick={() => onAsk(qid)}>
-          Answer it now &rarr;
+          {t("answerNow")} &rarr;
         </button>
         <button type="button" className="ix-link" onClick={onClose}>
-          Keep it skipped
+          {t("keepSkipped")}
         </button>
       </li>
     );
@@ -62,7 +65,7 @@ function ChangeRow({
         }}
       >
         <label className="ix-cap" htmlFor={inputId}>
-          What changed?
+          {t("whatChanged")}
         </label>
         <input
           id={inputId}
@@ -71,13 +74,13 @@ function ChangeRow({
           autoComplete="off"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="e.g. the price went up in March"
+          placeholder={t("whatChangedExample")}
         />
         <button type="submit" className="act" disabled={reason.trim() === ""}>
-          Change this answer &rarr;
+          {t("change")} &rarr;
         </button>
         <button type="button" className="ix-link" onClick={onClose}>
-          Leave it
+          {t("leave")}
         </button>
       </form>
     </li>
@@ -104,31 +107,31 @@ export function RecordSheet({
   onAsk: (questionId: string) => void;
 }) {
   const [open, setOpen] = useState<string | null>(null);
-  const title = `${channel ? `Channel ${channel} · ` : ""}${areaName(area.section)}`;
+  const t = useTranslations("intake.record");
+  const tq = useTranslations("intake.question");
+  const { tr, locale } = useIntakeWords();
+  const fig = (chunks: ReactNode) => <span className="fig">{chunks}</span>;
+  const name = areaName(area.section, tr);
+  const title = channel ? t("channelTitle", { channel, area: name }) : name;
 
   return (
     <section className="ix-card ix-rec" aria-labelledby="ix-rec-h">
       <header className="ix-card-head">
-        <p className="ix-cap">The record · newest first</p>
+        <p className="ix-cap">{t("cap")}</p>
         <div className="ix-card-titlerow">
           <h2 className="ix-card-title" id="ix-rec-h">
             {title}
           </h2>
-          <span className="ix-note">
-            <span className="fig">{num(area.fact_count)}</span>{" "}
-            {area.fact_count === 1 ? "fact" : "facts"}
-          </span>
+          <span className="ix-note">{t.rich("facts", { count: area.fact_count, fig })}</span>
         </div>
       </header>
 
       {area.facts.length === 0 ? (
-        <p className="ix-rec-empty">
-          Nothing on file in this area yet. Each answer lands here with where it came from.
-        </p>
+        <p className="ix-rec-empty">{t("empty")}</p>
       ) : (
-        <ul className="ix-rec-list" aria-label={`Facts on file in ${areaName(area.section)}`}>
+        <ul className="ix-rec-list" aria-label={t("listLabel", { area: name })}>
           {area.facts.map((fact) => {
-            const value = factValue(fact);
+            const value = factValue(fact, tr, locale);
             const label = factLabel(fact);
             const changeable =
               fact.question_id !== null &&
@@ -156,13 +159,14 @@ export function RecordSheet({
                       >
                         {label}
                         <span className="sr-only">
-                          {fact.status === "skipped" ? " — answer it now" : " — change this answer"}
+                          {" — "}
+                          {fact.status === "skipped" ? t("srAnswer") : t("srChange")}
                         </span>
                       </button>
                     ) : (
                       label
                     )}
-                    <span className="ix-rec-src">{sourceWord(fact)}</span>
+                    <span className="ix-rec-src">{sourceWord(fact, tr)}</span>
                   </span>
                   <span
                     className={value.figure ? "ix-rec-val fig" : "ix-rec-val"}
@@ -171,8 +175,8 @@ export function RecordSheet({
                     {value.text}
                   </span>
                   <span className="ix-rec-basis">
-                    {basisWord(fact)}
-                    {isFlagged && <span className="flag drift">to reconcile</span>}
+                    {basisWord(fact, tr)}
+                    {isFlagged && <span className="flag drift">{t("toReconcile")}</span>}
                   </span>
                 </div>
                 {isOpen && changeable && (
@@ -198,21 +202,22 @@ export function RecordSheet({
       )}
       {area.fact_count > area.facts.filter((f) => f.text !== null).length && (
         <p className="ix-more">
-          The rest is on <a href="/profile">the fact sheet</a>
+          {t.rich("rest", { a: (chunks) => <a href="/profile">{chunks}</a> })}
         </p>
       )}
 
       {unlocks.length > 0 && (
         <div className="ix-unlocks">
-          <h3 className="ix-cap">What this answer unlocks</h3>
+          <h3 className="ix-cap">{t("unlocks")}</h3>
           <ul>
             {unlocks.map((u) => (
               <li key={u.id} className="ix-unlock">
                 <span className="ix-unlock-text">
-                  <span className="ix-unlock-id fig">Q {u.id}</span> {u.prompt}
+                  <span className="ix-unlock-id">{tq.rich("ref", { id: u.id, fig })}</span>{" "}
+                  {u.prompt}
                 </span>
                 <span className={u.open ? "ix-badge open" : "ix-badge"}>
-                  {u.open ? "Open" : "Locked"}
+                  {u.open ? t("open") : t("locked")}
                 </span>
               </li>
             ))}

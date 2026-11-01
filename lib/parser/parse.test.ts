@@ -90,10 +90,14 @@ describe("coercion — P0-58's arithmetic, deterministic", () => {
     expect(coerceParsedValue(share, 4000, [], HUF)).toEqual({
       ok: false,
       reason: "must be at most 100",
+      code: "max",
+      values: { limit: 100 },
     });
     expect(coerceParsedValue(share, -1, [], HUF)).toEqual({
       ok: false,
       reason: "must be at least 0",
+      code: "min",
+      values: { limit: 0 },
     });
   });
 
@@ -113,6 +117,8 @@ describe("coercion — P0-58's arithmetic, deterministic", () => {
     expect(coerceParsedValue(m, { amount_major: 250, currency: "VAT" }, [], HUF)).toEqual({
       ok: false,
       reason: '"VAT" is not an ISO 4217 currency',
+      code: "unknown_currency",
+      values: { currency: "VAT" },
     });
   });
 });

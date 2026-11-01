@@ -7,15 +7,25 @@
 // version keep their question provenance), vocabularies mirrored to the
 // current bank, and the is_current pointer moved last.
 
+//
+// L-2: the language overlays beside the bank file (<stem>.<locale>.json,
+// linted with it) are stored in the same transaction under the same
+// version: words belong to the bank version they were written for.
+
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
 import { eq, ne } from "drizzle-orm";
 import { db } from "../../db";
-import { bankEntitySchemas, bankQuestions, bankVersions } from "../../db/schema";
+import { bankEntitySchemas, bankOverlays, bankQuestions, bankVersions } from "../../db/schema";
+import { LOCALES } from "../i18n/locales";
+import type { AppLocale } from "../i18n/locales";
 import type { ProfileSection } from "../profile/sections";
 import { isProfileSection, sectionOfFieldKey } from "../profile/sections";
 import { loadVocabularies } from "../vocab/loader";
+import type { OverlayWords } from "./words";
+import { resetBankWordsCache } from "./words";
 
 export class BankLintError extends Error {
   constructor(message: string) {
@@ -118,6 +128,45 @@ export interface BankLoadResult {
   questions: number;
   vocabularies: number;
   entity_schemas: number;
+  /** The languages whose overlays were stored with this version, in LOCALES order. */
+  overlays: AppLocale[];
+}
+
+export interface BankOverlayFile {
+  locale: AppLocale;
+  bank_version: string;
+  words: OverlayWords;
+  source_hash: string;
+}
+
+/** The overlays beside a bank file: <stem>.<locale>.json, one per language other than English. */
+export function readBankOverlays(bankPath: string): BankOverlayFile[] {
+  const stem = basename(bankPath).replace(/\.json$/, "");
+  const out: BankOverlayFile[] = [];
+  for (const locale of LOCALES) {
+    if (locale === "en") continue;
+    const path = join(dirname(bankPath), `${stem}.${locale}.json`);
+    if (!existsSync(path)) continue;
+    const raw = readFileSync(path, "utf8");
+    const parsed = JSON.parse(raw) as {
+      bank_version?: unknown;
+      questions?: OverlayWords["questions"];
+      entity_schemas?: OverlayWords["entity_schemas"];
+      vocabularies?: OverlayWords["vocabularies"];
+    };
+    out.push({
+      locale,
+      bank_version: typeof parsed.bank_version === "string" ? parsed.bank_version : "",
+      // Words only: the lint's own bookkeeping (same_as_english, glossary_exceptions) stays in the file.
+      words: {
+        questions: parsed.questions ?? {},
+        entity_schemas: parsed.entity_schemas ?? {},
+        vocabularies: parsed.vocabularies ?? {},
+      },
+      source_hash: createHash("sha256").update(raw).digest("hex"),
+    });
+  }
+  return out;
 }
 
 /** Lint, then load a bank file atomically and point is_current at it. */
@@ -137,8 +186,19 @@ export async function loadBank(path: string): Promise<BankLoadResult> {
     sectionOfFieldKey(q.writes_to);
   }
 
+  const overlays = readBankOverlays(path);
+  for (const o of overlays) {
+    // The lint refuses this too; the loader says it in its own words.
+    if (o.bank_version !== version) {
+      throw new BankLoadError(
+        `overlay ${o.locale} is for bank ${o.bank_version || "(none)"}, not ${version}`,
+      );
+    }
+  }
+
   await db.transaction(async (tx) => {
     // Idempotent per version: reloading replaces this version's rows only.
+    await tx.delete(bankOverlays).where(eq(bankOverlays.bank_version, version));
     await tx.delete(bankQuestions).where(eq(bankQuestions.bank_version, version));
     await tx.delete(bankEntitySchemas).where(eq(bankEntitySchemas.bank_version, version));
     await tx.delete(bankVersions).where(eq(bankVersions.version, version));
@@ -178,6 +238,17 @@ export async function loadBank(path: string): Promise<BankLoadResult> {
       })),
     );
 
+    if (overlays.length > 0) {
+      await tx.insert(bankOverlays).values(
+        overlays.map((o) => ({
+          bank_version: version,
+          locale: o.locale,
+          words: o.words,
+          source_hash: o.source_hash,
+        })),
+      );
+    }
+
     // Vocabularies mirror the loading bank (Session F semantics).
     await loadVocabularies({ bank_version: version, vocabularies: bank.vocabularies }, tx);
 
@@ -191,11 +262,13 @@ export async function loadBank(path: string): Promise<BankLoadResult> {
       .set({ is_current: true })
       .where(eq(bankVersions.version, version));
   });
+  resetBankWordsCache();
 
   return {
     bank_version: version,
     questions: bank.questions.length,
     vocabularies: Object.keys(bank.vocabularies).length,
     entity_schemas: Object.keys(bank.entity_schemas).length,
+    overlays: overlays.map((o) => o.locale),
   };
 }

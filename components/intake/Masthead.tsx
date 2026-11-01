@@ -12,7 +12,9 @@
 // data, so none is printed. The fact count is the record's own.
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { num } from "../sheet/num";
+import { useIntakeWords } from "./words";
 
 /** How often the session clock re-reads the time. */
 const TICK_MS = 30_000;
@@ -41,29 +43,29 @@ export function Masthead({
     return () => window.clearInterval(id);
   }, []);
   const minutes = Math.max(0, Math.floor((now - openedAt) / 60_000));
+  const t = useTranslations("intake.mast");
+  const { locale } = useIntakeWords();
+  const fig = (chunks: React.ReactNode) => <span className="fig">{chunks}</span>;
 
   return (
     <header className="ix-mast">
       <span className="ix-mark">SYB</span>
       <span className="ix-mast-sub">
-        Calibrating the record
+        {t("sub")}
         {businessName && <> · {businessName}</>}
       </span>
       <span className="ix-mast-right">
         {machine && (
           <span className="ix-machine" role="status">
             <span className="ix-machine-sq" aria-hidden="true" />
-            {machine === "saving" ? "Saving…" : "Listening"}
+            {machine === "saving" ? t("saving") : t("listening")}
           </span>
         )}
-        <span className="ix-mast-fig" title="Minutes since this page opened">
-          Session · <span className="fig">{num(minutes)}</span> min
+        <span className="ix-mast-fig" title={t("sessionTitle")}>
+          {t.rich("session", { minutes: num(minutes, 0, locale), fig })}
         </span>
         {factCount !== null && (
-          <span className="ix-mast-fig">
-            <span className="fig">{num(factCount)}</span> {factCount === 1 ? "fact" : "facts"} on
-            file
-          </span>
+          <span className="ix-mast-fig">{t.rich("facts", { count: factCount, fig })}</span>
         )}
         <button
           type="button"
@@ -72,7 +74,7 @@ export function Masthead({
           aria-controls="ix-pause-panel"
           onClick={onPause}
         >
-          Pause — finish later
+          {t("pause")}
         </button>
       </span>
     </header>

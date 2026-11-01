@@ -7,7 +7,11 @@
 // Enter records the whole list.
 
 import { useEffect, useRef, useState } from "react";
+import { readTypedAmount } from "@/lib/intake/amount-input";
+import type { AppLocale } from "@/lib/i18n/locales";
 import type { EntityField, IntakeQuestion } from "@/lib/intake/types";
+import { useIntakeWords } from "../words";
+import { AmountChoice, settledDecimal } from "./AmountChoice";
 
 type Row = Record<string, unknown>;
 
@@ -19,9 +23,23 @@ interface EntityListProps {
   onRequestSubmit: () => void;
 }
 
-/** Build the wire value for one sub-field from its raw input state. */
-function wireOf(field: EntityField, raw: string | boolean | string[]): unknown {
+/** A figure's settled reading, carried beside the typed text: "1.200" plus which one was meant. */
+const PICK = "\u0000";
+
+/**
+ * Build the wire value for one sub-field from its raw input state. In
+ * English a figure reads as before; in another language through the one
+ * reader (lib/intake/amount-input), and an ambiguous one stays unsent
+ * until its reading is picked (L-2: never guessed).
+ */
+function wireOf(field: EntityField, raw: string | boolean | string[], locale: AppLocale): unknown {
   if (raw === "" || raw === undefined || (Array.isArray(raw) && raw.length === 0)) return undefined;
+  if (locale !== "en" && (field.input_type === "number" || field.input_type === "money")) {
+    const [typed = "", picked = null] = String(raw).split(PICK);
+    const decimal = settledDecimal(readTypedAmount(typed), picked);
+    if (decimal === null) return undefined;
+    return field.input_type === "money" ? { amount_major: decimal } : Number(decimal);
+  }
   switch (field.input_type) {
     case "number":
       return Number(raw);
@@ -45,6 +63,7 @@ function SubField({
   onChange: (v: string | boolean | string[]) => void;
   onEnter: () => void;
 }) {
+  const { tr, locale } = useIntakeWords();
   const enter = (e: React.KeyboardEvent): void => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -60,7 +79,7 @@ function SubField({
           value={typeof value === "string" ? value : ""}
           onChange={(e) => onChange(e.target.value)}
         >
-          <option value="">{field.prompt}…</option>
+          <option value="">{tr("entity.choose", { prompt: field.prompt })}</option>
           {field.options.map((o) => (
             <option key={o.code} value={o.code}>
               {o.label}
@@ -99,9 +118,9 @@ function SubField({
           value={value === true ? "yes" : value === false ? "no" : ""}
           onChange={(e) => onChange(e.target.value === "yes")}
         >
-          <option value="">{field.prompt}…</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
+          <option value="">{tr("entity.choose", { prompt: field.prompt })}</option>
+          <option value="yes">{tr("question.yes")}</option>
+          <option value="no">{tr("question.no")}</option>
         </select>
       );
     case "long_text":
@@ -117,6 +136,8 @@ function SubField({
         />
       );
     case "money":
+      if (locale !== "en")
+        return <LocalFigure field={field} value={value} onChange={onChange} onEnter={enter} />;
       return (
         <span className="ix-sub-money">
           <input
@@ -132,11 +153,25 @@ function SubField({
           <span className="ix-note">{field.currency}</span>
         </span>
       );
+    case "number":
+      if (locale !== "en")
+        return <LocalFigure field={field} value={value} onChange={onChange} onEnter={enter} />;
+      return (
+        <input
+          className="ix-input"
+          type="number"
+          placeholder={field.prompt}
+          aria-label={field.prompt}
+          value={typeof value === "string" ? value : ""}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={enter}
+        />
+      );
     default:
       return (
         <input
           className="ix-input"
-          type={field.input_type === "number" ? "number" : "text"}
+          type="text"
           placeholder={field.prompt}
           aria-label={field.prompt}
           value={typeof value === "string" ? value : ""}
@@ -147,7 +182,45 @@ function SubField({
   }
 }
 
+/** L-2: a row figure in the person's writing, with the "which did you mean?" when it reads two ways. */
+function LocalFigure({
+  field,
+  value,
+  onChange,
+  onEnter,
+}: {
+  field: EntityField;
+  value: string | boolean | string[];
+  onChange: (v: string) => void;
+  onEnter: (e: React.KeyboardEvent) => void;
+}) {
+  const { locale } = useIntakeWords();
+  const [typed = "", picked = null] = (typeof value === "string" ? value : "").split(PICK);
+  return (
+    <span className="ix-sub-money">
+      <input
+        className="ix-input"
+        type="text"
+        inputMode="decimal"
+        placeholder={field.prompt}
+        aria-label={field.prompt}
+        value={typed}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onEnter}
+      />
+      {field.input_type === "money" && <span className="ix-note">{field.currency}</span>}
+      <AmountChoice
+        reading={readTypedAmount(typed)}
+        picked={picked}
+        onPick={(d) => onChange(`${typed}${PICK}${d}`)}
+        locale={locale}
+      />
+    </span>
+  );
+}
+
 export function EntityListControl({ question, onRowsChange, onRequestSubmit }: EntityListProps) {
+  const { tr, locale } = useIntakeWords();
   const fields = question.entity_fields ?? [];
   const core = fields.filter((f) => f.priority === "core");
   const rest = fields.filter((f) => f.priority !== "core");
@@ -172,7 +245,7 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
         for (const f of fields) {
           const raw = r[f.key];
           if (raw === undefined) continue;
-          const wire = wireOf(f, raw);
+          const wire = wireOf(f, raw, locale);
           if (wire !== undefined) out[f.key] = wire;
         }
         return out;
@@ -242,17 +315,17 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
                   })
                 }
               >
-                {detailOpen.has(i) ? "Hide detail" : "Add detail"}
+                {detailOpen.has(i) ? tr("entity.hideDetail") : tr("entity.addDetail")}
               </button>
             )}
             {rows.length > 1 && (
               <button
                 type="button"
                 className="ix-link"
-                aria-label={`Remove row ${i + 1}`}
+                aria-label={tr("entity.removeRow", { row: i + 1 })}
                 onClick={() => setRows((prev) => prev.filter((_, idx) => idx !== i))}
               >
-                Remove
+                {tr("entity.remove")}
               </button>
             )}
           </div>
@@ -264,7 +337,7 @@ export function EntityListControl({ question, onRowsChange, onRequestSubmit }: E
         disabled={rows.length >= 20}
         onClick={() => setRows((prev) => [...prev, {}])}
       >
-        Add another row
+        {tr("entity.addRow")}
       </button>
     </div>
   );

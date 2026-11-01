@@ -34,6 +34,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { AnswerAction, IntakeQuestion } from "@/lib/intake/types";
 import type { ControlChange } from "./controls/shared";
 import { CONFIRM_MS, beat } from "./motion";
@@ -60,6 +61,7 @@ import { OptionRow, OptionRows } from "./controls/Rows";
 import type { RowSpec } from "./controls/Rows";
 import { TextControl } from "./controls/Text";
 import { clearPrefill, prefillFor } from "../../lib/intake/browser-prefill";
+import { useIntakeWords } from "./words";
 
 interface QuestionCardProps {
   question: IntakeQuestion;
@@ -89,18 +91,19 @@ const CHOICE_TYPES = new Set<IntakeQuestion["input_type"]>([
 const RULER_MINOR = 5;
 
 function MoneyRuler({ question }: { question: IntakeQuestion }) {
-  const ref = moneyReference(question);
+  const { tr, locale } = useIntakeWords();
+  const ref = moneyReference(question, locale);
   const scale = ref ? rulerScale(ref.major) : null;
   if (!ref || !scale || !question.already_read) return null;
-  const { mark, before } = currencyMark(ref.currency);
+  const { mark, before } = currencyMark(ref.currency, locale);
   const label = (n: number): string => {
     const decimals = Number.isInteger(n) ? 0 : 1;
-    return before ? `${mark}${num(n, decimals)}` : `${num(n, decimals)} ${mark}`;
+    return before ? `${mark}${num(n, decimals, locale)}` : `${num(n, decimals, locale)} ${mark}`;
   };
   const ticks = Array.from({ length: 5 * RULER_MINOR + 1 }, (_, i) => i);
   const at = `${Math.min(1, scale.at) * 100}%`;
   return (
-    <figure className="ix-ruler" aria-label={`Measured reference: ${ref.text}`}>
+    <figure className="ix-ruler" aria-label={tr("question.ruler", { value: ref.text })}>
       <figcaption className="ix-ruler-ref" style={{ left: at }}>
         {question.already_read.provider} · <span className="fig">{ref.text}</span>
       </figcaption>
@@ -146,6 +149,9 @@ export function QuestionCard({
   const [isMac, setIsMac] = useState(false);
   const committing = useRef(false);
   const firstRow = useRef<HTMLButtonElement>(null);
+  const t = useTranslations("intake.question");
+  const { tr, locale } = useIntakeWords();
+  const fig = (chunks: ReactNode) => <span className="fig">{chunks}</span>;
 
   const type = question.input_type;
   const isChoice = CHOICE_TYPES.has(type);
@@ -191,15 +197,13 @@ export function QuestionCard({
     [leaving, onAnswer],
   );
 
-  const emptyMessage = question.allow_unknown
-    ? "Answer this, or choose “No reading — I don't know” to move on."
-    : "Answer this, or choose “Skip for now” to move on.";
+  const emptyMessage = question.allow_unknown ? t("emptyUnknown") : t("emptySkip");
 
   const record = (change: ControlChange): void => {
     if (leaving) return;
     if (type === "entity_list") {
       if (!entityValid || !entityRows) {
-        setLocalError("Fill in at least the first field of one row to record.");
+        setLocalError(t("entityEmpty"));
         return;
       }
       onEntityRows(entityRows);
@@ -237,13 +241,13 @@ export function QuestionCard({
         return [
           {
             id: "yes",
-            label: "Yes",
+            label: t("yes"),
             pressed: picked.includes("yes"),
             onPress: () => choose("yes", true),
           },
           {
             id: "no",
-            label: "No",
+            label: t("no"),
             pressed: picked.includes("no"),
             onPress: () => choose("no", false),
           },
@@ -270,7 +274,7 @@ export function QuestionCard({
   const unknownRow: RowSpec | null = question.allow_unknown
     ? {
         id: "__unknown__",
-        label: "No reading — I don't know",
+        label: t("unknown"),
         pressed: picked.includes("__unknown__"),
         unknown: true,
         onPress: () => {
@@ -340,14 +344,14 @@ export function QuestionCard({
   })();
 
   const error = serverError ?? localError;
-  const hint = keyHint(type, isMac);
+  const hint = keyHint(type, isMac, tr);
   const needsNext = !(type === "single_select" || type === "boolean" || type === "file");
   const nextDisabled =
     leaving ||
     (type === "entity_list" ? !entityValid : draft.wire === null || draft.wire === undefined);
   const read = question.already_read;
-  const readValue = read ? factValue(read) : null;
-  const missingMark = type === "money" ? currencyMark(question.currency) : null;
+  const readValue = read ? factValue(read, tr, locale) : null;
+  const missingMark = type === "money" ? currencyMark(question.currency, locale) : null;
   // Money and the plain fields share the last row with the unknown tile.
   const inLastRow = type === "money" || type === "number" || type === "date" || type === "text";
 
@@ -355,19 +359,13 @@ export function QuestionCard({
     <article className={leaving ? "ix-q sheet leaving" : "ix-q sheet"} aria-labelledby={labelId}>
       <header className="ix-q-band">
         <span className="ix-cap">
-          Q <span className="fig">{question.id}</span>
-          {channel && (
-            <>
-              {" "}
-              · Channel <span className="fig">{channel}</span>
-            </>
-          )}{" "}
-          · {areaName(question.section)}
+          {t.rich("ref", { id: question.id, fig })}
+          {channel && <> · {t.rich("channel", { channel, fig })}</>} ·{" "}
+          {areaName(question.section, tr)}
         </span>
         {left > 0 && (
           <span className="ix-cap ix-q-left">
-            <span className="fig">{left}</span> left in this channel · about{" "}
-            <span className="fig">{minutesFor(left)}</span> min
+            {t.rich("left", { left, minutes: minutesFor(left), fig })}
           </span>
         )}
       </header>
@@ -380,7 +378,7 @@ export function QuestionCard({
         {read && readValue && (
           <div className="ix-insets">
             <div className="ix-measured">
-              <p className="ix-cap">Already measured · {read.provider}</p>
+              <p className="ix-cap">{t("measured", { provider: read.provider ?? "" })}</p>
               <p className="ix-measured-row">
                 <strong className="ix-measured-val fig">{readValue.text}</strong>
                 <span className="ix-measured-what">{factLabel(read)}</span>
@@ -388,13 +386,13 @@ export function QuestionCard({
             </div>
             {question.missing_piece && (
               <div className="ix-missing">
-                <p className="ix-cap">The missing piece</p>
+                <p className="ix-cap">{t("missing")}</p>
                 <p className="ix-measured-row">
                   <strong className="ix-measured-val fig" aria-hidden="true">
                     {missingMark?.before ? `${missingMark.mark} ?` : "?"}
                   </strong>
                   <span className="ix-measured-what">
-                    the rest — what {read.provider} doesn&rsquo;t measure
+                    {t("missingRest", { provider: read.provider ?? "" })}
                   </span>
                 </p>
               </div>
@@ -439,7 +437,10 @@ export function QuestionCard({
         <footer className="ix-q-foot">
           {question.help ? (
             <p className="ix-purpose">
-              <strong>Purpose:</strong> {question.help}
+              {t.rich("purpose", {
+                help: question.help,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
           ) : (
             <span />
@@ -451,9 +452,9 @@ export function QuestionCard({
                 className="ix-navlink"
                 disabled={leaving}
                 onClick={() => onBack(previous)}
-                title="Reopens that answer to change it; the old one stays in history"
+                title={t("backTitle")}
               >
-                &larr; Q <span className="fig">{previous}</span>
+                &larr; {t.rich("ref", { id: previous, fig })}
               </button>
             )}
             <button
@@ -462,7 +463,7 @@ export function QuestionCard({
               disabled={leaving}
               onClick={() => commit({ kind: "skip" })}
             >
-              Skip for now
+              {t("skip")}
             </button>
             {needsNext && (
               <button
@@ -471,7 +472,7 @@ export function QuestionCard({
                 disabled={nextDisabled}
                 onClick={() => record(draft)}
               >
-                Next &rarr;
+                {t("next")} &rarr;
               </button>
             )}
           </div>

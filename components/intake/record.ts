@@ -6,6 +6,10 @@
 // components/report/basis.ts. Money and figures print through
 // components/sheet/num.ts. Nothing here reads a question's content to
 // decide anything (rule 4).
+//
+// L-2: every word comes from the "intake" catalogue (messages/*.json)
+// through a translator, English by default (./words EN_TR), and every
+// figure through the locale's own formatting.
 
 import type {
   AreaBar,
@@ -18,6 +22,9 @@ import { minorUnitExponent } from "@/lib/core/money";
 import { basisOf, gapWord } from "../report/basis";
 import { keyWords } from "../report/figures";
 import { moneyText, num } from "../sheet/num";
+import type { AppLocale } from "@/lib/i18n/locales";
+import type { Tr } from "./words";
+import { EN_TR } from "./words";
 
 /* ── areas ── */
 
@@ -39,8 +46,8 @@ export const AREA_NAME: Readonly<Record<string, string>> = {
   assets: "Files & documents",
 };
 
-export const areaName = (section: string): string =>
-  AREA_NAME[section] ?? section.replace(/_/g, " ");
+export const areaName = (section: string, tr: Tr = EN_TR): string =>
+  AREA_NAME[section] !== undefined ? tr(`area.${section}`) : section.replace(/_/g, " ");
 
 export interface AreaWord {
   word: string;
@@ -68,23 +75,29 @@ export function measuredOnly(area: Pick<IntakeArea, "bars">): boolean {
  */
 export function areaStatusWord(
   area: IntakeArea,
-  opts: { active?: boolean; channelOf?: (section: string) => string | null } = {},
+  opts: { active?: boolean; channelOf?: (section: string) => string | null; tr?: Tr } = {},
 ): AreaWord {
-  if (opts.active) return { word: "Measuring", tone: "live" };
+  const tr = opts.tr ?? EN_TR;
+  if (opts.active) return { word: tr("status.measuring"), tone: "live" };
   switch (area.status) {
     case "completed":
-      return { word: "Done", tone: "ok" };
+      return { word: tr("status.done"), tone: "ok" };
     case "blocked": {
       const ch = area.needs ? (opts.channelOf?.(area.needs) ?? null) : null;
-      if (ch) return { word: `Needs CH ${ch}`, tone: "drift" };
-      return { word: area.needs ? `Needs ${areaName(area.needs)}` : "Not open yet", tone: "drift" };
+      if (ch) return { word: tr("status.needsChannel", { channel: ch }), tone: "drift" };
+      return {
+        word: area.needs
+          ? tr("status.needsArea", { area: areaName(area.needs, tr) })
+          : tr("status.notOpen"),
+        tone: "drift",
+      };
     }
     case "not_started":
-      return { word: "Not started", tone: null };
+      return { word: tr("status.notStarted"), tone: null };
     case "in_progress":
       return measuredOnly(area)
-        ? { word: "Read only", tone: null }
-        : { word: "In progress", tone: null };
+        ? { word: tr("status.readOnly"), tone: null }
+        : { word: tr("status.inProgress"), tone: null };
   }
 }
 
@@ -120,14 +133,14 @@ export const minutesFor = (n: number): number =>
  * facts first — one or two named, more counted. "a connection" when the
  * record holds no measurement.
  */
-export function connectorLegend(sources: IntakeRecord["sources"]): string {
+export function connectorLegend(sources: IntakeRecord["sources"], tr: Tr = EN_TR): string {
   const names: string[] = [];
   for (const s of sources) {
     if (s.kind !== "connector") continue;
-    const name = s.provider ?? "a connection";
+    const name = s.provider ?? tr("provenance.aConnection");
     if (!names.includes(name)) names.push(name);
   }
-  if (names.length === 0) return "a connection";
+  if (names.length === 0) return tr("provenance.aConnection");
   if (names.length <= 2) return names.join(" & ");
   return `${names.slice(0, 2).join(", ")} +${names.length - 2}`;
 }
@@ -142,11 +155,12 @@ export const areaAskable = (area: IntakeArea): boolean => area.open > 0 || area.
 export function bankSummary(
   areas: readonly IntakeArea[],
   active: string | null,
+  tr: Tr = EN_TR,
 ): { current: { ch: string; name: string; pct: number } | null; done: number; total: number } {
   const i = active ? areas.findIndex((a) => a.section === active) : -1;
   const at = areas[i];
   return {
-    current: at ? { ch: channelNo(i), name: areaName(at.section), pct: areaPercent(at) } : null,
+    current: at ? { ch: channelNo(i), name: areaName(at.section, tr), pct: areaPercent(at) } : null,
     done: areas.filter((a) => a.status === "completed").length,
     total: areas.length,
   };
@@ -180,111 +194,145 @@ export const VALUE_MAX = 44;
  * own text. A structured value with no plain reading says so instead of
  * dumping JSON.
  */
-export function factValue(fact: RecordFact): { text: string; full: string; figure: boolean } {
-  if (fact.status === "unknown") return { text: "not known", full: "not known", figure: false };
-  if (fact.status === "skipped") return { text: "skipped", full: "skipped", figure: false };
+export function factValue(
+  fact: RecordFact,
+  tr: Tr = EN_TR,
+  locale: AppLocale = "en",
+): { text: string; full: string; figure: boolean } {
+  if (fact.status === "unknown") {
+    const w = tr("fact.notKnown");
+    return { text: w, full: w, figure: false };
+  }
+  if (fact.status === "skipped") {
+    const w = tr("fact.skipped");
+    return { text: w, full: w, figure: false };
+  }
   const v = fact.value;
   if (isMoney(v)) {
-    const t = moneyText(v.amount_minor, v.currency);
+    const t = moneyText(v.amount_minor, v.currency, locale);
     return { text: t, full: t, figure: true };
   }
   if (typeof v === "number" && Number.isFinite(v)) {
     const decimals = Number.isInteger(v) ? 0 : Math.min(2, String(v).split(".")[1]?.length ?? 0);
-    const t = num(v, decimals);
+    const t = num(v, decimals, locale);
     return { text: t, full: t, figure: true };
   }
-  if (typeof v === "boolean")
-    return { text: v ? "yes" : "no", full: v ? "yes" : "no", figure: false };
+  if (typeof v === "boolean") {
+    const w = tr(v ? "fact.yes" : "fact.no");
+    return { text: w, full: w, figure: false };
+  }
   const raw = fact.text ?? "";
-  const full = /^[[{]/.test(raw) ? "on file" : raw;
+  const full = /^[[{]/.test(raw) ? tr("fact.onFile") : raw;
   const text = full.length > VALUE_MAX ? `${full.slice(0, VALUE_MAX - 1).trimEnd()}…` : full;
   return { text, full, figure: false };
 }
 
 /** Where a fact came from, in the owner's words. */
-export function sourceWord(fact: Pick<RecordFact, "source_kind" | "provider">): string {
+export function sourceWord(
+  fact: Pick<RecordFact, "source_kind" | "provider">,
+  tr: Tr = EN_TR,
+): string {
   switch (fact.source_kind) {
     case "connector":
-      return fact.provider ?? "connected account";
+      return fact.provider ?? tr("source.connected");
     case "owner_input":
     case "conversation":
-      return "you";
+      return tr("source.you");
     case "inferred":
-      return "worked out";
+      return tr("source.workedOut");
     case "web_research":
-      return "your pages";
+      return tr("source.pages");
     case "document":
-      return "a document";
+      return tr("source.document");
     case "system_default":
-      return "default";
+      return tr("source.default");
     default:
       return fact.source_kind.replace(/_/g, " ");
   }
 }
 
+/** Gap statuses the catalogue words; anything else prints as gapWord does. */
+const GAP_KEYS = new Set(["unknown", "skipped", "unasked", "not_applicable"]);
+
 /** The basis column: a named class from what produced the fact, or what the gap is. */
-export function basisWord(fact: RecordFact): string {
-  return basisOf(fact) ?? gapWord(fact.status);
+export function basisWord(fact: RecordFact, tr: Tr = EN_TR): string {
+  const basis = basisOf(fact);
+  if (basis) return tr(`basis.${basis}`);
+  return GAP_KEYS.has(fact.status) ? tr(`basis.${fact.status}`) : gapWord(fact.status);
 }
 
 /**
  * The provenance lines under the count: "31 read from Shopify · 16 from
  * you", then the gaps on record, each kind named apart (rule 5).
  */
-export function provenanceLines(record: IntakeRecord): string[] {
-  const merged = new Map<string, number>();
+export function provenanceLines(record: IntakeRecord, tr: Tr = EN_TR): string[] {
+  // Merged by message and its words, so two sources that read alike count once.
+  const merged = new Map<string, { key: string; values: Record<string, string>; n: number }>();
   for (const s of record.sources) {
-    let words: string;
+    let key: string;
+    let values: Record<string, string> = {};
     switch (s.kind) {
       case "connector":
-        words = `read from ${s.provider ?? "a connected account"}`;
+        key = "provenance.readFrom";
+        values = { provider: s.provider ?? tr("provenance.aConnectedAccount") };
         break;
       case "owner_input":
       case "conversation":
-        words = "from you";
+        key = "provenance.fromYou";
         break;
       case "inferred":
-        words = "worked out";
+        key = "provenance.workedOut";
         break;
       case "web_research":
-        words = "read from your pages";
+        key = "provenance.readPages";
         break;
       case "document":
-        words = "from documents";
+        key = "provenance.documents";
         break;
       case "system_default":
-        words = "defaults";
+        key = "provenance.defaults";
         break;
       default:
-        words = `from ${s.kind.replace(/_/g, " ")}`;
+        key = "provenance.other";
+        values = { kind: s.kind.replace(/_/g, " ") };
     }
-    merged.set(words, (merged.get(words) ?? 0) + s.count);
+    const id = `${key}\u0000${JSON.stringify(values)}`;
+    const at = merged.get(id);
+    if (at) at.n += s.count;
+    else merged.set(id, { key, values, n: s.count });
   }
   const lines: string[] = [];
-  const first = [...merged.entries()].map(([words, n]) => `${num(n)} ${words}`).join(" · ");
+  const first = [...merged.values()].map((m) => tr(m.key, { ...m.values, count: m.n })).join(" · ");
   if (first) lines.push(first);
   const gaps: string[] = [];
-  if (record.not_known > 0) gaps.push(`${num(record.not_known)} not known yet`);
-  if (record.skipped > 0) gaps.push(`${num(record.skipped)} skipped for now`);
+  if (record.not_known > 0) gaps.push(tr("provenance.notKnown", { count: record.not_known }));
+  if (record.skipped > 0) gaps.push(tr("provenance.skipped", { count: record.skipped }));
   if (gaps.length > 0) lines.push(gaps.join(" · "));
   return lines;
 }
 
 /** "1 fact on file" / "47 facts on file". */
-export const factCountText = (n: number): string =>
-  `${num(n)} ${n === 1 ? "fact" : "facts"} on file`;
+export const factCountText = (n: number, tr: Tr = EN_TR): string =>
+  tr("provenance.factsOnFile", { count: n });
 
 /** A measurement already on record, as the inset's sentence. */
-export function alreadyReadText(fact: RecordFact): { label: string; value: string } {
-  return { label: factLabel(fact), value: factValue(fact).text };
+export function alreadyReadText(
+  fact: RecordFact,
+  tr: Tr = EN_TR,
+  locale: AppLocale = "en",
+): { label: string; value: string } {
+  return { label: factLabel(fact), value: factValue(fact, tr, locale).text };
 }
 
 /* ── money input ── */
 
 /** The currency's mark and which side it sits, read from moneyText: "€" before, "HUF" after. */
-export function currencyMark(currency: string): { mark: string; before: boolean } {
-  const sample = moneyText(0, currency);
-  const mark = sample.replace(/[\d.,\s−-]/g, "");
+export function currencyMark(
+  currency: string,
+  locale: AppLocale = "en",
+): { mark: string; before: boolean } {
+  const sample = moneyText(0, currency, locale);
+  const mark = sample.replace(/[\d.,\s\u00a0\u202f−-]/g, "");
   return { mark, before: !/^\d/.test(sample) };
 }
 
@@ -294,20 +342,24 @@ export function currencyMark(currency: string): { mark: string; before: boolean 
  * Where a key submits, say so in words (no glyphs): the control type
  * decides the key, not the question's content.
  */
-export function keyHint(type: IntakeQuestion["input_type"], isMac: boolean): string | null {
+export function keyHint(
+  type: IntakeQuestion["input_type"],
+  isMac: boolean,
+  tr: Tr = EN_TR,
+): string | null {
   switch (type) {
     case "long_text":
-      return `${isMac ? "Cmd" : "Ctrl"} + Enter to record`;
+      return tr("question.hintText", { modifier: isMac ? "Cmd" : "Ctrl" });
     case "text":
     case "number":
     case "money":
     case "date":
     case "entity_list":
-      return "Enter to record";
+      return tr("question.hintEnter");
     case "single_select":
     case "boolean":
     case "multi_select":
-      return "Keys 1–9 choose";
+      return tr("question.hintKeys", { first: 1, last: 9 });
     default:
       return null;
   }
@@ -373,7 +425,7 @@ export function parseRecordedAt(raw: string): Date | null {
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** "14:01" for a fact recorded today (the browser's clock), "16 Oct" for an earlier day. */
-export function tapeStamp(raw: string, now: Date): string {
+export function tapeStamp(raw: string, now: Date, locale: AppLocale = "en"): string {
   const d = parseRecordedAt(raw);
   if (!d) return "";
   const sameDay =
@@ -382,6 +434,10 @@ export function tapeStamp(raw: string, now: Date): string {
     d.getDate() === now.getDate();
   if (sameDay) {
     return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  }
+  if (locale !== "en") {
+    // The locale's own short day-and-month ("16. Okt.", "10月16日"), on the browser's clock.
+    return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(d);
   }
   return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ""}`;
 }
@@ -395,13 +451,18 @@ export interface TapeEntry {
 }
 
 /** The tape: the listed facts, newest first, as "HH:MM label = value · source". */
-export function tapeEntries(facts: readonly RecordFact[], now: Date): TapeEntry[] {
+export function tapeEntries(
+  facts: readonly RecordFact[],
+  now: Date,
+  tr: Tr = EN_TR,
+  locale: AppLocale = "en",
+): TapeEntry[] {
   return facts.map((f) => ({
     id: `${f.key}@${f.recorded_at}`,
-    stamp: tapeStamp(f.recorded_at, now),
+    stamp: tapeStamp(f.recorded_at, now, locale),
     label: factLabel(f),
-    value: factValue(f).text,
-    source: sourceWord(f),
+    value: factValue(f, tr, locale).text,
+    source: sourceWord(f, tr),
   }));
 }
 
@@ -466,13 +527,14 @@ export function rulerScale(reference: number): RulerScale | null {
 /** The measured reference for a money question: its already-read value, when that is money. */
 export function moneyReference(
   question: Pick<IntakeQuestion, "already_read">,
+  locale: AppLocale = "en",
 ): { major: number; currency: string; text: string } | null {
   const v = question.already_read?.value;
   if (!isMoney(v)) return null;
   return {
     major: v.amount_minor / 10 ** minorUnitExponent(v.currency),
     currency: v.currency,
-    text: moneyText(v.amount_minor, v.currency),
+    text: moneyText(v.amount_minor, v.currency, locale),
   };
 }
 

@@ -63,9 +63,9 @@
       "open": "{count, plural, one {# ouvert} many {# ouverts} other {# ouverts}}"
     },
     "role": {
-      "owner": "Votre rôle ici\u00a0: propriétaire",
-      "manager": "Votre rôle ici\u00a0: gestionnaire",
-      "viewer": "Votre rôle ici\u00a0: lecteur. Vous pouvez consulter et appuyer sur l’arrêt d’urgence."
+      "owner": "Votre rôle ici : propriétaire",
+      "manager": "Votre rôle ici : gestionnaire",
+      "viewer": "Votre rôle ici : lecteur. Vous pouvez consulter et appuyer sur l’arrêt d’urgence."
     }
   },
   "auth": {
@@ -73,10 +73,10 @@
       "signIn": "Connexion — SYB",
       "signUp": "Créer votre compte — SYB",
       "confirm": "Confirmer la connexion — SYB",
-      "choose": "Quelle entreprise\u202f? — SYB"
+      "choose": "Quelle entreprise ? — SYB"
     },
     "mast": {
-      "haveAccount": "Vous avez déjà un compte\u202f? ",
+      "haveAccount": "Vous avez déjà un compte ? ",
       "signIn": "Se connecter",
       "createAccount": "Créer un compte"
     },
@@ -103,11 +103,11 @@
       "label": "Consultez vos e-mails",
       "titleBelow": "Votre lien est ci-dessous",
       "titleSent": "Lien envoyé",
-      "onScreen": "L’envoi d’e-mails n’est pas configuré ici, votre lien à usage unique figure donc ci-dessous. Il expire dans {minutes, plural, one {#\u00a0minute} many {#\u00a0minutes} other {#\u00a0minutes}}.",
+      "onScreen": "L’envoi d’e-mails n’est pas configuré ici, votre lien à usage unique figure donc ci-dessous. Il expire dans {minutes, plural, one {# minute} many {# minutes} other {# minutes}}.",
       "createMine": "Créer mon compte",
       "signInNow": "Se connecter maintenant",
-      "sentTo": "Nous avons envoyé un lien à usage unique à <b>{email}</b>. Il expire dans {minutes, plural, one {#\u00a0minute} many {#\u00a0minutes} other {#\u00a0minutes}}.",
-      "wrongAddress": "Mauvaise adresse\u202f?",
+      "sentTo": "Nous avons envoyé un lien à usage unique à <b>{email}</b>. Il expire dans {minutes, plural, one {# minute} many {# minutes} other {# minutes}}.",
+      "wrongAddress": "Mauvaise adresse ?",
       "sendAnother": "Envoyer un autre lien"
     },
     "form": {
@@ -124,29 +124,29 @@
       "submitCreate": "Créer un compte",
       "submitSignIn": "Recevoir un lien de connexion par e-mail",
       "noteSignup": "Pas de mot de passe, pas encore de carte. Vous ne payez qu’au moment de commander le rapport.",
-      "noteSignin": "Pas de mot de passe. Le lien fonctionne une seule fois, pendant {minutes, plural, one {#\u00a0minute} many {#\u00a0minutes} other {#\u00a0minutes}}.",
+      "noteSignin": "Pas de mot de passe. Le lien fonctionne une seule fois, pendant {minutes, plural, one {# minute} many {# minutes} other {# minutes}}.",
       "orSignup": "Ou inscrivez-vous avec",
       "orSignin": "Ou continuez avec",
       "terms": "En créant un compte, vous acceptez les <terms>conditions d’utilisation</terms> et la <privacy>politique de confidentialité</privacy>.",
-      "newHere": "Nouveau sur SYB\u202f? Créez un compte en haut à droite."
+      "newHere": "Nouveau sur SYB ? Créez un compte en haut à droite."
     },
     "confirm": {
       "kicker": "Connexion",
       "headline": "Encore une étape.",
       "label": "Confirmer",
-      "title": "Se connecter en tant que {email}\u202f?",
+      "title": "Se connecter en tant que {email} ?",
       "sentTo": "Ce lien a été envoyé à <b>{email}</b>.",
       "button": "Se connecter",
-      "note": "Ce n’est pas votre adresse\u202f? Fermez cette page. Quelqu’un vous a peut-être envoyé son propre lien, et rien ne se passe tant que vous n’appuyez pas sur le bouton.",
+      "note": "Ce n’est pas votre adresse ? Fermez cette page. Quelqu’un vous a peut-être envoyé son propre lien, et rien ne se passe tant que vous n’appuyez pas sur le bouton.",
       "expiredHeadline": "Ce lien a expiré.",
-      "expiredMessage": "Les liens de connexion fonctionnent une seule fois et expirent au bout de {minutes, plural, one {# minute} many {# minutes} other {# minutes}}. Demandez-en un nouveau\u00a0: il arrivera dans un instant.",
+      "expiredMessage": "Les liens de connexion fonctionnent une seule fois et expirent au bout de {minutes, plural, one {# minute} many {# minutes} other {# minutes}}. Demandez-en un nouveau : il arrivera dans un instant.",
       "linkLabel": "Lien",
       "linkDead": "Ce lien ne fonctionne plus",
       "newLink": "Recevoir un nouveau lien de connexion par e-mail"
     },
     "choose": {
-      "signedInAs": "Compte connecté\u00a0: {email}",
-      "headline": "Quelle entreprise\u202f?",
+      "signedInAs": "Compte connecté : {email}",
+      "headline": "Quelle entreprise ?",
       "label": "Vos entreprises",
       "title": "Choisissez celle à ouvrir. Vous pouvez en changer à tout moment depuis le menu.",
       "add": "Ajouter une autre entreprise",
@@ -163,13 +163,13 @@
     "yourLanguage": "Votre langue",
     "yourLanguageHelp": "La langue dans laquelle vous lisez SYB. Chaque membre de l’équipe choisit la sienne.",
     "businessLanguage": "La langue de votre entreprise",
-    "businessLanguageHelp": "Ce que liront vos clients\u00a0: les réponses de l’assistance, les e-mails et les réponses aux avis.",
+    "businessLanguageHelp": "Ce que liront vos clients : les réponses de l’assistance, les e-mails et les réponses aux avis.",
     "currency": "Devise",
-    "currencyHelp": "Chaque chiffre de cette entreprise s’affiche dans cette devise. Rien n’est converti\u00a0: les montants déjà enregistrés gardent la devise dans laquelle ils ont été saisis.",
+    "currencyHelp": "Chaque chiffre de cette entreprise s’affiche dans cette devise. Rien n’est converti : les montants déjà enregistrés gardent la devise dans laquelle ils ont été saisis.",
     "currencyChoose": "Choisissez une devise",
     "currencyOption": "{code} — {name}",
     "beingChecked": "en cours de vérification",
-    "checkingNote": "Une langue marquée «\u00a0en cours de vérification\u00a0» n’est visible que par vous et la personne qui la relit, jusqu’à sa relecture par un locuteur natif.",
+    "checkingNote": "Une langue marquée « en cours de vérification » n’est visible que par vous et la personne qui la relit, jusqu’à sa relecture par un locuteur natif.",
     "onlyOwner": "Seul un propriétaire peut modifier la langue ou la devise de l’entreprise.",
     "unavailable": "Cette langue n’est pas encore disponible.",
     "badCurrency": "Je ne connais pas cette devise.",
@@ -179,6 +179,275 @@
       "you": "Vous",
       "business": "Cette entreprise",
       "saveBusiness": "Enregistrer pour l’entreprise"
+    }
+  },
+  "intake": {
+    "meta": {
+      "title": "Constitution du dossier — SYB"
+    },
+    "area": {
+      "identity": "Bases de l’entreprise",
+      "presence": "Locaux et site web",
+      "offers": "Ce que vous vendez",
+      "revenue": "Ventes et chiffre d’affaires",
+      "costs": "Frais de fonctionnement",
+      "customers": "Clients",
+      "channels": "Canaux de vente",
+      "marketing": "Marketing",
+      "operations": "Opérations et livraison",
+      "tooling": "Outils et logiciels",
+      "legal": "Juridique et fiscalité",
+      "competitors": "Concurrents",
+      "goals": "Vos objectifs",
+      "assets": "Fichiers et documents"
+    },
+    "status": {
+      "measuring": "En mesure",
+      "done": "Terminé",
+      "needsChannel": "Requiert CH {channel}",
+      "needsArea": "Requiert {area}",
+      "notOpen": "Pas encore ouvert",
+      "notStarted": "Pas commencé",
+      "readOnly": "Lecture seule",
+      "inProgress": "En cours"
+    },
+    "bank": {
+      "title": "Banque de canaux",
+      "now": "CH {channel} · {area} · <fig>{pct} %</fig>",
+      "none": "Votre entreprise, mesurée domaine par domaine",
+      "done": "<fig>{done}</fig> sur {total} terminés",
+      "hide": "Masquer les canaux",
+      "all": "Tous les canaux",
+      "legendOwner": "de vous",
+      "legendMeasured": "lu depuis {connector} · l’ordre n’a pas d’importance",
+      "tileChannel": "CH {channel}",
+      "tilePct": "{pct} %",
+      "tileWords": "Canal {channel}, {area} : {status}, {pct} % de réponses — {bars}.",
+      "tileAsk": "{words} Poser les questions de ce domaine.",
+      "bar": {
+        "owner": "{count, plural, one {# de vous} many {# de vous} other {# de vous}}",
+        "measured": "{count, plural, one {# mesurée} many {# mesurées} other {# mesurées}}",
+        "derived": "{count, plural, one {# calculée} many {# calculées} other {# calculées}}",
+        "current": "{count, plural, one {# en cours} many {# en cours} other {# en cours}}",
+        "open": "{count, plural, one {# ouverte} many {# ouvertes} other {# ouvertes}}",
+        "unknown": "{count, plural, one {# inconnue} many {# inconnues} other {# inconnues}}",
+        "skipped": "{count, plural, one {# passée} many {# passées} other {# passées}}"
+      }
+    },
+    "mast": {
+      "sub": "Calibrage du dossier",
+      "saving": "Enregistrement…",
+      "listening": "À l’écoute",
+      "sessionTitle": "Minutes depuis l’ouverture de cette page",
+      "session": "Session · <fig>{minutes}</fig> min",
+      "facts": "{count, plural, one {<fig>#</fig> fait au dossier} many {<fig>#</fig> faits au dossier} other {<fig>#</fig> faits au dossier}}",
+      "pause": "Pause — terminer plus tard"
+    },
+    "pause": {
+      "title": "Pause · terminer plus tard",
+      "lede": "Tout ce qui précède est déjà enregistré. Laissez une adresse e-mail et je vous donnerai un lien qui rouvre ce profil sur n’importe quel appareil. Pas de mot de passe, pas de compte.",
+      "keepGoing": "Continuer"
+    },
+    "stage": {
+      "resumed": "Reprise depuis votre lien. Vos réponses précédentes sont enregistrées.",
+      "expired": "Ce lien avait expiré, voici donc un nouveau profil. Vous pourrez obtenir un nouveau lien à la fin.",
+      "focus": "Questions du domaine {area} tant qu’il en reste.",
+      "focusBack": "Revenir à l’ordre habituel",
+      "current": "Question en cours",
+      "record": "Le dossier tel qu’il est",
+      "bootTitle": "Je n’ai pas pu joindre le serveur.",
+      "bootLede": "Rien n’a été perdu. Réessayez et je reprendrai là où nous nous sommes arrêtés.",
+      "retry": "Réessayer",
+      "recorded": "Enregistré. {label} : {value}.",
+      "recordedPlain": "Enregistré.",
+      "reopened": "Rouverte. La question est de retour à gauche."
+    },
+    "done": {
+      "cap": "L’entretien · terminé",
+      "title": "L’entretien est terminé.",
+      "lede": "J’ai ce qu’il me faut pour une première lecture de l’entreprise. Les questions plus approfondies viendront plus tard, une fois que vous aurez vu le premier rapport.",
+      "answers": "Réponses enregistrées",
+      "gaps": "Lacunes à revoir",
+      "completeness": "Complétude du profil",
+      "good": "bonne",
+      "moderate": "moyenne",
+      "next": "Ensuite",
+      "nextValue": "décider avec quelle prudence avancer",
+      "keep": "Laissez une adresse e-mail et je vous donnerai un lien pour revenir à ce profil. Pas de mot de passe, pas de compte."
+    },
+    "question": {
+      "ref": "Q <fig>{id}</fig>",
+      "channel": "Canal <fig>{channel}</fig>",
+      "left": "{left, plural, one {<fig>#</fig> restante dans ce canal} many {<fig>#</fig> restantes dans ce canal} other {<fig>#</fig> restantes dans ce canal}} · environ {minutes, plural, one {<fig>#</fig> min} many {<fig>#</fig> min} other {<fig>#</fig> min}}",
+      "measured": "Déjà mesuré · {provider}",
+      "missing": "La pièce manquante",
+      "missingRest": "le reste — ce que {provider} ne mesure pas",
+      "ruler": "Référence mesurée : {value}",
+      "purpose": "<strong>À quoi ça sert :</strong> {help}",
+      "backTitle": "Rouvre cette réponse pour la modifier ; l’ancienne reste dans l’historique",
+      "skip": "Passer pour l’instant",
+      "next": "Suivant",
+      "yes": "Oui",
+      "no": "Non",
+      "unknown": "Pas de mesure — je ne sais pas",
+      "emptyUnknown": "Répondez, ou choisissez « Pas de mesure — je ne sais pas » pour continuer.",
+      "emptySkip": "Répondez, ou choisissez « Passer pour l’instant » pour continuer.",
+      "entityEmpty": "Remplissez au moins le premier champ d’une ligne pour enregistrer.",
+      "hintText": "{modifier} + Entrée pour enregistrer",
+      "hintEnter": "Entrée pour enregistrer",
+      "hintKeys": "Touches {first} à {last} pour choisir",
+      "speak": "Dictez votre réponse",
+      "spokenAfter": "Relisez et corrigez si besoin, puis appuyez sur Suivant pour l’enregistrer.",
+      "fileStub": "L’envoi de fichiers arrivera dans une prochaine version",
+      "fileUnknown": "choisissez « Pas de mesure — je ne sais pas » pour continuer",
+      "fileSkip": "passez pour l’instant pour continuer"
+    },
+    "amount": {
+      "exact": "Exact<sr> (montant, {currency})</sr>",
+      "estimate": "C’est une estimation",
+      "estimated": "Marqué comme estimation",
+      "basis": "Base : estimée",
+      "which": "Que vouliez-vous dire ?",
+      "unreadable": "Ce n’est pas lisible comme un chiffre. Utilisez des chiffres, avec une virgule ou un point pour les décimales."
+    },
+    "entity": {
+      "choose": "{prompt}…",
+      "addDetail": "Ajouter des détails",
+      "hideDetail": "Masquer les détails",
+      "remove": "Supprimer",
+      "removeRow": "Supprimer la ligne {row}",
+      "addRow": "Ajouter une ligne"
+    },
+    "record": {
+      "cap": "Le dossier · plus récent d’abord",
+      "channelTitle": "Canal {channel} · {area}",
+      "facts": "{count, plural, one {<fig>#</fig> fait} many {<fig>#</fig> faits} other {<fig>#</fig> faits}}",
+      "empty": "Rien au dossier dans ce domaine pour l’instant. Chaque réponse arrive ici avec sa provenance.",
+      "listLabel": "Faits au dossier dans {area}",
+      "srAnswer": "y répondre maintenant",
+      "srChange": "modifier cette réponse",
+      "toReconcile": "à concilier",
+      "rest": "Le reste figure sur <a>la fiche des faits</a>",
+      "unlocks": "Ce que cette réponse débloque",
+      "open": "Ouverte",
+      "locked": "Verrouillée",
+      "skippedEarlier": "Passée plus tôt — vous pouvez y répondre maintenant.",
+      "answerNow": "Y répondre maintenant",
+      "keepSkipped": "La laisser de côté",
+      "whatChanged": "Qu’est-ce qui a changé ?",
+      "whatChangedExample": "par ex. le prix a augmenté en mars",
+      "change": "Modifier cette réponse",
+      "leave": "Laisser tel quel"
+    },
+    "fact": {
+      "notKnown": "inconnu",
+      "skipped": "passé",
+      "yes": "oui",
+      "no": "non",
+      "onFile": "au dossier"
+    },
+    "source": {
+      "connected": "compte connecté",
+      "you": "vous",
+      "workedOut": "calculé",
+      "pages": "vos pages",
+      "document": "un document",
+      "default": "par défaut"
+    },
+    "basis": {
+      "STATED": "DÉCLARÉ",
+      "ESTIMATED": "ESTIMÉ",
+      "OBSERVED": "OBSERVÉ",
+      "DERIVED": "CALCULÉ",
+      "ASSUMED": "SUPPOSÉ",
+      "unknown": "INCONNU",
+      "skipped": "PASSÉ",
+      "unasked": "NON POSÉ",
+      "not_applicable": "SANS OBJET"
+    },
+    "provenance": {
+      "readFrom": "{count, plural, one {# lu depuis {provider}} many {# lus depuis {provider}} other {# lus depuis {provider}}}",
+      "fromYou": "{count, plural, one {# de vous} many {# de vous} other {# de vous}}",
+      "workedOut": "{count, plural, one {# calculé} many {# calculés} other {# calculés}}",
+      "readPages": "{count, plural, one {# lu sur vos pages} many {# lus sur vos pages} other {# lus sur vos pages}}",
+      "documents": "{count, plural, one {# issu de documents} many {# issus de documents} other {# issus de documents}}",
+      "defaults": "{count, plural, one {# par défaut} many {# par défaut} other {# par défaut}}",
+      "other": "{count, plural, one {# issu de {kind}} many {# issus de {kind}} other {# issus de {kind}}}",
+      "notKnown": "{count, plural, one {# encore inconnu} many {# encore inconnus} other {# encore inconnus}}",
+      "skipped": "{count, plural, one {# passé pour l’instant} many {# passés pour l’instant} other {# passés pour l’instant}}",
+      "aConnection": "une connexion",
+      "aConnectedAccount": "un compte connecté",
+      "factsOnFile": "{count, plural, one {# fait au dossier} many {# faits au dossier} other {# faits au dossier}}"
+    },
+    "live": {
+      "cap": "Lecture en direct · évolue avec vos réponses",
+      "dial": "{label} {value} pour cent sur un cadran de {min} à {max}",
+      "dialStated": "{label} {value} pour cent sur un cadran de {min} à {max} ; vous avez indiqué {stated} pour cent",
+      "noRange": "pas encore de plage de référence",
+      "stated": "vous avez indiqué <fig>{value} %</fig>",
+      "foot": "<strong>Calculé</strong> · {formula} · à partir de {inputs, plural, one {<fig>#</fig> fait enregistré} many {<fig>#</fig> faits enregistrés} other {<fig>#</fig> faits enregistrés}}",
+      "readiness": "Préparation du rapport",
+      "readinessPct": "{pct} %",
+      "readinessNote": "chaque réponse resserre les fourchettes de votre rapport"
+    },
+    "reconcile": {
+      "flag": "À concilier",
+      "contradiction": "Deux réponses se contredisent",
+      "implausible": "Une réponse sort de la plage habituelle",
+      "gap": "Une réponse manque",
+      "stale": "Une réponse est peut-être périmée",
+      "kind": {
+        "contradiction": "contradiction",
+        "implausible": "invraisemblable",
+        "gap": "lacune",
+        "stale": "périmée"
+      },
+      "note": "Je ne choisirai pas à votre place. Confirmez que les deux sont justes, ou modifiez-en une.",
+      "confirm": "Confirmer les deux",
+      "fix": "En modifier une"
+    },
+    "tape": {
+      "head": "Bande",
+      "label": "La bande : faits au dossier, plus récents d’abord"
+    },
+    "keep": {
+      "placeholder": "vous@votreentreprise.fr",
+      "label": "Votre adresse e-mail",
+      "making": "Création du lien",
+      "get": "Obtenir mon lien",
+      "linkCap": "Votre lien",
+      "linkNote": "Il rouvre ce profil sur n’importe quel appareil pendant {days, plural, one {# jour} many {# jours} other {# jours}}. Gardez-en une copie là où vous la retrouverez.",
+      "badEmail": "Cela ne ressemble pas à une adresse e-mail.",
+      "failed": "Je n’ai pas pu créer le lien. Réessayez."
+    },
+    "error": {
+      "server": "Un problème est survenu de notre côté. Réessayez.",
+      "unreachable": "Je n’ai pas pu joindre le serveur. Vérifiez votre connexion et réessayez.",
+      "open": "Je n’ai pas pu ouvrir cela. Réessayez.",
+      "reopen": "Je n’ai pas pu rouvrir cela. Réessayez.",
+      "record": "Je n’ai pas pu enregistrer cela. Réessayez.",
+      "field": "{field} : {problem}",
+      "expected_text": "un texte non vide est attendu",
+      "expected_number": "un nombre fini est attendu",
+      "min": "doit être au moins égal à {limit}",
+      "max": "doit être au plus égal à {limit}",
+      "unreadable_amount": "ce n’est pas lisible comme un montant",
+      "unknown_currency": "« {currency} » n’est pas un code de devise",
+      "too_precise": "plus précis que ce que permet {currency}",
+      "too_large": "trop grand pour être conservé exactement",
+      "expected_boolean": "oui ou non est attendu",
+      "invalid_date": "ce n’est pas une date valide",
+      "unknown_option": "ce choix ne figure pas dans la liste",
+      "not_parseable": "cette réponse a besoin de son propre formulaire",
+      "needs_answer": "cette question demande une réponse",
+      "reason_needed": "une raison est nécessaire pour modifier une réponse",
+      "not_askable": "on ne peut pas répondre à cette question pour l’instant — l’écran est passé à la suite",
+      "no_answer_to_reopen": "cette question n’a pas de réponse à modifier",
+      "rows_range": "entre {min} et {max} lignes requises",
+      "not_entity": "cette question n’attend pas de liste",
+      "unknown_field": "cette liste n’a pas de champ « {field} »",
+      "finding_not_open": "ce point est déjà réglé",
+      "invalid": "cette réponse n’a pas pu être enregistrée"
     }
   }
 }
