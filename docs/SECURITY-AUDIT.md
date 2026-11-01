@@ -14,7 +14,7 @@ Every critical and high finding was then checked against the code by hand before
 Everything merged since the 17 October audit, in one list. The older list below still applies where it hasn't run.
 
 1. **Email first.** Without `RESEND_API_KEY` and an `EMAIL_FROM` on a domain verified in Resend, nobody can sign in to production.
-2. **Migrations and bank:** `db:migrate` through **0076**, then `db:seed` (question bank 1.9.0).
+2. **Migrations and bank:** `db:migrate` through **0077**, then `db:seed` (question bank 1.9.0).
    - 0050 bookings
    - 0051 the assistant's drafted changes
    - 0052 the stock import connection
@@ -42,6 +42,7 @@ Everything merged since the 17 October audit, in one list. The older list below 
    - 0074 `forecast_checks`: the kind check admits `cash_close`, a cash forecast's weekly closing balance graded by an imported bank statement (I-54a)
    - 0075 `reviews` and `review_settings`: a review's source may be `google` and its reader `api`; `review_settings` gains the consented location's title, the last read time and a closed code for how it went (I-45a)
    - 0076 `decision_kind` gains `stop` and `stop_release`: the emergency stop and its release on the append-only log, with the person (I-52d)
+   - 0077 `forecast_checks`: the kind check admits `pipeline_close`, the pipeline's "likely won by" range graded by the deals marked won (I-54b)
 
    0055's unique index fails to build if two stock proposals already share a `stock:` ref. Stock proposals only exist since PR #25, so check before migrating if any were made.
 

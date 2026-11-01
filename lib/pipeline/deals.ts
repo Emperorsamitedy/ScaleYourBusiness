@@ -371,6 +371,7 @@ export function dealFacts(row: DealRow): DealFacts {
     value_basis: (row.value_basis as ValueBasis | null) ?? null,
     next_step: row.next_step,
     next_step_due: row.next_step_due,
+    expected_close: row.expected_close,
   };
 }
 

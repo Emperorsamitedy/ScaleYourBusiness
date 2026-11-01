@@ -236,6 +236,61 @@ function StaleRow({ s, busy, act }: { s: StaleView; busy: boolean; act: Act }) {
   );
 }
 
+/**
+ * I-54b: of the deals the owner expects to close in the next 30 days, how
+ * much is likely won, by their own win rate. This one has a date, so it
+ * goes on SYB's track record and is checked against the deals marked won.
+ */
+function DueBy({ view }: { view: PipelineView }) {
+  const d = view.due;
+  if (!d) return null;
+  if (!d.ok) {
+    return (
+      <SheetCard label={`Likely won by ${dateWords(d.by)}`} title="Not forecast yet">
+        <p className="pl-copy">{d.reason}</p>
+        {d.undated > 0 && (
+          <p className="pl-fine">
+            {num(d.undated)} open deal{d.undated === 1 ? " has" : "s have"} no expected close date.
+          </p>
+        )}
+      </SheetCard>
+    );
+  }
+  return (
+    <SheetCard
+      label={`Likely won by ${dateWords(d.by)} · win rate ${d.basis === "measured" ? "MEASURED" : "STATED"}`}
+      title="The deals you expect to close in the next 30 days"
+      meta="On my track record: I check it against the deals you mark won by then."
+    >
+      <ul className="pl-list">
+        {d.lines.map((l) => (
+          <li key={l.currency}>
+            {num(l.deals.length)} deal{l.deals.length === 1 ? "" : "s"} worth {money(l.total)}:
+            about {roughMoney(l.low)} – {roughMoney(l.high)} likely won.
+          </li>
+        ))}
+      </ul>
+      {(d.unvalued > 0 || d.undated > 0) && (
+        <p className="pl-copy">
+          {d.unvalued > 0
+            ? `${num(d.unvalued)} of the deals due have no value and aren't in these figures. `
+            : ""}
+          {d.undated > 0
+            ? `${num(d.undated)} open deal${d.undated === 1 ? " has" : "s have"} no expected close date, so ${d.undated === 1 ? "it isn't" : "they aren't"} in this forecast.`
+            : ""}
+        </p>
+      )}
+      <p className="cs-label pl-gap">Assumed</p>
+      <ul className="pl-list">
+        {d.assumed.map((a) => (
+          <li key={a}>{a}</li>
+        ))}
+      </ul>
+      <p className="pl-fine">Sources: {d.sources.join("; ")}.</p>
+    </SheetCard>
+  );
+}
+
 function Weighing({ view }: { view: PipelineView }) {
   const w = view.weighted;
   const rate = view.win_rate;
@@ -665,6 +720,7 @@ export function PipelineScreen() {
           )}
         </SheetCard>
         <Weighing view={view} />
+        <DueBy view={view} />
       </div>
 
       <div className="pl-grid">

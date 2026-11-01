@@ -32,6 +32,12 @@ export const GRADE = {
    * monthly, so its grade waits longer for one that covers the day.
    */
   cash_patience_days: 42,
+  /**
+   * I-54b: a deal is won when the owner marks it won, and that can come a
+   * few days late, so a pipeline claim is graded this many days after its
+   * window, not one.
+   */
+  pipeline_settle_days: 7,
 } as const;
 
 export type Verdict = "inside" | "above" | "below" | "cant_tell";
@@ -60,7 +66,8 @@ export interface Grade {
   actual_num: string | null;
   actual_date: string | null;
   actual_note: string;
-  actual_source: { table: "metric_observations"; ids: string[] } | null;
+  /** The rows it was read from: measured observations, or (I-54b) the deals' stage events. */
+  actual_source: { table: "metric_observations" | "deal_events"; ids: string[] } | null;
 }
 
 /** One measured stock count of the item: units on hand on a day. */
@@ -327,6 +334,73 @@ export function gradeCashClose(
       verdict: "below",
       ...base,
       actual_note: `${said}: ${moneyWords(lo - day.value, cur)} under the bottom of the range.`,
+    };
+  }
+  return { verdict: "inside", ...base, actual_note: `${said}: inside the range.` };
+}
+
+/** I-54b: one of a claim's deals as it stood at grading. */
+export interface DealOutcome {
+  id: string;
+  /** When it was marked won within the window, from its stage history; null when it wasn't. */
+  won_at: string | null;
+  /** The event row that says so. */
+  event_id: string | null;
+  /** Its value now, in minor units, when it is in the claim's currency; null otherwise. */
+  value_minor: number | null;
+  /** The deal no longer exists (erased with its contact). */
+  gone: boolean;
+}
+
+/**
+ * I-54b: the deals marked won by the window's last day, against the range.
+ * A deal counts as won when its stage history says it was moved to won
+ * between the forecast and the end of that day; reopening it afterwards
+ * doesn't undo that. A won deal counts at its value now in the claim's
+ * currency; one with no such value, or a deal that's gone, makes it
+ * "can't tell". Waits GRADE.pipeline_settle_days for late updates.
+ */
+export function gradePipelineClose(
+  claim: ClaimRow,
+  outcomes: readonly DealOutcome[],
+  today: string,
+): Grade | null {
+  if (claim.window_end > addDays(today, -GRADE.pipeline_settle_days)) return null;
+  if (outcomes.some((o) => o.gone)) {
+    return cantTell("A deal in the forecast was erased since, so I can't tell what was won.");
+  }
+  const won = outcomes.filter((o) => o.won_at !== null);
+  if (won.some((o) => o.value_minor === null)) {
+    return cantTell(
+      "A deal marked won has no value in the forecast's currency now, so I can't add up what was won.",
+    );
+  }
+  const total = won.reduce((s, o) => s + o.value_minor!, 0);
+  const cur = claim.currency!;
+  const lo = claim.low_minor!;
+  const hi = claim.high_minor!;
+  const of = outcomes.length;
+  const said = `${won.length} of the ${of} deal${of === 1 ? "" : "s"} ${won.length === 1 ? "was" : "were"} marked won by ${longDay(claim.window_end)}, ${moneyWords(total, cur)} in all`;
+  const base = {
+    actual_minor: total,
+    actual_num: null,
+    actual_date: null,
+    actual_source: won.length
+      ? { table: "deal_events" as const, ids: won.map((o) => o.event_id!) }
+      : null,
+  };
+  if (total > hi) {
+    return {
+      verdict: "above",
+      ...base,
+      actual_note: `${said}: ${moneyWords(total - hi, cur)} over the top of the range.`,
+    };
+  }
+  if (total < lo) {
+    return {
+      verdict: "below",
+      ...base,
+      actual_note: `${said}: ${moneyWords(lo - total, cur)} under the bottom of the range.`,
     };
   }
   return { verdict: "inside", ...base, actual_note: `${said}: inside the range.` };
