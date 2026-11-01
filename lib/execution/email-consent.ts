@@ -116,6 +116,8 @@ export async function consentToCampaignEmail(args: {
   senderName: string;
   replyTo: string;
   confirmation: string;
+  /** I-52d: the signed-in person who consented, recorded on the log entry. */
+  userId?: string | null;
 }): Promise<{ connection: PublicExecutionConnection; consent_hash: string }> {
   if (args.confirmation.trim().toLowerCase() !== EMAIL_CAMPAIGN_PHRASE) {
     throw new ExecutionConnectionError(
@@ -180,6 +182,7 @@ export async function consentToCampaignEmail(args: {
       kind: "consent",
       ref_id: row.id,
       payload_hash: consent_hash,
+      user_id: args.userId ?? null,
     });
   } catch (error) {
     // No consent on record means no permission standing.

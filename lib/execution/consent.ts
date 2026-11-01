@@ -115,6 +115,8 @@ export interface ConsentArgs {
   /** Passed to the hard limits when waiting drafts are proposed (tests use a stand-in). */
   limitLlm?: LimitLlm;
   now?: Date;
+  /** I-52d: the signed-in person who consented, recorded on the log entry. */
+  userId?: string | null;
 }
 
 /**
@@ -170,6 +172,7 @@ export async function consentToExecution(args: ConsentArgs): Promise<{
       kind: "consent",
       ref_id: connection.id,
       payload_hash: consent_hash,
+      user_id: args.userId ?? null,
     });
   } catch (error) {
     // No consent on record means no credential at rest.

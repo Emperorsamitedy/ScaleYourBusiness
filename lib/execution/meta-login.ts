@@ -716,6 +716,8 @@ export async function finishMetaLogin(args: {
   exec: MetaExecution;
   limitLlm?: LimitLlm;
   now?: Date;
+  /** I-52d: the signed-in person who consented. */
+  userId?: string | null;
 }): Promise<PublicExecutionConnection> {
   if (!isMetaLoginProvider(args.provider)) {
     throw new MetaLoginError("provider", "That isn't a Meta connection SYB offers.", 422);
@@ -763,6 +765,7 @@ export async function finishMetaLogin(args: {
       secret,
       confirmation: phrase,
       verify: args.exec.verifier(provider),
+      userId: args.userId ?? null,
       ...(args.limitLlm ? { limitLlm: args.limitLlm } : {}),
       ...(args.now ? { now: args.now } : {}),
     });

@@ -435,6 +435,8 @@ export const decisionKind = pgEnum("decision_kind", [
   "team_role", // idea 52: an owner changed a member's role; ref is the users row
   "team_remove", // idea 52: an owner took a member off the team (their sessions revoked); ref is the users row
   "account_switch", // idea 52: a person moved this browser to another business they belong to; ref is the users row
+  "stop", // I-52d: the emergency stop was pressed; ref is the execution_halts row, user_id who pressed it
+  "stop_release", // I-52d: things were started again; ref is the released execution_halts row, user_id who did it
 ]);
 
 export const decisionLog = pgTable(

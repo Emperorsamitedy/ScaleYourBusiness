@@ -5,12 +5,13 @@
 // queued execution mid-flight. No real platform anywhere.
 
 import "dotenv/config";
-import { eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { db } from "../../db";
 import {
   accounts,
   businessProfiles,
+  decisionLog,
   executionAttempts,
   executionHalts,
   executions,
@@ -512,6 +513,51 @@ describe("P3-12 — the emergency stop (rule 15)", () => {
 
     await resumeExecutions(s.account_id);
     expect(await haltState(s.account_id)).toMatchObject({ halted: false, reason: null });
+  });
+
+  // I-52d (owner, 2026-11-01): who stopped and who started again, on the append-only log.
+  it("the stop and its release go on the decision log with the person, once each", async () => {
+    const s = await fresh();
+    const stops = () =>
+      db
+        .select()
+        .from(decisionLog)
+        .where(
+          and(
+            eq(decisionLog.profile_id, s.profile_id),
+            inArray(decisionLog.kind, ["stop", "stop_release"]),
+          ),
+        )
+        .orderBy(asc(decisionLog.at));
+    await haltExecutions({
+      accountId: s.account_id,
+      userId: s.user_id,
+      reason: "prices look wrong",
+    });
+    // A second press while stopped changes nothing, so it logs nothing.
+    await haltExecutions({ accountId: s.account_id, userId: null, reason: "again" });
+    let rows = await stops();
+    expect(rows.map((r) => [r.kind, r.user_id, r.actor])).toEqual([["stop", s.user_id, "owner"]]);
+    expect(rows[0]!.ref_id.startsWith(`${s.account_id}@`)).toBe(true);
+    expect(rows[0]!.payload_hash).toMatch(/^[0-9a-f]{64}$/);
+
+    await resumeExecutions(s.account_id, s.user_id);
+    rows = await stops();
+    expect(rows.map((r) => [r.kind, r.user_id])).toEqual([
+      ["stop", s.user_id],
+      ["stop_release", s.user_id],
+    ]);
+    // The release names the very stop it ended.
+    expect(rows[1]!.ref_id).toBe(rows[0]!.ref_id);
+    // Releasing with nothing stopped logs nothing.
+    await resumeExecutions(s.account_id, s.user_id);
+    expect(await stops()).toHaveLength(2);
+
+    // A browser with no sign-in may always stop: logged as the system, no person.
+    await haltExecutions({ accountId: s.account_id, reason: "unsigned" });
+    rows = await stops();
+    expect(rows[2]).toMatchObject({ kind: "stop", user_id: null, actor: "system" });
+    await resumeExecutions(s.account_id, s.user_id);
   });
 
   it("halted MID-FLIGHT: the stop lands between attempts and the loop dies", async () => {

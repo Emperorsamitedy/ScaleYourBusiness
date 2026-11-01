@@ -52,6 +52,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       assetId: body?.asset_id,
       pendingCookie: store.get(META_LOGIN_PENDING_COOKIE)?.value ?? null,
       exec: metaExecution,
+      userId: session.user_id,
     });
     return forget(NextResponse.json(connection, { status: 201 }));
   } catch (error) {
