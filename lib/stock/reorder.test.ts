@@ -285,7 +285,7 @@ describe("P5-02 warnings into the watch log", () => {
     expect(await logStockWarnings(s.profile_id, new Date(NOW.getTime() + 7 * 86_400_000))).toBe(1);
   });
 
-  it("idea 54: each warning goes on the track record as said, once per item a week", async () => {
+  it("idea 54: each warning goes on the track record as said, once per item a week, and (I-54c) once per run-out", async () => {
     const s = await shop({ mode: "watching" });
     const claims = () =>
       db.select().from(forecastChecks).where(eq(forecastChecks.profile_id, s.profile_id));
@@ -305,8 +305,9 @@ describe("P5-02 warnings into the watch log", () => {
     expect(c!.basis).toMatch(/measured by Shopify/);
     await logStockWarnings(s.profile_id, new Date(NOW.getTime() + 3_600_000));
     expect(await claims()).toHaveLength(1);
+    // I-54c: next week's warning is the same run-out while this one waits for its grade.
     await logStockWarnings(s.profile_id, new Date(NOW.getTime() + 7 * 86_400_000));
-    expect(await claims()).toHaveLength(2);
+    expect(await claims()).toHaveLength(1);
   });
 });
 

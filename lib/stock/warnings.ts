@@ -80,7 +80,8 @@ export async function logStockWarnings(
   const cover = view ?? (await loadCover(profile.account_id, profileId, now));
   if (cover.warnings.length === 0) return 0;
   // Idea 54: each warning's "runs out in about 4–6 days" goes on SYB's own
-  // track record as it is said, once per item a week, to be graded later.
+  // track record as it is said, once per item a week, to be graded later;
+  // and (I-54c) not again while the item's earlier one still waits.
   await recordForecastsQuietly(
     stockClaims({ account_id: profile.account_id, profile_id: profileId }, cover, now),
     { account_id: profile.account_id, event: "forecasts_recorded_stock" },
