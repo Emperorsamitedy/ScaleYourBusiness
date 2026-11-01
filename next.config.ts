@@ -1,4 +1,9 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+// L-1 (TASKS-LANGUAGES.md): next-intl, configured in i18n/request.ts — the
+// language from a cookie, never in the URL, so no proxy/middleware is needed.
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 // Security headers — the security review of 2026-10-17 found none at all.
 //
@@ -58,4 +63,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

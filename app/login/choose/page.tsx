@@ -7,20 +7,20 @@
 // straight in. "Add another business" makes a new one under the same email.
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthMasthead } from "../../../components/auth/AuthMasthead";
 import { AUTH_COOKIE } from "../../../lib/auth/access";
 import { membershipsFor } from "../../../lib/auth/members";
-import { ROLE_WORD } from "../../../lib/auth/role-actions";
 import { currentSession } from "../../../lib/auth/service";
 import "../../auth.css";
 
-export const metadata: Metadata = {
-  title: "Which business? — SYB",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth.meta");
+  return { title: t("choose"), robots: { index: false, follow: false } };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -35,21 +35,22 @@ export default async function ChooseBusinessPage({
   const list = await membershipsFor(session.email);
   const raw = (await searchParams).error;
   const error = typeof raw === "string" ? raw.slice(0, 160) : null;
+  const t = await getTranslations();
 
   return (
     <div className="desk au">
       <AuthMasthead />
       <main className="au-main">
         <section className="au-lede">
-          <p className="au-kicker">Signed in as {session.email}</p>
-          <h1 className="au-headline">Which business?</h1>
+          <p className="au-kicker">{t("auth.choose.signedInAs", { email: session.email })}</p>
+          <h1 className="au-headline">{t("auth.choose.headline")}</h1>
         </section>
 
         <section className="sheet au-sheet" aria-labelledby="au-sheet-title">
           <header className="au-sheet-head">
-            <p className="au-sheet-label">Your businesses</p>
+            <p className="au-sheet-label">{t("auth.choose.label")}</p>
             <h2 className="au-sheet-title" id="au-sheet-title">
-              Pick one to open. You can switch any time from the menu.
+              {t("auth.choose.title")}
             </h2>
           </header>
           <div className="au-sheet-body">
@@ -67,7 +68,7 @@ export default async function ChooseBusinessPage({
                     className="au-door"
                   >
                     <span>
-                      {m.business ?? "A business not named yet"} · {ROLE_WORD[m.role]}
+                      {m.business ?? t("common.businessUnnamed")} · {t(`common.roles.${m.role}`)}
                     </span>
                     <span className="au-arrow" aria-hidden="true">
                       &rarr;
@@ -82,7 +83,7 @@ export default async function ChooseBusinessPage({
                     className="au-door"
                   >
                     <span>
-                      {m.business ?? "A business not named yet"} · {ROLE_WORD[m.role]}
+                      {m.business ?? t("common.businessUnnamed")} · {t(`common.roles.${m.role}`)}
                     </span>
                     <span className="au-arrow" aria-hidden="true">
                       &rarr;
@@ -93,17 +94,14 @@ export default async function ChooseBusinessPage({
             </form>
             <form method="post" action="/api/auth/business" className="au-form">
               <button type="submit" className="au-primary">
-                <span>Add another business</span>
+                <span>{t("auth.choose.add")}</span>
                 <span className="au-arrow" aria-hidden="true">
                   &rarr;
                 </span>
               </button>
             </form>
           </div>
-          <footer className="au-sheet-foot">
-            Each business keeps its own facts, team and bill. Nothing from one is ever shown in
-            another.
-          </footer>
+          <footer className="au-sheet-foot">{t("auth.choose.foot")}</footer>
         </section>
       </main>
     </div>

@@ -2,6 +2,8 @@
 // words and the chart model the screen draws from GET /api/patterns.
 // No React, no fetch — tested in patterns-view.test.ts.
 
+import type { AppLocale } from "../../lib/i18n/locales";
+import { dayMonthYear } from "../../lib/i18n/format";
 import type { PatternsView } from "../../app/api/patterns/route";
 import type { PairMargin } from "../../lib/bundles/pairs";
 import { dayMoney, shortDate } from "../../lib/charts/model";
@@ -114,8 +116,9 @@ export function aheadRows(r: Ready): AheadRow[] {
   }));
 }
 
-/** "4 Oct 2025": the aside spans years, so it names them. */
-export function longDate(day: string): string {
+/** "4 Oct 2025": the aside spans years, so it names them; in another language, its own (L-1). */
+export function longDate(day: string, locale: AppLocale = "en"): string {
+  if (locale !== "en") return dayMonthYear(day, locale);
   return `${shortDate(day)} ${day.slice(0, 4)}`;
 }
 

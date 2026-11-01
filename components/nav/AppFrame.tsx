@@ -14,6 +14,8 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import type en from "../../messages/en.json";
 import { usePathname, useRouter } from "next/navigation";
 import type { NavCounts } from "../../app/api/nav/route";
 import { DeepLinkMark } from "../sheet/DeepLinkMark";
@@ -24,10 +26,11 @@ import { showsFor } from "../../lib/core/size-features";
 
 interface Item {
   href: string;
+  /** The English label; the screen shows the catalogue's (nav.item.<feature>), which a test holds equal in English. */
   label: string;
   /** Its row in the size-feature table (lib/core/size-features.ts). */
   feature: SizeFeatureKey;
-  count?: (c: NavCounts) => string | null;
+  count?: (c: NavCounts, words?: CountWords) => string | null;
   /**
    * Feature 34: whether the screen exists for this business at all, read
    * from data the menu's counts carry (never an if on a business type). An
@@ -44,23 +47,33 @@ interface Group {
 
 const n = (v: number) => (v > 0 ? String(v) : null);
 
+/** A count said in words — "1 paused", "2 open" — in English unless a translator is given. */
+export type CountWords = (kind: "paused" | "open", count: number) => string;
+const ENGLISH_COUNT: CountWords = (kind, count) => `${count} ${kind}`;
+
 /**
  * P3-24b: a write connection that paused itself needs the owner, so the
  * count beside Connections says so ("1 paused") until it is reconnected;
  * otherwise it is the connected count, as before.
  */
-export function connectionsCount(c: Pick<NavCounts, "connections" | "needs_reconnect">) {
+export function connectionsCount(
+  c: Pick<NavCounts, "connections" | "needs_reconnect">,
+  words: CountWords = ENGLISH_COUNT,
+) {
   const paused = c.needs_reconnect ?? 0;
-  return paused > 0 ? `${paused} paused` : n(c.connections);
+  return paused > 0 ? words("paused", paused) : n(c.connections);
 }
 
 /**
  * P4-11: tickets waiting for a person outrank everything else on Support
  * ("2 open"); otherwise the support proposals waiting for approval.
  */
-export function supportCount(c: Pick<NavCounts, "support_open" | "by_module">) {
+export function supportCount(
+  c: Pick<NavCounts, "support_open" | "by_module">,
+  words: CountWords = ENGLISH_COUNT,
+) {
   const open = c.support_open ?? 0;
-  return open > 0 ? `${open} open` : n(c.by_module.support ?? 0);
+  return open > 0 ? words("open", open) : n(c.by_module.support ?? 0);
 }
 
 export const GROUPS: readonly Group[] = [
@@ -178,6 +191,8 @@ export const GROUPS: readonly Group[] = [
         // Idea 52: who can sign in — there is a team once someone has signed up.
         appliesTo: (c) => c.access?.signed_in === true,
       },
+      // L-1: the language you read, and the business's language and currency.
+      { href: "/settings/language", label: "Language and currency", feature: "nav.language" },
     ],
   },
 ];
@@ -240,15 +255,16 @@ function useCounts(path: string): NavCounts | null {
  * to /api/auth/switch — shown only when there are two or more. Names only.
  */
 export function Switcher({ access }: { access: NavAccess | null | undefined }) {
+  const t = useTranslations();
   const others = access?.businesses.filter((b) => !b.current) ?? [];
   if (!access || access.businesses.length < 2) return null;
   return (
     <details className="app-rail-switch">
-      <summary>Switch business</summary>
+      <summary>{t("nav.switchBusiness")}</summary>
       <form method="post" action="/api/auth/switch">
         {others.map((b) => (
           <button key={b.account_id} type="submit" name="account_id" value={b.account_id}>
-            {b.name ?? "A business not named yet"}
+            {b.name ?? t("common.businessUnnamed")}
           </button>
         ))}
       </form>
@@ -256,18 +272,32 @@ export function Switcher({ access }: { access: NavAccess | null | undefined }) {
   );
 }
 
-/** Pure: the quiet line under the menu saying who you are here. */
-export function roleLine(access: NavAccess | null | undefined): string | null {
+/** The catalogue key of a menu item's label: its size-feature key without "nav.". */
+export type NavItemKey = keyof (typeof en)["nav"]["item"];
+export type NavGroupKey = keyof (typeof en)["nav"]["group"];
+export const itemKey = (i: Pick<Item, "feature">): NavItemKey => i.feature.slice(4) as NavItemKey;
+
+/** Pure: which of the role lines applies — none before sign-up. */
+export function roleKey(access: NavAccess | null | undefined): NavAccess["role"] | null {
   if (!access || !access.signed_in) return null;
-  return access.role === "owner"
-    ? "You're an owner here"
-    : access.role === "manager"
-      ? "You're a manager here"
-      : "You're a viewer here: you can read, and press stop";
+  return access.role;
+}
+
+const ROLE_LINE: Record<NavAccess["role"], string> = {
+  owner: "You're an owner here",
+  manager: "You're a manager here",
+  viewer: "You're a viewer here: you can read, and press stop",
+};
+
+/** Pure: the quiet line under the menu saying who you are here, in English (nav.role.* on screen). */
+export function roleLine(access: NavAccess | null | undefined): string | null {
+  const key = roleKey(access);
+  return key === null ? null : ROLE_LINE[key];
 }
 
 // Not in the menu design, which has no way out; kept small under the foot.
 function SignOut() {
+  const t = useTranslations("nav");
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   return (
@@ -281,17 +311,20 @@ function SignOut() {
         router.push("/login");
       }}
     >
-      {busy ? "Signing out…" : "Sign out"}
+      {busy ? t("signingOut") : t("signOut")}
     </button>
   );
 }
 
 export function AppFrame({ children }: { children: ReactNode }) {
+  const t = useTranslations("nav");
+  const words: CountWords = (kind, count) => t(`count.${kind}`, { count });
   const path = usePathname() ?? "/";
   const counts = useCounts(path);
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
   const access = counts?.access ?? null;
+  const role = roleKey(access);
   if (!showsNav(path)) {
     return (
       <AccessProvider value={access}>
@@ -303,7 +336,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-frame">
-      <nav className={`app-rail${open ? " open" : ""}`} aria-label="Main">
+      <nav className={`app-rail${open ? " open" : ""}`} aria-label={t("label")}>
         <div className="app-rail-head">
           <Link href="/watch" className="app-rail-mark">
             SYB
@@ -313,7 +346,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
           {counts?.watch && (
             <p className="app-rail-live">
               <span className="app-rail-sq" aria-hidden="true" />
-              Watching · day {counts.watch.day} / {counts.watch.of}
+              {t("watching", { day: counts.watch.day, of: counts.watch.of })}
             </p>
           )}
           <button
@@ -322,17 +355,17 @@ export function AppFrame({ children }: { children: ReactNode }) {
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
           >
-            {open ? "Close" : "Menu"}
+            {open ? t("close") : t("menu")}
           </button>
         </div>
         <div className="app-rail-groups">
           {visibleGroups(counts?.size_band?.band ?? null, counts).map((g) => (
             <div key={g.key} className="app-rail-group">
-              <p className="app-rail-label">{g.label}</p>
+              <p className="app-rail-label">{t(`group.${g.key as NavGroupKey}`)}</p>
               <ul>
                 {g.items.map((i) => {
                   const active = matches(path, i.href);
-                  const c = counts && i.count ? i.count(counts) : null;
+                  const c = counts && i.count ? i.count(counts, words) : null;
                   return (
                     <li key={i.href}>
                       <Link
@@ -340,7 +373,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
                         className={`app-rail-item${active ? " active" : ""}`}
                         aria-current={active ? "page" : undefined}
                       >
-                        <span>{i.label}</span>
+                        <span>{t(`item.${itemKey(i)}`)}</span>
                         {c && <span className="app-rail-count">{c}</span>}
                       </Link>
                     </li>
@@ -355,10 +388,10 @@ export function AppFrame({ children }: { children: ReactNode }) {
           className={`app-rail-ask${matches(path, "/chat") ? " active" : ""}`}
           aria-current={matches(path, "/chat") ? "page" : undefined}
         >
-          <span>Ask me anything</span>
+          <span>{t("ask")}</span>
           <span aria-hidden="true">→</span>
         </Link>
-        {roleLine(access) && <p className="app-rail-who">{roleLine(access)}</p>}
+        {role && <p className="app-rail-who">{t(`role.${role}`)}</p>}
         <SignOut />
       </nav>
       <div className="app-main">

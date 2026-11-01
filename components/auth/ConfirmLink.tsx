@@ -8,6 +8,7 @@
 // and there is nothing on the page for a link scanner to trigger.
 
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { AuthMasthead } from "./AuthMasthead";
 import "../../app/auth.css";
 
@@ -27,10 +28,11 @@ export type ConfirmLinkProps =
     }
   | { ok: false; kicker: string; headline: string; message: string };
 
-export function ConfirmLink(props: ConfirmLinkProps) {
+export async function ConfirmLink(props: ConfirmLinkProps) {
+  const t = await getTranslations("auth");
   return (
     <div className="desk au">
-      <AuthMasthead href="/login">Sign in &rarr;</AuthMasthead>
+      <AuthMasthead href="/login">{t("mast.signIn")} &rarr;</AuthMasthead>
       <main className="au-main">
         <section className="au-lede">
           <p className="au-kicker">{props.kicker}</p>
@@ -49,7 +51,10 @@ export function ConfirmLink(props: ConfirmLinkProps) {
               <div className="au-sheet-body">
                 {props.email ? (
                   <p className="au-copy">
-                    This link was sent to <strong>{props.email}</strong>.
+                    {t.rich("confirm.sentTo", {
+                      email: props.email,
+                      b: (chunks) => <strong>{chunks}</strong>,
+                    })}
                   </p>
                 ) : null}
                 <form method="post" action={props.action} className="au-form">
@@ -69,16 +74,16 @@ export function ConfirmLink(props: ConfirmLinkProps) {
           ) : (
             <>
               <header className="au-sheet-head">
-                <p className="au-sheet-label">Link</p>
+                <p className="au-sheet-label">{t("confirm.linkLabel")}</p>
                 <h2 className="au-sheet-title" id="au-sheet-title">
-                  This link doesn&rsquo;t work any more
+                  {t("confirm.linkDead")}
                 </h2>
               </header>
               <div className="au-sheet-body">
                 <p className="au-copy">{props.message}</p>
               </div>
               <footer className="au-sheet-foot">
-                <Link href="/login">Email me a new sign-in link</Link>
+                <Link href="/login">{t("confirm.newLink")}</Link>
               </footer>
             </>
           )}

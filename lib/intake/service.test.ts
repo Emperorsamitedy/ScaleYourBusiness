@@ -378,6 +378,27 @@ describe("reporting currency follows the country", () => {
     }
   });
 
+  it("L-1: never replaces a currency the owner chose themselves", async () => {
+    // Chosen at sign-up (TASKS-LANGUAGES.md): a euro business in the US stays in euros.
+    const s = await bootstrapIntake({ currency: "EUR" });
+    try {
+      await submitAnswer(s.account_id, s.profile_id, "1.1", { kind: "value", wire: "Ember & Oak" });
+      await submitAnswer(s.account_id, s.profile_id, "1.1b", {
+        kind: "value",
+        wire: "United States",
+      });
+      const after = await db
+        .select({ c: accounts.reporting_currency })
+        .from(accounts)
+        .where(eq(accounts.id, s.account_id));
+      expect(after[0]?.c).toBe("EUR");
+    } finally {
+      await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
+      await db.delete(businessProfiles).where(eq(businessProfiles.id, s.profile_id));
+      await db.delete(accounts).where(eq(accounts.id, s.account_id));
+    }
+  });
+
   it("an unrecognised country leaves the currency alone rather than guessing", async () => {
     const s = await bootstrapIntake();
     try {

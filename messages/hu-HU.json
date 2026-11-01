@@ -1,0 +1,184 @@
+{
+  "common": {
+    "continue": "Tovább",
+    "save": "Mentés",
+    "saving": "Mentés…",
+    "saved": "Mentve.",
+    "businessUnnamed": "Még névtelen vállalkozás",
+    "unreachable": "Nem értem el a szervert – kérem, próbálja újra.",
+    "somethingWrong": "valami hiba történt",
+    "roles": {
+      "owner": "Tulajdonos",
+      "manager": "Menedzser",
+      "viewer": "Megtekintő"
+    }
+  },
+  "nav": {
+    "label": "Főmenü",
+    "menu": "Menü",
+    "close": "Bezárás",
+    "switchBusiness": "Másik vállalkozás",
+    "watching": "Figyelés · {day}. nap / {of}",
+    "ask": "Kérdezzen bármit",
+    "signOut": "Kijelentkezés",
+    "signingOut": "Kijelentkezés…",
+    "group": {
+      "approve": "Jóváhagyásra vár",
+      "insights": "Elemzések",
+      "grow": "Növekedés",
+      "customers": "Ügyfelek",
+      "business": "Az Ön vállalkozása"
+    },
+    "item": {
+      "proposals": "Önre vár",
+      "report": "Jelentés",
+      "watch": "Figyelés",
+      "goals": "Célok",
+      "hours": "Nyitvatartás",
+      "team": "Csapatbeosztás",
+      "patterns": "Szezonok és csomagok",
+      "cash": "Pénzáramlás",
+      "stock": "Készlet",
+      "blindspots": "Vakfoltok",
+      "competitors": "Versenytársak",
+      "benchmarks": "Hasonló vállalkozások",
+      "content": "Tartalom",
+      "studio": "Kreatív stúdió",
+      "site": "Weboldal",
+      "simulate": "Kampányszimulátor",
+      "customers": "Ügyfelek",
+      "reviews": "Értékelések",
+      "carts": "Elhagyott kosarak",
+      "pipeline": "Értékesítési tölcsér",
+      "support": "Támogatás",
+      "factsheet": "Ténylap",
+      "connections": "Összekapcsolt fiókok",
+      "mode": "Ahogyan dolgozom",
+      "history": "Előzmények",
+      "team_access": "Csapat hozzáférése",
+      "language": "Nyelv és pénznem"
+    },
+    "count": {
+      "paused": "{count} szüneteltetve",
+      "open": "{count} nyitott"
+    },
+    "role": {
+      "owner": "Az Ön szerepköre itt: tulajdonos",
+      "manager": "Az Ön szerepköre itt: menedzser",
+      "viewer": "Az Ön szerepköre itt: megtekintő. Olvashat, és megnyomhatja a vészleállítót."
+    }
+  },
+  "auth": {
+    "meta": {
+      "signIn": "Bejelentkezés — SYB",
+      "signUp": "Fiók létrehozása — SYB",
+      "confirm": "Bejelentkezés megerősítése — SYB",
+      "choose": "Melyik vállalkozás? — SYB"
+    },
+    "mast": {
+      "haveAccount": "Már van fiókja? ",
+      "signIn": "Bejelentkezés",
+      "createAccount": "Fiók létrehozása"
+    },
+    "signup": {
+      "kicker": "Új nyilvántartás megnyitása",
+      "headline": "Kezdje a diagnózissal.",
+      "stepsHead": "Mi történik e képernyő után",
+      "step1": "Kapcsolja össze a fiókjait, csak olvasási joggal",
+      "step2": "Válaszoljon az alapkérdésekre",
+      "step3": "Átnézzük a számait, és aláírjuk a jelentést",
+      "takesMinutes": "{minutes} perc",
+      "takesAboutMinutes": "kb. {minutes} perc",
+      "takesDays": "{days} nap",
+      "takesDaysPending": "[{days}] nap"
+    },
+    "signin": {
+      "kicker": "A nyilvántartás várja",
+      "headline": "Vissza az irányítópultra.",
+      "point1": "Az Ön vállalkozásában semmi sem fut az Ön jóváhagyása nélkül.",
+      "point2": "Minden szám megmutatja, honnan származik.",
+      "point3": "Semmi sem törlődik – a régi tényeket újak váltják fel, de megőrizzük őket."
+    },
+    "sent": {
+      "label": "Nézze meg az e-mailjeit",
+      "titleBelow": "A link lent található",
+      "titleSent": "Link elküldve",
+      "onScreen": "Itt nincs beállítva az e-mail-küldés, ezért az egyszer használható link lent található. {minutes}\u00a0perc múlva lejár.",
+      "createMine": "Fiókom létrehozása",
+      "signInNow": "Bejelentkezés most",
+      "sentTo": "Egyszer használható linket küldtünk erre a címre: <b>{email}</b>. {minutes}\u00a0perc múlva lejár.",
+      "wrongAddress": "Rossz cím?",
+      "sendAnother": "Új link küldése"
+    },
+    "form": {
+      "labelCreate": "Fiók létrehozása",
+      "labelSignIn": "Bejelentkezés",
+      "titleCreate": "Nyissa meg vállalkozása nyilvántartását",
+      "titleSignIn": "Üdvözöljük újra",
+      "email": "Munkahelyi e-mail-cím",
+      "emailPlaceholder": "on@vallalkozasa.hu",
+      "website": "Weboldal",
+      "optional": "(nem kötelező)",
+      "websitePlaceholder": "vallalkozasa.hu",
+      "sending": "Küldés…",
+      "submitCreate": "Fiók létrehozása",
+      "submitSignIn": "Bejelentkezési link kérése e-mailben",
+      "noteSignup": "Nincs jelszó, és egyelőre kártya sem kell. Csak akkor fizet, amikor megrendeli a jelentést.",
+      "noteSignin": "Nincs jelszó. A link egyszer működik, {minutes}\u00a0percig.",
+      "orSignup": "Vagy regisztráljon ezzel:",
+      "orSignin": "Vagy folytassa ezzel:",
+      "terms": "A fiók létrehozásával elfogadja a <terms>felhasználási feltételeket</terms> és az <privacy>adatvédelmi tájékoztatót</privacy>.",
+      "newHere": "Még nem használja a SYB-t? Hozzon létre fiókot a jobb felső sarokban."
+    },
+    "confirm": {
+      "kicker": "Bejelentkezés",
+      "headline": "Még egy lépés.",
+      "label": "Megerősítés",
+      "title": "Bejelentkezik ezzel a címmel: {email}?",
+      "sentTo": "Ezt a linket erre a címre küldtük: <b>{email}</b>.",
+      "button": "Bejelentkezés",
+      "note": "Nem az Ön címe? Zárja be ezt az oldalt. Lehet, hogy valaki a saját linkjét küldte el Önnek, és semmi sem történik, amíg meg nem nyomja a gombot.",
+      "expiredHeadline": "Ez a link lejárt.",
+      "expiredMessage": "A bejelentkezési linkek egyszer működnek, és {minutes} perc után lejárnak. Kérjen újat, és pillanatokon belül megérkezik.",
+      "linkLabel": "Link",
+      "linkDead": "Ez a link már nem működik",
+      "newLink": "Új bejelentkezési link kérése e-mailben"
+    },
+    "choose": {
+      "signedInAs": "Bejelentkezve: {email}",
+      "headline": "Melyik vállalkozás?",
+      "label": "Az Ön vállalkozásai",
+      "title": "Válassza ki, melyiket nyitja meg. A menüből bármikor válthat.",
+      "add": "Másik vállalkozás hozzáadása",
+      "foot": "Minden vállalkozásnak saját tényei, csapata és számlája van. Az egyikből semmi sem jelenik meg a másikban."
+    }
+  },
+  "locale": {
+    "meta": "Nyelv és pénznem — SYB",
+    "first": {
+      "kicker": "Mielőtt elkezdjük",
+      "headline": "Válassza ki a nyelvet és a pénznemet.",
+      "lede": "Ezen a nyelven fogok Önhöz szólni. Vállalkozása minden számadata ebben a pénznemben jelenik meg, és pénznemek között soha semmit nem váltunk át."
+    },
+    "yourLanguage": "Az Ön nyelve",
+    "yourLanguageHelp": "Ezen a nyelven olvassa a SYB-t. A csapatban mindenki a sajátját választja.",
+    "businessLanguage": "Vállalkozása nyelve",
+    "businessLanguageHelp": "Amit az ügyfelei olvasnak: támogatási válaszok, e-mailek és értékelésekre adott válaszok.",
+    "currency": "Pénznem",
+    "currencyHelp": "Ennek a vállalkozásnak minden számadata ebben a pénznemben jelenik meg. Semmit nem váltunk át: a már rögzített összegek megtartják azt a pénznemet, amelyben megadták őket.",
+    "currencyChoose": "Válasszon pénznemet",
+    "currencyOption": "{code} — {name}",
+    "beingChecked": "ellenőrzés alatt",
+    "checkingNote": "Az „ellenőrzés alatt” jelölésű nyelvet csak Ön és a lektora látja, amíg egy anyanyelvi beszélő át nem nézte.",
+    "onlyOwner": "A vállalkozás nyelvét vagy pénznemét csak tulajdonos módosíthatja.",
+    "unavailable": "Ez a nyelv még nem érhető el.",
+    "badCurrency": "Ezt a pénznemet nem ismerem.",
+    "settings": {
+      "kicker": "Az Ön vállalkozása",
+      "title": "Nyelv és pénznem",
+      "you": "Ön",
+      "business": "Ez a vállalkozás",
+      "saveBusiness": "Mentés a vállalkozáshoz"
+    }
+  }
+}

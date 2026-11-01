@@ -1,6 +1,8 @@
 import { AppFrame } from "../components/nav/AppFrame";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { Archivo, IBM_Plex_Mono, Zilla_Slab } from "next/font/google";
 import "./globals.css";
 import "./sheet.css";
@@ -35,11 +37,16 @@ export const metadata: Metadata = {
   description: "Find out where your business actually leaks money.",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+// L-1: the language comes from the language cookie through the status gate
+// (i18n/request.ts); every screen below reads its words from that catalogue.
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const locale = await getLocale();
   return (
-    <html lang="en" className={`${zilla.variable} ${archivo.variable} ${plexMono.variable}`}>
+    <html lang={locale} className={`${zilla.variable} ${archivo.variable} ${plexMono.variable}`}>
       <body>
-        <AppFrame>{children}</AppFrame>
+        <NextIntlClientProvider>
+          <AppFrame>{children}</AppFrame>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

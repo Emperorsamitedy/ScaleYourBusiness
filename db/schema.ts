@@ -52,6 +52,16 @@ export const accounts = pgTable("accounts", {
   /** ISO 4217 — aggregates state their currency; see lib/core/money.ts. */
   reporting_currency: text("reporting_currency").notNull(),
   /**
+   * L-1 (TASKS-LANGUAGES.md): when the owner chose the currency
+   * themselves, at sign-up or in settings. Null = still the default, and
+   * the intake may set it from the country (lib/intake/service.ts); once
+   * chosen, the country never overrides it. Nothing is converted either way.
+   */
+  reporting_currency_chosen_at: timestamp("reporting_currency_chosen_at", {
+    withTimezone: true,
+    mode: "string",
+  }),
+  /**
    * P3-40b: SYB's own business, run through its own product. Excluded from
    * every cross-customer number (Gate 2's approval rate, the ops funnel and
    * cost views) so our own numbers never pass as customer evidence. Its
@@ -83,8 +93,18 @@ export const users = pgTable(
      * brings this same row back.
      */
     removed_at: timestamp("removed_at", { withTimezone: true, mode: "string" }),
+    /**
+     * L-1: the language this person reads SYB in (lib/i18n/locales.ts).
+     * Null = never chosen: the browser's choice (the language cookie) is
+     * written here at their next sign-in. Their own, whatever the business's.
+     */
+    language: text("language"),
   },
   (t) => [
+    check(
+      "users_language_known",
+      sql`${t.language} is null or ${t.language} in ('en', 'es-ES', 'de-DE', 'fr-FR', 'hu-HU', 'ru-RU', 'zh-Hans')`,
+    ),
     // Idea 52: one email may belong to several businesses, once in each.
     // A person is still one row in ONE account; "at least one owner per
     // account" is a deferred constraint trigger in migration 0070.
@@ -93,30 +113,46 @@ export const users = pgTable(
   ],
 );
 
-export const businessProfiles = pgTable("business_profiles", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  // UNIQUE: the v1 one-account-one-profile invariant, held by the database.
-  account_id: uuid("account_id")
-    .notNull()
-    .unique()
-    .references(() => accounts.id),
-  created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
-    .notNull()
-    .defaultNow(),
-  last_material_change: timestamp("last_material_change", { withTimezone: true, mode: "string" }),
-  /** Data-model version this profile was written against. */
-  schema_version: text("schema_version").notNull(),
-  /** Owner opted in to anonymised cross-business benchmarking. Off until said otherwise. */
-  benchmark_consent: boolean("benchmark_consent").notNull().default(false),
-  /** System judgment that the profile has enough data to benchmark against. */
-  benchmark_eligible: boolean("benchmark_eligible").notNull().default(false),
-  // The interviewer's last pick, so that reading the intake state does not
-  // re-run the interviewer. It is a cache, not a fact: it is honoured only
-  // while it is still an open candidate, which makes it self-invalidating —
-  // answering the question drops it out of the candidate set and forces
-  // exactly one fresh pick. See getIntakeState.
-  next_question_id: text("next_question_id"),
-});
+export const businessProfiles = pgTable(
+  "business_profiles",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // UNIQUE: the v1 one-account-one-profile invariant, held by the database.
+    account_id: uuid("account_id")
+      .notNull()
+      .unique()
+      .references(() => accounts.id),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    last_material_change: timestamp("last_material_change", { withTimezone: true, mode: "string" }),
+    /** Data-model version this profile was written against. */
+    schema_version: text("schema_version").notNull(),
+    /** Owner opted in to anonymised cross-business benchmarking. Off until said otherwise. */
+    benchmark_consent: boolean("benchmark_consent").notNull().default(false),
+    /** System judgment that the profile has enough data to benchmark against. */
+    benchmark_eligible: boolean("benchmark_eligible").notNull().default(false),
+    // The interviewer's last pick, so that reading the intake state does not
+    // re-run the interviewer. It is a cache, not a fact: it is honoured only
+    // while it is still an open candidate, which makes it self-invalidating —
+    // answering the question drops it out of the candidate set and forces
+    // exactly one fresh pick. See getIntakeState.
+    next_question_id: text("next_question_id"),
+    /**
+     * L-1: the business's own language — what its customers will read
+     * (support, campaigns, review replies: rule 5 of TASKS-LANGUAGES.md).
+     * Chosen at the first step and changed by an owner in settings. It is
+     * not a fact about the business (no Field<T>): it is how SYB speaks.
+     */
+    language: text("language").notNull().default("en"),
+  },
+  (t) => [
+    check(
+      "business_profiles_language_known",
+      sql`${t.language} in ('en', 'es-ES', 'de-DE', 'fr-FR', 'hu-HU', 'ru-RU', 'zh-Hans')`,
+    ),
+  ],
+);
 
 // ---------------------------------------------------------------------------
 // field_records — the storage form of Field<T> (§3.1) for every one of the
@@ -859,6 +895,13 @@ export const loginTokens = pgTable(
     invite_id: uuid("invite_id").references((): AnyPgColumn => teamInvites.id, {
       onDelete: "set null",
     }),
+    /**
+     * L-1: the language and currency chosen on the sign-up screen, carried
+     * by the link so they arrive even when it is opened on another device.
+     * Used only when the sign-in creates the account or the person's row.
+     */
+    language: text("language"),
+    currency: text("currency"),
   },
   (t) => [
     uniqueIndex("login_tokens_hash_idx").on(t.token_hash),

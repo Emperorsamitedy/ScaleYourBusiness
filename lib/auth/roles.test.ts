@@ -25,6 +25,8 @@ const VIEWER_MAY: readonly RoleAction[] = [
   "telemetry.record",
   "alerts.remove_device",
   "chat.ask",
+  // L-1: the language you read SYB in is your own.
+  "language.own",
 ];
 /** The plan: a manager approves or declines, drafts, answers support and presses stop. */
 const MANAGER_MAY: readonly RoleAction[] = [
@@ -49,6 +51,8 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "erasure.run",
   "team.manage",
   "rules.manage",
+  // L-1: the business's language and currency.
+  "business.locale",
 ];
 
 const session = (role: Role): AuthedSession => ({

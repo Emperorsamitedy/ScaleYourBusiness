@@ -1,0 +1,1753 @@
+{
+  "version": "1.0.0",
+  "dated": "2026-11-01",
+  "status": "draft — written by Claude from this glossary; each language stays in review until its native reviewer has checked it (TASKS-LANGUAGES.md, L-7)",
+  "about": "One term, one translation (rule 2 of TASKS-LANGUAGES.md). For each term: the English word and the forms that count as it (whole words, case-insensitive, plural endings allowed); and for each language the chosen term and the stems any inflected form contains. messages/glossary.test.ts fails when an English message uses a term and its translation contains none of that language's stems.",
+  "registers": {
+    "es-ES": "usted — formal, Spain (Castilian) vocabulary and spelling",
+    "de-DE": "Sie — formal; generic masculine role nouns (Inhaber, Betrachter), flagged for the reviewer",
+    "fr-FR": "vous — formal; French typography (espace fine insécable before ? ! ;, espace insécable before : and inside « »)",
+    "hu-HU": "Ön — formal, third-person verbs (\"Válasszon\", \"Kérjen\")",
+    "ru-RU": "вы — formal, lower-case in interface text (capitalised Вы is for letters)",
+    "zh-Hans": "您 — polite; Simplified Chinese, full-width punctuation, a space between Chinese and Latin text or numbers"
+  },
+  "terms": [
+    {
+      "id": "owner",
+      "note": "The team role with every right (lib/auth/role-actions.ts).",
+      "en": {
+        "term": "owner",
+        "match": [
+          "owner"
+        ]
+      },
+      "es-ES": {
+        "term": "propietario",
+        "stems": [
+          "propietari"
+        ]
+      },
+      "de-DE": {
+        "term": "Inhaber",
+        "stems": [
+          "inhaber"
+        ]
+      },
+      "fr-FR": {
+        "term": "propriétaire",
+        "stems": [
+          "propriétaire"
+        ]
+      },
+      "hu-HU": {
+        "term": "tulajdonos",
+        "stems": [
+          "tulajdonos"
+        ]
+      },
+      "ru-RU": {
+        "term": "владелец",
+        "stems": [
+          "владел"
+        ]
+      },
+      "zh-Hans": {
+        "term": "所有者",
+        "stems": [
+          "所有者"
+        ]
+      }
+    },
+    {
+      "id": "manager",
+      "note": "The team role that decides proposals and answers customers.",
+      "en": {
+        "term": "manager",
+        "match": [
+          "manager"
+        ]
+      },
+      "es-ES": {
+        "term": "gestor",
+        "stems": [
+          "gestor"
+        ]
+      },
+      "de-DE": {
+        "term": "Manager",
+        "stems": [
+          "manager"
+        ]
+      },
+      "fr-FR": {
+        "term": "gestionnaire",
+        "stems": [
+          "gestionnaire"
+        ]
+      },
+      "hu-HU": {
+        "term": "menedzser",
+        "stems": [
+          "menedzser"
+        ]
+      },
+      "ru-RU": {
+        "term": "менеджер",
+        "stems": [
+          "менеджер"
+        ]
+      },
+      "zh-Hans": {
+        "term": "经理",
+        "stems": [
+          "经理"
+        ]
+      }
+    },
+    {
+      "id": "viewer",
+      "note": "The read-only team role (it may press the emergency stop).",
+      "en": {
+        "term": "viewer",
+        "match": [
+          "viewer"
+        ]
+      },
+      "es-ES": {
+        "term": "lector",
+        "stems": [
+          "lector"
+        ]
+      },
+      "de-DE": {
+        "term": "Betrachter",
+        "stems": [
+          "betrachter"
+        ]
+      },
+      "fr-FR": {
+        "term": "lecteur",
+        "stems": [
+          "lecteur"
+        ]
+      },
+      "hu-HU": {
+        "term": "megtekintő",
+        "stems": [
+          "megtekintő"
+        ]
+      },
+      "ru-RU": {
+        "term": "наблюдатель",
+        "stems": [
+          "наблюдател"
+        ]
+      },
+      "zh-Hans": {
+        "term": "查看者",
+        "stems": [
+          "查看者"
+        ]
+      }
+    },
+    {
+      "id": "business",
+      "note": "The owner's own business (one profile per account).",
+      "en": {
+        "term": "business",
+        "match": [
+          "business",
+          "businesses",
+          "business’s"
+        ]
+      },
+      "es-ES": {
+        "term": "negocio",
+        "stems": [
+          "negocio"
+        ]
+      },
+      "de-DE": {
+        "term": "Unternehmen",
+        "stems": [
+          "unternehmen"
+        ]
+      },
+      "fr-FR": {
+        "term": "entreprise",
+        "stems": [
+          "entreprise"
+        ]
+      },
+      "hu-HU": {
+        "term": "vállalkozás",
+        "stems": [
+          "vállalkozás"
+        ]
+      },
+      "ru-RU": {
+        "term": "бизнес",
+        "stems": [
+          "бизнес"
+        ]
+      },
+      "zh-Hans": {
+        "term": "企业",
+        "stems": [
+          "企业"
+        ]
+      }
+    },
+    {
+      "id": "account",
+      "note": "A sign-in account, and the outside accounts SYB reads (one word for both).",
+      "en": {
+        "term": "account",
+        "match": [
+          "account",
+          "accounts"
+        ]
+      },
+      "es-ES": {
+        "term": "cuenta",
+        "stems": [
+          "cuenta"
+        ]
+      },
+      "de-DE": {
+        "term": "Konto",
+        "stems": [
+          "konto",
+          "konten"
+        ]
+      },
+      "fr-FR": {
+        "term": "compte",
+        "stems": [
+          "compte"
+        ]
+      },
+      "hu-HU": {
+        "term": "fiók",
+        "stems": [
+          "fiók"
+        ]
+      },
+      "ru-RU": {
+        "term": "аккаунт",
+        "stems": [
+          "аккаунт"
+        ]
+      },
+      "zh-Hans": {
+        "term": "账户",
+        "stems": [
+          "账户"
+        ]
+      }
+    },
+    {
+      "id": "team",
+      "note": "The people who can sign in to a business.",
+      "en": {
+        "term": "team",
+        "match": [
+          "team"
+        ]
+      },
+      "es-ES": {
+        "term": "equipo",
+        "stems": [
+          "equipo"
+        ]
+      },
+      "de-DE": {
+        "term": "Team",
+        "stems": [
+          "team"
+        ]
+      },
+      "fr-FR": {
+        "term": "équipe",
+        "stems": [
+          "équipe"
+        ]
+      },
+      "hu-HU": {
+        "term": "csapat",
+        "stems": [
+          "csapat"
+        ]
+      },
+      "ru-RU": {
+        "term": "команда",
+        "stems": [
+          "команд"
+        ]
+      },
+      "zh-Hans": {
+        "term": "团队",
+        "stems": [
+          "团队"
+        ]
+      }
+    },
+    {
+      "id": "sign_in",
+      "note": "Proving an email with a one-time link.",
+      "en": {
+        "term": "sign in",
+        "match": [
+          "sign in",
+          "sign-in",
+          "signed in"
+        ]
+      },
+      "es-ES": {
+        "term": "iniciar sesión",
+        "stems": [
+          "sesión"
+        ]
+      },
+      "de-DE": {
+        "term": "anmelden",
+        "stems": [
+          "anmeld",
+          "angemeldet"
+        ]
+      },
+      "fr-FR": {
+        "term": "se connecter",
+        "stems": [
+          "connect",
+          "connexion"
+        ]
+      },
+      "hu-HU": {
+        "term": "bejelentkezés",
+        "stems": [
+          "bejelentkez"
+        ]
+      },
+      "ru-RU": {
+        "term": "вход",
+        "stems": [
+          "вход",
+          "войти",
+          "вошли"
+        ]
+      },
+      "zh-Hans": {
+        "term": "登录",
+        "stems": [
+          "登录"
+        ]
+      }
+    },
+    {
+      "id": "language",
+      "note": "The person's reading language, or the business's customer-facing one.",
+      "en": {
+        "term": "language",
+        "match": [
+          "language"
+        ]
+      },
+      "es-ES": {
+        "term": "idioma",
+        "stems": [
+          "idioma"
+        ]
+      },
+      "de-DE": {
+        "term": "Sprache",
+        "stems": [
+          "sprache"
+        ]
+      },
+      "fr-FR": {
+        "term": "langue",
+        "stems": [
+          "langue"
+        ]
+      },
+      "hu-HU": {
+        "term": "nyelv",
+        "stems": [
+          "nyelv"
+        ]
+      },
+      "ru-RU": {
+        "term": "язык",
+        "stems": [
+          "язык"
+        ]
+      },
+      "zh-Hans": {
+        "term": "语言",
+        "stems": [
+          "语言"
+        ]
+      }
+    },
+    {
+      "id": "currency",
+      "note": "An ISO 4217 currency; never converted (rule 1).",
+      "en": {
+        "term": "currency",
+        "match": [
+          "currency",
+          "currencies"
+        ]
+      },
+      "es-ES": {
+        "term": "moneda",
+        "stems": [
+          "moneda"
+        ]
+      },
+      "de-DE": {
+        "term": "Währung",
+        "stems": [
+          "währung"
+        ]
+      },
+      "fr-FR": {
+        "term": "devise",
+        "stems": [
+          "devise"
+        ]
+      },
+      "hu-HU": {
+        "term": "pénznem",
+        "stems": [
+          "pénznem"
+        ]
+      },
+      "ru-RU": {
+        "term": "валюта",
+        "stems": [
+          "валют"
+        ]
+      },
+      "zh-Hans": {
+        "term": "货币",
+        "stems": [
+          "货币"
+        ]
+      }
+    },
+    {
+      "id": "report",
+      "note": "The signed diagnosis report.",
+      "en": {
+        "term": "report",
+        "match": [
+          "report",
+          "reports"
+        ]
+      },
+      "es-ES": {
+        "term": "informe",
+        "stems": [
+          "informe"
+        ]
+      },
+      "de-DE": {
+        "term": "Bericht",
+        "stems": [
+          "bericht"
+        ]
+      },
+      "fr-FR": {
+        "term": "rapport",
+        "stems": [
+          "rapport"
+        ]
+      },
+      "hu-HU": {
+        "term": "jelentés",
+        "stems": [
+          "jelentés"
+        ]
+      },
+      "ru-RU": {
+        "term": "отчёт",
+        "stems": [
+          "отчёт",
+          "отчет"
+        ]
+      },
+      "zh-Hans": {
+        "term": "报告",
+        "stems": [
+          "报告"
+        ]
+      }
+    },
+    {
+      "id": "diagnosis",
+      "note": "What the report finds: where the business leaks money.",
+      "en": {
+        "term": "diagnosis",
+        "match": [
+          "diagnosis"
+        ]
+      },
+      "es-ES": {
+        "term": "diagnóstico",
+        "stems": [
+          "diagnóstico"
+        ]
+      },
+      "de-DE": {
+        "term": "Diagnose",
+        "stems": [
+          "diagnose"
+        ]
+      },
+      "fr-FR": {
+        "term": "diagnostic",
+        "stems": [
+          "diagnostic"
+        ]
+      },
+      "hu-HU": {
+        "term": "diagnózis",
+        "stems": [
+          "diagnózis"
+        ]
+      },
+      "ru-RU": {
+        "term": "диагностика",
+        "stems": [
+          "диагностик"
+        ]
+      },
+      "zh-Hans": {
+        "term": "诊断",
+        "stems": [
+          "诊断"
+        ]
+      }
+    },
+    {
+      "id": "fact",
+      "note": "A Field<T> with provenance (rule 2); superseded, never overwritten (rule 3).",
+      "en": {
+        "term": "fact",
+        "match": [
+          "fact",
+          "facts"
+        ]
+      },
+      "es-ES": {
+        "term": "dato",
+        "stems": [
+          "dato"
+        ]
+      },
+      "de-DE": {
+        "term": "Fakt",
+        "stems": [
+          "fakt"
+        ]
+      },
+      "fr-FR": {
+        "term": "fait",
+        "stems": [
+          "fait"
+        ]
+      },
+      "hu-HU": {
+        "term": "tény",
+        "stems": [
+          "tény"
+        ]
+      },
+      "ru-RU": {
+        "term": "факт",
+        "stems": [
+          "факт"
+        ]
+      },
+      "zh-Hans": {
+        "term": "事实",
+        "stems": [
+          "事实"
+        ]
+      }
+    },
+    {
+      "id": "fact_sheet",
+      "note": "The /profile screen: every fact on record.",
+      "en": {
+        "term": "fact sheet",
+        "match": [
+          "fact sheet"
+        ]
+      },
+      "es-ES": {
+        "term": "ficha de datos",
+        "stems": [
+          "ficha de datos"
+        ]
+      },
+      "de-DE": {
+        "term": "Faktenblatt",
+        "stems": [
+          "faktenblatt"
+        ]
+      },
+      "fr-FR": {
+        "term": "fiche des faits",
+        "stems": [
+          "fiche des faits"
+        ]
+      },
+      "hu-HU": {
+        "term": "ténylap",
+        "stems": [
+          "ténylap"
+        ]
+      },
+      "ru-RU": {
+        "term": "карточка фактов",
+        "stems": [
+          "карточка фактов"
+        ]
+      },
+      "zh-Hans": {
+        "term": "事实表",
+        "stems": [
+          "事实表"
+        ]
+      }
+    },
+    {
+      "id": "approval",
+      "note": "A recorded human yes before anything runs (rule 12).",
+      "en": {
+        "term": "approval",
+        "match": [
+          "approval",
+          "approve"
+        ]
+      },
+      "es-ES": {
+        "term": "aprobación",
+        "stems": [
+          "aprob"
+        ]
+      },
+      "de-DE": {
+        "term": "Freigabe",
+        "stems": [
+          "freigab",
+          "freigeb",
+          "freizugeb"
+        ]
+      },
+      "fr-FR": {
+        "term": "validation",
+        "stems": [
+          "valid"
+        ]
+      },
+      "hu-HU": {
+        "term": "jóváhagyás",
+        "stems": [
+          "jóváhagy"
+        ]
+      },
+      "ru-RU": {
+        "term": "одобрение",
+        "stems": [
+          "одобр"
+        ]
+      },
+      "zh-Hans": {
+        "term": "批准",
+        "stems": [
+          "批准"
+        ]
+      }
+    },
+    {
+      "id": "proposal",
+      "note": "Something SYB suggests doing, waiting for approval.",
+      "en": {
+        "term": "proposal",
+        "match": [
+          "proposal",
+          "proposals"
+        ]
+      },
+      "es-ES": {
+        "term": "propuesta",
+        "stems": [
+          "propuesta"
+        ]
+      },
+      "de-DE": {
+        "term": "Vorschlag",
+        "stems": [
+          "vorschlag",
+          "vorschläg"
+        ]
+      },
+      "fr-FR": {
+        "term": "proposition",
+        "stems": [
+          "proposition"
+        ]
+      },
+      "hu-HU": {
+        "term": "javaslat",
+        "stems": [
+          "javaslat"
+        ]
+      },
+      "ru-RU": {
+        "term": "предложение",
+        "stems": [
+          "предложени"
+        ]
+      },
+      "zh-Hans": {
+        "term": "提案",
+        "stems": [
+          "提案"
+        ]
+      }
+    },
+    {
+      "id": "review",
+      "note": "A customer's review on Google and the like — not a language check (\"being checked\").",
+      "en": {
+        "term": "review",
+        "match": [
+          "review",
+          "reviews"
+        ]
+      },
+      "es-ES": {
+        "term": "reseña",
+        "stems": [
+          "reseña"
+        ]
+      },
+      "de-DE": {
+        "term": "Bewertung",
+        "stems": [
+          "bewertung"
+        ]
+      },
+      "fr-FR": {
+        "term": "avis",
+        "stems": [
+          "avis"
+        ]
+      },
+      "hu-HU": {
+        "term": "értékelés",
+        "stems": [
+          "értékelés"
+        ]
+      },
+      "ru-RU": {
+        "term": "отзыв",
+        "stems": [
+          "отзыв"
+        ]
+      },
+      "zh-Hans": {
+        "term": "评价",
+        "stems": [
+          "评价"
+        ]
+      }
+    },
+    {
+      "id": "customer",
+      "note": "The business's own customers.",
+      "en": {
+        "term": "customer",
+        "match": [
+          "customer",
+          "customers"
+        ]
+      },
+      "es-ES": {
+        "term": "cliente",
+        "stems": [
+          "cliente"
+        ]
+      },
+      "de-DE": {
+        "term": "Kunde",
+        "stems": [
+          "kunde",
+          "kundin"
+        ]
+      },
+      "fr-FR": {
+        "term": "client",
+        "stems": [
+          "client"
+        ]
+      },
+      "hu-HU": {
+        "term": "ügyfél",
+        "stems": [
+          "ügyf"
+        ]
+      },
+      "ru-RU": {
+        "term": "клиент",
+        "stems": [
+          "клиент"
+        ]
+      },
+      "zh-Hans": {
+        "term": "客户",
+        "stems": [
+          "客户"
+        ]
+      }
+    },
+    {
+      "id": "contact",
+      "note": "A person in the CRM or the pipeline (rule 29: contacts are contacts).",
+      "en": {
+        "term": "contact",
+        "match": [
+          "contact",
+          "contacts"
+        ]
+      },
+      "es-ES": {
+        "term": "contacto",
+        "stems": [
+          "contacto"
+        ]
+      },
+      "de-DE": {
+        "term": "Kontakt",
+        "stems": [
+          "kontakt"
+        ]
+      },
+      "fr-FR": {
+        "term": "contact",
+        "stems": [
+          "contact"
+        ]
+      },
+      "hu-HU": {
+        "term": "kapcsolattartó",
+        "stems": [
+          "kapcsolattartó"
+        ]
+      },
+      "ru-RU": {
+        "term": "контакт",
+        "stems": [
+          "контакт"
+        ]
+      },
+      "zh-Hans": {
+        "term": "联系人",
+        "stems": [
+          "联系人"
+        ]
+      }
+    },
+    {
+      "id": "consent",
+      "note": "A recorded fact that a person agreed (rule 19).",
+      "en": {
+        "term": "consent",
+        "match": [
+          "consent"
+        ]
+      },
+      "es-ES": {
+        "term": "consentimiento",
+        "stems": [
+          "consentimiento"
+        ]
+      },
+      "de-DE": {
+        "term": "Einwilligung",
+        "stems": [
+          "einwillig"
+        ]
+      },
+      "fr-FR": {
+        "term": "consentement",
+        "stems": [
+          "consentement"
+        ]
+      },
+      "hu-HU": {
+        "term": "hozzájárulás",
+        "stems": [
+          "hozzájárul"
+        ]
+      },
+      "ru-RU": {
+        "term": "согласие",
+        "stems": [
+          "согласи"
+        ]
+      },
+      "zh-Hans": {
+        "term": "同意",
+        "stems": [
+          "同意"
+        ]
+      }
+    },
+    {
+      "id": "support",
+      "note": "Answering the business's customers (Phase 4).",
+      "en": {
+        "term": "support",
+        "match": [
+          "support"
+        ]
+      },
+      "es-ES": {
+        "term": "soporte",
+        "stems": [
+          "soporte"
+        ]
+      },
+      "de-DE": {
+        "term": "Support",
+        "stems": [
+          "support"
+        ]
+      },
+      "fr-FR": {
+        "term": "assistance",
+        "stems": [
+          "assistance"
+        ]
+      },
+      "hu-HU": {
+        "term": "támogatás",
+        "stems": [
+          "támogatás"
+        ]
+      },
+      "ru-RU": {
+        "term": "поддержка",
+        "stems": [
+          "поддержк"
+        ]
+      },
+      "zh-Hans": {
+        "term": "客户支持",
+        "stems": [
+          "支持"
+        ]
+      }
+    },
+    {
+      "id": "connection",
+      "note": "A read-only link to an outside account (Stripe, Shopify…).",
+      "en": {
+        "term": "connection",
+        "match": [
+          "connection",
+          "connections"
+        ]
+      },
+      "es-ES": {
+        "term": "conexión",
+        "stems": [
+          "conexi"
+        ]
+      },
+      "de-DE": {
+        "term": "Verbindung",
+        "stems": [
+          "verbindung"
+        ]
+      },
+      "fr-FR": {
+        "term": "connexion",
+        "stems": [
+          "connexion"
+        ]
+      },
+      "hu-HU": {
+        "term": "összekapcsolt fiók",
+        "stems": [
+          "összekapcsol"
+        ]
+      },
+      "ru-RU": {
+        "term": "подключение",
+        "stems": [
+          "подключени"
+        ]
+      },
+      "zh-Hans": {
+        "term": "连接",
+        "stems": [
+          "连接"
+        ]
+      }
+    },
+    {
+      "id": "website",
+      "note": "The business's own website.",
+      "en": {
+        "term": "website",
+        "match": [
+          "website"
+        ]
+      },
+      "es-ES": {
+        "term": "sitio web",
+        "stems": [
+          "web"
+        ]
+      },
+      "de-DE": {
+        "term": "Website",
+        "stems": [
+          "website"
+        ]
+      },
+      "fr-FR": {
+        "term": "site web",
+        "stems": [
+          "site"
+        ]
+      },
+      "hu-HU": {
+        "term": "weboldal",
+        "stems": [
+          "weboldal"
+        ]
+      },
+      "ru-RU": {
+        "term": "сайт",
+        "stems": [
+          "сайт"
+        ]
+      },
+      "zh-Hans": {
+        "term": "网站",
+        "stems": [
+          "网站"
+        ]
+      }
+    },
+    {
+      "id": "goal",
+      "note": "A target the owner set.",
+      "en": {
+        "term": "goal",
+        "match": [
+          "goal",
+          "goals"
+        ]
+      },
+      "es-ES": {
+        "term": "objetivo",
+        "stems": [
+          "objetivo"
+        ]
+      },
+      "de-DE": {
+        "term": "Ziel",
+        "stems": [
+          "ziel"
+        ]
+      },
+      "fr-FR": {
+        "term": "objectif",
+        "stems": [
+          "objectif"
+        ]
+      },
+      "hu-HU": {
+        "term": "cél",
+        "stems": [
+          "cél"
+        ]
+      },
+      "ru-RU": {
+        "term": "цель",
+        "stems": [
+          "цел"
+        ]
+      },
+      "zh-Hans": {
+        "term": "目标",
+        "stems": [
+          "目标"
+        ]
+      }
+    },
+    {
+      "id": "content",
+      "note": "Marketing posts and emails SYB drafts.",
+      "en": {
+        "term": "content",
+        "match": [
+          "content"
+        ]
+      },
+      "es-ES": {
+        "term": "contenido",
+        "stems": [
+          "contenido"
+        ]
+      },
+      "de-DE": {
+        "term": "Inhalte",
+        "stems": [
+          "inhalt"
+        ]
+      },
+      "fr-FR": {
+        "term": "contenu",
+        "stems": [
+          "contenu"
+        ]
+      },
+      "hu-HU": {
+        "term": "tartalom",
+        "stems": [
+          "tartalom",
+          "tartalm"
+        ]
+      },
+      "ru-RU": {
+        "term": "контент",
+        "stems": [
+          "контент"
+        ]
+      },
+      "zh-Hans": {
+        "term": "内容",
+        "stems": [
+          "内容"
+        ]
+      }
+    },
+    {
+      "id": "campaign",
+      "note": "A marketing campaign (ads or email).",
+      "en": {
+        "term": "campaign",
+        "match": [
+          "campaign",
+          "campaigns"
+        ]
+      },
+      "es-ES": {
+        "term": "campaña",
+        "stems": [
+          "campaña"
+        ]
+      },
+      "de-DE": {
+        "term": "Kampagne",
+        "stems": [
+          "kampagne"
+        ]
+      },
+      "fr-FR": {
+        "term": "campagne",
+        "stems": [
+          "campagne"
+        ]
+      },
+      "hu-HU": {
+        "term": "kampány",
+        "stems": [
+          "kampány"
+        ]
+      },
+      "ru-RU": {
+        "term": "кампания",
+        "stems": [
+          "кампани"
+        ]
+      },
+      "zh-Hans": {
+        "term": "营销活动",
+        "stems": [
+          "营销活动"
+        ]
+      }
+    },
+    {
+      "id": "competitor",
+      "note": "Another business the owner competes with.",
+      "en": {
+        "term": "competitor",
+        "match": [
+          "competitor",
+          "competitors"
+        ]
+      },
+      "es-ES": {
+        "term": "competidor",
+        "stems": [
+          "competidor"
+        ]
+      },
+      "de-DE": {
+        "term": "Wettbewerber",
+        "stems": [
+          "wettbewerber"
+        ]
+      },
+      "fr-FR": {
+        "term": "concurrent",
+        "stems": [
+          "concurrent"
+        ]
+      },
+      "hu-HU": {
+        "term": "versenytárs",
+        "stems": [
+          "versenytárs"
+        ]
+      },
+      "ru-RU": {
+        "term": "конкурент",
+        "stems": [
+          "конкурент"
+        ]
+      },
+      "zh-Hans": {
+        "term": "竞争对手",
+        "stems": [
+          "竞争对手"
+        ]
+      }
+    },
+    {
+      "id": "cash_flow",
+      "note": "Money in and out over time (read and modelled, never moved — rule 26).",
+      "en": {
+        "term": "cash flow",
+        "match": [
+          "cash flow"
+        ]
+      },
+      "es-ES": {
+        "term": "flujo de caja",
+        "stems": [
+          "flujo de caja"
+        ]
+      },
+      "de-DE": {
+        "term": "Cashflow",
+        "stems": [
+          "cashflow"
+        ]
+      },
+      "fr-FR": {
+        "term": "trésorerie",
+        "stems": [
+          "trésorerie"
+        ]
+      },
+      "hu-HU": {
+        "term": "pénzáramlás",
+        "stems": [
+          "pénzáramlás"
+        ]
+      },
+      "ru-RU": {
+        "term": "денежный поток",
+        "stems": [
+          "денежн"
+        ]
+      },
+      "zh-Hans": {
+        "term": "现金流",
+        "stems": [
+          "现金流"
+        ]
+      }
+    },
+    {
+      "id": "stock",
+      "note": "Goods on hand (inventory).",
+      "en": {
+        "term": "stock",
+        "match": [
+          "stock"
+        ]
+      },
+      "es-ES": {
+        "term": "existencias",
+        "stems": [
+          "existencias"
+        ]
+      },
+      "de-DE": {
+        "term": "Lagerbestand",
+        "stems": [
+          "bestand"
+        ]
+      },
+      "fr-FR": {
+        "term": "stock",
+        "stems": [
+          "stock"
+        ]
+      },
+      "hu-HU": {
+        "term": "készlet",
+        "stems": [
+          "készlet"
+        ]
+      },
+      "ru-RU": {
+        "term": "запасы",
+        "stems": [
+          "запас"
+        ]
+      },
+      "zh-Hans": {
+        "term": "库存",
+        "stems": [
+          "库存"
+        ]
+      }
+    },
+    {
+      "id": "pipeline",
+      "note": "The B2B sales pipeline of deals.",
+      "en": {
+        "term": "pipeline",
+        "match": [
+          "pipeline"
+        ]
+      },
+      "es-ES": {
+        "term": "embudo de ventas",
+        "stems": [
+          "embudo"
+        ]
+      },
+      "de-DE": {
+        "term": "Pipeline",
+        "stems": [
+          "pipeline"
+        ]
+      },
+      "fr-FR": {
+        "term": "pipeline",
+        "stems": [
+          "pipeline"
+        ]
+      },
+      "hu-HU": {
+        "term": "értékesítési tölcsér",
+        "stems": [
+          "tölcsér"
+        ]
+      },
+      "ru-RU": {
+        "term": "воронка продаж",
+        "stems": [
+          "воронк"
+        ]
+      },
+      "zh-Hans": {
+        "term": "销售管道",
+        "stems": [
+          "管道"
+        ]
+      }
+    },
+    {
+      "id": "deal",
+      "note": "One possible sale in the pipeline.",
+      "en": {
+        "term": "deal",
+        "match": [
+          "deal",
+          "deals"
+        ]
+      },
+      "es-ES": {
+        "term": "oportunidad",
+        "stems": [
+          "oportunidad"
+        ]
+      },
+      "de-DE": {
+        "term": "Deal",
+        "stems": [
+          "deal"
+        ]
+      },
+      "fr-FR": {
+        "term": "affaire",
+        "stems": [
+          "affaire"
+        ]
+      },
+      "hu-HU": {
+        "term": "üzlet",
+        "stems": [
+          "üzlet"
+        ]
+      },
+      "ru-RU": {
+        "term": "сделка",
+        "stems": [
+          "сделк"
+        ]
+      },
+      "zh-Hans": {
+        "term": "交易",
+        "stems": [
+          "交易"
+        ]
+      }
+    },
+    {
+      "id": "abandoned_cart",
+      "note": "A checkout started and not finished (idea 47).",
+      "en": {
+        "term": "abandoned cart",
+        "match": [
+          "abandoned cart",
+          "abandoned carts"
+        ]
+      },
+      "es-ES": {
+        "term": "carrito abandonado",
+        "stems": [
+          "carrito"
+        ]
+      },
+      "de-DE": {
+        "term": "abgebrochener Warenkorb",
+        "stems": [
+          "warenk"
+        ]
+      },
+      "fr-FR": {
+        "term": "panier abandonné",
+        "stems": [
+          "panier"
+        ]
+      },
+      "hu-HU": {
+        "term": "elhagyott kosár",
+        "stems": [
+          "kosár",
+          "kosar"
+        ]
+      },
+      "ru-RU": {
+        "term": "брошенная корзина",
+        "stems": [
+          "корзин"
+        ]
+      },
+      "zh-Hans": {
+        "term": "弃购购物车",
+        "stems": [
+          "购物车"
+        ]
+      }
+    },
+    {
+      "id": "trading_hours",
+      "note": "When the business is open.",
+      "en": {
+        "term": "trading hours",
+        "match": [
+          "trading hours"
+        ]
+      },
+      "es-ES": {
+        "term": "horario comercial",
+        "stems": [
+          "horario"
+        ]
+      },
+      "de-DE": {
+        "term": "Öffnungszeiten",
+        "stems": [
+          "öffnungszeit"
+        ]
+      },
+      "fr-FR": {
+        "term": "horaires d’ouverture",
+        "stems": [
+          "horaires"
+        ]
+      },
+      "hu-HU": {
+        "term": "nyitvatartás",
+        "stems": [
+          "nyitvatart"
+        ]
+      },
+      "ru-RU": {
+        "term": "часы работы",
+        "stems": [
+          "часы работы"
+        ]
+      },
+      "zh-Hans": {
+        "term": "营业时间",
+        "stems": [
+          "营业时间"
+        ]
+      }
+    },
+    {
+      "id": "margin",
+      "note": "What is left of a price after its direct costs, as a share of the price.",
+      "en": {
+        "term": "margin",
+        "match": [
+          "margin",
+          "margins"
+        ]
+      },
+      "es-ES": {
+        "term": "margen",
+        "stems": [
+          "margen"
+        ]
+      },
+      "de-DE": {
+        "term": "Marge",
+        "stems": [
+          "marge"
+        ]
+      },
+      "fr-FR": {
+        "term": "marge",
+        "stems": [
+          "marge"
+        ]
+      },
+      "hu-HU": {
+        "term": "árrés",
+        "stems": [
+          "árrés"
+        ]
+      },
+      "ru-RU": {
+        "term": "маржа",
+        "stems": [
+          "марж"
+        ]
+      },
+      "zh-Hans": {
+        "term": "利润率",
+        "stems": [
+          "利润率"
+        ]
+      }
+    },
+    {
+      "id": "break_even",
+      "note": "The point where revenue covers costs.",
+      "en": {
+        "term": "break-even",
+        "match": [
+          "break-even",
+          "break even",
+          "breakeven"
+        ]
+      },
+      "es-ES": {
+        "term": "punto de equilibrio",
+        "stems": [
+          "punto de equilibrio"
+        ]
+      },
+      "de-DE": {
+        "term": "Gewinnschwelle",
+        "stems": [
+          "gewinnschwelle"
+        ]
+      },
+      "fr-FR": {
+        "term": "seuil de rentabilité",
+        "stems": [
+          "seuil de rentabilité"
+        ]
+      },
+      "hu-HU": {
+        "term": "fedezeti pont",
+        "stems": [
+          "fedezeti pont"
+        ]
+      },
+      "ru-RU": {
+        "term": "точка безубыточности",
+        "stems": [
+          "безубыточност"
+        ]
+      },
+      "zh-Hans": {
+        "term": "盈亏平衡点",
+        "stems": [
+          "盈亏平衡"
+        ]
+      }
+    },
+    {
+      "id": "win_rate",
+      "note": "The share of closed deals that were won.",
+      "en": {
+        "term": "win rate",
+        "match": [
+          "win rate"
+        ]
+      },
+      "es-ES": {
+        "term": "tasa de cierre",
+        "stems": [
+          "tasa de cierre"
+        ]
+      },
+      "de-DE": {
+        "term": "Abschlussquote",
+        "stems": [
+          "abschlussquote"
+        ]
+      },
+      "fr-FR": {
+        "term": "taux de réussite",
+        "stems": [
+          "taux de réussite"
+        ]
+      },
+      "hu-HU": {
+        "term": "nyerési arány",
+        "stems": [
+          "nyerési arány"
+        ]
+      },
+      "ru-RU": {
+        "term": "доля выигранных сделок",
+        "stems": [
+          "доля выигранных"
+        ]
+      },
+      "zh-Hans": {
+        "term": "成交率",
+        "stems": [
+          "成交率"
+        ]
+      }
+    },
+    {
+      "id": "forecast",
+      "note": "A stated expectation with its basis (rule 25).",
+      "en": {
+        "term": "forecast",
+        "match": [
+          "forecast",
+          "forecasts"
+        ]
+      },
+      "es-ES": {
+        "term": "previsión",
+        "stems": [
+          "previsi"
+        ]
+      },
+      "de-DE": {
+        "term": "Prognose",
+        "stems": [
+          "prognose"
+        ]
+      },
+      "fr-FR": {
+        "term": "prévision",
+        "stems": [
+          "prévision"
+        ]
+      },
+      "hu-HU": {
+        "term": "előrejelzés",
+        "stems": [
+          "előrejelzés"
+        ]
+      },
+      "ru-RU": {
+        "term": "прогноз",
+        "stems": [
+          "прогноз"
+        ]
+      },
+      "zh-Hans": {
+        "term": "预测",
+        "stems": [
+          "预测"
+        ]
+      }
+    },
+    {
+      "id": "track_record",
+      "note": "How SYB's past forecasts came out (idea 54).",
+      "en": {
+        "term": "track record",
+        "match": [
+          "track record"
+        ]
+      },
+      "es-ES": {
+        "term": "historial de aciertos",
+        "stems": [
+          "historial de aciertos"
+        ]
+      },
+      "de-DE": {
+        "term": "Trefferbilanz",
+        "stems": [
+          "trefferbilanz"
+        ]
+      },
+      "fr-FR": {
+        "term": "bilan des prévisions",
+        "stems": [
+          "bilan"
+        ]
+      },
+      "hu-HU": {
+        "term": "eddigi pontosság",
+        "stems": [
+          "pontosság"
+        ]
+      },
+      "ru-RU": {
+        "term": "история точности",
+        "stems": [
+          "история точности"
+        ]
+      },
+      "zh-Hans": {
+        "term": "过往准确率",
+        "stems": [
+          "准确率"
+        ]
+      }
+    }
+  ]
+}

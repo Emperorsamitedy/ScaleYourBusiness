@@ -37,6 +37,9 @@ import type { InputSpec } from "../interviewer/harness/answers";
 import { pickNextQuestion } from "../interviewer/interviewer";
 import { selectCandidates } from "../interviewer/select";
 import { currencyForCountry } from "../core/country-currency";
+import { isIsoCurrency } from "../core/currencies";
+import type { AppLocale } from "../i18n/locales";
+import { isAppLocale } from "../i18n/locales";
 import { coerceParsedValue } from "../parser/coerce";
 import { dynamicVocabularyOptions, isDynamicVocabulary } from "../profile/dynamic-vocab";
 import { writeField } from "../profile/field-store";
@@ -365,16 +368,32 @@ async function reportingCurrency(profileId: string): Promise<string> {
   return row?.currency ?? "HUF";
 }
 
-/** Create a fresh account+profile for an intake session (no auth in Phase 0). */
-export async function bootstrapIntake(): Promise<{ account_id: string; profile_id: string }> {
+/**
+ * Create a fresh account+profile for an intake session (no auth in Phase 0).
+ * L-1: with the first step's choices (lib/i18n/server pendingChoices), the
+ * business starts in the person's language and the currency they chose;
+ * without them, English and the default the country may later replace.
+ */
+export async function bootstrapIntake(
+  choices: { language?: AppLocale | null; currency?: string | null } = {},
+): Promise<{ account_id: string; profile_id: string }> {
+  const currency = choices.currency && isIsoCurrency(choices.currency) ? choices.currency : null;
   const [account] = await db
     .insert(accounts)
-    .values({ reporting_currency: "HUF", locale: "en-GB" })
+    .values({
+      reporting_currency: currency ?? "HUF",
+      reporting_currency_chosen_at: currency ? new Date().toISOString() : null,
+      locale: "en-GB",
+    })
     .returning();
   if (!account) throw new IntakeError("account creation failed", 500);
   const [profile] = await db
     .insert(businessProfiles)
-    .values({ account_id: account.id, schema_version: "1.0.0" })
+    .values({
+      account_id: account.id,
+      schema_version: "1.0.0",
+      language: isAppLocale(choices.language) ? choices.language : "en",
+    })
     .returning();
   if (!profile) throw new IntakeError("profile creation failed", 500);
   await recordFunnelEvent(profile.id, "funnel_intake_started");
@@ -852,13 +871,15 @@ export async function submitAnswer(
   // from a recognised country; an unrecognised answer leaves it alone.
   // Money records carry their own currency, so anything already written
   // keeps its label and the economics layer still refuses to blend.
+  // L-1: a currency the owner chose themselves (at sign-up or in settings)
+  // is never replaced by the country's.
   if (question.writes_to === "legal.country" && status === "answered") {
     const resolved = currencyForCountry(value);
     if (resolved !== null && resolved !== currency) {
       await db
         .update(accounts)
         .set({ reporting_currency: resolved })
-        .where(eq(accounts.id, accountId));
+        .where(and(eq(accounts.id, accountId), isNull(accounts.reporting_currency_chosen_at)));
     }
   }
 

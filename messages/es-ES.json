@@ -1,0 +1,184 @@
+{
+  "common": {
+    "continue": "Continuar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saved": "Guardado.",
+    "businessUnnamed": "Un negocio aún sin nombre",
+    "unreachable": "No he podido conectar con el servidor; inténtelo de nuevo.",
+    "somethingWrong": "algo ha salido mal",
+    "roles": {
+      "owner": "Propietario",
+      "manager": "Gestor",
+      "viewer": "Lector"
+    }
+  },
+  "nav": {
+    "label": "Principal",
+    "menu": "Menú",
+    "close": "Cerrar",
+    "switchBusiness": "Cambiar de negocio",
+    "watching": "Observando · día {day} de {of}",
+    "ask": "Pregúnteme lo que quiera",
+    "signOut": "Cerrar sesión",
+    "signingOut": "Cerrando sesión…",
+    "group": {
+      "approve": "Por aprobar",
+      "insights": "Análisis",
+      "grow": "Crecer",
+      "customers": "Clientes",
+      "business": "Su negocio"
+    },
+    "item": {
+      "proposals": "Pendiente de usted",
+      "report": "Informe",
+      "watch": "Observando",
+      "goals": "Objetivos",
+      "hours": "Horario comercial",
+      "team": "Cobertura del equipo",
+      "patterns": "Temporadas y packs",
+      "cash": "Flujo de caja",
+      "stock": "Existencias",
+      "blindspots": "Puntos ciegos",
+      "competitors": "Competidores",
+      "benchmarks": "Negocios similares",
+      "content": "Contenido",
+      "studio": "Estudio creativo",
+      "site": "Sitio web",
+      "simulate": "Simulador de campañas",
+      "customers": "Clientes",
+      "reviews": "Reseñas",
+      "carts": "Carritos abandonados",
+      "pipeline": "Embudo de ventas",
+      "support": "Soporte",
+      "factsheet": "Ficha de datos",
+      "connections": "Conexiones",
+      "mode": "Cómo trabajo",
+      "history": "Historial",
+      "team_access": "Acceso del equipo",
+      "language": "Idioma y moneda"
+    },
+    "count": {
+      "paused": "{count} en pausa",
+      "open": "{count, plural, one {# abierto} many {# abiertos} other {# abiertos}}"
+    },
+    "role": {
+      "owner": "Su rol aquí: propietario",
+      "manager": "Su rol aquí: gestor",
+      "viewer": "Su rol aquí: lector. Puede consultar y pulsar la parada de emergencia."
+    }
+  },
+  "auth": {
+    "meta": {
+      "signIn": "Iniciar sesión — SYB",
+      "signUp": "Cree su cuenta — SYB",
+      "confirm": "Confirmar inicio de sesión — SYB",
+      "choose": "¿Qué negocio? — SYB"
+    },
+    "mast": {
+      "haveAccount": "¿Ya tiene una cuenta? ",
+      "signIn": "Iniciar sesión",
+      "createAccount": "Crear una cuenta"
+    },
+    "signup": {
+      "kicker": "Abrir un expediente nuevo",
+      "headline": "Empiece por el diagnóstico.",
+      "stepsHead": "Qué ocurre después de esta pantalla",
+      "step1": "Conecte sus cuentas en modo de solo lectura",
+      "step2": "Responda a las preguntas clave",
+      "step3": "Leemos sus cifras y firmamos el informe",
+      "takesMinutes": "{minutes} min",
+      "takesAboutMinutes": "unos {minutes} min",
+      "takesDays": "{days, plural, one {# día} many {# días} other {# días}}",
+      "takesDaysPending": "[{days}] {days, plural, one {día} many {días} other {días}}"
+    },
+    "signin": {
+      "kicker": "El expediente le espera",
+      "headline": "De vuelta a su panel.",
+      "point1": "Nada se ejecuta en su negocio sin su aprobación.",
+      "point2": "Cada cifra muestra de dónde procede.",
+      "point3": "Nunca se borra nada: los datos antiguos se sustituyen y se conservan."
+    },
+    "sent": {
+      "label": "Revise su correo",
+      "titleBelow": "Su enlace está abajo",
+      "titleSent": "Enlace enviado",
+      "onScreen": "El correo electrónico no está configurado aquí, así que su enlace de un solo uso aparece abajo. Caduca en {minutes, plural, one {#\u00a0minuto} many {#\u00a0minutos} other {#\u00a0minutos}}.",
+      "createMine": "Crear mi cuenta",
+      "signInNow": "Iniciar sesión ahora",
+      "sentTo": "Hemos enviado un enlace de un solo uso a <b>{email}</b>. Caduca en {minutes, plural, one {#\u00a0minuto} many {#\u00a0minutos} other {#\u00a0minutos}}.",
+      "wrongAddress": "¿Dirección equivocada?",
+      "sendAnother": "Enviar otro enlace"
+    },
+    "form": {
+      "labelCreate": "Crear cuenta",
+      "labelSignIn": "Iniciar sesión",
+      "titleCreate": "Abra el expediente de su negocio",
+      "titleSignIn": "Le damos la bienvenida de nuevo",
+      "email": "Correo electrónico profesional",
+      "emailPlaceholder": "usted@sunegocio.es",
+      "website": "Sitio web",
+      "optional": "(opcional)",
+      "websitePlaceholder": "sunegocio.es",
+      "sending": "Enviando…",
+      "submitCreate": "Crear cuenta",
+      "submitSignIn": "Enviarme un enlace de inicio de sesión",
+      "noteSignup": "Sin contraseña y, por ahora, sin tarjeta. Solo paga cuando encarga el informe.",
+      "noteSignin": "Sin contraseña. El enlace funciona una sola vez, durante {minutes, plural, one {#\u00a0minuto} many {#\u00a0minutos} other {#\u00a0minutos}}.",
+      "orSignup": "O regístrese con",
+      "orSignin": "O continúe con",
+      "terms": "Al crear una cuenta, acepta las <terms>condiciones</terms> y el <privacy>aviso de privacidad</privacy>.",
+      "newHere": "¿Aún no usa SYB? Cree una cuenta desde la esquina superior derecha."
+    },
+    "confirm": {
+      "kicker": "Iniciar sesión",
+      "headline": "Un paso más.",
+      "label": "Confirmar",
+      "title": "¿Iniciar sesión como {email}?",
+      "sentTo": "Este enlace se envió a <b>{email}</b>.",
+      "button": "Iniciar sesión",
+      "note": "¿No es su dirección? Cierre esta página. Puede que alguien le haya enviado su propio enlace, y no ocurre nada a menos que pulse el botón.",
+      "expiredHeadline": "Ese enlace ha caducado.",
+      "expiredMessage": "Los enlaces de inicio de sesión funcionan una sola vez y caducan al cabo de {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}. Pida uno nuevo y le llegará en un momento.",
+      "linkLabel": "Enlace",
+      "linkDead": "Este enlace ya no funciona",
+      "newLink": "Enviarme un nuevo enlace de inicio de sesión"
+    },
+    "choose": {
+      "signedInAs": "Sesión iniciada como {email}",
+      "headline": "¿Qué negocio?",
+      "label": "Sus negocios",
+      "title": "Elija uno para abrirlo. Puede cambiar en cualquier momento desde el menú.",
+      "add": "Añadir otro negocio",
+      "foot": "Cada negocio conserva sus propios datos, su equipo y su factura. Nada de uno se muestra nunca en otro."
+    }
+  },
+  "locale": {
+    "meta": "Idioma y moneda — SYB",
+    "first": {
+      "kicker": "Antes de empezar",
+      "headline": "Elija su idioma y su moneda.",
+      "lede": "Le hablaré en este idioma. Todas las cifras de su negocio se muestran en esta moneda, y nunca se convierte nada de una moneda a otra."
+    },
+    "yourLanguage": "Su idioma",
+    "yourLanguageHelp": "El idioma en el que lee SYB. Cada persona del equipo elige el suyo.",
+    "businessLanguage": "El idioma de su negocio",
+    "businessLanguageHelp": "Lo que leerán sus clientes: respuestas de soporte, correos electrónicos y respuestas a reseñas.",
+    "currency": "Moneda",
+    "currencyHelp": "Todas las cifras de este negocio se muestran en esta moneda. No se convierte nada: los importes ya registrados conservan la moneda en la que se introdujeron.",
+    "currencyChoose": "Elija una moneda",
+    "currencyOption": "{code} — {name}",
+    "beingChecked": "en revisión",
+    "checkingNote": "Un idioma marcado como «en revisión» solo lo ven usted y su revisor hasta que lo haya leído un hablante nativo.",
+    "onlyOwner": "Solo un propietario puede cambiar el idioma o la moneda del negocio.",
+    "unavailable": "Ese idioma aún no está disponible.",
+    "badCurrency": "No conozco esa moneda.",
+    "settings": {
+      "kicker": "Su negocio",
+      "title": "Idioma y moneda",
+      "you": "Usted",
+      "business": "Este negocio",
+      "saveBusiness": "Guardar para el negocio"
+    }
+  }
+}

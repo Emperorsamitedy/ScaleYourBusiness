@@ -5,6 +5,8 @@
 // text alternative. JSON-serialisable, so the API hands it to the client
 // as is, and the client buckets it (./candles) for the 1D/1W/1M switch.
 
+import type { AppLocale } from "../i18n/locales";
+import { dayMonth } from "../i18n/format";
 import { moneyText, num } from "../../components/sheet/num";
 import type { Basis } from "../../components/report/basis";
 import type { Bucket, Candle, DayPoint, SlipPart } from "./candles";
@@ -374,8 +376,9 @@ const PERIOD_WORD: Readonly<Record<Bucket, string>> = {
   month: "monthly",
 };
 
-/** "3 Oct" — the axis and the readout's date. */
-export function shortDate(day: string): string {
+/** "3 Oct" — the axis and the readout's date; in another language, its own (L-1). */
+export function shortDate(day: string, locale: AppLocale = "en"): string {
+  if (locale !== "en") return dayMonth(day, locale);
   const d = new Date(`${day}T00:00:00Z`);
   const m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   return `${d.getUTCDate()} ${m[d.getUTCMonth()]}`;

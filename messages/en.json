@@ -1,0 +1,184 @@
+{
+  "common": {
+    "continue": "Continue",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved.",
+    "businessUnnamed": "A business not named yet",
+    "unreachable": "I couldn't reach the server — try again.",
+    "somethingWrong": "something went wrong",
+    "roles": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "viewer": "Viewer"
+    }
+  },
+  "nav": {
+    "label": "Main",
+    "menu": "Menu",
+    "close": "Close",
+    "switchBusiness": "Switch business",
+    "watching": "Watching · day {day} / {of}",
+    "ask": "Ask me anything",
+    "signOut": "Sign out",
+    "signingOut": "Signing out…",
+    "group": {
+      "approve": "To approve",
+      "insights": "Insights",
+      "grow": "Grow",
+      "customers": "Customers",
+      "business": "Your business"
+    },
+    "item": {
+      "proposals": "Waiting for you",
+      "report": "Report",
+      "watch": "Watching",
+      "goals": "Goals",
+      "hours": "Trading hours",
+      "team": "Team cover",
+      "patterns": "Seasons & bundles",
+      "cash": "Cash flow",
+      "stock": "Stock",
+      "blindspots": "Blindspots",
+      "competitors": "Competitors",
+      "benchmarks": "Similar businesses",
+      "content": "Content",
+      "studio": "Creative studio",
+      "site": "Website",
+      "simulate": "Campaign simulator",
+      "customers": "Customers",
+      "reviews": "Reviews",
+      "carts": "Abandoned carts",
+      "pipeline": "Pipeline",
+      "support": "Support",
+      "factsheet": "Fact sheet",
+      "connections": "Connections",
+      "mode": "How I work",
+      "history": "History",
+      "team_access": "Team access",
+      "language": "Language and currency"
+    },
+    "count": {
+      "paused": "{count} paused",
+      "open": "{count} open"
+    },
+    "role": {
+      "owner": "You're an owner here",
+      "manager": "You're a manager here",
+      "viewer": "You're a viewer here: you can read, and press stop"
+    }
+  },
+  "auth": {
+    "meta": {
+      "signIn": "Sign in — SYB",
+      "signUp": "Create your account — SYB",
+      "confirm": "Confirm sign-in — SYB",
+      "choose": "Which business? — SYB"
+    },
+    "mast": {
+      "haveAccount": "Already have an account? ",
+      "signIn": "Sign in",
+      "createAccount": "Create an account"
+    },
+    "signup": {
+      "kicker": "Open a new record",
+      "headline": "Start with the diagnosis.",
+      "stepsHead": "What happens after this screen",
+      "step1": "Connect your accounts, read-only",
+      "step2": "Answer the core questions",
+      "step3": "We read your numbers and sign the report",
+      "takesMinutes": "{minutes} min",
+      "takesAboutMinutes": "~{minutes} min",
+      "takesDays": "{days, plural, one {# day} other {# days}}",
+      "takesDaysPending": "[{days}] {days, plural, one {day} other {days}}"
+    },
+    "signin": {
+      "kicker": "The record is waiting",
+      "headline": "Back to your panel.",
+      "point1": "Nothing runs in your business without your approval.",
+      "point2": "Every number shows where it came from.",
+      "point3": "Nothing is ever erased — old facts are superseded and kept."
+    },
+    "sent": {
+      "label": "Check your email",
+      "titleBelow": "Your link is below",
+      "titleSent": "Link sent",
+      "onScreen": "Email isn’t configured here, so your one-time link is below. It expires in {minutes, plural, one {# minute} other {# minutes}}.",
+      "createMine": "Create my account",
+      "signInNow": "Sign in now",
+      "sentTo": "We sent a one-time link to <b>{email}</b>. It expires in {minutes, plural, one {# minute} other {# minutes}}.",
+      "wrongAddress": "Wrong address?",
+      "sendAnother": "Send another link"
+    },
+    "form": {
+      "labelCreate": "Create account",
+      "labelSignIn": "Sign in",
+      "titleCreate": "Open your business’s record",
+      "titleSignIn": "Welcome back",
+      "email": "Work email",
+      "emailPlaceholder": "you@yourbusiness.com",
+      "website": "Website",
+      "optional": "(optional)",
+      "websitePlaceholder": "yourbusiness.com",
+      "sending": "Sending…",
+      "submitCreate": "Create account",
+      "submitSignIn": "Email me a sign-in link",
+      "noteSignup": "No password, no card yet. You pay only when you order the report.",
+      "noteSignin": "No password. The link works once, for {minutes, plural, one {# minute} other {# minutes}}.",
+      "orSignup": "Or sign up with",
+      "orSignin": "Or continue with",
+      "terms": "By creating an account you agree to the <terms>terms</terms> and <privacy>privacy notice</privacy>.",
+      "newHere": "New to SYB? Create an account from the top right."
+    },
+    "confirm": {
+      "kicker": "Sign in",
+      "headline": "One more step.",
+      "label": "Confirm",
+      "title": "Sign in as {email}?",
+      "sentTo": "This link was sent to <b>{email}</b>.",
+      "button": "Sign in",
+      "note": "Not your address? Close this page. Someone may have sent you their own link, and nothing happens unless you press the button.",
+      "expiredHeadline": "That link has run out.",
+      "expiredMessage": "Sign-in links work once and expire after {minutes, plural, one {# minute} other {# minutes}}. Ask for a new one and it will arrive in a moment.",
+      "linkLabel": "Link",
+      "linkDead": "This link doesn’t work any more",
+      "newLink": "Email me a new sign-in link"
+    },
+    "choose": {
+      "signedInAs": "Signed in as {email}",
+      "headline": "Which business?",
+      "label": "Your businesses",
+      "title": "Pick one to open. You can switch any time from the menu.",
+      "add": "Add another business",
+      "foot": "Each business keeps its own facts, team and bill. Nothing from one is ever shown in another."
+    }
+  },
+  "locale": {
+    "meta": "Language and currency — SYB",
+    "first": {
+      "kicker": "Before we start",
+      "headline": "Choose your language and currency.",
+      "lede": "I will speak to you in this language. Every figure for your business is shown in this currency, and nothing is ever converted between currencies."
+    },
+    "yourLanguage": "Your language",
+    "yourLanguageHelp": "What you read SYB in. Everyone on the team chooses their own.",
+    "businessLanguage": "Your business’s language",
+    "businessLanguageHelp": "What your customers will read: support answers, emails and replies to reviews.",
+    "currency": "Currency",
+    "currencyHelp": "Every figure for this business is shown in this currency. Nothing is converted: amounts already on record keep the currency they were given in.",
+    "currencyChoose": "Choose a currency",
+    "currencyOption": "{code} — {name}",
+    "beingChecked": "being checked",
+    "checkingNote": "A language marked “being checked” is shown only to you and its reviewer until a native speaker has read it.",
+    "onlyOwner": "Only an owner can change the business’s language or currency.",
+    "unavailable": "That language isn’t available yet.",
+    "badCurrency": "That isn’t a currency I know.",
+    "settings": {
+      "kicker": "Your business",
+      "title": "Language and currency",
+      "you": "You",
+      "business": "This business",
+      "saveBusiness": "Save for the business"
+    }
+  }
+}

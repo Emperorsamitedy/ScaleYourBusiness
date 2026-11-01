@@ -23,6 +23,8 @@ import {
 import { RETURN_COOKIE, returnPath } from "../../../../lib/auth/return-to";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { AuthError, redeemLogin } from "../../../../lib/auth/service";
+import { LANGUAGE_COOKIE } from "../../../../lib/i18n/locales";
+import { languageCookieOptions } from "../../../../lib/i18n/server";
 
 export function GET(request: NextRequest): NextResponse {
   const token = request.nextUrl.searchParams.get("token") ?? "";
@@ -63,6 +65,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const response = NextResponse.redirect(new URL(landing, origin), 303);
     response.cookies.delete(RETURN_COOKIE);
     response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
+    // L-1: the person's own language follows them to this browser.
+    if (session.language) {
+      response.cookies.set(LANGUAGE_COOKIE, session.language, languageCookieOptions());
+    }
     if (session.profile_id) {
       response.cookies.set(
         INTAKE_COOKIE,
