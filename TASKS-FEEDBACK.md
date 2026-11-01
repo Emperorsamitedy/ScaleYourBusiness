@@ -181,7 +181,10 @@ The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ra
   - **The grade:** after the window, plus 7 days for late updates. A deal counts as won when its stage history (`deal_events`) moved it to won between the forecast and the end of the window's last day, so reopening it later doesn't undo that; this answers the "a reopened deal clears its close" problem. A won deal counts at its value now in the claim's currency. An erased deal, or a won one with no value in that currency, makes it "can't tell".
   - **Tests:** `lib/forecasts/pipeline.test.ts`, including a real-database check that a deal won then reopened still counts, and one won before the forecast doesn't.
 
-- [ ] **I-54c** (review 2026-10-30) Decide whether one run-out should count once on the track record. Each week's stock warning for an item records its own claim (the key follows the plan: item × ISO week), so an item warned three weeks running is three forecasts of what may be the same run-out, and each is graded. Kept as is until decided.
+- [x] **I-54c** (review 2026-10-30) Decide whether one run-out should count once on the track record. Each week's stock warning for an item records its own claim (the key follows the plan: item × ISO week), so an item warned three weeks running is three forecasts of what may be the same run-out, and each is graded. Kept as is until decided.
+
+  **Decided 2026-11-01, owner: "go ahead with I-54c".** `recordForecasts` (`lib/forecasts/record.ts`) leaves out a stock-out claim when the same item already has one waiting for its grade. Once that one is graded (it ran out, it lasted longer, or a delivery made it "can't tell"), the item's next warning is a new forecast. The warning itself is still said every week; only the record counts the run-out once. Claims recorded before this stay on the record, since claims are never changed. Tests: `lib/forecasts/record.test.ts` (an item waiting isn't recorded again; another item is; once graded, the next is; the same week's claim is still a no-op).
+
 - [ ] **I-54d** (review 2026-10-30) Decide whether stock counts from a CSV import should grade a stock claim as "measured". Today they do, like a connected shop's counts, though the owner typed or exported them. Kept as is until decided.
 
 ## Idea 50: answer with your voice (owner, 2026-10-29)
