@@ -105,6 +105,37 @@ export function metaLoginEnv(): MetaLoginEnv | null {
   };
 }
 
+/** SYB's Google OAuth client for reading Business Profile reviews (I-45a). */
+export interface GoogleBusinessEnv {
+  client_id: string;
+  client_secret: string;
+  /** GOOGLE_BUSINESS_REDIRECT_URI when set; otherwise derived from APP_URL or the request's origin. */
+  redirect_uri: string | null;
+  app_url: string | null;
+}
+
+/**
+ * I-45a: Google Business Profile reviews are offered only when the Google
+ * OAuth client is set (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, the same
+ * client Google sign-in uses) AND GOOGLE_BUSINESS_API_APPROVED is "true":
+ * Google gates the Business Profile APIs behind its own access request (the
+ * default quota is zero), so a client id alone would send owners into a
+ * consent that ends in Google's refusal. Null otherwise — the connect
+ * button then says it isn't set up yet, and the read beat skips.
+ */
+export function googleBusinessEnv(): GoogleBusinessEnv | null {
+  const client_id = process.env.GOOGLE_CLIENT_ID?.trim() ?? "";
+  const client_secret = process.env.GOOGLE_CLIENT_SECRET?.trim() ?? "";
+  const approved = process.env.GOOGLE_BUSINESS_API_APPROVED?.trim().toLowerCase() === "true";
+  if (client_id === "" || client_secret === "" || !approved) return null;
+  return {
+    client_id,
+    client_secret,
+    redirect_uri: process.env.GOOGLE_BUSINESS_REDIRECT_URI?.trim() || null,
+    app_url: appUrl(),
+  };
+}
+
 /**
  * P3-50: the user access token SYB reads Meta's Ad Library with — from a
  * developer account whose identity Meta has confirmed. Optional: null

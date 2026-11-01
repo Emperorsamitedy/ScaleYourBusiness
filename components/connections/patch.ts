@@ -26,7 +26,15 @@ export interface CountedConnection {
 
 export interface WriteConnection extends CountedConnection {
   label: string;
+  provider?: string;
 }
+
+/**
+ * I-45a: write consents SYB holds only to READ — Google's one Business
+ * Profile scope can write, but the provider has no operations. Said as what
+ * it is, never as "can write — only what you approve", which promises writes.
+ */
+export const READ_ONLY_WRITE_CONSENTS: readonly string[] = ["google_business_reviews"];
 
 /** The screen's one line: what reads, and whether anything can write. */
 export function headline(
@@ -44,12 +52,21 @@ export function headline(
         : "Nothing is plugged in yet.";
   // Any write consent still on record counts, working or not: the token is held.
   if (writes === null) return `${readPart} Write access couldn't be read.`;
-  const writing = writes.filter((c) => c.status !== "disconnected");
-  const writePart =
-    writing.length === 0
-      ? "Nothing can be written."
-      : `${writing.map((c) => c.label).join(" and ")} can write — only what you approve.`;
-  return `${readPart} ${writePart}`;
+  const held = writes.filter((c) => c.status !== "disconnected");
+  const readOnly = held.filter((c) => READ_ONLY_WRITE_CONSENTS.includes(c.provider ?? ""));
+  const writing = held.filter((c) => !READ_ONLY_WRITE_CONSENTS.includes(c.provider ?? ""));
+  const parts: string[] = [];
+  if (writing.length > 0) {
+    parts.push(`${writing.map((c) => c.label).join(" and ")} can write — only what you approve.`);
+  } else if (readOnly.length === 0) {
+    parts.push("Nothing can be written.");
+  }
+  if (readOnly.length > 0) {
+    parts.push(
+      `${readOnly.map((c) => c.label).join(" and ")} holds a permission that could write; SYB only reads with it.`,
+    );
+  }
+  return `${readPart} ${parts.join(" ")}`;
 }
 
 /** Postgres prints "2026-10-17 15:20:35.26+00"; make it ISO before parsing. */

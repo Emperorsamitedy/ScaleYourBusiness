@@ -22,6 +22,8 @@ import type { ExecView } from "./ExecutionSection";
 import { ExecutionSection } from "./ExecutionSection";
 import type { EmailView } from "./EmailCampaignSection";
 import { EmailCampaignSection } from "./EmailCampaignSection";
+import type { GoogleView } from "./GoogleBusinessSection";
+import { GoogleBusinessSection } from "./GoogleBusinessSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
 import { gives, headline, lastRead, parseTs } from "./patch";
@@ -721,6 +723,8 @@ export function ConnectionsScreen() {
   const [exec, setExec] = useState<ExecView | null>(null);
   // P4-15: campaign email, its own consent.
   const [email, setEmail] = useState<EmailView | null>(null);
+  // I-45a: Google Business Profile, its own consent, used only to read reviews.
+  const [google, setGoogle] = useState<GoogleView | null>(null);
   // The headline speaks for writing too, so it waits until that side has answered.
   const [execDone, setExecDone] = useState(false);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
@@ -737,6 +741,15 @@ export function ConnectionsScreen() {
       setExec(null);
     } finally {
       setExecDone(true);
+    }
+  }, []);
+
+  const loadGoogle = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/google-business");
+      setGoogle(res.ok ? ((await res.json()) as GoogleView) : null);
+    } catch {
+      setGoogle(null);
     }
   }, []);
 
@@ -771,7 +784,8 @@ export function ConnectionsScreen() {
     void load();
     void loadExec();
     void loadEmail();
-  }, [load, loadExec, loadEmail]);
+    void loadGoogle();
+  }, [load, loadExec, loadEmail, loadGoogle]);
 
   const syncNow = async (c: Connection) => {
     setBusy(c.id);
@@ -1049,6 +1063,17 @@ export function ConnectionsScreen() {
 
         {/* P4-15: campaign email — no token of yours, SYB's own email service, your consent. */}
         {email !== null && <EmailCampaignSection view={email} onChanged={loadEmail} />}
+
+        {/* I-45a: Google Business Profile — a permission that can write, used only to read reviews. */}
+        {google !== null && (
+          <GoogleBusinessSection
+            view={google}
+            onChanged={async () => {
+              // The headline counts every write consent, so it re-reads too.
+              await Promise.all([loadGoogle(), loadExec()]);
+            }}
+          />
+        )}
       </fieldset>
     </main>
   );

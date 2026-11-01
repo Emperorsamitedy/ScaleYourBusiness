@@ -62,6 +62,7 @@ Claude Code tends to helpfully scaffold ahead. Don't.
 - Proposals, the approval queue and the execution engine are IN SCOPE as of Phase 3 (TASKS-PHASE3.md), under its rules 12–18; real external writes wait for Session D
 - Connectors are IN SCOPE as of Phase 2 (TASKS-PHASE2.md) — read-only only
 - **No write-scope API calls to anything, ever — in any phase built so far; Phase 2's scope audit enforces it in tests**
+- Google Business Profile's `business.manage` scope (which can write) is held only as a write consent and used only to READ reviews — I-45a, decided by the owner on 2026-11-01 ("go ahead with I-45a", then "as a write consent"); never in the measurement registry, GET-only by a failing test; see TASKS-FEEDBACK.md
 - Support & CRM are IN SCOPE as of Phase 4 (TASKS-PHASE4.md); finance, inventory, the B2B pipeline and role-level staff planning are IN SCOPE as of Phase 5 (TASKS-PHASE5.md) under its rules 25–30; phone AI remains fenced, and so do purchasing, moving money and judging individual people
 - No auth beyond what the intake needs — except idea 52 (several businesses per email, team invites, three roles), opened by the owner on 2026-10-29 ("go ahead with 52 too"); see TASKS-FEEDBACK.md
 - No premature abstraction for modules that don't exist

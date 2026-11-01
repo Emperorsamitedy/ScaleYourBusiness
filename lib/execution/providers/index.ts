@@ -17,6 +17,7 @@ import type { ExecutionProvider } from "./fixture";
 import { fixtureExecutor } from "./fixture";
 import { fixtureSiteExecutor } from "./fixture-site";
 import { emailCampaignExecutor } from "./email-campaign";
+import { googleBusinessExecutor } from "./google-business";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
@@ -25,6 +26,8 @@ const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   meta_publish: metaPublishExecutor,
   meta_ads: metaAdsExecutor,
   email_campaign: emailCampaignExecutor,
+  // I-45a: read-only use of a write-capable consent — refuses every op.
+  google_business_reviews: googleBusinessExecutor,
 };
 
 export class UnknownExecutionProviderError extends Error {

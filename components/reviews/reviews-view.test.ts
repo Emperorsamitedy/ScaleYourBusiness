@@ -86,6 +86,9 @@ describe("the list's words", () => {
     expect(readNote({ read_by: "unread", source: "email" })).toMatch(/couldn't read/);
     expect(readNote({ read_by: "model", source: "email" })).toMatch(/check it/);
     expect(readNote({ read_by: "owner", source: "paste" })).toBe("You pasted this one.");
+    expect(readNote({ read_by: "api", source: "google" })).toBe(
+      "Read from your Google Business Profile.",
+    );
     expect(readNote({ read_by: "parser", source: "email" })).toBeNull();
   });
   it("the aside counts what's on file and how long it's kept", () => {

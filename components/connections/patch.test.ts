@@ -39,6 +39,27 @@ describe("headline", () => {
       headline([{ status: "connected" }], [{ status: "disconnected", label: "Meta publishing" }]),
     ).toBe("1 source read. Nothing can be written.");
   });
+  it("I-45a: a consent held only to read says so, and never hides a real write beside it", () => {
+    const google = {
+      status: "connected" as const,
+      label: "Google Business Profile reviews",
+      provider: "google_business_reviews",
+    };
+    expect(headline([], [google])).toBe(
+      "Nothing is plugged in yet. Google Business Profile reviews holds a permission that could write; SYB only reads with it.",
+    );
+    expect(
+      headline(
+        [],
+        [google, { status: "connected", label: "Meta publishing", provider: "meta_publish" }],
+      ),
+    ).toBe(
+      "Nothing is plugged in yet. Meta publishing can write — only what you approve. Google Business Profile reviews holds a permission that could write; SYB only reads with it.",
+    );
+    expect(headline([], [{ ...google, status: "disconnected" }])).toBe(
+      "Nothing is plugged in yet. Nothing can be written.",
+    );
+  });
   it("doesn't claim nothing can write when the write side is unknown", () => {
     expect(headline([{ status: "connected" }], null)).toBe(
       "1 source read. Write access couldn't be read.",

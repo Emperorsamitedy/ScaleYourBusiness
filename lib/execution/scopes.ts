@@ -25,6 +25,8 @@
 // Stripe second). Meta is the first real write provider (P3-20f, Session
 // D, owner decision 2026-09-30), split in two so publishing and ad
 // management are separate consents: `meta_publish` and `meta_ads`.
+// Google Business Profile (I-45a, 2026-11-01) is the one consent held for
+// READING: its only scope can write, so it lives here, with no operations.
 
 export interface ExecutionConsentEntry {
   /** The registry scope this consent line explains. */
@@ -269,6 +271,41 @@ export const EXECUTION_SCOPE_REGISTRY = {
       },
     ],
   },
+  /**
+   * Google Business Profile reviews (I-45a, owner decision 2026-11-01: "go
+   * ahead with I-45a", then, asked how SYB should hold the permission: "as a
+   * write consent"). Google offers ONE scope for the Business Profile APIs,
+   * business.manage, and it can also reply to reviews and edit the listing.
+   * So it sits here, as a write consent the owner grants and can revoke,
+   * never in the measurement registry (rule 9 stays exactly as it was). SYB
+   * uses it ONLY to read reviews: there are NO operations, so the engine has
+   * nothing it could run with it, and lib/google-business's client can send
+   * GET only, to a fixed list of read endpoints (client.test.ts holds it).
+   * FENCED_SCOPES below keeps the scope to this one provider.
+   */
+  google_business_reviews: {
+    label: "Google Business Profile reviews",
+    write_scopes: ["https://www.googleapis.com/auth/business.manage"],
+    readback_scopes: [],
+    operations: [],
+    consent: [
+      {
+        scope: "https://www.googleapis.com/auth/business.manage",
+        grant: "Google Business Profile (business.manage)",
+        why: "Google offers one permission for Business Profiles, and it lets an app post and change replies to your reviews and edit your listing as well as read them.",
+      },
+      {
+        scope: "https://www.googleapis.com/auth/business.manage",
+        grant: "Google Business Profile (business.manage)",
+        why: "SYB uses it only to read your reviews. SYB never posts a reply or changes your listing: suggested replies stay drafts you post yourself.",
+      },
+      {
+        scope: "https://www.googleapis.com/auth/business.manage",
+        grant: "Google Business Profile (business.manage)",
+        why: "You can revoke it here at any time, and SYB deletes the access it holds at once.",
+      },
+    ],
+  },
 } as const satisfies Record<string, ExecutionProviderSpec>;
 
 export type ExecutionProviderId = keyof typeof EXECUTION_SCOPE_REGISTRY;
@@ -320,11 +357,29 @@ export function touchesMoneySurface(value: string): boolean {
   return MONEY_SURFACE.some((pattern) => pattern.test(value));
 }
 
+/**
+ * I-45a: scopes that may appear under ONE provider only, and only as a
+ * write scope of a provider with no operations: the permission is held as
+ * a consent, and used for reads alone. Pinned in scopes.test.ts; adding a
+ * line is the same deliberate edit as adding a write scope.
+ */
+export const FENCED_SCOPES: Readonly<Record<string, string>> = {
+  "https://www.googleapis.com/auth/business.manage": "google_business_reviews",
+};
+
 export interface ExecutionScopeViolation {
   provider: string;
   value: string;
   reason:
-    "money_surface" | "not_write_shaped" | "empty" | "op_money_surface" | "readback_write_shaped";
+    | "money_surface"
+    | "not_write_shaped"
+    | "empty"
+    | "op_money_surface"
+    | "readback_write_shaped"
+    /** I-45a: a fenced scope under any provider but its own, or as a readback. */
+    | "fenced_scope_elsewhere"
+    /** I-45a: the fenced scope's provider declares an operation; it may only read. */
+    | "fenced_provider_operation";
 }
 
 /**
@@ -366,6 +421,24 @@ export function auditExecutionRegistry(
     for (const operation of spec.operations) {
       if (touchesMoneySurface(operation.op))
         violations.push({ provider, value: operation.op, reason: "op_money_surface" });
+    }
+    // I-45a: a fenced scope belongs to its one provider, as a write scope.
+    for (const scope of spec.readback_scopes ?? []) {
+      if (Object.prototype.hasOwnProperty.call(FENCED_SCOPES, scope))
+        violations.push({ provider, value: scope, reason: "fenced_scope_elsewhere" });
+    }
+    for (const scope of spec.write_scopes) {
+      const owner = Object.prototype.hasOwnProperty.call(FENCED_SCOPES, scope)
+        ? FENCED_SCOPES[scope]
+        : undefined;
+      if (owner === undefined) continue;
+      if (owner !== provider) {
+        violations.push({ provider, value: scope, reason: "fenced_scope_elsewhere" });
+      } else {
+        for (const operation of spec.operations) {
+          violations.push({ provider, value: operation.op, reason: "fenced_provider_operation" });
+        }
+      }
     }
   }
   return violations;
