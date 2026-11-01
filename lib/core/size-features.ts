@@ -159,6 +159,10 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "Who can sign in to the business is the owner's to see, at any size.",
   },
+  "nav.language": {
+    bands: EVERY,
+    reason: "The language you read and the currency every figure is in matter at any size.",
+  },
 } as const satisfies Record<string, SizeFeatureRow>;
 
 export type SizeFeatureKey = keyof typeof SIZE_FEATURES;

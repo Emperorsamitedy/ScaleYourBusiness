@@ -27,6 +27,8 @@ export const ROLE_ACTIONS = {
   "chat.ask": { min: "viewer", what: "ask me things in the chat" },
   // Idea 53: taking one of your own phones off alerts is always allowed.
   "alerts.remove_device": { min: "viewer", what: "remove one of your own phones from alerts" },
+  // L-1 (TASKS-LANGUAGES.md): the language you read SYB in is your own choice.
+  "language.own": { min: "viewer", what: "choose the language you read SYB in" },
 
   // ── managers and owners ──
   "proposals.decide": { min: "manager", what: "approve or decline proposals" },
@@ -62,6 +64,8 @@ export const ROLE_ACTIONS = {
   "reviews.settings": { min: "owner", what: "change the address reviews are forwarded to" },
   "summary.settings": { min: "owner", what: "switch the weekly summary on or off" },
   "stop.resume": { min: "owner", what: "start things up again after a stop" },
+  // L-1: what the business's customers read, and the currency every figure is in.
+  "business.locale": { min: "owner", what: "change the business's language or currency" },
 } as const satisfies Record<string, RoleActionRow>;
 
 export type RoleAction = keyof typeof ROLE_ACTIONS;

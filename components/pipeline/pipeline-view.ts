@@ -3,6 +3,8 @@
 // worded flag. Everything is counted from what the API returns; nothing is
 // estimated here.
 
+import type { AppLocale } from "../../lib/i18n/locales";
+import { dayMonth, dayMonthYear } from "../../lib/i18n/format";
 import type { Money } from "../../lib/core/money";
 import type { DealAge, Staleness, Weighted, WinRate } from "../../lib/pipeline/maths";
 import { minorUnitExponent } from "../../lib/core/money";
@@ -35,7 +37,9 @@ const DAY_FMT = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-export function dayWords(day: string): string {
+/** "6 Nov"; in another language, its own day-and-month (L-1). */
+export function dayWords(day: string, locale: AppLocale = "en"): string {
+  if (locale !== "en") return dayMonth(day, locale);
   return DAY_FMT.format(new Date(`${day}T00:00:00Z`));
 }
 
@@ -46,8 +50,9 @@ const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-/** "28 Oct 2025": a day with its year, for a window that spans one. */
-export function dateWords(day: string): string {
+/** "28 Oct 2025": a day with its year, for a window that spans one; in another language, its own. */
+export function dateWords(day: string, locale: AppLocale = "en"): string {
+  if (locale !== "en") return dayMonthYear(day, locale);
   return DATE_FMT.format(new Date(`${day.slice(0, 10)}T00:00:00Z`));
 }
 

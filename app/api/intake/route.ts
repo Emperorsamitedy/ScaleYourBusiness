@@ -31,6 +31,7 @@ import {
 } from "../../../lib/intake/service";
 import type { AnswerAction } from "../../../lib/intake/types";
 import { requireRole } from "../../../lib/auth/roles";
+import { pendingChoices } from "../../../lib/i18n/server";
 
 async function resolveSession(): Promise<Access | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -55,7 +56,8 @@ export async function POST(): Promise<NextResponse> {
       const denied = requireRole(access, "intake.open");
       if (denied) return denied;
     }
-    const session = access ?? (await bootstrapIntake());
+    // L-1: a new intake starts in the language and currency of the first step.
+    const session = access ?? (await bootstrapIntake(await pendingChoices()));
     const state = await getIntakeState(session.account_id, session.profile_id);
     const response = NextResponse.json(state);
     response.cookies.set(

@@ -16,9 +16,13 @@
 // whose keys aren't set says so and points at the email path. They are
 // named in words; the brands' logos would be the only icons on the
 // screen.
+//
+// L-1 (TASKS-LANGUAGES.md): every word comes from the catalogue (auth.*);
+// the brands' names and the figures are never translated.
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { returnPath } from "../../lib/auth/return-to";
 import { BROWSER_PREFILL } from "../../lib/intake/browser-prefill";
 import { DELIVERY_DAYS } from "../../lib/marketing/offer";
@@ -43,22 +47,25 @@ const SSO_PROVIDERS = [
   { id: "microsoft", label: "Microsoft" },
 ] as const;
 
-const SIGNUP_STEPS: { n: string; text: string; takes: string }[] = [
-  { n: "01", text: "Connect your accounts, read-only", takes: "2 min" },
-  { n: "02", text: "Answer the core questions", takes: "~12 min" },
-  {
-    n: "03",
-    text: "We read your numbers and sign the report",
-    // "[7]" is the design's stand-in, shown until the owner sets DELIVERY_DAYS.
-    takes: DELIVERY_DAYS === null ? "[7] days" : `${DELIVERY_DAYS} days`,
-  },
-];
+type T = ReturnType<typeof useTranslations<"auth">>;
 
-const SIGNIN_POINTS = [
-  "Nothing runs in your business without your approval.",
-  "Every number shows where it came from.",
-  "Nothing is ever erased — old facts are superseded and kept.",
-];
+function signupSteps(t: T): { n: string; text: string; takes: string }[] {
+  return [
+    { n: "01", text: t("signup.step1"), takes: t("signup.takesMinutes", { minutes: 2 }) },
+    { n: "02", text: t("signup.step2"), takes: t("signup.takesAboutMinutes", { minutes: 12 }) },
+    {
+      n: "03",
+      text: t("signup.step3"),
+      // "[7]" is the design's stand-in, shown until the owner sets DELIVERY_DAYS.
+      takes:
+        DELIVERY_DAYS === null
+          ? t("signup.takesDaysPending", { days: 7 })
+          : t("signup.takesDays", { days: DELIVERY_DAYS }),
+    },
+  ];
+}
+
+const signinPoints = (t: T) => [t("signin.point1"), t("signin.point2"), t("signin.point3")];
 
 function Arrow() {
   return (
@@ -85,6 +92,8 @@ function rememberStore(value: string) {
 }
 
 export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "signup" }) {
+  const t = useTranslations("auth");
+  const tc = useTranslations("common");
   const [email, setEmail] = useState("");
   const [store, setStore] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
@@ -114,14 +123,14 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
         link?: string;
       };
       if (!res.ok) {
-        setError(payload.error ?? "something went wrong");
+        setError(payload.error ?? tc("somethingWrong"));
         setPhase("form");
         return;
       }
       setScreenLink(payload.link ?? null);
       setPhase("sent");
     } catch {
-      setError("I couldn't reach the server — try again.");
+      setError(tc("unreachable"));
       setPhase("form");
     }
   };
@@ -135,29 +144,28 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
     <div className="desk au">
       {signup ? (
         <AuthMasthead href="/login">
-          <span className="au-mast-pre">Already have an account? </span>Sign in <Arrow />
+          <span className="au-mast-pre">{t("mast.haveAccount")}</span>
+          {t("mast.signIn")} <Arrow />
         </AuthMasthead>
       ) : (
         <AuthMasthead href="/signup">
-          Create an account <Arrow />
+          {t("mast.createAccount")} <Arrow />
         </AuthMasthead>
       )}
 
       <main className="au-main">
         <section className="au-lede">
-          <p className="au-kicker">{signup ? "Open a new record" : "The record is waiting"}</p>
-          <h1 className="au-headline">
-            {signup ? "Start with the diagnosis." : "Back to your panel."}
-          </h1>
+          <p className="au-kicker">{signup ? t("signup.kicker") : t("signin.kicker")}</p>
+          <h1 className="au-headline">{signup ? t("signup.headline") : t("signin.headline")}</h1>
 
           {signup ? (
             <div className="au-steps">
               <h2 className="au-steps-head" id="au-steps-head">
-                What happens after this screen
+                {t("signup.stepsHead")}
               </h2>
               <table className="au-steps-table" aria-labelledby="au-steps-head">
                 <tbody>
-                  {SIGNUP_STEPS.map((s) => (
+                  {signupSteps(t).map((s) => (
                     <tr key={s.n}>
                       <td className="au-n">{s.n}</td>
                       <td className="au-step">{s.text}</td>
@@ -169,7 +177,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
             </div>
           ) : (
             <ol className="au-points">
-              {SIGNIN_POINTS.map((p, i) => (
+              {signinPoints(t).map((p, i) => (
                 <li key={p}>
                   <span className="au-n" aria-hidden="true">
                     {String(i + 1).padStart(2, "0")}
@@ -185,43 +193,45 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
           {phase === "sent" ? (
             <div aria-live="polite">
               <header className="au-sheet-head">
-                <p className="au-sheet-label">Check your email</p>
+                <p className="au-sheet-label">{t("sent.label")}</p>
                 <h2 className="au-sheet-title" id="au-sheet-title">
-                  {screenLink ? "Your link is below" : "Link sent"}
+                  {screenLink ? t("sent.titleBelow") : t("sent.titleSent")}
                 </h2>
               </header>
               <div className="au-sheet-body">
                 {screenLink ? (
                   <>
-                    <p className="au-copy">
-                      Email isn&rsquo;t configured here, so your one-time link is below. It expires
-                      in {LINK_TTL_MINUTES}&nbsp;minutes.
-                    </p>
+                    <p className="au-copy">{t("sent.onScreen", { minutes: LINK_TTL_MINUTES })}</p>
                     <a className="au-primary" href={screenLink}>
-                      <span>{signup ? "Create my account" : "Sign in now"}</span>
+                      <span>{signup ? t("sent.createMine") : t("sent.signInNow")}</span>
                       <Arrow />
                     </a>
                   </>
                 ) : (
                   <p className="au-copy">
-                    We sent a one-time link to <strong>{email}</strong>. It expires in{" "}
-                    {LINK_TTL_MINUTES}&nbsp;minutes.
+                    {t.rich("sent.sentTo", {
+                      email,
+                      minutes: LINK_TTL_MINUTES,
+                      b: (chunks) => <strong>{chunks}</strong>,
+                    })}
                   </p>
                 )}
               </div>
               <footer className="au-sheet-foot">
-                Wrong address?{" "}
+                {t("sent.wrongAddress")}{" "}
                 <button type="button" className="au-textbtn" onClick={() => setPhase("form")}>
-                  Send another link
+                  {t("sent.sendAnother")}
                 </button>
               </footer>
             </div>
           ) : (
             <>
               <header className="au-sheet-head">
-                <p className="au-sheet-label">{signup ? "Create account" : "Sign in"}</p>
+                <p className="au-sheet-label">
+                  {signup ? t("form.labelCreate") : t("form.labelSignIn")}
+                </p>
                 <h2 className="au-sheet-title" id="au-sheet-title">
-                  {signup ? "Open your business’s record" : "Welcome back"}
+                  {signup ? t("form.titleCreate") : t("form.titleSignIn")}
                 </h2>
               </header>
 
@@ -229,7 +239,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                 <form onSubmit={(e) => void submit(e)} className="au-form">
                   <div className="au-field">
                     <label className="au-label" htmlFor="au-email">
-                      Work email
+                      {t("form.email")}
                     </label>
                     <input
                       id="au-email"
@@ -238,7 +248,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                       required
                       autoFocus
                       autoComplete="email"
-                      placeholder="you@yourbusiness.com"
+                      placeholder={t("form.emailPlaceholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       disabled={sending}
@@ -248,7 +258,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                   {signup && (
                     <div className="au-field">
                       <label className="au-label" htmlFor="au-store">
-                        Website <span className="au-opt">(optional)</span>
+                        {t("form.website")} <span className="au-opt">{t("form.optional")}</span>
                       </label>
                       <input
                         id="au-store"
@@ -258,7 +268,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                         autoComplete="url"
                         autoCapitalize="none"
                         spellCheck={false}
-                        placeholder="yourbusiness.com"
+                        placeholder={t("form.websitePlaceholder")}
                         value={store}
                         onChange={(e) => setStore(e.target.value)}
                         disabled={sending}
@@ -268,7 +278,11 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
 
                   <button className="au-primary" type="submit" disabled={sending}>
                     <span>
-                      {sending ? "Sending…" : signup ? "Create account" : "Email me a sign-in link"}
+                      {sending
+                        ? t("form.sending")
+                        : signup
+                          ? t("form.submitCreate")
+                          : t("form.submitSignIn")}
                     </span>
                     <Arrow />
                   </button>
@@ -282,15 +296,13 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
 
                 {/* The answer to "forgot password?", where the eye expects it. */}
                 <p className="au-note">
-                  {signup ? (
-                    "No password, no card yet. You pay only when you order the report."
-                  ) : (
-                    <>No password. The link works once, for {LINK_TTL_MINUTES}&nbsp;minutes.</>
-                  )}
+                  {signup
+                    ? t("form.noteSignup")
+                    : t("form.noteSignin", { minutes: LINK_TTL_MINUTES })}
                 </p>
 
                 <p className="au-or">
-                  <span>{signup ? "Or sign up with" : "Or continue with"}</span>
+                  <span>{signup ? t("form.orSignup") : t("form.orSignin")}</span>
                 </p>
 
                 <div className="au-sso">
@@ -304,14 +316,12 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
               </div>
 
               <footer className="au-sheet-foot">
-                {signup ? (
-                  <>
-                    By creating an account you agree to the <Link href="/terms">terms</Link> and{" "}
-                    <Link href="/privacy">privacy notice</Link>.
-                  </>
-                ) : (
-                  <>New to SYB? Create an account from the top right.</>
-                )}
+                {signup
+                  ? t.rich("form.terms", {
+                      terms: (chunks) => <Link href="/terms">{chunks}</Link>,
+                      privacy: (chunks) => <Link href="/privacy">{chunks}</Link>,
+                    })
+                  : t("form.newHere")}
               </footer>
             </>
           )}

@@ -1,0 +1,184 @@
+{
+  "common": {
+    "continue": "继续",
+    "save": "保存",
+    "saving": "正在保存…",
+    "saved": "已保存。",
+    "businessUnnamed": "尚未命名的企业",
+    "unreachable": "无法连接服务器，请重试。",
+    "somethingWrong": "出了点问题",
+    "roles": {
+      "owner": "所有者",
+      "manager": "经理",
+      "viewer": "查看者"
+    }
+  },
+  "nav": {
+    "label": "主菜单",
+    "menu": "菜单",
+    "close": "关闭",
+    "switchBusiness": "切换企业",
+    "watching": "观察中 · 第 {day} 天，共 {of} 天",
+    "ask": "有问题尽管问我",
+    "signOut": "退出登录",
+    "signingOut": "正在退出…",
+    "group": {
+      "approve": "待批准",
+      "insights": "洞察",
+      "grow": "增长",
+      "customers": "客户",
+      "business": "您的企业"
+    },
+    "item": {
+      "proposals": "等待您处理",
+      "report": "报告",
+      "watch": "观察",
+      "goals": "目标",
+      "hours": "营业时间",
+      "team": "团队排班",
+      "patterns": "季节与组合",
+      "cash": "现金流",
+      "stock": "库存",
+      "blindspots": "盲点",
+      "competitors": "竞争对手",
+      "benchmarks": "同类企业",
+      "content": "内容",
+      "studio": "创意工作室",
+      "site": "网站",
+      "simulate": "营销活动模拟器",
+      "customers": "客户",
+      "reviews": "评价",
+      "carts": "弃购购物车",
+      "pipeline": "销售管道",
+      "support": "客户支持",
+      "factsheet": "事实表",
+      "connections": "连接",
+      "mode": "我的工作方式",
+      "history": "历史记录",
+      "team_access": "团队权限",
+      "language": "语言和货币"
+    },
+    "count": {
+      "paused": "{count} 个已暂停",
+      "open": "{count} 个待处理"
+    },
+    "role": {
+      "owner": "您在这里的角色：所有者",
+      "manager": "您在这里的角色：经理",
+      "viewer": "您在这里的角色：查看者。您可以查看，也可以按下紧急停止。"
+    }
+  },
+  "auth": {
+    "meta": {
+      "signIn": "登录 — SYB",
+      "signUp": "创建账户 — SYB",
+      "confirm": "确认登录 — SYB",
+      "choose": "选择企业 — SYB"
+    },
+    "mast": {
+      "haveAccount": "已有账户？",
+      "signIn": "登录",
+      "createAccount": "创建账户"
+    },
+    "signup": {
+      "kicker": "建立新档案",
+      "headline": "从诊断开始。",
+      "stepsHead": "此页面之后的流程",
+      "step1": "关联您的账户（只读）",
+      "step2": "回答核心问题",
+      "step3": "我们解读您的数据并签署报告",
+      "takesMinutes": "{minutes} 分钟",
+      "takesAboutMinutes": "约 {minutes} 分钟",
+      "takesDays": "{days} 天",
+      "takesDaysPending": "[{days}] 天"
+    },
+    "signin": {
+      "kicker": "档案已就绪",
+      "headline": "回到您的面板。",
+      "point1": "未经您的批准，您的企业中不会执行任何操作。",
+      "point2": "每个数字都标明了来源。",
+      "point3": "任何记录都不会被删除——旧事实会被取代并保留。"
+    },
+    "sent": {
+      "label": "请查收邮件",
+      "titleBelow": "您的链接在下方",
+      "titleSent": "链接已发送",
+      "onScreen": "此处未配置电子邮件，因此您的一次性链接显示在下方。链接将在 {minutes} 分钟后失效。",
+      "createMine": "创建我的账户",
+      "signInNow": "立即登录",
+      "sentTo": "我们已向 <b>{email}</b> 发送一次性链接。链接将在 {minutes} 分钟后失效。",
+      "wrongAddress": "地址有误？",
+      "sendAnother": "重新发送链接"
+    },
+    "form": {
+      "labelCreate": "创建账户",
+      "labelSignIn": "登录",
+      "titleCreate": "建立您企业的档案",
+      "titleSignIn": "欢迎回来",
+      "email": "工作邮箱",
+      "emailPlaceholder": "name@example.cn",
+      "website": "网站",
+      "optional": "（选填）",
+      "websitePlaceholder": "example.cn",
+      "sending": "正在发送…",
+      "submitCreate": "创建账户",
+      "submitSignIn": "通过邮件发送登录链接",
+      "noteSignup": "无需密码，暂不需要银行卡。只有在您订购报告时才需付费。",
+      "noteSignin": "无需密码。该链接仅可使用一次，有效期 {minutes} 分钟。",
+      "orSignup": "或使用以下方式注册",
+      "orSignin": "或使用以下方式继续",
+      "terms": "创建账户即表示您同意<terms>使用条款</terms>和<privacy>隐私声明</privacy>。",
+      "newHere": "首次使用 SYB？请在右上角创建账户。"
+    },
+    "confirm": {
+      "kicker": "登录",
+      "headline": "还差一步。",
+      "label": "确认",
+      "title": "以 {email} 的身份登录？",
+      "sentTo": "此链接已发送至 <b>{email}</b>。",
+      "button": "登录",
+      "note": "这不是您的地址？请关闭此页面。可能有人把自己的链接发给了您；只要您不按下按钮，就不会发生任何事情。",
+      "expiredHeadline": "该链接已失效。",
+      "expiredMessage": "登录链接仅可使用一次，并在 {minutes} 分钟后失效。请重新申请，新链接很快就会送达。",
+      "linkLabel": "链接",
+      "linkDead": "此链接已无法使用",
+      "newLink": "通过邮件发送新的登录链接"
+    },
+    "choose": {
+      "signedInAs": "已登录：{email}",
+      "headline": "要打开哪个企业？",
+      "label": "您的企业",
+      "title": "选择一个打开。您可以随时从菜单切换。",
+      "add": "添加其他企业",
+      "foot": "每个企业都有各自的事实、团队和账单。一个企业的任何信息都不会出现在另一个企业中。"
+    }
+  },
+  "locale": {
+    "meta": "语言和货币 — SYB",
+    "first": {
+      "kicker": "开始之前",
+      "headline": "请选择您的语言和货币。",
+      "lede": "我将用这种语言与您交流。您企业的所有数字都以这种货币显示，且绝不会在货币之间换算。"
+    },
+    "yourLanguage": "您的语言",
+    "yourLanguageHelp": "您阅读 SYB 所用的语言。团队中的每个人各自选择。",
+    "businessLanguage": "您企业的语言",
+    "businessLanguageHelp": "您的客户将阅读的内容：客户支持回复、电子邮件和评价回复。",
+    "currency": "货币",
+    "currencyHelp": "该企业的所有数字均以这种货币显示。不会进行任何换算：已记录的金额保留其录入时的货币。",
+    "currencyChoose": "请选择货币",
+    "currencyOption": "{code} — {name}",
+    "beingChecked": "审核中",
+    "checkingNote": "标记为“审核中”的语言仅对您和审核人可见，直到母语人士审阅完毕。",
+    "onlyOwner": "只有所有者才能更改企业的语言或货币。",
+    "unavailable": "该语言暂不可用。",
+    "badCurrency": "我不认识这种货币。",
+    "settings": {
+      "kicker": "您的企业",
+      "title": "语言和货币",
+      "you": "您",
+      "business": "此企业",
+      "saveBusiness": "为企业保存"
+    }
+  }
+}

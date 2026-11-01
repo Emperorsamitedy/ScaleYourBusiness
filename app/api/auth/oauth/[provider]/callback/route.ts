@@ -24,6 +24,8 @@ import {
 } from "../../../../../../lib/auth/access";
 import { RETURN_COOKIE, returnPath } from "../../../../../../lib/auth/return-to";
 import { AuthError, signInWithEmail } from "../../../../../../lib/auth/service";
+import { CURRENCY_COOKIE, LANGUAGE_COOKIE } from "../../../../../../lib/i18n/locales";
+import { languageCookieOptions } from "../../../../../../lib/i18n/server";
 
 async function finish(
   request: NextRequest,
@@ -57,7 +59,11 @@ async function finish(
     const email = await exchangeCodeForEmail(provider, code, redirectUri);
     // Only a profile nobody owns yet can be claimed by a sign-in.
     const profileId = await claimableProfile(store.get(INTAKE_COOKIE)?.value);
-    const session = await signInWithEmail(email, profileId);
+    // L-1: the first step's choices, from this same browser.
+    const session = await signInWithEmail(email, profileId, {
+      language: store.get(LANGUAGE_COOKIE)?.value,
+      currency: store.get(CURRENCY_COOKIE)?.value,
+    });
     console.log(
       JSON.stringify({
         event: "oauth_signin",
@@ -78,6 +84,9 @@ async function finish(
     response.cookies.delete(STATE_COOKIE);
     response.cookies.delete(RETURN_COOKIE);
     response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
+    if (session.language) {
+      response.cookies.set(LANGUAGE_COOKIE, session.language, languageCookieOptions());
+    }
     if (session.profile_id) {
       response.cookies.set(
         INTAKE_COOKIE,

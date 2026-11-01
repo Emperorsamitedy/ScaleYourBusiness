@@ -2,15 +2,19 @@
 // signs in until the button is pressed (login CSRF, audit 2026-10-17).
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { ConfirmLink } from "../../../components/auth/ConfirmLink";
-import { AuthError, peekLogin } from "../../../lib/auth/service";
+import { AuthError, LOGIN_TTL_MINUTES, peekLogin } from "../../../lib/auth/service";
 
-export const metadata: Metadata = {
-  title: "Confirm sign-in — SYB",
-  // The token is in this page's address; never hand it on.
-  referrer: "no-referrer",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth.meta");
+  return {
+    title: t("confirm"),
+    // The token is in this page's address; never hand it on.
+    referrer: "no-referrer",
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function ConfirmLoginPage({
   searchParams,
@@ -19,20 +23,21 @@ export default async function ConfirmLoginPage({
 }) {
   const raw = (await searchParams).token;
   const token = typeof raw === "string" ? raw : "";
+  const t = await getTranslations("auth.confirm");
   try {
     const { email } = await peekLogin(token);
     return (
       <ConfirmLink
         ok
-        kicker="Sign in"
-        headline="One more step."
-        label="Confirm"
-        title={`Sign in as ${email}?`}
+        kicker={t("kicker")}
+        headline={t("headline")}
+        label={t("label")}
+        title={t("title", { email })}
         email={email}
         action="/api/auth/redeem"
         token={token}
-        button="Sign in"
-        note="Not your address? Close this page. Someone may have sent you their own link, and nothing happens unless you press the button."
+        button={t("button")}
+        note={t("note")}
       />
     );
   } catch (error) {
@@ -40,9 +45,9 @@ export default async function ConfirmLoginPage({
     return (
       <ConfirmLink
         ok={false}
-        kicker="Sign in"
-        headline="That link has run out."
-        message="Sign-in links work once and expire after 15 minutes. Ask for a new one and it will arrive in a moment."
+        kicker={t("kicker")}
+        headline={t("expiredHeadline")}
+        message={t("expiredMessage", { minutes: LOGIN_TTL_MINUTES })}
       />
     );
   }

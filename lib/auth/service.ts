@@ -30,7 +30,11 @@ import {
   pushSubscriptions,
   users,
 } from "../../db/schema";
+import { isIsoCurrency } from "../core/currencies";
 import { normaliseEmail } from "../intake/resume";
+import type { AppLocale } from "../i18n/locales";
+import { isAppLocale } from "../i18n/locales";
+import { adoptLanguage } from "../i18n/service";
 import type { Role } from "./role-actions";
 
 export class AuthError extends Error {
@@ -50,6 +54,27 @@ export function hash(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
+/**
+ * L-1: the language and currency a browser chose before signing in (the
+ * sign-up screen's first step). Used only when a sign-in creates the
+ * account (its currency) or meets a person who never chose a language;
+ * anything unrecognised is ignored, never stored.
+ */
+export interface SignInChoices {
+  language?: string | null | undefined;
+  currency?: string | null | undefined;
+}
+
+function cleanChoices(c: SignInChoices | undefined): {
+  language: AppLocale | null;
+  currency: string | null;
+} {
+  return {
+    language: isAppLocale(c?.language) ? c.language : null,
+    currency: typeof c?.currency === "string" && isIsoCurrency(c.currency) ? c.currency : null,
+  };
+}
+
 export interface LoginRequest {
   /** Goes into the emailed link. Never stored. */
   token: string;
@@ -67,8 +92,11 @@ export async function requestLogin(
   profileId: string | null,
   /** Idea 52: the invite this link was asked for from — redeeming it joins that business. */
   inviteId: string | null = null,
+  /** L-1: carried by the link, so a link opened on another device still brings them. */
+  choices?: SignInChoices,
 ): Promise<LoginRequest> {
   const email = normaliseEmail(rawEmail);
+  const chosen = cleanChoices(choices);
   const token = randomBytes(TOKEN_BYTES).toString("base64url");
   const expires = new Date(Date.now() + LOGIN_TTL_MINUTES * 60_000).toISOString();
 
@@ -78,6 +106,8 @@ export async function requestLogin(
     profile_id: profileId,
     expires_at: expires,
     invite_id: inviteId,
+    language: chosen.language,
+    currency: chosen.currency,
   });
 
   return { token, email, expires_at: expires };
@@ -98,6 +128,12 @@ export interface RedeemedSession {
    * the one used most recently; choosing another is a switch.
    */
   choose: boolean;
+  /**
+   * L-1: the person's own language after this sign-in (null = never
+   * chosen). The route writes it into the language cookie, so the choice
+   * follows the person to a new device.
+   */
+  language?: AppLocale | null;
 }
 
 /**
@@ -151,9 +187,13 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
   if (row.invite_id) {
     // Imported here: members.ts builds its sessions with this file's helpers.
     const { joinByInviteId } = await import("./members");
-    return joinByInviteId(row.invite_id, row.email);
+    const joined = await joinByInviteId(row.invite_id, row.email);
+    return { ...joined, language: await adoptLanguage(joined.user_id, row.language) };
   }
-  return signInWithEmail(row.email, row.profile_id);
+  return signInWithEmail(row.email, row.profile_id, {
+    language: row.language,
+    currency: row.currency,
+  });
 }
 
 /**
@@ -170,8 +210,11 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
 export async function signInWithEmail(
   rawEmail: string,
   profileId: string | null,
+  /** L-1: the browser's language and currency choices (see SignInChoices). */
+  choices?: SignInChoices,
 ): Promise<RedeemedSession> {
   const email = normaliseEmail(rawEmail);
+  const chosen = cleanChoices(choices);
   // Removed rows sign in to nothing. The most recently used business first.
   const rows = await db
     .select()
@@ -203,7 +246,12 @@ export async function signInWithEmail(
     if (accountId === null) {
       const [account] = await db
         .insert(accounts)
-        .values({ reporting_currency: "HUF", locale: "en-GB" })
+        .values({
+          // L-1: the currency chosen at sign-up, else the default the intake may set from the country.
+          reporting_currency: chosen.currency ?? "HUF",
+          reporting_currency_chosen_at: chosen.currency ? new Date().toISOString() : null,
+          locale: "en-GB",
+        })
         .returning({ id: accounts.id });
       if (!account) throw new AuthError("could not create the account", 500);
       accountId = account.id;
@@ -211,7 +259,11 @@ export async function signInWithEmail(
     user = await createOwner(accountId, email);
   }
 
-  return { ...(await openSession(user)), choose: rows.length > 1 };
+  return {
+    ...(await openSession(user)),
+    choose: rows.length > 1,
+    language: await adoptLanguage(user.id, chosen.language),
+  };
 }
 
 export type UserRow = typeof users.$inferSelect;

@@ -11,6 +11,7 @@ import { INTAKE_COOKIE, claimableProfile } from "../../../../lib/auth/access";
 import { RETURN_COOKIE, returnCookieOptions, returnPath } from "../../../../lib/auth/return-to";
 import { sendLoginEmail } from "../../../../lib/auth/email";
 import { AuthError, requestLogin } from "../../../../lib/auth/service";
+import { CURRENCY_COOKIE, LANGUAGE_COOKIE } from "../../../../lib/i18n/locales";
 import { ResumeError } from "../../../../lib/intake/resume";
 
 function appUrl(request: NextRequest): string {
@@ -27,7 +28,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Only a profile nobody owns yet can be claimed by a sign-in.
     const profileId = await claimableProfile(store.get(INTAKE_COOKIE)?.value);
 
-    const login = await requestLogin(body.email, profileId);
+    // L-1: the first step's language and currency travel with the link.
+    const login = await requestLogin(body.email, profileId, null, {
+      language: store.get(LANGUAGE_COOKIE)?.value,
+      currency: store.get(CURRENCY_COOKIE)?.value,
+    });
     const link = `${appUrl(request)}/api/auth/redeem?token=${encodeURIComponent(login.token)}`;
     const sent = await sendLoginEmail({ to: login.email, link });
     if (sent.delivered_via === "failed") {

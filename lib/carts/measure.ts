@@ -20,6 +20,8 @@
 // how many there are and, where a date can be known, when it will be ready.
 // The window before is compared only when it passes the same two tests.
 
+import type { AppLocale } from "../i18n/locales";
+import { dayMonth } from "../i18n/format";
 import type { CartLine } from "../../db/schema";
 import { shiftDay } from "../anomaly/baseline";
 
@@ -175,8 +177,9 @@ function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
 }
 
-/** "6 Nov" — en-GB, UTC. */
-export function dayWords(day: string): string {
+/** "6 Nov" — en-GB, UTC; in another language, its own day-and-month (L-1). */
+export function dayWords(day: string, locale: AppLocale = "en"): string {
+  if (locale !== "en") return dayMonth(day, locale);
   return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",

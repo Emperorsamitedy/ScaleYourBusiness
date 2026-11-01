@@ -1,0 +1,184 @@
+{
+  "common": {
+    "continue": "Weiter",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "saved": "Gespeichert.",
+    "businessUnnamed": "Ein noch unbenanntes Unternehmen",
+    "unreachable": "Ich konnte den Server nicht erreichen – bitte versuchen Sie es erneut.",
+    "somethingWrong": "etwas ist schiefgelaufen",
+    "roles": {
+      "owner": "Inhaber",
+      "manager": "Manager",
+      "viewer": "Betrachter"
+    }
+  },
+  "nav": {
+    "label": "Hauptmenü",
+    "menu": "Menü",
+    "close": "Schließen",
+    "switchBusiness": "Unternehmen wechseln",
+    "watching": "Beobachtung · Tag {day} von {of}",
+    "ask": "Fragen Sie mich alles",
+    "signOut": "Abmelden",
+    "signingOut": "Wird abgemeldet…",
+    "group": {
+      "approve": "Zur Freigabe",
+      "insights": "Erkenntnisse",
+      "grow": "Wachstum",
+      "customers": "Kunden",
+      "business": "Ihr Unternehmen"
+    },
+    "item": {
+      "proposals": "Wartet auf Sie",
+      "report": "Bericht",
+      "watch": "Beobachtung",
+      "goals": "Ziele",
+      "hours": "Öffnungszeiten",
+      "team": "Team-Besetzung",
+      "patterns": "Saisons & Produktbündel",
+      "cash": "Cashflow",
+      "stock": "Lagerbestand",
+      "blindspots": "Blinde Flecken",
+      "competitors": "Wettbewerber",
+      "benchmarks": "Ähnliche Unternehmen",
+      "content": "Inhalte",
+      "studio": "Kreativstudio",
+      "site": "Website",
+      "simulate": "Kampagnensimulator",
+      "customers": "Kunden",
+      "reviews": "Bewertungen",
+      "carts": "Abgebrochene Warenkörbe",
+      "pipeline": "Pipeline",
+      "support": "Support",
+      "factsheet": "Faktenblatt",
+      "connections": "Verbindungen",
+      "mode": "So arbeite ich",
+      "history": "Verlauf",
+      "team_access": "Teamzugang",
+      "language": "Sprache und Währung"
+    },
+    "count": {
+      "paused": "{count} pausiert",
+      "open": "{count} offen"
+    },
+    "role": {
+      "owner": "Ihre Rolle hier: Inhaber",
+      "manager": "Ihre Rolle hier: Manager",
+      "viewer": "Ihre Rolle hier: Betrachter. Sie können lesen und den Notstopp drücken."
+    }
+  },
+  "auth": {
+    "meta": {
+      "signIn": "Anmelden — SYB",
+      "signUp": "Konto erstellen — SYB",
+      "confirm": "Anmeldung bestätigen — SYB",
+      "choose": "Welches Unternehmen? — SYB"
+    },
+    "mast": {
+      "haveAccount": "Sie haben bereits ein Konto? ",
+      "signIn": "Anmelden",
+      "createAccount": "Konto erstellen"
+    },
+    "signup": {
+      "kicker": "Eine neue Akte anlegen",
+      "headline": "Beginnen Sie mit der Diagnose.",
+      "stepsHead": "Was nach dieser Seite passiert",
+      "step1": "Verbinden Sie Ihre Konten, nur mit Lesezugriff",
+      "step2": "Beantworten Sie die Kernfragen",
+      "step3": "Wir lesen Ihre Zahlen und unterzeichnen den Bericht",
+      "takesMinutes": "{minutes} Min.",
+      "takesAboutMinutes": "ca. {minutes} Min.",
+      "takesDays": "{days, plural, one {# Tag} other {# Tage}}",
+      "takesDaysPending": "[{days}] {days, plural, one {Tag} other {Tage}}"
+    },
+    "signin": {
+      "kicker": "Die Akte wartet",
+      "headline": "Zurück zu Ihrer Übersicht.",
+      "point1": "In Ihrem Unternehmen läuft nichts ohne Ihre Freigabe.",
+      "point2": "Jede Zahl zeigt, woher sie stammt.",
+      "point3": "Nichts wird je gelöscht – alte Fakten werden ersetzt und aufbewahrt."
+    },
+    "sent": {
+      "label": "Prüfen Sie Ihre E-Mails",
+      "titleBelow": "Ihr Link steht unten",
+      "titleSent": "Link gesendet",
+      "onScreen": "E-Mail ist hier nicht eingerichtet, daher steht Ihr Einmal-Link unten. Er läuft in {minutes, plural, one {#\u00a0Minute} other {#\u00a0Minuten}} ab.",
+      "createMine": "Mein Konto erstellen",
+      "signInNow": "Jetzt anmelden",
+      "sentTo": "Wir haben einen Einmal-Link an <b>{email}</b> gesendet. Er läuft in {minutes, plural, one {#\u00a0Minute} other {#\u00a0Minuten}} ab.",
+      "wrongAddress": "Falsche Adresse?",
+      "sendAnother": "Neuen Link senden"
+    },
+    "form": {
+      "labelCreate": "Konto erstellen",
+      "labelSignIn": "Anmelden",
+      "titleCreate": "Die Akte Ihres Unternehmens anlegen",
+      "titleSignIn": "Willkommen zurück",
+      "email": "Geschäftliche E-Mail",
+      "emailPlaceholder": "sie@ihrunternehmen.de",
+      "website": "Website",
+      "optional": "(optional)",
+      "websitePlaceholder": "ihrunternehmen.de",
+      "sending": "Wird gesendet…",
+      "submitCreate": "Konto erstellen",
+      "submitSignIn": "Anmeldelink per E-Mail senden",
+      "noteSignup": "Kein Passwort, noch keine Karte. Sie zahlen erst, wenn Sie den Bericht bestellen.",
+      "noteSignin": "Kein Passwort. Der Link funktioniert einmal, {minutes, plural, one {#\u00a0Minute} other {#\u00a0Minuten}} lang.",
+      "orSignup": "Oder registrieren mit",
+      "orSignin": "Oder weiter mit",
+      "terms": "Mit dem Erstellen eines Kontos stimmen Sie den <terms>Nutzungsbedingungen</terms> und dem <privacy>Datenschutzhinweis</privacy> zu.",
+      "newHere": "Neu bei SYB? Erstellen Sie oben rechts ein Konto."
+    },
+    "confirm": {
+      "kicker": "Anmelden",
+      "headline": "Noch ein Schritt.",
+      "label": "Bestätigen",
+      "title": "Als {email} anmelden?",
+      "sentTo": "Dieser Link wurde an <b>{email}</b> gesendet.",
+      "button": "Anmelden",
+      "note": "Nicht Ihre Adresse? Schließen Sie diese Seite. Vielleicht hat Ihnen jemand seinen eigenen Link geschickt, und es passiert nichts, solange Sie die Schaltfläche nicht drücken.",
+      "expiredHeadline": "Dieser Link ist abgelaufen.",
+      "expiredMessage": "Anmeldelinks funktionieren einmal und laufen nach {minutes, plural, one {# Minute} other {# Minuten}} ab. Fordern Sie einen neuen an, er kommt in wenigen Augenblicken.",
+      "linkLabel": "Link",
+      "linkDead": "Dieser Link funktioniert nicht mehr",
+      "newLink": "Neuen Anmeldelink per E-Mail senden"
+    },
+    "choose": {
+      "signedInAs": "Angemeldet als {email}",
+      "headline": "Welches Unternehmen?",
+      "label": "Ihre Unternehmen",
+      "title": "Wählen Sie eines zum Öffnen aus. Sie können jederzeit über das Menü wechseln.",
+      "add": "Weiteres Unternehmen hinzufügen",
+      "foot": "Jedes Unternehmen behält seine eigenen Fakten, sein Team und seine Rechnung. Nichts aus einem wird je in einem anderen angezeigt."
+    }
+  },
+  "locale": {
+    "meta": "Sprache und Währung — SYB",
+    "first": {
+      "kicker": "Bevor wir beginnen",
+      "headline": "Wählen Sie Ihre Sprache und Währung.",
+      "lede": "Ich spreche in dieser Sprache mit Ihnen. Jede Zahl Ihres Unternehmens wird in dieser Währung angezeigt, und zwischen Währungen wird nie umgerechnet."
+    },
+    "yourLanguage": "Ihre Sprache",
+    "yourLanguageHelp": "Die Sprache, in der Sie SYB lesen. Jede Person im Team wählt ihre eigene.",
+    "businessLanguage": "Die Sprache Ihres Unternehmens",
+    "businessLanguageHelp": "Was Ihre Kunden lesen: Support-Antworten, E-Mails und Antworten auf Bewertungen.",
+    "currency": "Währung",
+    "currencyHelp": "Jede Zahl dieses Unternehmens wird in dieser Währung angezeigt. Nichts wird umgerechnet: Bereits erfasste Beträge behalten die Währung, in der sie angegeben wurden.",
+    "currencyChoose": "Währung auswählen",
+    "currencyOption": "{code} — {name}",
+    "beingChecked": "wird geprüft",
+    "checkingNote": "Eine Sprache mit dem Hinweis „wird geprüft“ sehen nur Sie und die prüfende Person, bis sie von einer Muttersprachlerin oder einem Muttersprachler gelesen wurde.",
+    "onlyOwner": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern.",
+    "unavailable": "Diese Sprache ist noch nicht verfügbar.",
+    "badCurrency": "Diese Währung kenne ich nicht.",
+    "settings": {
+      "kicker": "Ihr Unternehmen",
+      "title": "Sprache und Währung",
+      "you": "Sie",
+      "business": "Dieses Unternehmen",
+      "saveBusiness": "Für das Unternehmen speichern"
+    }
+  }
+}

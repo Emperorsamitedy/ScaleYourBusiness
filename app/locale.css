@@ -1,0 +1,71 @@
+/* The language and currency picker — L-1 (components/locale). On the
+   sheet system (ux-spec §2): mono labels, underlined fields, no icons. */
+
+.lp-langs {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.lp-langs legend {
+  margin-bottom: 6px;
+}
+.lp-lang {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 2px;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: var(--t-prose-s);
+  color: var(--sheet-ink);
+  cursor: pointer;
+}
+.lp-lang input {
+  margin: 0;
+  accent-color: var(--sheet-ink);
+}
+.lp-checking {
+  margin-left: auto;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.lp-currency,
+.lp-field {
+  margin-top: 18px;
+}
+.lp-select {
+  cursor: pointer;
+}
+.au .lp-lede {
+  max-width: 34em;
+  margin: 18px 0 0;
+  font-size: var(--t-prose);
+  line-height: 24px;
+  color: var(--desk-ink);
+}
+.lp-help {
+  margin: 8px 0 12px;
+  font-size: var(--t-prose-s);
+  line-height: 1.45;
+  color: var(--sheet-ink-2);
+}
+.lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+.lp-notice {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.lp-screen .cs + .cs {
+  margin-top: 18px;
+}

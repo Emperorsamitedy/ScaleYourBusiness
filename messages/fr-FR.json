@@ -1,0 +1,184 @@
+{
+  "common": {
+    "continue": "Continuer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Enregistré.",
+    "businessUnnamed": "Une entreprise encore sans nom",
+    "unreachable": "Je n’ai pas pu joindre le serveur — veuillez réessayer.",
+    "somethingWrong": "une erreur s’est produite",
+    "roles": {
+      "owner": "Propriétaire",
+      "manager": "Gestionnaire",
+      "viewer": "Lecteur"
+    }
+  },
+  "nav": {
+    "label": "Principal",
+    "menu": "Menu",
+    "close": "Fermer",
+    "switchBusiness": "Changer d’entreprise",
+    "watching": "Observation · jour {day} sur {of}",
+    "ask": "Posez-moi vos questions",
+    "signOut": "Se déconnecter",
+    "signingOut": "Déconnexion…",
+    "group": {
+      "approve": "À valider",
+      "insights": "Analyses",
+      "grow": "Croissance",
+      "customers": "Clients",
+      "business": "Votre entreprise"
+    },
+    "item": {
+      "proposals": "En attente de votre décision",
+      "report": "Rapport",
+      "watch": "Observation",
+      "goals": "Objectifs",
+      "hours": "Horaires d’ouverture",
+      "team": "Couverture de l’équipe",
+      "patterns": "Saisons et lots",
+      "cash": "Trésorerie",
+      "stock": "Stock",
+      "blindspots": "Angles morts",
+      "competitors": "Concurrents",
+      "benchmarks": "Entreprises similaires",
+      "content": "Contenus",
+      "studio": "Studio créatif",
+      "site": "Site web",
+      "simulate": "Simulateur de campagne",
+      "customers": "Clients",
+      "reviews": "Avis",
+      "carts": "Paniers abandonnés",
+      "pipeline": "Pipeline",
+      "support": "Assistance",
+      "factsheet": "Fiche des faits",
+      "connections": "Connexions",
+      "mode": "Ma façon de travailler",
+      "history": "Historique",
+      "team_access": "Accès de l’équipe",
+      "language": "Langue et devise"
+    },
+    "count": {
+      "paused": "{count} en pause",
+      "open": "{count, plural, one {# ouvert} many {# ouverts} other {# ouverts}}"
+    },
+    "role": {
+      "owner": "Votre rôle ici\u00a0: propriétaire",
+      "manager": "Votre rôle ici\u00a0: gestionnaire",
+      "viewer": "Votre rôle ici\u00a0: lecteur. Vous pouvez consulter et appuyer sur l’arrêt d’urgence."
+    }
+  },
+  "auth": {
+    "meta": {
+      "signIn": "Connexion — SYB",
+      "signUp": "Créer votre compte — SYB",
+      "confirm": "Confirmer la connexion — SYB",
+      "choose": "Quelle entreprise\u202f? — SYB"
+    },
+    "mast": {
+      "haveAccount": "Vous avez déjà un compte\u202f? ",
+      "signIn": "Se connecter",
+      "createAccount": "Créer un compte"
+    },
+    "signup": {
+      "kicker": "Ouvrir un nouveau dossier",
+      "headline": "Commencez par le diagnostic.",
+      "stepsHead": "Ce qui se passe après cet écran",
+      "step1": "Connectez vos comptes, en lecture seule",
+      "step2": "Répondez aux questions essentielles",
+      "step3": "Nous lisons vos chiffres et signons le rapport",
+      "takesMinutes": "{minutes} min",
+      "takesAboutMinutes": "environ {minutes} min",
+      "takesDays": "{days, plural, one {# jour} many {# jours} other {# jours}}",
+      "takesDaysPending": "[{days}] {days, plural, one {jour} many {jours} other {jours}}"
+    },
+    "signin": {
+      "kicker": "Le dossier vous attend",
+      "headline": "De retour sur votre tableau de bord.",
+      "point1": "Rien ne s’exécute dans votre entreprise sans votre validation.",
+      "point2": "Chaque chiffre indique d’où il vient.",
+      "point3": "Rien n’est jamais effacé — les anciens faits sont remplacés et conservés."
+    },
+    "sent": {
+      "label": "Consultez vos e-mails",
+      "titleBelow": "Votre lien est ci-dessous",
+      "titleSent": "Lien envoyé",
+      "onScreen": "L’envoi d’e-mails n’est pas configuré ici, votre lien à usage unique figure donc ci-dessous. Il expire dans {minutes, plural, one {#\u00a0minute} many {#\u00a0minutes} other {#\u00a0minutes}}.",
+      "createMine": "Créer mon compte",
+      "signInNow": "Se connecter maintenant",
+      "sentTo": "Nous avons envoyé un lien à usage unique à <b>{email}</b>. Il expire dans {minutes, plural, one {#\u00a0minute} many {#\u00a0minutes} other {#\u00a0minutes}}.",
+      "wrongAddress": "Mauvaise adresse\u202f?",
+      "sendAnother": "Envoyer un autre lien"
+    },
+    "form": {
+      "labelCreate": "Créer un compte",
+      "labelSignIn": "Connexion",
+      "titleCreate": "Ouvrez le dossier de votre entreprise",
+      "titleSignIn": "Bon retour parmi nous",
+      "email": "E-mail professionnel",
+      "emailPlaceholder": "vous@votreentreprise.fr",
+      "website": "Site web",
+      "optional": "(facultatif)",
+      "websitePlaceholder": "votreentreprise.fr",
+      "sending": "Envoi…",
+      "submitCreate": "Créer un compte",
+      "submitSignIn": "Recevoir un lien de connexion par e-mail",
+      "noteSignup": "Pas de mot de passe, pas encore de carte. Vous ne payez qu’au moment de commander le rapport.",
+      "noteSignin": "Pas de mot de passe. Le lien fonctionne une seule fois, pendant {minutes, plural, one {#\u00a0minute} many {#\u00a0minutes} other {#\u00a0minutes}}.",
+      "orSignup": "Ou inscrivez-vous avec",
+      "orSignin": "Ou continuez avec",
+      "terms": "En créant un compte, vous acceptez les <terms>conditions d’utilisation</terms> et la <privacy>politique de confidentialité</privacy>.",
+      "newHere": "Nouveau sur SYB\u202f? Créez un compte en haut à droite."
+    },
+    "confirm": {
+      "kicker": "Connexion",
+      "headline": "Encore une étape.",
+      "label": "Confirmer",
+      "title": "Se connecter en tant que {email}\u202f?",
+      "sentTo": "Ce lien a été envoyé à <b>{email}</b>.",
+      "button": "Se connecter",
+      "note": "Ce n’est pas votre adresse\u202f? Fermez cette page. Quelqu’un vous a peut-être envoyé son propre lien, et rien ne se passe tant que vous n’appuyez pas sur le bouton.",
+      "expiredHeadline": "Ce lien a expiré.",
+      "expiredMessage": "Les liens de connexion fonctionnent une seule fois et expirent au bout de {minutes, plural, one {# minute} many {# minutes} other {# minutes}}. Demandez-en un nouveau\u00a0: il arrivera dans un instant.",
+      "linkLabel": "Lien",
+      "linkDead": "Ce lien ne fonctionne plus",
+      "newLink": "Recevoir un nouveau lien de connexion par e-mail"
+    },
+    "choose": {
+      "signedInAs": "Compte connecté\u00a0: {email}",
+      "headline": "Quelle entreprise\u202f?",
+      "label": "Vos entreprises",
+      "title": "Choisissez celle à ouvrir. Vous pouvez en changer à tout moment depuis le menu.",
+      "add": "Ajouter une autre entreprise",
+      "foot": "Chaque entreprise conserve ses propres faits, son équipe et sa facture. Rien de l’une n’apparaît jamais dans une autre."
+    }
+  },
+  "locale": {
+    "meta": "Langue et devise — SYB",
+    "first": {
+      "kicker": "Avant de commencer",
+      "headline": "Choisissez votre langue et votre devise.",
+      "lede": "Je vous parlerai dans cette langue. Chaque chiffre de votre entreprise s’affiche dans cette devise, et rien n’est jamais converti d’une devise à l’autre."
+    },
+    "yourLanguage": "Votre langue",
+    "yourLanguageHelp": "La langue dans laquelle vous lisez SYB. Chaque membre de l’équipe choisit la sienne.",
+    "businessLanguage": "La langue de votre entreprise",
+    "businessLanguageHelp": "Ce que liront vos clients\u00a0: les réponses de l’assistance, les e-mails et les réponses aux avis.",
+    "currency": "Devise",
+    "currencyHelp": "Chaque chiffre de cette entreprise s’affiche dans cette devise. Rien n’est converti\u00a0: les montants déjà enregistrés gardent la devise dans laquelle ils ont été saisis.",
+    "currencyChoose": "Choisissez une devise",
+    "currencyOption": "{code} — {name}",
+    "beingChecked": "en cours de vérification",
+    "checkingNote": "Une langue marquée «\u00a0en cours de vérification\u00a0» n’est visible que par vous et la personne qui la relit, jusqu’à sa relecture par un locuteur natif.",
+    "onlyOwner": "Seul un propriétaire peut modifier la langue ou la devise de l’entreprise.",
+    "unavailable": "Cette langue n’est pas encore disponible.",
+    "badCurrency": "Je ne connais pas cette devise.",
+    "settings": {
+      "kicker": "Votre entreprise",
+      "title": "Langue et devise",
+      "you": "Vous",
+      "business": "Cette entreprise",
+      "saveBusiness": "Enregistrer pour l’entreprise"
+    }
+  }
+}

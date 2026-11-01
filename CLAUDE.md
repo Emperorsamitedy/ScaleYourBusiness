@@ -27,6 +27,7 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | `specs/benchmark-map-v1.json`        | Business type → Eurostat NACE group, size classes, cost treatment |
 | `specs/benchmarks-eurostat-v1.json`  | Eurostat SBS snapshot, dated; the app's only benchmark source     |
 | `specs/review-notifications-v1.json` | Review notification email formats per platform (all unverified)   |
+| `specs/glossary-v1.json`             | Business terms per language; one term, one translation (L-1)      |
 | `scripts/lint_bank.py`               | Validates the question bank. Must pass in CI.                     |
 
 If a spec and this file disagree, the spec wins. If the spec is wrong, change the spec in the same commit — don't work around it in code.

@@ -3,15 +3,18 @@
 // judgement (ux-spec §10): a figure is above, below or about the same, and
 // nothing here says what to do about it.
 
+import type { AppLocale } from "../../lib/i18n/locales";
+import { dayMonthYear } from "../../lib/i18n/format";
 import type { BenchLine, BenchResult, ComparedLine } from "../../lib/benchmarks/compare";
 import type { BenchSource } from "../../lib/benchmarks/snapshot";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "2026-09-30" → "30 Sep 2026". */
-export function dateWords(iso: string): string {
+/** "2026-09-30" → "30 Sep 2026"; in another language, its own (L-1). */
+export function dateWords(iso: string, locale: AppLocale = "en"): string {
   const [y, m, d] = iso.split("-").map(Number);
   if (!y || !m || !d || m < 1 || m > 12) return iso;
+  if (locale !== "en") return dayMonthYear(iso, locale);
   return `${d} ${MONTHS[m - 1]} ${y}`;
 }
 
