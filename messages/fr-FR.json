@@ -2992,7 +2992,7 @@
     },
     "ruledOut": "Je ne l’ai pas mis dans votre file : votre règle ({rule}) l’exclut.",
     "cover": {
-      "label": "Ce qui s’épuise, et quand · {warned} articles sur {total} sous leur délai de livraison",
+      "label": "Ce qui s’épuise, et quand · {warned} sur {total} articles sous leur délai de livraison",
       "titleWarned": "Les premiers épuisés en tête",
       "titleNone": "Rien ne s’épuise avant une livraison",
       "meta": "Couverture : quantité en stock ÷ votre rythme des {days} derniers jours, bas–haut, comparée au délai de livraison de chaque fournisseur (sinon {lead} jours, SUPPOSÉ)",

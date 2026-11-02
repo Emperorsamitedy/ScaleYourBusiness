@@ -26,6 +26,7 @@ import type {
   StockItemView,
   StockView,
 } from "../../app/api/stock/route";
+import { dayMonthYear } from "../../lib/i18n/format";
 import { intlTag } from "../../lib/i18n/locales";
 import { StockHistoryChart } from "../charts/StockHistoryChart";
 import { PageHead, SheetCard } from "../sheet/PageHead";
@@ -623,7 +624,12 @@ export function StockScreen() {
     <>
       {sources.length === 0
         ? tr("nothingRead")
-        : sources.map((s) => `${s.label} ${s.as_of}`).join(" · ")}{" "}
+        : sources
+            .map(
+              (s) =>
+                `${s.label} ${locale === "en" || !s.as_of ? s.as_of : dayMonthYear(s.as_of, locale)}`,
+            )
+            .join(" · ")}{" "}
       · {tr("measured")}
     </>
   );
