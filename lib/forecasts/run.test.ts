@@ -140,6 +140,65 @@ describe("the season's weeks, recorded as shown and graded once", () => {
   });
 });
 
+// I-54d (owner, 2026-11-01): only a connected shop's counts grade a stock-out forecast.
+describe("a stock-out claim resting on an uploaded stock file", () => {
+  it("is never graded right or wrong: it's can't tell, and says why", async () => {
+    const [file] = await db
+      .insert(connections)
+      .values({ account_id: accountId, provider: "stock_import", purpose: "import" })
+      .returning({ id: connections.id });
+    try {
+      await recordForecasts([
+        {
+          account_id: accountId,
+          profile_id: profileId,
+          kind: "stock_out",
+          forecast_key: `stock_out|${file!.id}:vase|2026-W44`,
+          made_at: NOW.toISOString(),
+          subject: "Tall Vase",
+          subject_ref: {
+            connection_id: file!.id,
+            product_ref: "vase",
+            source: "your stock file",
+            on_hand: 6,
+            as_of: TODAY,
+          },
+          metric: "stock.on_hand",
+          unit: "date",
+          window_start: TODAY,
+          window_end: "2026-11-03",
+          low_date: "2026-11-01",
+          high_date: "2026-11-03",
+          claim: "Tall Vase runs out in about 4–6 days.",
+          basis: "fixture",
+        },
+      ]);
+      // A count of zero inside the range would have made it "inside" from a shop.
+      await upsertObservations(file!.id, "stock_import", [
+        {
+          metric_key: "stock.on_hand",
+          period_date: "2026-11-02",
+          dimensions: { product_ref: "vase", item_name: "Tall Vase" },
+          value_num: 0,
+          observed_at: NOW.toISOString(),
+        },
+      ]);
+      await runForecastGrading(new Date("2026-11-09T06:00:00Z"), { profileIds: [profileId] });
+      const [vase] = await db
+        .select()
+        .from(forecastChecks)
+        .where(
+          and(eq(forecastChecks.profile_id, profileId), eq(forecastChecks.subject, "Tall Vase")),
+        );
+      expect(vase).toMatchObject({ verdict: "cant_tell" });
+      expect(vase!.actual_note).toMatch(/stock file you uploaded, not a connected shop/);
+    } finally {
+      await db.delete(metricObservations).where(eq(metricObservations.connection_id, file!.id));
+      await db.delete(connections).where(eq(connections.id, file!.id));
+    }
+  });
+});
+
 describe("a stock-out claim, graded from the item's later counts", () => {
   it("is graded below when the stock ran out sooner than I said", async () => {
     await recordForecasts([
@@ -184,7 +243,7 @@ describe("a stock-out claim, graded from the item's later counts", () => {
     const [mug] = await db
       .select()
       .from(forecastChecks)
-      .where(and(eq(forecastChecks.profile_id, profileId), eq(forecastChecks.kind, "stock_out")));
+      .where(and(eq(forecastChecks.profile_id, profileId), eq(forecastChecks.subject, "Blue Mug")));
     expect(mug).toMatchObject({ verdict: "below", actual_date: "2026-10-30" });
     expect(mug!.actual_note).toMatch(/at least 2 days before the earliest day I gave/);
     const ids = (mug!.actual_source as { ids: string[] }).ids;
