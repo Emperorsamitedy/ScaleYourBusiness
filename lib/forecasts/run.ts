@@ -11,11 +11,25 @@
 
 import { and, asc, eq, gt, gte, inArray, isNull, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { dealEvents, deals, forecastChecks, metricObservations } from "../../db/schema";
+import {
+  connections,
+  dealEvents,
+  deals,
+  forecastChecks,
+  metricObservations,
+} from "../../db/schema";
+import { STOCK_IMPORT_PROVIDER } from "../stock/import";
 import { logSafeError } from "../core/log-safe";
 import { addDays } from "../seasons/forecast";
 import type { ClaimRow, DayValue, DealOutcome, Grade, StockCount } from "./grade";
-import { GRADE, gradeCashClose, gradePipelineClose, gradeSeasonWeek, gradeStockOut } from "./grade";
+import {
+  GRADE,
+  gradeCashClose,
+  gradeFromImportedCounts,
+  gradePipelineClose,
+  gradeSeasonWeek,
+  gradeStockOut,
+} from "./grade";
 
 type Row = typeof forecastChecks.$inferSelect;
 
@@ -52,6 +66,17 @@ async function stockCounts(claim: Row): Promise<StockCount[]> {
   return rows
     .filter((r) => r.value !== null)
     .map((r) => ({ id: r.id, date: r.date, on_hand: Number(r.value) }));
+}
+
+/** I-54d: whether the claim's counts come from an uploaded stock file rather than a connected shop. */
+async function fromStockFile(claim: Row): Promise<boolean> {
+  const ref = claim.subject_ref as { connection_id?: unknown };
+  if (typeof ref.connection_id !== "string") return false;
+  const [row] = await db
+    .select({ provider: connections.provider })
+    .from(connections)
+    .where(eq(connections.id, ref.connection_id));
+  return row?.provider === STOCK_IMPORT_PROVIDER;
 }
 
 /** The week's measured days of the same series: business-wide rows, the claim's currency. */
@@ -147,7 +172,11 @@ async function dealOutcomes(claim: Row): Promise<DealOutcome[]> {
 /** One claim's grade from its measured rows, or null while they aren't in. */
 export async function gradeOne(claim: Row, today: string): Promise<Grade | null> {
   const c: ClaimRow = claim;
-  if (claim.kind === "stock_out") return gradeStockOut(c, await stockCounts(claim), today);
+  if (claim.kind === "stock_out") {
+    // I-54d: an uploaded stock file's counts never grade a forecast.
+    if (await fromStockFile(claim)) return gradeFromImportedCounts();
+    return gradeStockOut(c, await stockCounts(claim), today);
+  }
   if (claim.kind === "season_week") return gradeSeasonWeek(c, await weekDays(claim), today);
   // I-54a: the statement's balance on the week's last day: weekDays reads the same
   // business-wide, same-currency rows of the claim's metric over its window.

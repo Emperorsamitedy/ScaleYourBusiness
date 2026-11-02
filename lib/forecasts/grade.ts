@@ -204,6 +204,18 @@ export function gradeStockOut(
   );
 }
 
+/**
+ * I-54d (owner, 2026-11-01): only a connected shop's counts prove a
+ * stock-out forecast right or wrong. Counts from an uploaded stock file
+ * still drive the warnings, but a file is typed or exported by hand, so a
+ * forecast resting on one is "can't tell", and says why.
+ */
+export function gradeFromImportedCounts(): Grade {
+  return cantTell(
+    "These counts come from a stock file you uploaded, not a connected shop, so I don't grade my forecast by them.",
+  );
+}
+
 /** Money in whole units, or to the cent when the whole units would say nothing. */
 function moneyWords(minor: number, currency: string): string {
   const unit = 10 ** minorUnitExponent(currency);

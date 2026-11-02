@@ -185,7 +185,9 @@ The scorecard (`lib/trust/scorecard.ts`, P3-26) already grades proposals that ra
 
   **Decided 2026-11-01, owner: "go ahead with I-54c".** `recordForecasts` (`lib/forecasts/record.ts`) leaves out a stock-out claim when the same item already has one waiting for its grade. Once that one is graded (it ran out, it lasted longer, or a delivery made it "can't tell"), the item's next warning is a new forecast. The warning itself is still said every week; only the record counts the run-out once. Claims recorded before this stay on the record, since claims are never changed. Tests: `lib/forecasts/record.test.ts` (an item waiting isn't recorded again; another item is; once graded, the next is; the same week's claim is still a no-op).
 
-- [ ] **I-54d** (review 2026-10-30) Decide whether stock counts from a CSV import should grade a stock claim as "measured". Today they do, like a connected shop's counts, though the owner typed or exported them. Kept as is until decided.
+- [x] **I-54d** (review 2026-10-30) Decide whether stock counts from a CSV import should grade a stock claim as "measured". Today they do, like a connected shop's counts, though the owner typed or exported them. Kept as is until decided.
+
+  **Decided 2026-11-01, owner: "go ahead with I-54d", then, asked which way: only connected shops grade.** Stock file counts still drive the warnings, and those warnings still go on the record. But a stock-out claim whose counts come from the `stock_import` connection is graded "can't tell", with the note "These counts come from a stock file you uploaded, not a connected shop, so I don't grade my forecast by them." (`gradeFromImportedCounts`, used from `gradeOne` in `lib/forecasts/run.ts`). "Can't tell" is never counted as right. Test: `lib/forecasts/run.test.ts`, where a zero count inside the range from a file is still "can't tell".
 
 ## Idea 50: answer with your voice (owner, 2026-10-29)
 
