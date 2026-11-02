@@ -14,6 +14,33 @@ import { hasPaidReport, paymentsConfigured } from "../../../lib/payments/stripe"
 import { generateReport, latestReport } from "../../../lib/report/service";
 import { requireRole } from "../../../lib/auth/roles";
 import type { Access } from "../../../lib/auth/access";
+import { factWords, labelFactMap } from "../../../lib/bank/fact-words";
+import { loadBankWords } from "../../../lib/bank/words";
+import { requestLocale } from "../../../lib/i18n/server";
+
+/**
+ * L-3a: the fact map's labels and coded values in the reader's language,
+ * from the bank's overlay (lib/bank/fact-words). English is unchanged;
+ * the report's own text (L-5) and nothing stored is touched.
+ */
+async function inLanguage<
+  T extends {
+    fact_map: Record<string, { value: string | null }>;
+    data_gaps: { question_id: string; prompt: string }[];
+  },
+>(report: T): Promise<T> {
+  const locale = await requestLocale();
+  if (locale === "en") return report;
+  const words = await loadBankWords(locale);
+  return {
+    ...report,
+    fact_map: labelFactMap(report.fact_map, factWords(words)),
+    data_gaps: report.data_gaps.map((g) => ({
+      ...g,
+      prompt: words.prompt(g.question_id, g.prompt),
+    })),
+  };
+}
 
 async function resolveSession(): Promise<Access | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -26,7 +53,7 @@ export async function GET(): Promise<NextResponse> {
   try {
     const report = await latestReport(session.profile_id);
     if (!report) return NextResponse.json({ error: "no report yet" }, { status: 404 });
-    return NextResponse.json(report);
+    return NextResponse.json(await inLanguage(report));
   } catch (error) {
     console.error(
       JSON.stringify({
@@ -66,7 +93,7 @@ export async function POST(): Promise<NextResponse> {
       accountId: session.account_id,
       profileId: session.profile_id,
     });
-    return NextResponse.json({ ...report, fresh });
+    return NextResponse.json({ ...(await inLanguage(report)), fresh });
   } catch (error) {
     if (error instanceof DiagnosisError) {
       return NextResponse.json({ error: error.message }, { status: 422 });

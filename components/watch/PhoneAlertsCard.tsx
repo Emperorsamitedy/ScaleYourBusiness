@@ -13,7 +13,11 @@
 // a device is its label and two dates.
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
 import { SheetCard } from "../sheet/PageHead";
+import { useAppLocale } from "../sheet/useTr";
 
 interface Device {
   id: string;
@@ -31,10 +35,17 @@ interface PushView {
 type Where = "checking" | "ok" | "iphone_tab" | "unsupported" | "denied";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-function dayText(iso: string): string {
+function dayText(iso: string, locale: AppLocale): string {
   const d = new Date(iso);
+  if (locale !== "en") {
+    return new Intl.DateTimeFormat(intlTag(locale), { day: "numeric", month: "short" }).format(d);
+  }
   return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
+
+/** The quiet hours the alerts keep (lib/push), as the card says them. */
+const QUIET_FROM = "21:00";
+const QUIET_TO = "08:00";
 
 function keyBytes(b64url: string): Uint8Array<ArrayBuffer> {
   const b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
@@ -69,6 +80,8 @@ function whereAmI(): Where {
 }
 
 export function PhoneAlertsCard() {
+  const t = useTranslations("watch.alerts");
+  const locale = useAppLocale();
   const [view, setView] = useState<PushView | null>(null);
   const [where, setWhere] = useState<Where>("checking");
   const [busy, setBusy] = useState(false);
@@ -111,7 +124,7 @@ export function PhoneAlertsCard() {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
       setWhere(permission === "denied" ? "denied" : "ok");
-      setNote("Nothing switched on: the browser didn't give permission.");
+      setNote(t("noPermission"));
       return;
     }
     setBusy(true);
@@ -131,12 +144,10 @@ export function PhoneAlertsCard() {
         time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       setNote(
-        ok
-          ? "On. This device gets a few words when something new waits for your yes."
-          : `Not switched on: ${String(json.error ?? "something went wrong on our side")}.`,
+        ok ? t("switchedOn") : t("notSwitchedOn", { error: String(json.error ?? t("ourSide")) }),
       );
     } catch {
-      setNote("Not switched on: this browser refused the subscription. Try again in a moment.");
+      setNote(t("refused"));
     } finally {
       setBusy(false);
       await load();
@@ -152,7 +163,9 @@ export function PhoneAlertsCard() {
       await (await reg?.pushManager.getSubscription())?.unsubscribe();
     }
     setNote(
-      ok ? `Removed: ${d.label} gets no more alerts.` : `Not removed: ${String(json.error)}.`,
+      ok
+        ? t("removed", { device: d.label })
+        : t("notRemoved", { error: String(json.error ?? t("ourSide")) }),
     );
     setBusy(false);
     await load();
@@ -165,8 +178,8 @@ export function PhoneAlertsCard() {
     const results = (json.results ?? []) as { label: string; words: string }[];
     setNote(
       ok
-        ? `Test: ${results.map((r) => `${r.label}, ${r.words}`).join("; ")}.`
-        : `No test sent: ${String(json.error ?? "something went wrong on our side")}.`,
+        ? t("tested", { results: results.map((r) => `${r.label}, ${r.words}`).join("; ") })
+        : t("notTested", { error: String(json.error ?? t("ourSide")) }),
     );
     setBusy(false);
     await load();
@@ -175,33 +188,28 @@ export function PhoneAlertsCard() {
   if (!view) return null;
   const mine = view.devices.some((d) => d.this_browser);
   const status = !view.signed_in
-    ? "Sign in on this device to switch alerts on."
+    ? t("status.signIn")
     : !view.configured
-      ? "This server can't send phone alerts yet: its keys aren't set."
+      ? t("status.noKeys")
       : where === "iphone_tab"
-        ? "Add SYB to your Home Screen first, then switch this on there. In Safari: Share, then Add to Home Screen (iOS 16.4 or later)."
+        ? t("status.iphoneTab", { version: "16.4" })
         : where === "unsupported"
-          ? "This browser can't take alerts. On an iPhone, add SYB to your Home Screen first, then switch this on there."
+          ? t("status.unsupported")
           : where === "denied"
-            ? "Alerts are blocked for SYB in this browser's settings. Allow them there, then switch this on."
+            ? t("status.denied")
             : mine
-              ? "On for this device."
+              ? t("status.on")
               : null;
   const canSwitch = view.signed_in && view.configured && where === "ok" && !mine;
 
   return (
-    <SheetCard label="Phone alerts" title="A few words when something waits">
-      <p className="wt-why">
-        When something new waits for your yes, your phone gets a few words: never a figure, a name
-        or an address, because a lock screen is public. Tapping it opens that proposal, and you
-        decide on its card, never on the alert. Nothing between 21:00 and 08:00, and at most one a
-        day.
-      </p>
+    <SheetCard label={t("label")} title={t("title")}>
+      <p className="wt-why">{t("lede", { from: QUIET_FROM, to: QUIET_TO })}</p>
       {status && <p className="wt-why">{status}</p>}
       {canSwitch && (
         <p className="wt-why">
           <button type="button" className="act" disabled={busy} onClick={() => void switchOn()}>
-            Switch on for this device <span aria-hidden="true">→</span>
+            {t("switchOn")} <span aria-hidden="true">→</span>
           </button>
         </p>
       )}
@@ -211,11 +219,14 @@ export function PhoneAlertsCard() {
             <li key={d.id}>
               <span>
                 <b>{d.label}</b>
-                {d.this_browser ? " · this device" : ""} · on since {dayText(d.created_at)}
-                {d.last_sent_at ? ` · last alert ${dayText(d.last_sent_at)}` : ""}
+                {d.this_browser ? ` · ${t("thisDevice")}` : ""} ·{" "}
+                {t("onSince", { date: dayText(d.created_at, locale) })}
+                {d.last_sent_at
+                  ? ` · ${t("lastAlert", { date: dayText(d.last_sent_at, locale) })}`
+                  : ""}
               </span>
               <button type="button" className="act" disabled={busy} onClick={() => void remove(d)}>
-                Remove
+                {t("remove")}
               </button>
             </li>
           ))}
@@ -224,7 +235,7 @@ export function PhoneAlertsCard() {
       {view.signed_in && view.configured && view.devices.length > 0 && (
         <p className="wt-why">
           <button type="button" className="act" disabled={busy} onClick={() => void test()}>
-            Send a test <span aria-hidden="true">→</span>
+            {t("test")} <span aria-hidden="true">→</span>
           </button>
         </p>
       )}

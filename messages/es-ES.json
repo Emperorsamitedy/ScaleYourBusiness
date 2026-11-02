@@ -344,7 +344,8 @@
       "skipped": "omitido",
       "yes": "sí",
       "no": "no",
-      "onFile": "registrado"
+      "onFile": "registrado",
+      "entityCount": "{count, plural, one {# registrado} many {# registrados} other {# registrados}}"
     },
     "source": {
       "connected": "cuenta conectada",
@@ -448,6 +449,946 @@
       "unknown_field": "esa lista no tiene ningún campo llamado «{field}»",
       "finding_not_open": "eso ya está resuelto",
       "invalid": "no se ha podido registrar esa respuesta"
+    }
+  },
+  "voice": {
+    "speak": "Hablar",
+    "listening": "Escuchando… Pulse Hablar de nuevo para parar.",
+    "noticeStart": "{notice} Pulse Hablar de nuevo para empezar.",
+    "notice": "Su navegador convierte su voz en texto. En Chrome lo hace Google; SYB nunca recibe el audio.",
+    "cap": "Dejo de escuchar al cabo de un minuto. Pulse Hablar para añadir más.",
+    "error": {
+      "blocked": "El micrófono está bloqueado para este sitio. Permítalo en la configuración del sitio de su navegador (el icono junto a la dirección) y vuelva a pulsar Hablar.",
+      "noSpeech": "No he oído nada. Pulse Hablar y empiece a hablar cuando aparezca «Escuchando».",
+      "noMicrophone": "No se ha encontrado ningún micrófono. Compruebe que hay uno conectado y encendido, y vuelva a pulsar Hablar.",
+      "network": "Su navegador no ha podido acceder a su servicio de reconocimiento de voz. Compruebe su conexión a internet o escriba la respuesta.",
+      "language": "Su navegador no puede convertir en texto la voz en {lang}. Escriba la respuesta.",
+      "stopped": "La escucha se ha detenido antes de captar ninguna palabra. Pulse Hablar para volver a intentarlo o escriba la respuesta."
+    }
+  },
+  "sheet": {
+    "basis": {
+      "OBSERVED": "OBSERVADO",
+      "DERIVED": "DERIVADO",
+      "ESTIMATED": "ESTIMADO",
+      "STATED": "DECLARADO",
+      "ASSUMED": "SUPUESTO"
+    },
+    "basisMeaning": {
+      "OBSERVED": "leído de una cuenta conectada, un documento o una página pública",
+      "DERIVED": "calculado a partir de otros datos, con la fórmula a la vista",
+      "ESTIMATED": "su propia estimación",
+      "STATED": "una respuesta exacta que usted dio",
+      "ASSUMED": "un dato de entrada de una previsión que nadie ha medido ni indicado"
+    },
+    "gap": {
+      "unknown": "NO SE SABE",
+      "skipped": "OMITIDO",
+      "unasked": "NO PREGUNTADO",
+      "not_applicable": "NO APLICA"
+    },
+    "source": {
+      "owner_input": "me lo dijo usted",
+      "conversation": "de nuestra conversación",
+      "inferred": "calculado",
+      "web_research": "investigado",
+      "benchmark": "referencia",
+      "connector": "medido",
+      "document": "de un documento",
+      "system_default": "predeterminado"
+    },
+    "severity": {
+      "critical": "ACTUAR YA",
+      "high": "ALTA",
+      "medium": "MEDIA",
+      "low": "BAJA"
+    },
+    "none": "—"
+  },
+  "charts": {
+    "panel": {
+      "label": "Sus cifras en un gráfico",
+      "failed": "No he podido leer sus cifras para el gráfico ahora mismo. Actualice la página para volver a intentarlo; no se pierde nada.",
+      "reading": "Leyendo sus días medidos…"
+    }
+  },
+  "stop": {
+    "failed": "eso no ha funcionado",
+    "stopping": "Deteniendo…",
+    "stop": "Detenerlo todo",
+    "what": "Detiene todas las ejecuciones a la vez, sin necesidad de iniciar sesión. La lectura y las propuestas continúan.",
+    "stoppedAt": "Detenido {when} · no se ejecuta nada",
+    "stoppedShort": "Detenido · no se ejecuta nada",
+    "starting": "Reanudando…",
+    "yesStart": "Sí, reanudar",
+    "stay": "Seguir detenido",
+    "startNote": "Al reanudar, las acciones aprobadas pueden ejecutarse. Para ello necesita haber iniciado sesión.",
+    "startUp": "Volver a ponerlo todo en marcha",
+    "flag": "detenido · no se ejecutará nada",
+    "title": "Todo está detenido.",
+    "titleSince": "Todo está detenido desde {when}.",
+    "copy": "Las acciones aprobadas siguen aprobadas y esperan. No se ejecuta nada, no se publica nada y no cambia nada en su sitio web, incluido lo que estuviera a medias cuando lo detuvo. La lectura, la planificación y las propuestas continúan con normalidad.",
+    "youSaid": "Usted dijo: «{reason}»",
+    "yesExecute": "Sí, volver a ejecutar"
+  },
+  "history": {
+    "meta": {
+      "title": "Historial — SYB"
+    },
+    "kicker": "Su negocio · Historial",
+    "title": "El libro de registro. Solo admite añadidos.",
+    "reading": "Leyendo el registro…",
+    "label": "Historial",
+    "signedOut": {
+      "title": "No hay nada registrado para este navegador.",
+      "lede": "El libro de registro existe en cuanto hay un negocio para el que llevarlo.",
+      "start": "Empezar"
+    },
+    "failed": {
+      "title": "El registro no se ha cargado.",
+      "lede": "Algo ha fallado al leer el registro. Actualice la página para volver a intentarlo."
+    },
+    "today": "Hoy · {day}",
+    "figs": {
+      "decided": "Decididas",
+      "ran": "Ejecutadas",
+      "helped": "Ayudaron",
+      "inside": "Previsiones dentro del rango"
+    },
+    "record": "El registro",
+    "show": "Mostrar",
+    "tab": {
+      "everything": "Todo",
+      "decisions": "Decisiones",
+      "ran": "Ejecutado",
+      "measured": "Medido",
+      "facts": "Datos cambiados"
+    },
+    "export": "Exportar como CSV",
+    "empty": {
+      "everything": "Aún no hay nada en el registro. Cuando lo haya, cada sugerencia, decisión, ejecución y dato cambiado quedará aquí para siempre.",
+      "decisions": "Aún no hay sugerencias ni decisiones.",
+      "ran": "No se ha ejecutado nada. Nada se ejecuta sin su aprobación.",
+      "measured": "Aún no hay veredictos. Un veredicto necesita una ejecución y una fuente conectada que lo mida.",
+      "facts": "Ningún dato ha cambiado desde que se registró por primera vez."
+    },
+    "now": "ahora",
+    "kind": {
+      "proposed": "propuesto",
+      "withheld": "retenido",
+      "approved": "aprobado",
+      "declined": "rechazado",
+      "expired": "caducado",
+      "ran": "ejecutado",
+      "measured": "medido",
+      "superseded": "sustituido"
+    },
+    "foot": {
+      "append": "Las entradas no se pueden editar ni eliminar: las correcciones son entradas nuevas que remiten a las anteriores.",
+      "rate": "Tasa de aprobación: {arithmetic}.",
+      "tooEarly": "{count, plural, one {# todavía sin valorar: es demasiado pronto.} many {# todavía sin valorar: es demasiado pronto.} other {# todavía sin valorar: es demasiado pronto.}}",
+      "unmeasured": "{count, plural, one {# sin medir: un veredicto necesita una fuente conectada.} many {# sin medir: un veredicto necesita una fuente conectada.} other {# sin medir: un veredicto necesita una fuente conectada.}}",
+      "verdict": "Cada veredicto es un cálculo sobre días medidos, leídos ahora: nada se valora por la intención."
+    },
+    "track": {
+      "label": "Mi historial de aciertos",
+      "word": {
+        "inside": "dentro",
+        "above": "por encima",
+        "below": "por debajo",
+        "cant_tell": "no se puede saber",
+        "waiting": "en espera"
+      },
+      "range": "rango {range}",
+      "basis": "Con qué base: {basis}",
+      "happened": "Qué ocurrió: {happened}",
+      "foot": "Registro cada previsión en el momento en que la muestro, con el rango que di, y la valoro cuando ha pasado su plazo, solo a partir de cifras medidas. Una valoración no se puede cambiar.",
+      "cantTell": "«No se puede saber» significa que no había cifras medidas, o que se interpuso algo que no entraba en mi previsión, como una entrega. Nunca cuenta como acierto."
+    }
+  },
+  "report": {
+    "meta": {
+      "title": "Su diagnóstico — SYB"
+    },
+    "mast": {
+      "watching": "Observando · día {day} de {of}"
+    },
+    "sub": {
+      "label": "Informe",
+      "findings": "Hallazgos",
+      "decisions": "Decisiones",
+      "record": "El registro",
+      "shadow": "Registro en la sombra",
+      "outcomes": "Resultados",
+      "rules": "Reglas permanentes",
+      "connections": "Conexiones",
+      "notBuilt": "Aún no disponible",
+      "print": "Imprimir / PDF"
+    },
+    "fact": {
+      "notInSnapshot": "no figura en esta instantánea",
+      "basisNotRecorded": "BASE NO REGISTRADA"
+    },
+    "panel": {
+      "label": "Panel de diagnóstico · muestra {id} · emitido el {issued}",
+      "prior": " · anterior: {date}",
+      "headUnit": "variación del beneficio / mes · si aplica {ref} · DERIVADO",
+      "computed": "{computed} de {total}",
+      "computedUnit": "medidas calculadas · cada una explica por qué",
+      "diagnosis": "Diagnóstico",
+      "noFindings": "no se señala ningún hallazgo",
+      "notComputed": "{count, plural, one {<b>#</b> sin calcular} many {<b>#</b> sin calcular} other {<b>#</b> sin calcular}}",
+      "empty": "No se ha podido calcular ni descartar ninguna medida: el perfil aún no tiene nada con lo que trabajar.",
+      "caption": "Cada medida: su resultado, el resultado del informe anterior, el rango de referencia, un aviso, el dinero al mes, su base y cómo se calculó",
+      "legend": "Rango · línea de actuar ya: solo se dibuja donde un objetivo suyo o un rango respaldado por los datos cubre la medida; todavía no lo hace ninguno, así que se muestra —. El dinero al mes solo se imprime donde la diferencia de una medida tiene un precio asignado; no lo tiene ninguna. DERIVADO = calculado a partir de otros datos; su POR QUÉ muestra la fórmula y los datos de entrada."
+    },
+    "col": {
+      "measure": "Medida",
+      "result": "Resultado",
+      "prior": "Anterior",
+      "priorReport": "Informe anterior",
+      "range": "Rango · línea de actuar ya",
+      "rangeShort": "Rango · actuar ya",
+      "flag": "Aviso",
+      "perMonth": "{currency} / mes",
+      "basis": "Base",
+      "derivation": "Cálculo"
+    },
+    "why": {
+      "button": "Por qué",
+      "buttonSr": " — cómo se calculó {name}",
+      "sheet": "Ficha del cálculo",
+      "nothing": "Nada seleccionado",
+      "choose": "Elija POR QUÉ → en una medida para ver cómo se calculó.",
+      "formula": "La fórmula, en palabras",
+      "notComputed": "Por qué no se calculó",
+      "inputs": "Datos de entrada",
+      "missingInputs": "Datos de entrada que faltan",
+      "none": "No hay ninguno registrado.",
+      "missing": "no registrado · falta",
+      "basisNotRecorded": "base no registrada",
+      "history": "Historial · valores sustituidos, nunca borrados",
+      "noHistory": "Todavía no se ha sustituido ningún dato de entrada de esta cifra."
+    },
+    "measure": {
+      "blended_margin": {
+        "name": "Margen combinado",
+        "words": "Lo que deja cada venta después de lo que le cuesta entregarla, como proporción de su precio, promediado entre sus ofertas y ponderado según cuántas vende de cada una."
+      },
+      "average_order_value": {
+        "name": "Valor medio del pedido",
+        "words": "Sus ingresos mensuales divididos entre el número de ventas del mes (pedidos, reservas o visitas)."
+      },
+      "cost_per_acquisition": {
+        "name": "Coste de captación de un cliente",
+        "words": "Lo que gasta en anuncios en un mes, dividido entre las ventas a clientes que compran por primera vez."
+      },
+      "return_on_ad_spend": {
+        "name": "Retorno de la inversión publicitaria",
+        "words": "Todos sus ingresos mensuales divididos entre todo su gasto mensual en anuncios: un cálculo combinado, sin atribuirlo a ningún anuncio concreto."
+      },
+      "fixed_costs": {
+        "name": "Costes fijos",
+        "words": "Cada coste fijo que indicó, convertido en un importe mensual según su periodicidad, y todos sumados."
+      },
+      "break_even": {
+        "name": "Volumen del punto de equilibrio",
+        "words": "Sus costes fijos divididos entre lo que aporta cada venta una vez descontado su propio coste: el número de ventas al mes que lo paga todo."
+      },
+      "offer": {
+        "name": "Margen · {name}",
+        "words": "El precio, menos lo que le cuesta entregar una unidad, como proporción del precio.",
+        "refusal": "no hay ningún coste de entrega registrado para esta oferta, así que no hay nada que restar de su precio"
+      }
+    },
+    "flag": {
+      "notComputed": "SIN CALCULAR",
+      "belowCost": "ACTUAR YA · POR DEBAJO DEL COSTE",
+      "differs": "DIFIERE DEL SUYO"
+    },
+    "tally": {
+      "critical": "actuar ya",
+      "high": "alta",
+      "medium": "media",
+      "low": "baja"
+    },
+    "unit": {
+      "perMonth": "/ mes"
+    },
+    "input": {
+      "offer": "oferta",
+      "measuredConnected": "medido · cuenta conectada"
+    },
+    "history": {
+      "computed": "En este informe se calculó en {figure}",
+      "notComputed": "No se calculó en este informe: {why}",
+      "was": "Era {figure} en el informe anterior",
+      "notKnown": "no se sabe",
+      "superseded": "{name} era {was}; lo sustituyó {kind, select, measurement {una medición más reciente} reading {una lectura más reciente} calculation {un cálculo más reciente} answer {una respuesta más reciente} other {un registro más reciente}}"
+    },
+    "svm": {
+      "caption": "Lo que usted dijo frente a lo que midió una cuenta conectada",
+      "measure": "Medida · periodo",
+      "said": "Usted dijo",
+      "measured": "Medido",
+      "difference": "Diferencia",
+      "observed": "OBSERVADO · {provider} · {when}",
+      "read": "leído el {date}",
+      "yours": "suyo: {basis} · {source} · {date}",
+      "notKnown": "no se sabe",
+      "label": "Declarado frente a medido",
+      "titleHeld": "Lo que usted dijo se ha confirmado frente a lo que se midió.",
+      "title": "Lo que usted dijo, frente a lo que se midió.",
+      "foot": "El análisis usa la cifra medida. Lo que usted dijo se queda en su historial.",
+      "hide": "Ocultarlos",
+      "show": "Mostrarlos"
+    },
+    "decline": {
+      "lede": "Opcional: ¿por qué no? Así aprendo qué no debo volver a proponer.",
+      "chip": {
+        "tried": "ya lo probamos antes",
+        "market": "no es posible en mi mercado",
+        "now": "ahora mismo no podemos asumirlo"
+      },
+      "label": "Su motivo, con sus palabras",
+      "placeholder": "o dígalo a su manera",
+      "recording": "registrando…",
+      "record": "Registrarlo"
+    },
+    "forecast": {
+      "range": "Variación del beneficio frente a hoy · rango",
+      "caption": "Los tres escenarios de «{title}», con los cálculos",
+      "case": "Escenario",
+      "perMonth": "Al mes",
+      "what": "Qué ocurre · los cálculos",
+      "whatShort": "Qué ocurre"
+    },
+    "case": {
+      "base": "Escenario base",
+      "downside": "Pesimista",
+      "upside": "Optimista"
+    },
+    "rec": {
+      "meta": "esfuerzo {effort, select, low {bajo} medium {medio} high {alto} other {{effort}}} · {undo, select, easy {fácil} moderate {moderadamente difícil} hard {difícil} other {{undo}}} de deshacer",
+      "answers": " · responde a {refs}",
+      "breakEven": "Punto de equilibrio",
+      "highSensitivity": "Sensibilidad alta",
+      "assumptions": "Los supuestos, por escrito",
+      "from": "a partir de {input}",
+      "nobody": "nadie lo ha medido ni indicado",
+      "sensitivity": "sensibilidad {level, select, high {alta} medium {media} low {baja} other {{level}}}",
+      "changeMind": "Si cambia de opinión:",
+      "lookInto": "Estudiarlo →",
+      "notForUs": "No es para nosotros →",
+      "recorded": "Registrado",
+      "lookingInto": "lo está estudiando",
+      "declined": "Rechazado",
+      "reason": "«{reason}»",
+      "noReason": "sin motivo indicado"
+    },
+    "findings": {
+      "label": "Hallazgos · lo más urgente primero",
+      "none": "Nada que las pruebas respalden con la solidez suficiente como para señalarlo.",
+      "title": "{count, plural, one {# hallazgo, con sus pruebas.} many {# hallazgos, cada uno con sus pruebas.} other {# hallazgos, cada uno con sus pruebas.}}",
+      "measured": "medido",
+      "measuredTitle": "Medido en su sitio web, no juzgado"
+    },
+    "recs": {
+      "label": "Lo que yo haría al respecto",
+      "none": "Aún no hay ninguna recomendación que los cálculos puedan respaldar.",
+      "title": "{count, plural, one {# recomendación, con su rango.} many {# recomendaciones, cada una con su rango.} other {# recomendaciones, cada una con su rango.}}"
+    },
+    "hours": {
+      "label": "Horario comercial · OBSERVADO · {from} – {to}",
+      "none": "No se activa ninguna señal en ningún día medido.",
+      "title": "{count, plural, one {# señal en sus ventas por horas.} many {# señales en sus ventas por horas.} other {# señales en sus ventas por horas.}}",
+      "link": "Ver cada día de la semana →",
+      "tooEarly": "Aún es pronto para decirlo"
+    },
+    "gaps": {
+      "label": "Qué afinaría esto",
+      "title": "El informe solo es tan bueno como aquello en lo que se basa.",
+      "priority": "{priority, select, core {clave} important {importante} deep {a fondo} optional {opcional} other {{priority}}}",
+      "blocking": "Bloqueante",
+      "answer": "Responder ahora →"
+    },
+    "foot": "Cada cifra indica de dónde procede. Las estimaciones se marcan como estimaciones; no se inventa nada.",
+    "generatedFrom": "Generado a partir de la instantánea {id}.",
+    "checkout": {
+      "price": "Este informe cuesta {price}.",
+      "priceReturning": "Este informe cuesta {price}, porque ya ha pagado el de otro de sus negocios.",
+      "others": "{count, plural, one {Tiene otro negocio sin informe pagado: añádalo al mismo pago por {price} cada uno.} many {Tiene otros negocios sin informe pagado: añádalos al mismo pago por {price} cada uno.} other {Tiene otros negocios sin informe pagado: añádalos al mismo pago por {price} cada uno.}}",
+      "total": "{count, plural, one {Total: {total} por # informe, en un solo pago. El informe de cada negocio se redacta cuando lo abre desde ese negocio.} many {Total: {total} por # informes, en un solo pago. El informe de cada negocio se redacta cuando lo abre desde ese negocio.} other {Total: {total} por # informes, en un solo pago. El informe de cada negocio se redacta cuando lo abre desde ese negocio.}}",
+      "pay": "Pagar {total} →",
+      "notNow": "Ahora no"
+    },
+    "state": {
+      "label": "Panel de diagnóstico",
+      "noReport": "Aún no hay informe",
+      "checking": "Buscando su informe…",
+      "error": "Algo ha fallado al cargar el informe. Actualice la página para volver a intentarlo; no se pierde nada de lo que me ha contado.",
+      "openingCheckout": "Abriendo el pago: el informe se paga antes de redactarlo",
+      "confirming": "Esperando a que Stripe confirme su pago",
+      "reading": "Leyendo su perfil: la solicitud está en curso",
+      "readingLede": "El margen, el punto de equilibrio, los hallazgos y qué hacer al respecto. Suele tardar alrededor de un minuto; los cálculos se comprueban antes de que nada llegue a la página.",
+      "none": "Cuando haya respondido lo suficiente, leeré todo el perfil y pondré por escrito lo que pueda demostrar.",
+      "readNow": "Leer mi perfil ahora →",
+      "answerMore": "Responder más antes →",
+      "payFailed": "no se ha podido iniciar el pago",
+      "payUnreachable": "No he podido conectar con el servidor y no se ha cobrado nada; inténtelo de nuevo.",
+      "notConfirmed": "Stripe aún no ha confirmado su pago. Actualice esta página dentro de un minuto: no se le volverá a cobrar, y el informe empieza en cuanto se confirme.",
+      "generationFailed": "la generación ha fallado",
+      "unreachable": "No he podido conectar con el servidor; sus respuestas están a salvo. Inténtelo de nuevo."
+    },
+    "share": {
+      "label": "Compartir este informe",
+      "title": "Un enlace de solo lectura para un socio, una asesoría contable o un inversor.",
+      "signedOut": "Inicie sesión para compartir su informe: un enlace que sale de SYB solo puede crearlo usted, así que necesita haber iniciado sesión.",
+      "lede": "El enlace muestra este informe tal como está ahora, sin sus respuestas a las recomendaciones y sin nada que lleve a su cuenta. No cambia nunca una vez creado, y puede revocarlo aquí en cualquier momento.",
+      "lasts": "Duración",
+      "days": "{days, plural, one {# día} many {# días} other {# días}}",
+      "make": "Crear un enlace",
+      "newLink": "El nuevo enlace",
+      "copied": "Copiado",
+      "copy": "Copiar",
+      "onlyOnce": "Esta es la única vez que se muestra el enlace. Cualquiera que lo tenga puede leer el informe hasta que caduque o usted lo revoque.",
+      "listLabel": "Enlaces que ha creado",
+      "status": {
+        "active": "Activo",
+        "expired": "Caducado",
+        "revoked": "Revocado"
+      },
+      "made": "creado el {date}",
+      "revokedOn": "revocado el {date}",
+      "expired": "caducó el {date}",
+      "expires": "caduca el {date}",
+      "notOpened": "aún no se ha abierto",
+      "lastOpened": "{count, plural, one {abierto por última vez el {date} (# visita)} many {abierto por última vez el {date} (# visitas)} other {abierto por última vez el {date} (# visitas)}}",
+      "reportOf": "informe del {date}",
+      "revoke": "Revocar",
+      "wrong": "algo ha salido mal; inténtelo de nuevo",
+      "unreachable": "No he podido conectar con el servidor; inténtelo de nuevo."
+    }
+  },
+  "factsheet": {
+    "meta": {
+      "title": "Su ficha de datos — SYB"
+    },
+    "kicker": "Su negocio · Ficha de datos",
+    "titleEmpty": "El registro.",
+    "title": "{count, plural, one {# dato sobre {noun}. Indica de dónde procede.} many {# datos sobre {noun}. Cada uno indica de dónde procede.} other {# datos sobre {noun}. Cada uno indica de dónde procede.}}",
+    "yourBusiness": "su negocio",
+    "noSession": "Todavía no hay ningún perfil en este dispositivo. <a>Empiece las preguntas</a> o abra el enlace que le envié.",
+    "failed": "Algo ha fallado al cargar su perfil. Actualice la página para volver a intentarlo; no se pierde nada de lo que me ha contado.",
+    "reading": "Leyendo su perfil…",
+    "export": {
+      "label": "Para su asesoría contable",
+      "current": "Datos económicos, CSV",
+      "history": "Cifras anteriores, CSV"
+    },
+    "counts": {
+      "observed": "{count, plural, one {<b>#</b> observado} many {<b>#</b> observados} other {<b>#</b> observados}}",
+      "derived": "{count, plural, one {<b>#</b> derivado} many {<b>#</b> derivados} other {<b>#</b> derivados}}",
+      "fromYou": "{count, plural, one {<b>#</b> aportado por usted} many {<b>#</b> aportados por usted} other {<b>#</b> aportados por usted}}",
+      "assumed": "{count, plural, one {<b>#</b> supuesto} many {<b>#</b> supuestos} other {<b>#</b> supuestos}}",
+      "gaps": "{count, plural, one {<b>#</b> registrado como «no se sabe»} many {<b>#</b> registrados como «no se sabe»} other {<b>#</b> registrados como «no se sabe»}}"
+    },
+    "recordLabel": "El registro",
+    "search": "Buscar en el registro",
+    "searchPlaceholder": "p. ej., horario, precio, canales",
+    "filterLabel": "Filtrar el registro",
+    "filter": {
+      "all": "Todo",
+      "assumed": "Supuestos · {count}",
+      "changed": "Cambiados este mes · {count}"
+    },
+    "supersededCount": "{count, plural, one {# valor sustituido} many {# valores sustituidos} other {# valores sustituidos}}",
+    "showSuperseded": "Mostrar sustituidos",
+    "sectionsLabel": "Secciones del registro",
+    "stillOpen": "Aún pendientes",
+    "empty": {
+      "query": "Ningún dato coincide con «{query}».",
+      "assumed": "Ningún dato se basa en un supuesto: cada valor procede de usted, de una conexión o de un cálculo.",
+      "changed": "Este mes no se ha sustituido nada.",
+      "none": "Todavía no hay nada registrado."
+    },
+    "sectionFacts": "{count, plural, one {# dato} many {# datos} other {# datos}}",
+    "sectionChanged": "{count, plural, one {# cambiado este mes} many {# cambiados este mes} other {# cambiados este mes}}",
+    "noneRecorded": "nada registrado",
+    "competitorsLede": "Nómbrelos en la entrevista o déjeme buscarlos a partir de lo que ya me ha contado.",
+    "openMeta": "{count, plural, one {# pregunta · un hueco es un hallazgo, no un fallo} many {# preguntas · un hueco es un hallazgo, no un fallo} other {# preguntas · un hueco es un hallazgo, no un fallo}}",
+    "foot": "Las líneas tachadas fueron ciertas hasta que llegó algo mejor. Nunca se borra nada del registro. Instantánea {id} · {date}.",
+    "caption": "{section}: cada dato con su valor, su fuente, su base y la fecha desde la que es válido",
+    "col": {
+      "fact": "Dato",
+      "value": "Valor",
+      "source": "Fuente",
+      "basis": "Base",
+      "since": "Desde"
+    },
+    "confirmDefault": "confirme para sustituir el valor predeterminado",
+    "noted": "nota: {note}",
+    "superseded": "sustituido el {date} por {kind, select, measurement {una medición más reciente} reading {una lectura más reciente} calculation {un cálculo más reciente} answer {una respuesta más reciente} other {un registro más reciente}}",
+    "supersededWord": "Sustituido",
+    "priority": {
+      "core": "clave",
+      "important": "importante",
+      "deep": "a fondo",
+      "optional": "opcional"
+    },
+    "blocking": "Bloqueante",
+    "answerNow": "Responder ahora →",
+    "showFewer": "Mostrar menos",
+    "showAll": "Mostrar todos ({count})",
+    "section": {
+      "identity": "Su identidad",
+      "presence": "Dónde vende",
+      "offers": "Lo que vende",
+      "revenue": "Ingresos",
+      "costs": "Costes",
+      "customers": "Clientes",
+      "channels": "Canales",
+      "marketing": "Marketing",
+      "operations": "Operaciones",
+      "tooling": "Herramientas",
+      "legal": "Legal e impuestos",
+      "competitors": "Competidores",
+      "goals": "Sus objetivos",
+      "assets": "Archivos"
+    },
+    "spine": {
+      "offers": "Producto",
+      "suppliers": "Proveedor",
+      "competitors": "Competidor",
+      "channels": "Canal",
+      "staff_roles": "Puesto",
+      "locations": "Ubicación"
+    },
+    "entityName": "{noun}: nombre",
+    "basis": {
+      "fromYou": "DE USTED",
+      "fromYouEstimate": "DE USTED · EST."
+    },
+    "source": {
+      "interview": "usted · entrevista",
+      "conversation": "usted · conversación",
+      "measured": "medido · {detail}",
+      "measuredConnected": "medido · cuenta conectada",
+      "researchedAt": "investigado · {detail}",
+      "researched": "investigado",
+      "computedAs": "calculado · {detail}",
+      "computed": "calculado",
+      "document": "de un documento",
+      "default": "predeterminado hasta que lo confirme"
+    },
+    "value": {
+      "pagesSilent": "sus páginas no lo decían",
+      "unknown": "no lo sabía: queda registrado",
+      "skipped": "omitido por ahora",
+      "notApplicable": "no aplica",
+      "unasked": "aún no preguntado"
+    },
+    "finder": {
+      "nothingUsable": "la búsqueda no ha devuelto nada aprovechable",
+      "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo dentro de un momento.",
+      "failed": "la búsqueda ha fallado",
+      "searching": "Buscando en la web…",
+      "find": "Buscar a mis competidores →",
+      "searchingFrom": "Buscando a partir de lo que me ha contado",
+      "readingPages": "Leyendo sus páginas",
+      "found": "Encontrados buscando a partir de lo que me ha contado. No se guarda nada hasta que lo confirme.",
+      "readingPagesNow": "Leyendo sus páginas…",
+      "thatsOne": "Ya hay uno: buscar su información →"
+    }
+  },
+  "watch": {
+    "meta": {
+      "title": "Observando — SYB"
+    },
+    "kicker": "Análisis · Observando",
+    "days": {
+      "label": "Día de observación {day} de {of}",
+      "started": "Empezó el {date}",
+      "legend": "Cada casilla rellena es un día de observación ya pasado. La que solo tiene el contorno es hoy.",
+      "ends": "La observación termina el {date}"
+    },
+    "tally": {
+      "steady": "{count, plural, one {# estable} many {# estables} other {# estables}}",
+      "drifting": "{count, plural, one {# con desvío} many {# con desvío} other {# con desvío}}",
+      "interrupted": "{count, plural, one {# interrumpida} many {# interrumpidas} other {# interrumpidas}}",
+      "thin": "{count, plural, one {# con pocos datos} many {# con pocos datos} other {# con pocos datos}}"
+    },
+    "status": {
+      "steady": "Estable",
+      "drifting": "Con desvío",
+      "interrupted": "Interrumpida",
+      "thin": "Pocos datos"
+    },
+    "signals": {
+      "label": "Lo que estoy observando",
+      "nothing": "Aún no hay nada que leer",
+      "titleRead": "{count, plural, one {# señal, leída cada día} many {# señales, leídas cada día} other {# señales, leídas cada día}}",
+      "titleNotRead": "{count, plural, one {# señal que ahora no se está leyendo} many {# señales que ahora no se están leyendo} other {# señales que ahora no se están leyendo}}",
+      "thinRule": "POCOS DATOS = menos de {min} de los últimos {of} días registrados, así que aún no hay un rango habitual con el que comparar.",
+      "driftRule": "CON DESVÍO = fuera de su rango habitual {days} días seguidos o más; INTERRUMPIDA = ha superado una regla que detiene la observación.",
+      "connect": "Conecte sus pagos, su caja o su tienda online, su analítica o sus anuncios, y cada cifra del conjunto del negocio que contengan se leerá aquí cada día. <a>Conexiones</a>",
+      "noDaily": "Sus conexiones aún no contienen cifras diarias: llegarán con la próxima sincronización.",
+      "tableLabel": "Tabla de señales",
+      "col": {
+        "signal": "Señal",
+        "from": "Leída de",
+        "days": "Días leídos",
+        "perDay": "Por día, semana {week} → ahora",
+        "status": "Estado"
+      },
+      "below": "Por debajo de su rango habitual desde el {date}",
+      "above": "Por encima de su rango habitual desde el {date}"
+    },
+    "noted": {
+      "label": "Anotado, sin actuar",
+      "title": "Lo que habría dicho",
+      "empty": "Aún nada. Cuando una cifra sale de su rango habitual, su horario muestra una señal o un competidor cambia un precio, lo anoto aquí, y no actúo en nada de ello.",
+      "day": "Día {day}"
+    },
+    "when": {
+      "label": "Cuando termine la observación",
+      "foot": "La duración de la observación se fija en Cómo trabajo.",
+      "link": "Cómo trabajo →",
+      "ends": "La observación termina. El próximo informe lee todo lo que ha reunido.",
+      "after": "después",
+      "afterText": "Las propuestas que cuenten con su aprobación pueden ejecutarse. La observación ya no las retiene.",
+      "always": "siempre",
+      "alwaysText": "Nada se ejecuta sin su aprobación."
+    },
+    "activity": {
+      "label": "Actividad",
+      "title": "Cada entrada es trabajo real",
+      "empty": "Aún nada. Aquí aparecerá la primera instantánea semanal."
+    },
+    "rules": {
+      "label": "Qué interrumpiría la observación",
+      "checked": "Se comprueba a diario",
+      "notChecked": "Aún no comprobado"
+    },
+    "modules": {
+      "label": "Módulos",
+      "title": "Para cuando empiece a actuar",
+      "name": "{module, select, marketing {marketing} sales {ventas} support {soporte} operations {operaciones} finance {finanzas} team {equipo} other {{module}}}",
+      "analytics": "analítica, siempre activa",
+      "rolesNotPeople": "{module, select, team {equipo} other {{module}}}, por funciones, no por personas",
+      "teamLink": "Ver la pantalla del equipo"
+    },
+    "summary": {
+      "label": "Correo semanal",
+      "title": "Un resumen cada lunes",
+      "switch": "enviarme la semana por correo",
+      "lede": "Lo que hice y encontré esa semana, y lo que le espera. Cada línea es una entrada de esta pantalla; si la semana ha sido tranquila, lo dice.",
+      "signUp": "Regístrese y le llegará a la dirección con la que inicia sesión.",
+      "off": "Desactivado. No se envía nada por correo; todo se queda en esta pantalla.",
+      "notDecided": "Empieza en cuanto se decida Cómo trabajo.",
+      "noEmail": "El correo electrónico aún no está configurado en este servidor, así que no se envía ninguno.",
+      "lastSent": "Último envío: {date}.",
+      "first": "El primero sale con la próxima comprobación del lunes."
+    },
+    "signedOut": {
+      "title": "Aquí aún no hay ningún negocio.",
+      "lede": "<a>Empiece por la entrevista</a> y la observación comenzará en cuanto esté listo el informe."
+    },
+    "failed": {
+      "title": "La observación no se ha cargado.",
+      "lede": "Algo ha fallado por nuestra parte. Actualice la página para volver a intentarlo."
+    },
+    "reading": "Leyendo la observación…",
+    "none": {
+      "title": "Aún no hay ninguna observación en marcha.",
+      "instantTitle": "No hay ninguna observación en marcha. Este negocio está en modo inmediato.",
+      "notDecided": "Aún no se ha decidido Cómo trabajo: se decide después del informe.",
+      "instant": "Aquí no hay periodo de observación. Nada se ejecuta sin su aprobación.",
+      "link": "Cómo trabajo"
+    },
+    "title": {
+      "complete": "Día {of} de {of}. La observación ha terminado.",
+      "untouched": "Día {day} de {of}. No he tocado nada por mi cuenta.",
+      "changes": "{count, plural, one {Día {day} de {of}. # cambio realizado, con su aprobación.} many {Día {day} de {of}. # cambios realizados, todos con su aprobación.} other {Día {day} de {of}. # cambios realizados, todos con su aprobación.}}"
+    },
+    "notes": {
+      "hold": "Mientras dure la observación no se ejecuta nada que yo pueda cambiar.",
+      "readingEnds": "{count, plural, one {Leyendo # conexión cada día · la observación termina el {date}} many {Leyendo # conexiones cada día · la observación termina el {date}} other {Leyendo # conexiones cada día · la observación termina el {date}}}",
+      "readingEnded": "{count, plural, one {Leyendo # conexión cada día · la observación terminó el {date}} many {Leyendo # conexiones cada día · la observación terminó el {date}} other {Leyendo # conexiones cada día · la observación terminó el {date}}}",
+      "noneEnds": "No se está leyendo ninguna conexión · <a>Conexiones</a> · la observación termina el {date}",
+      "noneEnded": "No se está leyendo ninguna conexión · <a>Conexiones</a> · la observación terminó el {date}"
+    },
+    "alerts": {
+      "label": "Alertas en el móvil",
+      "title": "Unas palabras cuando algo le espera",
+      "lede": "Cuando algo nuevo espera su sí, su móvil recibe unas pocas palabras: nunca una cifra, un nombre ni una dirección, porque la pantalla de bloqueo es pública. Al tocar la alerta se abre esa propuesta, y usted decide en su tarjeta, nunca en la alerta. Nada entre las {from} y las {to}, y como mucho una al día.",
+      "status": {
+        "signIn": "Inicie sesión en este dispositivo para activar las alertas.",
+        "noKeys": "Este servidor aún no puede enviar alertas al móvil: sus claves no están configuradas.",
+        "iphoneTab": "Primero añada SYB a su pantalla de inicio y active esto desde allí. En Safari: Compartir y luego «Añadir a pantalla de inicio» (iOS {version} o posterior).",
+        "unsupported": "Este navegador no admite alertas. En un iPhone, añada primero SYB a su pantalla de inicio y active esto desde allí.",
+        "denied": "Las alertas de SYB están bloqueadas en la configuración de este navegador. Permítalas allí y luego active esto.",
+        "on": "Activadas en este dispositivo."
+      },
+      "switchOn": "Activar en este dispositivo",
+      "thisDevice": "este dispositivo",
+      "onSince": "activadas desde el {date}",
+      "lastAlert": "última alerta: {date}",
+      "remove": "Quitar",
+      "test": "Enviar una prueba",
+      "noPermission": "No se ha activado nada: el navegador no ha dado permiso.",
+      "switchedOn": "Activadas. Este dispositivo recibe unas palabras cuando algo nuevo espera su sí.",
+      "notSwitchedOn": "No se han activado: {error}.",
+      "refused": "No se han activado: este navegador ha rechazado la suscripción. Inténtelo de nuevo dentro de un momento.",
+      "removed": "Quitado: {device} ya no recibirá más alertas.",
+      "notRemoved": "No se ha quitado: {error}.",
+      "tested": "Prueba: {results}.",
+      "notTested": "No se ha enviado ninguna prueba: {error}.",
+      "ourSide": "algo ha fallado por nuestra parte"
+    }
+  },
+  "proposals": {
+    "meta": {
+      "title": "Propuestas — SYB",
+      "one": "Propuesta — SYB"
+    },
+    "module": "{module, select, marketing {marketing} sales {ventas} support {soporte} operations {operaciones} finance {finanzas} team {equipo} other {{module}}}",
+    "loading": "Leyendo la cola…",
+    "notRecorded": "esa decisión no se ha registrado",
+    "failNote": "{count, plural, one {# sin registrar: {errors}.} many {# sin registrar: {errors}.} other {# sin registrar: {errors}.}}",
+    "announce": {
+      "approved": "{count, plural, one {# propuesta aprobada} many {# propuestas aprobadas} other {# propuestas aprobadas}}",
+      "declined": "{count, plural, one {# propuesta rechazada} many {# propuestas rechazadas} other {# propuestas rechazadas}}",
+      "nothing": "No se ha registrado nada",
+      "next": "Siguiente: {title}",
+      "none": "No hay nada más que necesite una decisión."
+    },
+    "signedOut": {
+      "eyebrow": "propuestas",
+      "title": "Inicie sesión para decidir.",
+      "copy": "Aprobar o rechazar una propuesta queda registrado con su nombre, así que necesita haber iniciado sesión; no basta con este navegador.",
+      "signIn": "Iniciar sesión"
+    },
+    "reason": {
+      "why": "¿Por qué no? Con un toque basta",
+      "whyAll": "¿Por qué no, para las {count}? Con un toque basta",
+      "label": "Su motivo, con sus palabras",
+      "placeholder": "O dígalo en una frase: aprendo de ello.",
+      "need": "Elija primero un motivo: al rechazar se pregunta por qué, y el registro guarda su respuesta.",
+      "foot": "Rechazar: no se ejecuta nada y no cambia nada. Lo registro con su motivo y no actúo en consecuencia.",
+      "record": "Registrar el rechazo",
+      "recordAll": "Registrar el rechazo de las {count}"
+    },
+    "chip": {
+      "wrongData": "DATOS ERRÓNEOS",
+      "wrongTiming": "MAL MOMENTO",
+      "tooRisky": "DEMASIADO ARRIESGADO",
+      "notMyStrategy": "NO ENCAJA EN MI ESTRATEGIA"
+    },
+    "chipPhrase": {
+      "wrongData": "Datos erróneos",
+      "wrongTiming": "Mal momento",
+      "tooRisky": "Demasiado arriesgado",
+      "notMyStrategy": "No encaja en mi estrategia"
+    },
+    "changes": {
+      "label": "¿Qué debería ser diferente?",
+      "placeholder": "p. ej., solo los clientes del año pasado y sin descuento.",
+      "need": "Diga primero qué debería cambiar: el registro guarda sus palabras.",
+      "foot": "Ni aprobada ni rechazada: no se ejecuta nada. Sus palabras quedan en el registro con su nombre. Todavía no se prepara una nueva versión automáticamente.",
+      "record": "Registrar la petición"
+    },
+    "change": {
+      "none": "Esta propuesta no indica un antes y un después. El cambio, en sus propias palabras: «{summary}».",
+      "becomes": "pasa a ser",
+      "line": "Línea",
+      "before": "Antes",
+      "after": "Después"
+    },
+    "effect": {
+      "profit": "beneficio {span}, del escenario pesimista al optimista",
+      "likeliest": "lo más probable: {statement}",
+      "none": "No hay ninguna previsión de efecto económico para esta propuesta.",
+      "noRange": "No hay ninguna previsión de rango económico para esta propuesta; los escenarios, en palabras:",
+      "case": {
+        "downside": "pesimista",
+        "likeliest": "más probable",
+        "upside": "optimista"
+      },
+      "workedOut": "calculado como {formula}"
+    },
+    "evidence": {
+      "none": "Esta propuesta no enumera ningún supuesto.",
+      "leans": "la conclusión depende mucho de esto",
+      "notRecorded": "NO REGISTRADO",
+      "disagree": "{count, plural, one {# fuente discrepa} many {# fuentes discrepan} other {# fuentes discrepan}}",
+      "breakEven": "Punto de equilibrio",
+      "manual": "Usted me dijo: «{limits}». Sopéselo frente a esto por su cuenta; yo no puedo comprobarlo por usted."
+    },
+    "decisions": "Decisiones",
+    "stats": "Mediana del tiempo entre el borrador y la decisión este mes: {median} · aprobadas {approved} de {decided}",
+    "empty": {
+      "title": "No hay nada que necesite una decisión.",
+      "lede": "Las propuestas proceden de su último informe de diagnóstico, de los cambios que la observación detecta en sus cifras, de los objetivos que se retrasan, de las revisiones de anuncios y de contenido, y de lo que usted pide en el chat. Cada una llega primero aquí: qué va a ocurrir, en qué se basa y qué significa rechazarla. Nada se ejecuta sin su sí.",
+      "check": "Revisar el último informe en busca de propuestas"
+    },
+    "held": {
+      "label": "Retenidas por indicación suya · {count}",
+      "stamp": "RETENIDA · no se propondrá",
+      "note": "La redacté y después la bloqueé por mi cuenta: usted dijo «{limit}»."
+    },
+    "m": {
+      "changes": "Qué cambia",
+      "expected": "Previsto · estimado",
+      "expectedSpan": "Previsto, {span} · estimado",
+      "evidence": "{count, plural, one {Pruebas completas · # línea} many {Pruebas completas · # líneas} other {Pruebas completas · # líneas}}",
+      "later": "Más tarde",
+      "changesInstead": "Pedir cambios en su lugar",
+      "nothingWaiting": "Nada pendiente",
+      "waiting": "{count, plural, one {# decisión pendiente} many {# decisiones pendientes} other {# decisiones pendientes}}",
+      "position": "{n} de {of}",
+      "next": "siguiente: {title}",
+      "foot": "Nada se ejecuta sin su aprobación."
+    },
+    "decide": {
+      "label": "Su decisión",
+      "decline": "Rechazar",
+      "changes": "Pedir cambios",
+      "approveVerb": "Aprobar: {verb}",
+      "run": "Si se aprueba, ejecutar",
+      "halted": "Ahora mismo todo está detenido: no se ejecuta nada hasta que vuelva a ponerlo en marcha.",
+      "readOnly": "Aquí puede consultarlo todo."
+    },
+    "sheet": {
+      "ref": "Propuesta {ref} · redactada el {when}",
+      "from": "procedente de {origin}",
+      "deadline": "Decida, como tarde, el {day}. Si para entonces no ha respondido, caduca: no aprobada, no se ha ejecutado nada.",
+      "s1": "{n} · Qué cambia: antes → después",
+      "s2": "{n} · Efecto previsto · estimado",
+      "s2Span": "{n} · Efecto previsto, {span} · estimado",
+      "s3": "{n} · Pruebas: cada línea con su fuente",
+      "s4": "{n} · Reversibilidad"
+    },
+    "schedule": {
+      "planned": "a su hora prevista, {day} a las {clock}",
+      "nextRun": "en la siguiente ejecución tras su aprobación",
+      "noTime": "sin hora fijada",
+      "tomorrow": "no antes de mañana",
+      "nextWeek": "no antes de la semana que viene"
+    },
+    "bulk": {
+      "label": "Decidir varias a la vez",
+      "ref": "Revisión en bloque · cada propuesta conserva su propio registro",
+      "selected": "{count, plural, one {# seleccionada} many {# seleccionadas} other {# seleccionadas}}",
+      "tick": "Marque propuestas en la lista",
+      "lede": "Cada una se sigue decidiendo por separado en el registro, con su propia entrada: esto solo le ahorra los clics.",
+      "run": "{count, plural, one {Si se aprueba, se ejecuta} many {Si se aprueban, se ejecutan las #} other {Si se aprueban, se ejecutan las #}}",
+      "choose": "— elija cuándo —",
+      "noTime": "sin hora fijada: una publicación programada conserva su hora",
+      "need": "Elija primero cuándo se ejecutan: una aprobación en bloque indica su calendario.",
+      "approve": "Aprobar {count}",
+      "decline": "Rechazar {count}"
+    },
+    "side": {
+      "label": "Propuestas",
+      "needs": "Necesitan una decisión · {count}",
+      "keys": "J / K para moverse",
+      "select": "Seleccionar: {title}",
+      "perMonth": "{range} al mes",
+      "today": "Decididas hoy",
+      "youAsked": "Usted pidió: «{words}»",
+      "youSaid": "Usted dijo: «{words}»",
+      "earlier": "Anteriores · {count}",
+      "expired": "No aprobada: no se ha ejecutado nada. Se agotó el plazo sin decisión; eso no es un no.",
+      "runs": "Se ejecuta el {day} como pronto.",
+      "foot": "Las propuestas sin respuesta caducan en su fecha límite como «no aprobada: no se ha ejecutado nada».",
+      "oneAtATime": "Volver a una por una"
+    },
+    "history": {
+      "approved": "APROBADA",
+      "executed": "EJECUTADA",
+      "rejected": "RECHAZADA",
+      "changes_requested": "CAMBIOS SOLICITADOS",
+      "expired": "CADUCADA",
+      "stamp": "{word}{at} · ref. {ref}"
+    },
+    "stamp": {
+      "approved": "APROBADA {when} · ref. {ref}",
+      "rejected": "RECHAZADA {when} · ref. {ref}",
+      "changes_requested": "CAMBIOS SOLICITADOS {when} · ref. {ref}",
+      "deviceClock": "{clock} (hora de este dispositivo)"
+    },
+    "rev": {
+      "reversible": "REVERSIBLE · {level, select, easy {FÁCIL} moderate {MODERADAMENTE DIFÍCIL} hard {DIFÍCIL} other {{level}}} DE DESHACER",
+      "reversibleWord": "REVERSIBLE",
+      "irreversible": "IRREVERSIBLE",
+      "noUndo": "No se ha declarado ninguna forma de deshacerlo: trátelo como permanente.",
+      "short": "{level, select, easy {fácil} moderate {moderadamente difícil} hard {difícil} other {{level}}} de deshacer",
+      "shortIrreversible": "irreversible"
+    },
+    "act": {
+      "approve": "Aprobar",
+      "createAd": "Crear el anuncio, en pausa",
+      "goLive": "Activar el anuncio",
+      "pause": "Pausar «{name}»",
+      "raise": "Subir «{name}» un {pct} %",
+      "send": "{count, plural, one {Enviar a # cliente} many {Enviar a # clientes} other {Enviar a # clientes}}",
+      "publish": "Publicar en {platform}"
+    },
+    "origin": {
+      "report": "la recomendación {n} del informe",
+      "anomaly": "una alerta en sus cifras",
+      "ads": "la revisión de los anuncios",
+      "publish": "el plan de contenido",
+      "alert_review": "una revisión de alertas",
+      "utterance": "algo que usted pidió",
+      "crm": "la revisión de la lista de clientes",
+      "hours": "la revisión del horario de apertura"
+    },
+    "note": {
+      "queued": "Al aprobarla, queda en cola para ejecutarse no antes del {day}, a las {clock}. La aprobación no se puede retirar; la parada de emergencia aún puede detenerla.",
+      "noTime": "Al aprobarla, se registra su sí con su nombre. Sin hora fijada, no se ejecuta por sí sola."
+    },
+    "lapsed": "Usted la aprobó, pero caducó antes de poder ejecutarse: no se ha ejecutado nada.",
+    "card": {
+      "when": "{day}, {clock}",
+      "earlier": "antes",
+      "expired": "Se agotó el plazo el {day} sin una decisión: no aprobada, y no se ha ejecutado nada.",
+      "done": "HECHO",
+      "approved": "Ya decidida: aprobada {when}.",
+      "ran": "Se ha ejecutado.",
+      "declined": "Ya decidida: rechazada {when}. No se ha ejecutado nada.",
+      "changes": "Ya respondida: pidió cambios {when}. No se ejecuta nada a partir de ella.",
+      "heldBack": "RETENIDA",
+      "blocked": "La retuve por mi cuenta: usted dijo «{said}». No está pendiente de decisión.",
+      "blockedEnded": "La retuve por mi cuenta: usted dijo «{said}» No está pendiente de decisión.",
+      "notUp": "No está pendiente de decisión.",
+      "noWorst": "No hay ninguna previsión del peor escenario para esta propuesta.",
+      "noLimits": "No me ha dicho nada que nunca querría que se hiciera (pregunta {question}), así que no había nada con lo que compararla.",
+      "and": "y",
+      "checked": "{count, plural, one {Comprobada frente a {limits}: no va en contra.} many {Comprobada frente a {limits}: no va en contra de ninguno.} other {Comprobada frente a {limits}: no va en contra de ninguno.}}",
+      "cantCheck": "{count, plural, one {No puedo comprobar {limits} por usted: sopéselo por su cuenta.} many {No puedo comprobar {limits} por usted: sopéselos por su cuenta.} other {No puedo comprobar {limits} por usted: sopéselos por su cuenta.}}",
+      "notRecorded": "No registrado: {error}.",
+      "wrong": "algo ha salido mal",
+      "decision": "Decisión",
+      "loading": "Leyendo la propuesta…",
+      "eyebrow": "propuesta",
+      "signedOut": "Aprobar o rechazar queda registrado con su nombre, así que necesita haber iniciado sesión en este dispositivo. Después le traeré de vuelta a esta propuesta.",
+      "missing": "Aquí no existe esa propuesta.",
+      "failed": "La propuesta no se ha cargado.",
+      "missingLede": "Puede que el enlace sea de otro negocio, o que sea incorrecto.",
+      "failedLede": "Algo ha fallado por nuestra parte. Actualice la página para volver a intentarlo.",
+      "openQueue": "Abrir la cola",
+      "noLines": "No indica un antes y un después: el cambio es el título.",
+      "noRange": "No hay ninguna previsión de rango económico para esta propuesta.",
+      "worst": "Peor escenario: {worst}",
+      "limits": "Comprobada frente a sus límites",
+      "answered": "Ya respondida",
+      "back": "Volver a la cola",
+      "needSignIn": "Decidir queda registrado con su nombre, así que necesita haber iniciado sesión.",
+      "signInToDecide": "Iniciar sesión para decidir",
+      "declineFoot": "Rechazar: no se ejecuta nada y no cambia nada. Lo registro con su motivo.",
+      "wholeQueue": "Ver toda la cola"
     }
   }
 }

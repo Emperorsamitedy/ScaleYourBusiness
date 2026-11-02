@@ -94,7 +94,27 @@ export interface SessionDeps {
   after: string;
   store?: Store | null;
   onState?: (state: SessionState) => void;
+  /** L-3a: the session's own lines in the person's language; English (NOTICE, errorWords) by default. */
+  words?: SessionWords | undefined;
 }
+
+/** The lines a session says itself, in one language. */
+export interface SessionWords {
+  notice: string;
+  /** The one-minute cap's stop line. */
+  cap: string;
+  /** As errorWords: null where nothing went wrong. */
+  error: (code: string, lang: string) => string | null;
+}
+
+/** English: the words the session always said. */
+export const ENGLISH_SESSION_WORDS: SessionWords = {
+  get notice() {
+    return NOTICE;
+  },
+  cap: "I stop listening after a minute. Press Speak to add more.",
+  error: (code, lang) => errorWords(code, lang),
+};
 
 /** Plain words per error code (W3C SpeechRecognitionErrorCode); null where nothing went wrong. */
 export function errorWords(code: string, lang: string): string | null {
@@ -152,6 +172,10 @@ export class SpeechSession {
     this.deps = deps;
   }
 
+  private get words(): SessionWords {
+    return this.deps.words ?? ENGLISH_SESSION_WORDS;
+  }
+
   get supported(): boolean {
     return this.deps.Recognition !== null;
   }
@@ -196,7 +220,7 @@ export class SpeechSession {
       return;
     }
     if (!onDevice && !seen(this.deps.store)) {
-      this.set({ phase: "notice", onDevice, notice: NOTICE });
+      this.set({ phase: "notice", onDevice, notice: this.words.notice });
       return;
     }
     this.listen(onDevice);
@@ -237,7 +261,7 @@ export class SpeechSession {
     rec.onresult = (e) => this.heard(e);
     rec.onspeechstart = () => this.resetQuiet();
     rec.onerror = (e) => {
-      const words = errorWords(e.error, this.deps.lang);
+      const words = this.words.error(e.error, this.deps.lang);
       if (words) this.endWords = words;
     };
     rec.onend = () => this.ended(rec);
@@ -246,13 +270,14 @@ export class SpeechSession {
       rec.start();
     } catch {
       this.rec = null;
-      this.set({ phase: "idle", onDevice, message: errorWords("start-failed", this.deps.lang) });
+      this.set({
+        phase: "idle",
+        onDevice,
+        message: this.words.error("start-failed", this.deps.lang),
+      });
       return;
     }
-    this.cap = setTimeout(
-      () => this.stop("I stop listening after a minute. Press Speak to add more."),
-      CAP_MS,
-    );
+    this.cap = setTimeout(() => this.stop(this.words.cap), CAP_MS);
     this.resetQuiet();
     this.set({ phase: "listening", onDevice, message: null });
   }

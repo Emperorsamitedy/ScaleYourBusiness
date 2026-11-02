@@ -2267,6 +2267,52 @@
           "发票"
         ]
       }
+    },
+    {
+      "id": "superseded",
+      "note": "L-3a: an old value replaced by a newer one and kept on record, never erased (rule 3).",
+      "en": {
+        "term": "superseded",
+        "match": [
+          "superseded"
+        ]
+      },
+      "es-ES": {
+        "term": "sustituido",
+        "stems": [
+          "sustitu"
+        ]
+      },
+      "de-DE": {
+        "term": "ersetzt",
+        "stems": [
+          "ersetz"
+        ]
+      },
+      "fr-FR": {
+        "term": "remplacé",
+        "stems": [
+          "remplac"
+        ]
+      },
+      "hu-HU": {
+        "term": "felváltva",
+        "stems": [
+          "vált"
+        ]
+      },
+      "ru-RU": {
+        "term": "заменено",
+        "stems": [
+          "замен"
+        ]
+      },
+      "zh-Hans": {
+        "term": "已取代",
+        "stems": [
+          "取代"
+        ]
+      }
     }
   ]
 }

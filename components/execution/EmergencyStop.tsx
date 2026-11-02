@@ -25,7 +25,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import "../../app/queue.css";
+import { useTranslations } from "next-intl";
 import { useRole } from "../auth/RoleContext";
+import { useAppLocale } from "../sheet/useTr";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+
+/** English keeps en-GB, as the stop always has; another language writes its own. */
+const tagOf = (locale: AppLocale): string => (locale === "en" ? "en-GB" : intlTag(locale));
 
 interface Halt {
   halted: boolean;
@@ -37,9 +44,9 @@ type State =
   | { phase: "hidden" }
   | { phase: "ready"; halt: Halt; busy: boolean; confirming: boolean; error: string | null };
 
-function whenWord(iso: string | null): string {
+function whenWord(iso: string | null, locale: AppLocale): string {
   if (!iso) return "";
-  return new Date(iso).toLocaleString("en-GB", {
+  return new Date(iso).toLocaleString(tagOf(locale), {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -49,12 +56,13 @@ function whenWord(iso: string | null): string {
 }
 
 /** "14:02" today, "Fri 16 Oct 14:02" otherwise — short enough for the masthead. */
-function shortWhen(iso: string): string {
+function shortWhen(iso: string, locale: AppLocale): string {
   const d = new Date(iso);
-  const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const tag = tagOf(locale);
+  const time = d.toLocaleTimeString(tag, { hour: "2-digit", minute: "2-digit", hour12: false });
   return d.toDateString() === new Date().toDateString()
     ? time
-    : `${d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} ${time}`;
+    : `${d.toLocaleDateString(tag, { weekday: "short", day: "numeric", month: "short" })} ${time}`;
 }
 
 export function EmergencyStop({
@@ -64,6 +72,8 @@ export function EmergencyStop({
   variant?: "bar" | "masthead";
   onState?: (halted: boolean) => void;
 } = {}) {
+  const t = useTranslations("stop");
+  const locale = useAppLocale();
   const [state, setState] = useState<State>({ phase: "hidden" });
   // Idea 52: anyone on the team can stop; starting again is an owner's.
   const resumeWhy = useRole().why("stop.resume");
@@ -91,7 +101,7 @@ export function EmergencyStop({
     const res = await fetch("/api/stop", { method });
     const j = (await res.json()) as Halt & { error?: string };
     if (!res.ok) {
-      setState({ ...s, busy: false, error: j.error ?? "that didn't work" });
+      setState({ ...s, busy: false, error: j.error ?? t("failed") });
       return;
     }
     setState({ phase: "ready", halt: j, busy: false, confirming: false, error: null });
@@ -108,10 +118,10 @@ export function EmergencyStop({
             aria-describedby="es-mast-what"
             onClick={() => void send("POST")}
           >
-            {s.busy ? "Stopping…" : "Stop everything"}
+            {s.busy ? t("stopping") : t("stop")}
           </button>
           <span className="sr-only" id="es-mast-what">
-            Halts every execution at once, no sign-in needed. Reading and proposing carry on.
+            {t("what")}
           </span>
           {s.error && (
             <p className="es-mast-note" role="alert">
@@ -124,7 +134,9 @@ export function EmergencyStop({
     return (
       <div className="es-mast es-mast-halted" role="status" data-focus="emergency-stop">
         <span className="es-mast-word">
-          Stopped{s.halt.halted_at ? ` ${shortWhen(s.halt.halted_at)}` : ""} · nothing executes
+          {s.halt.halted_at
+            ? t("stoppedAt", { when: shortWhen(s.halt.halted_at, locale) })
+            : t("stoppedShort")}
         </span>
         {s.confirming ? (
           <>
@@ -134,18 +146,16 @@ export function EmergencyStop({
               disabled={s.busy}
               onClick={() => void send("DELETE")}
             >
-              {s.busy ? "Starting…" : "Yes — start again"}
+              {s.busy ? t("starting") : t("yesStart")}
             </button>
             <button
               type="button"
               className="es-mast-quiet"
               onClick={() => setState({ ...s, confirming: false })}
             >
-              Stay stopped
+              {t("stay")}
             </button>
-            <span className="es-mast-note">
-              Starting again lets approved actions run. It needs you signed in.
-            </span>
+            <span className="es-mast-note">{t("startNote")}</span>
           </>
         ) : resumeWhy ? (
           <span className="es-mast-note">{resumeWhy}</span>
@@ -155,7 +165,7 @@ export function EmergencyStop({
             className="es-mast-quiet"
             onClick={() => setState({ ...s, confirming: true })}
           >
-            Start things up again
+            {t("startUp")}
           </button>
         )}
         {s.error && (
@@ -178,15 +188,15 @@ export function EmergencyStop({
           onClick={() => void send("POST")}
         >
           {s.busy ? (
-            "Stopping…"
+            t("stopping")
           ) : (
             <>
-              Stop everything <span aria-hidden="true">→</span>
+              {t("stop")} <span aria-hidden="true">→</span>
             </>
           )}
         </button>
         <p className="es-what" id="es-what">
-          Halts every execution at once, no sign-in needed. Reading and proposing carry on.
+          {t("what")}
         </p>
         {s.error && (
           <p className="es-what" role="alert">
@@ -199,23 +209,18 @@ export function EmergencyStop({
 
   return (
     <section className="card ops-card es-halted es-sheet" role="alert" data-focus="emergency-stop">
-      <p className="flag es-flag">stopped · nothing will execute</p>
+      <p className="flag es-flag">{t("flag")}</p>
       <h2 className="prop-title small es-title">
-        Everything is stopped
-        {s.halt.halted_at ? ` — since ${whenWord(s.halt.halted_at)}` : ""}.
+        {s.halt.halted_at
+          ? t("titleSince", { when: whenWord(s.halt.halted_at, locale) })
+          : t("title")}
       </h2>
-      <p className="auth-copy es-copy">
-        Approved actions stay approved and wait. Nothing runs, nothing publishes, nothing changes on
-        your site — including anything that was mid-flight when you stopped it. Reading, planning
-        and proposing all carry on as normal.
-      </p>
-      {s.halt.reason && <p className="conn-note">You said: “{s.halt.reason}”</p>}
+      <p className="auth-copy es-copy">{t("copy")}</p>
+      {s.halt.reason && <p className="conn-note">{t("youSaid", { reason: s.halt.reason })}</p>}
       {s.error && <p className="conn-note">{s.error}</p>}
       {s.confirming ? (
         <div className="es-actions">
-          <p className="conn-note es-confirm">
-            Starting again lets approved actions run. It needs you signed in.
-          </p>
+          <p className="conn-note es-confirm">{t("startNote")}</p>
           <button
             type="button"
             className="prop-btn es-verb"
@@ -223,10 +228,10 @@ export function EmergencyStop({
             onClick={() => void send("DELETE")}
           >
             {s.busy ? (
-              "Starting…"
+              t("starting")
             ) : (
               <>
-                Yes — start executing again <span aria-hidden="true">→</span>
+                {t("yesExecute")} <span aria-hidden="true">→</span>
               </>
             )}
           </button>
@@ -235,7 +240,7 @@ export function EmergencyStop({
             className="prop-btn quiet es-quiet"
             onClick={() => setState({ ...s, confirming: false })}
           >
-            Stay stopped
+            {t("stay")}
           </button>
         </div>
       ) : resumeWhy ? (
@@ -247,7 +252,7 @@ export function EmergencyStop({
             className="prop-btn es-verb"
             onClick={() => setState({ ...s, confirming: true })}
           >
-            Start things up again <span aria-hidden="true">→</span>
+            {t("startUp")} <span aria-hidden="true">→</span>
           </button>
         </div>
       )}

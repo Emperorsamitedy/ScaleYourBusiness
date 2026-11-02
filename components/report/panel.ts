@@ -20,7 +20,10 @@
 //     gave says so.
 
 import type { Basis } from "./basis";
-import { basisOfKey, newerWord, sourceLabel, successorKind } from "./basis";
+import { basisOfKey, newerKind, sourceLabel, successorKind } from "./basis";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import type { FlagWord, ForecastRange } from "./figures";
 import { fmtDay, forecastRange, keyWords, refigure } from "./figures";
 import type { MoneyLike, Severity } from "./figures";
@@ -29,6 +32,7 @@ import type {
   BreakEven,
   Computed,
   Economics,
+  FactInfo,
   FactMap,
   Finding,
   History,
@@ -63,14 +67,28 @@ interface MeasureDef {
   /** refusals[].what the economics uses for this measure. */
   refusal?: string;
   get: (eco: Economics) => Computed<unknown> | null | undefined;
-  fig: (value: unknown) => Figure;
+  fig: (value: unknown, w: PanelWords) => Figure;
 }
 
-const money = (v: unknown, unit = ""): Figure => {
+/**
+ * L-3a: the panel's words and figures in the reader's language — the
+ * "report" catalogue and the locale the figures print in. English by
+ * default, so every English line is what it was.
+ */
+export interface PanelWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+const ENGLISH = (): PanelWords => ({ tr: englishTr("report"), locale: "en" });
+
+const money = (v: unknown, w: PanelWords, unit = ""): Figure => {
   const m = v as MoneyLike;
-  return { text: moneyText(m.amount_minor, m.currency), unit };
+  return { text: moneyText(m.amount_minor, m.currency, w.locale), unit };
 };
-const pct = (v: unknown): Figure => ({ text: num(v as number, 1), unit: "%" });
+const pct = (v: unknown, w: PanelWords): Figure => ({
+  text: num(v as number, 1, w.locale),
+  unit: "%",
+});
 
 /** The business-wide measures, in the panel's fixed order. */
 export const MEASURES: readonly MeasureDef[] = [
@@ -90,7 +108,7 @@ export const MEASURES: readonly MeasureDef[] = [
       "Your monthly revenue divided by the number of sales — orders, bookings or visits — in the month.",
     refusal: "average order value",
     get: (e) => e.average_order_value,
-    fig: (v) => money(v),
+    fig: (v, w) => money(v, w),
   },
   {
     id: "cost_per_acquisition",
@@ -99,7 +117,7 @@ export const MEASURES: readonly MeasureDef[] = [
       "What you spend on ads in a month, divided by the sales that came from customers buying for the first time.",
     refusal: "cost per acquisition",
     get: (e) => e.cost_per_acquisition,
-    fig: (v) => money(v),
+    fig: (v, w) => money(v, w),
   },
   {
     id: "return_on_ad_spend",
@@ -108,14 +126,14 @@ export const MEASURES: readonly MeasureDef[] = [
       "All your monthly revenue divided by all your monthly ad spend — blended, not attributed to any one ad.",
     refusal: "return on ad spend",
     get: (e) => e.return_on_ad_spend,
-    fig: (v) => ({ text: num(v as number, 2), unit: "×" }),
+    fig: (v, w) => ({ text: num(v as number, 2, w.locale), unit: "×" }),
   },
   {
     id: "fixed_costs",
     name: "Fixed costs",
     words: "Every fixed cost you gave, turned into a monthly amount by its cadence and added up.",
     get: (e) => e.fixed_costs_monthly,
-    fig: (v) => money(v, "/ mo"),
+    fig: (v, w) => money(v, w, w.tr("unit.perMonth")),
   },
   {
     id: "break_even",
@@ -124,7 +142,10 @@ export const MEASURES: readonly MeasureDef[] = [
       "Your fixed costs divided by what each sale contributes after its own cost — the number of sales a month that pays for everything.",
     refusal: "break-even",
     get: (e) => e.break_even,
-    fig: (v) => ({ text: num((v as BreakEven).units_per_month), unit: "/ mo" }),
+    fig: (v, w) => ({
+      text: num((v as BreakEven).units_per_month, 0, w.locale),
+      unit: w.tr("unit.perMonth"),
+    }),
   },
 ];
 
@@ -132,8 +153,17 @@ const OFFER_WORDS = "The price, minus what it costs you to deliver one, as a sha
 
 const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-/** The panel's rows: every measure computed or refused, then one per offer. */
-export function panelRows(eco: Economics, prior: Economics | null = null): MeasureRow[] {
+/**
+ * The panel's rows: every measure computed or refused, then one per offer.
+ * A refusal's own reason (r.what, r.why) is the economics' English
+ * sentence, L-4 of TASKS-LANGUAGES.md; the measure's name and its formula
+ * in words are the catalogue's.
+ */
+export function panelRows(
+  eco: Economics,
+  prior: Economics | null = null,
+  w: PanelWords = ENGLISH(),
+): MeasureRow[] {
   const refusals = eco.refusals ?? [];
   const used = new Set<string>();
   const rows: MeasureRow[] = [];
@@ -146,14 +176,14 @@ export function panelRows(eco: Economics, prior: Economics | null = null): Measu
     const p = prior ? (m.get(prior) ?? null) : null;
     rows.push({
       id: m.id,
-      name: m.name,
-      result: c ? m.fig(c.value) : null,
-      prior: p ? m.fig(p.value) : null,
+      name: w.tr(`measure.${m.id}.name`),
+      result: c ? m.fig(c.value, w) : null,
+      prior: p ? m.fig(p.value, w) : null,
       basis: c ? "DERIVED" : null,
-      flag: c ? measureFlag(m.id, c, eco) : NOT_COMPUTED,
+      flag: c ? measureFlag(m.id, c, eco, w.tr) : notComputed(w.tr),
       computed: c,
       refusal: c ? null : refusal,
-      words: m.words,
+      words: w.tr(`measure.${m.id}.words`),
     });
   }
 
@@ -165,7 +195,7 @@ export function panelRows(eco: Economics, prior: Economics | null = null): Measu
       result: null,
       prior: null,
       basis: null,
-      flag: NOT_COMPUTED,
+      flag: notComputed(w.tr),
       computed: null,
       refusal: r,
       words: r.why,
@@ -177,33 +207,40 @@ export function panelRows(eco: Economics, prior: Economics | null = null): Measu
     const p = prior?.offers.find((x) => x.offer_id === o.offer_id)?.margin_pct ?? null;
     rows.push({
       id: `offer:${o.offer_id}`,
-      name: `Margin · ${o.name}`,
-      result: c ? pct(c.value) : null,
-      prior: p ? pct(p.value) : null,
+      name: w.tr("measure.offer.name", { name: o.name }),
+      result: c ? pct(c.value, w) : null,
+      prior: p ? pct(p.value, w) : null,
       basis: c ? "DERIVED" : null,
-      flag: c ? (c.value < 0 ? BELOW_COST : null) : NOT_COMPUTED,
+      flag: c ? (c.value < 0 ? belowCost(w.tr) : null) : notComputed(w.tr),
       computed: c,
       refusal: c
         ? null
         : {
             what: `margin of ${o.name}`,
-            why: "no cost to deliver is recorded for this offer, so there is nothing to take from its price",
+            why: w.tr("measure.offer.refusal"),
             missing: [`offers.${o.offer_id}.cost_to_deliver`],
           },
-      words: OFFER_WORDS,
+      words: w.tr("measure.offer.words"),
     });
   }
   return rows;
 }
 
-const NOT_COMPUTED: FlagWord = { word: "NOT COMPUTED", tone: "low" };
-const BELOW_COST: FlagWord = { word: "ACT NOW · BELOW COST", tone: "alarm" };
+/** The English the catalogue's offer row holds (messages/en.json report.measure.offer). */
+export const OFFER_ROW = {
+  words: OFFER_WORDS,
+  refusal:
+    "no cost to deliver is recorded for this offer, so there is nothing to take from its price",
+};
 
-function measureFlag(id: string, c: Computed<unknown>, eco: Economics): FlagWord | null {
+const notComputed = (tr: Tr): FlagWord => ({ word: tr("flag.notComputed"), tone: "low" });
+const belowCost = (tr: Tr): FlagWord => ({ word: tr("flag.belowCost"), tone: "alarm" });
+
+function measureFlag(id: string, c: Computed<unknown>, eco: Economics, tr: Tr): FlagWord | null {
   if (id !== "blended_margin") return null;
-  if ((c.value as number) < 0) return BELOW_COST;
+  if ((c.value as number) < 0) return belowCost(tr);
   const svc = eco.stated_vs_computed_margin;
-  if (svc && Math.abs(svc.delta_pts) >= 1) return { word: "DIFFERS FROM YOURS", tone: "drift" };
+  if (svc && Math.abs(svc.delta_pts) >= 1) return { word: tr("flag.differs"), tone: "drift" };
   return null;
 }
 
@@ -215,18 +252,18 @@ export interface Tally {
   tone: FlagWord["tone"];
 }
 
-const SEVERITY_WORDS: readonly { s: Severity; word: string; tone: FlagWord["tone"] }[] = [
-  { s: "critical", word: "act now", tone: "alarm" },
-  { s: "high", word: "high", tone: "drift" },
-  { s: "medium", word: "medium", tone: "low" },
-  { s: "low", word: "low", tone: "low" },
+const SEVERITY_WORDS: readonly { s: Severity; tone: FlagWord["tone"] }[] = [
+  { s: "critical", tone: "alarm" },
+  { s: "high", tone: "drift" },
+  { s: "medium", tone: "low" },
+  { s: "low", tone: "low" },
 ];
 
 /** "2 act now · 3 high · 1 low" — only the severities that occur, most urgent first. */
-export function severityTally(findings: readonly Finding[]): Tally[] {
-  return SEVERITY_WORDS.map(({ s, word, tone }) => ({
+export function severityTally(findings: readonly Finding[], tr: Tr = ENGLISH().tr): Tally[] {
+  return SEVERITY_WORDS.map(({ s, tone }) => ({
     n: findings.filter((f) => f.severity === s).length,
-    word,
+    word: tr(`tally.${s}`),
     tone,
   })).filter((t) => t.n > 0);
 }
@@ -254,7 +291,10 @@ export function headline(recs: readonly Rec[]): Headline | null {
 /* ── the derivation sheet: inputs and history ── */
 
 /** Words for one derivation input: a profile key, or a connector series. */
-export function inputWords(key: string, map: FactMap): string {
+export function inputWords(key: string, map: FactMap, tr: Tr = ENGLISH().tr): string {
+  // L-3a: the fact's own label in the reader's language, when the server named it.
+  const label = map[key]?.label;
+  if (label) return label;
   if (key.startsWith("connector:")) {
     const [, provider = "", series = ""] = key.split(":");
     return `${provider} ${series.replace(/[._]/g, " ")}`.trim();
@@ -267,9 +307,15 @@ export function inputWords(key: string, map: FactMap): string {
   const offer = /^offers\.([^.]+)\.(.+)$/.exec(key);
   if (offer) {
     const name = map[`offers.${offer[1]}.name`]?.value;
-    return `${name ?? "offer"} · ${keyWords(`x.${offer[2]}`)}`;
+    return `${name ?? tr("input.offer")} · ${keyWords(`x.${offer[2]}`)}`;
   }
   return keyWords(key);
+}
+
+/** A fact map value in the reader's language: an option's label, or money and numbers re-figured. */
+export function valueText(f: FactInfo, locale: AppLocale = "en"): string | null {
+  if (f.value === null) return null;
+  return f.value_words ?? refigure(f.value, locale);
 }
 
 export interface InputLine {
@@ -282,25 +328,33 @@ export interface InputLine {
 }
 
 /** The inputs of a derivation, deduplicated, in the order the formula used them. */
-export function inputLines(keys: readonly string[], map: FactMap): InputLine[] {
+export function inputLines(
+  keys: readonly string[],
+  map: FactMap,
+  w: PanelWords = ENGLISH(),
+  sheetTr: Tr = englishTr("sheet"),
+): InputLine[] {
   const out: InputLine[] = [];
   for (const key of new Set(keys)) {
     const f = map[key];
     const connector = key.startsWith("connector:");
     out.push({
       key,
-      name: sentence(inputWords(key, map)),
-      value: f?.value != null ? refigure(f.value) : null,
+      name: sentence(inputWords(key, map, w.tr)),
+      value: f ? valueText(f, w.locale) : null,
       basis: basisOfKey(key, map),
       source: connector
-        ? "measured · connected account"
+        ? w.tr("input.measuredConnected")
         : f
-          ? [sourceLabel(f.source_kind), f.source_detail].filter(Boolean).join(" · ")
-          : "not recorded",
+          ? [sourceLabel(f.source_kind, sheetTr), f.source_detail].filter(Boolean).join(" · ")
+          : NOT_RECORDED,
     });
   }
   return out;
 }
+
+/** InputLine.source for an input the snapshot doesn't hold — a marker the screen words. */
+export const NOT_RECORDED = "not recorded";
 
 export interface HistoryEntry {
   date: string;
@@ -322,30 +376,40 @@ export function historyLines(args: {
   history: History;
   map: FactMap;
   now?: Date;
+  words?: PanelWords;
 }): HistoryEntry[] {
   const { row, issuedAt, priorAt, keys, history, map, now } = args;
+  const w = args.words ?? ENGLISH();
   const lines: { at: string; text: string }[] = [];
   if (row.result) {
-    lines.push({ at: issuedAt, text: `Computed ${fig(row.result)} in this report` });
+    lines.push({ at: issuedAt, text: w.tr("history.computed", { figure: fig(row.result) }) });
   } else if (row.refusal) {
-    lines.push({ at: issuedAt, text: `Not computed in this report — ${row.refusal.why}` });
+    lines.push({ at: issuedAt, text: w.tr("history.notComputed", { why: row.refusal.why }) });
   }
   if (row.prior && priorAt) {
-    lines.push({ at: priorAt, text: `Was ${fig(row.prior)} in the previous report` });
+    lines.push({ at: priorAt, text: w.tr("history.was", { figure: fig(row.prior) }) });
   }
   for (const key of new Set(keys)) {
     const list = history[key] ?? [];
     list.forEach((h, i) => {
-      const was = h.value !== null ? refigure(h.value) : "not known";
-      const by = newerWord(successorKind(list, i, map[key]?.source_kind));
+      const was = h.value !== null ? refigure(h.value, w.locale) : w.tr("history.notKnown");
+      const kind = newerKind(successorKind(list, i, map[key]?.source_kind));
       lines.push({
         at: h.superseded_at,
-        text: `${sentence(inputWords(key, map))} was ${was} — superseded by a newer ${by}`,
+        text: w.tr("history.superseded", {
+          name: sentence(inputWords(key, map, w.tr)),
+          was,
+          kind,
+        }),
       });
     });
   }
   lines.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
-  return lines.map((l, i) => ({ date: fmtDay(l.at, now), text: l.text, fresh: i === 0 }));
+  return lines.map((l, i) => ({
+    date: fmtDay(l.at, now, w.locale),
+    text: l.text,
+    fresh: i === 0,
+  }));
 }
 
 export const fig = (f: Figure): string => (f.unit === "" ? f.text : `${f.text} ${f.unit}`);

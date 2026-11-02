@@ -11,6 +11,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { useAppLocale } from "../sheet/useTr";
+import { num } from "../sheet/num";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { keyWords } from "../report/figures";
 import type { TrackView } from "../../lib/forecasts/view";
@@ -44,46 +49,40 @@ type State =
   | { phase: "error" }
   | { phase: "ready"; scorecard: Scorecard; history: Entry[]; now: number };
 
-const TABS: { id: LedgerFilter; label: string }[] = [
-  { id: "everything", label: "Everything" },
-  { id: "decisions", label: "Decisions" },
-  { id: "ran", label: "Ran" },
-  { id: "measured", label: "Measured" },
-  { id: "facts", label: "Facts changed" },
-];
+const TABS: LedgerFilter[] = ["everything", "decisions", "ran", "measured", "facts"];
 
-const KIND_WORD: Record<LedgerKind, { word: string; tone: string }> = {
-  proposed: { word: "proposed", tone: "" },
-  withheld: { word: "withheld", tone: "drift" },
-  approved: { word: "approved", tone: "ok" },
-  declined: { word: "declined", tone: "" },
-  expired: { word: "expired", tone: "low" },
-  ran: { word: "ran", tone: "" },
-  measured: { word: "measured", tone: "ink" },
-  superseded: { word: "superseded", tone: "" },
-};
-
-const EMPTY: Record<LedgerFilter, string> = {
-  everything:
-    "Nothing on the record yet. When there is, every suggestion, decision, run and changed fact lives here for good.",
-  decisions: "No suggestions or decisions yet.",
-  ran: "Nothing has run. Nothing runs without your approval.",
-  measured: "No verdicts yet. A verdict needs a run and a connected source to measure it.",
-  facts: "No fact has been changed since it was first recorded.",
+const KIND_TONE: Record<LedgerKind, string> = {
+  proposed: "",
+  withheld: "drift",
+  approved: "ok",
+  declined: "",
+  expired: "low",
+  ran: "",
+  measured: "ink",
+  superseded: "",
 };
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "Today · Sat 17 Oct", "Wed 14 Oct" — fixed words, whatever the locale data says. */
-function dayHead(at: number, now: number): string {
+/** "Sat 17 Oct", "Wed 14 Oct" — fixed words in English; another language writes its own. */
+function dayWords(at: number, locale: AppLocale): string {
   const d = new Date(at);
-  const words = `${WEEKDAYS[d.getDay()] ?? ""} ${String(d.getDate()).padStart(2, "0")} ${MONTHS[d.getMonth()] ?? ""}`;
-  return new Date(now).toDateString() === d.toDateString() ? `Today · ${words}` : words;
+  if (locale !== "en") {
+    return new Intl.DateTimeFormat(intlTag(locale), {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+    }).format(d);
+  }
+  return `${WEEKDAYS[d.getDay()] ?? ""} ${String(d.getDate()).padStart(2, "0")} ${MONTHS[d.getMonth()] ?? ""}`;
 }
 
-const clock = (at: number) =>
-  new Date(at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+const clock = (at: number, locale: AppLocale) =>
+  new Date(at).toLocaleTimeString(locale === "en" ? "en-GB" : intlTag(locale), {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
 function download(rows: readonly LedgerRow[], filter: LedgerFilter) {
   const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
@@ -104,6 +103,16 @@ export function HistoryScreen({
   facts: FactChange[] | null;
   track?: TrackView | null;
 }) {
+  const t = useTranslations("history");
+  const locale = useAppLocale();
+  const n = (x: number) => num(x, 0, locale);
+  /** "Today · Sat 17 Oct" for today's group. */
+  const dayHead = (at: number, now: number): string => {
+    const words = dayWords(at, locale);
+    return new Date(now).toDateString() === new Date(at).toDateString()
+      ? t("today", { day: words })
+      : words;
+  };
   const [state, setState] = useState<State>({ phase: "loading" });
   const [filter, setFilter] = useState<LedgerFilter>("everything");
 
@@ -126,38 +135,33 @@ export function HistoryScreen({
   const all = useMemo<LedgerRow[]>(() => {
     if (state.phase !== "ready") return [];
     const rows = state.history.flatMap((e) => proposalRows(e.proposal, e.outcome, state.now));
-    for (const f of facts ?? []) rows.push(factRow({ ...f, label: keyWords(f.key, false) }));
+    for (const f of facts ?? [])
+      rows.push(factRow({ ...f, label: f.label ?? keyWords(f.key, false) }));
     return rows;
   }, [state, facts]);
 
   if (state.phase === "loading") {
     return (
       <main className="screen hi-screen">
-        <PageHead kicker="Your business · History" title="The ledger. Append-only." />
-        <p className="hi-wait">Reading the record…</p>
+        <PageHead kicker={t("kicker")} title={t("title")} />
+        <p className="hi-wait">{t("reading")}</p>
       </main>
     );
   }
   if (state.phase === "signedout" || state.phase === "error") {
     return (
       <main className="screen hi-screen">
-        <PageHead kicker="Your business · History" title="The ledger. Append-only." />
+        <PageHead kicker={t("kicker")} title={t("title")} />
         <SheetCard
-          label="History"
-          title={
-            state.phase === "signedout"
-              ? "Nothing on file for this browser."
-              : "The record didn't load."
-          }
+          label={t("label")}
+          title={state.phase === "signedout" ? t("signedOut.title") : t("failed.title")}
         >
           <p className="hi-copy">
-            {state.phase === "signedout"
-              ? "The ledger exists once there is a business to keep it for."
-              : "Something went wrong reading the record. Refresh to try again."}
+            {state.phase === "signedout" ? t("signedOut.lede") : t("failed.lede")}
           </p>
           {state.phase === "signedout" && (
             <Link className="next" href="/intake">
-              Start <span aria-hidden="true">→</span>
+              {t("signedOut.start")} <span aria-hidden="true">→</span>
             </Link>
           )}
         </SheetCard>
@@ -170,23 +174,25 @@ export function HistoryScreen({
   const judged =
     scorecard.outcomes.helped + scorecard.outcomes.did_nothing + scorecard.outcomes.backfired;
   const figures: { label: string; value: string }[] = [
-    { label: "Decided", value: String(decided) },
-    { label: "Ran", value: String(scorecard.executed) },
-    ...(judged > 0 ? [{ label: "Helped", value: `${scorecard.outcomes.helped} / ${judged}` }] : []),
+    { label: t("figs.decided"), value: n(decided) },
+    { label: t("figs.ran"), value: n(scorecard.executed) },
+    ...(judged > 0
+      ? [{ label: t("figs.helped"), value: `${n(scorecard.outcomes.helped)} / ${n(judged)}` }]
+      : []),
     ...(track && !track.too_soon
-      ? [{ label: "Forecasts inside", value: `${track.inside} / ${track.graded}` }]
+      ? [{ label: t("figs.inside"), value: `${n(track.inside)} / ${n(track.graded)}` }]
       : []),
   ];
 
-  const tabs = facts === null ? TABS.filter((t) => t.id !== "facts") : TABS;
+  const tabs = facts === null ? TABS.filter((id) => id !== "facts") : TABS;
   const visible = filterRows(all, filter);
   const groups = byDay(visible);
 
   return (
     <main className="screen hi-screen">
       <PageHead
-        kicker="Your business · History"
-        title="The ledger. Append-only."
+        kicker={t("kicker")}
+        title={t("title")}
         aside={
           <dl className="hi-figs">
             {figures.map((f) => (
@@ -204,43 +210,43 @@ export function HistoryScreen({
       <section className="cs hi-sheet" aria-labelledby="hi-tabs-label">
         <header className="cs-head hi-head">
           <h2 className="sr-only" id="hi-tabs-label">
-            The record
+            {t("record")}
           </h2>
-          <div className="hi-tabs" role="group" aria-label="Show">
-            {tabs.map((t) => (
+          <div className="hi-tabs" role="group" aria-label={t("show")}>
+            {tabs.map((id) => (
               <button
-                key={t.id}
+                key={id}
                 type="button"
                 className="hi-tab"
-                aria-pressed={filter === t.id}
-                onClick={() => setFilter(t.id)}
+                aria-pressed={filter === id}
+                onClick={() => setFilter(id)}
               >
-                {t.label}
+                {t(`tab.${id}`)}
               </button>
             ))}
           </div>
           {visible.length > 0 && (
             <button type="button" className="hi-export" onClick={() => download(visible, filter)}>
-              Export as CSV
+              {t("export")}
             </button>
           )}
         </header>
 
         <div className="hi-body" aria-live="polite">
-          {groups.length === 0 && <p className="hi-copy hi-empty">{EMPTY[filter]}</p>}
+          {groups.length === 0 && <p className="hi-copy hi-empty">{t(`empty.${filter}`)}</p>}
           {groups.map((g) => (
             <section key={g.day} className="hi-day" aria-label={dayHead(g.at, state.now)}>
               <h3 className="hi-day-head">{dayHead(g.at, state.now)}</h3>
               <ol className="hi-rows">
                 {g.rows.map((r) => {
-                  const k = KIND_WORD[r.kind];
+                  const tone = KIND_TONE[r.kind];
                   return (
                     <li key={r.key} className="hi-row">
                       <span className="hi-time">
-                        {r.kind === "measured" ? "now" : r.timed ? clock(r.at) : "—"}
+                        {r.kind === "measured" ? t("now") : r.timed ? clock(r.at, locale) : "—"}
                       </span>
                       <span className="hi-kind">
-                        <span className={`word boxed ${k.tone}`}>{k.word}</span>
+                        <span className={`word boxed ${tone}`}>{t(`kind.${r.kind}`)}</span>
                       </span>
                       <span className="hi-what">
                         <span className="hi-title">{r.title}</span>
@@ -258,22 +264,17 @@ export function HistoryScreen({
         </div>
 
         <footer className="cs-foot hi-foot">
-          <p>
-            Entries can&rsquo;t be edited or removed — corrections are new entries that point back.
-          </p>
-          <p>Approval rate: {scorecard.arithmetic}.</p>
+          <p>{t("foot.append")}</p>
+          <p>{t("foot.rate", { arithmetic: scorecard.arithmetic })}</p>
           {(scorecard.outcomes.too_early > 0 || scorecard.outcomes.unmeasured > 0) && (
             <p>
               {scorecard.outcomes.too_early > 0 &&
-                `${scorecard.outcomes.too_early} too early to judge. `}
+                `${t("foot.tooEarly", { count: scorecard.outcomes.too_early })} `}
               {scorecard.outcomes.unmeasured > 0 &&
-                `${scorecard.outcomes.unmeasured} unmeasured — a verdict needs a connected source.`}
+                t("foot.unmeasured", { count: scorecard.outcomes.unmeasured })}
             </p>
           )}
-          <p>
-            Every verdict is arithmetic over measured days, read now — nothing is graded on
-            intention.
-          </p>
+          <p>{t("foot.verdict")}</p>
         </footer>
       </section>
     </main>

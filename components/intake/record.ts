@@ -23,6 +23,7 @@ import { basisOf, gapWord } from "../report/basis";
 import { keyWords } from "../report/figures";
 import { moneyText, num } from "../sheet/num";
 import type { AppLocale } from "@/lib/i18n/locales";
+import { dayMonthYear } from "@/lib/i18n/format";
 import type { Tr } from "./words";
 import { EN_TR } from "./words";
 
@@ -176,8 +177,13 @@ const isMoney = (v: unknown): v is { amount_minor: number; currency: string } =>
 
 const cap = (s: string): string => (s === "" ? s : s.charAt(0).toUpperCase() + s.slice(1));
 
-/** "Monthly revenue", "Mug · price", and for an unnamed entity "Channels · platform". */
+/**
+ * "Monthly revenue", "Mug · price", and for an unnamed entity "Channels · platform".
+ * In another language the server names the fact from the bank's overlay
+ * (lib/bank/fact-words, RecordFact.label); English keeps the key's words.
+ */
 export function factLabel(fact: RecordFact): string {
+  if (fact.label) return fact.label;
   if (fact.entity) return `${fact.entity} · ${keyWords(fact.field, false)}`;
   const isEntityFact = fact.field !== fact.key;
   const short = keyWords(fact.key, !isEntityFact);
@@ -221,7 +227,20 @@ export function factValue(
     const w = tr(v ? "fact.yes" : "fact.no");
     return { text: w, full: w, figure: false };
   }
-  const raw = fact.text ?? "";
+  // An entity list's marker reads as a count ("3 on file"), in the person's words.
+  const ids =
+    typeof v === "object" && v !== null ? (v as { entity_ids?: unknown }).entity_ids : null;
+  if (Array.isArray(ids)) {
+    const w = tr("fact.entityCount", { count: ids.length });
+    return { text: w, full: w, figure: false };
+  }
+  // A date in the person's own writing; English keeps the stored text.
+  if (locale !== "en" && typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+    const w = dayMonthYear(v, locale);
+    return { text: w, full: w, figure: true };
+  }
+  // A code's option label, from the bank's overlay (RecordFact.value_words).
+  const raw = fact.value_words ?? fact.text ?? "";
   const full = /^[[{]/.test(raw) ? tr("fact.onFile") : raw;
   const text = full.length > VALUE_MAX ? `${full.slice(0, VALUE_MAX - 1).trimEnd()}…` : full;
   return { text, full, figure: false };

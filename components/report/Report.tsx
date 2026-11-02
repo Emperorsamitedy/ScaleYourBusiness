@@ -21,12 +21,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { CheckoutOptions } from "../../app/api/checkout/route";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { quietLine, splitByMateriality } from "../../lib/connectors/materiality";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
 import { delta, moneyFig, moneyText, num } from "../sheet/num";
 import { SheetCard } from "../sheet/PageHead";
+import { useTr } from "../sheet/useTr";
 import { ShareCard } from "./ShareCard";
 import type { Basis } from "./basis";
-import { BASES, BASIS_MEANING, basisOf, gapWord, sourceLabel } from "./basis";
+import { BASES, basisMeaning, basisName, basisOf, gapWord, sourceLabel } from "./basis";
 import {
   columnDecimals,
   fmtDate,
@@ -35,13 +39,13 @@ import {
   isMoneyLike,
   numberDecimals,
   rangeText,
-  refigure,
   severityFlag,
   signedMoney,
 } from "./figures";
 import type { MoneyLike } from "./figures";
-import type { MeasureRow } from "./panel";
+import type { MeasureRow, PanelWords } from "./panel";
 import {
+  NOT_RECORDED,
   fig,
   headline,
   historyLines,
@@ -49,6 +53,7 @@ import {
   inputWords,
   panelRows,
   severityTally,
+  valueText,
 } from "./panel";
 import type { FactInfo, FactMap, Rec, ReportView, StatedVsMeasuredRow } from "./types";
 
@@ -62,19 +67,20 @@ interface NavCounts {
 }
 
 /** UX spec §7: reasons pre-filled as chips — a required field produces junk. */
-const DECLINE_CHIPS = [
-  "we tried this before",
-  "not possible in my market",
-  "can't take this on right now",
-];
+const DECLINE_CHIPS = ["tried", "market", "now"] as const;
 
-const CASE_WORD: Record<string, string> = {
-  base: "Base case",
-  downside: "Downside",
-  upside: "Upside",
-};
+const CASES = new Set(["base", "downside", "upside"]);
 
 const NONE = <span className="rq-none">—</span>;
+
+/** The report's translator, its shared sheet words, and the reader's locale. */
+function useWords() {
+  const t = useTranslations("report");
+  const sheet = useTr("sheet");
+  const report = useTr("report");
+  const w: PanelWords = { tr: report.tr, locale: report.locale };
+  return { t, st: sheet.tr, tr: report.tr, locale: report.locale, w };
+}
 
 function useNav(): NavCounts | null {
   const [nav, setNav] = useState<NavCounts | null>(null);
@@ -96,22 +102,31 @@ function useNav(): NavCounts | null {
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "Sat 17 Oct 2026 · 14:06" — the viewer's own clock, read after mount. */
-function useClock(): string | null {
+/** "Sat 17 Oct 2026 · 14:06" — the viewer's own clock; another language writes its own date. */
+export function clockText(d: Date, locale: AppLocale = "en"): string {
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  const day =
+    locale === "en"
+      ? `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+      : new Intl.DateTimeFormat(intlTag(locale), {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }).format(d);
+  return `${day} · ${hh}:${mm}`;
+}
+
+/** The viewer's own clock, read after mount. */
+function useClock(locale: AppLocale): string | null {
   const [now, setNow] = useState<string | null>(null);
   useEffect(() => {
-    const tick = () => {
-      const d = new Date();
-      const hh = String(d.getHours()).padStart(2, "0");
-      const mm = String(d.getMinutes()).padStart(2, "0");
-      setNow(
-        `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()} · ${hh}:${mm}`,
-      );
-    };
+    const tick = () => setNow(clockText(new Date(), locale));
     tick();
     const id = window.setInterval(tick, 30_000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [locale]);
   return now;
 }
 
@@ -126,7 +141,8 @@ function Masthead({
   currency: string | null;
   nav: NavCounts | null;
 }) {
-  const clock = useClock();
+  const { t, locale } = useWords();
+  const clock = useClock(locale);
   const business =
     map?.["identity.business_name"]?.value ??
     map?.["identity.legal_name"]?.value ??
@@ -146,7 +162,7 @@ function Masthead({
         {nav?.watch && (
           <span className="rq-live">
             <span className="rq-sq" aria-hidden="true" />
-            Watching · day {nav.watch.day} of {nav.watch.of}
+            {t("mast.watching", { day: nav.watch.day, of: nav.watch.of })}
           </span>
         )}
         {clock && <span className="rq-clock">{clock}</span>}
@@ -158,38 +174,39 @@ function Masthead({
 /* ── the sub-nav ── */
 
 function SubNav({ findings, nav }: { findings: number | null; nav: NavCounts | null }) {
-  const count = (n: number | null | undefined) => (n == null ? "—" : num(n));
+  const { t, locale } = useWords();
+  const count = (n: number | null | undefined) => (n == null ? "—" : num(n, 0, locale));
   return (
-    <nav className="rq-sub noprint" aria-label="Report">
+    <nav className="rq-sub noprint" aria-label={t("sub.label")}>
       <ul>
         <li>
           <a href="#rq-findings" className="rq-sub-i on" aria-current="page">
-            <span>Findings</span>
+            <span>{t("sub.findings")}</span>
             <span className="rq-sub-n">{count(findings)}</span>
           </a>
         </li>
         <li>
           <Link href="/proposals" className="rq-sub-i">
-            <span>Decisions</span>
+            <span>{t("sub.decisions")}</span>
             <span className="rq-sub-n">{count(nav?.pending)}</span>
           </Link>
         </li>
         <li>
           <Link href="/profile" className="rq-sub-i">
-            <span>The record</span>
+            <span>{t("sub.record")}</span>
             <span className="rq-sub-n">{count(nav?.facts)}</span>
           </Link>
         </li>
         {/* No backing feature yet: shown, not linked, never counted. */}
         <li>
-          <span className="rq-sub-i off" aria-disabled="true" title="Not built yet">
-            <span>Shadow ledger</span>
+          <span className="rq-sub-i off" aria-disabled="true" title={t("sub.notBuilt")}>
+            <span>{t("sub.shadow")}</span>
             <span className="rq-sub-n">—</span>
           </span>
         </li>
         <li>
-          <span className="rq-sub-i off" aria-disabled="true" title="Not built yet">
-            <span>Outcomes</span>
+          <span className="rq-sub-i off" aria-disabled="true" title={t("sub.notBuilt")}>
+            <span>{t("sub.outcomes")}</span>
             <span className="rq-sub-n">—</span>
           </span>
         </li>
@@ -197,20 +214,20 @@ function SubNav({ findings, nav }: { findings: number | null; nav: NavCounts | n
       <hr className="rq-sub-rule" />
       <ul>
         <li>
-          <span className="rq-sub-i off" aria-disabled="true" title="Not built yet">
-            <span>Standing rules</span>
+          <span className="rq-sub-i off" aria-disabled="true" title={t("sub.notBuilt")}>
+            <span>{t("sub.rules")}</span>
             <span className="rq-sub-n">—</span>
           </span>
         </li>
         <li>
           <Link href="/connections" className="rq-sub-i">
-            <span>Connections</span>
+            <span>{t("sub.connections")}</span>
             <span className="rq-sub-n">{count(nav?.connections)}</span>
           </Link>
         </li>
       </ul>
       <button type="button" className="rq-print" onClick={() => window.print()}>
-        Print / PDF
+        {t("sub.print")}
       </button>
     </nav>
   );
@@ -219,31 +236,33 @@ function SubNav({ findings, nav }: { findings: number | null; nav: NavCounts | n
 /* ── the provenance of one recorded fact ── */
 
 function BasisWord({ basis }: { basis: Basis | null }) {
-  return <b className="rq-basis">{basis ?? "BASIS NOT RECORDED"}</b>;
+  const { t, st } = useWords();
+  return <b className="rq-basis">{basis ? basisName(basis, st) : t("fact.basisNotRecorded")}</b>;
 }
 
-function factLine(f: FactInfo | undefined): ReactNode {
-  if (!f) return <>not in this snapshot</>;
+function FactLine({ f }: { f: FactInfo | undefined }): ReactNode {
+  const { t, st, locale } = useWords();
+  if (!f) return <>{t("fact.notInSnapshot")}</>;
   const basis = basisOf(f);
   return (
     <>
       {basis !== null ? (
         <BasisWord basis={basis} />
       ) : (
-        <b className="rq-basis">{gapWord(f.status)}</b>
+        <b className="rq-basis">{gapWord(f.status, st)}</b>
       )}{" "}
-      · {sourceLabel(f.source_kind)}
-      {f.observed_at !== undefined && <> · {fmtDate(f.observed_at)}</>}
+      · {sourceLabel(f.source_kind, st)}
+      {f.observed_at !== undefined && <> · {fmtDate(f.observed_at, locale)}</>}
     </>
   );
 }
 
 /* ── the diagnostic panel ── */
 
-function signed(m: MoneyLike): string {
+function signed(m: MoneyLike, locale: AppLocale): string {
   return m.amount_minor < 0
-    ? `−${moneyText(-m.amount_minor, m.currency)}`
-    : moneyText(m.amount_minor, m.currency);
+    ? `−${moneyText(-m.amount_minor, m.currency, locale)}`
+    : moneyText(m.amount_minor, m.currency, locale);
 }
 
 function Panel({
@@ -257,53 +276,64 @@ function Panel({
   selected: string | null;
   onWhy: (id: string) => void;
 }) {
+  const { t, tr, st, locale } = useWords();
   const head = headline(report.recommendations);
-  const tally = severityTally(report.findings);
+  const tally = severityTally(report.findings, tr);
   const notComputed = rows.filter((r) => r.result === null).length;
   const computed = rows.length - notComputed;
   const prior = report.prior ?? null;
+  const perMonth = t("col.perMonth", { currency: report.unit_economics.currency });
 
   return (
     <section className="rq-panel" aria-labelledby="rq-panel-h">
       <header className="rq-panel-head">
         <p className="rq-label">
-          Diagnostic panel · specimen {report.id.slice(0, 8)} · issued{" "}
-          {fmtDate(report.generated_at)}
-          {prior && <> · prior {fmtDate(prior.generated_at)}</>}
+          {t("panel.label", {
+            id: report.id.slice(0, 8),
+            issued: fmtDate(report.generated_at, locale),
+          })}
+          {prior && t("panel.prior", { date: fmtDate(prior.generated_at, locale) })}
         </p>
         <h1 id="rq-panel-h" className="rq-head-line">
           {head ? (
             <>
               <span className="rq-big">
-                {signed(head.range.low)}–{signed(head.range.high)}
+                {signed(head.range.low, locale)}–{signed(head.range.high, locale)}
               </span>{" "}
               <span className="rq-big-unit">
-                profit change / month · if you do R{head.index + 1} · DERIVED
+                {t("panel.headUnit", { ref: `R${head.index + 1}` })}
               </span>
             </>
           ) : rows.length > 0 ? (
             <>
               <span className="rq-big">
-                {num(computed)} of {num(rows.length)}
+                {t("panel.computed", {
+                  computed: num(computed, 0, locale),
+                  total: num(rows.length, 0, locale),
+                })}
               </span>{" "}
-              <span className="rq-big-unit">measures computed · each one says why</span>
+              <span className="rq-big-unit">{t("panel.computedUnit")}</span>
             </>
           ) : (
-            <span className="rq-big rq-big-words">Diagnosis</span>
+            <span className="rq-big rq-big-words">{t("panel.diagnosis")}</span>
           )}
         </h1>
         <p className="rq-tally">
-          {tally.map((t, i) => (
-            <span key={t.word}>
+          {tally.map((x, i) => (
+            <span key={x.word}>
               {i > 0 && " · "}
-              <b className={`rq-n ${t.tone}`}>{t.n}</b> {t.word}
+              <b className={`rq-n ${x.tone}`}>{num(x.n, 0, locale)}</b> {x.word}
             </span>
           ))}
-          {tally.length === 0 && <span>no findings called out</span>}
+          {tally.length === 0 && <span>{t("panel.noFindings")}</span>}
           {notComputed > 0 && (
             <span>
               {" "}
-              · <b className="rq-n low">{notComputed}</b> not computed
+              ·{" "}
+              {t.rich("panel.notComputed", {
+                count: notComputed,
+                b: (chunks) => <b className="rq-n low">{chunks}</b>,
+              })}
             </span>
           )}
         </p>
@@ -311,35 +341,30 @@ function Panel({
       </header>
 
       {rows.length === 0 ? (
-        <p className="rq-empty">
-          No measure could be computed or refused — the profile has nothing to work from yet.
-        </p>
+        <p className="rq-empty">{t("panel.empty")}</p>
       ) : (
         <div className="rq-table-wrap">
           <table className="rq-table">
-            <caption className="sr-only">
-              Each measure: its result, the prior report&rsquo;s result, the reference range, a
-              flag, money a month, its basis, and how it was worked out
-            </caption>
+            <caption className="sr-only">{t("panel.caption")}</caption>
             <thead>
               <tr>
-                <th scope="col">Measure</th>
+                <th scope="col">{t("col.measure")}</th>
                 <th scope="col" className="num">
-                  Result
+                  {t("col.result")}
                 </th>
                 <th scope="col" className="num">
-                  Prior
+                  {t("col.prior")}
                 </th>
                 <th scope="col" className="rq-wrap">
-                  Range · act-now line
+                  {t("col.range")}
                 </th>
-                <th scope="col">Flag</th>
+                <th scope="col">{t("col.flag")}</th>
                 <th scope="col" className="num rq-wrap">
-                  {report.unit_economics.currency} / month
+                  {perMonth}
                 </th>
-                <th scope="col">Basis</th>
+                <th scope="col">{t("col.basis")}</th>
                 <th scope="col">
-                  <span className="sr-only">Derivation</span>
+                  <span className="sr-only">{t("col.derivation")}</span>
                 </th>
               </tr>
             </thead>
@@ -349,7 +374,7 @@ function Panel({
                   <th scope="row" className="rq-measure">
                     {r.name}
                   </th>
-                  <td className="num rq-result" data-label="Result">
+                  <td className="num rq-result" data-label={t("col.result")}>
                     {r.result ? (
                       <>
                         {r.result.text}
@@ -359,20 +384,20 @@ function Panel({
                       NONE
                     )}
                   </td>
-                  <td className="num rq-prior" data-label="Prior report">
+                  <td className="num rq-prior" data-label={t("col.priorReport")}>
                     {r.prior ? fig(r.prior) : NONE}
                   </td>
-                  <td className="rq-range" data-label="Range · act-now">
+                  <td className="rq-range" data-label={t("col.rangeShort")}>
                     {NONE}
                   </td>
-                  <td data-label="Flag">
+                  <td data-label={t("col.flag")}>
                     {r.flag ? <span className={`word ${r.flag.tone}`}>{r.flag.word}</span> : NONE}
                   </td>
-                  <td className="num" data-label={`${report.unit_economics.currency} / month`}>
+                  <td className="num" data-label={perMonth}>
                     {NONE}
                   </td>
-                  <td data-label="Basis">
-                    <span className="rq-basis-w">{r.basis ?? "—"}</span>
+                  <td data-label={t("col.basis")}>
+                    <span className="rq-basis-w">{r.basis ? basisName(r.basis, st) : "—"}</span>
                   </td>
                   <td className="rq-why-cell">
                     <button
@@ -382,8 +407,8 @@ function Panel({
                       aria-controls="rq-why"
                       onClick={() => onWhy(r.id)}
                     >
-                      Why <span aria-hidden="true">→</span>
-                      <span className="sr-only"> — how {r.name} was worked out</span>
+                      {t("why.button")} <span aria-hidden="true">→</span>
+                      <span className="sr-only">{t("why.buttonSr", { name: r.name })}</span>
                     </button>
                   </td>
                 </tr>
@@ -392,12 +417,7 @@ function Panel({
           </table>
         </div>
       )}
-      <p className="rq-legend">
-        Range · act-now line: drawn only where a target of yours or a range the data supports covers
-        the measure — none does yet, so it shows —. Money a month is printed only where a
-        measure&rsquo;s gap is priced; none is. DERIVED = worked out from other facts; its WHY shows
-        the formula and inputs.
-      </p>
+      <p className="rq-legend">{t("panel.legend")}</p>
     </section>
   );
 }
@@ -405,15 +425,16 @@ function Panel({
 /* ── the derivation sheet (non-modal) ── */
 
 function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null }) {
+  const { t, st, w } = useWords();
   if (row === null) {
     return (
-      <aside className="rq-why" id="rq-why" aria-label="Derivation sheet">
+      <aside className="rq-why" id="rq-why" aria-label={t("why.sheet")}>
         <div className="rq-why-head">
-          <p className="rq-label">Derivation sheet</p>
-          <h2 className="rq-why-title">Nothing selected</h2>
+          <p className="rq-label">{t("why.sheet")}</p>
+          <h2 className="rq-why-title">{t("why.nothing")}</h2>
         </div>
         <div className="rq-why-body">
-          <p className="rq-why-words">Choose WHY → on a measure to see how it was worked out.</p>
+          <p className="rq-why-words">{t("why.choose")}</p>
         </div>
       </aside>
     );
@@ -421,9 +442,9 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
   const map = report.fact_map;
   const keys =
     row.computed?.derived_from ?? row.refusal?.missing.filter((k) => !k.includes("<")) ?? [];
-  const inputs = inputLines(keys, map);
+  const inputs = inputLines(keys, map, w, st);
   const missingWords =
-    row.refusal?.missing.filter((k) => k.includes("<")).map((k) => inputWords(k, map)) ?? [];
+    row.refusal?.missing.filter((k) => k.includes("<")).map((k) => inputWords(k, map, w.tr)) ?? [];
   const lines = historyLines({
     row,
     issuedAt: report.generated_at,
@@ -431,12 +452,13 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
     keys,
     history: report.history ?? {},
     map,
+    words: w,
   });
 
   return (
-    <aside className="rq-why" id="rq-why" aria-label="Derivation sheet" aria-live="polite">
+    <aside className="rq-why" id="rq-why" aria-label={t("why.sheet")} aria-live="polite">
       <div className="rq-why-head">
-        <p className="rq-label">Derivation sheet</p>
+        <p className="rq-label">{t("why.sheet")}</p>
         <h2 className="rq-why-title">{row.name}</h2>
         <p className="rq-why-fig">
           {row.result ? (
@@ -451,13 +473,13 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
         </p>
       </div>
       <div className="rq-why-body">
-        <p className="rq-label">{row.computed ? "Formula, in words" : "Why it was not computed"}</p>
+        <p className="rq-label">{row.computed ? t("why.formula") : t("why.notComputed")}</p>
         <p className="rq-why-words">{row.computed ? row.words : row.refusal?.why}</p>
         {row.computed && <p className="rq-why-formula">{row.computed.formula}</p>}
 
-        <p className="rq-label">{row.computed ? "Inputs" : "Missing inputs"}</p>
+        <p className="rq-label">{row.computed ? t("why.inputs") : t("why.missingInputs")}</p>
         {inputs.length === 0 && missingWords.length === 0 && (
-          <p className="rq-why-none">None recorded.</p>
+          <p className="rq-why-none">{t("why.none")}</p>
         )}
         <ul className="rq-inputs">
           {inputs.map((i) => (
@@ -465,28 +487,28 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
               <div>
                 <span className="rq-in-name">{i.name}</span>
                 <span className="rq-in-src">
-                  {i.source === "not recorded"
+                  {i.source === NOT_RECORDED
                     ? row.computed
-                      ? "not in this snapshot"
-                      : "not recorded · missing"
-                    : `${i.source} · ${i.basis ?? "basis not recorded"}`}
+                      ? t("fact.notInSnapshot")
+                      : t("why.missing")
+                    : `${i.source} · ${i.basis ? basisName(i.basis, st) : t("why.basisNotRecorded")}`}
                 </span>
               </div>
               <span className="rq-in-val">{i.value ?? "—"}</span>
             </li>
           ))}
-          {missingWords.map((w) => (
-            <li key={w}>
+          {missingWords.map((m) => (
+            <li key={m}>
               <div>
-                <span className="rq-in-name">{w.charAt(0).toUpperCase() + w.slice(1)}</span>
-                <span className="rq-in-src">not recorded · missing</span>
+                <span className="rq-in-name">{m.charAt(0).toUpperCase() + m.slice(1)}</span>
+                <span className="rq-in-src">{t("why.missing")}</span>
               </div>
               <span className="rq-in-val">—</span>
             </li>
           ))}
         </ul>
 
-        <p className="rq-label">History · superseded, never erased</p>
+        <p className="rq-label">{t("why.history")}</p>
         <ul className="rq-hist">
           {lines.map((l, i) => (
             <li key={`${l.date}-${i}`}>
@@ -497,9 +519,7 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
             </li>
           ))}
         </ul>
-        {lines.length <= 1 && (
-          <p className="rq-why-none">No input of this figure has been superseded yet.</p>
-        )}
+        {lines.length <= 1 && <p className="rq-why-none">{t("why.noHistory")}</p>}
       </div>
     </aside>
   );
@@ -508,20 +528,22 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
 /* ── below the panel ── */
 
 function Evidence({ keys, map }: { keys: string[]; map: FactMap }) {
+  const { tr, locale } = useWords();
   return (
     <ul className="rq-evidence">
       {keys.map((k) => {
         const f = map[k];
+        const value = f ? valueText(f, locale) : null;
         return (
           <li key={k}>
-            <span className="rq-ev-key">{inputWords(k, map)}</span>
-            {f?.value != null && (
+            <span className="rq-ev-key">{inputWords(k, map, tr)}</span>
+            {value !== null && (
               <>
                 {" "}
-                = <span className="fig">{refigure(f.value)}</span>
+                = <span className="fig">{value}</span>
               </>
             )}{" "}
-            · {factLine(f)}
+            · <FactLine f={f} />
           </li>
         );
       })}
@@ -530,13 +552,14 @@ function Evidence({ keys, map }: { keys: string[]; map: FactMap }) {
 }
 
 function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: FactMap }) {
+  const { t, tr, st, locale } = useWords();
   const monies = rows.flatMap((r) =>
     [r.stated.value, r.measured.value].filter((v): v is MoneyLike => isMoneyLike(v)),
   );
   const dec = columnDecimals(monies);
   const show = (v: unknown): ReactNode => {
-    if (typeof v === "number") return num(v, numberDecimals([v]));
-    if (isMoneyLike(v)) return `${moneyFig(v.amount_minor, v.currency, dec)} ${v.currency}`;
+    if (typeof v === "number") return num(v, numberDecimals([v]), locale);
+    if (isMoneyLike(v)) return `${moneyFig(v.amount_minor, v.currency, dec, locale)} ${v.currency}`;
     // Words against a measurement (no-shows, specs/bookings.md §4): shown, not subtracted.
     if (typeof v === "string" && v.trim() !== "") return v;
     return NONE;
@@ -544,20 +567,18 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
   return (
     <div className="rq-table-wrap">
       <table className="rt rq-svm">
-        <caption className="sr-only">
-          What you said against what a connected account measured
-        </caption>
+        <caption className="sr-only">{t("svm.caption")}</caption>
         <thead>
           <tr>
-            <th scope="col">Measure · window</th>
+            <th scope="col">{t("svm.measure")}</th>
             <th scope="col" className="num">
-              You said
+              {t("svm.said")}
             </th>
             <th scope="col" className="num">
-              Measured
+              {t("svm.measured")}
             </th>
             <th scope="col" className="num">
-              Difference
+              {t("svm.difference")}
             </th>
           </tr>
         </thead>
@@ -569,33 +590,40 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
             return (
               <tr key={s.field_key}>
                 <th scope="row">
-                  {inputWords(s.field_key, map).replace(/^./, (c) => c.toUpperCase())}
+                  {inputWords(s.field_key, map, tr).replace(/^./, (c) => c.toUpperCase())}
                   <span className="src rq-src">
-                    OBSERVED · {s.provider} ·{" "}
-                    {period
-                      ? `${fmtDate(period[1] ?? "")} – ${fmtDate(period[2] ?? "")}`
-                      : `read ${fmtDate(s.measured.observed_at)}`}
+                    {t("svm.observed", {
+                      provider: s.provider,
+                      when: period
+                        ? `${fmtDate(period[1] ?? "", locale)} – ${fmtDate(period[2] ?? "", locale)}`
+                        : t("svm.read", { date: fmtDate(s.measured.observed_at, locale) }),
+                    })}
                   </span>
                   <span className="src rq-src">
-                    yours: {statedBasis ?? gapWord(s.stated.status)} ·{" "}
-                    {sourceLabel(s.stated.source_kind)} · {fmtDate(s.stated.observed_at)}
+                    {t("svm.yours", {
+                      basis: statedBasis
+                        ? basisName(statedBasis, st)
+                        : gapWord(s.stated.status, st),
+                      source: sourceLabel(s.stated.source_kind, st),
+                      date: fmtDate(s.stated.observed_at, locale),
+                    })}
                   </span>
                 </th>
-                <td className="num" data-label="You said">
-                  {s.stated.value === null ? "not known" : show(s.stated.value)}
+                <td className="num" data-label={t("svm.said")}>
+                  {s.stated.value === null ? t("svm.notKnown") : show(s.stated.value)}
                 </td>
-                <td className="num" data-label="Measured">
+                <td className="num" data-label={t("svm.measured")}>
                   {show(s.measured.value)}
                 </td>
-                <td className="num" data-label="Difference">
+                <td className="num" data-label={t("svm.difference")}>
                   {d === null ? (
                     NONE
                   ) : (
                     <>
                       {d.currency !== null
-                        ? signedMoney({ amount_minor: d.amount, currency: d.currency }, dec)
-                        : delta(d.amount, numberDecimals([d.amount]))}
-                      {d.pct !== null && <> ({delta(d.pct, 1)} %)</>}
+                        ? signedMoney({ amount_minor: d.amount, currency: d.currency }, dec, locale)
+                        : delta(d.amount, numberDecimals([d.amount]), locale)}
+                      {d.pct !== null && <> ({delta(d.pct, 1, locale)} %)</>}
                     </>
                   )}
                 </td>
@@ -615,19 +643,16 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
  * the measured figure either way.
  */
 function StatedVsMeasuredCard({ rows, map }: { rows: StatedVsMeasuredRow[]; map: FactMap }) {
+  const { t } = useWords();
   const split = useMemo(() => splitByMateriality(rows), [rows]);
   const [open, setOpen] = useState(false);
   const line = quietLine(split.quiet, rows.length);
   return (
     <SheetCard
       className="rq-card"
-      label="Stated against measured"
-      title={
-        split.material.length === 0
-          ? "What you said held up against what was measured."
-          : "What you said, against what was measured."
-      }
-      foot="The analysis uses the measured figure. What you said stays in your history."
+      label={t("svm.label")}
+      title={split.material.length === 0 ? t("svm.titleHeld") : t("svm.title")}
+      foot={t("svm.foot")}
     >
       {split.material.length > 0 && <StatedVsMeasured rows={split.material} map={map} />}
       {line !== null && (
@@ -640,7 +665,7 @@ function StatedVsMeasuredCard({ rows, map }: { rows: StatedVsMeasuredRow[]; map:
             aria-controls="rq-svm-quiet-detail"
             onClick={() => setOpen((o) => !o)}
           >
-            {open ? "Hide them" : "Show them"}
+            {open ? t("svm.hide") : t("svm.show")}
           </button>
           {open && (
             <div id="rq-svm-quiet-detail" className="rq-svm-quiet-detail">
@@ -654,12 +679,15 @@ function StatedVsMeasuredCard({ rows, map }: { rows: StatedVsMeasuredRow[]; map:
 }
 
 function Decline({ onSubmit, busy }: { onSubmit: (reason: string) => void; busy: boolean }) {
+  const { t } = useWords();
   const [reason, setReason] = useState("");
+  // The chip's words are what is recorded as the reason: the owner's language, as given.
+  const chips = DECLINE_CHIPS.map((c) => t(`decline.chip.${c}`));
   return (
     <div className="rp-decline">
-      <p>Optional — why not? This teaches me what not to propose again.</p>
+      <p>{t("decline.lede")}</p>
       <div className="rp-chips">
-        {DECLINE_CHIPS.map((c) => (
+        {chips.map((c) => (
           <button
             key={c}
             className={reason === c ? "rp-chip on" : "rp-chip"}
@@ -674,14 +702,14 @@ function Decline({ onSubmit, busy }: { onSubmit: (reason: string) => void; busy:
       <div className="rp-decline-row">
         <input
           className="field"
-          aria-label="Your reason, in your words"
-          placeholder="or say it your way"
-          value={DECLINE_CHIPS.includes(reason) ? "" : reason}
+          aria-label={t("decline.label")}
+          placeholder={t("decline.placeholder")}
+          value={chips.includes(reason) ? "" : reason}
           onChange={(e) => setReason(e.target.value)}
           disabled={busy}
         />
         <button className="ghost" onClick={() => onSubmit(reason)} disabled={busy}>
-          {busy ? "recording…" : "Record it"}
+          {busy ? t("decline.recording") : t("decline.record")}
         </button>
       </div>
     </div>
@@ -689,6 +717,7 @@ function Decline({ onSubmit, busy }: { onSubmit: (reason: string) => void; busy:
 }
 
 function Forecast({ rec }: { rec: Rec }) {
+  const { t, locale } = useWords();
   const s = rec.scenario;
   const cases = [s.base_case, s.downside_case, s.upside_case];
   const range = forecastRange(s.downside_case, s.upside_case, s.base_case);
@@ -700,38 +729,44 @@ function Forecast({ rec }: { rec: Rec }) {
     <div className="rq-forecast">
       {range !== null && (
         <p className="rq-range-line">
-          <span className="rq-label">Profit change vs today · range</span>
+          <span className="rq-label">{t("forecast.range")}</span>
           <span className="fig rq-range-fig">
-            {rangeText(range)} <span className="rq-unit">{range.currency} / month</span>
+            {rangeText(range, locale)}{" "}
+            <span className="rq-unit">{t("col.perMonth", { currency: range.currency })}</span>
           </span>
         </p>
       )}
       <div className="rq-table-wrap">
         <table className="rt rq-cases">
-          <caption className="sr-only">
-            The three cases of “{rec.title}”, with the arithmetic
-          </caption>
+          <caption className="sr-only">{t("forecast.caption", { title: rec.title })}</caption>
           <thead>
             <tr>
-              <th scope="col">Case</th>
+              <th scope="col">{t("forecast.case")}</th>
               {hasFigures && (
                 <th scope="col" className="num">
-                  {cur !== null ? `${cur} / month` : "Per month"}
+                  {cur !== null ? t("col.perMonth", { currency: cur }) : t("forecast.perMonth")}
                 </th>
               )}
-              <th scope="col">What happens · the arithmetic</th>
+              <th scope="col">{t("forecast.what")}</th>
             </tr>
           </thead>
           <tbody>
             {cases.map((o) => (
               <tr key={o.case}>
-                <th scope="row">{CASE_WORD[o.case] ?? o.case}</th>
+                <th scope="row">{CASES.has(o.case) ? t(`case.${o.case as "base"}`) : o.case}</th>
                 {hasFigures && (
-                  <td className="num" data-label={cur !== null ? `${cur} / month` : "Per month"}>
-                    {o.profit_delta_monthly ? signedMoney(o.profit_delta_monthly, dec) : NONE}
+                  <td
+                    className="num"
+                    data-label={
+                      cur !== null ? t("col.perMonth", { currency: cur }) : t("forecast.perMonth")
+                    }
+                  >
+                    {o.profit_delta_monthly
+                      ? signedMoney(o.profit_delta_monthly, dec, locale)
+                      : NONE}
                   </td>
                 )}
-                <td data-label="What happens">
+                <td data-label={t("forecast.whatShort")}>
                   {o.statement}
                   {o.formula !== null && <code className="rq-formula">{o.formula}</code>}
                 </td>
@@ -781,28 +816,29 @@ function RecommendationItem({
     [reportId, index, onChanged],
   );
 
+  const { t, tr } = useWords();
   const addresses = rec.addresses.map((i) => `F${i + 1}`).join(", ");
   return (
     <li className="rq-item">
       <p className="rq-item-head">
         <span className="rq-ref">R{index + 1}</span>
         <span className="rq-label">
-          effort {rec.effort} · undo {rec.reversibility.level}
-          {addresses !== "" && <> · answers {addresses}</>}
+          {t("rec.meta", { effort: rec.effort, undo: rec.reversibility.level })}
+          {addresses !== "" && t("rec.answers", { refs: addresses })}
         </span>
       </p>
       <h3 className="rq-item-title">{rec.title}</h3>
       <p className="rq-prose">{rec.rationale}</p>
       <Forecast rec={rec} />
       <p className="rq-inset">
-        <span className="rq-label">Break-even</span> {rec.scenario.breakeven_condition}
+        <span className="rq-label">{t("rec.breakEven")}</span> {rec.scenario.breakeven_condition}
       </p>
       {rec.sensitivity_callouts.map((c) => (
         <p className="rq-prose" key={c}>
-          <span className="word drift">High sensitivity</span> {c}
+          <span className="word drift">{t("rec.highSensitivity")}</span> {c}
         </p>
       ))}
-      <p className="rq-label rq-sub-h">The assumptions, stated</p>
+      <p className="rq-label rq-sub-h">{t("rec.assumptions")}</p>
       <ul className="rq-evidence">
         {rec.scenario.assumptions.map((a) => {
           const f = a.source_field !== null ? map[a.source_field] : undefined;
@@ -811,30 +847,31 @@ function RecommendationItem({
               <span className="rq-ev-text">{a.statement}</span> ·{" "}
               {a.source_field !== null ? (
                 <>
-                  {factLine(f)} · from {inputWords(a.source_field, map)}
+                  <FactLine f={f} /> ·{" "}
+                  {t("rec.from", { input: inputWords(a.source_field, map, tr) })}
                 </>
               ) : (
                 <>
-                  <BasisWord basis="ASSUMED" /> · nobody measured or stated this
+                  <BasisWord basis="ASSUMED" /> · {t("rec.nobody")}
                 </>
               )}{" "}
-              · sensitivity {a.sensitivity}
+              · {t("rec.sensitivity", { level: a.sensitivity })}
             </li>
           );
         })}
       </ul>
       <p className="rq-prose">
-        <strong>If you change your mind:</strong> {rec.reversibility.if_you_change_your_mind}
+        <strong>{t("rec.changeMind")}</strong> {rec.reversibility.if_you_change_your_mind}
       </p>
 
       {/* §8: two actions, equal visual weight — "no" is a legitimate answer */}
       {!readOnly && rec.status === "proposed" && !declining && (
         <div className="rp-actions">
           <button className="rp-act" onClick={() => void respond("look_into")} disabled={busy}>
-            Look into this →
+            {t("rec.lookInto")}
           </button>
           <button className="rp-act" onClick={() => setDeclining(true)} disabled={busy}>
-            Not for us →
+            {t("rec.notForUs")}
           </button>
         </div>
       )}
@@ -843,13 +880,15 @@ function RecommendationItem({
       )}
       {!readOnly && rec.status === "accepted" && (
         <p className="rq-responded">
-          <span className="rq-label">Recorded</span> you&rsquo;re looking into this
+          <span className="rq-label">{t("rec.recorded")}</span> {t("rec.lookingInto")}
         </p>
       )}
       {!readOnly && rec.status === "rejected" && (
         <p className="rq-responded">
-          <span className="rq-label">Declined</span>
-          {rec.rejection_reason !== null ? ` “${rec.rejection_reason}”` : " no reason given"}
+          <span className="rq-label">{t("rec.declined")}</span>
+          {rec.rejection_reason !== null
+            ? ` ${t("rec.reason", { reason: rec.rejection_reason })}`
+            : ` ${t("rec.noReason")}`}
         </p>
       )}
     </li>
@@ -877,11 +916,12 @@ export function ReportBody({
   /** Owner-only sections drawn above the footer (the share card). */
   children?: ReactNode;
 }) {
+  const { t, st, w, locale } = useWords();
   const [selected, setSelected] = useState<string | null>(null);
   const whyRef = useRef<HTMLDivElement>(null);
   const rows = useMemo(
-    () => panelRows(report.unit_economics, report.prior?.unit_economics ?? null),
-    [report],
+    () => panelRows(report.unit_economics, report.prior?.unit_economics ?? null, w),
+    [report, w],
   );
   const current =
     rows.find((r) => r.id === selected) ?? rows.find((r) => r.result !== null) ?? rows[0] ?? null;
@@ -911,17 +951,17 @@ export function ReportBody({
       <SheetCard
         id="rq-findings"
         className="rq-card"
-        label="Findings · most urgent first"
+        label={t("findings.label")}
         title={
           report.findings.length === 0
-            ? "Nothing the evidence supports strongly enough to call out."
-            : `${num(report.findings.length)} finding${report.findings.length === 1 ? "" : "s"}, each with its evidence.`
+            ? t("findings.none")
+            : t("findings.title", { count: report.findings.length })
         }
       >
         {report.findings.length > 0 ? (
           <ol className="rq-list">
             {report.findings.map((f, i) => {
-              const flag = severityFlag(f.severity);
+              const flag = severityFlag(f.severity, st);
               return (
                 <li className="rq-item" key={f.title}>
                   <p className="rq-item-head">
@@ -929,8 +969,8 @@ export function ReportBody({
                     <span className={`word ${flag.tone}`}>{flag.word}</span>
                     <span className="rq-label">{f.area.replace(/_/g, " ")}</span>
                     {f.kind === "measured" && (
-                      <span className="rq-label" title="Measured on your site, not judged">
-                        · measured
+                      <span className="rq-label" title={t("findings.measuredTitle")}>
+                        · {t("findings.measured")}
                       </span>
                     )}
                   </p>
@@ -950,11 +990,11 @@ export function ReportBody({
       {/* ── recommendations with scenarios and the two equal actions ── */}
       <SheetCard
         className="rq-card"
-        label="What I'd do about it"
+        label={t("recs.label")}
         title={
           report.recommendations.length === 0
-            ? "No recommendation the arithmetic can back yet."
-            : `${num(report.recommendations.length)} recommendation${report.recommendations.length === 1 ? "" : "s"}, each with its range.`
+            ? t("recs.none")
+            : t("recs.title", { count: report.recommendations.length })
         }
       >
         {report.recommendations.length > 0 ? (
@@ -978,11 +1018,14 @@ export function ReportBody({
       {report.trading_hours && (
         <SheetCard
           className="rq-card"
-          label={`Trading hours · OBSERVED · ${fmtDay(report.trading_hours.from)} – ${fmtDay(report.trading_hours.to)}`}
+          label={t("hours.label", {
+            from: fmtDay(report.trading_hours.from, undefined, locale),
+            to: fmtDay(report.trading_hours.to, undefined, locale),
+          })}
           title={
             report.trading_hours.findings.length === 0
-              ? "No signal fires on any measured day."
-              : `${num(report.trading_hours.findings.length)} signal${report.trading_hours.findings.length === 1 ? "" : "s"} in your hourly sales.`
+              ? t("hours.none")
+              : t("hours.title", { count: report.trading_hours.findings.length })
           }
           meta={report.trading_hours.coverage}
           foot={
@@ -991,7 +1034,7 @@ export function ReportBody({
               {!readOnly && (
                 <>
                   {" "}
-                  <Link href="/hours">See every weekday →</Link>
+                  <Link href="/hours">{t("hours.link")}</Link>
                 </>
               )}
             </>
@@ -1002,7 +1045,7 @@ export function ReportBody({
               <li className="rq-item" key={f.signal}>
                 <p className="rq-item-head">
                   {f.signal === "too_early" ? (
-                    <span className="word low">Too early to say</span>
+                    <span className="word low">{t("hours.tooEarly")}</span>
                   ) : (
                     <span className="rq-label">{f.weekdays.join(" · ")}</span>
                   )}
@@ -1024,18 +1067,14 @@ export function ReportBody({
 
       {/* ── what would sharpen this ── */}
       {report.data_gaps.length > 0 && (
-        <SheetCard
-          className="rq-card"
-          label="What would sharpen this"
-          title="The report is only as good as what it rests on."
-        >
+        <SheetCard className="rq-card" label={t("gaps.label")} title={t("gaps.title")}>
           <ul className="rq-list">
             {report.data_gaps.map((g) => (
               <li className="rq-gap" key={g.question_id}>
                 <div>
                   <p className="rq-item-head">
-                    <span className="rq-label">{g.priority}</span>
-                    {g.blocking && <span className="word drift">Blocking</span>}
+                    <span className="rq-label">{t("gaps.priority", { priority: g.priority })}</span>
+                    {g.blocking && <span className="word drift">{t("gaps.blocking")}</span>}
                   </p>
                   <p className="rq-gap-q">{g.prompt}</p>
                   <p className="rq-gap-b">{g.buys}</p>
@@ -1045,7 +1084,7 @@ export function ReportBody({
                     className="ghost quiet noprint"
                     href={`/intake?ask=${encodeURIComponent(g.question_id)}`}
                   >
-                    Answer now →
+                    {t("gaps.answer")}
                   </Link>
                 )}
               </li>
@@ -1061,13 +1100,12 @@ export function ReportBody({
           {BASES.map((b, i) => (
             <span key={b}>
               {i > 0 && " · "}
-              <b>{b}</b> {BASIS_MEANING[b]}
+              <b>{basisName(b, st)}</b> {basisMeaning(b, st)}
             </span>
           ))}
         </p>
         <p>
-          Every figure prints where it came from. Estimates are marked as estimates; nothing is
-          invented. {foot}
+          {t("foot")} {foot}
         </p>
       </footer>
     </>
@@ -1121,17 +1159,22 @@ export function CheckoutChoice({
   const { first_price: price, extra_price } = options;
   const total = checkoutTotal(price.amount_minor, extra_price.amount_minor, also.length);
   const returning = price.amount_minor !== options.price.amount_minor;
+  const { t, locale } = useWords();
+  const tc = useTranslations("common");
+  const money = (minor: number, currency: string) => moneyText(minor, currency, locale);
   return (
     <>
       <p className="rq-prose">
-        This report is {moneyText(price.amount_minor, price.currency)}
-        {returning ? ", since you've already paid for another of your businesses" : ""}.
+        {returning
+          ? t("checkout.priceReturning", { price: money(price.amount_minor, price.currency) })
+          : t("checkout.price", { price: money(price.amount_minor, price.currency) })}
         {options.others.length > 0 && (
           <>
             {" "}
-            You own {options.others.length === 1 ? "another business" : "other businesses"} without
-            a paid report: add {options.others.length === 1 ? "it" : "them"} to the same payment at{" "}
-            {moneyText(extra_price.amount_minor, extra_price.currency)} each.
+            {t("checkout.others", {
+              count: options.others.length,
+              price: money(extra_price.amount_minor, extra_price.currency),
+            })}
           </>
         )}
       </p>
@@ -1145,24 +1188,22 @@ export function CheckoutChoice({
                   checked={also.includes(o.profile_id)}
                   onChange={() => onToggle(o.profile_id)}
                 />{" "}
-                {o.business ?? "A business not named yet"} ·{" "}
-                {moneyText(extra_price.amount_minor, extra_price.currency)}
+                {o.business ?? tc("businessUnnamed")} ·{" "}
+                {money(extra_price.amount_minor, extra_price.currency)}
               </label>
             </li>
           ))}
         </ul>
       )}
       <p className="rq-prose">
-        Total: {moneyText(total, price.currency)} for {also.length + 1}{" "}
-        {also.length === 0 ? "report" : "reports"}, one payment. Each business&apos;s report is
-        written when you open it there.
+        {t("checkout.total", { total: money(total, price.currency), count: also.length + 1 })}
       </p>
       <div className="rp-actions">
         <button className="rp-act" onClick={onPay}>
-          Pay {moneyText(total, price.currency)} →
+          {t("checkout.pay", { total: money(total, price.currency) })}
         </button>
         <button className="rp-act" onClick={onCancel}>
-          Not now
+          {t("checkout.notNow")}
         </button>
       </div>
     </>
@@ -1180,6 +1221,7 @@ const CONFIRM_WAIT_MS = 3_000;
 
 export function ReportScreen() {
   const nav = useNav();
+  const { t } = useWords();
   const [report, setReport] = useState<ReportView | null>(null);
   const [state, setState] = useState<
     "loading" | "none" | "generating" | "choosing" | "ready" | "error"
@@ -1229,13 +1271,13 @@ export function ReportScreen() {
           window.location.href = payload.checkout_url;
           return;
         }
-        setError(payload?.error ?? "payment could not be started");
+        setError(payload?.error ?? t("state.payFailed"));
       } catch {
-        setError("I couldn't reach the server — nothing was charged; try again.");
+        setError(t("state.payUnreachable"));
       }
       setState(report ? "ready" : "none");
     },
-    [report],
+    [report, t],
   );
 
   const generate = useCallback(
@@ -1257,9 +1299,7 @@ export function ReportScreen() {
           res = await fetch("/api/report", { method: "POST" });
         }
         if (res.status === 402 && afterPayment) {
-          setError(
-            "Stripe hasn't confirmed your payment yet. Refresh this page in a minute: you won't be charged again, and the report starts once it's confirmed.",
-          );
+          setError(t("state.notConfirmed"));
           setState(report ? "ready" : "none");
           return;
         }
@@ -1287,18 +1327,18 @@ export function ReportScreen() {
         }
         if (!res.ok) {
           const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-          setError(payload?.error ?? "generation failed");
+          setError(payload?.error ?? t("state.generationFailed"));
           setState(report ? "ready" : "none");
           return;
         }
         setReport((await res.json()) as ReportView);
         setState("ready");
       } catch {
-        setError("I couldn't reach the server — your answers are safe; try again.");
+        setError(t("state.unreachable"));
         setState(report ? "ready" : "none");
       }
     },
-    [report, pay],
+    [report, pay, t],
   );
 
   // Back from Stripe: kick generation once, waiting for the webhook if it
@@ -1318,18 +1358,17 @@ export function ReportScreen() {
     return (
       <Shell map={null} currency={null} nav={nav} findings={null}>
         <SheetCard
-          label="Diagnostic panel"
-          title={state === "none" ? "No report yet" : "Diagnosis"}
+          label={t("state.label")}
+          title={state === "none" ? t("state.noReport") : t("panel.diagnosis")}
         >
           {state === "loading" && (
             <p className="rq-prose" role="status">
-              Checking for your report…
+              {t("state.checking")}
             </p>
           )}
           {state === "error" && (
             <p className="rq-prose" role="alert">
-              Something went wrong loading the report. Refresh to try again — nothing you told me is
-              lost.
+              {t("state.error")}
             </p>
           )}
           {state === "generating" && (
@@ -1338,15 +1377,12 @@ export function ReportScreen() {
               <p className="rq-status live" role="status" aria-live="polite">
                 <span className="live-dot" aria-hidden="true" />{" "}
                 {step === "checkout"
-                  ? "Opening checkout — the report is paid for before it is written"
+                  ? t("state.openingCheckout")
                   : step === "confirming"
-                    ? "Waiting for Stripe to confirm your payment"
-                    : "Reading your profile — the request is running"}
+                    ? t("state.confirming")
+                    : t("state.reading")}
               </p>
-              <p className="rq-prose">
-                Margins, break-even, the findings and what to do about them. This usually takes
-                about a minute; the arithmetic is checked before anything reaches the page.
-              </p>
+              <p className="rq-prose">{t("state.readingLede")}</p>
             </>
           )}
           {state === "choosing" && options && (
@@ -1363,15 +1399,14 @@ export function ReportScreen() {
           {(state === "none" || (state === "ready" && report === null)) && (
             <>
               <p className="rq-prose" role={error !== null ? "alert" : undefined}>
-                {error ??
-                  "When you've answered enough, I read the whole profile and write up what I can prove."}
+                {error ?? t("state.none")}
               </p>
               <div className="rp-actions">
                 <button className="rp-act" onClick={() => void generate()}>
-                  Read my profile now →
+                  {t("state.readNow")}
                 </button>
                 <Link className="rp-act" href="/intake">
-                  Answer more first →
+                  {t("state.answerMore")}
                 </Link>
               </div>
             </>
@@ -1399,7 +1434,7 @@ export function ReportScreen() {
         onChanged={async () => {
           await load();
         }}
-        foot={<>Generated from snapshot {report.id.slice(0, 8)}.</>}
+        foot={<>{t("generatedFrom", { id: report.id.slice(0, 8) })}</>}
       >
         {/* Idea 51: a read-only link to this report. */}
         <ShareCard />

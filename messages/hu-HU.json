@@ -344,7 +344,8 @@
       "skipped": "kihagyva",
       "yes": "igen",
       "no": "nem",
-      "onFile": "rögzítve"
+      "onFile": "rögzítve",
+      "entityCount": "{count, plural, one {# rögzítve} other {# rögzítve}}"
     },
     "source": {
       "connected": "összekapcsolt fiók",
@@ -448,6 +449,946 @@
       "unknown_field": "ebben a listában nincs „{field}” nevű mező",
       "finding_not_open": "ez már rendezve van",
       "invalid": "ezt a választ nem sikerült rögzíteni"
+    }
+  },
+  "voice": {
+    "speak": "Diktálás",
+    "listening": "Figyelek… A leállításhoz nyomja meg újra a Diktálás gombot.",
+    "noticeStart": "{notice} Az indításhoz nyomja meg újra a Diktálás gombot.",
+    "notice": "A böngészője alakítja szöveggé a beszédét. Chrome-ban ezt a Google végzi; a SYB soha nem kapja meg a hangot.",
+    "cap": "Egy perc után abbahagyom a figyelést. Ha folytatná, nyomja meg a Diktálás gombot.",
+    "error": {
+      "blocked": "A mikrofon le van tiltva ezen az oldalon. Engedélyezze a böngésző webhelybeállításaiban (a cím melletti ikonnál), majd nyomja meg újra a Diktálás gombot.",
+      "noSpeech": "Nem hallottam semmit. Nyomja meg a Diktálás gombot, és akkor kezdjen beszélni, amikor megjelenik a „Figyelek” felirat.",
+      "noMicrophone": "Nem található mikrofon. Ellenőrizze, hogy csatlakoztatva és bekapcsolva van-e, majd nyomja meg újra a Diktálás gombot.",
+      "network": "A böngészője nem érte el a beszédfelismerő szolgáltatását. Ellenőrizze az internetkapcsolatát, vagy gépelje be a választ.",
+      "language": "A böngészője ezen a nyelven nem tudja szöveggé alakítani a beszédet: {lang}. Inkább gépelje be a választ.",
+      "stopped": "A figyelés leállt, mielőtt bármit hallottam volna. Az újrapróbáláshoz nyomja meg a Diktálás gombot, vagy gépelje be a választ."
+    }
+  },
+  "sheet": {
+    "basis": {
+      "OBSERVED": "MEGFIGYELT",
+      "DERIVED": "SZÁMÍTOTT",
+      "ESTIMATED": "BECSÜLT",
+      "STATED": "MEGADOTT",
+      "ASSUMED": "FELTÉTELEZETT"
+    },
+    "basisMeaning": {
+      "OBSERVED": "egy összekapcsolt fiókból, dokumentumból vagy nyilvános oldalról beolvasva",
+      "DERIVED": "más tényekből kiszámítva, a képlettel együtt",
+      "ESTIMATED": "az Ön saját becslése",
+      "STATED": "egy Ön által megadott pontos válasz",
+      "ASSUMED": "egy előrejelzés bemenete, amelyet senki sem mért és senki sem adott meg"
+    },
+    "gap": {
+      "unknown": "NEM ISMERT",
+      "skipped": "KIHAGYVA",
+      "unasked": "NEM KÉRDEZETT",
+      "not_applicable": "NEM VONATKOZIK RÁ"
+    },
+    "source": {
+      "owner_input": "Ön mondta",
+      "conversation": "a beszélgetésünkből",
+      "inferred": "kiszámítva",
+      "web_research": "kutatásból",
+      "benchmark": "viszonyítási érték",
+      "connector": "mért",
+      "document": "dokumentumból",
+      "system_default": "alapértelmezett"
+    },
+    "severity": {
+      "critical": "SÜRGŐS",
+      "high": "MAGAS",
+      "medium": "KÖZEPES",
+      "low": "ALACSONY"
+    },
+    "none": "—"
+  },
+  "report": {
+    "meta": {
+      "title": "Az Ön diagnózisa — SYB"
+    },
+    "mast": {
+      "watching": "Figyelés · {day}. nap / {of}"
+    },
+    "sub": {
+      "label": "Jelentés",
+      "findings": "Megállapítások",
+      "decisions": "Döntések",
+      "record": "A nyilvántartás",
+      "shadow": "Árnyéknapló",
+      "outcomes": "Eredmények",
+      "rules": "Állandó szabályok",
+      "connections": "Összekapcsolt fiókok",
+      "notBuilt": "Még nem készült el",
+      "print": "Nyomtatás / PDF"
+    },
+    "fact": {
+      "notInSnapshot": "nincs ebben a pillanatképben",
+      "basisNotRecorded": "AZ ALAP NINCS RÖGZÍTVE"
+    },
+    "panel": {
+      "label": "Diagnosztikai panel · minta: {id} · kiadva: {issued}",
+      "prior": " · előző: {date}",
+      "headUnit": "nyereségváltozás / hó · ha ezt teszi: {ref} · SZÁMÍTOTT",
+      "computed": "{computed} / {total}",
+      "computedUnit": "kiszámított mérőszám · mindegyik megmondja, miért",
+      "diagnosis": "Diagnózis",
+      "noFindings": "nincs kiemelt megállapítás",
+      "notComputed": "{count, plural, one {<b>#</b> nincs kiszámítva} other {<b>#</b> nincs kiszámítva}}",
+      "empty": "Egyetlen mérőszámot sem lehetett kiszámítani vagy elutasítani — a profilban még nincs miből dolgozni.",
+      "caption": "Minden mérőszámnál: az eredménye, az előző jelentés eredménye, a referenciatartomány, egy jelölés, a havi összeg, az alapja és a kiszámítás módja",
+      "legend": "Tartomány · sürgősségi küszöb: csak ott jelenik meg, ahol az Ön valamelyik célértéke vagy az adatok által alátámasztott tartomány lefedi a mérőszámot — egyelőre egyiknél sem, ezért „—” látható. A havi összeg csak ott jelenik meg, ahol egy mérőszám eltérését pénzben kifejeztük; egyelőre sehol. SZÁMÍTOTT = más tényekből kiszámítva; a MIÉRT megmutatja a képletet és a bemeneteket."
+    },
+    "col": {
+      "measure": "Mérőszám",
+      "result": "Eredmény",
+      "prior": "Előző",
+      "priorReport": "Előző jelentés",
+      "range": "Tartomány · sürgősségi küszöb",
+      "rangeShort": "Tartomány · sürgős",
+      "flag": "Jelölés",
+      "perMonth": "{currency} / hó",
+      "basis": "Alap",
+      "derivation": "Levezetés"
+    },
+    "why": {
+      "button": "Miért",
+      "buttonSr": " — hogyan számoltuk ki: {name}",
+      "sheet": "Levezetési lap",
+      "nothing": "Nincs kiválasztva semmi",
+      "choose": "Egy mérőszámnál válassza a MIÉRT → lehetőséget, és megmutatom, hogyan számoltuk ki.",
+      "formula": "A képlet szavakban",
+      "notComputed": "Miért nem számítottuk ki",
+      "inputs": "Bemenetek",
+      "missingInputs": "Hiányzó bemenetek",
+      "none": "Nincs rögzítve.",
+      "missing": "nincs rögzítve · hiányzik",
+      "basisNotRecorded": "az alap nincs rögzítve",
+      "history": "Előzmények · felváltva, soha nem törölve",
+      "noHistory": "Ennek a számnak egyik bemenetét sem váltotta még fel újabb."
+    },
+    "measure": {
+      "blended_margin": {
+        "name": "Súlyozott átlagos árrés",
+        "words": "Amennyi minden eladásból megmarad a teljesítés költsége után, az ár arányában — az Ön kínálatára átlagolva, aszerint súlyozva, hogy melyikből mennyit ad el."
+      },
+      "average_order_value": {
+        "name": "Átlagos kosárérték",
+        "words": "A havi árbevétel osztva a hónap eladásainak számával — legyenek azok rendelések, foglalások vagy látogatások."
+      },
+      "cost_per_acquisition": {
+        "name": "Ügyfélszerzési költség",
+        "words": "Amennyit egy hónapban hirdetésekre költ, osztva az először vásárló ügyfelektől származó eladások számával."
+      },
+      "return_on_ad_spend": {
+        "name": "Hirdetési megtérülés",
+        "words": "A teljes havi árbevétel osztva a teljes havi hirdetési költéssel — összesítve, nem egy-egy hirdetéshez rendelve."
+      },
+      "fixed_costs": {
+        "name": "Fix költségek",
+        "words": "Minden megadott fix költség havi összegre átszámítva a gyakorisága szerint, majd összeadva."
+      },
+      "break_even": {
+        "name": "Fedezeti pont (eladások száma)",
+        "words": "A fix költségek osztva azzal, amennyivel egy eladás a saját költsége után hozzájárul — vagyis ennyi havi eladás fedez mindent."
+      },
+      "offer": {
+        "name": "Árrés · {name}",
+        "words": "Az ár, mínusz egy darab teljesítésének költsége, az ár arányában.",
+        "refusal": "ehhez az ajánlathoz nincs rögzítve teljesítési költség, így nincs mit levonni az árából"
+      }
+    },
+    "flag": {
+      "notComputed": "NINCS KISZÁMÍTVA",
+      "belowCost": "SÜRGŐS · ÖNKÖLTSÉG ALATT",
+      "differs": "ELTÉR AZ ÖNÉTŐL"
+    },
+    "tally": {
+      "critical": "sürgős",
+      "high": "magas",
+      "medium": "közepes",
+      "low": "alacsony"
+    },
+    "unit": {
+      "perMonth": "/ hó"
+    },
+    "input": {
+      "offer": "ajánlat",
+      "measuredConnected": "mért · összekapcsolt fiók"
+    },
+    "history": {
+      "computed": "Ebben a jelentésben kiszámítva: {figure}",
+      "notComputed": "Ebben a jelentésben nincs kiszámítva — {why}",
+      "was": "Az előző jelentésben: {figure}",
+      "notKnown": "nem ismert",
+      "superseded": "{name} korábban: {was} — felváltotta egy újabb {kind, select, measurement {mérés} reading {leolvasás} calculation {számítás} answer {válasz} other {bejegyzés}}"
+    },
+    "svm": {
+      "caption": "Amit Ön mondott, szemben azzal, amit egy összekapcsolt fiók mért",
+      "measure": "Mérőszám · időszak",
+      "said": "Ön ezt mondta",
+      "measured": "Mért",
+      "difference": "Eltérés",
+      "observed": "MEGFIGYELT · {provider} · {when}",
+      "read": "beolvasva: {date}",
+      "yours": "az Öné: {basis} · {source} · {date}",
+      "notKnown": "nem ismert",
+      "label": "Megadott és mért",
+      "titleHeld": "Amit mondott, megállta a helyét a mért adatokkal szemben.",
+      "title": "Amit mondott, szemben azzal, amit mértünk.",
+      "foot": "Az elemzés a mért számot használja. Amit Ön mondott, megmarad az előzményekben.",
+      "hide": "Elrejtés",
+      "show": "Megjelenítés"
+    },
+    "decline": {
+      "lede": "Nem kötelező — miért nem? Ebből tanulom meg, mit ne javasoljak újra.",
+      "chip": {
+        "tried": "ezt már kipróbáltuk",
+        "market": "az én piacomon nem lehetséges",
+        "now": "most nem tudjuk ezt bevállalni"
+      },
+      "label": "Az Ön indoka, saját szavaival",
+      "placeholder": "vagy mondja el a maga módján",
+      "recording": "rögzítés…",
+      "record": "Rögzítés"
+    },
+    "forecast": {
+      "range": "Nyereségváltozás a mostanihoz képest · tartomány",
+      "caption": "„{title}” három esete, a számítással együtt",
+      "case": "Eset",
+      "perMonth": "Havonta",
+      "what": "Mi történik · a számítás",
+      "whatShort": "Mi történik"
+    },
+    "case": {
+      "base": "Alapeset",
+      "downside": "Kedvezőtlen eset",
+      "upside": "Kedvező eset"
+    },
+    "rec": {
+      "meta": "ráfordítás: {effort, select, low {alacsony} medium {közepes} high {magas} other {{effort}}} · visszavonás: {undo, select, easy {könnyű} moderate {közepes} hard {nehéz} other {{undo}}}",
+      "answers": " · erre felel: {refs}",
+      "breakEven": "Fedezeti pont",
+      "highSensitivity": "Nagy érzékenység",
+      "assumptions": "A feltevések, kimondva",
+      "from": "forrás: {input}",
+      "nobody": "ezt senki sem mérte és senki sem adta meg",
+      "sensitivity": "érzékenység: {level, select, high {magas} medium {közepes} low {alacsony} other {{level}}}",
+      "changeMind": "Ha meggondolja magát:",
+      "lookInto": "Utánanézek →",
+      "notForUs": "Nem nekünk való →",
+      "recorded": "Rögzítve",
+      "lookingInto": "Ön utánanéz ennek",
+      "declined": "Elutasítva",
+      "reason": "„{reason}”",
+      "noReason": "nincs megadott indok"
+    },
+    "findings": {
+      "label": "Megállapítások · a legsürgősebb elöl",
+      "none": "Nincs olyan, amit a bizonyítékok elég erősen alátámasztanának ahhoz, hogy kiemeljem.",
+      "title": "{count, plural, one {# megállapítás, mindegyik a bizonyítékaival.} other {# megállapítás, mindegyik a bizonyítékaival.}}",
+      "measured": "mért",
+      "measuredTitle": "Az Ön oldalán mérve, nem megítélve"
+    },
+    "recs": {
+      "label": "Mit tennék ellene",
+      "none": "Még nincs olyan ajánlás, amelyet a számítás alátámasztana.",
+      "title": "{count, plural, one {# ajánlás, mindegyik a tartományával.} other {# ajánlás, mindegyik a tartományával.}}"
+    },
+    "hours": {
+      "label": "Nyitvatartás · MEGFIGYELT · {from} – {to}",
+      "none": "Egyetlen mért napon sem jelez semmi.",
+      "title": "{count, plural, one {# jelzés az óránkénti eladásaiban.} other {# jelzés az óránkénti eladásaiban.}}",
+      "link": "A hét minden napja →",
+      "tooEarly": "Még korai megmondani"
+    },
+    "gaps": {
+      "label": "Mi tenné ezt pontosabbá",
+      "title": "A jelentés csak annyira jó, amennyire az, amire épül.",
+      "priority": "{priority, select, core {alap} important {fontos} deep {mélyebb} optional {nem kötelező} other {{priority}}}",
+      "blocking": "Akadályozó",
+      "answer": "Válaszolok most →"
+    },
+    "foot": "Minden szám mellett ott áll, honnan származik. A becslések becslésként vannak jelölve; semmi sincs kitalálva.",
+    "generatedFrom": "Készült ebből a pillanatképből: {id}.",
+    "checkout": {
+      "price": "A jelentés ára: {price}.",
+      "priceReturning": "A jelentés ára: {price}, mivel egy másik vállalkozásáért már fizetett.",
+      "others": "{count, plural, one {Van egy másik vállalkozása fizetett jelentés nélkül: vegye fel ugyanabba a fizetésbe, darabonként {price} áron.} other {Vannak más vállalkozásai fizetett jelentés nélkül: vegye fel őket ugyanabba a fizetésbe, darabonként {price} áron.}}",
+      "total": "{count, plural, one {Összesen: {total} # jelentésért, egyetlen fizetéssel. Minden vállalkozás jelentése akkor készül el, amikor ott megnyitja.} other {Összesen: {total} # jelentésért, egyetlen fizetéssel. Minden vállalkozás jelentése akkor készül el, amikor ott megnyitja.}}",
+      "pay": "Fizetés: {total} →",
+      "notNow": "Most nem"
+    },
+    "state": {
+      "label": "Diagnosztikai panel",
+      "noReport": "Még nincs jelentés",
+      "checking": "A jelentés keresése…",
+      "error": "Hiba történt a jelentés betöltésekor. Frissítse az oldalt az újrapróbáláshoz — semmi sem veszett el abból, amit elmondott.",
+      "openingCheckout": "A fizetés megnyitása — a jelentést a megírása előtt kell kifizetni",
+      "confirming": "Várakozás arra, hogy a Stripe megerősítse a fizetését",
+      "reading": "A profil olvasása — a kérés folyamatban van",
+      "readingLede": "Árrések, fedezeti pont, a megállapítások és a teendők. Ez általában körülbelül egy percig tart; a számításokat ellenőrizzük, mielőtt bármi megjelenne az oldalon.",
+      "none": "Ha már eleget válaszolt, átolvasom a teljes profilt, és leírom, amit bizonyítani tudok.",
+      "readNow": "Kérem a profilom elemzését most →",
+      "answerMore": "Előbb válaszolok még →",
+      "payFailed": "a fizetést nem sikerült elindítani",
+      "payUnreachable": "Nem értem el a szervert — semmit sem terheltünk; próbálja újra.",
+      "notConfirmed": "A Stripe még nem erősítette meg a fizetését. Egy perc múlva frissítse ezt az oldalt: nem terheljük újra, és a jelentés a megerősítés után elkészül.",
+      "generationFailed": "az elkészítés nem sikerült",
+      "unreachable": "Nem értem el a szervert — a válaszai biztonságban vannak; próbálja újra."
+    },
+    "share": {
+      "label": "A jelentés megosztása",
+      "title": "Csak olvasható link üzlettársnak, könyvelőnek vagy befektetőnek.",
+      "signedOut": "A jelentés megosztásához bejelentkezés szükséges — a SYB-ből kivezető linket csak Ön hozhatja létre.",
+      "lede": "A link a jelentést a mostani állapotában mutatja, az ajánlásokra adott válaszai nélkül, és minden olyan elem nélkül, amely a fiókjába vezet. Létrehozása után soha nem változik, és itt bármikor visszavonhatja.",
+      "lasts": "Érvényesség",
+      "days": "{days, plural, one {# nap} other {# nap}}",
+      "make": "Link létrehozása",
+      "newLink": "Az új link",
+      "copied": "Másolva",
+      "copy": "Másolás",
+      "onlyOnce": "A linket csak most látja. Akinek megvan, az olvashatja a jelentést, amíg le nem jár, vagy Ön vissza nem vonja.",
+      "listLabel": "Az Ön által létrehozott linkek",
+      "status": {
+        "active": "Aktív",
+        "expired": "Lejárt",
+        "revoked": "Visszavonva"
+      },
+      "made": "létrehozva: {date}",
+      "revokedOn": "visszavonva: {date}",
+      "expired": "lejárt: {date}",
+      "expires": "lejár: {date}",
+      "notOpened": "még nem nyitották meg",
+      "lastOpened": "{count, plural, one {utoljára megnyitva: {date} (# megtekintés)} other {utoljára megnyitva: {date} (# megtekintés)}}",
+      "reportOf": "jelentés · {date}",
+      "revoke": "Visszavonás",
+      "wrong": "valami hiba történt — próbálja újra",
+      "unreachable": "Nem értem el a szervert — próbálja újra."
+    }
+  },
+  "charts": {
+    "panel": {
+      "label": "Az Ön számai grafikonon",
+      "failed": "Most nem tudtam beolvasni a számait a grafikonhoz. Frissítse az oldalt az újrapróbáláshoz — semmi sem veszett el.",
+      "reading": "A mért napok beolvasása…"
+    }
+  },
+  "factsheet": {
+    "meta": {
+      "title": "Az Ön ténylapja — SYB"
+    },
+    "kicker": "Az Ön vállalkozása · Ténylap",
+    "titleEmpty": "A nyilvántartás.",
+    "title": "{count, plural, one {{noun}: # tény. Mindegyiknél látszik, honnan származik.} other {{noun}: # tény. Mindegyiknél látszik, honnan származik.}}",
+    "yourBusiness": "Az Ön vállalkozása",
+    "noSession": "Ezen az eszközön még nincs profil. <a>Kezdje el a kérdéseket</a> — vagy nyissa meg a linket, amelyet elküldtem.",
+    "failed": "Hiba történt a profil betöltésekor. Frissítse az oldalt az újrapróbáláshoz — semmi sem veszett el abból, amit elmondott.",
+    "reading": "A profil olvasása…",
+    "export": {
+      "label": "A könyvelőjének",
+      "current": "Pénzügyi tények, CSV",
+      "history": "Korábbi számok, CSV"
+    },
+    "counts": {
+      "observed": "{count, plural, one {<b>#</b> megfigyelt} other {<b>#</b> megfigyelt}}",
+      "derived": "{count, plural, one {<b>#</b> számított} other {<b>#</b> számított}}",
+      "fromYou": "{count, plural, one {<b>#</b> Öntől} other {<b>#</b> Öntől}}",
+      "assumed": "{count, plural, one {<b>#</b> feltételezett} other {<b>#</b> feltételezett}}",
+      "gaps": "{count, plural, one {<b>#</b> nem ismertként rögzítve} other {<b>#</b> nem ismertként rögzítve}}"
+    },
+    "recordLabel": "A nyilvántartás",
+    "search": "Keresés a nyilvántartásban",
+    "searchPlaceholder": "pl. nyitvatartás, ár, csatornák",
+    "filterLabel": "A nyilvántartás szűrése",
+    "filter": {
+      "all": "Mind",
+      "assumed": "Feltételezett · {count}",
+      "changed": "Ebben a hónapban változott · {count}"
+    },
+    "supersededCount": "{count, plural, one {# felváltott érték} other {# felváltott érték}}",
+    "showSuperseded": "Felváltott értékek megjelenítése",
+    "sectionsLabel": "A nyilvántartás részei",
+    "stillOpen": "Még nyitott",
+    "empty": {
+      "query": "Egy tény sem felel meg ennek: „{query}”.",
+      "assumed": "Egyetlen tény sem alapul feltételezésen — minden érték Öntől, egy összekapcsolt fiókból vagy számításból származik.",
+      "changed": "Ebben a hónapban semmit sem cseréltünk le.",
+      "none": "Még nincs rögzítve semmi."
+    },
+    "sectionFacts": "{count, plural, one {# tény} other {# tény}}",
+    "sectionChanged": "{count, plural, one {# változott ebben a hónapban} other {# változott ebben a hónapban}}",
+    "noneRecorded": "nincs rögzítve",
+    "competitorsLede": "Nevezze meg a versenytársait az interjúban, vagy hadd keressek rá abból, amit már elmondott.",
+    "openMeta": "{count, plural, one {# kérdés · a hiány is megállapítás, nem kudarc} other {# kérdés · a hiány is megállapítás, nem kudarc}}",
+    "foot": "Az áthúzott sorok addig voltak érvényesek, amíg valami jobb nem érkezett. A nyilvántartásból soha semmi sem törlődik. Pillanatkép: {id} · {date}.",
+    "caption": "{section}: minden tény az értékével, forrásával, alapjával és azzal a dátummal, amelytől érvényes",
+    "col": {
+      "fact": "Tény",
+      "value": "Érték",
+      "source": "Forrás",
+      "basis": "Alap",
+      "since": "Ettől"
+    },
+    "confirmDefault": "erősítse meg, és lecseréljük az alapértelmezett értéket",
+    "noted": "megjegyzés: {note}",
+    "superseded": "felváltva ekkor: {date}, egy újabb {kind, select, measurement {mérés} reading {leolvasás} calculation {számítás} answer {válasz} other {bejegyzés}} által",
+    "supersededWord": "Felváltva",
+    "priority": {
+      "core": "alap",
+      "important": "fontos",
+      "deep": "mélyebb",
+      "optional": "nem kötelező"
+    },
+    "blocking": "Akadályozó",
+    "answerNow": "Válaszolok most →",
+    "showFewer": "Kevesebb megjelenítése",
+    "showAll": "Mind megjelenítése ({count})",
+    "section": {
+      "identity": "Alapadatok",
+      "presence": "Hol működik",
+      "offers": "Amit értékesít",
+      "revenue": "Árbevétel",
+      "costs": "Költségek",
+      "customers": "Ügyfelek",
+      "channels": "Csatornák",
+      "marketing": "Marketing",
+      "operations": "Működés",
+      "tooling": "Eszközök",
+      "legal": "Jog és adózás",
+      "competitors": "Versenytársak",
+      "goals": "Az Ön céljai",
+      "assets": "Fájlok"
+    },
+    "spine": {
+      "offers": "Termék",
+      "suppliers": "Beszállító",
+      "competitors": "Versenytárs",
+      "channels": "Csatorna",
+      "staff_roles": "Szerepkör",
+      "locations": "Helyszín"
+    },
+    "entityName": "{noun} neve",
+    "basis": {
+      "fromYou": "ÖNTŐL",
+      "fromYouEstimate": "ÖNTŐL · BECSLÉS"
+    },
+    "source": {
+      "interview": "Ön · interjú",
+      "conversation": "Ön · beszélgetés",
+      "measured": "mért · {detail}",
+      "measuredConnected": "mért · összekapcsolt fiók",
+      "researchedAt": "kutatásból · {detail}",
+      "researched": "kutatásból",
+      "computedAs": "számított · {detail}",
+      "computed": "számított",
+      "document": "dokumentumból",
+      "default": "alapértelmezett, amíg meg nem erősíti"
+    },
+    "value": {
+      "pagesSilent": "az oldalaik nem említették",
+      "unknown": "nem tudta — rögzítve",
+      "skipped": "egyelőre kihagyva",
+      "notApplicable": "nem vonatkozik rá",
+      "unasked": "még nem kérdeztem"
+    },
+    "finder": {
+      "nothingUsable": "a keresés nem hozott használható eredményt",
+      "unreachable": "Nem értem el a szervert. Próbálja újra egy pillanat múlva.",
+      "failed": "a kutatás nem sikerült",
+      "searching": "Keresés a weben…",
+      "find": "Versenytársaim megkeresése →",
+      "searchingFrom": "Keresés abból kiindulva, amit elmondott",
+      "readingPages": "Az oldalaik olvasása",
+      "found": "Abból kiindulva találtam, amit elmondott. Semmit sem mentünk, amíg meg nem erősíti.",
+      "readingPagesNow": "Az oldalaik olvasása…",
+      "thatsOne": "Egyet már ismerek — nézzen utána →"
+    }
+  },
+  "watch": {
+    "meta": {
+      "title": "Figyelés — SYB"
+    },
+    "kicker": "Elemzések · Figyelés",
+    "days": {
+      "label": "Figyelés: {day}. nap / {of}",
+      "started": "Kezdete: {date}",
+      "legend": "Minden kitöltött négyzet egy már eltelt figyelési nap. A körvonalas a mai.",
+      "ends": "A figyelés vége: {date}"
+    },
+    "tally": {
+      "steady": "{count, plural, one {# stabil} other {# stabil}}",
+      "drifting": "{count, plural, one {# eltolódó} other {# eltolódó}}",
+      "interrupted": "{count, plural, one {# megszakítva} other {# megszakítva}}",
+      "thin": "{count, plural, one {# kevés adattal} other {# kevés adattal}}"
+    },
+    "status": {
+      "steady": "Stabil",
+      "drifting": "Eltolódó",
+      "interrupted": "Megszakítva",
+      "thin": "Kevés adat"
+    },
+    "signals": {
+      "label": "Amit figyelek",
+      "nothing": "Még nincs mit olvasni",
+      "titleRead": "{count, plural, one {# jelzés, minden nap beolvasva} other {# jelzés, minden nap beolvasva}}",
+      "titleNotRead": "{count, plural, one {# jelzés, most nincs beolvasva} other {# jelzés, most nincs beolvasva}}",
+      "thinRule": "KEVÉS ADAT = az utolsó {of} napból kevesebb mint {min} van rögzítve, így még nincs szokásos tartomány, amelyhez viszonyítani lehetne.",
+      "driftRule": "ELTOLÓDÓ = legalább {days} egymást követő napon a szokásos tartományán kívül; MEGSZAKÍTVA = átlépett egy szabályt, amely leállítja a figyelést.",
+      "connect": "Kapcsolja össze a fizetési, pénztár- vagy webáruház-, elemzési vagy hirdetési fiókjait, és minden vállalkozásszintű számukat itt olvasom be minden nap. <a>Összekapcsolt fiókok</a>",
+      "noDaily": "Az összekapcsolt fiókjaiban még nincsenek napi számok — a következő szinkronizálással érkeznek.",
+      "tableLabel": "Jelzések táblázata",
+      "col": {
+        "signal": "Jelzés",
+        "from": "Forrás",
+        "days": "Beolvasott napok",
+        "perDay": "Naponta, {week}. hét → most",
+        "status": "Állapot"
+      },
+      "below": "{date} óta a szokásos tartománya alatt",
+      "above": "{date} óta a szokásos tartománya felett"
+    },
+    "noted": {
+      "label": "Feljegyezve, nem cselekedtem",
+      "title": "Amit mondtam volna",
+      "empty": "Még semmi. Ha egy szám kilép a szokásos tartományából, a nyitvatartása jelzést mutat, vagy egy versenytárs árat változtat, itt feljegyzem, de semmit sem teszek miatta.",
+      "day": "{day}. nap"
+    },
+    "when": {
+      "label": "Amikor a figyelés véget ér",
+      "foot": "A figyelés hossza az „Ahogyan dolgozom” oldalon van beállítva.",
+      "link": "Ahogyan dolgozom →",
+      "ends": "A figyelés véget ér. A következő jelentés mindent beolvas, amit összegyűjtött.",
+      "after": "utána",
+      "afterText": "Az Ön által jóváhagyott javaslatok futhatnak. A figyelés már nem tartja vissza őket.",
+      "always": "mindig",
+      "alwaysText": "Semmi sem fut az Ön jóváhagyása nélkül."
+    },
+    "activity": {
+      "label": "Tevékenység",
+      "title": "Minden bejegyzés valódi munka",
+      "empty": "Még semmi. Az első heti pillanatkép itt jelenik meg."
+    },
+    "rules": {
+      "label": "Mi szakítaná meg a figyelést",
+      "checked": "Naponta ellenőrizve",
+      "notChecked": "Még nincs ellenőrizve"
+    },
+    "modules": {
+      "label": "Modulok",
+      "title": "Arra az időre, amikor cselekedni kezdek",
+      "name": "{module, select, marketing {marketing} sales {értékesítés} support {ügyféltámogatás} operations {működés} finance {pénzügyek} team {csapat} other {{module}}}",
+      "analytics": "elemzés, mindig bekapcsolva",
+      "rolesNotPeople": "{module, select, team {csapat} other {{module}}}: szerepkörök, nem személyek",
+      "teamLink": "A csapat képernyőjének megnyitása"
+    },
+    "summary": {
+      "label": "Heti e-mail",
+      "title": "Összefoglaló minden hétfőn",
+      "switch": "kérem e-mailben a heti összefoglalót",
+      "lede": "Mit tettem és mit találtam azon a héten, és mi vár Önre. Minden sor egy bejegyzés ezen a képernyőn; ha csendes volt a hét, azt is megírja.",
+      "signUp": "Regisztráljon, és arra a címre küldjük, amellyel bejelentkezik.",
+      "off": "Kikapcsolva. Semmit sem küldünk e-mailben; minden ezen a képernyőn marad.",
+      "notDecided": "Akkor indul, amikor az „Ahogyan dolgozom” beállítás eldőlt.",
+      "noEmail": "Ezen a szerveren még nincs beállítva az e-mail-küldés, ezért egy sem megy ki.",
+      "lastSent": "Utoljára elküldve: {date}.",
+      "first": "Az első a következő hétfői ellenőrzéskor megy ki."
+    },
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "lede": "<a>Kezdje az interjúval</a>, és a figyelés a jelentés elkészülte után indul."
+    },
+    "failed": {
+      "title": "A figyelés nem töltődött be.",
+      "lede": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "reading": "A figyelés betöltése…",
+    "none": {
+      "title": "Még nem fut figyelés.",
+      "instantTitle": "Nem fut figyelés. Ez a vállalkozás azonnali módban van.",
+      "notDecided": "Az „Ahogyan dolgozom” még nem dőlt el: a jelentés után következik.",
+      "instant": "Itt nincs megfigyelési időszak. Semmi sem fut az Ön jóváhagyása nélkül.",
+      "link": "Ahogyan dolgozom"
+    },
+    "title": {
+      "complete": "{of}. nap / {of}. A figyelés befejeződött.",
+      "untouched": "{day}. nap / {of}. Magamtól semmihez sem nyúltam.",
+      "changes": "{count, plural, one {{day}. nap / {of}. # változtatás történt, mindegyik jóváhagyva.} other {{day}. nap / {of}. # változtatás történt, mindegyik jóváhagyva.}}"
+    },
+    "notes": {
+      "hold": "Amíg a figyelés tart, semmi olyat nem futtatok, amivel bármit megváltoztatnék.",
+      "readingEnds": "{count, plural, one {# összekapcsolt fiók napi beolvasása · a figyelés vége: {date}} other {# összekapcsolt fiók napi beolvasása · a figyelés vége: {date}}}",
+      "readingEnded": "{count, plural, one {# összekapcsolt fiók napi beolvasása · a figyelés véget ért: {date}} other {# összekapcsolt fiók napi beolvasása · a figyelés véget ért: {date}}}",
+      "noneEnds": "Egyetlen összekapcsolt fiókot sem olvasok be · <a>Összekapcsolt fiókok</a> · a figyelés vége: {date}",
+      "noneEnded": "Egyetlen összekapcsolt fiókot sem olvasok be · <a>Összekapcsolt fiókok</a> · a figyelés véget ért: {date}"
+    },
+    "alerts": {
+      "label": "Telefonos értesítések",
+      "title": "Néhány szó, ha valami vár",
+      "lede": "Ha valami új az Ön igenjére vár, a telefonja kap néhány szót: soha nem számot, nevet vagy címet, mert a zárolási képernyő nyilvános. Rákoppintva megnyílik az adott javaslat, és a kártyáján dönt, sohasem az értesítésben. {from} és {to} között semmi, és legfeljebb napi egy.",
+      "status": {
+        "signIn": "Az értesítések bekapcsolásához bejelentkezés szükséges ezen az eszközön.",
+        "noKeys": "Ez a szerver még nem tud telefonos értesítést küldeni: a kulcsai nincsenek beállítva.",
+        "iphoneTab": "Előbb adja hozzá a SYB-t a Főképernyőhöz, majd ott kapcsolja be ezt. Safariban: Megosztás, majd Főképernyőhöz adás (iOS {version} vagy újabb).",
+        "unsupported": "Ez a böngésző nem tud értesítést fogadni. iPhone-on előbb adja hozzá a SYB-t a Főképernyőhöz, majd ott kapcsolja be ezt.",
+        "denied": "Az értesítések le vannak tiltva a SYB számára a böngésző beállításaiban. Ott engedélyezze őket, majd kapcsolja be ezt.",
+        "on": "Ezen az eszközön bekapcsolva."
+      },
+      "switchOn": "Bekapcsolás ezen az eszközön",
+      "thisDevice": "ez az eszköz",
+      "onSince": "bekapcsolva {date} óta",
+      "lastAlert": "utolsó értesítés: {date}",
+      "remove": "Eltávolítás",
+      "test": "Teszt küldése",
+      "noPermission": "Semmi sem kapcsolt be: a böngésző nem adott engedélyt.",
+      "switchedOn": "Bekapcsolva. Ez az eszköz néhány szót kap, ha valami új az Ön igenjére vár.",
+      "notSwitchedOn": "Nincs bekapcsolva: {error}.",
+      "refused": "Nincs bekapcsolva: a böngésző elutasította a feliratkozást. Próbálja újra egy pillanat múlva.",
+      "removed": "Eltávolítva: {device} többé nem kap értesítést.",
+      "notRemoved": "Nincs eltávolítva: {error}.",
+      "tested": "Teszt: {results}.",
+      "notTested": "Nem ment ki teszt: {error}.",
+      "ourSide": "valami hiba történt a mi oldalunkon"
+    }
+  },
+  "proposals": {
+    "meta": {
+      "title": "Javaslatok — SYB",
+      "one": "Javaslat — SYB"
+    },
+    "module": "{module, select, marketing {marketing} sales {értékesítés} support {ügyféltámogatás} operations {működés} finance {pénzügyek} team {csapat} other {{module}}}",
+    "loading": "A várólista beolvasása…",
+    "notRecorded": "ezt a döntést nem sikerült rögzíteni",
+    "failNote": "{count, plural, one {# nincs rögzítve: {errors}.} other {# nincs rögzítve: {errors}.}}",
+    "announce": {
+      "approved": "{count, plural, one {# javaslat jóváhagyva} other {# javaslat jóváhagyva}}",
+      "declined": "{count, plural, one {# javaslat elutasítva} other {# javaslat elutasítva}}",
+      "nothing": "Semmit sem sikerült rögzíteni",
+      "next": "Következő: {title}",
+      "none": "Semmi más nem vár döntésre."
+    },
+    "signedOut": {
+      "eyebrow": "javaslatok",
+      "title": "A döntéshez bejelentkezés szükséges.",
+      "copy": "Egy javaslat jóváhagyását vagy elutasítását az Ön nevével rögzítjük — ehhez bejelentkezés kell, nem elég ez a böngésző.",
+      "signIn": "Bejelentkezés"
+    },
+    "reason": {
+      "why": "Miért nem? Egy koppintás elég",
+      "whyAll": "Miért nem ({count} javaslat)? Egy koppintás elég",
+      "label": "Az Ön indoka, saját szavaival",
+      "placeholder": "Vagy mondja el egy mondatban — tanulok belőle.",
+      "need": "Előbb válasszon indokot — elutasításkor megkérdezem, miért, és a nyilvántartás megőrzi a válaszát.",
+      "foot": "Elutasítás: semmi sem fut és semmi sem változik. Rögzítem az indokával együtt, és nem teszek semmit.",
+      "record": "Az elutasítás rögzítése",
+      "recordAll": "Az elutasítás rögzítése ({count})"
+    },
+    "chip": {
+      "wrongData": "HIBÁS ADATOK",
+      "wrongTiming": "ROSSZ IDŐZÍTÉS",
+      "tooRisky": "TÚL KOCKÁZATOS",
+      "notMyStrategy": "NEM ILLIK A STRATÉGIÁMBA"
+    },
+    "chipPhrase": {
+      "wrongData": "Hibás adatok",
+      "wrongTiming": "Rossz időzítés",
+      "tooRisky": "Túl kockázatos",
+      "notMyStrategy": "Nem illik a stratégiámba"
+    },
+    "changes": {
+      "label": "Mi legyen másképp?",
+      "placeholder": "pl. csak a tavalyi ügyfelek, és kedvezmény nélkül.",
+      "need": "Előbb írja le, mi változzon — a nyilvántartás megőrzi a szavait.",
+      "foot": "Nincs jóváhagyva, de nem is elutasítás: semmi sem fut. A szavai az Ön nevével kerülnek a nyilvántartásba. Az átdolgozás még nem automatikus.",
+      "record": "A kérés rögzítése"
+    },
+    "change": {
+      "none": "Ez a javaslat nem ad meg előtte–utána állapotot. A változás a saját szavaival: „{summary}”.",
+      "becomes": "erre változik",
+      "line": "Sor",
+      "before": "Előtte",
+      "after": "Utána"
+    },
+    "effect": {
+      "profit": "nyereség: {span}, a kedvezőtlentől a kedvező esetig",
+      "likeliest": "legvalószínűbb: {statement}",
+      "none": "Ehhez nem készült előrejelzés a pénzügyi hatásról.",
+      "noRange": "Ehhez nem készült előrejelzés pénzbeli tartománnyal — az esetek szavakban:",
+      "case": {
+        "downside": "kedvezőtlen",
+        "likeliest": "legvalószínűbb",
+        "upside": "kedvező"
+      },
+      "workedOut": "így számolva: {formula}"
+    },
+    "evidence": {
+      "none": "Ez a javaslat nem sorol fel feltevéseket.",
+      "leans": "a következtetés erősen erre támaszkodik",
+      "notRecorded": "NINCS RÖGZÍTVE",
+      "disagree": "{count, plural, one {# forrás ellentmond} other {# forrás ellentmond}}",
+      "breakEven": "Fedezeti pont",
+      "manual": "Ezt mondta: „{limits}” — ezt Önnek kell mérlegelnie; én nem tudom ellenőrizni Ön helyett."
+    },
+    "decisions": "Döntések",
+    "stats": "A piszkozattól a döntésig eltelt idő mediánja ebben a hónapban: {median} · jóváhagyva: {approved} / {decided}",
+    "empty": {
+      "title": "Semmi sem vár döntésre.",
+      "lede": "A javaslatok a legutóbbi diagnózisjelentésből, a figyelés során a számaiban észlelt változásokból, a csúszó célokból, a hirdetések és tartalmak ellenőrzéséből, valamint a chatben kért dolgokból érkeznek. Mindegyik először ide kerül — mi fog történni, mire épül, és mit jelent az elutasítás. Semmi sem fut az Ön igenje nélkül.",
+      "check": "A legutóbbi jelentés átnézése javaslatokért"
+    },
+    "held": {
+      "label": "Az Ön utasítására visszatartva · {count}",
+      "stamp": "VISSZATARTVA · nem kerül javaslatra",
+      "note": "Ezt megírtam, aztán magam blokkoltam — Ön ezt mondta: „{limit}”."
+    },
+    "m": {
+      "changes": "Mi változik",
+      "expected": "Várható · becsült",
+      "expectedSpan": "Várható, {span} · becsült",
+      "evidence": "{count, plural, one {Teljes bizonyíték · # sor} other {Teljes bizonyíték · # sor}}",
+      "later": "Később",
+      "changesInstead": "Inkább módosítást kérek",
+      "nothingWaiting": "Semmi sem vár",
+      "waiting": "{count, plural, one {# döntés vár} other {# döntés vár}}",
+      "position": "{n} / {of}",
+      "next": "következő: {title}",
+      "foot": "Semmi sem fut az Ön jóváhagyása nélkül."
+    },
+    "decide": {
+      "label": "Az Ön döntése",
+      "decline": "Elutasítás",
+      "changes": "Módosítás kérése",
+      "approveVerb": "Jóváhagyás — {verb}",
+      "run": "Jóváhagyás esetén fusson",
+      "halted": "Jelenleg minden le van állítva: semmi sem fut, amíg újra el nem indítja.",
+      "readOnly": "Itt mindent elolvashat."
+    },
+    "sheet": {
+      "ref": "Javaslat: {ref} · megírva: {when}",
+      "from": "forrás: {origin}",
+      "deadline": "Döntsön eddig: {day}. Ha addig nem válaszol, lejár: nincs jóváhagyva — semmi sem futott.",
+      "s1": "{n} · Mi változik — előtte → utána",
+      "s2": "{n} · Várható hatás · becsült",
+      "s2Span": "{n} · Várható hatás, {span} · becsült",
+      "s3": "{n} · Bizonyítékok — minden sor a forrásával",
+      "s4": "{n} · Visszafordíthatóság"
+    },
+    "schedule": {
+      "planned": "a tervezett időpontban, {day} {clock}",
+      "nextRun": "a jóváhagyás utáni következő futáskor",
+      "noTime": "meghatározott időpont nélkül",
+      "tomorrow": "legkorábban holnap",
+      "nextWeek": "legkorábban jövő héten"
+    },
+    "bulk": {
+      "label": "Több döntés egyszerre",
+      "ref": "Csoportos döntés · minden javaslat megtartja a saját bejegyzését",
+      "selected": "{count, plural, one {# kiválasztva} other {# kiválasztva}}",
+      "tick": "Jelölje be a javaslatokat a listában",
+      "lede": "A nyilvántartásban továbbra is mindegyikről külön születik döntés, saját bejegyzéssel — ez csak a kattintásokat spórolja meg Önnek.",
+      "run": "{count, plural, one {Jóváhagyás esetén lefut} other {Jóváhagyás esetén mind a # lefut}}",
+      "choose": "— válassza ki, mikor —",
+      "noTime": "meghatározott időpont nélkül — egy tervezett bejegyzés megtartja az időpontját",
+      "need": "Előbb válassza ki, mikor fussanak — a csoportos jóváhagyás megadja az ütemezését.",
+      "approve": "Jóváhagyás ({count})",
+      "decline": "Elutasítás ({count})"
+    },
+    "side": {
+      "label": "Javaslatok",
+      "needs": "Döntésre vár · {count}",
+      "keys": "J / K a lépkedéshez",
+      "select": "Kiválasztás: {title}",
+      "perMonth": "havi {range}",
+      "today": "Ma eldöntve",
+      "youAsked": "Ön ezt kérte: „{words}”",
+      "youSaid": "Ön ezt mondta: „{words}”",
+      "earlier": "Korábbiak · {count}",
+      "expired": "Nincs jóváhagyva — semmi sem futott. Döntés nélkül lejárt az ideje; ez nem elutasítás.",
+      "runs": "Legkorábban ekkor fut: {day}.",
+      "foot": "A megválaszolatlan javaslatok a döntési határidejükön lejárnak, „nincs jóváhagyva — semmi sem futott” állapottal.",
+      "oneAtATime": "Vissza az egyenkénti döntéshez"
+    },
+    "history": {
+      "approved": "JÓVÁHAGYVA",
+      "executed": "VÉGREHAJTVA",
+      "rejected": "ELUTASÍTVA",
+      "changes_requested": "MÓDOSÍTÁST KÉRT",
+      "expired": "LEJÁRT",
+      "stamp": "{word}{at} · azonosító: {ref}"
+    },
+    "stamp": {
+      "approved": "JÓVÁHAGYVA {when} · azonosító: {ref}",
+      "rejected": "ELUTASÍTVA {when} · azonosító: {ref}",
+      "changes_requested": "MÓDOSÍTÁST KÉRT {when} · azonosító: {ref}",
+      "deviceClock": "{clock} (ennek az eszköznek az órája szerint)"
+    },
+    "rev": {
+      "reversible": "VISSZAFORDÍTHATÓ · VISSZAVONÁSA {level, select, easy {KÖNNYŰ} moderate {KÖZEPESEN NEHÉZ} hard {NEHÉZ} other {{level}}}",
+      "reversibleWord": "VISSZAFORDÍTHATÓ",
+      "irreversible": "VISSZAFORDÍTHATATLAN",
+      "noUndo": "Ehhez nincs megadva visszavonási mód — tekintse véglegesnek.",
+      "short": "visszavonása {level, select, easy {könnyű} moderate {közepesen nehéz} hard {nehéz} other {{level}}}",
+      "shortIrreversible": "visszafordíthatatlan"
+    },
+    "act": {
+      "approve": "Jóváhagyás",
+      "createAd": "A hirdetés létrehozása, szüneteltetve",
+      "goLive": "A hirdetés élesítése",
+      "pause": "„{name}” szüneteltetése",
+      "raise": "„{name}” emelése {pct} százalékkal",
+      "send": "{count, plural, one {Küldés # ügyfélnek} other {Küldés # ügyfélnek}}",
+      "publish": "Közzététel itt: {platform}"
+    },
+    "origin": {
+      "report": "a jelentés {n}. ajánlása",
+      "anomaly": "egy riasztás a számaiban",
+      "ads": "a hirdetések átvizsgálása",
+      "publish": "a tartalomterv",
+      "alert_review": "egy riasztás átvizsgálása",
+      "utterance": "valami, amit Ön kért",
+      "crm": "az ügyféllista átvizsgálása",
+      "hours": "a nyitvatartás átvizsgálása"
+    },
+    "note": {
+      "queued": "A jóváhagyással sorba kerül, és legkorábban ekkor fut: {day}, {clock}. A jóváhagyás nem vonható vissza, de a vészleállító még megállíthatja.",
+      "noTime": "A jóváhagyás az Ön nevével rögzíti az igenjét. Meghatározott időpont nélkül nem fut le magától."
+    },
+    "lapsed": "Ezt jóváhagyta, de lejárt, mielőtt lefuthatott volna — semmi sem futott.",
+    "card": {
+      "when": "{day}, {clock}",
+      "earlier": "korábban",
+      "expired": "Döntés nélkül lejárt az ideje ({day}): nincs jóváhagyva, és semmi sem futott.",
+      "done": "KÉSZ",
+      "approved": "Már eldöntve: jóváhagyva, {when}.",
+      "ran": "Lefutott.",
+      "declined": "Már eldöntve: elutasítva, {when}. Semmi sem futott.",
+      "changes": "Már megválaszolva: módosítást kért, {when}. Ebből semmi sem fut.",
+      "heldBack": "VISSZATARTVA",
+      "blocked": "Ezt magam tartottam vissza, mert Ön azt mondta: „{said}”. Nem vár döntésre.",
+      "blockedEnded": "Ezt magam tartottam vissza, mert Ön azt mondta: „{said}” Nem vár döntésre.",
+      "notUp": "Ez nem vár döntésre.",
+      "noWorst": "Ehhez nem készült előrejelzés a legrosszabb esetre.",
+      "noLimits": "Nem mondta el, mit nem szeretne soha ({question}. kérdés), így nem volt mihez viszonyítani.",
+      "and": "és",
+      "checked": "{count, plural, one {Ellenőrizve ezzel szemben: {limits}; nem megy szembe vele.} other {Ellenőrizve ezekkel szemben: {limits}; egyikkel sem megy szembe.}}",
+      "cantCheck": "{count, plural, one {Ezt nem tudom ellenőrizni Ön helyett: {limits}; mérlegelje maga.} other {Ezeket nem tudom ellenőrizni Ön helyett: {limits}; mérlegelje maga.}}",
+      "notRecorded": "Nincs rögzítve: {error}.",
+      "wrong": "valami hiba történt",
+      "decision": "Döntés",
+      "loading": "A javaslat betöltése…",
+      "eyebrow": "javaslat",
+      "signedOut": "A jóváhagyást vagy elutasítást az Ön nevével rögzítjük, ezért ehhez bejelentkezés szükséges ezen az eszközön. Utána visszahozom ehhez a javaslathoz.",
+      "missing": "Itt nincs ilyen javaslat.",
+      "failed": "A javaslat nem töltődött be.",
+      "missingLede": "Lehet, hogy a link egy másik vállalkozáshoz tartozik, vagy hibás.",
+      "failedLede": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
+      "openQueue": "A várólista megnyitása",
+      "noLines": "Nem ad meg előtte–utána állapotot: a változás maga a cím.",
+      "noRange": "Ehhez nem készült előrejelzés pénzbeli tartománnyal.",
+      "worst": "Legrosszabb eset: {worst}",
+      "limits": "Összevetve az Ön korlátaival",
+      "answered": "Már megválaszolva",
+      "back": "Vissza a várólistához",
+      "needSignIn": "A döntést az Ön nevével rögzítjük, ezért bejelentkezés szükséges hozzá.",
+      "signInToDecide": "Bejelentkezés a döntéshez",
+      "declineFoot": "Elutasítás: semmi sem fut és semmi sem változik. Rögzítem az indokával együtt.",
+      "wholeQueue": "A teljes várólista megtekintése"
+    }
+  },
+  "stop": {
+    "failed": "ez nem sikerült",
+    "stopping": "Leállítás…",
+    "stop": "Minden leállítása",
+    "what": "Azonnal leállít minden végrehajtást, bejelentkezés nélkül. Az olvasás és a javaslattétel folytatódik.",
+    "stoppedAt": "Leállítva: {when} · semmi sem hajtódik végre",
+    "stoppedShort": "Leállítva · semmi sem hajtódik végre",
+    "starting": "Indítás…",
+    "yesStart": "Igen — újraindítás",
+    "stay": "Maradjon leállítva",
+    "startNote": "Az újraindítás után a jóváhagyott műveletek futhatnak. Ehhez bejelentkezés szükséges.",
+    "startUp": "Újraindítás",
+    "flag": "leállítva · semmi sem fog végrehajtódni",
+    "title": "Minden le van állítva.",
+    "titleSince": "Minden le van állítva — {when} óta.",
+    "copy": "A jóváhagyott műveletek jóváhagyva maradnak, és várnak. Semmi sem fut, semmi sem kerül közzétételre, és semmi sem változik a weboldalán — beleértve azt is, ami épp folyamatban volt, amikor leállította. Az olvasás, a tervezés és a javaslattétel a szokásos módon folytatódik.",
+    "youSaid": "Ön ezt mondta: „{reason}”",
+    "yesExecute": "Igen — a végrehajtás újraindítása"
+  },
+  "history": {
+    "meta": {
+      "title": "Előzmények — SYB"
+    },
+    "kicker": "Az Ön vállalkozása · Előzmények",
+    "title": "A napló. Csak hozzáfűzhető.",
+    "reading": "A nyilvántartás olvasása…",
+    "label": "Előzmények",
+    "signedOut": {
+      "title": "Ehhez a böngészőhöz nincs semmi rögzítve.",
+      "lede": "A napló akkor jön létre, amikor van vállalkozás, amelyhez vezetni lehet.",
+      "start": "Kezdés"
+    },
+    "failed": {
+      "title": "A nyilvántartás nem töltődött be.",
+      "lede": "Hiba történt a nyilvántartás olvasásakor. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "today": "Ma · {day}",
+    "figs": {
+      "decided": "Eldöntve",
+      "ran": "Lefutott",
+      "helped": "Segített",
+      "inside": "Az előrejelzésen belül"
+    },
+    "record": "A nyilvántartás",
+    "show": "Megjelenítés",
+    "tab": {
+      "everything": "Minden",
+      "decisions": "Döntések",
+      "ran": "Lefutott",
+      "measured": "Mért",
+      "facts": "Megváltozott tények"
+    },
+    "export": "Exportálás CSV-be",
+    "empty": {
+      "everything": "Még nincs semmi a nyilvántartásban. Ha lesz, minden javaslat, döntés, futás és megváltozott tény végleg itt marad.",
+      "decisions": "Még nincs javaslat vagy döntés.",
+      "ran": "Még semmi sem futott. Semmi sem fut az Ön jóváhagyása nélkül.",
+      "measured": "Még nincs ítélet. Ítélethez egy futás és egy összekapcsolt forrás kell, amely méri az eredményt.",
+      "facts": "Egyetlen tény sem változott az első rögzítése óta."
+    },
+    "now": "most",
+    "kind": {
+      "proposed": "javasolva",
+      "withheld": "visszatartva",
+      "approved": "jóváhagyva",
+      "declined": "elutasítva",
+      "expired": "lejárt",
+      "ran": "lefutott",
+      "measured": "mérve",
+      "superseded": "felváltva"
+    },
+    "foot": {
+      "append": "A bejegyzések nem szerkeszthetők és nem törölhetők — a javítások új bejegyzések, amelyek visszautalnak.",
+      "rate": "Jóváhagyási arány: {arithmetic}.",
+      "tooEarly": "{count, plural, one {# esetében még korai ítéletet mondani.} other {# esetében még korai ítéletet mondani.}}",
+      "unmeasured": "{count, plural, one {# nem mért — ítélethez összekapcsolt forrás kell.} other {# nem mért — ítélethez összekapcsolt forrás kell.}}",
+      "verdict": "Minden ítélet mért napokon végzett számítás, most beolvasva — semmit sem a szándék alapján ítélünk meg."
+    },
+    "track": {
+      "label": "Eddigi pontosságom",
+      "word": {
+        "inside": "belül",
+        "above": "felett",
+        "below": "alatt",
+        "cant_tell": "nem eldönthető",
+        "waiting": "várakozik"
+      },
+      "range": "tartomány: {range}",
+      "basis": "Mi alapján: {basis}",
+      "happened": "Mi történt: {happened}",
+      "foot": "Minden előrejelzést abban a pillanatban rögzítek, amikor megmutatom, a megadott tartománnyal együtt, és az idő leteltével kizárólag mért számok alapján minősítem. A minősítés nem változtatható meg.",
+      "cantTell": "A „nem eldönthető” azt jelenti, hogy a mért számok nem álltak rendelkezésre, vagy közbejött valami, ami nem szerepelt az előrejelzésben, például egy szállítás. Soha nem számít találatnak."
     }
   }
 }

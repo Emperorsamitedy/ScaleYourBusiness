@@ -17,6 +17,8 @@ import { db } from "../../db";
 import { bankOverlays, bankVersions } from "../../db/schema";
 import type { AppLocale } from "../i18n/locales";
 import { DEFAULT_LOCALE } from "../i18n/locales";
+import type { FactWords } from "./fact-words";
+import { factWords } from "./fact-words";
 
 /** An overlay's words, as the file (and bank_overlays.words) holds them. */
 export interface OverlayWords {
@@ -90,6 +92,11 @@ const cache = new Map<string, Promise<OverlayWords | null>>();
 /** Test/bank-reload hook. */
 export function resetBankWordsCache(): void {
   cache.clear();
+}
+
+/** L-3a: the current bank's fact labels and coded values in a language (./fact-words). */
+export async function loadFactWords(locale: AppLocale): Promise<FactWords> {
+  return factWords(await loadBankWords(locale));
 }
 
 /** The current bank's words in a language; English (or a language with no overlay) is the bank itself. */

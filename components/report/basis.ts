@@ -26,6 +26,16 @@
 // basis — it is a gap, and rule 5 keeps it distinct; callers print its
 // status instead.
 
+//
+// L-3a: the words below (meanings, gap words, source words, "newer …")
+// come from the "sheet" catalogue through an optional translator, English
+// by default — so English is byte-for-byte what it was.
+
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+
+const EN = () => englishTr("sheet");
+
 export const BASES = ["OBSERVED", "DERIVED", "ESTIMATED", "STATED", "ASSUMED"] as const;
 export type Basis = (typeof BASES)[number];
 
@@ -37,6 +47,12 @@ export const BASIS_MEANING: Record<Basis, string> = {
   STATED: "an exact answer you gave",
   ASSUMED: "an input to a forecast that nobody measured or stated",
 };
+
+/** A basis class's name in the person's language ("OBSERVED", "BEOBACHTET"). */
+export const basisName = (b: Basis, tr: Tr = EN()): string => tr(`basis.${b}`);
+
+/** A basis class's one-line meaning in the person's language. */
+export const basisMeaning = (b: Basis, tr: Tr = EN()): string => tr(`basisMeaning.${b}`);
 
 /**
  * Confidence an estimated owner answer is written with — data-model §8.1
@@ -119,20 +135,12 @@ export function basisMix(bases: readonly (Basis | null)[]): string {
   return parts.join(" · ");
 }
 
+const GAP_STATUSES = new Set(["unknown", "skipped", "unasked", "not_applicable"]);
+
 /** Owner-facing words for a gap's status, for the basis column of a fact with no value. */
-export function gapWord(status: string): string {
-  switch (status) {
-    case "unknown":
-      return "NOT KNOWN";
-    case "skipped":
-      return "SKIPPED";
-    case "unasked":
-      return "NOT ASKED";
-    case "not_applicable":
-      return "NOT APPLICABLE";
-    default:
-      return status.replace(/_/g, " ").toUpperCase();
-  }
+export function gapWord(status: string, tr: Tr = EN()): string {
+  if (GAP_STATUSES.has(status)) return tr(`gap.${status}`);
+  return status.replace(/_/g, " ").toUpperCase();
 }
 
 /** Owner-facing words for a source kind — the "source" half of the mono line. */
@@ -147,10 +155,13 @@ export const SOURCE_LABEL: Record<string, string> = {
   system_default: "default",
 };
 
-export const sourceLabel = (kind: string): string => SOURCE_LABEL[kind] ?? kind.replace(/_/g, " ");
+export const sourceLabel = (kind: string, tr: Tr = EN()): string =>
+  SOURCE_LABEL[kind] !== undefined ? tr(`source.${kind}`) : kind.replace(/_/g, " ");
 
-/** What replaced a superseded value, in a word: "superseded by a newer measurement". */
-export function newerWord(kind: string | undefined): string {
+/** What replaced a superseded value, as a kind: "superseded by a newer measurement". */
+export function newerKind(
+  kind: string | undefined,
+): "measurement" | "reading" | "calculation" | "answer" | "record" {
   switch (kind) {
     case "connector":
       return "measurement";
@@ -166,6 +177,9 @@ export function newerWord(kind: string | undefined): string {
       return "record";
   }
 }
+
+/** What replaced a superseded value, in a word: "superseded by a newer measurement". */
+export const newerWord = (kind: string | undefined): string => newerKind(kind);
 
 /**
  * The source kind of whatever replaced `list[i]`: superseded lists run

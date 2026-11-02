@@ -4,22 +4,24 @@
 // lays it out. A miss gets the same word, box and type as a hit: the
 // verdict is the content, not a colour.
 
+import { useTranslations } from "next-intl";
 import type { TrackView, TrackWord } from "../../lib/forecasts/view";
 
-const WORD: Record<TrackWord, { word: string; tone: string }> = {
-  inside: { word: "inside", tone: "ink" },
-  above: { word: "above", tone: "ink" },
-  below: { word: "below", tone: "ink" },
-  cant_tell: { word: "can't tell", tone: "" },
-  waiting: { word: "waiting", tone: "" },
+const TONE: Record<TrackWord, string> = {
+  inside: "ink",
+  above: "ink",
+  below: "ink",
+  cant_tell: "",
+  waiting: "",
 };
 
 export function TrackRecord({ track }: { track: TrackView }) {
+  const t = useTranslations("history.track");
   return (
     <section className="cs hi-track" aria-labelledby="hi-track-title">
       <header className="cs-head">
         <div>
-          <p className="cs-label">My track record</p>
+          <p className="cs-label">{t("label")}</p>
           <h2 className="cs-title" id="hi-track-title">
             {track.headline}
           </h2>
@@ -36,19 +38,21 @@ export function TrackRecord({ track }: { track: TrackView }) {
           )}
           <ol className="hi-rows">
             {track.entries.map((e) => {
-              const w = WORD[e.word];
+              const tone = TONE[e.word];
               return (
                 <li key={e.id} className="hi-track-row">
                   <span className="hi-kind">
-                    <span className={`word boxed ${w.tone}`}>{w.word}</span>
+                    <span className={`word boxed ${tone}`}>{t(`word.${e.word}`)}</span>
                   </span>
                   <span className="hi-what">
                     <span className="hi-title">{e.claim}</span>
                     <span className="hi-ref">
-                      {e.kind_label} · {e.said_on} · range {e.range}
+                      {e.kind_label} · {e.said_on} · {t("range", { range: e.range })}
                     </span>
-                    <span className="hi-detail">On what basis: {e.basis}</span>
-                    <span className="hi-detail hi-track-happened">What happened: {e.happened}</span>
+                    <span className="hi-detail">{t("basis", { basis: e.basis })}</span>
+                    <span className="hi-detail hi-track-happened">
+                      {t("happened", { happened: e.happened })}
+                    </span>
                     {e.backdated && <span className="hi-detail">{e.backdated}</span>}
                   </span>
                 </li>
@@ -59,15 +63,8 @@ export function TrackRecord({ track }: { track: TrackView }) {
         </div>
       )}
       <footer className="cs-foot hi-foot">
-        <p>
-          I record each forecast the moment I show it, with the range I gave, and grade it once its
-          time has passed, from measured figures only. A grade can&rsquo;t be changed.
-        </p>
-        <p>
-          &ldquo;Can&rsquo;t tell&rdquo; means the measured figures weren&rsquo;t there, or
-          something I didn&rsquo;t forecast got in the way, such as a delivery. It never counts as
-          right.
-        </p>
+        <p>{t("foot")}</p>
+        <p>{t("cantTell")}</p>
       </footer>
     </section>
   );

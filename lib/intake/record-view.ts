@@ -12,6 +12,7 @@
 
 import { displaySourceKind, measuredProvider } from "../connectors/measured";
 import { repr } from "../profile/factsheet";
+import type { FactWords } from "../bank/fact-words";
 import type { IntakeRecord, RecordFact } from "./types";
 
 export interface CurrentRow {
@@ -62,6 +63,8 @@ export interface RecordInput {
   questionIdByKey: ReadonlyMap<string, string>;
   /** Provider id → owner-facing name ("shopify" → "Shopify"). */
   providerLabel: (id: string) => string;
+  /** L-3a: labels and coded values in the person's language; English names nothing. */
+  factWords?: FactWords;
 }
 
 export function toRecordFact(
@@ -71,9 +74,11 @@ export function toRecordFact(
 ): RecordFact {
   const entity = ENTITY_KEY.exec(row.field_key);
   const provider = measuredProvider(row.source);
+  const entityName = entity ? (names.get(`${entity[1]}.${entity[2]}`) ?? null) : null;
+  const words = input.factWords;
   return {
     key: row.field_key,
-    entity: entity ? (names.get(`${entity[1]}.${entity[2]}`) ?? null) : null,
+    entity: entityName,
     field: entity ? (entity[3] ?? row.field_key) : row.field_key,
     value: VALUE_BEARING.has(row.status) ? row.value : null,
     text: VALUE_BEARING.has(row.status) ? textOf(row.value) : null,
@@ -86,6 +91,12 @@ export function toRecordFact(
     recorded_at: row.recorded_at,
     method: methodOf(row.source),
     question_id: input.questionIdByKey.get(row.field_key) ?? null,
+    ...(words
+      ? {
+          label: words.label(row.field_key, entityName),
+          value_words: VALUE_BEARING.has(row.status) ? words.value(row.field_key, row.value) : null,
+        }
+      : {}),
   };
 }
 

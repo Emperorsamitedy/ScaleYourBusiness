@@ -5,10 +5,13 @@
 // every link made, with when it was made, when it expires and when it was
 // last opened; and revokes one at a click. The link is shown once, when it
 // is made — only its hash is kept, so it can't be shown again.
+//
+// L-3a: its words are the "report.share" catalogue, its dates the reader's.
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { SheetCard } from "../sheet/PageHead";
-import { num } from "../sheet/num";
+import { useAppLocale } from "../sheet/useTr";
 import { fmtDate } from "./figures";
 
 interface Share {
@@ -22,18 +25,15 @@ interface Share {
   status: "active" | "expired" | "revoked";
 }
 
-const STATUS_WORD: Record<Share["status"], string> = {
-  active: "Open",
-  expired: "Expired",
-  revoked: "Revoked",
-};
-
-async function errorOf(res: Response): Promise<string> {
+async function errorOf(res: Response, fallback: string): Promise<string> {
   const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-  return payload?.error ?? "something went wrong — try again";
+  return payload?.error ?? fallback;
 }
 
 export function ShareCard() {
+  const t = useTranslations("report.share");
+  const locale = useAppLocale();
+  const date = (iso: string) => fmtDate(iso, locale);
   const [shares, setShares] = useState<Share[] | null>(null);
   const [signedOut, setSignedOut] = useState(false);
   const [days, setDays] = useState<7 | 30>(7);
@@ -49,37 +49,40 @@ export function ShareCard() {
       return;
     }
     if (!res.ok) {
-      setError(await errorOf(res));
+      setError(await errorOf(res, t("wrong")));
       return;
     }
     setShares(((await res.json()) as { shares: Share[] }).shares);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
-    void load().catch(() => setError("I couldn't reach the server — try again."));
-  }, [load]);
+    void load().catch(() => setError(t("unreachable")));
+  }, [load, t]);
 
-  const post = useCallback(async (body: Record<string, unknown>): Promise<Response | null> => {
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/report/share", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) {
-        setError(await errorOf(res));
+  const post = useCallback(
+    async (body: Record<string, unknown>): Promise<Response | null> => {
+      setBusy(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/report/share", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          setError(await errorOf(res, t("wrong")));
+          return null;
+        }
+        return res;
+      } catch {
+        setError(t("unreachable"));
         return null;
+      } finally {
+        setBusy(false);
       }
-      return res;
-    } catch {
-      setError("I couldn't reach the server — try again.");
-      return null;
-    } finally {
-      setBusy(false);
-    }
-  }, []);
+    },
+    [t],
+  );
 
   const create = async () => {
     const res = await post({ action: "create", days });
@@ -105,27 +108,15 @@ export function ShareCard() {
   };
 
   return (
-    <SheetCard
-      id="rq-share"
-      className="rq-card noprint"
-      label="Share this report"
-      title="A read-only link for a partner, an accountant or an investor."
-    >
+    <SheetCard id="rq-share" className="rq-card noprint" label={t("label")} title={t("title")}>
       {signedOut ? (
-        <p className="rq-prose">
-          Sign in to share your report — a link that leaves SYB is yours to make, so it needs you
-          signed in.
-        </p>
+        <p className="rq-prose">{t("signedOut")}</p>
       ) : (
         <>
-          <p className="rq-prose">
-            The link shows this report as it is now, without your answers to the recommendations and
-            without anything that leads into your account. It never changes after it is made, and
-            you can revoke it here at any time.
-          </p>
+          <p className="rq-prose">{t("lede")}</p>
           <div className="rq-share-row">
             <label className="rq-label" htmlFor="rq-share-days">
-              Lasts
+              {t("lasts")}
             </label>
             <select
               id="rq-share-days"
@@ -134,11 +125,11 @@ export function ShareCard() {
               onChange={(e) => setDays(e.target.value === "30" ? 30 : 7)}
               disabled={busy}
             >
-              <option value={7}>7 days</option>
-              <option value={30}>30 days</option>
+              <option value={7}>{t("days", { days: 7 })}</option>
+              <option value={30}>{t("days", { days: 30 })}</option>
             </select>
             <button type="button" className="act" onClick={() => void create()} disabled={busy}>
-              Make a link <span aria-hidden="true">→</span>
+              {t("make")} <span aria-hidden="true">→</span>
             </button>
           </div>
 
@@ -148,16 +139,13 @@ export function ShareCard() {
                 className="rq-share-url"
                 readOnly
                 value={made}
-                aria-label="The new link"
+                aria-label={t("newLink")}
                 onFocus={(e) => e.currentTarget.select()}
               />
               <button type="button" className="act" onClick={() => void copy()}>
-                {copied ? "Copied" : "Copy"}
+                {copied ? t("copied") : t("copy")}
               </button>
-              <p className="rq-prose">
-                This is the only time the link is shown. Anyone who has it can read the report until
-                it expires or you revoke it.
-              </p>
+              <p className="rq-prose">{t("onlyOnce")}</p>
             </div>
           )}
 
@@ -168,19 +156,21 @@ export function ShareCard() {
           )}
 
           {shares !== null && shares.length > 0 && (
-            <ul className="rq-share-list" aria-label="Links you have made">
+            <ul className="rq-share-list" aria-label={t("listLabel")}>
               {shares.map((s) => (
                 <li key={s.id} className={`rq-share-item${s.status === "active" ? "" : " off"}`}>
                   <span>
-                    <b>{STATUS_WORD[s.status]}</b> · made {fmtDate(s.created_at)} ·{" "}
+                    <b>{t(`status.${s.status}`)}</b> · {t("made", { date: date(s.created_at) })} ·{" "}
                     {s.status === "revoked" && s.revoked_at !== null
-                      ? `revoked ${fmtDate(s.revoked_at)}`
-                      : `${s.status === "expired" ? "expired" : "expires"} ${fmtDate(s.expires_at)}`}{" "}
+                      ? t("revokedOn", { date: date(s.revoked_at) })
+                      : s.status === "expired"
+                        ? t("expired", { date: date(s.expires_at) })
+                        : t("expires", { date: date(s.expires_at) })}{" "}
                     ·{" "}
                     {s.last_viewed_at === null
-                      ? "not opened yet"
-                      : `last opened ${fmtDate(s.last_viewed_at)} (${num(s.view_count)} view${s.view_count === 1 ? "" : "s"})`}{" "}
-                    · report of {fmtDate(s.report_generated_at)}
+                      ? t("notOpened")
+                      : t("lastOpened", { date: date(s.last_viewed_at), count: s.view_count })}{" "}
+                    · {t("reportOf", { date: date(s.report_generated_at) })}
                   </span>
                   {s.status === "active" && (
                     <button
@@ -189,7 +179,7 @@ export function ShareCard() {
                       onClick={() => void revoke(s.id)}
                       disabled={busy}
                     >
-                      Revoke
+                      {t("revoke")}
                     </button>
                   )}
                 </li>

@@ -9,11 +9,14 @@
 
 import "../../app/charts.css";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ChartsBundle } from "../../lib/charts/load";
 import { MarketChart } from "./MarketChart";
 import { AdsChart, BookingsChart } from "./SmallCharts";
 
 export function ChartsPanel() {
+  // L-3a: the panel's own lines; the charts themselves are a later batch (TASKS-LANGUAGES.md L-3).
+  const t = useTranslations("charts.panel");
   const [bundle, setBundle] = useState<ChartsBundle | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -36,11 +39,10 @@ export function ChartsPanel() {
 
   if (failed) {
     return (
-      <section className="cs mk" aria-label="Your numbers as a chart">
+      <section className="cs mk" aria-label={t("label")}>
         <div className="cs-body">
           <p className="mk-sub" role="alert">
-            I couldn&rsquo;t read your numbers for the chart just now. Refresh to try again —
-            nothing is lost.
+            {t("failed")}
           </p>
         </div>
       </section>
@@ -48,10 +50,10 @@ export function ChartsPanel() {
   }
   if (bundle === null) {
     return (
-      <section className="cs mk" aria-label="Your numbers as a chart" aria-busy="true">
+      <section className="cs mk" aria-label={t("label")} aria-busy="true">
         <div className="cs-body">
           <p className="mk-sub" role="status">
-            Reading your measured days…
+            {t("reading")}
           </p>
         </div>
       </section>

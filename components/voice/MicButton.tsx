@@ -10,12 +10,21 @@
 // changes under a screen reader; one aria-live line says what is
 // happening ("Listening…", the notice, a stop or a failure). Drawn only
 // where the browser can recognise speech.
+//
+// L-3a: the button's own words, and the session's (the notice, the cap,
+// the failures), come from the "voice" catalogue in the person's
+// language; the view defaults to English, so it renders without a
+// provider (MicButton.test.ts).
 
+import type { SessionWords } from "../../lib/voice/session";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+import { useTr } from "../sheet/useTr";
 import type { SpeechAnswer, SpeechAnswerOptions } from "./useSpeechAnswer";
 import { useSpeechAnswer } from "./useSpeechAnswer";
 import "../../app/voice.css";
 
-export interface MicButtonProps extends SpeechAnswerOptions {
+export interface MicButtonProps extends Omit<SpeechAnswerOptions, "words"> {
   /** The accessible name, which starts with the visible word: "Speak your answer". */
   label: string;
 }
@@ -24,14 +33,46 @@ type ViewProps = Pick<SpeechAnswer, "supported" | "phase" | "notice" | "message"
   label: string;
   disabled?: boolean;
   onToggle: () => void;
+  /** The "voice" catalogue; English by default. */
+  tr?: Tr;
 };
 
 /** The line the screen reader hears; null when there is nothing to say. */
-export function liveLine(s: Pick<SpeechAnswer, "phase" | "notice" | "message">): string | null {
-  if (s.phase === "listening") return "Listening… Press Speak again to stop.";
-  if (s.phase === "notice" && s.notice) return `${s.notice} Press Speak again to start.`;
+export function liveLine(
+  s: Pick<SpeechAnswer, "phase" | "notice" | "message">,
+  tr: Tr = englishTr("voice"),
+): string | null {
+  if (s.phase === "listening") return tr("listening");
+  if (s.phase === "notice" && s.notice) return tr("noticeStart", { notice: s.notice });
   if (s.phase === "checking") return null;
   return s.message;
+}
+
+/** The session's own lines from the "voice" catalogue. */
+export function sessionWords(tr: Tr): SessionWords {
+  return {
+    notice: tr("notice"),
+    cap: tr("cap"),
+    error: (code, lang) => {
+      switch (code) {
+        case "aborted":
+          return null;
+        case "not-allowed":
+        case "service-not-allowed":
+          return tr("error.blocked");
+        case "no-speech":
+          return tr("error.noSpeech");
+        case "audio-capture":
+          return tr("error.noMicrophone");
+        case "network":
+          return tr("error.network");
+        case "language-not-supported":
+          return tr("error.language", { lang });
+        default:
+          return tr("error.stopped");
+      }
+    },
+  };
 }
 
 function MicIcon() {
@@ -58,10 +99,11 @@ export function MicButtonView({
   label,
   disabled,
   onToggle,
+  tr = englishTr("voice"),
 }: ViewProps) {
   if (!supported) return null;
   const listening = phase === "listening";
-  const line = liveLine({ phase, notice, message });
+  const line = liveLine({ phase, notice, message }, tr);
   return (
     <div className="vx">
       <div className="vx-row">
@@ -75,7 +117,7 @@ export function MicButtonView({
           onClick={onToggle}
         >
           <MicIcon />
-          Speak
+          {tr("speak")}
         </button>
         <p className="vx-live" aria-live="polite">
           {listening && <span className="live-dot" aria-hidden="true" />}
@@ -88,7 +130,9 @@ export function MicButtonView({
 }
 
 export function MicButton({ label, ...options }: MicButtonProps) {
-  const s = useSpeechAnswer(options);
+  const { tr } = useTr("voice");
+  // The session reads its words through a getter, so each render's set is the one used.
+  const s = useSpeechAnswer({ ...options, words: sessionWords(tr) });
   return (
     <MicButtonView
       supported={s.supported}
@@ -98,6 +142,7 @@ export function MicButton({ label, ...options }: MicButtonProps) {
       label={label}
       disabled={options.disabled === true}
       onToggle={s.toggle}
+      tr={tr}
     />
   );
 }

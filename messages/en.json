@@ -344,7 +344,8 @@
       "skipped": "skipped",
       "yes": "yes",
       "no": "no",
-      "onFile": "on file"
+      "onFile": "on file",
+      "entityCount": "{count, plural, one {# on file} other {# on file}}"
     },
     "source": {
       "connected": "connected account",
@@ -448,6 +449,946 @@
       "unknown_field": "that list has no field called “{field}”",
       "finding_not_open": "that one is already settled",
       "invalid": "that answer couldn’t be recorded"
+    }
+  },
+  "voice": {
+    "speak": "Speak",
+    "listening": "Listening… Press Speak again to stop.",
+    "noticeStart": "{notice} Press Speak again to start.",
+    "notice": "Your browser turns your speech into text. In Chrome, Google does this; SYB never receives the audio.",
+    "cap": "I stop listening after a minute. Press Speak to add more.",
+    "error": {
+      "blocked": "The microphone is blocked for this site. Allow it in your browser’s site settings (the icon beside the address), then press Speak again.",
+      "noSpeech": "I didn’t hear anything. Press Speak and talk once it says Listening.",
+      "noMicrophone": "No microphone was found. Check one is connected and switched on, then press Speak again.",
+      "network": "Your browser couldn’t reach its speech service. Check your connection, or type the answer.",
+      "language": "Your browser can’t turn {lang} speech into text. Type the answer instead.",
+      "stopped": "Listening stopped before any words came through. Press Speak to try again, or type the answer."
+    }
+  },
+  "sheet": {
+    "basis": {
+      "OBSERVED": "OBSERVED",
+      "DERIVED": "DERIVED",
+      "ESTIMATED": "ESTIMATED",
+      "STATED": "STATED",
+      "ASSUMED": "ASSUMED"
+    },
+    "basisMeaning": {
+      "OBSERVED": "read from a connected account, a document or a public page",
+      "DERIVED": "worked out from other facts, with the formula shown",
+      "ESTIMATED": "your own estimate",
+      "STATED": "an exact answer you gave",
+      "ASSUMED": "an input to a forecast that nobody measured or stated"
+    },
+    "gap": {
+      "unknown": "NOT KNOWN",
+      "skipped": "SKIPPED",
+      "unasked": "NOT ASKED",
+      "not_applicable": "NOT APPLICABLE"
+    },
+    "source": {
+      "owner_input": "you told me",
+      "conversation": "from our conversation",
+      "inferred": "computed",
+      "web_research": "researched",
+      "benchmark": "benchmark",
+      "connector": "measured",
+      "document": "from a document",
+      "system_default": "default"
+    },
+    "severity": {
+      "critical": "ACT NOW",
+      "high": "HIGH",
+      "medium": "MEDIUM",
+      "low": "LOW"
+    },
+    "none": "—"
+  },
+  "report": {
+    "meta": {
+      "title": "Your diagnosis — SYB"
+    },
+    "mast": {
+      "watching": "Watching · day {day} of {of}"
+    },
+    "sub": {
+      "label": "Report",
+      "findings": "Findings",
+      "decisions": "Decisions",
+      "record": "The record",
+      "shadow": "Shadow ledger",
+      "outcomes": "Outcomes",
+      "rules": "Standing rules",
+      "connections": "Connections",
+      "notBuilt": "Not built yet",
+      "print": "Print / PDF"
+    },
+    "fact": {
+      "notInSnapshot": "not in this snapshot",
+      "basisNotRecorded": "BASIS NOT RECORDED"
+    },
+    "panel": {
+      "label": "Diagnostic panel · specimen {id} · issued {issued}",
+      "prior": " · prior {date}",
+      "headUnit": "profit change / month · if you do {ref} · DERIVED",
+      "computed": "{computed} of {total}",
+      "computedUnit": "measures computed · each one says why",
+      "diagnosis": "Diagnosis",
+      "noFindings": "no findings called out",
+      "notComputed": "{count, plural, one {<b>#</b> not computed} other {<b>#</b> not computed}}",
+      "empty": "No measure could be computed or refused — the profile has nothing to work from yet.",
+      "caption": "Each measure: its result, the prior report’s result, the reference range, a flag, money a month, its basis, and how it was worked out",
+      "legend": "Range · act-now line: drawn only where a target of yours or a range the data supports covers the measure — none does yet, so it shows —. Money a month is printed only where a measure’s gap is priced; none is. DERIVED = worked out from other facts; its WHY shows the formula and inputs."
+    },
+    "col": {
+      "measure": "Measure",
+      "result": "Result",
+      "prior": "Prior",
+      "priorReport": "Prior report",
+      "range": "Range · act-now line",
+      "rangeShort": "Range · act-now",
+      "flag": "Flag",
+      "perMonth": "{currency} / month",
+      "basis": "Basis",
+      "derivation": "Derivation"
+    },
+    "why": {
+      "button": "Why",
+      "buttonSr": " — how {name} was worked out",
+      "sheet": "Derivation sheet",
+      "nothing": "Nothing selected",
+      "choose": "Choose WHY → on a measure to see how it was worked out.",
+      "formula": "Formula, in words",
+      "notComputed": "Why it was not computed",
+      "inputs": "Inputs",
+      "missingInputs": "Missing inputs",
+      "none": "None recorded.",
+      "missing": "not recorded · missing",
+      "basisNotRecorded": "basis not recorded",
+      "history": "History · superseded, never erased",
+      "noHistory": "No input of this figure has been superseded yet."
+    },
+    "measure": {
+      "blended_margin": {
+        "name": "Blended margin",
+        "words": "What each sale leaves after what it costs you to deliver, as a share of its price — averaged across your offers, weighted by how many of each you sell."
+      },
+      "average_order_value": {
+        "name": "Average order value",
+        "words": "Your monthly revenue divided by the number of sales — orders, bookings or visits — in the month."
+      },
+      "cost_per_acquisition": {
+        "name": "Cost to acquire a customer",
+        "words": "What you spend on ads in a month, divided by the sales that came from customers buying for the first time."
+      },
+      "return_on_ad_spend": {
+        "name": "Return on ad spend",
+        "words": "All your monthly revenue divided by all your monthly ad spend — blended, not attributed to any one ad."
+      },
+      "fixed_costs": {
+        "name": "Fixed costs",
+        "words": "Every fixed cost you gave, turned into a monthly amount by its cadence and added up."
+      },
+      "break_even": {
+        "name": "Break-even volume",
+        "words": "Your fixed costs divided by what each sale contributes after its own cost — the number of sales a month that pays for everything."
+      },
+      "offer": {
+        "name": "Margin · {name}",
+        "words": "The price, minus what it costs you to deliver one, as a share of the price.",
+        "refusal": "no cost to deliver is recorded for this offer, so there is nothing to take from its price"
+      }
+    },
+    "flag": {
+      "notComputed": "NOT COMPUTED",
+      "belowCost": "ACT NOW · BELOW COST",
+      "differs": "DIFFERS FROM YOURS"
+    },
+    "tally": {
+      "critical": "act now",
+      "high": "high",
+      "medium": "medium",
+      "low": "low"
+    },
+    "unit": {
+      "perMonth": "/ mo"
+    },
+    "input": {
+      "offer": "offer",
+      "measuredConnected": "measured · connected account"
+    },
+    "history": {
+      "computed": "Computed {figure} in this report",
+      "notComputed": "Not computed in this report — {why}",
+      "was": "Was {figure} in the previous report",
+      "notKnown": "not known",
+      "superseded": "{name} was {was} — superseded by a newer {kind, select, measurement {measurement} reading {reading} calculation {calculation} answer {answer} other {record}}"
+    },
+    "svm": {
+      "caption": "What you said against what a connected account measured",
+      "measure": "Measure · window",
+      "said": "You said",
+      "measured": "Measured",
+      "difference": "Difference",
+      "observed": "OBSERVED · {provider} · {when}",
+      "read": "read {date}",
+      "yours": "yours: {basis} · {source} · {date}",
+      "notKnown": "not known",
+      "label": "Stated against measured",
+      "titleHeld": "What you said held up against what was measured.",
+      "title": "What you said, against what was measured.",
+      "foot": "The analysis uses the measured figure. What you said stays in your history.",
+      "hide": "Hide them",
+      "show": "Show them"
+    },
+    "decline": {
+      "lede": "Optional — why not? This teaches me what not to propose again.",
+      "chip": {
+        "tried": "we tried this before",
+        "market": "not possible in my market",
+        "now": "can't take this on right now"
+      },
+      "label": "Your reason, in your words",
+      "placeholder": "or say it your way",
+      "recording": "recording…",
+      "record": "Record it"
+    },
+    "forecast": {
+      "range": "Profit change vs today · range",
+      "caption": "The three cases of “{title}”, with the arithmetic",
+      "case": "Case",
+      "perMonth": "Per month",
+      "what": "What happens · the arithmetic",
+      "whatShort": "What happens"
+    },
+    "case": {
+      "base": "Base case",
+      "downside": "Downside",
+      "upside": "Upside"
+    },
+    "rec": {
+      "meta": "effort {effort, select, low {low} medium {medium} high {high} other {{effort}}} · undo {undo, select, easy {easy} moderate {moderate} hard {hard} other {{undo}}}",
+      "answers": " · answers {refs}",
+      "breakEven": "Break-even",
+      "highSensitivity": "High sensitivity",
+      "assumptions": "The assumptions, stated",
+      "from": "from {input}",
+      "nobody": "nobody measured or stated this",
+      "sensitivity": "sensitivity {level, select, high {high} medium {medium} low {low} other {{level}}}",
+      "changeMind": "If you change your mind:",
+      "lookInto": "Look into this →",
+      "notForUs": "Not for us →",
+      "recorded": "Recorded",
+      "lookingInto": "you’re looking into this",
+      "declined": "Declined",
+      "reason": "“{reason}”",
+      "noReason": "no reason given"
+    },
+    "findings": {
+      "label": "Findings · most urgent first",
+      "none": "Nothing the evidence supports strongly enough to call out.",
+      "title": "{count, plural, one {# finding, each with its evidence.} other {# findings, each with its evidence.}}",
+      "measured": "measured",
+      "measuredTitle": "Measured on your site, not judged"
+    },
+    "recs": {
+      "label": "What I'd do about it",
+      "none": "No recommendation the arithmetic can back yet.",
+      "title": "{count, plural, one {# recommendation, each with its range.} other {# recommendations, each with its range.}}"
+    },
+    "hours": {
+      "label": "Trading hours · OBSERVED · {from} – {to}",
+      "none": "No signal fires on any measured day.",
+      "title": "{count, plural, one {# signal in your hourly sales.} other {# signals in your hourly sales.}}",
+      "link": "See every weekday →",
+      "tooEarly": "Too early to say"
+    },
+    "gaps": {
+      "label": "What would sharpen this",
+      "title": "The report is only as good as what it rests on.",
+      "priority": "{priority, select, core {core} important {important} deep {deep} optional {optional} other {{priority}}}",
+      "blocking": "Blocking",
+      "answer": "Answer now →"
+    },
+    "foot": "Every figure prints where it came from. Estimates are marked as estimates; nothing is invented.",
+    "generatedFrom": "Generated from snapshot {id}.",
+    "checkout": {
+      "price": "This report is {price}.",
+      "priceReturning": "This report is {price}, since you've already paid for another of your businesses.",
+      "others": "{count, plural, one {You own another business without a paid report: add it to the same payment at {price} each.} other {You own other businesses without a paid report: add them to the same payment at {price} each.}}",
+      "total": "{count, plural, one {Total: {total} for # report, one payment. Each business’s report is written when you open it there.} other {Total: {total} for # reports, one payment. Each business’s report is written when you open it there.}}",
+      "pay": "Pay {total} →",
+      "notNow": "Not now"
+    },
+    "state": {
+      "label": "Diagnostic panel",
+      "noReport": "No report yet",
+      "checking": "Checking for your report…",
+      "error": "Something went wrong loading the report. Refresh to try again — nothing you told me is lost.",
+      "openingCheckout": "Opening checkout — the report is paid for before it is written",
+      "confirming": "Waiting for Stripe to confirm your payment",
+      "reading": "Reading your profile — the request is running",
+      "readingLede": "Margins, break-even, the findings and what to do about them. This usually takes about a minute; the arithmetic is checked before anything reaches the page.",
+      "none": "When you've answered enough, I read the whole profile and write up what I can prove.",
+      "readNow": "Read my profile now →",
+      "answerMore": "Answer more first →",
+      "payFailed": "payment could not be started",
+      "payUnreachable": "I couldn't reach the server — nothing was charged; try again.",
+      "notConfirmed": "Stripe hasn't confirmed your payment yet. Refresh this page in a minute: you won't be charged again, and the report starts once it's confirmed.",
+      "generationFailed": "generation failed",
+      "unreachable": "I couldn't reach the server — your answers are safe; try again."
+    },
+    "share": {
+      "label": "Share this report",
+      "title": "A read-only link for a partner, an accountant or an investor.",
+      "signedOut": "Sign in to share your report — a link that leaves SYB is yours to make, so it needs you signed in.",
+      "lede": "The link shows this report as it is now, without your answers to the recommendations and without anything that leads into your account. It never changes after it is made, and you can revoke it here at any time.",
+      "lasts": "Lasts",
+      "days": "{days, plural, one {# day} other {# days}}",
+      "make": "Make a link",
+      "newLink": "The new link",
+      "copied": "Copied",
+      "copy": "Copy",
+      "onlyOnce": "This is the only time the link is shown. Anyone who has it can read the report until it expires or you revoke it.",
+      "listLabel": "Links you have made",
+      "status": {
+        "active": "Open",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      },
+      "made": "made {date}",
+      "revokedOn": "revoked {date}",
+      "expired": "expired {date}",
+      "expires": "expires {date}",
+      "notOpened": "not opened yet",
+      "lastOpened": "{count, plural, one {last opened {date} (# view)} other {last opened {date} (# views)}}",
+      "reportOf": "report of {date}",
+      "revoke": "Revoke",
+      "wrong": "something went wrong — try again",
+      "unreachable": "I couldn't reach the server — try again."
+    }
+  },
+  "charts": {
+    "panel": {
+      "label": "Your numbers as a chart",
+      "failed": "I couldn’t read your numbers for the chart just now. Refresh to try again — nothing is lost.",
+      "reading": "Reading your measured days…"
+    }
+  },
+  "factsheet": {
+    "meta": {
+      "title": "Your fact sheet — SYB"
+    },
+    "kicker": "Your business · Fact sheet",
+    "titleEmpty": "The record.",
+    "title": "{count, plural, one {# fact about {noun}. Every one shows where it came from.} other {# facts about {noun}. Every one shows where it came from.}}",
+    "yourBusiness": "your business",
+    "noSession": "There’s no profile on this device yet. <a>Start the questions</a> — or open the link I sent you.",
+    "failed": "Something went wrong loading your profile. Refresh to try again — nothing you told me is lost.",
+    "reading": "Reading your profile…",
+    "export": {
+      "label": "For your accountant",
+      "current": "Money facts, CSV",
+      "history": "Earlier figures, CSV"
+    },
+    "counts": {
+      "observed": "{count, plural, one {<b>#</b> observed} other {<b>#</b> observed}}",
+      "derived": "{count, plural, one {<b>#</b> derived} other {<b>#</b> derived}}",
+      "fromYou": "{count, plural, one {<b>#</b> from you} other {<b>#</b> from you}}",
+      "assumed": "{count, plural, one {<b>#</b> assumed} other {<b>#</b> assumed}}",
+      "gaps": "{count, plural, one {<b>#</b> recorded as not known} other {<b>#</b> recorded as not known}}"
+    },
+    "recordLabel": "The record",
+    "search": "Search the record",
+    "searchPlaceholder": "e.g. hours, price, channels",
+    "filterLabel": "Filter the record",
+    "filter": {
+      "all": "All",
+      "assumed": "Assumed · {count}",
+      "changed": "Changed this month · {count}"
+    },
+    "supersededCount": "{count, plural, one {# superseded value} other {# superseded values}}",
+    "showSuperseded": "Show superseded",
+    "sectionsLabel": "Sections of the record",
+    "stillOpen": "Still open",
+    "empty": {
+      "query": "No fact matches “{query}”.",
+      "assumed": "No fact rests on an assumption — every value came from you, a connection or arithmetic.",
+      "changed": "Nothing was replaced this month.",
+      "none": "Nothing recorded yet."
+    },
+    "sectionFacts": "{count, plural, one {# fact} other {# facts}}",
+    "sectionChanged": "{count, plural, one {# changed this month} other {# changed this month}}",
+    "noneRecorded": "none recorded",
+    "competitorsLede": "Name them in the interview, or let me search from what you’ve already told me.",
+    "openMeta": "{count, plural, one {# question · a gap is a finding, not a failure} other {# questions · a gap is a finding, not a failure}}",
+    "foot": "Struck-through lines were true until something better came in. Nothing in the record is ever deleted. Snapshot {id} · {date}.",
+    "caption": "{section}: every fact with its value, source, basis and the date it holds from",
+    "col": {
+      "fact": "Fact",
+      "value": "Value",
+      "source": "Source",
+      "basis": "Basis",
+      "since": "Since"
+    },
+    "confirmDefault": "confirm to replace the default",
+    "noted": "noted: {note}",
+    "superseded": "superseded {date} by a newer {kind, select, measurement {measurement} reading {reading} calculation {calculation} answer {answer} other {record}}",
+    "supersededWord": "Superseded",
+    "priority": {
+      "core": "core",
+      "important": "important",
+      "deep": "deep",
+      "optional": "optional"
+    },
+    "blocking": "Blocking",
+    "answerNow": "Answer now →",
+    "showFewer": "Show fewer",
+    "showAll": "Show all {count}",
+    "section": {
+      "identity": "Who you are",
+      "presence": "Where you trade",
+      "offers": "What you sell",
+      "revenue": "Revenue",
+      "costs": "Costs",
+      "customers": "Customers",
+      "channels": "Channels",
+      "marketing": "Marketing",
+      "operations": "Operations",
+      "tooling": "Tools",
+      "legal": "Legal & tax",
+      "competitors": "Competitors",
+      "goals": "Your targets",
+      "assets": "Files"
+    },
+    "spine": {
+      "offers": "Product",
+      "suppliers": "Supplier",
+      "competitors": "Competitor",
+      "channels": "Channel",
+      "staff_roles": "Role",
+      "locations": "Location"
+    },
+    "entityName": "{noun} name",
+    "basis": {
+      "fromYou": "FROM YOU",
+      "fromYouEstimate": "FROM YOU · EST."
+    },
+    "source": {
+      "interview": "you · interview",
+      "conversation": "you · conversation",
+      "measured": "measured · {detail}",
+      "measuredConnected": "measured · connected account",
+      "researchedAt": "researched · {detail}",
+      "researched": "researched",
+      "computedAs": "computed · {detail}",
+      "computed": "computed",
+      "document": "from a document",
+      "default": "default until you confirm"
+    },
+    "value": {
+      "pagesSilent": "their pages didn't say",
+      "unknown": "you didn't know — recorded",
+      "skipped": "skipped for now",
+      "notApplicable": "doesn't apply",
+      "unasked": "not asked yet"
+    },
+    "finder": {
+      "nothingUsable": "the search came back with nothing usable",
+      "unreachable": "I couldn't reach the server. Try again in a moment.",
+      "failed": "research failed",
+      "searching": "Searching the web…",
+      "find": "Find my competitors →",
+      "searchingFrom": "Searching from what you told me",
+      "readingPages": "Reading their pages",
+      "found": "Found by searching from what you told me. Nothing is saved until you confirm.",
+      "readingPagesNow": "Reading their pages…",
+      "thatsOne": "That's one — look them up →"
+    }
+  },
+  "watch": {
+    "meta": {
+      "title": "Watching — SYB"
+    },
+    "kicker": "Insights · Watching",
+    "days": {
+      "label": "Watch day {day} of {of}",
+      "started": "Started {date}",
+      "legend": "Each filled square is a watch day gone by. The outlined one is today.",
+      "ends": "Watch ends {date}"
+    },
+    "tally": {
+      "steady": "{count, plural, one {# steady} other {# steady}}",
+      "drifting": "{count, plural, one {# drifting} other {# drifting}}",
+      "interrupted": "{count, plural, one {# interrupted} other {# interrupted}}",
+      "thin": "{count, plural, one {# thin} other {# thin}}"
+    },
+    "status": {
+      "steady": "Steady",
+      "drifting": "Drifting",
+      "interrupted": "Interrupted",
+      "thin": "Thin"
+    },
+    "signals": {
+      "label": "What I'm watching",
+      "nothing": "Nothing to read yet",
+      "titleRead": "{count, plural, one {# signal, read every day} other {# signals, read every day}}",
+      "titleNotRead": "{count, plural, one {# signal, not being read now} other {# signals, not being read now}}",
+      "thinRule": "THIN = fewer than {min} of the last {of} days on record, so no usual range to judge against yet.",
+      "driftRule": "DRIFTING = outside its usual range {days} days or more in a row; INTERRUPTED = past a rule that stops the watch.",
+      "connect": "Connect your payments, till or online shop, analytics or ads, and every business-wide figure they hold is read here every day. <a>Connections</a>",
+      "noDaily": "Your connections hold no daily figures yet — they arrive with the next sync.",
+      "tableLabel": "Signals table",
+      "col": {
+        "signal": "Signal",
+        "from": "Read from",
+        "days": "Days read",
+        "perDay": "Per day, week {week} → now",
+        "status": "Status"
+      },
+      "below": "Below its usual range since {date}",
+      "above": "Above its usual range since {date}"
+    },
+    "noted": {
+      "label": "Noted, not acted on",
+      "title": "What I would have said",
+      "empty": "Nothing yet. When a figure leaves its usual range, your hours show a signal, or a competitor changes a price, I note it here, and act on none of it.",
+      "day": "Day {day}"
+    },
+    "when": {
+      "label": "When the watch ends",
+      "foot": "The watch's length is set on How I work.",
+      "link": "How I work →",
+      "ends": "The watch ends. The next report reads everything it gathered.",
+      "after": "after",
+      "afterText": "Proposals you approve can run. The watch no longer holds them.",
+      "always": "always",
+      "alwaysText": "Nothing runs until you approve it."
+    },
+    "activity": {
+      "label": "Activity",
+      "title": "Every entry is real work",
+      "empty": "Nothing yet. The first weekly snapshot will appear here."
+    },
+    "rules": {
+      "label": "What would interrupt the watch",
+      "checked": "Checked daily",
+      "notChecked": "Not yet checked"
+    },
+    "modules": {
+      "label": "Modules",
+      "title": "For when I start acting",
+      "name": "{module, select, marketing {marketing} sales {sales} support {support} operations {operations} finance {finance} team {team} other {{module}}}",
+      "analytics": "analytics, always on",
+      "rolesNotPeople": "{module, select, team {team} other {{module}}}, roles not people",
+      "teamLink": "See the team screen"
+    },
+    "summary": {
+      "label": "Weekly email",
+      "title": "A summary every Monday",
+      "switch": "email me the week",
+      "lede": "What I did and found that week, and what is waiting for you. Every line is an entry on this screen; a quiet week says so.",
+      "signUp": "Sign up, and it goes to the address you sign in with.",
+      "off": "Off. Nothing is emailed; everything stays on this screen.",
+      "notDecided": "It starts once How I work is decided.",
+      "noEmail": "Email isn't set up on this server yet, so none is sent.",
+      "lastSent": "Last sent {date}.",
+      "first": "The first one goes out on the next Monday check."
+    },
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "lede": "<a>Start with the interview</a>, and the watch begins once the report is in."
+    },
+    "failed": {
+      "title": "The watch didn't load.",
+      "lede": "Something went wrong on our side. Refresh to try again."
+    },
+    "reading": "Reading the watch…",
+    "none": {
+      "title": "No watch is running yet.",
+      "instantTitle": "No watch is running. This business is in instant mode.",
+      "notDecided": "How I work hasn't been decided yet: it follows the report.",
+      "instant": "There is no observation period here. Nothing runs until you approve it.",
+      "link": "How I work"
+    },
+    "title": {
+      "complete": "Day {of} of {of}. The watch is complete.",
+      "untouched": "Day {day} of {of}. Nothing touched on my own.",
+      "changes": "{count, plural, one {Day {day} of {of}. # change made, each one approved.} other {Day {day} of {of}. # changes made, each one approved.}}"
+    },
+    "notes": {
+      "hold": "Nothing I could change runs while the watch lasts.",
+      "readingEnds": "{count, plural, one {Reading # connection every day · watch ends {date}} other {Reading # connections every day · watch ends {date}}}",
+      "readingEnded": "{count, plural, one {Reading # connection every day · watch ended {date}} other {Reading # connections every day · watch ended {date}}}",
+      "noneEnds": "No connection is being read · <a>Connections</a> · watch ends {date}",
+      "noneEnded": "No connection is being read · <a>Connections</a> · watch ended {date}"
+    },
+    "alerts": {
+      "label": "Phone alerts",
+      "title": "A few words when something waits",
+      "lede": "When something new waits for your yes, your phone gets a few words: never a figure, a name or an address, because a lock screen is public. Tapping it opens that proposal, and you decide on its card, never on the alert. Nothing between {from} and {to}, and at most one a day.",
+      "status": {
+        "signIn": "Sign in on this device to switch alerts on.",
+        "noKeys": "This server can't send phone alerts yet: its keys aren't set.",
+        "iphoneTab": "Add SYB to your Home Screen first, then switch this on there. In Safari: Share, then Add to Home Screen (iOS {version} or later).",
+        "unsupported": "This browser can't take alerts. On an iPhone, add SYB to your Home Screen first, then switch this on there.",
+        "denied": "Alerts are blocked for SYB in this browser's settings. Allow them there, then switch this on.",
+        "on": "On for this device."
+      },
+      "switchOn": "Switch on for this device",
+      "thisDevice": "this device",
+      "onSince": "on since {date}",
+      "lastAlert": "last alert {date}",
+      "remove": "Remove",
+      "test": "Send a test",
+      "noPermission": "Nothing switched on: the browser didn't give permission.",
+      "switchedOn": "On. This device gets a few words when something new waits for your yes.",
+      "notSwitchedOn": "Not switched on: {error}.",
+      "refused": "Not switched on: this browser refused the subscription. Try again in a moment.",
+      "removed": "Removed: {device} gets no more alerts.",
+      "notRemoved": "Not removed: {error}.",
+      "tested": "Test: {results}.",
+      "notTested": "No test sent: {error}.",
+      "ourSide": "something went wrong on our side"
+    }
+  },
+  "proposals": {
+    "meta": {
+      "title": "Proposals — SYB",
+      "one": "Proposal — SYB"
+    },
+    "module": "{module, select, marketing {marketing} sales {sales} support {support} operations {operations} finance {finance} team {team} other {{module}}}",
+    "loading": "Reading the queue…",
+    "notRecorded": "that decision wasn't recorded",
+    "failNote": "{count, plural, one {# not recorded: {errors}.} other {# not recorded: {errors}.}}",
+    "announce": {
+      "approved": "{count, plural, one {# proposal approved} other {# proposals approved}}",
+      "declined": "{count, plural, one {# proposal declined} other {# proposals declined}}",
+      "nothing": "Nothing was recorded",
+      "next": "Next: {title}",
+      "none": "Nothing else needs a decision."
+    },
+    "signedOut": {
+      "eyebrow": "proposals",
+      "title": "Sign in to decide.",
+      "copy": "Approving or declining a proposal is recorded with your name on it — that needs you signed in, not just this browser.",
+      "signIn": "Sign in"
+    },
+    "reason": {
+      "why": "Why not? One tap is enough",
+      "whyAll": "Why not, for all {count}? One tap is enough",
+      "label": "Your reason, in your words",
+      "placeholder": "Or say it in a sentence — I learn from it.",
+      "need": "Pick a reason first — declining asks why, and the record keeps your answer.",
+      "foot": "Declining: nothing runs and nothing changes. I record it with your reason and don’t act on it.",
+      "record": "Record the decline",
+      "recordAll": "Record the decline for {count}"
+    },
+    "chip": {
+      "wrongData": "WRONG DATA",
+      "wrongTiming": "WRONG TIMING",
+      "tooRisky": "TOO RISKY",
+      "notMyStrategy": "NOT MY STRATEGY"
+    },
+    "chipPhrase": {
+      "wrongData": "Wrong data",
+      "wrongTiming": "Wrong timing",
+      "tooRisky": "Too risky",
+      "notMyStrategy": "Not my strategy"
+    },
+    "changes": {
+      "label": "What should be different?",
+      "placeholder": "e.g. only last year's customers, and no discount.",
+      "need": "Say what should change first — the record keeps your words.",
+      "foot": "Not approved, and not a no: nothing runs. Your words go on the record with your name. A redraft isn’t automatic yet.",
+      "record": "Record the request"
+    },
+    "change": {
+      "none": "This proposal states no before and after. The change, in its own words: “{summary}”.",
+      "becomes": "becomes",
+      "line": "Line",
+      "before": "Before",
+      "after": "After"
+    },
+    "effect": {
+      "profit": "profit {span}, downside to upside",
+      "likeliest": "likeliest: {statement}",
+      "none": "No money effect was forecast for this one.",
+      "noRange": "No money range was forecast for this one — the cases, in words:",
+      "case": {
+        "downside": "downside",
+        "likeliest": "likeliest",
+        "upside": "upside"
+      },
+      "workedOut": "worked out as {formula}"
+    },
+    "evidence": {
+      "none": "This proposal lists no assumptions.",
+      "leans": "the conclusion leans hard on this",
+      "notRecorded": "NOT RECORDED",
+      "disagree": "{count, plural, one {# source disagrees} other {# sources disagree}}",
+      "breakEven": "Breakeven",
+      "manual": "You told me: “{limits}” — weigh this against that yourself; I can’t check it for you."
+    },
+    "decisions": "Decisions",
+    "stats": "Median time from draft to decision this month: {median} · approved {approved} of {decided}",
+    "empty": {
+      "title": "Nothing needs a decision.",
+      "lede": "Proposals come from your latest diagnosis report, from changes the watching loop spots in your numbers, from goals that slip, from ad and content reviews, and from things you ask for in chat. Each one lands here first — what will happen, what it rests on, and what declining means. Nothing runs without your yes.",
+      "check": "Check the latest report for proposals"
+    },
+    "held": {
+      "label": "Held back on your instruction · {count}",
+      "stamp": "HELD BACK · will not be proposed",
+      "note": "I wrote this up and then blocked it myself — you said “{limit}”."
+    },
+    "m": {
+      "changes": "What changes",
+      "expected": "Expected · estimated",
+      "expectedSpan": "Expected, {span} · estimated",
+      "evidence": "{count, plural, one {Full evidence · # line} other {Full evidence · # lines}}",
+      "later": "Later",
+      "changesInstead": "Request changes instead",
+      "nothingWaiting": "Nothing waiting",
+      "waiting": "{count, plural, one {# decision waiting} other {# decisions waiting}}",
+      "position": "{n} of {of}",
+      "next": "next: {title}",
+      "foot": "Nothing runs until you approve it."
+    },
+    "decide": {
+      "label": "Your decision",
+      "decline": "Decline",
+      "changes": "Request changes",
+      "approveVerb": "Approve — {verb}",
+      "run": "If approved, run",
+      "halted": "Everything is stopped right now: nothing runs until you start again.",
+      "readOnly": "You can read everything here."
+    },
+    "sheet": {
+      "ref": "Proposal {ref} · drafted {when}",
+      "from": "from {origin}",
+      "deadline": "Decide by {day}. Unanswered by then, it expires: not approved — nothing ran.",
+      "s1": "{n} · What changes — before → after",
+      "s2": "{n} · Expected effect · estimated",
+      "s2Span": "{n} · Expected effect, {span} · estimated",
+      "s3": "{n} · Evidence — every line with its source",
+      "s4": "{n} · Reversibility"
+    },
+    "schedule": {
+      "planned": "at its planned time, {day} {clock}",
+      "nextRun": "on the next run after you approve",
+      "noTime": "with no set time",
+      "tomorrow": "no earlier than tomorrow",
+      "nextWeek": "no earlier than next week"
+    },
+    "bulk": {
+      "label": "Decide several together",
+      "ref": "Bulk review · every proposal keeps its own record",
+      "selected": "{count, plural, one {# selected} other {# selected}}",
+      "tick": "Tick proposals in the list",
+      "lede": "Each one is still decided separately in the record, with its own entry — this only saves you the clicks.",
+      "run": "{count, plural, one {If approved, it runs} other {If approved, all # run}}",
+      "choose": "— choose when —",
+      "noTime": "with no set time — a planned post keeps its time",
+      "need": "Choose when they run first — a bulk approval states its schedule.",
+      "approve": "Approve {count}",
+      "decline": "Decline {count}"
+    },
+    "side": {
+      "label": "Proposals",
+      "needs": "Needs a decision · {count}",
+      "keys": "J / K to move",
+      "select": "Select: {title}",
+      "perMonth": "{range} a month",
+      "today": "Decided today",
+      "youAsked": "You asked: “{words}”",
+      "youSaid": "You said: “{words}”",
+      "earlier": "Earlier · {count}",
+      "expired": "Not approved — nothing ran. It ran out of time undecided; that is not a no.",
+      "runs": "Runs {day} at the earliest.",
+      "foot": "Unanswered proposals expire on their decide-by date as “not approved — nothing ran”.",
+      "oneAtATime": "Back to one at a time"
+    },
+    "history": {
+      "approved": "APPROVED",
+      "executed": "EXECUTED",
+      "rejected": "DECLINED",
+      "changes_requested": "CHANGES REQUESTED",
+      "expired": "EXPIRED",
+      "stamp": "{word}{at} · ref {ref}"
+    },
+    "stamp": {
+      "approved": "APPROVED {when} · ref {ref}",
+      "rejected": "DECLINED {when} · ref {ref}",
+      "changes_requested": "CHANGES REQUESTED {when} · ref {ref}",
+      "deviceClock": "{clock} (this device's clock)"
+    },
+    "rev": {
+      "reversible": "REVERSIBLE · {level, select, easy {EASY} moderate {MODERATE} hard {HARD} other {{level}}} TO UNDO",
+      "reversibleWord": "REVERSIBLE",
+      "irreversible": "IRREVERSIBLE",
+      "noUndo": "No undo is declared for this — treat it as permanent.",
+      "short": "{level, select, easy {easy} moderate {moderate} hard {hard} other {{level}}} to undo",
+      "shortIrreversible": "irreversible"
+    },
+    "act": {
+      "approve": "Approve",
+      "createAd": "Create the ad, paused",
+      "goLive": "Put the ad live",
+      "pause": "Pause “{name}”",
+      "raise": "Raise “{name}” by {pct} %",
+      "send": "{count, plural, one {Send to # customer} other {Send to # customers}}",
+      "publish": "Publish to {platform}"
+    },
+    "origin": {
+      "report": "report recommendation {n}",
+      "anomaly": "an alert in your numbers",
+      "ads": "the ad review",
+      "publish": "the content plan",
+      "alert_review": "an alert review",
+      "utterance": "something you asked for",
+      "crm": "the customer review",
+      "hours": "the opening-hours review"
+    },
+    "note": {
+      "queued": "Approving queues it to run no earlier than {day}, {clock}. There is no un-approve; the emergency stop can still halt it.",
+      "noTime": "Approving records your yes with your name. With no set time, it doesn't run by itself."
+    },
+    "lapsed": "You approved this, but it lapsed before it could run — nothing ran.",
+    "card": {
+      "when": "{day}, {clock}",
+      "earlier": "earlier",
+      "expired": "This ran out of time on {day} without a decision: not approved, and nothing ran.",
+      "done": "DONE",
+      "approved": "Already decided: approved {when}.",
+      "ran": "It has run.",
+      "declined": "Already decided: declined {when}. Nothing ran.",
+      "changes": "Already answered: you asked for changes {when}. Nothing runs from it.",
+      "heldBack": "HELD BACK",
+      "blocked": "I held this back myself: you said “{said}”. It isn't up for a decision.",
+      "blockedEnded": "I held this back myself: you said “{said}” It isn't up for a decision.",
+      "notUp": "This isn't up for a decision.",
+      "noWorst": "No worst case was forecast for this one.",
+      "noLimits": "You haven't told me anything you'd never want done (question {question}), so there was nothing to check it against.",
+      "and": "and",
+      "checked": "{count, plural, one {Checked against {limits}: it doesn't go against it.} other {Checked against {limits}: it doesn't go against them.}}",
+      "cantCheck": "{count, plural, one {I can't check {limits} for you: weigh this against it yourself.} other {I can't check {limits} for you: weigh this against them yourself.}}",
+      "notRecorded": "Not recorded: {error}.",
+      "wrong": "something went wrong",
+      "decision": "Decision",
+      "loading": "Reading the proposal…",
+      "eyebrow": "proposal",
+      "signedOut": "Approving or declining is recorded with your name on it, so it needs you signed in on this device. I’ll bring you back to this proposal afterwards.",
+      "missing": "There's no such proposal here.",
+      "failed": "The proposal didn't load.",
+      "missingLede": "The link may be for another business, or wrong.",
+      "failedLede": "Something went wrong on our side. Refresh to try again.",
+      "openQueue": "Open the queue",
+      "noLines": "It states no before and after: the change is the title.",
+      "noRange": "No money range was forecast for this one.",
+      "worst": "Worst case: {worst}",
+      "limits": "Checked against your limits",
+      "answered": "Already answered",
+      "back": "Back to the queue",
+      "needSignIn": "Deciding is recorded with your name, so it needs you signed in.",
+      "signInToDecide": "Sign in to decide",
+      "declineFoot": "Declining: nothing runs and nothing changes. I record it with your reason.",
+      "wholeQueue": "See the whole queue"
+    }
+  },
+  "stop": {
+    "failed": "that didn't work",
+    "stopping": "Stopping…",
+    "stop": "Stop everything",
+    "what": "Halts every execution at once, no sign-in needed. Reading and proposing carry on.",
+    "stoppedAt": "Stopped {when} · nothing executes",
+    "stoppedShort": "Stopped · nothing executes",
+    "starting": "Starting…",
+    "yesStart": "Yes — start again",
+    "stay": "Stay stopped",
+    "startNote": "Starting again lets approved actions run. It needs you signed in.",
+    "startUp": "Start things up again",
+    "flag": "stopped · nothing will execute",
+    "title": "Everything is stopped.",
+    "titleSince": "Everything is stopped — since {when}.",
+    "copy": "Approved actions stay approved and wait. Nothing runs, nothing publishes, nothing changes on your site — including anything that was mid-flight when you stopped it. Reading, planning and proposing all carry on as normal.",
+    "youSaid": "You said: “{reason}”",
+    "yesExecute": "Yes — start executing again"
+  },
+  "history": {
+    "meta": {
+      "title": "History — SYB"
+    },
+    "kicker": "Your business · History",
+    "title": "The ledger. Append-only.",
+    "reading": "Reading the record…",
+    "label": "History",
+    "signedOut": {
+      "title": "Nothing on file for this browser.",
+      "lede": "The ledger exists once there is a business to keep it for.",
+      "start": "Start"
+    },
+    "failed": {
+      "title": "The record didn't load.",
+      "lede": "Something went wrong reading the record. Refresh to try again."
+    },
+    "today": "Today · {day}",
+    "figs": {
+      "decided": "Decided",
+      "ran": "Ran",
+      "helped": "Helped",
+      "inside": "Forecasts inside"
+    },
+    "record": "The record",
+    "show": "Show",
+    "tab": {
+      "everything": "Everything",
+      "decisions": "Decisions",
+      "ran": "Ran",
+      "measured": "Measured",
+      "facts": "Facts changed"
+    },
+    "export": "Export as CSV",
+    "empty": {
+      "everything": "Nothing on the record yet. When there is, every suggestion, decision, run and changed fact lives here for good.",
+      "decisions": "No suggestions or decisions yet.",
+      "ran": "Nothing has run. Nothing runs without your approval.",
+      "measured": "No verdicts yet. A verdict needs a run and a connected source to measure it.",
+      "facts": "No fact has been changed since it was first recorded."
+    },
+    "now": "now",
+    "kind": {
+      "proposed": "proposed",
+      "withheld": "withheld",
+      "approved": "approved",
+      "declined": "declined",
+      "expired": "expired",
+      "ran": "ran",
+      "measured": "measured",
+      "superseded": "superseded"
+    },
+    "foot": {
+      "append": "Entries can’t be edited or removed — corrections are new entries that point back.",
+      "rate": "Approval rate: {arithmetic}.",
+      "tooEarly": "{count, plural, one {# too early to judge.} other {# too early to judge.}}",
+      "unmeasured": "{count, plural, one {# unmeasured — a verdict needs a connected source.} other {# unmeasured — a verdict needs a connected source.}}",
+      "verdict": "Every verdict is arithmetic over measured days, read now — nothing is graded on intention."
+    },
+    "track": {
+      "label": "My track record",
+      "word": {
+        "inside": "inside",
+        "above": "above",
+        "below": "below",
+        "cant_tell": "can't tell",
+        "waiting": "waiting"
+      },
+      "range": "range {range}",
+      "basis": "On what basis: {basis}",
+      "happened": "What happened: {happened}",
+      "foot": "I record each forecast the moment I show it, with the range I gave, and grade it once its time has passed, from measured figures only. A grade can’t be changed.",
+      "cantTell": "“Can’t tell” means the measured figures weren’t there, or something I didn’t forecast got in the way, such as a delivery. It never counts as right."
     }
   }
 }

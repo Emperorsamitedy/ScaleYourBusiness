@@ -5,6 +5,7 @@
 // holds are many rows, and only their verdicts need to reach the browser.
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { WatchScreen } from "../../components/watch/WatchScreen";
 import { resolveAccess } from "../../lib/auth/access";
 import { logSafeError } from "../../lib/core/log-safe";
@@ -13,7 +14,10 @@ import type { WatchReading } from "../../lib/watch/signals";
 import { loadWatchReading } from "../../lib/watch/signals";
 import { watchDays } from "../../lib/watch/watch-view";
 
-export const metadata: Metadata = { title: "Watching — SYB" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("watch.meta");
+  return { title: t("title") };
+}
 export const dynamic = "force-dynamic";
 
 async function reading(): Promise<WatchReading | null> {
