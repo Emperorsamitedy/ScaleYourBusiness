@@ -15,7 +15,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { EmergencyStop } from "../execution/EmergencyStop";
+import { useTr } from "../sheet/useTr";
 import type { CardLimit, CardProposal } from "./card-model";
 import { cardState, gainLine, limitLines, undoLine, worstCase } from "./card-model";
 import type { ReasonChip } from "./queue-model";
@@ -23,6 +25,7 @@ import {
   REASON_CHIPS,
   activeChip,
   applyReasonChip,
+  chipLabel,
   approvalNote,
   changeLines,
   consequence,
@@ -53,9 +56,11 @@ type Phase =
   | { phase: "error" }
   | { phase: "ready"; data: CardData };
 
-const moduleWord = (m: string) => m.replace(/_/g, " ");
-
 export function ProposalCard({ id }: { id: string }) {
+  const t = useTranslations("proposals");
+  const { tr, locale } = useTr("proposals");
+  const w = { tr, locale };
+  const moduleWord = (m: string) => t("module", { module: m });
   const [state, setState] = useState<Phase>({ phase: "loading" });
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -102,7 +107,9 @@ export function ProposalCard({ id }: { id: string }) {
     setBusy(false);
     if (res.status === 401) return setState({ phase: "signedout" });
     if (!j.decided?.includes(id)) {
-      setNotice(`Not recorded: ${j.failed?.[0]?.error ?? j.error ?? "something went wrong"}.`);
+      setNotice(
+        t("card.notRecorded", { error: j.failed?.[0]?.error ?? j.error ?? t("card.wrong") }),
+      );
       return;
     }
     setDeclining(false);
@@ -115,7 +122,10 @@ export function ProposalCard({ id }: { id: string }) {
         <Link href="/watch" className="q-wordmark">
           SYB
         </Link>
-        <span className="q-mast-meta">{business ? `${business} · ` : ""}Decision</span>
+        <span className="q-mast-meta">
+          {business ? `${business} · ` : ""}
+          {t("card.decision")}
+        </span>
       </div>
       <div className="q-mast-row">
         <EmergencyStop variant="masthead" onState={onHaltState} />
@@ -126,7 +136,7 @@ export function ProposalCard({ id }: { id: string }) {
   if (state.phase === "loading") {
     return (
       <div className="q-app q-m">
-        <p className="q-loading">Reading the proposal…</p>
+        <p className="q-loading">{t("card.loading")}</p>
       </div>
     );
   }
@@ -137,14 +147,11 @@ export function ProposalCard({ id }: { id: string }) {
         <div className="auth-col">
           <span className="wordmark">SYB</span>
           <section className="card auth-card">
-            <span className="auth-eyebrow">proposal</span>
-            <h1 className="auth-title">Sign in to decide.</h1>
-            <p className="auth-copy">
-              Approving or declining is recorded with your name on it, so it needs you signed in on
-              this device. I&rsquo;ll bring you back to this proposal afterwards.
-            </p>
+            <span className="auth-eyebrow">{t("card.eyebrow")}</span>
+            <h1 className="auth-title">{t("signedOut.title")}</h1>
+            <p className="auth-copy">{t("card.signedOut")}</p>
             <Link className="next auth-cta" style={{ marginTop: 24 }} href={signIn}>
-              Sign in
+              {t("signedOut.signIn")}
             </Link>
           </section>
         </div>
@@ -159,15 +166,11 @@ export function ProposalCard({ id }: { id: string }) {
         <main className="q-m-main">
           <section className="q-sheet q-empty">
             <h1 className="q-title">
-              {state.phase === "missing"
-                ? "There's no such proposal here."
-                : "The proposal didn't load."}
+              {state.phase === "missing" ? t("card.missing") : t("card.failed")}
             </h1>
             <p className="q-prose">
-              {state.phase === "missing"
-                ? "The link may be for another business, or wrong."
-                : "Something went wrong on our side. Refresh to try again."}{" "}
-              <Link href="/proposals">Open the queue</Link>
+              {state.phase === "missing" ? t("card.missingLede") : t("card.failedLede")}{" "}
+              <Link href="/proposals">{t("card.openQueue")}</Link>
             </p>
           </section>
         </main>
@@ -177,12 +180,12 @@ export function ProposalCard({ id }: { id: string }) {
 
   const { data } = state;
   const p = data.proposal;
-  const st = cardState(p, new Date());
-  const gain = gainLine(p);
-  const undo = undoLine(p);
+  const st = cardState(p, new Date(), undefined, w);
+  const gain = gainLine(p, locale);
+  const undo = undoLine(p, tr);
   const lines = changeLines(p.action);
   const titleId = `card-${p.id}`;
-  const chip = activeChip(reason);
+  const chip = activeChip(reason, tr);
   const publishAt =
     typeof p.action.detail?.publish_at === "string" ? p.action.detail.publish_at : null;
   const runAt =
@@ -208,7 +211,7 @@ export function ProposalCard({ id }: { id: string }) {
           </header>
 
           <section className="q-msec">
-            <h2 className="q-mlabel">What changes</h2>
+            <h2 className="q-mlabel">{t("m.changes")}</h2>
             {lines ? (
               <dl className="q-mlines">
                 {lines.map((l) => (
@@ -216,38 +219,38 @@ export function ProposalCard({ id }: { id: string }) {
                     <dt>{l.line}</dt>
                     <dd className="fig">
                       {l.before} <span aria-hidden="true">→</span>
-                      <span className="sr-only"> becomes </span> {l.after}
+                      <span className="sr-only"> {t("change.becomes")} </span> {l.after}
                     </dd>
                   </div>
                 ))}
               </dl>
             ) : (
-              <p className="q-nolines">It states no before and after: the change is the title.</p>
+              <p className="q-nolines">{t("card.noLines")}</p>
             )}
           </section>
 
           <section className="q-msec">
-            <h2 className="q-mlabel">Expected, {effectSpan(p.action)} · estimated</h2>
+            <h2 className="q-mlabel">{t("m.expectedSpan", { span: effectSpan(p.action) })}</h2>
             {gain ? (
               <p className="q-fig fig">{gain}</p>
             ) : (
-              <p className="q-effect-words">No money range was forecast for this one.</p>
+              <p className="q-effect-words">{t("card.noRange")}</p>
             )}
-            <p className="q-mono-note">Worst case: {worstCase(p)}</p>
+            <p className="q-mono-note">{t("card.worst", { worst: worstCase(p, w) })}</p>
           </section>
 
           <section className="q-msec">
             <div className="q-rev-row">
               <span className={`word boxed q-revword${undo.reversible ? "" : " q-irrev"}`}>
-                {undo.reversible ? "REVERSIBLE" : "IRREVERSIBLE"}
+                {undo.reversible ? t("rev.reversibleWord") : t("rev.irreversible")}
               </span>
               <span className="q-rev-note">{undo.note || undo.word}</span>
             </div>
           </section>
 
           <section className="q-msec">
-            <h2 className="q-mlabel">Checked against your limits</h2>
-            {limitLines(data.limits).map((l) => (
+            <h2 className="q-mlabel">{t("card.limits")}</h2>
+            {limitLines(data.limits, tr).map((l) => (
               <p key={l} className="q-prose">
                 {l}
               </p>
@@ -255,7 +258,7 @@ export function ProposalCard({ id }: { id: string }) {
           </section>
 
           {st.kind === "closed" ? (
-            <section className="q-mdecide" aria-label="Already answered">
+            <section className="q-mdecide" aria-label={t("card.answered")}>
               <p className="q-rev-row">
                 <span className="word boxed">{st.word}</span>
                 <span className="q-rev-note" role="status">
@@ -263,20 +266,18 @@ export function ProposalCard({ id }: { id: string }) {
                 </span>
               </p>
               <Link className="q-btn" href="/proposals">
-                Back to the queue <span aria-hidden="true">→</span>
+                {t("card.back")} <span aria-hidden="true">→</span>
               </Link>
             </section>
           ) : !data.signed_in ? (
-            <section className="q-mdecide" aria-label="Your decision">
-              <p className="q-approve-note">
-                Deciding is recorded with your name, so it needs you signed in.
-              </p>
+            <section className="q-mdecide" aria-label={t("decide.label")}>
+              <p className="q-approve-note">{t("card.needSignIn")}</p>
               <Link className="q-btn" href={signIn}>
-                Sign in to decide <span aria-hidden="true">→</span>
+                {t("card.signInToDecide")} <span aria-hidden="true">→</span>
               </Link>
             </section>
           ) : (
-            <section className="q-mdecide" aria-label="Your decision">
+            <section className="q-mdecide" aria-label={t("decide.label")}>
               <div className="q-mpair">
                 <button
                   type="button"
@@ -284,7 +285,7 @@ export function ProposalCard({ id }: { id: string }) {
                   disabled={busy || Boolean(data.decide_why)}
                   onClick={() => void decide("approve")}
                 >
-                  {consequence(p.action)} <span aria-hidden="true">→</span>
+                  {consequence(p.action, tr, locale)} <span aria-hidden="true">→</span>
                 </button>
                 <button
                   type="button"
@@ -293,13 +294,13 @@ export function ProposalCard({ id }: { id: string }) {
                   aria-expanded={declining}
                   onClick={() => setDeclining((d) => !d)}
                 >
-                  Decline <span aria-hidden="true">→</span>
+                  {t("decide.decline")} <span aria-hidden="true">→</span>
                 </button>
               </div>
               {declining && (
                 <div className="q-panel">
                   <p className="q-panel-label" id={`why-${p.id}`}>
-                    Why not? One tap is enough
+                    {t("reason.why")}
                   </p>
                   <div className="q-chips" role="group" aria-labelledby={`why-${p.id}`}>
                     {REASON_CHIPS.map((c: ReasonChip) => (
@@ -308,51 +309,49 @@ export function ProposalCard({ id }: { id: string }) {
                         type="button"
                         className="q-chip"
                         aria-pressed={chip === c}
-                        onClick={() => setReason(applyReasonChip(reason, c))}
+                        onClick={() => setReason(applyReasonChip(reason, c, tr))}
                       >
-                        {c}
+                        {chipLabel(c, tr)}
                       </button>
                     ))}
                   </div>
                   <label className="sr-only" htmlFor={`reason-${p.id}`}>
-                    Your reason, in your words
+                    {t("reason.label")}
                   </label>
                   <textarea
                     id={`reason-${p.id}`}
                     className="q-text"
-                    placeholder="Or say it in a sentence — I learn from it."
+                    placeholder={t("reason.placeholder")}
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                   />
-                  <p className="q-panel-foot">
-                    Declining: nothing runs and nothing changes. I record it with your reason.
-                  </p>
+                  <p className="q-panel-foot">{t("card.declineFoot")}</p>
                   <button
                     type="button"
                     className="q-btn q-btn-inline"
                     disabled={busy || Boolean(data.decide_why) || reason.trim() === ""}
                     onClick={() => void decide("reject")}
                   >
-                    Record the decline <span aria-hidden="true">→</span>
+                    {t("reason.record")} <span aria-hidden="true">→</span>
                   </button>
                 </div>
               )}
               <p className="q-approve-note">
-                {approvalNote({ runAt, sending: p.action.detail?.sending })}
-                {halted && " Everything is stopped right now: nothing runs until you start again."}
+                {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale })}
+                {halted && ` ${t("decide.halted")}`}
               </p>
               {data.decide_why && (
                 <p className="q-role-note" role="note">
-                  {data.decide_why} You can read everything here.
+                  {data.decide_why} {t("decide.readOnly")}
                 </p>
               )}
               <Link className="q-quiet" href="/proposals">
-                See the whole queue
+                {t("card.wholeQueue")}
               </Link>
             </section>
           )}
         </article>
-        <p className="q-m-foot">Nothing runs until you approve it.</p>
+        <p className="q-m-foot">{t("m.foot")}</p>
       </main>
     </div>
   );

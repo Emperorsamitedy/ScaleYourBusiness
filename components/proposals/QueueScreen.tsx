@@ -30,12 +30,18 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { RangeBar } from "../sheet/RangeBar";
 import { moneyText } from "../sheet/num";
-import type { BasisInput } from "../report/basis";
+import { useTr } from "../sheet/useTr";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import type { Basis, BasisInput } from "../report/basis";
+import { BASES, basisName } from "../report/basis";
 import {
   REASON_CHIPS,
+  chipLabel,
   adFacts,
   effectSpan,
   type Decision,
@@ -161,29 +167,39 @@ const DECISION_OF: Record<ApiDecision, Decision> = {
   request_changes: "changes_requested",
 };
 
-const HISTORY_WORD: Record<string, string> = {
-  approved: "APPROVED",
-  executed: "EXECUTED",
-  rejected: "DECLINED",
-  changes_requested: "CHANGES REQUESTED",
-  expired: "EXPIRED",
-};
+const HISTORY_STATUSES = new Set([
+  "approved",
+  "executed",
+  "rejected",
+  "changes_requested",
+  "expired",
+]);
 
 function scheduleOptions(
+  w: QWords,
   publishAt: string | undefined,
   onApproval = false,
 ): { key: ScheduleKey; label: string }[] {
   const planned =
     publishAt && !Number.isNaN(Date.parse(publishAt))
-      ? `at its planned time, ${dayWord(publishAt)} ${clockWord(publishAt)}`
+      ? w.tr("schedule.planned", {
+          day: dayWord(publishAt, undefined, w.locale),
+          clock: clockWord(publishAt, undefined, w.locale),
+        })
       : onApproval
-        ? "on the next run after you approve"
-        : "with no set time";
+        ? w.tr("schedule.nextRun")
+        : w.tr("schedule.noTime");
   return [
     { key: "now", label: planned },
-    { key: "tomorrow", label: "no earlier than tomorrow" },
-    { key: "next_week", label: "no earlier than next week" },
+    { key: "tomorrow", label: w.tr("schedule.tomorrow") },
+    { key: "next_week", label: w.tr("schedule.nextWeek") },
   ];
+}
+
+/** The queue's words and the reader's locale. */
+interface QWords {
+  tr: Tr;
+  locale: AppLocale;
 }
 
 /** The execute_not_before an approval would carry: the owner's pick, else the planned time. */
@@ -218,13 +234,14 @@ function useNarrow(): boolean {
   );
 }
 
-const moduleWord = (m: string) => m.replace(/_/g, " ");
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
 
-function historyStamp(p: Proposal): string {
-  const word = HISTORY_WORD[p.status] ?? p.status.toUpperCase();
-  const at = p.decided_at ? ` ${clockWord(p.decided_at)}` : "";
-  return `${word}${at} · ref ${shortRef(p.id)}`;
+function historyStamp(p: Proposal, w: QWords): string {
+  const word = HISTORY_STATUSES.has(p.status)
+    ? w.tr(`history.${p.status}`)
+    : p.status.toUpperCase();
+  const at = p.decided_at ? ` ${clockWord(p.decided_at, undefined, w.locale)}` : "";
+  return w.tr("history.stamp", { word, at, ref: shortRef(p.id) });
 }
 
 function effectOf(p: Proposal) {
@@ -232,6 +249,15 @@ function effectOf(p: Proposal) {
 }
 
 export function QueueScreen() {
+  const t = useTranslations("proposals");
+  const { tr, locale } = useTr("proposals");
+  const w: QWords = { tr, locale };
+  const st = useTr("sheet").tr;
+  const moduleWord = (m: string) => t("module", { module: m });
+  const evidenceBasis = (b: string) =>
+    (BASES as readonly string[]).includes(b)
+      ? basisName(b as Basis, st)
+      : t("evidence.notRecorded");
   const narrow = useNarrow();
   // Idea 52: a viewer reads the queue; deciding is an owner's or a manager's.
   const role = useRole();
@@ -345,7 +371,7 @@ export function QueueScreen() {
     const clientAt = new Date().toISOString();
     const j = (await res.json().catch(() => ({}))) as DecideResult;
     if (res.status === 401 || res.status === 422 || (!res.ok && !j.decided)) {
-      setState({ ...ready, busy: false, notice: j.error ?? "that decision wasn't recorded" });
+      setState({ ...ready, busy: false, notice: j.error ?? t("notRecorded") });
       return;
     }
     const decided = j.decided ?? [];
@@ -385,7 +411,7 @@ export function QueueScreen() {
 
     const failNote =
       failed.length > 0
-        ? `${failed.length} not recorded: ${failed.map((f) => f.error).join("; ")}.`
+        ? t("failNote", { count: failed.length, errors: failed.map((f) => f.error).join("; ") })
         : null;
     setState({ phase: "ready", queue: fresh, busy: false, notice: failNote });
 
@@ -394,12 +420,14 @@ export function QueueScreen() {
     const said =
       first && firstStamp
         ? decided.length === 1
-          ? stampText(first, firstStamp)
-          : `${decided.length} proposals ${verdict === "approved" ? "approved" : "declined"}`
-        : "Nothing was recorded";
+          ? stampText(first, firstStamp, undefined, tr, locale)
+          : verdict === "approved"
+            ? t("announce.approved", { count: decided.length })
+            : t("announce.declined", { count: decided.length })
+        : t("announce.nothing");
     const nextTitle = next ? fresh.pending.find((p) => p.id === next)?.action.summary : null;
     setAnnounce(
-      `${said}.${failNote ? ` ${failNote}` : ""}${nextTitle ? ` Next: ${nextTitle}` : " Nothing else needs a decision."}`,
+      `${said}.${failNote ? ` ${failNote}` : ""} ${nextTitle ? t("announce.next", { title: nextTitle }) : t("announce.none")}`,
     );
   };
 
@@ -481,7 +509,7 @@ export function QueueScreen() {
   if (state.phase === "loading") {
     return (
       <div className="q-app">
-        <p className="q-loading">Reading the queue…</p>
+        <p className="q-loading">{t("loading")}</p>
       </div>
     );
   }
@@ -492,14 +520,11 @@ export function QueueScreen() {
         <div className="auth-col">
           <span className="wordmark">SYB</span>
           <section className="card auth-card">
-            <span className="auth-eyebrow">proposals</span>
-            <h1 className="auth-title">Sign in to decide.</h1>
-            <p className="auth-copy">
-              Approving or declining a proposal is recorded with your name on it — that needs you
-              signed in, not just this browser.
-            </p>
+            <span className="auth-eyebrow">{t("signedOut.eyebrow")}</span>
+            <h1 className="auth-title">{t("signedOut.title")}</h1>
+            <p className="auth-copy">{t("signedOut.copy")}</p>
             <Link className="next auth-cta" style={{ marginTop: 24 }} href="/login">
-              Sign in
+              {t("signedOut.signIn")}
             </Link>
           </section>
         </div>
@@ -533,7 +558,7 @@ export function QueueScreen() {
 
   const reasonBox = (key: string, count: number) => {
     const reason = reasons[key] ?? "";
-    const chip = activeChip(reason);
+    const chip = activeChip(reason, tr);
     const setReason = (v: string) => {
       setReasons((cur) => ({ ...cur, [key]: v }));
       if (v.trim() !== "" && needs[key] === "reason") setNeed(key, null);
@@ -541,7 +566,7 @@ export function QueueScreen() {
     return (
       <div className="q-panel">
         <p className="q-panel-label" id={`why-${key}`}>
-          Why not{count > 1 ? `, for all ${count}` : ""}? One tap is enough
+          {count > 1 ? t("reason.whyAll", { count }) : t("reason.why")}
         </p>
         <div className="q-chips" role="group" aria-labelledby={`why-${key}`}>
           {REASON_CHIPS.map((c: ReasonChip, i) => (
@@ -551,38 +576,36 @@ export function QueueScreen() {
               type="button"
               className="q-chip"
               aria-pressed={chip === c}
-              onClick={() => setReason(applyReasonChip(reason, c))}
+              onClick={() => setReason(applyReasonChip(reason, c, tr))}
             >
-              {c}
+              {chipLabel(c, tr)}
             </button>
           ))}
         </div>
         <label className="sr-only" htmlFor={`reason-${key}`}>
-          Your reason, in your words
+          {t("reason.label")}
         </label>
         <textarea
           id={`reason-${key}`}
           className="q-text"
-          placeholder="Or say it in a sentence — I learn from it."
+          placeholder={t("reason.placeholder")}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
         />
         {needs[key] === "reason" && (
           <p className="q-need" role="alert">
-            Pick a reason first — declining asks why, and the record keeps your answer.
+            {t("reason.need")}
           </p>
         )}
-        <p className="q-panel-foot">
-          Declining: nothing runs and nothing changes. I record it with your reason and don&rsquo;t
-          act on it.
-        </p>
+        <p className="q-panel-foot">{t("reason.foot")}</p>
         <button
           type="button"
           className="q-btn q-btn-inline"
           disabled={busy || !mayDecide || reason.trim() === ""}
           onClick={() => (key === BULK ? declineFor(BULK, [...picked]) : declineFor(key, [key]))}
         >
-          Record the decline{count > 1 ? ` for ${count}` : ""} <span aria-hidden="true">→</span>
+          {count > 1 ? t("reason.recordAll", { count }) : t("reason.record")}{" "}
+          <span aria-hidden="true">→</span>
         </button>
       </div>
     );
@@ -593,12 +616,12 @@ export function QueueScreen() {
     return (
       <div className="q-panel">
         <label className="q-panel-label" htmlFor={`changes-${id}`}>
-          What should be different?
+          {t("changes.label")}
         </label>
         <textarea
           id={`changes-${id}`}
           className="q-text"
-          placeholder="e.g. only last year's customers, and no discount."
+          placeholder={t("changes.placeholder")}
           value={words}
           onChange={(e) => {
             setChanges((cur) => ({ ...cur, [id]: e.target.value }));
@@ -607,20 +630,17 @@ export function QueueScreen() {
         />
         {needs[id] === "changes" && (
           <p className="q-need" role="alert">
-            Say what should change first — the record keeps your words.
+            {t("changes.need")}
           </p>
         )}
-        <p className="q-panel-foot">
-          Not approved, and not a no: nothing runs. Your words go on the record with your name. A
-          redraft isn&rsquo;t automatic yet.
-        </p>
+        <p className="q-panel-foot">{t("changes.foot")}</p>
         <button
           type="button"
           className="q-btn q-btn-inline"
           disabled={busy || !mayDecide || words.trim() === ""}
           onClick={() => changesFor(id)}
         >
-          Record the request <span aria-hidden="true">→</span>
+          {t("changes.record")} <span aria-hidden="true">→</span>
         </button>
       </div>
     );
@@ -629,12 +649,7 @@ export function QueueScreen() {
   const changeBlock = (p: Proposal, compact: boolean) => {
     const lines = changeLines(p.action);
     if (!lines) {
-      return (
-        <p className="q-nolines">
-          This proposal states no before and after. The change, in its own words: “
-          {p.action.summary}”.
-        </p>
-      );
+      return <p className="q-nolines">{t("change.none", { summary: p.action.summary })}</p>;
     }
     if (compact) {
       return (
@@ -644,7 +659,7 @@ export function QueueScreen() {
               <dt>{l.line}</dt>
               <dd className="fig">
                 {l.before} <span aria-hidden="true">→</span>
-                <span className="sr-only"> becomes </span> {l.after}
+                <span className="sr-only"> {t("change.becomes")} </span> {l.after}
               </dd>
             </div>
           ))}
@@ -655,9 +670,9 @@ export function QueueScreen() {
       <table className="rt q-lines">
         <thead>
           <tr>
-            <th scope="col">Line</th>
-            <th scope="col">Before</th>
-            <th scope="col">After</th>
+            <th scope="col">{t("change.line")}</th>
+            <th scope="col">{t("change.before")}</th>
+            <th scope="col">{t("change.after")}</th>
           </tr>
         </thead>
         <tbody>
@@ -708,11 +723,13 @@ export function QueueScreen() {
         <div className={compact ? "q-effect q-effect-m" : "q-effect"}>
           <div className="q-effect-fig">
             <p className="q-fig fig">
-              {signedMoney(range.low)} – {signedMoney(range.high)}
+              {signedMoney(range.low, locale)} – {signedMoney(range.high, locale)}
             </p>
             <p className="q-mono-note">
-              profit {effectSpan(p.action)}, downside to upside
-              {!compact && base?.statement ? ` · likeliest: ${base.statement}` : ""}
+              {t("effect.profit", { span: effectSpan(p.action) })}
+              {!compact && base?.statement
+                ? ` · ${t("effect.likeliest", { statement: base.statement })}`
+                : ""}
             </p>
           </div>
           <div className="q-axis">
@@ -723,8 +740,8 @@ export function QueueScreen() {
             />
             {!compact && (
               <div className="q-ticks" aria-hidden="true">
-                {axis.ticks.map((t) => (
-                  <span key={t}>{moneyText(t, cur)}</span>
+                {axis.ticks.map((x) => (
+                  <span key={x}>{moneyText(x, cur, locale)}</span>
                 ))}
               </div>
             )}
@@ -733,11 +750,7 @@ export function QueueScreen() {
       );
     }
     if (compact) {
-      return (
-        <p className="q-effect-words">
-          {base?.statement ?? "No money effect was forecast for this one."}
-        </p>
-      );
+      return <p className="q-effect-words">{base?.statement ?? t("effect.none")}</p>;
     }
     const cases = (
       [
@@ -748,16 +761,16 @@ export function QueueScreen() {
     ).flatMap(([name, c]) => (c?.statement ? [{ name, c }] : []));
     return (
       <div className="q-effect-none">
-        <p className="q-mono-note">
-          No money range was forecast for this one — the cases, in words:
-        </p>
+        <p className="q-mono-note">{t("effect.noRange")}</p>
         <dl className="q-cases">
           {cases.map(({ name, c }) => (
             <div key={name} className="q-case">
-              <dt>{name}</dt>
+              <dt>{t(`effect.case.${name}`)}</dt>
               <dd>
                 {c.statement}
-                {c.formula && <span className="q-formula">worked out as {c.formula}</span>}
+                {c.formula && (
+                  <span className="q-formula">{t("effect.workedOut", { formula: c.formula })}</span>
+                )}
               </dd>
             </div>
           ))}
@@ -776,19 +789,17 @@ export function QueueScreen() {
     return (
       <>
         {lines.length === 0 ? (
-          <p className="q-nolines">This proposal lists no assumptions.</p>
+          <p className="q-nolines">{t("evidence.none")}</p>
         ) : (
           <ul className="q-evidence">
             {lines.map((l, i) => (
               <li key={`${i}-${l.statement}`}>
                 <span className="q-ev-text">
                   {l.statement}
-                  {l.leansHard && (
-                    <span className="q-leans">the conclusion leans hard on this</span>
-                  )}
+                  {l.leansHard && <span className="q-leans">{t("evidence.leans")}</span>}
                 </span>
                 <span className="q-ev-src">
-                  {l.source} · <b>{l.basis}</b>
+                  {l.source} · <b>{evidenceBasis(l.basis)}</b>
                 </span>
               </li>
             ))}
@@ -796,18 +807,18 @@ export function QueueScreen() {
         )}
         {disagree.map((d) => (
           <p key={d.finding_id} className="q-disagree">
-            <span className="q-disagree-word">{d.field_keys.length} sources disagree</span>{" "}
+            <span className="q-disagree-word">
+              {t("evidence.disagree", { count: d.field_keys.length })}
+            </span>{" "}
             {d.message}
           </p>
         ))}
         <p className="q-breakeven">
-          <span className="q-mono-label">Breakeven</span> {p.scenario.breakeven_condition}
+          <span className="q-mono-label">{t("evidence.breakEven")}</span>{" "}
+          {p.scenario.breakeven_condition}
         </p>
         {manual.length > 0 && (
-          <p className="q-manual">
-            You told me: “{manual.join("” · “")}” — weigh this against that yourself; I can&rsquo;t
-            check it for you.
-          </p>
+          <p className="q-manual">{t("evidence.manual", { limits: manual.join("” · “") })}</p>
         )}
       </>
     );
@@ -819,13 +830,19 @@ export function QueueScreen() {
         <Link href="/watch" className="q-wordmark">
           SYB
         </Link>
-        <span className="q-mast-meta">{q.business ? `${q.business} · ` : ""}Decisions</span>
+        <span className="q-mast-meta">
+          {q.business ? `${q.business} · ` : ""}
+          {t("decisions")}
+        </span>
       </div>
       <div className="q-mast-right">
         {stats && (
           <span className="q-mast-stats">
-            Median time from draft to decision this month: {durationWord(stats.medianMs)} · approved{" "}
-            {stats.approved} of {stats.decided}
+            {t("stats", {
+              median: durationWord(stats.medianMs),
+              approved: stats.approved,
+              decided: stats.decided,
+            })}
           </span>
         )}
         <EmergencyStop variant="masthead" onState={onHaltState} />
@@ -848,14 +865,9 @@ export function QueueScreen() {
   const emptySheet = (
     <section className="q-sheet q-empty">
       <h1 className="q-title" tabIndex={-1} ref={emptyRef}>
-        Nothing needs a decision.
+        {t("empty.title")}
       </h1>
-      <p className="q-prose">
-        Proposals come from your latest diagnosis report, from changes the watching loop spots in
-        your numbers, from goals that slip, from ad and content reviews, and from things you ask for
-        in chat. Each one lands here first — what will happen, what it rests on, and what declining
-        means. Nothing runs without your yes.
-      </p>
+      <p className="q-prose">{t("empty.lede")}</p>
       <button
         type="button"
         className="q-btn q-btn-inline"
@@ -863,7 +875,7 @@ export function QueueScreen() {
         title={role.why("proposals.generate") ?? undefined}
         onClick={() => void generate()}
       >
-        Check the latest report for proposals <span aria-hidden="true">→</span>
+        {t("empty.check")} <span aria-hidden="true">→</span>
       </button>
     </section>
   );
@@ -871,16 +883,15 @@ export function QueueScreen() {
   const heldBack = q.blocked.length > 0 && (
     <section className="q-side-sec" aria-labelledby="q-held">
       <h2 className="q-side-label" id="q-held">
-        Held back on your instruction · {q.blocked.length}
+        {t("held.label", { count: q.blocked.length })}
       </h2>
       <ul className="q-side-list">
         {q.blocked.map((p) => (
           <li key={p.id}>
-            <p className="q-side-stamp">HELD BACK · will not be proposed</p>
+            <p className="q-side-stamp">{t("held.stamp")}</p>
             <p className="q-side-title">{p.action.summary}</p>
             <p className="q-side-note">
-              I wrote this up and then blocked it myself — you said “
-              {p.blocked_by_limit?.replace(/^13\.5:\s*/, "")}”.
+              {t("held.note", { limit: p.blocked_by_limit?.replace(/^13\.5:\s*/, "") ?? "" })}
             </p>
           </li>
         ))}
@@ -896,10 +907,11 @@ export function QueueScreen() {
     return (
       <ul className="q-m-stamps">
         {mine.map((p) => {
-          const st = stamps[p.id] as Stamp;
+          const sp = stamps[p.id] as Stamp;
           return (
             <li key={p.id}>
-              <span className="q-stamp-word">{stampText(p.id, st)}</span> {p.action.summary}
+              <span className="q-stamp-word">{stampText(p.id, sp, undefined, tr, locale)}</span>{" "}
+              {p.action.summary}
             </li>
           );
         })}
@@ -908,7 +920,7 @@ export function QueueScreen() {
   };
 
   const mobileCard = (p: Proposal) => {
-    const rev = reversibilityLabel(p.reversibility, p.action.detail);
+    const rev = reversibilityLabel(p.reversibility, p.action.detail, tr);
     const lines = evidenceLines(p.scenario.assumptions, facts);
     const shown = evidenceOpen[p.id] === true;
     const range = effectOf(p);
@@ -925,20 +937,20 @@ export function QueueScreen() {
           </h2>
         </header>
         <section className="q-msec">
-          <h3 className="q-mlabel">What changes</h3>
+          <h3 className="q-mlabel">{t("m.changes")}</h3>
           {changeBlock(p, true)}
           {adBlock(p)}
         </section>
         <section className="q-msec">
           <h3 className="q-mlabel">
-            Expected{range ? `, ${effectSpan(p.action)}` : ""} · estimated
+            {range ? t("m.expectedSpan", { span: effectSpan(p.action) }) : t("m.expected")}
           </h3>
           {effectBlock(p, true)}
         </section>
         <section className="q-msec">
           <div className="q-rev-row">
             <span className={`word boxed q-revword${rev.reversible ? "" : " q-irrev"}`}>
-              {rev.reversible ? "REVERSIBLE" : "IRREVERSIBLE"}
+              {rev.reversible ? t("rev.reversibleWord") : rev.word}
             </span>
             <span className="q-rev-note">{rev.note}</span>
           </div>
@@ -949,7 +961,7 @@ export function QueueScreen() {
             aria-controls={`ev-${p.id}`}
             onClick={() => setEvidenceOpen((cur) => ({ ...cur, [p.id]: !shown }))}
           >
-            Full evidence · {lines.length} line{lines.length === 1 ? "" : "s"}{" "}
+            {t("m.evidence", { count: lines.length })}{" "}
             <span aria-hidden="true">{shown ? "↑" : "→"}</span>
           </button>
           {shown && (
@@ -958,14 +970,14 @@ export function QueueScreen() {
             </div>
           )}
         </section>
-        <section className="q-mdecide" aria-label="Your decision">
+        <section className="q-mdecide" aria-label={t("decide.label")}>
           <button
             type="button"
             className="q-btn q-primary"
             disabled={busy || !mayDecide}
             onClick={() => approveFor(p)}
           >
-            <span>{consequence(p.action)}</span> <span aria-hidden="true">→</span>
+            <span>{consequence(p.action, tr, locale)}</span> <span aria-hidden="true">→</span>
           </button>
           <div className="q-mpair">
             <button
@@ -974,7 +986,7 @@ export function QueueScreen() {
               disabled={busy || !mayDecide}
               onClick={() => declineFor(p.id, [p.id])}
             >
-              Decline
+              {t("decide.decline")}
             </button>
             <button
               type="button"
@@ -982,7 +994,7 @@ export function QueueScreen() {
               disabled={busy || pendingIds.length < 2}
               onClick={later}
             >
-              Later
+              {t("m.later")}
             </button>
           </div>
           <button
@@ -991,17 +1003,17 @@ export function QueueScreen() {
             disabled={busy || !mayDecide}
             onClick={() => changesFor(p.id)}
           >
-            Request changes instead
+            {t("m.changesInstead")}
           </button>
           {panels[p.id] === "decline" && reasonBox(p.id, 1)}
           {panels[p.id] === "changes" && changesBox(p.id)}
           <p className="q-approve-note">
-            {approvalNote({ runAt, sending: p.action.detail?.sending })}
-            {halted && " Everything is stopped right now: nothing runs until you start again."}
+            {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale })}
+            {halted && ` ${t("decide.halted")}`}
           </p>
           {decideWhy && (
             <p className="q-role-note" role="note">
-              {decideWhy} You can read everything here.
+              {decideWhy} {t("decide.readOnly")}
             </p>
           )}
         </section>
@@ -1028,13 +1040,13 @@ export function QueueScreen() {
           <div className="q-mast-row q-mast-big">
             <h1 className="q-waiting">
               {q.pending.length === 0
-                ? "Nothing waiting"
-                : `${q.pending.length} decision${q.pending.length === 1 ? "" : "s"} waiting`}
+                ? t("m.nothingWaiting")
+                : t("m.waiting", { count: q.pending.length })}
             </h1>
             {open && (
               <p className="q-pos">
-                {idx + 1} of {pendingIds.length}
-                {nextP ? ` · next: ${clip(nextP.action.summary, 34)}` : ""}
+                {t("m.position", { n: idx + 1, of: pendingIds.length })}
+                {nextP ? ` · ${t("m.next", { title: clip(nextP.action.summary, 34) })}` : ""}
               </p>
             )}
           </div>
@@ -1047,7 +1059,7 @@ export function QueueScreen() {
           {noticeBox}
           {stampedNotes()}
           {open ? mobileCard(open) : emptySheet}
-          <p className="q-m-foot">Nothing runs until you approve it.</p>
+          <p className="q-m-foot">{t("m.foot")}</p>
           {heldBack}
         </main>
       </div>
@@ -1057,36 +1069,38 @@ export function QueueScreen() {
   /* ── desktop: the list and the sheet ── */
 
   const sheet = (p: Proposal) => {
-    const rev = reversibilityLabel(p.reversibility, p.action.detail);
+    const rev = reversibilityLabel(p.reversibility, p.action.detail, tr);
     const titleId = `t-${p.id}`;
-    const origin = originWord(p.originating_finding);
+    const origin = originWord(p.originating_finding, tr);
     const range = effectOf(p);
     const schedule = schedules[p.id] ?? "now";
     const runAt = runAtFor(p, schedule, Date.now());
-    const verb = consequence(p.action);
+    const verb = consequence(p.action, tr, locale);
+    const plain = verb === consequence({ summary: "" }, tr, locale);
     const sameDay = isSameDay(p.created_at, now);
     return (
       <article className="q-sheet" aria-labelledby={titleId} key={p.id}>
         <header className="q-sheet-head">
           <p className="q-ref">
-            Proposal {shortRef(p.id)} · drafted{" "}
-            {sameDay
-              ? clockWord(p.created_at)
-              : `${dayWord(p.created_at)} ${clockWord(p.created_at)}`}
-            {origin ? ` · from ${origin}` : ""}
+            {t("sheet.ref", {
+              ref: shortRef(p.id),
+              when: sameDay
+                ? clockWord(p.created_at, undefined, locale)
+                : `${dayWord(p.created_at, undefined, locale)} ${clockWord(p.created_at, undefined, locale)}`,
+            })}
+            {origin ? ` · ${t("sheet.from", { origin })}` : ""}
           </p>
           <h1 id={titleId} className="q-title">
             {p.action.summary}
           </h1>
           <p className="q-deadline">
-            Decide by {dayWord(p.expires_at)}. Unanswered by then, it expires: not approved —
-            nothing ran.
+            {t("sheet.deadline", { day: dayWord(p.expires_at, undefined, locale) })}
           </p>
         </header>
 
         <section className="q-sec" aria-labelledby={`s1-${p.id}`}>
           <h2 className="q-h" id={`s1-${p.id}`}>
-            1 · What changes — before → after
+            {t("sheet.s1", { n: 1 })}
           </h2>
           {changeBlock(p, false)}
           {adBlock(p)}
@@ -1095,21 +1109,23 @@ export function QueueScreen() {
 
         <section className="q-sec" aria-labelledby={`s2-${p.id}`}>
           <h2 className="q-h" id={`s2-${p.id}`}>
-            2 · Expected effect{range ? `, ${effectSpan(p.action)}` : ""} · estimated
+            {range
+              ? t("sheet.s2Span", { n: 2, span: effectSpan(p.action) })
+              : t("sheet.s2", { n: 2 })}
           </h2>
           {effectBlock(p, false)}
         </section>
 
         <section className="q-sec" aria-labelledby={`s3-${p.id}`}>
           <h2 className="q-h" id={`s3-${p.id}`}>
-            3 · Evidence — every line with its source
+            {t("sheet.s3", { n: 3 })}
           </h2>
           {evidenceBlock(p)}
         </section>
 
         <section className="q-sec q-sec-rev" aria-labelledby={`s4-${p.id}`}>
           <h2 className="q-h" id={`s4-${p.id}`}>
-            4 · Reversibility
+            {t("sheet.s4", { n: 4 })}
           </h2>
           <span className={`word boxed q-revword${rev.reversible ? "" : " q-irrev"}`}>
             {rev.word}
@@ -1117,9 +1133,9 @@ export function QueueScreen() {
           <p className="q-rev-note">{rev.note}</p>
         </section>
 
-        <section className="q-decide" aria-label="Your decision">
+        <section className="q-decide" aria-label={t("decide.label")}>
           <div className="q-schedule">
-            <label htmlFor={`sched-${p.id}`}>If approved, run</label>
+            <label htmlFor={`sched-${p.id}`}>{t("decide.run")}</label>
             <select
               id={`sched-${p.id}`}
               className="q-select"
@@ -1129,6 +1145,7 @@ export function QueueScreen() {
               }
             >
               {scheduleOptions(
+                w,
                 p.action.detail?.publish_at,
                 p.action.detail?.execute_on_approval === true,
               ).map((s) => (
@@ -1147,8 +1164,7 @@ export function QueueScreen() {
               onClick={() => approveFor(p)}
             >
               <span>
-                {verb === "Approve" ? "Approve" : `Approve — ${verb}`}{" "}
-                <span aria-hidden="true">→</span>
+                {plain ? verb : t("decide.approveVerb", { verb })} <span aria-hidden="true">→</span>
               </span>
               <kbd aria-hidden="true">A</kbd>
             </button>
@@ -1160,7 +1176,7 @@ export function QueueScreen() {
               aria-expanded={panels[p.id] === "changes"}
               onClick={() => changesFor(p.id)}
             >
-              <span>Request changes</span>
+              <span>{t("decide.changes")}</span>
               <kbd aria-hidden="true">R</kbd>
             </button>
             <button
@@ -1171,19 +1187,19 @@ export function QueueScreen() {
               aria-expanded={panels[p.id] === "decline"}
               onClick={() => declineFor(p.id, [p.id])}
             >
-              <span>Decline</span>
+              <span>{t("decide.decline")}</span>
               <kbd aria-hidden="true">D</kbd>
             </button>
           </div>
           {panels[p.id] === "decline" && reasonBox(p.id, 1)}
           {panels[p.id] === "changes" && changesBox(p.id)}
           <p className="q-approve-note">
-            {approvalNote({ runAt, sending: p.action.detail?.sending })}
-            {halted && " Everything is stopped right now: nothing runs until you start again."}
+            {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale })}
+            {halted && ` ${t("decide.halted")}`}
           </p>
           {decideWhy && (
             <p className="q-role-note" role="note">
-              {decideWhy} You can read everything here.
+              {decideWhy} {t("decide.readOnly")}
             </p>
           )}
         </section>
@@ -1192,21 +1208,18 @@ export function QueueScreen() {
   };
 
   const bulkSheet = (
-    <section className="q-sheet q-bulk" aria-label="Decide several together">
+    <section className="q-sheet q-bulk" aria-label={t("bulk.label")}>
       <header className="q-sheet-head">
-        <p className="q-ref">Bulk review · every proposal keeps its own record</p>
+        <p className="q-ref">{t("bulk.ref")}</p>
         <h1 className="q-title">
-          {picked.size > 0 ? `${picked.size} selected` : "Tick proposals in the list"}
+          {picked.size > 0 ? t("bulk.selected", { count: picked.size }) : t("bulk.tick")}
         </h1>
-        <p className="q-deadline">
-          Each one is still decided separately in the record, with its own entry — this only saves
-          you the clicks.
-        </p>
+        <p className="q-deadline">{t("bulk.lede")}</p>
       </header>
       {picked.size > 0 && (
         <section className="q-decide">
           <div className="q-schedule">
-            <label htmlFor="sched-bulk">If approved, all {picked.size} run</label>
+            <label htmlFor="sched-bulk">{t("bulk.run", { count: picked.size })}</label>
             <select
               id="sched-bulk"
               className="q-select"
@@ -1216,17 +1229,17 @@ export function QueueScreen() {
                 if (e.target.value) setNeed(BULK, null);
               }}
             >
-              <option value="">— choose when —</option>
-              {scheduleOptions(undefined).map((s) => (
+              <option value="">{t("bulk.choose")}</option>
+              {scheduleOptions(w, undefined).map((s) => (
                 <option key={s.key} value={s.key}>
-                  {s.key === "now" ? "with no set time — a planned post keeps its time" : s.label}
+                  {s.key === "now" ? t("bulk.noTime") : s.label}
                 </option>
               ))}
             </select>
           </div>
           {needs[BULK] === "schedule" && (
             <p className="q-need" role="alert">
-              Choose when they run first — a bulk approval states its schedule.
+              {t("bulk.need")}
             </p>
           )}
           <div className="q-answers q-answers-2">
@@ -1247,7 +1260,7 @@ export function QueueScreen() {
               }}
             >
               <span>
-                Approve {picked.size} <span aria-hidden="true">→</span>
+                {t("bulk.approve", { count: picked.size })} <span aria-hidden="true">→</span>
               </span>
             </button>
             <button
@@ -1256,7 +1269,7 @@ export function QueueScreen() {
               disabled={busy || !mayDecide}
               onClick={() => declineFor(BULK, [...picked])}
             >
-              <span>Decline {picked.size}</span>
+              <span>{t("bulk.decline", { count: picked.size })}</span>
             </button>
           </div>
           {panels[BULK] === "decline" && reasonBox(BULK, picked.size)}
@@ -1275,21 +1288,21 @@ export function QueueScreen() {
       {header}
       {live}
       <div className="q-body">
-        <aside className="q-side" aria-label="Proposals">
+        <aside className="q-side" aria-label={t("side.label")}>
           <div className="q-side-head">
             <h2 className="q-side-label q-side-label-ink">
-              Needs a decision · {pendingIds.length}
+              {t("side.needs", { count: pendingIds.length })}
             </h2>
-            {pendingIds.length > 1 && <span className="q-side-keys">J / K to move</span>}
+            {pendingIds.length > 1 && <span className="q-side-keys">{t("side.keys")}</span>}
           </div>
           {listed.length > 0 && (
             <ol className="q-items">
               {listed.map((p) => {
-                const st = stamps[p.id];
-                if (st) {
+                const sp = stamps[p.id];
+                if (sp) {
                   return (
                     <li key={p.id} className="q-item q-item-stamped">
-                      <p className="q-stamp-word">{stampText(p.id, st)}</p>
+                      <p className="q-stamp-word">{stampText(p.id, sp, undefined, tr, locale)}</p>
                       <p className="q-side-title-s">{p.action.summary}</p>
                     </li>
                   );
@@ -1302,7 +1315,7 @@ export function QueueScreen() {
                       <input
                         type="checkbox"
                         className="q-pick"
-                        aria-label={`Select: ${p.action.summary}`}
+                        aria-label={t("side.select", { title: p.action.summary })}
                         checked={picked.has(p.id)}
                         onChange={() =>
                           setPicked((cur) => {
@@ -1334,9 +1347,11 @@ export function QueueScreen() {
                       <span className="q-item-title">{p.action.summary}</span>
                       <span className="q-item-meta">
                         {range
-                          ? `${signedMoney(range.low)}–${signedMoney(range.high)} a month · `
+                          ? `${t("side.perMonth", {
+                              range: `${signedMoney(range.low, locale)}–${signedMoney(range.high, locale)}`,
+                            })} · `
                           : ""}
-                        {shortReversibility(p.reversibility)}
+                        {shortReversibility(p.reversibility, tr)}
                       </span>
                     </button>
                   </li>
@@ -1348,18 +1363,20 @@ export function QueueScreen() {
           {decidedToday.length > 0 && (
             <section className="q-side-sec" aria-labelledby="q-today">
               <h2 className="q-side-label" id="q-today">
-                Decided today
+                {t("side.today")}
               </h2>
               <ul className="q-side-list">
                 {decidedToday.map((p) => (
                   <li key={p.id}>
                     <p className="q-side-stamp">
-                      {historyStamp(p)}
+                      {historyStamp(p, w)}
                       {p.rejection_reason ? ` · ${p.rejection_reason}` : ""}
                     </p>
                     <p className="q-side-title">{p.action.summary}</p>
                     {p.change_request && (
-                      <p className="q-side-note">You asked: “{p.change_request}”</p>
+                      <p className="q-side-note">
+                        {t("side.youAsked", { words: p.change_request })}
+                      </p>
                     )}
                   </li>
                 ))}
@@ -1372,31 +1389,34 @@ export function QueueScreen() {
           {earlier.length > 0 && (
             <section className="q-side-sec" aria-labelledby="q-earlier">
               <h2 className="q-side-label" id="q-earlier">
-                Earlier · {earlier.length}
+                {t("side.earlier", { count: earlier.length })}
               </h2>
               <ul className="q-side-list">
                 {earlier.map((p) => (
                   <li key={p.id}>
                     <p className="q-side-stamp">
-                      {historyStamp(p)}
-                      {p.decided_at ? ` · ${dayWord(p.decided_at)}` : ""}
+                      {historyStamp(p, w)}
+                      {p.decided_at ? ` · ${dayWord(p.decided_at, undefined, locale)}` : ""}
                     </p>
                     <p className="q-side-title">{p.action.summary}</p>
                     {p.status === "expired" && (
-                      <p className="q-side-note">
-                        {lapsedSentence(p) ??
-                          "Not approved — nothing ran. It ran out of time undecided; that is not a no."}
-                      </p>
+                      <p className="q-side-note">{lapsedSentence(p, tr) ?? t("side.expired")}</p>
                     )}
                     {p.rejection_reason && (
-                      <p className="q-side-note">You said: “{p.rejection_reason}”</p>
+                      <p className="q-side-note">
+                        {t("side.youSaid", { words: p.rejection_reason })}
+                      </p>
                     )}
                     {p.change_request && (
-                      <p className="q-side-note">You asked: “{p.change_request}”</p>
+                      <p className="q-side-note">
+                        {t("side.youAsked", { words: p.change_request })}
+                      </p>
                     )}
                     {p.status === "approved" && p.execute_not_before && (
                       <p className="q-side-note">
-                        Runs {dayWord(p.execute_not_before)} at the earliest.
+                        {t("side.runs", {
+                          day: dayWord(p.execute_not_before, undefined, locale),
+                        })}
                       </p>
                     )}
                   </li>
@@ -1405,9 +1425,7 @@ export function QueueScreen() {
             </section>
           )}
 
-          <p className="q-side-foot">
-            Unanswered proposals expire on their decide-by date as “not approved — nothing ran”.
-          </p>
+          <p className="q-side-foot">{t("side.foot")}</p>
           {pendingIds.length > 1 && (
             <button
               type="button"
@@ -1418,7 +1436,7 @@ export function QueueScreen() {
                 setPicked(new Set());
               }}
             >
-              {bulk ? "Back to one at a time" : "Decide several together"}
+              {bulk ? t("side.oneAtATime") : t("bulk.label")}
             </button>
           )}
         </aside>

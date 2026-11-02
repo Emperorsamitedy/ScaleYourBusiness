@@ -12,6 +12,8 @@ export interface FactChange {
   id: string;
   /** The stable field key, e.g. "offers.<uuid>.price". */
   key: string;
+  /** L-3a: the fact's label in the reader's language (app/history); absent in English. */
+  label?: string;
   /** The retired value, as words; null when it was a gap. */
   from: string | null;
   /** The successor's value, as words; null when it is now a gap. */

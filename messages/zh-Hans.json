@@ -344,7 +344,8 @@
       "skipped": "已跳过",
       "yes": "是",
       "no": "否",
-      "onFile": "已存档"
+      "onFile": "已存档",
+      "entityCount": "{count, plural, other {已存档 # 项}}"
     },
     "source": {
       "connected": "已连接的账户",
@@ -448,6 +449,946 @@
       "unknown_field": "该列表中没有名为“{field}”的字段",
       "finding_not_open": "这一项已经处理过了",
       "invalid": "该回答无法记录"
+    }
+  },
+  "voice": {
+    "speak": "语音输入",
+    "listening": "正在聆听… 再次按“语音输入”即可停止。",
+    "noticeStart": "{notice}再按“语音输入”开始。",
+    "notice": "您的浏览器会把您的语音转换成文字。在 Chrome 中，这一步由 Google 完成；SYB 从不接收音频。",
+    "cap": "一分钟后我会停止聆听。按“语音输入”可以继续补充。",
+    "error": {
+      "blocked": "此网站的麦克风已被阻止。请在浏览器的网站设置中允许（地址栏旁的图标），然后再次按“语音输入”。",
+      "noSpeech": "我没有听到任何声音。请按“语音输入”，等显示“正在聆听”后再开始说话。",
+      "noMicrophone": "未找到麦克风。请检查麦克风已连接并已打开，然后再次按“语音输入”。",
+      "network": "您的浏览器无法连接到其语音服务。请检查网络连接，或直接输入答案。",
+      "language": "您的浏览器无法将{lang}的语音转换为文字。请改为直接输入答案。",
+      "stopped": "还没有识别到任何字词，聆听就停止了。请按“语音输入”重试，或直接输入答案。"
+    }
+  },
+  "sheet": {
+    "basis": {
+      "OBSERVED": "已观测",
+      "DERIVED": "推导",
+      "ESTIMATED": "估计",
+      "STATED": "已陈述",
+      "ASSUMED": "假设"
+    },
+    "basisMeaning": {
+      "OBSERVED": "读取自已连接的账户、一份文件或一个公开网页",
+      "DERIVED": "根据其他事实计算得出，并附有公式",
+      "ESTIMATED": "您自己的估计",
+      "STATED": "您给出的确切回答",
+      "ASSUMED": "预测中的一项输入，没有人测量或陈述过"
+    },
+    "gap": {
+      "unknown": "不知道",
+      "skipped": "已跳过",
+      "unasked": "未提问",
+      "not_applicable": "不适用"
+    },
+    "source": {
+      "owner_input": "您告诉我的",
+      "conversation": "来自我们的对话",
+      "inferred": "计算得出",
+      "web_research": "调研所得",
+      "benchmark": "基准",
+      "connector": "已测量",
+      "document": "来自一份文件",
+      "system_default": "默认值"
+    },
+    "severity": {
+      "critical": "立即处理",
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "none": "—"
+  },
+  "report": {
+    "meta": {
+      "title": "您的诊断 — SYB"
+    },
+    "mast": {
+      "watching": "观察中 · 第 {day} 天，共 {of} 天"
+    },
+    "sub": {
+      "label": "报告",
+      "findings": "发现",
+      "decisions": "决定",
+      "record": "记录",
+      "shadow": "影子账本",
+      "outcomes": "结果",
+      "rules": "常设规则",
+      "connections": "连接",
+      "notBuilt": "尚未构建",
+      "print": "打印 / PDF"
+    },
+    "fact": {
+      "notInSnapshot": "不在此快照中",
+      "basisNotRecorded": "依据未记录"
+    },
+    "panel": {
+      "label": "诊断面板 · 样本 {id} · 签发于 {issued}",
+      "prior": " · 上次 {date}",
+      "headUnit": "利润变化 / 月 · 如果您执行 {ref} · 推导",
+      "computed": "{computed} / {total}",
+      "computedUnit": "项指标已计算 · 每一项都说明了原因",
+      "diagnosis": "诊断",
+      "noFindings": "没有需要指出的发现",
+      "notComputed": "{count, plural, other {<b>#</b> 项未计算}}",
+      "empty": "没有任何指标能够计算，也无法给出不计算的理由——档案中还没有可依据的内容。",
+      "caption": "每项指标：其结果、上一份报告的结果、参考范围、标记、每月金额、依据，以及计算方式",
+      "legend": "范围 · 立即处理线：只有当您的某个目标或数据所支撑的范围涵盖该指标时才会绘制——目前都没有，所以显示 —。每月金额只在某项指标的差距已被定价时才显示；目前都没有。推导 = 根据其他事实计算得出；其“为什么”会显示公式和输入。"
+    },
+    "col": {
+      "measure": "指标",
+      "result": "结果",
+      "prior": "上次",
+      "priorReport": "上一份报告",
+      "range": "范围 · 立即处理线",
+      "rangeShort": "范围 · 立即处理",
+      "flag": "标记",
+      "perMonth": "{currency} / 月",
+      "basis": "依据",
+      "derivation": "推导过程"
+    },
+    "why": {
+      "button": "为什么",
+      "buttonSr": " — {name} 是如何计算的",
+      "sheet": "推导表",
+      "nothing": "未选择任何内容",
+      "choose": "在某项指标上选择“为什么 →”，即可查看它是如何计算的。",
+      "formula": "公式（文字说明）",
+      "notComputed": "为什么没有计算",
+      "inputs": "输入",
+      "missingInputs": "缺少的输入",
+      "none": "暂无记录。",
+      "missing": "未记录 · 缺失",
+      "basisNotRecorded": "依据未记录",
+      "history": "历史 · 已取代，永不删除",
+      "noHistory": "这个数字的输入还没有被取代过。"
+    },
+    "measure": {
+      "blended_margin": {
+        "name": "综合利润率",
+        "words": "每笔销售扣除交付成本后剩余的部分占售价的比例——按您各项产品或服务的销量加权平均。"
+      },
+      "average_order_value": {
+        "name": "客单价",
+        "words": "您的月营收除以当月的销售笔数（订单、预约或到店次数）。"
+      },
+      "cost_per_acquisition": {
+        "name": "获取一位客户的成本",
+        "words": "您一个月的广告支出，除以首次购买的客户带来的销售笔数。"
+      },
+      "return_on_ad_spend": {
+        "name": "广告支出回报率",
+        "words": "您每月的全部营收除以每月的全部广告支出——综合计算，不归因于任何单个广告。"
+      },
+      "fixed_costs": {
+        "name": "固定成本",
+        "words": "您提供的每一项固定成本，按其支付周期折算为月度金额后相加。"
+      },
+      "break_even": {
+        "name": "盈亏平衡销量",
+        "words": "您的固定成本除以每笔销售扣除自身成本后的贡献——即每月能覆盖全部开支所需的销售笔数。"
+      },
+      "offer": {
+        "name": "利润率 · {name}",
+        "words": "售价减去交付一件的成本，再除以售价。",
+        "refusal": "此产品没有记录交付成本，因此无法从售价中扣除任何成本"
+      }
+    },
+    "flag": {
+      "notComputed": "未计算",
+      "belowCost": "立即处理 · 低于成本",
+      "differs": "与您的数字不同"
+    },
+    "tally": {
+      "critical": "立即处理",
+      "high": "高",
+      "medium": "中",
+      "low": "低"
+    },
+    "unit": {
+      "perMonth": "/ 月"
+    },
+    "input": {
+      "offer": "产品",
+      "measuredConnected": "已测量 · 已连接的账户"
+    },
+    "history": {
+      "computed": "本报告中计算为 {figure}",
+      "notComputed": "本报告中未计算——{why}",
+      "was": "上一份报告中为 {figure}",
+      "notKnown": "不知道",
+      "superseded": "{name} 曾为 {was}——已被更新的{kind, select, measurement {测量} reading {读数} calculation {计算} answer {回答} other {记录}}取代"
+    },
+    "svm": {
+      "caption": "您所说的与已连接账户测量到的结果对比",
+      "measure": "指标 · 时间段",
+      "said": "您所说的",
+      "measured": "测量值",
+      "difference": "差异",
+      "observed": "已观测 · {provider} · {when}",
+      "read": "读取于 {date}",
+      "yours": "您的：{basis} · {source} · {date}",
+      "notKnown": "不知道",
+      "label": "陈述与测量对比",
+      "titleHeld": "您所说的与测量结果相符。",
+      "title": "您所说的，与测量到的结果对比。",
+      "foot": "分析采用测量到的数字。您所说的会保留在您的历史记录中。",
+      "hide": "隐藏",
+      "show": "显示"
+    },
+    "decline": {
+      "lede": "选填——为什么不要？这能让我知道以后不该再提出什么。",
+      "chip": {
+        "tried": "我们以前试过",
+        "market": "在我的市场里行不通",
+        "now": "现在无法承担这件事"
+      },
+      "label": "您的理由，用您自己的话说",
+      "placeholder": "或者用您自己的方式说",
+      "recording": "正在记录…",
+      "record": "记录下来"
+    },
+    "forecast": {
+      "range": "与现在相比的利润变化 · 范围",
+      "caption": "“{title}”的三种情形及其计算",
+      "case": "情形",
+      "perMonth": "每月",
+      "what": "会发生什么 · 计算过程",
+      "whatShort": "会发生什么"
+    },
+    "case": {
+      "base": "基准情形",
+      "downside": "下行情形",
+      "upside": "上行情形"
+    },
+    "rec": {
+      "meta": "工作量 {effort, select, low {低} medium {中} high {高} other {{effort}}} · 撤销难度 {undo, select, easy {低} moderate {中} hard {高} other {{undo}}}",
+      "answers": " · 对应 {refs}",
+      "breakEven": "盈亏平衡点",
+      "highSensitivity": "高敏感度",
+      "assumptions": "所依据的假设",
+      "from": "来自 {input}",
+      "nobody": "没有人测量或陈述过这一点",
+      "sensitivity": "敏感度 {level, select, high {高} medium {中} low {低} other {{level}}}",
+      "changeMind": "如果您改变主意：",
+      "lookInto": "研究一下 →",
+      "notForUs": "不适合我们 →",
+      "recorded": "已记录",
+      "lookingInto": "您正在研究这一项",
+      "declined": "已拒绝",
+      "reason": "“{reason}”",
+      "noReason": "未说明理由"
+    },
+    "findings": {
+      "label": "发现 · 最紧急的在前",
+      "none": "没有任何问题有足够的证据可以指出。",
+      "title": "{count, plural, other {# 项发现，每一项都附有证据。}}",
+      "measured": "已测量",
+      "measuredTitle": "在您的网站上测量所得，而非主观判断"
+    },
+    "recs": {
+      "label": "我会怎么做",
+      "none": "目前还没有计算能够支撑的建议。",
+      "title": "{count, plural, other {# 条建议，每一条都附有范围。}}"
+    },
+    "hours": {
+      "label": "营业时间 · 已观测 · {from} – {to}",
+      "none": "在任何已测量的日子里都没有出现信号。",
+      "title": "{count, plural, other {您的每小时销售中有 # 个信号。}}",
+      "link": "查看每个工作日 →",
+      "tooEarly": "现在下结论还为时过早"
+    },
+    "gaps": {
+      "label": "什么能让结论更准确",
+      "title": "报告的质量取决于它所依据的信息。",
+      "priority": "{priority, select, core {核心} important {重要} deep {深入} optional {选填} other {{priority}}}",
+      "blocking": "阻塞项",
+      "answer": "现在回答 →"
+    },
+    "foot": "每个数字都标明了来源。估计值都标注为估计值；没有任何内容是编造的。",
+    "generatedFrom": "根据快照 {id} 生成。",
+    "checkout": {
+      "price": "这份报告的价格是 {price}。",
+      "priceReturning": "这份报告的价格是 {price}，因为您已经为您的另一个企业付过费。",
+      "others": "{count, plural, other {您还有其他企业没有付费报告：可以把它们加入同一笔付款，每份 {price}。}}",
+      "total": "{count, plural, other {合计：{total}，共 # 份报告，一次付款。每个企业的报告会在您到那里打开时撰写。}}",
+      "pay": "支付 {total} →",
+      "notNow": "暂不"
+    },
+    "state": {
+      "label": "诊断面板",
+      "noReport": "还没有报告",
+      "checking": "正在查找您的报告…",
+      "error": "加载报告时出了点问题。请刷新重试——您告诉我的内容都不会丢失。",
+      "openingCheckout": "正在打开结账页面——报告在付款之后才会撰写",
+      "confirming": "正在等待 Stripe 确认您的付款",
+      "reading": "正在读取您的档案——请求正在处理中",
+      "readingLede": "利润率、盈亏平衡点、发现以及应对办法。通常需要大约一分钟；在任何内容显示到页面之前，都会先核对计算。",
+      "none": "当您回答得足够多时，我会读取整个档案，并写下我能够证明的内容。",
+      "readNow": "现在读取我的档案 →",
+      "answerMore": "先多回答一些 →",
+      "payFailed": "无法发起付款",
+      "payUnreachable": "我无法连接服务器——没有扣款；请重试。",
+      "notConfirmed": "Stripe 尚未确认您的付款。请一分钟后刷新此页面：您不会被重复扣款，付款确认后报告就会开始撰写。",
+      "generationFailed": "生成失败",
+      "unreachable": "我无法连接服务器——您的回答都很安全；请重试。"
+    },
+    "share": {
+      "label": "分享这份报告",
+      "title": "一个只读链接，可以发给合伙人、会计师或投资人。",
+      "signedOut": "登录后才能分享您的报告——离开 SYB 的链接只能由您本人创建，因此需要您登录。",
+      "lede": "该链接显示这份报告当前的样子，不包含您对各项建议的回应，也不包含任何通往您账户的内容。链接创建后就不会再变化，您可以随时在这里撤销它。",
+      "lasts": "有效期",
+      "days": "{days, plural, other {# 天}}",
+      "make": "创建链接",
+      "newLink": "新链接",
+      "copied": "已复制",
+      "copy": "复制",
+      "onlyOnce": "这是该链接唯一一次显示。任何持有它的人都能阅读这份报告，直到它过期或被您撤销。",
+      "listLabel": "您创建的链接",
+      "status": {
+        "active": "有效",
+        "expired": "已过期",
+        "revoked": "已撤销"
+      },
+      "made": "创建于 {date}",
+      "revokedOn": "撤销于 {date}",
+      "expired": "已于 {date} 过期",
+      "expires": "将于 {date} 过期",
+      "notOpened": "尚未打开",
+      "lastOpened": "{count, plural, other {最近打开于 {date}（# 次查看）}}",
+      "reportOf": "{date} 的报告",
+      "revoke": "撤销",
+      "wrong": "出了点问题——请重试",
+      "unreachable": "我无法连接服务器——请重试。"
+    }
+  },
+  "charts": {
+    "panel": {
+      "label": "以图表展示您的数字",
+      "failed": "我暂时无法读取您的数字来生成图表。请刷新重试——没有任何内容丢失。",
+      "reading": "正在读取您已测量的日子…"
+    }
+  },
+  "factsheet": {
+    "meta": {
+      "title": "您的事实表 — SYB"
+    },
+    "kicker": "您的企业 · 事实表",
+    "titleEmpty": "记录。",
+    "title": "{count, plural, other {关于{noun}的 # 项事实。每一项都标明了来源。}}",
+    "yourBusiness": "您的企业",
+    "noSession": "此设备上还没有档案。<a>开始回答问题</a>——或者打开我发给您的链接。",
+    "failed": "加载您的档案时出了点问题。请刷新重试——您告诉我的内容都不会丢失。",
+    "reading": "正在读取您的档案…",
+    "export": {
+      "label": "给您的会计师",
+      "current": "资金类事实，CSV",
+      "history": "早期数字，CSV"
+    },
+    "counts": {
+      "observed": "{count, plural, other {<b>#</b> 项已观测}}",
+      "derived": "{count, plural, other {<b>#</b> 项推导}}",
+      "fromYou": "{count, plural, other {<b>#</b> 项来自您}}",
+      "assumed": "{count, plural, other {<b>#</b> 项假设}}",
+      "gaps": "{count, plural, other {<b>#</b> 项记录为不知道}}"
+    },
+    "recordLabel": "记录",
+    "search": "搜索记录",
+    "searchPlaceholder": "例如：营业时间、价格、渠道",
+    "filterLabel": "筛选记录",
+    "filter": {
+      "all": "全部",
+      "assumed": "假设 · {count}",
+      "changed": "本月有变化 · {count}"
+    },
+    "supersededCount": "{count, plural, other {# 个已被取代的值}}",
+    "showSuperseded": "显示已取代的值",
+    "sectionsLabel": "记录的各个部分",
+    "stillOpen": "仍待回答",
+    "empty": {
+      "query": "没有与“{query}”匹配的事实。",
+      "assumed": "没有任何事实依赖于假设——每个值都来自您、某个连接或计算。",
+      "changed": "本月没有任何内容被替换。",
+      "none": "暂无记录。"
+    },
+    "sectionFacts": "{count, plural, other {# 项事实}}",
+    "sectionChanged": "{count, plural, other {本月有 # 项变化}}",
+    "noneRecorded": "暂无记录",
+    "competitorsLede": "在访谈中说出它们的名字，或者让我根据您已经告诉我的信息去搜索。",
+    "openMeta": "{count, plural, other {# 个问题 · 空缺本身就是一项发现，而不是失败}}",
+    "foot": "带删除线的行在有更准确的信息进来之前一直成立。记录中的任何内容都不会被删除。快照 {id} · {date}。",
+    "caption": "{section}：每项事实及其值、来源、依据和生效日期",
+    "col": {
+      "fact": "事实",
+      "value": "值",
+      "source": "来源",
+      "basis": "依据",
+      "since": "起始日期"
+    },
+    "confirmDefault": "确认后替换默认值",
+    "noted": "备注：{note}",
+    "superseded": "已于 {date} 被更新的{kind, select, measurement {测量} reading {读数} calculation {计算} answer {回答} other {记录}}取代",
+    "supersededWord": "已取代",
+    "priority": {
+      "core": "核心",
+      "important": "重要",
+      "deep": "深入",
+      "optional": "选填"
+    },
+    "blocking": "阻塞项",
+    "answerNow": "现在回答 →",
+    "showFewer": "收起",
+    "showAll": "显示全部 {count} 项",
+    "section": {
+      "identity": "您是谁",
+      "presence": "您在哪里经营",
+      "offers": "您销售的产品",
+      "revenue": "营收",
+      "costs": "成本",
+      "customers": "客户",
+      "channels": "渠道",
+      "marketing": "营销",
+      "operations": "运营",
+      "tooling": "工具",
+      "legal": "法律与税务",
+      "competitors": "竞争对手",
+      "goals": "您的指标",
+      "assets": "文件"
+    },
+    "spine": {
+      "offers": "产品",
+      "suppliers": "供应商",
+      "competitors": "竞争对手",
+      "channels": "渠道",
+      "staff_roles": "岗位",
+      "locations": "地点"
+    },
+    "entityName": "{noun}名称",
+    "basis": {
+      "fromYou": "来自您",
+      "fromYouEstimate": "来自您 · 估计"
+    },
+    "source": {
+      "interview": "您 · 访谈",
+      "conversation": "您 · 对话",
+      "measured": "已测量 · {detail}",
+      "measuredConnected": "已测量 · 已连接的账户",
+      "researchedAt": "调研所得 · {detail}",
+      "researched": "调研所得",
+      "computedAs": "计算得出 · {detail}",
+      "computed": "计算得出",
+      "document": "来自一份文件",
+      "default": "默认值，待您确认"
+    },
+    "value": {
+      "pagesSilent": "他们的网页没有提及",
+      "unknown": "您不知道——已记录",
+      "skipped": "暂时跳过",
+      "notApplicable": "不适用",
+      "unasked": "尚未提问"
+    },
+    "finder": {
+      "nothingUsable": "搜索没有找到可用的结果",
+      "unreachable": "我无法连接服务器。请稍后重试。",
+      "failed": "调研失败",
+      "searching": "正在搜索网络…",
+      "find": "查找我的竞争对手 →",
+      "searchingFrom": "正在根据您告诉我的信息搜索",
+      "readingPages": "正在阅读他们的网页",
+      "found": "根据您告诉我的信息搜索所得。在您确认之前，不会保存任何内容。",
+      "readingPagesNow": "正在阅读他们的网页…",
+      "thatsOne": "这是其中一个——去查一查 →"
+    }
+  },
+  "watch": {
+    "meta": {
+      "title": "观察 — SYB"
+    },
+    "kicker": "洞察 · 观察",
+    "days": {
+      "label": "观察第 {day} 天，共 {of} 天",
+      "started": "开始于 {date}",
+      "legend": "每个实心方块代表已经过去的一个观察日。带边框的那个是今天。",
+      "ends": "观察期于 {date} 结束"
+    },
+    "tally": {
+      "steady": "{count, plural, other {# 个平稳}}",
+      "drifting": "{count, plural, other {# 个偏离}}",
+      "interrupted": "{count, plural, other {# 个中断}}",
+      "thin": "{count, plural, other {# 个数据不足}}"
+    },
+    "status": {
+      "steady": "平稳",
+      "drifting": "偏离",
+      "interrupted": "中断",
+      "thin": "数据不足"
+    },
+    "signals": {
+      "label": "我在观察什么",
+      "nothing": "暂时没有可读取的内容",
+      "titleRead": "{count, plural, other {# 个信号，每天读取}}",
+      "titleNotRead": "{count, plural, other {# 个信号，目前未在读取}}",
+      "thinRule": "数据不足 = 最近 {of} 天中有记录的天数少于 {min} 天，因此还没有可供判断的常规范围。",
+      "driftRule": "偏离 = 连续 {days} 天或更久超出其常规范围；中断 = 触发了停止观察的规则。",
+      "connect": "连接您的收款、收银机或网店、分析工具或广告，它们所含的每个企业整体数字每天都会在这里读取。<a>连接</a>",
+      "noDaily": "您的连接中还没有每日数字——它们会在下一次同步时到来。",
+      "tableLabel": "信号表",
+      "col": {
+        "signal": "信号",
+        "from": "读取自",
+        "days": "已读取天数",
+        "perDay": "每日，第 {week} 周 → 现在",
+        "status": "状态"
+      },
+      "below": "自 {date} 起低于常规范围",
+      "above": "自 {date} 起高于常规范围"
+    },
+    "noted": {
+      "label": "已记下，未行动",
+      "title": "我本来会说的话",
+      "empty": "暂时没有。当某个数字超出常规范围、您的营业时段出现信号，或某个竞争对手调整价格时，我会在这里记下，但不会据此采取任何行动。",
+      "day": "第 {day} 天"
+    },
+    "when": {
+      "label": "观察期结束时",
+      "foot": "观察期的长度在“我的工作方式”中设置。",
+      "link": "我的工作方式 →",
+      "ends": "观察期结束。下一份报告会读取这期间收集到的所有内容。",
+      "after": "之后",
+      "afterText": "您批准的提案可以执行。观察期不再搁置它们。",
+      "always": "始终",
+      "alwaysText": "在您批准之前，什么都不会执行。"
+    },
+    "activity": {
+      "label": "活动",
+      "title": "每一条都是真实完成的工作",
+      "empty": "暂时没有。第一份每周快照会出现在这里。"
+    },
+    "rules": {
+      "label": "什么会中断观察",
+      "checked": "每日检查",
+      "notChecked": "尚未检查"
+    },
+    "modules": {
+      "label": "模块",
+      "title": "等我开始行动时",
+      "name": "{module, select, marketing {营销} sales {销售} support {客户支持} operations {运营} finance {财务} team {团队} other {{module}}}",
+      "analytics": "分析，始终开启",
+      "rolesNotPeople": "{module, select, team {团队} other {{module}}}，按岗位而非个人",
+      "teamLink": "查看团队页面"
+    },
+    "summary": {
+      "label": "每周邮件",
+      "title": "每周一的摘要",
+      "switch": "每周给我发邮件",
+      "lede": "我那一周做了什么、发现了什么，以及有什么在等您处理。每一行都对应此页面上的一条记录；平静的一周也会如实说明。",
+      "signUp": "注册后，它会发送到您用于登录的邮箱地址。",
+      "off": "已关闭。不会发送任何邮件；所有内容都保留在此页面上。",
+      "notDecided": "在决定“我的工作方式”之后开始发送。",
+      "noEmail": "此服务器尚未设置电子邮件，因此不会发送。",
+      "lastSent": "上次发送于 {date}。",
+      "first": "第一封会在下一次周一检查时发出。"
+    },
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "lede": "<a>从访谈开始</a>，报告出来后观察就会开始。"
+    },
+    "failed": {
+      "title": "观察页面没有加载出来。",
+      "lede": "我们这边出了点问题。请刷新重试。"
+    },
+    "reading": "正在读取观察数据…",
+    "none": {
+      "title": "目前没有正在进行的观察。",
+      "instantTitle": "目前没有正在进行的观察。此企业处于即时模式。",
+      "notDecided": "尚未决定“我的工作方式”：它在报告之后进行。",
+      "instant": "这里没有观察期。在您批准之前，什么都不会执行。",
+      "link": "我的工作方式"
+    },
+    "title": {
+      "complete": "第 {of} 天，共 {of} 天。观察已完成。",
+      "untouched": "第 {day} 天，共 {of} 天。我没有自行改动任何内容。",
+      "changes": "{count, plural, other {第 {day} 天，共 {of} 天。已做出 # 项更改，每一项都经过您的批准。}}"
+    },
+    "notes": {
+      "hold": "观察期间，我能改动的任何内容都不会执行。",
+      "readingEnds": "{count, plural, other {每天读取 # 个连接 · 观察期于 {date} 结束}}",
+      "readingEnded": "{count, plural, other {每天读取 # 个连接 · 观察期已于 {date} 结束}}",
+      "noneEnds": "没有正在读取的连接 · <a>连接</a> · 观察期于 {date} 结束",
+      "noneEnded": "没有正在读取的连接 · <a>连接</a> · 观察期已于 {date} 结束"
+    },
+    "alerts": {
+      "label": "手机提醒",
+      "title": "有事项等待时，用几个字提醒您",
+      "lede": "当有新事项等待您同意时，您的手机会收到几个字的提醒：绝不包含数字、姓名或地址，因为锁屏是公开的。点按提醒会打开该提案，您在提案卡片上做决定，而绝不在提醒上决定。{from} 到 {to} 之间不会发送，每天最多一条。",
+      "status": {
+        "signIn": "请在此设备上登录以开启提醒。",
+        "noKeys": "此服务器暂时无法发送手机提醒：其密钥尚未设置。",
+        "iphoneTab": "请先把 SYB 添加到主屏幕，然后在那里开启。在 Safari 中：点按“分享”，再点按“添加到主屏幕”（iOS {version} 或更高版本）。",
+        "unsupported": "此浏览器无法接收提醒。在 iPhone 上，请先把 SYB 添加到主屏幕，然后在那里开启。",
+        "denied": "此浏览器的设置中已阻止 SYB 的提醒。请在那里允许，然后再开启。",
+        "on": "此设备已开启。"
+      },
+      "switchOn": "为此设备开启",
+      "thisDevice": "此设备",
+      "onSince": "自 {date} 起开启",
+      "lastAlert": "上次提醒 {date}",
+      "remove": "移除",
+      "test": "发送测试",
+      "noPermission": "未开启：浏览器没有授予权限。",
+      "switchedOn": "已开启。有新事项等待您同意时，此设备会收到几个字的提醒。",
+      "notSwitchedOn": "未开启：{error}。",
+      "refused": "未开启：此浏览器拒绝了推送注册。请稍后重试。",
+      "removed": "已移除：{device} 不会再收到提醒。",
+      "notRemoved": "未移除：{error}。",
+      "tested": "测试：{results}。",
+      "notTested": "未发送测试：{error}。",
+      "ourSide": "我们这边出了点问题"
+    }
+  },
+  "proposals": {
+    "meta": {
+      "title": "提案 — SYB",
+      "one": "一项提案 — SYB"
+    },
+    "module": "{module, select, marketing {营销} sales {销售} support {客户支持} operations {运营} finance {财务} team {团队} other {{module}}}",
+    "loading": "正在读取队列…",
+    "notRecorded": "该决定未被记录",
+    "failNote": "{count, plural, other {# 项未记录：{errors}。}}",
+    "announce": {
+      "approved": "{count, plural, other {已批准 # 项提案}}",
+      "declined": "{count, plural, other {已拒绝 # 项提案}}",
+      "nothing": "没有记录任何内容",
+      "next": "下一项：{title}",
+      "none": "没有其他需要决定的事项了。"
+    },
+    "signedOut": {
+      "eyebrow": "提案",
+      "title": "登录后再做决定。",
+      "copy": "批准或拒绝提案会以您的名字记录——这需要您登录，而不仅仅是使用这个浏览器。",
+      "signIn": "登录"
+    },
+    "reason": {
+      "why": "为什么不要？点一下就够了",
+      "whyAll": "这 {count} 项为什么都不要？点一下就够了",
+      "label": "您的理由，用您自己的话说",
+      "placeholder": "或者用一句话说明——我会从中学习。",
+      "need": "请先选择一个理由——拒绝时需要说明原因，记录会保留您的回答。",
+      "foot": "拒绝：不会执行任何操作，也不会改变任何内容。我会连同您的理由记录下来，并且不会据此行动。",
+      "record": "记录拒绝",
+      "recordAll": "为 {count} 项记录拒绝"
+    },
+    "chip": {
+      "wrongData": "数据有误",
+      "wrongTiming": "时机不对",
+      "tooRisky": "风险太大",
+      "notMyStrategy": "不符合我的策略"
+    },
+    "chipPhrase": {
+      "wrongData": "数据有误",
+      "wrongTiming": "时机不对",
+      "tooRisky": "风险太大",
+      "notMyStrategy": "不符合我的策略"
+    },
+    "changes": {
+      "label": "应该有什么不同？",
+      "placeholder": "例如：只针对去年的客户，并且不打折。",
+      "need": "请先说明应该改什么——记录会保留您的原话。",
+      "foot": "未批准，也不是拒绝：不会执行任何操作。您的原话会连同您的名字记入记录。目前还不会自动重新起草。",
+      "record": "记录该请求"
+    },
+    "change": {
+      "none": "此提案没有说明改动前后的情况。用它自己的话来说，改动是：“{summary}”。",
+      "becomes": "变为",
+      "line": "项目",
+      "before": "之前",
+      "after": "之后"
+    },
+    "effect": {
+      "profit": "利润 {span}，从下行到上行",
+      "likeliest": "最可能：{statement}",
+      "none": "这一项没有预测资金影响。",
+      "noRange": "这一项没有预测金额范围——各情形的文字描述如下：",
+      "case": {
+        "downside": "下行",
+        "likeliest": "最可能",
+        "upside": "上行"
+      },
+      "workedOut": "计算方式：{formula}"
+    },
+    "evidence": {
+      "none": "此提案未列出任何假设。",
+      "leans": "结论在很大程度上依赖于此",
+      "notRecorded": "未记录",
+      "disagree": "{count, plural, other {# 个来源意见不一}}",
+      "breakEven": "盈亏平衡点",
+      "manual": "您告诉过我：“{limits}”——请您自己权衡这一点；我无法替您核对。"
+    },
+    "decisions": "决定",
+    "stats": "本月从起草到决定的中位时间：{median} · 已批准 {approved} / {decided}",
+    "empty": {
+      "title": "没有需要决定的事项。",
+      "lede": "提案来自您最新的诊断报告、观察循环在您的数字中发现的变化、未能达成的目标、广告和内容审查，以及您在聊天中提出的请求。每一项都会先出现在这里——会发生什么、依据是什么，以及拒绝意味着什么。没有您的同意，什么都不会执行。",
+      "check": "查看最新报告中的提案"
+    },
+    "held": {
+      "label": "按您的指示搁置 · {count}",
+      "stamp": "已搁置 · 不会被提出",
+      "note": "我写好了这一项，然后自己拦下了它——您说过“{limit}”。"
+    },
+    "m": {
+      "changes": "改动内容",
+      "expected": "预期 · 估计",
+      "expectedSpan": "预期，{span} · 估计",
+      "evidence": "{count, plural, other {完整证据 · # 行}}",
+      "later": "稍后",
+      "changesInstead": "改为请求修改",
+      "nothingWaiting": "没有待处理的事项",
+      "waiting": "{count, plural, other {# 项决定待处理}}",
+      "position": "{n} / {of}",
+      "next": "下一项：{title}",
+      "foot": "在您批准之前，什么都不会执行。"
+    },
+    "decide": {
+      "label": "您的决定",
+      "decline": "拒绝",
+      "changes": "请求修改",
+      "approveVerb": "批准——{verb}",
+      "run": "如果批准，执行时间",
+      "halted": "目前一切都已停止：在您重新启动之前，什么都不会执行。",
+      "readOnly": "您可以查看这里的所有内容。"
+    },
+    "sheet": {
+      "ref": "提案 {ref} · 起草于 {when}",
+      "from": "来自{origin}",
+      "deadline": "请在 {day} 前决定。届时仍未回答的话，它将过期：未批准——没有执行任何操作。",
+      "s1": "{n} · 改动内容——之前 → 之后",
+      "s2": "{n} · 预期效果 · 估计",
+      "s2Span": "{n} · 预期效果，{span} · 估计",
+      "s3": "{n} · 证据——每一行都附有来源",
+      "s4": "{n} · 可撤销性"
+    },
+    "schedule": {
+      "planned": "按计划时间：{day} {clock}",
+      "nextRun": "在您批准后的下一次运行时",
+      "noTime": "不设定时间",
+      "tomorrow": "最早明天",
+      "nextWeek": "最早下周"
+    },
+    "bulk": {
+      "label": "一起决定多项",
+      "ref": "批量处理 · 每项提案都保留各自的记录",
+      "selected": "{count, plural, other {已选择 # 项}}",
+      "tick": "在列表中勾选提案",
+      "lede": "每一项仍会在记录中单独决定，各有一条记录——这只是帮您省去点击。",
+      "run": "{count, plural, other {如果批准，这 # 项的执行时间}}",
+      "choose": "— 选择时间 —",
+      "noTime": "不设定时间——已计划的发布保留原定时间",
+      "need": "请先选择它们的执行时间——批量批准需要说明执行安排。",
+      "approve": "批准 {count} 项",
+      "decline": "拒绝 {count} 项"
+    },
+    "side": {
+      "label": "提案",
+      "needs": "需要决定 · {count}",
+      "keys": "按 J / K 切换",
+      "select": "选择：{title}",
+      "perMonth": "每月 {range}",
+      "today": "今天已决定",
+      "youAsked": "您要求：“{words}”",
+      "youSaid": "您说过：“{words}”",
+      "earlier": "更早 · {count}",
+      "expired": "未批准——没有执行任何操作。它在未作决定的情况下超时了；这并不代表拒绝。",
+      "runs": "最早于 {day} 执行。",
+      "foot": "未回答的提案会在其决定期限到期，记为“未批准——没有执行任何操作”。",
+      "oneAtATime": "返回逐项处理"
+    },
+    "history": {
+      "approved": "已批准",
+      "executed": "已执行",
+      "rejected": "已拒绝",
+      "changes_requested": "已请求修改",
+      "expired": "已过期",
+      "stamp": "{word}{at} · 编号 {ref}"
+    },
+    "stamp": {
+      "approved": "已批准 {when} · 编号 {ref}",
+      "rejected": "已拒绝 {when} · 编号 {ref}",
+      "changes_requested": "已请求修改 {when} · 编号 {ref}",
+      "deviceClock": "{clock}（此设备的时钟）"
+    },
+    "rev": {
+      "reversible": "可撤销 · {level, select, easy {容易撤销} moderate {撤销难度中等} hard {难以撤销} other {{level}}}",
+      "reversibleWord": "可撤销",
+      "irreversible": "不可撤销",
+      "noUndo": "此项没有声明撤销方式——请视为永久性改动。",
+      "short": "{level, select, easy {容易撤销} moderate {撤销难度中等} hard {难以撤销} other {{level}}}",
+      "shortIrreversible": "不可撤销"
+    },
+    "act": {
+      "approve": "批准",
+      "createAd": "创建广告（暂停状态）",
+      "goLive": "让广告上线",
+      "pause": "暂停“{name}”",
+      "raise": "将“{name}”提高 {pct} %",
+      "send": "{count, plural, other {发送给 # 位客户}}",
+      "publish": "发布到 {platform}"
+    },
+    "origin": {
+      "report": "报告建议 {n}",
+      "anomaly": "您数字中的一条提醒",
+      "ads": "广告审查",
+      "publish": "内容计划",
+      "alert_review": "提醒审查",
+      "utterance": "您提出的请求",
+      "crm": "客户名单审查",
+      "hours": "营业时间审查"
+    },
+    "note": {
+      "queued": "批准后，它会排入队列，最早于 {day} {clock} 执行。批准无法撤回；紧急停止仍可以叫停它。",
+      "noTime": "批准会以您的名字记录您的同意。由于没有设定时间，它不会自行执行。"
+    },
+    "lapsed": "您批准了这一项，但它在执行之前已失效——没有执行任何操作。",
+    "card": {
+      "when": "{day} {clock}",
+      "earlier": "更早",
+      "expired": "这一项已于 {day} 超时，未作决定：未批准，也没有执行任何操作。",
+      "done": "已完成",
+      "approved": "已决定：{when} 已批准。",
+      "ran": "已执行。",
+      "declined": "已决定：{when} 已拒绝。没有执行任何操作。",
+      "changes": "已回复：您于 {when} 请求了修改。不会据此执行任何操作。",
+      "heldBack": "已搁置",
+      "blocked": "这一项是我自己搁置的：您说过“{said}”。它不需要您决定。",
+      "blockedEnded": "这一项是我自己搁置的：您说过“{said}”它不需要您决定。",
+      "notUp": "这一项不需要您决定。",
+      "noWorst": "这一项没有预测最坏情形。",
+      "noLimits": "您还没有告诉我任何您绝不希望做的事（问题 {question}），所以没有可以对照核对的内容。",
+      "and": "和",
+      "checked": "{count, plural, other {已对照{limits}核对：没有违背。}}",
+      "cantCheck": "{count, plural, other {我无法替您核对{limits}：请您自己权衡。}}",
+      "notRecorded": "未记录：{error}。",
+      "wrong": "出了点问题",
+      "decision": "决定",
+      "loading": "正在读取提案…",
+      "eyebrow": "提案",
+      "signedOut": "批准或拒绝会以您的名字记录，因此需要您在此设备上登录。之后我会带您回到这项提案。",
+      "missing": "这里没有这项提案。",
+      "failed": "提案没有加载出来。",
+      "missingLede": "该链接可能属于另一个企业，或者有误。",
+      "failedLede": "我们这边出了点问题。请刷新重试。",
+      "openQueue": "打开队列",
+      "noLines": "它没有说明改动前后的情况：改动内容就是标题。",
+      "noRange": "这一项没有预测金额范围。",
+      "worst": "最坏情形：{worst}",
+      "limits": "已对照您的限制核对",
+      "answered": "已回复",
+      "back": "返回队列",
+      "needSignIn": "决定会以您的名字记录，因此需要您登录。",
+      "signInToDecide": "登录后决定",
+      "declineFoot": "拒绝：不会执行任何操作，也不会改变任何内容。我会连同您的理由记录下来。",
+      "wholeQueue": "查看整个队列"
+    }
+  },
+  "stop": {
+    "failed": "没有成功",
+    "stopping": "正在停止…",
+    "stop": "全部停止",
+    "what": "立即停止所有执行，无需登录。读取和提出提案会照常进行。",
+    "stoppedAt": "已于 {when} 停止 · 不会执行任何操作",
+    "stoppedShort": "已停止 · 不会执行任何操作",
+    "starting": "正在启动…",
+    "yesStart": "是——重新启动",
+    "stay": "保持停止",
+    "startNote": "重新启动后，已批准的操作就可以执行。这需要您登录。",
+    "startUp": "重新启动",
+    "flag": "已停止 · 不会执行任何操作",
+    "title": "一切都已停止。",
+    "titleSince": "一切都已停止——自 {when} 起。",
+    "copy": "已批准的操作保持批准状态并等待。不会执行、不会发布，您的网站上也不会有任何改动——包括您停止时正在进行中的任何操作。读取、计划和提出提案都会照常进行。",
+    "youSaid": "您说过：“{reason}”",
+    "yesExecute": "是——重新开始执行"
+  },
+  "history": {
+    "meta": {
+      "title": "历史记录 — SYB"
+    },
+    "kicker": "您的企业 · 历史记录",
+    "title": "账本。只能追加。",
+    "reading": "正在读取记录…",
+    "label": "历史记录",
+    "signedOut": {
+      "title": "此浏览器没有任何存档。",
+      "lede": "有了需要记账的企业，账本才会存在。",
+      "start": "开始"
+    },
+    "failed": {
+      "title": "记录没有加载出来。",
+      "lede": "读取记录时出了点问题。请刷新重试。"
+    },
+    "today": "今天 · {day}",
+    "figs": {
+      "decided": "已决定",
+      "ran": "已执行",
+      "helped": "有帮助",
+      "inside": "预测落在范围内"
+    },
+    "record": "记录",
+    "show": "显示",
+    "tab": {
+      "everything": "全部",
+      "decisions": "决定",
+      "ran": "已执行",
+      "measured": "已测量",
+      "facts": "事实变更"
+    },
+    "export": "导出为 CSV",
+    "empty": {
+      "everything": "记录中还没有内容。一旦有了，每条建议、决定、执行和事实变更都会永久保存在这里。",
+      "decisions": "还没有建议或决定。",
+      "ran": "还没有执行任何操作。未经您批准，什么都不会执行。",
+      "measured": "还没有评判结果。评判需要一次执行，以及一个用于测量的已连接来源。",
+      "facts": "没有任何事实在首次记录后被更改过。"
+    },
+    "now": "现在",
+    "kind": {
+      "proposed": "已提出",
+      "withheld": "已搁置",
+      "approved": "已批准",
+      "declined": "已拒绝",
+      "expired": "已过期",
+      "ran": "已执行",
+      "measured": "已测量",
+      "superseded": "已取代"
+    },
+    "foot": {
+      "append": "条目无法编辑或删除——更正会作为新条目添加，并指向原条目。",
+      "rate": "批准率：{arithmetic}。",
+      "tooEarly": "{count, plural, other {# 项现在评判还为时过早。}}",
+      "unmeasured": "{count, plural, other {# 项未测量——评判需要一个已连接的来源。}}",
+      "verdict": "每个评判都是基于已测量日子的计算，于当下读取——不会根据意图打分。"
+    },
+    "track": {
+      "label": "我的过往准确率",
+      "word": {
+        "inside": "范围内",
+        "above": "高于范围",
+        "below": "低于范围",
+        "cant_tell": "无法判断",
+        "waiting": "等待中"
+      },
+      "range": "范围 {range}",
+      "basis": "依据：{basis}",
+      "happened": "实际情况：{happened}",
+      "foot": "我在展示每项预测的那一刻，就把它连同我给出的范围记录下来，并在时间到了之后仅根据测量到的数字评分。评分无法更改。",
+      "cantTell": "“无法判断”表示没有测量到的数字，或者有我没有预测到的事情干扰了结果，比如一次送货。它永远不会被算作正确。"
     }
   }
 }

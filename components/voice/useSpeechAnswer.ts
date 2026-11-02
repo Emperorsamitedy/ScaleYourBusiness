@@ -5,7 +5,7 @@
 // draw nothing and log nothing. The work is in lib/voice/session.ts.
 
 import { useEffect, useRef, useState } from "react";
-import type { SessionState } from "../../lib/voice/session";
+import type { SessionState, SessionWords } from "../../lib/voice/session";
 import { SpeechSession, recognitionIn } from "../../lib/voice/session";
 
 export interface SpeechAnswerOptions {
@@ -15,6 +15,8 @@ export interface SpeechAnswerOptions {
   after: string;
   /** The profile's language when known; else the browser's. */
   lang?: string | null;
+  /** L-3a: the session's own lines in the person's language (MicButton passes them). */
+  words?: SessionWords;
   /** True stops any listening at once (the box is busy or sending). */
   disabled?: boolean;
 }
@@ -53,6 +55,9 @@ export function useSpeechAnswer(options: SpeechAnswerOptions): SpeechAnswer {
       setText: (next) => opts.current.setText(next),
       get after() {
         return opts.current.after;
+      },
+      get words() {
+        return opts.current.words;
       },
       store: storage(),
       onState: setState,

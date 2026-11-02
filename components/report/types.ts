@@ -13,6 +13,10 @@ export interface FactInfo extends BasisInput {
   observed_at?: string;
   note?: string | null;
   source_detail?: string | null;
+  /** L-3a: the fact's label in the reader's language (app/api/report); absent in English. */
+  label?: string | null;
+  /** L-3a: a coded value's option label in the reader's language; absent in English. */
+  value_words?: string | null;
 }
 export type FactMap = Record<string, FactInfo>;
 

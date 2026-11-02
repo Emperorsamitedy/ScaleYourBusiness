@@ -44,6 +44,7 @@ import type { CoerceCode } from "../parser/coerce";
 import { coerceParsedValue } from "../parser/coerce";
 import type { BankWords } from "../bank/words";
 import { ENGLISH_WORDS, loadBankWords } from "../bank/words";
+import { factWords } from "../bank/fact-words";
 import { dynamicVocabularyOptions, isDynamicVocabulary } from "../profile/dynamic-vocab";
 import { writeField } from "../profile/field-store";
 import { recordFunnelEvent } from "./telemetry";
@@ -591,7 +592,12 @@ export async function getIntakeState(
 
   // The record sheet, the masthead name and the area tiles, for every state.
   const questionIdByKey = new Map(applicable.map((q) => [q.writes_to, q.id]));
-  const listed = listFacts({ rows: view.rows, questionIdByKey, providerLabel });
+  const listed = listFacts({
+    rows: view.rows,
+    questionIdByKey,
+    providerLabel,
+    factWords: factWords(words),
+  });
   const record = buildRecord(listed);
   const businessName = legalName(view);
   const areasFor = (activeSection: string | null, activeQuestionId: string | null) =>

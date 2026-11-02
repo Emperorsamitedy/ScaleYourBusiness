@@ -34,6 +34,10 @@ import {
   supportCount,
 } from "../components/nav/AppFrame";
 import { ROLE_WORD } from "../lib/auth/role-actions";
+import { BASES, BASIS_MEANING, SOURCE_LABEL } from "../components/report/basis";
+import { MEASURES, OFFER_ROW } from "../components/report/panel";
+import { sessionWords } from "../components/voice/MicButton";
+import { ENGLISH_SESSION_WORDS, NOTICE, errorWords } from "../lib/voice/session";
 import type { AppLocale } from "../lib/i18n/locales";
 import { LOCALES } from "../lib/i18n/locales";
 
@@ -55,8 +59,12 @@ export function flatten(tree: Tree, prefix = ""): Map<string, string> {
 }
 
 const EN = flatten(load("en"));
-const OTHERS = LOCALES.filter((l) => l !== "en");
-const CATALOGUES = new Map(LOCALES.map((l) => [l, flatten(load(l))]));
+/** CATALOGUE_LOCALE=de-DE checks one language alone, for whoever is translating it. */
+const ONLY = process.env.CATALOGUE_LOCALE;
+const OTHERS = LOCALES.filter((l) => l !== "en" && (ONLY === undefined || l === ONLY));
+const CATALOGUES = new Map(
+  LOCALES.filter((l) => l === "en" || OTHERS.includes(l)).map((l) => [l, flatten(load(l))]),
+);
 
 interface Shape {
   /** Argument names, plural/select arguments included. */
@@ -182,7 +190,7 @@ describe("the catalogues (rule 1: no English left behind)", () => {
   });
 
   it("formats every message in every language without an error", () => {
-    for (const l of LOCALES) {
+    for (const l of CATALOGUES.keys()) {
       const t = createTranslator({ locale: l, messages: load(l) }) as unknown as (
         key: string,
         values?: Record<string, unknown>,
@@ -255,6 +263,39 @@ describe("English stays what the screens said before (byte for byte)", () => {
     expect(supportCount({ support_open: 2, by_module: {} }, words)).toBe("2 offen");
   });
 
+  it("holds L-3a's English to the code's own words", () => {
+    const t = createTranslator({ locale: "en", messages: load("en") }) as unknown as (
+      key: string,
+      values?: Record<string, unknown>,
+    ) => string;
+    for (const m of MEASURES) {
+      expect(en(`report.measure.${m.id}.name`), m.id).toBe(m.name);
+      expect(en(`report.measure.${m.id}.words`), m.id).toBe(m.words);
+    }
+    expect(en("report.measure.offer.words")).toBe(OFFER_ROW.words);
+    expect(en("report.measure.offer.refusal")).toBe(OFFER_ROW.refusal);
+    for (const b of BASES) expect(en(`sheet.basisMeaning.${b}`), b).toBe(BASIS_MEANING[b]);
+    for (const [kind, word] of Object.entries(SOURCE_LABEL)) {
+      expect(en(`sheet.source.${kind}`), kind).toBe(word);
+    }
+    // The microphone says in English exactly what its session always said.
+    expect(en("voice.notice")).toBe(NOTICE);
+    expect(en("voice.cap")).toBe(ENGLISH_SESSION_WORDS.cap);
+    const words = sessionWords((k, v) => t(`voice.${k}`, v));
+    for (const code of [
+      "aborted",
+      "not-allowed",
+      "service-not-allowed",
+      "no-speech",
+      "audio-capture",
+      "network",
+      "language-not-supported",
+      "start-failed",
+    ]) {
+      expect(words.error(code, "de-DE"), code).toBe(errorWords(code, "de-DE"));
+    }
+  });
+
   it("gives Russian its three counting forms", () => {
     const ru = createTranslator({ locale: "ru-RU", messages: load("ru-RU") }) as unknown as (
       key: string,
@@ -280,6 +321,59 @@ const GLOSSARY = JSON.parse(
 ) as { terms: GlossaryTerm[]; registers: Record<string, string> };
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * L-3a: messages whose English uses a glossary word in another sense, so a
+ * translation rightly uses another word — the catalogue's counterpart of
+ * the bank overlays' glossary_exceptions. Each names its terms and why; an
+ * exception for a term the English no longer uses fails.
+ */
+const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> = {
+  "voice.error.network": {
+    terms: ["connection"],
+    reason: "the device's internet connection, not a connected account",
+  },
+  "report.panel.legend": {
+    terms: ["support"],
+    reason: "“a range the data supports”: backs up, not customer support",
+  },
+  "report.findings.none": {
+    terms: ["support"],
+    reason: "“the evidence supports”: backs up, not customer support",
+  },
+  "report.share.lede": {
+    terms: ["lead"],
+    reason: "“leads into your account”: goes into, not a sales lead",
+  },
+  "proposals.empty.lede": {
+    terms: ["review"],
+    reason: "“ad and content reviews”: SYB's own checks, not customer reviews",
+  },
+  "proposals.bulk.ref": {
+    terms: ["review"],
+    reason: "“Bulk review”: deciding several at once, not customer reviews",
+  },
+  "proposals.origin.ads": {
+    terms: ["review"],
+    reason: "“the ad review”: SYB's check of the ads, not customer reviews",
+  },
+  "proposals.origin.alert_review": {
+    terms: ["review"],
+    reason: "“an alert review”: SYB's check of an alert, not customer reviews",
+  },
+  "proposals.origin.crm": {
+    terms: ["review"],
+    reason: "“the customer review”: SYB's check of the customer list, not customer reviews",
+  },
+  "proposals.origin.hours": {
+    terms: ["review"],
+    reason: "“the opening-hours review”: SYB's check of the hours, not customer reviews",
+  },
+  "watch.alerts.refused": {
+    terms: ["subscription"],
+    reason: "the browser's push subscription, not a customer's subscription",
+  },
+};
 
 /** Pure: whether English text uses a term — a whole word, any case, a plural ending allowed. */
 export function usesTerm(text: string, forms: readonly string[]): boolean {
@@ -321,6 +415,7 @@ describe("the glossary (rule 2: one term, one translation)", () => {
       const text = visibleText(en);
       for (const term of GLOSSARY.terms) {
         if (!usesTerm(text, term.en.match)) continue;
+        if (GLOSSARY_EXCEPTIONS[k]?.terms.includes(term.id)) continue;
         for (const l of OTHERS) {
           checked += 1;
           const stems = (term[l] as { stems: string[] }).stems;
@@ -333,7 +428,23 @@ describe("the glossary (rule 2: one term, one translation)", () => {
     }
     expect(misses).toEqual([]);
     // The check has teeth: the shell's English uses glossary terms in dozens of messages.
-    expect(checked).toBeGreaterThan(300);
+    // (Six languages' worth; one language alone, CATALOGUE_LOCALE, is a sixth of it.)
+    expect(checked).toBeGreaterThan(ONLY === undefined ? 300 : 50);
+  });
+
+  it("allows another word only where English uses the term in another sense, and never stale", () => {
+    for (const [k, ex] of Object.entries(GLOSSARY_EXCEPTIONS)) {
+      const en = EN.get(k);
+      expect(en, `${k}: no such message`).toBeDefined();
+      expect(ex.reason.length, `${k}: a reason`).toBeGreaterThan(10);
+      for (const id of ex.terms) {
+        const term = GLOSSARY.terms.find((t) => t.id === id);
+        expect(term, `${k}: no glossary term ${id}`).toBeDefined();
+        expect(usesTerm(visibleText(en ?? ""), term?.en.match ?? []), `${k}: ${id} unused`).toBe(
+          true,
+        );
+      }
+    }
   });
 
   it("would catch a translation that uses another word for a term (the check itself)", () => {

@@ -6,9 +6,32 @@
 // filters the design offers — all, assumed, changed this month, show
 // superseded — over a free-text search.
 
+//
+// L-3a: every word comes from the "factsheet" catalogue (and the shared
+// "sheet" one) through FsWords, English by default — so the tests' English
+// is the screen's English. In another language the server names each fact
+// and coded value from the bank's overlay (app/api/profile).
+
 import type { Basis, BasisInput } from "../report/basis";
-import { basisOf, gapWord } from "../report/basis";
+import { basisName, basisOf, gapWord } from "../report/basis";
 import { isFigureText, keyWords, refigureNumber } from "../report/figures";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+
+/** The fact sheet's words and the reader's locale. */
+export interface FsWords {
+  /** The "factsheet" catalogue. */
+  tr: Tr;
+  /** The shared "sheet" catalogue (basis names, gap words). */
+  st: Tr;
+  locale: AppLocale;
+}
+export const ENGLISH_FS = (): FsWords => ({
+  tr: englishTr("factsheet"),
+  st: englishTr("sheet"),
+  locale: "en",
+});
 
 /* ── the API's shapes (lib/profile/factsheet.ts) ── */
 
@@ -22,6 +45,10 @@ export interface FactRow extends BasisInput {
   observed_at: string;
   recorded_at?: string;
   note: string | null;
+  /** L-3a: the fact's (or entity field's) label in the reader's language; absent in English. */
+  label?: string | null;
+  /** L-3a: a coded value's option label in the reader's language; absent in English. */
+  value_words?: string | null;
 }
 export interface EntityGroup {
   id: string;
@@ -117,34 +144,37 @@ export interface DisplaySection {
 const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** Every fact, scalar and entity, filed under its section, sections in order. */
-export function displaySections(sheet: FactSheet): DisplaySection[] {
+export function displaySections(sheet: FactSheet, w: FsWords = ENGLISH_FS()): DisplaySection[] {
   const by = new Map<string, DisplayFact[]>();
   const add = (section: string, f: DisplayFact) => by.set(section, [...(by.get(section) ?? []), f]);
 
   for (const s of sheet.sections) {
     for (const f of s.facts)
-      add(s.section, { key: f.key, label: sentence(keyWords(f.key)), fact: f });
+      add(s.section, { key: f.key, label: f.label ?? sentence(keyWords(f.key)), fact: f });
   }
   for (const g of sheet.entities) {
     const section = SPINE_SECTION[g.spine] ?? g.spine;
-    const noun = SPINE_NOUN[g.spine] ?? sentence(g.spine.replace(/_/g, " "));
+    const noun =
+      SPINE_NOUN[g.spine] !== undefined
+        ? w.tr(`spine.${g.spine}`)
+        : sentence(g.spine.replace(/_/g, " "));
     // A channel has no name field; its platform or type says which one it is.
-    const named =
-      g.name ??
-      g.facts.find((f) => f.key === "platform")?.value ??
-      g.facts.find((f) => f.key === "type")?.value ??
-      null;
+    const namer =
+      g.facts.find((f) => f.key === "platform") ?? g.facts.find((f) => f.key === "type") ?? null;
+    const named = g.name ?? (namer ? (namer.value_words ?? namer.value) : null);
     for (const f of g.facts) {
-      const field = keyWords(f.key, false);
+      const field = f.label ?? keyWords(f.key, false);
       const label =
-        f.key === "name" ? `${noun} name` : `${named !== null ? sentence(named) : noun} · ${field}`;
+        f.key === "name"
+          ? w.tr("entityName", { noun })
+          : `${named !== null ? sentence(named) : noun} · ${field}`;
       add(section, { key: `${g.id}.${f.key}`, label, fact: f });
     }
   }
   return [...by.entries()]
     .map(([section, facts]) => ({
       section,
-      label: SECTION_LABEL[section] ?? sentence(section),
+      label: SECTION_LABEL[section] !== undefined ? w.tr(`section.${section}`) : sentence(section),
       facts,
     }))
     .sort((a, b) => rank(a.section) - rank(b.section));
@@ -171,20 +201,20 @@ export interface BasisWord {
  * estimate says so in the word, so it is never shown as exact. A fact
  * with no value prints its gap status instead (rule 5).
  */
-export function basisWord(f: BasisInput): BasisWord {
+export function basisWord(f: BasisInput, w: FsWords = ENGLISH_FS()): BasisWord {
   const basis = basisOf(f);
   switch (basis) {
     case "OBSERVED":
     case "DERIVED":
-      return { word: basis, tone: "ink", basis };
+      return { word: basisName(basis, w.st), tone: "ink", basis };
     case "STATED":
-      return { word: "FROM YOU", tone: "you", basis };
+      return { word: w.tr("basis.fromYou"), tone: "you", basis };
     case "ESTIMATED":
-      return { word: "FROM YOU · EST.", tone: "you", basis };
+      return { word: w.tr("basis.fromYouEstimate"), tone: "you", basis };
     case "ASSUMED":
-      return { word: "ASSUMED", tone: "drift", basis };
+      return { word: basisName(basis, w.st), tone: "drift", basis };
     default:
-      return { word: gapWord(f.status), tone: "low", basis: null };
+      return { word: gapWord(f.status, w.st), tone: "low", basis: null };
   }
 }
 
@@ -213,23 +243,27 @@ export function basisCounts(facts: readonly BasisInput[]): {
 const tidyUrl = (d: string) => d.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
 
 /** "you · interview", "measured · stripe charges", "computed · price − cost" … */
-export function sourceText(f: { source_kind: string; source_detail: string | null }): string {
+export function sourceText(
+  f: { source_kind: string; source_detail: string | null },
+  w: FsWords = ENGLISH_FS(),
+): string {
   const d = f.source_detail;
+  const tr = w.tr;
   switch (f.source_kind) {
     case "owner_input":
-      return "you · interview";
+      return tr("source.interview");
     case "conversation":
-      return "you · conversation";
+      return tr("source.conversation");
     case "connector":
-      return d ? `measured · ${d}` : "measured · connected account";
+      return d ? tr("source.measured", { detail: d }) : tr("source.measuredConnected");
     case "web_research":
-      return d ? `researched · ${tidyUrl(d)}` : "researched";
+      return d ? tr("source.researchedAt", { detail: tidyUrl(d) }) : tr("source.researched");
     case "inferred":
-      return d ? `computed · ${d}` : "computed";
+      return d ? tr("source.computedAs", { detail: d }) : tr("source.computed");
     case "document":
-      return "from a document";
+      return tr("source.document");
     case "system_default":
-      return "default until you confirm";
+      return tr("source.default");
     default:
       return f.source_kind.replace(/_/g, " ");
   }
@@ -245,26 +279,32 @@ export interface ValueView {
   gap: boolean;
 }
 
-export function valueView(f: {
-  value: string | null;
-  status: string;
-  source_kind: string;
-}): ValueView {
+export function valueView(
+  f: {
+    value: string | null;
+    status: string;
+    source_kind: string;
+    value_words?: string | null;
+  },
+  w: FsWords = ENGLISH_FS(),
+): ValueView {
   if (f.value === null) {
-    const text =
+    const key =
       f.status === "unknown"
         ? f.source_kind === "web_research"
-          ? "their pages didn't say"
-          : "you didn't know — recorded"
+          ? "value.pagesSilent"
+          : "value.unknown"
         : f.status === "skipped"
-          ? "skipped for now"
+          ? "value.skipped"
           : f.status === "not_applicable"
-            ? "doesn't apply"
-            : "not asked yet";
-    return { text, figure: false, gap: true };
+            ? "value.notApplicable"
+            : "value.unasked";
+    return { text: w.tr(key), figure: false, gap: true };
   }
-  if (isFigureText(f.value)) return { text: refigureNumber(f.value), figure: true, gap: false };
-  return { text: f.value, figure: false, gap: false };
+  if (isFigureText(f.value)) {
+    return { text: refigureNumber(f.value, w.locale), figure: true, gap: false };
+  }
+  return { text: f.value_words ?? f.value, figure: false, gap: false };
 }
 
 /* ── filters ── */
@@ -280,6 +320,7 @@ export type Mode = "all" | "assumed" | "changed";
 export function filterSections(
   sections: readonly DisplaySection[],
   opts: { mode: Mode; query: string; changed: ReadonlySet<string> },
+  w: FsWords = ENGLISH_FS(),
 ): DisplaySection[] {
   const q = opts.query.trim().toLowerCase();
   return sections
@@ -291,9 +332,9 @@ export function filterSections(
         if (q === "") return true;
         const hay = [
           d.label,
-          d.fact.value ?? "",
-          sourceText(d.fact),
-          basisWord(d.fact).word,
+          d.fact.value_words ?? d.fact.value ?? "",
+          sourceText(d.fact, w),
+          basisWord(d.fact, w).word,
           s.label,
           d.key,
         ]

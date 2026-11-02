@@ -10,7 +10,10 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import { NextRequest } from "next/server";
+import { NextIntlClientProvider } from "next-intl";
+import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import en from "../../messages/en.json";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 // Route tests: no request scope in a test, so cookies come from this jar.
@@ -232,8 +235,20 @@ afterAll(async () => {
 
 const quiet = () => vi.spyOn(console, "log").mockImplementation(() => {});
 
+/**
+ * The page as the app renders it: inside the root layout's message
+ * provider (app/layout.tsx), which the report body's words come from (L-3a).
+ */
 async function deadPage(token: string): Promise<string> {
-  return renderToStaticMarkup(await SharedReportPage({ params: Promise.resolve({ token }) }));
+  const page = await SharedReportPage({ params: Promise.resolve({ token }) });
+  return renderToStaticMarkup(
+    createElement(NextIntlClientProvider, {
+      locale: "en",
+      messages: en,
+      timeZone: "UTC",
+      children: page,
+    }),
+  );
 }
 
 describe("pure rules", () => {

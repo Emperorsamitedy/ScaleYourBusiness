@@ -3,7 +3,15 @@
 // (ProposalCard.tsx) draws it; the queue's own helpers (queue-model.ts)
 // format the money, the range and the reversibility, so the card and the
 // queue can never word one proposal two ways.
+//
+// L-3a: its words are the "proposals.card" catalogue (and the queue's own)
+// through an optional translator, English by default; dates and figures
+// in the reader's locale. The owner's quoted limits and the forecast's
+// statements are shown as they were written.
 
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import type { ReversibilityLike, ScenarioOutcomeLike } from "./queue-model";
 import { dayWord, clockWord, effectRange, reversibilityLabel, signedMoney } from "./queue-model";
 
@@ -27,75 +35,96 @@ export interface CardLimit {
   enforcement: "auto" | "manual";
 }
 
+/** The card's words and the reader's locale: the "proposals" catalogue. */
+export interface CardWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+const ENGLISH = (): CardWords => ({ tr: englishTr("proposals"), locale: "en" });
+
 /** Whether the card can be decided, and if not, the sentence that says why. No buttons unless "decide". */
 export type CardState = { kind: "decide" } | { kind: "closed"; word: string; sentence: string };
 
-export function cardState(p: CardProposal, now: Date, timeZone?: string): CardState {
+export function cardState(
+  p: CardProposal,
+  now: Date,
+  timeZone?: string,
+  w: CardWords = ENGLISH(),
+): CardState {
+  const { tr, locale } = w;
   const when = (iso: string | null) =>
-    iso ? `${dayWord(iso, timeZone)}, ${clockWord(iso, timeZone)}` : "earlier";
+    iso
+      ? tr("card.when", {
+          day: dayWord(iso, timeZone, locale),
+          clock: clockWord(iso, timeZone, locale),
+        })
+      : tr("card.earlier");
   if (p.status === "pending" && p.expires_at > now.toISOString()) return { kind: "decide" };
   if (p.status === "pending" || p.status === "expired") {
     return {
       kind: "closed",
-      word: "EXPIRED",
-      sentence: `This ran out of time on ${dayWord(p.expires_at, timeZone)} without a decision: not approved, and nothing ran.`,
+      word: tr("history.expired"),
+      sentence: tr("card.expired", { day: dayWord(p.expires_at, timeZone, locale) }),
     };
   }
   if (p.status === "approved" || p.status === "executed") {
     return {
       kind: "closed",
-      word: p.status === "executed" ? "DONE" : "APPROVED",
-      sentence: `Already decided: approved ${when(p.decided_at)}.${p.status === "executed" ? " It has run." : ""}`,
+      word: p.status === "executed" ? tr("card.done") : tr("history.approved"),
+      sentence: `${tr("card.approved", { when: when(p.decided_at) })}${p.status === "executed" ? ` ${tr("card.ran")}` : ""}`,
     };
   }
   if (p.status === "rejected") {
     return {
       kind: "closed",
-      word: "DECLINED",
-      sentence: `Already decided: declined ${when(p.decided_at)}. Nothing ran.`,
+      word: tr("history.rejected"),
+      sentence: tr("card.declined", { when: when(p.decided_at) }),
     };
   }
   if (p.status === "changes_requested") {
     return {
       kind: "closed",
-      word: "CHANGES REQUESTED",
-      sentence: `Already answered: you asked for changes ${when(p.decided_at)}. Nothing runs from it.`,
+      word: tr("history.changes_requested"),
+      sentence: tr("card.changes", { when: when(p.decided_at) }),
     };
   }
   if (p.status === "blocked") {
     const said = p.blocked_by_limit?.replace(/^13\.5:\s*/, "") ?? "";
     return {
       kind: "closed",
-      word: "HELD BACK",
-      sentence: `I held this back myself: you said “${said}”${/[.!?]$/.test(said) ? "" : "."} It isn't up for a decision.`,
+      word: tr("card.heldBack"),
+      sentence: tr(/[.!?]$/.test(said) ? "card.blockedEnded" : "card.blocked", { said }),
     };
   }
   return {
     kind: "closed",
     word: p.status.toUpperCase(),
-    sentence: "This isn't up for a decision.",
+    sentence: tr("card.notUp"),
   };
 }
 
 /** The gain as a range, never a point: "+€120 – +€480". Null when the cases carry no money. */
-export function gainLine(p: CardProposal): string | null {
+export function gainLine(p: CardProposal, locale: AppLocale = "en"): string | null {
   const range = effectRange(p.scenario.downside_case, p.scenario.upside_case);
-  return range ? `${signedMoney(range.low)} – ${signedMoney(range.high)}` : null;
+  return range ? `${signedMoney(range.low, locale)} – ${signedMoney(range.high, locale)}` : null;
 }
 
 /** The worst case: the downside's money when it has some, and its words. */
-export function worstCase(p: CardProposal): string {
+export function worstCase(p: CardProposal, w: CardWords = ENGLISH()): string {
   const d = p.scenario.downside_case;
   const money = d?.profit_delta_monthly;
   const words = d?.statement?.trim() ?? "";
   if (money && Number.isSafeInteger(money.amount_minor) && typeof money.currency === "string") {
-    return words ? `${signedMoney(money)}: ${words}` : signedMoney(money);
+    return words ? `${signedMoney(money, w.locale)}: ${words}` : signedMoney(money, w.locale);
   }
-  return words || "No worst case was forecast for this one.";
+  return words || w.tr("card.noWorst");
 }
 
-export function undoLine(p: CardProposal): { word: string; note: string; reversible: boolean } {
-  return reversibilityLabel(p.reversibility, p.action.detail);
+export function undoLine(
+  p: CardProposal,
+  tr: Tr = ENGLISH().tr,
+): { word: string; note: string; reversible: boolean } {
+  return reversibilityLabel(p.reversibility, p.action.detail, tr);
 }
 
 /**
@@ -103,24 +132,19 @@ export function undoLine(p: CardProposal): { word: string; note: string; reversi
  * limits passed (a proposal that broke one is born blocked, rule 14); the
  * ones code can't check ride along for the owner to weigh.
  */
-export function limitLines(limits: readonly CardLimit[] | null): string[] {
+export function limitLines(limits: readonly CardLimit[] | null, tr: Tr = ENGLISH().tr): string[] {
   if (limits === null || limits.length === 0) {
-    return [
-      "You haven't told me anything you'd never want done (question 13.5), so there was nothing to check it against.",
-    ];
+    return [tr("card.noLimits", { question: "13.5" })];
   }
+  const and = tr("card.and");
   const auto = limits.filter((l) => l.enforcement === "auto").map((l) => `“${l.quote}”`);
   const manual = limits.filter((l) => l.enforcement === "manual").map((l) => `“${l.quote}”`);
   const lines: string[] = [];
   if (auto.length > 0) {
-    lines.push(
-      `Checked against ${auto.join(" and ")}: it doesn't go against ${auto.length === 1 ? "it" : "them"}.`,
-    );
+    lines.push(tr("card.checked", { limits: auto.join(` ${and} `), count: auto.length }));
   }
   if (manual.length > 0) {
-    lines.push(
-      `I can't check ${manual.join(" and ")} for you: weigh this against ${manual.length === 1 ? "it" : "them"} yourself.`,
-    );
+    lines.push(tr("card.cantCheck", { limits: manual.join(` ${and} `), count: manual.length }));
   }
   return lines;
 }

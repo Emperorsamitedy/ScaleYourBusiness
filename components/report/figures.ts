@@ -4,6 +4,10 @@
 // between number and unit, and forecasts as ranges.
 
 import { minorUnitExponent } from "../../lib/core/money";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+import { dayMonth, dayMonthYear } from "../../lib/i18n/format";
 import { moneyFig, moneyText, num } from "../sheet/num";
 
 export interface MoneyLike {
@@ -41,9 +45,9 @@ export function numberDecimals(
 }
 
 /** Money with a sign, for a change: "+340", "−120", "0". */
-export function signedMoney(m: MoneyLike, decimals = 0): string {
-  const body = moneyFig(m.amount_minor, m.currency, decimals);
-  return m.amount_minor > 0 && Number(body.replace(/[^\d.]/g, "")) !== 0 ? `+${body}` : body;
+export function signedMoney(m: MoneyLike, decimals = 0, locale: AppLocale = "en"): string {
+  const body = moneyFig(m.amount_minor, m.currency, decimals, locale);
+  return m.amount_minor > 0 && /[1-9]/.test(body) ? `+${body}` : body;
 }
 
 export interface ForecastCase {
@@ -84,9 +88,9 @@ export function forecastRange(
 }
 
 /** "−120 – +340" at one decimal count for both ends. */
-export function rangeText(r: ForecastRange): string {
+export function rangeText(r: ForecastRange, locale: AppLocale = "en"): string {
   const decimals = columnDecimals([r.low, r.high]);
-  return `${signedMoney(r.low, decimals)} – ${signedMoney(r.high, decimals)}`;
+  return `${signedMoney(r.low, decimals, locale)} – ${signedMoney(r.high, decimals, locale)}`;
 }
 
 /* ── re-figuring money the server already turned into text ── */
@@ -114,9 +118,9 @@ export function parseReprMoney(text: string): MoneyLike | null {
 }
 
 /** A server-humanised value with any money re-printed by the number grammar. */
-export function refigure(text: string): string {
+export function refigure(text: string, locale: AppLocale = "en"): string {
   const m = parseReprMoney(text);
-  return m ? moneyText(m.amount_minor, m.currency) : text;
+  return m ? moneyText(m.amount_minor, m.currency, locale) : text;
 }
 
 /** True when a humanised value is a figure (money or a bare number) and belongs in mono. */
@@ -125,11 +129,11 @@ export function isFigureText(text: string): boolean {
 }
 
 /** A bare numeric string re-printed with grouping: "12000" → "12 000". */
-export function refigureNumber(text: string): string {
+export function refigureNumber(text: string, locale: AppLocale = "en"): string {
   const t = text.trim();
-  if (!/^-?\d+(\.\d+)?$/.test(t)) return refigure(text);
+  if (!/^-?\d+(\.\d+)?$/.test(t)) return refigure(text, locale);
   const decimals = t.includes(".") ? (t.split(".")[1] ?? "").length : 0;
-  return num(Number(t), decimals);
+  return num(Number(t), decimals, locale);
 }
 
 /* ── dates: always with the year, never locale-guessed ── */
@@ -137,9 +141,10 @@ export function refigureNumber(text: string): string {
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** "17 Oct 2026" from an ISO date or timestamp (UTC calendar date); the input when unparseable. */
-export function fmtDate(iso: string): string {
+export function fmtDate(iso: string, locale: AppLocale = "en"): string {
   const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? `${iso}T00:00:00Z` : iso);
   if (Number.isNaN(d.getTime())) return iso;
+  if (locale !== "en") return dayMonthYear(d.toISOString(), locale);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
@@ -148,9 +153,15 @@ export function fmtDate(iso: string): string {
  * year is dropped only when it is the current one (`now`'s UTC year), so
  * a date can never be mistaken for one a year off.
  */
-export function fmtDay(iso: string, now: Date = new Date()): string {
+export function fmtDay(iso: string, now: Date = new Date(), locale: AppLocale = "en"): string {
   const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(iso) ? `${iso}T00:00:00Z` : iso);
   if (Number.isNaN(d.getTime())) return iso;
+  if (locale !== "en") {
+    const day = d.toISOString();
+    return d.getUTCFullYear() === now.getUTCFullYear()
+      ? dayMonth(day, locale)
+      : dayMonthYear(day, locale);
+  }
   const day = `${String(d.getUTCDate()).padStart(2, "0")} ${MONTHS[d.getUTCMonth()]}`;
   return d.getUTCFullYear() === now.getUTCFullYear() ? day : `${day} ${d.getUTCFullYear()}`;
 }
@@ -164,17 +175,16 @@ export interface FlagWord {
   tone: "alarm" | "drift" | "low";
 }
 
-export function severityFlag(s: Severity): FlagWord {
-  switch (s) {
-    case "critical":
-      return { word: "ACT NOW", tone: "alarm" };
-    case "high":
-      return { word: "HIGH", tone: "drift" };
-    case "medium":
-      return { word: "MEDIUM", tone: "low" };
-    case "low":
-      return { word: "LOW", tone: "low" };
-  }
+const SEVERITY_TONE: Record<Severity, FlagWord["tone"]> = {
+  critical: "alarm",
+  high: "drift",
+  medium: "low",
+  low: "low",
+};
+
+/** The worded flag; its word from the "sheet" catalogue (L-3a), English by default. */
+export function severityFlag(s: Severity, tr: Tr = englishTr("sheet")): FlagWord {
+  return { word: tr(`severity.${s}`), tone: SEVERITY_TONE[s] };
 }
 
 /* ── field keys as words ── */

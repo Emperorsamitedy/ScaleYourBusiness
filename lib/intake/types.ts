@@ -195,6 +195,14 @@ export interface RecordFact {
   method: string | null;
   /** The applicable bank question that writes this key — what a change reopens. */
   question_id: string | null;
+  /**
+   * L-3a: the fact's label in the person's language, from the bank's
+   * overlay (lib/bank/fact-words) — absent or null in English, where the
+   * screen names the fact by its key as it always has.
+   */
+  label?: string | null;
+  /** L-3a: a coded value's option label in the person's language; null when it isn't a code. */
+  value_words?: string | null;
 }
 
 export interface IntakeRecord {

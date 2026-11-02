@@ -2,9 +2,26 @@
 // pattern). Everything the queue shows that is arithmetic or wording lives
 // here, so it is testable without a browser and without the database.
 
+//
+// L-3a: the queue's fixed words — the reversibility labels, the stamps,
+// the decline chips, the consequence on the primary button, where a
+// proposal came from, the note under the decision — come from the
+// "proposals" catalogue through an optional translator, English by
+// default, with dates and figures in the reader's locale. The lines built
+// from a proposal's own data (changeLines, adFacts, effectSpan, the
+// evidence sources, durationWord) are L-4 of TASKS-LANGUAGES.md.
+
 import { type BasisInput, basisOfKey, sourceLabel } from "../report/basis";
 import { moneyText, num } from "../sheet/num";
 import { CREATES_PAUSED_NOTE } from "../../lib/ads/ad-words";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+
+const EN = (): Tr => englishTr("proposals");
+/** The Intl tag dates are written in: English keeps en-GB, as the queue always has. */
+const dateTag = (locale: AppLocale): string => (locale === "en" ? "en-GB" : intlTag(locale));
 
 export interface MoneyLike {
   amount_minor: number;
@@ -56,8 +73,8 @@ export function changeOf(detail: unknown): { before: string; after: string } | n
 /* ── the expected effect: a range, never a point ── */
 
 /** A signed money word: "+€340", "−€120", "€0". */
-export function signedMoney(m: MoneyLike): string {
-  const body = moneyText(Math.abs(m.amount_minor), m.currency);
+export function signedMoney(m: MoneyLike, locale: AppLocale = "en"): string {
+  const body = moneyText(Math.abs(m.amount_minor), m.currency, locale);
   if (m.amount_minor > 0) return `+${body}`;
   if (m.amount_minor < 0) return `−${body}`;
   return body;
@@ -99,6 +116,7 @@ export function reversibilityLabel(
    * "hard" level is the engine's irreversibility label, so it reads IRREVERSIBLE.
    */
   detail?: unknown,
+  tr: Tr = EN(),
 ): {
   reversible: boolean;
   word: string;
@@ -110,22 +128,22 @@ export function reversibilityLabel(
   if (level !== null && LEVELS.has(level) && !declared) {
     return {
       reversible: true,
-      word: `REVERSIBLE · ${level.toUpperCase()} TO UNDO`,
+      word: tr("rev.reversible", { level }),
       note,
     };
   }
   return {
     reversible: false,
-    word: "IRREVERSIBLE",
-    note: note || "No undo is declared for this — treat it as permanent.",
+    word: tr("rev.irreversible"),
+    note: note || tr("rev.noUndo"),
   };
 }
 
 /* ── dates and the stamp ── */
 
 /** "Monday 19 October" — the weekday is part of a deadline. */
-export function dayWord(iso: string, timeZone?: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
+export function dayWord(iso: string, timeZone?: string, locale: AppLocale = "en"): string {
+  return new Date(iso).toLocaleDateString(dateTag(locale), {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -134,8 +152,8 @@ export function dayWord(iso: string, timeZone?: string): string {
 }
 
 /** "14:02" in 24-hour time. */
-export function clockWord(iso: string, timeZone?: string): string {
-  return new Date(iso).toLocaleTimeString("en-GB", {
+export function clockWord(iso: string, timeZone?: string, locale: AppLocale = "en"): string {
+  return new Date(iso).toLocaleTimeString(dateTag(locale), {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -158,18 +176,17 @@ export interface Stamp {
   clientTime: boolean;
 }
 
-const STAMP_VERB: Record<Decision, string> = {
-  approved: "APPROVED",
-  rejected: "DECLINED",
-  changes_requested: "CHANGES REQUESTED",
-};
-
 /** "APPROVED 14:02 · ref 3f2a9c1b" — the recorded time unless labelled otherwise. */
-export function stampText(id: string, stamp: Stamp, timeZone?: string): string {
-  const verb = STAMP_VERB[stamp.decision];
-  const clock = clockWord(stamp.at, timeZone);
-  const when = stamp.clientTime ? `${clock} (this device's clock)` : clock;
-  return `${verb} ${when} · ref ${shortRef(id)}`;
+export function stampText(
+  id: string,
+  stamp: Stamp,
+  timeZone?: string,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+): string {
+  const clock = clockWord(stamp.at, timeZone, locale);
+  const when = stamp.clientTime ? tr("stamp.deviceClock", { clock }) : clock;
+  return tr(`stamp.${stamp.decision}`, { when, ref: shortRef(id) });
 }
 
 /* ── decline reasons ── */
@@ -177,10 +194,20 @@ export function stampText(id: string, stamp: Stamp, timeZone?: string): string {
 export const REASON_CHIPS = ["WRONG DATA", "WRONG TIMING", "TOO RISKY", "NOT MY STRATEGY"] as const;
 export type ReasonChip = (typeof REASON_CHIPS)[number];
 
-/** "WRONG DATA" → "Wrong data" — the words that land in the record. */
-export function chipPhrase(chip: ReasonChip): string {
-  const lower = chip.toLowerCase();
-  return lower.charAt(0).toUpperCase() + lower.slice(1);
+/** A chip's catalogue key: "WRONG DATA" → "wrongData". */
+const chipKey = (chip: ReasonChip): string =>
+  chip
+    .toLowerCase()
+    .split(" ")
+    .map((w, i) => (i === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join("");
+
+/** A chip as the button prints it, in the reader's language: "WRONG DATA". */
+export const chipLabel = (chip: ReasonChip, tr: Tr = EN()): string => tr(`chip.${chipKey(chip)}`);
+
+/** "WRONG DATA" → "Wrong data" — the words that land in the record, in the reader's language. */
+export function chipPhrase(chip: ReasonChip, tr: Tr = EN()): string {
+  return tr(`chipPhrase.${chipKey(chip)}`);
 }
 
 /**
@@ -189,10 +216,10 @@ export function chipPhrase(chip: ReasonChip): string {
  * "" + WRONG DATA → "Wrong data"; "Wrong data — the stock is off" +
  * TOO RISKY → "Too risky — the stock is off".
  */
-export function applyReasonChip(current: string, chip: ReasonChip): string {
+export function applyReasonChip(current: string, chip: ReasonChip, tr: Tr = EN()): string {
   let rest = current.trim();
   for (const c of REASON_CHIPS) {
-    const p = chipPhrase(c);
+    const p = chipPhrase(c, tr);
     if (rest === p) {
       rest = "";
       break;
@@ -202,15 +229,15 @@ export function applyReasonChip(current: string, chip: ReasonChip): string {
       break;
     }
   }
-  const phrase = chipPhrase(chip);
+  const phrase = chipPhrase(chip, tr);
   return rest === "" ? phrase : `${phrase} — ${rest}`;
 }
 
 /** Which chip, if any, currently leads the reason. */
-export function activeChip(current: string): ReasonChip | null {
+export function activeChip(current: string, tr: Tr = EN()): ReasonChip | null {
   const t = current.trim();
   for (const c of REASON_CHIPS) {
-    const p = chipPhrase(c);
+    const p = chipPhrase(c, tr);
     if (t === p || t.startsWith(`${p} — `)) return c;
   }
   return null;
@@ -535,50 +562,46 @@ export function changeLines(action: ActionLike, timeZone?: string): ChangeLine[]
  * "Pause “Autumn menu”", "Send to 398 customers". "Approve" when the
  * data names no specific consequence.
  */
-export function consequence(action: ActionLike): string {
+export function consequence(action: ActionLike, tr: Tr = EN(), locale: AppLocale = "en"): string {
   const d = asDetail(action.detail);
-  if (!d) return "Approve";
+  if (!d) return tr("act.approve");
   const change = str(d.change);
   // P3-54: what approving an ad asks for — creating it paused, or putting it live.
-  if (change === "run_ad") return "Create the ad, paused";
-  if (change === "go_live") return "Put the ad live";
+  if (change === "run_ad") return tr("act.createAd");
+  if (change === "go_live") return tr("act.goLive");
   const name = str(d.campaign_name);
-  if (change === "pause" && name) return `Pause “${name}”`;
+  if (change === "pause" && name) return tr("act.pause", { name });
   if (change === "raise_budget" && name && typeof d.share === "number") {
-    return `Raise “${name}” by ${num(d.share * 100)} %`;
+    return tr("act.raise", { name, pct: num(d.share * 100, 0, locale) });
   }
   if (Array.isArray(d.contact_ids) && d.contact_ids.length > 0) {
-    const n = d.contact_ids.length;
-    return `Send to ${num(n)} ${n === 1 ? "customer" : "customers"}`;
+    return tr("act.send", { count: d.contact_ids.length });
   }
   const platform = str(d.platform);
-  if (platform && str(d.publish_at)) return `Publish to ${platform}`;
-  return "Approve";
+  if (platform && str(d.publish_at)) return tr("act.publish", { platform });
+  return tr("act.approve");
 }
 
-const ORIGIN_WORDS: Record<string, string> = {
-  anomaly: "an alert in your numbers",
-  ads: "the ad review",
-  publish: "the content plan",
-  alert_review: "an alert review",
-  utterance: "something you asked for",
-  crm: "the customer review",
-  hours: "the opening-hours review",
-};
+const ORIGINS = new Set(["anomaly", "ads", "publish", "alert_review", "utterance", "crm", "hours"]);
 
 /** Where a proposal came from, in words, from its originating_finding ref. */
-export function originWord(ref: string | null | undefined): string | null {
+export function originWord(ref: string | null | undefined, tr: Tr = EN()): string | null {
   if (!ref) return null;
   const rec = /^report:[^:]+:rec:(\d+)$/.exec(ref);
-  if (rec) return `report recommendation ${Number(rec[1]) + 1}`;
+  if (rec) return tr("origin.report", { n: Number(rec[1]) + 1 });
   const prefix = ref.split(":")[0] ?? "";
-  return ORIGIN_WORDS[prefix] ?? ref;
+  return ORIGINS.has(prefix) ? tr(`origin.${prefix}`) : ref;
 }
 
 /** The list's short reversibility: "easy to undo" … "irreversible". */
-export function shortReversibility(rev: ReversibilityLike | null | undefined): string {
+export function shortReversibility(
+  rev: ReversibilityLike | null | undefined,
+  tr: Tr = EN(),
+): string {
   const level = rev?.level ?? null;
-  return level !== null && LEVELS.has(level) ? `${level} to undo` : "irreversible";
+  return level !== null && LEVELS.has(level)
+    ? tr("rev.short", { level })
+    : tr("rev.shortIrreversible");
 }
 
 /* ── evidence: every line with its source and basis ── */
@@ -740,17 +763,23 @@ export function approvalNote(args: {
   /** The proposal's own statement of what approval sends, if any. */
   sending?: unknown;
   timeZone?: string;
+  tr?: Tr;
+  locale?: AppLocale;
 }): string {
+  const tr = args.tr ?? EN();
+  const locale = args.locale ?? "en";
   const parts: string[] = [];
   if (args.runAt) {
     parts.push(
-      `Approving queues it to run no earlier than ${dayWord(args.runAt, args.timeZone)}, ${clockWord(args.runAt, args.timeZone)}. There is no un-approve; the emergency stop can still halt it.`,
+      tr("note.queued", {
+        day: dayWord(args.runAt, args.timeZone, locale),
+        clock: clockWord(args.runAt, args.timeZone, locale),
+      }),
     );
   } else {
-    parts.push(
-      "Approving records your yes with your name. With no set time, it doesn't run by itself.",
-    );
+    parts.push(tr("note.noTime"));
   }
+  // The proposal's own statement of what approval sends: its writer's words (L-4).
   const sending = str(args.sending);
   if (sending) parts.push(sending);
   return parts.join(" ");
@@ -761,13 +790,17 @@ export function approvalNote(args: {
  * could run is expired with the decision kept — "you approved this", never
  * "ran out of time undecided". Null for an ordinary, undecided expiry.
  */
-export function lapsedSentence(p: {
-  status: string;
-  decided_at: string | null;
-  execution_result?: unknown;
-}): string | null {
+export function lapsedSentence(
+  p: {
+    status: string;
+    decided_at: string | null;
+    execution_result?: unknown;
+  },
+  tr: Tr = EN(),
+): string | null {
   if (p.status !== "expired" || !p.decided_at) return null;
   const r = p.execution_result as { lapsed?: unknown; sentence?: unknown } | null | undefined;
+  // The engine's own sentence is stored as it was written (rule 4); it follows ours.
   const why = r?.lapsed === true && typeof r.sentence === "string" ? ` ${r.sentence}` : "";
-  return `You approved this, but it lapsed before it could run — nothing ran.${why}`;
+  return `${tr("lapsed")}${why}`;
 }
