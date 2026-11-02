@@ -5,11 +5,17 @@
 // prices beside yours, and what moved, each as a worded flag. Read-only
 // about the world: the only actions are on the owner's own list, and a
 // fresh read of pages they listed. Nothing here changes a price.
+//
+// L-3b (TASKS-LANGUAGES.md): the screen's own words are the "competitors"
+// catalogue; figures, money and dates in the reader's locale, each price in
+// its own currency. What the read found (their offer names, a change's
+// sentence, a gap's words, a read's problem) is said as lib/ built it — L-4.
 
 import "../../app/competitors.css";
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { ChangeFlag } from "../../lib/competitors/changes";
 import type {
   CompetitorCard,
@@ -17,15 +23,30 @@ import type {
   PriceRow,
   ReadState,
 } from "../../lib/competitors/view";
+import { dayMonth } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+/** The most other pages a competitor may list: lib/competitors/service MAX_PRICE_PAGES (server-only). */
+const MAX_PRICE_PAGES = 3;
+
 /** "19 Oct", in UTC so server and browser agree. */
-function dayText(iso: string): string {
+function dayText(iso: string, locale: AppLocale = "en"): string {
   const d = new Date(iso);
+  if (locale !== "en") return Number.isNaN(d.getTime()) ? "" : dayMonth(d.toISOString(), locale);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+}
+
+/** A rating as the read found it ("4.7", "5"), in the reader's writing. */
+function ratingText(rating: number, locale: AppLocale): string {
+  const decimals = String(rating).split(".")[1]?.length ?? 0;
+  return num(rating, decimals, locale);
 }
 
 function host(url: string | null): string | null {
@@ -47,45 +68,53 @@ const FLAG_TINT: Record<ChangeFlag, string> = {
   RATING: "low",
 };
 
-export function headline(view: CompetitorsView): string {
+export function headline(
+  view: CompetitorsView,
+  tr: Tr = englishTr("competitors"),
+  locale: AppLocale = "en",
+): string {
   const n = view.competitors.length;
-  if (n === 0) return "You haven't listed any competitors yet.";
+  if (n === 0) return tr("headline.none");
   const read = view.competitors.filter(
     (c) => c.read.state !== "unread" && c.read.state !== "failed",
   );
-  if (read.length === 0) {
-    return `I'm watching ${n} competitor${n === 1 ? "" : "s"}, and haven't read their prices yet.`;
-  }
+  if (read.length === 0) return tr("headline.unread", { count: n });
   const { matched, below } = view.summary;
   if (matched === 0) {
-    return `I've read ${read.length} of ${n} competitor${n === 1 ? "" : "s"}; none of their prices match an offer of yours yet.`;
+    return tr("headline.noMatch", { read: num(read.length, 0, locale), count: n });
   }
-  if (below === 0) {
-    return `None of ${matched} matched price${matched === 1 ? "" : "s"} is below yours.`;
-  }
-  return `${below} of ${matched} matched price${matched === 1 ? " is" : "s are"} below yours.`;
+  if (below === 0) return tr("headline.noneBelow", { matched });
+  return tr("headline.below", { below: num(below, 0, locale), matched });
 }
 
-function readWords(c: CompetitorCard): { state: ReadState; text: string; title?: string } {
+function readWords(
+  c: CompetitorCard,
+  tr: Tr,
+  locale: AppLocale,
+): { state: ReadState; text: string; title?: string } {
   const r = c.read;
-  if (c.pages === 0) return { state: "unread", text: "No pages to read" };
-  if (r.state === "unread") return { state: "unread", text: "Not read yet" };
+  if (c.pages === 0) return { state: "unread", text: tr("read.noPages") };
+  if (r.state === "unread") return { state: "unread", text: tr("read.notYet") };
   const first = r.problems[0];
   if (r.state === "failed") {
     return {
       state: "failed",
-      text: `Couldn't read: ${first?.reason ?? "no page answered"}`,
-      ...(r.at ? { title: `Tried ${dayText(r.at)}` } : {}),
+      text: tr("read.failed", { reason: first?.reason ?? tr("read.noAnswer") }),
+      ...(r.at ? { title: tr("read.tried", { day: dayText(r.at, locale) }) } : {}),
     };
   }
-  const at = r.at ? dayText(r.at) : "";
+  const at = r.at ? dayText(r.at, locale) : "";
   if (r.state === "partial") {
     return {
       state: "partial",
-      text: `Read ${at}; ${r.problems.length} page${r.problems.length === 1 ? "" : "s"} not: ${first?.reason ?? ""}`,
+      text: tr("read.partial", {
+        day: at,
+        count: r.problems.length,
+        reason: first?.reason ?? "",
+      }),
     };
   }
-  return { state: "read", text: `Read ${at}` };
+  return { state: "read", text: tr("read.done", { day: at }) };
 }
 
 /* ── the add / edit form ── */
@@ -119,6 +148,7 @@ function CompetitorForm({
   onSubmit: (d: Draft) => Promise<string | null>;
   onCancel: () => void;
 }) {
+  const { tr } = useTr("competitors");
   const [d, setD] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,35 +165,32 @@ function CompetitorForm({
   return (
     <form className="cp-form" onSubmit={submit}>
       <label>
-        <span>Name</span>
+        <span>{tr("form.name")}</span>
         <input {...field("name")} required maxLength={120} autoComplete="off" />
       </label>
       <label>
-        <span>Their website</span>
+        <span>{tr("form.website")}</span>
         <input
           {...field("url")}
-          placeholder="their web address"
+          placeholder={tr("form.websitePlaceholder")}
           inputMode="url"
           autoComplete="off"
         />
       </label>
       <label>
-        <span>Booking or listing page</span>
+        <span>{tr("form.listing")}</span>
         <input
           {...field("listing_url")}
-          placeholder="Fresha, Treatwell, Booksy, Google, a shop page"
+          placeholder={tr("form.listingPlaceholder")}
           inputMode="url"
           autoComplete="off"
         />
       </label>
       <label className="cp-wide">
-        <span>Other pages with their prices, one per line (up to 3)</span>
+        <span>{tr("form.otherPages", { max: MAX_PRICE_PAGES })}</span>
         <textarea {...field("price_pages")} rows={2} />
       </label>
-      <p className="cp-note cp-wide">
-        I read only these pages, once a week. I never log in anywhere, and I skip any page their
-        robots.txt asks robots to leave alone.
-      </p>
+      <p className="cp-note cp-wide">{tr("form.note")}</p>
       {error && (
         <p className="cp-error cp-wide" role="alert">
           {error}
@@ -171,10 +198,10 @@ function CompetitorForm({
       )}
       <div className="cp-actions cp-wide">
         <button type="submit" className="act solid" disabled={busy}>
-          {busy ? "Saving…" : submitLabel}
+          {busy ? tr("form.saving") : submitLabel}
         </button>
         <button type="button" className="act" onClick={onCancel} disabled={busy}>
-          Cancel
+          {tr("form.cancel")}
         </button>
       </div>
     </form>
@@ -196,23 +223,20 @@ function WatchList({
   onSave: (id: string | null, d: Draft) => Promise<string | null>;
   onRemove: (id: string) => void;
 }) {
+  const { tr, locale } = useTr("competitors");
   const [editing, setEditing] = useState<string | "new" | null>(null);
   const list = view.competitors;
   return (
     <SheetCard
-      label="Who I'm watching"
-      title={
-        list.length === 0
-          ? "Nobody yet"
-          : `${list.length} competitor${list.length === 1 ? "" : "s"}`
-      }
-      meta="Their public pages, read weekly"
+      label={tr("watch.label")}
+      title={list.length === 0 ? tr("watch.nobody") : tr("watch.count", { count: list.length })}
+      meta={tr("watch.meta")}
       foot={
         editing === "new" ? undefined : (
           <span className="cp-foot-row">
-            <span>Names come from your interview answers and from what you add here.</span>
+            <span>{tr("watch.foot")}</span>
             <button type="button" className="act" onClick={() => setEditing("new")}>
-              Add a competitor →
+              {tr("watch.addOne")}
             </button>
           </span>
         )
@@ -221,7 +245,7 @@ function WatchList({
       {editing === "new" && (
         <CompetitorForm
           initial={emptyDraft}
-          submitLabel="Add"
+          submitLabel={tr("watch.add")}
           onCancel={() => setEditing(null)}
           onSubmit={async (d) => {
             const error = await onSave(null, d);
@@ -231,21 +255,18 @@ function WatchList({
         />
       )}
       {list.length === 0 && editing !== "new" ? (
-        <p className="cp-copy">
-          Tell me who you compete with: their website, and the booking or listing page where their
-          prices are. I read those pages and nothing else.
-        </p>
+        <p className="cp-copy">{tr("watch.empty")}</p>
       ) : (
         <ul className="cp-list">
           {list.map((c) => {
-            const w = readWords(c);
+            const w = readWords(c, tr, locale);
             const busy = reading === c.id;
             return (
               <li key={c.id}>
                 {editing === c.id ? (
                   <CompetitorForm
                     initial={draftOf(c)}
-                    submitLabel="Save"
+                    submitLabel={tr("watch.save")}
                     onCancel={() => setEditing(null)}
                     onSubmit={async (d) => {
                       const error = await onSave(c.id, d);
@@ -260,14 +281,14 @@ function WatchList({
                       <span className="cp-src">
                         {[...new Set([host(c.url), host(c.listing_url)].filter(Boolean))].join(
                           " · ",
-                        ) || "no pages listed"}
-                        {c.pages > 0 && ` · ${c.pages} page${c.pages === 1 ? "" : "s"}`}
+                        ) || tr("watch.noPagesListed")}
+                        {c.pages > 0 && ` · ${tr("watch.pages", { count: c.pages })}`}
                       </span>
                     </div>
                     <div className="cp-state">
                       {busy ? (
                         <span className="live">
-                          <span className="live-dot" aria-hidden="true" /> Reading their pages…
+                          <span className="live-dot" aria-hidden="true" /> {tr("watch.reading")}
                         </span>
                       ) : (
                         <span className={`cp-read ${w.state}`} title={w.title}>
@@ -276,12 +297,19 @@ function WatchList({
                       )}
                       <span className="cp-src">
                         {c.offers_seen > 0
-                          ? `${num(c.offers_seen)} price${c.offers_seen === 1 ? "" : "s"}`
+                          ? tr("watch.prices", { count: c.offers_seen })
                           : c.read.state === "unread"
                             ? ""
-                            : "no prices seen"}
+                            : tr("watch.noPrices")}
                         {c.rating &&
-                          ` · rated ${c.rating.rating}${c.rating.count !== null ? ` (${num(c.rating.count)})` : ""}`}
+                          ` · ${
+                            c.rating.count !== null
+                              ? tr("watch.ratedCount", {
+                                  rating: ratingText(c.rating.rating, locale),
+                                  count: num(c.rating.count, 0, locale),
+                                })
+                              : tr("watch.rated", { rating: ratingText(c.rating.rating, locale) })
+                          }`}
                       </span>
                     </div>
                     <div className="cp-row-acts">
@@ -291,13 +319,13 @@ function WatchList({
                         disabled={busy || reading !== null || c.pages === 0}
                         onClick={() => onRead(c.id)}
                       >
-                        Read now
+                        {tr("watch.readNow")}
                       </button>
                       <button type="button" className="act" onClick={() => setEditing(c.id)}>
-                        Edit
+                        {tr("watch.edit")}
                       </button>
                       <button type="button" className="act" onClick={() => onRemove(c.id)}>
-                        Remove
+                        {tr("watch.remove")}
                       </button>
                     </div>
                   </div>
@@ -312,24 +340,24 @@ function WatchList({
 }
 
 function Changes({ view }: { view: CompetitorsView }) {
+  const { tr, locale } = useTr("competitors");
   const list = view.changes;
   return (
     <SheetCard
-      label="Recent changes"
-      title={list.length === 0 ? "Nothing moved yet" : "What moved"}
+      label={tr("changes.label")}
+      title={list.length === 0 ? tr("changes.none") : tr("changes.title")}
     >
       {list.length === 0 ? (
-        <p className="cp-copy">
-          Each week I compare their pages with the last read. A price cut or rise, an offer added or
-          gone, or a rating that moved shows up here and in Watching.
-        </p>
+        <p className="cp-copy">{tr("changes.empty")}</p>
       ) : (
         <ul className="cp-changes">
           {list.slice(0, 8).map((ch) => (
             <li key={`${ch.at}-${ch.sentence}`}>
-              <span className={`flag ${FLAG_TINT[ch.flag]}`}>{ch.flag}</span>
+              <span className={`flag ${FLAG_TINT[ch.flag]}`}>
+                {tr(`flag.${ch.flag.toLowerCase()}`)}
+              </span>
               <p>{ch.sentence}</p>
-              <span className="cp-at">{dayText(ch.at)}</span>
+              <span className="cp-at">{dayText(ch.at, locale)}</span>
             </li>
           ))}
         </ul>
@@ -338,14 +366,12 @@ function Changes({ view }: { view: CompetitorsView }) {
   );
 }
 
-const BASIS: Record<string, string> = {
-  owner: "your match",
-  name: "same name",
-  category: "same kind",
-};
+/** How a match was made: "basis.<key>" in the catalogue. */
+const BASIS = new Set(["owner", "name", "category"]);
 
-function priceCell(r: Pick<PriceRow, "their_price" | "from">): string {
-  return `${r.from ? "from " : ""}${moneyText(r.their_price.amount_minor, r.their_price.currency)}`;
+function priceCell(r: Pick<PriceRow, "their_price" | "from">, tr: Tr, locale: AppLocale): string {
+  const price = moneyText(r.their_price.amount_minor, r.their_price.currency, locale);
+  return r.from ? tr("prices.from", { price }) : price;
 }
 
 function PriceTable({
@@ -355,44 +381,44 @@ function PriceTable({
   view: CompetitorsView;
   onMatch: (row: PriceRow, offerId: string | null) => void;
 }) {
+  const { tr, locale } = useTr("competitors");
+  const t = useTranslations("competitors");
   const rows = view.rows.slice(0, 80);
   if (view.rows.length === 0) {
     return (
-      <SheetCard label="Their prices beside yours" title="No prices to compare yet">
+      <SheetCard label={tr("prices.label")} title={tr("prices.noneTitle")}>
         <p className="cp-copy">
-          {view.competitors.length === 0
-            ? "Once you list a competitor and I've read their pages, their prices sit here beside yours."
-            : "When a read finds prices on their pages, they sit here beside yours."}{" "}
-          {view.own_offers.length === 0 && (
-            <>
-              Your own offers come from your <Link href="/profile">fact sheet</Link>.
-            </>
-          )}
+          {view.competitors.length === 0 ? tr("prices.emptyNone") : tr("prices.emptyRead")}{" "}
+          {view.own_offers.length === 0 &&
+            t.rich("prices.ownOffers", { link: (c) => <Link href="/profile">{c}</Link> })}
         </p>
       </SheetCard>
     );
   }
   return (
     <SheetCard
-      label="Their prices beside yours"
-      title={`${num(view.summary.matched)} of ${num(view.rows.length)} of their prices compare with yours`}
-      meta="Matched by name or by kind of service; change any match"
-      foot="A comparison is something for you to weigh. I never change a price."
+      label={tr("prices.label")}
+      title={tr("prices.title", {
+        matched: num(view.summary.matched, 0, locale),
+        total: view.rows.length,
+      })}
+      meta={tr("prices.meta")}
+      foot={tr("prices.foot")}
     >
-      <div className="cp-table-wrap" tabIndex={0} aria-label="Their prices beside yours">
+      <div className="cp-table-wrap" tabIndex={0} aria-label={tr("prices.label")}>
         <table className="rt cp-table">
           <thead>
             <tr>
-              <th scope="col">Their offer</th>
-              <th scope="col">Competitor</th>
+              <th scope="col">{tr("prices.theirOffer")}</th>
+              <th scope="col">{tr("prices.competitor")}</th>
               <th scope="col" className="num">
-                Theirs
+                {tr("prices.theirs")}
               </th>
-              <th scope="col">Compared with</th>
+              <th scope="col">{tr("prices.comparedWith")}</th>
               <th scope="col" className="num">
-                Yours
+                {tr("prices.yours")}
               </th>
-              <th scope="col">Difference</th>
+              <th scope="col">{tr("prices.difference")}</th>
             </tr>
           </thead>
           <tbody>
@@ -402,31 +428,37 @@ function PriceTable({
                   {r.their_name}
                   <span className="cp-src cp-how">
                     {r.method === "model"
-                      ? "read by the model"
-                      : `read from ${r.method === "pattern" ? "the page text" : r.method === "og" ? "page tags" : "page data"}`}
+                      ? tr("prices.byModel")
+                      : r.method === "pattern"
+                        ? tr("prices.fromText")
+                        : r.method === "og"
+                          ? tr("prices.fromTags")
+                          : tr("prices.fromData")}
                   </span>
                 </th>
                 <td>{r.competitor}</td>
-                <td className="num">{priceCell(r)}</td>
+                <td className="num">{priceCell(r, tr, locale)}</td>
                 <td>
                   <select
                     className="cp-match"
-                    aria-label={`Which of your offers ${r.their_name} compares with`}
+                    aria-label={tr("prices.matchLabel", { name: r.their_name })}
                     value={r.basis === null ? "none" : (r.yours?.id ?? "none")}
                     onChange={(e) => onMatch(r, e.target.value)}
                   >
-                    <option value="none">Nothing of mine</option>
+                    <option value="none">{tr("prices.nothingOfMine")}</option>
                     {view.own_offers.map((o) => (
                       <option key={o.id} value={o.id}>
                         {o.name}
                       </option>
                     ))}
                   </select>
-                  {r.basis && <span className="cp-src cp-how">{BASIS[r.basis]}</span>}
+                  {r.basis && BASIS.has(r.basis) && (
+                    <span className="cp-src cp-how">{tr(`basis.${r.basis}`)}</span>
+                  )}
                 </td>
                 <td className="num">
                   {r.yours?.price
-                    ? moneyText(r.yours.price.amount_minor, r.yours.price.currency)
+                    ? moneyText(r.yours.price.amount_minor, r.yours.price.currency, locale)
                     : "—"}
                 </td>
                 <td className="cp-gap">
@@ -445,7 +477,7 @@ function PriceTable({
       </div>
       {view.rows.length > rows.length && (
         <p className="cp-note">
-          Showing the first {rows.length} of {num(view.rows.length)} prices, matched ones first.
+          {tr("prices.showing", { shown: num(rows.length, 0, locale), total: view.rows.length })}
         </p>
       )}
     </SheetCard>
@@ -463,24 +495,27 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useTr("competitors");
   return (
     <main className="screen cp-screen">
-      <PageHead kicker="Insights · Competitors" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
     </main>
   );
 }
 
-async function errorOf(res: Response): Promise<string> {
+async function errorOf(res: Response, tr: Tr): Promise<string> {
   try {
     const body = (await res.json()) as { error?: string };
-    return body.error ?? "That didn't work. Try again.";
+    return body.error ?? tr("screen.failed");
   } catch {
-    return "That didn't work. Try again.";
+    return tr("screen.failed");
   }
 }
 
 export function CompetitorsScreen() {
+  const { tr, locale } = useTr("competitors");
+  const t = useTranslations("competitors");
   const [view, setView] = useState<CompetitorsView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
   const [reading, setReading] = useState<string | null>(null);
@@ -507,7 +542,7 @@ export function CompetitorsScreen() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify(d),
     });
-    if (!res.ok) return errorOf(res);
+    if (!res.ok) return errorOf(res, tr);
     await load();
     return null;
   };
@@ -516,17 +551,16 @@ export function CompetitorsScreen() {
     setReading(id);
     setNotice(null);
     const res = await fetch(`/api/competitors/${id}/read`, { method: "POST" });
-    if (!res.ok) setNotice(await errorOf(res));
+    if (!res.ok) setNotice(await errorOf(res, tr));
     setReading(null);
     await load();
   };
 
   const remove = async (id: string) => {
-    const name = view?.competitors.find((c) => c.id === id)?.name ?? "this competitor";
-    if (!window.confirm(`Stop watching ${name}? What I read about them stays in your history.`))
-      return;
+    const name = view?.competitors.find((c) => c.id === id)?.name ?? tr("screen.thisCompetitor");
+    if (!window.confirm(tr("screen.confirmRemove", { name }))) return;
     const res = await fetch(`/api/competitors/${id}`, { method: "DELETE" });
-    if (!res.ok) setNotice(await errorOf(res));
+    if (!res.ok) setNotice(await errorOf(res, tr));
     await load();
   };
 
@@ -536,30 +570,30 @@ export function CompetitorsScreen() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ key: row.key, offer_id: offerId }),
     });
-    if (!res.ok) setNotice(await errorOf(res));
+    if (!res.ok) setNotice(await errorOf(res, tr));
     await load();
   };
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("screen.noBusiness")}>
         <p className="cp-wait">
-          <Link href="/intake">Start with the interview</Link>, and name your competitors there.
+          {t.rich("screen.startInterview", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="Competitors didn't load.">
-        <p className="cp-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("screen.failedTitle")}>
+        <p className="cp-wait">{tr("screen.failedCopy")}</p>
       </Frame>
     );
   }
-  if (!view) return <Frame title="Reading what I know about your competitors…" />;
+  if (!view) return <Frame title={tr("screen.loading")} />;
 
   return (
-    <Frame title={headline(view)} aside={<>Public pages only · read weekly · OBSERVED</>}>
+    <Frame title={headline(view, tr, locale)} aside={tr("aside")}>
       {notice && (
         <p className="cp-notice" role="status">
           {notice}

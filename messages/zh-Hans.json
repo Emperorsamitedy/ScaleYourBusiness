@@ -774,6 +774,228 @@
       "label": "以图表展示您的数字",
       "failed": "我暂时无法读取您的数字来生成图表。请刷新重试——没有任何内容丢失。",
       "reading": "正在读取您已测量的日子…"
+    },
+    "candle": {
+      "noneUnconnected": "还没有任何连接测量{metric}，所以没有可绘制的内容。",
+      "noneMeasured": "最近几周没有测量到{metric}，所以暂时没有可绘制的内容。",
+      "summaryPath": "每天的{metric}，{count, plural, other {# 根周蜡烛}}。上周开盘 {open}，收盘 {close}；通往目标的路径为每天 {target}。",
+      "summaryNoPath": "每天的{metric}，{count, plural, other {# 根周蜡烛}}。上周开盘 {open}，收盘 {close}；目标为每天 {target}，没有已测量的起始点来画路径。",
+      "perDay": "{metric} / 天",
+      "period": "{count} 周",
+      "ohlc": "开 {open} 高 {high} 低 {low} 收 {close} {change}",
+      "volume": "量 <b>{count}</b> {word}",
+      "volumeWord": {
+        "orders": "订单"
+      },
+      "today": "今天"
+    },
+    "cash": {
+      "key": "图例",
+      "band": "谨慎端至乐观端",
+      "low": "谨慎端",
+      "buffer": "您的缓冲金额",
+      "zero": "零（未说明缓冲金额）",
+      "lineBuffer": "缓冲线",
+      "lineZero": "零线",
+      "tight": "吃紧",
+      "today": "今天",
+      "readoutRange": "谨慎 <b>{low}</b> – 乐观 <b>{high}</b>",
+      "underLine": "低于该线",
+      "when": "时间",
+      "cautiousCol": "谨慎端（{currency}）",
+      "hopefulCol": "乐观端（{currency}）"
+    },
+    "market": {
+      "kicker": "洞察 · 用图表看您的数字",
+      "title": "您的企业，像股票一样解读",
+      "daysMeasured": "{count, plural, other {已测量 # 天}}",
+      "periodGroup": "蜡烛周期",
+      "period": {
+        "day": "{count} 天",
+        "week": "{count} 周",
+        "month": "{count} 月"
+      },
+      "periodSr": {
+        "day": "每天一根蜡烛",
+        "week": "每周一根蜡烛",
+        "month": "每月一根蜡烛"
+      },
+      "keyLabel": "图例",
+      "keyUp": "上涨：实心",
+      "keyDown": "下跌：空心",
+      "keySlip": "每天流失的",
+      "keyKept": "您本可保留的",
+      "keyTable": "可争取的",
+      "ohlc": "开 {open} 高 {high} 低 {low} 收 <b>{close}</b>",
+      "closedDays": "{count, plural, other {# 个休息日}}",
+      "volumeWord": {
+        "orders": "订单",
+        "appointments": "预约",
+        "visits": "到访"
+      },
+      "volumeCount": {
+        "orders": "{count, plural, other {# 个订单}}",
+        "appointments": "{count, plural, other {# 个预约}}",
+        "visits": "{count, plural, other {# 次到访}}"
+      },
+      "volumeNone": {
+        "orders": "订单未测量",
+        "appointments": "预约未测量",
+        "visits": "到访未测量"
+      },
+      "slipped": "流失 <b>{range}</b>：{parts} <word>{derived}</word> · 每天保留 {kept}",
+      "nothingSlipped": "已测量的部分没有流失",
+      "aheadLong": "可争取的",
+      "aheadShort": "可争取",
+      "eventsLabel": "图表上的标记",
+      "event": {
+        "anomaly": "检测到",
+        "approved": "您批准了",
+        "connected": "已连接"
+      },
+      "component": {
+        "revenue_dips": "营收下滑",
+        "no_shows": "爽约",
+        "late_cancellations": "临时取消",
+        "empty_capacity": "空闲时段",
+        "losing_ads": "亏钱的广告",
+        "slow_stock": "滞销库存占用的现金",
+        "on_the_table": "可争取的部分"
+      },
+      "price": {
+        "revenue": "每天营收",
+        "bookingRevenue": "每天预约营收"
+      },
+      "componentsCaption": "每月流失的部分、各部分的计算方式及其依据",
+      "colWhere": "在哪里流失",
+      "colMonth": "每月 {currency}",
+      "colBasis": "依据",
+      "colHow": "计算方式",
+      "apart": "未计入当月",
+      "legend": "一个月按 {days} 天计：每项流量都在其自身的时间窗口内读取，并按 {days} 天折算，正如其所在行所示。{derived} = {derivedMeaning}。此处的 {estimated} = 等待中的提案自身的预测。区间从低端到高端；只有一个数字表示其中没有计入任何估计值。",
+      "seeWaiting": "查看正在等待的内容 →",
+      "row": {
+        "notMeasured": "未测量",
+        "aMonth": "每月",
+        "basis": "依据",
+        "wouldFill": "需要什么来填补",
+        "tiedUp": "当前占用",
+        "now": "当前",
+        "how": "计算方式",
+        "over": "{days} 天内：{total}，× {month} ÷ {days}。"
+      },
+      "empty": {
+        "nothing": "暂时没有可绘制的内容。",
+        "connections": "前往“连接” →",
+        "would": "连接之后，我会算出钱在哪些地方流失："
+      },
+      "weekOf": "{day} 当周",
+      "table": {
+        "day": "日期",
+        "week": "周",
+        "month": "月",
+        "open": "开盘（{currency}）",
+        "high": "最高（{currency}）",
+        "low": "最低（{currency}）",
+        "close": "收盘（{currency}）",
+        "slipped": "流失（{currency}）",
+        "kept": "您每天本可保留的（{currency}）",
+        "notMeasured": "未测量",
+        "none": "无"
+      }
+    },
+    "season": {
+      "key": "图例",
+      "keyBusy": "繁忙：实心",
+      "keyQuiet": "清淡：空心",
+      "keyBand": "您中间一半的周",
+      "keyPlain": "一周对比您的中位周",
+      "nextShort": "{count, plural, other {未来 # 周}}",
+      "nextLong": "{count, plural, other {未来 # 周}}，去年同期",
+      "weekOf": "{day} 当周",
+      "yourNormal": "您的常态周",
+      "yourMedian": "您的中位周",
+      "flag": {
+        "busy": "繁忙",
+        "quiet": "清淡"
+      },
+      "colWeek": "所在周",
+      "colNormal": "对比常态周",
+      "colMedian": "对比中位周",
+      "colFlag": "标记",
+      "ready": {
+        "label": "您的一年 · {count, plural, other {# 周}}",
+        "titleEven": "过去一年的每一周都接近您的常态周",
+        "title": "过去一年中有 {busy, number} 个繁忙周和{quiet, plural, other { # 个清淡周}}",
+        "meta": "{source} · {noun} · 已观测的周，推导的指数",
+        "foot": "每根柱子是一周的{noun} ÷ 您的常态周（过去 {weeks, number} 周的中位数）。达到 {busy} 或以上为繁忙，{quiet} 或以下为清淡。",
+        "summary": "{count, plural, other {# 周}}的{noun}对比您的常态周；{busy, number} 周繁忙，{quiet, number} 周清淡。{headline}"
+      },
+      "short": {
+        "label": "现有的周 · {count, number}",
+        "title": "您的各周相互对比——还算不上季节规律",
+        "meta": "{source} · {noun} · 已观测",
+        "foot": "对比这 {count, number} 周的中位周。季节规律需要过去 {weeks, number} 周中有{needed, plural, other { # 个完整周}}；您现有 {have, number} 个。",
+        "summary": "{count, plural, other {# 个完整周}}的{noun}，对比其自身的中位数。历史数据不足，无法说出季节规律。"
+      }
+    },
+    "small": {
+      "keyLabel": "图例",
+      "bookings": {
+        "label": "预约 · 逐周",
+        "title": "已完成的、错过的，以及错过的价值",
+        "meta": "<word>{observed}</word> 计数 · <word>{derived}</word> 金额",
+        "keyCompleted": "已完成：实心",
+        "keyNoShow": "爽约：空心",
+        "keyLate": "临时取消：浅色",
+        "paneCount": "预约",
+        "paneMoney": "错过的价值（{currency}）",
+        "weekOf": "{day} 当周",
+        "completed": "{count, plural, other {已完成 # 个}}",
+        "noShows": "{count, plural, other {爽约 # 个}}",
+        "late": "{count, plural, other {临时取消 # 个}}",
+        "missedWorth": "错过的价值 <b>{range}</b>",
+        "caption": "每周的预约，以及错过的预约的价值",
+        "colWeek": "所在周",
+        "colCompleted": "已完成",
+        "colNoShows": "爽约",
+        "colLate": "临时取消",
+        "colMissed": "错过的价值（{currency}）"
+      },
+      "ads": {
+        "label": "广告 · {count, plural, other {最近 # 天}}",
+        "titleNone": "每项营销活动都能赚回其成本",
+        "titleLosing": "{count, plural, other {有 # 项营销活动的成本高于其带回的收入}}",
+        "window": "Meta Ads · {from}–{to}",
+        "derivedFrom": "<word>{derived}</word>，依据 Meta 自己的归因",
+        "foot": "回报 = Meta 归因于该营销活动的购买价值 ÷ 其花费。低于 {even} 时，按 Meta 自己的统计它在亏钱——这就是我提议暂停的那条线。",
+        "keySpent": "花费：空心",
+        "keyBack": "Meta 归因的回收：实心",
+        "colCampaign": "营销活动",
+        "colSpentBack": "花费对比回收",
+        "colReturn": "回报",
+        "colFlag": "标记",
+        "cellSpentBack": "花费 / 回收",
+        "spentBack": "花费 {spent} · 回收 {back}",
+        "losing": "亏损",
+        "paysBack": "能回本"
+      }
+    },
+    "stockHistory": {
+      "label": "动销慢的库存 · {count, plural, other {# 次盘点}}",
+      "title": "占用资金，逐次盘点",
+      "observed": "已观测",
+      "formula": "现有数量 × 单位成本",
+      "foot": "这是库存存量，而不是流量：每个点是某件商品在盘点当天的持有量，从不跨天累加。",
+      "otherCurrency": "{count, plural, other {有 # 件商品}}使用另一种货币，已略去。",
+      "item": "商品",
+      "over": "各次盘点",
+      "first": "首次（{currency}）",
+      "latest": "最近（{currency}）",
+      "oneCount": "一次盘点，{day}",
+      "unchanged": "未变化",
+      "down": "下降 {amount}",
+      "up": "上升 {amount}"
     }
   },
   "factsheet": {
@@ -1389,6 +1611,1475 @@
       "happened": "实际情况：{happened}",
       "foot": "我在展示每项预测的那一刻，就把它连同我给出的范围记录下来，并在时间到了之后仅根据测量到的数字评分。评分无法更改。",
       "cantTell": "“无法判断”表示没有测量到的数字，或者有我没有预测到的事情干扰了结果，比如一次送货。它永远不会被算作正确。"
+    }
+  },
+  "benchmarks": {
+    "meta": {
+      "title": "与同类企业比较 — SYB"
+    },
+    "kicker": "洞察 · 与同类企业比较",
+    "kickerShort": "与同类企业比较",
+    "aside": "Eurostat · 只读",
+    "add": "添加{what} →",
+    "addPeople": "添加这里有多少人工作",
+    "notComparedYet": "尚未比较",
+    "noComparison": "无可比较",
+    "nothingToCompare": "没有可比较的内容",
+    "yours": "您的",
+    "theirs": "同类",
+    "cell": "同类：{words}。",
+    "cellFlagged": "同类：{words}（{flag}）。",
+    "col": {
+      "restsOn": "您的数字依据什么",
+      "value": "数值",
+      "basis": "依据",
+      "source": "来自何处"
+    },
+    "notCounted": "未计入",
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "body": "<link>从访谈开始</link>，您自己的数字就会填进这里。"
+    },
+    "error": {
+      "title": "比较未能加载。",
+      "body": "我这边出了问题。请刷新页面重试。"
+    },
+    "loading": "正在读取您的数字…",
+    "head": {
+      "ready": "与{country}的{group}（{size}）相比。",
+      "noType": "我还不知道这是什么类型的企业。",
+      "unmapped": "Eurostat 没有这类企业的比较数据。",
+      "noCountry": "我不知道这家企业位于哪个国家。",
+      "outsideEu": "Eurostat 不覆盖{country}。"
+    },
+    "foot": "来源：Eurostat，{dataset}（{doi}），更新于 {updated}，获取于 {retrieved}，在注明来源的前提下复用。我保留每个组别最新一年的数据，并把欧元换算成您的货币；Eurostat 对此不承担责任。{caveat}",
+    "line": "您的是 {own}，同类是 {bench}：{gap}。",
+    "reading": {
+      "above": "高于",
+      "below": "低于",
+      "same": "基本持平",
+      "notYet": "尚未",
+      "none": "无可比较"
+    },
+    "nothingCompared": "尚无比较",
+    "comparedCount": "已比较 {count, number} / {total, number}",
+    "size": {
+      "unknown": "我不知道这家企业有多少人工作，所以组别涵盖所有规模。",
+      "spans": "您的规模跨越了 Eurostat 的两个规模组别，所以组别涵盖所有规模。"
+    }
+  },
+  "blindspots": {
+    "meta": {
+      "title": "盲点 — SYB"
+    },
+    "kicker": "洞察 · 盲点",
+    "quoted": "“{text}”",
+    "where": {
+      "support": "客户支持聊天",
+      "search": "站内搜索",
+      "google": "Google",
+      "competitors": "{checked, number} 个竞争对手中的 {showing, number} 个"
+    },
+    "head": {
+      "noSite": "您的资料中还没有网站。",
+      "notRead": "您的网站还没有被读取。",
+      "nothingMissing": "客户要找的内容，您的网站上都有。",
+      "things": "{count, plural, other {您的网站上缺少 # 项客户要找的内容。}}",
+      "foundBoth": "有 {count, number} 次搜索和提问在您的网站上一无所获。",
+      "foundSearches": "{count, plural, other {有 # 次搜索在您的网站上一无所获。}}",
+      "foundQuestions": "{count, plural, other {有 # 个问题在您的网站上一无所获。}}"
+    },
+    "table": {
+      "aria": "盲点表",
+      "lookedFor": "他们要找的",
+      "times": "次数",
+      "share": "占最大项的比例",
+      "where": "出现在哪里",
+      "onSite": "在您的网站上",
+      "notFound": "未找到"
+    },
+    "biggest": {
+      "label": "最大的盲点 · {count, plural, other {# 次}}",
+      "title": "“{label}”不在您的网站上",
+      "support": "客户支持聊天",
+      "notAsked": "无人问过",
+      "unanswered": "{count, number} 个未获回答",
+      "search": "站内搜索",
+      "notSearched": "无人搜索过",
+      "google": "Google",
+      "notSeen": "未出现",
+      "impressions": "次展示 · {count, plural, other {# 次点击}}",
+      "competitors": "竞争对手",
+      "noneChecked": "未检查",
+      "showing": "{checked, number} 个中的 {showing, number} 个",
+      "showIt": "在他们的网站上展示了它",
+      "toFix": "{arithmetic}。修复方法：{fix}。"
+    },
+    "fixed": {
+      "label": "盲点如何被修复",
+      "title": "经您批准，绝不自行修复",
+      "foot": "网站的更改在“网站”中等待。",
+      "link": "在“网站”中查看 →",
+      "stepFix": "修复方法是{fix}。",
+      "fixDefault": "通过批准队列进行的一项网站更改，或您的客户支持助手中的一条回答",
+      "stepWait": "不会自行改变任何东西：修复会在“等待您处理”中等待，直到您批准。",
+      "stepRecheck": "{days, plural, other {您的网站每 # 天会被重新读取一次}}，所以网站上现在已展示的盲点会从这个列表中消失。"
+    },
+    "coverage": {
+      "label": "这里看不到的内容",
+      "title": "是缺口，不是失败"
+    },
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "body": "<link>从访谈开始</link>，您的网站会据此被读取。"
+    },
+    "error": {
+      "title": "盲点未能加载。",
+      "body": "我们这边出了问题。请刷新页面重试。"
+    },
+    "loading": "正在读取客户要找的内容…",
+    "aside": {
+      "window": "{days, plural, other {最近 # 天}} · {from} 至 {to}",
+      "siteRead": "网站读取于 {day}",
+      "siteNotRead": "网站未读取",
+      "observed": "已观测"
+    },
+    "list": {
+      "label": "客户要找的，以及您的网站展示的",
+      "title": "{count, plural, other {# 个盲点，最大的排在前面}}",
+      "meta": "按指向它的来源数量排序，其次按次数",
+      "nothingMissing": "没有缺少的内容",
+      "nothingYet": "暂时没有可比较的内容",
+      "allThere": "客户问过或搜索过、且我能匹配上的内容，您的网站上都有。",
+      "noSite": "把您的网站添加到资料中，我会读取它最多五个页面，然后与客户提问和搜索的内容进行比较。",
+      "notRead": "您的网站还没有被读取，所以不能说它缺少任何内容。",
+      "notReadWhy": "您的网站还没有被读取：{why}，所以不能说它缺少任何内容。"
+    },
+    "factSheet": "事实表",
+    "hard": {
+      "label": "在您的网站上，但客户仍在不断询问",
+      "title": "可能不容易找到",
+      "item": "<strong>{label}</strong>：{count, plural, other {在您的客户支持聊天中被问过 # 次}}；它在<link>{page}</link>上。"
+    },
+    "seen": {
+      "label": "在 Google 上出现过，但很少被点击",
+      "title": "被展示，未被选择",
+      "search": "搜索",
+      "shown": "展示",
+      "clicked": "点击",
+      "position": "排名"
+    },
+    "topics": {
+      "label": "人们搜索过的其他内容",
+      "title": "它在您的网站上吗？",
+      "item": "<strong>{label}</strong>：{count, plural, other {# 次搜索}}（例如 {examples}）"
+    }
+  },
+  "carts": {
+    "meta": {
+      "title": "弃购购物车 — SYB"
+    },
+    "kicker": "客户 · 弃购购物车",
+    "foot": "SYB 从不给没有同意的购物者发邮件。如果您使用 Shopify 自带的结账放弃提醒邮件，那是另一回事。",
+    "signedOut": "这里还没有企业。",
+    "startInterview": "<link>从访谈开始</link>。",
+    "failedTitle": "购物车未能加载。",
+    "failedBody": "我们这边出了问题。请刷新页面重试。",
+    "reading": "正在读取您的购物车…",
+    "connect": "连接您的 Shopify 网店，我每次同步都会读取其中未完成的结账。",
+    "connections": "连接",
+    "measured": "已测量",
+    "notYet": "尚未",
+    "waitingForYou": "等待您处理",
+    "workingItOut": "正在计算…",
+    "ruledOut": "我没有把它放进您的队列：您的规则（{rule}）排除了它。",
+    "products": {
+      "label": "被留下的商品 · {count, plural, other {# 个购物车}}",
+      "titleSome": "出现在最多购物车中的排在前面",
+      "titleNone": "没有可以列出的产品",
+      "meta": "根据您网店自己的结账记录测量",
+      "table": "留在购物车中的产品",
+      "product": "产品",
+      "inCarts": "所在购物车数",
+      "units": "件数",
+      "valueLeft": "留下的金额",
+      "aProduct": "某个产品",
+      "noProduct": "被留下的购物车中没有我能列出名称的产品。",
+      "truncated": "{count, plural, other {有 # 个购物车}}的商品多于一次读取的上限，因此这里每个购物车只计入前 {max} 件。它们的总额已全额计入。"
+    },
+    "winBack": {
+      "label": "可能挽回的 · {shoppers} 位购物者中有 {emailable} 位可以发邮件",
+      "titleRange": "可能挽回 {range}",
+      "titleNone": "暂时没有可以通过邮件挽回的",
+      "inQueue": "今天的提醒已在您的队列中。",
+      "oneEmail": "一封邮件，发给在 {min}–{max} 天前留下购物车并表示同意的 {count, plural, other {# 位联系人}}。在您批准这封邮件本身之前，什么都不会发出。",
+      "button": "提出挽回邮件 →",
+      "rangeOf": "{base} 的 {low}–{high}",
+      "rangeBase": "{count, plural, other {# 个购物者同意接收邮件的购物车}}的金额",
+      "nobody": "在最近 {days} 天内留下购物车的人中，没有可以发邮件的，所以我不给出数字。",
+      "working": "正在准备提醒"
+    },
+    "consent": {
+      "label": "可以给谁发邮件",
+      "title": "只发给表示同意的人",
+      "checkout": "在 Shopify 结账时勾选“给我发邮件”的购物者，一旦 SYB 获准读取您的 Shopify 客户，就会成为一个记录了该同意的联系人。您自己记录的同意，只会被之后在 Shopify 中的退订所取代。"
+    },
+    "refusal": {
+      "label": "弃购购物车",
+      "noneRead": "我还没有读取任何购物车。",
+      "rule": "当有 {days} 天的购物车数据，并且最近 {window} 天内有 {carts} 个购物车被留下时，我才进行测量，这样不会把清淡的一周当作规律。"
+    },
+    "result": {
+      "didntWork": "没有成功。",
+      "ourSide": "我们这边出了问题。",
+      "nothingNew": "没有新的提案。",
+      "nothingNewWhy": "没有新的提案：{reason}。",
+      "waits": "一封挽回邮件正在等待您处理。",
+      "blocked": "您自己的规则拦下了它，所以它以已拦截状态留在您的队列中。"
+    },
+    "view": {
+      "and": "{first} 和 {last}",
+      "titleTooMany": "结账记录太多，无法读取",
+      "titleStale": "旧的读取结果不给出数字",
+      "titleTooFew": "购物车太少，无法测量",
+      "waiting": "等待您处理",
+      "blocked": "被您的规则拦下",
+      "approved": "已批准",
+      "sent": "已发送",
+      "declined": "已拒绝",
+      "expired": "已过期"
+    }
+  },
+  "cash": {
+    "meta": {
+      "title": "现金流 — SYB"
+    },
+    "kicker": "洞察 · 现金流",
+    "aside": "规划辅助 · 只读",
+    "planningNote": "根据您自己的数字所做的规划辅助，不是财务建议。SYB 从不转移、支付或收取任何款项。",
+    "sourcesNone": "来源：您陈述的现金和成本，以及已测量的销售。",
+    "signedOut": "这里还没有企业。",
+    "startInterview": "<link>从访谈开始</link>。",
+    "failedTitle": "现金流预测未能加载。",
+    "failedBody": "我们这边出了问题。请刷新页面重试。",
+    "reading": "正在读取您的数字…",
+    "refused": {
+      "label": "现有的数据有多少",
+      "labelFrom": "现有的数据有多少 · {source}",
+      "weeks": "完整周数：{complete} / {needed}",
+      "nothing": "还没有可用于预测的数据",
+      "readyOn": "如果同步持续运行，大约从 {day} 起可用",
+      "gapLabel": "我现在能说什么、还不能说什么",
+      "gapTitle": "如实说明缺口",
+      "can": "我能",
+      "cannot": "我暂时还不能"
+    },
+    "warning": {
+      "label": "资金何时吃紧",
+      "titleTight": "第一个吃紧的周",
+      "titleNone": "接下来 {weeks} 周内没有吃紧的周",
+      "metaBuffer": "对照您希望账上至少保留的金额",
+      "metaZero": "未说明缓冲金额：对照账上余额为零",
+      "none": "在谨慎的一端（销售慢、回款慢），每一周的余额都保持在这条线之上。",
+      "reading": "这是对您数字的一次解读，已写入您的观察日志和每周摘要。不会就此提出或执行任何事。",
+      "askBuffer": "<link>告诉我您希望账上至少保留多少钱</link>，我就改为画出那条线。"
+    },
+    "weeks": {
+      "label": "逐周",
+      "title": "进账、出账与余额",
+      "meta": "谨慎 – 乐观，按整数单位",
+      "week": "周",
+      "moneyIn": "进账",
+      "goingOut": "出账",
+      "dueThatWeek": "当周到期",
+      "due": "到期",
+      "balanceEnd": "期末余额",
+      "balance": "余额",
+      "under": "低于该线"
+    },
+    "scenarios": {
+      "label": "情景 · 并排对比",
+      "title": "如果……",
+      "meta": "每个情景都运行同一个预测，只改变一处",
+      "form": "情景规模",
+      "slow": "淡月，降低百分比",
+      "from": "从",
+      "order": "大额订单（{currency}）",
+      "in": "于",
+      "hire": "招聘，每月 {currency}",
+      "priceOn": "调价对象",
+      "by": "幅度",
+      "run": "计算一下",
+      "running": "正在计算…",
+      "measure": "指标",
+      "whatChanges": "变化之处",
+      "lowest": "最低余额（谨慎端）",
+      "after": "{weeks} 周后的余额",
+      "against": "与现状相比",
+      "firstTight": "第一个吃紧的周",
+      "missing": "缺失",
+      "assumed": "假设 · {text}"
+    },
+    "sources": {
+      "label": "这份预测的依据",
+      "title": "来源，以及我所做的假设",
+      "meta": "历史数据：{from} 至 {to}",
+      "input": "输入",
+      "value": "数值",
+      "basis": "依据",
+      "cameFrom": "来自何处",
+      "from": "来自",
+      "assumedByName": "逐项列明的假设",
+      "leftOut": "未计入",
+      "sharpen": "可以让它更精确的",
+      "yours": "这里没有任何行业平均值：每个数字都是您的，要么已测量，要么由您陈述，要么在上面列明为假设。"
+    },
+    "view": {
+      "today": "今天",
+      "weekOf": "{day} 当周",
+      "weekOfLower": "{day} 当周",
+      "none": "无",
+      "plainTitle": "保持现状",
+      "plainChange": "没有任何变化。",
+      "weekOption": "第 {n} 周 · {day}",
+      "twelfth": "{item}（十二分之一）",
+      "signedRange": "{low} 至 {high}",
+      "chartLabel": "接下来 {weeks} 周 · 每周末的余额"
+    }
+  },
+  "competitors": {
+    "meta": {
+      "title": "竞争对手 — SYB"
+    },
+    "kicker": "洞察 · 竞争对手",
+    "aside": "仅限公开页面 · 每周读取 · 已观测",
+    "headline": {
+      "none": "您还没有列出任何竞争对手。",
+      "unread": "{count, plural, other {我正在关注 # 个竞争对手}}，还没有读取他们的价格。",
+      "noMatch": "{count, plural, other {在 # 个竞争对手中}}，我已读取了 {read} 个；他们的价格还没有一个能与您的某项产品或服务对应上。",
+      "noneBelow": "{matched, plural, other {在 # 个已对应的价格中}}，没有一个低于您的价格。",
+      "below": "{matched, plural, other {在 # 个已对应的价格中}}，有 {below} 个低于您的价格。"
+    },
+    "read": {
+      "noPages": "没有可读取的页面",
+      "notYet": "尚未读取",
+      "failed": "无法读取：{reason}",
+      "noAnswer": "没有页面响应",
+      "tried": "已于 {day} 尝试",
+      "partial": "已于 {day} 读取；{count, plural, other {# 个页面}}未读取：{reason}",
+      "done": "已于 {day} 读取"
+    },
+    "form": {
+      "name": "名称",
+      "website": "他们的网站",
+      "websitePlaceholder": "他们的网址",
+      "listing": "预约或商户页面",
+      "listingPlaceholder": "Fresha、Treatwell、Booksy、Google、一个店铺页面",
+      "otherPages": "其他列有他们价格的页面，每行一个（最多 {max} 个）",
+      "note": "我只读取这些页面，每周一次。我从不在任何地方登录，并会跳过其 robots.txt 要求机器人不要访问的任何页面。",
+      "saving": "正在保存…",
+      "cancel": "取消"
+    },
+    "watch": {
+      "label": "我正在关注谁",
+      "nobody": "还没有任何人",
+      "count": "{count, plural, other {# 个竞争对手}}",
+      "meta": "他们的公开页面，每周读取",
+      "foot": "名称来自您在访谈中的回答，以及您在这里添加的内容。",
+      "addOne": "添加一个竞争对手 →",
+      "add": "添加",
+      "empty": "告诉我您和谁竞争：他们的网站，以及列有他们价格的预约或商户页面。我只读取这些页面，别的都不读。",
+      "save": "保存",
+      "noPagesListed": "未列出页面",
+      "pages": "{count, plural, other {# 个页面}}",
+      "reading": "正在读取他们的页面…",
+      "prices": "{count, plural, other {# 个价格}}",
+      "noPrices": "未看到价格",
+      "rated": "评分 {rating}",
+      "ratedCount": "评分 {rating}（{count}）",
+      "readNow": "立即读取",
+      "edit": "编辑",
+      "remove": "移除"
+    },
+    "changes": {
+      "label": "最近的变化",
+      "none": "暂时没有变化",
+      "title": "发生了哪些变化",
+      "empty": "每周我都会把他们的页面与上次读取的结果进行比较。降价或涨价、新增或下架的产品或服务，或者评分变化，都会显示在这里和“观察”中。"
+    },
+    "flag": {
+      "cheaper": "更便宜",
+      "dearer": "更贵",
+      "new": "新增",
+      "gone": "已下架",
+      "changed": "已变化",
+      "rating": "评分"
+    },
+    "basis": {
+      "owner": "您的对应",
+      "name": "名称相同",
+      "category": "类型相同"
+    },
+    "prices": {
+      "from": "{price} 起",
+      "label": "他们的价格与您的并排对比",
+      "noneTitle": "暂时没有可比较的价格",
+      "emptyNone": "一旦您列出一个竞争对手、我读取了他们的页面，他们的价格就会显示在这里，与您的并排。",
+      "emptyRead": "当一次读取在他们的页面上找到价格时，这些价格会显示在这里，与您的并排。",
+      "ownOffers": "您自己的产品和服务来自您的<link>事实表</link>。",
+      "title": "{total, plural, other {他们的 # 个价格中}}，有 {matched} 个可与您的比较",
+      "meta": "按名称或服务类型对应；任何对应都可以修改",
+      "foot": "比较结果供您权衡。我从不改变任何价格。",
+      "theirOffer": "他们的产品或服务",
+      "competitor": "竞争对手",
+      "theirs": "他们的",
+      "comparedWith": "对比",
+      "yours": "您的",
+      "difference": "差额",
+      "byModel": "由模型读取",
+      "fromText": "从页面文字中读取",
+      "fromTags": "从页面标签中读取",
+      "fromData": "从页面数据中读取",
+      "matchLabel": "{name} 与您的哪项产品或服务比较",
+      "nothingOfMine": "没有我的对应项",
+      "showing": "{total, plural, other {共 # 个价格}}，显示前 {shown} 个，已对应的排在前面。"
+    },
+    "screen": {
+      "failed": "没有成功。请重试。",
+      "thisCompetitor": "这个竞争对手",
+      "confirmRemove": "停止关注 {name}？我读取到的关于他们的内容会保留在您的历史记录中。",
+      "noBusiness": "这里还没有企业。",
+      "startInterview": "<link>从访谈开始</link>，并在那里列出您的竞争对手。",
+      "failedTitle": "竞争对手未能加载。",
+      "failedCopy": "我们这边出了问题。请刷新页面重试。",
+      "loading": "正在读取我所知道的关于您竞争对手的信息…"
+    }
+  },
+  "goals": {
+    "meta": {
+      "title": "目标 — SYB"
+    },
+    "kicker": "洞察 · 目标",
+    "metric": {
+      "revenue": "营收",
+      "orders": "销售笔数",
+      "sessions": "网站访问量"
+    },
+    "word": {
+      "reached": "已达成",
+      "on_path": "在路径上",
+      "behind": "落后于路径",
+      "off_path": "偏离路径",
+      "too_early": "为时尚早",
+      "unmeasured": "未测量",
+      "unchecked": "尚未检查",
+      "unmeasurable": "无法测量"
+    },
+    "cause": {
+      "our_advice_was_wrong": "我们的建议有误",
+      "goal_unrealistic": "这个目标对给定的时间要求太高",
+      "owner_declined_key_actions": "关键步骤被拒绝了",
+      "approved_actions_not_executed": "已批准的步骤从未执行",
+      "execution_failed": "执行时出了故障",
+      "data_incomplete": "我们缺少数据",
+      "external_change": "外部情况发生了变化",
+      "other": "其他原因"
+    },
+    "form": {
+      "directionLabel": "提高或降低",
+      "raise": "提高",
+      "lower": "降低",
+      "metricLabel": "测量什么",
+      "to": "到",
+      "targetLabel": "目标值",
+      "currencyLabel": "货币",
+      "perBy": "每 {days} 天，截止于",
+      "deadlineLabel": "截止日期",
+      "submit": "使其可测量",
+      "aboveZero": "请输入大于零的目标值。",
+      "notSaved": "未能保存。",
+      "savedNoBaseline": "已保存。还没有起始值：{note}。",
+      "horizon": "日期留空时，由这个目标自身的期限来设定。"
+    },
+    "review": {
+      "head": "警报复查 · {day}",
+      "headPerson": "警报复查 · {day} · 现在由 SYB 的一位工作人员处理",
+      "escalated": "自动复查已经尽力了。我们的工作人员正在查看这个目标，会与您联系。",
+      "escalatedWhy": "自动复查已经尽力了（{reason}）。我们的工作人员正在查看这个目标，会与您联系。",
+      "cause": "<strong>{cause}：</strong>{statement}（{count, plural, other {# 条证据}}）",
+      "waiting": "{title} — 等待您处理",
+      "waitingNote": "{title} — 等待您处理（{note}）",
+      "yours": "{title} — 由您决定"
+    },
+    "foot": {
+      "waiting": "等待您处理",
+      "connections": "连接",
+      "history": "历史记录",
+      "unconnected": "还没有任何连接测量{metric}。连接一个后，它的历史数据会填充图表和起始点。",
+      "unchecked": "尚未检查。每周检查会在周一读取每个可测量的目标。"
+    },
+    "card": {
+      "label": "{metric} · 截止 {day}",
+      "goal": "目标",
+      "untitled": "一个还没有文字描述的目标",
+      "notMeasurable": "这个目标还无法测量，所以我无法告诉您它是否在路径上。请说出它应该推动的数字：",
+      "raise": "提高{metric}",
+      "lower": "降低{metric}",
+      "now": "当前",
+      "pathSays": "路径显示",
+      "target": "目标值",
+      "per": "每 {days} 天 · 当前 = 最近 {recent} 天",
+      "measured": "（已测量 {count}）",
+      "startedAt": "{day} 时起始于 {value}",
+      "noStart": "还没有已测量的起始点，所以没有路径",
+      "chartFailed": "图表暂时无法读取。"
+    },
+    "frame": {
+      "signedOutTitle": "这里还没有企业。",
+      "signedOut": "<link>从访谈开始</link>，然后设定它应该推动的目标。",
+      "failedTitle": "您的目标未能加载。",
+      "failed": "我们这边出了问题。请刷新页面重试。",
+      "reading": "正在读取您的目标…"
+    },
+    "title": {
+      "none": "还没有目标。",
+      "count": "{count, plural, other {# 个目标。}}",
+      "noneChecked": "{goals}还没有一个对照路径检查过。",
+      "noneOn": "{goals}没有一个在路径上。",
+      "someOn": "{goals}{count, plural, other {有 # 个在路径上。}}"
+    },
+    "aside": "{one} 根蜡烛 = {one} 周 · 蓝线 = 通往目标值的路径",
+    "setFirst": "设定一个目标 →",
+    "setNew": "设定新目标 →",
+    "how": {
+      "label": "目标如何运作",
+      "title": "用您自己的话陈述一个目标",
+      "copy": "目标在“内容”中设定，那里每一篇计划中的内容都会写明它服务的目标。把一个目标变得可测量（营收、销售笔数或网站访问量，并设定日期），之后每周都会将它与一条从起点到您期望位置的直线路径进行对照。在最初八周内，或在我仍在观察期间，不做任何判断。"
+    }
+  },
+  "hours": {
+    "meta": {
+      "title": "营业时间 — SYB"
+    },
+    "kicker": "洞察 · 营业时间",
+    "weekdays": {
+      "mon": "周一",
+      "tue": "周二",
+      "wed": "周三",
+      "thu": "周四",
+      "fri": "周五",
+      "sat": "周六",
+      "sun": "周日"
+    },
+    "daysRange": "{from}至{to}",
+    "read": {
+      "label": "解读",
+      "none": "在已测量的日子里，您的营业时间没有明显异常。观察每周都会再检查一次。",
+      "closing": {
+        "head": "{days}的最后一小时",
+        "word": "亏钱",
+        "sub": "在大多数已测量的日子里，收入低于营业一小时的成本",
+        "subCost": "在大多数已测量的日子里，收入低于营业一小时的成本（{cost}）"
+      },
+      "opening": {
+        "head": "{days}的第一小时",
+        "word": "开门即忙",
+        "sub": "已经接近最好那一小时的收入：需求很可能在您开门前就开始了"
+      },
+      "attention": {
+        "head": "{days}开门之前",
+        "word": "很早就有人查找",
+        "sub": "当天网站访问中有很大一部分出现在您开门前的几个小时"
+      },
+      "best": {
+        "head": "{days}，{clock}",
+        "word": "最划算",
+        "sub": "平均每小时比成本多 +{money}"
+      },
+      "early": {
+        "word": "为时尚早",
+        "sub": "已测量的天数太少，暂时无法判断"
+      }
+    },
+    "title": {
+      "none": "在已测量的日子里没有出现任何信号",
+      "closing": "{days}的最后一小时不划算",
+      "opening": "{days}在您开门前就已有需求",
+      "attention": "{days}在您开门前就有人查找您"
+    },
+    "row": {
+      "notStated": "未说明营业时间",
+      "days": "{count, plural, other {# 天}}",
+      "closed": "休息"
+    },
+    "zone": {
+      "label": "这家企业位于哪个时区？",
+      "choose": "请选择…",
+      "save": "保存",
+      "failed": "未能保存。"
+    },
+    "trials": {
+      "title": "试行",
+      "none": "还不是提案",
+      "body": "信号从来不会被不加验证地直接当作改动。它会以为期四周的试行出现在“等待您处理”中，并附上相关数字；除非您自己改动，否则您的营业时间不会有任何变化。",
+      "waiting": "等待您处理 →"
+    },
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "body": "<link>从访谈开始</link>，您的营业时间会从中读取。"
+    },
+    "error": {
+      "title": "您的营业时间未能加载。",
+      "body": "我们这边出了问题。请刷新页面重试。"
+    },
+    "loading": "正在读取您的营业时间…",
+    "notOk": {
+      "notEnough": "数据还不足以解读您的营业时间。",
+      "unknown": "您的营业时间尚不清楚。",
+      "notYet": "暂时还不行：{reason}。"
+    },
+    "needs": {
+      "label": "每小时的利润率",
+      "title": "这需要什么",
+      "body": "访谈中的营业时间、您的时区，以及来自已连接的收银机、支付账户或网店的每小时刷卡销售数据。"
+    },
+    "connections": "连接",
+    "week": {
+      "titleAll": "您每周的 {count, number} 个营业小时，逐小时展示。",
+      "titlePay": "您每周的全部 {count, number} 个营业小时都能覆盖自身成本。",
+      "titleLose": "您每周的 {count, number} 个营业小时中，有 {losing, number} 个无法覆盖自身成本。",
+      "period": "{weeks, plural, other {最近 # 周}} · {from} 至 {to} · {zone} 时区",
+      "costStated": "营业成本 {cost} / 小时（您的回答）",
+      "costNone": "未说明营业成本，因此不做判断",
+      "labelNet": "营业额减去营业成本，每小时 {unit}",
+      "labelTakings": "营业额，每小时 {unit}",
+      "title": "一周，逐小时",
+      "empty": "既没有说明营业时间，也没有按小时测量的销售数据。",
+      "day": "星期"
+    },
+    "legend": {
+      "label": "图例",
+      "loses": "亏损 > {even}",
+      "even": "基本持平",
+      "pays": "划算"
+    },
+    "foot": {
+      "mean": "该星期几各已测量日中每小时的平均营业额，{coverage}；没有销售的小时按零计。",
+      "meanJudged": "该星期几各已测量日中每小时的平均营业额，{coverage}；没有销售的小时按零计，“基本持平”指与该小时成本相差在八分之一（{pct}%）以内。",
+      "legend": "推导。斜线 = 休息。是营业额，不是利润率。",
+      "unparsed": "无法读取：{list}。",
+      "wrong": "营业时间不对？请在<link>事实表</link>中修改您的回答。"
+    }
+  },
+  "patterns": {
+    "meta": {
+      "title": "季节与组合 — SYB"
+    },
+    "kicker": "洞察 · 季节与组合",
+    "head": {
+      "pair": "{a} 和 {b} 一起出现的频率是随机情况的 {lift} 倍。",
+      "nothing": "还没有可用于找出您季节规律的测量数据。"
+    },
+    "seasons": {
+      "label": "您的季节规律",
+      "nothing": "尚无测量数据",
+      "noData": "{connect}。我只根据您自己的历史数据来读取季节规律。<link>连接</link>"
+    },
+    "tooLittle": {
+      "label": "现有的数据有多少 · {source}",
+      "title": "{days, plural, other {# 天}}，{from} 至 {to}",
+      "meta": "需要 {needed, number} 个完整周，现有 {have, number} 个",
+      "readyOn": "如果同步持续运行，我大约从 {day} 起就能说出您的季节规律。"
+    },
+    "gap": {
+      "label": "我现在能说什么、还不能说什么",
+      "title": "如实说明缺口",
+      "can": "我能",
+      "cannot": "我暂时还不能"
+    },
+    "ahead": {
+      "label": "{count, plural, other {接下来 # 周}} · 对照去年同期的周",
+      "none": "前方没有繁忙或清淡的时段",
+      "meta": "去年的对应周，往前推 {weeks, number} 周，以便星期对齐",
+      "week": "{day} 当周",
+      "lastYear": "去年 {day} 当周",
+      "notMeasured": "去年未完整测量",
+      "underWay": "{kind, select, busy {一个繁忙时段正在进行} other {一个清淡时段正在进行}}",
+      "thisWeek": "{kind, select, busy {一个繁忙时段从本周开始} other {一个清淡时段从本周开始}}",
+      "startsIn": "{kind, select, busy {{count, plural, other {一个繁忙时段将在 # 周后开始}}} other {{count, plural, other {一个清淡时段将在 # 周后开始}}}}"
+    },
+    "flag": {
+      "busy": "繁忙",
+      "quiet": "清淡"
+    },
+    "months": {
+      "label": "各月 · 过去一年中的 {count, number} 个月",
+      "title": "每个月都折算为一周",
+      "meta": "已测量天数达到 {days, number} 天或以上的月份"
+    },
+    "col": {
+      "thisYear": "今年",
+      "lastYear": "去年",
+      "flag": "标记",
+      "month": "月份",
+      "againstNormal": "对比常态",
+      "pair": "组合",
+      "together": "一起出现",
+      "alsoSecond": "有第一件时也有第二件",
+      "againstChance": "对比随机情况",
+      "margin": "该组合的利润率",
+      "proposal": "提案"
+    },
+    "read": {
+      "label": "我如何解读",
+      "title": "只用您自己的历史数据，不借用任何外部数据",
+      "otherCurrencies": "您以 {currencies} 计的{noun}未计入：两种货币的金额从不相加。"
+    },
+    "count": {
+      "orders": "{count, plural, other {# 个订单}}",
+      "visits": "{count, plural, other {# 次到访}}"
+    },
+    "unit": {
+      "orders": "订单",
+      "visits": "到访"
+    },
+    "pairs": {
+      "label": "{kind, select, orders {一起购买} other {一起预约}} · {source}",
+      "tooFew": "目前只有 {amount}",
+      "tooFewBody": "当有 {amount} 时我才会寻找组合：数量更少时，仅凭偶然就能让任意两件商品看起来形影不离。",
+      "none": "没有任何组合一起出现的频率高于随机情况",
+      "some": "{count, plural, other {# 个组合}}一起出现的频率高于随机情况",
+      "meta": "{amount}，{from} – {to} · 已观测",
+      "footRule": "当一个组合共同出现 {amount} 或以上，且出现频率至少是随机情况的 {lift} 时，才会显示。",
+      "footBelow": "{below, plural, other {有 # 个组合}}出现得太少，另有 {belowLift, number} 个出现频率不高于随机情况。",
+      "footBelowUngrouped": "{below, plural, other {有 # 个组合}}出现得太少，另有 {belowLift, number} 个出现频率不高于随机情况；{ungrouped, plural, other {有 # 个预约}}没有客户或服务信息，无法归入某次到访。",
+      "single": "{kind, select, orders {您的每个订单都只有一件商品，所以暂时无法配对。} other {您的每次到访都只有一项，所以暂时无法配对。}}",
+      "multi": "您的{units}中有 {multi, number} 个包含两件或以上，但没有哪个组合明显高于随机情况。",
+      "aria": "组合",
+      "share": "含有 {a} 的{units}中的 {pct, number}%",
+      "had": "{amount} 含有 {a}",
+      "byChance": "随机情况下约 {count, number} 个",
+      "drafting": "正在起草…",
+      "propose": "提出这个组合 →"
+    },
+    "margin": {
+      "unknown": "利润率未知：{why}。",
+      "known": "组合价格 {price}，扣除成本后 {after}（{pct}%）。"
+    },
+    "proposal": {
+      "pending": "等待您处理",
+      "blocked": "被您的规则拦下",
+      "approved": "已批准",
+      "rejected": "已拒绝",
+      "expired": "已过期"
+    },
+    "note": {
+      "failed": "没有成功。",
+      "blocked": "您的一条规则排除了它，所以它以已拦截状态留在您的队列中。",
+      "drafted": "已起草。它在等待您处理；您批准它时，您的网店不会有任何改变。",
+      "ourSide": "我们这边出了问题。"
+    },
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "body": "<link>从访谈开始</link>。"
+    },
+    "error": {
+      "title": "季节与组合未能加载。",
+      "body": "我们这边出了问题。请刷新页面重试。"
+    },
+    "loading": "正在读取您的历史数据…",
+    "aside": {
+      "none": "尚无测量数据",
+      "span": "{source} · {from} – {to} · 已测量"
+    },
+    "bundles": {
+      "section": "哪些东西会一起出现",
+      "emptyTitle": "还没有可读取的订单或到访",
+      "emptyBody": "连接 Shopify 或 WooCommerce，我会记录每个订单包含哪些产品；或者导入您的预约，我会把每位客户的到访归组。",
+      "withoutLines": "{names} 记录的是付款，而不是产品，所以无法说明哪些东西一起出现。"
+    },
+    "connections": "连接",
+    "held": "提案是给您的一份草稿：两件商品都按原价，没有折扣。我不会改变您的网店或结账流程——组合由您自己设置。",
+    "waiting": "等待您处理"
+  },
+  "pipeline": {
+    "meta": {
+      "title": "销售管道 — SYB"
+    },
+    "kicker": "客户 · 销售管道",
+    "loading": "正在读取您的销售管道…",
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "start": "<link>从访谈开始</link>。"
+    },
+    "failed": {
+      "title": "您的销售管道未能加载。",
+      "body": "我们这边出了问题。请刷新页面重试。"
+    },
+    "consumer": {
+      "title": "销售管道用于面向企业的销售。",
+      "body": "您告诉过我您面向个人消费者销售，所以这里没有需要跟踪的交易。",
+      "factSheet": "事实表"
+    },
+    "error": {
+      "generic": "没有成功。",
+      "ourSide": "我们这边出了问题。请重试。"
+    },
+    "aside": "您的销售管道 · {count, plural, other {# 笔交易}} · 成交率 {basis}",
+    "rateBasis": {
+      "measured": "已测量",
+      "stated": "已陈述",
+      "none": "未知"
+    },
+    "stage": {
+      "lead": "潜在客户",
+      "qualified": "已确认意向",
+      "proposal_sent": "已发报价方案",
+      "won": "已赢单",
+      "lost": "已丢单"
+    },
+    "stageInline": {
+      "lead": "潜在客户",
+      "qualified": "已确认意向",
+      "proposal_sent": "已发报价方案",
+      "won": "已赢单",
+      "lost": "已丢单"
+    },
+    "board": {
+      "label": "看板 · {count} 笔进行中",
+      "title": "每个阶段一列，在该阶段停留最久的排在前面",
+      "empty": "还没有交易。在下方添加一笔，或导入您的电子表格。",
+      "aria": "按阶段排列的交易",
+      "median": "中位数 {median} 天 · 最久 {oldest} 天",
+      "closedRecent": "{days, plural, other {最近 # 天内结束}}",
+      "none": "无"
+    },
+    "card": {
+      "noValue": "无金额",
+      "estimate": "您的估计",
+      "inStage": "在此阶段 {days} 天",
+      "stale": "停滞",
+      "change": "更改",
+      "stage": "阶段",
+      "nextStep": "下一步",
+      "by": "截止",
+      "save": "保存下一步",
+      "spoke": "我今天和他们谈过"
+    },
+    "quiet": {
+      "label": "已沉寂 · {count}",
+      "title": "没有下一步，或下一步已过期",
+      "held": "我只为同意接收邮件的联系人起草跟进邮件。什么都不会发出：由您自己发送。",
+      "propose": "提出跟进",
+      "nothing": "没有新的提案。",
+      "nothingWhy": "没有新的提案：{reason}。",
+      "created": "{count, plural, other {现在有 # 条跟进}}在队列中等待您处理。",
+      "allGood": "每笔进行中的交易都有未逾期的下一步。"
+    },
+    "stale": {
+      "blocked": "您的规则（{rule}）排除了这封邮件。",
+      "pending": "这条跟进正在<link>等待您处理</link>中。",
+      "drafted": "已起草。请阅读，按您的意思修改，然后从您自己的邮箱发送。",
+      "draft": "起草邮件",
+      "dontSend": "我不会发送它。请把它复制到您自己写给对方的邮件中。",
+      "copied": "已复制",
+      "copy": "复制文本"
+    },
+    "due": {
+      "label": "预计在 {date} 前赢单",
+      "labelRate": "预计在 {date} 前赢单 · 成交率 {basis}",
+      "notForecast": "尚未预测",
+      "undated": "{count, plural, other {有 # 笔进行中的交易}}没有预计成交日期。",
+      "title": "{days, plural, other {您预计在接下来 # 天内成交的交易}}",
+      "meta": "计入我的过往准确率：届时我会对照您标为已赢单的交易进行核对。",
+      "line": "{count, plural, other {# 笔交易}}，金额 {total}：预计约 {low} – {high} 赢单。",
+      "unvalued": "到期的交易中有 {count} 笔没有金额，未计入这些数字。",
+      "undatedOut": "{count, plural, other {有 # 笔进行中的交易没有预计成交日期，因此未计入此次预测。}}",
+      "assumed": "假设",
+      "sources": "来源：{list}。"
+    },
+    "weigh": {
+      "label": "可能成交的部分",
+      "labelRate": "可能成交的部分 · 成交率 {basis}",
+      "notWeighed": "尚未加权",
+      "can": "我能",
+      "cant": "我暂时还不能",
+      "ready": "{when} 可用。",
+      "stateRate": "陈述您的成交率",
+      "title": "进行中的金额，按您自己的成交率加权",
+      "currency": "货币",
+      "deals": "交易",
+      "open": "进行中",
+      "likely": "可能成交",
+      "unvalued": "{count, plural, other {有 # 笔进行中的交易没有金额，未计入这些数字。}}",
+      "assumed": "假设",
+      "window": "时间范围 {from} 至 {to}。来源：{list}。",
+      "statedNote": "您告诉我的是 {stated}；这里使用的是您自己已结束的交易所显示的数字。",
+      "measureAfter": "{count, plural, other {再有 # 笔交易结束后}}，我会改为测量它。"
+    },
+    "add": {
+      "label": "添加交易",
+      "title": "和谁做，做什么",
+      "foot": "新联系人的同意状态记为“不确定”：一次销售对话并不等于允许向对方做营销。",
+      "added": "已添加。",
+      "company": "公司",
+      "contact": "联系人",
+      "email": "对方的邮箱",
+      "deal": "这笔交易",
+      "dealPlaceholder": "例如：为咖啡馆提供春季餐具",
+      "stage": "阶段",
+      "value": "金额",
+      "currency": "货币",
+      "valueIs": "这个金额是",
+      "quoted": "我给对方的报价",
+      "estimate": "我的估计",
+      "nextStep": "下一步",
+      "by": "截止",
+      "submit": "添加这笔交易"
+    },
+    "import": {
+      "label": "导入",
+      "title": "来自电子表格的交易，由您声明担保",
+      "foot": "我读取的列：{columns}。",
+      "lede": "交易文件会带来其中的人，所以它的导入方式与客户名单相同：您声明其中的人同意了什么、如何同意的，这份声明会记录在它添加的每个联系人上。已有的联系人保留其原有的同意状态；已删除或已退订的地址会被拒绝。",
+      "done": "{count, plural, other {已导入 # 笔交易。}}",
+      "left": "{count, plural, other {有 # 行被略去。}}",
+      "paste": "粘贴文件（CSV）",
+      "consented": "其中的人同意了什么",
+      "explicit": "他们明确同意接收营销邮件",
+      "implied": "同意是默示的（没有明确选择加入）",
+      "unsure": "不确定",
+      "none": "未同意",
+      "how": "用您自己的话说明是如何获得的",
+      "howPlaceholder": "例如：展会登记表，{month}",
+      "currency": "金额列的货币",
+      "valuesAre": "这些金额是",
+      "estimates": "我的估计",
+      "quoted": "我给对方的报价",
+      "submit": "以我的声明担保导入"
+    },
+    "fine": "交易属于您的联系人：在“客户”中删除一个联系人，会同时删除其交易、历史记录和任何已起草的跟进。日期按整天计算。",
+    "fineTo": "交易属于您的联系人：在“客户”中删除一个联系人，会同时删除其交易、历史记录和任何已起草的跟进。日期按整天计算，截至 {day}。",
+    "view": {
+      "and": "和",
+      "quietAddedToday": "{who} 是今天添加的；还没有记录任何对话",
+      "quietAddedAgo": "{days, plural, other {自您 # 天前添加 {who} 以来，没有任何记录}}",
+      "spokeToday": "您今天和 {who} 谈过",
+      "nobodySpoke": "{days, plural, other {已有 # 天没有人和 {who} 谈过}}",
+      "noNextStep": "没有下一步",
+      "overdue": "{days, plural, other {下一步应于 {day} 完成，已过去 # 天}}",
+      "rateNone": "尚不知道",
+      "rateMeasured": "已测量 {point}：已结束的 {closed} 笔中赢单 {won} 笔，可能为 {low}–{high}",
+      "rateStated": "您陈述的 {point}，按 {low}–{high} 解读",
+      "headNone": "还没有进行中的交易。",
+      "headNoValue": "{open, plural, other {# 笔进行中的交易}}，都还没有金额。",
+      "headCantWeigh": "{open, plural, other {# 笔进行中的交易}}，金额 {totals}。我暂时还无法加权。",
+      "headLikely": "在您进行中的 {total} 中，{low}–{high} 可能成交。",
+      "headLikelyMore": "在您进行中的 {total} 中，{low}–{high} 可能成交，另有部分以{others, plural, other {另外 # 种货币}}计。",
+      "follow": {
+        "drafted": "已起草",
+        "approved": "已批准",
+        "pending": "等待您处理",
+        "blocked": "被您的规则拦下",
+        "rejected": "已拒绝",
+        "changes_requested": "已要求修改"
+      }
+    }
+  },
+  "reviews": {
+    "meta": {
+      "title": "评价 — SYB"
+    },
+    "kicker": "客户 · 评价",
+    "foot": "SYB 从不发布回复，也从不登录您的评价网站。只有在您连接了 Google 商家资料后，它才会读取您的 Google 评价，而且只读取。评价者的名字保留一年，您可以随时移除任何一条评价。",
+    "stars": {
+      "none": "无评分",
+      "of": "{stars} / {max}"
+    },
+    "thisMonth": "本月",
+    "headline": {
+      "none": "这里还没有评价。",
+      "noneThisMonth": "本月没有新评价。",
+      "oneFine": "本月唯一的一条评价不是{stars, plural, other { # 星}}或以下。",
+      "noneFine": "本月的{count, plural, other { # 条评价}}中，没有一条是{stars, plural, other { # 星}}或以下。",
+      "poor": "本月 {total} 条评价中，有{poor, plural, other { # 条}}为{stars, plural, other { # 星}}或以下。"
+    },
+    "aside": "{count, plural, other {已存档 # 条评价}} · {days, plural, other {保留 # 天}}",
+    "readNote": {
+      "unread": "我无法读取这条通知，所以只保留了来源和时间。请到它原来的地方打开查看。",
+      "model": "由我的备用读取器读取：请与原文核对。",
+      "paste": "这一条是您粘贴的。"
+    },
+    "gmail": {
+      "code": "Gmail 发来了一个确认码：{code}。请在 Gmail 的转发设置中输入它。",
+      "link": "Gmail 发来了一个确认链接：打开它即可开启转发。",
+      "received": "收到于 {day}。",
+      "openLink": "打开 Gmail 的确认链接"
+    },
+    "setup": {
+      "google": {
+        "notifications": "在您的 Google 商家资料中，打开“通知”（或“设置”），并开启客户评价的邮件通知。",
+        "gmail": "如果这些邮件发到 Gmail，请先在 Gmail 的“设置”中，于“转发和 POP/IMAP”下点击“添加转发地址”，添加上面的地址。Gmail 会向该地址发送一个确认码：确认码会显示在本页上，您在 Gmail 中输入它即可完成。",
+        "rule": "然后，在接收这些邮件的邮箱中创建一条规则：来自 Google 的关于评价的邮件转发到上面的地址。",
+        "byHand": "或者手动把任何评价邮件转发到这个地址。两种方式都可以。"
+      },
+      "trustpilot": {
+        "notifications": "在 Trustpilot Business 中，开启新评价的邮件通知。",
+        "forward": "通过邮箱中的规则或手动，把这些邮件转发到上面的地址。"
+      }
+    },
+    "platform": {
+      "other": "其他网站"
+    },
+    "entry": {
+      "worthKnowing": "值得留意",
+      "noWords": "只有评分，没有文字。",
+      "draftLabel": "建议回复 · 由您修改",
+      "draftNote": "这是我起草的。请阅读并改成您自己的话：一旦您发布，它就是您以自己名义说的话。我从不发布任何内容。",
+      "copied": "已复制",
+      "copyReply": "复制回复",
+      "drafting": "正在起草…",
+      "suggestAnother": "再建议一个 →",
+      "suggest": "建议一条回复 →",
+      "openOn": "在 {site} 上打开 ↗",
+      "theSite": "该网站",
+      "noneLeft": "这条评价已没有剩余的建议次数：请您自己撰写。",
+      "left": "{count, plural, other {这条评价还剩 # 次建议。}}",
+      "draftingLive": "正在起草回复",
+      "failed": "没有成功。",
+      "removeAsk": "移除这条评价、上面的名字以及任何建议回复吗？",
+      "removing": "正在移除…",
+      "removeYes": "是的，移除",
+      "keep": "保留",
+      "remove": "移除这条评价"
+    },
+    "forwarding": {
+      "label": "转发",
+      "offTitle": "转发尚未设置",
+      "offCopy": "一旦 SYB 的收件功能开启，您会在这里获得一个地址，用来转发您的评价邮件，我会在每封邮件到达时将其归档。在此之前，请在下方粘贴评价，我会以同样的方式归档。",
+      "title": "把评价邮件转发到这里",
+      "newStops": "新地址会使这个地址失效。之后请更新您的转发设置。",
+      "newAddress": "获取新地址",
+      "copied": "已复制",
+      "copyAddress": "复制地址",
+      "how": "您转发的每封评价邮件都会在这里成为一条评价。差评会在到达当天出现在您的“观察”页面上，并进入您的每周摘要。来自评价网站以外的任何邮件都会被忽略。"
+    },
+    "google": {
+      "label": "Google 商家资料",
+      "failed": "Google 已不再接受 SYB 的访问",
+      "reading": "正在读取您的 Google 评价",
+      "readingFor": "正在读取您在 {location} 的 Google 评价",
+      "readDirectly": "直接读取您的 Google 评价",
+      "notSetUpTitle": "从 Google 读取尚未设置",
+      "manage": "在“连接”中管理或撤销",
+      "connect": "在“连接”中连接",
+      "connected": "SYB 每天读取一次您的评价，并把新评价归档到这里，与您转发的评价放在一起。通过两种方式到达的同一条评价只列出一次。",
+      "lastRead": "上次读取于 {day}。",
+      "before": "开始使用之前",
+      "whatItCanDo": "Google 的这项权限也可以回复您的评价，以及编辑您的 Google 商家资料。SYB 只用它读取您的评价。您可以随时撤销。",
+      "notSetUp": "尚未设置。Google 只有在审核通过后才允许应用读取商家资料中的评价，而 SYB 尚未获得审核通过。在此之前，请转发 Google 的评价邮件或粘贴评价。",
+      "needs": {
+        "approval": "SYB 获得 Google 审核通过，可以使用商家资料 API（这是 Google 自己对 SYB 的审查）。",
+        "signIn": "您用管理您 Google 商家资料的 Google 账户登录，并允许 Google 询问的那一项权限。",
+        "location": "如果您管理多个地点，请选择 SYB 要读取的那一个。"
+      },
+      "readNote": "读取自您的 Google 商家资料。"
+    },
+    "paste": {
+      "label": "粘贴一条评价",
+      "title": "在别处看到了一条？",
+      "filed": "已归档。",
+      "already": "这条评价已经在这里了。",
+      "where": "留在哪里",
+      "stars": "星级",
+      "choose": "请选择",
+      "text": "他们写了什么",
+      "reviewer": "网站上显示的对方名字 · 选填",
+      "link": "评价的链接 · 选填",
+      "date": "留下的时间 · 选填，否则为今天",
+      "filing": "正在归档…",
+      "file": "归档这条评价"
+    },
+    "screen": {
+      "ourSide": "我们这边出了问题。",
+      "noBusiness": "这里还没有企业。",
+      "startInterview": "<link>从访谈开始</link>。",
+      "failedTitle": "评价未能加载。",
+      "failedCopy": "我们这边出了问题。请刷新页面重试。",
+      "loading": "正在读取您的评价…",
+      "listLabel": "评价 · {month}：{count} · 最新的在前",
+      "listTitle": "人们说了什么",
+      "nothingFiled": "尚未归档任何内容",
+      "listMeta": "{stars, plural, other {# 星}}或以下的值得留意",
+      "emptyCopy": "把评价邮件转发到下面的地址，或粘贴一条评价，它就会显示在这里。"
+    }
+  },
+  "simulate": {
+    "meta": {
+      "title": "模拟器 — SYB"
+    },
+    "tabs": {
+      "aria": "模拟器",
+      "campaigns": "营销活动",
+      "pricing": "假设定价"
+    },
+    "kicker": "增长 · 营销活动模拟器",
+    "loading": "正在读取您的数字…",
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "body": "<link>从访谈开始</link>，您自己的数字就会填进这里。"
+    },
+    "failed": {
+      "title": "模拟器未能加载。",
+      "body": "我这边出了问题。请刷新页面重试。"
+    },
+    "aside": {
+      "nothing": "这里的任何操作都不会花钱或发送内容",
+      "asOf": "截至 {date} · {currency}"
+    },
+    "kind": {
+      "email": "邮件",
+      "ads": "Meta 广告",
+      "content": "内容"
+    },
+    "picker": {
+      "label": "选择 {min} 到 {max} 个",
+      "title": "营销活动选项",
+      "meta": "已选 {count} 个",
+      "metaFull": "已选 {count} 个 · 这是我一次最多能比较的数量",
+      "kind": "类型",
+      "option": "选项",
+      "fromNumbers": "来自您的数字",
+      "compare": "比较",
+      "picked": "已选",
+      "emailable": "{count} 人同意接收邮件",
+      "noEmailable": "这里没有人同意接收邮件",
+      "daily": "每天 {amount} · {days, plural, other {已测量 # 天}}",
+      "noSpend": "最近没有已测量的花费",
+      "quoted": "“{name}”",
+      "shareFor": "{name} 的预算变化",
+      "raise": "提高",
+      "cut": "削减",
+      "pause": "暂停",
+      "raiseAria": "将 {name} 提高 {share}",
+      "cutAria": "将 {name} 削减 {share}",
+      "pauseAria": "暂停 {name}",
+      "newCampaign": "一项新的营销活动",
+      "judged": "依据您其他营销活动的回报来判断",
+      "noneMeasured": "还没有已测量的营销活动可作判断依据",
+      "metaOff": "Meta 尚未连接",
+      "perDay": "每天 {currency}",
+      "contentCalendar": "{weeks} 周的内容日历",
+      "contentAria": "内容日历",
+      "posts": "{count, plural, other {在您运营的渠道上发布 # 条社交帖子}}",
+      "noSocial": "您的资料中没有社交渠道"
+    },
+    "pickN": "选择 {count} 个选项，并排比较。",
+    "pickOne": "再选一个选项，即可并排比较。",
+    "side": {
+      "label": "并排对比 · {days} 天内",
+      "title": "每个选项可能带来什么",
+      "meta": "区间取已测量数据的中间一半",
+      "measure": "指标",
+      "count": "数量"
+    },
+    "measure": {
+      "cost": "花费",
+      "reached": "触达人数",
+      "orders": "订单",
+      "revenue": "预期营收",
+      "profit": "预期利润",
+      "worst": "最坏情况"
+    },
+    "cell": {
+      "missing": "缺失",
+      "notRead": "未读取",
+      "setByOption": "由选项设定",
+      "needs": "需要 {list}"
+    },
+    "headNone": "您的 {total} 个营销活动选项中，还没有一个能根据您自己的数字测算——每个选项都列出了它缺少的内容。",
+    "headSome": "您的 {total} 个营销活动选项中，有 {priced} 个可以根据您自己的数字测算。",
+    "whisker": {
+      "caption": "预期利润，从低到高 · 方块表示最坏情况",
+      "currencies": "这些选项使用不止一种货币，所以不能共用一条坐标轴——我不会在货币之间换算。",
+      "withWorst": "{range}，最坏 {worst}",
+      "notWorkedOut": "未算出"
+    },
+    "profitCard": {
+      "label": "利润，并排对比",
+      "title": "每个选项的分布范围"
+    },
+    "option": {
+      "canPropose": "可以提出",
+      "notProposable": "暂时还不能提出",
+      "proposing": "正在提出",
+      "propose": "提出这个方案 →",
+      "restsOn": "依据是什么",
+      "value": "数值",
+      "basis": "依据",
+      "from": "来自何处",
+      "missing": "缺失",
+      "needs": "需要 {what}",
+      "aSource": "一个来源",
+      "worstCase": "最坏情况",
+      "overLimit": "超出限制",
+      "check": "对照以往的实际情况"
+    },
+    "math": {
+      "cost": "花费",
+      "reached": "触达",
+      "orders": "订单",
+      "revenue": "营收",
+      "profit": "利润",
+      "worst": "最坏情况"
+    },
+    "notice": {
+      "signIn": "登录后即可提出。",
+      "failed": "没有成功。请重试。",
+      "blocked": "我写好了它，但您自己的限制拦下了它：{limit}。它在克制视图中。",
+      "aLimit": "您设定的一条限制",
+      "proposed": "已提出，并附上了这次模拟。在您于<link>等待您处理</link>中批准之前，什么都不会执行",
+      "notProposed": "未提出：{why}。",
+      "nothing": "没有可提出的方案"
+    },
+    "pricing": {
+      "kicker": "增长 · 假设定价",
+      "loading": "正在读取您的价格…",
+      "failed": "假设定价未能加载。",
+      "aside": "这里的任何操作都不会改变价格",
+      "empty": {
+        "title": "您的资料中还没有任何定价。",
+        "body": "<ask>列出您销售的内容及其价格</ask>，或在<conn>连接</conn>中导入您的预约，这里就会填好。"
+      },
+      "noPrice": "您的资料中还没有 {name} 的价格。",
+      "pickItem": "选择一个要重新定价的产品或服务。",
+      "fromBookings": "{count} 个来自您的预约",
+      "fromProfile": "{count} 个来自您的资料",
+      "items": {
+        "label": "选择一个",
+        "title": "要重新定价的项目",
+        "service": "服务",
+        "product": "产品",
+        "pick": "选择",
+        "repriceAria": "为 {name} 重新定价",
+        "reprice": "重新定价",
+        "addPrice": "添加其价格"
+      },
+      "changes": {
+        "label": "最多 {max} 个",
+        "title": "{name} 的价格变化",
+        "aria": "价格变化",
+        "exactly": "或指定具体价格（{currency}）",
+        "exactAria": "一个具体的新价格，以 {currency} 计"
+      },
+      "period": "{kind, select, service {每 {days} 天} other {每月}}",
+      "side": {
+        "label": "并排对比 · {period}",
+        "title": "每个价格对 {name} 的影响",
+        "meta": "盈亏平衡点只依据您自己的数字；区间另外加入了一个假设的客户反应",
+        "breakEven": "盈亏平衡点",
+        "breakEvenSub": "{kind, select, service {可以少掉或必须多得的预约数} other {可以少掉或必须多得的销量}}",
+        "volume": "{kind, select, service {调整后的预约数} other {调整后的销量}}",
+        "unitMoney": "{currency}，{period}",
+        "unitCount": "{kind, select, service {预约数} other {销量}}，{period}"
+      },
+      "measure": {
+        "volume": "调价后的销量",
+        "revenue": "营收变化",
+        "profit": "利润变化",
+        "worst": "最坏情况"
+      },
+      "never": "永不",
+      "card": {
+        "label": "价格变化",
+        "meta": "这里的任何操作都不会改变您的价格",
+        "breakEven": "盈亏平衡点",
+        "cautious": "这是谨慎的一端：如果知道交付一件的成本，我就能说出您还能再少掉多少。",
+        "addCost": "添加成本 →",
+        "addNeed": "添加{what} →",
+        "needs": "需要{what}——<link>添加</link>"
+      },
+      "math": {
+        "volume": "{kind, select, service {预约数} other {销量}}",
+        "revenue": "营收",
+        "profit": "利润",
+        "worst": "最坏情况"
+      },
+      "assumption": "这些区间假设：价格每变动 {one}，{kind, select, service {预约数} other {销量}}会反向变动 {low} 到 {high}——这是针对您这类企业的规划假设，不是测量结果。盈亏平衡点不做任何假设。",
+      "profitTitle": "每个价格的分布范围",
+      "caption": "利润变化（{period}），从低到高 · 方块表示最坏情况",
+      "cantDraw": "暂时还画不出利润：需要知道交付一{kind, select, service {次预约} other {笔销售}}的成本。<link>添加</link>。",
+      "pickChange": "选择一个价格变化，看看它的影响。",
+      "refused": "未模拟：{why}。",
+      "unreadable": "这不是我能读懂的价格。",
+      "noPriceYet": "它还没有价格",
+      "be": {
+        "loseShare": "少掉不超过 {share}",
+        "loseCount": "少掉不超过 {count}",
+        "winShare": "多得超过 {share}",
+        "winCount": "多得超过 {count}",
+        "noun": "{kind, select, service {预约} other {销售}}",
+        "moreNoun": "{kind, select, service {更多预约} other {更多销售}}",
+        "ofVolume": "约 {volume} 的 {share}",
+        "ofSales": "您销量的 {share}",
+        "plusOfVolume": "约 {volume} 的 +{share}",
+        "plusOfSales": "您销量的 +{share}",
+        "atLeast": "至少如此，无论成本是多少",
+        "room": "预约簿还能容纳 {count}",
+        "never": "永远不划算",
+        "neverSub": "每一笔都会亏钱"
+      },
+      "item": {
+        "noPrice": "尚无价格",
+        "volume": "{kind, select, service {每 {days} 天约 {volume} 次预约} other {每月约 {volume} 笔销售}}",
+        "volumeUnknown": "{kind, select, service {预约数} other {销量}}未知",
+        "cost": "交付成本 {cost}",
+        "costUnknown": "交付成本未知"
+      },
+      "perOrder": "单件成本中未包括：{list}。{count, plural, other {这些费用}}按订单而不是按件支付，而一个订单可以包含多件。如果一笔销售就是一个订单，涨价可能比显示的多少掉几笔销售，降价则需要多卖几笔。"
+    }
+  },
+  "stock": {
+    "meta": {
+      "title": "库存 — SYB"
+    },
+    "kicker": "洞察 · 库存",
+    "signedOut": "这里还没有企业。",
+    "startInterview": "<link>从访谈开始</link>。",
+    "failedTitle": "库存未能加载。",
+    "failedBody": "我们这边出了问题。请刷新页面重试。",
+    "reading": "正在读取您的库存…",
+    "noStockTitle": "您的企业不持有库存。",
+    "noStockBody": "您告诉过我您不备库存，所以这里没有会售罄或需要清理的东西。",
+    "factSheet": "事实表",
+    "nothingRead": "尚未读取任何数据",
+    "measured": "已测量",
+    "flag": {
+      "stuck": "滞销",
+      "slow": "动销慢",
+      "actNow": "立即处理",
+      "runningLow": "即将缺货",
+      "inRange": "正常范围",
+      "soldOut": "已售罄",
+      "noSales": "无销售",
+      "tooEarly": "为时尚早"
+    },
+    "col": {
+      "item": "商品",
+      "onHand": "现有数量",
+      "sold": "{days} 天售出",
+      "cover": "可售天数",
+      "sinceSale": "距上次销售天数",
+      "cashTied": "占用资金",
+      "flag": "标记",
+      "ways": "最省钱的清理方式",
+      "vsPrior": "对比前 {days} 天",
+      "delivery": "交货时间"
+    },
+    "slowTable": "卖不动的库存",
+    "coverTable": "逐件商品的可售天数",
+    "yourCost": "您的成本",
+    "nothingToPropose": "没有我能提出的方案",
+    "chance": "可能性 ±{band}",
+    "boosted": "已计入旺季时段",
+    "reorder": {
+      "label": "补货备忘 · {flag}",
+      "title": "{name}：补货 {quantity}",
+      "titleFrom": "{name}：向 {supplier} 补货 {quantity}",
+      "meta": "给您的备忘，不是订单",
+      "sources": "来源：{sources}。",
+      "approving": "批准它只会记录您打算补货，别无其他。我从不联系您的供应商，也从不下单、修改或取消订单。"
+    },
+    "ruledOut": "我没有把它放进您的队列：您的规则（{rule}）排除了它。",
+    "cover": {
+      "label": "什么会售罄、何时售罄 · {total} 件商品中有 {warned} 件低于交货时间",
+      "titleWarned": "最先售罄的排在前面",
+      "titleNone": "在下次到货前没有商品会售罄",
+      "meta": "可售天数：现有数量 ÷ 您最近 {days} 天的销售速度，取低–高，对照每家供应商的交货时间（否则按 {lead} 天，假设）",
+      "held": "每件即将缺货的商品一条补货备忘。在您批准之前什么都不会执行，而批准也不会下任何订单。",
+      "button": "把补货备忘放进我的队列 →",
+      "working": "正在整理备忘"
+    },
+    "workingItOut": "正在计算…",
+    "waitingForYou": "等待您处理",
+    "ranking": {
+      "label": "我会如何清理 · {flag} · {why}",
+      "title": "{name}：每让出一单位货币，可能收回的现金",
+      "meta": "扣除各自让出的部分后，收回现金最多的排在前面",
+      "cantPropose": "我无法提出这个方案：{why}。",
+      "blocked": "您的一条规则拦下了 {option}，所以它以已拦截状态留在您的队列里，您可以看到我选择不提出的方案。"
+    },
+    "import": {
+      "label": "没有连接网店？库存盘点也可以",
+      "title": "导入库存文件",
+      "foot": "我读取的列：{columns}。",
+      "paste": "粘贴文件（CSV）",
+      "currency": "货币",
+      "window": "售出数量覆盖的天数",
+      "countedOn": "盘点日期",
+      "decimalStyle": "如果金额看起来像 {example}，它的写法是",
+      "decimalAuto": "根据文件自动判断",
+      "dotDecimal": "{example}（逗号分隔千位）",
+      "commaDecimal": "{example}（点号分隔千位）",
+      "importing": "正在读取…",
+      "button": "导入库存 →",
+      "readingFile": "正在读取您的文件",
+      "failed": "导入未成功。",
+      "ourSide": "我们这边出了问题。请重试。",
+      "imported": "{count, plural, other {我读取了 # 件商品。}}",
+      "leftOut": "{count, plural, other {有 # 行没有商品或没有可读的库存数量，已被略去。}}",
+      "blank": "{count, plural, other {有 # 个数值无法读取，已留空，没有猜测。}}"
+    },
+    "result": {
+      "didntWork": "没有成功。",
+      "ourSide": "我们这边出了问题。",
+      "nothingNew": "没有新的提案。",
+      "nothingNewWhy": "没有新的提案：{reason}。",
+      "proposals": "{count, plural, other {现在有 # 条提案}}等待您处理。",
+      "proposalsBlocked": "{count, plural, other {现在有 # 条提案}}等待您处理，另有 {blocked, plural, other {# 条}}被您自己的规则拦下。",
+      "notes": "{count, plural, other {现在有 # 条补货备忘}}等待您处理。",
+      "notesBlocked": "{count, plural, other {现在有 # 条补货备忘}}等待您处理，另有 {blocked, plural, other {# 条}}被您自己的规则拦下。"
+    },
+    "slow": {
+      "label": "卖不动的商品 · {counted} 件中有 {slow} 件",
+      "title": "占用资金最多的排在前面",
+      "meta": "{stuck}：{stuckDays} 天内没有销售 · {slow}：可售天数超过 {slowDays} 天",
+      "held": "我会为前 {count} 件提出清理方式。在您批准之前什么都不会执行。",
+      "button": "把这些放进我的队列 →",
+      "working": "正在整理选项",
+      "emptyLabel": "卖不动的商品",
+      "nothingSlow": "没有动销慢的商品",
+      "connect": "在“连接”中连接您的网店，我每次同步都会读取它的库存；或者在下方导入库存文件。",
+      "allSelling": "我读取的每件商品都在 {stuckDays} 天内有过销售，且可售天数不足 {slowDays} 天。",
+      "connections": "连接"
+    },
+    "judge": {
+      "label": "我如何判断库存",
+      "title": "两条阈值，没有任何猜测",
+      "body": "{stuck} 表示有现货库存，但最近 {stuckDays} 天没有销售。{slow} 表示按该商品自身的销售速度，可售天数超过 {slowDays} 天。"
+    },
+    "svm": {
+      "label": "您告诉我的，对照我测量到的",
+      "title": "呆滞库存"
+    },
+    "view": {
+      "waiting": "等待您处理",
+      "blocked": "被您的规则拦下",
+      "approved": "已批准",
+      "done": "已完成",
+      "declined": "已拒绝",
+      "expired": "已过期",
+      "cant": "无法",
+      "noSales": "无销售",
+      "unknown": "未知",
+      "noneSold": "未售出",
+      "same": "基本持平",
+      "up": "上升",
+      "down": "下降",
+      "lead": "{days} 天 · {supplier}",
+      "yourSupplier": "您的供应商",
+      "assumed": "假设",
+      "atCost": "按成本计 {amount}"
     }
   }
 }

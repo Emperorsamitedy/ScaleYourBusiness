@@ -12,27 +12,46 @@
 //
 // Read-only. "Propose this pair" drafts one proposal; nothing runs, no price
 // changes and the checkout is never touched — the owner sets a pair up.
+//
+// L-3b: the screen's own words are the "patterns" catalogue, the chart's
+// "charts.season"; what lib/seasons and lib/bundles word (headlines, the
+// season sentences, can/can't, notes, item names) stays English until L-4.
 
 import "../../app/patterns.css";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { PatternsView } from "../../app/api/patterns/route";
 import type { BundleSource } from "../../lib/bundles/load";
 import { shortDate } from "../../lib/charts/model";
-import { ratioText } from "../../lib/seasons/forecast";
+import { monthYear } from "../../lib/i18n/format";
 import { SeasonChart } from "../charts/SeasonChart";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
+import type { PatternWords } from "./patterns-view";
 import {
   aheadRows,
   aheadTitle,
   headline,
+  lineIn,
   longDate,
   marginText,
   proposalWord,
+  ratioIn,
   seasonChartModel,
 } from "./patterns-view";
+
+/** How far back last year's week sits, so weekdays line up (lib/seasons). */
+const WEEKS_BACK = 52;
+/** The fewest measured days a month needs to be shown (lib/seasons). */
+const MONTH_DAYS = 21;
+
+function useWords(): PatternWords {
+  const { tr, locale } = useTr("patterns");
+  return { tr, locale };
+}
 
 function Frame({
   title,
@@ -43,23 +62,30 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useWords();
   return (
     <main className="screen pt-screen">
-      <PageHead kicker="Insights · Seasons & bundles" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
     </main>
   );
 }
 
 function Seasons({ view }: { view: PatternsView }) {
+  const w = useWords();
+  const { tr, locale } = w;
+  const t = useTranslations("patterns");
+  const chartWords = useTr("charts.season");
   const r = view.seasons.result;
-  const chart = seasonChartModel(r);
+  const chart = seasonChartModel(r, chartWords);
   if (r.status === "no_data") {
     return (
-      <SheetCard label="Your seasons" title="Nothing measured yet">
+      <SheetCard label={tr("seasons.label")} title={tr("seasons.nothing")}>
         <p className="pt-copy">
-          {view.seasons.connect}. I read your seasons from your own history only.{" "}
-          <Link href="/connections">Connections</Link>
+          {t.rich("seasons.noData", {
+            connect: view.seasons.connect,
+            link: (c) => <Link href="/connections">{c}</Link>,
+          })}
         </p>
       </SheetCard>
     );
@@ -70,24 +96,27 @@ function Seasons({ view }: { view: PatternsView }) {
         {chart && <SeasonChart model={chart} />}
         <div className="pt-grid">
           <SheetCard
-            label={`How much there is · ${r.series.source}`}
-            title={`${num(r.covered_days)} days, ${shortDate(r.first_day)} to ${shortDate(r.last_day)}`}
-            meta={`${num(r.complete_weeks)} of ${num(r.needed_weeks)} complete weeks needed`}
+            label={tr("tooLittle.label", { source: r.series.source })}
+            title={tr("tooLittle.title", {
+              days: r.covered_days,
+              from: shortDate(r.first_day, locale),
+              to: shortDate(r.last_day, locale),
+            })}
+            meta={tr("tooLittle.meta", { have: r.complete_weeks, needed: r.needed_weeks })}
           >
             <p className="pt-copy">{r.headline}</p>
             <p className="pt-copy">
-              If your syncs keep running, I can name your seasons from around{" "}
-              {shortDate(r.ready_on)}.
+              {tr("tooLittle.readyOn", { day: shortDate(r.ready_on, locale) })}
             </p>
           </SheetCard>
-          <SheetCard label="What I can and can't say yet" title="Honest about the gap">
-            <p className="pt-sub">I can</p>
+          <SheetCard label={tr("gap.label")} title={tr("gap.title")}>
+            <p className="pt-sub">{tr("gap.can")}</p>
             <ul className="pt-list">
               {r.can.map((c) => (
                 <li key={c}>{c}</li>
               ))}
             </ul>
-            <p className="pt-sub">I can&apos;t yet</p>
+            <p className="pt-sub">{tr("gap.cannot")}</p>
             <ul className="pt-list">
               {r.cannot.map((c) => (
                 <li key={c}>{c}</li>
@@ -98,18 +127,16 @@ function Seasons({ view }: { view: PatternsView }) {
       </>
     );
   }
-  const rows = aheadRows(r);
+  const rows = aheadRows(r, w);
   const others = view.seasons.other_currencies;
   return (
     <>
       {chart && <SeasonChart model={chart} />}
       <div className="pt-grid">
         <SheetCard
-          label={`The next ${rows.length} weeks · beside the same weeks last year`}
-          title={
-            r.upcoming.length === 0 ? "No busy or quiet stretch ahead" : aheadTitle(r.upcoming[0]!)
-          }
-          meta="Last year's week, 52 weeks back, so weekdays line up"
+          label={tr("ahead.label", { count: rows.length })}
+          title={r.upcoming.length === 0 ? tr("ahead.none") : aheadTitle(r.upcoming[0]!, w)}
+          meta={tr("ahead.meta", { weeks: WEEKS_BACK })}
         >
           {r.upcoming.map((u) => (
             <p className="pt-copy pt-strong" key={u.run.start}>
@@ -119,22 +146,24 @@ function Seasons({ view }: { view: PatternsView }) {
           <table className="rt rt-stack pt-ahead">
             <thead>
               <tr>
-                <th scope="col">This year</th>
-                <th scope="col">Last year</th>
-                <th scope="col">Flag</th>
+                <th scope="col">{tr("col.thisYear")}</th>
+                <th scope="col">{tr("col.lastYear")}</th>
+                <th scope="col">{tr("col.flag")}</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((a) => (
                 <tr key={a.week}>
                   <th scope="row">{a.week}</th>
-                  <td data-label="Last year">
+                  <td data-label={tr("col.lastYear")}>
                     {a.figure}
                     <span className="pt-src">{a.last_year}</span>
                   </td>
-                  <td data-label="Flag">
+                  <td data-label={tr("col.flag")}>
                     {a.flag ? (
-                      <span className={`flag ${a.flag === "busy" ? "ok" : "drift"}`}>{a.flag}</span>
+                      <span className={`flag ${a.flag === "busy" ? "ok" : "drift"}`}>
+                        {tr(`flag.${a.flag}`)}
+                      </span>
                     ) : (
                       "—"
                     )}
@@ -145,25 +174,27 @@ function Seasons({ view }: { view: PatternsView }) {
           </table>
         </SheetCard>
         <SheetCard
-          label={`The months · ${r.months.length} of the last year`}
-          title="Each month scaled to one week"
-          meta="Months with 21 measured days or more"
+          label={tr("months.label", { count: r.months.length })}
+          title={tr("months.title")}
+          meta={tr("months.meta", { days: MONTH_DAYS })}
         >
           <table className="rt rt-stack pt-months">
             <thead>
               <tr>
-                <th scope="col">Month</th>
+                <th scope="col">{tr("col.month")}</th>
                 <th scope="col" className="num">
-                  Against normal
+                  {tr("col.againstNormal")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {r.months.map((m) => (
                 <tr key={m.month}>
-                  <th scope="row">{m.label}</th>
-                  <td className="num" data-label="Against normal">
-                    {ratioText(m)}
+                  <th scope="row">
+                    {locale === "en" ? m.label : monthYear(`${m.month}-01`, locale)}
+                  </th>
+                  <td className="num" data-label={tr("col.againstNormal")}>
+                    {ratioIn(m, locale)}
                   </td>
                 </tr>
               ))}
@@ -171,15 +202,14 @@ function Seasons({ view }: { view: PatternsView }) {
           </table>
         </SheetCard>
       </div>
-      <SheetCard label="How I read it" title="Your own history, nothing borrowed">
+      <SheetCard label={tr("read.label")} title={tr("read.title")}>
         <ul className="pt-list">
           {r.notes.map((n) => (
             <li key={n}>{n}</li>
           ))}
           {others.length > 0 && (
             <li>
-              Your {r.series.noun} in {others.join(", ")} is left out: money in two currencies is
-              never added together.
+              {tr("read.otherCurrencies", { noun: r.series.noun, currencies: others.join(", ") })}
             </li>
           )}
         </ul>
@@ -199,79 +229,102 @@ function Pairs({
   onPropose: (key: string) => void;
   busyKey: string | null;
 }) {
-  const unit = source.kind === "orders" ? "orders" : "visits";
+  const w = useWords();
+  const { tr, locale } = w;
+  const kind = source.kind === "orders" ? "orders" : "visits";
+  const amount = (count: number) => tr(`count.${kind}`, { count });
+  const units = tr(`unit.${kind}`);
   const t = view.bundles.thresholds;
   const r = source.result;
-  const label = `${source.kind === "orders" ? "Bought together" : "Booked together"} · ${source.label}`;
+  const label = tr("pairs.label", { kind, source: source.label });
   if (r.status === "too_few") {
     return (
-      <SheetCard label={label} title={`Only ${num(r.baskets)} ${unit} so far`}>
-        <p className="pt-copy">
-          I look for pairs once there are {num(r.needed)} {unit}: with fewer, chance alone can make
-          any two items look inseparable.
-        </p>
+      <SheetCard label={label} title={tr("pairs.tooFew", { amount: amount(r.baskets) })}>
+        <p className="pt-copy">{tr("pairs.tooFewBody", { amount: amount(r.needed) })}</p>
       </SheetCard>
     );
   }
+  const rule = tr("pairs.footRule", {
+    amount: amount(t.min_together),
+    lift: lineIn(t.min_lift, locale),
+  });
+  const below =
+    source.ungrouped > 0
+      ? tr("pairs.footBelowUngrouped", {
+          below: r.below_count,
+          belowLift: r.below_lift,
+          ungrouped: source.ungrouped,
+        })
+      : tr("pairs.footBelow", { below: r.below_count, belowLift: r.below_lift });
   return (
     <SheetCard
       label={label}
       title={
         source.pairs.length === 0
-          ? "Nothing goes together more than chance"
-          : `${source.pairs.length} pair${source.pairs.length === 1 ? "" : "s"} more often together than chance`
+          ? tr("pairs.none")
+          : tr("pairs.some", { count: source.pairs.length })
       }
-      meta={`${num(r.baskets)} ${unit}, ${longDate(source.from)} – ${longDate(source.to)} · OBSERVED`}
-      foot={`A pair shows when it shared ${t.min_together} ${unit} or more and came up at least ${t.min_lift}× as often as chance would give. ${num(r.below_count)} pair${r.below_count === 1 ? " was" : "s were"} seen too rarely, and ${num(r.below_lift)} no more often than chance${source.ungrouped > 0 ? `; ${num(source.ungrouped)} appointments with no client or service couldn't be grouped into a visit` : ""}.`}
+      meta={tr("pairs.meta", {
+        amount: amount(r.baskets),
+        from: longDate(source.from, locale),
+        to: longDate(source.to, locale),
+      })}
+      foot={`${rule} ${below}`}
     >
       {source.pairs.length === 0 ? (
         <p className="pt-copy">
           {r.multi === 0
-            ? `Every one of your ${unit} held a single item, so nothing can be paired yet.`
-            : `${num(r.multi)} of your ${unit} held two items or more, but no pair stood out from chance.`}
+            ? tr("pairs.single", { kind })
+            : tr("pairs.multi", { multi: r.multi, units })}
         </p>
       ) : (
-        <div className="pt-table-wrap" tabIndex={0} aria-label="Pairs">
+        <div className="pt-table-wrap" tabIndex={0} aria-label={tr("pairs.aria")}>
           <table className="rt rt-stack pt-pairs">
             <thead>
               <tr>
-                <th scope="col">Pair</th>
+                <th scope="col">{tr("col.pair")}</th>
                 <th scope="col" className="num">
-                  Together
+                  {tr("col.together")}
                 </th>
-                <th scope="col">With the first, also the second</th>
+                <th scope="col">{tr("col.alsoSecond")}</th>
                 <th scope="col" className="num">
-                  Against chance
+                  {tr("col.againstChance")}
                 </th>
-                <th scope="col">The pair&apos;s margin</th>
-                <th scope="col">Proposal</th>
+                <th scope="col">{tr("col.margin")}</th>
+                <th scope="col">{tr("col.proposal")}</th>
               </tr>
             </thead>
             <tbody>
               {source.pairs.map((p) => {
-                const w = proposalWord(view.proposed[p.key]);
+                const word = proposalWord(view.proposed[p.key], tr);
                 return (
                   <tr key={p.key}>
                     <th scope="row">
                       {p.a_name} + {p.b_name}
                     </th>
-                    <td className="num" data-label="Together">
-                      {num(p.together)} {unit}
+                    <td className="num" data-label={tr("col.together")}>
+                      {amount(p.together)}
                     </td>
-                    <td data-label="With the first, also the second">
-                      {Math.round(p.confidence * 100)}% of {unit} with {p.a_name}
+                    <td data-label={tr("col.alsoSecond")}>
+                      {tr("pairs.share", {
+                        pct: Math.round(p.confidence * 100),
+                        units,
+                        a: p.a_name,
+                      })}
                       <span className="pt-src">
-                        {num(p.count_a)} {unit} had {p.a_name}
+                        {tr("pairs.had", { amount: amount(p.count_a), a: p.a_name })}
                       </span>
                     </td>
-                    <td className="num" data-label="Against chance">
-                      {(Math.round(p.lift * 10) / 10).toFixed(1)}×
-                      <span className="pt-src">about {num(Math.round(p.expected))} by chance</span>
+                    <td className="num" data-label={tr("col.againstChance")}>
+                      {num(Math.round(p.lift * 10) / 10, 1, locale)}×
+                      <span className="pt-src">
+                        {tr("pairs.byChance", { count: Math.round(p.expected) })}
+                      </span>
                     </td>
-                    <td data-label="The pair's margin">{marginText(p.margin)}</td>
-                    <td data-label="Proposal">
-                      {w ? (
-                        <span className={`word ${w.tone}`}>{w.word}</span>
+                    <td data-label={tr("col.margin")}>{marginText(p.margin, w)}</td>
+                    <td data-label={tr("col.proposal")}>
+                      {word ? (
+                        <span className={`word ${word.tone}`}>{word.word}</span>
                       ) : (
                         <button
                           type="button"
@@ -279,7 +332,7 @@ function Pairs({
                           disabled={view.held !== null || busyKey !== null}
                           onClick={() => onPropose(p.key)}
                         >
-                          {busyKey === p.key ? "Drafting…" : "Propose this pair →"}
+                          {busyKey === p.key ? tr("pairs.drafting") : tr("pairs.propose")}
                         </button>
                       )}
                     </td>
@@ -295,6 +348,9 @@ function Pairs({
 }
 
 export function PatternsScreen() {
+  const w = useWords();
+  const { tr, locale } = w;
+  const t = useTranslations("patterns");
   const [view, setView] = useState<PatternsView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
@@ -324,17 +380,13 @@ export function PatternsScreen() {
         body: JSON.stringify({ action: "propose", key }),
       });
       const body = (await res.json()) as { status?: string; error?: string };
-      if (!res.ok) setNote(body.error ?? "That didn't work.");
+      if (!res.ok) setNote(body.error ?? tr("note.failed"));
       else {
-        setNote(
-          body.status === "blocked"
-            ? "A rule of yours rules this out, so it sits blocked in your queue."
-            : "Drafted. It waits for you; nothing changes in your shop when you approve it.",
-        );
+        setNote(body.status === "blocked" ? tr("note.blocked") : tr("note.drafted"));
         await load();
       }
     } catch {
-      setNote("Something went wrong on our side.");
+      setNote(tr("note.ourSide"));
     } finally {
       setBusyKey(null);
     }
@@ -342,45 +394,44 @@ export function PatternsScreen() {
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut.title")}>
         <p className="pt-wait">
-          <Link href="/intake">Start with the interview</Link>.
+          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="Seasons and bundles didn't load.">
-        <p className="pt-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("error.title")}>
+        <p className="pt-wait">{tr("error.body")}</p>
       </Frame>
     );
   }
-  if (!view) return <Frame title="Reading your history…" />;
+  if (!view) return <Frame title={tr("loading")} />;
 
   const r = view.seasons.result;
   const aside =
-    r.status === "no_data" ? (
-      "Nothing measured yet"
-    ) : (
-      <>
-        {r.series.source} · {longDate(r.first_day)} – {longDate(r.last_day)} · MEASURED
-      </>
-    );
+    r.status === "no_data"
+      ? tr("aside.none")
+      : tr("aside.span", {
+          source: r.series.source,
+          from: longDate(r.first_day, locale),
+          to: longDate(r.last_day, locale),
+        });
   const sources = view.bundles.sources;
 
   return (
-    <Frame title={headline(view)} aside={aside}>
+    <Frame title={headline(view, w)} aside={aside}>
       <Seasons view={view} />
-      <h2 className="pt-section">What goes together</h2>
+      <h2 className="pt-section">{tr("bundles.section")}</h2>
       {sources.length === 0 ? (
-        <SheetCard label="What goes together" title="No orders or visits to read yet">
+        <SheetCard label={tr("bundles.section")} title={tr("bundles.emptyTitle")}>
           <p className="pt-copy">
-            Connect Shopify or WooCommerce and I keep which products each order held, or import your
-            bookings and I group each client&apos;s visit.
+            {tr("bundles.emptyBody")}
             {view.bundles.without_lines.length > 0 &&
-              ` ${view.bundles.without_lines.join(", ")} records payments, not products, so it can't say what went together.`}{" "}
-            <Link href="/connections">Connections</Link>
+              ` ${tr("bundles.withoutLines", { names: view.bundles.without_lines.join(", ") })}`}{" "}
+            <Link href="/connections">{tr("connections")}</Link>
           </p>
         </SheetCard>
       ) : (
@@ -396,11 +447,10 @@ export function PatternsScreen() {
       )}
       {sources.some((s) => s.pairs.length > 0) && (
         <p className="pt-copy pt-held">
-          {view.held ??
-            "A proposal is a draft for you: both items at full price, no discount. I don't change your shop or your checkout — you set the pair up."}{" "}
+          {view.held ?? tr("held")}{" "}
           {note && (
             <>
-              {note} <Link href="/proposals">Waiting for you</Link>
+              {note} <Link href="/proposals">{tr("waiting")}</Link>
             </>
           )}
         </p>

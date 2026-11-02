@@ -5,13 +5,17 @@
 // daily rows, and only its weekly candles need to reach the browser.
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { ProgressScreen } from "../../components/care/ProgressScreen";
 import { resolveAccess } from "../../lib/auth/access";
 import type { GoalChart } from "../../lib/care/charts";
 import { loadGoalCharts } from "../../lib/care/charts";
 import { logSafeError } from "../../lib/core/log-safe";
 
-export const metadata: Metadata = { title: "Goals — SYB" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("goals.meta");
+  return { title: t("title") };
+}
 export const dynamic = "force-dynamic";
 
 export default async function ProgressPage() {

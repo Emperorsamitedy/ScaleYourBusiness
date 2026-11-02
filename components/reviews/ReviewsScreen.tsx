@@ -7,16 +7,26 @@
 // the forwarding address with plain setup steps; and a "Paste a review"
 // form. SYB never posts a reply: a suggestion is text to edit and copy,
 // with a link to where the review lives.
+//
+// L-3b (TASKS-LANGUAGES.md): the screen's own words are the "reviews"
+// catalogue; dates and counts in the reader's locale. A review's words,
+// the reviewer's name and a suggested reply are content, shown as they are.
 
 import "../../app/reviews.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import type { ReviewItem, ReviewsView } from "../../lib/review-desk/view";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useRole } from "../auth/RoleContext";
+import { num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
 import {
-  SETUP_STEPS,
+  GOOGLE_NEED_KEYS,
+  MAX_STARS,
+  POOR_STARS,
+  setupSteps,
   asideLine,
   gmailConfirmationLine,
   dayLabel,
@@ -26,9 +36,6 @@ import {
   starsWords,
   thisMonth,
 } from "./reviews-view";
-
-const FOOT =
-  "SYB never posts a reply and never signs in to your review sites. It reads your Google reviews only if you connect Google Business Profile, and only reads them. A reviewer's name is kept for a year, and you can remove any review at once.";
 
 type Post = (body: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
 
@@ -41,11 +48,12 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useTr("reviews");
   return (
     <main className="screen rv-screen">
-      <PageHead kicker="Customers · Reviews" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
-      <p className="rv-foot">{FOOT}</p>
+      <p className="rv-foot">{tr("foot")}</p>
     </main>
   );
 }
@@ -60,6 +68,7 @@ async function copyText(text: string): Promise<boolean> {
 }
 
 function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: Post }) {
+  const { tr, locale } = useTr("reviews");
   const [draft, setDraft] = useState(r.draft ?? "");
   const [busy, setBusy] = useState<"draft" | "remove" | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -69,14 +78,15 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
   const answerWhy = useRole().why("reviews.answer");
   useEffect(() => setDraft(r.draft ?? ""), [r.draft]);
   const unread = r.stars === null && r.text === null;
-  const read = readNote(r);
+  const read = readNote(r, tr);
+  const platformLabel = r.platform === "other" ? tr("platform.other") : r.platform_label;
 
   const suggest = async () => {
     setBusy("draft");
     setNote(null);
     const out = await post({ action: "draft", id: r.id });
     if (out && out.drafted !== true) {
-      setNote(typeof out.message === "string" ? out.message : "That didn't work.");
+      setNote(typeof out.message === "string" ? out.message : tr("entry.failed"));
     }
     setBusy(null);
   };
@@ -89,23 +99,23 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
   return (
     <li className={`rv-item${r.worth_knowing ? " rv-worth" : ""}`}>
       <p className="rv-line">
-        <span className="rv-platform">{r.platform_label}</span>
-        <span>{starsWords(r.stars)}</span>
-        <span>{dayLabel(r.reviewed_at, today)}</span>
-        {r.worth_knowing && <span className="word drift">Worth knowing</span>}
+        <span className="rv-platform">{platformLabel}</span>
+        <span>{starsWords(r.stars, tr, locale)}</span>
+        <span>{dayLabel(r.reviewed_at, today, locale)}</span>
+        {r.worth_knowing && <span className="word drift">{tr("entry.worthKnowing")}</span>}
       </p>
       {r.reviewer && <p className="rv-who">{r.reviewer}</p>}
       {r.text ? (
         <p className="rv-text">{r.text}</p>
       ) : (
-        !unread && <p className="rv-text rv-quiet">A rating with no words.</p>
+        !unread && <p className="rv-text rv-quiet">{tr("entry.noWords")}</p>
       )}
       {read && <p className="rv-fine">{read}</p>}
 
       {r.draft && (
         <div className="rv-draft">
           <label className="cs-label" htmlFor={`draft-${r.id}`}>
-            Suggested reply · yours to edit
+            {tr("entry.draftLabel")}
           </label>
           <textarea
             id={`draft-${r.id}`}
@@ -117,10 +127,7 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
               setCopied(false);
             }}
           />
-          <p className="rv-fine">
-            I drafted this. Read it and make it yours: once you post it, it&apos;s your words, under
-            your name. I never post anything.
-          </p>
+          <p className="rv-fine">{tr("entry.draftNote")}</p>
         </div>
       )}
 
@@ -132,7 +139,7 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
             disabled={draft.trim() === ""}
             onClick={() => void copyText(draft).then(setCopied)}
           >
-            {copied ? "Copied" : "Copy the reply"}
+            {copied ? tr("entry.copied") : tr("entry.copyReply")}
           </button>
         ) : null}
         {!unread && (
@@ -142,25 +149,29 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
             disabled={busy !== null || r.drafts_left === 0 || answerWhy !== null}
             onClick={() => void suggest()}
           >
-            {busy === "draft" ? "Drafting…" : r.draft ? "Suggest another →" : "Suggest a reply →"}
+            {busy === "draft"
+              ? tr("entry.drafting")
+              : r.draft
+                ? tr("entry.suggestAnother")
+                : tr("entry.suggest")}
           </button>
         )}
         {r.link && (
           <a className="rv-link" href={r.link} target="_blank" rel="noopener noreferrer">
-            Open on {r.platform === "other" ? "the site" : r.platform_label} ↗
+            {tr("entry.openOn", {
+              site: r.platform === "other" ? tr("entry.theSite") : r.platform_label,
+            })}
           </a>
         )}
       </div>
       {!unread && (
         <p className="rv-fine">
-          {r.drafts_left === 0
-            ? "No suggestions left for this review: write it yourself."
-            : `${r.drafts_left} ${r.drafts_left === 1 ? "suggestion" : "suggestions"} left for this review.`}
+          {r.drafts_left === 0 ? tr("entry.noneLeft") : tr("entry.left", { count: r.drafts_left })}
         </p>
       )}
       {busy === "draft" && (
         <p className="rv-fine live">
-          <span className="live-dot" aria-hidden="true" /> Drafting a reply
+          <span className="live-dot" aria-hidden="true" /> {tr("entry.draftingLive")}
         </p>
       )}
       {note && <p className="rv-note">{note}</p>}
@@ -169,22 +180,22 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
       <p className="rv-remove">
         {answerWhy ? null : confirm ? (
           <>
-            Remove this review, the name on it and any suggested reply?{" "}
+            {tr("entry.removeAsk")}{" "}
             <button
               type="button"
               className="rv-textbtn"
               disabled={busy !== null}
               onClick={() => void remove()}
             >
-              {busy === "remove" ? "Removing…" : "Yes, remove it"}
+              {busy === "remove" ? tr("entry.removing") : tr("entry.removeYes")}
             </button>{" "}
             <button type="button" className="rv-textbtn" onClick={() => setConfirm(false)}>
-              Keep it
+              {tr("entry.keep")}
             </button>
           </>
         ) : (
           <button type="button" className="rv-textbtn" onClick={() => setConfirm(true)}>
-            Remove this review
+            {tr("entry.remove")}
           </button>
         )}
       </p>
@@ -193,6 +204,7 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
 }
 
 function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
+  const { tr, locale } = useTr("reviews");
   const [copied, setCopied] = useState(false);
   const [confirm, setConfirm] = useState(false);
   // Idea 52: the forwarding address is a setting, so a new one is an owner's.
@@ -201,37 +213,33 @@ function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
   const gmail = view.forwarding.gmail;
   if (!view.forwarding.configured || !address) {
     return (
-      <SheetCard label="Forwarding" title="Forwarding isn't set up yet">
-        <p className="rv-copy">
-          Once SYB&apos;s inbound email is switched on, you&apos;ll get an address here to forward
-          your review emails to, and I&apos;ll file each one as it comes. Until then, paste a review
-          below and I&apos;ll file it the same way.
-        </p>
+      <SheetCard label={tr("forwarding.label")} title={tr("forwarding.offTitle")}>
+        <p className="rv-copy">{tr("forwarding.offCopy")}</p>
       </SheetCard>
     );
   }
   return (
     <SheetCard
-      label="Forwarding"
-      title="Forward review emails here"
+      label={tr("forwarding.label")}
+      title={tr("forwarding.title")}
       foot={
         <span className="rv-foot-row">
           {rotateWhy ? (
             <span>{rotateWhy}</span>
           ) : confirm ? (
             <>
-              <span>A new address stops this one working. Update your forwarding after.</span>
+              <span>{tr("forwarding.newStops")}</span>
               <button
                 type="button"
                 className="act"
                 onClick={() => void post({ action: "rotate" }).then(() => setConfirm(false))}
               >
-                Get a new address
+                {tr("forwarding.newAddress")}
               </button>
             </>
           ) : (
             <button type="button" className="rv-textbtn" onClick={() => setConfirm(true)}>
-              Get a new address
+              {tr("forwarding.newAddress")}
             </button>
           )}
         </span>
@@ -239,28 +247,26 @@ function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
     >
       <p className="rv-address">{address}</p>
       <button type="button" className="act" onClick={() => void copyText(address).then(setCopied)}>
-        {copied ? "Copied" : "Copy the address"}
+        {copied ? tr("forwarding.copied") : tr("forwarding.copyAddress")}
       </button>
       {gmail && (
         <p className="rv-copy">
-          <strong>{gmailConfirmationLine(gmail)}</strong>{" "}
-          <span className="rv-quiet">Received {dayLabel(gmail.at, view.today)}.</span>
+          <strong>{gmailConfirmationLine(gmail, tr)}</strong>{" "}
+          <span className="rv-quiet">
+            {tr("gmail.received", { day: dayLabel(gmail.at, view.today, locale) })}
+          </span>
           {gmail.link && (
             <>
               {" "}
               <a href={gmail.link} target="_blank" rel="noopener noreferrer">
-                Open Gmail&apos;s confirmation link
+                {tr("gmail.openLink")}
               </a>
             </>
           )}
         </p>
       )}
-      <p className="rv-copy">
-        Each review email you forward becomes a review here. A poor one goes on your Watching screen
-        the day it comes in, and into your weekly summary. Mail from anyone but a review site is
-        ignored.
-      </p>
-      {SETUP_STEPS.map((s) => (
+      <p className="rv-copy">{tr("forwarding.how")}</p>
+      {setupSteps(tr).map((s) => (
         <div key={s.platform} className="rv-steps">
           <p className="cs-label">{s.platform}</p>
           <ol>
@@ -280,36 +286,39 @@ function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
  * can do, what SYB does with it, and what has to be in place first.
  */
 function GoogleCard({ view }: { view: ReviewsView }) {
+  const { tr, locale } = useTr("reviews");
   const g = view.google;
   const title = g.connected
     ? g.failed
-      ? "Google stopped accepting SYB's access"
-      : `Reading your Google reviews${g.location_title ? ` for ${g.location_title}` : ""}`
+      ? tr("google.failed")
+      : g.location_title
+        ? tr("google.readingFor", { location: g.location_title })
+        : tr("google.reading")
     : g.configured
-      ? "Read your Google reviews directly"
-      : "Reading from Google isn't set up yet";
+      ? tr("google.readDirectly")
+      : tr("google.notSetUpTitle");
   return (
     <SheetCard
-      label="Google Business Profile"
+      label={tr("google.label")}
       title={title}
       foot={
         <span className="rv-foot-row">
           <Link href="/connections">
-            {g.connected ? "Manage or revoke it on Connections" : "Connect it on Connections"}
+            {g.connected ? tr("google.manage") : tr("google.connect")}
           </Link>
         </span>
       }
     >
-      <p className="rv-copy">{g.what_it_can_do}</p>
+      {/* The server's fixed lines (lib/google-business/words), in the reader's language. */}
+      <p className="rv-copy">{tr("google.whatItCanDo")}</p>
       {g.connected ? (
         <p className="rv-copy">
-          SYB reads your reviews once a day and files new ones here, alongside any you forward. The
-          same review arriving both ways is listed once.
+          {tr("google.connected")}
           {g.last_read && (
             <>
               {" "}
               <span className="rv-quiet">
-                Last read {dayLabel(g.last_read.at, view.today)}.
+                {tr("google.lastRead", { day: dayLabel(g.last_read.at, view.today, locale) })}
                 {g.last_read.words ? ` ${g.last_read.words}` : ""}
               </span>
             </>
@@ -317,12 +326,12 @@ function GoogleCard({ view }: { view: ReviewsView }) {
         </p>
       ) : (
         <>
-          {g.not_set_up && <p className="rv-copy">{g.not_set_up}</p>}
+          {g.not_set_up && <p className="rv-copy">{tr("google.notSetUp")}</p>}
           <div className="rv-steps">
-            <p className="cs-label">Before it can work</p>
+            <p className="cs-label">{tr("google.before")}</p>
             <ol>
-              {g.needs.map((n) => (
-                <li key={n}>{n}</li>
+              {GOOGLE_NEED_KEYS.map((k) => (
+                <li key={k}>{tr(`google.needs.${k}`)}</li>
               ))}
             </ol>
           </div>
@@ -333,6 +342,7 @@ function GoogleCard({ view }: { view: ReviewsView }) {
 }
 
 function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
+  const { tr, locale } = useTr("reviews");
   const [form, setForm] = useState({
     platform: "google",
     stars: "",
@@ -354,20 +364,20 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
     const out = await post({ action: "paste", ...form });
     if (out?.filed === true) {
       setForm({ ...form, stars: "", reviewer: "", text: "", link: "", date: "" });
-      setNote("Filed.");
+      setNote(tr("paste.filed"));
     } else if (out?.filed === false) {
-      setNote("That review is already here.");
+      setNote(tr("paste.already"));
     }
     setBusy(false);
   };
 
   return (
-    <SheetCard label="Paste a review" title="Saw one somewhere else?">
+    <SheetCard label={tr("paste.label")} title={tr("paste.title")}>
       {pasteWhy && <p className="rv-fine">{pasteWhy}</p>}
       <form className="rv-form" onSubmit={(e) => void submit(e)}>
         <fieldset className="role-lock" disabled={pasteWhy !== null}>
           <label className="cs-label" htmlFor="rv-platform">
-            Where it was left
+            {tr("paste.where")}
           </label>
           <select
             id="rv-platform"
@@ -377,12 +387,12 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
           >
             {view.platforms.map((p) => (
               <option key={p.key} value={p.key}>
-                {p.label}
+                {p.key === "other" ? tr("platform.other") : p.label}
               </option>
             ))}
           </select>
           <label className="cs-label" htmlFor="rv-stars">
-            Stars
+            {tr("paste.stars")}
           </label>
           <select
             id="rv-stars"
@@ -391,15 +401,15 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
             onChange={set("stars")}
             required
           >
-            <option value="">Choose</option>
-            {[1, 2, 3, 4, 5].map((n) => (
+            <option value="">{tr("paste.choose")}</option>
+            {Array.from({ length: MAX_STARS }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>
-                {n} of 5
+                {starsWords(n, tr, locale)}
               </option>
             ))}
           </select>
           <label className="cs-label" htmlFor="rv-text">
-            What they wrote
+            {tr("paste.text")}
           </label>
           <textarea
             id="rv-text"
@@ -409,7 +419,7 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
             onChange={set("text")}
           />
           <label className="cs-label" htmlFor="rv-reviewer">
-            Their name as the site shows it · optional
+            {tr("paste.reviewer")}
           </label>
           <input
             id="rv-reviewer"
@@ -418,7 +428,7 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
             onChange={set("reviewer")}
           />
           <label className="cs-label" htmlFor="rv-link">
-            Link to the review · optional
+            {tr("paste.link")}
           </label>
           <input
             id="rv-link"
@@ -430,7 +440,7 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
             onChange={set("link")}
           />
           <label className="cs-label" htmlFor="rv-date">
-            When it was left · optional, else today
+            {tr("paste.date")}
           </label>
           <input
             id="rv-date"
@@ -446,7 +456,7 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
               className="act solid"
               disabled={busy || form.stars === "" || pasteWhy !== null}
             >
-              {busy ? "Filing…" : "File this review"}
+              {busy ? tr("paste.filing") : tr("paste.file")}
             </button>
           </div>
           {note && <p className="rv-note">{note}</p>}
@@ -457,6 +467,8 @@ function PasteCard({ view, post }: { view: ReviewsView; post: Post }) {
 }
 
 export function ReviewsScreen() {
+  const { tr, locale } = useTr("reviews");
+  const t = useTranslations("reviews");
   const [view, setView] = useState<ReviewsView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -485,43 +497,48 @@ export function ReviewsScreen() {
       });
       const out = (await res.json()) as Record<string, unknown>;
       if (!res.ok) {
-        setError(typeof out.error === "string" ? `${out.error}.` : "That didn't work.");
+        setError(typeof out.error === "string" ? `${out.error}.` : tr("entry.failed"));
         return null;
       }
       await load();
       return out;
     } catch {
-      setError("Something went wrong on our side.");
+      setError(tr("screen.ourSide"));
       return null;
     }
   };
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("screen.noBusiness")}>
         <p className="rv-wait">
-          <Link href="/intake">Start with the interview</Link>.
+          {t.rich("screen.startInterview", {
+            link: (c) => <Link href="/intake">{c}</Link>,
+          })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="Reviews didn't load.">
-        <p className="rv-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("screen.failedTitle")}>
+        <p className="rv-wait">{tr("screen.failedCopy")}</p>
       </Frame>
     );
   }
-  if (!view) return <Frame title="Reading your reviews…" />;
+  if (!view) return <Frame title={tr("screen.loading")} />;
 
   const month = thisMonth(view.reviews, view.today);
   return (
-    <Frame title={reviewsHeadline(view)} aside={asideLine(view)}>
+    <Frame title={reviewsHeadline(view, tr)} aside={asideLine(view, tr)}>
       {error && <p className="rv-note rv-error">{error}</p>}
       <SheetCard
-        label={`Reviews · ${monthName(view.today)}: ${month.length} · newest first`}
-        title={view.reviews.length > 0 ? "What people said" : "Nothing filed yet"}
-        meta="3 stars or fewer is worth knowing"
+        label={tr("screen.listLabel", {
+          month: monthName(view.today, tr, locale),
+          count: num(month.length, 0, locale),
+        })}
+        title={view.reviews.length > 0 ? tr("screen.listTitle") : tr("screen.nothingFiled")}
+        meta={tr("screen.listMeta", { stars: POOR_STARS })}
       >
         {view.reviews.length > 0 ? (
           <ul className="rv-list">
@@ -530,9 +547,7 @@ export function ReviewsScreen() {
             ))}
           </ul>
         ) : (
-          <p className="rv-copy">
-            Forward a review email to the address below, or paste one, and it shows here.
-          </p>
+          <p className="rv-copy">{tr("screen.emptyCopy")}</p>
         )}
       </SheetCard>
       <GoogleCard view={view} />

@@ -10,21 +10,33 @@
 // Read-only. A benchmark is a reference: nothing here makes a finding, a
 // proposal or a fact on the profile, and nothing calls a model or the
 // network beyond this screen's own read of /api/benchmarks.
+//
+// L-3b: the screen's own words are the "benchmarks" catalogue; what
+// lib/benchmarks words (the cell, the why, the gap note, the figures, the
+// inputs) stays English until L-4.
 
 import "../../app/benchmarks.css";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { BenchView } from "../../app/api/benchmarks/route";
 import type { BenchLine, BenchResult, Need } from "../../lib/benchmarks/compare";
 import { PageHead, SheetCard } from "../sheet/PageHead";
-import { comparedCount, footLine, headline, lineSentence, readingWord, sizeNote } from "./view";
+import { useTr } from "../sheet/useTr";
+import type { BenchWords } from "./view";
+import { comparedCount, footLine, headline, lineSentence, readingWordIn, sizeNote } from "./view";
 
 type Load =
   | { phase: "loading" }
   | { phase: "signedout" }
   | { phase: "error" }
   | { phase: "ready"; result: BenchResult };
+
+function useWords(): BenchWords {
+  const { tr, locale } = useTr("benchmarks");
+  return { tr, locale };
+}
 
 function Frame({
   title,
@@ -37,9 +49,10 @@ function Frame({
   notes?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useWords();
   return (
     <main className="screen bm-screen">
-      <PageHead kicker="Insights · Compared with similar businesses" title={title} aside={aside}>
+      <PageHead kicker={tr("kicker")} title={title} aside={aside}>
         {notes}
       </PageHead>
       {children}
@@ -48,12 +61,13 @@ function Frame({
 }
 
 function Needs({ needs }: { needs: Need[] }) {
+  const { tr } = useWords();
   if (needs.length === 0) return null;
   return (
     <p className="bm-needs">
       {needs.map((n) => (
         <Link key={n.href + n.what} href={n.href}>
-          Add {n.what} →
+          {tr("add", { what: n.what })}
         </Link>
       ))}
     </p>
@@ -61,13 +75,15 @@ function Needs({ needs }: { needs: Need[] }) {
 }
 
 function Line({ line }: { line: BenchLine }) {
+  const w = useWords();
+  const { tr } = w;
   if (line.status !== "compared") {
     return (
       <SheetCard
         className="bm-line"
         label={line.title}
-        title={line.status === "missing" ? "Not compared yet" : "No comparison"}
-        meta={<span className="word boxed">{readingWord(line)}</span>}
+        title={line.status === "missing" ? tr("notComparedYet") : tr("noComparison")}
+        meta={<span className="word boxed">{readingWordIn(line, w)}</span>}
       >
         <p className="bm-copy">{line.why}</p>
         {line.status === "missing" && <Needs needs={line.needs} />}
@@ -79,22 +95,23 @@ function Line({ line }: { line: BenchLine }) {
     <SheetCard
       className="bm-line"
       label={line.title}
-      title={lineSentence(line)}
-      meta={<span className="word boxed">{readingWord(line)}</span>}
+      title={lineSentence(line, w)}
+      meta={<span className="word boxed">{readingWordIn(line, w)}</span>}
     >
       <dl className="bm-pair">
         <div>
-          <dt>Yours</dt>
+          <dt>{tr("yours")}</dt>
           <dd className="fig">{line.own_words}</dd>
         </div>
         <div>
-          <dt>Theirs</dt>
+          <dt>{tr("theirs")}</dt>
           <dd className="fig">{line.bench_words}</dd>
         </div>
       </dl>
       <p className="bm-copy bm-cell">
-        Theirs: {line.cell.words}
-        {line.cell.flag ? ` (${line.cell.flag})` : ""}.
+        {line.cell.flag
+          ? tr("cellFlagged", { words: line.cell.words, flag: line.cell.flag })
+          : tr("cell", { words: line.cell.words })}
         {line.cell.fallback ? ` ${line.cell.fallback}` : ""}
         {line.conversion ? ` ${line.conversion}` : ""}
       </p>
@@ -104,25 +121,25 @@ function Line({ line }: { line: BenchLine }) {
         <table className="rt rt-stack bm-inputs">
           <thead>
             <tr>
-              <th scope="col">What yours rests on</th>
+              <th scope="col">{tr("col.restsOn")}</th>
               <th scope="col" className="num">
-                Value
+                {tr("col.value")}
               </th>
-              <th scope="col">Basis</th>
-              <th scope="col">Where it came from</th>
+              <th scope="col">{tr("col.basis")}</th>
+              <th scope="col">{tr("col.source")}</th>
             </tr>
           </thead>
           <tbody>
             {line.inputs.map((i) => (
               <tr key={i.label}>
                 <th scope="row">{i.label}</th>
-                <td className="num" data-label="Value">
+                <td className="num" data-label={tr("col.value")}>
                   {i.value}
                 </td>
-                <td data-label="Basis">
+                <td data-label={tr("col.basis")}>
                   <span className="bm-basis">{i.basis}</span>
                 </td>
-                <td className="src" data-label="Where it came from">
+                <td className="src" data-label={tr("col.source")}>
                   {i.source}
                 </td>
               </tr>
@@ -132,7 +149,7 @@ function Line({ line }: { line: BenchLine }) {
       </div>
       {line.left_out.length > 0 && (
         <>
-          <p className="bm-sub">Not counted</p>
+          <p className="bm-sub">{tr("notCounted")}</p>
           <ul className="bm-list">
             {line.left_out.map((l) => (
               <li key={l}>{l}</li>
@@ -147,6 +164,9 @@ function Line({ line }: { line: BenchLine }) {
 
 export function BenchmarksScreen() {
   const [load, setLoad] = useState<Load>({ phase: "loading" });
+  const t = useTranslations("benchmarks");
+  const w = useWords();
+  const { tr } = w;
 
   useEffect(() => {
     void (async () => {
@@ -164,27 +184,27 @@ export function BenchmarksScreen() {
 
   if (load.phase === "signedout") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut.title")}>
         <p className="bm-copy on-desk">
-          <Link href="/intake">Start with the interview</Link>, and your own numbers fill this in.
+          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (load.phase === "error") {
     return (
-      <Frame title="The comparison didn't load.">
-        <p className="bm-copy on-desk">Something went wrong on my side. Refresh to try again.</p>
+      <Frame title={tr("error.title")}>
+        <p className="bm-copy on-desk">{tr("error.body")}</p>
       </Frame>
     );
   }
-  if (load.phase === "loading") return <Frame title="Reading your numbers…" />;
+  if (load.phase === "loading") return <Frame title={tr("loading")} />;
 
   const r = load.result;
   if (r.status !== "ready") {
     return (
-      <Frame title={headline(r)} aside="Eurostat · read-only">
-        <SheetCard label="Compared with similar businesses" title="Nothing to compare">
+      <Frame title={headline(r, w)} aside={tr("aside")}>
+        <SheetCard label={tr("kickerShort")} title={tr("nothingToCompare")}>
           <p className="bm-copy">{r.why}</p>
           {"needs" in r && <Needs needs={r.needs} />}
         </SheetCard>
@@ -192,15 +212,15 @@ export function BenchmarksScreen() {
     );
   }
 
-  const note = sizeNote(r);
+  const note = sizeNote(r, w);
   return (
     <Frame
-      title={headline(r)}
+      title={headline(r, w)}
       aside={
         <>
-          Eurostat · read-only
+          {tr("aside")}
           <br />
-          {comparedCount(r)}
+          {comparedCount(r, w)}
         </>
       }
       notes={
@@ -208,7 +228,7 @@ export function BenchmarksScreen() {
           <p className="bm-note">{r.head.covers}</p>
           {note && (
             <p className="bm-note">
-              {note} <Link href="/intake?ask=1.6">Add how many people work here</Link>
+              {note} <Link href="/intake?ask=1.6">{tr("addPeople")}</Link>
             </p>
           )}
         </>
@@ -219,7 +239,7 @@ export function BenchmarksScreen() {
           <Line key={l.key} line={l} />
         ))}
       </div>
-      <p className="bm-foot">{footLine(r.source, r.caveat)}</p>
+      <p className="bm-foot">{footLine(r.source, r.caveat, w)}</p>
     </Frame>
   );
 }

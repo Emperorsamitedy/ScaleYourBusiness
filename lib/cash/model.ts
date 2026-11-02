@@ -44,6 +44,7 @@ import { moneyText, num } from "../../components/sheet/num";
 import { shortDate } from "../charts/model";
 import { enumCode } from "../core/enum-value";
 import { minorUnitExponent } from "../core/money";
+import type { AppLocale } from "../i18n/locales";
 import { SEASONS, addDays, quantile } from "../seasons/forecast";
 import { CASH_ASK } from "./keys";
 import type { PayoutChoice } from "./payout";
@@ -309,10 +310,11 @@ export type CashForecast = CashReady | CashRefusal;
 
 const plural = (n: number, word: string) => `${num(n)} ${word}${n === 1 ? "" : "s"}`;
 const money = (minor: number, currency: string) => moneyText(Math.round(minor), currency);
-/** Whole major units: "€6,400". */
-export function wholeMoney(minor: number, currency: string): string {
+/** Whole major units: "€6,400" — in another language, its own way ("6.400 €", L-3b). */
+export function wholeMoney(minor: number, currency: string, locale: AppLocale = "en"): string {
   const unit = 10 ** minorUnitExponent(currency);
   const whole = Math.round(minor / unit);
+  if (locale !== "en") return moneyText(whole * unit, currency, locale);
   const body = moneyText(Math.abs(whole) * unit, currency);
   return whole < 0 ? `−${body}` : body;
 }

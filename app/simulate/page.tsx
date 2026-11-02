@@ -8,10 +8,14 @@
 //                          Read-only: it never changes a price.
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { PricingScreen } from "../../components/simulate/PricingScreen";
 import { SimulateScreen } from "../../components/simulate/SimulateScreen";
 
-export const metadata: Metadata = { title: "Simulator — SYB" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("simulate.meta");
+  return { title: t("title") };
+}
 
 export default async function SimulatePage({
   searchParams,

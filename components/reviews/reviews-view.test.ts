@@ -1,12 +1,22 @@
 // Idea 45 (I-45.4) — the /reviews screen's words. Pure.
 
 import { describe, expect, it } from "vitest";
-import type { ReviewItem } from "../../lib/review-desk/view";
 import {
+  GOOGLE_NEEDS,
+  GOOGLE_NOT_SET_UP,
+  GOOGLE_READ_NOTE,
+  GOOGLE_WHAT_IT_CAN_DO,
+} from "../../lib/google-business/words";
+import { englishTr } from "../../lib/i18n/tr";
+import type { ReviewItem } from "../../lib/review-desk/view";
+import { PLATFORM_LABELS } from "../../lib/reviews/parse";
+import {
+  GOOGLE_NEED_KEYS,
   SETUP_STEPS,
   asideLine,
   dayLabel,
   gmailConfirmationLine,
+  monthName,
   readNote,
   reviewsHeadline,
   starsWords,
@@ -113,5 +123,25 @@ describe("the list's words", () => {
       "Gmail sent a confirmation link: open it to switch on the forwarding.",
     );
     expect(gmailConfirmationLine(null)).toBeNull();
+  });
+});
+
+describe("L-3b: the words come from the catalogue, English unchanged", () => {
+  it("says the Google card's fixed lines in English exactly as lib/google-business/words does", () => {
+    const tr = englishTr("reviews");
+    expect(tr("google.whatItCanDo")).toBe(GOOGLE_WHAT_IT_CAN_DO);
+    expect(tr("google.notSetUp")).toBe(GOOGLE_NOT_SET_UP);
+    expect(GOOGLE_NEED_KEYS.map((k) => tr(`google.needs.${k}`))).toEqual([...GOOGLE_NEEDS]);
+    expect(tr("google.readNote")).toBe(GOOGLE_READ_NOTE);
+    expect(tr("platform.other")).toBe(PLATFORM_LABELS.other);
+  });
+
+  it("writes dates, months and star counts the reader's way outside English", () => {
+    expect(dayLabel("2026-10-27T10:00:00Z", TODAY, "de-DE")).toBe("27. Okt.");
+    expect(dayLabel("2025-12-03T10:00:00Z", TODAY, "de-DE")).toBe("3. Dez. 2025");
+    expect(monthName(TODAY, englishTr("reviews"), "ru-RU")).toBe("октябрь");
+    expect(monthName(TODAY)).toBe("October");
+    expect(monthName("")).toBe("this month");
+    expect(starsWords(2, englishTr("reviews"), "zh-Hans")).toBe("2 of 5");
   });
 });

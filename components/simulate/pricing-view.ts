@@ -9,8 +9,38 @@ import type {
   PriceItemRaw,
   PricingInputs,
 } from "../../lib/simulate/pricing";
-import { PRICING, changeKey, periodWords, unitNoun } from "../../lib/simulate/pricing";
+import { PRICING, changeKey } from "../../lib/simulate/pricing";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
 import { moneyText, num } from "../sheet/num";
+import type { SimWords } from "./view";
+import { ENGLISH_SIM, sharePct } from "./view";
+
+// L-3b (TASKS-LANGUAGES.md): the words are "simulate.pricing" through an
+// optional translator, English by default; figures in the reader's locale.
+// A product's unit is "sales", a service's "bookings" — the catalogue
+// chooses by the item's kind, so each language can inflect its own noun.
+
+const P =
+  (tr: Tr): Tr =>
+  (key, values) =>
+    tr(`pricing.${key}`, values);
+
+/** "12.3%" from a fraction; in another language, its own ("12,3 %"). */
+export function pctOne(share: number, locale: AppLocale = "en"): string {
+  if (locale === "en") return `${num(share * 100, 1)}%`;
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(share);
+}
+
+/** "every 28 days" / "a month": the period a volume covers, in the reader's words. */
+export function periodText(item: Pick<PriceItemRaw, "kind">, tr: Tr = ENGLISH_SIM().tr): string {
+  return P(tr)("period", { kind: item.kind, days: PRICING.horizon_days });
+}
 
 /** Pure: the item the screen opens on — the most complete one, the first listed among equals. */
 export function defaultItem(x: PricingInputs): PriceItemRaw | null {
@@ -35,9 +65,8 @@ export function toggleChange(picks: readonly PriceChange[], c: PriceChange): Pri
 }
 
 /** "+10%" / "−5%" for a step button. */
-export function stepLabel(share: number): string {
-  const v = Math.round(Math.abs(share) * 100);
-  return `${share > 0 ? "+" : "−"}${v}%`;
+export function stepLabel(share: number, locale: AppLocale = "en"): string {
+  return sharePct(share, locale, true);
 }
 
 /** Pure: "36.50" in the item's major units → integer minor units, or null. */
@@ -57,16 +86,35 @@ export interface BreakEvenView {
 }
 
 /** Pure: the break-even as a side-by-side cell. A gap is a flag, never a number. */
-export function breakEvenView(be: BreakEven, item: PriceItemRaw): BreakEvenView {
-  const noun = unitNoun(item);
-  const pct = (s: number) => `${num(s * 100, 1)}%`;
-  const of = item.volume ? ` of ~${num(item.volume.value, 0)}` : " of your sales";
+export function breakEvenView(
+  be: BreakEven,
+  item: PriceItemRaw,
+  w: SimWords = ENGLISH_SIM(),
+): BreakEvenView {
+  const t = P(w.tr);
+  const { locale } = w;
+  const kind = item.kind;
+  const pct = (s: number) => pctOne(s, locale);
+  const of = (share: string, plus: boolean) =>
+    item.volume
+      ? t(plus ? "be.plusOfVolume" : "be.ofVolume", {
+          share,
+          volume: num(item.volume.value, 0, locale),
+        })
+      : t(plus ? "be.plusOfSales" : "be.ofSales", { share });
+  const withNote = (sub: string, note: string | null) => (note ? `${sub} · ${note}` : sub);
   switch (be.status) {
     case "lose": {
       const n = be.units === null ? null : Math.max(1, Math.ceil(be.units - 1e-9));
       return {
-        figure: n === null ? `Lose fewer than ${pct(be.share)}` : `Lose fewer than ${num(n, 0)}`,
-        sub: `${n === null ? noun : `${pct(be.share)}${of}`}${be.floor ? " · at least, whatever it costs you" : ""}`,
+        figure:
+          n === null
+            ? t("be.loseShare", { share: pct(be.share) })
+            : t("be.loseCount", { count: num(n, 0, locale) }),
+        sub: withNote(
+          n === null ? t("be.noun", { kind }) : of(pct(be.share), false),
+          be.floor ? t("be.atLeast") : null,
+        ),
         flag: null,
       };
     }
@@ -74,40 +122,58 @@ export function breakEvenView(be: BreakEven, item: PriceItemRaw): BreakEvenView 
       const n = be.units === null ? null : Math.floor(be.units + 1e-9);
       const full = be.room !== null && be.units !== null && be.units >= be.room;
       return {
-        figure: n === null ? `Win more than ${pct(be.share)}` : `Win more than ${num(n, 0)}`,
-        sub: `${n === null ? `more ${noun}` : `+${pct(be.share)}${of}`}${full ? ` · the book has room for ${num(be.room!, 0)}` : ""}`,
+        figure:
+          n === null
+            ? t("be.winShare", { share: pct(be.share) })
+            : t("be.winCount", { count: num(n, 0, locale) }),
+        sub: withNote(
+          n === null ? t("be.moreNoun", { kind }) : of(pct(be.share), true),
+          full ? t("be.room", { count: num(be.room!, 0, locale) }) : null,
+        ),
         flag: null,
       };
     }
     case "never":
-      return { figure: "Never pays", sub: "each one would lose money", flag: "NEVER" };
+      return { figure: t("be.never"), sub: t("be.neverSub"), flag: "NEVER" };
     case "missing":
       return { figure: "—", sub: be.needs.map((n) => n.what).join("; "), flag: "MISSING" };
   }
 }
 
 /** Pure: the item's line in the picker — what it costs, sells and is priced at. */
-export function itemLine(i: PriceItemRaw): string {
+export function itemLine(i: PriceItemRaw, w: SimWords = ENGLISH_SIM()): string {
+  const t = P(w.tr);
+  const { locale } = w;
   const parts: string[] = [];
-  parts.push(i.price ? moneyText(i.price.amount_minor, i.currency) : "no price yet");
+  parts.push(i.price ? moneyText(i.price.amount_minor, i.currency, locale) : t("item.noPrice"));
   parts.push(
     i.volume
-      ? `~${num(i.volume.value, 0)} ${unitNoun(i)} ${periodWords(i)}`
-      : `${unitNoun(i)} not known`,
+      ? t("item.volume", {
+          volume: num(i.volume.value, 0, locale),
+          kind: i.kind,
+          days: PRICING.horizon_days,
+        })
+      : t("item.volumeUnknown", { kind: i.kind }),
   );
   parts.push(
     i.unit_cost && i.unit_cost.currency === i.currency
-      ? `costs ${moneyText(i.unit_cost.amount_minor, i.currency)} to deliver`
-      : "cost to deliver not known",
+      ? t("item.cost", { cost: moneyText(i.unit_cost.amount_minor, i.currency, locale) })
+      : t("item.costUnknown"),
   );
   return parts.join(" · ");
 }
 
 /** Pure: the per-order costs in one sentence, or null — shown, never counted. */
-export function perOrderLine(x: PricingInputs, item: PriceItemRaw | null): string | null {
+export function perOrderLine(
+  x: PricingInputs,
+  item: PriceItemRaw | null,
+  w: SimWords = ENGLISH_SIM(),
+): string | null {
   if (!item || item.kind !== "offer") return null;
   const same = x.per_order_costs.filter((c) => c.currency === item.currency);
   if (same.length === 0) return null;
-  const list = same.map((c) => `${c.label} (${moneyText(c.amount_minor, c.currency)})`).join(", ");
-  return `Not in the cost of one: ${list}. You pay ${same.length === 1 ? "it" : "them"} per order, not per piece, and an order can hold several pieces. Where one sale is one order, a rise can lose a few more sales than shown, and a cut needs a few more.`;
+  const list = same
+    .map((c) => `${c.label} (${moneyText(c.amount_minor, c.currency, w.locale)})`)
+    .join(", ");
+  return P(w.tr)("perOrder", { list, count: same.length });
 }

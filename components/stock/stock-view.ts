@@ -1,6 +1,15 @@
 // The stock screen's words — feature 34 (slow stock) and P5-05 (what runs out). Pure, so they are tested
 // without a browser (stock-view.test.ts).
+//
+// L-3b: the fixed words (status words, flags, units, "at cost") are the
+// "stock" catalogue through an optional translator, English by default;
+// figures in the reader's locale. The sentences built from the counts
+// (the headline, stated against measured) stay English until L-4.
 
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import type {
   CoverItemView,
   StockItemView,
@@ -8,6 +17,35 @@ import type {
   StockView,
 } from "../../app/api/stock/route";
 import { moneyText, num } from "../sheet/num";
+
+/** The screen's words and the reader's locale: the "stock" catalogue. */
+export interface StockWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+const ENGLISH = (): StockWords => ({ tr: englishTr("stock"), locale: "en" });
+
+const FLAG_KEY: Record<string, string> = {
+  STUCK: "stuck",
+  SLOW: "slow",
+  "ACT NOW": "actNow",
+  "RUNNING LOW": "runningLow",
+  "IN RANGE": "inRange",
+  "SOLD OUT": "soldOut",
+  "NO SALES": "noSales",
+  "TOO EARLY": "tooEarly",
+};
+
+/** A flag's word in the reader's language ("STUCK", "ACT NOW"); an unknown code as it came. */
+export function flagWord(flag: string, tr: Tr = ENGLISH().tr): string {
+  const key = FLAG_KEY[flag];
+  return key ? tr(`flag.${key}`) : flag;
+}
+
+/** The flag in running text: "stuck", "act now". */
+export function flagLower(flag: string, w: StockWords = ENGLISH()): string {
+  return flagWord(flag, w.tr).toLocaleLowerCase(intlTag(w.locale));
+}
 
 /** The screen's one display line: the cash tied up, as a sentence. */
 export function headline(view: StockView): string {
@@ -28,47 +66,59 @@ export function flagClass(flag: StockItemView["flag"]): "alarm" | "drift" {
 }
 
 /** What has happened to a proposal, in one or two words. */
-export function statusWord(p: { status: string }): { word: string; tone: string } {
+export function statusWord(
+  p: { status: string },
+  tr: Tr = ENGLISH().tr,
+): { word: string; tone: string } {
   switch (p.status) {
     case "pending":
-      return { word: "Waiting for you", tone: "ok" };
+      return { word: tr("view.waiting"), tone: "ok" };
     case "blocked":
-      return { word: "Blocked by your rule", tone: "alarm" };
+      return { word: tr("view.blocked"), tone: "alarm" };
     case "approved":
-      return { word: "Approved", tone: "ok" };
+      return { word: tr("view.approved"), tone: "ok" };
     case "executed":
-      return { word: "Done", tone: "ok" };
+      return { word: tr("view.done"), tone: "ok" };
     case "rejected":
-      return { word: "Declined", tone: "none" };
+      return { word: tr("view.declined"), tone: "none" };
     case "expired":
-      return { word: "Expired", tone: "none" };
+      return { word: tr("view.expired"), tone: "none" };
     default:
       return { word: p.status.replace(/_/g, " "), tone: "none" };
   }
 }
 
 /** What has happened to an option's proposal, in one or two words. */
-export function proposalWord(o: StockOptionView): { word: string; tone: string } | null {
-  if (o.unavailable !== null) return { word: "Can't", tone: "none" };
-  return o.proposal ? statusWord(o.proposal) : null;
+export function proposalWord(
+  o: StockOptionView,
+  tr: Tr = ENGLISH().tr,
+): { word: string; tone: string } | null {
+  if (o.unavailable !== null) return { word: tr("view.cant"), tone: "none" };
+  return o.proposal ? statusWord(o.proposal, tr) : null;
 }
 
 /** Days of cover as the table prints it. */
-export function coverText(item: StockItemView): string {
-  if (item.days_of_cover !== null) return num(item.days_of_cover);
-  return item.on_hand > 0 ? "no sales" : "—";
+export function coverText(item: StockItemView, w: StockWords = ENGLISH()): string {
+  if (item.days_of_cover !== null) return num(item.days_of_cover, 0, w.locale);
+  return item.on_hand > 0 ? w.tr("view.noSales") : "—";
 }
 
 /** Days since the last sale as the table prints it. */
-export function quietText(item: StockItemView): string {
-  if (item.days_since_sale !== null) return num(item.days_since_sale);
-  if (item.no_sale_for_at_least !== null) return `${num(item.no_sale_for_at_least)}+`;
+export function quietText(item: StockItemView, locale: AppLocale = "en"): string {
+  if (item.days_since_sale !== null) return num(item.days_since_sale, 0, locale);
+  if (item.no_sale_for_at_least !== null) return `${num(item.no_sale_for_at_least, 0, locale)}+`;
   return "—";
 }
 
 /** The money a column prints, or a dash with no guess behind it. */
-export function cashText(minor: number | null, currency: string | null): string {
-  return minor === null || currency === null ? "unknown" : moneyText(minor, currency);
+export function cashText(
+  minor: number | null,
+  currency: string | null,
+  w: StockWords = ENGLISH(),
+): string {
+  return minor === null || currency === null
+    ? w.tr("view.unknown")
+    : moneyText(minor, currency, w.locale);
 }
 
 /** Rule 11: what the owner said dead stock was worth, against what's measured. */
@@ -107,23 +157,34 @@ export function coverFlagClass(flag: CoverItemView["flag"]): "alarm" | "drift" |
 }
 
 /** "+23 · chance ±40" / "−12 · down" — window A against window B (P5-01). */
-export function vsPriorText(item: CoverItemView): string {
+export function vsPriorText(item: CoverItemView, w: StockWords = ENGLISH()): string {
+  const { tr, locale } = w;
   const v = item.vs_prior;
   if (!v) return "—";
-  if (v.change === 0 && v.band === 0) return "none sold";
+  if (v.change === 0 && v.band === 0) return tr("view.noneSold");
   const sign = v.change > 0 ? "+" : v.change < 0 ? "−" : "±";
-  const word = v.direction === "flat" ? "about the same" : v.direction;
-  return `${sign}${num(Math.abs(v.change))} · ${word}`;
+  const word =
+    v.direction === "flat"
+      ? tr("view.same")
+      : v.direction === "up"
+        ? tr("view.up")
+        : tr("view.down");
+  return `${sign}${num(Math.abs(v.change), 0, locale)} · ${word}`;
 }
 
 /** "10 d · Midland Clay Supplies" / "14 d · ASSUMED". */
-export function leadText(item: CoverItemView): string {
+export function leadText(item: CoverItemView, w: StockWords = ENGLISH()): string {
+  const { tr, locale } = w;
+  const days = num(item.lead.days, 0, locale);
   return item.lead.basis === "stated"
-    ? `${num(item.lead.days)} d · ${item.lead.supplier ?? "your supplier"}`
-    : `${num(item.lead.days)} d · ASSUMED`;
+    ? tr("view.lead", { days, supplier: item.lead.supplier ?? tr("view.yourSupplier") })
+    : tr("view.lead", { days, supplier: tr("view.assumed") });
 }
 
 /** A reorder note's cost, in its own currency: "€2,802.80 at cost". */
-export function moneyLine(m: { amount_minor: number; currency: string }): string {
-  return `${moneyText(m.amount_minor, m.currency)} at cost`;
+export function moneyLine(
+  m: { amount_minor: number; currency: string },
+  w: StockWords = ENGLISH(),
+): string {
+  return w.tr("view.atCost", { amount: moneyText(m.amount_minor, m.currency, w.locale) });
 }

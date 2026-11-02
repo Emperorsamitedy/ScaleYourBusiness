@@ -1,12 +1,31 @@
 // The /reviews screen's words — idea 45 (I-45.4). Pure: the headline, the
 // stars in words, the month's count, the setup steps.
+//
+// L-3b (TASKS-LANGUAGES.md): the words are the "reviews" catalogue through
+// an optional translator, English by default from messages/en.json, so
+// English says exactly what it always said; dates and counts in the
+// reader's locale. A review's own words are content, shown as written.
 
-import { GOOGLE_READ_NOTE } from "../../lib/google-business/words";
+import { dayMonth, dayMonthYear } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import type { ReviewItem, ReviewsView } from "../../lib/review-desk/view";
+import { num } from "../sheet/num";
+
+const EN = (): Tr => englishTr("reviews");
+
+/** A review of this many stars or fewer is worth knowing. */
+export const POOR_STARS = 3;
+/** The top of the star scale. */
+export const MAX_STARS = 5;
 
 /** Stars as words: "2 of 5". */
-export function starsWords(stars: number | null): string {
-  return stars === null ? "No rating" : `${stars} of 5`;
+export function starsWords(stars: number | null, tr: Tr = EN(), locale: AppLocale = "en"): string {
+  return stars === null
+    ? tr("stars.none")
+    : tr("stars.of", { stars: num(stars, 0, locale), max: num(MAX_STARS, 0, locale) });
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -26,11 +45,16 @@ const MONTHS_LONG = [
 ];
 
 /** "27 Oct", with the year when it isn't this year's. */
-export function dayLabel(iso: string, today: string): string {
+export function dayLabel(iso: string, today: string, locale: AppLocale = "en"): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
   const year = d.getUTCFullYear();
-  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}${String(year) === today.slice(0, 4) ? "" : ` ${year}`}`;
+  const thisYear = String(year) === today.slice(0, 4);
+  if (locale !== "en") {
+    const day = d.toISOString().slice(0, 10);
+    return thisYear ? dayMonth(day, locale) : dayMonthYear(day, locale);
+  }
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}${thisYear ? "" : ` ${year}`}`;
 }
 
 /** This calendar month's reviews (by the review's own date, UTC). */
@@ -39,39 +63,48 @@ export function thisMonth(items: readonly ReviewItem[], today: string): ReviewIt
   return items.filter((r) => r.reviewed_at.slice(0, 7) === month);
 }
 
-export function monthName(today: string): string {
-  return MONTHS_LONG[Number(today.slice(5, 7)) - 1] ?? "this month";
+/** The month's name on its own ("October", "октябрь"), or "this month" when today isn't a date. */
+export function monthName(today: string, tr: Tr = EN(), locale: AppLocale = "en"): string {
+  const m = Number(today.slice(5, 7));
+  if (locale !== "en" && m >= 1 && m <= 12) {
+    return new Intl.DateTimeFormat(intlTag(locale), { month: "long", timeZone: "UTC" }).format(
+      new Date(Date.UTC(2000, m - 1, 1)),
+    );
+  }
+  return MONTHS_LONG[m - 1] ?? tr("thisMonth");
 }
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-
 /** The head: the month's main fact. */
-export function reviewsHeadline(view: Pick<ReviewsView, "reviews" | "today">): string {
+export function reviewsHeadline(
+  view: Pick<ReviewsView, "reviews" | "today">,
+  tr: Tr = EN(),
+): string {
   const month = thisMonth(view.reviews, view.today);
-  if (view.reviews.length === 0) return "No reviews here yet.";
-  if (month.length === 0) return "No new reviews this month.";
-  const poor = month.filter((r) => r.stars !== null && r.stars <= 3).length;
+  if (view.reviews.length === 0) return tr("headline.none");
+  if (month.length === 0) return tr("headline.noneThisMonth");
+  const poor = month.filter((r) => r.stars !== null && r.stars <= POOR_STARS).length;
   if (poor === 0) {
     return month.length === 1
-      ? "This month's one review isn't 3 stars or fewer."
-      : `None of this month's ${month.length} reviews is 3 stars or fewer.`;
+      ? tr("headline.oneFine", { stars: POOR_STARS })
+      : tr("headline.noneFine", { count: month.length, stars: POOR_STARS });
   }
-  return `${plural(poor, "review", "reviews")} of 3 stars or fewer this month, of ${month.length}.`;
+  return tr("headline.poor", { poor, stars: POOR_STARS, total: month.length });
 }
 
 /** The aside: every review on file, and how long they're kept. */
-export function asideLine(view: Pick<ReviewsView, "reviews" | "retention_days">): string {
-  return `${plural(view.reviews.length, "review", "reviews")} on file · kept ${view.retention_days} days`;
+export function asideLine(
+  view: Pick<ReviewsView, "reviews" | "retention_days">,
+  tr: Tr = EN(),
+): string {
+  return tr("aside", { count: view.reviews.length, days: view.retention_days });
 }
 
 /** Why a review shows as it does, when it isn't plain. */
-export function readNote(r: Pick<ReviewItem, "read_by" | "source">): string | null {
-  if (r.read_by === "unread") {
-    return "I couldn't read this notification, so I kept only where and when. Open it where it lives.";
-  }
-  if (r.read_by === "model") return "Read by my fallback reader: check it against the original.";
-  if (r.source === "paste") return "You pasted this one.";
-  if (r.source === "google") return GOOGLE_READ_NOTE;
+export function readNote(r: Pick<ReviewItem, "read_by" | "source">, tr: Tr = EN()): string | null {
+  if (r.read_by === "unread") return tr("readNote.unread");
+  if (r.read_by === "model") return tr("readNote.model");
+  if (r.source === "paste") return tr("readNote.paste");
+  if (r.source === "google") return tr("google.readNote");
   return null;
 }
 
@@ -81,30 +114,29 @@ export function readNote(r: Pick<ReviewItem, "read_by" | "source">): string | nu
  */
 export function gmailConfirmationLine(
   gmail: { code: string | null; link: string | null } | null,
+  tr: Tr = EN(),
 ): string | null {
   if (!gmail) return null;
-  if (gmail.code) {
-    return `Gmail sent a confirmation code: ${gmail.code}. Enter it in Gmail's forwarding settings.`;
-  }
-  return "Gmail sent a confirmation link: open it to switch on the forwarding.";
+  if (gmail.code) return tr("gmail.code", { code: gmail.code });
+  return tr("gmail.link");
 }
 
-/** Plain setup steps, per platform with an email to forward. */
-export const SETUP_STEPS: readonly { platform: string; steps: string[] }[] = [
-  {
-    platform: "Google",
-    steps: [
-      "In your Business Profile, open Notifications (or Settings) and switch on emails for customer reviews.",
-      "If those emails reach Gmail, first add the address above in Gmail's Settings, under Forwarding and POP/IMAP, Add a forwarding address. Gmail sends a confirmation code to it: the code shows up on this page, and you enter it in Gmail to finish.",
-      "Then, in the mailbox those emails reach, make a rule: mail from Google about a review is forwarded to the address above.",
-      "Or forward any review email to it by hand. Either way works.",
-    ],
-  },
-  {
-    platform: "Trustpilot",
-    steps: [
-      "In Trustpilot Business, turn on email notifications for new reviews.",
-      "Forward those emails to the address above, by a rule in your mailbox or by hand.",
-    ],
-  },
+/** The setup steps' keys, per platform with an email to forward. */
+const STEP_KEYS: readonly { platform: string; key: string; steps: readonly string[] }[] = [
+  { platform: "Google", key: "google", steps: ["notifications", "gmail", "rule", "byHand"] },
+  { platform: "Trustpilot", key: "trustpilot", steps: ["notifications", "forward"] },
 ];
+
+/** Plain setup steps, per platform with an email to forward. */
+export function setupSteps(tr: Tr = EN()): { platform: string; steps: string[] }[] {
+  return STEP_KEYS.map((p) => ({
+    platform: p.platform,
+    steps: p.steps.map((s) => tr(`setup.${p.key}.${s}`)),
+  }));
+}
+
+/** The English steps, as the screen has always listed them. */
+export const SETUP_STEPS: readonly { platform: string; steps: string[] }[] = setupSteps();
+
+/** The Google card's fixed lines (I-45a), in the reader's language. */
+export const GOOGLE_NEED_KEYS = ["approval", "signIn", "location"] as const;

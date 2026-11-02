@@ -1,18 +1,35 @@
 // The market chart's text alternative, rendered: the summary as the
 // figure's accessible name, a visually-hidden table with a row per candle,
 // the keyboard-reachable switch, and the empty state's invitation.
+// L-3b: the chart's words come from the catalogue, so it renders inside
+// next-intl's provider, in English, as the app does.
 
 import { createElement } from "react";
+import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { NextIntlClientProvider } from "next-intl";
+import en from "../../messages/en.json";
 import { describe, expect, it } from "vitest";
 import { shiftDay } from "../../lib/anomaly/baseline";
 import { BUCKET_SPAN, bucketCandles, lastBuckets } from "../../lib/charts/candles";
-import type { MarketInputs } from "../../lib/charts/model";
+import type { MarketChartModel, MarketInputs } from "../../lib/charts/model";
 import { buildMarketModel, chartSummary } from "../../lib/charts/model";
 import { CHART_ARCHETYPES } from "../../lib/charts/profiles";
 import { MarketChart } from "./MarketChart";
 
 const LAST = "2026-10-24";
+
+/** The chart as the app renders it: inside the provider, in English. */
+function render(model: MarketChartModel): string {
+  return renderToStaticMarkup(
+    createElement(NextIntlClientProvider, {
+      locale: "en",
+      messages: en,
+      timeZone: "UTC",
+      children: createElement(MarketChart, { model }) as ReactElement,
+    }),
+  );
+}
 
 function shop(days: number): MarketInputs {
   const values = new Map<string, number>();
@@ -50,7 +67,7 @@ describe("MarketChart renders its text alternative", () => {
   it("names the figure with the summary and hides a table of every plotted candle", () => {
     const model = buildMarketModel(shop(120));
     if (model.status !== "drawn") throw new Error("expected drawn");
-    const html = renderToStaticMarkup(createElement(MarketChart, { model }));
+    const html = render(model);
     const candles = lastBuckets(bucketCandles(model.days, "day"), BUCKET_SPAN.day.wide);
     const summary = chartSummary(model, candles, "day");
     expect(html).toContain('role="img"');
@@ -72,7 +89,7 @@ describe("MarketChart renders its text alternative", () => {
 
   it("the empty state invites the connection, with no figure at all", () => {
     const model = buildMarketModel({ ...shop(0), price: null, volume: null });
-    const html = renderToStaticMarkup(createElement(MarketChart, { model }));
+    const html = render(model);
     expect(html).toContain("Nothing to draw yet.");
     expect(html).toContain("Connect Shopify or WooCommerce");
     expect(html).toContain('href="/connections"');

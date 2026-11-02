@@ -9,25 +9,36 @@
 // in the queue makes proposals, nothing runs until the owner approves it
 // (rule 12), and a reorder note is never an order (rule 27). A business
 // without stock never reaches this screen through the menu (STOCK_APPLIES).
+//
+// L-3b: the screen's fixed words are the "stock" catalogue; figures in the
+// reader's locale. What the server words from data (warnings, reasons,
+// arithmetic, sources, the season line, held lines, option labels and
+// efficiencies) stays English until L-4.
 
 import "../../app/stock.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type {
   CoverBlock,
   CoverItemView,
   StockItemView,
   StockView,
 } from "../../app/api/stock/route";
+import { intlTag } from "../../lib/i18n/locales";
 import { StockHistoryChart } from "../charts/StockHistoryChart";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
+import type { StockWords } from "./stock-view";
 import {
   cashText,
   coverFlagClass,
   coverText,
   flagClass,
+  flagLower,
+  flagWord,
   leadText,
   moneyLine,
   proposalWord,
@@ -38,6 +49,16 @@ import {
   vsPriorText,
 } from "./stock-view";
 
+/** The columns the stock-file importer reads (lib/stock/import.ts): its own English header words. */
+const IMPORT_COLUMNS = "item or SKU, on hand, unit cost, price, last sold date, units sold";
+/** A file the importer reads, as the paste box's example: English headers, as the importer reads them. */
+const IMPORT_EXAMPLE =
+  "item,on hand,unit cost,price,last sold\nArgan oil 100 ml,14,9.50,24.00,2026-07-02";
+
+function useStockWords(): StockWords {
+  return useTr("stock");
+}
+
 function Frame({
   title,
   aside,
@@ -47,38 +68,42 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useStockWords();
   return (
     <main className="screen st-screen">
-      <PageHead kicker="Insights · Stock" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
     </main>
   );
 }
 
 function SlowTable({ items }: { items: StockItemView[] }) {
+  const words = useStockWords();
+  const { tr, locale } = words;
+  const sold = tr("col.sold", { days: num(90, 0, locale) });
   return (
-    <div className="st-table-wrap" tabIndex={0} aria-label="Stock that isn't selling">
+    <div className="st-table-wrap" tabIndex={0} aria-label={tr("slowTable")}>
       <table className="rt rt-stack st-table">
         <thead>
           <tr>
-            <th scope="col">Item</th>
+            <th scope="col">{tr("col.item")}</th>
             <th scope="col" className="num">
-              On hand
+              {tr("col.onHand")}
             </th>
             <th scope="col" className="num">
-              Sold 90 d
+              {sold}
             </th>
             <th scope="col" className="num">
-              Days of cover
+              {tr("col.cover")}
             </th>
             <th scope="col" className="num">
-              Days since sale
+              {tr("col.sinceSale")}
             </th>
             <th scope="col" className="num">
-              Cash tied up
+              {tr("col.cashTied")}
             </th>
-            <th scope="col">Flag</th>
-            <th scope="col">Cheapest ways to clear it</th>
+            <th scope="col">{tr("col.flag")}</th>
+            <th scope="col">{tr("col.ways")}</th>
           </tr>
         </thead>
         <tbody>
@@ -90,29 +115,29 @@ function SlowTable({ items }: { items: StockItemView[] }) {
                   {item.name}
                   <span className="st-src">{item.source}</span>
                 </th>
-                <td className="num" data-label="On hand">
-                  {num(item.on_hand)}
+                <td className="num" data-label={tr("col.onHand")}>
+                  {num(item.on_hand, 0, locale)}
                 </td>
-                <td className="num" data-label="Sold 90 d">
-                  {item.sold[90] === null ? "—" : num(item.sold[90])}
+                <td className="num" data-label={sold}>
+                  {item.sold[90] === null ? "—" : num(item.sold[90], 0, locale)}
                 </td>
-                <td className="num" data-label="Days of cover">
-                  {coverText(item)}
+                <td className="num" data-label={tr("col.cover")}>
+                  {coverText(item, words)}
                 </td>
-                <td className="num" data-label="Days since sale">
-                  {quietText(item)}
+                <td className="num" data-label={tr("col.sinceSale")}>
+                  {quietText(item, locale)}
                 </td>
-                <td className="num" data-label="Cash tied up">
-                  {cashText(item.cash_tied_minor, item.currency)}
-                  {item.cost_basis === "stated" && <span className="st-src">your cost</span>}
+                <td className="num" data-label={tr("col.cashTied")}>
+                  {cashText(item.cash_tied_minor, item.currency, words)}
+                  {item.cost_basis === "stated" && <span className="st-src">{tr("yourCost")}</span>}
                 </td>
-                <td data-label="Flag">
-                  <span className={`flag ${flagClass(item.flag)}`}>{item.flag}</span>
+                <td data-label={tr("col.flag")}>
+                  <span className={`flag ${flagClass(item.flag)}`}>{flagWord(item.flag, tr)}</span>
                 </td>
-                <td data-label="Cheapest ways to clear it">
+                <td data-label={tr("col.ways")}>
                   <ol className="st-opts">
                     {usable.map((o) => {
-                      const w = proposalWord(o);
+                      const w = proposalWord(o, tr);
                       return (
                         <li key={o.key}>
                           <span>{o.label}</span>
@@ -120,7 +145,7 @@ function SlowTable({ items }: { items: StockItemView[] }) {
                         </li>
                       );
                     })}
-                    {usable.length === 0 && <li className="st-none">nothing I can propose</li>}
+                    {usable.length === 0 && <li className="st-none">{tr("nothingToPropose")}</li>}
                   </ol>
                 </td>
               </tr>
@@ -133,27 +158,31 @@ function SlowTable({ items }: { items: StockItemView[] }) {
 }
 
 function CoverTable({ cover }: { cover: CoverBlock }) {
-  const n = cover.window_days;
+  const words = useStockWords();
+  const { tr, locale } = words;
+  const n = num(cover.window_days, 0, locale);
+  const sold = tr("col.sold", { days: n });
+  const vsPrior = tr("col.vsPrior", { days: n });
   return (
-    <div className="st-table-wrap" tabIndex={0} aria-label="Days of cover, item by item">
+    <div className="st-table-wrap" tabIndex={0} aria-label={tr("coverTable")}>
       <table className="rt rt-stack st-table">
         <thead>
           <tr>
-            <th scope="col">Item</th>
+            <th scope="col">{tr("col.item")}</th>
             <th scope="col" className="num">
-              On hand
+              {tr("col.onHand")}
             </th>
             <th scope="col" className="num">
-              Sold {n} d
+              {sold}
             </th>
             <th scope="col" className="num">
-              vs prior {n} d
+              {vsPrior}
             </th>
             <th scope="col" className="num">
-              Days of cover
+              {tr("col.cover")}
             </th>
-            <th scope="col">Delivery time</th>
-            <th scope="col">Flag</th>
+            <th scope="col">{tr("col.delivery")}</th>
+            <th scope="col">{tr("col.flag")}</th>
           </tr>
         </thead>
         <tbody>
@@ -163,27 +192,31 @@ function CoverTable({ cover }: { cover: CoverBlock }) {
                 {item.name}
                 <span className="st-src">{item.source}</span>
               </th>
-              <td className="num" data-label="On hand">
-                {num(item.on_hand)}
+              <td className="num" data-label={tr("col.onHand")}>
+                {num(item.on_hand, 0, locale)}
               </td>
-              <td className="num" data-label={`Sold ${n} d`}>
-                {item.sold_recent === null ? "—" : num(item.sold_recent)}
+              <td className="num" data-label={sold}>
+                {item.sold_recent === null ? "—" : num(item.sold_recent, 0, locale)}
               </td>
-              <td className="num" data-label={`vs prior ${n} d`} title={item.sell_through}>
-                {vsPriorText(item)}
+              <td className="num" data-label={vsPrior} title={item.sell_through}>
+                {vsPriorText(item, words)}
                 {item.vs_prior && item.vs_prior.band > 0 && (
-                  <span className="st-src">chance ±{num(item.vs_prior.band)}</span>
+                  <span className="st-src">
+                    {tr("chance", { band: num(item.vs_prior.band, 0, locale) })}
+                  </span>
                 )}
               </td>
-              <td className="num" data-label="Days of cover" title={item.why ?? item.sources}>
+              <td className="num" data-label={tr("col.cover")} title={item.why ?? item.sources}>
                 {item.cover_text}
-                {item.boosted && <span className="st-src">busy stretch counted</span>}
+                {item.boosted && <span className="st-src">{tr("boosted")}</span>}
               </td>
-              <td data-label="Delivery time" title={item.lead.why}>
-                <span className="st-mono">{leadText(item)}</span>
+              <td data-label={tr("col.delivery")} title={item.lead.why}>
+                <span className="st-mono">{leadText(item, words)}</span>
               </td>
-              <td data-label="Flag">
-                <span className={`flag ${coverFlagClass(item.flag)}`}>{item.flag}</span>
+              <td data-label={tr("col.flag")}>
+                <span className={`flag ${coverFlagClass(item.flag)}`}>
+                  {flagWord(item.flag, tr)}
+                </span>
               </td>
             </tr>
           ))}
@@ -194,13 +227,20 @@ function CoverTable({ cover }: { cover: CoverBlock }) {
 }
 
 function ReorderNote({ item }: { item: CoverItemView }) {
+  const words = useStockWords();
+  const { tr, locale } = words;
   const r = item.reorder!;
-  const w = r.proposal ? statusWord(r.proposal) : null;
+  const w = r.proposal ? statusWord(r.proposal, tr) : null;
+  const quantity = num(r.quantity, 0, locale);
   return (
     <SheetCard
-      label={`Reorder note · ${item.flag.toLowerCase()}`}
-      title={`${item.name}: reorder ${num(r.quantity)}${item.lead.supplier ? ` from ${item.lead.supplier}` : ""}`}
-      meta="A note for you, not an order"
+      label={tr("reorder.label", { flag: flagLower(item.flag, words) })}
+      title={
+        item.lead.supplier
+          ? tr("reorder.titleFrom", { name: item.name, quantity, supplier: item.lead.supplier })
+          : tr("reorder.title", { name: item.name, quantity })
+      }
+      meta={tr("reorder.meta")}
     >
       <p className="st-copy st-warn">
         {item.warning}
@@ -209,11 +249,11 @@ function ReorderNote({ item }: { item: CoverItemView }) {
       <p className="st-rank-math">{r.arithmetic}</p>
       {r.cost && (
         <p className="st-rank-fig">
-          {moneyLine(r.cost)}
+          {moneyLine(r.cost, words)}
           {r.cost_arithmetic && <span className="st-src">{r.cost_arithmetic}</span>}
         </p>
       )}
-      <p className="st-rank-math">Sources: {item.sources}.</p>
+      <p className="st-rank-math">{tr("reorder.sources", { sources: item.sources })}</p>
       {item.assumed.length > 0 && (
         <ul className="st-assumed">
           {item.assumed.map((a) => (
@@ -222,15 +262,9 @@ function ReorderNote({ item }: { item: CoverItemView }) {
         </ul>
       )}
       {r.proposal?.status === "blocked" && r.proposal.blocked_by_limit && (
-        <p className="st-rank-math">
-          I didn&apos;t put this in your queue: your rule ({r.proposal.blocked_by_limit}) rules it
-          out.
-        </p>
+        <p className="st-rank-math">{tr("ruledOut", { rule: r.proposal.blocked_by_limit })}</p>
       )}
-      <p className="st-copy">
-        Approving it records that you mean to reorder, and nothing else. I never contact your
-        supplier, and I never place, change or cancel an order.
-      </p>
+      <p className="st-copy">{tr("reorder.approving")}</p>
     </SheetCard>
   );
 }
@@ -246,27 +280,31 @@ function CoverCard({
   busy: boolean;
   note: string | null;
 }) {
+  const { tr, locale } = useStockWords();
   const warned = cover.items.filter((i) => i.reorder !== null);
   const waiting = warned.every((i) => i.reorder?.proposal);
   return (
     <SheetCard
-      label={`What runs out, and when · ${num(cover.warnings)} of ${num(cover.items.length)} items below their delivery time`}
-      title={cover.warnings > 0 ? "Soonest out first" : "Nothing runs out before a delivery"}
-      meta={`Cover: on hand ÷ your last ${cover.window_days} days' rate, low–high, against each supplier's delivery time (else ${cover.default_lead_days} days, ASSUMED)`}
+      label={tr("cover.label", {
+        warned: num(cover.warnings, 0, locale),
+        total: num(cover.items.length, 0, locale),
+      })}
+      title={cover.warnings > 0 ? tr("cover.titleWarned") : tr("cover.titleNone")}
+      meta={tr("cover.meta", {
+        days: num(cover.window_days, 0, locale),
+        lead: num(cover.default_lead_days, 0, locale),
+      })}
       foot={
         warned.length > 0 ? (
           <span className="st-foot-row">
-            <span>
-              {cover.held ??
-                "A reorder note per item running low. Nothing runs until you approve it, and approving orders nothing."}
-            </span>
+            <span>{cover.held ?? tr("cover.held")}</span>
             <button
               type="button"
               className="act"
               disabled={busy || cover.held !== null || waiting}
               onClick={onReorder}
             >
-              {busy ? "Working it out…" : "Put the reorder notes in my queue →"}
+              {busy ? tr("workingItOut") : tr("cover.button")}
             </button>
           </span>
         ) : undefined
@@ -276,12 +314,12 @@ function CoverCard({
       <p className="st-copy">{cover.season}</p>
       {busy && (
         <p className="st-copy live">
-          <span className="live-dot" aria-hidden="true" /> Working out the notes
+          <span className="live-dot" aria-hidden="true" /> {tr("cover.working")}
         </p>
       )}
       {note && (
         <p className="st-copy">
-          {note} <Link href="/proposals">Waiting for you</Link>
+          {note} <Link href="/proposals">{tr("waitingForYou")}</Link>
         </p>
       )}
     </SheetCard>
@@ -289,16 +327,18 @@ function CoverCard({
 }
 
 function Ranking({ item }: { item: StockItemView }) {
+  const words = useStockWords();
+  const { tr, locale } = words;
   const blocked = item.options.find((o) => o.proposal?.status === "blocked");
   return (
     <SheetCard
-      label={`How I'd clear it · ${item.flag.toLowerCase()} · ${item.why}`}
-      title={`${item.name}: cash likely back, per euro given up`}
-      meta="Most cash back first, after what each gives up"
+      label={tr("ranking.label", { flag: flagLower(item.flag, words), why: item.why })}
+      title={tr("ranking.title", { name: item.name })}
+      meta={tr("ranking.meta")}
     >
       <ol className="st-rank">
         {item.options.map((o, i) => {
-          const w = proposalWord(o);
+          const w = proposalWord(o, tr);
           return (
             <li key={o.key} className={o.unavailable !== null ? "off" : undefined}>
               <span className="n">{String(i + 1).padStart(2, "0")}</span>
@@ -309,14 +349,13 @@ function Ranking({ item }: { item: StockItemView }) {
                 </p>
                 <p className="st-rank-fig">
                   {o.unavailable !== null
-                    ? `I can't propose this: ${o.unavailable}.`
+                    ? tr("ranking.cantPropose", { why: o.unavailable })
                     : o.efficiency}
                 </p>
                 {o.unavailable === null && <p className="st-rank-math">{o.arithmetic}</p>}
                 {o.proposal?.status === "blocked" && o.proposal.blocked_by_limit && (
                   <p className="st-rank-math">
-                    I didn&apos;t put this in your queue: your rule ({o.proposal.blocked_by_limit})
-                    rules it out.
+                    {tr("ruledOut", { rule: o.proposal.blocked_by_limit })}
                   </p>
                 )}
               </div>
@@ -326,8 +365,9 @@ function Ranking({ item }: { item: StockItemView }) {
       </ol>
       {blocked && (
         <p className="st-copy">
-          A rule of yours blocked {blocked.label.toLowerCase()}, so it sits blocked in your queue,
-          where you can see what I chose not to propose.
+          {tr("ranking.blocked", {
+            option: blocked.label.toLocaleLowerCase(intlTag(locale)),
+          })}
         </p>
       )}
     </SheetCard>
@@ -335,6 +375,7 @@ function Ranking({ item }: { item: StockItemView }) {
 }
 
 function ImportCard({ onDone }: { onDone: () => void }) {
+  const { tr } = useStockWords();
   const [csv, setCsv] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [windowDays, setWindowDays] = useState("90");
@@ -366,24 +407,22 @@ function ImportCard({ onDone }: { onDone: () => void }) {
         unreadable?: Record<string, number>;
       };
       if (!res.ok) {
-        setNote(body.error ?? "That didn't import.");
+        setNote(body.error ?? tr("import.failed"));
         return;
       }
       const left = Object.values(body.skipped ?? {}).reduce((s, n) => s + n, 0);
       const blank = Object.values(body.unreadable ?? {}).reduce((s, n) => s + n, 0);
       setNote(
-        `I read ${body.imported} item${body.imported === 1 ? "" : "s"}.` +
-          (left > 0
-            ? ` ${left} row${left === 1 ? "" : "s"} had no item or no readable stock and were left out.`
-            : "") +
-          (blank > 0
-            ? ` ${blank} value${blank === 1 ? "" : "s"} couldn't be read and were left blank, not guessed.`
-            : ""),
+        [
+          tr("import.imported", { count: body.imported ?? 0 }),
+          ...(left > 0 ? [tr("import.leftOut", { count: left })] : []),
+          ...(blank > 0 ? [tr("import.blank", { count: blank })] : []),
+        ].join(" "),
       );
       setCsv("");
       onDone();
     } catch {
-      setNote("Something went wrong on our side. Try again.");
+      setNote(tr("import.ourSide"));
     } finally {
       setBusy(false);
     }
@@ -391,24 +430,22 @@ function ImportCard({ onDone }: { onDone: () => void }) {
 
   return (
     <SheetCard
-      label="No shop connected? A stock count works too"
-      title="Import a stock file"
-      foot="Columns I read: item or SKU, on hand, unit cost, price, last sold date, units sold."
+      label={tr("import.label")}
+      title={tr("import.title")}
+      foot={tr("import.foot", { columns: IMPORT_COLUMNS })}
     >
       <div className="st-form">
         <label className="st-field st-wide">
-          <span className="label">Paste the file (CSV)</span>
+          <span className="label">{tr("import.paste")}</span>
           <textarea
             rows={4}
             value={csv}
             onChange={(e) => setCsv(e.target.value)}
-            placeholder={
-              "item,on hand,unit cost,price,last sold\nArgan oil 100 ml,14,9.50,24.00,2026-07-02"
-            }
+            placeholder={IMPORT_EXAMPLE}
           />
         </label>
         <label className="st-field">
-          <span className="label">Currency</span>
+          <span className="label">{tr("import.currency")}</span>
           <input
             value={currency}
             maxLength={3}
@@ -416,7 +453,7 @@ function ImportCard({ onDone }: { onDone: () => void }) {
           />
         </label>
         <label className="st-field">
-          <span className="label">Units sold cover (days)</span>
+          <span className="label">{tr("import.window")}</span>
           <input
             inputMode="numeric"
             value={windowDays}
@@ -424,11 +461,11 @@ function ImportCard({ onDone }: { onDone: () => void }) {
           />
         </label>
         <label className="st-field">
-          <span className="label">Counted on</span>
+          <span className="label">{tr("import.countedOn")}</span>
           <input type="date" value={asOf} onChange={(e) => setAsOf(e.target.value)} />
         </label>
         <label className="st-field">
-          <span className="label">How amounts are written, if they look like 1.200</span>
+          <span className="label">{tr("import.decimalStyle", { example: "1.200" })}</span>
           <select
             value={decimalStyle}
             onChange={(e) =>
@@ -436,18 +473,20 @@ function ImportCard({ onDone }: { onDone: () => void }) {
             }
             disabled={busy}
           >
-            <option value="">Work it out from the file</option>
-            <option value="dot_decimal">1,234.56 (the comma separates thousands)</option>
-            <option value="comma_decimal">1.234,56 (the dot separates thousands)</option>
+            <option value="">{tr("import.decimalAuto")}</option>
+            <option value="dot_decimal">{tr("import.dotDecimal", { example: "1,234.56" })}</option>
+            <option value="comma_decimal">
+              {tr("import.commaDecimal", { example: "1.234,56" })}
+            </option>
           </select>
         </label>
         <button type="button" className="act" disabled={busy || csv.trim() === ""} onClick={submit}>
-          {busy ? "Reading…" : "Import stock →"}
+          {busy ? tr("import.importing") : tr("import.button")}
         </button>
       </div>
       {busy && (
         <p className="st-copy live">
-          <span className="live-dot" aria-hidden="true" /> Reading your file
+          <span className="live-dot" aria-hidden="true" /> {tr("import.readingFile")}
         </p>
       )}
       {note && <p className="st-copy">{note}</p>}
@@ -455,7 +494,27 @@ function ImportCard({ onDone }: { onDone: () => void }) {
   );
 }
 
+/** What the queue said back, in words: how many now wait, and how many a rule blocked. */
+function resultWords(
+  tr: StockWords["tr"],
+  body: { created?: number; blocked?: number; skipped?: { reason: string }[] },
+  kind: "proposals" | "notes",
+): string {
+  const c = body.created ?? 0;
+  const b = body.blocked ?? 0;
+  if (c + b === 0) {
+    const why = body.skipped?.[0]?.reason;
+    return why ? tr("result.nothingNewWhy", { reason: why }) : tr("result.nothingNew");
+  }
+  return b > 0
+    ? tr(`result.${kind}Blocked`, { count: c, blocked: b })
+    : tr(`result.${kind}`, { count: c });
+}
+
 export function StockScreen() {
+  const words = useStockWords();
+  const { tr, locale } = words;
+  const rich = useTranslations("stock");
   const [view, setView] = useState<StockView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
   const [proposing, setProposing] = useState(false);
@@ -492,19 +551,13 @@ export function StockScreen() {
         blocked?: number;
         skipped?: { reason: string }[];
       };
-      if (!res.ok) setProposed(body.error ?? "That didn't work.");
+      if (!res.ok) setProposed(body.error ?? tr("result.didntWork"));
       else {
-        const c = body.created ?? 0;
-        const b = body.blocked ?? 0;
-        setProposed(
-          c + b === 0
-            ? `Nothing new to propose${body.skipped?.[0] ? `: ${body.skipped[0].reason}` : ""}.`
-            : `${c} proposal${c === 1 ? "" : "s"} now wait for you${b > 0 ? `, and ${b} ${b === 1 ? "was" : "were"} blocked by your own rules` : ""}.`,
-        );
+        setProposed(resultWords(tr, body, "proposals"));
         await load();
       }
     } catch {
-      setProposed("Something went wrong on our side.");
+      setProposed(tr("result.ourSide"));
     } finally {
       setProposing(false);
     }
@@ -525,19 +578,13 @@ export function StockScreen() {
         blocked?: number;
         skipped?: { reason: string }[];
       };
-      if (!res.ok) setReordered(body.error ?? "That didn't work.");
+      if (!res.ok) setReordered(body.error ?? tr("result.didntWork"));
       else {
-        const c = body.created ?? 0;
-        const b = body.blocked ?? 0;
-        setReordered(
-          c + b === 0
-            ? `Nothing new to propose${body.skipped?.[0] ? `: ${body.skipped[0].reason}` : ""}.`
-            : `${c} reorder note${c === 1 ? "" : "s"} now wait${c === 1 ? "s" : ""} for you${b > 0 ? `, and ${b} ${b === 1 ? "was" : "were"} blocked by your own rules` : ""}.`,
-        );
+        setReordered(resultWords(tr, body, "notes"));
         await load();
       }
     } catch {
-      setReordered("Something went wrong on our side.");
+      setReordered(tr("result.ourSide"));
     } finally {
       setReordering(false);
     }
@@ -545,27 +592,26 @@ export function StockScreen() {
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut")}>
         <p className="st-wait">
-          <Link href="/intake">Start with the interview</Link>.
+          {rich.rich("startInterview", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="Stock didn't load.">
-        <p className="st-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("failedTitle")}>
+        <p className="st-wait">{tr("failedBody")}</p>
       </Frame>
     );
   }
-  if (!view) return <Frame title="Reading your stock…" />;
+  if (!view) return <Frame title={tr("reading")} />;
   if (!view.applies) {
     return (
-      <Frame title="Your business doesn't hold stock.">
+      <Frame title={tr("noStockTitle")}>
         <p className="st-wait">
-          You told me you don&apos;t keep stock, so there&apos;s nothing here to run out or clear.{" "}
-          <Link href="/profile">Fact sheet</Link>
+          {tr("noStockBody")} <Link href="/profile">{tr("factSheet")}</Link>
         </p>
       </Frame>
     );
@@ -576,13 +622,17 @@ export function StockScreen() {
   const aside = (
     <>
       {sources.length === 0
-        ? "Nothing read yet"
+        ? tr("nothingRead")
         : sources.map((s) => `${s.label} ${s.as_of}`).join(" · ")}{" "}
-      · MEASURED
+      · {tr("measured")}
     </>
   );
   const th = view.thresholds;
   const svm = statedVsMeasured(view);
+  const stuckDays = num(th?.stuck_no_sale_days ?? 60, 0, locale);
+  const slowDays = num(th?.slow_cover_days ?? 180, 0, locale);
+  const stuck = flagWord("STUCK", tr);
+  const slowWord = flagWord("SLOW", tr);
 
   return (
     <Frame title={stockHeadline(view)} aside={aside}>
@@ -609,18 +659,25 @@ export function StockScreen() {
 
       {slow.length > 0 ? (
         <SheetCard
-          label={`What isn't selling · ${num(slow.length)} of ${num(view.counted ?? 0)} items`}
-          title="Most cash tied up first"
+          label={tr("slow.label", {
+            slow: num(slow.length, 0, locale),
+            counted: num(view.counted ?? 0, 0, locale),
+          })}
+          title={tr("slow.title")}
           meta={
             th
-              ? `STUCK: no sale in ${th.stuck_no_sale_days} days · SLOW: over ${th.slow_cover_days} days of cover`
+              ? tr("slow.meta", {
+                  stuck,
+                  stuckDays: num(th.stuck_no_sale_days, 0, locale),
+                  slow: slowWord,
+                  slowDays: num(th.slow_cover_days, 0, locale),
+                })
               : undefined
           }
           foot={
             <span className="st-foot-row">
               <span>
-                {view.held ??
-                  `I propose ways to clear the top ${th?.max_items ?? 3}. Nothing runs until you approve it.`}
+                {view.held ?? tr("slow.held", { count: num(th?.max_items ?? 3, 0, locale) })}
               </span>
               <button
                 type="button"
@@ -628,7 +685,7 @@ export function StockScreen() {
                 disabled={proposing || view.held !== null}
                 onClick={propose}
               >
-                {proposing ? "Working it out…" : "Put these in my queue →"}
+                {proposing ? tr("workingItOut") : tr("slow.button")}
               </button>
             </span>
           }
@@ -636,25 +693,25 @@ export function StockScreen() {
           <SlowTable items={slow} />
           {proposing && (
             <p className="st-copy live">
-              <span className="live-dot" aria-hidden="true" /> Working out the options
+              <span className="live-dot" aria-hidden="true" /> {tr("slow.working")}
             </p>
           )}
           {proposed && (
             <p className="st-copy">
-              {proposed} <Link href="/proposals">Waiting for you</Link>
+              {proposed} <Link href="/proposals">{tr("waitingForYou")}</Link>
             </p>
           )}
         </SheetCard>
       ) : (
         <SheetCard
-          label="What isn't selling"
-          title={sources.length === 0 ? "Nothing read yet" : "Nothing slow"}
+          label={tr("slow.emptyLabel")}
+          title={sources.length === 0 ? tr("nothingRead") : tr("slow.nothingSlow")}
         >
           <p className="st-copy">
             {sources.length === 0
-              ? "Connect your shop on Connections and I read its stock with every sync, or import a stock file below."
-              : `Every item I read sold within ${th?.stuck_no_sale_days ?? 60} days and has under ${th?.slow_cover_days ?? 180} days of cover.`}{" "}
-            {sources.length === 0 && <Link href="/connections">Connections</Link>}
+              ? tr("slow.connect")
+              : tr("slow.allSelling", { stuckDays, slowDays })}{" "}
+            {sources.length === 0 && <Link href="/connections">{tr("slow.connections")}</Link>}
           </p>
         </SheetCard>
       )}
@@ -665,11 +722,9 @@ export function StockScreen() {
         {slow[0] ? (
           <Ranking item={slow[0]} />
         ) : (
-          <SheetCard label="How I judge stock" title="Two thresholds, nothing guessed">
+          <SheetCard label={tr("judge.label")} title={tr("judge.title")}>
             <p className="st-copy">
-              STUCK means stock on hand and no sale in the last {th?.stuck_no_sale_days ?? 60} days.
-              SLOW means over {th?.slow_cover_days ?? 180} days of cover at the item&apos;s own rate
-              of sale.
+              {tr("judge.body", { stuck, stuckDays, slow: slowWord, slowDays })}
             </p>
           </SheetCard>
         )}
@@ -682,7 +737,7 @@ export function StockScreen() {
             <Ranking key={item.key} item={item} />
           ))}
           {svm && (
-            <SheetCard label="What you told me, against what I measured" title="Dead stock">
+            <SheetCard label={tr("svm.label")} title={tr("svm.title")}>
               <p className="st-copy">{svm}</p>
             </SheetCard>
           )}

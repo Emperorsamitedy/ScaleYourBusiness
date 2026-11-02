@@ -9,15 +9,23 @@
 // the queue, nothing sends until the owner approves the email itself, and a
 // shopper who hasn't said yes is never emailed (rule 19). Shown in the menu
 // only when a store connection reads carts.
+//
+// L-3b: the screen's fixed words are the "carts" catalogue; money, counts
+// and shares in the reader's locale. The sentences carts-view builds from
+// the counts, and the rule of thumb and reasons the server words, stay
+// English until L-4.
 
 import "../../app/carts.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { CartsScreenView } from "../../app/api/carts/route";
+import { percentText } from "../cash/cash-view";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
-import type { Measured } from "./carts-view";
+import { useTr } from "../sheet/useTr";
+import type { CartsWords, Measured } from "./carts-view";
 import {
   cartsHeadline,
   checkoutConsentNotes,
@@ -32,8 +40,12 @@ import {
   windowLine,
 } from "./carts-view";
 
-const FOOT =
-  "SYB never emails a shopper who hasn't said yes. Shopify's own abandoned-checkout email, if you use it, is separate.";
+/** How many of a cart's items one read takes (SHOPIFY_CART_LINES, lib/connectors/providers/shopify.ts). */
+const ITEMS_PER_READ = 15;
+
+function useCartsWords(): CartsWords {
+  return useTr("carts");
+}
 
 function Frame({
   title,
@@ -44,51 +56,54 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useCartsWords();
   return (
     <main className="screen ct-screen">
-      <PageHead kicker="Customers · Abandoned carts" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
-      <p className="ct-foot">{FOOT}</p>
+      <p className="ct-foot">{tr("foot")}</p>
     </main>
   );
 }
 
 function ProductsCard({ m, names }: { m: Measured; names: Record<string, string> }) {
+  const words = useCartsWords();
+  const { tr, locale } = words;
   return (
     <SheetCard
-      label={`What was left behind · ${num(m.current.left)} carts`}
-      title={m.products.length > 0 ? "In the most carts first" : "No product to name"}
-      meta="Measured from your shop's own checkouts"
+      label={tr("products.label", { count: m.current.left })}
+      title={m.products.length > 0 ? tr("products.titleSome") : tr("products.titleNone")}
+      meta={tr("products.meta")}
     >
       {m.products.length > 0 ? (
-        <div className="ct-table-wrap" tabIndex={0} aria-label="Products left in carts">
+        <div className="ct-table-wrap" tabIndex={0} aria-label={tr("products.table")}>
           <table className="rt rt-stack ct-table">
             <thead>
               <tr>
-                <th scope="col">Product</th>
+                <th scope="col">{tr("products.product")}</th>
                 <th scope="col" className="num">
-                  In carts
+                  {tr("products.inCarts")}
                 </th>
                 <th scope="col" className="num">
-                  Units
+                  {tr("products.units")}
                 </th>
                 <th scope="col" className="num">
-                  Value left
+                  {tr("products.valueLeft")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {m.products.map((p) => (
                 <tr key={p.product_ref}>
-                  <th scope="row">{names[p.product_ref] ?? p.title ?? "A product"}</th>
-                  <td className="num" data-label="In carts">
-                    {num(p.carts)}
+                  <th scope="row">{names[p.product_ref] ?? p.title ?? tr("products.aProduct")}</th>
+                  <td className="num" data-label={tr("products.inCarts")}>
+                    {num(p.carts, 0, locale)}
                   </td>
-                  <td className="num" data-label="Units">
-                    {num(p.units)}
+                  <td className="num" data-label={tr("products.units")}>
+                    {num(p.units, 0, locale)}
                   </td>
-                  <td className="num" data-label="Value left">
-                    {moneyList(p.value)}
+                  <td className="num" data-label={tr("products.valueLeft")}>
+                    {moneyList(p.value, words)}
                   </td>
                 </tr>
               ))}
@@ -96,12 +111,14 @@ function ProductsCard({ m, names }: { m: Measured; names: Record<string, string>
           </table>
         </div>
       ) : (
-        <p className="ct-copy">The carts left held no product I can name.</p>
+        <p className="ct-copy">{tr("products.noProduct")}</p>
       )}
       {m.truncated > 0 && (
         <p className="ct-copy ct-quiet">
-          {num(m.truncated)} {m.truncated === 1 ? "cart had" : "carts had"} more items than one read
-          takes, so only the first 15 of each are counted here. Their totals are counted in full.
+          {tr("products.truncated", {
+            count: m.truncated,
+            max: num(ITEMS_PER_READ, 0, locale),
+          })}
         </p>
       )}
     </SheetCard>
@@ -121,24 +138,33 @@ function WinBackCard({
   note: string | null;
   onPropose: () => void;
 }) {
-  const range = winBackText(m);
+  const words = useCartsWords();
+  const { tr, locale } = words;
+  const range = winBackText(m, words);
   const rule = view.rule_of_thumb;
   const block = proposeBlock(view);
   const r = view.reminder;
   const t = view.thresholds;
-  const word = view.proposal ? proposalWord(view.proposal) : null;
+  const word = view.proposal ? proposalWord(view.proposal, tr) : null;
   return (
     <SheetCard
-      label={`Likely to win back · ${num(m.reach.emailable_shoppers)} of ${num(m.reach.shoppers)} shoppers can be emailed`}
-      title={range ? `${range} likely back` : "Nothing to win back by email yet"}
+      label={tr("winBack.label", {
+        emailable: num(m.reach.emailable_shoppers, 0, locale),
+        shoppers: num(m.reach.shoppers, 0, locale),
+      })}
+      title={range ? tr("winBack.titleRange", { range }) : tr("winBack.titleNone")}
       meta={rule ? <span className="word boxed">{rule.label}</span> : undefined}
       foot={
         <span className="ct-foot-row">
           <span>
             {block ??
               (word
-                ? "Today's reminder is in your queue."
-                : `One email to the ${num(r?.emailable ?? 0)} ${r?.emailable === 1 ? "contact" : "contacts"} who left a cart ${t?.winback_min_days ?? 1}–${t?.winback_max_days ?? 7} days ago and said yes. Nothing sends until you approve the email itself.`)}
+                ? tr("winBack.inQueue")
+                : tr("winBack.oneEmail", {
+                    count: r?.emailable ?? 0,
+                    min: num(t?.winback_min_days ?? 1, 0, locale),
+                    max: num(t?.winback_max_days ?? 7, 0, locale),
+                  }))}
             {word && <span className={`word ${word.tone}`}>{word.word}</span>}
           </span>
           <button
@@ -147,7 +173,7 @@ function WinBackCard({
             disabled={busy || block !== null || view.proposal !== null}
             onClick={onPropose}
           >
-            {busy ? "Working it out…" : "Propose win-back emails →"}
+            {busy ? tr("workingItOut") : tr("winBack.button")}
           </button>
         </span>
       }
@@ -155,20 +181,21 @@ function WinBackCard({
       {range ? (
         <p className="ct-fig">
           {m.win_back
-            .map(
-              (w) =>
-                `${Math.round((rule?.low ?? 0) * 100)}–${Math.round((rule?.high ?? 0) * 100)}% of ${moneyText(w.base_minor, w.currency)}`,
+            .map((w) =>
+              tr("winBack.rangeOf", {
+                low: num(Math.round((rule?.low ?? 0) * 100), 0, locale),
+                high: percentText(Math.round((rule?.high ?? 0) * 100), locale),
+                base: moneyText(w.base_minor, w.currency, locale),
+              }),
             )
             .join(" · ")}
           <span className="ct-src">
-            the value of the {num(m.reach.carts.emailable)}{" "}
-            {m.reach.carts.emailable === 1 ? "cart" : "carts"} whose shopper said yes to email
+            {tr("winBack.rangeBase", { count: m.reach.carts.emailable })}
           </span>
         </p>
       ) : (
         <p className="ct-copy">
-          Nobody who left a cart in the last {t?.window_days ?? 30} days can be emailed, so I put no
-          figure on it.
+          {tr("winBack.nobody", { days: num(t?.window_days ?? 30, 0, locale) })}
         </p>
       )}
       <ul className="ct-assumed">
@@ -177,18 +204,17 @@ function WinBackCard({
       </ul>
       {view.proposal?.status === "blocked" && view.proposal.blocked_by_limit && (
         <p className="ct-copy ct-quiet">
-          I didn&apos;t put this in your queue: your rule ({view.proposal.blocked_by_limit}) rules
-          it out.
+          {tr("ruledOut", { rule: view.proposal.blocked_by_limit })}
         </p>
       )}
       {busy && (
         <p className="ct-copy live">
-          <span className="live-dot" aria-hidden="true" /> Working out the reminder
+          <span className="live-dot" aria-hidden="true" /> {tr("winBack.working")}
         </p>
       )}
       {note && (
         <p className="ct-copy">
-          {note} <Link href="/proposals">Waiting for you</Link>
+          {note} <Link href="/proposals">{tr("waitingForYou")}</Link>
         </p>
       )}
     </SheetCard>
@@ -199,8 +225,9 @@ function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
   const notes = consentNotes(m, view.sources?.find((s) => s.shopper)?.shopper ?? null);
   const checkout = checkoutConsentNotes(view);
   const week = weekLine(view);
+  const { tr } = useCartsWords();
   return (
-    <SheetCard label="Who can be emailed" title="Only people who said yes">
+    <SheetCard label={tr("consent.label")} title={tr("consent.title")}>
       <ul className="ct-notes">
         {notes.map((n) => (
           <li key={n}>{n}</li>
@@ -214,16 +241,14 @@ function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
           ))}
         </ul>
       ) : null}
-      <p className="ct-copy ct-quiet">
-        A shopper who ticks &ldquo;email me&rdquo; at Shopify&apos;s checkout becomes a contact with
-        that yes recorded, once SYB may read your Shopify customers. A yes you recorded yourself
-        only gives way to a later unsubscribe in Shopify.
-      </p>
+      <p className="ct-copy ct-quiet">{tr("consent.checkout")}</p>
     </SheetCard>
   );
 }
 
 export function CartsScreen() {
+  const { tr, locale } = useCartsWords();
+  const rich = useTranslations("carts");
   const [view, setView] = useState<CartsScreenView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
   const [busy, setBusy] = useState(false);
@@ -258,21 +283,24 @@ export function CartsScreen() {
         blocked?: number;
         skipped?: { reason: string }[];
       };
-      if (!res.ok) setNote(body.error ?? "That didn't work.");
+      if (!res.ok) setNote(body.error ?? tr("result.didntWork"));
       else {
         const c = body.created ?? 0;
         const b = body.blocked ?? 0;
+        const why = body.skipped?.[0]?.reason;
         setNote(
           c + b === 0
-            ? `Nothing new to propose${body.skipped?.[0] ? `: ${body.skipped[0].reason}` : ""}.`
+            ? why
+              ? tr("result.nothingNewWhy", { reason: why })
+              : tr("result.nothingNew")
             : c > 0
-              ? "A win-back email now waits for you."
-              : "Your own rules blocked it, so it sits blocked in your queue.",
+              ? tr("result.waits")
+              : tr("result.blocked"),
         );
         await load();
       }
     } catch {
-      setNote("Something went wrong on our side.");
+      setNote(tr("result.ourSide"));
     } finally {
       setBusy(false);
     }
@@ -280,27 +308,26 @@ export function CartsScreen() {
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut")}>
         <p className="ct-wait">
-          <Link href="/intake">Start with the interview</Link>.
+          {rich.rich("startInterview", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="Carts didn't load.">
-        <p className="ct-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("failedTitle")}>
+        <p className="ct-wait">{tr("failedBody")}</p>
       </Frame>
     );
   }
-  if (!view) return <Frame title="Reading your carts…" />;
+  if (!view) return <Frame title={tr("reading")} />;
   if (!view.applies) {
     return (
       <Frame title={cartsHeadline(view)}>
         <p className="ct-wait">
-          Connect your Shopify shop and I read its unfinished checkouts with every sync.{" "}
-          <Link href="/connections">Connections</Link>
+          {tr("connect")} <Link href="/connections">{tr("connections")}</Link>
         </p>
       </Frame>
     );
@@ -310,21 +337,22 @@ export function CartsScreen() {
   const aside = (
     <>
       {(view.sources ?? []).map((s) => s.label).join(" · ")} ·{" "}
-      {m?.status === "measured" ? "MEASURED" : "NOT YET"}
+      {m?.status === "measured" ? tr("measured") : tr("notYet")}
     </>
   );
 
   if (!m || m.status === "refused") {
     return (
       <Frame title={cartsHeadline(view)} aside={aside}>
-        <SheetCard label="Abandoned carts" title={refusalTitle(m)}>
-          <p className="ct-copy">{m?.reason ?? "I haven't read any carts yet."}</p>
+        <SheetCard label={tr("refusal.label")} title={refusalTitle(m, tr)}>
+          <p className="ct-copy">{m?.reason ?? tr("refusal.noneRead")}</p>
           {m?.basis === "stale" || m?.basis === "too_many" ? null : (
             <p className="ct-copy ct-quiet">
-              I measure once there are {view.thresholds?.min_days ?? 14} days of carts and{" "}
-              {view.thresholds?.min_carts ?? 10} carts left in the last{" "}
-              {view.thresholds?.window_days ?? 30} days, so a quiet week isn&apos;t read as a
-              pattern.
+              {tr("refusal.rule", {
+                days: num(view.thresholds?.min_days ?? 14, 0, locale),
+                carts: num(view.thresholds?.min_carts ?? 10, 0, locale),
+                window: num(view.thresholds?.window_days ?? 30, 0, locale),
+              })}
             </p>
           )}
           <p className="ct-copy ct-quiet">{sourcesLine(view)}</p>

@@ -774,6 +774,228 @@
       "label": "Az Ön számai grafikonon",
       "failed": "Most nem tudtam beolvasni a számait a grafikonhoz. Frissítse az oldalt az újrapróbáláshoz — semmi sem veszett el.",
       "reading": "A mért napok beolvasása…"
+    },
+    "candle": {
+      "noneUnconnected": "Egyik összekapcsolt fiók sem méri még ezt: {metric}, így nincs mit ábrázolni.",
+      "noneMeasured": "Az utolsó hetekben nem mértem ezt: {metric}, így még nincs mit ábrázolni.",
+      "summaryPath": "{metric} naponta, {count, plural, one {# heti gyertya} other {# heti gyertya}}. A múlt hét nyitóértéke {open}, záróértéke {close}; a célértékhez vezető pálya napi {target}.",
+      "summaryNoPath": "{metric} naponta, {count, plural, one {# heti gyertya} other {# heti gyertya}}. A múlt hét nyitóértéke {open}, záróértéke {close}; célérték napi {target}, a pályához nincs mért kiindulópont.",
+      "perDay": "{metric} / nap",
+      "period": "{count}H",
+      "ohlc": "Ny {open} Max {high} Min {low} Z {close} {change}",
+      "volume": "Forg. <b>{count}</b> {word}",
+      "volumeWord": {
+        "orders": "rendelés"
+      },
+      "today": "MA"
+    },
+    "cash": {
+      "key": "Jelmagyarázat",
+      "band": "az óvatos végtől a bizakodó végig",
+      "low": "óvatos vég",
+      "buffer": "az Ön tartaléka",
+      "zero": "nulla (nincs megadott tartalék)",
+      "lineBuffer": "TARTALÉK",
+      "lineZero": "NULLA",
+      "tight": "SZŰKÖS",
+      "today": "Ma",
+      "readoutRange": "<b>{low}</b> óvatos – <b>{high}</b> bizakodó",
+      "underLine": "a vonal alatt",
+      "when": "Mikor",
+      "cautiousCol": "Óvatos vég (pénznem: {currency})",
+      "hopefulCol": "Bizakodó vég (pénznem: {currency})"
+    },
+    "market": {
+      "kicker": "Elemzések · Az Ön számai grafikonon",
+      "title": "Az Ön vállalkozása, úgy olvasva, mint egy részvény",
+      "daysMeasured": "{count, plural, one {# mért nap} other {# mért nap}}",
+      "periodGroup": "Gyertyák időszaka",
+      "period": {
+        "day": "{count}N",
+        "week": "{count}H",
+        "month": "{count}Hó"
+      },
+      "periodSr": {
+        "day": "napi egy gyertya",
+        "week": "heti egy gyertya",
+        "month": "havi egy gyertya"
+      },
+      "keyLabel": "Jelmagyarázat",
+      "keyUp": "emelkedés: kitöltött",
+      "keyDown": "csökkenés: üres",
+      "keySlip": "elcsúszott, napi",
+      "keyKept": "amit megtartott volna",
+      "keyTable": "asztalon hagyott pénz",
+      "ohlc": "Ny {open} Max {high} Min {low} Z <b>{close}</b>",
+      "closedDays": "{count, plural, one {# zárva tartott nap} other {# zárva tartott nap}}",
+      "volumeWord": {
+        "orders": "rendelés",
+        "appointments": "időpont",
+        "visits": "látogatás"
+      },
+      "volumeCount": {
+        "orders": "{count, plural, one {# rendelés} other {# rendelés}}",
+        "appointments": "{count, plural, one {# időpont} other {# időpont}}",
+        "visits": "{count, plural, one {# látogatás} other {# látogatás}}"
+      },
+      "volumeNone": {
+        "orders": "nem mért rendelések",
+        "appointments": "nem mért időpontok",
+        "visits": "nem mért látogatások"
+      },
+      "slipped": "elcsúszott: <b>{range}</b>: {parts} <word>{derived}</word> · napi {kept} megtartva",
+      "nothingSlipped": "semmi mért nem csúszott el",
+      "aheadLong": "ASZTALON HAGYOTT PÉNZ",
+      "aheadShort": "ASZTALON",
+      "eventsLabel": "A grafikonon jelölve",
+      "event": {
+        "anomaly": "Észlelve",
+        "approved": "Ön jóváhagyta",
+        "connected": "Összekapcsolva"
+      },
+      "component": {
+        "revenue_dips": "Árbevétel-visszaesések",
+        "no_shows": "Meg nem jelenések",
+        "late_cancellations": "Késői lemondások",
+        "empty_capacity": "Üres időpontok",
+        "losing_ads": "Pénzt veszítő hirdetések",
+        "slow_stock": "Lassan fogyó készletben lekötött pénz",
+        "on_the_table": "Asztalon hagyott pénz"
+      },
+      "price": {
+        "revenue": "Napi árbevétel",
+        "bookingRevenue": "Napi foglalási árbevétel"
+      },
+      "componentsCaption": "Ami havonta elcsúszik, az egyes részek számítási módja és az alapjuk",
+      "colWhere": "Hol csúszik el",
+      "colMonth": "{currency} havonta",
+      "colBasis": "Alap",
+      "colHow": "Hogyan számoltam",
+      "apart": "Nincs hozzáadva a hónaphoz",
+      "legend": "Egy hónap {days} nap: minden folyamot a saját időablakában olvasok, és {days} napra arányosítok, ahogy a sora mondja. {derived} = {derivedMeaning}. {estimated} itt = a várakozó javaslatok saját előrejelzései. A sávok az alsó végtől a felső végig tartanak; egyetlen szám azt jelenti, hogy semmi becsült nem került bele.",
+      "seeWaiting": "Nézze meg, mi vár Önre →",
+      "row": {
+        "notMeasured": "Nincs mérve",
+        "aMonth": "Havonta",
+        "basis": "Alap",
+        "wouldFill": "Mi töltené ki",
+        "tiedUp": "Most lekötve",
+        "now": "most",
+        "how": "Hogyan",
+        "over": "{days} nap alatt: {total}, × {month} ÷ {days}."
+      },
+      "empty": {
+        "nothing": "Még nincs mit megrajzolni.",
+        "connections": "Ugrás az Összekapcsolt fiókok oldalra →",
+        "would": "Ha összekapcsolja, beárazom, hol csúszik el a pénz:"
+      },
+      "weekOf": "Hét: {day}",
+      "table": {
+        "day": "Nap",
+        "week": "Hét",
+        "month": "Hónap",
+        "open": "Nyitó ({currency})",
+        "high": "Max ({currency})",
+        "low": "Min ({currency})",
+        "close": "Záró ({currency})",
+        "slipped": "Elcsúszott ({currency})",
+        "kept": "Amit megtartott volna, napi ({currency})",
+        "notMeasured": "nincs mérve",
+        "none": "nincs"
+      }
+    },
+    "season": {
+      "key": "Jelmagyarázat",
+      "keyBusy": "forgalmas: kitöltött",
+      "keyQuiet": "csendes: üres",
+      "keyBand": "a hetei középső fele",
+      "keyPlain": "egy hét a medián hetéhez mérve",
+      "nextShort": "KÖV. {count, plural, one {# HÉT} other {# HÉT}}",
+      "nextLong": "A KÖVETKEZŐ {count, plural, one {# HÉT} other {# HÉT}}, TAVALY",
+      "weekOf": "Hét: {day}",
+      "yourNormal": "az Ön szokásos hete",
+      "yourMedian": "az Ön medián hete",
+      "flag": {
+        "busy": "forgalmas",
+        "quiet": "csendes"
+      },
+      "colWeek": "Hét kezdete",
+      "colNormal": "A szokásos héthez képest",
+      "colMedian": "A medián héthez képest",
+      "colFlag": "Jelzés",
+      "ready": {
+        "label": "Az Ön éve · {count, plural, one {# hét} other {# hét}}",
+        "titleEven": "Az elmúlt év minden hete közel volt a szokásos hetéhez",
+        "title": "{busy, number} forgalmas és {quiet, plural, one {# csendes hét} other {# csendes hét}} az elmúlt évben",
+        "meta": "{source} · {noun} · MEGFIGYELT hetek, SZÁMÍTOTT index",
+        "foot": "Minden oszlop egy hét értéke ({noun}) ÷ az Ön szokásos hete (az utolsó {weeks, number} hét mediánja). Forgalmas: {busy} vagy több, csendes: {quiet} vagy kevesebb.",
+        "summary": "{count, plural, one {# hét} other {# hét}} ({noun}) a szokásos hetéhez mérve; {busy, number} forgalmas, {quiet, number} csendes. {headline}"
+      },
+      "short": {
+        "label": "A meglévő hetek · {count, number}",
+        "title": "A hetei egymáshoz mérve — ez még nem szezon",
+        "meta": "{source} · {noun} · MEGFIGYELT",
+        "foot": "E {count, number} hét mediánjához mérve. Egy szezonhoz az utolsó {weeks, number} hétből {needed, plural, one {# teljes hét} other {# teljes hét}} kell; Önnek {have, number} van.",
+        "summary": "{count, plural, one {# teljes hét} other {# teljes hét}} ({noun}), a saját mediánjukhoz mérve. Nincs elég előzmény egy szezon megnevezéséhez."
+      }
+    },
+    "small": {
+      "keyLabel": "Jelmagyarázat",
+      "bookings": {
+        "label": "Foglalások · hétről hétre",
+        "title": "Megtartott, elmaradt, és mennyit értek az elmaradtak",
+        "meta": "<word>{observed}</word> darabszámok · <word>{derived}</word> pénz",
+        "keyCompleted": "teljesült: kitöltött",
+        "keyNoShow": "meg nem jelenés: üres",
+        "keyLate": "késői lemondás: árnyalt",
+        "paneCount": "IDŐPONTOK",
+        "paneMoney": "ELMARADT, ÉRTÉKE ({currency})",
+        "weekOf": "Hét: {day}",
+        "completed": "{count, plural, one {# teljesült} other {# teljesült}}",
+        "noShows": "{count, plural, one {# meg nem jelenés} other {# meg nem jelenés}}",
+        "late": "{count, plural, one {# késői lemondás} other {# késői lemondás}}",
+        "missedWorth": "elmaradt érték: <b>{range}</b>",
+        "caption": "Heti időpontok, és mennyit értek az elmaradtak",
+        "colWeek": "Hét kezdete",
+        "colCompleted": "Teljesült",
+        "colNoShows": "Meg nem jelenések",
+        "colLate": "Késői lemondások",
+        "colMissed": "Elmaradt, értéke ({currency})"
+      },
+      "ads": {
+        "label": "Hirdetések · az utolsó {count, plural, one {# nap} other {# nap}}",
+        "titleNone": "Minden kampány visszahozza a költségét",
+        "titleLosing": "{count, plural, one {# kampány többe kerül, mint amennyit visszahoz} other {# kampány többe kerül, mint amennyit visszahoz}}",
+        "window": "Meta Ads · {from}–{to}",
+        "derivedFrom": "<word>{derived}</word> a Meta saját hozzárendeléséből",
+        "foot": "Megtérülés = a vásárlási érték, amelyet a Meta a kampánynak tulajdonít ÷ a költése. {even} alatt a Meta saját számítása szerint is pénzt veszít — ennél a határnál javaslok szüneteltetést.",
+        "keySpent": "költés: üres",
+        "keyBack": "a Meta szerint visszahozott: kitöltött",
+        "colCampaign": "Kampány",
+        "colSpentBack": "Költés és visszahozott érték",
+        "colReturn": "Megtérülés",
+        "colFlag": "Jelzés",
+        "cellSpentBack": "Költés / visszahozott",
+        "spentBack": "{spent} költés · {back} visszahozott",
+        "losing": "Veszteséges",
+        "paysBack": "Megtérül"
+      }
+    },
+    "stockHistory": {
+      "label": "Lassan fogyó készlet · {count, plural, one {# leltár} other {# leltár}}",
+      "title": "Lekötött pénz, leltárról leltárra",
+      "observed": "MEGFIGYELT",
+      "formula": "készleten lévő darabszám × egységköltség",
+      "foot": "Készletszint, nem forgalom: minden pont azt mutatja, mennyi volt egy tételből a leltár napján, és a napok értékei sosem adódnak össze.",
+      "otherCurrency": "{count, plural, one {# más pénznemű tétel} other {# más pénznemű tétel}} kimaradt.",
+      "item": "Tétel",
+      "over": "A leltárak során",
+      "first": "Első (pénznem: {currency})",
+      "latest": "Legutóbbi (pénznem: {currency})",
+      "oneCount": "egy leltár, {day}",
+      "unchanged": "változatlan",
+      "down": "{amount} csökkenés",
+      "up": "{amount} növekedés"
     }
   },
   "factsheet": {
@@ -1389,6 +1611,1475 @@
       "happened": "Mi történt: {happened}",
       "foot": "Minden előrejelzést abban a pillanatban rögzítek, amikor megmutatom, a megadott tartománnyal együtt, és az idő leteltével kizárólag mért számok alapján minősítem. A minősítés nem változtatható meg.",
       "cantTell": "A „nem eldönthető” azt jelenti, hogy a mért számok nem álltak rendelkezésre, vagy közbejött valami, ami nem szerepelt az előrejelzésben, például egy szállítás. Soha nem számít találatnak."
+    }
+  },
+  "benchmarks": {
+    "meta": {
+      "title": "Összehasonlítás hasonló vállalkozásokkal — SYB"
+    },
+    "kicker": "Elemzések · Összehasonlítás hasonló vállalkozásokkal",
+    "kickerShort": "Összehasonlítás hasonló vállalkozásokkal",
+    "aside": "Eurostat · csak olvasható",
+    "add": "Adja meg: {what} →",
+    "addPeople": "Adja meg, hányan dolgoznak itt",
+    "notComparedYet": "Még nincs összehasonlítva",
+    "noComparison": "Nincs összehasonlítás",
+    "nothingToCompare": "Nincs mit összehasonlítani",
+    "yours": "Az Öné",
+    "theirs": "Az övék",
+    "cell": "Az övék: {words}.",
+    "cellFlagged": "Az övék: {words} ({flag}).",
+    "col": {
+      "restsOn": "Amin az Öné alapul",
+      "value": "Érték",
+      "basis": "Alap",
+      "source": "Honnan származik"
+    },
+    "notCounted": "Nincs beszámítva",
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "body": "<link>Kezdje az interjúval</link>, és a saját számai töltik ki ezt az oldalt."
+    },
+    "error": {
+      "title": "Az összehasonlítás nem töltődött be.",
+      "body": "Hiba történt nálam. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "loading": "A számai beolvasása…",
+    "head": {
+      "ready": "Összehasonlítás ezzel a csoporttal: {group} {size}, ország: {country}.",
+      "noType": "Még nem tudom, milyen fajta vállalkozásról van szó.",
+      "unmapped": "Ehhez a vállalkozásfajtához nincs Eurostat-összehasonlítás.",
+      "noCountry": "Nem tudom, melyik országban működik a vállalkozás.",
+      "outsideEu": "Az Eurostat nem terjed ki erre az országra: {country}."
+    },
+    "foot": "Forrás: Eurostat, {dataset} ({doi}), frissítve: {updated}, lekérve: {retrieved}, a forrás feltüntetésével újrafelhasználva. Minden csoportnál a legutóbbi évet tartom meg, és az eurót az Ön pénznemére váltom át; ezért az Eurostat nem felelős. {caveat}",
+    "line": "Az Öné {own}, az övék {bench}: {gap}.",
+    "reading": {
+      "above": "FELETTE",
+      "below": "ALATTA",
+      "same": "NAGYJÁBÓL UGYANANNYI",
+      "notYet": "MÉG NEM",
+      "none": "NINCS ÖSSZEHASONLÍTÁS"
+    },
+    "nothingCompared": "Semmi sincs összehasonlítva",
+    "comparedCount": "{total, number} közül {count, number} összehasonlítva",
+    "size": {
+      "unknown": "Nem tudom, hányan dolgoznak a vállalkozásban, ezért a csoport minden méretet felölel.",
+      "spans": "Az Ön mérete az Eurostat két méretcsoportjába is beleesik, ezért a csoport minden méretet felölel."
+    }
+  },
+  "blindspots": {
+    "meta": {
+      "title": "Vakfoltok — SYB"
+    },
+    "kicker": "Elemzések · Vakfoltok",
+    "quoted": "„{text}”",
+    "where": {
+      "support": "támogatási chat",
+      "search": "keresés az oldalon",
+      "google": "Google",
+      "competitors": "{checked, number} versenytársból {showing, number}"
+    },
+    "head": {
+      "noSite": "A profiljában még nincs weboldal.",
+      "notRead": "A weboldalát még nem olvastam be.",
+      "nothingMissing": "Semmi sem hiányzik az oldaláról abból, amit az ügyfelek keresnek.",
+      "things": "{count, plural, one {# olyan dolog, amit az ügyfelek keresnek, nincs az oldalán.} other {# olyan dolog, amit az ügyfelek keresnek, nincs az oldalán.}}",
+      "foundBoth": "{count, number} keresés és kérdés nem talált semmit az oldalán.",
+      "foundSearches": "{count, plural, one {# keresés nem talált semmit az oldalán.} other {# keresés nem talált semmit az oldalán.}}",
+      "foundQuestions": "{count, plural, one {# kérdés nem talált semmit az oldalán.} other {# kérdés nem talált semmit az oldalán.}}"
+    },
+    "table": {
+      "aria": "Vakfoltok táblázata",
+      "lookedFor": "Amit kerestek",
+      "times": "Hányszor",
+      "share": "A legnagyobbhoz viszonyítva",
+      "where": "Hol merült fel",
+      "onSite": "Az oldalán",
+      "notFound": "Nem található"
+    },
+    "biggest": {
+      "label": "Legnagyobb vakfolt · {count, plural, one {# alkalom} other {# alkalom}}",
+      "title": "„{label}” nincs az oldalán",
+      "support": "Támogatási chat",
+      "notAsked": "nem kérdezték",
+      "unanswered": "{count, number} megválaszolatlan maradt",
+      "search": "Keresés az oldalon",
+      "notSearched": "nem keresték",
+      "google": "Google",
+      "notSeen": "nem jelent meg",
+      "impressions": "megjelenés · {count, plural, one {# kattintás} other {# kattintás}}",
+      "competitors": "Versenytársak",
+      "noneChecked": "egyiket sem ellenőriztem",
+      "showing": "{checked, number} közül {showing, number}",
+      "showIt": "megjeleníti a saját oldalán",
+      "toFix": "{arithmetic}. Javítás: {fix}."
+    },
+    "fixed": {
+      "label": "Hogyan javíthatók a vakfoltok",
+      "title": "Az Ön jóváhagyásával, soha nem maguktól",
+      "foot": "A weboldal módosításai a Weboldal menüpontban várnak.",
+      "link": "Ellenőrzés a Weboldal menüpontban →",
+      "stepFix": "A javítás: {fix}.",
+      "fixDefault": "a weboldal módosítása a jóváhagyási soron keresztül, vagy egy válasz a támogatási asszisztensében",
+      "stepWait": "Semmi sem változik magától: a javítás az „Önre vár” listában várakozik az Ön jóváhagyásáig.",
+      "stepRecheck": "Az oldalát {days, plural, one {naponta} other {# naponta}} újra beolvasom, így az a vakfolt, amelyet már megmutat, lekerül erről a listáról."
+    },
+    "coverage": {
+      "label": "Amit ez nem láthatott",
+      "title": "Hiányok, nem hibák"
+    },
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "body": "<link>Kezdje az interjúval</link>, és abból olvasom be az oldalát."
+    },
+    "error": {
+      "title": "A vakfoltok nem töltődtek be.",
+      "body": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "loading": "Annak beolvasása, amit az ügyfelek keresnek…",
+    "aside": {
+      "window": "Az utolsó {days, plural, one {# nap} other {# nap}} · {from} – {to}",
+      "siteRead": "oldal beolvasva: {day}",
+      "siteNotRead": "oldal nincs beolvasva",
+      "observed": "MEGFIGYELT"
+    },
+    "list": {
+      "label": "Amit az ügyfelek kerestek, és amit az oldala mutat",
+      "title": "{count, plural, one {# vakfolt, elöl a legnagyobb} other {# vakfolt, elöl a legnagyobb}}",
+      "meta": "Aszerint rangsorolva, hány forrás mutat rá, majd darabszám szerint",
+      "nothingMissing": "Semmi sem hiányzik",
+      "nothingYet": "Még nincs mit összehasonlítani",
+      "allThere": "Minden, amit az ügyfelek kérdeztek vagy kerestek, és amit párosítani tudok, megtalálható az oldalán.",
+      "noSite": "Adja meg a weboldalát a profiljában, és legfeljebb öt oldalát beolvasom, majd összevetem azzal, amit az ügyfelek kérdeznek és keresnek.",
+      "notRead": "A weboldalát még nem olvastam be, így semmiről sem mondható, hogy hiányzik róla.",
+      "notReadWhy": "A weboldalát még nem olvastam be: {why}, így semmiről sem mondható, hogy hiányzik róla."
+    },
+    "factSheet": "Ténylap",
+    "hard": {
+      "label": "Az oldalán van, az ügyfelek mégis folyton kérdezik",
+      "title": "Talán nehéz megtalálni",
+      "item": "<strong>{label}</strong>: {count, plural, one {# alkalommal} other {# alkalommal}} kérdezték a támogatási chatben; itt található: <link>{page}</link>."
+    },
+    "seen": {
+      "label": "Megjelenik a Google-ban, de ritkán kattintanak rá",
+      "title": "Megjelenik, de nem választják",
+      "search": "Keresés",
+      "shown": "Megjelenés",
+      "clicked": "Kattintás",
+      "position": "Pozíció"
+    },
+    "topics": {
+      "label": "Egyéb dolgok, amelyeket az emberek kerestek",
+      "title": "Megtalálható az oldalán?",
+      "item": "<strong>{label}</strong>: {count, plural, one {# keresés} other {# keresés}} (pl. {examples})"
+    }
+  },
+  "carts": {
+    "meta": {
+      "title": "Elhagyott kosarak — SYB"
+    },
+    "kicker": "Ügyfelek · Elhagyott kosarak",
+    "foot": "A SYB soha nem ír e-mailt olyan vásárlónak, aki nem egyezett bele. A Shopify saját, félbehagyott fizetésről szóló e-mailje, ha használja, ettől független.",
+    "signedOut": "Itt még nincs vállalkozás.",
+    "startInterview": "<link>Kezdje az interjúval</link>.",
+    "failedTitle": "A kosarak nem töltődtek be.",
+    "failedBody": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
+    "reading": "A kosarai beolvasása…",
+    "connect": "Kapcsolja össze a Shopify-webshopját, és minden szinkronizáláskor beolvasom a befejezetlen fizetéseket.",
+    "connections": "Összekapcsolt fiókok",
+    "measured": "MÉRT",
+    "notYet": "MÉG NEM",
+    "waitingForYou": "Önre vár",
+    "workingItOut": "Számolom…",
+    "ruledOut": "Ezt nem tettem a sorába: az Ön szabálya ({rule}) kizárja.",
+    "products": {
+      "label": "Ami bent maradt · {count, plural, one {# kosár} other {# kosár}}",
+      "titleSome": "Elöl az, ami a legtöbb kosárban szerepel",
+      "titleNone": "Nincs megnevezhető termék",
+      "meta": "A webshopja saját fizetési folyamataiból mérve",
+      "table": "Kosarakban hagyott termékek",
+      "product": "Termék",
+      "inCarts": "Kosarakban",
+      "units": "Darab",
+      "valueLeft": "Bent hagyott érték",
+      "aProduct": "Egy termék",
+      "noProduct": "Az elhagyott kosarakban nem volt olyan termék, amelyet meg tudnék nevezni.",
+      "truncated": "{count, plural, one {# kosárban} other {# kosárban}} több tétel volt, mint amennyit egy beolvasás átvesz, ezért itt mindegyikből csak az első {max} számít. Végösszegük teljes egészében beleszámít."
+    },
+    "winBack": {
+      "label": "Valószínűleg visszanyerhető · {shoppers} vásárlóból {emailable} kaphat e-mailt",
+      "titleRange": "Valószínűleg visszajön: {range}",
+      "titleNone": "Egyelőre nincs mit e-mailben visszanyerni",
+      "inQueue": "A mai emlékeztető a sorában van.",
+      "oneEmail": "Egyetlen e-mail azoknak a kapcsolattartóknak ({count, plural, one {# fő} other {# fő}}), akik {min}–{max} napja hagytak el kosarat, és beleegyeztek. Magának az e-mailnek a jóváhagyása nélkül semmi sem megy ki.",
+      "button": "Visszanyerő e-mailek javaslása →",
+      "rangeOf": "{low}–{high}, ebből: {base}",
+      "rangeBase": "annak a(z) {count, plural, one {# kosárnak} other {# kosárnak}} az értéke, amelynek vásárlója beleegyezett az e-mailbe",
+      "nobody": "Senkinek nem lehet e-mailt írni, aki az utolsó {days} napban kosarat hagyott el, ezért nem adok meg számot.",
+      "working": "Az emlékeztető kidolgozása"
+    },
+    "consent": {
+      "label": "Kinek lehet e-mailt írni",
+      "title": "Csak azoknak, akik beleegyeztek",
+      "checkout": "Az a vásárló, aki a Shopify fizetési oldalán bejelöli az „e-mailt kérek” lehetőséget, kapcsolattartóvá válik, a beleegyezésével együtt rögzítve, amint a SYB olvashatja a Shopify-ügyfeleit. Az Ön által rögzített beleegyezést csak egy későbbi Shopify-leiratkozás írja felül."
+    },
+    "refusal": {
+      "label": "Elhagyott kosarak",
+      "noneRead": "Még egyetlen kosarat sem olvastam be.",
+      "rule": "Akkor mérek, ha {days} napnyi kosáradat van, és az utolsó {window} napban {carts} kosarat hagytak el, így egy csendes hetet nem tekintek mintázatnak."
+    },
+    "result": {
+      "didntWork": "Ez nem sikerült.",
+      "ourSide": "Hiba történt a mi oldalunkon.",
+      "nothingNew": "Nincs új javaslat.",
+      "nothingNewWhy": "Nincs új javaslat: {reason}.",
+      "waits": "Egy visszanyerő e-mail vár most Önre.",
+      "blocked": "Az Ön saját szabályai letiltották, így letiltva áll a sorában."
+    },
+    "view": {
+      "and": "{first} és {last}",
+      "titleTooMany": "Túl sok fizetési folyamat a beolvasáshoz",
+      "titleStale": "Régi beolvasásból nincs szám",
+      "titleTooFew": "Nincs elég kosár a méréshez",
+      "waiting": "Önre vár",
+      "blocked": "Az Ön szabálya letiltotta",
+      "approved": "Jóváhagyva",
+      "sent": "Elküldve",
+      "declined": "Elutasítva",
+      "expired": "Lejárt"
+    }
+  },
+  "cash": {
+    "meta": {
+      "title": "Pénzáramlás — SYB"
+    },
+    "kicker": "Elemzések · Pénzáramlás",
+    "aside": "Tervezési segédlet · csak olvasható",
+    "planningNote": "Tervezési segédlet az Ön saját számaiból, nem pénzügyi tanácsadás. A SYB soha nem mozgat, fizet ki vagy szed be pénzt.",
+    "sourcesNone": "Források: az Ön által megadott pénzkészlet és költségek, valamint a mért eladások.",
+    "signedOut": "Itt még nincs vállalkozás.",
+    "startInterview": "<link>Kezdje az interjúval</link>.",
+    "failedTitle": "A pénzügyi előrejelzés nem töltődött be.",
+    "failedBody": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
+    "reading": "A számai beolvasása…",
+    "refused": {
+      "label": "Mennyi adat van",
+      "labelFrom": "Mennyi adat van · {source}",
+      "weeks": "{complete} / {needed} teljes hét",
+      "nothing": "Még nincs miből előrejelzést készíteni",
+      "readyOn": "Nagyjából ekkortól kész: {day}, ha a szinkronizálások tovább futnak",
+      "gapLabel": "Mit tudok és mit nem tudok még megmondani",
+      "gapTitle": "Őszintén a hiányról",
+      "can": "Amit meg tudok mondani",
+      "cannot": "Amit még nem tudok megmondani"
+    },
+    "warning": {
+      "label": "Amikor szűkös lesz a pénz",
+      "titleTight": "Az első szűkös hét",
+      "titleNone": "A következő {weeks} hétben nincs szűkös hét",
+      "metaBuffer": "Ahhoz mérve, amennyinél kevesebbet nem szeretne a számlán",
+      "metaZero": "Nincs megadott tartalék: üres számlához mérve",
+      "none": "Az óvatos végen (lassú eladások, lassú kifizetések) is minden héten a vonal felett marad az egyenleg.",
+      "reading": "Ez a számai alapján készült olvasat, amely bekerül a Figyelés naplójába és a heti összefoglalóba. Semmit nem javasolok és semmit nem teszek miatta.",
+      "askBuffer": "<link>Mondja meg, legalább mennyit szeretne a számlán tartani</link>, és inkább azt a vonalat rajzolom meg."
+    },
+    "weeks": {
+      "label": "Hétről hétre",
+      "title": "Befolyó pénz, kimenő pénz, egyenleg",
+      "meta": "Óvatos – bizakodó, egész egységekben",
+      "week": "Hét",
+      "moneyIn": "Befolyó pénz",
+      "goingOut": "Kimenő pénz",
+      "dueThatWeek": "Azon a héten esedékes",
+      "due": "Esedékes",
+      "balanceEnd": "Egyenleg a hét végén",
+      "balance": "Egyenleg",
+      "under": "A VONAL ALATT"
+    },
+    "scenarios": {
+      "label": "Forgatókönyvek · egymás mellett",
+      "title": "Mi lenne, ha…",
+      "meta": "Mindegyik ugyanazt az előrejelzést futtatja egyetlen változtatással",
+      "form": "A forgatókönyvek mérete",
+      "slow": "Gyenge hónap, ennyi %-kal kevesebb",
+      "from": "ettől",
+      "order": "Nagy rendelés, {currency}",
+      "in": "ekkor",
+      "hire": "Új munkatárs, {currency} havonta",
+      "priceOn": "Árváltozás ennél",
+      "by": "mértéke",
+      "run": "Számolja ki",
+      "running": "Számolom…",
+      "measure": "Mutató",
+      "whatChanges": "Mi változik",
+      "lowest": "Legalacsonyabb egyenleg, óvatos vég",
+      "after": "Egyenleg {weeks} hét után",
+      "against": "A jelenlegi helyzethez képest",
+      "firstTight": "Első szűkös hét",
+      "missing": "HIÁNYZIK",
+      "assumed": "FELTÉTELEZETT · {text}"
+    },
+    "sources": {
+      "label": "Amire ez épül",
+      "title": "Források, és amit feltételeztem",
+      "meta": "Előzmények: {from} – {to}",
+      "input": "Bemenet",
+      "value": "Érték",
+      "basis": "Alap",
+      "cameFrom": "Honnan származik",
+      "from": "Forrás",
+      "assumedByName": "Feltételezve, néven nevezve",
+      "leftOut": "Kihagyva",
+      "sharpen": "Pontosabbá tenné",
+      "yours": "Itt semmi sem iparági átlag: minden szám az Öné, mért vagy megadott, vagy fent feltételezettként megnevezett."
+    },
+    "view": {
+      "today": "Ma",
+      "weekOf": "Hét: {day}",
+      "weekOfLower": "hét: {day}",
+      "none": "nincs",
+      "plainTitle": "A jelenlegi helyzet",
+      "plainChange": "Semmi sem változik.",
+      "weekOption": "{n}. hét · {day}",
+      "twelfth": "{item} (egy tizenketted)",
+      "signedRange": "{low} – {high}",
+      "chartLabel": "A következő {weeks} hét · egyenleg minden hét végén"
+    }
+  },
+  "competitors": {
+    "meta": {
+      "title": "Versenytársak — SYB"
+    },
+    "kicker": "Elemzések · Versenytársak",
+    "aside": "Csak nyilvános oldalak · hetente beolvasva · MEGFIGYELT",
+    "headline": {
+      "none": "Még nem adott meg versenytársakat.",
+      "unread": "{count, plural, one {# versenytársat} other {# versenytársat}} figyelek, de az árait még nem olvastam be.",
+      "noMatch": "{count, plural, one {# versenytársból} other {# versenytársból}} {read} oldalait beolvastam; egyik áruk sem felel meg még egyik ajánlatának sem.",
+      "noneBelow": "{matched, plural, one {# párosított ár} other {# párosított ár}} közül egyik sem alacsonyabb az Önénél.",
+      "below": "{matched, plural, one {# párosított árból} other {# párosított árból}} {below} alacsonyabb az Önénél."
+    },
+    "read": {
+      "noPages": "Nincs beolvasható oldal",
+      "notYet": "Még nincs beolvasva",
+      "failed": "Nem tudtam beolvasni: {reason}",
+      "noAnswer": "egyik oldal sem válaszolt",
+      "tried": "Próbálkozás: {day}",
+      "partial": "Beolvasva: {day}; {count, plural, one {# oldal} other {# oldal}} nem: {reason}",
+      "done": "Beolvasva: {day}"
+    },
+    "form": {
+      "name": "Név",
+      "website": "A weboldaluk",
+      "websitePlaceholder": "a webcímük",
+      "listing": "Foglalási vagy hirdetési oldal",
+      "listingPlaceholder": "Fresha, Treatwell, Booksy, Google, egy webshopoldal",
+      "otherPages": "Más oldalak az áraikkal, soronként egy (legfeljebb {max})",
+      "note": "Csak ezeket az oldalakat olvasom be, hetente egyszer. Soha nem jelentkezem be sehova, és kihagyok minden olyan oldalt, amelyet a robots.txt fájljuk szerint a robotoknak békén kell hagyniuk.",
+      "saving": "Mentés…",
+      "cancel": "Mégse"
+    },
+    "watch": {
+      "label": "Akiket figyelek",
+      "nobody": "Még senki",
+      "count": "{count, plural, one {# versenytárs} other {# versenytárs}}",
+      "meta": "A nyilvános oldalaik, hetente beolvasva",
+      "foot": "A nevek az interjúban adott válaszaiból és abból származnak, amit itt hozzáad.",
+      "addOne": "Versenytárs hozzáadása →",
+      "add": "Hozzáadás",
+      "empty": "Mondja meg, kivel versenyez: a weboldalukat, és azt a foglalási vagy hirdetési oldalt, ahol az áraik szerepelnek. Ezeket az oldalakat olvasom be, semmi mást.",
+      "save": "Mentés",
+      "noPagesListed": "nincsenek megadott oldalak",
+      "pages": "{count, plural, one {# oldal} other {# oldal}}",
+      "reading": "Az oldalaik beolvasása…",
+      "prices": "{count, plural, one {# ár} other {# ár}}",
+      "noPrices": "nem láttam árat",
+      "rated": "értékelés: {rating}",
+      "ratedCount": "értékelés: {rating} ({count})",
+      "readNow": "Beolvasás most",
+      "edit": "Szerkesztés",
+      "remove": "Eltávolítás"
+    },
+    "changes": {
+      "label": "Legutóbbi változások",
+      "none": "Még semmi sem mozdult",
+      "title": "Ami megmozdult",
+      "empty": "Minden héten összevetem az oldalaikat a legutóbbi beolvasással. Egy árcsökkentés vagy -emelés, egy új vagy megszűnt ajánlat, vagy egy megmozdult értékelés itt és a Figyelés oldalon jelenik meg."
+    },
+    "flag": {
+      "cheaper": "OLCSÓBB",
+      "dearer": "DRÁGÁBB",
+      "new": "ÚJ",
+      "gone": "MEGSZŰNT",
+      "changed": "VÁLTOZOTT",
+      "rating": "ÉRTÉKELÉS"
+    },
+    "basis": {
+      "owner": "az Ön párosítása",
+      "name": "azonos név",
+      "category": "azonos fajta"
+    },
+    "prices": {
+      "from": "{price}-tól",
+      "label": "Az áraik az Önéi mellett",
+      "noneTitle": "Még nincsenek összehasonlítható árak",
+      "emptyNone": "Amint megad egy versenytársat, és beolvastam az oldalait, az árai itt jelennek meg az Önéi mellett.",
+      "emptyRead": "Ha egy beolvasás árakat talál az oldalaikon, azok itt jelennek meg az Önéi mellett.",
+      "ownOffers": "Az Ön saját ajánlatai a <link>ténylapjáról</link> származnak.",
+      "title": "{total, plural, one {# áruk közül} other {# áruk közül}} {matched} vethető össze az Önéivel",
+      "meta": "Név vagy szolgáltatásfajta szerint párosítva; bármelyik párosítást módosíthatja",
+      "foot": "Az összehasonlítás arra való, hogy Ön mérlegelje. Soha nem változtatok árat.",
+      "theirOffer": "Az ő ajánlatuk",
+      "competitor": "Versenytárs",
+      "theirs": "Az övék",
+      "comparedWith": "Ehhez mérve",
+      "yours": "Az Öné",
+      "difference": "Különbség",
+      "byModel": "a modell olvasta ki",
+      "fromText": "az oldal szövegéből kiolvasva",
+      "fromTags": "az oldal címkéiből kiolvasva",
+      "fromData": "az oldal adataiból kiolvasva",
+      "matchLabel": "Az Ön melyik ajánlatával vethető össze: {name}",
+      "nothingOfMine": "Egyikkel sem",
+      "showing": "{total, plural, one {# árból} other {# árból}} az első {shown} látható, elöl a párosítottak."
+    },
+    "screen": {
+      "failed": "Ez nem sikerült. Próbálja újra.",
+      "thisCompetitor": "ez a versenytárs",
+      "confirmRemove": "Abbahagyja a figyelését: {name}? Amit róla beolvastam, megmarad az előzményei között.",
+      "noBusiness": "Itt még nincs vállalkozás.",
+      "startInterview": "<link>Kezdje az interjúval</link>, és ott nevezze meg a versenytársait.",
+      "failedTitle": "A versenytársak nem töltődtek be.",
+      "failedCopy": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
+      "loading": "Annak beolvasása, amit a versenytársairól tudok…"
+    }
+  },
+  "goals": {
+    "meta": {
+      "title": "Célok — SYB"
+    },
+    "kicker": "Elemzések · Célok",
+    "metric": {
+      "revenue": "árbevétel",
+      "orders": "eladások száma",
+      "sessions": "weboldal-látogatások"
+    },
+    "word": {
+      "reached": "Elérve",
+      "on_path": "Pályán",
+      "behind": "Lemaradásban",
+      "off_path": "Letért a pályáról",
+      "too_early": "Túl korai",
+      "unmeasured": "Nincs mérve",
+      "unchecked": "Még nincs ellenőrizve",
+      "unmeasurable": "Nem mérhető"
+    },
+    "cause": {
+      "our_advice_was_wrong": "A tanácsunk téves volt",
+      "goal_unrealistic": "A cél túl sokat kér ennyi idő alatt",
+      "owner_declined_key_actions": "Kulcsfontosságú lépéseket elutasítottak",
+      "approved_actions_not_executed": "Jóváhagyott lépések soha nem futottak le",
+      "execution_failed": "Valami meghiúsult futás közben",
+      "data_incomplete": "Adatok hiányoznak",
+      "external_change": "Egy külső körülmény megváltozott",
+      "other": "Valami más"
+    },
+    "form": {
+      "directionLabel": "növelés vagy csökkentés",
+      "raise": "Növelés",
+      "lower": "Csökkentés",
+      "metricLabel": "mit mérjünk",
+      "to": "erre:",
+      "targetLabel": "célérték",
+      "currencyLabel": "pénznem",
+      "perBy": "{days} naponként, határidő:",
+      "deadlineLabel": "határidő",
+      "submit": "Tegye mérhetővé",
+      "aboveZero": "Nullánál nagyobb célértéket adjon meg.",
+      "notSaved": "Ezt nem sikerült menteni.",
+      "savedNoBaseline": "Mentve. Még nincs kiinduló érték: {note}.",
+      "horizon": "Ha a dátumot üresen hagyja, a cél saját időtávja határozza meg."
+    },
+    "review": {
+      "head": "Riasztás-felülvizsgálat · {day}",
+      "headPerson": "Riasztás-felülvizsgálat · {day} · most egy SYB-munkatárs foglalkozik vele",
+      "escalated": "Az automatikus felülvizsgálat megtett, amit tudott. Egy munkatársunk most ezzel a céllal foglalkozik, és jelentkezni fog.",
+      "escalatedWhy": "Az automatikus felülvizsgálat megtett, amit tudott ({reason}). Egy munkatársunk most ezzel a céllal foglalkozik, és jelentkezni fog.",
+      "cause": "<strong>{cause}:</strong> {statement} ({count, plural, one {# bizonyíték} other {# bizonyíték}})",
+      "waiting": "{title} — Önre vár",
+      "waitingNote": "{title} — Önre vár ({note})",
+      "yours": "{title} — Ön dönt róla"
+    },
+    "foot": {
+      "waiting": "Önre vár",
+      "connections": "Összekapcsolt fiókok",
+      "history": "Előzmények",
+      "unconnected": "Egyik összekapcsolt fiók sem méri még ezt: {metric}. Kapcsoljon össze egyet, és az előzményei kitöltik a grafikont és a kiindulópontot.",
+      "unchecked": "Még nincs ellenőrizve. A heti ellenőrzés hétfőnként minden mérhető célt beolvas."
+    },
+    "card": {
+      "label": "{metric} · határidő: {day}",
+      "goal": "Cél",
+      "untitled": "Egy cél, még szavak nélkül",
+      "notMeasurable": "Ez a cél még nem mérhető, így nem tudom megmondani, hogy a pályáján van-e. Nevezze meg a számot, amelyet mozdítania kell:",
+      "raise": "{metric} növelése",
+      "lower": "{metric} csökkentése",
+      "now": "Most",
+      "pathSays": "A pálya szerint",
+      "target": "Célérték",
+      "per": "{days} naponként · most = az utolsó {recent} nap",
+      "measured": "({count} mérve)",
+      "startedAt": "kiindulás: {value}, {day}",
+      "noStart": "még nincs mért kiindulópont, így nincs pálya",
+      "chartFailed": "A grafikont most nem sikerült beolvasni."
+    },
+    "frame": {
+      "signedOutTitle": "Itt még nincs vállalkozás.",
+      "signedOut": "<link>Kezdje az interjúval</link>, majd tűzze ki a célokat, amelyeket mozdítania kell.",
+      "failedTitle": "A céljai nem töltődtek be.",
+      "failed": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
+      "reading": "A céljai beolvasása…"
+    },
+    "title": {
+      "none": "Még nincsenek célok.",
+      "count": "{count, plural, one {# cél.} other {# cél.}}",
+      "noneChecked": "{goals} Még egyiket sem vetettem össze pályával.",
+      "noneOn": "{goals} Egyik sincs a pályáján.",
+      "someOn": "{goals} {count, plural, one {# a pályáján van.} other {# a pályáján van.}}"
+    },
+    "aside": "{one} gyertya = {one} hét · kék vonal = a célértékhez vezető pálya",
+    "setFirst": "Cél kitűzése →",
+    "setNew": "Új cél kitűzése →",
+    "how": {
+      "label": "Hogyan működnek a célok",
+      "title": "Fogalmazzon meg egy célt a saját szavaival",
+      "copy": "A célokat a Tartalom oldalon tűzheti ki, ahol minden tervezett darab megnevezi a célt, amelyet szolgál. Tegyen egyet mérhetővé (árbevétel, eladások száma vagy weboldal-látogatások, egy dátumig), és hetente összevetem egy egyenes pályával a kiindulási ponttól oda, ahová el szeretne jutni. Az első nyolc hétben, illetve amíg még figyelek, semmit sem ítélek meg."
+    }
+  },
+  "hours": {
+    "meta": {
+      "title": "Nyitvatartás — SYB"
+    },
+    "kicker": "Elemzések · Nyitvatartás",
+    "weekdays": {
+      "mon": "hétfőnként",
+      "tue": "keddenként",
+      "wed": "szerdánként",
+      "thu": "csütörtökönként",
+      "fri": "péntekenként",
+      "sat": "szombatonként",
+      "sun": "vasárnaponként"
+    },
+    "daysRange": "{from} – {to}",
+    "read": {
+      "label": "Olvasat",
+      "none": "A mért napokon semmi sem tűnik ki a nyitvatartásában. A Figyelés minden héten újra ellenőrzi.",
+      "closing": {
+        "head": "Az utolsó óra, {days}",
+        "word": "Veszteséges",
+        "sub": "a mért napok többségén kevesebbet hoz, mint amennyibe egy nyitva tartott óra kerül",
+        "subCost": "a mért napok többségén kevesebbet hoz, mint amennyibe egy nyitva tartott óra kerül ({cost})"
+      },
+      "opening": {
+        "head": "Az első óra, {days}",
+        "word": "Nyitáskor már forgalmas",
+        "sub": "már most hozza annak nagy részét, amit a legjobb óra: a kereslet valószínűleg már nyitás előtt elindul"
+      },
+      "attention": {
+        "head": "Nyitás előtt, {days}",
+        "word": "Korán rákeresnek",
+        "sub": "az adott nap weboldal-látogatásainak nagy része közvetlenül a nyitás előtti órákban érkezik"
+      },
+      "best": {
+        "head": "{days}, {clock}",
+        "word": "A legjobban megtérül",
+        "sub": "átlagosan óránként +{money} a költsége felett"
+      },
+      "early": {
+        "word": "Túl korai",
+        "sub": "még túl kevés a mért nap a megítéléshez"
+      }
+    },
+    "title": {
+      "none": "A mért napokon nincs jelzés",
+      "closing": "Az utolsó óra nem hozza be a költségét: {days}",
+      "opening": "A kereslet már nyitás előtt elindul: {days}",
+      "attention": "Nyitás előtt már rákeresnek Önre: {days}"
+    },
+    "row": {
+      "notStated": "nyitvatartás nincs megadva",
+      "days": "{count, plural, one {# nap} other {# nap}}",
+      "closed": "zárva"
+    },
+    "zone": {
+      "label": "Melyik időzónában működik a vállalkozás?",
+      "choose": "Válasszon…",
+      "save": "Mentés",
+      "failed": "Ezt nem sikerült menteni."
+    },
+    "trials": {
+      "title": "Próbák",
+      "none": "Még nem javaslat",
+      "body": "Egy jelzés soha nem olyan változtatás, amelyet vakon elfogadnak. Négyhetes próbává válik az „Önre vár” listában, a számaival együtt, és semmi sem változtat a nyitvatartásán, hacsak Ön nem.",
+      "waiting": "Önre vár →"
+    },
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "body": "<link>Kezdje az interjúval</link>, és abból olvasom be a nyitvatartását."
+    },
+    "error": {
+      "title": "A nyitvatartása nem töltődött be.",
+      "body": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "loading": "A nyitvatartása beolvasása…",
+    "notOk": {
+      "notEnough": "Még nincs elég adat a nyitvatartása elemzéséhez.",
+      "unknown": "A nyitvatartása még nem ismert.",
+      "notYet": "Még nem: {reason}."
+    },
+    "needs": {
+      "label": "Árrés óránként",
+      "title": "Amire ehhez szükség van",
+      "body": "Az interjúból a nyitvatartása, az időzónája, valamint óránkénti kártyás eladások egy összekapcsolt pénztárgépből, fizetési fiókból vagy webshopból."
+    },
+    "connections": "Összekapcsolt fiókok",
+    "week": {
+      "titleAll": "Az Ön heti {count, number} nyitvatartási órája, óráról órára.",
+      "titlePay": "Mind a heti {count, number} nyitvatartási órája megtermeli a saját költségét.",
+      "titleLose": "Heti {count, number} nyitvatartási órájából {losing, number} nem termeli meg a saját költségét.",
+      "period": "Az utolsó {weeks, plural, one {# hét} other {# hét}} · {from} – {to} · időzóna: {zone}",
+      "costStated": "nyitvatartási költség: {cost} / óra (az Ön válasza)",
+      "costNone": "nincs megadott nyitvatartási költség, így semmit sem ítélek meg",
+      "labelNet": "Bevétel mínusz nyitvatartási költség, {unit} óránként",
+      "labelTakings": "Bevétel, {unit} óránként",
+      "title": "A hét, óráról órára",
+      "empty": "Nincs megadott nyitvatartás, és óránkénti eladásokat sem mértem.",
+      "day": "Nap"
+    },
+    "legend": {
+      "label": "Jelmagyarázat",
+      "loses": "veszteség > {even}",
+      "even": "nagyjából nullszaldós",
+      "pays": "megtérül"
+    },
+    "foot": {
+      "mean": "Az adott hétköznap mért napjain az egyes órák átlagos bevétele, {coverage}; az eladás nélküli óra nullának számít.",
+      "meanJudged": "Az adott hétköznap mért napjain az egyes órák átlagos bevétele, {coverage}; az eladás nélküli óra nullának számít, a „nagyjából nullszaldós” pedig az óra költségének egy nyolcadán ({pct}%) belül van.",
+      "legend": "SZÁMÍTOTT. Sraffozott = zárva. Bevétel, nem árrés.",
+      "unparsed": "Nem tudtam beolvasni: {list}.",
+      "wrong": "Rossz a nyitvatartás? Módosítsa a válaszát a <link>Ténylap</link> oldalon."
+    }
+  },
+  "patterns": {
+    "meta": {
+      "title": "Szezonok és csomagok — SYB"
+    },
+    "kicker": "Elemzések · Szezonok és csomagok",
+    "head": {
+      "pair": "{a} és {b} {lift}× olyan gyakran fordul elő együtt, mint a véletlen alapján várható.",
+      "nothing": "Még nincs mért adat, amelyben a szezonjait megtalálhatnám."
+    },
+    "seasons": {
+      "label": "Az Ön szezonjai",
+      "nothing": "Még nincs mért adat",
+      "noData": "{connect}. A szezonjait kizárólag a saját előzményeiből olvasom ki. <link>Összekapcsolt fiókok</link>"
+    },
+    "tooLittle": {
+      "label": "Mennyi adat van · {source}",
+      "title": "{days, plural, one {# nap} other {# nap}}, {from} – {to}",
+      "meta": "{have, number} / {needed, number} szükséges teljes hét",
+      "readyOn": "Ha a szinkronizálások tovább futnak, nagyjából ekkortól tudom megnevezni a szezonjait: {day}."
+    },
+    "gap": {
+      "label": "Mit tudok és mit nem tudok még megmondani",
+      "title": "Őszintén a hiányról",
+      "can": "Amit meg tudok mondani",
+      "cannot": "Amit még nem tudok megmondani"
+    },
+    "ahead": {
+      "label": "A következő {count, plural, one {# hét} other {# hét}} · a tavalyi azonos hetek mellett",
+      "none": "Nincs előttünk forgalmas vagy csendes időszak",
+      "meta": "A tavalyi hét, {weeks, number} héttel korábban, hogy a hétköznapok egyezzenek",
+      "week": "Hét: {day}",
+      "lastYear": "Tavaly, hét: {day}",
+      "notMeasured": "tavaly nem volt teljesen mérve",
+      "underWay": "{kind, select, busy {Forgalmas időszak zajlik} other {Csendes időszak zajlik}}",
+      "thisWeek": "{kind, select, busy {Ezen a héten forgalmas időszak kezdődik} other {Ezen a héten csendes időszak kezdődik}}",
+      "startsIn": "{kind, select, busy {{count, plural, one {# hét múlva} other {# hét múlva}} forgalmas időszak kezdődik} other {{count, plural, one {# hét múlva} other {# hét múlva}} csendes időszak kezdődik}}"
+    },
+    "flag": {
+      "busy": "forgalmas",
+      "quiet": "csendes"
+    },
+    "months": {
+      "label": "A hónapok · {count, number} az elmúlt évből",
+      "title": "Minden hónap egy hétre arányosítva",
+      "meta": "Legalább {days, number} mért nappal rendelkező hónapok"
+    },
+    "col": {
+      "thisYear": "Idén",
+      "lastYear": "Tavaly",
+      "flag": "Jelzés",
+      "month": "Hónap",
+      "againstNormal": "A szokásoshoz képest",
+      "pair": "Pár",
+      "together": "Együtt",
+      "alsoSecond": "Az elsővel együtt a második is",
+      "againstChance": "A véletlenhez képest",
+      "margin": "A pár árrése",
+      "proposal": "Javaslat"
+    },
+    "read": {
+      "label": "Hogyan olvasom",
+      "title": "Az Ön saját előzményei, semmi kölcsönvett",
+      "otherCurrencies": "A más pénznemekben ({currencies}) lévő {noun} kimarad: két pénznemben lévő pénzt soha nem adok össze."
+    },
+    "count": {
+      "orders": "{count, plural, one {# rendelés} other {# rendelés}}",
+      "visits": "{count, plural, one {# látogatás} other {# látogatás}}"
+    },
+    "unit": {
+      "orders": "rendelések",
+      "visits": "látogatások"
+    },
+    "pairs": {
+      "label": "{kind, select, orders {Együtt vásárolva} other {Együtt foglalva}} · {source}",
+      "tooFew": "Eddig csak {amount}",
+      "tooFewBody": "Akkor keresek párokat, ha már {amount} van: kevesebb esetén a véletlen önmagában bármely két tételt elválaszthatatlannak mutathat.",
+      "none": "Semmi sem fordul elő együtt gyakrabban a véletlennél",
+      "some": "{count, plural, one {# pár} other {# pár}} a véletlennél gyakrabban együtt",
+      "meta": "{amount}, {from} – {to} · MEGFIGYELT",
+      "footRule": "Egy pár akkor jelenik meg, ha legalább {amount} esetben szerepelt együtt, és legalább {lift} olyan gyakran fordult elő, mint a véletlen alapján várható.",
+      "footBelow": "{below, plural, one {# pár} other {# pár}} túl ritkán fordult elő, {belowLift, number} pedig nem gyakrabban a véletlennél.",
+      "footBelowUngrouped": "{below, plural, one {# pár} other {# pár}} túl ritkán fordult elő, {belowLift, number} pedig nem gyakrabban a véletlennél; {ungrouped, plural, one {# időpontot} other {# időpontot}} ügyfél vagy szolgáltatás nélkül nem lehetett látogatásba csoportosítani.",
+      "single": "{kind, select, orders {Minden rendelése egyetlen tételt tartalmazott, így még semmit sem lehet párba állítani.} other {Minden látogatása egyetlen tételt tartalmazott, így még semmit sem lehet párba állítani.}}",
+      "multi": "{multi, number} esetben ({units}) két vagy több tétel szerepelt, de egyetlen pár sem emelkedett ki a véletlenből.",
+      "aria": "Párok",
+      "share": "{units} {pct, number}%-a, ahol {a} is szerepel",
+      "had": "{amount} tartalmazta ezt: {a}",
+      "byChance": "véletlenül nagyjából {count, number}",
+      "drafting": "Megfogalmazás…",
+      "propose": "Ezt a párt javaslom →"
+    },
+    "margin": {
+      "unknown": "Árrés ismeretlen: {why}.",
+      "known": "{price} a párért, költségek után {after} ({pct}%)."
+    },
+    "proposal": {
+      "pending": "Önre vár",
+      "blocked": "Az Ön szabálya letiltotta",
+      "approved": "Jóváhagyva",
+      "rejected": "Elutasítva",
+      "expired": "Lejárt"
+    },
+    "note": {
+      "failed": "Ez nem sikerült.",
+      "blocked": "Az Ön egyik szabálya kizárja ezt, így letiltva áll a sorában.",
+      "drafted": "Megfogalmazva. Önre vár; a jóváhagyása semmit sem változtat a webshopjában.",
+      "ourSide": "Hiba történt a mi oldalunkon."
+    },
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "body": "<link>Kezdje az interjúval</link>."
+    },
+    "error": {
+      "title": "A szezonok és csomagok nem töltődtek be.",
+      "body": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "loading": "Az előzményei beolvasása…",
+    "aside": {
+      "none": "Még nincs mért adat",
+      "span": "{source} · {from} – {to} · MÉRT"
+    },
+    "bundles": {
+      "section": "Ami együtt jár",
+      "emptyTitle": "Még nincsenek beolvasható rendelések vagy látogatások",
+      "emptyBody": "Kapcsolja össze a Shopifyt vagy a WooCommerce-t, és megjegyzem, mely termékek voltak az egyes rendelésekben, vagy importálja a foglalásait, és minden ügyfél látogatását csoportosítom.",
+      "withoutLines": "{names} fizetéseket rögzít, nem termékeket, így nem tudja megmondani, mi járt együtt."
+    },
+    "connections": "Összekapcsolt fiókok",
+    "held": "A javaslat egy tervezet Önnek: mindkét tétel teljes áron, kedvezmény nélkül. Nem változtatok a webshopján vagy a fizetési folyamatán — a párt Ön állítja be.",
+    "waiting": "Önre vár"
+  },
+  "pipeline": {
+    "meta": {
+      "title": "Értékesítési tölcsér — SYB"
+    },
+    "kicker": "Ügyfelek · Értékesítési tölcsér",
+    "loading": "Az értékesítési tölcsére beolvasása…",
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "start": "<link>Kezdje az interjúval</link>."
+    },
+    "failed": {
+      "title": "Az értékesítési tölcsére nem töltődött be.",
+      "body": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "consumer": {
+      "title": "Az értékesítési tölcsér a vállalkozásoknak történő értékesítéshez való.",
+      "body": "Azt mondta, magánszemélyeknek értékesít, így itt nincsenek nyomon követendő üzletek.",
+      "factSheet": "Ténylap"
+    },
+    "error": {
+      "generic": "Ez nem sikerült.",
+      "ourSide": "Hiba történt a mi oldalunkon. Próbálja újra."
+    },
+    "aside": "Az Ön értékesítési tölcsére · {count, plural, one {# üzlet} other {# üzlet}} · nyerési arány: {basis}",
+    "rateBasis": {
+      "measured": "MÉRT",
+      "stated": "MEGADOTT",
+      "none": "NEM ISMERT"
+    },
+    "stage": {
+      "lead": "Érdeklődő",
+      "qualified": "Minősített",
+      "proposal_sent": "Ajánlat elküldve",
+      "won": "Megnyert",
+      "lost": "Elvesztett"
+    },
+    "stageInline": {
+      "lead": "érdeklődő",
+      "qualified": "minősített",
+      "proposal_sent": "ajánlat elküldve",
+      "won": "megnyert",
+      "lost": "elvesztett"
+    },
+    "board": {
+      "label": "A tábla · {count} nyitott",
+      "title": "Szakaszok oszlopokban, elöl a szakaszában legrégebb óta álló",
+      "empty": "Még nincsenek üzletek. Vegyen fel egyet lent, vagy importálja a táblázatát.",
+      "aria": "Üzletek szakaszonként",
+      "median": "medián {median} nap · legrégebbi {oldest} nap",
+      "closedRecent": "lezárva {days, plural, one {az utolsó napban} other {az utolsó # napban}}",
+      "none": "nincs"
+    },
+    "card": {
+      "noValue": "nincs érték",
+      "estimate": "az Ön becslése",
+      "inStage": "{days} napja ebben a szakaszban",
+      "stale": "elakadt",
+      "change": "Módosítás",
+      "stage": "Szakasz",
+      "nextStep": "Következő lépés",
+      "by": "Határidő",
+      "save": "Következő lépés mentése",
+      "spoke": "Ma beszéltem velük"
+    },
+    "quiet": {
+      "label": "Elcsendesedett · {count}",
+      "title": "Nincs következő lépés, vagy a következő lépés határideje lejárt",
+      "held": "Csak olyan kapcsolattartónak fogalmazok utókövető üzenetet, aki hozzájárult az e-mailhez. Semmi sem megy ki: Ön küldi el saját maga.",
+      "propose": "Utókövetések javaslása",
+      "nothing": "Nincs új javaslat.",
+      "nothingWhy": "Nincs új javaslat: {reason}.",
+      "created": "{count, plural, one {# utókövetés} other {# utókövetés}} vár most Önre a sorban.",
+      "allGood": "Minden nyitott üzletnek van olyan következő lépése, amely nem késik."
+    },
+    "stale": {
+      "blocked": "Az Ön szabálya ({rule}) kizárja az e-mailt.",
+      "pending": "Az utókövetés itt várja: <link>Önre vár</link>.",
+      "drafted": "Megfogalmazva. Olvassa el, módosítsa, amit szeretne, és küldje el a saját levelezőjéből.",
+      "draft": "Az e-mail megfogalmazása",
+      "dontSend": "Ezt nem én küldöm el. Másolja be a nekik írt saját e-mailjébe.",
+      "copied": "Másolva",
+      "copy": "A szöveg másolása"
+    },
+    "due": {
+      "label": "Valószínűleg megnyerve eddig: {date}",
+      "labelRate": "Valószínűleg megnyerve eddig: {date} · nyerési arány: {basis}",
+      "notForecast": "Még nincs előrejelzés",
+      "undated": "{count, plural, one {# nyitott üzletnek} other {# nyitott üzletnek}} nincs várható lezárási dátuma.",
+      "title": "Az üzletek, amelyek lezárását a következő {days, plural, one {napban} other {# napban}} várja",
+      "meta": "Az eddigi pontosságomhoz számít: összevetem azokkal az üzletekkel, amelyeket addig megnyertként jelöl.",
+      "line": "{count, plural, one {# üzlet} other {# üzlet}} {total} értékben: körülbelül {low} – {high} valószínűleg megnyerve.",
+      "unvalued": "Az esedékes üzletek közül {count} nem rendelkezik értékkel, és nem szerepel ezekben a számokban.",
+      "undatedOut": "{count, plural, one {# nyitott üzletnek nincs várható lezárási dátuma, ezért nem szerepel ebben az előrejelzésben.} other {# nyitott üzletnek nincs várható lezárási dátuma, ezért nem szerepelnek ebben az előrejelzésben.}}",
+      "assumed": "Feltételezve",
+      "sources": "Források: {list}."
+    },
+    "weigh": {
+      "label": "Ami valószínűleg lezárul",
+      "labelRate": "Ami valószínűleg lezárul · nyerési arány: {basis}",
+      "notWeighed": "Még nincs súlyozva",
+      "can": "Amit meg tudok mondani",
+      "cant": "Amit még nem tudok megmondani",
+      "ready": "Kész: {when}.",
+      "stateRate": "Adja meg a nyerési arányát",
+      "title": "Nyitott érték, az Ön saját nyerési arányával súlyozva",
+      "currency": "Pénznem",
+      "deals": "Üzletek",
+      "open": "Nyitott",
+      "likely": "Valószínűleg lezárul",
+      "unvalued": "{count, plural, one {# nyitott üzletnek nincs értéke, és nem szerepel ezekben a számokban.} other {# nyitott üzletnek nincs értéke, és nem szerepelnek ezekben a számokban.}}",
+      "assumed": "Feltételezve",
+      "window": "Időszak: {from} – {to}. Források: {list}.",
+      "statedNote": "Ön ezt mondta: {stated}; ez azt használja, amit a saját lezárt üzletei mutatnak.",
+      "measureAfter": "További {count, plural, one {# lezárt üzlet} other {# lezárt üzlet}} után inkább mérem."
+    },
+    "add": {
+      "label": "Üzlet felvétele",
+      "title": "Kivel köti, és miről szól",
+      "foot": "Az új kapcsolattartó BIZONYTALAN hozzájárulással kerül rögzítésre: egy értékesítési beszélgetés nem engedély arra, hogy marketingüzeneteket küldjön neki.",
+      "added": "Felvéve.",
+      "company": "Cég",
+      "contact": "Kapcsolattartó",
+      "email": "Az e-mail-címe",
+      "deal": "Az üzlet",
+      "dealPlaceholder": "pl. tavaszi étkészlet a kávézónak",
+      "stage": "Szakasz",
+      "value": "Érték",
+      "currency": "Pénznem",
+      "valueIs": "Az érték",
+      "quoted": "Amennyit ajánlottam nekik",
+      "estimate": "Az én becslésem",
+      "nextStep": "Következő lépés",
+      "by": "Határidő",
+      "submit": "Az üzlet felvétele"
+    },
+    "import": {
+      "label": "Importálás",
+      "title": "Üzletek táblázatból, az Ön nyilatkozata alapján",
+      "foot": "Az oszlopok, amelyeket beolvasok: {columns}.",
+      "lede": "Egy üzleteket tartalmazó fájl embereket is hoz magával, ezért úgy kerül be, mint egy ügyféllista: Ön megadja, mihez és hogyan járultak hozzá a benne szereplők, és ez a nyilatkozat minden általa felvett kapcsolattartóhoz rögzítésre kerül. A már meglévő kapcsolattartói megtartják a hozzájárulásukat; a törölt vagy leiratkozott címeket elutasítom.",
+      "done": "{count, plural, one {# üzlet} other {# üzlet}} importálva.",
+      "left": "{count, plural, one {# sor kimaradt} other {# sor kimaradt}}.",
+      "paste": "Illessze be a fájlt (CSV)",
+      "consented": "Mihez járultak hozzá a benne szereplők",
+      "explicit": "Kifejezetten hozzájárultak a marketing e-mailekhez",
+      "implied": "A hozzájárulás vélelmezett (nincs kifejezett feliratkozás)",
+      "unsure": "Bizonytalan",
+      "none": "Nincs hozzájárulás",
+      "how": "Hogyan szerezte meg, a saját szavaival",
+      "howPlaceholder": "pl. feliratkozási ív egy szakvásáron, {month}",
+      "currency": "Az érték oszlop pénzneme",
+      "valuesAre": "Az értékek",
+      "estimates": "Az én becsléseim",
+      "quoted": "Amennyit ajánlottam nekik",
+      "submit": "Importálás az én nyilatkozatom alapján"
+    },
+    "fine": "Az üzletek a kapcsolattartóihoz tartoznak: ha az Ügyfelek oldalon töröl egy kapcsolattartót, azzal törlődnek az üzletei, az előzményei és minden megfogalmazott utókövetés is. A dátumok egész napokban számítanak.",
+    "fineTo": "Az üzletek a kapcsolattartóihoz tartoznak: ha az Ügyfelek oldalon töröl egy kapcsolattartót, azzal törlődnek az üzletei, az előzményei és minden megfogalmazott utókövetés is. A dátumok egész napokban számítanak, eddig a napig: {day}.",
+    "view": {
+      "and": "és",
+      "quietAddedToday": "{who} ma került fel; még nincs rögzített beszélgetés",
+      "quietAddedAgo": "Semmi sincs rögzítve vele kapcsolatban: {who}, amióta felvette, {days, plural, one {# napja} other {# napja}}",
+      "spokeToday": "Ma beszélt vele: {who}",
+      "nobodySpoke": "{days, plural, one {# napja} other {# napja}} senki sem beszélt vele: {who}",
+      "noNextStep": "Nincs következő lépés",
+      "overdue": "A következő lépés esedékessége: {day}, {days, plural, one {# napja} other {# napja}}",
+      "rateNone": "Még nem ismert",
+      "rateMeasured": "{point} mérve: {closed} lezártból {won} megnyert, valószínűleg {low}–{high}",
+      "rateStated": "{point} az Ön megadása szerint, {low}–{high} sávként értelmezve",
+      "headNone": "Még nincsenek nyitott üzletek.",
+      "headNoValue": "{open, plural, one {# nyitott üzlet} other {# nyitott üzlet}}, egyiknek sincs még értéke.",
+      "headCantWeigh": "{open, plural, one {# nyitott üzlet} other {# nyitott üzlet}} {totals} értékben. Még nem tudom súlyozni őket.",
+      "headLikely": "A nyitott {total} értékből valószínűleg {low}–{high} zárul le.",
+      "headLikelyMore": "A nyitott {total} értékből valószínűleg {low}–{high} zárul le, és további összegek {others, plural, one {# másik pénznemben} other {# másik pénznemben}}.",
+      "follow": {
+        "drafted": "megfogalmazva",
+        "approved": "jóváhagyva",
+        "pending": "Önre vár",
+        "blocked": "az Ön szabálya letiltotta",
+        "rejected": "elutasítva",
+        "changes_requested": "módosítást kért"
+      }
+    }
+  },
+  "reviews": {
+    "meta": {
+      "title": "Értékelések — SYB"
+    },
+    "kicker": "Ügyfelek · Értékelések",
+    "foot": "A SYB soha nem tesz közzé választ, és soha nem jelentkezik be az értékelési oldalaira. A Google-értékeléseit csak akkor olvassa, ha összekapcsolja a Google Cégprofilt, és akkor is csak olvassa őket. Az értékelő nevét egy évig őrizzük, és bármelyik értékelést azonnal eltávolíthatja.",
+    "stars": {
+      "none": "Nincs csillag",
+      "of": "{stars} / {max}"
+    },
+    "thisMonth": "ebben a hónapban",
+    "headline": {
+      "none": "Itt még nincsenek értékelések.",
+      "noneThisMonth": "Ebben a hónapban nincs új értékelés.",
+      "oneFine": "Az e havi egyetlen értékelés nem {stars, plural, one {# csillagos} other {# csillagos}} vagy annál kevesebb.",
+      "noneFine": "Az e havi {count, plural, one {# értékelés} other {# értékelés}} közül egyik sem {stars, plural, one {# csillagos} other {# csillagos}} vagy annál kevesebb.",
+      "poor": "{poor, plural, one {# értékelés} other {# értékelés}} {stars, plural, one {# csillagos} other {# csillagos}} vagy annál kevesebb ebben a hónapban, összesen {total} közül."
+    },
+    "aside": "{count, plural, one {# értékelés} other {# értékelés}} nyilvántartva · megőrzés: {days, plural, one {# nap} other {# nap}}",
+    "readNote": {
+      "unread": "Ezt az értesítést nem tudtam beolvasni, ezért csak a helyét és az idejét őriztem meg. Nyissa meg ott, ahol található.",
+      "model": "A tartalék olvasóm olvasta be: vesse össze az eredetivel.",
+      "paste": "Ezt Ön illesztette be."
+    },
+    "gmail": {
+      "code": "A Gmail megerősítő kódot küldött: {code}. Írja be a Gmail továbbítási beállításaiban.",
+      "link": "A Gmail megerősítő linket küldött: nyissa meg a továbbítás bekapcsolásához.",
+      "received": "Beérkezett: {day}.",
+      "openLink": "A Gmail megerősítő linkjének megnyitása"
+    },
+    "setup": {
+      "google": {
+        "notifications": "A Cégprofiljában nyissa meg az Értesítéseket (vagy a Beállításokat), és kapcsolja be az ügyfélértékelésekről szóló e-maileket.",
+        "gmail": "Ha ezek az e-mailek a Gmailbe érkeznek, először adja hozzá a fenti címet a Gmail Beállítások menüjében, a Továbbítás és POP/IMAP fül Továbbítási cím hozzáadása pontjában. A Gmail megerősítő kódot küld rá: a kód megjelenik ezen az oldalon, és a befejezéshez beírja a Gmailbe.",
+        "rule": "Ezután abban a postafiókban, ahová ezek az e-mailek érkeznek, hozzon létre egy szabályt: a Google értékelésről szóló levelei továbbítódjanak a fenti címre.",
+        "byHand": "Vagy továbbítson rá kézzel bármely értékelésről szóló e-mailt. Mindkét mód működik."
+      },
+      "trustpilot": {
+        "notifications": "A Trustpilot Businessben kapcsolja be az új értékelésekről szóló e-mail-értesítéseket.",
+        "forward": "Továbbítsa ezeket az e-maileket a fenti címre, a postafiókja egy szabályával vagy kézzel."
+      }
+    },
+    "platform": {
+      "other": "Másik oldal"
+    },
+    "entry": {
+      "worthKnowing": "Érdemes tudni",
+      "noWords": "Csillagozás szöveg nélkül.",
+      "draftLabel": "Javasolt válasz · Ön szerkesztheti",
+      "draftNote": "Ezt én fogalmaztam meg. Olvassa el, és tegye a sajátjává: amint közzéteszi, az az Ön szavai, az Ön neve alatt. Én soha semmit nem teszek közzé.",
+      "copied": "Másolva",
+      "copyReply": "A válasz másolása",
+      "drafting": "Megfogalmazás…",
+      "suggestAnother": "Másik javaslat →",
+      "suggest": "Válasz javaslása →",
+      "openOn": "Megnyitás itt: {site} ↗",
+      "theSite": "az oldal",
+      "noneLeft": "Ehhez az értékeléshez nem maradt több javaslat: írja meg saját maga.",
+      "left": "{count, plural, one {# javaslat} other {# javaslat}} maradt ehhez az értékeléshez.",
+      "draftingLive": "Válasz megfogalmazása",
+      "failed": "Ez nem sikerült.",
+      "removeAsk": "Eltávolítja ezt az értékelést, a rajta szereplő nevet és minden javasolt választ?",
+      "removing": "Eltávolítás…",
+      "removeYes": "Igen, távolítsa el",
+      "keep": "Megtartás",
+      "remove": "Az értékelés eltávolítása"
+    },
+    "forwarding": {
+      "label": "Továbbítás",
+      "offTitle": "A továbbítás még nincs beállítva",
+      "offCopy": "Amint a SYB bejövő e-mailje be van kapcsolva, itt kap egy címet, amelyre továbbíthatja az értékelésekről szóló e-maileket, és mindegyiket beérkezéskor iktatom. Addig illesszen be lent egy értékelést, és ugyanígy iktatom.",
+      "title": "Ide továbbítsa az értékelésekről szóló e-maileket",
+      "newStops": "Egy új cím után ez a cím már nem működik. Utána frissítse a továbbítást.",
+      "newAddress": "Új cím kérése",
+      "copied": "Másolva",
+      "copyAddress": "A cím másolása",
+      "how": "Minden továbbított, értékelésről szóló e-mailből egy értékelés lesz itt. A rossz értékelés a beérkezése napján megjelenik a Figyelés oldalon és a heti összefoglalóban. Az értékelési oldalaktól eltérő feladók leveleit figyelmen kívül hagyom."
+    },
+    "google": {
+      "label": "Google Cégprofil",
+      "failed": "A Google már nem fogadja el a SYB hozzáférését",
+      "reading": "A Google-értékelései beolvasása",
+      "readingFor": "A Google-értékelései beolvasása ehhez: {location}",
+      "readDirectly": "Olvassa közvetlenül a Google-értékeléseit",
+      "notSetUpTitle": "A Google-ból való olvasás még nincs beállítva",
+      "manage": "Kezelje vagy vonja vissza az Összekapcsolt fiókok oldalon",
+      "connect": "Kapcsolja össze az Összekapcsolt fiókok oldalon",
+      "connected": "A SYB naponta egyszer beolvassa az értékeléseit, és az újakat itt iktatja, a továbbítottak mellett. Ha ugyanaz az értékelés mindkét úton megérkezik, csak egyszer szerepel.",
+      "lastRead": "Legutóbb beolvasva: {day}.",
+      "before": "Mielőtt működhetne",
+      "whatItCanDo": "A Google-engedéllyel válaszok is közzétehetők az értékeléseire, és szerkeszthető a Cégprofil-adatlapja. A SYB ezzel csak olvassa az értékeléseit. Bármikor visszavonhatja.",
+      "notSetUp": "Még nincs beállítva. A Google csak azután engedi, hogy alkalmazások olvassák a Cégprofil-értékeléseket, hogy jóváhagyta őket, és a SYB jóváhagyása még nincs meg. Addig továbbítsa a Google értékelésekről szóló e-mailjeit, vagy illesszen be egy értékelést.",
+      "needs": {
+        "approval": "A Google jóváhagyása, hogy a SYB használhassa a Cégprofil API-kat (a Google saját vizsgálata a SYB-ről).",
+        "signIn": "Bejelentkezik azzal a Google-fiókkal, amely a Cégprofilját kezeli, és megadja azt az egy engedélyt, amelyet a Google kér.",
+        "location": "Ha egynél több helyszínt kezel, kiválasztja, melyiket olvassa a SYB."
+      },
+      "readNote": "A Google Cégprofiljából beolvasva."
+    },
+    "paste": {
+      "label": "Értékelés beillesztése",
+      "title": "Máshol látott egyet?",
+      "filed": "Iktatva.",
+      "already": "Ez az értékelés már itt van.",
+      "where": "Hol írták",
+      "stars": "Csillagok",
+      "choose": "Válasszon",
+      "text": "Amit írtak",
+      "reviewer": "A nevük, ahogy az oldal mutatja · nem kötelező",
+      "link": "Link az értékeléshez · nem kötelező",
+      "date": "Mikor írták · nem kötelező, különben ma",
+      "filing": "Iktatás…",
+      "file": "Az értékelés iktatása"
+    },
+    "screen": {
+      "ourSide": "Hiba történt a mi oldalunkon.",
+      "noBusiness": "Itt még nincs vállalkozás.",
+      "startInterview": "<link>Kezdje az interjúval</link>.",
+      "failedTitle": "Az értékelések nem töltődtek be.",
+      "failedCopy": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
+      "loading": "Az értékelései beolvasása…",
+      "listLabel": "Értékelések · {month}: {count} · elöl a legújabb",
+      "listTitle": "Amit az emberek mondtak",
+      "nothingFiled": "Még semmi sincs iktatva",
+      "listMeta": "A {stars, plural, one {# csillagos} other {# csillagos}} vagy annál kevesebb értékelést érdemes tudni",
+      "emptyCopy": "Továbbítson egy értékelésről szóló e-mailt az alábbi címre, vagy illesszen be egyet, és itt megjelenik."
+    }
+  },
+  "simulate": {
+    "meta": {
+      "title": "Szimulátor — SYB"
+    },
+    "tabs": {
+      "aria": "Szimulátor",
+      "campaigns": "Kampányok",
+      "pricing": "Árazás: mi lenne, ha…"
+    },
+    "kicker": "Növekedés · Kampányszimulátor",
+    "loading": "A számai beolvasása…",
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "body": "<link>Kezdje az interjúval</link>, és a saját számai töltik ki ezt az oldalt."
+    },
+    "failed": {
+      "title": "A szimulátor nem töltődött be.",
+      "body": "Hiba történt nálam. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "aside": {
+      "nothing": "Itt semmi sem költ és semmi sem küld",
+      "asOf": "Állapot: {date} · {currency}"
+    },
+    "kind": {
+      "email": "E-mail",
+      "ads": "Meta-hirdetések",
+      "content": "Tartalom"
+    },
+    "picker": {
+      "label": "Válasszon {min}–{max} lehetőséget",
+      "title": "Kampánylehetőségek",
+      "meta": "{count} kiválasztva",
+      "metaFull": "{count} kiválasztva · ennél többet nem hasonlítok össze egyszerre",
+      "kind": "Fajta",
+      "option": "Lehetőség",
+      "fromNumbers": "Az Ön számaiból",
+      "compare": "Összehasonlítás",
+      "picked": "Kiválasztva",
+      "emailable": "{count} egyezett bele az e-mailbe",
+      "noEmailable": "itt senki sem egyezett bele az e-mailbe",
+      "daily": "napi {amount} · {days, plural, one {# mért nap} other {# mért nap}}",
+      "noSpend": "mostanában nincs mért költés",
+      "quoted": "„{name}”",
+      "shareFor": "Költségkeret-módosítás: {name}",
+      "raise": "Emelés",
+      "cut": "Csökkentés",
+      "pause": "Szüneteltetés",
+      "raiseAria": "{name} emelése ennyivel: {share}",
+      "cutAria": "{name} csökkentése ennyivel: {share}",
+      "pauseAria": "{name} szüneteltetése",
+      "newCampaign": "Egy új kampány",
+      "judged": "a többi kampánya megtérülése alapján megítélve",
+      "noneMeasured": "még nincs mért kampány, amelyhez mérni lehetne",
+      "metaOff": "A Meta nincs összekapcsolva",
+      "perDay": "{currency} naponta",
+      "contentCalendar": "{weeks} hetes tartalomnaptár",
+      "contentAria": "Tartalomnaptár",
+      "posts": "{count, plural, one {# közösségimédia-bejegyzés az Ön által vitt csatornákon} other {# közösségimédia-bejegyzés az Ön által vitt csatornákon}}",
+      "noSocial": "a profilján nincs közösségimédia-csatorna"
+    },
+    "pickN": "Válasszon {count} lehetőséget, hogy egymás mellett összehasonlítsa őket.",
+    "pickOne": "Válasszon még egy lehetőséget, hogy egymás mellett összehasonlítsa őket.",
+    "side": {
+      "label": "Egymás mellett · {days} napra",
+      "title": "Mit hozhat valószínűleg az egyes lehetőség",
+      "meta": "A sávok a mért értékek középső felét mutatják",
+      "measure": "Mutató",
+      "count": "darab"
+    },
+    "measure": {
+      "cost": "Mennyibe kerül",
+      "reached": "Elért emberek",
+      "orders": "Rendelések",
+      "revenue": "Várható árbevétel",
+      "profit": "Várható nyereség",
+      "worst": "Legrosszabb eset"
+    },
+    "cell": {
+      "missing": "HIÁNYZIK",
+      "notRead": "NINCS BEOLVASVA",
+      "setByOption": "A LEHETŐSÉG HATÁROZZA MEG",
+      "needs": "szükséges: {list}"
+    },
+    "headNone": "Az Ön kampánylehetőségei közül ({total}) egyiket sem lehet még a saját számaiból beárazni — mindegyik megmutatja, mi hiányzik hozzá.",
+    "headSome": "{total} kampánylehetőségéből {priced} beárazható a saját számaiból.",
+    "whisker": {
+      "caption": "Várható nyereség, alacsonytól magasig · a négyzet a legrosszabb eset",
+      "currencies": "A lehetőségek több pénznemben vannak, ezért nem osztozhatnak egy tengelyen — pénznemek között nem váltok át.",
+      "withWorst": "{range}, legrosszabb esetben {worst}",
+      "notWorkedOut": "nincs kiszámolva"
+    },
+    "profitCard": {
+      "label": "Nyereség, egymás mellett",
+      "title": "Az egyes lehetőségek szórása"
+    },
+    "option": {
+      "canPropose": "Javasolható",
+      "notProposable": "Még nem javasolható",
+      "proposing": "Javaslás…",
+      "propose": "Ezt javaslom →",
+      "restsOn": "Amin alapul",
+      "value": "Érték",
+      "basis": "Alap",
+      "from": "Honnan származik",
+      "missing": "Hiányzik",
+      "needs": "szükséges: {what}",
+      "aSource": "egy forrás",
+      "worstCase": "Legrosszabb eset",
+      "overLimit": "Korlát felett",
+      "check": "Ahhoz képest, ami korábban történt"
+    },
+    "math": {
+      "cost": "Költség",
+      "reached": "Elérés",
+      "orders": "Rendelések",
+      "revenue": "Árbevétel",
+      "profit": "Nyereség",
+      "worst": "Legrosszabb eset"
+    },
+    "notice": {
+      "signIn": "A javasláshoz bejelentkezés szükséges.",
+      "failed": "Ez nem sikerült. Próbálja újra.",
+      "blocked": "Megírtam, de az Ön saját korlátja megállította: {limit}. A visszatartott elemek nézetében található.",
+      "aLimit": "egy Ön által beállított korlát",
+      "proposed": "Javasolva, ezzel a szimulációval együtt. Az Ön jóváhagyása nélkül semmi sem fut; itt hagyhatja jóvá: <link>Önre vár</link>",
+      "notProposed": "Nincs javasolva: {why}.",
+      "nothing": "nincs mit javasolni"
+    },
+    "pricing": {
+      "kicker": "Növekedés · Árazás: mi lenne, ha…",
+      "loading": "Az árai beolvasása…",
+      "failed": "Az árazási forgatókönyvek nem töltődtek be.",
+      "aside": "Itt semmi sem változtat árat",
+      "empty": {
+        "title": "A profilján még semmi sincs beárazva.",
+        "body": "<ask>Sorolja fel, mit értékesít, az árával együtt</ask>, vagy importálja a foglalásait az <conn>Összekapcsolt fiókok</conn> oldalon, és ez kitöltődik."
+      },
+      "noPrice": "{name} még nem rendelkezik árral a profilján.",
+      "pickItem": "Válasszon egy terméket vagy szolgáltatást az átárazáshoz.",
+      "fromBookings": "{count} a foglalásaiból",
+      "fromProfile": "{count} a profiljából",
+      "items": {
+        "label": "Válasszon egyet",
+        "title": "Mit áraz át",
+        "service": "Szolgáltatás",
+        "product": "Termék",
+        "pick": "Kiválasztás",
+        "repriceAria": "{name} átárazása",
+        "reprice": "Átárazás",
+        "addPrice": "Ár megadása"
+      },
+      "changes": {
+        "label": "Legfeljebb {max}",
+        "title": "Árváltozások: {name}",
+        "aria": "Árváltozások",
+        "exactly": "vagy pontosan, {currency}",
+        "exactAria": "Pontos új ár, {currency}"
+      },
+      "period": "{kind, select, service {{days} naponként} other {havonta}}",
+      "side": {
+        "label": "Egymás mellett · {period}",
+        "title": "Az egyes árak hatása: {name}",
+        "meta": "A fedezeti pont kizárólag az Ön számain alapul; a sávok egy feltételezett ügyfélreakciót is hozzávesznek",
+        "breakEven": "Fedezeti pont",
+        "breakEvenSub": "ennyi {kind, select, service {foglalást} other {eladást}} veszíthet el, vagy kell megnyernie",
+        "volume": "{kind, select, service {Foglalások} other {Eladások}} utána",
+        "unitMoney": "{currency} {period}",
+        "unitCount": "{kind, select, service {foglalás} other {eladás}} {period}"
+      },
+      "measure": {
+        "volume": "Eladások a változás után",
+        "revenue": "Árbevétel változása",
+        "profit": "Nyereség változása",
+        "worst": "Legrosszabb eset"
+      },
+      "never": "SOHA",
+      "card": {
+        "label": "Árváltozás",
+        "meta": "Itt semmi sem változtatja meg az árát",
+        "breakEven": "Fedezeti pont",
+        "cautious": "Ez az óvatos vég: ha tudnám, mennyibe kerül Önnek egy darab teljesítése, meg tudnám mondani, mennyivel többet veszíthet el.",
+        "addCost": "Adja meg a költséget →",
+        "addNeed": "Adja meg: {what} →",
+        "needs": "szükséges: {what} — <link>adja meg</link>"
+      },
+      "math": {
+        "volume": "{kind, select, service {foglalások} other {eladások}}",
+        "revenue": "árbevétel",
+        "profit": "nyereség",
+        "worst": "Legrosszabb eset"
+      },
+      "assumption": "A sávok azt feltételezik, hogy az ár minden {one} változására a {kind, select, service {foglalások} other {eladások}} {low}–{high} része az ellenkező irányba mozdul — ez tervezési feltételezés az Önéhez hasonló vállalkozásokra, nem mérés. A fedezeti pont semmit sem feltételez.",
+      "profitTitle": "Az egyes árak szórása",
+      "caption": "Nyereségváltozás {period}, alacsonytól magasig · a négyzet a legrosszabb eset",
+      "cantDraw": "A nyereség még nem rajzolható meg: ehhez tudni kell, mennyibe kerül Önnek egy {kind, select, service {foglalás} other {eladás}} teljesítése. <link>Adja meg</link>.",
+      "pickChange": "Válasszon egy árváltozást, hogy lássa a hatását.",
+      "refused": "Nincs szimulálva: {why}.",
+      "unreadable": "Ezt az árat nem tudom értelmezni.",
+      "noPriceYet": "még nincs ára",
+      "be": {
+        "loseShare": "Kevesebb mint {share} elvesztése",
+        "loseCount": "Kevesebb mint {count} elvesztése",
+        "winShare": "Több mint {share} megnyerése",
+        "winCount": "Több mint {count} megnyerése",
+        "noun": "{kind, select, service {foglalás} other {eladás}}",
+        "moreNoun": "{kind, select, service {további foglalás} other {további eladás}}",
+        "ofVolume": "~{volume} közül {share}",
+        "ofSales": "{share} az eladásaiból",
+        "plusOfVolume": "+{share}, ~{volume} közül",
+        "plusOfSales": "+{share} az eladásaiból",
+        "atLeast": "legalább, bármibe kerül is Önnek",
+        "room": "a naptárban {count} számára van hely",
+        "never": "Soha nem térül meg",
+        "neverSub": "mindegyikkel pénzt veszítene"
+      },
+      "item": {
+        "noPrice": "még nincs ára",
+        "volume": "~{volume} {kind, select, service {foglalás {days} naponként} other {eladás havonta}}",
+        "volumeUnknown": "a {kind, select, service {foglalások} other {eladások}} száma nem ismert",
+        "cost": "a teljesítése {cost}",
+        "costUnknown": "a teljesítés költsége nem ismert"
+      },
+      "perOrder": "Nem része az egy darabra jutó költségnek: {list}. {count, plural, one {Ezt} other {Ezeket}} rendelésenként fizeti, nem darabonként, és egy rendelésben több darab is lehet. Ahol egy eladás egy rendelés, ott egy áremelés valamivel több eladást veszíthet, mint amennyi látszik, egy árcsökkentéshez pedig valamivel több eladás kell."
+    }
+  },
+  "stock": {
+    "meta": {
+      "title": "Készlet — SYB"
+    },
+    "kicker": "Elemzések · Készlet",
+    "signedOut": "Itt még nincs vállalkozás.",
+    "startInterview": "<link>Kezdje az interjúval</link>.",
+    "failedTitle": "A készlet nem töltődött be.",
+    "failedBody": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
+    "reading": "A készlete beolvasása…",
+    "noStockTitle": "Az Ön vállalkozása nem tart készletet.",
+    "noStockBody": "Azt mondta, nem tart készletet, így itt nincs mi elfogyjon vagy kiürüljön.",
+    "factSheet": "Ténylap",
+    "nothingRead": "Még semmi sincs beolvasva",
+    "measured": "MÉRT",
+    "flag": {
+      "stuck": "ELAKADT",
+      "slow": "LASSÚ",
+      "actNow": "SÜRGŐS",
+      "runningLow": "FOGYÓBAN",
+      "inRange": "RENDBEN",
+      "soldOut": "ELFOGYOTT",
+      "noSales": "NINCS ELADÁS",
+      "tooEarly": "MÉG KORAI"
+    },
+    "col": {
+      "item": "Tétel",
+      "onHand": "Készleten",
+      "sold": "Eladva, {days} nap",
+      "cover": "Hány napra elég",
+      "sinceSale": "Napok az utolsó eladás óta",
+      "cashTied": "Lekötött pénz",
+      "flag": "Jelzés",
+      "ways": "A kiürítés legolcsóbb módjai",
+      "vsPrior": "az előző {days} naphoz képest",
+      "delivery": "Szállítási idő"
+    },
+    "slowTable": "Készlet, amely nem fogy",
+    "coverTable": "Hány napra elég, tételenként",
+    "yourCost": "az Ön költsége",
+    "nothingToPropose": "nincs mit javasolnom",
+    "chance": "esély ±{band}",
+    "boosted": "forgalmas időszakkal számolva",
+    "reorder": {
+      "label": "Utánrendelési jegyzet · {flag}",
+      "title": "{name}: rendeljen utána {quantity} darabot",
+      "titleFrom": "{name}: rendeljen utána {quantity} darabot ettől a beszállítótól: {supplier}",
+      "meta": "Jegyzet Önnek, nem rendelés",
+      "sources": "Források: {sources}.",
+      "approving": "A jóváhagyás csak azt rögzíti, hogy Ön utána kíván rendelni, semmi mást. Soha nem keresem meg a beszállítóját, és soha nem adok le, módosítok vagy mondok le rendelést."
+    },
+    "ruledOut": "Ezt nem tettem a sorába: az Ön szabálya ({rule}) kizárja.",
+    "cover": {
+      "label": "Mi fogy el, és mikor · {total} tételből {warned} a szállítási ideje alatt",
+      "titleWarned": "A leghamarabb elfogyó elöl",
+      "titleNone": "Semmi sem fogy el egy szállítás előtt",
+      "meta": "Elég: készleten ÷ az utolsó {days} nap üteme, alacsony–magas, a beszállítók szállítási idejéhez mérve (ennek hiányában {lead} nap, FELTÉTELEZETT)",
+      "held": "Minden fogyóban lévő tételhez egy utánrendelési jegyzet. Az Ön jóváhagyása nélkül semmi sem fut, és a jóváhagyás semmit sem rendel meg.",
+      "button": "Tegye az utánrendelési jegyzeteket a sorómba →",
+      "working": "A jegyzetek kidolgozása"
+    },
+    "workingItOut": "Számolom…",
+    "waitingForYou": "Önre vár",
+    "ranking": {
+      "label": "Hogyan üríteném ki · {flag} · {why}",
+      "title": "{name}: várhatóan visszajövő pénz, minden feláldozott pénzegységre",
+      "meta": "Elöl az, ami a legtöbb pénzt hozza vissza, levonva, amiről lemond",
+      "cantPropose": "Ezt nem tudom javasolni: {why}.",
+      "blocked": "Az Ön egyik szabálya letiltotta ezt: {option}, így letiltva áll a sorában, ahol láthatja, mit döntöttem úgy, hogy nem javaslok."
+    },
+    "import": {
+      "label": "Nincs összekapcsolt webshop? Egy készletleltár is megfelel",
+      "title": "Készletfájl importálása",
+      "foot": "Az oszlopok, amelyeket beolvasok: {columns}.",
+      "paste": "Illessze be a fájlt (CSV)",
+      "currency": "Pénznem",
+      "window": "Az eladott darabszám időszaka (nap)",
+      "countedOn": "A leltár napja",
+      "decimalStyle": "Hogyan vannak írva az összegek, ha így néznek ki: {example}",
+      "decimalAuto": "Döntse el a fájl alapján",
+      "dotDecimal": "{example} (a vessző választja el az ezreseket)",
+      "commaDecimal": "{example} (a pont választja el az ezreseket)",
+      "importing": "Beolvasás…",
+      "button": "Készlet importálása →",
+      "readingFile": "A fájl beolvasása",
+      "failed": "Ezt nem sikerült importálni.",
+      "ourSide": "Hiba történt a mi oldalunkon. Próbálja újra.",
+      "imported": "{count, plural, one {# tételt} other {# tételt}} olvastam be.",
+      "leftOut": "{count, plural, one {# sorban} other {# sorban}} nem volt tétel vagy olvasható készletadat, ezért kimaradt.",
+      "blank": "{count, plural, one {# érték} other {# érték}} nem volt olvasható, ezért üresen maradt, nem találgattam."
+    },
+    "result": {
+      "didntWork": "Ez nem sikerült.",
+      "ourSide": "Hiba történt a mi oldalunkon.",
+      "nothingNew": "Nincs új javaslat.",
+      "nothingNewWhy": "Nincs új javaslat: {reason}.",
+      "proposals": "{count, plural, one {# javaslat} other {# javaslat}} vár most Önre.",
+      "proposalsBlocked": "{count, plural, one {# javaslat} other {# javaslat}} vár most Önre, és ebből {blocked, plural, one {# darabot} other {# darabot}} letiltottak az Ön saját szabályai.",
+      "notes": "{count, plural, one {# utánrendelési jegyzet} other {# utánrendelési jegyzet}} vár most Önre.",
+      "notesBlocked": "{count, plural, one {# utánrendelési jegyzet} other {# utánrendelési jegyzet}} vár most Önre, és ebből {blocked, plural, one {# darabot} other {# darabot}} letiltottak az Ön saját szabályai."
+    },
+    "slow": {
+      "label": "Ami nem fogy · {counted} tételből {slow}",
+      "title": "Elöl a legtöbb lekötött pénz",
+      "meta": "{stuck}: nincs eladás {stuckDays} napja · {slow}: több mint {slowDays} napra elég",
+      "held": "Javaslom, hogyan ürítse ki az első {count} tételt. Az Ön jóváhagyása nélkül semmi sem fut.",
+      "button": "Tegye ezeket a sorómba →",
+      "working": "A lehetőségek kidolgozása",
+      "emptyLabel": "Ami nem fogy",
+      "nothingSlow": "Semmi sem fogy lassan",
+      "connect": "Kapcsolja össze a webshopját az Összekapcsolt fiókok oldalon, és minden szinkronizáláskor beolvasom a készletét, vagy importáljon lent egy készletfájlt.",
+      "allSelling": "Minden beolvasott tételből adott el {stuckDays} napon belül, és mindegyik kevesebb mint {slowDays} napra elég.",
+      "connections": "Összekapcsolt fiókok"
+    },
+    "judge": {
+      "label": "Hogyan ítélem meg a készletet",
+      "title": "Két küszöb, semmi találgatás",
+      "body": "{stuck}: van készleten, de az utolsó {stuckDays} napban nem volt eladás. {slow}: a tétel saját eladási ütemével több mint {slowDays} napra elég a készlet."
+    },
+    "svm": {
+      "label": "Amit Ön mondott, szemben azzal, amit mértem",
+      "title": "Holt készlet"
+    },
+    "view": {
+      "waiting": "Önre vár",
+      "blocked": "Az Ön szabálya letiltotta",
+      "approved": "Jóváhagyva",
+      "done": "Kész",
+      "declined": "Elutasítva",
+      "expired": "Lejárt",
+      "cant": "Nem lehet",
+      "noSales": "nincs eladás",
+      "unknown": "ismeretlen",
+      "noneSold": "egy sem fogyott",
+      "same": "nagyjából ugyanannyi",
+      "up": "több",
+      "down": "kevesebb",
+      "lead": "{days} nap · {supplier}",
+      "yourSupplier": "az Ön beszállítója",
+      "assumed": "FELTÉTELEZETT",
+      "atCost": "{amount} beszerzési áron"
     }
   }
 }

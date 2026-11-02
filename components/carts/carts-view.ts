@@ -1,23 +1,40 @@
 // The carts screen's words — idea 47. Pure, so they are tested without a
 // browser (carts-view.test.ts). Plain words, en-GB days ("6 Nov"), never an
 // ISO date or a rule number, and never a shopper: every line is a count.
+//
+// L-3b: the fixed words (titles, status words, "and") are the "carts"
+// catalogue through optional words, English by default; money and shares
+// in the reader's locale. The sentences built from the counts (headline,
+// window line, consent and checkout notes, the week line, why proposing is
+// off, the sources line) stay English until L-4.
 
 import type { CartsScreenView } from "../../app/api/carts/route";
 import type { CartReach, Money, WindowStats } from "../../lib/carts/measure";
 import type { CartShopperRead } from "../../lib/connectors/provider";
 import { dayWords } from "../../lib/carts/measure";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+import { percentText } from "../cash/cash-view";
 import { moneyText, num } from "../sheet/num";
+
+/** The screen's words and the reader's locale: the "carts" catalogue. */
+export interface CartsWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+const ENGLISH = (): CartsWords => ({ tr: englishTr("carts"), locale: "en" });
 
 export type Measured = Extract<NonNullable<CartsScreenView["measure"]>, { status: "measured" }>;
 
 const plural = (n: number, one: string, many = `${one}s`) => `${num(n)} ${n === 1 ? one : many}`;
 
 /** "€1,240", or "€1,240 and £80" — currencies side by side, never added. */
-export function moneyList(list: readonly Money[]): string {
-  const parts = list.map((m) => moneyText(m.amount_minor, m.currency));
+export function moneyList(list: readonly Money[], w: CartsWords = ENGLISH()): string {
+  const parts = list.map((m) => moneyText(m.amount_minor, m.currency, w.locale));
   return parts.length <= 1
-    ? (parts[0] ?? moneyText(0, "EUR"))
-    : `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)!}`;
+    ? (parts[0] ?? moneyText(0, "EUR", w.locale))
+    : w.tr("view.and", { first: parts.slice(0, -1).join(", "), last: parts.at(-1)! });
 }
 
 /** The screen's one display line. */
@@ -42,15 +59,15 @@ export function cartsHeadline(view: CartsScreenView): string {
 }
 
 /** The refusal card's title. */
-export function refusalTitle(m: CartsScreenView["measure"]): string {
-  if (m?.status === "refused" && m.basis === "too_many") return "Too many checkouts to read";
-  if (m?.status === "refused" && m.basis === "stale") return "No figure from an old read";
-  return "Not enough carts to measure";
+export function refusalTitle(m: CartsScreenView["measure"], tr: Tr = ENGLISH().tr): string {
+  if (m?.status === "refused" && m.basis === "too_many") return tr("view.titleTooMany");
+  if (m?.status === "refused" && m.basis === "stale") return tr("view.titleStale");
+  return tr("view.titleTooFew");
 }
 
 /** The share left, as a whole percent, or null when orders weren't measured. */
-export function shareText(w: WindowStats): string | null {
-  return w.share_left === null ? null : `${Math.round(w.share_left * 100)}%`;
+export function shareText(w: WindowStats, locale: AppLocale = "en"): string | null {
+  return w.share_left === null ? null : percentText(Math.round(w.share_left * 100), locale);
 }
 
 /** The mono line under the head: the window and what it is set against. */
@@ -153,11 +170,15 @@ export function weekLine(view: CartsScreenView): string | null {
 }
 
 /** "€37–€124", per currency. */
-export function winBackText(m: Measured): string | null {
+export function winBackText(m: Measured, words: CartsWords = ENGLISH()): string | null {
   if (m.win_back.length === 0) return null;
+  const { tr, locale } = words;
   return m.win_back
-    .map((w) => `${moneyText(w.low_minor, w.currency)}–${moneyText(w.high_minor, w.currency)}`)
-    .join(" and ");
+    .map(
+      (w) =>
+        `${moneyText(w.low_minor, w.currency, locale)}–${moneyText(w.high_minor, w.currency, locale)}`,
+    )
+    .reduce((acc, part) => tr("view.and", { first: acc, last: part }));
 }
 
 /** Why "Propose win-back emails" is off, or null when it can be pressed. */
@@ -175,20 +196,23 @@ export function proposeBlock(view: CartsScreenView): string | null {
 }
 
 /** What has become of today's reminder proposal, in a word or two. */
-export function proposalWord(p: { status: string }): { word: string; tone: string } {
+export function proposalWord(
+  p: { status: string },
+  tr: Tr = ENGLISH().tr,
+): { word: string; tone: string } {
   switch (p.status) {
     case "pending":
-      return { word: "Waiting for you", tone: "ok" };
+      return { word: tr("view.waiting"), tone: "ok" };
     case "blocked":
-      return { word: "Blocked by your rule", tone: "alarm" };
+      return { word: tr("view.blocked"), tone: "alarm" };
     case "approved":
-      return { word: "Approved", tone: "ok" };
+      return { word: tr("view.approved"), tone: "ok" };
     case "executed":
-      return { word: "Sent", tone: "ok" };
+      return { word: tr("view.sent"), tone: "ok" };
     case "rejected":
-      return { word: "Declined", tone: "none" };
+      return { word: tr("view.declined"), tone: "none" };
     case "expired":
-      return { word: "Expired", tone: "none" };
+      return { word: tr("view.expired"), tone: "none" };
     default:
       return { word: p.status.replace(/_/g, " "), tone: "none" };
   }

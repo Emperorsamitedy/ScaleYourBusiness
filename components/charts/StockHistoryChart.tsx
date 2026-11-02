@@ -5,18 +5,37 @@
 // the first and latest figures beside it. Shown only with two counts or
 // more (lib/charts/stock-history). A count is a snapshot: the line joins
 // one item's balances; nothing is added across days.
+//
+// L-3b: the chart's own words are the "charts.stockHistory" catalogue;
+// money and days in the reader's locale, in the business's currency. The
+// table's caption (the model's summary, built in lib/charts) is L-4.
 
 import "../../app/charts.css";
-import { num } from "../sheet/num";
+import { useTranslations } from "next-intl";
+import { moneyText } from "../sheet/num";
 import { SheetCard } from "../sheet/PageHead";
+import { useAppLocale } from "../sheet/useTr";
 import { dayMoney, shortDate } from "../../lib/charts/model";
 import type { StockHistoryModel } from "../../lib/charts/stock-history";
+import { minorUnitExponent } from "../../lib/core/money";
+import type { AppLocale } from "../../lib/i18n/locales";
+
+/** Whole major units, the cents dropped as dayMoney drops them; another language its own way. */
+function wholeUnits(minor: number, currency: string, locale: AppLocale): string {
+  if (locale === "en") return dayMoney(minor, currency);
+  const unit = 10 ** minorUnitExponent(currency);
+  return moneyText(Math.trunc(Math.round(minor) / unit) * unit, currency, locale);
+}
 
 const W = 160;
 const H = 32;
 
 export function StockHistoryChart({ model }: { model: StockHistoryModel }) {
+  const t = useTranslations("charts.stockHistory");
+  const locale = useAppLocale();
   const cur = model.currency;
+  const day = (d: string) => shortDate(d, locale);
+  const money = (minor: number) => wholeUnits(minor, cur, locale);
   const d0 = Date.parse(`${model.dates[0]}T00:00:00Z`);
   const d1 = Date.parse(`${model.dates.at(-1)}T00:00:00Z`);
   const span = Math.max(1, d1 - d0);
@@ -24,28 +43,28 @@ export function StockHistoryChart({ model }: { model: StockHistoryModel }) {
   return (
     <SheetCard
       className="sc"
-      label={`Slow stock · ${num(model.dates.length)} counts`}
-      title="Cash tied up, count by count"
+      label={t("label", { count: model.dates.length })}
+      title={t("title")}
       meta={
         <>
-          {shortDate(model.dates[0]!)} – {shortDate(model.dates.at(-1)!)}
+          {day(model.dates[0]!)} – {day(model.dates.at(-1)!)}
           <br />
-          <span className="word">OBSERVED</span> · units on hand × unit cost
+          <span className="word">{t("observed")}</span> · {t("formula")}
         </>
       }
-      foot={`A stock, not a flow: each point is what one item held on the day it was counted, never added across days.${model.other_currency > 0 ? ` ${num(model.other_currency)} item${model.other_currency === 1 ? "" : "s"} in another currency left out.` : ""}`}
+      foot={`${t("foot")}${model.other_currency > 0 ? ` ${t("otherCurrency", { count: model.other_currency })}` : ""}`}
     >
       <table className="rt rt-stack sc-stock">
         <caption className="sr-only">{model.summary}</caption>
         <thead>
           <tr>
-            <th scope="col">Item</th>
-            <th scope="col">Over the counts</th>
+            <th scope="col">{t("item")}</th>
+            <th scope="col">{t("over")}</th>
             <th scope="col" className="num">
-              First ({cur})
+              {t("first", { currency: cur })}
             </th>
             <th scope="col" className="num">
-              Latest ({cur})
+              {t("latest", { currency: cur })}
             </th>
           </tr>
         </thead>
@@ -60,7 +79,7 @@ export function StockHistoryChart({ model }: { model: StockHistoryModel }) {
             return (
               <tr key={item.key}>
                 <th scope="row">{item.name}</th>
-                <td data-label="Over the counts">
+                <td data-label={t("over")}>
                   <svg
                     className="sc-bars"
                     viewBox={`0 0 ${W} ${H}`}
@@ -83,21 +102,21 @@ export function StockHistoryChart({ model }: { model: StockHistoryModel }) {
                   </svg>
                   <span className="sc-note">
                     {item.points.length === 1
-                      ? `one count, ${shortDate(first.date)}`
-                      : `${shortDate(first.date)} → ${shortDate(last.date)} · ${
+                      ? t("oneCount", { day: day(first.date) })
+                      : `${day(first.date)} → ${day(last.date)} · ${
                           last.cash_minor === first.cash_minor
-                            ? "unchanged"
+                            ? t("unchanged")
                             : last.cash_minor < first.cash_minor
-                              ? `down ${dayMoney(first.cash_minor - last.cash_minor, cur)}`
-                              : `up ${dayMoney(last.cash_minor - first.cash_minor, cur)}`
+                              ? t("down", { amount: money(first.cash_minor - last.cash_minor) })
+                              : t("up", { amount: money(last.cash_minor - first.cash_minor) })
                         }`}
                   </span>
                 </td>
-                <td className="num" data-label={`First (${cur})`}>
-                  {item.points.length === 1 ? "—" : dayMoney(first.cash_minor, cur)}
+                <td className="num" data-label={t("first", { currency: cur })}>
+                  {item.points.length === 1 ? "—" : money(first.cash_minor)}
                 </td>
-                <td className="num" data-label={`Latest (${cur})`}>
-                  {dayMoney(last.cash_minor, cur)}
+                <td className="num" data-label={t("latest", { currency: cur })}>
+                  {money(last.cash_minor)}
                 </td>
               </tr>
             );

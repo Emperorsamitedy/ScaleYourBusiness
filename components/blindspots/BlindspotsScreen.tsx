@@ -5,13 +5,23 @@
 // searched for, against what the business's own site shows them. Every
 // row names its counts and its sources; what isn't connected or checked
 // is said, not hidden. Read-only: a fix goes through the approval queue.
+//
+// L-3b: the screen's own words are the "blindspots" catalogue; figures and
+// dates in the reader's locale. What the API words (a blindspot's label,
+// arithmetic and fix, the site note, the coverage lines, topic labels)
+// stays English until L-4.
 
 import "../../app/blindspots.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
+import { dayMonth } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
 
 interface Demand {
   support_asked: number;
@@ -43,11 +53,14 @@ interface View {
 
 /** How the site re-check works (app/api/blindspots: RECHECK_DAYS). */
 const RECHECK_DAYS = 30;
+/** The window the demand is counted over (app/api/blindspots). */
+const WINDOW_DAYS = 90;
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "26 Oct", in UTC so server and browser agree. */
-function dayText(iso: string): string {
+/** "26 Oct", in UTC so server and browser agree; in another language, its own. */
+function dayText(iso: string, locale: AppLocale): string {
+  if (locale !== "en") return dayMonth(iso, locale);
   const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
 }
@@ -57,63 +70,60 @@ export function asked(d: Demand): number {
   return d.support_asked + d.support_unanswered + d.site_searches;
 }
 
-function whereFrom(b: Blindspot): string {
+function whereFrom(b: Blindspot, tr: Tr): string {
   const parts: string[] = [];
-  if (b.demand.support_asked + b.demand.support_unanswered > 0) parts.push("support chat");
-  if (b.demand.site_searches > 0) parts.push("site search");
-  if (b.demand.google_impressions > 0) parts.push("Google");
+  if (b.demand.support_asked + b.demand.support_unanswered > 0) parts.push(tr("where.support"));
+  if (b.demand.site_searches > 0) parts.push(tr("where.search"));
+  if (b.demand.google_impressions > 0) parts.push(tr("where.google"));
   if (b.competitors_showing > 0)
-    parts.push(`${b.competitors_showing} of ${b.competitors_checked} competitors`);
+    parts.push(
+      tr("where.competitors", {
+        showing: b.competitors_showing,
+        checked: b.competitors_checked,
+      }),
+    );
   return parts.join(" · ");
 }
 
-function headline(view: View): string {
+function headline(view: View, tr: Tr): string {
   const n = view.blindspots.length;
   if (n === 0) {
     if (!view.site_checked_at) {
       return view.site_note === "no website in the profile"
-        ? "There's no website in your profile yet."
-        : "Your website hasn't been read yet.";
+        ? tr("head.noSite")
+        : tr("head.notRead");
     }
-    return "Nothing customers look for is missing from your site.";
+    return tr("head.nothingMissing");
   }
   const searches = view.blindspots.reduce((s, b) => s + b.demand.site_searches, 0);
   const questions = view.blindspots.reduce(
     (s, b) => s + b.demand.support_asked + b.demand.support_unanswered,
     0,
   );
-  if (searches + questions === 0) {
-    return `${n} thing${n === 1 ? "" : "s"} customers look for ${n === 1 ? "isn't" : "aren't"} on your site.`;
-  }
-  const what =
-    searches > 0 && questions > 0
-      ? "searches and questions"
-      : searches > 0
-        ? searches === 1
-          ? "search"
-          : "searches"
-        : questions === 1
-          ? "question"
-          : "questions";
-  return `${num(searches + questions)} ${what} found nothing on your site.`;
+  if (searches + questions === 0) return tr("head.things", { count: n });
+  if (searches > 0 && questions > 0) return tr("head.foundBoth", { count: searches + questions });
+  return searches > 0
+    ? tr("head.foundSearches", { count: searches })
+    : tr("head.foundQuestions", { count: questions });
 }
 
 function BlindspotTable({ list }: { list: Blindspot[] }) {
+  const { tr, locale } = useTr("blindspots");
   const max = Math.max(1, ...list.map((b) => asked(b.demand)));
   return (
-    <div className="bs-table-wrap" tabIndex={0} aria-label="Blindspots table">
+    <div className="bs-table-wrap" tabIndex={0} aria-label={tr("table.aria")}>
       <table className="rt bs-table">
         <thead>
           <tr>
-            <th scope="col">They looked for</th>
+            <th scope="col">{tr("table.lookedFor")}</th>
             <th scope="col" className="num">
-              Times
+              {tr("table.times")}
             </th>
             <th scope="col">
-              <span className="sr-only">Share of the biggest</span>
+              <span className="sr-only">{tr("table.share")}</span>
             </th>
-            <th scope="col">Where it came up</th>
-            <th scope="col">On your site</th>
+            <th scope="col">{tr("table.where")}</th>
+            <th scope="col">{tr("table.onSite")}</th>
           </tr>
         </thead>
         <tbody>
@@ -121,16 +131,16 @@ function BlindspotTable({ list }: { list: Blindspot[] }) {
             const times = asked(b.demand);
             return (
               <tr key={b.code}>
-                <th scope="row">&ldquo;{b.label}&rdquo;</th>
-                <td className="num">{times > 0 ? num(times) : "—"}</td>
+                <th scope="row">{tr("quoted", { text: b.label })}</th>
+                <td className="num">{times > 0 ? num(times, 0, locale) : "—"}</td>
                 <td className="bs-barcell">
                   <span className="bs-bar" aria-hidden="true">
                     <span style={{ width: `${Math.round((times / max) * 100)}%` }} />
                   </span>
                 </td>
-                <td className="src">{whereFrom(b)}</td>
+                <td className="src">{whereFrom(b, tr)}</td>
                 <td>
-                  <span className="word alarm">Not found</span>
+                  <span className="word alarm">{tr("table.notFound")}</span>
                 </td>
               </tr>
             );
@@ -142,61 +152,75 @@ function BlindspotTable({ list }: { list: Blindspot[] }) {
 }
 
 function Biggest({ b }: { b: Blindspot }) {
+  const { tr, locale } = useTr("blindspots");
   const d = b.demand;
   const support = d.support_asked + d.support_unanswered;
   return (
     <SheetCard
-      label={`Biggest blindspot · ${num(asked(d))} times`}
-      title={`“${b.label}” isn't on your site`}
+      label={tr("biggest.label", { count: asked(d) })}
+      title={tr("biggest.title", { label: b.label })}
     >
       <dl className="bs-sources">
         <div>
-          <dt>Support chat</dt>
+          <dt>{tr("biggest.support")}</dt>
           <dd className={support === 0 ? "none" : undefined}>
-            {support === 0 ? "not asked" : num(support)}
-            {d.support_unanswered > 0 && <small>{num(d.support_unanswered)} left unanswered</small>}
+            {support === 0 ? tr("biggest.notAsked") : num(support, 0, locale)}
+            {d.support_unanswered > 0 && (
+              <small>{tr("biggest.unanswered", { count: d.support_unanswered })}</small>
+            )}
           </dd>
         </div>
         <div>
-          <dt>Site search</dt>
+          <dt>{tr("biggest.search")}</dt>
           <dd className={d.site_searches === 0 ? "none" : undefined}>
-            {d.site_searches === 0 ? "not searched" : num(d.site_searches)}
+            {d.site_searches === 0 ? tr("biggest.notSearched") : num(d.site_searches, 0, locale)}
           </dd>
         </div>
         <div>
-          <dt>Google</dt>
+          <dt>{tr("biggest.google")}</dt>
           <dd className={d.google_impressions === 0 ? "none" : undefined}>
-            {d.google_impressions === 0 ? "not seen" : num(d.google_impressions)}
-            {d.google_impressions > 0 && <small>impressions · {num(d.google_clicks)} clicks</small>}
+            {d.google_impressions === 0
+              ? tr("biggest.notSeen")
+              : num(d.google_impressions, 0, locale)}
+            {d.google_impressions > 0 && (
+              <small>{tr("biggest.impressions", { count: d.google_clicks })}</small>
+            )}
           </dd>
         </div>
         <div>
-          <dt>Competitors</dt>
+          <dt>{tr("biggest.competitors")}</dt>
           <dd className={b.competitors_checked === 0 ? "none" : undefined}>
             {b.competitors_checked === 0
-              ? "none checked"
-              : `${b.competitors_showing} of ${b.competitors_checked}`}
-            {b.competitors_checked > 0 && <small>show it on their site</small>}
+              ? tr("biggest.noneChecked")
+              : tr("biggest.showing", {
+                  showing: b.competitors_showing,
+                  checked: b.competitors_checked,
+                })}
+            {b.competitors_checked > 0 && <small>{tr("biggest.showIt")}</small>}
           </dd>
         </div>
       </dl>
       <p className="bs-copy">
-        {b.arithmetic.charAt(0).toUpperCase() + b.arithmetic.slice(1)}. To fix: {b.fix}.
+        {tr("biggest.toFix", {
+          arithmetic: b.arithmetic.charAt(0).toUpperCase() + b.arithmetic.slice(1),
+          fix: b.fix,
+        })}
       </p>
     </SheetCard>
   );
 }
 
 function HowFixed({ fix }: { fix: string | null }) {
+  const { tr } = useTr("blindspots");
   return (
     <SheetCard
-      label="How blindspots get fixed"
-      title="With your approval, never on their own"
+      label={tr("fixed.label")}
+      title={tr("fixed.title")}
       foot={
         <span className="bs-foot-row">
-          <span>Website changes wait in Website.</span>
+          <span>{tr("fixed.foot")}</span>
           <Link className="act" href="/site">
-            Review on Website →
+            {tr("fixed.link")}
           </Link>
         </span>
       }
@@ -204,26 +228,15 @@ function HowFixed({ fix }: { fix: string | null }) {
       <ol className="bs-steps">
         <li>
           <span className="n">01</span>
-          <span>
-            A fix is{" "}
-            {fix ??
-              "a website change through the approval queue, or an answer in your support assistant"}
-            .
-          </span>
+          <span>{tr("fixed.stepFix", { fix: fix ?? tr("fixed.fixDefault") })}</span>
         </li>
         <li>
           <span className="n">02</span>
-          <span>
-            Nothing changes on its own: a fix waits in &ldquo;Waiting for you&rdquo; until you
-            approve it.
-          </span>
+          <span>{tr("fixed.stepWait")}</span>
         </li>
         <li>
           <span className="n">03</span>
-          <span>
-            Your site is read again every {RECHECK_DAYS} days, so a blindspot it now shows drops off
-            this list.
-          </span>
+          <span>{tr("fixed.stepRecheck", { days: RECHECK_DAYS })}</span>
         </li>
       </ol>
     </SheetCard>
@@ -239,15 +252,31 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useTr("blindspots");
   return (
     <main className="screen bs-screen">
-      <PageHead kicker="Insights · Blindspots" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
     </main>
   );
 }
 
+function Coverage({ lines }: { lines: string[] }) {
+  const { tr } = useTr("blindspots");
+  return (
+    <SheetCard label={tr("coverage.label")} title={tr("coverage.title")}>
+      <ul className="bs-list">
+        {lines.map((c) => (
+          <li key={c}>{c.charAt(0).toUpperCase() + c.slice(1)}.</li>
+        ))}
+      </ul>
+    </SheetCard>
+  );
+}
+
 export function BlindspotsScreen() {
+  const { tr, locale } = useTr("blindspots");
+  const t = useTranslations("blindspots");
   const [view, setView] = useState<View | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
 
@@ -266,76 +295,68 @@ export function BlindspotsScreen() {
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut.title")}>
         <p className="bs-wait">
-          <Link href="/intake">Start with the interview</Link>, and your site is read from it.
+          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="Blindspots didn't load.">
-        <p className="bs-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("error.title")}>
+        <p className="bs-wait">{tr("error.body")}</p>
       </Frame>
     );
   }
   if (!view) {
-    return <Frame title="Reading what customers look for…" />;
+    return <Frame title={tr("loading")} />;
   }
 
   const list = view.blindspots;
   const top = list[0];
-  const aside = (
-    <>
-      Last 90 days · {dayText(view.window.from)} to {dayText(view.window.to)}
-      {view.site_checked_at
-        ? ` · site read ${dayText(view.site_checked_at)}`
-        : " · site not read"}{" "}
-      · OBSERVED
-    </>
-  );
+  const aside = [
+    tr("aside.window", {
+      days: WINDOW_DAYS,
+      from: dayText(view.window.from, locale),
+      to: dayText(view.window.to, locale),
+    }),
+    view.site_checked_at
+      ? tr("aside.siteRead", { day: dayText(view.site_checked_at, locale) })
+      : tr("aside.siteNotRead"),
+    tr("aside.observed"),
+  ].join(" · ");
 
   return (
-    <Frame title={headline(view)} aside={aside}>
+    <Frame title={headline(view, tr)} aside={aside}>
       {list.length > 0 ? (
         <SheetCard
-          label="What customers looked for, and what your site shows"
-          title={`${list.length} blindspot${list.length === 1 ? "" : "s"}, biggest first`}
-          meta="Ranked by how many sources point at it, then by count"
+          label={tr("list.label")}
+          title={tr("list.title", { count: list.length })}
+          meta={tr("list.meta")}
         >
           <BlindspotTable list={list} />
         </SheetCard>
       ) : (
         <SheetCard
-          label="What customers looked for, and what your site shows"
-          title={view.site_checked_at ? "Nothing missing" : "Nothing to compare yet"}
+          label={tr("list.label")}
+          title={view.site_checked_at ? tr("list.nothingMissing") : tr("list.nothingYet")}
         >
           <p className="bs-copy">
             {view.site_checked_at
-              ? "Everything customers asked or searched for that I can match is on your site."
+              ? tr("list.allThere")
               : view.site_note === "no website in the profile"
-                ? "Add your website to your profile and I read up to five of its pages, then compare them with what customers ask and search for."
-                : `Your website hasn't been read yet${view.site_note ? `: ${view.site_note}` : ""}, so nothing can be called missing from it.`}{" "}
-            {!view.site_checked_at && <Link href="/profile">Fact sheet</Link>}
+                ? tr("list.noSite")
+                : view.site_note
+                  ? tr("list.notReadWhy", { why: view.site_note })
+                  : tr("list.notRead")}{" "}
+            {!view.site_checked_at && <Link href="/profile">{tr("factSheet")}</Link>}
           </p>
         </SheetCard>
       )}
 
       <div className="bs-grid">
-        {top ? (
-          <Biggest b={top} />
-        ) : (
-          view.coverage.length > 0 && (
-            <SheetCard label="What this couldn't see" title="Gaps, not failures">
-              <ul className="bs-list">
-                {view.coverage.map((c) => (
-                  <li key={c}>{c.charAt(0).toUpperCase() + c.slice(1)}.</li>
-                ))}
-              </ul>
-            </SheetCard>
-          )
-        )}
+        {top ? <Biggest b={top} /> : view.coverage.length > 0 && <Coverage lines={view.coverage} />}
         <HowFixed fix={top?.fix ?? null} />
       </div>
 
@@ -345,50 +366,51 @@ export function BlindspotsScreen() {
         (top && view.coverage.length > 0)) && (
         <div className="bs-grid">
           {view.hard_to_find.length > 0 && (
-            <SheetCard label="On your site, yet customers keep asking" title="Maybe hard to find">
+            <SheetCard label={tr("hard.label")} title={tr("hard.title")}>
               <ul className="bs-list">
                 {view.hard_to_find.map((h) => (
                   <li key={h.code}>
-                    <strong>{h.label}</strong>: asked {num(h.asked)} times in your support chat;
-                    it&apos;s on{" "}
-                    <a href={h.page} target="_blank" rel="noreferrer">
-                      {h.page}
-                    </a>
-                    .
+                    {t.rich("hard.item", {
+                      label: h.label,
+                      count: h.asked,
+                      page: h.page,
+                      strong: (c) => <strong>{c}</strong>,
+                      link: (c) => (
+                        <a href={h.page} target="_blank" rel="noreferrer">
+                          {c}
+                        </a>
+                      ),
+                    })}
                   </li>
                 ))}
               </ul>
             </SheetCard>
           )}
           {view.seen_not_chosen.length > 0 && (
-            <SheetCard label="Seen on Google, rarely clicked" title="Shown, not chosen">
-              <div
-                className="bs-table-wrap"
-                tabIndex={0}
-                aria-label="Seen on Google, rarely clicked"
-              >
+            <SheetCard label={tr("seen.label")} title={tr("seen.title")}>
+              <div className="bs-table-wrap" tabIndex={0} aria-label={tr("seen.label")}>
                 <table className="rt">
                   <thead>
                     <tr>
-                      <th scope="col">Search</th>
+                      <th scope="col">{tr("seen.search")}</th>
                       <th scope="col" className="num">
-                        Shown
+                        {tr("seen.shown")}
                       </th>
                       <th scope="col" className="num">
-                        Clicked
+                        {tr("seen.clicked")}
                       </th>
                       <th scope="col" className="num">
-                        Position
+                        {tr("seen.position")}
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {view.seen_not_chosen.map((q) => (
                       <tr key={q.query}>
-                        <th scope="row">&ldquo;{q.query}&rdquo;</th>
-                        <td className="num">{num(q.impressions)}</td>
-                        <td className="num">{num(q.clicks)}</td>
-                        <td className="num">{num(q.position, 1)}</td>
+                        <th scope="row">{tr("quoted", { text: q.query })}</th>
+                        <td className="num">{num(q.impressions, 0, locale)}</td>
+                        <td className="num">{num(q.clicks, 0, locale)}</td>
+                        <td className="num">{num(q.position, 1, locale)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -397,26 +419,22 @@ export function BlindspotsScreen() {
             </SheetCard>
           )}
           {view.topics.length > 0 && (
-            <SheetCard label="Other things people searched for" title="Is it on your site?">
+            <SheetCard label={tr("topics.label")} title={tr("topics.title")}>
               <ul className="bs-list">
-                {view.topics.map((t) => (
-                  <li key={t.label}>
-                    <strong>{t.label}</strong>: {num(t.count)} searches (e.g.{" "}
-                    {t.examples.map((e) => `“${e}”`).join(", ")})
+                {view.topics.map((tp) => (
+                  <li key={tp.label}>
+                    {t.rich("topics.item", {
+                      label: tp.label,
+                      count: tp.count,
+                      examples: tp.examples.map((e) => tr("quoted", { text: e })).join(", "),
+                      strong: (c) => <strong>{c}</strong>,
+                    })}
                   </li>
                 ))}
               </ul>
             </SheetCard>
           )}
-          {top && view.coverage.length > 0 && (
-            <SheetCard label="What this couldn't see" title="Gaps, not failures">
-              <ul className="bs-list">
-                {view.coverage.map((c) => (
-                  <li key={c}>{c.charAt(0).toUpperCase() + c.slice(1)}.</li>
-                ))}
-              </ul>
-            </SheetCard>
-          )}
+          {top && view.coverage.length > 0 && <Coverage lines={view.coverage} />}
         </div>
       )}
     </Frame>

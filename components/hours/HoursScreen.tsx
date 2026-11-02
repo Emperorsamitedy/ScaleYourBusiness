@@ -7,14 +7,26 @@
 // analysis fired, in words. The honest limit stays on the screen: a
 // closed hour records no sales, so this suggests and a trial proves.
 // Read-only — a trial is a proposal in "Waiting for you".
+//
+// L-3b: the screen's own words are the "hours" catalogue; weekday names,
+// dates and figures in the reader's locale, money in the business's
+// currency. What lib/hours words (the reasons, the coverage and the limit,
+// a trial's summary and verdict) stays English until L-4.
 
 import "../../app/hours.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { PageHead, SheetCard } from "../sheet/PageHead";
-import { delta, moneyText } from "../sheet/num";
+import { delta, moneyText, num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
 import { minorUnitExponent } from "../../lib/core/money";
+import { dayMonth } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import type { Weekday } from "../../lib/hours/schedule";
 import type { WeekdayAnalysis } from "../../lib/hours/trading";
 import type { GridRow, WeekGrid } from "../../lib/hours/grid";
@@ -57,6 +69,13 @@ export interface HourCost {
   currency: string;
 }
 
+/** The screen's words and the reader's locale: the "hours" catalogue. */
+export interface HoursWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+const ENGLISH = (): HoursWords => ({ tr: englishTr("hours"), locale: "en" });
+
 const SHORT: Record<Weekday, string> = {
   mon: "Mon",
   tue: "Tue",
@@ -66,44 +85,67 @@ const SHORT: Record<Weekday, string> = {
   sat: "Sat",
   sun: "Sun",
 };
-const PLURAL: Record<Weekday, string> = {
-  mon: "Mondays",
-  tue: "Tuesdays",
-  wed: "Wednesdays",
-  thu: "Thursdays",
-  fri: "Fridays",
-  sat: "Saturdays",
-  sun: "Sundays",
-};
 const ORDER: Weekday[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
+/** "Mon" — in another language, Intl's short weekday (1 Jan 2024 was a Monday). */
+function shortDay(d: Weekday, locale: AppLocale): string {
+  if (locale === "en") return SHORT[d];
+  const day = new Date(Date.UTC(2024, 0, 1 + ORDER.indexOf(d)));
+  return new Intl.DateTimeFormat(intlTag(locale), { weekday: "short", timeZone: "UTC" }).format(
+    day,
+  );
+}
+
 /** "Fridays", "Fridays and Saturdays", "Tuesdays to Saturdays" (three or more in a row). */
-export function daysText(days: readonly Weekday[]): string {
+export function daysText(days: readonly Weekday[], w: HoursWords = ENGLISH()): string {
+  const { tr, locale } = w;
   const idx = days.map((d) => ORDER.indexOf(d)).sort((a, b) => a - b);
   const consecutive = idx.every((v, i) => i === 0 || v === (idx[i - 1] ?? -2) + 1);
-  const names = idx.map((i) => PLURAL[ORDER[i] as Weekday]);
-  if (names.length >= 3 && consecutive) return `${names[0]} to ${names.at(-1)}`;
+  const names = idx.map((i) => tr(`weekdays.${ORDER[i] as Weekday}`));
+  if (names.length >= 3 && consecutive) {
+    return tr("daysRange", { from: names[0] ?? "", to: names.at(-1) ?? "" });
+  }
   if (names.length <= 1) return names.join("");
+  if (locale !== "en") {
+    return new Intl.ListFormat(intlTag(locale), { type: "conjunction" }).format(names);
+  }
   return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "26 Oct", in UTC so server and browser agree. */
-function dayText(iso: string): string {
+/** "26 Oct", in UTC so server and browser agree; in another language, its own. */
+function dayText(iso: string, locale: AppLocale): string {
+  if (locale !== "en") return dayMonth(iso, locale);
   const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
 }
 
 /** A cell's figure in whole currency units, signed when it is a net. */
-function cellFig(minor: number, currency: string, signed: boolean): string {
+function cellFig(minor: number, currency: string, signed: boolean, locale: AppLocale): string {
   const major = Math.round(minor / 10 ** minorUnitExponent(currency));
-  return signed ? delta(major, 0) : String(major);
+  if (signed) return delta(major, 0, locale);
+  return locale === "en" ? String(major) : num(major, 0, locale);
+}
+
+/** The currency's sign for a column head: "€" for euros, the code otherwise; Intl's elsewhere. */
+function unitOf(currency: string, locale: AppLocale): string {
+  if (locale === "en") return currency === "EUR" ? "€" : currency;
+  const part = new Intl.NumberFormat(intlTag(locale), {
+    style: "currency",
+    currency,
+    currencyDisplay: "narrowSymbol",
+  })
+    .formatToParts(0)
+    .find((p) => p.type === "currency");
+  return part?.value ?? currency;
 }
 
 interface Reading {
   key: string;
   head: string;
+  /** The weekdays in words, for the card's title. */
+  days: string;
   word: string;
   cls: string;
   sub: string;
@@ -114,74 +156,87 @@ function readingsOf(
   grid: WeekGrid,
   currency: string,
   cost: number | null,
+  w: HoursWords,
 ): Reading[] {
-  const ok = weekdays.filter((w) => w.verdict === "ok");
-  const fired = (pick: (w: WeekdayAnalysis) => boolean) =>
-    ORDER.filter((d) => ok.some((w) => w.weekday === d && pick(w)));
+  const { tr, locale } = w;
+  const ok = weekdays.filter((wd) => wd.verdict === "ok");
+  const fired = (pick: (wd: WeekdayAnalysis) => boolean) =>
+    ORDER.filter((d) => ok.some((wd) => wd.weekday === d && pick(wd)));
   const out: Reading[] = [];
-  const closing = fired((w) => w.closing_signal === true);
+  const closing = fired((wd) => wd.closing_signal === true);
   if (closing.length > 0) {
+    const days = daysText(closing, w);
     out.push({
       key: "closing",
-      head: `The last hour, ${daysText(closing)}`,
-      word: "Loses money",
+      head: tr("read.closing.head", { days }),
+      days,
+      word: tr("read.closing.word"),
       cls: "alarm",
-      sub: `takes less than an open hour costs${cost !== null ? ` (${moneyText(cost, currency)})` : ""} on most measured days`,
+      sub:
+        cost !== null
+          ? tr("read.closing.subCost", { cost: moneyText(cost, currency, locale) })
+          : tr("read.closing.sub"),
     });
   }
-  const opening = fired((w) => w.opening_signal);
+  const opening = fired((wd) => wd.opening_signal);
   if (opening.length > 0) {
+    const days = daysText(opening, w);
     out.push({
       key: "opening",
-      head: `The first hour, ${daysText(opening)}`,
-      word: "Busy at opening",
+      head: tr("read.opening.head", { days }),
+      days,
+      word: tr("read.opening.word"),
       cls: "drift",
-      sub: "already takes most of what the best hour takes: demand probably starts before you open",
+      sub: tr("read.opening.sub"),
     });
   }
-  const attention = fired((w) => w.attention_signal === true);
+  const attention = fired((wd) => wd.attention_signal === true);
   if (attention.length > 0) {
+    const days = daysText(attention, w);
     out.push({
       key: "attention",
-      head: `Before opening, ${daysText(attention)}`,
-      word: "Looked up early",
+      head: tr("read.attention.head", { days }),
+      days,
+      word: tr("read.attention.word"),
       cls: "low",
-      sub: "a large share of that day's website visits come in the hours just before you open",
+      sub: tr("read.attention.sub"),
     });
   }
   const best = bestHour(grid);
   if (best) {
+    const days = daysText(best.weekdays, w);
     out.push({
       key: "best",
-      head: `${daysText(best.weekdays)}, ${hourHead(best.hour)}:00`,
-      word: "Pays best",
+      head: tr("read.best.head", { days, clock: `${hourHead(best.hour)}:00` }),
+      days,
+      word: tr("read.best.word"),
       cls: "ok",
-      sub: `+${moneyText(best.net_minor, currency)} an hour over its cost, on average`,
+      sub: tr("read.best.sub", { money: moneyText(best.net_minor, currency, locale) }),
     });
   }
   const early = ORDER.filter((d) =>
-    weekdays.some((w) => w.weekday === d && w.verdict === "too_early"),
+    weekdays.some((wd) => wd.weekday === d && wd.verdict === "too_early"),
   );
   if (early.length > 0) {
+    const days = daysText(early, w);
     out.push({
       key: "early",
-      head: daysText(early),
-      word: "Too early",
+      head: days,
+      days,
+      word: tr("read.early.word"),
       cls: "low",
-      sub: "too few measured days to judge yet",
+      sub: tr("read.early.sub"),
     });
   }
   return out;
 }
 
-function readingTitle(readings: readonly Reading[]): string {
+function readingTitle(readings: readonly Reading[], tr: Tr): string {
   const first = readings.find((r) => r.key !== "best" && r.key !== "early");
-  if (!first) return "No signal fires on the measured days";
-  if (first.key === "closing")
-    return `The last hour doesn't pay on ${first.head.replace("The last hour, ", "")}`;
-  if (first.key === "opening")
-    return `Demand starts before you open on ${first.head.replace("The first hour, ", "")}`;
-  return `People look you up before you open on ${first.head.replace("Before opening, ", "")}`;
+  if (!first) return tr("title.none");
+  if (first.key === "closing") return tr("title.closing", { days: first.days });
+  if (first.key === "opening") return tr("title.opening", { days: first.days });
+  return tr("title.attention", { days: first.days });
 }
 
 function Row({
@@ -195,28 +250,29 @@ function Row({
   judged: boolean;
   maxNet: number;
 }) {
+  const { tr, locale } = useTr("hours");
   const note =
     row.verdict === "hours_unknown" || row.verdict === "missing"
-      ? "hours not stated"
+      ? tr("row.notStated")
       : row.verdict === "too_early"
-        ? `${row.days_measured} days`
+        ? tr("row.days", { count: row.days_measured })
         : row.verdict === "closed"
-          ? "closed"
+          ? tr("row.closed")
           : null;
   return (
     <tr className={row.verdict === "too_early" ? "early" : undefined}>
       <th scope="row">
-        {SHORT[row.weekday]}
+        {shortDay(row.weekday, locale)}
         {note && <span className="hr-rownote">{note}</span>}
       </th>
       {row.cells.map((c) => {
         if (row.verdict === "hours_unknown" || row.verdict === "missing") {
-          return <td key={c.hour} className="unknown" aria-label="hours not stated" />;
+          return <td key={c.hour} className="unknown" aria-label={tr("row.notStated")} />;
         }
         if (!c.open) {
           return (
-            <td key={c.hour} className="closed" aria-label="closed">
-              {c.takings_minor ? cellFig(c.takings_minor, currency, false) : ""}
+            <td key={c.hour} className="closed" aria-label={tr("row.closed")}>
+              {c.takings_minor ? cellFig(c.takings_minor, currency, false, locale) : ""}
             </td>
           );
         }
@@ -229,13 +285,13 @@ function Row({
               className={c.band}
               style={k === null ? undefined : { ["--hr-k" as string]: `${k}%` }}
             >
-              {cellFig(c.net_minor, currency, true)}
+              {cellFig(c.net_minor, currency, true, locale)}
             </td>
           );
         }
         return (
           <td key={c.hour} className="open">
-            {c.takings_minor === null ? "" : cellFig(c.takings_minor, currency, false)}
+            {c.takings_minor === null ? "" : cellFig(c.takings_minor, currency, false, locale)}
           </td>
         );
       })}
@@ -245,6 +301,7 @@ function Row({
 
 /** Shown only when the zone can't be derived — a country with several, or none given. */
 function ZonePicker({ onSaved }: { onSaved: () => void }) {
+  const { tr } = useTr("hours");
   const zones =
     typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : [];
   const [zone, setZone] = useState("");
@@ -256,7 +313,7 @@ function ZonePicker({ onSaved }: { onSaved: () => void }) {
       body: JSON.stringify({ timezone: zone }),
     });
     if (!res.ok)
-      return setError(((await res.json()) as { error?: string }).error ?? "That didn't save.");
+      return setError(((await res.json()) as { error?: string }).error ?? tr("zone.failed"));
     onSaved();
   };
   return (
@@ -267,9 +324,9 @@ function ZonePicker({ onSaved }: { onSaved: () => void }) {
         void save();
       }}
     >
-      <label htmlFor="hr-zone">Which timezone is the business in?</label>
+      <label htmlFor="hr-zone">{tr("zone.label")}</label>
       <select id="hr-zone" value={zone} onChange={(e) => setZone(e.target.value)}>
-        <option value="">Choose…</option>
+        <option value="">{tr("zone.choose")}</option>
         {zones.map((z) => (
           <option key={z} value={z}>
             {z.replace(/_/g, " ")}
@@ -277,7 +334,7 @@ function ZonePicker({ onSaved }: { onSaved: () => void }) {
         ))}
       </select>
       <button className="act" disabled={zone === ""}>
-        Save
+        {tr("zone.save")}
       </button>
       {error && <p className="hr-copy">{error}</p>}
     </form>
@@ -285,14 +342,12 @@ function ZonePicker({ onSaved }: { onSaved: () => void }) {
 }
 
 function TrialsCard({ trials }: { trials: Trial[] }) {
+  const { tr } = useTr("hours");
   return (
     <section className="hr-inset" aria-labelledby="hr-trials-head">
-      <h2 id="hr-trials-head">{trials.length > 0 ? "Trials" : "Not a proposal yet"}</h2>
+      <h2 id="hr-trials-head">{trials.length > 0 ? tr("trials.title") : tr("trials.none")}</h2>
       {trials.length === 0 ? (
-        <p>
-          A signal is never a change taken on faith. It becomes a four-week trial in &ldquo;Waiting
-          for you&rdquo;, with its numbers, and nothing changes your hours unless you do.
-        </p>
+        <p>{tr("trials.body")}</p>
       ) : (
         <ul className="hr-trials">
           {trials.map((t) => (
@@ -311,7 +366,7 @@ function TrialsCard({ trials }: { trials: Trial[] }) {
         </ul>
       )}
       <Link className="act" href="/proposals">
-        Waiting for you →
+        {tr("trials.waiting")}
       </Link>
     </section>
   );
@@ -326,9 +381,10 @@ function Frame({
   notes?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useTr("hours");
   return (
     <main className="screen hr-screen">
-      <PageHead kicker="Insights · Trading hours" title={title}>
+      <PageHead kicker={tr("kicker")} title={title}>
         {notes}
       </PageHead>
       {children}
@@ -337,6 +393,9 @@ function Frame({
 }
 
 export function HoursScreen({ cost }: { cost: HourCost | null }) {
+  const { tr, locale } = useTr("hours");
+  const t = useTranslations("hours");
+  const words: HoursWords = { tr, locale };
   const [view, setView] = useState<HoursView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
 
@@ -355,42 +414,36 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut.title")}>
         <p className="hr-wait">
-          <Link href="/intake">Start with the interview</Link>, and your hours are read from it.
+          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="Your trading hours didn't load.">
-        <p className="hr-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("error.title")}>
+        <p className="hr-wait">{tr("error.body")}</p>
       </Frame>
     );
   }
   if (!view) {
-    return <Frame title="Reading your trading hours…" />;
+    return <Frame title={tr("loading")} />;
   }
 
   const a = view.analysis;
   if (a.status !== "ok") {
     return (
       <Frame
-        title={
-          view.schedule
-            ? "Not enough to read your hours yet."
-            : "Your opening hours aren't known yet."
-        }
-        notes={<p>{view.schedule_note ?? `Not yet: ${a.reason}.`}</p>}
+        title={view.schedule ? tr("notOk.notEnough") : tr("notOk.unknown")}
+        notes={<p>{view.schedule_note ?? tr("notOk.notYet", { reason: a.reason })}</p>}
       >
         <div className="hr-grid">
-          <SheetCard label="Margin by the hour" title="What this needs">
+          <SheetCard label={tr("needs.label")} title={tr("needs.title")}>
             <p className="hr-copy">
-              Your opening hours from the interview, your timezone, and hourly card sales from a
-              connected till, payment account or online shop.{" "}
-              {a.reason.charAt(0).toUpperCase() + a.reason.slice(1)}.{" "}
-              <Link href="/connections">Connections</Link>
+              {tr("needs.body")} {a.reason.charAt(0).toUpperCase() + a.reason.slice(1)}.{" "}
+              <Link href="/connections">{tr("connections")}</Link>
             </p>
             {view.timezone.zone === null && <ZonePicker onSaved={() => location.reload()} />}
           </SheetCard>
@@ -405,84 +458,88 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
   const hourCost = cost && cost.currency === a.currency ? cost.amount_minor : null;
   const grid = weekGrid({ schedule: view.schedule, weekdays: a.weekdays, hourCostMinor: hourCost });
   const judged = hourCost !== null;
-  const readings = readingsOf(a.weekdays, grid, a.currency, hourCost);
+  const readings = readingsOf(a.weekdays, grid, a.currency, hourCost, words);
   const weeks = Math.round((Date.parse(a.to) - Date.parse(a.from)) / (7 * 86_400_000));
 
   const title = !judged
-    ? `Your ${grid.open_hours} weekly open hours, hour by hour.`
+    ? tr("week.titleAll", { count: grid.open_hours })
     : grid.losing_hours === 0
-      ? `All ${grid.open_hours} of your weekly open hours pay for themselves.`
-      : `${grid.losing_hours} of your ${grid.open_hours} weekly open hours don't pay for themselves.`;
-  const unit = a.currency === "EUR" ? "€" : a.currency;
+      ? tr("week.titlePay", { count: grid.open_hours })
+      : tr("week.titleLose", { losing: grid.losing_hours, count: grid.open_hours });
+  const unit = unitOf(a.currency, locale);
   const maxNet = Math.max(
     1,
     ...grid.rows.flatMap((r) => r.cells.map((c) => (c.open ? (c.net_minor ?? 0) : 0))),
   );
   const evenText =
-    grid.even_within_minor !== null ? moneyText(grid.even_within_minor, a.currency) : null;
+    grid.even_within_minor !== null ? moneyText(grid.even_within_minor, a.currency, locale) : null;
+  const evenPct = Math.round(EVEN_SHARE * 100 * 10) / 10;
+  const evenPctText =
+    locale === "en"
+      ? String(evenPct)
+      : new Intl.NumberFormat(intlTag(locale), { maximumFractionDigits: 1 }).format(evenPct);
+  const period = tr("week.period", {
+    weeks,
+    from: dayText(a.from, locale),
+    to: dayText(a.to, locale),
+    zone: a.zone.replace(/_/g, " "),
+  });
+  const costPart =
+    hourCost !== null
+      ? tr("week.costStated", { cost: moneyText(hourCost, a.currency, locale) })
+      : tr("week.costNone");
 
   return (
-    <Frame
-      title={title}
-      notes={
-        <p>
-          Last {weeks} weeks · {dayText(a.from)} to {dayText(a.to)} · in {a.zone.replace(/_/g, " ")}
-          {hourCost !== null
-            ? ` · opening cost ${moneyText(hourCost, a.currency)} / hour (your answer)`
-            : " · no opening cost stated, so nothing is judged"}
-        </p>
-      }
-    >
+    <Frame title={title} notes={<p>{`${period} · ${costPart}`}</p>}>
       <div className="hr-grid">
         <SheetCard
-          label={
-            judged ? `Takings minus opening cost, ${unit} per hour` : `Takings, ${unit} per hour`
-          }
-          title="The week, hour by hour"
+          label={judged ? tr("week.labelNet", { unit }) : tr("week.labelTakings", { unit })}
+          title={tr("week.title")}
           meta={
             judged && evenText ? (
-              <ul className="hr-legend" aria-label="Legend">
+              <ul className="hr-legend" aria-label={tr("legend.label")}>
                 <li>
                   <span className="hr-sw loses" aria-hidden="true" />
-                  loses &gt; {evenText}
+                  {tr("legend.loses", { even: evenText })}
                 </li>
                 <li>
                   <span className="hr-sw even" aria-hidden="true" />
-                  about even
+                  {tr("legend.even")}
                 </li>
                 <li>
                   <span className="hr-sw pays" aria-hidden="true" />
-                  pays
+                  {tr("legend.pays")}
                 </li>
               </ul>
             ) : undefined
           }
           foot={
             <>
-              Mean takings in each hour over that weekday&apos;s measured days, {a.coverage}; an
-              hour with no sales counts as zero
               {judged
-                ? `, and "about even" is within an eighth (${Math.round(EVEN_SHARE * 100 * 10) / 10}%) of the hour's cost`
-                : ""}
-              . DERIVED. Hatched = closed. Takings, not margin. {a.limit}
+                ? tr("foot.meanJudged", { coverage: a.coverage, pct: evenPctText })
+                : tr("foot.mean", { coverage: a.coverage })}{" "}
+              {tr("foot.legend")} {a.limit}
               {view.schedule && view.schedule.unparsed.length > 0 && (
-                <> Couldn&apos;t read: {view.schedule.unparsed.map((u) => `"${u}"`).join(", ")}.</>
+                <>
+                  {" "}
+                  {tr("foot.unparsed", {
+                    list: view.schedule.unparsed.map((u) => `"${u}"`).join(", "),
+                  })}
+                </>
               )}{" "}
-              Wrong hours? Change your answer on the <Link href="/profile">Fact sheet</Link>.
+              {t.rich("foot.wrong", { link: (c) => <Link href="/profile">{c}</Link> })}
             </>
           }
         >
           {grid.hours.length === 0 ? (
-            <p className="hr-copy">
-              No open hours are stated and no sales are measured by the hour.
-            </p>
+            <p className="hr-copy">{tr("week.empty")}</p>
           ) : (
-            <div className="hr-wrap" tabIndex={0} aria-label="The week, hour by hour">
+            <div className="hr-wrap" tabIndex={0} aria-label={tr("week.title")}>
               <table className="hr-week" style={{ minWidth: 60 + grid.hours.length * 38 }}>
                 <thead>
                   <tr>
                     <th scope="col">
-                      <span className="sr-only">Day</span>
+                      <span className="sr-only">{tr("week.day")}</span>
                     </th>
                     {grid.hours.map((h) => (
                       <th key={h} scope="col">
@@ -507,12 +564,9 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
           )}
         </SheetCard>
         <div className="hr-side">
-          <SheetCard label="Reading" title={readingTitle(readings)}>
+          <SheetCard label={tr("read.label")} title={readingTitle(readings, tr)}>
             {readings.length === 0 ? (
-              <p className="hr-copy">
-                Nothing in your hours stands out on the measured days. The watch checks again every
-                week.
-              </p>
+              <p className="hr-copy">{tr("read.none")}</p>
             ) : (
               <ul className="hr-reads">
                 {readings.map((r) => (
