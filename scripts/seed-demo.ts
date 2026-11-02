@@ -1958,13 +1958,13 @@ async function seed(): Promise<void> {
   // The weekly beat's own step for this one business, so the watch log and
   // the weekly summary carry the warning. Fernhill is still watched, so no
   // reorder note is proposed (rule 15); /stock shows its arithmetic.
-  const stockWarnings = await logStockWarnings(ids.profile, new Date());
-  log(`  stock: ${stockWarnings} stock-out warning${stockWarnings === 1 ? "" : "s"} logged`);
 
   // Idea 54: Fernhill's track record. A REAL ACCOUNT NEVER BACKDATES: a
   // forecast is recorded by the code that shows it, the moment it shows it
-  // (lib/forecasts/record), and the warning just logged put today's mug
-  // forecast on the record that way. The demo needs a past, so the seed
+  // (lib/forecasts/record), and the warning logged after this block puts
+  // today's mug forecast on the record that way. The backdated ones come
+  // first and are graded first: since I-54c an item's new stock-out claim
+  // isn't recorded while an earlier one for it waits, as on a real account. The demo needs a past, so the seed
   // writes the forecasts SYB would have shown the day after the first
   // sync, and dates them then: it runs the same code over only what was
   // measured by that day (the season forecast reads up to the day before
@@ -2032,6 +2032,8 @@ async function seed(): Promise<void> {
     );
     if (items < 2) throw new Error("the demo's backdated stock forecasts weren't both warned");
   }
+  const stockWarnings = await logStockWarnings(ids.profile, new Date());
+  log(`  stock: ${stockWarnings} stock-out warning${stockWarnings === 1 ? "" : "s"} logged`);
   // P5-06..08: the owner says what's in the bank and the least she wants in it.
   // Fernhill earns well in the run-up to Christmas, so whether a week of the
   // next 13 dips under her buffer depends on the day the demo is seeded. The
