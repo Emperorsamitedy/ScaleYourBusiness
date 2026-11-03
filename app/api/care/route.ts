@@ -5,6 +5,11 @@
 // think went wrong, with evidence, what it suggested, and whether a
 // person at SYB now has the case. Read-only: the suggestions it
 // made are ordinary proposals in the queue.
+//
+// L-4b: the weekly check's detail is stored in English; when the check
+// stored its `explain`, the detail sent here is worded again in the
+// reader's language ("goalsWords"). An older check without it is shown
+// as stored. The review's words are the model's (L-5).
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
@@ -14,6 +19,10 @@ import { db } from "../../../db";
 import { alertReviews, watchActivity } from "../../../db/schema";
 import { careState } from "../../../lib/care/day-zero";
 import { readGoalMeasure } from "../../../lib/care/goal-measure";
+import { GOAL_WORDS } from "../../../lib/care/goal-words";
+import type { ProgressExplain, ProgressVerdict } from "../../../lib/care/progress";
+import { checkDetail } from "../../../lib/care/progress";
+import { requestWords } from "../../../lib/i18n/request-words";
 import { listGoals } from "../../../lib/content/goals";
 
 async function resolveProfile(): Promise<string | null> {
@@ -25,6 +34,7 @@ export async function GET(): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
+    const words = await requestWords(GOAL_WORDS);
     const care = await careState(profileId);
     const checks = await db
       .select({ at: watchActivity.at, detail: watchActivity.detail, meta: watchActivity.meta })
@@ -43,13 +53,24 @@ export async function GET(): Promise<NextResponse> {
         .where(and(eq(alertReviews.profile_id, profileId), eq(alertReviews.goal_id, goal.goal_id)))
         .orderBy(desc(alertReviews.created_at))
         .limit(1);
+      const meta = latest?.meta as {
+        verdict?: ProgressVerdict;
+        explain?: ProgressExplain;
+      } | null;
       goals.push({
         ...goal,
         measurable: measure !== null,
         measure,
         baseline,
         latest_check: latest
-          ? { at: latest.at, detail: latest.detail, ...(latest.meta as object) }
+          ? {
+              at: latest.at,
+              detail:
+                meta?.verdict && meta.explain
+                  ? checkDetail(meta.verdict, meta.explain, words)
+                  : latest.detail,
+              ...(latest.meta as object),
+            }
           : null,
         review: review
           ? {

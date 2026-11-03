@@ -3,6 +3,7 @@
 // through the fact write path. Nothing here fetches anything.
 
 import { NextResponse } from "next/server";
+import { requestWords } from "../../../lib/i18n/request-words";
 import { addCompetitor } from "../../../lib/competitors/service";
 import { buildCompetitorsView } from "../../../lib/competitors/view";
 import { body, failure, session, signedOut } from "./shared";
@@ -12,7 +13,9 @@ export async function GET(): Promise<NextResponse> {
   const s = await session();
   if (!s) return signedOut();
   try {
-    return NextResponse.json(await buildCompetitorsView(s.profile_id));
+    // L-4b: SYB's own sentences in the reader's language; names as given.
+    const words = await requestWords("competitorsWords");
+    return NextResponse.json(await buildCompetitorsView(s.profile_id, words));
   } catch (error) {
     return failure(error, s.account_id, "competitors_view_failed");
   }

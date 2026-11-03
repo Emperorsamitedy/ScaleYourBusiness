@@ -4,15 +4,20 @@
 //
 // L-3b: the fixed words (labels, column titles, week names) come from the
 // "cash" catalogue through optional words, English by default; figures and
-// dates in the reader's locale, in the business's currency. The sentences
-// built from the forecast (the headline, the sources line, the chart's
-// title, meta, foot and summary) stay English until L-4.
+// dates in the reader's locale, in the business's currency. L-4b: the
+// sentences built from the forecast (the headline, the sources line, the
+// chart's title, meta, foot and summary) come from the "cashWords"
+// catalogue through optional `SentenceWords`, English by default; the
+// basis names from "sheet".
 
 import type { CashView } from "../../app/api/cash/route";
-import type { CashForecast, CashReady, Range } from "../../lib/cash/model";
+import type { CashForecast, CashReady, Range, SourceLine } from "../../lib/cash/model";
 import { CASH, wholeMoney } from "../../lib/cash/model";
 import type { ScenarioCell } from "../../lib/cash/scenarios";
+import { cashEnglish } from "../../lib/cash/words";
 import { shortDate } from "../../lib/charts/model";
+import type { Basis } from "../report/basis";
+import { basisName } from "../report/basis";
 import { dayMonthYear } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
@@ -27,6 +32,16 @@ export interface CashWords {
   locale: AppLocale;
 }
 const ENGLISH = (): CashWords => ({ tr: englishTr("cash"), locale: "en" });
+
+/** The sentences' words: "cashWords", the basis names ("sheet"), and the locale (L-4b). */
+export interface SentenceWords {
+  tr: Tr;
+  sheet: Tr;
+  locale: AppLocale;
+}
+const SENTENCES = (): SentenceWords => ({ ...cashEnglish(), sheet: englishTr("sheet") });
+
+const basisWord = (b: Basis, w: SentenceWords) => basisName(b, w.sheet);
 
 /** Always on the screen, whatever state it is in (rule 26). The screen says it in the reader's language. */
 export const PLANNING_NOTE = englishTr("cash")("planningNote");
@@ -53,39 +68,71 @@ export function rangeText(r: Range, currency: string, locale: AppLocale = "en"):
 }
 
 /** The page's one display line. */
-export function headline(view: CashView): string {
+export function headline(view: CashView, words: SentenceWords = SENTENCES()): string {
+  const { tr, locale } = words;
   const f = view.forecast;
   if (f.status !== "ready") return f.headline;
   if (view.tight) {
-    const when =
-      view.tight.index === 0 ? "this week" : `in the week of ${shortDate(view.tight.start)}`;
-    return `Money could get tight ${when}: the cautious end falls to ${wholeMoney(view.tight.balance.low, f.currency)}.`;
+    return tr("view.headlineTight", {
+      when: view.tight.index === 0 ? "now" : "later",
+      day: shortDate(view.tight.start, locale),
+      amount: wholeMoney(view.tight.balance.low, f.currency, locale),
+    });
   }
+  const weeks = num(CASH.horizon_weeks, 0, locale);
   return f.line.kind === "buffer"
-    ? `No week of the next ${CASH.horizon_weeks} dips under your ${wholeMoney(f.line.amount_minor, f.currency)} buffer, even at the cautious end.`
-    : `No week of the next ${CASH.horizon_weeks} goes below zero, even at the cautious end.`;
+    ? tr("view.headlineBuffer", {
+        weeks,
+        amount: wholeMoney(f.line.amount_minor, f.currency, locale),
+      })
+    : tr("view.headlineZero", { weeks });
 }
 
+/** The three inputs the sources line names, by their stable key, with their inline words. */
+const SOURCES_LINE: Partial<Record<SourceLine["key"], string>> = {
+  cash: "view.inline.cash",
+  moneyIn: "view.inline.moneyIn",
+  payout: "view.inline.payout",
+};
+
 /** The sources line, always shown: what the forecast is built on, in one line. */
-export function sourcesLine(f: CashForecast): string {
+export function sourcesLine(f: CashForecast, words: SentenceWords = SENTENCES()): string {
+  const { tr, locale } = words;
   if (f.status !== "ready") {
     if (f.history) {
-      return `Sources: ${f.history.source} ${f.history.noun}, ${f.history.covered_days} measured days from ${shortDate(f.history.first_day)} to ${shortDate(f.history.last_day)}; ${f.history.complete_weeks} of ${f.history.needed_weeks} complete weeks needed.`;
+      return tr("view.sourcesHistory", {
+        source: f.history.source,
+        noun: f.history.noun,
+        days: f.history.covered_days,
+        from: shortDate(f.history.first_day, locale),
+        to: shortDate(f.history.last_day, locale),
+        complete: num(f.history.complete_weeks, 0, locale),
+        needed: f.history.needed_weeks,
+      });
     }
-    return "Sources: nothing measured that a forecast can be built on yet.";
+    return tr("view.sourcesNothing");
   }
-  const parts = f.sources
-    .filter((s) => ["Cash today", "Money in", "Payout timing"].includes(s.label))
-    .map((s) => `${s.label.toLowerCase()} ${s.value}${s.basis ? ` (${s.basis})` : ""}`);
-  return `Sources: ${parts.join(" · ")} · your costs as you listed them.`;
+  const parts = f.sources.flatMap((s) => {
+    const inline = SOURCES_LINE[s.key];
+    if (!inline) return [];
+    const label = tr(inline);
+    return [
+      s.basis
+        ? tr("view.sourcesPartBasis", { label, value: s.value, basis: basisWord(s.basis, words) })
+        : tr("view.sourcesPart", { label, value: s.value }),
+    ];
+  });
+  return tr("view.sourcesReady", { parts: parts.join(" · ") });
 }
 
 export function cashChartModel(
   f: CashReady,
   tightIndex: number | null,
   words: CashWords = ENGLISH(),
+  sentences: SentenceWords = SENTENCES(),
 ): CashChartModel {
   const { tr, locale } = words;
+  const s = sentences.tr;
   const cur = f.currency;
   const points = [
     {
@@ -101,17 +148,31 @@ export function cashChartModel(
       high: w.balance.high,
     })),
   ];
-  const lineWords =
-    f.line.kind === "buffer" ? `your ${wholeMoney(f.line.amount_minor, cur)} buffer` : "zero";
+  const lineArgs = {
+    line: f.line.kind,
+    amount: f.line.kind === "buffer" ? wholeMoney(f.line.amount_minor, cur, locale) : "",
+    day: tightIndex === null ? "" : shortDate(f.weeks[tightIndex]!.start, locale),
+  };
+  const pattern =
+    f.pattern.kind === "season"
+      ? s(f.pattern.growth ? "view.footGrowth" : "view.footSpan")
+      : s("view.footRecent", { count: f.pattern.recent_complete });
   return {
     label: tr("view.chartLabel", { weeks: CASH.horizon_weeks }),
-    title:
-      tightIndex === null
-        ? `Above ${lineWords} all the way`
-        : `Under ${lineWords} in the week of ${shortDate(f.weeks[tightIndex]!.start)}`,
-    meta: `${f.series.source} · ${f.series.noun} OBSERVED · costs STATED · timing ASSUMED`,
-    foot: `The band runs from the cautious end (slow sales, slow payouts) to the hopeful end. ${f.pattern.kind === "season" ? (f.pattern.growth ? "Each week follows the same week last year, scaled by your recent growth." : "Each week runs between the same week last year and your recent weeks.") : `Each week runs like your last ${f.pattern.recent_complete} complete weeks.`}`,
-    summary: `Your balance over the next ${CASH.horizon_weeks} weeks, from ${wholeMoney(f.start.amount_minor, cur)} today to ${rangeText(f.end, cur)}. ${tightIndex === null ? `It stays above ${lineWords}.` : `The cautious end dips under ${lineWords} in the week of ${shortDate(f.weeks[tightIndex]!.start)}.`}`,
+    title: s(tightIndex === null ? "view.titleAbove" : "view.titleUnder", lineArgs),
+    meta: s("view.meta", {
+      source: f.series.source,
+      noun: f.series.noun,
+      observed: basisWord("OBSERVED", sentences),
+      stated: basisWord("STATED", sentences),
+      assumed: basisWord("ASSUMED", sentences),
+    }),
+    foot: `${s("view.band")} ${pattern}`,
+    summary: `${s("view.summary", {
+      weeks: CASH.horizon_weeks,
+      start: wholeMoney(f.start.amount_minor, cur, locale),
+      end: rangeText(f.end, cur, locale),
+    })} ${s(tightIndex === null ? "view.summaryAbove" : "view.summaryUnder", lineArgs)}`,
     points,
     line: { amount: f.line.amount_minor, label: f.line.kind === "buffer" ? "BUFFER" : "ZERO" },
     tight: tightIndex === null ? null : tightIndex + 1,

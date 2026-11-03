@@ -7,9 +7,17 @@
 // snapshot days. One count is a balance, already on the table above it.
 //
 // Pure; the loader (./load, loadStockHistory) reads the rows.
+//
+// L-4b: the summary (the table's caption) is the "stockWords" catalogue
+// through optional words, English by default; the /stock handler words it
+// again in the reader's language with stockHistorySummary.
 
+import { listSep } from "../i18n/punctuation";
+import type { Words } from "../i18n/request-words";
+import { englishTr } from "../i18n/tr";
 import { shortDate } from "./model";
 import { rangeWhole } from "./opportunity";
+import { num } from "../../components/sheet/num";
 
 /** At most this many items, most cash tied up first (the screen's own order). */
 export const HISTORY_ITEMS = 6;
@@ -45,9 +53,39 @@ export interface StockHistoryModel {
   summary: string;
 }
 
+/** The chart's summary, in `w` (English by default): what each item held on the first and last count. */
+export function stockHistorySummary(
+  model: Pick<StockHistoryModel, "currency" | "dates" | "items">,
+  w: Words = { tr: englishTr("stockWords"), locale: "en" },
+): string {
+  const { tr, locale } = w;
+  const { currency, dates, items } = model;
+  const money = (minor: number) =>
+    rangeWhole({ low_minor: minor, high_minor: minor, currency }, locale);
+  const each = items.map((i) => {
+    const a = i.points[0]!;
+    const b = i.points.at(-1)!;
+    return a.date === b.date
+      ? tr("history.oneCount", { name: i.name, amount: money(b.cash_minor) })
+      : tr("history.change", {
+          name: i.name,
+          from: money(a.cash_minor),
+          to: money(b.cash_minor),
+        });
+  });
+  return tr("history.summary", {
+    count: items.length,
+    n: locale === "en" ? String(items.length) : num(items.length, 0, locale),
+    from: shortDate(dates[0]!, locale),
+    to: shortDate(dates.at(-1)!, locale),
+    items: each.join(listSep(locale)),
+  });
+}
+
 export function buildStockHistory(
   rows: readonly SnapshotRow[],
   slow: readonly SlowItemKey[],
+  w?: Words,
 ): StockHistoryModel | null {
   const wanted = slow.slice(0, HISTORY_ITEMS);
   const byKey = new Map<string, SnapshotRow[]>();
@@ -86,18 +124,6 @@ export function buildStockHistory(
   }
   const dates = [...new Set(items.flatMap((i) => i.points.map((p) => p.date)))].sort();
   if (dates.length < 2 || items.length === 0) return null;
-  const summary =
-    `Cash tied up at cost in the ${items.length} slowest item${items.length === 1 ? "" : "s"}, ` +
-    `on each stock count from ${shortDate(dates[0]!)} to ${shortDate(dates.at(-1)!)}: ` +
-    items
-      .map((i) => {
-        const a = i.points[0]!;
-        const b = i.points.at(-1)!;
-        return a.date === b.date
-          ? `${i.name} ${rangeWhole({ low_minor: b.cash_minor, high_minor: b.cash_minor, currency })} (one count)`
-          : `${i.name} from ${rangeWhole({ low_minor: a.cash_minor, high_minor: a.cash_minor, currency })} to ${rangeWhole({ low_minor: b.cash_minor, high_minor: b.cash_minor, currency })}`;
-      })
-      .join("; ") +
-    ". A stock, read on each count day — never added across days.";
+  const summary = stockHistorySummary({ currency, dates, items }, w);
   return { currency, dates, items, other_currency: other, summary };
 }

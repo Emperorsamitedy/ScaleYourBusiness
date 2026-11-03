@@ -15,21 +15,80 @@ import { and, eq, gte, inArray, lte, or } from "drizzle-orm";
 import { db } from "../../db";
 import { connections, metricObservations } from "../../db/schema";
 import { shiftDay } from "../anomaly/baseline";
+import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
 import { SELLS_KEY, TYPE_KEY, sourceLabel } from "../charts/load";
+import type { ArchetypeKey } from "../charts/profiles";
 import { CHART_ARCHETYPES, archetypeFor } from "../charts/profiles";
 import { MONEY_METRICS, type MetricKey } from "../connectors/provider";
 import { readCurrentField } from "../profile/field-store";
-import type { SeasonResult, SeriesInfo } from "./forecast";
-import { SEASONS, seasonForecast } from "./forecast";
+import { STOCK_IMPORT_PROVIDER } from "../stock/import";
+import type { SeasonResult, SeasonWords, SeriesInfo } from "./forecast";
+import { SEASONS, englishSeasonWords, rewordSeason, seasonForecast } from "./forecast";
 
 export interface SeasonsView {
   result: SeasonResult;
   /** What to connect when nothing is measured, in the owner's words (the archetype's). */
   connect: string;
+  /** The archetype the connect line is (L-4b: said again in the reader's language). */
+  archetype?: ArchetypeKey;
   /** Currencies of the same series left out, when the business is paid in more than one. */
   other_currencies: string[];
   /** Which connection and metric the series is (idea 54 grades a week against the same one). */
   series_ref?: { connection_id: string; metric: MetricKey } | null;
+}
+
+/** The series nouns the chart profiles name (lib/charts/profiles), by metric: catalogue keys. */
+const NOUN_KEY: Readonly<Record<string, string>> = {
+  "revenue.daily": "revenue",
+  "booking_revenue.daily": "bookingRevenue",
+  "orders.daily": "orders",
+  "appointments_completed.daily": "appointments",
+  "sessions.daily": "visits",
+};
+
+/** The sources SYB names in its own words (an import); any other is the provider's own name. */
+const SOURCE_KEY: Readonly<Record<string, string>> = {
+  [BOOKINGS_IMPORT_PROVIDER]: "bookingsExport",
+  [STOCK_IMPORT_PROVIDER]: "stockFile",
+};
+
+/** A connection's source label in the reader's words; a provider's brand stays its own. */
+export function sourceLabelIn(
+  provider: string,
+  { tr }: SeasonWords = englishSeasonWords(),
+): string {
+  const key = SOURCE_KEY[provider];
+  return key ? tr(`source.${key}`) : sourceLabel(provider);
+}
+
+/** A series' noun and source in the reader's words, where SYB chose them. */
+export function seriesIn(
+  series: SeriesInfo,
+  words: SeasonWords = englishSeasonWords(),
+): SeriesInfo {
+  const noun = series.metric ? NOUN_KEY[series.metric] : undefined;
+  return {
+    ...series,
+    noun: noun ? words.tr(`noun.${noun}`) : series.noun,
+    source: series.provider ? sourceLabelIn(series.provider, words) : series.source,
+  };
+}
+
+/**
+ * The view as the screen says it, in `words` (L-4b): the same figures,
+ * the sentences, the series noun and source and the connect line in the
+ * reader's language. The view loadSeasons returns stays English — it is
+ * what lib/forecasts records (rule 7). Pure.
+ */
+export function seasonsInWords(view: SeasonsView, words: SeasonWords): SeasonsView {
+  const connect = view.archetype ? words.tr(`connect.${view.archetype}`) : view.connect;
+  const r = view.result;
+  if (r.status === "no_data") return { ...view, connect };
+  return {
+    ...view,
+    connect,
+    result: rewordSeason({ ...r, series: seriesIn(r.series, words) }, words),
+  };
 }
 
 interface Candidate {
@@ -56,13 +115,11 @@ export async function loadSeasons(
 
   const type = await readCurrentField<unknown>(profileId, TYPE_KEY);
   const sells = await readCurrentField<unknown>(profileId, SELLS_KEY);
-  const row =
-    CHART_ARCHETYPES[
-      archetypeFor(
-        type?.status === "answered" ? type.value : null,
-        sells?.status === "answered" ? sells.value : null,
-      )
-    ];
+  const archetype = archetypeFor(
+    type?.status === "answered" ? type.value : null,
+    sells?.status === "answered" ? sells.value : null,
+  );
+  const row = CHART_ARCHETYPES[archetype];
   const candidates: Candidate[] = [
     ...row.price.map((p) => ({ metric: p.metric, noun: p.noun })),
     ...row.volume.map((v) => ({ metric: v.metric, noun: v.word })),
@@ -80,6 +137,7 @@ export async function loadSeasons(
   const empty: SeasonsView = {
     result: { status: "no_data" },
     connect: row.connect,
+    archetype,
     other_currencies: [],
   };
   if (conns.length === 0) return empty;
@@ -139,6 +197,8 @@ export async function loadSeasons(
       noun: c.noun,
       source: sourceLabel(g.connection.provider),
       currency: g.currency,
+      metric: c.metric,
+      provider: g.connection.provider,
     };
     const others = [
       ...new Set(
@@ -150,6 +210,7 @@ export async function loadSeasons(
     const view: SeasonsView = {
       result: seasonForecast(g.values, info, today),
       connect: row.connect,
+      archetype,
       other_currencies: others,
       series_ref: { connection_id: g.connection.id, metric: g.metric },
     };

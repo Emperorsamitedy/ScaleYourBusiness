@@ -5,6 +5,7 @@
 // text alternative. JSON-serialisable, so the API hands it to the client
 // as is, and the client buckets it (./candles) for the 1D/1W/1M switch.
 
+import { listSep } from "../i18n/punctuation";
 import type { AppLocale } from "../i18n/locales";
 import { dayMonth, intlMoney, monthYear } from "../i18n/format";
 import type { Tr } from "../i18n/tr";
@@ -44,6 +45,8 @@ import {
 } from "./opportunity";
 import type { ArchetypeKey, PriceCandidate, VolumeCandidate } from "./profiles";
 import { CHART_ARCHETYPES } from "./profiles";
+import type { Words } from "./words";
+import { englishChartWords, priceCode } from "./words";
 
 /** Fewer measured days than this and a series isn't drawn: two weeks, the detector's own floor. */
 export const MIN_DRAWN_DAYS = 14;
@@ -164,20 +167,28 @@ export const ON_THE_LINE: ReadonlySet<ComponentKey> = new Set([
   "empty_capacity",
 ]);
 
-/** Pure: the model the screen draws, or the empty state. */
-export function buildMarketModel(input: MarketInputs): MarketChartModel {
+/**
+ * Pure: the model the screen draws, or the empty state. L-4b: its
+ * sentences (the headline, notes, reasons, formulas, the empty state's
+ * invitation) in `words`, English by default.
+ */
+export function buildMarketModel(
+  input: MarketInputs,
+  words: Words = englishChartWords(),
+): MarketChartModel {
+  const { tr } = words;
   const base = CHART_ARCHETYPES[input.archetype];
   const row = { ...base, components: base.components.filter((k) => !input.skip?.includes(k)) };
   const title = chartTitle(input.noun);
   const measured = input.price ? [...input.price.values.keys()].sort() : [];
   if (input.price === null || measured.length < MIN_DRAWN_DAYS) {
     // Nothing to draw. Each component still says what it would need.
-    const components = row.components.map((key) => absentFor(key, input));
+    const components = row.components.map((key) => absentFor(key, input, words));
     return {
       status: "empty",
       noun: input.noun,
       title,
-      message: `${row.connect}.`,
+      message: tr(`connect.${input.archetype}`),
       href: "/connections",
       components,
     };
@@ -189,12 +200,12 @@ export function buildMarketModel(input: MarketInputs): MarketChartModel {
   // The bookings lines first: the dips then take off what they already explain.
   const byKey = new Map<ComponentKey, OpportunityComponent>();
   const want = new Set(row.components);
-  if (want.has("no_shows")) byKey.set("no_shows", noShows(input.bookings, w));
+  if (want.has("no_shows")) byKey.set("no_shows", noShows(input.bookings, w, words));
   if (want.has("late_cancellations")) {
-    byKey.set("late_cancellations", lateCancellations(input.bookings, w));
+    byKey.set("late_cancellations", lateCancellations(input.bookings, w, words));
   }
   if (want.has("empty_capacity")) {
-    byKey.set("empty_capacity", emptyCapacity(input.bookings, input.capacity, w));
+    byKey.set("empty_capacity", emptyCapacity(input.bookings, input.capacity, w, words));
   }
   const explained = new Map<string, { low_minor: number; high_minor: number }>();
   for (const c of byKey.values()) {
@@ -215,26 +226,33 @@ export function buildMarketModel(input: MarketInputs): MarketChartModel {
           currency: price.currency,
           series_id: price.series_id,
           noun: price.candidate.noun,
+          metric: price.candidate.metric,
         },
         w,
         explained,
+        words,
       ),
     );
   }
   if (want.has("losing_ads")) {
     byKey.set(
       "losing_ads",
-      losingAds(input.campaigns, windowEnding(to, OPPORTUNITY.ads_window_days), price.currency),
+      losingAds(
+        input.campaigns,
+        windowEnding(to, OPPORTUNITY.ads_window_days),
+        price.currency,
+        words,
+      ),
     );
   }
   if (want.has("slow_stock")) {
     byKey.set(
       "slow_stock",
-      slowStock(input.stock?.items ?? null, price.currency, input.stock?.as_of ?? null),
+      slowStock(input.stock?.items ?? null, price.currency, input.stock?.as_of ?? null, words),
     );
   }
   if (want.has("on_the_table")) {
-    byKey.set("on_the_table", onTheTable(input.waiting, price.currency, input.today));
+    byKey.set("on_the_table", onTheTable(input.waiting, price.currency, input.today, words));
   }
   const components = row.components.map((k) => byKey.get(k)!);
 
@@ -270,16 +288,18 @@ export function buildMarketModel(input: MarketInputs): MarketChartModel {
   const notes: string[] = [];
   if (input.other_currencies.length > 0) {
     notes.push(
-      `${capitalise(price.candidate.noun)} in ${input.other_currencies.join(", ")} isn't drawn: one currency per chart, and currencies never blend.`,
+      tr("note.otherCurrencies", {
+        price: priceCode(price.candidate.metric),
+        noun: capitalise(price.candidate.noun),
+        currencies: input.other_currencies.join(", "),
+      }),
     );
   }
   const offLine = components.filter(
     (c) => c.status === "priced" && c.kind === "flow" && !ON_THE_LINE.has(c.key),
   );
   if (offLine.length > 0) {
-    notes.push(
-      "Ad spend that didn't pay back is counted in the month above but not drawn on the revenue candles: it is money spent, not revenue missed.",
-    );
+    notes.push(tr("note.adsOffLine"));
   }
 
   return {
@@ -307,25 +327,25 @@ export function buildMarketModel(input: MarketInputs): MarketChartModel {
         }
       : null,
     days,
-    events: groupEvents(input.events.filter((e) => e.date >= from && e.date <= input.today)),
+    events: groupEvents(
+      input.events.filter((e) => e.date >= from && e.date <= input.today),
+      words,
+    ),
     components,
-    headline: headline(components, price.currency),
+    headline: headline(components, price.currency, words),
     window: { from: w.from, to: w.to, days: daysInclusive(w.from, w.to) },
     notes,
   };
 }
 
-const GROUP_NOUN: Readonly<Record<EventKind, string>> = {
-  anomaly: "changes detected",
-  approved: "changes",
-  connected: "sources",
-};
-
 /**
  * Oldest first, with same-day events of one kind folded into one marker
  * ("4 changes: …"), so a busy day doesn't bury the chart in numbers.
  */
-export function groupEvents(events: readonly MarketEvent[]): MarketEvent[] {
+export function groupEvents(
+  events: readonly MarketEvent[],
+  words: Words = englishChartWords(),
+): MarketEvent[] {
   const groups = new Map<string, MarketEvent[]>();
   for (const e of [...events].sort((a, b) => a.date.localeCompare(b.date))) {
     const k = `${e.date}|${e.kind}`;
@@ -337,50 +357,49 @@ export function groupEvents(events: readonly MarketEvent[]): MarketEvent[] {
       : {
           date: list[0]!.date,
           kind: list[0]!.kind,
-          label: `${list.length} ${GROUP_NOUN[list[0]!.kind]}: ${list.map((e) => e.label).join("; ")}`,
+          label: words.tr(`group.${list[0]!.kind}`, {
+            count: list.length,
+            labels: list.map((e) => e.label).join(listSep(words.locale)),
+          }),
           detail: list.map((e) => e.detail).join(" "),
         },
   );
 }
 
 /** A component with no price series to read against: its own reason, or the series'. */
-function absentFor(key: ComponentKey, input: MarketInputs): AbsentComponent {
+function absentFor(key: ComponentKey, input: MarketInputs, words: Words): AbsentComponent {
+  const { tr } = words;
   const w = windowEnding(input.today);
   const currency = input.bookings?.currency ?? "EUR";
   const c =
     key === "no_shows"
-      ? noShows(input.bookings, w)
+      ? noShows(input.bookings, w, words)
       : key === "late_cancellations"
-        ? lateCancellations(input.bookings, w)
+        ? lateCancellations(input.bookings, w, words)
         : key === "empty_capacity"
-          ? emptyCapacity(input.bookings, input.capacity, w)
+          ? emptyCapacity(input.bookings, input.capacity, w, words)
           : key === "losing_ads"
             ? losingAds(
                 input.campaigns,
                 windowEnding(input.today, OPPORTUNITY.ads_window_days),
                 currency,
+                words,
               )
             : key === "revenue_dips"
-              ? revenueDips(null, w)
+              ? revenueDips(null, w, undefined, words)
               : null;
   if (c && c.status === "absent") return c;
   return absent(
     key,
     COMPONENT_KIND[key] === "flow"
-      ? "I need a measured revenue series to read this against"
+      ? tr("reason.noRevenueSeries")
       : key === "slow_stock"
-        ? "connect your store or import a stock file and I'll show the cash sitting on the shelf"
-        : "nothing is waiting for your approval right now",
+        ? tr("reason.noStock")
+        : tr("reason.nothingWaiting"),
   );
 }
 
 /* ── the text alternative ── */
-
-const PERIOD_WORD: Readonly<Record<Bucket, string>> = {
-  day: "daily",
-  week: "weekly",
-  month: "monthly",
-};
 
 /** "3 Oct" — the axis and the readout's date; in another language, its own (L-1). */
 export function shortDate(day: string, locale: AppLocale = "en"): string {
@@ -429,23 +448,42 @@ export function volumeWord(word: string, tr: Tr = englishTr("charts.market")): s
 /** The volume words the chart profiles use (lib/charts/profiles), each a catalogue key. */
 export const VOLUME_WORDS: ReadonlySet<string> = new Set(["orders", "appointments", "visits"]);
 
-/** One sentence: what the chart shows and its main fact. */
+/** The chart's title in a sentence: the model's own in English (its noun table is English's), the catalogue's elsewhere. */
+function titleIn(model: DrawnModel, locale: AppLocale, market: Tr): string {
+  return locale === "en" ? model.title : market("title");
+}
+
+/**
+ * One sentence: what the chart shows and its main fact. L-4b: in `words`
+ * (built on the client from the candles it buckets); `market` is the
+ * "charts.market" catalogue, for the title outside English.
+ */
 export function chartSummary(
   model: DrawnModel,
   candles: readonly Candle[],
   bucket: Bucket,
+  words: Words = englishChartWords(),
+  market: Tr = englishTr("charts.market"),
 ): string {
+  const { tr, locale } = words;
+  const title = titleIn(model, locale, market);
   const last = candles.at(-1);
-  if (!last) return `${model.title}: nothing measured in this range.`;
-  const move = last.close_minor >= last.open_minor ? "up" : "down";
-  return (
-    `${model.title}: ${num(candles.length)} ${PERIOD_WORD[bucket]} candles of ${model.price.noun} a day from ${model.price.source}, ` +
-    `${shortDate(candles[0]!.first)} to ${shortDate(last.last)}; the last ${bucket} closed ${move} at ${dayMoney(last.close_minor, model.currency)}. ` +
-    `${model.headline.text}` +
-    (model.events.length > 0
-      ? ` ${num(model.events.length)} event${model.events.length === 1 ? "" : "s"} marked.`
-      : "")
-  );
+  if (!last) return tr("summary.nothing", { title });
+  const main = tr(`summary.${bucket}`, {
+    title,
+    count: candles.length,
+    price: priceCode(model.price.metric),
+    noun: model.price.noun,
+    source: model.price.source,
+    from: shortDate(candles[0]!.first, locale),
+    to: shortDate(last.last, locale),
+    move: last.close_minor >= last.open_minor ? "up" : "down",
+    close: dayMoney(last.close_minor, model.currency, locale),
+    headline: model.headline.text,
+  });
+  return model.events.length > 0
+    ? `${main} ${tr("summary.events", { count: model.events.length })}`
+    : main;
 }
 
 export interface ChartTable {
@@ -461,8 +499,9 @@ export function chartTable(
   bucket: Bucket,
   locale: AppLocale = "en",
   tr: Tr = englishTr("charts.market"),
+  words: Words = englishChartWords(),
 ): ChartTable {
-  // L-3b: the head and the cells' words in the reader's language; the caption is a sentence built from data (L-4).
+  // L-3b: the head and the cells' words in the reader's language; L-4b: the caption, a sentence built from data, in `words`.
   const cur = model.currency;
   const range = (low_minor: number, high_minor: number) =>
     rangeWhole({ low_minor, high_minor, currency: cur }, locale);
@@ -489,7 +528,11 @@ export function chartTable(
     c.slip_high_minor > 0 ? range(c.kept_low_minor, c.kept_high_minor) : "—",
   ]);
   return {
-    caption: `${model.title}: ${PERIOD_WORD[bucket]} open, high, low and close of ${model.price.noun} a day, with what slipped`,
+    caption: words.tr(`caption.${bucket}`, {
+      title: titleIn(model, locale, tr),
+      price: priceCode(model.price.metric),
+      noun: model.price.noun,
+    }),
     head,
     rows,
   };

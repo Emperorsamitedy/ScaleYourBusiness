@@ -26,7 +26,6 @@ import { careState } from "../care/day-zero";
 import { CADENCE, listChannels } from "../content/plan";
 import type { PlannedItem } from "../content/plan";
 import { logSafeError } from "../core/log-safe";
-import { format, money } from "../core/money";
 import { outboundPosture } from "../crm/contacts";
 import { SEGMENT_KIND, SEGMENT_MODULE } from "../crm/segment-proposals";
 import { computeSegments } from "../crm/segments";
@@ -48,6 +47,8 @@ import type { ClearanceOption, OptionContext, OptionKey } from "./options";
 import { CLEARANCE, clearanceOptions, efficiencyLine, rankOptions } from "./options";
 import { proposeReorders } from "./reorder";
 import { watchingUntil } from "../care/watch-words";
+import type { Words } from "./words";
+import { englishStock, exactMoney } from "./words";
 
 export const STOCK_MODULE = "stock";
 
@@ -82,11 +83,16 @@ export interface Shared {
   email_off: string | null;
 }
 
-/** What the options need from outside the stock itself: a channel, and who may be emailed. */
+/**
+ * What the options need from outside the stock itself: a channel, and who
+ * may be emailed. L-4b: `email_off` is in `w`, English by default — the
+ * proposals below are stored, so only the /stock screen passes other words.
+ */
 export async function sharedContext(
   profileId: string,
   accountId: string,
   now: Date,
+  w: Words = englishStock(),
 ): Promise<Shared> {
   const channels = (await listChannels(profileId)).filter(
     (c) => c.type !== null && c.type in CADENCE,
@@ -106,10 +112,7 @@ export async function sharedContext(
       excluded: vip?.excluded ?? null,
       evidence: vip?.evidence ?? [],
     },
-    email_off:
-      posture === "disabled"
-        ? 'your own answer on customer consent was "no consent", so email stays off'
-        : null,
+    email_off: posture === "disabled" ? w.tr("option.emailOff") : null,
   };
 }
 
@@ -131,21 +134,36 @@ export function bestSellerFor(
   return best ? { name: best.item.name, on_hand: best.item.on_hand } : null;
 }
 
-export function fmtFor(currency: string | null): (minor: number) => string {
+/** Money in one currency, at its full decimals; English by default (L-4b, ./words). */
+export function fmtFor(
+  currency: string | null,
+  w: Words = englishStock(),
+): (minor: number) => string {
   return (minor) =>
-    currency === null ? `${minor} (currency unknown)` : format(money(minor, currency));
+    currency === null
+      ? w.tr("option.unknownCurrency", { amount: String(minor) })
+      : exactMoney(minor, currency, w.locale);
 }
 
-/** Pure-ish: the ranked options for one slow item, in its own currency. */
-export function optionsFor(item: RankedItem, view: StockView, shared: Shared): ClearanceOption[] {
+/**
+ * Pure-ish: the ranked options for one slow item, in its own currency.
+ * L-4b: their words are `w`, English by default — proposals are made from
+ * the default; the /stock screen passes the request's words.
+ */
+export function optionsFor(
+  item: RankedItem,
+  view: StockView,
+  shared: Shared,
+  w: Words = englishStock(),
+): ClearanceOption[] {
   const ctx: OptionContext = {
     best_seller: bestSellerFor(item, view.items),
     content_channel: shared.content_channel?.label ?? null,
     emailable: shared.emailable_ids.length,
     email_off: shared.email_off,
-    fmt: fmtFor(item.item.currency),
+    fmt: fmtFor(item.item.currency, w),
   };
-  return rankOptions(clearanceOptions(item.item, ctx));
+  return rankOptions(clearanceOptions(item.item, ctx, w));
 }
 
 /** The item's own numbers, in words: the evidence every proposal carries. */

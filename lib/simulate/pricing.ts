@@ -29,15 +29,25 @@
 // currency is treated as missing, never converted. Read-only: nothing
 // here writes a price or makes a proposal — checkout and prices are
 // untouchable (rule 18), and this only simulates.
+//
+// L-4b (TASKS-LANGUAGES.md): every sentence here is a message in
+// "simulateWords.pricing", every figure formatted in the reader's locale
+// and passed in; each builder takes the words last, English by default,
+// so English is exactly what this file printed before.
 
 import type { Basis } from "../../components/report/basis";
 import { moneyText, num } from "../../components/sheet/num";
 import type { ArchetypeKey } from "../charts/profiles";
 import { minorUnitExponent } from "../core/money";
+import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
 import type { Cell, Range } from "./model";
 import { SIM, SimulateError, orderBases, range, roundRange } from "./model";
 import type { ResponseBand } from "./pricing-bands";
-import { BAND_SOURCE, RESPONSE_BANDS } from "./pricing-bands";
+import { RESPONSE_BANDS } from "./pricing-bands";
+import type { SimText } from "./words";
+import { englishSimText, int, pointsPct, section, wholePct } from "./words";
 
 /** The pinned bounds — one place, boundary-tested (pricing.test.ts). */
 export const PRICING = {
@@ -105,6 +115,16 @@ export interface PricingInputs {
   per_order_costs: { label: string; amount_minor: number; currency: string }[];
 }
 
+/* ── the words ── */
+
+/** The words a pricing sentence is built with: the "pricing" section and the locale. */
+interface W {
+  t: Tr;
+  L: AppLocale;
+}
+
+const wordsOf = (w: SimText): W => ({ t: section(w, "pricing"), L: w.locale });
+
 /* ── a change ── */
 
 export type PriceChange = { kind: "share"; share: number } | { kind: "exact"; price_minor: number };
@@ -124,19 +144,24 @@ export function newPriceOf(price_minor: number, c: PriceChange): number {
  * The bounds apply to the change as it lands on the price, so an exact
  * price is held to the same limits as a step.
  */
-export function changeError(price_minor: number, c: PriceChange): string | null {
+export function changeError(
+  price_minor: number,
+  c: PriceChange,
+  w: SimText = englishSimText(),
+): string | null {
+  const { t, L } = wordsOf(w);
   if (c.kind === "exact" && !(Number.isSafeInteger(c.price_minor) && c.price_minor > 0)) {
-    return "a new price has to be above zero";
+    return t("refuse.zero");
   }
-  if (c.kind === "share" && !Number.isFinite(c.share)) return "that isn't a price change";
+  if (c.kind === "share" && !Number.isFinite(c.share)) return t("refuse.notAChange");
   const next = newPriceOf(price_minor, c);
-  if (next <= 0) return "a new price has to be above zero";
+  if (next <= 0) return t("refuse.zero");
   const s = (next - price_minor) / price_minor;
   if (Math.abs(s) < PRICING.min_change_share - 1e-9) {
-    return `that's less than a ${PRICING.min_change_share * 100}% change — too small to simulate`;
+    return t("refuse.tooSmall", { share: pctWords(PRICING.min_change_share, L) });
   }
   if (Math.abs(s) > PRICING.max_change_share + 1e-9) {
-    return `I simulate changes up to ${PRICING.max_change_share * 100}% either way; past that the response band is no fair guide`;
+    return t("refuse.tooBig", { share: pctWords(PRICING.max_change_share, L) });
   }
   return null;
 }
@@ -147,6 +172,8 @@ export function changeError(price_minor: number, c: PriceChange): string | null 
 export interface PriceInput {
   key: "price" | "unit_cost" | "volume" | "response" | "capacity";
   label: string;
+  /** The label as it reads inside a sentence ("price now: …"), in the same words as `label`. */
+  label_inline: string;
   /** What the screen prints in the value column; "—" when missing. */
   value: string;
   basis: Basis | null;
@@ -220,15 +247,29 @@ export interface PriceResult {
 /* ── formatting ── */
 
 /** A price at its own decimals ("€37.40"); a monthly figure in whole units, signed. */
-const price = (minor: number, currency: string) => moneyText(minor, currency);
-const pct = (x: number, d = 1) => `${num(x * 100, d)}%`;
+const price = (minor: number, currency: string, locale: AppLocale = "en") =>
+  moneyText(minor, currency, locale);
+/** A share at fixed decimals: 0.123 → "12.3%"; in another language, its own. */
+const pct = (x: number, locale: AppLocale = "en", d = 1) =>
+  locale === "en"
+    ? `${num(x * 100, d)}%`
+    : new Intl.NumberFormat(intlTag(locale), {
+        style: "percent",
+        minimumFractionDigits: d,
+        maximumFractionDigits: d,
+      }).format(x);
 /** A share in words at the fewest decimals that say it: "10%", "12.5%". */
-const pctWords = (x: number) => {
+const pctWords = (x: number, locale: AppLocale = "en") => {
   const v = Math.round(x * 1000) / 10;
-  return `${num(v, Number.isInteger(v) ? 0 : 1)}%`;
+  const d = Number.isInteger(v) ? 0 : 1;
+  return locale === "en" ? `${num(v, d)}%` : pct(v / 100, locale, d);
 };
-const signedPct = (x: number) => `${x > 0 ? "+" : x < 0 ? "−" : ""}${pctWords(Math.abs(x))}`;
-const units = (x: number) => (Number.isInteger(x) ? num(x, 0) : num(x, 1));
+const signedPct = (x: number, locale: AppLocale = "en") =>
+  `${x > 0 ? "+" : x < 0 ? "−" : ""}${pctWords(Math.abs(x), locale)}`;
+const units = (x: number, locale: AppLocale = "en") =>
+  Number.isInteger(x) ? num(x, 0, locale) : num(x, 1, locale);
+/** A response-band figure, in percent points: 0.8 → "0.8%". */
+const bandPct = (points: number, locale: AppLocale) => pointsPct(points, locale);
 
 /** What one unit is called, by the kind of item. */
 export function unitNoun(item: Pick<PriceItemRaw, "kind">, many = true): string {
@@ -241,31 +282,47 @@ export function periodWords(item: Pick<PriceItemRaw, "kind">): string {
 }
 
 /** Pure: a change's short title. */
-export function changeTitle(old_minor: number, c: PriceChange, currency: string): string {
+export function changeTitle(
+  old_minor: number,
+  c: PriceChange,
+  currency: string,
+  w: SimText = englishSimText(),
+): string {
+  const { t, L } = wordsOf(w);
   const next = newPriceOf(old_minor, c);
-  if (c.kind === "share") return `${signedPct(c.share)} → ${price(next, currency)}`;
-  return `${price(next, currency)} (${signedPct((next - old_minor) / old_minor)})`;
+  if (c.kind === "share") {
+    return t("title.share", { change: signedPct(c.share, L), price: price(next, currency, L) });
+  }
+  return t("title.exact", {
+    price: price(next, currency, L),
+    change: signedPct((next - old_minor) / old_minor, L),
+  });
 }
 
 /* ── the inputs, with their gaps ── */
 
-function priceInput(item: PriceItemRaw): PriceInput {
+/** An input's label, and the same label as it reads inside a sentence. */
+function labelled(t: Tr, key: string, values?: Record<string, string | number>) {
+  return { label: t(`label.${key}`, values), label_inline: t(`inline.${key}`, values) };
+}
+
+function priceInput(item: PriceItemRaw, { t, L }: W): PriceInput {
   return item.price
     ? {
         key: "price",
-        label: "Price now",
-        value: price(item.price.amount_minor, item.currency),
+        ...labelled(t, "price"),
+        value: price(item.price.amount_minor, item.currency, L),
         basis: item.price.basis,
         source: item.price.source,
         needs: null,
       }
     : {
         key: "price",
-        label: "Price now",
+        ...labelled(t, "price"),
         value: "—",
         basis: null,
-        source: "not known",
-        needs: { what: `the price of ${item.name}`, href: item.asks.price },
+        source: t("notKnown"),
+        needs: { what: t("priceNeeds", { name: item.name }), href: item.asks.price },
       };
 }
 
@@ -275,14 +332,14 @@ function usableCost(item: PriceItemRaw): MoneyFact | null {
   return c && c.currency.toUpperCase() === item.currency.toUpperCase() ? c : null;
 }
 
-function costInput(item: PriceItemRaw): PriceInput {
+function costInput(item: PriceItemRaw, { t, L }: W): PriceInput {
   const c = item.unit_cost;
   const ok = usableCost(item);
   if (ok) {
     return {
       key: "unit_cost",
-      label: "Cost to deliver one",
-      value: price(ok.amount_minor, item.currency),
+      ...labelled(t, "cost"),
+      value: price(ok.amount_minor, item.currency, L),
       basis: ok.basis,
       source: ok.source,
       needs: null,
@@ -290,68 +347,82 @@ function costInput(item: PriceItemRaw): PriceInput {
   }
   return {
     key: "unit_cost",
-    label: "Cost to deliver one",
+    ...labelled(t, "cost"),
     value: "—",
     basis: null,
     source: c
-      ? `recorded in ${c.currency}, the price is in ${item.currency} — I don't convert between currencies`
-      : "not known",
+      ? t("costOtherCurrency", { costCurrency: c.currency, currency: item.currency })
+      : t("notKnown"),
     needs: {
       what:
         item.kind === "service"
-          ? `what one ${item.name} costs you to deliver — list "${item.name}" among what you sell, with its cost, and I'll match it to your bookings`
-          : `what one ${item.name} costs you to deliver${c ? ` in ${item.currency}` : ""}`,
+          ? t("costNeedsService", { name: item.name })
+          : c
+            ? t("costNeedsIn", { name: item.name, currency: item.currency })
+            : t("costNeeds", { name: item.name }),
       href: item.asks.unit_cost,
     },
   };
 }
 
-function volumeInput(item: PriceItemRaw): PriceInput {
-  const label = `${item.kind === "service" ? "Bookings" : "Sales"} ${periodWords(item)}`;
+function volumeInput(item: PriceItemRaw, { t, L }: W): PriceInput {
+  const label = labelled(t, "volume", { kind: item.kind, days: int(PRICING.horizon_days, L) });
   return item.volume
     ? {
         key: "volume",
-        label,
-        value: units(item.volume.value),
+        ...label,
+        value: units(item.volume.value, L),
         basis: item.volume.basis,
         source: item.volume.source,
         needs: null,
       }
     : {
         key: "volume",
-        label,
+        ...label,
         value: "—",
         basis: null,
-        source: "not known",
+        source: t("notKnown"),
         needs: {
           what:
             item.kind === "service"
-              ? `your bookings with ${item.name}, imported or connected`
-              : `roughly how many ${item.name} you sell a month`,
+              ? t("volumeNeedsService", { name: item.name })
+              : t("volumeNeeds", { name: item.name }),
           href: item.asks.volume,
         },
       };
 }
 
-function responseInput(band: ResponseBand, noun: string): PriceInput {
+function responseInput(
+  band: ResponseBand,
+  archetype: ArchetypeKey,
+  item: PriceItemRaw,
+  { t, L }: W,
+): PriceInput {
   return {
     key: "response",
-    label: "How customers answer the price",
-    value: `${num(band.low, 1)} – ${num(band.high, 1)}`,
+    ...labelled(t, "response"),
+    value: `${num(band.low, 1, L)} – ${num(band.high, 1, L)}`,
     basis: "ASSUMED",
-    source: `for each 1% on the price, ${num(band.low, 1)}% to ${num(band.high, 1)}% of ${noun} move the other way — ${band.why}`,
+    source: t("responseSource", {
+      one: wholePct(1, L),
+      low: bandPct(band.low, L),
+      high: bandPct(band.high, L),
+      kind: item.kind,
+      why: t(`band.${archetype}`),
+    }),
     needs: null,
   };
 }
 
-function capacityInput(item: PriceItemRaw): PriceInput | null {
+function capacityInput(item: PriceItemRaw, { t, L }: W): PriceInput | null {
   if (item.kind !== "service") return null;
   const c = item.capacity;
+  const label = labelled(t, "capacity", { days: int(PRICING.horizon_days, L) });
   if (c) {
     return {
       key: "capacity",
-      label: `Room in the book, ${PRICING.horizon_days} days`,
-      value: units(Math.max(0, c.slots - c.taken)),
+      ...label,
+      value: units(Math.max(0, c.slots - c.taken), L),
       basis: c.basis,
       source: c.source,
       needs: null,
@@ -359,16 +430,11 @@ function capacityInput(item: PriceItemRaw): PriceInput | null {
   }
   return {
     key: "capacity",
-    label: `Room in the book, ${PRICING.horizon_days} days`,
+    ...label,
     value: "—",
     basis: null,
-    source: "not known",
-    needs: item.asks.capacity
-      ? {
-          what: "how many appointments you can take a week — then a cut is held to the room you have",
-          href: item.asks.capacity,
-        }
-      : null,
+    source: t("notKnown"),
+    needs: item.asks.capacity ? { what: t("capacityNeeds"), href: item.asks.capacity } : null,
   };
 }
 
@@ -378,45 +444,64 @@ function capacityInput(item: PriceItemRaw): PriceInput | null {
  * Pure: the break-even for one change — what it can lose or must win.
  * Rests only on price, cost and volume; never on the response band.
  */
-export function breakEven(item: PriceItemRaw, new_price_minor: number): BreakEven {
-  const noun = unitNoun(item);
+export function breakEven(
+  item: PriceItemRaw,
+  new_price_minor: number,
+  w: SimText = englishSimText(),
+): BreakEven {
+  const { t, L } = wordsOf(w);
+  const kind = item.kind;
+  const days = int(PRICING.horizon_days, L);
   const cur = item.currency;
   if (!item.price) {
     return {
       status: "missing",
-      words: `I need the price of ${item.name} first.`,
-      needs: [{ what: `the price of ${item.name}`, href: item.asks.price }],
+      words: t("be.needPrice", { name: item.name }),
+      needs: [{ what: t("priceNeeds", { name: item.name }), href: item.asks.price }],
     };
   }
   const P = item.price.amount_minor;
   const Pn = new_price_minor;
   const cost = usableCost(item);
   const V = item.volume?.value ?? null;
-  const ofYours =
-    V === null ? `of your ${noun}` : `of your ~${units(V)} ${noun} ${periodWords(item)}`;
   const bases = orderBases([item.price.basis, cost?.basis ?? null, item.volume?.basis ?? null]);
   const rise = Pn > P;
-  const changeWords = `a ${pctWords(Math.abs((Pn - P) / P))} ${rise ? "rise" : "cut"}`;
-  const costNeed = {
-    what: `what one costs you to deliver`,
-    href: item.asks.unit_cost,
-  };
+  const changeArgs = { dir: rise ? "rise" : "cut", share: pctWords(Math.abs((Pn - P) / P), L) };
+  /** "a 10% rise", inside a sentence; "A 10% rise", opening one. */
+  const changeInline = t("be.change", changeArgs);
+  const changeStart = t("be.changeStart", changeArgs);
+  const costNeed = { what: t("be.costNeed"), href: item.asks.unit_cost };
 
   if (cost) {
     const C = cost.amount_minor;
     if (P - C <= 0) {
       return {
         status: "never",
-        words: `At today's ${price(P, cur)} each ${unitNoun(item, false)} already costs you ${price(C, cur)} to deliver, so there is no profit on it today to break even against — look at the cost before the price.`,
-        formula: `${price(P, cur)} − ${price(C, cur)} = ${price(P - C, cur)} a ${unitNoun(item, false)}`,
+        words: t("be.neverToday", { kind, price: price(P, cur, L), cost: price(C, cur, L) }),
+        formula: t("be.unitFormula", {
+          kind,
+          price: price(P, cur, L),
+          cost: price(C, cur, L),
+          margin: price(P - C, cur, L),
+        }),
         bases,
       };
     }
     if (Pn - C <= 0) {
       return {
         status: "never",
-        words: `At ${price(Pn, cur)} each ${unitNoun(item, false)} would cost you ${price(C, cur)} to deliver — every extra one loses money, so no amount of extra ${noun} makes ${changeWords} pay.`,
-        formula: `${price(Pn, cur)} − ${price(C, cur)} = ${price(Pn - C, cur)} a ${unitNoun(item, false)}`,
+        words: t("be.neverNew", {
+          kind,
+          price: price(Pn, cur, L),
+          cost: price(C, cur, L),
+          change: changeInline,
+        }),
+        formula: t("be.unitFormula", {
+          kind,
+          price: price(Pn, cur, L),
+          cost: price(C, cur, L),
+          margin: price(Pn - C, cur, L),
+        }),
         bases,
       };
     }
@@ -425,28 +510,47 @@ export function breakEven(item: PriceItemRaw, new_price_minor: number): BreakEve
   // With no cost, C = 0 is the cautious end for a rise (and the least a cut must win).
   const C = cost?.amount_minor ?? 0;
   const share = Math.abs(Pn - P) / (Pn - C);
-  const t = V === null ? null : V * share;
+  const t_ = V === null ? null : V * share;
+  const shareArgs = {
+    high: price(Math.max(P, Pn), cur, L),
+    low: price(Math.min(P, Pn), cur, L),
+    next: price(Pn, cur, L),
+    share: pct(share, L),
+  };
   const shareFormula = cost
-    ? `(${price(Math.max(P, Pn), cur)} − ${price(Math.min(P, Pn), cur)}) ÷ (${price(Pn, cur)} − ${price(C, cur)}) = ${pct(share)}`
-    : `(${price(Math.max(P, Pn), cur)} − ${price(Math.min(P, Pn), cur)}) ÷ ${price(Pn, cur)} = ${pct(share)} — with no cost to deliver counted`;
+    ? t("be.shareFormula", { ...shareArgs, cost: price(C, cur, L) })
+    : t("be.shareFormulaNoCost", shareArgs);
   const formula =
-    t === null ? shareFormula : `${shareFormula} of ${units(V!)} ${noun} = ${num(t, 1)}`;
+    t_ === null
+      ? shareFormula
+      : t("be.formulaOf", {
+          formula: shareFormula,
+          volume: units(V!, L),
+          kind,
+          units: num(t_, 1, L),
+        });
 
   if (rise) {
     // "Fewer than N": losing N − 1 or fewer stays strictly ahead.
-    const n = t === null ? null : Math.max(1, Math.ceil(t - 1e-9));
-    const body =
-      n === null
-        ? `fewer than ${pct(share)} of your ${noun}`
-        : `fewer than ${num(n, 0)} ${ofYours} (${pct(share)})`;
+    const n = t_ === null ? null : Math.max(1, Math.ceil(t_ - 1e-9));
+    const args = {
+      kind,
+      days,
+      share: pct(share, L),
+      count: n === null ? "" : num(n, 0, L),
+      volume: V === null ? "" : units(V, L),
+    };
     return {
       status: "lose",
       share,
-      units: t,
+      units: t_,
       floor: cost === null,
       words: cost
-        ? `${sentence(changeWords)} pays as long as you lose ${body}.`
-        : `Whatever each one costs you, ${changeWords} pays as long as you lose ${body}.`,
+        ? t(n === null ? "be.loseShare" : "be.loseCount", { ...args, change: changeStart })
+        : t(n === null ? "be.loseShareAnyCost" : "be.loseCountAnyCost", {
+            ...args,
+            change: changeInline,
+          }),
       formula,
       bases,
     };
@@ -455,33 +559,47 @@ export function breakEven(item: PriceItemRaw, new_price_minor: number): BreakEve
   if (!cost) {
     return {
       status: "missing",
-      words: `To say how many more ${noun} ${changeWords} needs, I need what one costs you to deliver. With no cost counted it needs at least ${t === null ? pct(share) : `${num(Math.floor(t + 1e-9) + 1, 0)} more (${pct(share)})`} — the true figure is higher.`,
+      words:
+        t_ === null
+          ? t("be.needCostShare", { kind, change: changeInline, share: pct(share, L) })
+          : t("be.needCostCount", {
+              kind,
+              change: changeInline,
+              count: num(Math.floor(t_ + 1e-9) + 1, 0, L),
+              share: pct(share, L),
+            }),
       needs: [costNeed],
     };
   }
   // "More than N": winning N + 1 or more comes out strictly ahead.
-  const n = t === null ? null : Math.floor(t + 1e-9);
+  const n = t_ === null ? null : Math.floor(t_ + 1e-9);
   const room = item.capacity ? Math.max(0, item.capacity.slots - item.capacity.taken) : null;
   const roomWords =
-    room !== null && t !== null && t >= room
-      ? ` Your book has room for ${num(room, 0)} more in ${PRICING.horizon_days} days, so it can't pay from extra bookings alone.`
-      : "";
+    room !== null && t_ !== null && t_ >= room
+      ? t("be.noRoom", { room: num(room, 0, L), days })
+      : null;
+  const winWords =
+    n === null
+      ? t("be.winShare", { kind, change: changeStart, share: pct(share, L) })
+      : t("be.winCount", {
+          kind,
+          days,
+          change: changeStart,
+          count: num(n, 0, L),
+          volume: units(V!, L),
+          share: pct(share, L),
+        });
   return {
     status: "win",
     share,
-    units: t,
+    units: t_,
     floor: false,
     room,
-    words:
-      n === null
-        ? `${sentence(changeWords)} pays only if you win more than ${pct(share)} more ${noun}.${roomWords}`
-        : `${sentence(changeWords)} pays only if you win more than ${num(n, 0)} extra ${noun} on your ~${units(V!)} ${periodWords(item)} (+${pct(share)}).${roomWords}`,
+    words: roomWords ? `${winWords} ${roomWords}` : winWords,
     formula,
     bases,
   };
 }
-
-const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /* ── the outcomes under the band ── */
 
@@ -508,16 +626,22 @@ export function volumeAfter(
 
 const missingCell = (needs: string[]): Cell => ({ status: "missing", needs });
 
-/** Pure: one change against one item. Throws a SimulateError on a change out of bounds. */
+/**
+ * Pure: one change against one item, in `w`'s words (English by default).
+ * Throws a SimulateError on a change out of bounds.
+ */
 export function simulatePrice(
   item: PriceItemRaw,
   change: PriceChange,
   archetype: ArchetypeKey,
+  w: SimText = englishSimText(),
 ): PriceResult {
+  const words = wordsOf(w);
+  const { t, L } = words;
   if (!item.price) {
-    throw new SimulateError(`${item.name} has no price on your profile yet`);
+    throw new SimulateError(t("noPrice", { name: item.name }));
   }
-  const err = changeError(item.price.amount_minor, change);
+  const err = changeError(item.price.amount_minor, change, w);
   if (err) throw new SimulateError(err);
   const cur = item.currency;
   const P = item.price.amount_minor;
@@ -526,18 +650,23 @@ export function simulatePrice(
   const band = RESPONSE_BANDS[archetype];
   const cost = usableCost(item);
   const V = item.volume?.value ?? null;
-  const noun = unitNoun(item);
+  const kind = item.kind;
+  const days = int(PRICING.horizon_days, L);
   const room = item.capacity ? Math.max(0, item.capacity.slots - item.capacity.taken) : null;
 
-  const inputs: PriceInput[] = [priceInput(item), costInput(item), volumeInput(item)];
-  const cap = capacityInput(item);
+  const inputs: PriceInput[] = [
+    priceInput(item, words),
+    costInput(item, words),
+    volumeInput(item, words),
+  ];
+  const cap = capacityInput(item, words);
   if (cap) inputs.push(cap);
-  inputs.push(responseInput(band, noun));
+  inputs.push(responseInput(band, archetype, item, words));
 
   const needs = (keys: PriceInput["key"][]) =>
     inputs
       .filter((i) => keys.includes(i.key) && i.needs !== null && i.value === "—")
-      .map((i) => `${i.label.toLowerCase()}: ${i.needs!.what}`);
+      .map((i) => t("needLine", { label: i.label_inline, needs: i.needs!.what }));
 
   const factBases = orderBases([item.price.basis, item.volume?.basis ?? null]);
   const allBases = orderBases([
@@ -553,25 +682,41 @@ export function simulatePrice(
     profit: missingCell(needs(["volume", "unit_cost"])),
     worst: missingCell(needs(["volume", "unit_cost"])),
   };
-  let worstWords = "I can't size the worst case without the inputs above.";
+  let worstWords = t("worstUnknown");
 
   if (V !== null) {
     const after = volumeAfter(V, s, band, room);
     const vr = after.range;
-    const bandTerm = `${num(band.low, 1)} – ${num(band.high, 1)}`;
+    const bandTerm = `${num(band.low, 1, L)} – ${num(band.high, 1, L)}`;
     measures.volume = {
       status: "range",
       range: { low: Math.round(vr.low), high: Math.round(vr.high) },
       bases: orderBases([...factBases, "ASSUMED"]),
-      formula: `${units(V)} ${noun} × (1 ${s > 0 ? "−" : "+"} ${pct(Math.abs(s))} × ${bandTerm})${after.capped ? `, held to the ${num(room!, 0)} more your book has room for` : ""}`,
+      formula: t("formula.volume", {
+        volume: units(V, L),
+        kind,
+        one: num(1, 0, L),
+        sign: s > 0 ? "−" : "+",
+        share: pct(Math.abs(s), L),
+        band: bandTerm,
+        held: after.capped ? "yes" : "no",
+        room: room === null ? "" : num(room, 0, L),
+      }),
       exact: false,
+    };
+    const between = {
+      low: units(Math.round(vr.low), L),
+      high: units(Math.round(vr.high), L),
+      volume: units(V, L),
+      next: price(Pn, cur, L),
+      price: price(P, cur, L),
     };
     const rev = roundRange(range(vr.low * Pn - V * P, vr.high * Pn - V * P));
     measures.revenue = {
       status: "range",
       range: rev,
       bases: orderBases([...factBases, "ASSUMED"]),
-      formula: `${units(Math.round(vr.low))} – ${units(Math.round(vr.high))} ${noun} × ${price(Pn, cur)} − ${units(V)} × ${price(P, cur)}`,
+      formula: t("formula.revenue", { ...between, kind }),
       exact: false,
     };
     if (cost) {
@@ -583,7 +728,7 @@ export function simulatePrice(
         status: "range",
         range: profit,
         bases: allBases,
-        formula: `${units(Math.round(vr.low))} – ${units(Math.round(vr.high))} × (${price(Pn, cur)} − ${price(C, cur)}) − ${units(V)} × (${price(P, cur)} − ${price(C, cur)})`,
+        formula: t("formula.profit", { ...between, cost: price(C, cur, L) }),
         exact: false,
       };
       // The worst end of the band: fewest sales while each one still earns, most when it loses.
@@ -594,50 +739,53 @@ export function simulatePrice(
         status: "range",
         range: { low: worst, high: worst },
         bases: allBases,
-        formula: `${units(Math.round(worstV))} × (${price(Pn, cur)} − ${price(C, cur)}) − ${units(V)} × (${price(P, cur)} − ${price(C, cur)})`,
+        formula: t("formula.worst", {
+          ...between,
+          units: units(Math.round(worstV), L),
+          cost: price(C, cur, L),
+        }),
         exact: true,
       };
       const moved = Math.abs(worstV - V) / V;
-      worstWords = `Customers answer at the ${end} end of the band: ${noun} ${worstV < V ? "fall" : "rise"} ${pct(moved)} to about ${units(Math.round(worstV))}, and profit on ${item.name} moves ${signedMoney(worst, cur)} ${periodWords(item)}.`;
+      worstWords = t("worstWords", {
+        end,
+        kind,
+        days,
+        dir: worstV < V ? "fall" : "rise",
+        share: pct(moved, L),
+        units: units(Math.round(worstV), L),
+        name: item.name,
+        amount: signedMoney(worst, cur, L),
+      });
     }
   }
 
-  const assumptions = [
-    {
-      statement:
-        "Customers answer this change as the band says, for a rise or a cut alike, and nothing else changes in the meantime.",
-      source: BAND_SOURCE,
-    },
-  ];
+  const assumptions = [{ statement: t("assumeBand"), source: t("bandSource") }];
   if (item.kind === "service" && item.capacity === null && s < 0) {
-    assumptions.push({
-      statement: "Extra bookings fit in the book.",
-      source:
-        "you haven't told me your weekly capacity, so I can't hold the gain to the room you have",
-    });
+    assumptions.push({ statement: t("assumeFits"), source: t("assumeFitsSource") });
   }
 
   return {
     key: changeKey(change),
     change,
-    title: changeTitle(P, change, cur),
+    title: changeTitle(P, change, cur, w),
     currency: cur,
     old_price_minor: P,
     new_price_minor: Pn,
     share: s,
     inputs,
     assumptions,
-    breakeven: breakEven(item, Pn),
+    breakeven: breakEven(item, Pn, w),
     measures,
     worst_words: worstWords,
   };
 }
 
 /** Money in whole major units with its sign: "+€417", "−€742". */
-export function signedMoney(minor: number, currency: string): string {
+export function signedMoney(minor: number, currency: string, locale: AppLocale = "en"): string {
   const exp = minorUnitExponent(currency);
   const whole = Math.round(minor / 10 ** exp);
-  const body = moneyText(Math.abs(whole) * 10 ** exp, currency);
+  const body = moneyText(Math.abs(whole) * 10 ** exp, currency, locale);
   return whole > 0 ? `+${body}` : whole < 0 ? `−${body}` : body;
 }
 
@@ -653,21 +801,23 @@ export function comparePrices(
   item: PriceItemRaw,
   changes: readonly PriceChange[],
   archetype: ArchetypeKey,
+  w: SimText = englishSimText(),
 ): PriceComparison {
   if (changes.length > PRICING.max_changes) {
     throw new SimulateError(
       `pick up to ${PRICING.max_changes} price changes to compare — ${changes.length} given`,
     );
   }
+  const { t } = wordsOf(w);
   const results: PriceResult[] = [];
   const refused: PriceComparison["refused"] = [];
   const seen = new Set<number>();
   for (const c of changes) {
     if (!item.price) {
-      refused.push({ change: c, why: `${item.name} has no price on your profile yet` });
+      refused.push({ change: c, why: t("noPrice", { name: item.name }) });
       continue;
     }
-    const err = changeError(item.price.amount_minor, c);
+    const err = changeError(item.price.amount_minor, c, w);
     if (err) {
       refused.push({ change: c, why: err });
       continue;
@@ -675,7 +825,7 @@ export function comparePrices(
     const next = newPriceOf(item.price.amount_minor, c);
     if (seen.has(next)) continue;
     seen.add(next);
-    results.push(simulatePrice(item, c, archetype));
+    results.push(simulatePrice(item, c, archetype, w));
   }
   // Cheapest first, so the columns read as a price scale.
   results.sort((a, b) => a.new_price_minor - b.new_price_minor);
@@ -683,13 +833,14 @@ export function comparePrices(
 }
 
 /** Pure: the screen's headline for an item — the first rise's break-even, or the first change's. */
-export function pricingHeadline(cmp: PriceComparison): string {
+export function pricingHeadline(cmp: PriceComparison, w: SimText = englishSimText()): string {
+  const { t } = wordsOf(w);
   const first =
     cmp.results.find((r) => r.share > 0 && r.breakeven.status === "lose") ?? cmp.results[0];
   if (!first) {
     return cmp.item.price
-      ? `Pick a price change for ${cmp.item.name} to see what it can lose and still pay.`
-      : `${cmp.item.name} has no price on your profile yet.`;
+      ? t("headPick", { name: cmp.item.name })
+      : t("headNoPrice", { name: cmp.item.name });
   }
   return first.breakeven.words;
 }

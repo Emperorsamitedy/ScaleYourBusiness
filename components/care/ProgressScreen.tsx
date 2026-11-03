@@ -10,9 +10,10 @@
 //
 // L-3b (TASKS-LANGUAGES.md): the screen's own words are the "goals"
 // catalogue, its figures and dates in the reader's locale with the goal's
-// own currency. What the weekly check and the alert review wrote (the
-// check's detail, the review's summary, causes and suggestions, the
-// server's refusals) is shown as it was written — stages L-4 and L-5.
+// own currency. The weekly check's detail and a baseline note arrive in the
+// reader's language (L-4b, "goalsWords"), and a goal's area is worded from
+// its code. What the alert review wrote (summary, causes, suggestions) and
+// the server's refusals are shown as written — stages L-5 and L-4a.
 
 import "../../app/goals.css";
 import { useCallback, useEffect, useState } from "react";
@@ -82,6 +83,25 @@ interface CareView {
 
 /** A goal's metric in words ("goals.metric"): revenue, number of sales, website visits. */
 const metricWord = (metric: Measure["metric"], tr: Tr) => tr(`metric.${metric}`);
+
+/** The focus_area codes a goal's area is worded from ("goalsWords.area.<code>"); another shows as its code. */
+const AREAS: ReadonlySet<string> = new Set([
+  "launch",
+  "first_customers",
+  "increase_revenue",
+  "reduce_costs",
+  "automate_work",
+  "improve_marketing",
+  "hire_people",
+  "expand_locations",
+  "improve_profit",
+  "other",
+]);
+
+/** A goal's area in words, from its code. */
+export function areaWords(area: string, tr: Tr): string {
+  return AREAS.has(area) ? tr(`area.${area}`) : area.replace(/_/g, " ");
+}
 
 /** Each verdict's tint; its word is "goals.word.<key>". */
 const WORD_CLASS: Record<GoalWord | "unchecked" | "unmeasurable", string> = {
@@ -297,11 +317,12 @@ function GoalCard({
   onSaved: () => Promise<void>;
 }) {
   const { tr, locale } = useTr("goals");
+  const { tr: goalTr } = useTr("goalsWords");
   const m = goal.measure;
   const label = m
     ? tr("card.label", { metric: metricWord(m.metric, tr), day: dayText(m.deadline, locale) })
     : goal.area
-      ? goal.area.replace(/_/g, " ")
+      ? areaWords(goal.area, goalTr)
       : tr("card.goal");
   const wordKey = !m ? "unmeasurable" : (goalWord(goal.latest_check?.verdict) ?? "unchecked");
   const word = { text: tr(`word.${wordKey}`), cls: WORD_CLASS[wordKey] };

@@ -13,7 +13,7 @@
 //
 // L-3b: the screen's own words are the "benchmarks" catalogue; what
 // lib/benchmarks words (the cell, the why, the gap note, the figures, the
-// inputs) stays English until L-4.
+// inputs) arrives from /api/benchmarks in the reader's language (L-4b).
 
 import "../../app/benchmarks.css";
 import Link from "next/link";

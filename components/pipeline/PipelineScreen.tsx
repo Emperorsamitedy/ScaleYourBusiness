@@ -16,8 +16,10 @@
 // L-3b (TASKS-LANGUAGES.md): the screen's fixed words are the "pipeline"
 // catalogue; every figure and date is in the reader's locale, each amount
 // in its own currency. The reasons, sources and assumptions the API words
-// (lib/pipeline) are shown as they come (L-4).
+// (lib/pipeline) are shown as they come: L-4b words them in the reader's
+// language on the server ("pipelineWords").
 
+import { listSep } from "../../lib/i18n/punctuation";
 import "../../app/pipeline.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -334,7 +336,7 @@ function DueBy({ view }: { view: PipelineView }) {
           <li key={a}>{a}</li>
         ))}
       </ul>
-      <p className="pl-fine">{tr("due.sources", { list: d.sources.join("; ") })}</p>
+      <p className="pl-fine">{tr("due.sources", { list: d.sources.join(listSep(locale)) })}</p>
     </SheetCard>
   );
 }
@@ -420,7 +422,7 @@ function Weighing({ view }: { view: PipelineView }) {
         {tr("weigh.window", {
           from: dateWords(w.window.from, locale),
           to: dateWords(w.window.to, locale),
-          list: w.sources.join("; "),
+          list: w.sources.join(listSep(locale)),
         })}
         {rate.basis === "measured" && rate.stated !== null && (
           <> {tr("weigh.statedNote", { stated: statedPct(rate.stated, locale) })}</>

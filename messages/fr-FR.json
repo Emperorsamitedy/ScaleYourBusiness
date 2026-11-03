@@ -6178,5 +6178,1272 @@
       "askBody": "Un clic et c’est fait, définitivement. Les réponses à vos propres questions ne sont pas concernées.",
       "button": "Se désabonner"
     }
+  },
+  "cashWords": {
+    "series": {
+      "noun": {
+        "revenue": "chiffre d’affaires",
+        "bookingRevenue": "chiffre d’affaires des réservations"
+      },
+      "source": {
+        "bookings": "votre export de réservations",
+        "stock": "votre fichier de stock"
+      }
+    },
+    "connect": {
+      "shop": "Connectez Shopify ou WooCommerce, ou votre caisse via Square, et je le tracerai",
+      "hospitality": "Connectez votre caisse via Square, ou Stripe, et je le tracerai",
+      "appointments": "Importez votre export de réservations ou connectez Square, et je le tracerai",
+      "services": "Connectez Stripe, ou la boutique ou la caisse par laquelle vous encaissez, et je le tracerai",
+      "default": "Connectez votre boutique ou votre caisse, ou Stripe, ou importez vos réservations, et je le tracerai"
+    },
+    "factSource": {
+      "measured": "mesuré sur votre compte connecté",
+      "estimate": "votre estimation",
+      "derived": "calculé à partir de vos autres chiffres",
+      "told": "comme vous me l’avez dit",
+      "statement": "le solde de clôture de votre relevé bancaire"
+    },
+    "perSale": {
+      "perPiece": "À la pièce : ({deliver} pour fournir vos offres) ÷ {sales} de ventes par mois, à vos prix et volumes déclarés = {share} de chaque vente",
+      "perPieceUnits": "À la pièce : ({deliver} pour fournir vos offres + {each} × {count, plural, one {{units} pièce} many {{units} pièces} other {{units} pièces}}) ÷ {sales} de ventes par mois, à vos prix et volumes déclarés = {share} de chaque vente",
+      "noCost": "{count, plural, one {Ce que {names} vous coûte à fournir ne figure pas dans votre liste d’offres : ce n’est donc pas compté.} many {Ce que {names} vous coûtent à fournir ne figure pas dans votre liste d’offres : ce n’est donc pas compté.} other {Ce que {names} vous coûtent à fournir ne figure pas dans votre liste d’offres : ce n’est donc pas compté.}}",
+      "noVolume": "Vos coûts à la pièce ne sont pas comptés : votre liste d’offres n’indique pas combien vous en vendez de chacune par mois.",
+      "measured": {
+        "orders": "{count, plural, one {# commande} many {# commandes} other {# commandes}} pour {sales} de ventes mesurées",
+        "appointments": "{count, plural, one {# rendez-vous} many {# rendez-vous} other {# rendez-vous}} pour {sales} de ventes mesurées",
+        "visits": "{count, plural, one {# visite} many {# visites} other {# visites}} pour {sales} de ventes mesurées",
+        "other": "{n} {noun} pour {sales} de ventes mesurées"
+      },
+      "stated": "{count, plural, one {{n} commande par mois} many {{n} commandes par mois} other {{n} commandes par mois}}, comme vous me l’avez dit, pour environ {sales} de ventes par mois",
+      "noOrders": "Vos coûts par commande ne sont pas comptés : je ne sais pas combien de commandes vous prenez par semaine.",
+      "perOrder": "Par commande : {each} × ({how}) = {share} de chaque vente",
+      "none": "Aucun coût par vente n’est déclaré : aucun n’est donc compté.",
+      "together": "Au total : {share} des ventes de chaque semaine, payés la semaine même de la vente."
+    },
+    "leftOut": {
+      "noAmount": "{label} n’a pas de montant : ce coût n’est donc pas compté.",
+      "otherCurrency": "{label} est en {currency} et votre trésorerie en {cash} ; je ne convertis pas d’une devise à l’autre, ce coût n’est donc pas compté.",
+      "noFrequency": "{label} n’a pas de fréquence : je ne peux donc pas le placer dans une semaine.",
+      "bufferCurrency": "Votre réserve est en {buffer} et votre trésorerie en {cash} : je trace donc la ligne à zéro au lieu de convertir.",
+      "debt": "Vous avez {amount} de dettes, mais aucun remboursement ne figure dans votre liste de coûts : aucun n’est donc compté. Un remboursement inscrit parmi les remboursements d’emprunt le serait.",
+      "otherSeries": "Votre {noun} en {currency} est laissé de côté : de l’argent en deux devises n’est jamais additionné."
+    },
+    "needs": {
+      "offersCost": "ce que chaque offre vous coûte à fournir",
+      "offersVolume": "combien vous vendez environ de chaque offre par mois",
+      "orders": "combien de commandes vous prenez environ par mois",
+      "cash": "combien de trésorerie l’entreprise a environ aujourd’hui",
+      "cashIn": "votre trésorerie aujourd’hui, en {currency}",
+      "provider": "quel prestataire de paiement vous verse vos ventes",
+      "buffer": "le minimum que vous voudriez garder à tout moment sur le compte",
+      "debt": "ce que vous remboursez sur votre dette, et à quelle fréquence"
+    },
+    "refusal": {
+      "addUp": "Additionner ce qui sort aux dates que vous avez indiquées : environ {amount} par mois de coûts fixes.",
+      "addUpDebt": "Additionner ce qui sort aux dates que vous avez indiquées : environ {amount} par mois de coûts fixes et de remboursements.",
+      "keepReading": "Continuer à lire vos ventes chaque nuit, pour que la prévision soit prête dès qu’il y aura assez de données.",
+      "cannotBorrow": "Emprunter le profil de ventes d’autres entreprises comme la vôtre. Une moyenne du secteur n’est pas votre historique : je ne la présente donc pas comme la vôtre.",
+      "noHistory": "Il me faut votre propre historique de ventes pour établir une prévision de trésorerie, et rien n’est encore mesuré.",
+      "noHistoryCannot": "Dire ce qui entre semaine après semaine : une prévision des entrées demande vos propres ventes mesurées.",
+      "stale": "Seulement {count, plural, one {# semaine complète a été mesurée} many {# semaines complètes ont été mesurées} other {# semaines complètes ont été mesurées}} sur les {recent} dernières (le dernier jour mesuré est le {day}) : une prévision de trésorerie en demande {needed}.",
+      "tooLittle": "J’ai {count, plural, one {# semaine complète} many {# semaines complètes} other {# semaines complètes}} de votre {noun} ; une prévision de trésorerie sur {weeks} semaines en demande {needed}.",
+      "tooLittleCannot": "Dire ce qui entrera {weeks, plural, one {la semaine prochaine} many {au cours des # prochaines semaines} other {au cours des # prochaines semaines}} : {count, plural, one {# semaine, c’est trop peu} many {# semaines, c’est trop peu} other {# semaines, c’est trop peu}} pour savoir ce qu’est une semaine normale.",
+      "cashUnknown": "Vous m’avez dit ne pas savoir combien de trésorerie l’entreprise a aujourd’hui : il n’y a donc pas encore de point de départ pour une prévision.",
+      "cashMissing": "Il me faut savoir combien de trésorerie l’entreprise a environ aujourd’hui pour faire partir la prévision.",
+      "cashCan": "Lire votre {noun} : {count, plural, one {# semaine complète} many {# semaines complètes} other {# semaines complètes}} sur les {recent} dernières, de quoi établir une prévision des entrées.",
+      "cashCannot": "Dire quand l’argent se fera rare sans savoir d’où il part.",
+      "currency": "Votre trésorerie est en {cash} et votre {noun} mesuré en {series}. Je ne convertis jamais d’une devise à l’autre : je ne peux donc pas fonder une prévision de l’une sur l’autre.",
+      "currencyCannot": "Ajouter des ventes en {series} à une trésorerie en {cash} sans un taux de change que personne ne m’a donné."
+    },
+    "assumption": {
+      "growth": "Chaque semaine se déroule comme la même semaine l’an dernier, ajustée selon la façon dont {weeks, plural, one {votre dernière semaine se compare} many {vos # dernières semaines se comparent} other {vos # dernières semaines se comparent}} aux mêmes semaines un an plus tôt ({low}–{high}).",
+      "span": "Chaque semaine se situe entre la même semaine l’an dernier et vos semaines récentes : avec une seule année d’historique, je ne peux pas distinguer votre croissance de votre saison, la fourchette couvre donc les deux.",
+      "fallback": "{count, plural, one {# semaine de l’an dernier n’a pas été mesurée en entier ; elle reprend vos semaines récentes à la place.} many {# semaines de l’an dernier n’ont pas été mesurées en entier ; elles reprennent vos semaines récentes à la place.} other {# semaines de l’an dernier n’ont pas été mesurées en entier ; elles reprennent vos semaines récentes à la place.}}",
+      "recent": "Les semaines à venir se déroulent comme {count, plural, one {votre dernière semaine complète} many {vos # dernières semaines complètes} other {vos # dernières semaines complètes}} : leur moitié centrale, {low}–{high} par semaine. Avec moins d’un an d’historique, aucune saison n’est connue : aucune n’est donc appliquée.",
+      "sameDay": "Une vente est de l’argent encaissé le jour même.",
+      "payout": "Délai entre une vente et son arrivée sur votre compte : {days} ({why}). Le cas prudent retient le délai le plus long.",
+      "evenly": "Les ventes sont réparties également sur les jours de leur semaine.",
+      "monthly": "Les coûts mensuels sortent le {day, selectordinal, one {#er} many {#} other {#}} de chaque mois.",
+      "quarterly": "Les coûts trimestriels sortent le {day, selectordinal, one {#er} many {#} other {#}} janvier, avril, juillet et octobre : vous ne m’avez pas indiqué leurs dates.",
+      "annual": "Un coût annuel sans date d’échéance est mis de côté un douzième à la fois, le {day, selectordinal, one {#er} many {#} other {#}} de chaque mois, plutôt que deviné dans une seule semaine.",
+      "perSale": "Les coûts par vente sont payés la semaine même de la vente.",
+      "statement": "La trésorerie d’aujourd’hui est le solde de clôture de votre relevé bancaire au {day} ; ce qui est entré ou sorti depuis n’est pas compté.",
+      "nothingElse": "Rien d’autre ne change : aucun coût, paiement ou dépense ponctuelle au-delà de ce que vous avez listé. Les impôts ne comptent que s’ils figurent dans votre liste de coûts."
+    },
+    "source": {
+      "label": {
+        "cash": "Trésorerie aujourd’hui",
+        "statedCash": "Trésorerie que vous m’avez indiquée",
+        "moneyIn": "Entrées",
+        "payout": "Délai de versement",
+        "fixed": "Coûts fixes",
+        "variable": "Coûts par vente",
+        "debt": "Remboursements de dette",
+        "line": "La ligne"
+      },
+      "cashOn": "{source}, au {day}",
+      "statedCash": "{source} ; c’est le relevé bancaire qui est utilisé à la place",
+      "moneyIn": "{noun} ({source}), {count, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} jusqu’au {day}",
+      "moneyInYear": "l’année écoulée, lue à partir du {day}",
+      "moneyInRecent": "{weeks, plural, one {la dernière semaine} many {les # dernières semaines} other {les # dernières semaines}}, lues à partir du {day}",
+      "aboutMonth": "environ {amount} par mois",
+      "fixed": "{count, plural, one {# coût} many {# coûts} other {# coûts}} de votre liste de coûts, selon la fréquence que vous avez indiquée",
+      "fixedNone": "aucun coût fixe avec un montant et une fréquence n’est listé",
+      "debtNone": "aucun compté",
+      "debt": "les remboursements d’emprunt de votre liste de coûts",
+      "debtStated": "dette déclarée : {amount}, aucun remboursement listé",
+      "debtNoRepayment": "aucun remboursement listé",
+      "lineBuffer": "le minimum que vous voulez garder sur le compte, comme vous me l’avez dit",
+      "lineUnknown": "vous ne savez pas quel minimum vous voudriez garder sur le compte : la ligne est donc un compte à zéro",
+      "lineNone": "aucune réserve déclarée : la ligne est donc un compte à zéro"
+    },
+    "payout": {
+      "provider": {
+        "stripe": "Stripe",
+        "paypal": "PayPal",
+        "square": "Square",
+        "adyen": "Adyen",
+        "mollie": "Mollie",
+        "klarna": "Klarna",
+        "shopify_payments": "Shopify Payments",
+        "apple_google_pay": "Apple Pay ou Google Pay",
+        "local_provider": "votre prestataire de paiement local",
+        "bank_only": "votre banque",
+        "other": "votre prestataire de paiement"
+      },
+      "direct": "vos clients paient par des moyens sans prestataire de paiement intermédiaire : une vente est donc de l’argent encaissé le jour même",
+      "stated": "vous m’avez dit que {provider} vous verse vos ventes ; délai entre une vente et son versement : {days}, {source}",
+      "series": "vos ventes sont lues depuis {provider} ; délai entre une vente et son versement : {days}, {source}",
+      "unknown": "vous n’avez pas dit quel prestataire de paiement vous verse vos ventes : je prévois donc n’importe quel délai, du jour même à {days, plural, one {# jour} many {# jours} other {# jours}}",
+      "source": "une hypothèse de planification tirée du calendrier de versement habituel du prestataire, pas une mesure de vos versements",
+      "sameDay": "le jour même",
+      "days": "{count, plural, one {# jour} many {# jours} other {# jours}}",
+      "sameDayTo": "du jour même à {count, plural, one {# jour} many {# jours} other {# jours}}",
+      "range": "{low}–{high, plural, one {# jour} many {# jours} other {# jours}}"
+    },
+    "tight": {
+      "quarterly": "{label} ({amount}, trimestriel)",
+      "monthly": "vos coûts mensuels du {day, selectordinal, one {#er} many {#} other {#}} ({amount})",
+      "debt": "{count, plural, one {un remboursement} many {des remboursements} other {des remboursements}} sur votre dette ({amount})",
+      "quietWeek": "une semaine calme (l’an dernier, la même semaine a tourné à {index} votre semaine normale)",
+      "quietStretch": "une période calme (l’an dernier, {count, plural, one {la même semaine a tourné} many {les # mêmes semaines ont tourné} other {les # mêmes semaines ont tourné}} à {spread} votre semaine normale)",
+      "outrun": "environ {amount} de plus qui sort qu’il n’en entre chaque semaine, dans le cas prudent",
+      "startClose": "un point de départ proche de la ligne : votre trésorerie aujourd’hui est de {amount}",
+      "sentence": "L’argent pourrait se faire rare {when, select, now {cette semaine} other {la semaine du {day}}} : dans le cas prudent, le solde tombe à environ {low}, {line, select, buffer {sous la réserve de {buffer} que vous voulez garder} other {sous zéro, un compte à découvert}}{both, select, yes { ; même dans le cas optimiste, il est d’environ {high}} other {}}. Pourquoi : {reasons}."
+    },
+    "scenario": {
+      "slow": {
+        "title": "Un mois creux (−{share})",
+        "change": "Ventes en baisse de {share} pendant {weeks, plural, one {# semaine} many {# semaines} other {# semaines}} à partir de {when, select, now {cette semaine} other {la semaine du {day}}}.",
+        "assumption": "Les coûts par vente baissent avec les ventes ; les coûts fixes, non."
+      },
+      "order": {
+        "title": "Une grosse commande (+{amount})",
+        "titleMissing": "Une grosse commande",
+        "change": "Une commande de {amount} {when, select, now {cette semaine} other {la semaine du {day}}}.",
+        "assumption": "Elle est payée en entier cette semaine-là, et ses coûts par vente sortent la même semaine, à votre part habituelle.",
+        "why": "Saisissez le montant de la commande pour la voir."
+      },
+      "hire": {
+        "title": "Une embauche (+{amount} par mois)",
+        "titleMissing": "Une embauche",
+        "change": "{amount} de plus qui sort chaque {first, selectordinal, one {#er} many {#} other {#}} du mois, à partir de {when, select, now {cette semaine} other {la semaine du {day}}}.",
+        "assumption": "L’embauche n’apporte aucune vente supplémentaire au cours {weeks, plural, one {de la semaine} many {des # semaines} other {des # semaines}}.",
+        "why": "Aucun salaire ne figure dans votre liste de coûts pour estimer une embauche. Indiquez ce qu’elle vous coûterait par mois.",
+        "need": "ce qu’une embauche vous coûterait par mois"
+      },
+      "price": {
+        "title": "Un changement de prix ({change})",
+        "titleMissing": "Un changement de prix",
+        "effect": "{change} sur {name}",
+        "change": "Bénéfice de {low} à {high} par semaine à partir de cette semaine, d’après la simulation de prix.",
+        "assumption": "Il prend effet cette semaine, et les clients y réagissent comme l’indique la fourchette de la simulation de prix ({source}).",
+        "whyCurrency": "La simulation de prix travaille en {pricing} et votre trésorerie est en {cash} ; je ne convertis pas.",
+        "whyNothing": "La simulation de prix a besoin d’une de vos offres avec un prix, un coût de revient et le nombre que vous en vendez par mois.",
+        "need": "le prix, le coût et les ventes mensuelles d’une offre"
+      }
+    },
+    "view": {
+      "headlineTight": "L’argent pourrait se faire rare {when, select, now {cette semaine} other {la semaine du {day}}} : le cas prudent tombe à {amount}.",
+      "headlineBuffer": "Aucune des {weeks} prochaines semaines ne passe sous votre réserve de {amount}, même dans le cas prudent.",
+      "headlineZero": "Aucune des {weeks} prochaines semaines ne passe sous zéro, même dans le cas prudent.",
+      "sourcesHistory": "Sources : {noun} ({source}), {days, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} du {from} au {to} ; {complete} sur {needed, plural, one {# semaine complète nécessaire} many {# semaines complètes nécessaires} other {# semaines complètes nécessaires}}.",
+      "sourcesNothing": "Sources : rien de mesuré pour l’instant sur quoi bâtir une prévision.",
+      "sourcesReady": "Sources : {parts} · vos coûts tels que vous les avez listés.",
+      "sourcesPart": "{label} {value}",
+      "sourcesPartBasis": "{label} {value} ({basis})",
+      "inline": {
+        "cash": "trésorerie aujourd’hui",
+        "moneyIn": "entrées",
+        "payout": "délai de versement"
+      },
+      "titleAbove": "{line, select, buffer {Au-dessus de votre réserve de {amount} tout du long} other {Au-dessus de zéro tout du long}}",
+      "titleUnder": "{line, select, buffer {Sous votre réserve de {amount} la semaine du {day}} other {Sous zéro la semaine du {day}}}",
+      "meta": "{source} · {noun} {observed} · coûts {stated} · calendrier {assumed}",
+      "band": "La bande va du cas prudent (ventes lentes, versements lents) au cas optimiste.",
+      "footGrowth": "Chaque semaine suit la même semaine l’an dernier, ajustée selon votre croissance récente.",
+      "footSpan": "Chaque semaine se situe entre la même semaine l’an dernier et vos semaines récentes.",
+      "footRecent": "Chaque semaine se déroule comme {count, plural, one {votre dernière semaine complète} many {vos # dernières semaines complètes} other {vos # dernières semaines complètes}}.",
+      "summary": "Votre solde sur {weeks, plural, one {la semaine à venir} many {les # semaines à venir} other {les # semaines à venir}}, de {start} aujourd’hui à {end}.",
+      "summaryAbove": "{line, select, buffer {Il reste au-dessus de votre réserve de {amount}.} other {Il reste au-dessus de zéro.}}",
+      "summaryUnder": "{line, select, buffer {Le cas prudent passe sous votre réserve de {amount} la semaine du {day}.} other {Le cas prudent passe sous zéro la semaine du {day}.}}"
+    }
+  },
+  "stockWords": {
+    "why": {
+      "tooLittle": "seulement {count, plural, one {{days} jour de ventes mesuré} many {{days} jours de ventes mesurés} other {{days} jours de ventes mesurés}} ; je juge à partir de {min}",
+      "fileNoSales": "le fichier n’indique ni unités vendues ni date de dernière vente",
+      "noneOnHand": "aucun en stock",
+      "stuck": "aucune vente en {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}}, avec {onHand} en stock",
+      "stuckOnRecord": "aucune vente sur {count, plural, one {le seul jour enregistré} many {les {days} jours enregistrés} other {les {days} jours enregistrés}}, avec {onHand} en stock",
+      "slowNoSale": "aucune vente sur {count, plural, one {le seul jour mesuré} many {les {days} jours mesurés} other {les {days} jours mesurés}}",
+      "slowCover": "{cover} jours de couverture à {rate} par jour — au-delà de {limit}",
+      "selling": "{cover} jours de couverture — se vend",
+      "noRate": "aucun rythme de vente sur lequel juger"
+    },
+    "sell": {
+      "fileOneWindow": "Un fichier de stock ne contient qu’une seule période d’unités vendues : je ne peux donc pas comparer {n} jours aux {n} précédents. Connectez la boutique et je le pourrai.",
+      "tooLittle": "Seulement {count, plural, one {{days} jour de ventes mesuré} many {{days} jours de ventes mesurés} other {{days} jours de ventes mesurés}} ; comparer deux périodes de {n} jours en demande {needed}. Je peux dire ce qui s’est vendu ; je ne pourrai dire si les ventes accélèrent qu’à partir du {ready}.",
+      "nothing": "Rien de vendu sur aucune des deux périodes de {n} jours.",
+      "flat": "Unités vendues : {a} ces {n} derniers jours, contre {b} les {n} jours précédents : à peu près pareil — un écart de {diff} reste dans la marge d’aléa (±{band}).",
+      "moved": "Unités vendues : {a} ces {n} derniers jours, contre {b} les {n} jours précédents : {direction, select, up {en hausse} other {en baisse}} de {diff}, au-delà de la marge d’aléa (±{band}).",
+      "movedPct": "Unités vendues : {a} ces {n} derniers jours, contre {b} les {n} jours précédents : {direction, select, up {en hausse} other {en baisse}} de {diff} ({pct}), au-delà de la marge d’aléa (±{band})."
+    },
+    "rate": {
+      "fileNoColumn": "Le fichier de stock n’a pas de colonne d’unités vendues : je ne peux donc pas dire quand quoi que ce soit s’épuisera. Un fichier avec les unités vendues sur {n} jours ou plus le peut.",
+      "fileShort": "Les unités vendues du fichier couvrent {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}} ; les jours de couverture en demandent {n}. Un fichier sur {n} jours ou plus peut dire quand le stock s’épuise.",
+      "fileNoSales": "Aucune vente sur les {days} jours du fichier : aucun rythme auquel le stock s’épuiserait.",
+      "tooLittle": "Seulement {count, plural, one {{days} jour de ventes mesuré} many {{days} jours de ventes mesurés} other {{days} jours de ventes mesurés}} ; les jours de couverture en demandent {n}. Je peux dire ce qui est en stock ; je ne pourrai dire quand il s’épuise qu’à partir du {ready}.",
+      "noSales": "Aucune vente ces {n} derniers jours : aucun rythme auquel le stock s’épuiserait."
+    },
+    "season": {
+      "underWay": "est en cours, jusqu’au {end}",
+      "startsToday": "commence aujourd’hui, jusqu’au {end}",
+      "startsIn": "commence dans {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}}, le {start}",
+      "againstNone": "je n’ai aucune semaine récente complète à laquelle la comparer, et je la compare à votre semaine normale",
+      "againstRecent": "{count, plural, one {votre dernière semaine a tourné} many {vos {weeks} dernières semaines ont tourné} other {vos {weeks} dernières semaines ont tourné}} à {recent}",
+      "addsNothing": "votre rythme récent en tient donc déjà compte et je n’ajoute rien",
+      "counts": "je compte donc {multiple} votre rythme récent pour ces jours-là",
+      "sentence": "Votre période chargée {when} : l’an dernier, elle a tourné à {index} votre semaine normale ; {against}, {counted}.",
+      "readFrom": "{noun} ({source})",
+      "notCounted": "Aucune saison prise en compte : {headline}",
+      "noYear": "Aucune saison prise en compte : rien n’a encore mesuré une année de ventes."
+    },
+    "lead": {
+      "longest": "{supplier} met {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}}, le délai le plus long des {suppliers} fournisseurs que vous avez indiqués pour cet article",
+      "answer": "{supplier} met {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}}, d’après votre réponse",
+      "noTimeFor": "aucun délai de livraison enregistré pour {suppliers}",
+      "noSupplier": "aucun fournisseur enregistré pour cet article",
+      "unmatched": "cet article n’est rattaché à aucun de vos produits : je ne peux donc pas savoir qui est son fournisseur",
+      "assumed": "{days} jours, SUPPOSÉ : {reason}",
+      "phraseNamed": "{supplier} met {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}}",
+      "phraseAssumed": "une livraison prend {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}} (SUPPOSÉ)",
+      "line": "délai de livraison : {why}",
+      "yourSupplier": "Votre fournisseur"
+    },
+    "reorder": {
+      "arithmetic": "{rate} par jour (jusqu’à {high}) sur {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}} = {mid}, + {safety} de marge de sécurité (le haut de la fourchette) = {before}{moq}.",
+      "arithmeticSeason": "{rate} par jour (jusqu’à {high}) sur {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}}, avec la période chargée à {multiple} = {mid}, + {safety} de marge de sécurité (le haut de la fourchette) = {before}{moq}.",
+      "moqNone": " ; aucune commande minimale enregistrée",
+      "moqRounded": " ; la commande minimale chez {ends, select, s {{supplier}} other {{supplier}}} est de {moq}, donc {moq}",
+      "moqRoundedUnnamed": " ; la commande minimale du fournisseur est de {moq}, donc {moq}",
+      "moqOver": " ; au-dessus de la commande minimale chez {ends, select, s {{supplier}} other {{supplier}}}, qui est de {moq}",
+      "moqOverUnnamed": " ; au-dessus de la commande minimale du fournisseur, qui est de {moq}",
+      "cost": "{quantity} × {unit} au prix de revient = {total}",
+      "costStated": "{quantity} × {unit} au prix de revient (votre propre coût pour ce produit) = {total}"
+    },
+    "cover": {
+      "sourcesOnHand": "{onHand} en stock, lu sur {source} le {day}",
+      "assumedPace": "les jours à venir se vendent au rythme {count, plural, one {du dernier jour} many {des {days} derniers jours} other {des {days} derniers jours}} (unités vendues : {units}), à l’aléa près (±{band})",
+      "assumedLead": "Délai de livraison SUPPOSÉ : {why}",
+      "assumedSeason": "SUPPOSÉ : cet article suit la saison propre à votre entreprise — la période chargée est lue dans vos données de {readFrom}, pas dans celles de cet article",
+      "assumedElapsed": "SUPPOSÉ : il a continué de se vendre à ce rythme depuis la lecture du stock le {day}, il y a {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}}",
+      "windowFile": "unités vendues : {units} sur les {days} jours jusqu’au {to}, d’après votre fichier de stock",
+      "windowMeasured": "unités vendues : {units} du {from} au {to}, mesuré par {source}",
+      "sources": "{window} ; {onHand} en stock, lu le {day} ; {lead}",
+      "sourcesSeason": "{window} ; {onHand} en stock, lu le {day} ; {lead} ; la saison d’après vos données de {readFrom}",
+      "colSoldOut": "épuisé",
+      "colNoSales": "aucune vente"
+    },
+    "warning": {
+      "sentence": "{name} : rupture dans {range} ; {lead}.",
+      "sentenceInStretch": "{name} : rupture dans {range} ; {lead}. Cela tient compte de la période chargée en cours, jusqu’au {end}.",
+      "sentenceFromStretch": "{name} : rupture dans {range} ; {lead}. Cela tient compte de votre période chargée à partir du {start}.",
+      "head": "{name} : rupture dans {range}.",
+      "rangeOpen": "environ {count, plural, one {{days} jour} many {{days} jours} other {{days} jours}} ou plus",
+      "rangeClosed": "environ {low}–{high} jours"
+    },
+    "option": {
+      "label": {
+        "content": "Le mettre en avant dans une publication",
+        "bundle": "L’associer à une meilleure vente",
+        "email": "Écrire aux clients qui ont dit oui",
+        "markdown": "Baisser son prix",
+        "selloff": "Le brader ou le renvoyer"
+      },
+      "inline": {
+        "content": "le mettre en avant dans une publication",
+        "bundle": "l’associer à une meilleure vente",
+        "email": "écrire aux clients qui ont dit oui",
+        "markdown": "baisser son prix",
+        "selloff": "le brader ou le renvoyer"
+      },
+      "noPrice": "son prix de vente n’est pas connu",
+      "noChannel": "vous n’animez aucun réseau sur lequel publier",
+      "noBestSeller": "aucune meilleure vente en stock à laquelle l’associer",
+      "noConsent": "aucun client n’a encore dit oui aux e-mails",
+      "noCost": "ce qu’il vous a coûté n’est pas connu",
+      "emailOff": "votre propre réponse sur le consentement des clients était « aucun consentement » : l’e-mail reste donc désactivé",
+      "arithmetic": {
+        "content": "{onHand} en stock × {low}–{high} vendus au prix plein = {unitsLow}–{unitsHigh} unités, {backLow}–{backHigh} ; rien de cédé",
+        "bundleNone": "aucune meilleure vente en stock à laquelle l’associer",
+        "bundle": "{onHand} en stock × {low}–{high}, plafonné à {cap} ({seller} en stock) = {unitsLow}–{unitsHigh} unités, {backLow}–{backHigh} ; les deux au prix plein, rien de cédé",
+        "email": "{customers} clients ayant dit oui aux e-mails × {low}–{high} qui en achètent un, plafonné à {onHand} en stock = {unitsLow}–{unitsHigh} unités, {backLow}–{backHigh} ; sans remise, rien de cédé",
+        "markdown": "{onHand} en stock × {low}–{high} vendus avec {cut} de remise = {unitsLow}–{unitsHigh} unités, {backLow}–{backHigh}, en cédant {givenLow}–{givenHigh} du prix plein",
+        "selloffNone": "aucun coût enregistré pour le valoriser",
+        "selloff": "{cost} au prix de revient × {low}–{high} = {backLow}–{backHigh}, en cédant {givenLow}–{givenHigh} par rapport à {price} au prix plein"
+      },
+      "efficiencyFree": "{back} probablement récupérés, rien de cédé",
+      "efficiencyNet": "{back} probablement récupérés − {given} cédés = {net} net ({ratio} récupéré pour chaque {one} cédé)",
+      "unknownCurrency": "{amount} (devise inconnue)"
+    },
+    "held": {
+      "slowNotInCare": "Je propose des moyens de l’écouler dès que vous avez choisi comment je travaille pour vous.",
+      "coverNotInCare": "Je mets des notes de réapprovisionnement dans votre file dès que vous avez choisi comment je travaille pour vous.",
+      "watching": "J’observe jusqu’au {day}, et je ne propose rien avant."
+    },
+    "source": {
+      "file": "Votre fichier de stock"
+    },
+    "history": {
+      "summary": "Argent immobilisé au prix de revient dans {count, plural, one {l’article le plus lent} many {les {n} articles les plus lents} other {les {n} articles les plus lents}}, à chaque inventaire du {from} au {to} : {items}. Un stock, lu à chaque jour d’inventaire — jamais additionné d’un jour à l’autre.",
+      "oneCount": "{name} {amount} (un seul inventaire)",
+      "change": "{name} de {from} à {to}"
+    },
+    "view": {
+      "notRead": "Je n’ai pas encore lu votre stock.",
+      "allSelling": "Tout ce que vous avez en stock se vend.",
+      "notSelling": "{count, plural, one {{n} article ne se vend pas} many {{n} articles ne se vendent pas} other {{n} articles ne se vendent pas}}.",
+      "tiedUp": "{amount} sont immobilisés dans {count, plural, one {{n} article qui ne se vend pas} many {{n} articles qui ne se vendent pas} other {{n} articles qui ne se vendent pas}}.",
+      "svmOtherCurrency": "Vous avez estimé votre stock dormant à {stated} ; ce que j’ai mesuré n’est pas en {currency} : je ne les compare donc pas.",
+      "svm": "Vous avez estimé votre stock dormant à {stated} ; je mesure {measured} au prix de revient dans du stock qui ne se vend pas — {diff} de {direction, select, more {plus} other {moins}}. Votre estimation reste sur votre fiche des faits."
+    }
+  },
+  "cartsWords": {
+    "and": "{first} et {last}",
+    "headline": {
+      "noShop": "Les paniers abandonnés demandent une boutique Shopify connectée.",
+      "notRead": "Je n’ai pas encore lu vos paniers.",
+      "tooMany": "Trop de paiements pour tout lire.",
+      "stale": "Vos paniers n’ont pas été lus récemment.",
+      "tooEarly": "Trop tôt pour mesurer vos paniers abandonnés.",
+      "carts": "{count, plural, one {# panier a été laissé} many {# paniers ont été laissés} other {# paniers ont été laissés}} {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}} ; joignables par e-mail : {emailable} sur {shoppers, plural, one {# acheteur} many {# acheteurs} other {# acheteurs}}.",
+      "value": "{money} ont été laissés dans des paniers {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}} ; joignables par e-mail : {emailable} sur {shoppers, plural, one {# acheteur} many {# acheteurs} other {# acheteurs}}."
+    },
+    "window": {
+      "now": "Du {from} au {to} : {started, plural, one {# paiement commencé} many {# paiements commencés} other {# paiements commencés}}, {left} sans suite, {recovered} repris plus tard.",
+      "nowShare": "Du {from} au {to} : {started, plural, one {# paiement commencé} many {# paiements commencés} other {# paiements commencés}}, {left} sans suite, {recovered} repris plus tard ; {share} de l’ensemble des paiements restés inachevés.",
+      "prior": "{days, plural, one {Le jour précédent} many {Les # jours précédents} other {Les # jours précédents}} : {left} sans suite ({money}).",
+      "priorShare": "{days, plural, one {Le jour précédent} many {Les # jours précédents} other {Les # jours précédents}} : {left} sans suite ({money}), soit {share} des paiements."
+    },
+    "notes": {
+      "yes": "{count, plural, one {# panier provient de contacts qui ont dit oui aux e-mails.} many {# paniers proviennent de contacts qui ont dit oui aux e-mails.} other {# paniers proviennent de contacts qui ont dit oui aux e-mails.}}",
+      "noEmail": "{count, plural, one {# panier ne porte aucune adresse e-mail que je puisse lire : il n’est donc rattaché à personne.} many {# paniers ne portent aucune adresse e-mail que je puisse lire : ils ne sont donc rattachés à personne.} other {# paniers ne portent aucune adresse e-mail que je puisse lire : ils ne sont donc rattachés à personne.}}",
+      "notContact": "{count, plural, one {# panier provient d’acheteurs qui ne figurent pas parmi vos contacts : il ne reçoit donc pas d’e-mail.} many {# paniers proviennent d’acheteurs qui ne figurent pas parmi vos contacts : ils ne reçoivent donc pas d’e-mail.} other {# paniers proviennent d’acheteurs qui ne figurent pas parmi vos contacts : ils ne reçoivent donc pas d’e-mail.}}",
+      "noConsent": "{count, plural, one {# panier provient de contacts sans oui enregistré aux e-mails : il ne reçoit donc pas d’e-mail.} many {# paniers proviennent de contacts sans oui enregistré aux e-mails : ils ne reçoivent donc pas d’e-mail.} other {# paniers proviennent de contacts sans oui enregistré aux e-mails : ils ne reçoivent donc pas d’e-mail.}}",
+      "suppressed": "{count, plural, one {# panier provient d’une personne qui s’est désinscrite ou a demandé à être oubliée : il ne reçoit donc pas d’e-mail.} many {# paniers proviennent de personnes qui se sont désinscrites ou ont demandé à être oubliées : ils ne reçoivent donc pas d’e-mail.} other {# paniers proviennent de personnes qui se sont désinscrites ou ont demandé à être oubliées : ils ne reçoivent donc pas d’e-mail.}}"
+    },
+    "noEmailWhy": {
+      "read": "Le paiement ne comportait pas d’e-mail client : une commande provisoire, ou une commande créée par une application.",
+      "notGranted": "Shopify n’indique qui a laissé un panier qu’à une application autorisée à lire vos clients. Ajoutez read_customers à l’application dans le Dev Dashboard de Shopify, publiez-la, puis connectez-vous de nouveau.",
+      "refused": "L’application a read_customers, mais Shopify a tout de même retenu les données des clients. Dans le Dev Dashboard de l’application, autorisez l’accès aux données client (e-mail), publiez-la, et la prochaine synchronisation rattachera les paniers.",
+      "unknown": "Shopify n’indique qui a laissé un panier qu’à une application autorisée à lire vos clients (read_customers)."
+    },
+    "checkout": {
+      "saidYes": "{count, plural, one {# contact a dit oui} many {# contacts ont dit oui} other {# contacts ont dit oui}} aux e-mails lors du paiement Shopify ; ce oui est enregistré avec sa date. En cas de désinscription dans Shopify, je cesse les e-mails.",
+      "withdrawn": "{count, plural, one {# contact que vous aviez enregistré comme un oui s’est ensuite désinscrit dans Shopify : je ne lui envoie donc plus d’e-mail.} many {# contacts que vous aviez enregistrés comme un oui se sont ensuite désinscrits dans Shopify : je ne leur envoie donc plus d’e-mail.} other {# contacts que vous aviez enregistrés comme un oui se sont ensuite désinscrits dans Shopify : je ne leur envoie donc plus d’e-mail.}}",
+      "differs": "{count, plural, one {Shopify indique comme abonné # contact que vous avez enregistré autrement. J’ai laissé cette réponse telle que vous l’avez enregistrée.} many {Shopify indique comme abonnés # contacts que vous avez enregistrés autrement. J’ai laissé ces réponses telles que vous les avez enregistrées.} other {Shopify indique comme abonnés # contacts que vous avez enregistrés autrement. J’ai laissé ces réponses telles que vous les avez enregistrées.}}"
+    },
+    "week": {
+      "cant": "Parmi les contacts qui ont laissé un panier au cours de la dernière semaine, {cant, plural, one {# ne peut pas recevoir d’e-mail} many {# ne peuvent pas recevoir d’e-mail} other {# ne peuvent pas recevoir d’e-mail}}.",
+      "recent": "Parmi les contacts qui ont laissé un panier au cours de la dernière semaine, {count, plural, one {# a déjà fait l’objet d’une proposition de rappel} many {# ont déjà fait l’objet d’une proposition de rappel} other {# ont déjà fait l’objet d’une proposition de rappel}} {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}}.",
+      "both": "Parmi les contacts qui ont laissé un panier au cours de la dernière semaine, {cant, plural, one {# ne peut pas recevoir d’e-mail} many {# ne peuvent pas recevoir d’e-mail} other {# ne peuvent pas recevoir d’e-mail}}, et {count, plural, one {# a déjà fait l’objet d’une proposition de rappel} many {# ont déjà fait l’objet d’une proposition de rappel} other {# ont déjà fait l’objet d’une proposition de rappel}} {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}}."
+    },
+    "block": {
+      "everyone": "Pour chaque personne qui a laissé un panier il y a {min} à {max, plural, one {# jour} many {# jours} other {# jours}} et dit oui aux e-mails, un rappel a déjà été proposé {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}}.",
+      "everyoneWeek": "Pour chaque personne qui a laissé un panier au cours de la dernière semaine et dit oui aux e-mails, un rappel a déjà été proposé {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}}.",
+      "nobody": "Aucun contact ayant dit oui aux e-mails n’a laissé de panier il y a {min} à {max, plural, one {# jour} many {# jours} other {# jours}} : il n’y a donc personne à relancer.",
+      "nobodyWeek": "Aucun contact ayant dit oui aux e-mails n’a laissé de panier au cours de la dernière semaine : il n’y a donc personne à relancer."
+    },
+    "sources": {
+      "read": "{source}, lu le {day}",
+      "line": "Paniers et commandes : {list}. Qui peut recevoir un e-mail : le consentement enregistré de chaque contact, vérifié de nouveau au moment où un e-mail part.",
+      "notYet": "Paniers et commandes : pas encore lus. Qui peut recevoir un e-mail : le consentement enregistré de chaque contact, vérifié de nouveau au moment où un e-mail part."
+    },
+    "measure": {
+      "noFullRead": "Aucune lecture n’a encore abouti en entier.",
+      "lastFullRead": "La dernière lecture complète date du {day}.",
+      "tooMany": "{source} compte plus de paiements abandonnés {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}} qu’une lecture ne peut en prendre, et je ne présente pas une partie comme le tout.",
+      "stale": "J’ai lu vos paniers sur {source} pour la dernière fois le {day} : je n’affiche donc pas un chiffre peut-être dépassé. Il reviendra avec la prochaine lecture réussie.",
+      "thin": {
+        "reason": "Trop peu pour mesurer pour l’instant : {short}.",
+        "and": "{first} et {last}",
+        "noCarts": "aucun panier lu pour l’instant",
+        "days": "{count, plural, one {{n} jour} many {{n} jours} other {{n} jours}} de paniers (il m’en faut {min})",
+        "carts": "{count, plural, one {{n} panier laissé} many {{n} paniers laissés} other {{n} paniers laissés}} {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}} (il m’en faut {min})",
+        "readyFrom": "Ce sera prêt à partir du {day}.",
+        "readyOnce": "Ce sera prêt dès que {count, plural, one {# panier aura été laissé} many {# paniers auront été laissés} other {# paniers auront été laissés}} en {days, plural, one {# jour} many {# jours} other {# jours}}.",
+        "readyOnceNotBefore": "Ce sera prêt dès que {count, plural, one {# panier aura été laissé} many {# paniers auront été laissés} other {# paniers auront été laissés}} en {days, plural, one {# jour} many {# jours} other {# jours}}, et pas avant le {day}."
+      },
+      "priorNote": "Pas encore de comparaison : {days, plural, one {le jour précédent compte} many {les # jours précédents comptent} other {les # jours précédents comptent}} {covered, plural, one {# jour} many {# jours} other {# jours}} de paniers et {left} sans suite, et une comparaison demande {minDays, plural, one {# jour} many {# jours} other {# jours}} et {minCarts, plural, one {# panier} many {# paniers} other {# paniers}}."
+    },
+    "ruleOfThumb": {
+      "label": "SUPPOSÉ",
+      "statement": "Ordre de grandeur, pas votre chiffre : parmi les paniers qu’un e-mail de rappel atteint, environ {low}–{high} reviennent sous forme de commande."
+    },
+    "held": {
+      "noConsent": "Vous m’avez dit que vos clients n’ont pas accepté les e-mails marketing : je n’en envoie donc aucun."
+    },
+    "productFallback": "Produit {ref}"
+  },
+  "pipelineWords": {
+    "answer": "votre réponse à la question {question}",
+    "rate": {
+      "measuredAssumed": "les prochaines affaires se concluent comme vos {n} dernières (gagnées : {won}, perdues : {lost}, du {from} au {to}) ; la fourchette montre à quel point {count, plural, one {{n} affaire peut} many {{n} affaires peuvent} other {{n} affaires peuvent}} induire en erreur",
+      "statedAssumed": "votre propre taux de réussite de {rate} (question {question}), à {band, plural, one {# point} many {# points} other {# points}} près : c’est votre estimation, pas une mesure",
+      "none": "Je ne connais pas encore votre taux de réussite : {count, plural, one {{n} affaire conclue} many {{n} affaires conclues} other {{n} affaires conclues}} {days, plural, one {au cours du dernier jour} many {au cours des # derniers jours} other {au cours des # derniers jours}}, et il m’en faut {min} pour le mesurer. Dites-moi à peu près quelle part vous gagnez (question {question}) et je pourrai pondérer vos affaires ouvertes dès maintenant."
+    },
+    "weigh": {
+      "canList": "lister vos affaires ouvertes, leur valeur et depuis combien de temps chacune est dans son étape",
+      "canStale": "dire quelles affaires n’ont pas de prochaine étape, ou une prochaine étape dépassée",
+      "cantLikely": "dire quelle part de ce qui est ouvert vous gagnerez probablement",
+      "cantBorrow": "emprunter le taux de réussite d’autres entreprises et le présenter comme le vôtre",
+      "readyAfter": "après {count, plural, one {{n} affaire conclue de plus} many {{n} affaires conclues de plus} other {{n} affaires conclues de plus}}, ou dès que vous indiquez votre taux de réussite",
+      "readyStated": "dès que vous indiquez votre taux de réussite",
+      "sourcePipeline": "votre pipeline : {count, plural, one {{n} affaire ouverte} many {{n} affaires ouvertes} other {{n} affaires ouvertes}}",
+      "sourceClosed": "{count, plural, one {{n} affaire que vous avez conclue} many {{n} affaires que vous avez conclues} other {{n} affaires que vous avez conclues}} entre le {from} et le {to}",
+      "oneRate": "chaque affaire ouverte se conclut à ce seul taux, quelle que soit son étape — un prospect en début de parcours se conclut sans doute moins souvent qu’une proposition commerciale envoyée : lisez donc d’abord le bas de la fourchette",
+      "estimated": "{count, plural, one {{n} valeur est votre estimation plutôt qu’un devis, et compte de la même façon} many {{n} valeurs sont votre estimation plutôt qu’un devis, et comptent de la même façon} other {{n} valeurs sont votre estimation plutôt qu’un devis, et comptent de la même façon}}"
+    },
+    "due": {
+      "noneDated": "Aucune affaire ouverte n’a de date de conclusion prévue au plus tard le {day}. Donnez à vos affaires une date de conclusion prévue et je pourrai dire combien sera probablement gagné d’ici là.",
+      "noValue": "Les affaires dont la conclusion est prévue d’ici le {day} n’ont pas encore de valeur : je ne peux donc pas dire combien sera probablement gagné.",
+      "sourceDates": "les dates de conclusion prévues que vous avez indiquées pour {count, plural, one {{n} affaire ouverte} many {{n} affaires ouvertes} other {{n} affaires ouvertes}}",
+      "sourceRate": "votre propre taux de réussite, tiré de {count, plural, one {{n} affaire que vous avez conclue} many {{n} affaires que vous avez conclues} other {{n} affaires que vous avez conclues}} entre le {from} et le {to}",
+      "oneRate": "chacune de ces affaires est gagnée à ce seul taux, quelle que soit son étape",
+      "markWon": "une affaire ne compte comme gagnée à la date que si vous la marquez gagnée dans le pipeline d’ici là",
+      "overdue": "{count, plural, one {{n} d’entre elles était prévue plus tôt et reste ouverte ; elle compte comme à échéance maintenant} many {{n} d’entre elles étaient prévues plus tôt et restent ouvertes ; elles comptent comme à échéance maintenant} other {{n} d’entre elles étaient prévues plus tôt et restent ouvertes ; elles comptent comme à échéance maintenant}}"
+    },
+    "hold": {
+      "notB2b": "Votre pipeline sert aux entreprises qui vendent à d’autres entreprises : vous m’avez dit vendre à des particuliers ({question}).",
+      "noConsent": "votre propre réponse sur le consentement des clients ({question}) était « aucun consentement » — je ne propose pas d’e-mails tant que vos données n’indiquent pas le contraire"
+    },
+    "skip": {
+      "noneQuiet": "aucune affaire n’est restée sans nouvelles",
+      "perRun": "j’en propose {max} à la fois — celle-ci attend le prochain passage",
+      "already": "déjà proposée ce mois-ci",
+      "cantEmail": "je ne peux pas proposer d’e-mail : {why}. Appelez ce contact, ou enregistrez son consentement dans Clients.",
+      "contactGone": "le contact n’existe plus",
+      "declined": "vous avez refusé des relances {count, plural, one {# fois} many {# fois} other {# fois}} — j’ai cessé d’en proposer"
+    },
+    "noName": "un contact sans nom"
+  },
+  "simulateWords": {
+    "model": {
+      "label": {
+        "margin": "Votre marge",
+        "aov": "Valeur d’une commande",
+        "aovEach": "Dépense par personne",
+        "recipients": "Qui peut recevoir un e-mail",
+        "delivery": "Remis",
+        "boughtAgain": "Ont racheté ensuite",
+        "dailyNew": "Budget quotidien",
+        "dailyNow": "Dépense quotidienne actuelle",
+        "roas": "Rendement des dépenses publicitaires",
+        "posts": "Publications prévues sur les réseaux sociaux",
+        "reach": "{audience, select, views {Vues par publication} other {Portée par publication}}",
+        "interactions": "Interactions par publication",
+        "spi": "Visites du site par interaction",
+        "conversion": "Part des visites qui achètent"
+      },
+      "inline": {
+        "margin": "votre marge",
+        "aov": "la valeur d’une commande",
+        "aovEach": "la dépense par personne",
+        "recipients": "qui peut recevoir un e-mail",
+        "delivery": "remis",
+        "boughtAgain": "ont racheté ensuite",
+        "dailyNew": "budget quotidien",
+        "dailyNow": "dépense quotidienne actuelle",
+        "roas": "rendement des dépenses publicitaires",
+        "posts": "publications prévues sur les réseaux sociaux",
+        "reach": "{audience, select, views {vues par publication} other {portée par publication}}",
+        "interactions": "interactions par publication",
+        "spi": "visites du site par interaction",
+        "conversion": "part des visites qui achètent"
+      },
+      "notKnown": "inconnu",
+      "notWorkedOut": "non calculé",
+      "needLine": "{label} : {needs}",
+      "revenueFormula": "{orders} commandes × {value}",
+      "profitFormula": "{revenue} × {margin} de marge − {spend}",
+      "worstUnknown": "Je ne peux pas chiffrer le pire cas sans les données ci-dessus.",
+      "currencies": "en {currencies} — je ne convertis pas d’une devise à l’autre",
+      "margin": {
+        "both": "calculée à partir de vos offres ({computed}) et telle que vous me l’avez indiquée ({stated}) — la fourchette couvre les deux",
+        "computed": "calculée à partir de vos offres : {formula}",
+        "formulaDefault": "prix moins coût de revient",
+        "stated": "telle que vous me l’avez indiquée (votre marge brute)",
+        "needs": "votre marge brute, ou ce que chaque produit vous coûte à fournir — le bénéfice pourra alors être calculé"
+      },
+      "aov": {
+        "measured": "chiffre d’affaires ÷ commandes sur {count, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} des {window} derniers jours, moitié centrale",
+        "stated": "votre chiffre d’affaires mensuel ÷ vos commandes mensuelles, comme vous me l’avez dit",
+        "needs": "une boutique ou une caisse connectée, ou votre chiffre d’affaires mensuel et votre nombre de commandes"
+      },
+      "email": {
+        "title": "{segment, select, lapsed {E-mail de reconquête aux clients inactifs} other {E-mail de remerciement à vos meilleurs clients}}",
+        "recipientsSource": "{count, plural, one {# client} many {# clients} other {# clients}} dans le segment, d’après votre liste de clients ; ont dit oui aux e-mails sans s’être désinscrits : {emailable}",
+        "noList": "pas encore de liste de clients",
+        "listNeeds": "votre liste de clients, importée dans Clients",
+        "deliverySource": "remis ÷ envoyés sur {count, plural, one {# campagne passée} many {# campagnes passées} other {# campagnes passées}} avec rapports de remise",
+        "noDelivery": "aucune de vos campagnes n’a encore de rapport de remise",
+        "deliveryNeeds": "une campagne envoyée avec ses rapports de remise",
+        "before": "avant",
+        "boughtAgainOne": "{kind, select, winback {votre e-mail de reconquête du {day} : ont racheté {returned} sur {measured} destinataires mesurés — à une personne près} other {votre e-mail de remerciement du {day} : ont racheté {returned} sur {measured} destinataires mesurés — à une personne près}}",
+        "boughtAgainMany": "{kind, select, winback {rachats ÷ destinataires mesurés, sur {count, plural, one {votre dernière campagne de reconquête} many {vos # dernières campagnes de reconquête} other {vos # dernières campagnes de reconquête}}, moitié centrale} other {rachats ÷ destinataires mesurés, sur {count, plural, one {votre dernière campagne de remerciement} many {vos # dernières campagnes de remerciement} other {vos # dernières campagnes de remerciement}}, moitié centrale}}",
+        "boughtAgainNone": "{kind, select, winback {aucun de vos e-mails de reconquête n’a encore été relu} other {aucun de vos e-mails de remerciement n’a encore été relu}}",
+        "boughtAgainNeeds": "{kind, select, winback {un e-mail de reconquête envoyé et un export de clients au moins {count, plural, one {# jour} many {# jours} other {# jours}} après} other {un e-mail de remerciement envoyé et un export de clients au moins {count, plural, one {# jour} many {# jours} other {# jours}} après}}",
+        "spendsSource": "total dépensé ÷ commandes pour {count, plural, one {# destinataire} many {# destinataires} other {# destinataires}}, d’après votre liste de clients, moitié centrale",
+        "costFormula": "aucune dépense — l’e-mail part dans le cadre de votre formule",
+        "reachedFormula": "{recipients} destinataires × {rate} de remise",
+        "ordersFormula": "{recipients} destinataires × {rate} de rachat",
+        "worstFormula": "personne ne rachète : rien n’entre, rien n’est dépensé",
+        "worstWords": "Personne ne rachète : {zero} d’entrées, {zero} de dépenses.",
+        "harmWords": "Au taux de votre pire campagne passée ({rate}), environ {count, plural, one {# personne se désinscrirait} many {# personnes se désinscriraient} other {# personnes se désinscriraient}} — une demande respectée aussitôt, et pour de bon.",
+        "what": "{segment, select, lapsed {Un e-mail, rédigé dans votre style, aux {emailable} clients inactifs qui ont dit oui aux e-mails.} other {Un e-mail, rédigé dans votre style, aux {emailable} meilleurs clients qui ont dit oui aux e-mails.}}",
+        "whatNoList": "Un e-mail à un segment de vos clients — dès que votre liste de clients sera importée.",
+        "assumption": "{kind, select, winback {Cet envoi fait ce qu’ont fait vos précédents e-mails de reconquête.} other {Cet envoi fait ce qu’ont fait vos précédents e-mails de remerciement.}}",
+        "assumptionSource": "ma projection — la prochaine campagne n’est mesurée qu’une fois envoyée",
+        "keyRate": "rachat",
+        "noConsent": "Vous m’avez dit que vos clients n’ont donné aucun consentement aux e-mails : l’e-mail sortant reste donc désactivé.",
+        "nobodyEmailable": "Personne dans ce segment n’a dit oui aux e-mails : il n’y a donc personne à qui l’envoyer.",
+        "importFirst": "Importez d’abord votre liste de clients dans Clients."
+      },
+      "ads": {
+        "thisCampaign": "cette campagne",
+        "metaNeeds": "votre compte publicitaire Meta, connecté dans Connexions",
+        "typedSource": "le budget que vous avez saisi ici",
+        "typedNeeds": "le budget quotidien que vous envisagez",
+        "newSpendFormula": "{daily} par jour × {days} jours",
+        "dailySource": "Meta : {spend} sur {count, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} des {window} derniers jours",
+        "noSpend": "aucune dépense mesurée ces quatre dernières semaines",
+        "dailyNeeds": "quelques semaines de diffusion de cette campagne",
+        "pauseFormula": "{daily} par jour non dépensés × {days} jours",
+        "changeFormula": "{daily} par jour × {change} × {days} jours",
+        "roasSource": "{which, select, pooled {achats attribués par Meta ÷ dépenses, par semaine glissante de {block} jours sur les {window} derniers jours, sur l’ensemble de vos campagnes mesurées, moitié centrale ({count, plural, one {# semaine} many {# semaines} other {# semaines}})} other {achats attribués par Meta ÷ dépenses, par semaine glissante de {block} jours sur les {window} derniers jours, moitié centrale ({count, plural, one {# semaine} many {# semaines} other {# semaines}})}}",
+        "roasNonePooled": "aucune de vos campagnes n’a {days} jours mesurés en {currency}",
+        "roasNone": "{count, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} — il m’en faut {need}",
+        "roasNeeds": "{which, select, pooled {{days} jours mesurés d’une campagne} other {{days} jours mesurés de cette campagne}}",
+        "reachNotRead": "la portée de Meta par campagne n’est pas lue",
+        "ordersNotRead": "Meta rapporte une valeur d’achat par campagne, pas un nombre d’achats",
+        "revenueFormula": "{spend} × rendement {roas} (attribution de Meta)",
+        "worstFormula": "{spend} × rendement {roas} × {margin} − {spend}",
+        "worstWeakest": "Chaque semaine rapporte ce qu’a rapporté votre semaine mesurée la plus faible ({roas}) : {amount} sur {days} jours.",
+        "worstBest": "Les semaines que vous arrêteriez valaient votre meilleure semaine mesurée ({roas}) : {amount} sur {days} jours.",
+        "worstUnsized": "Au pire, les {amount} sortent en entier et peu revient — je ne peux pas le chiffrer sans les données ci-dessus.",
+        "guardCurrency": "votre plafond publicitaire est en {ceiling} et ce budget en {currency} — je ne convertis pas pour les comparer",
+        "guardCeiling": "cela porterait les dépenses publicitaires mensuelles à environ {projected}, au-delà du plafond de {ceiling} que vous avez fixé",
+        "titleNew": "Lancer une nouvelle campagne à {amount} par jour",
+        "titleNewOpen": "Lancer une nouvelle campagne au budget de votre choix",
+        "titleRaise": "Augmenter « {name} » de {share}",
+        "titleCut": "Réduire « {name} » de {share}",
+        "titlePause": "Mettre « {name} » en pause",
+        "whatNew": "Une nouvelle campagne Meta, jugée sur ce que rapportent vos autres campagnes.",
+        "whatPause": "Arrêter la campagne : ce qu’elle dépense vous reste, et ce que Meta dit qu’elle rapporte s’arrête aussi.",
+        "whatRaise": "Plus de budget quotidien sur une campagne que vous menez déjà.",
+        "whatCut": "Moins de budget quotidien sur une campagne que vous menez déjà.",
+        "newNotProposable": "Une nouvelle publicité part d’une publication ou d’une vidéo : dans Contenus, « Diffuser comme publicité » crée une proposition qui la met en place sur Meta, en pause ({task}). D’ici, je peux seulement la chiffrer.",
+        "tooFewDays": "Je ne propose de changements publicitaires qu’avec {days} jours mesurés derrière eux.",
+        "guarded": "Je ne propose pas ceci : {guard}.",
+        "assumeStop": "La dépense que vous arrêtez rapportait ce qu’ont rapporté les semaines récentes de la campagne.",
+        "assumeExtra": "Les dépenses supplémentaires rapportent ce qu’ont rapporté les semaines récentes.",
+        "assumptionSource": "ma projection d’après l’attribution de Meta elle-même — certains de ces achats auraient pu avoir lieu de toute façon",
+        "keyRate": "rendement des dépenses publicitaires"
+      },
+      "content": {
+        "postNeeds": "{count, plural, one {# publication mesurée une semaine après sa mise en ligne} many {# publications mesurées une semaine après leur mise en ligne} other {# publications mesurées une semaine après leur mise en ligne}}",
+        "postNeedsConnect": "votre page Instagram ou Facebook connectée pour publier, et quelques publications mesurées",
+        "postsSource": "{count, plural, one {# réseau social} many {# réseaux sociaux} other {# réseaux sociaux}} × {perWeek} par semaine × {weeks} semaines — les publications du calendrier sur les réseaux sociaux ; ses e-mails et contenus pour le site ne sont pas simulés",
+        "noChannel": "aucun réseau social dans votre profil",
+        "channelNeeds": "un réseau social sur lequel vous publiez, ajouté à votre profil",
+        "reachSource": "{platform}, au jour {age} après la publication, {count, plural, one {votre dernière publication} many {vos # dernières publications} other {vos # dernières publications}}, moitié centrale",
+        "interactionsSource": "{platform}, jour {age}, {count, plural, one {votre dernière publication} many {vos # dernières publications} other {vos # dernières publications}}, moitié centrale",
+        "measured": "{count, plural, one {# publication mesurée} many {# publications mesurées} other {# publications mesurées}}",
+        "spiNone": "les visites issues des réseaux sociaux ne sont pas encore mesurées face à vos publications",
+        "spiSource": "{visits} visites issues de « {channel} » ÷ {interactions} interactions sur vos publications, {days} derniers jours",
+        "spiNeeds": "un mois de publications mesurées à côté de vos visites Google Analytics issues des réseaux sociaux",
+        "spiNeedsConnect": "Google Analytics connecté, pour que je voie les visites issues des réseaux sociaux",
+        "conversionSource": "commandes ÷ visites sur {count, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} des {window} derniers jours, moitié centrale",
+        "conversionStated": "vos commandes mensuelles ÷ vos visites mensuelles du site, comme vous me l’avez dit",
+        "conversionNeeds": "Google Analytics et votre boutique connectés, ou vos visites et commandes mensuelles",
+        "costFormula": "aucune dépense — votre temps de relecture des brouillons",
+        "reachedFormula": "{audience, select, views {{posts} publications × {reach} vues} other {{posts} publications × {reach} de portée}}",
+        "ordersFormula": "{posts} publications × {interactions} interactions × {visits} visites chacune × {rate} d’achat",
+        "worstFormula": "personne n’achète : rien n’entre, rien n’est dépensé",
+        "title": "Un calendrier de contenus sur {weeks} semaines",
+        "what": "{count, plural, one {# publication sur les réseaux sociaux que vous animez déjà, rédigée dans votre style, en attente de votre oui.} many {# publications sur les réseaux sociaux que vous animez déjà, rédigées dans votre style, chacune en attente de votre oui.} other {# publications sur les réseaux sociaux que vous animez déjà, rédigées dans votre style, chacune en attente de votre oui.}}",
+        "whatNone": "Des publications sur les réseaux sociaux que vous animez déjà — dès que l’un d’eux figure dans votre profil.",
+        "assumption": "{channels, select, many {Les publications prévues font ce qu’ont fait vos dernières publications {platform}, sur chaque réseau.} other {Les publications prévues font ce qu’ont fait vos dernières publications {platform}.}}",
+        "assumptionSource": "ma projection d’après vos propres publications mesurées",
+        "worstWeakest": "Chaque publication atteint ce qu’a atteint votre publication la plus faible ({weakest}) et personne n’achète : {zero} de perte, seulement votre temps de relecture.",
+        "worstNone": "Personne n’achète : {zero} de perte, seulement votre temps de relecture.",
+        "keyRate": "{audience, select, views {vues par publication} other {portée par publication}}",
+        "addChannel": "Ajoutez d’abord à votre profil un réseau social sur lequel vous publiez."
+      }
+    },
+    "cross": {
+      "readback": "Le bilan jusqu’ici — effet positif : {helped} ; aucun effet : {nothing} ; effet inverse : {backfired}.",
+      "none": "{kind, select, email {Pas encore mesuré : aucune de mes campagnes e-mail passées ne portait de fourchette prévue à vérifier.} other {Pas encore mesuré : aucun de mes changements publicitaires passés ne portait de fourchette prévue à vérifier.}}",
+      "notReadBack": "{kind, select, email {{count, plural, one {Pas encore mesuré : ma dernière campagne e-mail avec une fourchette prévue n’a pas encore été relue.} many {Pas encore mesuré : mes {simulated} dernières campagnes e-mail avec une fourchette prévue n’ont pas encore été relues.} other {Pas encore mesuré : mes {simulated} dernières campagnes e-mail avec une fourchette prévue n’ont pas encore été relues.}}} other {{count, plural, one {Pas encore mesuré : mon dernier changement publicitaire avec une fourchette prévue n’a pas encore été relu.} many {Pas encore mesuré : mes {simulated} derniers changements publicitaires avec une fourchette prévue n’ont pas encore été relus.} other {Pas encore mesuré : mes {simulated} derniers changements publicitaires avec une fourchette prévue n’ont pas encore été relus.}}}}",
+      "lastOne": "{kind, select, email {{landed, select, inside {Ma dernière campagne e-mail est tombée dans sa fourchette prévue.} other {Ma dernière campagne e-mail est tombée hors de sa fourchette prévue.}}} other {{landed, select, inside {Mon dernier changement publicitaire est tombé dans sa fourchette prévue.} other {Mon dernier changement publicitaire est tombé hors de sa fourchette prévue.}}}}",
+      "lastMany": "{kind, select, email {Mes {checked} dernières campagnes e-mail sont tombées dans leur fourchette prévue {count, plural, one {une fois} many {{inside} fois} other {{inside} fois}}.} other {Mes {checked} derniers changements publicitaires sont tombés dans leur fourchette prévue {count, plural, one {une fois} many {{inside} fois} other {{inside} fois}}.}}",
+      "contentNone": "Pas encore mesuré : aucun de mes calendriers de contenus passés ne portait de fourchette prévue à vérifier.",
+      "contentNotAdded": "Pas encore mesuré : les publications d’un calendrier sont jugées une à une, et je ne les additionne pas encore pour les comparer à la fourchette prévue du calendrier."
+    },
+    "pricing": {
+      "refuse": {
+        "zero": "un nouveau prix doit être supérieur à zéro",
+        "notAChange": "ce n’est pas un changement de prix",
+        "tooSmall": "c’est un changement de moins de {share} — trop petit pour être simulé",
+        "tooBig": "je simule des changements jusqu’à {share} dans un sens ou dans l’autre ; au-delà, la fourchette de réaction n’est plus un guide fiable"
+      },
+      "title": {
+        "share": "{change} → {price}",
+        "exact": "{price} ({change})"
+      },
+      "label": {
+        "price": "Prix actuel",
+        "cost": "Coût de revient d’une unité",
+        "volume": "{kind, select, service {Réservations tous les {days} jours} other {Ventes par mois}}",
+        "response": "Réaction des clients au prix",
+        "capacity": "Place dans l’agenda, {days} jours"
+      },
+      "inline": {
+        "price": "prix actuel",
+        "cost": "coût de revient d’une unité",
+        "volume": "{kind, select, service {réservations tous les {days} jours} other {ventes par mois}}",
+        "response": "réaction des clients au prix",
+        "capacity": "place dans l’agenda, {days} jours"
+      },
+      "notKnown": "inconnu",
+      "needLine": "{label} : {needs}",
+      "noPrice": "{name} n’a pas encore de prix dans votre profil",
+      "priceNeeds": "le prix de {name}",
+      "costOtherCurrency": "enregistré en {costCurrency}, alors que le prix est en {currency} — je ne convertis pas d’une devise à l’autre",
+      "costNeedsService": "ce que vous coûte la fourniture d’une prestation « {name} » — ajoutez « {name} » à ce que vous vendez, avec son coût, et je le rapprocherai de vos réservations",
+      "costNeedsIn": "ce que vous coûte la fourniture d’une unité de {name}, en {currency}",
+      "costNeeds": "ce que vous coûte la fourniture d’une unité de {name}",
+      "volumeNeedsService": "vos réservations de {name}, importées ou connectées",
+      "volumeNeeds": "combien d’unités de {name} vous vendez environ par mois",
+      "responseSource": "pour chaque {one} sur le prix, de {low} à {high} des {kind, select, service {réservations} other {ventes}} évoluent en sens inverse — {why}",
+      "band": {
+        "shop": "un client peut comparer des marchandises et les acheter souvent ailleurs : elles réagissent donc fortement à un changement de prix",
+        "hospitality": "un repas ou une nuit, c’est en partie le lieu et l’habitude : les clients réagissent donc moins au prix que dans une boutique",
+        "appointments": "les clients qui réservent auprès d’une personne de confiance restent généralement après un changement de prix ; certains partent",
+        "services": "une prestation achetée sur la confiance réagit moins au prix que des marchandises, mais un devis peut être comparé",
+        "default": "le type d’entreprise ne figure pas dans votre profil : la fourchette est donc la plus large que j’utilise"
+      },
+      "capacityNeeds": "combien de rendez-vous vous pouvez prendre par semaine — une baisse est alors limitée à la place dont vous disposez",
+      "be": {
+        "needPrice": "Il me faut d’abord le prix de {name}.",
+        "change": "{dir, select, rise {une hausse de {share}} other {une baisse de {share}}}",
+        "changeStart": "{dir, select, rise {Une hausse de {share}} other {Une baisse de {share}}}",
+        "costNeed": "ce qu’une unité vous coûte à fournir",
+        "neverToday": "Au prix actuel de {price}, chaque {kind, select, service {réservation} other {vente}} vous coûte déjà {cost} à fournir : il n’y a donc aujourd’hui aucun bénéfice à partir duquel calculer un seuil de rentabilité — regardez le coût avant le prix.",
+        "unitFormula": "{kind, select, service {{price} − {cost} = {margin} par réservation} other {{price} − {cost} = {margin} par vente}}",
+        "neverNew": "À {price}, chaque {kind, select, service {réservation} other {vente}} vous coûterait {cost} à fournir — chaque unité supplémentaire fait perdre de l’argent : aucun volume supplémentaire de {kind, select, service {réservations} other {ventes}} ne rend {change} rentable.",
+        "shareFormula": "({high} − {low}) ÷ ({next} − {cost}) = {share}",
+        "shareFormulaNoCost": "({high} − {low}) ÷ {next} = {share} — sans coût de revient compté",
+        "formulaOf": "{formula} de {volume} {kind, select, service {réservations} other {ventes}} = {units}",
+        "loseShare": "{change} reste rentable tant que vous perdez moins de {share} de vos {kind, select, service {réservations} other {ventes}}.",
+        "loseCount": "{change} reste rentable tant que vous perdez moins de {count} de vos ~{volume} {kind, select, service {réservations tous les {days} jours} other {ventes par mois}} ({share}).",
+        "loseShareAnyCost": "Quel que soit le coût de chaque unité, {change} reste rentable tant que vous perdez moins de {share} de vos {kind, select, service {réservations} other {ventes}}.",
+        "loseCountAnyCost": "Quel que soit le coût de chaque unité, {change} reste rentable tant que vous perdez moins de {count} de vos ~{volume} {kind, select, service {réservations tous les {days} jours} other {ventes par mois}} ({share}).",
+        "needCostShare": "Pour dire combien de {kind, select, service {réservations} other {ventes}} supplémentaires exige {change}, il me faut ce qu’une unité vous coûte à fournir. Sans coût compté, il en faut au moins {share} — le vrai chiffre est plus élevé.",
+        "needCostCount": "Pour dire combien de {kind, select, service {réservations} other {ventes}} supplémentaires exige {change}, il me faut ce qu’une unité vous coûte à fournir. Sans coût compté, il en faut au moins {count} de plus ({share}) — le vrai chiffre est plus élevé.",
+        "noRoom": "Votre agenda a de la place pour {room} de plus en {days} jours : ce changement ne peut donc pas être rentable par les seules réservations supplémentaires.",
+        "winShare": "{change} n’est rentable que si vous gagnez plus de {share} de {kind, select, service {réservations} other {ventes}} en plus.",
+        "winCount": "{change} n’est rentable que si vous gagnez plus de {count} {kind, select, service {réservations} other {ventes}} supplémentaires sur vos ~{volume} {kind, select, service {tous les {days} jours} other {par mois}} (+{share})."
+      },
+      "formula": {
+        "volume": "{volume} {kind, select, service {réservations} other {ventes}} × ({one} {sign} {share} × {band}){held, select, yes {, limité aux {room} de plus que votre agenda peut accueillir} other {}}",
+        "revenue": "{low} – {high} {kind, select, service {réservations} other {ventes}} × {next} − {volume} × {price}",
+        "profit": "{low} – {high} × ({next} − {cost}) − {volume} × ({price} − {cost})",
+        "worst": "{units} × ({next} − {cost}) − {volume} × ({price} − {cost})"
+      },
+      "worstUnknown": "Je ne peux pas chiffrer le pire cas sans les données ci-dessus.",
+      "worstWords": "Les clients réagissent du côté {end, select, strong {fort} other {modéré}} de la fourchette : les {kind, select, service {réservations} other {ventes}} {dir, select, fall {baissent} other {augmentent}} de {share}, à environ {units}, et le bénéfice sur {name} varie de {amount} {kind, select, service {tous les {days} jours} other {par mois}}.",
+      "assumeBand": "Les clients réagissent à ce changement comme l’indique la fourchette, pour une hausse comme pour une baisse, et rien d’autre ne change entre-temps.",
+      "bandSource": "une hypothèse de planification pour ce type d’entreprise, pas une mesure — personne n’a encore mesuré comment vos clients réagissent à un changement de prix",
+      "assumeFits": "Les réservations supplémentaires tiennent dans l’agenda.",
+      "assumeFitsSource": "vous ne m’avez pas indiqué votre capacité hebdomadaire : je ne peux donc pas limiter le gain à la place dont vous disposez",
+      "headPick": "Choisissez un changement de prix pour {name} afin de voir ce qu’il peut perdre tout en restant rentable.",
+      "headNoPrice": "{name} n’a pas encore de prix dans votre profil."
+    },
+    "items": {
+      "observed": "mesuré sur votre compte connecté",
+      "estimated": "votre estimation",
+      "derived": "calculé à partir de vos autres chiffres",
+      "told": "comme vous me l’avez dit",
+      "unnamed": "Sans nom",
+      "perOrderCost": "Un coût par commande",
+      "bookingsExport": "votre export de réservations",
+      "capacitySource": "vos {perWeek} rendez-vous par semaine déclarés × {weeks} semaines, moins les {taken} honorés du {from} au {to}",
+      "priceSource": "le prix affiché moyen de {count, plural, one {{n} rendez-vous honoré} many {{n} rendez-vous honorés} other {{n} rendez-vous honorés}}, du {from} au {to}, d’après {source}",
+      "volumeSource": "rendez-vous honorés du {from} au {to}, d’après {source}"
+    }
+  },
+  "benchmarksWords": {
+    "group": {
+      "G47": "des commerces de détail",
+      "G479": "des vendeurs en ligne et par correspondance",
+      "I56": "des restaurants, cafés et bars",
+      "C10": "des fabricants de produits alimentaires",
+      "S96": "des entreprises de services à la personne",
+      "R931": "des entreprises du sport",
+      "Q86": "des entreprises de santé",
+      "F": "des entreprises de construction",
+      "F43": "des artisans du bâtiment",
+      "N812": "des entreprises de nettoyage",
+      "G452": "des garages",
+      "M": "des cabinets de services professionnels",
+      "M702": "des cabinets de conseil en gestion",
+      "M731": "des agences de publicité",
+      "J62": "des sociétés informatiques",
+      "J582": "des éditeurs de logiciels",
+      "P855": "des organismes de formation",
+      "Q889": "des services de garde d’enfants et d’aide sociale",
+      "L68": "des entreprises immobilières",
+      "H": "des entreprises de transport et d’entreposage",
+      "C": "des industriels",
+      "G46": "des grossistes",
+      "M74": "des entreprises de design et de photographie",
+      "I55": "des hébergements",
+      "H49": "des entreprises de transport terrestre",
+      "G": "des grossistes, commerces de détail et commerces automobiles",
+      "G45": "des concessionnaires et garages automobiles",
+      "I": "des hébergements, restaurants, cafés et bars",
+      "J": "des entreprises d’information et de communication",
+      "J58": "des éditeurs",
+      "L": "des entreprises immobilières",
+      "M70": "des sièges sociaux et cabinets de conseil",
+      "M73": "des entreprises de publicité et d’études de marché",
+      "N81": "des entreprises de services aux bâtiments et de nettoyage",
+      "P85": "des entreprises d’enseignement",
+      "Q": "des services de santé et d’action sociale",
+      "Q88": "des services d’action sociale sans hébergement",
+      "R93": "des entreprises de sport et de loisirs"
+    },
+    "covers": {
+      "G47": "Tout le commerce de détail hors automobile : commerces de toutes sortes, étals de marché et vendeurs en ligne (NACE {code}).",
+      "G479": "Le commerce de détail hors magasin, étal ou marché : vendeurs en ligne et par correspondance (NACE {code}). Une entreprise qui a aussi sa propre boutique est comptée ici quand l’essentiel de ses ventes se fait en ligne.",
+      "I56": "Toute la restauration : restaurants, cafés, bars, vente à emporter et traiteurs ensemble (NACE {code}).",
+      "C10": "La fabrication de produits alimentaires, boulangeries comprises (NACE {code}).",
+      "S96": "Tous les autres services à la personne : coiffure et soins de beauté, spas et saunas, blanchisseries et services funéraires ensemble (NACE {code}). Eurostat ne le subdivise pas davantage.",
+      "R931": "Les activités sportives : salles de sport, clubs et équipements sportifs (NACE {code}).",
+      "Q86": "Toutes les activités pour la santé humaine : hôpitaux, cabinets médicaux et dentaires, et autres soins comme la kinésithérapie, ensemble (NACE {code}).",
+      "F": "Toute la construction : bâtiments, génie civil et travaux spécialisés (NACE {code}).",
+      "F43": "Les travaux de construction spécialisés : électriciens, plombiers, menuisiers, plâtriers, peintres et couvreurs (NACE {code}). Un métier hors du bâtiment n’est pas compté ici.",
+      "N812": "Le nettoyage de bâtiments, de logements et de locaux industriels (NACE {code}).",
+      "G452": "L’entretien et la réparation de véhicules automobiles (NACE {code}). Un concessionnaire automobile est compté à la place avec {other}.",
+      "M": "Toutes les activités spécialisées, scientifiques et techniques : droit, comptabilité, architecture, ingénierie, conseil, design et plus encore (NACE {code}).",
+      "M702": "Le conseil en gestion (NACE {code}).",
+      "M731": "Les agences de publicité et la régie publicitaire de médias (NACE {code}).",
+      "J62": "La programmation informatique, le conseil informatique et l’exploitation d’ordinateurs pour le compte de tiers (NACE {code}).",
+      "J582": "L’édition de logiciels (NACE {code}). Les sociétés de logiciels qui travaillent surtout sur commande sont comptées à la place avec {other}.",
+      "P855": "Les autres activités d’enseignement : soutien scolaire, écoles de langues et de conduite, et formations (NACE {code}). Les établissements scolaires eux-mêmes sont comptés ailleurs.",
+      "Q889": "Les autres actions sociales sans hébergement, dont l’accueil de jeunes enfants (NACE {code}).",
+      "L68": "Toutes les activités immobilières : achat, vente et location de biens, et agences (NACE {code}).",
+      "H": "Tout le transport et l’entreposage : transport de marchandises, entrepôts, coursiers et le reste (NACE {code}).",
+      "C": "Toute l’industrie manufacturière (NACE {code}).",
+      "G46": "Le commerce de gros hors automobile (NACE {code}).",
+      "M74": "Les autres activités spécialisées : design, photographie, traduction et plus encore, ensemble (NACE {code}).",
+      "I55": "L’hébergement : hôtels, locations de vacances et campings (NACE {code}). Un voyagiste est compté à la place avec {other}.",
+      "H49": "Le transport terrestre : taxis, bus, autocars et transport routier de marchandises (NACE {code})."
+    },
+    "unmapped": {
+      "agriculture": "L’agriculture (section A de la NACE) ne figure pas dans les statistiques d’entreprises d’Eurostat.",
+      "events": "Les entreprises de l’événementiel regroupent lieux, organisateurs et traiteurs, qu’Eurostat compte dans des groupes différents : aucun groupe unique ne serait donc honnête.",
+      "nonprofit": "Les statistiques d’entreprises d’Eurostat comptent les entreprises qui vendent ; les chiffres d’une association ont un sens différent.",
+      "other": "Il n’existe pas de groupe unique auquel comparer une entreprise décrite comme « autre »."
+    },
+    "title": {
+      "operating_margin": "Marge d’exploitation",
+      "turnover_per_person": "Chiffre d’affaires annuel par personne",
+      "staff_cost_per_employee": "Coût salarial annuel par salarié"
+    },
+    "gapNote": {
+      "operating_margin": "Le taux d’Eurostat est calculé avant la rémunération des propriétaires qui ne sont pas salariés, et avant intérêts, amortissements et impôts. Si votre liste de coûts comprend votre propre rémunération, votre taux paraît plus bas que ne le serait le leur.",
+      "turnover_per_person": "Le chiffre d’affaires d’Eurostat est hors TVA. Si votre chiffre d’affaires comprend la TVA, le vôtre paraît plus élevé que ne le serait le leur.",
+      "staff_cost_per_employee": "Le chiffre d’Eurostat comprend les cotisations sociales patronales, et compte un temps partiel comme une personne. Si vos frais de personnel ne sont que les salaires, le vôtre paraît plus bas que ne le serait le leur."
+    },
+    "caveat": "Ce sont des totaux sur l’ensemble des entreprises du groupe, pas une entreprise type.",
+    "size": {
+      "upTo": "{count, plural, one {comptant jusqu’à {n} personne} many {comptant jusqu’à {n} personnes} other {comptant jusqu’à {n} personnes}}",
+      "range": "comptant de {min} à {max} personnes",
+      "atLeast": "comptant {min} personnes ou plus",
+      "every": "de toutes tailles"
+    },
+    "flag": {
+      "e": "estimé",
+      "b": "rupture de série"
+    },
+    "cell": {
+      "words": "l’ensemble {group} {size}, {country}, {year}, Eurostat",
+      "unpublished": "Eurostat ne publie pas ce chiffre pour {group} {size} ({country}) : il porte donc sur {usedGroup} {usedSize} ({country}).",
+      "confidential": "Eurostat garde ce chiffre confidentiel ({year}) pour {group} {size} ({country}) : il porte donc sur {usedGroup} {usedSize} ({country}).",
+      "everySize": "Eurostat le calcule à partir des totaux de tout le secteur : les plus grandes entreprises y pèsent donc le plus ; comparez-le avec prudence à une entreprise de votre taille."
+    },
+    "conversion": "Converti depuis l’euro au taux de {rate} {currency} pour un euro, moyenne de l’année {year} (Eurostat, {dataset}).",
+    "gap": {
+      "pointsAbove": "{count, plural, one {{points} point au-dessus} many {{points} points au-dessus} other {{points} points au-dessus}}",
+      "pointsBelow": "{count, plural, one {{points} point en dessous} many {{points} points en dessous} other {{points} points en dessous}}",
+      "moneyShareAbove": "{amount} ({share}) au-dessus",
+      "moneyShareBelow": "{amount} ({share}) en dessous",
+      "moneyAbove": "{amount} au-dessus",
+      "moneyBelow": "{amount} en dessous",
+      "same": "à peu près pareil : {gap}"
+    },
+    "formula": {
+      "margin": "({parts}) ÷ {revenue} × {hundred} = {result}",
+      "revenue": "{amount} de chiffre d’affaires",
+      "costOfSales": "{amount} de coût des ventes",
+      "perSale": "{amount} de coûts par vente",
+      "running": "{amount} de frais de fonctionnement",
+      "staff": "{amount} de salaires",
+      "turnover": "{amount} par mois × {months} ÷ {count, plural, one {{persons} personne} many {{persons} personnes} other {{persons} personnes}} = {result}",
+      "staffCost": "{amount} par mois × {months} ÷ {count, plural, one {{employees} salarié} many {{employees} salariés} other {{employees} salariés}} = {result}"
+    },
+    "input": {
+      "revenue": "Chiffre d’affaires mensuel",
+      "costOfSales": "Coût des ventes",
+      "ofSales": "{share} des ventes",
+      "offersSource": "{count, plural, one {ce que votre offre coûte à fournir, à vos prix et volumes mensuels} many {ce que vos {n} offres coûtent à fournir, à vos prix et volumes mensuels} other {ce que vos {n} offres coûtent à fournir, à vos prix et volumes mensuels}}",
+      "marginSource": "{whole} moins votre marge brute de {margin}",
+      "perSale": "Coûts par vente, par mois",
+      "perSaleSource": "vos coûts à la pièce et par commande, à vos volumes",
+      "running": "Frais de fonctionnement, par mois",
+      "runningSource": "votre liste de coûts, ramenée au mois",
+      "runningStaffSource": "votre liste de coûts, ramenée au mois, salaires compris",
+      "staffTeam": "{count, plural, one {Salaires, {n} personne sur votre liste d’équipe} many {Salaires, {n} personnes sur votre liste d’équipe} other {Salaires, {n} personnes sur votre liste d’équipe}}",
+      "teamList": "votre liste d’équipe",
+      "people": "Personnes travaillant dans l’entreprise, vous compris",
+      "staffMonth": "Salaires, par mois",
+      "salariesSource": "les salaires de votre liste de coûts",
+      "employees": "Salariés de votre liste d’équipe",
+      "employeesSource": "votre liste d’équipe, chaque personne marquée comme salariée comptée une fois"
+    },
+    "leftOut": {
+      "inGrossMargin": "{label} : figure déjà dans la marge brute que vous avez indiquée.",
+      "otherCurrency": "{label} : en {currency}, pas en {own}.",
+      "noAmount": "{label} : aucun montant.",
+      "perPiece": "{label} : coût à la pièce, et votre liste d’offres n’indique pas combien vous en vendez par mois.",
+      "perOrder": "{label} : coût par commande, et je ne sais pas combien de commandes vous prenez par mois.",
+      "loan": "{label} : remboursement d’emprunt ; le taux d’Eurostat est calculé avant intérêts et ne compte pas l’emprunt lui-même.",
+      "noConvert": "{label} : en {currency}, et je ne convertis pas vos propres coûts.",
+      "noFrequency": "{label} : aucune fréquence, je ne peux donc pas le ramener au mois."
+    },
+    "need": {
+      "revenue": "votre chiffre d’affaires mensuel",
+      "offerCosts": "ce que chaque offre vous coûte à fournir",
+      "grossMargin": "votre marge brute",
+      "offerVolumes": "combien vous vendez environ de chaque offre par mois",
+      "orders": "combien de commandes vous prenez environ par mois",
+      "amountOf": "le montant de {label}",
+      "howOften": "la fréquence à laquelle vous payez {label}",
+      "salaries": "ce que vous payez en salaires, en {currency}, et à quelle fréquence",
+      "employeeCost": "ce que chaque salarié coûte par mois",
+      "whoAndCost": "qui travaille dans l’entreprise, et ce que chacun coûte par mois",
+      "teamSize": "combien de personnes travaillent dans l’entreprise, vous compris",
+      "team": "qui travaille dans l’entreprise",
+      "type": "le type d’entreprise",
+      "country": "le pays où l’entreprise exerce"
+    },
+    "why": {
+      "unpricedEmployees": "{count, plural, one {Un salarié de votre liste d’équipe n’a pas de coût mensuel en {currency}, et les salaires pèsent trop dans une marge pour être laissés de côté.} many {{n} salariés de votre liste d’équipe n’ont pas de coût mensuel en {currency}, et les salaires pèsent trop dans une marge pour être laissés de côté.} other {{n} salariés de votre liste d’équipe n’ont pas de coût mensuel en {currency}, et les salaires pèsent trop dans une marge pour être laissés de côté.}}",
+      "unknownStaff": "Je ne sais pas si quelqu’un d’autre que vous est rémunéré, et les salaires pèsent trop dans une marge pour être laissés de côté.",
+      "needsRevenue": "Il faut votre chiffre d’affaires mensuel.",
+      "zeroRevenue": "Votre chiffre d’affaires mensuel est nul : il n’y a donc pas de marge à calculer.",
+      "needsCostOfSales": "Il faut ce que vos ventes vous coûtent : le coût de revient de chaque offre avec le nombre que vous en vendez par mois, ou votre marge brute.",
+      "payLines": "{count, plural, one {La ligne de salaire {label} de votre liste de coûts n’a pas de montant mensuel en {currency} que je puisse compter, et les salaires pèsent trop dans une marge pour être laissés de côté.} many {{n} lignes de salaire de votre liste de coûts n’ont pas de montant mensuel en {currency} que je puisse compter, et les salaires pèsent trop dans une marge pour être laissés de côté.} other {{n} lignes de salaire de votre liste de coûts n’ont pas de montant mensuel en {currency} que je puisse compter, et les salaires pèsent trop dans une marge pour être laissés de côté.}}",
+      "noCell": "Eurostat ne publie aucun chiffre sur ce point pour {group} ({country}), quelle que soit la taille, ni pour le groupe plus large.",
+      "noRate": "Je n’ai pas de taux de l’euro pour {currency} en {year} : je ne peux donc pas exprimer le chiffre d’Eurostat dans votre devise.",
+      "needsTurnover": "Il faut votre chiffre d’affaires mensuel et le nombre de personnes qui travaillent dans l’entreprise.",
+      "needsTeam": "Il faut votre liste d’équipe : qui travaille dans l’entreprise, et ce que chaque salarié coûte par mois.",
+      "noEmployees": "Votre liste d’équipe ne compte aucun salarié : il n’y a donc pas de coût salarial à comparer.",
+      "needsStaffCost": "Il faut ce que vos salariés coûtent par mois.",
+      "noType": "Je ne sais pas encore quel type d’entreprise c’est.",
+      "noGroup": "Je n’ai pas de groupe Eurostat pour ce type d’entreprise.",
+      "noCountry": "Je ne sais pas dans quel pays se trouve l’entreprise.",
+      "unknownCountry": "Je ne sais pas quel pays désigne « {country} ».",
+      "outsideEu": "Les chiffres d’Eurostat couvrent les {count} pays de l’UE, et {country} n’en fait pas partie."
+    }
+  },
+  "blindspotsWords": {
+    "check": {
+      "opening_hours": "Horaires d’ouverture",
+      "prices": "Prix",
+      "menu": "Carte ou menu",
+      "location_map": "Adresse et plan",
+      "parking": "Stationnement",
+      "phone_contact": "Un numéro de téléphone",
+      "contact_email": "Une adresse e-mail",
+      "booking": "Réservation",
+      "reviews": "Avis ou témoignages",
+      "events": "Événements et programme",
+      "photos": "Photos du lieu ou des réalisations",
+      "dietary_options": "Options alimentaires",
+      "delivery": "Livraison et son coût",
+      "returns_policy": "Politique de retour",
+      "payment_methods": "Moyens de paiement",
+      "service_area": "La zone desservie",
+      "quote_request": "Un moyen d’obtenir un devis",
+      "portfolio": "Réalisations passées",
+      "credentials": "Qualifications et agréments",
+      "guarantee": "Une garantie",
+      "faq": "Réponses aux questions fréquentes",
+      "team": "Les personnes à qui vous aurez affaire",
+      "stock_availability": "La disponibilité en stock"
+    },
+    "fix": {
+      "default": "une modification du site web soumise à votre validation, ou une réponse ajoutée à votre assistance en ligne"
+    },
+    "arithmetic": {
+      "notFound": "introuvable sur votre site ; {details}",
+      "asked": "{count, plural, one {demandé {n} fois dans votre chat d’assistance} many {demandé {n} fois dans votre chat d’assistance} other {demandé {n} fois dans votre chat d’assistance}}",
+      "askedUnanswered": "{count, plural, one {demandé {n} fois dans votre chat d’assistance, sans réponse : {unanswered}} many {demandé {n} fois dans votre chat d’assistance, sans réponse : {unanswered}} other {demandé {n} fois dans votre chat d’assistance, sans réponse : {unanswered}}}",
+      "unanswered": "{count, plural, one {{n} question d’assistance sans réponse} many {{n} questions d’assistance sans réponse} other {{n} questions d’assistance sans réponse}}",
+      "searched": "{count, plural, one {recherché {n} fois sur votre site} many {recherché {n} fois sur votre site} other {recherché {n} fois sur votre site}}",
+      "google": "{count, plural, one {{n} impression dans la recherche Google, clics : {clicks}} many {{n} impressions dans la recherche Google, clics : {clicks}} other {{n} impressions dans la recherche Google, clics : {clicks}}}",
+      "competitors": "{count, plural, one {{shown} sur {checked} concurrent vérifié l’affiche} many {{shown} sur {checked} concurrents vérifiés l’affichent} other {{shown} sur {checked} concurrents vérifiés l’affichent}}"
+    },
+    "coverage": {
+      "siteNotChecked": "votre site web n’a pas encore été vérifié : rien ne peut donc y être déclaré manquant",
+      "noSupport": "aucune conversation d’assistance sur la période",
+      "noSiteSearch": "aucun terme de recherche interne au site (Google Analytics avec la recherche sur site)",
+      "noGoogle": "aucune recherche Google (connectez Search Console)",
+      "googleHides": "Google masque les recherches rares pour protéger la vie privée : les recherches comptées sont donc un peu inférieures au total de Google",
+      "noCompetitors": "aucun concurrent étudié",
+      "unmatched": "{count, plural, one {{n} question d’assistance ne correspondait à aucune des vérifications habituelles — elle est comptée, pas citée} many {{n} questions d’assistance ne correspondaient à aucune des vérifications habituelles — elles sont comptées, pas citées} other {{n} questions d’assistance ne correspondaient à aucune des vérifications habituelles — elles sont comptées, pas citées}}"
+    },
+    "siteNote": {
+      "noSite": "aucun site web dans le profil",
+      "unreadable": "le site web n’a pas pu être lu : {detail}"
+    }
+  },
+  "goalsWords": {
+    "metric": {
+      "revenue": "chiffre d’affaires",
+      "orders": "commandes",
+      "sessions": "visites du site web"
+    },
+    "area": {
+      "launch": "lancement",
+      "first_customers": "premiers clients",
+      "increase_revenue": "augmenter le chiffre d’affaires",
+      "reduce_costs": "réduire les coûts",
+      "automate_work": "automatiser le travail",
+      "improve_marketing": "améliorer le marketing",
+      "hire_people": "recruter",
+      "expand_locations": "ouvrir de nouveaux établissements",
+      "improve_profit": "améliorer le bénéfice",
+      "other": "autre"
+    },
+    "baseline": {
+      "noSource": "aucune source connectée ne fournit de mesure de {metric}",
+      "currencies": "les mesures de {metric} sont en {currencies} — il faut une seule devise",
+      "fewDays": "{count, plural, one {{n} jour mesuré sur les {window} jours avant le {day} — une valeur de départ en demande {min}} many {{n} jours mesurés sur les {window} jours avant le {day} — une valeur de départ en demande {min}} other {{n} jours mesurés sur les {window} jours avant le {day} — une valeur de départ en demande {min}}}",
+      "otherCurrency": "les mesures de {metric} sont en {currency}, la cible en {target}"
+    },
+    "check": {
+      "detail": "{verdict} : {arithmetic}.",
+      "verdict": {
+        "achieved": "Objectif atteint",
+        "on_track": "Sur la trajectoire",
+        "lagging": "En retard sur la trajectoire",
+        "off_track": "Hors trajectoire",
+        "too_early": "Trop tôt pour juger",
+        "unmeasured": "Pas encore mesurable"
+      },
+      "amount": "{value} ({metric}) sur {days} jours",
+      "notInCare": "l’entreprise n’est pas encore entrée en accompagnement",
+      "underCare": "{count, plural, one {accompagnée depuis le {since} — les progrès sont jugés à partir du {from} ({n} semaine)} many {accompagnée depuis le {since} — les progrès sont jugés à partir du {from} ({n} semaines)} other {accompagnée depuis le {since} — les progrès sont jugés à partir du {from} ({n} semaines)}}",
+      "watching": "toujours en période d’observation jusqu’au {day}",
+      "goalNew": "l’objectif a été fixé le {day} — sa première période complète de {days} jours se termine le {ends}",
+      "noBaseline": "aucune valeur de départ mesurée de {metric} avant le {day} — connectez une source et son historique la fournira",
+      "fewDays": "{count, plural, one {{n} jour mesuré sur les {window} derniers — un verdict en demande {min}} many {{n} jours mesurés sur les {window} derniers — un verdict en demande {min}} other {{n} jours mesurés sur les {window} derniers — un verdict en demande {min}}}",
+      "noCurrent": "aucune mesure de {metric} ces {days} derniers jours",
+      "path": "{actual} sur les {days} derniers jours mesurés, contre un niveau attendu de {expected} au {today} sur la trajectoire allant de {baseline} ({baselineDay}) à {target} ({deadline})",
+      "reached": "cible atteinte : {path}",
+      "progress": "{path} — {ratio} de la progression attendue, {shortfall} de retard sur la trajectoire",
+      "away": "s’éloigne de la cible : {detail}"
+    }
+  },
+  "patternsWords": {
+    "season": {
+      "headline": {
+        "flat": "La plupart de vos semaines sont à zéro en {noun} : il n’y a donc pas de semaine normale à laquelle comparer une saison.",
+        "stale": "Seulement {count, plural, one {# semaine a été mesurée} many {# semaines ont été mesurées} other {# semaines ont été mesurées}} en entier sur les {weeks, number} dernières (le dernier jour mesuré est le {day}) — trop peu pour nommer vos saisons.",
+        "shortMonths": "J’ai {months, plural, one {environ # mois} many {environ # mois} other {environ # mois}} de {noun} — pas assez pour dire quelles semaines de l’année sont vos semaines chargées.",
+        "shortDays": "J’ai {count, plural, one {# jour} many {# jours} other {# jours}} de {noun} — pas assez pour dire quelles semaines de l’année sont vos semaines chargées.",
+        "underWay": "Vos semaines chargées sont en cours : l’an dernier, la même période a tourné à {ratio} votre semaine normale.",
+        "startsThisWeek": "Votre période chargée commence cette semaine : l’an dernier, elle a tourné à {ratio} votre semaine normale.",
+        "startsIn": "Votre période chargée commence dans {count, plural, one {# semaine} many {# semaines} other {# semaines}} : l’an dernier, elle a tourné à {ratio} votre semaine normale.",
+        "nothingAhead": "Rien de chargé {weeks, plural, one {la semaine suivante} many {au cours des # semaines suivantes} other {au cours des # semaines suivantes}} l’an dernier ; votre période la plus chargée a tourné à {ratio} votre semaine normale à partir du {day}.",
+        "steady": "Aucune période de l’année écoulée ne s’est beaucoup éloignée de votre semaine normale : votre niveau de {noun} reste régulier tout au long de l’année."
+      },
+      "can": {
+        "compare": "Comparer entre elles {count, plural, one {votre # semaine complète} many {vos # semaines complètes} other {vos # semaines complètes}}, et repérer une semaine nettement au-dessus ou en dessous des autres.",
+        "count": "Compter chaque jour à mesure qu’il est mesuré.",
+        "catch": "Repérer une chute ou un pic soudain par rapport aux quatre dernières semaines (cela tourne déjà chaque nuit)."
+      },
+      "cannot": {
+        "year": "Dire quelles semaines ou quels mois de l’année sont au-dessus ou en dessous de votre normale : une année de votre propre historique est le minimum pour faire apparaître une saison.",
+        "forecast": "Établir une prévision des semaines à venir à partir des mêmes semaines l’an dernier — je n’ai pas l’an dernier.",
+        "borrow": "Emprunter une saison à d’autres entreprises comme la vôtre. Une moyenne du secteur n’est pas votre historique : je ne la présente donc pas comme la vôtre."
+      },
+      "upcoming": "{count, plural, one {La # semaine} many {Les # semaines} other {Les # semaines}} du {from} au {to} l’an dernier {count, plural, one {a tourné} many {ont tourné} other {ont tourné}} à {ratio} votre semaine normale — {kind, select, busy {au-dessus} other {en dessous}}. {when}",
+      "when": {
+        "underWay": "Les mêmes semaines cette année sont en cours, jusqu’au {day}.",
+        "thisWeek": "Les mêmes semaines cette année commencent cette semaine, le {day}.",
+        "startsIn": "Les mêmes semaines cette année commencent dans {count, plural, one {# semaine} many {# semaines} other {# semaines}}, le {day}."
+      },
+      "notes": {
+        "oneYear": "Une année n’est qu’un exemple de vos saisons : elle dit ce qui s’est passé l’an dernier, pas ce qui se passera. La fourchette montre l’étendue de la moitié centrale de vos semaines.",
+        "years": "{count, plural, one {# année de votre propre historique a servi} many {# années de votre propre historique ont servi} other {# années de votre propre historique ont servi}} aux fourchettes : chaque semaine d’une année comparée à la normale de cette même année.",
+        "normal": "La normale est votre semaine médiane des {weeks, number} dernières : {count, plural, one {# semaine complète} many {# semaines complètes} other {# semaines complètes}} du {from} au {to}.",
+        "rule": "Chargée, c’est {busy} votre normale ou plus ; calme, {quiet} ou moins, pendant {count, plural, one {# semaine} many {# semaines} other {# semaines}} ou plus d’affilée : une seule semaine peut être un cas isolé.",
+        "gaps": "{count, plural, one {# semaine sur les {weeks, number} dernières n’a pas été mesurée en entier : elle est laissée de côté, pas devinée.} many {# semaines sur les {weeks, number} dernières n’ont pas été mesurées en entier : elles sont laissées de côté, pas devinées.} other {# semaines sur les {weeks, number} dernières n’ont pas été mesurées en entier : elles sont laissées de côté, pas devinées.}}",
+        "lastDay": "Le dernier jour mesuré est le {day} : la prévision lit jusqu’à cette date."
+      }
+    },
+    "noun": {
+      "revenue": "chiffre d’affaires",
+      "bookingRevenue": "chiffre d’affaires des réservations",
+      "orders": "commandes",
+      "appointments": "rendez-vous",
+      "visits": "visites"
+    },
+    "source": {
+      "bookingsExport": "votre export de réservations",
+      "stockFile": "votre fichier de stock"
+    },
+    "connect": {
+      "shop": "Connectez Shopify ou WooCommerce, ou votre caisse via Square, et je le tracerai",
+      "hospitality": "Connectez votre caisse via Square, ou Stripe, et je le tracerai",
+      "appointments": "Importez votre export de réservations ou connectez Square, et je le tracerai",
+      "services": "Connectez Stripe, ou la boutique ou la caisse par laquelle vous encaissez, et je le tracerai",
+      "default": "Connectez votre boutique ou votre caisse, ou Stripe, ou importez vos réservations, et je le tracerai"
+    },
+    "margin": {
+      "noPrice": "aucun prix enregistré pour {count, plural, one {{a}} many {{a} ou {b}} other {{a} ou {b}}}",
+      "currencies": "leurs prix sont dans des devises différentes",
+      "noCost": "aucun coût enregistré pour {count, plural, one {{a}} many {{a} ou {b}} other {{a} ou {b}}} : la marge est donc inconnue plutôt que supposée"
+    },
+    "product": "Produit {ref}",
+    "held": {
+      "choose": "Je propose dès que vous avez choisi comment je travaille pour vous.",
+      "watching": "J’observe jusqu’au {day}, et je ne propose rien avant."
+    }
+  },
+  "competitorsWords": {
+    "price": {
+      "from": "à partir de {amount}"
+    },
+    "rating": {
+      "of": "{rating} sur {best}"
+    },
+    "change": {
+      "new": "{who} propose désormais {name} à {price}.",
+      "changed": "{who} affiche désormais {name} à {price} ; c’était {before}.",
+      "cheaper": "{who} a baissé son prix pour {name} de {before} à {price}.",
+      "dearer": "{who} a augmenté son prix pour {name} de {before} à {price}.",
+      "gone": "{who} ne propose plus {name} (c’était {before}).",
+      "rating": "{who} : note passée de {before} à {after}.",
+      "ratingCount": "{who} : note passée de {before} à {after} ({count, plural, one {{reviews} avis} many {{reviews} avis} other {{reviews} avis}})."
+    },
+    "gap": {
+      "same": "le même que le vôtre",
+      "below": "{amount} de moins que le vôtre",
+      "above": "{amount} de plus que le vôtre",
+      "belowPct": "{amount} de moins que le vôtre ({pct})",
+      "abovePct": "{amount} de plus que le vôtre ({pct})"
+    },
+    "note": {
+      "noPrice": "vous ne m’avez pas indiqué votre prix",
+      "currencies": "prix en {theirs}, le vôtre en {yours} ; non converti"
+    },
+    "unnamed": "Concurrent sans nom",
+    "reason": {
+      "notAddress": "ce n’est pas une adresse web que je peux lire",
+      "login": "elle demande une connexion, et je ne lis jamais les pages qui en exigent une",
+      "deadline": "le passage hebdomadaire a manqué de temps avant d’arriver à cette page",
+      "robotsUnread": "leur fichier robots.txt n’a pas pu être lu : je n’ai donc pas lu la page",
+      "robotsNo": "leur fichier robots.txt demande aux robots de ne pas lire cette page",
+      "redirectRobots": "elle redirige vers une page que leur fichier robots.txt demande aux robots de ne pas lire",
+      "redirectSite": "elle redirige vers un site dont le fichier robots.txt dit non",
+      "notPage": "ce n’est pas une page web",
+      "unreachable": "la page est injoignable",
+      "couldntRead": "elle n’a pas pu être lue",
+      "onlyHttp": "seuls les sites http(s) peuvent être lus",
+      "credentials": "des identifiants n’ont rien à faire dans l’URL d’un site",
+      "private": "cette adresse pointe vers un réseau privé — je refuse de la récupérer",
+      "notWebAddress": "cela ne ressemble pas à une adresse web",
+      "redirects": "trop de redirections — le site ne s’est jamais stabilisé",
+      "cap": "au-delà de la limite de {pages, number} pages par concurrent",
+      "answered": "la page a répondu {status}",
+      "timeout": "aucune réponse dans un délai de {seconds, plural, one {# seconde} many {# secondes} other {# secondes}}",
+      "resolve": "le nom « {host} » est introuvable — l’adresse est-elle correcte ?",
+      "ports": "seuls les sites http(s) sur les ports standard {http} et {https} peuvent être lus"
+    }
+  },
+  "reviewsWords": {
+    "googleRead": {
+      "ok": "Lu sans problème.",
+      "auth": "Google n’accepte plus l’accès de SYB : les avis ne sont donc plus lus. Révoquez-le ici et connectez-vous de nouveau.",
+      "permission": "Google indique que SYB n’est plus autorisé à lire cette Fiche d’établissement. Vérifiez que votre compte Google gère toujours la fiche de votre entreprise.",
+      "quota": "Google a demandé à SYB de ralentir. SYB réessaiera lors de sa prochaine lecture quotidienne.",
+      "unavailable": "Google n’a pas répondu. SYB réessaiera lors de sa prochaine lecture quotidienne.",
+      "refused": "Google a refusé la lecture. SYB réessaiera lors de sa prochaine lecture quotidienne.",
+      "fence": "SYB a arrêté une requête qui n’était pas une lecture. Rien n’a été envoyé.",
+      "internal": "Une erreur s’est produite de notre côté. SYB réessaiera lors de sa prochaine lecture quotidienne."
+    },
+    "draft": {
+      "unreadable": "Je n’ai pas pu lire ce que dit cet avis : je ne peux donc pas suggérer de réponse. Ouvrez-le là où il se trouve.",
+      "budget": "Le budget d’assistance de ce mois-ci ({amount}) est épuisé : je ne rédige donc pas — écrivez la réponse vous-même.",
+      "cap": "J’ai déjà suggéré une réponse à cet avis {count, plural, one {# fois} many {# fois} other {# fois}} — écrivez celle-ci vous-même.",
+      "unreachable": "Je n’ai pas pu joindre le modèle de rédaction pour l’instant — écrivez la réponse vous-même, ou réessayez plus tard.",
+      "empty": "Je n’ai pas pu rédiger de réponse cette fois-ci — écrivez-la vous-même.",
+      "offer": "J’ai rédigé une réponse qui proposait de l’argent ou quelque chose de gratuit, ce que je ne fais pas : je l’ai donc jetée. Réessayez, ou écrivez celle-ci vous-même.",
+      "name": "J’ai rédigé une réponse qui nommait quelqu’un : je l’ai donc jetée. Réessayez, ou écrivez celle-ci vous-même.",
+      "contact": "J’ai rédigé une réponse contenant une adresse ou un numéro de téléphone : je l’ai donc jetée. Réessayez, ou écrivez celle-ci vous-même."
+    }
+  },
+  "chartsWords": {
+    "source": {
+      "bookingsImport": "votre export de réservations",
+      "stockImport": "votre fichier de stock"
+    },
+    "connect": {
+      "shop": "Connectez Shopify ou WooCommerce, ou votre caisse via Square, et je le tracerai.",
+      "hospitality": "Connectez votre caisse via Square, ou Stripe, et je le tracerai.",
+      "appointments": "Importez votre export de réservations ou connectez Square, et je le tracerai.",
+      "services": "Connectez Stripe, ou la boutique ou la caisse par laquelle vous encaissez, et je le tracerai.",
+      "default": "Connectez votre boutique ou votre caisse, ou Stripe, ou importez vos réservations, et je le tracerai."
+    },
+    "note": {
+      "otherCurrencies": "{price, select, revenue {La part du chiffre d’affaires} bookingRevenue {La part du chiffre d’affaires des réservations} other {La part de {noun}}} en {currencies} n’est pas tracée : une devise par graphique, et les devises ne se mélangent jamais.",
+      "adsOffLine": "Les dépenses publicitaires non rentabilisées sont comptées dans le mois ci-dessus mais ne sont pas tracées sur les bougies du chiffre d’affaires : c’est de l’argent dépensé, pas du chiffre d’affaires manqué."
+    },
+    "group": {
+      "anomaly": "{count, plural, one {# changement détecté} many {# changements détectés} other {# changements détectés}} : {labels}",
+      "approved": "{count, plural, one {# changement} many {# changements} other {# changements}} : {labels}",
+      "connected": "{count, plural, one {# source} many {# sources} other {# sources}} : {labels}"
+    },
+    "summary": {
+      "nothing": "{title} : rien de mesuré sur cette période.",
+      "day": "{title} : {count, plural, one {# bougie quotidienne} many {# bougies quotidiennes} other {# bougies quotidiennes}} de {price, select, revenue {chiffre d’affaires} bookingRevenue {chiffre d’affaires des réservations} other {{noun}}} par jour d’après {source}, du {from} au {to} ; le dernier jour a clôturé en {move, select, up {hausse} other {baisse}} à {close}. {headline}",
+      "week": "{title} : {count, plural, one {# bougie hebdomadaire} many {# bougies hebdomadaires} other {# bougies hebdomadaires}} de {price, select, revenue {chiffre d’affaires} bookingRevenue {chiffre d’affaires des réservations} other {{noun}}} par jour d’après {source}, du {from} au {to} ; la dernière semaine a clôturé en {move, select, up {hausse} other {baisse}} à {close}. {headline}",
+      "month": "{title} : {count, plural, one {# bougie mensuelle} many {# bougies mensuelles} other {# bougies mensuelles}} de {price, select, revenue {chiffre d’affaires} bookingRevenue {chiffre d’affaires des réservations} other {{noun}}} par jour d’après {source}, du {from} au {to} ; le dernier mois a clôturé en {move, select, up {hausse} other {baisse}} à {close}. {headline}",
+      "events": "{count, plural, one {# événement marqué.} many {# événements marqués.} other {# événements marqués.}}"
+    },
+    "caption": {
+      "day": "{title} : ouverture, haut, bas et clôture quotidiens {price, select, revenue {du chiffre d’affaires} bookingRevenue {du chiffre d’affaires des réservations} other {de {noun}}} par jour, avec ce qui s’est échappé",
+      "week": "{title} : ouverture, haut, bas et clôture hebdomadaires {price, select, revenue {du chiffre d’affaires} bookingRevenue {du chiffre d’affaires des réservations} other {de {noun}}} par jour, avec ce qui s’est échappé",
+      "month": "{title} : ouverture, haut, bas et clôture mensuels {price, select, revenue {du chiffre d’affaires} bookingRevenue {du chiffre d’affaires des réservations} other {de {noun}}} par jour, avec ce qui s’est échappé"
+    },
+    "event": {
+      "drop": "{metric, select, revenue {Chiffre d’affaires en baisse} orders {Commandes en baisse} sessions {Visites du site en baisse} adSpend {Dépenses publicitaires en baisse} adPurchases {Achats issus des publicités en baisse} appointmentsCompleted {Rendez-vous honorés en baisse} bookingRevenue {Chiffre d’affaires des réservations en baisse} other {{noun} en baisse}}",
+      "rise": "{metric, select, revenue {Chiffre d’affaires en hausse} orders {Commandes en hausse} sessions {Visites du site en hausse} adSpend {Dépenses publicitaires en hausse} adPurchases {Achats issus des publicités en hausse} appointmentsCompleted {Rendez-vous honorés en hausse} bookingRevenue {Chiffre d’affaires des réservations en hausse} other {{noun} en hausse}}",
+      "dropBy": "{metric, select, revenue {Chiffre d’affaires en baisse, {pct} sous le niveau habituel} orders {Commandes en baisse, {pct} sous le niveau habituel} sessions {Visites du site en baisse, {pct} sous le niveau habituel} adSpend {Dépenses publicitaires en baisse, {pct} sous le niveau habituel} adPurchases {Achats issus des publicités en baisse, {pct} sous le niveau habituel} appointmentsCompleted {Rendez-vous honorés en baisse, {pct} sous le niveau habituel} bookingRevenue {Chiffre d’affaires des réservations en baisse, {pct} sous le niveau habituel} other {{noun} en baisse, {pct} sous le niveau habituel}}",
+      "riseBy": "{metric, select, revenue {Chiffre d’affaires en hausse, {pct} au-dessus du niveau habituel} orders {Commandes en hausse, {pct} au-dessus du niveau habituel} sessions {Visites du site en hausse, {pct} au-dessus du niveau habituel} adSpend {Dépenses publicitaires en hausse, {pct} au-dessus du niveau habituel} adPurchases {Achats issus des publicités en hausse, {pct} au-dessus du niveau habituel} appointmentsCompleted {Rendez-vous honorés en hausse, {pct} au-dessus du niveau habituel} bookingRevenue {Chiffre d’affaires des réservations en hausse, {pct} au-dessus du niveau habituel} other {{noun} en hausse, {pct} au-dessus du niveau habituel}}",
+      "approvedRan": "Vous avez validé « {summary} » ; l’action a été exécutée.",
+      "approvedWaiting": "Vous avez validé « {summary} » ; l’action n’a pas encore été exécutée.",
+      "bookingsImported": "Premier import des réservations",
+      "connected": "{source} connecté",
+      "connectedDetail": "Lu à partir du {day} ; les jours précédents sont arrivés avec la première lecture."
+    },
+    "proposal": {
+      "aWaiting": "Une proposition en attente",
+      "aProposal": "une proposition"
+    },
+    "headline": {
+      "nothing": "Rien de ce que je peux mesurer pour l’instant ne montre de l’argent qui s’échappe.",
+      "zero": "Rien de mesuré ne s’échappe en ce moment.",
+      "all": "Environ {range} par mois s’échappent — entièrement {lead, select, revenue_dips {dans les baisses du chiffre d’affaires} no_shows {dans les absences sans prévenir} late_cancellations {dans les annulations tardives} empty_capacity {dans les créneaux vides} losing_ads {dans les publicités qui perdent de l’argent} slow_stock {dans le stock lent} other {dans les propositions en attente}}.",
+      "mostly": "Environ {range} par mois s’échappent — surtout {lead, select, revenue_dips {dans les baisses du chiffre d’affaires} no_shows {dans les absences sans prévenir} late_cancellations {dans les annulations tardives} empty_capacity {dans les créneaux vides} losing_ads {dans les publicités qui perdent de l’argent} slow_stock {dans le stock lent} other {dans les propositions en attente}}.",
+      "biggest": "Environ {range} par mois s’échappent — la plus grande part {lead, select, revenue_dips {dans les baisses du chiffre d’affaires} no_shows {dans les absences sans prévenir} late_cancellations {dans les annulations tardives} empty_capacity {dans les créneaux vides} losing_ads {dans les publicités qui perdent de l’argent} slow_stock {dans le stock lent} other {dans les propositions en attente}}."
+    },
+    "reason": {
+      "noPrices": "{source} ne contient pas de prix — ajoutez la colonne des prix à l’export et je chiffrerai ce qui a été manqué",
+      "noPricedCompleted": "aucun rendez-vous honoré avec un prix entre le {from} et le {to} : je ne peux donc pas dire ce que vaut un rendez-vous",
+      "noBookings": "importez votre export de réservations (ou connectez Square) et je compterai ce qui a été manqué",
+      "lateNotSeparated": "{source} ne distingue pas les annulations tardives des absences sans prévenir : elles sont donc chiffrées avec les absences",
+      "noCapacity": "dites-moi combien de rendez-vous vous pouvez prendre par semaine et je chiffrerai les créneaux vides — je ne suppose aucune capacité",
+      "noTakings": "connectez l’endroit où arrivent vos recettes (votre boutique, votre caisse ou Stripe) et je comparerai chaque jour à son niveau habituel",
+      "shortHistory": "il me faut au moins {min} jours mesurés de {price, select, revenue {chiffre d’affaires} bookingRevenue {chiffre d’affaires des réservations} other {{noun}}} sur les {window} jours qui précèdent un jour pour en juger — l’historique est encore trop court",
+      "noMeta": "connectez Meta Ads et je vérifierai quelles campagnes coûtent plus qu’elles ne rapportent",
+      "noSpend": "aucune campagne n’a rien dépensé entre le {from} et le {to}",
+      "noStock": "connectez votre boutique ou importez un fichier de stock et je montrerai l’argent qui dort en rayon",
+      "nothingWaiting": "rien n’attend votre validation pour l’instant",
+      "noPricedGain": "rien de ce qui vous attend ne porte encore de gain chiffré",
+      "noRevenueSeries": "il me faut une série de chiffre d’affaires mesurée pour lire ceci en regard"
+    },
+    "price": {
+      "arithmetic": "prix moyen {mean} ({revenue} ÷ {count, plural, one {# honoré} many {# honorés} other {# honorés}})",
+      "arithmeticRange": "prix moyen {mean} ({revenue} ÷ {count, plural, one {# honoré} many {# honorés} other {# honorés}}), entre {low} et {high} d’une semaine à l’autre sur {weeks, plural, one {# semaine} many {# semaines} other {# semaines}}"
+    },
+    "formula": {
+      "noShows": "{count, plural, one {# absence sans prévenir} many {# absences sans prévenir} other {# absences sans prévenir}} en {days, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} × {price} ({arithmetic}), d’après {source}",
+      "lateCancellations": "{count, plural, one {# annulation tardive} many {# annulations tardives} other {# annulations tardives}} en {days, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} × {price} ({arithmetic}), d’après {source}",
+      "emptyCapacity": "{perWeek} par semaine × {days, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} ÷ {week} = {slots} créneaux, moins {held, plural, one {# rendez-vous encore maintenu} many {# rendez-vous encore maintenus} other {# rendez-vous encore maintenus}} à leur heure = {empty} vides, × {price} ({arithmetic}). Les absences sans prévenir et les annulations tardives sont chiffrées sur leurs propres lignes, pas ici",
+      "noDips": "aucune série de {run} jours ou plus sous la fourchette habituelle sur {judged, plural, one {# jour évalué} many {# jours évalués} other {# jours évalués}} (la référence du détecteur : moyenne sur {window} jours × facteur du jour de la semaine, hors norme au-delà de {k}× la variation habituelle)",
+      "dips": "{days, plural, one {# jour} many {# jours} other {# jours}} en {runs, plural, one {# série} many {# séries} other {# séries}} de {run} jours ou plus sous la fourchette habituelle (moyenne sur {window} jours × facteur du jour de la semaine, hors norme au-delà de {k}× la variation habituelle) : attendu − réel = {gross} ; le bas de la fourchette laisse une variation habituelle par jour",
+      "dipsExplained": "{days, plural, one {# jour} many {# jours} other {# jours}} en {runs, plural, one {# série} many {# séries} other {# séries}} de {run} jours ou plus sous la fourchette habituelle (moyenne sur {window} jours × facteur du jour de la semaine, hors norme au-delà de {k}× la variation habituelle) : attendu − réel = {gross} ; le bas de la fourchette laisse une variation habituelle par jour ; moins ce que les absences sans prévenir, les annulations tardives et les créneaux vides de ce jour chiffrent déjà",
+      "adsAllPaid": "chaque campagne a rapporté au moins ce qu’elle a coûté, selon l’attribution de Meta ({count, plural, one {# campagne} many {# campagnes} other {# campagnes}})",
+      "adsLoser": "{campaign} : {spent} dépensés, Meta attribue {value} (rendement {roas}) → {loss}",
+      "stockNone": "rien de signalé comme lent ou immobilisé au {day}",
+      "stockItems": "{count, plural, one {# article lent} many {# articles lents} other {# articles lents}}, unités en stock × coût unitaire, au {day}. Un stock, pas un flux mensuel : il n’est pas ajouté au mois",
+      "tableProposal": "{summary} : {range}",
+      "onTheTable": "{count, plural, one {# proposition en attente} many {# propositions en attente} other {# propositions en attente}}, du scénario de base au scénario favorable, par mois : {parts}"
+    },
+    "basisNote": {
+      "capacity": "d’après une capacité que vous avez {basis, select, ESTIMATED {ESTIMÉE} other {DÉCLARÉE}} ({perWeek} par semaine)",
+      "meta": "d’après l’attribution de Meta elle-même",
+      "statedCost": "unités en stock × un coût que vous avez indiqué, pour certains articles",
+      "proposals": "les scénarios de base et favorables propres aux propositions"
+    },
+    "componentNote": {
+      "adsOtherCurrency": "{count, plural, one {# campagne en {currencies} laissée de côté} many {# campagnes en {currencies} laissées de côté} other {# campagnes en {currencies} laissées de côté}} : les devises ne se mélangent jamais",
+      "noCost": "{count, plural, one {# sans coût connu, laissé de côté} many {# sans coût connu, laissés de côté} other {# sans coût connu, laissés de côté}}",
+      "otherCurrency": "{count, plural, one {# dans une autre devise, laissé de côté} many {# dans une autre devise, laissés de côté} other {# dans une autre devise, laissés de côté}}"
+    },
+    "latestCount": "le dernier inventaire",
+    "small": {
+      "noBand": "Aucune fourchette chiffrée.",
+      "noBandBecause": "Aucune fourchette chiffrée : {reason}.",
+      "sentence": "{text}.",
+      "bookings": "Rendez-vous par semaine d’après {source}, du {from} au {to} : {completed, plural, one {# honoré} many {# honorés} other {# honorés}}, {noShows, plural, one {# absence sans prévenir} many {# absences sans prévenir} other {# absences sans prévenir}}.",
+      "bookingsLate": "Rendez-vous par semaine d’après {source}, du {from} au {to} : {completed, plural, one {# honoré} many {# honorés} other {# honorés}}, {noShows, plural, one {# absence sans prévenir} many {# absences sans prévenir} other {# absences sans prévenir}}, {late, plural, one {# annulation tardive} many {# annulations tardives} other {# annulations tardives}}.",
+      "bookingsWorth": "Rendez-vous par semaine d’après {source}, du {from} au {to} : {completed, plural, one {# honoré} many {# honorés} other {# honorés}}, {noShows, plural, one {# absence sans prévenir} many {# absences sans prévenir} other {# absences sans prévenir}} ; les créneaux manqués valaient {range}.",
+      "bookingsLateWorth": "Rendez-vous par semaine d’après {source}, du {from} au {to} : {completed, plural, one {# honoré} many {# honorés} other {# honorés}}, {noShows, plural, one {# absence sans prévenir} many {# absences sans prévenir} other {# absences sans prévenir}}, {late, plural, one {# annulation tardive} many {# annulations tardives} other {# annulations tardives}} ; les créneaux manqués valaient {range}.",
+      "ads": "Dépenses face à la valeur d’achat attribuée par Meta, par campagne, du {from} au {to} : {campaigns}. Perdre de l’argent signifie un rendement inférieur à {even}.",
+      "adsCampaign": "{campaign} a dépensé {spent}, Meta attribue {value} ({roas})",
+      "adsCampaignLosing": "{campaign} a dépensé {spent}, Meta attribue {value} ({roas}), perd de l’argent",
+      "noReturn": "aucun rendement",
+      "return": "rendement {roas}"
+    }
   }
 }

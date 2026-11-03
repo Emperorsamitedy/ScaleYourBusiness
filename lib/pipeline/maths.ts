@@ -20,8 +20,48 @@
 
 import type { Money } from "../core/money";
 import { money, multiply } from "../core/money";
+import { dayMonthYear } from "../i18n/format";
+import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
+import { num } from "../../components/sheet/num";
 import type { DealStage } from "./stages";
 import { OPEN_STAGES, WIN_RATE_QUESTION, isOpenStage } from "./stages";
+
+/**
+ * L-4b: the reasons, can/cannot, ready-when, sources and assumptions built
+ * here, in the reader's language — the "pipelineWords" catalogue and the
+ * locale the figures go out in. English by default, exactly what was
+ * printed before; what lib/forecasts records is always built in English.
+ */
+export interface PipelineSentenceWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+export const englishPipelineWords = (): PipelineSentenceWords => ({
+  tr: englishTr("pipelineWords"),
+  locale: "en",
+});
+
+/** A count as English always printed it here (no grouping); the locale's own elsewhere. */
+export function countText(n: number, locale: AppLocale): string {
+  return locale === "en" ? String(n) : num(n, 0, locale);
+}
+
+/** A day as English always printed it here (ISO); the reader's own date elsewhere. */
+export function dayText(day: string, locale: AppLocale): string {
+  return locale === "en" ? day : dayMonthYear(day, locale);
+}
+
+/** A percent the owner stated (25 or 22.5), as they stated it. */
+function statedText(p: number, locale: AppLocale): string {
+  if (locale === "en") return `${p}%`;
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    maximumFractionDigits: 1,
+  }).format(p / 100);
+}
 
 export const PIPELINE = {
   /** Closed deals (won + lost) in the window before a measured win rate is used. */
@@ -210,11 +250,15 @@ export type WinRate =
     };
 
 /** `stated` is the owner's answer to 6.1f, a percentage 0–100, or null. */
-export function winRate(args: {
-  deals: readonly DealFacts[];
-  stated: number | null;
-  today: string;
-}): WinRate {
+export function winRate(
+  args: {
+    deals: readonly DealFacts[];
+    stated: number | null;
+    today: string;
+  },
+  words: PipelineSentenceWords = englishPipelineWords(),
+): WinRate {
+  const { tr, locale } = words;
   const closed = closedInWindow(args.deals, args.today);
   const n = closed.won + closed.lost;
   const stated =
@@ -232,7 +276,14 @@ export function winRate(args: {
       closed,
       stated,
       assumed: [
-        `the next deals close the way your last ${n} did (${closed.won} won, ${closed.lost} lost, ${closed.from} to ${closed.to}); the range is how far ${n} deals can mislead`,
+        tr("rate.measuredAssumed", {
+          count: n,
+          n: countText(n, locale),
+          won: countText(closed.won, locale),
+          lost: countText(closed.lost, locale),
+          from: dayText(closed.from, locale),
+          to: dayText(closed.to, locale),
+        }),
       ],
     };
   }
@@ -247,7 +298,11 @@ export function winRate(args: {
       stated,
       needed,
       assumed: [
-        `your own win rate of ${stated}% (question ${WIN_RATE_QUESTION}), give or take ${band} points: it's your estimate, not a measurement`,
+        tr("rate.statedAssumed", {
+          rate: statedText(stated, locale),
+          question: WIN_RATE_QUESTION,
+          band,
+        }),
       ],
     };
   }
@@ -255,7 +310,13 @@ export function winRate(args: {
     basis: "none",
     closed,
     needed,
-    reason: `I don't know your win rate yet: ${n} deal${n === 1 ? "" : "s"} closed in the last ${PIPELINE.window_days} days, and I need ${PIPELINE.min_closed_for_measured} to measure it. Tell me roughly what share you win (question ${WIN_RATE_QUESTION}) and I can weigh your open deals now.`,
+    reason: tr("rate.none", {
+      count: n,
+      n: countText(n, locale),
+      days: PIPELINE.window_days,
+      min: countText(PIPELINE.min_closed_for_measured, locale),
+      question: WIN_RATE_QUESTION,
+    }),
   };
 }
 
@@ -298,7 +359,12 @@ export type Weighted =
  * Open deal values × the win rate, low to high, per currency. Without a
  * win rate it refuses, and says what it can and can't say (rule 25).
  */
-export function weightedValue(deals: readonly DealFacts[], rate: WinRate): Weighted {
+export function weightedValue(
+  deals: readonly DealFacts[],
+  rate: WinRate,
+  words: PipelineSentenceWords = englishPipelineWords(),
+): Weighted {
+  const { tr, locale } = words;
   const open = deals.filter((d) => isOpenStage(d.stage));
   const byCurrency = new Map<string, { total: number; deals: number }>();
   let unvalued = 0;
@@ -321,18 +387,12 @@ export function weightedValue(deals: readonly DealFacts[], rate: WinRate): Weigh
     return {
       ok: false,
       reason: rate.reason,
-      can: [
-        "list your open deals, their values and how long each has sat in its stage",
-        "say which deals have no next step, or a next step past its date",
-      ],
-      cant: [
-        "say how much of what is open you are likely to win",
-        "borrow a win rate from other businesses and call it yours",
-      ],
+      can: [tr("weigh.canList"), tr("weigh.canStale")],
+      cant: [tr("weigh.cantLikely"), tr("weigh.cantBorrow")],
       ready_when:
         rate.needed > 0
-          ? `after ${rate.needed} more closed deal${rate.needed === 1 ? "" : "s"}, or as soon as you state your win rate`
-          : "as soon as you state your win rate",
+          ? tr("weigh.readyAfter", { count: rate.needed, n: countText(rate.needed, locale) })
+          : tr("weigh.readyStated"),
       unvalued,
       open_totals: totals,
     };
@@ -357,18 +417,21 @@ export function weightedValue(deals: readonly DealFacts[], rate: WinRate): Weigh
     basis: rate.basis,
     window: { from: rate.closed.from, to: rate.closed.to },
     sources: [
-      `your pipeline: ${open.length} open deal${open.length === 1 ? "" : "s"}`,
+      tr("weigh.sourcePipeline", { count: open.length, n: countText(open.length, locale) }),
       rate.basis === "measured"
-        ? `${n} deals you closed between ${rate.closed.from} and ${rate.closed.to}`
-        : `your answer to question ${WIN_RATE_QUESTION}`,
+        ? tr("weigh.sourceClosed", {
+            count: n,
+            n: countText(n, locale),
+            from: dayText(rate.closed.from, locale),
+            to: dayText(rate.closed.to, locale),
+          })
+        : tr("answer", { question: WIN_RATE_QUESTION }),
     ],
     assumed: [
       ...rate.assumed,
-      "every open deal closes at that one rate, whatever its stage — an early lead likely closes less often than a proposal sent, so read the low end first",
+      tr("weigh.oneRate"),
       ...(estimated > 0
-        ? [
-            `${estimated} value${estimated === 1 ? " is" : "s are"} your estimate rather than a quote, and count the same`,
-          ]
+        ? [tr("weigh.estimated", { count: estimated, n: countText(estimated, locale) })]
         : []),
     ],
   };
@@ -426,7 +489,9 @@ export function dueByForecast(
   deals: readonly DealFacts[],
   rate: WinRate,
   today: string,
+  words: PipelineSentenceWords = englishPipelineWords(),
 ): DueForecast {
+  const { tr, locale } = words;
   const by = dueBy(today);
   const open = deals.filter((d) => isOpenStage(d.stage));
   const undated = open.filter((d) => !d.expected_close).length;
@@ -449,8 +514,8 @@ export function dueByForecast(
       by,
       reason:
         due.length === 0
-          ? `No open deal has an expected close date on or before ${by}. Give your deals an expected close date and I can say how much is likely won by then.`
-          : `The deals expected to close by ${by} have no value yet, so I can't say how much is likely won.`,
+          ? tr("due.noneDated", { day: dayText(by, locale) })
+          : tr("due.noValue", { day: dayText(by, locale) }),
       undated,
     };
   }
@@ -478,19 +543,22 @@ export function dueByForecast(
     undated,
     basis: rate.basis,
     sources: [
-      `the expected close dates you gave on ${due.length} open deal${due.length === 1 ? "" : "s"}`,
+      tr("due.sourceDates", { count: due.length, n: countText(due.length, locale) }),
       rate.basis === "measured"
-        ? `your own win rate, from ${rate.closed.won + rate.closed.lost} deals you closed between ${rate.closed.from} and ${rate.closed.to}`
-        : `your answer to question ${WIN_RATE_QUESTION}`,
+        ? tr("due.sourceRate", {
+            count: rate.closed.won + rate.closed.lost,
+            n: countText(rate.closed.won + rate.closed.lost, locale),
+            from: dayText(rate.closed.from, locale),
+            to: dayText(rate.closed.to, locale),
+          })
+        : tr("answer", { question: WIN_RATE_QUESTION }),
     ],
     assumed: [
       ...rate.assumed,
-      "each of these deals is won at that one rate, whatever its stage",
-      "a deal counts as won by the date only if you mark it won in the pipeline by then",
+      tr("due.oneRate"),
+      tr("due.markWon"),
       ...(overdue > 0
-        ? [
-            `${overdue} of them ${overdue === 1 ? "was" : "were"} expected earlier and ${overdue === 1 ? "is" : "are"} still open; ${overdue === 1 ? "it counts" : "they count"} as due now`,
-          ]
+        ? [tr("due.overdue", { count: overdue, n: countText(overdue, locale) })]
         : []),
     ],
   };

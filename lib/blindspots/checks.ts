@@ -11,12 +11,21 @@
 // resolved-IP SSRF guard (lib/site/fetch.ts), at most MAX_PAGES of the
 // owner's own origin. The result is a fact with a web_research source
 // (rule 2) naming the page it was read from.
+//
+// L-4b: a check's label shown to the owner is a "blindspotsWords" message
+// keyed by its code (the spec's English is the English message); the
+// keyword lists are data and stay as they are. The site check's reasons
+// are returned in English, as before, and worded for the screen by the
+// route (NO_WEBSITE_REASON, UNREADABLE_REASON name them without matching
+// a sentence).
 
 import checksSpec from "../../specs/customer-checks-v1.json";
 import { confidence } from "../core/confidence";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
+import { englishTr } from "../i18n/tr";
+import type { Tr } from "../i18n/tr";
 import { readCurrentField, writeField } from "../profile/field-store";
 import type { PageFetcher } from "../site/fetch";
 import { livePageFetcher } from "../site/fetch";
@@ -25,6 +34,29 @@ export const SITE_CHECKS_KEY = "presence.site_checks";
 export const WEBSITE_KEY = "presence.website_url";
 export const BUSINESS_TYPE_KEY = "identity.business_type";
 export const MAX_PAGES = 5;
+
+/** The namespace of the sentences lib/blindspots builds. */
+export const BLINDSPOT_WORDS = "blindspotsWords";
+/** runSiteChecks' reason when the profile has no website. */
+export const NO_WEBSITE_REASON = "no website in the profile";
+/** runSiteChecks' reason when no page could be read starts with this, then ": " and why. */
+export const UNREADABLE_REASON = "the website couldn't be read";
+
+/** What stopped the site check: no website, no page readable, or an error thrown on the way. */
+export type SiteNoteKind = "no_site" | "unreadable" | "error";
+
+/** Pure: the site check's English reason as a kind and its words in the reader's language. */
+export function siteNote(reason: string, w: { tr: Tr }): { kind: SiteNoteKind; note: string } {
+  if (reason === NO_WEBSITE_REASON) return { kind: "no_site", note: w.tr("siteNote.noSite") };
+  const prefix = `${UNREADABLE_REASON}: `;
+  if (reason.startsWith(prefix)) {
+    return {
+      kind: "unreadable",
+      note: w.tr("siteNote.unreadable", { detail: reason.slice(prefix.length) }),
+    };
+  }
+  return { kind: "error", note: reason };
+}
 
 interface CheckDef {
   label: { en: string };
@@ -43,8 +75,9 @@ export function checksFor(businessType: string | null): string[] {
   return (businessType && CHECKS.by_business_type[businessType]) || CHECKS.default;
 }
 
-export function checkLabel(code: string): string {
-  return CHECKS.checks[code]?.label.en ?? code;
+/** A check's label in the reader's words ("blindspotsWords.check.<code>"); an unknown code shows as itself. */
+export function checkLabel(code: string, tr: Tr = englishTr(BLINDSPOT_WORDS)): string {
+  return Object.hasOwn(CHECKS.checks, code) ? tr(`check.${code}`) : code;
 }
 
 /** Text a customer would read, plus link targets (tel:, mailto:, maps links count). */
@@ -131,7 +164,7 @@ export async function runSiteChecks(
     typeof site.value !== "string" ||
     site.value.trim() === ""
   ) {
-    return { reason: "no website in the profile" };
+    return { reason: NO_WEBSITE_REASON };
   }
   const type = await readCurrentField<{ code?: string } | string>(profileId, BUSINESS_TYPE_KEY);
   const businessType =
@@ -161,7 +194,7 @@ export async function runSiteChecks(
     }
   }
   if (texts.length === 0) {
-    return { reason: `the website couldn't be read: ${unreadable[0]?.reason ?? "no page"}` };
+    return { reason: `${UNREADABLE_REASON}: ${unreadable[0]?.reason ?? "no page"}` };
   }
 
   const results: Record<string, string | null> = {};

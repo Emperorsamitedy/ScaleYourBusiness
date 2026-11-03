@@ -16,6 +16,10 @@
 // plain forecast's next four weekly closing balances go on SYB's own track
 // record (lib/forecasts), once per week, as the seasons screen does. That
 // is a record of what was said, never a change to any money.
+//
+// L-4b: what the screen reads (the forecast's sentences, the tight week,
+// the scenarios) is in the request's language ("cashWords"); the track
+// record's claims are built from the English forecast, as before (rule 7).
 
 import { type NextRequest, NextResponse } from "next/server";
 import { resolveAccess } from "../../../lib/auth/access";
@@ -35,9 +39,11 @@ import type { TightWeek } from "../../../lib/cash/warnings";
 import { tightWeek } from "../../../lib/cash/warnings";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { minorUnitExponent } from "../../../lib/core/money";
+import { requestWords } from "../../../lib/i18n/request-words";
 import type { PriceItemRaw } from "../../../lib/simulate/pricing";
 import { PRICING, simulatePrice } from "../../../lib/simulate/pricing";
 import { gatherPricingInputs } from "../../../lib/simulate/pricing-inputs";
+import { SIM_WORDS } from "../../../lib/simulate/words";
 
 export interface CashView {
   forecast: CashForecast;
@@ -67,8 +73,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const now = new Date();
     const inputs = await loadCashInputs(access.account_id, access.profile_id, now);
-    const forecast = forecastCash(inputs);
-    if (forecast.status !== "ready") {
+    const words = await requestWords("cashWords");
+    // The recorded claims read the English forecast; the screen reads the reader's.
+    const english = forecastCash(inputs);
+    const forecast = words.locale === "en" ? english : forecastCash(inputs, {}, words);
+    if (forecast.status !== "ready" || english.status !== "ready") {
       return NextResponse.json({
         forecast,
         tight: null,
@@ -82,7 +91,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       await recordForecastsQuietly(
         cashClaims(
           { account_id: access.account_id, profile_id: access.profile_id },
-          forecast,
+          english,
           await latestBalance(access.account_id, inputs.today),
           now,
         ),
@@ -101,15 +110,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     let effect: PriceEffect | null = null;
     let price: CashView["price"] = null;
     try {
-      const pricing = await gatherPricingInputs(access.profile_id, now);
+      const sim = await requestWords(SIM_WORDS, words.locale);
+      const pricing = await gatherPricingInputs(access.profile_id, now, sim);
       const items = pricing.items.filter(priceable);
       const stepRaw = Number(q.price_step);
       const step = PRICING.steps.includes(stepRaw) ? stepRaw : PRICING.default_steps[0]!;
       const item = items.find((i) => i.key === q.price_item) ?? items[0] ?? null;
       if (item)
         effect = priceEffect(
-          simulatePrice(item, { kind: "share", share: step }, pricing.archetype),
+          simulatePrice(item, { kind: "share", share: step }, pricing.archetype, sim),
           item,
+          words,
+          words.locale === "en" ? undefined : sim,
         );
       price = {
         items: items.map((i) => ({ key: i.key, name: i.name })),
@@ -130,8 +142,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       forecast,
-      tight: tightWeek(forecast),
-      scenarios: compareScenarios(inputs, forecast, choice, effect),
+      tight: tightWeek(forecast, words),
+      scenarios: compareScenarios(inputs, forecast, choice, effect, words),
       choice,
       price,
     } satisfies CashView);

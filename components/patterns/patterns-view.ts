@@ -5,9 +5,10 @@
 // L-3b: the fixed words are the "patterns" catalogue (and the season
 // chart's, "charts.season") through an optional translator, English by
 // default; figures and dates in the reader's locale, money in the
-// business's currency. What lib/seasons and lib/bundles word (the season
-// headline and sentences, the series noun and source, a margin's why)
-// stays English until L-4.
+// business's currency. L-4b: what lib/seasons and lib/bundles word (the
+// season headline and sentences, the series noun and source, a margin's
+// why) comes from the server already in the reader's language
+// ("patternsWords", app/api/patterns).
 
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
@@ -19,7 +20,7 @@ import type { PairMargin } from "../../lib/bundles/pairs";
 import { minorUnitExponent } from "../../lib/core/money";
 import { dayMoney, shortDate } from "../../lib/charts/model";
 import type { Ratio, SeasonResult } from "../../lib/seasons/forecast";
-import { SEASONS, ratioText } from "../../lib/seasons/forecast";
+import { SEASONS, multipleIn, ratioIn as seasonRatioIn } from "../../lib/seasons/forecast";
 import type { SeasonChartModel } from "../charts/SeasonChart";
 import { moneyText, num } from "../sheet/num";
 
@@ -42,16 +43,12 @@ export function timesIn(x: number, locale: AppLocale = "en"): string {
 
 /** A ratio and its range, "2.1× (1.9–2.3×)" — lib/seasons' own words in English. */
 export function ratioIn(r: Ratio, locale: AppLocale = "en"): string {
-  if (locale === "en") return ratioText(r);
-  const lo = num(Math.round(r.low * 10) / 10, 1, locale);
-  const hi = r.high === null ? "?" : num(Math.round(r.high * 10) / 10, 1, locale);
-  return lo === hi ? timesIn(r.index, locale) : `${timesIn(r.index, locale)} (${lo}–${hi}×)`;
+  return seasonRatioIn(r, locale);
 }
 
 /** A plain multiple as the code states it ("1.25×", "0.8×"), in the reader's digits. */
 export function lineIn(x: number, locale: AppLocale = "en"): string {
-  if (locale === "en") return `${x}×`;
-  return `${new Intl.NumberFormat(intlTag(locale), { maximumFractionDigits: 2 }).format(x)}×`;
+  return multipleIn(x, locale);
 }
 
 /** A chart figure in whole major units of the business's currency (lib/charts' dayMoney). */

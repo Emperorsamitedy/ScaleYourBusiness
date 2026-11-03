@@ -38,9 +38,14 @@
 //
 // Rule 26: this models money; it never moves any. Nothing here, or anywhere
 // in lib/cash, pays, transfers, invoices or collects (lib/cash/fence.test.ts).
+//
+// L-4b: every sentence here comes from the "cashWords" catalogue through
+// an optional last `words` (lib/cash/words.ts), English by default, with
+// figures and dates in the reader's locale. What is recorded (the track
+// record's claims, the watch log) is built with the English default.
 
 import type { Basis } from "../../components/report/basis";
-import { moneyText, num } from "../../components/sheet/num";
+import { moneyText } from "../../components/sheet/num";
 import { shortDate } from "../charts/model";
 import { enumCode } from "../core/enum-value";
 import { minorUnitExponent } from "../core/money";
@@ -48,7 +53,18 @@ import type { AppLocale } from "../i18n/locales";
 import { SEASONS, addDays, quantile } from "../seasons/forecast";
 import { CASH_ASK } from "./keys";
 import type { PayoutChoice } from "./payout";
-import { PAYOUT_SOURCE, PAYOUT_UNKNOWN, dayRange, payoutFor } from "./payout";
+import { PAYOUT_UNKNOWN, dayRange, payoutFor } from "./payout";
+import type { Words } from "./words";
+import {
+  cashEnglish,
+  countText,
+  factSource,
+  pctText,
+  seriesNoun,
+  seriesSource,
+  timesText,
+  VOLUME_KIND,
+} from "./words";
 
 /** The pinned windows and bars — one place, boundary-tested (model.test.ts). */
 export const CASH = {
@@ -79,6 +95,8 @@ export interface MoneyFact {
   basis: Basis;
   /** Where it came from, in words. */
   source: string;
+  /** L-4b: when the words are code's own, which ones (lib/cash/words factSource); absent for a note. */
+  source_key?: "measured" | "estimate" | "derived" | "told" | "statement";
   /** The day it was true (observed_at), when known. */
   on: string | null;
 }
@@ -123,6 +141,10 @@ export interface DailySeries {
   provider: string;
   /** "revenue", "booking revenue". */
   noun: string;
+  /** L-4b: the metric read ("revenue.daily"), so the noun is worded by kind. */
+  metric?: string;
+  /** L-4b: an import named by code (its words in the catalogue); absent for a brand name. */
+  source_key?: "bookings" | "stock";
   currency: string;
   values: ReadonlyMap<string, number>;
 }
@@ -130,6 +152,8 @@ export interface DailySeries {
 /** The same source's daily count of orders (or appointments), when measured. */
 export interface CountSeries {
   noun: string;
+  /** L-4b: the metric read ("orders.daily"), so the noun is worded by kind. */
+  metric?: string;
   values: ReadonlyMap<string, number>;
 }
 
@@ -153,6 +177,8 @@ export interface CashInputs {
   offers: readonly OfferLine[];
   /** What to connect when nothing is measured, in the owner's words. */
   connect: string;
+  /** L-4b: the chart archetype the connect line is (lib/charts/profiles), worded by key. */
+  connect_key?: string;
   /** Measured sales in other currencies than the cash's: left out, never converted. */
   other_currencies: readonly string[];
 }
@@ -244,6 +270,8 @@ export interface VariableCosts {
 }
 
 export interface SourceLine {
+  /** A stable name for the row, whatever the language (L-4b). */
+  key: "cash" | "statedCash" | "moneyIn" | "payout" | "fixed" | "variable" | "debt" | "line";
   label: string;
   value: string;
   basis: Basis | null;
@@ -308,8 +336,8 @@ export type CashForecast = CashReady | CashRefusal;
 
 /* ── small helpers ── */
 
-const plural = (n: number, word: string) => `${num(n)} ${word}${n === 1 ? "" : "s"}`;
-const money = (minor: number, currency: string) => moneyText(Math.round(minor), currency);
+const money = (minor: number, currency: string, locale: AppLocale = "en") =>
+  moneyText(Math.round(minor), currency, locale);
 /** Whole major units: "€6,400" — in another language, its own way ("6.400 €", L-3b). */
 export function wholeMoney(minor: number, currency: string, locale: AppLocale = "en"): string {
   const unit = 10 ** minorUnitExponent(currency);
@@ -318,7 +346,6 @@ export function wholeMoney(minor: number, currency: string, locale: AppLocale = 
   const body = moneyText(Math.abs(whole) * unit, currency);
   return whole < 0 ? `−${body}` : body;
 }
-const pct = (x: number) => `${num(x * 100, 1)}%`;
 
 /** The sum of seven days from `from`, or null when any day wasn't measured. */
 export function blockSum(values: ReadonlyMap<string, number>, from: string): number | null {
@@ -476,7 +503,10 @@ function variableCosts(
   pattern: Pattern,
   leftOut: string[],
   needs: Need[],
+  words: Words,
 ): VariableCosts {
+  const { tr, locale } = words;
+  const m = (minor: number) => money(minor, currency, locale);
   const lines: string[] = [];
   const same = (m: MoneyFact | null): m is MoneyFact => m !== null && m.currency === currency;
   const bases: Basis[] = [];
@@ -504,21 +534,29 @@ function variableCosts(
     const perUnitMonth = perUnitEach * units;
     unitRatio = (deliver + perUnitMonth) / salesAtStated;
     if (deliver > 0 || perUnitMonth > 0) {
+      const figures = {
+        deliver: m(deliver),
+        sales: m(salesAtStated),
+        share: pctText(unitRatio, locale),
+      };
       lines.push(
-        `Per piece: (${money(deliver, currency)} to deliver your offers${perUnit.length > 0 ? ` + ${money(perUnitEach, currency)} × ${num(units)} pieces` : ""}) ÷ ${money(salesAtStated, currency)} of sales a month at your stated prices and volumes = ${pct(unitRatio)} of each sale`,
+        perUnit.length > 0
+          ? tr("perSale.perPieceUnits", {
+              ...figures,
+              each: m(perUnitEach),
+              units: countText(units, locale),
+              count: Math.round(units),
+            })
+          : tr("perSale.perPiece", figures),
       );
     }
     if (noCost.length > 0) {
-      leftOut.push(
-        `What ${noCost.join(", ")} cost${noCost.length === 1 ? "s" : ""} you to deliver isn't on your offers list, so it isn't counted.`,
-      );
-      needs.push({ what: "what each offer costs you to deliver", href: CASH_ASK.offers });
+      leftOut.push(tr("perSale.noCost", { names: noCost.join(", "), count: noCost.length }));
+      needs.push({ what: tr("needs.offersCost"), href: CASH_ASK.offers });
     }
   } else if (perUnit.length > 0 || inputs.offers.some((o) => same(o.cost))) {
-    leftOut.push(
-      "Your per-piece costs aren't counted: your offers list doesn't say how many of each you sell a month.",
-    );
-    needs.push({ what: "roughly how many of each offer you sell a month", href: CASH_ASK.offers });
+    leftOut.push(tr("perSale.noVolume"));
+    needs.push({ what: tr("needs.offersVolume"), href: CASH_ASK.offers });
   }
 
   let jobRatio = 0;
@@ -539,32 +577,41 @@ function variableCosts(
       }
       if (orders > 0 && sales > 0) {
         ordersPerMinor = orders / sales;
-        how = `${num(orders)} ${inputs.volume.noun} on ${money(sales, currency)} of measured sales`;
+        const kind = inputs.volume.metric ? VOLUME_KIND[inputs.volume.metric] : undefined;
+        how = kind
+          ? tr(`perSale.measured.${kind}`, { count: orders, sales: m(sales) })
+          : tr("perSale.measured.other", {
+              n: countText(orders, locale),
+              noun: inputs.volume.noun,
+              sales: m(sales),
+            });
         bases.push("OBSERVED");
       }
     }
     if (ordersPerMinor === null && inputs.orders_month && pattern.median_week > 0) {
       const monthSales = pattern.median_week * CASH.weeks_per_month;
       ordersPerMinor = inputs.orders_month.value / monthSales;
-      how = `${num(inputs.orders_month.value)} orders a month, as you told me, on about ${money(monthSales, currency)} of sales a month`;
+      how = tr("perSale.stated", {
+        n: countText(inputs.orders_month.value, locale),
+        count: Math.round(inputs.orders_month.value),
+        sales: m(monthSales),
+      });
       bases.push(inputs.orders_month.basis);
     }
     if (ordersPerMinor === null) {
-      leftOut.push(
-        "Your per-order costs aren't counted: I don't know how many orders you take a week.",
-      );
-      needs.push({ what: "roughly how many orders you take a month", href: CASH_ASK.orders });
+      leftOut.push(tr("perSale.noOrders"));
+      needs.push({ what: tr("needs.orders"), href: CASH_ASK.orders });
     } else {
       jobRatio = perJobEach * ordersPerMinor;
       lines.push(
-        `Per order: ${money(perJobEach, currency)} × (${how}) = ${pct(jobRatio)} of each sale`,
+        tr("perSale.perOrder", { each: m(perJobEach), how, share: pctText(jobRatio, locale) }),
       );
     }
   }
   for (const c of [...perUnit, ...perJob]) bases.push(c.amount!.basis);
   const ratio = unitRatio + jobRatio;
-  if (lines.length === 0) lines.push("No per-sale cost is stated, so none is counted.");
-  else lines.push(`Together: ${pct(ratio)} of each week's sales, paid in the week of the sale.`);
+  if (lines.length === 0) lines.push(tr("perSale.none"));
+  else lines.push(tr("perSale.together", { share: pctText(ratio, locale) }));
   return { ratio, lines, basis: bases.length > 0 ? "DERIVED" : "STATED" };
 }
 
@@ -574,7 +621,9 @@ function datedCosts(
   inputs: CashInputs,
   currency: string,
   leftOut: string[],
+  words: Words,
 ): { due: DueItem[]; fixedMonthly: number; debtMonthly: number; cadences: Set<string> } {
+  const { tr } = words;
   const due: DueItem[] = [];
   const cadences = new Set<string>();
   let fixedMonthly = 0;
@@ -584,17 +633,21 @@ function datedCosts(
     const cadence = enumCode(c.cadence);
     if (cadence !== null && !DATED.has(cadence)) continue; // per-sale: variableCosts
     if (!c.amount) {
-      leftOut.push(`${c.label} has no amount, so it isn't counted.`);
+      leftOut.push(tr("leftOut.noAmount", { label: c.label }));
       continue;
     }
     if (c.amount.currency !== currency) {
       leftOut.push(
-        `${c.label} is in ${c.amount.currency} and your cash is in ${currency}; I don't convert between currencies, so it isn't counted.`,
+        tr("leftOut.otherCurrency", {
+          label: c.label,
+          currency: c.amount.currency,
+          cash: currency,
+        }),
       );
       continue;
     }
     if (cadence === null) {
-      leftOut.push(`${c.label} has no frequency, so I can't place it in a week.`);
+      leftOut.push(tr("leftOut.noFrequency", { label: c.label }));
       continue;
     }
     cadences.add(cadence);
@@ -638,45 +691,54 @@ export function arrivals(
   return out.map((v) => Math.round(v));
 }
 
-function refusalCan(inputs: CashInputs, currency: string | null): string[] {
+function refusalCan(inputs: CashInputs, currency: string | null, words: Words): string[] {
+  const { tr, locale } = words;
   const can: string[] = [];
   if (currency) {
     const left: string[] = [];
-    const { fixedMonthly, debtMonthly } = datedCosts(inputs, currency, left);
+    const { fixedMonthly, debtMonthly } = datedCosts(inputs, currency, left, words);
     if (fixedMonthly + debtMonthly > 0) {
       can.push(
-        `Add up what goes out on the dates you gave: about ${wholeMoney(fixedMonthly + debtMonthly, currency)} a month in fixed costs${debtMonthly > 0 ? " and repayments" : ""}.`,
+        tr(debtMonthly > 0 ? "refusal.addUpDebt" : "refusal.addUp", {
+          amount: wholeMoney(fixedMonthly + debtMonthly, currency, locale),
+        }),
       );
     }
   }
-  can.push(
-    "Keep reading your sales every night, so the forecast is ready as soon as there's enough.",
-  );
+  can.push(tr("refusal.keepReading"));
   return can;
 }
 
-const CANNOT_BORROW =
-  "Borrow a sales pattern from other businesses like yours. An industry average isn't your history, so I don't present one as yours.";
-
 /** Pure: the 13-week forecast, or an honest refusal (rule 25). */
-export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForecast {
+export function forecastCash(
+  inputs: CashInputs,
+  adjust: Adjust = {},
+  words: Words = cashEnglish(),
+): CashForecast {
+  const { tr, locale } = words;
+  const n = (v: number) => countText(v, locale);
+  const day = (d: string) => shortDate(d, locale);
   const today = inputs.today;
   const series = inputs.revenue;
   const cashCurrency = inputs.cash.status === "known" ? inputs.cash.fact.currency : null;
+  const noun = series ? seriesNoun(series, words) : "";
+  const source = series ? seriesSource(series, words) : "";
 
   if (series === null) {
     return {
       status: "refused",
       reason: "no_history",
-      headline: "I need your own sales history to forecast your cash, and nothing is measured yet.",
+      headline: tr("refusal.noHistory"),
       history: null,
       ready_on: null,
-      can: refusalCan(inputs, cashCurrency),
-      cannot: [
-        "Say what comes in week by week: a forecast of money in needs your own measured sales.",
-        CANNOT_BORROW,
+      can: refusalCan(inputs, cashCurrency, words),
+      cannot: [tr("refusal.noHistoryCannot"), tr("refusal.cannotBorrow")],
+      needs: [
+        {
+          what: inputs.connect_key ? tr(`connect.${inputs.connect_key}`) : inputs.connect,
+          href: CASH_ASK.connect,
+        },
       ],
-      needs: [{ what: `${inputs.connect}`, href: CASH_ASK.connect }],
     };
   }
 
@@ -688,12 +750,22 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
       status: "refused",
       reason: "too_little",
       headline: stale
-        ? `Only ${plural(complete, "complete week")} of the last ${CASH.recent_weeks} were measured (the last measured day is ${shortDate(history!.last_day)}): a cash forecast needs ${CASH.min_weeks}.`
-        : `I have ${plural(complete, "complete week")} of your ${series.noun}; a 13-week cash forecast needs ${CASH.min_weeks}.`,
+        ? tr("refusal.stale", {
+            count: complete,
+            recent: n(CASH.recent_weeks),
+            day: day(history!.last_day),
+            needed: n(CASH.min_weeks),
+          })
+        : tr("refusal.tooLittle", {
+            count: complete,
+            noun,
+            weeks: n(CASH.horizon_weeks),
+            needed: n(CASH.min_weeks),
+          }),
       history: history
         ? {
-            source: series.source,
-            noun: series.noun,
+            source,
+            noun,
             first_day: history.first_day,
             last_day: history.last_day,
             covered_days: history.covered_days,
@@ -702,10 +774,10 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
           }
         : null,
       ready_on: addDays(today, 7 * (CASH.min_weeks - complete)),
-      can: refusalCan(inputs, cashCurrency),
+      can: refusalCan(inputs, cashCurrency, words),
       cannot: [
-        `Say what comes in over the next 13 weeks: ${plural(complete, "week")} is too few to know what a normal week is.`,
-        CANNOT_BORROW,
+        tr("refusal.tooLittleCannot", { weeks: CASH.horizon_weeks, count: complete }),
+        tr("refusal.cannotBorrow"),
       ],
       needs: [],
     };
@@ -716,12 +788,10 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
       status: "refused",
       reason: "no_cash",
       headline:
-        inputs.cash.status === "unknown"
-          ? "You told me you don't know how much cash the business has today, so there's no starting point for a forecast yet."
-          : "I need roughly how much cash the business has today to start the forecast from.",
+        inputs.cash.status === "unknown" ? tr("refusal.cashUnknown") : tr("refusal.cashMissing"),
       history: {
-        source: series.source,
-        noun: series.noun,
+        source,
+        noun,
         first_day: history.first_day,
         last_day: history.last_day,
         covered_days: history.covered_days,
@@ -730,11 +800,15 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
       },
       ready_on: null,
       can: [
-        `Read your ${series.noun}: ${plural(history.recent.length, "complete week")} of the last ${CASH.recent_weeks}, enough to forecast money in.`,
-        ...refusalCan(inputs, series.currency).slice(0, 1),
+        tr("refusal.cashCan", {
+          noun,
+          count: history.recent.length,
+          recent: n(CASH.recent_weeks),
+        }),
+        ...refusalCan(inputs, series.currency, words).slice(0, 1),
       ],
-      cannot: ["Say when money gets tight without knowing where it starts."],
-      needs: [{ what: "roughly how much cash the business has today", href: CASH_ASK.cash }],
+      cannot: [tr("refusal.cashCannot")],
+      needs: [{ what: tr("needs.cash"), href: CASH_ASK.cash }],
     };
   }
 
@@ -744,30 +818,31 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
     return {
       status: "refused",
       reason: "currency",
-      headline: `Your cash is in ${currency} and your measured ${series.noun} in ${series.currency}. I never convert between currencies, so I can't forecast one from the other.`,
+      headline: tr("refusal.currency", { cash: currency, noun, series: series.currency }),
       history: null,
       ready_on: null,
-      can: refusalCan(inputs, currency),
-      cannot: [
-        `Add ${series.currency} sales to ${currency} cash without an exchange rate nobody gave me.`,
-      ],
-      needs: [{ what: `your cash today in ${series.currency}`, href: CASH_ASK.cash }],
+      can: refusalCan(inputs, currency, words),
+      cannot: [tr("refusal.currencyCannot", { series: series.currency, cash: currency })],
+      needs: [{ what: tr("needs.cashIn", { currency: series.currency }), href: CASH_ASK.cash }],
     };
   }
 
   const leftOut: string[] = [];
   const needs: Need[] = [];
   const { pattern, weekly, lastYear } = salesPattern(series, today, history);
-  const payout = payoutFor({
-    provider: inputs.payout.provider,
-    methods: inputs.payout.methods,
-    series_provider: series.provider,
-  });
+  const payout = payoutFor(
+    {
+      provider: inputs.payout.provider,
+      methods: inputs.payout.methods,
+      series_provider: series.provider,
+    },
+    words,
+  );
   if (payout.days === PAYOUT_UNKNOWN) {
-    needs.push({ what: "which payment provider pays your sales out", href: CASH_ASK.provider });
+    needs.push({ what: tr("needs.provider"), href: CASH_ASK.provider });
   }
-  const variable = variableCosts(inputs, currency, pattern, leftOut, needs);
-  const { due, fixedMonthly, debtMonthly, cadences } = datedCosts(inputs, currency, leftOut);
+  const variable = variableCosts(inputs, currency, pattern, leftOut, needs, words);
+  const { due, fixedMonthly, debtMonthly, cadences } = datedCosts(inputs, currency, leftOut, words);
 
   const factor = (k: number) => adjust.sales_factor?.[k] ?? 1;
   const salesLow = weekly.map((w, k) => w.low * factor(k));
@@ -816,6 +891,8 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
     });
   }
 
+  const whole = (minor: number, cur: string = currency) => wholeMoney(minor, cur, locale);
+
   // The line: the stated buffer, else zero (an empty account is a fact, not an assumption).
   const buffer = inputs.buffer;
   const line: CashLine =
@@ -823,136 +900,152 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
       ? { amount_minor: buffer.fact.amount_minor, kind: "buffer", fact: buffer.fact }
       : { amount_minor: 0, kind: "zero", fact: null };
   if (buffer.status === "known" && buffer.fact.currency !== currency) {
-    leftOut.push(
-      `Your buffer is in ${buffer.fact.currency} and your cash in ${currency}, so I draw the line at zero instead of converting.`,
-    );
+    leftOut.push(tr("leftOut.bufferCurrency", { buffer: buffer.fact.currency, cash: currency }));
   }
   if (buffer.status === "missing") {
-    needs.push({ what: "the least you'd want in the account at any time", href: CASH_ASK.buffer });
+    needs.push({ what: tr("needs.buffer"), href: CASH_ASK.buffer });
   }
 
   const debt = inputs.debt;
   if (debt.status === "known" && debt.fact.amount_minor > 0 && debtMonthly === 0) {
-    leftOut.push(
-      `You carry ${wholeMoney(debt.fact.amount_minor, debt.fact.currency)} of debt, but no repayment is on your costs list, so none is counted. A repayment listed under loan payments would be.`,
-    );
-    needs.push({ what: "what you repay on your debt, and how often", href: CASH_ASK.costs });
+    leftOut.push(tr("leftOut.debt", { amount: whole(debt.fact.amount_minor, debt.fact.currency) }));
+    needs.push({ what: tr("needs.debt"), href: CASH_ASK.costs });
   }
   for (const c of inputs.other_currencies) {
-    leftOut.push(
-      `Your ${series.noun} in ${c} is left out: money in two currencies is never added together.`,
-    );
+    leftOut.push(tr("leftOut.otherSeries", { noun, currency: c }));
   }
 
+  const seasonLine = () => {
+    const main = pattern.growth
+      ? tr("assumption.growth", {
+          weeks: CASH.growth_weeks,
+          low: times(pattern.growth.low, locale),
+          high: times(pattern.growth.high, locale),
+        })
+      : tr("assumption.span");
+    const fallback = pattern.fallback_weeks.length;
+    return fallback > 0 ? `${main} ${tr("assumption.fallback", { count: fallback })}` : main;
+  };
   const assumptions: string[] = [
     pattern.kind === "season"
-      ? `${
-          pattern.growth
-            ? `Each week runs like the same week last year, scaled by how your last ${CASH.growth_weeks} weeks compare with the same weeks a year before (${times(pattern.growth.low)}–${times(pattern.growth.high)}).`
-            : "Each week runs somewhere between the same week last year and your recent weeks: with one year of history I can't tell your growth from your season, so the range spans both."
-        }${pattern.fallback_weeks.length > 0 ? ` ${plural(pattern.fallback_weeks.length, "week")} last year weren't measured in full; those use your recent weeks instead.` : ""}`
-      : `The coming weeks run like your last ${plural(pattern.recent_complete, "complete week")}: the middle half of them, ${wholeMoney(pattern.recent.low, currency)}–${wholeMoney(pattern.recent.high, currency)} a week. With under a year of history no season is known, so none is applied.`,
+      ? seasonLine()
+      : tr("assumption.recent", {
+          count: pattern.recent_complete,
+          low: whole(pattern.recent.low),
+          high: whole(pattern.recent.high),
+        }),
     payout.days.high === 0
-      ? "Sales are money in the same day."
-      : `A sale reaches your account ${dayRange(payout.days)} after it is made (${payout.why}). The cautious end takes the slow end.`,
-    "Sales are spread evenly over the days of their week.",
+      ? tr("assumption.sameDay")
+      : tr("assumption.payout", { days: dayRange(payout.days, words), why: payout.why }),
+    tr("assumption.evenly"),
   ];
-  if (cadences.has("monthly")) assumptions.push("Monthly costs go out on the 1st of each month.");
-  if (cadences.has("quarterly")) {
-    assumptions.push(
-      "Quarterly costs go out on the 1st of January, April, July and October: you haven't told me their dates.",
-    );
-  }
-  if (cadences.has("annual")) {
-    assumptions.push(
-      "A yearly cost with no due date is set aside a twelfth at a time on each 1st, rather than guessed into one week.",
-    );
-  }
-  if (variable.ratio > 0) assumptions.push("Per-sale costs are paid in the week of the sale.");
+  if (cadences.has("monthly")) assumptions.push(tr("assumption.monthly", { day: 1 }));
+  if (cadences.has("quarterly")) assumptions.push(tr("assumption.quarterly", { day: 1 }));
+  if (cadences.has("annual")) assumptions.push(tr("assumption.annual", { day: 1 }));
+  if (variable.ratio > 0) assumptions.push(tr("assumption.perSale"));
   // I-54a: a statement a few days old is cash today; the days since aren't in it.
   if (start.basis === "OBSERVED" && start.on && start.on < inputs.today) {
-    assumptions.push(
-      `Cash today is your bank statement's closing balance on ${shortDate(start.on)}; what came in or went out since then isn't counted.`,
-    );
+    assumptions.push(tr("assumption.statement", { day: day(start.on) }));
   }
-  assumptions.push(
-    "Nothing else changes: no cost, payment or one-off beyond what you listed. Tax counts only where it is on your costs list.",
-  );
+  assumptions.push(tr("assumption.nothingElse"));
 
+  const label = (key: SourceLine["key"]) => tr(`source.label.${key}`);
   const stated = inputs.stated_cash ?? null;
+  const startSource = factSource(start, words);
   const sources: SourceLine[] = [
     {
-      label: "Cash today",
-      value: wholeMoney(start.amount_minor, currency),
+      key: "cash",
+      label: label("cash"),
+      value: whole(start.amount_minor),
       basis: start.basis,
-      source: start.on ? `${start.source}, on ${shortDate(start.on)}` : start.source,
+      source: start.on
+        ? tr("source.cashOn", { source: startSource, day: day(start.on) })
+        : startSource,
     },
     // I-54a: the owner's own figure beside the statement's, never silently replaced.
     ...(stated && stated.amount_minor !== start.amount_minor
       ? [
           {
-            label: "Cash you told me",
-            value: wholeMoney(stated.amount_minor, stated.currency),
+            key: "statedCash" as const,
+            label: label("statedCash"),
+            value: whole(stated.amount_minor, stated.currency),
             basis: stated.basis,
-            source: `${stated.source}; the bank statement is used instead`,
+            source: tr("source.statedCash", { source: factSource(stated, words) }),
           },
         ]
       : []),
     {
-      label: "Money in",
-      value: `${series.source} ${series.noun}, ${plural(pattern.covered_days, "measured day")} to ${shortDate(history.last_day)}`,
+      key: "moneyIn",
+      label: label("moneyIn"),
+      value: tr("source.moneyIn", {
+        source,
+        noun,
+        count: pattern.covered_days,
+        day: day(history.last_day),
+      }),
       basis: "OBSERVED",
       source:
         pattern.kind === "season"
-          ? `the last year, read from ${shortDate(pattern.from)}`
-          : `the last ${CASH.recent_weeks} weeks, read from ${shortDate(pattern.from)}`,
+          ? tr("source.moneyInYear", { day: day(pattern.from) })
+          : tr("source.moneyInRecent", { weeks: CASH.recent_weeks, day: day(pattern.from) }),
     },
     {
-      label: "Payout timing",
-      value: dayRange(payout.days),
+      key: "payout",
+      label: label("payout"),
+      value: dayRange(payout.days, words),
       basis:
         payout.days.high === 0 && payout.code === null && inputs.payout.methods
           ? "STATED"
           : "ASSUMED",
-      source: payout.days.high === 0 && payout.code === null ? payout.why : PAYOUT_SOURCE,
+      source: payout.days.high === 0 && payout.code === null ? payout.why : tr("payout.source"),
     },
     {
-      label: "Fixed costs",
-      value: `about ${wholeMoney(fixedMonthly, currency)} a month`,
+      key: "fixed",
+      label: label("fixed"),
+      value: tr("source.aboutMonth", { amount: whole(fixedMonthly) }),
       basis: fixedMonthly > 0 ? "STATED" : null,
       source:
         fixedMonthly > 0
-          ? `${plural(new Set(due.filter((d) => !d.debt).map((d) => d.key)).size, "cost")} from your costs list, by the frequency you gave`
-          : "no fixed cost with an amount and a frequency is listed",
+          ? tr("source.fixed", {
+              count: new Set(due.filter((d) => !d.debt).map((d) => d.key)).size,
+            })
+          : tr("source.fixedNone"),
     },
     {
-      label: "Per-sale costs",
-      value: pct(variable.ratio),
+      key: "variable",
+      label: label("variable"),
+      value: pctText(variable.ratio, locale),
       basis: variable.ratio > 0 ? variable.basis : null,
       source: variable.lines.join(" "),
     },
     {
-      label: "Debt repayments",
+      key: "debt",
+      label: label("debt"),
       value:
-        debtMonthly > 0 ? `about ${wholeMoney(debtMonthly, currency)} a month` : "none counted",
+        debtMonthly > 0
+          ? tr("source.aboutMonth", { amount: whole(debtMonthly) })
+          : tr("source.debtNone"),
       basis: debtMonthly > 0 ? "STATED" : null,
       source:
         debtMonthly > 0
-          ? "loan payments on your costs list"
+          ? tr("source.debt")
           : debt.status === "known"
-            ? `debt stated: ${wholeMoney(debt.fact.amount_minor, debt.fact.currency)}, no repayment listed`
-            : "no repayment listed",
+            ? tr("source.debtStated", {
+                amount: whole(debt.fact.amount_minor, debt.fact.currency),
+              })
+            : tr("source.debtNoRepayment"),
     },
     {
-      label: "The line",
-      value: wholeMoney(line.amount_minor, currency),
+      key: "line",
+      label: label("line"),
+      value: whole(line.amount_minor),
       basis: line.fact?.basis ?? null,
       source:
         line.kind === "buffer"
-          ? `the least you want in the account, as you told me`
+          ? tr("source.lineBuffer")
           : buffer.status === "unknown"
-            ? "you don't know the least you'd want in the account, so the line is an empty account"
-            : "no buffer stated, so the line is an empty account",
+            ? tr("source.lineUnknown")
+            : tr("source.lineNone"),
     },
   ];
 
@@ -971,7 +1064,7 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
     variable,
     fixed_monthly: Math.round(fixedMonthly),
     debt_monthly: Math.round(debtMonthly),
-    series: { source: series.source, noun: series.noun },
+    series: { source, noun },
     sources,
     assumptions,
     left_out: leftOut,
@@ -981,7 +1074,7 @@ export function forecastCash(inputs: CashInputs, adjust: Adjust = {}): CashForec
   };
 }
 
-/** "1.08×", two decimals: growth ratios sit close to 1. */
-export function times(x: number): string {
-  return `${(Math.round(x * 100) / 100).toFixed(2)}×`;
+/** "1.08×", two decimals: growth ratios sit close to 1 ("1,08×" in another language). */
+export function times(x: number, locale: AppLocale = "en"): string {
+  return timesText(x, 2, locale);
 }

@@ -23,8 +23,11 @@ import { careState } from "../../../lib/care/day-zero";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { seasonClaims } from "../../../lib/forecasts/claims";
 import { recordForecastsQuietly } from "../../../lib/forecasts/record";
+import { dayMonthYear } from "../../../lib/i18n/format";
+import type { Words } from "../../../lib/i18n/request-words";
+import { requestWords } from "../../../lib/i18n/request-words";
 import type { SeasonsView } from "../../../lib/seasons/load";
-import { loadSeasons } from "../../../lib/seasons/load";
+import { loadSeasons, seasonsInWords } from "../../../lib/seasons/load";
 import { requireRole } from "../../../lib/auth/roles";
 
 export interface PatternsView {
@@ -36,14 +39,31 @@ export interface PatternsView {
   held: string | null;
 }
 
+/** Why proposals wait, in the reader's words; the date ISO in English, as it always was. */
+function heldWords(
+  care: Awaited<ReturnType<typeof careState>>,
+  now: Date,
+  { tr, locale }: Words,
+): string | null {
+  if (!care) return tr("held.choose");
+  if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
+    const day = care.watch_ends_at.slice(0, 10);
+    return tr("held.watching", { day: locale === "en" ? day : dayMonthYear(day, locale) });
+  }
+  return null;
+}
+
 export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
     const now = new Date();
+    // L-4b: the sentences go out in the reader's language; the forecast
+    // recorded below is the English one (rule 7).
+    const words = await requestWords("patternsWords");
     const [seasons, bundles, care] = await Promise.all([
       loadSeasons(access.account_id, access.profile_id, now),
-      loadBundles(access.account_id, access.profile_id, now),
+      loadBundles(access.account_id, access.profile_id, now, words),
       careState(access.profile_id),
     ]);
     // Idea 54: the next weeks, as shown here, go on SYB's own track record
@@ -79,12 +99,13 @@ export async function GET(): Promise<NextResponse> {
       const key = r.ref ? refs.get(r.ref) : undefined;
       if (key) proposed[key] = { id: r.id, status: r.status, blocked_by_limit: r.blocked_by_limit };
     }
-    const held = !care
-      ? "I propose once you've chosen how I work for you."
-      : care.watch_ends_at && now.toISOString() < care.watch_ends_at
-        ? `I'm watching until ${care.watch_ends_at.slice(0, 10)}, and I propose nothing before then.`
-        : null;
-    return NextResponse.json({ seasons, bundles, proposed, held } satisfies PatternsView);
+    const held = heldWords(care, now, words);
+    return NextResponse.json({
+      seasons: seasonsInWords(seasons, words),
+      bundles,
+      proposed,
+      held,
+    } satisfies PatternsView);
   } catch (error) {
     console.error(
       JSON.stringify({

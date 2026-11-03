@@ -15,7 +15,8 @@
 //
 // L-3b: the screen's own words are the "patterns" catalogue, the chart's
 // "charts.season"; what lib/seasons and lib/bundles word (headlines, the
-// season sentences, can/can't, notes, item names) stays English until L-4.
+// season sentences, can/can't, notes) arrives in the reader's language
+// from the server (L-4b, "patternsWords"). Item names are content.
 
 import "../../app/patterns.css";
 import Link from "next/link";

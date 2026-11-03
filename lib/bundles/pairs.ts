@@ -20,6 +20,9 @@
 // BUNDLES.min_baskets baskets, because a handful of orders can make any
 // two items look inseparable. What was left out is counted, never hidden.
 
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
+
 export const BUNDLES = {
   /** Fewer baskets than this and pairs aren't mined: chance would dominate. */
   min_baskets: 50,
@@ -207,26 +210,35 @@ export type PairMargin =
     }
   | { known: false; why: string };
 
-/** The pair's margin, from each item's price and cost: arithmetic, or an honest "unknown". */
+/** One or both item names, as the "patternsWords" margin sentences take them. */
+const names = (list: readonly string[]) => ({
+  count: list.length,
+  a: list[0] ?? "",
+  b: list[1] ?? "",
+});
+
+/**
+ * The pair's margin, from each item's price and cost: arithmetic, or an
+ * honest "unknown". The why is in `tr` ("patternsWords", English by
+ * default: what a proposal stores is English, rule 7); item names as given.
+ */
 export function pairMargin(
   a: { name: string; economics: ItemEconomics | null },
   b: { name: string; economics: ItemEconomics | null },
+  tr: Tr = englishTr("patternsWords"),
 ): PairMargin {
   const missing = [a, b].filter((x) => x.economics === null).map((x) => x.name);
   if (missing.length > 0) {
-    return { known: false, why: `no price on record for ${missing.join(" or ")}` };
+    return { known: false, why: tr("margin.noPrice", names(missing)) };
   }
   const ea = a.economics!;
   const eb = b.economics!;
   if (ea.currency !== eb.currency) {
-    return { known: false, why: "their prices are in different currencies" };
+    return { known: false, why: tr("margin.currencies") };
   }
   const noCost = [a, b].filter((x) => x.economics!.cost_minor === null).map((x) => x.name);
   if (noCost.length > 0) {
-    return {
-      known: false,
-      why: `no cost on record for ${noCost.join(" or ")}, so the margin is unknown rather than assumed`,
-    };
+    return { known: false, why: tr("margin.noCost", names(noCost)) };
   }
   const price = ea.price_minor + eb.price_minor;
   const contribution = price - ea.cost_minor! - eb.cost_minor!;

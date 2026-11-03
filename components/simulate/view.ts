@@ -3,6 +3,7 @@
 // testable without a browser: the cell words, the headline, the default
 // picks and the whisker chart's geometry.
 
+import { listSep } from "../../lib/i18n/punctuation";
 import type {
   Catalog,
   Cell,
@@ -22,7 +23,8 @@ import { basisName } from "../report/basis";
  * L-3b (TASKS-LANGUAGES.md): the simulator's words — the "simulate"
  * catalogue, the basis names from "sheet" — and the reader's locale,
  * English by default so English has one source. The arithmetic lines,
- * titles and reasons lib/simulate words stay English until L-4.
+ * titles and reasons lib/simulate words are its own "simulateWords"
+ * (lib/simulate/words.ts, L-4b), already worded when they reach here.
  */
 export interface SimWords {
   tr: Tr;
@@ -83,7 +85,7 @@ export function cellView(
       figure: "—",
       basis: "",
       flag: "MISSING",
-      detail: w.tr("cell.needs", { list: cell.needs.join("; ") }),
+      detail: w.tr("cell.needs", { list: cell.needs.join(listSep(w.locale)) }),
     };
   }
   return { figure: "—", basis: "", flag: "NOT READ", detail: cell.why };

@@ -6178,5 +6178,1272 @@
       "askBody": "Egy kattintás, és kész — végleg. A saját kérdéseire adott válaszokat ez nem érinti.",
       "button": "Leiratkozás"
     }
+  },
+  "cashWords": {
+    "series": {
+      "noun": {
+        "revenue": "árbevétel",
+        "bookingRevenue": "foglalási árbevétel"
+      },
+      "source": {
+        "bookings": "a foglalási exportfájlja",
+        "stock": "a készletfájlja"
+      }
+    },
+    "connect": {
+      "shop": "Kapcsolja össze a Shopifyt vagy a WooCommerce-t, vagy a pénztárgépét a Square-en keresztül, és megrajzolom ezt",
+      "hospitality": "Kapcsolja össze a pénztárgépét a Square-en keresztül, vagy a Stripe-ot, és megrajzolom ezt",
+      "appointments": "Importálja a foglalási exportfájlját, vagy kapcsolja össze a Square-t, és megrajzolom ezt",
+      "services": "Kapcsolja össze a Stripe-ot, vagy azt a webshopot vagy pénztárgépet, amelyen keresztül a fizetéseket fogadja, és megrajzolom ezt",
+      "default": "Kapcsolja össze a webshopját vagy a pénztárgépét, vagy a Stripe-ot, vagy importálja a foglalásait, és megrajzolom ezt"
+    },
+    "factSource": {
+      "measured": "az összekapcsolt fiókjából mérve",
+      "estimate": "az Ön becslése",
+      "derived": "a többi számából kiszámítva",
+      "told": "ahogy Ön elmondta",
+      "statement": "a bankszámlakivonata záróegyenlege"
+    },
+    "perSale": {
+      "perPiece": "Darabonként: ({deliver} az ajánlatai teljesítésére) ÷ {sales} értékű havi eladás a megadott árai és mennyiségei mellett = minden eladásból {share}",
+      "perPieceUnits": "Darabonként: ({deliver} az ajánlatai teljesítésére + {each} × {count, plural, one {{units} darab} other {{units} darab}}) ÷ {sales} értékű havi eladás a megadott árai és mennyiségei mellett = minden eladásból {share}",
+      "noCost": "{count, plural, one {Az ajánlatlistáján nem szerepel, mennyibe kerül Önnek ennek a teljesítése: {names}, ezért nem számít bele.} other {Az ajánlatlistáján nem szerepel, mennyibe kerül Önnek ezek teljesítése: {names}, ezért nem számítanak bele.}}",
+      "noVolume": "A darabonkénti költségei nem számítanak bele: az ajánlatlistája nem mondja meg, mennyit ad el havonta az egyes ajánlatokból.",
+      "measured": {
+        "orders": "{count, plural, one {# rendelés} other {# rendelés}}, {sales} összegű mért eladás mellett",
+        "appointments": "{count, plural, one {# időpont} other {# időpont}}, {sales} összegű mért eladás mellett",
+        "visits": "{count, plural, one {# látogatás} other {# látogatás}}, {sales} összegű mért eladás mellett",
+        "other": "{n} {noun}, {sales} összegű mért eladás mellett"
+      },
+      "stated": "{count, plural, one {havi {n} rendelés} other {havi {n} rendelés}}, ahogy Ön elmondta, nagyjából havi {sales} eladás mellett",
+      "noOrders": "A rendelésenkénti költségei nem számítanak bele: nem tudom, hány rendelést kap hetente.",
+      "perOrder": "Rendelésenként: {each} × ({how}) = minden eladásból {share}",
+      "none": "Nincs megadott eladásonkénti költség, így egyik sem számít bele.",
+      "together": "Összesen: minden heti eladásból {share}, az eladás hetében fizetve."
+    },
+    "leftOut": {
+      "noAmount": "{label}: nincs összege, ezért nem számít bele.",
+      "otherCurrency": "{label}: a pénzneme {currency}, az Ön pénzkészletéé viszont {cash}; pénznemek között nem váltok át, ezért nem számít bele.",
+      "noFrequency": "{label}: nincs megadva, milyen gyakran esedékes, így nem tudom egy héthez rendelni.",
+      "bufferCurrency": "A tartalékának pénzneme {buffer}, a pénzkészletéé {cash}, ezért átváltás helyett a nullánál húzom meg a vonalat.",
+      "debt": "{amount} összegű tartozása van, de a költséglistáján nem szerepel törlesztés, ezért egyik sem számít bele. A hiteltörlesztések között felvett törlesztés beleszámítana.",
+      "otherSeries": "Ez kimarad: {noun} {currency} pénznemben; két pénznemben lévő pénzt soha nem adok össze."
+    },
+    "needs": {
+      "offersCost": "mennyibe kerül Önnek az egyes ajánlatok teljesítése",
+      "offersVolume": "nagyjából mennyit ad el havonta az egyes ajánlatokból",
+      "orders": "nagyjából hány rendelést kap havonta",
+      "cash": "nagyjából mennyi pénze van ma a vállalkozásnak",
+      "cashIn": "a mai pénzkészlete ebben a pénznemben: {currency}",
+      "provider": "melyik fizetési szolgáltató fizeti ki Önnek az eladásait",
+      "buffer": "a legkevesebb, amit bármikor a számláján szeretne tudni",
+      "debt": "mennyit és milyen gyakran törleszt a tartozásából"
+    },
+    "refusal": {
+      "addUp": "Összeadom, ami az Ön által megadott dátumokon kimegy: nagyjából havi {amount} állandó költség.",
+      "addUpDebt": "Összeadom, ami az Ön által megadott dátumokon kimegy: nagyjából havi {amount} állandó költség és törlesztés.",
+      "keepReading": "Továbbra is minden éjjel beolvasom az eladásait, hogy az előrejelzés kész legyen, amint elég adat gyűlik össze.",
+      "cannotBorrow": "Nem veszek kölcsön eladási mintát más, Önéhez hasonló vállalkozásoktól. Egy iparági átlag nem az Ön előzménye, ezért nem mutatom be a sajátjaként.",
+      "noHistory": "A pénzügyi előrejelzéshez a saját eladási előzményeire van szükségem, és még semmi sincs mérve.",
+      "noHistoryCannot": "Nem tudom megmondani, mennyi jön be hétről hétre: a befolyó pénz előrejelzéséhez a saját mért eladásaira van szükség.",
+      "stale": "Az utolsó {recent} hétből csak {count, plural, one {# teljes hét} other {# teljes hét}} volt mérve (az utolsó mért nap: {day}): a pénzügyi előrejelzéshez {needed} teljes hét kell.",
+      "tooLittle": "{count, plural, one {# teljes hétnyi adatom van} other {# teljes hétnyi adatom van}} ({noun}); egy {weeks} hetes pénzügyi előrejelzéshez {needed} teljes hét kell.",
+      "tooLittleCannot": "Nem tudom megmondani, mennyi jön be a következő {weeks, plural, one {# hétben} other {# hétben}}: {count, plural, one {# hét} other {# hét}} túl kevés ahhoz, hogy tudjam, milyen egy szokásos hét.",
+      "cashUnknown": "Azt mondta, nem tudja, mennyi pénze van ma a vállalkozásnak, így még nincs kiindulópont az előrejelzéshez.",
+      "cashMissing": "Az előrejelzés kiindulópontjához tudnom kell, nagyjából mennyi pénze van ma a vállalkozásnak.",
+      "cashCan": "Beolvasom a mért adatait ({noun}): az utolsó {recent} hétből {count, plural, one {# teljes hét} other {# teljes hét}}, ami elég a befolyó pénz előrejelzéséhez.",
+      "cashCannot": "Nem tudom megmondani, mikor lesz szűkös a pénz, ha nem tudom, honnan indul.",
+      "currency": "A pénzkészlete {cash} pénznemben van, a mért adatai ({noun}) viszont {series} pénznemben. Pénznemek között soha nem váltok át, ezért az egyikből nem tudok előrejelzést készíteni a másikra.",
+      "currencyCannot": "Nem adok össze {series} pénznemű eladásokat {cash} pénznemű pénzkészlettel egy olyan árfolyam alapján, amelyet senki sem adott meg."
+    },
+    "assumption": {
+      "growth": "Minden hét a tavalyi azonos hét szerint alakul, azzal az aránnyal módosítva, ahogyan az utolsó {weeks, plural, one {# hete} other {# hete}} az egy évvel korábbi azonos hetekhez viszonyul ({low}–{high}).",
+      "span": "Minden hét valahol a tavalyi azonos hét és a legutóbbi hetei között alakul: egy év előzményből nem tudom megkülönböztetni a növekedését a szezonjától, ezért a sáv mindkettőt átfogja.",
+      "fallback": "{count, plural, one {Tavaly # hét nem volt teljesen mérve; ott a legutóbbi heteit használom helyette.} other {Tavaly # hét nem volt teljesen mérve; ezeknél a legutóbbi heteit használom helyette.}}",
+      "recent": "A következő hetek úgy alakulnak, mint az utolsó {count, plural, one {# teljes hete} other {# teljes hete}}: ezek középső fele, heti {low}–{high}. Egy évnél rövidebb előzményből nem ismerhető szezon, így nem alkalmazok ilyet.",
+      "sameDay": "Az eladások még aznap befolyó pénznek számítanak.",
+      "payout": "Egy eladás ennyi idő alatt ér a számlájára: {days} ({why}). Az óvatos vég a lassabb végponttal számol.",
+      "evenly": "Az eladások egyenletesen oszlanak el a hetük napjai között.",
+      "monthly": "A havi költségek minden hónap {day, selectordinal, one {#.} other {#.}} napján mennek ki.",
+      "quarterly": "A negyedéves költségek január, április, július és október {day, selectordinal, one {#.} other {#.}} napján mennek ki: a dátumukat nem adta meg.",
+      "annual": "Az esedékességi dátum nélküli éves költséget tizenketted részenként, minden hónap {day, selectordinal, one {#.} other {#.}} napján teszem félre, ahelyett hogy találomra egyetlen hétre tenném.",
+      "perSale": "Az eladásonkénti költségeket az eladás hetében fizeti ki.",
+      "statement": "A mai pénzkészlet a bankszámlakivonata záróegyenlege, {day} állapot szerint; ami azóta bejött vagy kiment, nem számít bele.",
+      "nothingElse": "Semmi más nem változik: nincs a felsoroltakon túli költség, fizetés vagy egyszeri tétel. Adó csak ott számít, ahol szerepel a költséglistáján."
+    },
+    "source": {
+      "label": {
+        "cash": "Mai pénzkészlet",
+        "statedCash": "Az Ön által megadott pénzkészlet",
+        "moneyIn": "Befolyó pénz",
+        "payout": "Kifizetések időzítése",
+        "fixed": "Állandó költségek",
+        "variable": "Eladásonkénti költségek",
+        "debt": "Hiteltörlesztések",
+        "line": "A vonal"
+      },
+      "cashOn": "{source}, {day} állapot szerint",
+      "statedCash": "{source}; helyette a bankszámlakivonat számít",
+      "moneyIn": "{source} · {noun}, {count, plural, one {# mért nap} other {# mért nap}}, az utolsó: {day}",
+      "moneyInYear": "az elmúlt év, {day} óta beolvasva",
+      "moneyInRecent": "az utolsó {weeks, plural, one {# hét} other {# hét}}, {day} óta beolvasva",
+      "aboutMonth": "nagyjából havi {amount}",
+      "fixed": "{count, plural, one {# költség} other {# költség}} a költséglistájáról, az Ön által megadott gyakoriság szerint",
+      "fixedNone": "nincs olyan állandó költség a listán, amelynek összege és gyakorisága is meg van adva",
+      "debtNone": "egyik sem számít bele",
+      "debt": "hiteltörlesztések a költséglistáján",
+      "debtStated": "megadott tartozás: {amount}, törlesztés nincs felvéve",
+      "debtNoRepayment": "nincs felvett törlesztés",
+      "lineBuffer": "a legkevesebb, amit a számláján szeretne tudni, ahogy Ön elmondta",
+      "lineUnknown": "nem tudja, legalább mennyit szeretne a számláján tartani, így a vonal az üres számla",
+      "lineNone": "nincs megadott tartalék, így a vonal az üres számla"
+    },
+    "payout": {
+      "provider": {
+        "stripe": "Stripe",
+        "paypal": "PayPal",
+        "square": "Square",
+        "adyen": "Adyen",
+        "mollie": "Mollie",
+        "klarna": "Klarna",
+        "shopify_payments": "Shopify Payments",
+        "apple_google_pay": "Apple Pay vagy Google Pay",
+        "local_provider": "a helyi fizetési szolgáltatója",
+        "bank_only": "a bankja",
+        "other": "a fizetési szolgáltatója"
+      },
+      "direct": "az ügyfelei olyan módon fizetnek, amely mögött nincs fizetési szolgáltató, így egy eladás még aznap befolyó pénz",
+      "stated": "azt mondta, a pénzét ezen keresztül kapja: {provider}; egy eladástól a kifizetéséig: {days}, {source}",
+      "series": "az eladásait innen olvasom be: {provider}; egy eladástól a kifizetéséig: {days}, {source}",
+      "unknown": "nem mondta meg, melyik fizetési szolgáltató fizeti ki Önnek a pénzt, ezért az aznapi kifizetéstől {days, plural, one {# napig} other {# napig}} bármit lehetségesnek veszek",
+      "source": "tervezési feltételezés a szolgáltató szokásos kifizetési ütemezése alapján, nem az Ön kifizetéseinek mérése",
+      "sameDay": "ugyanaznap",
+      "days": "{count, plural, one {# nap} other {# nap}}",
+      "sameDayTo": "ugyanaznaptól {count, plural, one {# napig} other {# napig}}",
+      "range": "{low}–{high, plural, one {# nap} other {# nap}}"
+    },
+    "tight": {
+      "quarterly": "{label} ({amount}, negyedéves)",
+      "monthly": "a havi költségei minden hónap {day, selectordinal, one {#.} other {#.}} napján ({amount})",
+      "debt": "{count, plural, one {egy törlesztés} other {törlesztések}} a tartozására ({amount})",
+      "quietWeek": "egy csendes hét (tavaly ugyanez a hét a szokásos hetéhez képest {index} volt)",
+      "quietStretch": "egy csendes időszak (tavaly ugyanezen {count, plural, one {# hét} other {# hét}} alatt az érték a szokásos hetéhez képest {spread} volt)",
+      "outrun": "az óvatos végen hetente nagyjából {amount} összeggel több megy ki, mint amennyi bejön",
+      "startClose": "a vonalhoz közeli kiindulás: a mai pénzkészlete {amount}",
+      "sentence": "{when, select, now {Ezen a héten} other {Azon a héten, amelynek első napja {day},}} szűkös lehet a pénz: az óvatos végen az egyenleg nagyjából {low} összegre esik, {line, select, buffer {a megtartani kívánt {buffer} alá} other {nulla alá, vagyis a számla mínuszba kerül}}{both, select, yes {; még a bizakodó végen is csak nagyjából {high}} other {}}. Miért: {reasons}."
+    },
+    "scenario": {
+      "slow": {
+        "title": "Gyenge hónap (−{share})",
+        "change": "Az eladások {share} mértékben alacsonyabbak {weeks, plural, one {# hétig} other {# hétig}}, {when, select, now {ettől a héttől kezdve} other {attól a héttől kezdve, amelynek első napja {day}}}.",
+        "assumption": "Az eladásonkénti költségek az eladásokkal együtt csökkennek, az állandó költségek nem."
+      },
+      "order": {
+        "title": "Nagy rendelés (+{amount})",
+        "titleMissing": "Nagy rendelés",
+        "change": "Egyetlen {amount} értékű rendelés {when, select, now {ezen a héten} other {azon a héten, amelynek első napja {day}}}.",
+        "assumption": "Azon a héten teljes egészében kifizetik, és az eladásonkénti költségei ugyanazon a héten, a szokásos arányban mennek ki.",
+        "why": "Adja meg a rendelés összegét, hogy lássa a hatását."
+      },
+      "hire": {
+        "title": "Új munkatárs (+{amount} havonta)",
+        "titleMissing": "Új munkatárs",
+        "change": "Minden hónap {first, selectordinal, one {#.} other {#.}} napján {amount} összeggel több megy ki, {when, select, now {ettől a héttől kezdve} other {attól a héttől kezdve, amelynek első napja {day}}}.",
+        "assumption": "Az új munkatárs a következő {weeks, plural, one {# hétben} other {# hétben}} nem hoz további eladást.",
+        "why": "A költséglistáján nincs bér, amely alapján méretezni lehetne egy új munkatársat. Adja meg, havonta mennyibe kerülne Önnek.",
+        "need": "mennyibe kerülne Önnek havonta egy új munkatárs"
+      },
+      "price": {
+        "title": "Árváltozás ({change})",
+        "titleMissing": "Árváltozás",
+        "effect": "{name}: {change}",
+        "change": "Nyereség: heti {low} – {high} ettől a héttől, az árazási forgatókönyvek alapján.",
+        "assumption": "Ezen a héten lép életbe, és az ügyfelek úgy reagálnak rá, ahogy az árazási forgatókönyvek sávja mutatja ({source}).",
+        "whyCurrency": "Az árazási forgatókönyvek {pricing} pénznemben számolnak, a pénzkészlete viszont {cash} pénznemben van; nem váltok át.",
+        "whyNothing": "Az árazási forgatókönyvekhez egy olyan ajánlatára van szükség, amelynek ára, teljesítési költsége és havi eladott mennyisége is meg van adva.",
+        "need": "egy ajánlat ára, költsége és havi eladásai"
+      }
+    },
+    "view": {
+      "headlineTight": "{when, select, now {Ezen a héten} other {Azon a héten, amelynek első napja {day},}} szűkös lehet a pénz: az óvatos vég {amount} összegre esik.",
+      "headlineBuffer": "A következő {weeks} hét egyikén sem süllyed az egyenleg az Ön {amount} összegű tartaléka alá, még az óvatos végen sem.",
+      "headlineZero": "A következő {weeks} hét egyikén sem megy az egyenleg nulla alá, még az óvatos végen sem.",
+      "sourcesHistory": "Források: {source} · {noun}, {days, plural, one {# mért nap} other {# mért nap}}, {from} – {to}; {complete} / {needed, plural, one {# szükséges teljes hét} other {# szükséges teljes hét}}.",
+      "sourcesNothing": "Források: még semmi olyan nincs mérve, amire előrejelzést lehetne építeni.",
+      "sourcesReady": "Források: {parts} · a költségei, ahogy felsorolta őket.",
+      "sourcesPart": "{label}: {value}",
+      "sourcesPartBasis": "{label}: {value} ({basis})",
+      "inline": {
+        "cash": "mai pénzkészlet",
+        "moneyIn": "befolyó pénz",
+        "payout": "kifizetések időzítése"
+      },
+      "titleAbove": "{line, select, buffer {Végig az Ön {amount} összegű tartaléka felett} other {Végig nulla felett}}",
+      "titleUnder": "{line, select, buffer {Az Ön {amount} összegű tartaléka alatt · hét: {day}} other {Nulla alatt · hét: {day}}}",
+      "meta": "{source} · {noun}: {observed} · költségek: {stated} · időzítés: {assumed}",
+      "band": "A sáv az óvatos végtől (lassú eladások, lassú kifizetések) a bizakodó végig tart.",
+      "footGrowth": "Minden hét a tavalyi azonos hetet követi, a legutóbbi növekedésével arányosítva.",
+      "footSpan": "Minden hét a tavalyi azonos hét és a legutóbbi hetei között alakul.",
+      "footRecent": "Minden hét úgy alakul, mint az utolsó {count, plural, one {# teljes hete} other {# teljes hete}}.",
+      "summary": "Az egyenlege a következő {weeks, plural, one {# hétben} other {# hétben}}: ma {start}, a végén {end}.",
+      "summaryAbove": "{line, select, buffer {Végig az Ön {amount} összegű tartaléka felett marad.} other {Végig nulla felett marad.}}",
+      "summaryUnder": "{line, select, buffer {Az óvatos vég az Ön {amount} összegű tartaléka alá süllyed azon a héten, amelynek első napja {day}.} other {Az óvatos vég nulla alá süllyed azon a héten, amelynek első napja {day}.}}"
+    }
+  },
+  "stockWords": {
+    "why": {
+      "tooLittle": "csak {count, plural, one {{days} napnyi} other {{days} napnyi}} eladás van mérve; {min} nap után ítélek",
+      "fileNoSales": "a fájlban nincs sem eladott darabszám, sem utolsó eladási dátum",
+      "noneOnHand": "nincs belőle készleten",
+      "stuck": "{count, plural, one {{days} napja} other {{days} napja}} nincs eladás, miközben {onHand} van készleten",
+      "stuckOnRecord": "a nyilvántartott {count, plural, one {{days} napban} other {{days} napban}} nem volt eladás, miközben {onHand} van készleten",
+      "slowNoSale": "a mért {count, plural, one {{days} napban} other {{days} napban}} nem volt eladás",
+      "slowCover": "napi {rate} ütem mellett {cover} napra elég — ez több, mint {limit}",
+      "selling": "{cover} napra elég — fogy",
+      "noRate": "nincs eladási ütem, amely alapján ítélni lehetne"
+    },
+    "sell": {
+      "fileOneWindow": "Egy készletfájl az eladott darabszámnak csak egyetlen időszakát tartalmazza, így nem tudom {n} nap eladásait az azt megelőző {n} naphoz mérni. Kapcsolja össze a webshopot, és akkor tudom.",
+      "tooLittle": "Csak {count, plural, one {{days} napnyi} other {{days} napnyi}} eladás van mérve; két {n} napos időszak összevetéséhez {needed} nap kell. Meg tudom mondani, mi fogyott; azt, hogy gyorsul-e, csak ekkortól: {ready}.",
+      "nothing": "Egyik {n} napos időszakban sem fogyott semmi.",
+      "flat": "Az utolsó {n} napban {a} darab fogyott, az azt megelőző {n} napban {b}: nagyjából ugyanannyi — a különbség ({diff}) a véletlen határán belül van (±{band}).",
+      "moved": "Az utolsó {n} napban {a} darab fogyott, az azt megelőző {n} napban {b}: ez {diff} darabbal {direction, select, up {több} other {kevesebb}}, ami meghaladja a véletlent (±{band}).",
+      "movedPct": "Az utolsó {n} napban {a} darab fogyott, az azt megelőző {n} napban {b}: ez {diff} darabbal {direction, select, up {több} other {kevesebb}} ({pct}), ami meghaladja a véletlent (±{band})."
+    },
+    "rate": {
+      "fileNoColumn": "A készletfájlban nincs eladott darabszám oszlop, így nem tudom megmondani, mikor fogy el valami. Egy legalább {n} nap eladott darabszámát tartalmazó fájl alapján meg tudom.",
+      "fileShort": "A fájl eladott darabszámai {count, plural, one {{days} napot} other {{days} napot}} fednek le; a készlet elégségének kiszámításához {n} nap kell. Egy legalább {n} napot lefedő fájl alapján meg tudom mondani, mikor fogy el a készlet.",
+      "fileNoSales": "A fájl {days} napjában nem volt eladás: nincs mi elfogyjon.",
+      "tooLittle": "Csak {count, plural, one {{days} napnyi} other {{days} napnyi}} eladás van mérve; a készlet elégségének kiszámításához {n} nap kell. Meg tudom mondani, mi van készleten; azt, hogy mikor fogy el, csak ekkortól: {ready}.",
+      "noSales": "Az utolsó {n} napban nem volt eladás: nincs mi elfogyjon."
+    },
+    "season": {
+      "underWay": "most zajlik (utolsó nap: {end})",
+      "startsToday": "ma kezdődik (utolsó nap: {end})",
+      "startsIn": "{count, plural, one {{days} nap múlva} other {{days} nap múlva}} kezdődik (első nap: {start})",
+      "againstNone": "nincs teljes friss hetem, amelyhez viszonyíthatnám, ezért a szokásos hetéhez mérem",
+      "againstRecent": "az utolsó {count, plural, one {{weeks} hete} other {{weeks} hete}} {recent} volt",
+      "addsNothing": "így a friss üteme ezt már magában foglalja, és semmit sem adok hozzá",
+      "counts": "így ezekre a napokra a friss ütemét {multiple} szorzóval számolom",
+      "sentence": "A forgalmas időszaka {when}: tavaly a szokásos hetéhez képest {index} volt; {against}, {counted}.",
+      "readFrom": "{noun} ({source})",
+      "notCounted": "Nincs beszámított szezon: {headline}",
+      "noYear": "Nincs beszámított szezon: még semmi sem mért egy évnyi eladást."
+    },
+    "lead": {
+      "longest": "{supplier} szállítási ideje {count, plural, one {{days} nap} other {{days} nap}}, ez a leghosszabb az erre a tételre megadott {suppliers} beszállító közül",
+      "answer": "{supplier} szállítási ideje {count, plural, one {{days} nap} other {{days} nap}}, az Ön válasza alapján",
+      "noTimeFor": "nincs nyilvántartott szállítási idő: {suppliers}",
+      "noSupplier": "ehhez a tételhez nincs nyilvántartott beszállító",
+      "unmatched": "ez a tétel nincs párosítva egyik termékével sem, így nem tudom, ki a beszállítója",
+      "assumed": "{days} nap, FELTÉTELEZETT: {reason}",
+      "phraseNamed": "{supplier} szállítási ideje {count, plural, one {{days} nap} other {{days} nap}}",
+      "phraseAssumed": "egy szállítás {count, plural, one {{days} napig} other {{days} napig}} tart (FELTÉTELEZETT)",
+      "line": "szállítási idő: {why}",
+      "yourSupplier": "Az Ön beszállítója"
+    },
+    "reorder": {
+      "arithmetic": "napi {rate} (legfeljebb {high}) × {count, plural, one {{days} nap} other {{days} nap}} = {mid}, + {safety} biztonsági tartalék (a sáv gyors vége) = {before}{moq}.",
+      "arithmeticSeason": "napi {rate} (legfeljebb {high}) × {count, plural, one {{days} nap} other {{days} nap}}, a forgalmas időszak {multiple} szorzójával = {mid}, + {safety} biztonsági tartalék (a sáv gyors vége) = {before}{moq}.",
+      "moqNone": "; nincs nyilvántartott minimális rendelési mennyiség",
+      "moqRounded": "; {ends, select, s {{supplier} minimális rendelési mennyisége} other {{supplier} minimális rendelési mennyisége}} {moq}, így {moq}",
+      "moqRoundedUnnamed": "; a beszállító minimális rendelési mennyisége {moq}, így {moq}",
+      "moqOver": "; ez több, mint {ends, select, s {{supplier} minimális rendelési mennyisége} other {{supplier} minimális rendelési mennyisége}} ({moq})",
+      "moqOverUnnamed": "; több, mint a beszállító minimális rendelési mennyisége ({moq})",
+      "cost": "{quantity} × {unit} beszerzési áron = {total}",
+      "costStated": "{quantity} × {unit} beszerzési áron (a termék Ön által megadott költsége) = {total}"
+    },
+    "cover": {
+      "sourcesOnHand": "{onHand} készleten, forrás: {source}, beolvasva: {day}",
+      "assumedPace": "a következő napok az utolsó {count, plural, one {{days} nap} other {{days} nap}} ütemében fogynak ({units} eladva), a véletlen ingadozásával (±{band})",
+      "assumedLead": "FELTÉTELEZETT szállítási idő: {why}",
+      "assumedSeason": "FELTÉTELEZETT: ez a tétel a vállalkozása saját szezonját követi — a forgalmas időszakot ebből olvasom ki: {readFrom}, nem ebből a tételből",
+      "assumedElapsed": "FELTÉTELEZETT: a készlet beolvasása óta ({day}, {count, plural, one {{days} napja} other {{days} napja}}) ugyanebben az ütemben fogyott tovább",
+      "windowFile": "{units} eladva a {days} napban, utolsó nap: {to}, a készletfájlja alapján",
+      "windowMeasured": "{units} eladva, {from} – {to}, mérte: {source}",
+      "sources": "{window}; {onHand} készleten, beolvasva: {day}; {lead}",
+      "sourcesSeason": "{window}; {onHand} készleten, beolvasva: {day}; {lead}; a szezon forrása: {readFrom}",
+      "colSoldOut": "elfogyott",
+      "colNoSales": "nincs eladás"
+    },
+    "warning": {
+      "sentence": "{name} várhatóan ennyi idő alatt fogy el: {range}; {lead}.",
+      "sentenceInStretch": "{name} várhatóan ennyi idő alatt fogy el: {range}; {lead}. Ebben benne van a mostani forgalmas időszak, amelynek utolsó napja {end}.",
+      "sentenceFromStretch": "{name} várhatóan ennyi idő alatt fogy el: {range}; {lead}. Ebben benne van a forgalmas időszaka, amelynek első napja {start}.",
+      "head": "{name} várhatóan ennyi idő alatt fogy el: {range}.",
+      "rangeOpen": "nagyjából {count, plural, one {{days} nap} other {{days} nap}} vagy több",
+      "rangeClosed": "nagyjából {low}–{high} nap"
+    },
+    "option": {
+      "label": {
+        "content": "Mutassa be egy bejegyzésben",
+        "bundle": "Párosítsa egy sikertermékkel",
+        "email": "E-mail azoknak az ügyfeleknek, akik beleegyeztek",
+        "markdown": "Árazza le",
+        "selloff": "Adja el tételesen, vagy küldje vissza"
+      },
+      "inline": {
+        "content": "bemutatás egy bejegyzésben",
+        "bundle": "párosítás egy sikertermékkel",
+        "email": "e-mail azoknak az ügyfeleknek, akik beleegyeztek",
+        "markdown": "leárazás",
+        "selloff": "tételes eladás vagy visszaküldés"
+      },
+      "noPrice": "az eladási ára nem ismert",
+      "noChannel": "nincs olyan csatornája, ahová bejegyzést tehetne",
+      "noBestSeller": "nincs olyan készleten lévő sikertermék, amellyel párosítani lehetne",
+      "noConsent": "még egyetlen ügyfél sem egyezett bele az e-mailbe",
+      "noCost": "nem ismert, mennyibe került Önnek",
+      "emailOff": "az ügyfél-hozzájárulásról adott saját válasza „nincs hozzájárulás” volt, így az e-mail kikapcsolva marad",
+      "arithmetic": {
+        "content": "{onHand} készleten × {low}–{high} teljes áron eladva = {unitsLow}–{unitsHigh} darab, {backLow}–{backHigh}; semmiről sem mond le",
+        "bundleNone": "nincs olyan készleten lévő sikertermék, amellyel párosítani lehetne",
+        "bundle": "{onHand} készleten × {low}–{high}, legfeljebb a készleten lévő {cap} darabig ({seller}) = {unitsLow}–{unitsHigh} darab, {backLow}–{backHigh}; mindkettő teljes áron, semmiről sem mond le",
+        "email": "{customers} ügyfél, aki beleegyezett az e-mailbe × {low}–{high} vesz egyet, legfeljebb a készleten lévő {onHand} darabig = {unitsLow}–{unitsHigh} darab, {backLow}–{backHigh}; kedvezmény nélkül, semmiről sem mond le",
+        "markdown": "{onHand} készleten × {low}–{high} eladva {cut} kedvezménnyel = {unitsLow}–{unitsHigh} darab, {backLow}–{backHigh}, a teljes árból {givenLow}–{givenHigh} összegről lemondva",
+        "selloffNone": "nincs nyilvántartott költség, amely alapján értékelni lehetne",
+        "selloff": "{cost} beszerzési áron × {low}–{high} = {backLow}–{backHigh}, a teljes áron számított {price} mellett {givenLow}–{givenHigh} összegről lemondva"
+      },
+      "efficiencyFree": "valószínűleg {back} jön vissza, semmiről sem mond le",
+      "efficiencyNet": "valószínűleg visszajön {back} − feláldozott {given} = nettó {net} (minden feláldozott {one} egységre {ratio} jön vissza)",
+      "unknownCurrency": "{amount} (pénznem nem ismert)"
+    },
+    "held": {
+      "slowNotInCare": "Akkor javaslom a kiürítés módjait, ha már kiválasztotta, hogyan dolgozzam Önnek.",
+      "coverNotInCare": "Akkor teszek utánrendelési jegyzeteket a sorába, ha már kiválasztotta, hogyan dolgozzam Önnek.",
+      "watching": "Eddig figyelek: {day}, és addig semmit sem javaslok."
+    },
+    "source": {
+      "file": "Az Ön készletfájlja"
+    },
+    "history": {
+      "summary": "Beszerzési áron lekötött pénz a leglassabban fogyó {count, plural, one {{n} tételben} other {{n} tételben}}, minden leltárnapon {from} és {to} között: {items}. Készletállomány, minden leltárnapon beolvasva — napokon át soha nem adódik össze.",
+      "oneCount": "{name}: {amount} (egy leltár)",
+      "change": "{name}: {from} → {to}"
+    },
+    "view": {
+      "notRead": "Még nem olvastam be a készletét.",
+      "allSelling": "Minden, amit készleten tart, fogy.",
+      "notSelling": "{count, plural, one {{n} tétel nem fogy.} other {{n} tétel nem fogy.}}",
+      "tiedUp": "{amount} van lekötve {count, plural, one {{n} olyan tételben, amely nem fogy} other {{n} olyan tételben, amely nem fogy}}.",
+      "svmOtherCurrency": "Ön a holt készletét {stated} értékre becsülte; amit mértem, az nem ebben a pénznemben van: {currency}, ezért nem hasonlítom össze őket.",
+      "svm": "Ön a holt készletét {stated} értékre becsülte; én {measured} összeget mérek beszerzési áron olyan készletben, amely nem fogy — ez {diff} összeggel {direction, select, more {több} other {kevesebb}}. Az Ön becslése a ténylapján marad."
+    }
+  },
+  "cartsWords": {
+    "and": "{first} és {last}",
+    "headline": {
+      "noShop": "Az elhagyott kosarakhoz összekapcsolt Shopify-webshop kell.",
+      "notRead": "Még nem olvastam be a kosarait.",
+      "tooMany": "Túl sok fizetési folyamat ahhoz, hogy teljes egészében beolvassam.",
+      "stale": "A kosarait mostanában nem olvastam be.",
+      "tooEarly": "Még korai mérni az elhagyott kosarait.",
+      "carts": "Az utolsó {days, plural, one {# napban} other {# napban}} {count, plural, one {# kosarat hagytak el} other {# kosarat hagytak el}}; {shoppers, plural, one {# vásárló} other {# vásárló}} közül {emailable} kaphat e-mailt.",
+      "value": "Az utolsó {days, plural, one {# napban} other {# napban}} {money} értékű áru maradt kosarakban; {shoppers, plural, one {# vásárló} other {# vásárló}} közül {emailable} kaphat e-mailt."
+    },
+    "window": {
+      "now": "{from} – {to}: {started, plural, one {# fizetési folyamat indult} other {# fizetési folyamat indult}}, {left} félbemaradt, {recovered} később befejeződött.",
+      "nowShare": "{from} – {to}: {started, plural, one {# fizetési folyamat indult} other {# fizetési folyamat indult}}, {left} félbemaradt, {recovered} később befejeződött; az összes fizetési folyamat közül {share} befejezetlen maradt.",
+      "prior": "Az előző {days, plural, one {# nap} other {# nap}}: {left} félbemaradt ({money}).",
+      "priorShare": "Az előző {days, plural, one {# nap} other {# nap}}: {left} félbemaradt ({money}), ez a fizetési folyamatok közül {share}."
+    },
+    "notes": {
+      "yes": "{count, plural, one {# kosár olyan kapcsolattartótól származik, aki beleegyezett az e-mailbe.} other {# kosár olyan kapcsolattartóktól származik, akik beleegyeztek az e-mailbe.}}",
+      "noEmail": "{count, plural, one {# kosárhoz nem tartozik olyan e-mail-cím, amelyet ki tudnék olvasni, így nincs senkihez párosítva.} other {# kosárhoz nem tartozik olyan e-mail-cím, amelyet ki tudnék olvasni, így ezek nincsenek senkihez párosítva.}}",
+      "notContact": "{count, plural, one {# kosár olyan vásárlótól származik, aki nem szerepel a kapcsolattartói között, így nem kap e-mailt.} other {# kosár olyan vásárlóktól származik, akik nem szerepelnek a kapcsolattartói között, így nem kapnak e-mailt.}}",
+      "noConsent": "{count, plural, one {# kosár olyan kapcsolattartótól származik, akinek nincs rögzített igenje az e-mailre, így nem kap e-mailt.} other {# kosár olyan kapcsolattartóktól származik, akiknek nincs rögzített igenjük az e-mailre, így nem kapnak e-mailt.}}",
+      "suppressed": "{count, plural, one {# kosár olyasvalakitől származik, aki leiratkozott, vagy kérte, hogy felejtsük el, így nem kap e-mailt.} other {# kosár olyan emberektől származik, akik leiratkoztak, vagy kérték, hogy felejtsük el őket, így nem kapnak e-mailt.}}"
+    },
+    "noEmailWhy": {
+      "read": "A fizetési folyamathoz nem tartozott ügyfél-e-mail: piszkozatrendelés volt, vagy egy alkalmazás hozta létre.",
+      "notGranted": "A Shopify csak olyan alkalmazásnak árulja el, ki hagyott el kosarat, amely olvashatja az ügyfeleit. Adja hozzá a read_customers jogosultságot az alkalmazáshoz a Shopify Dev Dashboardjában, adja ki az új verziót, és kapcsolja össze újra.",
+      "refused": "Az alkalmazásnak megvan a read_customers jogosultsága, a Shopify mégis visszatartotta az ügyféladatokat. Az alkalmazás Dev Dashboardjában engedélyezze a hozzáférést az ügyféladatokhoz (e-mail), adja ki az új verziót, és a következő szinkronizálás párosítja a kosarakat.",
+      "unknown": "A Shopify csak olyan alkalmazásnak árulja el, ki hagyott el kosarat, amely olvashatja az ügyfeleit (read_customers)."
+    },
+    "checkout": {
+      "saidYes": "{count, plural, one {# kapcsolattartó beleegyezett az e-mailbe a Shopify fizetési oldalán, az időponttal együtt rögzítve. Ha leiratkozik a Shopifyban, nem írok neki több e-mailt.} other {# kapcsolattartó beleegyezett az e-mailbe a Shopify fizetési oldalán, az időponttal együtt rögzítve. Ha leiratkoznak a Shopifyban, nem írok nekik több e-mailt.}}",
+      "withdrawn": "{count, plural, one {# kapcsolattartó, akit Ön igenként rögzített, később leiratkozott a Shopifyban, így már nem írok neki e-mailt.} other {# kapcsolattartó, akit Ön igenként rögzített, később leiratkozott a Shopifyban, így már nem írok nekik e-mailt.}}",
+      "differs": "{count, plural, one {A Shopify # kapcsolattartót feliratkozottként tart nyilván, akit Ön másként rögzített. Ezt a választ úgy hagytam, ahogy Ön rögzítette.} other {A Shopify # kapcsolattartót feliratkozottként tart nyilván, akiket Ön másként rögzített. Ezeket a válaszokat úgy hagytam, ahogy Ön rögzítette.}}"
+    },
+    "week": {
+      "cant": "Azok közül a kapcsolattartók közül, akik az elmúlt héten kosarat hagytak el, {cant, plural, one {# nem kaphat e-mailt} other {# nem kaphat e-mailt}}.",
+      "recent": "Azok közül a kapcsolattartók közül, akik az elmúlt héten kosarat hagytak el, {count, plural, one {# esetében} other {# esetében}} már javasoltam emlékeztetőt az utolsó {days, plural, one {# napban} other {# napban}}.",
+      "both": "Azok közül a kapcsolattartók közül, akik az elmúlt héten kosarat hagytak el, {cant, plural, one {# nem kaphat e-mailt} other {# nem kaphat e-mailt}}, {count, plural, one {# esetében} other {# esetében}} pedig már javasoltam emlékeztetőt az utolsó {days, plural, one {# napban} other {# napban}}."
+    },
+    "block": {
+      "everyone": "Mindenkinek, aki {min}–{max, plural, one {# napja} other {# napja}} hagyott el kosarat, és beleegyezett az e-mailbe, már javasoltam emlékeztetőt az utolsó {days, plural, one {# napban} other {# napban}}.",
+      "everyoneWeek": "Mindenkinek, aki az elmúlt héten hagyott el kosarat, és beleegyezett az e-mailbe, már javasoltam emlékeztetőt az utolsó {days, plural, one {# napban} other {# napban}}.",
+      "nobody": "Egyetlen olyan kapcsolattartó sem hagyott el kosarat {min}–{max, plural, one {# napja} other {# napja}}, aki beleegyezett az e-mailbe, így nincs kit emlékeztetni.",
+      "nobodyWeek": "Egyetlen olyan kapcsolattartó sem hagyott el kosarat az elmúlt héten, aki beleegyezett az e-mailbe, így nincs kit emlékeztetni."
+    },
+    "sources": {
+      "read": "{source}, beolvasva: {day}",
+      "line": "Kosarak és rendelések: {list}. Kinek lehet e-mailt írni: minden kapcsolattartó saját, rögzített hozzájárulása alapján, amelyet minden e-mail kiküldésekor újra ellenőrzök.",
+      "notYet": "Kosarak és rendelések: még nincsenek beolvasva. Kinek lehet e-mailt írni: minden kapcsolattartó saját, rögzített hozzájárulása alapján, amelyet minden e-mail kiküldésekor újra ellenőrzök."
+    },
+    "measure": {
+      "noFullRead": "Még egyetlen beolvasás sem futott le teljesen.",
+      "lastFullRead": "Az utolsó teljes beolvasás: {day}.",
+      "tooMany": "{source} több elhagyott fizetési folyamatot tartalmaz az utolsó {days, plural, one {# napból} other {# napból}}, mint amennyit egy beolvasás át tud venni, és a részüket nem mutatom egészként.",
+      "stale": "A kosarait utoljára ekkor olvastam be ({source}): {day}, ezért nem mutatok olyan számot, amely elavult lehet. A következő sikeres beolvasással visszatér.",
+      "thin": {
+        "reason": "Még túl kevés a méréshez: {short}.",
+        "and": "{first} és {last}",
+        "noCarts": "még egy kosár sincs beolvasva",
+        "days": "{count, plural, one {{n} napnyi kosáradat} other {{n} napnyi kosáradat}} ({min} kell)",
+        "carts": "{count, plural, one {{n} elhagyott kosár} other {{n} elhagyott kosár}} az utolsó {days, plural, one {# napban} other {# napban}} ({min} kell)",
+        "readyFrom": "Ekkortól lesz kész: {day}.",
+        "readyOnce": "Akkor lesz kész, amikor {days, plural, one {# napon} other {# napon}} belül {count, plural, one {# kosarat hagynak el} other {# kosarat hagynak el}}.",
+        "readyOnceNotBefore": "Akkor lesz kész, amikor {days, plural, one {# napon} other {# napon}} belül {count, plural, one {# kosarat hagynak el} other {# kosarat hagynak el}}, de legkorábban ekkor: {day}."
+      },
+      "priorNote": "Még nincs összehasonlítás: az előző {days, plural, one {# napra} other {# napra}} {covered, plural, one {# napnyi kosáradat} other {# napnyi kosáradat}} és {left} elhagyott kosár jut, egy összehasonlításhoz pedig {minDays, plural, one {# nap} other {# nap}} és {minCarts, plural, one {# kosár} other {# kosár}} kell."
+    },
+    "ruleOfThumb": {
+      "label": "FELTÉTELEZETT",
+      "statement": "Ökölszabály, nem az Ön száma: azokból a kosarakból, amelyekhez eljut egy emlékeztető e-mail, nagyjából {low}–{high} tér vissza rendelésként."
+    },
+    "held": {
+      "noConsent": "Azt mondta, az ügyfelei nem egyeztek bele a marketing e-mailekbe, ezért nem küldök ilyet."
+    },
+    "productFallback": "Termék {ref}"
+  },
+  "pipelineWords": {
+    "answer": "az Ön válasza ({question}. kérdés)",
+    "rate": {
+      "measuredAssumed": "a következő üzletek ugyanúgy zárulnak, mint az utolsó {n} lezárt üzlete ({won} megnyert, {lost} elvesztett, {from} – {to}); a sáv azt mutatja, mennyire lehet félrevezető {count, plural, one {{n} üzlet} other {{n} üzlet}}",
+      "statedAssumed": "az Ön saját nyerési aránya, {rate} ({question}. kérdés), plusz-mínusz {band, plural, one {# százalékpont} other {# százalékpont}}: ez az Ön becslése, nem mérés",
+      "none": "Még nem ismerem a nyerési arányát: az utolsó {days, plural, one {# napban} other {# napban}} {count, plural, one {{n} üzlet zárult le} other {{n} üzlet zárult le}}, a méréshez pedig {min} kell. Mondja meg nagyjából, az üzletei mekkora részét nyeri meg ({question}. kérdés), és máris súlyozni tudom a nyitott üzleteit."
+    },
+    "weigh": {
+      "canList": "felsorolom a nyitott üzleteit, az értéküket, és hogy mióta áll mindegyik a saját szakaszában",
+      "canStale": "megmondom, mely üzleteknek nincs következő lépése, vagy melyeknél járt le a következő lépés határideje",
+      "cantLikely": "nem tudom megmondani, a nyitott értékből mennyit nyer meg valószínűleg",
+      "cantBorrow": "nem veszek kölcsön nyerési arányt más vállalkozásoktól, hogy aztán a sajátjaként mutassam be",
+      "readyAfter": "további {count, plural, one {{n} lezárt üzlet} other {{n} lezárt üzlet}} után, vagy amint megadja a nyerési arányát",
+      "readyStated": "amint megadja a nyerési arányát",
+      "sourcePipeline": "az értékesítési tölcsére: {count, plural, one {{n} nyitott üzlet} other {{n} nyitott üzlet}}",
+      "sourceClosed": "{count, plural, one {{n} üzlet} other {{n} üzlet}}, amelyet {from} és {to} között zárt le",
+      "oneRate": "minden nyitott üzlet ugyanazzal az egy aránnyal zárul, bármelyik szakaszban van — egy korai érdeklődő valószínűleg ritkábban zárul, mint egy elküldött ajánlat, ezért először az alsó végét olvassa",
+      "estimated": "{count, plural, one {{n} érték az Ön becslése, nem árajánlat, és ugyanúgy számít} other {{n} érték az Ön becslése, nem árajánlat, és ugyanúgy számít}}"
+    },
+    "due": {
+      "noneDated": "Egyetlen nyitott üzletnek sincs {day} előtti vagy aznapi várható lezárási dátuma. Adjon meg várható lezárási dátumot az üzleteinek, és megmondom, mennyi lesz addigra valószínűleg megnyerve.",
+      "noValue": "Azoknak az üzleteknek, amelyek lezárása {day} előtt vagy aznap várható, még nincs értéke, így nem tudom megmondani, mennyi lesz valószínűleg megnyerve.",
+      "sourceDates": "a várható lezárási dátumok, amelyeket {count, plural, one {{n} nyitott üzletnél} other {{n} nyitott üzletnél}} megadott",
+      "sourceRate": "az Ön saját nyerési aránya, {count, plural, one {{n} üzletből} other {{n} üzletből}}, amelyet {from} és {to} között zárt le",
+      "oneRate": "ezek az üzletek mind ugyanazzal az egy aránnyal nyerhetők meg, bármelyik szakaszban vannak",
+      "markWon": "egy üzlet csak akkor számít a dátumig megnyertnek, ha addig megnyertként jelöli az értékesítési tölcsérben",
+      "overdue": "{count, plural, one {közülük {n} lezárása korábbra volt várható, és még nyitott; most esedékesnek számít} other {közülük {n} lezárása korábbra volt várható, és még nyitott; most esedékesnek számít}}"
+    },
+    "hold": {
+      "notB2b": "Az értékesítési tölcsér olyan vállalkozásoknak való, amelyek más vállalkozásoknak értékesítenek: Ön azt mondta, magánszemélyeknek értékesít ({question}. kérdés).",
+      "noConsent": "az ügyfél-hozzájárulásról adott saját válasza ({question}. kérdés) „nincs hozzájárulás” volt — addig nem javaslok e-mailt, amíg az adatai mást nem mutatnak"
+    },
+    "skip": {
+      "noneQuiet": "egyetlen üzlet sem csendesedett el",
+      "perRun": "egyszerre {max} javaslatot teszek — ez a következő futásra vár",
+      "already": "ebben a hónapban már javasoltam",
+      "cantEmail": "Nem tudok e-mailt javasolni: {why}. Hívja fel őket, vagy rögzítse a hozzájárulásukat az Ügyfelek oldalon.",
+      "contactGone": "a kapcsolattartó már nincs meg",
+      "declined": "{count, plural, one {# alkalommal} other {# alkalommal}} elutasította az utókövetéseket — abbahagytam a javaslásukat"
+    },
+    "noName": "egy név nélküli kapcsolattartó"
+  },
+  "simulateWords": {
+    "model": {
+      "label": {
+        "margin": "Az Ön árrése",
+        "aov": "Egy rendelés értéke",
+        "aovEach": "Mennyit költ egy-egy címzett",
+        "recipients": "Kinek lehet e-mailt írni",
+        "delivery": "Kézbesítve",
+        "boughtAgain": "Utána újra vásárolt",
+        "dailyNew": "Napi költségkeret",
+        "dailyNow": "Jelenlegi napi költés",
+        "roas": "Hirdetési megtérülés",
+        "posts": "Közösségimédia-bejegyzések a tervben",
+        "reach": "{audience, select, views {Megtekintés bejegyzésenként} other {Elérés bejegyzésenként}}",
+        "interactions": "Interakció bejegyzésenként",
+        "spi": "Weboldal-látogatás interakciónként",
+        "conversion": "Vásárlással záruló látogatások"
+      },
+      "inline": {
+        "margin": "az Ön árrése",
+        "aov": "egy rendelés értéke",
+        "aovEach": "mennyit költ egy-egy címzett",
+        "recipients": "kinek lehet e-mailt írni",
+        "delivery": "kézbesítve",
+        "boughtAgain": "utána újra vásárolt",
+        "dailyNew": "napi költségkeret",
+        "dailyNow": "jelenlegi napi költés",
+        "roas": "hirdetési megtérülés",
+        "posts": "közösségimédia-bejegyzések a tervben",
+        "reach": "{audience, select, views {megtekintés bejegyzésenként} other {elérés bejegyzésenként}}",
+        "interactions": "interakció bejegyzésenként",
+        "spi": "weboldal-látogatás interakciónként",
+        "conversion": "vásárlással záruló látogatások"
+      },
+      "notKnown": "nem ismert",
+      "notWorkedOut": "nincs kiszámolva",
+      "needLine": "{label}: {needs}",
+      "revenueFormula": "{orders} rendelés × {value}",
+      "profitFormula": "{revenue} × {margin} árrés − {spend}",
+      "worstUnknown": "A fenti bemenetek nélkül nem tudom felmérni a legrosszabb esetet.",
+      "currencies": "{currencies} pénznemben — pénznemek között nem váltok át",
+      "margin": {
+        "both": "az ajánlataiból kiszámítva ({computed}) és ahogy Ön elmondta ({stated}) — a sáv mindkettőt átfogja",
+        "computed": "az ajánlataiból kiszámítva: {formula}",
+        "formulaDefault": "ár mínusz a teljesítés költsége",
+        "stated": "ahogy Ön elmondta (az Ön bruttó árrése)",
+        "needs": "az Ön bruttó árrése, vagy hogy mennyibe kerül Önnek az egyes termékek teljesítése — ezekből kiszámítható a nyereség"
+      },
+      "aov": {
+        "measured": "árbevétel ÷ rendelések az utolsó {window} nap {count, plural, one {# mért napján} other {# mért napján}}, középső fele",
+        "stated": "a havi árbevétele ÷ a havi rendelései, ahogy Ön elmondta",
+        "needs": "egy összekapcsolt webshop vagy pénztárgép, vagy a havi árbevétele és rendelésszáma"
+      },
+      "email": {
+        "title": "{segment, select, lapsed {Visszanyerő e-mail a régóta nem vásárló ügyfeleknek} other {Köszönő e-mail a legjobb ügyfeleinek}}",
+        "recipientsSource": "{count, plural, one {# ügyfél} other {# ügyfél}} a szegmensben az ügyféllistája alapján; közülük {emailable} beleegyezett az e-mailbe, és nem iratkozott le",
+        "noList": "még nincs ügyféllista",
+        "listNeeds": "az ügyféllistája, az Ügyfelek oldalon importálva",
+        "deliverySource": "kézbesített ÷ elküldött, {count, plural, one {# korábbi kampány} other {# korábbi kampány}} kézbesítési jelentései alapján",
+        "noDelivery": "még egyetlen kampányához sincs kézbesítési jelentés",
+        "deliveryNeeds": "egy elküldött kampány a kézbesítési jelentéseivel",
+        "before": "előtte",
+        "boughtAgainOne": "{kind, select, winback {a visszanyerő e-mailje ({day}): {measured} mért címzettből {returned} vásárolt újra — egy fő ide vagy oda} other {a köszönő e-mailje ({day}): {measured} mért címzettből {returned} vásárolt újra — egy fő ide vagy oda}}",
+        "boughtAgainMany": "{kind, select, winback {újra vásárolt ÷ mért, az utolsó {count, plural, one {# visszanyerő kampánya} other {# visszanyerő kampánya}} alapján, középső fele} other {újra vásárolt ÷ mért, az utolsó {count, plural, one {# köszönő kampánya} other {# köszönő kampánya}} alapján, középső fele}}",
+        "boughtAgainNone": "{kind, select, winback {még egyetlen visszanyerő e-mailjének eredményét sem olvastam vissza} other {még egyetlen köszönő e-mailjének eredményét sem olvastam vissza}}",
+        "boughtAgainNeeds": "{kind, select, winback {egy elküldött visszanyerő e-mail, és egy legalább {count, plural, one {# nappal} other {# nappal}} utána készült ügyfélexport} other {egy elküldött köszönő e-mail, és egy legalább {count, plural, one {# nappal} other {# nappal}} utána készült ügyfélexport}}",
+        "spendsSource": "összes költés ÷ rendelések {count, plural, one {# címzettnél} other {# címzettnél}}, az ügyféllistája alapján, középső fele",
+        "costFormula": "nincs költés — az e-mail az Ön csomagja részeként megy ki",
+        "reachedFormula": "{recipients} címzett × {rate} kézbesítve",
+        "ordersFormula": "{recipients} címzett × {rate} újra vásárol",
+        "worstFormula": "senki sem vásárol újra: semmi sem jön be, semmi sem megy ki",
+        "worstWords": "Senki sem vásárol újra: bevétel {zero}, költés {zero}.",
+        "harmWords": "A legrosszabb korábbi kampánya arányával ({rate}) nagyjából {count, plural, one {# ember} other {# ember}} iratkozna le — ezt azonnal és véglegesen tiszteletben tartom.",
+        "what": "{segment, select, lapsed {Egyetlen e-mail az Ön hangján a régóta nem vásárló ügyfeleknek, akik beleegyeztek az e-mailbe (számuk: {emailable}).} other {Egyetlen e-mail az Ön hangján a legjobb ügyfeleinek, akik beleegyeztek az e-mailbe (számuk: {emailable}).}}",
+        "whatNoList": "Egyetlen e-mail az ügyfelei egy szegmensének — amint bekerül az ügyféllistája.",
+        "assumption": "{kind, select, winback {Ez a kiküldés azt hozza, amit a korábbi visszanyerő e-mailjei.} other {Ez a kiküldés azt hozza, amit a korábbi köszönő e-mailjei.}}",
+        "assumptionSource": "az én becslésem — a következő kampány csak az elküldése után mérhető",
+        "keyRate": "újra vásárolt",
+        "noConsent": "Azt mondta, az ügyfelei nem adtak hozzájárulást az e-mailhez, így a kimenő e-mail kikapcsolva marad.",
+        "nobodyEmailable": "Ebben a szegmensben senki sem egyezett bele az e-mailbe, így nincs kinek elküldeni.",
+        "importFirst": "Előbb importálja az ügyféllistáját az Ügyfelek oldalon."
+      },
+      "ads": {
+        "thisCampaign": "ez a kampány",
+        "metaNeeds": "a Meta-hirdetési fiókja, az Összekapcsolt fiókok oldalon összekapcsolva",
+        "typedSource": "az itt megadott költségkeret",
+        "typedNeeds": "a napi költségkeret, amelyre gondol",
+        "newSpendFormula": "napi {daily} × {days} nap",
+        "dailySource": "Meta: {spend} az utolsó {window} nap {count, plural, one {# mért napján} other {# mért napján}}",
+        "noSpend": "az utolsó négy hétben nincs mért költés",
+        "dailyNeeds": "néhány hétnyi futás ennél a kampánynál",
+        "pauseFormula": "napi {daily} el nem költve × {days} nap",
+        "changeFormula": "napi {daily} × {change} × {days} nap",
+        "roasSource": "{which, select, pooled {a Meta által hozzárendelt vásárlások ÷ költés, gördülő {block} napos hetekben az utolsó {window} napban, a mért kampányai összesítve, középső fele ({count, plural, one {# hét} other {# hét}})} other {a Meta által hozzárendelt vásárlások ÷ költés, gördülő {block} napos hetekben az utolsó {window} napban, középső fele ({count, plural, one {# hét} other {# hét}})}}",
+        "roasNonePooled": "egyik kampányának sincs {days} mért napja {currency} pénznemben",
+        "roasNone": "{count, plural, one {# mért nap} other {# mért nap}} — ennyi kell: {need}",
+        "roasNeeds": "{which, select, pooled {egy kampány {days} mért napja} other {ennek a kampánynak {days} mért napja}}",
+        "reachNotRead": "a Meta kampányonkénti elérését nem olvasom be",
+        "ordersNotRead": "a Meta jelentései kampányonként vásárlási értéket adnak meg, nem darabszámot",
+        "revenueFormula": "{spend} × {roas} megtérülés (a Meta hozzárendelése)",
+        "worstFormula": "{spend} × {roas} megtérülés × {margin} − {spend}",
+        "worstWeakest": "Minden hét annyit hoz, mint a leggyengébb mért hete ({roas}): {amount} {days} nap alatt.",
+        "worstBest": "Azok a hetek, amelyeket leállítana, olyan jók voltak, mint a legjobb mért hete ({roas}): {amount} {days} nap alatt.",
+        "worstUnsized": "Legrosszabb esetben a teljes {amount} kimegy, és kevés jön vissza — a fenti bemenetek nélkül nem tudom felmérni.",
+        "guardCurrency": "a hirdetési plafonja {ceiling} pénznemben van, ez a költségkeret pedig {currency} pénznemben — az összevetésükhöz nem váltok át",
+        "guardCeiling": "a havi hirdetési költést nagyjából {projected} összegre emelné, a megadott {ceiling} plafon fölé",
+        "titleNew": "Új kampány indítása napi {amount} költségkerettel",
+        "titleNewOpen": "Új kampány indítása az Ön által választott költségkerettel",
+        "titleRaise": "„{name}” emelése {share} mértékben",
+        "titleCut": "„{name}” csökkentése {share} mértékben",
+        "titlePause": "„{name}” szüneteltetése",
+        "whatNew": "Egy új Meta-kampány, a többi kampánya megtérülése alapján megítélve.",
+        "whatPause": "A kampány leállítása: amit költ, az Önnél marad, és ami a Meta szerint befolyik általa, az is megszűnik.",
+        "whatRaise": "Több napi költségkeret egy már futó kampányán.",
+        "whatCut": "Kevesebb napi költségkeret egy már futó kampányán.",
+        "newNotProposable": "Egy új hirdetés egy bejegyzésből vagy videóból indul: a Tartalom oldalon a „Futtassa hirdetésként” egyetlen javaslatot hoz létre, amely szüneteltetve hozza létre a Metán ({task}). Innen csak felmérni tudom.",
+        "tooFewDays": "Hirdetésmódosítást csak {days} mért nap után javaslok.",
+        "guarded": "Ezt nem javaslom: {guard}.",
+        "assumeStop": "A leállított költés azt hozta, amit a kampány legutóbbi hetei.",
+        "assumeExtra": "A többletköltés azt hozza, amit a legutóbbi hetek hoztak.",
+        "assumptionSource": "az én becslésem a Meta saját hozzárendelése alapján — e vásárlások egy része amúgy is megtörtént volna",
+        "keyRate": "hirdetési megtérülés"
+      },
+      "content": {
+        "postNeeds": "{count, plural, one {# közzétett bejegyzés, egy héttel a közzététel után mérve} other {# közzétett bejegyzés, egy héttel a közzététel után mérve}}",
+        "postNeedsConnect": "az Instagram- vagy Facebook-oldala közzétételre összekapcsolva, és néhány mért bejegyzés",
+        "postsSource": "{count, plural, one {# közösségimédia-csatorna} other {# közösségimédia-csatorna}} × heti {perWeek} × {weeks} hét — a naptár közösségimédia-bejegyzései; az e-mail- és weboldal-tartalmait nem szimulálom",
+        "noChannel": "a profilján nincs közösségimédia-csatorna",
+        "channelNeeds": "egy közösségimédia-csatorna, amelyre bejegyzéseket tesz, a profiljához adva",
+        "reachSource": "{platform}, a közzététel utáni {age}. nap, az utolsó {count, plural, one {# bejegyzése} other {# bejegyzése}}, középső fele",
+        "interactionsSource": "{platform}, {age}. nap, az utolsó {count, plural, one {# bejegyzése} other {# bejegyzése}}, középső fele",
+        "measured": "{count, plural, one {# bejegyzés mérve} other {# bejegyzés mérve}}",
+        "spiNone": "a közösségi médiából érkező látogatásokat még nem mérem a bejegyzéseihez",
+        "spiSource": "{visits} látogatás innen: „{channel}” ÷ {interactions} interakció a bejegyzésein, az utolsó {days} nap",
+        "spiNeeds": "egy hónapnyi mért bejegyzés a Google Analyticsben mért, közösségi médiából érkező látogatások mellett",
+        "spiNeedsConnect": "összekapcsolt Google Analytics, hogy lássam a közösségi médiából érkező látogatásokat",
+        "conversionSource": "rendelések ÷ látogatások az utolsó {window} nap {count, plural, one {# mért napján} other {# mért napján}}, középső fele",
+        "conversionStated": "a havi rendelései ÷ a havi weboldal-látogatásai, ahogy Ön elmondta",
+        "conversionNeeds": "összekapcsolt Google Analytics és webshop, vagy a havi látogatásai és rendelései",
+        "costFormula": "nincs költés — csak az Ön ideje a tervezetek átnézésére",
+        "reachedFormula": "{audience, select, views {{posts} bejegyzés × {reach} megtekintés} other {{posts} bejegyzés × {reach} elérés}}",
+        "ordersFormula": "{posts} bejegyzés × {interactions} interakció × egyenként {visits} látogatás × {rate} vásárol",
+        "worstFormula": "senki sem vásárol: semmi sem jön be, semmi sem megy ki",
+        "title": "{weeks} hetes tartalomnaptár",
+        "what": "{count, plural, one {# bejegyzés a már futó közösségimédia-csatornáin, az Ön hangján megfogalmazva, mindegyik az Ön igenjére vár.} other {# bejegyzés a már futó közösségimédia-csatornáin, az Ön hangján megfogalmazva, mindegyik az Ön igenjére vár.}}",
+        "whatNone": "Bejegyzések a már futó közösségimédia-csatornáin — amint felkerül egy a profiljára.",
+        "assumption": "{channels, select, many {A tervezett bejegyzések azt hozzák, amit a legutóbbi bejegyzései ({platform}), minden csatornán.} other {A tervezett bejegyzések azt hozzák, amit a legutóbbi bejegyzései ({platform}).}}",
+        "assumptionSource": "az én becslésem a saját mért bejegyzései alapján",
+        "worstWeakest": "Minden bejegyzés annyit ér el, mint a leggyengébb ({weakest}), és senki sem vásárol: {zero} veszteség, csak az átnézésre fordított ideje.",
+        "worstNone": "Senki sem vásárol: {zero} veszteség, csak az átnézésre fordított ideje.",
+        "keyRate": "{audience, select, views {megtekintés bejegyzésenként} other {elérés bejegyzésenként}}",
+        "addChannel": "Előbb adjon hozzá a profiljához egy közösségimédia-csatornát, amelyre bejegyzéseket tesz."
+      }
+    },
+    "cross": {
+      "readback": "Az eddigi visszamérés: {helped} segített, {nothing} semmit sem változtatott, {backfired} visszafelé sült el.",
+      "none": "{kind, select, email {Még nincs mérve: egyik korábbi e-mail-kampányom sem tartalmazott ellenőrizhető előrejelzett sávot.} other {Még nincs mérve: egyik korábbi hirdetésmódosításom sem tartalmazott ellenőrizhető előrejelzett sávot.}}",
+      "notReadBack": "{kind, select, email {{count, plural, one {Még nincs mérve: a legutóbbi, előrejelzett sávval rendelkező e-mail-kampányom eredményét még nem olvastam vissza.} other {Még nincs mérve: a legutóbbi {simulated} előrejelzett sávval rendelkező e-mail-kampányom eredményét még nem olvastam vissza.}}} other {{count, plural, one {Még nincs mérve: a legutóbbi, előrejelzett sávval rendelkező hirdetésmódosításom eredményét még nem olvastam vissza.} other {Még nincs mérve: a legutóbbi {simulated} előrejelzett sávval rendelkező hirdetésmódosításom eredményét még nem olvastam vissza.}}}}",
+      "lastOne": "{kind, select, email {{landed, select, inside {A legutóbbi e-mail-kampányom az előrejelzett sávján belül végzett.} other {A legutóbbi e-mail-kampányom az előrejelzett sávján kívül végzett.}}} other {{landed, select, inside {A legutóbbi hirdetésmódosításom az előrejelzett sávján belül végzett.} other {A legutóbbi hirdetésmódosításom az előrejelzett sávján kívül végzett.}}}}",
+      "lastMany": "{kind, select, email {A legutóbbi {checked} e-mail-kampányom közül {count, plural, one {egy} other {{inside}}} végzett az előrejelzett sávján belül.} other {A legutóbbi {checked} hirdetésmódosításom közül {count, plural, one {egy} other {{inside}}} végzett az előrejelzett sávján belül.}}",
+      "contentNone": "Még nincs mérve: egyik korábbi tartalomnaptáram sem tartalmazott ellenőrizhető előrejelzett sávot.",
+      "contentNotAdded": "Még nincs mérve: egy naptár bejegyzéseit egyenként ítélem meg, és még nem adom össze őket, hogy a naptár előrejelzett sávjához mérjem."
+    },
+    "pricing": {
+      "refuse": {
+        "zero": "az új árnak nullánál nagyobbnak kell lennie",
+        "notAChange": "ez nem árváltozás",
+        "tooSmall": "ez {share} mértéknél kisebb változás — túl kicsi a szimulációhoz",
+        "tooBig": "legfeljebb {share} mértékű változást szimulálok bármelyik irányba; azon túl a reakciósáv nem megbízható útmutató"
+      },
+      "title": {
+        "share": "{change} → {price}",
+        "exact": "{price} ({change})"
+      },
+      "label": {
+        "price": "Jelenlegi ár",
+        "cost": "Egy darab teljesítésének költsége",
+        "volume": "{kind, select, service {Foglalások {days} naponként} other {Eladások havonta}}",
+        "response": "Hogyan reagálnak az ügyfelek az árra",
+        "capacity": "Szabad hely a naptárban, {days} nap"
+      },
+      "inline": {
+        "price": "jelenlegi ár",
+        "cost": "egy darab teljesítésének költsége",
+        "volume": "{kind, select, service {foglalások {days} naponként} other {eladások havonta}}",
+        "response": "hogyan reagálnak az ügyfelek az árra",
+        "capacity": "szabad hely a naptárban, {days} nap"
+      },
+      "notKnown": "nem ismert",
+      "needLine": "{label}: {needs}",
+      "noPrice": "{name}: még nincs ára a profilján",
+      "priceNeeds": "ennek az ára: {name}",
+      "costOtherCurrency": "{costCurrency} pénznemben rögzítve, az ár viszont {currency} pénznemben van — pénznemek között nem váltok át",
+      "costNeedsService": "mennyibe kerül Önnek egy alkalom teljesítése ebből: {name} — vegye fel „{name}” tételt a kínálatába a költségével együtt, és párosítom a foglalásaival",
+      "costNeedsIn": "mennyibe kerül Önnek egy darab teljesítése ebből: {name}, {currency} pénznemben",
+      "costNeeds": "mennyibe kerül Önnek egy darab teljesítése ebből: {name}",
+      "volumeNeedsService": "a foglalásai erre: {name}, importálva vagy összekapcsolva",
+      "volumeNeeds": "nagyjából mennyit ad el havonta ebből: {name}",
+      "responseSource": "az ár minden {one} változására a {kind, select, service {foglalások} other {eladások}} {low}–{high} része az ellenkező irányba mozdul — {why}",
+      "band": {
+        "shop": "az ügyfelek általában erősen reagálnak az árváltozásra olyan áruknál, amelyeket össze tudnak hasonlítani és gyakran máshol is megvehetnek",
+        "hospitality": "egy étkezés vagy egy éjszaka részben a helyről és a megszokásról szól, ezért az ügyfelek kevésbé reagálnak az árra, mint egy üzletben",
+        "appointments": "akik egy megbízható szakemberhez foglalnak időpontot, általában árváltozás után is maradnak; néhányan elmennek",
+        "services": "egy bizalomra épülő szolgáltatásnál kisebb az árérzékenység, mint az áruknál, de egy árajánlat összehasonlítható",
+        "default": "a vállalkozás fajtája nincs a profilján, ezért a legszélesebb sávot használom"
+      },
+      "capacityNeeds": "hány időpontot tud hetente vállalni — ekkor egy árcsökkentés hatását a meglévő szabad helyekhez igazítom",
+      "be": {
+        "needPrice": "Előbb az árára van szükségem: {name}.",
+        "change": "{dir, select, rise {egy {share} mértékű emelés} other {egy {share} mértékű csökkentés}}",
+        "changeStart": "{dir, select, rise {Egy {share} mértékű emelés} other {Egy {share} mértékű csökkentés}}",
+        "costNeed": "mennyibe kerül Önnek egy darab teljesítése",
+        "neverToday": "A mai {price} áron minden {kind, select, service {foglalás} other {eladás}} teljesítése már most {cost} összegbe kerül Önnek, így ma nincs rajta nyereség, amelyhez fedezeti pontot lehetne számolni — az ár előtt a költséget nézze meg.",
+        "unitFormula": "{kind, select, service {{price} − {cost} = {margin} foglalásonként} other {{price} − {cost} = {margin} eladásonként}}",
+        "neverNew": "{price} áron minden {kind, select, service {foglalás} other {eladás}} teljesítése {cost} összegbe kerülne Önnek — minden további darabon pénzt veszít, így semennyi további {kind, select, service {foglalás} other {eladás}} sem teszi megtérülővé ezt: {change}.",
+        "shareFormula": "({high} − {low}) ÷ ({next} − {cost}) = {share}",
+        "shareFormulaNoCost": "({high} − {low}) ÷ {next} = {share} — teljesítési költség nélkül számolva",
+        "formulaOf": "{formula} × {volume} {kind, select, service {foglalás} other {eladás}} = {units}",
+        "loseShare": "{change} addig térül meg, amíg {kind, select, service {a foglalásainak} other {az eladásainak}} kevesebb mint {share} részét veszíti el.",
+        "loseCount": "{change} addig térül meg, amíg {kind, select, service {a foglalásaiból (~{volume}, {days} naponként)} other {a havi eladásaiból (~{volume})}} kevesebb mint {count} darabot veszít el ({share}).",
+        "loseShareAnyCost": "Bármibe kerül is Önnek egy darab, {change} addig térül meg, amíg {kind, select, service {a foglalásainak} other {az eladásainak}} kevesebb mint {share} részét veszíti el.",
+        "loseCountAnyCost": "Bármibe kerül is Önnek egy darab, {change} addig térül meg, amíg {kind, select, service {a foglalásaiból (~{volume}, {days} naponként)} other {a havi eladásaiból (~{volume})}} kevesebb mint {count} darabot veszít el ({share}).",
+        "needCostShare": "Ahhoz, hogy megmondjam, {change} hány további {kind, select, service {foglalást} other {eladást}} igényel, tudnom kell, mennyibe kerül Önnek egy darab teljesítése. Költség nélkül számolva legalább {share} kell — a valós szám ennél magasabb.",
+        "needCostCount": "Ahhoz, hogy megmondjam, {change} hány további {kind, select, service {foglalást} other {eladást}} igényel, tudnom kell, mennyibe kerül Önnek egy darab teljesítése. Költség nélkül számolva legalább {count} további kell ({share}) — a valós szám ennél magasabb.",
+        "noRoom": "A naptárában {days} nap alatt még {room} további foglalásnak van hely, így ez önmagában a további foglalásokból nem térülhet meg.",
+        "winShare": "{change} csak akkor térül meg, ha több mint {share} további {kind, select, service {foglalást} other {eladást}} nyer.",
+        "winCount": "{change} csak akkor térül meg, ha több mint {count} további {kind, select, service {foglalást} other {eladást}} nyer a mostani ~{volume} mellé ({kind, select, service {{days} naponként} other {havonta}}, +{share})."
+      },
+      "formula": {
+        "volume": "{volume} {kind, select, service {foglalás} other {eladás}} × ({one} {sign} {share} × {band}){held, select, yes {, legfeljebb a naptárában még szabad {room} helyig} other {}}",
+        "revenue": "{low} – {high} {kind, select, service {foglalás} other {eladás}} × {next} − {volume} × {price}",
+        "profit": "{low} – {high} × ({next} − {cost}) − {volume} × ({price} − {cost})",
+        "worst": "{units} × ({next} − {cost}) − {volume} × ({price} − {cost})"
+      },
+      "worstUnknown": "A fenti bemenetek nélkül nem tudom felmérni a legrosszabb esetet.",
+      "worstWords": "Az ügyfelek a sáv {end, select, strong {erős} other {enyhe}} végén reagálnak: a {kind, select, service {foglalások} other {eladások}} {share} mértékben {dir, select, fall {csökkennek} other {nőnek}}, nagyjából {units} darabra, és {name} nyeresége {kind, select, service {{days} naponként} other {havonta}} {amount} összeggel változik.",
+      "assumeBand": "Az ügyfelek úgy reagálnak erre a változásra, ahogy a sáv mutatja, emelésnél és csökkentésnél egyaránt, és közben semmi más nem változik.",
+      "bandSource": "tervezési feltételezés az ilyen fajta vállalkozásokra, nem mérés — azt, hogyan reagálnak az ügyfelei egy árváltozásra, még senki sem mérte",
+      "assumeFits": "A további foglalások beférnek a naptárba.",
+      "assumeFitsSource": "nem adta meg a heti kapacitását, így a nyereséget nem tudom a meglévő szabad helyekhez igazítani",
+      "headPick": "Válasszon egy árváltozást ehhez: {name}, hogy lássa, mennyit veszíthet úgy, hogy még megtérüljön.",
+      "headNoPrice": "{name}: még nincs ára a profilján."
+    },
+    "items": {
+      "observed": "az összekapcsolt fiókjából mérve",
+      "estimated": "az Ön becslése",
+      "derived": "a többi számából kiszámítva",
+      "told": "ahogy Ön elmondta",
+      "unnamed": "Névtelen",
+      "perOrderCost": "Egy rendelésenkénti költség",
+      "bookingsExport": "a foglalási exportfájlja",
+      "capacitySource": "az Ön által megadott heti {perWeek} időpont × {weeks} hét, levonva a teljesített {taken} időpontot ({from} – {to})",
+      "priceSource": "{count, plural, one {{n} teljesített időpont} other {{n} teljesített időpont}} átlagos listaára, {from} – {to}, forrás: {source}",
+      "volumeSource": "teljesített időpontok, {from} – {to}, forrás: {source}"
+    }
+  },
+  "benchmarksWords": {
+    "group": {
+      "G47": "boltok",
+      "G479": "online és csomagküldő kereskedések",
+      "I56": "éttermek, kávézók és bárok",
+      "C10": "élelmiszer-előállítók",
+      "S96": "személyi szolgáltatást nyújtó vállalkozások",
+      "R931": "sportvállalkozások",
+      "Q86": "egészségügyi vállalkozások",
+      "F": "építőipari vállalkozások",
+      "F43": "építőipari szakipari kivitelezők",
+      "N812": "takarító vállalkozások",
+      "G452": "autószervizek",
+      "M": "szakmai szolgáltató cégek",
+      "M702": "vezetési tanácsadó cégek",
+      "M731": "reklámügynökségek",
+      "J62": "informatikai cégek",
+      "J582": "szoftverkiadók",
+      "P855": "képzési szolgáltatók",
+      "Q889": "nappali ellátást és szociális gondozást nyújtó szolgáltatók",
+      "L68": "ingatlanos vállalkozások",
+      "H": "szállítási és raktározási vállalkozások",
+      "C": "feldolgozóipari cégek",
+      "G46": "nagykereskedők",
+      "M74": "tervező és fotós vállalkozások",
+      "I55": "szálláshelyek",
+      "H49": "szárazföldi szállítási vállalkozások",
+      "G": "nagykereskedők, boltok és gépjármű-kereskedők",
+      "G45": "autókereskedések és autószervizek",
+      "I": "szálláshelyek, éttermek, kávézók és bárok",
+      "J": "információs és kommunikációs vállalkozások",
+      "J58": "kiadók",
+      "L": "ingatlanos vállalkozások",
+      "M70": "vállalatirányítási és tanácsadó cégek",
+      "M73": "reklám- és piackutató vállalkozások",
+      "N81": "épületüzemeltetési és takarító vállalkozások",
+      "P85": "oktatási vállalkozások",
+      "Q": "egészségügyi és szociális szolgáltatók",
+      "Q88": "bentlakás nélküli szociális szolgáltatók",
+      "R93": "sport- és szabadidős vállalkozások"
+    },
+    "covers": {
+      "G47": "A teljes kiskereskedelem a gépjárművek kivételével: mindenféle bolt, piaci árus és online kereskedő (NACE {code}).",
+      "G479": "Az a kiskereskedelem, amely nem boltban, standon vagy piacon zajlik: online és csomagküldő kereskedők (NACE {code}). Az a vállalkozás, amelynek saját boltja is van, akkor számít ide, ha eladásainak többsége online történik.",
+      "I56": "A teljes vendéglátás: éttermek, kávézók, bárok, elviteles helyek és rendezvényi étkeztetők együtt (NACE {code}).",
+      "C10": "Élelmiszergyártás, köztük a pékségek (NACE {code}).",
+      "S96": "Minden egyéb személyi szolgáltatás: fodrászat és szépségápolás, gyógyfürdők és szaunák, mosodák és temetkezési szolgáltatások együtt (NACE {code}). Az Eurostat nem bontja tovább.",
+      "R931": "Sporttevékenységek: edzőtermek, sportklubok és sportlétesítmények (NACE {code}).",
+      "Q86": "A teljes humán-egészségügyi tevékenység: kórházak, orvosi és fogorvosi rendelők, valamint egyéb ellátás, például a gyógytorna, együtt (NACE {code}).",
+      "F": "A teljes építőipar: épületek, mélyépítés és a szakipari munkák (NACE {code}).",
+      "F43": "Szakipari építés: villanyszerelők, vízvezeték-szerelők, asztalosok, vakolók, festők és tetőfedők (NACE {code}). Az építésen kívüli szakma nem tartozik ide.",
+      "N812": "Épületek, otthonok és ipari létesítmények takarítása (NACE {code}).",
+      "G452": "Gépjárművek karbantartása és javítása (NACE {code}). Az autókereskedést inkább ez a csoport tartalmazza: {other}.",
+      "M": "Minden szakmai, tudományos és műszaki tevékenység: jog, könyvelés, építészet, mérnöki munka, tanácsadás, tervezés és más (NACE {code}).",
+      "M702": "Vezetési tanácsadás (NACE {code}).",
+      "M731": "Reklámügynökségek és médiafelületek értékesítése (NACE {code}).",
+      "J62": "Számítógépes programozás, informatikai tanácsadás és számítógépek üzemeltetése mások számára (NACE {code}).",
+      "J582": "Szoftverkiadás (NACE {code}). Azokat a szoftvercégeket, amelyek főként megrendelésre fejlesztenek, inkább ez a csoport tartalmazza: {other}.",
+      "P855": "Egyéb oktatás: korrepetálás, nyelv- és autósiskolák, valamint tanfolyamok (NACE {code}). Maguk az iskolák máshová tartoznak.",
+      "Q889": "Egyéb bentlakás nélküli szociális ellátás, köztük a gyermekek napközbeni ellátása (NACE {code}).",
+      "L68": "A teljes ingatlanügy: ingatlanok vétele, eladása és bérbeadása, valamint az ügynökök (NACE {code}).",
+      "H": "A teljes szállítás és raktározás: fuvarozás, raktározás, futárszolgálatok és a többi (NACE {code}).",
+      "C": "A teljes feldolgozóipar (NACE {code}).",
+      "G46": "Nagykereskedelem a gépjárművek kivételével (NACE {code}).",
+      "M74": "Egyéb szakmai tevékenységek: tervezés, fotózás, fordítás és más, együtt (NACE {code}).",
+      "I55": "Szálláshely-szolgáltatás: szállodák, nyaralók és kempingek (NACE {code}). Az utazásszervezőket inkább ez a csoport tartalmazza: {other}.",
+      "H49": "Szárazföldi szállítás: taxik, buszok, távolsági buszok és közúti fuvarozás (NACE {code})."
+    },
+    "unmapped": {
+      "agriculture": "A mezőgazdaság (NACE A nemzetgazdasági ág) nem szerepel az Eurostat vállalkozásstatisztikájában.",
+      "events": "A rendezvényes vállalkozások helyszíneket, szervezőket és rendezvényi étkeztetőket egyaránt felölelnek, ezeket az Eurostat különböző csoportokban számolja, így egyetlen csoport sem lenne becsületes összevetés.",
+      "nonprofit": "Az Eurostat vállalkozásstatisztikája értékesítő vállalkozásokat számol; egy nonprofit szervezet számai mást jelentenek.",
+      "other": "Nincs egyetlen olyan csoport, amelyhez egy „egyéb” fajtájúként leírt vállalkozást hasonlítani lehetne."
+    },
+    "title": {
+      "operating_margin": "Működési árrés",
+      "turnover_per_person": "Éves árbevétel egy főre",
+      "staff_cost_per_employee": "Éves személyi költség alkalmazottanként"
+    },
+    "gapNote": {
+      "operating_margin": "Az Eurostat aránya a bérlistán nem szereplő tulajdonosok díjazása, valamint a kamat, az értékcsökkenés és az adó levonása előtt értendő. Ha a költséglistáján a saját díjazása is szerepel, az Öné alacsonyabbnak látszik, mint amilyen az övék lenne.",
+      "turnover_per_person": "Az Eurostat árbevétele nem tartalmazza az ÁFA-t. Ha az Ön árbevétel-adata tartalmazza az ÁFA-t, az Öné magasabbnak látszik, mint amilyen az övék lenne.",
+      "staff_cost_per_employee": "Az Eurostat adata tartalmazza a munkáltatói járulékokat, és a részmunkaidőst is egy főnek számolja. Ha az Ön személyi költségei csak a béreket tartalmazzák, az Öné alacsonyabbnak látszik, mint amilyen az övék lenne."
+    },
+    "caveat": "Ezek a csoport összes vállalkozására vonatkozó összesítések, nem egy tipikus vállalkozás adatai.",
+    "size": {
+      "upTo": "{count, plural, one {(legfeljebb {n} fő)} other {(legfeljebb {n} fő)}}",
+      "range": "({min}–{max} fő)",
+      "atLeast": "({min} vagy több fő)",
+      "every": "(minden méretben)"
+    },
+    "flag": {
+      "e": "becsült",
+      "b": "törés az idősorban"
+    },
+    "cell": {
+      "words": "{group} {size} összesen, {country}, {year}, Eurostat",
+      "unpublished": "Az Eurostat ezt nem teszi közzé erre a csoportra: {group} {size}, {country}; ezért ez a következő csoport adata: {usedGroup} {usedSize}, {country}.",
+      "confidential": "Az Eurostat ezt bizalmasan kezeli ({year}) erre a csoportra: {group} {size}, {country}; ezért ez a következő csoport adata: {usedGroup} {usedSize}, {country}.",
+      "everySize": "Az Eurostat ezt az egész ágazat összesítéseiből számolja, így a legnagyobb cégek súlya a legnagyobb benne; egy Önéhez hasonló méretű vállalkozással csak lazán vesse össze."
+    },
+    "conversion": "Euróból átváltva, {rate} {currency} / euró árfolyamon, {year} átlaga szerint (Eurostat, {dataset}).",
+    "gap": {
+      "pointsAbove": "{count, plural, one {{points} százalékponttal felette} other {{points} százalékponttal felette}}",
+      "pointsBelow": "{count, plural, one {{points} százalékponttal alatta} other {{points} százalékponttal alatta}}",
+      "moneyShareAbove": "{amount} összeggel ({share}) felette",
+      "moneyShareBelow": "{amount} összeggel ({share}) alatta",
+      "moneyAbove": "{amount} összeggel felette",
+      "moneyBelow": "{amount} összeggel alatta",
+      "same": "nagyjából ugyanannyi: {gap}"
+    },
+    "formula": {
+      "margin": "({parts}) ÷ {revenue} × {hundred} = {result}",
+      "revenue": "{amount} árbevétel",
+      "costOfSales": "{amount} értékesítési költség",
+      "perSale": "{amount} eladásonkénti költség",
+      "running": "{amount} működési költség",
+      "staff": "{amount} bér",
+      "turnover": "havi {amount} × {months} ÷ {count, plural, one {{persons} fő} other {{persons} fő}} = {result}",
+      "staffCost": "havi {amount} × {months} ÷ {count, plural, one {{employees} alkalmazott} other {{employees} alkalmazott}} = {result}"
+    },
+    "input": {
+      "revenue": "Havi árbevétel",
+      "costOfSales": "Értékesítési költség",
+      "ofSales": "{share} az eladásokból",
+      "offersSource": "{count, plural, one {amennyibe az ajánlata teljesítése kerül, az Ön árain és havi mennyiségein} other {amennyibe {n} ajánlatának teljesítése kerül, az Ön árain és havi mennyiségein}}",
+      "marginSource": "{whole}, levonva a {margin} bruttó árrését",
+      "perSale": "Havi eladásonkénti költségek",
+      "perSaleSource": "a darabonkénti és rendelésenkénti költségei, az Ön mennyiségein",
+      "running": "Havi működési költségek",
+      "runningSource": "a költséglistája, havira átszámítva",
+      "runningStaffSource": "a költséglistája, havira átszámítva, a bérekkel együtt",
+      "staffTeam": "{count, plural, one {Bérek, {n} fő a csapatlistáján} other {Bérek, {n} fő a csapatlistáján}}",
+      "teamList": "a csapatlistája",
+      "people": "A vállalkozásban dolgozók, Önt is beleértve",
+      "staffMonth": "Havi bérek",
+      "salariesSource": "a költséglistáján szereplő bérek",
+      "employees": "Alkalmazottak a csapatlistáján",
+      "employeesSource": "a csapatlistája, minden alkalmazottként jelölt személy egyszer számolva"
+    },
+    "leftOut": {
+      "inGrossMargin": "{label}: már benne van az Ön által megadott bruttó árrésben.",
+      "otherCurrency": "{label}: {currency} pénznemben van, nem {own} pénznemben.",
+      "noAmount": "{label}: nincs összege.",
+      "perPiece": "{label}: darabonkénti költség, és az ajánlatlistája nem mondja meg, havonta hányat ad el.",
+      "perOrder": "{label}: rendelésenkénti költség, és nem tudom, havonta hány rendelést kap.",
+      "loan": "{label}: hiteltörlesztés, az Eurostat aránya pedig a kamat előtt értendő, és magát a hitelt nem számolja.",
+      "noConvert": "{label}: {currency} pénznemben van, és a saját költségeit nem váltom át.",
+      "noFrequency": "{label}: nincs gyakorisága, így nem tudom havira átszámítani."
+    },
+    "need": {
+      "revenue": "a havi árbevétele",
+      "offerCosts": "mennyibe kerül Önnek az egyes ajánlatok teljesítése",
+      "grossMargin": "a bruttó árrése",
+      "offerVolumes": "nagyjából mennyit ad el havonta az egyes ajánlatokból",
+      "orders": "nagyjából hány rendelést kap havonta",
+      "amountOf": "ennek az összege: {label}",
+      "howOften": "milyen gyakran fizeti ezt: {label}",
+      "salaries": "mennyit fizet bérekre {currency} pénznemben, és milyen gyakran",
+      "employeeCost": "mennyibe kerül havonta egy-egy alkalmazott",
+      "whoAndCost": "kik dolgoznak a vállalkozásban, és mennyibe kerül havonta egy-egy személy",
+      "teamSize": "hányan dolgoznak a vállalkozásban, Önt is beleértve",
+      "team": "kik dolgoznak a vállalkozásban",
+      "type": "milyen fajta vállalkozásról van szó",
+      "country": "melyik országban működik a vállalkozás"
+    },
+    "why": {
+      "unpricedEmployees": "{count, plural, one {A csapatlistáján egy alkalmazottnak nincs havi költsége {currency} pénznemben, a személyi költség pedig túl nagy része az árrésnek ahhoz, hogy kihagyjam.} other {A csapatlistáján {n} alkalmazottnak nincs havi költsége {currency} pénznemben, a személyi költség pedig túl nagy része az árrésnek ahhoz, hogy kihagyjam.}}",
+      "unknownStaff": "Nem tudom, hogy Önön kívül kap-e valaki fizetést, a személyi költség pedig túl nagy része az árrésnek ahhoz, hogy kihagyjam.",
+      "needsRevenue": "Ehhez szükség van a havi árbevételére.",
+      "zeroRevenue": "A havi árbevétele nulla, így nincs kiszámítható árrés.",
+      "needsCostOfSales": "Ehhez tudnom kell, mennyibe kerülnek Önnek az eladásai: az egyes ajánlatok teljesítési költsége a havi eladott mennyiséggel, vagy a bruttó árrése.",
+      "payLines": "{count, plural, one {A költséglistáján szereplő bérsor ({label}) nem tartalmaz olyan havi összeget {currency} pénznemben, amelyet beszámíthatnék, a személyi költség pedig túl nagy része az árrésnek ahhoz, hogy kihagyjam.} other {A költséglistáján {n} bérsor nem tartalmaz olyan havi összeget {currency} pénznemben, amelyet beszámíthatnék, a személyi költség pedig túl nagy része az árrésnek ahhoz, hogy kihagyjam.}}",
+      "noCell": "Az Eurostat semmilyen méretben nem közöl erre adatot ennél a csoportnál: {group}, {country}, és a tágabb csoportnál sem.",
+      "noRate": "Nincs euró-árfolyamom ehhez: {currency}, {year}, így az Eurostat adatát nem tudom az Ön pénznemében megadni.",
+      "needsTurnover": "Ehhez szükség van a havi árbevételére, és arra, hányan dolgoznak a vállalkozásban.",
+      "needsTeam": "Ehhez szükség van a csapatlistájára: kik dolgoznak a vállalkozásban, és mennyibe kerül havonta egy-egy alkalmazott.",
+      "noEmployees": "A csapatlistáján nincsenek alkalmazottak, így nincs összehasonlítható személyi költség.",
+      "needsStaffCost": "Ehhez tudnom kell, mennyibe kerülnek havonta az alkalmazottai.",
+      "noType": "Még nem tudom, milyen fajta vállalkozásról van szó.",
+      "noGroup": "Ehhez a vállalkozásfajtához nincs Eurostat-csoportom.",
+      "noCountry": "Nem tudom, melyik országban működik a vállalkozás.",
+      "unknownCountry": "Nem tudom megállapítani, melyik ország ez: „{country}”.",
+      "outsideEu": "Az Eurostat adatai {count} uniós országra terjednek ki, és {country} nem tartozik közéjük."
+    }
+  },
+  "blindspotsWords": {
+    "check": {
+      "opening_hours": "Nyitvatartás",
+      "prices": "Árak",
+      "menu": "Étlap",
+      "location_map": "Cím és térkép",
+      "parking": "Parkolás",
+      "phone_contact": "Telefonszám",
+      "contact_email": "E-mail-cím",
+      "booking": "Foglalás",
+      "reviews": "Értékelések vagy ajánlások",
+      "events": "Események és programok",
+      "photos": "Fotók a helyről vagy a munkákról",
+      "dietary_options": "Diétás lehetőségek",
+      "delivery": "Kiszállítás és díja",
+      "returns_policy": "Visszaküldési szabályzat",
+      "payment_methods": "Fizetési módok",
+      "service_area": "A kiszolgált terület",
+      "quote_request": "Árajánlatkérés lehetősége",
+      "portfolio": "Korábbi munkák",
+      "credentials": "Képesítések és engedélyek",
+      "guarantee": "Garancia",
+      "faq": "Válaszok a gyakori kérdésekre",
+      "team": "Kivel lesz dolga",
+      "stock_availability": "Van-e készleten"
+    },
+    "fix": {
+      "default": "a weboldal módosítása a jóváhagyási soron keresztül, vagy egy válasz a támogatási asszisztensében"
+    },
+    "arithmetic": {
+      "notFound": "nem található az oldalán; {details}",
+      "asked": "{count, plural, one {{n} alkalommal kérdezték a támogatási chatben} other {{n} alkalommal kérdezték a támogatási chatben}}",
+      "askedUnanswered": "{count, plural, one {{n} alkalommal kérdezték a támogatási chatben, ebből {unanswered} megválaszolatlan maradt} other {{n} alkalommal kérdezték a támogatási chatben, ebből {unanswered} megválaszolatlan maradt}}",
+      "unanswered": "{count, plural, one {{n} megválaszolatlan támogatási kérdés} other {{n} megválaszolatlan támogatási kérdés}}",
+      "searched": "{count, plural, one {{n} alkalommal keresték az oldalán} other {{n} alkalommal keresték az oldalán}}",
+      "google": "{count, plural, one {{n} Google-keresési megjelenés, {clicks} kattintás} other {{n} Google-keresési megjelenés, {clicks} kattintás}}",
+      "competitors": "{count, plural, one {az általunk ellenőrzött {checked} versenytárs közül {shown} megjeleníti} other {az általunk ellenőrzött {checked} versenytárs közül {shown} megjeleníti}}"
+    },
+    "coverage": {
+      "siteNotChecked": "a weboldalát még nem ellenőriztem, így semmiről sem mondható, hogy hiányzik róla",
+      "noSupport": "nincs támogatási beszélgetés az időszakban",
+      "noSiteSearch": "nincsenek oldalon belüli keresőkifejezések (Google Analytics oldalon belüli kereséssel)",
+      "noGoogle": "nincsenek Google-keresések (kapcsolja össze a Search Console-t)",
+      "googleHides": "a Google adatvédelmi okokból elrejti a ritka kereséseket, így a számolt keresések összege valamivel kevesebb a Google teljes számánál",
+      "noCompetitors": "nincs felkutatott versenytárs",
+      "unmatched": "{count, plural, one {{n} támogatási kérdés egyik szokásos ellenőrzésnek sem felelt meg — ezeket megszámolom, de nem idézem} other {{n} támogatási kérdés egyik szokásos ellenőrzésnek sem felelt meg — ezeket megszámolom, de nem idézem}}"
+    },
+    "siteNote": {
+      "noSite": "nincs weboldal a profilban",
+      "unreadable": "a weboldalt nem lehetett beolvasni: {detail}"
+    }
+  },
+  "goalsWords": {
+    "metric": {
+      "revenue": "árbevétel",
+      "orders": "eladások száma",
+      "sessions": "weboldal-látogatások"
+    },
+    "area": {
+      "launch": "indulás",
+      "first_customers": "első ügyfelek",
+      "increase_revenue": "árbevétel növelése",
+      "reduce_costs": "költségcsökkentés",
+      "automate_work": "munka automatizálása",
+      "improve_marketing": "marketing fejlesztése",
+      "hire_people": "munkatársak felvétele",
+      "expand_locations": "új helyszínek",
+      "improve_profit": "nyereség javítása",
+      "other": "egyéb"
+    },
+    "baseline": {
+      "noSource": "egyik összekapcsolt forrás sem méri ezt: {metric}",
+      "currencies": "{metric}: több pénznemben mérve ({currencies}) — egyetlen pénznem kell",
+      "fewDays": "{count, plural, one {{n} mért nap {day} előtt, {window} napon belül — a kiinduló értékhez {min} kell} other {{n} mért nap {day} előtt, {window} napon belül — a kiinduló értékhez {min} kell}}",
+      "otherCurrency": "{metric}: {currency} pénznemben mérve, a célérték viszont {target} pénznemben van"
+    },
+    "check": {
+      "detail": "{verdict}: {arithmetic}.",
+      "verdict": {
+        "achieved": "Cél elérve",
+        "on_track": "Pályán",
+        "lagging": "Lemaradásban a pályához képest",
+        "off_track": "Letért a pályáról",
+        "too_early": "Túl korai megítélni",
+        "unmeasured": "Még nem mérhető"
+      },
+      "amount": "{value} {metric} {days} naponként",
+      "notInCare": "a vállalkozás még nem került gondozásba",
+      "underCare": "{count, plural, one {gondozásban {since} óta — a haladást ettől kezdve ítélem meg: {from} ({n} hét)} other {gondozásban {since} óta — a haladást ettől kezdve ítélem meg: {from} ({n} hét)}}",
+      "watching": "a figyelési időszak még tart, eddig: {day}",
+      "goalNew": "a célt ekkor tűzte ki: {day} — az első teljes {days} napos időszaka ekkor ér véget: {ends}",
+      "noBaseline": "nincs mért kiinduló érték ehhez: {metric}, {day} előtt — kapcsoljon össze egy forrást, és az előzmények kitöltik",
+      "fewDays": "{count, plural, one {{n} mért nap az utolsó {window} napban — az ítélethez {min} kell} other {{n} mért nap az utolsó {window} napban — az ítélethez {min} kell}}",
+      "noCurrent": "az utolsó {days} napban nincs mért adat ehhez: {metric}",
+      "path": "{actual} az utolsó {days} mért napban, szemben a mai napig ({today}) várt {expected} értékkel azon a pályán, amely {baseline} értéktől ({baselineDay}) {target} értékig ({deadline}) tart",
+      "reached": "célérték elérve: {path}",
+      "progress": "{path} — a várt haladás {ratio} része, {shortfall} lemaradás a pályától",
+      "away": "távolodik a célértéktől: {detail}"
+    }
+  },
+  "patternsWords": {
+    "season": {
+      "headline": {
+        "flat": "A hetei többségében nem volt mért adat ({noun}), így nincs olyan szokásos hét, amelyhez egy szezont viszonyítani lehetne.",
+        "stale": "Az utolsó {weeks, number} hétből csak {count, plural, one {# hét} other {# hét}} volt teljesen mérve (az utolsó mért nap: {day}) — ez túl kevés a szezonjai megnevezéséhez.",
+        "shortMonths": "{months, plural, one {Nagyjából # hónapnyi adatom van} other {Nagyjából # hónapnyi adatom van}} ({noun}) — ez nem elég ahhoz, hogy megmondjam, az év mely hetei a forgalmasak.",
+        "shortDays": "{count, plural, one {# napnyi adatom van} other {# napnyi adatom van}} ({noun}) — ez nem elég ahhoz, hogy megmondjam, az év mely hetei a forgalmasak.",
+        "underWay": "Zajlanak a forgalmas hetei: tavaly ugyanez az időszak a szokásos hetéhez képest {ratio} volt.",
+        "startsThisWeek": "A forgalmas időszaka ezen a héten kezdődik: tavaly a szokásos hetéhez képest {ratio} volt.",
+        "startsIn": "A forgalmas időszaka {count, plural, one {# hét múlva} other {# hét múlva}} kezdődik: tavaly a szokásos hetéhez képest {ratio} volt.",
+        "nothingAhead": "Tavaly a következő {weeks, plural, one {# hétben} other {# hétben}} nem volt semmi forgalmas; a legforgalmasabb időszaka, amely ekkor kezdődött: {day}, a szokásos hetéhez képest {ratio} volt.",
+        "steady": "Az elmúlt évben egyetlen időszak sem tért el jelentősen a szokásos hetétől: ez a mutató ({noun}) egész évben egyenletes."
+      },
+      "can": {
+        "compare": "Egymás mellé tudom tenni az eddigi {count, plural, one {# teljes hetét} other {# teljes hetét}}, és kiszúrom azt a hetet, amely jóval a többi felett vagy alatt alakult.",
+        "count": "Minden napot megszámolok, amint mérve van.",
+        "catch": "Észreveszem a hirtelen visszaesést vagy kiugrást az utolsó négy héthez képest (ez már most is minden éjjel fut)."
+      },
+      "cannot": {
+        "year": "Nem tudom megmondani, az év mely hetei vagy hónapjai alakulnak a szokásos felett vagy alatt: legalább egy év saját előzmény kell ahhoz, hogy egy szezon látsszon.",
+        "forecast": "Nem tudok előrejelzést készíteni a következő hetekre a tavalyi azonos hetek alapján — a tavalyi adatai nincsenek meg.",
+        "borrow": "Nem veszek kölcsön szezont más, Önéhez hasonló vállalkozásoktól. Egy iparági átlag nem az Ön előzménye, ezért nem mutatom be a sajátjaként."
+      },
+      "upcoming": "Tavaly {from} és {to} között ({count, plural, one {# hét} other {# hét}}) a hetek a szokásos hetéhez képest {ratio} értéket hoztak — {kind, select, busy {vagyis a szokásos felett} other {vagyis a szokásos alatt}}. {when}",
+      "when": {
+        "underWay": "Idén ugyanezek a hetek most zajlanak, az utolsó nap: {day}.",
+        "thisWeek": "Idén ugyanezek a hetek ezen a héten kezdődnek, az első nap: {day}.",
+        "startsIn": "Idén ugyanezek a hetek {count, plural, one {# hét múlva} other {# hét múlva}} kezdődnek, az első nap: {day}."
+      },
+      "notes": {
+        "oneYear": "Egy év a szezonjainak egyetlen példája: azt mutatja meg, mi történt tavaly, nem azt, hogy mi fog történni. A sáv azt mutatja, mennyire szóródik a hetei középső fele.",
+        "years": "{count, plural, one {# év} other {# év}} saját előzmény került a sávokba: minden év hetei az adott év saját szokásos hetéhez mérve.",
+        "normal": "A szokásos hét az utolsó {weeks, number} hét mediánja: {count, plural, one {# teljes hét} other {# teljes hét}}, {from} – {to}.",
+        "rule": "Forgalmas: a szokásos hetéhez képest {busy} vagy több, csendes: {quiet} vagy kevesebb, legalább {count, plural, one {# hétig} other {# hétig}} egymás után: egyetlen hét lehet egyszeri eset.",
+        "gaps": "Az utolsó {weeks, number} hétből {count, plural, one {# hét} other {# hét}} nem volt teljesen mérve, ezért ezeket a heteket kihagyom, nem találgatom.",
+        "lastDay": "Az utolsó mért nap: {day}; az előrejelzés eddig olvas."
+      }
+    },
+    "noun": {
+      "revenue": "árbevétel",
+      "bookingRevenue": "foglalási árbevétel",
+      "orders": "rendelések",
+      "appointments": "időpontok",
+      "visits": "látogatások"
+    },
+    "source": {
+      "bookingsExport": "a foglalási exportfájlja",
+      "stockFile": "a készletfájlja"
+    },
+    "connect": {
+      "shop": "Kapcsolja össze a Shopifyt vagy a WooCommerce-t, vagy a pénztárgépét a Square-en keresztül, és megrajzolom ezt",
+      "hospitality": "Kapcsolja össze a pénztárgépét a Square-en keresztül, vagy a Stripe-ot, és megrajzolom ezt",
+      "appointments": "Importálja a foglalási exportfájlját, vagy kapcsolja össze a Square-t, és megrajzolom ezt",
+      "services": "Kapcsolja össze a Stripe-ot, vagy azt a webshopot vagy pénztárgépet, amelyen keresztül a fizetéseket fogadja, és megrajzolom ezt",
+      "default": "Kapcsolja össze a webshopját vagy a pénztárgépét, vagy a Stripe-ot, vagy importálja a foglalásait, és megrajzolom ezt"
+    },
+    "margin": {
+      "noPrice": "{count, plural, one {nincs rögzített ára ennek: {a}} other {nincs rögzített ára ezek egyikének: {a} vagy {b}}}",
+      "currencies": "az áraik különböző pénznemekben vannak",
+      "noCost": "{count, plural, one {nincs rögzített költsége ennek: {a}} other {nincs rögzített költsége ezek egyikének: {a} vagy {b}}}, így az árrés ismeretlen, nem pedig feltételezett"
+    },
+    "product": "Termék {ref}",
+    "held": {
+      "choose": "Akkor teszek javaslatot, ha már kiválasztotta, hogyan dolgozzam Önnek.",
+      "watching": "Eddig figyelek: {day}, és addig semmit sem javaslok."
+    }
+  },
+  "competitorsWords": {
+    "price": {
+      "from": "legalább {amount}"
+    },
+    "rating": {
+      "of": "{rating} / {best}"
+    },
+    "change": {
+      "new": "{who} mostantól ezt is kínálja: {name}, {price} áron.",
+      "changed": "{who} mostantól {price} áron kínálja ezt: {name}; korábban {before} volt.",
+      "cheaper": "{who} csökkentette ennek az árát: {name}, {before} helyett most {price}.",
+      "dearer": "{who} emelte ennek az árát: {name}, {before} helyett most {price}.",
+      "gone": "{who} már nem kínálja ezt: {name} (korábban {before} volt).",
+      "rating": "{who} értékelése {before} helyett most {after}.",
+      "ratingCount": "{who} értékelése {before} helyett most {after} ({count, plural, one {{reviews} értékelés} other {{reviews} értékelés}})."
+    },
+    "gap": {
+      "same": "ugyanannyi, mint az Öné",
+      "below": "ennyivel olcsóbb az Önénél: {amount}",
+      "above": "ennyivel drágább az Önénél: {amount}",
+      "belowPct": "ennyivel olcsóbb az Önénél: {amount} ({pct})",
+      "abovePct": "ennyivel drágább az Önénél: {amount} ({pct})"
+    },
+    "note": {
+      "noPrice": "nem adta meg az árát",
+      "currencies": "az ő áruk pénzneme {theirs}, az Öné {yours}; nincs átváltva"
+    },
+    "unnamed": "Névtelen versenytárs",
+    "reason": {
+      "notAddress": "ez nem olyan webcím, amelyet be tudok olvasni",
+      "login": "bejelentkezést kér, én pedig soha nem olvasok bejelentkezés mögötti oldalakat",
+      "deadline": "a heti futásnak lejárt az ideje, mielőtt ehhez az oldalhoz ért",
+      "robotsUnread": "a robots.txt fájljukat nem lehetett beolvasni, ezért az oldalt sem olvastam be",
+      "robotsNo": "a robots.txt fájljuk arra kéri a robotokat, hogy ne olvassák ezt az oldalt",
+      "redirectRobots": "olyan oldalra irányít át, amelyet a robots.txt fájljuk szerint a robotok nem olvashatnak",
+      "redirectSite": "olyan webhelyre irányít át, amelynek robots.txt fájlja tiltja az olvasást",
+      "notPage": "ez nem weblap",
+      "unreachable": "az oldal nem volt elérhető",
+      "couldntRead": "nem lehetett beolvasni",
+      "onlyHttp": "csak http(s) webhelyek olvashatók be",
+      "credentials": "belépési adatok nem valók egy webhely URL-jébe",
+      "private": "ez a cím egy magánhálózaton belülre mutat — nem töltöm le",
+      "notWebAddress": "ez nem tűnik webcímnek",
+      "redirects": "túl sok átirányítás — a webhely sosem jutott el végleges címig",
+      "cap": "túllépte a versenytársankénti {pages, number} oldalas korlátot",
+      "answered": "az oldal válasza: {status}",
+      "timeout": "{seconds, plural, one {# másodpercen} other {# másodpercen}} belül nem jött válasz",
+      "resolve": "„{host}” nem oldható fel — biztosan helyes a cím?",
+      "ports": "csak a szabványos {http} és {https} porton futó http(s) olvasható be"
+    }
+  },
+  "reviewsWords": {
+    "googleRead": {
+      "ok": "Gond nélkül beolvasva.",
+      "auth": "A Google már nem fogadja el a SYB hozzáférését, ezért az értékelések beolvasása szünetel. Itt vonja vissza, majd kapcsolja össze újra.",
+      "permission": "A Google szerint a SYB már nem olvashatja ennek a vállalkozásnak a Cégprofilját. Ellenőrizze, hogy a Google-fiókja továbbra is kezeli-e.",
+      "quota": "A Google lassításra kérte a SYB-t. A SYB a következő napi beolvasáskor újrapróbálja.",
+      "unavailable": "A Google nem válaszolt. A SYB a következő napi beolvasáskor újrapróbálja.",
+      "refused": "A Google elutasította a beolvasást. A SYB a következő napi beolvasáskor újrapróbálja.",
+      "fence": "A SYB leállított egy kérést, amely nem olvasás volt. Semmi sem ment ki.",
+      "internal": "Hiba történt a mi oldalunkon. A SYB a következő napi beolvasáskor újrapróbálja."
+    },
+    "draft": {
+      "unreadable": "Nem tudtam kiolvasni, mit ír ez az értékelés, ezért nem tudok választ javasolni. Nyissa meg ott, ahol található.",
+      "budget": "Az e havi ügyféltámogatási keret ({amount}) elfogyott, ezért nem fogalmazok választ — írja meg saját maga.",
+      "cap": "Ehhez az értékeléshez már {count, plural, one {# alkalommal} other {# alkalommal}} javasoltam választ — ezt írja meg saját maga.",
+      "unreachable": "A választ megfogalmazó modellt most nem értem el — írja meg saját maga, vagy próbálja újra később.",
+      "empty": "Ezúttal nem tudtam választ megfogalmazni — írja meg saját maga.",
+      "offer": "A megfogalmazott válaszom pénzt vagy valami ingyeneset ajánlott fel, ilyet pedig nem teszek, ezért elvetettem. Próbálja újra, vagy írja meg ezt saját maga.",
+      "name": "A megfogalmazott válaszom megnevezett valakit, ezért elvetettem. Próbálja újra, vagy írja meg ezt saját maga.",
+      "contact": "A megfogalmazott válaszomban cím vagy telefonszám szerepelt, ezért elvetettem. Próbálja újra, vagy írja meg ezt saját maga."
+    }
+  },
+  "chartsWords": {
+    "source": {
+      "bookingsImport": "a foglalási exportfájlja",
+      "stockImport": "a készletfájlja"
+    },
+    "connect": {
+      "shop": "Kapcsolja össze a Shopifyt vagy a WooCommerce-t, vagy a pénztárgépét a Square-en keresztül, és megrajzolom ezt.",
+      "hospitality": "Kapcsolja össze a pénztárgépét a Square-en keresztül, vagy a Stripe-ot, és megrajzolom ezt.",
+      "appointments": "Importálja a foglalási exportfájlját, vagy kapcsolja össze a Square-t, és megrajzolom ezt.",
+      "services": "Kapcsolja össze a Stripe-ot, vagy azt a webshopot vagy pénztárgépet, amelyen keresztül a fizetéseket fogadja, és megrajzolom ezt.",
+      "default": "Kapcsolja össze a webshopját vagy a pénztárgépét, vagy a Stripe-ot, vagy importálja a foglalásait, és megrajzolom ezt."
+    },
+    "note": {
+      "otherCurrencies": "{price, select, revenue {Árbevétel} bookingRevenue {Foglalási árbevétel} other {{noun}}} ebben a pénznemben ({currencies}) nincs ábrázolva: grafikononként egy pénznem, és a pénznemek soha nem keverednek.",
+      "adsOffLine": "A meg nem térülő hirdetési költés a fenti hónapban beleszámít, de nincs ráhordva az árbevétel-gyertyákra: ez elköltött pénz, nem elmaradt árbevétel."
+    },
+    "group": {
+      "anomaly": "{count, plural, one {# észlelt változás} other {# észlelt változás}}: {labels}",
+      "approved": "{count, plural, one {# változtatás} other {# változtatás}}: {labels}",
+      "connected": "{count, plural, one {# forrás} other {# forrás}}: {labels}"
+    },
+    "summary": {
+      "nothing": "{title}: ebben az időszakban nincs mért adat.",
+      "day": "{title}: {count, plural, one {# napi gyertya} other {# napi gyertya}} {price, select, revenue {a napi árbevétel} bookingRevenue {a napi foglalási árbevétel} other {a napi {noun}}} alapján, forrás: {source}, {from} – {to}; az utolsó nap {move, select, up {emelkedéssel} other {csökkenéssel}} zárt, záróérték: {close}. {headline}",
+      "week": "{title}: {count, plural, one {# heti gyertya} other {# heti gyertya}} {price, select, revenue {a napi árbevétel} bookingRevenue {a napi foglalási árbevétel} other {a napi {noun}}} alapján, forrás: {source}, {from} – {to}; az utolsó hét {move, select, up {emelkedéssel} other {csökkenéssel}} zárt, záróérték: {close}. {headline}",
+      "month": "{title}: {count, plural, one {# havi gyertya} other {# havi gyertya}} {price, select, revenue {a napi árbevétel} bookingRevenue {a napi foglalási árbevétel} other {a napi {noun}}} alapján, forrás: {source}, {from} – {to}; az utolsó hónap {move, select, up {emelkedéssel} other {csökkenéssel}} zárt, záróérték: {close}. {headline}",
+      "events": "{count, plural, one {# esemény jelölve.} other {# esemény jelölve.}}"
+    },
+    "caption": {
+      "day": "{title}: {price, select, revenue {a napi árbevétel} bookingRevenue {a napi foglalási árbevétel} other {a napi {noun}}} nyitó-, legmagasabb, legalacsonyabb és záróértéke naponként, azzal együtt, ami elcsúszott",
+      "week": "{title}: {price, select, revenue {a napi árbevétel} bookingRevenue {a napi foglalási árbevétel} other {a napi {noun}}} nyitó-, legmagasabb, legalacsonyabb és záróértéke hetente, azzal együtt, ami elcsúszott",
+      "month": "{title}: {price, select, revenue {a napi árbevétel} bookingRevenue {a napi foglalási árbevétel} other {a napi {noun}}} nyitó-, legmagasabb, legalacsonyabb és záróértéke havonta, azzal együtt, ami elcsúszott"
+    },
+    "event": {
+      "drop": "{metric, select, revenue {Az árbevétel csökkent} orders {A rendelések száma csökkent} sessions {A weboldal-látogatások száma csökkent} adSpend {A hirdetési költés csökkent} adPurchases {A hirdetésekből származó vásárlások száma csökkent} appointmentsCompleted {A teljesített időpontok száma csökkent} bookingRevenue {A foglalási árbevétel csökkent} other {Csökkenés: {noun}}}",
+      "rise": "{metric, select, revenue {Az árbevétel nőtt} orders {A rendelések száma nőtt} sessions {A weboldal-látogatások száma nőtt} adSpend {A hirdetési költés nőtt} adPurchases {A hirdetésekből származó vásárlások száma nőtt} appointmentsCompleted {A teljesített időpontok száma nőtt} bookingRevenue {A foglalási árbevétel nőtt} other {Növekedés: {noun}}}",
+      "dropBy": "{metric, select, revenue {Az árbevétel a szokásos szint alá esett, {pct} eltéréssel} orders {A rendelések száma a szokásos szint alá esett, {pct} eltéréssel} sessions {A weboldal-látogatások száma a szokásos szint alá esett, {pct} eltéréssel} adSpend {A hirdetési költés a szokásos szint alá esett, {pct} eltéréssel} adPurchases {A hirdetésekből származó vásárlások száma a szokásos szint alá esett, {pct} eltéréssel} appointmentsCompleted {A teljesített időpontok száma a szokásos szint alá esett, {pct} eltéréssel} bookingRevenue {A foglalási árbevétel a szokásos szint alá esett, {pct} eltéréssel} other {{noun}: a szokásos szint alá esett, {pct} eltéréssel}}",
+      "riseBy": "{metric, select, revenue {Az árbevétel a szokásos szint fölé emelkedett, {pct} eltéréssel} orders {A rendelések száma a szokásos szint fölé emelkedett, {pct} eltéréssel} sessions {A weboldal-látogatások száma a szokásos szint fölé emelkedett, {pct} eltéréssel} adSpend {A hirdetési költés a szokásos szint fölé emelkedett, {pct} eltéréssel} adPurchases {A hirdetésekből származó vásárlások száma a szokásos szint fölé emelkedett, {pct} eltéréssel} appointmentsCompleted {A teljesített időpontok száma a szokásos szint fölé emelkedett, {pct} eltéréssel} bookingRevenue {A foglalási árbevétel a szokásos szint fölé emelkedett, {pct} eltéréssel} other {{noun}: a szokásos szint fölé emelkedett, {pct} eltéréssel}}",
+      "approvedRan": "Ön jóváhagyta ezt: „{summary}”; lefutott.",
+      "approvedWaiting": "Ön jóváhagyta ezt: „{summary}”; még nem futott le.",
+      "bookingsImported": "A foglalások első importálása",
+      "connected": "{source} összekapcsolva",
+      "connectedDetail": "{day} óta beolvasva; az előtte lévő napok az első beolvasással érkeztek."
+    },
+    "proposal": {
+      "aWaiting": "Egy várakozó javaslat",
+      "aProposal": "egy javaslat"
+    },
+    "headline": {
+      "nothing": "Semmi, amit eddig mérni tudok, nem mutatja, hogy pénz csúszna el.",
+      "zero": "Jelenleg semmi mért nem csúszik el.",
+      "all": "Havonta nagyjából {range} csúszik el, és ez teljes egészében {lead, select, revenue_dips {árbevétel-visszaesésekből} no_shows {meg nem jelenésekből} late_cancellations {késői lemondásokból} empty_capacity {üres időpontokból} losing_ads {pénzt veszítő hirdetésekből} slow_stock {lassan fogyó készletből} other {várakozó javaslatokból}} adódik.",
+      "mostly": "Havonta nagyjából {range} csúszik el, és ez főként {lead, select, revenue_dips {árbevétel-visszaesésekből} no_shows {meg nem jelenésekből} late_cancellations {késői lemondásokból} empty_capacity {üres időpontokból} losing_ads {pénzt veszítő hirdetésekből} slow_stock {lassan fogyó készletből} other {várakozó javaslatokból}} adódik.",
+      "biggest": "Havonta nagyjából {range} csúszik el, és ennek legnagyobb része {lead, select, revenue_dips {árbevétel-visszaesésekből} no_shows {meg nem jelenésekből} late_cancellations {késői lemondásokból} empty_capacity {üres időpontokból} losing_ads {pénzt veszítő hirdetésekből} slow_stock {lassan fogyó készletből} other {várakozó javaslatokból}} adódik."
+    },
+    "reason": {
+      "noPrices": "{source} nem tartalmaz árakat — adja hozzá az ár oszlopot az exporthoz, és beárazom, ami elmaradt",
+      "noPricedCompleted": "{from} és {to} között nincs beárazott, teljesített időpont, így nem tudom megmondani, mennyit ér egy",
+      "noBookings": "importálja a foglalási exportfájlját (vagy kapcsolja össze a Square-t), és megszámolom, mi maradt el",
+      "lateNotSeparated": "{source} nem választja külön a késői lemondásokat a meg nem jelenésektől, így azokat a meg nem jelenésekkel együtt árazom be",
+      "noCapacity": "mondja meg, hetente hány időpontot tud vállalni, és beárazom az üres időpontokat — kapacitást nem feltételezek",
+      "noTakings": "kapcsolja össze, ahol a bevételei megjelennek (a webshopját, a pénztárgépét vagy a Stripe-ot), és minden napot összevetek a szokásos szintjével",
+      "shortHistory": "egy nap megítéléséhez legalább {min} mért napnyi adat kell ({price, select, revenue {árbevétel} bookingRevenue {foglalási árbevétel} other {{noun}}}) az azt megelőző {window} napból — az előzmény még túl rövid",
+      "noMeta": "kapcsolja össze a Meta Adst, és megnézem, mely kampányok kerülnek többe, mint amennyit visszahoznak",
+      "noSpend": "{from} és {to} között egyetlen kampány sem költött semmit",
+      "noStock": "kapcsolja össze a webáruházát, vagy importáljon egy készletfájlt, és megmutatom, mennyi pénz áll a polcon",
+      "nothingWaiting": "jelenleg semmi sem vár a jóváhagyására",
+      "noPricedGain": "egyik Önre váró tételnek sincs még beárazott nyeresége",
+      "noRevenueSeries": "ehhez mért árbevétel-idősorra van szükségem, amelyhez viszonyíthatok"
+    },
+    "price": {
+      "arithmetic": "átlagár {mean} ({revenue} ÷ {count, plural, one {# teljesített} other {# teljesített}})",
+      "arithmeticRange": "átlagár {mean} ({revenue} ÷ {count, plural, one {# teljesített} other {# teljesített}}), hétről hétre {low} és {high} között, {weeks, plural, one {# hét} other {# hét}} alatt"
+    },
+    "formula": {
+      "noShows": "{count, plural, one {# meg nem jelenés} other {# meg nem jelenés}} {days, plural, one {# mért nap} other {# mért nap}} alatt × {price} ({arithmetic}), forrás: {source}",
+      "lateCancellations": "{count, plural, one {# késői lemondás} other {# késői lemondás}} {days, plural, one {# mért nap} other {# mért nap}} alatt × {price} ({arithmetic}), forrás: {source}",
+      "emptyCapacity": "heti {perWeek} × {days, plural, one {# mért nap} other {# mért nap}} ÷ {week} = {slots} időpont, mínusz {held, plural, one {# időpont} other {# időpont}}, amely az idejére még foglalt volt = {empty} üres, × {price} ({arithmetic}). A meg nem jelenések és a késői lemondások saját sorukban vannak beárazva, nem itt",
+      "noDips": "{judged, plural, one {# megítélt nap} other {# megítélt nap}} alatt nem volt legalább {run} egymást követő nap a szokásos tartomány alatt (az észlelő alapvonala: {window} napos átlag × hétnapi tényező, kilógás a szokásos ingadozás {k}× értéke felett)",
+      "dips": "{days, plural, one {# nap} other {# nap}} {runs, plural, one {# sorozatban} other {# sorozatban}}, amelyek legalább {run} napig a szokásos tartomány alatt voltak ({window} napos átlag × hétnapi tényező, kilógás a szokásos ingadozás {k}× értéke felett): várt − tényleges = {gross}; az alsó vég naponta egy szokásos ingadozást meghagy",
+      "dipsExplained": "{days, plural, one {# nap} other {# nap}} {runs, plural, one {# sorozatban} other {# sorozatban}}, amelyek legalább {run} napig a szokásos tartomány alatt voltak ({window} napos átlag × hétnapi tényező, kilógás a szokásos ingadozás {k}× értéke felett): várt − tényleges = {gross}; az alsó vég naponta egy szokásos ingadozást meghagy; levonva, amit az adott nap meg nem jelenései, késői lemondásai és üres időpontjai már beáraznak",
+      "adsAllPaid": "a Meta hozzárendelése szerint minden kampány legalább annyit hozott, amennyibe került ({count, plural, one {# kampány} other {# kampány}})",
+      "adsLoser": "{campaign}: költés {spent}, a Meta hozzárendelése szerint {value} (megtérülés: {roas}) → {loss}",
+      "stockNone": "nincs lassan fogyónak vagy elakadtnak jelölt tétel, {day} állapot szerint",
+      "stockItems": "{count, plural, one {# lassan fogyó tétel} other {# lassan fogyó tétel}}, készleten lévő darab × egységköltség, {day} állapot szerint. Készletállomány, nem havi folyam: nem adódik hozzá a hónaphoz",
+      "tableProposal": "{summary}: {range}",
+      "onTheTable": "{count, plural, one {# várakozó javaslat} other {# várakozó javaslat}}, havonta az alapesettől a kedvező esetig: {parts}"
+    },
+    "basisNote": {
+      "capacity": "egy Ön által {basis, select, ESTIMATED {BECSÜLT} other {MEGADOTT}} kapacitásból (heti {perWeek})",
+      "meta": "a Meta saját hozzárendeléséből",
+      "statedCost": "készleten lévő darab × egy Ön által megadott költség, egyes tételeknél",
+      "proposals": "a javaslatok saját alap- és kedvező esetei"
+    },
+    "componentNote": {
+      "adsOtherCurrency": "{count, plural, one {# kampány} other {# kampány}} más pénznemben ({currencies}) kimaradt: a pénznemek soha nem keverednek",
+      "noCost": "{count, plural, one {# ismert költség nélkül, kimaradt} other {# ismert költség nélkül, kimaradt}}",
+      "otherCurrency": "{count, plural, one {# más pénznemben, kimaradt} other {# más pénznemben, kimaradt}}"
+    },
+    "latestCount": "a legutóbbi leltár",
+    "small": {
+      "noBand": "Nincs pénzsáv.",
+      "noBandBecause": "Nincs pénzsáv: {reason}.",
+      "sentence": "{text}.",
+      "bookings": "Időpontok hetente, forrás: {source}, {from} – {to}: {completed, plural, one {# teljesített} other {# teljesített}}, {noShows, plural, one {# meg nem jelenés} other {# meg nem jelenés}}.",
+      "bookingsLate": "Időpontok hetente, forrás: {source}, {from} – {to}: {completed, plural, one {# teljesített} other {# teljesített}}, {noShows, plural, one {# meg nem jelenés} other {# meg nem jelenés}}, {late, plural, one {# késői lemondás} other {# késői lemondás}}.",
+      "bookingsWorth": "Időpontok hetente, forrás: {source}, {from} – {to}: {completed, plural, one {# teljesített} other {# teljesített}}, {noShows, plural, one {# meg nem jelenés} other {# meg nem jelenés}}; az elmaradt időpontok értéke {range} volt.",
+      "bookingsLateWorth": "Időpontok hetente, forrás: {source}, {from} – {to}: {completed, plural, one {# teljesített} other {# teljesített}}, {noShows, plural, one {# meg nem jelenés} other {# meg nem jelenés}}, {late, plural, one {# késői lemondás} other {# késői lemondás}}; az elmaradt időpontok értéke {range} volt.",
+      "ads": "Költés a Meta által hozzárendelt vásárlási értékkel szemben, kampányonként, {from} – {to}: {campaigns}. Veszteséges az, aminek a megtérülése {even} alatt van.",
+      "adsCampaign": "{campaign}: költés {spent}, a Meta szerint {value} ({roas})",
+      "adsCampaignLosing": "{campaign}: költés {spent}, a Meta szerint {value} ({roas}), veszteséges",
+      "noReturn": "nincs megtérülés",
+      "return": "megtérülés: {roas}"
+    }
   }
 }

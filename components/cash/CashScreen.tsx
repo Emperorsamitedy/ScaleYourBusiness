@@ -11,9 +11,10 @@
 // and the sources line are on the page in every state, refusals included.
 //
 // L-3b: the screen's fixed words are the "cash" catalogue; figures and
-// dates in the reader's locale, in the business's currency. What the
+// dates in the reader's locale, in the business's currency. L-4b: what the
 // forecast says from data (its headline, sources, reasons, scenarios,
-// assumptions) stays English until L-4.
+// assumptions) arrives from GET /api/cash in the reader's language, and
+// the sentences this screen builds come from "cashWords".
 
 import "../../app/cash.css";
 import Link from "next/link";
@@ -25,10 +26,11 @@ import type { CashForecast, CashReady } from "../../lib/cash/model";
 import { CASH } from "../../lib/cash/model";
 import { minorUnitExponent } from "../../lib/core/money";
 import { CashChart } from "../charts/CashChart";
+import { basisName } from "../report/basis";
 import { num } from "../sheet/num";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
-import type { CashWords } from "./cash-view";
+import type { CashWords, SentenceWords } from "./cash-view";
 import {
   cashChartModel,
   forecastDay,
@@ -45,6 +47,13 @@ function useCashWords(): CashWords {
   return useTr("cash");
 }
 
+/** The sentences' words (L-4b): "cashWords", the basis names, and the locale. */
+function useSentenceWords(): SentenceWords {
+  const { tr, locale } = useTr("cashWords");
+  const sheet = useTr("sheet").tr;
+  return { tr, sheet, locale };
+}
+
 function Frame({
   title,
   forecast,
@@ -55,11 +64,12 @@ function Frame({
   children?: ReactNode;
 }) {
   const { tr } = useCashWords();
+  const sentences = useSentenceWords();
   return (
     <main className="screen cf-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={tr("aside")}>
         <p className="cf-note">{tr("planningNote")}</p>
-        <p className="cf-note">{forecast ? sourcesLine(forecast) : tr("sourcesNone")}</p>
+        <p className="cf-note">{forecast ? sourcesLine(forecast, sentences) : tr("sourcesNone")}</p>
       </PageHead>
       {children}
     </main>
@@ -389,6 +399,7 @@ function Scenarios({
 
 function Sources({ f }: { f: CashReady }) {
   const { tr, locale } = useCashWords();
+  const { sheet } = useSentenceWords();
   return (
     <SheetCard
       label={tr("sources.label")}
@@ -409,11 +420,11 @@ function Sources({ f }: { f: CashReady }) {
         </thead>
         <tbody>
           {f.sources.map((s) => (
-            <tr key={s.label}>
+            <tr key={s.key}>
               <th scope="row">{s.label}</th>
               <td data-label={tr("sources.value")}>{s.value}</td>
               <td data-label={tr("sources.basis")}>
-                {s.basis ? <span className="flag">{s.basis}</span> : "—"}
+                {s.basis ? <span className="flag">{basisName(s.basis, sheet)}</span> : "—"}
               </td>
               <td data-label={tr("sources.from")}>{s.source}</td>
             </tr>
@@ -455,6 +466,7 @@ function Sources({ f }: { f: CashReady }) {
 
 export function CashScreen() {
   const words = useCashWords();
+  const sentences = useSentenceWords();
   const { tr } = words;
   const rich = useTranslations("cash");
   const [view, setView] = useState<CashView | null>(null);
@@ -499,14 +511,14 @@ export function CashScreen() {
   const f = view.forecast;
   if (f.status !== "ready") {
     return (
-      <Frame title={headline(view)} forecast={f}>
+      <Frame title={headline(view, sentences)} forecast={f}>
         <Refused f={f} />
       </Frame>
     );
   }
   return (
-    <Frame title={headline(view)} forecast={f}>
-      <CashChart model={cashChartModel(f, view.tight?.index ?? null, words)} />
+    <Frame title={headline(view, sentences)} forecast={f}>
+      <CashChart model={cashChartModel(f, view.tight?.index ?? null, words, sentences)} />
       <div className="cf-grid">
         <Warning view={view} f={f} />
         <Sources f={f} />

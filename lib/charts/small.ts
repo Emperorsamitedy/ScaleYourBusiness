@@ -10,12 +10,15 @@
 //              attributes to it, over the window; those returning less
 //              than they cost are marked LOSING
 
+import { listSep } from "../i18n/punctuation";
 import { moneyText, num } from "../../components/sheet/num";
 import { weekStart } from "../care/chart-view";
 import type { MarketChartModel } from "./model";
 import { shortDate } from "./model";
 import type { BookingsInput, CampaignWindow, PricedComponent, Window } from "./opportunity";
 import { OPPORTUNITY, daysInclusive, lateCancellations, noShows, rangeWhole } from "./opportunity";
+import type { Words } from "./words";
+import { englishChartWords } from "./words";
 
 export interface BookingsWeek {
   /** The Monday. */
@@ -45,12 +48,14 @@ export function buildBookingsChart(
   b: BookingsInput | null,
   _market: MarketChartModel,
   w: Window,
+  words: Words = englishChartWords(),
 ): BookingsChartModel | null {
+  const { tr, locale } = words;
   if (b === null) return null;
   const days = b.days.filter((d) => d.date >= w.from && d.date <= w.to);
   if (days.length === 0) return null;
-  const ns = noShows(b, w);
-  const lc = lateCancellations(b, w);
+  const ns = noShows(b, w, words);
+  const lc = lateCancellations(b, w, words);
   const priced = [ns, lc].filter((c): c is PricedComponent => c.status === "priced");
   const lostBy = new Map<string, { lo: number; hi: number }>();
   for (const c of priced) {
@@ -100,16 +105,33 @@ export function buildBookingsChart(
   const lostNote =
     priced.length === 0
       ? ns.status === "absent"
-        ? `No money band: ${ns.reason}.`
-        : "No money band."
-      : `${priced.map((c) => c.formula).join(". ")}.`;
-  const summary =
-    `Appointments a week from ${b.source}, ${shortDate(list[0]!.start)} to ${shortDate(w.to)}: ` +
-    `${num(totals.completed)} completed, ${num(totals.no_show)} no-shows` +
-    (totals.late !== null ? `, ${num(totals.late)} late cancellations` : "") +
-    (priced.length > 0 && b.currency
-      ? `; the missed slots were worth ${rangeWhole({ low_minor: lostTotal.lo, high_minor: lostTotal.hi, currency: b.currency })}.`
-      : ".");
+        ? tr("small.noBandBecause", { reason: ns.reason })
+        : tr("small.noBand")
+      : priced.map((c) => tr("small.sentence", { text: c.formula })).join(" ");
+  const worth = priced.length > 0 && b.currency !== null;
+  const summaryKey =
+    totals.late !== null
+      ? worth
+        ? "small.bookingsLateWorth"
+        : "small.bookingsLate"
+      : worth
+        ? "small.bookingsWorth"
+        : "small.bookings";
+  const summary = tr(summaryKey, {
+    source: b.source,
+    from: shortDate(list[0]!.start, locale),
+    to: shortDate(w.to, locale),
+    completed: totals.completed,
+    noShows: totals.no_show,
+    late: totals.late ?? 0,
+    range:
+      worth && b.currency !== null
+        ? rangeWhole(
+            { low_minor: lostTotal.lo, high_minor: lostTotal.hi, currency: b.currency },
+            locale,
+          )
+        : "",
+  });
   return {
     source: b.source,
     currency: priced.length > 0 ? b.currency : null,
@@ -132,20 +154,29 @@ export interface AdsChartModel {
 export function buildAdsChart(
   campaigns: readonly CampaignWindow[],
   w: Window,
+  words: Words = englishChartWords(),
 ): AdsChartModel | null {
+  const { tr, locale } = words;
   const spent = campaigns.filter((c) => c.spend_minor > 0);
   if (spent.length === 0) return null;
   const losing = spent.filter((c) => c.losing);
-  const roas = (c: CampaignWindow) => (c.roas === null ? "no return" : `return ${num(c.roas, 2)}`);
-  const summary =
-    `Spend against the purchase value Meta attributes, per campaign, ${shortDate(w.from)} to ${shortDate(w.to)}: ` +
-    spent
-      .map(
-        (c) =>
-          `${c.campaign_name} spent ${moneyText(c.spend_minor, c.currency)}, Meta attributes ${moneyText(c.value_minor, c.currency)} (${roas(c)})${c.losing ? ", losing" : ""}`,
+  const roas = (c: CampaignWindow) =>
+    c.roas === null ? tr("small.noReturn") : tr("small.return", { roas: num(c.roas, 2, locale) });
+  const summary = tr("small.ads", {
+    from: shortDate(w.from, locale),
+    to: shortDate(w.to, locale),
+    campaigns: spent
+      .map((c) =>
+        tr(c.losing ? "small.adsCampaignLosing" : "small.adsCampaign", {
+          campaign: c.campaign_name,
+          spent: moneyText(c.spend_minor, c.currency, locale),
+          value: moneyText(c.value_minor, c.currency, locale),
+          roas: roas(c),
+        }),
       )
-      .join("; ") +
-    `. Losing means a return below ${num(OPPORTUNITY.losing_roas_below, 1)}.`;
+      .join(listSep(locale)),
+    even: num(OPPORTUNITY.losing_roas_below, 1, locale),
+  });
   return {
     window: { from: w.from, to: w.to, days: daysInclusive(w.from, w.to) },
     campaigns: spent,

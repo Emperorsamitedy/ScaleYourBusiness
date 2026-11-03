@@ -24,10 +24,13 @@
 //
 // L-3b (TASKS-LANGUAGES.md): the chart's own words are the "charts.market"
 // catalogue, its figures and dates in the reader's locale with the
-// business's currency. The sentences the model builds from data — the
-// headline, the summary, the table's caption, the components' reasons and
-// formulas, the event labels and notes — are stage L-4 and stay English.
+// business's currency. L-4b: the sentences the model builds from data —
+// the headline, the components' reasons and formulas, the event labels
+// and notes — arrive from the server in the reader's language; the
+// summary and the table's caption are built here, from the candles, in
+// the "chartsWords" catalogue.
 
+import { fullStop } from "../../lib/i18n/punctuation";
 import { useMemo, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -54,6 +57,7 @@ import {
 } from "../../lib/charts/model";
 import type { OpportunityComponent, PricedComponent } from "../../lib/charts/opportunity";
 import { COMPONENT_LABEL, rangeWhole } from "../../lib/charts/opportunity";
+import { capitalFirst } from "../../lib/charts/words";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
@@ -210,6 +214,7 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
   const words = useTranslations("charts.market");
   const { tr, locale } = useTr("charts.market");
   const { tr: sheet } = useTr("sheet");
+  const sentences = useTr("chartsWords");
   const [bucket, setBucket] = useState<Bucket>(model.bucket);
   const [at, setAt] = useState<number | null>(null);
   const { ref, width, narrow } = useChartWidth<HTMLDivElement>();
@@ -223,8 +228,8 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
     () => layout(model, candles, width, narrow, bucket),
     [model, candles, width, narrow, bucket],
   );
-  const summary = chartSummary(model, candles, bucket);
-  const table = chartTable(model, candles, bucket, locale, tr);
+  const summary = chartSummary(model, candles, bucket, sentences, tr);
+  const table = chartTable(model, candles, bucket, locale, tr, sentences);
   const cur = model.currency;
   const shown = at !== null && at < candles.length ? at : candles.length - 1;
   const c = candles[shown];
@@ -627,7 +632,10 @@ function ComponentRow({ c }: { c: OpportunityComponent }) {
           <span className="word none">{tr("row.notMeasured")}</span>
         </td>
         <td data-label={tr("row.basis")}>—</td>
-        <td data-label={tr("row.wouldFill")}>{capital(c.reason)}.</td>
+        <td data-label={tr("row.wouldFill")}>
+          {capitalFirst(c.reason, locale)}
+          {fullStop(locale)}
+        </td>
       </tr>
     );
   }
@@ -644,7 +652,8 @@ function ComponentRow({ c }: { c: OpportunityComponent }) {
         {c.basis_note && <span className="mk-note"> {c.basis_note}</span>}
       </td>
       <td className="src" data-label={tr("row.how")}>
-        {capital(c.formula)}.
+        {capitalFirst(c.formula, locale)}
+        {fullStop(locale)}
         {c.kind === "flow" && c.window.days !== 30 && (
           <>
             {" "}
@@ -655,13 +664,17 @@ function ComponentRow({ c }: { c: OpportunityComponent }) {
             })}
           </>
         )}
-        {c.note && <> {capital(c.note)}.</>}
+        {c.note && (
+          <>
+            {" "}
+            {capitalFirst(c.note, locale)}
+            {fullStop(locale)}
+          </>
+        )}
       </td>
     </tr>
   );
 }
-
-const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function EmptyMarket({ model }: { model: EmptyModel }) {
   const { tr, locale } = useTr("charts.market");

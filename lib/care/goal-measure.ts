@@ -10,6 +10,11 @@
 // Units are "per 30 days": the mean of the measured days in a 28-day
 // window, times 30. One unit for target, baseline and progress, stated on
 // every screen, so nothing compares a month with a day.
+//
+// L-4b: why a baseline isn't measured yet (`baseline_note`) is a
+// "goalsWords" message in the reader's language — it is returned to the
+// screen, never stored. The refusals (GoalMeasureError) are the server's
+// error sentences and stay English (L-4a).
 
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
@@ -24,6 +29,8 @@ import { isoDateTime } from "../core/iso";
 import { readCurrentField, writeField } from "../profile/field-store";
 import { dailySeries, shiftDay, windowStat } from "../trust/series";
 import { enumCode } from "../core/enum-value";
+import type { Words } from "../i18n/request-words";
+import { andList, countText, dayText, goalEnglish, metricWords } from "./goal-words";
 
 export class GoalMeasureError extends Error {
   readonly status: number;
@@ -117,26 +124,42 @@ export async function readGoalMeasure(
 export async function measureBaseline(
   profileId: string,
   measure: GoalMeasure,
+  w: Words = goalEnglish(),
 ): Promise<{ baseline: GoalBaseline; providers: string[] } | { reason: string }> {
+  const { tr } = w;
   const metric = GOAL_METRICS[measure.metric];
+  const label = metricWords(measure.metric, w);
   const to = shiftDay(measure.set_on, -1);
   const from = shiftDay(measure.set_on, -BASELINE.window_days);
   const series = await dailySeries(profileId, metric.series, from, to);
-  if (!series) return { reason: `no connected source measures ${metric.label}` };
+  if (!series) return { reason: tr("baseline.noSource", { metric: label }) };
   if (series.currencies.size > 1) {
     return {
-      reason: `${metric.label} is measured in ${[...series.currencies].join(" and ")} — one currency is needed`,
+      reason: tr("baseline.currencies", {
+        metric: label,
+        currencies: andList([...series.currencies], w),
+      }),
     };
   }
   const stat = windowStat(series, from, to);
   if (stat.days_measured < BASELINE.min_days) {
     return {
-      reason: `${stat.days_measured} measured day(s) in the ${BASELINE.window_days} before ${measure.set_on} — a baseline needs ${BASELINE.min_days}`,
+      reason: tr("baseline.fewDays", {
+        count: stat.days_measured,
+        n: countText(stat.days_measured, w),
+        window: countText(BASELINE.window_days, w),
+        day: dayText(measure.set_on, w),
+        min: countText(BASELINE.min_days, w),
+      }),
     };
   }
   if (metric.kind === "money" && series.currency !== measure.currency) {
     return {
-      reason: `${metric.label} is measured in ${series.currency}, the target is in ${measure.currency}`,
+      reason: tr("baseline.otherCurrency", {
+        metric: label,
+        currency: series.currency ?? "",
+        target: measure.currency ?? "",
+      }),
     };
   }
   return {
@@ -192,12 +215,14 @@ export async function ensureBaseline(profileId: string, goalId: string): Promise
 /**
  * Make a goal measurable. Validates the statement against what the
  * system can measure; captures the baseline when the history exists.
+ * `w` words the baseline note for the screen; nothing worded is stored.
  */
 export async function setGoalMeasure(
   profileId: string,
   goalId: string,
   input: GoalMeasureInput,
   now: Date = new Date(),
+  w: Words = goalEnglish(),
 ): Promise<{ measure: GoalMeasure; baseline: GoalBaseline | null; baseline_note: string | null }> {
   await goalOwnedBy(profileId, goalId);
   if (!(input.metric in GOAL_METRICS)) {
@@ -247,7 +272,7 @@ export async function setGoalMeasure(
     set_on: setOn,
   };
 
-  const measured = await measureBaseline(profileId, measure);
+  const measured = await measureBaseline(profileId, measure, w);
   if (!("reason" in measured)) {
     const reached =
       direction === "increase"

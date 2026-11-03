@@ -22,8 +22,8 @@ import { isProviderId } from "../connectors/scopes";
 import type { ContactRow } from "../crm/contacts";
 import { canEmailForMarketing, emailHashCandidates, listContacts } from "../crm/contacts";
 import { readCurrentField } from "../profile/field-store";
-import type { CartFact, CartReach, CartsMeasure } from "./measure";
-import { CARTS, measureCarts } from "./measure";
+import type { CartFact, CartReach, CartsMeasure, CartsSentenceWords } from "./measure";
+import { CARTS, englishCartsWords, measureCarts } from "./measure";
 
 /** Store providers that read abandoned checkouts: read from the registry. */
 export function isCartProvider(provider: string): boolean {
@@ -202,6 +202,7 @@ export async function loadCartFacts(accountId: string, now: Date = new Date()): 
 export async function productNamer(
   profileId: string,
   providers: readonly string[],
+  words: CartsSentenceWords = englishCartsWords(),
 ): Promise<(ref: string, provider: string, title: string | null) => string> {
   const spine = await db
     .select({ id: offers.id })
@@ -219,7 +220,9 @@ export async function productNamer(
     }
   }
   return (ref, provider, title) =>
-    byRef.get(`${provider}|${ref}`) ?? title ?? `Product ${ref.split("/").at(-1) ?? ref}`;
+    byRef.get(`${provider}|${ref}`) ??
+    title ??
+    words.tr("productFallback", { ref: ref.split("/").at(-1) ?? ref });
 }
 
 export interface CartsView {
@@ -237,19 +240,24 @@ export async function loadCarts(
   accountId: string,
   profileId: string,
   now: Date = new Date(),
+  words: CartsSentenceWords = englishCartsWords(),
 ): Promise<CartsView> {
   const facts = await loadCartFacts(accountId, now);
-  const measure = measureCarts({
-    today: facts.today,
-    carts: facts.carts,
-    orders: facts.orders,
-    reads: facts.sources.map((s) => ({ label: s.label, ok_at: s.ok_at, too_many: s.too_many })),
-  });
+  const measure = measureCarts(
+    {
+      today: facts.today,
+      carts: facts.carts,
+      orders: facts.orders,
+      reads: facts.sources.map((s) => ({ label: s.label, ok_at: s.ok_at, too_many: s.too_many })),
+    },
+    words,
+  );
   const product_names: Record<string, string> = {};
   if (measure.status === "measured" && measure.products.length > 0) {
     const name = await productNamer(
       profileId,
       facts.sources.map((s) => s.provider),
+      words,
     );
     for (const p of measure.products) {
       const provider =
