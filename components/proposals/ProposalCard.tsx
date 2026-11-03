@@ -59,6 +59,7 @@ type Phase =
 export function ProposalCard({ id }: { id: string }) {
   const t = useTranslations("proposals");
   const { tr, locale } = useTr("proposals");
+  const qw = useTr("queueWords");
   const w = { tr, locale };
   const moduleWord = (m: string) => t("module", { module: m });
   const [state, setState] = useState<Phase>({ phase: "loading" });
@@ -183,7 +184,7 @@ export function ProposalCard({ id }: { id: string }) {
   const st = cardState(p, new Date(), undefined, w);
   const gain = gainLine(p, locale);
   const undo = undoLine(p, tr);
-  const lines = changeLines(p.action);
+  const lines = changeLines(p.action, undefined, qw);
   const titleId = `card-${p.id}`;
   const chip = activeChip(reason, tr);
   const publishAt =
@@ -230,7 +231,7 @@ export function ProposalCard({ id }: { id: string }) {
           </section>
 
           <section className="q-msec">
-            <h2 className="q-mlabel">{t("m.expectedSpan", { span: effectSpan(p.action) })}</h2>
+            <h2 className="q-mlabel">{t("m.expectedSpan", { span: effectSpan(p.action, qw) })}</h2>
             {gain ? (
               <p className="q-fig fig">{gain}</p>
             ) : (
@@ -337,7 +338,7 @@ export function ProposalCard({ id }: { id: string }) {
                 </div>
               )}
               <p className="q-approve-note">
-                {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale })}
+                {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale, qw })}
                 {halted && ` ${t("decide.halted")}`}
               </p>
               {data.decide_why && (

@@ -19,7 +19,11 @@
 //
 // Pure and client-safe: no database, no model.
 
+import { num } from "../../components/sheet/num";
 import { minorUnitExponent } from "../core/money";
+import type { AppLocale } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
 
 /** The thresholds, pinned. A delta is material when it clears BOTH. */
 export const MATERIALITY = {
@@ -161,22 +165,21 @@ export function splitByMateriality<T extends DeltaInput>(rows: readonly T[]): Ma
  * figures you gave me matched your accounts within 15%." It says "or by a small
  * amount" only when a delta was quiet because of its floor rather than
  * its percent. Null when nothing is quiet.
+ *
+ * L-4a: the sentence is the "reportWords" catalogue's ("quiet.*"), in the
+ * reader's language with its figures in their writing; English by default.
  */
 export function quietLine(
   quiet: readonly { reason: MaterialityReason }[],
   total: number,
+  tr: Tr = englishTr("reportWords"),
+  locale: AppLocale = "en",
 ): string | null {
   const n = quiet.length;
   if (n === 0) return null;
-  const how = quiet.every((q) => q.reason === "within_relative")
-    ? `within ${MATERIALITY.min_relative_pct}%`
-    : `within ${MATERIALITY.min_relative_pct}% or by a small amount`;
-  if (n === 1 && total === 1) return `The figure you gave me matched your accounts ${how}.`;
-  const who =
-    n !== total
-      ? `${n} of the ${total} figures you gave me`
-      : n === 2
-        ? "Both figures you gave me"
-        : `All ${n} figures you gave me`;
-  return `${who} matched your accounts ${how}.`;
+  const how = quiet.every((q) => q.reason === "within_relative") ? "Rel" : "Small";
+  const pct = num(MATERIALITY.min_relative_pct, 0, locale);
+  if (n === 1 && total === 1) return tr(`quiet.one${how}`, { pct });
+  const who = n !== total ? "some" : n === 2 ? "both" : "all";
+  return tr(`quiet.${who}${how}`, { n, total, pct });
 }

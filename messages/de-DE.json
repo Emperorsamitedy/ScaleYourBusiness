@@ -5608,5 +5608,409 @@
   },
   "modelWords": {
     "reportWrittenIn": "Dieser Bericht wurde auf {language} verfasst, in der Sprache der Person, die ihn erstellt hat."
+  },
+  "roleWords": {
+    "refusal": {
+      "stop_press": "Nur ein Inhaber oder ein Manager kann den Notstopp drücken.",
+      "intake_open": "Nur ein Inhaber oder ein Manager kann das Interview öffnen.",
+      "telemetry_record": "Nur ein Inhaber oder ein Manager kann erfassen, wie die Ansichten genutzt werden.",
+      "chat_ask": "Nur ein Inhaber oder ein Manager kann mir im Chat Fragen stellen.",
+      "alerts_remove_device": "Nur ein Inhaber oder ein Manager kann eines Ihrer eigenen Telefone aus den Benachrichtigungen entfernen.",
+      "language_own": "Nur ein Inhaber oder ein Manager kann die Sprache wählen, in der Sie SYB lesen.",
+      "proposals_decide": "Nur ein Inhaber oder ein Manager kann Vorschläge freigeben oder ablehnen.",
+      "proposals_generate": "Nur ein Inhaber oder ein Manager kann mich um neue Vorschläge bitten.",
+      "proposals_carry_out": "Nur ein Inhaber oder ein Manager kann einen freigegebenen Vorschlag ausführen oder rückgängig machen.",
+      "content_draft": "Nur ein Inhaber oder ein Manager kann Inhalte entwerfen.",
+      "support_answer": "Nur ein Inhaber oder ein Manager kann Support-Anfragen beantworten.",
+      "reviews_answer": "Nur ein Inhaber oder ein Manager kann Bewertungen erfassen, beantworten oder entfernen.",
+      "pipeline_edit": "Nur ein Inhaber oder ein Manager kann die Vertriebs-Pipeline ändern.",
+      "connections_sync": "Nur ein Inhaber oder ein Manager kann ein verbundenes Konto jetzt erneut lesen.",
+      "alerts_subscribe": "Nur ein Inhaber oder ein Manager kann Benachrichtigungen zu Vorschlägen aufs Telefon erhalten.",
+      "connections_manage": "Nur ein Inhaber kann Konten verbinden oder trennen.",
+      "write_access_manage": "Nur ein Inhaber kann Schreibzugriff erteilen oder zurücknehmen.",
+      "billing_manage": "Nur ein Inhaber kann den Bericht bezahlen.",
+      "erasure_run": "Nur ein Inhaber kann die Daten eines Kunden löschen.",
+      "data_import": "Nur ein Inhaber kann eine Datei mit Kunden, Lagerbestand oder Buchungen importieren.",
+      "team_manage": "Nur ein Inhaber kann Personen ins Team einladen, ihre Rolle im Team ändern oder sie entfernen.",
+      "rules_manage": "Nur ein Inhaber kann ändern, wie ich für dieses Unternehmen arbeite.",
+      "profile_edit": "Nur ein Inhaber kann die Fakten, Ziele oder Grenzen des Unternehmens ändern.",
+      "report_generate": "Nur ein Inhaber kann einen neuen Bericht erstellen.",
+      "report_respond": "Nur ein Inhaber kann auf die Befunde des Berichts antworten.",
+      "report_share": "Nur ein Inhaber kann den Bericht außerhalb von SYB teilen.",
+      "competitors_manage": "Nur ein Inhaber kann die Wettbewerberliste ändern oder recherchieren.",
+      "site_audit": "Nur ein Inhaber kann die Website prüfen.",
+      "support_settings": "Nur ein Inhaber kann ändern, wie der Support eingerichtet ist.",
+      "reviews_settings": "Nur ein Inhaber kann die Adresse ändern, an die Bewertungen weitergeleitet werden.",
+      "summary_settings": "Nur ein Inhaber kann die wöchentliche Zusammenfassung ein- oder ausschalten.",
+      "stop_resume": "Nur ein Inhaber kann nach einem Stopp alles wieder in Gang setzen.",
+      "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern."
+    }
+  },
+  "authWords": {
+    "error": {
+      "emailNeeded": "eine E-Mail-Adresse wird benötigt",
+      "emailNotSent": "Ich konnte die Anmelde-E-Mail gerade nicht senden – versuchen Sie es in einer Minute erneut.",
+      "wrong": "bei uns ist etwas schiefgelaufen",
+      "wrongEmailWorks": "bei uns ist etwas schiefgelaufen – der Link in der E-Mail funktioniert weiterhin",
+      "linkInvalid": "dieser Anmeldelink ist nicht mehr gültig",
+      "signInInvalid": "diese Anmeldung ist nicht mehr gültig",
+      "accountFailed": "das Konto konnte nicht erstellt werden",
+      "malformedToken": "der Anbieter hat ein fehlerhaftes Token zurückgegeben",
+      "noEmail": "{provider} hat keine E-Mail-Adresse übermittelt – verwenden Sie stattdessen den E-Mail-Link",
+      "unverified": "{provider} meldet diese Adresse als nicht verifiziert – verwenden Sie stattdessen den E-Mail-Link",
+      "notVerified": "die Anmeldung über {provider} konnte nicht verifiziert werden ({why}) – verwenden Sie stattdessen den E-Mail-Link",
+      "failed": "die Anmeldung über {provider} ist fehlgeschlagen – versuchen Sie es erneut oder verwenden Sie den E-Mail-Link",
+      "notConnected": "diese Anmeldemethode ist noch nicht angebunden – mit Ihrer E-Mail-Adresse geht es schon heute.",
+      "notConnectedNamed": "die Anmeldung über {provider} ist noch nicht angebunden – mit Ihrer E-Mail-Adresse unten geht es schon heute.",
+      "expired": "dieser Anmeldeversuch ist abgelaufen – versuchen Sie es erneut",
+      "notEmail": "das sieht nicht nach einer E-Mail-Adresse aus",
+      "noProfile": "dieses Profil gibt es nicht",
+      "linkNotValid": "dieser Link ist nicht gültig",
+      "linkExpired": "dieser Link ist abgelaufen oder nicht mehr gültig",
+      "noBusiness": "dieses Unternehmen gibt es nicht",
+      "chooseAgain": "wählen Sie das Unternehmen auf unserer Seite erneut aus",
+      "addOnPage": "fügen Sie das Unternehmen auf unserer Seite hinzu",
+      "signInFirst": "bitte zuerst anmelden"
+    },
+    "why": {
+      "otherApp": "für eine andere App ausgestellt",
+      "issuer": "falscher Aussteller",
+      "emailUnverified": "E-Mail nicht verifiziert",
+      "orgEmail": "die E-Mail-Adresse der Organisation ist nicht als ihre eigene verifiziert",
+      "unknown": "unbekannter Anbieter"
+    }
+  },
+  "econWords": {
+    "what": {
+      "fixed": "Fixkosten pro Monat",
+      "fixedPartial": "Fixkosten pro Monat (unvollständig)",
+      "breakEven": "Gewinnschwelle",
+      "aov": "durchschnittlicher Bestellwert",
+      "cpa": "Kosten pro Neukunde (CPA)",
+      "roas": "Werberendite (ROAS)",
+      "offerMargins": "Angebotsmargen",
+      "marginFor": "Marge für {name}"
+    },
+    "why": {
+      "fixedCurrency": "erfasst in {recorded}, das Profil rechnet in {reporting} – eine Umrechnung bräuchte einen Wechselkurs, den mir niemand genannt hat",
+      "fixedPartial": "diese Kostenposten haben keinen Betrag, keinen Turnus oder einen Turnus pro Einheit, der keinen festen Monatsbetrag ergibt",
+      "noFixed": "keine monatlichen Fixkosten erfasst, also gibt es nichts zu decken",
+      "noContribution": "kein Angebot hat sowohl einen Preis als auch Kosten, daher lässt sich kein Deckungsbeitrag pro Verkauf berechnen",
+      "losesMoney": "jeder Verkauf verliert zu diesen Preisen Geld – bei keiner Menge wird die Gewinnschwelle erreicht",
+      "aovInputs": "sowohl der Monatsumsatz als auch die Zahl der Bestellungen werden benötigt; ich schätze keines von beiden",
+      "cpaInputs": "ohne alle drei kann ich neue Kunden nicht von wiederkehrenden trennen, und ein CPA, der Wiederholungskäufe als Neukunden zählt, schönt die Zahl",
+      "cpaCurrency": "die Werbeausgaben sind in {spend}, das Profil rechnet aber in {reporting} – dafür braucht es einen Wechselkurs",
+      "noNewCustomers": "die Wiederkaufrate bedeutet für diesen Monat keine Neukunden",
+      "roasInputs": "Monatsumsatz und monatliche Werbeausgaben werden beide benötigt; ein Verhältnis mit einer geschätzten Seite ist eine Schätzung",
+      "noSpend": "die Werbeausgaben sind null, also gibt es nichts, worauf sich eine Rendite beziehen könnte",
+      "roasCurrency": "der Umsatz ist in {revenue} und die Werbeausgaben in {spend}; das Profil rechnet in {reporting}, und eine Umrechnung braucht einen Wechselkurs, den mir niemand genannt hat",
+      "noPrice": "für noch kein Angebot ist ein Preis erfasst",
+      "mixedCurrency": "Preis und Kosten sind in unterschiedlichen Währungen",
+      "noCost": "keine Kosten der Leistung erfasst, daher ist die Marge unbekannt statt angenommen"
+    },
+    "formula": {
+      "offerMargin": "(Preis − Kosten der Leistung) ÷ Preis × {hundred}",
+      "contribution": "Preis − Kosten der Leistung",
+      "blendedWeighted": "Σ(Angebotsmarge × verkaufte Einheiten) ÷ Σ(verkaufte Einheiten)",
+      "blendedMean": "Mittelwert(Angebotsmargen) – keine Mengen erfasst, daher zählt jedes Angebot einmal",
+      "fixed": "Σ(Fixkosten ÷ Monate pro Turnus)",
+      "breakEvenWeighted": "Fixkosten ÷ gewichteter Deckungsbeitrag pro Einheit – setzt voraus, dass der aktuelle Angebotsmix bleibt",
+      "breakEvenMean": "Fixkosten ÷ durchschnittlicher Deckungsbeitrag pro Einheit – keine Mengen erfasst, daher wird ein gleichmäßiger Mix angenommen",
+      "aov": "Monatsumsatz ÷ monatliche Bestellungen",
+      "cpa": "Werbeausgaben ÷ (Bestellungen × ({one} − Wiederkaufrate))",
+      "roas": "Monatsumsatz ÷ monatliche Werbeausgaben (zusammengefasst: gesamter Umsatz über alle Werbeausgaben, nicht zugeordnet)"
+    },
+    "live": {
+      "label": "Mischmarge"
+    }
+  },
+  "reportWords": {
+    "quiet": {
+      "oneRel": "Die Zahl, die Sie mir genannt haben, stimmte bis auf {pct} % mit Ihren Konten überein.",
+      "oneSmall": "Die Zahl, die Sie mir genannt haben, stimmte bis auf {pct} % oder einen kleinen Betrag mit Ihren Konten überein.",
+      "someRel": "{n, plural, one {# der {total} Zahlen, die Sie mir genannt haben, stimmte} other {# der {total} Zahlen, die Sie mir genannt haben, stimmten}} bis auf {pct} % mit Ihren Konten überein.",
+      "someSmall": "{n, plural, one {# der {total} Zahlen, die Sie mir genannt haben, stimmte} other {# der {total} Zahlen, die Sie mir genannt haben, stimmten}} bis auf {pct} % oder einen kleinen Betrag mit Ihren Konten überein.",
+      "bothRel": "Beide Zahlen, die Sie mir genannt haben, stimmten bis auf {pct} % mit Ihren Konten überein.",
+      "bothSmall": "Beide Zahlen, die Sie mir genannt haben, stimmten bis auf {pct} % oder einen kleinen Betrag mit Ihren Konten überein.",
+      "allRel": "Alle {n} Zahlen, die Sie mir genannt haben, stimmten bis auf {pct} % mit Ihren Konten überein.",
+      "allSmall": "Alle {n} Zahlen, die Sie mir genannt haben, stimmten bis auf {pct} % oder einen kleinen Betrag mit Ihren Konten überein."
+    },
+    "gap": {
+      "core": "Teil des Kernsatzes – ohne ihn läuft die Diagnose nicht",
+      "coreOpens": "Teil des Kernsatzes – ohne ihn läuft die Diagnose nicht, und er öffnet {count, plural, one {# Folgefrage} other {# Folgefragen}}",
+      "important": "schärft die Befunde, die davon berührt werden",
+      "importantOpens": "schärft die Befunde, die davon berührt werden, und öffnet {count, plural, one {# Folgefrage} other {# Folgefragen}}",
+      "deep": "bringt mehr Präzision, sobald das Kernbild steht",
+      "deepOpens": "bringt mehr Präzision, sobald das Kernbild steht, und öffnet {count, plural, one {# Folgefrage} other {# Folgefragen}}",
+      "context": "Kontext, wenn Ihnen danach ist",
+      "contextOpens": "Kontext, wenn Ihnen danach ist – öffnet {count, plural, one {# Folgefrage} other {# Folgefragen}}"
+    }
+  },
+  "validationWords": {
+    "margin_mismatch": "Sie haben mir gesagt, Ihre Bruttomarge liege bei etwa {stated} %. Aus Ihren Angebotspreisen und Kosten ergeben sich etwa {computed} %.",
+    "revenue_vs_offers": "Sie haben mir gesagt, der Umsatz liege bei etwa {stated} im Monat. Die Preise Ihrer Angebote mal die Mengen ergeben zusammen etwa {sum}.",
+    "costs_exceed_revenue": "Ihre monatlichen Kosten summieren sich auf etwa {total}, mehr als die {revenue}, die hereinkommen – obwohl der Umsatz als wachsend markiert ist.",
+    "inventory_without_supplier": "Ihre Produkte haben Lagerbestand, aber ich habe noch keinen Lieferanten erfasst.",
+    "channel_without_revenue": "Sie haben einen Hauptvertriebskanal markiert, aber für ihn gibt es noch keine Umsatzzahl.",
+    "key_person_undocumented": "Die Leistung hängt stark von einer Person ab, und es gibt noch keine schriftlichen Abläufe.",
+    "stage_vs_revenue": "Sie haben das Unternehmen als Idee beschrieben. Sie haben mir aber auch gesagt, dass bereits Umsatz hereinkommt.",
+    "stale_financials": "Die neueste Umsatzzahl, die ich habe, wurde vor {days, plural, one {# Tag} other {# Tagen}} beobachtet.",
+    "single_supplier_top_offer": "Alles hängt an einem einzigen Lieferanten, und es ist keine Alternative erfasst."
+  },
+  "hoursWords": {
+    "line": {
+      "squareOnly": "Karten- und Barzahlungen, die in Square boniert werden – Bargeld, das nie durch eine Kasse geht, wird nicht erfasst",
+      "squareAnd": "Karten- und Barzahlungen, die in Square boniert werden, und Kartenzahlungen über {providers} – Bargeld, das nie durch eine Kasse geht, wird nicht erfasst",
+      "cards": "nur Kartenzahlungen über {providers} – Barverkäufe erfasst keine Verbindung",
+      "limit": "Eine geschlossene Stunde verzeichnet keine Verkäufe, daher kann dies nur nahelegen, was eine frühere Öffnung oder ein späterer Ladenschluss bewirken würde. Den Beweis liefert ein vierwöchiger Test."
+    }
+  },
+  "watchWords": {
+    "signal": {
+      "revenue": "Umsatz",
+      "orders": "Bestellungen",
+      "sessions": "Website-Besuche",
+      "ad_spend": "Werbeausgaben",
+      "ad_purchases": "Käufe über Anzeigen",
+      "units": "Verkaufte Einheiten",
+      "appointments_completed": "Abgeschlossene Termine",
+      "booking_revenue": "Buchungsumsatz"
+    },
+    "source": {
+      "bookings_import": "Buchungsexport"
+    },
+    "rule": {
+      "revenueDrop": "Der Umsatz fällt im Wochenvergleich um mehr als {pct} %",
+      "critical": "Ein Validierungsbefund mit kritischem Schweregrad tritt auf",
+      "reopen": "Sie öffnen eine Kernantwort erneut, auf der die Diagnose beruht"
+    },
+    "module": {
+      "analytics": "Ohne Messung ist der Beobachtungsmodus blind – Analytics ist das, womit er beobachtet.",
+      "team": "Team: wenn die Woche mehr Besetzung braucht oder mehr hat, als sie braucht, nach Rolle und Stunde. Es benotet niemanden, erstellt keine Rangliste und sagt nie etwas über eine Person. Aus, solange Sie es nicht einschalten."
+    },
+    "data": {
+      "payments": "Zahlungen",
+      "orders": "Bestellungen",
+      "traffic": "Besucherdaten",
+      "adSpend": "Werbeausgaben",
+      "data": "Daten"
+    },
+    "field": {
+      "monthlyRevenue": "Monatsumsatz",
+      "orderCount": "Bestellanzahl",
+      "adSpend": "Werbeausgaben",
+      "costPerPurchase": "Kosten pro Kauf",
+      "websiteVisits": "Website-Besuche",
+      "unitsSold": "Absatzmenge",
+      "visitsPerChannel": "Besuche pro Kanal"
+    },
+    "part": {
+      "changed": "{count} geändert",
+      "new": "{count} neu",
+      "removed": "{count} entfernt",
+      "none": "keine Änderungen an Feldern"
+    },
+    "log": {
+      "started": "Beobachtung begonnen: {weeks, plural, one {# Woche} other {# Wochen}}, Auswertung am {date}.",
+      "shortened": "Beobachtung auf {weeks, plural, one {# Woche} other {# Wochen}} verkürzt – vom Inhaber bestätigt.",
+      "extended": "Beobachtung auf Wunsch des Inhabers auf {weeks, plural, one {# Woche} other {# Wochen}} verlängert.",
+      "complete": "Der Beobachtungszeitraum ist abgeschlossen. Der nächste Bericht wertet alles aus, was gesammelt wurde.",
+      "baseline": "Ausgangsmomentaufnahme erfasst: {count, plural, one {# Fakt} other {# Fakten}}.",
+      "steady": "Wöchentliche Prüfung: Das Profil blieb stabil – seit letzter Woche hat sich nichts geändert.",
+      "diff": "Wöchentliche Momentaufnahme, verglichen mit letzter Woche: {parts}.",
+      "cleared": "{noun}: seit {date} wieder im üblichen Bereich.",
+      "fell": "{noun}: {days, plural, one {# Tag} other {# Tage}} in Folge {pct} % unter dem erwarteten Niveau: {actual} am {date} gegenüber erwarteten {expected} ({window}-Tage-Durchschnitt {mean} × Faktor {factor} für {weekday}; {deviation}× die übliche Schwankung, Schwelle {k}×).",
+      "rose": "{noun}: {days, plural, one {# Tag} other {# Tage}} in Folge {pct} % über dem erwarteten Niveau: {actual} am {date} gegenüber erwarteten {expected} ({window}-Tage-Durchschnitt {mean} × Faktor {factor} für {weekday}; {deviation}× die übliche Schwankung, Schwelle {k}×).",
+      "fellInterrupted": "{noun}: {days, plural, one {# Tag} other {# Tage}} in Folge {pct} % unter dem erwarteten Niveau: {actual} am {date} gegenüber erwarteten {expected} ({window}-Tage-Durchschnitt {mean} × Faktor {factor} für {weekday}; {deviation}× die übliche Schwankung, Schwelle {k}×). Im Wochenvergleich ein Rückgang um {wow} % ({last7} gegenüber {prior7}), über der Unterbrechungsschwelle von {threshold} %.",
+      "readDay": "{data} von {label} für {days, plural, one {# Tag} other {# Tage}} gelesen.",
+      "readDays": "{data} von {label} für {days, plural, one {# Tag} other {# Tage}} gelesen.",
+      "readDayIs": "{data} von {label} für {days, plural, one {# Tag} other {# Tage}} gelesen. {measured} wird jetzt gemessen.",
+      "readDayAre": "{data} von {label} für {days, plural, one {# Tag} other {# Tage}} gelesen. {measured} werden jetzt gemessen.",
+      "readDaysIs": "{data} von {label} für {days, plural, one {# Tag} other {# Tage}} gelesen. {measured} wird jetzt gemessen.",
+      "readDaysAre": "{data} von {label} für {days, plural, one {# Tag} other {# Tage}} gelesen. {measured} werden jetzt gemessen.",
+      "remeasured": "{measured} aus {label} neu gemessen.",
+      "published": "„{title}“ auf {platform} veröffentlicht.",
+      "withdrawn": "„{title}“ von {platform} zurückgezogen."
+    }
+  },
+  "queueWords": {
+    "change": {
+      "stated": "Die Änderung",
+      "adLine": "Anzeige „{name}“",
+      "theAd": "die Anzeige",
+      "creates": "erstellt dazu: {parts}",
+      "noAd": "keine Anzeige",
+      "createdPaused": "auf Meta, pausiert · gibt nichts aus",
+      "goLiveSub": "Anzeige, Anzeigengruppe und Kampagne",
+      "paused": "pausiert · gibt nichts aus",
+      "live": "aktiv · {spend}",
+      "spendUpTo": "bis zu {daily} pro Tag für {days, plural, one {# Tag} other {# Tage}}",
+      "spendsBudget": "gibt das Tagesbudget aus",
+      "campaignLine": "Kampagne „{name}“",
+      "averageOver": "Tagesausgaben, Durchschnitt über {days, plural, one {# gemessenen Tag} other {# gemessene Tage}}",
+      "perDay": "{amount} pro Tag",
+      "pausedNothing": "pausiert · nichts ausgegeben",
+      "raisedTo": "etwa {amount} pro Tag (+{pct} %)",
+      "audience": "Zielgruppe",
+      "nobody": "niemand",
+      "people": "{count, plural, one {{n} Person} other {{n} Personen}}",
+      "email": "E-Mail",
+      "postOn": "Beitrag auf {platform}",
+      "notPosted": "nicht veröffentlicht",
+      "posted": "veröffentlicht {day}, {clock}"
+    },
+    "creates": {
+      "campaign": "Kampagne",
+      "adSet": "Anzeigengruppe",
+      "adVideo": "Anzeigenvideo",
+      "creative": "Creative",
+      "ad": "Anzeige"
+    },
+    "fact": {
+      "budget": "Budget",
+      "budgetValue": "{daily} pro Tag · insgesamt höchstens {total}",
+      "duration": "Laufzeit",
+      "durationValue": "{days, plural, one {# Tag} other {# Tage}} ab dem Tag, an dem sie live geht, danach endet sie von selbst",
+      "audience": "Zielgruppe",
+      "aged": "im Alter von {age}",
+      "interests": "Interessen",
+      "placements": "Platzierungen",
+      "goal": "Optimiert für",
+      "special": "Sonderkategorie",
+      "specialValue": "{categories} – es gilt das eingeschränkte Targeting von Meta",
+      "note": "Hinweis",
+      "createsPaused": "Wird pausiert erstellt; das Live-Schalten ist eine eigene Freigabe; erstellte Objekte lassen sich nicht löschen, nur pausieren.",
+      "goLiveNote": "Schaltet die Anzeige ein, dann ihre Anzeigengruppe, dann die Kampagne. Erneutes Pausieren stoppt die Ausgaben."
+    },
+    "span": {
+      "over": "über {days, plural, one {# Tag} other {# Tage}}",
+      "month": "pro Monat"
+    },
+    "evidence": {
+      "noSource": "kein Quellfeld"
+    },
+    "duration": {
+      "s": "{s} s",
+      "ms": "{m} min {ss} s",
+      "hm": "{h} h {mm} min",
+      "dh": "{d} Tg. {h} h"
+    },
+    "sending": {
+      "adRun": "Nach der Freigabe geht er beim nächsten geplanten Lauf an Meta: vor jedem Teil ein Probelauf, dann Kampagne, Anzeigengruppe, Creative und Anzeige nacheinander, alle pausiert und erneut gegen Ihre Grenzen geprüft. Der Notstopp kann ihn zwischen zwei beliebigen Schritten anhalten. Änderungen an Meta-Anzeigen bleiben abgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist; bis dahin wartet er, freigegeben.",
+      "goLive": "Nach der Freigabe geht er beim nächsten geplanten Lauf an Meta: die Anzeige, dann ihre Anzeigengruppe, dann die Kampagne werden eingeschaltet – jeweils zuerst mit einem Probelauf und erneut gegen Ihre Obergrenze geprüft. Änderungen an Meta-Anzeigen bleiben abgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist; bis dahin wartet er, freigegeben.",
+      "adChange": "Nach der Freigabe geht er beim nächsten geplanten Lauf an Meta: zuerst ein Probelauf, dann die Änderung, erneut gegen Ihre Grenzen geprüft. Änderungen an Meta-Anzeigen bleiben abgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist; bis dahin wartet er, freigegeben.",
+      "bundleShop": "Die Freigabe hält Ihr Ja fest. Ich ändere weder Ihren Shop noch Ihre Preise noch Ihren Checkout: Das Paar richten Sie selbst ein.",
+      "bundleBookings": "Die Freigabe hält Ihr Ja fest. Ich ändere weder Ihr Buchungssystem noch Ihre Preise: Das Paar bieten Sie selbst an.",
+      "segment": "Bei der Freigabe wird nichts gesendet. Mit der Freigabe darf ich die E-Mail entwerfen; nichts wird gesendet, bis Sie die fertige E-Mail selbst freigeben, und dann wird die Einwilligung jeder Person auf der Empfängerliste im Moment des Versands erneut geprüft.",
+      "followUp": "Nichts wird gesendet, weder jetzt noch bei der Freigabe. Mit der Freigabe darf ich die E-Mail entwerfen; Sie lesen sie, ändern, was Sie möchten, und senden sie selbst aus Ihrem eigenen E-Mail-Programm.",
+      "stockContent": "Mit der Freigabe darf ich ihn unter Inhalte entwerfen. Nichts wird veröffentlicht, bis Sie den fertigen Beitrag selbst freigeben.",
+      "stockPair": "Die Freigabe hält Ihr Ja fest. Ich ändere Ihren Shop nicht: Das Paar richten Sie selbst ein.",
+      "stockPrices": "Die Freigabe hält Ihr Ja fest. Ich ändere Ihre Preise nicht: Das tun Sie.",
+      "stockAdvice": "Nur ein Rat: Ich kontaktiere niemanden. Die Freigabe hält fest, dass Sie es vorhaben.",
+      "reorder": "Die Freigabe hält fest, dass Sie nachbestellen wollen, und sonst nichts. Ich kontaktiere {supplier} nicht, und ich gebe nie eine Bestellung auf, ändere oder storniere sie: Das tun Sie."
+    }
+  },
+  "trackWords": {
+    "kind": {
+      "stock_out": {
+        "one": "Datum, an dem der Bestand ausgeht",
+        "many": "Daten, an denen der Bestand ausgeht"
+      },
+      "season_week": {
+        "one": "Woche im Vergleich zum Vorjahr",
+        "many": "Wochen im Vergleich zum Vorjahr"
+      },
+      "cash_close": {
+        "one": "Liquide Mittel am Ende einer Woche",
+        "many": "Liquide Mittel am Ende der Wochen"
+      },
+      "pipeline_close": {
+        "one": "Bis zu einem Datum gewonnene Deals",
+        "many": "Bis zu einem Datum gewonnene Deals"
+      }
+    },
+    "saidOn": "Genannt am {day}",
+    "range": {
+      "aboutMoney": "etwa {value}",
+      "money": "{lo}–{hi}",
+      "aboutCount": "etwa {value} {subject}",
+      "count": "{lo}–{hi} {subject}",
+      "on": "am {day}",
+      "dates": "{from} bis {to}"
+    },
+    "waiting": {
+      "window": "Noch nicht beurteilt: Ihr Zeitfenster schließt am {day}, und ich beurteile sie bei der ersten wöchentlichen Prüfung danach.",
+      "due": "Noch nicht beurteilt: Ich prüfe sie bei der ersten wöchentlichen Prüfung nach dem {day}.",
+      "source": "Noch nicht beurteilt: Es fehlen noch die Zahlen von {source} für diese Tage.",
+      "measured": "Noch nicht beurteilt: Es fehlen noch die gemessenen Zahlen für diese Tage."
+    },
+    "backdated": "Am {day} in die Akte geschrieben, nach dem Tag, auf den sie datiert ist: ein Demo-Beispiel. Die Prognosen eines echten Kontos werden in dem Moment erfasst, in dem sie gezeigt werden.",
+    "headline": {
+      "none": "Noch keine Prognosen in der Akte. Wenn ich eine abgebe, steht sie hier mit ihrer Spanne und, sobald ihre Zeit vorbei ist, mit dem, was passiert ist.",
+      "tooSoon": "Zu früh, um meine Prognosen zu beurteilen: bisher {graded, plural, =0 {keine} one {#} other {#}} beurteilt, {waiting, plural, one {# Prognose wartet} other {# Prognosen warten}} darauf, dass ihre Zeit vergeht.",
+      "judged": "{inside, plural, one {# meiner letzten {graded} Prognosen lag} other {# meiner letzten {graded} Prognosen lagen}} in der Spanne, die ich angegeben hatte; {missed, plural, one {# lag daneben} other {# lagen daneben}}.",
+      "couldnt": "Bei {count, plural, one {# Prognose} other {# Prognosen}} konnte ich es nicht feststellen: Die gemessenen Zahlen fehlten, oder etwas, das ich nicht vorhergesagt hatte, kam dazwischen. {count, plural, one {Sie zählt} other {Sie zählen}} weder als Treffer noch als Fehlschlag."
+    },
+    "parts": {
+      "insideOf": "{inside} von {graded} im Bereich",
+      "noneGraded": "noch keine beurteilt",
+      "cantTell": "{count} nicht feststellbar",
+      "waiting": "{count} ausstehend",
+      "sentence": "{label}: {parts}."
+    },
+    "older": "{count, plural, one {# ältere Prognose ist} other {# ältere Prognosen sind}} hier nicht aufgeführt; die Zahlen oben schließen {count, plural, one {sie} other {sie}} ein."
+  },
+  "ledgerWords": {
+    "actor": {
+      "syb": "SYB",
+      "you": "Sie",
+      "noAnswer": "keine Antwort",
+      "measured": "gemessen"
+    },
+    "note": {
+      "withheld": "durch Ihre Grenze zurückgehalten",
+      "waiting": "wartet auf Sie",
+      "lapsedApproved": "nach der Freigabe abgelaufen · nie ausgeführt",
+      "lapsed": "abgelaufen · nie ausgeführt",
+      "runs": "wird um {clock} ausgeführt",
+      "done": "erledigt",
+      "kept": "in der Akte behalten",
+      "delta": "{delta} % · {verdict}"
+    },
+    "verdict": {
+      "helped": "geholfen",
+      "did_nothing": "nichts bewirkt",
+      "backfired": "geschadet",
+      "too_early": "zu früh für ein Urteil",
+      "unmeasured": "nicht gemessen"
+    },
+    "judgedOn": {
+      "post": "Beurteilt anhand der eigenen Zahlen des Beitrags im Vergleich zu Ihren früheren Beiträgen",
+      "campaign": "Beurteilt anhand der eigenen Werberendite der Kampagne",
+      "email": "Beurteilt danach, wer nach der E-Mail erneut gekauft hat, im Vergleich zu den Kunden, an die sie nicht gehen konnte",
+      "detail": "{judged}: {arithmetic}"
+    },
+    "reason": "Grund: {reason}",
+    "change": {
+      "updated": "{label}: aktualisiert",
+      "same": "{label}: erneut erfasst, gleicher Wert",
+      "moved": "{label}: {from} → {to}",
+      "notKnown": "nicht bekannt"
+    },
+    "ref": {
+      "fact": "Fakt {id}"
+    },
+    "rate": {
+      "some": "{approved} freigegeben von {concluded} abgeschlossenen ({declined} abgelehnt, {lapsed} abgelaufen; {withheld} durch Ihre Grenzen zurückgehalten, nicht gezählt) = {rate} %",
+      "none": "noch nichts abgeschlossen – die Quote gibt es nach Ihren ersten Entscheidungen"
+    },
+    "arith": {
+      "neverRan": "nie ausgeführt – nichts zu messen",
+      "noSeries": "keine gemessene Umsatzreihe – verbinden Sie eine Quelle, dann wird das Urteil möglich",
+      "noBaseline": "keine gemessenen Tage vor der Aktion – keine Ausgangsbasis für den Vergleich",
+      "tooEarly": "{days, plural, one {# gemessener Tag} other {# gemessene Tage}} seit {day} – das Urteil braucht {need, plural, one {# Tag} other {# Tage}}",
+      "revenue": "der Tagesumsatz lag im Schnitt bei {after} über {afterDays, plural, one {den # gemessenen Tag} other {die # gemessenen Tage}} nach {day}, gegenüber {before} über {beforeDays, plural, one {den # Tag} other {die # Tage}} davor – {delta} % (Schwellen: geholfen ab +{helped} %, geschadet ab {backfired} %)",
+      "notOnRecord": "der veröffentlichte Beitrag ist nicht in der Akte – nichts zu messen"
+    }
   }
 }

@@ -25,6 +25,7 @@ import { ChartsPanel } from "../charts/ChartsPanel";
 import { PageHead } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
+import { gapBuysWords } from "../../lib/profile/gap-words";
 import { fmtDay } from "../report/figures";
 import type { DisplaySection, FactSheet, FsWords, GapRow, Mode, SupersededFact } from "./model";
 import {
@@ -260,6 +261,7 @@ const PRIORITIES = new Set(["core", "important", "deep", "optional"]);
 function OpenQuestions({ gaps }: { gaps: GapRow[] }) {
   const t = useTranslations("factsheet");
   const { locale } = useFsWords();
+  const rw = useTr("reportWords").tr;
   const [all, setAll] = useState(false);
   const shown = all ? gaps : gaps.slice(0, 6);
   return (
@@ -275,7 +277,7 @@ function OpenQuestions({ gaps }: { gaps: GapRow[] }) {
                 {g.blocking && <span className="word drift">{t("blocking")}</span>}
               </p>
               <p className="fs-gap-q">{g.prompt}</p>
-              <p className="fs-sub">{g.buys}</p>
+              <p className="fs-sub">{gapBuysWords(g.buys, g.priority, rw, locale)}</p>
             </div>
             <Link className="fs-btn" href={`/intake?ask=${encodeURIComponent(g.question_id)}`}>
               {t("answerNow")}

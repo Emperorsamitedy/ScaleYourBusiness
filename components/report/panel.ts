@@ -28,6 +28,8 @@ import type { FlagWord, ForecastRange } from "./figures";
 import { fmtDay, forecastRange, keyWords, refigure } from "./figures";
 import type { MoneyLike, Severity } from "./figures";
 import { moneyText, num } from "../sheet/num";
+import type { EconPart } from "../../lib/economics/words";
+import { econText } from "../../lib/economics/words";
 import type {
   BreakEven,
   Computed,
@@ -78,7 +80,22 @@ interface MeasureDef {
 export interface PanelWords {
   tr: Tr;
   locale: AppLocale;
+  /**
+   * L-4a: a translator over "econWords", for the economics' own refusals
+   * and formulas (lib/economics/words). English prints them as stored.
+   */
+  econ?: Tr;
 }
+
+/** L-4a: the economics' stored words in the panel's language. */
+const econ = (text: string, part: EconPart, w: PanelWords): string =>
+  w.econ ? econText(text, part, { tr: w.econ, locale: w.locale }) : text;
+
+/** A refusal and a derivation with their stored words read in the panel's language. */
+const localRefusal = (r: Refusal, w: PanelWords): Refusal =>
+  w.locale === "en" ? r : { ...r, what: econ(r.what, "what", w), why: econ(r.why, "why", w) };
+const localComputed = <T>(c: Computed<T>, w: PanelWords): Computed<T> =>
+  w.locale === "en" ? c : { ...c, formula: econ(c.formula, "formula", w) };
 const ENGLISH = (): PanelWords => ({ tr: englishTr("report"), locale: "en" });
 
 const money = (v: unknown, w: PanelWords, unit = ""): Figure => {
@@ -181,24 +198,25 @@ export function panelRows(
       prior: p ? m.fig(p.value, w) : null,
       basis: c ? "DERIVED" : null,
       flag: c ? measureFlag(m.id, c, eco, w.tr) : notComputed(w.tr),
-      computed: c,
-      refusal: c ? null : refusal,
+      computed: c ? localComputed(c, w) : null,
+      refusal: c || !refusal ? null : localRefusal(refusal, w),
       words: w.tr(`measure.${m.id}.words`),
     });
   }
 
   for (const r of refusals) {
     if (used.has(r.what) || r.what === "offer margins") continue;
+    const local = localRefusal(r, w);
     rows.push({
       id: `refused:${r.what}`,
-      name: sentence(r.what),
+      name: sentence(local.what),
       result: null,
       prior: null,
       basis: null,
       flag: notComputed(w.tr),
       computed: null,
-      refusal: r,
-      words: r.why,
+      refusal: local,
+      words: local.why,
     });
   }
 
@@ -212,7 +230,7 @@ export function panelRows(
       prior: p ? pct(p.value, w) : null,
       basis: c ? "DERIVED" : null,
       flag: c ? (c.value < 0 ? belowCost(w.tr) : null) : notComputed(w.tr),
-      computed: c,
+      computed: c ? localComputed(c, w) : null,
       refusal: c
         ? null
         : {

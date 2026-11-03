@@ -10,6 +10,7 @@ import { HistoryScreen } from "../../components/trust/HistoryScreen";
 import { resolveAccess } from "../../lib/auth/access";
 import { loadFactWords } from "../../lib/bank/words";
 import { requestLocale } from "../../lib/i18n/server";
+import { trFor } from "../../lib/i18n/server-tr";
 import { logSafeError } from "../../lib/core/log-safe";
 import { trackRecord } from "../../lib/forecasts/load";
 import type { TrackView } from "../../lib/forecasts/view";
@@ -47,7 +48,12 @@ export default async function HistoryPage() {
       );
     }
     try {
-      track = await trackRecord(access.profile_id);
+      // L-4a: the record's own words in the reader's language (lib/forecasts/view).
+      const locale = await requestLocale();
+      track = await trackRecord(access.profile_id, new Date(), {
+        tr: trFor(locale, "trackWords"),
+        locale,
+      });
     } catch (error) {
       console.error(
         JSON.stringify({

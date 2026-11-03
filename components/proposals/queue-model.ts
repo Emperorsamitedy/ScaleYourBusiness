@@ -18,8 +18,37 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
+import { readStored } from "../../lib/i18n/stored";
 
 const EN = (): Tr => englishTr("proposals");
+
+/**
+ * L-4a: the lines built from a proposal's own data — the change lines, the
+ * ad facts, the effect span, the evidence's "no source", the review time
+ * and the proposal's own sending sentence — from the "queueWords"
+ * catalogue, with figures in the reader's writing. English by default,
+ * word for word what the queue always said.
+ */
+export interface QueueWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+const QW = (): QueueWords => ({ tr: englishTr("queueWords"), locale: "en" });
+
+/** Pure: a proposal's stored sending sentence in the reader's language; as stored otherwise. */
+export function sendingWords(text: string, w: QueueWords = QW()): string {
+  if (w.locale === "en") return text;
+  return readStored(text, "queueWords.sending", (k, v) => w.tr(`sending.${k}`, v));
+}
+
+/** The English words an ad proposal lists in detail.creates, by their key. */
+const CREATES: Record<string, string> = {
+  campaign: "campaign",
+  "ad set": "adSet",
+  "ad video": "adVideo",
+  creative: "creative",
+  ad: "ad",
+};
 /** The Intl tag dates are written in: English keeps en-GB, as the queue always has. */
 const dateTag = (locale: AppLocale): string => (locale === "en" ? "en-GB" : intlTag(locale));
 
@@ -358,38 +387,51 @@ function adBudget(d: Detail): AdBudget | null {
     : null;
 }
 
-function adName(d: Detail): string {
+function adName(d: Detail, w: QueueWords): string {
   const ad = asDetail(d.ad);
-  return str(ad?.name) ?? str(d.campaign_name) ?? str(d.item_title) ?? "the ad";
+  return str(ad?.name) ?? str(d.campaign_name) ?? str(d.item_title) ?? w.tr("change.theAd");
 }
 
 /** The before → after of an ad: nothing → created paused; paused → live. Null for anything else. */
-function adLines(d: Detail): ChangeLine[] | null {
+function adLines(d: Detail, w: QueueWords): ChangeLine[] | null {
+  const { tr, locale } = w;
   const change = str(d.change);
   if (change !== "run_ad" && change !== "go_live") return null;
   const budget = adBudget(d);
   const spend = budget
-    ? `up to ${moneyText(budget.daily_minor, budget.currency)} a day for ${budget.run_days} days`
-    : "spends its daily budget";
+    ? tr("change.spendUpTo", {
+        daily: moneyText(budget.daily_minor, budget.currency, locale),
+        days: budget.run_days,
+      })
+    : tr("change.spendsBudget");
   if (change === "run_ad") {
     const creates = Array.isArray(d.creates)
       ? d.creates.filter((c): c is string => typeof c === "string")
       : [];
+    const parts = creates.map((c) => {
+      const key = CREATES[c];
+      return locale !== "en" && key ? tr(`creates.${key}`) : c;
+    });
     return [
       {
-        line: `Ad “${adName(d)}”`,
-        sub: creates.length > 0 ? `creates its ${creates.join(", ")}` : null,
-        before: "no ad",
-        after: "on Meta, paused · spends nothing",
+        line: tr("change.adLine", { name: adName(d, w) }),
+        sub:
+          creates.length > 0
+            ? tr("change.creates", {
+                parts: parts.join(locale === "zh-Hans" ? "、" : ", "),
+              })
+            : null,
+        before: tr("change.noAd"),
+        after: tr("change.createdPaused"),
       },
     ];
   }
   return [
     {
-      line: `Ad “${adName(d)}”`,
-      sub: "its ad, ad set and campaign",
-      before: "paused · spends nothing",
-      after: `live · ${spend}`,
+      line: tr("change.adLine", { name: adName(d, w) }),
+      sub: tr("change.goLiveSub"),
+      before: tr("change.paused"),
+      after: tr("change.live", { spend }),
     },
   ];
 }
@@ -405,7 +447,11 @@ export interface AdFact {
  * category — and the one sentence about what can't be undone. Null for
  * anything that isn't an ad being created or put live.
  */
-export function adFacts(action: ActionLike): { facts: AdFact[]; note: string | null } | null {
+export function adFacts(
+  action: ActionLike,
+  w: QueueWords = QW(),
+): { facts: AdFact[]; note: string | null } | null {
+  const { tr, locale } = w;
   const d = asDetail(action.detail);
   if (!d) return null;
   const change = str(d.change);
@@ -414,57 +460,65 @@ export function adFacts(action: ActionLike): { facts: AdFact[]; note: string | n
   const budget = adBudget(d);
   if (budget) {
     facts.push({
-      label: "Budget",
-      value: `${moneyText(budget.daily_minor, budget.currency)} a day · at most ${moneyText(budget.total_minor, budget.currency)} in all`,
+      label: tr("fact.budget"),
+      value: tr("fact.budgetValue", {
+        daily: moneyText(budget.daily_minor, budget.currency, locale),
+        total: moneyText(budget.total_minor, budget.currency, locale),
+      }),
     });
     facts.push({
-      label: "Duration",
-      value: `${budget.run_days} days from the day it goes live, then it stops by itself`,
+      label: tr("fact.duration"),
+      value: tr("fact.durationValue", { days: budget.run_days }),
     });
   }
+  // The audience, interests, placements, goal and notes are the proposal's
+  // own words for Meta (content, rule 4): they print as written.
   const audience = asDetail(d.audience);
   if (audience) {
     const where = str(audience.location);
     const age = str(audience.age);
     if (where || age)
       facts.push({
-        label: "Audience",
-        value: [where, age && `aged ${age}`].filter(Boolean).join(" · "),
+        label: tr("fact.audience"),
+        value: [where, age && tr("fact.aged", { age })].filter(Boolean).join(" · "),
       });
     const interests = str(audience.interests);
-    if (interests) facts.push({ label: "Interests", value: interests });
+    if (interests) facts.push({ label: tr("fact.interests"), value: interests });
     const placements = str(audience.placements);
-    if (placements) facts.push({ label: "Placements", value: placements });
+    if (placements) facts.push({ label: tr("fact.placements"), value: placements });
   }
   const goal = str(d.goal);
-  if (goal) facts.push({ label: "Optimised for", value: goal });
+  if (goal) facts.push({ label: tr("fact.goal"), value: goal });
   const special = Array.isArray(d.special_ad_categories)
     ? d.special_ad_categories.filter((c): c is string => typeof c === "string")
     : [];
   if (special.length > 0) {
     facts.push({
-      label: "Special category",
-      value: `${special.join(", ")} — Meta's restricted targeting applies`,
+      label: tr("fact.special"),
+      value: tr("fact.specialValue", { categories: special.join(", ") }),
     });
   }
   const notes = Array.isArray(d.notes)
     ? d.notes.filter((n): n is string => typeof n === "string")
     : [];
-  for (const n of notes) facts.push({ label: "Note", value: n });
+  for (const n of notes) facts.push({ label: tr("fact.note"), value: n });
+  const pausedNote = str(d.paused_note);
   return {
     facts,
     note:
       change === "run_ad"
-        ? (str(d.paused_note) ?? CREATES_PAUSED_NOTE)
-        : "Switches on the ad, its ad set, then the campaign. Pausing it again stops the spend.",
+        ? pausedNote === null || pausedNote === CREATES_PAUSED_NOTE
+          ? tr("fact.createsPaused")
+          : pausedNote
+        : tr("fact.goLiveNote"),
   };
 }
 
 /** The effect's span: "a month", or an ad's own run ("over 7 days"). */
-export function effectSpan(action: ActionLike): string {
+export function effectSpan(action: ActionLike, w: QueueWords = QW()): string {
   const d = asDetail(action.detail);
   const budget = d ? adBudget(d) : null;
-  return budget ? `over ${budget.run_days} days` : "a month";
+  return budget ? w.tr("span.over", { days: budget.run_days }) : w.tr("span.month");
 }
 
 /**
@@ -479,14 +533,20 @@ export function effectSpan(action: ActionLike): string {
  *   - a customer email (detail.contact_ids): who receives it, and what
  *   - a publish (detail.platform + publish_at): not posted → posted then
  */
-export function changeLines(action: ActionLike, timeZone?: string): ChangeLine[] | null {
+export function changeLines(
+  action: ActionLike,
+  timeZone?: string,
+  w: QueueWords = QW(),
+): ChangeLine[] | null {
+  const { tr, locale } = w;
   const d = asDetail(action.detail);
   if (!d) return null;
 
+  // The stated before and after are the proposal's own words (content): as written.
   const stated = changeOf(d);
-  if (stated) return [{ line: "The change", sub: null, ...stated }];
+  if (stated) return [{ line: tr("change.stated"), sub: null, ...stated }];
 
-  const ad = adLines(d);
+  const ad = adLines(d, w);
   if (ad) return ad;
 
   const change = str(d.change);
@@ -502,14 +562,15 @@ export function changeLines(action: ActionLike, timeZone?: string): ChangeLine[]
     currency
   ) {
     const daily = Math.round(spend / Math.max(1, days));
-    const over = `daily spend, average over ${days} measured day${days === 1 ? "" : "s"}`;
+    const over = tr("change.averageOver", { days });
+    const perDay = tr("change.perDay", { amount: moneyText(daily, currency, locale) });
     if (change === "pause") {
       return [
         {
-          line: `Campaign “${name}”`,
+          line: tr("change.campaignLine", { name }),
           sub: over,
-          before: `${moneyText(daily, currency)} a day`,
-          after: "paused · nothing spent",
+          before: perDay,
+          after: tr("change.pausedNothing"),
         },
       ];
     }
@@ -517,10 +578,13 @@ export function changeLines(action: ActionLike, timeZone?: string): ChangeLine[]
     if (share !== null) {
       return [
         {
-          line: `Campaign “${name}”`,
+          line: tr("change.campaignLine", { name }),
           sub: over,
-          before: `${moneyText(daily, currency)} a day`,
-          after: `about ${moneyText(Math.round(daily * (1 + share)), currency)} a day (+${num(share * 100)} %)`,
+          before: perDay,
+          after: tr("change.raisedTo", {
+            amount: moneyText(Math.round(daily * (1 + share)), currency, locale),
+            pct: num(share * 100, 0, locale),
+          }),
         },
       ];
     }
@@ -530,14 +594,14 @@ export function changeLines(action: ActionLike, timeZone?: string): ChangeLine[]
     const n = d.contact_ids.length;
     const lines: ChangeLine[] = [
       {
-        line: "Audience",
+        line: tr("change.audience"),
         sub: str(d.label),
-        before: "nobody",
-        after: `${num(n)} ${n === 1 ? "person" : "people"}`,
+        before: tr("change.nobody"),
+        after: tr("change.people", { count: n, n: num(n, 0, locale) }),
       },
     ];
     const what = str(d.what);
-    if (what) lines.push({ line: "Email", sub: null, before: "—", after: what });
+    if (what) lines.push({ line: tr("change.email"), sub: null, before: "—", after: what });
     return lines;
   }
 
@@ -546,10 +610,13 @@ export function changeLines(action: ActionLike, timeZone?: string): ChangeLine[]
   if (platform && at && !Number.isNaN(Date.parse(at))) {
     return [
       {
-        line: `Post on ${platform}`,
+        line: tr("change.postOn", { platform }),
         sub: str(d.target),
-        before: "not posted",
-        after: `posted ${dayWord(at, timeZone)} ${clockWord(at, timeZone)}`,
+        before: tr("change.notPosted"),
+        after: tr("change.posted", {
+          day: dayWord(at, timeZone, locale),
+          clock: clockWord(at, timeZone, locale),
+        }),
       },
     ];
   }
@@ -637,6 +704,9 @@ export interface EvidenceLine {
 export function evidenceLines(
   assumptions: readonly AssumptionLike[],
   facts: Record<string, BasisInput | undefined>,
+  w: QueueWords = QW(),
+  /** The "sheet" catalogue, for the source words (L-3a); English by default. */
+  st?: Tr,
 ): EvidenceLine[] {
   return assumptions.map((a) => {
     const key = str(a.source_field);
@@ -645,11 +715,16 @@ export function evidenceLines(
       const measured = str(a.measured);
       if (measured)
         return { statement: a.statement, source: measured, basis: "DERIVED", leansHard };
-      return { statement: a.statement, source: "no source field", basis: "ASSUMED", leansHard };
+      return {
+        statement: a.statement,
+        source: w.tr("evidence.noSource"),
+        basis: "ASSUMED",
+        leansHard,
+      };
     }
     const fact = facts[key];
     const basis = basisOfKey(key, facts);
-    const source = fact ? `${sourceLabel(fact.source_kind)} · ${key}` : key;
+    const source = fact ? `${sourceLabel(fact.source_kind, st)} · ${key}` : key;
     return { statement: a.statement, source, basis: basis ?? "NOT RECORDED", leansHard };
   });
 }
@@ -731,14 +806,15 @@ export function reviewStats(
 }
 
 /** "40 s", "2 m 40 s", "3 h 05 m", "2 d 4 h". */
-export function durationWord(ms: number): string {
+export function durationWord(ms: number, w: QueueWords = QW()): string {
+  const { tr } = w;
   const s = Math.max(0, Math.round(ms / 1000));
-  if (s < 60) return `${s} s`;
+  if (s < 60) return tr("duration.s", { s: String(s) });
   const m = Math.floor(s / 60);
-  if (m < 60) return `${m} m ${String(s % 60).padStart(2, "0")} s`;
+  if (m < 60) return tr("duration.ms", { m: String(m), ss: String(s % 60).padStart(2, "0") });
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h} h ${String(m % 60).padStart(2, "0")} m`;
-  return `${Math.floor(h / 24)} d ${h % 24} h`;
+  if (h < 24) return tr("duration.hm", { h: String(h), mm: String(m % 60).padStart(2, "0") });
+  return tr("duration.dh", { d: String(Math.floor(h / 24)), h: String(h % 24) });
 }
 
 /** Same calendar day as `now`, in `timeZone` (default the device's). */
@@ -765,6 +841,8 @@ export function approvalNote(args: {
   timeZone?: string;
   tr?: Tr;
   locale?: AppLocale;
+  /** L-4a: the "queueWords" translator, for the sending sentence. */
+  qw?: QueueWords;
 }): string {
   const tr = args.tr ?? EN();
   const locale = args.locale ?? "en";
@@ -779,9 +857,10 @@ export function approvalNote(args: {
   } else {
     parts.push(tr("note.noTime"));
   }
-  // The proposal's own statement of what approval sends: its writer's words (L-4).
+  // The proposal's own statement of what approval sends: its writer's words,
+  // stored as written and read back in the reader's language (L-4a).
   const sending = str(args.sending);
-  if (sending) parts.push(sending);
+  if (sending) parts.push(args.qw ? sendingWords(sending, args.qw) : sending);
   return parts.join(" ");
 }
 

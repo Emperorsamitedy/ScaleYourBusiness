@@ -13,8 +13,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthMasthead } from "../../../components/auth/AuthMasthead";
 import { AUTH_COOKIE } from "../../../lib/auth/access";
+import { authErrorWords } from "../../../lib/auth/error-words";
 import { membershipsFor } from "../../../lib/auth/members";
 import { currentSession } from "../../../lib/auth/service";
+import { requestLocale } from "../../../lib/i18n/server";
+import { trFor } from "../../../lib/i18n/server-tr";
 import "../../auth.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -34,8 +37,13 @@ export default async function ChooseBusinessPage({
   if (!session) redirect("/login");
   const list = await membershipsFor(session.email);
   const raw = (await searchParams).error;
-  const error = typeof raw === "string" ? raw.slice(0, 160) : null;
   const t = await getTranslations();
+  // L-4a: the switch's English refusal, read back in the reader's language.
+  const locale = await requestLocale();
+  const error =
+    typeof raw === "string"
+      ? authErrorWords(raw.slice(0, 160), trFor(locale, "authWords"), locale)
+      : null;
 
   return (
     <div className="desk au">

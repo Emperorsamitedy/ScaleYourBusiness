@@ -40,6 +40,8 @@ import { currencyForCountry } from "../core/country-currency";
 import { isIsoCurrency } from "../core/currencies";
 import type { AppLocale } from "../i18n/locales";
 import { isAppLocale } from "../i18n/locales";
+import { trFor } from "../i18n/server-tr";
+import { findingWords } from "../validation/words";
 import type { CoerceCode } from "../parser/coerce";
 import { coerceParsedValue } from "../parser/coerce";
 import type { BankWords } from "../bank/words";
@@ -248,7 +250,12 @@ function readinessOf(applicable: readonly ApplicableQuestion[], ctx: ConditionCo
 }
 
 /** The live reading on the current records; null when the engine refuses. */
-function liveReading(profileId: string, view: RecordsView, currency: string): LiveReading | null {
+function liveReading(
+  profileId: string,
+  view: RecordsView,
+  currency: string,
+  locale: AppLocale = "en",
+): LiveReading | null {
   try {
     const records = currentRecordsView(
       profileId,
@@ -256,7 +263,11 @@ function liveReading(profileId: string, view: RecordsView, currency: string): Li
       view.entities,
       new Date().toISOString(),
     );
-    return liveReadingOf(computeEconomics(records, currency));
+    // L-4a: the label and formula in the reader's language (lib/economics/words).
+    return liveReadingOf(computeEconomics(records, currency), {
+      tr: trFor(locale, "econWords"),
+      locale,
+    });
   } catch {
     // A figure the engine cannot compute is not a reason to fail the intake.
     return null;
@@ -489,13 +500,16 @@ function findingQuestionIds(fieldKeys: string[], applicable: ApplicableQuestion[
 async function intakeFindings(
   profileId: string,
   applicable: ApplicableQuestion[],
+  locale: AppLocale = "en",
 ): Promise<IntakeFinding[]> {
   const rows = await openFindings(profileId);
+  const tr = trFor(locale, "validationWords");
   return rows.map((row) => ({
     id: row.id,
     rule_id: row.rule_id,
     kind: row.kind,
-    message: ((row.message as { en?: string }).en ?? "").trim(),
+    // L-4a: the stored sentence in the reader's language (lib/validation/words).
+    message: findingWords(row.rule_id, row.message as { en?: unknown }, tr, locale),
     question_ids: findingQuestionIds(row.field_keys as string[], applicable),
   }));
 }
@@ -562,7 +576,7 @@ export async function getIntakeState(
     await recordFunnelEvent(profileId, "funnel_core_completed");
   }
 
-  const findings = await intakeFindings(profileId, applicable);
+  const findings = await intakeFindings(profileId, applicable, locale);
 
   // An explicit ask names the question the owner wants — a gap on the
   // fact sheet or a reopen. It resolves against everything applicable
@@ -611,7 +625,7 @@ export async function getIntakeState(
       responseKinds: view.responseKinds,
     });
   const readiness = readinessOf(applicable, ctx);
-  const live = liveReading(profileId, view, currency);
+  const live = liveReading(profileId, view, currency, locale);
   // A fact's area: the section of the question that writes it, else its key's home.
   const sectionByQuestion = new Map<string, string>(applicable.map((q) => [q.id, q.section]));
   const sectionOfFact = (f: RecordFact): string | null => {

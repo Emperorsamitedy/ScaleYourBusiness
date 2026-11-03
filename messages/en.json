@@ -5608,5 +5608,409 @@
   },
   "modelWords": {
     "reportWrittenIn": "This report was written in {language}, the language of the person who generated it."
+  },
+  "roleWords": {
+    "refusal": {
+      "stop_press": "Only an owner or a manager can press the emergency stop.",
+      "intake_open": "Only an owner or a manager can open the interview.",
+      "telemetry_record": "Only an owner or a manager can record how the screens are used.",
+      "chat_ask": "Only an owner or a manager can ask me things in the chat.",
+      "alerts_remove_device": "Only an owner or a manager can remove one of your own phones from alerts.",
+      "language_own": "Only an owner or a manager can choose the language you read SYB in.",
+      "proposals_decide": "Only an owner or a manager can approve or decline proposals.",
+      "proposals_generate": "Only an owner or a manager can ask me for new proposals.",
+      "proposals_carry_out": "Only an owner or a manager can carry out or undo an approved proposal.",
+      "content_draft": "Only an owner or a manager can draft content.",
+      "support_answer": "Only an owner or a manager can answer support.",
+      "reviews_answer": "Only an owner or a manager can file, answer or remove reviews.",
+      "pipeline_edit": "Only an owner or a manager can change the sales pipeline.",
+      "connections_sync": "Only an owner or a manager can read a connected account again now.",
+      "alerts_subscribe": "Only an owner or a manager can get phone alerts for proposals.",
+      "connections_manage": "Only an owner can connect or disconnect accounts.",
+      "write_access_manage": "Only an owner can grant or take back write access.",
+      "billing_manage": "Only an owner can pay for the report.",
+      "erasure_run": "Only an owner can erase a customer's details.",
+      "data_import": "Only an owner can import a file of customers, stock or bookings.",
+      "team_manage": "Only an owner can invite, change or remove people on the team.",
+      "rules_manage": "Only an owner can change how I work for this business.",
+      "profile_edit": "Only an owner can change the business's facts, goals or limits.",
+      "report_generate": "Only an owner can make a new report.",
+      "report_respond": "Only an owner can answer the report's findings.",
+      "report_share": "Only an owner can share the report outside SYB.",
+      "competitors_manage": "Only an owner can change or research the competitor list.",
+      "site_audit": "Only an owner can check the website.",
+      "support_settings": "Only an owner can change how support is set up.",
+      "reviews_settings": "Only an owner can change the address reviews are forwarded to.",
+      "summary_settings": "Only an owner can switch the weekly summary on or off.",
+      "stop_resume": "Only an owner can start things up again after a stop.",
+      "business_locale": "Only an owner can change the business's language or currency."
+    }
+  },
+  "authWords": {
+    "error": {
+      "emailNeeded": "an email address is needed",
+      "emailNotSent": "I couldn't send the sign-in email just now — try again in a minute.",
+      "wrong": "something went wrong on our side",
+      "wrongEmailWorks": "something went wrong on our side — the email link still works",
+      "linkInvalid": "that sign-in link is no longer valid",
+      "signInInvalid": "that sign-in is no longer valid",
+      "accountFailed": "could not create the account",
+      "malformedToken": "the provider returned a malformed token",
+      "noEmail": "{provider} didn't share an email address — use the email link instead",
+      "unverified": "{provider} reports that address as unverified — use the email link instead",
+      "notVerified": "{provider} sign-in couldn't be verified ({why}) — use the email link instead",
+      "failed": "{provider} sign-in failed — try again or use the email link",
+      "notConnected": "that sign-in isn't connected yet — your email works today.",
+      "notConnectedNamed": "{provider} sign-in isn't connected yet — your email below works today.",
+      "expired": "that sign-in attempt expired — try again",
+      "notEmail": "that doesn't look like an email address",
+      "noProfile": "no such profile",
+      "linkNotValid": "this link isn't valid",
+      "linkExpired": "this link has expired or is no longer valid",
+      "noBusiness": "no such business",
+      "chooseAgain": "choose the business again on our page",
+      "addOnPage": "add the business on our page",
+      "signInFirst": "sign in first"
+    },
+    "why": {
+      "otherApp": "issued for another app",
+      "issuer": "wrong issuer",
+      "emailUnverified": "email not verified",
+      "orgEmail": "the organisation's email isn't verified as its own",
+      "unknown": "unknown provider"
+    }
+  },
+  "econWords": {
+    "what": {
+      "fixed": "fixed costs per month",
+      "fixedPartial": "fixed costs per month (partial)",
+      "breakEven": "break-even",
+      "aov": "average order value",
+      "cpa": "cost per acquisition",
+      "roas": "return on ad spend",
+      "offerMargins": "offer margins",
+      "marginFor": "margin for {name}"
+    },
+    "why": {
+      "fixedCurrency": "recorded in {recorded}, the profile reports in {reporting} — converting would need an FX rate nobody has given me",
+      "fixedPartial": "these cost items have no amount, no cadence, or a per-unit cadence that isn't a fixed monthly figure",
+      "noFixed": "no fixed monthly costs recorded, so there is nothing to cover",
+      "noContribution": "no offer has both a price and a cost, so a contribution per sale can't be computed",
+      "losesMoney": "every sale loses money at these prices — there is no volume that breaks even",
+      "aovInputs": "both monthly revenue and an order count are needed; I won't estimate either",
+      "cpaInputs": "without all three I can't separate new customers from returning ones, and a CPA that counts repeat buyers as acquisitions flatters the number",
+      "cpaCurrency": "ad spend is in {spend} but the profile reports in {reporting} — that needs an FX rate",
+      "noNewCustomers": "the repeat rate implies no new customers this month",
+      "roasInputs": "monthly revenue and monthly ad spend are both needed; a ratio with a guessed side is a guess",
+      "noSpend": "ad spend is zero, so there is nothing to return on",
+      "roasCurrency": "revenue is in {revenue} and ad spend in {spend}; the profile reports in {reporting}, and converting needs an FX rate nobody has given me",
+      "noPrice": "no offer has a price recorded yet",
+      "mixedCurrency": "price and cost are in different currencies",
+      "noCost": "no cost to deliver recorded, so the margin is unknown rather than assumed"
+    },
+    "formula": {
+      "offerMargin": "(price − cost_to_deliver) ÷ price × {hundred}",
+      "contribution": "price − cost_to_deliver",
+      "blendedWeighted": "Σ(offer margin × units sold) ÷ Σ(units sold)",
+      "blendedMean": "mean(offer margins) — no volumes recorded, so each offer counts once",
+      "fixed": "Σ(fixed cost ÷ cadence months)",
+      "breakEvenWeighted": "fixed costs ÷ weighted contribution per unit — assumes the current offer mix holds",
+      "breakEvenMean": "fixed costs ÷ mean contribution per unit — no volumes recorded, so the mix is assumed even",
+      "aov": "monthly revenue ÷ monthly orders",
+      "cpa": "ad spend ÷ (orders × ({one} − repeat rate))",
+      "roas": "monthly revenue ÷ monthly ad spend (blended: all revenue over all ad spend, not attributed)"
+    },
+    "live": {
+      "label": "Blended margin"
+    }
+  },
+  "reportWords": {
+    "quiet": {
+      "oneRel": "The figure you gave me matched your accounts within {pct}%.",
+      "oneSmall": "The figure you gave me matched your accounts within {pct}% or by a small amount.",
+      "someRel": "{n} of the {total} figures you gave me matched your accounts within {pct}%.",
+      "someSmall": "{n} of the {total} figures you gave me matched your accounts within {pct}% or by a small amount.",
+      "bothRel": "Both figures you gave me matched your accounts within {pct}%.",
+      "bothSmall": "Both figures you gave me matched your accounts within {pct}% or by a small amount.",
+      "allRel": "All {n} figures you gave me matched your accounts within {pct}%.",
+      "allSmall": "All {n} figures you gave me matched your accounts within {pct}% or by a small amount."
+    },
+    "gap": {
+      "core": "part of the core set — the diagnosis will not run without it",
+      "coreOpens": "part of the core set — the diagnosis will not run without it and opens {count, plural, one {# follow-up} other {# follow-ups}}",
+      "important": "sharpens the findings that touch it",
+      "importantOpens": "sharpens the findings that touch it and opens {count, plural, one {# follow-up} other {# follow-ups}}",
+      "deep": "adds precision once the core picture exists",
+      "deepOpens": "adds precision once the core picture exists and opens {count, plural, one {# follow-up} other {# follow-ups}}",
+      "context": "context, when you feel like it",
+      "contextOpens": "context, when you feel like it and opens {count, plural, one {# follow-up} other {# follow-ups}}"
+    }
+  },
+  "validationWords": {
+    "margin_mismatch": "You told me your gross margin is about {stated}%. Your offer prices and costs work out to about {computed}%.",
+    "revenue_vs_offers": "You told me revenue is about {stated} a month. Your offers' prices times volumes add up to about {sum}.",
+    "costs_exceed_revenue": "Your monthly costs add up to about {total}, more than the {revenue} coming in — while revenue is marked as growing.",
+    "inventory_without_supplier": "Your products hold inventory, but I have no supplier recorded yet.",
+    "channel_without_revenue": "You marked a primary sales channel, but it has no revenue figure yet.",
+    "key_person_undocumented": "The service depends heavily on one person, and no written procedures exist yet.",
+    "stage_vs_revenue": "You described the business as an idea. You also told me revenue is already coming in.",
+    "stale_financials": "The newest revenue figure I have was observed {days, plural, one {# day} other {# days}} ago.",
+    "single_supplier_top_offer": "Everything rests on a single supplier, with no alternative recorded."
+  },
+  "hoursWords": {
+    "line": {
+      "squareOnly": "card and cash payments rung up in Square — cash that never goes through a till isn't seen",
+      "squareAnd": "card and cash payments rung up in Square, and card payments through {providers} — cash that never goes through a till isn't seen",
+      "cards": "card payments through {providers} only — cash sales aren't seen by any connection",
+      "limit": "A closed hour records no sales, so this can only suggest what an earlier opening or a later closing would do. A four-week trial is the proof."
+    }
+  },
+  "watchWords": {
+    "signal": {
+      "revenue": "Revenue",
+      "orders": "Orders",
+      "sessions": "Website visits",
+      "ad_spend": "Ad spend",
+      "ad_purchases": "Ad purchases",
+      "units": "Units sold",
+      "appointments_completed": "Completed appointments",
+      "booking_revenue": "Booking revenue"
+    },
+    "source": {
+      "bookings_import": "Bookings export"
+    },
+    "rule": {
+      "revenueDrop": "Revenue drops more than {pct}% week over week",
+      "critical": "A validation finding of critical severity appears",
+      "reopen": "You reopen a core answer the diagnosis rests on"
+    },
+    "module": {
+      "analytics": "The watching mode is blind without measurement — analytics is what it watches with.",
+      "team": "Team: when the week needs more cover, or has more than it needs, by role and hour. It never scores, ranks or says anything about a person. Off unless you switch it on."
+    },
+    "data": {
+      "payments": "payments",
+      "orders": "orders",
+      "traffic": "traffic",
+      "adSpend": "ad spend",
+      "data": "data"
+    },
+    "field": {
+      "monthlyRevenue": "monthly revenue",
+      "orderCount": "order count",
+      "adSpend": "ad spend",
+      "costPerPurchase": "cost per purchase",
+      "websiteVisits": "website visits",
+      "unitsSold": "units sold",
+      "visitsPerChannel": "visits per channel"
+    },
+    "part": {
+      "changed": "{count} changed",
+      "new": "{count} new",
+      "removed": "{count} removed",
+      "none": "no field movement"
+    },
+    "log": {
+      "started": "Started watching: {weeks} weeks, reviewing {date}.",
+      "shortened": "Watch shortened to {weeks} weeks — acknowledged by the owner.",
+      "extended": "Watch extended to {weeks} weeks at the owner's request.",
+      "complete": "The watch period is complete. The next report reads everything gathered.",
+      "baseline": "Baseline snapshot recorded: {count} facts.",
+      "steady": "Weekly check: the profile held steady — nothing changed since last week.",
+      "diff": "Weekly snapshot: {parts} since last week.",
+      "cleared": "{noun} is back within its usual range as of {date}.",
+      "fell": "{noun} fell {pct}% below the expected level for {days} days in a row: {actual} on {date} against an expected {expected} ({window}-day average {mean} × {weekday} factor {factor}; {deviation}× the usual variation, threshold {k}×).",
+      "rose": "{noun} rose {pct}% above the expected level for {days} days in a row: {actual} on {date} against an expected {expected} ({window}-day average {mean} × {weekday} factor {factor}; {deviation}× the usual variation, threshold {k}×).",
+      "fellInterrupted": "{noun} fell {pct}% below the expected level for {days} days in a row: {actual} on {date} against an expected {expected} ({window}-day average {mean} × {weekday} factor {factor}; {deviation}× the usual variation, threshold {k}×). Week over week it is down {wow}% ({last7} against {prior7}), past the {threshold}% interruption threshold.",
+      "readDay": "Read {days} day of {label} {data}.",
+      "readDays": "Read {days} days of {label} {data}.",
+      "readDayIs": "Read {days} day of {label} {data}. {measured} is now measured.",
+      "readDayAre": "Read {days} day of {label} {data}. {measured} are now measured.",
+      "readDaysIs": "Read {days} days of {label} {data}. {measured} is now measured.",
+      "readDaysAre": "Read {days} days of {label} {data}. {measured} are now measured.",
+      "remeasured": "{measured} re-measured from {label}.",
+      "published": "Published ''{title}'' to {platform}.",
+      "withdrawn": "Withdrew ''{title}'' from {platform}."
+    }
+  },
+  "queueWords": {
+    "change": {
+      "stated": "The change",
+      "adLine": "Ad “{name}”",
+      "theAd": "the ad",
+      "creates": "creates its {parts}",
+      "noAd": "no ad",
+      "createdPaused": "on Meta, paused · spends nothing",
+      "goLiveSub": "its ad, ad set and campaign",
+      "paused": "paused · spends nothing",
+      "live": "live · {spend}",
+      "spendUpTo": "up to {daily} a day for {days} days",
+      "spendsBudget": "spends its daily budget",
+      "campaignLine": "Campaign “{name}”",
+      "averageOver": "daily spend, average over {days, plural, one {# measured day} other {# measured days}}",
+      "perDay": "{amount} a day",
+      "pausedNothing": "paused · nothing spent",
+      "raisedTo": "about {amount} a day (+{pct} %)",
+      "audience": "Audience",
+      "nobody": "nobody",
+      "people": "{count, plural, one {{n} person} other {{n} people}}",
+      "email": "Email",
+      "postOn": "Post on {platform}",
+      "notPosted": "not posted",
+      "posted": "posted {day} {clock}"
+    },
+    "creates": {
+      "campaign": "campaign",
+      "adSet": "ad set",
+      "adVideo": "ad video",
+      "creative": "creative",
+      "ad": "ad"
+    },
+    "fact": {
+      "budget": "Budget",
+      "budgetValue": "{daily} a day · at most {total} in all",
+      "duration": "Duration",
+      "durationValue": "{days} days from the day it goes live, then it stops by itself",
+      "audience": "Audience",
+      "aged": "aged {age}",
+      "interests": "Interests",
+      "placements": "Placements",
+      "goal": "Optimised for",
+      "special": "Special category",
+      "specialValue": "{categories} — Meta's restricted targeting applies",
+      "note": "Note",
+      "createsPaused": "Creates paused; going live is a separate approval; created objects can't be deleted, only paused.",
+      "goLiveNote": "Switches on the ad, its ad set, then the campaign. Pausing it again stops the spend."
+    },
+    "span": {
+      "over": "over {days} days",
+      "month": "a month"
+    },
+    "evidence": {
+      "noSource": "no source field"
+    },
+    "duration": {
+      "s": "{s} s",
+      "ms": "{m} m {ss} s",
+      "hm": "{h} h {mm} m",
+      "dh": "{d} d {h} h"
+    },
+    "sending": {
+      "adRun": "Approved, it goes to Meta on the next scheduled run: a dry run before each part, then the campaign, ad set, creative and ad, one after another, all paused and re-checked against your limits. The emergency stop halts it between any two. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+      "goLive": "Approved, it goes to Meta on the next scheduled run: the ad, then its ad set, then the campaign are switched on — each with a dry run first, re-checked against your ceiling. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+      "adChange": "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+      "bundleShop": "Approving records your yes. I don't change your shop, your prices or your checkout: you set the pair up yourself.",
+      "bundleBookings": "Approving records your yes. I don't change your booking system or your prices: you offer the pair yourself.",
+      "segment": "Nothing sends on approval. Approving lets me draft the email; nothing sends until you approve the finished email itself, and then every recipient's consent is checked again at the moment it goes.",
+      "followUp": "Nothing sends, now or on approval. Approving lets me draft the email; you read it, change what you like and send it yourself from your own mail.",
+      "stockContent": "Approving lets me draft it on Content. Nothing is posted until you approve the finished post itself.",
+      "stockPair": "Approving records your yes. I don't change your shop: you set the pair up yourself.",
+      "stockPrices": "Approving records your yes. I don't change your prices: you do.",
+      "stockAdvice": "Advice only: I contact nobody. Approving records that you mean to do it.",
+      "reorder": "Approving records that you mean to reorder, and nothing else. I don't contact {supplier}, and I never place, change or cancel an order: you do."
+    }
+  },
+  "trackWords": {
+    "kind": {
+      "stock_out": {
+        "one": "Stock run-out",
+        "many": "Stock run-out dates"
+      },
+      "season_week": {
+        "one": "Week against last year",
+        "many": "Weeks against last year"
+      },
+      "cash_close": {
+        "one": "Cash at a week's end",
+        "many": "Cash at weeks' ends"
+      },
+      "pipeline_close": {
+        "one": "Deals won by a date",
+        "many": "Deals won by a date"
+      }
+    },
+    "saidOn": "Said on {day}",
+    "range": {
+      "aboutMoney": "about {value}",
+      "money": "{lo}–{hi}",
+      "aboutCount": "about {value} {subject}",
+      "count": "{lo}–{hi} {subject}",
+      "on": "on {day}",
+      "dates": "{from} to {to}"
+    },
+    "waiting": {
+      "window": "Not graded yet: its window closes on {day}, and I grade it on the first weekly check after.",
+      "due": "Not graded yet: I'll check it on the first weekly check after {day}.",
+      "source": "Not graded yet: waiting for {source}'s figures for those days.",
+      "measured": "Not graded yet: waiting for the measured figures for those days."
+    },
+    "backdated": "Written to the record on {day}, after the day it is dated: a demo example. A real account's forecasts are recorded the moment they are shown.",
+    "headline": {
+      "none": "No forecasts on record yet. When I give one, it goes here with its range, and once its time has passed, what happened.",
+      "tooSoon": "Too soon to judge my forecasts: {graded, plural, =0 {none} one {#} other {#}} graded so far, {waiting, plural, one {# forecast} other {# forecasts}} waiting for {waiting, plural, one {its} other {their}} time to pass.",
+      "judged": "{inside} of my last {graded} forecasts landed inside the range I gave; {missed} missed.",
+      "couldnt": "I couldn't tell on {count}: the measured figures weren't there, or something I didn't forecast got in the way. {count, plural, one {It isn't} other {They aren't}} counted either way."
+    },
+    "parts": {
+      "insideOf": "{inside} of {graded} inside",
+      "noneGraded": "none graded yet",
+      "cantTell": "{count} couldn't tell",
+      "waiting": "{count} waiting",
+      "sentence": "{label}: {parts}."
+    },
+    "older": "{count, plural, one {# older forecast isn't} other {# older forecasts aren't}} listed here; the counts above include {count, plural, one {it} other {them}}."
+  },
+  "ledgerWords": {
+    "actor": {
+      "syb": "SYB",
+      "you": "you",
+      "noAnswer": "no answer",
+      "measured": "measured"
+    },
+    "note": {
+      "withheld": "withheld by your limit",
+      "waiting": "waiting for you",
+      "lapsedApproved": "lapsed after approval · never ran",
+      "lapsed": "lapsed · never ran",
+      "runs": "runs {clock}",
+      "done": "done",
+      "kept": "kept in record",
+      "delta": "{delta}% · {verdict}"
+    },
+    "verdict": {
+      "helped": "helped",
+      "did_nothing": "did nothing",
+      "backfired": "backfired",
+      "too_early": "too early to say",
+      "unmeasured": "unmeasured"
+    },
+    "judgedOn": {
+      "post": "Judged on the post's own figures against your earlier posts",
+      "campaign": "Judged on the campaign's own return on ad spend",
+      "email": "Judged on who bought again after the email, against the customers it couldn't go to",
+      "detail": "{judged}: {arithmetic}"
+    },
+    "reason": "reason: {reason}",
+    "change": {
+      "updated": "{label}: updated",
+      "same": "{label}: re-recorded, same value",
+      "moved": "{label}: {from} → {to}",
+      "notKnown": "not known"
+    },
+    "ref": {
+      "fact": "fact {id}"
+    },
+    "rate": {
+      "some": "{approved} approved of {concluded} concluded ({declined} declined, {lapsed} lapsed; {withheld} withheld by your limits, not counted) = {rate}%",
+      "none": "nothing concluded yet — the rate exists after your first decisions"
+    },
+    "arith": {
+      "neverRan": "never executed — nothing to measure",
+      "noSeries": "no measured revenue series — connect a source and the verdict becomes possible",
+      "noBaseline": "no measured days before the action — no baseline to compare against",
+      "tooEarly": "{days} measured day(s) since {day} — the verdict needs {need}",
+      "revenue": "daily revenue averaged {after} over the {afterDays} measured day(s) after {day}, against {before} over the {beforeDays} before — {delta}% (thresholds: helped at +{helped}%, backfired at {backfired}%)",
+      "notOnRecord": "the published item is not on record — nothing to measure"
+    }
   }
 }

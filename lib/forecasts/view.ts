@@ -10,6 +10,10 @@
 
 import { wholeMoney } from "../cash/model";
 import { shortDate } from "../charts/model";
+import { dayMonthYear, intlNumber } from "../i18n/format";
+import type { AppLocale } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
 import { parseInstant } from "../watch/watch-view";
 import { addDays } from "../seasons/forecast";
 import type { ForecastKind } from "./claims";
@@ -106,62 +110,84 @@ export interface TrackView {
   older_line: string | null;
 }
 
-const KIND_LABEL: Record<ForecastKind, { one: string; many: string }> = {
-  stock_out: { one: "Stock run-out", many: "Stock run-out dates" },
-  season_week: { one: "Week against last year", many: "Weeks against last year" },
-  cash_close: { one: "Cash at a week's end", many: "Cash at weeks' ends" },
-  pipeline_close: { one: "Deals won by a date", many: "Deals won by a date" },
-};
+/**
+ * L-4a (TASKS-LANGUAGES.md): the record's own words — the headline, the
+ * kinds, "Said on", the range and the waiting line — from the "trackWords"
+ * catalogue, with figures and dates in the reader's writing; English by
+ * default, word for word as before. A forecast's claim, basis and what
+ * happened are stored as they were written and print as they are.
+ */
+export interface TrackWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+const ENGLISH_TRACK = (): TrackWords => ({ tr: englishTr("trackWords"), locale: "en" });
+
+const KINDS: readonly ForecastKind[] = ["stock_out", "season_week", "cash_close", "pipeline_close"];
 
 const isKind = (k: string): k is ForecastKind =>
   k === "stock_out" || k === "season_week" || k === "cash_close" || k === "pipeline_close";
 const isVerdict = (v: string | null): v is Verdict =>
   v === "inside" || v === "above" || v === "below" || v === "cant_tell";
 
-/** "26 Oct 2026", from a date or a Postgres timestamp. */
-function dayWords(at: string): string {
+/** "26 Oct 2026", from a date or a Postgres timestamp; the reader's writing outside English. */
+function dayWords(at: string, locale: AppLocale = "en"): string {
   const day = at.length === 10 ? at : new Date(parseInstant(at)).toISOString().slice(0, 10);
-  return `${shortDate(day)} ${day.slice(0, 4)}`;
+  return locale === "en" ? `${shortDate(day)} ${day.slice(0, 4)}` : dayMonthYear(day, locale);
 }
 
 const instant = parseInstant;
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-
 /** The range in the forecast's own units. */
-export function rangeWords(r: TrackRow): string {
+export function rangeWords(r: TrackRow, w: TrackWords = ENGLISH_TRACK()): string {
+  const { tr, locale } = w;
   if (r.unit === "money" && r.low_minor !== null && r.high_minor !== null && r.currency) {
-    const lo = wholeMoney(r.low_minor, r.currency);
-    const hi = wholeMoney(r.high_minor, r.currency);
-    return lo === hi ? `about ${lo}` : `${lo}–${hi}`;
+    const lo = wholeMoney(r.low_minor, r.currency, locale);
+    const hi = wholeMoney(r.high_minor, r.currency, locale);
+    return lo === hi ? tr("range.aboutMoney", { value: lo }) : tr("range.money", { lo, hi });
   }
   if (r.unit === "count" && r.low_num !== null && r.high_num !== null) {
     const lo = Math.round(Number(r.low_num));
     const hi = Math.round(Number(r.high_num));
-    return lo === hi ? `about ${lo} ${r.subject}` : `${lo}–${hi} ${r.subject}`;
+    // The subject ("units of Glaze") is the forecast's own stored words.
+    const fig = (n: number) => (locale === "en" ? String(n) : intlNumber(n, 0, locale));
+    return lo === hi
+      ? tr("range.aboutCount", { value: fig(lo), subject: r.subject })
+      : tr("range.count", { lo: fig(lo), hi: fig(hi), subject: r.subject });
   }
   if (r.unit === "date" && r.low_date && r.high_date) {
     return r.low_date === r.high_date
-      ? `on ${dayWords(r.low_date)}`
-      : `${shortDate(r.low_date)} to ${dayWords(r.high_date)}`;
+      ? tr("range.on", { day: dayWords(r.low_date, locale) })
+      : tr("range.dates", {
+          from: shortDate(r.low_date, locale),
+          to: dayWords(r.high_date, locale),
+        });
   }
   return "—";
 }
 
-function waitingWords(r: TrackRow, today: string): string {
+function waitingWords(r: TrackRow, today: string, w: TrackWords): string {
+  const { tr, locale } = w;
   const source = (r.subject_ref as { source?: unknown } | null)?.source;
   if (r.window_end >= today) {
-    return `Not graded yet: its window closes on ${dayWords(r.window_end)}, and I grade it on the first weekly check after.`;
+    return tr("waiting.window", { day: dayWords(r.window_end, locale) });
   }
   // Review 2026-10-30: just closed is not yet due, which is no wait for figures.
   if (!isDue(r.window_end, today)) {
-    return `Not graded yet: I'll check it on the first weekly check after ${dayWords(addDays(r.window_end, GRADE.after_days))}.`;
+    return tr("waiting.due", {
+      day: dayWords(addDays(r.window_end, GRADE.after_days), locale),
+    });
   }
-  return `Not graded yet: waiting for ${typeof source === "string" ? `${source}'s` : "the measured"} figures for those days.`;
+  return typeof source === "string" ? tr("waiting.source", { source }) : tr("waiting.measured");
 }
 
 /** One forecast as the screen lists it. */
-export function trackEntry(r: TrackRow, today: string): TrackEntry | null {
+export function trackEntry(
+  r: TrackRow,
+  today: string,
+  w: TrackWords = ENGLISH_TRACK(),
+): TrackEntry | null {
+  const { tr, locale } = w;
   if (!isKind(r.kind)) return null;
   const graded = r.graded_at !== null && isVerdict(r.verdict);
   // The app records a forecast the moment it shows it; only the demo seed
@@ -170,17 +196,15 @@ export function trackEntry(r: TrackRow, today: string): TrackEntry | null {
   return {
     id: r.id,
     kind: r.kind,
-    kind_label: KIND_LABEL[r.kind].one,
+    kind_label: tr(`kind.${r.kind}.one`),
     made_at: r.made_at,
-    said_on: `Said on ${dayWords(r.made_at)}`,
-    range: rangeWords(r),
+    said_on: tr("saidOn", { day: dayWords(r.made_at, locale) }),
+    range: rangeWords(r, w),
     claim: r.claim,
     basis: r.basis,
     word: graded ? (r.verdict as Verdict) : "waiting",
-    happened: graded ? (r.actual_note ?? "") : waitingWords(r, today),
-    backdated: late
-      ? `Written to the record on ${dayWords(r.recorded_at)}, after the day it is dated: a demo example. A real account's forecasts are recorded the moment they are shown.`
-      : null,
+    happened: graded ? (r.actual_note ?? "") : waitingWords(r, today, w),
+    backdated: late ? tr("backdated", { day: dayWords(r.recorded_at, locale) }) : null,
   };
 }
 
@@ -192,7 +216,9 @@ export function trackView(
   rows: readonly TrackRow[],
   today: string,
   tally?: readonly TrackTally[],
+  w: TrackWords = ENGLISH_TRACK(),
 ): TrackView {
+  const { tr, locale } = w;
   // Newest said first; forecasts said together, in the order of their windows.
   const entries = [...rows]
     .sort(
@@ -200,7 +226,7 @@ export function trackView(
         instant(b.made_at) - instant(a.made_at) ||
         (a.window_end < b.window_end ? -1 : a.window_end > b.window_end ? 1 : 0),
     )
-    .map((r) => trackEntry(r, today))
+    .map((r) => trackEntry(r, today, w))
     .filter((e): e is TrackEntry => e !== null);
   // Review 2026-10-30: counted over the tally, which covers rows not listed.
   const counted: { kind: ForecastKind; word: TrackWord; n: number }[] = (
@@ -224,19 +250,18 @@ export function trackView(
   const graded = inside + above + below;
   const tooSoon = graded < TRACK_MIN_GRADED;
 
-  const couldnt =
-    cantTell > 0
-      ? ` I couldn't tell on ${cantTell}: the measured figures weren't there, or something I didn't forecast got in the way. ${cantTell === 1 ? "It isn't" : "They aren't"} counted either way.`
-      : "";
+  // Sentences follow one another with a space, as English writes them; Chinese with none.
+  const gap = locale === "zh-Hans" ? "" : " ";
+  const couldnt = cantTell > 0 ? `${gap}${tr("headline.couldnt", { count: cantTell })}` : "";
   const headline =
     total === 0
-      ? "No forecasts on record yet. When I give one, it goes here with its range, and once its time has passed, what happened."
+      ? tr("headline.none")
       : tooSoon
-        ? `Too soon to judge my forecasts: ${graded === 0 ? "none" : graded} graded so far, ${plural(waiting, "forecast", "forecasts")} waiting for ${waiting === 1 ? "its" : "their"} time to pass.${couldnt}`
-        : `${inside} of my last ${graded} forecasts landed inside the range I gave; ${graded - inside} missed.${couldnt}`;
+        ? `${tr("headline.tooSoon", { graded, waiting })}${couldnt}`
+        : `${tr("headline.judged", { inside, graded, missed: graded - inside })}${couldnt}`;
 
   const kinds: TrackKindLine[] = [];
-  for (const kind of Object.keys(KIND_LABEL) as ForecastKind[]) {
+  for (const kind of KINDS) {
     const list = counted.filter((e) => e.kind === kind);
     if (list.length === 0) continue;
     const k = {
@@ -246,15 +271,21 @@ export function trackView(
       waiting: count(list, "waiting"),
     };
     const parts = [
-      k.graded > 0 ? `${k.inside} of ${k.graded} inside` : "none graded yet",
-      ...(k.cant_tell > 0 ? [`${k.cant_tell} couldn't tell`] : []),
-      ...(k.waiting > 0 ? [`${k.waiting} waiting`] : []),
+      k.graded > 0
+        ? tr("parts.insideOf", { inside: k.inside, graded: k.graded })
+        : tr("parts.noneGraded"),
+      ...(k.cant_tell > 0 ? [tr("parts.cantTell", { count: k.cant_tell })] : []),
+      ...(k.waiting > 0 ? [tr("parts.waiting", { count: k.waiting })] : []),
     ];
+    const label = tr(`kind.${kind}.many`);
     kinds.push({
       kind,
-      label: KIND_LABEL[kind].many,
+      label,
       ...k,
-      sentence: `${KIND_LABEL[kind].many}: ${parts.join(", ")}.`,
+      sentence: tr("parts.sentence", {
+        label,
+        parts: parts.join(locale === "zh-Hans" ? "，" : ", "),
+      }),
     });
   }
 
@@ -270,9 +301,6 @@ export function trackView(
     kinds,
     entries,
     older: Math.max(0, total - entries.length),
-    older_line:
-      total > entries.length
-        ? `${plural(total - entries.length, "older forecast isn't", "older forecasts aren't")} listed here; the counts above include ${total - entries.length === 1 ? "it" : "them"}.`
-        : null,
+    older_line: total > entries.length ? tr("older", { count: total - entries.length }) : null,
   };
 }

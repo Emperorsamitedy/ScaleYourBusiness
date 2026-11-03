@@ -23,8 +23,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { authErrorWords } from "../../lib/auth/error-words";
 import { returnPath } from "../../lib/auth/return-to";
 import { BROWSER_PREFILL } from "../../lib/intake/browser-prefill";
+import { useTr } from "../sheet/useTr";
 import { DELIVERY_DAYS } from "../../lib/marketing/offer";
 import { AuthMasthead } from "./AuthMasthead";
 import "../../app/auth.css";
@@ -94,6 +96,8 @@ function rememberStore(value: string) {
 export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "signup" }) {
   const t = useTranslations("auth");
   const tc = useTranslations("common");
+  // L-4a: the server's English refusal, read back in the reader's language.
+  const { tr: ta, locale } = useTr("authWords");
   const [email, setEmail] = useState("");
   const [store, setStore] = useState("");
   const [phase, setPhase] = useState<Phase>("form");
@@ -290,7 +294,7 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
 
                 {error && (
                   <p className="au-error" role="alert">
-                    {error}
+                    {authErrorWords(error, ta, locale)}
                   </p>
                 )}
 
