@@ -86,6 +86,22 @@ const ALLOWED_PACKAGES = [
   "next/server",
   "node:crypto",
   "pg",
+  // L-6 (TASKS-LANGUAGES.md): the owner's notice is written in the owner's
+  // language — next-intl's translator over the catalogues, nothing else.
+  "next-intl",
+];
+
+/**
+ * L-6: the words for the owner's notice (lib/support/notify-owner), and only
+ * the words — the recipient translator (pure: no cookie, no session, no
+ * database), the language table, the review list it checks, and the English
+ * catalogue it bundles. Added deliberately; held below to import nothing more.
+ */
+const LANGUAGE_FILES = [
+  "lib/i18n/recipient.ts",
+  "lib/i18n/locales.ts",
+  "lib/i18n/review.ts",
+  "messages/en.json",
 ];
 
 // Statements only, anchored at a line start, so the word "from" in a
@@ -217,12 +233,23 @@ describe("P4-08 — rule 21, held by the module graph", () => {
         // function with no imports, reached through the model metering's
         // logs, that strips a query's bound values (PII) from error lines.
         file === "lib/core/log-safe.ts" ||
-        // Added deliberately by L-5 (rule 5 of TASKS-LANGUAGES.md): the
-        // widget answers in the business's own language, so the tier reads
-        // the list of the seven languages — pure data, no imports of its own.
-        file === "lib/i18n/locales.ts",
+        // Added deliberately by L-5 and L-6 (rule 5 of TASKS-LANGUAGES.md):
+        // the widget answers in the business's own language, so the tier
+        // reads the language files — pure data and next-intl, held below to
+        // reading no cookie, session or database.
+        LANGUAGE_FILES.includes(file),
     );
     expect(allowed, [...graph.files].sort().join("\n")).toBe(true);
+  });
+
+  it("L-6: the language files the tier reaches import only each other, the catalogue and next-intl", () => {
+    for (const f of LANGUAGE_FILES.filter((x) => x.endsWith(".ts"))) {
+      for (const spec of importsOf(readFileSync(path.resolve(ROOT, f), "utf8"))) {
+        const target = resolveSpec(path.resolve(ROOT, f), spec, new Map());
+        if (target === null) expect(spec, f).toBe("next-intl");
+        else expect(LANGUAGE_FILES, `${f} → ${spec}`).toContain(relOf(target));
+      }
+    }
   });
 
   it("the gate bites: a planted '@/' import of lib/crm, a relative one of lib/support-desk, and a stray package are each caught", () => {

@@ -6012,5 +6012,171 @@
       "revenue": "{day} 之后的 {afterDays} 个已测量日中，日均营收为 {after}，而之前的 {beforeDays} 天为 {before}——{delta}%（阈值：+{helped}% 为有帮助，{backfired}% 为适得其反）",
       "notOnRecord": "已发布的内容不在记录中——没有可测量的内容"
     }
+  },
+  "emails": {
+    "summary": {
+      "subjectWaiting": "您与 SYB 的一周：{count, plural, other {# 项等待您处理}}",
+      "subjectQuiet": "您与 SYB 的一周：风平浪静",
+      "subjectCalm": "您与 SYB 的一周：没有需要您处理的事",
+      "heading": "您与 SYB 的一周",
+      "headingNamed": "{business}：您与 SYB 的一周",
+      "quiet": "平静的一周：您的账户上没有新的记录，也没有等待您处理的事项。",
+      "titles": {
+        "waiting": "等待您处理",
+        "stock": "库存不足",
+        "reviews": "值得关注的评价",
+        "done": "我做了什么",
+        "noticed": "我注意到的",
+        "goals": "您的目标",
+        "readback": "您批准的改动效果如何",
+        "forecasts": "我的预测表现如何"
+      },
+      "links": {
+        "waiting": "等待您处理",
+        "support": "客户支持",
+        "stock": "库存",
+        "reviews": "评价",
+        "watching": "观察",
+        "goals": "目标",
+        "history": "历史记录",
+        "track": "我的过往准确率"
+      },
+      "pending": "{count, plural, other {# 项提案正等待您决定}}。未经您批准，什么都不会执行。",
+      "pendingMore": "——另有 {count} 项。",
+      "aProposal": "一项提案",
+      "tickets": "{count, plural, other {# 个客户问题正在“客户支持”中等待您回复}}。",
+      "executed": "已执行一项您批准的改动：{summary}",
+      "executedUndone": "已执行一项您批准的改动：{summary}（之后已撤销）",
+      "synced": "已从 {source} 读取 {count, plural, other {# 天的新数据}}。",
+      "more": "另有 {count} 项",
+      "verdicts": {
+        "helped": "有帮助",
+        "did_nothing": "没有效果",
+        "backfired": "适得其反"
+      },
+      "judged": {
+        "revenue": "每日营收",
+        "post": "与您以往帖子相比的触达和互动",
+        "campaign": "营销活动的广告支出回报率",
+        "email": "这封邮件的效果"
+      },
+      "tooEarly": "{summary}：现在下结论还为时过早——执行以来测量的天数还不够。",
+      "revenue": "{summary}：{verdict}——执行后日均营收为 {after}，执行前为 {before}，基于测量数据。",
+      "revenuePct": "{summary}：{verdict}——执行后日均营收为 {after}，执行前为 {before}（{pct}），基于测量数据。",
+      "judgedOn": "{summary}：{verdict}——依据 {basis} 评判，基于测量数据。",
+      "judgedOnPct": "{summary}：{verdict}——依据 {basis}（{pct}）评判，基于测量数据。",
+      "forecasts": "本周我为自己的 {total, plural, other {# 项预测评了分}}：{inside, plural, other {# 项落在我给出的范围内}}，{misses}{cant}。",
+      "missedNone": "无一落空",
+      "missedAbove": "{missed} 项落空（{above, plural, other {# 项高于范围}}）",
+      "missedBelow": "{missed} 项落空（{below, plural, other {# 项低于范围}}）",
+      "missedBoth": "{missed} 项落空（{above, plural, other {# 项高于范围}}，{below, plural, other {# 项低于范围}}）",
+      "cantTell": "，另有 {count} 项我无法判断",
+      "footWatching": "我做的每一件事都在您的“观察”页面上：{url}",
+      "footApprove": "未经您批准，什么都不会执行。",
+      "footStop": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键停止：",
+      "footWatchingHtml": "我做的每一件事都在您的<link>“观察”页面</link>上。未经您批准，什么都不会执行。",
+      "footStopHtml": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键<link>停止这些邮件</link>。"
+    },
+    "signIn": {
+      "subject": "您的登录链接 — SYB",
+      "intro": "点击登录 SYB：",
+      "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件——没有链接，什么都不会发生。"
+    },
+    "invite": {
+      "subject": "您受邀加入 SYB 上的 {business}",
+      "subjectUnnamed": "您受邀加入 SYB 上的一家企业",
+      "intro": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 SYB 上的 {business}。",
+      "introUnnamed": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 SYB 上的一家企业。",
+      "open": "打开此链接即可接受邀请：",
+      "expiry": "此链接只能使用一次，将在 {days, plural, other {# 天后失效}}。您将使用此地址登录：{email}。如果您没有预料到这封邀请，请忽略这封邮件——没有您的参与，什么都不会发生。"
+    },
+    "supportNotice": {
+      "subject": "有客户给您发了邮件 — SYB",
+      "waiting": "有客户给 {business} 发了邮件，正在“客户支持”中等待您处理：{url}",
+      "waitingNoLink": "有客户给 {business} 发了邮件，正在“客户支持”中等待您处理。",
+      "nothingSent": "还没有向对方发送任何内容。只有在您批准后才会发出回复。",
+      "atMost": "此类通知每小时最多一封。您可以在“客户支持”页面关闭它们。"
+    },
+    "supportReply": {
+      "subject": "您向 {business} 提出的问题"
+    },
+    "campaign": {
+      "greeting": "您好，",
+      "thisBusiness": "这家企业",
+      "why": "您收到这封邮件，是因为您同意接收 {business} 的信息。退订：{link}"
+    }
+  },
+  "push": {
+    "one": "{count, plural, other {# 件事等您点头：{what}}}",
+    "many": "{count, plural, other {# 件事等您点头}}",
+    "test": "这是来自 SYB 的测试。提醒将发送到此设备。",
+    "kinds": {
+      "price_increase": "一项价格调整",
+      "price_decrease": "一项价格调整",
+      "discount_or_promotion": "一项促销",
+      "paid_ads_start_or_increase": "一则广告",
+      "paid_ads_decrease_or_pause": "一项广告调整",
+      "content_publishing": "一篇帖子",
+      "cold_outreach": "一条外联消息",
+      "channel_expansion": "一个新渠道",
+      "offer_change": "一项产品方案调整",
+      "operations_change": "一项经营方式调整",
+      "support_knowledge": "一条客户支持答复",
+      "customer_email": "一封发给客户的邮件",
+      "deal_followup": "一次跟进",
+      "stock_reorder_note": "一条补货备注",
+      "media_generation": "一张待制作的图片或短片",
+      "revise_goal": "一个需要查看的目标",
+      "stop_strategy": "一项需要查看的策略",
+      "other": "一项提案"
+    }
+  },
+  "exports": {
+    "money": {
+      "field": "字段",
+      "label": "标签",
+      "amount": "金额",
+      "currency": "货币",
+      "status": "状态",
+      "source": "来源",
+      "source_detail": "来源详情",
+      "confidence": "置信度",
+      "observed_at": "观测时间",
+      "recorded_at": "记录时间",
+      "derived_from": "推导自",
+      "formula": "公式",
+      "superseded_at": "取代时间"
+    },
+    "history": {
+      "when": "时间",
+      "kind": "类型",
+      "entry": "条目",
+      "reference": "引用",
+      "detail": "详情",
+      "by": "操作人",
+      "note": "备注"
+    }
+  },
+  "shared": {
+    "pageTitle": "共享的报告 — SYB",
+    "label": "共享的报告",
+    "readOnly": "共享的报告 · 只读",
+    "deadTitle": "此链接已失效。",
+    "deadBody": "如果您原本期待在这里看到一份报告，请向发送者索取新链接。",
+    "foot": "这是一份共享快照，制作于 {shared}，对应 {issued} 发布的报告。它显示的是报告当时的样子，不会改变；企业可以随时撤回。"
+  },
+  "unsubscribe": {
+    "label": "邮件偏好",
+    "unknownTitle": "我们无法识别此链接。",
+    "unknownBody": "请检查是否完整复制了邮件中的链接。没有任何更改。",
+    "campaign": {
+      "pageTitle": "退订",
+      "thisBusiness": "这家企业",
+      "doneTitle": "您已退订 {business} 的邮件。",
+      "doneBody": "对方将不会再通过 SYB 向您发送营销邮件。此操作永久有效，您无需再做任何操作。",
+      "askTitle": "停止接收 {business} 的营销邮件？",
+      "askBody": "一键即可完成，永久有效。对您所提问题的回复不受影响。",
+      "button": "退订"
+    }
   }
 }

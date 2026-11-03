@@ -28,6 +28,7 @@ import {
   businessProfiles,
   fieldRecords,
 } from "../../db/schema";
+import type { FactWords } from "../bank/fact-words";
 import { displaySourceKind } from "../connectors/measured";
 import { isIsoCurrency, money, toDecimalString } from "../core/money";
 import { sourceDetail } from "./factsheet";
@@ -214,9 +215,19 @@ export const CURRENT_COLUMNS = [
 
 export const HISTORY_COLUMNS = [...CURRENT_COLUMNS, "superseded_at"] as const;
 
-/** Pure: the file — a BOM so spreadsheet apps read "Szörp" right, a header, CRLF lines. */
-export function toCsv(columns: readonly string[], rows: readonly MoneyExportRow[]): string {
-  const lines = [columns.map(csvCell).join(",")];
+/**
+ * Pure: the file — a BOM so spreadsheet apps read "Szörp" right, a header,
+ * CRLF lines. L-6: `heading` words each column's header in the reader's
+ * language (exports.money in messages/<locale>.json); the cells stay
+ * machine-readable in every language — plain decimals with a dot, ISO
+ * currency codes, ISO 8601 UTC times, status and source codes as stored.
+ */
+export function toCsv(
+  columns: readonly string[],
+  rows: readonly MoneyExportRow[],
+  heading: (column: string) => string = (c) => c,
+): string {
+  const lines = [columns.map((c) => csvCell(heading(c))).join(",")];
   for (const row of rows) {
     const record = row as unknown as Record<string, string | undefined>;
     lines.push(columns.map((c) => csvCell(record[c] ?? "")).join(","));
@@ -237,6 +248,8 @@ export async function moneyExportRows(args: {
   accountId: string;
   profileId: string;
   part: ExportPart;
+  /** L-6: the bank's words in the reader's language, for the label column. English when absent. */
+  words?: FactWords;
 }): Promise<MoneyExportRow[]> {
   const keys = await moneyKeysFromBank();
   const scope = and(
@@ -277,6 +290,9 @@ export async function moneyExportRows(args: {
     .where(and(scope, isNull(fieldRecords.superseded_at)));
   const names = entityNames(nameRows);
   const labelOf = (key: string): string => {
+    const entityPrefix = ENTITY_KEY.test(key) ? key.slice(0, key.lastIndexOf(".")) : null;
+    const translated = args.words?.label(key, entityPrefix ? names.get(entityPrefix) : null);
+    if (translated) return translated;
     const own = keys.labels.get(key);
     if (own !== undefined) return own;
     const entity = ENTITY_KEY.exec(key);

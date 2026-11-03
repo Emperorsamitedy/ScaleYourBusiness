@@ -33,8 +33,8 @@ import { logSafeError } from "../core/log-safe";
 import { COUNTRY_KEY, TIMEZONE_KEY, isValidZone, zoneForCountry } from "../hours/timezone";
 import { readCurrentField } from "../profile/field-store";
 import type { PushPlan } from "./plan";
-import { pushPlan } from "./plan";
-import { deliverAll } from "./deliver";
+import { pushPlan, pushWords } from "./plan";
+import { deliverAll, wordsByLocale } from "./deliver";
 import type { PushService } from "./send";
 import { pushConfig } from "./send";
 import type { SealedDevice } from "./subscriptions";
@@ -217,7 +217,15 @@ export async function flushPushes(
     return { plan: "hold", why: plan.why, until: plan.until, sent: 0, gone: 0, failed: 0 };
   }
   if (plan.act !== "send") return { plan: plan.act, why: plan.why, sent: 0, gone: 0, failed: 0 };
-  const tally = await deliverAll(accountId, devices, plan.payload, service, "proposals");
+  // L-6: each device's alert in its person's language (lock-screen words only, as before).
+  const words = await wordsByLocale(devices, "push");
+  const tally = await deliverAll(
+    accountId,
+    devices,
+    (d) => pushWords(plan.waiting, words.get(d.locale)),
+    service,
+    "proposals",
+  );
   return { plan: "send", ...tally };
 }
 

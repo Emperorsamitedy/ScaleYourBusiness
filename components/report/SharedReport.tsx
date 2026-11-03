@@ -7,13 +7,24 @@
 // /shared), no sub-nav, no wordmark link, no answers to recommendations, no
 // "Answer now". The data arrives from the server page already stripped of
 // everything owner-only (lib/report/share.ts sharedView).
+//
+// L-6: the masthead and footer are in the VIEWER's language — the language
+// cookie through the gate, like every page — because a link is sent on to
+// someone else (an accountant, a partner) who reads their own language. An
+// anonymous viewer is never a named reviewer, so a language still in
+// review shows them English. What the report itself says is printed as it
+// was written (rule 4).
 
+import { useTranslations } from "next-intl";
 import "../../app/report.css";
+import { useAppLocale } from "../sheet/useTr";
 import { ReportBody } from "./Report";
 import { fmtDate } from "./figures";
 import type { ReportView } from "./types";
 
 export function SharedReportScreen({ report, sharedAt }: { report: ReportView; sharedAt: string }) {
+  const t = useTranslations("shared");
+  const locale = useAppLocale();
   const map = report.fact_map;
   const business =
     map["identity.business_name"]?.value ?? map["identity.legal_name"]?.value ?? null;
@@ -29,7 +40,7 @@ export function SharedReportScreen({ report, sharedAt }: { report: ReportView; s
           {context.length > 0 && <span className="rq-ctx">{context.join(" · ")}</span>}
         </div>
         <div className="rq-mast-r">
-          <span className="rq-ctx">Shared report · read only</span>
+          <span className="rq-ctx">{t("readOnly")}</span>
         </div>
       </header>
       <main className="rq-main rq-shared-main">
@@ -39,9 +50,10 @@ export function SharedReportScreen({ report, sharedAt }: { report: ReportView; s
           onChanged={async () => {}}
           foot={
             <>
-              This is a shared snapshot, made {fmtDate(sharedAt)}, of the report issued{" "}
-              {fmtDate(report.generated_at)}. It shows the report as it was then and does not
-              change; the business can withdraw it at any time.
+              {t("foot", {
+                shared: fmtDate(sharedAt, locale),
+                issued: fmtDate(report.generated_at, locale),
+              })}
             </>
           }
         />

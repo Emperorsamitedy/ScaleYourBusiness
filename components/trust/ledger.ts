@@ -426,9 +426,19 @@ export function byDay(
 
 const cell = (v: string): string => (/[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
 
-/** The visible rows as CSV — what the owner sees, nothing more. */
-export function toCsv(rows: readonly LedgerRow[]): string {
-  const head = ["when", "kind", "entry", "reference", "detail", "by", "note"];
+/** The CSV's columns, as exports.history in messages/<locale>.json names them. */
+export const CSV_COLUMNS = ["when", "kind", "entry", "reference", "detail", "by", "note"] as const;
+
+/**
+ * The visible rows as CSV — what the owner sees, nothing more. L-6: the
+ * header in the reader's language (`heading`, exports.history); the times
+ * stay ISO 8601 and the kind its code, so the file stays machine-readable.
+ */
+export function toCsv(
+  rows: readonly LedgerRow[],
+  heading: (column: (typeof CSV_COLUMNS)[number]) => string = (c) => c,
+): string {
+  const head = CSV_COLUMNS.map((c) => cell(heading(c)));
   const lines = rows.map((r) =>
     [
       r.timed ? new Date(r.at).toISOString() : new Date(r.at).toISOString().slice(0, 10),

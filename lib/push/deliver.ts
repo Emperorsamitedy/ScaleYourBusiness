@@ -8,6 +8,9 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { pushSubscriptions } from "../../db/schema";
 import { logSafeError } from "../core/log-safe";
+import type { AppLocale } from "../i18n/locales";
+import type { Words } from "../i18n/recipient";
+import { englishWords, wordsFor } from "../i18n/recipient";
 import type { DeliveryOutcome, PushPayload, PushService } from "./send";
 import type { SealedDevice } from "./subscriptions";
 import { openDevices } from "./subscriptions";
@@ -18,12 +21,12 @@ export interface DeviceOutcome {
   outcome: DeliveryOutcome;
 }
 
-export const TEST_PAYLOAD: PushPayload = {
-  title: "SYB",
-  body: "A test from SYB. Alerts will reach this device.",
-  url: "/proposals",
-  tag: "syb-test",
-};
+/** The test alert in one language (L-6; English by default). */
+export function testPayload(w: Words = englishWords("push")): PushPayload {
+  return { title: "SYB", body: w.t("test"), url: "/proposals", tag: "syb-test" };
+}
+
+export const TEST_PAYLOAD: PushPayload = testPayload();
 
 /** The card's "Send a test": every device, once. It doesn't use the day's one alert. */
 export async function sendTestPush(
@@ -33,14 +36,32 @@ export async function sendTestPush(
   userId: string | null = null,
 ): Promise<DeviceOutcome[]> {
   const devices = await openDevices(accountId, userId);
-  return (await deliverAll(accountId, devices, TEST_PAYLOAD, service, "test")).outcomes;
+  const words = await wordsByLocale(devices, "push");
+  return (
+    await deliverAll(accountId, devices, (d) => testPayload(words.get(d.locale)), service, "test")
+  ).outcomes;
 }
 
-/** Send one payload to each device once. A 404/410 deletes that subscription. */
+/** Each device's language's words, loaded once per language. */
+export async function wordsByLocale(
+  devices: readonly SealedDevice[],
+  namespace: string,
+): Promise<Map<AppLocale, Words>> {
+  const out = new Map<AppLocale, Words>();
+  for (const d of devices) {
+    if (!out.has(d.locale)) out.set(d.locale, await wordsFor(d.locale, namespace));
+  }
+  return out;
+}
+
+/**
+ * Send one payload to each device once — or, L-6, each device its own,
+ * in its person's language. A 404/410 deletes that subscription.
+ */
 export async function deliverAll(
   accountId: string,
   devices: readonly SealedDevice[],
-  payload: PushPayload,
+  payload: PushPayload | ((device: SealedDevice) => PushPayload),
   service: PushService,
   purpose: "proposals" | "test",
 ): Promise<{ sent: number; gone: number; failed: number; outcomes: DeviceOutcome[] }> {
@@ -48,7 +69,10 @@ export async function deliverAll(
   for (const d of devices) {
     let outcome: DeliveryOutcome;
     try {
-      outcome = await service.deliver(d.target, payload);
+      outcome = await service.deliver(
+        d.target,
+        typeof payload === "function" ? payload(d) : payload,
+      );
     } catch (error) {
       outcome = { kind: "failed", status: null, why: logSafeError(error).error_name };
     }

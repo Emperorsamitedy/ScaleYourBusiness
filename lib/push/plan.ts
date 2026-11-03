@@ -23,6 +23,8 @@
 // three: "Win back Anna Kovács with 10% off"), but a fixed phrase per
 // proposal kind from the table below. Unknown kinds say "a proposal".
 
+import type { Words } from "../i18n/recipient";
+import { englishWords } from "../i18n/recipient";
 import type { PushPayload } from "./send";
 
 export const QUIET_FROM_HOUR = 21;
@@ -30,30 +32,36 @@ export const QUIET_UNTIL_HOUR = 8;
 export const PUSH_TITLE = "SYB";
 export const PUSH_TAG = "syb-waiting";
 
-/** Kind → the few words a lock screen may show. Fixed text only. */
-const KIND_WORDS: Record<string, string> = {
-  price_increase: "a price change",
-  price_decrease: "a price change",
-  discount_or_promotion: "a promotion",
-  paid_ads_start_or_increase: "an ad",
-  paid_ads_decrease_or_pause: "an ad change",
-  content_publishing: "a post",
-  cold_outreach: "an outreach message",
-  channel_expansion: "a new channel",
-  offer_change: "a change to an offer",
-  operations_change: "a change to how you run things",
-  support_knowledge: "a support answer",
-  customer_email: "an email to customers",
-  deal_followup: "a follow-up",
-  stock_reorder_note: "a reorder note",
-  media_generation: "an image or clip to make",
-  revise_goal: "a goal to look at",
-  stop_strategy: "a strategy to look at",
-};
+/**
+ * The kinds with a phrase of their own — the few words a lock screen may
+ * show, fixed text only, in messages/<locale>.json under `push.kinds`
+ * (L-6: in the person's language; English by default).
+ */
+const KINDS: ReadonlySet<string> = new Set([
+  "price_increase",
+  "price_decrease",
+  "discount_or_promotion",
+  "paid_ads_start_or_increase",
+  "paid_ads_decrease_or_pause",
+  "content_publishing",
+  "cold_outreach",
+  "channel_expansion",
+  "offer_change",
+  "operations_change",
+  "support_knowledge",
+  "customer_email",
+  "deal_followup",
+  "stock_reorder_note",
+  "media_generation",
+  "revise_goal",
+  "stop_strategy",
+]);
+
+const ENGLISH = (): Words => englishWords("push");
 
 /** The phrase for one proposal: by its kind, never its own text. */
-export function kindWords(kind: string | null | undefined): string {
-  return (kind && KIND_WORDS[kind]) || "a proposal";
+export function kindWords(kind: string | null | undefined, w: Words = ENGLISH()): string {
+  return w.t(`kinds.${kind && KINDS.has(kind) ? kind : "other"}`);
 }
 
 export interface QueuedItem {
@@ -75,7 +83,14 @@ export interface PushPlanInput {
 }
 
 export type PushPlan =
-  | { act: "send"; send: string[]; drop: string[]; payload: PushPayload }
+  | {
+      act: "send";
+      send: string[];
+      drop: string[];
+      /** The alert in English; each device gets it in its person's words (./flush, from `waiting`). */
+      payload: PushPayload;
+      waiting: QueuedItem[];
+    }
   | {
       act: "hold";
       why: "quiet_hours" | "daily_cap";
@@ -128,20 +143,20 @@ export function inQuietHours(now: Date, zone: string): boolean {
   return hour >= QUIET_FROM_HOUR || hour < QUIET_UNTIL_HOUR;
 }
 
-/** The alert's words and where its tap goes. */
-export function pushWords(waiting: readonly QueuedItem[]): PushPayload {
+/** The alert's words and where its tap goes, in the person's words (English by default). */
+export function pushWords(waiting: readonly QueuedItem[], w: Words = ENGLISH()): PushPayload {
   const first = waiting[0];
   if (waiting.length === 1 && first) {
     return {
       title: PUSH_TITLE,
-      body: `1 thing waits for your yes: ${kindWords(first.kind)}`,
+      body: w.t("one", { count: 1, what: kindWords(first.kind, w) }),
       url: `/proposals/${first.proposal_id}`,
       tag: PUSH_TAG,
     };
   }
   return {
     title: PUSH_TITLE,
-    body: `${waiting.length} things wait for your yes`,
+    body: w.t("many", { count: waiting.length }),
     url: "/proposals",
     tag: PUSH_TAG,
   };
@@ -185,5 +200,5 @@ export function pushPlan(input: PushPlanInput): PushPlan {
       drop: stale,
     };
   }
-  return { act: "send", send: keep, drop: stale, payload: pushWords(waiting) };
+  return { act: "send", send: keep, drop: stale, payload: pushWords(waiting), waiting };
 }

@@ -6012,5 +6012,171 @@
       "revenue": "der Tagesumsatz lag im Schnitt bei {after} über {afterDays, plural, one {den # gemessenen Tag} other {die # gemessenen Tage}} nach {day}, gegenüber {before} über {beforeDays, plural, one {den # Tag} other {die # Tage}} davor – {delta} % (Schwellen: geholfen ab +{helped} %, geschadet ab {backfired} %)",
       "notOnRecord": "der veröffentlichte Beitrag ist nicht in der Akte – nichts zu messen"
     }
+  },
+  "emails": {
+    "summary": {
+      "subjectWaiting": "Ihre Woche mit SYB: {count, plural, one {# Punkt wartet auf Sie} other {# Punkte warten auf Sie}}",
+      "subjectQuiet": "Ihre Woche mit SYB: eine ruhige Woche",
+      "subjectCalm": "Ihre Woche mit SYB: nichts braucht Sie",
+      "heading": "Ihre Woche mit SYB",
+      "headingNamed": "{business}: Ihre Woche mit SYB",
+      "quiet": "Eine ruhige Woche: In Ihrem Konto wurde nichts Neues erfasst, und nichts wartet auf Sie.",
+      "titles": {
+        "waiting": "Wartet auf Sie",
+        "stock": "Wird knapp",
+        "reviews": "Bewertungen, die Sie kennen sollten",
+        "done": "Was ich getan habe",
+        "noticed": "Was mir aufgefallen ist",
+        "goals": "Ihre Ziele",
+        "readback": "Wie sich Ihre Änderungen nach der Freigabe entwickeln",
+        "forecasts": "Wie gut meine Prognosen waren"
+      },
+      "links": {
+        "waiting": "Wartet auf Sie",
+        "support": "Support",
+        "stock": "Lagerbestand",
+        "reviews": "Bewertungen",
+        "watching": "Beobachtung",
+        "goals": "Ziele",
+        "history": "Verlauf",
+        "track": "Meine Trefferbilanz"
+      },
+      "pending": "{count, plural, one {# Vorschlag wartet} other {# Vorschläge warten}} auf Ihre Entscheidung. Nichts läuft, bevor Sie es freigeben.",
+      "pendingMore": "— und {count} weitere.",
+      "aProposal": "Ein Vorschlag",
+      "tickets": "{count, plural, one {# Kundenfrage wartet} other {# Kundenfragen warten}} unter Support auf Ihre Antwort.",
+      "executed": "Eine Änderung nach Ihrer Freigabe umgesetzt: {summary}",
+      "executedUndone": "Eine Änderung nach Ihrer Freigabe umgesetzt: {summary} (inzwischen rückgängig gemacht)",
+      "synced": "{count, plural, one {# neuen Tag} other {# neue Tage}} aus {source} gelesen.",
+      "more": "und {count} weitere",
+      "verdicts": {
+        "helped": "hat geholfen",
+        "did_nothing": "hat nichts bewirkt",
+        "backfired": "hat geschadet"
+      },
+      "judged": {
+        "revenue": "Tagesumsatz",
+        "post": "Reichweite und Interaktionen im Vergleich zu Ihren früheren Beiträgen",
+        "campaign": "Werberendite der Kampagne",
+        "email": "Ergebnisse der E-Mail"
+      },
+      "tooEarly": "{summary}: noch zu früh für ein Urteil — seit der Umsetzung gibt es nicht genug gemessene Tage.",
+      "revenue": "{summary}: {verdict} — der Tagesumsatz lag danach im Schnitt bei {after}, vorher bei {before}, gemessen.",
+      "revenuePct": "{summary}: {verdict} — der Tagesumsatz lag danach im Schnitt bei {after}, vorher bei {before} ({pct}), gemessen.",
+      "judgedOn": "{summary}: {verdict} — Maßstab: {basis}, gemessen.",
+      "judgedOnPct": "{summary}: {verdict} — Maßstab: {basis} ({pct}), gemessen.",
+      "forecasts": "Ich habe diese Woche {total, plural, one {# meiner Prognosen} other {# meiner Prognosen}} beurteilt: {inside, plural, one {# lag} other {# lagen}} in der genannten Spanne, {misses}{cant}.",
+      "missedNone": "keine daneben",
+      "missedAbove": "{missed} daneben ({above, plural, one {# lag darüber} other {# lagen darüber}})",
+      "missedBelow": "{missed} daneben ({below, plural, one {# darunter} other {# darunter}})",
+      "missedBoth": "{missed} daneben ({above, plural, one {# lag darüber} other {# lagen darüber}}, {below, plural, one {# darunter} other {# darunter}})",
+      "cantTell": ", und bei {count} konnte ich es nicht feststellen",
+      "footWatching": "Alles, was ich tue, sehen Sie unter „Beobachtung“: {url}",
+      "footApprove": "Nichts läuft, bevor Sie es freigeben.",
+      "footStop": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder bestellen Sie sie mit einem Klick ab:",
+      "footWatchingHtml": "Alles, was ich tue, sehen Sie unter <link>„Beobachtung“</link>. Nichts läuft, bevor Sie es freigeben.",
+      "footStopHtml": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder <link>bestellen Sie diese E-Mails</link> mit einem Klick ab."
+    },
+    "signIn": {
+      "subject": "Ihr Anmeldelink — SYB",
+      "intro": "Klicken Sie hier für die Anmeldung bei SYB:",
+      "expiry": "Der Link funktioniert einmal und läuft in {minutes, plural, one {# Minute} other {# Minuten}} ab. Falls Sie ihn nicht angefordert haben, ignorieren Sie diese E-Mail — ohne den Link passiert nichts."
+    },
+    "invite": {
+      "subject": "Einladung zu {business} auf SYB",
+      "subjectUnnamed": "Einladung zu einem Unternehmen auf SYB",
+      "intro": "Sie wurden eingeladen, {business} auf SYB mit der Rolle {role, select, owner {„Inhaber“} manager {„Manager“} other {„Betrachter“}} beizutreten.",
+      "introUnnamed": "Sie wurden eingeladen, einem Unternehmen auf SYB mit der Rolle {role, select, owner {„Inhaber“} manager {„Manager“} other {„Betrachter“}} beizutreten.",
+      "open": "Öffnen Sie diesen Link, um die Einladung anzunehmen:",
+      "expiry": "Er funktioniert einmal und läuft in {days, plural, one {# Tag} other {# Tagen}} ab. Die Anmeldung erfolgt mit dieser Adresse: {email}. Falls Sie die Einladung nicht erwartet haben, ignorieren Sie diese E-Mail — ohne Sie passiert nichts."
+    },
+    "supportNotice": {
+      "subject": "Eine Kundennachricht für Sie — SYB",
+      "waiting": "{business} hat eine E-Mail von Kundenseite erhalten; sie wartet unter Support auf Sie: {url}",
+      "waitingNoLink": "{business} hat eine E-Mail von Kundenseite erhalten; sie wartet unter Support auf Sie.",
+      "nothingSent": "An die Person wurde nichts gesendet. Eine Antwort geht erst hinaus, wenn Sie sie freigeben.",
+      "atMost": "Sie erhalten höchstens eine solche Nachricht pro Stunde. Unter Support können Sie sie abschalten."
+    },
+    "supportReply": {
+      "subject": "Ihre Frage an {business}"
+    },
+    "campaign": {
+      "greeting": "Guten Tag,",
+      "thisBusiness": "Dieses Unternehmen",
+      "why": "{business} sendet Ihnen diese E-Mail, weil Sie Ihre Einwilligung gegeben haben. Abbestellen: {link}"
+    }
+  },
+  "push": {
+    "one": "{count, plural, one {# Sache wartet auf Ihr Ja: {what}} other {# Sachen warten auf Ihr Ja: {what}}}",
+    "many": "{count, plural, one {# Sache wartet auf Ihr Ja} other {# Sachen warten auf Ihr Ja}}",
+    "test": "Ein Test von SYB. Benachrichtigungen erreichen dieses Gerät.",
+    "kinds": {
+      "price_increase": "eine Preisänderung",
+      "price_decrease": "eine Preisänderung",
+      "discount_or_promotion": "eine Aktion",
+      "paid_ads_start_or_increase": "eine Anzeige",
+      "paid_ads_decrease_or_pause": "eine Anzeigenänderung",
+      "content_publishing": "ein Beitrag",
+      "cold_outreach": "eine Kontaktaufnahme",
+      "channel_expansion": "ein neuer Kanal",
+      "offer_change": "eine Angebotsänderung",
+      "operations_change": "eine Änderung an Ihren Abläufen",
+      "support_knowledge": "eine Support-Antwort",
+      "customer_email": "eine E-Mail an Kunden",
+      "deal_followup": "ein Nachfassen",
+      "stock_reorder_note": "eine Nachbestellnotiz",
+      "media_generation": "ein Bild oder Clip zum Erstellen",
+      "revise_goal": "ein Ziel zum Prüfen",
+      "stop_strategy": "eine Strategie zum Prüfen",
+      "other": "ein Vorschlag"
+    }
+  },
+  "exports": {
+    "money": {
+      "field": "Feld",
+      "label": "Bezeichnung",
+      "amount": "Betrag",
+      "currency": "Währung",
+      "status": "Status",
+      "source": "Quelle",
+      "source_detail": "Quellendetail",
+      "confidence": "Konfidenz",
+      "observed_at": "Beobachtet am",
+      "recorded_at": "Erfasst am",
+      "derived_from": "Abgeleitet aus",
+      "formula": "Formel",
+      "superseded_at": "Ersetzt am"
+    },
+    "history": {
+      "when": "Zeitpunkt",
+      "kind": "Art",
+      "entry": "Eintrag",
+      "reference": "Referenz",
+      "detail": "Details",
+      "by": "Von",
+      "note": "Notiz"
+    }
+  },
+  "shared": {
+    "pageTitle": "Geteilter Bericht — SYB",
+    "label": "Geteilter Bericht",
+    "readOnly": "Geteilter Bericht · nur Lesezugriff",
+    "deadTitle": "Dieser Link ist nicht mehr aktiv.",
+    "deadBody": "Falls Sie hier einen Bericht erwartet haben, bitten Sie die Person, die ihn gesendet hat, um einen neuen Link.",
+    "foot": "Dies ist eine geteilte Momentaufnahme vom {shared} des Berichts vom {issued}. Sie zeigt den Bericht im damaligen Stand und ändert sich nicht; das Unternehmen kann sie jederzeit zurückziehen."
+  },
+  "unsubscribe": {
+    "label": "E-Mail-Einstellungen",
+    "unknownTitle": "Diesen Link erkennen wir nicht.",
+    "unknownBody": "Prüfen Sie, ob der vollständige Link aus der E-Mail kopiert wurde. Es hat sich nichts geändert.",
+    "campaign": {
+      "pageTitle": "Abbestellen",
+      "thisBusiness": "dieses Unternehmen",
+      "doneTitle": "Sie haben die Marketing-E-Mails abbestellt, die {business} versendet.",
+      "doneBody": "Über SYB erhalten Sie von dort keine Marketing-E-Mails mehr. Das gilt dauerhaft; Sie müssen nichts weiter tun.",
+      "askTitle": "Möchten Sie die Marketing-E-Mails abbestellen, die {business} versendet?",
+      "askBody": "Ein Klick genügt, und es gilt dauerhaft. Antworten auf Ihre eigenen Fragen sind davon nicht betroffen.",
+      "button": "Abbestellen"
+    }
   }
 }

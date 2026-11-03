@@ -6012,5 +6012,171 @@
       "revenue": "daily revenue averaged {after} over the {afterDays} measured day(s) after {day}, against {before} over the {beforeDays} before — {delta}% (thresholds: helped at +{helped}%, backfired at {backfired}%)",
       "notOnRecord": "the published item is not on record — nothing to measure"
     }
+  },
+  "emails": {
+    "summary": {
+      "subjectWaiting": "Your week with SYB: {count, plural, one {# waiting for you} other {# waiting for you}}",
+      "subjectQuiet": "Your week with SYB: a quiet one",
+      "subjectCalm": "Your week with SYB: nothing needs you",
+      "heading": "Your week with SYB",
+      "headingNamed": "{business}: your week with SYB",
+      "quiet": "A quiet week: nothing new was recorded on your account, and nothing is waiting for you.",
+      "titles": {
+        "waiting": "Waiting for you",
+        "stock": "Running low",
+        "reviews": "Reviews worth knowing",
+        "done": "What I did",
+        "noticed": "What I noticed",
+        "goals": "Your goals",
+        "readback": "How your approved changes are doing",
+        "forecasts": "How my forecasts did"
+      },
+      "links": {
+        "waiting": "Waiting for you",
+        "support": "Support",
+        "stock": "Stock",
+        "reviews": "Reviews",
+        "watching": "Watching",
+        "goals": "Goals",
+        "history": "History",
+        "track": "My track record"
+      },
+      "pending": "{count, plural, one {# proposal waits} other {# proposals wait}} for your decision. Nothing runs until you approve it.",
+      "pendingMore": "— and {count} more.",
+      "aProposal": "A proposal",
+      "tickets": "{count, plural, one {# customer question waits} other {# customer questions wait}} for your answer on Support.",
+      "executed": "Made a change you approved: {summary}",
+      "executedUndone": "Made a change you approved: {summary} (since undone)",
+      "synced": "Read {count, plural, one {# new day} other {# new days}} from {source}.",
+      "more": "and {count} more",
+      "verdicts": {
+        "helped": "helped",
+        "did_nothing": "did nothing",
+        "backfired": "backfired"
+      },
+      "judged": {
+        "revenue": "daily revenue",
+        "post": "reach and interactions against your previous posts",
+        "campaign": "the campaign's return on ad spend",
+        "email": "the email's results"
+      },
+      "tooEarly": "{summary}: too early to say — not enough measured days since it ran.",
+      "revenue": "{summary}: {verdict} — daily revenue averaged {after} after, against {before} before, measured.",
+      "revenuePct": "{summary}: {verdict} — daily revenue averaged {after} after, against {before} before ({pct}), measured.",
+      "judgedOn": "{summary}: {verdict} — judged on {basis}, measured.",
+      "judgedOnPct": "{summary}: {verdict} — judged on {basis} ({pct}), measured.",
+      "forecasts": "I graded {total, plural, one {# of my forecasts} other {# of my forecasts}} this week: {inside, plural, one {# landed} other {# landed}} inside the range I gave, {misses}{cant}.",
+      "missedNone": "none missed",
+      "missedAbove": "{missed} missed ({above, plural, one {# came in above it} other {# came in above it}})",
+      "missedBelow": "{missed} missed ({below, plural, one {# below it} other {# below it}})",
+      "missedBoth": "{missed} missed ({above, plural, one {# came in above it} other {# came in above it}}, {below, plural, one {# below it} other {# below it}})",
+      "cantTell": ", and I couldn't tell on {count}",
+      "footWatching": "Everything I do is on your Watching screen: {url}",
+      "footApprove": "Nothing runs until you approve it.",
+      "footStop": "You get this email once a week. Switch it off on the Watching screen, or stop it with one click:",
+      "footWatchingHtml": "Everything I do is on your <link>Watching screen</link>. Nothing runs until you approve it.",
+      "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click."
+    },
+    "signIn": {
+      "subject": "Your sign-in link — SYB",
+      "intro": "Click to sign in to SYB:",
+      "expiry": "The link works once and expires in {minutes, plural, one {# minute} other {# minutes}}. If you didn't ask for it, ignore this email — nothing happens without the link."
+    },
+    "invite": {
+      "subject": "You're invited to {business} on SYB",
+      "subjectUnnamed": "You're invited to a business on SYB",
+      "intro": "You've been invited to join {business} on SYB as {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
+      "introUnnamed": "You've been invited to join a business on SYB as {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
+      "open": "Open this link to accept:",
+      "expiry": "It works once and expires in {days, plural, one {# day} other {# days}}. You'll sign in with this address, {email}. If you weren't expecting it, ignore this email — nothing happens without you."
+    },
+    "supportNotice": {
+      "subject": "A customer emailed you — SYB",
+      "waiting": "A customer emailed {business}, and it's waiting for you in Support: {url}",
+      "waitingNoLink": "A customer emailed {business}, and it's waiting for you in Support.",
+      "nothingSent": "Nothing has been sent to them. A reply goes only when you approve it.",
+      "atMost": "You get at most one of these an hour. Switch them off on the Support screen."
+    },
+    "supportReply": {
+      "subject": "Your question to {business}"
+    },
+    "campaign": {
+      "greeting": "Hello,",
+      "thisBusiness": "This business",
+      "why": "You're getting this because you agreed to hear from {business}. Unsubscribe: {link}"
+    }
+  },
+  "push": {
+    "one": "{count, plural, one {# thing waits for your yes: {what}} other {# things wait for your yes: {what}}}",
+    "many": "{count, plural, one {# thing waits for your yes} other {# things wait for your yes}}",
+    "test": "A test from SYB. Alerts will reach this device.",
+    "kinds": {
+      "price_increase": "a price change",
+      "price_decrease": "a price change",
+      "discount_or_promotion": "a promotion",
+      "paid_ads_start_or_increase": "an ad",
+      "paid_ads_decrease_or_pause": "an ad change",
+      "content_publishing": "a post",
+      "cold_outreach": "an outreach message",
+      "channel_expansion": "a new channel",
+      "offer_change": "a change to an offer",
+      "operations_change": "a change to how you run things",
+      "support_knowledge": "a support answer",
+      "customer_email": "an email to customers",
+      "deal_followup": "a follow-up",
+      "stock_reorder_note": "a reorder note",
+      "media_generation": "an image or clip to make",
+      "revise_goal": "a goal to look at",
+      "stop_strategy": "a strategy to look at",
+      "other": "a proposal"
+    }
+  },
+  "exports": {
+    "money": {
+      "field": "field",
+      "label": "label",
+      "amount": "amount",
+      "currency": "currency",
+      "status": "status",
+      "source": "source",
+      "source_detail": "source_detail",
+      "confidence": "confidence",
+      "observed_at": "observed_at",
+      "recorded_at": "recorded_at",
+      "derived_from": "derived_from",
+      "formula": "formula",
+      "superseded_at": "superseded_at"
+    },
+    "history": {
+      "when": "when",
+      "kind": "kind",
+      "entry": "entry",
+      "reference": "reference",
+      "detail": "detail",
+      "by": "by",
+      "note": "note"
+    }
+  },
+  "shared": {
+    "pageTitle": "Shared report — SYB",
+    "label": "Shared report",
+    "readOnly": "Shared report · read only",
+    "deadTitle": "This link is no longer active.",
+    "deadBody": "If you were expecting a report here, ask the person who sent it for a new link.",
+    "foot": "This is a shared snapshot, made {shared}, of the report issued {issued}. It shows the report as it was then and does not change; the business can withdraw it at any time."
+  },
+  "unsubscribe": {
+    "label": "Email preferences",
+    "unknownTitle": "This link isn’t one we recognise.",
+    "unknownBody": "Check that the whole link from the email was copied. Nothing has changed.",
+    "campaign": {
+      "pageTitle": "Unsubscribe",
+      "thisBusiness": "this business",
+      "doneTitle": "You’re unsubscribed from {business}.",
+      "doneBody": "They won’t send you marketing email through SYB again. This is permanent; you don’t need to do anything else.",
+      "askTitle": "Stop marketing email from {business}?",
+      "askBody": "One click and it’s done, for good. Replies to your own questions are not affected.",
+      "button": "Unsubscribe"
+    }
   }
 }
