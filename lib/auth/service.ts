@@ -80,6 +80,8 @@ export interface LoginRequest {
   token: string;
   email: string;
   expires_at: string;
+  /** L-6: the language the link carries (login_tokens.language), for the email itself. */
+  language: AppLocale | null;
 }
 
 /**
@@ -110,7 +112,7 @@ export async function requestLogin(
     currency: chosen.currency,
   });
 
-  return { token, email, expires_at: expires };
+  return { token, email, expires_at: expires, language: chosen.language };
 }
 
 export interface RedeemedSession {
@@ -324,6 +326,13 @@ export interface AuthedSession {
   role: Role;
   /** The auth_sessions row: idea 53 ties a phone's alerts to the sign-in that switched them on. */
   session_id?: string;
+  /**
+   * L-4a: the person's own language (users.language; null until chosen),
+   * for the few refusals answered before a request translator exists
+   * (lib/auth/roles requireRole). Still gated: a review language is used
+   * only for a named reviewer.
+   */
+  language?: string | null;
 }
 
 /** Resolve the auth cookie's token to a live session, or null. */
@@ -337,6 +346,7 @@ export async function currentSession(token: string | undefined): Promise<AuthedS
       user_id: authSessions.user_id,
       email: users.email,
       role: users.role,
+      language: users.language,
     })
     .from(authSessions)
     .innerJoin(users, eq(users.id, authSessions.user_id))

@@ -27,10 +27,26 @@ import type { Access } from "./access";
 import type { Role, RoleAction } from "./role-actions";
 import { ROLE_ACTIONS, refusalFor, roleAllows } from "./role-actions";
 import type { AuthedSession } from "./service";
+import type { AppLocale } from "../i18n/locales";
+import { resolveLanguage } from "../i18n/locales";
+import { isLanguageReviewer } from "../i18n/review";
+import { trFor } from "../i18n/server-tr";
 
 export * from "./role-actions";
 
 type Who = AuthedSession | Pick<Access, "owned" | "session"> | null | undefined;
+
+/**
+ * L-4a: the language a refusal is written in — the signed-in person's own
+ * (users.language), through the status gate (rule 6 of TASKS-LANGUAGES):
+ * a review language only for a named reviewer. English otherwise, and for
+ * the anonymous interview, which has nobody to ask.
+ */
+export function languageOf(who: Who): AppLocale {
+  const session = !who ? null : "role" in who ? who : who.session;
+  if (!session) return "en";
+  return resolveLanguage(session.language, isLanguageReviewer(session));
+}
 
 /**
  * Pure: the role a caller acts with. A signed-in session carries its
@@ -58,7 +74,11 @@ export function requireRole(who: Who, action: RoleAction): NextResponse | null {
   }
   if (roleAllows(role, action)) return null;
   return NextResponse.json(
-    { error: refusalFor(action), needs: ROLE_ACTIONS[action].min, role },
+    {
+      error: refusalFor(action, trFor(languageOf(who), "roleWords")),
+      needs: ROLE_ACTIONS[action].min,
+      role,
+    },
     { status: 403 },
   );
 }

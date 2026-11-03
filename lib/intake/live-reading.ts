@@ -12,6 +12,8 @@
 // Pure: rows in, view and reading out.
 
 import type { EconomicsResult } from "../economics/unit-economics";
+import type { EconWords } from "../economics/words";
+import { ENGLISH_ECON, econText } from "../economics/words";
 import type { Field } from "../core/field";
 import type { FieldRecordRow } from "../profile/field-codec";
 import { rowToField } from "../profile/field-codec";
@@ -60,14 +62,20 @@ export function currentRecordsView(
  * fixed 0–100 scale, which is what a dial needs; money figures have no
  * natural scale to put a needle on. Null — and the card hides — when the
  * engine refused (no priced offer with a cost to deliver).
+ *
+ * L-4a: the label and the formula in the reader's language ("econWords"),
+ * English by default.
  */
-export function liveReadingOf(economics: EconomicsResult): LiveReading | null {
+export function liveReadingOf(
+  economics: EconomicsResult,
+  words: EconWords = ENGLISH_ECON,
+): LiveReading | null {
   const blended = economics.blended_margin_pct;
   if (blended === null || !Number.isFinite(blended.value)) return null;
   return {
-    label: "Blended margin",
+    label: words.tr("live.label"),
     value_pct: blended.value,
-    formula: blended.formula,
+    formula: econText(blended.formula, "formula", words),
     inputs: new Set(blended.derived_from).size,
     stated_pct: economics.stated_vs_computed_margin?.stated_pct ?? null,
   };

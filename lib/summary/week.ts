@@ -6,6 +6,8 @@
 // covers is the seven days up to the moment it is composed — the weekly
 // beat runs every Monday, so consecutive emails tile the calendar.
 
+import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
 import { parseInstant } from "../watch/watch-view";
 
 const DAY_MS = 86_400_000;
@@ -44,15 +46,37 @@ export function instant(at: string): Date {
   return new Date(parseInstant(at));
 }
 
-/** "Mon 20 Oct" in UTC, as the watch screen prints a day. */
-export function dayLabel(at: string): string {
+/**
+ * "Mon 20 Oct" in UTC, as the watch screen prints a day. L-6: another
+ * language writes its own ("Mo., 20. Okt.", "10月20日周一").
+ */
+export function dayLabel(at: string, locale: AppLocale = "en"): string {
   const d = instant(at);
+  if (locale !== "en") {
+    return new Intl.DateTimeFormat(intlTag(locale), {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    }).format(d);
+  }
   return `${WEEKDAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
 }
 
-/** "20 Oct – 26 Oct 2026": the window as the email's heading prints it. */
-export function windowLabel(w: SummaryWindow): string {
+/**
+ * "20 Oct – 26 Oct 2026": the window as the email's heading prints it. L-6:
+ * another language writes the range its own way ("20.–26. Okt. 2026").
+ */
+export function windowLabel(w: SummaryWindow, locale: AppLocale = "en"): string {
   const a = instant(w.from);
   const b = instant(w.to);
+  if (locale !== "en") {
+    return new Intl.DateTimeFormat(intlTag(locale), {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    }).formatRange(a, b);
+  }
   return `${a.getUTCDate()} ${MONTHS[a.getUTCMonth()]} – ${b.getUTCDate()} ${MONTHS[b.getUTCMonth()]} ${b.getUTCFullYear()}`;
 }

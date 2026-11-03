@@ -14,7 +14,8 @@
 // L-3a: the screen's words are the "watch" catalogue in the reader's
 // language, and every figure and date their own writing. A signal's noun,
 // a rule's text and a log line are written by lib/ (L-4 of
-// TASKS-LANGUAGES.md) or stored as they happened, and print as they are.
+// TASKS-LANGUAGES.md) or stored as they happened; L-4a reads them in the
+// reader's language through lib/watch/words ("watchWords").
 
 import "../../app/watch.css";
 import { useCallback, useEffect, useState } from "react";
@@ -24,7 +25,7 @@ import { useTranslations } from "next-intl";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { PhoneAlertsCard } from "./PhoneAlertsCard";
 import { moneyText, num } from "../sheet/num";
-import { useAppLocale } from "../sheet/useTr";
+import { useAppLocale, useTr } from "../sheet/useTr";
 import { minorUnitExponent } from "../../lib/core/money";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
@@ -32,6 +33,13 @@ import type { WatchReading } from "../../lib/watch/signals";
 import type { SignalStatus, WatchDays, WatchSignal } from "../../lib/watch/watch-view";
 import { NOTED_KINDS, dayOfWatch, parseInstant, watchDays } from "../../lib/watch/watch-view";
 import { MIN_BASELINE_DAYS, RUN_DAYS } from "../../lib/anomaly/baseline";
+import type { WatchWords } from "../../lib/watch/words";
+import { logWords, moduleWords, ruleWords, signalNoun, sourceWords } from "../../lib/watch/words";
+
+/** L-4a: the watch's lib-built words in the reader's language. */
+function useWatchWords(): WatchWords {
+  return useTr("watchWords");
+}
 
 interface LogEntry {
   at: string;
@@ -141,6 +149,7 @@ function DayStrip({ w }: { w: WatchDays }) {
 
 function SignalsCard({ reading }: { reading: WatchReading }) {
   const t = useTranslations("watch");
+  const ww = useWatchWords();
   const locale = useAppLocale();
   const { signals } = reading;
   const hasThin = signals.some((s) => s.status === "thin");
@@ -197,12 +206,12 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
               {signals.map((s) => (
                 <tr key={s.key}>
                   <th scope="row">
-                    {s.noun}
+                    {signalNoun(s.metric_key, s.noun, ww)}
                     {s.currency && signals.filter((x) => x.noun === s.noun).length > 1
                       ? ` (${s.currency})`
                       : ""}
                   </th>
-                  <td className="src">{s.read_from}</td>
+                  <td className="src">{sourceWords(s.read_from, ww)}</td>
                   <td className="num">{num(s.readings, 0, locale)}</td>
                   <td className="num">{weeks(s, locale)}</td>
                   <td>
@@ -231,6 +240,7 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
 
 function NotedCard({ log, w }: { log: LogEntry[]; w: WatchDays }) {
   const t = useTranslations("watch");
+  const ww = useWatchWords();
   const noted = log.filter(
     (e) => NOTED_KINDS.has(e.kind) && dayOfWatch(e.at, w.start, w.of) !== null,
   );
@@ -247,7 +257,13 @@ function NotedCard({ log, w }: { log: LogEntry[]; w: WatchDays }) {
               <span className="wt-at">
                 {t("noted.day", { day: dayOfWatch(e.at, w.start, w.of) ?? 0 })}
               </span>
-              <p>{i === 0 && fresh ? <span className="marked">{e.detail}</span> : e.detail}</p>
+              <p>
+                {i === 0 && fresh ? (
+                  <span className="marked">{logWords(e.detail, ww)}</span>
+                ) : (
+                  logWords(e.detail, ww)
+                )}
+              </p>
             </li>
           ))}
         </ul>
@@ -291,6 +307,7 @@ function WhenCard({ w }: { w: WatchDays }) {
 
 function ActivityCard({ log }: { log: LogEntry[] }) {
   const t = useTranslations("watch");
+  const ww = useWatchWords();
   const locale = useAppLocale();
   const work = log.filter((e) => !NOTED_KINDS.has(e.kind));
   return (
@@ -302,7 +319,7 @@ function ActivityCard({ log }: { log: LogEntry[] }) {
           {work.slice(0, 12).map((e) => (
             <li key={`${e.at}-${e.kind}`}>
               <span className="wt-at">{dayText(e.at, false, locale)}</span>
-              <p>{e.detail}</p>
+              <p>{logWords(e.detail, ww)}</p>
             </li>
           ))}
         </ul>
@@ -313,12 +330,13 @@ function ActivityCard({ log }: { log: LogEntry[] }) {
 
 function RulesCard({ thresholds }: { thresholds: WatchView["thresholds"] }) {
   const t = useTranslations("watch");
+  const ww = useWatchWords();
   return (
     <SheetCard label={t("rules.label")}>
       <ul className="wt-rules">
         {thresholds.map((r) => (
           <li key={r.text}>
-            <span>{r.text}</span>
+            <span>{ruleWords(r.text, ww)}</span>
             <span className={`word ${r.enforced ? "ok" : "low"}`}>
               {r.enforced ? t("rules.checked") : t("rules.notChecked")}
             </span>
@@ -337,6 +355,7 @@ function ModulesCard({
   onToggle: (module: string, enabled: boolean) => void;
 }) {
   const t = useTranslations("watch");
+  const ww = useWatchWords();
   return (
     <SheetCard label={t("modules.label")} title={t("modules.title")}>
       <fieldset className="wt-modules">
@@ -353,12 +372,12 @@ function ModulesCard({
               <span>{t("modules.name", { module: m.module })}</span>
             </label>
           ))}
-        <label className="wt-module fixed" title={modules.analytics.why}>
+        <label className="wt-module fixed" title={moduleWords(modules.analytics.why, ww)}>
           <input type="checkbox" checked disabled />
           <span>{t("modules.analytics")}</span>
         </label>
       </fieldset>
-      <p className="wt-why">{modules.analytics.why}</p>
+      <p className="wt-why">{moduleWords(modules.analytics.why, ww)}</p>
       {modules.modules
         .filter((m) => m.why)
         .map((m) => (
@@ -372,7 +391,7 @@ function ModulesCard({
               <span>{t("modules.rolesNotPeople", { module: m.module })}</span>
             </label>
             <p className="wt-why">
-              {m.why}
+              {moduleWords(m.why ?? "", ww)}
               {m.enabled && (
                 <>
                   {" "}

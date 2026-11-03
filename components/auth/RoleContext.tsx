@@ -8,11 +8,14 @@
 // server is the authority: every mutating route checks the role itself.
 // While the role is still loading, nothing is disabled — a click a role
 // can't make is refused by the route, in those same words.
+//
+// L-4a: the reason is the "roleWords" catalogue's, in the reader's language.
 
 import { createContext, useContext } from "react";
 import type { NavAccess } from "../../app/api/nav/route";
 import type { RoleAction } from "../../lib/auth/role-actions";
 import { refusalFor, roleAllows } from "../../lib/auth/role-actions";
+import { useTr } from "../sheet/useTr";
 
 const AccessContext = createContext<NavAccess | null>(null);
 
@@ -28,6 +31,7 @@ export interface RoleGate {
 
 export function useRole(): RoleGate {
   const access = useContext(AccessContext);
+  const { tr } = useTr("roleWords");
   const can = (action: RoleAction) => access === null || roleAllows(access.role, action);
-  return { access, can, why: (action) => (can(action) ? null : refusalFor(action)) };
+  return { access, can, why: (action) => (can(action) ? null : refusalFor(action, tr)) };
 }

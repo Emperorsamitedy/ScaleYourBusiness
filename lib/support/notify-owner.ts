@@ -18,6 +18,8 @@ import { and, asc, eq, isNull, lt, or } from "drizzle-orm";
 import { db } from "../../db";
 import { supportSettings, users } from "../../db/schema";
 import { appUrl, resendApiKey } from "../env";
+import type { Words } from "../i18n/recipient";
+import { englishWords, personLocale, wordsFor } from "../i18n/recipient";
 
 export const OWNER_NOTICE_GAP_MS = 60 * 60 * 1000;
 /** A notice Resend hasn't answered by now is given up on (review 2026-10-23, #24): the webhook waits on it. */
@@ -27,6 +29,21 @@ export type NoticeOutcome =
   "sent" | "not_configured" | "off" | "recently_sent" | "no_owner" | "failed";
 
 export type NoticeFetch = (url: string, init: RequestInit) => Promise<Response>;
+
+/** Pure: the notice's subject and text in one language (L-6; English by default, as before). */
+export function ownerNoticeContent(
+  business: string,
+  origin: string,
+  w: Words = englishWords("emails.supportNotice"),
+): { subject: string; text: string } {
+  const waiting = origin
+    ? w.t("waiting", { business, url: `${origin}/support` })
+    : w.t("waitingNoLink", { business });
+  return {
+    subject: w.t("subject"),
+    text: `${waiting}\n\n${w.t("nothingSent")}\n\n${w.t("atMost")}`,
+  };
+}
 
 export async function notifyOwnerOfEmailTicket(args: {
   profileId: string;
@@ -56,7 +73,7 @@ export async function notifyOwnerOfEmailTicket(args: {
   if (!key) return done("not_configured");
   if (!settings.notify_owner) return done("off");
   const [owner] = await db
-    .select({ email: users.email })
+    .select({ email: users.email, language: users.language })
     .from(users)
     .where(
       and(
@@ -87,6 +104,15 @@ export async function notifyOwnerOfEmailTicket(args: {
   if (!claimed) return done("recently_sent");
 
   const origin = appUrl()?.replace(/\/$/, "") ?? "";
+  // L-6: in the owner's own language, while it is open to them; English otherwise.
+  const content = ownerNoticeContent(
+    settings.business_name,
+    origin,
+    await wordsFor(
+      personLocale(owner.language, { email: owner.email, account_id: settings.account_id }),
+      "emails.supportNotice",
+    ),
+  );
   const res = await (args.fetchImpl ?? fetch)("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -97,12 +123,8 @@ export async function notifyOwnerOfEmailTicket(args: {
     body: JSON.stringify({
       from: process.env.EMAIL_FROM?.trim() || "SYB <onboarding@resend.dev>",
       to: [owner.email],
-      subject: "A customer emailed you — SYB",
-      text:
-        `A customer emailed ${settings.business_name}, and it's waiting for you in Support` +
-        `${origin ? `: ${origin}/support` : "."}\n\n` +
-        `Nothing has been sent to them. A reply goes only when you approve it.\n\n` +
-        `You get at most one of these an hour. Switch them off on the Support screen.`,
+      subject: content.subject,
+      text: content.text,
     }),
     signal: AbortSignal.timeout(args.timeoutMs ?? OWNER_NOTICE_TIMEOUT_MS),
   }).catch(() => null);

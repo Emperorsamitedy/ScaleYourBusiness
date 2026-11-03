@@ -5608,5 +5608,575 @@
   },
   "modelWords": {
     "reportWrittenIn": "本报告以{language}撰写，即生成报告者所用的语言。"
+  },
+  "roleWords": {
+    "refusal": {
+      "stop_press": "只有所有者或经理可以按下紧急停止。",
+      "intake_open": "只有所有者或经理可以打开访谈。",
+      "telemetry_record": "只有所有者或经理可以记录各个页面的使用情况。",
+      "chat_ask": "只有所有者或经理可以在聊天中向我提问。",
+      "alerts_remove_device": "只有所有者或经理可以把自己的某部手机从提醒中移除。",
+      "language_own": "只有所有者或经理可以选择阅读 SYB 所用的语言。",
+      "proposals_decide": "只有所有者或经理可以批准或拒绝提案。",
+      "proposals_generate": "只有所有者或经理可以让我提出新的提案。",
+      "proposals_carry_out": "只有所有者或经理可以执行或撤销已批准的提案。",
+      "content_draft": "只有所有者或经理可以起草内容。",
+      "support_answer": "只有所有者或经理可以回复客户支持消息。",
+      "reviews_answer": "只有所有者或经理可以登记、回复或移除评价。",
+      "pipeline_edit": "只有所有者或经理可以更改销售管道。",
+      "connections_sync": "只有所有者或经理可以立即重新读取已连接的账户。",
+      "alerts_subscribe": "只有所有者或经理可以接收提案的手机提醒。",
+      "connections_manage": "只有所有者可以连接或断开账户。",
+      "write_access_manage": "只有所有者可以授予或收回写入权限。",
+      "billing_manage": "只有所有者可以为报告付款。",
+      "erasure_run": "只有所有者可以抹除某位客户的个人信息。",
+      "data_import": "只有所有者可以导入客户、库存或预订文件。",
+      "team_manage": "只有所有者可以邀请、更改或移除团队成员。",
+      "rules_manage": "只有所有者可以更改我为这家企业工作的方式。",
+      "profile_edit": "只有所有者可以更改企业的事实、目标或限额。",
+      "report_generate": "只有所有者可以生成新的报告。",
+      "report_respond": "只有所有者可以回应报告中的发现。",
+      "report_share": "只有所有者可以在 SYB 之外分享报告。",
+      "competitors_manage": "只有所有者可以更改或调研竞争对手列表。",
+      "site_audit": "只有所有者可以检查网站。",
+      "support_settings": "只有所有者可以更改客户支持的设置方式。",
+      "reviews_settings": "只有所有者可以更改评价转发到的地址。",
+      "summary_settings": "只有所有者可以开启或关闭每周摘要。",
+      "stop_resume": "只有所有者可以在停止后重新启动。",
+      "business_locale": "只有所有者可以更改企业的语言或货币。"
+    }
+  },
+  "authWords": {
+    "error": {
+      "emailNeeded": "需要一个电子邮箱地址",
+      "emailNotSent": "我刚才没能发送登录邮件——请过一分钟再试。",
+      "wrong": "我们这边出了点问题",
+      "wrongEmailWorks": "我们这边出了点问题——邮件中的链接仍然有效",
+      "linkInvalid": "该登录链接已失效",
+      "signInInvalid": "该登录已失效",
+      "accountFailed": "无法创建账户",
+      "malformedToken": "服务提供方返回了格式错误的令牌",
+      "noEmail": "{provider} 没有提供电子邮箱地址——请改用邮件链接",
+      "unverified": "{provider} 显示该地址未经验证——请改用邮件链接",
+      "notVerified": "{provider} 登录无法验证（{why}）——请改用邮件链接",
+      "failed": "{provider} 登录失败——请重试或使用邮件链接",
+      "notConnected": "该登录方式尚未接入——您的电子邮箱现在就能用。",
+      "notConnectedNamed": "{provider} 登录尚未接入——下方的电子邮箱现在就能用。",
+      "expired": "该登录尝试已过期——请重试",
+      "notEmail": "这看起来不像电子邮箱地址",
+      "noProfile": "没有这个档案",
+      "linkNotValid": "此链接无效",
+      "linkExpired": "此链接已过期或已失效",
+      "noBusiness": "没有这家企业",
+      "chooseAgain": "请在我们的页面上重新选择企业",
+      "addOnPage": "请在我们的页面上添加企业",
+      "signInFirst": "请先登录"
+    },
+    "why": {
+      "otherApp": "签发给了其他应用",
+      "issuer": "签发方不正确",
+      "emailUnverified": "电子邮箱未经验证",
+      "orgEmail": "该组织的电子邮箱未被验证为其自有邮箱",
+      "unknown": "未知的服务提供方"
+    }
+  },
+  "econWords": {
+    "what": {
+      "fixed": "每月固定成本",
+      "fixedPartial": "每月固定成本（部分）",
+      "breakEven": "盈亏平衡点",
+      "aov": "客单价",
+      "cpa": "每次获客成本",
+      "roas": "广告支出回报率",
+      "offerMargins": "各产品的利润率",
+      "marginFor": "{name} 的利润率"
+    },
+    "why": {
+      "fixedCurrency": "记录的货币是 {recorded}，而档案以 {reporting} 呈报——换算需要汇率，但没有人提供给我",
+      "fixedPartial": "这些成本项没有金额、没有支付周期，或者按单位计费，不是固定的每月数字",
+      "noFixed": "没有记录每月固定成本，因此没有需要覆盖的部分",
+      "noContribution": "没有任何产品同时记录了价格和成本，因此无法计算每笔销售的贡献",
+      "losesMoney": "按这些价格，每笔销售都在亏钱——无论销量多少都无法达到盈亏平衡",
+      "aovInputs": "月营收和订单数量两者都需要；我不会估算其中任何一个",
+      "cpaInputs": "三项缺一，我就无法区分新客户和回头客，而把回头购买者算作新获客的 CPA 会让数字显得比实际更好",
+      "cpaCurrency": "广告支出以 {spend} 计，但档案以 {reporting} 呈报——这需要汇率",
+      "noNewCustomers": "按复购率计算，本月没有新客户",
+      "roasInputs": "月营收和每月广告支出两者都需要；其中一边靠猜的比率只是猜测",
+      "noSpend": "广告支出为零，因此谈不上回报",
+      "roasCurrency": "营收以 {revenue} 计，广告支出以 {spend} 计；档案以 {reporting} 呈报，换算需要汇率，但没有人提供给我",
+      "noPrice": "还没有任何产品记录了价格",
+      "mixedCurrency": "价格和成本使用的是不同的货币",
+      "noCost": "没有记录交付成本，因此利润率是未知的，而不是假定的"
+    },
+    "formula": {
+      "offerMargin": "(价格 − 交付成本) ÷ 价格 × {hundred}",
+      "contribution": "价格 − 交付成本",
+      "blendedWeighted": "Σ(产品利润率 × 销量) ÷ Σ(销量)",
+      "blendedMean": "平均值(各产品利润率)——没有记录销量，因此每个产品只计一次",
+      "fixed": "Σ(固定成本 ÷ 支付周期月数)",
+      "breakEvenWeighted": "固定成本 ÷ 每单位加权贡献——假定当前的产品组合保持不变",
+      "breakEvenMean": "固定成本 ÷ 每单位平均贡献——没有记录销量，因此假定产品组合均匀",
+      "aov": "月营收 ÷ 月订单数",
+      "cpa": "广告支出 ÷ (订单数 × ({one} − 复购率))",
+      "roas": "月营收 ÷ 月广告支出（综合计算：全部营收除以全部广告支出，不做归因）"
+    },
+    "live": {
+      "label": "综合利润率"
+    }
+  },
+  "reportWords": {
+    "quiet": {
+      "oneRel": "您给我的数字与您账户中的数据相符，误差在 {pct}% 以内。",
+      "oneSmall": "您给我的数字与您账户中的数据相符，误差在 {pct}% 以内或只差一小笔。",
+      "someRel": "您给我的 {total} 个数字中，有 {n} 个与您账户中的数据相符，误差在 {pct}% 以内。",
+      "someSmall": "您给我的 {total} 个数字中，有 {n} 个与您账户中的数据相符，误差在 {pct}% 以内或只差一小笔。",
+      "bothRel": "您给我的两个数字都与您账户中的数据相符，误差在 {pct}% 以内。",
+      "bothSmall": "您给我的两个数字都与您账户中的数据相符，误差在 {pct}% 以内或只差一小笔。",
+      "allRel": "您给我的全部 {n} 个数字都与您账户中的数据相符，误差在 {pct}% 以内。",
+      "allSmall": "您给我的全部 {n} 个数字都与您账户中的数据相符，误差在 {pct}% 以内或只差一小笔。"
+    },
+    "gap": {
+      "core": "属于核心问题——缺少它，诊断将无法运行",
+      "coreOpens": "属于核心问题——缺少它，诊断将无法运行，并会引出 {count, plural, other {# 个后续问题}}",
+      "important": "让涉及它的发现更加精准",
+      "importantOpens": "让涉及它的发现更加精准，并会引出 {count, plural, other {# 个后续问题}}",
+      "deep": "在核心情况清楚之后增加精确度",
+      "deepOpens": "在核心情况清楚之后增加精确度，并会引出 {count, plural, other {# 个后续问题}}",
+      "context": "背景信息，您有兴致时再回答",
+      "contextOpens": "背景信息，您有兴致时再回答，并会引出 {count, plural, other {# 个后续问题}}"
+    }
+  },
+  "validationWords": {
+    "margin_mismatch": "您告诉我您的毛利率约为 {stated}%。根据您的产品价格和成本计算，约为 {computed}%。",
+    "revenue_vs_offers": "您告诉我每月营收约为 {stated}。您各产品的价格乘以销量，加起来约为 {sum}。",
+    "costs_exceed_revenue": "您的每月成本加起来约为 {total}，超过了进账的 {revenue}——而营收却被标记为正在增长。",
+    "inventory_without_supplier": "您的产品持有存货，但我还没有记录任何供应商。",
+    "channel_without_revenue": "您标记了一个主要销售渠道，但它还没有营收数字。",
+    "key_person_undocumented": "这项服务高度依赖某一个人，而且还没有任何书面流程。",
+    "stage_vs_revenue": "您把这家企业描述为还处于想法阶段。您也告诉我已经有营收进账。",
+    "stale_financials": "我掌握的最新营收数字是在 {days, plural, other {# 天}}前观测到的。",
+    "single_supplier_top_offer": "一切都依赖于单一供应商，而且没有记录任何替代方案。"
+  },
+  "hoursWords": {
+    "line": {
+      "squareOnly": "在 Square 中收银的刷卡和现金付款——从不经过收银机的现金无法看到",
+      "squareAnd": "在 Square 中收银的刷卡和现金付款，以及通过 {providers} 的刷卡付款——从不经过收银机的现金无法看到",
+      "cards": "仅限通过 {providers} 的刷卡付款——任何连接都看不到现金销售",
+      "limit": "不营业的时段不会记录任何销售，因此这只能推测提前开门或推迟关门会带来什么。为期四周的试行才是证明。"
+    }
+  },
+  "watchWords": {
+    "signal": {
+      "revenue": "营收",
+      "orders": "订单",
+      "sessions": "网站访问量",
+      "ad_spend": "广告支出",
+      "ad_purchases": "广告带来的购买",
+      "units": "售出数量",
+      "appointments_completed": "已完成的预约",
+      "booking_revenue": "预订营收"
+    },
+    "source": {
+      "bookings_import": "预订导出文件"
+    },
+    "rule": {
+      "revenueDrop": "营收周环比下降超过 {pct}%",
+      "critical": "出现严重级别的验证发现",
+      "reopen": "您重新打开了诊断所依据的某个核心回答"
+    },
+    "module": {
+      "analytics": "没有测量，观察模式就什么也看不见——分析正是它用来观察的工具。",
+      "team": "团队：当一周需要更多人手，或人手多于所需时，按岗位和时段提示。它从不对任何个人打分、排名或评价。除非您开启，否则保持关闭。"
+    },
+    "data": {
+      "payments": "收款",
+      "orders": "订单",
+      "traffic": "流量",
+      "adSpend": "广告支出",
+      "data": "数据"
+    },
+    "field": {
+      "monthlyRevenue": "月营收",
+      "orderCount": "订单数量",
+      "adSpend": "广告支出",
+      "costPerPurchase": "每次购买成本",
+      "websiteVisits": "网站访问量",
+      "unitsSold": "售出数量",
+      "visitsPerChannel": "各渠道访问量"
+    },
+    "part": {
+      "changed": "{count} 项已更改",
+      "new": "{count} 项新增",
+      "removed": "{count} 项已移除",
+      "none": "没有字段变动"
+    },
+    "log": {
+      "started": "开始观察：为期 {weeks} 周，于 {date} 复查。",
+      "shortened": "观察期缩短为 {weeks} 周——已经所有者确认。",
+      "extended": "应所有者要求，观察期延长至 {weeks} 周。",
+      "complete": "观察期已完成。下一份报告会读取这期间收集到的所有内容。",
+      "baseline": "已记录基线快照：{count} 个事实。",
+      "steady": "每周检查：档案保持平稳——自上周以来没有任何变化。",
+      "diff": "每周快照：自上周以来 {parts}。",
+      "cleared": "截至 {date}，{noun}已回到常规范围内。",
+      "fell": "{noun}连续 {days} 天比预期水平低 {pct}%：{date} 为 {actual}，而预期为 {expected}（{window} 天平均值 {mean} × {weekday}系数 {factor}；为常规波动的 {deviation} 倍，阈值为 {k} 倍）。",
+      "rose": "{noun}连续 {days} 天比预期水平高 {pct}%：{date} 为 {actual}，而预期为 {expected}（{window} 天平均值 {mean} × {weekday}系数 {factor}；为常规波动的 {deviation} 倍，阈值为 {k} 倍）。",
+      "fellInterrupted": "{noun}连续 {days} 天比预期水平低 {pct}%：{date} 为 {actual}，而预期为 {expected}（{window} 天平均值 {mean} × {weekday}系数 {factor}；为常规波动的 {deviation} 倍，阈值为 {k} 倍）。按周对比下降了 {wow}%（{last7} 对比 {prior7}），超过了 {threshold}% 的中断阈值。",
+      "readDay": "已读取 {label} {days} 天的{data}。",
+      "readDays": "已读取 {label} {days} 天的{data}。",
+      "readDayIs": "已读取 {label} {days} 天的{data}。{measured}现在已是测量值。",
+      "readDayAre": "已读取 {label} {days} 天的{data}。{measured}现在都已是测量值。",
+      "readDaysIs": "已读取 {label} {days} 天的{data}。{measured}现在已是测量值。",
+      "readDaysAre": "已读取 {label} {days} 天的{data}。{measured}现在都已是测量值。",
+      "remeasured": "已根据 {label} 重新测量{measured}。",
+      "published": "已将“{title}”发布到 {platform}。",
+      "withdrawn": "已从 {platform} 撤下“{title}”。"
+    }
+  },
+  "queueWords": {
+    "change": {
+      "stated": "改动内容",
+      "adLine": "广告“{name}”",
+      "theAd": "该广告",
+      "creates": "创建它的{parts}",
+      "noAd": "没有广告",
+      "createdPaused": "在 Meta 上，已暂停 · 不产生任何花费",
+      "goLiveSub": "它的广告、广告组和营销活动",
+      "paused": "已暂停 · 不产生任何花费",
+      "live": "投放中 · {spend}",
+      "spendUpTo": "每天最多 {daily}，持续 {days} 天",
+      "spendsBudget": "按每日预算花费",
+      "campaignLine": "营销活动“{name}”",
+      "averageOver": "每日花费，按 {days, plural, other {# 个已测量日}}平均",
+      "perDay": "每天 {amount}",
+      "pausedNothing": "已暂停 · 没有花费",
+      "raisedTo": "约每天 {amount}（+{pct}%）",
+      "audience": "受众",
+      "nobody": "无人",
+      "people": "{count, plural, other {{n} 人}}",
+      "email": "邮件",
+      "postOn": "在 {platform} 上发帖",
+      "notPosted": "未发布",
+      "posted": "已于 {day} {clock} 发布"
+    },
+    "creates": {
+      "campaign": "营销活动",
+      "adSet": "广告组",
+      "adVideo": "广告视频",
+      "creative": "广告素材",
+      "ad": "广告"
+    },
+    "fact": {
+      "budget": "预算",
+      "budgetValue": "每天 {daily} · 总计最多 {total}",
+      "duration": "时长",
+      "durationValue": "从上线当天起 {days} 天，之后自动停止",
+      "audience": "受众",
+      "aged": "年龄 {age}",
+      "interests": "兴趣",
+      "placements": "版位",
+      "goal": "优化目标",
+      "special": "特殊类别",
+      "specialValue": "{categories}——适用 Meta 的受限定向规则",
+      "note": "备注",
+      "createsPaused": "创建时处于暂停状态；上线需要另行批准；已创建的对象无法删除，只能暂停。",
+      "goLiveNote": "依次开启广告、它的广告组，然后是营销活动。再次暂停即可停止花费。"
+    },
+    "span": {
+      "over": "{days} 天内",
+      "month": "一个月"
+    },
+    "evidence": {
+      "noSource": "没有来源字段"
+    },
+    "duration": {
+      "s": "{s} 秒",
+      "ms": "{m} 分 {ss} 秒",
+      "hm": "{h} 小时 {mm} 分",
+      "dh": "{d} 天 {h} 小时"
+    },
+    "sending": {
+      "adRun": "批准后，它会在下一次计划运行时发往 Meta：每一部分之前先做一次试运行，然后依次创建营销活动、广告组、广告素材和广告，全部处于暂停状态，并按您的限额重新检查。紧急停止可以在任意两步之间让它停下。在为期两周的无人值守测试完成之前，Meta 广告改动保持关闭；在此之前，它以已批准状态等待。",
+      "goLive": "批准后，它会在下一次计划运行时发往 Meta：依次开启广告、它的广告组，然后是营销活动——每一步都先做试运行，并按您的上限重新检查。在为期两周的无人值守测试完成之前，Meta 广告改动保持关闭；在此之前，它以已批准状态等待。",
+      "adChange": "批准后，它会在下一次计划运行时发往 Meta：先做一次试运行，然后执行改动，并按您的限额重新检查。在为期两周的无人值守测试完成之前，Meta 广告改动保持关闭；在此之前，它以已批准状态等待。",
+      "bundleShop": "批准只是记下您的肯定答复。我不会改动您的店铺、价格或结账流程：这个组合由您自己设置。",
+      "bundleBookings": "批准只是记下您的肯定答复。我不会改动您的预订系统或价格：这个组合由您自己提供。",
+      "segment": "批准时不会发送任何内容。批准后我可以起草这封邮件；在您批准完成后的邮件本身之前，什么都不会发送，而且在发送的那一刻会再次核对每位收件人的同意。",
+      "followUp": "无论现在还是批准时，都不会发送任何内容。批准后我可以起草这封邮件；您阅读、随意修改，然后用您自己的邮箱亲自发送。",
+      "stockContent": "批准后我可以在“内容”中起草它。在您批准完成后的帖子本身之前，什么都不会发布。",
+      "stockPair": "批准只是记下您的肯定答复。我不会改动您的店铺：这个组合由您自己设置。",
+      "stockPrices": "批准只是记下您的肯定答复。我不会改动您的价格：由您来改。",
+      "stockAdvice": "仅为建议：我不会联系任何人。批准只是记下您打算这样做。",
+      "reorder": "批准只是记下您打算重新订货，别无其他。我不会联系 {supplier}，也绝不会下单、更改或取消订单：这些由您来做。"
+    }
+  },
+  "trackWords": {
+    "kind": {
+      "stock_out": {
+        "one": "库存售罄",
+        "many": "库存售罄日期"
+      },
+      "season_week": {
+        "one": "与去年同期对比的一周",
+        "many": "与去年同期对比的各周"
+      },
+      "cash_close": {
+        "one": "一周结束时的现金",
+        "many": "各周结束时的现金"
+      },
+      "pipeline_close": {
+        "one": "截至某日赢得的交易",
+        "many": "截至某日赢得的交易"
+      }
+    },
+    "saidOn": "于 {day} 给出",
+    "range": {
+      "aboutMoney": "约 {value}",
+      "money": "{lo}–{hi}",
+      "aboutCount": "约 {value} {subject}",
+      "count": "{lo}–{hi} {subject}",
+      "on": "于 {day}",
+      "dates": "{from} 至 {to}"
+    },
+    "waiting": {
+      "window": "尚未评分：它的时间窗口于 {day} 结束，之后的第一次每周检查时我会给它评分。",
+      "due": "尚未评分：我会在 {day} 之后的第一次每周检查时核对它。",
+      "source": "尚未评分：正在等待 {source} 那几天的数字。",
+      "measured": "尚未评分：正在等待那几天的测量数字。"
+    },
+    "backdated": "于 {day} 写入记录，晚于它标注的日期：这是一个演示示例。真实账户的预测会在展示的那一刻就被记录。",
+    "headline": {
+      "none": "记录中还没有预测。我给出预测后，它会连同其范围出现在这里；时间过去之后，还会显示实际发生了什么。",
+      "tooSoon": "现在评判我的预测还为时过早：目前{graded, plural, =0 {还没有一项已评分} other {已评分 # 项}}，{waiting, plural, other {# 项预测}}正在等待时间到来。",
+      "judged": "在我最近的 {graded} 项预测中，有 {inside} 项落在我给出的范围内；{missed} 项未命中。",
+      "couldnt": "有 {count} 项我无法判断：测量数字不存在，或者有我没有预测到的情况干扰了结果。{count, plural, other {这些预测}}不计入任何一方。"
+    },
+    "parts": {
+      "insideOf": "{graded} 项中 {inside} 项在范围内",
+      "noneGraded": "尚未评分",
+      "cantTell": "{count} 项无法判断",
+      "waiting": "{count} 项等待中",
+      "sentence": "{label}：{parts}。"
+    },
+    "older": "{count, plural, other {另有 # 项较早的预测}}未在此列出；上面的计数包含了{count, plural, other {它们}}。"
+  },
+  "ledgerWords": {
+    "actor": {
+      "syb": "SYB",
+      "you": "您",
+      "noAnswer": "未回答",
+      "measured": "已测量"
+    },
+    "note": {
+      "withheld": "因您的限额而搁置",
+      "waiting": "等待您处理",
+      "lapsedApproved": "批准后已过期 · 从未执行",
+      "lapsed": "已过期 · 从未执行",
+      "runs": "执行时间 {clock}",
+      "done": "已完成",
+      "kept": "保留在记录中",
+      "delta": "{delta}% · {verdict}"
+    },
+    "verdict": {
+      "helped": "有帮助",
+      "did_nothing": "没有效果",
+      "backfired": "适得其反",
+      "too_early": "现在判断还为时过早",
+      "unmeasured": "未测量"
+    },
+    "judgedOn": {
+      "post": "根据该帖子自身的数据，与您之前的帖子对比评判",
+      "campaign": "根据该营销活动自身的广告支出回报率评判",
+      "email": "根据邮件发出后再次购买的人评判，并与邮件无法发送到的客户对比",
+      "detail": "{judged}：{arithmetic}"
+    },
+    "reason": "理由：{reason}",
+    "change": {
+      "updated": "{label}：已更新",
+      "same": "{label}：重新记录，值不变",
+      "moved": "{label}：{from} → {to}",
+      "notKnown": "不知道"
+    },
+    "ref": {
+      "fact": "事实 {id}"
+    },
+    "rate": {
+      "some": "在 {concluded} 项已有结论的事项中批准了 {approved} 项（拒绝 {declined} 项，过期 {lapsed} 项；因您的限额搁置 {withheld} 项，不计入）= {rate}%",
+      "none": "还没有任何已有结论的事项——在您做出最初的几个决定后才会有这个比率"
+    },
+    "arith": {
+      "neverRan": "从未执行——没有可测量的内容",
+      "noSeries": "没有已测量的营收序列——连接一个来源后才能作出评判",
+      "noBaseline": "该操作之前没有已测量的日子——没有可供对比的基线",
+      "tooEarly": "自 {day} 以来已测量 {days} 天——评判需要 {need}",
+      "revenue": "{day} 之后的 {afterDays} 个已测量日中，日均营收为 {after}，而之前的 {beforeDays} 天为 {before}——{delta}%（阈值：+{helped}% 为有帮助，{backfired}% 为适得其反）",
+      "notOnRecord": "已发布的内容不在记录中——没有可测量的内容"
+    }
+  },
+  "emails": {
+    "summary": {
+      "subjectWaiting": "您与 SYB 的一周：{count, plural, other {# 项等待您处理}}",
+      "subjectQuiet": "您与 SYB 的一周：风平浪静",
+      "subjectCalm": "您与 SYB 的一周：没有需要您处理的事",
+      "heading": "您与 SYB 的一周",
+      "headingNamed": "{business}：您与 SYB 的一周",
+      "quiet": "平静的一周：您的账户上没有新的记录，也没有等待您处理的事项。",
+      "titles": {
+        "waiting": "等待您处理",
+        "stock": "库存不足",
+        "reviews": "值得关注的评价",
+        "done": "我做了什么",
+        "noticed": "我注意到的",
+        "goals": "您的目标",
+        "readback": "您批准的改动效果如何",
+        "forecasts": "我的预测表现如何"
+      },
+      "links": {
+        "waiting": "等待您处理",
+        "support": "客户支持",
+        "stock": "库存",
+        "reviews": "评价",
+        "watching": "观察",
+        "goals": "目标",
+        "history": "历史记录",
+        "track": "我的过往准确率"
+      },
+      "pending": "{count, plural, other {# 项提案正等待您决定}}。未经您批准，什么都不会执行。",
+      "pendingMore": "——另有 {count} 项。",
+      "aProposal": "一项提案",
+      "tickets": "{count, plural, other {# 个客户问题正在“客户支持”中等待您回复}}。",
+      "executed": "已执行一项您批准的改动：{summary}",
+      "executedUndone": "已执行一项您批准的改动：{summary}（之后已撤销）",
+      "synced": "已从 {source} 读取 {count, plural, other {# 天的新数据}}。",
+      "more": "另有 {count} 项",
+      "verdicts": {
+        "helped": "有帮助",
+        "did_nothing": "没有效果",
+        "backfired": "适得其反"
+      },
+      "judged": {
+        "revenue": "每日营收",
+        "post": "与您以往帖子相比的触达和互动",
+        "campaign": "营销活动的广告支出回报率",
+        "email": "这封邮件的效果"
+      },
+      "tooEarly": "{summary}：现在下结论还为时过早——执行以来测量的天数还不够。",
+      "revenue": "{summary}：{verdict}——执行后日均营收为 {after}，执行前为 {before}，基于测量数据。",
+      "revenuePct": "{summary}：{verdict}——执行后日均营收为 {after}，执行前为 {before}（{pct}），基于测量数据。",
+      "judgedOn": "{summary}：{verdict}——依据 {basis} 评判，基于测量数据。",
+      "judgedOnPct": "{summary}：{verdict}——依据 {basis}（{pct}）评判，基于测量数据。",
+      "forecasts": "本周我为自己的 {total, plural, other {# 项预测评了分}}：{inside, plural, other {# 项落在我给出的范围内}}，{misses}{cant}。",
+      "missedNone": "无一落空",
+      "missedAbove": "{missed} 项落空（{above, plural, other {# 项高于范围}}）",
+      "missedBelow": "{missed} 项落空（{below, plural, other {# 项低于范围}}）",
+      "missedBoth": "{missed} 项落空（{above, plural, other {# 项高于范围}}，{below, plural, other {# 项低于范围}}）",
+      "cantTell": "，另有 {count} 项我无法判断",
+      "footWatching": "我做的每一件事都在您的“观察”页面上：{url}",
+      "footApprove": "未经您批准，什么都不会执行。",
+      "footStop": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键停止：",
+      "footWatchingHtml": "我做的每一件事都在您的<link>“观察”页面</link>上。未经您批准，什么都不会执行。",
+      "footStopHtml": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键<link>停止这些邮件</link>。"
+    },
+    "signIn": {
+      "subject": "您的登录链接 — SYB",
+      "intro": "点击登录 SYB：",
+      "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件——没有链接，什么都不会发生。"
+    },
+    "invite": {
+      "subject": "您受邀加入 SYB 上的 {business}",
+      "subjectUnnamed": "您受邀加入 SYB 上的一家企业",
+      "intro": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 SYB 上的 {business}。",
+      "introUnnamed": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 SYB 上的一家企业。",
+      "open": "打开此链接即可接受邀请：",
+      "expiry": "此链接只能使用一次，将在 {days, plural, other {# 天后失效}}。您将使用此地址登录：{email}。如果您没有预料到这封邀请，请忽略这封邮件——没有您的参与，什么都不会发生。"
+    },
+    "supportNotice": {
+      "subject": "有客户给您发了邮件 — SYB",
+      "waiting": "有客户给 {business} 发了邮件，正在“客户支持”中等待您处理：{url}",
+      "waitingNoLink": "有客户给 {business} 发了邮件，正在“客户支持”中等待您处理。",
+      "nothingSent": "还没有向对方发送任何内容。只有在您批准后才会发出回复。",
+      "atMost": "此类通知每小时最多一封。您可以在“客户支持”页面关闭它们。"
+    },
+    "supportReply": {
+      "subject": "您向 {business} 提出的问题"
+    },
+    "campaign": {
+      "greeting": "您好，",
+      "thisBusiness": "这家企业",
+      "why": "您收到这封邮件，是因为您同意接收 {business} 的信息。退订：{link}"
+    }
+  },
+  "push": {
+    "one": "{count, plural, other {# 件事等您点头：{what}}}",
+    "many": "{count, plural, other {# 件事等您点头}}",
+    "test": "这是来自 SYB 的测试。提醒将发送到此设备。",
+    "kinds": {
+      "price_increase": "一项价格调整",
+      "price_decrease": "一项价格调整",
+      "discount_or_promotion": "一项促销",
+      "paid_ads_start_or_increase": "一则广告",
+      "paid_ads_decrease_or_pause": "一项广告调整",
+      "content_publishing": "一篇帖子",
+      "cold_outreach": "一条外联消息",
+      "channel_expansion": "一个新渠道",
+      "offer_change": "一项产品方案调整",
+      "operations_change": "一项经营方式调整",
+      "support_knowledge": "一条客户支持答复",
+      "customer_email": "一封发给客户的邮件",
+      "deal_followup": "一次跟进",
+      "stock_reorder_note": "一条补货备注",
+      "media_generation": "一张待制作的图片或短片",
+      "revise_goal": "一个需要查看的目标",
+      "stop_strategy": "一项需要查看的策略",
+      "other": "一项提案"
+    }
+  },
+  "exports": {
+    "money": {
+      "field": "字段",
+      "label": "标签",
+      "amount": "金额",
+      "currency": "货币",
+      "status": "状态",
+      "source": "来源",
+      "source_detail": "来源详情",
+      "confidence": "置信度",
+      "observed_at": "观测时间",
+      "recorded_at": "记录时间",
+      "derived_from": "推导自",
+      "formula": "公式",
+      "superseded_at": "取代时间"
+    },
+    "history": {
+      "when": "时间",
+      "kind": "类型",
+      "entry": "条目",
+      "reference": "引用",
+      "detail": "详情",
+      "by": "操作人",
+      "note": "备注"
+    }
+  },
+  "shared": {
+    "pageTitle": "共享的报告 — SYB",
+    "label": "共享的报告",
+    "readOnly": "共享的报告 · 只读",
+    "deadTitle": "此链接已失效。",
+    "deadBody": "如果您原本期待在这里看到一份报告，请向发送者索取新链接。",
+    "foot": "这是一份共享快照，制作于 {shared}，对应 {issued} 发布的报告。它显示的是报告当时的样子，不会改变；企业可以随时撤回。"
+  },
+  "unsubscribe": {
+    "label": "邮件偏好",
+    "unknownTitle": "我们无法识别此链接。",
+    "unknownBody": "请检查是否完整复制了邮件中的链接。没有任何更改。",
+    "campaign": {
+      "pageTitle": "退订",
+      "thisBusiness": "这家企业",
+      "doneTitle": "您已退订 {business} 的邮件。",
+      "doneBody": "对方将不会再通过 SYB 向您发送营销邮件。此操作永久有效，您无需再做任何操作。",
+      "askTitle": "停止接收 {business} 的营销邮件？",
+      "askBody": "一键即可完成，永久有效。对您所提问题的回复不受影响。",
+      "button": "退订"
+    }
   }
 }

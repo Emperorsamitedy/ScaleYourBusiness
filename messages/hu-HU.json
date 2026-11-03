@@ -5608,5 +5608,575 @@
   },
   "modelWords": {
     "reportWrittenIn": "Ez a jelentés {language} nyelven készült, annak a nyelvén, aki létrehozta."
+  },
+  "roleWords": {
+    "refusal": {
+      "stop_press": "Csak tulajdonos vagy menedzser nyomhatja meg a vészleállítót.",
+      "intake_open": "Csak tulajdonos vagy menedzser nyithatja meg az interjút.",
+      "telemetry_record": "Csak tulajdonos vagy menedzser rögzítheti, hogyan használják a képernyőket.",
+      "chat_ask": "Csak tulajdonos vagy menedzser kérdezhet tőlem a chatben.",
+      "alerts_remove_device": "Csak tulajdonos vagy menedzser veheti ki a saját telefonjai egyikét az értesítések közül.",
+      "language_own": "Csak tulajdonos vagy menedzser választhatja meg, milyen nyelven olvassa a SYB-t.",
+      "proposals_decide": "Csak tulajdonos vagy menedzser dönthet a javaslatok jóváhagyásáról vagy elutasításáról.",
+      "proposals_generate": "Csak tulajdonos vagy menedzser kérhet tőlem új javaslatokat.",
+      "proposals_carry_out": "Csak tulajdonos vagy menedzser hajthat végre vagy vonhat vissza egy jóváhagyott javaslatot.",
+      "content_draft": "Csak tulajdonos vagy menedzser készíthet tartalomtervezetet.",
+      "support_answer": "Csak tulajdonos vagy menedzser válaszolhat a támogatási kérdésekre.",
+      "reviews_answer": "Csak tulajdonos vagy menedzser rögzíthet, válaszolhat meg vagy távolíthat el értékeléseket.",
+      "pipeline_edit": "Csak tulajdonos vagy menedzser módosíthatja az értékesítési tölcsért.",
+      "connections_sync": "Csak tulajdonos vagy menedzser olvashat be most újra egy összekapcsolt fiókot.",
+      "alerts_subscribe": "Csak tulajdonos vagy menedzser kaphat telefonos értesítést a javaslatokról.",
+      "connections_manage": "Csak tulajdonos kapcsolhat össze fiókokat, vagy bonthatja szét a kapcsolatukat.",
+      "write_access_manage": "Csak tulajdonos adhat vagy vonhat vissza írási hozzáférést.",
+      "billing_manage": "Csak tulajdonos fizethet a jelentésért.",
+      "erasure_run": "Csak tulajdonos törölheti egy ügyfél adatait.",
+      "data_import": "Csak tulajdonos importálhat ügyfeleket, készletet vagy foglalásokat tartalmazó fájlt.",
+      "team_manage": "Csak tulajdonos hívhat meg embereket a csapatba, illetve módosíthatja vagy távolíthatja el őket.",
+      "rules_manage": "Csak tulajdonos változtathatja meg, hogyan dolgozom ennél a vállalkozásnál.",
+      "profile_edit": "Csak tulajdonos módosíthatja a vállalkozás tényeit, céljait vagy korlátait.",
+      "report_generate": "Csak tulajdonos készíthet új jelentést.",
+      "report_respond": "Csak tulajdonos válaszolhat a jelentés megállapításaira.",
+      "report_share": "Csak tulajdonos oszthatja meg a jelentést a SYB-n kívül.",
+      "competitors_manage": "Csak tulajdonos módosíthatja vagy kutathatja a versenytársak listáját.",
+      "site_audit": "Csak tulajdonos ellenőrizheti a weboldalt.",
+      "support_settings": "Csak tulajdonos módosíthatja a támogatás beállításait.",
+      "reviews_settings": "Csak tulajdonos módosíthatja azt a címet, ahová az értékeléseket továbbítjuk.",
+      "summary_settings": "Csak tulajdonos kapcsolhatja be vagy ki a heti összefoglalót.",
+      "stop_resume": "Csak tulajdonos indíthat újra mindent egy leállítás után.",
+      "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét."
+    }
+  },
+  "authWords": {
+    "error": {
+      "emailNeeded": "e-mail-cím szükséges",
+      "emailNotSent": "Most nem sikerült elküldenem a bejelentkezési e-mailt — próbálja újra egy perc múlva.",
+      "wrong": "valami hiba történt nálunk",
+      "wrongEmailWorks": "valami hiba történt nálunk — az e-mailben kapott link továbbra is működik",
+      "linkInvalid": "ez a bejelentkezési link már nem érvényes",
+      "signInInvalid": "ez a bejelentkezés már nem érvényes",
+      "accountFailed": "nem sikerült létrehozni a fiókot",
+      "malformedToken": "a szolgáltató hibás formátumú tokent adott vissza",
+      "noEmail": "{provider}: a szolgáltató nem osztott meg e-mail-címet — használja inkább az e-mailes linket",
+      "unverified": "{provider}: a szolgáltató szerint ez a cím nincs ellenőrizve — használja inkább az e-mailes linket",
+      "notVerified": "{provider}: a bejelentkezést nem sikerült ellenőrizni ({why}) — használja inkább az e-mailes linket",
+      "failed": "{provider}: a bejelentkezés nem sikerült — próbálja újra, vagy használja az e-mailes linket",
+      "notConnected": "ez a bejelentkezési mód még nincs bekapcsolva — az e-mail-címével már ma is működik.",
+      "notConnectedNamed": "{provider}: ez a bejelentkezési mód még nincs bekapcsolva — az alábbi e-mail-címével már ma is működik.",
+      "expired": "ez a bejelentkezési kísérlet lejárt — próbálja újra",
+      "notEmail": "ez nem tűnik e-mail-címnek",
+      "noProfile": "nincs ilyen profil",
+      "linkNotValid": "ez a link nem érvényes",
+      "linkExpired": "ez a link lejárt vagy már nem érvényes",
+      "noBusiness": "nincs ilyen vállalkozás",
+      "chooseAgain": "válassza ki újra a vállalkozást az oldalunkon",
+      "addOnPage": "adja hozzá a vállalkozást az oldalunkon",
+      "signInFirst": "előbb bejelentkezés szükséges"
+    },
+    "why": {
+      "otherApp": "egy másik alkalmazásnak állították ki",
+      "issuer": "hibás kibocsátó",
+      "emailUnverified": "az e-mail-cím nincs ellenőrizve",
+      "orgEmail": "a szervezet e-mail-címe nincs a sajátjaként ellenőrizve",
+      "unknown": "ismeretlen szolgáltató"
+    }
+  },
+  "econWords": {
+    "what": {
+      "fixed": "havi fix költségek",
+      "fixedPartial": "havi fix költségek (részleges)",
+      "breakEven": "fedezeti pont",
+      "aov": "átlagos kosárérték",
+      "cpa": "ügyfélszerzési költség",
+      "roas": "hirdetési megtérülés",
+      "offerMargins": "az ajánlatok árrése",
+      "marginFor": "árrés: {name}"
+    },
+    "why": {
+      "fixedCurrency": "{recorded} pénznemben rögzítve, a profil pénzneme viszont {reporting} — az átváltáshoz árfolyam kellene, amelyet senki sem adott meg nekem",
+      "fixedPartial": "ezeknél a költségtételeknél nincs összeg, nincs gyakoriság, vagy a gyakoriság egységenkénti, ami nem fix havi összeg",
+      "noFixed": "nincs rögzített havi fix költség, így nincs mit fedezni",
+      "noContribution": "egyik ajánlatnál sincs meg egyszerre az ár és a költség, így az eladásonkénti fedezet nem számítható ki",
+      "losesMoney": "ezeken az árakon minden eladás veszteséges — nincs olyan mennyiség, amelynél elérné a fedezeti pontot",
+      "aovInputs": "a havi árbevétel és a rendelések száma is kell; egyiket sem fogom megbecsülni",
+      "cpaInputs": "mindhárom nélkül nem tudom elválasztani az új ügyfeleket a visszatérőktől, és az a CPA, amely az ismételt vásárlókat is új ügyfélnek számolja, szebbnek mutatja a számot",
+      "cpaCurrency": "a hirdetési költés pénzneme {spend}, a profilé viszont {reporting} — ehhez árfolyam kell",
+      "noNewCustomers": "a visszatérési arány szerint ebben a hónapban nem volt új ügyfél",
+      "roasInputs": "a havi árbevétel és a havi hirdetési költés is kell; az az arány, amelynek az egyik oldala találgatás, maga is találgatás",
+      "noSpend": "a hirdetési költés nulla, így nincs mire megtérülést számolni",
+      "roasCurrency": "az árbevétel pénzneme {revenue}, a hirdetési költésé {spend}; a profil pénzneme {reporting}, és az átváltáshoz árfolyam kellene, amelyet senki sem adott meg nekem",
+      "noPrice": "még egyik ajánlatnál sincs rögzített ár",
+      "mixedCurrency": "az ár és a költség különböző pénznemben van",
+      "noCost": "nincs rögzített teljesítési költség, így az árrés ismeretlen, nem pedig feltételezett"
+    },
+    "formula": {
+      "offerMargin": "(ár − teljesítési költség) ÷ ár × {hundred}",
+      "contribution": "ár − teljesítési költség",
+      "blendedWeighted": "Σ(ajánlat árrése × eladott darab) ÷ Σ(eladott darab)",
+      "blendedMean": "átlag(az ajánlatok árrése) — nincs rögzített mennyiség, így minden ajánlat egyszer számít",
+      "fixed": "Σ(fix költség ÷ gyakoriság hónapokban)",
+      "breakEvenWeighted": "fix költségek ÷ súlyozott egységenkénti fedezet — feltételezi, hogy a jelenlegi ajánlatösszetétel nem változik",
+      "breakEvenMean": "fix költségek ÷ átlagos egységenkénti fedezet — nincs rögzített mennyiség, így egyenletes összetételt feltételezek",
+      "aov": "havi árbevétel ÷ havi rendelések száma",
+      "cpa": "hirdetési költés ÷ (rendelések × ({one} − visszatérési arány))",
+      "roas": "havi árbevétel ÷ havi hirdetési költés (összesítve: a teljes árbevétel a teljes hirdetési költéshez viszonyítva, nem hirdetésekhez rendelve)"
+    },
+    "live": {
+      "label": "Összesített árrés"
+    }
+  },
+  "reportWords": {
+    "quiet": {
+      "oneRel": "Az Ön által megadott szám {pct}%-on belül egyezett a fiókjai adataival.",
+      "oneSmall": "Az Ön által megadott szám {pct}%-on belül vagy csak csekély összeggel eltérve egyezett a fiókjai adataival.",
+      "someRel": "Az Ön által megadott {total} szám közül {n} egyezett {pct}%-on belül a fiókjai adataival.",
+      "someSmall": "Az Ön által megadott {total} szám közül {n} egyezett {pct}%-on belül vagy csak csekély összeggel eltérve a fiókjai adataival.",
+      "bothRel": "Mindkét megadott szám {pct}%-on belül egyezett a fiókjai adataival.",
+      "bothSmall": "Mindkét megadott szám {pct}%-on belül vagy csak csekély összeggel eltérve egyezett a fiókjai adataival.",
+      "allRel": "Az Ön által megadott összes szám ({n}) {pct}%-on belül egyezett a fiókjai adataival.",
+      "allSmall": "Az Ön által megadott összes szám ({n}) {pct}%-on belül vagy csak csekély összeggel eltérve egyezett a fiókjai adataival."
+    },
+    "gap": {
+      "core": "az alapkészlet része — a diagnózis nem fut le nélküle",
+      "coreOpens": "az alapkészlet része — a diagnózis nem fut le nélküle, és {count, plural, one {# további kérdést} other {# további kérdést}} nyit meg",
+      "important": "élesebbé teszi az ezt érintő megállapításokat",
+      "importantOpens": "élesebbé teszi az ezt érintő megállapításokat, és {count, plural, one {# további kérdést} other {# további kérdést}} nyit meg",
+      "deep": "pontosítja a képet, ha az alapok már megvannak",
+      "deepOpens": "pontosítja a képet, ha az alapok már megvannak, és {count, plural, one {# további kérdést} other {# további kérdést}} nyit meg",
+      "context": "háttérinformáció, ha kedve van hozzá",
+      "contextOpens": "háttérinformáció, ha kedve van hozzá, és {count, plural, one {# további kérdést} other {# további kérdést}} nyit meg"
+    }
+  },
+  "validationWords": {
+    "margin_mismatch": "Azt mondta, a bruttó árrése körülbelül {stated}%. Az ajánlatai árai és költségei alapján ez körülbelül {computed}%.",
+    "revenue_vs_offers": "Azt mondta, az árbevétele havonta körülbelül {stated}. Az ajánlatai árai a mennyiségekkel szorozva összesen körülbelül ennyit adnak ki: {sum}.",
+    "costs_exceed_revenue": "A havi költségei összesen körülbelül {total}, ami több, mint a befolyó {revenue} — miközben az árbevétel növekvőként van megjelölve.",
+    "inventory_without_supplier": "A termékeihez készlet tartozik, de még nincs rögzítve beszállító.",
+    "channel_without_revenue": "Megjelölt egy elsődleges értékesítési csatornát, de ahhoz még nincs árbevételi adat.",
+    "key_person_undocumented": "A szolgáltatás erősen egyetlen emberen múlik, és még nincsenek írásos eljárásrendek.",
+    "stage_vs_revenue": "A vállalkozást ötletként írta le. Azt is mondta, hogy már van árbevétele.",
+    "stale_financials": "A legfrissebb árbevételi adatot {days, plural, one {# nappal} other {# nappal}} ezelőtt figyeltem meg.",
+    "single_supplier_top_offer": "Minden egyetlen beszállítón múlik, és nincs rögzítve alternatíva."
+  },
+  "hoursWords": {
+    "line": {
+      "squareOnly": "a Square-ben beütött kártyás és készpénzes fizetések — a kasszán soha át nem menő készpénz nem látszik",
+      "squareAnd": "a Square-ben beütött kártyás és készpénzes fizetések, valamint a kártyás fizetések ezeken keresztül: {providers} — a kasszán soha át nem menő készpénz nem látszik",
+      "cards": "csak a kártyás fizetések ezeken keresztül: {providers} — a készpénzes eladásokat egyik összekapcsolt fiók sem látja",
+      "limit": "Egy zárva tartott órában nincs eladás, így ez csak sejteni engedi, mit hozna egy korábbi nyitás vagy egy későbbi zárás. A bizonyíték egy négyhetes próba."
+    }
+  },
+  "watchWords": {
+    "signal": {
+      "revenue": "Árbevétel",
+      "orders": "Rendelések",
+      "sessions": "Weboldal-látogatások",
+      "ad_spend": "Hirdetési költés",
+      "ad_purchases": "Hirdetésből származó vásárlások",
+      "units": "Eladott darabszám",
+      "appointments_completed": "Teljesített időpontok",
+      "booking_revenue": "Foglalási árbevétel"
+    },
+    "source": {
+      "bookings_import": "Foglalások exportja"
+    },
+    "rule": {
+      "revenueDrop": "Az árbevétel hétről hétre több mint {pct}%-kal esik",
+      "critical": "Kritikus súlyosságú ellenőrzési megállapítás jelenik meg",
+      "reopen": "Újranyit egy alapválaszt, amelyre a diagnózis épül"
+    },
+    "module": {
+      "analytics": "A figyelő mód mérés nélkül vak — az elemzés az, amivel figyel.",
+      "team": "Csapat: amikor a hétnek több lefedettség kell, vagy több van, mint amennyi kell, szerepkör és óra szerint. Soha nem pontoz, nem rangsorol, és semmit sem mond egy személyről. Ki van kapcsolva, amíg be nem kapcsolja."
+    },
+    "data": {
+      "payments": "fizetési adat",
+      "orders": "rendelési adat",
+      "traffic": "forgalmi adat",
+      "adSpend": "hirdetésiköltés-adat",
+      "data": "adat"
+    },
+    "field": {
+      "monthlyRevenue": "havi árbevétel",
+      "orderCount": "rendelésszám",
+      "adSpend": "hirdetési költés",
+      "costPerPurchase": "vásárlásonkénti költség",
+      "websiteVisits": "weboldal-látogatások",
+      "unitsSold": "eladott darabszám",
+      "visitsPerChannel": "csatornánkénti látogatások"
+    },
+    "part": {
+      "changed": "{count} módosult",
+      "new": "{count} új",
+      "removed": "{count} eltávolítva",
+      "none": "nincs mezőváltozás"
+    },
+    "log": {
+      "started": "A figyelés elindult: {weeks} hét, értékelés: {date}.",
+      "shortened": "A figyelés {weeks} hétre rövidült — a tulajdonos tudomásul vette.",
+      "extended": "A figyelés {weeks} hétre hosszabbodott a tulajdonos kérésére.",
+      "complete": "A figyelési időszak véget ért. A következő jelentés mindent beolvas, amit összegyűjtött.",
+      "baseline": "Kiinduló pillanatkép rögzítve: {count} tény.",
+      "steady": "Heti ellenőrzés: a profil változatlan maradt — a múlt hét óta semmi sem változott.",
+      "diff": "Heti pillanatkép: a múlt hét óta {parts}.",
+      "cleared": "{noun} {date} óta ismét a szokásos tartományán belül van.",
+      "fell": "{noun} {days} egymást követő napon {pct}%-kal a várt szint alatt maradt: {date}: {actual}, várt érték: {expected} ({window} napos átlag {mean} × napszorzó ({weekday}) {factor}; a szokásos ingadozás {deviation}×, küszöb {k}×).",
+      "rose": "{noun} {days} egymást követő napon {pct}%-kal a várt szint felett maradt: {date}: {actual}, várt érték: {expected} ({window} napos átlag {mean} × napszorzó ({weekday}) {factor}; a szokásos ingadozás {deviation}×, küszöb {k}×).",
+      "fellInterrupted": "{noun} {days} egymást követő napon {pct}%-kal a várt szint alatt maradt: {date}: {actual}, várt érték: {expected} ({window} napos átlag {mean} × napszorzó ({weekday}) {factor}; a szokásos ingadozás {deviation}×, küszöb {k}×). Hétről hétre {wow}%-kal csökkent ({last7}, szemben az előző hét {prior7} értékével), ami túllépi a megszakítási küszöböt ({threshold}%).",
+      "readDay": "Beolvasva: {days} napnyi {data}, forrás: {label}.",
+      "readDays": "Beolvasva: {days} napnyi {data}, forrás: {label}.",
+      "readDayIs": "Beolvasva: {days} napnyi {data}, forrás: {label}. Mostantól mért: {measured}.",
+      "readDayAre": "Beolvasva: {days} napnyi {data}, forrás: {label}. Mostantól mért: {measured}.",
+      "readDaysIs": "Beolvasva: {days} napnyi {data}, forrás: {label}. Mostantól mért: {measured}.",
+      "readDaysAre": "Beolvasva: {days} napnyi {data}, forrás: {label}. Mostantól mért: {measured}.",
+      "remeasured": "{measured} újramérve, forrás: {label}.",
+      "published": "„{title}” közzétéve itt: {platform}.",
+      "withdrawn": "„{title}” visszavonva innen: {platform}."
+    }
+  },
+  "queueWords": {
+    "change": {
+      "stated": "A változás",
+      "adLine": "Hirdetés: „{name}”",
+      "theAd": "a hirdetés",
+      "creates": "létrehozza: {parts}",
+      "noAd": "nincs hirdetés",
+      "createdPaused": "a Meta felületén, szüneteltetve · nem költ semmit",
+      "goLiveSub": "a hirdetése, a hirdetéssorozata és a kampánya",
+      "paused": "szüneteltetve · nem költ semmit",
+      "live": "élesben · {spend}",
+      "spendUpTo": "legfeljebb napi {daily}, {days} napon át",
+      "spendsBudget": "elkölti a napi keretét",
+      "campaignLine": "Kampány: „{name}”",
+      "averageOver": "napi költés, átlag {days, plural, one {# mért nap} other {# mért nap}} alapján",
+      "perDay": "napi {amount}",
+      "pausedNothing": "szüneteltetve · semmi sincs elköltve",
+      "raisedTo": "körülbelül napi {amount} (+{pct} %)",
+      "audience": "Közönség",
+      "nobody": "senki",
+      "people": "{count, plural, one {{n} fő} other {{n} fő}}",
+      "email": "E-mail",
+      "postOn": "Bejegyzés itt: {platform}",
+      "notPosted": "nincs közzétéve",
+      "posted": "közzétéve: {day} {clock}"
+    },
+    "creates": {
+      "campaign": "kampány",
+      "adSet": "hirdetéssorozat",
+      "adVideo": "hirdetési videó",
+      "creative": "kreatív",
+      "ad": "hirdetés"
+    },
+    "fact": {
+      "budget": "Keret",
+      "budgetValue": "napi {daily} · összesen legfeljebb {total}",
+      "duration": "Időtartam",
+      "durationValue": "{days} nap az élesítés napjától, utána magától leáll",
+      "audience": "Közönség",
+      "aged": "életkor: {age}",
+      "interests": "Érdeklődési körök",
+      "placements": "Elhelyezések",
+      "goal": "Optimalizálás célja",
+      "special": "Különleges kategória",
+      "specialValue": "{categories} — a Meta korlátozott célzása érvényes",
+      "note": "Megjegyzés",
+      "createsPaused": "Szüneteltetve jön létre; az élesítés külön jóváhagyás; a létrehozott objektumok nem törölhetők, csak szüneteltethetők.",
+      "goLiveNote": "Bekapcsolja a hirdetést, a hirdetéssorozatát, majd a kampányt. Ha újra szünetelteti, a költés leáll."
+    },
+    "span": {
+      "over": "{days} nap alatt",
+      "month": "egy hónap alatt"
+    },
+    "evidence": {
+      "noSource": "nincs forrásmező"
+    },
+    "duration": {
+      "s": "{s} mp",
+      "ms": "{m} perc {ss} mp",
+      "hm": "{h} óra {mm} perc",
+      "dh": "{d} nap {h} óra"
+    },
+    "sending": {
+      "adRun": "Jóváhagyás után a következő ütemezett futáskor kerül a Metához: minden rész előtt próbafuttatás, majd egymás után a kampány, a hirdetéssorozat, a kreatív és a hirdetés, mind szüneteltetve, és mindegyiket újra összevetem a korlátaival. A vészleállító bármely kettő között megállítja. A Meta-hirdetések módosítása kikapcsolva marad, amíg a kéthetes, felügyelet nélküli teszt be nem fejeződik; addig jóváhagyva várakozik.",
+      "goLive": "Jóváhagyás után a következő ütemezett futáskor kerül a Metához: bekapcsolom a hirdetést, majd a hirdetéssorozatát, végül a kampányt — mindegyiket előbb próbafuttatással, újra összevetve a felső korlátjával. A Meta-hirdetések módosítása kikapcsolva marad, amíg a kéthetes, felügyelet nélküli teszt be nem fejeződik; addig jóváhagyva várakozik.",
+      "adChange": "Jóváhagyás után a következő ütemezett futáskor kerül a Metához: először próbafuttatás, aztán a módosítás, újra összevetve a korlátaival. A Meta-hirdetések módosítása kikapcsolva marad, amíg a kéthetes, felügyelet nélküli teszt be nem fejeződik; addig jóváhagyva várakozik.",
+      "bundleShop": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom a webáruházát, az árait vagy a pénztárfolyamatát: a párosítást Ön állítja be.",
+      "bundleBookings": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom a foglalási rendszerét vagy az árait: a párosítást Ön kínálja.",
+      "segment": "A jóváhagyással semmi sem megy ki. A jóváhagyás után megírhatom az e-mail tervezetét; semmi sem megy ki a kész e-mail jóváhagyásáig, és akkor is minden címzett hozzájárulását újra ellenőrzöm a küldés pillanatában.",
+      "followUp": "Semmi sem megy ki, sem most, sem a jóváhagyáskor. A jóváhagyás után megírom az e-mail tervezetét; Ön elolvassa, módosítja, amit szeretne, és maga küldi el a saját levelezőjéből.",
+      "stockContent": "A jóváhagyás után a Tartalom oldalon megírom a tervezetet. Semmi sem kerül ki a kész bejegyzés jóváhagyásáig.",
+      "stockPair": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom a webáruházát: a párosítást Ön állítja be.",
+      "stockPrices": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom az árait: azt Ön teszi meg.",
+      "stockAdvice": "Csak tanács: senkivel sem veszem fel a kapcsolatot. A jóváhagyás azt rögzíti, hogy Ön meg kívánja tenni.",
+      "reorder": "A jóváhagyás csak azt rögzíti, hogy Ön újra kíván rendelni, semmi mást. Nem keresem meg a beszállítót ({supplier}), és soha nem adok le, módosítok vagy mondok le rendelést: ezt Ön teszi."
+    }
+  },
+  "trackWords": {
+    "kind": {
+      "stock_out": {
+        "one": "Készletkifogyás",
+        "many": "Készletkifogyási dátumok"
+      },
+      "season_week": {
+        "one": "Hét a tavalyihoz képest",
+        "many": "Hetek a tavalyihoz képest"
+      },
+      "cash_close": {
+        "one": "Készpénz egy hét végén",
+        "many": "Készpénz a hetek végén"
+      },
+      "pipeline_close": {
+        "one": "Adott dátumig megnyert üzletek",
+        "many": "Adott dátumig megnyert üzletek"
+      }
+    },
+    "saidOn": "Megadva: {day}",
+    "range": {
+      "aboutMoney": "körülbelül {value}",
+      "money": "{lo}–{hi}",
+      "aboutCount": "körülbelül {value} {subject}",
+      "count": "{lo}–{hi} {subject}",
+      "on": "dátum: {day}",
+      "dates": "{from} – {to}"
+    },
+    "waiting": {
+      "window": "Még nincs minősítve: az időablaka ekkor zárul: {day}, és az ezt követő első heti ellenőrzéskor minősítem.",
+      "due": "Még nincs minősítve: az ezt a napot követő első heti ellenőrzéskor nézem meg: {day}.",
+      "source": "Még nincs minősítve: várom ezekre a napokra a számokat innen: {source}.",
+      "measured": "Még nincs minősítve: várom ezekre a napokra a mért számokat."
+    },
+    "backdated": "A nyilvántartásba {day} dátummal, a keltezése után került: ez egy bemutató példa. Valódi fióknál az előrejelzések abban a pillanatban rögzülnek, amikor megjelennek.",
+    "headline": {
+      "none": "Még nincs előrejelzés a nyilvántartásban. Ha adok egyet, ide kerül a tartományával együtt, és amikor lejárt az ideje, az is, hogy mi történt.",
+      "tooSoon": "Még túl korai megítélni az előrejelzéseimet: minősítve eddig: {graded, plural, =0 {egy sem} one {#} other {#}}, és {waiting, plural, one {# előrejelzés vár} other {# előrejelzés vár}} arra, hogy {waiting, plural, one {lejárjon az ideje} other {lejárjon az ideje}}.",
+      "judged": "Az utolsó {graded} előrejelzésem közül {inside} a megadott tartományon belül maradt; {missed} mellément.",
+      "couldnt": "{count} esetében nem tudtam eldönteni: a mért számok nem voltak meg, vagy közbejött valami, ami nem szerepelt az előrejelzésben. {count, plural, one {Ez egyik irányba sem számít} other {Ezek egyik irányba sem számítanak}}."
+    },
+    "parts": {
+      "insideOf": "{graded} közül {inside} belül",
+      "noneGraded": "még egy sincs minősítve",
+      "cantTell": "{count} nem eldönthető",
+      "waiting": "{count} várakozik",
+      "sentence": "{label}: {parts}."
+    },
+    "older": "{count, plural, one {# régebbi előrejelzés nem} other {# régebbi előrejelzés nem}} szerepel itt; a fenti számok {count, plural, one {azt is} other {azokat is}} tartalmazzák."
+  },
+  "ledgerWords": {
+    "actor": {
+      "syb": "SYB",
+      "you": "Ön",
+      "noAnswer": "nincs válasz",
+      "measured": "mérve"
+    },
+    "note": {
+      "withheld": "visszatartva a korlátja miatt",
+      "waiting": "Önre vár",
+      "lapsedApproved": "a jóváhagyás után lejárt · nem futott le",
+      "lapsed": "lejárt · nem futott le",
+      "runs": "fut: {clock}",
+      "done": "kész",
+      "kept": "a nyilvántartásban megőrizve",
+      "delta": "{delta}% · {verdict}"
+    },
+    "verdict": {
+      "helped": "segített",
+      "did_nothing": "nem hatott",
+      "backfired": "visszafelé sült el",
+      "too_early": "még korai megmondani",
+      "unmeasured": "nem mért"
+    },
+    "judgedOn": {
+      "post": "A bejegyzés saját számai alapján megítélve, a korábbi bejegyzéseihez képest",
+      "campaign": "A kampány saját hirdetési megtérülése alapján megítélve",
+      "email": "Az alapján megítélve, hogy ki vásárolt újra az e-mail után, azokhoz az ügyfelekhez képest, akikhez nem mehetett ki",
+      "detail": "{judged}: {arithmetic}"
+    },
+    "reason": "indok: {reason}",
+    "change": {
+      "updated": "{label}: frissítve",
+      "same": "{label}: újra rögzítve, változatlan érték",
+      "moved": "{label}: {from} → {to}",
+      "notKnown": "nem ismert"
+    },
+    "ref": {
+      "fact": "tény: {id}"
+    },
+    "rate": {
+      "some": "Lezárva: {concluded}, ebből jóváhagyva: {approved} (elutasítva: {declined}, lejárt: {lapsed}; a korlátai miatt visszatartva, nem számolva: {withheld}) = {rate}%",
+      "none": "még semmi sincs lezárva — az arány az első döntései után jön létre"
+    },
+    "arith": {
+      "neverRan": "soha nem futott le — nincs mit mérni",
+      "noSeries": "nincs mért árbevételi idősor — kapcsoljon össze egy forrást, és az ítélet lehetővé válik",
+      "noBaseline": "nincs mért nap a művelet előtt — nincs kiinduló érték az összehasonlításhoz",
+      "tooEarly": "{days, plural, one {# mért nap} other {# mért nap}} {day} óta — az ítélethez {need, plural, one {# nap} other {# nap}} kell",
+      "revenue": "{day} után {afterDays} mért napon át a napi árbevétel átlagosan {after} volt, szemben az előtte lévő {beforeDays} nap {before} értékével — {delta}% (küszöbök: segített +{helped}%-nál, visszafelé sült el {backfired}%-nál)",
+      "notOnRecord": "a közzétett elem nincs a nyilvántartásban — nincs mit mérni"
+    }
+  },
+  "emails": {
+    "summary": {
+      "subjectWaiting": "Az Ön hete a SYB-vel: {count, plural, one {# dolog vár Önre} other {# dolog vár Önre}}",
+      "subjectQuiet": "Az Ön hete a SYB-vel: csendes hét volt",
+      "subjectCalm": "Az Ön hete a SYB-vel: semmi sem vár Önre",
+      "heading": "Az Ön hete a SYB-vel",
+      "headingNamed": "{business}: az Ön hete a SYB-vel",
+      "quiet": "Csendes hét: a fiókjában semmi új nem lett rögzítve, és semmi sem vár Önre.",
+      "titles": {
+        "waiting": "Önre vár",
+        "stock": "Fogyóban lévő készlet",
+        "reviews": "Értékelések, amelyekről érdemes tudnia",
+        "done": "Amit tettem",
+        "noticed": "Amit észrevettem",
+        "goals": "Az Ön céljai",
+        "readback": "Hogyan teljesítenek a jóváhagyott változtatásai",
+        "forecasts": "Hogyan teljesítettek az előrejelzéseim"
+      },
+      "links": {
+        "waiting": "Önre vár",
+        "support": "Támogatás",
+        "stock": "Készlet",
+        "reviews": "Értékelések",
+        "watching": "Figyelés",
+        "goals": "Célok",
+        "history": "Előzmények",
+        "track": "Eddigi pontosságom"
+      },
+      "pending": "{count, plural, one {# javaslat vár} other {# javaslat vár}} az Ön döntésére. Semmi sem fut az Ön jóváhagyása nélkül.",
+      "pendingMore": "— és még {count}.",
+      "aProposal": "Egy javaslat",
+      "tickets": "{count, plural, one {# ügyfélkérdés vár} other {# ügyfélkérdés vár}} az Ön válaszára a Támogatás képernyőn.",
+      "executed": "Végrehajtottam egy Ön által jóváhagyott változtatást: {summary}",
+      "executedUndone": "Végrehajtottam egy Ön által jóváhagyott változtatást: {summary} (azóta visszavonva)",
+      "synced": "{count, plural, one {# új napot} other {# új napot}} olvastam be ebből a forrásból: {source}.",
+      "more": "és még {count}",
+      "verdicts": {
+        "helped": "segített",
+        "did_nothing": "nem hozott változást",
+        "backfired": "visszafelé sült el"
+      },
+      "judged": {
+        "revenue": "a napi árbevétel",
+        "post": "az elérés és az interakciók a korábbi bejegyzéseihez képest",
+        "campaign": "a kampány hirdetési költségarányos megtérülése",
+        "email": "az e-mail eredményei"
+      },
+      "tooEarly": "{summary}: még korai ítéletet mondani — a futása óta nincs elég mért nap.",
+      "revenue": "{summary}: {verdict} — a napi árbevétel átlaga utána {after}, előtte {before} volt, mérve.",
+      "revenuePct": "{summary}: {verdict} — a napi árbevétel átlaga utána {after}, előtte {before} volt ({pct}), mérve.",
+      "judgedOn": "{summary}: {verdict} — az ítélet alapja: {basis}, mérve.",
+      "judgedOnPct": "{summary}: {verdict} — az ítélet alapja: {basis} ({pct}), mérve.",
+      "forecasts": "Ezen a héten {total, plural, one {# előrejelzésemet} other {# előrejelzésemet}} értékeltem: {inside, plural, one {# az általam megadott sávon belül maradt} other {# az általam megadott sávon belül maradt}}, {misses}{cant}.",
+      "missedNone": "egy sem ment mellé",
+      "missedAbove": "{missed} mellément ({above, plural, one {# a sáv fölé esett} other {# a sáv fölé esett}})",
+      "missedBelow": "{missed} mellément ({below, plural, one {# a sáv alá esett} other {# a sáv alá esett}})",
+      "missedBoth": "{missed} mellément ({above, plural, one {# a sáv fölé esett} other {# a sáv fölé esett}}, {below, plural, one {# alá} other {# alá}})",
+      "cantTell": ", és {count} esetében nem tudtam eldönteni",
+      "footWatching": "Mindent, amit teszek, megtalál a Figyelés képernyőn: {url}",
+      "footApprove": "Semmi sem fut az Ön jóváhagyása nélkül.",
+      "footStop": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással leállíthatja:",
+      "footWatchingHtml": "Mindent, amit teszek, megtalál a <link>Figyelés képernyőn</link>. Semmi sem fut az Ön jóváhagyása nélkül.",
+      "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>."
+    },
+    "signIn": {
+      "subject": "Az Ön bejelentkezési linkje — SYB",
+      "intro": "Kattintson ide a SYB-be való bejelentkezéshez:",
+      "expiry": "A link egyszer használható, és {minutes, plural, one {# perc} other {# perc}} múlva lejár. Ha nem Ön kérte, hagyja figyelmen kívül ezt az e-mailt — a link nélkül semmi sem történik."
+    },
+    "invite": {
+      "subject": "Meghívást kapott egy vállalkozáshoz a SYB-ben: {business}",
+      "subjectUnnamed": "Meghívást kapott egy vállalkozáshoz a SYB-ben",
+      "intro": "Meghívták, hogy {role, select, owner {tulajdonosként} manager {menedzserként} other {megtekintőként}} csatlakozzon a SYB-ben ehhez a vállalkozáshoz: {business}.",
+      "introUnnamed": "Meghívták, hogy {role, select, owner {tulajdonosként} manager {menedzserként} other {megtekintőként}} csatlakozzon egy vállalkozáshoz a SYB-ben.",
+      "open": "Az elfogadáshoz nyissa meg ezt a linket:",
+      "expiry": "Egyszer használható, és {days, plural, one {# nap} other {# nap}} múlva lejár. Ezzel a címmel fog bejelentkezni: {email}. Ha nem számított rá, hagyja figyelmen kívül ezt az e-mailt — Ön nélkül semmi sem történik."
+    },
+    "supportNotice": {
+      "subject": "Egy ügyfél e-mailt írt Önnek — SYB",
+      "waiting": "{business}: egy ügyfél e-mailt írt, és az üzenet a Támogatás képernyőn várja Önt: {url}",
+      "waitingNoLink": "{business}: egy ügyfél e-mailt írt, és az üzenet a Támogatás képernyőn várja Önt.",
+      "nothingSent": "Még semmit sem küldtem neki. Válasz csak az Ön jóváhagyásával megy ki.",
+      "atMost": "Ilyen értesítést óránként legfeljebb egyet kap. A Támogatás képernyőn kikapcsolhatja őket."
+    },
+    "supportReply": {
+      "subject": "Az Ön kérdése ehhez a vállalkozáshoz: {business}"
+    },
+    "campaign": {
+      "greeting": "Üdvözöljük!",
+      "thisBusiness": "Ez a vállalkozás",
+      "why": "Azért kapja ezt az e-mailt, mert hozzájárult, hogy a következő feladó megkeresse: {business}. Leiratkozás: {link}"
+    }
+  },
+  "push": {
+    "one": "{count, plural, one {# dolog várja az Ön igenjét: {what}} other {# dolog várja az Ön igenjét: {what}}}",
+    "many": "{count, plural, one {# dolog várja az Ön igenjét} other {# dolog várja az Ön igenjét}}",
+    "test": "Teszt a SYB-től. Az értesítések erre az eszközre fognak érkezni.",
+    "kinds": {
+      "price_increase": "egy árváltozás",
+      "price_decrease": "egy árváltozás",
+      "discount_or_promotion": "egy promóció",
+      "paid_ads_start_or_increase": "egy hirdetés",
+      "paid_ads_decrease_or_pause": "egy hirdetésmódosítás",
+      "content_publishing": "egy bejegyzés",
+      "cold_outreach": "egy megkereső üzenet",
+      "channel_expansion": "egy új csatorna",
+      "offer_change": "egy ajánlat módosítása",
+      "operations_change": "egy változtatás a működésben",
+      "support_knowledge": "egy támogatási válasz",
+      "customer_email": "egy e-mail az ügyfeleknek",
+      "deal_followup": "egy utánkövetés",
+      "stock_reorder_note": "egy utánrendelési jegyzet",
+      "media_generation": "egy elkészítendő kép vagy videó",
+      "revise_goal": "egy átnézendő cél",
+      "stop_strategy": "egy átnézendő stratégia",
+      "other": "egy javaslat"
+    }
+  },
+  "exports": {
+    "money": {
+      "field": "mező",
+      "label": "címke",
+      "amount": "összeg",
+      "currency": "pénznem",
+      "status": "állapot",
+      "source": "forrás",
+      "source_detail": "forrás részletei",
+      "confidence": "megbízhatóság",
+      "observed_at": "megfigyelés ideje",
+      "recorded_at": "rögzítés ideje",
+      "derived_from": "származtatás alapja",
+      "formula": "képlet",
+      "superseded_at": "felváltás ideje"
+    },
+    "history": {
+      "when": "időpont",
+      "kind": "típus",
+      "entry": "bejegyzés",
+      "reference": "hivatkozás",
+      "detail": "részletek",
+      "by": "végrehajtó",
+      "note": "megjegyzés"
+    }
+  },
+  "shared": {
+    "pageTitle": "Megosztott jelentés — SYB",
+    "label": "Megosztott jelentés",
+    "readOnly": "Megosztott jelentés · csak olvasható",
+    "deadTitle": "Ez a link már nem aktív.",
+    "deadBody": "Ha itt jelentést várt, kérjen új linket attól, aki elküldte.",
+    "foot": "Ez egy megosztott pillanatkép a jelentésről (kiadva: {issued}; megosztva: {shared}). A jelentést az akkori állapotában mutatja, és nem változik; a vállalkozás bármikor visszavonhatja."
+  },
+  "unsubscribe": {
+    "label": "E-mail-beállítások",
+    "unknownTitle": "Ezt a linket nem ismerjük fel.",
+    "unknownBody": "Ellenőrizze, hogy az e-mailből a teljes linket másolta-e ki. Semmi sem változott.",
+    "campaign": {
+      "pageTitle": "Leiratkozás",
+      "thisBusiness": "ez a vállalkozás",
+      "doneTitle": "Leiratkozott a következő feladó leveleiről: {business}.",
+      "doneBody": "A SYB-n keresztül többé nem küldenek Önnek marketing e-mailt. Ez végleges; nincs más teendője.",
+      "askTitle": "Leállítja a marketing e-maileket a következő feladótól: {business}?",
+      "askBody": "Egy kattintás, és kész — végleg. A saját kérdéseire adott válaszokat ez nem érinti.",
+      "button": "Leiratkozás"
+    }
   }
 }

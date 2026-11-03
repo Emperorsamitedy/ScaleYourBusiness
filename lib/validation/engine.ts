@@ -129,7 +129,10 @@ export async function runValidationForWrite(profileId: string, fieldKey: string)
             field_keys: firing.field_keys,
             rule_id: rule.id,
             rule_version: RULES_VERSION,
-            message: { en: firing.message },
+            // L-4a: the figures beside the English, for the reader's language.
+            message: firing.args
+              ? { en: firing.message, args: firing.args }
+              : { en: firing.message },
           })
           // A racing writer may have inserted the same open finding; the
           // partial unique index arbitrates and losing is fine.

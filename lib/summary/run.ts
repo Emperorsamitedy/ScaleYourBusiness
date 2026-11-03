@@ -30,6 +30,7 @@ import { getProvider } from "../connectors/registry";
 import { isProviderId } from "../connectors/scopes";
 import { logSafeError } from "../core/log-safe";
 import { appUrl } from "../env";
+import { personLocale, wordsFor } from "../i18n/recipient";
 import { readCurrentField } from "../profile/field-store";
 import { READBACK, readbackForProposal } from "../trust/readback";
 import type { ComposedSummary, ForecastsGraded, SummaryInput, SummaryReadback } from "./compose";
@@ -177,7 +178,8 @@ export async function gatherSummary(args: {
       .filter((r): r is typeof r & { at: string } => r.at !== null)
       .map((r) => ({
         at: r.at,
-        summary: `${summaryOf(r.action)}${r.status === "undone" ? " (since undone)" : ""}`,
+        summary: summaryOf(r.action),
+        undone: r.status === "undone",
       })),
     pending: pending.map((p) => ({ summary: summaryOf(p.action) })),
     open_tickets: Number(tickets?.n ?? 0),
@@ -187,9 +189,10 @@ export async function gatherSummary(args: {
   };
 }
 
-function summaryOf(action: unknown): string {
+/** A proposal's own summary, or null for none (the email says "A proposal" in the owner's words). */
+function summaryOf(action: unknown): string | null {
   const s = (action as { summary?: unknown } | null)?.summary;
-  return typeof s === "string" && s.trim() !== "" ? s.trim() : "A proposal";
+  return typeof s === "string" && s.trim() !== "" ? s.trim() : null;
 }
 
 /** The email as Resend receives it. */
@@ -262,8 +265,14 @@ export async function summariseAccount(
   const token = stopToken(owner.id);
   const stopUrl = `${origin}/summary/stop/${token}`;
   const oneClickUrl = `${origin}/api/summary/stop/${token}`;
+  // L-6: in the owner's own language, while it is open to them; English otherwise.
+  const words = await wordsFor(
+    personLocale(owner.language, { email: owner.email, account_id: account.account_id }),
+    "emails.summary",
+  );
   const composed = composeSummary(
     await gatherSummary({ profileId: account.profile_id, now, origin, stopUrl }),
+    words,
   );
 
   // The claim: the unique (account, week) index lets exactly one run through.

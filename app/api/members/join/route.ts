@@ -29,6 +29,8 @@ import { TeamError, joinWithSession, peekInvite } from "../../../../lib/auth/mem
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { currentSession, requestLogin, revokeSession } from "../../../../lib/auth/service";
 import { logSafeError } from "../../../../lib/core/log-safe";
+import { LANGUAGE_COOKIE } from "../../../../lib/i18n/locales";
+import { addressLocale } from "../../../../lib/i18n/people";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const origin = appOriginOf(request.url);
@@ -77,7 +79,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const login = await requestLogin(invite.email, null, invite.invite_id);
     const link = `${origin}/api/auth/redeem?token=${encodeURIComponent(login.token)}`;
-    const sent = await sendLoginEmail({ to: login.email, link });
+    // L-6: their own language if an account holds one, else the one this page is in; through the gate.
+    const locale = await addressLocale(login.email, store.get(LANGUAGE_COOKIE)?.value);
+    const sent = await sendLoginEmail({ to: login.email, link, locale });
     if (sent.delivered_via === "failed") {
       return NextResponse.json(
         { error: "I couldn't send the sign-in email just now — try again in a minute." },

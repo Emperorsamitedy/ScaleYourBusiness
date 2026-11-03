@@ -7,6 +7,28 @@
 // by guesswork — a line whose moment is only known to the day says so
 // (time: null), and the measured verdict, which is arithmetic over the
 // days measured so far, is dated "now" because that is when it was read.
+//
+// L-4a (TASKS-LANGUAGES.md): the ledger's own words — actors, notes,
+// verdicts, "Judged on …", a fact's change line, the approval rate's
+// arithmetic and the revenue readback's — come from the "ledgerWords"
+// catalogue in the reader's language, English by default and word for word
+// as before. A proposal's summary (its title), a limit's caption, a lapse's
+// sentence and a decline's reason are stored as they were written and
+// print as they are (rule 4).
+
+import { intlMoney, intlNumber, dayMonthYear } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import { plainValue, readStored } from "../../lib/i18n/stored";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+
+export interface LedgerWords {
+  /** A translator over "ledgerWords". */
+  tr: Tr;
+  locale: AppLocale;
+}
+const LW = (): LedgerWords => ({ tr: englishTr("ledgerWords"), locale: "en" });
 
 export type LedgerKind =
   "proposed" | "withheld" | "approved" | "declined" | "expired" | "ran" | "measured" | "superseded";
@@ -78,43 +100,104 @@ export function parseTs(s: string): number {
 
 const DAY_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
-const clock = (ms: number) =>
-  new Date(ms).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+const clock = (ms: number, locale: AppLocale = "en") =>
+  new Date(ms).toLocaleTimeString(locale === "en" ? "en-GB" : intlTag(locale), {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
 /** The proposal's short reference: its module and the first block of its id. */
 export const refOf = (p: Pick<LedgerProposal, "id" | "module">): string =>
   `${p.module} · ${p.id.slice(0, 8)}`;
 
-const VERDICT: Record<Verdict, { word: string; tone: LedgerRow["tone"] }> = {
-  helped: { word: "helped", tone: "ok" },
-  did_nothing: { word: "did nothing", tone: "low" },
-  backfired: { word: "backfired", tone: "alarm" },
-  too_early: { word: "too early to say", tone: "low" },
-  unmeasured: { word: "unmeasured", tone: "low" },
+const TONE: Record<Verdict, LedgerRow["tone"]> = {
+  helped: "ok",
+  did_nothing: "low",
+  backfired: "alarm",
+  too_early: "low",
+  unmeasured: "low",
 };
 
-/** P3-23b: the series a verdict was read from, when it isn't the business's revenue. */
-const JUDGED_ON: Record<"post" | "campaign" | "email", string> = {
-  post: "Judged on the post's own figures against your earlier posts",
-  campaign: "Judged on the campaign's own return on ad spend",
-  email: "Judged on who bought again after the email, against the customers it couldn't go to",
-};
-
-const SOURCE_WORD: Record<string, string> = {
+/** "you", "measured" or "SYB": who a fact's source makes its author (ledgerWords.actor). */
+const SOURCE_ACTOR: Record<string, "you" | "measured" | "syb"> = {
   owner_input: "you",
   conversation: "you",
   connector: "measured",
-  inferred: "SYB",
-  web_research: "SYB",
-  system_default: "SYB",
+  inferred: "syb",
+  web_research: "syb",
+  system_default: "syb",
 };
+
+/** A signed percent as the readback writes it ("+3.2", "-5"), the reader's way. */
+function signedFigure(raw: string, locale: AppLocale): string {
+  const m = /^([+-]?)(\d+)(?:\.(\d+))?$/.exec(raw);
+  if (!m) return raw;
+  const body = intlNumber(Number(`${m[2]}.${m[3] ?? "0"}`), m[3]?.length ?? 0, locale);
+  return `${m[1] === "-" ? "−" : m[1]}${body}`;
+}
+
+/**
+ * Pure: a readback's arithmetic in the reader's language. The revenue
+ * readback's own lines are read back (lib/trust/readback); the post, campaign
+ * and email readbacks' lines print as written.
+ */
+export function arithmeticWords(text: string, w: LedgerWords = LW()): string {
+  const { tr, locale } = w;
+  if (locale === "en") return text;
+  return readStored(
+    text,
+    "ledgerWords.arith",
+    (k, v) => tr(`arith.${k}`, v),
+    (name, raw) => {
+      if (name === "day") return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? dayMonthYear(raw, locale) : raw;
+      if (name === "after" || name === "before") {
+        const m = /^(-?\d+\.\d{2}) ([A-Z]{3})$/.exec(raw);
+        return m ? intlMoney(Number(m[1]), m[2]!, 2, locale) : raw;
+      }
+      if (name === "delta" || name === "helped" || name === "backfired")
+        return signedFigure(raw, locale);
+      return plainValue(name, raw);
+    },
+  );
+}
+
+/** Pure: the approval rate's arithmetic, from the scorecard's own counts. */
+export function rateArithmetic(
+  s: {
+    rejected: number;
+    expired: number;
+    blocked: number;
+    approval_rate: { numerator: number; denominator: number; value: number | null };
+  },
+  w: LedgerWords = LW(),
+): string {
+  const { tr, locale } = w;
+  const r = s.approval_rate;
+  if (r.denominator <= 0 || r.value === null) return tr("rate.none");
+  const fig = (n: number, d = 0) => (locale === "en" ? String(n) : intlNumber(n, d, locale));
+  return tr("rate.some", {
+    approved: fig(r.numerator),
+    concluded: fig(r.denominator),
+    declined: fig(s.rejected),
+    lapsed: fig(s.expired),
+    withheld: fig(s.blocked),
+    rate:
+      locale === "en"
+        ? String(r.value)
+        : intlNumber(r.value, Number.isInteger(r.value) ? 0 : 1, locale),
+  });
+}
 
 /** Every line one proposal has put on the record. */
 export function proposalRows(
   p: LedgerProposal,
   outcome: LedgerOutcome | null,
   now: number,
+  w: LedgerWords = LW(),
 ): LedgerRow[] {
+  const { tr, locale } = w;
+  const SYB = tr("actor.syb");
+  const YOU = tr("actor.you");
   const rows: LedgerRow[] = [];
   const ref = refOf(p);
   const title = p.action.summary;
@@ -129,8 +212,8 @@ export function proposalRows(
       title,
       ref,
       detail: p.blocked_by_limit ? p.blocked_by_limit.replace(/^13\.5:\s*/, "") : null,
-      actor: "SYB",
-      note: "withheld by your limit",
+      actor: SYB,
+      note: tr("note.withheld"),
       tone: null,
     });
     return rows;
@@ -144,8 +227,8 @@ export function proposalRows(
     title,
     ref,
     detail: null,
-    actor: "SYB",
-    note: p.status === "pending" ? "waiting for you" : "",
+    actor: SYB,
+    note: p.status === "pending" ? tr("note.waiting") : "",
     tone: null,
   });
 
@@ -161,7 +244,7 @@ export function proposalRows(
       title,
       ref,
       detail: null,
-      actor: "you",
+      actor: YOU,
       note: "",
       tone: null,
     });
@@ -175,8 +258,8 @@ export function proposalRows(
         title,
         ref,
         detail: typeof lapse.sentence === "string" ? lapse.sentence : null,
-        actor: "SYB",
-        note: "lapsed after approval · never ran",
+        actor: SYB,
+        note: tr("note.lapsedApproved"),
         tone: null,
       });
     }
@@ -194,8 +277,8 @@ export function proposalRows(
         title,
         ref,
         detail: null,
-        actor: "no answer",
-        note: "lapsed · never ran",
+        actor: tr("actor.noAnswer"),
+        note: tr("note.lapsed"),
         tone: null,
       });
     }
@@ -212,8 +295,11 @@ export function proposalRows(
       title,
       ref,
       detail: null,
-      actor: "you",
-      note: p.status === "approved" && runs !== null && runs > now ? `runs ${clock(runs)}` : "",
+      actor: YOU,
+      note:
+        p.status === "approved" && runs !== null && runs > now
+          ? tr("note.runs", { clock: clock(runs, locale) })
+          : "",
       tone: null,
     });
   }
@@ -226,8 +312,8 @@ export function proposalRows(
       timed: true,
       title,
       ref,
-      detail: p.rejection_reason ? `reason: ${p.rejection_reason}` : null,
-      actor: "you",
+      detail: p.rejection_reason ? tr("reason", { reason: p.rejection_reason }) : null,
+      actor: YOU,
       note: "",
       tone: null,
     });
@@ -245,19 +331,23 @@ export function proposalRows(
         title,
         ref,
         detail: null,
-        actor: p.module === "hours" ? "you" : "SYB",
-        note: "done",
+        actor: p.module === "hours" ? YOU : SYB,
+        note: tr("note.done"),
         tone: null,
       });
     }
   }
 
   if (outcome && outcome.verdict !== "unmeasured") {
-    const v = VERDICT[outcome.verdict];
+    const verdict = tr(`verdict.${outcome.verdict}`);
+    const d = outcome.delta_pct;
     const delta =
-      outcome.delta_pct !== null
-        ? `${outcome.delta_pct >= 0 ? "+" : ""}${outcome.delta_pct}% · `
-        : "";
+      d === null
+        ? null
+        : locale === "en"
+          ? `${d >= 0 ? "+" : ""}${d}`
+          : signedFigure(`${d >= 0 ? "+" : ""}${d}`, locale);
+    const arithmetic = arithmeticWords(outcome.arithmetic, w);
     rows.push({
       key: `${p.id}:measured`,
       kind: "measured",
@@ -267,11 +357,11 @@ export function proposalRows(
       ref,
       detail:
         outcome.judged_on && outcome.judged_on !== "revenue"
-          ? `${JUDGED_ON[outcome.judged_on]}: ${outcome.arithmetic}`
-          : outcome.arithmetic,
-      actor: "SYB",
-      note: `${delta}${v.word}`,
-      tone: v.tone,
+          ? tr("judgedOn.detail", { judged: tr(`judgedOn.${outcome.judged_on}`), arithmetic })
+          : arithmetic,
+      actor: SYB,
+      note: delta === null ? verdict : tr("note.delta", { delta, verdict }),
+      tone: TONE[outcome.verdict],
     });
   }
 
@@ -281,23 +371,26 @@ export function proposalRows(
 /** A structured value (a schedule, a list of objects) has no one-line form. */
 const structured = (v: string | null) => v !== null && /^[[{]/.test(v.trim());
 
-function changeTitle(f: LedgerFact): string {
-  if (structured(f.from) || structured(f.to)) return `${f.label}: updated`;
-  if (f.from === f.to) return `${f.label}: re-recorded, same value`;
-  return `${f.label}: ${f.from ?? "not known"} → ${f.to ?? "not known"}`;
+function changeTitle(f: LedgerFact, tr: Tr): string {
+  if (structured(f.from) || structured(f.to)) return tr("change.updated", { label: f.label });
+  if (f.from === f.to) return tr("change.same", { label: f.label });
+  const notKnown = tr("change.notKnown");
+  return tr("change.moved", { label: f.label, from: f.from ?? notKnown, to: f.to ?? notKnown });
 }
 
-export function factRow(f: LedgerFact): LedgerRow {
+export function factRow(f: LedgerFact, w: LedgerWords = LW()): LedgerRow {
+  const { tr } = w;
+  const actor = SOURCE_ACTOR[f.by];
   return {
     key: `fact:${f.id}`,
     kind: "superseded",
     at: parseTs(f.at),
     timed: true,
-    title: changeTitle(f),
-    ref: `fact ${f.id.slice(0, 8)}`,
+    title: changeTitle(f, tr),
+    ref: tr("ref.fact", { id: f.id.slice(0, 8) }),
     detail: null,
-    actor: SOURCE_WORD[f.by] ?? f.by.replace(/_/g, " "),
-    note: "kept in record",
+    actor: actor ? tr(`actor.${actor}`) : f.by.replace(/_/g, " "),
+    note: tr("note.kept"),
     tone: null,
   };
 }
@@ -333,9 +426,19 @@ export function byDay(
 
 const cell = (v: string): string => (/[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
 
-/** The visible rows as CSV — what the owner sees, nothing more. */
-export function toCsv(rows: readonly LedgerRow[]): string {
-  const head = ["when", "kind", "entry", "reference", "detail", "by", "note"];
+/** The CSV's columns, as exports.history in messages/<locale>.json names them. */
+export const CSV_COLUMNS = ["when", "kind", "entry", "reference", "detail", "by", "note"] as const;
+
+/**
+ * The visible rows as CSV — what the owner sees, nothing more. L-6: the
+ * header in the reader's language (`heading`, exports.history); the times
+ * stay ISO 8601 and the kind its code, so the file stays machine-readable.
+ */
+export function toCsv(
+  rows: readonly LedgerRow[],
+  heading: (column: (typeof CSV_COLUMNS)[number]) => string = (c) => c,
+): string {
+  const head = CSV_COLUMNS.map((c) => cell(heading(c)));
   const lines = rows.map((r) =>
     [
       r.timed ? new Date(r.at).toISOString() : new Date(r.at).toISOString().slice(0, 10),

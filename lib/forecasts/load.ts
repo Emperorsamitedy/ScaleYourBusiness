@@ -9,9 +9,14 @@ import { asc, count, desc, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { forecastChecks } from "../../db/schema";
 import type { TrackView } from "./view";
+import type { TrackWords } from "./view";
 import { TRACK_LISTED, trackView } from "./view";
 
-export async function trackRecord(profileId: string, now: Date = new Date()): Promise<TrackView> {
+export async function trackRecord(
+  profileId: string,
+  now: Date = new Date(),
+  words?: TrackWords,
+): Promise<TrackView> {
   const rows = await db
     .select({
       id: forecastChecks.id,
@@ -48,5 +53,5 @@ export async function trackRecord(profileId: string, now: Date = new Date()): Pr
     .from(forecastChecks)
     .where(eq(forecastChecks.profile_id, profileId))
     .groupBy(forecastChecks.kind, graded);
-  return trackView(rows, now.toISOString().slice(0, 10), tally);
+  return trackView(rows, now.toISOString().slice(0, 10), tally, words);
 }

@@ -11,7 +11,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { resolveAccess } from "../../../../lib/auth/access";
+import { loadFactWords } from "../../../../lib/bank/words";
 import { logSafeError } from "../../../../lib/core/log-safe";
+import { wordsFor } from "../../../../lib/i18n/recipient";
+import { requestLocale } from "../../../../lib/i18n/server";
 import type { ExportPart } from "../../../../lib/profile/money-export";
 import {
   CURRENT_COLUMNS,
@@ -32,12 +35,18 @@ export async function GET(request: NextRequest): Promise<NextResponse | Response
   }
   const part: ExportPart = requested;
   try {
+    // L-6: headings and labels in the reader's language; every cell stays machine-readable.
+    const locale = await requestLocale();
+    const words = await wordsFor(locale, "exports.money");
     const rows = await moneyExportRows({
       accountId: access.account_id,
       profileId: access.profile_id,
       part,
+      ...(locale !== "en" ? { words: await loadFactWords(locale) } : {}),
     });
-    const csv = toCsv(part === "current" ? CURRENT_COLUMNS : HISTORY_COLUMNS, rows);
+    const csv = toCsv(part === "current" ? CURRENT_COLUMNS : HISTORY_COLUMNS, rows, (c) =>
+      words.t(c),
+    );
     console.log(
       JSON.stringify({
         event: "money_export",

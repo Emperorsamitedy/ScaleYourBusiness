@@ -12,8 +12,18 @@
 // says exactly that. Customer words never appear: support is a count
 // (rule 24, and the owner notice's discipline). Money prints through
 // lib/core/money; a measured figure says "measured".
+//
+// L-6 (TASKS-LANGUAGES.md): the email's own words come from messages/
+// <locale>.json (`emails.summary`) in the owner's language, chosen by the
+// runner through the gate (lib/i18n/recipient); English by default, word
+// for word what it said before. Dates, money and percentages go through
+// Intl in that language. The lines the watch log already wrote (a row's
+// `detail`) and a proposal's own summary are printed as recorded.
 
 import { format, money } from "../core/money";
+import { intlTag } from "../i18n/locales";
+import type { Words } from "../i18n/recipient";
+import { englishWords } from "../i18n/recipient";
 import type { JudgedOn, OutcomeVerdict } from "../trust/readback";
 import { NOTED_KINDS, REVIEW_ALERT_KIND, STOCK_WARNING_KIND } from "../watch/watch-view";
 import type { SummaryWindow } from "./week";
@@ -29,7 +39,8 @@ export interface SummaryActivity {
 
 /** An executed proposal's readback, as the trust layer judged it. */
 export interface SummaryReadback {
-  summary: string;
+  /** The proposal's own summary; null when it has none ("A proposal"). */
+  summary: string | null;
   verdict: OutcomeVerdict;
   judged_on: JudgedOn;
   currency: string | null;
@@ -48,10 +59,10 @@ export interface SummaryInput {
   /** The signed one-click stop link. */
   stop_url: string;
   activity: readonly SummaryActivity[];
-  /** Changes that ran this week — each one approved by the owner. */
-  executed: readonly { at: string; summary: string }[];
+  /** Changes that ran this week — each one approved by the owner; `undone` when since undone. */
+  executed: readonly { at: string; summary: string | null; undone?: boolean }[];
   /** Proposals waiting for a decision, newest first. */
-  pending: readonly { summary: string }[];
+  pending: readonly { summary: string | null }[];
   /** Support tickets open and waiting for the owner. A count, never their text. */
   open_tickets: number;
   readbacks: readonly SummaryReadback[];
@@ -108,22 +119,15 @@ export const EXECUTION_ECHO_KINDS: ReadonlySet<string> = new Set([
   "ad_changed",
 ]);
 
-const VERDICT_WORD: Record<OutcomeVerdict, string> = {
-  helped: "helped",
-  did_nothing: "did nothing",
-  backfired: "backfired",
-  too_early: "too early to say",
-  unmeasured: "unmeasured",
-};
+/** The email's words in English: the default for every function below. */
+const ENGLISH = (): Words => englishWords("emails.summary");
 
-const JUDGED_NOUN: Record<JudgedOn, string> = {
-  revenue: "daily revenue",
-  post: "reach and interactions against your previous posts",
-  campaign: "the campaign's return on ad spend",
-  email: "the email's results",
+const JUDGED: Readonly<Record<JudgedOn, string>> = {
+  revenue: "judged.revenue",
+  post: "judged.post",
+  campaign: "judged.campaign",
+  email: "judged.email",
 };
-
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 const chronological = <T extends { at: string }>(rows: readonly T[]): T[] =>
   [...rows].sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0));
@@ -134,31 +138,43 @@ function capped(lines: SummaryLine[]): { lines: SummaryLine[]; more: number } {
     : { lines, more: 0 };
 }
 
-function moneyText(minor: number, currency: string): string {
-  return format(money(Math.round(minor), currency));
+function moneyText(minor: number, currency: string, w: Words): string {
+  return format(money(Math.round(minor), currency), w.locale === "en" ? "en" : intlTag(w.locale));
+}
+
+/** "+12.7%", "-21.2%" in English, exactly as before; the language's own percent elsewhere. */
+function pctText(delta: number, w: Words): string {
+  if (w.locale === "en") return `${delta >= 0 ? "+" : ""}${delta}%`;
+  return new Intl.NumberFormat(intlTag(w.locale), {
+    style: "percent",
+    signDisplay: "always",
+    maximumFractionDigits: 1,
+  }).format(delta / 100);
 }
 
 /** One readback as a sentence, or null for a verdict with nothing to say. */
-export function readbackLine(r: SummaryReadback): string | null {
+export function readbackLine(r: SummaryReadback, w: Words = ENGLISH()): string | null {
   if (r.verdict === "unmeasured") return null;
-  if (r.verdict === "too_early") {
-    return `${r.summary}: ${VERDICT_WORD.too_early} — not enough measured days since it ran.`;
-  }
-  const sign = r.delta_pct !== null && r.delta_pct >= 0 ? "+" : "";
-  const pct = r.delta_pct !== null ? ` (${sign}${r.delta_pct}%)` : "";
+  const summary = r.summary ?? w.t("aProposal");
+  if (r.verdict === "too_early") return w.t("tooEarly", { summary });
+  const verdict = w.t(`verdicts.${r.verdict}`);
+  const pct = r.delta_pct !== null ? pctText(r.delta_pct, w) : null;
   if (
     r.judged_on === "revenue" &&
     r.currency !== null &&
     r.before_minor !== null &&
     r.after_minor !== null
   ) {
-    return (
-      `${r.summary}: ${VERDICT_WORD[r.verdict]} — daily revenue averaged ` +
-      `${moneyText(r.after_minor, r.currency)} after, against ` +
-      `${moneyText(r.before_minor, r.currency)} before${pct}, measured.`
-    );
+    const values = {
+      summary,
+      verdict,
+      after: moneyText(r.after_minor, r.currency, w),
+      before: moneyText(r.before_minor, r.currency, w),
+    };
+    return pct === null ? w.t("revenue", values) : w.t("revenuePct", { ...values, pct });
   }
-  return `${r.summary}: ${VERDICT_WORD[r.verdict]} — judged on ${JUDGED_NOUN[r.judged_on]}${pct}, measured.`;
+  const values = { summary, verdict, basis: w.t(JUDGED[r.judged_on]) };
+  return pct === null ? w.t("judgedOn", values) : w.t("judgedOnPct", { ...values, pct });
 }
 
 /**
@@ -166,27 +182,29 @@ export function readbackLine(r: SummaryReadback): string | null {
  * graded. A miss is said as plainly as a hit; "can't tell" is named apart
  * and never counted as right.
  */
-export function forecastsLine(f: ForecastsGraded | undefined): string | null {
+export function forecastsLine(f: ForecastsGraded | undefined, w: Words = ENGLISH()): string | null {
   if (!f) return null;
   const total = f.inside + f.above + f.below + f.cant_tell;
   if (total === 0) return null;
   const missed = f.above + f.below;
   const misses =
     missed === 0
-      ? "none missed"
-      : `${missed} missed (${[
-          ...(f.above > 0 ? [`${f.above} came in above it`] : []),
-          ...(f.below > 0 ? [`${f.below} below it`] : []),
-        ].join(", ")})`;
-  const cant = f.cant_tell > 0 ? `, and I couldn't tell on ${f.cant_tell}` : "";
-  return (
-    `I graded ${total} of my forecasts this week: ` +
-    `${f.inside} landed inside the range I gave, ${misses}${cant}.`
-  );
+      ? w.t("missedNone")
+      : f.below === 0
+        ? w.t("missedAbove", { missed, above: f.above })
+        : f.above === 0
+          ? w.t("missedBelow", { missed, below: f.below })
+          : w.t("missedBoth", { missed, above: f.above, below: f.below });
+  const cant = f.cant_tell > 0 ? w.t("cantTell", { count: f.cant_tell }) : "";
+  return w.t("forecasts", { total, inside: f.inside, misses, cant });
 }
 
 /** The connector syncs of a week, one line per source: the days add up. */
-function syncLines(rows: readonly SummaryActivity[], labels: SummaryInput["provider_labels"]) {
+function syncLines(
+  rows: readonly SummaryActivity[],
+  labels: SummaryInput["provider_labels"],
+  w: Words,
+) {
   const days = new Map<string, number>();
   const other: SummaryActivity[] = [];
   for (const row of rows) {
@@ -197,39 +215,38 @@ function syncLines(rows: readonly SummaryActivity[], labels: SummaryInput["provi
     else other.push(row); // a re-measure with no new days: its own words
   }
   const lines: SummaryLine[] = [...days].map(([provider, n]) => ({
-    text: `Read ${plural(n, "new day", "new days")} from ${labels[provider] ?? provider}.`,
+    text: w.t("synced", { count: n, source: labels[provider] ?? provider }),
   }));
   return { lines, other };
 }
 
 /** The sections, in reading order. Empty ones are left out. */
-export function summarySections(input: SummaryInput): SummarySection[] {
+export function summarySections(input: SummaryInput, w: Words = ENGLISH()): SummarySection[] {
   const sections: SummarySection[] = [];
+  const day = (at: string) => dayLabel(at, w.locale);
 
   // Waiting for you — the only part that asks anything of the owner.
   const waiting: SummaryLine[] = [];
   if (input.pending.length > 0) {
-    waiting.push({
-      text: `${plural(input.pending.length, "proposal waits", "proposals wait")} for your decision. Nothing runs until you approve it.`,
-    });
-    for (const p of input.pending.slice(0, 3)) waiting.push({ text: `— ${p.summary}` });
+    waiting.push({ text: w.t("pending", { count: input.pending.length }) });
+    for (const p of input.pending.slice(0, 3)) {
+      waiting.push({ text: `— ${p.summary ?? w.t("aProposal")}` });
+    }
     if (input.pending.length > 3) {
-      waiting.push({ text: `— and ${input.pending.length - 3} more.` });
+      waiting.push({ text: w.t("pendingMore", { count: input.pending.length - 3 }) });
     }
   }
   if (input.open_tickets > 0) {
-    waiting.push({
-      text: `${plural(input.open_tickets, "customer question waits", "customer questions wait")} for your answer on Support.`,
-    });
+    waiting.push({ text: w.t("tickets", { count: input.open_tickets }) });
   }
   if (waiting.length > 0) {
     sections.push({
       key: "waiting",
-      title: "Waiting for you",
+      title: w.t("titles.waiting"),
       lines: waiting,
       more: 0,
       href: input.pending.length > 0 ? "/proposals" : "/support",
-      link_text: input.pending.length > 0 ? "Waiting for you" : "Support",
+      link_text: input.pending.length > 0 ? w.t("links.waiting") : w.t("links.support"),
     });
   }
 
@@ -249,10 +266,10 @@ export function summarySections(input: SummaryInput): SummarySection[] {
   if (latestByItem.size > 0) {
     sections.push({
       key: "stock",
-      title: "Running low",
-      ...capped([...latestByItem.values()].map((r) => ({ at: dayLabel(r.at), text: r.detail }))),
+      title: w.t("titles.stock"),
+      ...capped([...latestByItem.values()].map((r) => ({ at: day(r.at), text: r.detail }))),
       href: "/stock",
-      link_text: "Stock",
+      link_text: w.t("links.stock"),
     });
   }
   // Idea 45: reviews worth knowing, one line each and never folded together
@@ -262,15 +279,16 @@ export function summarySections(input: SummaryInput): SummarySection[] {
   if (reviewAlerts.length > 0) {
     sections.push({
       key: "reviews",
-      title: "Reviews worth knowing",
-      ...capped(reviewAlerts.map((r) => ({ at: dayLabel(r.at), text: r.detail }))),
+      title: w.t("titles.reviews"),
+      ...capped(reviewAlerts.map((r) => ({ at: day(r.at), text: r.detail }))),
       href: "/reviews",
-      link_text: "Reviews",
+      link_text: w.t("links.reviews"),
     });
   }
   const syncs = syncLines(
     rows.filter((r) => r.kind === "connector_sync"),
     input.provider_labels,
+    w,
   );
   const work = [
     ...syncs.other,
@@ -286,29 +304,31 @@ export function summarySections(input: SummaryInput): SummarySection[] {
   // What I did — changes that ran first (each approved), then the log's work.
   const done: SummaryLine[] = [
     ...chronological(input.executed).map((e) => ({
-      at: dayLabel(e.at),
-      text: `Made a change you approved: ${e.summary}`,
+      at: day(e.at),
+      text: w.t(e.undone ? "executedUndone" : "executed", {
+        summary: e.summary ?? w.t("aProposal"),
+      }),
     })),
     ...syncs.lines,
-    ...dedupe(chronological(work)).map((r) => ({ at: dayLabel(r.at), text: r.detail })),
+    ...dedupe(chronological(work)).map((r) => ({ at: day(r.at), text: r.detail })),
   ];
   if (done.length > 0) {
     sections.push({
       key: "done",
-      title: "What I did",
+      title: w.t("titles.done"),
       ...capped(done),
       href: "/watch",
-      link_text: "Watching",
+      link_text: w.t("links.watching"),
     });
   }
 
   if (noticed.length > 0) {
     sections.push({
       key: "noticed",
-      title: "What I noticed",
-      ...capped(dedupe(noticed).map((r) => ({ at: dayLabel(r.at), text: r.detail }))),
+      title: w.t("titles.noticed"),
+      ...capped(dedupe(noticed).map((r) => ({ at: day(r.at), text: r.detail }))),
       href: "/watch",
-      link_text: "Watching",
+      link_text: w.t("links.watching"),
     });
   }
 
@@ -321,35 +341,35 @@ export function summarySections(input: SummaryInput): SummarySection[] {
   if (latestByGoal.size > 0) {
     sections.push({
       key: "goals",
-      title: "Your goals",
+      title: w.t("titles.goals"),
       ...capped([...latestByGoal.values()].map((g) => ({ text: g.detail }))),
       href: "/progress",
-      link_text: "Goals",
+      link_text: w.t("links.goals"),
     });
   }
 
   const readbacks = input.readbacks
-    .map(readbackLine)
+    .map((r) => readbackLine(r, w))
     .filter((t): t is string => t !== null)
     .map((text) => ({ text }));
   if (readbacks.length > 0) {
     sections.push({
       key: "readback",
-      title: "How your approved changes are doing",
+      title: w.t("titles.readback"),
       ...capped(readbacks),
       href: "/history",
-      link_text: "History",
+      link_text: w.t("links.history"),
     });
   }
-  const graded = forecastsLine(input.forecasts);
+  const graded = forecastsLine(input.forecasts, w);
   if (graded) {
     sections.push({
       key: "forecasts",
-      title: "How my forecasts did",
+      title: w.t("titles.forecasts"),
       lines: [{ text: graded }],
       more: 0,
       href: "/history",
-      link_text: "My track record",
+      link_text: w.t("links.track"),
     });
   }
   return sections;
@@ -361,14 +381,14 @@ function dedupe<T extends { detail: string }>(rows: readonly T[]): T[] {
   return rows.filter((r) => (seen.has(r.detail) ? false : (seen.add(r.detail), true)));
 }
 
-export const QUIET_LINE =
-  "A quiet week: nothing new was recorded on your account, and nothing is waiting for you.";
+/** The quiet week's line, in English. */
+export const QUIET_LINE = ENGLISH().t("quiet");
 
-function subjectFor(input: SummaryInput, quiet: boolean): string {
+function subjectFor(input: SummaryInput, quiet: boolean, w: Words): string {
   const waiting = input.pending.length + input.open_tickets;
-  if (waiting > 0) return `Your week with SYB: ${waiting} waiting for you`;
-  if (quiet) return "Your week with SYB: a quiet one";
-  return "Your week with SYB: nothing needs you";
+  if (waiting > 0) return w.t("subjectWaiting", { count: waiting });
+  if (quiet) return w.t("subjectQuiet");
+  return w.t("subjectCalm");
 }
 
 const escapeHtml = (s: string) =>
@@ -389,28 +409,44 @@ const RULE = "#71897D";
 const MONO = "'IBM Plex Mono',Menlo,Consolas,monospace";
 const PROSE = "Archivo,Helvetica,Arial,sans-serif";
 
-function renderText(c: Omit<ComposedSummary, "text" | "html">, input: SummaryInput): string {
+function renderText(
+  c: Omit<ComposedSummary, "text" | "html">,
+  input: SummaryInput,
+  w: Words,
+): string {
   const out: string[] = [c.heading, c.period, ""];
-  if (c.quiet) out.push(QUIET_LINE, "");
+  if (c.quiet) out.push(w.t("quiet"), "");
   for (const s of c.sections) {
-    out.push(s.title.toUpperCase());
+    out.push(
+      w.locale === "en" ? s.title.toUpperCase() : s.title.toLocaleUpperCase(intlTag(w.locale)),
+    );
     for (const l of s.lines) out.push(l.at ? `- ${l.at} · ${l.text}` : `- ${l.text}`);
-    if (s.more > 0) out.push(`- and ${s.more} more`);
+    if (s.more > 0) out.push(`- ${w.t("more", { count: s.more })}`);
     out.push(`${s.link_text}: ${input.origin}${s.href}`, "");
   }
   out.push(
-    `Everything I do is on your Watching screen: ${input.origin}/watch`,
-    "Nothing runs until you approve it.",
+    w.t("footWatching", { url: `${input.origin}/watch` }),
+    w.t("footApprove"),
     "",
-    "You get this email once a week. Switch it off on the Watching screen, or stop it with one click:",
+    w.t("footStop"),
     input.stop_url,
   );
   return out.join("\n");
 }
 
-function renderHtml(c: Omit<ComposedSummary, "text" | "html">, input: SummaryInput): string {
+function renderHtml(
+  c: Omit<ComposedSummary, "text" | "html">,
+  input: SummaryInput,
+  w: Words,
+): string {
   const link = (href: string, label: string) =>
     `<a href="${escapeHtml(href)}" style="color:${INK};text-decoration:underline">${escapeHtml(label)}</a>`;
+  /** A sentence with one <link> in it: its words escaped, the link drawn by `link`. */
+  const sentence = (key: string, href: string) =>
+    escapeHtml(w.markup(key, { link: (chunks) => `${chunks}` })).replace(
+      /([^]*)/,
+      (_, words: string) => link(href, words),
+    );
   const label = (t: string) =>
     `<p style="margin:0 0 8px;font-family:${MONO};font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:${INK_2}">${escapeHtml(t)}</p>`;
   const parts: string[] = [];
@@ -419,7 +455,7 @@ function renderHtml(c: Omit<ComposedSummary, "text" | "html">, input: SummaryInp
     `<p style="margin:0 0 24px;font-family:${MONO};font-size:12px;color:${INK_2}">${escapeHtml(c.period)}</p>`,
   );
   if (c.quiet) {
-    parts.push(`<p style="margin:0 0 24px">${escapeHtml(QUIET_LINE)}</p>`);
+    parts.push(`<p style="margin:0 0 24px">${escapeHtml(w.t("quiet"))}</p>`);
   }
   for (const s of c.sections) {
     const items = s.lines
@@ -432,7 +468,10 @@ function renderHtml(c: Omit<ComposedSummary, "text" | "html">, input: SummaryInp
           }${escapeHtml(l.text)}</li>`,
       )
       .join("");
-    const more = s.more > 0 ? `<li style="margin:0 0 6px">and ${s.more} more</li>` : "";
+    const more =
+      s.more > 0
+        ? `<li style="margin:0 0 6px">${escapeHtml(w.t("more", { count: s.more }))}</li>`
+        : "";
     parts.push(
       `<div style="border-top:1px solid ${RULE};padding:16px 0 8px">`,
       label(s.title),
@@ -443,12 +482,12 @@ function renderHtml(c: Omit<ComposedSummary, "text" | "html">, input: SummaryInp
   }
   parts.push(
     `<div style="border-top:1px solid ${RULE};padding:16px 0 0;font-size:14px;color:${INK_2}">`,
-    `<p style="margin:0 0 8px">Everything I do is on your ${link(`${input.origin}/watch`, "Watching screen")}. Nothing runs until you approve it.</p>`,
-    `<p style="margin:0">You get this email once a week. Switch it off on the Watching screen, or ${link(input.stop_url, "stop these emails")} with one click.</p>`,
+    `<p style="margin:0 0 8px">${sentence("footWatchingHtml", `${input.origin}/watch`)}</p>`,
+    `<p style="margin:0">${sentence("footStopHtml", input.stop_url)}</p>`,
     `</div>`,
   );
   return (
-    `<!doctype html><html lang="en"><head><meta charset="utf-8">` +
+    `<!doctype html><html lang="${w.locale}"><head><meta charset="utf-8">` +
     `<meta name="viewport" content="width=device-width,initial-scale=1">` +
     `<title>${escapeHtml(c.subject)}</title></head>` +
     `<body style="margin:0;padding:0;background:${PAPER}">` +
@@ -458,17 +497,20 @@ function renderHtml(c: Omit<ComposedSummary, "text" | "html">, input: SummaryInp
   );
 }
 
-/** The whole email. Same input, same bytes. */
-export function composeSummary(input: SummaryInput): ComposedSummary {
-  const sections = summarySections(input);
+/**
+ * The whole email. Same input, same bytes. `w` is the owner's words
+ * (lib/i18n/recipient wordsFor(locale, "emails.summary")); English by default.
+ */
+export function composeSummary(input: SummaryInput, w: Words = ENGLISH()): ComposedSummary {
+  const sections = summarySections(input, w);
   const quiet = sections.length === 0;
   const base = {
-    subject: subjectFor(input, quiet),
-    heading: input.business ? `${input.business}: your week with SYB` : "Your week with SYB",
-    period: windowLabel(input.window),
+    subject: subjectFor(input, quiet, w),
+    heading: input.business ? w.t("headingNamed", { business: input.business }) : w.t("heading"),
+    period: windowLabel(input.window, w.locale),
     quiet,
     sections,
     line_count: sections.reduce((n, s) => n + s.lines.length + s.more, 0),
   };
-  return { ...base, text: renderText(base, input), html: renderHtml(base, input) };
+  return { ...base, text: renderText(base, input, w), html: renderHtml(base, input, w) };
 }

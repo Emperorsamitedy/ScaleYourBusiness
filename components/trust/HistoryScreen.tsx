@@ -12,7 +12,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useAppLocale } from "../sheet/useTr";
+import { useAppLocale, useTr } from "../sheet/useTr";
 import { num } from "../sheet/num";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
@@ -21,7 +21,7 @@ import { keyWords } from "../report/figures";
 import type { TrackView } from "../../lib/forecasts/view";
 import type { FactChange } from "../../lib/trust/fact-change-view";
 import type { LedgerFilter, LedgerKind, LedgerOutcome, LedgerProposal, LedgerRow } from "./ledger";
-import { byDay, factRow, filterRows, proposalRows, toCsv } from "./ledger";
+import { byDay, factRow, filterRows, proposalRows, rateArithmetic, toCsv } from "./ledger";
 import { TrackRecord } from "./TrackRecord";
 import "../../app/history.css";
 
@@ -38,7 +38,7 @@ interface Scorecard {
   rejected: number;
   expired: number;
   executed: number;
-  approval_rate: { value: number | null };
+  approval_rate: { numerator: number; denominator: number; value: number | null };
   outcomes: Record<LedgerOutcome["verdict"], number>;
   arithmetic: string;
 }
@@ -84,8 +84,12 @@ const clock = (at: number, locale: AppLocale) =>
     minute: "2-digit",
   });
 
-function download(rows: readonly LedgerRow[], filter: LedgerFilter) {
-  const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
+function download(
+  rows: readonly LedgerRow[],
+  filter: LedgerFilter,
+  heading: (column: string) => string,
+) {
+  const blob = new Blob([toCsv(rows, heading)], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -104,7 +108,12 @@ export function HistoryScreen({
   track?: TrackView | null;
 }) {
   const t = useTranslations("history");
+  /** L-6: the CSV's headings in the reader's language. */
+  const tCsv = useTranslations("exports.history");
   const locale = useAppLocale();
+  // L-4a: the ledger's own words in the reader's language (components/trust/ledger).
+  const lwTr = useTr("ledgerWords").tr;
+  const lw = useMemo(() => ({ tr: lwTr, locale }), [lwTr, locale]);
   const n = (x: number) => num(x, 0, locale);
   /** "Today · Sat 17 Oct" for today's group. */
   const dayHead = (at: number, now: number): string => {
@@ -134,11 +143,11 @@ export function HistoryScreen({
 
   const all = useMemo<LedgerRow[]>(() => {
     if (state.phase !== "ready") return [];
-    const rows = state.history.flatMap((e) => proposalRows(e.proposal, e.outcome, state.now));
+    const rows = state.history.flatMap((e) => proposalRows(e.proposal, e.outcome, state.now, lw));
     for (const f of facts ?? [])
-      rows.push(factRow({ ...f, label: f.label ?? keyWords(f.key, false) }));
+      rows.push(factRow({ ...f, label: f.label ?? keyWords(f.key, false) }, lw));
     return rows;
-  }, [state, facts]);
+  }, [state, facts, lw]);
 
   if (state.phase === "loading") {
     return (
@@ -226,7 +235,11 @@ export function HistoryScreen({
             ))}
           </div>
           {visible.length > 0 && (
-            <button type="button" className="hi-export" onClick={() => download(visible, filter)}>
+            <button
+              type="button"
+              className="hi-export"
+              onClick={() => download(visible, filter, (c) => tCsv(c as "when"))}
+            >
               {t("export")}
             </button>
           )}
@@ -265,7 +278,11 @@ export function HistoryScreen({
 
         <footer className="cs-foot hi-foot">
           <p>{t("foot.append")}</p>
-          <p>{t("foot.rate", { arithmetic: scorecard.arithmetic })}</p>
+          <p>
+            {t("foot.rate", {
+              arithmetic: locale === "en" ? scorecard.arithmetic : rateArithmetic(scorecard, lw),
+            })}
+          </p>
           {(scorecard.outcomes.too_early > 0 || scorecard.outcomes.unmeasured > 0) && (
             <p>
               {scorecard.outcomes.too_early > 0 &&
