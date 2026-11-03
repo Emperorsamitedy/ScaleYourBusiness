@@ -15,6 +15,8 @@ import { authSessions, pushSubscriptions, users } from "../../db/schema";
 import { decryptSecret, encryptSecret } from "../connectors/secrets";
 import { stableKey } from "../core/derived-key";
 import { logSafeError } from "../core/log-safe";
+import type { AppLocale } from "../i18n/locales";
+import { personLocale } from "../i18n/recipient";
 import type { DeviceLabel, PushTarget } from "./endpoints";
 import { deviceLabel, parseSubscription } from "./endpoints";
 
@@ -160,6 +162,8 @@ export interface SealedDevice {
   target: PushTarget;
   time_zone: string | null;
   last_sent_at: string | null;
+  /** L-6: the language this device's person reads alerts in, through the gate. */
+  locale: AppLocale;
 }
 
 /**
@@ -183,7 +187,7 @@ export async function openDevices(
   const now = new Date().toISOString();
   const rows = (
     await db
-      .select({ sub: pushSubscriptions })
+      .select({ sub: pushSubscriptions, language: users.language, email: users.email })
       .from(pushSubscriptions)
       .innerJoin(users, eq(users.id, pushSubscriptions.user_id))
       .leftJoin(authSessions, eq(authSessions.id, pushSubscriptions.session_id))
@@ -201,7 +205,10 @@ export async function openDevices(
         ),
       )
       .orderBy(pushSubscriptions.created_at)
-  ).map((r) => r.sub);
+  ).map((r) => ({
+    ...r.sub,
+    locale: personLocale(r.language, { email: r.email, account_id: accountId }),
+  }));
   const out: SealedDevice[] = [];
   for (const r of rows) {
     try {
@@ -215,6 +222,7 @@ export async function openDevices(
         target,
         time_zone: r.time_zone,
         last_sent_at: r.last_sent_at,
+        locale: r.locale,
       });
     } catch (error) {
       console.error(

@@ -12,6 +12,7 @@ import { RETURN_COOKIE, returnCookieOptions, returnPath } from "../../../../lib/
 import { sendLoginEmail } from "../../../../lib/auth/email";
 import { AuthError, requestLogin } from "../../../../lib/auth/service";
 import { CURRENCY_COOKIE, LANGUAGE_COOKIE } from "../../../../lib/i18n/locales";
+import { addressLocale } from "../../../../lib/i18n/people";
 import { ResumeError } from "../../../../lib/intake/resume";
 
 function appUrl(request: NextRequest): string {
@@ -34,7 +35,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       currency: store.get(CURRENCY_COOKIE)?.value,
     });
     const link = `${appUrl(request)}/api/auth/redeem?token=${encodeURIComponent(login.token)}`;
-    const sent = await sendLoginEmail({ to: login.email, link });
+    // L-6: in the person's own language if an account holds one, else the link's; through the gate.
+    const locale = await addressLocale(login.email, login.language);
+    const sent = await sendLoginEmail({ to: login.email, link, locale });
     if (sent.delivered_via === "failed") {
       return NextResponse.json(
         { error: "I couldn't send the sign-in email just now — try again in a minute." },

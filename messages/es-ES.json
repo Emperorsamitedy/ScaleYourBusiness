@@ -3081,5 +3081,171 @@
       "assumed": "SUPUESTO",
       "atCost": "{amount} a precio de coste"
     }
+  },
+  "emails": {
+    "summary": {
+      "subjectWaiting": "Su semana con SYB: {count, plural, one {# cosa pendiente de usted} many {# cosas pendientes de usted} other {# cosas pendientes de usted}}",
+      "subjectQuiet": "Su semana con SYB: una semana tranquila",
+      "subjectCalm": "Su semana con SYB: nada requiere su atención",
+      "heading": "Su semana con SYB",
+      "headingNamed": "{business}: su semana con SYB",
+      "quiet": "Una semana tranquila: no se ha registrado nada nuevo en su cuenta y no hay nada pendiente de usted.",
+      "titles": {
+        "waiting": "Pendiente de usted",
+        "stock": "Existencias bajas",
+        "reviews": "Reseñas que conviene conocer",
+        "done": "Lo que he hecho",
+        "noticed": "Lo que he detectado",
+        "goals": "Sus objetivos",
+        "readback": "Cómo van los cambios que ha aprobado",
+        "forecasts": "Cómo han ido mis previsiones"
+      },
+      "links": {
+        "waiting": "Pendiente de usted",
+        "support": "Soporte",
+        "stock": "Existencias",
+        "reviews": "Reseñas",
+        "watching": "Observando",
+        "goals": "Objetivos",
+        "history": "Historial",
+        "track": "Mi historial de aciertos"
+      },
+      "pending": "{count, plural, one {# propuesta espera} many {# propuestas esperan} other {# propuestas esperan}} su decisión. Nada se ejecuta sin su aprobación.",
+      "pendingMore": "— y {count} más.",
+      "aProposal": "Una propuesta",
+      "tickets": "{count, plural, one {# pregunta de un cliente espera} many {# preguntas de clientes esperan} other {# preguntas de clientes esperan}} su respuesta en Soporte.",
+      "executed": "He aplicado un cambio que usted aprobó: {summary}",
+      "executedUndone": "He aplicado un cambio que usted aprobó: {summary} (ya deshecho)",
+      "synced": "He leído {count, plural, one {# día nuevo} many {# días nuevos} other {# días nuevos}} de {source}.",
+      "more": "y {count} más",
+      "verdicts": {
+        "helped": "ayudó",
+        "did_nothing": "no tuvo efecto",
+        "backfired": "fue contraproducente"
+      },
+      "judged": {
+        "revenue": "los ingresos diarios",
+        "post": "el alcance y las interacciones frente a sus publicaciones anteriores",
+        "campaign": "el retorno de la inversión publicitaria de la campaña",
+        "email": "los resultados del correo"
+      },
+      "tooEarly": "{summary}: es demasiado pronto para saberlo; aún no hay suficientes días medidos desde que se ejecutó.",
+      "revenue": "{summary}: {verdict} — ingresos diarios medios de {after} después, frente a {before} antes, según cifras medidas.",
+      "revenuePct": "{summary}: {verdict} — ingresos diarios medios de {after} después, frente a {before} antes ({pct}), según cifras medidas.",
+      "judgedOn": "{summary}: {verdict} — valoración basada en {basis}, con cifras medidas.",
+      "judgedOnPct": "{summary}: {verdict} — valoración basada en {basis} ({pct}), con cifras medidas.",
+      "forecasts": "Esta semana he valorado {total, plural, one {# de mis previsiones} many {# de mis previsiones} other {# de mis previsiones}}: {inside, plural, one {# quedó} many {# quedaron} other {# quedaron}} dentro del rango que di, {misses}{cant}.",
+      "missedNone": "ninguna falló",
+      "missedAbove": "{missed, plural, one {# falló} many {# fallaron} other {# fallaron}} ({above, plural, one {# quedó por encima} many {# quedaron por encima} other {# quedaron por encima}})",
+      "missedBelow": "{missed, plural, one {# falló} many {# fallaron} other {# fallaron}} ({below, plural, one {# por debajo} many {# por debajo} other {# por debajo}})",
+      "missedBoth": "{missed, plural, one {# falló} many {# fallaron} other {# fallaron}} ({above, plural, one {# quedó por encima} many {# quedaron por encima} other {# quedaron por encima}}, {below, plural, one {# por debajo} many {# por debajo} other {# por debajo}})",
+      "cantTell": " y en {count} no he podido saberlo",
+      "footWatching": "Todo lo que hago está en su pantalla Observando: {url}",
+      "footApprove": "Nada se ejecuta sin su aprobación.",
+      "footStop": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o deje de recibirlo con un solo clic:",
+      "footWatchingHtml": "Todo lo que hago está en su <link>pantalla Observando</link>. Nada se ejecuta sin su aprobación.",
+      "footStopHtml": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o <link>deje de recibir estos correos</link> con un solo clic."
+    },
+    "signIn": {
+      "subject": "Su enlace de inicio de sesión — SYB",
+      "intro": "Haga clic para iniciar sesión en SYB:",
+      "expiry": "El enlace funciona una sola vez y caduca en {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}. Si no lo ha pedido, ignore este correo: sin el enlace no ocurre nada."
+    },
+    "invite": {
+      "subject": "Invitación para unirse a {business} en SYB",
+      "subjectUnnamed": "Invitación para unirse a un negocio en SYB",
+      "intro": "Ha recibido una invitación para unirse a {business} en SYB con el rol de {role, select, owner {propietario} manager {gestor} other {lector}}.",
+      "introUnnamed": "Ha recibido una invitación para unirse a un negocio en SYB con el rol de {role, select, owner {propietario} manager {gestor} other {lector}}.",
+      "open": "Abra este enlace para aceptarla:",
+      "expiry": "El enlace funciona una sola vez y caduca en {days, plural, one {# día} many {# días} other {# días}}. Iniciará sesión con esta dirección: {email}. Si no esperaba esta invitación, ignore este correo: sin usted no ocurre nada."
+    },
+    "supportNotice": {
+      "subject": "Un cliente le ha escrito — SYB",
+      "waiting": "Un cliente ha escrito a {business} y su mensaje le espera en Soporte: {url}",
+      "waitingNoLink": "Un cliente ha escrito a {business} y su mensaje le espera en Soporte.",
+      "nothingSent": "Todavía no se ha enviado nada al cliente. Una respuesta solo sale con su aprobación.",
+      "atMost": "Recibe como máximo uno de estos avisos por hora. Desactívelos en la pantalla Soporte."
+    },
+    "supportReply": {
+      "subject": "Su consulta a {business}"
+    },
+    "campaign": {
+      "greeting": "Hola:",
+      "thisBusiness": "Este negocio",
+      "why": "Recibe este correo porque aceptó recibir comunicaciones de {business}. Darse de baja: {link}"
+    }
+  },
+  "push": {
+    "one": "{count, plural, one {# cosa espera su visto bueno: {what}} many {# cosas esperan su visto bueno: {what}} other {# cosas esperan su visto bueno: {what}}}",
+    "many": "{count, plural, one {# cosa espera su visto bueno} many {# cosas esperan su visto bueno} other {# cosas esperan su visto bueno}}",
+    "test": "Una prueba de SYB. Los avisos llegarán a este dispositivo.",
+    "kinds": {
+      "price_increase": "un cambio de precio",
+      "price_decrease": "un cambio de precio",
+      "discount_or_promotion": "una promoción",
+      "paid_ads_start_or_increase": "un anuncio",
+      "paid_ads_decrease_or_pause": "un cambio en los anuncios",
+      "content_publishing": "una publicación",
+      "cold_outreach": "un mensaje de prospección",
+      "channel_expansion": "un canal nuevo",
+      "offer_change": "un cambio en una oferta",
+      "operations_change": "un cambio en su forma de trabajar",
+      "support_knowledge": "una respuesta de soporte",
+      "customer_email": "un correo a sus clientes",
+      "deal_followup": "un seguimiento",
+      "stock_reorder_note": "una nota de reposición",
+      "media_generation": "una imagen o un clip por crear",
+      "revise_goal": "un objetivo que revisar",
+      "stop_strategy": "una estrategia que revisar",
+      "other": "una propuesta"
+    }
+  },
+  "exports": {
+    "money": {
+      "field": "Campo",
+      "label": "Etiqueta",
+      "amount": "Importe",
+      "currency": "Moneda",
+      "status": "Estado",
+      "source": "Fuente",
+      "source_detail": "Detalle de la fuente",
+      "confidence": "Confianza",
+      "observed_at": "Observado el",
+      "recorded_at": "Registrado el",
+      "derived_from": "Derivado de",
+      "formula": "Fórmula",
+      "superseded_at": "Sustituido el"
+    },
+    "history": {
+      "when": "Fecha",
+      "kind": "Tipo",
+      "entry": "Entrada",
+      "reference": "Referencia",
+      "detail": "Detalle",
+      "by": "Realizado por",
+      "note": "Nota"
+    }
+  },
+  "shared": {
+    "pageTitle": "Informe compartido — SYB",
+    "label": "Informe compartido",
+    "readOnly": "Informe compartido · solo lectura",
+    "deadTitle": "Este enlace ya no está activo.",
+    "deadBody": "Si esperaba ver un informe aquí, pida un enlace nuevo a la persona que se lo envió.",
+    "foot": "Esta es una instantánea compartida, creada el {shared}, del informe emitido el {issued}. Muestra el informe tal como era entonces y no cambia; el negocio puede retirarla en cualquier momento."
+  },
+  "unsubscribe": {
+    "label": "Preferencias de correo",
+    "unknownTitle": "No reconocemos este enlace.",
+    "unknownBody": "Compruebe que ha copiado el enlace completo del correo. No ha cambiado nada.",
+    "campaign": {
+      "pageTitle": "Darse de baja",
+      "thisBusiness": "este negocio",
+      "doneTitle": "Se ha dado de baja de los correos de {business}.",
+      "doneBody": "Ya no le enviarán correos de marketing a través de SYB. La baja es definitiva; no tiene que hacer nada más.",
+      "askTitle": "¿Dejar de recibir correos de marketing de {business}?",
+      "askBody": "Con un clic queda hecho, para siempre. Las respuestas a sus propias consultas no se ven afectadas.",
+      "button": "Darme de baja"
+    }
   }
 }

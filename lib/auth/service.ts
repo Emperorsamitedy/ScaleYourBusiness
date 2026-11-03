@@ -80,6 +80,8 @@ export interface LoginRequest {
   token: string;
   email: string;
   expires_at: string;
+  /** L-6: the language the link carries (login_tokens.language), for the email itself. */
+  language: AppLocale | null;
 }
 
 /**
@@ -110,7 +112,7 @@ export async function requestLogin(
     currency: chosen.currency,
   });
 
-  return { token, email, expires_at: expires };
+  return { token, email, expires_at: expires, language: chosen.language };
 }
 
 export interface RedeemedSession {

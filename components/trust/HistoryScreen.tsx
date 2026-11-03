@@ -84,8 +84,12 @@ const clock = (at: number, locale: AppLocale) =>
     minute: "2-digit",
   });
 
-function download(rows: readonly LedgerRow[], filter: LedgerFilter) {
-  const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
+function download(
+  rows: readonly LedgerRow[],
+  filter: LedgerFilter,
+  heading: (column: string) => string,
+) {
+  const blob = new Blob([toCsv(rows, heading)], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -104,6 +108,8 @@ export function HistoryScreen({
   track?: TrackView | null;
 }) {
   const t = useTranslations("history");
+  /** L-6: the CSV's headings in the reader's language. */
+  const tCsv = useTranslations("exports.history");
   const locale = useAppLocale();
   const n = (x: number) => num(x, 0, locale);
   /** "Today · Sat 17 Oct" for today's group. */
@@ -226,7 +232,11 @@ export function HistoryScreen({
             ))}
           </div>
           {visible.length > 0 && (
-            <button type="button" className="hi-export" onClick={() => download(visible, filter)}>
+            <button
+              type="button"
+              className="hi-export"
+              onClick={() => download(visible, filter, (c) => tCsv(c as "when"))}
+            >
               {t("export")}
             </button>
           )}

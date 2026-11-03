@@ -6,55 +6,59 @@
 // /api/u/<token>, which writes the suppression at once and comes back here.
 // Everything it reads goes through lib/unsubscribe, whose import fence keeps
 // it to the database, hashing and the suppression write.
+//
+// L-6: whoever holds the link is one of the business's customers, so the
+// page speaks the business's language (lib/unsubscribe unsubscribeLocale,
+// through the gate); a link SYB never minted is answered in English.
 
 import type { Metadata } from "next";
-import { viewUnsubscribe } from "../../../lib/unsubscribe/unsubscribe";
+import { unsubscribeLocale, viewUnsubscribe } from "../../../lib/unsubscribe/unsubscribe";
+import { wordsFor } from "../../../lib/i18n/recipient";
 
-export const metadata: Metadata = {
-  title: "Unsubscribe",
-  robots: { index: false, follow: false },
-};
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}): Promise<Metadata> {
+  const { t } = await wordsFor(await unsubscribeLocale((await params).token), "unsubscribe");
+  return { title: t("campaign.pageTitle"), robots: { index: false, follow: false } };
+}
 
 export default async function UnsubscribePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const view = await viewUnsubscribe(token);
+  const { locale, t } = await wordsFor(await unsubscribeLocale(token), "unsubscribe");
+  const business = view?.business ?? t("campaign.thisBusiness");
   return (
-    <main className="desk unsub-desk">
+    <main className="desk unsub-desk" lang={locale}>
       <section className="sheet unsub-sheet" aria-labelledby="unsub-title">
-        <p className="label">Email preferences</p>
+        <p className="label">{t("label")}</p>
         {view === null ? (
           <>
             <h1 className="display unsub-title" id="unsub-title">
-              This link isn&rsquo;t one we recognise.
+              {t("unknownTitle")}
             </h1>
-            <p className="prose">
-              Check that the whole link from the email was copied. Nothing has changed.
-            </p>
+            <p className="prose">{t("unknownBody")}</p>
           </>
         ) : view.done ? (
           <>
             <h1 className="display unsub-title" id="unsub-title">
-              You&rsquo;re unsubscribed from {view.business}.
+              {t("campaign.doneTitle", { business })}
             </h1>
-            <p className="prose">
-              They won&rsquo;t send you marketing email through SYB again. This is permanent; you
-              don&rsquo;t need to do anything else.
-            </p>
+            <p className="prose">{t("campaign.doneBody")}</p>
           </>
         ) : (
           <>
             <h1 className="display unsub-title" id="unsub-title">
-              Stop marketing email from {view.business}?
+              {t("campaign.askTitle", { business })}
             </h1>
-            <p className="prose">
-              One click and it&rsquo;s done, for good. Replies to your own questions are not
-              affected.
-            </p>
+            <p className="prose">{t("campaign.askBody")}</p>
             <form method="post" action={`/api/u/${encodeURIComponent(token)}`}>
               <input type="hidden" name="confirm" value="1" />
               <button type="submit" className="act solid">
-                Unsubscribe <span aria-hidden="true">→</span>
+                {t("campaign.button")} <span aria-hidden="true">→</span>
               </button>
             </form>
           </>

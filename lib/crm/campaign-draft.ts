@@ -35,6 +35,9 @@ import { buildVoiceCard } from "../content/voice";
 import { readCurrentField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { COUNTRY_KEY } from "../hours/timezone";
+import { businessCustomerLocale } from "../i18n/people";
+import type { Words } from "../i18n/recipient";
+import { englishWords, wordsFor } from "../i18n/recipient";
 import { applicableRegimes, messageGaps } from "./jurisdiction";
 import { SEGMENT_KIND, SEGMENT_MODULE, SegmentProposalError } from "./segment-proposals";
 import { BUSINESS_NAME_KEY } from "./support-settings";
@@ -44,7 +47,8 @@ export const POSTAL_ADDRESS_QUESTION = "11.1e";
 export const BUSINESS_NAME_QUESTION = "1.1";
 /**
  * Idea 47: the cart reminder's greeting. Put in by code, never by the model,
- * and the same for every recipient: nothing here knows who they are.
+ * and the same for every recipient: nothing here knows who they are. This
+ * is English's; L-6 writes it in the business's language (`emails.campaign.greeting`).
  */
 export const CART_GREETING = "Hello,";
 /** The slot the send executor fills per recipient (P4-15). Never a real link in a draft. */
@@ -71,13 +75,20 @@ async function answered(profileId: string, key: string): Promise<string | null> 
     : null;
 }
 
-/** Pure: the footer every campaign email carries, with the per-recipient slot. */
-export function complianceFooter(senderName: string | null, postalAddress: string | null): string {
-  const who = senderName ?? "This business";
+/**
+ * Pure: the footer every campaign email carries, with the per-recipient
+ * slot. L-6: in the business's language (`w`), English by default.
+ */
+export function complianceFooter(
+  senderName: string | null,
+  postalAddress: string | null,
+  w: Words = englishWords("emails.campaign"),
+): string {
+  const who = senderName ?? w.t("thisBusiness");
   return [
     "—",
     postalAddress ? `${who} · ${postalAddress}` : who,
-    `You're getting this because you agreed to hear from ${who}. Unsubscribe: ${UNSUBSCRIBE_SLOT}`,
+    w.t("why", { business: who, link: UNSUBSCRIBE_SLOT }),
   ].join("\n");
 }
 
@@ -215,6 +226,9 @@ export async function draftCampaign(
     ...(opts.draftLlm ? { llm: opts.draftLlm } : {}),
   });
 
+  // L-6: the greeting and footer code adds are in the business's language (its customers read it).
+  const words = await wordsFor(await businessCustomerLocale(profileId), "emails.campaign");
+
   // The insert is conditional (review 2026-10-23, #22): under a lock per
   // proposal, a draft that appeared while this one was being written wins,
   // so a double-click stores ONE email and both clicks are shown the same.
@@ -238,7 +252,7 @@ export async function draftCampaign(
         channel_label: `email · ${label}`,
         scheduled_for: null,
         title: `${label} — campaign email`,
-        body: `${cart ? `${CART_GREETING}\n\n` : ""}${draft.body}\n\n${complianceFooter(senderName, postalAddress)}`,
+        body: `${cart ? `${words.t("greeting")}\n\n` : ""}${draft.body}\n\n${complianceFooter(senderName, postalAddress, words)}`,
         disclosure: disclosureLabel("email"),
         provenance: {
           ...draft.provenance,

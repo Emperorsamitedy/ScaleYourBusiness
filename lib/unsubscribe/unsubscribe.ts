@@ -10,8 +10,12 @@
 // What this module may touch is pinned by its own import-fence test
 // (structure.test.ts beside it): the database, hashing, and the one write
 // that matters — a contact_suppressions row with reason "unsubscribed".
-// Nothing else: no contact row is read or changed, no profile, no engine,
-// no proposal, nothing that could be argued with.
+// Nothing else: no contact row is read or changed, no engine, no proposal,
+// nothing that could be argued with. L-6 adds two reads and nothing more:
+// the business's language, and its owner's address for the language gate
+// (never shown), so the page speaks the business's language
+// (unsubscribeLocale); the words come from lib/i18n/recipient, which the
+// fence allows with the catalogues it reads.
 //
 // Two verbs, deliberately different:
 //   - viewUnsubscribe (GET /u/<token>): reads only, and shows the business
@@ -27,9 +31,18 @@
 // (unsubscribeLinkDays) is a floor, and "for ever" clears every floor.
 
 import { createHash } from "node:crypto";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
-import { campaignSends, contactSuppressions, decisionLog } from "../../db/schema";
+import {
+  businessProfiles,
+  campaignSends,
+  contactSuppressions,
+  decisionLog,
+  users,
+} from "../../db/schema";
+import type { AppLocale } from "../i18n/locales";
+import { DEFAULT_LOCALE } from "../i18n/locales";
+import { customerLocale } from "../i18n/recipient";
 
 /** A token as minted: 43 base64url characters. Checked before any query. */
 export const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
@@ -66,8 +79,8 @@ export const tokenHash = (token: string): string =>
   createHash("sha256").update(token).digest("hex");
 
 export interface UnsubscribeView {
-  /** The business the email came from, as it was sent. */
-  business: string;
+  /** The business the email came from, as it was sent; null when it had no name ("this business"). */
+  business: string | null;
   /** True once this address is unsubscribed from the business. */
   done: boolean;
 }
@@ -102,7 +115,7 @@ export async function viewUnsubscribe(token: string): Promise<UnsubscribeView | 
       ),
     );
   return {
-    business: row.sender_name?.trim() || "this business",
+    business: row.sender_name?.trim() || null,
     done: row.unsubscribed_at !== null || suppressed !== undefined,
   };
 }
@@ -162,5 +175,33 @@ export async function unsubscribe(
       first,
     }),
   );
-  return { business: row.sender_name?.trim() || "this business", done: true };
+  return { business: row.sender_name?.trim() || null, done: true };
+}
+
+/**
+ * L-6 (TASKS-LANGUAGES.md): the language the page speaks — the business's
+ * own (business_profiles.language), because whoever holds the link is one
+ * of its customers. A language still in review only while the business is
+ * under review (lib/i18n/recipient customerLocale). Reads two columns and
+ * an address it never shows; English for a link SYB never minted.
+ */
+export async function unsubscribeLocale(token: string): Promise<AppLocale> {
+  const row = await sendFor(token);
+  if (!row) return DEFAULT_LOCALE;
+  const [business] = await db
+    .select({ language: businessProfiles.language })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.id, row.profile_id));
+  const [owner] = await db
+    .select({ email: users.email })
+    .from(users)
+    .where(
+      and(eq(users.account_id, row.account_id), eq(users.role, "owner"), isNull(users.removed_at)),
+    )
+    .orderBy(asc(users.created_at))
+    .limit(1);
+  return customerLocale(business?.language, {
+    account_id: row.account_id,
+    owner_email: owner?.email ?? null,
+  });
 }

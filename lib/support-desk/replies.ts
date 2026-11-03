@@ -39,6 +39,9 @@ import {
 } from "../../db/schema";
 import { canEmailTransactional, isSuppressed } from "../crm/contacts";
 import { resendApiKey, supportInboundDomain } from "../env";
+import { businessCustomerLocale } from "../i18n/people";
+import type { Words } from "../i18n/recipient";
+import { englishWords, wordsFor } from "../i18n/recipient";
 import { newThreadToken, replyThreadHeaders, threadAddress } from "../support/email-tickets";
 import { settingsForProfile } from "../support/settings";
 import type { MailFetch } from "./mailer";
@@ -350,9 +353,17 @@ function fromHeader(businessName: string): string {
   return `"${name} via SYB" <${address.trim()}>`;
 }
 
-function subjectFor(last: ReplyTarget["last_inbound"], businessName: string): string {
+/**
+ * The reply's subject: theirs with "Re:", or — when they gave none — ours, in
+ * the business's language (L-6: the customer reads the business's language).
+ */
+function subjectFor(
+  last: ReplyTarget["last_inbound"],
+  businessName: string,
+  w: Words = englishWords("emails.supportReply"),
+): string {
   const s = last?.subject.trim() ?? "";
-  if (s === "") return `Your question to ${businessName}`;
+  if (s === "") return w.t("subject", { business: businessName });
   return /^re:/i.test(s) ? s : `Re: ${s}`;
 }
 
@@ -451,12 +462,17 @@ export async function sendApprovedReply(args: {
   const last = target.last_inbound;
   // Rebuilt from validated ids, never the stored headers copied (review 2026-10-23, #17).
   const { in_reply_to: inReplyTo, references } = replyThreadHeaders(last);
+  const subject = subjectFor(
+    last,
+    settings.business_name,
+    await wordsFor(await businessCustomerLocale(args.profileId), "emails.supportReply"),
+  );
   const outcome = await sendSupportEmail(
     {
       from: fromHeader(settings.business_name),
       to: target.address,
       reply_to: threadAddress(settings.inbound_token, threadToken, domain),
-      subject: subjectFor(last, settings.business_name),
+      subject,
       text: claimed.sent_text,
       in_reply_to: inReplyTo,
       references,
@@ -509,7 +525,7 @@ export async function sendApprovedReply(args: {
         references_header: references,
         from_address: fromHeader(settings.business_name),
         to_addresses: [target.address],
-        subject: subjectFor(last, settings.business_name),
+        subject,
         body: claimed.sent_text!,
         at,
       });

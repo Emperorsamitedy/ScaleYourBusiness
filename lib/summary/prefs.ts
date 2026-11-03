@@ -12,9 +12,14 @@ export { STOP_TOKEN_RE, stopToken, summaryOn, summaryPref, verifyStopToken } fro
 /** The account's owner: who the summary goes to and whose switch it is. */
 export async function accountOwner(
   accountId: string,
-): Promise<{ id: string; email: string; prefs: unknown } | null> {
+): Promise<{ id: string; email: string; prefs: unknown; language: string | null } | null> {
   const [row] = await db
-    .select({ id: users.id, email: users.email, prefs: users.notification_prefs })
+    .select({
+      id: users.id,
+      email: users.email,
+      prefs: users.notification_prefs,
+      language: users.language,
+    })
     .from(users)
     .where(and(eq(users.account_id, accountId), eq(users.role, "owner"), isNull(users.removed_at)))
     .orderBy(asc(users.created_at))

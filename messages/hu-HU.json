@@ -3081,5 +3081,171 @@
       "assumed": "FELTÉTELEZETT",
       "atCost": "{amount} beszerzési áron"
     }
+  },
+  "emails": {
+    "summary": {
+      "subjectWaiting": "Az Ön hete a SYB-vel: {count, plural, one {# dolog vár Önre} other {# dolog vár Önre}}",
+      "subjectQuiet": "Az Ön hete a SYB-vel: csendes hét volt",
+      "subjectCalm": "Az Ön hete a SYB-vel: semmi sem vár Önre",
+      "heading": "Az Ön hete a SYB-vel",
+      "headingNamed": "{business}: az Ön hete a SYB-vel",
+      "quiet": "Csendes hét: a fiókjában semmi új nem lett rögzítve, és semmi sem vár Önre.",
+      "titles": {
+        "waiting": "Önre vár",
+        "stock": "Fogyóban lévő készlet",
+        "reviews": "Értékelések, amelyekről érdemes tudnia",
+        "done": "Amit tettem",
+        "noticed": "Amit észrevettem",
+        "goals": "Az Ön céljai",
+        "readback": "Hogyan teljesítenek a jóváhagyott változtatásai",
+        "forecasts": "Hogyan teljesítettek az előrejelzéseim"
+      },
+      "links": {
+        "waiting": "Önre vár",
+        "support": "Támogatás",
+        "stock": "Készlet",
+        "reviews": "Értékelések",
+        "watching": "Figyelés",
+        "goals": "Célok",
+        "history": "Előzmények",
+        "track": "Eddigi pontosságom"
+      },
+      "pending": "{count, plural, one {# javaslat vár} other {# javaslat vár}} az Ön döntésére. Semmi sem fut az Ön jóváhagyása nélkül.",
+      "pendingMore": "— és még {count}.",
+      "aProposal": "Egy javaslat",
+      "tickets": "{count, plural, one {# ügyfélkérdés vár} other {# ügyfélkérdés vár}} az Ön válaszára a Támogatás képernyőn.",
+      "executed": "Végrehajtottam egy Ön által jóváhagyott változtatást: {summary}",
+      "executedUndone": "Végrehajtottam egy Ön által jóváhagyott változtatást: {summary} (azóta visszavonva)",
+      "synced": "{count, plural, one {# új napot} other {# új napot}} olvastam be ebből a forrásból: {source}.",
+      "more": "és még {count}",
+      "verdicts": {
+        "helped": "segített",
+        "did_nothing": "nem hozott változást",
+        "backfired": "visszafelé sült el"
+      },
+      "judged": {
+        "revenue": "a napi árbevétel",
+        "post": "az elérés és az interakciók a korábbi bejegyzéseihez képest",
+        "campaign": "a kampány hirdetési költségarányos megtérülése",
+        "email": "az e-mail eredményei"
+      },
+      "tooEarly": "{summary}: még korai ítéletet mondani — a futása óta nincs elég mért nap.",
+      "revenue": "{summary}: {verdict} — a napi árbevétel átlaga utána {after}, előtte {before} volt, mérve.",
+      "revenuePct": "{summary}: {verdict} — a napi árbevétel átlaga utána {after}, előtte {before} volt ({pct}), mérve.",
+      "judgedOn": "{summary}: {verdict} — az ítélet alapja: {basis}, mérve.",
+      "judgedOnPct": "{summary}: {verdict} — az ítélet alapja: {basis} ({pct}), mérve.",
+      "forecasts": "Ezen a héten {total, plural, one {# előrejelzésemet} other {# előrejelzésemet}} értékeltem: {inside, plural, one {# az általam megadott sávon belül maradt} other {# az általam megadott sávon belül maradt}}, {misses}{cant}.",
+      "missedNone": "egy sem ment mellé",
+      "missedAbove": "{missed} mellément ({above, plural, one {# a sáv fölé esett} other {# a sáv fölé esett}})",
+      "missedBelow": "{missed} mellément ({below, plural, one {# a sáv alá esett} other {# a sáv alá esett}})",
+      "missedBoth": "{missed} mellément ({above, plural, one {# a sáv fölé esett} other {# a sáv fölé esett}}, {below, plural, one {# alá} other {# alá}})",
+      "cantTell": ", és {count} esetében nem tudtam eldönteni",
+      "footWatching": "Mindent, amit teszek, megtalál a Figyelés képernyőn: {url}",
+      "footApprove": "Semmi sem fut az Ön jóváhagyása nélkül.",
+      "footStop": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással leállíthatja:",
+      "footWatchingHtml": "Mindent, amit teszek, megtalál a <link>Figyelés képernyőn</link>. Semmi sem fut az Ön jóváhagyása nélkül.",
+      "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>."
+    },
+    "signIn": {
+      "subject": "Az Ön bejelentkezési linkje — SYB",
+      "intro": "Kattintson ide a SYB-be való bejelentkezéshez:",
+      "expiry": "A link egyszer használható, és {minutes, plural, one {# perc} other {# perc}} múlva lejár. Ha nem Ön kérte, hagyja figyelmen kívül ezt az e-mailt — a link nélkül semmi sem történik."
+    },
+    "invite": {
+      "subject": "Meghívást kapott egy vállalkozáshoz a SYB-ben: {business}",
+      "subjectUnnamed": "Meghívást kapott egy vállalkozáshoz a SYB-ben",
+      "intro": "Meghívták, hogy {role, select, owner {tulajdonosként} manager {menedzserként} other {megtekintőként}} csatlakozzon a SYB-ben ehhez a vállalkozáshoz: {business}.",
+      "introUnnamed": "Meghívták, hogy {role, select, owner {tulajdonosként} manager {menedzserként} other {megtekintőként}} csatlakozzon egy vállalkozáshoz a SYB-ben.",
+      "open": "Az elfogadáshoz nyissa meg ezt a linket:",
+      "expiry": "Egyszer használható, és {days, plural, one {# nap} other {# nap}} múlva lejár. Ezzel a címmel fog bejelentkezni: {email}. Ha nem számított rá, hagyja figyelmen kívül ezt az e-mailt — Ön nélkül semmi sem történik."
+    },
+    "supportNotice": {
+      "subject": "Egy ügyfél e-mailt írt Önnek — SYB",
+      "waiting": "{business}: egy ügyfél e-mailt írt, és az üzenet a Támogatás képernyőn várja Önt: {url}",
+      "waitingNoLink": "{business}: egy ügyfél e-mailt írt, és az üzenet a Támogatás képernyőn várja Önt.",
+      "nothingSent": "Még semmit sem küldtem neki. Válasz csak az Ön jóváhagyásával megy ki.",
+      "atMost": "Ilyen értesítést óránként legfeljebb egyet kap. A Támogatás képernyőn kikapcsolhatja őket."
+    },
+    "supportReply": {
+      "subject": "Az Ön kérdése ehhez a vállalkozáshoz: {business}"
+    },
+    "campaign": {
+      "greeting": "Üdvözöljük!",
+      "thisBusiness": "Ez a vállalkozás",
+      "why": "Azért kapja ezt az e-mailt, mert hozzájárult, hogy a következő feladó megkeresse: {business}. Leiratkozás: {link}"
+    }
+  },
+  "push": {
+    "one": "{count, plural, one {# dolog várja az Ön igenjét: {what}} other {# dolog várja az Ön igenjét: {what}}}",
+    "many": "{count, plural, one {# dolog várja az Ön igenjét} other {# dolog várja az Ön igenjét}}",
+    "test": "Teszt a SYB-től. Az értesítések erre az eszközre fognak érkezni.",
+    "kinds": {
+      "price_increase": "egy árváltozás",
+      "price_decrease": "egy árváltozás",
+      "discount_or_promotion": "egy promóció",
+      "paid_ads_start_or_increase": "egy hirdetés",
+      "paid_ads_decrease_or_pause": "egy hirdetésmódosítás",
+      "content_publishing": "egy bejegyzés",
+      "cold_outreach": "egy megkereső üzenet",
+      "channel_expansion": "egy új csatorna",
+      "offer_change": "egy ajánlat módosítása",
+      "operations_change": "egy változtatás a működésben",
+      "support_knowledge": "egy támogatási válasz",
+      "customer_email": "egy e-mail az ügyfeleknek",
+      "deal_followup": "egy utánkövetés",
+      "stock_reorder_note": "egy utánrendelési jegyzet",
+      "media_generation": "egy elkészítendő kép vagy videó",
+      "revise_goal": "egy átnézendő cél",
+      "stop_strategy": "egy átnézendő stratégia",
+      "other": "egy javaslat"
+    }
+  },
+  "exports": {
+    "money": {
+      "field": "mező",
+      "label": "címke",
+      "amount": "összeg",
+      "currency": "pénznem",
+      "status": "állapot",
+      "source": "forrás",
+      "source_detail": "forrás részletei",
+      "confidence": "megbízhatóság",
+      "observed_at": "megfigyelés ideje",
+      "recorded_at": "rögzítés ideje",
+      "derived_from": "származtatás alapja",
+      "formula": "képlet",
+      "superseded_at": "felváltás ideje"
+    },
+    "history": {
+      "when": "időpont",
+      "kind": "típus",
+      "entry": "bejegyzés",
+      "reference": "hivatkozás",
+      "detail": "részletek",
+      "by": "végrehajtó",
+      "note": "megjegyzés"
+    }
+  },
+  "shared": {
+    "pageTitle": "Megosztott jelentés — SYB",
+    "label": "Megosztott jelentés",
+    "readOnly": "Megosztott jelentés · csak olvasható",
+    "deadTitle": "Ez a link már nem aktív.",
+    "deadBody": "Ha itt jelentést várt, kérjen új linket attól, aki elküldte.",
+    "foot": "Ez egy megosztott pillanatkép a jelentésről (kiadva: {issued}; megosztva: {shared}). A jelentést az akkori állapotában mutatja, és nem változik; a vállalkozás bármikor visszavonhatja."
+  },
+  "unsubscribe": {
+    "label": "E-mail-beállítások",
+    "unknownTitle": "Ezt a linket nem ismerjük fel.",
+    "unknownBody": "Ellenőrizze, hogy az e-mailből a teljes linket másolta-e ki. Semmi sem változott.",
+    "campaign": {
+      "pageTitle": "Leiratkozás",
+      "thisBusiness": "ez a vállalkozás",
+      "doneTitle": "Leiratkozott a következő feladó leveleiről: {business}.",
+      "doneBody": "A SYB-n keresztül többé nem küldenek Önnek marketing e-mailt. Ez végleges; nincs más teendője.",
+      "askTitle": "Leállítja a marketing e-maileket a következő feladótól: {business}?",
+      "askBody": "Egy kattintás, és kész — végleg. A saját kérdéseire adott válaszokat ez nem érinti.",
+      "button": "Leiratkozás"
+    }
   }
 }

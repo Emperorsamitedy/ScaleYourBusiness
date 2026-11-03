@@ -7,6 +7,12 @@
 // contact_suppressions row (plus the send's own mark and the log line),
 // and a source scan holds it to that. No off switch: a new import fails
 // the build.
+//
+// L-6 (TASKS-LANGUAGES.md): the page speaks the business's language, so the
+// fence also allows the words and nothing else — lib/i18n/recipient (pure:
+// no cookie, no session, no database), the language table and the review
+// list it checks, the English catalogue it bundles (data, not scanned for
+// imports), and next-intl's translator.
 
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -18,6 +24,14 @@ const ENTRY_POINTS = [
   "lib/unsubscribe/unsubscribe.ts",
   "app/u/[token]/page.tsx",
   "app/api/u/[token]/route.ts",
+];
+
+/** L-6: the words, and only the words. */
+const LANGUAGE_FILES = [
+  "lib/i18n/recipient.ts",
+  "lib/i18n/locales.ts",
+  "lib/i18n/review.ts",
+  "messages/en.json",
 ];
 
 const IMPORT_RE = /(?:from|import)\s*\(?\s*["']([^"']+)["']\s*\)?/g;
@@ -42,6 +56,7 @@ function walk(entries: readonly string[]): { files: Set<string>; packages: Set<s
     const rel = path.relative(ROOT, file).split(path.sep).join("/");
     if (files.has(rel)) continue;
     files.add(rel);
+    if (!/\.tsx?$/.test(rel)) continue; // a catalogue is data: nothing to follow
     for (const match of readFileSync(file, "utf8").matchAll(IMPORT_RE)) {
       const spec = match[1]!;
       const target = resolve(file, spec);
@@ -71,13 +86,22 @@ describe("P4-15 — the unsubscribe surface's import fence", () => {
         !f.startsWith("app/api/u/") &&
         f !== "db/index.ts" &&
         f !== "db/schema.ts" &&
-        f !== "lib/env.ts",
+        f !== "lib/env.ts" &&
+        !LANGUAGE_FILES.includes(f),
     );
     expect(outside).toEqual([]);
   });
 
-  it("the only packages: hashing, the query builder, and Next", () => {
-    const allowed = ["drizzle-orm", "next", "next/server", "node:crypto"];
+  it("L-6: the words come from the recipient translator, which reads no cookie and no session", () => {
+    expect(graph.files.has("lib/i18n/recipient.ts")).toBe(true);
+    for (const f of LANGUAGE_FILES.filter((x) => x.endsWith(".ts"))) {
+      const src = readFileSync(path.resolve(ROOT, f), "utf8");
+      expect(src, f).not.toMatch(/cookies\(|currentSession|resolveAccess|from "\.\.\/\.\.\/db"/);
+    }
+  });
+
+  it("the only packages: hashing, the query builder, Next, and next-intl's translator", () => {
+    const allowed = ["drizzle-orm", "next", "next/server", "node:crypto", "next-intl"];
     expect([...graph.packages].filter((p) => !allowed.includes(p))).toEqual([]);
     expect(graph.packages.has("node:crypto")).toBe(true);
   });

@@ -5,10 +5,35 @@
 // on screen instead — the same pattern the resume links established:
 // a shown-on-screen link beats a promised email that never arrives.
 // Nothing here blocks on an external account existing.
+//
+// L-6 (TASKS-LANGUAGES.md): the sign-in and invite emails are written in
+// the recipient's language, which the caller resolves through the gate
+// (lib/i18n/people addressLocale); English when none is given, word for
+// word what they said before. Their words are in messages/<locale>.json
+// under `emails.signIn` and `emails.invite`.
+
+import type { AppLocale } from "../i18n/locales";
+import type { Words } from "../i18n/recipient";
+import { englishWords, wordsFor } from "../i18n/recipient";
+import { INVITE_TTL_DAYS } from "./members";
+import { LOGIN_TTL_MINUTES } from "./service";
 
 export interface LoginEmail {
   to: string;
   link: string;
+  /** The recipient's language, already through the gate. English when absent. */
+  locale?: AppLocale;
+}
+
+/** Pure: the sign-in email's subject and text in one language. */
+export function loginEmailContent(
+  link: string,
+  w: Words = englishWords("emails.signIn"),
+): { subject: string; text: string } {
+  return {
+    subject: w.t("subject"),
+    text: `${w.t("intro")}\n\n${link}\n\n${w.t("expiry", { minutes: LOGIN_TTL_MINUTES })}`,
+  };
 }
 
 export interface SendResult {
@@ -35,17 +60,18 @@ export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
     return { delivered_via: process.env.NODE_ENV === "production" ? "failed" : "screen" };
   }
 
+  const content = loginEmailContent(
+    mail.link,
+    await wordsFor(mail.locale ?? "en", "emails.signIn"),
+  );
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from: FROM(),
       to: [mail.to],
-      subject: "Your sign-in link — SYB",
-      text:
-        `Click to sign in to SYB:\n\n${mail.link}\n\n` +
-        `The link works once and expires in 15 minutes. ` +
-        `If you didn't ask for it, ignore this email — nothing happens without the link.`,
+      subject: content.subject,
+      text: content.text,
     }),
   });
   if (!res.ok) {
@@ -154,6 +180,24 @@ export interface InviteEmail {
   /** The business's own name, when it has one. */
   business: string | null;
   role: "owner" | "manager" | "viewer";
+  /** The invitee's language, already through the gate. English when absent. */
+  locale?: AppLocale;
+}
+
+/** Pure: the invite email's subject and text in one language. */
+export function inviteEmailContent(
+  mail: Pick<InviteEmail, "to" | "link" | "business" | "role">,
+  w: Words = englishWords("emails.invite"),
+): { subject: string; text: string } {
+  const named = mail.business !== null;
+  const business = mail.business ?? "";
+  return {
+    subject: named ? w.t("subject", { business }) : w.t("subjectUnnamed"),
+    text:
+      `${named ? w.t("intro", { business, role: mail.role }) : w.t("introUnnamed", { role: mail.role })}\n\n` +
+      `${w.t("open")}\n\n${mail.link}\n\n` +
+      w.t("expiry", { days: INVITE_TTL_DAYS, email: mail.to }),
+  };
 }
 
 export interface InviteSendResult {
@@ -167,8 +211,7 @@ export async function sendInviteEmail(
 ): Promise<InviteSendResult> {
   const key = process.env.RESEND_API_KEY?.trim();
   if (!key) return { delivered_via: "not_configured" };
-  const where = mail.business ?? "a business";
-  const as = mail.role === "owner" ? "an owner" : `a ${mail.role}`;
+  const content = inviteEmailContent(mail, await wordsFor(mail.locale ?? "en", "emails.invite"));
   try {
     const res = await fetchImpl("https://api.resend.com/emails", {
       method: "POST",
@@ -176,12 +219,8 @@ export async function sendInviteEmail(
       body: JSON.stringify({
         from: FROM(),
         to: [mail.to],
-        subject: `You're invited to ${where} on SYB`,
-        text:
-          `You've been invited to join ${where} on SYB as ${as}.\n\n` +
-          `Open this link to accept:\n\n${mail.link}\n\n` +
-          `It works once and expires in 7 days. You'll sign in with this address, ${mail.to}. ` +
-          `If you weren't expecting it, ignore this email — nothing happens without you.`,
+        subject: content.subject,
+        text: content.text,
       }),
       signal: AbortSignal.timeout(OWNER_EMAIL_TIMEOUT_MS),
     });

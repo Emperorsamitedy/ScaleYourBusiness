@@ -18,6 +18,8 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { resolveAccess } from "../../../lib/auth/access";
 import { sendInviteEmail } from "../../../lib/auth/email";
+import { addressLocale } from "../../../lib/i18n/people";
+import { requestLocale } from "../../../lib/i18n/server";
 import {
   TeamError,
   createInvite,
@@ -119,6 +121,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           link,
           business: await businessName(access.profile_id),
           role: invite.role,
+          // L-6: the invitee's own language if they have one, else the inviter's; through the gate.
+          locale: await addressLocale(invite.email, await requestLocale(), access.account_id),
         });
         return NextResponse.json(
           {
