@@ -42,6 +42,8 @@ export async function proposeFromSimulation(
   opts: { now?: Date; limitLlm?: LimitLlm } = {},
 ): Promise<ProposeOutcome> {
   const now = opts.now ?? new Date();
+  // English on purpose (L-4b, rules 4 and 7): the simulation is stored on the
+  // proposal and the reason is logged, so neither takes the reader's words.
   const inputs = await gatherInputs(profileId, now);
   const result = simulateOption(option, inputs);
   if (!result.proposable.ok) return none(result.proposable.why, result);

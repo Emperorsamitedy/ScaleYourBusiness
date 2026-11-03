@@ -41,6 +41,8 @@ import type {
 } from "./model";
 import { SIM, adsWindow } from "./model";
 import type { SimulationRecord } from "./scenario";
+import type { SimText } from "./words";
+import { englishSimText, int, section } from "./words";
 
 /** A sent campaign as the readback judged it. */
 interface PastWithVerdict {
@@ -76,8 +78,16 @@ function asMoney(v: unknown): { amount_minor: number; currency: string } | null 
     : null;
 }
 
-/** Everything the simulator needs for one business, as of `now`. */
-export async function gatherInputs(profileId: string, now: Date = new Date()): Promise<SimInputs> {
+/**
+ * Everything the simulator needs for one business, as of `now`. The
+ * cross-check sentences are in `words` (L-4b): the route passes the
+ * request's; the proposal path keeps the English default.
+ */
+export async function gatherInputs(
+  profileId: string,
+  now: Date = new Date(),
+  words: SimText = englishSimText(),
+): Promise<SimInputs> {
   const [profile] = await db
     .select({ account_id: businessProfiles.account_id, currency: accounts.reporting_currency })
     .from(businessProfiles)
@@ -210,9 +220,9 @@ export async function gatherInputs(profileId: string, now: Date = new Date()): P
 
   /* the trust layer: did past predictions land inside their range? */
   const cross_check: Record<SimKind, CrossCheck> = {
-    email: emailCrossCheck(emailPast),
-    ads: await adsCrossCheck(profileId, accountId, now),
-    content: await contentCrossCheck(profileId),
+    email: emailCrossCheck(emailPast, words),
+    ads: await adsCrossCheck(profileId, accountId, now, words),
+    content: await contentCrossCheck(profileId, words),
   };
 
   return {
@@ -384,47 +394,70 @@ const simulationOf = (row: ProposalRow): SimulationRecord | null => {
 const inside = (v: number, r: { low: number; high: number }) =>
   v >= r.low - 1e-9 && v <= r.high + 1e-9;
 
-/** Pure: the cross-check sentence from what was compared. */
-export function crossCheckLine(args: {
-  noun: string;
-  /** Past proposals of the kind that carried a simulated range. */
-  simulated: number;
-  /** Of those, measured since. */
-  checked: number;
-  inside: number;
-  /** Verdict counts of the kind from the readback, for the sentence's tail. */
-  verdicts?: { helped: number; did_nothing: number; backfired: number } | null;
-}): CrossCheck {
+/** The kinds of past proposal a cross-check counts, by the noun the sentence names them with. */
+export type CrossCheckNoun = "email campaigns" | "ad changes";
+
+/** The catalogue's code for each noun: a lookup on a code constant, never a reading of the words. */
+const NOUN_KIND: Record<CrossCheckNoun, "email" | "ads"> = {
+  "email campaigns": "email",
+  "ad changes": "ads",
+};
+
+/** Pure: the cross-check sentence from what was compared, in `w`'s words (English by default). */
+export function crossCheckLine(
+  args: {
+    noun: CrossCheckNoun;
+    /** Past proposals of the kind that carried a simulated range. */
+    simulated: number;
+    /** Of those, measured since. */
+    checked: number;
+    inside: number;
+    /** Verdict counts of the kind from the readback, for the sentence's tail. */
+    verdicts?: { helped: number; did_nothing: number; backfired: number } | null;
+  },
+  w: SimText = englishSimText(),
+): CrossCheck {
+  const t = section(w, "cross");
+  const L = w.locale;
+  const kind = NOUN_KIND[args.noun];
   const tail =
     args.verdicts && args.verdicts.helped + args.verdicts.did_nothing + args.verdicts.backfired > 0
-      ? ` The readback so far: ${args.verdicts.helped} helped, ${args.verdicts.did_nothing} did nothing, ${args.verdicts.backfired} backfired.`
-      : "";
+      ? t("readback", {
+          helped: int(args.verdicts.helped, L),
+          nothing: int(args.verdicts.did_nothing, L),
+          backfired: int(args.verdicts.backfired, L),
+        })
+      : null;
+  const withTail = (line: string) => (tail ? `${line} ${tail}` : line);
   if (args.simulated === 0) {
-    return {
-      line: `Not measured yet: none of my past ${args.noun} carried a predicted range to check.${tail}`,
-      checked: 0,
-      inside: 0,
-    };
+    return { line: withTail(t("none", { kind })), checked: 0, inside: 0 };
   }
   if (args.checked === 0) {
     return {
-      line: `Not measured yet: my last ${args.simulated === 1 ? "" : `${args.simulated} `}${args.simulated === 1 ? args.noun.replace(/s$/, "") : args.noun} with a predicted range ${args.simulated === 1 ? "hasn't" : "haven't"} been read back yet.${tail}`,
+      line: withTail(
+        t("notReadBack", { kind, count: args.simulated, simulated: int(args.simulated, L) }),
+      ),
       checked: 0,
       inside: 0,
     };
   }
-  const times = args.inside === 1 ? "once" : `${args.inside} times`;
   return {
-    line:
+    line: withTail(
       args.checked === 1
-        ? `My last ${args.noun.replace(/s$/, "")} landed ${args.inside === 1 ? "inside" : "outside"} its predicted range.${tail}`
-        : `My last ${args.checked} ${args.noun} landed inside their predicted range ${times}.${tail}`,
+        ? t("lastOne", { kind, landed: args.inside === 1 ? "inside" : "outside" })
+        : t("lastMany", {
+            kind,
+            checked: int(args.checked, L),
+            count: args.inside,
+            inside: int(args.inside, L),
+          }),
+    ),
     checked: args.checked,
     inside: args.inside,
   };
 }
 
-function emailCrossCheck(past: PastWithVerdict[]): CrossCheck {
+function emailCrossCheck(past: PastWithVerdict[], w: SimText): CrossCheck {
   const verdicts = { helped: 0, did_nothing: 0, backfired: 0 };
   for (const p of past) if (p.verdict in verdicts) verdicts[p.verdict as keyof typeof verdicts]++;
   const withSim = past.filter((p) => simulationOf(p.row)?.key_rate?.name === "bought_again_rate");
@@ -433,16 +466,24 @@ function emailCrossCheck(past: PastWithVerdict[]): CrossCheck {
   const hits = measured.filter((p) =>
     inside(p.campaign.returned / p.campaign.measured, simulationOf(p.row)!.key_rate!.range),
   ).length;
-  return crossCheckLine({
-    noun: "email campaigns",
-    simulated: recent.length,
-    checked: measured.length,
-    inside: hits,
-    verdicts,
-  });
+  return crossCheckLine(
+    {
+      noun: "email campaigns",
+      simulated: recent.length,
+      checked: measured.length,
+      inside: hits,
+      verdicts,
+    },
+    w,
+  );
 }
 
-async function adsCrossCheck(profileId: string, accountId: string, now: Date): Promise<CrossCheck> {
+async function adsCrossCheck(
+  profileId: string,
+  accountId: string,
+  now: Date,
+  w: SimText,
+): Promise<CrossCheck> {
   const rows = await db
     .select()
     .from(proposals)
@@ -483,10 +524,10 @@ async function adsCrossCheck(profileId: string, accountId: string, now: Date): P
     checked++;
     if (inside(roas, sim.key_rate.range)) hits++;
   }
-  return crossCheckLine({ noun: "ad changes", simulated, checked, inside: hits, verdicts });
+  return crossCheckLine({ noun: "ad changes", simulated, checked, inside: hits, verdicts }, w);
 }
 
-async function contentCrossCheck(profileId: string): Promise<CrossCheck> {
+async function contentCrossCheck(profileId: string, w: SimText): Promise<CrossCheck> {
   const rows = await db
     .select({ scenario: proposals.scenario })
     .from(proposals)
@@ -494,11 +535,9 @@ async function contentCrossCheck(profileId: string): Promise<CrossCheck> {
   const simulated = rows.filter(
     (r) => (r.scenario as { simulation?: unknown } | null)?.simulation !== undefined,
   ).length;
+  const t = section(w, "cross");
   return {
-    line:
-      simulated === 0
-        ? "Not measured yet: none of my past content calendars carried a predicted range to check."
-        : "Not measured yet: a calendar's posts are judged one by one, and I don't yet add them up against the calendar's predicted range.",
+    line: simulated === 0 ? t("contentNone") : t("contentNotAdded"),
     checked: 0,
     inside: 0,
   };

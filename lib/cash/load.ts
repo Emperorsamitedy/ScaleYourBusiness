@@ -29,6 +29,7 @@ import type { FieldRecordRow } from "../profile/field-codec";
 import { rowToField } from "../profile/field-codec";
 import { SEASONS, addDays } from "../seasons/forecast";
 import { BALANCE_FRESH_DAYS, BALANCE_IMPORT_PROVIDER, BALANCE_METRIC } from "../balance/source";
+import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
 import { codesOf, costLines, countFactOf, moneyAnswer, offerLines } from "./inputs";
 import {
   BUFFER_KEY,
@@ -115,6 +116,7 @@ export async function latestBalance(
       currency: row.currency.toUpperCase(),
       basis: "OBSERVED",
       source: "your bank statement's closing balance",
+      source_key: "statement",
       on: row.period_date,
     },
   };
@@ -148,13 +150,11 @@ export async function loadCashInputs(
     (await latestBalance(accountId, today))?.fact ?? null,
     today,
   );
-  const row =
-    CHART_ARCHETYPES[
-      archetypeFor(
-        facts.get(TYPE_KEY)?.status === "answered" ? facts.get(TYPE_KEY)!.value : null,
-        facts.get(SELLS_KEY)?.status === "answered" ? facts.get(SELLS_KEY)!.value : null,
-      )
-    ];
+  const archetype = archetypeFor(
+    facts.get(TYPE_KEY)?.status === "answered" ? facts.get(TYPE_KEY)!.value : null,
+    facts.get(SELLS_KEY)?.status === "answered" ? facts.get(SELLS_KEY)!.value : null,
+  );
+  const row = CHART_ARCHETYPES[archetype];
 
   const [items, offerRows, conns] = await Promise.all([
     db
@@ -229,6 +229,10 @@ export async function loadCashInputs(
       source: sourceLabel(picked.connection.provider),
       provider: picked.connection.provider,
       noun: p.noun,
+      metric: p.metric,
+      ...(picked.connection.provider === BOOKINGS_IMPORT_PROVIDER
+        ? { source_key: "bookings" as const }
+        : {}),
       currency: picked.currency!,
       values: picked.values,
     };
@@ -244,7 +248,7 @@ export async function loadCashInputs(
     for (const v of row.volume) {
       const g = groups.get(`${picked.connection.id}|${v.metric}|`);
       if (g && g.values.size > 0) {
-        volume = { noun: v.word, values: g.values };
+        volume = { noun: v.word, metric: v.metric, values: g.values };
         break;
       }
     }
@@ -269,6 +273,7 @@ export async function loadCashInputs(
       offerRows.map((o) => o.id),
     ),
     connect: row.connect,
+    connect_key: archetype,
     other_currencies: others,
   };
 }

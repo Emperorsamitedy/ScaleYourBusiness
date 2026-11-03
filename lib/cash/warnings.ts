@@ -12,10 +12,17 @@
 // or pay anything, and warnings.test.ts holds them to that. The warning goes
 // to the watch log (lib/watch/job.ts, logCashWarning) and from there to the
 // weekly summary's "What I noticed"; nothing else is sent.
+//
+// L-4b: the sentence and reasons come from the "cashWords" catalogue through
+// optional words, English by default — the watch log is written with the
+// default, so what is stored stays English (rule 7); the screen's copy is in
+// the reader's language. clearedSentence is only ever logged, so it is English.
 
 import { shortDate } from "../charts/model";
 import type { CashReady, CashWeek, Range } from "./model";
 import { CASH, wholeMoney } from "./model";
+import type { Words } from "./words";
+import { andList, cashEnglish, timesText } from "./words";
 
 export interface TightWeek {
   index: number;
@@ -38,38 +45,34 @@ export interface TightWeek {
 export const PUSH_WORDS =
   /\b(should|must|need to|have to|you'll want|consider|try|recommend|urge|borrow|transfer|move money|chase|act now|urgent|immediately)\b/i;
 
-const sentenceList = (parts: readonly string[]) =>
-  parts.length <= 1 ? (parts[0] ?? "") : `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}`;
-
-const x1 = (v: number) => `${(Math.round(v * 10) / 10).toFixed(1)}×`;
-/** "0.6–0.8×", or "0.3×" when both ends round alike. */
-const spread = (lo: number, hi: number) => {
-  const a = (Math.round(lo * 10) / 10).toFixed(1);
-  const b = (Math.round(hi * 10) / 10).toFixed(1);
-  return a === b ? `${a}×` : `${a}–${b}×`;
-};
-
 /** Pure: the reasons a week is tight, in words, most specific first. */
-export function tightReasons(f: CashReady, k: number): string[] {
+export function tightReasons(f: CashReady, k: number, words: Words = cashEnglish()): string[] {
+  const { tr, locale } = words;
   const week = f.weeks[k]!;
   const cur = f.currency;
+  const whole = (minor: number) => wholeMoney(minor, cur, locale);
+  const x1 = (v: number) => timesText(v, 1, locale);
+  /** "0.6–0.8×", or "0.3×" when both ends round alike. */
+  const spread = (lo: number, hi: number) => {
+    const a = x1(lo);
+    const b = x1(hi);
+    return a === b ? a : `${a.slice(0, -1)}–${b}`;
+  };
   const reasons: string[] = [];
 
   // Lumps due that week: a quarterly cost by name; the monthly ones together.
   for (const d of week.due.filter((x) => x.cadence === "quarterly" && !x.debt)) {
-    reasons.push(`${d.label} (${wholeMoney(d.amount_minor, cur)}, quarterly)`);
+    reasons.push(tr("tight.quarterly", { label: d.label, amount: whole(d.amount_minor) }));
   }
   const monthly = week.due.filter((x) => !x.debt && x.cadence !== "quarterly");
   if (monthly.length > 0) {
     const total = monthly.reduce((s, d) => s + d.amount_minor, 0);
-    reasons.push(`your monthly costs on the 1st (${wholeMoney(total, cur)})`);
+    reasons.push(tr("tight.monthly", { day: 1, amount: whole(total) }));
   }
   const debt = week.due.filter((x) => x.debt);
   if (debt.length > 0) {
     const total = debt.reduce((s, d) => s + d.amount_minor, 0);
-    reasons.push(
-      `${debt.length === 1 ? "a repayment" : "repayments"} on your debt (${wholeMoney(total, cur)})`,
-    );
+    reasons.push(tr("tight.debt", { count: debt.length, amount: whole(total) }));
   }
 
   // A quiet stretch: last year's same weeks under the normal week, up to this one.
@@ -80,13 +83,14 @@ export function tightReasons(f: CashReady, k: number): string[] {
     quiet.unshift(f.weeks[j]!);
   }
   if (quiet.length === 1) {
-    reasons.push(
-      `a quiet week (last year the same week ran ${x1(quiet[0]!.last_year!.index)} your normal week)`,
-    );
+    reasons.push(tr("tight.quietWeek", { index: x1(quiet[0]!.last_year!.index) }));
   } else if (quiet.length > 1) {
     const idx = quiet.map((w) => w.last_year!.index);
     reasons.push(
-      `a quiet stretch (last year the same ${quiet.length} weeks ran ${spread(Math.min(...idx), Math.max(...idx))} your normal week)`,
+      tr("tight.quietStretch", {
+        count: quiet.length,
+        spread: spread(Math.min(...idx), Math.max(...idx)),
+      }),
     );
   }
 
@@ -94,37 +98,33 @@ export function tightReasons(f: CashReady, k: number): string[] {
   const nets = f.weeks.slice(0, k + 1).map((w) => w.net.low);
   const avg = nets.reduce((s, v) => s + v, 0) / nets.length;
   if (avg < 0 && reasons.length === 0) {
-    reasons.push(
-      `about ${wholeMoney(-avg, cur)} a week more going out than coming in at the cautious end`,
-    );
+    reasons.push(tr("tight.outrun", { amount: whole(-avg) }));
   }
   if (reasons.length === 0) {
-    reasons.push(
-      `a start close to the line: your cash today is ${wholeMoney(f.start.amount_minor, cur)}`,
-    );
+    reasons.push(tr("tight.startClose", { amount: whole(f.start.amount_minor) }));
   }
   return reasons;
 }
 
 /** Pure: the first week whose cautious end dips under the line, or null. */
-export function tightWeek(f: CashReady): TightWeek | null {
+export function tightWeek(f: CashReady, words: Words = cashEnglish()): TightWeek | null {
+  const { tr, locale } = words;
   const line = f.line.amount_minor;
   const week = f.weeks.find((w) => w.balance.low < line);
   if (!week) return null;
   const cur = f.currency;
-  const reasons = tightReasons(f, week.index);
+  const reasons = tightReasons(f, week.index, words);
   const both = week.balance.high < line;
-  const lineWords =
-    f.line.kind === "buffer"
-      ? `under the ${wholeMoney(line, cur)} you want to keep`
-      : "below zero, an overdrawn account";
-  const hopeful = both
-    ? `; even at the hopeful end it is about ${wholeMoney(week.balance.high, cur)}`
-    : "";
-  const when = week.index === 0 ? "this week" : `in the week of ${shortDate(week.start)}`;
-  const sentence =
-    `Money could get tight ${when}: at the cautious end the balance falls to about ` +
-    `${wholeMoney(week.balance.low, cur)}, ${lineWords}${hopeful}. Why: ${sentenceList(reasons)}.`;
+  const sentence = tr("tight.sentence", {
+    when: week.index === 0 ? "now" : "later",
+    day: shortDate(week.start, locale),
+    low: wholeMoney(week.balance.low, cur, locale),
+    line: f.line.kind,
+    buffer: f.line.kind === "buffer" ? wholeMoney(line, cur, locale) : "",
+    both: both ? "yes" : "no",
+    high: both ? wholeMoney(week.balance.high, cur, locale) : "",
+    reasons: andList(reasons, locale),
+  });
   return {
     index: week.index,
     start: week.start,

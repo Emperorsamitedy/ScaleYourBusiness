@@ -10,6 +10,8 @@ import { googleBusinessEnv, supportInboundDomain } from "../env";
 import { activeExecutionConnection } from "../execution/connections";
 import { googleReadWords } from "../google-business/reasons";
 import { GOOGLE_NEEDS, GOOGLE_NOT_SET_UP, GOOGLE_WHAT_IT_CAN_DO } from "../google-business/words";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
 import { reviewAddress } from "../reviews/inbound";
 import type { ReviewPlatformKey } from "../reviews/parse";
 import { PLATFORM_LABELS, REVIEW_PLATFORMS } from "../reviews/parse";
@@ -65,7 +67,15 @@ export interface ReviewsView {
 const asPlatform = (p: string): ReviewPlatformKey =>
   p in PLATFORM_LABELS ? (p as ReviewPlatformKey) : "other";
 
-export async function loadReviewsView(profileId: string, now = new Date()): Promise<ReviewsView> {
+/**
+ * L-4b: the last read's outcome is said in `tr` ("reviewsWords", English
+ * by default). Reviews, reviewers and drafts are content, as stored.
+ */
+export async function loadReviewsView(
+  profileId: string,
+  now = new Date(),
+  tr: Tr = englishTr("reviewsWords"),
+): Promise<ReviewsView> {
   const settings = await ensureReviewSettings(profileId);
   await pruneExpiredReviews(now, profileId);
   const rows = await db
@@ -91,7 +101,10 @@ export async function loadReviewsView(profileId: string, now = new Date()): Prom
       location_title: google ? settings.google_location_title : null,
       last_read:
         google && settings.google_read_at
-          ? { at: settings.google_read_at, words: googleReadWords(settings.google_read_outcome) }
+          ? {
+              at: settings.google_read_at,
+              words: googleReadWords(settings.google_read_outcome, tr),
+            }
           : null,
       what_it_can_do: GOOGLE_WHAT_IT_CAN_DO,
       not_set_up: googleConfigured ? null : GOOGLE_NOT_SET_UP,

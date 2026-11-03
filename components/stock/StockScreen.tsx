@@ -11,9 +11,10 @@
 // without stock never reaches this screen through the menu (STOCK_APPLIES).
 //
 // L-3b: the screen's fixed words are the "stock" catalogue; figures in the
-// reader's locale. What the server words from data (warnings, reasons,
+// reader's locale. L-4b: what the server words from data (warnings, reasons,
 // arithmetic, sources, the season line, held lines, option labels and
-// efficiencies) stays English until L-4.
+// efficiencies) comes worded in the reader's language from /api/stock, and
+// the headlines built here are the "stockWords" catalogue.
 
 import "../../app/stock.css";
 import { useCallback, useEffect, useState } from "react";
@@ -367,7 +368,7 @@ function Ranking({ item }: { item: StockItemView }) {
       {blocked && (
         <p className="st-copy">
           {tr("ranking.blocked", {
-            option: blocked.label.toLocaleLowerCase(intlTag(locale)),
+            option: blocked.label_inline ?? blocked.label.toLocaleLowerCase(intlTag(locale)),
           })}
         </p>
       )}
@@ -514,6 +515,7 @@ function resultWords(
 
 export function StockScreen() {
   const words = useStockWords();
+  const sentences = useTr("stockWords");
   const { tr, locale } = words;
   const rich = useTranslations("stock");
   const [view, setView] = useState<StockView | null>(null);
@@ -634,14 +636,14 @@ export function StockScreen() {
     </>
   );
   const th = view.thresholds;
-  const svm = statedVsMeasured(view);
+  const svm = statedVsMeasured(view, sentences);
   const stuckDays = num(th?.stuck_no_sale_days ?? 60, 0, locale);
   const slowDays = num(th?.slow_cover_days ?? 180, 0, locale);
   const stuck = flagWord("STUCK", tr);
   const slowWord = flagWord("SLOW", tr);
 
   return (
-    <Frame title={stockHeadline(view)} aside={aside}>
+    <Frame title={stockHeadline(view, sentences)} aside={aside}>
       {view.cover && view.cover.items.length > 0 && (
         <>
           <CoverCard

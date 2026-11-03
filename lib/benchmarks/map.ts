@@ -2,10 +2,26 @@
 // specs/benchmark-map-v1.json is the mapping (rule 4: data, never an if on
 // a business type); this file only applies it. Pure: no database, no
 // network, no clock.
+//
+// L-4b (TASKS-LANGUAGES.md): the words the map gives in English (a group,
+// what a code covers, a size class, why a type has no group) are
+// SYB's own, so each is a "benchmarksWords" message keyed by its code, in
+// the reader's language; the English messages are the map's words exactly
+// (map.test.ts and words.test.ts hold them to it). A code the catalogue
+// doesn't know keeps the map's English.
 
 import { enumCode } from "../core/enum-value";
 import type { SizeBand } from "../core/size-features";
+import { num } from "../../components/sheet/num";
+import type { Words } from "../i18n/request-words";
+import { englishTr } from "../i18n/tr";
 import mapSpec from "../../specs/benchmark-map-v1.json";
+
+/** The namespace of every sentence lib/benchmarks builds. */
+export const BENCH_WORDS = "benchmarksWords";
+/** English over BENCH_WORDS: the default every sentence here takes. */
+export const benchEnglish = (): Words => ({ tr: englishTr(BENCH_WORDS), locale: "en" });
+const ENGLISH = benchEnglish;
 
 export interface MappedType {
   nace: string;
@@ -106,11 +122,19 @@ export function sizeClassesFor(
   return { codes: [], via: "none", persons: null };
 }
 
-/** Pure: "with 2–9 people" / "of every size". */
-export function sizeWords(code: string, map: MapSpec = BENCHMARK_MAP): string {
-  if (code === map.all_sizes.code) return map.all_sizes.words;
+/** Pure: "with 2–9 people" / "of every size", in the reader's language. */
+export function sizeWords(
+  code: string,
+  map: MapSpec = BENCHMARK_MAP,
+  w: Words = ENGLISH(),
+): string {
+  if (code === map.all_sizes.code) return w.tr("size.every");
   const c = map.size_classes.find((s) => s.code === code);
-  return c ? `with ${c.words}` : code;
+  if (!c) return code;
+  const n = (x: number) => num(x, 0, w.locale);
+  if (c.max === null) return w.tr("size.atLeast", { min: n(c.min) });
+  if (c.min === 0) return w.tr("size.upTo", { count: c.max, n: n(c.max) });
+  return w.tr("size.range", { min: n(c.min), max: n(c.max) });
 }
 
 /** Pure: how a cost category enters the margin. An unknown or missing one counts as running. */
@@ -139,6 +163,60 @@ export function parentGroup(code: string, map: MapSpec = BENCHMARK_MAP): string 
   return Object.hasOwn(map.parent_groups, code) && code !== "about"
     ? map.parent_groups[code]!
     : code;
+}
+
+/** A NACE code as Eurostat writes it: "G479" → "G47.9", "I56" stays. */
+export function naceLabel(code: string): string {
+  return code.replace(/^([A-Z]\d{2})(\d)$/, "$1.$2");
+}
+
+/** Codes a group's line names besides its own: where a neighbour is counted instead. */
+const COUNTED_ELSEWHERE: Readonly<Record<string, string>> = {
+  G452: "G451",
+  J582: "J62",
+  I55: "N79",
+};
+
+const knownGroups = (map: MapSpec): Set<string> => {
+  const out = new Set(mappedNaceCodes(map));
+  for (const k of Object.keys(map.parent_groups)) if (k !== "about") out.add(k);
+  return out;
+};
+
+/** Pure: a code's group in the reader's words, or `fallback` (the map's English) for an unknown one. */
+export function groupWords(
+  code: string,
+  fallback: string,
+  w: Words = ENGLISH(),
+  map: MapSpec = BENCHMARK_MAP,
+): string {
+  return knownGroups(map).has(code) ? w.tr(`group.${code}`) : fallback;
+}
+
+/** Pure: what a type's code covers, in the reader's words; the map's English for an unknown one. */
+export function coversWords(
+  code: string,
+  fallback: string,
+  w: Words = ENGLISH(),
+  map: MapSpec = BENCHMARK_MAP,
+): string {
+  if (!Object.values(map.business_types).some((e) => e.nace === code)) return fallback;
+  const other = COUNTED_ELSEWHERE[code];
+  return w.tr(`covers.${code}`, {
+    code: naceLabel(code),
+    ...(other ? { other: naceLabel(other) } : {}),
+  });
+}
+
+/** Pure: why a business type has no group, in the reader's words; the map's English for an unknown one. */
+export function unmappedWords(
+  typeCode: string,
+  fallback: string,
+  w: Words = ENGLISH(),
+  map: MapSpec = BENCHMARK_MAP,
+): string {
+  const e = Object.hasOwn(map.business_types, typeCode) ? map.business_types[typeCode] : null;
+  return e && e.nace === null ? w.tr(`unmapped.${typeCode}`) : fallback;
 }
 
 /** Every NACE code the map names, as a type's code or its parent. */

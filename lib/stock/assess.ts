@@ -15,6 +15,12 @@
 // An imported stock file is judged as of the day it was counted, never
 // stretched to today: sales since the count are not in the file. Nothing
 // here calls a model (cost rule) and nothing converts currencies (rule 1).
+//
+// L-4b: the reason (`why`) is the "stockWords" catalogue through optional
+// words, English by default (./words) — what is stored stays English.
+
+import type { Words } from "./words";
+import { dayCount, dec2, englishStock, int } from "./words";
 
 export const STOCK = {
   /** STUCK: on hand, and no sale in the last this-many days (the last one ≥ this + 1 days ago). */
@@ -106,10 +112,13 @@ function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000);
 }
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
-
 /** Pure: judge one item, as of `today` for store figures and as of its count for a file. */
-export function assessItem(item: StockItem, today: string): StockAssessment {
+export function assessItem(
+  item: StockItem,
+  today: string,
+  w: Words = englishStock(),
+): StockAssessment {
+  const { tr, locale } = w;
   const sold: Record<SoldWindow, number | null> = { 30: null, 60: null, 90: null };
   let daysSince: number | null = null;
   let atLeast: number | null = null;
@@ -139,7 +148,10 @@ export function assessItem(item: StockItem, today: string): StockAssessment {
       for (const [day, u] of s.daily) if (day >= from && day <= end) units += u;
       rate = { per_day: units / over, over_days: over };
     } else {
-      noHistoryWhy = `only ${plural(s.covered_days, "day")} of sales measured; I judge from ${STOCK.min_history_days}`;
+      noHistoryWhy = tr("why.tooLittle", {
+        ...dayCount(s.covered_days, locale),
+        min: int(STOCK.min_history_days, locale),
+      });
     }
   } else {
     const f = item.sales;
@@ -157,7 +169,7 @@ export function assessItem(item: StockItem, today: string): StockAssessment {
       atLeast = f.window_days;
     }
     judgeable = rate !== null || daysSince !== null;
-    if (!judgeable) noHistoryWhy = "the file has no units sold and no last-sold date";
+    if (!judgeable) noHistoryWhy = tr("why.fileNoSales");
   }
 
   const cash = item.value_at_cost;
@@ -171,30 +183,37 @@ export function assessItem(item: StockItem, today: string): StockAssessment {
     why,
   });
 
-  if (item.on_hand <= 0) return result(null, "none on hand");
+  if (item.on_hand <= 0) return result(null, tr("why.noneOnHand"));
   // Whole days without a sale, ending yesterday: a sale N days ago leaves N − 1.
   const quiet = daysSince !== null ? daysSince - 1 : atLeast;
   if (quiet !== null && quiet >= STOCK.stuck_no_sale_days) {
     return result(
       "STUCK",
-      daysSince !== null
-        ? `no sale in ${plural(daysSince, "day")}, with ${item.on_hand} on hand`
-        : `no sale in the ${plural(atLeast!, "day")} on record, with ${item.on_hand} on hand`,
+      tr(daysSince !== null ? "why.stuck" : "why.stuckOnRecord", {
+        ...dayCount(daysSince ?? atLeast!, locale),
+        onHand: int(item.on_hand, locale),
+      }),
     );
   }
   if (!judgeable) return result(null, noHistoryWhy);
   if (rate !== null && rate.per_day === 0) {
-    return result("SLOW", `no sale in the ${plural(rate.over_days, "day")} measured`);
+    return result("SLOW", tr("why.slowNoSale", dayCount(rate.over_days, locale)));
   }
   if (cover !== null && cover > STOCK.slow_cover_days) {
     return result(
       "SLOW",
-      `${Math.round(cover)} days of cover at ${rate!.per_day.toFixed(2)} a day — over ${STOCK.slow_cover_days}`,
+      tr("why.slowCover", {
+        cover: int(Math.round(cover), locale),
+        rate: dec2(rate!.per_day, locale),
+        limit: int(STOCK.slow_cover_days, locale),
+      }),
     );
   }
   return result(
     null,
-    cover !== null ? `${Math.round(cover)} days of cover — selling` : "no rate of sale to judge by",
+    cover !== null
+      ? tr("why.selling", { cover: int(Math.round(cover), locale) })
+      : tr("why.noRate"),
   );
 }
 

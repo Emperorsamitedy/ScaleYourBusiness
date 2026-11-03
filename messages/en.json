@@ -3081,5 +3081,1272 @@
       "assumed": "ASSUMED",
       "atCost": "{amount} at cost"
     }
+  },
+  "cashWords": {
+    "series": {
+      "noun": {
+        "revenue": "revenue",
+        "bookingRevenue": "booking revenue"
+      },
+      "source": {
+        "bookings": "your bookings export",
+        "stock": "your stock file"
+      }
+    },
+    "connect": {
+      "shop": "Connect Shopify or WooCommerce, or your till through Square, and I'll draw this",
+      "hospitality": "Connect your till through Square, or Stripe, and I'll draw this",
+      "appointments": "Import your bookings export or connect Square, and I'll draw this",
+      "services": "Connect Stripe, or the shop or till you take payments through, and I'll draw this",
+      "default": "Connect your shop or till, or Stripe, or import your bookings, and I'll draw this"
+    },
+    "factSource": {
+      "measured": "measured from your connected account",
+      "estimate": "your estimate",
+      "derived": "worked out from your other figures",
+      "told": "as you told me",
+      "statement": "your bank statement's closing balance"
+    },
+    "perSale": {
+      "perPiece": "Per piece: ({deliver} to deliver your offers) ÷ {sales} of sales a month at your stated prices and volumes = {share} of each sale",
+      "perPieceUnits": "Per piece: ({deliver} to deliver your offers + {each} × {count, plural, one {{units} piece} other {{units} pieces}}) ÷ {sales} of sales a month at your stated prices and volumes = {share} of each sale",
+      "noCost": "{count, plural, one {What {names} costs you to deliver isn't on your offers list, so it isn't counted.} other {What {names} cost you to deliver isn't on your offers list, so it isn't counted.}}",
+      "noVolume": "Your per-piece costs aren't counted: your offers list doesn't say how many of each you sell a month.",
+      "measured": {
+        "orders": "{count, plural, one {# order} other {# orders}} on {sales} of measured sales",
+        "appointments": "{count, plural, one {# appointment} other {# appointments}} on {sales} of measured sales",
+        "visits": "{count, plural, one {# visit} other {# visits}} on {sales} of measured sales",
+        "other": "{n} {noun} on {sales} of measured sales"
+      },
+      "stated": "{count, plural, one {{n} order a month} other {{n} orders a month}}, as you told me, on about {sales} of sales a month",
+      "noOrders": "Your per-order costs aren't counted: I don't know how many orders you take a week.",
+      "perOrder": "Per order: {each} × ({how}) = {share} of each sale",
+      "none": "No per-sale cost is stated, so none is counted.",
+      "together": "Together: {share} of each week's sales, paid in the week of the sale."
+    },
+    "leftOut": {
+      "noAmount": "{label} has no amount, so it isn't counted.",
+      "otherCurrency": "{label} is in {currency} and your cash is in {cash}; I don't convert between currencies, so it isn't counted.",
+      "noFrequency": "{label} has no frequency, so I can't place it in a week.",
+      "bufferCurrency": "Your buffer is in {buffer} and your cash in {cash}, so I draw the line at zero instead of converting.",
+      "debt": "You carry {amount} of debt, but no repayment is on your costs list, so none is counted. A repayment listed under loan payments would be.",
+      "otherSeries": "Your {noun} in {currency} is left out: money in two currencies is never added together."
+    },
+    "needs": {
+      "offersCost": "what each offer costs you to deliver",
+      "offersVolume": "roughly how many of each offer you sell a month",
+      "orders": "roughly how many orders you take a month",
+      "cash": "roughly how much cash the business has today",
+      "cashIn": "your cash today in {currency}",
+      "provider": "which payment provider pays your sales out",
+      "buffer": "the least you'd want in the account at any time",
+      "debt": "what you repay on your debt, and how often"
+    },
+    "refusal": {
+      "addUp": "Add up what goes out on the dates you gave: about {amount} a month in fixed costs.",
+      "addUpDebt": "Add up what goes out on the dates you gave: about {amount} a month in fixed costs and repayments.",
+      "keepReading": "Keep reading your sales every night, so the forecast is ready as soon as there's enough.",
+      "cannotBorrow": "Borrow a sales pattern from other businesses like yours. An industry average isn't your history, so I don't present one as yours.",
+      "noHistory": "I need your own sales history to forecast your cash, and nothing is measured yet.",
+      "noHistoryCannot": "Say what comes in week by week: a forecast of money in needs your own measured sales.",
+      "stale": "Only {count, plural, one {# complete week} other {# complete weeks}} of the last {recent} were measured (the last measured day is {day}): a cash forecast needs {needed}.",
+      "tooLittle": "I have {count, plural, one {# complete week} other {# complete weeks}} of your {noun}; a {weeks}-week cash forecast needs {needed}.",
+      "tooLittleCannot": "Say what comes in over the next {weeks, plural, one {# week} other {# weeks}}: {count, plural, one {# week} other {# weeks}} is too few to know what a normal week is.",
+      "cashUnknown": "You told me you don't know how much cash the business has today, so there's no starting point for a forecast yet.",
+      "cashMissing": "I need roughly how much cash the business has today to start the forecast from.",
+      "cashCan": "Read your {noun}: {count, plural, one {# complete week} other {# complete weeks}} of the last {recent}, enough to forecast money in.",
+      "cashCannot": "Say when money gets tight without knowing where it starts.",
+      "currency": "Your cash is in {cash} and your measured {noun} in {series}. I never convert between currencies, so I can't forecast one from the other.",
+      "currencyCannot": "Add {series} sales to {cash} cash without an exchange rate nobody gave me."
+    },
+    "assumption": {
+      "growth": "Each week runs like the same week last year, scaled by how your last {weeks, plural, one {# week} other {# weeks}} compare with the same weeks a year before ({low}–{high}).",
+      "span": "Each week runs somewhere between the same week last year and your recent weeks: with one year of history I can't tell your growth from your season, so the range spans both.",
+      "fallback": "{count, plural, one {# week last year weren't measured in full; those use your recent weeks instead.} other {# weeks last year weren't measured in full; those use your recent weeks instead.}}",
+      "recent": "The coming weeks run like your last {count, plural, one {# complete week} other {# complete weeks}}: the middle half of them, {low}–{high} a week. With under a year of history no season is known, so none is applied.",
+      "sameDay": "Sales are money in the same day.",
+      "payout": "A sale reaches your account {days} after it is made ({why}). The cautious end takes the slow end.",
+      "evenly": "Sales are spread evenly over the days of their week.",
+      "monthly": "Monthly costs go out on the {day, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} of each month.",
+      "quarterly": "Quarterly costs go out on the {day, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} of January, April, July and October: you haven't told me their dates.",
+      "annual": "A yearly cost with no due date is set aside a twelfth at a time on each {day, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}, rather than guessed into one week.",
+      "perSale": "Per-sale costs are paid in the week of the sale.",
+      "statement": "Cash today is your bank statement's closing balance on {day}; what came in or went out since then isn't counted.",
+      "nothingElse": "Nothing else changes: no cost, payment or one-off beyond what you listed. Tax counts only where it is on your costs list."
+    },
+    "source": {
+      "label": {
+        "cash": "Cash today",
+        "statedCash": "Cash you told me",
+        "moneyIn": "Money in",
+        "payout": "Payout timing",
+        "fixed": "Fixed costs",
+        "variable": "Per-sale costs",
+        "debt": "Debt repayments",
+        "line": "The line"
+      },
+      "cashOn": "{source}, on {day}",
+      "statedCash": "{source}; the bank statement is used instead",
+      "moneyIn": "{source} {noun}, {count, plural, one {# measured day} other {# measured days}} to {day}",
+      "moneyInYear": "the last year, read from {day}",
+      "moneyInRecent": "the last {weeks, plural, one {# week} other {# weeks}}, read from {day}",
+      "aboutMonth": "about {amount} a month",
+      "fixed": "{count, plural, one {# cost} other {# costs}} from your costs list, by the frequency you gave",
+      "fixedNone": "no fixed cost with an amount and a frequency is listed",
+      "debtNone": "none counted",
+      "debt": "loan payments on your costs list",
+      "debtStated": "debt stated: {amount}, no repayment listed",
+      "debtNoRepayment": "no repayment listed",
+      "lineBuffer": "the least you want in the account, as you told me",
+      "lineUnknown": "you don't know the least you'd want in the account, so the line is an empty account",
+      "lineNone": "no buffer stated, so the line is an empty account"
+    },
+    "payout": {
+      "provider": {
+        "stripe": "Stripe",
+        "paypal": "PayPal",
+        "square": "Square",
+        "adyen": "Adyen",
+        "mollie": "Mollie",
+        "klarna": "Klarna",
+        "shopify_payments": "Shopify Payments",
+        "apple_google_pay": "Apple Pay or Google Pay",
+        "local_provider": "your local payment provider",
+        "bank_only": "your bank",
+        "other": "your payment provider"
+      },
+      "direct": "your customers pay in ways no payment provider sits between, so a sale is money in the same day",
+      "stated": "you told me you're paid through {provider}: {days} from a sale to its payout, {source}",
+      "series": "your sales are read from {provider}: {days} from a sale to its payout, {source}",
+      "unknown": "you haven't said which payment provider pays you out, so I allow anything from the same day to {days, plural, one {# day} other {# days}}",
+      "source": "a planning assumption from the provider's usual payout schedule, not a measurement of your payouts",
+      "sameDay": "the same day",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "sameDayTo": "the same day to {count, plural, one {# day} other {# days}}",
+      "range": "{low}–{high, plural, one {# day} other {# days}}"
+    },
+    "tight": {
+      "quarterly": "{label} ({amount}, quarterly)",
+      "monthly": "your monthly costs on the {day, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} ({amount})",
+      "debt": "{count, plural, one {a repayment} other {repayments}} on your debt ({amount})",
+      "quietWeek": "a quiet week (last year the same week ran {index} your normal week)",
+      "quietStretch": "a quiet stretch (last year the same {count, plural, one {# week} other {# weeks}} ran {spread} your normal week)",
+      "outrun": "about {amount} a week more going out than coming in at the cautious end",
+      "startClose": "a start close to the line: your cash today is {amount}",
+      "sentence": "Money could get tight {when, select, now {this week} other {in the week of {day}}}: at the cautious end the balance falls to about {low}, {line, select, buffer {under the {buffer} you want to keep} other {below zero, an overdrawn account}}{both, select, yes {; even at the hopeful end it is about {high}} other {}}. Why: {reasons}."
+    },
+    "scenario": {
+      "slow": {
+        "title": "A slow month (−{share})",
+        "change": "Sales {share} lower for {weeks, plural, one {# week} other {# weeks}} from {when, select, now {this week} other {the week of {day}}}.",
+        "assumption": "Per-sale costs fall with the sales; fixed costs don't."
+      },
+      "order": {
+        "title": "A big order (+{amount})",
+        "titleMissing": "A big order",
+        "change": "One order of {amount} in {when, select, now {this week} other {the week of {day}}}.",
+        "assumption": "It is paid in full that week, and its per-sale costs go out the same week at your usual share.",
+        "why": "Enter the order's size to see it."
+      },
+      "hire": {
+        "title": "A hire (+{amount} a month)",
+        "titleMissing": "A hire",
+        "change": "{amount} more going out on each {first, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} from {when, select, now {this week} other {the week of {day}}}.",
+        "assumption": "The hire brings in no extra sales within the {weeks, plural, one {# week} other {# weeks}}.",
+        "why": "No salary is on your costs list to size a hire by. Enter what one would cost you a month.",
+        "need": "what a hire would cost you a month"
+      },
+      "price": {
+        "title": "A price change ({change})",
+        "titleMissing": "A price change",
+        "effect": "{change} on {name}",
+        "change": "Profit {low} to {high} a week from this week, from what-if pricing.",
+        "assumption": "It takes effect this week, and customers answer it as what-if pricing's band says ({source}).",
+        "whyCurrency": "What-if pricing works in {pricing} and your cash is in {cash}; I don't convert.",
+        "whyNothing": "What-if pricing needs one of your offers with a price, a cost to deliver and the number you sell a month.",
+        "need": "an offer's price, cost and monthly sales"
+      }
+    },
+    "view": {
+      "headlineTight": "Money could get tight {when, select, now {this week} other {in the week of {day}}}: the cautious end falls to {amount}.",
+      "headlineBuffer": "No week of the next {weeks} dips under your {amount} buffer, even at the cautious end.",
+      "headlineZero": "No week of the next {weeks} goes below zero, even at the cautious end.",
+      "sourcesHistory": "Sources: {source} {noun}, {days, plural, one {# measured day} other {# measured days}} from {from} to {to}; {complete} of {needed, plural, one {# complete week} other {# complete weeks}} needed.",
+      "sourcesNothing": "Sources: nothing measured that a forecast can be built on yet.",
+      "sourcesReady": "Sources: {parts} · your costs as you listed them.",
+      "sourcesPart": "{label} {value}",
+      "sourcesPartBasis": "{label} {value} ({basis})",
+      "inline": {
+        "cash": "cash today",
+        "moneyIn": "money in",
+        "payout": "payout timing"
+      },
+      "titleAbove": "{line, select, buffer {Above your {amount} buffer all the way} other {Above zero all the way}}",
+      "titleUnder": "{line, select, buffer {Under your {amount} buffer in the week of {day}} other {Under zero in the week of {day}}}",
+      "meta": "{source} · {noun} {observed} · costs {stated} · timing {assumed}",
+      "band": "The band runs from the cautious end (slow sales, slow payouts) to the hopeful end.",
+      "footGrowth": "Each week follows the same week last year, scaled by your recent growth.",
+      "footSpan": "Each week runs between the same week last year and your recent weeks.",
+      "footRecent": "Each week runs like your last {count, plural, one {# complete week} other {# complete weeks}}.",
+      "summary": "Your balance over the next {weeks, plural, one {# week} other {# weeks}}, from {start} today to {end}.",
+      "summaryAbove": "{line, select, buffer {It stays above your {amount} buffer.} other {It stays above zero.}}",
+      "summaryUnder": "{line, select, buffer {The cautious end dips under your {amount} buffer in the week of {day}.} other {The cautious end dips under zero in the week of {day}.}}"
+    }
+  },
+  "stockWords": {
+    "why": {
+      "tooLittle": "only {count, plural, one {{days} day} other {{days} days}} of sales measured; I judge from {min}",
+      "fileNoSales": "the file has no units sold and no last-sold date",
+      "noneOnHand": "none on hand",
+      "stuck": "no sale in {count, plural, one {{days} day} other {{days} days}}, with {onHand} on hand",
+      "stuckOnRecord": "no sale in the {count, plural, one {{days} day} other {{days} days}} on record, with {onHand} on hand",
+      "slowNoSale": "no sale in the {count, plural, one {{days} day} other {{days} days}} measured",
+      "slowCover": "{cover} days of cover at {rate} a day — over {limit}",
+      "selling": "{cover} days of cover — selling",
+      "noRate": "no rate of sale to judge by"
+    },
+    "sell": {
+      "fileOneWindow": "A stock file carries one window of units sold, so I can't set {n} days against the {n} before. Connect the shop and I can.",
+      "tooLittle": "Only {count, plural, one {{days} day} other {{days} days}} of sales measured; comparing two {n}-day windows needs {needed}. I can say what sold; I can't say whether it's speeding up until {ready}.",
+      "nothing": "Nothing sold in either {n}-day window.",
+      "flat": "{a} sold in the last {n} days against {b} in the {n} before: about the same — a difference of {diff} is within chance (±{band}).",
+      "moved": "{a} sold in the last {n} days against {b} in the {n} before: {direction, select, up {up} other {down}} {diff}, more than chance (±{band}).",
+      "movedPct": "{a} sold in the last {n} days against {b} in the {n} before: {direction, select, up {up} other {down}} {diff} ({pct}), more than chance (±{band})."
+    },
+    "rate": {
+      "fileNoColumn": "The stock file has no units-sold column, so I can't say when anything runs out. A file with units sold over {n} days or more can.",
+      "fileShort": "The file's units sold cover {count, plural, one {{days} day} other {{days} days}}; days of cover needs {n}. A file over {n} days or more can say when stock runs out.",
+      "fileNoSales": "No sale in the file's {days} days: nothing to run out at.",
+      "tooLittle": "Only {count, plural, one {{days} day} other {{days} days}} of sales measured; days of cover needs {n}. I can say what's on hand; I can't say when it runs out until {ready}.",
+      "noSales": "No sale in the last {n} days: nothing to run out at."
+    },
+    "season": {
+      "underWay": "is under way now, to {end}",
+      "startsToday": "starts today, to {end}",
+      "startsIn": "starts in {count, plural, one {{days} day} other {{days} days}}, on {start}",
+      "againstNone": "I have no complete recent week to set it against, so I count it against your normal week",
+      "againstRecent": "your last {count, plural, one {{weeks} week} other {{weeks} weeks}} ran {recent}",
+      "addsNothing": "so your recent pace already holds it and I add nothing",
+      "counts": "so I count {multiple} your recent pace for those days",
+      "sentence": "Your busy stretch {when}: last year it ran {index} your normal week; {against}, {counted}.",
+      "readFrom": "{noun} from {source}",
+      "notCounted": "No season counted: {headline}",
+      "noYear": "No season counted: nothing measured a year of sales yet."
+    },
+    "lead": {
+      "longest": "{supplier} takes {count, plural, one {{days} day} other {{days} days}}, the longest of the {suppliers} suppliers you named for it",
+      "answer": "{supplier} takes {count, plural, one {{days} day} other {{days} days}}, from your answer",
+      "noTimeFor": "no delivery time on file for {suppliers}",
+      "noSupplier": "no supplier on file for this item",
+      "unmatched": "this item isn't matched to one of your products, so I can't tell its supplier",
+      "assumed": "{days} days, ASSUMED: {reason}",
+      "phraseNamed": "{supplier} takes {count, plural, one {{days} day} other {{days} days}}",
+      "phraseAssumed": "a delivery takes {count, plural, one {{days} day} other {{days} days}} (ASSUMED)",
+      "line": "delivery time: {why}",
+      "yourSupplier": "Your supplier"
+    },
+    "reorder": {
+      "arithmetic": "{rate} a day (up to {high}) over {count, plural, one {{days} day} other {{days} days}} = {mid}, + {safety} safety margin (the fast end of the range) = {before}{moq}.",
+      "arithmeticSeason": "{rate} a day (up to {high}) over {count, plural, one {{days} day} other {{days} days}}, with the busy stretch at {multiple} = {mid}, + {safety} safety margin (the fast end of the range) = {before}{moq}.",
+      "moqNone": "; no minimum order on file",
+      "moqRounded": "; {ends, select, s {{supplier}''} other {{supplier}''s}} minimum order is {moq}, so {moq}",
+      "moqRoundedUnnamed": "; the supplier's minimum order is {moq}, so {moq}",
+      "moqOver": "; over {ends, select, s {{supplier}''} other {{supplier}''s}} minimum order of {moq}",
+      "moqOverUnnamed": "; over the supplier's minimum order of {moq}",
+      "cost": "{quantity} × {unit} at cost = {total}",
+      "costStated": "{quantity} × {unit} at cost (your own cost for the product) = {total}"
+    },
+    "cover": {
+      "sourcesOnHand": "{onHand} on hand, read from {source} on {day}",
+      "assumedPace": "the coming days sell at the pace of the last {count, plural, one {{days} day} other {{days} days}} ({units} sold), give or take chance (±{band})",
+      "assumedLead": "ASSUMED delivery time: {why}",
+      "assumedSeason": "ASSUMED: this item follows your business's own season — the busy stretch is read from your {readFrom}, not from this item",
+      "assumedElapsed": "ASSUMED: it kept selling at that pace since the stock was read on {day}, {count, plural, one {{days} day} other {{days} days}} ago",
+      "windowFile": "{units} sold in the {days} days to {to}, from your stock file",
+      "windowMeasured": "{units} sold {from} to {to}, measured by {source}",
+      "sources": "{window}; {onHand} on hand, read on {day}; {lead}",
+      "sourcesSeason": "{window}; {onHand} on hand, read on {day}; {lead}; the season from your {readFrom}",
+      "colSoldOut": "sold out",
+      "colNoSales": "no sales"
+    },
+    "warning": {
+      "sentence": "{name} runs out in {range}; {lead}.",
+      "sentenceInStretch": "{name} runs out in {range}; {lead}. That counts the busy stretch you're in, to {end}.",
+      "sentenceFromStretch": "{name} runs out in {range}; {lead}. That counts your busy stretch from {start}.",
+      "head": "{name} runs out in {range}.",
+      "rangeOpen": "about {count, plural, one {{days} day} other {{days} days}} or more",
+      "rangeClosed": "about {low}–{high} days"
+    },
+    "option": {
+      "label": {
+        "content": "Feature it in a post",
+        "bundle": "Pair it with a best seller",
+        "email": "Email customers who said yes",
+        "markdown": "Mark it down",
+        "selloff": "Sell it off or send it back"
+      },
+      "inline": {
+        "content": "feature it in a post",
+        "bundle": "pair it with a best seller",
+        "email": "email customers who said yes",
+        "markdown": "mark it down",
+        "selloff": "sell it off or send it back"
+      },
+      "noPrice": "its selling price isn't known",
+      "noChannel": "you don't run a channel to post on",
+      "noBestSeller": "no best seller with stock to pair it with",
+      "noConsent": "no customer has said yes to email yet",
+      "noCost": "what it cost you isn't known",
+      "emailOff": "your own answer on customer consent was \"no consent\", so email stays off",
+      "arithmetic": {
+        "content": "{onHand} on hand × {low}–{high} sold at full price = {unitsLow}–{unitsHigh} units, {backLow}–{backHigh}; nothing given up",
+        "bundleNone": "no best seller with stock on hand to pair it with",
+        "bundle": "{onHand} on hand × {low}–{high}, capped at {cap} {seller} on hand = {unitsLow}–{unitsHigh} units, {backLow}–{backHigh}; both at full price, nothing given up",
+        "email": "{customers} customers who said yes to email × {low}–{high} buying one, capped at {onHand} on hand = {unitsLow}–{unitsHigh} units, {backLow}–{backHigh}; no discount, nothing given up",
+        "markdown": "{onHand} on hand × {low}–{high} sold at {cut} off = {unitsLow}–{unitsHigh} units, {backLow}–{backHigh}, giving up {givenLow}–{givenHigh} of the full price",
+        "selloffNone": "no cost on record to value it at",
+        "selloff": "{cost} at cost × {low}–{high} = {backLow}–{backHigh}, giving up {givenLow}–{givenHigh} against {price} at full price"
+      },
+      "efficiencyFree": "{back} likely back, nothing given up",
+      "efficiencyNet": "{back} likely back − {given} given up = {net} net ({ratio} back for every {one} given up)",
+      "unknownCurrency": "{amount} (currency unknown)"
+    },
+    "held": {
+      "slowNotInCare": "I propose ways to clear it once you've chosen how I work for you.",
+      "coverNotInCare": "I put reorder notes in your queue once you've chosen how I work for you.",
+      "watching": "I'm watching until {day}, and I propose nothing before then."
+    },
+    "source": {
+      "file": "Your stock file"
+    },
+    "history": {
+      "summary": "Cash tied up at cost in the {count, plural, one {{n} slowest item} other {{n} slowest items}}, on each stock count from {from} to {to}: {items}. A stock, read on each count day — never added across days.",
+      "oneCount": "{name} {amount} (one count)",
+      "change": "{name} from {from} to {to}"
+    },
+    "view": {
+      "notRead": "I haven't read your stock yet.",
+      "allSelling": "Everything you hold is selling.",
+      "notSelling": "{count, plural, one {{n} item that isn't selling} other {{n} items that aren't selling}}.",
+      "tiedUp": "{amount} is tied up in {count, plural, one {{n} item that isn't selling} other {{n} items that aren't selling}}.",
+      "svmOtherCurrency": "You estimated your dead stock at {stated}; what I measured isn't in {currency}, so I don't compare them.",
+      "svm": "You estimated your dead stock at {stated}; I measure {measured} at cost in stock that isn't selling — {diff} {direction, select, more {more} other {less}}. Your estimate stays on your fact sheet."
+    }
+  },
+  "cartsWords": {
+    "and": "{first} and {last}",
+    "headline": {
+      "noShop": "Abandoned carts need a connected Shopify shop.",
+      "notRead": "I haven't read your carts yet.",
+      "tooMany": "Too many checkouts to read in full.",
+      "stale": "Your carts haven't been read lately.",
+      "tooEarly": "Too early to measure your abandoned carts.",
+      "carts": "{count, plural, one {# cart was} other {# carts were}} left in the last {days, plural, one {# day} other {# days}}; {emailable} of the {shoppers, plural, one {# shopper} other {# shoppers}} can be emailed.",
+      "value": "{money} was left in carts in the last {days, plural, one {# day} other {# days}}; {emailable} of the {shoppers, plural, one {# shopper} other {# shoppers}} can be emailed."
+    },
+    "window": {
+      "now": "{from} to {to}: {started, plural, one {# checkout} other {# checkouts}} started, {left} left, {recovered} finished later.",
+      "nowShare": "{from} to {to}: {started, plural, one {# checkout} other {# checkouts}} started, {left} left, {recovered} finished later; {share} of all checkouts left unfinished.",
+      "prior": "The {days, plural, one {# day} other {# days}} before: {left} left ({money}).",
+      "priorShare": "The {days, plural, one {# day} other {# days}} before: {left} left ({money}), {share} of checkouts."
+    },
+    "notes": {
+      "yes": "{count, plural, one {# cart is} other {# carts are}} from contacts who said yes to email.",
+      "noEmail": "{count, plural, one {# cart carries no email I can read, so it isn't matched to anyone.} other {# carts carry no email I can read, so they aren't matched to anyone.}}",
+      "notContact": "{count, plural, one {# cart is from shoppers who aren't among your contacts, so it isn't emailed.} other {# carts are from shoppers who aren't among your contacts, so they aren't emailed.}}",
+      "noConsent": "{count, plural, one {# cart is from contacts with no recorded yes to email, so it isn't emailed.} other {# carts are from contacts with no recorded yes to email, so they aren't emailed.}}",
+      "suppressed": "{count, plural, one {# cart is from someone who unsubscribed or asked to be forgotten, so it isn't emailed.} other {# carts are from people who unsubscribed or asked to be forgotten, so they aren't emailed.}}"
+    },
+    "noEmailWhy": {
+      "read": "The checkout had no customer email: a draft order, or one made by an app.",
+      "notGranted": "Shopify only says who left a cart to an app that may read your customers. Add read_customers to the app in Shopify's Dev Dashboard, release it, and connect again.",
+      "refused": "The app has read_customers, but Shopify still withheld customer details. In the app's Dev Dashboard, allow access to customer data (email), release it, and the next sync matches carts.",
+      "unknown": "Shopify only says who left a cart to an app that may read your customers (read_customers)."
+    },
+    "checkout": {
+      "saidYes": "{count, plural, one {# contact} other {# contacts}} said yes to email at Shopify's checkout, recorded with when they did. If they unsubscribe in Shopify, I stop emailing them.",
+      "withdrawn": "{count, plural, one {# contact} other {# contacts}} you recorded as a yes later unsubscribed in Shopify, so I no longer email them.",
+      "differs": "{count, plural, one {Shopify lists # contact as subscribed whom you recorded differently. I left that answer as you recorded.} other {Shopify lists # contacts as subscribed whom you recorded differently. I left those answers as you recorded.}}"
+    },
+    "week": {
+      "cant": "Of the contacts who left a cart in the last week, {cant, plural, one {# can't be emailed} other {# can't be emailed}}.",
+      "recent": "Of the contacts who left a cart in the last week, {count, plural, one {# was} other {# were}} already proposed a reminder in the last {days, plural, one {# day} other {# days}}.",
+      "both": "Of the contacts who left a cart in the last week, {cant, plural, one {# can't be emailed} other {# can't be emailed}}, and {count, plural, one {# was} other {# were}} already proposed a reminder in the last {days, plural, one {# day} other {# days}}."
+    },
+    "block": {
+      "everyone": "Everyone who left a cart {min}–{max, plural, one {# day} other {# days}} ago and said yes to email was proposed a reminder in the last {days, plural, one {# day} other {# days}}.",
+      "everyoneWeek": "Everyone who left a cart in the last week and said yes to email was proposed a reminder in the last {days, plural, one {# day} other {# days}}.",
+      "nobody": "No contact who said yes to email left a cart {min}–{max, plural, one {# day} other {# days}} ago, so there is nobody to remind.",
+      "nobodyWeek": "No contact who said yes to email left a cart in the last week, so there is nobody to remind."
+    },
+    "sources": {
+      "read": "{source}, read {day}",
+      "line": "Carts and orders: {list}. Who can be emailed: each contact's own recorded consent, checked again when an email goes.",
+      "notYet": "Carts and orders: not read yet. Who can be emailed: each contact's own recorded consent, checked again when an email goes."
+    },
+    "measure": {
+      "noFullRead": "No read has landed in full yet.",
+      "lastFullRead": "The last full read was on {day}.",
+      "tooMany": "{source} has more abandoned checkouts in the last {days, plural, one {# day} other {# days}} than one read can take, and I don't show part of them as the whole.",
+      "stale": "I last read your carts from {source} on {day}, so I'm not showing a figure that may be out of date. It comes back with the next good read.",
+      "thin": {
+        "reason": "Too little to measure yet: {short}.",
+        "and": "{first} and {last}",
+        "noCarts": "no carts read yet",
+        "days": "{count, plural, one {{n} day} other {{n} days}} of carts (I need {min})",
+        "carts": "{count, plural, one {{n} cart} other {{n} carts}} left in the last {days, plural, one {# day} other {# days}} (I need {min})",
+        "readyFrom": "It will be ready from {day}.",
+        "readyOnce": "It will be ready once {count, plural, one {# cart is} other {# carts are}} left within {days, plural, one {# day} other {# days}}.",
+        "readyOnceNotBefore": "It will be ready once {count, plural, one {# cart is} other {# carts are}} left within {days, plural, one {# day} other {# days}}, and not before {day}."
+      },
+      "priorNote": "No comparison yet: the {days, plural, one {# day} other {# days}} before have {covered, plural, one {# day} other {# days}} of carts and {left} left, and a comparison needs {minDays, plural, one {# day} other {# days}} and {minCarts, plural, one {# cart} other {# carts}}."
+    },
+    "ruleOfThumb": {
+      "label": "ASSUMED",
+      "statement": "Rule of thumb, not your number: of the carts a reminder email reaches, about {low}–{high} come back as an order."
+    },
+    "held": {
+      "noConsent": "You told me your customers haven't agreed to marketing email, so I send none."
+    },
+    "productFallback": "Product {ref}"
+  },
+  "pipelineWords": {
+    "answer": "your answer to question {question}",
+    "rate": {
+      "measuredAssumed": "the next deals close the way your last {n} did ({won} won, {lost} lost, {from} to {to}); the range is how far {count, plural, one {{n} deal} other {{n} deals}} can mislead",
+      "statedAssumed": "your own win rate of {rate} (question {question}), give or take {band, plural, one {# point} other {# points}}: it's your estimate, not a measurement",
+      "none": "I don't know your win rate yet: {count, plural, one {{n} deal} other {{n} deals}} closed in the last {days, plural, one {# day} other {# days}}, and I need {min} to measure it. Tell me roughly what share you win (question {question}) and I can weigh your open deals now."
+    },
+    "weigh": {
+      "canList": "list your open deals, their values and how long each has sat in its stage",
+      "canStale": "say which deals have no next step, or a next step past its date",
+      "cantLikely": "say how much of what is open you are likely to win",
+      "cantBorrow": "borrow a win rate from other businesses and call it yours",
+      "readyAfter": "after {count, plural, one {{n} more closed deal} other {{n} more closed deals}}, or as soon as you state your win rate",
+      "readyStated": "as soon as you state your win rate",
+      "sourcePipeline": "your pipeline: {count, plural, one {{n} open deal} other {{n} open deals}}",
+      "sourceClosed": "{count, plural, one {{n} deal} other {{n} deals}} you closed between {from} and {to}",
+      "oneRate": "every open deal closes at that one rate, whatever its stage — an early lead likely closes less often than a proposal sent, so read the low end first",
+      "estimated": "{count, plural, one {{n} value is} other {{n} values are}} your estimate rather than a quote, and count the same"
+    },
+    "due": {
+      "noneDated": "No open deal has an expected close date on or before {day}. Give your deals an expected close date and I can say how much is likely won by then.",
+      "noValue": "The deals expected to close by {day} have no value yet, so I can't say how much is likely won.",
+      "sourceDates": "the expected close dates you gave on {count, plural, one {{n} open deal} other {{n} open deals}}",
+      "sourceRate": "your own win rate, from {count, plural, one {{n} deal} other {{n} deals}} you closed between {from} and {to}",
+      "oneRate": "each of these deals is won at that one rate, whatever its stage",
+      "markWon": "a deal counts as won by the date only if you mark it won in the pipeline by then",
+      "overdue": "{count, plural, one {{n} of them was expected earlier and is still open; it counts as due now} other {{n} of them were expected earlier and are still open; they count as due now}}"
+    },
+    "hold": {
+      "notB2b": "Your pipeline is for businesses that sell to other businesses: you told me you sell to consumers ({question}).",
+      "noConsent": "your own answer on customer consent ({question}) was \"no consent\" — I don’t propose emails until your data says otherwise"
+    },
+    "skip": {
+      "noneQuiet": "no deal has gone quiet",
+      "perRun": "I propose {max} at a time — this one waits for the next run",
+      "already": "already proposed this month",
+      "cantEmail": "I can't propose an email: {why}. Call them, or record their consent on Customers.",
+      "contactGone": "the contact is gone",
+      "declined": "you've declined follow-ups {count, plural, one {# time} other {# times}} — I've stopped proposing them"
+    },
+    "noName": "a contact with no name"
+  },
+  "simulateWords": {
+    "model": {
+      "label": {
+        "margin": "Your margin",
+        "aov": "What an order is worth",
+        "aovEach": "What each of them spends",
+        "recipients": "Who may be emailed",
+        "delivery": "Delivered",
+        "boughtAgain": "Bought again after it",
+        "dailyNew": "Daily budget",
+        "dailyNow": "Spends a day now",
+        "roas": "Return on ad spend",
+        "posts": "Social posts in the plan",
+        "reach": "{audience, select, views {Views per post} other {Reach per post}}",
+        "interactions": "Interactions per post",
+        "spi": "Site visits per interaction",
+        "conversion": "Visits that buy"
+      },
+      "inline": {
+        "margin": "your margin",
+        "aov": "what an order is worth",
+        "aovEach": "what each of them spends",
+        "recipients": "who may be emailed",
+        "delivery": "delivered",
+        "boughtAgain": "bought again after it",
+        "dailyNew": "daily budget",
+        "dailyNow": "spends a day now",
+        "roas": "return on ad spend",
+        "posts": "social posts in the plan",
+        "reach": "{audience, select, views {views per post} other {reach per post}}",
+        "interactions": "interactions per post",
+        "spi": "site visits per interaction",
+        "conversion": "visits that buy"
+      },
+      "notKnown": "not known",
+      "notWorkedOut": "not worked out",
+      "needLine": "{label}: {needs}",
+      "revenueFormula": "{orders} orders × {value}",
+      "profitFormula": "{revenue} × {margin} margin − {spend}",
+      "worstUnknown": "I can't size the worst case without the inputs above.",
+      "currencies": "in {currencies} — I don't convert between currencies",
+      "margin": {
+        "both": "worked out from your offers ({computed}) and as you told me ({stated}) — the range spans both",
+        "computed": "worked out from your offers: {formula}",
+        "formulaDefault": "price minus cost to deliver",
+        "stated": "as you told me (your gross margin)",
+        "needs": "your gross margin, or what each product costs you to deliver — then profit can be worked out"
+      },
+      "aov": {
+        "measured": "revenue ÷ orders on {count, plural, one {# measured day} other {# measured days}} of the last {window}, middle half",
+        "stated": "your monthly revenue ÷ your monthly orders, as you told me",
+        "needs": "a connected shop or till, or your monthly revenue and order count"
+      },
+      "email": {
+        "title": "{segment, select, lapsed {Win-back email to lapsed customers} other {Thank-you email to your best customers}}",
+        "recipientsSource": "{count, plural, one {# customer} other {# customers}} in the segment from your customer list; {emailable} said yes to email and aren't unsubscribed",
+        "noList": "no customer list yet",
+        "listNeeds": "your customer list, imported on Customers",
+        "deliverySource": "delivered ÷ sent on {count, plural, one {# past campaign} other {# past campaigns}} with delivery reports",
+        "noDelivery": "no campaign of yours has a delivery report yet",
+        "deliveryNeeds": "one sent campaign with its delivery reports",
+        "before": "before",
+        "boughtAgainOne": "{kind, select, winback {your win-back of {day}: {returned} of {measured} measured recipients bought again — one person either way} other {your thank-you of {day}: {returned} of {measured} measured recipients bought again — one person either way}}",
+        "boughtAgainMany": "{kind, select, winback {bought again ÷ measured, across your last {count, plural, one {# win-back campaign} other {# win-back campaigns}}, middle half} other {bought again ÷ measured, across your last {count, plural, one {# thank-you campaign} other {# thank-you campaigns}}, middle half}}",
+        "boughtAgainNone": "{kind, select, winback {no win-back of yours has been read back yet} other {no thank-you of yours has been read back yet}}",
+        "boughtAgainNeeds": "{kind, select, winback {one sent win-back and a customer export at least {count, plural, one {# day} other {# days}} after it} other {one sent thank-you and a customer export at least {count, plural, one {# day} other {# days}} after it}}",
+        "spendsSource": "total spent ÷ orders for {count, plural, one {# recipient} other {# recipients}}, from your customer list, middle half",
+        "costFormula": "no spend — the email sends on your plan",
+        "reachedFormula": "{recipients} recipients × {rate} delivered",
+        "ordersFormula": "{recipients} recipients × {rate} bought again",
+        "worstFormula": "nobody buys again: nothing in, nothing spent",
+        "worstWords": "Nobody buys again: {zero} in, {zero} spent.",
+        "harmWords": "At your worst past campaign's rate ({rate}), about {count, plural, one {# person} other {# people}} would unsubscribe — honoured at once, for good.",
+        "what": "{segment, select, lapsed {One email, in your voice, to the {emailable} lapsed customers who said yes to email.} other {One email, in your voice, to the {emailable} best customers who said yes to email.}}",
+        "whatNoList": "One email to a segment of your customers — once your customer list is in.",
+        "assumption": "{kind, select, winback {This send does what your past win-back emails did.} other {This send does what your past thank-you emails did.}}",
+        "assumptionSource": "my projection — the next campaign isn't measured until it's sent",
+        "keyRate": "bought again",
+        "noConsent": "You told me your customers gave no consent to email, so outbound email stays off.",
+        "nobodyEmailable": "Nobody in this segment said yes to email, so there's no one to send it to.",
+        "importFirst": "Import your customer list on Customers first."
+      },
+      "ads": {
+        "thisCampaign": "this campaign",
+        "metaNeeds": "your Meta ad account, connected on Connections",
+        "typedSource": "the budget you typed here",
+        "typedNeeds": "the daily budget you have in mind",
+        "newSpendFormula": "{daily} a day × {days} days",
+        "dailySource": "Meta: {spend} over {count, plural, one {# measured day} other {# measured days}} of the last {window}",
+        "noSpend": "no measured spend in the last four weeks",
+        "dailyNeeds": "a few weeks of this campaign running",
+        "pauseFormula": "{daily} a day not spent × {days} days",
+        "changeFormula": "{daily} a day × {change} × {days} days",
+        "roasSource": "{which, select, pooled {Meta-attributed purchases ÷ spend, per rolling {block}-day week over the last {window} days, across your measured campaigns, middle half ({count, plural, one {# week} other {# weeks}})} other {Meta-attributed purchases ÷ spend, per rolling {block}-day week over the last {window} days, middle half ({count, plural, one {# week} other {# weeks}})}}",
+        "roasNonePooled": "no campaign of yours has {days} measured days in {currency}",
+        "roasNone": "{count, plural, one {# measured day} other {# measured days}} — I need {need}",
+        "roasNeeds": "{which, select, pooled {{days} measured days of a campaign} other {{days} measured days of this campaign}}",
+        "reachNotRead": "Meta's reach per campaign isn't read",
+        "ordersNotRead": "Meta reports purchase value per campaign, not a count",
+        "revenueFormula": "{spend} × return {roas} (Meta's attribution)",
+        "worstFormula": "{spend} × return {roas} × {margin} − {spend}",
+        "worstWeakest": "Every week returns what your weakest measured week did ({roas}): {amount} over {days} days.",
+        "worstBest": "The weeks you'd stop were as good as your best measured week ({roas}): {amount} over {days} days.",
+        "worstUnsized": "At worst all {amount} goes out and little comes back — I can't size it without the inputs above.",
+        "guardCurrency": "your ad ceiling is in {ceiling} and this budget is in {currency} — I won't convert to compare them",
+        "guardCeiling": "it would take monthly ad spend to about {projected}, over your stated ceiling of {ceiling}",
+        "titleNew": "Start a new campaign at {amount} a day",
+        "titleNewOpen": "Start a new campaign at a budget you choose",
+        "titleRaise": "Raise \"{name}\" by {share}",
+        "titleCut": "Cut \"{name}\" by {share}",
+        "titlePause": "Pause \"{name}\"",
+        "whatNew": "A new Meta campaign, judged on what your other campaigns return.",
+        "whatPause": "Stop the campaign: what it spends stays with you, and what Meta says it brings in stops too.",
+        "whatRaise": "More daily budget on a campaign you already run.",
+        "whatCut": "Less daily budget on a campaign you already run.",
+        "newNotProposable": "A new ad starts from a post or video: on Content, \"Run this as an ad\" makes one proposal that creates it on Meta, paused ({task}). From here I can only size it.",
+        "tooFewDays": "I propose ad changes only with {days} measured days behind them.",
+        "guarded": "I won't propose this: {guard}.",
+        "assumeStop": "The spend you stop was returning what the campaign's recent weeks did.",
+        "assumeExtra": "Extra spend returns what the recent weeks returned.",
+        "assumptionSource": "my projection from Meta's own attribution — some of those purchases might have happened anyway",
+        "keyRate": "return on ad spend"
+      },
+      "content": {
+        "postNeeds": "{count, plural, one {# published post measured a week after posting} other {# published posts measured a week after posting}}",
+        "postNeedsConnect": "your Instagram or Facebook page connected for publishing, and a few posts measured",
+        "postsSource": "{count, plural, one {# social channel} other {# social channels}} × {perWeek} a week × {weeks} weeks — the calendar's social posts; its email and website pieces aren't simulated",
+        "noChannel": "no social channel on your profile",
+        "channelNeeds": "a social channel you post on, added to your profile",
+        "reachSource": "{platform}, day {age} after posting, your last {count, plural, one {# post} other {# posts}}, middle half",
+        "interactionsSource": "{platform}, day {age}, your last {count, plural, one {# post} other {# posts}}, middle half",
+        "measured": "{count, plural, one {# post} other {# posts}} measured",
+        "spiNone": "visits from social aren't measured against your posts yet",
+        "spiSource": "{visits} visits from \"{channel}\" ÷ {interactions} interactions on your posts, last {days} days",
+        "spiNeeds": "a month of posts measured beside your Google Analytics visits from social",
+        "spiNeedsConnect": "Google Analytics connected, so I can see visits from social",
+        "conversionSource": "orders ÷ visits on {count, plural, one {# measured day} other {# measured days}} of the last {window}, middle half",
+        "conversionStated": "your monthly orders ÷ your monthly site visits, as you told me",
+        "conversionNeeds": "Google Analytics and your shop connected, or your monthly visits and orders",
+        "costFormula": "no spend — your time reviewing the drafts",
+        "reachedFormula": "{audience, select, views {{posts} posts × {reach} views} other {{posts} posts × {reach} reach}}",
+        "ordersFormula": "{posts} posts × {interactions} interactions × {visits} visits each × {rate} buy",
+        "worstFormula": "nobody buys: nothing in, nothing spent",
+        "title": "A {weeks}-week content calendar",
+        "what": "{count, plural, one {# post on the social channels you already run, drafted in your voice, each one waiting for your yes.} other {# posts on the social channels you already run, drafted in your voice, each one waiting for your yes.}}",
+        "whatNone": "Posts on the social channels you already run — once one is on your profile.",
+        "assumption": "{channels, select, many {The planned posts do what your last {platform} posts did, on every channel.} other {The planned posts do what your last {platform} posts did.}}",
+        "assumptionSource": "my projection from your own measured posts",
+        "worstWeakest": "Every post reaches what your weakest did ({weakest}) and nobody buys: {zero} lost, only your review time.",
+        "worstNone": "Nobody buys: {zero} lost, only your review time.",
+        "keyRate": "{audience, select, views {views per post} other {reach per post}}",
+        "addChannel": "Add a social channel you post on to your profile first."
+      }
+    },
+    "cross": {
+      "readback": "The readback so far: {helped} helped, {nothing} did nothing, {backfired} backfired.",
+      "none": "{kind, select, email {Not measured yet: none of my past email campaigns carried a predicted range to check.} other {Not measured yet: none of my past ad changes carried a predicted range to check.}}",
+      "notReadBack": "{kind, select, email {{count, plural, one {Not measured yet: my last email campaign with a predicted range hasn't been read back yet.} other {Not measured yet: my last {simulated} email campaigns with a predicted range haven't been read back yet.}}} other {{count, plural, one {Not measured yet: my last ad change with a predicted range hasn't been read back yet.} other {Not measured yet: my last {simulated} ad changes with a predicted range haven't been read back yet.}}}}",
+      "lastOne": "{kind, select, email {{landed, select, inside {My last email campaign landed inside its predicted range.} other {My last email campaign landed outside its predicted range.}}} other {{landed, select, inside {My last ad change landed inside its predicted range.} other {My last ad change landed outside its predicted range.}}}}",
+      "lastMany": "{kind, select, email {My last {checked} email campaigns landed inside their predicted range {count, plural, one {once} other {{inside} times}}.} other {My last {checked} ad changes landed inside their predicted range {count, plural, one {once} other {{inside} times}}.}}",
+      "contentNone": "Not measured yet: none of my past content calendars carried a predicted range to check.",
+      "contentNotAdded": "Not measured yet: a calendar's posts are judged one by one, and I don't yet add them up against the calendar's predicted range."
+    },
+    "pricing": {
+      "refuse": {
+        "zero": "a new price has to be above zero",
+        "notAChange": "that isn't a price change",
+        "tooSmall": "that's less than a {share} change — too small to simulate",
+        "tooBig": "I simulate changes up to {share} either way; past that the response band is no fair guide"
+      },
+      "title": {
+        "share": "{change} → {price}",
+        "exact": "{price} ({change})"
+      },
+      "label": {
+        "price": "Price now",
+        "cost": "Cost to deliver one",
+        "volume": "{kind, select, service {Bookings every {days} days} other {Sales a month}}",
+        "response": "How customers answer the price",
+        "capacity": "Room in the book, {days} days"
+      },
+      "inline": {
+        "price": "price now",
+        "cost": "cost to deliver one",
+        "volume": "{kind, select, service {bookings every {days} days} other {sales a month}}",
+        "response": "how customers answer the price",
+        "capacity": "room in the book, {days} days"
+      },
+      "notKnown": "not known",
+      "needLine": "{label}: {needs}",
+      "noPrice": "{name} has no price on your profile yet",
+      "priceNeeds": "the price of {name}",
+      "costOtherCurrency": "recorded in {costCurrency}, the price is in {currency} — I don't convert between currencies",
+      "costNeedsService": "what one {name} costs you to deliver — list \"{name}\" among what you sell, with its cost, and I'll match it to your bookings",
+      "costNeedsIn": "what one {name} costs you to deliver in {currency}",
+      "costNeeds": "what one {name} costs you to deliver",
+      "volumeNeedsService": "your bookings with {name}, imported or connected",
+      "volumeNeeds": "roughly how many {name} you sell a month",
+      "responseSource": "for each {one} on the price, {low} to {high} of {kind, select, service {bookings} other {sales}} move the other way — {why}",
+      "band": {
+        "shop": "goods a customer can compare and often buy elsewhere tend to answer a price change strongly",
+        "hospitality": "a meal or a night is partly the place and the habit, so customers answer price less than in a shop",
+        "appointments": "clients who book a person they trust tend to stay through a price change; some go",
+        "services": "a service bought on trust answers price less than goods do, but a quote can be compared",
+        "default": "the kind of business isn't on your profile, so the band is the widest I use"
+      },
+      "capacityNeeds": "how many appointments you can take a week — then a cut is held to the room you have",
+      "be": {
+        "needPrice": "I need the price of {name} first.",
+        "change": "{dir, select, rise {a {share} rise} other {a {share} cut}}",
+        "changeStart": "{dir, select, rise {A {share} rise} other {A {share} cut}}",
+        "costNeed": "what one costs you to deliver",
+        "neverToday": "At today's {price} each {kind, select, service {booking} other {sale}} already costs you {cost} to deliver, so there is no profit on it today to break even against — look at the cost before the price.",
+        "unitFormula": "{kind, select, service {{price} − {cost} = {margin} a booking} other {{price} − {cost} = {margin} a sale}}",
+        "neverNew": "At {price} each {kind, select, service {booking} other {sale}} would cost you {cost} to deliver — every extra one loses money, so no amount of extra {kind, select, service {bookings} other {sales}} makes {change} pay.",
+        "shareFormula": "({high} − {low}) ÷ ({next} − {cost}) = {share}",
+        "shareFormulaNoCost": "({high} − {low}) ÷ {next} = {share} — with no cost to deliver counted",
+        "formulaOf": "{formula} of {volume} {kind, select, service {bookings} other {sales}} = {units}",
+        "loseShare": "{change} pays as long as you lose fewer than {share} of your {kind, select, service {bookings} other {sales}}.",
+        "loseCount": "{change} pays as long as you lose fewer than {count} of your ~{volume} {kind, select, service {bookings every {days} days} other {sales a month}} ({share}).",
+        "loseShareAnyCost": "Whatever each one costs you, {change} pays as long as you lose fewer than {share} of your {kind, select, service {bookings} other {sales}}.",
+        "loseCountAnyCost": "Whatever each one costs you, {change} pays as long as you lose fewer than {count} of your ~{volume} {kind, select, service {bookings every {days} days} other {sales a month}} ({share}).",
+        "needCostShare": "To say how many more {kind, select, service {bookings} other {sales}} {change} needs, I need what one costs you to deliver. With no cost counted it needs at least {share} — the true figure is higher.",
+        "needCostCount": "To say how many more {kind, select, service {bookings} other {sales}} {change} needs, I need what one costs you to deliver. With no cost counted it needs at least {count} more ({share}) — the true figure is higher.",
+        "noRoom": "Your book has room for {room} more in {days} days, so it can't pay from extra bookings alone.",
+        "winShare": "{change} pays only if you win more than {share} more {kind, select, service {bookings} other {sales}}.",
+        "winCount": "{change} pays only if you win more than {count} extra {kind, select, service {bookings} other {sales}} on your ~{volume} {kind, select, service {every {days} days} other {a month}} (+{share})."
+      },
+      "formula": {
+        "volume": "{volume} {kind, select, service {bookings} other {sales}} × ({one} {sign} {share} × {band}){held, select, yes {, held to the {room} more your book has room for} other {}}",
+        "revenue": "{low} – {high} {kind, select, service {bookings} other {sales}} × {next} − {volume} × {price}",
+        "profit": "{low} – {high} × ({next} − {cost}) − {volume} × ({price} − {cost})",
+        "worst": "{units} × ({next} − {cost}) − {volume} × ({price} − {cost})"
+      },
+      "worstUnknown": "I can't size the worst case without the inputs above.",
+      "worstWords": "Customers answer at the {end, select, strong {strong} other {gentle}} end of the band: {kind, select, service {bookings} other {sales}} {dir, select, fall {fall} other {rise}} {share} to about {units}, and profit on {name} moves {amount} {kind, select, service {every {days} days} other {a month}}.",
+      "assumeBand": "Customers answer this change as the band says, for a rise or a cut alike, and nothing else changes in the meantime.",
+      "bandSource": "a planning assumption for this kind of business, not a measurement — nobody has measured how your customers answer a price change yet",
+      "assumeFits": "Extra bookings fit in the book.",
+      "assumeFitsSource": "you haven't told me your weekly capacity, so I can't hold the gain to the room you have",
+      "headPick": "Pick a price change for {name} to see what it can lose and still pay.",
+      "headNoPrice": "{name} has no price on your profile yet."
+    },
+    "items": {
+      "observed": "measured from your connected account",
+      "estimated": "your estimate",
+      "derived": "worked out from your other figures",
+      "told": "as you told me",
+      "unnamed": "Unnamed",
+      "perOrderCost": "A per-order cost",
+      "bookingsExport": "your bookings export",
+      "capacitySource": "your stated {perWeek} appointments a week × {weeks} weeks, less the {taken} completed {from} to {to}",
+      "priceSource": "the average listed price of {count, plural, one {{n} completed appointment} other {{n} completed appointments}}, {from} to {to}, from {source}",
+      "volumeSource": "completed appointments {from} to {to}, from {source}"
+    }
+  },
+  "benchmarksWords": {
+    "group": {
+      "G47": "shops",
+      "G479": "online and mail-order shops",
+      "I56": "restaurants, cafés and bars",
+      "C10": "food makers",
+      "S96": "personal service businesses",
+      "R931": "sports businesses",
+      "Q86": "health businesses",
+      "F": "construction businesses",
+      "F43": "building trades",
+      "N812": "cleaning businesses",
+      "G452": "garages",
+      "M": "professional firms",
+      "M702": "management consultancies",
+      "M731": "advertising agencies",
+      "J62": "IT firms",
+      "J582": "software publishers",
+      "P855": "training providers",
+      "Q889": "day-care and social care services",
+      "L68": "real estate businesses",
+      "H": "transport and storage businesses",
+      "C": "manufacturers",
+      "G46": "wholesalers",
+      "M74": "design and photography businesses",
+      "I55": "places to stay",
+      "H49": "land transport businesses",
+      "G": "wholesalers, shops and motor trades",
+      "G45": "car dealers and garages",
+      "I": "places to stay, restaurants, cafés and bars",
+      "J": "information and communication businesses",
+      "J58": "publishers",
+      "L": "real estate businesses",
+      "M70": "head offices and consultancies",
+      "M73": "advertising and market research businesses",
+      "N81": "building services and cleaning businesses",
+      "P85": "education businesses",
+      "Q": "health and social care services",
+      "Q88": "social care services without accommodation",
+      "R93": "sports and recreation businesses"
+    },
+    "covers": {
+      "G47": "All retail except cars: shops of every kind, market stalls and online sellers (NACE {code}).",
+      "G479": "Retail that isn't in a shop, stall or market: online and mail-order sellers (NACE {code}). A business that also has its own shop is counted here when most of its sales are online.",
+      "I56": "All food and drink service: restaurants, cafés, bars, takeaways and caterers together (NACE {code}).",
+      "C10": "Making food products, bakeries among them (NACE {code}).",
+      "S96": "All other personal services: hairdressing and beauty, spas and saunas, laundries and funeral services together (NACE {code}). Eurostat doesn't split it further.",
+      "R931": "Sports activities: gyms, sports clubs and sports facilities (NACE {code}).",
+      "Q86": "All human health activities: hospitals, medical and dental practices, and other care such as physiotherapy, together (NACE {code}).",
+      "F": "All construction: buildings, civil engineering and the specialised trades (NACE {code}).",
+      "F43": "Specialised construction: electricians, plumbers, joiners, plasterers, painters and roofers (NACE {code}). A trade outside building isn't here.",
+      "N812": "Cleaning of buildings, homes and industrial premises (NACE {code}).",
+      "G452": "Maintenance and repair of motor vehicles (NACE {code}). A car dealer is counted in {other} instead.",
+      "M": "All professional, scientific and technical activities: law, accounting, architecture, engineering, consulting, design and more (NACE {code}).",
+      "M702": "Management consultancy (NACE {code}).",
+      "M731": "Advertising agencies and selling media space (NACE {code}).",
+      "J62": "Computer programming, IT consultancy and running computers for others (NACE {code}).",
+      "J582": "Software publishing (NACE {code}). Software firms that mostly build to order are counted in {other} instead.",
+      "P855": "Other education: tutoring, language and driving schools, and training courses (NACE {code}). Schools themselves are counted elsewhere.",
+      "Q889": "Other social work without accommodation, child day-care among it (NACE {code}).",
+      "L68": "All real estate: buying, selling and letting property, and agents (NACE {code}).",
+      "H": "All transport and storage: haulage, warehousing, couriers and the rest (NACE {code}).",
+      "C": "All manufacturing (NACE {code}).",
+      "G46": "Wholesale trade except cars (NACE {code}).",
+      "M74": "Other professional activities: design, photography, translation and more, together (NACE {code}).",
+      "I55": "Accommodation: hotels, holiday lets and campsites (NACE {code}). A tour operator is counted in {other} instead.",
+      "H49": "Land transport: taxis, buses, coaches and road haulage (NACE {code})."
+    },
+    "unmapped": {
+      "agriculture": "Farming (NACE section A) isn't in Eurostat's business statistics.",
+      "events": "Events businesses span venues, planners and caterers, which Eurostat counts in different groups, so no one group is honest.",
+      "nonprofit": "Eurostat's business statistics count businesses that sell; a nonprofit's figures mean something different.",
+      "other": "There's no one group to compare a business described as other with."
+    },
+    "title": {
+      "operating_margin": "Operating margin",
+      "turnover_per_person": "Turnover a year per person",
+      "staff_cost_per_employee": "Staff cost a year per employee"
+    },
+    "gapNote": {
+      "operating_margin": "Eurostat's rate is before the pay of owners who aren't on a payroll, and before interest, depreciation and tax. If your costs list includes pay for yourself, yours reads lower than theirs would.",
+      "turnover_per_person": "Eurostat's turnover leaves out VAT. If your revenue figure includes VAT, yours reads higher than theirs would.",
+      "staff_cost_per_employee": "Eurostat's figure includes the employer's social contributions, and counts a part-timer as one person. If your staff costs are the pay alone, yours reads lower than theirs would."
+    },
+    "caveat": "These are totals across every business in the group, not a typical business.",
+    "size": {
+      "upTo": "{count, plural, one {with up to {n} person} other {with up to {n} people}}",
+      "range": "with {min}–{max} people",
+      "atLeast": "with {min} or more people",
+      "every": "of every size"
+    },
+    "flag": {
+      "e": "estimated",
+      "b": "break in time series"
+    },
+    "cell": {
+      "words": "all {group} {size} in {country}, {year}, Eurostat",
+      "unpublished": "Eurostat doesn't publish this for {group} {size} in {country}, so this is {usedGroup} {usedSize} in {country}.",
+      "confidential": "Eurostat keeps this confidential ({year}) for {group} {size} in {country}, so this is {usedGroup} {usedSize} in {country}.",
+      "everySize": "Eurostat works that out from the whole sector's totals, so the biggest firms weigh most in it; read it loosely against a business your size."
+    },
+    "conversion": "Converted from euros at {rate} {currency} to the euro, {year}'s average (Eurostat, {dataset}).",
+    "gap": {
+      "pointsAbove": "{count, plural, one {{points} point above} other {{points} points above}}",
+      "pointsBelow": "{count, plural, one {{points} point below} other {{points} points below}}",
+      "moneyShareAbove": "{amount} ({share}) above",
+      "moneyShareBelow": "{amount} ({share}) below",
+      "moneyAbove": "{amount} above",
+      "moneyBelow": "{amount} below",
+      "same": "about the same: {gap}"
+    },
+    "formula": {
+      "margin": "({parts}) ÷ {revenue} × {hundred} = {result}",
+      "revenue": "{amount} revenue",
+      "costOfSales": "{amount} cost of sales",
+      "perSale": "{amount} per-sale costs",
+      "running": "{amount} running costs",
+      "staff": "{amount} staff pay",
+      "turnover": "{amount} a month × {months} ÷ {count, plural, one {{persons} person} other {{persons} people}} = {result}",
+      "staffCost": "{amount} a month × {months} ÷ {count, plural, one {{employees} employee} other {{employees} employees}} = {result}"
+    },
+    "input": {
+      "revenue": "Revenue a month",
+      "costOfSales": "Cost of sales",
+      "ofSales": "{share} of sales",
+      "offersSource": "{count, plural, one {what your offer costs to deliver, at your prices and monthly volumes} other {what your {n} offers cost to deliver, at your prices and monthly volumes}}",
+      "marginSource": "{whole} less your gross margin of {margin}",
+      "perSale": "Per-sale costs a month",
+      "perSaleSource": "your per-piece and per-order costs, at your volumes",
+      "running": "Running costs a month",
+      "runningSource": "your costs list, made monthly",
+      "runningStaffSource": "your costs list, made monthly, staff pay included",
+      "staffTeam": "{count, plural, one {Staff pay, {n} on your team list} other {Staff pay, {n} on your team list}}",
+      "teamList": "your team list",
+      "people": "People working in the business, you included",
+      "staffMonth": "Staff pay a month",
+      "salariesSource": "the salaries on your costs list",
+      "employees": "Employees on your team list",
+      "employeesSource": "your team list, each person marked employee counted once"
+    },
+    "leftOut": {
+      "inGrossMargin": "{label}: already inside the gross margin you gave.",
+      "otherCurrency": "{label}: it's in {currency}, not {own}.",
+      "noAmount": "{label}: it has no amount.",
+      "perPiece": "{label}: it's per piece, and your offers list doesn't say how many you sell a month.",
+      "perOrder": "{label}: it's per order, and I don't know how many orders you take a month.",
+      "loan": "{label}: a loan repayment, and Eurostat's rate is before interest and doesn't count the loan itself.",
+      "noConvert": "{label}: it's in {currency}, and I don't convert your own costs.",
+      "noFrequency": "{label}: it has no frequency, so I can't make it a month."
+    },
+    "need": {
+      "revenue": "your monthly revenue",
+      "offerCosts": "what each offer costs you to deliver",
+      "grossMargin": "your gross margin",
+      "offerVolumes": "roughly how many of each offer you sell a month",
+      "orders": "roughly how many orders you take a month",
+      "amountOf": "the amount of {label}",
+      "howOften": "how often you pay {label}",
+      "salaries": "what you pay in salaries, in {currency}, and how often",
+      "employeeCost": "what each employee costs a month",
+      "whoAndCost": "who works in the business, and what each costs a month",
+      "teamSize": "how many people work in the business, you included",
+      "team": "who works in the business",
+      "type": "what type of business this is",
+      "country": "which country the business operates in"
+    },
+    "why": {
+      "unpricedEmployees": "{count, plural, one {One employee on your team list has no monthly cost in {currency}, and staff pay is too big a part of a margin to leave out.} other {{n} employees on your team list have no monthly cost in {currency}, and staff pay is too big a part of a margin to leave out.}}",
+      "unknownStaff": "I don't know whether anyone besides you is paid, and staff pay is too big a part of a margin to leave out.",
+      "needsRevenue": "It needs your monthly revenue.",
+      "zeroRevenue": "Your monthly revenue is zero, so there's no margin to work out.",
+      "needsCostOfSales": "It needs what your sales cost you: each offer's cost to deliver with how many you sell a month, or your gross margin.",
+      "payLines": "{count, plural, one {The pay line {label} on your costs list has no monthly amount in {currency} I can count, and staff pay is too big a part of a margin to leave out.} other {{n} pay lines on your costs list have no monthly amount in {currency} I can count, and staff pay is too big a part of a margin to leave out.}}",
+      "noCell": "Eurostat publishes no figure for this for {group} in {country}, at any size, or for the wider group.",
+      "noRate": "I have no euro rate for {currency} in {year}, so I can't set Eurostat's figure in your currency.",
+      "needsTurnover": "It needs your monthly revenue and how many people work in the business.",
+      "needsTeam": "It needs your team list: who works in the business, and what each employee costs a month.",
+      "noEmployees": "Your team list has no employees, so there's no staff cost to compare.",
+      "needsStaffCost": "It needs what your employees cost a month.",
+      "noType": "I don't know what kind of business this is yet.",
+      "noGroup": "I have no Eurostat group for this kind of business.",
+      "noCountry": "I don't know which country the business is in.",
+      "unknownCountry": "I can't tell which country \"{country}\" is.",
+      "outsideEu": "Eurostat's figures cover the {count} EU countries, and {country} isn't one of them."
+    }
+  },
+  "blindspotsWords": {
+    "check": {
+      "opening_hours": "Opening hours",
+      "prices": "Prices",
+      "menu": "Menu",
+      "location_map": "Address and map",
+      "parking": "Parking",
+      "phone_contact": "A phone number",
+      "contact_email": "An email address",
+      "booking": "Booking or reservations",
+      "reviews": "Reviews or testimonials",
+      "events": "Events and what's on",
+      "photos": "Photos of the place or work",
+      "dietary_options": "Dietary options",
+      "delivery": "Delivery and its cost",
+      "returns_policy": "Returns policy",
+      "payment_methods": "Payment methods",
+      "service_area": "The area served",
+      "quote_request": "A way to get a quote",
+      "portfolio": "Past work",
+      "credentials": "Qualifications and licences",
+      "guarantee": "A guarantee",
+      "faq": "Answers to common questions",
+      "team": "Who you'll deal with",
+      "stock_availability": "Whether it's in stock"
+    },
+    "fix": {
+      "default": "a website change through the approval queue, or an answer in your support assistant"
+    },
+    "arithmetic": {
+      "notFound": "not found on your site; {details}",
+      "asked": "{count, plural, one {asked {n} time(s) in your support chat} other {asked {n} time(s) in your support chat}}",
+      "askedUnanswered": "{count, plural, one {asked {n} time(s) in your support chat, {unanswered} left unanswered} other {asked {n} time(s) in your support chat, {unanswered} left unanswered}}",
+      "unanswered": "{count, plural, one {{n} unanswered support question(s)} other {{n} unanswered support question(s)}}",
+      "searched": "{count, plural, one {searched for {n} time(s) on your site} other {searched for {n} time(s) on your site}}",
+      "google": "{count, plural, one {{n} Google search impression(s), {clicks} click(s)} other {{n} Google search impression(s), {clicks} click(s)}}",
+      "competitors": "{count, plural, one {{shown} of {checked} competitor(s) we checked show it} other {{shown} of {checked} competitor(s) we checked show it}}"
+    },
+    "coverage": {
+      "siteNotChecked": "your website hasn't been checked yet, so nothing can be called missing from it",
+      "noSupport": "no support conversations in the window",
+      "noSiteSearch": "no site-search terms (Google Analytics with site search)",
+      "noGoogle": "no Google searches (connect Search Console)",
+      "googleHides": "Google hides rare searches for privacy, so the searches counted add up to a little less than Google's total",
+      "noCompetitors": "no competitors researched",
+      "unmatched": "{count, plural, one {{n} support question(s) matched none of the usual checks — they're counted, not quoted} other {{n} support question(s) matched none of the usual checks — they're counted, not quoted}}"
+    },
+    "siteNote": {
+      "noSite": "no website in the profile",
+      "unreadable": "the website couldn't be read: {detail}"
+    }
+  },
+  "goalsWords": {
+    "metric": {
+      "revenue": "revenue",
+      "orders": "orders",
+      "sessions": "website visits"
+    },
+    "area": {
+      "launch": "launch",
+      "first_customers": "first customers",
+      "increase_revenue": "increase revenue",
+      "reduce_costs": "reduce costs",
+      "automate_work": "automate work",
+      "improve_marketing": "improve marketing",
+      "hire_people": "hire people",
+      "expand_locations": "expand locations",
+      "improve_profit": "improve profit",
+      "other": "other"
+    },
+    "baseline": {
+      "noSource": "no connected source measures {metric}",
+      "currencies": "{metric} is measured in {currencies} — one currency is needed",
+      "fewDays": "{count, plural, one {{n} measured day(s) in the {window} before {day} — a baseline needs {min}} other {{n} measured day(s) in the {window} before {day} — a baseline needs {min}}}",
+      "otherCurrency": "{metric} is measured in {currency}, the target is in {target}"
+    },
+    "check": {
+      "detail": "{verdict}: {arithmetic}.",
+      "verdict": {
+        "achieved": "Goal reached",
+        "on_track": "On track",
+        "lagging": "Behind the path",
+        "off_track": "Off track",
+        "too_early": "Too early to judge",
+        "unmeasured": "Can't be measured yet"
+      },
+      "amount": "{value} {metric} per {days} days",
+      "notInCare": "the business has not entered care yet",
+      "underCare": "{count, plural, one {under care since {since} — progress is judged from {from} ({n} week)} other {under care since {since} — progress is judged from {from} ({n} weeks)}}",
+      "watching": "still in the watching period until {day}",
+      "goalNew": "the goal was set on {day} — its first full {days}-day window ends {ends}",
+      "noBaseline": "no measured baseline for {metric} before {day} — connect a source and the history fills it",
+      "fewDays": "{count, plural, one {{n} measured day(s) in the last {window} — a verdict needs {min}} other {{n} measured day(s) in the last {window} — a verdict needs {min}}}",
+      "noCurrent": "no measured {metric} in the last {days} days",
+      "path": "{actual} over the last {days} measured days, against {expected} expected by {today} on the path from {baseline} ({baselineDay}) to {target} ({deadline})",
+      "reached": "target reached: {path}",
+      "progress": "{path} — {ratio} of the expected progress, {shortfall} behind the path",
+      "away": "moving away from the target: {detail}"
+    }
+  },
+  "patternsWords": {
+    "season": {
+      "headline": {
+        "flat": "Most of your weeks measured no {noun}, so there is no normal week to compare a season with.",
+        "stale": "Only {count, plural, one {# week} other {# weeks}} of the last {weeks, number} were measured in full (the last measured day is {day}) — too few to name your seasons.",
+        "shortMonths": "I have {months, plural, one {about # month} other {about # months}} of your {noun} — not enough to say which weeks of the year are your busy ones.",
+        "shortDays": "I have {count, plural, one {# day} other {# days}} of your {noun} — not enough to say which weeks of the year are your busy ones.",
+        "underWay": "Your busy weeks are under way: last year the same stretch ran {ratio} your normal week.",
+        "startsThisWeek": "Your busy stretch starts this week: last year it ran {ratio} your normal week.",
+        "startsIn": "Your busy stretch starts in {count, plural, one {# week} other {# weeks}}: last year it ran {ratio} your normal week.",
+        "nothingAhead": "Nothing busy in the next {weeks, plural, one {# week} other {# weeks}} last year; your busiest stretch ran {ratio} your normal week from {day}.",
+        "steady": "No stretch of the last year ran far from your normal week: your {noun} is steady through the year."
+      },
+      "can": {
+        "compare": "Show your {count, plural, one {# complete week} other {# complete weeks}} against each other, and spot a week that ran well above or below the rest.",
+        "count": "Count each day as it is measured.",
+        "catch": "Catch a sudden drop or spike against the last four weeks (that runs nightly already)."
+      },
+      "cannot": {
+        "year": "Say which weeks or months of the year run above or below your normal: one year of your own history is the least that shows a season.",
+        "forecast": "Forecast the coming weeks from the same weeks last year — I don't have last year.",
+        "borrow": "Borrow a season from other businesses like yours. An industry average isn't your history, so I don't present one as yours."
+      },
+      "upcoming": "The {count, plural, one {# week} other {# weeks}} from {from} to {to} last year ran {ratio} your normal week — {kind, select, busy {above it} other {below it}}. {when}",
+      "when": {
+        "underWay": "The same weeks this year are under way now, to {day}.",
+        "thisWeek": "The same weeks this year start this week, on {day}.",
+        "startsIn": "The same weeks this year start in {count, plural, one {# week} other {# weeks}}, on {day}."
+      },
+      "notes": {
+        "oneYear": "One year is one example of your seasons: it says what happened last year, not what will. The range is how far your middle half of weeks spreads.",
+        "years": "{count, plural, one {# year} other {# years}} of your own history went into the ranges: each year's week against that year's own normal.",
+        "normal": "Normal is your median week of the last {weeks, number}: {count, plural, one {# complete week} other {# complete weeks}} from {from} to {to}.",
+        "rule": "Busy is {busy} your normal or more, quiet {quiet} or less, {count, plural, one {# week} other {# weeks}} or more in a row: a single week can be a one-off.",
+        "gaps": "{count, plural, one {# week} other {# weeks}} of the last {weeks, number} weren't measured in full, so they are left out, not guessed.",
+        "lastDay": "The last measured day is {day}: the forecast reads up to then."
+      }
+    },
+    "noun": {
+      "revenue": "revenue",
+      "bookingRevenue": "booking revenue",
+      "orders": "orders",
+      "appointments": "appointments",
+      "visits": "visits"
+    },
+    "source": {
+      "bookingsExport": "your bookings export",
+      "stockFile": "your stock file"
+    },
+    "connect": {
+      "shop": "Connect Shopify or WooCommerce, or your till through Square, and I'll draw this",
+      "hospitality": "Connect your till through Square, or Stripe, and I'll draw this",
+      "appointments": "Import your bookings export or connect Square, and I'll draw this",
+      "services": "Connect Stripe, or the shop or till you take payments through, and I'll draw this",
+      "default": "Connect your shop or till, or Stripe, or import your bookings, and I'll draw this"
+    },
+    "margin": {
+      "noPrice": "no price on record for {count, plural, one {{a}} other {{a} or {b}}}",
+      "currencies": "their prices are in different currencies",
+      "noCost": "no cost on record for {count, plural, one {{a}} other {{a} or {b}}}, so the margin is unknown rather than assumed"
+    },
+    "product": "Product {ref}",
+    "held": {
+      "choose": "I propose once you've chosen how I work for you.",
+      "watching": "I'm watching until {day}, and I propose nothing before then."
+    }
+  },
+  "competitorsWords": {
+    "price": {
+      "from": "from {amount}"
+    },
+    "rating": {
+      "of": "{rating} of {best}"
+    },
+    "change": {
+      "new": "{who} now lists {name} at {price}.",
+      "changed": "{who} now prices {name} at {price}; it was {before}.",
+      "cheaper": "{who} cut its {name} price from {before} to {price}.",
+      "dearer": "{who} raised its {name} price from {before} to {price}.",
+      "gone": "{who} no longer lists {name} (it was {before}).",
+      "rating": "{who}'s rating moved from {before} to {after}.",
+      "ratingCount": "{who}'s rating moved from {before} to {after} ({count, plural, one {{reviews} reviews} other {{reviews} reviews}})."
+    },
+    "gap": {
+      "same": "the same as yours",
+      "below": "{amount} below yours",
+      "above": "{amount} above yours",
+      "belowPct": "{amount} below yours ({pct})",
+      "abovePct": "{amount} above yours ({pct})"
+    },
+    "note": {
+      "noPrice": "you haven't told me your price",
+      "currencies": "priced in {theirs}, yours in {yours}; not converted"
+    },
+    "unnamed": "Unnamed competitor",
+    "reason": {
+      "notAddress": "that isn't a web address I can read",
+      "login": "it asks for a login, and I never read pages behind one",
+      "deadline": "the weekly run ran out of time before this page",
+      "robotsUnread": "their robots.txt couldn't be read, so I didn't read the page",
+      "robotsNo": "their robots.txt asks robots not to read this page",
+      "redirectRobots": "it redirects to a page their robots.txt asks robots not to read",
+      "redirectSite": "it redirects to a site whose robots.txt says no",
+      "notPage": "it isn't a web page",
+      "unreachable": "the page couldn't be reached",
+      "couldntRead": "it couldn't be read",
+      "onlyHttp": "only http(s) sites can be read",
+      "credentials": "credentials don't belong in a site URL",
+      "private": "that address points inside a private network — refusing to fetch it",
+      "notWebAddress": "that doesn't look like a web address",
+      "redirects": "too many redirects — the site never settled",
+      "cap": "past the {pages, number}-page limit per competitor",
+      "answered": "the page answered {status}",
+      "timeout": "no answer within {seconds, plural, one {# second} other {# seconds}}",
+      "resolve": "\"{host}\" doesn't resolve — is the address right?",
+      "ports": "only http(s) on the standard ports {http} and {https} can be read"
+    }
+  },
+  "reviewsWords": {
+    "googleRead": {
+      "ok": "Read without trouble.",
+      "auth": "Google no longer accepts SYB's access, so reviews aren't being read. Revoke it here and connect again.",
+      "permission": "Google says SYB isn't allowed to read this Business Profile any more. Check that your Google account still manages it.",
+      "quota": "Google asked SYB to slow down. SYB tries again on its next daily read.",
+      "unavailable": "Google didn't answer. SYB tries again on its next daily read.",
+      "refused": "Google refused the read. SYB tries again on its next daily read.",
+      "fence": "SYB stopped a request that wasn't a read. Nothing was sent.",
+      "internal": "Something went wrong on our side. SYB tries again on its next daily read."
+    },
+    "draft": {
+      "unreadable": "I couldn't read what this review says, so I can't suggest a reply. Open it where it lives.",
+      "budget": "This month's support budget ({amount}) is spent, so I won't draft — write it yourself.",
+      "cap": "I've suggested a reply to this review {count, plural, one {# time} other {# times}} already — write this one yourself.",
+      "unreachable": "I couldn't reach the drafting model just now — write it yourself, or try again later.",
+      "empty": "I couldn't draft a reply this time — write it yourself.",
+      "offer": "I drafted a reply that offered money or something free, and I don't do that, so I threw it away. Try again, or write this one yourself.",
+      "name": "I drafted a reply that named someone, so I threw it away. Try again, or write this one yourself.",
+      "contact": "I drafted a reply with an address or a phone number in it, so I threw it away. Try again, or write this one yourself."
+    }
+  },
+  "chartsWords": {
+    "source": {
+      "bookingsImport": "your bookings export",
+      "stockImport": "your stock file"
+    },
+    "connect": {
+      "shop": "Connect Shopify or WooCommerce, or your till through Square, and I'll draw this.",
+      "hospitality": "Connect your till through Square, or Stripe, and I'll draw this.",
+      "appointments": "Import your bookings export or connect Square, and I'll draw this.",
+      "services": "Connect Stripe, or the shop or till you take payments through, and I'll draw this.",
+      "default": "Connect your shop or till, or Stripe, or import your bookings, and I'll draw this."
+    },
+    "note": {
+      "otherCurrencies": "{price, select, revenue {Revenue} bookingRevenue {Booking revenue} other {{noun}}} in {currencies} isn't drawn: one currency per chart, and currencies never blend.",
+      "adsOffLine": "Ad spend that didn't pay back is counted in the month above but not drawn on the revenue candles: it is money spent, not revenue missed."
+    },
+    "group": {
+      "anomaly": "{count, plural, one {# change detected} other {# changes detected}}: {labels}",
+      "approved": "{count, plural, one {# change} other {# changes}}: {labels}",
+      "connected": "{count, plural, one {# source} other {# sources}}: {labels}"
+    },
+    "summary": {
+      "nothing": "{title}: nothing measured in this range.",
+      "day": "{title}: {count, plural, one {# daily candles} other {# daily candles}} of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} a day from {source}, {from} to {to}; the last day closed {move, select, up {up} other {down}} at {close}. {headline}",
+      "week": "{title}: {count, plural, one {# weekly candles} other {# weekly candles}} of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} a day from {source}, {from} to {to}; the last week closed {move, select, up {up} other {down}} at {close}. {headline}",
+      "month": "{title}: {count, plural, one {# monthly candles} other {# monthly candles}} of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} a day from {source}, {from} to {to}; the last month closed {move, select, up {up} other {down}} at {close}. {headline}",
+      "events": "{count, plural, one {# event marked.} other {# events marked.}}"
+    },
+    "caption": {
+      "day": "{title}: daily open, high, low and close of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} a day, with what slipped",
+      "week": "{title}: weekly open, high, low and close of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} a day, with what slipped",
+      "month": "{title}: monthly open, high, low and close of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} a day, with what slipped"
+    },
+    "event": {
+      "drop": "{metric, select, revenue {Revenue fell} orders {Orders fell} sessions {Website visits fell} adSpend {Ad spend fell} adPurchases {Ad purchases fell} appointmentsCompleted {Completed appointments fell} bookingRevenue {Booking revenue fell} other {{noun} fell}}",
+      "rise": "{metric, select, revenue {Revenue rose} orders {Orders rose} sessions {Website visits rose} adSpend {Ad spend rose} adPurchases {Ad purchases rose} appointmentsCompleted {Completed appointments rose} bookingRevenue {Booking revenue rose} other {{noun} rose}}",
+      "dropBy": "{metric, select, revenue {Revenue fell {pct} below the usual level} orders {Orders fell {pct} below the usual level} sessions {Website visits fell {pct} below the usual level} adSpend {Ad spend fell {pct} below the usual level} adPurchases {Ad purchases fell {pct} below the usual level} appointmentsCompleted {Completed appointments fell {pct} below the usual level} bookingRevenue {Booking revenue fell {pct} below the usual level} other {{noun} fell {pct} below the usual level}}",
+      "riseBy": "{metric, select, revenue {Revenue rose {pct} above the usual level} orders {Orders rose {pct} above the usual level} sessions {Website visits rose {pct} above the usual level} adSpend {Ad spend rose {pct} above the usual level} adPurchases {Ad purchases rose {pct} above the usual level} appointmentsCompleted {Completed appointments rose {pct} above the usual level} bookingRevenue {Booking revenue rose {pct} above the usual level} other {{noun} rose {pct} above the usual level}}",
+      "approvedRan": "You approved “{summary}”; it has run.",
+      "approvedWaiting": "You approved “{summary}”; it hasn't run yet.",
+      "bookingsImported": "Bookings first imported",
+      "connected": "{source} connected",
+      "connectedDetail": "Read from {day} on; the days before it came in with the first read."
+    },
+    "proposal": {
+      "aWaiting": "A waiting proposal",
+      "aProposal": "a proposal"
+    },
+    "headline": {
+      "nothing": "Nothing I can measure yet shows money slipping away.",
+      "zero": "Nothing measured is slipping away right now.",
+      "all": "About {range} a month is slipping away — all of it {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}.",
+      "mostly": "About {range} a month is slipping away — mostly {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}.",
+      "biggest": "About {range} a month is slipping away — the biggest share in {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}."
+    },
+    "reason": {
+      "noPrices": "{source} has no prices — add the price column to the export and I'll price what was missed",
+      "noPricedCompleted": "no priced, completed appointments between {from} and {to}, so I can't say what one is worth",
+      "noBookings": "import your bookings export (or connect Square) and I'll count what was missed",
+      "lateNotSeparated": "{source} doesn't separate late cancellations from no-shows, so they are priced with the no-shows",
+      "noCapacity": "tell me how many appointments you can take a week and I'll price the empty slots — I won't assume a capacity",
+      "noTakings": "connect where your takings live (your shop, your till or Stripe) and I'll check each day against its usual level",
+      "shortHistory": "I need at least {min} measured days of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} in the {window} before a day to judge it — the history is too short yet",
+      "noMeta": "connect Meta Ads and I'll check which campaigns cost more than they bring back",
+      "noSpend": "no campaign spent anything between {from} and {to}",
+      "noStock": "connect your store or import a stock file and I'll show the cash sitting on the shelf",
+      "nothingWaiting": "nothing is waiting for your approval right now",
+      "noPricedGain": "nothing waiting for you carries a priced gain yet",
+      "noRevenueSeries": "I need a measured revenue series to read this against"
+    },
+    "price": {
+      "arithmetic": "average price {mean} ({revenue} ÷ {count, plural, one {# completed} other {# completed}})",
+      "arithmeticRange": "average price {mean} ({revenue} ÷ {count, plural, one {# completed} other {# completed}}), between {low} and {high} week to week over {weeks, plural, one {# week} other {# weeks}}"
+    },
+    "formula": {
+      "noShows": "{count, plural, one {# no-show} other {# no-shows}} in {days, plural, one {# measured days} other {# measured days}} × {price} ({arithmetic}), from {source}",
+      "lateCancellations": "{count, plural, one {# late cancellation} other {# late cancellations}} in {days, plural, one {# measured days} other {# measured days}} × {price} ({arithmetic}), from {source}",
+      "emptyCapacity": "{perWeek} a week × {days, plural, one {# measured days} other {# measured days}} ÷ {week} = {slots} slots, less {held, plural, one {# appointments} other {# appointments}} still held when their time came = {empty} empty, × {price} ({arithmetic}). No-shows and late cancellations are priced on their own lines, not here",
+      "noDips": "no run of {run}+ days below the usual range in {judged, plural, one {# judged days} other {# judged days}} (the detector's baseline: {window}-day average × weekday factor, beyond at {k}× the usual variation)",
+      "dips": "{days, plural, one {# day} other {# days}} in {runs, plural, one {# run} other {# runs}} of {run}+ below the usual range ({window}-day average × weekday factor, beyond at {k}× the usual variation): expected − actual = {gross}; the low end leaves one usual variation a day",
+      "dipsExplained": "{days, plural, one {# day} other {# days}} in {runs, plural, one {# run} other {# runs}} of {run}+ below the usual range ({window}-day average × weekday factor, beyond at {k}× the usual variation): expected − actual = {gross}; the low end leaves one usual variation a day; less what that day's no-shows, late cancellations and empty slots already price",
+      "adsAllPaid": "every campaign returned at least what it cost, by Meta's attribution ({count, plural, one {# campaign} other {# campaigns}})",
+      "adsLoser": "{campaign}: spent {spent}, Meta attributes {value} (return {roas}) → {loss}",
+      "stockNone": "nothing flagged slow or stuck as of {day}",
+      "stockItems": "{count, plural, one {# slow item} other {# slow items}}, units on hand × unit cost, as of {day}. A stock, not a monthly flow: it is not added to the month",
+      "tableProposal": "{summary}: {range}",
+      "onTheTable": "{count, plural, one {# waiting proposal} other {# waiting proposals}}, base case to upside a month: {parts}"
+    },
+    "basisNote": {
+      "capacity": "from a capacity you {basis, select, ESTIMATED {ESTIMATED} other {STATED}} ({perWeek} a week)",
+      "meta": "from Meta's own attribution",
+      "statedCost": "units on hand × a cost you gave, for some items",
+      "proposals": "the proposals' own base and upside cases"
+    },
+    "componentNote": {
+      "adsOtherCurrency": "{count, plural, one {# campaign} other {# campaigns}} in {currencies} left out: currencies never blend",
+      "noCost": "{count, plural, one {# with no known cost, left out} other {# with no known cost, left out}}",
+      "otherCurrency": "{count, plural, one {# in another currency, left out} other {# in another currency, left out}}"
+    },
+    "latestCount": "the latest count",
+    "small": {
+      "noBand": "No money band.",
+      "noBandBecause": "No money band: {reason}.",
+      "sentence": "{text}.",
+      "bookings": "Appointments a week from {source}, {from} to {to}: {completed, plural, one {# completed} other {# completed}}, {noShows, plural, one {# no-shows} other {# no-shows}}.",
+      "bookingsLate": "Appointments a week from {source}, {from} to {to}: {completed, plural, one {# completed} other {# completed}}, {noShows, plural, one {# no-shows} other {# no-shows}}, {late, plural, one {# late cancellations} other {# late cancellations}}.",
+      "bookingsWorth": "Appointments a week from {source}, {from} to {to}: {completed, plural, one {# completed} other {# completed}}, {noShows, plural, one {# no-shows} other {# no-shows}}; the missed slots were worth {range}.",
+      "bookingsLateWorth": "Appointments a week from {source}, {from} to {to}: {completed, plural, one {# completed} other {# completed}}, {noShows, plural, one {# no-shows} other {# no-shows}}, {late, plural, one {# late cancellations} other {# late cancellations}}; the missed slots were worth {range}.",
+      "ads": "Spend against the purchase value Meta attributes, per campaign, {from} to {to}: {campaigns}. Losing means a return below {even}.",
+      "adsCampaign": "{campaign} spent {spent}, Meta attributes {value} ({roas})",
+      "adsCampaignLosing": "{campaign} spent {spent}, Meta attributes {value} ({roas}), losing",
+      "noReturn": "no return",
+      "return": "return {roas}"
+    }
   }
 }

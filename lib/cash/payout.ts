@@ -11,6 +11,13 @@
 // A business whose customers pay only in ways no provider sits between
 // (4.2a: cash, a bank transfer, an invoice) is paid the same day. With no
 // provider answer the range is the widest: a sale may take a week to land.
+//
+// L-4b: the words (why, the day range) in the reader's language through
+// optional words (lib/cash/words.ts), English by default; a provider's
+// name comes from the catalogue by its code, brand names kept.
+
+import type { Words } from "./words";
+import { cashEnglish, countText } from "./words";
 
 /** Days from a sale to the payout that carries it. */
 export interface PayoutDays {
@@ -69,19 +76,20 @@ export interface PayoutChoice {
  * else the measured series' own provider, else the widest range — unless
  * its stated payment methods (4.2a) never go through a provider.
  */
-export function payoutFor(args: {
-  provider: string | null;
-  methods: readonly string[] | null;
-  series_provider: string | null;
-}): PayoutChoice {
+export function payoutFor(
+  args: {
+    provider: string | null;
+    methods: readonly string[] | null;
+    series_provider: string | null;
+  },
+  words: Words = cashEnglish(),
+): PayoutChoice {
+  const { tr } = words;
+  const source = tr("payout.source");
   if (args.methods !== null && args.methods.length > 0) {
     const through = args.methods.some((m) => PROVIDER_METHODS.has(m));
     if (!through) {
-      return {
-        days: PAYOUT_DIRECT,
-        code: null,
-        why: "your customers pay in ways no payment provider sits between, so a sale is money in the same day",
-      };
+      return { days: PAYOUT_DIRECT, code: null, why: tr("payout.direct") };
     }
   }
   const stated = args.provider !== null ? PAYOUT_DAYS[args.provider] : undefined;
@@ -89,7 +97,11 @@ export function payoutFor(args: {
     return {
       days: stated,
       code: args.provider,
-      why: `you told me you're paid through ${stated.label}: ${dayRange(stated)} from a sale to its payout, ${PAYOUT_SOURCE}`,
+      why: tr("payout.stated", {
+        provider: tr(`payout.provider.${args.provider}`),
+        days: dayRange(stated, words),
+        source,
+      }),
     };
   }
   const fromSeries =
@@ -99,19 +111,29 @@ export function payoutFor(args: {
     return {
       days: measured,
       code: fromSeries,
-      why: `your sales are read from ${measured.label}: ${dayRange(measured)} from a sale to its payout, ${PAYOUT_SOURCE}`,
+      why: tr("payout.series", {
+        provider: tr(`payout.provider.${fromSeries}`),
+        days: dayRange(measured, words),
+        source,
+      }),
     };
   }
   return {
     days: PAYOUT_UNKNOWN,
     code: null,
-    why: `you haven't said which payment provider pays you out, so I allow anything from the same day to ${PAYOUT_UNKNOWN.high} days`,
+    why: tr("payout.unknown", { days: PAYOUT_UNKNOWN.high }),
   };
 }
 
 /** "2–5 days", "the same day", "1 day". */
-export function dayRange(d: Pick<PayoutDays, "low" | "high">): string {
-  const one = (n: number) => (n === 0 ? "the same day" : `${n} day${n === 1 ? "" : "s"}`);
+export function dayRange(
+  d: Pick<PayoutDays, "low" | "high">,
+  words: Words = cashEnglish(),
+): string {
+  const { tr, locale } = words;
+  const one = (n: number) => (n === 0 ? tr("payout.sameDay") : tr("payout.days", { count: n }));
   if (d.low === d.high) return one(d.low);
-  return d.low === 0 ? `the same day to ${one(d.high)}` : `${d.low}–${d.high} days`;
+  return d.low === 0
+    ? tr("payout.sameDayTo", { count: d.high })
+    : tr("payout.range", { low: countText(d.low, locale), high: d.high });
 }

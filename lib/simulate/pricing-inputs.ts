@@ -25,9 +25,11 @@ import { readCurrentField } from "../profile/field-store";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import type { PricingInputs } from "./pricing";
 import { offerItems, perOrderCosts, serviceItems } from "./pricing-items";
+import type { SimText } from "./words";
+import { englishSimText, section } from "./words";
 
 /** The bookings source with the latest measured day, its window and rows. */
-async function bookingRows(accountId: string) {
+async function bookingRows(accountId: string, w: SimText) {
   const conns = await db
     .select({ id: connections.id, provider: connections.provider })
     .from(connections)
@@ -75,14 +77,19 @@ async function bookingRows(accountId: string) {
     from,
     to,
     rows,
-    source: best.provider === "square" ? "Square" : "your bookings export",
+    source: best.provider === "square" ? "Square" : section(w, "items")("bookingsExport"),
   };
 }
 
-/** Everything what-if pricing needs for one business, as of `now`. */
+/**
+ * Everything what-if pricing needs for one business, as of `now`. The
+ * sources' words are `words` (L-4b): the pricing route passes the
+ * request's; every other caller keeps the English default.
+ */
 export async function gatherPricingInputs(
   profileId: string,
   now: Date = new Date(),
+  words: SimText = englishSimText(),
 ): Promise<PricingInputs> {
   const [profile] = await db
     .select({ account_id: businessProfiles.account_id, currency: accounts.reporting_currency })
@@ -102,8 +109,8 @@ export async function gatherPricingInputs(
     sells?.status === "answered" ? sells.value : null,
   );
 
-  const offers = offerItems(view);
-  const bookings = await bookingRows(profile.account_id);
+  const offers = offerItems(view, words);
+  const bookings = await bookingRows(profile.account_id, words);
   // Only the owner's own capacity: the book's room is never worked out on an assumed one.
   const capacityPerWeek =
     capacity?.status === "answered" &&
@@ -113,14 +120,17 @@ export async function gatherPricingInputs(
       ? capacity.value
       : null;
   const services = bookings
-    ? serviceItems({
-        rows: bookings.rows,
-        from: bookings.from,
-        to: bookings.to,
-        source: bookings.source,
-        capacityPerWeek,
-        offers,
-      })
+    ? serviceItems(
+        {
+          rows: bookings.rows,
+          from: bookings.from,
+          to: bookings.to,
+          source: bookings.source,
+          capacityPerWeek,
+          offers,
+        },
+        words,
+      )
     : [];
   // An offer a service already stands for isn't listed twice.
   const served = new Set(services.map((s) => s.name.trim().toLowerCase()));
@@ -130,6 +140,6 @@ export async function gatherPricingInputs(
     currency: profile.currency,
     archetype,
     items: [...services, ...offers.filter((o) => !served.has(o.name.trim().toLowerCase()))],
-    per_order_costs: perOrderCosts(view),
+    per_order_costs: perOrderCosts(view, words),
   };
 }

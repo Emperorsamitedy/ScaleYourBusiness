@@ -11,9 +11,9 @@
 // only when a store connection reads carts.
 //
 // L-3b: the screen's fixed words are the "carts" catalogue; money, counts
-// and shares in the reader's locale. The sentences carts-view builds from
-// the counts, and the rule of thumb and reasons the server words, stay
-// English until L-4.
+// and shares in the reader's locale. L-4b: the sentences carts-view builds
+// from the counts are the "cartsWords" catalogue, and the server words the
+// rule of thumb and the reasons in the reader's language too.
 
 import "../../app/carts.css";
 import { useCallback, useEffect, useState } from "react";
@@ -25,7 +25,7 @@ import { percentText } from "../cash/cash-view";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
-import type { CartsWords, Measured } from "./carts-view";
+import type { CartsSentences, CartsWords, Measured } from "./carts-view";
 import {
   cartsHeadline,
   checkoutConsentNotes,
@@ -45,6 +45,11 @@ const ITEMS_PER_READ = 15;
 
 function useCartsWords(): CartsWords {
   return useTr("carts");
+}
+
+/** L-4b: the sentences carts-view builds, in the reader's language. */
+function useCartsSentences(): CartsSentences {
+  return useTr("cartsWords");
 }
 
 function Frame({
@@ -139,10 +144,11 @@ function WinBackCard({
   onPropose: () => void;
 }) {
   const words = useCartsWords();
+  const sentences = useCartsSentences();
   const { tr, locale } = words;
   const range = winBackText(m, words);
   const rule = view.rule_of_thumb;
-  const block = proposeBlock(view);
+  const block = proposeBlock(view, sentences);
   const r = view.reminder;
   const t = view.thresholds;
   const word = view.proposal ? proposalWord(view.proposal, tr) : null;
@@ -200,7 +206,7 @@ function WinBackCard({
       )}
       <ul className="ct-assumed">
         {rule && <li>{rule.statement}</li>}
-        <li>{sourcesLine(view)}</li>
+        <li>{sourcesLine(view, sentences)}</li>
       </ul>
       {view.proposal?.status === "blocked" && view.proposal.blocked_by_limit && (
         <p className="ct-copy ct-quiet">
@@ -222,9 +228,10 @@ function WinBackCard({
 }
 
 function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
-  const notes = consentNotes(m, view.sources?.find((s) => s.shopper)?.shopper ?? null);
-  const checkout = checkoutConsentNotes(view);
-  const week = weekLine(view);
+  const sentences = useCartsSentences();
+  const notes = consentNotes(m, view.sources?.find((s) => s.shopper)?.shopper ?? null, sentences);
+  const checkout = checkoutConsentNotes(view, sentences);
+  const week = weekLine(view, sentences);
   const { tr } = useCartsWords();
   return (
     <SheetCard label={tr("consent.label")} title={tr("consent.title")}>
@@ -248,6 +255,7 @@ function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
 
 export function CartsScreen() {
   const { tr, locale } = useCartsWords();
+  const sentences = useCartsSentences();
   const rich = useTranslations("carts");
   const [view, setView] = useState<CartsScreenView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
@@ -325,7 +333,7 @@ export function CartsScreen() {
   if (!view) return <Frame title={tr("reading")} />;
   if (!view.applies) {
     return (
-      <Frame title={cartsHeadline(view)}>
+      <Frame title={cartsHeadline(view, sentences)}>
         <p className="ct-wait">
           {tr("connect")} <Link href="/connections">{tr("connections")}</Link>
         </p>
@@ -343,7 +351,7 @@ export function CartsScreen() {
 
   if (!m || m.status === "refused") {
     return (
-      <Frame title={cartsHeadline(view)} aside={aside}>
+      <Frame title={cartsHeadline(view, sentences)} aside={aside}>
         <SheetCard label={tr("refusal.label")} title={refusalTitle(m, tr)}>
           <p className="ct-copy">{m?.reason ?? tr("refusal.noneRead")}</p>
           {m?.basis === "stale" || m?.basis === "too_many" ? null : (
@@ -355,15 +363,15 @@ export function CartsScreen() {
               })}
             </p>
           )}
-          <p className="ct-copy ct-quiet">{sourcesLine(view)}</p>
+          <p className="ct-copy ct-quiet">{sourcesLine(view, sentences)}</p>
         </SheetCard>
       </Frame>
     );
   }
 
   return (
-    <Frame title={cartsHeadline(view)} aside={aside}>
-      <p className="ct-line">{windowLine(m)}</p>
+    <Frame title={cartsHeadline(view, sentences)} aside={aside}>
+      <p className="ct-line">{windowLine(m, sentences)}</p>
       <ProductsCard m={m} names={view.product_names ?? {}} />
       <div className="ct-grid">
         <WinBackCard view={view} m={m} busy={busy} note={note} onPropose={() => void propose()} />

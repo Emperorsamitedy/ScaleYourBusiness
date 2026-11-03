@@ -4,6 +4,9 @@
 //   POST /api/goals   add a goal (the owner's words, owner_input source)
 //   PUT  /api/goals   refine one — every change supersedes, never overwrites;
 //                     `measure` makes it measurable (P3-42)
+//
+// L-4b: a new measure's `baseline_note` comes back in the reader's
+// language ("goalsWords"); the goal rows and facts it writes are as before.
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
@@ -17,6 +20,8 @@ import {
   updateGoal,
 } from "../../../lib/content/goals";
 import { requireRole } from "../../../lib/auth/roles";
+import { GOAL_WORDS } from "../../../lib/care/goal-words";
+import { requestWords } from "../../../lib/i18n/request-words";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -94,13 +99,19 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     const goal = await updateGoal(profileId, body.goal_id, patch);
     const measure = body.measure as Record<string, unknown> | undefined;
     if (measure && typeof measure === "object") {
-      const set = await setGoalMeasure(profileId, body.goal_id, {
-        metric: String(measure.metric ?? ""),
-        direction: typeof measure.direction === "string" ? measure.direction : null,
-        target_per_30d: Number(measure.target_per_30d),
-        currency: typeof measure.currency === "string" ? measure.currency : null,
-        deadline: typeof measure.deadline === "string" ? measure.deadline : null,
-      });
+      const set = await setGoalMeasure(
+        profileId,
+        body.goal_id,
+        {
+          metric: String(measure.metric ?? ""),
+          direction: typeof measure.direction === "string" ? measure.direction : null,
+          target_per_30d: Number(measure.target_per_30d),
+          currency: typeof measure.currency === "string" ? measure.currency : null,
+          deadline: typeof measure.deadline === "string" ? measure.deadline : null,
+        },
+        new Date(),
+        await requestWords(GOAL_WORDS),
+      );
       return NextResponse.json({ ...goal, ...set });
     }
     return NextResponse.json(goal);

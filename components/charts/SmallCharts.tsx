@@ -18,7 +18,8 @@
 // L-3b (TASKS-LANGUAGES.md): the fixed words are the "charts.small"
 // catalogue, figures and dates in the reader's locale; each chart's
 // summary and the bookings note are sentences lib/charts/small builds from
-// data (L-4), and a campaign's name and a source's are shown as they are.
+// data, in the reader's language from the server (L-4b, "chartsWords"),
+// and a campaign's name and a source's brand are shown as they are.
 
 import { useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";

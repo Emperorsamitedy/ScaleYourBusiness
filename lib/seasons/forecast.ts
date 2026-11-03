@@ -27,7 +27,28 @@
 // the year are busy), and from when it will. Nothing here is filled from
 // industry averages: a season is only ever the owner's own history.
 
+import { num } from "../../components/sheet/num";
 import { shortDate } from "../charts/model";
+import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
+
+/**
+ * The words the forecast's sentences are said in — L-4b of
+ * TASKS-LANGUAGES.md: the "patternsWords" catalogue and the reader's
+ * locale. English by default, word for word what this module always said.
+ * What lib/forecasts records from a forecast is built in English (rule 7).
+ */
+export interface SeasonWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+
+export const englishSeasonWords = (): SeasonWords => ({
+  tr: englishTr("patternsWords"),
+  locale: "en",
+});
 
 export const SEASONS = {
   /** Weeks in the year the normal is read over. */
@@ -85,6 +106,10 @@ export interface SeriesInfo {
   source: string;
   /** ISO 4217 when the series is money (integer minor units), else null (a count). */
   currency: string | null;
+  /** The metric the noun names (lib/seasons/load), so the noun can be said in another language. */
+  metric?: string;
+  /** The connection's provider the source names, likewise. */
+  provider?: string;
 }
 
 export interface Normal {
@@ -272,6 +297,26 @@ export function ratioText(r: Ratio): string {
   return lo === hi ? times(r.index) : `${times(r.index)} (${lo}–${hi}×)`;
 }
 
+/** A multiple to one decimal in the reader's digits: times() in English. */
+export function timesIn(x: number, locale: AppLocale = "en"): string {
+  if (locale === "en") return times(x);
+  return `${num(Math.round(x * 10) / 10, 1, locale)}×`;
+}
+
+/** A ratio and its range in the reader's digits: ratioText() in English. */
+export function ratioIn(r: Ratio, locale: AppLocale = "en"): string {
+  if (locale === "en") return ratioText(r);
+  const lo = num(Math.round(r.low * 10) / 10, 1, locale);
+  const hi = r.high === null ? "?" : num(Math.round(r.high * 10) / 10, 1, locale);
+  return lo === hi ? timesIn(r.index, locale) : `${timesIn(r.index, locale)} (${lo}–${hi}×)`;
+}
+
+/** A plain multiple as the code states it ("1.25×", "0.8×"), in the reader's digits. */
+export function multipleIn(x: number, locale: AppLocale = "en"): string {
+  if (locale === "en") return `${x}×`;
+  return `${new Intl.NumberFormat(intlTag(locale), { maximumFractionDigits: 2 }).format(x)}×`;
+}
+
 const MONTHS = [
   "January",
   "February",
@@ -286,10 +331,6 @@ const MONTHS = [
   "November",
   "December",
 ];
-
-function plural(n: number, word: string): string {
-  return `${n} ${word}${n === 1 ? "" : "s"}`;
-}
 
 /** Find the runs of flagged weeks, in order. An unmeasured week breaks a run. */
 export function findRuns(weeks: readonly SeasonWeek[], normal: Normal): SeasonRun[] {
@@ -324,20 +365,130 @@ export function findRuns(weeks: readonly SeasonWeek[], normal: Normal): SeasonRu
   return runs;
 }
 
-function runPhrase(run: SeasonRun): string {
-  const span = `${shortDate(run.start)} to ${shortDate(run.end)}`;
-  return `The ${plural(run.weeks, "week")} from ${span}`;
+type TooLittle = Extract<SeasonResult, { status: "too_little" }>;
+type Ready = Extract<SeasonResult, { status: "ready" }>;
+
+/** The too-little result's sentences, from its own figures. */
+function wordTooLittle(r: TooLittle, { tr, locale }: SeasonWords): TooLittle {
+  const noun = r.series.noun;
+  const months = Math.max(0, Math.round(r.covered_days / 30.4));
+  // Plenty of history, but not in the last year: a source that stopped.
+  const stale = r.covered_days >= 7 * SEASONS.year_weeks;
+  // A year of complete weeks and still too little: their median was nothing.
+  const flat = r.complete_weeks >= SEASONS.min_weeks;
+  return {
+    ...r,
+    headline: flat
+      ? tr("season.headline.flat", { noun })
+      : stale
+        ? tr("season.headline.stale", {
+            count: r.complete_weeks,
+            weeks: SEASONS.year_weeks,
+            day: shortDate(r.last_day, locale),
+          })
+        : months >= 2
+          ? tr("season.headline.shortMonths", { months, noun })
+          : tr("season.headline.shortDays", { count: r.covered_days, noun }),
+    can: [
+      r.recent.length >= 2
+        ? tr("season.can.compare", { count: r.recent.length })
+        : tr("season.can.count"),
+      tr("season.can.catch"),
+    ],
+    cannot: [tr("season.cannot.year"), tr("season.cannot.forecast"), tr("season.cannot.borrow")],
+  };
+}
+
+/** One coming stretch's sentence: last year's run, and when the same weeks fall this year. */
+function upcomingSentence(u: Omit<Upcoming, "sentence">, { tr, locale }: SeasonWords): string {
+  const when = u.in_progress
+    ? tr("season.when.underWay", { day: shortDate(u.ends_on, locale) })
+    : u.starts_in_weeks === 0
+      ? tr("season.when.thisWeek", { day: shortDate(u.starts_on, locale) })
+      : tr("season.when.startsIn", {
+          count: u.starts_in_weeks,
+          day: shortDate(u.starts_on, locale),
+        });
+  return tr("season.upcoming", {
+    count: u.run.weeks,
+    from: shortDate(u.run.start, locale),
+    to: shortDate(u.run.end, locale),
+    ratio: ratioIn(u.run, locale),
+    kind: u.run.kind,
+    when,
+  });
+}
+
+/** The ready result's sentences: the headline, each coming stretch's, and the notes. */
+function wordReady(r: Ready, w: SeasonWords): Ready {
+  const { tr, locale } = w;
+  const upcoming = r.upcoming.map((u) => ({ ...u, sentence: upcomingSentence(u, w) }));
+  const busiest = [...r.runs].filter((x) => x.kind === "busy").sort((a, b) => b.index - a.index)[0];
+  const nextBusy = upcoming.find((u) => u.run.kind === "busy");
+  const headline = nextBusy
+    ? nextBusy.in_progress
+      ? tr("season.headline.underWay", { ratio: timesIn(nextBusy.run.index, locale) })
+      : nextBusy.starts_in_weeks === 0
+        ? tr("season.headline.startsThisWeek", { ratio: timesIn(nextBusy.run.index, locale) })
+        : tr("season.headline.startsIn", {
+            count: nextBusy.starts_in_weeks,
+            ratio: timesIn(nextBusy.run.index, locale),
+          })
+    : busiest
+      ? tr("season.headline.nothingAhead", {
+          weeks: SEASONS.horizon_weeks,
+          ratio: timesIn(busiest.index, locale),
+          day: shortDate(busiest.start, locale),
+        })
+      : tr("season.headline.steady", { noun: r.series.noun });
+
+  const gaps = SEASONS.year_weeks - r.normal.weeks;
+  const notes = [
+    r.years === 1 ? tr("season.notes.oneYear") : tr("season.notes.years", { count: r.years }),
+    tr("season.notes.normal", {
+      weeks: SEASONS.year_weeks,
+      count: r.normal.weeks,
+      from: shortDate(r.normal.from, locale),
+      to: shortDate(r.normal.to, locale),
+    }),
+    tr("season.notes.rule", {
+      busy: multipleIn(SEASONS.busy_index, locale),
+      quiet: multipleIn(SEASONS.quiet_index, locale),
+      count: SEASONS.min_run_weeks,
+    }),
+  ];
+  if (gaps > 0) {
+    notes.push(tr("season.notes.gaps", { count: gaps, weeks: SEASONS.year_weeks }));
+  }
+  if (daysBetween(r.last_day, addDays(r.today, -1)) > 7) {
+    notes.push(tr("season.notes.lastDay", { day: shortDate(r.last_day, locale) }));
+  }
+  return { ...r, upcoming, headline, notes };
+}
+
+/**
+ * A forecast's sentences said again in other words (L-4b): the same
+ * figures, the headline, can/cannot, the coming stretches and the notes
+ * in the reader's language. The series noun and source are the caller's
+ * (lib/seasons/load seriesIn). Pure.
+ */
+export function rewordSeason(r: SeasonResult, words: SeasonWords): SeasonResult {
+  if (r.status === "too_little") return wordTooLittle(r, words);
+  if (r.status === "ready") return wordReady(r, words);
+  return r;
 }
 
 /**
  * The forecast. `values` is ONE series of ONE source (money in minor units
  * of ONE currency, or a count); `today` is the owner's date — the series
- * is read up to the day before it.
+ * is read up to the day before it. Its sentences are in `words`, English
+ * by default.
  */
 export function seasonForecast(
   values: ReadonlyMap<string, number>,
   series: SeriesInfo,
   today: string,
+  words: SeasonWords = englishSeasonWords(),
 ): SeasonResult {
   const yesterday = addDays(today, -1);
   const days = [...values.keys()].filter((d) => d <= yesterday).sort();
@@ -356,45 +507,30 @@ export function seasonForecast(
     const recent = sorted.slice(-SEASONS.recent_weeks).map(([start, value]) => ({ start, value }));
     const missing = SEASONS.min_weeks - complete;
     const readyOn = addDays(thisMonday, 7 * Math.max(1, missing));
-    const months = Math.max(0, Math.round(days.length / 30.4));
-    const span = months >= 2 ? `about ${months} months` : plural(days.length, "day");
-    // Plenty of history, but not in the last year: a source that stopped.
-    const stale = days.length >= 7 * SEASONS.year_weeks;
-    const flat = normal !== null && normal.weeks >= SEASONS.min_weeks && normal.median <= 0;
-    return {
-      status: "too_little",
-      series,
-      first_day: first,
-      last_day: last,
-      covered_days: days.length,
-      complete_weeks: complete,
-      needed_weeks: SEASONS.min_weeks,
-      ready_on: readyOn,
-      recent,
-      recent_median:
-        recent.length > 0
-          ? quantile(
-              recent.map((r) => r.value),
-              0.5,
-            )
-          : null,
-      headline: flat
-        ? `Most of your weeks measured no ${series.noun}, so there is no normal week to compare a season with.`
-        : stale
-          ? `Only ${plural(complete, "week")} of the last ${SEASONS.year_weeks} were measured in full (the last measured day is ${shortDate(last)}) — too few to name your seasons.`
-          : `I have ${span} of your ${series.noun} — not enough to say which weeks of the year are your busy ones.`,
-      can: [
-        recent.length >= 2
-          ? `Show your ${plural(recent.length, "complete week")} against each other, and spot a week that ran well above or below the rest.`
-          : "Count each day as it is measured.",
-        "Catch a sudden drop or spike against the last four weeks (that runs nightly already).",
-      ],
-      cannot: [
-        "Say which weeks or months of the year run above or below your normal: one year of your own history is the least that shows a season.",
-        "Forecast the coming weeks from the same weeks last year — I don't have last year.",
-        "Borrow a season from other businesses like yours. An industry average isn't your history, so I don't present one as yours.",
-      ],
-    };
+    return wordTooLittle(
+      {
+        status: "too_little",
+        series,
+        first_day: first,
+        last_day: last,
+        covered_days: days.length,
+        complete_weeks: complete,
+        needed_weeks: SEASONS.min_weeks,
+        ready_on: readyOn,
+        recent,
+        recent_median:
+          recent.length > 0
+            ? quantile(
+                recent.map((r) => r.value),
+                0.5,
+              )
+            : null,
+        headline: "",
+        can: [],
+        cannot: [],
+      },
+      words,
+    );
   }
 
   // Earlier years, each against its own normal (the range widens with them).
@@ -489,65 +625,34 @@ export function seasonForecast(
       const startsIn = inProgress ? 0 : Math.round(daysBetween(horizonFrom, run.start) / 7);
       const startsOn = addDays(run.start, 364);
       const endsOn = addDays(run.end, 364);
-      const word = run.kind === "busy" ? "above" : "below";
-      const when = inProgress
-        ? `The same weeks this year are under way now, to ${shortDate(endsOn)}.`
-        : startsIn === 0
-          ? `The same weeks this year start this week, on ${shortDate(startsOn)}.`
-          : `The same weeks this year start in ${plural(startsIn, "week")}, on ${shortDate(startsOn)}.`;
       return {
         run,
         starts_in_weeks: startsIn,
         starts_on: startsOn,
         ends_on: endsOn,
         in_progress: inProgress,
-        sentence: `${runPhrase(run)} last year ran ${ratioText(run)} your normal week — ${word} it. ${when}`,
+        sentence: "",
       };
     });
 
-  const years = 1 + priorNormals.length;
-  const busiest = [...runs].filter((r) => r.kind === "busy").sort((a, b) => b.index - a.index)[0];
-  const nextBusy = upcoming.find((u) => u.run.kind === "busy");
-  const headline = nextBusy
-    ? nextBusy.in_progress
-      ? `Your busy weeks are under way: last year the same stretch ran ${times(nextBusy.run.index)} your normal week.`
-      : `Your busy stretch starts ${nextBusy.starts_in_weeks === 0 ? "this week" : `in ${plural(nextBusy.starts_in_weeks, "week")}`}: last year it ran ${times(nextBusy.run.index)} your normal week.`
-    : busiest
-      ? `Nothing busy in the next ${SEASONS.horizon_weeks} weeks last year; your busiest stretch ran ${times(busiest.index)} your normal week from ${shortDate(busiest.start)}.`
-      : `No stretch of the last year ran far from your normal week: your ${series.noun} is steady through the year.`;
-
-  const gaps = SEASONS.year_weeks - normal.weeks;
-  const notes = [
-    years === 1
-      ? "One year is one example of your seasons: it says what happened last year, not what will. The range is how far your middle half of weeks spreads."
-      : `${plural(years, "year")} of your own history went into the ranges: each year's week against that year's own normal.`,
-    `Normal is your median week of the last ${SEASONS.year_weeks}: ${plural(normal.weeks, "complete week")} from ${shortDate(normal.from)} to ${shortDate(normal.to)}.`,
-    `Busy is ${SEASONS.busy_index}× your normal or more, quiet ${SEASONS.quiet_index}× or less, ${SEASONS.min_run_weeks} weeks or more in a row: a single week can be a one-off.`,
-  ];
-  if (gaps > 0) {
-    notes.push(
-      `${plural(gaps, "week")} of the last ${SEASONS.year_weeks} weren't measured in full, so they are left out, not guessed.`,
-    );
-  }
-  if (daysBetween(last, yesterday) > 7) {
-    notes.push(`The last measured day is ${shortDate(last)}: the forecast reads up to then.`);
-  }
-
-  return {
-    status: "ready",
-    series,
-    today,
-    first_day: first,
-    last_day: last,
-    covered_days: days.length,
-    years,
-    normal,
-    weeks: yearWeeks,
-    months,
-    runs,
-    ahead,
-    upcoming,
-    headline,
-    notes,
-  };
+  return wordReady(
+    {
+      status: "ready",
+      series,
+      today,
+      first_day: first,
+      last_day: last,
+      covered_days: days.length,
+      years: 1 + priorNormals.length,
+      normal,
+      weeks: yearWeeks,
+      months,
+      runs,
+      ahead,
+      upcoming,
+      headline: "",
+      notes: [],
+    },
+    words,
+  );
 }

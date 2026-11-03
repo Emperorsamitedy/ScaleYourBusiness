@@ -4,17 +4,24 @@
 // products they supply), and the busy-season forecast (lib/seasons). Every
 // figure is worked out by ./cover, which is pure. Nothing is written,
 // nothing leaves the database, and no model is called.
+//
+// L-4b: the sentences are in the words passed in, English by default
+// (./words). Only the /stock screen passes the request's words; the
+// reorder notes and the watch log read this in English (rules 4 and 7).
 
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { suppliers } from "../../db/schema";
 import { readCurrentField } from "../profile/field-store";
-import { loadSeasons } from "../seasons/load";
+import type { SeasonWords } from "../seasons/forecast";
+import { loadSeasons, seasonsInWords } from "../seasons/load";
 import type { StockAssessment, StockItem } from "./assess";
 import type { CoverAssessment, SeasonBoost, SupplierInfo } from "./cover";
 import { assessCover, leadTimeFor, rankWarnings, seasonBoost } from "./cover";
 import type { StockView } from "./load";
 import { loadStock } from "./load";
+import type { Words } from "./words";
+import { englishStock } from "./words";
 
 const num = (v: unknown): number | null =>
   typeof v === "number" && Number.isFinite(v)
@@ -24,7 +31,10 @@ const num = (v: unknown): number | null =>
       : null;
 
 /** The owner's suppliers (1.4.1.3), as answered: unknowns stay null, never guessed. */
-export async function loadSuppliers(profileId: string): Promise<SupplierInfo[]> {
+export async function loadSuppliers(
+  profileId: string,
+  w: Words = englishStock(),
+): Promise<SupplierInfo[]> {
   const spine = await db
     .select({ id: suppliers.id })
     .from(suppliers)
@@ -40,7 +50,8 @@ export async function loadSuppliers(profileId: string): Promise<SupplierInfo[]> 
     const offers = await read("supplies_offers");
     out.push({
       id,
-      name: typeof name === "string" && name.trim() !== "" ? name.trim() : "Your supplier",
+      name:
+        typeof name === "string" && name.trim() !== "" ? name.trim() : w.tr("lead.yourSupplier"),
       lead_time_days: num(await read("lead_time_days")),
       moq: num(await read("moq")),
       offer_ids: Array.isArray(offers)
@@ -76,26 +87,34 @@ export interface CoverView {
   stock: StockView;
 }
 
-/** Every item read, with its cover, warning and reorder arithmetic, as of `now`. */
+/**
+ * Every item read, with its cover, warning and reorder arithmetic, as of
+ * `now`. L-4b: `w` words the stock sentences and `seasonWords` the season's
+ * own (its headline, series noun and source, lib/seasons); both English by
+ * default, as every stored reader takes it.
+ */
 export async function loadCover(
   accountId: string,
   profileId: string,
   now: Date = new Date(),
   stock?: StockView,
+  w: Words = englishStock(),
+  seasonWords?: SeasonWords,
 ): Promise<CoverView> {
-  const view = stock ?? (await loadStock(accountId, profileId, now));
+  const view = stock ?? (await loadStock(accountId, profileId, now, w));
   const today = view.today;
-  const owned = await loadSuppliers(profileId);
-  const seasons = await loadSeasons(accountId, profileId, now);
-  const boost = seasonBoost(seasons.result, today);
+  const owned = await loadSuppliers(profileId, w);
+  const read = await loadSeasons(accountId, profileId, now);
+  const seasons = seasonWords ? seasonsInWords(read, seasonWords) : read;
+  const boost = seasonBoost(seasons.result, today, w);
   const r = seasons.result;
   const seasonNote = boost
     ? boost.sentence
     : r.status === "ready"
       ? r.headline
       : r.status === "too_little"
-        ? `No season counted: ${r.headline}`
-        : "No season counted: nothing measured a year of sales yet.";
+        ? w.tr("season.notCounted", { headline: r.headline })
+        : w.tr("season.noYear");
 
   const labelOf = (connectionId: string, provider: string) =>
     view.sources.find((s) => s.connection_id === connectionId)?.label ?? provider;
@@ -107,7 +126,7 @@ export async function loadCover(
       source,
       item,
       slow: assessment,
-      cover: assessCover(item, today, leadTimeFor(item, owned), boost, source),
+      cover: assessCover(item, today, leadTimeFor(item, owned, w), boost, source, w),
     };
   });
   return {

@@ -4,13 +4,26 @@
 //
 // The owner's own site is (re)checked when it never was or the last check
 // is older than 30 days — up to five pages of their own origin, GET only.
+//
+// L-4b: the report comes back in the reader's language ("blindspotsWords");
+// the site check's reason is worded here from its kind (`site_note_kind`),
+// which the screen reads instead of matching a sentence. The site check
+// and the topics it stores are written as before; only this copy is
+// translated.
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import type { SiteChecks } from "../../../lib/blindspots/checks";
-import { SITE_CHECKS_KEY, runSiteChecks } from "../../../lib/blindspots/checks";
+import type { SiteNoteKind } from "../../../lib/blindspots/checks";
+import {
+  BLINDSPOT_WORDS,
+  SITE_CHECKS_KEY,
+  runSiteChecks,
+  siteNote,
+} from "../../../lib/blindspots/checks";
 import { buildBlindspots } from "../../../lib/blindspots/finder";
+import { requestWords } from "../../../lib/i18n/request-words";
 import { readCurrentField } from "../../../lib/profile/field-store";
 
 const RECHECK_DAYS = 30;
@@ -24,16 +37,21 @@ export async function GET(): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
-    let siteNote: string | null = null;
+    const words = await requestWords(BLINDSPOT_WORDS);
+    let note: { kind: SiteNoteKind; note: string } | null = null;
     const last = (await readCurrentField<SiteChecks>(profileId, SITE_CHECKS_KEY))?.value;
     if (!last || Date.now() - Date.parse(last.checked_at) > RECHECK_DAYS * 86_400_000) {
       const checked = await runSiteChecks(profileId).catch((error: unknown) => ({
         reason: error instanceof Error ? error.message : String(error),
       }));
-      if ("reason" in checked) siteNote = checked.reason;
+      if ("reason" in checked) note = siteNote(checked.reason, words);
     }
-    const report = await buildBlindspots(profileId);
-    return NextResponse.json({ ...report, site_note: siteNote });
+    const report = await buildBlindspots(profileId, new Date(), words);
+    return NextResponse.json({
+      ...report,
+      site_note: note?.note ?? null,
+      site_note_kind: note?.kind ?? null,
+    });
   } catch (error) {
     console.error(JSON.stringify({ event: "blindspots_failed", ...logSafeError(error) }));
     return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });

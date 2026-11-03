@@ -3081,5 +3081,1272 @@
       "assumed": "假设",
       "atCost": "按成本计 {amount}"
     }
+  },
+  "cashWords": {
+    "series": {
+      "noun": {
+        "revenue": "营收",
+        "bookingRevenue": "预约营收"
+      },
+      "source": {
+        "bookings": "您的预约导出文件",
+        "stock": "您的库存文件"
+      }
+    },
+    "connect": {
+      "shop": "连接 Shopify 或 WooCommerce，或者通过 Square 连接您的收银机，我就会画出这张图",
+      "hospitality": "通过 Square 连接您的收银机，或者连接 Stripe，我就会画出这张图",
+      "appointments": "导入您的预约导出文件，或者连接 Square，我就会画出这张图",
+      "services": "连接 Stripe，或者您收款所用的网店或收银机，我就会画出这张图",
+      "default": "连接您的网店或收银机，或者 Stripe，或者导入您的预约，我就会画出这张图"
+    },
+    "factSource": {
+      "measured": "根据您已连接的账户测量",
+      "estimate": "您的估计",
+      "derived": "根据您的其他数字计算得出",
+      "told": "按您告诉我的",
+      "statement": "您银行对账单上的期末余额"
+    },
+    "perSale": {
+      "perPiece": "按件计：（交付您的产品和服务所需的 {deliver}）÷ 按您陈述的价格和数量计算的每月 {sales} 销售额 = 每笔销售的 {share}",
+      "perPieceUnits": "按件计：（交付您的产品和服务所需的 {deliver} + {each} × {count, plural, other {{units} 件}}）÷ 按您陈述的价格和数量计算的每月 {sales} 销售额 = 每笔销售的 {share}",
+      "noCost": "{count, plural, other {您的产品和服务清单上没有 {names} 的交付成本，因此未计入。}}",
+      "noVolume": "您的按件成本未计入：您的产品和服务清单没有写明每一项每月卖出多少。",
+      "measured": {
+        "orders": "{count, plural, other {# 个订单}}，对应已测量的销售额 {sales}",
+        "appointments": "{count, plural, other {# 个预约}}，对应已测量的销售额 {sales}",
+        "visits": "{count, plural, other {# 次到访}}，对应已测量的销售额 {sales}",
+        "other": "{n} {noun}，对应已测量的销售额 {sales}"
+      },
+      "stated": "{count, plural, other {每月 {n} 个订单}}（按您告诉我的），对应每月约 {sales} 的销售额",
+      "noOrders": "您的按订单成本未计入：我不知道您每周接多少订单。",
+      "perOrder": "按订单计：{each} ×（{how}）= 每笔销售的 {share}",
+      "none": "没有陈述任何按销售计的成本，因此未计入。",
+      "together": "合计：每周销售额的 {share}，在销售发生的当周支付。"
+    },
+    "leftOut": {
+      "noAmount": "{label} 没有金额，因此未计入。",
+      "otherCurrency": "{label} 以 {currency} 计，而您的现金以 {cash} 计；我不在货币之间换算，因此未计入。",
+      "noFrequency": "{label} 没有频率，所以我无法把它放进某一周。",
+      "bufferCurrency": "您的缓冲金额以 {buffer} 计，现金以 {cash} 计，所以我把这条线画在零，而不做换算。",
+      "debt": "您有 {amount} 的债务，但您的成本清单上没有任何还款，因此未计入。列在贷款还款下的还款会被计入。",
+      "otherSeries": "您以 {currency} 计的{noun}未计入：两种货币的金额从不相加。"
+    },
+    "needs": {
+      "offersCost": "每项产品或服务的交付成本",
+      "offersVolume": "每项产品或服务每月大约卖出多少",
+      "orders": "您每月大约接多少订单",
+      "cash": "企业今天大约有多少现金",
+      "cashIn": "您今天以 {currency} 计的现金",
+      "provider": "由哪家支付服务商把您的销售款结算给您",
+      "buffer": "您希望账户里任何时候至少保留的金额",
+      "debt": "您每次偿还多少债务、多久还一次"
+    },
+    "refusal": {
+      "addUp": "把您给出日期上的支出加起来：每月固定成本约 {amount}。",
+      "addUpDebt": "把您给出日期上的支出加起来：每月固定成本和还款约 {amount}。",
+      "keepReading": "每晚继续读取您的销售，数据一够，预测就能马上就绪。",
+      "cannotBorrow": "借用与您类似的其他企业的销售规律。行业平均值不是您的历史数据，所以我不会把它当作您的来呈现。",
+      "noHistory": "我需要您自己的销售历史数据来预测您的现金，而目前还没有任何测量数据。",
+      "noHistoryCannot": "说出每周会有多少进账：对进账的预测需要您自己已测量的销售。",
+      "stale": "最近 {recent} 周中只有{count, plural, other { # 个完整周}}被测量（最后一个测量日是 {day}）：现金预测需要 {needed} 个。",
+      "tooLittle": "您的{noun}目前只有{count, plural, other { # 个完整周}}的数据；{weeks} 周的现金预测需要 {needed} 个。",
+      "tooLittleCannot": "说出未来{weeks, plural, other { # 周}}的进账：{count, plural, other {# 周}}太少，无法知道正常的一周是什么样子。",
+      "cashUnknown": "您告诉我您不知道企业今天有多少现金，所以预测暂时还没有起点。",
+      "cashMissing": "我需要知道企业今天大约有多少现金，作为预测的起点。",
+      "cashCan": "读取您的{noun}：最近 {recent} 周中有{count, plural, other { # 个完整周}}，足以预测进账。",
+      "cashCannot": "在不知道起点的情况下，说出资金何时吃紧。",
+      "currency": "您的现金以 {cash} 计，而您已测量的{noun}以 {series} 计。我从不在货币之间换算，所以无法用一种货币去预测另一种。",
+      "currencyCannot": "在没有人给出汇率的情况下，把 {series} 的销售加到 {cash} 的现金上。"
+    },
+    "assumption": {
+      "growth": "每一周都按去年同一周的情况运行，并按您最近{weeks, plural, other { # 周}}与一年前同期各周的对比进行缩放（{low}–{high}）。",
+      "span": "每一周都落在去年同一周与您最近各周之间：只有一年的历史数据，我无法区分您的增长和季节规律，所以区间同时涵盖两者。",
+      "fallback": "{count, plural, other {去年有 # 周没有完整测量；这些周改用您最近各周的数据。}}",
+      "recent": "未来各周按您最近{count, plural, other { # 个完整周}}的情况运行：取其中间一半，每周 {low}–{high}。历史数据不足一年，季节规律未知，因此没有套用任何季节规律。",
+      "sameDay": "销售款当天到账。",
+      "payout": "一笔销售从成交到进入您的账户：{days}（{why}）。谨慎端取较慢的一端。",
+      "evenly": "销售额平均分布在当周的每一天。",
+      "monthly": "月度成本在每月 {day, selectordinal, other {# 日}}支出。",
+      "quarterly": "季度成本在一月、四月、七月和十月的 {day, selectordinal, other {# 日}}支出：您还没有告诉我它们的日期。",
+      "annual": "没有到期日的年度成本，在每月 {day, selectordinal, other {# 日}}预留十二分之一，而不是凭猜测放进某一周。",
+      "perSale": "按销售计的成本在销售发生的当周支付。",
+      "statement": "今天的现金是您银行对账单在 {day} 的期末余额；此后的进账和出账未计入。",
+      "nothingElse": "其他一切不变：除了您列出的，没有其他成本、付款或一次性支出。税费只有列在您的成本清单上时才计入。"
+    },
+    "source": {
+      "label": {
+        "cash": "今天的现金",
+        "statedCash": "您告诉我的现金",
+        "moneyIn": "进账",
+        "payout": "到账时间",
+        "fixed": "固定成本",
+        "variable": "按销售计的成本",
+        "debt": "债务还款",
+        "line": "这条线"
+      },
+      "cashOn": "{source}，{day}",
+      "statedCash": "{source}；改用银行对账单",
+      "moneyIn": "{source} 的{noun}，已测量{count, plural, other { # 天}}，截至 {day}",
+      "moneyInYear": "过去一年，从 {day} 起读取",
+      "moneyInRecent": "最近{weeks, plural, other { # 周}}，从 {day} 起读取",
+      "aboutMonth": "每月约 {amount}",
+      "fixed": "{count, plural, other {您成本清单上的 # 项成本}}，按您给出的频率",
+      "fixedNone": "没有列出带金额和频率的固定成本",
+      "debtNone": "未计入",
+      "debt": "您成本清单上的贷款还款",
+      "debtStated": "已陈述的债务：{amount}，未列出还款",
+      "debtNoRepayment": "未列出还款",
+      "lineBuffer": "按您告诉我的，您希望账户里至少保留的金额",
+      "lineUnknown": "您不知道希望账户里至少保留多少，所以这条线是账户余额为零",
+      "lineNone": "未说明缓冲金额，所以这条线是账户余额为零"
+    },
+    "payout": {
+      "provider": {
+        "stripe": "Stripe",
+        "paypal": "PayPal",
+        "square": "Square",
+        "adyen": "Adyen",
+        "mollie": "Mollie",
+        "klarna": "Klarna",
+        "shopify_payments": "Shopify Payments",
+        "apple_google_pay": "Apple Pay 或 Google Pay",
+        "local_provider": "您当地的支付服务商",
+        "bank_only": "您的银行",
+        "other": "您的支付服务商"
+      },
+      "direct": "您的客户付款时中间没有任何支付服务商，所以一笔销售当天就是进账",
+      "stated": "您告诉我您通过 {provider} 收款：从销售到结算 {days}，{source}",
+      "series": "您的销售读取自 {provider}：从销售到结算 {days}，{source}",
+      "unknown": "您还没有说明由哪家支付服务商为您结算，所以我允许从当天到{days, plural, other { # 天}}不等",
+      "source": "这是根据该服务商通常的结算周期所做的规划假设，而不是对您实际结算的测量",
+      "sameDay": "当天",
+      "days": "{count, plural, other {# 天}}",
+      "sameDayTo": "当天至{count, plural, other { # 天}}",
+      "range": "{low}–{high, plural, other {# 天}}"
+    },
+    "tight": {
+      "quarterly": "{label}（{amount}，按季度）",
+      "monthly": "您每月 {day, selectordinal, other {# 日}}的月度成本（{amount}）",
+      "debt": "{count, plural, other {您的债务还款}}（{amount}）",
+      "quietWeek": "清淡的一周（去年同一周为您常态周的 {index}）",
+      "quietStretch": "一段清淡时期（去年同期的{count, plural, other { # 周}}为您常态周的 {spread}）",
+      "outrun": "在谨慎端，每周出账比进账多约 {amount}",
+      "startClose": "起点接近这条线：您今天的现金为 {amount}",
+      "sentence": "{when, select, now {本周} other {{day} 当周}}资金可能吃紧：在谨慎端，余额会降到约 {low}，{line, select, buffer {低于您希望保留的 {buffer}} other {低于零，即账户透支}}{both, select, yes {；即使在乐观端也只有约 {high}} other {}}。原因：{reasons}。"
+    },
+    "scenario": {
+      "slow": {
+        "title": "淡月（−{share}）",
+        "change": "从{when, select, now {本周} other { {day} 当周}}起，{weeks, plural, other {# 周}}内销售额降低 {share}。",
+        "assumption": "按销售计的成本随销售额下降；固定成本不变。"
+      },
+      "order": {
+        "title": "大额订单（+{amount}）",
+        "titleMissing": "大额订单",
+        "change": "{when, select, now {本周} other {{day} 当周}}有一笔 {amount} 的订单。",
+        "assumption": "这笔订单在当周全额付款，其按销售计的成本按您通常的比例在同一周支出。",
+        "why": "输入订单金额即可看到结果。"
+      },
+      "hire": {
+        "title": "招聘（每月 +{amount}）",
+        "titleMissing": "招聘",
+        "change": "从{when, select, now {本周} other { {day} 当周}}起，每月 {first, selectordinal, other {# 日}}多支出 {amount}。",
+        "assumption": "在这{weeks, plural, other { # 周}}内，新员工不会带来额外的销售。",
+        "why": "您的成本清单上没有工资，无法据此估算招聘的成本。请输入招一个人每月要花多少。",
+        "need": "招一个人每月的成本"
+      },
+      "price": {
+        "title": "调价（{change}）",
+        "titleMissing": "调价",
+        "effect": "{name} 调价 {change}",
+        "change": "从本周起，每周利润 {low} 至 {high}，来自假设定价。",
+        "assumption": "从本周起生效，客户的反应按假设定价给出的区间（{source}）。",
+        "whyCurrency": "假设定价以 {pricing} 计，而您的现金以 {cash} 计；我不做换算。",
+        "whyNothing": "假设定价需要您的一项产品或服务有价格、交付成本和每月销量。",
+        "need": "一项产品或服务的价格、成本和每月销量"
+      }
+    },
+    "view": {
+      "headlineTight": "{when, select, now {本周} other {{day} 当周}}资金可能吃紧：谨慎端会降到 {amount}。",
+      "headlineBuffer": "未来 {weeks} 周内，即使在谨慎端，也没有一周低于您 {amount} 的缓冲金额。",
+      "headlineZero": "未来 {weeks} 周内，即使在谨慎端，也没有一周低于零。",
+      "sourcesHistory": "来源：{source} 的{noun}，{from} 至 {to}，已测量{days, plural, other { # 天}}；需要{needed, plural, other { # 个完整周}}，现有 {complete} 个。",
+      "sourcesNothing": "来源：目前还没有可以作为预测基础的测量数据。",
+      "sourcesReady": "来源：{parts} · 您列出的成本。",
+      "sourcesPart": "{label}：{value}",
+      "sourcesPartBasis": "{label}：{value}（{basis}）",
+      "inline": {
+        "cash": "今天的现金",
+        "moneyIn": "进账",
+        "payout": "到账时间"
+      },
+      "titleAbove": "{line, select, buffer {始终高于您 {amount} 的缓冲金额} other {始终高于零}}",
+      "titleUnder": "{line, select, buffer {{day} 当周低于您 {amount} 的缓冲金额} other {{day} 当周低于零}}",
+      "meta": "{source} · {noun}：{observed} · 成本：{stated} · 到账时间：{assumed}",
+      "band": "区间从谨慎端（销售慢、回款慢）延伸到乐观端。",
+      "footGrowth": "每一周都参照去年同一周，并按您最近的增长进行缩放。",
+      "footSpan": "每一周都落在去年同一周与您最近各周之间。",
+      "footRecent": "每一周都按您最近{count, plural, other { # 个完整周}}的情况运行。",
+      "summary": "您未来{weeks, plural, other { # 周}}的余额，从今天的 {start} 到 {end}。",
+      "summaryAbove": "{line, select, buffer {始终保持在您 {amount} 的缓冲金额之上。} other {始终保持在零之上。}}",
+      "summaryUnder": "{line, select, buffer {谨慎端在 {day} 当周跌破您 {amount} 的缓冲金额。} other {谨慎端在 {day} 当周跌破零。}}"
+    }
+  },
+  "stockWords": {
+    "why": {
+      "tooLittle": "只测量了{count, plural, other { {days} 天}}的销售；我从 {min} 天起才做判断",
+      "fileNoSales": "文件中没有售出数量，也没有最近销售日期",
+      "noneOnHand": "没有现货",
+      "stuck": "{count, plural, other {{days} 天}}内没有销售，现有数量 {onHand}",
+      "stuckOnRecord": "在有记录的{count, plural, other { {days} 天}}内没有销售，现有数量 {onHand}",
+      "slowNoSale": "在已测量的{count, plural, other { {days} 天}}内没有销售",
+      "slowCover": "按每天 {rate} 的速度可售 {cover} 天——超过 {limit}",
+      "selling": "可售 {cover} 天——正常销售中",
+      "noRate": "没有可以用来判断的销售速度"
+    },
+    "sell": {
+      "fileOneWindow": "库存文件只包含一个时间段的售出数量，所以我无法把最近 {n} 天与之前的 {n} 天对比。连接网店后就可以。",
+      "tooLittle": "只测量了{count, plural, other { {days} 天}}的销售；对比两个 {n} 天的时间段需要 {needed} 天。我能说出卖了什么，但在 {ready} 之前无法说出销售是否在加快。",
+      "nothing": "两个 {n} 天的时间段内都没有任何销售。",
+      "flat": "最近 {n} 天售出 {a}，之前 {n} 天售出 {b}：基本持平——{diff} 的差异在偶然波动范围内（±{band}）。",
+      "moved": "最近 {n} 天售出 {a}，之前 {n} 天售出 {b}：{direction, select, up {增加} other {减少}}了 {diff}，超出偶然波动（±{band}）。",
+      "movedPct": "最近 {n} 天售出 {a}，之前 {n} 天售出 {b}：{direction, select, up {增加} other {减少}}了 {diff}（{pct}），超出偶然波动（±{band}）。"
+    },
+    "rate": {
+      "fileNoColumn": "库存文件没有售出数量列，所以我无法说出任何商品何时售罄。包含 {n} 天或以上售出数量的文件就可以。",
+      "fileShort": "文件中的售出数量覆盖{count, plural, other { {days} 天}}；计算可售天数需要 {n} 天。覆盖 {n} 天或以上的文件就能说出库存何时售罄。",
+      "fileNoSales": "文件的 {days} 天内没有销售：没有会售罄的东西。",
+      "tooLittle": "只测量了{count, plural, other { {days} 天}}的销售；计算可售天数需要 {n} 天。我能说出现有多少，但在 {ready} 之前无法说出何时售罄。",
+      "noSales": "最近 {n} 天没有销售：没有会售罄的东西。"
+    },
+    "season": {
+      "underWay": "现在正在进行，持续到 {end}",
+      "startsToday": "从今天开始，持续到 {end}",
+      "startsIn": "将在{count, plural, other { {days} 天}}后、即 {start} 开始",
+      "againstNone": "我没有近期的完整周可以对照，所以对照您的常态周来计算",
+      "againstRecent": "您最近{count, plural, other { {weeks} 周}}为 {recent}",
+      "addsNothing": "所以您最近的节奏已经涵盖了它，我不再额外增加",
+      "counts": "所以这些天我按您最近节奏的 {multiple} 计算",
+      "sentence": "您的繁忙时段{when}：去年它为您常态周的 {index}；{against}，{counted}。",
+      "readFrom": "来自 {source} 的{noun}",
+      "notCounted": "未计入季节因素：{headline}",
+      "noYear": "未计入季节因素：还没有测量满一年的销售。"
+    },
+    "lead": {
+      "longest": "{supplier} 需要{count, plural, other { {days} 天}}，是您为它列出的 {suppliers} 家供应商中最长的",
+      "answer": "{supplier} 需要{count, plural, other { {days} 天}}，来自您的回答",
+      "noTimeFor": "没有 {suppliers} 的交货时间记录",
+      "noSupplier": "这件商品没有供应商记录",
+      "unmatched": "这件商品没有与您的某个产品对应上，所以我无法知道它的供应商",
+      "assumed": "{days} 天，假设：{reason}",
+      "phraseNamed": "{supplier} 需要{count, plural, other { {days} 天}}",
+      "phraseAssumed": "一次交货需要{count, plural, other { {days} 天}}（假设）",
+      "line": "交货时间：{why}",
+      "yourSupplier": "您的供应商"
+    },
+    "reorder": {
+      "arithmetic": "每天 {rate}（最高 {high}）×{count, plural, other { {days} 天}} = {mid}，+ {safety} 安全余量（区间的快端）= {before}{moq}。",
+      "arithmeticSeason": "每天 {rate}（最高 {high}）×{count, plural, other { {days} 天}}，繁忙时段按 {multiple} 计 = {mid}，+ {safety} 安全余量（区间的快端）= {before}{moq}。",
+      "moqNone": "；没有最低起订量记录",
+      "moqRounded": "；{ends, select, s {{supplier} 的} other {{supplier} 的}}最低起订量是 {moq}，所以取 {moq}",
+      "moqRoundedUnnamed": "；供应商的最低起订量是 {moq}，所以取 {moq}",
+      "moqOver": "；超过{ends, select, s { {supplier} 的} other { {supplier} 的}}最低起订量 {moq}",
+      "moqOverUnnamed": "；超过供应商的最低起订量 {moq}",
+      "cost": "{quantity} × 成本价 {unit} = {total}",
+      "costStated": "{quantity} × 成本价 {unit}（您自己给出的产品成本）= {total}"
+    },
+    "cover": {
+      "sourcesOnHand": "现有数量 {onHand}，于 {day} 读取自 {source}",
+      "assumedPace": "未来几天按最近{count, plural, other { {days} 天}}的速度销售（售出 {units}），上下有偶然波动（±{band}）",
+      "assumedLead": "假设的交货时间：{why}",
+      "assumedSeason": "假设：这件商品遵循您企业自身的季节规律——繁忙时段依据的是您{readFrom}，而不是这件商品本身",
+      "assumedElapsed": "假设：自 {day} 读取库存以来（{count, plural, other {{days} 天}}前），它一直按这个速度销售",
+      "windowFile": "截至 {to} 的 {days} 天内售出 {units}，来自您的库存文件",
+      "windowMeasured": "{from} 至 {to} 售出 {units}，由 {source} 测量",
+      "sources": "{window}；现有数量 {onHand}，读取于 {day}；{lead}",
+      "sourcesSeason": "{window}；现有数量 {onHand}，读取于 {day}；{lead}；季节规律依据您{readFrom}",
+      "colSoldOut": "已售罄",
+      "colNoSales": "无销售"
+    },
+    "warning": {
+      "sentence": "{name} 将在{range}后售罄；{lead}。",
+      "sentenceInStretch": "{name} 将在{range}后售罄；{lead}。这已计入您正处于的繁忙时段，持续到 {end}。",
+      "sentenceFromStretch": "{name} 将在{range}后售罄；{lead}。这已计入您从 {start} 开始的繁忙时段。",
+      "head": "{name} 将在{range}后售罄。",
+      "rangeOpen": "约{count, plural, other { {days} 天}}或更久",
+      "rangeClosed": "约 {low}–{high} 天"
+    },
+    "option": {
+      "label": {
+        "content": "在帖子中推荐它",
+        "bundle": "与畅销品搭配",
+        "email": "给同意接收邮件的客户发邮件",
+        "markdown": "降价",
+        "selloff": "清仓或退货"
+      },
+      "inline": {
+        "content": "在帖子中推荐它",
+        "bundle": "与畅销品搭配",
+        "email": "给同意接收邮件的客户发邮件",
+        "markdown": "降价",
+        "selloff": "清仓或退货"
+      },
+      "noPrice": "它的售价未知",
+      "noChannel": "您没有可以发帖的渠道",
+      "noBestSeller": "没有有库存的畅销品可以搭配",
+      "noConsent": "还没有客户同意接收邮件",
+      "noCost": "它的成本未知",
+      "emailOff": "您自己对客户同意的回答是“未同意”，所以邮件保持关闭",
+      "arithmetic": {
+        "content": "现有数量 {onHand} × 按原价售出 {low}–{high} = {unitsLow}–{unitsHigh} 件，{backLow}–{backHigh}；不让出任何东西",
+        "bundleNone": "没有现有库存的畅销品可以搭配",
+        "bundle": "现有数量 {onHand} × {low}–{high}，以 {seller} 的现有数量 {cap} 为上限 = {unitsLow}–{unitsHigh} 件，{backLow}–{backHigh}；两件都按原价，不让出任何东西",
+        "email": "{customers} 位同意接收邮件的客户 × {low}–{high} 购买一件，以现有数量 {onHand} 为上限 = {unitsLow}–{unitsHigh} 件，{backLow}–{backHigh}；没有折扣，不让出任何东西",
+        "markdown": "现有数量 {onHand} × 按 {cut} 折扣售出 {low}–{high} = {unitsLow}–{unitsHigh} 件，{backLow}–{backHigh}，让出原价中的 {givenLow}–{givenHigh}",
+        "selloffNone": "没有可用于估值的成本记录",
+        "selloff": "成本价 {cost} × {low}–{high} = {backLow}–{backHigh}，相对原价 {price} 让出 {givenLow}–{givenHigh}"
+      },
+      "efficiencyFree": "可能收回 {back}，不让出任何东西",
+      "efficiencyNet": "可能收回 {back} − 让出 {given} = 净得 {net}（每让出 {one} 收回 {ratio}）",
+      "unknownCurrency": "{amount}（货币未知）"
+    },
+    "held": {
+      "slowNotInCare": "等您选好我为您工作的方式，我就会提出清理它的方法。",
+      "coverNotInCare": "等您选好我为您工作的方式，我就会把补货备忘放进您的队列。",
+      "watching": "我会观察到 {day}，在此之前不提出任何提案。"
+    },
+    "source": {
+      "file": "您的库存文件"
+    },
+    "history": {
+      "summary": "{count, plural, other {{n} 件最滞销商品}}按成本占用的资金，{from} 至 {to} 的每次盘点：{items}。这是库存存量，在每个盘点日读取——从不跨天累加。",
+      "oneCount": "{name} {amount}（一次盘点）",
+      "change": "{name} 从 {from} 到 {to}"
+    },
+    "view": {
+      "notRead": "我还没有读取您的库存。",
+      "allSelling": "您持有的所有商品都在正常销售。",
+      "notSelling": "{count, plural, other {{n} 件卖不动的商品}}。",
+      "tiedUp": "{amount} 占用在{count, plural, other { {n} 件卖不动的商品}}上。",
+      "svmOtherCurrency": "您估计您的呆滞库存为 {stated}；我测量的数据不是以 {currency} 计，所以我不做比较。",
+      "svm": "您估计您的呆滞库存为 {stated}；我按成本测量到卖不动的库存为 {measured}——{direction, select, more {多} other {少}} {diff}。您的估计保留在事实表上。"
+    }
+  },
+  "cartsWords": {
+    "and": "{first} 和 {last}",
+    "headline": {
+      "noShop": "弃购购物车需要一个已连接的 Shopify 网店。",
+      "notRead": "我还没有读取您的购物车。",
+      "tooMany": "结账记录太多，无法完整读取。",
+      "stale": "您的购物车最近没有被读取。",
+      "tooEarly": "现在测量您的弃购购物车还为时过早。",
+      "carts": "最近{days, plural, other { # 天}}内有{count, plural, other { # 个购物车}}被留下；{shoppers, plural, other {# 位购物者}}中有 {emailable} 位可以发邮件。",
+      "value": "最近{days, plural, other { # 天}}内有 {money} 留在购物车中；{shoppers, plural, other {# 位购物者}}中有 {emailable} 位可以发邮件。"
+    },
+    "window": {
+      "now": "{from} 至 {to}：开始了{started, plural, other { # 次结账}}，{left} 次被留下，{recovered} 次之后完成。",
+      "nowShare": "{from} 至 {to}：开始了{started, plural, other { # 次结账}}，{left} 次被留下，{recovered} 次之后完成；所有结账中有 {share} 未完成。",
+      "prior": "之前的{days, plural, other { # 天}}：{left} 次被留下（{money}）。",
+      "priorShare": "之前的{days, plural, other { # 天}}：{left} 次被留下（{money}），占结账的 {share}。"
+    },
+    "notes": {
+      "yes": "{count, plural, other {# 个购物车}}来自同意接收邮件的联系人。",
+      "noEmail": "{count, plural, other {# 个购物车没有我能读取的邮箱，因此没有与任何人对应上。}}",
+      "notContact": "{count, plural, other {# 个购物车来自不在您联系人中的购物者，因此不会发邮件。}}",
+      "noConsent": "{count, plural, other {# 个购物车来自没有记录同意接收邮件的联系人，因此不会发邮件。}}",
+      "suppressed": "{count, plural, other {# 个购物车来自已退订或要求被遗忘的人，因此不会发邮件。}}"
+    },
+    "noEmailWhy": {
+      "read": "该结账没有客户邮箱：可能是草稿订单，或由某个应用创建的订单。",
+      "notGranted": "Shopify 只会向有权读取您客户的应用透露是谁留下了购物车。请在 Shopify 的 Dev Dashboard 中为该应用添加 read_customers，发布它，然后重新连接。",
+      "refused": "该应用已有 read_customers，但 Shopify 仍然隐去了客户信息。请在该应用的 Dev Dashboard 中允许访问客户数据（邮箱）并发布它，下次同步就会对应上购物车。",
+      "unknown": "Shopify 只会向有权读取您客户的应用（read_customers）透露是谁留下了购物车。"
+    },
+    "checkout": {
+      "saidYes": "{count, plural, other {# 位联系人}}在 Shopify 结账时同意接收邮件，并记录了同意的时间。如果他们在 Shopify 中退订，我就停止给他们发邮件。",
+      "withdrawn": "{count, plural, other {# 位}}被您记录为同意的联系人后来在 Shopify 中退订了，所以我不再给他们发邮件。",
+      "differs": "{count, plural, other {Shopify 把 # 位联系人列为已订阅，而您的记录与此不同。我保留了您记录的答案。}}"
+    },
+    "week": {
+      "cant": "在最近一周留下购物车的联系人中，{cant, plural, other {有 # 位无法发邮件}}。",
+      "recent": "在最近一周留下购物车的联系人中，{count, plural, other {有 # 位}}在最近{days, plural, other { # 天}}内已经为其提出过提醒。",
+      "both": "在最近一周留下购物车的联系人中，{cant, plural, other {有 # 位无法发邮件}}，另有{count, plural, other { # 位}}在最近{days, plural, other { # 天}}内已经为其提出过提醒。"
+    },
+    "block": {
+      "everyone": "所有在 {min}–{max, plural, other {# 天}}前留下购物车并同意接收邮件的人，在最近{days, plural, other { # 天}}内都已经为其提出过提醒。",
+      "everyoneWeek": "所有在最近一周留下购物车并同意接收邮件的人，在最近{days, plural, other { # 天}}内都已经为其提出过提醒。",
+      "nobody": "没有同意接收邮件的联系人在 {min}–{max, plural, other {# 天}}前留下购物车，所以没有需要提醒的人。",
+      "nobodyWeek": "最近一周没有同意接收邮件的联系人留下购物车，所以没有需要提醒的人。"
+    },
+    "sources": {
+      "read": "{source}，读取于 {day}",
+      "line": "购物车和订单：{list}。可以给谁发邮件：每位联系人自己记录的同意，在发送邮件时会再次核对。",
+      "notYet": "购物车和订单：尚未读取。可以给谁发邮件：每位联系人自己记录的同意，在发送邮件时会再次核对。"
+    },
+    "measure": {
+      "noFullRead": "还没有一次读取是完整完成的。",
+      "lastFullRead": "上一次完整读取是在 {day}。",
+      "tooMany": "{source} 在最近{days, plural, other { # 天}}内的弃购结账多于一次读取的上限，而我不会把其中一部分当作全部来展示。",
+      "stale": "我上一次从 {source} 读取您的购物车是在 {day}，所以不展示可能已经过时的数字。下一次读取成功后，它就会回来。",
+      "thin": {
+        "reason": "数据太少，暂时无法测量：{short}。",
+        "and": "{first}；{last}",
+        "noCarts": "还没有读取任何购物车",
+        "days": "{count, plural, other {{n} 天}}的购物车数据（我需要 {min} 天）",
+        "carts": "最近{days, plural, other { # 天}}内留下了{count, plural, other { {n} 个购物车}}（我需要 {min} 个）",
+        "readyFrom": "从 {day} 起就能就绪。",
+        "readyOnce": "一旦在{days, plural, other { # 天}}内有{count, plural, other { # 个购物车}}被留下，就能就绪。",
+        "readyOnceNotBefore": "一旦在{days, plural, other { # 天}}内有{count, plural, other { # 个购物车}}被留下，就能就绪，但不会早于 {day}。"
+      },
+      "priorNote": "暂无对比：之前的{days, plural, other { # 天}}中有{covered, plural, other { # 天}}的购物车数据、{left} 个被留下，而对比需要{minDays, plural, other { # 天}}和{minCarts, plural, other { # 个购物车}}。"
+    },
+    "ruleOfThumb": {
+      "label": "假设",
+      "statement": "经验法则，不是您的数字：在提醒邮件送达的购物车中，约 {low}–{high} 会回来下单。"
+    },
+    "held": {
+      "noConsent": "您告诉我您的客户没有同意接收营销邮件，所以我一封也不发。"
+    },
+    "productFallback": "产品 {ref}"
+  },
+  "pipelineWords": {
+    "answer": "您对问题 {question} 的回答",
+    "rate": {
+      "measuredAssumed": "接下来的交易会像您最近的 {n} 笔那样结束（赢单 {won} 笔，丢单 {lost} 笔，{from} 至 {to}）；区间表示{count, plural, other { {n} 笔交易}}可能带来多大的偏差",
+      "statedAssumed": "您自己的成交率 {rate}（问题 {question}），上下浮动{band, plural, other { # 个百分点}}：这是您的估计，不是测量结果",
+      "none": "我还不知道您的成交率：最近{days, plural, other { # 天}}内结束了{count, plural, other { {n} 笔交易}}，而我需要 {min} 笔才能测量。告诉我您大约能赢下多大比例（问题 {question}），我现在就能为您进行中的交易加权。"
+    },
+    "weigh": {
+      "canList": "列出您进行中的交易、它们的金额，以及每笔交易在当前阶段停留了多久",
+      "canStale": "指出哪些交易没有下一步，或下一步已过期",
+      "cantLikely": "说出进行中的交易里，您可能赢下多少",
+      "cantBorrow": "借用其他企业的成交率并称之为您的",
+      "readyAfter": "再结束{count, plural, other { {n} 笔交易}}之后，或在您陈述成交率之后",
+      "readyStated": "在您陈述成交率之后",
+      "sourcePipeline": "您的销售管道：{count, plural, other {{n} 笔进行中的交易}}",
+      "sourceClosed": "您在 {from} 至 {to} 之间结束的{count, plural, other { {n} 笔交易}}",
+      "oneRate": "每笔进行中的交易都按这一个成交率结束，不论处于哪个阶段——早期的潜在客户成交的可能性通常低于已发报价方案的交易，所以请先看低端",
+      "estimated": "{count, plural, other {{n} 个金额}}是您的估计而非报价，按同样方式计入"
+    },
+    "due": {
+      "noneDated": "没有一笔进行中的交易的预计成交日期在 {day} 或之前。给您的交易设定预计成交日期，我就能说出到那时可能赢下多少。",
+      "noValue": "预计在 {day} 前成交的交易还没有金额，所以我无法说出可能赢下多少。",
+      "sourceDates": "您为{count, plural, other { {n} 笔进行中的交易}}给出的预计成交日期",
+      "sourceRate": "您自己的成交率，来自您在 {from} 至 {to} 之间结束的{count, plural, other { {n} 笔交易}}",
+      "oneRate": "这些交易中的每一笔都按这一个成交率赢下，不论处于哪个阶段",
+      "markWon": "只有当您在该日期前在销售管道中把一笔交易标为已赢单，它才算按时赢下",
+      "overdue": "{count, plural, other {其中 {n} 笔原本预计更早成交，至今仍在进行中；它们按现在到期计算}}"
+    },
+    "hold": {
+      "notB2b": "销售管道适用于面向其他企业销售的企业：您告诉我您面向消费者销售（{question}）。",
+      "noConsent": "您自己对客户同意的回答（{question}）是“未同意”——在您的数据显示并非如此之前，我不会提出邮件"
+    },
+    "skip": {
+      "noneQuiet": "没有交易沉寂下来",
+      "perRun": "我每次提出 {max} 条——这一条等下一次运行",
+      "already": "本月已经提出过",
+      "cantEmail": "我无法提出邮件：{why}。请给他们打电话，或在“客户”中记录他们的同意。",
+      "contactGone": "该联系人已不存在",
+      "declined": "您已经拒绝过跟进{count, plural, other { # 次}}——我已停止提出"
+    },
+    "noName": "一位没有名字的联系人"
+  },
+  "simulateWords": {
+    "model": {
+      "label": {
+        "margin": "您的利润率",
+        "aov": "一个订单的价值",
+        "aovEach": "每人的消费额",
+        "recipients": "可以发邮件的对象",
+        "delivery": "送达率",
+        "boughtAgain": "之后再次购买",
+        "dailyNew": "每日预算",
+        "dailyNow": "当前每天花费",
+        "roas": "广告支出回报",
+        "posts": "计划中的社交帖子",
+        "reach": "{audience, select, views {每篇帖子的浏览量} other {每篇帖子的触达人数}}",
+        "interactions": "每篇帖子的互动数",
+        "spi": "每次互动带来的网站访问",
+        "conversion": "产生购买的访问"
+      },
+      "inline": {
+        "margin": "您的利润率",
+        "aov": "一个订单的价值",
+        "aovEach": "每人的消费额",
+        "recipients": "可以发邮件的对象",
+        "delivery": "送达率",
+        "boughtAgain": "之后再次购买",
+        "dailyNew": "每日预算",
+        "dailyNow": "当前每天花费",
+        "roas": "广告支出回报",
+        "posts": "计划中的社交帖子",
+        "reach": "{audience, select, views {每篇帖子的浏览量} other {每篇帖子的触达人数}}",
+        "interactions": "每篇帖子的互动数",
+        "spi": "每次互动带来的网站访问",
+        "conversion": "产生购买的访问"
+      },
+      "notKnown": "未知",
+      "notWorkedOut": "未计算",
+      "needLine": "{label}：{needs}",
+      "revenueFormula": "{orders} 个订单 × {value}",
+      "profitFormula": "{revenue} × {margin} 利润率 − {spend}",
+      "worstUnknown": "没有上面的输入，我无法估算最坏情况。",
+      "currencies": "以 {currencies} 计——我不在货币之间换算",
+      "margin": {
+        "both": "根据您的产品和服务计算（{computed}），以及按您告诉我的（{stated}）——区间同时涵盖两者",
+        "computed": "根据您的产品和服务计算：{formula}",
+        "formulaDefault": "价格减去交付成本",
+        "stated": "按您告诉我的（您的毛利率）",
+        "needs": "您的毛利率，或每件产品的交付成本——然后就能算出利润"
+      },
+      "aov": {
+        "measured": "最近 {window} 中{count, plural, other { # 个已测量日}}的营收 ÷ 订单数，取中间一半",
+        "stated": "您的月营收 ÷ 您的月订单数，按您告诉我的",
+        "needs": "一个已连接的网店或收银机，或者您的月营收和订单数"
+      },
+      "email": {
+        "title": "{segment, select, lapsed {发给流失客户的挽回邮件} other {发给您最佳客户的感谢邮件}}",
+        "recipientsSource": "您客户名单中该群体有{count, plural, other { # 位客户}}；其中 {emailable} 位同意接收邮件且未退订",
+        "noList": "还没有客户名单",
+        "listNeeds": "您的客户名单，在“客户”中导入",
+        "deliverySource": "{count, plural, other {# 次有送达报告的过往营销活动}}的送达数 ÷ 发送数",
+        "noDelivery": "您的营销活动还没有一次有送达报告",
+        "deliveryNeeds": "一次已发送并带有送达报告的营销活动",
+        "before": "之前",
+        "boughtAgainOne": "{kind, select, winback {您在 {day} 发出的挽回邮件：{measured} 位已测量的收件人中有 {returned} 位再次购买——误差为正负一人} other {您在 {day} 发出的感谢邮件：{measured} 位已测量的收件人中有 {returned} 位再次购买——误差为正负一人}}",
+        "boughtAgainMany": "{kind, select, winback {再次购买数 ÷ 已测量数，基于您最近{count, plural, other { # 次挽回营销活动}}，取中间一半} other {再次购买数 ÷ 已测量数，基于您最近{count, plural, other { # 次感谢营销活动}}，取中间一半}}",
+        "boughtAgainNone": "{kind, select, winback {您的挽回邮件还没有一次被回读} other {您的感谢邮件还没有一次被回读}}",
+        "boughtAgainNeeds": "{kind, select, winback {一次已发送的挽回邮件，以及在其之后至少{count, plural, other { # 天}}导出的客户名单} other {一次已发送的感谢邮件，以及在其之后至少{count, plural, other { # 天}}导出的客户名单}}",
+        "spendsSource": "{count, plural, other {# 位收件人}}的总消费 ÷ 订单数，来自您的客户名单，取中间一半",
+        "costFormula": "没有花费——邮件按您的套餐发送",
+        "reachedFormula": "{recipients} 位收件人 × {rate} 送达",
+        "ordersFormula": "{recipients} 位收件人 × {rate} 再次购买",
+        "worstFormula": "没有人再次购买：没有进账，也没有花费",
+        "worstWords": "没有人再次购买：进账 {zero}，花费 {zero}。",
+        "harmWords": "按您过往表现最差的营销活动的比例（{rate}），约有{count, plural, other { # 人}}会退订——立即且永久生效。",
+        "what": "{segment, select, lapsed {一封以您的口吻撰写的邮件，发给 {emailable} 位同意接收邮件的流失客户。} other {一封以您的口吻撰写的邮件，发给 {emailable} 位同意接收邮件的最佳客户。}}",
+        "whatNoList": "一封发给某一群体客户的邮件——在您的客户名单导入之后。",
+        "assumption": "{kind, select, winback {这次发送的效果与您过往的挽回邮件相同。} other {这次发送的效果与您过往的感谢邮件相同。}}",
+        "assumptionSource": "我的预测——下一次营销活动要发出后才能测量",
+        "keyRate": "再次购买",
+        "noConsent": "您告诉我您的客户没有同意接收邮件，所以外发邮件保持关闭。",
+        "nobodyEmailable": "这个群体中没有人同意接收邮件，所以没有可以发送的对象。",
+        "importFirst": "请先在“客户”中导入您的客户名单。"
+      },
+      "ads": {
+        "thisCampaign": "这项营销活动",
+        "metaNeeds": "您的 Meta 广告账户，在“连接”中连接",
+        "typedSource": "您在这里输入的预算",
+        "typedNeeds": "您设想的每日预算",
+        "newSpendFormula": "每天 {daily} × {days} 天",
+        "dailySource": "Meta：最近 {window} 中{count, plural, other { # 个已测量日}}花费 {spend}",
+        "noSpend": "最近四周没有已测量的花费",
+        "dailyNeeds": "这项营销活动运行几周的数据",
+        "pauseFormula": "每天不花的 {daily} × {days} 天",
+        "changeFormula": "每天 {daily} × {change} × {days} 天",
+        "roasSource": "{which, select, pooled {Meta 归因的购买 ÷ 花费，按最近 {window} 天内滚动的 {block} 天周计算，涵盖您已测量的所有营销活动，取中间一半（{count, plural, other {# 周}}）} other {Meta 归因的购买 ÷ 花费，按最近 {window} 天内滚动的 {block} 天周计算，取中间一半（{count, plural, other {# 周}}）}}",
+        "roasNonePooled": "您的营销活动中没有一项在 {currency} 下有 {days} 个已测量日",
+        "roasNone": "{count, plural, other {# 个已测量日}}——我需要 {need} 个",
+        "roasNeeds": "{which, select, pooled {一项营销活动的 {days} 个已测量日} other {这项营销活动的 {days} 个已测量日}}",
+        "reachNotRead": "没有读取 Meta 每项营销活动的触达人数",
+        "ordersNotRead": "Meta 报告的是每项营销活动的购买价值，而不是数量",
+        "revenueFormula": "{spend} × 回报 {roas}（Meta 的归因）",
+        "worstFormula": "{spend} × 回报 {roas} × {margin} − {spend}",
+        "worstWeakest": "每周的回报都与您表现最差的已测量周相同（{roas}）：{days} 天内 {amount}。",
+        "worstBest": "您要停掉的那些周与您表现最好的已测量周一样好（{roas}）：{days} 天内 {amount}。",
+        "worstUnsized": "最坏情况下，{amount} 全部花出去而几乎没有回报——没有上面的输入，我无法估算。",
+        "guardCurrency": "您的广告上限以 {ceiling} 计，而这个预算以 {currency} 计——我不会换算来比较它们",
+        "guardCeiling": "这会让每月广告花费达到约 {projected}，超过您陈述的上限 {ceiling}",
+        "titleNew": "以每天 {amount} 开始一项新的营销活动",
+        "titleNewOpen": "以您选择的预算开始一项新的营销活动",
+        "titleRaise": "把“{name}”提高 {share}",
+        "titleCut": "把“{name}”削减 {share}",
+        "titlePause": "暂停“{name}”",
+        "whatNew": "一项新的 Meta 营销活动，按您其他营销活动的回报来评估。",
+        "whatPause": "停止这项营销活动：它的花费留在您手里，而 Meta 说它带来的收入也随之停止。",
+        "whatRaise": "为您已在运行的营销活动增加每日预算。",
+        "whatCut": "为您已在运行的营销活动减少每日预算。",
+        "newNotProposable": "新广告要从一篇帖子或一段视频开始：在“内容”中，“把它作为广告投放”会生成一条提案，在 Meta 上创建该广告并处于暂停状态（{task}）。在这里我只能估算它的规模。",
+        "tooFewDays": "只有背后有 {days} 个已测量日时，我才会提出广告调整。",
+        "guarded": "我不会提出这项：{guard}。",
+        "assumeStop": "您停掉的花费，其回报与这项营销活动最近几周相同。",
+        "assumeExtra": "额外的花费，其回报与最近几周相同。",
+        "assumptionSource": "我根据 Meta 自己的归因所做的预测——其中一些购买可能本来就会发生",
+        "keyRate": "广告支出回报"
+      },
+      "content": {
+        "postNeeds": "{count, plural, other {# 篇在发布一周后测量过的已发布帖子}}",
+        "postNeedsConnect": "您的 Instagram 或 Facebook 主页已连接用于发布，并有几篇帖子已测量",
+        "postsSource": "{count, plural, other {# 个社交渠道}} × 每周 {perWeek} 篇 × {weeks} 周——日历中的社交帖子；其中的邮件和网站内容不做模拟",
+        "noChannel": "您的资料中没有社交渠道",
+        "channelNeeds": "一个您发帖的社交渠道，添加到您的资料中",
+        "reachSource": "{platform}，发布后第 {age} 天，您最近{count, plural, other { # 篇帖子}}，取中间一半",
+        "interactionsSource": "{platform}，第 {age} 天，您最近{count, plural, other { # 篇帖子}}，取中间一半",
+        "measured": "{count, plural, other {已测量 # 篇帖子}}",
+        "spiNone": "来自社交媒体的访问还没有与您的帖子对照测量",
+        "spiSource": "来自“{channel}”的 {visits} 次访问 ÷ 您帖子上的 {interactions} 次互动，最近 {days} 天",
+        "spiNeeds": "一个月的帖子测量数据，以及您 Google Analytics 中来自社交媒体的访问",
+        "spiNeedsConnect": "连接 Google Analytics，我才能看到来自社交媒体的访问",
+        "conversionSource": "最近 {window} 中{count, plural, other { # 个已测量日}}的订单 ÷ 访问，取中间一半",
+        "conversionStated": "您的月订单数 ÷ 您的月网站访问量，按您告诉我的",
+        "conversionNeeds": "连接 Google Analytics 和您的网店，或者提供您的月访问量和订单数",
+        "costFormula": "没有花费——只有您审阅草稿的时间",
+        "reachedFormula": "{audience, select, views {{posts} 篇帖子 × {reach} 浏览} other {{posts} 篇帖子 × {reach} 触达}}",
+        "ordersFormula": "{posts} 篇帖子 × {interactions} 次互动 × 每次 {visits} 次访问 × {rate} 购买",
+        "worstFormula": "没有人购买：没有进账，也没有花费",
+        "title": "{weeks} 周的内容日历",
+        "what": "{count, plural, other {在您已在运营的社交渠道上发布 # 篇帖子，以您的口吻起草，每一篇都等待您的同意。}}",
+        "whatNone": "在您已在运营的社交渠道上发布的帖子——在您的资料中添加一个渠道之后。",
+        "assumption": "{channels, select, many {计划中的帖子在每个渠道上的表现都与您最近在 {platform} 上的帖子相同。} other {计划中的帖子的表现与您最近在 {platform} 上的帖子相同。}}",
+        "assumptionSource": "我根据您自己已测量的帖子所做的预测",
+        "worstWeakest": "每篇帖子的触达都与您最弱的一篇相同（{weakest}），且没有人购买：损失 {zero}，只花了您的审阅时间。",
+        "worstNone": "没有人购买：损失 {zero}，只花了您的审阅时间。",
+        "keyRate": "{audience, select, views {每篇帖子的浏览量} other {每篇帖子的触达人数}}",
+        "addChannel": "请先在您的资料中添加一个您发帖的社交渠道。"
+      }
+    },
+    "cross": {
+      "readback": "目前的回读结果：{helped} 次有帮助，{nothing} 次没有效果，{backfired} 次适得其反。",
+      "none": "{kind, select, email {尚未测量：我过往的邮件营销活动中，没有一次带有可供核对的预测区间。} other {尚未测量：我过往的广告调整中，没有一次带有可供核对的预测区间。}}",
+      "notReadBack": "{kind, select, email {{count, plural, other {尚未测量：我最近 {simulated} 次带有预测区间的邮件营销活动还没有被回读。}}} other {{count, plural, other {尚未测量：我最近 {simulated} 次带有预测区间的广告调整还没有被回读。}}}}",
+      "lastOne": "{kind, select, email {{landed, select, inside {我上一次的邮件营销活动落在了预测区间之内。} other {我上一次的邮件营销活动落在了预测区间之外。}}} other {{landed, select, inside {我上一次的广告调整落在了预测区间之内。} other {我上一次的广告调整落在了预测区间之外。}}}}",
+      "lastMany": "{kind, select, email {我最近 {checked} 次邮件营销活动中，有{count, plural, other { {inside} 次}}落在了预测区间之内。} other {我最近 {checked} 次广告调整中，有{count, plural, other { {inside} 次}}落在了预测区间之内。}}",
+      "contentNone": "尚未测量：我过往的内容日历中，没有一份带有可供核对的预测区间。",
+      "contentNotAdded": "尚未测量：日历中的帖子是逐篇评估的，我还不会把它们加总起来与日历的预测区间对照。"
+    },
+    "pricing": {
+      "refuse": {
+        "zero": "新价格必须大于零",
+        "notAChange": "这不是一次价格调整",
+        "tooSmall": "这个调整不到 {share}——太小，无法模拟",
+        "tooBig": "我只模拟上下 {share} 以内的调整；超过这个幅度，反应区间就不再是可靠的参考"
+      },
+      "title": {
+        "share": "{change} → {price}",
+        "exact": "{price}（{change}）"
+      },
+      "label": {
+        "price": "当前价格",
+        "cost": "单件交付成本",
+        "volume": "{kind, select, service {每 {days} 天的预约数} other {每月销量}}",
+        "response": "客户对价格的反应",
+        "capacity": "预约簿的空余，{days} 天"
+      },
+      "inline": {
+        "price": "当前价格",
+        "cost": "单件交付成本",
+        "volume": "{kind, select, service {每 {days} 天的预约数} other {每月销量}}",
+        "response": "客户对价格的反应",
+        "capacity": "预约簿的空余，{days} 天"
+      },
+      "notKnown": "未知",
+      "needLine": "{label}：{needs}",
+      "noPrice": "您的资料中还没有 {name} 的价格",
+      "priceNeeds": "{name} 的价格",
+      "costOtherCurrency": "记录的成本以 {costCurrency} 计，价格以 {currency} 计——我不在货币之间换算",
+      "costNeedsService": "一次 {name} 的交付成本——在您销售的项目中列出“{name}”及其成本，我就会把它与您的预约对应起来",
+      "costNeedsIn": "一份 {name} 以 {currency} 计的交付成本",
+      "costNeeds": "一份 {name} 的交付成本",
+      "volumeNeedsService": "您 {name} 的预约，导入或连接均可",
+      "volumeNeeds": "您每月大约卖出多少 {name}",
+      "responseSource": "价格每变动 {one}，就有 {low} 至 {high} 的{kind, select, service {预约} other {销量}}朝相反方向变动——{why}",
+      "band": {
+        "shop": "客户可以比较、而且常常能在别处买到的商品，对价格调整的反应往往很强烈",
+        "hospitality": "一顿饭或一晚住宿部分取决于地方和习惯，所以客户对价格的反应比在商店里弱",
+        "appointments": "预约自己信任的人的客户，往往在价格调整后仍会留下；也有一些会离开",
+        "services": "基于信任购买的服务，对价格的反应比商品弱，但报价是可以比较的",
+        "default": "您的资料中没有企业类型，所以区间取我使用的最宽范围"
+      },
+      "capacityNeeds": "您每周能接多少预约——这样降价带来的增量会被限制在您的空余容量内",
+      "be": {
+        "needPrice": "我需要先知道 {name} 的价格。",
+        "change": "{dir, select, rise {涨价 {share}} other {降价 {share}}}",
+        "changeStart": "{dir, select, rise {涨价 {share}} other {降价 {share}}}",
+        "costNeed": "单件的交付成本",
+        "neverToday": "按今天的 {price}，每{kind, select, service {个预约} other {笔销售}}的交付成本已经是 {cost}，所以今天它本身就没有利润，谈不上盈亏平衡——先看成本，再看价格。",
+        "unitFormula": "{kind, select, service {{price} − {cost} = 每个预约 {margin}} other {{price} − {cost} = 每笔销售 {margin}}}",
+        "neverNew": "按 {price}，每{kind, select, service {个预约} other {笔销售}}的交付成本将是 {cost}——每多一笔都在亏钱，所以无论多出多少{kind, select, service {预约} other {销量}}，{change} 都不划算。",
+        "shareFormula": "（{high} − {low}）÷（{next} − {cost}）= {share}",
+        "shareFormulaNoCost": "（{high} − {low}）÷ {next} = {share}——未计入交付成本",
+        "formulaOf": "{volume} {kind, select, service {个预约} other {笔销售}}的 {formula} = {units}",
+        "loseShare": "只要您流失的{kind, select, service {预约} other {销量}}少于 {share}，{change} 就划算。",
+        "loseCount": "只要在您约 {volume} 的{kind, select, service {每 {days} 天预约数} other {每月销量}}中流失少于 {count}（{share}），{change} 就划算。",
+        "loseShareAnyCost": "无论每一笔的成本是多少，只要您流失的{kind, select, service {预约} other {销量}}少于 {share}，{change} 就划算。",
+        "loseCountAnyCost": "无论每一笔的成本是多少，只要在您约 {volume} 的{kind, select, service {每 {days} 天预约数} other {每月销量}}中流失少于 {count}（{share}），{change} 就划算。",
+        "needCostShare": "要说出{change} 需要多出多少{kind, select, service {预约} other {销量}}，我需要知道单件的交付成本。不计成本时，它至少需要 {share}——真实数字会更高。",
+        "needCostCount": "要说出{change} 需要多出多少{kind, select, service {预约} other {销量}}，我需要知道单件的交付成本。不计成本时，它至少需要多出 {count}（{share}）——真实数字会更高。",
+        "noRoom": "您的预约簿在 {days} 天内只能再容纳 {room} 个，所以仅靠额外的预约无法让它划算。",
+        "winShare": "只有当您多赢得超过 {share} 的{kind, select, service {预约} other {销量}}时，{change} 才划算。",
+        "winCount": "只有当您在约 {volume} 的{kind, select, service {每 {days} 天} other {每月}}基础上多赢得超过 {count} 的{kind, select, service {预约} other {销量}}（+{share}）时，{change} 才划算。"
+      },
+      "formula": {
+        "volume": "{volume} {kind, select, service {个预约} other {笔销售}} ×（{one} {sign} {share} × {band}）{held, select, yes {，限制在您预约簿还能容纳的 {room} 个以内} other {}}",
+        "revenue": "{low} – {high} {kind, select, service {个预约} other {笔销售}} × {next} − {volume} × {price}",
+        "profit": "{low} – {high} ×（{next} − {cost}）− {volume} ×（{price} − {cost}）",
+        "worst": "{units} ×（{next} − {cost}）− {volume} ×（{price} − {cost}）"
+      },
+      "worstUnknown": "没有上面的输入，我无法估算最坏情况。",
+      "worstWords": "客户的反应处于区间的{end, select, strong {强烈} other {温和}}一端：{kind, select, service {预约} other {销量}}{dir, select, fall {下降} other {上升}} {share}，降至约 {units}，{name} 的利润{kind, select, service {每 {days} 天} other {每月}}变动 {amount}。",
+      "assumeBand": "无论涨价还是降价，客户对这次调整的反应都如区间所示，其间其他一切不变。",
+      "bandSource": "这是针对这类企业的规划假设，不是测量结果——还没有人测量过您的客户对价格调整的反应",
+      "assumeFits": "额外的预约能排进预约簿。",
+      "assumeFitsSource": "您还没有告诉我您每周的接待能力，所以我无法把增量限制在您的空余容量内",
+      "headPick": "为 {name} 选择一个价格调整，看看它在流失多少的情况下仍然划算。",
+      "headNoPrice": "您的资料中还没有 {name} 的价格。"
+    },
+    "items": {
+      "observed": "根据您已连接的账户测量",
+      "estimated": "您的估计",
+      "derived": "根据您的其他数字计算得出",
+      "told": "按您告诉我的",
+      "unnamed": "未命名",
+      "perOrderCost": "一项按订单计的成本",
+      "bookingsExport": "您的预约导出文件",
+      "capacitySource": "您陈述的每周 {perWeek} 个预约 × {weeks} 周，减去 {from} 至 {to} 已完成的 {taken} 个",
+      "priceSource": "{from} 至 {to} {count, plural, other {{n} 个已完成预约}}的平均标价，来自 {source}",
+      "volumeSource": "{from} 至 {to} 的已完成预约，来自 {source}"
+    }
+  },
+  "benchmarksWords": {
+    "group": {
+      "G47": "零售店",
+      "G479": "网店和邮购商店",
+      "I56": "餐馆、咖啡馆和酒吧",
+      "C10": "食品生产企业",
+      "S96": "个人服务企业",
+      "R931": "体育企业",
+      "Q86": "医疗健康企业",
+      "F": "建筑企业",
+      "F43": "建筑工种企业",
+      "N812": "清洁企业",
+      "G452": "汽车修理厂",
+      "M": "专业服务公司",
+      "M702": "管理咨询公司",
+      "M731": "广告公司",
+      "J62": "IT 公司",
+      "J582": "软件出版商",
+      "P855": "培训机构",
+      "Q889": "日间照护和社会照护服务",
+      "L68": "房地产企业",
+      "H": "运输和仓储企业",
+      "C": "制造企业",
+      "G46": "批发商",
+      "M74": "设计和摄影企业",
+      "I55": "住宿场所",
+      "H49": "陆路运输企业",
+      "G": "批发商、零售店和汽车贸易企业",
+      "G45": "汽车经销商和修理厂",
+      "I": "住宿场所、餐馆、咖啡馆和酒吧",
+      "J": "信息和通信企业",
+      "J58": "出版商",
+      "L": "房地产企业",
+      "M70": "总部和咨询公司",
+      "M73": "广告和市场调研企业",
+      "N81": "楼宇服务和清洁企业",
+      "P85": "教育企业",
+      "Q": "医疗健康和社会照护服务",
+      "Q88": "不提供住宿的社会照护服务",
+      "R93": "体育和休闲娱乐企业"
+    },
+    "covers": {
+      "G47": "除汽车外的所有零售：各类商店、市场摊位和网上卖家（NACE {code}）。",
+      "G479": "不在商店、摊位或市场中进行的零售：网上和邮购卖家（NACE {code}）。同时拥有自己实体店的企业，如果大部分销售来自网上，也计入这里。",
+      "I56": "所有餐饮服务：餐馆、咖啡馆、酒吧、外卖和餐饮承办合并统计（NACE {code}）。",
+      "C10": "食品制造，其中包括面包店（NACE {code}）。",
+      "S96": "所有其他个人服务：美发美容、水疗和桑拿、洗衣以及殡葬服务合并统计（NACE {code}）。Eurostat 没有进一步细分。",
+      "R931": "体育活动：健身房、体育俱乐部和体育设施（NACE {code}）。",
+      "Q86": "所有人类健康活动：医院、诊所和牙科诊所，以及物理治疗等其他护理，合并统计（NACE {code}）。",
+      "F": "所有建筑：房屋建筑、土木工程和专业工种（NACE {code}）。",
+      "F43": "专业建筑工种：电工、水管工、木工、抹灰工、油漆工和屋面工（NACE {code}）。建筑以外的工种不在这里。",
+      "N812": "楼宇、住宅和工业场所的清洁（NACE {code}）。",
+      "G452": "机动车的维护和修理（NACE {code}）。汽车经销商改为计入{other}。",
+      "M": "所有专业、科学和技术活动：法律、会计、建筑设计、工程、咨询、设计等（NACE {code}）。",
+      "M702": "管理咨询（NACE {code}）。",
+      "M731": "广告公司和媒体版面销售（NACE {code}）。",
+      "J62": "计算机编程、IT 咨询以及为他人运行计算机系统（NACE {code}）。",
+      "J582": "软件出版（NACE {code}）。主要按订单开发的软件公司改为计入{other}。",
+      "P855": "其他教育：辅导、语言和驾驶学校，以及培训课程（NACE {code}）。学校本身计入其他类别。",
+      "Q889": "其他不提供住宿的社会工作，其中包括儿童日间照护（NACE {code}）。",
+      "L68": "所有房地产：买卖和出租物业，以及中介（NACE {code}）。",
+      "H": "所有运输和仓储：货运、仓储、快递等（NACE {code}）。",
+      "C": "所有制造业（NACE {code}）。",
+      "G46": "除汽车外的批发贸易（NACE {code}）。",
+      "M74": "其他专业活动：设计、摄影、翻译等，合并统计（NACE {code}）。",
+      "I55": "住宿：酒店、度假出租屋和露营地（NACE {code}）。旅游经营商改为计入{other}。",
+      "H49": "陆路运输：出租车、公交、长途客车和公路货运（NACE {code}）。"
+    },
+    "unmapped": {
+      "agriculture": "农业（NACE A 门类）不在 Eurostat 的企业统计中。",
+      "events": "活动类企业横跨场地、策划和餐饮承办，Eurostat 把它们计入不同的组别，所以没有哪一个组别能如实对比。",
+      "nonprofit": "Eurostat 的企业统计只计算以销售为业的企业；非营利组织的数字含义不同。",
+      "other": "被描述为“其他”的企业，没有一个可以对比的组别。"
+    },
+    "title": {
+      "operating_margin": "营业利润率",
+      "turnover_per_person": "人均年营业额",
+      "staff_cost_per_employee": "每名员工的年人员成本"
+    },
+    "gapNote": {
+      "operating_margin": "Eurostat 的比率未扣除不在工资单上的所有者的报酬，也未扣除利息、折旧和税费。如果您的成本清单包含您自己的报酬，您的数字会比按他们的口径计算的低。",
+      "turnover_per_person": "Eurostat 的营业额不含增值税。如果您的营收数字包含增值税，您的数字会比按他们的口径计算的高。",
+      "staff_cost_per_employee": "Eurostat 的数字包含雇主缴纳的社会保险，并把兼职人员算作一人。如果您的人员成本只是工资本身，您的数字会比按他们的口径计算的低。"
+    },
+    "caveat": "这些是该组别中所有企业的合计，而不是一家典型企业。",
+    "size": {
+      "upTo": "{count, plural, other {{n} 人及以下}}",
+      "range": "{min}–{max} 人",
+      "atLeast": "{min} 人及以上",
+      "every": "所有规模"
+    },
+    "flag": {
+      "e": "估计值",
+      "b": "时间序列中断"
+    },
+    "cell": {
+      "words": "{country}的所有{group}（{size}），{year}，Eurostat",
+      "unpublished": "Eurostat 没有公布{country}{group}（{size}）的这项数据，所以这里用的是{country}{usedGroup}（{usedSize}）的数据。",
+      "confidential": "Eurostat 对{country}{group}（{size}）的这项数据保密（{year}），所以这里用的是{country}{usedGroup}（{usedSize}）的数据。",
+      "everySize": "Eurostat 根据整个行业的合计计算这个数字，所以最大的企业在其中权重最大；与您这种规模的企业对照时，请宽松解读。"
+    },
+    "conversion": "按 {year} 年的平均汇率（一欧元兑 {rate} {currency}）从欧元换算（Eurostat，{dataset}）。",
+    "gap": {
+      "pointsAbove": "{count, plural, other {高 {points} 个百分点}}",
+      "pointsBelow": "{count, plural, other {低 {points} 个百分点}}",
+      "moneyShareAbove": "高 {amount}（{share}）",
+      "moneyShareBelow": "低 {amount}（{share}）",
+      "moneyAbove": "高 {amount}",
+      "moneyBelow": "低 {amount}",
+      "same": "基本持平：{gap}"
+    },
+    "formula": {
+      "margin": "（{parts}）÷ {revenue} × {hundred} = {result}",
+      "revenue": "营收 {amount}",
+      "costOfSales": "销售成本 {amount}",
+      "perSale": "按销售计的成本 {amount}",
+      "running": "运营成本 {amount}",
+      "staff": "人员工资 {amount}",
+      "turnover": "每月 {amount} × {months} ÷ {count, plural, other {{persons} 人}} = {result}",
+      "staffCost": "每月 {amount} × {months} ÷ {count, plural, other {{employees} 名员工}} = {result}"
+    },
+    "input": {
+      "revenue": "每月营收",
+      "costOfSales": "销售成本",
+      "ofSales": "销售额的 {share}",
+      "offersSource": "{count, plural, other {按您的价格和每月销量计算的 {n} 项产品或服务的交付成本}}",
+      "marginSource": "{whole} 减去您 {margin} 的毛利率",
+      "perSale": "每月按销售计的成本",
+      "perSaleSource": "您的按件和按订单成本，按您的销量计算",
+      "running": "每月运营成本",
+      "runningSource": "您的成本清单，折算为每月",
+      "runningStaffSource": "您的成本清单，折算为每月，含人员工资",
+      "staffTeam": "{count, plural, other {人员工资，团队名单上 {n} 人}}",
+      "teamList": "您的团队名单",
+      "people": "在企业工作的人数，包括您自己",
+      "staffMonth": "每月人员工资",
+      "salariesSource": "您成本清单上的工资",
+      "employees": "您团队名单上的员工",
+      "employeesSource": "您的团队名单，每位标记为员工的人计一次"
+    },
+    "leftOut": {
+      "inGrossMargin": "{label}：已包含在您给出的毛利率中。",
+      "otherCurrency": "{label}：它以 {currency} 计，而不是 {own}。",
+      "noAmount": "{label}：没有金额。",
+      "perPiece": "{label}：它按件计，而您的产品和服务清单没有写明每月卖出多少。",
+      "perOrder": "{label}：它按订单计，而我不知道您每月接多少订单。",
+      "loan": "{label}：这是贷款还款，而 Eurostat 的比率未扣除利息，也不计入贷款本身。",
+      "noConvert": "{label}：它以 {currency} 计，而我不换算您自己的成本。",
+      "noFrequency": "{label}：没有频率，所以我无法把它折算为每月。"
+    },
+    "need": {
+      "revenue": "您的月营收",
+      "offerCosts": "每项产品或服务的交付成本",
+      "grossMargin": "您的毛利率",
+      "offerVolumes": "每项产品或服务每月大约卖出多少",
+      "orders": "您每月大约接多少订单",
+      "amountOf": "{label} 的金额",
+      "howOften": "您多久支付一次 {label}",
+      "salaries": "您以 {currency} 支付的工资，以及支付频率",
+      "employeeCost": "每名员工每月的成本",
+      "whoAndCost": "谁在企业工作，以及每人每月的成本",
+      "teamSize": "在企业工作的人数，包括您自己",
+      "team": "谁在企业工作",
+      "type": "这是什么类型的企业",
+      "country": "企业在哪个国家经营"
+    },
+    "why": {
+      "unpricedEmployees": "{count, plural, other {您团队名单上有 {n} 名员工没有以 {currency} 计的月成本，而人员工资在利润率中占比太大，不能略去。}}",
+      "unknownStaff": "我不知道除您之外是否还有人领工资，而人员工资在利润率中占比太大，不能略去。",
+      "needsRevenue": "它需要您的月营收。",
+      "zeroRevenue": "您的月营收为零，所以没有利润率可算。",
+      "needsCostOfSales": "它需要您销售的成本：每项产品或服务的交付成本及每月销量，或者您的毛利率。",
+      "payLines": "{count, plural, =1 {您成本清单上的工资项目 {label} 没有我能计入的以 {currency} 计的月金额，而人员工资在利润率中占比太大，不能略去。} other {您成本清单上有 {n} 条工资项目没有我能计入的以 {currency} 计的月金额，而人员工资在利润率中占比太大，不能略去。}}",
+      "noCell": "Eurostat 没有公布{country}{group}的这项数据，任何规模都没有，更大的组别也没有。",
+      "noRate": "我没有 {year} 年 {currency} 兑欧元的汇率，所以无法把 Eurostat 的数字换算成您的货币。",
+      "needsTurnover": "它需要您的月营收，以及在企业工作的人数。",
+      "needsTeam": "它需要您的团队名单：谁在企业工作，以及每名员工每月的成本。",
+      "noEmployees": "您的团队名单上没有员工，所以没有人员成本可以比较。",
+      "needsStaffCost": "它需要您的员工每月的成本。",
+      "noType": "我还不知道这是什么类型的企业。",
+      "noGroup": "我没有适用于这类企业的 Eurostat 组别。",
+      "noCountry": "我不知道企业位于哪个国家。",
+      "unknownCountry": "我无法判断“{country}”是哪个国家。",
+      "outsideEu": "Eurostat 的数字覆盖欧盟 {count} 个国家，而{country}不在其中。"
+    }
+  },
+  "blindspotsWords": {
+    "check": {
+      "opening_hours": "营业时间",
+      "prices": "价格",
+      "menu": "菜单",
+      "location_map": "地址和地图",
+      "parking": "停车信息",
+      "phone_contact": "电话号码",
+      "contact_email": "邮箱地址",
+      "booking": "预约或订位",
+      "reviews": "评价或推荐语",
+      "events": "活动与近期安排",
+      "photos": "场所或作品的照片",
+      "dietary_options": "饮食选项",
+      "delivery": "配送及其费用",
+      "returns_policy": "退货政策",
+      "payment_methods": "付款方式",
+      "service_area": "服务区域",
+      "quote_request": "获取报价的方式",
+      "portfolio": "过往作品",
+      "credentials": "资质和执照",
+      "guarantee": "质量保证",
+      "faq": "常见问题解答",
+      "team": "将与您对接的人",
+      "stock_availability": "是否有库存"
+    },
+    "fix": {
+      "default": "通过批准队列进行的一项网站更改，或您的客户支持助手中的一条回答"
+    },
+    "arithmetic": {
+      "notFound": "在您的网站上未找到；{details}",
+      "asked": "{count, plural, other {在您的客户支持聊天中被问过 {n} 次}}",
+      "askedUnanswered": "{count, plural, other {在您的客户支持聊天中被问过 {n} 次，其中 {unanswered} 次未获回答}}",
+      "unanswered": "{count, plural, other {{n} 个未获回答的客户支持问题}}",
+      "searched": "{count, plural, other {在您的网站上被搜索过 {n} 次}}",
+      "google": "{count, plural, other {{n} 次 Google 搜索展示，{clicks} 次点击}}",
+      "competitors": "{count, plural, other {我们检查的 {checked} 个竞争对手中有 {shown} 个展示了它}}"
+    },
+    "coverage": {
+      "siteNotChecked": "您的网站还没有被检查，所以不能说它缺少任何内容",
+      "noSupport": "这段时间内没有客户支持对话",
+      "noSiteSearch": "没有站内搜索词（需要开启了站内搜索的 Google Analytics）",
+      "noGoogle": "没有 Google 搜索数据（请连接 Search Console）",
+      "googleHides": "Google 出于隐私考虑隐藏了罕见的搜索，所以统计到的搜索加起来略少于 Google 的总数",
+      "noCompetitors": "没有调研任何竞争对手",
+      "unmatched": "{count, plural, other {{n} 个客户支持问题没有匹配任何常见检查项——它们只计数，不引用}}"
+    },
+    "siteNote": {
+      "noSite": "资料中没有网站",
+      "unreadable": "无法读取网站：{detail}"
+    }
+  },
+  "goalsWords": {
+    "metric": {
+      "revenue": "营收",
+      "orders": "销售笔数",
+      "sessions": "网站访问量"
+    },
+    "area": {
+      "launch": "启动",
+      "first_customers": "首批客户",
+      "increase_revenue": "提高营收",
+      "reduce_costs": "降低成本",
+      "automate_work": "工作自动化",
+      "improve_marketing": "改进营销",
+      "hire_people": "招聘人员",
+      "expand_locations": "增开门店",
+      "improve_profit": "提高利润",
+      "other": "其他"
+    },
+    "baseline": {
+      "noSource": "没有任何已连接的来源测量{metric}",
+      "currencies": "{metric}以 {currencies} 计——需要只用一种货币",
+      "fewDays": "{count, plural, other {{day} 之前的 {window} 天中有 {n} 个已测量日——起始值需要 {min} 个}}",
+      "otherCurrency": "{metric}以 {currency} 计，而目标值以 {target} 计"
+    },
+    "check": {
+      "detail": "{verdict}：{arithmetic}。",
+      "verdict": {
+        "achieved": "已达成目标",
+        "on_track": "在路径上",
+        "lagging": "落后于路径",
+        "off_track": "偏离路径",
+        "too_early": "现在判断为时尚早",
+        "unmeasured": "暂时无法测量"
+      },
+      "amount": "每 {days} 天{metric} {value}",
+      "notInCare": "企业还没有进入托管",
+      "underCare": "{count, plural, other {自 {since} 起处于托管中——进展从 {from} 起判断（{n} 周）}}",
+      "watching": "仍处于观察期，直到 {day}",
+      "goalNew": "目标设定于 {day}——它的第一个完整的 {days} 天周期于 {ends} 结束",
+      "noBaseline": "{day} 之前没有{metric}的已测量起始值——连接一个来源，历史数据就会补上",
+      "fewDays": "{count, plural, other {最近 {window} 天中有 {n} 个已测量日——判断需要 {min} 个}}",
+      "noCurrent": "最近 {days} 天没有已测量的{metric}",
+      "path": "最近 {days} 个已测量日为 {actual}，而按从 {baseline}（{baselineDay}）到 {target}（{deadline}）的路径，到 {today} 应为 {expected}",
+      "reached": "已达到目标值：{path}",
+      "progress": "{path}——达到预期进展的 {ratio}，落后于路径 {shortfall}",
+      "away": "正在远离目标值：{detail}"
+    }
+  },
+  "patternsWords": {
+    "season": {
+      "headline": {
+        "flat": "您的大多数周都没有测量到{noun}，所以没有可以用来与季节对比的常态周。",
+        "stale": "最近 {weeks, number} 周中只有{count, plural, other { # 周}}被完整测量（最后一个测量日是 {day}）——太少，无法说出您的季节规律。",
+        "shortMonths": "我现有您{months, plural, other {约 # 个月}}的{noun}数据——不足以说出一年中哪些周是您的繁忙周。",
+        "shortDays": "我现有您{count, plural, other { # 天}}的{noun}数据——不足以说出一年中哪些周是您的繁忙周。",
+        "underWay": "您的繁忙周正在进行：去年同一时段为您常态周的 {ratio}。",
+        "startsThisWeek": "您的繁忙时段从本周开始：去年它为您常态周的 {ratio}。",
+        "startsIn": "您的繁忙时段将在{count, plural, other { # 周}}后开始：去年它为您常态周的 {ratio}。",
+        "nothingAhead": "去年接下来的{weeks, plural, other { # 周}}没有繁忙时段；您最繁忙的时段从 {day} 起，为您常态周的 {ratio}。",
+        "steady": "过去一年中没有哪个时段明显偏离您的常态周：您的{noun}全年都很平稳。"
+      },
+      "can": {
+        "compare": "把您的{count, plural, other { # 个完整周}}相互对比，并找出明显高于或低于其余各周的一周。",
+        "count": "每天测量后就计入。",
+        "catch": "对照最近四周，发现突然的下滑或飙升（这已经在每晚运行）。"
+      },
+      "cannot": {
+        "year": "说出一年中哪些周或月份高于或低于您的常态：您自己一年的历史数据，是能显示季节规律的最低要求。",
+        "forecast": "根据去年同期各周预测未来几周——我没有去年的数据。",
+        "borrow": "借用与您类似的其他企业的季节规律。行业平均值不是您的历史数据，所以我不会把它当作您的来呈现。"
+      },
+      "upcoming": "去年从 {from} 到 {to} 的{count, plural, other { # 周}}为您常态周的 {ratio}——{kind, select, busy {高于常态} other {低于常态}}。{when}",
+      "when": {
+        "underWay": "今年的同期各周现在正在进行，持续到 {day}。",
+        "thisWeek": "今年的同期各周从本周 {day} 开始。",
+        "startsIn": "今年的同期各周将在{count, plural, other { # 周}}后、即 {day} 开始。"
+      },
+      "notes": {
+        "oneYear": "一年只是您季节规律的一个例子：它说明去年发生了什么，而不是将来会发生什么。区间表示您中间一半的周分布得有多宽。",
+        "years": "{count, plural, other {您自己 # 年的历史数据}}用于计算这些区间：每一年的各周都对照当年自己的常态。",
+        "normal": "常态是您最近 {weeks, number} 周的中位周：{from} 至 {to} 的{count, plural, other { # 个完整周}}。",
+        "rule": "达到常态的 {busy} 或以上为繁忙，{quiet} 或以下为清淡，且需连续{count, plural, other { # 周}}或以上：单独一周可能只是偶然。",
+        "gaps": "最近 {weeks, number} 周中有{count, plural, other { # 周}}没有完整测量，因此被略去，而不是凭猜测补上。",
+        "lastDay": "最后一个测量日是 {day}：预测读取到那一天为止。"
+      }
+    },
+    "noun": {
+      "revenue": "营收",
+      "bookingRevenue": "预约营收",
+      "orders": "订单",
+      "appointments": "预约",
+      "visits": "到访"
+    },
+    "source": {
+      "bookingsExport": "您的预约导出文件",
+      "stockFile": "您的库存文件"
+    },
+    "connect": {
+      "shop": "连接 Shopify 或 WooCommerce，或者通过 Square 连接您的收银机，我就会画出这张图",
+      "hospitality": "通过 Square 连接您的收银机，或者连接 Stripe，我就会画出这张图",
+      "appointments": "导入您的预约导出文件，或者连接 Square，我就会画出这张图",
+      "services": "连接 Stripe，或者您收款所用的网店或收银机，我就会画出这张图",
+      "default": "连接您的网店或收银机，或者 Stripe，或者导入您的预约，我就会画出这张图"
+    },
+    "margin": {
+      "noPrice": "没有 {count, plural, =1 {{a}} other {{a} 或 {b}}} 的价格记录",
+      "currencies": "它们的价格使用不同的货币",
+      "noCost": "没有 {count, plural, =1 {{a}} other {{a} 或 {b}}} 的成本记录，所以利润率是未知的，而不是假设的"
+    },
+    "product": "产品 {ref}",
+    "held": {
+      "choose": "等您选好我为您工作的方式，我才会提出提案。",
+      "watching": "我会观察到 {day}，在此之前不提出任何提案。"
+    }
+  },
+  "competitorsWords": {
+    "price": {
+      "from": "{amount} 起"
+    },
+    "rating": {
+      "of": "{rating} / {best}"
+    },
+    "change": {
+      "new": "{who} 现在列出了 {name}，价格为 {price}。",
+      "changed": "{who} 现在把 {name} 定价为 {price}；之前是 {before}。",
+      "cheaper": "{who} 把 {name} 的价格从 {before} 降到了 {price}。",
+      "dearer": "{who} 把 {name} 的价格从 {before} 提高到了 {price}。",
+      "gone": "{who} 不再列出 {name}（之前是 {before}）。",
+      "rating": "{who} 的评分从 {before} 变为 {after}。",
+      "ratingCount": "{who} 的评分从 {before} 变为 {after}（{count, plural, other {{reviews} 条评价}}）。"
+    },
+    "gap": {
+      "same": "与您的相同",
+      "below": "比您的低 {amount}",
+      "above": "比您的高 {amount}",
+      "belowPct": "比您的低 {amount}（{pct}）",
+      "abovePct": "比您的高 {amount}（{pct}）"
+    },
+    "note": {
+      "noPrice": "您还没有告诉我您的价格",
+      "currencies": "以 {theirs} 定价，您的以 {yours} 定价；未做换算"
+    },
+    "unnamed": "未命名的竞争对手",
+    "reason": {
+      "notAddress": "这不是我能读取的网址",
+      "login": "它要求登录，而我从不读取需要登录的页面",
+      "deadline": "每周读取在轮到这个页面之前就超时了",
+      "robotsUnread": "无法读取他们的 robots.txt，所以我没有读取该页面",
+      "robotsNo": "他们的 robots.txt 要求机器人不要读取这个页面",
+      "redirectRobots": "它重定向到一个其 robots.txt 要求机器人不要读取的页面",
+      "redirectSite": "它重定向到一个 robots.txt 不允许访问的网站",
+      "notPage": "它不是一个网页",
+      "unreachable": "无法访问该页面",
+      "couldntRead": "无法读取它",
+      "onlyHttp": "只能读取 http(s) 网站",
+      "credentials": "网站网址中不应包含登录凭据",
+      "private": "该地址指向私有网络内部——拒绝获取",
+      "notWebAddress": "这看起来不像一个网址",
+      "redirects": "重定向次数过多——网站始终没有稳定下来",
+      "cap": "超出了每个竞争对手 {pages, number} 个页面的上限",
+      "answered": "页面返回了 {status}",
+      "timeout": "{seconds, plural, other {# 秒}}内没有响应",
+      "resolve": "“{host}”无法解析——地址正确吗？",
+      "ports": "只能读取标准端口 {http} 和 {https} 上的 http(s)"
+    }
+  },
+  "reviewsWords": {
+    "googleRead": {
+      "ok": "读取正常。",
+      "auth": "Google 已不再接受 SYB 的访问，所以评价没有被读取。请在这里撤销访问，然后重新连接。",
+      "permission": "Google 表示 SYB 不再被允许读取您企业的这个商家资料。请确认您的 Google 账户仍在管理它。",
+      "quota": "Google 要求 SYB 放慢速度。SYB 会在下一次每日读取时重试。",
+      "unavailable": "Google 没有响应。SYB 会在下一次每日读取时重试。",
+      "refused": "Google 拒绝了这次读取。SYB 会在下一次每日读取时重试。",
+      "fence": "SYB 拦下了一个不是读取的请求。没有发送任何内容。",
+      "internal": "我们这边出了问题。SYB 会在下一次每日读取时重试。"
+    },
+    "draft": {
+      "unreadable": "我无法读取这条评价的内容，所以无法建议回复。请到它原来的地方打开查看。",
+      "budget": "本月的客户支持预算（{amount}）已用完，所以我不会起草——请您自己撰写。",
+      "cap": "我已经为这条评价建议过{count, plural, other { # 次}}回复——这一条请您自己撰写。",
+      "unreachable": "我刚才无法连接到起草模型——请您自己撰写，或稍后再试。",
+      "empty": "我这次没能起草回复——请您自己撰写。",
+      "offer": "我起草的回复提出了给钱或免费提供某样东西，而我不做这种事，所以把它丢弃了。请重试，或者这一条请您自己撰写。",
+      "name": "我起草的回复点名了某个人，所以把它丢弃了。请重试，或者这一条请您自己撰写。",
+      "contact": "我起草的回复中包含地址或电话号码，所以把它丢弃了。请重试，或者这一条请您自己撰写。"
+    }
+  },
+  "chartsWords": {
+    "source": {
+      "bookingsImport": "您的预约导出文件",
+      "stockImport": "您的库存文件"
+    },
+    "connect": {
+      "shop": "连接 Shopify 或 WooCommerce，或者通过 Square 连接您的收银机，我就会画出这张图。",
+      "hospitality": "通过 Square 连接您的收银机，或者连接 Stripe，我就会画出这张图。",
+      "appointments": "导入您的预约导出文件，或者连接 Square，我就会画出这张图。",
+      "services": "连接 Stripe，或者您收款所用的网店或收银机，我就会画出这张图。",
+      "default": "连接您的网店或收银机，或者 Stripe，或者导入您的预约，我就会画出这张图。"
+    },
+    "note": {
+      "otherCurrencies": "以 {currencies} 计的{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}没有画出：每张图表只用一种货币，货币之间从不混合。",
+      "adsOffLine": "没有赚回成本的广告花费计入了上面的月度数字，但没有画在营收蜡烛上：它是花掉的钱，而不是错过的营收。"
+    },
+    "group": {
+      "anomaly": "{count, plural, other {检测到 # 个变化}}：{labels}",
+      "approved": "{count, plural, other {# 个变化}}：{labels}",
+      "connected": "{count, plural, other {# 个来源}}：{labels}"
+    },
+    "summary": {
+      "nothing": "{title}：这个范围内没有测量到任何数据。",
+      "day": "{title}：来自 {source} 的每天{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}，{count, plural, other {# 根日蜡烛}}，{from} 至 {to}；最后一天收盘{move, select, up {上涨} other {下跌}}，收于 {close}。{headline}",
+      "week": "{title}：来自 {source} 的每天{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}，{count, plural, other {# 根周蜡烛}}，{from} 至 {to}；最后一周收盘{move, select, up {上涨} other {下跌}}，收于 {close}。{headline}",
+      "month": "{title}：来自 {source} 的每天{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}，{count, plural, other {# 根月蜡烛}}，{from} 至 {to}；最后一个月收盘{move, select, up {上涨} other {下跌}}，收于 {close}。{headline}",
+      "events": "{count, plural, other {标记了 # 个事件。}}"
+    },
+    "caption": {
+      "day": "{title}：每天{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}的逐日开盘、最高、最低和收盘，以及流失的部分",
+      "week": "{title}：每天{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}的逐周开盘、最高、最低和收盘，以及流失的部分",
+      "month": "{title}：每天{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}的逐月开盘、最高、最低和收盘，以及流失的部分"
+    },
+    "event": {
+      "drop": "{metric, select, revenue {营收下降} orders {订单下降} sessions {网站访问量下降} adSpend {广告花费下降} adPurchases {广告带来的购买下降} appointmentsCompleted {已完成的预约下降} bookingRevenue {预约营收下降} other {{noun}下降}}",
+      "rise": "{metric, select, revenue {营收上升} orders {订单上升} sessions {网站访问量上升} adSpend {广告花费上升} adPurchases {广告带来的购买上升} appointmentsCompleted {已完成的预约上升} bookingRevenue {预约营收上升} other {{noun}上升}}",
+      "dropBy": "{metric, select, revenue {营收比通常水平低 {pct}} orders {订单比通常水平低 {pct}} sessions {网站访问量比通常水平低 {pct}} adSpend {广告花费比通常水平低 {pct}} adPurchases {广告带来的购买比通常水平低 {pct}} appointmentsCompleted {已完成的预约比通常水平低 {pct}} bookingRevenue {预约营收比通常水平低 {pct}} other {{noun}比通常水平低 {pct}}}",
+      "riseBy": "{metric, select, revenue {营收比通常水平高 {pct}} orders {订单比通常水平高 {pct}} sessions {网站访问量比通常水平高 {pct}} adSpend {广告花费比通常水平高 {pct}} adPurchases {广告带来的购买比通常水平高 {pct}} appointmentsCompleted {已完成的预约比通常水平高 {pct}} bookingRevenue {预约营收比通常水平高 {pct}} other {{noun}比通常水平高 {pct}}}",
+      "approvedRan": "您批准了“{summary}”；它已经执行。",
+      "approvedWaiting": "您批准了“{summary}”；它还没有执行。",
+      "bookingsImported": "首次导入预约",
+      "connected": "已连接 {source}",
+      "connectedDetail": "从 {day} 起读取；更早的日子随第一次读取一起导入。"
+    },
+    "proposal": {
+      "aWaiting": "一条等待中的提案",
+      "aProposal": "一条提案"
+    },
+    "headline": {
+      "nothing": "在我目前能测量的数据中，还没有显示有钱在流失。",
+      "zero": "目前已测量的部分没有流失。",
+      "all": "每月约有 {range} 在流失——全部来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。",
+      "mostly": "每月约有 {range} 在流失——主要来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。",
+      "biggest": "每月约有 {range} 在流失——最大的一块来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。"
+    },
+    "reason": {
+      "noPrices": "{source} 没有价格——在导出文件中加上价格列，我就会为错过的部分定价",
+      "noPricedCompleted": "{from} 至 {to} 之间没有带价格的已完成预约，所以我无法说出一个预约值多少",
+      "noBookings": "导入您的预约导出文件（或连接 Square），我就会统计错过的部分",
+      "lateNotSeparated": "{source} 没有把临时取消和爽约分开，所以它们和爽约一起定价",
+      "noCapacity": "告诉我您每周能接多少预约，我就会为空闲时段定价——我不会假设接待能力",
+      "noTakings": "连接记录您营业额的地方（您的网店、收银机或 Stripe），我就会对照每天的通常水平进行检查",
+      "shortHistory": "要判断某一天，我需要它之前 {window} 天内至少有 {min} 个已测量日的{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}——目前历史数据还太短",
+      "noMeta": "连接 Meta Ads，我就会检查哪些营销活动的成本高于它们带回的收入",
+      "noSpend": "{from} 至 {to} 之间没有任何营销活动产生花费",
+      "noStock": "连接您的网店或导入库存文件，我就会显示压在货架上的现金",
+      "nothingWaiting": "目前没有任何内容在等待您批准",
+      "noPricedGain": "等待您处理的内容中，还没有一项带有定价的收益",
+      "noRevenueSeries": "我需要一个已测量的营收序列来对照解读"
+    },
+    "price": {
+      "arithmetic": "平均价格 {mean}（{revenue} ÷ {count, plural, other {# 个已完成}}）",
+      "arithmeticRange": "平均价格 {mean}（{revenue} ÷ {count, plural, other {# 个已完成}}），在{weeks, plural, other { # 周}}内每周介于 {low} 与 {high} 之间"
+    },
+    "formula": {
+      "noShows": "{days, plural, other {# 个已测量日}}内{count, plural, other { # 次爽约}} × {price}（{arithmetic}），来自 {source}",
+      "lateCancellations": "{days, plural, other {# 个已测量日}}内{count, plural, other { # 次临时取消}} × {price}（{arithmetic}），来自 {source}",
+      "emptyCapacity": "每周 {perWeek} 个 × {days, plural, other {# 个已测量日}} ÷ {week} = {slots} 个时段，减去到点时仍保留的{held, plural, other { # 个预约}} = {empty} 个空闲时段，× {price}（{arithmetic}）。爽约和临时取消在各自的行中单独定价，不在这里",
+      "noDips": "在{judged, plural, other { # 个判断日}}中，没有连续 {run} 天或以上低于通常范围（检测器的基线：{window} 天平均值 × 星期系数，超出通常波动的 {k} 倍即算越界）",
+      "dips": "{runs, plural, other {# 段}}连续 {run} 天或以上低于通常范围的时期，共{days, plural, other { # 天}}（{window} 天平均值 × 星期系数，超出通常波动的 {k} 倍即算越界）：预期 − 实际 = {gross}；低端每天留出一个通常波动",
+      "dipsExplained": "{runs, plural, other {# 段}}连续 {run} 天或以上低于通常范围的时期，共{days, plural, other { # 天}}（{window} 天平均值 × 星期系数，超出通常波动的 {k} 倍即算越界）：预期 − 实际 = {gross}；低端每天留出一个通常波动；再减去当天的爽约、临时取消和空闲时段已经定价的部分",
+      "adsAllPaid": "按 Meta 的归因，每项营销活动带回的都至少等于其成本（{count, plural, other {# 项营销活动}}）",
+      "adsLoser": "{campaign}：花费 {spent}，Meta 归因 {value}（回报 {roas}）→ {loss}",
+      "stockNone": "截至 {day}，没有标记为动销慢或滞销的商品",
+      "stockItems": "{count, plural, other {# 件动销慢的商品}}，现有数量 × 单位成本，截至 {day}。这是库存存量，而不是月度流量：不计入当月",
+      "tableProposal": "{summary}：{range}",
+      "onTheTable": "{count, plural, other {# 条等待中的提案}}，每月从基准情形到乐观情形：{parts}"
+    },
+    "basisNote": {
+      "capacity": "来自您{basis, select, ESTIMATED {估计} other {陈述}}的接待能力（每周 {perWeek} 个）",
+      "meta": "来自 Meta 自己的归因",
+      "statedCost": "现有数量 × 您给出的成本，适用于部分商品",
+      "proposals": "各提案自身的基准情形和乐观情形"
+    },
+    "componentNote": {
+      "adsOtherCurrency": "{count, plural, other {以 {currencies} 计的 # 项营销活动}}未计入：货币之间从不混合",
+      "noCost": "{count, plural, other {# 件没有已知成本，未计入}}",
+      "otherCurrency": "{count, plural, other {# 件使用另一种货币，未计入}}"
+    },
+    "latestCount": "最近一次盘点",
+    "small": {
+      "noBand": "没有金额区间。",
+      "noBandBecause": "没有金额区间：{reason}。",
+      "sentence": "{text}。",
+      "bookings": "来自 {source} 的每周预约，{from} 至 {to}：{completed, plural, other {已完成 # 个}}，{noShows, plural, other {爽约 # 个}}。",
+      "bookingsLate": "来自 {source} 的每周预约，{from} 至 {to}：{completed, plural, other {已完成 # 个}}，{noShows, plural, other {爽约 # 个}}，{late, plural, other {临时取消 # 个}}。",
+      "bookingsWorth": "来自 {source} 的每周预约，{from} 至 {to}：{completed, plural, other {已完成 # 个}}，{noShows, plural, other {爽约 # 个}}；错过的时段价值 {range}。",
+      "bookingsLateWorth": "来自 {source} 的每周预约，{from} 至 {to}：{completed, plural, other {已完成 # 个}}，{noShows, plural, other {爽约 # 个}}，{late, plural, other {临时取消 # 个}}；错过的时段价值 {range}。",
+      "ads": "按营销活动列出花费与 Meta 归因的购买价值的对比，{from} 至 {to}：{campaigns}。亏损表示回报低于 {even}。",
+      "adsCampaign": "{campaign} 花费 {spent}，Meta 归因 {value}（{roas}）",
+      "adsCampaignLosing": "{campaign} 花费 {spent}，Meta 归因 {value}（{roas}），亏损",
+      "noReturn": "无回报",
+      "return": "回报 {roas}"
+    }
   }
 }

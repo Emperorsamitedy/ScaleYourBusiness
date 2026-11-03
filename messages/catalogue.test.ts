@@ -457,6 +457,58 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
   "reviews.setup.trustpilot.notifications": {
     terms: ["business"],
     reason: "Trustpilot Business: Trustpilot's product name",
+  }, // L-4b: the sentences built from data.
+  "cashWords.needs.buffer": {
+    terms: ["account"],
+    reason: "the bank account the money sits in, not a sign-in or connected account",
+  },
+  "cashWords.assumption.payout": {
+    terms: ["account"],
+    reason: "the bank account the money sits in, not a sign-in or connected account",
+  },
+  "cashWords.source.lineBuffer": {
+    terms: ["account"],
+    reason: "the bank account the money sits in, not a sign-in or connected account",
+  },
+  "cashWords.source.lineUnknown": {
+    terms: ["account"],
+    reason: "the bank account the money sits in, not a sign-in or connected account",
+  },
+  "cashWords.source.lineNone": {
+    terms: ["account"],
+    reason: "the bank account the money sits in, not a sign-in or connected account",
+  },
+  "cashWords.tight.sentence": {
+    terms: ["account"],
+    reason: "an overdrawn bank account, not a sign-in or connected account",
+  },
+  "stockWords.reorder.arithmetic": {
+    terms: ["margin"],
+    reason: "a safety margin: spare stock, not a profit margin",
+  },
+  "stockWords.reorder.arithmeticSeason": {
+    terms: ["margin"],
+    reason: "a safety margin: spare stock, not a profit margin",
+  },
+  "pipelineWords.weigh.oneRate": {
+    terms: ["proposal"],
+    reason: "a sales proposal sent (the stage “Proposal sent”), not one of SYB’s proposals",
+  },
+  "simulateWords.model.content.worstWeakest": {
+    terms: ["review"],
+    reason: "the owner’s time reading drafts, not a customer review",
+  },
+  "simulateWords.model.content.worstNone": {
+    terms: ["review"],
+    reason: "the owner’s time reading drafts, not a customer review",
+  },
+  "blindspotsWords.check.team": {
+    terms: ["deal"],
+    reason: "“who you’ll deal with”: the verb, not a sales deal",
+  },
+  "reviewsWords.googleRead.permission": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
   },
 };
 

@@ -42,12 +42,22 @@
 //   on_the_table        the waiting proposals' base case to upside case,
 //                       per month: a FORECAST, shown ahead of today.
 
+import { listSep } from "../i18n/punctuation";
 import type { Basis } from "../../components/report/basis";
 import { moneyText, num } from "../../components/sheet/num";
-import { MAD_K, RUN_DAYS, evaluateDay, shiftDay } from "../anomaly/baseline";
+import {
+  BASELINE_WINDOW_DAYS,
+  MAD_K,
+  MIN_BASELINE_DAYS,
+  RUN_DAYS,
+  evaluateDay,
+  shiftDay,
+} from "../anomaly/baseline";
 import { weekStart } from "../care/chart-view";
 import { minorUnitExponent } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
+import type { Words } from "./words";
+import { constText, englishChartWords, priceCode, sentenceDay } from "./words";
 
 export const OPPORTUNITY = {
   /** The window every flow is priced over, ending on the series' latest measured day. */
@@ -302,12 +312,14 @@ const inWindow = (date: string, w: Window) => date >= w.from && date <= w.to;
  * OPPORTUNITY.min_week_completed completed appointments), never narrower
  * than the window's own mean.
  */
-export function bookingPriceRange(b: BookingsInput, w: Window): PriceRange {
+export function bookingPriceRange(
+  b: BookingsInput,
+  w: Window,
+  words: Words = englishChartWords(),
+): PriceRange {
+  const { tr, locale } = words;
   if (b.currency === null) {
-    return {
-      status: "absent",
-      reason: `${b.source} has no prices — add the price column to the export and I'll price what was missed`,
-    };
+    return { status: "absent", reason: tr("reason.noPrices", { source: b.source }) };
   }
   const days = b.days.filter((d) => inWindow(d.date, w) && d.revenue_minor !== null);
   const completed = days.reduce((n, d) => n + d.completed, 0);
@@ -315,7 +327,10 @@ export function bookingPriceRange(b: BookingsInput, w: Window): PriceRange {
   if (completed === 0 || revenue <= 0) {
     return {
       status: "absent",
-      reason: `no priced, completed appointments between ${w.from} and ${w.to}, so I can't say what one is worth`,
+      reason: tr("reason.noPricedCompleted", {
+        from: sentenceDay(w.from, locale),
+        to: sentenceDay(w.to, locale),
+      }),
     };
   }
   const mean = Math.round(revenue / completed);
@@ -340,29 +355,35 @@ export function bookingPriceRange(b: BookingsInput, w: Window): PriceRange {
     currency: b.currency,
     weeks: averages.length,
     arithmetic:
-      `average price ${fig(mean, b.currency)} (${fig(revenue, b.currency)} ÷ ${num(completed)} completed)` +
-      (averages.length > 1 && low !== high
-        ? `, between ${fig(low, b.currency)} and ${fig(high, b.currency)} week to week over ${averages.length} weeks`
-        : ""),
+      averages.length > 1 && low !== high
+        ? tr("price.arithmeticRange", {
+            mean: fig(mean, b.currency, locale),
+            revenue: fig(revenue, b.currency, locale),
+            count: completed,
+            low: fig(low, b.currency, locale),
+            high: fig(high, b.currency, locale),
+            weeks: averages.length,
+          })
+        : tr("price.arithmetic", {
+            mean: fig(mean, b.currency, locale),
+            revenue: fig(revenue, b.currency, locale),
+            count: completed,
+          }),
   };
 }
-
-const NO_BOOKINGS =
-  "import your bookings export (or connect Square) and I'll count what was missed";
 
 function countPriced(
   key: "no_shows" | "late_cancellations",
   b: BookingsInput | null,
   w: Window,
+  words: Words,
 ): OpportunityComponent {
-  if (b === null || b.days.length === 0) return absent(key, NO_BOOKINGS);
+  const { tr, locale } = words;
+  if (b === null || b.days.length === 0) return absent(key, tr("reason.noBookings"));
   if (key === "late_cancellations" && !b.late_separated) {
-    return absent(
-      key,
-      `${b.source} doesn't separate late cancellations from no-shows, so they are priced with the no-shows`,
-    );
+    return absent(key, tr("reason.lateNotSeparated", { source: b.source }));
   }
-  const price = bookingPriceRange(b, w);
+  const price = bookingPriceRange(b, w, words);
   if (price.status === "absent") return absent(key, price.reason);
   const days = b.days.filter((d) => inWindow(d.date, w));
   const daily: DaySlip[] = [];
@@ -373,7 +394,6 @@ function countPriced(
     count += n;
     daily.push({ date: d.date, low_minor: n * price.low_minor, high_minor: n * price.high_minor });
   }
-  const noun = key === "no_shows" ? "no-show" : "late cancellation";
   const metric =
     key === "no_shows" ? "appointments_no_show.daily" : "appointments_cancelled_late.daily";
   const window = { from: w.from, to: w.to, days: days.length };
@@ -385,20 +405,34 @@ function countPriced(
     high_minor: count * price.high_minor,
     currency: price.currency,
     derived_from: [`${b.series}:${metric}`, `${b.series}:booking_revenue.daily`],
-    formula:
-      `${num(count)} ${noun}${count === 1 ? "" : "s"} in ${num(days.length)} measured days × ` +
-      `${rangeText({ low_minor: price.low_minor, high_minor: price.high_minor, currency: price.currency })} ` +
-      `(${price.arithmetic}), from ${b.source}`,
+    formula: tr(key === "no_shows" ? "formula.noShows" : "formula.lateCancellations", {
+      count,
+      days: days.length,
+      price: rangeText(
+        { low_minor: price.low_minor, high_minor: price.high_minor, currency: price.currency },
+        locale,
+      ),
+      arithmetic: price.arithmetic,
+      source: b.source,
+    }),
     daily,
   });
 }
 
-export function noShows(b: BookingsInput | null, w: Window): OpportunityComponent {
-  return countPriced("no_shows", b, w);
+export function noShows(
+  b: BookingsInput | null,
+  w: Window,
+  words: Words = englishChartWords(),
+): OpportunityComponent {
+  return countPriced("no_shows", b, w, words);
 }
 
-export function lateCancellations(b: BookingsInput | null, w: Window): OpportunityComponent {
-  return countPriced("late_cancellations", b, w);
+export function lateCancellations(
+  b: BookingsInput | null,
+  w: Window,
+  words: Words = englishChartWords(),
+): OpportunityComponent {
+  return countPriced("late_cancellations", b, w, words);
 }
 
 /** The owner's stated weekly capacity (service.capacity_per_week), with the basis it carries. */
@@ -412,15 +446,14 @@ export function emptyCapacity(
   b: BookingsInput | null,
   capacity: CapacityInput | null,
   w: Window,
+  words: Words = englishChartWords(),
 ): OpportunityComponent {
+  const { tr, locale } = words;
   if (capacity === null || !Number.isFinite(capacity.per_week) || capacity.per_week <= 0) {
-    return absent(
-      "empty_capacity",
-      "tell me how many appointments you can take a week and I'll price the empty slots — I won't assume a capacity",
-    );
+    return absent("empty_capacity", tr("reason.noCapacity"));
   }
-  if (b === null || b.days.length === 0) return absent("empty_capacity", NO_BOOKINGS);
-  const price = bookingPriceRange(b, w);
+  if (b === null || b.days.length === 0) return absent("empty_capacity", tr("reason.noBookings"));
+  const price = bookingPriceRange(b, w, words);
   if (price.status === "absent") return absent("empty_capacity", price.reason);
   const days = b.days
     .filter((d) => inWindow(d.date, w))
@@ -458,11 +491,14 @@ export function emptyCapacity(
     });
   }
   const r1 = (v: number) =>
-    num(Math.round(v * 10) / 10, Number.isInteger(Math.round(v * 10) / 10) ? 0 : 1);
+    num(Math.round(v * 10) / 10, Number.isInteger(Math.round(v * 10) / 10) ? 0 : 1, locale);
   return priced({
     key: "empty_capacity",
     basis: "DERIVED",
-    basis_note: `from a capacity you ${capacity.basis === "ESTIMATED" ? "ESTIMATED" : "STATED"} (${num(capacity.per_week)} a week)`,
+    basis_note: tr("basisNote.capacity", {
+      basis: capacity.basis === "ESTIMATED" ? "ESTIMATED" : "STATED",
+      perWeek: num(capacity.per_week, 0, locale),
+    }),
     window: { from: w.from, to: w.to, days: days.length },
     low_minor: low,
     high_minor: high,
@@ -473,11 +509,19 @@ export function emptyCapacity(
       `${b.series}:appointments_no_show.daily`,
       `${b.series}:booking_revenue.daily`,
     ],
-    formula:
-      `${num(capacity.per_week)} a week × ${num(days.length)} measured days ÷ 7 = ${r1(slots)} slots, ` +
-      `less ${num(held)} appointments still held when their time came = ${r1(unbooked)} empty, ` +
-      `× ${rangeText({ low_minor: price.low_minor, high_minor: price.high_minor, currency: price.currency })} (${price.arithmetic}). ` +
-      `No-shows and late cancellations are priced on their own lines, not here`,
+    formula: tr("formula.emptyCapacity", {
+      perWeek: num(capacity.per_week, 0, locale),
+      days: days.length,
+      week: num(7, 0, locale),
+      slots: r1(slots),
+      held,
+      empty: r1(unbooked),
+      price: rangeText(
+        { low_minor: price.low_minor, high_minor: price.high_minor, currency: price.currency },
+        locale,
+      ),
+      arithmetic: price.arithmetic,
+    }),
     daily,
   });
 }
@@ -492,6 +536,8 @@ export interface DipInput {
   series_id: string;
   /** Owner-facing name of the series ("revenue"). */
   noun: string;
+  /** The series' metric ("revenue.daily"): which of the sentences' own nouns it is, in any language. */
+  metric?: string;
 }
 
 /**
@@ -503,13 +549,10 @@ export function revenueDips(
   input: DipInput | null,
   w: Window,
   explained: ReadonlyMap<string, { low_minor: number; high_minor: number }> = new Map(),
+  words: Words = englishChartWords(),
 ): OpportunityComponent {
-  if (input === null) {
-    return absent(
-      "revenue_dips",
-      "connect where your takings live (your shop, your till or Stripe) and I'll check each day against its usual level",
-    );
-  }
+  const { tr, locale } = words;
+  if (input === null) return absent("revenue_dips", tr("reason.noTakings"));
   // Read from RUN_DAYS − 1 before the window, so a run straddling its start is still a run.
   const verdicts: { date: string; expected: number; actual: number; scale: number }[] = [];
   let judged = 0;
@@ -524,7 +567,12 @@ export function revenueDips(
   if (judged === 0) {
     return absent(
       "revenue_dips",
-      `I need at least 14 measured days of ${input.noun} in the 28 before a day to judge it — the history is too short yet`,
+      tr("reason.shortHistory", {
+        min: num(MIN_BASELINE_DAYS, 0, locale),
+        price: priceCode(input.metric),
+        noun: input.noun,
+        window: num(BASELINE_WINDOW_DAYS, 0, locale),
+      }),
     );
   }
   // Group into runs of consecutive calendar days.
@@ -568,13 +616,20 @@ export function revenueDips(
     derived_from: [input.series_id],
     formula:
       days === 0
-        ? `no run of ${RUN_DAYS}+ days below the usual range in ${num(judged)} judged days (the detector's baseline: 28-day average × weekday factor, beyond at ${MAD_K}× the usual variation)`
-        : `${num(days)} day${days === 1 ? "" : "s"} in ${num(runsIn)} run${runsIn === 1 ? "" : "s"} of ${RUN_DAYS}+ below the usual range ` +
-          `(28-day average × weekday factor, beyond at ${MAD_K}× the usual variation): ` +
-          `expected − actual = ${fig(gross, input.currency)}; the low end leaves one usual variation a day` +
-          (explained.size > 0
-            ? `; less what that day's no-shows, late cancellations and empty slots already price`
-            : ""),
+        ? tr("formula.noDips", {
+            run: constText(RUN_DAYS, locale),
+            judged,
+            window: num(BASELINE_WINDOW_DAYS, 0, locale),
+            k: constText(MAD_K, locale),
+          })
+        : tr(explained.size > 0 ? "formula.dipsExplained" : "formula.dips", {
+            days,
+            runs: runsIn,
+            run: constText(RUN_DAYS, locale),
+            window: num(BASELINE_WINDOW_DAYS, 0, locale),
+            k: constText(MAD_K, locale),
+            gross: fig(gross, input.currency, locale),
+          }),
     daily,
   });
 }
@@ -627,26 +682,26 @@ export function losingAds(
   campaigns: readonly CampaignInput[] | null,
   w: Window,
   currency: string,
+  words: Words = englishChartWords(),
 ): OpportunityComponent {
-  if (campaigns === null) {
-    return absent(
-      "losing_ads",
-      "connect Meta Ads and I'll check which campaigns cost more than they bring back",
-    );
-  }
+  const { tr, locale } = words;
+  if (campaigns === null) return absent("losing_ads", tr("reason.noMeta"));
   const all = campaignWindows(campaigns, w);
   if (all.length === 0) {
-    return absent("losing_ads", `no campaign spent anything between ${w.from} and ${w.to}`);
+    return absent(
+      "losing_ads",
+      tr("reason.noSpend", { from: sentenceDay(w.from, locale), to: sentenceDay(w.to, locale) }),
+    );
   }
   const mine = all.filter((c) => c.currency === currency);
   const other = all.filter((c) => c.currency !== currency);
   const losers = mine.filter((c) => c.losing);
   const loss = losers.reduce((n, c) => n + (c.spend_minor - c.value_minor), 0);
-  const roas = (c: CampaignWindow) => (c.roas === null ? "—" : num(c.roas, 2));
+  const roas = (c: CampaignWindow) => (c.roas === null ? "—" : num(c.roas, 2, locale));
   return priced({
     key: "losing_ads",
     basis: "DERIVED",
-    basis_note: "from Meta's own attribution",
+    basis_note: tr("basisNote.meta"),
     window: { from: w.from, to: w.to, days: daysInclusive(w.from, w.to) },
     low_minor: loss,
     high_minor: loss,
@@ -657,16 +712,24 @@ export function losingAds(
     ],
     formula:
       losers.length === 0
-        ? `every campaign returned at least what it cost, by Meta's attribution (${mine.length} campaign${mine.length === 1 ? "" : "s"})`
+        ? tr("formula.adsAllPaid", { count: mine.length })
         : losers
-            .map(
-              (c) =>
-                `${c.campaign_name}: spent ${fig(c.spend_minor, c.currency)}, Meta attributes ${fig(c.value_minor, c.currency)} (return ${roas(c)}) → ${fig(c.spend_minor - c.value_minor, c.currency)}`,
+            .map((c) =>
+              tr("formula.adsLoser", {
+                campaign: c.campaign_name,
+                spent: fig(c.spend_minor, c.currency, locale),
+                value: fig(c.value_minor, c.currency, locale),
+                roas: roas(c),
+                loss: fig(c.spend_minor - c.value_minor, c.currency, locale),
+              }),
             )
-            .join("; "),
+            .join(listSep(locale)),
     note:
       other.length > 0
-        ? `${other.length} campaign${other.length === 1 ? "" : "s"} in ${[...new Set(other.map((c) => c.currency))].join(", ")} left out: currencies never blend`
+        ? tr("componentNote.adsOtherCurrency", {
+            count: other.length,
+            currencies: [...new Set(other.map((c) => c.currency))].join(", "),
+          })
         : null,
   });
 }
@@ -684,23 +747,22 @@ export function slowStock(
   items: readonly SlowItemInput[] | null,
   currency: string,
   asOf: string | null,
+  words: Words = englishChartWords(),
 ): OpportunityComponent {
-  if (items === null) {
-    return absent(
-      "slow_stock",
-      "connect your store or import a stock file and I'll show the cash sitting on the shelf",
-    );
-  }
+  const { tr, locale } = words;
+  if (items === null) return absent("slow_stock", tr("reason.noStock"));
   const mine = items.filter((i) => i.currency === currency && i.cash_tied_minor !== null);
   const unknown = items.filter((i) => i.cash_tied_minor === null).length;
   const other = items.filter((i) => i.currency !== null && i.currency !== currency).length;
   const total = mine.reduce((n, i) => n + (i.cash_tied_minor ?? 0), 0);
   const stated = mine.some((i) => i.cost_basis === "stated");
+  // The window keeps the stored day (or the code's placeholder) as data; the sentences read it in the language.
   const day = asOf ?? "the latest count";
+  const dayWords = asOf === null ? tr("latestCount") : sentenceDay(asOf, locale);
   return priced({
     key: "slow_stock",
     basis: stated ? "DERIVED" : "OBSERVED",
-    basis_note: stated ? "units on hand × a cost you gave, for some items" : null,
+    basis_note: stated ? tr("basisNote.statedCost") : null,
     window: { from: day, to: day, days: 1 },
     low_minor: total,
     high_minor: total,
@@ -708,15 +770,15 @@ export function slowStock(
     derived_from: ["stock.on_hand", "stock.value_at_cost"],
     formula:
       mine.length === 0
-        ? `nothing flagged slow or stuck as of ${day}`
-        : `${num(mine.length)} slow item${mine.length === 1 ? "" : "s"}, units on hand × unit cost, as of ${day}. A stock, not a monthly flow: it is not added to the month`,
+        ? tr("formula.stockNone", { day: dayWords })
+        : tr("formula.stockItems", { count: mine.length, day: dayWords }),
     note:
       [
-        unknown > 0 ? `${num(unknown)} with no known cost, left out` : null,
-        other > 0 ? `${num(other)} in another currency, left out` : null,
+        unknown > 0 ? tr("componentNote.noCost", { count: unknown }) : null,
+        other > 0 ? tr("componentNote.otherCurrency", { count: other }) : null,
       ]
         .filter(Boolean)
-        .join("; ") || null,
+        .join(listSep(locale)) || null,
   });
 }
 
@@ -733,7 +795,9 @@ export function onTheTable(
   proposals: readonly WaitingProposal[],
   currency: string,
   today: string,
+  words: Words = englishChartWords(),
 ): OpportunityComponent {
+  const { tr, locale } = words;
   const usable = proposals.filter(
     (p) =>
       p.base !== null &&
@@ -745,9 +809,7 @@ export function onTheTable(
   if (usable.length === 0) {
     return absent(
       "on_the_table",
-      proposals.length === 0
-        ? "nothing is waiting for your approval right now"
-        : "nothing waiting for you carries a priced gain yet",
+      proposals.length === 0 ? tr("reason.nothingWaiting") : tr("reason.noPricedGain"),
     );
   }
   let low = 0;
@@ -760,18 +822,23 @@ export function onTheTable(
     const hi = Math.max(0, base, up);
     low += lo;
     high += hi;
-    parts.push(`${p.summary}: ${rangeText({ low_minor: lo, high_minor: hi, currency })}`);
+    parts.push(
+      tr("formula.tableProposal", {
+        summary: p.summary,
+        range: rangeText({ low_minor: lo, high_minor: hi, currency }, locale),
+      }),
+    );
   }
   return priced({
     key: "on_the_table",
     basis: "ESTIMATED",
-    basis_note: "the proposals' own base and upside cases",
+    basis_note: tr("basisNote.proposals"),
     window: { from: today, to: today, days: OPPORTUNITY.month_days },
     low_minor: low,
     high_minor: high,
     currency,
     derived_from: usable.map((p) => `proposals.${p.id}.scenario`),
-    formula: `${num(usable.length)} waiting proposal${usable.length === 1 ? "" : "s"}, base case to upside a month: ${parts.join("; ")}`,
+    formula: tr("formula.onTheTable", { count: usable.length, parts: parts.join(listSep(locale)) }),
   });
 }
 
@@ -801,7 +868,12 @@ export function aboutRange(r: MoneyRange): MoneyRange {
   return { low_minor: low, high_minor: Math.max(low, high), currency: r.currency };
 }
 
-export function headline(components: readonly OpportunityComponent[], currency: string): Headline {
+export function headline(
+  components: readonly OpportunityComponent[],
+  currency: string,
+  words: Words = englishChartWords(),
+): Headline {
+  const { tr, locale } = words;
   const flows = components.filter(
     (c): c is PricedComponent =>
       c.status === "priced" &&
@@ -813,14 +885,14 @@ export function headline(components: readonly OpportunityComponent[], currency: 
   const high = flows.reduce((n, c) => n + c.monthly!.high_minor, 0);
   if (flows.length === 0) {
     return {
-      text: "Nothing I can measure yet shows money slipping away.",
+      text: tr("headline.nothing"),
       monthly: null,
       lead: null,
     };
   }
   if (high <= 0) {
     return {
-      text: "Nothing measured is slipping away right now.",
+      text: tr("headline.zero"),
       monthly: { low_minor: 0, high_minor: 0, currency },
       lead: null,
     };
@@ -829,14 +901,14 @@ export function headline(components: readonly OpportunityComponent[], currency: 
   const share = lead.monthly!.high_minor / high;
   const monthly = { low_minor: low, high_minor: high, currency };
   const about = aboutRange(monthly);
-  const tail =
+  const which =
     flows.filter((c) => c.monthly!.high_minor > 0).length === 1
-      ? ` — all of it ${COMPONENT_NOUN[lead.key]}`
+      ? "headline.all"
       : share >= 0.5
-        ? ` — mostly ${COMPONENT_NOUN[lead.key]}`
-        : ` — the biggest share in ${COMPONENT_NOUN[lead.key]}`;
+        ? "headline.mostly"
+        : "headline.biggest";
   return {
-    text: `About ${rangeText(about)} a month is slipping away${tail}.`,
+    text: tr(which, { range: rangeText(about, locale), lead: lead.key }),
     monthly,
     lead: lead.key,
   };

@@ -3,11 +3,13 @@
 // A screen's translator and locale for a client component — L-3a. The
 // translator is next-intl's for the request's locale (the cookie through
 // the status gate, i18n/request.ts), over one namespace; the locale is
-// what the figure formatters take (components/sheet/num.ts).
+// what the figure formatters take (components/sheet/num.ts). L-4b: a date
+// that ends a sentence keeps one full stop (lib/i18n/punctuation oneStop).
 
 import { useLocale, useTranslations } from "next-intl";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { isAppLocale } from "../../lib/i18n/locales";
+import { oneStop } from "../../lib/i18n/punctuation";
 import type { Tr } from "../../lib/i18n/tr";
 
 /** The request's locale, as one of the app's seven. */
@@ -20,5 +22,5 @@ export function useAppLocale(): AppLocale {
 export function useTr(namespace: string): { tr: Tr; locale: AppLocale } {
   const t = useTranslations(namespace as "common") as unknown as Tr;
   const locale = useAppLocale();
-  return { tr: (key, values) => t(key, values), locale };
+  return { tr: (key, values) => oneStop(t(key, values), locale), locale };
 }

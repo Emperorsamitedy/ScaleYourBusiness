@@ -12,6 +12,10 @@
 
 import type { Money } from "../core/money";
 import { moneyText } from "../../components/sheet/num";
+import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
+import type { CompetitorWords } from "./changes";
+import { englishCompetitorWords } from "./changes";
 import { offerKey } from "./extract";
 
 export interface OwnOffer {
@@ -111,18 +115,38 @@ export interface PriceGap {
   words: string;
 }
 
-/** Pure: their price against yours, or null when the currencies differ (never converted). */
-export function priceGap(theirs: Money, yours: Money): PriceGap | null {
+/** A signed whole percent: "+13%", "−19%" in English; the reader's own way otherwise. */
+function signedPercent(percent: number, locale: AppLocale): string {
+  if (locale === "en") return `${percent > 0 ? "+" : "−"}${Math.abs(percent)}%`;
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    signDisplay: "exceptZero",
+    maximumFractionDigits: 0,
+  }).format(percent / 100);
+}
+
+/**
+ * Pure: their price against yours, or null when the currencies differ
+ * (never converted). The words in `w` ("competitorsWords"), English by default.
+ */
+export function priceGap(
+  theirs: Money,
+  yours: Money,
+  w: CompetitorWords = englishCompetitorWords(),
+): PriceGap | null {
   if (theirs.currency !== yours.currency) return null;
   const diff = theirs.amount_minor - yours.amount_minor;
   const percent =
     yours.amount_minor === 0
       ? null
       : Math.sign(diff) * Math.round((Math.abs(diff) * 100) / yours.amount_minor);
-  const amount = moneyText(Math.abs(diff), theirs.currency);
-  const pct =
-    percent === null || percent === 0 ? "" : ` (${percent > 0 ? "+" : "−"}${Math.abs(percent)}%)`;
+  const amount = moneyText(Math.abs(diff), theirs.currency, w.locale);
+  const side = diff < 0 ? "below" : "above";
   const words =
-    diff === 0 ? "the same as yours" : `${amount} ${diff < 0 ? "below" : "above"} yours${pct}`;
+    diff === 0
+      ? w.tr("gap.same")
+      : percent === null || percent === 0
+        ? w.tr(`gap.${side}`, { amount })
+        : w.tr(`gap.${side}Pct`, { amount, pct: signedPercent(percent, w.locale) });
   return { diff_minor: diff, percent, currency: theirs.currency, words };
 }

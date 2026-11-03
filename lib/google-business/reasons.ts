@@ -6,6 +6,8 @@
 // sentence here. A code it doesn't know reads as the generic sentence, so no
 // text from a URL is ever shown as SYB's.
 
+import type { Tr } from "../i18n/tr";
+
 export const GOOGLE_REASONS = {
   start_here:
     "Start the Google sign-in from SYB's Connections screen, with the button there. Nothing was sent to Google.",
@@ -62,9 +64,13 @@ export const GOOGLE_READ_OUTCOMES = {
 
 export type GoogleReadOutcome = keyof typeof GOOGLE_READ_OUTCOMES;
 
-export function googleReadWords(outcome: string | null): string | null {
+/**
+ * The last read's outcome in words. L-4b: with a translator over
+ * "reviewsWords" (googleRead.<outcome>), in the reader's language; without
+ * one, the English above, as every caller has always had it.
+ */
+export function googleReadWords(outcome: string | null, tr?: Tr): string | null {
   if (outcome === null) return null;
-  return Object.hasOwn(GOOGLE_READ_OUTCOMES, outcome)
-    ? GOOGLE_READ_OUTCOMES[outcome as GoogleReadOutcome]
-    : null;
+  if (!Object.hasOwn(GOOGLE_READ_OUTCOMES, outcome)) return null;
+  return tr ? tr(`googleRead.${outcome}`) : GOOGLE_READ_OUTCOMES[outcome as GoogleReadOutcome];
 }

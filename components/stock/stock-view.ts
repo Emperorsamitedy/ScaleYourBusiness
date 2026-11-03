@@ -3,8 +3,11 @@
 //
 // L-3b: the fixed words (status words, flags, units, "at cost") are the
 // "stock" catalogue through an optional translator, English by default;
-// figures in the reader's locale. The sentences built from the counts
-// (the headline, stated against measured) stay English until L-4.
+// figures in the reader's locale.
+//
+// L-4b: the sentences built from the counts (the headline, stated against
+// measured, the stock-out headline) are the "stockWords" catalogue through
+// optional words, English by default; the screen passes useTr("stockWords").
 
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
@@ -24,6 +27,11 @@ export interface StockWords {
   locale: AppLocale;
 }
 const ENGLISH = (): StockWords => ({ tr: englishTr("stock"), locale: "en" });
+/** The sentences' words: the "stockWords" catalogue (lib/stock/words). */
+const SENTENCES = (): StockWords => ({ tr: englishTr("stockWords"), locale: "en" });
+
+/** A count inside a sentence: "1234" in English, as it always read; grouped elsewhere. */
+const count = (n: number, locale: AppLocale) => (locale === "en" ? String(n) : num(n, 0, locale));
 
 const FLAG_KEY: Record<string, string> = {
   STUCK: "stuck",
@@ -48,16 +56,16 @@ export function flagLower(flag: string, w: StockWords = ENGLISH()): string {
 }
 
 /** The screen's one display line: the cash tied up, as a sentence. */
-export function headline(view: StockView): string {
+export function headline(view: StockView, w: StockWords = SENTENCES()): string {
+  const { tr, locale } = w;
   const slow = view.slow ?? [];
   const read = (view.sources ?? []).some((s) => s.as_of !== null);
-  if (!read) return "I haven't read your stock yet.";
-  if (slow.length === 0) return "Everything you hold is selling.";
+  if (!read) return tr("view.notRead");
+  if (slow.length === 0) return tr("view.allSelling");
   const t = (view.totals ?? [])[0];
-  const n = slow.length;
-  const items = `${n} item${n === 1 ? "" : "s"} that ${n === 1 ? "isn't" : "aren't"} selling`;
-  if (!t || t.cash_tied_minor === 0) return `${items[0]!.toUpperCase()}${items.slice(1)}.`;
-  return `${moneyText(t.cash_tied_minor, t.currency)} is tied up in ${items}.`;
+  const n = { count: slow.length, n: count(slow.length, locale) };
+  if (!t || t.cash_tied_minor === 0) return tr("view.notSelling", n);
+  return tr("view.tiedUp", { ...n, amount: moneyText(t.cash_tied_minor, t.currency, locale) });
 }
 
 /** The flag's tint: STUCK is an alarm, SLOW a drift — the word carries the meaning. */
@@ -122,24 +130,29 @@ export function cashText(
 }
 
 /** Rule 11: what the owner said dead stock was worth, against what's measured. */
-export function statedVsMeasured(view: StockView): string | null {
+export function statedVsMeasured(view: StockView, w: StockWords = SENTENCES()): string | null {
+  const { tr, locale } = w;
   const stated = view.stated_dead_stock;
   if (!stated) return null;
+  const said = moneyText(stated.amount_minor, stated.currency, locale);
   const t = (view.totals ?? []).find((x) => x.currency === stated.currency);
-  if (!t) {
-    return `You estimated your dead stock at ${moneyText(stated.amount_minor, stated.currency)}; what I measured isn't in ${stated.currency}, so I don't compare them.`;
-  }
-  const word = t.cash_tied_minor >= stated.amount_minor ? "more" : "less";
-  return `You estimated your dead stock at ${moneyText(stated.amount_minor, stated.currency)}; I measure ${moneyText(t.cash_tied_minor, t.currency)} at cost in stock that isn't selling — ${moneyText(Math.abs(t.cash_tied_minor - stated.amount_minor), t.currency)} ${word}. Your estimate stays on your fact sheet.`;
+  if (!t) return tr("view.svmOtherCurrency", { stated: said, currency: stated.currency });
+  return tr("view.svm", {
+    stated: said,
+    measured: moneyText(t.cash_tied_minor, t.currency, locale),
+    diff: moneyText(Math.abs(t.cash_tied_minor - stated.amount_minor), t.currency, locale),
+    direction: t.cash_tied_minor >= stated.amount_minor ? "more" : "less",
+  });
 }
 
 /* ── P5-05: what runs out, and when ── */
 
 /** The screen's display line: the soonest stock-out when there is one, else the slow-stock line. */
-export function stockHeadline(view: StockView): string {
+export function stockHeadline(view: StockView, w: StockWords = SENTENCES()): string {
   const first = (view.cover?.items ?? []).find((i) => i.warning !== null);
-  if (first?.warning) return `${first.warning.split(";")[0]}.`;
-  return headline(view);
+  // The server words the head on its own (warning_head); the split is only for an older reply.
+  if (first?.warning) return first.warning_head ?? `${first.warning.split(";")[0]}.`;
+  return headline(view, w);
 }
 
 /** The cover flag's tint; the word carries the meaning, the tint only repeats it. */

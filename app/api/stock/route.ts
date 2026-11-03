@@ -17,6 +17,11 @@
 // in the queue). A business that holds no stock (STOCK_APPLIES, data over
 // the bank's own answers) gets `applies: false` and nothing else. Nothing
 // here executes anything: proposals wait for the owner (rule 12).
+//
+// L-4b: what GET sends the screen is worded in the reader's language (the
+// "stockWords" catalogue, figures in their locale, the business's own
+// currency). What POST stores — proposals, reorder notes, their decision-log
+// entries — is built in English, exactly as before (rules 4 and 7).
 
 import { inArray, and, eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
@@ -35,6 +40,9 @@ import { loadCover } from "../../../lib/stock/cover-load";
 import { proposeReorders, reorderRef } from "../../../lib/stock/reorder";
 import { loadStockHistory } from "../../../lib/charts/load";
 import type { StockHistoryModel } from "../../../lib/charts/stock-history";
+import { stockHistorySummary } from "../../../lib/charts/stock-history";
+import { requestWords } from "../../../lib/i18n/request-words";
+import { STOCK_WORDS, isoDay } from "../../../lib/stock/words";
 import { CLEARANCE, efficiencyLine } from "../../../lib/stock/options";
 import {
   fmtFor,
@@ -52,6 +60,8 @@ const SHOWN = 25;
 export interface StockOptionView {
   key: string;
   label: string;
+  /** The label inside a sentence ("mark it down"): its own words, never a lower-cased label. */
+  label_inline?: string;
   unavailable: string | null;
   recovered: { low: number; high: number; expected: number };
   given_up: { low: number; high: number; expected: number };
@@ -102,6 +112,8 @@ export interface CoverItemView {
   lead: { days: number; basis: "stated" | "assumed"; supplier: string | null; why: string };
   flag: CoverFlag;
   warning: string | null;
+  /** The warning's first clause on its own, as a line: "Mug runs out in about 4–6 days." */
+  warning_head?: string | null;
   /** Why it isn't judged, when it isn't. */
   why: string | null;
   boosted: boolean;
@@ -155,15 +167,24 @@ export async function GET(): Promise<NextResponse> {
       return NextResponse.json({ applies: false } satisfies StockView);
     }
     const now = new Date();
-    const coverView = await loadCover(access.account_id, access.profile_id, now);
+    const words = await requestWords(STOCK_WORDS);
+    const { tr } = words;
+    const coverView = await loadCover(
+      access.account_id,
+      access.profile_id,
+      now,
+      undefined,
+      words,
+      await requestWords("patternsWords", words.locale),
+    );
     const view = coverView.stock;
-    const shared = await sharedContext(access.profile_id, access.account_id, now);
+    const shared = await sharedContext(access.profile_id, access.account_id, now, words);
     const care = await careState(access.profile_id);
-    const held = !care
-      ? "I propose ways to clear it once you've chosen how I work for you."
-      : care.watch_ends_at && now.toISOString() < care.watch_ends_at
-        ? `I'm watching until ${care.watch_ends_at.slice(0, 10)}, and I propose nothing before then.`
+    const watching =
+      care?.watch_ends_at && now.toISOString() < care.watch_ends_at
+        ? tr("held.watching", { day: isoDay(care.watch_ends_at.slice(0, 10), words.locale) })
         : null;
+    const held = !care ? tr("held.slowNotInCare") : watching;
 
     const shown = view.slow.slice(0, SHOWN);
     const refs = shown.flatMap((r) =>
@@ -226,11 +247,7 @@ export async function GET(): Promise<NextResponse> {
       default_lead_days: COVER.default_lead_days,
       warnings: coverView.warnings.length,
       season: coverView.season_note,
-      held: !care
-        ? "I put reorder notes in your queue once you've chosen how I work for you."
-        : care.watch_ends_at && now.toISOString() < care.watch_ends_at
-          ? `I'm watching until ${care.watch_ends_at.slice(0, 10)}, and I propose nothing before then.`
-          : null,
+      held: !care ? tr("held.coverNotInCare") : watching,
       items: coverRows.map((r) => {
         const c = r.cover;
         const st = c.sell_through;
@@ -252,7 +269,7 @@ export async function GET(): Promise<NextResponse> {
               ? { change: st.change, band: st.band, direction: st.direction }
               : null,
           sell_through: st.sentence,
-          cover_text: coverColumn(c),
+          cover_text: coverColumn(c, words),
           runs_out: c.runs_out,
           lead: {
             days: c.lead.days,
@@ -262,6 +279,7 @@ export async function GET(): Promise<NextResponse> {
           },
           flag: coverFlag(c),
           warning: c.warning?.sentence ?? null,
+          warning_head: c.warning?.head ?? null,
           why: c.why,
           boosted: c.boosted,
           reorder: c.reorder
@@ -284,7 +302,7 @@ export async function GET(): Promise<NextResponse> {
     };
 
     const slow: StockItemView[] = shown.map((r, i) => {
-      const fmt = fmtFor(r.item.currency);
+      const fmt = fmtFor(r.item.currency, words);
       return {
         key: `${r.item.connection_id}:${r.item.ref}`,
         name: r.item.name,
@@ -303,16 +321,17 @@ export async function GET(): Promise<NextResponse> {
         flag: r.assessment.flag!,
         why: r.assessment.why,
         proposed_for: i < CLEARANCE.max_items,
-        options: optionsFor(r, view, shared).map((o) => {
+        options: optionsFor(r, view, shared, words).map((o) => {
           const p = byRef.get(optionRef(r, o.key, now));
           return {
             key: o.key,
             label: o.label,
+            label_inline: tr(`option.inline.${o.key}`),
             unavailable: o.unavailable,
             recovered: o.recovered,
             given_up: o.given_up,
             per_euro: o.per_euro,
-            efficiency: efficiencyLine(o, fmt),
+            efficiency: efficiencyLine(o, fmt, words),
             arithmetic: o.arithmetic,
             reversibility: o.reversibility.if_you_change_your_mind,
             proposal: p
@@ -333,6 +352,13 @@ export async function GET(): Promise<NextResponse> {
       totals.set(c, t);
     }
 
+    const history = await loadStockHistory(
+      view.slow.map((r) => ({
+        connection_id: r.item.connection_id,
+        ref: r.item.ref,
+        name: r.item.name,
+      })),
+    );
     const body: StockView = {
       applies: true,
       today: view.today,
@@ -355,13 +381,8 @@ export async function GET(): Promise<NextResponse> {
       },
       held,
       cover,
-      history: await loadStockHistory(
-        view.slow.map((r) => ({
-          connection_id: r.item.connection_id,
-          ref: r.item.ref,
-          name: r.item.name,
-        })),
-      ),
+      // The chart's caption, in the reader's language (the loader words it in English).
+      history: history && { ...history, summary: stockHistorySummary(history, words) },
     };
     return NextResponse.json(body);
   } catch (error) {

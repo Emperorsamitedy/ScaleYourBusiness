@@ -45,6 +45,10 @@ import type { BookingsChartModel, AdsChartModel } from "./small";
 import { buildAdsChart, buildBookingsChart } from "./small";
 import type { SlowItemKey, SnapshotRow, StockHistoryModel } from "./stock-history";
 import { HISTORY_ITEMS, buildStockHistory } from "./stock-history";
+import type { Words } from "./words";
+import { capitalFirst, englishChartWords, percentText, sentenceDay } from "./words";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
 
 export const TYPE_KEY = "identity.business_type";
 export const SELLS_KEY = "identity.sells";
@@ -56,8 +60,19 @@ const BOOKING_METRICS: readonly MetricKey[] = [
   "booking_revenue.daily",
 ];
 
-/** What each detected series is called in an event's label. */
-const METRIC_NOUN: Readonly<Record<string, string>> = {
+/** Each detected series' code in an event label's select (chartsWords event.*); anything else reads its metric key. */
+const METRIC_CODE: Readonly<Record<string, string>> = {
+  "revenue.daily": "revenue",
+  "orders.daily": "orders",
+  "sessions.daily": "sessions",
+  "ad_spend.daily": "adSpend",
+  "ad_purchases.daily": "adPurchases",
+  "appointments_completed.daily": "appointmentsCompleted",
+  "booking_revenue.daily": "bookingRevenue",
+};
+
+/** What each detected series is called in an event's label (English; the catalogue holds every language's). */
+export const METRIC_NOUN: Readonly<Record<string, string>> = {
   "revenue.daily": "Revenue",
   "orders.daily": "Orders",
   "sessions.daily": "Website visits",
@@ -74,10 +89,13 @@ interface ConnInfo {
   created_at: string;
 }
 
-/** Owner-facing name of a source: the provider's own label, or the import's. */
-export function sourceLabel(provider: string): string {
-  if (provider === BOOKINGS_IMPORT_PROVIDER) return "your bookings export";
-  if (provider === STOCK_IMPORT_PROVIDER) return "your stock file";
+/**
+ * Owner-facing name of a source: the provider's own label (a brand, kept
+ * as it is), or the import's — in `tr` ("chartsWords"), English by default.
+ */
+export function sourceLabel(provider: string, tr: Tr = englishTr("chartsWords")): string {
+  if (provider === BOOKINGS_IMPORT_PROVIDER) return tr("source.bookingsImport");
+  if (provider === STOCK_IMPORT_PROVIDER) return tr("source.stockImport");
   return isProviderId(provider) ? getProvider(provider).label : provider;
 }
 
@@ -112,14 +130,19 @@ export interface ChartsBundle {
   ads: AdsChartModel | null;
 }
 
-/** Everything the signed-in charts draw for one business, as of `now`. */
+/**
+ * Everything the signed-in charts draw for one business, as of `now`.
+ * L-4b: the sentences in `words` (the request's, from the route), English
+ * by default. Nothing here is stored: the bundle goes to the screen only.
+ */
 export async function loadCharts(
   accountId: string,
   profileId: string,
   now: Date = new Date(),
+  words: Words = englishChartWords(),
 ): Promise<ChartsBundle> {
-  const inputs = await loadMarketInputs(accountId, profileId, now);
-  const market = buildMarketModel(inputs);
+  const inputs = await loadMarketInputs(accountId, profileId, now, words);
+  const market = buildMarketModel(inputs, words);
   const to =
     market.status === "drawn"
       ? market.window.to
@@ -128,9 +151,11 @@ export async function loadCharts(
   const ads = windowEnding(to, OPPORTUNITY.ads_window_days);
   return {
     market,
-    bookings: buildBookingsChart(inputs.bookings, market, w),
+    bookings: buildBookingsChart(inputs.bookings, market, w, words),
     ads:
-      inputs.campaigns === null ? null : buildAdsChart(campaignWindows(inputs.campaigns, ads), ads),
+      inputs.campaigns === null
+        ? null
+        : buildAdsChart(campaignWindows(inputs.campaigns, ads), ads, words),
   };
 }
 
@@ -138,6 +163,7 @@ export async function loadMarketInputs(
   accountId: string,
   profileId: string,
   now: Date = new Date(),
+  words: Words = englishChartWords(),
 ): Promise<MarketInputs> {
   const today = now.toISOString().slice(0, 10);
   const yesterday = shiftDay(today, -1);
@@ -164,7 +190,7 @@ export async function loadMarketInputs(
       ),
     );
   const conns = new Map<string, ConnInfo>(
-    connRows.map((c) => [c.id, { ...c, label: sourceLabel(c.provider) }]),
+    connRows.map((c) => [c.id, { ...c, label: sourceLabel(c.provider, words.tr) }]),
   );
 
   const metrics = [
@@ -349,10 +375,12 @@ export async function loadMarketInputs(
     }
   }
 
-  const waiting = await waitingProposals(profileId, now);
-  const events = await chartEvents(profileId, [
-    ...new Set([priceGroup?.conn, completed?.conn].filter((c): c is ConnInfo => !!c)),
-  ]);
+  const waiting = await waitingProposals(profileId, now, words);
+  const events = await chartEvents(
+    profileId,
+    [...new Set([priceGroup?.conn, completed?.conn].filter((c): c is ConnInfo => !!c))],
+    words,
+  );
 
   return {
     today,
@@ -384,7 +412,11 @@ function moneyOf(
 }
 
 /** The proposals waiting for the owner, with their own monthly cases. */
-async function waitingProposals(profileId: string, now: Date): Promise<WaitingProposal[]> {
+async function waitingProposals(
+  profileId: string,
+  now: Date,
+  words: Words,
+): Promise<WaitingProposal[]> {
   const rows = await db
     .select({
       id: proposals.id,
@@ -404,7 +436,9 @@ async function waitingProposals(profileId: string, now: Date): Promise<WaitingPr
       const action = (r.action ?? {}) as { summary?: unknown };
       return {
         id: r.id,
-        summary: typeof action.summary === "string" ? action.summary : "A waiting proposal",
+        // The proposal's own summary is stored text and stays as written; only the fallback is ours.
+        summary:
+          typeof action.summary === "string" ? action.summary : words.tr("proposal.aWaiting"),
         base: moneyOf(scenario.base_case),
         upside: moneyOf(scenario.upside_case),
       };
@@ -412,7 +446,12 @@ async function waitingProposals(profileId: string, now: Date): Promise<WaitingPr
 }
 
 /** Detected anomalies, what the owner approved, and the day each drawn source was connected. */
-async function chartEvents(profileId: string, drawn: readonly ConnInfo[]): Promise<MarketEvent[]> {
+async function chartEvents(
+  profileId: string,
+  drawn: readonly ConnInfo[],
+  words: Words,
+): Promise<MarketEvent[]> {
+  const { tr, locale } = words;
   const events: MarketEvent[] = [];
   const found = await db
     .select({
@@ -430,15 +469,25 @@ async function chartEvents(profileId: string, drawn: readonly ConnInfo[]): Promi
     const actual = Number(a.actual);
     const expected = Number(a.expected);
     const pct = expected > 0 ? Math.round((Math.abs(actual - expected) / expected) * 100) : null;
-    const noun = METRIC_NOUN[a.metric_key] ?? a.metric_key;
+    const drop = a.direction === "drop";
     events.push({
       date: a.first_date,
       kind: "anomaly",
-      label:
-        `${noun} ${a.direction === "drop" ? "fell" : "rose"}` +
-        (pct === null
-          ? ""
-          : ` ${pct}% ${a.direction === "drop" ? "below" : "above"} the usual level`),
+      label: tr(
+        pct === null
+          ? drop
+            ? "event.drop"
+            : "event.rise"
+          : drop
+            ? "event.dropBy"
+            : "event.riseBy",
+        {
+          metric: METRIC_CODE[a.metric_key] ?? "other",
+          noun: METRIC_NOUN[a.metric_key] ?? a.metric_key,
+          pct: pct === null ? "" : percentText(pct, locale),
+        },
+      ),
+      // The detector's own sentence, stored on the anomaly row: shown as stored (rules 4, 7).
       detail: a.detail,
     });
   }
@@ -458,23 +507,26 @@ async function chartEvents(profileId: string, drawn: readonly ConnInfo[]): Promi
     );
   for (const p of decided) {
     const action = (p.action ?? {}) as { summary?: unknown };
-    const summary = typeof action.summary === "string" ? action.summary : "a proposal";
+    const summary = typeof action.summary === "string" ? action.summary : tr("proposal.aProposal");
     events.push({
       date: p.decided_at!.slice(0, 10),
       kind: "approved",
       label: summary,
-      detail: `You approved “${summary}”${p.status === "executed" ? "; it has run" : "; it hasn't run yet"}.`,
+      detail: tr(p.status === "executed" ? "event.approvedRan" : "event.approvedWaiting", {
+        summary,
+      }),
     });
   }
   for (const c of drawn) {
+    const day = c.created_at.slice(0, 10);
     events.push({
-      date: c.created_at.slice(0, 10),
+      date: day,
       kind: "connected",
       label:
         c.provider === BOOKINGS_IMPORT_PROVIDER
-          ? "Bookings first imported"
-          : `${c.label.charAt(0).toUpperCase()}${c.label.slice(1)} connected`,
-      detail: `Read from ${c.created_at.slice(0, 10)} on; the days before it came in with the first read.`,
+          ? tr("event.bookingsImported")
+          : tr("event.connected", { source: capitalFirst(c.label, locale) }),
+      detail: tr("event.connectedDetail", { day: sentenceDay(day, locale) }),
     });
   }
   return events;

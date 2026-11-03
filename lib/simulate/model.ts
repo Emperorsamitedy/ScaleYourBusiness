@@ -35,6 +35,9 @@ import { MAX_CHANGE_SHARE, spendGuard } from "../ads/guard";
 import { minorUnitExponent } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
 import { intlTag } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
+import type { SimText } from "./words";
+import { andList, englishSimText, int, isoDay, pointsPct, section, wholePct } from "./words";
 
 /**
  * The pinned thresholds and windows — one place, boundary-tested
@@ -293,6 +296,8 @@ export type Unit = "money" | "count" | "rate" | "ratio";
 export interface SimInput {
   key: string;
   label: string;
+  /** The label as it reads inside a sentence ("your margin: …"), in the same words as `label`. */
+  label_inline: string;
   /** Null: missing. */
   range: Range | null;
   unit: Unit;
@@ -413,8 +418,7 @@ export function spread(values: readonly number[]): Range | null {
  * the print rounds.
  */
 // L-3b: the screen's figures take the reader's language (English by
-// default, exactly as before); the arithmetic lines built here stay English
-// until L-4 (TASKS-LANGUAGES.md).
+// default, exactly as before); L-4b: so do the arithmetic lines built here.
 const money = (minor: number, currency: string, locale: AppLocale = "en"): string => {
   const whole = Math.round(Math.abs(minor) / 10 ** minorUnitExponent(currency));
   const body = moneyText(whole * 10 ** minorUnitExponent(currency), currency, locale);
@@ -452,7 +456,8 @@ function rangeText(
 }
 
 /** An input or intermediate figure inside an arithmetic line. */
-const term = (r: Range, unit: Unit, currency: string) => rangeText(r, unit, currency, true);
+const term = (r: Range, unit: Unit, currency: string, locale: AppLocale = "en") =>
+  rangeText(r, unit, currency, true, locale);
 
 /** Pure: a value the screen prints, by its unit, in the reader's language. */
 export function valueText(
@@ -475,16 +480,37 @@ export function orderBases(bases: readonly (Basis | null)[]): Basis[] {
   return BASES.filter((b) => bases.includes(b));
 }
 
-const plural = (n: number, one: string, many = `${one}s`) => `${num(n, 0)} ${n === 1 ? one : many}`;
+/* ── the words ── */
+
+// L-4b (TASKS-LANGUAGES.md): every sentence below — labels, sources,
+// needs, formulas, titles, the worst case, the guard, the notes — is a
+// message in "simulateWords.model", with every figure formatted in the
+// reader's locale and passed in. English (the default) is exactly what
+// this file printed before. A proposal's stored scenario is built with the
+// English default (lib/simulate/propose.ts), never with a reader's words.
+
+/** The words one option is built with: the "model" section and the locale. */
+interface W {
+  t: Tr;
+  L: AppLocale;
+}
+
+const wordsOf = (w: SimText): W => ({ t: section(w, "model"), L: w.locale });
+
+/** An input's label, and the same label as it reads inside a sentence. */
+function labelled(t: Tr, key: string, values?: Record<string, string | number>) {
+  return {
+    label: t(`label.${key}`, values),
+    label_inline: t(`inline.${key}`, values),
+  };
+}
 
 /* ── the shared inputs: margin and order value ── */
 
-const MARGIN_NEEDS =
-  "your gross margin, or what each product costs you to deliver — then profit can be worked out";
-
 /** Pure: the margin as a fraction, a range when the computed and stated figures differ. */
-export function marginInput(m: MarginRaw): SimInput {
-  const base = { key: "margin", label: "Your margin", unit: "rate" as const };
+export function marginInput(m: MarginRaw, w: SimText = englishSimText()): SimInput {
+  const { t, L } = wordsOf(w);
+  const base = { key: "margin", ...labelled(t, "margin"), unit: "rate" as const };
   const c = m.computed_pct;
   const s = m.stated_pct;
   if (c !== null && s !== null) {
@@ -492,7 +518,7 @@ export function marginInput(m: MarginRaw): SimInput {
       ...base,
       range: range(c / 100, s / 100),
       basis: "DERIVED",
-      source: `worked out from your offers (${num(c, 1)}%) and as you told me (${num(s, 1)}%) — the range spans both`,
+      source: t("margin.both", { computed: pointsPct(c, L), stated: pointsPct(s, L) }),
       needs: null,
     };
   }
@@ -501,7 +527,9 @@ export function marginInput(m: MarginRaw): SimInput {
       ...base,
       range: point(c / 100),
       basis: "DERIVED",
-      source: `worked out from your offers: ${m.computed_formula ?? "price minus cost to deliver"}`,
+      source: t("margin.computed", {
+        formula: m.computed_formula ?? t("margin.formulaDefault"),
+      }),
       needs: null,
     };
   }
@@ -510,22 +538,30 @@ export function marginInput(m: MarginRaw): SimInput {
       ...base,
       range: point(s / 100),
       basis: m.stated_basis ?? "STATED",
-      source: "as you told me (your gross margin)",
+      source: t("margin.stated"),
       needs: null,
     };
   }
-  return { ...base, range: null, basis: null, source: "not known", needs: MARGIN_NEEDS };
+  return { ...base, range: null, basis: null, source: t("notKnown"), needs: t("margin.needs") };
 }
 
 /** Pure: what an order is worth — measured days first, then the owner's own monthly figures. */
-export function orderValueInput(aov: AovRaw, label = "What an order is worth"): SimInput {
-  const base = { key: "aov", label, unit: "money" as const };
+export function orderValueInput(
+  aov: AovRaw,
+  label: "aov" | "aovEach" = "aov",
+  w: SimText = englishSimText(),
+): SimInput {
+  const { t, L } = wordsOf(w);
+  const base = { key: "aov", ...labelled(t, label), unit: "money" as const };
   if (aov.measured_daily_minor.length >= SIM.site_min_days) {
     return {
       ...base,
       range: spread(aov.measured_daily_minor),
       basis: "OBSERVED",
-      source: `revenue ÷ orders on ${plural(aov.measured_daily_minor.length, "measured day")} of the last ${SIM.site_window_days}, middle half`,
+      source: t("aov.measured", {
+        count: aov.measured_daily_minor.length,
+        window: int(SIM.site_window_days, L),
+      }),
       needs: null,
     };
   }
@@ -534,7 +570,7 @@ export function orderValueInput(aov: AovRaw, label = "What an order is worth"): 
       ...base,
       range: point(aov.stated_minor),
       basis: "DERIVED",
-      source: "your monthly revenue ÷ your monthly orders, as you told me",
+      source: t("aov.stated"),
       needs: null,
     };
   }
@@ -542,8 +578,8 @@ export function orderValueInput(aov: AovRaw, label = "What an order is worth"): 
     ...base,
     range: null,
     basis: null,
-    source: "not known",
-    needs: "a connected shop or till, or your monthly revenue and order count",
+    source: t("notKnown"),
+    needs: t("aov.needs"),
   };
 }
 
@@ -551,7 +587,7 @@ export function orderValueInput(aov: AovRaw, label = "What an order is worth"): 
 
 type Got = { ok: true; vals: Range[]; bases: Basis[] } | { ok: false; needs: string[] };
 
-function need(inputs: readonly SimInput[], keys: readonly string[]): Got {
+function need(inputs: readonly SimInput[], keys: readonly string[], { t }: W): Got {
   const found = keys.map((k) => inputs.find((i) => i.key === k));
   const missing = found.filter((i) => !i || i.range === null);
   if (missing.length > 0) {
@@ -559,7 +595,9 @@ function need(inputs: readonly SimInput[], keys: readonly string[]): Got {
       ok: false,
       needs: [
         ...new Set(
-          missing.map((i) => (i ? `${i.label.toLowerCase()}: ${i.needs ?? "not known"}` : "?")),
+          missing.map((i) =>
+            i ? t("needLine", { label: i.label_inline, needs: i.needs ?? t("notKnown") }) : "?",
+          ),
         ),
       ],
     };
@@ -586,14 +624,9 @@ const CAMPAIGN_KIND: Record<EmailSegmentKey, PastEmailCampaign["kind"]> = {
   lapsed: "winback",
   vip: "vip",
 };
-const SEGMENT_TITLE: Record<EmailSegmentKey, string> = {
-  lapsed: "Win-back email to lapsed customers",
-  vip: "Thank-you email to your best customers",
-};
-const KIND_WORD: Record<PastEmailCampaign["kind"], string> = {
-  winback: "win-back",
-  vip: "thank-you",
-};
+
+/** An email option's title, by its segment. */
+const segmentTitle = (segment: EmailSegmentKey, { t }: W) => t("email.title", { segment });
 
 /**
  * Pure: the bought-again rate a send is likely to see — the spread of the
@@ -613,7 +646,13 @@ export function boughtAgainRate(past: readonly PastEmailCampaign[]): Range | nul
   return spread(measured.map((c) => c.returned / c.measured));
 }
 
-function simulateEmail(o: Extract<SimOption, { kind: "email" }>, x: SimInputs): OptionResult {
+function simulateEmail(
+  o: Extract<SimOption, { kind: "email" }>,
+  x: SimInputs,
+  w: SimText,
+): OptionResult {
+  const words = wordsOf(w);
+  const { t, L } = words;
   const cur = x.currency;
   const seg = x.email.segments.find((s) => s.key === o.segment) ?? null;
   const campaignKind = CAMPAIGN_KIND[o.segment];
@@ -624,147 +663,170 @@ function simulateEmail(o: Extract<SimOption, { kind: "email" }>, x: SimInputs): 
   const inputs: SimInput[] = [];
   inputs.push({
     key: "recipients",
-    label: "Who may be emailed",
+    ...labelled(t, "recipients"),
     range: seg ? point(recipients) : null,
     unit: "count",
     basis: seg ? "OBSERVED" : null,
     source: seg
-      ? `${plural(seg.members, "customer")} in the segment from your customer list; ${num(recipients, 0)} said yes to email and aren't unsubscribed`
-      : "no customer list yet",
-    needs: seg ? null : "your customer list, imported on Customers",
+      ? t("email.recipientsSource", {
+          count: seg.members,
+          emailable: num(recipients, 0, L),
+        })
+      : t("email.noList"),
+    needs: seg ? null : t("email.listNeeds"),
   });
   const delivery = spread(reported.map((c) => c.delivered / c.sent));
   inputs.push({
     key: "delivery",
-    label: "Delivered",
+    ...labelled(t, "delivery"),
     range: delivery,
     unit: "rate",
     basis: delivery ? "OBSERVED" : null,
     source: delivery
-      ? `delivered ÷ sent on ${plural(reported.length, "past campaign")} with delivery reports`
-      : "no campaign of yours has a delivery report yet",
-    needs: delivery ? null : "one sent campaign with its delivery reports",
+      ? t("email.deliverySource", { count: reported.length })
+      : t("email.noDelivery"),
+    needs: delivery ? null : t("email.deliveryNeeds"),
   });
   const rate = boughtAgainRate(sameKind);
   const measuredKind = sameKind.filter((c) => c.measured >= SIM.email_min_measured);
+  const one = measuredKind[0];
   inputs.push({
     key: "bought_again",
-    label: "Bought again after it",
+    ...labelled(t, "boughtAgain"),
     range: rate,
     unit: "rate",
     basis: rate ? "OBSERVED" : null,
     source:
-      measuredKind.length === 1
-        ? `your ${KIND_WORD[campaignKind]} of ${measuredKind[0]!.sent_on ?? "before"}: ${measuredKind[0]!.returned} of ${measuredKind[0]!.measured} measured recipients bought again — one person either way`
+      measuredKind.length === 1 && one
+        ? t("email.boughtAgainOne", {
+            kind: campaignKind,
+            day: one.sent_on === null ? t("email.before") : isoDay(one.sent_on, L),
+            returned: int(one.returned, L),
+            measured: int(one.measured, L),
+          })
         : measuredKind.length > 1
-          ? `bought again ÷ measured, across your last ${plural(measuredKind.length, `${KIND_WORD[campaignKind]} campaign`)}, middle half`
-          : `no ${KIND_WORD[campaignKind]} of yours has been read back yet`,
+          ? t("email.boughtAgainMany", { kind: campaignKind, count: measuredKind.length })
+          : t("email.boughtAgainNone", { kind: campaignKind }),
     needs: rate
       ? null
-      : `one sent ${KIND_WORD[campaignKind]} and a customer export at least ${SIM.email_wait_days[campaignKind]} days after it`,
+      : t("email.boughtAgainNeeds", {
+          kind: campaignKind,
+          count: SIM.email_wait_days[campaignKind],
+        }),
   });
   const values = seg?.order_values_minor ?? [];
   inputs.push(
     values.length >= SIM.email_min_order_values
       ? {
           key: "aov",
-          label: "What each of them spends",
+          ...labelled(t, "aovEach"),
           range: spread(values),
           unit: "money",
           basis: "OBSERVED",
-          source: `total spent ÷ orders for ${plural(values.length, "recipient")}, from your customer list, middle half`,
+          source: t("email.spendsSource", { count: values.length }),
           needs: null,
         }
-      : orderValueInput(x.aov, "What each of them spends"),
+      : orderValueInput(x.aov, "aovEach", w),
   );
-  inputs.push(marginInput(x.margin));
+  inputs.push(marginInput(x.margin, w));
 
   const worstHarm = reported.length
     ? Math.max(...x.email.past.filter((c) => c.sent > 0).map((c) => c.harmed / c.sent))
     : null;
 
-  const measures = emptyMeasures();
-  measures.cost = cell(point(0), [], "no spend — the email sends on your plan", true);
-  const reached = need(inputs, ["recipients", "delivery"]);
+  const nobody = t("email.worstFormula");
+  const measures = emptyMeasures(words);
+  measures.cost = cell(point(0), [], t("email.costFormula"), true);
+  const reached = need(inputs, ["recipients", "delivery"], words);
   measures.reached = reached.ok
     ? cell(
         roundRange(mul(reached.vals[0]!, reached.vals[1]!)),
         reached.bases,
-        `${count(recipients)} recipients × ${term(reached.vals[1]!, "rate", cur)} delivered`,
+        t("email.reachedFormula", {
+          recipients: count(recipients, L),
+          rate: term(reached.vals[1]!, "rate", cur, L),
+        }),
       )
     : missingCell(reached);
-  const orders = need(inputs, ["recipients", "bought_again"]);
+  const orders = need(inputs, ["recipients", "bought_again"], words);
   let orderRange: Range | null = null;
   if (orders.ok) {
     orderRange = roundRange(mul(orders.vals[0]!, orders.vals[1]!));
     measures.orders = cell(
       orderRange,
       orders.bases,
-      `${count(recipients)} recipients × ${term(orders.vals[1]!, "rate", cur)} bought again`,
+      t("email.ordersFormula", {
+        recipients: count(recipients, L),
+        rate: term(orders.vals[1]!, "rate", cur, L),
+      }),
     );
   } else measures.orders = missingCell(orders);
-  const rev = need(inputs, ["recipients", "bought_again", "aov"]);
+  const rev = need(inputs, ["recipients", "bought_again", "aov"], words);
   let revenue: Range | null = null;
   if (rev.ok && orderRange) {
     revenue = roundRange(mul(orderRange, rev.vals[2]!));
     measures.revenue = cell(
       revenue,
       rev.bases,
-      `${term(orderRange, "count", cur)} orders × ${term(rev.vals[2]!, "money", cur)}`,
+      t("revenueFormula", {
+        orders: term(orderRange, "count", cur, L),
+        value: term(rev.vals[2]!, "money", cur, L),
+      }),
     );
   } else if (!rev.ok) measures.revenue = missingCell(rev);
-  const prof = need(inputs, ["recipients", "bought_again", "aov", "margin"]);
+  const prof = need(inputs, ["recipients", "bought_again", "aov", "margin"], words);
   if (prof.ok && revenue) {
     const p = roundRange(mul(revenue, prof.vals[3]!));
     measures.profit = cell(
       p,
       prof.bases,
-      `${term(revenue, "money", cur)} × ${term(prof.vals[3]!, "rate", cur)} margin − ${money(0, cur)}`,
+      t("profitFormula", {
+        revenue: term(revenue, "money", cur, L),
+        margin: term(prof.vals[3]!, "rate", cur, L),
+        spend: money(0, cur, L),
+      }),
     );
-    measures.worst = cell(point(0), [], "nobody buys again: nothing in, nothing spent");
+    measures.worst = cell(point(0), [], nobody);
   } else if (!prof.ok) {
     measures.profit = missingCell(prof);
-    measures.worst = cell(point(0), [], "nobody buys again: nothing in, nothing spent");
+    measures.worst = cell(point(0), [], nobody);
   }
 
+  const zero = money(0, cur, L);
+  const worstWords = t("email.worstWords", { zero });
   const harmWords =
     worstHarm !== null && worstHarm > 0
-      ? ` At your worst past campaign's rate (${pct(worstHarm)}), about ${plural(Math.round(recipients * worstHarm), "person", "people")} would unsubscribe — honoured at once, for good.`
-      : "";
+      ? t("email.harmWords", {
+          rate: pct(worstHarm, L),
+          count: Math.round(recipients * worstHarm),
+        })
+      : null;
   return {
     key: optionKey(o),
     option: o,
     kind: "email",
-    title: SEGMENT_TITLE[o.segment],
+    title: segmentTitle(o.segment, words),
     what: seg
-      ? `One email, in your voice, to the ${num(recipients, 0)} ${seg.label.toLowerCase()} who said yes to email.`
-      : "One email to a segment of your customers — once your customer list is in.",
+      ? t("email.what", { segment: o.segment, emailable: num(recipients, 0, L) })
+      : t("email.whatNoList"),
     currency: cur,
     inputs,
     assumptions: [
       {
-        statement: `This send does what your past ${KIND_WORD[campaignKind]} emails did.`,
-        source: "my projection — the next campaign isn't measured until it's sent",
+        statement: t("email.assumption", { kind: campaignKind }),
+        source: t("email.assumptionSource"),
       },
     ],
     measures,
-    worst_words: `Nobody buys again: ${money(0, cur)} in, ${money(0, cur)} spent.${harmWords}`,
-    key_rate: rate ? { name: "bought_again_rate", label: "bought again", range: rate } : null,
+    worst_words: harmWords ? `${worstWords} ${harmWords}` : worstWords,
+    key_rate: rate ? { name: "bought_again_rate", label: t("email.keyRate"), range: rate } : null,
     cross_check: x.cross_check.email,
     guard: null,
     proposable:
       x.email.posture === "disabled"
-        ? {
-            ok: false,
-            why: "You told me your customers gave no consent to email, so outbound email stays off.",
-          }
+        ? { ok: false, why: t("email.noConsent") }
         : recipients === 0
-          ? {
-              ok: false,
-              why: seg
-                ? "Nobody in this segment said yes to email, so there's no one to send it to."
-                : "Import your customer list on Customers first.",
-            }
+          ? { ok: false, why: seg ? t("email.nobodyEmailable") : t("email.importFirst") }
           : { ok: true },
   };
 }
@@ -833,21 +895,24 @@ export function accountDaily(campaigns: readonly CampaignRaw[], asOf: string, cu
     .reduce((s, c) => s + campaignWindow(c, asOf).daily_minor, 0);
 }
 
-const CHANGE_TITLE = {
-  raise: (name: string, share: number) => `Raise "${name}" by ${Math.round(share * 100)}%`,
-  lower: (name: string, share: number) => `Cut "${name}" by ${Math.round(share * 100)}%`,
-  pause: (name: string) => `Pause "${name}"`,
-};
-
-function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): OptionResult {
+function simulateAds(
+  o: Extract<SimOption, { kind: "ads" }>,
+  x: SimInputs,
+  w: SimText,
+): OptionResult {
+  const words = wordsOf(w);
+  const { t, L } = words;
   const H = SIM.horizon_days;
+  const days = int(H, L);
   const inputs: SimInput[] = [];
   const isNew = o.change === "new";
   const campaign = isNew ? null : (x.ads.campaigns.find((c) => c.ref === o.campaign_ref) ?? null);
   const cur = isNew ? o.currency : (campaign?.currency ?? x.currency);
-  const name = campaign?.name ?? (isNew ? "a new campaign" : "this campaign");
+  const name = campaign?.name ?? t("ads.thisCampaign");
   const win = campaign ? campaignWindow(campaign, x.as_of) : null;
   const enoughDays = (win?.measured_days ?? 0) >= SIM.ads_min_measured_days;
+  const minDays = int(SIM.ads_min_measured_days, L);
+  const metaNeeds = t("ads.metaNeeds");
 
   // 1. Spend over the horizon, signed: a pause or a cut is money not spent.
   let spend: number | null = null;
@@ -856,41 +921,48 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
     spend = o.daily_budget_minor === null ? null : o.daily_budget_minor * H;
     inputs.push({
       key: "daily",
-      label: "Daily budget",
+      ...labelled(t, "dailyNew"),
       range: o.daily_budget_minor === null ? null : point(o.daily_budget_minor),
       unit: "money",
       basis: o.daily_budget_minor === null ? null : "STATED",
-      source: "the budget you typed here",
-      needs: o.daily_budget_minor === null ? "the daily budget you have in mind" : null,
+      source: t("ads.typedSource"),
+      needs: o.daily_budget_minor === null ? t("ads.typedNeeds") : null,
     });
-    spendSource = `${o.daily_budget_minor === null ? "?" : money(o.daily_budget_minor, cur)} a day × ${H} days`;
+    spendSource = t("ads.newSpendFormula", {
+      daily: o.daily_budget_minor === null ? "?" : money(o.daily_budget_minor, cur, L),
+      days,
+    });
   } else {
     inputs.push({
       key: "daily",
-      label: "Spends a day now",
+      ...labelled(t, "dailyNow"),
       range: win && win.measured_days > 0 ? point(win.daily_minor) : null,
       unit: "money",
       basis: win && win.measured_days > 0 ? "OBSERVED" : null,
       source:
         win && win.measured_days > 0
-          ? `Meta: ${money(win.spend_minor, cur)} over ${plural(win.measured_days, "measured day")} of the last ${SIM.ads_window_days}`
-          : "no measured spend in the last four weeks",
+          ? t("ads.dailySource", {
+              spend: money(win.spend_minor, cur, L),
+              count: win.measured_days,
+              window: int(SIM.ads_window_days, L),
+            })
+          : t("ads.noSpend"),
       needs:
-        win && win.measured_days > 0
-          ? null
-          : x.ads.connected
-            ? "a few weeks of this campaign running"
-            : "your Meta ad account, connected on Connections",
+        win && win.measured_days > 0 ? null : x.ads.connected ? t("ads.dailyNeeds") : metaNeeds,
     });
     if (win && win.measured_days > 0) {
       const d = win.daily_minor;
       if (o.change === "pause") {
         spend = -d * H;
-        spendSource = `${money(d, cur)} a day not spent × ${H} days`;
+        spendSource = t("ads.pauseFormula", { daily: money(d, cur, L), days });
       } else {
         const delta = Math.round(d * o.share) * (o.change === "raise" ? 1 : -1);
         spend = delta * H;
-        spendSource = `${money(d, cur)} a day × ${o.change === "raise" ? "+" : "−"}${Math.round(o.share * 100)}% × ${H} days`;
+        spendSource = t("ads.changeFormula", {
+          daily: money(d, cur, L),
+          change: `${o.change === "raise" ? "+" : "−"}${wholePct(Math.round(o.share * 100), L)}`,
+          days,
+        });
       }
     }
   }
@@ -906,47 +978,49 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
       ? weeklyRoas(campaign.days, x.as_of)
       : [];
   const roas = spread(blocks);
+  const which = pooled ? "pooled" : "one";
   inputs.push({
     key: "roas",
-    label: "Return on ad spend",
+    ...labelled(t, "roas"),
     range: roas,
     unit: "ratio",
     basis: roas ? "OBSERVED" : null,
     source: roas
-      ? `Meta-attributed purchases ÷ spend, per rolling ${SIM.ads_block_days}-day week over the last ${SIM.ads_window_days} days${pooled ? ", across your measured campaigns" : ""}, middle half (${plural(blocks.length, "week")})`
+      ? t("ads.roasSource", {
+          which,
+          block: int(SIM.ads_block_days, L),
+          window: int(SIM.ads_window_days, L),
+          count: blocks.length,
+        })
       : pooled
-        ? `no campaign of yours has ${SIM.ads_min_measured_days} measured days in ${cur}`
-        : `${plural(win?.measured_days ?? 0, "measured day")} — I need ${SIM.ads_min_measured_days}`,
-    needs: roas
-      ? null
-      : x.ads.connected
-        ? `${SIM.ads_min_measured_days} measured days of ${pooled ? "a campaign" : "this campaign"}`
-        : "your Meta ad account, connected on Connections",
+        ? t("ads.roasNonePooled", { days: minDays, currency: cur })
+        : t("ads.roasNone", { count: win?.measured_days ?? 0, need: minDays }),
+    needs: roas ? null : x.ads.connected ? t("ads.roasNeeds", { which, days: minDays }) : metaNeeds,
   });
-  inputs.push(marginInput(x.margin));
+  inputs.push(marginInput(x.margin, w));
 
-  const measures = emptyMeasures();
-  measures.reached = { status: "none", why: "Meta's reach per campaign isn't read" };
-  measures.orders = {
-    status: "none",
-    why: "Meta reports purchase value per campaign, not a count",
-  };
+  const measures = emptyMeasures(words);
+  measures.reached = { status: "none", why: t("ads.reachNotRead") };
+  measures.orders = { status: "none", why: t("ads.ordersNotRead") };
   if (spend !== null) {
     measures.cost = cell(point(spend), orderBases([inputs[0]!.basis]), spendSource, true);
   } else {
-    measures.cost = missingCell(need(inputs, ["daily"]) as Extract<Got, { ok: false }>);
+    measures.cost = missingCell(need(inputs, ["daily"], words) as Extract<Got, { ok: false }>);
   }
-  const rv = need(inputs, ["daily", "roas"]);
+  const rv = need(inputs, ["daily", "roas"], words);
   let revenue: Range | null = null;
   if (rv.ok && spend !== null) {
     revenue = roundRange(mul(point(spend), rv.vals[1]!));
     measures.revenue = cell(
       revenue,
       rv.bases,
-      `${money(spend, cur)} × return ${term(rv.vals[1]!, "ratio", cur)} (Meta's attribution)`,
+      t("ads.revenueFormula", {
+        spend: money(spend, cur, L),
+        roas: term(rv.vals[1]!, "ratio", cur, L),
+      }),
     );
   } else if (!rv.ok) measures.revenue = missingCell(rv);
-  const pr = need(inputs, ["daily", "roas", "margin"]);
+  const pr = need(inputs, ["daily", "roas", "margin"], words);
   let worstWords = "";
   if (pr.ok && spend !== null && revenue) {
     const m = pr.vals[2]!;
@@ -954,7 +1028,11 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
     measures.profit = cell(
       profit,
       pr.bases,
-      `${term(revenue, "money", cur)} × ${term(m, "rate", cur)} margin − ${money(spend, cur)}`,
+      t("profitFormula", {
+        revenue: term(revenue, "money", cur, L),
+        margin: term(m, "rate", cur, L),
+        spend: money(spend, cur, L),
+      }),
     );
     // The worst measured week: the weakest one for new spend, the strongest one for spend stopped.
     const worstRoas = spend >= 0 ? Math.min(...blocks) : Math.max(...blocks);
@@ -963,12 +1041,17 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
     measures.worst = cell(
       point(worst),
       pr.bases,
-      `${money(spend, cur)} × return ${twoDp(worstRoas)} × ${pct(worstMargin)} − ${money(spend, cur)}`,
+      t("ads.worstFormula", {
+        spend: money(spend, cur, L),
+        roas: twoDp(worstRoas, L),
+        margin: pct(worstMargin, L),
+      }),
     );
-    worstWords =
-      spend >= 0
-        ? `Every week returns what your weakest measured week did (${twoDp(worstRoas)}): ${money(worst, cur)} over ${H} days.`
-        : `The weeks you'd stop were as good as your best measured week (${twoDp(worstRoas)}): ${money(worst, cur)} over ${H} days.`;
+    worstWords = t(spend >= 0 ? "ads.worstWeakest" : "ads.worstBest", {
+      roas: twoDp(worstRoas, L),
+      amount: money(worst, cur, L),
+      days,
+    });
   } else if (!pr.ok) {
     measures.profit = missingCell(pr);
     measures.worst = missingCell(pr);
@@ -976,8 +1059,8 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
   if (!worstWords) {
     worstWords =
       spend !== null && spend > 0
-        ? `At worst all ${money(spend, cur)} goes out and little comes back — I can't size it without the inputs above.`
-        : "I can't size the worst case without the inputs above.";
+        ? t("ads.worstUnsized", { amount: money(spend, cur, L) })
+        : t("worstUnknown");
   }
 
   // 3. The spend guard (P3-22c), on the same arithmetic the generator runs.
@@ -985,6 +1068,7 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
   const ceiling = x.ads.ceiling;
   if (o.change === "raise" || o.change === "lower") {
     if (win && win.daily_minor > 0) {
+      // lib/ads/guard's refusal, as that module words it.
       guard = spendGuard({
         current_daily_minor: win.daily_minor,
         proposed_daily_minor:
@@ -996,40 +1080,44 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
     }
   } else if (isNew && ceiling && o.daily_budget_minor !== null) {
     if (ceiling.currency.toUpperCase() !== cur.toUpperCase()) {
-      guard = `your ad ceiling is in ${ceiling.currency} and this budget is in ${cur} — I won't convert to compare them`;
+      guard = t("ads.guardCurrency", { ceiling: ceiling.currency, currency: cur });
     } else {
       const projected = (accountDaily(x.ads.campaigns, x.as_of, cur) + o.daily_budget_minor) * 30;
       if (projected > ceiling.amount_minor) {
-        guard = `it would take monthly ad spend to about ${money(projected, cur)}, over your stated ceiling of ${money(ceiling.amount_minor, cur)}`;
+        guard = t("ads.guardCeiling", {
+          projected: money(projected, cur, L),
+          ceiling: money(ceiling.amount_minor, cur, L),
+        });
       }
     }
   }
 
   const title = isNew
-    ? `Start a new campaign at ${o.daily_budget_minor === null ? "a budget you choose" : `${money(o.daily_budget_minor, cur)} a day`}`
+    ? o.daily_budget_minor === null
+      ? t("ads.titleNewOpen")
+      : t("ads.titleNew", { amount: money(o.daily_budget_minor, cur, L) })
     : o.change === "pause"
-      ? CHANGE_TITLE.pause(name)
-      : CHANGE_TITLE[o.change](name, o.share);
-  const what = isNew
-    ? "A new Meta campaign, judged on what your other campaigns return."
-    : o.change === "pause"
-      ? "Stop the campaign: what it spends stays with you, and what Meta says it brings in stops too."
-      : o.change === "raise"
-        ? "More daily budget on a campaign you already run."
-        : "Less daily budget on a campaign you already run.";
+      ? t("ads.titlePause", { name })
+      : t(o.change === "raise" ? "ads.titleRaise" : "ads.titleCut", {
+          name,
+          share: wholePct(Math.round(o.share * 100), L),
+        });
+  const what = t(
+    isNew
+      ? "ads.whatNew"
+      : o.change === "pause"
+        ? "ads.whatPause"
+        : o.change === "raise"
+          ? "ads.whatRaise"
+          : "ads.whatCut",
+  );
   let proposable: OptionResult["proposable"] = { ok: true };
   if (isNew) {
-    proposable = {
-      ok: false,
-      why: 'A new ad starts from a post or video: on Content, "Run this as an ad" makes one proposal that creates it on Meta, paused (P3-54). From here I can only size it.',
-    };
+    proposable = { ok: false, why: t("ads.newNotProposable", { task: "P3-54" }) };
   } else if (!campaign || !enoughDays) {
-    proposable = {
-      ok: false,
-      why: `I propose ad changes only with ${SIM.ads_min_measured_days} measured days behind them.`,
-    };
+    proposable = { ok: false, why: t("ads.tooFewDays", { days: minDays }) };
   } else if (guard) {
-    proposable = { ok: false, why: `I won't propose this: ${guard}.` };
+    proposable = { ok: false, why: t("ads.guarded", { guard }) };
   }
   return {
     key: optionKey(o),
@@ -1041,17 +1129,15 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
     inputs,
     assumptions: [
       {
-        statement:
-          o.change === "pause" || o.change === "lower"
-            ? "The spend you stop was returning what the campaign's recent weeks did."
-            : "Extra spend returns what the recent weeks returned.",
-        source:
-          "my projection from Meta's own attribution — some of those purchases might have happened anyway",
+        statement: t(
+          o.change === "pause" || o.change === "lower" ? "ads.assumeStop" : "ads.assumeExtra",
+        ),
+        source: t("ads.assumptionSource"),
       },
     ],
     measures,
     worst_words: worstWords,
-    key_rate: roas ? { name: "roas", label: "return on ad spend", range: roas } : null,
+    key_rate: roas ? { name: "roas", label: t("ads.keyRate"), range: roas } : null,
     cross_check: x.cross_check.ads,
     guard,
     proposable,
@@ -1060,54 +1146,65 @@ function simulateAds(o: Extract<SimOption, { kind: "ads" }>, x: SimInputs): Opti
 
 /* ── the content model ── */
 
-function simulateContent(o: Extract<SimOption, { kind: "content" }>, x: SimInputs): OptionResult {
+function simulateContent(
+  o: Extract<SimOption, { kind: "content" }>,
+  x: SimInputs,
+  w: SimText,
+): OptionResult {
+  const words = wordsOf(w);
+  const { t, L } = words;
   const cur = x.currency;
   const c = x.content;
   const posts = c.social_channels * c.per_week * CONTENT_WEEKS;
-  const platformWord = c.platform === "facebook" ? "Facebook" : "Instagram";
+  const platform = c.platform === "facebook" ? "Facebook" : "Instagram";
   const audience = c.platform === "facebook" ? "views" : "reach";
   const recent = c.posts.slice(0, SIM.content_baseline_posts);
   const reachVals = recent.map((p) => p.reach).filter((v): v is number => v !== null);
   const interVals = recent.map((p) => p.interactions).filter((v): v is number => v !== null);
   const postNeeds = c.publish_connected
-    ? `${SIM.content_min_posts} published posts measured a week after posting`
-    : "your Instagram or Facebook page connected for publishing, and a few posts measured";
+    ? t("content.postNeeds", { count: SIM.content_min_posts })
+    : t("content.postNeedsConnect");
+  const age = int(SIM.content_age_days, L);
 
   const inputs: SimInput[] = [];
   inputs.push({
     key: "posts",
-    label: "Social posts in the plan",
+    ...labelled(t, "posts"),
     range: posts > 0 ? point(posts) : null,
     unit: "count",
     basis: posts > 0 ? "DERIVED" : null,
     source:
       posts > 0
-        ? `${plural(c.social_channels, "social channel")} × ${c.per_week} a week × ${CONTENT_WEEKS} weeks — the calendar's social posts; its email and website pieces aren't simulated`
-        : "no social channel on your profile",
-    needs: posts > 0 ? null : "a social channel you post on, added to your profile",
+        ? t("content.postsSource", {
+            count: c.social_channels,
+            perWeek: int(c.per_week, L),
+            weeks: int(CONTENT_WEEKS, L),
+          })
+        : t("content.noChannel"),
+    needs: posts > 0 ? null : t("content.channelNeeds"),
   });
   const reach = reachVals.length >= SIM.content_min_posts ? spread(reachVals) : null;
   inputs.push({
     key: "reach",
-    label: `${audience === "views" ? "Views" : "Reach"} per post`,
+    ...labelled(t, "reach", { audience }),
     range: reach,
     unit: "count",
     basis: reach ? "OBSERVED" : null,
     source: reach
-      ? `${platformWord}, day ${SIM.content_age_days} after posting, your last ${plural(reachVals.length, "post")}, middle half`
-      : `${plural(reachVals.length, "post")} measured`,
+      ? t("content.reachSource", { platform, age, count: reachVals.length })
+      : t("content.measured", { count: reachVals.length }),
     needs: reach ? null : postNeeds,
   });
   const inter = interVals.length >= SIM.content_min_posts ? spread(interVals) : null;
   inputs.push({
     key: "interactions",
-    label: "Interactions per post",
+    ...labelled(t, "interactions"),
     range: inter,
     unit: "count",
     basis: inter ? "OBSERVED" : null,
     source: inter
-      ? `${platformWord}, day ${SIM.content_age_days}, your last ${plural(interVals.length, "post")}, middle half`
-      : `${plural(interVals.length, "post")} measured`,
+      ? t("content.interactionsSource", { platform, age, count: interVals.length })
+      : t("content.measured", { count: interVals.length }),
     needs: inter ? null : postNeeds,
   });
   const spi =
@@ -1116,31 +1213,39 @@ function simulateContent(o: Extract<SimOption, { kind: "content" }>, x: SimInput
       : null;
   inputs.push({
     key: "spi",
-    label: "Site visits per interaction",
+    ...labelled(t, "spi"),
     range: spi === null ? null : point(spi),
     unit: "ratio",
     basis: spi === null ? null : "OBSERVED",
     source:
       spi === null
-        ? "visits from social aren't measured against your posts yet"
-        : `${count(c.social_sessions ?? 0)} visits from "${SIM.social_channel_ref}" ÷ ${count(c.window_interactions ?? 0)} interactions on your posts, last ${SIM.site_window_days} days`,
+        ? t("content.spiNone")
+        : t("content.spiSource", {
+            visits: count(c.social_sessions ?? 0, L),
+            channel: SIM.social_channel_ref,
+            interactions: count(c.window_interactions ?? 0, L),
+            days: int(SIM.site_window_days, L),
+          }),
     needs:
       spi !== null
         ? null
         : c.analytics_connected
-          ? "a month of posts measured beside your Google Analytics visits from social"
-          : "Google Analytics connected, so I can see visits from social",
+          ? t("content.spiNeeds")
+          : t("content.spiNeedsConnect"),
   });
   const convDays = x.site.days.filter((d) => d.sessions > 0).map((d) => d.orders / d.sessions);
+  const conversion = { key: "conversion", ...labelled(t, "conversion") };
   let conv: SimInput;
   if (convDays.length >= SIM.site_min_days) {
     conv = {
-      key: "conversion",
-      label: "Visits that buy",
+      ...conversion,
       range: spread(convDays),
       unit: "rate",
       basis: "OBSERVED",
-      source: `orders ÷ visits on ${plural(convDays.length, "measured day")} of the last ${SIM.site_window_days}, middle half`,
+      source: t("content.conversionSource", {
+        count: convDays.length,
+        window: int(SIM.site_window_days, L),
+      }),
       needs: null,
     };
   } else if (
@@ -1149,40 +1254,43 @@ function simulateContent(o: Extract<SimOption, { kind: "content" }>, x: SimInput
     x.site.stated_sessions_monthly > 0
   ) {
     conv = {
-      key: "conversion",
-      label: "Visits that buy",
+      ...conversion,
       range: point(x.site.stated_orders_monthly / x.site.stated_sessions_monthly),
       unit: "rate",
       basis: "DERIVED",
-      source: "your monthly orders ÷ your monthly site visits, as you told me",
+      source: t("content.conversionStated"),
       needs: null,
     };
   } else {
     conv = {
-      key: "conversion",
-      label: "Visits that buy",
+      ...conversion,
       range: null,
       unit: "rate",
       basis: null,
-      source: "not known",
-      needs: "Google Analytics and your shop connected, or your monthly visits and orders",
+      source: t("notKnown"),
+      needs: t("content.conversionNeeds"),
     };
   }
   inputs.push(conv);
-  inputs.push(orderValueInput(x.aov));
-  inputs.push(marginInput(x.margin));
+  inputs.push(orderValueInput(x.aov, "aov", w));
+  inputs.push(marginInput(x.margin, w));
 
-  const measures = emptyMeasures();
-  measures.cost = cell(point(0), [], "no spend — your time reviewing the drafts", true);
-  const rc = need(inputs, ["posts", "reach"]);
+  const nobody = t("content.worstFormula");
+  const measures = emptyMeasures(words);
+  measures.cost = cell(point(0), [], t("content.costFormula"), true);
+  const rc = need(inputs, ["posts", "reach"], words);
   measures.reached = rc.ok
     ? cell(
         roundRange(mul(rc.vals[0]!, rc.vals[1]!)),
         rc.bases,
-        `${count(posts)} posts × ${term(rc.vals[1]!, "count", cur)} ${audience}`,
+        t("content.reachedFormula", {
+          posts: count(posts, L),
+          reach: term(rc.vals[1]!, "count", cur, L),
+          audience,
+        }),
       )
     : missingCell(rc);
-  const od = need(inputs, ["posts", "interactions", "spi", "conversion"]);
+  const od = need(inputs, ["posts", "interactions", "spi", "conversion"], words);
   let orderRange: Range | null = null;
   if (od.ok) {
     const interactions = mul(od.vals[0]!, od.vals[1]!);
@@ -1191,81 +1299,95 @@ function simulateContent(o: Extract<SimOption, { kind: "content" }>, x: SimInput
     measures.orders = cell(
       orderRange,
       od.bases,
-      `${count(posts)} posts × ${term(od.vals[1]!, "count", cur)} interactions × ${twoDp(od.vals[2]!.low)} visits each × ${term(od.vals[3]!, "rate", cur)} buy`,
+      t("content.ordersFormula", {
+        posts: count(posts, L),
+        interactions: term(od.vals[1]!, "count", cur, L),
+        visits: twoDp(od.vals[2]!.low, L),
+        rate: term(od.vals[3]!, "rate", cur, L),
+      }),
     );
   } else measures.orders = missingCell(od);
-  const rv = need(inputs, ["posts", "interactions", "spi", "conversion", "aov"]);
+  const rv = need(inputs, ["posts", "interactions", "spi", "conversion", "aov"], words);
   let revenue: Range | null = null;
   if (rv.ok && orderRange) {
     revenue = roundRange(mul(orderRange, rv.vals[4]!));
     measures.revenue = cell(
       revenue,
       rv.bases,
-      `${term(orderRange, "count", cur)} orders × ${term(rv.vals[4]!, "money", cur)}`,
+      t("revenueFormula", {
+        orders: term(orderRange, "count", cur, L),
+        value: term(rv.vals[4]!, "money", cur, L),
+      }),
     );
   } else if (!rv.ok) measures.revenue = missingCell(rv);
-  const pr = need(inputs, ["posts", "interactions", "spi", "conversion", "aov", "margin"]);
+  const pr = need(inputs, ["posts", "interactions", "spi", "conversion", "aov", "margin"], words);
   if (pr.ok && revenue) {
     measures.profit = cell(
       roundRange(mul(revenue, pr.vals[5]!)),
       pr.bases,
-      `${term(revenue, "money", cur)} × ${term(pr.vals[5]!, "rate", cur)} margin − ${money(0, cur)}`,
+      t("profitFormula", {
+        revenue: term(revenue, "money", cur, L),
+        margin: term(pr.vals[5]!, "rate", cur, L),
+        spend: money(0, cur, L),
+      }),
     );
-    measures.worst = cell(point(0), [], "nobody buys: nothing in, nothing spent");
+    measures.worst = cell(point(0), [], nobody);
   } else {
     if (!pr.ok) measures.profit = missingCell(pr);
-    measures.worst = cell(point(0), [], "nobody buys: nothing in, nothing spent");
+    measures.worst = cell(point(0), [], nobody);
   }
   const weakest = reachVals.length ? Math.min(...reachVals) : null;
+  const zero = money(0, cur, L);
   return {
     key: optionKey(o),
     option: o,
     kind: "content",
-    title: `A ${CONTENT_WEEKS}-week content calendar`,
-    what:
-      posts > 0
-        ? `${plural(posts, "post")} on the social channels you already run, drafted in your voice, each one waiting for your yes.`
-        : "Posts on the social channels you already run — once one is on your profile.",
+    title: t("content.title", { weeks: int(CONTENT_WEEKS, L) }),
+    what: posts > 0 ? t("content.what", { count: posts }) : t("content.whatNone"),
     currency: cur,
     inputs,
     assumptions: [
       {
-        statement: `The planned posts do what your last ${platformWord} posts did${c.social_channels > 1 ? ", on every channel" : ""}.`,
-        source: "my projection from your own measured posts",
+        statement: t("content.assumption", {
+          platform,
+          channels: c.social_channels > 1 ? "many" : "one",
+        }),
+        source: t("content.assumptionSource"),
       },
     ],
     measures,
     worst_words:
       weakest !== null
-        ? `Every post reaches what your weakest did (${count(weakest)}) and nobody buys: ${money(0, cur)} lost, only your review time.`
-        : `Nobody buys: ${money(0, cur)} lost, only your review time.`,
+        ? t("content.worstWeakest", { weakest: count(weakest, L), zero })
+        : t("content.worstNone", { zero }),
     key_rate: reach
-      ? { name: "reach_per_post", label: `${audience} per post`, range: reach }
+      ? { name: "reach_per_post", label: t("content.keyRate", { audience }), range: reach }
       : null,
     cross_check: x.cross_check.content,
     guard: null,
-    proposable:
-      c.social_channels > 0
-        ? { ok: true }
-        : { ok: false, why: "Add a social channel you post on to your profile first." },
+    proposable: c.social_channels > 0 ? { ok: true } : { ok: false, why: t("content.addChannel") },
   };
 }
 
-function emptyMeasures(): Record<MeasureKey, Cell> {
-  const none: Cell = { status: "none", why: "not worked out" };
+function emptyMeasures({ t }: W): Record<MeasureKey, Cell> {
+  const none: Cell = { status: "none", why: t("notWorkedOut") };
   return { cost: none, reached: none, orders: none, revenue: none, profit: none, worst: none };
 }
 
 /* ── one option, and the side by side ── */
 
-/** Pure: one option's chain, measures and worst case. */
-export function simulateOption(o: SimOption, x: SimInputs): OptionResult {
+/** Pure: one option's chain, measures and worst case, in `w`'s words (English by default). */
+export function simulateOption(
+  o: SimOption,
+  x: SimInputs,
+  w: SimText = englishSimText(),
+): OptionResult {
   const r =
     o.kind === "email"
-      ? simulateEmail(o, x)
+      ? simulateEmail(o, x, w)
       : o.kind === "ads"
-        ? simulateAds(o, x)
-        : simulateContent(o, x);
+        ? simulateAds(o, x, w)
+        : simulateContent(o, x, w);
   // The worst case is one scenario, not a spread: it prints as one figure.
   if (r.measures.worst.status === "range") r.measures.worst.exact = true;
   return r;
@@ -1290,7 +1412,11 @@ export interface Comparison {
  * Pure: 2–4 options as comparable rows — the same measures, in the same
  * units, in the same order, with the arithmetic on every cell.
  */
-export function compareOptions(options: readonly SimOption[], x: SimInputs): Comparison {
+export function compareOptions(
+  options: readonly SimOption[],
+  x: SimInputs,
+  w: SimText = englishSimText(),
+): Comparison {
   if (options.length < SIM.min_options || options.length > SIM.max_options) {
     throw new SimulateError(
       `pick between ${SIM.min_options} and ${SIM.max_options} options to compare — ${options.length} given`,
@@ -1300,17 +1426,17 @@ export function compareOptions(options: readonly SimOption[], x: SimInputs): Com
   if (new Set(keys).size !== keys.length) {
     throw new SimulateError("the same option twice can't be compared with itself");
   }
-  const results = options.map((o) => simulateOption(o, x));
+  const results = options.map((o) => simulateOption(o, x, w));
   const currencies = new Set(results.map((r) => r.currency.toUpperCase()));
+  const note = section(w, "model")("currencies", {
+    currencies: andList([...currencies], w.locale),
+  });
   const rows = MEASURES.map((m) => ({
     measure: m,
     label: MEASURE_LABEL[m],
     unit: MEASURE_UNIT[m],
     cells: results.map((r) => r.measures[m]),
-    note:
-      MEASURE_UNIT[m] === "money" && currencies.size > 1
-        ? `in ${[...currencies].join(" and ")} — I don't convert between currencies`
-        : null,
+    note: MEASURE_UNIT[m] === "money" && currencies.size > 1 ? note : null,
   }));
   return { options: results, rows };
 }
@@ -1334,22 +1460,23 @@ export interface Catalog {
 }
 
 /** Pure: every option the owner can pick, measured or not. */
-export function catalogOf(x: SimInputs): Catalog {
+export function catalogOf(x: SimInputs, w: SimText = englishSimText()): Catalog {
+  const words = wordsOf(w);
   return {
     currency: x.currency,
     email: (["lapsed", "vip"] as const).map((key) => ({
       key,
-      title: SEGMENT_TITLE[key],
+      title: segmentTitle(key, words),
       emailable: x.email.segments.find((s) => s.key === key)?.emailable ?? 0,
     })),
     campaigns: x.ads.campaigns.map((c) => {
-      const w = campaignWindow(c, x.as_of);
+      const win = campaignWindow(c, x.as_of);
       return {
         ref: c.ref,
         name: c.name,
         currency: c.currency,
-        measured_days: w.measured_days,
-        daily_minor: w.daily_minor,
+        measured_days: win.measured_days,
+        daily_minor: win.daily_minor,
       };
     }),
     ads_connected: x.ads.connected,

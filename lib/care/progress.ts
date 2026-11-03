@@ -25,16 +25,23 @@
 // off-track weeks. Two honest non-states, each explaining itself:
 // too_early and unmeasured. Every threshold below is pinned by tests at
 // its boundary in both directions.
+//
+// L-4b: the arithmetic is built from `explain` — the case and its figures —
+// by `progressArithmetic`, in "goalsWords". The watch log's detail is
+// written in English as always (rule 7) and `explain` is stored beside it
+// in the row's meta, so /api/care can word the same check in the reader's
+// language (`checkDetail`) without reading anything twice.
 
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { goals, modeDecisions, watchActivity } from "../../db/schema";
-import { format, money } from "../core/money";
+import type { Words } from "../i18n/request-words";
 import { dailySeries, shiftDay, windowStat } from "../trust/series";
 import type { CareState } from "./day-zero";
 import { careState } from "./day-zero";
 import type { GoalBaseline, GoalMeasure } from "./goal-measure";
 import { GOAL_METRICS, ensureBaseline, readGoalMeasure } from "./goal-measure";
+import { countText, dayText, goalEnglish, levelText, metricWords, shareText } from "./goal-words";
 import type { LimitLlm } from "../proposals/hard-limits";
 import type { ReviewLlm } from "./review";
 import { escalateIfStuck, runAlertReview } from "./review";
@@ -61,6 +68,33 @@ export const PROGRESS = {
 export type ProgressVerdict =
   "achieved" | "on_track" | "lagging" | "off_track" | "too_early" | "unmeasured";
 
+/** Which case the arithmetic states, with the figures it states — stored with the check. */
+export type ProgressExplain =
+  | { kind: "not_in_care" }
+  | { kind: "under_care"; since: string; from: string; weeks: number }
+  | { kind: "watching"; until: string }
+  | { kind: "goal_new"; set_on: string; days: number; ends: string }
+  | { kind: "no_baseline"; metric: string; set_on: string }
+  | { kind: "few_days"; measured: number; window: number; min: number }
+  | { kind: "no_current"; metric: string; window: number }
+  | {
+      kind: "path";
+      /** reached: at the target; away: moving away from it; plain: anything else. */
+      lead: "reached" | "away" | "plain";
+      metric: string;
+      currency: string | null;
+      actual: number;
+      days_measured: number;
+      expected: number;
+      today: string;
+      baseline: number;
+      baseline_to: string;
+      target: number;
+      deadline: string;
+      ratio: number;
+      shortfall: number;
+    };
+
 export interface ProgressAssessment {
   verdict: ProgressVerdict;
   expected_per_30d: number | null;
@@ -69,8 +103,10 @@ export interface ProgressAssessment {
   ratio: number | null;
   /** Shortfall against the path, as a share of the baseline; positive = behind. */
   shortfall: number | null;
-  /** The arithmetic with the real numbers — always present. */
+  /** The arithmetic with the real numbers — always present, in English. */
   arithmetic: string;
+  /** What the arithmetic says, as data: `progressArithmetic(explain)` is `arithmetic`. */
+  explain: ProgressExplain;
 }
 
 export interface ProgressInput {
@@ -88,36 +124,114 @@ const daysBetween = (a: string, b: string) =>
   Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / DAY_MS);
 const round3 = (n: number) => Math.round(n * 1000) / 1000;
 
-function amount(measure: GoalMeasure, perThirtyDays: number): string {
-  const label = GOAL_METRICS[measure.metric].label;
-  const value =
-    measure.currency !== null
-      ? format(money(Math.round(perThirtyDays), measure.currency))
-      : String(Math.round(perThirtyDays));
-  return `${value} ${label} per 30 days`;
+/** Days in one unit of a goal's level: "per 30 days". */
+const UNIT_DAYS = 30;
+
+/** Pure: the arithmetic in words, from what the check found. English by default. */
+export function progressArithmetic(e: ProgressExplain, w: Words = goalEnglish()): string {
+  const { tr } = w;
+  switch (e.kind) {
+    case "not_in_care":
+      return tr("check.notInCare");
+    case "under_care":
+      return tr("check.underCare", {
+        since: dayText(e.since, w),
+        from: dayText(e.from, w),
+        count: e.weeks,
+        n: countText(e.weeks, w),
+      });
+    case "watching":
+      return tr("check.watching", { day: dayText(e.until, w) });
+    case "goal_new":
+      return tr("check.goalNew", {
+        day: dayText(e.set_on, w),
+        days: countText(e.days, w),
+        ends: dayText(e.ends, w),
+      });
+    case "no_baseline":
+      return tr("check.noBaseline", {
+        metric: metricWords(e.metric, w),
+        day: dayText(e.set_on, w),
+      });
+    case "few_days":
+      return tr("check.fewDays", {
+        count: e.measured,
+        n: countText(e.measured, w),
+        window: countText(e.window, w),
+        min: countText(e.min, w),
+      });
+    case "no_current":
+      return tr("check.noCurrent", {
+        metric: metricWords(e.metric, w),
+        days: countText(e.window, w),
+      });
+    case "path": {
+      const amount = (perThirtyDays: number) =>
+        tr("check.amount", {
+          value: levelText(perThirtyDays, e.currency, w),
+          metric: metricWords(e.metric, w),
+          days: countText(UNIT_DAYS, w),
+        });
+      const path = tr("check.path", {
+        actual: amount(e.actual),
+        days: countText(e.days_measured, w),
+        expected: amount(e.expected),
+        today: dayText(e.today, w),
+        baseline: amount(e.baseline),
+        baselineDay: dayText(e.baseline_to, w),
+        target: amount(e.target),
+        deadline: dayText(e.deadline, w),
+      });
+      if (e.lead === "reached") return tr("check.reached", { path });
+      const detail = tr("check.progress", {
+        path,
+        ratio: shareText(e.ratio, w),
+        shortfall: shareText(Math.max(0, e.shortfall), w),
+      });
+      return e.lead === "away" ? tr("check.away", { detail }) : detail;
+    }
+  }
+}
+
+/** Pure: a weekly check's detail line, "On track: …." — what the watch log stores, in `w`'s words. */
+export function checkDetail(
+  verdict: ProgressVerdict,
+  e: ProgressExplain,
+  w: Words = goalEnglish(),
+): string {
+  return w.tr("check.detail", {
+    verdict: w.tr(`check.verdict.${verdict}`),
+    arithmetic: progressArithmetic(e, w),
+  });
 }
 
 /** The pure verdict. Everything the runner does around it is reading and writing. */
 export function assessProgress(input: ProgressInput): ProgressAssessment {
   const { measure, baseline, current, care, today } = input;
   const none = { expected_per_30d: null, actual_per_30d: null, ratio: null, shortfall: null };
+  const said = (explain: ProgressExplain) => ({ explain, arithmetic: progressArithmetic(explain) });
 
   if (!care) {
-    return { ...none, verdict: "too_early", arithmetic: "the business has not entered care yet" };
+    return { ...none, verdict: "too_early", ...said({ kind: "not_in_care" }) };
   }
   const careFloor = shiftDay(care.day_zero.slice(0, 10), PROGRESS.min_weeks_under_care * 7);
   if (today < careFloor) {
     return {
       ...none,
       verdict: "too_early",
-      arithmetic: `under care since ${care.day_zero.slice(0, 10)} — progress is judged from ${careFloor} (${PROGRESS.min_weeks_under_care} weeks)`,
+      ...said({
+        kind: "under_care",
+        since: care.day_zero.slice(0, 10),
+        from: careFloor,
+        weeks: PROGRESS.min_weeks_under_care,
+      }),
     };
   }
   if (care.watch_ends_at && today < care.watch_ends_at.slice(0, 10)) {
     return {
       ...none,
       verdict: "too_early",
-      arithmetic: `still in the watching period until ${care.watch_ends_at.slice(0, 10)}`,
+      ...said({ kind: "watching", until: care.watch_ends_at.slice(0, 10) }),
     };
   }
   const goalFloor = shiftDay(measure.set_on, PROGRESS.window_days);
@@ -125,23 +239,35 @@ export function assessProgress(input: ProgressInput): ProgressAssessment {
     return {
       ...none,
       verdict: "too_early",
-      arithmetic: `the goal was set on ${measure.set_on} — its first full ${PROGRESS.window_days}-day window ends ${goalFloor}`,
+      ...said({
+        kind: "goal_new",
+        set_on: measure.set_on,
+        days: PROGRESS.window_days,
+        ends: goalFloor,
+      }),
     };
   }
   if (!baseline) {
     return {
       ...none,
       verdict: "unmeasured",
-      arithmetic: `no measured baseline for ${GOAL_METRICS[measure.metric].label} before ${measure.set_on} — connect a source and the history fills it`,
+      ...said({ kind: "no_baseline", metric: measure.metric, set_on: measure.set_on }),
     };
   }
   if (!current || current.days_measured < PROGRESS.min_window_days) {
     return {
       ...none,
       verdict: current ? "too_early" : "unmeasured",
-      arithmetic: current
-        ? `${current.days_measured} measured day(s) in the last ${PROGRESS.window_days} — a verdict needs ${PROGRESS.min_window_days}`
-        : `no measured ${GOAL_METRICS[measure.metric].label} in the last ${PROGRESS.window_days} days`,
+      ...said(
+        current
+          ? {
+              kind: "few_days",
+              measured: current.days_measured,
+              window: PROGRESS.window_days,
+              min: PROGRESS.min_window_days,
+            }
+          : { kind: "no_current", metric: measure.metric, window: PROGRESS.window_days },
+      ),
     };
   }
 
@@ -159,37 +285,44 @@ export function assessProgress(input: ProgressInput): ProgressAssessment {
   const shortfall = (s * (expected - actual)) / scale;
   const movedAway = progress / scale <= -PROGRESS.noise_floor;
 
-  const path =
-    `${amount(measure, actual)} over the last ${current.days_measured} measured days, against ` +
-    `${amount(measure, expected)} expected by ${today} on the path from ${amount(measure, baseline.per_30d)} ` +
-    `(${baseline.to}) to ${amount(measure, measure.target_per_30d)} (${measure.deadline})`;
   const numbers = {
     expected_per_30d: Math.round(expected),
     actual_per_30d: Math.round(actual),
     ratio: round3(ratio),
     shortfall: round3(shortfall),
   };
+  const pathSaid = (lead: "reached" | "away" | "plain") =>
+    said({
+      kind: "path",
+      lead,
+      metric: measure.metric,
+      currency: measure.currency,
+      actual,
+      days_measured: current.days_measured,
+      expected,
+      today,
+      baseline: baseline.per_30d,
+      baseline_to: baseline.to,
+      target: measure.target_per_30d,
+      deadline: measure.deadline,
+      ratio,
+      shortfall,
+    });
 
   if (s * (actual - measure.target_per_30d) >= 0) {
-    return { ...numbers, verdict: "achieved", arithmetic: `target reached: ${path}` };
+    return { ...numbers, verdict: "achieved", ...pathSaid("reached") };
   }
   const real = shortfall >= PROGRESS.noise_floor;
-  const pct = (n: number) => `${Math.round(n * 1000) / 10}%`;
-  const detail = `${path} — ${pct(ratio)} of the expected progress, ${pct(Math.max(0, shortfall))} behind the path`;
   if (movedAway) {
-    return {
-      ...numbers,
-      verdict: "off_track",
-      arithmetic: `moving away from the target: ${detail}`,
-    };
+    return { ...numbers, verdict: "off_track", ...pathSaid("away") };
   }
   if (real && ratio < PROGRESS.off_track_below) {
-    return { ...numbers, verdict: "off_track", arithmetic: detail };
+    return { ...numbers, verdict: "off_track", ...pathSaid("plain") };
   }
   if (real && ratio < PROGRESS.lagging_below) {
-    return { ...numbers, verdict: "lagging", arithmetic: detail };
+    return { ...numbers, verdict: "lagging", ...pathSaid("plain") };
   }
-  return { ...numbers, verdict: "on_track", arithmetic: detail };
+  return { ...numbers, verdict: "on_track", ...pathSaid("plain") };
 }
 
 export interface ProgressRunResult {
@@ -225,15 +358,6 @@ async function previousCheck(profileId: string, goalId: string): Promise<Previou
     alert: meta?.alert ?? false,
   };
 }
-
-const SENTENCE: Record<ProgressVerdict, string> = {
-  achieved: "Goal reached",
-  on_track: "On track",
-  lagging: "Behind the path",
-  off_track: "Off track",
-  too_early: "Too early to judge",
-  unmeasured: "Can't be measured yet",
-};
 
 /** How a raised alert reaches the review (P3-46); null = record the alert only. */
 export interface ReviewHook {
@@ -280,10 +404,12 @@ export async function checkGoal(
     profile_id: profileId,
     at,
     kind: "goal_progress",
-    detail: `${SENTENCE[result.verdict]}: ${result.arithmetic}.`,
+    // Stored in English (rule 7); `explain` lets a screen word it again.
+    detail: checkDetail(result.verdict, result.explain),
     meta: {
       goal_id: goalId,
       verdict: result.verdict,
+      explain: result.explain,
       expected_per_30d: result.expected_per_30d,
       actual_per_30d: result.actual_per_30d,
       ratio: result.ratio,
