@@ -44,7 +44,7 @@ import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { sonnetAnswerShape } from "../llm/models";
-import { customerLanguageLine, withLanguage } from "../llm/language";
+import { replyLanguageLine, withLanguage } from "../llm/language";
 import { businessLanguage } from "../llm/language-of";
 import type { AppLocale } from "../i18n/locales";
 import type { HardLimit } from "../proposals/hard-limits";
@@ -116,8 +116,9 @@ export const liveReviewReplyLlm: ReviewReplyLlm = async ({ system, user, account
 
 /**
  * L-5 (rule 5): the reply is the business speaking to a customer in
- * public, so it is drafted in the business's own language (`language`),
- * named last in the prompt; the review's words stay content as written.
+ * public, so it is drafted in the language the review was written in,
+ * falling back to the business's own (`language`), named last in the
+ * prompt; the review's words stay content as written.
  */
 export function replySystem(args: {
   businessName: string;
@@ -125,7 +126,7 @@ export function replySystem(args: {
   limits: readonly HardLimit[];
   language?: AppLocale;
 }): string {
-  return withLanguage(replyRules(args), customerLanguageLine(args.language ?? "en"));
+  return withLanguage(replyRules(args), replyLanguageLine(args.language ?? "en"));
 }
 
 function replyRules(args: {

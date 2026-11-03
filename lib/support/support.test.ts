@@ -24,7 +24,7 @@ import {
 } from "../../db/schema";
 import { ensureSupportSettings } from "../crm/support-settings";
 import { bootstrapIntake } from "../intake/service";
-import { customerLanguageLine } from "../llm/language";
+import { replyLanguageLine } from "../llm/language";
 import { createProposal } from "../proposals/service";
 import type { SupportAnswerLlm, SupportIntentLlm } from "./chat";
 import {
@@ -247,7 +247,7 @@ describe("P4-06/07 — a stranger's conversation", () => {
           return { text: JSON.stringify({ answer: "", grounded: false, used: [] }), calls: [] };
         },
       });
-      expect(seen[0]!.endsWith(customerLanguageLine(language))).toBe(true);
+      expect(seen[0]!.endsWith(replyLanguageLine(language))).toBe(true);
     }
   });
 

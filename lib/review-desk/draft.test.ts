@@ -34,7 +34,7 @@ import {
   replyProblem,
   withoutName,
 } from "./draft";
-import { customerLanguageLine } from "../llm/language";
+import { replyLanguageLine } from "../llm/language";
 import { eraseReview } from "./erase";
 import { pasteReview, readPaste } from "./paste";
 
@@ -137,7 +137,7 @@ describe("I-45.3 — a suggested reply, on the owner's click only", () => {
         reviewId: b.review.id,
         llm: says(GOOD, seen),
       });
-      expect(seen[0]!.system.endsWith(customerLanguageLine(language))).toBe(true);
+      expect(seen[0]!.system.endsWith(replyLanguageLine(language))).toBe(true);
     }
   });
 

@@ -34,7 +34,7 @@ import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { Effort, SonnetAnswerSite } from "../llm/models";
 import { sonnetAnswerShape } from "../llm/models";
-import { customerLanguageLine, withLanguage } from "../llm/language";
+import { replyLanguageLine, withLanguage } from "../llm/language";
 import { businessLanguage } from "../llm/business-language";
 import type { AppLocale } from "../i18n/locales";
 import type { KnowledgeEntryRow } from "./knowledge";
@@ -175,8 +175,9 @@ const ANSWER_SCHEMA = {
 
 /**
  * L-5 (rule 5): the answer is customer-facing, so it is written in the
- * business's own language (`language`, business_profiles.language), named
- * last; the customer's message stays content in whatever language it came.
+ * language the customer wrote in, falling back to the business's own
+ * (`language`, business_profiles.language), named last; the customer's
+ * message stays content in whatever language it came.
  */
 export function answerSystem(
   businessName: string,
@@ -197,7 +198,7 @@ Return JSON: {"answer": "...", "grounded": true or false, "used": ["<id>", ...]}
 
 Approved answers:
 ${lines.join("\n\n")}`,
-    customerLanguageLine(language),
+    replyLanguageLine(language),
   );
 }
 
