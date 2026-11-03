@@ -3081,5 +3081,8 @@
       "assumed": "ANGENOMMEN",
       "atCost": "{amount} zu Einstandskosten"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "Dieser Bericht wurde auf {language} verfasst, in der Sprache der Person, die ihn erstellt hat."
   }
 }

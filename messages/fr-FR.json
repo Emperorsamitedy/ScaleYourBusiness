@@ -3081,5 +3081,8 @@
       "assumed": "SUPPOSÉ",
       "atCost": "{amount} au prix de revient"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "Ce rapport a été rédigé en {language}, la langue de la personne qui l’a généré."
   }
 }

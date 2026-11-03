@@ -3081,5 +3081,8 @@
       "assumed": "FELTÉTELEZETT",
       "atCost": "{amount} beszerzési áron"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "Ez a jelentés {language} nyelven készült, annak a nyelvén, aki létrehozta."
   }
 }

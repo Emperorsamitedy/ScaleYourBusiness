@@ -44,6 +44,9 @@ import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { sonnetAnswerShape } from "../llm/models";
+import { customerLanguageLine, withLanguage } from "../llm/language";
+import { businessLanguage } from "../llm/language-of";
+import type { AppLocale } from "../i18n/locales";
 import type { HardLimit } from "../proposals/hard-limits";
 import { HARD_LIMITS_KEY } from "../proposals/hard-limits";
 import { readCurrentField } from "../profile/field-store";
@@ -111,7 +114,21 @@ export const liveReviewReplyLlm: ReviewReplyLlm = async ({ system, user, account
   return { text, calls: [record] };
 };
 
+/**
+ * L-5 (rule 5): the reply is the business speaking to a customer in
+ * public, so it is drafted in the business's own language (`language`),
+ * named last in the prompt; the review's words stay content as written.
+ */
 export function replySystem(args: {
+  businessName: string;
+  entries: readonly KnowledgeEntryRow[];
+  limits: readonly HardLimit[];
+  language?: AppLocale;
+}): string {
+  return withLanguage(replyRules(args), customerLanguageLine(args.language ?? "en"));
+}
+
+function replyRules(args: {
   businessName: string;
   entries: readonly KnowledgeEntryRow[];
   limits: readonly HardLimit[];
@@ -131,7 +148,7 @@ Rules that are not negotiable:
 - Never offer money, a refund, a discount, a voucher, a free service or any other compensation, and never promise one.
 - Never repeat personal details: no names (not the reviewer's, not staff), no dates of their visit, no booking details.
 - Never state a fact about the business that the approved answers below don't give: no prices, policies, opening times or promises of your own.
-- Plain text, two to four short sentences, no signature, no hashtags, no emoji, in the review's language when it isn't English. For a positive review, a warm thank-you is enough.
+- Plain text, two to four short sentences, no signature, no hashtags, no emoji. For a positive review, a warm thank-you is enough.
 
 Return JSON: {"reply": "..."}
 
@@ -203,9 +220,54 @@ const OFFER_RE = new RegExp(
 const OFFER_EXCUSED_RE =
   /(?<![\p{L}\p{N}])feel free(?![\p{L}\p{N}])|(?<=[\p{L}\p{N}])-free(?![\p{L}\p{N}])/giu;
 
+// L-5: a reply is now drafted in the business's own language (rule 5), so
+// "never offer money or something free" is checked in each language SYB
+// writes, not English alone. Every language is checked on every reply: a
+// business's reviews arrive in any of them. Erring wide throws a draft away
+// (the owner may try again or write it); erring narrow would let an offer
+// through. Words chosen with care where one has an innocent sense
+// ("vale" is Spanish for OK, "réduction des délais" is no discount).
+const OFFER_ELSEWHERE_RE = new RegExp(
+  word(
+    [
+      // Spanish (Spain)
+      String.raw`reembols\p{L}*|devol\p{L}*(?:\s+\p{L}+){0,2}\s+(?:dinero|importe)`,
+      String.raw`compensaci[oó]n\p{L}*|compensar\p{L}*|descuentos?|cup[oó]n|cupones`,
+      String.raw`vales?\s+(?:de\s+)?(?:descuento|regalo|compra)|tarjetas?\s+(?:de\s+)?regalo`,
+      String.raw`gratis|gratuit[oa]s?|gratuitamente|(?:invita|cortes[ií]a\s+de|por\s+cuenta\s+de)\s+la\s+casa`,
+      // German: compounds ("Sonderrabatt", "Geschenkgutschein") match inside a word
+      String.raw`\p{L}*(?:rabatt|gutschein|gutschrift|erstattung|entsch[äa]digung)\p{L}*`,
+      String.raw`(?:zur[üu]ck)?erstatt\p{L}*|geld\s+zur[üu]ck|entsch[äa]dig\p{L}*`,
+      String.raw`(?:preis)?nachlass\p{L}*|erm[äa](?:ß|ss)igung\p{L}*|kostenlos\p{L}*|umsonst`,
+      String.raw`aufs\s+haus|auf\s+kosten\s+des\s+hauses`,
+      // French
+      String.raw`rembours\p{L}*|d[ée]dommag\p{L}*|indemnis\p{L}*|rabais|geste\s+commercial`,
+      String.raw`bons?\s+(?:d['’]achat|de\s+r[ée]duction|cadeaux?)|cartes?\s+cadeaux?|ch[eè]ques?\s+cadeaux?`,
+      String.raw`r[ée]ductions?\s+(?:de|sur)\s+\d|\d+\s*%\s+de\s+(?:r[ée]duction|remise)|une\s+remise|remises?\s+de\s+\d`,
+      String.raw`gratuit\p{L}*|c['’]est\s+offert|offert\p{L}*\s+par\s+la\s+maison|aux\s+frais\s+de\s+la\s+maison`,
+      // Hungarian: suffixes ride on the stem
+      String.raw`visszat[ée]r[ií]t\p{L}*|p[ée]nzvisszafizet\p{L}*|visszafizet\p{L}*|j[óo]v[áa][ií]r\p{L}*`,
+      String.raw`k[áa]rt[ée]r[ií]t[ée]s\p{L}*|k[áa]rtalan[ií]t\p{L}*|kompenz[áa]\p{L}*`,
+      String.raw`kedvezm[ée]ny\p{L}*|engedm[ée]ny\p{L}*|kupon\p{L}*|utalv[áa]ny\p{L}*|aj[áa]nd[ée]kk[áa]rty\p{L}*`,
+      String.raw`ingyen\p{L}*|a\s+h[áa]z\s+(?:aj[áa]nd[ée]ka|vend[ée]ge|[áa]llja)`,
+      // Russian
+      String.raw`возврат\p{L}*\s+(?:денег|средств|оплаты)|верн\p{L}*(?:\s+вам)?\s+деньги`,
+      String.raw`компенсац\p{L}*|компенсир\p{L}*|возмещ\p{L}*|скидк\p{L}*|скидоч\p{L}*`,
+      String.raw`купон\p{L}*|ваучер\p{L}*|промокод\p{L}*|подарочн\p{L}*\s+(?:сертификат|карт)\p{L}*`,
+      String.raw`бесплатн\p{L}*|даром|в\s+подарок|за\s+сч[её]т\s+заведения`,
+    ].join("|"),
+  ),
+  "iu",
+);
+// Chinese has no spaces to bound a word: the words are matched where they stand.
+const OFFER_ZH_RE =
+  /退款|退钱|退还|返还|赔偿|补偿|折扣|打折|[0-9一二三四五六七八九]\s*折|优惠|代金券|礼品卡|礼券|购物卡|免费|免单|赠送|送您|(?:我们|本店)(?:买单|请客)|积分/u;
+
 /** Why a draft can't be shown, or null when it passes. Pure: the rules, in code. */
 export function replyProblem(reply: string, reviewer: string | null): string | null {
-  if (OFFER_RE.test(reply.replace(OFFER_EXCUSED_RE, " "))) return "offer";
+  const unexcused = reply.replace(OFFER_EXCUSED_RE, " ");
+  if (OFFER_RE.test(unexcused) || OFFER_ELSEWHERE_RE.test(unexcused) || OFFER_ZH_RE.test(unexcused))
+    return "offer";
   if (nameRes(reviewer).some((re) => re.test(reply))) return "name";
   if (maskContacts(reply) !== reply) return "contact";
   return null;
@@ -296,7 +358,12 @@ export async function draftReviewReply(args: {
   let reply: Awaited<ReturnType<ReviewReplyLlm>>;
   try {
     reply = await (args.llm ?? liveReviewReplyLlm)({
-      system: replySystem({ businessName, entries, limits }),
+      system: replySystem({
+        businessName,
+        entries,
+        limits,
+        language: await businessLanguage(args.profileId),
+      }),
       user,
       accountId: review.account_id,
     });

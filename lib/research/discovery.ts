@@ -18,6 +18,7 @@ import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { FACTS_AS_GIVEN } from "../llm/language";
 import { readCurrentField } from "../profile/field-store";
 import type { ProgressEvent, ProgressSink, ResearchUsage } from "./competitor";
 import {
@@ -84,7 +85,9 @@ Rules:
 - Up to ${DISCOVERY_CAPS.max_candidates} candidates. Fewer real ones beat five padded ones; an empty list is a valid answer.
 - url is the business's OWN page — their site, or their own shopfront on a marketplace. Never a directory, review site, or search page.
 - evidence is one short sentence from the search results saying what they sell and where — never your own guess.
-- Only businesses the search results actually support. Nothing invented, nothing from memory.`;
+- Only businesses the search results actually support. Nothing invented, nothing from memory.
+
+${FACTS_AS_GIVEN}`;
 
 /** The one live model call: Haiku with server-side web search. */
 export const liveDiscoveryLlm: DiscoveryLlm = async ({ system, user, accountId }) => {

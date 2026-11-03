@@ -297,6 +297,7 @@ describe("Session C — production from an approved plan", () => {
       },
       kind: "post",
       accountId: s.account_id,
+      language: "en",
       llm: fakeDraft,
     });
     expect(result.body).toContain("[voice:card]"); // the card reached the prompt

@@ -25,6 +25,7 @@ import { recordExecution } from "../proposals/service";
 import type { DraftLlm } from "./draft";
 import { draftItem } from "./draft";
 import { withDisclosure } from "./disclosure";
+import { businessLanguage } from "../llm/language-of";
 import type { PublishRun } from "./publish";
 import { isPublishProposal, proposePublishing } from "./publish";
 import type { PlannedItem } from "./plan";
@@ -93,6 +94,8 @@ export async function produceFromProposal(
   const accountId = acct?.account_id ?? proposal.profile_id;
 
   const card = await buildVoiceCard(proposal.profile_id, opts.limitLlm);
+  // L-5: posts and emails are read by the business's customers — its language.
+  const language = await businessLanguage(proposal.profile_id);
   const rows: (typeof contentItems.$inferInsert)[] = [];
 
   for (const item of action.detail?.items ?? []) {
@@ -122,6 +125,7 @@ export async function produceFromProposal(
       item,
       kind,
       accountId,
+      language,
       ...(opts.draftLlm ? { llm: opts.draftLlm } : {}),
     });
     rows.push({

@@ -3081,5 +3081,8 @@
       "assumed": "假设",
       "atCost": "按成本计 {amount}"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "本报告以{language}撰写，即生成报告者所用的语言。"
   }
 }

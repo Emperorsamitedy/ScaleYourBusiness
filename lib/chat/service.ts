@@ -57,6 +57,8 @@ import type { ClassifyLlm } from "../proposals/generate";
 import { coerceKind, liveClassifyLlm } from "../proposals/generate";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { sonnetAnswerShape } from "../llm/models";
+import { languageBlock, ownerLanguageLine } from "../llm/language";
+import type { AppLocale } from "../i18n/locales";
 import { entryFor } from "../assistant/catalogue";
 import type { Role, RoleAction } from "../auth/role-actions";
 import { refusalFor, roleAllows } from "../auth/role-actions";
@@ -85,6 +87,12 @@ export type AnswerLlm = (args: {
   system: string;
   user: string;
   accountId: string;
+  /**
+   * L-5 (rule 5): the language instruction (lib/llm/language). It goes out
+   * as its own system block AFTER the cache breakpoint, so the cached rules
+   * and context are byte-identical whatever language the asker reads.
+   */
+  language?: string;
 }) => Promise<{ text: string; calls: LlmCallRecord[] }>;
 
 const ANSWER_SYSTEM = `You are SYB, a small business's own agent, answering in first person, plainly (ux-spec §10).
@@ -108,7 +116,7 @@ export function answerSystemBlocks(
   return [{ type: "text", text: system, cache_control: { type: "ephemeral" } }];
 }
 
-export const liveAnswerLlm: AnswerLlm = async ({ system, user, accountId }) => {
+export const liveAnswerLlm: AnswerLlm = async ({ system, user, accountId, language }) => {
   const started = Date.now();
   // Sonnet 5: exactly today's request. Sonnet 5.5: an explicit effort and
   // room for thinking (lib/llm/models.ts says why).
@@ -116,7 +124,10 @@ export const liveAnswerLlm: AnswerLlm = async ({ system, user, accountId }) => {
   const response = await anthropicClient().messages.create({
     model: shape.model,
     max_tokens: shape.max_tokens,
-    system: answerSystemBlocks(system),
+    system:
+      language === undefined
+        ? answerSystemBlocks(system)
+        : [...answerSystemBlocks(system), languageBlock(language)],
     ...(shape.effort.effort ? { output_config: shape.effort } : {}),
     messages: [{ role: "user", content: user }],
   });
@@ -292,6 +303,7 @@ async function readIntent(
  * only for someone who may ask for proposals. Otherwise the reply says who
  * can, and nothing is drafted or queued. Omitted, the asker is the owner
  * (the anonymous intake's one person, and the callers before idea 52).
+ * `locale` is the asker's language (L-5): the answer is written in it.
  */
 export async function postMessage(
   profileId: string,
@@ -299,6 +311,7 @@ export async function postMessage(
   text: string,
   seams: ChatSeams = {},
   role: Role = "owner",
+  locale: AppLocale = "en",
 ): Promise<ChatOutcome> {
   const trimmed = text.trim();
   if (trimmed === "") throw new ChatError("say something and I'll answer", 422);
@@ -365,6 +378,7 @@ export async function postMessage(
     system: `${ANSWER_SYSTEM}\n\n${context}`,
     user: trimmed,
     accountId,
+    language: ownerLanguageLine(locale),
   });
   const reply = await say(
     profileId,

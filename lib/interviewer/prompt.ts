@@ -25,6 +25,7 @@ import { db } from "../../db";
 import { bankQuestions, bankVersions } from "../../db/schema";
 import { loadBankWords } from "../bank/words";
 import type { AppLocale } from "../i18n/locales";
+import { LANGUAGE_FOR_MODEL } from "../llm/language";
 
 export interface PromptBankQuestion {
   id: string;
@@ -45,16 +46,9 @@ export interface InterviewerBank {
   locale?: AppLocale;
 }
 
-/** Each language's English name, for the model: what the owner reads. */
-export const LANGUAGE_FOR_MODEL: Readonly<Record<AppLocale, string>> = {
-  en: "English",
-  "es-ES": "Spanish (Spain)",
-  "de-DE": "German",
-  "fr-FR": "French (France)",
-  "hu-HU": "Hungarian",
-  "ru-RU": "Russian",
-  "zh-Hans": "Simplified Chinese",
-};
+// Each language's English name, for the model: one table for every call
+// site (lib/llm/language.ts, L-5), re-exported where L-2 first put it.
+export { LANGUAGE_FOR_MODEL } from "../llm/language";
 
 export class PromptBuildError extends Error {
   constructor(message: string) {

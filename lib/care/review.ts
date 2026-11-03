@@ -26,6 +26,9 @@ import { db } from "../../db";
 import { alertReviews, businessProfiles, llmCalls, watchActivity } from "../../db/schema";
 import { readAnswer } from "../llm/answer";
 import { opusShape } from "../llm/models";
+import { ownerLanguageLine, withLanguage } from "../llm/language";
+import { ownerLanguage } from "../llm/language-of";
+import type { AppLocale } from "../i18n/locales";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
@@ -386,7 +389,7 @@ const ESCALATED_DETAIL =
 export async function runAlertReview(
   profileId: string,
   goalId: string,
-  opts: { llm?: ReviewLlm; limitLlm?: LimitLlm; now?: Date } = {},
+  opts: { llm?: ReviewLlm; limitLlm?: LimitLlm; now?: Date; locale?: AppLocale } = {},
 ): Promise<ReviewRunResult> {
   const now = opts.now ?? new Date();
   const at = now.toISOString();
@@ -444,8 +447,12 @@ export async function runAlertReview(
   }
 
   const llm = opts.llm ?? liveReviewLlm;
+  // L-5: no one is waiting on a weekly check, so the review is written in
+  // the owner's own language (through the gate) — summary, causes,
+  // reasons and suggestions; categories, kinds and evidence ids stay English.
+  const locale = opts.locale ?? (await ownerLanguage(accountId));
   const { text, calls } = await llm({
-    system: REVIEW_SYSTEM,
+    system: withLanguage(REVIEW_SYSTEM, ownerLanguageLine(locale)),
     user: renderCaseFile(caseFile),
     accountId,
   });

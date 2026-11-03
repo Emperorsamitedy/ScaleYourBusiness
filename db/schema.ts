@@ -845,8 +845,21 @@ export const diagnosisReports = pgTable(
     data_gaps: jsonb("data_gaps").notNull(),
     /** P2-30: deterministic trading-hours findings; null when no hours or hourly sales are measured. */
     trading_hours: jsonb("trading_hours"),
+    /**
+     * L-5: the language the model wrote the summary, findings and
+     * recommendations in — the language of the person who generated it
+     * (lib/i18n/locales.ts). A reader in another language is told which.
+     * Every report before L-5 was written in English.
+     */
+    language: text("language").notNull().default("en"),
   },
-  (t) => [index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at)],
+  (t) => [
+    index("diagnosis_reports_profile_idx").on(t.profile_id, t.generated_at),
+    check(
+      "diagnosis_reports_language_known",
+      sql`${t.language} in ('en', 'es-ES', 'de-DE', 'fr-FR', 'hu-HU', 'ru-RU', 'zh-Hans')`,
+    ),
+  ],
 );
 
 // ---------------------------------------------------------------------------

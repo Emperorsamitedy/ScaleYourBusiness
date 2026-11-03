@@ -49,6 +49,8 @@ import { SITE_AUDIT_KEY } from "../site/audit/findings";
 import { siteFindingsForReport } from "../site/audit/service";
 import { recordFunnelEvent } from "../intake/telemetry";
 import { applicableQuestions } from "../resolver/applicability";
+import type { AppLocale } from "../i18n/locales";
+import { isAppLocale } from "../i18n/locales";
 
 export type RecommendationResponse = "look_into" | "not_for_us";
 
@@ -94,6 +96,11 @@ export interface ReportView {
   history: FactHistory;
   /** The report issued before this one, for the "prior" column; null when this is the first. */
   prior: PriorReport | null;
+  /**
+   * L-5: the language the model wrote this report's words in — its
+   * generator's. A reader in another language reads it as written.
+   */
+  language: AppLocale;
 }
 
 export interface PriorReport {
@@ -172,6 +179,7 @@ function rowToView(
     fact_map: facts,
     history,
     prior,
+    language: isAppLocale(row.language) ? row.language : "en",
   };
 }
 
@@ -212,7 +220,14 @@ export async function generateReport(args: {
   profileId: string;
   findingsLlm?: DiagnosisLlm;
   recommendationsLlm?: RecommendationsLlm;
+  /**
+   * L-5: the language of the person generating it; the model writes in it
+   * and the row records it. The cost guard is unchanged: a report already
+   * covering this snapshot is returned in the language it was written in.
+   */
+  locale?: AppLocale;
 }): Promise<{ report: ReportView; fresh: boolean }> {
+  const locale = args.locale ?? "en";
   const snapshot = await ensureSnapshot(args.profileId, "report");
 
   const [existing] = await db
@@ -229,6 +244,7 @@ export async function generateReport(args: {
   const diagnosis = await runDiagnosis({
     accountId: args.accountId,
     profileId: args.profileId,
+    locale,
     ...(args.findingsLlm ? { llm: args.findingsLlm } : {}),
   });
   // P5-13: the site audit's measured findings ride beside the model's —
@@ -254,6 +270,7 @@ export async function generateReport(args: {
     accountId: args.accountId,
     profileId: args.profileId,
     findings,
+    locale,
     ...(args.recommendationsLlm ? { llm: args.recommendationsLlm } : {}),
   });
 
@@ -330,6 +347,7 @@ export async function generateReport(args: {
       recommendations: stored,
       data_gaps: gaps,
       trading_hours: tradingHours,
+      language: locale,
     })
     .returning();
   if (!row) throw new DiagnosisError("report insert failed");

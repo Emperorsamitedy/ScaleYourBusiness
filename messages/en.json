@@ -3081,5 +3081,8 @@
       "assumed": "ASSUMED",
       "atCost": "{amount} at cost"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "This report was written in {language}, the language of the person who generated it."
   }
 }

@@ -22,6 +22,7 @@ import {
   users,
 } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
+import { customerLanguageLine } from "../llm/language";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { approveProposal } from "../proposals/service";
 import type { SupportAnswerLlm, SupportIntentLlm } from "../support/chat";
@@ -232,6 +233,24 @@ describe("P4-12 — the loop", () => {
     expect(await db.select().from(proposals).where(eq(proposals.profile_id, b.profile_id))).toEqual(
       [],
     );
+  });
+
+  it("L-5: the canonical question is worded in the business's own language", async () => {
+    const b = await business();
+    await db
+      .update(businessProfiles)
+      .set({ language: "hu-HU" })
+      .where(eq(businessProfiles.id, b.profile_id));
+    for (const q of ["Szállítanak Bécsbe?", "Can you ship to Austria?", "Lieferung nach Wien?"]) {
+      await asked(b, q);
+    }
+    const seen: string[] = [];
+    await clusterQuestions(b.profile_id, b.account_id, {
+      llm: async ({ system }) => (seen.push(system), { text: '{"clusters":[]}', calls: [] }),
+      limitLlm: noLimits,
+    });
+    expect(seen[0]!.endsWith(customerLanguageLine("hu-HU"))).toBe(true);
+    expect(seen[0]).not.toContain("customers' own language");
   });
 
   it("recording an answer keeps the owner's words, trimmed, and refuses an essay", async () => {

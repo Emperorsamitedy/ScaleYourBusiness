@@ -24,6 +24,7 @@ import {
 } from "../../db/schema";
 import { ensureSupportSettings } from "../crm/support-settings";
 import { bootstrapIntake } from "../intake/service";
+import { customerLanguageLine } from "../llm/language";
 import { createProposal } from "../proposals/service";
 import type { SupportAnswerLlm, SupportIntentLlm } from "./chat";
 import {
@@ -228,6 +229,26 @@ describe("P4-06/07 — a stranger's conversation", () => {
     const transcript = await readConversation(token);
     expect(transcript.map((m) => m.role)).toEqual(["assistant", "customer", "assistant"]);
     expect(await listTickets(b.profile_id)).toEqual([]);
+  });
+
+  it("L-5: the widget answers in the business's own language, named after everything else", async () => {
+    for (const language of ["en", "de-DE", "zh-Hans"] as const) {
+      const b = await business();
+      await db
+        .update(businessProfiles)
+        .set({ language })
+        .where(eq(businessProfiles.id, b.profile_id));
+      const { token } = await startConversation(b.site_key);
+      const seen: string[] = [];
+      await postCustomerMessage(token, "What are your opening hours?", {
+        intentLlm: intentAs("question"),
+        answerLlm: async ({ system }) => {
+          seen.push(system);
+          return { text: JSON.stringify({ answer: "", grounded: false, used: [] }), calls: [] };
+        },
+      });
+      expect(seen[0]!.endsWith(customerLanguageLine(language))).toBe(true);
+    }
   });
 
   it("a model that can't be reached hands over to a person — at either call — never an error", async () => {

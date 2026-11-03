@@ -3081,5 +3081,8 @@
       "assumed": "SUPUESTO",
       "atCost": "{amount} a precio de coste"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "Este informe se redactó en {language}, el idioma de la persona que lo generó."
   }
 }

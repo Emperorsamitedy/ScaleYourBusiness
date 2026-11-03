@@ -50,6 +50,9 @@ import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { sonnetAnswerShape } from "../llm/models";
+import { splitLanguageLine, withLanguage } from "../llm/language";
+import { businessLanguage } from "../llm/language-of";
+import type { AppLocale } from "../i18n/locales";
 import { repr } from "../profile/factsheet";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/hard-limits";
@@ -531,7 +534,26 @@ export interface BriefContent {
   hooks: BriefHook[];
 }
 
-const wordCount = (t: string) => t.split(/\s+/).filter((w) => w !== "").length;
+/**
+ * L-5: Chinese is written without spaces between words, so a script in
+ * the business's Chinese would count as one "word" and be refused. Each
+ * Han, kana or Hangul character counts as the share of a word it takes to
+ * say: Mandarin is spoken at about CJK_CHARS_PER_SECOND characters a
+ * second against BRIEF_RULES.words_per_second words. Text with none of
+ * them is counted exactly as before.
+ */
+const CJK = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu;
+const CJK_CHARS_PER_SECOND = 4;
+
+export const wordCount = (t: string): number => {
+  const cjk = t.match(CJK)?.length ?? 0;
+  if (cjk === 0) return t.split(/\s+/).filter((w) => w !== "").length;
+  const others = t
+    .replace(CJK, " ")
+    .split(/\s+/)
+    .filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+  return Math.round((cjk * BRIEF_RULES.words_per_second) / CJK_CHARS_PER_SECOND) + others;
+};
 
 /** Pure: the answer's JSON, from the first { to the last }. Null when there is none. */
 export function extractJson(text: string): unknown {
@@ -703,6 +725,25 @@ export interface WriteBriefArgs {
   usage?: BriefUsage;
   limitLlm?: LimitLlm;
   now?: Date;
+  /** L-5: the language of the owner asking for it; English when omitted. */
+  locale?: AppLocale;
+}
+
+/**
+ * L-5 (rule 5): a brief has two readers. The owner reads who it is for,
+ * the offer and the shot list; the business's customers hear the hooks and
+ * scripts in the Reel, so those are in the business's own language.
+ */
+export function briefSystem(owner: AppLocale, customers: AppLocale): string {
+  return withLanguage(
+    BRIEF_SYSTEM,
+    splitLanguageLine(
+      owner,
+      customers,
+      'the audience, the offer, and each shot and its "why"',
+      "each hook and script",
+    ),
+  );
 }
 
 /**
@@ -727,6 +768,7 @@ export async function writeBrief(args: WriteBriefArgs): Promise<BriefRow> {
   }
   const index = borrowedIndex(gathered.borrowed);
   const base = renderBriefPrompt(gathered);
+  const system = briefSystem(args.locale ?? "en", await businessLanguage(args.profileId));
 
   return withAdvisoryLock(
     `brief:${args.accountId}`,
@@ -747,7 +789,7 @@ export async function writeBrief(args: WriteBriefArgs): Promise<BriefRow> {
         const user = last
           ? `${base}\n\nYOUR PREVIOUS ANSWER WAS REFUSED, for these reasons:\n${last.map((r) => `- ${r}`).join("\n")}\nWrite the whole brief again, fixing every one.`
           : base;
-        const answer = await llm({ system: BRIEF_SYSTEM, user, accountId: args.accountId });
+        const answer = await llm({ system, user, accountId: args.accountId });
         cost += answer.cost_eur;
         const checked = checkBrief(
           extractJson(answer.text),
