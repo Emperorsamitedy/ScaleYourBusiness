@@ -76,6 +76,26 @@ export function customerLanguageLine(locale: AppLocale): string {
 }
 
 /**
+ * For a reply to something a customer wrote (the support widget's answer,
+ * a support reply draft, a review reply) — decided by the owner on
+ * 2026-11-03: the reply is in the language the customer wrote in, when it
+ * is one of the seven SYB writes (so every check on a reply, such as the
+ * review reply's no-offer check, still reads it); otherwise, or when the
+ * language can't be told, in the business's own language. What SYB starts
+ * itself (posts, campaign emails, follow-ups) stays in the business's.
+ */
+export function replyLanguageLine(business: AppLocale): string {
+  const seven = Object.values(LANGUAGE_FOR_MODEL).join(", ");
+  const name = LANGUAGE_FOR_MODEL[business];
+  return (
+    `${LANGUAGE_HEADING} Write the reply in the language the customer wrote in, when it is one of: ${seven}. ` +
+    `If they wrote in another language, or you can't tell which, write it in ${name}, the business's own language for its customers. ` +
+    `Address the customer formally, as that language does (usted, Sie, vous, Ön with third-person verbs, вы, 您). ` +
+    KEEP_STRUCTURE
+  );
+}
+
+/**
  * For a brief whose parts have two readers: the person's language for
  * what the owner reads, the business's for what customers hear.
  */

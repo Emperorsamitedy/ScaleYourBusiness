@@ -29,7 +29,7 @@ import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
-import { customerLanguageLine, withLanguage } from "../llm/language";
+import { replyLanguageLine, withLanguage } from "../llm/language";
 import { businessLanguage } from "../llm/language-of";
 import type { AppLocale } from "../i18n/locales";
 import {
@@ -106,14 +106,15 @@ export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
 
 /**
  * L-5 (rule 5): the reply goes to a customer, so it is drafted in the
- * business's own language (`language`), named last in the prompt.
+ * language they wrote in, falling back to the business's own (`language`),
+ * named last in the prompt.
  */
 export function draftSystem(
   businessName: string,
   entries: readonly KnowledgeEntryRow[],
   language: AppLocale = "en",
 ): string {
-  return withLanguage(draftRules(businessName, entries), customerLanguageLine(language));
+  return withLanguage(draftRules(businessName, entries), replyLanguageLine(language));
 }
 
 function draftRules(businessName: string, entries: readonly KnowledgeEntryRow[]): string {

@@ -61,6 +61,7 @@ const {
   FACTS_AS_GIVEN,
   LANGUAGE_HEADING,
   customerLanguageLine,
+  replyLanguageLine,
   ownerLanguageLine,
   splitLanguageLine,
 } = await import("./language");
@@ -160,8 +161,10 @@ describe("customer-facing text is in the business's language, named last", () =>
   } as never;
 
   for (const locale of SAMPLE) {
-    it(`${locale}: the widget answer, the reply draft and the review reply`, () => {
-      const line = customerLanguageLine(locale);
+    // Owner, 2026-11-03: a reply is in the language the customer wrote in
+    // (one of the seven), falling back to the business's own.
+    it(`${locale}: the widget answer, the reply draft and the review reply answer in the customer's language`, () => {
+      const line = replyLanguageLine(locale);
       for (const system of [
         answerSystem("Bäckerei Kranz", [entry], locale),
         draftSystem("Bäckerei Kranz", [entry], locale),
@@ -173,7 +176,8 @@ describe("customer-facing text is in the business's language, named last", () =>
         }),
       ]) {
         expect(system.endsWith(line)).toBe(true);
-        expect(system).toContain(`customers read in ${NAMED[locale]}`);
+        expect(system).toContain("in the language the customer wrote in");
+        expect(system).toContain(`write it in ${NAMED[locale]}, the business's own language`);
         // The old "in the customer's own language" clause can't contradict it.
         expect(system).not.toMatch(/language when it (is not|isn't) English/);
       }
