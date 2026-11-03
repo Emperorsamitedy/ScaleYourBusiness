@@ -3474,7 +3474,8 @@
       "count": "{total, plural, one {# клиент.} few {# клиента.} many {# клиентов.} other {# клиента.}}",
       "quietNone": "Все по-прежнему покупают.",
       "quietAll": "Покупать перестали все.",
-      "quiet": "Перестали покупать: {lapsed, plural, one {#} few {#} many {#} other {#}}."
+      "quiet": "Перестали покупать: {lapsed, plural, one {#} few {#} many {#} other {#}}.",
+      "join": "{first} {then}"
     },
     "lifecycle": {
       "active": "активный",

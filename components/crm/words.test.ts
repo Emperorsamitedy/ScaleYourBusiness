@@ -2,8 +2,13 @@
 // always said, and the screen's figures and dates follow the reader's
 // locale, never converting a currency.
 
+import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
 import en from "../../messages/en.json";
+import de from "../../messages/de-DE.json";
+import zh from "../../messages/zh-Hans.json";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import type { ReadbackView, SendView } from "./campaign-view";
 import { REFUSAL_WORDS, readbackRows, refusalLines, sendSentence } from "./campaign-view";
@@ -52,6 +57,18 @@ describe("the customers screen's figures in the reader's locale", () => {
 
   it("groups the headline's counts the English way", () => {
     expect(customersHeadline(3884, 412, tr)).toBe("3,884 customers. 412 have gone quiet.");
+  });
+
+  it("joins the headline's two sentences the way each language does", () => {
+    const trIn = (locale: AppLocale, messages: typeof en): Tr =>
+      createTranslator({ locale, messages, namespace: "customers" }) as unknown as Tr;
+    expect(customersHeadline(54, 8, trIn("de-DE", de as typeof en))).toBe(
+      "54 Kunden. 8 sind still geworden.",
+    );
+    // No space after the full-width full stop.
+    expect(customersHeadline(54, 8, trIn("zh-Hans", zh as typeof en))).toBe(
+      "54 位客户。其中 8 位已沉寂。",
+    );
   });
 
   it("writes the send date and counts the reader's way", () => {
