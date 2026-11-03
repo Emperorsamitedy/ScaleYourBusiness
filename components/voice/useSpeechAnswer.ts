@@ -13,8 +13,11 @@ export interface SpeechAnswerOptions {
   setText: (next: string) => void;
   /** Words for a normal stop, in the box's own verb ("…then record it"). */
   after: string;
-  /** The profile's language when known; else the browser's. */
-  lang?: string | null;
+  /**
+   * I-50a: the BCP 47 tag to listen in — the person's chosen language
+   * (lib/voice/lang speechLang), never the browser's own.
+   */
+  lang: string;
   /** L-3a: the session's own lines in the person's language (MicButton passes them). */
   words?: SessionWords;
   /** True stops any listening at once (the box is busy or sending). */
@@ -49,7 +52,7 @@ export function useSpeechAnswer(options: SpeechAnswerOptions): SpeechAnswer {
     const s = new SpeechSession({
       Recognition: recognitionIn(window),
       get lang() {
-        return opts.current.lang || navigator.language || "en-GB";
+        return opts.current.lang;
       },
       getText: () => opts.current.getText(),
       setText: (next) => opts.current.setText(next),

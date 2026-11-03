@@ -22,9 +22,10 @@ import { englishTr } from "../../lib/i18n/tr";
 import { useTr } from "../sheet/useTr";
 import type { SpeechAnswer, SpeechAnswerOptions } from "./useSpeechAnswer";
 import { useSpeechAnswer } from "./useSpeechAnswer";
+import { speechLang } from "../../lib/voice/lang";
 import "../../app/voice.css";
 
-export interface MicButtonProps extends Omit<SpeechAnswerOptions, "words"> {
+export interface MicButtonProps extends Omit<SpeechAnswerOptions, "words" | "lang"> {
   /** The accessible name, which starts with the visible word: "Speak your answer". */
   label: string;
 }
@@ -130,9 +131,10 @@ export function MicButtonView({
 }
 
 export function MicButton({ label, ...options }: MicButtonProps) {
-  const { tr } = useTr("voice");
+  const { tr, locale } = useTr("voice");
   // The session reads its words through a getter, so each render's set is the one used.
-  const s = useSpeechAnswer({ ...options, words: sessionWords(tr) });
+  // I-50a: it listens in the person's chosen language, the request's locale.
+  const s = useSpeechAnswer({ ...options, lang: speechLang(locale), words: sessionWords(tr) });
   return (
     <MicButtonView
       supported={s.supported}

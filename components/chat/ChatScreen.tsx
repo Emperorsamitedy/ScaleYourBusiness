@@ -26,7 +26,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { businessNoun } from "../../lib/core/business-noun";
-import { intlTag } from "../../lib/i18n/locales";
 import { useTr } from "../sheet/useTr";
 import { MicButton } from "../voice/MicButton";
 import { ChangeCard } from "./ChangeCard";
@@ -339,7 +338,6 @@ export function ChatScreen() {
               getText={() => draftRef.current}
               setText={(next) => setDraft(next.slice(0, MAX_CHARS))}
               after={tr("composer.spokenAfter")}
-              lang={intlTag(locale)}
               disabled={s.busy}
             />
             <p className="ak-rule" id="ak-rule">

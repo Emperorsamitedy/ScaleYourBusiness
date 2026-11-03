@@ -47,7 +47,12 @@ export const accounts = pgTable("accounts", {
   // Circular with users.account_id — drizzle emits this one as ALTER TABLE.
   owner_user_id: uuid("owner_user_id").references((): AnyPgColumn => users.id),
   plan: accountPlan("plan").notNull().default("trial"),
-  /** "hu-HU", "en-GB" — drives intake language. */
+  /**
+   * Set to "en-GB" by code at account creation and read by nothing. It is
+   * not the language: a person's is users.language (L-1), and the
+   * microphone listens in that, through the request's locale (I-50a,
+   * lib/voice/lang). Kept, unchanged, so nothing that might read it breaks.
+   */
   locale: text("locale").notNull().default("en-GB"),
   /** ISO 4217 — aggregates state their currency; see lib/core/money.ts. */
   reporting_currency: text("reporting_currency").notNull(),

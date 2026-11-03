@@ -2,12 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { MicButton } from "../../voice/MicButton";
-import { intlTag } from "@/lib/i18n/locales";
 import { useIntakeWords } from "../words";
 import type { ControlProps } from "./shared";
 
 export function TextControl({ question, onChange, onCommit, initial }: ControlProps) {
-  const { tr, locale } = useIntakeWords();
+  const { tr } = useIntakeWords();
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     ref.current?.focus({ preventScroll: true });
@@ -48,7 +47,6 @@ export function TextControl({ question, onChange, onCommit, initial }: ControlPr
         getText={() => ref.current?.value ?? ""}
         setText={setSpoken}
         after={tr("question.spokenAfter")}
-        lang={intlTag(locale)}
       />
     </div>
   );
