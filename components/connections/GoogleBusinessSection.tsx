@@ -8,9 +8,15 @@
 // renders the registry's consent lines verbatim, asks for a typed phrase
 // before sending the owner to Google, lets them pick a location when they
 // manage several, and revokes in one confirmed click.
+//
+// L-3d: the section's words are the "connections.google" catalogue, with
+// the lines /reviews shares from "reviews.google". The consent lines and
+// the phrase stay the registry's English: the consent's hash covers them.
 
 import { useEffect, useState } from "react";
-import { googleReasonMessage } from "../../lib/google-business/reasons";
+import { isGoogleReason } from "../../lib/google-business/reasons";
+import { bold, useCn } from "./useCn";
+import { GOOGLE_NEED_KEYS, storedDay } from "./words";
 
 export interface GoogleView {
   label: string;
@@ -68,6 +74,8 @@ export function GoogleBusinessSection({
   view: GoogleView;
   onChanged: () => Promise<void>;
 }) {
+  const { t, locale } = useCn("connections.google");
+  const { t: tg } = useCn("reviews.google");
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState("");
   const [leaving, setLeaving] = useState(false);
@@ -82,17 +90,19 @@ export function GoogleBusinessSection({
     if (back === null) return;
     clearReturn();
     if (back.kind === "connected") {
-      setNotice("Google Business Profile is connected, and your consent is on record.");
+      setNotice(t("connected"));
     } else if (back.kind === "pick") {
-      setNotice("Signed in with Google. Pick the location SYB should read.");
+      setNotice(t("signedInPick"));
     } else if (back.kind === "cancelled") {
-      setNotice("You cancelled on Google's screen. Nothing was connected.");
+      setNotice(t("youCancelled"));
     } else {
-      setError(googleReasonMessage(back.reason));
+      // A code from the closed set, never text from the URL (lib/google-business/reasons).
+      setError(t(isGoogleReason(back.reason) ? `reason.${back.reason}` : "reason.generic"));
     }
   }, []);
 
   const c = view.connection;
+  const status = (s: string) => (t.has(`status.${s}`) ? t(`status.${s}`) : s);
   const confirmed = typed.trim().toLowerCase() === view.confirm_phrase;
 
   const finish = async () => {
@@ -103,13 +113,13 @@ export function GoogleBusinessSection({
         location: picked,
       });
       if (!out.ok) {
-        setError(out.error ?? "That didn't connect.");
+        setError(out.error ?? t("connectFailed"));
       } else {
-        setNotice("Google Business Profile is connected, and your consent is on record.");
+        setNotice(t("connected"));
       }
       await onChanged();
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(false);
     }
@@ -119,7 +129,7 @@ export function GoogleBusinessSection({
     setBusy(true);
     try {
       await call("/api/connections/google-business", "DELETE", { pending: true });
-      setNotice("Nothing was connected.");
+      setNotice(t("nothingConnected"));
       await onChanged();
     } finally {
       setBusy(false);
@@ -133,31 +143,27 @@ export function GoogleBusinessSection({
     try {
       const out = await call("/api/connections/google-business", "DELETE", { id: c.id });
       if (!out.ok) {
-        setError(out.error ?? "That didn't revoke.");
+        setError(out.error ?? t("revokeFailed"));
         return;
       }
       setConfirmRevoke(false);
-      setNotice("Revoked. SYB's access to Google is deleted, and reading has stopped.");
+      setNotice(t("revoked"));
       await onChanged();
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="cn-write cn-email-wrap" aria-label="Google Business Profile">
+    <div className="cn-write cn-email-wrap" aria-label={tg("label")}>
       <section className="cs cn-write-card cn-email" aria-labelledby="cn-google-title">
         <header className="cs-head">
           <div>
-            <p className="cs-label">Google Business Profile · a separate consent</p>
+            <p className="cs-label">{t("sectionLabel")}</p>
             <h2 className="cs-title" id="cn-google-title">
-              {c
-                ? c.status === "failed"
-                  ? "Google stopped accepting SYB's access"
-                  : "Granted, used only to read your reviews"
-                : "Off. SYB doesn't read your Google reviews."}
+              {c ? (c.status === "failed" ? tg("failed") : t("title.on")) : t("title.off")}
             </h2>
           </div>
         </header>
@@ -165,13 +171,16 @@ export function GoogleBusinessSection({
           <div className="cn-wp">
             <div className="cn-wp-head">
               <div>
-                <h3 className="cn-wp-name">{view.label}</h3>
+                <h3 className="cn-wp-name">{locale === "en" ? view.label : t("label")}</h3>
                 <p className="cn-wp-state">
                   {c
-                    ? `consented ${c.created_at.slice(0, 10)} · ${c.status}`
+                    ? t("consentedOn", {
+                        day: storedDay(c.created_at, locale),
+                        status: status(c.status),
+                      })
                     : view.configured
-                      ? "not granted"
-                      : "not set up yet"}
+                      ? t("notGranted")
+                      : t("notSetUpYet")}
                 </p>
               </div>
               {c === null && view.pick === null && view.configured && (
@@ -182,16 +191,16 @@ export function GoogleBusinessSection({
                   aria-controls="cn-grant-google"
                   onClick={() => setOpen(!open)}
                 >
-                  {open ? "Close" : "Connect"}
+                  {open ? t("close") : t("connect")}
                 </button>
               )}
               {c === null && !view.configured && (
                 <button type="button" className="ghost" disabled>
-                  Connect
+                  {t("connect")}
                 </button>
               )}
             </div>
-            <p className="cn-note">{view.what_it_can_do}</p>
+            <p className="cn-note">{tg("whatItCanDo")}</p>
             <ul className="cn-consent">
               {view.consent.map((line) => (
                 <li key={line}>
@@ -201,59 +210,60 @@ export function GoogleBusinessSection({
               ))}
             </ul>
             {c === null && !view.configured && view.not_set_up && (
-              <p className="cn-note">{view.not_set_up}</p>
+              <p className="cn-note">{tg("notSetUp")}</p>
             )}
             {c === null && (
               <div className="cn-wp-detail">
-                <p className="cn-sub">Before it can work</p>
+                <p className="cn-sub">{tg("before")}</p>
                 <ul className="cn-list">
-                  {view.needs.map((n) => (
-                    <li key={n}>{n}</li>
-                  ))}
+                  {view.needs.map((n, i) => {
+                    const key = GOOGLE_NEED_KEYS[i];
+                    return <li key={n}>{key ? tg(`needs.${key}`) : n}</li>;
+                  })}
                 </ul>
               </div>
             )}
             {c !== null && (
               <div className="cn-wp-detail">
                 <dl className="cn-facts">
-                  <dt>status</dt>
+                  <dt>{t("fact.status")}</dt>
                   <dd>
                     <span className={`word ${c.status === "connected" ? "ok" : "alarm"}`}>
-                      {c.status}
+                      {status(c.status)}
                     </span>
                   </dd>
                   {view.location_title && (
                     <>
-                      <dt>location</dt>
+                      <dt>{t("fact.location")}</dt>
                       <dd>{view.location_title}</dd>
                     </>
                   )}
-                  <dt>last read</dt>
+                  <dt>{t("fact.lastRead")}</dt>
                   <dd>
                     {view.last_read
-                      ? `${view.last_read.at.slice(0, 10)}${view.last_read.words ? ` · ${view.last_read.words}` : ""}`
-                      : "not yet: SYB reads once a day"}
+                      ? `${storedDay(view.last_read.at, locale)}${view.last_read.words ? ` · ${view.last_read.words}` : ""}`
+                      : t("fact.notYet")}
                   </dd>
                 </dl>
                 {c.last_error && <p className="cn-error">{c.last_error}</p>}
                 <div className="cn-acts">
                   {confirmRevoke ? (
                     <>
-                      <span className="cn-note">SYB stops reading your Google reviews.</span>
+                      <span className="cn-note">{t("revokeAsk")}</span>
                       <button
                         type="button"
                         className="ghost"
                         disabled={busy}
                         onClick={() => void revoke()}
                       >
-                        {busy ? "Revoking…" : "Yes, revoke"}
+                        {busy ? t("revoking") : t("yesRevoke")}
                       </button>
                       <button
                         type="button"
                         className="ghost"
                         onClick={() => setConfirmRevoke(false)}
                       >
-                        Keep it
+                        {t("keepIt")}
                       </button>
                     </>
                   ) : (
@@ -263,16 +273,16 @@ export function GoogleBusinessSection({
                       disabled={busy}
                       onClick={() => setConfirmRevoke(true)}
                     >
-                      Revoke
+                      {t("revoke")}
                     </button>
                   )}
                 </div>
-                <p className="cn-note">{view.revoke_note}</p>
+                <p className="cn-note">{t("revokeNote")}</p>
               </div>
             )}
             {c === null && view.pick !== null && (
               <div className="cn-wp-detail">
-                <p className="cn-sub">Pick the location SYB reads</p>
+                <p className="cn-sub">{t("pickTitle")}</p>
                 <ul className="cn-list">
                   {view.pick.map((l) => (
                     <li key={l.id}>
@@ -297,7 +307,7 @@ export function GoogleBusinessSection({
                     disabled={busy || picked === ""}
                     onClick={() => void finish()}
                   >
-                    {busy ? "Recording…" : "Read this location's reviews"}
+                    {busy ? t("recording") : t("readLocation")}
                   </button>
                   <button
                     type="button"
@@ -305,17 +315,14 @@ export function GoogleBusinessSection({
                     disabled={busy}
                     onClick={() => void forgetPick()}
                   >
-                    Cancel
+                    {t("cancel")}
                   </button>
                 </div>
               </div>
             )}
             {c === null && view.pick === null && view.configured && open && (
               <div className="cn-wp-detail" id="cn-grant-google">
-                <p className="cn-note">
-                  Google then shows its own screen and asks about this one permission. Allow it, and
-                  come back here.
-                </p>
+                <p className="cn-note">{t("googleScreen")}</p>
                 <form
                   className="cn-form"
                   method="post"
@@ -324,7 +331,7 @@ export function GoogleBusinessSection({
                 >
                   <label className="cn-field">
                     <span className="cn-field-label">
-                      To confirm, type <strong>{view.confirm_phrase}</strong>
+                      {t.rich("typeToConfirm", { ...bold, phrase: view.confirm_phrase })}
                     </span>
                     <input
                       className="cn-input"
@@ -338,7 +345,7 @@ export function GoogleBusinessSection({
                     />
                   </label>
                   <button className="next" type="submit" disabled={leaving || !confirmed}>
-                    {leaving ? "Opening Google…" : "Sign in with Google and allow reading reviews"}
+                    {leaving ? t("opening") : t("signIn")}
                   </button>
                 </form>
               </div>
@@ -355,7 +362,7 @@ export function GoogleBusinessSection({
             )}
           </div>
         </div>
-        <footer className="cs-foot">{view.nothing_written}</footer>
+        <footer className="cs-foot">{t("nothingWritten")}</footer>
       </section>
     </div>
   );

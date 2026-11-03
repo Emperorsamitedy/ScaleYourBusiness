@@ -3,56 +3,56 @@
 // button and writes nothing, so a link scanner or a mail preview stops
 // nothing. The button POSTs to /api/summary/stop/<token>, which switches
 // the summary off and comes back here. It changes nothing else.
+//
+// L-3d: its words are the "summaryStop" catalogue, in the language this
+// browser reads (the cookie, through the status gate); the email itself
+// is L-6.
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { viewStop } from "../../../../lib/summary/prefs";
 
-export const metadata: Metadata = {
-  title: "Weekly summary — SYB",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("summaryStop");
+  return { title: t("meta"), robots: { index: false, follow: false } };
+}
 export const dynamic = "force-dynamic";
 
 export default async function StopSummaryPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const view = await viewStop(token);
+  const t = await getTranslations("summaryStop");
   return (
     <main className="desk unsub-desk">
       <section className="sheet unsub-sheet" aria-labelledby="stop-title">
-        <p className="label">Email preferences</p>
+        <p className="label">{t("label")}</p>
         {view === null ? (
           <>
             <h1 className="display unsub-title" id="stop-title">
-              This link isn&rsquo;t one we recognise.
+              {t("unknown.title")}
             </h1>
-            <p className="prose">
-              Check that the whole link from the email was copied. Nothing has changed.
-            </p>
+            <p className="prose">{t("unknown.body")}</p>
           </>
         ) : view.stopped ? (
           <>
             <h1 className="display unsub-title" id="stop-title">
-              The weekly summary is off.
+              {t("stopped.title")}
             </h1>
             <p className="prose">
-              I won&rsquo;t email it again. Everything it reported is still on your{" "}
-              <Link href="/watch">Watching</Link> screen, and you can switch it back on there.
+              {t.rich("stopped.body", { watch: (chunks) => <Link href="/watch">{chunks}</Link> })}
             </p>
           </>
         ) : (
           <>
             <h1 className="display unsub-title" id="stop-title">
-              Stop the weekly summary email?
+              {t("ask.title")}
             </h1>
-            <p className="prose">
-              One click and it stops. Sign-in links and the Support screen&rsquo;s notices are not
-              affected.
-            </p>
+            <p className="prose">{t("ask.body")}</p>
             <form method="post" action={`/api/summary/stop/${encodeURIComponent(token)}`}>
               <input type="hidden" name="confirm" value="1" />
               <button type="submit" className="act solid">
-                Stop these emails <span aria-hidden="true">→</span>
+                {t("ask.button")} <span aria-hidden="true">→</span>
               </button>
             </form>
           </>

@@ -22,9 +22,19 @@
 // one Reconnect action that opens the same two ways in; reconnecting
 // replaces the paused credential and the held work picks up where it left
 // off. No icons: the state is a mono status word and a sentence.
+//
+// L-3d: the section's words are the "connections.write" catalogue, and so
+// are the setup's notes, steps, operations and access-level copy
+// (write-words.ts). The consent lines and the confirmation phrase stay the
+// registry's English: the consent's hash covers them as shown and typed.
 
 import { useEffect, useState } from "react";
-import { connectionsMessage } from "../../lib/execution/meta-login-reasons";
+import { isConnectionsReason } from "../../lib/execution/meta-login-reasons";
+import { bold, useCn } from "./useCn";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { CnTr } from "./words";
+import { percent, storedDay } from "./words";
+import { ADS_TIER_FIGURES, accessWords, tierNote, tierWords } from "./write-words";
 
 interface ConsentEntry {
   scope: string;
@@ -151,6 +161,22 @@ async function send(
 const errorText = (payload: Payload, fallback: string): string =>
   typeof payload?.error === "string" ? payload.error : fallback;
 
+/**
+ * A write connection's or provider's name in the reader's words. English
+ * keeps the name the server sent (the registry's, or the connection's own).
+ */
+export function writeLabel(t: CnTr, provider: string, label: string, locale: AppLocale): string {
+  return locale !== "en" && t.has(`label.${provider}`) ? t(`label.${provider}`) : label;
+}
+
+const statusOf = (t: CnTr, status: string) =>
+  t.has(`status.${status}`) ? t(`status.${status}`) : status;
+
+/** An operation's description in the reader's words; the registry's otherwise. */
+function opWords(t: CnTr, o: Operation): string {
+  return t.has(`op.${o.op}`) ? t(`op.${o.op}`) : o.description;
+}
+
 function ConsentLines({ provider }: { provider: ExecProvider }) {
   return (
     <ul className="cn-consent">
@@ -167,7 +193,7 @@ function ConsentLines({ provider }: { provider: ExecProvider }) {
 function ConnectedWrite({
   c,
   note,
-  tierNote,
+  tierNote: tierNoteText,
   onDone,
   onReconnect,
   reconnecting,
@@ -181,8 +207,10 @@ function ConnectedWrite({
   onReconnect: () => void;
   reconnecting: boolean;
 }) {
+  const { t, locale } = useCn("connections.write");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const label = writeLabel(t, c.provider, c.label, locale);
 
   const disconnect = async () => {
     setBusy(true);
@@ -190,12 +218,12 @@ function ConnectedWrite({
     try {
       const { ok, payload } = await send("DELETE", { id: c.id });
       if (!ok) {
-        setError(errorText(payload, "That didn't disconnect."));
+        setError(errorText(payload, t("disconnectFailed")));
         return;
       }
-      await onDone(`${c.label} is disconnected. The token is deleted here.`);
+      await onDone(t("disconnected", { label }));
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(false);
     }
@@ -204,31 +232,33 @@ function ConnectedWrite({
   return (
     <div className="cn-wp-detail">
       <dl className="cn-facts">
-        <dt>status</dt>
+        <dt>{t("fact.status")}</dt>
         <dd>
-          <span className={`word ${c.status === "connected" ? "ok" : "alarm"}`}>{c.status}</span>
+          <span className={`word ${c.status === "connected" ? "ok" : "alarm"}`}>
+            {statusOf(t, c.status)}
+          </span>
         </dd>
-        <dt>permissions</dt>
+        <dt>{t("fact.permissions")}</dt>
         <dd>
           <span className="cn-scope">{c.granted_scopes.join(" · ")}</span>
         </dd>
-        <dt>consented</dt>
-        <dd>{c.created_at.slice(0, 10)}</dd>
+        <dt>{t("fact.consented")}</dt>
+        <dd>{storedDay(c.created_at, locale)}</dd>
         {c.access_tier_words != null && (
           <>
-            <dt>access tier</dt>
+            <dt>{t("fact.accessTier")}</dt>
             <dd>
               {c.access_tier != null && <span className="cn-scope">{c.access_tier}</span>}{" "}
-              {c.access_tier_words}
-              {c.access_tier_seen_at != null && ` · seen ${c.access_tier_seen_at.slice(0, 10)}`}
+              {tierWords(c.access_tier ?? null, t)}
+              {c.access_tier_seen_at != null &&
+                ` · ${t("fact.seen", { day: storedDay(c.access_tier_seen_at, locale) })}`}
             </dd>
           </>
         )}
       </dl>
       {c.status === "paused" && (
         <p className="cn-error" role="alert">
-          {c.last_error ??
-            "Meta stopped accepting this connection's sign-in. Reconnect it and I'll pick up where I left off."}
+          {c.last_error ?? t("pausedDefault")}
         </p>
       )}
       <div className="cn-acts">
@@ -240,11 +270,11 @@ function ConnectedWrite({
             aria-controls={`cn-grant-${c.provider}`}
             onClick={onReconnect}
           >
-            {reconnecting ? "Close" : "Reconnect"}
+            {reconnecting ? t("close") : t("reconnect")}
           </button>
         )}
         <button type="button" className="ghost" disabled={busy} onClick={() => void disconnect()}>
-          {busy ? "Disconnecting…" : "Disconnect"}
+          {busy ? t("disconnecting") : t("disconnect")}
         </button>
       </div>
       {error !== null && (
@@ -252,7 +282,9 @@ function ConnectedWrite({
           {error}
         </p>
       )}
-      {tierNote !== null && c.access_tier_words != null && <p className="cn-note">{tierNote}</p>}
+      {tierNoteText !== null && c.access_tier_words != null && (
+        <p className="cn-note">{tierNoteText}</p>
+      )}
       <p className="cn-note">{note}</p>
     </div>
   );
@@ -271,19 +303,20 @@ function FacebookSignIn({
   provider: ExecProvider;
   login: ExecView["facebook_login"];
 }) {
+  const { t } = useCn("connections.write");
   const [typed, setTyped] = useState("");
   const [leaving, setLeaving] = useState(false);
   const phrase = provider.confirm_phrase ?? "";
   const confirmed = phrase !== "" && typed.trim().toLowerCase() === phrase;
-  const asset = provider.id === "meta_ads" ? "ad account" : "Page";
+  const asset = provider.id === "meta_ads" ? "ad" : "page";
 
   return (
     <>
-      <p className="cn-sub">Invited testers: sign in with Facebook</p>
+      <p className="cn-sub">{t("facebook.sub")}</p>
       {login.available ? (
         <>
-          <p className="cn-note">{login.tester_note}</p>
-          <p className="cn-note">{login.one_consent_note}</p>
+          <p className="cn-note">{t("facebook.testerNote")}</p>
+          <p className="cn-note">{t("facebook.oneConsent")}</p>
           <form
             className="cn-form"
             method="post"
@@ -292,9 +325,7 @@ function FacebookSignIn({
           >
             <input type="hidden" name="provider" value={provider.id} />
             <label className="cn-field">
-              <span className="cn-field-label">
-                To confirm, type <strong>{phrase}</strong>
-              </span>
+              <span className="cn-field-label">{t.rich("typeToConfirm", { ...bold, phrase })}</span>
               <input
                 className="cn-input"
                 type="text"
@@ -307,16 +338,16 @@ function FacebookSignIn({
               />
             </label>
             <button className="next" type="submit" disabled={leaving || !confirmed}>
-              {leaving ? "Opening Facebook…" : `Sign in with Facebook and pick the ${asset}`}
+              {leaving ? t("facebook.opening") : t(`facebook.signInPick.${asset}`)}
             </button>
           </form>
         </>
       ) : (
         <div className="cn-acts">
           <button type="button" className="ghost" disabled>
-            Sign in with Facebook
+            {t("facebook.signIn")}
           </button>
-          <span className="cn-note">{login.off_note}</span>
+          <span className="cn-note">{t("facebookOff")}</span>
         </div>
       )}
     </>
@@ -337,6 +368,7 @@ function MetaPicker({
   onDone: (message: string) => Promise<void>;
   onCancel: (message: string) => void;
 }) {
+  const { t, locale } = useCn("connections.write");
   const [list, setList] = useState<Candidates | null>(null);
   const [picked, setPicked] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -352,20 +384,20 @@ function MetaPicker({
         const payload = (await res.json().catch(() => null)) as Payload;
         if (!live) return;
         if (!res.ok) {
-          setError(errorText(payload, "I couldn't list what Meta shared."));
+          setError(errorText(payload, t("pick.couldntList")));
           return;
         }
         const got = payload as unknown as Candidates;
         setList(got);
         if (got.candidates.length === 1) setPicked(got.candidates[0]?.id ?? "");
       } catch {
-        if (live) setError("I couldn't reach the server. Try again.");
+        if (live) setError(t("unreachable"));
       }
     })();
     return () => {
       live = false;
     };
-  }, [provider.id]);
+  }, [provider.id, t]);
 
   const connect = async () => {
     setBusy(true);
@@ -378,14 +410,14 @@ function MetaPicker({
       });
       const payload = (await res.json().catch(() => null)) as Payload;
       if (!res.ok) {
-        setError(errorText(payload, "That didn't connect."));
+        setError(errorText(payload, t("connectFailed")));
         return;
       }
       await onDone(
-        `${provider.label} is connected through Facebook, and your consent is on record.`,
+        t("pick.connected", { label: writeLabel(t, provider.id, provider.label, locale) }),
       );
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(false);
     }
@@ -395,16 +427,16 @@ function MetaPicker({
     setBusy(true);
     await fetch("/api/connections/meta/candidates", { method: "DELETE" }).catch(() => null);
     setBusy(false);
-    onCancel("Facebook sign-in cancelled. Nothing was connected, and SYB kept no token.");
+    onCancel(t("pick.cancelled"));
   };
 
-  const what = provider.id === "meta_ads" ? "ad account" : "Page";
+  const what = provider.id === "meta_ads" ? "ad" : "page";
   return (
     <div className="cn-wp-detail" id={`cn-pick-${provider.id}`}>
-      <p className="cn-sub">Pick the {what} SYB may act on</p>
-      {list === null && error === null && <p className="cn-note">Asking Meta what you shared…</p>}
+      <p className="cn-sub">{t(`pick.title.${what}`)}</p>
+      {list === null && error === null && <p className="cn-note">{t("pick.asking")}</p>}
       {list !== null && (
-        <ul className="cn-pick" role="radiogroup" aria-label={`Pick the ${what}`}>
+        <ul className="cn-pick" role="radiogroup" aria-label={t(`pick.aria.${what}`)}>
           {list.kind === "pages"
             ? list.candidates.map((p) => (
                 <li key={p.id}>
@@ -420,8 +452,12 @@ function MetaPicker({
                     <span className="cn-pick-name">{p.name}</span>
                     <span className="cn-pick-meta">
                       {p.instagram
-                        ? `Instagram ${p.instagram.username ? `@${p.instagram.username}` : p.instagram.id} too`
-                        : "no Instagram account linked: Facebook only"}
+                        ? t("pick.instagram", {
+                            handle: p.instagram.username
+                              ? `@${p.instagram.username}`
+                              : p.instagram.id,
+                          })
+                        : t("pick.noInstagram")}
                     </span>
                   </label>
                 </li>
@@ -439,7 +475,7 @@ function MetaPicker({
                     />
                     <span className="cn-pick-name">{a.name}</span>
                     <span className="cn-pick-meta">
-                      act_{a.id} · {a.account_status === 1 ? "active" : "not active"}
+                      act_{a.id} · {a.account_status === 1 ? t("pick.active") : t("pick.notActive")}
                     </span>
                   </label>
                 </li>
@@ -458,16 +494,13 @@ function MetaPicker({
           disabled={busy || list === null || picked === ""}
           onClick={() => void connect()}
         >
-          {busy ? "Checking…" : `Allow and connect this ${what}`}
+          {busy ? t("checking") : t(`pick.allow.${what}`)}
         </button>
         <button type="button" className="ghost" disabled={busy} onClick={() => void cancel()}>
-          Cancel
+          {t("cancel")}
         </button>
       </div>
-      <p className="cn-note">
-        SYB checks with Meta that the sign-in holds exactly the permissions listed above before
-        anything is stored.
-      </p>
+      <p className="cn-note">{t("pick.note")}</p>
     </div>
   );
 }
@@ -481,12 +514,20 @@ function ConsentForm({
   login: ExecView["facebook_login"];
   onDone: (message: string) => Promise<void>;
 }) {
+  const { t, locale } = useCn("connections.write");
   const [values, setValues] = useState<Record<string, string>>({});
   const [typed, setTyped] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const phrase = provider.confirm_phrase ?? "";
+  const fieldWords = (f: Field) => {
+    const key = `field.${provider.id}.${f.name}`;
+    return {
+      label: t.has(`${key}.label`) ? t(`${key}.label`) : f.label,
+      placeholder: t.has(`${key}.placeholder`) ? t(`${key}.placeholder`) : f.placeholder,
+    };
+  };
   const complete = provider.credential_fields.every(
     (f) => f.optional === true || (values[f.name] ?? "").trim() !== "",
   );
@@ -508,14 +549,14 @@ function ConsentForm({
         confirmation: typed,
       });
       if (!ok) {
-        setError(errorText(payload, "That didn't connect."));
+        setError(errorText(payload, t("connectFailed")));
         return;
       }
       setValues({});
       setTyped("");
-      await onDone(`${provider.label} is connected, and your consent is on record.`);
+      await onDone(t("connected", { label: writeLabel(t, provider.id, provider.label, locale) }));
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(false);
     }
@@ -523,46 +564,44 @@ function ConsentForm({
 
   return (
     <div className="cn-wp-detail" id={`cn-grant-${provider.id}`}>
-      <p className="cn-sub">What each action does</p>
+      <p className="cn-sub">{t("eachAction")}</p>
       <ul className="cn-list">
         {provider.operations.map((o) => (
           <li key={o.op}>
-            {o.description}{" "}
-            {o.reversible
-              ? "Can be undone."
-              : "Can't be undone, and is labelled before you approve it."}
+            {opWords(t, o)} {o.reversible ? t("undoable") : t("notUndoable")}
           </li>
         ))}
       </ul>
       {provider.readback_scopes.length > 0 && (
         <p className="cn-note">
-          To see how each post does, the same token also reads:{" "}
-          <span className="cn-scope">{provider.readback_scopes.join(" · ")}</span>
+          {t("readback")} <span className="cn-scope">{provider.readback_scopes.join(" · ")}</span>
         </p>
       )}
 
       <FacebookSignIn provider={provider} login={login} />
 
-      <p className="cn-sub">Or: set up your own Meta app</p>
+      <p className="cn-sub">{t("ownApp")}</p>
       <ol className="cn-steps">
-        {provider.own_app_steps.map((s) => (
-          <li key={s}>{s}</li>
-        ))}
+        {provider.own_app_steps.map((step, i) => {
+          const key = `ownAppSteps.${provider.id}.s${i}`;
+          return <li key={step}>{t.has(key) ? t(key) : step}</li>;
+        })}
       </ol>
 
       <form className="cn-form" onSubmit={(e) => void submit(e)}>
         {provider.credential_fields.map((f) => (
           <label key={f.name} className="cn-field">
             <span className="cn-field-label">
-              {f.label}
-              {f.optional ? " (optional)" : ""}
+              {f.optional
+                ? t("optionalField", { label: fieldWords(f).label })
+                : fieldWords(f).label}
             </span>
             <input
               className="cn-input"
               type={f.secret ? "password" : "text"}
               autoComplete="off"
               spellCheck={false}
-              placeholder={f.placeholder}
+              placeholder={fieldWords(f).placeholder}
               value={values[f.name] ?? ""}
               onChange={(e) => setValues((prev) => ({ ...prev, [f.name]: e.target.value }))}
               disabled={busy}
@@ -570,9 +609,7 @@ function ConsentForm({
           </label>
         ))}
         <label className="cn-field">
-          <span className="cn-field-label">
-            To confirm, type <strong>{phrase}</strong>
-          </span>
+          <span className="cn-field-label">{t.rich("typeToConfirm", { ...bold, phrase })}</span>
           <input
             className="cn-input"
             type="text"
@@ -589,7 +626,7 @@ function ConsentForm({
           </p>
         )}
         <button className="next" type="submit" disabled={busy || !complete || !confirmed}>
-          {busy ? "Checking…" : "Allow and connect"}
+          {busy ? t("checking") : t("allowConnect")}
         </button>
       </form>
     </div>
@@ -603,6 +640,7 @@ export function ExecutionSection({
   view: ExecView;
   onChanged: () => Promise<void>;
 }) {
+  const { t, locale } = useCn("connections.write");
   const [notice, setNotice] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
@@ -617,9 +655,10 @@ export function ExecutionSection({
     if (back.kind === "pick" && known) {
       setPicking(back.provider);
     } else if (back.kind === "cancelled") {
-      setNotice("You cancelled the Facebook sign-in. Nothing was connected.");
+      setNotice(t("youCancelled"));
     } else {
-      setFailure(connectionsMessage(back.reason));
+      // A code from the closed set, never text from the URL (lib/execution/meta-login-reasons).
+      setFailure(t(isConnectionsReason(back.reason) ? `reason.${back.reason}` : "reason.generic"));
       if (known) setOpen(back.provider);
     }
     // Read once, on arrival: the query is cleared above, so a re-render finds nothing.
@@ -630,6 +669,7 @@ export function ExecutionSection({
     (c) => c.status !== "disconnected" && view.providers.some((p) => p.id === c.provider),
   );
   const anyPaused = live.some((c) => c.status === "paused");
+  const access = accessWords(view.access.level, view.facebook_login.available, t);
   const done = async (message: string) => {
     setNotice(message);
     setFailure(null);
@@ -639,17 +679,13 @@ export function ExecutionSection({
   };
 
   return (
-    <div className="cn-write" aria-label="Write access">
+    <div className="cn-write" aria-label={t("aria")}>
       <section className="cs cn-write-card" aria-labelledby="cn-write-title">
         <header className="cs-head">
           <div>
-            <p className="cs-label">Write access · a separate consent</p>
+            <p className="cs-label">{t("sectionLabel")}</p>
             <h2 className="cs-title" id="cn-write-title">
-              {live.length === 0
-                ? "Off. Nothing can publish."
-                : anyPaused
-                  ? "Paused. Reconnect to carry on."
-                  : "On, only for what you approve"}
+              {live.length === 0 ? t("title.off") : anyPaused ? t("title.paused") : t("title.on")}
             </h2>
           </div>
         </header>
@@ -663,9 +699,14 @@ export function ExecutionSection({
               <div key={p.id} className="cn-wp">
                 <div className="cn-wp-head">
                   <div>
-                    <h3 className="cn-wp-name">{p.label}</h3>
+                    <h3 className="cn-wp-name">{writeLabel(t, p.id, p.label, locale)}</h3>
                     <p className="cn-wp-state">
-                      {c ? `consented ${c.created_at.slice(0, 10)} · ${c.status}` : "not granted"}
+                      {c
+                        ? t("consentedOn", {
+                            day: storedDay(c.created_at, locale),
+                            status: statusOf(t, c.status),
+                          })
+                        : t("notGranted")}
                     </p>
                   </div>
                   {c === null && picking !== p.id && (
@@ -676,7 +717,7 @@ export function ExecutionSection({
                       aria-controls={`cn-grant-${p.id}`}
                       onClick={() => setOpen(isOpen ? null : p.id)}
                     >
-                      {isOpen ? "Close" : "Grant"}
+                      {isOpen ? t("close") : t("grant")}
                     </button>
                   )}
                 </div>
@@ -684,8 +725,12 @@ export function ExecutionSection({
                 {c !== null && (
                   <ConnectedWrite
                     c={c}
-                    note={view.disconnect_note}
-                    tierNote={view.ads_access_note ?? null}
+                    note={t("disconnectNote")}
+                    tierNote={
+                      view.ads_access_note
+                        ? tierNote(t, percent(ADS_TIER_FIGURES.pauseAt, locale))
+                        : null
+                    }
                     onDone={done}
                     onReconnect={() => setOpen(isOpen ? null : p.id)}
                     reconnecting={isOpen}
@@ -718,22 +763,24 @@ export function ExecutionSection({
             </p>
           )}
         </div>
-        <footer className="cs-foot">{view.nothing_sent}</footer>
+        <footer className="cs-foot">{t("nothingSent")}</footer>
       </section>
 
       <section className="cn-access" aria-labelledby="cn-access-title">
-        <p className="cn-access-label">Meta access level · {view.access.level}</p>
+        <p className="cn-access-label">
+          {t("access.label", { level: t(`access.${access.level}.word`) })}
+        </p>
         <h2 className="cn-access-title" id="cn-access-title">
-          {view.access.headline}
+          {access.headline}
         </h2>
-        <p className="cn-access-body">{view.access.body}</p>
+        <p className="cn-access-body">{access.body}</p>
         <ul className="cn-routes">
-          {view.access.routes.map((r) => (
+          {access.routes.map((r) => (
             <li key={r.title}>
               <span className="cn-route-title">
                 {r.title}
                 <span className={`word ${r.available ? "ok" : "low"}`}>
-                  {r.available ? "available" : "unavailable"}
+                  {r.available ? t("available") : t("unavailable")}
                 </span>
               </span>
               <span className="cn-route-detail">{r.detail}</span>
