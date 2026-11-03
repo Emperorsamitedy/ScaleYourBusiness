@@ -6178,5 +6178,26 @@
       "askBody": "一键即可完成，永久有效。对您所提问题的回复不受影响。",
       "button": "退订"
     }
+  },
+  "watchNoticed": {
+    "label": "已注意到",
+    "title": "我注意到的情况"
+  },
+  "reportBenchmark": {
+    "label": "与同类企业比较",
+    "title": "按固定规则与 Eurostat 公布的同类企业数字比较，而非判断"
+  },
+  "benchmarkGap": {
+    "label": "较大差距",
+    "title": "您的经营利润率比同类企业低 {points} 个百分点。",
+    "rule": "当差距达到 Eurostat 公布数字以下 {threshold} 个百分点或更多时，我称之为较大差距，并且只做同口径比较：同一国家、同一类企业，以及与您相同的规模或全部规模。",
+    "where": "它现在作为一项发现出现在您的报告中，我也可以提议梳理您的价格和成本。批准本身不会改变任何东西。",
+    "propose": "提议梳理价格和成本 →",
+    "drafting": "正在起草…",
+    "status": "{status, select, pending {在您的队列中等待您处理} blocked {被您的一条规则拦截} approved {已批准} rejected {已拒绝} expired {已过期} other {已提议}}",
+    "queue": "在队列中打开 →",
+    "drafted": "已起草。它在等待您处理；批准它不会写入任何价格或成本。",
+    "blocked": "您的一条规则排除了它，所以它以已拦截状态留在您的队列中。",
+    "failed": "没有成功。"
   }
 }

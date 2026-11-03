@@ -5,8 +5,9 @@
 // Three rules hold everything here:
 //
 //   · A benchmark is a reference, not a fact about the business. Nothing
-//     here makes a Field, a finding or a proposal, and nothing outside the
-//     /benchmarks screen reads it (fence.test.ts).
+//     here makes a Field, a finding or a proposal. I-44a: only a LARGE,
+//     like-for-like margin gap (./gap, a stated threshold) may reach the
+//     report and a proposal, through ./gap and ./gap-read (fence.test.ts).
 //   · Say exactly what it is. Eurostat's figures are ratios of totals over
 //     every enterprise in the cell, not a median and not "typical". Each
 //     line names its cell and year, and the one definition gap that

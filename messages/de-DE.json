@@ -6178,5 +6178,26 @@
       "askBody": "Ein Klick genügt, und es gilt dauerhaft. Antworten auf Ihre eigenen Fragen sind davon nicht betroffen.",
       "button": "Abbestellen"
     }
+  },
+  "watchNoticed": {
+    "label": "Bemerkt",
+    "title": "Was mir aufgefallen ist"
+  },
+  "reportBenchmark": {
+    "label": "verglichen mit ähnlichen Unternehmen",
+    "title": "Nach einer festen Regel dem Wert gegenübergestellt, den Eurostat für ähnliche Unternehmen veröffentlicht, nicht beurteilt"
+  },
+  "benchmarkGap": {
+    "label": "Eine große Lücke",
+    "title": "Ihre operative Marge liegt {points} Punkte unter der ähnlicher Unternehmen.",
+    "rule": "Groß nenne ich eine Lücke ab {threshold} Punkten unter dem Wert, den Eurostat veröffentlicht, im direkten Vergleich: dasselbe Land, dieselbe Art von Unternehmen und Ihre Größe oder alle Größen.",
+    "where": "Sie erscheint jetzt in Ihrem Bericht als Befund, und ich kann vorschlagen, Ihre Preise und Kosten durchzugehen. Eine Freigabe allein ändert nichts.",
+    "propose": "Durchgehen von Preisen und Kosten vorschlagen →",
+    "drafting": "Wird entworfen…",
+    "status": "{status, select, pending {Wartet in Ihrer Warteschlange auf Sie} blocked {Durch eine Ihrer Regeln blockiert} approved {Freigegeben} rejected {Abgelehnt} expired {Abgelaufen} other {Vorgeschlagen}}",
+    "queue": "In Ihrer Warteschlange öffnen →",
+    "drafted": "Entworfen. Er wartet auf Sie; eine Freigabe schreibt weder einen Preis noch Kosten.",
+    "blocked": "Eine Ihrer Regeln schließt das aus, deshalb liegt es blockiert in Ihrer Warteschlange.",
+    "failed": "Das hat nicht geklappt."
   }
 }

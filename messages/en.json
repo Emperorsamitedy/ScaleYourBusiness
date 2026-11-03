@@ -6178,5 +6178,26 @@
       "askBody": "One click and it’s done, for good. Replies to your own questions are not affected.",
       "button": "Unsubscribe"
     }
+  },
+  "watchNoticed": {
+    "label": "Noticed",
+    "title": "What I noticed"
+  },
+  "reportBenchmark": {
+    "label": "compared with similar businesses",
+    "title": "Set against the figure Eurostat publishes for similar businesses, by a fixed rule, not judged"
+  },
+  "benchmarkGap": {
+    "label": "A large gap",
+    "title": "Your operating margin is {points} points under that of similar businesses.",
+    "rule": "I call a gap large at {threshold} points or more under the figure Eurostat publishes, compared like for like: the same country, the same kind of business, and your size or every size.",
+    "where": "It now appears in your report as a finding, and I can propose going through your prices and costs. Approving that changes nothing by itself.",
+    "propose": "Propose going through prices and costs →",
+    "drafting": "Drafting…",
+    "status": "{status, select, pending {Waiting for you in your queue} blocked {Blocked by a rule of yours} approved {Approved} rejected {Declined} expired {Expired} other {Proposed}}",
+    "queue": "Open it in your queue →",
+    "drafted": "Drafted. It waits for you; approving it writes no price and no cost.",
+    "blocked": "A rule of yours rules this out, so it sits blocked in your queue.",
+    "failed": "That didn't work."
   }
 }
