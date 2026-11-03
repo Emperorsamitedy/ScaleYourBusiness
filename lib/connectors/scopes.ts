@@ -71,8 +71,21 @@ export const SCOPE_REGISTRY = {
    * the write side (APPOINTMENTS_WRITE, APPOINTMENTS_ALL_WRITE) stays out,
    * and the audit would refuse it. Optional: a payments-only token still
    * connects, and bookings are read only when both are granted.
+   *
+   * Till orders (idea 48, I-48a), added 2026-11-03 by the owner's decision
+   * ("Yes, add ORDERS_READ"): ORDERS_READ, the read side of SearchOrders in
+   * Square's permissions table, so what was rung up together feeds the
+   * pairs on /patterns. ORDERS_WRITE stays out, and the audit would refuse
+   * it. Optional, like the bookings pair; a token from before 2026-11-03
+   * doesn't carry it until the owner reconnects with it.
    */
-  square: ["PAYMENTS_READ", "MERCHANT_PROFILE_READ", "APPOINTMENTS_READ", "APPOINTMENTS_ALL_READ"],
+  square: [
+    "PAYMENTS_READ",
+    "MERCHANT_PROFILE_READ",
+    "APPOINTMENTS_READ",
+    "APPOINTMENTS_ALL_READ",
+    "ORDERS_READ",
+  ],
 } as const satisfies Record<string, readonly string[]>;
 
 /**
@@ -230,6 +243,11 @@ export const SCOPE_GUIDE: Readonly<
       scope: "APPOINTMENTS_ALL_READ",
       grant: "APPOINTMENTS_ALL_READ (optional, with the one above)",
       why: "Your appointments. Square needs this with the one above to read every booking at your locations, not only ones made through SYB. It can't change a booking.",
+    },
+    {
+      scope: "ORDERS_READ",
+      grant: "ORDERS_READ (optional, for what sells together)",
+      why: "What each till order held, so I can show which items are bought together. I keep only the names of the items in each order and its day: no prices, no customers, no notes. It can't change an order. If you connected Square before November 2026, reconnect with this permission added.",
     },
   ],
 };

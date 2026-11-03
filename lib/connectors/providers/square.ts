@@ -14,8 +14,9 @@
 // the main location unless asked for each). POST /oauth2/token/status
 // reports the token's scopes, so the connect check is real
 // (scopeVerification "reported"); anything beyond the two is refused by
-// the registry. This module knows three paths on one Square host and uses
-// GET for every read; square.test.ts scans the source.
+// the registry. This module knows five paths on one Square host and uses
+// GET for every read but one, SearchOrders (below), which Square defines as
+// a POST that only reads; square.test.ts scans the source.
 //
 // BOOKINGS (specs/bookings.md §2). When the token also carries Square's two
 // read-only Bookings permissions, APPOINTMENTS_READ and APPOINTMENTS_ALL_READ
@@ -24,6 +25,19 @@
 // the customer id, which the sync turns into a keyed hash before storing.
 // Notes and addresses are never read. They are optional: a payments-only
 // token reads payments exactly as before.
+//
+// TILL ORDERS (idea 48, I-48a, owner 2026-11-03: "Yes, add ORDERS_READ").
+// When the token also carries Square's read-only ORDERS_READ, the same
+// windows read SearchOrders (POST /v2/orders/search: Square's permissions
+// table lists ORDERS_READ for it, and the Orders API has no write under that
+// permission) for the COMPLETED orders closed in the window, ten locations a
+// call, and keep each order's basket: its id, its UTC closing day and the
+// distinct names of its itemised lines. Custom amounts and gift cards are
+// not items and are left out; so are prices, quantities, customers, notes
+// and taxes, which are never kept. An item's name is its ref because Square
+// has no product list SYB reads, so a name is what the owner recognises on
+// the pairs screen. Optional: without it, no basket is read. An owner who
+// connected before 2026-11-03 must reconnect with ORDERS_READ to grant it.
 //
 // WHAT IS READ. COMPLETED payments per location, created in the window:
 // revenue = amount_money − refunded_money (tips are the staff's, not
@@ -36,7 +50,7 @@ import { dailyBookingObservations } from "../../bookings/measures";
 import type { BookingInput } from "../../bookings/types";
 import { addDays, advanceCursor, dayString, planWindow } from "../days";
 import { HourlyBuckets } from "../hourly";
-import type { Observation, Provider, PullContext, PullPage } from "../provider";
+import type { BasketInput, Observation, Provider, PullContext, PullPage } from "../provider";
 import { ProviderError } from "../provider";
 
 export const SQUARE_VERSION = "2026-09-16";
@@ -55,6 +69,18 @@ export const SQUARE_MAX_ATTEMPTS = 3;
 export const SQUARE_BOOKINGS_PAGE_LIMIT = 100;
 /** Both are needed for seller-level reads (Square's permissions table, read 2026-10-22). */
 export const SQUARE_BOOKINGS_SCOPES = ["APPOINTMENTS_READ", "APPOINTMENTS_ALL_READ"] as const;
+
+/** I-48a: the one permission SearchOrders needs (Square's permissions table, read 2026-11-03). */
+export const SQUARE_ORDERS_SCOPE = "ORDERS_READ";
+/** SearchOrders takes at most 10 location ids a call (Square's Orders API reference). */
+export const SQUARE_ORDERS_LOCATIONS_PER_CALL = 10;
+/** SearchOrders page size; Square's documented maximum is 1,000. */
+export const SQUARE_ORDERS_PAGE_LIMIT = 500;
+
+/** Till orders' baskets are read only when the token was granted ORDERS_READ. */
+export function readsOrders(granted: readonly string[]): boolean {
+  return granted.includes(SQUARE_ORDERS_SCOPE);
+}
 
 /** Bookings are read only when the token was granted both read permissions. */
 export function readsBookings(granted: readonly string[]): boolean {
@@ -124,19 +150,28 @@ interface Context {
 async function call(
   ctx: Context,
   cred: SquareCredential,
-  path: "/oauth2/token/status" | "/v2/locations" | "/v2/payments" | "/v2/bookings",
+  path:
+    | "/oauth2/token/status"
+    | "/v2/locations"
+    | "/v2/payments"
+    | "/v2/bookings"
+    | "/v2/orders/search",
   query?: Record<string, string>,
+  body?: unknown,
 ): Promise<{ status: number; body: unknown }> {
   const host = SQUARE_HOSTS[cred.environment];
   const url = `${host}${path}${query ? `?${new URLSearchParams(query).toString()}` : ""}`;
+  // token/status and SearchOrders are POSTs that only read (Square docs);
+  // every other data read is a GET.
+  const post = path === "/oauth2/token/status" || path === "/v2/orders/search";
   const init: SquareRequestInit = {
-    // token/status is a POST (Square docs); every data read is a GET.
-    method: path === "/oauth2/token/status" ? "POST" : "GET",
+    method: post ? "POST" : "GET",
     headers: {
       authorization: `Bearer ${cred.access_token}`,
       "square-version": SQUARE_VERSION,
       "content-type": "application/json",
     },
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   };
   for (let attempt = 1; ; attempt += 1) {
     let response: SquareResponse;
@@ -239,6 +274,88 @@ async function paymentsIn(
     if (!cursor) return out;
   }
   throw new ProviderError("square: more payments in one window than one sync reads");
+}
+
+/** Line item types that aren't a product someone bought (Square's OrderLineItemItemType). */
+const NOT_AN_ITEM = new Set(["CUSTOM_AMOUNT", "GIFT_CARD"]);
+
+/**
+ * Pure: one Square Order → its basket, or null when it doesn't count. Only
+ * a COMPLETED order closed in [start, end] (UTC days) counts; its refs are
+ * the distinct names of its itemised lines (whitespace collapsed), sorted.
+ * Nothing else of the order is kept: no amounts, customer, note or tax.
+ */
+export function toBasket(raw: unknown, start: Date, end: Date): BasketInput | null {
+  const o = raw as {
+    id?: unknown;
+    state?: unknown;
+    closed_at?: unknown;
+    line_items?: unknown;
+  } | null;
+  if (!o || typeof o.id !== "string" || o.state !== "COMPLETED") return null;
+  if (typeof o.closed_at !== "string") return null;
+  const at = Date.parse(o.closed_at);
+  if (!Number.isFinite(at)) return null;
+  const day = dayString(new Date(at));
+  if (day < dayString(start) || day > dayString(end)) return null;
+  const lines = (Array.isArray(o.line_items) ? o.line_items : []) as {
+    name?: unknown;
+    item_type?: unknown;
+  }[];
+  const names = new Set<string>();
+  for (const line of lines) {
+    if (typeof line?.item_type === "string" && NOT_AN_ITEM.has(line.item_type)) continue;
+    const name = typeof line?.name === "string" ? line.name.replace(/\s+/g, " ").trim() : "";
+    if (name !== "") names.add(name);
+  }
+  if (names.size === 0) return null;
+  return { order_ref: o.id, day, product_refs: [...names].sort() };
+}
+
+async function ordersIn(
+  ctx: Context,
+  cred: SquareCredential,
+  locations: readonly string[],
+  start: Date,
+  end: Date,
+): Promise<BasketInput[]> {
+  const out: BasketInput[] = [];
+  for (let i = 0; i < locations.length; i += SQUARE_ORDERS_LOCATIONS_PER_CALL) {
+    const ids = locations.slice(i, i + SQUARE_ORDERS_LOCATIONS_PER_CALL);
+    let cursor: string | null = null;
+    let page = 0;
+    for (; page < SQUARE_MAX_PAGES; page++) {
+      const { body } = await call(ctx, cred, "/v2/orders/search", undefined, {
+        location_ids: ids,
+        limit: SQUARE_ORDERS_PAGE_LIMIT,
+        return_entries: false,
+        query: {
+          filter: {
+            state_filter: { states: ["COMPLETED"] },
+            date_time_filter: {
+              closed_at: {
+                start_at: start.toISOString(),
+                end_at: addDays(end, 1).toISOString(),
+              },
+            },
+          },
+          sort: { sort_field: "CLOSED_AT", sort_order: "ASC" },
+        },
+        ...(cursor ? { cursor } : {}),
+      });
+      const res = body as { orders?: unknown[]; cursor?: unknown } | null;
+      for (const raw of res?.orders ?? []) {
+        const b = toBasket(raw, start, end);
+        if (b) out.push(b);
+      }
+      cursor = typeof res?.cursor === "string" && res.cursor !== "" ? res.cursor : null;
+      if (!cursor) break;
+    }
+    if (page === SQUARE_MAX_PAGES) {
+      throw new ProviderError("square: more orders in one window than one sync reads");
+    }
+  }
+  return out;
 }
 
 /**
@@ -432,6 +549,24 @@ export function createSquareProvider(
           limit: "1",
         });
       }
+      // With ORDERS_READ, prove the till orders read too: one day, one order.
+      if (readsOrders(granted)) {
+        const now = new Date();
+        await call(ctx, cred, "/v2/orders/search", undefined, {
+          location_ids: locations.slice(0, SQUARE_ORDERS_LOCATIONS_PER_CALL),
+          limit: 1,
+          return_entries: true,
+          query: {
+            filter: {
+              date_time_filter: {
+                closed_at: { start_at: addDays(now, -1).toISOString(), end_at: now.toISOString() },
+              },
+            },
+            // Square: a closed_at filter needs the sort on CLOSED_AT.
+            sort: { sort_field: "CLOSED_AT", sort_order: "ASC" },
+          },
+        });
+      }
       return { granted_scopes: granted };
     },
 
@@ -447,7 +582,8 @@ export function createSquareProvider(
       });
       if (plan === null) return { observations: [], cursor, done: true };
       const payments: SquarePayment[] = [];
-      for (const location of await locationIds(ctx, cred)) {
+      const locations = await locationIds(ctx, cred);
+      for (const location of locations) {
         payments.push(...(await paymentsIn(ctx, cred, location, plan.start, plan.end)));
       }
       const observations = aggregatePayments(payments, plan.start, plan.end, now.toISOString());
@@ -465,11 +601,20 @@ export function createSquareProvider(
           ),
         );
       }
+      // I-48a: the window's till baskets, when ORDERS_READ was granted.
+      const baskets = readsOrders(context?.granted_scopes ?? [])
+        ? {
+            from: dayString(plan.start),
+            to: dayString(plan.end),
+            orders: await ordersIn(ctx, cred, locations, plan.start, plan.end),
+          }
+        : undefined;
       return {
         observations,
         cursor: advanceCursor(cursor, plan.end),
         done: plan.end.getTime() === plan.yesterday.getTime(),
         ...(appointments !== undefined ? { appointments } : {}),
+        ...(baskets !== undefined ? { baskets } : {}),
       };
     },
   };
