@@ -2,6 +2,14 @@
 // browser: the screens disable what a role can't do with these same words.
 // lib/auth/roles.ts re-exports all of it beside requireRole, the server's
 // check; that file's header says what the three roles may do and why.
+//
+// L-4a (TASKS-LANGUAGES.md): the refusal sentence is the "roleWords"
+// catalogue's, one whole sentence per action (a phrase spliced into "Only
+// an owner can …" would not decline in every language); English by
+// default, and held to the English composed here (roles.test.ts).
+
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
 
 export type Role = "owner" | "manager" | "viewer";
 
@@ -92,11 +100,19 @@ export function permissionsFor(role: Role): Record<RoleAction, boolean> {
   return out;
 }
 
-/** Pure: the sentence a refused person reads ("Only an owner can connect accounts."). */
-export function refusalFor(action: RoleAction): string {
+/** Pure: the English refusal, composed from the table — what the catalogue's English holds. */
+export function englishRefusal(action: RoleAction): string {
   const row: RoleActionRow = ROLE_ACTIONS[action];
   const who = row.min === "owner" ? "an owner" : "an owner or a manager";
   return `Only ${who} can ${row.what}.`;
+}
+
+/** The catalogue key of an action's refusal: "proposals.decide" → "refusal.proposals_decide". */
+export const refusalKey = (action: RoleAction): string => `refusal.${action.replace(/\./g, "_")}`;
+
+/** Pure: the sentence a refused person reads ("Only an owner can connect accounts."). */
+export function refusalFor(action: RoleAction, tr: Tr = englishTr("roleWords")): string {
+  return tr(refusalKey(action));
 }
 
 /** The plain name of a role, for the screens. */

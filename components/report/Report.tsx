@@ -23,6 +23,8 @@ import type { CheckoutOptions } from "../../app/api/checkout/route";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { quietLine, splitByMateriality } from "../../lib/connectors/materiality";
+import { gapBuysWords } from "../../lib/profile/gap-words";
+import { hoursLineWords } from "../../lib/hours/words";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import { delta, moneyFig, moneyText, num } from "../sheet/num";
@@ -78,8 +80,11 @@ function useWords() {
   const t = useTranslations("report");
   const sheet = useTr("sheet");
   const report = useTr("report");
-  const w: PanelWords = { tr: report.tr, locale: report.locale };
-  return { t, st: sheet.tr, tr: report.tr, locale: report.locale, w };
+  const econ = useTr("econWords");
+  const words = useTr("reportWords");
+  const hours = useTr("hoursWords");
+  const w: PanelWords = { tr: report.tr, locale: report.locale, econ: econ.tr };
+  return { t, st: sheet.tr, tr: report.tr, locale: report.locale, w, rw: words.tr, hw: hours.tr };
 }
 
 function useNav(): NavCounts | null {
@@ -643,10 +648,10 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
  * the measured figure either way.
  */
 function StatedVsMeasuredCard({ rows, map }: { rows: StatedVsMeasuredRow[]; map: FactMap }) {
-  const { t } = useWords();
+  const { t, rw, locale } = useWords();
   const split = useMemo(() => splitByMateriality(rows), [rows]);
   const [open, setOpen] = useState(false);
-  const line = quietLine(split.quiet, rows.length);
+  const line = quietLine(split.quiet, rows.length, rw, locale);
   return (
     <SheetCard
       className="rq-card"
@@ -916,7 +921,7 @@ export function ReportBody({
   /** Owner-only sections drawn above the footer (the share card). */
   children?: ReactNode;
 }) {
-  const { t, st, w, locale } = useWords();
+  const { t, st, w, rw, hw, locale } = useWords();
   const [selected, setSelected] = useState<string | null>(null);
   const whyRef = useRef<HTMLDivElement>(null);
   const rows = useMemo(
@@ -1027,10 +1032,10 @@ export function ReportBody({
               ? t("hours.none")
               : t("hours.title", { count: report.trading_hours.findings.length })
           }
-          meta={report.trading_hours.coverage}
+          meta={hoursLineWords(report.trading_hours.coverage, hw, locale)}
           foot={
             <>
-              {report.trading_hours.limit}
+              {hoursLineWords(report.trading_hours.limit, hw, locale)}
               {!readOnly && (
                 <>
                   {" "}
@@ -1077,7 +1082,7 @@ export function ReportBody({
                     {g.blocking && <span className="word drift">{t("gaps.blocking")}</span>}
                   </p>
                   <p className="rq-gap-q">{g.prompt}</p>
-                  <p className="rq-gap-b">{g.buys}</p>
+                  <p className="rq-gap-b">{gapBuysWords(g.buys, g.priority, rw, locale)}</p>
                 </div>
                 {!readOnly && (
                   <Link

@@ -20,6 +20,12 @@ export interface RuleFiring {
   field_keys: string[];
   /** message.en — both statements, factual; the panel adds the tone. */
   message: string;
+  /**
+   * L-4a: the figures in the message, unformatted (money as integer minor
+   * units with its currency), stored beside the English as message.args so
+   * the reader's language can say it again (lib/validation/words).
+   */
+  args?: Record<string, number | MoneyValue>;
 }
 
 export interface RuleContext {
@@ -126,6 +132,7 @@ export const RULES: readonly ValidationRule[] = [
       return {
         field_keys: ["costs.gross_margin", "offers"],
         message: `You told me your gross margin is about ${Math.round(stated)}%. Your offer prices and costs work out to about ${Math.round(computed)}%.`,
+        args: { stated: Math.round(stated), computed: Math.round(computed) },
       };
     },
   },
@@ -154,6 +161,7 @@ export const RULES: readonly ValidationRule[] = [
       return {
         field_keys: ["revenue.monthly_revenue", "offers"],
         message: `You told me revenue is about ${fmtMoney(stated)} a month. Your offers' prices times volumes add up to about ${fmtMoney({ amount_minor: sum, currency: stated.currency })}.`,
+        args: { stated, sum: { amount_minor: sum, currency: stated.currency } },
       };
     },
   },
@@ -181,6 +189,7 @@ export const RULES: readonly ValidationRule[] = [
       return {
         field_keys: ["costs", "revenue.monthly_revenue", "revenue.trend"],
         message: `Your monthly costs add up to about ${fmtMoney({ amount_minor: total, currency: revenue.currency })}, more than the ${fmtMoney(revenue)} coming in — while revenue is marked as growing.`,
+        args: { total: { amount_minor: total, currency: revenue.currency }, revenue },
       };
     },
   },
@@ -265,6 +274,7 @@ export const RULES: readonly ValidationRule[] = [
       return {
         field_keys: ["revenue.monthly_revenue"],
         message: `The newest revenue figure I have was observed ${Math.round(ageDays)} days ago.`,
+        args: { days: Math.round(ageDays) },
       };
     },
   },

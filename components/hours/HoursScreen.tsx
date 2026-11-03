@@ -31,6 +31,7 @@ import type { Weekday } from "../../lib/hours/schedule";
 import type { WeekdayAnalysis } from "../../lib/hours/trading";
 import type { GridRow, WeekGrid } from "../../lib/hours/grid";
 import { EVEN_SHARE, bestHour, hourHead, weekGrid } from "../../lib/hours/grid";
+import { hoursLineWords } from "../../lib/hours/words";
 
 interface Trial {
   id: string;
@@ -394,6 +395,7 @@ function Frame({
 
 export function HoursScreen({ cost }: { cost: HourCost | null }) {
   const { tr, locale } = useTr("hours");
+  const hw = useTr("hoursWords").tr;
   const t = useTranslations("hours");
   const words: HoursWords = { tr, locale };
   const [view, setView] = useState<HoursView | null>(null);
@@ -516,9 +518,12 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
           foot={
             <>
               {judged
-                ? tr("foot.meanJudged", { coverage: a.coverage, pct: evenPctText })
-                : tr("foot.mean", { coverage: a.coverage })}{" "}
-              {tr("foot.legend")} {a.limit}
+                ? tr("foot.meanJudged", {
+                    coverage: hoursLineWords(a.coverage, hw, locale),
+                    pct: evenPctText,
+                  })
+                : tr("foot.mean", { coverage: hoursLineWords(a.coverage, hw, locale) })}{" "}
+              {tr("foot.legend")} {hoursLineWords(a.limit, hw, locale)}
               {view.schedule && view.schedule.unparsed.length > 0 && (
                 <>
                   {" "}

@@ -3081,5 +3081,409 @@
       "assumed": "SUPPOSÉ",
       "atCost": "{amount} au prix de revient"
     }
+  },
+  "roleWords": {
+    "refusal": {
+      "stop_press": "Seul un propriétaire ou un gestionnaire peut actionner l’arrêt d’urgence.",
+      "intake_open": "Seul un propriétaire ou un gestionnaire peut ouvrir l’entretien.",
+      "telemetry_record": "Seul un propriétaire ou un gestionnaire peut enregistrer la façon dont les écrans sont utilisés.",
+      "chat_ask": "Seul un propriétaire ou un gestionnaire peut me poser des questions dans le chat.",
+      "alerts_remove_device": "Seul un propriétaire ou un gestionnaire peut retirer l’un de vos propres téléphones des alertes.",
+      "language_own": "Seul un propriétaire ou un gestionnaire peut choisir la langue dans laquelle vous lisez SYB.",
+      "proposals_decide": "Seul un propriétaire ou un gestionnaire peut valider ou refuser des propositions.",
+      "proposals_generate": "Seul un propriétaire ou un gestionnaire peut me demander de nouvelles propositions.",
+      "proposals_carry_out": "Seul un propriétaire ou un gestionnaire peut exécuter ou annuler une proposition validée.",
+      "content_draft": "Seul un propriétaire ou un gestionnaire peut rédiger du contenu.",
+      "support_answer": "Seul un propriétaire ou un gestionnaire peut répondre aux demandes d’assistance.",
+      "reviews_answer": "Seul un propriétaire ou un gestionnaire peut enregistrer des avis, y répondre ou les retirer.",
+      "pipeline_edit": "Seul un propriétaire ou un gestionnaire peut modifier le pipeline commercial.",
+      "connections_sync": "Seul un propriétaire ou un gestionnaire peut relire dès maintenant un compte connecté.",
+      "alerts_subscribe": "Seul un propriétaire ou un gestionnaire peut recevoir des alertes sur téléphone pour les propositions.",
+      "connections_manage": "Seul un propriétaire peut connecter ou déconnecter des comptes.",
+      "write_access_manage": "Seul un propriétaire peut accorder ou retirer l’accès en écriture.",
+      "billing_manage": "Seul un propriétaire peut payer le rapport.",
+      "erasure_run": "Seul un propriétaire peut effacer les coordonnées d’un client.",
+      "data_import": "Seul un propriétaire peut importer un fichier de clients, de stock ou de réservations.",
+      "team_manage": "Seul un propriétaire peut inviter, modifier ou retirer des personnes de l’équipe.",
+      "rules_manage": "Seul un propriétaire peut changer ma façon de travailler pour cette entreprise.",
+      "profile_edit": "Seul un propriétaire peut modifier les faits, les objectifs ou les limites de l’entreprise.",
+      "report_generate": "Seul un propriétaire peut produire un nouveau rapport.",
+      "report_respond": "Seul un propriétaire peut répondre aux constats du rapport.",
+      "report_share": "Seul un propriétaire peut partager le rapport en dehors de SYB.",
+      "competitors_manage": "Seul un propriétaire peut modifier la liste des concurrents ou lancer des recherches à leur sujet.",
+      "site_audit": "Seul un propriétaire peut vérifier le site web.",
+      "support_settings": "Seul un propriétaire peut modifier la configuration de l’assistance.",
+      "reviews_settings": "Seul un propriétaire peut modifier l’adresse vers laquelle les avis sont transférés.",
+      "summary_settings": "Seul un propriétaire peut activer ou désactiver le résumé hebdomadaire.",
+      "stop_resume": "Seul un propriétaire peut tout relancer après un arrêt.",
+      "business_locale": "Seul un propriétaire peut modifier la langue ou la devise de l’entreprise."
+    }
+  },
+  "authWords": {
+    "error": {
+      "emailNeeded": "une adresse e-mail est nécessaire",
+      "emailNotSent": "je n’ai pas pu envoyer l’e-mail de connexion pour l’instant — réessayez dans une minute.",
+      "wrong": "un problème est survenu de notre côté",
+      "wrongEmailWorks": "un problème est survenu de notre côté — le lien reçu par e-mail fonctionne toujours",
+      "linkInvalid": "ce lien de connexion n’est plus valide",
+      "signInInvalid": "cette connexion n’est plus valide",
+      "accountFailed": "impossible de créer le compte",
+      "malformedToken": "le service de connexion a renvoyé un jeton mal formé",
+      "noEmail": "{provider} n’a pas communiqué d’adresse e-mail — utilisez plutôt le lien reçu par e-mail",
+      "unverified": "{provider} indique que cette adresse n’est pas vérifiée — utilisez plutôt le lien reçu par e-mail",
+      "notVerified": "la connexion avec {provider} n’a pas pu être vérifiée ({why}) — utilisez plutôt le lien reçu par e-mail",
+      "failed": "la connexion avec {provider} a échoué — réessayez ou utilisez le lien reçu par e-mail",
+      "notConnected": "ce mode de connexion n’est pas encore disponible — votre adresse e-mail fonctionne dès aujourd’hui.",
+      "notConnectedNamed": "la connexion avec {provider} n’est pas encore disponible — votre adresse e-mail ci-dessous fonctionne dès aujourd’hui.",
+      "expired": "cette tentative de connexion a expiré — réessayez",
+      "notEmail": "cela ne ressemble pas à une adresse e-mail",
+      "noProfile": "profil introuvable",
+      "linkNotValid": "ce lien n’est pas valide",
+      "linkExpired": "ce lien a expiré ou n’est plus valide",
+      "noBusiness": "entreprise introuvable",
+      "chooseAgain": "choisissez de nouveau l’entreprise sur notre page",
+      "addOnPage": "ajoutez l’entreprise sur notre page",
+      "signInFirst": "connectez-vous d’abord"
+    },
+    "why": {
+      "otherApp": "émis pour une autre application",
+      "issuer": "émetteur incorrect",
+      "emailUnverified": "e-mail non vérifié",
+      "orgEmail": "l’e-mail de l’organisation n’est pas vérifié comme lui appartenant",
+      "unknown": "service de connexion inconnu"
+    }
+  },
+  "econWords": {
+    "what": {
+      "fixed": "coûts fixes par mois",
+      "fixedPartial": "coûts fixes par mois (partiel)",
+      "breakEven": "seuil de rentabilité",
+      "aov": "panier moyen",
+      "cpa": "coût par acquisition",
+      "roas": "retour sur dépenses publicitaires",
+      "offerMargins": "marges des offres",
+      "marginFor": "marge de {name}"
+    },
+    "why": {
+      "fixedCurrency": "enregistrés en {recorded}, alors que le profil présente ses chiffres en {reporting} — convertir demanderait un taux de change que personne ne m’a donné",
+      "fixedPartial": "ces postes de coût n’ont pas de montant, pas de fréquence, ou une fréquence par unité qui ne donne pas un montant mensuel fixe",
+      "noFixed": "aucun coût fixe mensuel n’est enregistré : il n’y a donc rien à couvrir",
+      "noContribution": "aucune offre n’a à la fois un prix et un coût : la contribution par vente ne peut donc pas être calculée",
+      "losesMoney": "chaque vente fait perdre de l’argent à ces prix — aucun volume n’atteint le seuil de rentabilité",
+      "aovInputs": "il faut à la fois le chiffre d’affaires mensuel et un nombre de commandes ; je n’estimerai ni l’un ni l’autre",
+      "cpaInputs": "sans les trois, je ne peux pas distinguer les nouveaux clients de ceux qui reviennent, et un CPA qui compte les achats répétés comme des acquisitions embellit le chiffre",
+      "cpaCurrency": "les dépenses publicitaires sont en {spend} mais le profil présente ses chiffres en {reporting} — il faudrait un taux de change",
+      "noNewCustomers": "d’après le taux de réachat, il n’y a aucun nouveau client ce mois-ci",
+      "roasInputs": "il faut à la fois le chiffre d’affaires mensuel et les dépenses publicitaires mensuelles ; un ratio dont l’un des termes est deviné n’est qu’une supposition",
+      "noSpend": "les dépenses publicitaires sont nulles : il n’y a donc aucun retour à calculer",
+      "roasCurrency": "le chiffre d’affaires est en {revenue} et les dépenses publicitaires en {spend} ; le profil présente ses chiffres en {reporting}, et convertir demande un taux de change que personne ne m’a donné",
+      "noPrice": "aucune offre n’a encore de prix enregistré",
+      "mixedCurrency": "le prix et le coût sont dans des devises différentes",
+      "noCost": "aucun coût de revient n’est enregistré : la marge est donc inconnue plutôt que supposée"
+    },
+    "formula": {
+      "offerMargin": "(prix − coût de revient) ÷ prix × {hundred}",
+      "contribution": "prix − coût de revient",
+      "blendedWeighted": "Σ(marge de l’offre × unités vendues) ÷ Σ(unités vendues)",
+      "blendedMean": "moyenne(marges des offres) — aucun volume enregistré, chaque offre compte donc une fois",
+      "fixed": "Σ(coût fixe ÷ fréquence en mois)",
+      "breakEvenWeighted": "coûts fixes ÷ contribution pondérée par unité — suppose que la répartition actuelle des offres se maintient",
+      "breakEvenMean": "coûts fixes ÷ contribution moyenne par unité — aucun volume enregistré, la répartition est donc supposée égale",
+      "aov": "chiffre d’affaires mensuel ÷ commandes mensuelles",
+      "cpa": "dépenses publicitaires ÷ (commandes × ({one} − taux de réachat))",
+      "roas": "chiffre d’affaires mensuel ÷ dépenses publicitaires mensuelles (global : tout le chiffre d’affaires rapporté à toutes les dépenses publicitaires, sans attribution)"
+    },
+    "live": {
+      "label": "Marge globale"
+    }
+  },
+  "reportWords": {
+    "quiet": {
+      "oneRel": "Le chiffre que vous m’avez donné correspondait à vos comptes à {pct} % près.",
+      "oneSmall": "Le chiffre que vous m’avez donné correspondait à vos comptes à {pct} % près, ou à un petit montant près.",
+      "someRel": "{n, plural, one {# des {total} chiffres que vous m’avez donnés correspondait} many {# des {total} chiffres que vous m’avez donnés correspondaient} other {# des {total} chiffres que vous m’avez donnés correspondaient}} à vos comptes à {pct} % près.",
+      "someSmall": "{n, plural, one {# des {total} chiffres que vous m’avez donnés correspondait} many {# des {total} chiffres que vous m’avez donnés correspondaient} other {# des {total} chiffres que vous m’avez donnés correspondaient}} à vos comptes à {pct} % près, ou à un petit montant près.",
+      "bothRel": "Les deux chiffres que vous m’avez donnés correspondaient à vos comptes à {pct} % près.",
+      "bothSmall": "Les deux chiffres que vous m’avez donnés correspondaient à vos comptes à {pct} % près, ou à un petit montant près.",
+      "allRel": "Les {n} chiffres que vous m’avez donnés correspondaient tous à vos comptes à {pct} % près.",
+      "allSmall": "Les {n} chiffres que vous m’avez donnés correspondaient tous à vos comptes à {pct} % près, ou à un petit montant près."
+    },
+    "gap": {
+      "core": "fait partie des questions essentielles — le diagnostic ne se lancera pas sans cette réponse",
+      "coreOpens": "fait partie des questions essentielles — le diagnostic ne se lancera pas sans cette réponse, et ouvre {count, plural, one {# question complémentaire} many {# questions complémentaires} other {# questions complémentaires}}",
+      "important": "affine les constats qui en dépendent",
+      "importantOpens": "affine les constats qui en dépendent, et ouvre {count, plural, one {# question complémentaire} many {# questions complémentaires} other {# questions complémentaires}}",
+      "deep": "ajoute de la précision une fois le tableau d’ensemble établi",
+      "deepOpens": "ajoute de la précision une fois le tableau d’ensemble établi, et ouvre {count, plural, one {# question complémentaire} many {# questions complémentaires} other {# questions complémentaires}}",
+      "context": "du contexte, quand vous en avez envie",
+      "contextOpens": "du contexte, quand vous en avez envie, et ouvre {count, plural, one {# question complémentaire} many {# questions complémentaires} other {# questions complémentaires}}"
+    }
+  },
+  "validationWords": {
+    "margin_mismatch": "Vous m’avez dit que votre marge brute est d’environ {stated} %. Les prix et les coûts de vos offres donnent environ {computed} %.",
+    "revenue_vs_offers": "Vous m’avez dit que votre chiffre d’affaires est d’environ {stated} par mois. Les prix de vos offres multipliés par leurs volumes donnent environ {sum}.",
+    "costs_exceed_revenue": "Vos coûts mensuels s’élèvent à environ {total}, soit plus que les {revenue} qui rentrent — alors que le chiffre d’affaires est indiqué comme en croissance.",
+    "inventory_without_supplier": "Vos produits ont un stock, mais je n’ai encore aucun fournisseur enregistré.",
+    "channel_without_revenue": "Vous avez indiqué un canal de vente principal, mais il n’a pas encore de chiffre d’affaires associé.",
+    "key_person_undocumented": "Le service repose fortement sur une seule personne, et aucune procédure écrite n’existe encore.",
+    "stage_vs_revenue": "Vous avez décrit l’entreprise comme une idée. Vous m’avez aussi dit que du chiffre d’affaires rentre déjà.",
+    "stale_financials": "Le chiffre d’affaires le plus récent dont je dispose a été observé il y a {days, plural, one {# jour} many {# jours} other {# jours}}.",
+    "single_supplier_top_offer": "Tout repose sur un seul fournisseur, sans solution de rechange enregistrée."
+  },
+  "hoursWords": {
+    "line": {
+      "squareOnly": "paiements par carte et en espèces encaissés dans Square — les espèces qui ne passent jamais par une caisse ne sont pas vues",
+      "squareAnd": "paiements par carte et en espèces encaissés dans Square, et paiements par carte via {providers} — les espèces qui ne passent jamais par une caisse ne sont pas vues",
+      "cards": "paiements par carte via {providers} uniquement — les ventes en espèces ne sont vues par aucune connexion",
+      "limit": "Une heure de fermeture n’enregistre aucune vente : ceci ne peut donc que suggérer l’effet d’une ouverture plus tôt ou d’une fermeture plus tard. Seul un essai de quatre semaines le prouve."
+    }
+  },
+  "watchWords": {
+    "signal": {
+      "revenue": "Chiffre d’affaires",
+      "orders": "Commandes",
+      "sessions": "Visites du site web",
+      "ad_spend": "Dépenses publicitaires",
+      "ad_purchases": "Achats via les publicités",
+      "units": "Unités vendues",
+      "appointments_completed": "Rendez-vous honorés",
+      "booking_revenue": "Chiffre d’affaires des réservations"
+    },
+    "source": {
+      "bookings_import": "Export des réservations"
+    },
+    "rule": {
+      "revenueDrop": "Le chiffre d’affaires baisse de plus de {pct} % d’une semaine sur l’autre",
+      "critical": "Un contrôle de cohérence signale un problème de gravité critique",
+      "reopen": "Vous rouvrez une réponse essentielle sur laquelle repose le diagnostic"
+    },
+    "module": {
+      "analytics": "Le mode observation est aveugle sans mesure — c’est avec l’analyse qu’il observe.",
+      "team": "Équipe : quand la semaine demande plus de présence, ou en a plus que nécessaire, par rôle et par heure. Il ne note, ne classe et ne dit jamais rien d’une personne. Désactivé tant que vous ne l’activez pas."
+    },
+    "data": {
+      "payments": "paiements",
+      "orders": "commandes",
+      "traffic": "trafic",
+      "adSpend": "dépenses publicitaires",
+      "data": "données"
+    },
+    "field": {
+      "monthlyRevenue": "chiffre d’affaires mensuel",
+      "orderCount": "nombre de commandes",
+      "adSpend": "dépenses publicitaires",
+      "costPerPurchase": "coût par achat",
+      "websiteVisits": "visites du site web",
+      "unitsSold": "unités vendues",
+      "visitsPerChannel": "visites par canal"
+    },
+    "part": {
+      "changed": "{count, plural, one {# modifié} many {# modifiés} other {# modifiés}}",
+      "new": "{count, plural, one {# nouveau} many {# nouveaux} other {# nouveaux}}",
+      "removed": "{count, plural, one {# retiré} many {# retirés} other {# retirés}}",
+      "none": "aucun champ n’a bougé"
+    },
+    "log": {
+      "started": "Observation commencée : {weeks, plural, one {# semaine} many {# semaines} other {# semaines}}, bilan le {date}.",
+      "shortened": "Observation raccourcie à {weeks, plural, one {# semaine} many {# semaines} other {# semaines}} — avec l’accord du propriétaire.",
+      "extended": "Observation prolongée à {weeks, plural, one {# semaine} many {# semaines} other {# semaines}} à la demande du propriétaire.",
+      "complete": "La période d’observation est terminée. Le prochain rapport lit tout ce qui a été recueilli.",
+      "baseline": "Instantané de référence enregistré : {count, plural, one {# fait} many {# faits} other {# faits}}.",
+      "steady": "Vérification hebdomadaire : le profil est resté stable — rien n’a changé depuis la semaine dernière.",
+      "diff": "Instantané hebdomadaire : {parts} depuis la semaine dernière.",
+      "cleared": "{noun} : de retour dans sa plage habituelle depuis le {date}.",
+      "fell": "{noun} : {pct} % en dessous du niveau attendu pendant {days, plural, one {# jour} many {# jours} other {# jours}} de suite ; {actual} le {date} contre un niveau attendu de {expected} (moyenne sur {window, plural, one {# jour} many {# jours} other {# jours}} {mean} × facteur du {weekday} {factor} ; {deviation} × la variation habituelle, seuil {k} ×).",
+      "rose": "{noun} : {pct} % au-dessus du niveau attendu pendant {days, plural, one {# jour} many {# jours} other {# jours}} de suite ; {actual} le {date} contre un niveau attendu de {expected} (moyenne sur {window, plural, one {# jour} many {# jours} other {# jours}} {mean} × facteur du {weekday} {factor} ; {deviation} × la variation habituelle, seuil {k} ×).",
+      "fellInterrupted": "{noun} : {pct} % en dessous du niveau attendu pendant {days, plural, one {# jour} many {# jours} other {# jours}} de suite ; {actual} le {date} contre un niveau attendu de {expected} (moyenne sur {window, plural, one {# jour} many {# jours} other {# jours}} {mean} × facteur du {weekday} {factor} ; {deviation} × la variation habituelle, seuil {k} ×). D’une semaine sur l’autre, la baisse atteint {wow} % ({last7} contre {prior7}), au-delà du seuil d’interruption de {threshold} %.",
+      "readDay": "Lu {days, plural, one {# jour} many {# jours} other {# jours}} de {data} {label}.",
+      "readDays": "Lu {days, plural, one {# jour} many {# jours} other {# jours}} de {data} {label}.",
+      "readDayIs": "Lu {days, plural, one {# jour} many {# jours} other {# jours}} de {data} {label}. Ce qui est désormais mesuré : {measured}.",
+      "readDayAre": "Lu {days, plural, one {# jour} many {# jours} other {# jours}} de {data} {label}. Ce qui est désormais mesuré : {measured}.",
+      "readDaysIs": "Lu {days, plural, one {# jour} many {# jours} other {# jours}} de {data} {label}. Ce qui est désormais mesuré : {measured}.",
+      "readDaysAre": "Lu {days, plural, one {# jour} many {# jours} other {# jours}} de {data} {label}. Ce qui est désormais mesuré : {measured}.",
+      "remeasured": "Nouvelle mesure depuis {label} : {measured}.",
+      "published": "Publication de « {title} » sur {platform}.",
+      "withdrawn": "Retrait de « {title} » de {platform}."
+    }
+  },
+  "queueWords": {
+    "change": {
+      "stated": "Le changement",
+      "adLine": "Publicité « {name} »",
+      "theAd": "la publicité",
+      "creates": "crée ses {parts}",
+      "noAd": "aucune publicité",
+      "createdPaused": "sur Meta, en pause · ne dépense rien",
+      "goLiveSub": "sa publicité, son ensemble de publicités et sa campagne",
+      "paused": "en pause · ne dépense rien",
+      "live": "active · {spend}",
+      "spendUpTo": "jusqu’à {daily} par jour pendant {days, plural, one {# jour} many {# jours} other {# jours}}",
+      "spendsBudget": "dépense son budget quotidien",
+      "campaignLine": "Campagne « {name} »",
+      "averageOver": "dépense quotidienne, moyenne sur {days, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}}",
+      "perDay": "{amount} par jour",
+      "pausedNothing": "en pause · aucune dépense",
+      "raisedTo": "environ {amount} par jour (+{pct} %)",
+      "audience": "Audience",
+      "nobody": "personne",
+      "people": "{count, plural, one {{n} personne} many {{n} personnes} other {{n} personnes}}",
+      "email": "E-mail",
+      "postOn": "Publication sur {platform}",
+      "notPosted": "non publiée",
+      "posted": "publiée {day} à {clock}"
+    },
+    "creates": {
+      "campaign": "campagne",
+      "adSet": "ensemble de publicités",
+      "adVideo": "vidéo publicitaire",
+      "creative": "création",
+      "ad": "publicité"
+    },
+    "fact": {
+      "budget": "Budget",
+      "budgetValue": "{daily} par jour · au maximum {total} au total",
+      "duration": "Durée",
+      "durationValue": "{days, plural, one {# jour} many {# jours} other {# jours}} à partir de sa mise en ligne, puis elle s’arrête d’elle-même",
+      "audience": "Audience",
+      "aged": "de {age} ans",
+      "interests": "Centres d’intérêt",
+      "placements": "Emplacements",
+      "goal": "Optimisée pour",
+      "special": "Catégorie spéciale",
+      "specialValue": "{categories} — le ciblage restreint de Meta s’applique",
+      "note": "Remarque",
+      "createsPaused": "Créée en pause ; la mise en ligne demande une validation distincte ; les objets créés ne peuvent pas être supprimés, seulement mis en pause.",
+      "goLiveNote": "Active la publicité, son ensemble de publicités, puis la campagne. La remettre en pause arrête la dépense."
+    },
+    "span": {
+      "over": "sur {days, plural, one {# jour} many {# jours} other {# jours}}",
+      "month": "sur un mois"
+    },
+    "evidence": {
+      "noSource": "aucun champ source"
+    },
+    "duration": {
+      "s": "{s} s",
+      "ms": "{m} min {ss} s",
+      "hm": "{h} h {mm} min",
+      "dh": "{d} j {h} h"
+    },
+    "sending": {
+      "adRun": "Une fois validée, elle part chez Meta lors de la prochaine exécution planifiée : un essai à blanc avant chaque élément, puis la campagne, l’ensemble de publicités, la création et la publicité, l’un après l’autre, tous en pause et revérifiés au regard de vos limites. L’arrêt d’urgence peut l’interrompre entre deux étapes. Les modifications de publicités Meta restent désactivées jusqu’à la fin du test de deux semaines sans surveillance ; d’ici là, elle attend, validée.",
+      "goLive": "Une fois validée, elle part chez Meta lors de la prochaine exécution planifiée : la publicité, puis son ensemble de publicités, puis la campagne sont activés — chacun après un essai à blanc, revérifié au regard de votre plafond. Les modifications de publicités Meta restent désactivées jusqu’à la fin du test de deux semaines sans surveillance ; d’ici là, elle attend, validée.",
+      "adChange": "Une fois validée, elle part chez Meta lors de la prochaine exécution planifiée : d’abord un essai à blanc, puis la modification, revérifiée au regard de vos limites. Les modifications de publicités Meta restent désactivées jusqu’à la fin du test de deux semaines sans surveillance ; d’ici là, elle attend, validée.",
+      "bundleShop": "Valider enregistre votre oui. Je ne modifie ni votre boutique, ni vos prix, ni votre page de paiement : c’est vous qui mettez la paire en place.",
+      "bundleBookings": "Valider enregistre votre oui. Je ne modifie ni votre système de réservation ni vos prix : c’est vous qui proposez la paire.",
+      "segment": "Rien n’est envoyé à la validation. Valider me permet de rédiger l’e-mail ; rien ne part tant que vous n’avez pas validé l’e-mail terminé lui-même, et le consentement de chaque destinataire est alors vérifié de nouveau au moment de l’envoi.",
+      "followUp": "Rien n’est envoyé, ni maintenant ni à la validation. Valider me permet de rédiger l’e-mail ; vous le lisez, modifiez ce que vous voulez et l’envoyez vous-même depuis votre propre messagerie.",
+      "stockContent": "Valider me permet de la rédiger dans Contenus. Rien n’est publié tant que vous n’avez pas validé la publication terminée elle-même.",
+      "stockPair": "Valider enregistre votre oui. Je ne modifie pas votre boutique : c’est vous qui mettez la paire en place.",
+      "stockPrices": "Valider enregistre votre oui. Je ne modifie pas vos prix : c’est vous qui le faites.",
+      "stockAdvice": "Simple conseil : je ne contacte personne. Valider enregistre que vous comptez le faire.",
+      "reorder": "Valider enregistre que vous comptez recommander, et rien d’autre. Je ne contacte pas {supplier}, et je ne passe, ne modifie ni n’annule jamais une commande : c’est vous qui le faites."
+    }
+  },
+  "trackWords": {
+    "kind": {
+      "stock_out": {
+        "one": "Rupture de stock",
+        "many": "Dates de rupture de stock"
+      },
+      "season_week": {
+        "one": "Semaine comparée à l’an dernier",
+        "many": "Semaines comparées à l’an dernier"
+      },
+      "cash_close": {
+        "one": "Trésorerie en fin de semaine",
+        "many": "Trésorerie à la fin de chaque semaine"
+      },
+      "pipeline_close": {
+        "one": "Affaires gagnées à une date donnée",
+        "many": "Affaires gagnées à une date donnée"
+      }
+    },
+    "saidOn": "Formulée le {day}",
+    "range": {
+      "aboutMoney": "environ {value}",
+      "money": "{lo}–{hi}",
+      "aboutCount": "environ {value} {subject}",
+      "count": "{lo}–{hi} {subject}",
+      "on": "le {day}",
+      "dates": "du {from} au {to}"
+    },
+    "waiting": {
+      "window": "Pas encore notée : sa période se termine le {day}, et je la note lors de la première vérification hebdomadaire qui suit.",
+      "due": "Pas encore notée : je la vérifierai lors de la première vérification hebdomadaire après le {day}.",
+      "source": "Pas encore notée : en attente des chiffres de {source} pour ces jours-là.",
+      "measured": "Pas encore notée : en attente des chiffres mesurés pour ces jours-là."
+    },
+    "backdated": "Inscrite au registre le {day}, après la date qu’elle porte : un exemple de démonstration. Les prévisions d’un vrai compte sont enregistrées au moment où elles sont affichées.",
+    "headline": {
+      "none": "Aucune prévision enregistrée pour l’instant. Quand j’en fais une, elle apparaît ici avec sa fourchette, puis, une fois son échéance passée, ce qui s’est réellement passé.",
+      "tooSoon": "Trop tôt pour juger mes prévisions : {graded, plural, =0 {aucune notée} one {# notée} many {# notées} other {# notées}} jusqu’ici, {waiting, plural, one {# prévision attend} many {# prévisions attendent} other {# prévisions attendent}} que {waiting, plural, one {son} many {leur} other {leur}} échéance passe.",
+      "judged": "{inside, plural, one {# de mes {graded} dernières prévisions est tombée} many {# de mes {graded} dernières prévisions sont tombées} other {# de mes {graded} dernières prévisions sont tombées}} dans la fourchette que j’avais donnée ; {missed, plural, one {# l’a manquée} many {# l’ont manquée} other {# l’ont manquée}}.",
+      "couldnt": "Je n’ai pas pu trancher pour {count, plural, one {# d’entre elles} many {# d’entre elles} other {# d’entre elles}} : les chiffres mesurés n’étaient pas là, ou quelque chose d’absent de mes prévisions s’est interposé. {count, plural, one {Elle n’est comptée} many {Elles ne sont comptées} other {Elles ne sont comptées}} ni dans un sens ni dans l’autre."
+    },
+    "parts": {
+      "insideOf": "{inside} sur {graded} dans la fourchette",
+      "noneGraded": "aucune notée pour l’instant",
+      "cantTell": "{count, plural, one {# impossible à dire} many {# impossibles à dire} other {# impossibles à dire}}",
+      "waiting": "{count} en attente",
+      "sentence": "{label} : {parts}."
+    },
+    "older": "{count, plural, one {# prévision plus ancienne n’est pas listée} many {# prévisions plus anciennes ne sont pas listées} other {# prévisions plus anciennes ne sont pas listées}} ici ; les totaux ci-dessus {count, plural, one {l’incluent} many {les incluent} other {les incluent}}."
+  },
+  "ledgerWords": {
+    "actor": {
+      "syb": "SYB",
+      "you": "vous",
+      "noAnswer": "aucune réponse",
+      "measured": "mesuré"
+    },
+    "note": {
+      "withheld": "retenue par votre limite",
+      "waiting": "vous attend",
+      "lapsedApproved": "expirée après validation · jamais exécutée",
+      "lapsed": "expirée · jamais exécutée",
+      "runs": "s’exécute à {clock}",
+      "done": "terminée",
+      "kept": "conservée au registre",
+      "delta": "{delta} % · {verdict}"
+    },
+    "verdict": {
+      "helped": "utile",
+      "did_nothing": "sans effet",
+      "backfired": "contre-productive",
+      "too_early": "trop tôt pour le dire",
+      "unmeasured": "non mesurée"
+    },
+    "judgedOn": {
+      "post": "Jugée sur les propres chiffres de la publication, comparés à ceux de vos publications précédentes",
+      "campaign": "Jugée sur le retour sur dépenses publicitaires de la campagne elle-même",
+      "email": "Jugée sur les clients qui ont racheté après l’e-mail, comparés aux clients qu’il ne pouvait pas atteindre",
+      "detail": "{judged} : {arithmetic}"
+    },
+    "reason": "raison : {reason}",
+    "change": {
+      "updated": "{label} : mis à jour",
+      "same": "{label} : enregistré de nouveau, même valeur",
+      "moved": "{label} : {from} → {to}",
+      "notKnown": "inconnu"
+    },
+    "ref": {
+      "fact": "fait {id}"
+    },
+    "rate": {
+      "some": "{approved} validées sur {concluded} conclues ({declined} refusées, {lapsed} expirées ; {withheld} retenues par vos limites, non comptées) = {rate} %",
+      "none": "rien n’est encore conclu — le taux existera après vos premières décisions"
+    },
+    "arith": {
+      "neverRan": "jamais exécutée — rien à mesurer",
+      "noSeries": "aucune série de chiffre d’affaires mesurée — connectez une source et le verdict devient possible",
+      "noBaseline": "aucun jour mesuré avant l’action — pas de référence à laquelle comparer",
+      "tooEarly": "{days, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} depuis le {day} — le verdict en demande {need, plural, one {#} many {#} other {#}}",
+      "revenue": "le chiffre d’affaires quotidien a été en moyenne de {after} sur {afterDays, plural, one {le # jour mesuré} many {les # jours mesurés} other {les # jours mesurés}} après le {day}, contre {before} sur {beforeDays, plural, one {le # jour} many {les # jours} other {les # jours}} d’avant — {delta} % (seuils : utile à +{helped} %, contre-productive à {backfired} %)",
+      "notOnRecord": "l’élément publié n’est pas enregistré — rien à mesurer"
+    }
   }
 }

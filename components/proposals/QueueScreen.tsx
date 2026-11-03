@@ -253,6 +253,7 @@ export function QueueScreen() {
   const { tr, locale } = useTr("proposals");
   const w: QWords = { tr, locale };
   const st = useTr("sheet").tr;
+  const qw = useTr("queueWords");
   const moduleWord = (m: string) => t("module", { module: m });
   const evidenceBasis = (b: string) =>
     (BASES as readonly string[]).includes(b)
@@ -647,7 +648,7 @@ export function QueueScreen() {
   };
 
   const changeBlock = (p: Proposal, compact: boolean) => {
-    const lines = changeLines(p.action);
+    const lines = changeLines(p.action, undefined, qw);
     if (!lines) {
       return <p className="q-nolines">{t("change.none", { summary: p.action.summary })}</p>;
     }
@@ -696,7 +697,7 @@ export function QueueScreen() {
 
   /** P3-54: an ad's budget, duration, audience and what can't be undone. */
   const adBlock = (p: Proposal) => {
-    const ad = adFacts(p.action);
+    const ad = adFacts(p.action, qw);
     if (!ad) return null;
     return (
       <div className="q-adfacts">
@@ -726,7 +727,7 @@ export function QueueScreen() {
               {signedMoney(range.low, locale)} – {signedMoney(range.high, locale)}
             </p>
             <p className="q-mono-note">
-              {t("effect.profit", { span: effectSpan(p.action) })}
+              {t("effect.profit", { span: effectSpan(p.action, qw) })}
               {!compact && base?.statement
                 ? ` · ${t("effect.likeliest", { statement: base.statement })}`
                 : ""}
@@ -780,7 +781,7 @@ export function QueueScreen() {
   };
 
   const evidenceBlock = (p: Proposal) => {
-    const lines = evidenceLines(p.scenario.assumptions, facts);
+    const lines = evidenceLines(p.scenario.assumptions, facts, qw, st);
     const keys = new Set(
       p.scenario.assumptions.flatMap((a) => (a.source_field ? [a.source_field] : [])),
     );
@@ -839,7 +840,7 @@ export function QueueScreen() {
         {stats && (
           <span className="q-mast-stats">
             {t("stats", {
-              median: durationWord(stats.medianMs),
+              median: durationWord(stats.medianMs, qw),
               approved: stats.approved,
               decided: stats.decided,
             })}
@@ -921,7 +922,7 @@ export function QueueScreen() {
 
   const mobileCard = (p: Proposal) => {
     const rev = reversibilityLabel(p.reversibility, p.action.detail, tr);
-    const lines = evidenceLines(p.scenario.assumptions, facts);
+    const lines = evidenceLines(p.scenario.assumptions, facts, qw, st);
     const shown = evidenceOpen[p.id] === true;
     const range = effectOf(p);
     const runAt = runAtFor(p, schedules[p.id] ?? "now", Date.now());
@@ -943,7 +944,7 @@ export function QueueScreen() {
         </section>
         <section className="q-msec">
           <h3 className="q-mlabel">
-            {range ? t("m.expectedSpan", { span: effectSpan(p.action) }) : t("m.expected")}
+            {range ? t("m.expectedSpan", { span: effectSpan(p.action, qw) }) : t("m.expected")}
           </h3>
           {effectBlock(p, true)}
         </section>
@@ -1008,7 +1009,7 @@ export function QueueScreen() {
           {panels[p.id] === "decline" && reasonBox(p.id, 1)}
           {panels[p.id] === "changes" && changesBox(p.id)}
           <p className="q-approve-note">
-            {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale })}
+            {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale, qw })}
             {halted && ` ${t("decide.halted")}`}
           </p>
           {decideWhy && (
@@ -1110,7 +1111,7 @@ export function QueueScreen() {
         <section className="q-sec" aria-labelledby={`s2-${p.id}`}>
           <h2 className="q-h" id={`s2-${p.id}`}>
             {range
-              ? t("sheet.s2Span", { n: 2, span: effectSpan(p.action) })
+              ? t("sheet.s2Span", { n: 2, span: effectSpan(p.action, qw) })
               : t("sheet.s2", { n: 2 })}
           </h2>
           {effectBlock(p, false)}
@@ -1194,7 +1195,7 @@ export function QueueScreen() {
           {panels[p.id] === "decline" && reasonBox(p.id, 1)}
           {panels[p.id] === "changes" && changesBox(p.id)}
           <p className="q-approve-note">
-            {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale })}
+            {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale, qw })}
             {halted && ` ${t("decide.halted")}`}
           </p>
           {decideWhy && (

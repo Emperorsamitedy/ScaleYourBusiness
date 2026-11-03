@@ -458,6 +458,35 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
     terms: ["business"],
     reason: "Trustpilot Business: Trustpilot's product name",
   },
+  // L-4a
+  "authWords.error.unverified": {
+    terms: ["report"],
+    reason: "“the provider reports that address”: the verb, not the diagnosis report",
+  },
+  "econWords.why.fixedCurrency": {
+    terms: ["report"],
+    reason: "“the profile reports in EUR”: the verb (its reporting currency), not the report",
+  },
+  "econWords.why.cpaCurrency": {
+    terms: ["report"],
+    reason: "“the profile reports in EUR”: the verb (its reporting currency), not the report",
+  },
+  "econWords.why.roasCurrency": {
+    terms: ["report"],
+    reason: "“the profile reports in EUR”: the verb (its reporting currency), not the report",
+  },
+  "watchWords.module.team": {
+    terms: ["team"],
+    reason: "the Team module (staff cover by role and hour), not the people who sign in",
+  },
+  "queueWords.sending.reorder": {
+    terms: ["contact"],
+    reason: "“I don't contact your supplier”: the verb, not a CRM contact",
+  },
+  "queueWords.sending.stockAdvice": {
+    terms: ["contact"],
+    reason: "“I contact nobody”: the verb, not a CRM contact",
+  },
 };
 
 /** Pure: whether English text uses a term — a whole word, any case, a plural ending allowed. */
