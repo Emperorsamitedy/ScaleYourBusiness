@@ -1,22 +1,54 @@
 // Pure helpers for Insights · Cash flow (P5-10): the words and the chart
 // model the screen draws from GET /api/cash. No React, no fetch — tested
 // in cash-view.test.ts.
+//
+// L-3b: the fixed words (labels, column titles, week names) come from the
+// "cash" catalogue through optional words, English by default; figures and
+// dates in the reader's locale, in the business's currency. The sentences
+// built from the forecast (the headline, the sources line, the chart's
+// title, meta, foot and summary) stay English until L-4.
 
 import type { CashView } from "../../app/api/cash/route";
 import type { CashForecast, CashReady, Range } from "../../lib/cash/model";
 import { CASH, wholeMoney } from "../../lib/cash/model";
 import type { ScenarioCell } from "../../lib/cash/scenarios";
 import { shortDate } from "../../lib/charts/model";
+import { dayMonthYear } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import type { CashChartModel } from "../charts/CashChart";
+import { num } from "../sheet/num";
 
-/** Always on the screen, whatever state it is in (rule 26). */
-export const PLANNING_NOTE =
-  "A planning aid from your own numbers, not financial advice. SYB never moves, pays or collects money.";
+/** The screen's words and the reader's locale: the "cash" catalogue. */
+export interface CashWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+const ENGLISH = (): CashWords => ({ tr: englishTr("cash"), locale: "en" });
+
+/** Always on the screen, whatever state it is in (rule 26). The screen says it in the reader's language. */
+export const PLANNING_NOTE = englishTr("cash")("planningNote");
+
+/** A whole percent, "12%" — in another language its own way ("12 %"). */
+export function percentText(whole: number, locale: AppLocale = "en"): string {
+  if (locale === "en") return `${whole}%`;
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    maximumFractionDigits: 0,
+  }).format(whole / 100);
+}
+
+/** A day the forecast names: ISO in English, as it always was; the reader's own date elsewhere. */
+export function forecastDay(day: string, locale: AppLocale = "en"): string {
+  return locale === "en" ? day : dayMonthYear(day, locale);
+}
 
 /** "€3,100 – €5,400", or one figure when both ends round alike. */
-export function rangeText(r: Range, currency: string): string {
-  const a = wholeMoney(r.low, currency);
-  const b = wholeMoney(r.high, currency);
+export function rangeText(r: Range, currency: string, locale: AppLocale = "en"): string {
+  const a = wholeMoney(r.low, currency, locale);
+  const b = wholeMoney(r.high, currency, locale);
   return a === b ? a : `${a} – ${b}`;
 }
 
@@ -48,12 +80,22 @@ export function sourcesLine(f: CashForecast): string {
   return `Sources: ${parts.join(" · ")} · your costs as you listed them.`;
 }
 
-export function cashChartModel(f: CashReady, tightIndex: number | null): CashChartModel {
+export function cashChartModel(
+  f: CashReady,
+  tightIndex: number | null,
+  words: CashWords = ENGLISH(),
+): CashChartModel {
+  const { tr, locale } = words;
   const cur = f.currency;
   const points = [
-    { label: "Today", start: f.today, low: f.start.amount_minor, high: f.start.amount_minor },
+    {
+      label: tr("view.today"),
+      start: f.today,
+      low: f.start.amount_minor,
+      high: f.start.amount_minor,
+    },
     ...f.weeks.map((w) => ({
-      label: `Week of ${shortDate(w.start)}`,
+      label: tr("view.weekOf", { day: shortDate(w.start, locale) }),
       start: w.start,
       low: w.balance.low,
       high: w.balance.high,
@@ -62,7 +104,7 @@ export function cashChartModel(f: CashReady, tightIndex: number | null): CashCha
   const lineWords =
     f.line.kind === "buffer" ? `your ${wholeMoney(f.line.amount_minor, cur)} buffer` : "zero";
   return {
-    label: `The next ${CASH.horizon_weeks} weeks · balance at each week's end`,
+    label: tr("view.chartLabel", { weeks: CASH.horizon_weeks }),
     title:
       tightIndex === null
         ? `Above ${lineWords} all the way`
@@ -88,7 +130,8 @@ export interface WeekRow {
 }
 
 /** The week-by-week table: every figure the chart draws, in words. */
-export function weekRows(f: CashReady): WeekRow[] {
+export function weekRows(f: CashReady, words: CashWords = ENGLISH()): WeekRow[] {
+  const { tr, locale } = words;
   const cur = f.currency;
   return f.weeks.map((w) => {
     const dated = w.fixed_out + w.debt_out;
@@ -98,22 +141,23 @@ export function weekRows(f: CashReady): WeekRow[] {
     };
     return {
       key: w.start,
-      week: `Week of ${shortDate(w.start)}`,
-      money_in: rangeText(w.money_in, cur),
+      week: tr("view.weekOf", { day: shortDate(w.start, locale) }),
+      money_in: rangeText(w.money_in, cur, locale),
       going_out: rangeText(
         { low: Math.min(out.low, out.high), high: Math.max(out.low, out.high) },
         cur,
+        locale,
       ),
       due:
         w.due.length === 0
           ? "—"
           : w.due
-              .map(
-                (d) =>
-                  `${d.label} ${wholeMoney(d.amount_minor, cur)}${d.set_aside ? " (a twelfth)" : ""}`,
-              )
+              .map((d) => {
+                const item = `${d.label} ${wholeMoney(d.amount_minor, cur, locale)}`;
+                return d.set_aside ? tr("view.twelfth", { item }) : item;
+              })
               .join(" · "),
-      balance: rangeText(w.balance, cur),
+      balance: rangeText(w.balance, cur, locale),
       under: w.balance.low < f.line.amount_minor,
     };
   });
@@ -133,11 +177,12 @@ export interface ScenarioColumn {
   needs: { what: string; href: string }[];
 }
 
-const signedRange = (r: Range, cur: string) => {
-  const one = (v: number) => (v > 0 ? `+${wholeMoney(v, cur)}` : wholeMoney(v, cur));
+const signedRange = (r: Range, cur: string, words: CashWords) => {
+  const one = (v: number) =>
+    v > 0 ? `+${wholeMoney(v, cur, words.locale)}` : wholeMoney(v, cur, words.locale);
   const a = one(r.low);
   const b = one(r.high);
-  return a === b ? a : `${a} to ${b}`;
+  return a === b ? a : words.tr("view.signedRange", { low: a, high: b });
 };
 
 /** The plain forecast first, then each scenario, as columns. */
@@ -145,18 +190,21 @@ export function scenarioColumns(
   f: CashReady,
   tightIndex: number | null,
   cells: readonly ScenarioCell[],
+  words: CashWords = ENGLISH(),
 ): ScenarioColumn[] {
+  const { tr, locale } = words;
   const cur = f.currency;
+  const weekOf = (day: string) => tr("view.weekOfLower", { day: shortDate(day, locale) });
   const tightWords = (k: number | null, of: CashReady) =>
-    k === null ? "none" : `week of ${shortDate(of.weeks[k]!.start)}`;
+    k === null ? tr("view.none") : weekOf(of.weeks[k]!.start);
   const plain: ScenarioColumn = {
     key: "plain",
-    title: "As things are",
-    change: "Nothing changes.",
+    title: tr("view.plainTitle"),
+    change: tr("view.plainChange"),
     status: "ready",
-    lowest: wholeMoney(f.lowest.balance.low, cur),
-    lowest_week: `week of ${shortDate(f.weeks[f.lowest.index]!.start)}`,
-    end: rangeText(f.end, cur),
+    lowest: wholeMoney(f.lowest.balance.low, cur, locale),
+    lowest_week: weekOf(f.weeks[f.lowest.index]!.start),
+    end: rangeText(f.end, cur, locale),
     vs_plain: "—",
     tight: tightWords(tightIndex, f),
     why: null,
@@ -186,11 +234,11 @@ export function scenarioColumns(
         title: r.title,
         change: r.change,
         status: "ready",
-        lowest: wholeMoney(r.lowest.balance.low, cur),
-        lowest_week: `week of ${shortDate(r.forecast.weeks[r.lowest.index]!.start)}`,
-        end: rangeText(r.end, cur),
-        vs_plain: signedRange(r.vs_plain, cur),
-        tight: r.tight === null ? "none" : `week of ${shortDate(r.tight.start)}`,
+        lowest: wholeMoney(r.lowest.balance.low, cur, locale),
+        lowest_week: weekOf(r.forecast.weeks[r.lowest.index]!.start),
+        end: rangeText(r.end, cur, locale),
+        vs_plain: signedRange(r.vs_plain, cur, words),
+        tight: r.tight === null ? tr("view.none") : weekOf(r.tight.start),
         why: null,
         needs: [],
       };
@@ -199,9 +247,16 @@ export function scenarioColumns(
 }
 
 /** "Week 1 · 27 Oct", for the scenario week pickers. */
-export function weekOptions(f: CashReady): { value: number; label: string }[] {
+export function weekOptions(
+  f: CashReady,
+  words: CashWords = ENGLISH(),
+): { value: number; label: string }[] {
+  const { tr, locale } = words;
   return f.weeks.map((w) => ({
     value: w.index,
-    label: `Week ${w.index + 1} · ${shortDate(w.start)}`,
+    label: tr("view.weekOption", {
+      n: num(w.index + 1, 0, locale),
+      day: shortDate(w.start, locale),
+    }),
   }));
 }

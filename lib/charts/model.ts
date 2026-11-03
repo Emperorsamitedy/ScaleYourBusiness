@@ -6,7 +6,10 @@
 // as is, and the client buckets it (./candles) for the 1D/1W/1M switch.
 
 import type { AppLocale } from "../i18n/locales";
-import { dayMonth } from "../i18n/format";
+import { dayMonth, intlMoney, monthYear } from "../i18n/format";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
+import { minorUnitExponent } from "../core/money";
 import { moneyText, num } from "../../components/sheet/num";
 import type { Basis } from "../../components/report/basis";
 import type { Bucket, Candle, DayPoint, SlipPart } from "./candles";
@@ -145,6 +148,9 @@ export interface EmptyModel {
 export type MarketChartModel = DrawnModel | EmptyModel;
 
 const capitalise = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+/** Capitalised the way the reader's language does it (Chinese has no case). */
+const capitaliseIn = (s: string, locale: AppLocale) =>
+  locale === "en" ? capitalise(s) : s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
 export function chartTitle(noun: string): string {
   return `${capitalise(noun)}, read like a stock`;
@@ -384,17 +390,44 @@ export function shortDate(day: string, locale: AppLocale = "en"): string {
   return `${d.getUTCDate()} ${m[d.getUTCMonth()]}`;
 }
 
-export function periodLabel(c: Candle, bucket: Bucket): string {
-  if (bucket === "day") return shortDate(c.start);
-  if (bucket === "week") return `Week of ${shortDate(c.start)}`;
+/**
+ * A candle's period: "3 Oct", "Week of 3 Oct", "October 2026". L-3b: in
+ * the reader's language, its words from the "charts.market" catalogue
+ * (English by default).
+ */
+export function periodLabel(
+  c: Candle,
+  bucket: Bucket,
+  locale: AppLocale = "en",
+  tr: Tr = englishTr("charts.market"),
+): string {
+  if (bucket === "day") return shortDate(c.start, locale);
+  if (bucket === "week") return tr("weekOf", { day: shortDate(c.start, locale) });
+  if (locale !== "en") return monthYear(c.start, locale);
   const d = new Date(`${c.start}T00:00:00Z`);
   return d.toLocaleString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
 }
 
-/** The chart's figures: whole major units (a candle's day is never a cents question). */
-export function dayMoney(minor: number, currency: string): string {
+/**
+ * The chart's figures: whole major units (a candle's day is never a cents
+ * question) — the decimals dropped, as English always has. In another
+ * language, the same whole units written its own way (L-3b).
+ */
+export function dayMoney(minor: number, currency: string, locale: AppLocale = "en"): string {
+  if (locale !== "en") {
+    const major = Math.trunc(Math.round(minor) / 10 ** minorUnitExponent(currency));
+    return intlMoney(major === 0 ? 0 : major, currency.toUpperCase(), 0, locale);
+  }
   return moneyText(Math.round(minor), currency).replace(/\.\d+$/, "");
 }
+
+/** The volume pane's word ("orders"), in the reader's language when SYB knows it. */
+export function volumeWord(word: string, tr: Tr = englishTr("charts.market")): string {
+  return VOLUME_WORDS.has(word) ? tr(`volumeWord.${word}`) : word;
+}
+
+/** The volume words the chart profiles use (lib/charts/profiles), each a catalogue key. */
+export const VOLUME_WORDS: ReadonlySet<string> = new Set(["orders", "appointments", "visits"]);
 
 /** One sentence: what the chart shows and its main fact. */
 export function chartSummary(
@@ -426,31 +459,34 @@ export function chartTable(
   model: DrawnModel,
   candles: readonly Candle[],
   bucket: Bucket,
+  locale: AppLocale = "en",
+  tr: Tr = englishTr("charts.market"),
 ): ChartTable {
+  // L-3b: the head and the cells' words in the reader's language; the caption is a sentence built from data (L-4).
   const cur = model.currency;
+  const range = (low_minor: number, high_minor: number) =>
+    rangeWhole({ low_minor, high_minor, currency: cur }, locale);
   const head = [
-    bucket === "day" ? "Day" : bucket === "week" ? "Week" : "Month",
-    `Open (${cur})`,
-    `High (${cur})`,
-    `Low (${cur})`,
-    `Close (${cur})`,
-    ...(model.volume ? [capitalise(model.volume.word)] : []),
-    `Slipped (${cur})`,
-    `What you'd have kept, a day (${cur})`,
+    tr(`table.${bucket}`),
+    tr("table.open", { currency: cur }),
+    tr("table.high", { currency: cur }),
+    tr("table.low", { currency: cur }),
+    tr("table.close", { currency: cur }),
+    ...(model.volume ? [capitaliseIn(volumeWord(model.volume.word, tr), locale)] : []),
+    tr("table.slipped", { currency: cur }),
+    tr("table.kept", { currency: cur }),
   ];
   const rows = candles.map((c) => [
-    periodLabel(c, bucket),
-    dayMoney(c.open_minor, cur),
-    dayMoney(c.high_minor, cur),
-    dayMoney(c.low_minor, cur),
-    dayMoney(c.close_minor, cur),
-    ...(model.volume ? [c.volume === null ? "not measured" : num(c.volume)] : []),
-    c.slip_high_minor > 0
-      ? rangeWhole({ low_minor: c.slip_low_minor, high_minor: c.slip_high_minor, currency: cur })
-      : "none",
-    c.slip_high_minor > 0
-      ? rangeWhole({ low_minor: c.kept_low_minor, high_minor: c.kept_high_minor, currency: cur })
-      : "—",
+    periodLabel(c, bucket, locale, tr),
+    dayMoney(c.open_minor, cur, locale),
+    dayMoney(c.high_minor, cur, locale),
+    dayMoney(c.low_minor, cur, locale),
+    dayMoney(c.close_minor, cur, locale),
+    ...(model.volume
+      ? [c.volume === null ? tr("table.notMeasured") : num(c.volume, 0, locale)]
+      : []),
+    c.slip_high_minor > 0 ? range(c.slip_low_minor, c.slip_high_minor) : tr("table.none"),
+    c.slip_high_minor > 0 ? range(c.kept_low_minor, c.kept_high_minor) : "—",
   ]);
   return {
     caption: `${model.title}: ${PERIOD_WORD[bucket]} open, high, low and close of ${model.price.noun} a day, with what slipped`,

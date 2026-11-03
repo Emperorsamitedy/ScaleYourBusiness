@@ -9,25 +9,41 @@
 // Read-only (rule 26): there is no button that pays, moves, transfers or
 // collects anything, and no proposal is made here. The planning-aid note
 // and the sources line are on the page in every state, refusals included.
+//
+// L-3b: the screen's fixed words are the "cash" catalogue; figures and
+// dates in the reader's locale, in the business's currency. What the
+// forecast says from data (its headline, sources, reasons, scenarios,
+// assumptions) stays English until L-4.
 
 import "../../app/cash.css";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { CashView } from "../../app/api/cash/route";
 import type { CashForecast, CashReady } from "../../lib/cash/model";
+import { CASH } from "../../lib/cash/model";
 import { minorUnitExponent } from "../../lib/core/money";
 import { CashChart } from "../charts/CashChart";
+import { num } from "../sheet/num";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { useTr } from "../sheet/useTr";
+import type { CashWords } from "./cash-view";
 import {
-  PLANNING_NOTE,
   cashChartModel,
+  forecastDay,
   headline,
+  percentText,
   scenarioColumns,
   sourcesLine,
   weekOptions,
   weekRows,
 } from "./cash-view";
+
+/** The screen's words and the reader's locale. */
+function useCashWords(): CashWords {
+  return useTr("cash");
+}
 
 function Frame({
   title,
@@ -38,15 +54,12 @@ function Frame({
   forecast: CashForecast | null;
   children?: ReactNode;
 }) {
+  const { tr } = useCashWords();
   return (
     <main className="screen cf-screen">
-      <PageHead kicker="Insights · Cash flow" title={title} aside="Planning aid · read-only">
-        <p className="cf-note">{PLANNING_NOTE}</p>
-        <p className="cf-note">
-          {forecast
-            ? sourcesLine(forecast)
-            : "Sources: your stated cash, costs and measured sales."}
-        </p>
+      <PageHead kicker={tr("kicker")} title={title} aside={tr("aside")}>
+        <p className="cf-note">{tr("planningNote")}</p>
+        <p className="cf-note">{forecast ? sourcesLine(forecast) : tr("sourcesNone")}</p>
       </PageHead>
       {children}
     </main>
@@ -54,16 +67,24 @@ function Frame({
 }
 
 function Refused({ f }: { f: Extract<CashForecast, { status: "refused" }> }) {
+  const { tr, locale } = useCashWords();
   return (
     <div className="cf-grid">
       <SheetCard
-        label={f.history ? `How much there is · ${f.history.source}` : "How much there is"}
+        label={
+          f.history ? tr("refused.labelFrom", { source: f.history.source }) : tr("refused.label")
+        }
         title={
           f.history
-            ? `${f.history.complete_weeks} of ${f.history.needed_weeks} complete weeks`
-            : "Nothing to build a forecast on yet"
+            ? tr("refused.weeks", {
+                complete: num(f.history.complete_weeks, 0, locale),
+                needed: num(f.history.needed_weeks, 0, locale),
+              })
+            : tr("refused.nothing")
         }
-        meta={f.ready_on ? `Ready from around ${f.ready_on}, if syncs keep running` : undefined}
+        meta={
+          f.ready_on ? tr("refused.readyOn", { day: forecastDay(f.ready_on, locale) }) : undefined
+        }
       >
         <p className="cf-copy">{f.headline}</p>
         {f.needs.length > 0 && (
@@ -76,14 +97,14 @@ function Refused({ f }: { f: Extract<CashForecast, { status: "refused" }> }) {
           </ul>
         )}
       </SheetCard>
-      <SheetCard label="What I can and can't say yet" title="Honest about the gap">
-        <p className="cf-sub">I can</p>
+      <SheetCard label={tr("refused.gapLabel")} title={tr("refused.gapTitle")}>
+        <p className="cf-sub">{tr("refused.can")}</p>
         <ul className="cf-list">
           {f.can.map((c) => (
             <li key={c}>{c}</li>
           ))}
         </ul>
-        <p className="cf-sub">I can&apos;t yet</p>
+        <p className="cf-sub">{tr("refused.cannot")}</p>
         <ul className="cf-list">
           {f.cannot.map((c) => (
             <li key={c}>{c}</li>
@@ -96,15 +117,17 @@ function Refused({ f }: { f: Extract<CashForecast, { status: "refused" }> }) {
 
 function Warning({ view, f }: { view: CashView; f: CashReady }) {
   const t = view.tight;
+  const { tr, locale } = useCashWords();
+  const rich = useTranslations("cash");
   return (
     <SheetCard
-      label="When money gets tight"
-      title={t ? "The first tight week" : "No tight week in the next 13"}
-      meta={
-        f.line.kind === "buffer"
-          ? "Against the least you want in the account"
-          : "No buffer stated: against an empty account"
+      label={tr("warning.label")}
+      title={
+        t
+          ? tr("warning.titleTight")
+          : tr("warning.titleNone", { weeks: num(CASH.horizon_weeks, 0, locale) })
       }
+      meta={f.line.kind === "buffer" ? tr("warning.metaBuffer") : tr("warning.metaZero")}
     >
       {t ? (
         <>
@@ -116,21 +139,16 @@ function Warning({ view, f }: { view: CashView; f: CashReady }) {
           </ul>
         </>
       ) : (
-        <p className="cf-copy">
-          At the cautious end (slow sales, slow payouts) the balance stays above the line every
-          week.
-        </p>
+        <p className="cf-copy">{tr("warning.none")}</p>
       )}
       <p className="cf-copy cf-quiet">
-        This is a reading of your numbers, written to your Watching log and weekly summary. Nothing
-        is proposed or done about it.
+        {tr("warning.reading")}
         {f.line.kind === "zero" && (
           <>
             {" "}
-            <Link href="/intake?ask=5.3f">
-              Tell me the least you&apos;d want in the account
-            </Link>{" "}
-            and I&apos;ll draw that line instead.
+            {rich.rich("warning.askBuffer", {
+              link: (c) => <Link href="/intake?ask=5.3f">{c}</Link>,
+            })}
           </>
         )}
       </p>
@@ -139,27 +157,25 @@ function Warning({ view, f }: { view: CashView; f: CashReady }) {
 }
 
 function Weeks({ f }: { f: CashReady }) {
-  const rows = weekRows(f);
+  const words = useCashWords();
+  const { tr } = words;
+  const rows = weekRows(f, words);
   return (
-    <SheetCard
-      label="Week by week"
-      title="Money in, money out, the balance"
-      meta="Cautious – hopeful, whole units"
-    >
+    <SheetCard label={tr("weeks.label")} title={tr("weeks.title")} meta={tr("weeks.meta")}>
       <div className="cf-wrap">
         <table className="rt rt-stack cf-weeks">
           <thead>
             <tr>
-              <th scope="col">Week</th>
+              <th scope="col">{tr("weeks.week")}</th>
               <th scope="col" className="num">
-                Money in
+                {tr("weeks.moneyIn")}
               </th>
               <th scope="col" className="num">
-                Going out
+                {tr("weeks.goingOut")}
               </th>
-              <th scope="col">Due that week</th>
+              <th scope="col">{tr("weeks.dueThatWeek")}</th>
               <th scope="col" className="num">
-                Balance at the end
+                {tr("weeks.balanceEnd")}
               </th>
             </tr>
           </thead>
@@ -167,15 +183,15 @@ function Weeks({ f }: { f: CashReady }) {
             {rows.map((r) => (
               <tr key={r.key}>
                 <th scope="row">{r.week}</th>
-                <td className="num" data-label="Money in">
+                <td className="num" data-label={tr("weeks.moneyIn")}>
                   {r.money_in}
                 </td>
-                <td className="num" data-label="Going out">
+                <td className="num" data-label={tr("weeks.goingOut")}>
                   {r.going_out}
                 </td>
-                <td data-label="Due">{r.due}</td>
-                <td className="num" data-label="Balance">
-                  {r.balance} {r.under && <span className="flag drift">UNDER THE LINE</span>}
+                <td data-label={tr("weeks.due")}>{r.due}</td>
+                <td className="num" data-label={tr("weeks.balance")}>
+                  {r.balance} {r.under && <span className="flag drift">{tr("weeks.under")}</span>}
                 </td>
               </tr>
             ))}
@@ -198,10 +214,12 @@ function Scenarios({
   busy: boolean;
 }) {
   const choice = view.choice!;
-  const cols = scenarioColumns(f, view.tight?.index ?? null, view.scenarios ?? []);
+  const words = useCashWords();
+  const { tr, locale } = words;
+  const cols = scenarioColumns(f, view.tight?.index ?? null, view.scenarios ?? [], words);
   const exp = minorUnitExponent(f.currency);
   const major = (minor: number | null) => (minor === null ? "" : String(minor / 10 ** exp));
-  const weeks = weekOptions(f);
+  const weeks = weekOptions(f, words);
   const submit = (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     const q = new URLSearchParams();
@@ -210,10 +228,11 @@ function Scenarios({
     }
     onRun(q);
   };
-  const rows: { label: string; pick: (c: (typeof cols)[number]) => ReactNode }[] = [
-    { label: "What changes", pick: (c) => c.change },
+  const rows: { key: string; label: string; pick: (c: (typeof cols)[number]) => ReactNode }[] = [
+    { key: "change", label: tr("scenarios.whatChanges"), pick: (c) => c.change },
     {
-      label: "Lowest balance, cautious end",
+      key: "lowest",
+      label: tr("scenarios.lowest"),
       pick: (c) => (
         <>
           <span className="fig">{c.lowest}</span>
@@ -221,19 +240,27 @@ function Scenarios({
         </>
       ),
     },
-    { label: "Balance after 13 weeks", pick: (c) => <span className="fig">{c.end}</span> },
-    { label: "Against as things are", pick: (c) => <span className="fig">{c.vs_plain}</span> },
-    { label: "First tight week", pick: (c) => c.tight },
+    {
+      key: "end",
+      label: tr("scenarios.after", { weeks: num(CASH.horizon_weeks, 0, locale) }),
+      pick: (c) => <span className="fig">{c.end}</span>,
+    },
+    {
+      key: "against",
+      label: tr("scenarios.against"),
+      pick: (c) => <span className="fig">{c.vs_plain}</span>,
+    },
+    { key: "tight", label: tr("scenarios.firstTight"), pick: (c) => c.tight },
   ];
   return (
     <SheetCard
-      label="Scenarios · side by side"
-      title="What if…"
-      meta="Each runs the same forecast with one change"
+      label={tr("scenarios.label")}
+      title={tr("scenarios.title")}
+      meta={tr("scenarios.meta")}
     >
-      <form className="cf-form" onSubmit={submit} aria-label="Scenario sizes">
+      <form className="cf-form" onSubmit={submit} aria-label={tr("scenarios.form")}>
         <label>
-          <span>Slow month, % lower</span>
+          <span>{tr("scenarios.slow")}</span>
           <input
             name="slow"
             inputMode="numeric"
@@ -241,7 +268,7 @@ function Scenarios({
           />
         </label>
         <label>
-          <span>from</span>
+          <span>{tr("scenarios.from")}</span>
           <select name="slow_week" defaultValue={choice.slow_week}>
             {weeks.map((w) => (
               <option key={w.value} value={w.value}>
@@ -251,11 +278,11 @@ function Scenarios({
           </select>
         </label>
         <label>
-          <span>Big order, {f.currency}</span>
+          <span>{tr("scenarios.order", { currency: f.currency })}</span>
           <input name="order" inputMode="decimal" defaultValue={major(choice.order_minor)} />
         </label>
         <label>
-          <span>in</span>
+          <span>{tr("scenarios.in")}</span>
           <select name="order_week" defaultValue={choice.order_week}>
             {weeks.map((w) => (
               <option key={w.value} value={w.value}>
@@ -265,11 +292,11 @@ function Scenarios({
           </select>
         </label>
         <label>
-          <span>Hire, {f.currency} a month</span>
+          <span>{tr("scenarios.hire", { currency: f.currency })}</span>
           <input name="hire" inputMode="decimal" defaultValue={major(choice.hire_minor)} />
         </label>
         <label>
-          <span>from</span>
+          <span>{tr("scenarios.from")}</span>
           <select name="hire_week" defaultValue={choice.hire_week}>
             {weeks.map((w) => (
               <option key={w.value} value={w.value}>
@@ -281,7 +308,7 @@ function Scenarios({
         {view.price && view.price.items.length > 0 && (
           <>
             <label>
-              <span>Price change on</span>
+              <span>{tr("scenarios.priceOn")}</span>
               <select name="price_item" defaultValue={view.price.item ?? undefined}>
                 {view.price.items.map((i) => (
                   <option key={i.key} value={i.key}>
@@ -291,12 +318,12 @@ function Scenarios({
               </select>
             </label>
             <label>
-              <span>by</span>
+              <span>{tr("scenarios.by")}</span>
               <select name="price_step" defaultValue={view.price.step}>
                 {view.price.steps.map((s) => (
                   <option key={s} value={s}>
                     {s > 0 ? "+" : "−"}
-                    {Math.abs(Math.round(s * 100))}%
+                    {percentText(Math.abs(Math.round(s * 100)), locale)}
                   </option>
                 ))}
               </select>
@@ -304,14 +331,14 @@ function Scenarios({
           </>
         )}
         <button type="submit" className="act" disabled={busy}>
-          {busy ? "Working it out…" : "Work it out"}
+          {busy ? tr("scenarios.running") : tr("scenarios.run")}
         </button>
       </form>
       <div className="cf-wrap">
         <table className="rt cf-scen">
           <thead>
             <tr>
-              <th scope="col">Measure</th>
+              <th scope="col">{tr("scenarios.measure")}</th>
               {cols.map((c) => (
                 <th scope="col" key={c.key} className="num">
                   {c.title}
@@ -321,13 +348,13 @@ function Scenarios({
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.label}>
+              <tr key={row.key}>
                 <th scope="row">{row.label}</th>
                 {cols.map((c) =>
                   c.status === "missing" ? (
-                    row.label === "What changes" ? (
+                    row.key === "change" ? (
                       <td key={c.key} className="num" rowSpan={rows.length}>
-                        <span className="flag drift">MISSING</span>
+                        <span className="flag drift">{tr("scenarios.missing")}</span>
                         <span className="cf-src">{c.why}</span>
                         {c.needs.map((n) => (
                           <Link key={n.href} className="cf-src" href={n.href}>
@@ -350,7 +377,9 @@ function Scenarios({
       <ul className="cf-list cf-quiet">
         {(view.scenarios ?? []).flatMap((c) =>
           c.status === "ready"
-            ? c.result.assumptions.map((a) => <li key={c.result.kind + a}>ASSUMED · {a}</li>)
+            ? c.result.assumptions.map((a) => (
+                <li key={c.result.kind + a}>{tr("scenarios.assumed", { text: a })}</li>
+              ))
             : [],
         )}
       </ul>
@@ -359,41 +388,47 @@ function Scenarios({
 }
 
 function Sources({ f }: { f: CashReady }) {
+  const { tr, locale } = useCashWords();
   return (
     <SheetCard
-      label="What this is built on"
-      title="Sources, and what I assumed"
-      meta={`History ${f.pattern.from} to ${f.pattern.to}`}
+      label={tr("sources.label")}
+      title={tr("sources.title")}
+      meta={tr("sources.meta", {
+        from: forecastDay(f.pattern.from, locale),
+        to: forecastDay(f.pattern.to, locale),
+      })}
     >
       <table className="rt rt-stack cf-sources">
         <thead>
           <tr>
-            <th scope="col">Input</th>
-            <th scope="col">Value</th>
-            <th scope="col">Basis</th>
-            <th scope="col">Where it came from</th>
+            <th scope="col">{tr("sources.input")}</th>
+            <th scope="col">{tr("sources.value")}</th>
+            <th scope="col">{tr("sources.basis")}</th>
+            <th scope="col">{tr("sources.cameFrom")}</th>
           </tr>
         </thead>
         <tbody>
           {f.sources.map((s) => (
             <tr key={s.label}>
               <th scope="row">{s.label}</th>
-              <td data-label="Value">{s.value}</td>
-              <td data-label="Basis">{s.basis ? <span className="flag">{s.basis}</span> : "—"}</td>
-              <td data-label="From">{s.source}</td>
+              <td data-label={tr("sources.value")}>{s.value}</td>
+              <td data-label={tr("sources.basis")}>
+                {s.basis ? <span className="flag">{s.basis}</span> : "—"}
+              </td>
+              <td data-label={tr("sources.from")}>{s.source}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="cf-sub">Assumed, by name</p>
+      <p className="cf-sub">{tr("sources.assumedByName")}</p>
       <ul className="cf-list">
         {f.assumptions.map((a) => (
-          <li key={a}>ASSUMED · {a}</li>
+          <li key={a}>{tr("scenarios.assumed", { text: a })}</li>
         ))}
       </ul>
       {f.left_out.length > 0 && (
         <>
-          <p className="cf-sub">Left out</p>
+          <p className="cf-sub">{tr("sources.leftOut")}</p>
           <ul className="cf-list">
             {f.left_out.map((l) => (
               <li key={l}>{l}</li>
@@ -403,7 +438,7 @@ function Sources({ f }: { f: CashReady }) {
       )}
       {f.needs.length > 0 && (
         <>
-          <p className="cf-sub">Would sharpen it</p>
+          <p className="cf-sub">{tr("sources.sharpen")}</p>
           <ul className="cf-list">
             {f.needs.map((n) => (
               <li key={n.href + n.what}>
@@ -413,15 +448,15 @@ function Sources({ f }: { f: CashReady }) {
           </ul>
         </>
       )}
-      <p className="cf-copy cf-quiet">
-        Nothing here is an industry average: every figure is yours, measured or stated, or named
-        above as assumed.
-      </p>
+      <p className="cf-copy cf-quiet">{tr("sources.yours")}</p>
     </SheetCard>
   );
 }
 
 export function CashScreen() {
+  const words = useCashWords();
+  const { tr } = words;
+  const rich = useTranslations("cash");
   const [view, setView] = useState<CashView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
   const [busy, setBusy] = useState(false);
@@ -446,21 +481,21 @@ export function CashScreen() {
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet." forecast={null}>
+      <Frame title={tr("signedOut")} forecast={null}>
         <p className="cf-copy">
-          <Link href="/intake">Start with the interview</Link>.
+          {rich.rich("startInterview", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="The cash forecast didn't load." forecast={null}>
-        <p className="cf-copy">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("failedTitle")} forecast={null}>
+        <p className="cf-copy">{tr("failedBody")}</p>
       </Frame>
     );
   }
-  if (!view) return <Frame title="Reading your numbers…" forecast={null} />;
+  if (!view) return <Frame title={tr("reading")} forecast={null} />;
   const f = view.forecast;
   if (f.status !== "ready") {
     return (
@@ -471,7 +506,7 @@ export function CashScreen() {
   }
   return (
     <Frame title={headline(view)} forecast={f}>
-      <CashChart model={cashChartModel(f, view.tight?.index ?? null)} />
+      <CashChart model={cashChartModel(f, view.tight?.index ?? null, words)} />
       <div className="cf-grid">
         <Warning view={view} f={f} />
         <Sources f={f} />

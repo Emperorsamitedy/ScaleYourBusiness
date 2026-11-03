@@ -15,9 +15,11 @@
 import { useState, type KeyboardEvent } from "react";
 import "../../app/charts.css";
 import { stepKey } from "../../lib/charts/keys";
-import { dayMoney, shortDate } from "../../lib/charts/model";
+import { shortDate } from "../../lib/charts/model";
+import { dayMoneyIn, lineIn, timesIn } from "../patterns/patterns-view";
 import { num } from "../sheet/num";
 import { SheetCard } from "../sheet/PageHead";
+import { useTr } from "../sheet/useTr";
 import { useChartWidth } from "./useChartWidth";
 
 export interface SeasonChartWeek {
@@ -46,9 +48,12 @@ export interface SeasonChartModel {
   noun: string;
 }
 
-const x10 = (v: number) => `${(Math.round(v * 10) / 10).toFixed(1)}×`;
-
 export function SeasonChart({ model }: { model: SeasonChartModel }) {
+  // L-3b: the chart's own words are "charts.season"; the model's label,
+  // title, meta, foot and summary arrive worded (components/patterns).
+  const { tr, locale } = useTr("charts.season");
+  const x10 = (v: number) => timesIn(v, locale);
+  const one = (v: number) => num(Math.round(v * 10) / 10, 1, locale);
   const [at, setAt] = useState<number | null>(null);
   const { ref, width, narrow } = useChartWidth<HTMLDivElement>(720);
   const weeks = model.weeks;
@@ -74,7 +79,10 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
     setAt(next);
   };
   const value = (v: number) =>
-    model.currency ? dayMoney(v, model.currency) : `${num(Math.round(v))} ${model.noun}`;
+    model.currency
+      ? dayMoneyIn(v, model.currency, locale)
+      : `${num(Math.round(v), 0, locale)} ${model.noun}`;
+  const flagWord = (f: "busy" | "quiet") => tr(`flag.${f}`);
 
   return (
     <SheetCard
@@ -84,22 +92,22 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
       meta={model.meta}
       foot={model.foot}
     >
-      <ul className="sc-keys" aria-label="Key">
+      <ul className="sc-keys" aria-label={tr("key")}>
         {model.lines ? (
           <>
             <li>
-              <span className="sc-key sn-busy" aria-hidden="true" /> busy: filled
+              <span className="sc-key sn-busy" aria-hidden="true" /> {tr("keyBusy")}
             </li>
             <li>
-              <span className="sc-key sn-quiet" aria-hidden="true" /> quiet: hollow
+              <span className="sc-key sn-quiet" aria-hidden="true" /> {tr("keyQuiet")}
             </li>
             <li>
-              <span className="sc-key sn-band" aria-hidden="true" /> your middle half of weeks
+              <span className="sc-key sn-band" aria-hidden="true" /> {tr("keyBand")}
             </li>
           </>
         ) : (
           <li>
-            <span className="sc-key sn-plain" aria-hidden="true" /> a week against your median week
+            <span className="sc-key sn-plain" aria-hidden="true" /> {tr("keyPlain")}
           </li>
         )}
       </ul>
@@ -132,7 +140,7 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
           )}
           <line className="sn-normal" x1={0} x2={plotR} y1={y(1)} y2={y(1)} />
           <text className="tick" x={plotR + 6} y={y(1) + 4}>
-            1.0×
+            {x10(1)}
           </text>
           {model.lines && (
             <>
@@ -151,10 +159,10 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
                 y2={y(model.lines.quiet)}
               />
               <text className="tick" x={plotR + 6} y={y(model.lines.busy) - 2}>
-                {`${model.lines.busy}×`}
+                {lineIn(model.lines.busy, locale)}
               </text>
               <text className="tick" x={plotR + 6} y={y(model.lines.quiet) + 12}>
-                {`${model.lines.quiet}×`}
+                {lineIn(model.lines.quiet, locale)}
               </text>
             </>
           )}
@@ -170,7 +178,7 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
                 y2={TOP - 10}
               />
               <text className="pane-label" x={xc(aheadIdx[0]!) - slot / 2} y={TOP - 14}>
-                {narrow ? "NEXT 8 WKS" : "THE NEXT 8 WEEKS, LAST YEAR"}
+                {tr(narrow ? "nextShort" : "nextLong", { count: aheadIdx.length })}
               </text>
             </g>
           )}
@@ -195,7 +203,7 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
                     y={height - 6}
                     textAnchor={i === 0 ? "start" : "middle"}
                   >
-                    {shortDate(wk.start)}
+                    {shortDate(wk.start, locale)}
                   </text>
                 )}
               </g>
@@ -206,19 +214,18 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
       </div>
       {w && (
         <p className="sc-readout" aria-live="polite">
-          <b>Week of {shortDate(w.start)}</b> · {value(w.value)} ·{" "}
+          <b>{tr("weekOf", { day: shortDate(w.start, locale) })}</b> · {value(w.value)} ·{" "}
           <b>
             {x10(w.index)}
             {w.low !== null && (
               <>
                 {" "}
-                ({(Math.round(w.low * 10) / 10).toFixed(1)}–
-                {w.high === null ? "?" : (Math.round(w.high * 10) / 10).toFixed(1)}×)
+                ({one(w.low)}–{w.high === null ? "?" : one(w.high)}×)
               </>
             )}
           </b>{" "}
-          your {model.lines ? "normal" : "median"} week
-          {w.flag && <> · {w.flag}</>}
+          {tr(model.lines ? "yourNormal" : "yourMedian")}
+          {w.flag && <> · {flagWord(w.flag)}</>}
         </p>
       )}
       <div className="sr-only">
@@ -226,21 +233,21 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
           <caption>{model.summary}</caption>
           <thead>
             <tr>
-              <th scope="col">Week of</th>
+              <th scope="col">{tr("colWeek")}</th>
               <th scope="col">
                 {model.currency ? `${model.noun} (${model.currency})` : model.noun}
               </th>
-              <th scope="col">Against the {model.lines ? "normal" : "median"} week</th>
-              <th scope="col">Flag</th>
+              <th scope="col">{tr(model.lines ? "colNormal" : "colMedian")}</th>
+              <th scope="col">{tr("colFlag")}</th>
             </tr>
           </thead>
           <tbody>
             {weeks.map((wk) => (
               <tr key={wk.start}>
-                <th scope="row">{shortDate(wk.start)}</th>
+                <th scope="row">{shortDate(wk.start, locale)}</th>
                 <td>{value(wk.value)}</td>
                 <td>{x10(wk.index)}</td>
-                <td>{wk.flag ?? "—"}</td>
+                <td>{wk.flag ? flagWord(wk.flag) : "—"}</td>
               </tr>
             ))}
           </tbody>

@@ -7,15 +7,26 @@
 // latest weekly verdict with its arithmetic and — when a goal reached
 // alert — what the review found and whether a person now has the case.
 // A goal that can't be measured yet carries the form that makes it so.
+//
+// L-3b (TASKS-LANGUAGES.md): the screen's own words are the "goals"
+// catalogue, its figures and dates in the reader's locale with the goal's
+// own currency. What the weekly check and the alert review wrote (the
+// check's detail, the review's summary, causes and suggestions, the
+// server's refusals) is shown as it was written — stages L-4 and L-5.
 
 import "../../app/goals.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
+import { shortDate } from "../../lib/charts/model";
 import { minorUnitExponent } from "../../lib/core/money";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
 import type { GoalChart } from "../../lib/care/charts";
 import type { GoalWord } from "../../lib/care/chart-view";
 import { goalWord, onPath } from "../../lib/care/chart-view";
@@ -69,50 +80,47 @@ interface CareView {
   goals: CareGoal[];
 }
 
-const METRIC_WORD: Record<Measure["metric"], string> = {
-  revenue: "revenue",
-  orders: "number of sales",
-  sessions: "website visits",
+/** A goal's metric in words ("goals.metric"): revenue, number of sales, website visits. */
+const metricWord = (metric: Measure["metric"], tr: Tr) => tr(`metric.${metric}`);
+
+/** Each verdict's tint; its word is "goals.word.<key>". */
+const WORD_CLASS: Record<GoalWord | "unchecked" | "unmeasurable", string> = {
+  reached: "ok",
+  on_path: "ok",
+  behind: "drift",
+  off_path: "alarm",
+  too_early: "low",
+  unmeasured: "low",
+  unchecked: "low",
+  unmeasurable: "low",
 };
 
-const WORD: Record<GoalWord | "unchecked" | "unmeasurable", { text: string; cls: string }> = {
-  reached: { text: "Reached", cls: "ok" },
-  on_path: { text: "On path", cls: "ok" },
-  behind: { text: "Behind path", cls: "drift" },
-  off_path: { text: "Off path", cls: "alarm" },
-  too_early: { text: "Too early", cls: "low" },
-  unmeasured: { text: "Not measured", cls: "low" },
-  unchecked: { text: "Not checked yet", cls: "low" },
-  unmeasurable: { text: "Not measurable", cls: "low" },
-};
+/** The alert review's cause categories, each "goals.cause.<key>"; another shows as its code. */
+const CAUSES: ReadonlySet<string> = new Set([
+  "our_advice_was_wrong",
+  "goal_unrealistic",
+  "owner_declined_key_actions",
+  "approved_actions_not_executed",
+  "execution_failed",
+  "data_incomplete",
+  "external_change",
+  "other",
+]);
 
-const CAUSE_WORD: Record<string, string> = {
-  our_advice_was_wrong: "Our advice was wrong",
-  goal_unrealistic: "The goal asks too much for the time",
-  owner_declined_key_actions: "Key steps were declined",
-  approved_actions_not_executed: "Approved steps never ran",
-  execution_failed: "Something failed when it ran",
-  data_incomplete: "We're missing data",
-  external_change: "Something outside changed",
-  other: "Something else",
-};
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-/** "26 Oct", in UTC so server and browser agree. */
-function dayText(iso: string): string {
-  const d = new Date(`${iso.slice(0, 10)}T00:00:00Z`);
-  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+/** "26 Oct", in UTC so server and browser agree; the language's own outside English. */
+function dayText(iso: string, locale: AppLocale): string {
+  return shortDate(iso.slice(0, 10), locale);
 }
 
 /** A per-30-days figure: whole currency units, or a whole count. */
-function per30(value: number, currency: string | null): string {
-  if (currency === null) return num(Math.round(value));
+function per30(value: number, currency: string | null, locale: AppLocale): string {
+  if (currency === null) return num(Math.round(value), 0, locale);
   const exp = minorUnitExponent(currency);
-  return moneyText(Math.round(value / 10 ** exp) * 10 ** exp, currency);
+  return moneyText(Math.round(value / 10 ** exp) * 10 ** exp, currency, locale);
 }
 
 function MeasureForm({ goal, onSaved }: { goal: CareGoal; onSaved: () => Promise<void> }) {
+  const { tr, locale } = useTr("goals");
   const [metric, setMetric] = useState<Measure["metric"]>("revenue");
   const [direction, setDirection] = useState<Measure["direction"]>("increase");
   const [target, setTarget] = useState("");
@@ -123,7 +131,7 @@ function MeasureForm({ goal, onSaved }: { goal: CareGoal; onSaved: () => Promise
 
   const submit = async () => {
     const value = Number(target.replace(",", "."));
-    if (!Number.isFinite(value) || value <= 0) return setMessage("Enter a target above zero.");
+    if (!Number.isFinite(value) || value <= 0) return setMessage(tr("form.aboveZero"));
     const cur = currency.trim().toUpperCase();
     const target_per_30d =
       metric === "revenue" ? Math.round(value * 10 ** minorUnitExponent(cur)) : Math.round(value);
@@ -145,8 +153,8 @@ function MeasureForm({ goal, onSaved }: { goal: CareGoal; onSaved: () => Promise
     });
     const body = (await res.json()) as { error?: string; baseline_note?: string | null };
     setBusy(false);
-    if (!res.ok) return setMessage(body.error ?? "That didn't save.");
-    if (body.baseline_note) setMessage(`Saved. No starting value yet: ${body.baseline_note}.`);
+    if (!res.ok) return setMessage(body.error ?? tr("form.notSaved"));
+    if (body.baseline_note) setMessage(tr("form.savedNoBaseline", { note: body.baseline_note }));
     await onSaved();
   };
 
@@ -159,25 +167,25 @@ function MeasureForm({ goal, onSaved }: { goal: CareGoal; onSaved: () => Promise
       }}
     >
       <select
-        aria-label="raise or lower"
+        aria-label={tr("form.directionLabel")}
         value={direction}
         onChange={(e) => setDirection(e.target.value as Measure["direction"])}
       >
-        <option value="increase">Raise</option>
-        <option value="decrease">Lower</option>
+        <option value="increase">{tr("form.raise")}</option>
+        <option value="decrease">{tr("form.lower")}</option>
       </select>
       <select
-        aria-label="what to measure"
+        aria-label={tr("form.metricLabel")}
         value={metric}
         onChange={(e) => setMetric(e.target.value as Measure["metric"])}
       >
-        <option value="revenue">revenue</option>
-        <option value="orders">number of sales</option>
-        <option value="sessions">website visits</option>
+        <option value="revenue">{metricWord("revenue", tr)}</option>
+        <option value="orders">{metricWord("orders", tr)}</option>
+        <option value="sessions">{metricWord("sessions", tr)}</option>
       </select>
-      <span className="gl-word">to</span>
+      <span className="gl-word">{tr("form.to")}</span>
       <input
-        aria-label="target"
+        aria-label={tr("form.targetLabel")}
         style={{ width: 120 }}
         inputMode="decimal"
         placeholder={metric === "revenue" ? "3600" : "120"}
@@ -186,42 +194,40 @@ function MeasureForm({ goal, onSaved }: { goal: CareGoal; onSaved: () => Promise
       />
       {metric === "revenue" && (
         <input
-          aria-label="currency"
+          aria-label={tr("form.currencyLabel")}
           style={{ width: 70 }}
           value={currency}
           onChange={(e) => setCurrency(e.target.value)}
         />
       )}
-      <span className="gl-word">per 30 days, by</span>
+      <span className="gl-word">{tr("form.perBy", { days: num(30, 0, locale) })}</span>
       <input
         type="date"
-        aria-label="deadline"
+        aria-label={tr("form.deadlineLabel")}
         value={deadline}
         onChange={(e) => setDeadline(e.target.value)}
       />
       <button className="act" disabled={busy || target.trim() === ""}>
-        Make it measurable
+        {tr("form.submit")}
       </button>
       {message && <p className="gl-note">{message}</p>}
-      {!deadline && goal.horizon && (
-        <p className="gl-note">Leave the date empty and the goal&apos;s own horizon sets it.</p>
-      )}
+      {!deadline && goal.horizon && <p className="gl-note">{tr("form.horizon")}</p>}
     </form>
   );
 }
 
 function Review({ review }: { review: NonNullable<CareGoal["review"]> }) {
+  const words = useTranslations("goals.review");
+  const { tr, locale } = useTr("goals");
+  const day = dayText(review.at, locale);
   return (
     <div className="gl-review">
-      <h3>
-        Alert review · {dayText(review.at)}
-        {review.with_a_person && " · a person at SYB has this now"}
-      </h3>
+      <h3>{tr(review.with_a_person ? "review.headPerson" : "review.head", { day })}</h3>
       {review.with_a_person && (
         <p>
-          The automatic review has done what it can
-          {review.escalation_reason ? ` (${review.escalation_reason})` : ""}. Someone from our team
-          is looking at this goal and will be in touch.
+          {review.escalation_reason
+            ? tr("review.escalatedWhy", { reason: review.escalation_reason })
+            : tr("review.escalated")}
         </p>
       )}
       {review.review?.summary && <p>{review.review.summary}</p>}
@@ -229,8 +235,12 @@ function Review({ review }: { review: NonNullable<CareGoal["review"]> }) {
         <ul>
           {review.review.causes.map((c) => (
             <li key={`${c.category}-${c.statement}`}>
-              <strong>{CAUSE_WORD[c.category] ?? c.category}:</strong> {c.statement} (
-              {c.evidence.length} piece{c.evidence.length === 1 ? "" : "s"} of evidence)
+              {words.rich("cause", {
+                cause: CAUSES.has(c.category) ? tr(`cause.${c.category}`) : c.category,
+                statement: c.statement,
+                count: c.evidence.length,
+                strong: (chunks: ReactNode) => <strong>{chunks}</strong>,
+              })}
             </li>
           ))}
         </ul>
@@ -239,10 +249,13 @@ function Review({ review }: { review: NonNullable<CareGoal["review"]> }) {
         <ul>
           {review.review.suggestions.map((s) => (
             <li key={`${s.kind}-${s.title}`}>
-              {s.title}
               {s.proposal_id
-                ? ` — waiting for you${s.note ? ` (${s.note})` : ""}`
-                : ` — ${s.note ?? "yours to decide"}`}
+                ? s.note
+                  ? tr("review.waitingNote", { title: s.title, note: s.note })
+                  : tr("review.waiting", { title: s.title })
+                : s.note !== null
+                  ? `${s.title} — ${s.note}`
+                  : tr("review.yours", { title: s.title })}
             </li>
           ))}
         </ul>
@@ -251,23 +264,27 @@ function Review({ review }: { review: NonNullable<CareGoal["review"]> }) {
   );
 }
 
-function footFor(goal: CareGoal, chart: GoalChart | undefined): { text: string; link: ReactNode } {
+function footFor(
+  goal: CareGoal,
+  chart: GoalChart | undefined,
+  tr: Tr,
+): { text: string; link: ReactNode } {
   const waiting = goal.review?.review?.suggestions.some((s) => s.proposal_id !== null);
   const link = waiting ? (
-    <Link href="/proposals">Waiting for you</Link>
+    <Link href="/proposals">{tr("foot.waiting")}</Link>
   ) : chart?.unconnected ? (
-    <Link href="/connections">Connections</Link>
+    <Link href="/connections">{tr("foot.connections")}</Link>
   ) : (
-    <Link href="/history">History</Link>
+    <Link href="/history">{tr("foot.history")}</Link>
   );
   if (goal.latest_check) return { text: goal.latest_check.detail, link };
   if (chart?.unconnected) {
     return {
-      text: `No connection measures ${METRIC_WORD[goal.measure!.metric]} yet. Connect one and its history fills the chart and the starting point.`,
+      text: tr("foot.unconnected", { metric: metricWord(goal.measure!.metric, tr) }),
       link,
     };
   }
-  return { text: "Not checked yet. The weekly check reads every measurable goal on Monday.", link };
+  return { text: tr("foot.unchecked"), link };
 }
 
 function GoalCard({
@@ -279,13 +296,15 @@ function GoalCard({
   chart: GoalChart | undefined;
   onSaved: () => Promise<void>;
 }) {
+  const { tr, locale } = useTr("goals");
   const m = goal.measure;
   const label = m
-    ? `${METRIC_WORD[m.metric]} · by ${dayText(m.deadline)}`
+    ? tr("card.label", { metric: metricWord(m.metric, tr), day: dayText(m.deadline, locale) })
     : goal.area
       ? goal.area.replace(/_/g, " ")
-      : "Goal";
-  const word = !m ? WORD.unmeasurable : WORD[goalWord(goal.latest_check?.verdict) ?? "unchecked"];
+      : tr("card.goal");
+  const wordKey = !m ? "unmeasurable" : (goalWord(goal.latest_check?.verdict) ?? "unchecked");
+  const word = { text: tr(`word.${wordKey}`), cls: WORD_CLASS[wordKey] };
 
   if (!m) {
     return (
@@ -293,19 +312,16 @@ function GoalCard({
         className="gl-card"
         id={`goal-${goal.goal_id}`}
         label={label}
-        title={goal.statement ?? "A goal without words yet"}
+        title={goal.statement ?? tr("card.untitled")}
         meta={<span className={`word ${word.cls}`}>{word.text}</span>}
       >
-        <p className="gl-copy">
-          This goal isn&apos;t measurable yet, so I can&apos;t tell you whether it&apos;s on its
-          path. Name the number it should move:
-        </p>
+        <p className="gl-copy">{tr("card.notMeasurable")}</p>
         <MeasureForm goal={goal} onSaved={onSaved} />
       </SheetCard>
     );
   }
 
-  const foot = footFor(goal, chart);
+  const foot = footFor(goal, chart, tr);
   const nowValue = chart?.now?.per_30d ?? null;
   const pathValue = chart?.path_now_per_30d ?? null;
   return (
@@ -315,7 +331,9 @@ function GoalCard({
       label={label}
       title={
         goal.statement ??
-        `${m.direction === "increase" ? "Raise" : "Lower"} ${METRIC_WORD[m.metric]}`
+        tr(m.direction === "increase" ? "card.raise" : "card.lower", {
+          metric: metricWord(m.metric, tr),
+        })
       }
       meta={<span className={`word ${word.cls}`}>{word.text}</span>}
       foot={
@@ -327,30 +345,37 @@ function GoalCard({
     >
       <dl className="gl-stats">
         <div className="gl-now">
-          <dt>Now</dt>
-          <dd>{nowValue === null ? "—" : per30(nowValue, m.currency)}</dd>
+          <dt>{tr("card.now")}</dt>
+          <dd>{nowValue === null ? "—" : per30(nowValue, m.currency, locale)}</dd>
         </div>
         <div>
-          <dt>Path says</dt>
-          <dd>{pathValue === null ? "—" : per30(pathValue, m.currency)}</dd>
+          <dt>{tr("card.pathSays")}</dt>
+          <dd>{pathValue === null ? "—" : per30(pathValue, m.currency, locale)}</dd>
         </div>
         <div>
-          <dt>Target</dt>
-          <dd>{per30(m.target_per_30d, m.currency)}</dd>
+          <dt>{tr("card.target")}</dt>
+          <dd>{per30(m.target_per_30d, m.currency, locale)}</dd>
         </div>
       </dl>
       <p className="gl-per">
-        per 30 days · now = the last 28 days
-        {chart?.now ? ` (${chart.now.days_measured} measured)` : ""}
-        {goal.baseline
-          ? ` · started at ${per30(goal.baseline.per_30d, m.currency)} on ${dayText(m.set_on)}`
-          : " · no measured starting point yet, so no path"}
+        {tr("card.per", { days: num(30, 0, locale), recent: num(28, 0, locale) })}
+        {chart?.now
+          ? ` ${tr("card.measured", { count: num(chart.now.days_measured, 0, locale) })}`
+          : ""}
+        {` · ${
+          goal.baseline
+            ? tr("card.startedAt", {
+                value: per30(goal.baseline.per_30d, m.currency, locale),
+                day: dayText(m.set_on, locale),
+              })
+            : tr("card.noStart")
+        }`}
       </p>
       {chart ? (
-        <CandleChart chart={chart} label={METRIC_WORD[m.metric]} />
+        <CandleChart chart={chart} label={metricWord(m.metric, tr)} />
       ) : (
         <div className="gl-chart">
-          <p className="gl-nochart">The chart couldn&apos;t be read just now.</p>
+          <p className="gl-nochart">{tr("card.chartFailed")}</p>
         </div>
       )}
       {goal.review && <Review review={goal.review} />}
@@ -367,15 +392,18 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useTr("goals");
   return (
     <main className="screen gl-screen">
-      <PageHead kicker="Insights · Goals" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
     </main>
   );
 }
 
 export function ProgressScreen({ charts }: { charts: GoalChart[] | null }) {
+  const words = useTranslations("goals.frame");
+  const { tr, locale } = useTr("goals");
   const router = useRouter();
   const [view, setView] = useState<CareView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
@@ -397,42 +425,44 @@ export function ProgressScreen({ charts }: { charts: GoalChart[] | null }) {
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("frame.signedOutTitle")}>
         <p className="gl-wait">
-          <Link href="/intake">Start with the interview</Link>, then set the goals it should move.
+          {words.rich("signedOut", {
+            link: (chunks: ReactNode) => <Link href="/intake">{chunks}</Link>,
+          })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="Your goals didn't load.">
-        <p className="gl-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("frame.failedTitle")}>
+        <p className="gl-wait">{tr("frame.failed")}</p>
       </Frame>
     );
   }
   if (!view) {
-    return <Frame title="Reading your goals…" />;
+    return <Frame title={tr("frame.reading")} />;
   }
 
   const n = view.goals.length;
   const checked = view.goals.filter((g) => g.latest_check !== null);
   const on = checked.filter((g) => onPath(g.latest_check?.verdict)).length;
-  const goalsWord = `${n} goal${n === 1 ? "" : "s"}.`;
+  const goals = tr("title.count", { count: n });
   const title =
     n === 0
-      ? "No goals yet."
+      ? tr("title.none")
       : checked.length === 0
-        ? `${goalsWord} None checked against a path yet.`
+        ? tr("title.noneChecked", { goals })
         : on === 0
-          ? `${goalsWord} None on its path.`
-          : `${goalsWord} ${on} on ${on === 1 ? "its" : "their"} path.`;
+          ? tr("title.noneOn", { goals })
+          : tr("title.someOn", { goals, count: on });
 
   const aside = (
     <div className="gl-aside">
-      {n > 0 && <span>1 candle = 1 week · blue line = the path to your target</span>}
+      {n > 0 && <span>{tr("aside", { one: num(1, 0, locale) })}</span>}
       <Link className="act" href="/content">
-        {n === 0 ? "Set a goal →" : "Set a new goal →"}
+        {n === 0 ? tr("setFirst") : tr("setNew")}
       </Link>
     </div>
   );
@@ -441,13 +471,8 @@ export function ProgressScreen({ charts }: { charts: GoalChart[] | null }) {
   return (
     <Frame title={title} aside={aside}>
       {n === 0 ? (
-        <SheetCard label="How goals work" title="State one goal, in your own words">
-          <p className="gl-copy">
-            Goals are set on Content, where every planned piece names the goal it serves. Make one
-            measurable (revenue, number of sales or website visits, by a date) and each week it is
-            checked against a straight path from where it started to where you want it. Nothing is
-            judged in the first eight weeks or while I&apos;m still watching.
-          </p>
+        <SheetCard label={tr("how.label")} title={tr("how.title")}>
+          <p className="gl-copy">{tr("how.copy")}</p>
         </SheetCard>
       ) : (
         <div className="gl-grid">

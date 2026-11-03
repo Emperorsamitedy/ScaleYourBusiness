@@ -10,12 +10,19 @@
 //
 // Plain SVG at the container's width (useChartWidth); ←/→ step the
 // crosshair (lib/charts/keys); every value is also in a table.
+//
+// L-3b: the chart's own words (key, line labels, readout, table heads) are
+// the "charts.cash" catalogue; money and the axis's days in the reader's
+// locale, in the business's currency.
 
 import { useState, type KeyboardEvent } from "react";
+import { useTranslations } from "next-intl";
 import "../../app/charts.css";
 import { stepKey } from "../../lib/charts/keys";
 import { wholeMoney } from "../../lib/cash/model";
+import { shortDate } from "../../lib/charts/model";
 import { SheetCard } from "../sheet/PageHead";
+import { useAppLocale } from "../sheet/useTr";
 import { useChartWidth } from "./useChartWidth";
 
 export interface CashChartPoint {
@@ -33,6 +40,7 @@ export interface CashChartModel {
   summary: string;
   /** Today first, then each week's end. */
   points: CashChartPoint[];
+  /** label is a code, "BUFFER" or "ZERO"; the chart words it. */
   line: { amount: number; label: string };
   /** Index into points of the first tight week, or null. */
   tight: number | null;
@@ -40,6 +48,8 @@ export interface CashChartModel {
 }
 
 export function CashChart({ model }: { model: CashChartModel }) {
+  const t = useTranslations("charts.cash");
+  const locale = useAppLocale();
   const [at, setAt] = useState<number | null>(null);
   const { ref, width, narrow } = useChartWidth<HTMLDivElement>(720);
   const pts = model.points;
@@ -57,7 +67,8 @@ export function CashChart({ model }: { model: CashChartModel }) {
   const top = max + pad;
   const bottom = min - pad;
   const y = (v: number) => TOP + ((top - v) / (top - bottom)) * H;
-  const money = (v: number) => wholeMoney(v, model.currency);
+  const money = (v: number) => wholeMoney(v, model.currency, locale);
+  const lineWord = model.line.label === "BUFFER" ? t("lineBuffer") : t("lineZero");
   const shown = at ?? model.tight ?? pts.length - 1;
   const p = pts[shown];
 
@@ -89,16 +100,16 @@ export function CashChart({ model }: { model: CashChartModel }) {
       meta={model.meta}
       foot={model.foot}
     >
-      <ul className="sc-keys" aria-label="Key">
+      <ul className="sc-keys" aria-label={t("key")}>
         <li>
-          <span className="sc-key cf-band" aria-hidden="true" /> cautious to hopeful end
+          <span className="sc-key cf-band" aria-hidden="true" /> {t("band")}
         </li>
         <li>
-          <span className="sc-key cf-low" aria-hidden="true" /> cautious end
+          <span className="sc-key cf-low" aria-hidden="true" /> {t("low")}
         </li>
         <li>
           <span className="sc-key cf-line" aria-hidden="true" />{" "}
-          {model.line.label === "BUFFER" ? "your buffer" : "zero (no buffer stated)"}
+          {model.line.label === "BUFFER" ? t("buffer") : t("zero")}
         </li>
       </ul>
       <div className="sc-plot" ref={ref}>
@@ -131,7 +142,7 @@ export function CashChart({ model }: { model: CashChartModel }) {
             y2={y(model.line.amount)}
           />
           <text className="tick" x={plotR + 6} y={y(model.line.amount) + 4}>
-            {model.line.label}
+            {lineWord}
           </text>
           <text className="tick" x={plotR + 6} y={y(top - pad) + 4}>
             {money(top - pad)}
@@ -154,7 +165,7 @@ export function CashChart({ model }: { model: CashChartModel }) {
                 y={Math.min(TOP + H - 2, y(pts[model.tight]!.low) + 20)}
                 textAnchor="middle"
               >
-                TIGHT
+                {t("tight")}
               </text>
             </g>
           )}
@@ -167,7 +178,7 @@ export function CashChart({ model }: { model: CashChartModel }) {
                 y={height - 6}
                 textAnchor={i === 0 ? "start" : "middle"}
               >
-                {i === 0 ? "Today" : q.label.replace("Week of ", "")}
+                {i === 0 ? t("today") : shortDate(q.start, locale)}
               </text>
             ) : null,
           )}
@@ -179,11 +190,13 @@ export function CashChart({ model }: { model: CashChartModel }) {
           {p.low === p.high ? (
             <b>{money(p.low)}</b>
           ) : (
-            <>
-              <b>{money(p.low)}</b> cautious – <b>{money(p.high)}</b> hopeful
-            </>
+            t.rich("readoutRange", {
+              low: money(p.low),
+              high: money(p.high),
+              b: (c) => <b>{c}</b>,
+            })
           )}
-          {p.low < model.line.amount && <> · under the line</>}
+          {p.low < model.line.amount && <> · {t("underLine")}</>}
         </p>
       )}
       <div className="sr-only">
@@ -191,9 +204,9 @@ export function CashChart({ model }: { model: CashChartModel }) {
           <caption>{model.summary}</caption>
           <thead>
             <tr>
-              <th scope="col">When</th>
-              <th scope="col">Cautious end ({model.currency})</th>
-              <th scope="col">Hopeful end ({model.currency})</th>
+              <th scope="col">{t("when")}</th>
+              <th scope="col">{t("cautiousCol", { currency: model.currency })}</th>
+              <th scope="col">{t("hopefulCol", { currency: model.currency })}</th>
             </tr>
           </thead>
           <tbody>

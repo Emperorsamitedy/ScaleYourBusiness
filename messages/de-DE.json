@@ -774,6 +774,228 @@
       "label": "Ihre Zahlen als Diagramm",
       "failed": "Ich konnte Ihre Zahlen für das Diagramm gerade nicht lesen. Laden Sie die Seite neu, um es erneut zu versuchen – nichts ist verloren.",
       "reading": "Ihre gemessenen Tage werden gelesen…"
+    },
+    "candle": {
+      "noneUnconnected": "Noch keine Verbindung misst {metric}, deshalb gibt es nichts darzustellen.",
+      "noneMeasured": "In den letzten Wochen wurde {metric} nicht gemessen, deshalb gibt es noch nichts darzustellen.",
+      "summaryPath": "{metric} pro Tag, {count, plural, one {# Wochenkerze} other {# Wochenkerzen}}. Die letzte Woche eröffnete bei {open} und schloss bei {close}; der Kurs zum Zielwert liegt bei {target} pro Tag.",
+      "summaryNoPath": "{metric} pro Tag, {count, plural, one {# Wochenkerze} other {# Wochenkerzen}}. Die letzte Woche eröffnete bei {open} und schloss bei {close}; Zielwert {target} pro Tag, kein gemessener Ausgangspunkt für einen Kurs.",
+      "perDay": "{metric} / Tag",
+      "period": "{count} W.",
+      "ohlc": "E {open} H {high} T {low} S {close} {change}",
+      "volume": "Vol. <b>{count}</b> {word}",
+      "volumeWord": {
+        "orders": "Bestellungen"
+      },
+      "today": "HEUTE"
+    },
+    "cash": {
+      "key": "Legende",
+      "band": "vorsichtiges bis zuversichtliches Ende",
+      "low": "vorsichtiges Ende",
+      "buffer": "Ihr Puffer",
+      "zero": "null (kein Puffer angegeben)",
+      "lineBuffer": "PUFFER",
+      "lineZero": "NULL",
+      "tight": "KNAPP",
+      "today": "Heute",
+      "readoutRange": "<b>{low}</b> vorsichtig – <b>{high}</b> zuversichtlich",
+      "underLine": "unter der Linie",
+      "when": "Wann",
+      "cautiousCol": "Vorsichtiges Ende ({currency})",
+      "hopefulCol": "Zuversichtliches Ende ({currency})"
+    },
+    "market": {
+      "kicker": "Erkenntnisse · Ihre Zahlen als Diagramm",
+      "title": "Ihr Unternehmen, gelesen wie eine Aktie",
+      "daysMeasured": "{count, plural, one {# Tag gemessen} other {# Tage gemessen}}",
+      "periodGroup": "Kerzenzeitraum",
+      "period": {
+        "day": "{count}T",
+        "week": "{count}W",
+        "month": "{count}M"
+      },
+      "periodSr": {
+        "day": "eine Kerze pro Tag",
+        "week": "eine Kerze pro Woche",
+        "month": "eine Kerze pro Monat"
+      },
+      "keyLabel": "Legende",
+      "keyUp": "gestiegen: gefüllt",
+      "keyDown": "gefallen: hohl",
+      "keySlip": "entgangen, pro Tag",
+      "keyKept": "was Sie behalten hätten",
+      "keyTable": "noch zu holen",
+      "ohlc": "E {open} H {high} T {low} S <b>{close}</b>",
+      "closedDays": "{count, plural, one {# geschlossener Tag} other {# geschlossene Tage}}",
+      "volumeWord": {
+        "orders": "Bestellungen",
+        "appointments": "Termine",
+        "visits": "Besuche"
+      },
+      "volumeCount": {
+        "orders": "{count, plural, one {# Bestellung} other {# Bestellungen}}",
+        "appointments": "{count, plural, one {# Termin} other {# Termine}}",
+        "visits": "{count, plural, one {# Besuch} other {# Besuche}}"
+      },
+      "volumeNone": {
+        "orders": "Bestellungen nicht gemessen",
+        "appointments": "Termine nicht gemessen",
+        "visits": "Besuche nicht gemessen"
+      },
+      "slipped": "entgangen <b>{range}</b>: {parts} <word>{derived}</word> · behalten {kept} pro Tag",
+      "nothingSlipped": "nichts Gemessenes entgangen",
+      "aheadLong": "NOCH ZU HOLEN",
+      "aheadShort": "ZU HOLEN",
+      "eventsLabel": "Im Diagramm markiert",
+      "event": {
+        "anomaly": "Erkannt",
+        "approved": "Von Ihnen freigegeben",
+        "connected": "Verbunden"
+      },
+      "component": {
+        "revenue_dips": "Umsatzeinbrüche",
+        "no_shows": "Nichterscheinen",
+        "late_cancellations": "Kurzfristige Absagen",
+        "empty_capacity": "Unbelegte Termine",
+        "losing_ads": "Anzeigen, die Geld verlieren",
+        "slow_stock": "Geld in langsamem Bestand",
+        "on_the_table": "Noch zu holen"
+      },
+      "price": {
+        "revenue": "Umsatz pro Tag",
+        "bookingRevenue": "Buchungsumsatz pro Tag"
+      },
+      "componentsCaption": "Was jeden Monat entgeht, wie jeder Teil ermittelt wurde, und seine Grundlage",
+      "colWhere": "Wo es entgeht",
+      "colMonth": "{currency} pro Monat",
+      "colBasis": "Grundlage",
+      "colHow": "Wie es ermittelt wurde",
+      "apart": "Nicht zum Monat addiert",
+      "legend": "Ein Monat hat {days} Tage: Jeder Fluss wird über sein eigenes Zeitfenster gelesen und auf {days} Tage hochgerechnet, wie seine Zeile sagt. {derived} = {derivedMeaning}. {estimated} heißt hier: die eigenen Prognosen der wartenden Vorschläge. Bereiche reichen vom unteren bis zum oberen Ende; eine einzelne Zahl heißt, dass nichts Geschätztes eingeflossen ist.",
+      "seeWaiting": "Sehen, was wartet →",
+      "row": {
+        "notMeasured": "Nicht gemessen",
+        "aMonth": "Pro Monat",
+        "basis": "Grundlage",
+        "wouldFill": "Was es füllen würde",
+        "tiedUp": "Jetzt gebunden",
+        "now": "jetzt",
+        "how": "Wie",
+        "over": "Über {days} Tage: {total}, × {month} ÷ {days}."
+      },
+      "empty": {
+        "nothing": "Noch nichts zu zeichnen.",
+        "connections": "Zu den Verbindungen →",
+        "would": "Sobald eine Verbindung besteht, beziffere ich, wo Geld entgeht:"
+      },
+      "weekOf": "Woche vom {day}",
+      "table": {
+        "day": "Tag",
+        "week": "Woche",
+        "month": "Monat",
+        "open": "Eröffnung ({currency})",
+        "high": "Hoch ({currency})",
+        "low": "Tief ({currency})",
+        "close": "Schluss ({currency})",
+        "slipped": "Entgangen ({currency})",
+        "kept": "Was Sie behalten hätten, pro Tag ({currency})",
+        "notMeasured": "nicht gemessen",
+        "none": "keine"
+      }
+    },
+    "season": {
+      "key": "Legende",
+      "keyBusy": "stark: gefüllt",
+      "keyQuiet": "ruhig: hohl",
+      "keyBand": "Ihre mittlere Hälfte der Wochen",
+      "keyPlain": "eine Woche gegenüber Ihrer Medianwoche",
+      "nextShort": "{count, plural, one {NÄCHSTE # WO.} other {NÄCHSTE # WO.}}",
+      "nextLong": "{count, plural, one {DIE NÄCHSTE # WOCHE} other {DIE NÄCHSTEN # WOCHEN}}, IM VORJAHR",
+      "weekOf": "Woche vom {day}",
+      "yourNormal": "Ihre normale Woche",
+      "yourMedian": "Ihre Medianwoche",
+      "flag": {
+        "busy": "stark",
+        "quiet": "ruhig"
+      },
+      "colWeek": "Woche vom",
+      "colNormal": "Gegenüber der normalen Woche",
+      "colMedian": "Gegenüber der Medianwoche",
+      "colFlag": "Markierung",
+      "ready": {
+        "label": "Ihr Jahr · {count, plural, one {# Woche} other {# Wochen}}",
+        "titleEven": "Jede Woche des letzten Jahres nahe an Ihrer normalen Woche",
+        "title": "{busy, number} starke und {quiet, plural, one {# ruhige Woche} other {# ruhige Wochen}} im letzten Jahr",
+        "meta": "{source} · {noun} · BEOBACHTETE Wochen, ABGELEITETER Index",
+        "foot": "Jeder Balken ist {noun} einer Woche ÷ Ihre normale Woche (der Median der letzten {weeks, number}). Stark heißt {busy} oder mehr, ruhig {quiet} oder weniger.",
+        "summary": "{count, plural, one {# Woche} other {# Wochen}} {noun} gegenüber Ihrer normalen Woche; {busy, number} stark, {quiet, number} ruhig. {headline}"
+      },
+      "short": {
+        "label": "Die vorhandenen Wochen · {count, number}",
+        "title": "Ihre Wochen im Vergleich untereinander — noch keine Saison",
+        "meta": "{source} · {noun} · BEOBACHTET",
+        "foot": "Gegenüber Ihrer Medianwoche dieser {count, number}. Eine Saison braucht {needed, plural, one {# vollständige Woche} other {# vollständige Wochen}} der letzten {weeks, number}; Sie haben {have, number}.",
+        "summary": "{count, plural, one {# vollständige Woche} other {# vollständige Wochen}} {noun}, gegenüber ihrem eigenen Median. Nicht genug Verlauf, um eine Saison zu benennen."
+      }
+    },
+    "small": {
+      "keyLabel": "Legende",
+      "bookings": {
+        "label": "Buchungen · Woche für Woche",
+        "title": "Wahrgenommen, verpasst und was die verpassten wert waren",
+        "meta": "<word>{observed}</word> Zahlen · <word>{derived}</word> Geld",
+        "keyCompleted": "wahrgenommen: gefüllt",
+        "keyNoShow": "nicht erschienen: hohl",
+        "keyLate": "kurzfristig abgesagt: getönt",
+        "paneCount": "TERMINE",
+        "paneMoney": "VERPASST, WERT ({currency})",
+        "weekOf": "Woche vom {day}",
+        "completed": "{count, plural, one {# wahrgenommen} other {# wahrgenommen}}",
+        "noShows": "{count, plural, one {# nicht erschienen} other {# nicht erschienen}}",
+        "late": "{count, plural, one {# kurzfristige Absage} other {# kurzfristige Absagen}}",
+        "missedWorth": "verpasst im Wert von <b>{range}</b>",
+        "caption": "Termine pro Woche, und was die verpassten wert waren",
+        "colWeek": "Woche vom",
+        "colCompleted": "Wahrgenommen",
+        "colNoShows": "Nicht erschienen",
+        "colLate": "Kurzfristige Absagen",
+        "colMissed": "Verpasst, Wert ({currency})"
+      },
+      "ads": {
+        "label": "Anzeigen · {count, plural, one {der letzte # Tag} other {die letzten # Tage}}",
+        "titleNone": "Jede Kampagne bringt ein, was sie kostet",
+        "titleLosing": "{count, plural, one {# Kampagne kostet mehr, als sie einbringt} other {# Kampagnen kosten mehr, als sie einbringen}}",
+        "window": "Meta Ads · {from}–{to}",
+        "derivedFrom": "<word>{derived}</word> aus Metas eigener Zuordnung",
+        "foot": "Rendite = der Kaufwert, den Meta der Kampagne zuordnet ÷ was sie ausgegeben hat. Unter {even} verliert sie nach Metas eigener Zählung Geld — die Linie, ab der ich eine Pause vorschlage.",
+        "keySpent": "ausgegeben: hohl",
+        "keyBack": "von Meta zurück zugeordnet: gefüllt",
+        "colCampaign": "Kampagne",
+        "colSpentBack": "Ausgegeben gegenüber zurück",
+        "colReturn": "Rendite",
+        "colFlag": "Markierung",
+        "cellSpentBack": "Ausgegeben / zurück",
+        "spentBack": "{spent} ausgegeben · {back} zurück",
+        "losing": "Verlustbringend",
+        "paysBack": "Rechnet sich"
+      }
+    },
+    "stockHistory": {
+      "label": "Langsamer Bestand · {count, plural, one {# Zählung} other {# Zählungen}}",
+      "title": "Gebundenes Geld, Zählung für Zählung",
+      "observed": "BEOBACHTET",
+      "formula": "vorrätige Einheiten × Stückkosten",
+      "foot": "Ein Bestand, kein Fluss: Jeder Punkt ist, was ein Artikel am Tag seiner Zählung vorrätig hatte, nie über Tage addiert.",
+      "otherCurrency": "{count, plural, one {# Artikel in einer anderen Währung wurde weggelassen.} other {# Artikel in einer anderen Währung wurden weggelassen.}}",
+      "item": "Artikel",
+      "over": "Über die Zählungen",
+      "first": "Erste ({currency})",
+      "latest": "Letzte ({currency})",
+      "oneCount": "eine Zählung, {day}",
+      "unchanged": "unverändert",
+      "down": "{amount} weniger",
+      "up": "{amount} mehr"
     }
   },
   "factsheet": {
@@ -1389,6 +1611,1475 @@
       "happened": "Was passiert ist: {happened}",
       "foot": "Ich erfasse jede Prognose in dem Moment, in dem ich sie zeige, mit der genannten Spanne, und beurteile sie, sobald ihre Zeit vorbei ist, nur anhand gemessener Zahlen. Ein Urteil lässt sich nicht ändern.",
       "cantTell": "„Nicht feststellbar“ heißt, dass die gemessenen Zahlen fehlten oder etwas dazwischenkam, das in meiner Prognose nicht vorkam, etwa eine Lieferung. Es zählt nie als Treffer."
+    }
+  },
+  "benchmarks": {
+    "meta": {
+      "title": "Vergleich mit ähnlichen Unternehmen — SYB"
+    },
+    "kicker": "Erkenntnisse · Vergleich mit ähnlichen Unternehmen",
+    "kickerShort": "Vergleich mit ähnlichen Unternehmen",
+    "aside": "Eurostat · nur lesend",
+    "add": "{what} hinzufügen →",
+    "addPeople": "Angeben, wie viele Personen hier arbeiten",
+    "notComparedYet": "Noch nicht verglichen",
+    "noComparison": "Kein Vergleich",
+    "nothingToCompare": "Nichts zu vergleichen",
+    "yours": "Ihr Wert",
+    "theirs": "Vergleichsgruppe",
+    "cell": "Vergleichsgruppe: {words}.",
+    "cellFlagged": "Vergleichsgruppe: {words} ({flag}).",
+    "col": {
+      "restsOn": "Worauf Ihre Zahl beruht",
+      "value": "Wert",
+      "basis": "Grundlage",
+      "source": "Woher es stammt"
+    },
+    "notCounted": "Nicht gezählt",
+    "signedOut": {
+      "title": "Hier gibt es noch kein Unternehmen.",
+      "body": "<link>Beginnen Sie mit dem Interview</link>, dann füllen Ihre eigenen Zahlen diese Seite."
+    },
+    "error": {
+      "title": "Der Vergleich konnte nicht geladen werden.",
+      "body": "Bei mir ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
+    },
+    "loading": "Ihre Zahlen werden gelesen…",
+    "head": {
+      "ready": "Verglichen mit {group} {size} in {country}.",
+      "noType": "Ich weiß noch nicht, welche Art von Unternehmen das ist.",
+      "unmapped": "Für diese Art von Unternehmen gibt es keinen Eurostat-Vergleich.",
+      "noCountry": "Ich weiß nicht, in welchem Land das Unternehmen ist.",
+      "outsideEu": "Eurostat deckt {country} nicht ab."
+    },
+    "foot": "Quelle: Eurostat, {dataset} ({doi}), aktualisiert {updated}, abgerufen {retrieved}, weiterverwendet unter Nennung der Quelle. Ich verwende jeweils das neueste Jahr jeder Gruppe und rechne Euro in Ihre Währung um; dafür ist Eurostat nicht verantwortlich. {caveat}",
+    "line": "Ihr Wert ist {own}, der der Vergleichsgruppe {bench}: {gap}.",
+    "reading": {
+      "above": "DARÜBER",
+      "below": "DARUNTER",
+      "same": "ETWA GLEICH",
+      "notYet": "NOCH NICHT",
+      "none": "KEIN VERGLEICH"
+    },
+    "nothingCompared": "Nichts verglichen",
+    "comparedCount": "{count, number} von {total, number} verglichen",
+    "size": {
+      "unknown": "Ich weiß nicht, wie viele Personen im Unternehmen arbeiten, deshalb umfasst die Gruppe alle Größen.",
+      "spans": "Ihre Größe fällt in zwei Größenklassen von Eurostat, deshalb umfasst die Gruppe alle Größen."
+    }
+  },
+  "blindspots": {
+    "meta": {
+      "title": "Blinde Flecken — SYB"
+    },
+    "kicker": "Erkenntnisse · Blinde Flecken",
+    "quoted": "„{text}“",
+    "where": {
+      "support": "Support-Chat",
+      "search": "Website-Suche",
+      "google": "Google",
+      "competitors": "{showing, number} von {checked, number} Wettbewerbern"
+    },
+    "head": {
+      "noSite": "In Ihrem Profil gibt es noch keine Website.",
+      "notRead": "Ihre Website wurde noch nicht gelesen.",
+      "nothingMissing": "Auf Ihrer Website fehlt nichts, wonach Kunden suchen.",
+      "things": "{count, plural, one {# Sache, nach der Kunden suchen, steht nicht auf Ihrer Website.} other {# Dinge, nach denen Kunden suchen, stehen nicht auf Ihrer Website.}}",
+      "foundBoth": "{count, number} Suchen und Fragen haben auf Ihrer Website nichts gefunden.",
+      "foundSearches": "{count, plural, one {# Suche hat auf Ihrer Website nichts gefunden.} other {# Suchen haben auf Ihrer Website nichts gefunden.}}",
+      "foundQuestions": "{count, plural, one {# Frage hat auf Ihrer Website nichts gefunden.} other {# Fragen haben auf Ihrer Website nichts gefunden.}}"
+    },
+    "table": {
+      "aria": "Tabelle der blinden Flecken",
+      "lookedFor": "Gesucht wurde",
+      "times": "Häufigkeit",
+      "share": "Anteil am größten",
+      "where": "Wo es aufkam",
+      "onSite": "Auf Ihrer Website",
+      "notFound": "Nicht gefunden"
+    },
+    "biggest": {
+      "label": "Größter blinder Fleck · {count, plural, one {# Mal} other {# Mal}}",
+      "title": "„{label}“ steht nicht auf Ihrer Website",
+      "support": "Support-Chat",
+      "notAsked": "nicht gefragt",
+      "unanswered": "{count, number} unbeantwortet",
+      "search": "Website-Suche",
+      "notSearched": "nicht gesucht",
+      "google": "Google",
+      "notSeen": "nicht gesehen",
+      "impressions": "Impressionen · {count, plural, one {# Klick} other {# Klicks}}",
+      "competitors": "Wettbewerber",
+      "noneChecked": "keiner geprüft",
+      "showing": "{showing, number} von {checked, number}",
+      "showIt": "zeigen es auf ihrer Website",
+      "toFix": "{arithmetic}. Behebung: {fix}."
+    },
+    "fixed": {
+      "label": "Wie blinde Flecken behoben werden",
+      "title": "Mit Ihrer Freigabe, nie von selbst",
+      "foot": "Website-Änderungen warten unter „Website“.",
+      "link": "Unter „Website“ prüfen →",
+      "stepFix": "Eine Behebung ist {fix}.",
+      "fixDefault": "eine Website-Änderung über die Freigabe-Warteschlange oder eine Antwort in Ihrem Support-Assistenten",
+      "stepWait": "Nichts ändert sich von selbst: Eine Behebung wartet unter „Wartet auf Sie“, bis Sie sie freigeben.",
+      "stepRecheck": "{days, plural, one {Ihre Website wird jeden Tag neu gelesen, sodass ein blinder Fleck, den sie jetzt abdeckt, von dieser Liste verschwindet.} other {Ihre Website wird alle # Tage neu gelesen, sodass ein blinder Fleck, den sie jetzt abdeckt, von dieser Liste verschwindet.}}"
+    },
+    "coverage": {
+      "label": "Was hier nicht sichtbar war",
+      "title": "Lücken, keine Fehler"
+    },
+    "signedOut": {
+      "title": "Hier gibt es noch kein Unternehmen.",
+      "body": "<link>Beginnen Sie mit dem Interview</link>, dann wird Ihre Website von dort aus gelesen."
+    },
+    "error": {
+      "title": "Die blinden Flecken konnten nicht geladen werden.",
+      "body": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
+    },
+    "loading": "Es wird gelesen, wonach Kunden suchen…",
+    "aside": {
+      "window": "{days, plural, one {Letzter # Tag} other {Letzte # Tage}} · {from} bis {to}",
+      "siteRead": "Website gelesen {day}",
+      "siteNotRead": "Website nicht gelesen",
+      "observed": "BEOBACHTET"
+    },
+    "list": {
+      "label": "Wonach Kunden gesucht haben, und was Ihre Website zeigt",
+      "title": "{count, plural, one {# blinder Fleck, der größte zuerst} other {# blinde Flecken, die größten zuerst}}",
+      "meta": "Geordnet danach, wie viele Quellen darauf hinweisen, dann nach Häufigkeit",
+      "nothingMissing": "Nichts fehlt",
+      "nothingYet": "Noch nichts zu vergleichen",
+      "allThere": "Alles, wonach Kunden gefragt oder gesucht haben und was ich zuordnen kann, steht auf Ihrer Website.",
+      "noSite": "Fügen Sie Ihre Website zu Ihrem Profil hinzu, dann lese ich bis zu fünf ihrer Seiten und vergleiche sie mit dem, wonach Kunden fragen und suchen.",
+      "notRead": "Ihre Website wurde noch nicht gelesen, deshalb kann nichts als dort fehlend gelten.",
+      "notReadWhy": "Ihre Website wurde noch nicht gelesen: {why}, deshalb kann nichts als dort fehlend gelten."
+    },
+    "factSheet": "Faktenblatt",
+    "hard": {
+      "label": "Auf Ihrer Website, und doch fragen Kunden immer wieder",
+      "title": "Vielleicht schwer zu finden",
+      "item": "<strong>{label}</strong>: {count, plural, one {# Mal} other {# Mal}} in Ihrem Support-Chat gefragt; es steht auf <link>{page}</link>."
+    },
+    "seen": {
+      "label": "Bei Google gesehen, selten angeklickt",
+      "title": "Angezeigt, nicht gewählt",
+      "search": "Suche",
+      "shown": "Angezeigt",
+      "clicked": "Angeklickt",
+      "position": "Position"
+    },
+    "topics": {
+      "label": "Wonach sonst gesucht wurde",
+      "title": "Steht es auf Ihrer Website?",
+      "item": "<strong>{label}</strong>: {count, plural, one {# Suche} other {# Suchen}} (z. B. {examples})"
+    }
+  },
+  "carts": {
+    "meta": {
+      "title": "Abgebrochene Warenkörbe — SYB"
+    },
+    "kicker": "Kunden · Abgebrochene Warenkörbe",
+    "foot": "SYB schreibt nie einer Person eine E-Mail, die nicht Ja gesagt hat. Die eigene E-Mail von Shopify zu abgebrochenen Bestellvorgängen ist, falls Sie sie nutzen, davon getrennt.",
+    "signedOut": "Hier gibt es noch kein Unternehmen.",
+    "startInterview": "<link>Beginnen Sie mit dem Interview</link>.",
+    "failedTitle": "Die Warenkörbe konnten nicht geladen werden.",
+    "failedBody": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen.",
+    "reading": "Ihre Warenkörbe werden gelesen…",
+    "connect": "Verbinden Sie Ihren Shopify-Shop, dann lese ich bei jeder Synchronisierung seine nicht abgeschlossenen Bestellvorgänge.",
+    "connections": "Verbindungen",
+    "measured": "GEMESSEN",
+    "notYet": "NOCH NICHT",
+    "waitingForYou": "Wartet auf Sie",
+    "workingItOut": "Wird berechnet…",
+    "ruledOut": "Ich habe das nicht in Ihre Warteschlange gelegt: Ihre Regel ({rule}) schließt es aus.",
+    "products": {
+      "label": "Was zurückgelassen wurde · {count, plural, one {# Warenkorb} other {# Warenkörbe}}",
+      "titleSome": "Was in den meisten Warenkörben lag, zuerst",
+      "titleNone": "Kein Produkt zu nennen",
+      "meta": "Gemessen an den eigenen Bestellvorgängen Ihres Shops",
+      "table": "In Warenkörben zurückgelassene Produkte",
+      "product": "Produkt",
+      "inCarts": "In Warenkörben",
+      "units": "Einheiten",
+      "valueLeft": "Zurückgelassener Wert",
+      "aProduct": "Ein Produkt",
+      "noProduct": "Die zurückgelassenen Warenkörbe enthielten kein Produkt, das ich benennen kann.",
+      "truncated": "{count, plural, one {# Warenkorb hatte} other {# Warenkörbe hatten}} mehr Artikel, als ein Lesevorgang erfasst, deshalb werden hier nur jeweils die ersten {max} gezählt. Ihre Gesamtbeträge sind vollständig erfasst."
+    },
+    "winBack": {
+      "label": "Wahrscheinlich zurückzugewinnen · {emailable} von {shoppers} Käufern per E-Mail erreichbar",
+      "titleRange": "{range} wahrscheinlich zurück",
+      "titleNone": "Noch nichts per E-Mail zurückzugewinnen",
+      "inQueue": "Die heutige Erinnerung liegt in Ihrer Warteschlange.",
+      "oneEmail": "{count, plural, one {Eine E-Mail an # Kontakt, der vor {min}–{max} Tagen einen Warenkorb zurückgelassen und Ja gesagt hat.} other {Eine E-Mail an die # Kontakte, die vor {min}–{max} Tagen einen Warenkorb zurückgelassen und Ja gesagt haben.}} Nichts wird versendet, bevor Sie die E-Mail selbst freigeben.",
+      "button": "Rückgewinnungs-E-Mails vorschlagen →",
+      "rangeOf": "{low}–{high} von {base}",
+      "rangeBase": "{count, plural, one {dem Wert des # Warenkorbs, dessen Käufer Ja zu E-Mails gesagt hat} other {dem Wert der # Warenkörbe, deren Käufer Ja zu E-Mails gesagt haben}}",
+      "nobody": "Niemand, der in den letzten {days} Tagen einen Warenkorb zurückgelassen hat, ist per E-Mail erreichbar, deshalb nenne ich keine Zahl.",
+      "working": "Die Erinnerung wird erstellt"
+    },
+    "consent": {
+      "label": "Wer per E-Mail erreichbar ist",
+      "title": "Nur Personen, die Ja gesagt haben",
+      "checkout": "Wer beim Bestellvorgang von Shopify „E-Mails an mich“ ankreuzt, wird ein Kontakt mit diesem erfassten Ja, sobald SYB Ihre Shopify-Kunden lesen darf. Ein Ja, das Sie selbst erfasst haben, weicht nur einer späteren Abmeldung in Shopify."
+    },
+    "refusal": {
+      "label": "Abgebrochene Warenkörbe",
+      "noneRead": "Ich habe noch keine Warenkörbe gelesen.",
+      "rule": "Ich messe, sobald es Warenkörbe aus {days} Tagen gibt und in den letzten {window} Tagen {carts} Warenkörbe zurückgelassen wurden, damit eine ruhige Woche nicht als Muster gelesen wird."
+    },
+    "result": {
+      "didntWork": "Das hat nicht geklappt.",
+      "ourSide": "Bei uns ist etwas schiefgelaufen.",
+      "nothingNew": "Nichts Neues vorzuschlagen.",
+      "nothingNewWhy": "Nichts Neues vorzuschlagen: {reason}.",
+      "waits": "Eine Rückgewinnungs-E-Mail wartet jetzt auf Sie.",
+      "blocked": "Ihre eigenen Regeln haben sie blockiert, deshalb liegt sie blockiert in Ihrer Warteschlange."
+    },
+    "view": {
+      "and": "{first} und {last}",
+      "titleTooMany": "Zu viele Bestellvorgänge zum Lesen",
+      "titleStale": "Keine Zahl aus einem alten Lesevorgang",
+      "titleTooFew": "Nicht genug Warenkörbe zum Messen",
+      "waiting": "Wartet auf Sie",
+      "blocked": "Durch Ihre Regel blockiert",
+      "approved": "Freigegeben",
+      "sent": "Versendet",
+      "declined": "Abgelehnt",
+      "expired": "Abgelaufen"
+    }
+  },
+  "cash": {
+    "meta": {
+      "title": "Cashflow — SYB"
+    },
+    "kicker": "Erkenntnisse · Cashflow",
+    "aside": "Planungshilfe · nur lesend",
+    "planningNote": "Eine Planungshilfe aus Ihren eigenen Zahlen, keine Finanzberatung. SYB bewegt, zahlt oder kassiert niemals Geld.",
+    "sourcesNone": "Quellen: Ihre angegebenen liquiden Mittel und Kosten und Ihre gemessenen Verkäufe.",
+    "signedOut": "Hier gibt es noch kein Unternehmen.",
+    "startInterview": "<link>Beginnen Sie mit dem Interview</link>.",
+    "failedTitle": "Die Cashflow-Prognose konnte nicht geladen werden.",
+    "failedBody": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen.",
+    "reading": "Ihre Zahlen werden gelesen…",
+    "refused": {
+      "label": "Wie viel vorliegt",
+      "labelFrom": "Wie viel vorliegt · {source}",
+      "weeks": "{complete} von {needed} vollständigen Wochen",
+      "nothing": "Noch nichts, worauf sich eine Prognose stützen könnte",
+      "readyOn": "Bereit ab etwa {day}, wenn die Synchronisierungen weiterlaufen",
+      "gapLabel": "Was ich schon sagen kann und was noch nicht",
+      "gapTitle": "Ehrlich über die Lücke",
+      "can": "Ich kann",
+      "cannot": "Ich kann noch nicht"
+    },
+    "warning": {
+      "label": "Wenn das Geld knapp wird",
+      "titleTight": "Die erste knappe Woche",
+      "titleNone": "Keine knappe Woche in den nächsten {weeks}",
+      "metaBuffer": "Gemessen am Mindestbetrag, den Sie auf dem Bankkonto haben möchten",
+      "metaZero": "Kein Puffer angegeben: gemessen an einem leeren Bankkonto",
+      "none": "Selbst am vorsichtigen Ende (schwache Verkäufe, langsame Auszahlungen) bleibt der Kontostand jede Woche über der Linie.",
+      "reading": "Dies ist eine Auswertung Ihrer Zahlen, eingetragen in Ihr Beobachtungsprotokoll und Ihre Wochenzusammenfassung. Es wird nichts dazu vorgeschlagen oder unternommen.",
+      "askBuffer": "<link>Nennen Sie mir den Mindestbetrag, den Sie auf dem Bankkonto haben möchten</link>, dann ziehe ich stattdessen diese Linie."
+    },
+    "weeks": {
+      "label": "Woche für Woche",
+      "title": "Geld rein, Geld raus, der Kontostand",
+      "meta": "Vorsichtig – zuversichtlich, ganze Einheiten",
+      "week": "Woche",
+      "moneyIn": "Eingänge",
+      "goingOut": "Ausgänge",
+      "dueThatWeek": "In dieser Woche fällig",
+      "due": "Fällig",
+      "balanceEnd": "Kontostand am Ende",
+      "balance": "Kontostand",
+      "under": "UNTER DER LINIE"
+    },
+    "scenarios": {
+      "label": "Szenarien · nebeneinander",
+      "title": "Was wäre, wenn…",
+      "meta": "Jedes rechnet dieselbe Prognose mit einer Änderung",
+      "form": "Größe der Szenarien",
+      "slow": "Schwacher Monat, % weniger",
+      "from": "ab",
+      "order": "Großauftrag, {currency}",
+      "in": "in",
+      "hire": "Neueinstellung, {currency} pro Monat",
+      "priceOn": "Preisänderung bei",
+      "by": "um",
+      "run": "Berechnen",
+      "running": "Wird berechnet…",
+      "measure": "Kennzahl",
+      "whatChanges": "Was sich ändert",
+      "lowest": "Niedrigster Kontostand, vorsichtiges Ende",
+      "after": "Kontostand nach {weeks} Wochen",
+      "against": "Im Vergleich zum jetzigen Stand",
+      "firstTight": "Erste knappe Woche",
+      "missing": "FEHLT",
+      "assumed": "ANGENOMMEN · {text}"
+    },
+    "sources": {
+      "label": "Worauf das beruht",
+      "title": "Quellen und was ich angenommen habe",
+      "meta": "Verlauf {from} bis {to}",
+      "input": "Eingabe",
+      "value": "Wert",
+      "basis": "Grundlage",
+      "cameFrom": "Woher es stammt",
+      "from": "Von",
+      "assumedByName": "Angenommen, namentlich",
+      "leftOut": "Weggelassen",
+      "sharpen": "Würde es genauer machen",
+      "yours": "Nichts davon ist ein Branchendurchschnitt: Jede Zahl ist Ihre eigene, gemessen oder angegeben, oder oben ausdrücklich als angenommen genannt."
+    },
+    "view": {
+      "today": "Heute",
+      "weekOf": "Woche vom {day}",
+      "weekOfLower": "Woche vom {day}",
+      "none": "keine",
+      "plainTitle": "Wie es jetzt steht",
+      "plainChange": "Nichts ändert sich.",
+      "weekOption": "Woche {n} · {day}",
+      "twelfth": "{item} (ein Zwölftel)",
+      "signedRange": "{low} bis {high}",
+      "chartLabel": "Die nächsten {weeks} Wochen · Kontostand am Ende jeder Woche"
+    }
+  },
+  "competitors": {
+    "meta": {
+      "title": "Wettbewerber — SYB"
+    },
+    "kicker": "Erkenntnisse · Wettbewerber",
+    "aside": "Nur öffentliche Seiten · wöchentlich gelesen · BEOBACHTET",
+    "headline": {
+      "none": "Sie haben noch keine Wettbewerber eingetragen.",
+      "unread": "{count, plural, one {Ich beobachte # Wettbewerber und habe seine Preise noch nicht gelesen.} other {Ich beobachte # Wettbewerber und habe ihre Preise noch nicht gelesen.}}",
+      "noMatch": "Ich habe {read} von {count, plural, one {# Wettbewerber} other {# Wettbewerbern}} gelesen; noch keiner ihrer Preise passt zu einem Ihrer Angebote.",
+      "noneBelow": "Keiner von {matched, plural, one {# zugeordneten Preis} other {# zugeordneten Preisen}} liegt unter Ihrem.",
+      "below": "{below} von {matched, plural, one {# zugeordneten Preis liegt} other {# zugeordneten Preisen liegen}} unter Ihren."
+    },
+    "read": {
+      "noPages": "Keine Seiten zum Lesen",
+      "notYet": "Noch nicht gelesen",
+      "failed": "Nicht lesbar: {reason}",
+      "noAnswer": "keine Seite hat geantwortet",
+      "tried": "Versucht am {day}",
+      "partial": "Gelesen am {day}; {count, plural, one {# Seite} other {# Seiten}} nicht: {reason}",
+      "done": "Gelesen am {day}"
+    },
+    "form": {
+      "name": "Name",
+      "website": "Deren Website",
+      "websitePlaceholder": "deren Webadresse",
+      "listing": "Buchungs- oder Eintragsseite",
+      "listingPlaceholder": "Fresha, Treatwell, Booksy, Google, eine Shopseite",
+      "otherPages": "Weitere Seiten mit ihren Preisen, eine pro Zeile (bis zu {max})",
+      "note": "Ich lese nur diese Seiten, einmal pro Woche. Ich melde mich nirgends an, und ich überspringe jede Seite, die Robotern laut ihrer robots.txt verschlossen bleiben soll.",
+      "saving": "Wird gespeichert…",
+      "cancel": "Abbrechen"
+    },
+    "watch": {
+      "label": "Wen ich beobachte",
+      "nobody": "Noch niemanden",
+      "count": "{count, plural, one {# Wettbewerber} other {# Wettbewerber}}",
+      "meta": "Deren öffentliche Seiten, wöchentlich gelesen",
+      "foot": "Die Namen stammen aus Ihren Antworten im Interview und aus dem, was Sie hier hinzufügen.",
+      "addOne": "Einen Wettbewerber hinzufügen →",
+      "add": "Hinzufügen",
+      "empty": "Sagen Sie mir, mit wem Sie im Wettbewerb stehen: deren Website und die Buchungs- oder Eintragsseite, auf der ihre Preise stehen. Ich lese diese Seiten und sonst nichts.",
+      "save": "Speichern",
+      "noPagesListed": "keine Seiten angegeben",
+      "pages": "{count, plural, one {# Seite} other {# Seiten}}",
+      "reading": "Deren Seiten werden gelesen…",
+      "prices": "{count, plural, one {# Preis} other {# Preise}}",
+      "noPrices": "keine Preise gesehen",
+      "rated": "Note {rating}",
+      "ratedCount": "Note {rating} ({count})",
+      "readNow": "Jetzt lesen",
+      "edit": "Bearbeiten",
+      "remove": "Entfernen"
+    },
+    "changes": {
+      "label": "Letzte Änderungen",
+      "none": "Noch hat sich nichts bewegt",
+      "title": "Was sich bewegt hat",
+      "empty": "Jede Woche vergleiche ich ihre Seiten mit dem letzten Lesestand. Eine Preissenkung oder -erhöhung, ein neues oder weggefallenes Angebot oder eine veränderte Bewertungsnote erscheint hier und unter „Beobachtung“."
+    },
+    "flag": {
+      "cheaper": "GÜNSTIGER",
+      "dearer": "TEURER",
+      "new": "NEU",
+      "gone": "WEG",
+      "changed": "GEÄNDERT",
+      "rating": "NOTE"
+    },
+    "basis": {
+      "owner": "Ihre Zuordnung",
+      "name": "gleicher Name",
+      "category": "gleiche Art"
+    },
+    "prices": {
+      "from": "ab {price}",
+      "label": "Deren Preise neben Ihren",
+      "noneTitle": "Noch keine Preise zum Vergleichen",
+      "emptyNone": "Sobald Sie einen Wettbewerber eintragen und ich seine Seiten gelesen habe, stehen seine Preise hier neben Ihren.",
+      "emptyRead": "Wenn ein Lesevorgang Preise auf ihren Seiten findet, stehen sie hier neben Ihren.",
+      "ownOffers": "Ihre eigenen Angebote stammen aus Ihrem <link>Faktenblatt</link>.",
+      "title": "{total, plural, one {{matched} von # ihrer Preise ist mit Ihren vergleichbar} other {{matched} von # ihrer Preise sind mit Ihren vergleichbar}}",
+      "meta": "Zugeordnet nach Name oder Art der Leistung; jede Zuordnung lässt sich ändern",
+      "foot": "Ein Vergleich ist etwas, das Sie abwägen. Ich ändere nie einen Preis.",
+      "theirOffer": "Deren Angebot",
+      "competitor": "Wettbewerber",
+      "theirs": "Deren Preis",
+      "comparedWith": "Verglichen mit",
+      "yours": "Ihr Preis",
+      "difference": "Unterschied",
+      "byModel": "vom Modell gelesen",
+      "fromText": "aus dem Seitentext gelesen",
+      "fromTags": "aus den Seiten-Tags gelesen",
+      "fromData": "aus den Seitendaten gelesen",
+      "matchLabel": "Mit welchem Ihrer Angebote {name} verglichen wird",
+      "nothingOfMine": "Nichts von mir",
+      "showing": "{total, plural, one {Angezeigt werden die ersten {shown} von # Preis, zugeordnete zuerst.} other {Angezeigt werden die ersten {shown} von # Preisen, zugeordnete zuerst.}}"
+    },
+    "screen": {
+      "failed": "Das hat nicht geklappt. Versuchen Sie es erneut.",
+      "thisCompetitor": "diesen Wettbewerber",
+      "confirmRemove": "{name} nicht mehr beobachten? Was ich über sie gelesen habe, bleibt in Ihrem Verlauf.",
+      "noBusiness": "Hier gibt es noch kein Unternehmen.",
+      "startInterview": "<link>Beginnen Sie mit dem Interview</link> und nennen Sie dort Ihre Wettbewerber.",
+      "failedTitle": "Die Wettbewerber konnten nicht geladen werden.",
+      "failedCopy": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen.",
+      "loading": "Es wird gelesen, was ich über Ihre Wettbewerber weiß…"
+    }
+  },
+  "goals": {
+    "meta": {
+      "title": "Ziele — SYB"
+    },
+    "kicker": "Erkenntnisse · Ziele",
+    "metric": {
+      "revenue": "Umsatz",
+      "orders": "Anzahl der Verkäufe",
+      "sessions": "Website-Besuche"
+    },
+    "word": {
+      "reached": "Erreicht",
+      "on_path": "Auf Kurs",
+      "behind": "Hinter dem Kurs",
+      "off_path": "Vom Kurs ab",
+      "too_early": "Zu früh",
+      "unmeasured": "Nicht gemessen",
+      "unchecked": "Noch nicht geprüft",
+      "unmeasurable": "Nicht messbar"
+    },
+    "cause": {
+      "our_advice_was_wrong": "Unser Rat war falsch",
+      "goal_unrealistic": "Das Ziel verlangt zu viel für die Zeit",
+      "owner_declined_key_actions": "Wichtige Schritte wurden abgelehnt",
+      "approved_actions_not_executed": "Freigegebene Schritte wurden nie ausgeführt",
+      "execution_failed": "Bei der Ausführung ist etwas fehlgeschlagen",
+      "data_incomplete": "Uns fehlen Daten",
+      "external_change": "Etwas von außen hat sich geändert",
+      "other": "Etwas anderes"
+    },
+    "form": {
+      "directionLabel": "steigern oder senken",
+      "raise": "Steigern",
+      "lower": "Senken",
+      "metricLabel": "was gemessen werden soll",
+      "to": "auf",
+      "targetLabel": "Zielwert",
+      "currencyLabel": "Währung",
+      "perBy": "pro {days} Tage, bis",
+      "deadlineLabel": "Frist",
+      "submit": "Messbar machen",
+      "aboveZero": "Geben Sie einen Zielwert über null ein.",
+      "notSaved": "Das wurde nicht gespeichert.",
+      "savedNoBaseline": "Gespeichert. Noch kein Ausgangswert: {note}.",
+      "horizon": "Lassen Sie das Datum leer, dann legt der eigene Zeithorizont des Ziels es fest."
+    },
+    "review": {
+      "head": "Prüfung der Warnung · {day}",
+      "headPerson": "Prüfung der Warnung · {day} · eine Person bei SYB kümmert sich jetzt darum",
+      "escalated": "Die automatische Prüfung hat getan, was sie kann. Jemand aus unserem Team sieht sich dieses Ziel an und meldet sich bei Ihnen.",
+      "escalatedWhy": "Die automatische Prüfung hat getan, was sie kann ({reason}). Jemand aus unserem Team sieht sich dieses Ziel an und meldet sich bei Ihnen.",
+      "cause": "<strong>{cause}:</strong> {statement} ({count, plural, one {# Beleg} other {# Belege}})",
+      "waiting": "{title} — wartet auf Sie",
+      "waitingNote": "{title} — wartet auf Sie ({note})",
+      "yours": "{title} — Sie entscheiden"
+    },
+    "foot": {
+      "waiting": "Wartet auf Sie",
+      "connections": "Verbindungen",
+      "history": "Verlauf",
+      "unconnected": "Noch keine Verbindung misst {metric}. Verbinden Sie eine, dann füllt ihr Verlauf das Diagramm und den Ausgangspunkt.",
+      "unchecked": "Noch nicht geprüft. Die wöchentliche Prüfung liest jeden Montag jedes messbare Ziel."
+    },
+    "card": {
+      "label": "{metric} · bis {day}",
+      "goal": "Ziel",
+      "untitled": "Ein Ziel noch ohne Worte",
+      "notMeasurable": "Dieses Ziel ist noch nicht messbar, deshalb kann ich Ihnen nicht sagen, ob es auf Kurs ist. Nennen Sie die Zahl, die es bewegen soll:",
+      "raise": "{metric} steigern",
+      "lower": "{metric} senken",
+      "now": "Jetzt",
+      "pathSays": "Laut Kurs",
+      "target": "Zielwert",
+      "per": "pro {days} Tage · jetzt = die letzten {recent} Tage",
+      "measured": "({count} gemessen)",
+      "startedAt": "begann bei {value} am {day}",
+      "noStart": "noch kein gemessener Ausgangspunkt, daher kein Kurs",
+      "chartFailed": "Das Diagramm konnte gerade nicht gelesen werden."
+    },
+    "frame": {
+      "signedOutTitle": "Hier gibt es noch kein Unternehmen.",
+      "signedOut": "<link>Beginnen Sie mit dem Interview</link> und setzen Sie dann die Ziele, die es bewegen soll.",
+      "failedTitle": "Ihre Ziele konnten nicht geladen werden.",
+      "failed": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen.",
+      "reading": "Ihre Ziele werden gelesen…"
+    },
+    "title": {
+      "none": "Noch keine Ziele.",
+      "count": "{count, plural, one {# Ziel.} other {# Ziele.}}",
+      "noneChecked": "{goals} Noch keines an einem Kurs gemessen.",
+      "noneOn": "{goals} Keines auf Kurs.",
+      "someOn": "{goals} {count, plural, one {# auf Kurs.} other {# auf Kurs.}}"
+    },
+    "aside": "{one} Kerze = {one} Woche · blaue Linie = der Kurs zu Ihrem Zielwert",
+    "setFirst": "Ein Ziel setzen →",
+    "setNew": "Ein neues Ziel setzen →",
+    "how": {
+      "label": "Wie Ziele funktionieren",
+      "title": "Nennen Sie ein Ziel, in Ihren eigenen Worten",
+      "copy": "Ziele werden unter „Inhalte“ gesetzt, wo jedes geplante Stück das Ziel nennt, dem es dient. Machen Sie eines messbar (Umsatz, Anzahl der Verkäufe oder Website-Besuche, bis zu einem Datum), dann wird es jede Woche an einem geraden Kurs von seinem Ausgangspunkt bis dorthin gemessen, wo Sie es haben möchten. In den ersten acht Wochen und solange ich noch beobachte, wird nichts beurteilt."
+    }
+  },
+  "hours": {
+    "meta": {
+      "title": "Öffnungszeiten — SYB"
+    },
+    "kicker": "Erkenntnisse · Öffnungszeiten",
+    "weekdays": {
+      "mon": "montags",
+      "tue": "dienstags",
+      "wed": "mittwochs",
+      "thu": "donnerstags",
+      "fri": "freitags",
+      "sat": "samstags",
+      "sun": "sonntags"
+    },
+    "daysRange": "{from} bis {to}",
+    "read": {
+      "label": "Auswertung",
+      "none": "An den gemessenen Tagen fällt bei Ihren Öffnungszeiten nichts auf. Die Beobachtung prüft jede Woche erneut.",
+      "closing": {
+        "head": "Die letzte Stunde, {days}",
+        "word": "Verliert Geld",
+        "sub": "nimmt an den meisten gemessenen Tagen weniger ein, als eine geöffnete Stunde kostet",
+        "subCost": "nimmt an den meisten gemessenen Tagen weniger ein, als eine geöffnete Stunde kostet ({cost})"
+      },
+      "opening": {
+        "head": "Die erste Stunde, {days}",
+        "word": "Viel los zur Öffnung",
+        "sub": "nimmt schon das meiste von dem ein, was die beste Stunde einnimmt: Die Nachfrage beginnt wohl vor der Öffnung"
+      },
+      "attention": {
+        "head": "Vor der Öffnung, {days}",
+        "word": "Früh gesucht",
+        "sub": "ein großer Teil der Website-Besuche dieses Tages kommt in den Stunden kurz vor der Öffnung"
+      },
+      "best": {
+        "head": "{days}, {clock}",
+        "word": "Rechnet sich am besten",
+        "sub": "durchschnittlich +{money} pro Stunde über ihren Kosten"
+      },
+      "early": {
+        "word": "Zu früh",
+        "sub": "noch zu wenige gemessene Tage für ein Urteil"
+      }
+    },
+    "title": {
+      "none": "An den gemessenen Tagen schlägt kein Signal an",
+      "closing": "Die letzte Stunde rechnet sich {days} nicht",
+      "opening": "Die Nachfrage beginnt {days} schon vor der Öffnung",
+      "attention": "Man sucht Sie {days} schon vor der Öffnung"
+    },
+    "row": {
+      "notStated": "Öffnungszeiten nicht angegeben",
+      "days": "{count, plural, one {# Tag} other {# Tage}}",
+      "closed": "geschlossen"
+    },
+    "zone": {
+      "label": "In welcher Zeitzone ist das Unternehmen?",
+      "choose": "Auswählen…",
+      "save": "Speichern",
+      "failed": "Das wurde nicht gespeichert."
+    },
+    "trials": {
+      "title": "Testphasen",
+      "none": "Noch kein Vorschlag",
+      "body": "Ein Signal ist nie eine Änderung auf gut Glück. Es wird zu einer vierwöchigen Testphase unter „Wartet auf Sie“, mit ihren Zahlen, und nichts ändert Ihre Öffnungszeiten, außer Sie selbst.",
+      "waiting": "Wartet auf Sie →"
+    },
+    "signedOut": {
+      "title": "Hier gibt es noch kein Unternehmen.",
+      "body": "<link>Beginnen Sie mit dem Interview</link>, dann werden Ihre Öffnungszeiten von dort gelesen."
+    },
+    "error": {
+      "title": "Ihre Öffnungszeiten konnten nicht geladen werden.",
+      "body": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
+    },
+    "loading": "Ihre Öffnungszeiten werden gelesen…",
+    "notOk": {
+      "notEnough": "Noch nicht genug, um Ihre Öffnungszeiten auszuwerten.",
+      "unknown": "Ihre Öffnungszeiten sind noch nicht bekannt.",
+      "notYet": "Noch nicht: {reason}."
+    },
+    "needs": {
+      "label": "Marge nach Stunde",
+      "title": "Was dafür nötig ist",
+      "body": "Ihre Öffnungszeiten aus dem Interview, Ihre Zeitzone und stündliche Kartenumsätze aus einer verbundenen Kasse, einem Zahlungskonto oder einem Onlineshop."
+    },
+    "connections": "Verbindungen",
+    "week": {
+      "titleAll": "Ihre {count, number} wöchentlichen Öffnungsstunden, Stunde für Stunde.",
+      "titlePay": "Alle {count, number} Ihrer wöchentlichen Öffnungsstunden rechnen sich.",
+      "titleLose": "{losing, number} Ihrer {count, number} wöchentlichen Öffnungsstunden rechnen sich nicht.",
+      "period": "{weeks, plural, one {Letzte # Woche} other {Letzte # Wochen}} · {from} bis {to} · in {zone}",
+      "costStated": "Öffnungskosten {cost} / Stunde (Ihre Antwort)",
+      "costNone": "keine Öffnungskosten angegeben, deshalb wird nichts beurteilt",
+      "labelNet": "Einnahmen minus Öffnungskosten, {unit} pro Stunde",
+      "labelTakings": "Einnahmen, {unit} pro Stunde",
+      "title": "Die Woche, Stunde für Stunde",
+      "empty": "Es sind keine Öffnungsstunden angegeben und keine Verkäufe nach Stunde gemessen.",
+      "day": "Tag"
+    },
+    "legend": {
+      "label": "Legende",
+      "loses": "Verlust > {even}",
+      "even": "etwa ausgeglichen",
+      "pays": "rechnet sich"
+    },
+    "foot": {
+      "mean": "Durchschnittliche Einnahmen je Stunde über die gemessenen Tage dieses Wochentags, {coverage}; eine Stunde ohne Verkäufe zählt als null.",
+      "meanJudged": "Durchschnittliche Einnahmen je Stunde über die gemessenen Tage dieses Wochentags, {coverage}; eine Stunde ohne Verkäufe zählt als null, und „etwa ausgeglichen“ heißt innerhalb eines Achtels ({pct} %) der Kosten der Stunde.",
+      "legend": "ABGELEITET. Schraffiert = geschlossen. Einnahmen, keine Marge.",
+      "unparsed": "Nicht lesbar: {list}.",
+      "wrong": "Falsche Öffnungszeiten? Ändern Sie Ihre Antwort im <link>Faktenblatt</link>."
+    }
+  },
+  "patterns": {
+    "meta": {
+      "title": "Saisons & Produktbündel — SYB"
+    },
+    "kicker": "Erkenntnisse · Saisons & Produktbündel",
+    "head": {
+      "pair": "{a} und {b} kommen {lift}× so oft zusammen vor wie per Zufall.",
+      "nothing": "Noch nichts gemessen, woraus sich Ihre Saisons ablesen ließen."
+    },
+    "seasons": {
+      "label": "Ihre Saisons",
+      "nothing": "Noch nichts gemessen",
+      "noData": "{connect}. Ich lese Ihre Saisons nur aus Ihrem eigenen Verlauf. <link>Verbindungen</link>"
+    },
+    "tooLittle": {
+      "label": "Wie viel vorliegt · {source}",
+      "title": "{days, plural, one {# Tag} other {# Tage}}, {from} bis {to}",
+      "meta": "{have, number} von {needed, number} benötigten vollständigen Wochen",
+      "readyOn": "Wenn Ihre Synchronisierungen weiterlaufen, kann ich Ihre Saisons ab etwa {day} benennen."
+    },
+    "gap": {
+      "label": "Was ich schon sagen kann und was noch nicht",
+      "title": "Ehrlich über die Lücke",
+      "can": "Ich kann",
+      "cannot": "Ich kann noch nicht"
+    },
+    "ahead": {
+      "label": "{count, plural, one {Die nächste # Woche} other {Die nächsten # Wochen}} · neben denselben Wochen im Vorjahr",
+      "none": "Keine starke oder ruhige Phase in Sicht",
+      "meta": "Die Woche des Vorjahres, {weeks, number} Wochen zurück, damit die Wochentage übereinstimmen",
+      "week": "Woche vom {day}",
+      "lastYear": "Woche vom {day} im Vorjahr",
+      "notMeasured": "im Vorjahr nicht vollständig gemessen",
+      "underWay": "{kind, select, busy {Eine starke Phase läuft gerade} other {Eine ruhige Phase läuft gerade}}",
+      "thisWeek": "{kind, select, busy {Eine starke Phase beginnt diese Woche} other {Eine ruhige Phase beginnt diese Woche}}",
+      "startsIn": "{kind, select, busy {Eine starke Phase beginnt in {count, plural, one {# Woche} other {# Wochen}}} other {Eine ruhige Phase beginnt in {count, plural, one {# Woche} other {# Wochen}}}}"
+    },
+    "flag": {
+      "busy": "stark",
+      "quiet": "ruhig"
+    },
+    "months": {
+      "label": "Die Monate · {count, number} aus dem letzten Jahr",
+      "title": "Jeder Monat auf eine Woche umgerechnet",
+      "meta": "Monate mit {days, number} oder mehr gemessenen Tagen"
+    },
+    "col": {
+      "thisYear": "Dieses Jahr",
+      "lastYear": "Vorjahr",
+      "flag": "Markierung",
+      "month": "Monat",
+      "againstNormal": "Gegenüber normal",
+      "pair": "Paar",
+      "together": "Zusammen",
+      "alsoSecond": "Mit dem ersten auch das zweite",
+      "againstChance": "Gegenüber Zufall",
+      "margin": "Marge des Paars",
+      "proposal": "Vorschlag"
+    },
+    "read": {
+      "label": "Wie ich es lese",
+      "title": "Ihr eigener Verlauf, nichts geborgt",
+      "otherCurrencies": "Ihre {noun} in {currencies} sind weggelassen: Geld in zwei Währungen wird nie zusammengezählt."
+    },
+    "count": {
+      "orders": "{count, plural, one {# Bestellung} other {# Bestellungen}}",
+      "visits": "{count, plural, one {# Besuch} other {# Besuche}}"
+    },
+    "unit": {
+      "orders": "Bestellungen",
+      "visits": "Besuche"
+    },
+    "pairs": {
+      "label": "{kind, select, orders {Zusammen gekauft} other {Zusammen gebucht}} · {source}",
+      "tooFew": "Bisher nur {amount}",
+      "tooFewBody": "Ich suche nach Paaren, sobald es {amount} gibt: Bei weniger kann schon der Zufall zwei beliebige Artikel unzertrennlich wirken lassen.",
+      "none": "Nichts kommt öfter zusammen vor als per Zufall",
+      "some": "{count, plural, one {# Paar kommt} other {# Paare kommen}} öfter zusammen vor als per Zufall",
+      "meta": "{amount}, {from} – {to} · BEOBACHTET",
+      "footRule": "Ein Paar erscheint, wenn es {amount} oder mehr gemeinsam hatte und mindestens {lift} so oft vorkam, wie der Zufall ergeben würde.",
+      "footBelow": "{below, plural, one {# Paar wurde} other {# Paare wurden}} zu selten gesehen, und {belowLift, number} nicht öfter als per Zufall.",
+      "footBelowUngrouped": "{below, plural, one {# Paar wurde} other {# Paare wurden}} zu selten gesehen, und {belowLift, number} nicht öfter als per Zufall; {ungrouped, plural, one {# Termin} other {# Termine}} ohne Kunde oder Leistung ließen sich keinem Besuch zuordnen.",
+      "single": "{kind, select, orders {Jede Ihrer Bestellungen enthielt nur einen Artikel, deshalb lässt sich noch nichts paaren.} other {Jeder Ihrer Besuche enthielt nur einen Artikel, deshalb lässt sich noch nichts paaren.}}",
+      "multi": "{multi, number} Ihrer {units} enthielten zwei oder mehr Artikel, aber kein Paar hob sich vom Zufall ab.",
+      "aria": "Paare",
+      "share": "{pct, number} % der {units} mit {a}",
+      "had": "{amount} hatten {a}",
+      "byChance": "etwa {count, number} per Zufall",
+      "drafting": "Wird entworfen…",
+      "propose": "Dieses Paar vorschlagen →"
+    },
+    "margin": {
+      "unknown": "Marge unbekannt: {why}.",
+      "known": "{price} für das Paar, {after} nach Kosten ({pct} %)."
+    },
+    "proposal": {
+      "pending": "Wartet auf Sie",
+      "blocked": "Durch Ihre Regel blockiert",
+      "approved": "Freigegeben",
+      "rejected": "Abgelehnt",
+      "expired": "Abgelaufen"
+    },
+    "note": {
+      "failed": "Das hat nicht geklappt.",
+      "blocked": "Eine Ihrer Regeln schließt das aus, deshalb liegt es blockiert in Ihrer Warteschlange.",
+      "drafted": "Entworfen. Es wartet auf Sie; in Ihrem Shop ändert sich nichts, wenn Sie es freigeben.",
+      "ourSide": "Bei uns ist etwas schiefgelaufen."
+    },
+    "signedOut": {
+      "title": "Hier gibt es noch kein Unternehmen.",
+      "body": "<link>Beginnen Sie mit dem Interview</link>."
+    },
+    "error": {
+      "title": "Saisons und Produktbündel konnten nicht geladen werden.",
+      "body": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
+    },
+    "loading": "Ihr Verlauf wird gelesen…",
+    "aside": {
+      "none": "Noch nichts gemessen",
+      "span": "{source} · {from} – {to} · GEMESSEN"
+    },
+    "bundles": {
+      "section": "Was zusammengehört",
+      "emptyTitle": "Noch keine Bestellungen oder Besuche zum Lesen",
+      "emptyBody": "Verbinden Sie Shopify oder WooCommerce, dann halte ich fest, welche Produkte jede Bestellung enthielt, oder importieren Sie Ihre Buchungen, dann fasse ich jeden Besuch eines Kunden zusammen.",
+      "withoutLines": "{names} erfasst Zahlungen, keine Produkte, und kann deshalb nicht sagen, was zusammen gekauft wurde."
+    },
+    "connections": "Verbindungen",
+    "held": "Ein Vorschlag ist ein Entwurf für Sie: beide Artikel zum vollen Preis, ohne Rabatt. Ich ändere weder Ihren Shop noch Ihren Bestellvorgang — das Paar richten Sie selbst ein.",
+    "waiting": "Wartet auf Sie"
+  },
+  "pipeline": {
+    "meta": {
+      "title": "Pipeline — SYB"
+    },
+    "kicker": "Kunden · Pipeline",
+    "loading": "Ihre Pipeline wird gelesen…",
+    "signedOut": {
+      "title": "Hier gibt es noch kein Unternehmen.",
+      "start": "<link>Beginnen Sie mit dem Interview</link>."
+    },
+    "failed": {
+      "title": "Ihre Pipeline konnte nicht geladen werden.",
+      "body": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
+    },
+    "consumer": {
+      "title": "Eine Pipeline ist für den Verkauf an Unternehmen gedacht.",
+      "body": "Sie haben mir gesagt, dass Sie an Privatkunden verkaufen. Hier gibt es also keine Deals zu verfolgen.",
+      "factSheet": "Faktenblatt"
+    },
+    "error": {
+      "generic": "Das hat nicht geklappt.",
+      "ourSide": "Bei uns ist etwas schiefgelaufen. Versuchen Sie es erneut."
+    },
+    "aside": "Ihre Pipeline · {count, plural, one {# Deal} other {# Deals}} · Abschlussquote {basis}",
+    "rateBasis": {
+      "measured": "GEMESSEN",
+      "stated": "ANGEGEBEN",
+      "none": "UNBEKANNT"
+    },
+    "stage": {
+      "lead": "Lead",
+      "qualified": "Qualifiziert",
+      "proposal_sent": "Angebot gesendet",
+      "won": "Gewonnen",
+      "lost": "Verloren"
+    },
+    "stageInline": {
+      "lead": "Lead",
+      "qualified": "qualifiziert",
+      "proposal_sent": "Angebot gesendet",
+      "won": "gewonnen",
+      "lost": "verloren"
+    },
+    "board": {
+      "label": "Die Übersicht · {count} offen",
+      "title": "Phasen als Spalten, der längste in seiner Phase zuerst",
+      "empty": "Noch keine Deals. Fügen Sie unten einen hinzu oder importieren Sie Ihre Tabelle.",
+      "aria": "Deals nach Phase",
+      "median": "Median {median} T. · ältester {oldest} T.",
+      "closedRecent": "{days, plural, one {abgeschlossen am letzten Tag} other {abgeschlossen in den letzten # Tagen}}",
+      "none": "keine"
+    },
+    "card": {
+      "noValue": "kein Wert",
+      "estimate": "Ihre Schätzung",
+      "inStage": "{days} T. in der Phase",
+      "stale": "liegt brach",
+      "change": "Ändern",
+      "stage": "Phase",
+      "nextStep": "Nächster Schritt",
+      "by": "Bis",
+      "save": "Nächsten Schritt speichern",
+      "spoke": "Ich habe heute mit ihnen gesprochen"
+    },
+    "quiet": {
+      "label": "Still geworden · {count}",
+      "title": "Kein nächster Schritt, oder ein nächster Schritt über dem Termin",
+      "held": "Ich entwerfe eine Nachfass-E-Mail nur für einen Kontakt, der Ja zu E-Mails gesagt hat. Nichts wird versendet: Sie senden sie selbst.",
+      "propose": "Nachfassen vorschlagen",
+      "nothing": "Nichts Neues vorzuschlagen.",
+      "nothingWhy": "Nichts Neues vorzuschlagen: {reason}.",
+      "created": "{count, plural, one {# Nachfass-E-Mail wartet jetzt} other {# Nachfass-E-Mails warten jetzt}} in der Warteschlange auf Sie.",
+      "allGood": "Jeder offene Deal hat einen nächsten Schritt, der nicht überfällig ist."
+    },
+    "stale": {
+      "blocked": "Ihre Regel ({rule}) schließt die E-Mail aus.",
+      "pending": "Die Nachfass-E-Mail wartet unter <link>Wartet auf Sie</link>.",
+      "drafted": "Entworfen. Lesen Sie sie, ändern Sie, was Sie möchten, und senden Sie sie aus Ihrem eigenen Postfach.",
+      "draft": "E-Mail entwerfen",
+      "dontSend": "Ich sende das nicht. Kopieren Sie es in Ihre eigene E-Mail an sie.",
+      "copied": "Kopiert",
+      "copy": "Text kopieren"
+    },
+    "due": {
+      "label": "Wahrscheinlich gewonnen bis {date}",
+      "labelRate": "Wahrscheinlich gewonnen bis {date} · Abschlussquote {basis}",
+      "notForecast": "Noch keine Prognose",
+      "undated": "{count, plural, one {# offener Deal hat} other {# offene Deals haben}} kein erwartetes Abschlussdatum.",
+      "title": "{days, plural, one {Die Deals, die Sie am nächsten Tag abzuschließen erwarten} other {Die Deals, die Sie in den nächsten # Tagen abzuschließen erwarten}}",
+      "meta": "Teil meiner Trefferbilanz: Ich prüfe es gegen die Deals, die Sie bis dahin als gewonnen markieren.",
+      "line": "{count, plural, one {# Deal} other {# Deals}} im Wert von {total}: etwa {low} – {high} wahrscheinlich gewonnen.",
+      "unvalued": "{count} der fälligen Deals haben keinen Wert und sind in diesen Zahlen nicht enthalten.",
+      "undatedOut": "{count, plural, one {# offener Deal hat kein erwartetes Abschlussdatum und ist deshalb nicht in dieser Prognose.} other {# offene Deals haben kein erwartetes Abschlussdatum und sind deshalb nicht in dieser Prognose.}}",
+      "assumed": "Angenommen",
+      "sources": "Quellen: {list}."
+    },
+    "weigh": {
+      "label": "Was wahrscheinlich abgeschlossen wird",
+      "labelRate": "Was wahrscheinlich abgeschlossen wird · Abschlussquote {basis}",
+      "notWeighed": "Noch nicht gewichtet",
+      "can": "Ich kann",
+      "cant": "Ich kann noch nicht",
+      "ready": "Bereit {when}.",
+      "stateRate": "Ihre Abschlussquote angeben",
+      "title": "Offener Wert, gewichtet mit Ihrer eigenen Abschlussquote",
+      "currency": "Währung",
+      "deals": "Deals",
+      "open": "Offen",
+      "likely": "Wahrscheinlich abgeschlossen",
+      "unvalued": "{count, plural, one {# offener Deal hat keinen Wert und ist in diesen Zahlen nicht enthalten.} other {# offene Deals haben keinen Wert und sind in diesen Zahlen nicht enthalten.}}",
+      "assumed": "Angenommen",
+      "window": "Zeitraum {from} bis {to}. Quellen: {list}.",
+      "statedNote": "Sie haben mir {stated} gesagt; hier wird verwendet, was Ihre eigenen abgeschlossenen Deals zeigen.",
+      "measureAfter": "{count, plural, one {Nach # weiteren abgeschlossenen Deal messe ich sie stattdessen.} other {Nach # weiteren abgeschlossenen Deals messe ich sie stattdessen.}}"
+    },
+    "add": {
+      "label": "Einen Deal hinzufügen",
+      "title": "Mit wem, und worum es geht",
+      "foot": "Ein neuer Kontakt wird mit der Einwilligung UNSICHER erfasst: Ein Verkaufsgespräch ist keine Erlaubnis, ihm Werbung zu schicken.",
+      "added": "Hinzugefügt.",
+      "company": "Firma",
+      "contact": "Kontakt",
+      "email": "E-Mail-Adresse",
+      "deal": "Der Deal",
+      "dealPlaceholder": "z. B. Frühjahrsgeschirr für das Café",
+      "stage": "Phase",
+      "value": "Wert",
+      "currency": "Währung",
+      "valueIs": "Der Wert ist",
+      "quoted": "Was ich ihnen angeboten habe",
+      "estimate": "Meine Schätzung",
+      "nextStep": "Nächster Schritt",
+      "by": "Bis",
+      "submit": "Deal hinzufügen"
+    },
+    "import": {
+      "label": "Import",
+      "title": "Deals aus einer Tabelle, unter Ihrer Bestätigung",
+      "foot": "Spalten, die ich lese: {columns}.",
+      "lede": "Eine Deal-Datei bringt Personen mit, deshalb wird sie wie eine Kundenliste übernommen: Sie geben an, worin die Personen darin eingewilligt haben und wie, und diese Angabe wird bei jedem Kontakt hinterlegt, den sie hinzufügt. Kontakte, die Sie schon haben, behalten ihre Einwilligung; eine gelöschte oder abgemeldete Adresse wird abgewiesen.",
+      "done": "{count, plural, one {# Deal importiert.} other {# Deals importiert.}}",
+      "left": "{count, plural, one {# Zeile wurde} other {# Zeilen wurden}} weggelassen.",
+      "paste": "Datei einfügen (CSV)",
+      "consented": "Worin die Personen darin eingewilligt haben",
+      "explicit": "Sie haben ihre ausdrückliche Einwilligung in Werbe-E-Mails gegeben",
+      "implied": "Die Einwilligung ist stillschweigend (kein ausdrückliches Opt-in)",
+      "unsure": "Unsicher",
+      "none": "Keine Einwilligung",
+      "how": "Wie sie eingeholt wurde, in Ihren Worten",
+      "howPlaceholder": "z. B. Anmeldeliste von der Messe, {month}",
+      "currency": "Währung der Wertspalte",
+      "valuesAre": "Die Werte sind",
+      "estimates": "Meine Schätzungen",
+      "quoted": "Was ich ihnen angeboten habe",
+      "submit": "Unter meiner Bestätigung importieren"
+    },
+    "fine": "Deals gehören zu Ihren Kontakten: Wer einen Kontakt unter „Kunden“ löscht, löscht auch seine Deals, seinen Verlauf und jede entworfene Nachfass-E-Mail. Daten zählen in ganzen Tagen.",
+    "fineTo": "Deals gehören zu Ihren Kontakten: Wer einen Kontakt unter „Kunden“ löscht, löscht auch seine Deals, seinen Verlauf und jede entworfene Nachfass-E-Mail. Daten zählen in ganzen Tagen bis {day}.",
+    "view": {
+      "and": "und",
+      "quietAddedToday": "{who} wurde heute hinzugefügt; noch kein Gespräch erfasst",
+      "quietAddedAgo": "{days, plural, one {Nichts mit {who} erfasst, seit Sie den Kontakt vor # Tag hinzugefügt haben} other {Nichts mit {who} erfasst, seit Sie den Kontakt vor # Tagen hinzugefügt haben}}",
+      "spokeToday": "Sie haben heute mit {who} gesprochen",
+      "nobodySpoke": "{days, plural, one {Niemand hat seit # Tag mit {who} gesprochen} other {Niemand hat seit # Tagen mit {who} gesprochen}}",
+      "noNextStep": "Kein nächster Schritt",
+      "overdue": "{days, plural, one {Der nächste Schritt war am {day} fällig, vor # Tag} other {Der nächste Schritt war am {day} fällig, vor # Tagen}}",
+      "rateNone": "Noch unbekannt",
+      "rateMeasured": "{point} gemessen: {won} gewonnen von {closed} abgeschlossenen, wahrscheinlich {low}–{high}",
+      "rateStated": "{point} wie von Ihnen angegeben, gelesen als {low}–{high}",
+      "headNone": "Noch keine offenen Deals.",
+      "headNoValue": "{open, plural, one {# offener Deal} other {# offene Deals}}, noch keiner mit einem Wert.",
+      "headCantWeigh": "{open, plural, one {# offener Deal} other {# offene Deals}} im Wert von {totals}. Ich kann sie noch nicht gewichten.",
+      "headLikely": "{low}–{high} Ihrer offenen {total} werden wahrscheinlich abgeschlossen.",
+      "headLikelyMore": "{low}–{high} Ihrer offenen {total} werden wahrscheinlich abgeschlossen, dazu weitere in {others, plural, one {# anderen Währung} other {# anderen Währungen}}.",
+      "follow": {
+        "drafted": "entworfen",
+        "approved": "freigegeben",
+        "pending": "wartet auf Sie",
+        "blocked": "durch Ihre Regel blockiert",
+        "rejected": "abgelehnt",
+        "changes_requested": "Änderungen erbeten"
+      }
+    }
+  },
+  "reviews": {
+    "meta": {
+      "title": "Bewertungen — SYB"
+    },
+    "kicker": "Kunden · Bewertungen",
+    "foot": "SYB veröffentlicht nie eine Antwort und meldet sich nie bei Ihren Bewertungsportalen an. Es liest Ihre Google-Bewertungen nur, wenn Sie Ihr Google Unternehmensprofil verbinden, und liest sie dann nur. Der Name einer bewertenden Person wird ein Jahr lang aufbewahrt, und Sie können jede Bewertung sofort entfernen.",
+    "stars": {
+      "none": "Keine Sterne",
+      "of": "{stars} von {max}"
+    },
+    "thisMonth": "diesen Monat",
+    "headline": {
+      "none": "Hier gibt es noch keine Bewertungen.",
+      "noneThisMonth": "Keine neuen Bewertungen in diesem Monat.",
+      "oneFine": "Die eine Bewertung dieses Monats hat nicht {stars, plural, one {# Stern} other {# Sterne}} oder weniger.",
+      "noneFine": "Keine der {count, plural, one {# Bewertung} other {# Bewertungen}} dieses Monats hat {stars, plural, one {# Stern} other {# Sterne}} oder weniger.",
+      "poor": "{poor, plural, one {# Bewertung} other {# Bewertungen}} mit {stars, plural, one {# Stern} other {# Sternen}} oder weniger in diesem Monat, von {total}."
+    },
+    "aside": "{count, plural, one {# Bewertung} other {# Bewertungen}} erfasst · aufbewahrt {days, plural, one {# Tag} other {# Tage}}",
+    "readNote": {
+      "unread": "Ich konnte diese Benachrichtigung nicht lesen, deshalb habe ich nur Ort und Zeitpunkt festgehalten. Öffnen Sie sie dort, wo sie steht.",
+      "model": "Von meinem Ersatz-Leser gelesen: Prüfen Sie es am Original.",
+      "paste": "Diese haben Sie eingefügt."
+    },
+    "gmail": {
+      "code": "Gmail hat einen Bestätigungscode gesendet: {code}. Geben Sie ihn in den Weiterleitungseinstellungen von Gmail ein.",
+      "link": "Gmail hat einen Bestätigungslink gesendet: Öffnen Sie ihn, um die Weiterleitung einzuschalten.",
+      "received": "Erhalten am {day}.",
+      "openLink": "Bestätigungslink von Gmail öffnen"
+    },
+    "setup": {
+      "google": {
+        "notifications": "Öffnen Sie in Ihrem Unternehmensprofil die Benachrichtigungen (oder die Einstellungen) und schalten Sie E-Mails zu Kundenbewertungen ein.",
+        "gmail": "Wenn diese E-Mails bei Gmail ankommen, fügen Sie zuerst die Adresse oben in den Gmail-Einstellungen hinzu, unter „Weiterleitung und POP/IMAP“, „Weiterleitungsadresse hinzufügen“. Gmail sendet einen Bestätigungscode an sie: Der Code erscheint auf dieser Seite, und Sie geben ihn zum Abschluss in Gmail ein.",
+        "rule": "Legen Sie dann in dem Postfach, in dem diese E-Mails ankommen, eine Regel an: E-Mails von Google zu einer Bewertung werden an die Adresse oben weitergeleitet.",
+        "byHand": "Oder leiten Sie jede Bewertungs-E-Mail von Hand dorthin weiter. Beides funktioniert."
+      },
+      "trustpilot": {
+        "notifications": "Schalten Sie in Trustpilot Business E-Mail-Benachrichtigungen für neue Bewertungen ein.",
+        "forward": "Leiten Sie diese E-Mails an die Adresse oben weiter, über eine Regel in Ihrem Postfach oder von Hand."
+      }
+    },
+    "platform": {
+      "other": "Eine andere Website"
+    },
+    "entry": {
+      "worthKnowing": "Wissenswert",
+      "noWords": "Sterne ohne Worte.",
+      "draftLabel": "Vorgeschlagene Antwort · zum Bearbeiten für Sie",
+      "draftNote": "Ich habe das entworfen. Lesen Sie es und machen Sie es zu Ihrem: Sobald Sie es veröffentlichen, sind es Ihre Worte, unter Ihrem Namen. Ich veröffentliche nie etwas.",
+      "copied": "Kopiert",
+      "copyReply": "Antwort kopieren",
+      "drafting": "Wird entworfen…",
+      "suggestAnother": "Eine andere vorschlagen →",
+      "suggest": "Eine Antwort vorschlagen →",
+      "openOn": "Auf {site} öffnen ↗",
+      "theSite": "der Website",
+      "noneLeft": "Für diese Bewertung sind keine Vorschläge mehr übrig: Schreiben Sie die Antwort selbst.",
+      "left": "{count, plural, one {# Vorschlag} other {# Vorschläge}} für diese Bewertung übrig.",
+      "draftingLive": "Eine Antwort wird entworfen",
+      "failed": "Das hat nicht geklappt.",
+      "removeAsk": "Diese Bewertung, den Namen darauf und jede vorgeschlagene Antwort entfernen?",
+      "removing": "Wird entfernt…",
+      "removeYes": "Ja, entfernen",
+      "keep": "Behalten",
+      "remove": "Diese Bewertung entfernen"
+    },
+    "forwarding": {
+      "label": "Weiterleitung",
+      "offTitle": "Die Weiterleitung ist noch nicht eingerichtet",
+      "offCopy": "Sobald der E-Mail-Empfang von SYB eingeschaltet ist, erhalten Sie hier eine Adresse, an die Sie Ihre Bewertungs-E-Mails weiterleiten, und ich lege jede ab, sobald sie ankommt. Bis dahin fügen Sie eine Bewertung unten ein, und ich lege sie genauso ab.",
+      "title": "Bewertungs-E-Mails hierhin weiterleiten",
+      "newStops": "Mit einer neuen Adresse funktioniert diese nicht mehr. Passen Sie danach Ihre Weiterleitung an.",
+      "newAddress": "Neue Adresse anfordern",
+      "copied": "Kopiert",
+      "copyAddress": "Adresse kopieren",
+      "how": "Jede Bewertungs-E-Mail, die Sie weiterleiten, wird hier zu einer Bewertung. Eine schlechte erscheint noch am selben Tag auf Ihrer Seite „Beobachtung“ und in Ihrer Wochenzusammenfassung. E-Mails von anderen Absendern als Bewertungsportalen werden ignoriert."
+    },
+    "google": {
+      "label": "Google Unternehmensprofil",
+      "failed": "Google akzeptiert den Zugriff von SYB nicht mehr",
+      "reading": "Ihre Google-Bewertungen werden gelesen",
+      "readingFor": "Ihre Google-Bewertungen für {location} werden gelesen",
+      "readDirectly": "Ihre Google-Bewertungen direkt lesen",
+      "notSetUpTitle": "Das Lesen bei Google ist noch nicht eingerichtet",
+      "manage": "Unter „Verbindungen“ verwalten oder widerrufen",
+      "connect": "Unter „Verbindungen“ verbinden",
+      "connected": "SYB liest Ihre Bewertungen einmal täglich und legt neue hier ab, neben denen, die Sie weiterleiten. Dieselbe Bewertung, die auf beiden Wegen ankommt, erscheint nur einmal.",
+      "lastRead": "Zuletzt gelesen am {day}.",
+      "before": "Bevor es funktionieren kann",
+      "whatItCanDo": "Die Berechtigung von Google erlaubt auch, Antworten auf Ihre Bewertungen zu veröffentlichen und Ihren Eintrag im Google Unternehmensprofil zu bearbeiten. SYB liest damit nur Ihre Bewertungen. Sie können sie jederzeit widerrufen.",
+      "notSetUp": "Noch nicht eingerichtet. Google lässt Apps Bewertungen aus dem Unternehmensprofil erst lesen, nachdem es sie zugelassen hat, und die Zulassung für SYB liegt noch nicht vor. Bis dahin leiten Sie die Bewertungs-E-Mails von Google weiter oder fügen eine Bewertung ein.",
+      "needs": {
+        "approval": "Die Zulassung von SYB durch Google zur Nutzung der Unternehmensprofil-APIs (Googles eigene Prüfung von SYB).",
+        "signIn": "Sie verwenden zur Anmeldung das Google-Konto, das Ihr Unternehmensprofil verwaltet, und erlauben die eine Berechtigung, nach der Google fragt.",
+        "location": "Wenn Sie mehr als einen Standort verwalten, wählen Sie den, den SYB liest."
+      },
+      "readNote": "Aus Ihrem Google Unternehmensprofil gelesen."
+    },
+    "paste": {
+      "label": "Eine Bewertung einfügen",
+      "title": "Woanders eine gesehen?",
+      "filed": "Abgelegt.",
+      "already": "Diese Bewertung ist schon hier.",
+      "where": "Wo sie abgegeben wurde",
+      "stars": "Sterne",
+      "choose": "Auswählen",
+      "text": "Was geschrieben wurde",
+      "reviewer": "Der Name, wie die Website ihn zeigt · optional",
+      "link": "Link zur Bewertung · optional",
+      "date": "Wann sie abgegeben wurde · optional, sonst heute",
+      "filing": "Wird abgelegt…",
+      "file": "Diese Bewertung ablegen"
+    },
+    "screen": {
+      "ourSide": "Bei uns ist etwas schiefgelaufen.",
+      "noBusiness": "Hier gibt es noch kein Unternehmen.",
+      "startInterview": "<link>Beginnen Sie mit dem Interview</link>.",
+      "failedTitle": "Die Bewertungen konnten nicht geladen werden.",
+      "failedCopy": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen.",
+      "loading": "Ihre Bewertungen werden gelesen…",
+      "listLabel": "Bewertungen · {month}: {count} · neueste zuerst",
+      "listTitle": "Was die Leute gesagt haben",
+      "nothingFiled": "Noch nichts abgelegt",
+      "listMeta": "{stars, plural, one {# Stern} other {# Sterne}} oder weniger ist wissenswert",
+      "emptyCopy": "Leiten Sie eine Bewertungs-E-Mail an die Adresse unten weiter oder fügen Sie eine ein, dann erscheint sie hier."
+    }
+  },
+  "simulate": {
+    "meta": {
+      "title": "Simulator — SYB"
+    },
+    "tabs": {
+      "aria": "Simulator",
+      "campaigns": "Kampagnen",
+      "pricing": "Preise durchspielen"
+    },
+    "kicker": "Wachstum · Kampagnensimulator",
+    "loading": "Ihre Zahlen werden gelesen…",
+    "signedOut": {
+      "title": "Hier gibt es noch kein Unternehmen.",
+      "body": "<link>Beginnen Sie mit dem Interview</link>, dann füllen Ihre eigenen Zahlen diese Seite."
+    },
+    "failed": {
+      "title": "Der Simulator konnte nicht geladen werden.",
+      "body": "Bei mir ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
+    },
+    "aside": {
+      "nothing": "Hier wird nichts ausgegeben und nichts versendet",
+      "asOf": "Stand {date} · {currency}"
+    },
+    "kind": {
+      "email": "E-Mail",
+      "ads": "Meta-Anzeigen",
+      "content": "Inhalte"
+    },
+    "picker": {
+      "label": "Wählen Sie {min} bis {max}",
+      "title": "Kampagnenoptionen",
+      "meta": "{count} ausgewählt",
+      "metaFull": "{count} ausgewählt · mehr vergleiche ich nicht auf einmal",
+      "kind": "Art",
+      "option": "Option",
+      "fromNumbers": "Aus Ihren Zahlen",
+      "compare": "Vergleichen",
+      "picked": "Ausgewählt",
+      "emailable": "{count} haben Ja zu E-Mails gesagt",
+      "noEmailable": "hier hat niemand Ja zu E-Mails gesagt",
+      "daily": "{amount} pro Tag · {days, plural, one {# gemessener Tag} other {# gemessene Tage}}",
+      "noSpend": "zuletzt keine gemessenen Ausgaben",
+      "quoted": "„{name}“",
+      "shareFor": "Budgetänderung für {name}",
+      "raise": "Erhöhen",
+      "cut": "Kürzen",
+      "pause": "Pausieren",
+      "raiseAria": "{name} um {share} erhöhen",
+      "cutAria": "{name} um {share} kürzen",
+      "pauseAria": "{name} pausieren",
+      "newCampaign": "Eine neue Kampagne",
+      "judged": "beurteilt danach, was Ihre anderen Kampagnen einbringen",
+      "noneMeasured": "noch keine Kampagne gemessen, an der sie sich messen ließe",
+      "metaOff": "Meta ist nicht verbunden",
+      "perDay": "{currency} pro Tag",
+      "contentCalendar": "Ein Inhaltsplan über {weeks} Wochen",
+      "contentAria": "Ein Inhaltsplan",
+      "posts": "{count, plural, one {# Social-Media-Beitrag auf den Kanälen, die Sie betreiben} other {# Social-Media-Beiträge auf den Kanälen, die Sie betreiben}}",
+      "noSocial": "kein sozialer Kanal in Ihrem Profil"
+    },
+    "pickN": "Wählen Sie {count} Optionen, um sie nebeneinander zu vergleichen.",
+    "pickOne": "Wählen Sie eine weitere Option, um sie nebeneinander zu vergleichen.",
+    "side": {
+      "label": "Nebeneinander · über {days} Tage",
+      "title": "Was jede wahrscheinlich bringt",
+      "meta": "Die Bereiche sind die mittlere Hälfte dessen, was gemessen wurde",
+      "measure": "Kennzahl",
+      "count": "Anzahl"
+    },
+    "measure": {
+      "cost": "Was es kostet",
+      "reached": "Erreichte Personen",
+      "orders": "Bestellungen",
+      "revenue": "Erwarteter Umsatz",
+      "profit": "Erwarteter Gewinn",
+      "worst": "Schlimmster Fall"
+    },
+    "cell": {
+      "missing": "FEHLT",
+      "notRead": "NICHT GELESEN",
+      "setByOption": "VON DER OPTION FESTGELEGT",
+      "needs": "braucht {list}"
+    },
+    "headNone": "Noch keine Ihrer {total} Kampagnenoptionen lässt sich aus Ihren eigenen Zahlen beziffern — jede zeigt, was ihr fehlt.",
+    "headSome": "{priced} Ihrer {total} Kampagnenoptionen lassen sich aus Ihren eigenen Zahlen beziffern.",
+    "whisker": {
+      "caption": "Erwarteter Gewinn, niedrig bis hoch · das Quadrat ist der schlimmste Fall",
+      "currencies": "Die Optionen sind in mehr als einer Währung, deshalb können sie keine gemeinsame Achse haben — ich rechne nicht zwischen Währungen um.",
+      "withWorst": "{range}, schlimmstenfalls {worst}",
+      "notWorkedOut": "nicht berechnet"
+    },
+    "profitCard": {
+      "label": "Gewinn, nebeneinander",
+      "title": "Die Spanne jeder Option"
+    },
+    "option": {
+      "canPropose": "Kann vorgeschlagen werden",
+      "notProposable": "Noch nicht vorschlagbar",
+      "proposing": "Wird vorgeschlagen",
+      "propose": "Das vorschlagen →",
+      "restsOn": "Worauf es beruht",
+      "value": "Wert",
+      "basis": "Grundlage",
+      "from": "Woher es stammt",
+      "missing": "Fehlt",
+      "needs": "braucht {what}",
+      "aSource": "eine Quelle",
+      "worstCase": "Schlimmster Fall",
+      "overLimit": "Über einer Grenze",
+      "check": "Im Vergleich zu dem, was früher geschah"
+    },
+    "math": {
+      "cost": "Kosten",
+      "reached": "Reichweite",
+      "orders": "Bestellungen",
+      "revenue": "Umsatz",
+      "profit": "Gewinn",
+      "worst": "Schlimmster Fall"
+    },
+    "notice": {
+      "signIn": "Nach der Anmeldung können Sie es vorschlagen.",
+      "failed": "Das ist nicht durchgegangen. Versuchen Sie es erneut.",
+      "blocked": "Ich habe es geschrieben, und Ihre eigene Grenze hat es gestoppt: {limit}. Es steht in der Ansicht des Zurückgehaltenen.",
+      "aLimit": "eine Grenze, die Sie gesetzt haben",
+      "proposed": "Vorgeschlagen, mit dieser Simulation im Anhang. Nichts wird ausgeführt, bevor Sie es unter <link>Wartet auf Sie</link> freigeben",
+      "notProposed": "Nicht vorgeschlagen: {why}.",
+      "nothing": "nichts vorzuschlagen"
+    },
+    "pricing": {
+      "kicker": "Wachstum · Preise durchspielen",
+      "loading": "Ihre Preise werden gelesen…",
+      "failed": "„Preise durchspielen“ konnte nicht geladen werden.",
+      "aside": "Hier wird kein Preis geändert",
+      "empty": {
+        "title": "In Ihrem Profil ist noch nichts mit einem Preis erfasst.",
+        "body": "<ask>Nennen Sie, was Sie verkaufen, mit Preis</ask>, oder importieren Sie Ihre Buchungen unter <conn>Verbindungen</conn>, dann füllt sich diese Seite."
+      },
+      "noPrice": "{name} hat in Ihrem Profil noch keinen Preis.",
+      "pickItem": "Wählen Sie ein Produkt oder eine Dienstleistung, deren Preis Sie ändern möchten.",
+      "fromBookings": "{count} aus Ihren Buchungen",
+      "fromProfile": "{count} aus Ihrem Profil",
+      "items": {
+        "label": "Eines wählen",
+        "title": "Was neu bepreist werden soll",
+        "service": "Dienstleistung",
+        "product": "Produkt",
+        "pick": "Wählen",
+        "repriceAria": "{name} neu bepreisen",
+        "reprice": "Neu bepreisen",
+        "addPrice": "Preis hinzufügen"
+      },
+      "changes": {
+        "label": "Bis zu {max}",
+        "title": "Preisänderungen bei {name}",
+        "aria": "Preisänderungen",
+        "exactly": "oder genau, {currency}",
+        "exactAria": "Ein genauer neuer Preis, in {currency}"
+      },
+      "period": "{kind, select, service {alle {days} Tage} other {pro Monat}}",
+      "side": {
+        "label": "Nebeneinander · {period}",
+        "title": "Was jeder Preis mit {name} macht",
+        "meta": "Die Gewinnschwelle beruht allein auf Ihren Zahlen; die Bereiche fügen eine angenommene Kundenreaktion hinzu",
+        "breakEven": "Gewinnschwelle",
+        "breakEvenSub": "{kind, select, service {Buchungen} other {Verkäufe}}, die verloren gehen dürfen oder hinzukommen müssen",
+        "volume": "{kind, select, service {Buchungen} other {Verkäufe}} danach",
+        "unitMoney": "{currency} {period}",
+        "unitCount": "{kind, select, service {Buchungen} other {Verkäufe}} {period}"
+      },
+      "measure": {
+        "volume": "Verkäufe nach der Änderung",
+        "revenue": "Umsatzänderung",
+        "profit": "Gewinnänderung",
+        "worst": "Schlimmster Fall"
+      },
+      "never": "NIE",
+      "card": {
+        "label": "Preisänderung",
+        "meta": "Hier wird Ihr Preis nicht geändert",
+        "breakEven": "Gewinnschwelle",
+        "cautious": "Das ist das vorsichtige Ende: Wüsste ich, was Sie eine Einheit bis zur Erbringung kostet, könnte ich sagen, wie viele mehr Sie verlieren dürften.",
+        "addCost": "Die Kosten hinzufügen →",
+        "addNeed": "{what} hinzufügen →",
+        "needs": "braucht {what} — <link>hinzufügen</link>"
+      },
+      "math": {
+        "volume": "{kind, select, service {Buchungen} other {Verkäufe}}",
+        "revenue": "Umsatz",
+        "profit": "Gewinn",
+        "worst": "Schlimmster Fall"
+      },
+      "assumption": "Die Bereiche nehmen an, dass sich für jedes {one} am Preis {low} bis {high} der {kind, select, service {Buchungen} other {Verkäufe}} in die Gegenrichtung bewegen — eine Planungsannahme für Ihre Art von Unternehmen, keine Messung. Die Gewinnschwelle nimmt nichts an.",
+      "profitTitle": "Die Spanne jedes Preises",
+      "caption": "Gewinnänderung {period}, niedrig bis hoch · das Quadrat ist der schlimmste Fall",
+      "cantDraw": "Der Gewinn lässt sich noch nicht zeichnen: Dafür braucht es, was Sie {kind, select, service {eine Buchung} other {ein Verkauf}} bis zur Erbringung kostet. <link>Hinzufügen</link>.",
+      "pickChange": "Wählen Sie eine Preisänderung, um zu sehen, was sie bewirkt.",
+      "refused": "Nicht simuliert: {why}.",
+      "unreadable": "Das ist kein Preis, den ich lesen kann.",
+      "noPriceYet": "es hat noch keinen Preis",
+      "be": {
+        "loseShare": "Weniger als {share} verlieren",
+        "loseCount": "Weniger als {count} verlieren",
+        "winShare": "Mehr als {share} hinzugewinnen",
+        "winCount": "Mehr als {count} hinzugewinnen",
+        "noun": "{kind, select, service {Buchungen} other {Verkäufe}}",
+        "moreNoun": "{kind, select, service {weitere Buchungen} other {weitere Verkäufe}}",
+        "ofVolume": "{share} von ~{volume}",
+        "ofSales": "{share} Ihrer Verkäufe",
+        "plusOfVolume": "+{share} von ~{volume}",
+        "plusOfSales": "+{share} Ihrer Verkäufe",
+        "atLeast": "mindestens, was immer es Sie kostet",
+        "room": "der Terminkalender hat Platz für {count}",
+        "never": "Lohnt sich nie",
+        "neverSub": "jede einzelne würde Geld verlieren"
+      },
+      "item": {
+        "noPrice": "noch kein Preis",
+        "volume": "~{volume} {kind, select, service {Buchungen alle {days} Tage} other {Verkäufe pro Monat}}",
+        "volumeUnknown": "{kind, select, service {Buchungen} other {Verkäufe}} nicht bekannt",
+        "cost": "kostet {cost} in der Erbringung",
+        "costUnknown": "Kosten der Erbringung nicht bekannt"
+      },
+      "perOrder": "Nicht in den Kosten pro Stück enthalten: {list}. Sie zahlen {count, plural, one {diesen Posten} other {diese Posten}} pro Bestellung, nicht pro Stück, und eine Bestellung kann mehrere Stücke enthalten. Wo ein Verkauf einer Bestellung entspricht, kann eine Preiserhöhung ein paar Verkäufe mehr kosten als gezeigt, und eine Senkung braucht ein paar mehr."
+    }
+  },
+  "stock": {
+    "meta": {
+      "title": "Lagerbestand — SYB"
+    },
+    "kicker": "Erkenntnisse · Lagerbestand",
+    "signedOut": "Hier gibt es noch kein Unternehmen.",
+    "startInterview": "<link>Beginnen Sie mit dem Interview</link>.",
+    "failedTitle": "Der Lagerbestand konnte nicht geladen werden.",
+    "failedBody": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen.",
+    "reading": "Ihr Lagerbestand wird gelesen…",
+    "noStockTitle": "Ihr Unternehmen hält keinen Lagerbestand.",
+    "noStockBody": "Sie haben mir gesagt, dass Sie keinen Lagerbestand führen. Hier kann also nichts ausgehen und nichts abverkauft werden.",
+    "factSheet": "Faktenblatt",
+    "nothingRead": "Noch nichts gelesen",
+    "measured": "GEMESSEN",
+    "flag": {
+      "stuck": "FESTGEFAHREN",
+      "slow": "LANGSAM",
+      "actNow": "JETZT HANDELN",
+      "runningLow": "WIRD KNAPP",
+      "inRange": "IM RAHMEN",
+      "soldOut": "AUSVERKAUFT",
+      "noSales": "KEINE VERKÄUFE",
+      "tooEarly": "ZU FRÜH"
+    },
+    "col": {
+      "item": "Artikel",
+      "onHand": "Vorrätig",
+      "sold": "Verkauft in {days} T.",
+      "cover": "Reichweite in Tagen",
+      "sinceSale": "Tage seit Verkauf",
+      "cashTied": "Gebundenes Geld",
+      "flag": "Markierung",
+      "ways": "Günstigste Wege zum Abverkauf",
+      "vsPrior": "ggü. vorherigen {days} T.",
+      "delivery": "Lieferzeit"
+    },
+    "slowTable": "Lagerbestand, der sich nicht verkauft",
+    "coverTable": "Reichweite in Tagen, Artikel für Artikel",
+    "yourCost": "Ihre Kosten",
+    "nothingToPropose": "nichts, was ich vorschlagen kann",
+    "chance": "Wahrscheinlichkeit ±{band}",
+    "boosted": "starke Phase eingerechnet",
+    "reorder": {
+      "label": "Nachbestellnotiz · {flag}",
+      "title": "{name}: {quantity} nachbestellen",
+      "titleFrom": "{name}: {quantity} beim Lieferanten {supplier} nachbestellen",
+      "meta": "Eine Notiz für Sie, keine Bestellung",
+      "sources": "Quellen: {sources}.",
+      "approving": "Mit der Freigabe halten Sie fest, dass Sie nachbestellen wollen, sonst nichts. Ich kontaktiere Ihren Lieferanten nie, und ich gebe nie eine Bestellung auf, ändere oder storniere sie."
+    },
+    "ruledOut": "Ich habe das nicht in Ihre Warteschlange gelegt: Ihre Regel ({rule}) schließt es aus.",
+    "cover": {
+      "label": "Was ausgeht, und wann · {warned} von {total} Artikeln unter ihrer Lieferzeit",
+      "titleWarned": "Was zuerst ausgeht, steht oben",
+      "titleNone": "Nichts geht vor einer Lieferung aus",
+      "meta": "Reichweite: Vorrat ÷ Ihre Verkaufsrate der letzten {days} Tage, niedrig–hoch, gegenüber der Lieferzeit jedes Lieferanten (sonst {lead} Tage, ANGENOMMEN)",
+      "held": "Eine Nachbestellnotiz je knapp werdendem Artikel. Nichts wird ausgeführt, bevor Sie es freigeben, und eine Freigabe bestellt nichts.",
+      "button": "Nachbestellnotizen in meine Warteschlange legen →",
+      "working": "Die Notizen werden erstellt"
+    },
+    "workingItOut": "Wird berechnet…",
+    "waitingForYou": "Wartet auf Sie",
+    "ranking": {
+      "label": "Wie ich es abverkaufen würde · {flag} · {why}",
+      "title": "{name}: voraussichtlich zurückfließendes Geld je aufgegebener Geldeinheit",
+      "meta": "Am meisten zurückfließendes Geld zuerst, nach dem, was jeder Weg kostet",
+      "cantPropose": "Das kann ich nicht vorschlagen: {why}.",
+      "blocked": "Eine Ihrer Regeln hat {option} blockiert. Es liegt deshalb blockiert in Ihrer Warteschlange, wo Sie sehen können, was ich bewusst nicht vorgeschlagen habe."
+    },
+    "import": {
+      "label": "Kein Shop verbunden? Eine Bestandszählung geht auch",
+      "title": "Eine Bestandsdatei importieren",
+      "foot": "Spalten, die ich lese: {columns}.",
+      "paste": "Datei einfügen (CSV)",
+      "currency": "Währung",
+      "window": "Zeitraum der verkauften Einheiten (Tage)",
+      "countedOn": "Gezählt am",
+      "decimalStyle": "Wie Beträge geschrieben sind, wenn sie wie {example} aussehen",
+      "decimalAuto": "Aus der Datei ermitteln",
+      "dotDecimal": "{example} (das Komma trennt die Tausender)",
+      "commaDecimal": "{example} (der Punkt trennt die Tausender)",
+      "importing": "Wird gelesen…",
+      "button": "Bestand importieren →",
+      "readingFile": "Ihre Datei wird gelesen",
+      "failed": "Der Import hat nicht geklappt.",
+      "ourSide": "Bei uns ist etwas schiefgelaufen. Versuchen Sie es erneut.",
+      "imported": "{count, plural, one {Ich habe # Artikel gelesen.} other {Ich habe # Artikel gelesen.}}",
+      "leftOut": "{count, plural, one {# Zeile hatte keinen Artikel oder keinen lesbaren Bestand und wurde weggelassen.} other {# Zeilen hatten keinen Artikel oder keinen lesbaren Bestand und wurden weggelassen.}}",
+      "blank": "{count, plural, one {# Wert war nicht lesbar und wurde leer gelassen, nicht geschätzt.} other {# Werte waren nicht lesbar und wurden leer gelassen, nicht geschätzt.}}"
+    },
+    "result": {
+      "didntWork": "Das hat nicht geklappt.",
+      "ourSide": "Bei uns ist etwas schiefgelaufen.",
+      "nothingNew": "Nichts Neues vorzuschlagen.",
+      "nothingNewWhy": "Nichts Neues vorzuschlagen: {reason}.",
+      "proposals": "{count, plural, one {# Vorschlag wartet jetzt} other {# Vorschläge warten jetzt}} auf Sie.",
+      "proposalsBlocked": "{count, plural, one {# Vorschlag wartet jetzt} other {# Vorschläge warten jetzt}} auf Sie, und {blocked, plural, one {# wurde} other {# wurden}} durch Ihre eigenen Regeln blockiert.",
+      "notes": "{count, plural, one {# Nachbestellnotiz wartet jetzt} other {# Nachbestellnotizen warten jetzt}} auf Sie.",
+      "notesBlocked": "{count, plural, one {# Nachbestellnotiz wartet jetzt} other {# Nachbestellnotizen warten jetzt}} auf Sie, und {blocked, plural, one {# wurde} other {# wurden}} durch Ihre eigenen Regeln blockiert."
+    },
+    "slow": {
+      "label": "Was sich nicht verkauft · {slow} von {counted} Artikeln",
+      "title": "Am meisten gebundenes Geld zuerst",
+      "meta": "{stuck}: kein Verkauf in {stuckDays} Tagen · {slow}: mehr als {slowDays} Tage Reichweite",
+      "held": "Ich schlage Wege vor, die obersten {count} abzuverkaufen. Nichts wird ausgeführt, bevor Sie es freigeben.",
+      "button": "Diese in meine Warteschlange legen →",
+      "working": "Die Möglichkeiten werden berechnet",
+      "emptyLabel": "Was sich nicht verkauft",
+      "nothingSlow": "Nichts verkauft sich langsam",
+      "connect": "Verbinden Sie Ihren Shop unter „Verbindungen“, dann lese ich seinen Bestand bei jeder Synchronisierung, oder importieren Sie unten eine Bestandsdatei.",
+      "allSelling": "Jeder Artikel, den ich gelesen habe, hat sich innerhalb von {stuckDays} Tagen verkauft und hat weniger als {slowDays} Tage Reichweite.",
+      "connections": "Verbindungen"
+    },
+    "judge": {
+      "label": "Wie ich den Bestand beurteile",
+      "title": "Zwei Schwellen, nichts geschätzt",
+      "body": "{stuck} heißt: Bestand vorrätig und kein Verkauf in den letzten {stuckDays} Tagen. {slow} heißt: mehr als {slowDays} Tage Reichweite bei der eigenen Verkaufsrate des Artikels."
+    },
+    "svm": {
+      "label": "Was Sie mir gesagt haben, gegenüber dem, was ich gemessen habe",
+      "title": "Toter Bestand"
+    },
+    "view": {
+      "waiting": "Wartet auf Sie",
+      "blocked": "Durch Ihre Regel blockiert",
+      "approved": "Freigegeben",
+      "done": "Erledigt",
+      "declined": "Abgelehnt",
+      "expired": "Abgelaufen",
+      "cant": "Nicht möglich",
+      "noSales": "keine Verkäufe",
+      "unknown": "unbekannt",
+      "noneSold": "nichts verkauft",
+      "same": "etwa gleich",
+      "up": "mehr",
+      "down": "weniger",
+      "lead": "{days} T. · {supplier}",
+      "yourSupplier": "Ihr Lieferant",
+      "assumed": "ANGENOMMEN",
+      "atCost": "{amount} zu Einstandskosten"
     }
   }
 }

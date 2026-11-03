@@ -12,6 +12,40 @@ import type {
   Unit,
 } from "../../lib/simulate/model";
 import { SIM, optionKey, simulateOption, valueText } from "../../lib/simulate/model";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+import { basisName } from "../report/basis";
+
+/**
+ * L-3b (TASKS-LANGUAGES.md): the simulator's words — the "simulate"
+ * catalogue, the basis names from "sheet" — and the reader's locale,
+ * English by default so English has one source. The arithmetic lines,
+ * titles and reasons lib/simulate words stay English until L-4.
+ */
+export interface SimWords {
+  tr: Tr;
+  sheet: Tr;
+  locale: AppLocale;
+}
+export const ENGLISH_SIM = (): SimWords => ({
+  tr: englishTr("simulate"),
+  sheet: englishTr("sheet"),
+  locale: "en",
+});
+
+/** A budget share as a whole percent: "20%"; in another language, its own. */
+export function sharePct(share: number, locale: AppLocale = "en", signed = false): string {
+  const v = Math.round(Math.abs(share) * 100);
+  const sign = signed ? (share > 0 ? "+" : "−") : "";
+  if (locale === "en") return `${sign}${v}%`;
+  const body = new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    maximumFractionDigits: 0,
+  }).format(v / 100);
+  return `${sign}${body}`;
+}
 
 export interface CellView {
   /** The figure in mono, or a dash. */
@@ -25,19 +59,39 @@ export interface CellView {
 }
 
 /** Pure: one table cell in words. A gap is never printed as a number. */
-export function cellView(cell: Cell, unit: Unit, currency: string): CellView {
+export function cellView(
+  cell: Cell,
+  unit: Unit,
+  currency: string,
+  w: SimWords = ENGLISH_SIM(),
+): CellView {
   if (cell.status === "range") {
     return {
-      figure: valueText(cell.range, unit, currency, cell.exact),
-      basis: cell.bases.length > 0 ? cell.bases.join(" · ") : cell.exact ? "SET BY THE OPTION" : "",
+      figure: valueText(cell.range, unit, currency, cell.exact, w.locale),
+      basis:
+        cell.bases.length > 0
+          ? cell.bases.map((b) => basisName(b, w.sheet)).join(" · ")
+          : cell.exact
+            ? w.tr("cell.setByOption")
+            : "",
       flag: null,
       detail: cell.formula,
     };
   }
   if (cell.status === "missing") {
-    return { figure: "—", basis: "", flag: "MISSING", detail: `needs ${cell.needs.join("; ")}` };
+    return {
+      figure: "—",
+      basis: "",
+      flag: "MISSING",
+      detail: w.tr("cell.needs", { list: cell.needs.join("; ") }),
+    };
   }
   return { figure: "—", basis: "", flag: "NOT READ", detail: cell.why };
+}
+
+/** A cell's flag in words: the code stays the screen's tone, the word is the reader's. */
+export function flagWord(flag: "MISSING" | "NOT READ", tr: Tr = ENGLISH_SIM().tr): string {
+  return flag === "MISSING" ? tr("cell.missing") : tr("cell.notRead");
 }
 
 /** Every option the catalog offers, at the default share for a budget change. */
@@ -67,13 +121,11 @@ export function shareSteps(): number[] {
 const priced = (r: OptionResult) => r.measures.revenue.status === "range";
 
 /** Pure: the screen's one display line, from the real numbers. */
-export function headline(c: Catalog, x: SimInputs): string {
+export function headline(c: Catalog, x: SimInputs, tr: Tr = ENGLISH_SIM().tr): string {
   const results = allOptions(c).map((o) => simulateOption(o, x));
   const n = results.filter(priced).length;
-  if (n === 0) {
-    return `None of your ${results.length} campaign options can be priced from your own numbers yet — each one shows what it's missing.`;
-  }
-  return `${n} of your ${results.length} campaign options can be priced from your own numbers.`;
+  if (n === 0) return tr("headNone", { total: results.length });
+  return tr("headSome", { priced: n, total: results.length });
 }
 
 /** Pure: the first picks — two options that can be priced, of different kinds where possible. */
@@ -137,7 +189,11 @@ export type WhiskerSource = Pick<OptionResult, "key" | "title" | "currency"> & {
  * effect is read against "nothing changes"). Only one currency can share an
  * axis (rule 1): with two, the chart is left out.
  */
-export function whiskerChart(results: readonly WhiskerSource[]): WhiskerChart | null {
+export function whiskerChart(
+  results: readonly WhiskerSource[],
+  words: SimWords = ENGLISH_SIM(),
+): WhiskerChart | null {
+  const { tr, locale } = words;
   const currencies = new Set(results.map((r) => r.currency.toUpperCase()));
   if (currencies.size !== 1) return null;
   const currency = results[0]?.currency ?? null;
@@ -162,7 +218,7 @@ export function whiskerChart(results: readonly WhiskerSource[]): WhiskerChart | 
   for (let v = min; v <= max + 1e-9; v += s) {
     ticks.push({
       at: at(v),
-      label: valueText({ low: v, high: v }, "money", currency ?? "EUR", true),
+      label: valueText({ low: v, high: v }, "money", currency ?? "EUR", true, locale),
     });
   }
   return {
@@ -180,14 +236,19 @@ export function whiskerChart(results: readonly WhiskerSource[]): WhiskerChart | 
         worst: w.status === "range" && p.status === "range" ? at(w.range.low) : null,
         text:
           p.status === "range"
-            ? `${valueText(p.range, "money", r.currency)}${w.status === "range" ? `, worst ${valueText(w.range, "money", r.currency, true)}` : ""}`
-            : "not worked out",
+            ? w.status === "range"
+              ? tr("whisker.withWorst", {
+                  range: valueText(p.range, "money", r.currency, false, locale),
+                  worst: valueText(w.range, "money", r.currency, true, locale),
+                })
+              : valueText(p.range, "money", r.currency, false, locale)
+            : tr("whisker.notWorkedOut"),
       };
     }),
   };
 }
 
-/** The kind's label, for a card's mono kicker. */
+/** The kind's label, for a card's mono kicker (English; the screen says "simulate.kind.<kind>"). */
 export const KIND_LABEL: Record<SimOption["kind"], string> = {
   email: "Email",
   ads: "Meta ads",

@@ -774,6 +774,228 @@
       "label": "Your numbers as a chart",
       "failed": "I couldn’t read your numbers for the chart just now. Refresh to try again — nothing is lost.",
       "reading": "Reading your measured days…"
+    },
+    "candle": {
+      "noneUnconnected": "No connection measures {metric} yet, so there is nothing to chart.",
+      "noneMeasured": "No {metric} measured in the last weeks, so there is nothing to chart yet.",
+      "summaryPath": "{metric} per day, {count, plural, one {# weekly candle} other {# weekly candles}}. Last week opened {open}, closed {close}; the path to the target {target} a day.",
+      "summaryNoPath": "{metric} per day, {count, plural, one {# weekly candle} other {# weekly candles}}. Last week opened {open}, closed {close}; target {target} a day, no measured starting point for a path.",
+      "perDay": "{metric} / day",
+      "period": "{count}W",
+      "ohlc": "O {open} H {high} L {low} C {close} {change}",
+      "volume": "Vol <b>{count}</b> {word}",
+      "volumeWord": {
+        "orders": "orders"
+      },
+      "today": "TODAY"
+    },
+    "cash": {
+      "key": "Key",
+      "band": "cautious to hopeful end",
+      "low": "cautious end",
+      "buffer": "your buffer",
+      "zero": "zero (no buffer stated)",
+      "lineBuffer": "BUFFER",
+      "lineZero": "ZERO",
+      "tight": "TIGHT",
+      "today": "Today",
+      "readoutRange": "<b>{low}</b> cautious – <b>{high}</b> hopeful",
+      "underLine": "under the line",
+      "when": "When",
+      "cautiousCol": "Cautious end ({currency})",
+      "hopefulCol": "Hopeful end ({currency})"
+    },
+    "market": {
+      "kicker": "Insights · Your numbers as a chart",
+      "title": "Your business, read like a stock",
+      "daysMeasured": "{count, plural, one {# day measured} other {# days measured}}",
+      "periodGroup": "Candle period",
+      "period": {
+        "day": "{count}D",
+        "week": "{count}W",
+        "month": "{count}M"
+      },
+      "periodSr": {
+        "day": "one candle a day",
+        "week": "one candle a week",
+        "month": "one candle a month"
+      },
+      "keyLabel": "Key",
+      "keyUp": "up: filled",
+      "keyDown": "down: hollow",
+      "keySlip": "slipped, a day",
+      "keyKept": "what you’d have kept",
+      "keyTable": "on the table",
+      "ohlc": "O {open} H {high} L {low} C <b>{close}</b>",
+      "closedDays": "{count, plural, one {# closed day} other {# closed days}}",
+      "volumeWord": {
+        "orders": "orders",
+        "appointments": "appointments",
+        "visits": "visits"
+      },
+      "volumeCount": {
+        "orders": "{count, plural, one {# order} other {# orders}}",
+        "appointments": "{count, plural, one {# appointment} other {# appointments}}",
+        "visits": "{count, plural, one {# visit} other {# visits}}"
+      },
+      "volumeNone": {
+        "orders": "not measured orders",
+        "appointments": "not measured appointments",
+        "visits": "not measured visits"
+      },
+      "slipped": "slipped <b>{range}</b>: {parts} <word>{derived}</word> · kept {kept} a day",
+      "nothingSlipped": "nothing measured slipped",
+      "aheadLong": "ON THE TABLE",
+      "aheadShort": "TABLE",
+      "eventsLabel": "Marked on the chart",
+      "event": {
+        "anomaly": "Detected",
+        "approved": "You approved",
+        "connected": "Connected"
+      },
+      "component": {
+        "revenue_dips": "Revenue dips",
+        "no_shows": "No-shows",
+        "late_cancellations": "Late cancellations",
+        "empty_capacity": "Empty slots",
+        "losing_ads": "Ads that lose money",
+        "slow_stock": "Cash in slow stock",
+        "on_the_table": "On the table"
+      },
+      "price": {
+        "revenue": "Revenue a day",
+        "bookingRevenue": "Booking revenue a day"
+      },
+      "componentsCaption": "What slips away each month, how each part was worked out, and its basis",
+      "colWhere": "Where it slips",
+      "colMonth": "{currency} a month",
+      "colBasis": "Basis",
+      "colHow": "How it was worked out",
+      "apart": "Not added to the month",
+      "legend": "A month is {days} days: each flow is read over its own window and scaled to {days} days, as its line says. {derived} = {derivedMeaning}. {estimated} here = the waiting proposals’ own forecasts. Ranges run from the low end to the high end; one figure means nothing estimated went in.",
+      "seeWaiting": "See what’s waiting →",
+      "row": {
+        "notMeasured": "Not measured",
+        "aMonth": "A month",
+        "basis": "Basis",
+        "wouldFill": "What would fill it",
+        "tiedUp": "Tied up now",
+        "now": "now",
+        "how": "How",
+        "over": "Over {days} days: {total}, × {month} ÷ {days}."
+      },
+      "empty": {
+        "nothing": "Nothing to draw yet.",
+        "connections": "Go to Connections →",
+        "would": "When it’s connected, I’ll price where money slips away:"
+      },
+      "weekOf": "Week of {day}",
+      "table": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month",
+        "open": "Open ({currency})",
+        "high": "High ({currency})",
+        "low": "Low ({currency})",
+        "close": "Close ({currency})",
+        "slipped": "Slipped ({currency})",
+        "kept": "What you'd have kept, a day ({currency})",
+        "notMeasured": "not measured",
+        "none": "none"
+      }
+    },
+    "season": {
+      "key": "Key",
+      "keyBusy": "busy: filled",
+      "keyQuiet": "quiet: hollow",
+      "keyBand": "your middle half of weeks",
+      "keyPlain": "a week against your median week",
+      "nextShort": "NEXT {count, plural, one {# WK} other {# WKS}}",
+      "nextLong": "THE NEXT {count, plural, one {# WEEK} other {# WEEKS}}, LAST YEAR",
+      "weekOf": "Week of {day}",
+      "yourNormal": "your normal week",
+      "yourMedian": "your median week",
+      "flag": {
+        "busy": "busy",
+        "quiet": "quiet"
+      },
+      "colWeek": "Week of",
+      "colNormal": "Against the normal week",
+      "colMedian": "Against the median week",
+      "colFlag": "Flag",
+      "ready": {
+        "label": "Your year · {count, plural, one {# week} other {# weeks}}",
+        "titleEven": "Every week of the last year near your normal week",
+        "title": "{busy, number} busy and {quiet, plural, one {# quiet week} other {# quiet weeks}} in the last year",
+        "meta": "{source} · {noun} · OBSERVED weeks, DERIVED index",
+        "foot": "Each bar is one week's {noun} ÷ your normal week (the median of the last {weeks, number}). Busy is {busy} or more, quiet {quiet} or less.",
+        "summary": "{count, plural, one {# week} other {# weeks}} of {noun} against your normal week; {busy, number} busy, {quiet, number} quiet. {headline}"
+      },
+      "short": {
+        "label": "The weeks there are · {count, number}",
+        "title": "Your weeks against each other — not a season yet",
+        "meta": "{source} · {noun} · OBSERVED",
+        "foot": "Against your median week of these {count, number}. A season needs {needed, plural, one {# complete week} other {# complete weeks}} of the last {weeks, number}; you have {have, number}.",
+        "summary": "{count, plural, one {# complete week} other {# complete weeks}} of {noun}, against their own median. Not enough history to name a season."
+      }
+    },
+    "small": {
+      "keyLabel": "Key",
+      "bookings": {
+        "label": "Bookings · week by week",
+        "title": "Kept, missed and what the missed ones were worth",
+        "meta": "<word>{observed}</word> counts · <word>{derived}</word> money",
+        "keyCompleted": "completed: filled",
+        "keyNoShow": "no-show: hollow",
+        "keyLate": "late cancellation: tinted",
+        "paneCount": "APPOINTMENTS",
+        "paneMoney": "MISSED, WORTH ({currency})",
+        "weekOf": "Week of {day}",
+        "completed": "{count, plural, one {# completed} other {# completed}}",
+        "noShows": "{count, plural, one {# no-show} other {# no-shows}}",
+        "late": "{count, plural, one {# late cancellation} other {# late cancellations}}",
+        "missedWorth": "missed worth <b>{range}</b>",
+        "caption": "Appointments a week, and what the missed ones were worth",
+        "colWeek": "Week of",
+        "colCompleted": "Completed",
+        "colNoShows": "No-shows",
+        "colLate": "Late cancellations",
+        "colMissed": "Missed, worth ({currency})"
+      },
+      "ads": {
+        "label": "Ads · the last {count, plural, one {# day} other {# days}}",
+        "titleNone": "Every campaign brings back what it costs",
+        "titleLosing": "{count, plural, one {# campaign costs more than it brings back} other {# campaigns cost more than it brings back}}",
+        "window": "Meta Ads · {from}–{to}",
+        "derivedFrom": "<word>{derived}</word> from Meta’s own attribution",
+        "foot": "Return = the purchase value Meta attributes to the campaign ÷ what it spent. Below {even} it loses money by Meta's own count — the line I propose a pause at.",
+        "keySpent": "spent: hollow",
+        "keyBack": "Meta attributes back: filled",
+        "colCampaign": "Campaign",
+        "colSpentBack": "Spent against back",
+        "colReturn": "Return",
+        "colFlag": "Flag",
+        "cellSpentBack": "Spent / back",
+        "spentBack": "{spent} spent · {back} back",
+        "losing": "Losing",
+        "paysBack": "Pays back"
+      }
+    },
+    "stockHistory": {
+      "label": "Slow stock · {count, plural, one {# count} other {# counts}}",
+      "title": "Cash tied up, count by count",
+      "observed": "OBSERVED",
+      "formula": "units on hand × unit cost",
+      "foot": "A stock, not a flow: each point is what one item held on the day it was counted, never added across days.",
+      "otherCurrency": "{count, plural, one {# item} other {# items}} in another currency left out.",
+      "item": "Item",
+      "over": "Over the counts",
+      "first": "First ({currency})",
+      "latest": "Latest ({currency})",
+      "oneCount": "one count, {day}",
+      "unchanged": "unchanged",
+      "down": "down {amount}",
+      "up": "up {amount}"
     }
   },
   "factsheet": {
@@ -1389,6 +1611,1475 @@
       "happened": "What happened: {happened}",
       "foot": "I record each forecast the moment I show it, with the range I gave, and grade it once its time has passed, from measured figures only. A grade can’t be changed.",
       "cantTell": "“Can’t tell” means the measured figures weren’t there, or something I didn’t forecast got in the way, such as a delivery. It never counts as right."
+    }
+  },
+  "benchmarks": {
+    "meta": {
+      "title": "Compared with similar businesses — SYB"
+    },
+    "kicker": "Insights · Compared with similar businesses",
+    "kickerShort": "Compared with similar businesses",
+    "aside": "Eurostat · read-only",
+    "add": "Add {what} →",
+    "addPeople": "Add how many people work here",
+    "notComparedYet": "Not compared yet",
+    "noComparison": "No comparison",
+    "nothingToCompare": "Nothing to compare",
+    "yours": "Yours",
+    "theirs": "Theirs",
+    "cell": "Theirs: {words}.",
+    "cellFlagged": "Theirs: {words} ({flag}).",
+    "col": {
+      "restsOn": "What yours rests on",
+      "value": "Value",
+      "basis": "Basis",
+      "source": "Where it came from"
+    },
+    "notCounted": "Not counted",
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "body": "<link>Start with the interview</link>, and your own numbers fill this in."
+    },
+    "error": {
+      "title": "The comparison didn't load.",
+      "body": "Something went wrong on my side. Refresh to try again."
+    },
+    "loading": "Reading your numbers…",
+    "head": {
+      "ready": "Compared with {group} {size} in {country}.",
+      "noType": "I don't know what kind of business this is yet.",
+      "unmapped": "There's no Eurostat comparison for this kind of business.",
+      "noCountry": "I don't know which country the business is in.",
+      "outsideEu": "Eurostat doesn't cover {country}."
+    },
+    "foot": "Source: Eurostat, {dataset} ({doi}), updated {updated}, retrieved {retrieved}, reused with the source acknowledged. I keep each group's latest year and convert euros to your currency; Eurostat isn't responsible for that. {caveat}",
+    "line": "Yours is {own}, theirs {bench}: {gap}.",
+    "reading": {
+      "above": "ABOVE",
+      "below": "BELOW",
+      "same": "ABOUT THE SAME",
+      "notYet": "NOT YET",
+      "none": "NO COMPARISON"
+    },
+    "nothingCompared": "Nothing compared",
+    "comparedCount": "{count, number} of {total, number} compared",
+    "size": {
+      "unknown": "I don't know how many people work in the business, so the group is every size.",
+      "spans": "Your size spans two of Eurostat's size groups, so the group is every size."
+    }
+  },
+  "blindspots": {
+    "meta": {
+      "title": "Blindspots — SYB"
+    },
+    "kicker": "Insights · Blindspots",
+    "quoted": "“{text}”",
+    "where": {
+      "support": "support chat",
+      "search": "site search",
+      "google": "Google",
+      "competitors": "{showing, number} of {checked, number} competitors"
+    },
+    "head": {
+      "noSite": "There's no website in your profile yet.",
+      "notRead": "Your website hasn't been read yet.",
+      "nothingMissing": "Nothing customers look for is missing from your site.",
+      "things": "{count, plural, one {# thing customers look for isn't on your site.} other {# things customers look for aren't on your site.}}",
+      "foundBoth": "{count, number} searches and questions found nothing on your site.",
+      "foundSearches": "{count, plural, one {# search found nothing on your site.} other {# searches found nothing on your site.}}",
+      "foundQuestions": "{count, plural, one {# question found nothing on your site.} other {# questions found nothing on your site.}}"
+    },
+    "table": {
+      "aria": "Blindspots table",
+      "lookedFor": "They looked for",
+      "times": "Times",
+      "share": "Share of the biggest",
+      "where": "Where it came up",
+      "onSite": "On your site",
+      "notFound": "Not found"
+    },
+    "biggest": {
+      "label": "Biggest blindspot · {count, plural, one {# time} other {# times}}",
+      "title": "“{label}” isn't on your site",
+      "support": "Support chat",
+      "notAsked": "not asked",
+      "unanswered": "{count, number} left unanswered",
+      "search": "Site search",
+      "notSearched": "not searched",
+      "google": "Google",
+      "notSeen": "not seen",
+      "impressions": "impressions · {count, plural, one {# click} other {# clicks}}",
+      "competitors": "Competitors",
+      "noneChecked": "none checked",
+      "showing": "{showing, number} of {checked, number}",
+      "showIt": "show it on their site",
+      "toFix": "{arithmetic}. To fix: {fix}."
+    },
+    "fixed": {
+      "label": "How blindspots get fixed",
+      "title": "With your approval, never on their own",
+      "foot": "Website changes wait in Website.",
+      "link": "Review on Website →",
+      "stepFix": "A fix is {fix}.",
+      "fixDefault": "a website change through the approval queue, or an answer in your support assistant",
+      "stepWait": "Nothing changes on its own: a fix waits in “Waiting for you” until you approve it.",
+      "stepRecheck": "Your site is read again every {days, plural, one {# day} other {# days}}, so a blindspot it now shows drops off this list."
+    },
+    "coverage": {
+      "label": "What this couldn't see",
+      "title": "Gaps, not failures"
+    },
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "body": "<link>Start with the interview</link>, and your site is read from it."
+    },
+    "error": {
+      "title": "Blindspots didn't load.",
+      "body": "Something went wrong on our side. Refresh to try again."
+    },
+    "loading": "Reading what customers look for…",
+    "aside": {
+      "window": "Last {days, plural, one {# day} other {# days}} · {from} to {to}",
+      "siteRead": "site read {day}",
+      "siteNotRead": "site not read",
+      "observed": "OBSERVED"
+    },
+    "list": {
+      "label": "What customers looked for, and what your site shows",
+      "title": "{count, plural, one {# blindspot, biggest first} other {# blindspots, biggest first}}",
+      "meta": "Ranked by how many sources point at it, then by count",
+      "nothingMissing": "Nothing missing",
+      "nothingYet": "Nothing to compare yet",
+      "allThere": "Everything customers asked or searched for that I can match is on your site.",
+      "noSite": "Add your website to your profile and I read up to five of its pages, then compare them with what customers ask and search for.",
+      "notRead": "Your website hasn't been read yet, so nothing can be called missing from it.",
+      "notReadWhy": "Your website hasn't been read yet: {why}, so nothing can be called missing from it."
+    },
+    "factSheet": "Fact sheet",
+    "hard": {
+      "label": "On your site, yet customers keep asking",
+      "title": "Maybe hard to find",
+      "item": "<strong>{label}</strong>: asked {count, plural, one {# time} other {# times}} in your support chat; it's on <link>{page}</link>."
+    },
+    "seen": {
+      "label": "Seen on Google, rarely clicked",
+      "title": "Shown, not chosen",
+      "search": "Search",
+      "shown": "Shown",
+      "clicked": "Clicked",
+      "position": "Position"
+    },
+    "topics": {
+      "label": "Other things people searched for",
+      "title": "Is it on your site?",
+      "item": "<strong>{label}</strong>: {count, plural, one {# search} other {# searches}} (e.g. {examples})"
+    }
+  },
+  "carts": {
+    "meta": {
+      "title": "Abandoned carts — SYB"
+    },
+    "kicker": "Customers · Abandoned carts",
+    "foot": "SYB never emails a shopper who hasn't said yes. Shopify's own abandoned-checkout email, if you use it, is separate.",
+    "signedOut": "There's no business here yet.",
+    "startInterview": "<link>Start with the interview</link>.",
+    "failedTitle": "Carts didn't load.",
+    "failedBody": "Something went wrong on our side. Refresh to try again.",
+    "reading": "Reading your carts…",
+    "connect": "Connect your Shopify shop and I read its unfinished checkouts with every sync.",
+    "connections": "Connections",
+    "measured": "MEASURED",
+    "notYet": "NOT YET",
+    "waitingForYou": "Waiting for you",
+    "workingItOut": "Working it out…",
+    "ruledOut": "I didn't put this in your queue: your rule ({rule}) rules it out.",
+    "products": {
+      "label": "What was left behind · {count, plural, one {# cart} other {# carts}}",
+      "titleSome": "In the most carts first",
+      "titleNone": "No product to name",
+      "meta": "Measured from your shop's own checkouts",
+      "table": "Products left in carts",
+      "product": "Product",
+      "inCarts": "In carts",
+      "units": "Units",
+      "valueLeft": "Value left",
+      "aProduct": "A product",
+      "noProduct": "The carts left held no product I can name.",
+      "truncated": "{count, plural, one {# cart had} other {# carts had}} more items than one read takes, so only the first {max} of each are counted here. Their totals are counted in full."
+    },
+    "winBack": {
+      "label": "Likely to win back · {emailable} of {shoppers} shoppers can be emailed",
+      "titleRange": "{range} likely back",
+      "titleNone": "Nothing to win back by email yet",
+      "inQueue": "Today's reminder is in your queue.",
+      "oneEmail": "One email to the {count, plural, one {# contact} other {# contacts}} who left a cart {min}–{max} days ago and said yes. Nothing sends until you approve the email itself.",
+      "button": "Propose win-back emails →",
+      "rangeOf": "{low}–{high} of {base}",
+      "rangeBase": "the value of the {count, plural, one {# cart} other {# carts}} whose shopper said yes to email",
+      "nobody": "Nobody who left a cart in the last {days} days can be emailed, so I put no figure on it.",
+      "working": "Working out the reminder"
+    },
+    "consent": {
+      "label": "Who can be emailed",
+      "title": "Only people who said yes",
+      "checkout": "A shopper who ticks “email me” at Shopify's checkout becomes a contact with that yes recorded, once SYB may read your Shopify customers. A yes you recorded yourself only gives way to a later unsubscribe in Shopify."
+    },
+    "refusal": {
+      "label": "Abandoned carts",
+      "noneRead": "I haven't read any carts yet.",
+      "rule": "I measure once there are {days} days of carts and {carts} carts left in the last {window} days, so a quiet week isn't read as a pattern."
+    },
+    "result": {
+      "didntWork": "That didn't work.",
+      "ourSide": "Something went wrong on our side.",
+      "nothingNew": "Nothing new to propose.",
+      "nothingNewWhy": "Nothing new to propose: {reason}.",
+      "waits": "A win-back email now waits for you.",
+      "blocked": "Your own rules blocked it, so it sits blocked in your queue."
+    },
+    "view": {
+      "and": "{first} and {last}",
+      "titleTooMany": "Too many checkouts to read",
+      "titleStale": "No figure from an old read",
+      "titleTooFew": "Not enough carts to measure",
+      "waiting": "Waiting for you",
+      "blocked": "Blocked by your rule",
+      "approved": "Approved",
+      "sent": "Sent",
+      "declined": "Declined",
+      "expired": "Expired"
+    }
+  },
+  "cash": {
+    "meta": {
+      "title": "Cash flow — SYB"
+    },
+    "kicker": "Insights · Cash flow",
+    "aside": "Planning aid · read-only",
+    "planningNote": "A planning aid from your own numbers, not financial advice. SYB never moves, pays or collects money.",
+    "sourcesNone": "Sources: your stated cash, costs and measured sales.",
+    "signedOut": "There's no business here yet.",
+    "startInterview": "<link>Start with the interview</link>.",
+    "failedTitle": "The cash forecast didn't load.",
+    "failedBody": "Something went wrong on our side. Refresh to try again.",
+    "reading": "Reading your numbers…",
+    "refused": {
+      "label": "How much there is",
+      "labelFrom": "How much there is · {source}",
+      "weeks": "{complete} of {needed} complete weeks",
+      "nothing": "Nothing to build a forecast on yet",
+      "readyOn": "Ready from around {day}, if syncs keep running",
+      "gapLabel": "What I can and can't say yet",
+      "gapTitle": "Honest about the gap",
+      "can": "I can",
+      "cannot": "I can't yet"
+    },
+    "warning": {
+      "label": "When money gets tight",
+      "titleTight": "The first tight week",
+      "titleNone": "No tight week in the next {weeks}",
+      "metaBuffer": "Against the least you want in the account",
+      "metaZero": "No buffer stated: against an empty account",
+      "none": "At the cautious end (slow sales, slow payouts) the balance stays above the line every week.",
+      "reading": "This is a reading of your numbers, written to your Watching log and weekly summary. Nothing is proposed or done about it.",
+      "askBuffer": "<link>Tell me the least you'd want in the account</link> and I'll draw that line instead."
+    },
+    "weeks": {
+      "label": "Week by week",
+      "title": "Money in, money out, the balance",
+      "meta": "Cautious – hopeful, whole units",
+      "week": "Week",
+      "moneyIn": "Money in",
+      "goingOut": "Going out",
+      "dueThatWeek": "Due that week",
+      "due": "Due",
+      "balanceEnd": "Balance at the end",
+      "balance": "Balance",
+      "under": "UNDER THE LINE"
+    },
+    "scenarios": {
+      "label": "Scenarios · side by side",
+      "title": "What if…",
+      "meta": "Each runs the same forecast with one change",
+      "form": "Scenario sizes",
+      "slow": "Slow month, % lower",
+      "from": "from",
+      "order": "Big order, {currency}",
+      "in": "in",
+      "hire": "Hire, {currency} a month",
+      "priceOn": "Price change on",
+      "by": "by",
+      "run": "Work it out",
+      "running": "Working it out…",
+      "measure": "Measure",
+      "whatChanges": "What changes",
+      "lowest": "Lowest balance, cautious end",
+      "after": "Balance after {weeks} weeks",
+      "against": "Against as things are",
+      "firstTight": "First tight week",
+      "missing": "MISSING",
+      "assumed": "ASSUMED · {text}"
+    },
+    "sources": {
+      "label": "What this is built on",
+      "title": "Sources, and what I assumed",
+      "meta": "History {from} to {to}",
+      "input": "Input",
+      "value": "Value",
+      "basis": "Basis",
+      "cameFrom": "Where it came from",
+      "from": "From",
+      "assumedByName": "Assumed, by name",
+      "leftOut": "Left out",
+      "sharpen": "Would sharpen it",
+      "yours": "Nothing here is an industry average: every figure is yours, measured or stated, or named above as assumed."
+    },
+    "view": {
+      "today": "Today",
+      "weekOf": "Week of {day}",
+      "weekOfLower": "week of {day}",
+      "none": "none",
+      "plainTitle": "As things are",
+      "plainChange": "Nothing changes.",
+      "weekOption": "Week {n} · {day}",
+      "twelfth": "{item} (a twelfth)",
+      "signedRange": "{low} to {high}",
+      "chartLabel": "The next {weeks} weeks · balance at each week's end"
+    }
+  },
+  "competitors": {
+    "meta": {
+      "title": "Competitors — SYB"
+    },
+    "kicker": "Insights · Competitors",
+    "aside": "Public pages only · read weekly · OBSERVED",
+    "headline": {
+      "none": "You haven't listed any competitors yet.",
+      "unread": "I'm watching {count, plural, one {# competitor} other {# competitors}}, and haven't read their prices yet.",
+      "noMatch": "I've read {read} of {count, plural, one {# competitor} other {# competitors}}; none of their prices match an offer of yours yet.",
+      "noneBelow": "None of {matched, plural, one {# matched price} other {# matched prices}} is below yours.",
+      "below": "{below} of {matched, plural, one {# matched price is} other {# matched prices are}} below yours."
+    },
+    "read": {
+      "noPages": "No pages to read",
+      "notYet": "Not read yet",
+      "failed": "Couldn't read: {reason}",
+      "noAnswer": "no page answered",
+      "tried": "Tried {day}",
+      "partial": "Read {day}; {count, plural, one {# page} other {# pages}} not: {reason}",
+      "done": "Read {day}"
+    },
+    "form": {
+      "name": "Name",
+      "website": "Their website",
+      "websitePlaceholder": "their web address",
+      "listing": "Booking or listing page",
+      "listingPlaceholder": "Fresha, Treatwell, Booksy, Google, a shop page",
+      "otherPages": "Other pages with their prices, one per line (up to {max})",
+      "note": "I read only these pages, once a week. I never log in anywhere, and I skip any page their robots.txt asks robots to leave alone.",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "watch": {
+      "label": "Who I'm watching",
+      "nobody": "Nobody yet",
+      "count": "{count, plural, one {# competitor} other {# competitors}}",
+      "meta": "Their public pages, read weekly",
+      "foot": "Names come from your interview answers and from what you add here.",
+      "addOne": "Add a competitor →",
+      "add": "Add",
+      "empty": "Tell me who you compete with: their website, and the booking or listing page where their prices are. I read those pages and nothing else.",
+      "save": "Save",
+      "noPagesListed": "no pages listed",
+      "pages": "{count, plural, one {# page} other {# pages}}",
+      "reading": "Reading their pages…",
+      "prices": "{count, plural, one {# price} other {# prices}}",
+      "noPrices": "no prices seen",
+      "rated": "rated {rating}",
+      "ratedCount": "rated {rating} ({count})",
+      "readNow": "Read now",
+      "edit": "Edit",
+      "remove": "Remove"
+    },
+    "changes": {
+      "label": "Recent changes",
+      "none": "Nothing moved yet",
+      "title": "What moved",
+      "empty": "Each week I compare their pages with the last read. A price cut or rise, an offer added or gone, or a rating that moved shows up here and in Watching."
+    },
+    "flag": {
+      "cheaper": "CHEAPER",
+      "dearer": "DEARER",
+      "new": "NEW",
+      "gone": "GONE",
+      "changed": "CHANGED",
+      "rating": "RATING"
+    },
+    "basis": {
+      "owner": "your match",
+      "name": "same name",
+      "category": "same kind"
+    },
+    "prices": {
+      "from": "from {price}",
+      "label": "Their prices beside yours",
+      "noneTitle": "No prices to compare yet",
+      "emptyNone": "Once you list a competitor and I've read their pages, their prices sit here beside yours.",
+      "emptyRead": "When a read finds prices on their pages, they sit here beside yours.",
+      "ownOffers": "Your own offers come from your <link>fact sheet</link>.",
+      "title": "{matched} of {total, plural, one {# of their prices compare} other {# of their prices compare}} with yours",
+      "meta": "Matched by name or by kind of service; change any match",
+      "foot": "A comparison is something for you to weigh. I never change a price.",
+      "theirOffer": "Their offer",
+      "competitor": "Competitor",
+      "theirs": "Theirs",
+      "comparedWith": "Compared with",
+      "yours": "Yours",
+      "difference": "Difference",
+      "byModel": "read by the model",
+      "fromText": "read from the page text",
+      "fromTags": "read from page tags",
+      "fromData": "read from page data",
+      "matchLabel": "Which of your offers {name} compares with",
+      "nothingOfMine": "Nothing of mine",
+      "showing": "Showing the first {shown} of {total, plural, one {# price} other {# prices}}, matched ones first."
+    },
+    "screen": {
+      "failed": "That didn't work. Try again.",
+      "thisCompetitor": "this competitor",
+      "confirmRemove": "Stop watching {name}? What I read about them stays in your history.",
+      "noBusiness": "There's no business here yet.",
+      "startInterview": "<link>Start with the interview</link>, and name your competitors there.",
+      "failedTitle": "Competitors didn't load.",
+      "failedCopy": "Something went wrong on our side. Refresh to try again.",
+      "loading": "Reading what I know about your competitors…"
+    }
+  },
+  "goals": {
+    "meta": {
+      "title": "Goals — SYB"
+    },
+    "kicker": "Insights · Goals",
+    "metric": {
+      "revenue": "revenue",
+      "orders": "number of sales",
+      "sessions": "website visits"
+    },
+    "word": {
+      "reached": "Reached",
+      "on_path": "On path",
+      "behind": "Behind path",
+      "off_path": "Off path",
+      "too_early": "Too early",
+      "unmeasured": "Not measured",
+      "unchecked": "Not checked yet",
+      "unmeasurable": "Not measurable"
+    },
+    "cause": {
+      "our_advice_was_wrong": "Our advice was wrong",
+      "goal_unrealistic": "The goal asks too much for the time",
+      "owner_declined_key_actions": "Key steps were declined",
+      "approved_actions_not_executed": "Approved steps never ran",
+      "execution_failed": "Something failed when it ran",
+      "data_incomplete": "We're missing data",
+      "external_change": "Something outside changed",
+      "other": "Something else"
+    },
+    "form": {
+      "directionLabel": "raise or lower",
+      "raise": "Raise",
+      "lower": "Lower",
+      "metricLabel": "what to measure",
+      "to": "to",
+      "targetLabel": "target",
+      "currencyLabel": "currency",
+      "perBy": "per {days} days, by",
+      "deadlineLabel": "deadline",
+      "submit": "Make it measurable",
+      "aboveZero": "Enter a target above zero.",
+      "notSaved": "That didn't save.",
+      "savedNoBaseline": "Saved. No starting value yet: {note}.",
+      "horizon": "Leave the date empty and the goal's own horizon sets it."
+    },
+    "review": {
+      "head": "Alert review · {day}",
+      "headPerson": "Alert review · {day} · a person at SYB has this now",
+      "escalated": "The automatic review has done what it can. Someone from our team is looking at this goal and will be in touch.",
+      "escalatedWhy": "The automatic review has done what it can ({reason}). Someone from our team is looking at this goal and will be in touch.",
+      "cause": "<strong>{cause}:</strong> {statement} ({count, plural, one {# piece of evidence} other {# pieces of evidence}})",
+      "waiting": "{title} — waiting for you",
+      "waitingNote": "{title} — waiting for you ({note})",
+      "yours": "{title} — yours to decide"
+    },
+    "foot": {
+      "waiting": "Waiting for you",
+      "connections": "Connections",
+      "history": "History",
+      "unconnected": "No connection measures {metric} yet. Connect one and its history fills the chart and the starting point.",
+      "unchecked": "Not checked yet. The weekly check reads every measurable goal on Monday."
+    },
+    "card": {
+      "label": "{metric} · by {day}",
+      "goal": "Goal",
+      "untitled": "A goal without words yet",
+      "notMeasurable": "This goal isn't measurable yet, so I can't tell you whether it's on its path. Name the number it should move:",
+      "raise": "Raise {metric}",
+      "lower": "Lower {metric}",
+      "now": "Now",
+      "pathSays": "Path says",
+      "target": "Target",
+      "per": "per {days} days · now = the last {recent} days",
+      "measured": "({count} measured)",
+      "startedAt": "started at {value} on {day}",
+      "noStart": "no measured starting point yet, so no path",
+      "chartFailed": "The chart couldn't be read just now."
+    },
+    "frame": {
+      "signedOutTitle": "There's no business here yet.",
+      "signedOut": "<link>Start with the interview</link>, then set the goals it should move.",
+      "failedTitle": "Your goals didn't load.",
+      "failed": "Something went wrong on our side. Refresh to try again.",
+      "reading": "Reading your goals…"
+    },
+    "title": {
+      "none": "No goals yet.",
+      "count": "{count, plural, one {# goal.} other {# goals.}}",
+      "noneChecked": "{goals} None checked against a path yet.",
+      "noneOn": "{goals} None on its path.",
+      "someOn": "{goals} {count, plural, one {# on its path.} other {# on their path.}}"
+    },
+    "aside": "{one} candle = {one} week · blue line = the path to your target",
+    "setFirst": "Set a goal →",
+    "setNew": "Set a new goal →",
+    "how": {
+      "label": "How goals work",
+      "title": "State one goal, in your own words",
+      "copy": "Goals are set on Content, where every planned piece names the goal it serves. Make one measurable (revenue, number of sales or website visits, by a date) and each week it is checked against a straight path from where it started to where you want it. Nothing is judged in the first eight weeks or while I'm still watching."
+    }
+  },
+  "hours": {
+    "meta": {
+      "title": "Trading hours — SYB"
+    },
+    "kicker": "Insights · Trading hours",
+    "weekdays": {
+      "mon": "Mondays",
+      "tue": "Tuesdays",
+      "wed": "Wednesdays",
+      "thu": "Thursdays",
+      "fri": "Fridays",
+      "sat": "Saturdays",
+      "sun": "Sundays"
+    },
+    "daysRange": "{from} to {to}",
+    "read": {
+      "label": "Reading",
+      "none": "Nothing in your hours stands out on the measured days. The watch checks again every week.",
+      "closing": {
+        "head": "The last hour, {days}",
+        "word": "Loses money",
+        "sub": "takes less than an open hour costs on most measured days",
+        "subCost": "takes less than an open hour costs ({cost}) on most measured days"
+      },
+      "opening": {
+        "head": "The first hour, {days}",
+        "word": "Busy at opening",
+        "sub": "already takes most of what the best hour takes: demand probably starts before you open"
+      },
+      "attention": {
+        "head": "Before opening, {days}",
+        "word": "Looked up early",
+        "sub": "a large share of that day's website visits come in the hours just before you open"
+      },
+      "best": {
+        "head": "{days}, {clock}",
+        "word": "Pays best",
+        "sub": "+{money} an hour over its cost, on average"
+      },
+      "early": {
+        "word": "Too early",
+        "sub": "too few measured days to judge yet"
+      }
+    },
+    "title": {
+      "none": "No signal fires on the measured days",
+      "closing": "The last hour doesn't pay on {days}",
+      "opening": "Demand starts before you open on {days}",
+      "attention": "People look you up before you open on {days}"
+    },
+    "row": {
+      "notStated": "hours not stated",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "closed": "closed"
+    },
+    "zone": {
+      "label": "Which timezone is the business in?",
+      "choose": "Choose…",
+      "save": "Save",
+      "failed": "That didn't save."
+    },
+    "trials": {
+      "title": "Trials",
+      "none": "Not a proposal yet",
+      "body": "A signal is never a change taken on faith. It becomes a four-week trial in “Waiting for you”, with its numbers, and nothing changes your hours unless you do.",
+      "waiting": "Waiting for you →"
+    },
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "body": "<link>Start with the interview</link>, and your hours are read from it."
+    },
+    "error": {
+      "title": "Your trading hours didn't load.",
+      "body": "Something went wrong on our side. Refresh to try again."
+    },
+    "loading": "Reading your trading hours…",
+    "notOk": {
+      "notEnough": "Not enough to read your hours yet.",
+      "unknown": "Your opening hours aren't known yet.",
+      "notYet": "Not yet: {reason}."
+    },
+    "needs": {
+      "label": "Margin by the hour",
+      "title": "What this needs",
+      "body": "Your opening hours from the interview, your timezone, and hourly card sales from a connected till, payment account or online shop."
+    },
+    "connections": "Connections",
+    "week": {
+      "titleAll": "Your {count, number} weekly open hours, hour by hour.",
+      "titlePay": "All {count, number} of your weekly open hours pay for themselves.",
+      "titleLose": "{losing, number} of your {count, number} weekly open hours don't pay for themselves.",
+      "period": "Last {weeks, plural, one {# week} other {# weeks}} · {from} to {to} · in {zone}",
+      "costStated": "opening cost {cost} / hour (your answer)",
+      "costNone": "no opening cost stated, so nothing is judged",
+      "labelNet": "Takings minus opening cost, {unit} per hour",
+      "labelTakings": "Takings, {unit} per hour",
+      "title": "The week, hour by hour",
+      "empty": "No open hours are stated and no sales are measured by the hour.",
+      "day": "Day"
+    },
+    "legend": {
+      "label": "Legend",
+      "loses": "loses > {even}",
+      "even": "about even",
+      "pays": "pays"
+    },
+    "foot": {
+      "mean": "Mean takings in each hour over that weekday's measured days, {coverage}; an hour with no sales counts as zero.",
+      "meanJudged": "Mean takings in each hour over that weekday's measured days, {coverage}; an hour with no sales counts as zero, and \"about even\" is within an eighth ({pct}%) of the hour's cost.",
+      "legend": "DERIVED. Hatched = closed. Takings, not margin.",
+      "unparsed": "Couldn't read: {list}.",
+      "wrong": "Wrong hours? Change your answer on the <link>Fact sheet</link>."
+    }
+  },
+  "patterns": {
+    "meta": {
+      "title": "Seasons & bundles — SYB"
+    },
+    "kicker": "Insights · Seasons & bundles",
+    "head": {
+      "pair": "{a} and {b} go together {lift}× as often as chance.",
+      "nothing": "Nothing measured yet to find your seasons in."
+    },
+    "seasons": {
+      "label": "Your seasons",
+      "nothing": "Nothing measured yet",
+      "noData": "{connect}. I read your seasons from your own history only. <link>Connections</link>"
+    },
+    "tooLittle": {
+      "label": "How much there is · {source}",
+      "title": "{days, plural, one {# day} other {# days}}, {from} to {to}",
+      "meta": "{have, number} of {needed, number} complete weeks needed",
+      "readyOn": "If your syncs keep running, I can name your seasons from around {day}."
+    },
+    "gap": {
+      "label": "What I can and can't say yet",
+      "title": "Honest about the gap",
+      "can": "I can",
+      "cannot": "I can't yet"
+    },
+    "ahead": {
+      "label": "The next {count, plural, one {# week} other {# weeks}} · beside the same weeks last year",
+      "none": "No busy or quiet stretch ahead",
+      "meta": "Last year's week, {weeks, number} weeks back, so weekdays line up",
+      "week": "Week of {day}",
+      "lastYear": "Week of {day} last year",
+      "notMeasured": "not measured in full last year",
+      "underWay": "{kind, select, busy {A busy stretch is under way} other {A quiet stretch is under way}}",
+      "thisWeek": "{kind, select, busy {A busy stretch starts this week} other {A quiet stretch starts this week}}",
+      "startsIn": "{kind, select, busy {A busy stretch starts in {count, plural, one {# week} other {# weeks}}} other {A quiet stretch starts in {count, plural, one {# week} other {# weeks}}}}"
+    },
+    "flag": {
+      "busy": "busy",
+      "quiet": "quiet"
+    },
+    "months": {
+      "label": "The months · {count, number} of the last year",
+      "title": "Each month scaled to one week",
+      "meta": "Months with {days, number} measured days or more"
+    },
+    "col": {
+      "thisYear": "This year",
+      "lastYear": "Last year",
+      "flag": "Flag",
+      "month": "Month",
+      "againstNormal": "Against normal",
+      "pair": "Pair",
+      "together": "Together",
+      "alsoSecond": "With the first, also the second",
+      "againstChance": "Against chance",
+      "margin": "The pair's margin",
+      "proposal": "Proposal"
+    },
+    "read": {
+      "label": "How I read it",
+      "title": "Your own history, nothing borrowed",
+      "otherCurrencies": "Your {noun} in {currencies} is left out: money in two currencies is never added together."
+    },
+    "count": {
+      "orders": "{count, plural, one {# order} other {# orders}}",
+      "visits": "{count, plural, one {# visit} other {# visits}}"
+    },
+    "unit": {
+      "orders": "orders",
+      "visits": "visits"
+    },
+    "pairs": {
+      "label": "{kind, select, orders {Bought together} other {Booked together}} · {source}",
+      "tooFew": "Only {amount} so far",
+      "tooFewBody": "I look for pairs once there are {amount}: with fewer, chance alone can make any two items look inseparable.",
+      "none": "Nothing goes together more than chance",
+      "some": "{count, plural, one {# pair} other {# pairs}} more often together than chance",
+      "meta": "{amount}, {from} – {to} · OBSERVED",
+      "footRule": "A pair shows when it shared {amount} or more and came up at least {lift} as often as chance would give.",
+      "footBelow": "{below, plural, one {# pair was} other {# pairs were}} seen too rarely, and {belowLift, number} no more often than chance.",
+      "footBelowUngrouped": "{below, plural, one {# pair was} other {# pairs were}} seen too rarely, and {belowLift, number} no more often than chance; {ungrouped, plural, one {# appointment} other {# appointments}} with no client or service couldn't be grouped into a visit.",
+      "single": "{kind, select, orders {Every one of your orders held a single item, so nothing can be paired yet.} other {Every one of your visits held a single item, so nothing can be paired yet.}}",
+      "multi": "{multi, number} of your {units} held two items or more, but no pair stood out from chance.",
+      "aria": "Pairs",
+      "share": "{pct, number}% of {units} with {a}",
+      "had": "{amount} had {a}",
+      "byChance": "about {count, number} by chance",
+      "drafting": "Drafting…",
+      "propose": "Propose this pair →"
+    },
+    "margin": {
+      "unknown": "Margin unknown: {why}.",
+      "known": "{price} for the pair, {after} after costs ({pct}%)."
+    },
+    "proposal": {
+      "pending": "Waiting for you",
+      "blocked": "Blocked by your rule",
+      "approved": "Approved",
+      "rejected": "Declined",
+      "expired": "Expired"
+    },
+    "note": {
+      "failed": "That didn't work.",
+      "blocked": "A rule of yours rules this out, so it sits blocked in your queue.",
+      "drafted": "Drafted. It waits for you; nothing changes in your shop when you approve it.",
+      "ourSide": "Something went wrong on our side."
+    },
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "body": "<link>Start with the interview</link>."
+    },
+    "error": {
+      "title": "Seasons and bundles didn't load.",
+      "body": "Something went wrong on our side. Refresh to try again."
+    },
+    "loading": "Reading your history…",
+    "aside": {
+      "none": "Nothing measured yet",
+      "span": "{source} · {from} – {to} · MEASURED"
+    },
+    "bundles": {
+      "section": "What goes together",
+      "emptyTitle": "No orders or visits to read yet",
+      "emptyBody": "Connect Shopify or WooCommerce and I keep which products each order held, or import your bookings and I group each client's visit.",
+      "withoutLines": "{names} records payments, not products, so it can't say what went together."
+    },
+    "connections": "Connections",
+    "held": "A proposal is a draft for you: both items at full price, no discount. I don't change your shop or your checkout — you set the pair up.",
+    "waiting": "Waiting for you"
+  },
+  "pipeline": {
+    "meta": {
+      "title": "Pipeline — SYB"
+    },
+    "kicker": "Customers · Pipeline",
+    "loading": "Reading your pipeline…",
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "start": "<link>Start with the interview</link>."
+    },
+    "failed": {
+      "title": "Your pipeline didn't load.",
+      "body": "Something went wrong on our side. Refresh to try again."
+    },
+    "consumer": {
+      "title": "A pipeline is for selling to businesses.",
+      "body": "You told me you sell to consumers, so there are no deals to track here.",
+      "factSheet": "Fact sheet"
+    },
+    "error": {
+      "generic": "That didn't work.",
+      "ourSide": "Something went wrong on our side. Try again."
+    },
+    "aside": "Your pipeline · {count, plural, one {# deal} other {# deals}} · win rate {basis}",
+    "rateBasis": {
+      "measured": "MEASURED",
+      "stated": "STATED",
+      "none": "NOT KNOWN"
+    },
+    "stage": {
+      "lead": "Lead",
+      "qualified": "Qualified",
+      "proposal_sent": "Proposal sent",
+      "won": "Won",
+      "lost": "Lost"
+    },
+    "stageInline": {
+      "lead": "lead",
+      "qualified": "qualified",
+      "proposal_sent": "proposal sent",
+      "won": "won",
+      "lost": "lost"
+    },
+    "board": {
+      "label": "The board · {count} open",
+      "title": "Stages as columns, the longest in its stage first",
+      "empty": "No deals yet. Add one below, or import your spreadsheet.",
+      "aria": "Deals by stage",
+      "median": "median {median} d · oldest {oldest} d",
+      "closedRecent": "closed in the last {days, plural, one {day} other {# days}}",
+      "none": "none"
+    },
+    "card": {
+      "noValue": "no value",
+      "estimate": "your estimate",
+      "inStage": "{days} d in stage",
+      "stale": "stale",
+      "change": "Change",
+      "stage": "Stage",
+      "nextStep": "Next step",
+      "by": "By",
+      "save": "Save next step",
+      "spoke": "I spoke to them today"
+    },
+    "quiet": {
+      "label": "Gone quiet · {count}",
+      "title": "No next step, or a next step past its date",
+      "held": "I draft a follow-up only for a contact who said yes to email. Nothing sends: you send it yourself.",
+      "propose": "Propose follow-ups",
+      "nothing": "Nothing new to propose.",
+      "nothingWhy": "Nothing new to propose: {reason}.",
+      "created": "{count, plural, one {# follow-up now waits} other {# follow-ups now wait}} for you in the queue.",
+      "allGood": "Every open deal has a next step that isn't overdue."
+    },
+    "stale": {
+      "blocked": "Your rule ({rule}) rules out the email.",
+      "pending": "The follow-up waits in <link>Waiting for you</link>.",
+      "drafted": "Drafted. Read it, change what you like, and send it from your own mail.",
+      "draft": "Draft the email",
+      "dontSend": "I don't send this. Copy it into your own email to them.",
+      "copied": "Copied",
+      "copy": "Copy the text"
+    },
+    "due": {
+      "label": "Likely won by {date}",
+      "labelRate": "Likely won by {date} · win rate {basis}",
+      "notForecast": "Not forecast yet",
+      "undated": "{count, plural, one {# open deal has} other {# open deals have}} no expected close date.",
+      "title": "The deals you expect to close in the next {days, plural, one {day} other {# days}}",
+      "meta": "On my track record: I check it against the deals you mark won by then.",
+      "line": "{count, plural, one {# deal} other {# deals}} worth {total}: about {low} – {high} likely won.",
+      "unvalued": "{count} of the deals due have no value and aren't in these figures.",
+      "undatedOut": "{count, plural, one {# open deal has no expected close date, so it isn't in this forecast.} other {# open deals have no expected close date, so they aren't in this forecast.}}",
+      "assumed": "Assumed",
+      "sources": "Sources: {list}."
+    },
+    "weigh": {
+      "label": "What's likely to close",
+      "labelRate": "What's likely to close · win rate {basis}",
+      "notWeighed": "Not weighed yet",
+      "can": "I can",
+      "cant": "I can't yet",
+      "ready": "Ready {when}.",
+      "stateRate": "State your win rate",
+      "title": "Open value, weighed by your own win rate",
+      "currency": "Currency",
+      "deals": "Deals",
+      "open": "Open",
+      "likely": "Likely to close",
+      "unvalued": "{count, plural, one {# open deal has no value and isn't in these figures.} other {# open deals have no value and aren't in these figures.}}",
+      "assumed": "Assumed",
+      "window": "Window {from} to {to}. Sources: {list}.",
+      "statedNote": "You told me {stated}; this uses what your own closed deals show.",
+      "measureAfter": "After {count, plural, one {# more closed deal} other {# more closed deals}} I measure it instead."
+    },
+    "add": {
+      "label": "Add a deal",
+      "title": "Who it's with, and what it's for",
+      "foot": "A new contact is recorded as UNSURE consent: a sales conversation isn't permission to market to them.",
+      "added": "Added.",
+      "company": "Company",
+      "contact": "Contact",
+      "email": "Their email",
+      "deal": "The deal",
+      "dealPlaceholder": "e.g. Spring tableware for the café",
+      "stage": "Stage",
+      "value": "Value",
+      "currency": "Currency",
+      "valueIs": "The value is",
+      "quoted": "What I quoted them",
+      "estimate": "My estimate",
+      "nextStep": "Next step",
+      "by": "By",
+      "submit": "Add the deal"
+    },
+    "import": {
+      "label": "Import",
+      "title": "Deals from a spreadsheet, under your attestation",
+      "foot": "Columns I read: {columns}.",
+      "lede": "A deals file brings people with it, so it comes in the way a customer list does: you state what the people in it consented to and how, and that statement lands on every contact it adds. Contacts you already have keep their consent; an erased or unsubscribed address is refused.",
+      "done": "Imported {count, plural, one {# deal} other {# deals}}.",
+      "left": "{count, plural, one {# row was} other {# rows were}} left out.",
+      "paste": "Paste the file (CSV)",
+      "consented": "What the people in it consented to",
+      "explicit": "They gave explicit consent to marketing email",
+      "implied": "Consent is implied (no explicit opt-in)",
+      "unsure": "Unsure",
+      "none": "No consent",
+      "how": "How it was obtained, in your words",
+      "howPlaceholder": "e.g. trade-fair sign-up sheet, {month}",
+      "currency": "Currency of the value column",
+      "valuesAre": "The values are",
+      "estimates": "My estimates",
+      "quoted": "What I quoted them",
+      "submit": "Import under my attestation"
+    },
+    "fine": "Deals belong to your contacts: erasing a contact on Customers erases their deals, their history and any drafted follow-up. Dates count in whole days.",
+    "fineTo": "Deals belong to your contacts: erasing a contact on Customers erases their deals, their history and any drafted follow-up. Dates count in whole days to {day}.",
+    "view": {
+      "and": "and",
+      "quietAddedToday": "{who} was added today; no conversation recorded yet",
+      "quietAddedAgo": "Nothing recorded with {who} since you added it, {days, plural, one {# day} other {# days}} ago",
+      "spokeToday": "You spoke to {who} today",
+      "nobodySpoke": "Nobody has spoken to {who} in {days, plural, one {# day} other {# days}}",
+      "noNextStep": "No next step",
+      "overdue": "Next step was due {day}, {days, plural, one {# day} other {# days}} ago",
+      "rateNone": "Not known yet",
+      "rateMeasured": "{point} measured: {won} won of {closed} closed, likely {low}–{high}",
+      "rateStated": "{point} as you stated it, read as {low}–{high}",
+      "headNone": "No open deals yet.",
+      "headNoValue": "{open, plural, one {# open deal} other {# open deals}}, none with a value yet.",
+      "headCantWeigh": "{open, plural, one {# open deal} other {# open deals}} worth {totals}. I can't weigh them yet.",
+      "headLikely": "{low}–{high} of your {total} open is likely to close.",
+      "headLikelyMore": "{low}–{high} of your {total} open is likely to close, and more in {others, plural, one {# other currency} other {# other currencies}}.",
+      "follow": {
+        "drafted": "drafted",
+        "approved": "approved",
+        "pending": "waiting for you",
+        "blocked": "blocked by your rule",
+        "rejected": "declined",
+        "changes_requested": "changes asked"
+      }
+    }
+  },
+  "reviews": {
+    "meta": {
+      "title": "Reviews — SYB"
+    },
+    "kicker": "Customers · Reviews",
+    "foot": "SYB never posts a reply and never signs in to your review sites. It reads your Google reviews only if you connect Google Business Profile, and only reads them. A reviewer's name is kept for a year, and you can remove any review at once.",
+    "stars": {
+      "none": "No rating",
+      "of": "{stars} of {max}"
+    },
+    "thisMonth": "this month",
+    "headline": {
+      "none": "No reviews here yet.",
+      "noneThisMonth": "No new reviews this month.",
+      "oneFine": "This month's one review isn't {stars, plural, one {# star} other {# stars}} or fewer.",
+      "noneFine": "None of this month's {count, plural, one {# review is} other {# reviews is}} {stars, plural, one {# star} other {# stars}} or fewer.",
+      "poor": "{poor, plural, one {# review} other {# reviews}} of {stars, plural, one {# star} other {# stars}} or fewer this month, of {total}."
+    },
+    "aside": "{count, plural, one {# review} other {# reviews}} on file · kept {days, plural, one {# day} other {# days}}",
+    "readNote": {
+      "unread": "I couldn't read this notification, so I kept only where and when. Open it where it lives.",
+      "model": "Read by my fallback reader: check it against the original.",
+      "paste": "You pasted this one."
+    },
+    "gmail": {
+      "code": "Gmail sent a confirmation code: {code}. Enter it in Gmail's forwarding settings.",
+      "link": "Gmail sent a confirmation link: open it to switch on the forwarding.",
+      "received": "Received {day}.",
+      "openLink": "Open Gmail's confirmation link"
+    },
+    "setup": {
+      "google": {
+        "notifications": "In your Business Profile, open Notifications (or Settings) and switch on emails for customer reviews.",
+        "gmail": "If those emails reach Gmail, first add the address above in Gmail's Settings, under Forwarding and POP/IMAP, Add a forwarding address. Gmail sends a confirmation code to it: the code shows up on this page, and you enter it in Gmail to finish.",
+        "rule": "Then, in the mailbox those emails reach, make a rule: mail from Google about a review is forwarded to the address above.",
+        "byHand": "Or forward any review email to it by hand. Either way works."
+      },
+      "trustpilot": {
+        "notifications": "In Trustpilot Business, turn on email notifications for new reviews.",
+        "forward": "Forward those emails to the address above, by a rule in your mailbox or by hand."
+      }
+    },
+    "platform": {
+      "other": "Another site"
+    },
+    "entry": {
+      "worthKnowing": "Worth knowing",
+      "noWords": "A rating with no words.",
+      "draftLabel": "Suggested reply · yours to edit",
+      "draftNote": "I drafted this. Read it and make it yours: once you post it, it's your words, under your name. I never post anything.",
+      "copied": "Copied",
+      "copyReply": "Copy the reply",
+      "drafting": "Drafting…",
+      "suggestAnother": "Suggest another →",
+      "suggest": "Suggest a reply →",
+      "openOn": "Open on {site} ↗",
+      "theSite": "the site",
+      "noneLeft": "No suggestions left for this review: write it yourself.",
+      "left": "{count, plural, one {# suggestion} other {# suggestions}} left for this review.",
+      "draftingLive": "Drafting a reply",
+      "failed": "That didn't work.",
+      "removeAsk": "Remove this review, the name on it and any suggested reply?",
+      "removing": "Removing…",
+      "removeYes": "Yes, remove it",
+      "keep": "Keep it",
+      "remove": "Remove this review"
+    },
+    "forwarding": {
+      "label": "Forwarding",
+      "offTitle": "Forwarding isn't set up yet",
+      "offCopy": "Once SYB's inbound email is switched on, you'll get an address here to forward your review emails to, and I'll file each one as it comes. Until then, paste a review below and I'll file it the same way.",
+      "title": "Forward review emails here",
+      "newStops": "A new address stops this one working. Update your forwarding after.",
+      "newAddress": "Get a new address",
+      "copied": "Copied",
+      "copyAddress": "Copy the address",
+      "how": "Each review email you forward becomes a review here. A poor one goes on your Watching screen the day it comes in, and into your weekly summary. Mail from anyone but a review site is ignored."
+    },
+    "google": {
+      "label": "Google Business Profile",
+      "failed": "Google stopped accepting SYB's access",
+      "reading": "Reading your Google reviews",
+      "readingFor": "Reading your Google reviews for {location}",
+      "readDirectly": "Read your Google reviews directly",
+      "notSetUpTitle": "Reading from Google isn't set up yet",
+      "manage": "Manage or revoke it on Connections",
+      "connect": "Connect it on Connections",
+      "connected": "SYB reads your reviews once a day and files new ones here, alongside any you forward. The same review arriving both ways is listed once.",
+      "lastRead": "Last read {day}.",
+      "before": "Before it can work",
+      "whatItCanDo": "Google's permission can also post replies to your reviews and edit your Business Profile listing. SYB only reads your reviews with it. You can revoke it any time.",
+      "notSetUp": "Not set up yet. Google lets apps read Business Profile reviews only after it approves them, and SYB's approval isn't in place yet. Until then, forward Google's review emails or paste a review.",
+      "needs": {
+        "approval": "SYB's approval from Google to use the Business Profile APIs (Google's own review of SYB).",
+        "signIn": "You sign in with the Google account that manages your Business Profile, and allow the one permission Google asks about.",
+        "location": "If you manage more than one location, you pick the one SYB reads."
+      },
+      "readNote": "Read from your Google Business Profile."
+    },
+    "paste": {
+      "label": "Paste a review",
+      "title": "Saw one somewhere else?",
+      "filed": "Filed.",
+      "already": "That review is already here.",
+      "where": "Where it was left",
+      "stars": "Stars",
+      "choose": "Choose",
+      "text": "What they wrote",
+      "reviewer": "Their name as the site shows it · optional",
+      "link": "Link to the review · optional",
+      "date": "When it was left · optional, else today",
+      "filing": "Filing…",
+      "file": "File this review"
+    },
+    "screen": {
+      "ourSide": "Something went wrong on our side.",
+      "noBusiness": "There's no business here yet.",
+      "startInterview": "<link>Start with the interview</link>.",
+      "failedTitle": "Reviews didn't load.",
+      "failedCopy": "Something went wrong on our side. Refresh to try again.",
+      "loading": "Reading your reviews…",
+      "listLabel": "Reviews · {month}: {count} · newest first",
+      "listTitle": "What people said",
+      "nothingFiled": "Nothing filed yet",
+      "listMeta": "{stars, plural, one {# star} other {# stars}} or fewer is worth knowing",
+      "emptyCopy": "Forward a review email to the address below, or paste one, and it shows here."
+    }
+  },
+  "simulate": {
+    "meta": {
+      "title": "Simulator — SYB"
+    },
+    "tabs": {
+      "aria": "Simulator",
+      "campaigns": "Campaigns",
+      "pricing": "What-if pricing"
+    },
+    "kicker": "Grow · Campaign simulator",
+    "loading": "Reading your numbers…",
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "body": "<link>Start with the interview</link>, and your own numbers fill this in."
+    },
+    "failed": {
+      "title": "The simulator didn't load.",
+      "body": "Something went wrong on my side. Refresh to try again."
+    },
+    "aside": {
+      "nothing": "Nothing here spends or sends",
+      "asOf": "As of {date} · {currency}"
+    },
+    "kind": {
+      "email": "Email",
+      "ads": "Meta ads",
+      "content": "Content"
+    },
+    "picker": {
+      "label": "Pick {min} to {max}",
+      "title": "Campaign options",
+      "meta": "{count} picked",
+      "metaFull": "{count} picked · that's the most I compare at once",
+      "kind": "Kind",
+      "option": "Option",
+      "fromNumbers": "From your numbers",
+      "compare": "Compare",
+      "picked": "Picked",
+      "emailable": "{count} said yes to email",
+      "noEmailable": "nobody here said yes to email",
+      "daily": "{amount} a day · {days, plural, one {# measured day} other {# measured days}}",
+      "noSpend": "no measured spend lately",
+      "quoted": "“{name}”",
+      "shareFor": "Budget change for {name}",
+      "raise": "Raise",
+      "cut": "Cut",
+      "pause": "Pause",
+      "raiseAria": "Raise {name} by {share}",
+      "cutAria": "Cut {name} by {share}",
+      "pauseAria": "Pause {name}",
+      "newCampaign": "A new campaign",
+      "judged": "judged on what your other campaigns return",
+      "noneMeasured": "no campaign measured yet to judge it by",
+      "metaOff": "Meta isn't connected",
+      "perDay": "{currency} a day",
+      "contentCalendar": "A {weeks}-week content calendar",
+      "contentAria": "A content calendar",
+      "posts": "{count, plural, one {# social post on the channels you run} other {# social posts on the channels you run}}",
+      "noSocial": "no social channel on your profile"
+    },
+    "pickN": "Pick {count} options to compare them side by side.",
+    "pickOne": "Pick one more option to compare them side by side.",
+    "side": {
+      "label": "Side by side · over {days} days",
+      "title": "What each is likely to bring",
+      "meta": "Ranges are the middle half of what was measured",
+      "measure": "Measure",
+      "count": "count"
+    },
+    "measure": {
+      "cost": "What it costs",
+      "reached": "People it reaches",
+      "orders": "Orders",
+      "revenue": "Expected revenue",
+      "profit": "Expected profit",
+      "worst": "Worst case"
+    },
+    "cell": {
+      "missing": "MISSING",
+      "notRead": "NOT READ",
+      "setByOption": "SET BY THE OPTION",
+      "needs": "needs {list}"
+    },
+    "headNone": "None of your {total} campaign options can be priced from your own numbers yet — each one shows what it's missing.",
+    "headSome": "{priced} of your {total} campaign options can be priced from your own numbers.",
+    "whisker": {
+      "caption": "Expected profit, low to high · the square is the worst case",
+      "currencies": "The options are in more than one currency, so they can’t share one axis — I don’t convert between currencies.",
+      "withWorst": "{range}, worst {worst}",
+      "notWorkedOut": "not worked out"
+    },
+    "profitCard": {
+      "label": "Profit, side by side",
+      "title": "The spread of each option"
+    },
+    "option": {
+      "canPropose": "Can be proposed",
+      "notProposable": "Not proposable yet",
+      "proposing": "Proposing",
+      "propose": "Propose this →",
+      "restsOn": "What it rests on",
+      "value": "Value",
+      "basis": "Basis",
+      "from": "Where it came from",
+      "missing": "Missing",
+      "needs": "needs {what}",
+      "aSource": "a source",
+      "worstCase": "Worst case",
+      "overLimit": "Over a limit",
+      "check": "Against what happened before"
+    },
+    "math": {
+      "cost": "Cost",
+      "reached": "Reach",
+      "orders": "Orders",
+      "revenue": "Revenue",
+      "profit": "Profit",
+      "worst": "Worst case"
+    },
+    "notice": {
+      "signIn": "Sign in to propose it.",
+      "failed": "That didn't go through. Try again.",
+      "blocked": "I wrote it, and your own limit stopped it: {limit}. It's in the restraint view.",
+      "aLimit": "a limit you set",
+      "proposed": "Proposed, with this simulation attached. Nothing runs until you approve it in <link>Waiting for you</link>",
+      "notProposed": "Not proposed: {why}.",
+      "nothing": "nothing to propose"
+    },
+    "pricing": {
+      "kicker": "Grow · What-if pricing",
+      "loading": "Reading your prices…",
+      "failed": "What-if pricing didn't load.",
+      "aside": "Nothing here changes a price",
+      "empty": {
+        "title": "There's nothing priced on your profile yet.",
+        "body": "<ask>List what you sell, with its price</ask>, or import your bookings on <conn>Connections</conn>, and this fills in."
+      },
+      "noPrice": "{name} has no price on your profile yet.",
+      "pickItem": "Pick a product or service to reprice.",
+      "fromBookings": "{count} from your bookings",
+      "fromProfile": "{count} from your profile",
+      "items": {
+        "label": "Pick one",
+        "title": "What to reprice",
+        "service": "Service",
+        "product": "Product",
+        "pick": "Pick",
+        "repriceAria": "Reprice {name}",
+        "reprice": "Reprice",
+        "addPrice": "Add its price"
+      },
+      "changes": {
+        "label": "Up to {max}",
+        "title": "Price changes on {name}",
+        "aria": "Price changes",
+        "exactly": "or exactly, {currency}",
+        "exactAria": "An exact new price, in {currency}"
+      },
+      "period": "{kind, select, service {every {days} days} other {a month}}",
+      "side": {
+        "label": "Side by side · {period}",
+        "title": "What each price does to {name}",
+        "meta": "The break-even rests on your numbers alone; the ranges add an assumed customer response",
+        "breakEven": "Break-even",
+        "breakEvenSub": "{kind, select, service {bookings} other {sales}} it can lose, or must win",
+        "volume": "{kind, select, service {Bookings} other {Sales}} after",
+        "unitMoney": "{currency} {period}",
+        "unitCount": "{kind, select, service {bookings} other {sales}} {period}"
+      },
+      "measure": {
+        "volume": "Sales after the change",
+        "revenue": "Revenue change",
+        "profit": "Profit change",
+        "worst": "Worst case"
+      },
+      "never": "NEVER",
+      "card": {
+        "label": "Price change",
+        "meta": "Nothing here changes your price",
+        "breakEven": "Break-even",
+        "cautious": "That’s the cautious end: with what one costs you to deliver, I could say how many more you could lose.",
+        "addCost": "Add the cost →",
+        "addNeed": "Add {what} →",
+        "needs": "needs {what} — <link>add it</link>"
+      },
+      "math": {
+        "volume": "{kind, select, service {bookings} other {sales}}",
+        "revenue": "revenue",
+        "profit": "profit",
+        "worst": "Worst case"
+      },
+      "assumption": "The ranges assume that for each {one} on the price, {low} to {high} of {kind, select, service {bookings} other {sales}} move the other way — a planning assumption for your kind of business, not a measurement. The break-even assumes nothing.",
+      "profitTitle": "The spread of each price",
+      "caption": "Profit change {period}, low to high · the square is the worst case",
+      "cantDraw": "Profit can’t be drawn yet: it needs what one {kind, select, service {booking} other {sale}} costs you to deliver. <link>Add it</link>.",
+      "pickChange": "Pick a price change to see what it does.",
+      "refused": "Not simulated: {why}.",
+      "unreadable": "That isn't a price I can read.",
+      "noPriceYet": "it has no price yet",
+      "be": {
+        "loseShare": "Lose fewer than {share}",
+        "loseCount": "Lose fewer than {count}",
+        "winShare": "Win more than {share}",
+        "winCount": "Win more than {count}",
+        "noun": "{kind, select, service {bookings} other {sales}}",
+        "moreNoun": "{kind, select, service {more bookings} other {more sales}}",
+        "ofVolume": "{share} of ~{volume}",
+        "ofSales": "{share} of your sales",
+        "plusOfVolume": "+{share} of ~{volume}",
+        "plusOfSales": "+{share} of your sales",
+        "atLeast": "at least, whatever it costs you",
+        "room": "the book has room for {count}",
+        "never": "Never pays",
+        "neverSub": "each one would lose money"
+      },
+      "item": {
+        "noPrice": "no price yet",
+        "volume": "~{volume} {kind, select, service {bookings every {days} days} other {sales a month}}",
+        "volumeUnknown": "{kind, select, service {bookings} other {sales}} not known",
+        "cost": "costs {cost} to deliver",
+        "costUnknown": "cost to deliver not known"
+      },
+      "perOrder": "Not in the cost of one: {list}. You pay {count, plural, one {it} other {them}} per order, not per piece, and an order can hold several pieces. Where one sale is one order, a rise can lose a few more sales than shown, and a cut needs a few more."
+    }
+  },
+  "stock": {
+    "meta": {
+      "title": "Stock — SYB"
+    },
+    "kicker": "Insights · Stock",
+    "signedOut": "There's no business here yet.",
+    "startInterview": "<link>Start with the interview</link>.",
+    "failedTitle": "Stock didn't load.",
+    "failedBody": "Something went wrong on our side. Refresh to try again.",
+    "reading": "Reading your stock…",
+    "noStockTitle": "Your business doesn't hold stock.",
+    "noStockBody": "You told me you don't keep stock, so there's nothing here to run out or clear.",
+    "factSheet": "Fact sheet",
+    "nothingRead": "Nothing read yet",
+    "measured": "MEASURED",
+    "flag": {
+      "stuck": "STUCK",
+      "slow": "SLOW",
+      "actNow": "ACT NOW",
+      "runningLow": "RUNNING LOW",
+      "inRange": "IN RANGE",
+      "soldOut": "SOLD OUT",
+      "noSales": "NO SALES",
+      "tooEarly": "TOO EARLY"
+    },
+    "col": {
+      "item": "Item",
+      "onHand": "On hand",
+      "sold": "Sold {days} d",
+      "cover": "Days of cover",
+      "sinceSale": "Days since sale",
+      "cashTied": "Cash tied up",
+      "flag": "Flag",
+      "ways": "Cheapest ways to clear it",
+      "vsPrior": "vs prior {days} d",
+      "delivery": "Delivery time"
+    },
+    "slowTable": "Stock that isn't selling",
+    "coverTable": "Days of cover, item by item",
+    "yourCost": "your cost",
+    "nothingToPropose": "nothing I can propose",
+    "chance": "chance ±{band}",
+    "boosted": "busy stretch counted",
+    "reorder": {
+      "label": "Reorder note · {flag}",
+      "title": "{name}: reorder {quantity}",
+      "titleFrom": "{name}: reorder {quantity} from {supplier}",
+      "meta": "A note for you, not an order",
+      "sources": "Sources: {sources}.",
+      "approving": "Approving it records that you mean to reorder, and nothing else. I never contact your supplier, and I never place, change or cancel an order."
+    },
+    "ruledOut": "I didn't put this in your queue: your rule ({rule}) rules it out.",
+    "cover": {
+      "label": "What runs out, and when · {warned} of {total} items below their delivery time",
+      "titleWarned": "Soonest out first",
+      "titleNone": "Nothing runs out before a delivery",
+      "meta": "Cover: on hand ÷ your last {days} days' rate, low–high, against each supplier's delivery time (else {lead} days, ASSUMED)",
+      "held": "A reorder note per item running low. Nothing runs until you approve it, and approving orders nothing.",
+      "button": "Put the reorder notes in my queue →",
+      "working": "Working out the notes"
+    },
+    "workingItOut": "Working it out…",
+    "waitingForYou": "Waiting for you",
+    "ranking": {
+      "label": "How I'd clear it · {flag} · {why}",
+      "title": "{name}: cash likely back, per euro given up",
+      "meta": "Most cash back first, after what each gives up",
+      "cantPropose": "I can't propose this: {why}.",
+      "blocked": "A rule of yours blocked {option}, so it sits blocked in your queue, where you can see what I chose not to propose."
+    },
+    "import": {
+      "label": "No shop connected? A stock count works too",
+      "title": "Import a stock file",
+      "foot": "Columns I read: {columns}.",
+      "paste": "Paste the file (CSV)",
+      "currency": "Currency",
+      "window": "Units sold cover (days)",
+      "countedOn": "Counted on",
+      "decimalStyle": "How amounts are written, if they look like {example}",
+      "decimalAuto": "Work it out from the file",
+      "dotDecimal": "{example} (the comma separates thousands)",
+      "commaDecimal": "{example} (the dot separates thousands)",
+      "importing": "Reading…",
+      "button": "Import stock →",
+      "readingFile": "Reading your file",
+      "failed": "That didn't import.",
+      "ourSide": "Something went wrong on our side. Try again.",
+      "imported": "I read {count, plural, one {# item} other {# items}}.",
+      "leftOut": "{count, plural, one {# row} other {# rows}} had no item or no readable stock and were left out.",
+      "blank": "{count, plural, one {# value} other {# values}} couldn't be read and were left blank, not guessed."
+    },
+    "result": {
+      "didntWork": "That didn't work.",
+      "ourSide": "Something went wrong on our side.",
+      "nothingNew": "Nothing new to propose.",
+      "nothingNewWhy": "Nothing new to propose: {reason}.",
+      "proposals": "{count, plural, one {# proposal now waits} other {# proposals now wait}} for you.",
+      "proposalsBlocked": "{count, plural, one {# proposal now waits} other {# proposals now wait}} for you, and {blocked, plural, one {# was} other {# were}} blocked by your own rules.",
+      "notes": "{count, plural, one {# reorder note now waits} other {# reorder notes now wait}} for you.",
+      "notesBlocked": "{count, plural, one {# reorder note now waits} other {# reorder notes now wait}} for you, and {blocked, plural, one {# was} other {# were}} blocked by your own rules."
+    },
+    "slow": {
+      "label": "What isn't selling · {slow} of {counted} items",
+      "title": "Most cash tied up first",
+      "meta": "{stuck}: no sale in {stuckDays} days · {slow}: over {slowDays} days of cover",
+      "held": "I propose ways to clear the top {count}. Nothing runs until you approve it.",
+      "button": "Put these in my queue →",
+      "working": "Working out the options",
+      "emptyLabel": "What isn't selling",
+      "nothingSlow": "Nothing slow",
+      "connect": "Connect your shop on Connections and I read its stock with every sync, or import a stock file below.",
+      "allSelling": "Every item I read sold within {stuckDays} days and has under {slowDays} days of cover.",
+      "connections": "Connections"
+    },
+    "judge": {
+      "label": "How I judge stock",
+      "title": "Two thresholds, nothing guessed",
+      "body": "{stuck} means stock on hand and no sale in the last {stuckDays} days. {slow} means over {slowDays} days of cover at the item's own rate of sale."
+    },
+    "svm": {
+      "label": "What you told me, against what I measured",
+      "title": "Dead stock"
+    },
+    "view": {
+      "waiting": "Waiting for you",
+      "blocked": "Blocked by your rule",
+      "approved": "Approved",
+      "done": "Done",
+      "declined": "Declined",
+      "expired": "Expired",
+      "cant": "Can't",
+      "noSales": "no sales",
+      "unknown": "unknown",
+      "noneSold": "none sold",
+      "same": "about the same",
+      "up": "up",
+      "down": "down",
+      "lead": "{days} d · {supplier}",
+      "yourSupplier": "your supplier",
+      "assumed": "ASSUMED",
+      "atCost": "{amount} at cost"
     }
   }
 }

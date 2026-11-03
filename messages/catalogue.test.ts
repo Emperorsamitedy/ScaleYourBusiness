@@ -373,6 +373,91 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
     terms: ["subscription"],
     reason: "the browser's push subscription, not a customer's subscription",
   },
+  // L-3b
+  "cash.warning.metaBuffer": {
+    terms: ["account"],
+    reason: "the bank account the money sits in, not a sign-in or connected account",
+  },
+  "cash.warning.metaZero": {
+    terms: ["account"],
+    reason: "an empty bank account, not a sign-in or connected account",
+  },
+  "cash.warning.askBuffer": {
+    terms: ["account"],
+    reason: "the least wanted in the bank account, not a sign-in or connected account",
+  },
+  "stock.reorder.approving": {
+    terms: ["contact"],
+    reason: "“I never contact your supplier”: the verb, not a CRM contact",
+  },
+  "charts.market.title": {
+    terms: ["stock"],
+    reason: "“read like a stock”: a share on a market, not goods on hand",
+  },
+  "pipeline.stage.proposal_sent": {
+    terms: ["proposal"],
+    reason: "a sales proposal sent to a client (Angebot), not SYB's proposal for approval",
+  },
+  "pipeline.stageInline.proposal_sent": {
+    terms: ["proposal"],
+    reason: "a sales proposal sent to a client (Angebot), not SYB's proposal for approval",
+  },
+  "blindspots.fixed.link": {
+    terms: ["review"],
+    reason: "“Review on Website”: check the change, not customer reviews",
+  },
+  "goals.review.head": {
+    terms: ["review"],
+    reason: "SYB's own alert review, not customer reviews",
+  },
+  "goals.review.headPerson": {
+    terms: ["review"],
+    reason: "SYB's own alert review, not customer reviews",
+  },
+  "goals.review.escalated": {
+    terms: ["review", "team"],
+    reason: "SYB's own alert review, and SYB's staff (“our team”), not the business's team",
+  },
+  "goals.review.escalatedWhy": {
+    terms: ["review", "team"],
+    reason: "SYB's own alert review, and SYB's staff (“our team”), not the business's team",
+  },
+  "reviews.google.needs.approval": {
+    terms: ["approval", "review", "business"],
+    reason: "Google's own vetting and sign-off of SYB, and Google's product name Business Profile",
+  },
+  "reviews.google.notSetUp": {
+    terms: ["approval", "business"],
+    reason: "Google's sign-off of SYB, and Google's product name Business Profile",
+  },
+  "reviews.foot": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
+  "reviews.google.label": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
+  "reviews.google.whatItCanDo": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
+  "reviews.google.readNote": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
+  "reviews.google.needs.signIn": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
+  "reviews.setup.google.notifications": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
+  "reviews.setup.trustpilot.notifications": {
+    terms: ["business"],
+    reason: "Trustpilot Business: Trustpilot's product name",
+  },
 };
 
 /** Pure: whether English text uses a term — a whole word, any case, a plural ending allowed. */

@@ -6,6 +6,7 @@
 // each hour against it, and /api/hours doesn't carry it.
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import type { HourCost } from "../../components/hours/HoursScreen";
 import { HoursScreen } from "../../components/hours/HoursScreen";
 import { resolveAccess } from "../../lib/auth/access";
@@ -13,7 +14,10 @@ import { logSafeError } from "../../lib/core/log-safe";
 import { OPEN_HOUR_COST_KEY } from "../../lib/hours/trading";
 import { readCurrentField } from "../../lib/profile/field-store";
 
-export const metadata: Metadata = { title: "Trading hours — SYB" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("hours.meta");
+  return { title: t("title") };
+}
 export const dynamic = "force-dynamic";
 
 async function hourCost(): Promise<HourCost | null> {

@@ -21,15 +21,21 @@
 //     and a visually-hidden table of every plotted value.
 //
 // Every number comes from the model (lib/charts/model); this file draws.
+//
+// L-3b (TASKS-LANGUAGES.md): the chart's own words are the "charts.market"
+// catalogue, its figures and dates in the reader's locale with the
+// business's currency. The sentences the model builds from data — the
+// headline, the summary, the table's caption, the components' reasons and
+// formulas, the event labels and notes — are stage L-4 and stay English.
 
-import { useMemo, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useMemo, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { BASIS_MEANING } from "../report/basis";
+import { useTranslations } from "next-intl";
 import { num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
 import type { Bucket, Candle } from "../../lib/charts/candles";
 import {
   BUCKETS,
-  BUCKET_LABEL,
   BUCKET_SPAN,
   bucketCandles,
   bucketStart,
@@ -38,15 +44,19 @@ import {
 import { stepKey } from "../../lib/charts/keys";
 import type { DrawnModel, EmptyModel, MarketChartModel, MarketEvent } from "../../lib/charts/model";
 import {
-  EVENT_WORD,
+  VOLUME_WORDS,
   chartSummary,
   chartTable,
   dayMoney,
   periodLabel,
   shortDate,
+  volumeWord,
 } from "../../lib/charts/model";
 import type { OpportunityComponent, PricedComponent } from "../../lib/charts/opportunity";
 import { COMPONENT_LABEL, rangeWhole } from "../../lib/charts/opportunity";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
 import { useChartWidth } from "./useChartWidth";
 
 /* ── geometry, in CSS pixels ── */
@@ -163,6 +173,32 @@ export function layout(
 const pts = (xs: readonly [number, number][]) =>
   xs.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(" ");
 
+/* ── the words ── */
+
+/** The price series' axis title, by metric; anything else keeps the model's own label. */
+const PRICE_KEY: Readonly<Record<string, string>> = {
+  "revenue.daily": "revenue",
+  "booking_revenue.daily": "bookingRevenue",
+};
+
+/** A month's tick: "Oct" in English, the language's own short month elsewhere. */
+function monthTick(c: Candle, locale: AppLocale): string {
+  if (locale === "en") return periodLabel(c, "month").slice(0, 3);
+  return new Intl.DateTimeFormat(intlTag(locale), { month: "short", timeZone: "UTC" }).format(
+    new Date(`${c.start}T00:00:00Z`),
+  );
+}
+
+/** The title: the model's ("Your salon, …") in English, whose noun table is English's own. */
+function titleOf(model: MarketChartModel, locale: AppLocale, tr: Tr): string {
+  return locale === "en" ? model.title : tr("title");
+}
+
+/** An opportunity component's name (lib/charts/opportunity COMPONENT_LABEL), in the reader's language. */
+function componentLabel(key: string, tr: Tr): string {
+  return key in COMPONENT_LABEL ? tr(`component.${key}`) : key;
+}
+
 /* ── the chart ── */
 
 export function MarketChart({ model }: { model: MarketChartModel }) {
@@ -171,6 +207,9 @@ export function MarketChart({ model }: { model: MarketChartModel }) {
 }
 
 function DrawnMarket({ model }: { model: DrawnModel }) {
+  const words = useTranslations("charts.market");
+  const { tr, locale } = useTr("charts.market");
+  const { tr: sheet } = useTr("sheet");
   const [bucket, setBucket] = useState<Bucket>(model.bucket);
   const [at, setAt] = useState<number | null>(null);
   const { ref, width, narrow } = useChartWidth<HTMLDivElement>();
@@ -185,10 +224,16 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
     [model, candles, width, narrow, bucket],
   );
   const summary = chartSummary(model, candles, bucket);
-  const table = chartTable(model, candles, bucket);
+  const table = chartTable(model, candles, bucket, locale, tr);
   const cur = model.currency;
   const shown = at !== null && at < candles.length ? at : candles.length - 1;
   const c = candles[shown];
+  const money = (minor: number) => dayMoney(minor, cur, locale);
+  const range = (low_minor: number, high_minor: number) =>
+    rangeWhole({ low_minor, high_minor, currency: cur }, locale);
+  const vword = model.volume?.word ?? "";
+  const known = VOLUME_WORDS.has(vword);
+  const priceKey = PRICE_KEY[model.price.metric];
 
   const onMove = (ev: PointerEvent<SVGSVGElement>) => {
     const r = ev.currentTarget.getBoundingClientRect();
@@ -225,22 +270,22 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
     <section className="cs mk" aria-labelledby="mk-title">
       <header className="cs-head">
         <div>
-          <p className="cs-label">Insights · Your numbers as a chart</p>
+          <p className="cs-label">{tr("kicker")}</p>
           <h2 className="cs-title" id="mk-title">
-            {model.title}
+            {titleOf(model, locale, tr)}
           </h2>
           <p className="mk-headline">{model.headline.text}</p>
         </div>
         <div className="cs-meta">
-          {model.price.label} · {model.price.source}
+          {priceKey ? tr(`price.${priceKey}`) : model.price.label} · {model.price.source}
           <br />
-          <span className="word">{model.price.basis}</span> · {num(model.price.days_measured)} days
-          measured
+          <span className="word">{sheet(`basis.${model.price.basis}`)}</span> ·{" "}
+          {tr("daysMeasured", { count: model.price.days_measured })}
         </div>
       </header>
 
       <div className="mk-bar">
-        <div className="mk-switch" role="group" aria-label="Candle period">
+        <div className="mk-switch" role="group" aria-label={tr("periodGroup")}>
           {BUCKETS.map((b) => (
             <button
               key={b}
@@ -252,31 +297,31 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
                 setAt(null);
               }}
             >
-              {BUCKET_LABEL[b]}
-              <span className="sr-only"> — one candle a {b}</span>
+              {tr(`period.${b}`, { count: num(1, 0, locale) })}
+              <span className="sr-only"> — {tr(`periodSr.${b}`)}</span>
             </button>
           ))}
         </div>
-        <ul className="mk-keys" aria-label="Key">
+        <ul className="mk-keys" aria-label={tr("keyLabel")}>
           <li>
-            <span className="mk-key-candle up" aria-hidden="true" /> up: filled
+            <span className="mk-key-candle up" aria-hidden="true" /> {tr("keyUp")}
           </li>
           <li>
-            <span className="mk-key-candle down" aria-hidden="true" /> down: hollow
+            <span className="mk-key-candle down" aria-hidden="true" /> {tr("keyDown")}
           </li>
           {slipAreas.any && (
             <li>
-              <span className="mk-key-slip" aria-hidden="true" /> slipped, a day
+              <span className="mk-key-slip" aria-hidden="true" /> {tr("keySlip")}
             </li>
           )}
           {slipAreas.any && (
             <li>
-              <span className="mk-key-kept" aria-hidden="true" /> what you&rsquo;d have kept
+              <span className="mk-key-kept" aria-hidden="true" /> {tr("keyKept")}
             </li>
           )}
           {g.band && (
             <li>
-              <span className="mk-key-table" aria-hidden="true" /> on the table
+              <span className="mk-key-table" aria-hidden="true" /> {tr("keyTable")}
             </li>
           )}
         </ul>
@@ -284,50 +329,39 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
 
       {c && (
         <p className="mk-readout" aria-live="polite">
-          <b>{periodLabel(c, bucket)}</b>
+          <b>{periodLabel(c, bucket, locale, tr)}</b>
           <span>
-            O {dayMoney(c.open_minor, cur)} H {dayMoney(c.high_minor, cur)} L{" "}
-            {dayMoney(c.low_minor, cur)} C <b>{dayMoney(c.close_minor, cur)}</b>
+            {words.rich("ohlc", {
+              open: money(c.open_minor),
+              high: money(c.high_minor),
+              low: money(c.low_minor),
+              close: money(c.close_minor),
+              b: (chunks: ReactNode) => <b>{chunks}</b>,
+            })}
           </span>
-          {c.closed > 0 && (
-            <span>
-              {num(c.closed)} closed day{c.closed === 1 ? "" : "s"}
-            </span>
-          )}
+          {c.closed > 0 && <span>{tr("closedDays", { count: c.closed })}</span>}
           {model.volume && (
             <span>
-              {c.volume === null ? "not measured" : num(c.volume)} {model.volume.word}
+              {known
+                ? c.volume === null
+                  ? tr(`volumeNone.${vword}`)
+                  : tr(`volumeCount.${vword}`, { count: c.volume })
+                : `${c.volume === null ? tr("table.notMeasured") : num(c.volume, 0, locale)} ${vword}`}
             </span>
           )}
           <span>
-            {c.slip_high_minor > 0 ? (
-              <>
-                slipped{" "}
-                <b>
-                  {rangeWhole({
-                    low_minor: c.slip_low_minor,
-                    high_minor: c.slip_high_minor,
-                    currency: cur,
-                  })}
-                </b>
-                {": "}
-                {c.slip
-                  .map(
-                    (s) =>
-                      `${COMPONENT_LABEL[s.key as keyof typeof COMPONENT_LABEL] ?? s.key} ${rangeWhole({ low_minor: s.low_minor, high_minor: s.high_minor, currency: cur })}`,
-                  )
-                  .join(", ")}{" "}
-                <span className="word">DERIVED</span> · kept{" "}
-                {rangeWhole({
-                  low_minor: c.kept_low_minor,
-                  high_minor: c.kept_high_minor,
-                  currency: cur,
-                })}{" "}
-                a day
-              </>
-            ) : (
-              "nothing measured slipped"
-            )}
+            {c.slip_high_minor > 0
+              ? words.rich("slipped", {
+                  range: range(c.slip_low_minor, c.slip_high_minor),
+                  parts: c.slip
+                    .map((s) => `${componentLabel(s.key, tr)} ${range(s.low_minor, s.high_minor)}`)
+                    .join(", "),
+                  derived: sheet("basis.DERIVED"),
+                  kept: range(c.kept_low_minor, c.kept_high_minor),
+                  b: (chunks: ReactNode) => <b>{chunks}</b>,
+                  word: (chunks: ReactNode) => <span className="word">{chunks}</span>,
+                })
+              : tr("nothingSlipped")}
           </span>
         </p>
       )}
@@ -374,7 +408,7 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
                 y={g.y(g.band.high) - 6}
                 textAnchor="middle"
               >
-                {g.future.x1 - g.future.x0 > 96 ? "ON THE TABLE" : "TABLE"}
+                {g.future.x1 - g.future.x0 > 96 ? tr("aheadLong") : tr("aheadShort")}
               </text>
             </g>
           )}
@@ -442,20 +476,20 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
 
           {g.ticks.map((t) => (
             <text key={`t${t}`} className="tick" x={g.plotR + 6} y={g.y(t) + 4}>
-              {dayMoney(t, cur)}
+              {money(t)}
             </text>
           ))}
           {last && (
             <g className={last.close_minor >= last.open_minor ? "tag up" : "tag down"}>
               <rect x={g.plotR + 1} y={g.y(last.close_minor) - 9} width={g.axisW - 1} height={18} />
               <text x={g.plotR + 6} y={g.y(last.close_minor) + 4}>
-                {dayMoney(last.close_minor, cur)}
+                {money(last.close_minor)}
               </text>
             </g>
           )}
           {g.showVol && (
             <text className="pane-label" x={4} y={g.volTop + 11}>
-              {model.volume!.word.toUpperCase()}
+              {volumeWord(model.volume!.word, tr).toLocaleUpperCase(intlTag(locale))}
             </text>
           )}
           {candles.map((k, i) =>
@@ -467,7 +501,7 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
                 y={g.volBottom + 17}
                 textAnchor={i === 0 ? "start" : "middle"}
               >
-                {bucket === "month" ? periodLabel(k, bucket).slice(0, 3) : shortDate(k.start)}
+                {bucket === "month" ? monthTick(k, locale) : shortDate(k.start, locale)}
               </text>
             ) : null,
           )}
@@ -481,15 +515,15 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
       </div>
 
       {model.events.length > 0 && (
-        <ol className="mk-events" aria-label="Marked on the chart">
+        <ol className="mk-events" aria-label={tr("eventsLabel")}>
           {model.events.map((e, i) => (
             <li key={`${e.date}-${i}`}>
               <span className="mk-ev-n" aria-hidden="true">
                 {i + 1}
               </span>
               <span className="mk-ev-shape" data-kind={e.kind} aria-hidden="true" />
-              <span className="word">{EVENT_WORD[e.kind]}</span>{" "}
-              <span className="mk-ev-date">{shortDate(e.date)}</span> · {e.label}
+              <span className="word">{tr(`event.${e.kind}`)}</span>{" "}
+              <span className="mk-ev-date">{shortDate(e.date, locale)}</span> · {e.label}
               <span className="sr-only">. {e.detail}</span>
             </li>
           ))}
@@ -498,17 +532,15 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
 
       <div className="mk-components">
         <table className="rt rt-stack">
-          <caption className="sr-only">
-            What slips away each month, how each part was worked out, and its basis
-          </caption>
+          <caption className="sr-only">{tr("componentsCaption")}</caption>
           <thead>
             <tr>
-              <th scope="col">Where it slips</th>
+              <th scope="col">{tr("colWhere")}</th>
               <th scope="col" className="num">
-                {cur} a month
+                {tr("colMonth", { currency: cur })}
               </th>
-              <th scope="col">Basis</th>
-              <th scope="col">How it was worked out</th>
+              <th scope="col">{tr("colBasis")}</th>
+              <th scope="col">{tr("colHow")}</th>
             </tr>
           </thead>
           <tbody>
@@ -520,7 +552,7 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
             <tbody className="mk-apart">
               <tr className="mk-apart-head">
                 <th scope="rowgroup" colSpan={4}>
-                  Not added to the month
+                  {tr("apart")}
                 </th>
               </tr>
               {others.map((k) => (
@@ -530,14 +562,16 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
           )}
         </table>
         <p className="mk-legend">
-          A month is 30 days: each flow is read over its own window and scaled to 30 days, as its
-          line says. DERIVED = {BASIS_MEANING.DERIVED}. ESTIMATED here = the waiting
-          proposals&rsquo; own forecasts. Ranges run from the low end to the high end; one figure
-          means nothing estimated went in.
+          {tr("legend", {
+            days: num(30, 0, locale),
+            derived: sheet("basis.DERIVED"),
+            derivedMeaning: sheet("basisMeaning.DERIVED"),
+            estimated: sheet("basis.ESTIMATED"),
+          })}
           {tableComp?.status === "priced" && (
             <>
               {" "}
-              <Link href="/proposals">See what&rsquo;s waiting →</Link>
+              <Link href="/proposals">{tr("seeWaiting")}</Link>
             </>
           )}
         </p>
@@ -582,36 +616,43 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
 }
 
 function ComponentRow({ c }: { c: OpportunityComponent }) {
+  const { tr, locale } = useTr("charts.market");
+  const { tr: sheet } = useTr("sheet");
+  const label = componentLabel(c.key, tr);
   if (c.status === "absent") {
     return (
       <tr className="mk-absent">
-        <th scope="row">{c.label}</th>
-        <td className="num" data-label="A month">
-          <span className="word none">Not measured</span>
+        <th scope="row">{label}</th>
+        <td className="num" data-label={tr("row.aMonth")}>
+          <span className="word none">{tr("row.notMeasured")}</span>
         </td>
-        <td data-label="Basis">—</td>
-        <td data-label="What would fill it">{capital(c.reason)}.</td>
+        <td data-label={tr("row.basis")}>—</td>
+        <td data-label={tr("row.wouldFill")}>{capital(c.reason)}.</td>
       </tr>
     );
   }
   const figure = c.monthly ?? c.total;
   return (
     <tr>
-      <th scope="row">{c.label}</th>
-      <td className="num" data-label={c.kind === "stock" ? "Tied up now" : "A month"}>
-        {rangeWhole(figure)}
-        {c.kind === "stock" && <span className="mk-unit"> now</span>}
+      <th scope="row">{label}</th>
+      <td className="num" data-label={c.kind === "stock" ? tr("row.tiedUp") : tr("row.aMonth")}>
+        {rangeWhole(figure, locale)}
+        {c.kind === "stock" && <span className="mk-unit"> {tr("row.now")}</span>}
       </td>
-      <td data-label="Basis">
-        <span className="word">{c.basis}</span>
+      <td data-label={tr("row.basis")}>
+        <span className="word">{sheet(`basis.${c.basis}`)}</span>
         {c.basis_note && <span className="mk-note"> {c.basis_note}</span>}
       </td>
-      <td className="src" data-label="How">
+      <td className="src" data-label={tr("row.how")}>
         {capital(c.formula)}.
         {c.kind === "flow" && c.window.days !== 30 && (
           <>
             {" "}
-            Over {num(c.window.days)} days: {rangeWhole(c.total)}, × 30 ÷ {num(c.window.days)}.
+            {tr("row.over", {
+              days: num(c.window.days, 0, locale),
+              total: rangeWhole(c.total, locale),
+              month: num(30, 0, locale),
+            })}
           </>
         )}
         {c.note && <> {capital(c.note)}.</>}
@@ -623,28 +664,27 @@ function ComponentRow({ c }: { c: OpportunityComponent }) {
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function EmptyMarket({ model }: { model: EmptyModel }) {
+  const { tr, locale } = useTr("charts.market");
   return (
     <section className="cs mk mk-empty" aria-labelledby="mk-title">
       <header className="cs-head">
         <div>
-          <p className="cs-label">Insights · Your numbers as a chart</p>
+          <p className="cs-label">{tr("kicker")}</p>
           <h2 className="cs-title" id="mk-title">
-            {model.title}
+            {titleOf(model, locale, tr)}
           </h2>
         </div>
       </header>
       <div className="cs-body">
-        <p className="mk-headline">Nothing to draw yet.</p>
+        <p className="mk-headline">{tr("empty.nothing")}</p>
         <p className="mk-sub">
-          {model.message} <Link href={model.href}>Go to Connections →</Link>
+          {model.message} <Link href={model.href}>{tr("empty.connections")}</Link>
         </p>
-        <p className="mk-sub">
-          When it&rsquo;s connected, I&rsquo;ll price where money slips away:
-        </p>
+        <p className="mk-sub">{tr("empty.would")}</p>
         <ul className="mk-would">
           {model.components.map((k) => (
             <li key={k.key}>
-              <b>{k.label}</b> — {k.reason}.
+              <b>{componentLabel(k.key, tr)}</b> — {k.reason}.
             </li>
           ))}
         </ul>

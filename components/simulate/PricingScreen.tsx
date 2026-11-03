@@ -13,10 +13,17 @@
 // Read-only: nothing here changes a price or makes a proposal. The
 // arithmetic is lib/simulate/pricing.ts, run here on the figures
 // /api/simulate/pricing reads.
+//
+// L-3b (TASKS-LANGUAGES.md): the screen's fixed words are
+// "simulate.pricing", figures in the reader's locale and the item's own
+// currency. The headline, change titles, break-even words and formulas,
+// inputs' labels and sources, and refusal reasons that lib/simulate/pricing
+// words from the numbers stay English until L-4.
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import "../../app/simulate.css";
 import type {
   PriceChange,
@@ -27,22 +34,22 @@ import type {
 } from "../../lib/simulate/pricing";
 import {
   PRICE_MEASURES,
-  PRICE_MEASURE_LABEL,
   PRICE_MEASURE_UNIT,
   PRICING,
   changeError,
   changeKey,
   comparePrices,
-  periodWords,
   pricingHeadline,
-  unitNoun,
 } from "../../lib/simulate/pricing";
 import { RESPONSE_BANDS } from "../../lib/simulate/pricing-bands";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { minorUnitExponent } from "../../lib/core/money";
+import { basisName } from "../report/basis";
 import { moneyFig, moneyText, num } from "../sheet/num";
 import { SimTabs } from "./SimTabs";
-import { Whiskers } from "./SimulateScreen";
+import { Whiskers, asOfDay, useSimWords } from "./SimulateScreen";
 import {
   breakEvenView,
   defaultChanges,
@@ -50,16 +57,33 @@ import {
   exactToMinor,
   itemLine,
   perOrderLine,
+  periodText,
   stepLabel,
   toggleChange,
 } from "./pricing-view";
-import { cellView } from "./view";
+import { cellView, flagWord } from "./view";
 
 type Load =
   | { phase: "loading" }
   | { phase: "signedout" }
   | { phase: "error" }
   | { phase: "ready"; inputs: PricingInputs };
+
+/** A percent figure (the response band is in percent points: 0.5 → "0.5%"); in another language, its own. */
+function bandPct(points: number, locale: AppLocale): string {
+  if (locale === "en") return `${num(points, 1)}%`;
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(points / 100);
+}
+
+/** "1%": the step the response band is stated per. */
+function onePct(locale: AppLocale): string {
+  if (locale === "en") return "1%";
+  return new Intl.NumberFormat(intlTag(locale), { style: "percent" }).format(0.01);
+}
 
 function Frame({
   title,
@@ -70,23 +94,14 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useSimWords();
   return (
     <main className="screen sim-screen">
-      <PageHead kicker="Grow · What-if pricing" title={title} aside={aside} />
+      <PageHead kicker={tr("pricing.kicker")} title={title} aside={aside} />
       <SimTabs current="pricing" />
       {children}
     </main>
   );
-}
-
-function itemsMeta(items: readonly PriceItemRaw[]): string {
-  const services = items.filter((i) => i.kind === "service").length;
-  const offers = items.length - services;
-  const parts = [
-    ...(services > 0 ? [`${services} from your bookings`] : []),
-    ...(offers > 0 ? [`${offers} from your profile`] : []),
-  ];
-  return parts.join(" · ");
 }
 
 function ItemPicker({
@@ -98,16 +113,29 @@ function ItemPicker({
   current: string | null;
   onPick: (key: string) => void;
 }) {
+  const words = useSimWords();
+  const { tr } = words;
+  const services = items.filter((i) => i.kind === "service").length;
+  const offers = items.length - services;
+  const meta = [
+    ...(services > 0 ? [tr("pricing.fromBookings", { count: services })] : []),
+    ...(offers > 0 ? [tr("pricing.fromProfile", { count: offers })] : []),
+  ].join(" · ");
+  const fromHead = tr("picker.fromNumbers");
   return (
-    <SheetCard label="Pick one" title="What to reprice" meta={itemsMeta(items)}>
+    <SheetCard label={tr("pricing.items.label")} title={tr("pricing.items.title")} meta={meta}>
       <div className="sim-wrap">
         <table className="rt rt-stack sim-pick">
           <thead>
             <tr>
-              <th scope="col">{items.some((i) => i.kind === "service") ? "Service" : "Product"}</th>
-              <th scope="col">From your numbers</th>
               <th scope="col">
-                <span className="sr-only">Pick</span>
+                {items.some((i) => i.kind === "service")
+                  ? tr("pricing.items.service")
+                  : tr("pricing.items.product")}
+              </th>
+              <th scope="col">{fromHead}</th>
+              <th scope="col">
+                <span className="sr-only">{tr("pricing.items.pick")}</span>
               </th>
             </tr>
           </thead>
@@ -117,8 +145,8 @@ function ItemPicker({
               return (
                 <tr key={i.key} className={on ? "on" : undefined}>
                   <th scope="row">{i.name}</th>
-                  <td className="src" data-label="From your numbers">
-                    {itemLine(i)}
+                  <td className="src" data-label={fromHead}>
+                    {itemLine(i, words)}
                   </td>
                   <td className="sim-acts-cell">
                     <div className="sim-acts">
@@ -127,14 +155,14 @@ function ItemPicker({
                           type="button"
                           className={`act sim-toggle${on ? " solid" : ""}`}
                           aria-pressed={on}
-                          aria-label={`Reprice ${i.name}`}
+                          aria-label={tr("pricing.items.repriceAria", { name: i.name })}
                           onClick={() => onPick(i.key)}
                         >
-                          {on ? "Picked" : "Reprice"}
+                          {on ? tr("picker.picked") : tr("pricing.items.reprice")}
                         </button>
                       ) : (
                         <Link className="act sim-toggle" href={i.asks.price}>
-                          Add its price
+                          {tr("pricing.items.addPrice")}
                         </Link>
                       )}
                     </div>
@@ -164,14 +192,15 @@ function ChangePicker({
   setExact: (s: string) => void;
   exactNote: string | null;
 }) {
+  const { tr, locale } = useSimWords();
   const full = picks.length >= PRICING.max_changes;
   return (
     <SheetCard
-      label={`Up to ${PRICING.max_changes}`}
-      title={`Price changes on ${item.name}`}
-      meta={`${picks.length} picked${full ? " · that's the most I compare at once" : ""}`}
+      label={tr("pricing.changes.label", { max: PRICING.max_changes })}
+      title={tr("pricing.changes.title", { name: item.name })}
+      meta={tr(full ? "picker.metaFull" : "picker.meta", { count: picks.length })}
     >
-      <div className="sim-steps" role="group" aria-label="Price changes">
+      <div className="sim-steps" role="group" aria-label={tr("pricing.changes.aria")}>
         {PRICING.steps.map((share) => {
           const c: PriceChange = { kind: "share", share };
           const on = picks.some((p) => changeKey(p) === changeKey(c));
@@ -184,19 +213,24 @@ function ChangePicker({
               disabled={full && !on}
               onClick={() => setPicks(toggleChange(picks, c))}
             >
-              {stepLabel(share)}
+              {stepLabel(share, locale)}
             </button>
           );
         })}
         <label className="sim-budget">
-          <span>or exactly, {item.currency}</span>
+          <span>{tr("pricing.changes.exactly", { currency: item.currency })}</span>
           <input
             inputMode="decimal"
-            aria-label={`An exact new price, in ${item.currency}`}
+            aria-label={tr("pricing.changes.exactAria", { currency: item.currency })}
             value={exact}
             placeholder={
               item.price
-                ? moneyFig(item.price.amount_minor, item.currency, minorUnitExponent(item.currency))
+                ? moneyFig(
+                    item.price.amount_minor,
+                    item.currency,
+                    minorUnitExponent(item.currency),
+                    locale,
+                  )
                 : "0"
             }
             onChange={(ev) => setExact(ev.target.value)}
@@ -209,19 +243,22 @@ function ChangePicker({
 }
 
 function SideBySide({ cmp }: { cmp: PriceComparison }) {
+  const words = useSimWords();
+  const { tr } = words;
   const item = cmp.item;
-  const noun = unitNoun(item);
+  const kind = item.kind;
+  const period = periodText(item, tr);
   return (
     <SheetCard
-      label={`Side by side · ${periodWords(item)}`}
-      title={`What each price does to ${item.name}`}
-      meta="The break-even rests on your numbers alone; the ranges add an assumed customer response"
+      label={tr("pricing.side.label", { period })}
+      title={tr("pricing.side.title", { name: item.name })}
+      meta={tr("pricing.side.meta")}
     >
       <div className="sim-wrap">
         <table className="rt sim-table">
           <thead>
             <tr>
-              <th scope="col">Measure</th>
+              <th scope="col">{tr("side.measure")}</th>
               {cmp.results.map((r) => (
                 <th scope="col" key={r.key} className="num">
                   {r.title}
@@ -232,11 +269,11 @@ function SideBySide({ cmp }: { cmp: PriceComparison }) {
           <tbody>
             <tr>
               <th scope="row">
-                Break-even
-                <small>{`${noun} it can lose, or must win`}</small>
+                {tr("pricing.side.breakEven")}
+                <small>{tr("pricing.side.breakEvenSub", { kind })}</small>
               </th>
               {cmp.results.map((r) => {
-                const v = breakEvenView(r.breakeven, item);
+                const v = breakEvenView(r.breakeven, item, words);
                 return (
                   <td
                     key={r.key}
@@ -246,7 +283,7 @@ function SideBySide({ cmp }: { cmp: PriceComparison }) {
                     <span className="fig">{v.figure}</span>
                     {v.flag ? (
                       <span className={`flag ${v.flag === "MISSING" ? "drift" : "alarm"}`}>
-                        {v.flag}
+                        {v.flag === "MISSING" ? tr("cell.missing") : tr("pricing.never")}
                       </span>
                     ) : (
                       <span className="sim-basis">{v.sub}</span>
@@ -259,22 +296,22 @@ function SideBySide({ cmp }: { cmp: PriceComparison }) {
               <tr key={m}>
                 <th scope="row">
                   {m === "volume"
-                    ? `${noun === "bookings" ? "Bookings" : "Sales"} after`
-                    : PRICE_MEASURE_LABEL[m]}
+                    ? tr("pricing.side.volume", { kind })
+                    : tr(`pricing.measure.${m}`)}
                   <small>
                     {PRICE_MEASURE_UNIT[m] === "money"
-                      ? `${item.currency} ${periodWords(item)}`
-                      : `${noun} ${periodWords(item)}`}
+                      ? tr("pricing.side.unitMoney", { currency: item.currency, period })
+                      : tr("pricing.side.unitCount", { kind, period })}
                   </small>
                 </th>
                 {cmp.results.map((r) => {
-                  const v = cellView(r.measures[m], PRICE_MEASURE_UNIT[m], r.currency);
+                  const v = cellView(r.measures[m], PRICE_MEASURE_UNIT[m], r.currency, words);
                   return (
                     <td key={r.key} className="num" title={v.detail}>
                       <span className="fig">{v.figure}</span>
                       {v.flag ? (
                         <span className={`flag ${v.flag === "MISSING" ? "drift" : "low"}`}>
-                          {v.flag}
+                          {flagWord(v.flag, tr)}
                         </span>
                       ) : (
                         v.basis && <span className="sim-basis">{v.basis}</span>
@@ -292,33 +329,35 @@ function SideBySide({ cmp }: { cmp: PriceComparison }) {
 }
 
 function ChangeCard({ r, item }: { r: PriceResult; item: PriceItemRaw }) {
+  const { tr, sheet, locale } = useSimWords();
+  const t = useTranslations("simulate");
   const be = r.breakeven;
   const measures = PRICE_MEASURES.filter((m) => r.measures[m].status === "range");
+  const valueHead = tr("option.value");
+  const basisHead = tr("option.basis");
+  const fromHead = tr("option.from");
   return (
     <SheetCard
       className="sim-card"
-      label="Price change"
-      title={`${item.name}: ${moneyText(r.old_price_minor, r.currency)} → ${moneyText(r.new_price_minor, r.currency)}`}
-      meta="Nothing here changes your price"
+      label={tr("pricing.card.label")}
+      title={`${item.name}: ${moneyText(r.old_price_minor, r.currency, locale)} → ${moneyText(r.new_price_minor, r.currency, locale)}`}
+      meta={tr("pricing.card.meta")}
     >
       <p className="sim-what sim-be">
-        <span className="cs-label">Break-even</span> {be.words}
+        <span className="cs-label">{tr("pricing.card.breakEven")}</span> {be.words}
       </p>
       {"formula" in be && <p className="sim-be-math fig">{be.formula}</p>}
       {be.status === "lose" && be.floor && (
         <p className="sim-needs">
-          <span>
-            That&rsquo;s the cautious end: with what one costs you to deliver, I could say how many
-            more you could lose.
-          </span>
-          <Link href={item.asks.unit_cost}>Add the cost →</Link>
+          <span>{tr("pricing.card.cautious")}</span>
+          <Link href={item.asks.unit_cost}>{tr("pricing.card.addCost")}</Link>
         </p>
       )}
       {be.status === "missing" && (
         <p className="sim-needs">
           {be.needs.map((n) => (
             <Link key={n.href + n.what} href={n.href}>
-              Add {n.what} →
+              {tr("pricing.card.addNeed", { what: n.what })}
             </Link>
           ))}
         </p>
@@ -327,49 +366,48 @@ function ChangeCard({ r, item }: { r: PriceResult; item: PriceItemRaw }) {
         <table className="rt rt-stack sim-inputs">
           <thead>
             <tr>
-              <th scope="col">What it rests on</th>
+              <th scope="col">{tr("option.restsOn")}</th>
               <th scope="col" className="num">
-                Value
+                {valueHead}
               </th>
-              <th scope="col">Basis</th>
-              <th scope="col">Where it came from</th>
+              <th scope="col">{basisHead}</th>
+              <th scope="col">{fromHead}</th>
             </tr>
           </thead>
           <tbody>
             {r.inputs.map((i) => (
               <tr key={i.key}>
                 <th scope="row">{i.label}</th>
-                <td className="num" data-label="Value">
+                <td className="num" data-label={valueHead}>
                   {i.value}
                 </td>
-                <td data-label="Basis">
+                <td data-label={basisHead}>
                   {i.basis ? (
-                    <span className="sim-basis">{i.basis}</span>
+                    <span className="sim-basis">{basisName(i.basis, sheet)}</span>
                   ) : (
-                    <span className="flag drift">Missing</span>
+                    <span className="flag drift">{tr("option.missing")}</span>
                   )}
                 </td>
-                <td className="src" data-label="Where it came from">
-                  {i.needs && i.basis === null ? (
-                    <>
-                      needs {i.needs.what} — <Link href={i.needs.href}>add it</Link>
-                    </>
-                  ) : (
-                    i.source
-                  )}
+                <td className="src" data-label={fromHead}>
+                  {i.needs && i.basis === null
+                    ? t.rich("pricing.card.needs", {
+                        what: i.needs.what,
+                        link: (c) => <Link href={i.needs!.href}>{c}</Link>,
+                      })
+                    : i.source}
                 </td>
               </tr>
             ))}
             {r.assumptions.map((a) => (
               <tr key={a.statement}>
                 <th scope="row">{a.statement}</th>
-                <td className="num" data-label="Value">
+                <td className="num" data-label={valueHead}>
                   —
                 </td>
-                <td data-label="Basis">
-                  <span className="sim-basis">ASSUMED</span>
+                <td data-label={basisHead}>
+                  <span className="sim-basis">{basisName("ASSUMED", sheet)}</span>
                 </td>
-                <td className="src" data-label="Where it came from">
+                <td className="src" data-label={fromHead}>
                   {a.source}
                 </td>
               </tr>
@@ -383,7 +421,7 @@ function ChangeCard({ r, item }: { r: PriceResult; item: PriceItemRaw }) {
             const c = r.measures[m];
             return c.status === "range" ? (
               <div key={m}>
-                <dt>{m === "volume" ? unitNoun(item) : m === "worst" ? "Worst case" : m}</dt>
+                <dt>{tr(`pricing.math.${m}`, { kind: item.kind })}</dt>
                 <dd className="fig">{c.formula}</dd>
               </div>
             ) : null;
@@ -391,13 +429,16 @@ function ChangeCard({ r, item }: { r: PriceResult; item: PriceItemRaw }) {
         </dl>
       )}
       <p className="sim-worst-words">
-        <span className="cs-label">Worst case</span> {r.worst_words}
+        <span className="cs-label">{tr("option.worstCase")}</span> {r.worst_words}
       </p>
     </SheetCard>
   );
 }
 
 export function PricingScreen() {
+  const words = useSimWords();
+  const { tr, locale } = words;
+  const t = useTranslations("simulate");
   const [load, setLoad] = useState<Load>({ phase: "loading" });
   const [itemKey, setItemKey] = useState<string | null>(null);
   const [picks, setPicks] = useState<PriceChange[]>(defaultChanges());
@@ -421,14 +462,23 @@ export function PricingScreen() {
   const ready = load.phase === "ready" ? load : null;
   const item = ready?.inputs.items.find((i) => i.key === itemKey) ?? null;
 
-  const exactChange = useMemo((): { change: PriceChange | null; note: string | null } => {
+  // The note is held as what to say, and worded where it's shown.
+  type ExactNote = { kind: "unreadable" } | { kind: "refused"; why: string | null };
+  const exactChange = useMemo((): { change: PriceChange | null; note: ExactNote | null } => {
     if (!item || exact.trim() === "") return { change: null, note: null };
     const minor = exactToMinor(exact, item.currency);
-    if (minor === null) return { change: null, note: "That isn't a price I can read." };
+    if (minor === null) return { change: null, note: { kind: "unreadable" } };
     const c: PriceChange = { kind: "exact", price_minor: minor };
-    const err = item.price ? changeError(item.price.amount_minor, c) : "it has no price yet";
-    return err ? { change: null, note: `Not simulated: ${err}.` } : { change: c, note: null };
+    if (!item.price) return { change: null, note: { kind: "refused", why: null } };
+    const err = changeError(item.price.amount_minor, c);
+    return err ? { change: null, note: { kind: "refused", why: err } } : { change: c, note: null };
   }, [item, exact]);
+  const exactNote =
+    exactChange.note === null
+      ? null
+      : exactChange.note.kind === "unreadable"
+        ? tr("pricing.unreadable")
+        : tr("pricing.refused", { why: exactChange.note.why ?? tr("pricing.noPriceYet") });
 
   const cmp = useMemo(() => {
     if (!ready || !item || !item.price) return null;
@@ -442,38 +492,40 @@ export function PricingScreen() {
 
   if (load.phase === "signedout") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut.title")}>
         <p className="sim-note on-desk">
-          <Link href="/intake">Start with the interview</Link>, and your own numbers fill this in.
+          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (load.phase === "error") {
     return (
-      <Frame title="What-if pricing didn't load.">
-        <p className="sim-note on-desk">Something went wrong on my side. Refresh to try again.</p>
+      <Frame title={tr("pricing.failed")}>
+        <p className="sim-note on-desk">{tr("failed.body")}</p>
       </Frame>
     );
   }
-  if (!ready) return <Frame title="Reading your prices…" />;
+  if (!ready) return <Frame title={tr("pricing.loading")} />;
 
   const x = ready.inputs;
   const band = RESPONSE_BANDS[x.archetype];
   const aside = (
     <>
-      Nothing here changes a price
+      {tr("pricing.aside")}
       <br />
-      As of {x.as_of} · {x.currency}
+      {tr("aside.asOf", { date: asOfDay(x.as_of, locale), currency: x.currency })}
     </>
   );
 
   if (x.items.length === 0) {
     return (
-      <Frame title="There's nothing priced on your profile yet." aside={aside}>
+      <Frame title={tr("pricing.empty.title")} aside={aside}>
         <p className="sim-note on-desk">
-          <Link href="/intake?ask=3.1">List what you sell, with its price</Link>, or import your
-          bookings on <Link href="/connections">Connections</Link>, and this fills in.
+          {t.rich("pricing.empty.body", {
+            ask: (c) => <Link href="/intake?ask=3.1">{c}</Link>,
+            conn: (c) => <Link href="/connections">{c}</Link>,
+          })}
         </p>
       </Frame>
     );
@@ -482,9 +534,9 @@ export function PricingScreen() {
   const title = cmp
     ? pricingHeadline(cmp)
     : item
-      ? `${item.name} has no price on your profile yet.`
-      : "Pick a product or service to reprice.";
-  const perOrder = perOrderLine(x, item);
+      ? tr("pricing.noPrice", { name: item.name })
+      : tr("pricing.pickItem");
+  const perOrder = perOrderLine(x, item, words);
 
   return (
     <Frame title={title} aside={aside}>
@@ -497,30 +549,34 @@ export function PricingScreen() {
             setPicks={setPicks}
             exact={exact}
             setExact={setExact}
-            exactNote={exactChange.note}
+            exactNote={exactNote}
           />
         )}
         {cmp && cmp.results.length > 0 ? (
           <>
             <SideBySide cmp={cmp} />
             <p className="sim-note on-desk">
-              The ranges assume that for each 1% on the price, {num(band.low, 1)}% to{" "}
-              {num(band.high, 1)}% of {unitNoun(cmp.item)} move the other way — a planning
-              assumption for your kind of business, not a measurement. The break-even assumes
-              nothing.
+              {tr("pricing.assumption", {
+                one: onePct(locale),
+                low: bandPct(band.low, locale),
+                high: bandPct(band.high, locale),
+                kind: cmp.item.kind,
+              })}
               {perOrder ? ` ${perOrder}` : ""}
             </p>
             {cmp.results.some((r) => r.measures.profit.status === "range") ? (
-              <SheetCard label="Profit, side by side" title="The spread of each price">
+              <SheetCard label={tr("profitCard.label")} title={tr("pricing.profitTitle")}>
                 <Whiskers
                   results={cmp.results}
-                  caption={`Profit change ${periodWords(cmp.item)}, low to high · the square is the worst case`}
+                  caption={tr("pricing.caption", { period: periodText(cmp.item, tr) })}
                 />
               </SheetCard>
             ) : (
               <p className="sim-note on-desk">
-                Profit can&rsquo;t be drawn yet: it needs what one {unitNoun(cmp.item, false)} costs
-                you to deliver. <Link href={cmp.item.asks.unit_cost}>Add it</Link>.
+                {t.rich("pricing.cantDraw", {
+                  kind: cmp.item.kind,
+                  link: (c) => <Link href={cmp.item.asks.unit_cost}>{c}</Link>,
+                })}
               </p>
             )}
             <div className="sim-cards">
@@ -530,12 +586,11 @@ export function PricingScreen() {
             </div>
           </>
         ) : (
-          item &&
-          item.price && <p className="sim-note on-desk">Pick a price change to see what it does.</p>
+          item && item.price && <p className="sim-note on-desk">{tr("pricing.pickChange")}</p>
         )}
         {cmp && cmp.refused.length > 0 && (
           <p className="sim-note on-desk">
-            {cmp.refused.map((f) => `Not simulated: ${f.why}.`).join(" ")}
+            {cmp.refused.map((f) => tr("pricing.refused", { why: f.why })).join(" ")}
           </p>
         )}
       </div>

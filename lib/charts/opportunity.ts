@@ -47,6 +47,7 @@ import { moneyText, num } from "../../components/sheet/num";
 import { MAD_K, RUN_DAYS, evaluateDay, shiftDay } from "../anomaly/baseline";
 import { weekStart } from "../care/chart-view";
 import { minorUnitExponent } from "../core/money";
+import type { AppLocale } from "../i18n/locales";
 
 export const OPPORTUNITY = {
   /** The window every flow is priced over, ending on the series' latest measured day. */
@@ -164,23 +165,33 @@ export type OpportunityComponent = PricedComponent | AbsentComponent;
 
 /* ── helpers ── */
 
-const fig = (minor: number, currency: string) => moneyText(Math.round(minor), currency);
+const fig = (minor: number, currency: string, locale: AppLocale = "en") =>
+  moneyText(Math.round(minor), currency, locale);
 
-/** "€1,180–€1,950", or one figure when the ends meet. */
-export function rangeText(r: { low_minor: number; high_minor: number; currency: string }): string {
+/** "€1,180–€1,950", or one figure when the ends meet; in the reader's language (L-3b). */
+export function rangeText(
+  r: { low_minor: number; high_minor: number; currency: string },
+  locale: AppLocale = "en",
+): string {
   return r.low_minor === r.high_minor
-    ? fig(r.low_minor, r.currency)
-    : `${fig(r.low_minor, r.currency)}–${fig(r.high_minor, r.currency)}`;
+    ? fig(r.low_minor, r.currency, locale)
+    : `${fig(r.low_minor, r.currency, locale)}–${fig(r.high_minor, r.currency, locale)}`;
 }
 
 /** The same, in whole major units: what a chart's readout and a "a month" column print. */
-export function rangeWhole(r: { low_minor: number; high_minor: number; currency: string }): string {
+export function rangeWhole(
+  r: { low_minor: number; high_minor: number; currency: string },
+  locale: AppLocale = "en",
+): string {
   const unit = 10 ** minorUnitExponent(r.currency);
-  return rangeText({
-    low_minor: Math.round(r.low_minor / unit) * unit,
-    high_minor: Math.round(r.high_minor / unit) * unit,
-    currency: r.currency,
-  });
+  return rangeText(
+    {
+      low_minor: Math.round(r.low_minor / unit) * unit,
+      high_minor: Math.round(r.high_minor / unit) * unit,
+      currency: r.currency,
+    },
+    locale,
+  );
 }
 
 export function daysInclusive(from: string, to: string): number {

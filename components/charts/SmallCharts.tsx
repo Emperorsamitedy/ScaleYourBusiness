@@ -14,9 +14,16 @@
 //
 // Plain SVG, sheet tokens only (app/charts.css); keyboard stepping by
 // ←/→ on the bookings chart; every value is also in a table.
+//
+// L-3b (TASKS-LANGUAGES.md): the fixed words are the "charts.small"
+// catalogue, figures and dates in the reader's locale; each chart's
+// summary and the bookings note are sentences lib/charts/small builds from
+// data (L-4), and a campaign's name and a source's are shown as they are.
 
-import { useMemo, useState, type KeyboardEvent } from "react";
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
 import { stepKey } from "../../lib/charts/keys";
 import { dayMoney, shortDate } from "../../lib/charts/model";
 import { rangeWhole } from "../../lib/charts/opportunity";
@@ -27,6 +34,10 @@ import { useChartWidth } from "./useChartWidth";
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export function BookingsChart({ model }: { model: BookingsChartModel }) {
+  const words = useTranslations("charts.small.bookings");
+  const { tr, locale } = useTr("charts.small");
+  const { tr: sheet } = useTr("sheet");
+  const word = (chunks: ReactNode) => <span className="word">{chunks}</span>;
   const [at, setAt] = useState<number | null>(null);
   const { ref, width, narrow } = useChartWidth<HTMLDivElement>(480);
   const weeks = model.weeks;
@@ -60,28 +71,31 @@ export function BookingsChart({ model }: { model: BookingsChartModel }) {
   return (
     <SheetCard
       className="sc"
-      label="Bookings · week by week"
-      title="Kept, missed and what the missed ones were worth"
+      label={tr("bookings.label")}
+      title={tr("bookings.title")}
       meta={
         <>
           {capital(model.source)}
           <br />
-          <span className="word">OBSERVED</span> counts · <span className="word">DERIVED</span>{" "}
-          money
+          {words.rich("meta", {
+            observed: sheet("basis.OBSERVED"),
+            derived: sheet("basis.DERIVED"),
+            word,
+          })}
         </>
       }
       foot={model.lost_note}
     >
-      <ul className="sc-keys" aria-label="Key">
+      <ul className="sc-keys" aria-label={tr("keyLabel")}>
         <li>
-          <span className="sc-key completed" aria-hidden="true" /> completed: filled
+          <span className="sc-key completed" aria-hidden="true" /> {tr("bookings.keyCompleted")}
         </li>
         <li>
-          <span className="sc-key noshow" aria-hidden="true" /> no-show: hollow
+          <span className="sc-key noshow" aria-hidden="true" /> {tr("bookings.keyNoShow")}
         </li>
         {model.late_separated && (
           <li>
-            <span className="sc-key late" aria-hidden="true" /> late cancellation: tinted
+            <span className="sc-key late" aria-hidden="true" /> {tr("bookings.keyLate")}
           </li>
         )}
       </ul>
@@ -114,10 +128,10 @@ export function BookingsChart({ model }: { model: BookingsChartModel }) {
             />
           ))}
           <text className="tick" x={plotR + 6} y={yc(maxCount) + 4}>
-            {num(maxCount)}
+            {num(maxCount, 0, locale)}
           </text>
           <text className="tick" x={plotR + 6} y={yc(0) + 4}>
-            0
+            {num(0, 0, locale)}
           </text>
           {weeks.map((wk, i) => {
             const cx = x(i);
@@ -176,23 +190,23 @@ export function BookingsChart({ model }: { model: BookingsChartModel }) {
                     y={height - 6}
                     textAnchor={i === 0 ? "start" : "middle"}
                   >
-                    {shortDate(wk.start)}
+                    {shortDate(wk.start, locale)}
                   </text>
                 )}
               </g>
             );
           })}
           <text className="pane-label" x={4} y={TOP - 8}>
-            APPOINTMENTS
+            {tr("bookings.paneCount")}
           </text>
           {money && (
             <>
               <line className="grid" x1={0} x2={plotR} y1={ym(0)} y2={ym(0)} />
               <text className="pane-label" x={4} y={MONEY_TOP - 8}>
-                MISSED, WORTH ({cur})
+                {tr("bookings.paneMoney", { currency: cur })}
               </text>
               <text className="tick" x={plotR + 6} y={ym(maxLost) + 4}>
-                {dayMoney(maxLost, cur)}
+                {dayMoney(maxLost, cur, locale)}
               </text>
             </>
           )}
@@ -200,50 +214,58 @@ export function BookingsChart({ model }: { model: BookingsChartModel }) {
       </div>
       {w && (
         <p className="sc-readout" aria-live="polite">
-          <b>Week of {shortDate(w.start)}</b> · {num(w.completed)} completed · {num(w.no_show)}{" "}
-          no-shows
-          {w.late !== null && <> · {num(w.late)} late cancellations</>}
+          <b>{tr("bookings.weekOf", { day: shortDate(w.start, locale) })}</b> ·{" "}
+          {tr("bookings.completed", { count: w.completed })} ·{" "}
+          {tr("bookings.noShows", { count: w.no_show })}
+          {w.late !== null && <> · {tr("bookings.late", { count: w.late })}</>}
           {money && w.lost_high_minor !== null && (
             <>
               {" "}
-              · missed worth{" "}
-              <b>
-                {rangeWhole({
-                  low_minor: w.lost_low_minor ?? 0,
-                  high_minor: w.lost_high_minor,
-                  currency: cur,
-                })}
-              </b>
+              ·{" "}
+              {words.rich("missedWorth", {
+                range: rangeWhole(
+                  {
+                    low_minor: w.lost_low_minor ?? 0,
+                    high_minor: w.lost_high_minor,
+                    currency: cur,
+                  },
+                  locale,
+                ),
+                b: (chunks: ReactNode) => <b>{chunks}</b>,
+              })}
             </>
           )}
         </p>
       )}
       <div className="sr-only">
         <table>
-          <caption>Appointments a week, and what the missed ones were worth</caption>
+          <caption>{tr("bookings.caption")}</caption>
           <thead>
             <tr>
-              <th scope="col">Week of</th>
-              <th scope="col">Completed</th>
-              <th scope="col">No-shows</th>
-              {model.late_separated && <th scope="col">Late cancellations</th>}
-              {money && <th scope="col">Missed, worth ({cur})</th>}
+              <th scope="col">{tr("bookings.colWeek")}</th>
+              <th scope="col">{tr("bookings.colCompleted")}</th>
+              <th scope="col">{tr("bookings.colNoShows")}</th>
+              {model.late_separated && <th scope="col">{tr("bookings.colLate")}</th>}
+              {money && <th scope="col">{tr("bookings.colMissed", { currency: cur })}</th>}
             </tr>
           </thead>
           <tbody>
             {weeks.map((wk) => (
               <tr key={wk.start}>
-                <th scope="row">{shortDate(wk.start)}</th>
-                <td>{num(wk.completed)}</td>
-                <td>{num(wk.no_show)}</td>
-                {model.late_separated && <td>{num(wk.late ?? 0)}</td>}
+                <th scope="row">{shortDate(wk.start, locale)}</th>
+                <td>{num(wk.completed, 0, locale)}</td>
+                <td>{num(wk.no_show, 0, locale)}</td>
+                {model.late_separated && <td>{num(wk.late ?? 0, 0, locale)}</td>}
                 {money && (
                   <td>
-                    {rangeWhole({
-                      low_minor: wk.lost_low_minor ?? 0,
-                      high_minor: wk.lost_high_minor ?? 0,
-                      currency: cur,
-                    })}
+                    {rangeWhole(
+                      {
+                        low_minor: wk.lost_low_minor ?? 0,
+                        high_minor: wk.lost_high_minor ?? 0,
+                        currency: cur,
+                      },
+                      locale,
+                    )}
                   </td>
                 )}
               </tr>
@@ -256,6 +278,9 @@ export function BookingsChart({ model }: { model: BookingsChartModel }) {
 }
 
 export function AdsChart({ model }: { model: AdsChartModel }) {
+  const words = useTranslations("charts.small.ads");
+  const { tr, locale } = useTr("charts.small");
+  const { tr: sheet } = useTr("sheet");
   const byCurrency = useMemo(() => {
     const m = new Map<string, number>();
     for (const c of model.campaigns) {
@@ -268,39 +293,43 @@ export function AdsChart({ model }: { model: AdsChartModel }) {
   return (
     <SheetCard
       className="sc"
-      label={`Ads · the last ${num(model.window.days)} days`}
+      label={tr("ads.label", { count: model.window.days })}
       title={
-        model.losing === 0
-          ? "Every campaign brings back what it costs"
-          : `${num(model.losing)} campaign${model.losing === 1 ? "" : "s"} cost${model.losing === 1 ? "s" : ""} more than it brings back`
+        model.losing === 0 ? tr("ads.titleNone") : tr("ads.titleLosing", { count: model.losing })
       }
       meta={
         <>
-          Meta Ads · {shortDate(model.window.from)}–{shortDate(model.window.to)}
+          {tr("ads.window", {
+            from: shortDate(model.window.from, locale),
+            to: shortDate(model.window.to, locale),
+          })}
           <br />
-          <span className="word">DERIVED</span> from Meta&rsquo;s own attribution
+          {words.rich("derivedFrom", {
+            derived: sheet("basis.DERIVED"),
+            word: (chunks: ReactNode) => <span className="word">{chunks}</span>,
+          })}
         </>
       }
-      foot="Return = the purchase value Meta attributes to the campaign ÷ what it spent. Below 1.0 it loses money by Meta's own count — the line I propose a pause at."
+      foot={tr("ads.foot", { even: num(1, 1, locale) })}
     >
-      <ul className="sc-keys" aria-label="Key">
+      <ul className="sc-keys" aria-label={tr("keyLabel")}>
         <li>
-          <span className="sc-key spend" aria-hidden="true" /> spent: hollow
+          <span className="sc-key spend" aria-hidden="true" /> {tr("ads.keySpent")}
         </li>
         <li>
-          <span className="sc-key ret" aria-hidden="true" /> Meta attributes back: filled
+          <span className="sc-key ret" aria-hidden="true" /> {tr("ads.keyBack")}
         </li>
       </ul>
       <table className="rt rt-stack sc-ads">
         <caption className="sr-only">{model.summary}</caption>
         <thead>
           <tr>
-            <th scope="col">Campaign</th>
-            <th scope="col">Spent against back</th>
+            <th scope="col">{tr("ads.colCampaign")}</th>
+            <th scope="col">{tr("ads.colSpentBack")}</th>
             <th scope="col" className="num">
-              Return
+              {tr("ads.colReturn")}
             </th>
-            <th scope="col">Flag</th>
+            <th scope="col">{tr("ads.colFlag")}</th>
           </tr>
         </thead>
         <tbody>
@@ -311,7 +340,7 @@ export function AdsChart({ model }: { model: AdsChartModel }) {
             return (
               <tr key={c.campaign_ref}>
                 <th scope="row">{c.campaign_name}</th>
-                <td data-label="Spent / back">
+                <td data-label={tr("ads.cellSpentBack")}>
                   <svg
                     className="sc-bars"
                     viewBox={`0 0 ${barW} 30`}
@@ -337,18 +366,20 @@ export function AdsChart({ model }: { model: AdsChartModel }) {
                     />
                   </svg>
                   <span className="sc-note">
-                    {dayMoney(c.spend_minor, c.currency)} spent ·{" "}
-                    {dayMoney(c.value_minor, c.currency)} back
+                    {tr("ads.spentBack", {
+                      spent: dayMoney(c.spend_minor, c.currency, locale),
+                      back: dayMoney(c.value_minor, c.currency, locale),
+                    })}
                   </span>
                 </td>
-                <td className="num" data-label="Return">
-                  {c.roas === null ? "—" : num(c.roas, 2)}
+                <td className="num" data-label={tr("ads.colReturn")}>
+                  {c.roas === null ? "—" : num(c.roas, 2, locale)}
                 </td>
-                <td data-label="Flag">
+                <td data-label={tr("ads.colFlag")}>
                   {c.losing ? (
-                    <span className="flag alarm">Losing</span>
+                    <span className="flag alarm">{tr("ads.losing")}</span>
                   ) : (
-                    <span className="flag ok">Pays back</span>
+                    <span className="flag ok">{tr("ads.paysBack")}</span>
                   )}
                 </td>
               </tr>

@@ -33,6 +33,8 @@ import { BASES } from "../../components/report/basis";
 import { moneyText, num } from "../../components/sheet/num";
 import { MAX_CHANGE_SHARE, spendGuard } from "../ads/guard";
 import { minorUnitExponent } from "../core/money";
+import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
 
 /**
  * The pinned thresholds and windows — one place, boundary-tested
@@ -410,39 +412,62 @@ export function spread(values: readonly number[]): Range | null {
  * count (ux-spec §2). The amounts stay integer minor units underneath; only
  * the print rounds.
  */
-const money = (minor: number, currency: string): string => {
+// L-3b: the screen's figures take the reader's language (English by
+// default, exactly as before); the arithmetic lines built here stay English
+// until L-4 (TASKS-LANGUAGES.md).
+const money = (minor: number, currency: string, locale: AppLocale = "en"): string => {
   const whole = Math.round(Math.abs(minor) / 10 ** minorUnitExponent(currency));
-  const body = moneyText(whole * 10 ** minorUnitExponent(currency), currency);
+  const body = moneyText(whole * 10 ** minorUnitExponent(currency), currency, locale);
   return minor < 0 && whole !== 0 ? `−${body}` : body;
 };
-const pct = (x: number): string => `${num(x * 100, 1)}%`;
-const twoDp = (x: number): string => num(x, 2);
-const count = (x: number): string => (Number.isInteger(x) ? num(x, 0) : num(x, 1));
+const pct = (x: number, locale: AppLocale = "en"): string =>
+  locale === "en"
+    ? `${num(x * 100, 1)}%`
+    : new Intl.NumberFormat(intlTag(locale), {
+        style: "percent",
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      }).format(x);
+const twoDp = (x: number, locale: AppLocale = "en"): string => num(x, 2, locale);
+const count = (x: number, locale: AppLocale = "en"): string =>
+  Number.isInteger(x) ? num(x, 0, locale) : num(x, 1, locale);
 
 /** "a – b" for a cell; a single figure in an arithmetic line when both ends agree. */
-function rangeText(r: Range, unit: Unit, currency: string, collapse = false): string {
+function rangeText(
+  r: Range,
+  unit: Unit,
+  currency: string,
+  collapse = false,
+  locale: AppLocale = "en",
+): string {
   const f =
     unit === "money"
-      ? (v: number) => money(v, currency)
+      ? (v: number) => money(v, currency, locale)
       : unit === "rate"
-        ? pct
+        ? (v: number) => pct(v, locale)
         : unit === "ratio"
-          ? twoDp
-          : count;
+          ? (v: number) => twoDp(v, locale)
+          : (v: number) => count(v, locale);
   return collapse && f(r.low) === f(r.high) ? f(r.low) : `${f(r.low)} – ${f(r.high)}`;
 }
 
 /** An input or intermediate figure inside an arithmetic line. */
 const term = (r: Range, unit: Unit, currency: string) => rangeText(r, unit, currency, true);
 
-/** Pure: a value the screen prints, by its unit. */
-export function valueText(r: Range, unit: Unit, currency: string, exact = false): string {
+/** Pure: a value the screen prints, by its unit, in the reader's language. */
+export function valueText(
+  r: Range,
+  unit: Unit,
+  currency: string,
+  exact = false,
+  locale: AppLocale = "en",
+): string {
   if (exact && r.low === r.high) {
     return unit === "money"
-      ? money(r.low, currency)
-      : rangeText(r, unit, currency).split(" – ")[0]!;
+      ? money(r.low, currency, locale)
+      : rangeText(r, unit, currency, false, locale).split(" – ")[0]!;
   }
-  return rangeText(r, unit, currency);
+  return rangeText(r, unit, currency, false, locale);
 }
 
 /** Pure: the bases, deduped, in the fixed class order. */

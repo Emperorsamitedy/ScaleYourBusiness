@@ -5,11 +5,19 @@
 // edge tags the target and the latest close. Under it, for a revenue
 // goal, the week's orders. Every mark is a measured figure or the path's
 // own arithmetic; the figure's summary is in its accessible name.
+//
+// L-3b (TASKS-LANGUAGES.md): its words are the "charts.candle" catalogue,
+// its figures in the reader's locale with the goal's own currency.
 
+import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { GoalChart } from "../../lib/care/charts";
 import { addDays, daysBetween, pathPer30d } from "../../lib/care/chart-view";
 import { minorUnitExponent } from "../../lib/core/money";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
 import { moneyText, num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
 
 const W = 480;
 const LEFT = 8;
@@ -20,18 +28,18 @@ const VOL_TOP = 184;
 const BOTTOM = 240;
 
 /** A per-day figure: whole units above 100, cents below, counts to one decimal when small. */
-export function dayFig(value: number, currency: string | null): string {
-  if (currency === null) return num(value, Math.abs(value) < 100 ? 1 : 0);
+export function dayFig(value: number, currency: string | null, locale: AppLocale = "en"): string {
+  if (currency === null) return num(value, Math.abs(value) < 100 ? 1 : 0, locale);
   const exp = minorUnitExponent(currency);
   const major = value / 10 ** exp;
   return Math.abs(major) < 100
-    ? moneyText(Math.round(value), currency)
-    : moneyText(Math.round(major) * 10 ** exp, currency);
+    ? moneyText(Math.round(value), currency, locale)
+    : moneyText(Math.round(major) * 10 ** exp, currency, locale);
 }
 
-function signedFig(value: number, currency: string | null): string {
-  const body = dayFig(Math.abs(value), currency);
-  if (Math.abs(value) < 0.5) return dayFig(0, currency);
+function signedFig(value: number, currency: string | null, locale: AppLocale): string {
+  const body = dayFig(Math.abs(value), currency, locale);
+  if (Math.abs(value) < 0.5) return dayFig(0, currency, locale);
   return value > 0 ? `+${body}` : `−${body}`;
 }
 
@@ -50,16 +58,22 @@ function TagText({ x, y, text }: { x: number; y: number; text: string }) {
   );
 }
 
+/** The volume words lib/care/charts uses, each a catalogue key. */
+const VOLUME_WORDS: ReadonlySet<string> = new Set(["orders"]);
+
 export function CandleChart({ chart, label }: { chart: GoalChart; label: string }) {
+  const words = useTranslations("charts.candle");
+  const { tr, locale } = useTr("charts.candle");
   const { candles, currency } = chart;
   const last = candles.at(-1);
+  const fig = (v: number) => dayFig(v, currency, locale);
   if (!last) {
     return (
       <div className="gl-chart">
         <p className="gl-nochart">
           {chart.unconnected
-            ? `No connection measures ${label} yet, so there is nothing to chart.`
-            : `No ${label} measured in the last weeks, so there is nothing to chart yet.`}
+            ? tr("noneUnconnected", { metric: label })
+            : tr("noneMeasured", { metric: label })}
         </p>
       </div>
     );
@@ -111,32 +125,42 @@ export function CandleChart({ chart, label }: { chart: GoalChart; label: string 
   const dirOf = new Map(candles.map((c) => [c.week, c.close >= c.open ? "up" : "down"]));
   const lastVol = hasVol ? chart.volume!.weeks.find(([w]) => w === last.week)?.[1] : undefined;
   const grid = [0.2, 0.4, 0.6, 0.8].map((f) => TOP + f * (priceBottom - TOP));
-  const metricWord = label.charAt(0).toUpperCase() + label.slice(1);
+  const metricWord = label.charAt(0).toLocaleUpperCase(intlTag(locale)) + label.slice(1);
+  const volumeWord = (w: string) => (VOLUME_WORDS.has(w) ? tr(`volumeWord.${w}`) : w);
 
-  const summary =
-    `${metricWord} per day, ${candles.length} weekly candles. ` +
-    `Last week opened ${dayFig(last.open, currency)}, closed ${dayFig(last.close, currency)}` +
-    (pathPts.length > 0
-      ? `; the path to the target ${dayFig(target, currency)} a day.`
-      : `; target ${dayFig(target, currency)} a day, no measured starting point for a path.`);
+  const summary = tr(pathPts.length > 0 ? "summaryPath" : "summaryNoPath", {
+    metric: metricWord,
+    count: candles.length,
+    open: fig(last.open),
+    close: fig(last.close),
+    target: fig(target),
+  });
 
   return (
     <figure className="gl-chart" style={{ margin: 0 }}>
       <figcaption className="gl-legend">
         <span>
-          <b>{metricWord} / day</b>
+          <b>{tr("perDay", { metric: metricWord })}</b>
         </span>
-        <span>1W</span>
+        <span>{tr("period", { count: num(1, 0, locale) })}</span>
         <span className={up ? "up" : "down"}>
-          O {dayFig(last.open, currency)} H {dayFig(last.high, currency)} L{" "}
-          {dayFig(last.low, currency)} C {dayFig(last.close, currency)}{" "}
-          {signedFig(last.close - last.open, currency)}
+          {tr("ohlc", {
+            open: fig(last.open),
+            high: fig(last.high),
+            low: fig(last.low),
+            close: fig(last.close),
+            change: signedFig(last.close - last.open, currency, locale),
+          })}
         </span>
         {lastVol !== undefined && (
           <>
             <br />
             <span style={{ marginLeft: 0 }}>
-              Vol <b>{num(lastVol)}</b> {chart.volume!.label}
+              {words.rich("volume", {
+                count: num(lastVol, 0, locale),
+                word: volumeWord(chart.volume!.label),
+                b: (chunks: ReactNode) => <b>{chunks}</b>,
+              })}
             </span>
           </>
         )}
@@ -156,7 +180,7 @@ export function CandleChart({ chart, label }: { chart: GoalChart; label: string 
           <>
             <line className="today" x1={todayX} x2={todayX} y1={TOP - 8} y2={BOTTOM} />
             <text className="today-label" x={todayX + 4} y={TOP - 1}>
-              TODAY
+              {tr("today")}
             </text>
           </>
         )}
@@ -201,7 +225,7 @@ export function CandleChart({ chart, label }: { chart: GoalChart; label: string 
           width={W - RIGHT - 2}
           height={16}
         />
-        <TagText x={RIGHT + 6} y={yTarget + 4} text={dayFig(target, currency)} />
+        <TagText x={RIGHT + 6} y={yTarget + 4} text={fig(target)} />
         <rect
           className={`tag-now ${up ? "up" : "down"}`}
           x={RIGHT + 2}
@@ -209,7 +233,7 @@ export function CandleChart({ chart, label }: { chart: GoalChart; label: string 
           width={W - RIGHT - 2}
           height={16}
         />
-        <TagText x={RIGHT + 6} y={yNow + 4} text={dayFig(last.close, currency)} />
+        <TagText x={RIGHT + 6} y={yNow + 4} text={fig(last.close)} />
       </svg>
     </figure>
   );

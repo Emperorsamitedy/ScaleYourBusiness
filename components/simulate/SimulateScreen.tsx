@@ -13,12 +13,23 @@
 //
 // The arithmetic is lib/simulate/model.ts, run here on the figures
 // /api/simulate reads; the server runs it again before proposing.
+//
+// L-3b (TASKS-LANGUAGES.md): the screen's fixed words are the "simulate"
+// catalogue, every figure in the reader's locale and the business's
+// currency. What lib/simulate words from the numbers — option titles and
+// "what", sources, needs, formulas, worst-case words, the cross-check and
+// the guard — stays English until L-4.
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import "../../app/simulate.css";
 import { minorUnitExponent } from "../../lib/core/money";
+import { dayMonthYear } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { basisName } from "../report/basis";
+import { useTr } from "../sheet/useTr";
 import type {
   Catalog,
   Comparison,
@@ -31,15 +42,28 @@ import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
 import {
   DEFAULT_SHARE,
-  KIND_LABEL,
   cellView,
   defaultPicks,
+  flagWord,
   headline,
+  sharePct,
   shareSteps,
   whiskerChart,
 } from "./view";
-import type { WhiskerSource } from "./view";
+import type { SimWords, WhiskerSource } from "./view";
 import { SimTabs } from "./SimTabs";
+
+/** The simulator's words for a client component: its catalogue, the basis names, the locale. */
+export function useSimWords(): SimWords {
+  const { tr, locale } = useTr("simulate");
+  const { tr: sheet } = useTr("sheet");
+  return { tr, sheet, locale };
+}
+
+/** "As of" a day: English prints the day as it always has; another language its own way. */
+export function asOfDay(day: string, locale: AppLocale): string {
+  return locale === "en" || !/^\d{4}-\d{2}-\d{2}/.test(day) ? day : dayMonthYear(day, locale);
+}
 
 interface Payload {
   inputs: SimInputs;
@@ -104,9 +128,10 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useTr("simulate");
   return (
     <main className="screen sim-screen">
-      <PageHead kicker="Grow · Campaign simulator" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       <SimTabs current="campaigns" />
       {children}
     </main>
@@ -159,6 +184,7 @@ function Picker({
   setBudget: (b: string) => void;
   adsCurrency: string;
 }) {
+  const { tr, locale } = useTr("simulate");
   const full = picks.length >= SIM.max_options;
   const toggle = (id: PickId) =>
     setPicks(picks.includes(id) ? picks.filter((p) => p !== id) : full ? picks : [...picks, id]);
@@ -167,43 +193,43 @@ function Picker({
       {text}
     </Toggle>
   );
+  const pickWord = (id: PickId) =>
+    picks.includes(id) ? tr("picker.picked") : tr("picker.compare");
+  const kindHead = tr("picker.kind");
+  const fromHead = tr("picker.fromNumbers");
   return (
     <SheetCard
-      label={`Pick ${SIM.min_options} to ${SIM.max_options}`}
-      title="Campaign options"
-      meta={`${picks.length} picked${full ? " · that's the most I compare at once" : ""}`}
+      label={tr("picker.label", { min: SIM.min_options, max: SIM.max_options })}
+      title={tr("picker.title")}
+      meta={tr(full ? "picker.metaFull" : "picker.meta", { count: picks.length })}
     >
       <div className="sim-wrap">
         <table className="rt rt-stack sim-pick">
           <thead>
             <tr>
-              <th scope="col">Kind</th>
-              <th scope="col">Option</th>
-              <th scope="col">From your numbers</th>
+              <th scope="col">{kindHead}</th>
+              <th scope="col">{tr("picker.option")}</th>
+              <th scope="col">{fromHead}</th>
               <th scope="col">
-                <span className="sr-only">Compare</span>
+                <span className="sr-only">{tr("picker.compare")}</span>
               </th>
             </tr>
           </thead>
           <tbody>
             {catalog.email.map((e) => (
               <tr key={e.key} className={picks.includes(`email:${e.key}`) ? "on" : undefined}>
-                <td className="src" data-label="Kind">
-                  Email
+                <td className="src" data-label={kindHead}>
+                  {tr("kind.email")}
                 </td>
                 <th scope="row">{e.title}</th>
-                <td className="src" data-label="From your numbers">
+                <td className="src" data-label={fromHead}>
                   {e.emailable > 0
-                    ? `${num(e.emailable)} said yes to email`
-                    : "nobody here said yes to email"}
+                    ? tr("picker.emailable", { count: num(e.emailable, 0, locale) })
+                    : tr("picker.noEmailable")}
                 </td>
                 <td className="sim-acts-cell">
                   <div className="sim-acts">
-                    {t(
-                      `email:${e.key}`,
-                      picks.includes(`email:${e.key}`) ? "Picked" : "Compare",
-                      e.title,
-                    )}
+                    {t(`email:${e.key}`, pickWord(`email:${e.key}`), e.title)}
                   </div>
                 </td>
               </tr>
@@ -215,19 +241,22 @@ function Picker({
               );
               return (
                 <tr key={c.ref} className={any ? "on" : undefined}>
-                  <td className="src" data-label="Kind">
-                    Meta ads
+                  <td className="src" data-label={kindHead}>
+                    {tr("kind.ads")}
                   </td>
-                  <th scope="row">&ldquo;{c.name}&rdquo;</th>
-                  <td className="src" data-label="From your numbers">
+                  <th scope="row">{tr("picker.quoted", { name: c.name })}</th>
+                  <td className="src" data-label={fromHead}>
                     {c.measured_days > 0
-                      ? `${moneyText(c.daily_minor, c.currency)} a day · ${c.measured_days} measured days`
-                      : "no measured spend lately"}
+                      ? tr("picker.daily", {
+                          amount: moneyText(c.daily_minor, c.currency, locale),
+                          days: c.measured_days,
+                        })
+                      : tr("picker.noSpend")}
                   </td>
                   <td className="sim-acts-cell">
                     <div className="sim-acts">
                       <label className="sim-share">
-                        <span className="sr-only">Budget change for {c.name}</span>
+                        <span className="sr-only">{tr("picker.shareFor", { name: c.name })}</span>
                         <select
                           value={share}
                           onChange={(ev) =>
@@ -236,43 +265,47 @@ function Picker({
                         >
                           {shareSteps().map((s) => (
                             <option key={s} value={s}>
-                              {Math.round(s * 100)}%
+                              {sharePct(s, locale)}
                             </option>
                           ))}
                         </select>
                       </label>
                       {t(
                         `ads:${c.ref}:raise`,
-                        "Raise",
-                        `Raise ${c.name} by ${Math.round(share * 100)}%`,
+                        tr("picker.raise"),
+                        tr("picker.raiseAria", { name: c.name, share: sharePct(share, locale) }),
                       )}
                       {t(
                         `ads:${c.ref}:lower`,
-                        "Cut",
-                        `Cut ${c.name} by ${Math.round(share * 100)}%`,
+                        tr("picker.cut"),
+                        tr("picker.cutAria", { name: c.name, share: sharePct(share, locale) }),
                       )}
-                      {t(`ads:${c.ref}:pause`, "Pause", `Pause ${c.name}`)}
+                      {t(
+                        `ads:${c.ref}:pause`,
+                        tr("picker.pause"),
+                        tr("picker.pauseAria", { name: c.name }),
+                      )}
                     </div>
                   </td>
                 </tr>
               );
             })}
             <tr className={picks.includes("ads:new") ? "on" : undefined}>
-              <td className="src" data-label="Kind">
-                Meta ads
+              <td className="src" data-label={kindHead}>
+                {tr("kind.ads")}
               </td>
-              <th scope="row">A new campaign</th>
-              <td className="src" data-label="From your numbers">
+              <th scope="row">{tr("picker.newCampaign")}</th>
+              <td className="src" data-label={fromHead}>
                 {catalog.campaigns.length > 0
-                  ? "judged on what your other campaigns return"
+                  ? tr("picker.judged")
                   : catalog.ads_connected
-                    ? "no campaign measured yet to judge it by"
-                    : "Meta isn't connected"}
+                    ? tr("picker.noneMeasured")
+                    : tr("picker.metaOff")}
               </td>
               <td className="sim-acts-cell">
                 <div className="sim-acts">
                   <label className="sim-budget">
-                    <span>{adsCurrency} a day</span>
+                    <span>{tr("picker.perDay", { currency: adsCurrency })}</span>
                     <input
                       inputMode="decimal"
                       value={budget}
@@ -280,27 +313,25 @@ function Picker({
                       onChange={(ev) => setBudget(ev.target.value)}
                     />
                   </label>
-                  {t("ads:new", picks.includes("ads:new") ? "Picked" : "Compare", "A new campaign")}
+                  {t("ads:new", pickWord("ads:new"), tr("picker.newCampaign"))}
                 </div>
               </td>
             </tr>
             <tr className={picks.includes("content") ? "on" : undefined}>
-              <td className="src" data-label="Kind">
-                Content
+              <td className="src" data-label={kindHead}>
+                {tr("kind.content")}
               </td>
-              <th scope="row">A {SIM.horizon_days / 7}-week content calendar</th>
-              <td className="src" data-label="From your numbers">
+              <th scope="row">
+                {tr("picker.contentCalendar", { weeks: num(SIM.horizon_days / 7, 0, locale) })}
+              </th>
+              <td className="src" data-label={fromHead}>
                 {catalog.content.posts > 0
-                  ? `${num(catalog.content.posts)} social posts on the channels you run`
-                  : "no social channel on your profile"}
+                  ? tr("picker.posts", { count: catalog.content.posts })
+                  : tr("picker.noSocial")}
               </td>
               <td className="sim-acts-cell">
                 <div className="sim-acts">
-                  {t(
-                    "content",
-                    picks.includes("content") ? "Picked" : "Compare",
-                    "A content calendar",
-                  )}
+                  {t("content", pickWord("content"), tr("picker.contentAria"))}
                 </div>
               </td>
             </tr>
@@ -312,17 +343,19 @@ function Picker({
 }
 
 function SideBySide({ cmp }: { cmp: Comparison }) {
+  const words = useSimWords();
+  const { tr, locale } = words;
   return (
     <SheetCard
-      label={`Side by side · over ${SIM.horizon_days} days`}
-      title="What each is likely to bring"
-      meta="Ranges are the middle half of what was measured"
+      label={tr("side.label", { days: num(SIM.horizon_days, 0, locale) })}
+      title={tr("side.title")}
+      meta={tr("side.meta")}
     >
       <div className="sim-wrap">
         <table className="rt sim-table">
           <thead>
             <tr>
-              <th scope="col">Measure</th>
+              <th scope="col">{tr("side.measure")}</th>
               {cmp.options.map((o) => (
                 <th scope="col" key={o.key} className="num">
                   {o.title}
@@ -334,21 +367,21 @@ function SideBySide({ cmp }: { cmp: Comparison }) {
             {cmp.rows.map((row) => (
               <tr key={row.measure}>
                 <th scope="row">
-                  {row.label}
+                  {tr(`measure.${row.measure}`)}
                   <small>
-                    {row.unit === "money" ? `${cmp.options[0]?.currency ?? ""}` : "count"}
+                    {row.unit === "money" ? `${cmp.options[0]?.currency ?? ""}` : tr("side.count")}
                   </small>
                   {row.note && <small className="flag drift">{row.note}</small>}
                 </th>
                 {row.cells.map((cell, i) => {
                   const o = cmp.options[i]!;
-                  const v = cellView(cell, row.unit, o.currency);
+                  const v = cellView(cell, row.unit, o.currency, words);
                   return (
                     <td key={o.key} className="num" title={v.detail}>
                       <span className="fig">{v.figure}</span>
                       {v.flag ? (
                         <span className={`flag ${v.flag === "MISSING" ? "drift" : "low"}`}>
-                          {v.flag}
+                          {flagWord(v.flag, tr)}
                         </span>
                       ) : (
                         v.basis && <span className="sim-basis">{v.basis}</span>
@@ -367,26 +400,23 @@ function SideBySide({ cmp }: { cmp: Comparison }) {
 
 export function Whiskers({
   results,
-  caption = "Expected profit, low to high · the square is the worst case",
+  caption,
 }: {
   results: readonly WhiskerSource[];
   caption?: string;
 }) {
-  const chart = whiskerChart(results);
+  const words = useSimWords();
+  const chart = whiskerChart(results, words);
   if (!chart) {
-    return (
-      <p className="sim-note">
-        The options are in more than one currency, so they can&rsquo;t share one axis — I
-        don&rsquo;t convert between currencies.
-      </p>
-    );
+    return <p className="sim-note">{words.tr("whisker.currencies")}</p>;
   }
+  const figcaption = caption ?? words.tr("whisker.caption");
   const rowH = 36;
   const top = 8;
   const h = top + chart.rows.length * rowH + 22;
   return (
     <figure className="sim-chart">
-      <figcaption className="cs-label">{caption}</figcaption>
+      <figcaption className="cs-label">{figcaption}</figcaption>
       <div className="sim-chart-grid">
         <ol className="sim-chart-labels" style={{ paddingTop: top }}>
           {chart.rows.map((r) => (
@@ -452,26 +482,31 @@ function OptionCard({
   busy: boolean;
   onPropose: () => void;
 }) {
+  const { tr, sheet, locale } = useSimWords();
+  const t = useTranslations("simulate");
   const cur = r.currency;
   const measures = (["cost", "reached", "orders", "revenue", "profit", "worst"] as const).filter(
     (m) => r.measures[m].status === "range",
   );
+  const valueHead = tr("option.value");
+  const basisHead = tr("option.basis");
+  const fromHead = tr("option.from");
   return (
     <SheetCard
       className="sim-card"
-      label={KIND_LABEL[r.kind]}
+      label={tr(`kind.${r.kind}`)}
       title={r.title}
-      meta={r.proposable.ok ? "Can be proposed" : "Not proposable yet"}
+      meta={r.proposable.ok ? tr("option.canPropose") : tr("option.notProposable")}
       foot={
         <div className="sim-foot">
           {r.proposable.ok ? (
             <button type="button" className="act" disabled={busy} onClick={onPropose}>
               {busy ? (
                 <>
-                  <span className="live-dot" aria-hidden="true" /> Proposing
+                  <span className="live-dot" aria-hidden="true" /> {tr("option.proposing")}
                 </>
               ) : (
-                "Propose this →"
+                tr("option.propose")
               )}
             </button>
           ) : (
@@ -479,7 +514,11 @@ function OptionCard({
           )}
           {notice && (
             <span role="status" className={notice.ok ? "sim-done" : undefined}>
-              {notice.text} {notice.ok && <Link href="/proposals">Waiting for you</Link>}
+              {notice.ok
+                ? t.rich("notice.proposed", {
+                    link: (c) => <Link href="/proposals">{c}</Link>,
+                  })
+                : notice.text}
             </span>
           )}
         </div>
@@ -490,43 +529,45 @@ function OptionCard({
         <table className="rt rt-stack sim-inputs">
           <thead>
             <tr>
-              <th scope="col">What it rests on</th>
+              <th scope="col">{tr("option.restsOn")}</th>
               <th scope="col" className="num">
-                Value
+                {valueHead}
               </th>
-              <th scope="col">Basis</th>
-              <th scope="col">Where it came from</th>
+              <th scope="col">{basisHead}</th>
+              <th scope="col">{fromHead}</th>
             </tr>
           </thead>
           <tbody>
             {r.inputs.map((i) => (
               <tr key={i.key}>
                 <th scope="row">{i.label}</th>
-                <td className="num" data-label="Value">
-                  {i.range ? valueText(i.range, i.unit, cur, true) : "—"}
+                <td className="num" data-label={valueHead}>
+                  {i.range ? valueText(i.range, i.unit, cur, true, locale) : "—"}
                 </td>
-                <td data-label="Basis">
+                <td data-label={basisHead}>
                   {i.basis ? (
-                    <span className="sim-basis">{i.basis}</span>
+                    <span className="sim-basis">{basisName(i.basis, sheet)}</span>
                   ) : (
-                    <span className="flag drift">Missing</span>
+                    <span className="flag drift">{tr("option.missing")}</span>
                   )}
                 </td>
-                <td className="src" data-label="Where it came from">
-                  {i.range ? i.source : `needs ${i.needs ?? "a source"}`}
+                <td className="src" data-label={fromHead}>
+                  {i.range
+                    ? i.source
+                    : tr("option.needs", { what: i.needs ?? tr("option.aSource") })}
                 </td>
               </tr>
             ))}
             {r.assumptions.map((a) => (
               <tr key={a.statement}>
                 <th scope="row">{a.statement}</th>
-                <td className="num" data-label="Value">
+                <td className="num" data-label={valueHead}>
                   —
                 </td>
-                <td data-label="Basis">
-                  <span className="sim-basis">ASSUMED</span>
+                <td data-label={basisHead}>
+                  <span className="sim-basis">{basisName("ASSUMED", sheet)}</span>
                 </td>
-                <td className="src" data-label="Where it came from">
+                <td className="src" data-label={fromHead}>
                   {a.source}
                 </td>
               </tr>
@@ -540,13 +581,7 @@ function OptionCard({
             const c = r.measures[m];
             return c.status === "range" ? (
               <div key={m}>
-                <dt>
-                  {m === "worst"
-                    ? "Worst case"
-                    : m === "reached"
-                      ? "Reach"
-                      : m[0]!.toUpperCase() + m.slice(1)}
-                </dt>
+                <dt>{tr(`math.${m}`)}</dt>
                 <dd className="fig">{c.formula}</dd>
               </div>
             ) : null;
@@ -554,21 +589,23 @@ function OptionCard({
         </dl>
       )}
       <p className="sim-worst-words">
-        <span className="cs-label">Worst case</span> {r.worst_words}
+        <span className="cs-label">{tr("option.worstCase")}</span> {r.worst_words}
       </p>
       {r.guard && (
         <p className="sim-guard">
-          <span className="flag alarm">Over a limit</span> {r.guard}.
+          <span className="flag alarm">{tr("option.overLimit")}</span> {r.guard}.
         </p>
       )}
       <p className="sim-check">
-        <span className="cs-label">Against what happened before</span> {r.cross_check.line}
+        <span className="cs-label">{tr("option.check")}</span> {r.cross_check.line}
       </p>
     </SheetCard>
   );
 }
 
 export function SimulateScreen() {
+  const { tr, locale } = useTr("simulate");
+  const t = useTranslations("simulate");
   const [load, setLoad] = useState<Load>({ phase: "loading" });
   const [picks, setPicks] = useState<PickId[]>([]);
   const [shares, setShares] = useState<Record<string, number>>({});
@@ -607,21 +644,21 @@ export function SimulateScreen() {
 
   if (load.phase === "signedout") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut.title")}>
         <p className="sim-note on-desk">
-          <Link href="/intake">Start with the interview</Link>, and your own numbers fill this in.
+          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
         </p>
       </Frame>
     );
   }
   if (load.phase === "error") {
     return (
-      <Frame title="The simulator didn't load.">
-        <p className="sim-note on-desk">Something went wrong on my side. Refresh to try again.</p>
+      <Frame title={tr("failed.title")}>
+        <p className="sim-note on-desk">{tr("failed.body")}</p>
       </Frame>
     );
   }
-  if (!ready) return <Frame title="Reading your numbers…" />;
+  if (!ready) return <Frame title={tr("loading")} />;
 
   const propose = async (r: OptionResult) => {
     setBusy(r.key);
@@ -638,20 +675,23 @@ export function SimulateScreen() {
       };
       const notice: Notice =
         res.status === 401
-          ? { ok: false, text: "Sign in to propose it." }
+          ? { ok: false, text: tr("notice.signIn") }
           : !res.ok
-            ? { ok: false, text: j.error ?? "That didn't go through. Try again." }
+            ? { ok: false, text: j.error ?? tr("notice.failed") }
             : j.proposal?.status === "blocked"
               ? {
                   ok: false,
-                  text: `I wrote it, and your own limit stopped it: ${j.proposal.blocked_by_limit ?? "a limit you set"}. It's in the restraint view.`,
+                  text: tr("notice.blocked", {
+                    limit: j.proposal.blocked_by_limit ?? tr("notice.aLimit"),
+                  }),
                 }
               : j.proposal
-                ? {
-                    ok: true,
-                    text: "Proposed, with this simulation attached. Nothing runs until you approve it in",
-                  }
-                : { ok: false, text: `Not proposed: ${j.skipped ?? "nothing to propose"}.` };
+                ? // Worded where it's shown: the sentence ends in the link to the queue.
+                  { ok: true, text: "" }
+                : {
+                    ok: false,
+                    text: tr("notice.notProposed", { why: j.skipped ?? tr("notice.nothing") }),
+                  };
       setNotices((n) => ({ ...n, [r.key]: notice }));
     } finally {
       setBusy(null);
@@ -660,14 +700,17 @@ export function SimulateScreen() {
 
   const aside = (
     <>
-      Nothing here spends or sends
+      {tr("aside.nothing")}
       <br />
-      As of {ready.inputs.as_of} · {ready.inputs.currency}
+      {tr("aside.asOf", {
+        date: asOfDay(ready.inputs.as_of, locale),
+        currency: ready.inputs.currency,
+      })}
     </>
   );
 
   return (
-    <Frame title={headline(ready.catalog, ready.inputs)} aside={aside}>
+    <Frame title={headline(ready.catalog, ready.inputs, tr)} aside={aside}>
       <div className="sim-stack">
         <Picker
           catalog={ready.catalog}
@@ -682,7 +725,7 @@ export function SimulateScreen() {
         {cmp ? (
           <>
             <SideBySide cmp={cmp} />
-            <SheetCard label="Profit, side by side" title="The spread of each option">
+            <SheetCard label={tr("profitCard.label")} title={tr("profitCard.title")}>
               <Whiskers results={cmp.options} />
             </SheetCard>
             <div className="sim-cards">
@@ -699,8 +742,7 @@ export function SimulateScreen() {
           </>
         ) : (
           <p className="sim-note on-desk">
-            Pick {picks.length === 0 ? `${SIM.min_options} options` : "one more option"} to compare
-            them side by side.
+            {picks.length === 0 ? tr("pickN", { count: SIM.min_options }) : tr("pickOne")}
           </p>
         )}
       </div>
