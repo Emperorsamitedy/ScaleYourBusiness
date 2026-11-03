@@ -15,11 +15,24 @@
 // rule-of-thumb share of orders lost per extra second, which is a published
 // pattern and never the owner's own number. With no traffic or conversion
 // of their own it says "not computed" and what is missing.
+//
+// L-4c: every word here is the "siteWords" catalogue's English
+// (lib/site/say.ts) — the stored finding is English, as before — and
+// lib/site/localize.ts runs siteFindings again over the stored measurements
+// with the reader's translator, so another language is said, not stored.
 
 import { format, money } from "../../core/money";
 import type { DiagnosisFinding, Severity } from "../../diagnosis/findings";
+import { intlNumber } from "../../i18n/format";
+import type { AppLocale } from "../../i18n/locales";
+import { intlTag } from "../../i18n/locales";
+import type { Tr } from "../../i18n/tr";
+import { fixed, joinSentences, plain, siteEnglish } from "../say";
+import { FIRST_SCREEN_CHARS } from "./links";
 import type { PageSpeedResult, Strategy } from "./pagespeed";
 import type { WalkResult } from "./walk";
+
+const EN = siteEnglish();
 
 export interface LocalizedText {
   en: string;
@@ -39,6 +52,8 @@ export type EuroFigure =
       window: string;
       sources: string[];
       assumed: string[];
+      /** Absent on audits stored before L-4c, whose formula stays in English. */
+      inputs?: EuroInputs;
     }
   | { computed: false; why: string };
 
@@ -128,8 +143,13 @@ const SEVERITY_RANK: Readonly<Record<Severity, number>> = {
   low: 3,
 };
 
-const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
-const mb = (bytes: number) => `${(bytes / 1_000_000).toFixed(1)} MB`;
+/** "2.5 s", "4.0 MB", "350 ms" — English as the code always wrote them; another language its own digits. */
+const seconds = (ms: number, tr: Tr, locale: AppLocale) =>
+  tr("finding.unit.s", { value: fixed(ms / 1000, 1, locale) });
+const mb = (bytes: number, tr: Tr, locale: AppLocale) =>
+  tr("finding.unit.mb", { value: fixed(bytes / 1_000_000, 1, locale) });
+const millis = (ms: number, tr: Tr, locale: AppLocale) =>
+  tr("finding.unit.ms", { value: plain(ms, locale) });
 
 /** "fernhill.example/products/mug" — the address as an owner would say it. */
 export function bareUrl(url: string): string {
@@ -141,7 +161,8 @@ export function bareUrl(url: string): string {
   }
 }
 
-const phone = (s: Strategy) => (s === "mobile" ? "on a phone" : "on a computer");
+const phone = (s: Strategy, tr: Tr) =>
+  tr(s === "mobile" ? "finding.on.mobile" : "finding.on.desktop");
 
 /* ── the € figure ── */
 
@@ -155,6 +176,8 @@ export interface OwnerSiteFigures {
   basis: "measured" | "stated";
   /** "the 28 days to 2026-10-26 (26 days measured)" or "your stated monthly figures". */
   window: string;
+  /** The day the figures are as of (YYYY-MM-DD), so the window can be said in another language (L-4c). */
+  as_of?: string;
   sources: string[];
 }
 
@@ -166,6 +189,65 @@ export const SPEED_RULE_OF_THUMB = {
   max_seconds: 3,
 } as const;
 
+/** The figures a computed € line was worked from, kept so its words can be said again (L-4c). */
+export interface EuroInputs {
+  sessions_per_month: number;
+  orders_per_month: number;
+  aov_minor: number;
+  /** Seconds over the good line that were counted. */
+  over_s: number;
+  basis: "measured" | "stated";
+  as_of: string | null;
+}
+
+function percent(n: number, decimals: number, locale: AppLocale): string {
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(n / 100);
+}
+
+/** "1–4%": the rule of thumb's range, as the code always wrote it in English. */
+function lostRange(locale: AppLocale): string {
+  const low = SPEED_RULE_OF_THUMB.lost_per_second.low * 100;
+  const high = SPEED_RULE_OF_THUMB.lost_per_second.high * 100;
+  return locale === "en"
+    ? `${low.toFixed(0)}–${high.toFixed(0)}%`
+    : `${intlNumber(low, 0, locale)}–${percent(high, 0, locale)}`;
+}
+
+/** Pure: how a computed € line was worked out, in words. */
+export function speedFormula(
+  inputs: EuroInputs,
+  currency: string,
+  tr: Tr = EN,
+  locale: AppLocale = "en",
+): string {
+  const conversion = (inputs.orders_per_month / inputs.sessions_per_month) * 100;
+  const visits = Math.round(inputs.sessions_per_month);
+  const aov = money(Math.round(inputs.aov_minor), currency);
+  return tr("euro.formula", {
+    visits: locale === "en" ? visits.toLocaleString("en") : intlNumber(visits, 0, locale),
+    conversion: locale === "en" ? `${conversion.toFixed(1)}%` : percent(conversion, 1, locale),
+    aov: locale === "en" ? format(aov) : format(aov, intlTag(locale)),
+    range: lostRange(locale),
+    over: seconds(inputs.over_s * 1000, tr, locale),
+  });
+}
+
+/** Pure: what every computed € line assumes, by name. */
+export function speedAssumed(tr: Tr = EN, locale: AppLocale = "en"): string[] {
+  return [
+    tr("euro.assumed.wait", {
+      good: seconds(SITE_THRESHOLDS.lcp_ms.good, tr, locale),
+      range: lostRange(locale),
+    }),
+    tr("euro.assumed.everyOrder"),
+    tr("euro.assumed.max", { max: SPEED_RULE_OF_THUMB.max_seconds }),
+  ];
+}
+
 /** Pure: the € at stake on a slow mobile load, or why it is not computed. */
 export function speedEuro(
   lcpMs: number,
@@ -174,44 +256,45 @@ export function speedEuro(
   if (figures === null || "missing" in figures) {
     return {
       computed: false,
-      why: `not computed — it needs your own site traffic and conversion${figures && "missing" in figures ? ` (${figures.missing})` : ""}`,
+      why: figures ? EN("euro.needsBecause", { missing: figures.missing }) : EN("euro.needs"),
     };
   }
   if (figures.sessions_per_month <= 0 || figures.orders_per_month <= 0 || figures.aov_minor <= 0) {
-    return { computed: false, why: "not computed — your traffic, orders or order value is zero" };
+    return { computed: false, why: EN("euro.zero") };
   }
   const over = Math.min(
     (lcpMs - SITE_THRESHOLDS.lcp_ms.good) / 1000,
     SPEED_RULE_OF_THUMB.max_seconds,
   );
-  if (over <= 0) return { computed: false, why: "not computed — the page is inside the good line" };
+  if (over <= 0) return { computed: false, why: EN("euro.inside") };
   const monthly =
     figures.sessions_per_month *
     (figures.orders_per_month / figures.sessions_per_month) *
     figures.aov_minor;
   const round = (minor: number) => Math.round(minor / 100) * 100;
-  const conversion = (figures.orders_per_month / figures.sessions_per_month) * 100;
+  const inputs: EuroInputs = {
+    sessions_per_month: figures.sessions_per_month,
+    orders_per_month: figures.orders_per_month,
+    aov_minor: figures.aov_minor,
+    over_s: over,
+    basis: figures.basis,
+    as_of: figures.as_of ?? null,
+  };
   return {
     computed: true,
     low_minor: round(monthly * SPEED_RULE_OF_THUMB.lost_per_second.low * over),
     high_minor: round(monthly * SPEED_RULE_OF_THUMB.lost_per_second.high * over),
     currency: figures.currency,
     per: "month",
-    formula: `${Math.round(figures.sessions_per_month).toLocaleString("en")} visits × ${conversion.toFixed(1)}% conversion × ${format(money(Math.round(figures.aov_minor), figures.currency))} order value × ${(SPEED_RULE_OF_THUMB.lost_per_second.low * 100).toFixed(0)}–${(SPEED_RULE_OF_THUMB.lost_per_second.high * 100).toFixed(0)}% per second × ${over.toFixed(1)} s over the good line`,
+    formula: speedFormula(inputs, figures.currency),
     window: figures.window,
     sources: figures.sources,
-    assumed: [
-      `ASSUMED: each second a phone waits past ${seconds(SITE_THRESHOLDS.lcp_ms.good)} loses ${(SPEED_RULE_OF_THUMB.lost_per_second.low * 100).toFixed(0)}–${(SPEED_RULE_OF_THUMB.lost_per_second.high * 100).toFixed(0)}% of orders — a rule of thumb from published retail studies, not measured on your site.`,
-      "ASSUMED: every order counted passes through this page's load; the share that comes on a phone isn't measured, so the high end overstates.",
-      `ASSUMED: at most ${SPEED_RULE_OF_THUMB.max_seconds} seconds are counted.`,
-    ],
+    assumed: speedAssumed(),
+    inputs,
   };
 }
 
-const NOT_SPEED: EuroFigure = {
-  computed: false,
-  why: "not computed — no rule of thumb links this to sales that SYB will put a number on",
-};
+const NOT_SPEED: EuroFigure = { computed: false, why: EN("euro.notSpeed") };
 
 /* ── from the measurements to findings ── */
 
@@ -243,23 +326,35 @@ function vitalOf(
   return lab === null ? null : { value: lab, basis: "lab" };
 }
 
-const BASIS_WORDS: Readonly<Record<FindingBasis, string>> = {
-  field: "real visitors in Chrome over the last 28 days (Google's field data, 75th percentile)",
-  field_origin:
-    "real visitors across your whole site over the last 28 days — Google had too few for this page alone",
-  lab: "one test load on Google's emulated device (lab data)",
-  page_read: "SYB reading the page's own HTML",
-};
+/** Google's field data: the last 28 days, at the 75th percentile. */
+const FIELD = { days: 28, percentile: 75 } as const;
+
+function basisWords(basis: FindingBasis, tr: Tr): string {
+  return tr(`finding.basis.${basis}`, { days: FIELD.days, pct: FIELD.percentile });
+}
 
 function clicksTo(walk: WalkResult, url: string): number {
   return walk.pages.find((p) => p.url === url)?.clicks ?? 0;
 }
 
-/** Pure: every measured finding of one audit, severest first. */
-export function siteFindings(input: AuditInput): SiteFinding[] {
+/** The status from which a link of the owner's own counts as broken. */
+const BROKEN_FROM = 400;
+
+/**
+ * Pure: every measured finding of one audit, severest first. Its words are
+ * English (what is stored); lib/site/localize.ts runs it again with a
+ * reader's translator over the stored measurements.
+ */
+export function siteFindings(
+  input: AuditInput,
+  tr: Tr = EN,
+  locale: AppLocale = "en",
+): SiteFinding[] {
   const out: SiteFinding[] = [];
   const { walk, speed } = input;
   const source = "pagespeed_insights v5";
+  const withPage = (title: string, url: string) =>
+    tr("finding.withPage", { title, page: bareUrl(url) });
 
   const vital = (
     code: SiteFindingCode,
@@ -298,37 +393,28 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
     const unit = metric === "cls" ? "score" : "ms";
     const shown =
       metric === "cls"
-        ? worst.value.toFixed(2)
+        ? fixed(worst.value, 2, locale)
         : metric === "lcp_ms"
-          ? seconds(worst.value)
-          : `${Math.round(worst.value)} ms`;
-    const words = {
-      lcp_ms: {
-        title: `The main content takes ${shown} to appear ${phone(strategy)}`,
-        what: "Largest Contentful Paint — how long until the biggest thing on the screen shows",
-      },
-      cls: {
-        title: `The page jumps around while it loads ${phone(strategy)} (shift ${shown})`,
-        what: "Cumulative Layout Shift — how much the layout moves under the visitor's thumb",
-      },
-      inp_ms: {
-        title: `The page takes ${shown} to answer a tap ${phone(strategy)}`,
-        what: "Interaction to Next Paint — the delay between a tap and the page answering it",
-      },
-      tbt_ms: {
-        title: `Scripts hold the page for ${shown} while it loads ${phone(strategy)}`,
-        what: "Total Blocking Time — measured in the lab in place of INP, which needs real visitors",
-      },
-    }[metric];
+          ? seconds(worst.value, tr, locale)
+          : millis(Math.round(worst.value), tr, locale);
+    const name = { lcp_ms: "lcp", cls: "cls", inp_ms: "inp", tbt_ms: "tbt" }[metric];
+    const on = phone(strategy, tr);
+    const vitalLine = tr("finding.detail.vital", {
+      what: tr(`finding.what.${name}`),
+      basis: basisWords(worst.basis, tr),
+    });
     out.push({
       id: `${code}:${strategy}:${worst.page_url}`,
       code,
       page_url: worst.page_url,
       kind: "measured",
       severity,
-      title: { en: `${words.title} — ${bareUrl(worst.page_url)}` },
+      title: { en: withPage(tr(`finding.title.${name}`, { shown, on }), worst.page_url) },
       detail: {
-        en: `${words.what}. Measured from ${BASIS_WORDS[worst.basis]}.${others > 0 ? ` ${others} other page${others === 1 ? " is" : "s are"} also outside the good line.` : ""}`,
+        en:
+          others > 0
+            ? joinSentences([vitalLine, tr("finding.detail.others", { count: others })], tr)
+            : vitalLine,
       },
       evidence: {
         screenshot: null,
@@ -342,10 +428,25 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
       },
       threshold:
         metric === "cls"
-          ? `good ≤ ${band.good}, poor > ${band.poor} (Google)`
+          ? tr("finding.threshold.google", {
+              good: plain(band.good, locale),
+              poor: plain(band.poor, locale),
+            })
           : metric === "tbt_ms"
-            ? `good ≤ ${band.good} ms, poor > ${band.poor} ms (Lighthouse)`
-            : `good ≤ ${metric === "lcp_ms" ? seconds(band.good) : `${band.good} ms`}, poor > ${metric === "lcp_ms" ? seconds(band.poor) : `${band.poor} ms`} (Google)`,
+            ? tr("finding.threshold.lighthouse", {
+                good: millis(band.good, tr, locale),
+                poor: millis(band.poor, tr, locale),
+              })
+            : tr("finding.threshold.google", {
+                good:
+                  metric === "lcp_ms"
+                    ? seconds(band.good, tr, locale)
+                    : millis(band.good, tr, locale),
+                poor:
+                  metric === "lcp_ms"
+                    ? seconds(band.poor, tr, locale)
+                    : millis(band.poor, tr, locale),
+              }),
       step_in_journey: clicksTo(walk, worst.page_url),
       euro:
         code === "lcp_slow" && strategy === "mobile"
@@ -378,10 +479,10 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
       page_url: heavy.page_url,
       kind: "measured",
       severity: bytes > SITE_THRESHOLDS.page_bytes.high ? "high" : "medium",
-      title: { en: `The page weighs ${mb(bytes)} — ${bareUrl(heavy.page_url)}` },
-      detail: {
-        en: `Every byte it loads, images and scripts included, from ${BASIS_WORDS.lab}. On a phone connection that is the visitor's wait and their data.`,
+      title: {
+        en: withPage(tr("finding.title.heavy", { size: mb(bytes, tr, locale) }), heavy.page_url),
       },
+      detail: { en: tr("finding.detail.heavy", { basis: basisWords("lab", tr) }) },
       evidence: {
         screenshot: null,
         metric: "page_bytes",
@@ -392,7 +493,10 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
         source,
         measured_at: heavy.provenance.measured_at,
       },
-      threshold: `heavy > ${mb(SITE_THRESHOLDS.page_bytes.medium)}, very heavy > ${mb(SITE_THRESHOLDS.page_bytes.high)} (SYB)`,
+      threshold: tr("finding.threshold.heavy", {
+        medium: mb(SITE_THRESHOLDS.page_bytes.medium, tr, locale),
+        high: mb(SITE_THRESHOLDS.page_bytes.high, tr, locale),
+      }),
       step_in_journey: clicksTo(walk, heavy.page_url),
       euro: NOT_SPEED,
     });
@@ -413,16 +517,16 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
       kind: "measured",
       severity: count >= SITE_THRESHOLDS.failures.medium ? "medium" : "low",
       title: {
-        en:
-          code === "tap_targets"
-            ? `${count} button${count === 1 ? " or link is" : "s or links are"} too small or too close to tap — ${bareUrl(worst.page_url)}`
-            : `${count} piece${count === 1 ? "" : "s"} of text ${count === 1 ? "is" : "are"} hard to read against ${count === 1 ? "its" : "their"} background — ${bareUrl(worst.page_url)}`,
+        en: withPage(
+          tr(code === "tap_targets" ? "finding.title.tap" : "finding.title.contrast", { count }),
+          worst.page_url,
+        ),
       },
       detail: {
         en:
           code === "tap_targets"
-            ? `Google's tap-target check on its emulated phone. A thumb that hits the wrong link is a visitor who gives up.`
-            : `Google's colour-contrast check (the accessibility standard's minimum), ${phone(strategy)}.`,
+            ? tr("finding.detail.tap")
+            : tr("finding.detail.contrast", { on: phone(strategy, tr) }),
       },
       evidence: {
         screenshot: null,
@@ -434,7 +538,9 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
         source,
         measured_at: worst.provenance.measured_at,
       },
-      threshold: `any is a finding; ${SITE_THRESHOLDS.failures.medium} or more is medium (SYB)`,
+      threshold: tr("finding.threshold.failures", {
+        medium: plain(SITE_THRESHOLDS.failures.medium, locale),
+      }),
       step_in_journey: clicksTo(walk, worst.page_url),
       euro: NOT_SPEED,
     });
@@ -449,25 +555,24 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
     const limits = SITE_THRESHOLDS.clicks[path.kind];
     const entry = path.kind === "shop" ? "checkout" : "booking";
     if (path.clicks === null) {
+      // The "Counted by following…" lines are how the count was made, not why it failed.
+      const counted = new Set([tr("walk.note.counted"), tr("walk.note.booking")]);
+      const why = path.notes.filter((n) => !n.startsWith("Counted") && !counted.has(n));
       out.push({
         id: `path_missing:${walk.home}`,
         code: "path_missing",
         page_url: walk.home,
         kind: "measured",
         severity: "high",
-        title: { en: `I couldn't follow your site's links all the way to ${entry}` },
-        detail: {
-          en:
-            path.notes.filter((n) => !n.startsWith("Counted")).join(" ") ||
-            `No ${entry} entry was reachable by links.`,
-        },
+        title: { en: tr("finding.title.pathMissing", { entry }) },
+        detail: { en: joinSentences(why, tr) || tr("finding.detail.noEntry", { entry }) },
         evidence: {
           screenshot: null,
           basis: "page_read",
           source: pageRead,
           measured_at: input.measured_at,
         },
-        threshold: `a ${entry} entry reachable by links from home (SYB)`,
+        threshold: tr("finding.threshold.entry", { entry }),
         step_in_journey: 0,
         euro: NOT_SPEED,
       });
@@ -478,8 +583,10 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
         page_url: walk.home,
         kind: "measured",
         severity: path.clicks > limits.medium ? "high" : "medium",
-        title: { en: `It takes ${path.clicks} clicks from your home page to ${entry}` },
-        detail: { en: `${path.steps.map((s) => s.label).join(" → ")}.` },
+        title: { en: tr("finding.title.pathLong", { count: path.clicks, entry }) },
+        detail: {
+          en: tr("finding.detail.path", { steps: path.steps.map((s) => s.label).join(" → ") }),
+        },
         evidence: {
           screenshot: null,
           metric: "clicks_to_entry",
@@ -489,7 +596,10 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
           source: pageRead,
           measured_at: input.measured_at,
         },
-        threshold: `fine ≤ ${limits.ok}, long > ${limits.ok}, very long > ${limits.medium} clicks (SYB)`,
+        threshold: tr("finding.threshold.clicks", {
+          ok: plain(limits.ok, locale),
+          medium: limits.medium,
+        }),
         step_in_journey: path.clicks,
         euro: NOT_SPEED,
       });
@@ -505,10 +615,8 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
       page_url: page.url,
       kind: "measured",
       severity: page.role === "product" ? "medium" : "low",
-      title: { en: `No price on the first screen of “${page.label}” — ${bareUrl(page.url)}` },
-      detail: {
-        en: `Read from the page's own text after the header and menu: no price in what a phone shows first (a heuristic — SYB doesn't render the page).`,
-      },
+      title: { en: withPage(tr("finding.title.price", { label: page.label }), page.url) },
+      detail: { en: tr("finding.detail.price") },
       evidence: {
         screenshot: null,
         metric: "price_first_screen",
@@ -518,8 +626,7 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
         source: pageRead,
         measured_at: input.measured_at,
       },
-      threshold:
-        "a price within the first screen of a product or service page (SYB heuristic: the first 600 characters of the page's own text)",
+      threshold: tr("finding.threshold.price", { chars: FIRST_SCREEN_CHARS }),
       step_in_journey: page.clicks,
       euro: NOT_SPEED,
     });
@@ -536,11 +643,12 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
       kind: "measured",
       severity: biggest.fields >= SITE_THRESHOLDS.form_fields.high ? "high" : "medium",
       title: {
-        en: `The ${page.role} form asks for ${biggest.fields} things — ${bareUrl(page.url)}`,
+        en: withPage(
+          tr("finding.title.form", { role: page.role, count: biggest.fields }),
+          page.url,
+        ),
       },
-      detail: {
-        en: `${biggest.required} of them required. Counted from the page's HTML; the form was not sent.`,
-      },
+      detail: { en: tr("finding.detail.form", { required: biggest.required }) },
       evidence: {
         screenshot: null,
         metric: "form_fields",
@@ -550,7 +658,10 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
         source: pageRead,
         measured_at: input.measured_at,
       },
-      threshold: `${SITE_THRESHOLDS.form_fields.medium} or more fields is long, ${SITE_THRESHOLDS.form_fields.high} or more very long (SYB)`,
+      threshold: tr("finding.threshold.form", {
+        medium: plain(SITE_THRESHOLDS.form_fields.medium, locale),
+        high: plain(SITE_THRESHOLDS.form_fields.high, locale),
+      }),
       step_in_journey: page.clicks,
       euro: NOT_SPEED,
     });
@@ -565,12 +676,14 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
       kind: "measured",
       severity: link.on_path ? "high" : "medium",
       title: {
-        en: `A link on ${bareUrl(link.found_on)} is broken: ${bareUrl(link.url)} ${link.reason}`,
+        en: tr("finding.title.broken", {
+          page: bareUrl(link.found_on),
+          url: bareUrl(link.url),
+          reason: link.reason,
+        }),
       },
       detail: {
-        en: link.on_path
-          ? "It sits on the way to buying, where a dead end costs a sale."
-          : "A visitor who clicks it hits a dead end.",
+        en: tr(link.on_path ? "finding.detail.brokenOnPath" : "finding.detail.broken"),
       },
       evidence: {
         screenshot: null,
@@ -581,7 +694,7 @@ export function siteFindings(input: AuditInput): SiteFinding[] {
         source: pageRead,
         measured_at: input.measured_at,
       },
-      threshold: "any link on your own site answering 400 or above, or not loading (SYB)",
+      threshold: tr("finding.threshold.broken", { status: String(BROKEN_FROM) }),
       step_in_journey: clicksTo(walk, link.found_on),
       euro: NOT_SPEED,
     });

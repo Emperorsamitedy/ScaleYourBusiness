@@ -5605,5 +5605,390 @@
       "emailLink": "Email a sign-in link to {email}",
       "signInJoin": "Sign in and join"
     }
+  },
+  "siteWords": {
+    "join": "{first} {then}",
+    "check": {
+      "opening_hours": "Opening hours",
+      "prices": "Prices",
+      "menu": "Menu",
+      "location_map": "Address and map",
+      "parking": "Parking",
+      "phone_contact": "A phone number",
+      "contact_email": "An email address",
+      "booking": "Booking or reservations",
+      "reviews": "Reviews or testimonials",
+      "events": "Events and what's on",
+      "photos": "Photos of the place or work",
+      "dietary_options": "Dietary options",
+      "delivery": "Delivery and its cost",
+      "returns_policy": "Returns policy",
+      "payment_methods": "Payment methods",
+      "service_area": "The area served",
+      "quote_request": "A way to get a quote",
+      "portfolio": "Past work",
+      "credentials": "Qualifications and licences",
+      "guarantee": "A guarantee",
+      "faq": "Answers to common questions",
+      "team": "Who you'll deal with",
+      "stock_availability": "Whether it's in stock"
+    },
+    "platform": {
+      "line": {
+        "api": "{platform} — changes can be applied for you once you give it permission to make changes — a separate step, on its own screen.",
+        "partial": "{platform} — some elements can be changed programmatically, not all; anything beyond that comes as instructions.",
+        "manual": "{platform} can't be edited programmatically — you'll get the exact change rendered before/after, plus step-by-step instructions for your editor. That's the honest version of this feature for your platform.",
+        "unknown": "I can't tell what serves this site — I'll show you the change and the diff, and applying it stays manual until I can."
+      },
+      "editable": {
+        "api": "api",
+        "partial": "partial",
+        "manual": "manual",
+        "unknown": "unknown"
+      },
+      "custom": "custom",
+      "marker": {
+        "shopify": "Shopify CDN/theme object",
+        "woocommerce": "WooCommerce assets",
+        "wix": "Wix static assets",
+        "squarespace": "Squarespace assets",
+        "webflow": "Webflow site attributes",
+        "wordpress": "WordPress content paths",
+        "none": "no platform markers found"
+      }
+    },
+    "change": {
+      "summary": "On {host}: “{find}” → “{replace}”",
+      "previewTooLarge": "the page is too large to carry a live preview — the diff above is exact, the render is not shown",
+      "manual": {
+        "open": "Open {url} in your {editor} editor.",
+        "find": "Find the text: “{find}”",
+        "replace": "Replace it with: “{replace}”",
+        "compare": "Use the editor's preview to compare against the before/after shown here.",
+        "publish": "Publish when it matches the after.",
+        "wix": "In the editor, click the text element itself — Wix edits in place.",
+        "squarespace": "Edit the page section containing the text (hover → Edit)."
+      },
+      "rationale": {
+        "manual": "Your platform can't be edited programmatically, so approving this gives you the exact rendered change and the steps — nothing is applied for you.",
+        "engine": "Approving queues the change; applying goes through the engine with the page's previous state stored forever, one click from restored."
+      },
+      "assumption": {
+        "platform": "The page is served by {platform} ({marker})",
+        "baseline": "Baseline load {ms}ms at proposal time — the auto-rollback reference"
+      },
+      "case": {
+        "base": "The page says the new thing; nothing else about it changes.",
+        "downside": "The page errors or slows hard after the change — it rolls back automatically and you see why.",
+        "upside": "The readback can compare the weeks either side, once measurement is connected.",
+        "breakeven": "no spend — one line of copy"
+      },
+      "reverse": {
+        "manual": "You change it back in your editor — the before render here is the reference.",
+        "engine": "One click: the page's previous state is stored permanently, not for a window."
+      }
+    },
+    "error": {
+      "findEmpty": "say what text to find",
+      "replaceEmpty": "say what it should become",
+      "nothing": "that changes nothing",
+      "moneyPath": "that page is a money surface — checkout, cart, payment and billing pages are untouchable at any approval level (rule {rule})",
+      "pageStatus": "the page answered {status} — nothing to change there",
+      "notFound": "I can't find “{find}” on that page — copy it exactly as it appears",
+      "notUnique": "“{find}” appears {count, plural, one {# time} other {# times}} on that page — include enough surrounding text to make it unique",
+      "moneyContext": "that text sits inside a checkout or payment area of the page — money surfaces are untouchable, so this cannot even be proposed (rule {rule})",
+      "noProposal": "no such proposal",
+      "notSite": "not a site proposal",
+      "manualApply": "{platform} can't be edited programmatically — this change is applied by you, with the instructions on the card",
+      "noWriter": "applying to {platform} needs its write access connected — you will give that permission separately, on its own screen. Until then this card, with its before/after, is the reference for changing it yourself",
+      "driftGone": "the page changed since you approved — the text isn't there any more; re-propose against today's page",
+      "driftNotUnique": "the page changed since you approved — the text is no longer unique; re-propose against today's page",
+      "signedIn": "changing a live site needs you signed in",
+      "proposalId": "proposal_id is required",
+      "executionId": "execution_id is required",
+      "fields": "url, find and replace are required",
+      "auditSignedIn": "auditing your site needs you signed in"
+    },
+    "fetch": {
+      "scheme": "only http(s) sites can be read",
+      "credentials": "credentials don't belong in a site URL",
+      "noResolve": "\"{host}\" doesn't resolve — is the address right?",
+      "private": "that address points inside a private network — refusing to fetch it",
+      "notAddress": "that doesn't look like a web address",
+      "ports": "only http(s) on the standard ports {http} and {https} can be read",
+      "redirects": "too many redirects — the site never settled"
+    },
+    "audit": {
+      "noSite": "There's no website in your profile to audit — add it to your fact sheet.",
+      "badSite": "The website in your profile doesn't look like a web address.",
+      "cooldown": "The site was audited less than an hour ago — the next run opens at {time} UTC.",
+      "running": "An audit of this site is already running.",
+      "homeUnreadable": "Your home page couldn't be read: {reason}",
+      "homeUnreadableBare": "Your home page couldn't be read",
+      "failed": "the audit failed"
+    },
+    "walk": {
+      "homeStatus": "the home page answered {status}",
+      "homeUnread": "the home page couldn't be read",
+      "unread": "couldn't be read",
+      "unloaded": "couldn't be loaded",
+      "answers": "answers {status}",
+      "home": "Home",
+      "addToCart": "Add to cart (button seen, not pressed)",
+      "checkout": "Checkout (entry seen, not opened)",
+      "external": "{text} (on {host}, not opened)",
+      "book": "Book",
+      "note": {
+        "counted": "Counted by following the site's own links from the home page; nothing was added to a cart and checkout was never opened.",
+        "noAddToCart": "I found no Add to cart button on “{label}” in the page itself — it may be drawn by a script I don't run.",
+        "assumedCart": "ASSUMED: Add to cart takes the buyer to the cart, or opens a cart drawer, with a checkout button — so checkout is one click after it.",
+        "cartEmpty": "The cart page, read empty, showed no checkout button in its own HTML — it may appear once something is in it.",
+        "booking": "Counted by following the site's own links from the home page; no booking was made and no form was sent.",
+        "external": "The booking itself happens on another company's site, which the audit doesn't read; the count stops at its link.",
+        "cartOnly": "I reached the cart but no product page from the home page's links, so the clicks to buy can't be counted.",
+        "contact": "No shop or booking page was reachable from the home page's links; the path a customer can take ends at contact.",
+        "checkoutOnly": "A checkout link exists but no product, cart or booking page was reachable by links before it.",
+        "none": "No product, cart, booking or contact page was reachable from the home page's links."
+      }
+    },
+    "pagespeed": {
+      "noMeasurement": "Google returned no page measurement",
+      "runtime": "Google couldn't load the page ({code})",
+      "quotaWeek": "this week's PageSpeed calls for the site are used",
+      "unreachable": "Google's PageSpeed service could not be reached",
+      "quotaKeyed": "Google's PageSpeed quota for SYB's key is spent for now",
+      "quotaShared": "Google's shared PageSpeed quota is spent for now (no PAGESPEED_API_KEY is set)",
+      "couldntLoad": "Google couldn't load the page to measure it",
+      "refused": "Google refused to measure the page (status {status})",
+      "badKey": "Google refused the PageSpeed key (status {status}) — check that the key allows the PageSpeed Insights API",
+      "failed": "Google's PageSpeed service failed (status {status})",
+      "failedBare": "Google's PageSpeed service failed",
+      "noKey": "Page speed wasn't measured: Google's PageSpeed service needs a free API key (PAGESPEED_API_KEY) and refuses every request without one. The path to buying and the broken links were still read.",
+      "stopped": "{reason} — {made} of {planned} measurements made.",
+      "weekUsed": "This week's {cap} PageSpeed calls for the site are used, so speed wasn't measured this run.",
+      "short": "This week's PageSpeed calls for the site ran short: {made} of {planned} measurements made, phones first."
+    },
+    "finding": {
+      "withPage": "{title} — {page}",
+      "on": {
+        "mobile": "on a phone",
+        "desktop": "on a computer"
+      },
+      "unit": {
+        "s": "{value} s",
+        "ms": "{value} ms",
+        "mb": "{value} MB"
+      },
+      "title": {
+        "lcp": "The main content takes {shown} to appear {on}",
+        "cls": "The page jumps around while it loads {on} (shift {shown})",
+        "inp": "The page takes {shown} to answer a tap {on}",
+        "tbt": "Scripts hold the page for {shown} while it loads {on}",
+        "heavy": "The page weighs {size}",
+        "tap": "{count, plural, one {# button or link is too small or too close to tap} other {# buttons or links are too small or too close to tap}}",
+        "contrast": "{count, plural, one {# piece of text is hard to read against its background} other {# pieces of text are hard to read against their background}}",
+        "pathMissing": "I couldn't follow your site's links all the way to {entry, select, checkout {checkout} other {booking}}",
+        "pathLong": "It takes {count, plural, one {# click} other {# clicks}} from your home page to {entry, select, checkout {checkout} other {booking}}",
+        "price": "No price on the first screen of “{label}”",
+        "form": "The {role, select, contact {contact} booking {booking} other {{role}}} form asks for {count, plural, one {# thing} other {# things}}",
+        "broken": "A link on {page} is broken: {url} {reason}"
+      },
+      "what": {
+        "lcp": "Largest Contentful Paint — how long until the biggest thing on the screen shows",
+        "cls": "Cumulative Layout Shift — how much the layout moves under the visitor's thumb",
+        "inp": "Interaction to Next Paint — the delay between a tap and the page answering it",
+        "tbt": "Total Blocking Time — measured in the lab in place of INP, which needs real visitors"
+      },
+      "basis": {
+        "field": "real visitors in Chrome over the last {days, plural, one {# day} other {# days}} (Google's field data, {pct}th percentile)",
+        "field_origin": "real visitors across your whole site over the last {days, plural, one {# day} other {# days}} — Google had too few for this page alone",
+        "lab": "one test load on Google's emulated device (lab data)",
+        "page_read": "SYB reading the page's own HTML"
+      },
+      "detail": {
+        "vital": "{what}. Measured from {basis}.",
+        "others": "{count, plural, one {# other page is also outside the good line.} other {# other pages are also outside the good line.}}",
+        "heavy": "Every byte it loads, images and scripts included, from {basis}. On a phone connection that is the visitor's wait and their data.",
+        "tap": "Google's tap-target check on its emulated phone. A thumb that hits the wrong link is a visitor who gives up.",
+        "contrast": "Google's colour-contrast check (the accessibility standard's minimum), {on}.",
+        "noEntry": "No {entry, select, checkout {checkout} other {booking}} entry was reachable by links.",
+        "path": "{steps}.",
+        "price": "Read from the page's own text after the header and menu: no price in what a phone shows first (a heuristic — SYB doesn't render the page).",
+        "form": "{required, plural, one {# of them required.} other {# of them required.}} Counted from the page's HTML; the form was not sent.",
+        "brokenOnPath": "It sits on the way to buying, where a dead end costs a sale.",
+        "broken": "A visitor who clicks it hits a dead end."
+      },
+      "threshold": {
+        "google": "good ≤ {good}, poor > {poor} (Google)",
+        "lighthouse": "good ≤ {good}, poor > {poor} (Lighthouse)",
+        "heavy": "heavy > {medium}, very heavy > {high} (SYB)",
+        "failures": "any is a finding; {medium} or more is medium (SYB)",
+        "entry": "a {entry, select, checkout {checkout} other {booking}} entry reachable by links from home (SYB)",
+        "clicks": "fine ≤ {ok}, long > {ok}, very long > {medium, plural, one {# click} other {# clicks}} (SYB)",
+        "price": "a price within the first screen of a product or service page (SYB heuristic: the first {chars, plural, one {# character} other {# characters}} of the page's own text)",
+        "form": "{medium} or more fields is long, {high} or more very long (SYB)",
+        "broken": "any link on your own site answering {status} or above, or not loading (SYB)"
+      }
+    },
+    "euro": {
+      "needs": "not computed — it needs your own site traffic and conversion",
+      "needsBecause": "not computed — it needs your own site traffic and conversion ({missing})",
+      "zero": "not computed — your traffic, orders or order value is zero",
+      "inside": "not computed — the page is inside the good line",
+      "notSpeed": "not computed — no rule of thumb links this to sales that SYB will put a number on",
+      "missing": {
+        "visits": "monthly website visits",
+        "orders": "monthly orders",
+        "revenue": "monthly revenue",
+        "list": "no {list} of your own",
+        "zero": "your monthly orders are zero"
+      },
+      "formula": "{visits} visits × {conversion} conversion × {aov} order value × {range} per second × {over} over the good line",
+      "window": {
+        "measured": "your connectors' last month, as of {day}",
+        "stated": "your own monthly figures, as of {day}"
+      },
+      "assumed": {
+        "wait": "ASSUMED: each second a phone waits past {good} loses {range} of orders — a rule of thumb from published retail studies, not measured on your site.",
+        "everyOrder": "ASSUMED: every order counted passes through this page's load; the share that comes on a phone isn't measured, so the high end overstates.",
+        "max": "ASSUMED: at most {max, plural, one {# second is} other {# seconds are}} counted."
+      }
+    }
+  },
+  "teamWords": {
+    "untitledRole": "Untitled role",
+    "source": {
+      "square": "Square bookings",
+      "export": "your bookings export"
+    },
+    "run": {
+      "mon": "Mondays {from}–{to}",
+      "tue": "Tuesdays {from}–{to}",
+      "wed": "Wednesdays {from}–{to}",
+      "thu": "Thursdays {from}–{to}",
+      "fri": "Fridays {from}–{to}",
+      "sat": "Saturdays {from}–{to}",
+      "sun": "Sundays {from}–{to}"
+    },
+    "days": {
+      "mon": "Mondays",
+      "tue": "Tuesdays",
+      "wed": "Wednesdays",
+      "thu": "Thursdays",
+      "fri": "Fridays",
+      "sat": "Saturdays",
+      "sun": "Sundays"
+    },
+    "daysSpan": "{from} to {to}",
+    "rangeCount": {
+      "mon": "{days, plural, one {# Monday} other {# Mondays}}",
+      "tue": "{days, plural, one {# Tuesday} other {# Tuesdays}}",
+      "wed": "{days, plural, one {# Wednesday} other {# Wednesdays}}",
+      "thu": "{days, plural, one {# Thursday} other {# Thursdays}}",
+      "fri": "{days, plural, one {# Friday} other {# Fridays}}",
+      "sat": "{days, plural, one {# Saturday} other {# Saturdays}}",
+      "sun": "{days, plural, one {# Sunday} other {# Sundays}}"
+    },
+    "range": {
+      "same": "({pct} on every day of the middle half of the {count} read)",
+      "spread": "({range} on the middle half of the {count} read)"
+    },
+    "appts": "{n, plural, one {{v} appointment} other {{v} appointments}}",
+    "finding": {
+      "booked": "{run} ran {pct} booked",
+      "took": "{run} took {pct} of the day's busiest hour",
+      "line": "{range}; {reason}."
+    },
+    "reason": {
+      "perRole": "one {role} covers about {appts} an hour at your stated {capacity} a week",
+      "perHour": "your stated {capacity} a week is about {appts} an hour",
+      "onAverage": "about {n, plural, one {{v} person is} other {{v} people are}} on in an average open hour, by the role hours you gave",
+      "open": "the hours are open"
+    },
+    "note": {
+      "shortRole": "{run}: demand ran past what your stated capacity covers. If you want to take more of it, this is where another {role} would add cover first.",
+      "shortHands": "{run}: demand ran past what your stated capacity covers. If you want to take more of it, this is where another pair of hands would add cover first.",
+      "quiet": "{run}: the quietest open stretch. If you ever trim the rota, this is where it would cost the least demand.",
+      "quietTakings": "{run}: the quietest open stretch by takings. If you ever trim the rota, this is where it would cost the least demand."
+    },
+    "headline": {
+      "top": "{words}; {reason}.",
+      "quietTop": "No open hour runs over your stated capacity; {words}.",
+      "none": "No open hour runs over your stated capacity or sits quiet.",
+      "noneTakings": "No open hour sits quiet against the day's busiest."
+    },
+    "refused": {
+      "noDemand": {
+        "headline": "Nothing measures demand by the hour yet.",
+        "reason": "Cover by the hour needs your bookings (an export, or Square) or hourly sales from a connected till, payment account or shop.",
+        "can": "list the roles you gave me and their hours"
+      },
+      "fewBookings": {
+        "headline": "{history, plural, one {# day} other {# days}} of bookings so far; cover by the hour needs {needed}.",
+        "reason": "Your bookings run from {from} to {to}. Four of each weekday is the least I'll band an hour on.",
+        "can": "count the appointments in the {history, plural, one {# day there is} other {# days there are}}"
+      },
+      "noCapacity": {
+        "headline": "Your weekly capacity isn't stated, so I can't say when demand runs over it.",
+        "reason": "You haven't told me how many appointments you can take a week (question {question}), and I won't assume one.",
+        "can": "count the appointments by the hour"
+      },
+      "noTimes": {
+        "headline": "Your bookings have no times, so they can't be read by the hour.",
+        "reason": "None of the {n, plural, one {{count} appointment} other {{count} appointments}} from {from} to {to} says when it started."
+      },
+      "byDay": "count appointments by the day",
+      "noHours": {
+        "headline": "No open hours could be read from your bookings.",
+        "reason": "No weekday had appointments on enough of its days to say when you are open."
+      },
+      "fewSales": {
+        "headline": "{history, plural, one {# day} other {# days}} of hourly sales so far; cover by the hour needs {needed}.",
+        "reasonNone": "No day of hourly sales is measured yet.",
+        "reason": "Hourly sales run from {from} to {to}. Four of each weekday is the least I'll band an hour on."
+      },
+      "salesOnHours": "show the hourly sales there are on Trading hours",
+      "noSalesHours": {
+        "headline": "No open hours could be read from your sales.",
+        "reason": "No weekday had sales on enough of its days to say when you are open."
+      }
+    },
+    "cannot": {
+      "overCapacity": "say which hours run over what your stated capacity covers",
+      "quiet": "say which open hours are quiet",
+      "borrow": "borrow a pattern from other businesses like yours"
+    },
+    "limits": {
+      "rolesOnly": "This reads roles and hours only. It never looks at who worked when, and it says nothing about any person.",
+      "yoursToWeigh": "The notes are for you to weigh. Nothing changes a rota, a shift or anyone's hours."
+    },
+    "season": {
+      "unread": "The busy season isn't read yet: {reason}.",
+      "reasonNoData": "nothing is measured by the day yet",
+      "reasonTooLittle": "{complete} of the {needed} complete weeks a season needs, ready around {day}",
+      "noneAhead": "No busy stretch in the next eight weeks, going by the same weeks last year.",
+      "headUnderWay": "Your busy stretch is under way: last year it ran {index}× ({range}) your normal week.",
+      "headStarts": "Your busy stretch starts on {day}: last year it ran {index}× ({range}) your normal week.",
+      "atLeast": "at least {low}×",
+      "between": "{low}–{high}×",
+      "noFurther": "{head} Even at its low end, no further hour would run past your stated capacity.",
+      "further": "{head} At its low end, these hours would also run past your stated capacity: {hours}."
+    },
+    "listSep": "; ",
+    "assumed": {
+      "capacity": "capacity is the same in every open hour: your stated {n, plural, one {{capacity} appointment} other {{capacity} appointments}} a week ÷ {hours, plural, one {# open hour} other {# open hours}} = {appts} an hour",
+      "startHour": "an appointment counts in the hour it starts",
+      "footprintBookings": "opening hours for {days} aren't stated, so they are read from when appointments start (on at least {pct} of those days)",
+      "evenSpread": "role hours are spread evenly over the open hours: I don't know the rota",
+      "allServe": "every role you listed counts toward serving clients",
+      "takings": "takings stand in for demand: a sale in an hour is a customer served in it",
+      "footprintTakings": "opening hours for {days} aren't stated, so they are read from when sales come in"
+    },
+    "notes": {
+      "noRolesBookings": "No roles from the interview (who works in the business, and their hours), so this is demand against capacity only.",
+      "unplaced": "{n, plural, one {{count} appointment had no start time and isn't placed in an hour.} other {{count} appointments had no start time and aren't placed in an hour.}}",
+      "takingsNoCapacity": "Takings can't show when demand runs past your capacity: capacity isn't counted in money. A bookings export can.",
+      "noRolesTakings": "No roles from the interview (who works in the business, and their hours), so this is demand only."
+    }
   }
 }

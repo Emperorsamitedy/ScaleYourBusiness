@@ -13,8 +13,9 @@
 // catalogue; weekdays, dates, percentages and figures in the reader's
 // locale. The reading's sentences (headline, reasons, findings, notes,
 // limits, season, assumptions, the demand source) are built in
-// lib/team/coverage from the data and stay English until L-4; role names
-// are the owner's own answers.
+// lib/team/coverage from the data, in the request's language since L-4c
+// (the "teamWords" catalogue, through /api/team); role names are the
+// owner's own answers.
 
 import "../../app/team.css";
 import { useEffect, useState } from "react";
@@ -378,9 +379,7 @@ function OkView({ r }: { r: Ok }) {
                         {tr(`band.${f.band}`)}
                       </span>
                     </div>
-                    <p className="tm-read-sub">
-                      {f.range_words}; {f.reason}.
-                    </p>
+                    <p className="tm-read-sub">{f.line}</p>
                   </li>
                 ))}
               </ul>

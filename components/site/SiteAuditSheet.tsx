@@ -13,7 +13,9 @@
 // catalogue; figures and dates in the reader's locale, money in the
 // finding's own currency. A finding's title, detail, threshold, formula,
 // window and assumptions, the path's step labels and notes, PageSpeed's
-// note and a page's speed error are what lib/site/audit built (L-4).
+// note and a page's speed error come from the server already in the
+// reader's language (L-4c, lib/site/localize.ts); a link's own text is the
+// site's.
 
 import { useState } from "react";
 import type { SiteAuditView } from "../../lib/site/audit/view";

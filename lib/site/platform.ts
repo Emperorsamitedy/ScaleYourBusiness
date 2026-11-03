@@ -11,6 +11,12 @@
 // Detection is deterministic sniffing over the fetched page — markers
 // each platform ships on every page. Pure function; the network lives
 // in fetch.ts behind its SSRF guard.
+//
+// L-4c: the marker labels and the owner-facing lines are the "siteWords"
+// catalogue's English (lib/site/say.ts); a translator says them again.
+
+import type { Tr } from "../i18n/tr";
+import { siteEnglish } from "./say";
 
 export type Platform =
   "shopify" | "woocommerce" | "wordpress" | "wix" | "squarespace" | "webflow" | "custom";
@@ -41,30 +47,36 @@ interface Marker {
   label: string;
 }
 
+const EN = siteEnglish();
+
 /** Order matters: WooCommerce is WordPress + more, so it checks first. */
 const MARKERS: readonly Marker[] = [
   {
     platform: "shopify",
     pattern: /cdn\.shopify\.com|Shopify\.theme|\/cdn\/shop\//i,
-    label: "Shopify CDN/theme object",
+    label: EN("platform.marker.shopify"),
   },
-  { platform: "woocommerce", pattern: /woocommerce/i, label: "WooCommerce assets" },
+  { platform: "woocommerce", pattern: /woocommerce/i, label: EN("platform.marker.woocommerce") },
   {
     platform: "wix",
     pattern: /static\.parastorage\.com|wix\.com|X-Wix-/i,
-    label: "Wix static assets",
+    label: EN("platform.marker.wix"),
   },
   {
     platform: "squarespace",
     pattern: /squarespace\.com|static1\.squarespace|This is Squarespace/i,
-    label: "Squarespace assets",
+    label: EN("platform.marker.squarespace"),
   },
   {
     platform: "webflow",
     pattern: /assets(-global)?\.website-files\.com|data-wf-site/i,
-    label: "Webflow site attributes",
+    label: EN("platform.marker.webflow"),
   },
-  { platform: "wordpress", pattern: /wp-content|wp-includes/i, label: "WordPress content paths" },
+  {
+    platform: "wordpress",
+    pattern: /wp-content|wp-includes/i,
+    label: EN("platform.marker.wordpress"),
+  },
 ];
 
 /** Detect from page HTML and response headers. */
@@ -85,19 +97,24 @@ export function detectPlatform(
       };
     }
   }
-  return { platform: "custom", editable: "unknown", marker: "no platform markers found" };
+  return { platform: "custom", editable: "unknown", marker: EN("platform.marker.none") };
 }
 
-/** The owner-facing sentence for each editability class. */
-export function editabilityLine(verdict: PlatformVerdict): string {
+/** The owner-facing sentence for each editability class — English unless a translator is given. */
+export function editabilityLine(verdict: PlatformVerdict, tr: Tr = EN): string {
   switch (verdict.editable) {
     case "api":
-      return `${verdict.platform} — changes can be applied for you once you give it permission to make changes — a separate step, on its own screen.`;
     case "partial":
-      return `${verdict.platform} — some elements can be changed programmatically, not all; anything beyond that comes as instructions.`;
     case "manual":
-      return `${verdict.platform} can't be edited programmatically — you'll get the exact change rendered before/after, plus step-by-step instructions for your editor. That's the honest version of this feature for your platform.`;
+      return tr(`platform.line.${verdict.editable}`, { platform: verdict.platform });
     default:
-      return "I can't tell what serves this site — I'll show you the change and the diff, and applying it stays manual until I can.";
+      return tr("platform.line.unknown");
   }
+}
+
+/** The marker that decided a verdict, in the reader's language when it is one of SYB's own. */
+export function markerWords(verdict: PlatformVerdict, tr: Tr): string {
+  const key =
+    verdict.platform === "custom" ? "platform.marker.none" : `platform.marker.${verdict.platform}`;
+  return EN(key) === verdict.marker ? tr(key) : verdict.marker;
 }

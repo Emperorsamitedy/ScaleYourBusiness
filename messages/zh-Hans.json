@@ -5605,5 +5605,390 @@
       "emailLink": "把登录链接发送到 {email}",
       "signInJoin": "登录并加入"
     }
+  },
+  "teamWords": {
+    "untitledRole": "未命名岗位",
+    "source": {
+      "square": "Square 预约",
+      "export": "您导出的预约文件"
+    },
+    "run": {
+      "mon": "每周一 {from}–{to}",
+      "tue": "每周二 {from}–{to}",
+      "wed": "每周三 {from}–{to}",
+      "thu": "每周四 {from}–{to}",
+      "fri": "每周五 {from}–{to}",
+      "sat": "每周六 {from}–{to}",
+      "sun": "每周日 {from}–{to}"
+    },
+    "days": {
+      "mon": "周一",
+      "tue": "周二",
+      "wed": "周三",
+      "thu": "周四",
+      "fri": "周五",
+      "sat": "周六",
+      "sun": "周日"
+    },
+    "daysSpan": "{from}至{to}",
+    "rangeCount": {
+      "mon": "{days, plural, other {# 个周一}}",
+      "tue": "{days, plural, other {# 个周二}}",
+      "wed": "{days, plural, other {# 个周三}}",
+      "thu": "{days, plural, other {# 个周四}}",
+      "fri": "{days, plural, other {# 个周五}}",
+      "sat": "{days, plural, other {# 个周六}}",
+      "sun": "{days, plural, other {# 个周日}}"
+    },
+    "range": {
+      "same": "（在已读取的 {count}中，居中一半的每一天都是 {pct}）",
+      "spread": "（在已读取的 {count}中，居中一半的日子为 {range}）"
+    },
+    "appts": "{n, plural, other {{v} 个预约}}",
+    "finding": {
+      "booked": "{run} 的预约率为 {pct}",
+      "took": "{run} 的营业额为当天最忙时段的 {pct}",
+      "line": "{range}；{reason}。"
+    },
+    "reason": {
+      "perRole": "按您所述每周 {capacity} 计，每位“{role}”每小时约接待 {appts}",
+      "perHour": "您所述的每周 {capacity}，约合每小时 {appts}",
+      "onAverage": "按您提供的岗位工时，平均每个营业小时约有 {n, plural, other {{v} 人}}在岗",
+      "open": "这些时段在营业"
+    },
+    "note": {
+      "shortRole": "{run}：需求超出了您所述接待能力的范围。如果您想多接一些，再增加一位“{role}”，最先能在这里补上人手。",
+      "shortHands": "{run}：需求超出了您所述接待能力的范围。如果您想多接一些，再增加一个帮手，最先能在这里补上人手。",
+      "quiet": "{run}：最清闲的营业时段。如果您哪天要精简排班，在这里减少损失的需求最少。",
+      "quietTakings": "{run}：按营业额看最清闲的营业时段。如果您哪天要精简排班，在这里减少损失的需求最少。"
+    },
+    "headline": {
+      "top": "{words}；{reason}。",
+      "quietTop": "没有哪个营业小时超出您所述的接待能力；{words}。",
+      "none": "没有哪个营业小时超出您所述的接待能力，也没有显得清闲的时段。",
+      "noneTakings": "与当天最忙的时段相比，没有哪个营业小时显得清闲。"
+    },
+    "refused": {
+      "noDemand": {
+        "headline": "目前还没有任何数据按小时衡量需求。",
+        "reason": "按小时的人手覆盖需要您的预约（导出文件或 Square），或来自已连接的收银机、支付账户或网店的每小时销售数据。",
+        "can": "列出您告诉我的岗位及其工时"
+      },
+      "fewBookings": {
+        "headline": "目前只有 {history, plural, other {# 天}}的预约数据；按小时的人手覆盖需要 {needed} 天。",
+        "reason": "您的预约数据从 {from} 到 {to}。每个星期几至少要有四天，我才会对一个小时作出判断。",
+        "can": "统计现有 {history, plural, other {# 天}}中的预约"
+      },
+      "noCapacity": {
+        "headline": "您没有说明每周的接待能力，所以我无法判断需求何时超出。",
+        "reason": "您还没有告诉我每周能接多少个预约（问题 {question}），我也不会自行假设。",
+        "can": "按小时统计预约"
+      },
+      "noTimes": {
+        "headline": "您的预约没有时间，因此无法按小时解读。",
+        "reason": "从 {from} 到 {to} 的 {n, plural, other {{count} 个预约}}都没有注明开始时间。"
+      },
+      "byDay": "按天统计预约",
+      "noHours": {
+        "headline": "无法从您的预约中读出营业小时。",
+        "reason": "没有哪个星期几在足够多的日子里有预约，因此无法判断您何时营业。"
+      },
+      "fewSales": {
+        "headline": "目前只有 {history, plural, other {# 天}}的每小时销售数据；按小时的人手覆盖需要 {needed} 天。",
+        "reasonNone": "还没有测量到任何一天的每小时销售数据。",
+        "reason": "每小时销售数据从 {from} 到 {to}。每个星期几至少要有四天，我才会对一个小时作出判断。"
+      },
+      "salesOnHours": "在“营业时间”中显示现有的每小时销售数据",
+      "noSalesHours": {
+        "headline": "无法从您的销售数据中读出营业小时。",
+        "reason": "没有哪个星期几在足够多的日子里有销售，因此无法判断您何时营业。"
+      }
+    },
+    "cannot": {
+      "overCapacity": "判断哪些小时超出了您所述接待能力的范围",
+      "quiet": "判断哪些营业小时比较清闲",
+      "borrow": "借用与您类似的其他企业的规律"
+    },
+    "limits": {
+      "rolesOnly": "这里只读取岗位和工时。它从不查看谁在什么时候工作，也不涉及任何个人。",
+      "yoursToWeigh": "这些备注由您来权衡。任何内容都不会改动排班表、班次或任何人的工时。"
+    },
+    "season": {
+      "unread": "旺季还无法解读：{reason}。",
+      "reasonNoData": "目前还没有按天测量的数据",
+      "reasonTooLittle": "一个季节需要 {needed} 个完整周，目前有 {complete} 个，大约在 {day} 前后就绪",
+      "noneAhead": "按去年同期来看，未来八周内没有繁忙期。",
+      "headUnderWay": "您的繁忙期已经开始：去年这段时间是平常一周的 {index} 倍（{range}）。",
+      "headStarts": "您的繁忙期从 {day} 开始：去年这段时间是平常一周的 {index} 倍（{range}）。",
+      "atLeast": "至少 {low} 倍",
+      "between": "{low}–{high} 倍",
+      "noFurther": "{head}即使按其下限，也不会再有其他小时超出您所述的接待能力。",
+      "further": "{head}按其下限，以下时段也会超出您所述的接待能力：{hours}。"
+    },
+    "listSep": "；",
+    "assumed": {
+      "capacity": "每个营业小时的接待能力相同：您所述的每周 {n, plural, other {{capacity} 个预约}} ÷ {hours, plural, other {# 个营业小时}} = 每小时 {appts}",
+      "startHour": "预约计入其开始的那个小时",
+      "footprintBookings": "{days}的营业时间未说明，因此根据预约开始的时间来读取（至少占这些日子的 {pct}）",
+      "evenSpread": "岗位工时平均分配到各营业小时：我不知道排班表",
+      "allServe": "您列出的每个岗位都计入接待客人",
+      "takings": "以营业额代替需求：某个小时的一笔销售，就是该小时接待的一位客户",
+      "footprintTakings": "{days}的营业时间未说明，因此根据销售进来的时间来读取"
+    },
+    "notes": {
+      "noRolesBookings": "访谈中没有岗位信息（企业里有谁在工作，以及他们的工时），因此这里只是需求对照接待能力。",
+      "unplaced": "{n, plural, other {{count} 个预约没有开始时间，未计入任何小时。}}",
+      "takingsNoCapacity": "营业额无法显示需求何时超出您的接待能力：接待能力不是用金额计算的。预约导出文件可以。",
+      "noRolesTakings": "访谈中没有岗位信息（企业里有谁在工作，以及他们的工时），因此这里只是需求。"
+    }
+  },
+  "siteWords": {
+    "join": "{first}{then}",
+    "check": {
+      "opening_hours": "营业时段",
+      "prices": "价格",
+      "menu": "菜单",
+      "location_map": "地址和地图",
+      "parking": "停车",
+      "phone_contact": "电话号码",
+      "contact_email": "电子邮件地址",
+      "booking": "预约或订位",
+      "reviews": "评价或推荐语",
+      "events": "活动和近期安排",
+      "photos": "场所或作品的照片",
+      "dietary_options": "饮食选项",
+      "delivery": "配送及其费用",
+      "returns_policy": "退货政策",
+      "payment_methods": "支付方式",
+      "service_area": "服务范围",
+      "quote_request": "获取报价的途径",
+      "portfolio": "过往作品",
+      "credentials": "资质和执照",
+      "guarantee": "保证",
+      "faq": "常见问题解答",
+      "team": "您将与谁打交道",
+      "stock_availability": "是否有库存"
+    },
+    "platform": {
+      "line": {
+        "api": "{platform}——在您授予更改权限后，更改可以由我们替您应用——这是单独的一步，在单独的页面上进行。",
+        "partial": "{platform}——部分元素可以通过程序更改，但不是全部；其余部分以操作说明的形式提供。",
+        "manual": "{platform} 无法通过程序编辑——您会得到渲染出的确切更改前后对比，以及针对您的编辑器的分步说明。这就是这项功能在您的平台上诚实的样子。",
+        "unknown": "我们无法判断这个网站由什么提供服务——会向您展示更改和差异，在弄清之前，应用更改仍需手动进行。"
+      },
+      "editable": {
+        "api": "可通过 API",
+        "partial": "部分可改",
+        "manual": "手动",
+        "unknown": "未知"
+      },
+      "custom": "自建网站",
+      "marker": {
+        "shopify": "Shopify CDN/主题对象",
+        "woocommerce": "WooCommerce 资源",
+        "wix": "Wix 静态资源",
+        "squarespace": "Squarespace 资源",
+        "webflow": "Webflow 网站属性",
+        "wordpress": "WordPress 内容路径",
+        "none": "未发现平台标记"
+      }
+    },
+    "change": {
+      "summary": "在 {host} 上：“{find}” → “{replace}”",
+      "previewTooLarge": "页面太大，无法提供实时预览——上方的差异是准确的，但不显示渲染效果",
+      "manual": {
+        "open": "在您的 {editor} 编辑器中打开 {url}。",
+        "find": "找到这段文字：“{find}”",
+        "replace": "替换为：“{replace}”",
+        "compare": "用编辑器的预览与这里显示的前后对比进行比较。",
+        "publish": "与更改后的样子一致时再发布。",
+        "wix": "在编辑器中直接点击该文本元素——Wix 支持就地编辑。",
+        "squarespace": "编辑包含该文字的页面区块（悬停 → 编辑）。"
+      },
+      "rationale": {
+        "manual": "您的平台无法通过程序编辑，因此批准后您会得到渲染出的确切更改和操作步骤——不会替您应用任何内容。",
+        "engine": "批准后更改进入队列；应用通过执行引擎进行，页面之前的状态会被永久保存，一键即可恢复。"
+      },
+      "assumption": {
+        "platform": "页面由 {platform} 提供（{marker}）",
+        "baseline": "提案时的基准加载时间：{ms} 毫秒——自动回滚的参照"
+      },
+      "case": {
+        "base": "页面显示新的内容；其他一切不变。",
+        "downside": "更改后页面出错或明显变慢——会自动回滚，并告诉您原因。",
+        "upside": "接入测量后，可以对比更改前后各几周的情况。",
+        "breakeven": "无需花费——只是一行文字"
+      },
+      "reverse": {
+        "manual": "您在自己的编辑器里改回去——这里的更改前渲染就是参照。",
+        "engine": "一键即可：页面之前的状态被永久保存，而不只保存一段时间。"
+      }
+    },
+    "error": {
+      "findEmpty": "请说明要查找的文字",
+      "replaceEmpty": "请说明要改成什么",
+      "nothing": "这样什么都没有改变",
+      "moneyPath": "该页面是涉及资金的页面——结账、购物车、付款和账单页面在任何批准级别下都不可触碰（规则 {rule}）",
+      "pageStatus": "页面返回了 {status}——那里没有可更改的内容",
+      "notFound": "在该页面上找不到“{find}”——请按页面上显示的原样复制",
+      "notUnique": "“{find}”在该页面上出现了 {count, plural, other {# 次}}——请加入足够的上下文，使其唯一",
+      "moneyContext": "这段文字位于页面的结账或付款区域内——涉及资金的区域不可触碰，因此连提议都不行（规则 {rule}）",
+      "noProposal": "没有这条提案",
+      "notSite": "这不是网站提案",
+      "manualApply": "{platform} 无法通过程序编辑——这项更改由您自己按照卡片上的说明完成",
+      "noWriter": "要在 {platform} 上应用，需要先连接其写入权限——这项权限您会在单独的页面上另行授予。在此之前，这张卡片及其前后对比就是您自行更改的参照",
+      "driftGone": "自您批准以来页面已发生变化——那段文字已不在了；请针对今天的页面重新提议",
+      "driftNotUnique": "自您批准以来页面已发生变化——那段文字已不再唯一；请针对今天的页面重新提议",
+      "signedIn": "更改线上网站需要您先登录",
+      "proposalId": "必须提供 proposal_id",
+      "executionId": "必须提供 execution_id",
+      "fields": "必须提供 url、find 和 replace",
+      "auditSignedIn": "审计您的网站需要您先登录"
+    },
+    "fetch": {
+      "scheme": "只能读取 http(s) 网站",
+      "credentials": "网站地址中不应包含登录凭据",
+      "noResolve": "“{host}”无法解析——地址正确吗？",
+      "private": "该地址指向私有网络——拒绝抓取",
+      "notAddress": "这看起来不像网址",
+      "ports": "只能读取标准端口 {http} 和 {https} 上的 http(s)",
+      "redirects": "重定向次数过多——网站始终没有稳定下来"
+    },
+    "audit": {
+      "noSite": "您的档案中没有可审计的网站——请把它添加到您的事实表中。",
+      "badSite": "您档案中的网站看起来不像网址。",
+      "cooldown": "该网站在不到一小时前刚审计过——下一次审计在 UTC {time} 开放。",
+      "running": "这个网站的审计已经在进行中。",
+      "homeUnreadable": "无法读取您的首页：{reason}",
+      "homeUnreadableBare": "无法读取您的首页",
+      "failed": "审计失败"
+    },
+    "walk": {
+      "homeStatus": "首页返回了 {status}",
+      "homeUnread": "无法读取首页",
+      "unread": "无法读取",
+      "unloaded": "无法加载",
+      "answers": "返回 {status}",
+      "home": "首页",
+      "addToCart": "加入购物车（看到按钮，未点击）",
+      "checkout": "结账（看到入口，未打开）",
+      "external": "{text}（位于 {host}，未打开）",
+      "book": "预约",
+      "note": {
+        "counted": "从首页起沿网站自身的链接计数；没有把任何东西加入购物车，也从未打开结账页面。",
+        "noAddToCart": "在“{label}”页面本身中没有找到“加入购物车”按钮——它可能由我们不运行的脚本绘制。",
+        "assumedCart": "假设：“加入购物车”会把买家带到购物车，或打开带有结账按钮的购物车侧栏——所以结账在它之后一次点击。",
+        "cartEmpty": "购物车页面在空状态下读取时，其 HTML 中没有结账按钮——放入商品后它可能才会出现。",
+        "booking": "从首页起沿网站自身的链接计数；没有进行任何预约，也没有提交任何表单。",
+        "external": "预约本身在另一家公司的网站上进行，审计不会读取；计数止于指向它的链接。",
+        "cartOnly": "从首页的链接能到达购物车，但到不了任何产品页面，因此无法计算购买所需的点击次数。",
+        "contact": "从首页的链接无法到达任何商店或预约页面；客户能走的路径止于联系页。",
+        "checkoutOnly": "存在结账链接，但在它之前无法通过链接到达任何产品、购物车或预约页面。",
+        "none": "从首页的链接无法到达任何产品、购物车、预约或联系页面。"
+      }
+    },
+    "pagespeed": {
+      "noMeasurement": "Google 没有返回页面测量结果",
+      "runtime": "Google 无法加载该页面（{code}）",
+      "quotaWeek": "本周该网站的 PageSpeed 调用次数已用完",
+      "unreachable": "无法连接 Google 的 PageSpeed 服务",
+      "quotaKeyed": "SYB 密钥的 Google PageSpeed 配额暂时用完了",
+      "quotaShared": "Google 共享的 PageSpeed 配额暂时用完了（未设置 PAGESPEED_API_KEY）",
+      "couldntLoad": "Google 无法加载该页面进行测量",
+      "refused": "Google 拒绝测量该页面（状态码 {status}）",
+      "badKey": "Google 拒绝了 PageSpeed 密钥（状态码 {status}）——请检查该密钥是否允许使用 PageSpeed Insights API",
+      "failed": "Google 的 PageSpeed 服务出错（状态码 {status}）",
+      "failedBare": "Google 的 PageSpeed 服务出错",
+      "noKey": "未测量页面速度：Google 的 PageSpeed 服务需要一个免费的 API 密钥（PAGESPEED_API_KEY），没有它会拒绝所有请求。购买路径和失效链接仍已读取。",
+      "stopped": "{reason}——已完成测量：{made} / {planned}。",
+      "weekUsed": "本周该网站的 PageSpeed 调用次数（{cap} 次）已用完，因此本次没有测量速度。",
+      "short": "本周该网站的 PageSpeed 调用次数不够：已完成测量：{made} / {planned}，优先测量手机。"
+    },
+    "finding": {
+      "withPage": "{title}——{page}",
+      "on": {
+        "mobile": "在手机上",
+        "desktop": "在电脑上"
+      },
+      "unit": {
+        "s": "{value} 秒",
+        "ms": "{value} 毫秒",
+        "mb": "{value} MB"
+      },
+      "title": {
+        "lcp": "主要内容{on}需要 {shown}才出现",
+        "cls": "页面{on}加载时来回跳动（偏移 {shown}）",
+        "inp": "页面{on}需要 {shown}才响应一次点按",
+        "tbt": "脚本在页面{on}加载时阻塞了 {shown}",
+        "heavy": "页面大小为 {size}",
+        "tap": "{count, plural, other {# 个按钮或链接太小或靠得太近，难以点按}}",
+        "contrast": "{count, plural, other {# 处文字与背景对比不足，难以阅读}}",
+        "pathMissing": "无法沿着您网站的链接一路走到{entry, select, checkout {结账} other {预约}}",
+        "pathLong": "从您的首页到{entry, select, checkout {结账} other {预约}}需要 {count, plural, other {# 次点击}}",
+        "price": "“{label}”的第一屏上没有价格",
+        "form": "{role, select, contact {联系表单} booking {预约表单} other {表单（{role}）}}要求填写 {count, plural, other {# 项}}",
+        "broken": "{page} 上有一个失效链接：{url} {reason}"
+      },
+      "what": {
+        "lcp": "Largest Contentful Paint——屏幕上最大的元素显示出来需要多久",
+        "cls": "Cumulative Layout Shift——版面在访客手指下移动了多少",
+        "inp": "Interaction to Next Paint——从点按到页面响应之间的延迟",
+        "tbt": "Total Blocking Time——在实验室中测量，用以代替需要真实访客的 INP"
+      },
+      "basis": {
+        "field": "过去 {days, plural, other {# 天}}内 Chrome 中的真实访客（Google 的实际用户数据，第 {pct} 百分位）",
+        "field_origin": "过去 {days, plural, other {# 天}}内您整个网站的真实访客——Google 仅针对这一页面的数据太少",
+        "lab": "在 Google 模拟设备上的一次测试加载（实验室数据）",
+        "page_read": "SYB 读取的页面自身 HTML"
+      },
+      "detail": {
+        "vital": "{what}。测量依据：{basis}。",
+        "others": "{count, plural, other {另有 # 个页面也在良好范围之外。}}",
+        "heavy": "它加载的每个字节，包括图片和脚本；测量依据：{basis}。在手机网络上，这就是访客的等待时间和流量。",
+        "tap": "Google 在其模拟手机上进行的点按目标检查。手指点错链接，访客就会放弃。",
+        "contrast": "Google 的颜色对比度检查（无障碍标准的最低要求），{on}。",
+        "noEntry": "无法通过链接到达任何{entry, select, checkout {结账} other {预约}}入口。",
+        "path": "{steps}。",
+        "price": "从页眉和菜单之后的页面自身文字中读取：手机首先显示的内容里没有价格（这是一种估算——SYB 不渲染页面）。",
+        "form": "{required, plural, other {其中 # 项必填。}}根据页面的 HTML 计数；表单没有提交。",
+        "brokenOnPath": "它位于购买路径上，一个死胡同就意味着一笔损失的销售。",
+        "broken": "点击它的访客会走进死胡同。"
+      },
+      "threshold": {
+        "google": "良好 ≤ {good}，较差 > {poor}（Google）",
+        "lighthouse": "良好 ≤ {good}，较差 > {poor}（Lighthouse）",
+        "heavy": "偏重 > {medium}，很重 > {high}（SYB）",
+        "failures": "出现任何一处即为发现；{medium} 处或以上为中等（SYB）",
+        "entry": "从首页可通过链接到达的{entry, select, checkout {结账} other {预约}}入口（SYB）",
+        "clicks": "正常 ≤ {ok}，偏长 > {ok}，很长 > {medium, plural, other {# 次点击}}（SYB）",
+        "price": "产品或服务页面第一屏中的价格（SYB 估算：页面自身文字的前 {chars, plural, other {# 个字符}}）",
+        "form": "{medium} 个或以上字段为偏长，{high} 个或以上为很长（SYB）",
+        "broken": "您自己网站上返回 {status} 或以上、或无法加载的任何链接（SYB）"
+      }
+    },
+    "euro": {
+      "needs": "未计算——需要您网站自身的流量和转化率",
+      "needsBecause": "未计算——需要您网站自身的流量和转化率（{missing}）",
+      "zero": "未计算——您的流量、订单或订单金额为零",
+      "inside": "未计算——该页面在良好范围之内",
+      "notSpeed": "未计算——没有任何经验法则能把这一点与 SYB 愿意给出数字的销售联系起来",
+      "missing": {
+        "visits": "每月网站访问量",
+        "orders": "每月订单数",
+        "revenue": "每月营收",
+        "list": "缺少您自己的数据：{list}",
+        "zero": "您每月的订单数为零"
+      },
+      "formula": "{visits} 次访问 × {conversion} 转化率 × {aov} 订单金额 × 每秒 {range} × 超出良好范围 {over}",
+      "window": {
+        "measured": "您已连接数据源的上个月数据，截至 {day}",
+        "stated": "您自己的月度数据，截至 {day}"
+      },
+      "assumed": {
+        "wait": "假设：手机在 {good} 之后每多等一秒，就会损失 {range} 的订单——这是来自已发表零售研究的经验法则，并非在您的网站上测得。",
+        "everyOrder": "假设：每一笔计入的订单都经过这个页面的加载；来自手机的比例没有测量，因此上限偏高。",
+        "max": "假设：最多计入 {max, plural, other {# 秒}}。"
+      }
+    }
   }
 }

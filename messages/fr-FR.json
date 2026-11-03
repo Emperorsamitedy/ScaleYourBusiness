@@ -5605,5 +5605,390 @@
       "emailLink": "Envoyer un lien de connexion à {email}",
       "signInJoin": "Se connecter et rejoindre"
     }
+  },
+  "teamWords": {
+    "untitledRole": "Rôle sans titre",
+    "source": {
+      "square": "les réservations Square",
+      "export": "votre export de réservations"
+    },
+    "run": {
+      "mon": "Le lundi {from}–{to}",
+      "tue": "Le mardi {from}–{to}",
+      "wed": "Le mercredi {from}–{to}",
+      "thu": "Le jeudi {from}–{to}",
+      "fri": "Le vendredi {from}–{to}",
+      "sat": "Le samedi {from}–{to}",
+      "sun": "Le dimanche {from}–{to}"
+    },
+    "days": {
+      "mon": "lundi",
+      "tue": "mardi",
+      "wed": "mercredi",
+      "thu": "jeudi",
+      "fri": "vendredi",
+      "sat": "samedi",
+      "sun": "dimanche"
+    },
+    "daysSpan": "du {from} au {to}",
+    "rangeCount": {
+      "mon": "{days, plural, one {# lundi} many {# lundis} other {# lundis}}",
+      "tue": "{days, plural, one {# mardi} many {# mardis} other {# mardis}}",
+      "wed": "{days, plural, one {# mercredi} many {# mercredis} other {# mercredis}}",
+      "thu": "{days, plural, one {# jeudi} many {# jeudis} other {# jeudis}}",
+      "fri": "{days, plural, one {# vendredi} many {# vendredis} other {# vendredis}}",
+      "sat": "{days, plural, one {# samedi} many {# samedis} other {# samedis}}",
+      "sun": "{days, plural, one {# dimanche} many {# dimanches} other {# dimanches}}"
+    },
+    "range": {
+      "same": "({pct} chaque jour de la moitié centrale des {count} lus)",
+      "spread": "({range} sur la moitié centrale des {count} lus)"
+    },
+    "appts": "{n, plural, one {{v} rendez-vous} many {{v} rendez-vous} other {{v} rendez-vous}}",
+    "finding": {
+      "booked": "{run} : réservé à {pct}",
+      "took": "{run} : {pct} des recettes de l’heure la plus chargée de la journée",
+      "line": "{range} ; {reason}."
+    },
+    "reason": {
+      "perRole": "une personne dans le rôle « {role} » couvre environ {appts} par heure, pour votre capacité indiquée de {capacity} par semaine",
+      "perHour": "votre capacité indiquée de {capacity} par semaine représente environ {appts} par heure",
+      "onAverage": "environ {n, plural, one {{v} personne est présente} many {{v} personnes sont présentes} other {{v} personnes sont présentes}} par heure d’ouverture moyenne, d’après les heures par rôle que vous avez indiquées",
+      "open": "ce sont des heures d’ouverture"
+    },
+    "note": {
+      "shortRole": "{run} : la demande a dépassé ce que couvre votre capacité indiquée. Si vous voulez en accepter davantage, c’est ici qu’une personne de plus dans le rôle « {role} » renforcerait d’abord la couverture.",
+      "shortHands": "{run} : la demande a dépassé ce que couvre votre capacité indiquée. Si vous voulez en accepter davantage, c’est ici qu’une paire de bras en plus renforcerait d’abord la couverture.",
+      "quiet": "{run} : la plage d’ouverture la plus calme. Si vous réduisez un jour le planning, c’est ici que cela coûterait le moins de demande.",
+      "quietTakings": "{run} : la plage d’ouverture la plus calme selon les recettes. Si vous réduisez un jour le planning, c’est ici que cela coûterait le moins de demande."
+    },
+    "headline": {
+      "top": "{words} ; {reason}.",
+      "quietTop": "Aucune heure d’ouverture ne dépasse votre capacité indiquée ; {words}.",
+      "none": "Aucune heure d’ouverture ne dépasse votre capacité indiquée ni ne reste calme.",
+      "noneTakings": "Aucune heure d’ouverture ne reste calme par rapport à l’heure la plus chargée de la journée."
+    },
+    "refused": {
+      "noDemand": {
+        "headline": "Rien ne mesure encore la demande heure par heure.",
+        "reason": "La couverture heure par heure a besoin de vos réservations (un export, ou Square) ou des ventes horaires d’une caisse connectée, d’un compte de paiement ou d’une boutique.",
+        "can": "lister les rôles que vous m’avez indiqués et leurs heures"
+      },
+      "fewBookings": {
+        "headline": "{history, plural, one {# jour} many {# jours} other {# jours}} de réservations pour l’instant ; la couverture heure par heure en demande {needed}.",
+        "reason": "Vos réservations vont du {from} au {to} ; il me faut au moins quatre jours de chaque jour de la semaine pour classer une heure.",
+        "can": "compter les rendez-vous sur {history, plural, one {le # jour disponible} many {les # jours disponibles} other {les # jours disponibles}}"
+      },
+      "noCapacity": {
+        "headline": "Votre capacité hebdomadaire n’est pas indiquée, je ne peux donc pas dire quand la demande la dépasse.",
+        "reason": "Vous ne m’avez pas dit combien de rendez-vous vous pouvez prendre par semaine (question {question}), et je n’en supposerai aucune.",
+        "can": "compter les rendez-vous heure par heure"
+      },
+      "noTimes": {
+        "headline": "Vos réservations n’ont pas d’heure, elles ne peuvent donc pas être lues heure par heure.",
+        "reason": "Aucun des {n, plural, one {{count} rendez-vous} many {{count} rendez-vous} other {{count} rendez-vous}} du {from} au {to} n’indique quand il a commencé."
+      },
+      "byDay": "compter les rendez-vous par jour",
+      "noHours": {
+        "headline": "Aucune heure d’ouverture n’a pu être lue dans vos réservations.",
+        "reason": "Aucun jour de la semaine n’avait de rendez-vous sur assez de ses jours pour dire quand vous ouvrez."
+      },
+      "fewSales": {
+        "headline": "{history, plural, one {# jour} many {# jours} other {# jours}} de ventes horaires pour l’instant ; la couverture heure par heure en demande {needed}.",
+        "reasonNone": "Aucun jour de ventes horaires n’est encore mesuré.",
+        "reason": "Les ventes horaires vont du {from} au {to} ; il me faut au moins quatre jours de chaque jour de la semaine pour classer une heure."
+      },
+      "salesOnHours": "montrer les ventes horaires disponibles dans Horaires d’ouverture",
+      "noSalesHours": {
+        "headline": "Aucune heure d’ouverture n’a pu être lue dans vos ventes.",
+        "reason": "Aucun jour de la semaine n’avait de ventes sur assez de ses jours pour dire quand vous ouvrez."
+      }
+    },
+    "cannot": {
+      "overCapacity": "dire quelles heures dépassent ce que couvre votre capacité indiquée",
+      "quiet": "dire quelles heures d’ouverture sont calmes",
+      "borrow": "emprunter le profil d’autres entreprises comme la vôtre"
+    },
+    "limits": {
+      "rolesOnly": "Ceci ne lit que des rôles et des heures. Cela ne regarde jamais qui a travaillé quand, et ne dit rien sur aucune personne.",
+      "yoursToWeigh": "Les remarques sont là pour que vous les jugiez. Rien ne modifie un planning, un service ou les heures de quiconque."
+    },
+    "season": {
+      "unread": "La haute saison n’est pas encore lue : {reason}.",
+      "reasonNoData": "rien n’est encore mesuré jour par jour",
+      "reasonTooLittle": "{complete} des {needed} semaines complètes dont une saison a besoin (prêt vers le {day})",
+      "noneAhead": "Aucune période chargée dans les huit prochaines semaines, d’après les mêmes semaines l’an dernier.",
+      "headUnderWay": "Votre période chargée est en cours : l’an dernier, elle a atteint {index}× ({range}) une semaine normale.",
+      "headStarts": "Votre période chargée commence le {day} : l’an dernier, elle a atteint {index}× ({range}) une semaine normale.",
+      "atLeast": "au moins {low}×",
+      "between": "{low}–{high}×",
+      "noFurther": "{head} Même au bas de sa fourchette, aucune autre heure ne dépasserait votre capacité indiquée.",
+      "further": "{head} Au bas de sa fourchette, ces heures dépasseraient aussi votre capacité indiquée : {hours}."
+    },
+    "listSep": " ; ",
+    "assumed": {
+      "capacity": "la capacité est la même à chaque heure d’ouverture : votre capacité indiquée de {n, plural, one {{capacity} rendez-vous} many {{capacity} rendez-vous} other {{capacity} rendez-vous}} par semaine ÷ {hours, plural, one {# heure d’ouverture} many {# heures d’ouverture} other {# heures d’ouverture}} = {appts} par heure",
+      "startHour": "un rendez-vous compte dans l’heure où il commence",
+      "footprintBookings": "les horaires d’ouverture ne sont pas indiqués pour ces jours : {days} ; ils sont donc lus d’après l’heure où commencent les rendez-vous (sur au moins {pct} de ces jours)",
+      "evenSpread": "les heures par rôle sont réparties également sur les heures d’ouverture : je ne connais pas le planning",
+      "allServe": "chaque rôle que vous avez indiqué compte pour servir la clientèle",
+      "takings": "les recettes tiennent lieu de demande : une vente dans une heure est un client servi pendant cette heure",
+      "footprintTakings": "les horaires d’ouverture ne sont pas indiqués pour ces jours : {days} ; ils sont donc lus d’après l’arrivée des ventes"
+    },
+    "notes": {
+      "noRolesBookings": "Aucun rôle issu de l’entretien (qui travaille dans l’entreprise, et ses heures), il ne s’agit donc que de la demande face à la capacité.",
+      "unplaced": "{n, plural, one {{count} rendez-vous n’avait pas d’heure de début et n’est placé dans aucune heure.} many {{count} rendez-vous n’avaient pas d’heure de début et ne sont placés dans aucune heure.} other {{count} rendez-vous n’avaient pas d’heure de début et ne sont placés dans aucune heure.}}",
+      "takingsNoCapacity": "Les recettes ne peuvent pas montrer quand la demande dépasse votre capacité : la capacité ne se compte pas en argent. Un export de réservations le peut.",
+      "noRolesTakings": "Aucun rôle issu de l’entretien (qui travaille dans l’entreprise, et ses heures), il ne s’agit donc que de la demande."
+    }
+  },
+  "siteWords": {
+    "join": "{first} {then}",
+    "check": {
+      "opening_hours": "Horaires d’ouverture",
+      "prices": "Prix",
+      "menu": "Carte",
+      "location_map": "Adresse et plan",
+      "parking": "Stationnement",
+      "phone_contact": "Un numéro de téléphone",
+      "contact_email": "Une adresse e-mail",
+      "booking": "Réservation ou rendez-vous",
+      "reviews": "Avis ou témoignages",
+      "events": "Événements et programme",
+      "photos": "Photos du lieu ou du travail",
+      "dietary_options": "Options alimentaires",
+      "delivery": "Livraison et son coût",
+      "returns_policy": "Politique de retour",
+      "payment_methods": "Moyens de paiement",
+      "service_area": "La zone desservie",
+      "quote_request": "Un moyen d’obtenir un devis",
+      "portfolio": "Réalisations passées",
+      "credentials": "Qualifications et agréments",
+      "guarantee": "Une garantie",
+      "faq": "Réponses aux questions fréquentes",
+      "team": "Les personnes à qui l’on aura affaire",
+      "stock_availability": "Si l’article est en stock"
+    },
+    "platform": {
+      "line": {
+        "api": "{platform} — les modifications peuvent être appliquées pour vous dès que vous lui en donnez la permission — une étape à part, sur son propre écran.",
+        "partial": "{platform} — certains éléments peuvent être modifiés par programme, pas tous ; le reste arrive sous forme d’instructions.",
+        "manual": "{platform} ne peut pas être modifié par programme — vous recevrez la modification exacte rendue avant/après, plus des instructions pas à pas pour votre éditeur. C’est la version honnête de cette fonction pour votre plateforme.",
+        "unknown": "Je ne sais pas ce qui sert ce site — je vous montre la modification et les différences, et l’application reste manuelle tant que je ne le sais pas."
+      },
+      "editable": {
+        "api": "par API",
+        "partial": "partiel",
+        "manual": "manuel",
+        "unknown": "inconnu"
+      },
+      "custom": "site sur mesure",
+      "marker": {
+        "shopify": "objet de thème/CDN Shopify",
+        "woocommerce": "ressources WooCommerce",
+        "wix": "ressources statiques Wix",
+        "squarespace": "ressources Squarespace",
+        "webflow": "attributs de site Webflow",
+        "wordpress": "chemins de contenu WordPress",
+        "none": "aucun marqueur de plateforme trouvé"
+      }
+    },
+    "change": {
+      "summary": "Sur {host} : « {find} » → « {replace} »",
+      "previewTooLarge": "la page est trop volumineuse pour un aperçu en direct — les différences ci-dessus sont exactes, le rendu n’est pas affiché",
+      "manual": {
+        "open": "Ouvrez {url} dans votre éditeur {editor}.",
+        "find": "Trouvez le texte : « {find} »",
+        "replace": "Remplacez-le par : « {replace} »",
+        "compare": "Utilisez l’aperçu de l’éditeur pour comparer avec l’avant/après affiché ici.",
+        "publish": "Publiez quand cela correspond à l’après.",
+        "wix": "Dans l’éditeur, cliquez sur l’élément de texte lui-même — Wix modifie sur place.",
+        "squarespace": "Modifiez la section de la page qui contient le texte (survol → Modifier)."
+      },
+      "rationale": {
+        "manual": "Votre plateforme ne peut pas être modifiée par programme ; votre validation vous donne donc la modification exacte rendue et les étapes — rien n’est appliqué pour vous.",
+        "engine": "La validation met la modification en file d’attente ; l’application passe par l’exécuteur, l’état précédent de la page étant conservé pour toujours, à un clic d’être rétabli."
+      },
+      "assumption": {
+        "platform": "La page est servie par {platform} ({marker})",
+        "baseline": "Temps de chargement de référence au moment de la proposition : {ms} ms — la référence pour l’annulation automatique"
+      },
+      "case": {
+        "base": "La page dit la nouvelle chose ; rien d’autre n’y change.",
+        "downside": "La page renvoie des erreurs ou ralentit fortement après la modification — elle est annulée automatiquement et vous voyez pourquoi.",
+        "upside": "Le suivi pourra comparer les semaines avant et après, une fois la mesure connectée.",
+        "breakeven": "aucune dépense — une ligne de texte"
+      },
+      "reverse": {
+        "manual": "Vous la remettez comme avant dans votre éditeur — le rendu « avant » affiché ici sert de référence.",
+        "engine": "Un clic : l’état précédent de la page est conservé de façon permanente, pas pour une durée limitée."
+      }
+    },
+    "error": {
+      "findEmpty": "indiquez le texte à trouver",
+      "replaceEmpty": "indiquez ce qu’il doit devenir",
+      "nothing": "cela ne change rien",
+      "moneyPath": "cette page est une surface d’argent — les pages de paiement, de panier, de règlement et de facturation sont intouchables à tous les niveaux de validation (règle {rule})",
+      "pageStatus": "la page a répondu {status} — rien à modifier là",
+      "notFound": "Je ne trouve pas « {find} » sur cette page — copiez-le exactement tel qu’il apparaît",
+      "notUnique": "« {find} » apparaît {count, plural, one {# fois} many {# fois} other {# fois}} sur cette page — ajoutez assez de texte autour pour le rendre unique",
+      "moneyContext": "ce texte se trouve dans une zone de paiement de la page — les surfaces d’argent sont intouchables, cela ne peut donc même pas être proposé (règle {rule})",
+      "noProposal": "aucune proposition de ce type",
+      "notSite": "ce n’est pas une proposition pour le site",
+      "manualApply": "{platform} ne peut pas être modifié par programme — c’est vous qui appliquez cette modification, avec les instructions de la fiche",
+      "noWriter": "l’application sur {platform} nécessite que son accès en écriture soit connecté — vous donnerez cette permission à part, sur son propre écran. D’ici là, cette fiche, avec son avant/après, est la référence pour la modifier vous-même",
+      "driftGone": "la page a changé depuis votre validation — le texte n’y est plus ; proposez de nouveau sur la page d’aujourd’hui",
+      "driftNotUnique": "la page a changé depuis votre validation — le texte n’est plus unique ; proposez de nouveau sur la page d’aujourd’hui",
+      "signedIn": "modifier un site en ligne nécessite d’être connecté",
+      "proposalId": "proposal_id est obligatoire",
+      "executionId": "execution_id est obligatoire",
+      "fields": "url, find et replace sont obligatoires",
+      "auditSignedIn": "auditer votre site nécessite d’être connecté"
+    },
+    "fetch": {
+      "scheme": "seuls les sites http(s) peuvent être lus",
+      "credentials": "des identifiants n’ont pas leur place dans l’adresse d’un site",
+      "noResolve": "« {host} » ne se résout pas — l’adresse est-elle correcte ?",
+      "private": "cette adresse pointe vers un réseau privé — elle ne sera pas consultée",
+      "notAddress": "cela ne ressemble pas à une adresse web",
+      "ports": "seul le http(s) sur les ports standard {http} et {https} peut être lu",
+      "redirects": "trop de redirections — le site ne s’est jamais stabilisé"
+    },
+    "audit": {
+      "noSite": "Votre profil ne contient aucun site web à auditer — ajoutez-le à votre fiche des faits.",
+      "badSite": "Le site web de votre profil ne ressemble pas à une adresse web.",
+      "cooldown": "Le site a été audité il y a moins d’une heure — le prochain audit est possible à {time} UTC.",
+      "running": "Un audit de ce site est déjà en cours.",
+      "homeUnreadable": "Votre page d’accueil n’a pas pu être lue : {reason}",
+      "homeUnreadableBare": "Votre page d’accueil n’a pas pu être lue",
+      "failed": "l’audit a échoué"
+    },
+    "walk": {
+      "homeStatus": "la page d’accueil a répondu {status}",
+      "homeUnread": "la page d’accueil n’a pas pu être lue",
+      "unread": "n’a pas pu être lue",
+      "unloaded": "n’a pas pu être chargée",
+      "answers": "répond {status}",
+      "home": "Accueil",
+      "addToCart": "Ajouter au panier (bouton vu, non actionné)",
+      "checkout": "Paiement (entrée vue, non ouverte)",
+      "external": "{text} (sur {host}, non ouvert)",
+      "book": "Réserver",
+      "note": {
+        "counted": "Compté en suivant les liens du site depuis la page d’accueil ; rien n’a été ajouté à un panier et le paiement n’a jamais été ouvert.",
+        "noAddToCart": "Je n’ai trouvé aucun bouton « Ajouter au panier » sur « {label} » dans la page elle-même — il est peut-être dessiné par un script que je n’exécute pas.",
+        "assumedCart": "HYPOTHÈSE : « Ajouter au panier » mène l’acheteur au panier, ou ouvre un volet de panier, avec un bouton de paiement — le paiement est donc à un clic après.",
+        "cartEmpty": "La page du panier, lue vide, ne montrait aucun bouton de paiement dans son propre HTML — il apparaît peut-être une fois que quelque chose s’y trouve.",
+        "booking": "Compté en suivant les liens du site depuis la page d’accueil ; aucune réservation n’a été faite et aucun formulaire n’a été envoyé.",
+        "external": "La réservation elle-même se fait sur le site d’une autre société, que l’audit ne lit pas ; le comptage s’arrête à son lien.",
+        "cartOnly": "J’ai atteint le panier, mais aucune page produit depuis les liens de la page d’accueil ; les clics jusqu’à l’achat ne peuvent donc pas être comptés.",
+        "contact": "Aucune page de boutique ou de réservation n’était accessible depuis les liens de la page d’accueil ; le chemin qu’un client peut suivre s’arrête à la page contact.",
+        "checkoutOnly": "Il existe un lien de paiement, mais aucune page produit, panier ou réservation n’était accessible par des liens avant lui.",
+        "none": "Aucune page produit, panier, réservation ou contact n’était accessible depuis les liens de la page d’accueil."
+      }
+    },
+    "pagespeed": {
+      "noMeasurement": "Google n’a renvoyé aucune mesure de la page",
+      "runtime": "Google n’a pas pu charger la page ({code})",
+      "quotaWeek": "les appels PageSpeed de cette semaine pour le site sont épuisés",
+      "unreachable": "Le service PageSpeed de Google n’a pas pu être joint",
+      "quotaKeyed": "le quota PageSpeed de Google pour la clé de SYB est épuisé pour l’instant",
+      "quotaShared": "le quota PageSpeed partagé de Google est épuisé pour l’instant (aucune PAGESPEED_API_KEY n’est définie)",
+      "couldntLoad": "Google n’a pas pu charger la page pour la mesurer",
+      "refused": "Google a refusé de mesurer la page (statut {status})",
+      "badKey": "Google a refusé la clé PageSpeed (statut {status}) — vérifiez que la clé autorise l’API PageSpeed Insights",
+      "failed": "Le service PageSpeed de Google a échoué (statut {status})",
+      "failedBare": "Le service PageSpeed de Google a échoué",
+      "noKey": "La vitesse des pages n’a pas été mesurée : le service PageSpeed de Google exige une clé d’API gratuite (PAGESPEED_API_KEY) et refuse toute requête sans elle. Le chemin jusqu’à l’achat et les liens cassés ont tout de même été lus.",
+      "stopped": "{reason} — mesures effectuées : {made} sur {planned}.",
+      "weekUsed": "Les appels PageSpeed de cette semaine pour le site sont épuisés (quota : {cap}) ; la vitesse n’a donc pas été mesurée cette fois.",
+      "short": "Les appels PageSpeed de cette semaine pour le site n’ont pas suffi : mesures effectuées : {made} sur {planned}, téléphones d’abord."
+    },
+    "finding": {
+      "withPage": "{title} — {page}",
+      "on": {
+        "mobile": "sur téléphone",
+        "desktop": "sur ordinateur"
+      },
+      "unit": {
+        "s": "{value} s",
+        "ms": "{value} ms",
+        "mb": "{value} Mo"
+      },
+      "title": {
+        "lcp": "Le contenu principal met {shown} à apparaître {on}",
+        "cls": "La page bouge pendant son chargement {on} (décalage {shown})",
+        "inp": "La page met {shown} à répondre à un appui {on}",
+        "tbt": "Des scripts bloquent la page pendant {shown} lors de son chargement {on}",
+        "heavy": "La page pèse {size}",
+        "tap": "{count, plural, one {# bouton ou lien est trop petit ou trop rapproché pour être touché} many {# boutons ou liens sont trop petits ou trop rapprochés pour être touchés} other {# boutons ou liens sont trop petits ou trop rapprochés pour être touchés}}",
+        "contrast": "{count, plural, one {# élément de texte est difficile à lire sur son fond} many {# éléments de texte sont difficiles à lire sur leur fond} other {# éléments de texte sont difficiles à lire sur leur fond}}",
+        "pathMissing": "Je n’ai pas pu suivre les liens de votre site jusqu’{entry, select, checkout {au paiement} other {à la réservation}}",
+        "pathLong": "Il faut {count, plural, one {# clic} many {# clics} other {# clics}} depuis votre page d’accueil jusqu’{entry, select, checkout {au paiement} other {à la réservation}}",
+        "price": "Aucun prix sur le premier écran de « {label} »",
+        "form": "Le formulaire {role, select, contact {de contact} booking {de réservation} other {({role})}} demande {count, plural, one {# information} many {# informations} other {# informations}}",
+        "broken": "Un lien sur {page} est cassé : {url} {reason}"
+      },
+      "what": {
+        "lcp": "Largest Contentful Paint — le temps avant que l’élément le plus grand de l’écran s’affiche",
+        "cls": "Cumulative Layout Shift — à quel point la mise en page bouge sous le pouce du visiteur",
+        "inp": "Interaction to Next Paint — le délai entre un appui et la réponse de la page",
+        "tbt": "Total Blocking Time — mesuré en labo à la place de l’INP, qui exige de vrais visiteurs"
+      },
+      "basis": {
+        "field": "vrais visiteurs dans Chrome sur {days, plural, one {le dernier jour} many {les # derniers jours} other {les # derniers jours}} (données de terrain de Google, {pct}e centile)",
+        "field_origin": "vrais visiteurs de tout votre site sur {days, plural, one {le dernier jour} many {les # derniers jours} other {les # derniers jours}} — Google en avait trop peu pour cette page seule",
+        "lab": "un chargement de test sur l’appareil émulé de Google (données de labo)",
+        "page_read": "la lecture par SYB du HTML de la page"
+      },
+      "detail": {
+        "vital": "{what}. Mesuré à partir de : {basis}.",
+        "others": "{count, plural, one {# autre page est aussi hors de la bonne zone.} many {# autres pages sont aussi hors de la bonne zone.} other {# autres pages sont aussi hors de la bonne zone.}}",
+        "heavy": "Chaque octet qu’elle charge, images et scripts compris, à partir de : {basis}. Sur une connexion mobile, c’est l’attente du visiteur et ses données.",
+        "tap": "Le contrôle des zones tactiles de Google sur son téléphone émulé. Un pouce qui touche le mauvais lien, c’est un visiteur qui abandonne.",
+        "contrast": "Le contrôle du contraste des couleurs de Google (le minimum de la norme d’accessibilité), {on}.",
+        "noEntry": "Aucune entrée {entry, select, checkout {vers le paiement} other {vers la réservation}} n’était accessible par des liens.",
+        "path": "{steps}.",
+        "price": "Lu dans le texte de la page après l’en-tête et le menu : aucun prix dans ce qu’un téléphone affiche en premier (une approximation — SYB ne rend pas la page).",
+        "form": "{required, plural, one {Dont # obligatoire.} many {Dont # obligatoires.} other {Dont # obligatoires.}} Compté à partir du HTML de la page ; le formulaire n’a pas été envoyé.",
+        "brokenOnPath": "Il se trouve sur le chemin de l’achat, où une impasse coûte une vente.",
+        "broken": "Un visiteur qui clique dessus tombe sur une impasse."
+      },
+      "threshold": {
+        "google": "bon ≤ {good}, mauvais > {poor} (Google)",
+        "lighthouse": "bon ≤ {good}, mauvais > {poor} (Lighthouse)",
+        "heavy": "lourde > {medium}, très lourde > {high} (SYB)",
+        "failures": "un seul suffit pour un constat ; à partir de {medium}, c’est moyen (SYB)",
+        "entry": "une entrée {entry, select, checkout {vers le paiement} other {vers la réservation}} accessible par des liens depuis l’accueil (SYB)",
+        "clicks": "correct ≤ {ok}, long > {ok}, très long > {medium, plural, one {# clic} many {# clics} other {# clics}} (SYB)",
+        "price": "un prix dans le premier écran d’une page produit ou service (approximation de SYB : {chars, plural, one {le premier caractère} many {les # premiers caractères} other {les # premiers caractères}} du texte de la page)",
+        "form": "à partir de {medium} champs, c’est long ; à partir de {high}, très long (SYB)",
+        "broken": "tout lien de votre propre site qui répond {status} ou plus, ou qui ne se charge pas (SYB)"
+      }
+    },
+    "euro": {
+      "needs": "non calculé — il faut le trafic et la conversion de votre propre site",
+      "needsBecause": "non calculé — il faut le trafic et la conversion de votre propre site ({missing})",
+      "zero": "non calculé — votre trafic, vos commandes ou votre valeur de commande sont nuls",
+      "inside": "non calculé — la page est dans la bonne zone",
+      "notSpeed": "non calculé — aucune règle empirique ne relie ceci à des ventes que SYB chiffrerait",
+      "missing": {
+        "visits": "visites mensuelles du site web",
+        "orders": "commandes mensuelles",
+        "revenue": "chiffre d’affaires mensuel",
+        "list": "il manque vos propres chiffres : {list}",
+        "zero": "vos commandes mensuelles sont nulles"
+      },
+      "formula": "{visits} visites × {conversion} de conversion × {aov} de valeur de commande × {range} par seconde × {over} au-delà de la bonne zone",
+      "window": {
+        "measured": "le dernier mois de vos connecteurs, au {day}",
+        "stated": "vos propres chiffres mensuels, au {day}"
+      },
+      "assumed": {
+        "wait": "HYPOTHÈSE : chaque seconde d’attente d’un téléphone au-delà de {good} fait perdre {range} des commandes — une règle empirique tirée d’études publiées sur le commerce, non mesurée sur votre site.",
+        "everyOrder": "HYPOTHÈSE : chaque commande comptée passe par le chargement de cette page ; la part qui arrive par téléphone n’est pas mesurée, donc la borne haute exagère.",
+        "max": "HYPOTHÈSE : au plus {max, plural, one {# seconde est comptée} many {# secondes sont comptées} other {# secondes sont comptées}}."
+      }
+    }
   }
 }
