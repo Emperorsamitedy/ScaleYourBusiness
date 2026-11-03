@@ -917,6 +917,7 @@ export function ReportBody({
   children?: ReactNode;
 }) {
   const { t, st, w, locale } = useWords();
+  const tb = useTranslations("reportBenchmark");
   const [selected, setSelected] = useState<string | null>(null);
   const whyRef = useRef<HTMLDivElement>(null);
   const rows = useMemo(
@@ -971,6 +972,11 @@ export function ReportBody({
                     {f.kind === "measured" && (
                       <span className="rq-label" title={t("findings.measuredTitle")}>
                         · {t("findings.measured")}
+                      </span>
+                    )}
+                    {f.kind === "benchmark" && (
+                      <span className="rq-label" title={tb("title")}>
+                        · {tb("label")}
                       </span>
                     )}
                   </p>

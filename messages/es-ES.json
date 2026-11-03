@@ -4451,5 +4451,22 @@
   "watchNoticed": {
     "label": "Observado",
     "title": "Lo que he observado"
+  },
+  "reportBenchmark": {
+    "label": "comparado con negocios similares",
+    "title": "Comparado, según una regla fija, con la cifra que publica Eurostat para negocios similares; no es un juicio"
+  },
+  "benchmarkGap": {
+    "label": "Una diferencia grande",
+    "title": "Su margen operativo está {points} puntos por debajo del de negocios similares.",
+    "rule": "Llamo grande a una diferencia a partir de {threshold} puntos por debajo de la cifra que publica Eurostat, comparando lo comparable: el mismo país, el mismo tipo de negocio y su tamaño o todos los tamaños.",
+    "where": "Ahora aparece en su informe como hallazgo, y puedo proponerle repasar sus precios y costes. Aprobarlo no cambia nada por sí solo.",
+    "propose": "Proponer repasar precios y costes →",
+    "drafting": "Redactando…",
+    "status": "{status, select, pending {Le espera en su cola} blocked {Bloqueada por una regla suya} approved {Aprobada} rejected {Rechazada} expired {Caducada} other {Propuesta}}",
+    "queue": "Abrirla en su cola →",
+    "drafted": "Redactada. Le espera; aprobarla no escribe ningún precio ni ningún coste.",
+    "blocked": "Una regla suya lo excluye, así que queda bloqueado en su cola.",
+    "failed": "No ha funcionado."
   }
 }

@@ -93,7 +93,8 @@ export interface Finding {
   evidence: string[];
   severity: Severity;
   /** P5-13: "measured" — SYB measured it (the site audit), not the model's judgement. */
-  kind?: "measured";
+  /** I-44a: "benchmark" — a large gap against similar businesses, by a threshold in code. */
+  kind?: "measured" | "benchmark";
 }
 export interface Outcome {
   case: string;

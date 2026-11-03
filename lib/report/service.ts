@@ -23,6 +23,10 @@
 //
 // P5-13: the site audit's measured findings (lib/site/audit) join the
 // findings list itself, marked `kind: "measured"`, citing presence.site_audit.
+//
+// I-44a: a large benchmark gap (lib/benchmarks/gap) joins it too, marked
+// `kind: "benchmark"`, citing the margin's own fact keys. Neither prompt's
+// text changes: the recommendations model reads it in its FINDINGS list.
 
 import { logSafeError } from "../core/log-safe";
 import { createHash } from "node:crypto";
@@ -45,6 +49,7 @@ import { displayValue, gapBuys, readSupersededFacts, sourceDetail } from "../pro
 import type { FactHistory, GapRow } from "../profile/factsheet";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { computeCompleteness } from "../scorer/completeness";
+import { reportGapFinding } from "../benchmarks/gap-read";
 import { SITE_AUDIT_KEY } from "../site/audit/findings";
 import { siteFindingsForReport } from "../site/audit/service";
 import { recordFunnelEvent } from "../intake/telemetry";
@@ -243,6 +248,23 @@ export async function generateReport(args: {
     console.error(
       JSON.stringify({
         event: "report_site_audit_failed",
+        account_id: args.accountId,
+        profile_id: args.profileId,
+        ...logSafeError(error),
+      }),
+    );
+  }
+  // I-44a: a large, like-for-like gap against Eurostat's figure for similar
+  // businesses joins the findings the same way, as structured input marked
+  // `kind: "benchmark"` — decided by lib/benchmarks/gap's stated threshold,
+  // never by the model. Computed from the snapshot's facts, frozen on the row.
+  try {
+    const gap = await reportGapFinding(args.profileId, view.facts);
+    if (gap) findings = sortFindings([gap, ...findings]);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "report_benchmark_gap_failed",
         account_id: args.accountId,
         profile_id: args.profileId,
         ...logSafeError(error),

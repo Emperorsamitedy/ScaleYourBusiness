@@ -4,15 +4,20 @@
 // and its screen) and fails the build if any of them:
 //
 //   · reaches the network (a fetch other than the screen's own read of
-//     /api/benchmarks, an http module, a URL other than Eurostat's own
-//     address in the attribution);
+//     /api/benchmarks and its one button, POST /api/proposals/margin-review,
+//     an http module, a URL other than Eurostat's own address in the
+//     attribution);
 //   · writes to the database or writes a Field (writeField, createField);
 //   · imports a model client (lib/llm, the Anthropic SDK);
 //   · exports an HTTP verb other than GET.
 //
-// And it fails if the diagnosis, proposals, report, mode, validation or
-// watch code imports lib/benchmarks: nothing from it reaches the diagnosis
-// or a proposal until I-44a decides otherwise. Each check has a planted
+// I-44a (decided 2026-11-03, owner: "both"): a LARGE gap may reach the
+// report as a finding and prompt a proposal, through one door only —
+// lib/benchmarks/gap (the stated threshold, pure) and lib/benchmarks/gap-read
+// (its reads). So the report and proposals code may import those two files
+// and nothing else from lib/benchmarks, and the diagnosis (its cached
+// prompt), mode, validation, watch, execution, scorer, interviewer and
+// profile code import nothing from it at all. Each check has a planted
 // failing case below, so the scanner can't pass by being blind.
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -23,8 +28,6 @@ const ROOTS = ["lib/benchmarks", "app/api/benchmarks", "app/benchmarks", "compon
 /** Where a benchmark must never be read. */
 const FORBIDDEN_READERS = [
   "lib/diagnosis",
-  "lib/proposals",
-  "lib/report",
   "lib/mode",
   "lib/validation",
   "lib/watch",
@@ -33,6 +36,8 @@ const FORBIDDEN_READERS = [
   "lib/interviewer",
   "lib/profile",
 ];
+/** I-44a: where only the large-gap door may be read. */
+const GAP_READERS = ["lib/proposals", "lib/report"];
 
 function walk(dir: string): string[] {
   if (!existsSync(dir)) return [];
@@ -52,13 +57,15 @@ interface Violation {
 }
 
 const NETWORK =
-  /\bfetch\s*\((?!\s*[`"']\/api\/benchmarks\b)|from\s+["'](?:node:)?(?:https?|net|tls|dgram)["']|https?:\/\/(?!doi\.org\/10\.2908\/)/g;
+  /\bfetch\s*\((?!\s*[`"']\/api\/(?:benchmarks|proposals\/margin-review)\b)|from\s+["'](?:node:)?(?:https?|net|tls|dgram)["']|https?:\/\/(?!doi\.org\/10\.2908\/)/g;
 const DB_WRITE =
   /\.(?:insert|update|delete)\s*\(|\b(?:INSERT\s+INTO|UPDATE\s+\w+\s+SET|DELETE\s+FROM)\b/g;
 const FIELD_WRITE = /\b(?:writeField|createField|writeFields)\b/g;
 const MODEL = /from\s+["'](?:@anthropic-ai\/sdk|[^"']*\/llm(?:\/[^"']*)?)["']/g;
 const VERBS = /export\s+(?:async\s+)?(?:function|const)\s+(POST|PUT|PATCH|DELETE)\b/g;
 const READS_BENCHMARKS = /from\s+["'][^"']*benchmarks(?:\/[^"']*)?["']/g;
+/** I-44a: the one door — lib/benchmarks/gap and lib/benchmarks/gap-read. */
+const GAP_DOOR = /benchmarks\/gap(?:-read)?["']$/;
 
 /** Pure: every fence violation in one of the comparison's own source texts. */
 function auditSource(file: string, text: string): Violation[] {
@@ -79,6 +86,11 @@ function auditReader(file: string, text: string): Violation[] {
   return [...text.matchAll(READS_BENCHMARKS)].map((m) => ({ file, rule: "reader", match: m[0] }));
 }
 
+/** Pure: an import of lib/benchmarks other than the large-gap door (I-44a). */
+function auditGapReader(file: string, text: string): Violation[] {
+  return auditReader(file, text).filter((v) => !GAP_DOOR.test(v.match));
+}
+
 describe("the benchmark fence", () => {
   it("covers real files", () => {
     expect(ROOTS.flatMap(walk).length).toBeGreaterThan(1);
@@ -94,6 +106,18 @@ describe("the benchmark fence", () => {
       auditReader(f, readFileSync(f, "utf8")),
     );
     expect(found).toEqual([]);
+  });
+
+  it("the report and proposals read a benchmark only through the large-gap door (I-44a)", () => {
+    const files = GAP_READERS.flatMap(walk);
+    const found = files.flatMap((f) => auditGapReader(f, readFileSync(f, "utf8")));
+    expect(found).toEqual([]);
+    // The door is used: the report's findings and the margin review.
+    const doors = files.filter((f) => auditReader(f, readFileSync(f, "utf8")).length > 0);
+    expect(doors.map((f) => f.replace(/\\/g, "/")).sort()).toEqual([
+      "lib/proposals/margin-review.ts",
+      "lib/report/service.ts",
+    ]);
   });
 
   it("catches each planted violation", () => {
@@ -113,6 +137,15 @@ describe("the benchmark fence", () => {
     expect(
       auditReader("lib/diagnosis/x.ts", 'import { compare } from "../benchmarks/compare";'),
     ).toHaveLength(1);
+    expect(
+      auditGapReader("lib/report/x.ts", 'import { compare } from "../benchmarks/compare";'),
+    ).toHaveLength(1);
+    expect(
+      auditReader("lib/diagnosis/x.ts", 'import { largeGap } from "../benchmarks/gap";'),
+    ).toHaveLength(1);
+    expect(auditSource("x.ts", 'await fetch("/api/proposals/other")').map((x) => x.rule)).toEqual([
+      "network",
+    ]);
   });
 
   it("passes what the screen may do", () => {
@@ -124,5 +157,17 @@ describe("the benchmark fence", () => {
     ].join("\n");
     expect(auditSource("ok.ts", allowed)).toEqual([]);
     expect(auditReader("lib/diagnosis/x.ts", 'import { x } from "../report/y";')).toEqual([]);
+    expect(
+      auditGapReader(
+        "lib/report/x.ts",
+        'import { reportGapFinding } from "../benchmarks/gap-read";',
+      ),
+    ).toEqual([]);
+    expect(
+      auditGapReader("lib/proposals/x.ts", 'import { gapBasis } from "../benchmarks/gap";'),
+    ).toEqual([]);
+    expect(
+      auditSource("ok.ts", 'await fetch("/api/proposals/margin-review", { method: "POST" });'),
+    ).toEqual([]);
   });
 });

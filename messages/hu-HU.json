@@ -4451,5 +4451,22 @@
   "watchNoticed": {
     "label": "Észrevéve",
     "title": "Amit észrevettem"
+  },
+  "reportBenchmark": {
+    "label": "hasonló vállalkozásokkal összevetve",
+    "title": "Rögzített szabály szerint összevetve az Eurostat által hasonló vállalkozásokra közölt értékkel, nem ítélet"
+  },
+  "benchmarkGap": {
+    "label": "Nagy eltérés",
+    "title": "Az Ön működési árrése {points} ponttal elmarad a hasonló vállalkozásokétól.",
+    "rule": "Akkor nevezek nagynak egy eltérést, ha legalább {threshold} ponttal az Eurostat által közölt érték alatt van, azonos alapon összevetve: ugyanaz az ország, ugyanaz a vállalkozástípus, és az Ön mérete vagy minden méret.",
+    "where": "Mostantól megállapításként megjelenik a jelentésében, és javasolhatom, hogy nézze át az árait és a költségeit. A jóváhagyás önmagában semmit sem változtat.",
+    "propose": "Az árak és költségek átnézésének javaslata →",
+    "drafting": "Megfogalmazás…",
+    "status": "{status, select, pending {Önre vár a sorában} blocked {Az Ön egyik szabálya letiltotta} approved {Jóváhagyva} rejected {Elutasítva} expired {Lejárt} other {Javasolva}}",
+    "queue": "Megnyitás a sorában →",
+    "drafted": "Megfogalmazva. Önre vár; a jóváhagyása sem árat, sem költséget nem ír sehová.",
+    "blocked": "Az Ön egyik szabálya kizárja ezt, így letiltva áll a sorában.",
+    "failed": "Ez nem sikerült."
   }
 }
