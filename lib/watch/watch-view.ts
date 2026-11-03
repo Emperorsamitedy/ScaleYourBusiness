@@ -197,3 +197,22 @@ export function dayOfWatch(at: string, start: string, of: number): number | null
   if (Number.isNaN(n) || n < 0) return null;
   return Math.min(of, n + 1);
 }
+
+/**
+ * I-45b (decided 2026-11-03, owner: "Yes, show them"): the noticed lines the
+ * Watching screen lists, newest first. While a watch runs, those that fell
+ * on one of its days. With no watch running (instant mode, or no decision
+ * yet), every noticed line in the log, review alerts among them, each dated
+ * by its own day rather than numbered by a watch that isn't there.
+ */
+export function notedLines<E extends { at: string; kind: string }>(
+  log: readonly E[],
+  w: Pick<WatchDays, "start" | "of"> | null,
+  limit = 6,
+): E[] {
+  return log
+    .filter(
+      (e) => NOTED_KINDS.has(e.kind) && (w === null || dayOfWatch(e.at, w.start, w.of) !== null),
+    )
+    .slice(0, limit);
+}

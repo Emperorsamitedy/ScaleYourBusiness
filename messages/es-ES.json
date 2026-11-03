@@ -1859,6 +1859,11 @@
           "grant": "APPOINTMENTS_ALL_READ (opcional, junto con el anterior)",
           "why": "Sus citas. Square lo necesita junto con el anterior para leer todas las reservas de sus ubicaciones, no solo las hechas a través de SYB. No puede cambiar ninguna reserva.",
           "gives": "sus citas"
+        },
+        "s4": {
+          "grant": "ORDERS_READ (opcional, para lo que se vende junto)",
+          "why": "Lo que contenía cada pedido de caja, para mostrarle qué artículos se compran juntos. Solo guardo los nombres de los artículos de cada pedido y su día: ni precios, ni clientes, ni notas. No puede modificar ningún pedido. Si conectó Square antes de que se ofreciera este permiso, vuelva a conectarlo para añadirlo.",
+          "gives": "lo que contenía cada pedido de caja"
         }
       }
     },
@@ -6178,5 +6183,26 @@
       "askBody": "Con un clic queda hecho, para siempre. Las respuestas a sus propias consultas no se ven afectadas.",
       "button": "Darme de baja"
     }
+  },
+  "watchNoticed": {
+    "label": "Observado",
+    "title": "Lo que he observado"
+  },
+  "reportBenchmark": {
+    "label": "comparado con negocios similares",
+    "title": "Comparado, según una regla fija, con la cifra que publica Eurostat para negocios similares; no es un juicio"
+  },
+  "benchmarkGap": {
+    "label": "Una diferencia grande",
+    "title": "Su margen operativo está {points} puntos por debajo del de negocios similares.",
+    "rule": "Llamo grande a una diferencia a partir de {threshold} puntos por debajo de la cifra que publica Eurostat, comparando lo comparable: el mismo país, el mismo tipo de negocio y su tamaño o todos los tamaños.",
+    "where": "Ahora aparece en su informe como hallazgo, y puedo proponerle repasar sus precios y costes. Aprobarlo no cambia nada por sí solo.",
+    "propose": "Proponer repasar precios y costes →",
+    "drafting": "Redactando…",
+    "status": "{status, select, pending {Le espera en su cola} blocked {Bloqueada por una regla suya} approved {Aprobada} rejected {Rechazada} expired {Caducada} other {Propuesta}}",
+    "queue": "Abrirla en su cola →",
+    "drafted": "Redactada. Le espera; aprobarla no escribe ningún precio ni ningún coste.",
+    "blocked": "Una regla suya lo excluye, así que queda bloqueado en su cola.",
+    "failed": "No ha funcionado."
   }
 }

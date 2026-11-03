@@ -1859,6 +1859,11 @@
           "grant": "APPOINTMENTS_ALL_READ (facultatif, avec la précédente)",
           "why": "Vos rendez-vous. Square exige celle-ci, avec la précédente, pour lire toutes les réservations de vos établissements, pas seulement celles faites via SYB. Elle ne peut pas modifier une réservation.",
           "gives": "vos rendez-vous"
+        },
+        "s4": {
+          "grant": "ORDERS_READ (facultatif, pour ce qui se vend ensemble)",
+          "why": "Le contenu de chaque commande passée en caisse, pour vous montrer quels articles s’achètent ensemble. Je ne garde que le nom des articles de chaque commande et son jour : ni prix, ni clients, ni notes. Elle ne peut pas modifier une commande. Si vous avez connecté Square avant que cette autorisation ne soit proposée, reconnectez-le pour l’ajouter.",
+          "gives": "le contenu de chaque commande passée en caisse"
         }
       }
     },
@@ -6178,5 +6183,26 @@
       "askBody": "Un clic et c’est fait, définitivement. Les réponses à vos propres questions ne sont pas concernées.",
       "button": "Se désabonner"
     }
+  },
+  "watchNoticed": {
+    "label": "Remarqué",
+    "title": "Ce que j’ai remarqué"
+  },
+  "reportBenchmark": {
+    "label": "comparé à des entreprises similaires",
+    "title": "Mis en regard du chiffre publié par Eurostat pour des entreprises similaires, selon une règle fixe, sans jugement"
+  },
+  "benchmarkGap": {
+    "label": "Un écart important",
+    "title": "Votre marge d’exploitation est inférieure de {points} points à celle d’entreprises similaires.",
+    "rule": "J’appelle un écart important à partir de {threshold} points sous le chiffre publié par Eurostat, à comparaison égale : le même pays, le même type d’entreprise, et votre taille ou toutes les tailles.",
+    "where": "Il figure désormais dans votre rapport comme constat, et je peux vous proposer de passer en revue vos prix et vos coûts. Une validation ne change rien à elle seule.",
+    "propose": "Proposer de passer en revue prix et coûts →",
+    "drafting": "Rédaction…",
+    "status": "{status, select, pending {Vous attend dans votre file} blocked {Bloquée par une de vos règles} approved {Validée} rejected {Refusée} expired {Expirée} other {Proposée}}",
+    "queue": "L’ouvrir dans votre file →",
+    "drafted": "Rédigée. Elle vous attend ; sa validation n’écrit aucun prix ni aucun coût.",
+    "blocked": "Une de vos règles l’exclut : elle reste donc bloquée dans votre file.",
+    "failed": "Cela n’a pas fonctionné."
   }
 }

@@ -86,7 +86,7 @@ export interface SessionState {
 
 export interface SessionDeps {
   Recognition: RecognitionCtor | null;
-  /** BCP 47; the profile's language when known, else the browser's. */
+  /** BCP 47: the person's chosen language (I-50a, lib/voice/lang). */
   lang: string;
   getText: () => string;
   setText: (next: string) => void;
