@@ -8,92 +8,37 @@
 // (field) or one test load (lab), and what the audit refused to open.
 // "Run the audit" asks the server to read the site again; the screen says
 // when no PageSpeed key is set (speed isn't measured) and when the week's calls run out.
+//
+// L-3c (TASKS-LANGUAGES.md): the sheet's own words are the "site.audit"
+// catalogue; figures and dates in the reader's locale, money in the
+// finding's own currency. A finding's title, detail, threshold, formula,
+// window and assumptions, the path's step labels and notes, PageSpeed's
+// note and a page's speed error are what lib/site/audit built (L-4).
 
 import { useState } from "react";
 import type { SiteAuditView } from "../../lib/site/audit/view";
-import { NEVER_LINES, NOT_BUILT, REFUSAL_WORDS } from "../../lib/site/audit/view";
-import type { EuroFigure, SiteFinding } from "../../lib/site/audit/findings";
-import type { PageSpeedResult } from "../../lib/site/audit/pagespeed";
+import { NEVER_LINES } from "../../lib/site/audit/view";
+import type { SiteFinding } from "../../lib/site/audit/findings";
 import { SheetCard } from "../sheet/PageHead";
+import { useTr } from "../sheet/useTr";
+import {
+  basisOf,
+  dayWord,
+  euroLine,
+  measuredValue,
+  neverLine,
+  pagePath,
+  speedCell,
+  weightText,
+} from "./site-view";
 
-const SEVERITY: Record<SiteFinding["severity"], { word: string; tone: string }> = {
-  critical: { word: "ACT NOW", tone: "alarm" },
-  high: { word: "HIGH", tone: "drift" },
-  medium: { word: "MEDIUM", tone: "low" },
-  low: { word: "LOW", tone: "low" },
+/** A severity's tone; its word is the catalogue's `audit.severity.<severity>`. */
+const SEVERITY_TONE: Record<SiteFinding["severity"], string> = {
+  critical: "alarm",
+  high: "drift",
+  medium: "low",
+  low: "low",
 };
-
-const BASIS: Record<SiteFinding["evidence"]["basis"], string> = {
-  field: "real visitors",
-  field_origin: "real visitors, whole site",
-  lab: "one test load",
-  page_read: "page read",
-};
-
-function dayWord(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
-
-function bare(url: string): string {
-  try {
-    const u = new URL(url);
-    return u.pathname === "/" ? "home page" : u.pathname.replace(/\/$/, "");
-  } catch {
-    return url;
-  }
-}
-
-function euroLine(e: EuroFigure): string {
-  if (!e.computed) return e.why;
-  const f = (m: number) =>
-    new Intl.NumberFormat("en-IE", {
-      style: "currency",
-      currency: e.currency,
-      maximumFractionDigits: 0,
-    }).format(m / 100);
-  return `${f(e.low_minor)}–${f(e.high_minor)} a month`;
-}
-
-function measuredValue(f: SiteFinding): string {
-  const v = f.evidence.value;
-  if (v === undefined) return "—";
-  switch (f.evidence.unit) {
-    case "ms":
-      return f.evidence.metric === "lcp_ms" ? `${(v / 1000).toFixed(1)} s` : `${v} ms`;
-    case "bytes":
-      return `${(v / 1_000_000).toFixed(1)} MB`;
-    case "clicks":
-      return `${v} clicks`;
-    case "score":
-      return v.toFixed(2);
-    default:
-      return f.code === "broken_link" ? `status ${v}` : String(v);
-  }
-}
-
-/** One page's phone or computer numbers, field first. */
-function speedCell(r: PageSpeedResult | null): string {
-  if (!r) return "—";
-  const lcp = r.field?.lcp_ms?.p75 ?? r.lab.lcp_ms;
-  const cls = r.field?.cls?.p75 ?? r.lab.cls;
-  const inp = r.field?.inp_ms?.p75;
-  const parts = [
-    lcp !== null && lcp !== undefined ? `LCP ${(lcp / 1000).toFixed(1)} s` : null,
-    cls !== null && cls !== undefined ? `CLS ${cls.toFixed(2)}` : null,
-    inp !== undefined
-      ? `INP ${Math.round(inp)} ms`
-      : r.lab.tbt_ms !== null
-        ? `TBT ${Math.round(r.lab.tbt_ms)} ms (lab)`
-        : null,
-  ].filter(Boolean);
-  return parts.join(" · ");
-}
-
-function basisOf(r: PageSpeedResult | null): string {
-  if (!r) return "not measured";
-  if (!r.field) return "lab only — too few visitors for Google's field data";
-  return r.field.origin_fallback ? "field (whole site) + lab" : "field + lab";
-}
 
 export function SiteAuditSheet({
   initial,
@@ -102,11 +47,13 @@ export function SiteAuditSheet({
   initial: SiteAuditView | null;
   failure: { at: string; reason: string } | null;
 }) {
+  const { tr: t, locale } = useTr("site");
+  const tr = (key: string, values?: Record<string, string | number>) => t(`audit.${key}`, values);
   const [audit, setAudit] = useState<SiteAuditView | null>(initial);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(
     failure && (!initial || failure.at > initial.ran_at)
-      ? `The last run, ${dayWord(failure.at)}, failed: ${failure.reason}`
+      ? tr("notice.lastFailed", { day: dayWord(failure.at, locale), reason: failure.reason })
       : null,
   );
 
@@ -117,10 +64,10 @@ export function SiteAuditSheet({
       const res = await fetch("/api/site/audit", { method: "POST" });
       const j = (await res.json()) as { audit?: SiteAuditView; error?: string };
       if (j.audit) setAudit(j.audit);
-      if (!res.ok || !j.audit) setNotice(j.error ?? "the audit didn't run");
-      else setNotice("Measured — the findings below are this run's.");
+      if (!res.ok || !j.audit) setNotice(j.error ?? tr("notice.didntRun"));
+      else setNotice(tr("notice.measured"));
     } catch {
-      setNotice("the audit didn't run — try again in a moment");
+      setNotice(tr("notice.tryAgain"));
     } finally {
       setBusy(false);
     }
@@ -128,21 +75,17 @@ export function SiteAuditSheet({
 
   const runButton = (
     <button type="button" className="prop-btn st-small" disabled={busy} onClick={() => void run()}>
-      {busy
-        ? "Reading the site… (up to two minutes)"
-        : audit
-          ? "Run the audit again"
-          : "Run the audit"}
+      {busy ? tr("run.busy") : audit ? tr("run.again") : tr("run.first")}
     </button>
   );
 
   if (!audit) {
     return (
       <SheetCard
-        label="Measured · not run yet"
-        title="Speed, phones and the path to buying, measured"
+        label={tr("notRun.label")}
+        title={tr("notRun.title")}
         meta={runButton}
-        foot={NOT_BUILT}
+        foot={tr("notBuilt", { section: 2 })}
       >
         {notice && (
           <p className="st-note" aria-live="polite">
@@ -151,7 +94,7 @@ export function SiteAuditSheet({
         )}
         <ul className="st-evidence">
           {NEVER_LINES.map((l) => (
-            <li key={l}>{l}</li>
+            <li key={l}>{neverLine(l, t)}</li>
           ))}
         </ul>
       </SheetCard>
@@ -160,24 +103,36 @@ export function SiteAuditSheet({
 
   const ps = audit.pagespeed;
   const measured = audit.pages.filter((p) => p.mobile || p.desktop);
+  // The money column names its currency: English's header as it always read; another
+  // language names the findings' own currency (never converted), or says "money".
+  const stakeCurrency = audit.findings.find((f) => f.euro.computed);
+  const atStake =
+    locale === "en"
+      ? tr("table.atStake", { currency: "€" })
+      : stakeCurrency?.euro.computed
+        ? tr("table.atStake", { currency: stakeCurrency.euro.currency.toUpperCase() })
+        : tr("table.atStakeMoney");
   return (
     <SheetCard
-      label={`Measured · ran ${dayWord(audit.ran_at)} · ${audit.page_reads} pages read · ${ps.calls} PageSpeed calls`}
+      label={tr("ran", {
+        day: dayWord(audit.ran_at, locale),
+        pages: audit.page_reads,
+        calls: ps.calls,
+      })}
       title={
         audit.findings.length === 0
-          ? "Nothing outside the stated thresholds."
-          : `${audit.findings.length} measured finding${audit.findings.length === 1 ? "" : "s"}, each against a stated threshold`
+          ? tr("title.none")
+          : tr("title.some", { count: audit.findings.length })
       }
       meta={
         <>
-          <span className="word boxed low">no action</span>
+          <span className="word boxed low">{t("noAction")}</span>
           {runButton}
         </>
       }
       foot={
         <>
-          {NOT_BUILT} Fixing one goes through a proposal and the queue; checkout is never changed
-          automatically — findings there come with instructions.
+          {tr("notBuilt", { section: 2 })} {tr("footFix")}
         </>
       }
     >
@@ -189,8 +144,11 @@ export function SiteAuditSheet({
       {ps.note && <p className="st-note">{ps.note}</p>}
       {ps.next_from && (
         <p className="st-note">
-          {ps.used_this_week} of {ps.weekly_cap} PageSpeed calls this week; speed can be measured
-          again from {dayWord(ps.next_from)}.
+          {tr("calls", {
+            used: ps.used_this_week,
+            cap: ps.weekly_cap,
+            day: dayWord(ps.next_from, locale),
+          })}
         </p>
       )}
 
@@ -198,37 +156,38 @@ export function SiteAuditSheet({
         <table className="rt st-table">
           <thead>
             <tr>
-              <th scope="col">Severity</th>
-              <th scope="col">What was measured</th>
-              <th scope="col">Measured</th>
-              <th scope="col">Threshold</th>
-              <th scope="col">€ at stake</th>
+              <th scope="col">{tr("table.severity")}</th>
+              <th scope="col">{tr("table.what")}</th>
+              <th scope="col">{tr("table.measured")}</th>
+              <th scope="col">{tr("table.threshold")}</th>
+              <th scope="col">{atStake}</th>
             </tr>
           </thead>
           <tbody>
             {audit.findings.map((f) => {
-              const flag = SEVERITY[f.severity];
               return (
                 <tr key={f.id}>
-                  <td data-label="Severity">
-                    <span className={`word ${flag.tone}`}>{flag.word}</span>
+                  <td data-label={tr("table.severity")}>
+                    <span className={`word ${SEVERITY_TONE[f.severity]}`}>
+                      {tr(`severity.${f.severity}`)}
+                    </span>
                   </td>
-                  <th scope="row" data-label="What was measured">
+                  <th scope="row" data-label={tr("table.what")}>
                     {f.title.en}
                     <span className="st-sub">{f.detail.en}</span>
                   </th>
-                  <td className="src" data-label="Measured">
-                    {measuredValue(f)}
+                  <td className="src" data-label={tr("table.measured")}>
+                    {measuredValue(f, t, locale)}
                     <span className="st-sub">
-                      {BASIS[f.evidence.basis]}
-                      {f.evidence.strategy ? ` · ${f.evidence.strategy}` : ""}
+                      {tr(`basis.${f.evidence.basis}`)}
+                      {f.evidence.strategy ? ` · ${tr(`strategy.${f.evidence.strategy}`)}` : ""}
                     </span>
                   </td>
-                  <td className="src" data-label="Threshold">
+                  <td className="src" data-label={tr("table.threshold")}>
                     {f.threshold}
                   </td>
-                  <td className="src" data-label="€ at stake">
-                    {euroLine(f.euro)}
+                  <td className="src" data-label={atStake}>
+                    {euroLine(f.euro, t, locale)}
                     {f.euro.computed && (
                       <span className="st-sub">
                         {f.euro.formula}.{" "}
@@ -245,16 +204,18 @@ export function SiteAuditSheet({
       )}
 
       <p className="cs-label st-gap">
-        The path to buying ·{" "}
-        {audit.path.clicks === null
-          ? "not counted"
-          : `${audit.path.clicks} click${audit.path.clicks === 1 ? "" : "s"} from home`}
+        {tr("path.label", {
+          what:
+            audit.path.clicks === null
+              ? tr("path.notCounted")
+              : tr("path.fromHome", { count: audit.path.clicks }),
+        })}
       </p>
       <ol className="st-steps st-path">
         {audit.path.steps.map((s) => (
           <li key={`${s.clicks}-${s.label}`}>
             <span className="st-n">{s.clicks}</span> {s.label}
-            {s.kind === "page" && s.url && <span className="src"> · {bare(s.url)}</span>}
+            {s.kind === "page" && s.url && <span className="src"> · {pagePath(s.url, t)}</span>}
           </li>
         ))}
       </ol>
@@ -266,39 +227,37 @@ export function SiteAuditSheet({
 
       {measured.length > 0 && (
         <>
-          <p className="cs-label st-gap">The pages Google loaded</p>
+          <p className="cs-label st-gap">{tr("pages.label")}</p>
           <table className="rt st-table">
             <thead>
               <tr>
-                <th scope="col">Page</th>
-                <th scope="col">On a phone</th>
-                <th scope="col">On a computer</th>
-                <th scope="col">Weight</th>
-                <th scope="col">From</th>
+                <th scope="col">{tr("pages.page")}</th>
+                <th scope="col">{tr("pages.phone")}</th>
+                <th scope="col">{tr("pages.computer")}</th>
+                <th scope="col">{tr("pages.weight")}</th>
+                <th scope="col">{tr("pages.from")}</th>
               </tr>
             </thead>
             <tbody>
               {measured.map((p) => (
                 <tr key={p.url}>
-                  <th scope="row" data-label="Page">
-                    {bare(p.url)}
+                  <th scope="row" data-label={tr("pages.page")}>
+                    {pagePath(p.url, t)}
                     <span className="st-sub">
-                      {p.role} · {p.clicks} click{p.clicks === 1 ? "" : "s"} from home
+                      {tr("pages.role", { role: tr(`role.${p.role}`), count: p.clicks })}
                     </span>
                   </th>
-                  <td className="src" data-label="On a phone">
-                    {speedCell(p.mobile)}
+                  <td className="src" data-label={tr("pages.phone")}>
+                    {speedCell(p.mobile, t, locale)}
                   </td>
-                  <td className="src" data-label="On a computer">
-                    {speedCell(p.desktop)}
+                  <td className="src" data-label={tr("pages.computer")}>
+                    {speedCell(p.desktop, t, locale)}
                   </td>
-                  <td className="src" data-label="Weight">
-                    {p.mobile?.lab.page_bytes
-                      ? `${(p.mobile.lab.page_bytes / 1_000_000).toFixed(1)} MB`
-                      : "—"}
+                  <td className="src" data-label={tr("pages.weight")}>
+                    {weightText(p.mobile?.lab.page_bytes, t, locale)}
                   </td>
-                  <td className="src" data-label="From">
-                    {basisOf(p.mobile)}
+                  <td className="src" data-label={tr("pages.from")}>
+                    {basisOf(p.mobile, t)}
                   </td>
                 </tr>
               ))}
@@ -312,7 +271,7 @@ export function SiteAuditSheet({
             .filter((p) => p.speed_error)
             .map((p) => (
               <li key={p.url}>
-                {bare(p.url)} — {p.speed_error}
+                {pagePath(p.url, t)} — {p.speed_error}
               </li>
             ))}
         </ul>
@@ -320,12 +279,12 @@ export function SiteAuditSheet({
 
       {audit.refused.length > 0 && (
         <>
-          <p className="cs-label st-gap">Seen and left alone</p>
+          <p className="cs-label st-gap">{tr("refused.label")}</p>
           <ul className="st-unread">
             {audit.refused.slice(0, 8).map((r) => (
               <li key={r.url}>
-                {r.reason === "external_booking" ? new URL(r.url).hostname : bare(r.url)} —{" "}
-                {REFUSAL_WORDS[r.reason]}
+                {r.reason === "external_booking" ? new URL(r.url).hostname : pagePath(r.url, t)} —{" "}
+                {tr(`refused.${r.reason}`)}
               </li>
             ))}
           </ul>
@@ -333,7 +292,7 @@ export function SiteAuditSheet({
       )}
       <ul className="st-unread">
         {audit.never.map((l) => (
-          <li key={l}>{l}</li>
+          <li key={l}>{neverLine(l, t)}</li>
         ))}
       </ul>
     </SheetCard>

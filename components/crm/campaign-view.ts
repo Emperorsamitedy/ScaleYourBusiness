@@ -5,8 +5,21 @@
 // sent, refused by reason, outcome unknown, failed, still to send,
 // unsubscribed since — and, plainly, that a sent email can't be recalled.
 // Counted from the API's figures; nothing is estimated.
+//
+// L-3c (TASKS-LANGUAGES.md): the fixed words are the "customers.campaign"
+// catalogue through an optional translator, English by default from
+// messages/en.json, so English says exactly what it always said; counts,
+// rates and dates in the reader's locale. The gate words, the arithmetic
+// and measuredSentence are built from data and stay English (L-4).
 
+import { dayMonthYear } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import { num } from "../sheet/num";
+
+const EN = (): Tr => englishTr("customers.campaign");
 
 export type SendPhase = "awaiting_draft" | "awaiting_approval" | "held" | "sending" | "sent";
 
@@ -52,69 +65,92 @@ export const REFUSAL_WORDS: Readonly<Record<string, string>> = {
 };
 
 /** Pure: the phase as a worded flag; cobalt only while the machine is genuinely sending. */
-export function phaseFlag(phase: SendPhase): {
+export function phaseFlag(
+  phase: SendPhase,
+  tr: Tr = EN(),
+): {
   word: string;
   tone: "ok" | "low" | "drift" | "live";
 } {
   switch (phase) {
     case "sent":
-      return { word: "sent", tone: "ok" };
+      return { word: tr("phase.sent"), tone: "ok" };
     case "sending":
-      return { word: "sending", tone: "live" };
+      return { word: tr("phase.sending"), tone: "live" };
     case "held":
-      return { word: "held", tone: "drift" };
+      return { word: tr("phase.held"), tone: "drift" };
     case "awaiting_approval":
-      return { word: "awaiting your approval", tone: "low" };
+      return { word: tr("phase.awaiting_approval"), tone: "low" };
     default:
-      return { word: "not drafted", tone: "low" };
+      return { word: tr("phase.awaiting_draft"), tone: "low" };
   }
 }
 
-const plural = (n: number, one: string, many: string) => `${num(n)} ${n === 1 ? one : many}`;
+/** A day as the send line prints it: ISO in English (as it always was), the reader's date otherwise. */
+function sentDay(iso: string, locale: AppLocale): string {
+  return locale === "en" ? iso.slice(0, 10) : dayMonthYear(iso, locale);
+}
 
 /** Pure: where the send stands, in one first-person sentence. */
-export function sendSentence(v: SendView, recipients: number): string {
+export function sendSentence(
+  v: SendView,
+  recipients: number,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+): string {
   switch (v.phase) {
     case "awaiting_draft":
-      return "Approved. Draft the email next; nothing sends until you approve the email itself.";
+      return tr("sentence.awaiting_draft");
     case "awaiting_approval":
-      return `Drafted for ${plural(recipients, "customer", "customers")}. Read it, then approve the email itself to send it.`;
+      return tr("sentence.awaiting_approval", { count: recipients });
     case "held":
-      return v.gates[0]
-        ? `Approved, not sent. ${v.gates[0].words}`
-        : "Approved, not sent yet. It goes out on the next run.";
+      // The gate's own words come from the server (L-4).
+      return v.gates[0] ? tr("sentence.heldGate", { gate: v.gates[0].words }) : tr("sentence.held");
     case "sending":
-      return `Sending: ${num(v.counts.sent)} of ${num(v.counts.total)} sent so far. The rest go out on the next run, each checked again as it goes.`;
+      return tr("sentence.sending", {
+        sent: num(v.counts.sent, 0, locale),
+        total: num(v.counts.total, 0, locale),
+      });
     case "sent":
-      return `Sent to ${plural(v.counts.sent, "customer", "customers")}${v.execution?.finished_at ? ` on ${v.execution.finished_at.slice(0, 10)}` : ""}. A sent email can't be recalled.`;
+      return v.execution?.finished_at
+        ? tr("sentence.sentOn", {
+            count: v.counts.sent,
+            date: sentDay(v.execution.finished_at, locale),
+          })
+        : tr("sentence.sent", { count: v.counts.sent });
   }
+}
+
+/** The English refusal word's key in the catalogue, by refusal code. */
+export function refusalWord(code: string, tr: Tr = EN()): string {
+  return code in REFUSAL_WORDS ? tr(`refusal.${code}`) : code;
 }
 
 /** Pure: the counts table, in order, leaving out what is zero (except sent). */
-export function countRows(c: SendCounts): { label: string; n: number }[] {
+export function countRows(c: SendCounts, tr: Tr = EN()): { label: string; n: number }[] {
   const rows: { label: string; n: number }[] = [
-    { label: "sent", n: c.sent },
-    { label: "refused at send", n: c.refused },
-    { label: "outcome unknown", n: c.unknown + c.sending },
-    { label: "refused by the email service", n: c.failed },
-    { label: "still to send", n: c.pending },
-    { label: "unsubscribed since", n: c.unsubscribed },
+    { label: tr("count.sent"), n: c.sent },
+    { label: tr("count.refused"), n: c.refused },
+    { label: tr("count.unknown"), n: c.unknown + c.sending },
+    { label: tr("count.failed"), n: c.failed },
+    { label: tr("count.pending"), n: c.pending },
+    { label: tr("count.unsubscribed"), n: c.unsubscribed },
   ];
   return rows.filter((r, i) => i === 0 || r.n > 0);
 }
 
 /** Pure: refused recipients by reason, most first, in words. */
-export function refusalLines(c: SendCounts): string[] {
+export function refusalLines(c: SendCounts, tr: Tr = EN(), locale: AppLocale = "en"): string[] {
   return Object.entries(c.refused_by_reason)
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([code, n]) => `${REFUSAL_WORDS[code] ?? code} · ${num(n)}`);
+    .map(([code, n]) => `${refusalWord(code, tr)} · ${num(n, 0, locale)}`);
 }
 
 /** Pure: the honest line about unconfirmed sends, or null. */
-export function unknownLine(c: SendCounts): string | null {
+export function unknownLine(c: SendCounts, tr: Tr = EN()): string | null {
   const n = c.unknown + c.sending;
   if (n === 0) return null;
-  return `${plural(n, "email", "emails")} may have gone out: the email service didn't confirm either way. I won't send to ${n === 1 ? "that customer" : "those customers"} again for this campaign.`;
+  return tr("unknown", { count: n });
 }
 
 /* ── P4-17: the readback, once a campaign has gone out ── */
@@ -155,55 +191,82 @@ export interface ReadbackView {
 }
 
 /** Pure: the verdict as a worded flag — the same words as the history ledger. */
-export function readbackFlag(v: ReadbackVerdict): { word: string; tone: "ok" | "low" | "alarm" } {
+export function readbackFlag(
+  v: ReadbackVerdict,
+  tr: Tr = EN(),
+): { word: string; tone: "ok" | "low" | "alarm" } {
   switch (v) {
     case "helped":
-      return { word: "helped", tone: "ok" };
+      return { word: tr("verdict.helped"), tone: "ok" };
     case "backfired":
-      return { word: "backfired", tone: "alarm" };
+      return { word: tr("verdict.backfired"), tone: "alarm" };
     case "did_nothing":
-      return { word: "did nothing", tone: "low" };
+      return { word: tr("verdict.did_nothing"), tone: "low" };
     case "too_early":
-      return { word: "too early to say", tone: "low" };
+      return { word: tr("verdict.too_early"), tone: "low" };
     default:
-      return { word: "unmeasured", tone: "low" };
+      return { word: tr("verdict.unmeasured"), tone: "low" };
   }
 }
 
-const rate = (n: number, d: number): string => (d === 0 ? "—" : `${((n / d) * 100).toFixed(1)}%`);
+/** A share to one decimal: "40.0%" in English, the language's own percent otherwise. */
+function rate(n: number, d: number, locale: AppLocale = "en"): string {
+  if (d === 0) return "—";
+  if (locale === "en") return `${((n / d) * 100).toFixed(1)}%`;
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(Number(((n / d) * 100).toFixed(1)) / 100);
+}
 
 /** Pure: the readback table — label, count with its unit, and the rate it is a share of. */
-export function readbackRows(r: ReadbackView): { label: string; count: string; rate: string }[] {
+export function readbackRows(
+  r: ReadbackView,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+): { label: string; count: string; rate: string }[] {
   const d = r.delivery;
-  const emails = (n: number) => `${num(n)} ${n === 1 ? "email" : "emails"}`;
-  const people = (n: number) => `${num(n)} ${n === 1 ? "person" : "people"}`;
+  const emails = (n: number) => tr("readback.emails", { count: n });
+  const people = (n: number) => tr("readback.people", { count: n });
+  const pc = (n: number, of: number) => rate(n, of, locale);
   const reported = (n: number, unit: (n: number) => string) =>
     r.delivery_reported
-      ? { count: unit(n), rate: rate(n, d.sent) }
-      : { count: "not reported", rate: "—" };
-  const group = r.kind === "vip" ? "best customers" : "lapsed customers";
+      ? { count: unit(n), rate: pc(n, d.sent) }
+      : { count: tr("readback.notReported"), rate: "—" };
+  const measuredOf = (g: ReadbackGroup) =>
+    tr("readback.measuredOf", {
+      returned: num(g.returned, 0, locale),
+      measured: num(g.measured, 0, locale),
+    });
   const rows = [
-    { label: "sent", count: emails(d.sent), rate: "" },
-    { label: "delivered", ...reported(d.delivered, emails) },
-    { label: "bounced", ...reported(d.bounced, emails) },
-    { label: "unsubscribed", count: people(d.unsubscribed), rate: rate(d.unsubscribed, d.sent) },
-    { label: "marked as spam", ...reported(d.complained, people) },
-    { label: "replied", count: "not counted", rate: "—" },
+    { label: tr("readback.row.sent"), count: emails(d.sent), rate: "" },
+    { label: tr("readback.row.delivered"), ...reported(d.delivered, emails) },
+    { label: tr("readback.row.bounced"), ...reported(d.bounced, emails) },
     {
-      label: "bought again since",
-      count: `${num(r.recipients.returned)} of ${num(r.recipients.measured)} measured`,
-      rate: rate(r.recipients.returned, r.recipients.measured),
+      label: tr("readback.row.unsubscribed"),
+      count: people(d.unsubscribed),
+      rate: pc(d.unsubscribed, d.sent),
+    },
+    { label: tr("readback.row.spam"), ...reported(d.complained, people) },
+    { label: tr("readback.row.replied"), count: tr("readback.notCounted"), rate: "—" },
+    {
+      label: tr("readback.row.boughtAgain"),
+      count: measuredOf(r.recipients),
+      rate: pc(r.recipients.returned, r.recipients.measured),
     },
     {
-      label: `${group} not emailed, bought again`,
-      count: `${num(r.comparison.returned)} of ${num(r.comparison.measured)} measured`,
-      rate: rate(r.comparison.returned, r.comparison.measured),
+      label: tr("readback.row.comparison", { group: r.kind === "vip" ? "vip" : "winback" }),
+      count: measuredOf(r.comparison),
+      rate: pc(r.comparison.returned, r.comparison.measured),
     },
   ];
   if (r.lift_pp !== null) {
     rows.push({
-      label: "difference",
-      count: `${r.lift_pp >= 0 ? "+" : "−"}${num(Math.abs(r.lift_pp), 1)} points`,
+      label: tr("readback.row.difference"),
+      count: tr("readback.points", {
+        value: `${r.lift_pp >= 0 ? "+" : "−"}${num(Math.abs(r.lift_pp), 1, locale)}`,
+      }),
       rate: "",
     });
   }

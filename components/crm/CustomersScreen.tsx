@@ -11,12 +11,23 @@
 // full address never needs to be shown. P4-15: a campaign sends only after
 // the owner approves the email itself, through the execution engine, and
 // its card shows where the send stands and which gate holds it.
+//
+// L-3c (TASKS-LANGUAGES.md): the screen's own words are the "customers"
+// catalogue; figures, money (in the contact's own currency, never
+// converted) and dates in the reader's locale. Names, addresses, segment
+// labels and their evidence, and the server's notices are content or built
+// by the server (L-4), shown as they come. The CSV example and the
+// currency codes stay as they are: the importer reads English headers.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "../../app/customers.css";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyExact, num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { dayMonth, dayMonthYear } from "../../lib/i18n/format";
+import type { Tr } from "../../lib/i18n/tr";
 import type { CampaignView } from "./CampaignCard";
 import { CampaignCard } from "./CampaignCard";
 import {
@@ -25,6 +36,7 @@ import {
   type Lifecycle,
   customersHeadline,
   filterContacts,
+  lifecycleWord,
   maskEmail,
 } from "./customers-view";
 
@@ -83,23 +95,22 @@ type State =
 
 const PAGE = 50;
 
-const CONSENT_WORD: Record<Contact["consent_status"], string> = {
-  explicit_consent: "explicit consent",
-  implied_consent: "implied consent — not explicit",
-  no_consent: "no consent",
-  unsure: "unsure — not explicit",
-};
+/** The consent question the posture comes from, by its bank id. */
+const CONSENT_QUESTION = "6.4b";
+/** The example year in the statement box's placeholder. */
+const EXAMPLE_YEAR = "2024";
+/** The CSV box's example: the importer reads English column headers, in every language. */
+const CSV_EXAMPLE =
+  "email,name,last order date,orders,total spent\nanna@example.com,Anna,2026-03-02,4,312.50";
+/** The currency box's example: ISO codes, the same in every language. */
+const CURRENCY_EXAMPLE = "EUR, HUF, …";
+const SKIP_KINDS = ["suppressed", "already_exists", "duplicate_in_batch", "invalid"];
 
-const POSTURE_WORD: Record<Payload["posture"], string> = {
-  enabled: "You said customers gave explicit consent — outbound is possible, per contact.",
-  caution:
-    "Your consent answer was implied or unsure — only contacts with explicit consent can be emailed.",
-  disabled: "You said customers gave no consent — outbound email is off.",
-  unknown: "You haven't answered the consent question (6.4b) — treated as caution.",
-};
+/** A count as the import notice always printed it in English (ungrouped); grouped otherwise. */
+const count = (n: number, locale: AppLocale) => (locale === "en" ? String(n) : num(n, 0, locale));
 
 /** The import's outcome in words — never a JSON dump. */
-function importNotice(j: Record<string, unknown>): string {
+function importNotice(j: Record<string, unknown>, tr: Tr, locale: AppLocale): string {
   const skipped = (j.skipped ?? {}) as Record<string, number>;
   const purchase = (j.purchase ?? { columns: [], unreadable: 0 }) as {
     columns: string[];
@@ -110,46 +121,48 @@ function importNotice(j: Record<string, unknown>): string {
     column: boolean;
     unreadable: number;
   };
-  const words: Record<string, string> = {
-    suppressed: "on the unsubscribe list",
-    already_exists: "already here",
-    duplicate_in_batch: "repeated in the file",
-    invalid: "unreadable rows",
-  };
   const skips = Object.entries(skipped)
     .filter(([, n]) => n > 0)
-    .map(([k, n]) => `${n} ${words[k] ?? k}`);
-  const parts = [`Imported ${String(j.imported ?? 0)}.`];
-  if (skips.length > 0) parts.push(`Skipped ${skips.join(", ")}.`);
+    .map(([k, n]) =>
+      SKIP_KINDS.includes(k)
+        ? tr(`import.skip.${k}`, { count: count(n, locale) })
+        : `${count(n, locale)} ${k}`,
+    );
+  const parts = [tr("import.imported", { count: count(Number(j.imported ?? 0), locale) })];
+  if (skips.length > 0) parts.push(tr("import.skipped", { list: skips.join(tr("import.sep")) }));
   if (purchase.columns.length > 0) {
     parts.push(
-      `Purchase history read from ${purchase.columns.length} column${purchase.columns.length === 1 ? "" : "s"}${purchase.unreadable > 0 ? `; ${purchase.unreadable} value${purchase.unreadable === 1 ? "" : "s"} couldn't be read and were left empty` : ""}.`,
+      purchase.unreadable > 0
+        ? tr("import.purchaseUnreadable", {
+            columns: purchase.columns.length,
+            unreadable: purchase.unreadable,
+          })
+        : tr("import.purchase", { columns: purchase.columns.length }),
     );
   }
   if ((purchase.refreshed ?? 0) > 0) {
-    const n = purchase.refreshed ?? 0;
-    parts.push(
-      `Updated the purchase history of ${n} customer${n === 1 ? "" : "s"} already here; their consent stays as recorded.`,
-    );
+    parts.push(tr("import.refreshed", { count: purchase.refreshed ?? 0 }));
   }
   if (country.column && country.unreadable > 0) {
-    parts.push(
-      `${country.unreadable} countr${country.unreadable === 1 ? "y wasn't" : "ies weren't"} recognised and ${country.unreadable === 1 ? "was" : "were"} left unknown.`,
-    );
+    parts.push(tr("import.country", { count: country.unreadable }));
   }
   return parts.join(" ");
 }
 
-function spent(c: Contact): string {
+function spent(c: Contact, locale: AppLocale): string {
   return c.total_spent_minor === null || c.spent_currency === null
     ? "—"
-    : moneyExact(c.total_spent_minor, c.spent_currency);
+    : moneyExact(c.total_spent_minor, c.spent_currency, locale);
 }
 
-function lastOrder(iso: string | null): string {
+function lastOrder(iso: string | null, locale: AppLocale): string {
   if (!iso) return "—";
   const d = new Date(iso);
   const sameYear = d.getUTCFullYear() === new Date().getUTCFullYear();
+  if (locale !== "en") {
+    const day = d.toISOString().slice(0, 10);
+    return sameYear ? dayMonth(day, locale) : dayMonthYear(day, locale);
+  }
   return d.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
@@ -159,6 +172,7 @@ function lastOrder(iso: string | null): string {
 }
 
 export function CustomersScreen() {
+  const { tr, locale } = useTr("customers");
   const [state, setState] = useState<State>({ phase: "loading" });
   const recordRef = useRef<HTMLElement | null>(null);
 
@@ -191,7 +205,7 @@ export function CustomersScreen() {
   if (state.phase === "loading") {
     return (
       <main className="screen cu-screen">
-        <PageHead kicker="Customers" title="Opening customers…" />
+        <PageHead kicker={tr("kicker")} title={tr("opening")} />
       </main>
     );
   }
@@ -201,10 +215,10 @@ export function CustomersScreen() {
         <div className="auth-col">
           <span className="wordmark">SYB</span>
           <section className="card auth-card">
-            <span className="auth-eyebrow">customers</span>
-            <h1 className="auth-title">Start with the intake.</h1>
+            <span className="auth-eyebrow">{tr("signedOut.eyebrow")}</span>
+            <h1 className="auth-title">{tr("signedOut.title")}</h1>
             <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
-              Begin
+              {tr("signedOut.begin")}
             </Link>
           </section>
         </div>
@@ -225,7 +239,7 @@ export function CustomersScreen() {
     });
     const j = (await res.json()) as { error?: string } & Record<string, unknown>;
     if (!res.ok) {
-      setState({ ...s, busy: false, notice: j.error ?? "that didn't work" });
+      setState({ ...s, busy: false, notice: j.error ?? tr("failed") });
       return;
     }
     await load();
@@ -247,14 +261,14 @@ export function CustomersScreen() {
     }
   };
 
-  const who = (c: Contact) => c.name ?? maskEmail(c.email);
+  const who = (c: Contact) => c.name ?? maskEmail(c.email, tr);
 
   return (
     <main className="screen cu-screen">
       <PageHead
-        kicker="Customers"
-        title={customersHeadline(s.contacts.length, s.lifecycle.lapsed)}
-        aside="From the list you imported · nothing sends without your approval of the email"
+        kicker={tr("kicker")}
+        title={customersHeadline(s.contacts.length, s.lifecycle.lapsed, tr)}
+        aside={tr("aside")}
       />
 
       {s.notice && (
@@ -264,28 +278,28 @@ export function CustomersScreen() {
       )}
 
       <div className="cu-grid">
-        <section className="cs cu-list" aria-label="Customers">
+        <section className="cs cu-list" aria-label={tr("list.label")}>
           <div className="cu-find">
             <label className="cs-label" htmlFor="cu-q">
-              Find a customer
+              {tr("list.find")}
             </label>
             <input
               id="cu-q"
               className="cu-search"
               type="search"
-              placeholder="name or email"
+              placeholder={tr("list.search")}
               autoComplete="off"
               value={s.query}
               onChange={(e) => setState({ ...s, query: e.target.value, shown: PAGE })}
             />
-            <div className="cu-filters" role="group" aria-label="Filter by pattern">
+            <div className="cu-filters" role="group" aria-label={tr("list.filters")}>
               <button
                 type="button"
                 className={`cu-chip${s.filter === "all" ? " on" : ""}`}
                 aria-pressed={s.filter === "all"}
                 onClick={() => setState({ ...s, filter: "all", shown: PAGE })}
               >
-                All · {num(s.contacts.length)}
+                {tr("list.all", { count: num(s.contacts.length, 0, locale) })}
               </button>
               {LIFECYCLE_ORDER.filter((l) => s.lifecycle[l] > 0).map((l) => (
                 <button
@@ -295,7 +309,7 @@ export function CustomersScreen() {
                   aria-pressed={s.filter === l}
                   onClick={() => setState({ ...s, filter: l, shown: PAGE })}
                 >
-                  {LIFECYCLE_WORD[l].word} · {num(s.lifecycle[l])}
+                  {lifecycleWord(l, tr)} · {num(s.lifecycle[l], 0, locale)}
                 </button>
               ))}
             </div>
@@ -304,27 +318,25 @@ export function CustomersScreen() {
           <div className="cu-table-wrap">
             {visible.length === 0 ? (
               <p className="cu-empty">
-                {s.contacts.length === 0
-                  ? "No customers yet. Import your customer list below — under your own attestation of what they consented to."
-                  : "Nobody matches that."}
+                {s.contacts.length === 0 ? tr("list.empty") : tr("list.noMatch")}
               </p>
             ) : (
               <table className="rt cu-table">
                 <thead>
                   <tr>
-                    <th scope="col">Customer</th>
+                    <th scope="col">{tr("list.customer")}</th>
                     <th scope="col" className="num">
-                      Purchases
+                      {tr("list.purchases")}
                     </th>
                     <th scope="col" className="num">
-                      Spent
+                      {tr("list.spent")}
                     </th>
                     <th scope="col" className="num">
-                      Last purchase
+                      {tr("list.lastPurchase")}
                     </th>
-                    <th scope="col">Pattern</th>
+                    <th scope="col">{tr("list.pattern")}</th>
                     <th scope="col">
-                      <span className="sr-only">Open</span>
+                      <span className="sr-only">{tr("list.open")}</span>
                     </th>
                   </tr>
                 </thead>
@@ -335,29 +347,31 @@ export function CustomersScreen() {
                       <tr key={c.id} className={open?.id === c.id ? "on" : undefined}>
                         <th scope="row">
                           <span className="cu-name">{who(c)}</span>
-                          {c.name && <span className="src cu-sub">{maskEmail(c.email)}</span>}
+                          {c.name && <span className="src cu-sub">{maskEmail(c.email, tr)}</span>}
                         </th>
-                        <td className="num" data-label="Purchases">
-                          {c.orders_count ?? "—"}
+                        <td className="num" data-label={tr("list.purchases")}>
+                          {c.orders_count === null ? "—" : count(c.orders_count, locale)}
                         </td>
-                        <td className="num" data-label="Spent">
-                          {spent(c)}
+                        <td className="num" data-label={tr("list.spent")}>
+                          {spent(c, locale)}
                         </td>
-                        <td className="num" data-label="Last purchase">
-                          {lastOrder(c.last_purchase_at)}
+                        <td className="num" data-label={tr("list.lastPurchase")}>
+                          {lastOrder(c.last_purchase_at, locale)}
                         </td>
-                        <td data-label="Pattern">
-                          <span className={`word boxed ${w.tone}`}>{w.word}</span>
+                        <td data-label={tr("list.pattern")}>
+                          <span className={`word boxed ${w.tone}`}>
+                            {lifecycleWord(c.lifecycle, tr)}
+                          </span>
                         </td>
                         <td className="cu-open">
                           <button
                             type="button"
                             className="prop-btn cu-open-btn"
                             aria-pressed={open?.id === c.id}
-                            aria-label={`Open ${who(c)}`}
+                            aria-label={tr("list.openWho", { name: who(c) })}
                             onClick={() => pick(c.id)}
                           >
-                            Open
+                            {tr("list.open")}
                           </button>
                         </td>
                       </tr>
@@ -369,9 +383,16 @@ export function CustomersScreen() {
           </div>
           <footer className="cs-foot cu-foot">
             <span>
-              Showing {num(visible.length)} of {num(list.length)}
-              {list.length !== s.contacts.length ? ` (${num(s.contacts.length)} in all)` : ""} ·
-              emails are partly hidden on screen
+              {list.length !== s.contacts.length
+                ? tr("list.showingFiltered", {
+                    shown: num(visible.length, 0, locale),
+                    total: num(list.length, 0, locale),
+                    all: num(s.contacts.length, 0, locale),
+                  })
+                : tr("list.showing", {
+                    shown: num(visible.length, 0, locale),
+                    total: num(list.length, 0, locale),
+                  })}
             </span>
             {list.length > visible.length && (
               <button
@@ -379,7 +400,9 @@ export function CustomersScreen() {
                 className="prop-btn quiet"
                 onClick={() => setState({ ...s, shown: s.shown + PAGE })}
               >
-                Show {Math.min(PAGE, list.length - visible.length)} more
+                {tr("list.more", {
+                  count: num(Math.min(PAGE, list.length - visible.length), 0, locale),
+                })}
               </button>
             )}
           </footer>
@@ -393,75 +416,69 @@ export function CustomersScreen() {
             aria-live="polite"
           >
             <header className="cu-rec-head">
-              <p className="cs-label">Customer record</p>
+              <p className="cs-label">{tr("record.label")}</p>
               <h2 className="cs-title" id="cu-record-name">
-                {open.name ?? "No name on record"}
+                {open.name ?? tr("record.noName")}
               </h2>
               <p className="cu-rec-sub">
-                {maskEmail(open.email)} · {open.country ?? "country unknown"}
+                {maskEmail(open.email, tr)} · {open.country ?? tr("record.countryUnknown")}
               </p>
             </header>
             <dl className="cu-stats">
               <div>
-                <dt>Purchases</dt>
-                <dd>{open.orders_count ?? "—"}</dd>
+                <dt>{tr("record.purchases")}</dt>
+                <dd>{open.orders_count === null ? "—" : count(open.orders_count, locale)}</dd>
               </div>
               <div>
-                <dt>Spent</dt>
-                <dd>{spent(open)}</dd>
+                <dt>{tr("record.spent")}</dt>
+                <dd>{spent(open, locale)}</dd>
               </div>
               <div>
-                <dt>Last</dt>
-                <dd>{lastOrder(open.last_purchase_at)}</dd>
+                <dt>{tr("record.last")}</dt>
+                <dd>{lastOrder(open.last_purchase_at, locale)}</dd>
               </div>
             </dl>
             <div className="cu-rec-block">
-              <p className="cs-label">On record</p>
+              <p className="cs-label">{tr("record.onRecord")}</p>
               <ul className="cu-facts">
-                <li>Consent: {CONSENT_WORD[open.consent_status]} · as you attested at import</li>
-                <li>Pattern: {LIFECYCLE_WORD[open.lifecycle].word}</li>
+                <li>{tr("record.consent", { consent: tr(`consent.${open.consent_status}`) })}</li>
+                <li>{tr("record.pattern", { pattern: lifecycleWord(open.lifecycle, tr) })}</li>
                 {segmentOf(open) && (
                   <li>
-                    Segment: {segmentOf(open)?.label} · {segmentOf(open)?.size} in it
+                    {tr("record.segment", {
+                      segment: segmentOf(open)?.label ?? "",
+                      size: count(segmentOf(open)?.size ?? 0, locale),
+                    })}
                   </li>
                 )}
               </ul>
-              <p className="cu-rec-note">
-                Purchase-by-purchase history isn&rsquo;t imported — these are the totals from your
-                export.
-              </p>
+              <p className="cu-rec-note">{tr("record.note")}</p>
             </div>
             <div className="cu-rec-block cu-erase">
-              <p className="cu-erase-title">Erase this customer</p>
-              <p className="cu-erase-copy">
-                For a deletion request. Removes their name, email, details and support conversations
-                from SYB for good. Their address stays on the unsubscribe list as a hash, so they
-                are never emailed again; the audit log keeps only anonymous ids.
-              </p>
+              <p className="cu-erase-title">{tr("erase.title")}</p>
+              <p className="cu-erase-copy">{tr("erase.copy")}</p>
               {s.confirmErase === open.id ? (
                 <div className="cu-erase-confirm">
                   <p className="cu-erase-copy">
-                    <span className="word alarm">irreversible</span> This cannot be undone.
+                    <span className="word alarm">{tr("erase.irreversible")}</span>{" "}
+                    {tr("erase.cannotUndo")}
                   </p>
                   <button
                     type="button"
                     className="next cu-wide"
                     disabled={s.busy}
                     onClick={() =>
-                      void act(
-                        { action: "erase", contact_id: open.id },
-                        () => "Erased. The suppression hash stays.",
-                      )
+                      void act({ action: "erase", contact_id: open.id }, () => tr("erase.done"))
                     }
                   >
-                    Erase permanently <span aria-hidden="true">→</span>
+                    {tr("erase.confirm")} <span aria-hidden="true">→</span>
                   </button>
                   <button
                     type="button"
                     className="prop-btn quiet"
                     onClick={() => setState({ ...s, confirmErase: null })}
                   >
-                    Keep them
+                    {tr("erase.keep")}
                   </button>
                 </div>
               ) : (
@@ -471,7 +488,8 @@ export function CustomersScreen() {
                   disabled={s.busy}
                   onClick={() => setState({ ...s, confirmErase: open.id })}
                 >
-                  Erase {open.name ?? "this customer"}… <span aria-hidden="true">→</span>
+                  {open.name ? tr("erase.button", { name: open.name }) : tr("erase.buttonUnnamed")}{" "}
+                  <span aria-hidden="true">→</span>
                 </button>
               )}
             </div>
@@ -480,20 +498,20 @@ export function CustomersScreen() {
       </div>
 
       <div className="cu-lower">
-        <SheetCard label="Segments" title="Arithmetic, with the working shown">
-          <p className="cu-posture">{POSTURE_WORD[s.posture]}</p>
+        <SheetCard label={tr("segments.label")} title={tr("segments.title")}>
+          <p className="cu-posture">{tr(`posture.${s.posture}`, { question: CONSENT_QUESTION })}</p>
           <table className="rt cu-seg">
             <thead>
               <tr>
-                <th scope="col">Segment</th>
+                <th scope="col">{tr("segments.segment")}</th>
                 <th scope="col" className="num">
-                  In it
+                  {tr("segments.inIt")}
                 </th>
                 <th scope="col" className="num">
-                  May be emailed
+                  {tr("segments.emailable")}
                 </th>
                 <th scope="col">
-                  <span className="sr-only">Working</span>
+                  <span className="sr-only">{tr("segments.working")}</span>
                 </th>
               </tr>
             </thead>
@@ -510,11 +528,11 @@ export function CustomersScreen() {
                       </ul>
                     )}
                   </th>
-                  <td className="num" data-label="In it">
-                    {num(seg.size)}
+                  <td className="num" data-label={tr("segments.inIt")}>
+                    {num(seg.size, 0, locale)}
                   </td>
-                  <td className="num" data-label="May be emailed">
-                    {num(seg.emailable)}
+                  <td className="num" data-label={tr("segments.emailable")}>
+                    {num(seg.emailable, 0, locale)}
                   </td>
                   <td className="cu-open">
                     <button
@@ -528,7 +546,7 @@ export function CustomersScreen() {
                         })
                       }
                     >
-                      {s.showEvidence === seg.key ? "Hide" : "Why"}
+                      {s.showEvidence === seg.key ? tr("segments.hide") : tr("segments.why")}
                     </button>
                   </td>
                 </tr>
@@ -545,28 +563,24 @@ export function CustomersScreen() {
                   const created = Number(j.created ?? 0);
                   const skipped =
                     (j.skipped as { segment: string; reason: string }[] | undefined) ?? [];
+                  // A skipped segment's reason comes from the server (L-4).
                   return created > 0
-                    ? `${created} proposal${created === 1 ? "" : "s"} in your approval queue. Nothing sends on approval — sending arrives with its own consent re-check.`
+                    ? tr("segments.proposed", { count: created })
                     : skipped.map((x) => `${x.segment}: ${x.reason}`).join(" · ") ||
-                        "Nothing to propose.";
+                        tr("segments.nothing");
                 })
               }
             >
-              Propose a win-back and a thank-you
+              {tr("segments.propose")}
             </button>
             <Link className="prop-btn quiet" href="/proposals">
-              Open the queue
+              {tr("segments.queue")}
             </Link>
           </div>
         </SheetCard>
 
-        <SheetCard label="Import" title="Under your attestation">
-          <p className="cu-prose">
-            Paste a CSV from your till, booking system, online shop or spreadsheet. Columns it
-            understands: email, name, phone, country (so each customer&rsquo;s own email rules
-            apply), and — for lifecycle — last order date, order count, total spent. You state what
-            these contacts consented to and how; that statement lands on every row.
-          </p>
+        <SheetCard label={tr("import.label")} title={tr("import.title")}>
+          <p className="cu-prose">{tr("import.prose")}</p>
           <form
             className="cu-form"
             onSubmit={(e) => {
@@ -579,25 +593,23 @@ export function CustomersScreen() {
                   statement: s.statement,
                   currency: s.currency,
                 },
-                (j) => importNotice(j),
+                (j) => importNotice(j, tr, locale),
               );
             }}
           >
             <label className="cs-label" htmlFor="cu-csv">
-              The CSV
+              {tr("import.csv")}
             </label>
             <textarea
               id="cu-csv"
               className="cu-textarea"
               rows={6}
-              placeholder={
-                "email,name,last order date,orders,total spent\nanna@example.com,Anna,2026-03-02,4,312.50"
-              }
+              placeholder={CSV_EXAMPLE}
               value={s.csv}
               onChange={(e) => setState({ ...s, csv: e.target.value })}
             />
             <label className="cs-label" htmlFor="cu-status">
-              What they consented to
+              {tr("import.status")}
             </label>
             <select
               id="cu-status"
@@ -607,32 +619,28 @@ export function CustomersScreen() {
                 setState({ ...s, status: e.target.value as Contact["consent_status"] })
               }
             >
-              <option value="explicit_consent">
-                They gave explicit consent to marketing email
-              </option>
-              <option value="implied_consent">
-                Consent is implied (customers, no explicit opt-in)
-              </option>
-              <option value="unsure">Unsure</option>
-              <option value="no_consent">No consent</option>
+              <option value="explicit_consent">{tr("import.option.explicit_consent")}</option>
+              <option value="implied_consent">{tr("import.option.implied_consent")}</option>
+              <option value="unsure">{tr("import.option.unsure")}</option>
+              <option value="no_consent">{tr("import.option.no_consent")}</option>
             </select>
             <label className="cs-label" htmlFor="cu-statement">
-              How it was obtained, in your words
+              {tr("import.statement")}
             </label>
             <input
               id="cu-statement"
               className="cu-input"
-              placeholder="e.g. sign-up form checkbox since 2024"
+              placeholder={tr("import.statementPlaceholder", { year: EXAMPLE_YEAR })}
               value={s.statement}
               onChange={(e) => setState({ ...s, statement: e.target.value })}
             />
             <label className="cs-label" htmlFor="cu-currency">
-              Currency of the spent column
+              {tr("import.currency")}
             </label>
             <input
               id="cu-currency"
               className="cu-input"
-              placeholder="EUR, HUF, …"
+              placeholder={CURRENCY_EXAMPLE}
               value={s.currency}
               onChange={(e) => setState({ ...s, currency: e.target.value })}
             />
@@ -641,7 +649,7 @@ export function CustomersScreen() {
                 className="next"
                 disabled={s.busy || s.csv.trim() === "" || s.statement.trim() === ""}
               >
-                Import under my attestation <span aria-hidden="true">→</span>
+                {tr("import.submit")} <span aria-hidden="true">→</span>
               </button>
             </div>
           </form>
@@ -650,8 +658,8 @@ export function CustomersScreen() {
 
       {(s.campaigns ?? []).length > 0 && (
         <SheetCard
-          label="Approved campaigns"
-          title="Sent only after you approve the email itself"
+          label={tr("campaigns.label")}
+          title={tr("campaigns.title")}
           className="cu-campaigns"
         >
           {(s.campaigns ?? []).map((c) => (
@@ -666,11 +674,7 @@ export function CustomersScreen() {
         </SheetCard>
       )}
 
-      <p className="cu-fine">
-        Per-customer history comes from your own customer export, not from your connected accounts,
-        which measure the business as a whole. Erasing a customer is GDPR erasure: their details go,
-        and the record keeps only anonymous ids.
-      </p>
+      <p className="cu-fine">{tr("fine")}</p>
     </main>
   );
 }

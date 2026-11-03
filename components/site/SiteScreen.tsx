@@ -7,14 +7,25 @@
 // text swap, the evidence its proposal carries, the expected effect in
 // words, and whether it reverses. Approval happens in the queue like
 // every proposal; this screen proposes, shows, applies and undoes.
+//
+// L-3c (TASKS-LANGUAGES.md): the screen's own words are the "site"
+// catalogue; dates and counts in the reader's locale. The page's text, the
+// proposed wording, the platform line, the evidence, the expected effect
+// and the manual steps are what the server built (L-4) or the business's
+// own content (rule 4), shown as they are.
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import "../../app/site.css";
 import type { SiteAuditView } from "../../lib/site/audit/view";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { useTr } from "../sheet/useTr";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
 import { SiteAuditSheet } from "./SiteAuditSheet";
+import { bareUrl, dayWord } from "./site-view";
 
 interface SiteDetail {
   url: string;
@@ -82,61 +93,39 @@ type State =
       tab: Tab | null;
     };
 
-const STATUS_WORD: Record<ProposalStatus, { word: string; tone: string }> = {
-  pending: { word: "waiting for you", tone: "live" },
-  approved: { word: "approved", tone: "ok" },
-  rejected: { word: "declined", tone: "low" },
-  expired: { word: "expired", tone: "low" },
-  executed: { word: "applied", tone: "ok" },
-  blocked: { word: "blocked by a limit", tone: "alarm" },
-  changes_requested: { word: "changes requested", tone: "drift" },
-};
-
-const REVERSE_WORD: Record<"easy" | "moderate" | "hard", string> = {
-  easy: "reversible",
-  moderate: "reversible with effort",
-  hard: "hard to reverse",
+/** A proposal's status flag: its words are the catalogue's `status.<status>`. */
+const STATUS_TONE: Record<ProposalStatus, string> = {
+  pending: "live",
+  approved: "ok",
+  rejected: "low",
+  expired: "low",
+  executed: "ok",
+  blocked: "alarm",
+  changes_requested: "drift",
 };
 
 function shortId(id: string): string {
   return `W-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
 }
 
-function dayWord(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
-
-/** "shop.example/products/mug" — the address as a reader would say it. */
-function bareUrl(url: string): string {
-  try {
-    const u = new URL(url);
-    return `${u.hostname.replace(/^www\./, "")}${u.pathname === "/" ? "" : u.pathname}`;
-  } catch {
-    return url;
-  }
-}
-
-function tabName(p: SiteProposal): string {
+function tabName(p: SiteProposal, tr: Tr): string {
   try {
     const path = new URL(p.action.detail.url).pathname;
-    return path === "/" ? "home page" : path.replace(/\/$/, "");
+    return path === "/" ? tr("homePage") : path.replace(/\/$/, "");
   } catch {
-    return "page";
+    return tr("page");
   }
 }
 
-function headline(proposals: SiteProposal[]): string {
+function headline(proposals: SiteProposal[], tr: Tr): string {
   const pending = proposals.filter((p) => p.status === "pending").length;
   const ready = proposals.filter(
     (p) => p.status === "approved" && !p.action.detail.manual_instructions && !p.execution,
   ).length;
-  if (pending > 0) {
-    return `${pending} ${pending === 1 ? "change" : "changes"} proposed for your site.`;
-  }
-  if (ready > 0)
-    return `${ready} approved ${ready === 1 ? "change is" : "changes are"} ready to apply.`;
-  if (proposals.length > 0) return "No site change is waiting on you.";
-  return "No site changes proposed yet.";
+  if (pending > 0) return tr("headline.pending", { count: pending });
+  if (ready > 0) return tr("headline.ready", { count: ready });
+  if (proposals.length > 0) return tr("headline.none");
+  return tr("headline.empty");
 }
 
 export function SiteScreen({
@@ -146,6 +135,8 @@ export function SiteScreen({
   audit: SiteAudit | null;
   measured?: MeasuredAudit;
 }) {
+  const { tr, locale } = useTr("site");
+  const rich = useTranslations("site");
   const [state, setState] = useState<State>({ phase: "loading" });
 
   const load = useCallback(async () => {
@@ -172,7 +163,7 @@ export function SiteScreen({
   if (state.phase === "loading") {
     return (
       <main className="screen st-screen">
-        <PageHead kicker="Grow · Website" title="Reading your site changes…" />
+        <PageHead kicker={tr("kicker")} title={tr("loading")} />
       </main>
     );
   }
@@ -182,11 +173,11 @@ export function SiteScreen({
         <div className="auth-col">
           <span className="wordmark">SYB</span>
           <section className="card auth-card">
-            <span className="auth-eyebrow">your site</span>
-            <h1 className="auth-title">Start with the intake.</h1>
-            <p className="auth-copy">Site changes belong to a profile — begin and come back.</p>
+            <span className="auth-eyebrow">{tr("signedOut.eyebrow")}</span>
+            <h1 className="auth-title">{tr("signedOut.title")}</h1>
+            <p className="auth-copy">{tr("signedOut.copy")}</p>
             <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
-              Begin
+              {tr("signedOut.begin")}
             </Link>
           </section>
         </div>
@@ -208,7 +199,7 @@ export function SiteScreen({
       proposal_id?: string;
     };
     if (!res.ok) {
-      setState({ ...s, busy: false, notice: j.error ?? "that didn't work" });
+      setState({ ...s, busy: false, notice: j.error ?? tr("failed") });
       return;
     }
     await load();
@@ -217,9 +208,7 @@ export function SiteScreen({
         ? {
             ...cur,
             tab: j.proposal_id ? { kind: "change", id: j.proposal_id } : cur.tab,
-            notice: j.rolled_back
-              ? "Applied — and the health check failed, so I rolled it straight back. The reasons are on the card."
-              : done,
+            notice: j.rolled_back ? tr("notice.rolledBack") : done,
           }
         : cur,
     );
@@ -238,38 +227,46 @@ export function SiteScreen({
   const tabs: { key: string; label: string; tab: Tab }[] = [
     ...ordered.map((p) => ({
       key: p.id,
-      label: `${shortId(p.id)} · ${tabName(p)}`,
+      label: `${shortId(p.id)} · ${tabName(p, tr)}`,
       tab: { kind: "change", id: p.id } as Tab,
     })),
     {
       key: "measured",
       label: measured.audit
-        ? `Measured · ${measured.audit.findings.length} ${measured.audit.findings.length === 1 ? "finding" : "findings"}`
-        : "Measure the site",
+        ? tr("tabs.measured", { count: measured.audit.findings.length })
+        : tr("tabs.measure"),
       tab: { kind: "measured" } as Tab,
     },
     ...(audit
       ? [
           {
             key: "audit",
-            label: `Audit · ${audit.notes.length} ${audit.notes.length === 1 ? "note" : "notes"}, no action`,
+            label: tr("tabs.audit", { count: audit.notes.length }),
             tab: { kind: "audit" } as Tab,
           },
         ]
       : []),
-    { key: "propose", label: "Propose a change", tab: { kind: "propose" } as Tab },
+    { key: "propose", label: tr("tabs.propose"), tab: { kind: "propose" } as Tab },
   ];
   const isOn = (t: Tab) =>
     t.kind === tab.kind && (t.kind !== "change" || (tab.kind === "change" && t.id === tab.id));
 
   return (
     <main className="screen st-screen">
-      <PageHead kicker="Grow · Website" title={headline(s.proposals)}>
+      <PageHead kicker={tr("kicker")} title={headline(s.proposals, tr)}>
         {audit
-          ? `Last site check ${dayWord(audit.checked_at)} · ${audit.pages.length} ${audit.pages.length === 1 ? "page" : "pages"} read · ${missing} of ${audit.notes.length} checks not shown`
-          : "No site check on record yet"}
+          ? tr("head.checked", {
+              day: dayWord(audit.checked_at, locale),
+              pages: audit.pages.length,
+              missing,
+              total: audit.notes.length,
+            })
+          : tr("head.noCheck")}
         {measured.audit
-          ? ` · measured ${dayWord(measured.audit.ran_at)}: ${measured.audit.findings.length} ${measured.audit.findings.length === 1 ? "finding" : "findings"}`
+          ? ` · ${tr("head.measured", {
+              day: dayWord(measured.audit.ran_at, locale),
+              count: measured.audit.findings.length,
+            })}`
           : ""}
       </PageHead>
 
@@ -283,7 +280,7 @@ export function SiteScreen({
         </p>
       )}
 
-      <div className="st-tabs" role="tablist" aria-label="Site changes">
+      <div className="st-tabs" role="tablist" aria-label={tr("tabs.aria")}>
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -301,7 +298,9 @@ export function SiteScreen({
       </div>
 
       <div id="st-panel" role="tabpanel">
-        {current && <ChangeSheet p={current} s={s} setState={setState} post={post} />}
+        {current && (
+          <ChangeSheet p={current} s={s} setState={setState} post={post} tr={tr} locale={locale} />
+        )}
 
         {tab.kind === "measured" && (
           <SiteAuditSheet initial={measured.audit} failure={measured.failure} />
@@ -309,36 +308,37 @@ export function SiteScreen({
 
         {tab.kind === "audit" && audit && (
           <SheetCard
-            label={`Audit · checked ${dayWord(audit.checked_at)}`}
-            title="What customers look for, and whether your site shows it"
-            meta={<span className="word boxed low">no action</span>}
+            label={tr("auditTab.label", { day: dayWord(audit.checked_at, locale) })}
+            title={tr("auditTab.title")}
+            meta={<span className="word boxed low">{tr("noAction")}</span>}
             foot={
               <>
-                Read-only. Fixing one goes through the approval queue —{" "}
-                <Link href="/blindspots">see Blindspots</Link>.
+                {rich.rich("auditTab.foot", {
+                  link: (chunks) => <Link href="/blindspots">{chunks}</Link>,
+                })}
               </>
             }
           >
             <table className="rt st-table">
               <thead>
                 <tr>
-                  <th scope="col">What they check</th>
-                  <th scope="col">On your site</th>
-                  <th scope="col">Found on</th>
+                  <th scope="col">{tr("auditTab.what")}</th>
+                  <th scope="col">{tr("auditTab.onSite")}</th>
+                  <th scope="col">{tr("auditTab.foundOn")}</th>
                 </tr>
               </thead>
               <tbody>
                 {audit.notes.map((n) => (
                   <tr key={n.code}>
-                    <th scope="row" data-label="Check">
+                    <th scope="row" data-label={tr("auditTab.check")}>
                       {n.label}
                     </th>
-                    <td data-label="On your site">
+                    <td data-label={tr("auditTab.onSite")}>
                       <span className={`word ${n.found_on ? "ok" : "drift"}`}>
-                        {n.found_on ? "shown" : "not found"}
+                        {n.found_on ? tr("auditTab.shown") : tr("auditTab.notFound")}
                       </span>
                     </td>
-                    <td className="src" data-label="Found on">
+                    <td className="src" data-label={tr("auditTab.foundOn")}>
                       {n.found_on ? bareUrl(n.found_on) : "—"}
                     </td>
                   </tr>
@@ -349,7 +349,7 @@ export function SiteScreen({
               <ul className="st-unread">
                 {audit.unreadable.map((u) => (
                   <li key={u.url}>
-                    Couldn&rsquo;t read {bareUrl(u.url)} — {u.reason}
+                    {tr("auditTab.unreadable", { url: bareUrl(u.url), reason: u.reason })}
                   </li>
                 ))}
               </ul>
@@ -359,32 +359,29 @@ export function SiteScreen({
 
         {tab.kind === "propose" && (
           <SheetCard
-            label="Propose a change"
-            title="Shown before it is ever applied"
-            foot="Checkout, cart, payment and billing pages are refused outright — they cannot even be proposed, at any approval level."
+            label={tr("propose.label")}
+            title={tr("propose.title")}
+            foot={tr("propose.foot")}
           >
             <form
               className="st-form"
               onSubmit={(e) => {
                 e.preventDefault();
-                void post(
-                  { url: s.url, find: s.find, replace: s.replace },
-                  "Proposed — the before/after is on its tab, and the decision is in your queue.",
-                );
+                void post({ url: s.url, find: s.find, replace: s.replace }, tr("notice.proposed"));
               }}
             >
               <label className="cs-label" htmlFor="st-url">
-                Page address
+                {tr("propose.url")}
               </label>
               <input
                 id="st-url"
                 className="st-input"
-                placeholder="yoursite.com/about"
+                placeholder={tr("propose.urlPlaceholder")}
                 value={s.url}
                 onChange={(e) => setState({ ...s, url: e.target.value })}
               />
               <label className="cs-label" htmlFor="st-find">
-                The exact text to change
+                {tr("propose.find")}
               </label>
               <input
                 id="st-find"
@@ -393,7 +390,7 @@ export function SiteScreen({
                 onChange={(e) => setState({ ...s, find: e.target.value })}
               />
               <label className="cs-label" htmlFor="st-replace">
-                What it should say instead
+                {tr("propose.replace")}
               </label>
               <input
                 id="st-replace"
@@ -407,10 +404,10 @@ export function SiteScreen({
                   disabled={s.busy || !s.url.trim() || !s.find.trim() || !s.replace.trim()}
                 >
                   {s.busy ? (
-                    "Reading the page…"
+                    tr("propose.reading")
                   ) : (
                     <>
-                      Preview the change <span aria-hidden="true">→</span>
+                      {tr("propose.preview")} <span aria-hidden="true">→</span>
                     </>
                   )}
                 </button>
@@ -420,10 +417,7 @@ export function SiteScreen({
         )}
       </div>
 
-      <p className="st-fine">
-        Every change previews from the real page, applies only after your yes in the queue, keeps
-        its undo forever, and rolls itself back on a hard failure — never on a quiet week.
-      </p>
+      <p className="st-fine">{tr("fine")}</p>
     </main>
   );
 }
@@ -435,14 +429,18 @@ function ChangeSheet({
   s,
   setState,
   post,
+  tr,
+  locale,
 }: {
   p: SiteProposal;
   s: Ready;
   setState: (next: State) => void;
   post: (payload: Record<string, unknown>, done: string) => Promise<void>;
+  tr: Tr;
+  locale: AppLocale;
 }) {
   const d = p.action.detail;
-  const flag = STATUS_WORD[p.status];
+  const tone = STATUS_TONE[p.status];
   const evidence = p.scenario?.assumptions ?? [];
   const canApply = p.status === "approved" && !d.manual_instructions && !p.execution;
   const canUndo = p.execution?.status === "succeeded";
@@ -453,8 +451,8 @@ function ChangeSheet({
           <p className="cs-label">
             {shortId(p.id)} ·{" "}
             {p.originating_finding
-              ? `from finding: ${p.originating_finding}`
-              : `proposed ${dayWord(p.created_at)}`}{" "}
+              ? tr("change.fromFinding", { finding: p.originating_finding })
+              : tr("change.proposedOn", { day: dayWord(p.created_at, locale) })}{" "}
             · {d.platform.platform}
           </p>
           <h2 className="cs-title" id={`st-title-${p.id}`}>
@@ -462,10 +460,10 @@ function ChangeSheet({
           </h2>
         </div>
         <div className="cs-meta st-flags">
-          <span className={`word boxed ${flag.tone}`}>{flag.word}</span>
+          <span className={`word boxed ${tone}`}>{tr(`status.${p.status}`)}</span>
           {p.execution?.status === "undone" && (
             <span className="word boxed low">
-              {p.execution.undone_by ? "undone by you" : "auto-rolled-back"}
+              {p.execution.undone_by ? tr("change.undoneByYou") : tr("change.autoRolledBack")}
             </span>
           )}
         </div>
@@ -474,14 +472,14 @@ function ChangeSheet({
       {d.site_preview ? (
         <>
           <div className="st-preview-bar">
-            <span className="cs-label">The real page, scripts off</span>
+            <span className="cs-label">{tr("change.realPage")}</span>
             <button
               type="button"
               className="prop-btn st-small"
               aria-pressed={s.phone}
               onClick={() => setState({ ...s, phone: !s.phone })}
             >
-              {s.phone ? "Desktop width" : "Phone width"}
+              {s.phone ? tr("change.desktopWidth") : tr("change.phoneWidth")}
             </button>
           </div>
           <div className="st-frames">
@@ -489,7 +487,7 @@ function ChangeSheet({
               <div key={side} className="st-frame-col">
                 <p className="st-frame-head">
                   <span className="st-frame-word">
-                    {side === "before_html" ? "Now" : "Proposed"}
+                    {side === "before_html" ? tr("change.now") : tr("change.proposed")}
                   </span>
                   <span className="st-frame-url">{bareUrl(d.url)}</span>
                 </p>
@@ -497,7 +495,9 @@ function ChangeSheet({
                   <iframe
                     className={`st-frame${s.phone ? " phone" : ""}`}
                     sandbox=""
-                    title={side === "before_html" ? "The page now" : "The page as proposed"}
+                    title={
+                      side === "before_html" ? tr("change.frameNow") : tr("change.frameProposed")
+                    }
                     srcDoc={d.site_preview?.[side]}
                   />
                 </div>
@@ -514,9 +514,9 @@ function ChangeSheet({
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Now says</th>
-              <th scope="col">Will say</th>
-              <th scope="col">Basis</th>
+              <th scope="col">{tr("change.nowSays")}</th>
+              <th scope="col">{tr("change.willSay")}</th>
+              <th scope="col">{tr("change.basis")}</th>
             </tr>
           </thead>
           <tbody>
@@ -524,26 +524,31 @@ function ChangeSheet({
               <td data-label="#" className="st-n">
                 1
               </td>
-              <td data-label="Now says" className="st-quote">
-                “{d.find}”
+              <td data-label={tr("change.nowSays")} className="st-quote">
+                {tr("change.quoted", { text: d.find })}
               </td>
-              <td data-label="Will say" className="st-quote">
-                <span className="marked">“{d.replace}”</span>
+              <td data-label={tr("change.willSay")} className="st-quote">
+                <span className="marked">{tr("change.quoted", { text: d.replace })}</span>
               </td>
-              <td data-label="Basis" className="src">
-                found once on the live page · observed
+              <td data-label={tr("change.basis")} className="src">
+                {tr("change.basisValue")}
               </td>
             </tr>
           </tbody>
         </table>
         {evidence.length > 0 && (
           <>
-            <p className="cs-label st-gap">Evidence the proposal carries</p>
+            <p className="cs-label st-gap">{tr("change.evidence")}</p>
             <ul className="st-evidence">
               {evidence.map((a) => (
                 <li key={a.statement}>
                   {a.statement}
-                  {a.sensitivity && <span className="src"> · sensitivity {a.sensitivity}</span>}
+                  {a.sensitivity && (
+                    <span className="src">
+                      {" "}
+                      · {tr("change.sensitivity", { value: a.sensitivity })}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -555,15 +560,17 @@ function ChangeSheet({
         <p className="st-note">
           {d.platform.platform} · {d.platform.editable} — {d.platform_line}
         </p>
-        {p.blocked_by_limit && <p className="st-note">Blocked: {p.blocked_by_limit}</p>}
+        {p.blocked_by_limit && (
+          <p className="st-note">{tr("change.blocked", { why: p.blocked_by_limit })}</p>
+        )}
         {(d.manual_limits ?? []).map((q) => (
           <p key={q} className="st-note">
-            Your limit: “{q}”
+            {tr("change.yourLimit", { limit: q })}
           </p>
         ))}
         {d.manual_instructions && (
           <>
-            <p className="cs-label st-gap">How to make this change yourself</p>
+            <p className="cs-label st-gap">{tr("change.manual")}</p>
             <ol className="st-steps">
               {d.manual_instructions.map((step) => (
                 <li key={step}>{step}</li>
@@ -575,18 +582,20 @@ function ChangeSheet({
 
       <div className="st-expect">
         <div>
-          <p className="cs-label">Expected · in words, not a number</p>
+          <p className="cs-label">{tr("change.expected")}</p>
           <p className="st-expect-line">
-            {p.scenario?.base_case?.statement ?? "The page says the new thing."}
+            {p.scenario?.base_case?.statement ?? tr("change.expectedDefault")}
           </p>
           {p.scenario?.downside_case?.statement && (
-            <p className="st-expect-sub">If it goes wrong: {p.scenario.downside_case.statement}</p>
+            <p className="st-expect-sub">
+              {tr("change.ifWrong", { what: p.scenario.downside_case.statement })}
+            </p>
           )}
         </div>
         {p.reversibility && (
           <p className="st-rev">
             <span className={`word boxed ${p.reversibility.level === "hard" ? "alarm" : ""}`}>
-              {REVERSE_WORD[p.reversibility.level]}
+              {tr(`reverse.${p.reversibility.level}`)}
             </span>
             <span>{p.reversibility.if_you_change_your_mind}</span>
           </p>
@@ -597,7 +606,7 @@ function ChangeSheet({
         <footer className="st-actions">
           {p.status === "pending" && (
             <Link className="prop-btn st-wide" href="/proposals">
-              Decide in the queue <span aria-hidden="true">→</span>
+              {tr("change.decide")} <span aria-hidden="true">→</span>
             </Link>
           )}
           {canApply && (
@@ -606,13 +615,10 @@ function ChangeSheet({
               className="next st-wide"
               disabled={s.busy}
               onClick={() =>
-                void post(
-                  { action: "apply", proposal_id: p.id },
-                  "Applied, and the page passed its health check.",
-                )
+                void post({ action: "apply", proposal_id: p.id }, tr("notice.applied"))
               }
             >
-              Apply it to the page <span aria-hidden="true">→</span>
+              {tr("change.apply")} <span aria-hidden="true">→</span>
             </button>
           )}
           {canUndo && (
@@ -621,13 +627,10 @@ function ChangeSheet({
               className="prop-btn st-wide"
               disabled={s.busy}
               onClick={() =>
-                void post(
-                  { action: "undo", execution_id: p.execution?.id },
-                  "Undone — the page's previous state is back, byte for byte.",
-                )
+                void post({ action: "undo", execution_id: p.execution?.id }, tr("notice.undone"))
               }
             >
-              Undo — restore the page
+              {tr("change.undo")}
             </button>
           )}
         </footer>

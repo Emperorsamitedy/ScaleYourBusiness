@@ -24,13 +24,25 @@
 // `failed` with the one sentence ("I couldn't post — the connection
 // expired…") and offers Reconnect, which goes to /connections; the
 // reconnect puts it back in the queue.
+//
+// L-3c (TASKS-LANGUAGES.md): the screen's own words are the "content"
+// catalogue; dates and counts in the reader's locale. A draft's title,
+// caption and disclosure, a goal's statement, a channel's label and every
+// sentence the server sends (publish notes, last errors, the arithmetic)
+// are shown as they are.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import "../../app/content.css";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { MediaPanel } from "./MediaPanel";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
 import {
   type AdStateLike,
   type ContentStatus,
@@ -120,22 +132,15 @@ type State =
       open: string | null;
     };
 
-const KIND_WORD: Record<ContentItem["kind"], string> = {
-  post: "post",
-  email: "email",
-  shot_list: "film this",
-  video: "video",
-};
-
-const HORIZON_WORD: Record<string, string> = {
-  "3_months": "3 months",
-  "6_months": "6 months",
-  "12_months": "12 months",
-};
+/** A goal's horizon code ("3_months") in words; an unknown code shows as it is. */
+function horizonWord(horizon: string, tr: Tr): string {
+  const m = /^(\d+)_months$/.exec(horizon);
+  return m ? tr("goals.horizon", { months: Number(m[1]) }) : horizon;
+}
 
 /** A calendar day, not an instant — rendered in UTC so a negative offset doesn't shift it. */
-function dayWord(iso: string): string {
-  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-GB", {
+function dayWord(iso: string, locale: AppLocale = "en"): string {
+  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString(intlTag(locale), {
     weekday: "short",
     day: "numeric",
     month: "short",
@@ -143,8 +148,8 @@ function dayWord(iso: string): string {
   });
 }
 
-function shortDay(iso: string): string {
-  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-GB", {
+function shortDay(iso: string, locale: AppLocale = "en"): string {
+  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString(intlTag(locale), {
     day: "numeric",
     month: "short",
     timeZone: "UTC",
@@ -159,9 +164,9 @@ function todayIso(): string {
 const EVIDENCE = /^(channels|goals)\.([0-9a-f-]{36})\.(\w+)$/;
 
 /** "1 November" from YYYY-MM-DD, read as a calendar day (no time zone shift). */
-function watchDay(day: string): string {
+function watchDay(day: string, locale: AppLocale = "en"): string {
   const [y, m, d] = day.split("-").map(Number);
-  return new Date(Date.UTC(y!, m! - 1, d!)).toLocaleDateString("en-GB", {
+  return new Date(Date.UTC(y!, m! - 1, d!)).toLocaleDateString(intlTag(locale), {
     day: "numeric",
     month: "long",
     timeZone: "UTC",
@@ -171,6 +176,11 @@ function watchDay(day: string): string {
 export function ContentScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
   const detailRef = useRef<HTMLElement | null>(null);
+  const { tr, locale } = useTr("content");
+  const t = useTranslations("content");
+  const day = (iso: string) => dayWord(iso, locale);
+  const short = (iso: string) => shortDay(iso, locale);
+  const kindWord = (kind: ContentItem["kind"]) => tr(`kind.${kind}`);
 
   const load = useCallback(async () => {
     const [contentRes, goalsRes] = await Promise.all([fetch("/api/content"), fetch("/api/goals")]);
@@ -215,7 +225,7 @@ export function ContentScreen() {
   if (state.phase === "loading") {
     return (
       <main className="screen ct-screen">
-        <PageHead kicker="Grow · Content" title="Reading the content queue…" />
+        <PageHead kicker={tr("kicker")} title={tr("loading")} />
       </main>
     );
   }
@@ -225,14 +235,11 @@ export function ContentScreen() {
         <div className="auth-col">
           <span className="wordmark">SYB</span>
           <section className="card auth-card">
-            <span className="auth-eyebrow">content</span>
-            <h1 className="auth-title">Start with the intake.</h1>
-            <p className="auth-copy">
-              Content is planned from your profile — channels, goals, offers. Twelve questions and
-              there is something real to plan with.
-            </p>
+            <span className="auth-eyebrow">{tr("signedOut.eyebrow")}</span>
+            <h1 className="auth-title">{tr("signedOut.title")}</h1>
+            <p className="auth-copy">{tr("signedOut.body")}</p>
             <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
-              Begin
+              {tr("signedOut.cta")}
             </Link>
           </section>
         </div>
@@ -250,7 +257,7 @@ export function ContentScreen() {
     });
     const j = (await res.json()) as { error?: string };
     if (!res.ok) {
-      setState({ ...s, busy: false, notice: j.error ?? "that didn't work" });
+      setState({ ...s, busy: false, notice: j.error ?? tr("failed") });
       return;
     }
     await load();
@@ -277,12 +284,15 @@ export function ContentScreen() {
       .map((i) => i.scheduled_for)
       .filter((d): d is string => d !== null && d >= today)
       .sort()[0] ?? null;
-  const headline = contentHeadline({
-    items: s.items,
-    producible: s.producible.length,
-    blocked: Object.keys(s.publishNotes).length,
-    nextDate: nextDate ? dayWord(nextDate) : null,
-  });
+  const headline = contentHeadline(
+    {
+      items: s.items,
+      producible: s.producible.length,
+      blocked: Object.keys(s.publishNotes).length,
+      nextDate: nextDate ? day(nextDate) : null,
+    },
+    tr,
+  );
 
   // The open draft: the owner's pick, else the first one waiting on them, else the first draft.
   const open =
@@ -299,8 +309,7 @@ export function ContentScreen() {
         .map((i) => i.kind),
     );
     const only = kinds.size === 1 ? [...kinds][0] : undefined;
-    const word = only ? (only === "shot_list" ? "shot list" : KIND_WORD[only]) : "piece";
-    return `${planned} ${word}${planned === 1 ? "" : "s"}`;
+    return tr(`strip.${only ?? "piece"}`, { count: planned });
   };
 
   const pick = (id: string) => {
@@ -312,10 +321,10 @@ export function ContentScreen() {
 
   const evidenceLine = (key: string, item: ContentItem): string => {
     const m = EVIDENCE.exec(key);
-    if (m?.[1] === "channels") return `Channel: ${item.channel_label} · from your profile`;
+    if (m?.[1] === "channels") return tr("evidence.channel", { channel: item.channel_label });
     if (m?.[1] === "goals") {
       const g = m[2] ? goalById.get(m[2]) : undefined;
-      return `Goal: ${g?.statement ?? "a goal you set"}`;
+      return tr("evidence.goal", { goal: g?.statement ?? tr("evidence.goalUnknown") });
     }
     return key;
   };
@@ -323,11 +332,11 @@ export function ContentScreen() {
   return (
     <main className="screen ct-screen">
       <PageHead
-        kicker="Grow · Content"
+        kicker={tr("kicker")}
         title={headline}
         aside={
           <a className="ghost ct-aside" href="#ct-goals">
-            Change content goals <span aria-hidden="true">→</span>
+            {tr("aside")} <span aria-hidden="true">→</span>
           </a>
         }
       />
@@ -343,15 +352,15 @@ export function ContentScreen() {
       )}
 
       {strips.length > 0 && (
-        <ul className="ct-strips" aria-label="Each channel's queue">
+        <ul className="ct-strips" aria-label={tr("strips.label")}>
           {strips.map((st) => {
             const pct = st.planned === 0 ? 0 : Math.round((st.posted / st.planned) * 100);
             const span =
               st.first && st.last
                 ? st.first === st.last
-                  ? shortDay(st.first)
-                  : `${shortDay(st.first)} – ${shortDay(st.last)}`
-                : "undated";
+                  ? short(st.first)
+                  : `${short(st.first)} – ${short(st.last)}`
+                : tr("strips.undated");
             return (
               <li key={st.channel} className="ct-strip">
                 <p className="ct-strip-label">
@@ -360,24 +369,24 @@ export function ContentScreen() {
                 <p className="ct-strip-row">
                   <span className="ct-strip-title">{stripTitle(st.channel, st.planned)}</span>
                   <span className="ct-strip-fig">
-                    {st.posted} / {st.planned}
+                    {num(st.posted, 0, locale)} / {num(st.planned, 0, locale)}
                   </span>
                 </p>
                 <span
                   className={`ct-bar ${st.state}`}
                   role="img"
-                  aria-label={`${st.posted} of ${st.planned} posted`}
+                  aria-label={tr("strips.bar", { posted: st.posted, planned: st.planned })}
                 >
                   <span className="ct-bar-fill" style={{ width: `${pct}%` }} />
                 </span>
                 <p className="ct-strip-state">
                   {st.state === "behind"
-                    ? `Behind · ${st.overdue} past its date`
+                    ? tr("strips.behind", { count: st.overdue })
                     : st.state === "done"
-                      ? "All posted"
+                      ? tr("strips.done")
                       : st.next
-                        ? `Next ${dayWord(st.next)}`
-                        : "On pace"}
+                        ? tr("strips.next", { day: day(st.next) })
+                        : tr("strips.onPace")}
                 </p>
               </li>
             );
@@ -387,41 +396,37 @@ export function ContentScreen() {
 
       <div className="ct-grid">
         <SheetCard
-          label="Queue"
-          title={
-            s.realWrites
-              ? "Written, scheduled, posted"
-              : "Written and scheduled — publishing is off"
-          }
+          label={tr("queue.label")}
+          title={s.realWrites ? tr("queue.titleOn") : tr("queue.titleOff")}
           className="ct-queue"
           id="ct-calendar"
         >
           {s.items.length === 0 ? (
             <p className="ct-empty">
               {s.watchingUntil
-                ? `The queue is empty. Proposals start once the watch ends on ${watchDay(s.watchingUntil)}.`
-                : "The queue is empty. Propose a calendar below — once you approve it in the queue, I draft it here."}
+                ? tr("queue.emptyWatching", { day: watchDay(s.watchingUntil, locale) })
+                : tr("queue.empty")}
             </p>
           ) : (
             <table className="rt ct-table">
               <thead>
                 <tr>
-                  <th scope="col">Draft</th>
-                  <th scope="col">Channel</th>
-                  <th scope="col">Serves goal</th>
-                  <th scope="col">State</th>
+                  <th scope="col">{tr("col.draft")}</th>
+                  <th scope="col">{tr("col.channel")}</th>
+                  <th scope="col">{tr("col.goal")}</th>
+                  <th scope="col">{tr("col.state")}</th>
                   <th scope="col" className="num">
-                    Date
+                    {tr("col.date")}
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {s.items.map((item) => {
-                  const w = stateWord(item, shortDay);
+                  const w = stateWord(item, short, tr);
                   const goal = item.goal_id ? goalById.get(item.goal_id) : undefined;
                   return (
                     <tr key={item.id} className={open?.id === item.id ? "on" : undefined}>
-                      <th scope="row" data-label="Draft">
+                      <th scope="row" data-label={tr("col.draft")}>
                         <button
                           type="button"
                           className="ct-pick"
@@ -431,18 +436,18 @@ export function ContentScreen() {
                           {item.title}
                         </button>
                         <span className="src ct-sub">
-                          {shortId("C", item.id)} · {KIND_WORD[item.kind]}
+                          {shortId("C", item.id)} · {kindWord(item.kind)}
                         </span>
                       </th>
-                      <td data-label="Channel" className="ct-mono">
+                      <td data-label={tr("col.channel")} className="ct-mono">
                         {item.channel_label}
                       </td>
-                      <td data-label="Serves goal">{goal?.statement ?? "—"}</td>
-                      <td data-label="State">
+                      <td data-label={tr("col.goal")}>{goal?.statement ?? "—"}</td>
+                      <td data-label={tr("col.state")}>
                         <span className={`word boxed ${w.tone}`}>{w.word}</span>
                       </td>
-                      <td data-label="Date" className="num">
-                        {item.scheduled_for ? shortDay(item.scheduled_for) : "anytime"}
+                      <td data-label={tr("col.date")} className="num">
+                        {item.scheduled_for ? short(item.scheduled_for) : tr("anytime")}
                       </td>
                     </tr>
                   );
@@ -456,52 +461,56 @@ export function ContentScreen() {
           <section
             className="cs ct-detail"
             ref={detailRef}
-            aria-label={`Draft ${shortId("C", open.id)}`}
+            aria-label={tr("detail.aria", { id: shortId("C", open.id) })}
           >
             <header className="cs-head">
               <div>
                 <p className="cs-label">
-                  {shortId("C", open.id)} · {open.channel_label} {KIND_WORD[open.kind]} ·{" "}
-                  {open.scheduled_for ? dayWord(open.scheduled_for) : "anytime"}
+                  {shortId("C", open.id)} · {open.channel_label} {kindWord(open.kind)} ·{" "}
+                  {open.scheduled_for ? day(open.scheduled_for) : tr("anytime")}
                 </p>
                 <h2 className="cs-title">{open.title}</h2>
               </div>
               <div className="cs-meta">
-                <span className={`word boxed ${stateWord(open, shortDay).tone}`}>
-                  {stateWord(open, shortDay).word}
+                <span className={`word boxed ${stateWord(open, short, tr).tone}`}>
+                  {stateWord(open, short, tr).word}
                 </span>
               </div>
             </header>
             <div className="cs-body ct-detail-body">
               {open.media_path && (
                 <div className="ct-media">
-                  <span>Media · {mediaWord(open.provenance)}</span>
+                  <span>{tr("detail.media", { what: mediaWord(open.provenance, tr) })}</span>
                   <span className="ct-media-path">{open.media_path.split("/").pop()}</span>
                 </div>
               )}
               <div className="ct-detail-text">
-                <p className="cs-label">{open.kind === "email" ? "Email" : "Caption"}</p>
+                <p className="cs-label">
+                  {open.kind === "email" ? tr("detail.email") : tr("detail.caption")}
+                </p>
                 <p className="ct-caption">{open.body}</p>
-                <p className="cs-label ct-gap">Written from</p>
+                <p className="cs-label ct-gap">{tr("detail.writtenFrom")}</p>
                 <ul className="ct-from">
                   {(open.provenance?.evidence ?? []).map((key) => (
                     <li key={key}>{evidenceLine(key, open)}</li>
                   ))}
                   {open.goal_id && goalById.get(open.goal_id)?.statement && (
-                    <li>Serves: {goalById.get(open.goal_id)?.statement}</li>
+                    <li>
+                      {tr("detail.serves", { goal: goalById.get(open.goal_id)?.statement ?? "" })}
+                    </li>
                   )}
-                  <li>Disclosure: {open.disclosure}</li>
+                  <li>{tr("detail.disclosure", { text: open.disclosure })}</li>
                 </ul>
               </div>
             </div>
             <footer className="ct-detail-foot">
               {s.publishNotes[open.id] && (
-                <p className="ct-why">Not publishing: {s.publishNotes[open.id]}.</p>
+                <p className="ct-why">
+                  {tr("detail.notPublishing", { why: s.publishNotes[open.id] ?? "" })}
+                </p>
               )}
               {s.media?.superseded.includes(open.id) && (
-                <p className="ct-why">
-                  Your own footage replaced this generated version, so it won&apos;t be published.
-                </p>
+                <p className="ct-why">{tr("detail.superseded")}</p>
               )}
               {s.media && s.media.footage[open.id] !== undefined && (
                 <MediaPanel
@@ -521,32 +530,37 @@ export function ContentScreen() {
               )}
               {open.status === "failed" && open.last_error && (
                 <p className="ct-why">
-                  <span className="word alarm">failed</span> {open.last_error}
+                  <span className="word alarm">{tr("state.failed")}</span> {open.last_error}
                 </p>
               )}
-              {publishLine(open, s.realWrites) && (
+              {publishLine(open, s.realWrites, tr) && (
                 <p className="ct-why">
                   {open.status === "publishing" && open.last_error && (
                     <>
-                      <span className="word drift">unconfirmed</span>{" "}
+                      <span className="word drift">{tr("state.unconfirmed")}</span>{" "}
                     </>
                   )}
-                  {publishLine(open, s.realWrites)}
+                  {publishLine(open, s.realWrites, tr)}
                   {(open.status === "published" || open.status === "withdrawn") &&
                     open.platform_post_id && (
                       <span className="src ct-sub">
-                        {platformWord(open.platform)} id {open.platform_post_id}
-                        {open.published_at && ` · posted ${dayWord(open.published_at)}`}
+                        {tr("detail.platformId", {
+                          platform: platformWord(open.platform, tr),
+                          id: open.platform_post_id,
+                        })}
+                        {open.published_at &&
+                          ` · ${tr("detail.posted", { day: day(open.published_at) })}`}
                       </span>
                     )}
                 </p>
               )}
               {(() => {
-                const perf = performanceLine(s.performance[open.id]);
+                const perf = performanceLine(s.performance[open.id], tr, locale);
                 if (!perf) return null;
                 return (
                   <p className="ct-why">
-                    Measured <span className={`word boxed ${perf.tone}`}>{perf.word}</span>
+                    {tr("perf.measured")}{" "}
+                    <span className={`word boxed ${perf.tone}`}>{perf.word}</span>
                     {perf.figures && ` ${perf.figures}`}
                     <span className="src ct-sub">{perf.arithmetic}</span>
                   </p>
@@ -554,7 +568,7 @@ export function ContentScreen() {
               })()}
               {(() => {
                 // P3-54: "Run this as an ad" — a proposal, never a send from this screen.
-                const ad = adLine(s.ads[open.id], s.realWrites);
+                const ad = adLine(s.ads[open.id], s.realWrites, tr);
                 if (!ad) return null;
                 return (
                   <p className="ct-why">
@@ -569,8 +583,7 @@ export function ContentScreen() {
               })()}
               {open.status === "published" && s.confirmWithdraw === open.id && (
                 <p className="ct-why">
-                  Withdraw it? This deletes the post on {platformWord(open.platform)}. The record
-                  stays here; the post can&apos;t be put back.
+                  {tr("withdraw.confirm", { platform: platformWord(open.platform, tr) })}
                 </p>
               )}
               <div className="ct-actions">
@@ -581,7 +594,8 @@ export function ContentScreen() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Open on {platformWord(open.platform)} <span aria-hidden="true">→</span>
+                    {tr("withdraw.openOn", { platform: platformWord(open.platform, tr) })}{" "}
+                    <span aria-hidden="true">→</span>
                   </a>
                 )}
                 {open.status === "published" &&
@@ -594,11 +608,11 @@ export function ContentScreen() {
                         onClick={() =>
                           void act(
                             { action: "withdraw", item_id: open.id },
-                            `Withdrawn from ${platformWord(open.platform)}.`,
+                            tr("withdraw.done", { platform: platformWord(open.platform, tr) }),
                           )
                         }
                       >
-                        Yes, withdraw it
+                        {tr("withdraw.yes")}
                       </button>
                       <button
                         type="button"
@@ -606,7 +620,7 @@ export function ContentScreen() {
                         disabled={s.busy}
                         onClick={() => setState({ ...s, confirmWithdraw: null })}
                       >
-                        Keep it
+                        {tr("withdraw.keep")}
                       </button>
                     </>
                   ) : (
@@ -616,11 +630,11 @@ export function ContentScreen() {
                       disabled={s.busy}
                       onClick={() => setState({ ...s, confirmWithdraw: open.id })}
                     >
-                      Withdraw
+                      {tr("withdraw.button")}
                     </button>
                   ))}
                 {(() => {
-                  const ad = adLine(s.ads[open.id], s.realWrites);
+                  const ad = adLine(s.ads[open.id], s.realWrites, tr);
                   if (ad?.action === "run_ad") {
                     return (
                       <button
@@ -628,13 +642,10 @@ export function ContentScreen() {
                         className="prop-btn"
                         disabled={s.busy}
                         onClick={() =>
-                          void act(
-                            { action: "run_ad", item_id: open.id },
-                            "Proposed as an ad, in the queue. It creates the ad paused; going live is a separate approval.",
-                          )
+                          void act({ action: "run_ad", item_id: open.id }, tr("ad.runDone"))
                         }
                       >
-                        Run this as an ad
+                        {tr("ad.run")}
                       </button>
                     );
                   }
@@ -647,20 +658,17 @@ export function ContentScreen() {
                         className="prop-btn"
                         disabled={s.busy}
                         onClick={() =>
-                          void act(
-                            { action: "go_live", build_id: build.id },
-                            "Going live is proposed, in the queue. Nothing spends until you approve it.",
-                          )
+                          void act({ action: "go_live", build_id: build.id }, tr("ad.goLiveDone"))
                         }
                       >
-                        Propose going live
+                        {tr("ad.goLive")}
                       </button>
                     );
                   }
                   if (ad?.action === "queue" && open.publish_proposal_id === null) {
                     return (
                       <Link className="prop-btn" href="/proposals">
-                        Decide the ad in the queue <span aria-hidden="true">→</span>
+                        {tr("ad.decide")} <span aria-hidden="true">→</span>
                       </Link>
                     );
                   }
@@ -689,58 +697,53 @@ export function ContentScreen() {
                           };
                           await load();
                           const notice = !res.ok
-                            ? (j.error ?? "that didn't work")
+                            ? (j.error ?? tr("failed"))
                             : j.proposed
-                              ? "Its publish proposal is in your queue."
-                              : `Not proposed: ${j.reason ?? "it doesn't qualify yet"}.`;
+                              ? tr("publish.proposed")
+                              : tr("publish.notProposed", {
+                                  reason: j.reason ?? tr("publish.notQualify"),
+                                });
                           setState((cur) => (cur.phase === "ready" ? { ...cur, notice } : cur));
                         })()
                       }
                     >
-                      Propose for publishing
+                      {tr("publish.propose")}
                     </button>
                   )}
                 {open.publish_proposal_id !== null && open.status === "drafted" && (
                   <Link className="prop-btn ct-wide" href="/proposals">
-                    Decide in the queue <span aria-hidden="true">→</span>
+                    {tr("action.decide")} <span aria-hidden="true">→</span>
                   </Link>
                 )}
                 {open.status === "failed" && open.paused_connection_id && (
                   <Link className="prop-btn" href="/connections">
-                    Reconnect <span aria-hidden="true">→</span>
+                    {tr("action.reconnect")} <span aria-hidden="true">→</span>
                   </Link>
                 )}
                 {s.publishNotes[open.id]?.includes("Connections") && (
                   <Link className="prop-btn" href="/connections">
-                    Connections <span aria-hidden="true">→</span>
+                    {tr("action.connections")} <span aria-hidden="true">→</span>
                   </Link>
                 )}
               </div>
-              <p className="ct-fine">
-                {s.realWrites
-                  ? "Nothing is published from this screen. An item goes out only after its own yes in the queue, at its time, through the runner; the emergency stop halts it, and Withdraw deletes it again."
-                  : "Publishing is switched off until the two-week unattended test completes. Approved posts wait here, scheduled; nothing is sent to Meta until it is switched on."}
-              </p>
+              <p className="ct-fine">{s.realWrites ? tr("fine.on") : tr("fine.off")}</p>
             </footer>
           </section>
         )}
       </div>
 
       <div className="ct-lower">
-        <SheetCard label="Goals" title="What the content serves" id="ct-goals">
+        <SheetCard label={tr("goals.label")} title={tr("goals.title")} id="ct-goals">
           {s.goals.length === 0 ? (
-            <p className="ct-empty">
-              No goals yet. State one, or take a suggestion — every planned piece will name the goal
-              it serves.
-            </p>
+            <p className="ct-empty">{tr("goals.empty")}</p>
           ) : (
             <ul className="ct-goal-list">
               {s.goals.map((g) => (
                 <li key={g.goal_id}>
                   <span>{g.statement ?? "—"}</span>
                   <span className="ct-goal-meta">
-                    {g.horizon ? (HORIZON_WORD[g.horizon] ?? g.horizon) : ""}
-                    {g.target_value ? ` · target ${g.target_value}` : ""}
+                    {g.horizon ? horizonWord(g.horizon, tr) : ""}
+                    {g.target_value ? ` · ${tr("goals.target", { value: g.target_value })}` : ""}
                   </span>
                 </li>
               ))}
@@ -769,31 +772,28 @@ export function ContentScreen() {
             }}
           >
             <label className="cs-label" htmlFor="ct-new-goal">
-              A goal in your own words
+              {tr("goals.inputLabel")}
             </label>
             <input
               id="ct-new-goal"
               className="ct-input"
-              placeholder="dated and measurable beats grand"
+              placeholder={tr("goals.placeholder")}
               value={s.newGoal}
               onChange={(e) => setState({ ...s, newGoal: e.target.value })}
             />
             <button className="prop-btn" disabled={s.busy || s.newGoal.trim() === ""}>
-              Add goal
+              {tr("goals.add")}
             </button>
           </form>
         </SheetCard>
 
-        <SheetCard label="Propose" title="Nothing is made until you approve">
+        <SheetCard label={tr("propose.label")} title={tr("propose.title")}>
           <p className="ct-prose">
-            Both of these create a proposal in your <Link href="/proposals">approval queue</Link>.
-            Not a single word is drafted before you say yes there.
+            {t.rich("propose.body", { link: (c) => <Link href="/proposals">{c}</Link> })}
           </p>
           {s.watchingUntil && (
             <p className="ct-prose">
-              Not yet: I&rsquo;m watching the business until {watchDay(s.watchingUntil)}, and I
-              propose nothing before the watch ends. Your goals above still shape what I&rsquo;ll
-              propose then.
+              {tr("propose.watching", { day: watchDay(s.watchingUntil, locale) })}
             </p>
           )}
           <div className="ct-actions">
@@ -801,26 +801,22 @@ export function ContentScreen() {
               type="button"
               className="prop-btn"
               disabled={s.busy || s.watchingUntil !== null}
-              onClick={() =>
-                void act({ action: "plan" }, "The calendar is in your approval queue.")
-              }
+              onClick={() => void act({ action: "plan" }, tr("propose.calendarDone"))}
             >
-              Propose a content calendar
+              {tr("propose.calendar")}
             </button>
             <button
               type="button"
               className="prop-btn"
               disabled={s.busy || s.watchingUntil !== null}
-              onClick={() =>
-                void act({ action: "shotlist" }, "The shot list is in your approval queue.")
-              }
+              onClick={() => void act({ action: "shotlist" }, tr("propose.shotlistDone"))}
             >
-              Propose a shot list
+              {tr("propose.shotlist")}
             </button>
           </div>
           {s.producible.length > 0 && (
             <>
-              <p className="cs-label ct-gap">Approved — ready to draft</p>
+              <p className="cs-label ct-gap">{tr("propose.ready")}</p>
               <ul className="ct-producible">
                 {s.producible.map((p) => (
                   <li key={p.id}>
@@ -830,13 +826,10 @@ export function ContentScreen() {
                       className="next"
                       disabled={s.busy}
                       onClick={() =>
-                        void act(
-                          { action: "produce", proposal_id: p.id },
-                          "Drafted. Every item carries its disclosure and its sources.",
-                        )
+                        void act({ action: "produce", proposal_id: p.id }, tr("propose.drafted"))
                       }
                     >
-                      Draft it <span aria-hidden="true">→</span>
+                      {tr("propose.draft")} <span aria-hidden="true">→</span>
                     </button>
                   </li>
                 ))}

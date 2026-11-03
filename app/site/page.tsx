@@ -7,13 +7,17 @@
 // (lib/site/audit); running a new one is POST /api/site/audit.
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { resolveAccess } from "../../lib/auth/access";
 import { SITE_CHECKS_KEY, type SiteChecks, checkLabel } from "../../lib/blindspots/checks";
 import { readCurrentField } from "../../lib/profile/field-store";
 import { lastSiteAuditFailure, latestSiteAudit } from "../../lib/site/audit/service";
 import { type MeasuredAudit, type SiteAudit, SiteScreen } from "../../components/site/SiteScreen";
 
-export const metadata: Metadata = { title: "Your site — SYB" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("site.meta");
+  return { title: t("title") };
+}
 export const dynamic = "force-dynamic";
 
 async function lastAudit(): Promise<SiteAudit | null> {

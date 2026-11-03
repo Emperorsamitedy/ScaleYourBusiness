@@ -7,9 +7,14 @@
 // already there. Nothing is written until the first is pressed; the
 // assistant never says "done" before it is (the reply says "drafted").
 // Cobalt appears only while the change is genuinely being made.
+//
+// L-3c: the card's frame is the "chat" catalogue; the change's own words
+// (summary, values, the screen's name, the button, the result) are built
+// on the server and shown as they are (L-4).
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTr } from "../sheet/useTr";
 import type { ChangeCardView } from "./chat-view";
 import { canConfirm, cardFlag, cardKicker } from "./chat-view";
 
@@ -25,7 +30,8 @@ export function ChangeCard({
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const flag = cardFlag(card);
+  const { tr } = useTr("chat");
+  const flag = cardFlag(card, tr);
 
   const confirm = async () => {
     if (busy) return;
@@ -42,27 +48,27 @@ export function ChangeCard({
         error?: string;
       };
       if (res.ok && j.change) onChanged(j.change);
-      else setError(j.error ?? "That didn't go through on my side. Nothing was changed.");
+      else setError(j.error ?? tr("change.failed"));
     } catch {
-      setError("I couldn't reach the server. Nothing was changed.");
+      setError(tr("change.unreachable"));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <section className="ak-change inset" aria-label="A change I drafted">
-      <p className="ak-change-k">{cardKicker(card)}</p>
+    <section className="ak-change inset" aria-label={tr("change.aria")}>
+      <p className="ak-change-k">{cardKicker(card, tr)}</p>
       <p className="ak-change-what">{sentence(card.summary)}</p>
       {(card.current !== null || card.proposed !== null) && (
         <dl className="ak-change-vals">
           <div>
-            <dt>{card.status === "applied" ? "Was" : "Now"}</dt>
+            <dt>{card.status === "applied" ? tr("change.was") : tr("change.now")}</dt>
             <dd>{card.current ?? "—"}</dd>
           </div>
           {card.proposed !== null && (
             <div>
-              <dt>{card.status === "applied" ? "Now" : "New"}</dt>
+              <dt>{card.status === "applied" ? tr("change.now") : tr("change.new")}</dt>
               <dd>
                 {card.status === "applied" ? (
                   <span className="marked">{card.proposed}</span>
@@ -83,12 +89,12 @@ export function ChangeCard({
           <span />
         )}
         <Link className="act" href={card.link}>
-          Open the page <span aria-hidden="true">→</span>
+          {tr("change.open")} <span aria-hidden="true">→</span>
         </Link>
       </div>
       {busy && (
         <p className="ak-change-live" role="status">
-          <span className="live-dot" aria-hidden="true" /> Making the change…
+          <span className="live-dot" aria-hidden="true" /> {tr("change.making")}
         </p>
       )}
       {flag && card.result && (
@@ -98,7 +104,7 @@ export function ChangeCard({
       )}
       {error && (
         <p className="ak-change-result" role="alert">
-          <span className="flag drift">Not changed</span> {error}
+          <span className="flag drift">{tr("change.notChanged")}</span> {error}
         </p>
       )}
     </section>

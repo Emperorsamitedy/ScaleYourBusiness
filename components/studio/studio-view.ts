@@ -1,32 +1,63 @@
 // The creative studio's words, pure — counted from what the API returned,
 // never invented. Tested in studio-view.test.ts.
+//
+// L-3c (TASKS-LANGUAGES.md): the words are the "studio" catalogue through
+// an optional translator, English by default from messages/en.json, so
+// English says exactly what it always said; dates and counts in the
+// reader's locale. An ad's page name, hook and offer are content, shown
+// as they are.
 
+import { dayMonth } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
 import type { NicheView } from "../../lib/research/niche";
+import { num } from "../sheet/num";
+
+const EN = (): Tr => englishTr("studio");
 
 export type StudioNiche = Pick<NicheView, "set_up" | "blocked" | "last_read" | "groups">;
 
-/** The screen's one display line: its main fact, from real data. */
-export function studioHeadline(niche: StudioNiche, briefs: number, businessWord: string): string {
+/**
+ * The screen's one display line: its main fact, from real data.
+ * `businessWord` is English's noun ("salon"); another language says "your business".
+ */
+export function studioHeadline(
+  niche: StudioNiche,
+  briefs: number,
+  businessWord: string,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+): string {
   const top = niche.groups[0];
   if (!top || !niche.last_read) {
-    if (!niche.set_up) return "Niche research isn't set up yet.";
-    if (niche.blocked) return "Meta's Ad Library can't show your niche's ads.";
+    if (!niche.set_up) return tr("headline.notSetUp");
+    if (niche.blocked) return tr("headline.blocked");
   }
   if (!niche.last_read || !top) {
-    return briefs > 0
-      ? `${briefs === 1 ? "One brief" : `${briefs} briefs`} written; I haven't read your niche's ads yet.`
-      : `I haven't read the ads in your ${businessWord}'s niche yet.`;
+    if (briefs > 0) return tr("headline.briefsNotRead", { count: briefs });
+    return locale === "en"
+      ? tr("headline.notRead", { noun: businessWord })
+      : tr("headline.notReadBusiness");
   }
-  return `${top.page_name}'s ${top.format === "video" ? "video" : "ad"} has run ${top.running_days} days — the longest-running concept I found.`;
+  return tr("headline.longest", {
+    page: top.page_name,
+    format: top.format === "video" ? "video" : "ad",
+    days: top.running_days,
+  });
 }
 
-/** "142 days · LIVE" / "8 days · STOPPED". */
-export function runningWords(g: { running_days: number; active: boolean }): {
+/** "142 days · LIVE" / "8 days · STOPPED". `word` is the state; its words are `running.live`/`running.stopped`. */
+export function runningWords(
+  g: { running_days: number; active: boolean },
+  tr: Tr = EN(),
+): {
   days: string;
   word: "LIVE" | "STOPPED";
 } {
   return {
-    days: `${g.running_days} day${g.running_days === 1 ? "" : "s"}`,
+    days: tr("running.days", { count: g.running_days }),
     word: g.active ? "LIVE" : "STOPPED",
   };
 }
@@ -34,17 +65,43 @@ export function runningWords(g: { running_days: number; active: boolean }): {
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** "26 Oct", in UTC so server and browser agree. */
-export function dayText(iso: string): string {
+export function dayText(iso: string, locale: AppLocale = "en"): string {
   const d = new Date(iso);
+  if (locale !== "en") return dayMonth(d.toISOString().slice(0, 10), locale);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
 }
 
 /** "26 Oct, 14:05 UTC" — when a fresh read becomes allowed. */
-export function timeText(iso: string): string {
+export function timeText(iso: string, locale: AppLocale = "en"): string {
   const d = new Date(iso);
+  if (locale !== "en") {
+    return new Intl.DateTimeFormat(intlTag(locale), {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+      timeZoneName: "short",
+    }).format(d);
+  }
   const hh = String(d.getUTCHours()).padStart(2, "0");
   const mm = String(d.getUTCMinutes()).padStart(2, "0");
   return `${dayText(iso)}, ${hh}:${mm} UTC`;
+}
+
+/** A country code as the reader says it: English keeps the code ("IE"), as it always has. */
+export function countryText(code: string, locale: AppLocale = "en"): string {
+  if (locale === "en") return code;
+  try {
+    return new Intl.DisplayNames([intlTag(locale)], { type: "region" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+/** A count in the reader's figures (the studio's allowance and request counts). */
+export function countText(n: number, locale: AppLocale = "en"): string {
+  return locale === "en" ? String(n) : num(n, 0, locale);
 }
 
 /** Terms as the owner types them: comma-separated, trimmed, at most two. */
@@ -56,7 +113,7 @@ export function parseTerms(raw: string): string[] {
     .slice(0, 2);
 }
 
-/** What a citation's kind is called on screen. */
+/** What a citation's kind is called on screen (English; the catalogue's `source.<kind>`). */
 export const SOURCE_WORD: Readonly<Record<string, string>> = {
   fact: "YOUR FACT",
   finding: "DIAGNOSIS",
@@ -66,12 +123,30 @@ export const SOURCE_WORD: Readonly<Record<string, string>> = {
   ad: "NICHE AD",
 };
 
-/** The outcome of a research click, in a sentence. */
-export function researchNotice(r: { status: string; why: string | null; fresh: boolean }): string {
+/** A citation's kind in the reader's language; an unknown kind shows as its code. */
+export function sourceWord(kind: string, tr: Tr = EN()): string {
+  return kind in SOURCE_WORD ? tr(`source.${kind}`) : kind;
+}
+
+/** What an ad's format is called on screen (English; the catalogue's `format.<code>`). */
+export const FORMAT_WORD: Readonly<Record<string, string>> = {
+  video: "VIDEO",
+  image: "IMAGE",
+  multi: "CARDS / VERSIONS",
+};
+
+/** An ad's format in the reader's language; an unknown format shows as its code. */
+export function formatWord(format: string, tr: Tr = EN()): string {
+  return format in FORMAT_WORD ? tr(`format.${format}`) : format;
+}
+
+/** The outcome of a research click, in a sentence. `why` is the server's own words. */
+export function researchNotice(
+  r: { status: string; why: string | null; fresh: boolean },
+  tr: Tr = EN(),
+): string {
   if (r.status === "read") {
-    return r.fresh
-      ? "Read the Ad Library just now."
-      : "That read is still fresh, so I used it rather than asking Meta again.";
+    return r.fresh ? tr("notice.readNow") : tr("notice.stillFresh");
   }
-  return r.why ?? "That didn't work. Try again.";
+  return r.why ?? tr("error.generic");
 }

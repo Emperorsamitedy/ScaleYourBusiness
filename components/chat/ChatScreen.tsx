@@ -15,10 +15,19 @@
 // The design's "sources for this answer" side sheet is not drawn: the
 // chat service returns no citations, and a source list made up on this
 // side would be exactly the unexplainable number rule 6 forbids.
+//
+// L-3c (TASKS-LANGUAGES.md): the screen's fixed words are the "chat"
+// catalogue and the stamps follow the reader's locale; the microphone
+// listens in it. The turns are content: the owner's questions as typed,
+// SYB's answers as the model wrote them (L-5), and the server's own
+// refusal sentences (L-4) are shown as they are.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { businessNoun } from "../../lib/core/business-noun";
+import { intlTag } from "../../lib/i18n/locales";
+import { useTr } from "../sheet/useTr";
 import { MicButton } from "../voice/MicButton";
 import { ChangeCard } from "./ChangeCard";
 import type { ChangeCardView, Turn } from "./chat-view";
@@ -52,7 +61,11 @@ export function ChatScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
   const [business, setBusiness] = useState<string | null>(null);
   // "your salon", "your gym" — from the business_type answer; "your business" until known.
-  const [noun, setNoun] = useState(businessNoun(null));
+  const [englishNoun, setNoun] = useState(businessNoun(null));
+  const { tr, locale } = useTr("chat");
+  const tChat = useTranslations("chat");
+  // English's noun table ("your salon"); other languages say "your business".
+  const noun = locale === "en" ? englishNoun : tr("yourBusiness");
   const endRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   // The composer's text as of the last change, kept in step on every write
@@ -101,12 +114,12 @@ export function ChatScreen() {
     if (turnCount > 0) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [turnCount, busy]);
 
-  const kicker = `Ask me anything · About ${business ?? noun}`;
+  const kicker = tr("kicker", { about: business ?? noun });
 
   if (state.phase === "loading") {
     return (
       <main className="screen ak-screen">
-        <p className="ak-wait">Opening the conversation…</p>
+        <p className="ak-wait">{tr("loading")}</p>
       </main>
     );
   }
@@ -119,21 +132,17 @@ export function ChatScreen() {
               <div>
                 <p className="cs-label">{kicker}</p>
                 <h1 className="cs-title ak-title">
-                  {state.phase === "signedout"
-                    ? "I answer from your business."
-                    : "The conversation didn't load."}
+                  {state.phase === "signedout" ? tr("signedOut.title") : tr("error.title")}
                 </h1>
               </div>
             </header>
             <div className="cs-body">
               <p className="ak-copy">
-                {state.phase === "signedout"
-                  ? "This channel is grounded in one profile — yours. Start the intake and there is something real to talk about."
-                  : "Something went wrong reading the thread. Refresh to try again."}
+                {state.phase === "signedout" ? tr("signedOut.copy") : tr("error.copy")}
               </p>
               {state.phase === "signedout" && (
                 <Link className="next" href="/intake">
-                  Begin <span aria-hidden="true">→</span>
+                  {tr("signedOut.begin")} <span aria-hidden="true">→</span>
                 </Link>
               )}
             </div>
@@ -192,7 +201,7 @@ export function ChatScreen() {
             {
               id: `err-${Date.now()}`,
               role: "system" as const,
-              text: error ?? "Something went wrong on my side — say that again?",
+              text: error ?? tr("sendFailed"),
               at: new Date().toISOString(),
               intent: null,
             },
@@ -230,12 +239,12 @@ export function ChatScreen() {
             <div>
               <p className="cs-label">{kicker}</p>
               <h1 className="cs-title ak-title" id="ak-title">
-                {question ?? "What would you like to know?"}
+                {question ?? tr("titleEmpty")}
               </h1>
             </div>
             {question !== null && (
               <button type="button" className="ak-new" onClick={newQuestion}>
-                New question
+                {tr("newQuestion")}
               </button>
             )}
           </header>
@@ -243,18 +252,16 @@ export function ChatScreen() {
           <div className="ak-thread" aria-live="polite">
             {s.turns.length === 0 && (
               <p className="ak-copy ak-empty">
-                Ask me anything about {noun} — why the report said what it said, what your numbers
-                show, what I&rsquo;d watch. Ask me to <em>change</em> something — your hours, a
-                goal, your reply time — and I&rsquo;ll draft it for your yes, or take you to the
-                page where it lives. If you ask me to <em>do</em> something out in the world, it
-                becomes a proposal in your queue; nothing runs on phrasing alone.
+                {tChat.rich("empty", { noun, em: (chunks) => <em>{chunks}</em> })}
               </p>
             )}
             {s.turns.map((t) => (
               <article key={t.id} id={`turn-${t.id}`} className={`ak-turn ${t.role}`}>
                 <p className="ak-who">
-                  {t.role === "owner" ? "You" : "SYB"}
-                  {stamp(t.at, now) !== "" && <span className="ak-at">{stamp(t.at, now)}</span>}
+                  {t.role === "owner" ? tr("you") : "SYB"}
+                  {stamp(t.at, now, locale) !== "" && (
+                    <span className="ak-at">{stamp(t.at, now, locale)}</span>
+                  )}
                 </p>
                 <div className="ak-text">
                   {t.role === "owner" ? (
@@ -275,7 +282,7 @@ export function ChatScreen() {
                   <span className="live-dot" aria-hidden="true" /> SYB
                 </p>
                 <div className="ak-text">
-                  <p className="ak-thinking">Reading your profile…</p>
+                  <p className="ak-thinking">{tr("thinking")}</p>
                 </div>
               </article>
             )}
@@ -283,8 +290,7 @@ export function ChatScreen() {
               <div className="ak-turn system">
                 <span aria-hidden="true" />
                 <p className="ak-queued inset">
-                  It&rsquo;s a proposal now, waiting for your yes.{" "}
-                  <Link href="/proposals">Open Waiting for you →</Link>
+                  {tr("queued.text")} <Link href="/proposals">{tr("queued.link")}</Link>
                 </p>
               </div>
             )}
@@ -299,7 +305,7 @@ export function ChatScreen() {
             }}
           >
             <label className="ak-label" htmlFor="ak-input">
-              Ask about {noun}
+              {tr("composer.label", { noun })}
             </label>
             <div className="ak-row">
               <textarea
@@ -308,7 +314,7 @@ export function ChatScreen() {
                 className="ak-input"
                 rows={2}
                 maxLength={MAX_CHARS}
-                placeholder="Type a question…"
+                placeholder={tr("composer.placeholder")}
                 value={s.draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => {
@@ -325,19 +331,19 @@ export function ChatScreen() {
                 className="next ak-ask"
                 disabled={s.busy || s.draft.trim() === ""}
               >
-                Ask <span aria-hidden="true">→</span>
+                {tr("composer.ask")} <span aria-hidden="true">→</span>
               </button>
             </div>
             <MicButton
-              label="Speak your question"
+              label={tr("composer.speak")}
               getText={() => draftRef.current}
               setText={(next) => setDraft(next.slice(0, MAX_CHARS))}
-              after="Read it over and fix anything, then press Ask."
+              after={tr("composer.spokenAfter")}
+              lang={intlTag(locale)}
               disabled={s.busy}
             />
             <p className="ak-rule" id="ak-rule">
-              I answer only from what your profile and report hold. A change you ask for is drafted
-              first — nothing is written until you press its button; limits you state here stick.
+              {tr("composer.rule")}
             </p>
           </form>
         </section>
@@ -346,7 +352,7 @@ export function ChatScreen() {
           <aside className="cs ak-side" aria-labelledby="ak-earlier">
             <div className="ak-side-body">
               <h2 className="cs-label" id="ak-earlier">
-                Earlier questions
+                {tr("earlier")}
               </h2>
               <ul className="ak-earlier">
                 {earlier.map((q) => (

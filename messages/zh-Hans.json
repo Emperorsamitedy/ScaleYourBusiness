@@ -3081,5 +3081,1370 @@
       "assumed": "假设",
       "atCost": "按成本计 {amount}"
     }
+  },
+  "chat": {
+    "meta": {
+      "title": "有问题尽管问我 — SYB"
+    },
+    "kicker": "有问题尽管问我 · 关于：{about}",
+    "yourBusiness": "您的企业",
+    "loading": "正在打开对话…",
+    "signedOut": {
+      "title": "我根据您的企业来回答。",
+      "copy": "这个对话只依据一份档案——您的档案。开始访谈后，就有真正可谈的内容了。",
+      "begin": "开始"
+    },
+    "error": {
+      "title": "对话没有加载出来。",
+      "copy": "读取对话时出了点问题。请刷新重试。"
+    },
+    "titleEmpty": "您想了解什么？",
+    "newQuestion": "新问题",
+    "empty": "关于{noun}，您可以问我任何问题：报告为什么那样说、您的数字说明了什么、我会关注什么。请我<em>更改</em>某项内容——您的营业时间、某个目标、您的回复时间——我会先起草，等您同意，或者带您去它所在的页面。如果您请我在现实中<em>执行</em>某件事，它会成为您队列中的一项提案；仅凭措辞，什么都不会执行。",
+    "you": "您",
+    "thinking": "正在读取您的档案…",
+    "queued": {
+      "text": "它现在是一项提案，正在等待您的同意。",
+      "link": "打开“等待您处理” →"
+    },
+    "sendFailed": "我这边出了点问题——能再说一遍吗？",
+    "composer": {
+      "label": "询问关于{noun}的问题",
+      "placeholder": "输入问题…",
+      "ask": "提问",
+      "speak": "语音输入：说出您的问题",
+      "spokenAfter": "请通读一遍并修改有误之处，然后按“提问”。",
+      "rule": "我只根据您的档案和报告中的内容回答。您要求的更改会先起草——在您按下它的按钮之前，什么都不会写入；您在这里提出的限制会一直有效。"
+    },
+    "earlier": "之前的问题",
+    "change": {
+      "aria": "我起草的一项更改",
+      "was": "原值",
+      "now": "现值",
+      "new": "新值",
+      "open": "打开该页面",
+      "making": "正在进行更改…",
+      "notChanged": "未更改",
+      "failed": "我这边没能完成。什么都没有更改。",
+      "unreachable": "无法连接服务器。什么都没有更改。"
+    },
+    "flag": {
+      "applied": "已更改",
+      "queued": "在您的队列中",
+      "stale": "未更改"
+    },
+    "cardKicker": {
+      "link_only": "由您来更改 · {screen}",
+      "applied": "已完成 · {screen}",
+      "queued": "在您的队列中 · {screen}",
+      "stale": "未完成 · {screen}",
+      "proposal": "已为您的队列起草 · {screen}",
+      "prepared": "已起草，尚未执行 · {screen}"
+    }
+  },
+  "mode": {
+    "meta": {
+      "title": "我的工作方式 — SYB"
+    },
+    "kicker": "您的企业 · 我的工作方式",
+    "yourBusiness": "您的企业",
+    "loading": {
+      "title": "我的工作方式。",
+      "copy": "正在读取决定…"
+    },
+    "signedOut": {
+      "title": "请先登录。",
+      "label": "我的工作方式",
+      "sheetTitle": "此页面会读取您的档案。",
+      "signIn": "登录"
+    },
+    "none": {
+      "title": "尚未决定。",
+      "label": "我的工作方式",
+      "sheetTitle": "可以做决定了。",
+      "copy": "一条固定规则会读取您的回答并做出选择：立即行动，或先观察。您能清楚看到是什么触发了这一选择。",
+      "decide": "立即决定"
+    },
+    "deferred": {
+      "label": "暂不",
+      "sheetTitle": "我不会去猜。",
+      "answer": "回答核心问题"
+    },
+    "current": "当前",
+    "everyYes": "每一项提案仍需要您的同意",
+    "a": {
+      "label": "模式 A",
+      "title": "先观察",
+      "copyWatching": "在提出任何建议之前，我会用 {days, plural, other {# 天}}了解{noun}的实际运作情况。仓促改动可能会让您损失销售额。没有您，什么都不会改变。",
+      "day": "第 {day} 天，共 {of} 天 · {date} 结束",
+      "firstRead": "观察期间，第一次解读仍会送达。",
+      "openWatching": "打开“观察”",
+      "extending": "正在延长…",
+      "extend": "延长到 {days, plural, other {# 天}}",
+      "copyIdle": "在提出任何建议之前，我会观察四到八周，这样改动就不会让您损失我尚未衡量过的销售额。",
+      "chosenWith": "在以下情况下选择：每月 {sales} 笔以上销售、有员工、有付费广告、有客户支持流程，或已经营 {months} 个月以上"
+    },
+    "b": {
+      "label": "模式 B",
+      "title": "立即行动",
+      "started": "开始于 {date}",
+      "seeFirstRead": "查看第一次解读",
+      "copyIdle": "提案从第一次解读起就开始。仅在没有任何正在运行、可能被改动破坏的东西时才会选择。",
+      "onlyUnder": "仅在以下情况下：每月销售不足 {sales} 笔、没有员工、没有付费广告、没有客户支持流程、经营不足 {months} 个月"
+    },
+    "why": {
+      "labelWatching": "我为什么建议先观察",
+      "labelInstant": "为什么现在开始是安全的",
+      "titleWatching": "真实的客户正在购买",
+      "titleInstant": "没有任何正在运行、可能被改动破坏的东西",
+      "none": "这个决定没有保存任何原因。"
+    },
+    "never": {
+      "label": "在任一模式下",
+      "title": "什么永远不变",
+      "one": "没有您的批准，什么都不会执行。未答复的提案会过期——它们绝不会默认执行。",
+      "two": "<link>等待您处理</link>中的“全部停止”会立即叫停所有执行，无需登录。",
+      "three": "您设定的限制始终有效：会突破限制的提案会被扣下，绝不会当作没问题一样交给您。"
+    },
+    "headline": {
+      "watching": "先观察，为期 {days, plural, other {# 天}}。",
+      "instant": "立即行动。"
+    },
+    "chosen": "选择于 {date}",
+    "chosenOverride": "{chosen} · 于 {date} {kind, select, extend {延长} other {缩短}}至 {weeks, plural, other {# 周}}"
+  },
+  "content": {
+    "meta": {
+      "title": "内容 — SYB"
+    },
+    "kicker": "增长 · 内容",
+    "loading": "正在读取内容队列…",
+    "failed": "没有成功",
+    "signedOut": {
+      "eyebrow": "内容",
+      "title": "从访谈开始。",
+      "body": "内容根据您的档案来规划——渠道、目标、产品与服务。回答十二个问题，就有真正可以用来规划的素材了。",
+      "cta": "开始"
+    },
+    "aside": "更改内容目标",
+    "headline": {
+      "nothing": "还没有起草任何内容。",
+      "nothingReady": "还没有起草任何内容。{count, plural, other {有 # 份已批准的计划}}可以起草了。",
+      "scheduledPosted": "已排期 {scheduled} 条。{posted, plural, =0 {尚无发布} other {已发布 # 条}}。",
+      "drafts": "{count, plural, other {# 份草稿}}。",
+      "needsYes": "{first}{count, plural, other {其中 # 份}}需要您的同意。",
+      "moreToDraft": "{first}{count, plural, other {还有 # 份已批准的计划}}可以起草。",
+      "noneCanPost": "{first}目前都还不能发布。",
+      "nextDue": "{first}下一条计划于 {date} 发布。"
+    },
+    "state": {
+      "inQueue": "在您的队列中",
+      "drafted": "已起草",
+      "scheduled": "已排期",
+      "scheduledOn": "排期 {day}",
+      "unconfirmed": "未确认",
+      "publishing": "发布中",
+      "posted": "已发布",
+      "postedOn": "发布于 {day}",
+      "failed": "失败",
+      "withdrawn": "已撤回"
+    },
+    "platform": {
+      "unknown": "该平台"
+    },
+    "publish": {
+      "approvedOn": "已批准。它会在发布时间由执行程序发出；紧急停止可以叫停它。",
+      "approvedOff": "已批准，正在等待开启发布功能。在此之前不会向 Meta 发送任何内容。",
+      "goingOut": "正在发布到 {platform}。",
+      "live": "已在 {platform} 上线。",
+      "withdrawn": "已撤回：已从 {platform} 删除。它的记录仍保留在这里。",
+      "propose": "提议发布",
+      "proposed": "它的发布提案已在您的队列中。",
+      "notProposed": "未提议：{reason}。",
+      "notQualify": "它暂时还不符合条件"
+    },
+    "verdict": {
+      "helped": "有帮助",
+      "did_nothing": "无效果",
+      "backfired": "适得其反",
+      "too_early": "为时过早",
+      "unmeasured": "未衡量"
+    },
+    "perf": {
+      "measured": "已衡量",
+      "day": "第 {day} 天",
+      "reach": "覆盖 {n}",
+      "views": "浏览 {n}",
+      "interactions": "互动 {n}"
+    },
+    "ad": {
+      "word": {
+        "live": "广告投放中",
+        "paused": "广告已暂停",
+        "inProgress": "广告创建中",
+        "unconfirmed": "广告未确认",
+        "failed": "广告失败",
+        "heldBack": "广告被扣下",
+        "approved": "广告已批准",
+        "proposed": "广告已提议"
+      },
+      "text": {
+        "live": "这条广告会在您批准的天数内于 Meta 上投放，然后自动停止。紧急停止会叫停 SYB 仍在发送的任何内容。",
+        "pausedBlocked": "这条广告已在 Meta 上，处于暂停状态。您设定的一项限制扣下了上线操作。",
+        "pausedPending": "这条广告已在 Meta 上，处于暂停状态。上线需要另一次同意，正在队列中等待。",
+        "goLiveApprovedOn": "已批准上线：广告、广告组及其营销活动会在下一次运行时开启。",
+        "goLiveApprovedOff": "已批准上线，正在等待开启 Meta 广告更改功能。在此之前不会产生任何花费。",
+        "paused": "这条广告已在 Meta 上，处于暂停状态，不产生任何花费。上线需要另行批准。",
+        "building": "正在 Meta 上创建，处于暂停状态。它会从中断的地方继续——不会重复创建任何东西。",
+        "buildStopped": "广告的创建中断了。请查看广告管理工具；SYB 创建的所有内容都已暂停。",
+        "heldBack": "已作为广告提议，但被您设定的一项限制扣下。",
+        "approvedOn": "已批准：广告会在下一次运行时于 Meta 上创建，处于暂停状态。",
+        "approvedOff": "已批准，正在等待开启 Meta 广告更改功能。在此之前不会发送任何内容。",
+        "proposed": "已作为广告提议——需要您在队列中同意。",
+        "offer": "把它作为广告投放：一项提案，附带预算、受众和预期范围。创建时处于暂停状态；上线需要另行批准；创建的对象无法删除，只能暂停。"
+      },
+      "run": "作为广告投放",
+      "runDone": "已作为广告提议，在队列中。广告创建时处于暂停状态；上线需要另行批准。",
+      "goLive": "提议上线",
+      "goLiveDone": "上线已提议，在队列中。在您批准之前不会产生任何花费。",
+      "decide": "在队列中决定这条广告"
+    },
+    "origin": {
+      "footage": "您拍摄的素材",
+      "generatedImage": "AI 生成的图片",
+      "generatedVideo": "AI 生成的视频"
+    },
+    "kind": {
+      "post": "帖子",
+      "email": "邮件",
+      "shot_list": "拍摄这个",
+      "video": "视频"
+    },
+    "strips": {
+      "label": "每个渠道的队列",
+      "undated": "未定日期",
+      "bar": "已发布 {posted} 条，共计划 {planned} 条",
+      "behind": "{count, plural, other {落后 · # 条已过期}}",
+      "done": "全部已发布",
+      "next": "下一条 {day}",
+      "onPace": "按计划进行"
+    },
+    "strip": {
+      "post": "{count, plural, other {# 条帖子}}",
+      "email": "{count, plural, other {# 封邮件}}",
+      "shot_list": "{count, plural, other {# 份拍摄清单}}",
+      "video": "{count, plural, other {# 个视频}}",
+      "piece": "{count, plural, other {# 条内容}}"
+    },
+    "queue": {
+      "label": "队列",
+      "titleOn": "已撰写、已排期、已发布",
+      "titleOff": "已撰写并排期——发布功能已关闭",
+      "emptyWatching": "队列是空的。观察期于 {day} 结束后才会开始提出提案。",
+      "empty": "队列是空的。请在下方提议一份日历——您在队列中批准后，我会在这里起草。"
+    },
+    "col": {
+      "draft": "草稿",
+      "channel": "渠道",
+      "goal": "服务的目标",
+      "state": "状态",
+      "date": "日期"
+    },
+    "anytime": "随时",
+    "detail": {
+      "aria": "草稿 {id}",
+      "media": "媒体 · {what}",
+      "email": "邮件",
+      "caption": "配文",
+      "writtenFrom": "撰写依据",
+      "serves": "服务的目标：{goal}",
+      "disclosure": "披露：{text}",
+      "notPublishing": "不发布：{why}。",
+      "superseded": "您自己拍摄的素材取代了这个生成的版本，所以它不会被发布。",
+      "platformId": "{platform} 编号 {id}",
+      "posted": "发布于 {day}"
+    },
+    "evidence": {
+      "channel": "渠道：{channel} · 来自您的档案",
+      "goal": "目标：{goal}",
+      "goalUnknown": "您设定的一个目标"
+    },
+    "withdraw": {
+      "confirm": "要撤回吗？这会删除 {platform} 上的帖子。记录仍保留在这里；帖子无法恢复。",
+      "openOn": "在 {platform} 上打开",
+      "yes": "是的，撤回",
+      "keep": "保留",
+      "button": "撤回",
+      "done": "已从 {platform} 撤回。"
+    },
+    "action": {
+      "decide": "在队列中决定",
+      "reconnect": "重新连接",
+      "connections": "连接"
+    },
+    "fine": {
+      "on": "此页面不会发布任何内容。每一项都只有在队列中得到它自己的同意后，才会在其时间由执行程序发出；紧急停止可以叫停它，“撤回”可以再次删除它。",
+      "off": "在为期两周的无人值守测试完成之前，发布功能处于关闭状态。已批准的帖子会在这里排期等待；在功能开启之前，不会向 Meta 发送任何内容。"
+    },
+    "goals": {
+      "label": "目标",
+      "title": "内容服务于什么",
+      "empty": "还没有目标。请写下一个，或采用一条建议——每一条计划的内容都会注明它所服务的目标。",
+      "horizon": "{months, plural, other {# 个月}}",
+      "target": "目标值 {value}",
+      "inputLabel": "用您自己的话写下一个目标",
+      "placeholder": "有日期、可衡量，胜过宏大",
+      "add": "添加目标"
+    },
+    "propose": {
+      "label": "提议",
+      "title": "在您批准之前，什么都不会制作",
+      "body": "这两项都会在您的<link>批准队列</link>中创建一项提案。在您在那里同意之前，一个字都不会起草。",
+      "watching": "暂时还不行：我会观察您的企业直到 {day}，观察期结束前我不会提议任何事。您在上面设定的目标仍会影响我届时提议的内容。",
+      "calendar": "提议一份内容日历",
+      "calendarDone": "这份日历已在您的批准队列中。",
+      "shotlist": "提议一份拍摄清单",
+      "shotlistDone": "这份拍摄清单已在您的批准队列中。",
+      "ready": "已批准——可以起草",
+      "draft": "起草",
+      "drafted": "已起草。每一项都附有它的披露说明和来源。"
+    },
+    "mediaPanel": {
+      "uploadFailed": "上传没有成功",
+      "megabytes": "{n} MB",
+      "uploading": "正在上传第 {index} 个，共 {total} 个：{name}",
+      "uploaded": "{count, plural, other {已上传 # 个片段。}}",
+      "footage": "拍摄素材",
+      "remove": "移除",
+      "removed": "片段已移除。",
+      "render": {
+        "queued": "排队中",
+        "rendering": "剪辑中",
+        "rendered": "已完成",
+        "failed": "失败",
+        "live": "剪辑室正在处理。这需要一两分钟。",
+        "open": "打开视频"
+      },
+      "uploadsOff": "此服务器尚未设置上传功能，因此暂时无法在这里上传素材。",
+      "upload": {
+        "more": "添加更多片段",
+        "first": "上传您拍摄的内容",
+        "label": "{action}——{mp4} 或 {mov}，每个不超过 {mb} MB，{count, plural, other {最多 # 个片段}}"
+      },
+      "cut": {
+        "done": "正在剪辑。完成后视频会出现在队列中。",
+        "caption": "配文——帖子在视频下方显示的文字",
+        "onScreen": "画面文字（可选，会嵌入视频）",
+        "date": "发布日期",
+        "button": "剪辑",
+        "fine": "用您自己的片段进行修剪、按 {ratio} 构图并添加字幕；只使用已获授权的音乐。标注为“对真实素材的 AI 辅助剪辑”。之后会提议发布，需要在队列中得到它自己的同意。"
+      },
+      "fallback": {
+        "label": "没有素材？AI 备选方案",
+        "pending": "为此生成媒体正在等待您的决定。",
+        "generate": "生成",
+        "generated": "已生成。",
+        "approved": "已批准。生成会花费所列的费用。",
+        "notOffered": "未提供：{reason}。",
+        "offer": "SYB 可以提议根据这一项自身的文字生成一张图片{image, select, none {} other {（约 {image}）}}或一段 {seconds} 秒的片段{video, select, none {} other {（约 {video}）}}。它会在文件和配文中标注为 AI 生成，绝不展示真实人物或品牌，并且需要您同意两次：一次是生成，一次是发布。只要您拍摄了自己的素材，它就会被取代。",
+        "dirLabel": "它应该展示什么（可选）",
+        "dirPlaceholder": "一碗南瓜汤，俯拍",
+        "proposed": "已提议。它连同费用已在您的批准队列中。",
+        "propose": "{media, select, image {提议一张图片} other {提议一段片段}}",
+        "lastTry": "上一次尝试：{error}{cost, select, none {} other {（已收取 {cost}）}}。"
+      },
+      "refused": "已拒绝"
+    }
+  },
+  "customers": {
+    "meta": {
+      "title": "客户 — SYB"
+    },
+    "kicker": "客户",
+    "opening": "正在打开客户…",
+    "signedOut": {
+      "eyebrow": "客户",
+      "title": "从访谈开始。",
+      "begin": "开始"
+    },
+    "aside": "来自您导入的名单 · 没有您对邮件的批准，什么都不会发送",
+    "failed": "没有成功",
+    "headline": {
+      "none": "还没有导入任何客户。",
+      "count": "{total, plural, other {# 位客户。}}",
+      "quietNone": "没有人沉寂。",
+      "quietAll": "他们全都沉寂了。",
+      "quiet": "{lapsed, plural, other {其中 # 位已沉寂。}}"
+    },
+    "lifecycle": {
+      "active": "活跃",
+      "new": "新客",
+      "lapsing": "渐少",
+      "lapsed": "已沉寂",
+      "unknown": "无记录"
+    },
+    "noEmail": "无邮箱",
+    "consent": {
+      "explicit_consent": "明确同意",
+      "implied_consent": "默示同意——并非明确同意",
+      "no_consent": "未同意",
+      "unsure": "不确定——并非明确同意"
+    },
+    "posture": {
+      "enabled": "您说过客户给出了明确同意——可以按联系人逐一对外发送。",
+      "caution": "您对同意问题的回答是默示或不确定——只有给出明确同意的联系人才能收到邮件。",
+      "disabled": "您说过客户没有给出同意——对外邮件已关闭。",
+      "unknown": "您还没有回答同意问题（{question}）——按谨慎处理。"
+    },
+    "import": {
+      "imported": "已导入 {count} 位。",
+      "skipped": "已跳过：{list}。",
+      "sep": "、",
+      "skip": {
+        "suppressed": "{count} 位在退订名单上",
+        "already_exists": "{count} 位已在这里",
+        "duplicate_in_batch": "{count} 位在文件中重复",
+        "invalid": "{count} 行无法读取"
+      },
+      "purchase": "购买记录读取自 {columns, plural, other {# 列}}。",
+      "purchaseUnreadable": "购买记录读取自 {columns, plural, other {# 列}}；{unreadable, plural, other {有 # 个值无法读取，已留空}}。",
+      "refreshed": "已更新 {count, plural, other {# 位已有客户}}的购买记录；他们的同意保持原有记录不变。",
+      "country": "{count, plural, other {有 # 个国家无法识别，已标为未知。}}",
+      "label": "导入",
+      "title": "基于您的声明担保",
+      "prose": "粘贴来自您的收银系统、预约系统、网店或电子表格的 CSV。它能识别的列：email、name、phone、country（这样每位客户都适用其所在地的邮件规则），以及——用于判断购买周期的——last order date、order count、total spent。请说明这些联系人同意了什么以及是如何同意的；这一声明会记录在每一行上。",
+      "csv": "CSV 内容",
+      "status": "他们同意了什么",
+      "option": {
+        "explicit_consent": "他们明确同意接收营销邮件",
+        "implied_consent": "默示同意（是客户，但没有明确选择加入）",
+        "unsure": "不确定",
+        "no_consent": "未同意"
+      },
+      "statement": "用您自己的话说明是如何获得的",
+      "statementPlaceholder": "例如：自 {year} 年起注册表单中的勾选框",
+      "currency": "消费金额一列的货币",
+      "submit": "基于我的声明担保导入"
+    },
+    "list": {
+      "label": "客户",
+      "find": "查找客户",
+      "search": "姓名或邮箱",
+      "filters": "按购买模式筛选",
+      "all": "全部 · {count}",
+      "empty": "还没有客户。请在下方导入您的客户名单——并由您自己声明担保他们同意了什么。",
+      "noMatch": "没有匹配的人。",
+      "customer": "客户",
+      "purchases": "购买次数",
+      "spent": "消费金额",
+      "lastPurchase": "最近一次购买",
+      "pattern": "购买模式",
+      "open": "打开",
+      "openWho": "打开 {name}",
+      "showing": "显示 {shown} 位，共 {total} 位 · 邮箱在屏幕上部分隐藏",
+      "showingFiltered": "显示 {shown} 位，共 {total} 位（总计 {all} 位）· 邮箱在屏幕上部分隐藏",
+      "more": "再显示 {count} 位"
+    },
+    "record": {
+      "label": "客户记录",
+      "noName": "没有记录姓名",
+      "countryUnknown": "国家未知",
+      "purchases": "购买次数",
+      "spent": "消费金额",
+      "last": "最近一次",
+      "onRecord": "记录中",
+      "consent": "同意：{consent} · 依据您导入时的声明担保",
+      "pattern": "购买模式：{pattern}",
+      "segment": "分群：{segment} · 共 {size} 位",
+      "note": "逐笔购买记录不会导入——这些是您导出文件中的合计。"
+    },
+    "erase": {
+      "title": "删除这位客户",
+      "copy": "用于删除请求。从 SYB 中永久删除其姓名、邮箱、详细信息和客户支持对话。其地址会以哈希形式保留在退订名单上，因此他们永远不会再收到邮件；审计日志只保留匿名编号。",
+      "irreversible": "不可撤销",
+      "cannotUndo": "此操作无法撤销。",
+      "done": "已删除。屏蔽用的哈希仍保留。",
+      "confirm": "永久删除",
+      "keep": "保留",
+      "button": "删除 {name}…",
+      "buttonUnnamed": "删除这位客户…"
+    },
+    "segments": {
+      "label": "分群",
+      "title": "算术，附带计算过程",
+      "segment": "分群",
+      "inIt": "人数",
+      "emailable": "可发邮件",
+      "working": "计算过程",
+      "hide": "隐藏",
+      "why": "原因",
+      "propose": "提议一封挽回邮件和一封感谢邮件",
+      "proposed": "{count, plural, other {您的批准队列中有 # 项提案。}}批准后不会直接发送——发送时会单独重新核对同意。",
+      "nothing": "没有可提议的内容。",
+      "queue": "打开队列"
+    },
+    "campaigns": {
+      "label": "已批准的营销活动",
+      "title": "只有在您批准邮件本身之后才会发送"
+    },
+    "fine": "每位客户的记录来自您自己导出的客户文件，而不是来自您连接的账户——那些账户衡量的是整个企业。删除客户属于 GDPR 删除：其详细信息会被删除，记录只保留匿名编号。",
+    "campaign": {
+      "fallbackLabel": "营销活动",
+      "drafted": "已用您的语气起草，附有 AI 披露说明和页脚。请在下方阅读——什么都还没有发送。",
+      "alreadyDrafted": "这个营销活动已经有草稿了。",
+      "done": "完成。",
+      "draft": "起草邮件",
+      "needs": "在可以发送之前，它还需要：{gaps}。",
+      "complete": "就您所在的地区而言已完整。发送时会添加：{items}，并在发送前为每位收件人再次核对同意。",
+      "irreversible": "不可撤销",
+      "irreversibleNote": "邮件一旦发出就无法撤回。它只会发给明确表示愿意收到您消息的客户，每位都会在发送那一刻再次核对，而且每封邮件都带有自己的退订链接。",
+      "mislabelled": "这个营销活动在批准时被当作可以撤销的事项。请在队列中拒绝它并重新提议，让它在您批准之前得到如实标注。",
+      "subject": "邮件主题",
+      "approveSend": "批准并发送给最多 {count} 位",
+      "notYet": "暂不",
+      "approve": "批准这封邮件…",
+      "alsoWaiting": "还在等待",
+      "tryNow": "尝试立即发送",
+      "refusedAtSend": "发送时拒绝：{list}。",
+      "phase": {
+        "sent": "已发送",
+        "sending": "发送中",
+        "held": "已扣下",
+        "awaiting_approval": "等待您批准",
+        "awaiting_draft": "未起草"
+      },
+      "sentence": {
+        "awaiting_draft": "已批准。下一步是起草邮件；在您批准邮件本身之前，什么都不会发送。",
+        "awaiting_approval": "已为 {count, plural, other {# 位客户}}起草。请阅读后批准邮件本身以发送。",
+        "heldGate": "已批准，未发送。{gate}",
+        "held": "已批准，尚未发送。它会在下一次运行时发出。",
+        "sending": "发送中：目前已发送 {sent} 封，共 {total} 封。其余的会在下一次运行时发出，每封发送时都会再次核对。",
+        "sent": "已发送给 {count, plural, other {# 位客户}}。已发送的邮件无法撤回。",
+        "sentOn": "已于 {date} 发送给 {count, plural, other {# 位客户}}。已发送的邮件无法撤回。"
+      },
+      "count": {
+        "sent": "已发送",
+        "refused": "发送时拒绝",
+        "unknown": "结果未知",
+        "failed": "被邮件服务拒绝",
+        "pending": "尚待发送",
+        "unsubscribed": "此后退订"
+      },
+      "refusal": {
+        "consent_implied": "仅为默示同意",
+        "consent_unsure": "同意情况不确定",
+        "consent_none": "未同意",
+        "suppressed": "已退订、标记为垃圾邮件或已删除",
+        "consent_unproven": "同意未连同方式和时间一起记录",
+        "no_regime": "所在国家我没有对应的邮件规则",
+        "message_incomplete": "邮件缺少其所在地法律要求的内容",
+        "no_email": "没有邮箱地址",
+        "contact_gone": "已不在您的客户中",
+        "duplicate_address": "与另一位收件人地址相同"
+      },
+      "unknown": "{count, plural, other {可能已发出 # 封邮件：邮件服务没有确认是否发出。在这个营销活动中，我不会再向这些客户发送。}}",
+      "verdict": {
+        "helped": "有帮助",
+        "backfired": "适得其反",
+        "did_nothing": "无效果",
+        "too_early": "现在下结论为时过早",
+        "unmeasured": "未衡量"
+      },
+      "readback": {
+        "label": "发出之后发生了什么",
+        "count": "数量",
+        "rate": "比率",
+        "emails": "{count, plural, other {# 封邮件}}",
+        "people": "{count, plural, other {# 人}}",
+        "notReported": "未报告",
+        "notCounted": "未计入",
+        "measuredOf": "已衡量 {measured} 人中的 {returned} 人",
+        "points": "{value} 个百分点",
+        "row": {
+          "sent": "已发送",
+          "delivered": "已送达",
+          "bounced": "被退回",
+          "unsubscribed": "已退订",
+          "spam": "被标记为垃圾邮件",
+          "replied": "已回复",
+          "boughtAgain": "此后再次购买",
+          "comparison": "{group, select, vip {未收到邮件的最佳客户，再次购买} other {未收到邮件的沉寂客户，再次购买}}",
+          "difference": "差值"
+        }
+      }
+    }
+  },
+  "studio": {
+    "meta": {
+      "title": "创意工作室 — SYB"
+    },
+    "kicker": "增长 · 创意工作室",
+    "aside": "Meta 广告资料库 · 只读 · 已观测",
+    "loading": "正在读取您的细分市场和创意简报…",
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "copy": "<intake>从访谈开始</intake>；工作室会根据您告诉我的内容来工作。"
+    },
+    "error": {
+      "generic": "没有成功。请重试。",
+      "title": "工作室没有加载出来。",
+      "copy": "我们这边出了问题。请刷新页面重试。"
+    },
+    "headline": {
+      "notSetUp": "细分市场调研尚未设置。",
+      "blocked": "Meta 广告资料库无法显示您所在细分市场的广告。",
+      "briefsNotRead": "已撰写 {count, plural, other {# 份简报}}；我还没有读取您所在细分市场的广告。",
+      "notRead": "我还没有读取您的{noun}所在细分市场的广告。",
+      "notReadBusiness": "我还没有读取您的企业所在细分市场的广告。",
+      "longest": "{page} 的{format, select, video {视频} other {广告}}已投放 {days, plural, other {# 天}}——这是我找到的投放时间最长的创意。"
+    },
+    "running": {
+      "days": "{count, plural, other {# 天}}",
+      "live": "投放中",
+      "stopped": "已停止"
+    },
+    "format": {
+      "video": "视频",
+      "image": "图片",
+      "multi": "轮播 / 多版本"
+    },
+    "source": {
+      "fact": "您的事实",
+      "finding": "诊断",
+      "voice": "您的原话",
+      "post": "您的帖子",
+      "competitor": "竞争对手",
+      "ad": "细分市场广告"
+    },
+    "notice": {
+      "readNow": "刚刚读取了广告资料库。",
+      "stillFresh": "那次读取仍是最新的，所以我直接使用了它，而没有再次询问 Meta。",
+      "written": "简报已写好。每一部分都注明了它的依据。",
+      "blocked": "那份拍摄清单超出了您设定的一项限制，因此被放在了“受限视图”中。",
+      "proposed": "已提议。它在<queue>等待您处理</queue>中。"
+    },
+    "niche": {
+      "label": "细分市场中投放时间最长的广告",
+      "nothingYet": "暂时没有可读取的内容",
+      "notSetUpNote": "Meta 只向身份已经过其验证的开发者账户开放广告资料库 API。SYB 的令牌设置好后，这里会以只读方式读取您所在细分市场投放的广告。",
+      "blockedNote": "{why} 下面显示的是上一次读取的结果。",
+      "termsLabel": "您所在细分市场的广告会用到的词，用逗号分隔（最多两个）",
+      "termsPlaceholder": "例如：手工马克杯、陶艺课",
+      "reading": "正在读取…",
+      "readAgain": "重新读取 →",
+      "readLibrary": "读取广告资料库 →",
+      "searches": "资料库会按广告本身使用的语言搜索广告中的文字。我也会查找您列出的竞争对手。",
+      "searchesNamed": "资料库会按广告本身使用的语言搜索广告中的文字。我也会查找您列出的竞争对手（{names}）。",
+      "freshFrom": "从 {when} 起可以重新读取。",
+      "noAdsTitle": "资料库中没有与这些词相关的广告",
+      "notReadTitle": "尚未读取",
+      "noAds": "我于 {day} 在 Meta 广告资料库中搜索了 {terms}，没有找到覆盖 {country} 的广告。请换些词试试。",
+      "yourCompetitors": "您的竞争对手",
+      "yourCountry": "您所在的国家",
+      "notReadCopy": "我会读取与您类似的企业中哪些广告投放得最久——以 Meta 公开的广告资料库所显示的为限。",
+      "lastTry": "上一次尝试（{day}）：{reason}。",
+      "foundTitle": "来自 {businesses, plural, other {# 家企业}}的 {count, plural, other {# 个广告创意}}，读取于 {day}",
+      "ranked": "按持续投放时间排序 · 这只是替代指标，并非效果",
+      "searched": "搜索了 {terms}，覆盖 {country} 的广告；通过 {requests, plural, other {# 次请求}}读取了 {ads, plural, other {# 条广告}}。已观测，来自 Meta 公开的广告资料库；开场钩子、优惠和行动号召通过简单的模式提取，没有匹配时留空。",
+      "quotedTerm": "“{term}”",
+      "competitorsOnly": "仅您的竞争对手"
+    },
+    "table": {
+      "business": "企业",
+      "format": "形式",
+      "running": "投放时长",
+      "versions": "版本",
+      "opens": "开场方式",
+      "offer": "优惠 · 行动号召",
+      "youListed": "由您列出",
+      "inLibrary": "在广告资料库中 →",
+      "noText": "无文字",
+      "noOffer": "未找到优惠",
+      "noCta": "未找到行动号召"
+    },
+    "brief": {
+      "label": "创意简报",
+      "another": "再写一份",
+      "first": "撰写第一份简报",
+      "meta": "由 Sonnet 撰写 · 每一部分都注明来源",
+      "earlier": "之前的简报：",
+      "campaignLabel": "这次营销活动，用您自己的话说",
+      "campaignPlaceholder": "例如：适合送礼的秋季马克杯",
+      "goalLabel": "或它所服务的目标",
+      "noGoal": "没有特定目标",
+      "writing": "正在撰写…",
+      "write": "撰写简报 →",
+      "allowance": "本月还剩 {left} 次简报撰写调用，共 {perMonth} 次；一份简报最多需要 {attempts}。我只根据您看到的引用内容撰写，并会拒绝任何与其他企业广告连续五个词相同的句子。",
+      "cardLabel": "创意简报 · {day}",
+      "attempts": "{count, plural, other {# 次尝试}}",
+      "sources": "撰写这份简报所依据的全部内容（{count, plural, other {# 个来源}}）",
+      "who": "面向谁",
+      "offer": "优惠",
+      "script": "脚本 · 约 {seconds} 秒",
+      "why": "原因：{why}",
+      "proposing": "正在提议…",
+      "make": "制作这个 →",
+      "watching": "观察将持续到 {day}；在此之前不会提议任何内容。",
+      "makeNote": "把这份拍摄清单放入“等待您处理”。批准后，它会成为一项“拍摄这个”任务；您拍摄的素材会进入剪辑室。"
+    }
+  },
+  "site": {
+    "meta": {
+      "title": "您的网站 — SYB"
+    },
+    "kicker": "增长 · 网站",
+    "loading": "正在读取您的网站更改…",
+    "failed": "没有成功",
+    "homePage": "首页",
+    "page": "页面",
+    "noAction": "无操作",
+    "fine": "每一项更改都基于真实页面预览，只有在您于队列中同意后才会应用，永久保留撤销功能，并会在严重故障时自动回滚——但绝不会因为某一周比较平淡而回滚。",
+    "signedOut": {
+      "eyebrow": "您的网站",
+      "title": "从访谈开始。",
+      "copy": "网站更改属于某份档案——请先开始，然后再回来。",
+      "begin": "开始"
+    },
+    "notice": {
+      "rolledBack": "已应用——但健康检查未通过，所以我立刻把它回滚了。原因写在卡片上。",
+      "proposed": "已提议——前后对比在它的标签页中，决定在您的队列中。",
+      "applied": "已应用，页面通过了健康检查。",
+      "undone": "已撤销——页面已逐字节恢复到之前的状态。"
+    },
+    "headline": {
+      "pending": "为您的网站提议了 {count, plural, other {# 项更改}}。",
+      "ready": "{count, plural, other {# 项已批准的更改}}可以应用了。",
+      "none": "没有等待您处理的网站更改。",
+      "empty": "还没有提议任何网站更改。"
+    },
+    "head": {
+      "checked": "上次网站检查 {day} · 读取了 {pages, plural, other {# 个页面}} · {total} 项检查中有 {missing} 项未显示",
+      "noCheck": "尚无网站检查记录",
+      "measured": "{day} 测量：{count, plural, other {# 项发现}}"
+    },
+    "tabs": {
+      "aria": "网站更改",
+      "measured": "已测量 · {count, plural, other {# 项发现}}",
+      "measure": "测量网站",
+      "audit": "审计 · {count, plural, other {# 条备注}}，无操作",
+      "propose": "提议一项更改"
+    },
+    "status": {
+      "pending": "等待您处理",
+      "approved": "已批准",
+      "rejected": "已拒绝",
+      "expired": "已过期",
+      "executed": "已应用",
+      "blocked": "被限制阻止",
+      "changes_requested": "已请求修改"
+    },
+    "reverse": {
+      "easy": "可撤销",
+      "moderate": "需费些功夫才能撤销",
+      "hard": "难以撤销"
+    },
+    "auditTab": {
+      "label": "审计 · 检查于 {day}",
+      "title": "客户在寻找什么，以及您的网站是否展示了它",
+      "foot": "只读。修复其中任何一项都要经过批准队列——<link>请查看“盲点”</link>。",
+      "what": "他们会查看什么",
+      "onSite": "在您的网站上",
+      "foundOn": "发现于",
+      "check": "检查项",
+      "shown": "已展示",
+      "notFound": "未找到",
+      "unreadable": "无法读取 {url}——{reason}"
+    },
+    "propose": {
+      "label": "提议一项更改",
+      "title": "在应用之前一定会先展示给您",
+      "foot": "结账、购物车、付款和账单页面会被直接拒绝——无论批准级别如何，它们甚至都不能被提议。",
+      "url": "页面地址",
+      "urlPlaceholder": "yoursite.com/about",
+      "find": "要更改的确切文字",
+      "replace": "应改为什么",
+      "reading": "正在读取页面…",
+      "preview": "预览这项更改"
+    },
+    "change": {
+      "fromFinding": "来自发现：{finding}",
+      "proposedOn": "提议于 {day}",
+      "undoneByYou": "已由您撤销",
+      "autoRolledBack": "已自动回滚",
+      "realPage": "真实页面，已关闭脚本",
+      "desktopWidth": "桌面宽度",
+      "phoneWidth": "手机宽度",
+      "now": "现在",
+      "proposed": "提议后",
+      "frameNow": "页面现在的样子",
+      "frameProposed": "页面按提议更改后的样子",
+      "nowSays": "现在显示",
+      "willSay": "将会显示",
+      "basis": "依据",
+      "basisValue": "在线上页面中出现一次 · 已观测",
+      "quoted": "“{text}”",
+      "evidence": "这项提案附带的证据",
+      "sensitivity": "敏感度 {value}",
+      "blocked": "已阻止：{why}",
+      "yourLimit": "您的限制：“{limit}”",
+      "manual": "如何自己进行这项更改",
+      "expected": "预期 · 用文字描述，而非数字",
+      "expectedDefault": "页面会显示新的内容。",
+      "ifWrong": "如果出了问题：{what}",
+      "decide": "在队列中决定",
+      "apply": "应用到页面",
+      "undo": "撤销——恢复页面"
+    },
+    "audit": {
+      "severity": {
+        "critical": "立即处理",
+        "high": "高",
+        "medium": "中",
+        "low": "低"
+      },
+      "basis": {
+        "field": "真实访客",
+        "field_origin": "真实访客，整个网站",
+        "lab": "一次测试加载",
+        "page_read": "页面读取"
+      },
+      "strategy": {
+        "mobile": "移动端",
+        "desktop": "桌面端"
+      },
+      "euroRange": "每月 {low}–{high}",
+      "unit": {
+        "seconds": "{value} 秒",
+        "ms": "{value} 毫秒",
+        "mb": "{value} MB",
+        "clicks": "{count, plural, other {# 次点击}}",
+        "status": "状态码 {code}"
+      },
+      "speed": {
+        "lcp": "LCP {value} 秒",
+        "cls": "CLS {value}",
+        "inp": "INP {value} 毫秒",
+        "tbt": "TBT {value} 毫秒（实验室）"
+      },
+      "from": {
+        "notMeasured": "未测量",
+        "labOnly": "仅实验室数据——访客太少，没有 Google 的实际用户数据",
+        "fieldSite": "实际用户数据（整个网站）+ 实验室数据",
+        "field": "实际用户数据 + 实验室数据"
+      },
+      "notice": {
+        "lastFailed": "上一次运行（{day}）失败了：{reason}",
+        "didntRun": "审计没有运行",
+        "measured": "已测量——下面的发现来自这一次运行。",
+        "tryAgain": "审计没有运行——请稍后再试"
+      },
+      "run": {
+        "busy": "正在读取网站…（最多两分钟）",
+        "again": "重新运行审计",
+        "first": "运行审计"
+      },
+      "notRun": {
+        "label": "已测量 · 尚未运行",
+        "title": "速度、手机端体验和购买路径，全部经过测量"
+      },
+      "notBuilt": "仅限测量。根据截图评判设计（site-audit §{section}，视觉层）尚未构建：不会截图，也不会询问模型。",
+      "footFix": "修复其中任何一项都要经过提案和队列；结账页面绝不会被自动更改——那里的发现会附带操作说明。",
+      "never": {
+        "reads": "像访客一样读取公开页面，使用与其他所有网站读取相同的受保护抓取程序。",
+        "noLogin": "绝不登录、绝不提交表单、绝不加入购物车、绝不打开结账页面。",
+        "pagespeed": "请 Google 公开的 PageSpeed Insights 加载页面；SYB 自己不运行任何浏览器。"
+      },
+      "ran": "已测量 · 运行于 {day} · 读取了 {pages, plural, other {# 个页面}} · {calls, plural, other {# 次 PageSpeed 调用}}",
+      "title": {
+        "none": "没有任何项超出所列的阈值。",
+        "some": "{count, plural, other {# 项测量发现}}，每项都对照所列的阈值"
+      },
+      "calls": "本周已使用 {used} 次 PageSpeed 调用，共 {cap} 次；从 {day} 起可以再次测量速度。",
+      "table": {
+        "severity": "严重程度",
+        "what": "测量了什么",
+        "measured": "测量值",
+        "threshold": "阈值",
+        "atStake": "涉及金额（{currency}）",
+        "atStakeMoney": "涉及金额"
+      },
+      "path": {
+        "label": "购买路径 · {what}",
+        "notCounted": "未计入",
+        "fromHome": "距首页 {count, plural, other {# 次点击}}"
+      },
+      "pages": {
+        "label": "Google 加载的页面",
+        "page": "页面",
+        "phone": "在手机上",
+        "computer": "在电脑上",
+        "weight": "大小",
+        "from": "数据来源",
+        "role": "{role} · 距首页 {count, plural, other {# 次点击}}"
+      },
+      "role": {
+        "home": "首页",
+        "category": "分类",
+        "product": "产品",
+        "cart": "购物车",
+        "checkout": "结账",
+        "service": "服务",
+        "booking": "预约",
+        "contact": "联系页",
+        "other": "其他"
+      },
+      "refused": {
+        "label": "看到了，但没有打开",
+        "login_or_account": "登录或账户页面——审计绝不登录",
+        "cart_action": "会更改购物车的链接——审计绝不加入购物车",
+        "checkout": "结账——只从外部计数，绝不打开",
+        "external_booking": "另一家公司网站上的预约页面——计数，但不读取"
+      }
+    }
+  },
+  "support": {
+    "meta": {
+      "title": "客户支持 — SYB"
+    },
+    "kicker": "客户 · 客户支持",
+    "loading": "正在打开客户支持…",
+    "signedOut": {
+      "eyebrow": "客户支持",
+      "title": "从访谈开始。",
+      "body": "客户助手根据您在访谈中提供并批准公开的事实来回答。回答十二个问题，就有真正可以发布的内容了。",
+      "begin": "开始"
+    },
+    "headline": {
+      "none": "还没有任何已批准的内容，所以每个问题都会转给您。",
+      "some": "助手只说您已批准的内容。"
+    },
+    "counts": "<b>{conversations}</b> {count, plural, other {个对话}} · 转交给您 <b>{handed}</b> 个 · 等待中 <b>{waiting}</b> 个",
+    "testWidget": "测试小组件",
+    "failed": "没有成功",
+    "faq": {
+      "tooFew": "{count, plural, other {只有 # 个待解决的问题——暂时还没有可归类的内容。有三个人问过，才算一个常见问题。}}",
+      "proposed": "已归类。您已经给出的回答在您的批准队列中；其余的列在下面，等您回答。",
+      "none": "已归类：还没有三个人问过同一件事。",
+      "unanswered": "已归类。这些问题还没有人回答——请在对应的对话中回答其中一个，然后重新归类。"
+    },
+    "convos": {
+      "label": "工单 · {tickets} · 对话 · {conversations}",
+      "empty": "暂时没有。每一次小组件对话、每一封发到您客户支持地址的邮件都会出现在这里，需要您处理的会被标出。",
+      "messages": "{count, plural, other {{n} 条消息}} · {when}"
+    },
+    "waitingTitle": "{count, plural, =0 {没有人在等待您} other {# 位正在等待您}}",
+    "sla": {
+      "yourTime": "您的回复时间：{hours} 小时",
+      "unset": "未设置回复时间",
+      "clock": "按自然小时计算，而不是按工作时间。",
+      "overdue": "已超时",
+      "dueSoon": "即将到期",
+      "inTime": "时间充裕",
+      "over": "超出 {duration}",
+      "left": "剩余 {duration}"
+    },
+    "duration": {
+      "min": "{min} 分钟",
+      "h": "{h} 小时",
+      "hMin": "{h} 小时 {min} 分钟",
+      "d": "{d} 天",
+      "dH": "{d} 天 {h} 小时"
+    },
+    "col": {
+      "channel": "渠道",
+      "who": "来自",
+      "what": "主题或问题",
+      "waited": "已等待",
+      "against": "对照您的回复时间"
+    },
+    "channel": {
+      "email": "邮件",
+      "chat": "聊天"
+    },
+    "who": {
+      "visitor": "访客",
+      "customer": "客户",
+      "noAddress": "无地址",
+      "visitorNoAddress": "访客 · 无地址"
+    },
+    "senderNote": {
+      "notVerified": "发件人未经验证",
+      "givenInChat": "在聊天中提供，未经验证"
+    },
+    "ticket": {
+      "answeredFlag": "已回答",
+      "closedFlag": "已关闭",
+      "youReplied": "您已回复",
+      "theirTurn": "等对方回复",
+      "answerLabel": "您告诉了对方什么——仅作记录，不会发送",
+      "answered": "我已经回答了对方",
+      "propose": "提议作为回答",
+      "close": "关闭",
+      "sendsNothing": "标记为已回答不会发送任何内容；只有上面已批准的回复才会发给客户。",
+      "youSaid": "您说过：{answer}",
+      "handed": "已转交给您 · {reason}"
+    },
+    "conv": {
+      "waiting": "等待您处理",
+      "answered": "已转交给您 · 您已回答",
+      "handedClosed": "已转交给您 · 已关闭",
+      "handed": "已转交给您",
+      "closed": "已关闭",
+      "open": "进行中"
+    },
+    "reason": {
+      "customer_asked": "要求转人工",
+      "no_answer": "没有已批准的回答",
+      "cost_cap": "已达到花费上限",
+      "conversation_cap": "对话过长",
+      "emailed": "通过邮件联系了您"
+    },
+    "via": {
+      "widget": "通过小组件",
+      "email": "通过邮件",
+      "ticket": "一张工单",
+      "turns": "{count, plural, other {{n} 轮}} · {cost}"
+    },
+    "transcript": {
+      "empty": "这次对话中没有任何内容。",
+      "reading": "正在读取对话…"
+    },
+    "msg": {
+      "assistant": "助手 · 自动回复",
+      "visitor": "访客"
+    },
+    "emails": {
+      "aria": "邮件",
+      "truncated": "这封邮件超出了我保留的长度；我保留了前 {chars} 个字符。",
+      "you": "您，通过邮件"
+    },
+    "refused": {
+      "word": "已拒绝回复",
+      "body": "这个地址在您的屏蔽名单上（对方已退订或要求删除其信息），所以我不会向它发送任何内容。这张工单留在这里，是为了让您知道对方来过信。"
+    },
+    "erase": {
+      "ticket": "删除这张工单",
+      "conversation": "删除这次对话",
+      "confirm": "永久删除",
+      "cannotUndo": "此操作无法撤销。日志只会记录发生过这件事。"
+    },
+    "answers": {
+      "label": "已批准的回答 · {count}",
+      "title": "它被允许说什么",
+      "close": "关闭",
+      "write": "撰写回答",
+      "question": "客户会问的一个问题",
+      "answer": "回答，用您自己的话",
+      "propose": "提议这个回答",
+      "queueFirst": "它会先进入您的批准队列。",
+      "notPublic": "已批准 · 尚未公开",
+      "publish": "发布",
+      "askedTimes": "{count, plural, other {被问过 {n} 次 · 未回答}}",
+      "answerOne": "请在它的某个对话中回答，然后重新归类。",
+      "empty": "还没有回答。在您批准一些回答之前，助手会说它不知道，并把问题转给您。",
+      "retiredLabel": "已停用 · 不再使用",
+      "fromFacts": "根据我的事实提议回答",
+      "cluster": "归类客户提出的问题"
+    },
+    "entry": {
+      "from": "来源：{sources}",
+      "fromCustomers": "来自 {count, plural, other {{n} 位提问的客户}}",
+      "published": "发布于 {date}",
+      "retire": "停用"
+    },
+    "widget": {
+      "label": "小组件",
+      "title": "一个会说明自己是 AI 的助手",
+      "paste": "把这一行代码粘贴到您的网站中。访客会看到一个自我介绍为自动回复的助手，它只根据上面已批准的列表回答，并会在对方要求转人工时立即转交给您。",
+      "rotate": "更换密钥",
+      "keyPublic": "这个密钥按设计就是公开的——它只说明某次对话属于哪家企业。它不是登录凭据。",
+      "notEnabled": "尚未启用。启用后会创建小组件的公开密钥；在您批准回答之前，它不会对任何人说任何话。",
+      "enable": "启用助手",
+      "foot": "助手只读取已批准的回答，其他什么都不读：不读您的档案、不读您的数字、不读您的连接，而且它无法更改任何东西。"
+    },
+    "inbox": {
+      "label": "客户支持邮箱",
+      "title": "发到您客户支持地址的邮件会在这里变成工单",
+      "enableFirst": "请先启用上面的助手；这会创建您的地址。",
+      "forward": "把您的客户支持邮箱转发到这个地址。每封邮件都会在这里变成一张工单，并与其回复串联在一起。不会自动回复任何邮件：您会看到每一封，而且不经您点击，什么都不会发回。",
+      "change": "更换地址",
+      "onlyKnown": "只有知道这个地址的人才能提交工单。如果地址泄露，请更换。",
+      "notSetUp": "尚未设置：客户支持邮箱需要在 Resend 中配置入站域名并连接 webhook。在此之前，不会有邮件到达此页面。"
+    },
+    "time": {
+      "label": "您的回复时间",
+      "title": "{hours, plural, other {您会在 {n} 小时内回复}}",
+      "within": "我会在以下时间内回复：",
+      "hours": "小时",
+      "save": "保存",
+      "clear": "清除",
+      "fine": "按自然小时计算，而不是按工作时间。每张等待中的工单都会显示它与这个时间相比的情况。只有在您设定了回复时间时，聊天才会把它告诉客户；否则不作任何承诺。",
+      "setAt": "设定于 {when}。",
+      "notify": "当有客户发来邮件时，给我的登录邮箱发通知（每小时最多一次，且仅在邮件功能设置好之后）"
+    },
+    "notice": {
+      "answeredBlank": "已标记为已回答。下次请写下您说了什么——它可以成为一条已批准的回答。",
+      "answeredWords": "已标记为已回答，您的话已记录在案。",
+      "proposedAnswer": "已提议作为回答。请在队列中批准它，然后在这里发布。",
+      "closed": "已关闭。",
+      "erasedTicket": "这张工单及其邮件已删除。日志只会记录发生过这件事。",
+      "erasedConversation": "这次对话及其工单已删除。日志只会记录发生过这件事。",
+      "proposed": "已提议。请在队列中批准它，然后在这里发布。",
+      "published": "已发布。助手现在可以说这些内容了。",
+      "retired": "已停用。它不会再被说出。",
+      "rotated": "新密钥。所有仍使用旧代码片段的页面都会停止工作，直到您更新它们。",
+      "enabled": "已启用。现在请批准一些回答。",
+      "rotatedInbound": "新地址。从现在起，发到旧地址的邮件会被丢弃，请更新您的转发设置。",
+      "savedHours": "已保存：您会在 {hours} 小时内回复。",
+      "cleared": "已清除。不承诺任何回复时间。",
+      "notifyOn": "已开启：每收到一封新的客户支持邮件，都会给您发一条简短通知，每小时最多一条。",
+      "notifyOff": "已关闭：不发通知。菜单中的计数仍会显示有什么在等待。",
+      "drafted": "已根据您批准的回答起草。请阅读、编辑，然后批准或拒绝。",
+      "noDraft": "没有草稿。",
+      "savedReply": "已保存。确认无误后，请批准并发送。",
+      "declined": "已拒绝。什么都没有发送。",
+      "sent": "已发送，与您批准的内容完全一致。",
+      "approvedNotSent": "已批准，未发送。"
+    },
+    "replyState": {
+      "drafted": "草稿 · 未发送",
+      "approved": "已批准 · 未发送",
+      "sending": "未确认 · 可能已发送",
+      "sent": "已发送",
+      "failed": "未发送",
+      "declined": "已拒绝"
+    },
+    "reply": {
+      "noWay": "无法联系到对方",
+      "noAddress": "这位客户没有留下邮箱地址，所以无法回复。只有对方回到聊天时才会看到回答。",
+      "label": "通过邮件回复",
+      "draft": "起草回复",
+      "writeMyself": "我自己写",
+      "draftUses": "草稿只使用您已批准的回答。",
+      "aiLabel": "助手的草稿——可以随意编辑",
+      "yourReply": "您的回复",
+      "speak": "语音输入：说出您的回复",
+      "speakAfter": "请在保存或批准之前通读一遍并修改有误之处。",
+      "disclosure": "发送时会添加，且无法移除：“{line}”",
+      "approveSend": "批准并发送",
+      "save": "保存我的回复",
+      "decline": "拒绝草稿",
+      "cancel": "取消",
+      "untilApprove": "在您批准之前，什么都不会发给客户。",
+      "sendNow": "立即发送",
+      "approvedExact": "已批准；它会完全按照上面所写的内容发出。"
+    },
+    "test": {
+      "meta": {
+        "title": "小组件测试页 — SYB"
+      },
+      "loading": "正在设置测试页…",
+      "eyebrow": "小组件测试页",
+      "signedOut": "从访谈开始。",
+      "disabled": "请先启用助手。",
+      "goSupport": "前往客户支持",
+      "pretend": "一个模拟的客户页面 · 小组件在右下角",
+      "seesLabel": "访客看到的样子",
+      "body": "这个页面代替您的网站。角落里的按钮就是真实的小组件，由同一个脚本加载，并与客户会使用的同一个公开端点通信。请问它一个您已批准的问题、一个您没有批准的问题，然后要求转人工——每一种情况都应当像<link>客户支持页面</link>上承诺的那样表现。"
+    }
+  },
+  "team": {
+    "meta": {
+      "title": "团队排班 — SYB"
+    },
+    "kicker": "洞察 · 团队排班",
+    "aside": "岗位与工时 · 绝不针对个人",
+    "limits": {
+      "head": "按岗位，绝不针对个人",
+      "switchOff": "团队模块由您决定是否关闭，可在<link>观察</link>中关闭。"
+    },
+    "refused": {
+      "readyOn": "如果数据持续进来，大约在 {day} 前后可以就绪。",
+      "label": "按小时的人手覆盖",
+      "title": "目前的数据还不足以解读",
+      "can": "我能做到",
+      "cannot": "我暂时还做不到",
+      "history": "已有 {history, plural, other {# 天}}的历史数据；我至少需要 {needed}。<link>连接</link>"
+    },
+    "roles": {
+      "label": "岗位",
+      "title": "来自企业里有谁在工作",
+      "none": "还没有岗位。它们来自访谈：企业里有谁在工作，以及他们每周的工时。<link>事实表</link>",
+      "notStated": "未说明工时",
+      "perWeek": "每周 {hours} 小时",
+      "withoutHours": "{count, plural, other {# 个未填工时}}"
+    },
+    "grid": {
+      "aria": "按岗位和小时的人手覆盖，{day}",
+      "row": "行",
+      "booked": "已预约",
+      "takings": "营业额",
+      "ofCapacity": "占所述接待能力",
+      "ofBusiest": "占最忙时段",
+      "cellTitle": "一般情况下为 {typical}，{days, plural, other {# 天}}中居中一半的天数为 {low}–{high}",
+      "onAverage": "平均每个营业小时在岗"
+    },
+    "ok": {
+      "basis": "最近 {weeks, plural, other {# 周}} · {from} 至 {to} · {demand}",
+      "capacity": "所述接待能力每周 {perWeek}（您的回答）",
+      "noCapacity": "没有以金额表示的接待能力，因此没有人手不足的情况",
+      "labelBookings": "按岗位，预约量对照所述接待能力",
+      "labelTakings": "按岗位，每小时的营业额",
+      "title": "按岗位和小时的人手覆盖",
+      "legend": "图例",
+      "legendShort": "人手不足 ≥ {pct}",
+      "legendCovered": "人手充足",
+      "legendQuiet": "清闲 ≤ {pct}",
+      "footBookings": "每个小时已保留的预约（已完成、未到场和临时取消）在该星期几各天的情况，对照平均分配到各营业小时的所述接待能力。",
+      "footTakings": "每个小时在该星期几已测量各天的营业额，对照当天最忙的那个小时。",
+      "footRole": "某个岗位的数值是其每周所述工时除以营业小时数：由于排班表未知，表示平均每个营业小时有几位该岗位人员在岗。推导。斜线 = 休息。岗位或工时有误？请在<link>事实表</link>中修改您的回答。",
+      "weekday": "星期几",
+      "daysRead": "{days, plural, other {# 天}}",
+      "noDay": "还没有读取任何营业日。"
+    },
+    "reading": {
+      "label": "解读",
+      "none": "没有突出的情况",
+      "some": "人手不足或清闲的时段",
+      "noneBody": "在已读取的日子里，没有哪个营业小时低于您所述的接待能力或显得清闲。"
+    },
+    "band": {
+      "short": "人手不足",
+      "quiet": "清闲"
+    },
+    "notes": {
+      "label": "给您的备注",
+      "title": "由您来权衡"
+    },
+    "built": {
+      "label": "依据",
+      "title": "来源与假设",
+      "body": "从 {demand} 读取了 {days, plural, other {# 个营业日}}，{from} 至 {to}；共有 {history, plural, other {# 天}}的历史数据。",
+      "capacity": "所述接待能力每周 {perWeek}，营业时长 {hours} 小时。",
+      "assumed": "假设"
+    },
+    "signedOut": {
+      "title": "这里还没有企业。",
+      "body": "<link>从访谈开始</link>。"
+    },
+    "failed": {
+      "title": "团队排班没有加载出来。",
+      "body": "我们这边出了问题。请刷新页面重试。"
+    },
+    "loading": "正在读取本周的人手覆盖…",
+    "off": {
+      "title": "团队模块已关闭。",
+      "body": "除非您开启，否则它会一直保持关闭；开关位于<link>观察</link>中的“模块”下。开启后，它会按岗位和小时，解读本周何时需要更多人手、何时人手多于所需，而绝不涉及任何个人的信息。"
+    }
+  },
+  "teamAccess": {
+    "meta": {
+      "title": "团队权限 — SYB"
+    },
+    "kicker": "您的企业 · 团队权限",
+    "loading": "正在读取团队成员…",
+    "signedOut": {
+      "title": "请先注册。",
+      "body": "团队从您开始：登录后，您就可以在这里邀请与您共事的人。"
+    },
+    "failed": "我们这边出了问题。请刷新页面重试。",
+    "failedTry": "没有成功。请重试。",
+    "failedShort": "没有成功。",
+    "title": "{count, plural, =1 {只有您可以在这里登录。} other {有 # 人可以在这里登录。}}",
+    "youAre": "您是{role, select, owner {所有者} manager {经理} other {查看者}}",
+    "readOnly": "您可以查看这里有谁。",
+    "members": {
+      "label": "团队",
+      "title": "谁可以登录",
+      "person": "成员",
+      "role": "角色",
+      "since": "加入时间",
+      "change": "更改",
+      "you": "（您）",
+      "roleFor": "{email} 的角色",
+      "nowRole": "{email} 现在是{role, select, owner {所有者} manager {经理} other {查看者}}。",
+      "lastOwner": "一家企业始终要保留一位所有者。",
+      "removed": "{email} 已无法再登录这里，并已被退出登录。",
+      "confirmRemove": "{who, select, me {是的，把我移出} other {是的，把对方移出}}",
+      "keep": "保留",
+      "takeOff": "移出团队"
+    },
+    "invites": {
+      "label": "邀请",
+      "title": "等待加入",
+      "none": "没有待处理的邀请。",
+      "ranOut": "已于 {day} 过期",
+      "worksUntil": "有效期至 {day}",
+      "withdrawn": "邀请已撤回。",
+      "withdraw": "撤回",
+      "withdrawFor": "发给 {email} 的邀请",
+      "sent": "我已把邀请发送到 {email}。它只能使用一次，有效期为 {days, plural, other {# 天}}。",
+      "emailFailed": "邀请邮件没有发出去。请复制下面的链接，自己发送给对方。",
+      "noEmailSend": "这里尚未设置电子邮件，所以我无法发送。请复制下面的链接，自己发送给对方。",
+      "email": "邮箱",
+      "role": "角色",
+      "placeholder": "name@example.com",
+      "invite": "邀请",
+      "noEmail": "这里尚未设置电子邮件，所以您会得到一个可以复制的链接。"
+    },
+    "link": {
+      "note": "邀请链接。它只能使用一次，有效期为 {days, plural, other {# 天}}，并且只对您邀请的地址有效：无论谁打开它，都仍需以该地址登录。",
+      "aria": "邀请链接",
+      "copy": "复制",
+      "copied": "已复制。"
+    },
+    "roles": {
+      "label": "角色",
+      "title": "每个角色能做什么"
+    },
+    "roleMeans": {
+      "owner": "一切，包括连接、写入权限、账单和团队。",
+      "manager": "批准和拒绝提案、起草内容、回复客户支持，并可以按下停止。不能连接账户，也不能更改团队。",
+      "viewer": "可以查看一切，也可以按下停止。不能更改任何东西。"
+    },
+    "another": {
+      "label": "另一家企业",
+      "title": "经营不止一家企业？",
+      "body": "用同一个邮箱添加另一家企业。每一家都有自己的访谈、自己的团队和自己的账单；您可以在菜单中切换。",
+      "add": "添加另一家企业"
+    }
+  },
+  "invite": {
+    "meta": {
+      "title": "您的邀请 — SYB"
+    },
+    "kicker": "团队邀请",
+    "label": "邀请",
+    "someBusiness": "SYB 上的一家企业",
+    "headline": {
+      "join": "加入 {where}。",
+      "bad": "这个邀请无效。"
+    },
+    "title": {
+      "as": "身份：{role, select, owner {所有者} manager {经理} other {查看者}}，发给 {email}",
+      "none": "这里没有邀请"
+    },
+    "unknown": "这个链接不是我认识的邀请。请向发送者要一个新的。",
+    "status": {
+      "accepted": "这个邀请已经被使用过了。",
+      "revoked": "这个邀请已被撤回。",
+      "expired": "这个邀请已经过期。邀请的有效期为 {days, plural, other {# 天}}。"
+    },
+    "askNew": "请向发送者要一个新的。",
+    "wrong": "这个邀请是发给 <b>{invited}</b> 的，而您登录的是 <b>{signedIn}</b>。我不会把错误的人加进来：请退出登录，然后再次打开这个链接。",
+    "signedIn": "您已登录为 <b>{email}</b>。要以{role, select, owner {所有者} manager {经理} other {查看者}}身份加入 {where} 吗？",
+    "signIn": "您将以 <b>{email}</b> 登录，也就是这个邀请所针对的地址。我会把登录链接发到那里；打开它就会把您加入团队。",
+    "foot": "在您按下按钮之前，什么都不会发生。不是您的地址？请关闭此页面。",
+    "footLink": "登录 SYB",
+    "actions": {
+      "failed": "没有成功。请过一分钟再试。",
+      "devLink": "这里尚未设置电子邮件（开发环境），所以登录链接在这里：",
+      "emailed": "我已把登录链接发送到 {email}。在那里打开它，您就会加入。",
+      "signOut": "退出登录",
+      "thenAsks": "然后此页面会以 {email} 的身份再次询问您。",
+      "join": "加入",
+      "emailLink": "把登录链接发送到 {email}",
+      "signInJoin": "登录并加入"
+    }
   }
 }

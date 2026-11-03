@@ -458,6 +458,26 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
     terms: ["business"],
     reason: "Trustpilot Business: Trustpilot's product name",
   },
+  // L-3c
+  "content.ad.text.buildStopped": {
+    terms: ["manager"],
+    reason:
+      "Ads Manager: Meta's product name, as Meta names it in each language, not the manager role",
+  },
+  "site.audit.role.contact": {
+    terms: ["contact"],
+    reason: "a website's contact page (the page's role), not a CRM contact",
+  },
+  "support.sla.clock": {
+    terms: ["business"],
+    reason:
+      "“business hours”: working hours (Geschäftszeiten, horario laboral), not the business itself",
+  },
+  "support.time.fine": {
+    terms: ["business"],
+    reason:
+      "“business hours”: working hours (Geschäftszeiten, horario laboral), not the business itself",
+  },
 };
 
 /** Pure: whether English text uses a term — a whole word, any case, a plural ending allowed. */

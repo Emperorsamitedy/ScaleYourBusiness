@@ -3081,5 +3081,1370 @@
       "assumed": "ASSUMED",
       "atCost": "{amount} at cost"
     }
+  },
+  "chat": {
+    "meta": {
+      "title": "Ask me anything — SYB"
+    },
+    "kicker": "Ask me anything · About {about}",
+    "yourBusiness": "your business",
+    "loading": "Opening the conversation…",
+    "signedOut": {
+      "title": "I answer from your business.",
+      "copy": "This channel is grounded in one profile — yours. Start the intake and there is something real to talk about.",
+      "begin": "Begin"
+    },
+    "error": {
+      "title": "The conversation didn't load.",
+      "copy": "Something went wrong reading the thread. Refresh to try again."
+    },
+    "titleEmpty": "What would you like to know?",
+    "newQuestion": "New question",
+    "empty": "Ask me anything about {noun} — why the report said what it said, what your numbers show, what I’d watch. Ask me to <em>change</em> something — your hours, a goal, your reply time — and I’ll draft it for your yes, or take you to the page where it lives. If you ask me to <em>do</em> something out in the world, it becomes a proposal in your queue; nothing runs on phrasing alone.",
+    "you": "You",
+    "thinking": "Reading your profile…",
+    "queued": {
+      "text": "It’s a proposal now, waiting for your yes.",
+      "link": "Open Waiting for you →"
+    },
+    "sendFailed": "Something went wrong on my side — say that again?",
+    "composer": {
+      "label": "Ask about {noun}",
+      "placeholder": "Type a question…",
+      "ask": "Ask",
+      "speak": "Speak your question",
+      "spokenAfter": "Read it over and fix anything, then press Ask.",
+      "rule": "I answer only from what your profile and report hold. A change you ask for is drafted first — nothing is written until you press its button; limits you state here stick."
+    },
+    "earlier": "Earlier questions",
+    "change": {
+      "aria": "A change I drafted",
+      "was": "Was",
+      "now": "Now",
+      "new": "New",
+      "open": "Open the page",
+      "making": "Making the change…",
+      "notChanged": "Not changed",
+      "failed": "That didn't go through on my side. Nothing was changed.",
+      "unreachable": "I couldn't reach the server. Nothing was changed."
+    },
+    "flag": {
+      "applied": "Changed",
+      "queued": "In your queue",
+      "stale": "Not changed"
+    },
+    "cardKicker": {
+      "link_only": "Yours to change · {screen}",
+      "applied": "Made · {screen}",
+      "queued": "In your queue · {screen}",
+      "stale": "Not made · {screen}",
+      "proposal": "Drafted for your queue · {screen}",
+      "prepared": "Drafted, not yet made · {screen}"
+    }
+  },
+  "mode": {
+    "meta": {
+      "title": "How I work — SYB"
+    },
+    "kicker": "Your business · How I work",
+    "yourBusiness": "your business",
+    "loading": {
+      "title": "How I work.",
+      "copy": "Reading the decision…"
+    },
+    "signedOut": {
+      "title": "Sign in first.",
+      "label": "How I work",
+      "sheetTitle": "This screen reads your profile.",
+      "signIn": "Sign in"
+    },
+    "none": {
+      "title": "Not decided yet.",
+      "label": "How I work",
+      "sheetTitle": "Ready to decide.",
+      "copy": "One fixed rule reads your answers and picks: act now, or watch first. You see exactly what triggered it.",
+      "decide": "Decide now"
+    },
+    "deferred": {
+      "label": "Not yet",
+      "sheetTitle": "I won't guess.",
+      "answer": "Answer the core questions"
+    },
+    "current": "Current",
+    "everyYes": "Every proposal still needs your yes",
+    "a": {
+      "label": "Mode A",
+      "title": "Watch first",
+      "copyWatching": "I spend {days, plural, one {# day} other {# days}} learning how {noun} actually behaves before proposing anything. Changing things quickly could cost you sales. Nothing changes without you.",
+      "day": "Day {day} of {of} · ends {date}",
+      "firstRead": "The first read still arrives while I watch.",
+      "openWatching": "Open Watching",
+      "extending": "Extending…",
+      "extend": "Extend to {days, plural, one {# day} other {# days}}",
+      "copyIdle": "I watch for four to eight weeks before proposing anything, so a change can’t cost sales I haven’t measured.",
+      "chosenWith": "Chosen with {sales}+ sales a month, staff, paid ads, a support process or {months}+ months trading"
+    },
+    "b": {
+      "label": "Mode B",
+      "title": "Act right away",
+      "started": "Started {date}",
+      "seeFirstRead": "See the first read",
+      "copyIdle": "Proposals start from the first read. Chosen only when there is nothing running that a change could break.",
+      "onlyUnder": "Only under {sales} sales a month, no staff, no paid ads, no support process, under {months} months"
+    },
+    "why": {
+      "labelWatching": "Why I suggested watching",
+      "labelInstant": "Why it's safe to start now",
+      "titleWatching": "Real customers are buying",
+      "titleInstant": "Nothing running that a change could break",
+      "none": "No reasons were stored with this decision."
+    },
+    "never": {
+      "label": "In either mode",
+      "title": "What never changes",
+      "one": "Nothing runs without your approval. Unanswered proposals expire — they never run by default.",
+      "two": "“Stop everything” on <link>Waiting for you</link> halts every execution at once, no sign-in needed.",
+      "three": "Limits you set hold: a proposal that would break one is withheld, never put to you as if it were fine."
+    },
+    "headline": {
+      "watching": "Watching first, for {days, plural, one {# day} other {# days}}.",
+      "instant": "Acting right away."
+    },
+    "chosen": "Chosen {date}",
+    "chosenOverride": "{chosen} · {kind, select, extend {extended} other {shortened}} to {weeks, plural, one {# week} other {# weeks}} {date}"
+  },
+  "content": {
+    "meta": {
+      "title": "Content — SYB"
+    },
+    "kicker": "Grow · Content",
+    "loading": "Reading the content queue…",
+    "failed": "that didn't work",
+    "signedOut": {
+      "eyebrow": "content",
+      "title": "Start with the intake.",
+      "body": "Content is planned from your profile — channels, goals, offers. Twelve questions and there is something real to plan with.",
+      "cta": "Begin"
+    },
+    "aside": "Change content goals",
+    "headline": {
+      "nothing": "Nothing drafted yet.",
+      "nothingReady": "Nothing drafted yet. {count, plural, one {One approved plan is} =2 {Two approved plans are} =3 {Three approved plans are} =4 {Four approved plans are} =5 {Five approved plans are} =6 {Six approved plans are} =7 {Seven approved plans are} =8 {Eight approved plans are} =9 {Nine approved plans are} other {# approved plans are}} ready to draft.",
+      "scheduledPosted": "{scheduled} scheduled. {posted, plural, =0 {None} one {One} =2 {Two} =3 {Three} =4 {Four} =5 {Five} =6 {Six} =7 {Seven} =8 {Eight} =9 {Nine} other {#}} posted.",
+      "drafts": "{count, plural, one {# draft} other {# drafts}}.",
+      "needsYes": "{first} {count, plural, one {One needs} =2 {Two need} =3 {Three need} =4 {Four need} =5 {Five need} =6 {Six need} =7 {Seven need} =8 {Eight need} =9 {Nine need} other {# need}} your yes.",
+      "moreToDraft": "{first} {count, plural, one {One more approved plan} =2 {Two more approved plans} =3 {Three more approved plans} =4 {Four more approved plans} =5 {Five more approved plans} =6 {Six more approved plans} =7 {Seven more approved plans} =8 {Eight more approved plans} =9 {Nine more approved plans} other {# more approved plans}} to draft.",
+      "noneCanPost": "{first} None can post yet.",
+      "nextDue": "{first} The next one is due {date}."
+    },
+    "state": {
+      "inQueue": "in your queue",
+      "drafted": "drafted",
+      "scheduled": "scheduled",
+      "scheduledOn": "scheduled {day}",
+      "unconfirmed": "unconfirmed",
+      "publishing": "publishing",
+      "posted": "posted",
+      "postedOn": "posted {day}",
+      "failed": "failed",
+      "withdrawn": "withdrawn"
+    },
+    "platform": {
+      "unknown": "the platform"
+    },
+    "publish": {
+      "approvedOn": "Approved. It goes out at its posting time, through the runner; the emergency stop halts it.",
+      "approvedOff": "Approved, and waiting for publishing to be switched on. Nothing is sent to Meta until then.",
+      "goingOut": "Going out to {platform} now.",
+      "live": "Live on {platform}.",
+      "withdrawn": "Withdrawn: deleted from {platform}. Its record stays here.",
+      "propose": "Propose for publishing",
+      "proposed": "Its publish proposal is in your queue.",
+      "notProposed": "Not proposed: {reason}.",
+      "notQualify": "it doesn't qualify yet"
+    },
+    "verdict": {
+      "helped": "helped",
+      "did_nothing": "did nothing",
+      "backfired": "backfired",
+      "too_early": "too early",
+      "unmeasured": "unmeasured"
+    },
+    "perf": {
+      "measured": "Measured",
+      "day": "day {day}",
+      "reach": "reach {n}",
+      "views": "views {n}",
+      "interactions": "interactions {n}"
+    },
+    "ad": {
+      "word": {
+        "live": "ad live",
+        "paused": "ad paused",
+        "inProgress": "ad in progress",
+        "unconfirmed": "ad unconfirmed",
+        "failed": "ad failed",
+        "heldBack": "ad held back",
+        "approved": "ad approved",
+        "proposed": "ad proposed"
+      },
+      "text": {
+        "live": "The ad is live on Meta for the days you approved, then it stops by itself. The emergency stop halts anything SYB is still sending.",
+        "pausedBlocked": "The ad is on Meta, paused. Going live is held back by a limit you set.",
+        "pausedPending": "The ad is on Meta, paused. Going live is a separate yes, waiting in the queue.",
+        "goLiveApprovedOn": "Approved to go live: the ad, its ad set and its campaign switch on at the next run.",
+        "goLiveApprovedOff": "Approved to go live, waiting for Meta ad changes to be switched on. Nothing spends until then.",
+        "paused": "The ad is on Meta, paused, spending nothing. Going live is a separate approval.",
+        "building": "Being created on Meta, paused. It carries on from where it stopped — nothing is created twice.",
+        "buildStopped": "The ad's build stopped. Check Ads Manager; everything SYB made is paused.",
+        "heldBack": "Proposed as an ad, and held back by a limit you set.",
+        "approvedOn": "Approved: the ad is created on Meta, paused, at the next run.",
+        "approvedOff": "Approved, waiting for Meta ad changes to be switched on. Nothing is sent until then.",
+        "proposed": "Proposed as an ad — it needs your yes in the queue.",
+        "offer": "Run this as an ad: one proposal with its budget, audience and expected range. Creates paused; going live is a separate approval; created objects can't be deleted, only paused."
+      },
+      "run": "Run this as an ad",
+      "runDone": "Proposed as an ad, in the queue. It creates the ad paused; going live is a separate approval.",
+      "goLive": "Propose going live",
+      "goLiveDone": "Going live is proposed, in the queue. Nothing spends until you approve it.",
+      "decide": "Decide the ad in the queue"
+    },
+    "origin": {
+      "footage": "your footage",
+      "generatedImage": "AI-generated image",
+      "generatedVideo": "AI-generated video"
+    },
+    "kind": {
+      "post": "post",
+      "email": "email",
+      "shot_list": "film this",
+      "video": "video"
+    },
+    "strips": {
+      "label": "Each channel's queue",
+      "undated": "undated",
+      "bar": "{posted} of {planned} posted",
+      "behind": "{count, plural, one {Behind · # past its date} other {Behind · # past its date}}",
+      "done": "All posted",
+      "next": "Next {day}",
+      "onPace": "On pace"
+    },
+    "strip": {
+      "post": "{count, plural, one {# post} other {# posts}}",
+      "email": "{count, plural, one {# email} other {# emails}}",
+      "shot_list": "{count, plural, one {# shot list} other {# shot lists}}",
+      "video": "{count, plural, one {# video} other {# videos}}",
+      "piece": "{count, plural, one {# piece} other {# pieces}}"
+    },
+    "queue": {
+      "label": "Queue",
+      "titleOn": "Written, scheduled, posted",
+      "titleOff": "Written and scheduled — publishing is off",
+      "emptyWatching": "The queue is empty. Proposals start once the watch ends on {day}.",
+      "empty": "The queue is empty. Propose a calendar below — once you approve it in the queue, I draft it here."
+    },
+    "col": {
+      "draft": "Draft",
+      "channel": "Channel",
+      "goal": "Serves goal",
+      "state": "State",
+      "date": "Date"
+    },
+    "anytime": "anytime",
+    "detail": {
+      "aria": "Draft {id}",
+      "media": "Media · {what}",
+      "email": "Email",
+      "caption": "Caption",
+      "writtenFrom": "Written from",
+      "serves": "Serves: {goal}",
+      "disclosure": "Disclosure: {text}",
+      "notPublishing": "Not publishing: {why}.",
+      "superseded": "Your own footage replaced this generated version, so it won't be published.",
+      "platformId": "{platform} id {id}",
+      "posted": "posted {day}"
+    },
+    "evidence": {
+      "channel": "Channel: {channel} · from your profile",
+      "goal": "Goal: {goal}",
+      "goalUnknown": "a goal you set"
+    },
+    "withdraw": {
+      "confirm": "Withdraw it? This deletes the post on {platform}. The record stays here; the post can't be put back.",
+      "openOn": "Open on {platform}",
+      "yes": "Yes, withdraw it",
+      "keep": "Keep it",
+      "button": "Withdraw",
+      "done": "Withdrawn from {platform}."
+    },
+    "action": {
+      "decide": "Decide in the queue",
+      "reconnect": "Reconnect",
+      "connections": "Connections"
+    },
+    "fine": {
+      "on": "Nothing is published from this screen. An item goes out only after its own yes in the queue, at its time, through the runner; the emergency stop halts it, and Withdraw deletes it again.",
+      "off": "Publishing is switched off until the two-week unattended test completes. Approved posts wait here, scheduled; nothing is sent to Meta until it is switched on."
+    },
+    "goals": {
+      "label": "Goals",
+      "title": "What the content serves",
+      "empty": "No goals yet. State one, or take a suggestion — every planned piece will name the goal it serves.",
+      "horizon": "{months, plural, one {# month} other {# months}}",
+      "target": "target {value}",
+      "inputLabel": "A goal in your own words",
+      "placeholder": "dated and measurable beats grand",
+      "add": "Add goal"
+    },
+    "propose": {
+      "label": "Propose",
+      "title": "Nothing is made until you approve",
+      "body": "Both of these create a proposal in your <link>approval queue</link>. Not a single word is drafted before you say yes there.",
+      "watching": "Not yet: I’m watching the business until {day}, and I propose nothing before the watch ends. Your goals above still shape what I’ll propose then.",
+      "calendar": "Propose a content calendar",
+      "calendarDone": "The calendar is in your approval queue.",
+      "shotlist": "Propose a shot list",
+      "shotlistDone": "The shot list is in your approval queue.",
+      "ready": "Approved — ready to draft",
+      "draft": "Draft it",
+      "drafted": "Drafted. Every item carries its disclosure and its sources."
+    },
+    "mediaPanel": {
+      "uploadFailed": "the upload didn't work",
+      "megabytes": "{n} MB",
+      "uploading": "Uploading {index} of {total}: {name}",
+      "uploaded": "{count, plural, one {Clip uploaded.} other {# clips uploaded.}}",
+      "footage": "Footage",
+      "remove": "Remove",
+      "removed": "Clip removed.",
+      "render": {
+        "queued": "queued",
+        "rendering": "cutting",
+        "rendered": "rendered",
+        "failed": "failed",
+        "live": "The cutting room is on it. This takes a minute or two.",
+        "open": "Open the video"
+      },
+      "uploadsOff": "Uploads aren't set up on this server, so footage can't come in here yet.",
+      "upload": {
+        "more": "Add more clips",
+        "first": "Upload what you filmed",
+        "label": "{action} — {mp4} or {mov}, up to {mb} MB each, {count, plural, one {# clip at most} other {# clips at most}}"
+      },
+      "cut": {
+        "done": "Cutting. The video appears in the queue when it's done.",
+        "caption": "Caption — what the post says under the video",
+        "onScreen": "On-screen line (optional, burned into the video)",
+        "date": "Goes out on",
+        "button": "Cut it",
+        "fine": "Trimmed, framed {ratio} and captioned from your own clips; licensed music only. Labelled “AI-assisted edit of real footage”. It is offered for publishing after, with its own yes in the queue."
+      },
+      "fallback": {
+        "label": "No footage? The AI fallback",
+        "pending": "Generating media for this is waiting for your decision.",
+        "generate": "Generate it",
+        "generated": "Generated.",
+        "approved": "Approved. Generating spends the stated cost.",
+        "notOffered": "Not offered: {reason}.",
+        "offer": "SYB can propose generating an image{image, select, none {} other { (about {image})}} or a {seconds}-second clip{video, select, none {} other { (about {video})}} from this item's own words. It is labelled as AI-generated in the file and the caption, never shows a real person or a brand, and needs your yes twice: to generate, then to publish. Your own footage replaces it whenever you film it.",
+        "dirLabel": "What it should show (optional)",
+        "dirPlaceholder": "a bowl of pumpkin soup, top down",
+        "proposed": "Proposed. It's in your approval queue with its cost.",
+        "propose": "{media, select, image {Propose an image} other {Propose a clip}}",
+        "lastTry": "The last try: {error}{cost, select, none {} other { ({cost} charged)}}."
+      },
+      "refused": "refused"
+    }
+  },
+  "customers": {
+    "meta": {
+      "title": "Customers — SYB"
+    },
+    "kicker": "Customers",
+    "opening": "Opening customers…",
+    "signedOut": {
+      "eyebrow": "customers",
+      "title": "Start with the intake.",
+      "begin": "Begin"
+    },
+    "aside": "From the list you imported · nothing sends without your approval of the email",
+    "failed": "that didn't work",
+    "headline": {
+      "none": "No customers imported yet.",
+      "count": "{total, plural, one {# customer.} other {# customers.}}",
+      "quietNone": "None have gone quiet.",
+      "quietAll": "All of them have gone quiet.",
+      "quiet": "{lapsed, plural, one {# has gone quiet.} other {# have gone quiet.}}"
+    },
+    "lifecycle": {
+      "active": "active",
+      "new": "new",
+      "lapsing": "lapsing",
+      "lapsed": "gone quiet",
+      "unknown": "no history"
+    },
+    "noEmail": "no email",
+    "consent": {
+      "explicit_consent": "explicit consent",
+      "implied_consent": "implied consent — not explicit",
+      "no_consent": "no consent",
+      "unsure": "unsure — not explicit"
+    },
+    "posture": {
+      "enabled": "You said customers gave explicit consent — outbound is possible, per contact.",
+      "caution": "Your consent answer was implied or unsure — only contacts with explicit consent can be emailed.",
+      "disabled": "You said customers gave no consent — outbound email is off.",
+      "unknown": "You haven't answered the consent question ({question}) — treated as caution."
+    },
+    "import": {
+      "imported": "Imported {count}.",
+      "skipped": "Skipped {list}.",
+      "sep": ", ",
+      "skip": {
+        "suppressed": "{count} on the unsubscribe list",
+        "already_exists": "{count} already here",
+        "duplicate_in_batch": "{count} repeated in the file",
+        "invalid": "{count} unreadable rows"
+      },
+      "purchase": "Purchase history read from {columns, plural, one {# column} other {# columns}}.",
+      "purchaseUnreadable": "Purchase history read from {columns, plural, one {# column} other {# columns}}; {unreadable, plural, one {# value couldn't be read and was left empty} other {# values couldn't be read and were left empty}}.",
+      "refreshed": "Updated the purchase history of {count, plural, one {# customer} other {# customers}} already here; their consent stays as recorded.",
+      "country": "{count, plural, one {# country wasn't recognised and was left unknown.} other {# countries weren't recognised and were left unknown.}}",
+      "label": "Import",
+      "title": "Under your attestation",
+      "prose": "Paste a CSV from your till, booking system, online shop or spreadsheet. Columns it understands: email, name, phone, country (so each customer’s own email rules apply), and — for lifecycle — last order date, order count, total spent. You state what these contacts consented to and how; that statement lands on every row.",
+      "csv": "The CSV",
+      "status": "What they consented to",
+      "option": {
+        "explicit_consent": "They gave explicit consent to marketing email",
+        "implied_consent": "Consent is implied (customers, no explicit opt-in)",
+        "unsure": "Unsure",
+        "no_consent": "No consent"
+      },
+      "statement": "How it was obtained, in your words",
+      "statementPlaceholder": "e.g. sign-up form checkbox since {year}",
+      "currency": "Currency of the spent column",
+      "submit": "Import under my attestation"
+    },
+    "list": {
+      "label": "Customers",
+      "find": "Find a customer",
+      "search": "name or email",
+      "filters": "Filter by pattern",
+      "all": "All · {count}",
+      "empty": "No customers yet. Import your customer list below — under your own attestation of what they consented to.",
+      "noMatch": "Nobody matches that.",
+      "customer": "Customer",
+      "purchases": "Purchases",
+      "spent": "Spent",
+      "lastPurchase": "Last purchase",
+      "pattern": "Pattern",
+      "open": "Open",
+      "openWho": "Open {name}",
+      "showing": "Showing {shown} of {total} · emails are partly hidden on screen",
+      "showingFiltered": "Showing {shown} of {total} ({all} in all) · emails are partly hidden on screen",
+      "more": "Show {count} more"
+    },
+    "record": {
+      "label": "Customer record",
+      "noName": "No name on record",
+      "countryUnknown": "country unknown",
+      "purchases": "Purchases",
+      "spent": "Spent",
+      "last": "Last",
+      "onRecord": "On record",
+      "consent": "Consent: {consent} · as you attested at import",
+      "pattern": "Pattern: {pattern}",
+      "segment": "Segment: {segment} · {size} in it",
+      "note": "Purchase-by-purchase history isn’t imported — these are the totals from your export."
+    },
+    "erase": {
+      "title": "Erase this customer",
+      "copy": "For a deletion request. Removes their name, email, details and support conversations from SYB for good. Their address stays on the unsubscribe list as a hash, so they are never emailed again; the audit log keeps only anonymous ids.",
+      "irreversible": "irreversible",
+      "cannotUndo": "This cannot be undone.",
+      "done": "Erased. The suppression hash stays.",
+      "confirm": "Erase permanently",
+      "keep": "Keep them",
+      "button": "Erase {name}…",
+      "buttonUnnamed": "Erase this customer…"
+    },
+    "segments": {
+      "label": "Segments",
+      "title": "Arithmetic, with the working shown",
+      "segment": "Segment",
+      "inIt": "In it",
+      "emailable": "May be emailed",
+      "working": "Working",
+      "hide": "Hide",
+      "why": "Why",
+      "propose": "Propose a win-back and a thank-you",
+      "proposed": "{count, plural, one {# proposal in your approval queue.} other {# proposals in your approval queue.}} Nothing sends on approval — sending arrives with its own consent re-check.",
+      "nothing": "Nothing to propose.",
+      "queue": "Open the queue"
+    },
+    "campaigns": {
+      "label": "Approved campaigns",
+      "title": "Sent only after you approve the email itself"
+    },
+    "fine": "Per-customer history comes from your own customer export, not from your connected accounts, which measure the business as a whole. Erasing a customer is GDPR erasure: their details go, and the record keeps only anonymous ids.",
+    "campaign": {
+      "fallbackLabel": "campaign",
+      "drafted": "Drafted in your voice, with the AI disclosure and the footer. Read it below — nothing has been sent.",
+      "alreadyDrafted": "This campaign already has its draft.",
+      "done": "Done.",
+      "draft": "Draft the email",
+      "needs": "Before it can send, it still needs: {gaps}.",
+      "complete": "Complete for where you are. Added at send time: {items}, after consent is checked again for every recipient.",
+      "irreversible": "irreversible",
+      "irreversibleNote": "Once it goes, a sent email can’t be recalled. It goes only to the customers who explicitly agreed to hear from you, each checked again at the moment it’s sent, and every email carries its own unsubscribe link.",
+      "mislabelled": "This campaign was approved as something that could be undone. Decline it in the queue and propose it again, so it is labelled honestly before you approve it.",
+      "subject": "Subject line",
+      "approveSend": "Approve and send to up to {count}",
+      "notYet": "Not yet",
+      "approve": "Approve this email…",
+      "alsoWaiting": "Also waiting on",
+      "tryNow": "Try sending now",
+      "refusedAtSend": "Refused at send: {list}.",
+      "phase": {
+        "sent": "sent",
+        "sending": "sending",
+        "held": "held",
+        "awaiting_approval": "awaiting your approval",
+        "awaiting_draft": "not drafted"
+      },
+      "sentence": {
+        "awaiting_draft": "Approved. Draft the email next; nothing sends until you approve the email itself.",
+        "awaiting_approval": "Drafted for {count, plural, one {# customer} other {# customers}}. Read it, then approve the email itself to send it.",
+        "heldGate": "Approved, not sent. {gate}",
+        "held": "Approved, not sent yet. It goes out on the next run.",
+        "sending": "Sending: {sent} of {total} sent so far. The rest go out on the next run, each checked again as it goes.",
+        "sent": "Sent to {count, plural, one {# customer} other {# customers}}. A sent email can't be recalled.",
+        "sentOn": "Sent to {count, plural, one {# customer} other {# customers}} on {date}. A sent email can't be recalled."
+      },
+      "count": {
+        "sent": "sent",
+        "refused": "refused at send",
+        "unknown": "outcome unknown",
+        "failed": "refused by the email service",
+        "pending": "still to send",
+        "unsubscribed": "unsubscribed since"
+      },
+      "refusal": {
+        "consent_implied": "consent only implied",
+        "consent_unsure": "consent unsure",
+        "consent_none": "no consent",
+        "suppressed": "unsubscribed, marked as spam, or erased",
+        "consent_unproven": "consent not recorded with how and when",
+        "no_regime": "in a country I have no email rules for",
+        "message_incomplete": "the email lacked something their law requires",
+        "no_email": "no email address",
+        "contact_gone": "no longer in your customers",
+        "duplicate_address": "same address as another recipient"
+      },
+      "unknown": "{count, plural, one {# email may have gone out: the email service didn't confirm either way. I won't send to that customer again for this campaign.} other {# emails may have gone out: the email service didn't confirm either way. I won't send to those customers again for this campaign.}}",
+      "verdict": {
+        "helped": "helped",
+        "backfired": "backfired",
+        "did_nothing": "did nothing",
+        "too_early": "too early to say",
+        "unmeasured": "unmeasured"
+      },
+      "readback": {
+        "label": "What happened after it went out",
+        "count": "count",
+        "rate": "rate",
+        "emails": "{count, plural, one {# email} other {# emails}}",
+        "people": "{count, plural, one {# person} other {# people}}",
+        "notReported": "not reported",
+        "notCounted": "not counted",
+        "measuredOf": "{returned} of {measured} measured",
+        "points": "{value} points",
+        "row": {
+          "sent": "sent",
+          "delivered": "delivered",
+          "bounced": "bounced",
+          "unsubscribed": "unsubscribed",
+          "spam": "marked as spam",
+          "replied": "replied",
+          "boughtAgain": "bought again since",
+          "comparison": "{group, select, vip {best customers not emailed, bought again} other {lapsed customers not emailed, bought again}}",
+          "difference": "difference"
+        }
+      }
+    }
+  },
+  "studio": {
+    "meta": {
+      "title": "Creative studio — SYB"
+    },
+    "kicker": "Grow · Creative studio",
+    "aside": "Meta Ad Library · read-only · OBSERVED",
+    "loading": "Reading your niche and your briefs…",
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "copy": "<intake>Start with the interview</intake>; the studio works from what you tell me."
+    },
+    "error": {
+      "generic": "That didn't work. Try again.",
+      "title": "The studio didn't load.",
+      "copy": "Something went wrong on our side. Refresh to try again."
+    },
+    "headline": {
+      "notSetUp": "Niche research isn't set up yet.",
+      "blocked": "Meta's Ad Library can't show your niche's ads.",
+      "briefsNotRead": "{count, plural, =1 {One brief} one {# brief} other {# briefs}} written; I haven't read your niche's ads yet.",
+      "notRead": "I haven't read the ads in your {noun}'s niche yet.",
+      "notReadBusiness": "I haven't read the ads in your business's niche yet.",
+      "longest": "{page}'s {format, select, video {video} other {ad}} has run {days, plural, one {# day} other {# days}} — the longest-running concept I found."
+    },
+    "running": {
+      "days": "{count, plural, one {# day} other {# days}}",
+      "live": "LIVE",
+      "stopped": "STOPPED"
+    },
+    "format": {
+      "video": "VIDEO",
+      "image": "IMAGE",
+      "multi": "CARDS / VERSIONS"
+    },
+    "source": {
+      "fact": "YOUR FACT",
+      "finding": "DIAGNOSIS",
+      "voice": "YOUR WORDS",
+      "post": "YOUR POST",
+      "competitor": "COMPETITOR",
+      "ad": "NICHE AD"
+    },
+    "notice": {
+      "readNow": "Read the Ad Library just now.",
+      "stillFresh": "That read is still fresh, so I used it rather than asking Meta again.",
+      "written": "The brief is written. Every part shows what it rests on.",
+      "blocked": "That shot list crossed one of your limits, so it sits in the restraint view instead.",
+      "proposed": "Proposed. It’s in <queue>Waiting for you</queue>."
+    },
+    "niche": {
+      "label": "The niche's longest-running ads",
+      "nothingYet": "Nothing to read yet",
+      "notSetUpNote": "Meta opens its Ad Library API only to a developer account whose identity it has confirmed. Once SYB’s token is set, this reads the ads your niche runs, read-only.",
+      "blockedNote": "{why} What is shown is the last read.",
+      "termsLabel": "Words your niche’s ads would use, comma-separated (two at most)",
+      "termsPlaceholder": "e.g. handmade mug, pottery class",
+      "reading": "Reading…",
+      "readAgain": "Read again →",
+      "readLibrary": "Read the Ad Library →",
+      "searches": "The Library searches the words in the ads themselves, in their own language. I also look for the competitors you listed.",
+      "searchesNamed": "The Library searches the words in the ads themselves, in their own language. I also look for the competitors you listed ({names}).",
+      "freshFrom": "A fresh read is allowed from {when}.",
+      "noAdsTitle": "The Library had no ads for those words",
+      "notReadTitle": "Not read yet",
+      "noAds": "I read Meta's Ad Library on {day} for {terms} and found nothing that reached {country}. Try other words.",
+      "yourCompetitors": "your competitors",
+      "yourCountry": "your country",
+      "notReadCopy": "I read which ads businesses like yours have kept running the longest, as far as Meta's public Ad Library shows them.",
+      "lastTry": "Last try, {day}: {reason}.",
+      "foundTitle": "{count, plural, one {# ad concept} other {# ad concepts}} from {businesses, plural, one {# business} other {# businesses}}, read {day}",
+      "ranked": "Ranked by staying power · a proxy, NOT A RESULT",
+      "searched": "Searched for {terms}, ads that reached {country}; {ads, plural, one {# ad} other {# ads}} read in {requests, plural, one {# request} other {# requests}}. OBSERVED from Meta’s public Ad Library; the hooks, offers and calls to action are picked out by plain patterns, and blank when none matched.",
+      "quotedTerm": "“{term}”",
+      "competitorsOnly": "your competitors only"
+    },
+    "table": {
+      "business": "Business",
+      "format": "Format",
+      "running": "Running",
+      "versions": "Versions",
+      "opens": "How it opens",
+      "offer": "Offer · call to action",
+      "youListed": "You listed them",
+      "inLibrary": "In the Ad Library →",
+      "noText": "no text",
+      "noOffer": "no offer found",
+      "noCta": "no call to action found"
+    },
+    "brief": {
+      "label": "Creative brief",
+      "another": "Write another",
+      "first": "Write the first brief",
+      "meta": "Sonnet writes it · every part cites its source",
+      "earlier": "Earlier briefs:",
+      "campaignLabel": "The campaign, in your words",
+      "campaignPlaceholder": "e.g. Autumn mugs for gifting",
+      "goalLabel": "Or the goal it serves",
+      "noGoal": "No particular goal",
+      "writing": "Writing…",
+      "write": "Write a brief →",
+      "allowance": "{left} of {perMonth} brief-writing calls left this month; one brief takes up to {attempts}. I write only from what you see cited, and refuse any line that repeats five words in a row from another business’s ad.",
+      "cardLabel": "Creative brief · {day}",
+      "attempts": "{count, plural, one {# attempt} other {# attempts}}",
+      "sources": "Everything this brief was written from ({count, plural, one {# source} other {# sources}})",
+      "who": "Who it’s for",
+      "offer": "The offer",
+      "script": "Script · about {seconds} s",
+      "why": "Why: {why}",
+      "proposing": "Proposing…",
+      "make": "Make this →",
+      "watching": "Still watching until {day}; nothing is proposed before then.",
+      "makeNote": "Puts this shot list in Waiting for you. Approved, it becomes a “film this” item; your footage goes to the cutting room."
+    }
+  },
+  "site": {
+    "meta": {
+      "title": "Your site — SYB"
+    },
+    "kicker": "Grow · Website",
+    "loading": "Reading your site changes…",
+    "failed": "that didn't work",
+    "homePage": "home page",
+    "page": "page",
+    "noAction": "no action",
+    "fine": "Every change previews from the real page, applies only after your yes in the queue, keeps its undo forever, and rolls itself back on a hard failure — never on a quiet week.",
+    "signedOut": {
+      "eyebrow": "your site",
+      "title": "Start with the intake.",
+      "copy": "Site changes belong to a profile — begin and come back.",
+      "begin": "Begin"
+    },
+    "notice": {
+      "rolledBack": "Applied — and the health check failed, so I rolled it straight back. The reasons are on the card.",
+      "proposed": "Proposed — the before/after is on its tab, and the decision is in your queue.",
+      "applied": "Applied, and the page passed its health check.",
+      "undone": "Undone — the page's previous state is back, byte for byte."
+    },
+    "headline": {
+      "pending": "{count, plural, one {# change} other {# changes}} proposed for your site.",
+      "ready": "{count, plural, one {# approved change is} other {# approved changes are}} ready to apply.",
+      "none": "No site change is waiting on you.",
+      "empty": "No site changes proposed yet."
+    },
+    "head": {
+      "checked": "Last site check {day} · {pages, plural, one {# page} other {# pages}} read · {missing} of {total} checks not shown",
+      "noCheck": "No site check on record yet",
+      "measured": "measured {day}: {count, plural, one {# finding} other {# findings}}"
+    },
+    "tabs": {
+      "aria": "Site changes",
+      "measured": "Measured · {count, plural, one {# finding} other {# findings}}",
+      "measure": "Measure the site",
+      "audit": "Audit · {count, plural, one {# note} other {# notes}}, no action",
+      "propose": "Propose a change"
+    },
+    "status": {
+      "pending": "waiting for you",
+      "approved": "approved",
+      "rejected": "declined",
+      "expired": "expired",
+      "executed": "applied",
+      "blocked": "blocked by a limit",
+      "changes_requested": "changes requested"
+    },
+    "reverse": {
+      "easy": "reversible",
+      "moderate": "reversible with effort",
+      "hard": "hard to reverse"
+    },
+    "auditTab": {
+      "label": "Audit · checked {day}",
+      "title": "What customers look for, and whether your site shows it",
+      "foot": "Read-only. Fixing one goes through the approval queue — <link>see Blindspots</link>.",
+      "what": "What they check",
+      "onSite": "On your site",
+      "foundOn": "Found on",
+      "check": "Check",
+      "shown": "shown",
+      "notFound": "not found",
+      "unreadable": "Couldn’t read {url} — {reason}"
+    },
+    "propose": {
+      "label": "Propose a change",
+      "title": "Shown before it is ever applied",
+      "foot": "Checkout, cart, payment and billing pages are refused outright — they cannot even be proposed, at any approval level.",
+      "url": "Page address",
+      "urlPlaceholder": "yoursite.com/about",
+      "find": "The exact text to change",
+      "replace": "What it should say instead",
+      "reading": "Reading the page…",
+      "preview": "Preview the change"
+    },
+    "change": {
+      "fromFinding": "from finding: {finding}",
+      "proposedOn": "proposed {day}",
+      "undoneByYou": "undone by you",
+      "autoRolledBack": "auto-rolled-back",
+      "realPage": "The real page, scripts off",
+      "desktopWidth": "Desktop width",
+      "phoneWidth": "Phone width",
+      "now": "Now",
+      "proposed": "Proposed",
+      "frameNow": "The page now",
+      "frameProposed": "The page as proposed",
+      "nowSays": "Now says",
+      "willSay": "Will say",
+      "basis": "Basis",
+      "basisValue": "found once on the live page · observed",
+      "quoted": "“{text}”",
+      "evidence": "Evidence the proposal carries",
+      "sensitivity": "sensitivity {value}",
+      "blocked": "Blocked: {why}",
+      "yourLimit": "Your limit: “{limit}”",
+      "manual": "How to make this change yourself",
+      "expected": "Expected · in words, not a number",
+      "expectedDefault": "The page says the new thing.",
+      "ifWrong": "If it goes wrong: {what}",
+      "decide": "Decide in the queue",
+      "apply": "Apply it to the page",
+      "undo": "Undo — restore the page"
+    },
+    "audit": {
+      "severity": {
+        "critical": "ACT NOW",
+        "high": "HIGH",
+        "medium": "MEDIUM",
+        "low": "LOW"
+      },
+      "basis": {
+        "field": "real visitors",
+        "field_origin": "real visitors, whole site",
+        "lab": "one test load",
+        "page_read": "page read"
+      },
+      "strategy": {
+        "mobile": "mobile",
+        "desktop": "desktop"
+      },
+      "euroRange": "{low}–{high} a month",
+      "unit": {
+        "seconds": "{value} s",
+        "ms": "{value} ms",
+        "mb": "{value} MB",
+        "clicks": "{count, plural, one {# click} other {# clicks}}",
+        "status": "status {code}"
+      },
+      "speed": {
+        "lcp": "LCP {value} s",
+        "cls": "CLS {value}",
+        "inp": "INP {value} ms",
+        "tbt": "TBT {value} ms (lab)"
+      },
+      "from": {
+        "notMeasured": "not measured",
+        "labOnly": "lab only — too few visitors for Google's field data",
+        "fieldSite": "field (whole site) + lab",
+        "field": "field + lab"
+      },
+      "notice": {
+        "lastFailed": "The last run, {day}, failed: {reason}",
+        "didntRun": "the audit didn't run",
+        "measured": "Measured — the findings below are this run's.",
+        "tryAgain": "the audit didn't run — try again in a moment"
+      },
+      "run": {
+        "busy": "Reading the site… (up to two minutes)",
+        "again": "Run the audit again",
+        "first": "Run the audit"
+      },
+      "notRun": {
+        "label": "Measured · not run yet",
+        "title": "Speed, phones and the path to buying, measured"
+      },
+      "notBuilt": "Measured only. Judging the design from screenshots (site-audit §{section}, the vision layer) isn't built: no screenshot is taken and no model is asked.",
+      "footFix": "Fixing one goes through a proposal and the queue; checkout is never changed automatically — findings there come with instructions.",
+      "never": {
+        "reads": "Reads public pages like a visitor, through the same guarded fetcher as every other site read.",
+        "noLogin": "Never logs in, never sends a form, never adds to a cart, never opens checkout.",
+        "pagespeed": "Asks Google's public PageSpeed Insights to load the pages; SYB runs no browser of its own."
+      },
+      "ran": "Measured · ran {day} · {pages, plural, one {# page} other {# pages}} read · {calls, plural, one {# PageSpeed call} other {# PageSpeed calls}}",
+      "title": {
+        "none": "Nothing outside the stated thresholds.",
+        "some": "{count, plural, one {# measured finding} other {# measured findings}}, each against a stated threshold"
+      },
+      "calls": "{used} of {cap} PageSpeed calls this week; speed can be measured again from {day}.",
+      "table": {
+        "severity": "Severity",
+        "what": "What was measured",
+        "measured": "Measured",
+        "threshold": "Threshold",
+        "atStake": "{currency} at stake",
+        "atStakeMoney": "Money at stake"
+      },
+      "path": {
+        "label": "The path to buying · {what}",
+        "notCounted": "not counted",
+        "fromHome": "{count, plural, one {# click} other {# clicks}} from home"
+      },
+      "pages": {
+        "label": "The pages Google loaded",
+        "page": "Page",
+        "phone": "On a phone",
+        "computer": "On a computer",
+        "weight": "Weight",
+        "from": "From",
+        "role": "{role} · {count, plural, one {# click} other {# clicks}} from home"
+      },
+      "role": {
+        "home": "home",
+        "category": "category",
+        "product": "product",
+        "cart": "cart",
+        "checkout": "checkout",
+        "service": "service",
+        "booking": "booking",
+        "contact": "contact",
+        "other": "other"
+      },
+      "refused": {
+        "label": "Seen and left alone",
+        "login_or_account": "a login or account page — the audit never signs in",
+        "cart_action": "a link that changes a cart — the audit never adds to one",
+        "checkout": "checkout — counted from the outside, never opened",
+        "external_booking": "a booking page on another company's site — counted, not read"
+      }
+    }
+  },
+  "support": {
+    "meta": {
+      "title": "Support — SYB"
+    },
+    "kicker": "Customers · Support",
+    "loading": "Opening support…",
+    "signedOut": {
+      "eyebrow": "support",
+      "title": "Start with the intake.",
+      "body": "The customer assistant answers from facts you give in the intake and approve for the public. Twelve questions and there is something real to publish.",
+      "begin": "Begin"
+    },
+    "headline": {
+      "none": "Nothing approved yet, so every question comes to you.",
+      "some": "The assistant only says what you approved."
+    },
+    "counts": "<b>{conversations}</b> {count, plural, one {conversation} other {conversations}} · <b>{handed}</b> handed to you · <b>{waiting}</b> waiting",
+    "testWidget": "Test the widget",
+    "failed": "that didn't work",
+    "faq": {
+      "tooFew": "{count, plural, one {Only # open question — nothing to cluster yet. Three askers make a frequently asked question.} other {Only # open questions — nothing to cluster yet. Three askers make a frequently asked question.}}",
+      "proposed": "Clustered. The answers you already gave are in your approval queue; the rest are listed for you to answer.",
+      "none": "Clustered: no three people have asked the same thing yet.",
+      "unanswered": "Clustered. Nobody has answered these yet — answer one on its conversation and cluster again."
+    },
+    "convos": {
+      "label": "Tickets · {tickets} · conversations · {conversations}",
+      "empty": "Nothing yet. Every widget conversation and every email to your support address lands here, and anything waiting for you is marked.",
+      "messages": "{count, plural, one {{n} message} other {{n} messages}} · {when}"
+    },
+    "waitingTitle": "{count, plural, =0 {Nobody waiting for you} =1 {One waiting for you} =2 {Two waiting for you} =3 {Three waiting for you} =4 {Four waiting for you} =5 {Five waiting for you} =6 {Six waiting for you} =7 {Seven waiting for you} =8 {Eight waiting for you} =9 {Nine waiting for you} one {# waiting for you} other {# waiting for you}}",
+    "sla": {
+      "yourTime": "Your reply time: {hours} h",
+      "unset": "No reply time set",
+      "clock": "Counted in clock hours, not business hours.",
+      "overdue": "Overdue",
+      "dueSoon": "Due soon",
+      "inTime": "In time",
+      "over": "{duration} over",
+      "left": "{duration} left"
+    },
+    "duration": {
+      "min": "{min} min",
+      "h": "{h} h",
+      "hMin": "{h} h {min} min",
+      "d": "{d} d",
+      "dH": "{d} d {h} h"
+    },
+    "col": {
+      "channel": "Channel",
+      "who": "Who",
+      "what": "Subject or question",
+      "waited": "Waited",
+      "against": "Against your reply time"
+    },
+    "channel": {
+      "email": "Email",
+      "chat": "Chat"
+    },
+    "who": {
+      "visitor": "Visitor",
+      "customer": "Customer",
+      "noAddress": "no address",
+      "visitorNoAddress": "Visitor · no address"
+    },
+    "senderNote": {
+      "notVerified": "sender not verified",
+      "givenInChat": "given in chat, not verified"
+    },
+    "ticket": {
+      "answeredFlag": "Answered",
+      "closedFlag": "Closed",
+      "youReplied": "You replied",
+      "theirTurn": "their turn",
+      "answerLabel": "What you told them — kept on record, not sent",
+      "answered": "I answered them",
+      "propose": "Propose as an answer",
+      "close": "Close",
+      "sendsNothing": "Marking it answered sends nothing; only an approved reply above goes to the customer.",
+      "youSaid": "You said: {answer}",
+      "handed": "handed to you · {reason}"
+    },
+    "conv": {
+      "waiting": "waiting for you",
+      "answered": "handed to you · you answered",
+      "handedClosed": "handed to you · closed",
+      "handed": "handed to you",
+      "closed": "closed",
+      "open": "open"
+    },
+    "reason": {
+      "customer_asked": "asked for a person",
+      "no_answer": "no approved answer",
+      "cost_cap": "spend cap reached",
+      "conversation_cap": "conversation ran long",
+      "emailed": "emailed you"
+    },
+    "via": {
+      "widget": "via the widget",
+      "email": "by email",
+      "ticket": "a ticket",
+      "turns": "{count, plural, one {{n} turn} other {{n} turns}} · {cost}"
+    },
+    "transcript": {
+      "empty": "Nothing was said in this conversation.",
+      "reading": "Reading the conversation…"
+    },
+    "msg": {
+      "assistant": "Assistant · automated",
+      "visitor": "Visitor"
+    },
+    "emails": {
+      "aria": "Emails",
+      "truncated": "This email was longer than I keep; I kept the first {chars} characters.",
+      "you": "You, by email"
+    },
+    "refused": {
+      "word": "replies refused",
+      "body": "This address is on your suppression list (they unsubscribed or asked to be erased), so I won’t send it anything. The ticket is here so you know they wrote."
+    },
+    "erase": {
+      "ticket": "Erase this ticket",
+      "conversation": "Erase this conversation",
+      "confirm": "Erase permanently",
+      "cannotUndo": "It cannot be undone. The log keeps only that it happened."
+    },
+    "answers": {
+      "label": "Approved answers · {count}",
+      "title": "What it’s allowed to say",
+      "close": "Close",
+      "write": "Write an answer",
+      "question": "A question customers ask",
+      "answer": "The answer, in your words",
+      "propose": "Propose this answer",
+      "queueFirst": "It goes to your approval queue first.",
+      "notPublic": "approved · not yet public",
+      "publish": "Publish",
+      "askedTimes": "{count, plural, one {asked {n} time · not answered} other {asked {n} times · not answered}}",
+      "answerOne": "Answer it on one of its conversations, then cluster again.",
+      "empty": "No answers yet. Until you approve some, the assistant says it doesn’t know and hands the question to you.",
+      "retiredLabel": "Retired · no longer said",
+      "fromFacts": "Propose answers from my facts",
+      "cluster": "Cluster what customers asked"
+    },
+    "entry": {
+      "from": "from {sources}",
+      "fromCustomers": "from {count, plural, one {{n} customer who asked} other {{n} customers who asked}}",
+      "published": "pub. {date}",
+      "retire": "Retire"
+    },
+    "widget": {
+      "label": "The widget",
+      "title": "An assistant that says it is one",
+      "paste": "Paste this one line into your website. Visitors see an assistant that introduces itself as automated, answers only from the approved list above, and hands over to you the moment they ask for a person.",
+      "rotate": "Rotate the key",
+      "keyPublic": "The key is public by design — it only says which business a conversation belongs to. It is not a login.",
+      "notEnabled": "Not enabled yet. Enabling creates the widget's public key; nothing is said to anyone until you approve answers.",
+      "enable": "Enable the assistant",
+      "foot": "The assistant reads approved answers and nothing else: not your profile, not your numbers, not your connections, and it cannot change anything."
+    },
+    "inbox": {
+      "label": "Support email",
+      "title": "Emails to your support address become tickets here",
+      "enableFirst": "Enable the assistant above first; that creates your address.",
+      "forward": "Forward your support mailbox to this address. Every email becomes a ticket here, threaded with its replies. Nothing is answered automatically: you see each one, and nothing goes back without your click.",
+      "change": "Change the address",
+      "onlyKnown": "Only someone who knows it can file a ticket. Change it if it leaks.",
+      "notSetUp": "Not set up yet: support email needs the inbound domain and the webhook connected in Resend. Until then no email reaches this screen."
+    },
+    "time": {
+      "label": "Your reply time",
+      "title": "{hours, plural, one {You reply within {n} hour} other {You reply within {n} hours}}",
+      "within": "I reply within",
+      "hours": "hours",
+      "save": "Save",
+      "clear": "Clear",
+      "fine": "Clock hours, not business hours. Each waiting ticket shows how it stands against this. The chat tells a customer this time only when you have set one; otherwise it promises nothing.",
+      "setAt": "Set {when}.",
+      "notify": "Email me at my sign-in address when a customer emails (at most one an hour, and only once email is set up)"
+    },
+    "notice": {
+      "answeredBlank": "Marked answered. Next time, write what you said — it can become an approved answer.",
+      "answeredWords": "Marked answered, with your words on record.",
+      "proposedAnswer": "Proposed as an answer. Approve it in the queue, then publish it here.",
+      "closed": "Closed.",
+      "erasedTicket": "The ticket and its emails are erased. The log records only that it happened.",
+      "erasedConversation": "The conversation and its ticket are erased. The log records only that it happened.",
+      "proposed": "Proposed. Approve it in the queue, then publish it here.",
+      "published": "Published. The assistant can say these now.",
+      "retired": "Retired. It will not be said again.",
+      "rotated": "New key. Every page with the old snippet stops working until you update it.",
+      "enabled": "Enabled. Now approve some answers.",
+      "rotatedInbound": "New address. Mail to the old one is dropped from now on, so update your forwarding.",
+      "savedHours": "Saved: you reply within {hours} h.",
+      "cleared": "Cleared. No reply time is promised.",
+      "notifyOn": "On: a new support email sends you a short notice, at most one an hour.",
+      "notifyOff": "Off: no notices. The count in the menu still shows what's waiting.",
+      "drafted": "Drafted from your approved answers. Read it, edit it, then approve or decline.",
+      "noDraft": "No draft.",
+      "savedReply": "Saved. Approve and send it when it's right.",
+      "declined": "Declined. Nothing was sent.",
+      "sent": "Sent, exactly as you approved it.",
+      "approvedNotSent": "Approved, not sent."
+    },
+    "replyState": {
+      "drafted": "draft · not sent",
+      "approved": "approved · not sent",
+      "sending": "unconfirmed · may have sent",
+      "sent": "sent",
+      "failed": "not sent",
+      "declined": "declined"
+    },
+    "reply": {
+      "noWay": "no way to reach them",
+      "noAddress": "This customer left no email address, so there is no way to reply. They see an answer only if they come back to the chat.",
+      "label": "Reply by email",
+      "draft": "Draft a reply",
+      "writeMyself": "Write it myself",
+      "draftUses": "A draft uses only your approved answers.",
+      "aiLabel": "The assistant's draft — edit it freely",
+      "yourReply": "Your reply",
+      "speak": "Speak your reply",
+      "speakAfter": "Read it over and fix anything before you save or approve it.",
+      "disclosure": "Added when it is sent, and not removable: “{line}”",
+      "approveSend": "Approve and send",
+      "save": "Save my reply",
+      "decline": "Decline draft",
+      "cancel": "Cancel",
+      "untilApprove": "Nothing goes to the customer until you approve it.",
+      "sendNow": "Send it now",
+      "approvedExact": "Approved; it goes exactly as written above."
+    },
+    "test": {
+      "meta": {
+        "title": "Widget test page — SYB"
+      },
+      "loading": "Setting up the test page…",
+      "eyebrow": "widget test page",
+      "signedOut": "Start with the intake.",
+      "disabled": "Enable the assistant first.",
+      "goSupport": "Go to support",
+      "pretend": "a pretend customer page · the widget is bottom right",
+      "seesLabel": "what a visitor sees",
+      "body": "This page stands in for your website. The button in the corner is the real widget, loaded by the same script and talking to the same public endpoint a customer would use. Ask it something you have approved, something you have not, and then ask for a person — each should behave as promised on the <link>support screen</link>."
+    }
+  },
+  "team": {
+    "meta": {
+      "title": "Team cover — SYB"
+    },
+    "kicker": "Insights · Team cover",
+    "aside": "Roles and hours · never people",
+    "limits": {
+      "head": "Roles, never people",
+      "switchOff": "The team module is yours to switch off on <link>Watching</link>."
+    },
+    "refused": {
+      "readyOn": "Ready around {day}, if the data keeps coming.",
+      "label": "Cover by the hour",
+      "title": "Not enough to read yet",
+      "can": "I can",
+      "cannot": "I can't yet",
+      "history": "{history, plural, one {# day} other {# days}} of history; the least I read is {needed}. <link>Connections</link>"
+    },
+    "roles": {
+      "label": "Roles",
+      "title": "From who works in the business",
+      "none": "No roles yet. They come from the interview: who works in the business, and their hours a week. <link>Fact sheet</link>",
+      "notStated": "hours not stated",
+      "perWeek": "{hours} h / week",
+      "withoutHours": "{count, plural, one {# without hours} other {# without hours}}"
+    },
+    "grid": {
+      "aria": "Cover by role and hour, {day}",
+      "row": "Row",
+      "booked": "Booked",
+      "takings": "Takings",
+      "ofCapacity": "of stated capacity",
+      "ofBusiest": "of the busiest hour",
+      "cellTitle": "{typical} on a typical day, {low}–{high} on the middle half of {days, plural, one {# day} other {# days}}",
+      "onAverage": "on, average hour"
+    },
+    "ok": {
+      "basis": "Last {weeks, plural, one {# week} other {# weeks}} · {from} to {to} · {demand}",
+      "capacity": "stated capacity {perWeek} a week (your answer)",
+      "noCapacity": "no capacity in money, so nothing runs short",
+      "labelBookings": "Booked against stated capacity, by role",
+      "labelTakings": "Takings by the hour, by role",
+      "title": "Cover by role and hour",
+      "legend": "Legend",
+      "legendShort": "runs short ≥ {pct}",
+      "legendCovered": "covered",
+      "legendQuiet": "quiet ≤ {pct}",
+      "footBookings": "Each hour's held appointments (completed, no-shows and late cancellations) over that weekday's days, against the stated capacity spread evenly over the open hours.",
+      "footTakings": "Each hour's takings over that weekday's measured days, against the day's busiest hour.",
+      "footRole": "A role's figure is its stated hours a week over the open hours: how many of that role are on in an average open hour, since the rota isn't known. DERIVED. Hatched = closed. Wrong roles or hours? Change your answer on the <link>Fact sheet</link>.",
+      "weekday": "Weekday",
+      "daysRead": "{days, plural, one {# day} other {# days}}",
+      "noDay": "No open weekday is read yet."
+    },
+    "reading": {
+      "label": "Reading",
+      "none": "Nothing stands out",
+      "some": "Where cover runs short or sits quiet",
+      "noneBody": "No open hour runs short of your stated capacity or sits quiet on the days read."
+    },
+    "band": {
+      "short": "Runs short",
+      "quiet": "Quiet"
+    },
+    "notes": {
+      "label": "Notes for you",
+      "title": "Yours to weigh"
+    },
+    "built": {
+      "label": "Built on",
+      "title": "Sources and assumptions",
+      "body": "{days, plural, one {# trading day} other {# trading days}} read from {demand}, {from} to {to}; {history, plural, one {# day} other {# days}} of history in all.",
+      "capacity": "Stated capacity {perWeek} a week over {hours} open hours.",
+      "assumed": "Assumed"
+    },
+    "signedOut": {
+      "title": "There's no business here yet.",
+      "body": "<link>Start with the interview</link>."
+    },
+    "failed": {
+      "title": "Team cover didn't load.",
+      "body": "Something went wrong on our side. Refresh to try again."
+    },
+    "loading": "Reading the week's cover…",
+    "off": {
+      "title": "The team module is off.",
+      "body": "It stays off unless you switch it on, under Modules on <link>Watching</link>. Switched on, it reads when the week needs more cover, or has more than it needs, by role and hour, and never anything about a person."
+    }
+  },
+  "teamAccess": {
+    "meta": {
+      "title": "Team access — SYB"
+    },
+    "kicker": "Your business · Team access",
+    "loading": "Reading who’s on the team…",
+    "signedOut": {
+      "title": "Sign up first.",
+      "body": "A team starts with you: once you’ve signed in, you can invite the people you work with here."
+    },
+    "failed": "Something went wrong on our side. Refresh to try again.",
+    "failedTry": "That didn't work. Try again.",
+    "failedShort": "That didn't work.",
+    "title": "{count, plural, =1 {Only you can sign in here.} one {# person can sign in here.} other {# people can sign in here.}}",
+    "youAre": "You’re {role, select, owner {an owner} manager {a manager} other {a viewer}}",
+    "readOnly": "You can see who’s here.",
+    "members": {
+      "label": "The team",
+      "title": "Who can sign in",
+      "person": "Person",
+      "role": "Role",
+      "since": "Since",
+      "change": "Change",
+      "you": "(you)",
+      "roleFor": "Role for {email}",
+      "nowRole": "{email} is now {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
+      "lastOwner": "A business always keeps one owner.",
+      "removed": "{email} can't sign in here any more, and was signed out.",
+      "confirmRemove": "{who, select, me {Yes, take me off} other {Yes, take them off}}",
+      "keep": "Keep",
+      "takeOff": "Take off the team"
+    },
+    "invites": {
+      "label": "Invites",
+      "title": "Waiting to join",
+      "none": "No invites are waiting.",
+      "ranOut": "ran out {day}",
+      "worksUntil": "works until {day}",
+      "withdrawn": "Invite withdrawn.",
+      "withdraw": "Withdraw",
+      "withdrawFor": "the invite for {email}",
+      "sent": "I've emailed the invite to {email}. It works once, for {days, plural, one {# day} other {# days}}.",
+      "emailFailed": "The invite email didn't go. Copy the link below and send it yourself.",
+      "noEmailSend": "Email isn't set up here, so I can't send it. Copy the link below and send it yourself.",
+      "email": "Email",
+      "role": "Role",
+      "placeholder": "name@example.com",
+      "invite": "Invite",
+      "noEmail": "Email isn’t set up here, so you’ll get a link to copy instead."
+    },
+    "link": {
+      "note": "The invite link. It works once, for {days, plural, one {# day} other {# days}}, and only for the address you invited: whoever opens it still signs in as that address.",
+      "aria": "Invite link",
+      "copy": "Copy",
+      "copied": "Copied."
+    },
+    "roles": {
+      "label": "Roles",
+      "title": "What each role can do"
+    },
+    "roleMeans": {
+      "owner": "Everything, including connections, write access, billing and the team.",
+      "manager": "Approves and declines proposals, drafts content, answers support and can press stop. Can't connect accounts or change the team.",
+      "viewer": "Reads everything and can press stop. Changes nothing."
+    },
+    "another": {
+      "label": "Another business",
+      "title": "Run more than one business?",
+      "body": "Add another business under the same email. Each one has its own interview, its own team and its own bill; you switch between them from the menu.",
+      "add": "Add another business"
+    }
+  },
+  "invite": {
+    "meta": {
+      "title": "Your invite — SYB"
+    },
+    "kicker": "Team invite",
+    "label": "Invite",
+    "someBusiness": "a business on SYB",
+    "headline": {
+      "join": "Join {where}.",
+      "bad": "That invite doesn't work."
+    },
+    "title": {
+      "as": "As {role, select, owner {an owner} manager {a manager} other {a viewer}}, for {email}",
+      "none": "No invite here"
+    },
+    "unknown": "This link isn’t an invite I know. Ask whoever sent it for a new one.",
+    "status": {
+      "accepted": "This invite has already been used.",
+      "revoked": "This invite was withdrawn.",
+      "expired": "This invite has run out. Invites work for {days, plural, one {# day} other {# days}}."
+    },
+    "askNew": "Ask whoever sent it for a new one.",
+    "wrong": "This invite is for <b>{invited}</b>, and you’re signed in as <b>{signedIn}</b>. I won’t add the wrong person: sign out, then open this link again.",
+    "signedIn": "You’re signed in as <b>{email}</b>. Join {where} as {role, select, owner {an owner} manager {a manager} other {a viewer}}?",
+    "signIn": "You’ll sign in as <b>{email}</b>, the address the invite is for. I’ll email a sign-in link there; opening it adds you to the team.",
+    "foot": "Nothing happens until you press the button. Not your address? Close this page.",
+    "footLink": "Sign in to SYB",
+    "actions": {
+      "failed": "That didn't work. Try again in a minute.",
+      "devLink": "Email isn't set up here (development), so here's the sign-in link:",
+      "emailed": "I've emailed a sign-in link to {email}. Open it there and you'll join.",
+      "signOut": "Sign out",
+      "thenAsks": "Then this page asks again, as {email}.",
+      "join": "Join",
+      "emailLink": "Email a sign-in link to {email}",
+      "signInJoin": "Sign in and join"
+    }
   }
 }

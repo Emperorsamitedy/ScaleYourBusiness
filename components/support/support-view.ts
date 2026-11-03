@@ -2,91 +2,180 @@
 // 2026-10-17): the headline, the counts line, and how each conversation
 // is worded in the list. Counted from what the API returns; nothing here
 // reads a customer's message as anything but text (rule 24).
+//
+// L-3c (TASKS-LANGUAGES.md): the words are the "support" catalogue through
+// an optional translator, English by default from messages/en.json, so
+// English says exactly what it always said; times, dates and figures in
+// the reader's locale. A customer's words are content, shown as written.
 
-import { durationText, slaState, slaWords } from "../../lib/support/sla";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+import type { SlaState } from "../../lib/support/sla";
+import { slaState } from "../../lib/support/sla";
+import { num } from "../sheet/num";
+
+const EN = (): Tr => englishTr("support");
 
 export type TicketReason =
   "customer_asked" | "no_answer" | "cost_cap" | "conversation_cap" | "emailed";
 export type TicketStatus = "open" | "answered" | "closed";
 export type ConversationStatus = "open" | "escalated" | "closed";
 
-export const REASON_WORD: Record<TicketReason, string> = {
-  customer_asked: "asked for a person",
-  no_answer: "no approved answer",
-  cost_cap: "spend cap reached",
-  conversation_cap: "conversation ran long",
-  emailed: "emailed you",
-};
+/** How much of an email is kept: SUPPORT_EMAIL_BODY_MAX_CHARS (lib/support/inbound), held equal by words.test.ts. */
+export const EMAIL_KEPT_CHARS = 20_000;
 
-export function supportHeadline(publicAnswers: number): string {
-  return publicAnswers === 0
-    ? "Nothing approved yet, so every question comes to you."
-    : "The assistant only says what you approved.";
-}
-
-const NUMBER_WORD = [
-  "Nobody",
-  "One",
-  "Two",
-  "Three",
-  "Four",
-  "Five",
-  "Six",
-  "Seven",
-  "Eight",
-  "Nine",
+export const TICKET_REASONS: readonly TicketReason[] = [
+  "customer_asked",
+  "no_answer",
+  "cost_cap",
+  "conversation_cap",
+  "emailed",
 ];
 
-export function waitingTitle(waiting: number): string {
-  if (waiting === 0) return "Nobody waiting for you";
-  return `${NUMBER_WORD[waiting] ?? String(waiting)} waiting for you`;
+/** Why a conversation was handed to the owner: "asked for a person". */
+export function reasonWord(reason: TicketReason, tr: Tr = EN()): string {
+  return tr(`reason.${reason}`);
+}
+
+export function supportHeadline(publicAnswers: number, tr: Tr = EN()): string {
+  return publicAnswers === 0 ? tr("headline.none") : tr("headline.some");
+}
+
+/** "Nobody waiting for you", "One waiting for you" … "12 waiting for you". */
+export function waitingTitle(waiting: number, tr: Tr = EN()): string {
+  return tr("waitingTitle", { count: waiting });
+}
+
+/**
+ * The server's two fixed notes on an unproven sender (SENDER_NOT_VERIFIED
+ * and GIVEN_IN_CHAT in lib/support/email-tickets, held equal by
+ * words.test.ts), worded in the reader's language; anything else as sent.
+ */
+export function senderNoteWord(note: string, tr: Tr = EN()): string {
+  if (note === "sender not verified") return tr("senderNote.notVerified");
+  if (note === "given in chat, not verified") return tr("senderNote.givenInChat");
+  return note;
 }
 
 /** The state line under a conversation in the list, and its tone. */
 export function conversationWord(
   status: ConversationStatus,
   ticket: { status: TicketStatus; reason: TicketReason } | null,
+  tr: Tr = EN(),
 ): { word: string; tone: "drift" | "ok" | "low" } {
-  if (ticket?.status === "open") return { word: "waiting for you", tone: "drift" };
-  if (ticket?.status === "answered") return { word: "handed to you · you answered", tone: "ok" };
-  if (ticket?.status === "closed") return { word: "handed to you · closed", tone: "low" };
-  if (status === "escalated") return { word: "handed to you", tone: "drift" };
-  if (status === "closed") return { word: "closed", tone: "low" };
-  return { word: "open", tone: "low" };
+  if (ticket?.status === "open") return { word: tr("conv.waiting"), tone: "drift" };
+  if (ticket?.status === "answered") return { word: tr("conv.answered"), tone: "ok" };
+  if (ticket?.status === "closed") return { word: tr("conv.handedClosed"), tone: "low" };
+  if (status === "escalated") return { word: tr("conv.handed"), tone: "drift" };
+  if (status === "closed") return { word: tr("conv.closed"), tone: "low" };
+  return { word: tr("conv.open"), tone: "low" };
 }
 
-/** "13:52" today, "Fri" this week, "12 Oct" before that. */
-export function whenShort(iso: string, now: Date = new Date()): string {
+/** "13:52" today, "Fri" this week, "12 Oct" before that — in the reader's language. */
+export function whenShort(iso: string, now: Date = new Date(), locale: AppLocale = "en"): string {
   const d = new Date(iso);
+  const tag = intlTag(locale);
   if (d.toDateString() === now.toDateString()) {
-    return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleTimeString(tag, { hour: "2-digit", minute: "2-digit" });
   }
   if (now.getTime() - d.getTime() < 6 * 86_400_000 && d.getTime() <= now.getTime()) {
-    return d.toLocaleDateString("en-GB", { weekday: "short" });
+    return d.toLocaleDateString(tag, { weekday: "short" });
   }
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  return d.toLocaleDateString(tag, { day: "numeric", month: "short" });
+}
+
+/** "02 Oct": a knowledge entry's publication day, in the reader's language. */
+export function dayWord(iso: string, locale: AppLocale = "en"): string {
+  return new Date(iso).toLocaleDateString(intlTag(locale), { day: "2-digit", month: "short" });
+}
+
+/** "17 Oct, 13:52": when a thread was last active, in the reader's language. */
+export function whenFull(iso: string, locale: AppLocale = "en"): string {
+  return new Date(iso).toLocaleString(intlTag(locale), {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/**
+ * "45 min", "3 h 20 min", "2 d 4 h" — figures with units, rounded down to
+ * the minute. English is lib/support/sla durationText exactly (words.test.ts).
+ */
+export function durationWords(ms: number, tr: Tr = EN(), locale: AppLocale = "en"): string {
+  const n = (v: number) => num(v, 0, locale);
+  const minutes = Math.floor(Math.max(0, ms) / 60_000);
+  if (minutes < 60) return tr("duration.min", { min: n(minutes) });
+  const hours = Math.floor(minutes / 60);
+  if (hours < 48) {
+    const rest = minutes % 60;
+    return rest === 0
+      ? tr("duration.h", { h: n(hours) })
+      : tr("duration.hMin", { h: n(hours), min: n(rest) });
+  }
+  const days = Math.floor(hours / 24);
+  const rest = hours % 24;
+  return rest === 0
+    ? tr("duration.d", { d: n(days) })
+    : tr("duration.dH", { d: n(days), h: n(rest) });
+}
+
+/**
+ * The worded flag and its figure, as the ticket list prints them. English
+ * is lib/support/sla slaWords exactly (words.test.ts).
+ */
+export function slaFlagWords(
+  state: SlaState,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+): { flag: string; detail: string } {
+  switch (state.flag) {
+    case "unset":
+      return { flag: tr("sla.unset"), detail: "" };
+    case "overdue":
+      return {
+        flag: tr("sla.overdue"),
+        detail: tr("sla.over", { duration: durationWords(state.over_ms ?? 0, tr, locale) }),
+      };
+    case "due_soon":
+      return {
+        flag: tr("sla.dueSoon"),
+        detail: tr("sla.left", { duration: durationWords(state.left_ms ?? 0, tr, locale) }),
+      };
+    case "in_time":
+      return {
+        flag: tr("sla.inTime"),
+        detail: tr("sla.left", { duration: durationWords(state.left_ms ?? 0, tr, locale) }),
+      };
+  }
 }
 
 export type ReplyStatus = "drafted" | "declined" | "approved" | "sending" | "sent" | "failed";
 
 /** A reply's send state in words (P4-10). "sending" means the outcome is unknown, never "in progress". */
-export function replyStateWord(status: ReplyStatus): {
+export function replyStateWord(
+  status: ReplyStatus,
+  tr: Tr = EN(),
+): {
   word: string;
   tone: "drift" | "ok" | "low" | "alarm";
 } {
   switch (status) {
     case "drafted":
-      return { word: "draft · not sent", tone: "drift" };
+      return { word: tr("replyState.drafted"), tone: "drift" };
     case "approved":
-      return { word: "approved · not sent", tone: "drift" };
+      return { word: tr("replyState.approved"), tone: "drift" };
     case "sending":
-      return { word: "unconfirmed · may have sent", tone: "alarm" };
+      return { word: tr("replyState.sending"), tone: "alarm" };
     case "sent":
-      return { word: "sent", tone: "ok" };
+      return { word: tr("replyState.sent"), tone: "ok" };
     case "failed":
-      return { word: "not sent", tone: "alarm" };
+      return { word: tr("replyState.failed"), tone: "alarm" };
     case "declined":
-      return { word: "declined", tone: "low" };
+      return { word: tr("replyState.declined"), tone: "low" };
   }
 }
 
@@ -115,29 +204,41 @@ export interface TicketLine {
 const SLA_TONE = { in_time: "ok", due_soon: "drift", overdue: "alarm", unset: "low" } as const;
 
 /** One row of the ticket list. Pure: the clock and the owner's reply time come in. */
-export function ticketLine(t: TicketForList, now: Date, replyHours: number | null): TicketLine {
+export function ticketLine(
+  t: TicketForList,
+  now: Date,
+  replyHours: number | null,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+): TicketLine {
   const base = {
-    channel: t.channel === "email" ? "Email" : "Chat",
-    who: t.from ?? (t.has_address ? "Customer" : "no address"),
+    channel: t.channel === "email" ? tr("channel.email") : tr("channel.chat"),
+    who: t.from ?? (t.has_address ? tr("who.customer") : tr("who.noAddress")),
     what: t.summary,
   };
   if (t.status !== "open") {
     return {
       ...base,
       waited: "",
-      flag: t.status === "answered" ? "Answered" : "Closed",
+      flag: t.status === "answered" ? tr("ticket.answeredFlag") : tr("ticket.closedFlag"),
       detail: "",
       tone: "low",
     };
   }
   if (t.waiting_since === null) {
-    return { ...base, waited: "", flag: "You replied", detail: "their turn", tone: "ok" };
+    return {
+      ...base,
+      waited: "",
+      flag: tr("ticket.youReplied"),
+      detail: tr("ticket.theirTurn"),
+      tone: "ok",
+    };
   }
   const state = slaState(t.waiting_since, now, replyHours);
-  const words = slaWords(state);
+  const words = slaFlagWords(state, tr, locale);
   return {
     ...base,
-    waited: durationText(state.waited_ms),
+    waited: durationWords(state.waited_ms, tr, locale),
     flag: words.flag,
     detail: words.detail,
     tone: SLA_TONE[state.flag],

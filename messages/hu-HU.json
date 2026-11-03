@@ -3081,5 +3081,1370 @@
       "assumed": "FELTÉTELEZETT",
       "atCost": "{amount} beszerzési áron"
     }
+  },
+  "chat": {
+    "meta": {
+      "title": "Kérdezzen bármit — SYB"
+    },
+    "kicker": "Kérdezzen bármit · Téma: {about}",
+    "yourBusiness": "az Ön vállalkozása",
+    "loading": "A beszélgetés megnyitása…",
+    "signedOut": {
+      "title": "Az Ön vállalkozásának adataiból válaszolok.",
+      "copy": "Ez a csatorna egyetlen profilra épül — az Önére. Kezdje el az interjút, és máris lesz miről beszélnünk.",
+      "begin": "Kezdés"
+    },
+    "error": {
+      "title": "A beszélgetés nem töltődött be.",
+      "copy": "Hiba történt a beszélgetés beolvasásakor. Frissítse az oldalt, és próbálja újra."
+    },
+    "titleEmpty": "Mire kíváncsi?",
+    "newQuestion": "Új kérdés",
+    "empty": "Kérdezzen bármit erről: {noun} — miért azt mondta a jelentés, amit mondott, mit mutatnak a számai, mit figyelnék én. Kérje, hogy <em>módosítsak</em> valamit — a nyitvatartását, egy célt, a válaszidejét —, és előkészítem, hogy Ön igent mondhasson rá, vagy elviszem arra az oldalra, ahol beállíthatja. Ha arra kér, hogy a valóságban <em>tegyek</em> valamit, abból javaslat lesz a várólistáján; puszta megfogalmazásra semmi sem fut le.",
+    "you": "Ön",
+    "thinking": "A profilja olvasása…",
+    "queued": {
+      "text": "Ez most már javaslat, és az Ön igenjére vár.",
+      "link": "Az „Önre vár” megnyitása →"
+    },
+    "sendFailed": "Valami hiba történt nálam — megismételné?",
+    "composer": {
+      "label": "Kérdés erről: {noun}",
+      "placeholder": "Írjon be egy kérdést…",
+      "ask": "Küldés",
+      "speak": "Diktálás: mondja el a kérdését",
+      "spokenAfter": "Olvassa át, javítson ki mindent, ami kell, majd nyomja meg a Küldés gombot.",
+      "rule": "Csak abból válaszolok, ami a profiljában és a jelentésében szerepel. A kért változtatást előbb előkészítem — semmi sem íródik be, amíg meg nem nyomja a hozzá tartozó gombot; az itt megadott korlátok érvényben maradnak."
+    },
+    "earlier": "Korábbi kérdések",
+    "change": {
+      "aria": "Egy általam előkészített változtatás",
+      "was": "Korábban",
+      "now": "Most",
+      "new": "Új",
+      "open": "Az oldal megnyitása",
+      "making": "A változtatás végrehajtása…",
+      "notChanged": "Nem változott",
+      "failed": "Ez nálam nem sikerült. Semmi sem változott.",
+      "unreachable": "Nem értem el a szervert. Semmi sem változott."
+    },
+    "flag": {
+      "applied": "Módosítva",
+      "queued": "A várólistán",
+      "stale": "Nem változott"
+    },
+    "cardKicker": {
+      "link_only": "Önnek kell módosítania · {screen}",
+      "applied": "Elvégezve · {screen}",
+      "queued": "A várólistán · {screen}",
+      "stale": "Nincs elvégezve · {screen}",
+      "proposal": "Előkészítve a várólistára · {screen}",
+      "prepared": "Előkészítve, még nincs elvégezve · {screen}"
+    }
+  },
+  "mode": {
+    "meta": {
+      "title": "Ahogyan dolgozom — SYB"
+    },
+    "kicker": "Az Ön vállalkozása · Ahogyan dolgozom",
+    "yourBusiness": "az Ön vállalkozása",
+    "loading": {
+      "title": "Ahogyan dolgozom.",
+      "copy": "A döntés beolvasása…"
+    },
+    "signedOut": {
+      "title": "Ehhez előbb bejelentkezés szükséges.",
+      "label": "Ahogyan dolgozom",
+      "sheetTitle": "Ez a képernyő az Ön profilját olvassa.",
+      "signIn": "Bejelentkezés"
+    },
+    "none": {
+      "title": "Még nincs döntés.",
+      "label": "Ahogyan dolgozom",
+      "sheetTitle": "Készen áll a döntésre.",
+      "copy": "Egyetlen rögzített szabály olvassa el a válaszait, és választ: azonnali cselekvés vagy előbb figyelés. Pontosan látni fogja, mi döntött.",
+      "decide": "Döntés most"
+    },
+    "deferred": {
+      "label": "Még nem",
+      "sheetTitle": "Nem fogok találgatni.",
+      "answer": "Válaszoljon az alapkérdésekre"
+    },
+    "current": "Érvényben",
+    "everyYes": "Minden javaslathoz továbbra is az Ön igenje kell",
+    "a": {
+      "label": "„A” mód",
+      "title": "Előbb figyelés",
+      "copyWatching": "Mielőtt bármit javasolnék, {days, plural, one {# napig} other {# napig}} figyelem, hogyan működik valójában {noun}. A gyors változtatások eladásokba kerülhetnek. Ön nélkül semmi sem változik.",
+      "day": "Nap: {day} / {of} · vége: {date}",
+      "firstRead": "Az első áttekintés a figyelés alatt is megérkezik.",
+      "openWatching": "A Figyelés megnyitása",
+      "extending": "Meghosszabbítás…",
+      "extend": "Meghosszabbítás {days, plural, one {# napra} other {# napra}}",
+      "copyIdle": "Négy–nyolc hétig figyelek, mielőtt bármit javasolnék, hogy egy változtatás ne kerüljön olyan eladásokba, amelyeket még nem mértem fel.",
+      "chosenWith": "Akkor választom, ha havonta legalább {sales} eladás van, vannak alkalmazottak, fizetett hirdetések vagy ügyféltámogatási folyamat, vagy a vállalkozás legalább {months} hónapja működik"
+    },
+    "b": {
+      "label": "„B” mód",
+      "title": "Azonnali cselekvés",
+      "started": "Elindítva: {date}",
+      "seeFirstRead": "Az első áttekintés megtekintése",
+      "copyIdle": "A javaslatok az első áttekintéstől indulnak. Csak akkor választom, ha semmi sem fut, amit egy változtatás elronthatna.",
+      "onlyUnder": "Csak ha havonta kevesebb mint {sales} eladás van, nincsenek alkalmazottak, fizetett hirdetések és ügyféltámogatási folyamat, és a vállalkozás kevesebb mint {months} hónapja működik"
+    },
+    "why": {
+      "labelWatching": "Miért javasoltam a figyelést",
+      "labelInstant": "Miért biztonságos most kezdeni",
+      "titleWatching": "Valódi ügyfelek vásárolnak",
+      "titleInstant": "Semmi sem fut, amit egy változtatás elronthatna",
+      "none": "Ehhez a döntéshez nincs rögzített indok."
+    },
+    "never": {
+      "label": "Mindkét módban",
+      "title": "Ami soha nem változik",
+      "one": "Semmi sem fut az Ön jóváhagyása nélkül. A megválaszolatlan javaslatok lejárnak — alapértelmezésként soha nem futnak le.",
+      "two": "Az <link>Önre vár</link> oldalon a „Minden leállítása” egyszerre megállít minden végrehajtást, bejelentkezés nélkül.",
+      "three": "Az Ön által megadott korlátok érvényesek: a korlátot sértő javaslatot visszatartom, és soha nem tárom Ön elé úgy, mintha rendben volna."
+    },
+    "headline": {
+      "watching": "Előbb figyelés, {days, plural, one {# napig} other {# napig}}.",
+      "instant": "Azonnali cselekvés."
+    },
+    "chosen": "Kiválasztva: {date}",
+    "chosenOverride": "{chosen} · {kind, select, extend {meghosszabbítva} other {lerövidítve}} {weeks, plural, one {# hétre} other {# hétre}} · {date}"
+  },
+  "content": {
+    "meta": {
+      "title": "Tartalom — SYB"
+    },
+    "kicker": "Növekedés · Tartalom",
+    "loading": "A tartalmak várólistájának beolvasása…",
+    "failed": "ez nem sikerült",
+    "signedOut": {
+      "eyebrow": "tartalom",
+      "title": "Kezdje az interjúval.",
+      "body": "A tartalmat a profilja alapján tervezem — csatornák, célok, ajánlatok. Tizenkét kérdés, és már lesz miből valódi tervet készíteni.",
+      "cta": "Kezdés"
+    },
+    "aside": "A tartalmi célok módosítása",
+    "headline": {
+      "nothing": "Még nincs megírva semmi.",
+      "nothingReady": "Még nincs megírva semmi. {count, plural, one {Egy jóváhagyott terv} other {# jóváhagyott terv}} megírásra kész.",
+      "scheduledPosted": "Ütemezve: {scheduled}. {posted, plural, =0 {Egy sincs} one {Egy} other {#}} közzétéve.",
+      "drafts": "{count, plural, one {# piszkozat} other {# piszkozat}}.",
+      "needsYes": "{first} {count, plural, one {Egy} other {#}} az Ön igenjére vár.",
+      "moreToDraft": "{first} Még {count, plural, one {egy jóváhagyott terv} other {# jóváhagyott terv}} vár megírásra.",
+      "noneCanPost": "{first} Egyik sem tehető még közzé.",
+      "nextDue": "{first} A következő esedékessége: {date}."
+    },
+    "state": {
+      "inQueue": "a várólistán",
+      "drafted": "megírva",
+      "scheduled": "ütemezve",
+      "scheduledOn": "ütemezve: {day}",
+      "unconfirmed": "nincs megerősítve",
+      "publishing": "közzététel alatt",
+      "posted": "közzétéve",
+      "postedOn": "közzétéve: {day}",
+      "failed": "sikertelen",
+      "withdrawn": "visszavonva"
+    },
+    "platform": {
+      "unknown": "a platform"
+    },
+    "publish": {
+      "approvedOn": "Jóváhagyva. A közzétételi időpontjában megy ki, az ütemező útján; a vészleállító megállítja.",
+      "approvedOff": "Jóváhagyva, és arra vár, hogy a közzétételt bekapcsolják. Addig semmi sem megy a Meta felé.",
+      "goingOut": "Most megy ki ide: {platform}.",
+      "live": "Élő itt: {platform}.",
+      "withdrawn": "Visszavonva: törölve innen: {platform}. A nyilvántartásban itt marad.",
+      "propose": "Javaslat közzétételre",
+      "proposed": "A közzétételi javaslata a várólistáján van.",
+      "notProposed": "Nincs javasolva: {reason}.",
+      "notQualify": "még nem felel meg a feltételeknek"
+    },
+    "verdict": {
+      "helped": "segített",
+      "did_nothing": "nem hatott",
+      "backfired": "visszaütött",
+      "too_early": "túl korai",
+      "unmeasured": "nincs mérve"
+    },
+    "perf": {
+      "measured": "Mérve",
+      "day": "nap: {day}",
+      "reach": "elérés: {n}",
+      "views": "megtekintés: {n}",
+      "interactions": "interakció: {n}"
+    },
+    "ad": {
+      "word": {
+        "live": "hirdetés élő",
+        "paused": "hirdetés szüneteltetve",
+        "inProgress": "hirdetés folyamatban",
+        "unconfirmed": "hirdetés nincs megerősítve",
+        "failed": "hirdetés sikertelen",
+        "heldBack": "hirdetés visszatartva",
+        "approved": "hirdetés jóváhagyva",
+        "proposed": "hirdetés javasolva"
+      },
+      "text": {
+        "live": "A hirdetés a jóváhagyott napokon élő a Metán, aztán magától leáll. A vészleállító megállít mindent, amit a SYB még küld.",
+        "pausedBlocked": "A hirdetés a Metán van, szüneteltetve. Az élesítést egy Ön által megadott korlát tartja vissza.",
+        "pausedPending": "A hirdetés a Metán van, szüneteltetve. Az élesítéshez külön igen kell, amely a várólistán vár.",
+        "goLiveApprovedOn": "Élesítésre jóváhagyva: a hirdetés, a hirdetéssorozata és a kampánya a következő futáskor bekapcsol.",
+        "goLiveApprovedOff": "Élesítésre jóváhagyva, és arra vár, hogy a Meta-hirdetések módosítását bekapcsolják. Addig semmi sem költ pénzt.",
+        "paused": "A hirdetés a Metán van, szüneteltetve, és nem költ semmit. Az élesítés külön jóváhagyás.",
+        "building": "Létrehozás alatt a Metán, szüneteltetve. Onnan folytatódik, ahol abbamaradt — semmi sem jön létre kétszer.",
+        "buildStopped": "A hirdetés létrehozása leállt. Nézze meg a Hirdetéskezelőt; minden, amit a SYB létrehozott, szüneteltetve van.",
+        "heldBack": "Hirdetésként javasolva, de egy Ön által megadott korlát visszatartja.",
+        "approvedOn": "Jóváhagyva: a hirdetés a következő futáskor jön létre a Metán, szüneteltetve.",
+        "approvedOff": "Jóváhagyva, és arra vár, hogy a Meta-hirdetések módosítását bekapcsolják. Addig semmi sem megy ki.",
+        "proposed": "Hirdetésként javasolva — az Ön igenjére vár a várólistán.",
+        "offer": "Futtassa hirdetésként: egyetlen javaslat a költségkerettel, a célközönséggel és a várható tartománnyal. Szüneteltetve jön létre; az élesítés külön jóváhagyás; a létrehozott objektumok nem törölhetők, csak szüneteltethetők."
+      },
+      "run": "Futtatás hirdetésként",
+      "runDone": "Hirdetésként javasolva, a várólistán. A hirdetés szüneteltetve jön létre; az élesítés külön jóváhagyás.",
+      "goLive": "Az élesítés javaslata",
+      "goLiveDone": "Az élesítés javasolva, a várólistán. Semmi sem költ pénzt, amíg meg nem adja a jóváhagyását.",
+      "decide": "Döntés a hirdetésről a várólistán"
+    },
+    "origin": {
+      "footage": "az Ön felvétele",
+      "generatedImage": "MI által generált kép",
+      "generatedVideo": "MI által generált videó"
+    },
+    "kind": {
+      "post": "bejegyzés",
+      "email": "e-mail",
+      "shot_list": "ezt vegye fel",
+      "video": "videó"
+    },
+    "strips": {
+      "label": "Az egyes csatornák sora",
+      "undated": "dátum nélkül",
+      "bar": "{planned} közül {posted} közzétéve",
+      "behind": "{count, plural, one {Lemaradás · # lejárt dátumú} other {Lemaradás · # lejárt dátumú}}",
+      "done": "Mind közzétéve",
+      "next": "Következő: {day}",
+      "onPace": "Ütemben"
+    },
+    "strip": {
+      "post": "{count, plural, one {# bejegyzés} other {# bejegyzés}}",
+      "email": "{count, plural, one {# e-mail} other {# e-mail}}",
+      "shot_list": "{count, plural, one {# felvételi lista} other {# felvételi lista}}",
+      "video": "{count, plural, one {# videó} other {# videó}}",
+      "piece": "{count, plural, one {# elem} other {# elem}}"
+    },
+    "queue": {
+      "label": "Várólista",
+      "titleOn": "Megírva, ütemezve, közzétéve",
+      "titleOff": "Megírva és ütemezve — a közzététel ki van kapcsolva",
+      "emptyWatching": "A várólista üres. A javaslatok a figyelés végével indulnak, ekkor: {day}.",
+      "empty": "A várólista üres. Javasoljon lent egy naptárt — miután jóváhagyta a várólistán, itt megírom."
+    },
+    "col": {
+      "draft": "Piszkozat",
+      "channel": "Csatorna",
+      "goal": "Szolgált cél",
+      "state": "Állapot",
+      "date": "Dátum"
+    },
+    "anytime": "bármikor",
+    "detail": {
+      "aria": "Piszkozat: {id}",
+      "media": "Média · {what}",
+      "email": "E-mail",
+      "caption": "Képaláírás",
+      "writtenFrom": "Forrásai",
+      "serves": "Szolgált cél: {goal}",
+      "disclosure": "Jelölés: {text}",
+      "notPublishing": "Nem kerül közzétételre: {why}.",
+      "superseded": "Az Ön saját felvétele váltotta fel ezt a generált változatot, ezért nem kerül közzétételre.",
+      "platformId": "Azonosító ({platform}): {id}",
+      "posted": "közzétéve: {day}"
+    },
+    "evidence": {
+      "channel": "Csatorna: {channel} · a profiljából",
+      "goal": "Cél: {goal}",
+      "goalUnknown": "egy Ön által kitűzött cél"
+    },
+    "withdraw": {
+      "confirm": "Visszavonja? Ez törli a bejegyzést innen: {platform}. A nyilvántartásban itt marad; a bejegyzés nem állítható vissza.",
+      "openOn": "Megnyitás itt: {platform}",
+      "yes": "Igen, visszavonom",
+      "keep": "Maradjon",
+      "button": "Visszavonás",
+      "done": "Visszavonva innen: {platform}."
+    },
+    "action": {
+      "decide": "Döntés a várólistán",
+      "reconnect": "Újbóli összekapcsolás",
+      "connections": "Összekapcsolt fiókok"
+    },
+    "fine": {
+      "on": "Erről a képernyőről semmi sem kerül közzétételre. Egy elem csak a saját igenje után megy ki a várólistáról, a maga idejében, az ütemező útján; a vészleállító megállítja, a Visszavonás pedig újra törli.",
+      "off": "A közzététel ki van kapcsolva, amíg le nem zárul a kéthetes, felügyelet nélküli teszt. A jóváhagyott bejegyzések itt várnak, ütemezve; amíg be nem kapcsolják, semmi sem megy a Meta felé."
+    },
+    "goals": {
+      "label": "Célok",
+      "title": "Mit szolgál a tartalom",
+      "empty": "Még nincsenek célok. Adjon meg egyet, vagy válasszon egy ötletet — minden tervezett elem megnevezi, melyik célt szolgálja.",
+      "horizon": "{months, plural, one {# hónap} other {# hónap}}",
+      "target": "célérték: {value}",
+      "inputLabel": "Egy cél, saját szavaival",
+      "placeholder": "a dátumhoz kötött és mérhető többet ér a nagyszabásúnál",
+      "add": "Cél hozzáadása"
+    },
+    "propose": {
+      "label": "Javaslat",
+      "title": "Semmi sem készül el az Ön jóváhagyása nélkül",
+      "body": "Mindkettő javaslatot hoz létre a <link>jóváhagyási várólistán</link>. Egyetlen szó sem készül el, mielőtt ott igent mond.",
+      "watching": "Még nem: a vállalkozást figyelem, a figyelés vége: {day}, és addig nem javaslok semmit. A fenti céljai akkor is meghatározzák, mit fogok javasolni.",
+      "calendar": "Tartalomnaptár javaslata",
+      "calendarDone": "A naptár a jóváhagyási várólistáján van.",
+      "shotlist": "Felvételi lista javaslata",
+      "shotlistDone": "A felvételi lista a jóváhagyási várólistáján van.",
+      "ready": "Jóváhagyva — megírásra kész",
+      "draft": "Megírás",
+      "drafted": "Megírva. Minden elem tartalmazza a jelölését és a forrásait."
+    },
+    "mediaPanel": {
+      "uploadFailed": "a feltöltés nem sikerült",
+      "megabytes": "{n} MB",
+      "uploading": "Feltöltés: {index} / {total} — {name}",
+      "uploaded": "{count, plural, one {Klip feltöltve.} other {# klip feltöltve.}}",
+      "footage": "Felvételek",
+      "remove": "Eltávolítás",
+      "removed": "Klip eltávolítva.",
+      "render": {
+        "queued": "sorban áll",
+        "rendering": "vágás alatt",
+        "rendered": "elkészült",
+        "failed": "sikertelen",
+        "live": "A vágószoba dolgozik rajta. Ez egy-két percig tart.",
+        "open": "A videó megnyitása"
+      },
+      "uploadsOff": "Ezen a szerveren nincs beállítva a feltöltés, ezért ide még nem kerülhetnek felvételek.",
+      "upload": {
+        "more": "További klipek hozzáadása",
+        "first": "Töltse fel, amit felvett",
+        "label": "{action} — {mp4} vagy {mov}, egyenként legfeljebb {mb} MB, {count, plural, one {legfeljebb # klip} other {legfeljebb # klip}}"
+      },
+      "cut": {
+        "done": "Vágás folyamatban. A videó a várólistán jelenik meg, ha elkészült.",
+        "caption": "Képaláírás — amit a bejegyzés a videó alá ír",
+        "onScreen": "Képernyőn megjelenő sor (nem kötelező, a videóba égetve)",
+        "date": "Közzététel napja",
+        "button": "Vágás",
+        "fine": "Az Ön saját klipjeiből vágva, {ratio} képarányra keretezve és feliratozva; csak licencelt zenével. Jelölése: „Valódi felvétel MI-támogatott vágása”. Utána közzétételre ajánlom, saját igennel a várólistán."
+      },
+      "fallback": {
+        "label": "Nincs felvétel? Az MI-s tartalék",
+        "pending": "Ennek a médiának a generálása az Ön döntésére vár.",
+        "generate": "Generálás",
+        "generated": "Generálva.",
+        "approved": "Jóváhagyva. A generálás a megadott költséggel jár.",
+        "notOffered": "Nem ajánlom fel: {reason}.",
+        "offer": "A SYB javasolhatja, hogy ennek az elemnek a saját szavaiból képet{image, select, none {} other { (kb. {image})}} vagy {seconds} másodperces klipet{video, select, none {} other { (kb. {video})}} generáljon. A fájlban és a képaláírásban MI által generáltként jelöljük, soha nem mutat valódi személyt vagy márkát, és kétszer kell rá igent mondania: a generáláshoz, majd a közzétételhez. A saját felvétele bármikor felváltja, amint felveszi.",
+        "dirLabel": "Mit mutasson (nem kötelező)",
+        "dirPlaceholder": "egy tál sütőtökkrémleves, felülnézetből",
+        "proposed": "Javasolva. A jóváhagyási várólistáján van, a költségével együtt.",
+        "propose": "{media, select, image {Kép javaslata} other {Klip javaslata}}",
+        "lastTry": "Az utolsó próbálkozás: {error}{cost, select, none {} other { ({cost} felszámítva)}}."
+      },
+      "refused": "elutasítva"
+    }
+  },
+  "customers": {
+    "meta": {
+      "title": "Ügyfelek — SYB"
+    },
+    "kicker": "Ügyfelek",
+    "opening": "Az ügyfelek megnyitása…",
+    "signedOut": {
+      "eyebrow": "ügyfelek",
+      "title": "Kezdje az interjúval.",
+      "begin": "Kezdés"
+    },
+    "aside": "Az Ön által importált listából · semmi sem megy ki az e-mail jóváhagyása nélkül",
+    "failed": "ez nem sikerült",
+    "headline": {
+      "none": "Még nincsenek importált ügyfelek.",
+      "count": "{total, plural, one {# ügyfél.} other {# ügyfél.}}",
+      "quietNone": "Egyikük sem csendesedett el.",
+      "quietAll": "Mindegyikük elcsendesedett.",
+      "quiet": "{lapsed, plural, one {# elcsendesedett.} other {# elcsendesedett.}}"
+    },
+    "lifecycle": {
+      "active": "aktív",
+      "new": "új",
+      "lapsing": "ritkuló",
+      "lapsed": "elcsendesedett",
+      "unknown": "nincs előzmény"
+    },
+    "noEmail": "nincs e-mail",
+    "consent": {
+      "explicit_consent": "kifejezett hozzájárulás",
+      "implied_consent": "vélelmezett hozzájárulás — nem kifejezett",
+      "no_consent": "nincs hozzájárulás",
+      "unsure": "bizonytalan — nem kifejezett"
+    },
+    "posture": {
+      "enabled": "Ön azt mondta, hogy az ügyfelek kifejezetten hozzájárultak — a kimenő e-mail lehetséges, kapcsolattartónként.",
+      "caution": "A hozzájárulásra adott válasza vélelmezett vagy bizonytalan — csak a kifejezett hozzájárulással rendelkező kapcsolattartóknak lehet e-mailt küldeni.",
+      "disabled": "Ön azt mondta, hogy az ügyfelektől nincs hozzájárulás — a kimenő e-mail ki van kapcsolva.",
+      "unknown": "Még nem válaszolt a hozzájárulásra vonatkozó kérdésre ({question}) — óvatosan kezelem."
+    },
+    "import": {
+      "imported": "Importálva: {count}.",
+      "skipped": "Kihagyva: {list}.",
+      "sep": ", ",
+      "skip": {
+        "suppressed": "{count} a leiratkozási listán",
+        "already_exists": "{count} már itt van",
+        "duplicate_in_batch": "{count} ismétlődik a fájlban",
+        "invalid": "{count} olvashatatlan sor"
+      },
+      "purchase": "Vásárlási előzmények beolvasva, {columns, plural, one {# oszlopból} other {# oszlopból}}.",
+      "purchaseUnreadable": "Vásárlási előzmények beolvasva, {columns, plural, one {# oszlopból} other {# oszlopból}}; {unreadable, plural, one {# érték olvashatatlan volt, és üresen maradt} other {# érték olvashatatlan volt, és üresen maradt}}.",
+      "refreshed": "Frissítettem {count, plural, one {# már itt lévő ügyfél} other {# már itt lévő ügyfél}} vásárlási előzményeit; a hozzájárulásuk a rögzítettek szerint marad.",
+      "country": "{count, plural, one {# országot nem ismertem fel; ismeretlenként maradt.} other {# országot nem ismertem fel; ismeretlenként maradtak.}}",
+      "label": "Importálás",
+      "title": "Az Ön nyilatkozata alapján",
+      "prose": "Illesszen be egy CSV-t a pénztárgépéből, foglalási rendszeréből, webáruházából vagy táblázatából. Az értelmezett oszlopok: email, name, phone, country (hogy minden ügyfélre a saját e-mail-szabályai vonatkozzanak), valamint — az életciklushoz — last order date, order count, total spent. Ön adja meg, mihez és hogyan járultak hozzá ezek a kapcsolattartók; ez a nyilatkozat minden sorra rákerül.",
+      "csv": "A CSV",
+      "status": "Mihez járultak hozzá",
+      "option": {
+        "explicit_consent": "Kifejezetten hozzájárultak a marketing e-mailekhez",
+        "implied_consent": "A hozzájárulás vélelmezett (ügyfelek, nincs kifejezett feliratkozás)",
+        "unsure": "Bizonytalan",
+        "no_consent": "Nincs hozzájárulás"
+      },
+      "statement": "Hogyan szerezte meg, saját szavaival",
+      "statementPlaceholder": "pl. jelölőnégyzet a feliratkozási űrlapon {year} óta",
+      "currency": "A költés oszlop pénzneme",
+      "submit": "Importálás az én nyilatkozatom alapján"
+    },
+    "list": {
+      "label": "Ügyfelek",
+      "find": "Ügyfél keresése",
+      "search": "név vagy e-mail",
+      "filters": "Szűrés minta szerint",
+      "all": "Mind · {count}",
+      "empty": "Még nincsenek ügyfelek. Importálja lent az ügyféllistáját — a saját nyilatkozatával arról, mihez járultak hozzá.",
+      "noMatch": "Senki sem felel meg ennek.",
+      "customer": "Ügyfél",
+      "purchases": "Vásárlások",
+      "spent": "Költés",
+      "lastPurchase": "Utolsó vásárlás",
+      "pattern": "Minta",
+      "open": "Megnyitás",
+      "openWho": "Megnyitás: {name}",
+      "showing": "{total} közül {shown} látható · az e-mail-címek a képernyőn részben rejtve vannak",
+      "showingFiltered": "{total} közül {shown} látható (összesen {all}) · az e-mail-címek a képernyőn részben rejtve vannak",
+      "more": "További {count} megjelenítése"
+    },
+    "record": {
+      "label": "Ügyféladatlap",
+      "noName": "Nincs rögzített név",
+      "countryUnknown": "ismeretlen ország",
+      "purchases": "Vásárlások",
+      "spent": "Költés",
+      "last": "Utolsó",
+      "onRecord": "Nyilvántartva",
+      "consent": "Hozzájárulás: {consent} · ahogy importáláskor nyilatkozott",
+      "pattern": "Minta: {pattern}",
+      "segment": "Szegmens: {segment} · létszám: {size}",
+      "note": "A vásárlásonkénti előzmények nem kerülnek importálásra — ezek az exportjából származó összesítések."
+    },
+    "erase": {
+      "title": "Az ügyfél törlése",
+      "copy": "Törlési kérelemhez. Végleg eltávolítja a SYB-ből a nevét, az e-mail-címét, az adatait és az ügyféltámogatási beszélgetéseit. A címe hash-ként a leiratkozási listán marad, így soha többé nem kap e-mailt; a naplóban csak névtelen azonosítók maradnak.",
+      "irreversible": "visszafordíthatatlan",
+      "cannotUndo": "Ez nem vonható vissza.",
+      "done": "Törölve. A letiltási hash megmarad.",
+      "confirm": "Végleges törlés",
+      "keep": "Maradjon",
+      "button": "{name} törlése…",
+      "buttonUnnamed": "Az ügyfél törlése…"
+    },
+    "segments": {
+      "label": "Szegmensek",
+      "title": "Számítás, levezetéssel",
+      "segment": "Szegmens",
+      "inIt": "Létszám",
+      "emailable": "Kaphat e-mailt",
+      "working": "Levezetés",
+      "hide": "Elrejtés",
+      "why": "Miért",
+      "propose": "Visszacsábító és köszönő e-mail javaslata",
+      "proposed": "{count, plural, one {# javaslat a jóváhagyási várólistán.} other {# javaslat a jóváhagyási várólistán.}} A jóváhagyással még semmi sem megy ki — a küldés saját hozzájárulás-ellenőrzéssel történik.",
+      "nothing": "Nincs mit javasolni.",
+      "queue": "A várólista megnyitása"
+    },
+    "campaigns": {
+      "label": "Jóváhagyott kampányok",
+      "title": "Csak azután megy ki, hogy magának az e-mailnek a jóváhagyását megadta"
+    },
+    "fine": "Az ügyfelenkénti előzmények a saját ügyfélexportjából származnak, nem az összekapcsolt fiókjaiból, amelyek a vállalkozást egészében mérik. Az ügyfél törlése GDPR szerinti törlés: az adatai eltűnnek, a nyilvántartásban csak névtelen azonosítók maradnak.",
+    "campaign": {
+      "fallbackLabel": "kampány",
+      "drafted": "Az Ön hangján megírva, az MI-jelöléssel és a lábléccel. Olvassa el lent — semmi sem ment ki.",
+      "alreadyDrafted": "Ennek a kampánynak már megvan a piszkozata.",
+      "done": "Kész.",
+      "draft": "Az e-mail megírása",
+      "needs": "Mielőtt kimehet, még szükség van erre: {gaps}.",
+      "complete": "Az Ön helyére nézve teljes. Küldéskor hozzáadva: {items}, miután minden címzettnél újra ellenőriztem a hozzájárulást.",
+      "irreversible": "visszafordíthatatlan",
+      "irreversibleNote": "Ha egyszer kiment, az elküldött e-mail nem hívható vissza. Csak azokhoz az ügyfelekhez megy, akik kifejezetten beleegyeztek, hogy hírt kapjanak Öntől, mindegyiküket újra ellenőrizve a küldés pillanatában, és minden e-mailben ott van a saját leiratkozási link.",
+      "mislabelled": "Ezt a kampányt visszavonhatóként hagyták jóvá. Utasítsa el a várólistán, és javasolja újra, hogy őszinte címkét kapjon, mielőtt jóváhagyja.",
+      "subject": "Tárgysor",
+      "approveSend": "Jóváhagyás és küldés legfeljebb ennyi címzettnek: {count}",
+      "notYet": "Még nem",
+      "approve": "Az e-mail jóváhagyása…",
+      "alsoWaiting": "Erre is vár",
+      "tryNow": "Küldés megkísérlése most",
+      "refusedAtSend": "Küldéskor elutasítva: {list}.",
+      "phase": {
+        "sent": "elküldve",
+        "sending": "küldés alatt",
+        "held": "visszatartva",
+        "awaiting_approval": "az Ön jóváhagyására vár",
+        "awaiting_draft": "nincs megírva"
+      },
+      "sentence": {
+        "awaiting_draft": "Jóváhagyva. Következő lépés az e-mail megírása; semmi sem megy ki magának az e-mailnek a jóváhagyása nélkül.",
+        "awaiting_approval": "Megírva {count, plural, one {# ügyfélnek} other {# ügyfélnek}}. Olvassa el, majd a küldéshez adja meg magának az e-mailnek a jóváhagyását.",
+        "heldGate": "Jóváhagyva, nincs elküldve. {gate}",
+        "held": "Jóváhagyva, még nincs elküldve. A következő futáskor megy ki.",
+        "sending": "Küldés: eddig {total} közül {sent} ment ki. A többi a következő futáskor megy ki, mindegyik újraellenőrzéssel.",
+        "sent": "Elküldve {count, plural, one {# ügyfélnek} other {# ügyfélnek}}. Az elküldött e-mail nem hívható vissza.",
+        "sentOn": "Elküldve {count, plural, one {# ügyfélnek} other {# ügyfélnek}}, ekkor: {date}. Az elküldött e-mail nem hívható vissza."
+      },
+      "count": {
+        "sent": "elküldve",
+        "refused": "küldéskor elutasítva",
+        "unknown": "ismeretlen eredmény",
+        "failed": "az e-mail-szolgáltatás elutasította",
+        "pending": "még küldendő",
+        "unsubscribed": "azóta leiratkozott"
+      },
+      "refusal": {
+        "consent_implied": "a hozzájárulás csak vélelmezett",
+        "consent_unsure": "a hozzájárulás bizonytalan",
+        "consent_none": "nincs hozzájárulás",
+        "suppressed": "leiratkozott, spamnek jelölte, vagy törölték",
+        "consent_unproven": "a hozzájárulás nincs rögzítve azzal, hogyan és mikor adták",
+        "no_regime": "olyan országban van, amelyre nincsenek e-mail-szabályaim",
+        "message_incomplete": "az e-mailből hiányzott valami, amit az ottani jog megkövetel",
+        "no_email": "nincs e-mail-cím",
+        "contact_gone": "már nem szerepel az ügyfelei között",
+        "duplicate_address": "ugyanaz a cím, mint egy másik címzetté"
+      },
+      "unknown": "{count, plural, one {# e-mail kimehetett: az e-mail-szolgáltatás egyik irányban sem erősítette meg. Ebben a kampányban ennek az ügyfélnek nem küldök újra.} other {# e-mail kimehetett: az e-mail-szolgáltatás egyik irányban sem erősítette meg. Ebben a kampányban ezeknek az ügyfeleknek nem küldök újra.}}",
+      "verdict": {
+        "helped": "segített",
+        "backfired": "visszaütött",
+        "did_nothing": "nem hatott",
+        "too_early": "még korai megmondani",
+        "unmeasured": "nincs mérve"
+      },
+      "readback": {
+        "label": "Mi történt a kiküldés után",
+        "count": "darab",
+        "rate": "arány",
+        "emails": "{count, plural, one {# e-mail} other {# e-mail}}",
+        "people": "{count, plural, one {# fő} other {# fő}}",
+        "notReported": "nincs jelentve",
+        "notCounted": "nincs számolva",
+        "measuredOf": "{measured} mért közül {returned}",
+        "points": "{value} százalékpont",
+        "row": {
+          "sent": "elküldve",
+          "delivered": "kézbesítve",
+          "bounced": "visszapattant",
+          "unsubscribed": "leiratkozott",
+          "spam": "spamnek jelölte",
+          "replied": "válaszolt",
+          "boughtAgain": "azóta újra vásárolt",
+          "comparison": "{group, select, vip {e-mailt nem kapott legjobb ügyfelek, újra vásároltak} other {e-mailt nem kapott elcsendesedett ügyfelek, újra vásároltak}}",
+          "difference": "különbség"
+        }
+      }
+    }
+  },
+  "studio": {
+    "meta": {
+      "title": "Kreatív stúdió — SYB"
+    },
+    "kicker": "Növekedés · Kreatív stúdió",
+    "aside": "Meta Hirdetéstár · csak olvasás · MEGFIGYELT",
+    "loading": "A piaci rés és a kreatív tervek beolvasása…",
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "copy": "<intake>Kezdje az interjúval</intake>; a stúdió abból dolgozik, amit elmond nekem."
+    },
+    "error": {
+      "generic": "Ez nem sikerült. Próbálja újra.",
+      "title": "A stúdió nem töltődött be.",
+      "copy": "Valami hiba történt nálunk. Frissítse az oldalt, és próbálja újra."
+    },
+    "headline": {
+      "notSetUp": "A piaci rés kutatása még nincs beállítva.",
+      "blocked": "A Meta Hirdetéstár nem tudja megmutatni a piaci rése hirdetéseit.",
+      "briefsNotRead": "{count, plural, =1 {Egy kreatív terv} one {# kreatív terv} other {# kreatív terv}} elkészült; a piaci rése hirdetéseit még nem olvastam be.",
+      "notRead": "Még nem olvastam be a hirdetéseket a piaci résében ({noun}).",
+      "notReadBusiness": "Még nem olvastam be a vállalkozása piaci résének hirdetéseit.",
+      "longest": "{format, select, video {Videó} other {Hirdetés}}, hirdető: {page} — {days, plural, one {# napja fut} other {# napja fut}}; ez a leghosszabb ideje futó koncepció, amit találtam."
+    },
+    "running": {
+      "days": "{count, plural, one {# nap} other {# nap}}",
+      "live": "FUT",
+      "stopped": "LEÁLLT"
+    },
+    "format": {
+      "video": "VIDEÓ",
+      "image": "KÉP",
+      "multi": "KÁRTYÁK / VÁLTOZATOK"
+    },
+    "source": {
+      "fact": "SAJÁT TÉNY",
+      "finding": "DIAGNÓZIS",
+      "voice": "SAJÁT SZAVAI",
+      "post": "SAJÁT BEJEGYZÉS",
+      "competitor": "VERSENYTÁRS",
+      "ad": "PIACI HIRDETÉS"
+    },
+    "notice": {
+      "readNow": "Épp most olvastam be a Hirdetéstárat.",
+      "stillFresh": "Ez a beolvasás még friss, ezért azt használtam, ahelyett hogy újra a Metához fordultam volna.",
+      "written": "A kreatív terv elkészült. Minden része megmutatja, mire épül.",
+      "blocked": "Ez a felvételi lista átlépte az egyik korlátját, ezért a visszatartottak nézetében van.",
+      "proposed": "Javasolva. Itt találja: <queue>Önre vár</queue>."
+    },
+    "niche": {
+      "label": "A piaci rés leghosszabb ideje futó hirdetései",
+      "nothingYet": "Még nincs mit beolvasni",
+      "notSetUpNote": "A Meta csak olyan fejlesztői fiók számára nyitja meg a Hirdetéstár API-ját, amelynek a személyazonosságát megerősítette. Amint a SYB tokenje be van állítva, ez beolvassa a piaci rése hirdetéseit, csak olvasással.",
+      "blockedNote": "{why} A látható adatok a legutóbbi beolvasásból származnak.",
+      "termsLabel": "Szavak, amelyeket a piaci rése hirdetései használnának, vesszővel elválasztva (legfeljebb kettő)",
+      "termsPlaceholder": "pl. kézműves bögre, fazekastanfolyam",
+      "reading": "Beolvasás…",
+      "readAgain": "Újbóli beolvasás →",
+      "readLibrary": "A Hirdetéstár beolvasása →",
+      "searches": "A Hirdetéstár magukban a hirdetésekben keres a szavakra, azok saját nyelvén. A megadott versenytársait is keresem.",
+      "searchesNamed": "A Hirdetéstár magukban a hirdetésekben keres a szavakra, azok saját nyelvén. A megadott versenytársait is keresem ({names}).",
+      "freshFrom": "Új beolvasás ettől lehetséges: {when}.",
+      "noAdsTitle": "A Hirdetéstárban nem volt hirdetés ezekre a szavakra",
+      "notReadTitle": "Még nincs beolvasva",
+      "noAds": "Beolvastam a Meta Hirdetéstárat ({day}) ezekre: {terms}, de semmit sem találtam, ami elérte volna ezt az országot: {country}. Próbáljon más szavakat.",
+      "yourCompetitors": "az Ön versenytársai",
+      "yourCountry": "az Ön országa",
+      "notReadCopy": "Beolvasom, hogy az Önéhez hasonló vállalkozások mely hirdetéseket futtatják a leghosszabb ideje, amennyire a Meta nyilvános Hirdetéstára megmutatja őket.",
+      "lastTry": "Utolsó próbálkozás, {day}: {reason}.",
+      "foundTitle": "{count, plural, one {# hirdetési koncepció} other {# hirdetési koncepció}}, {businesses, plural, one {# vállalkozástól} other {# vállalkozástól}}, beolvasva: {day}",
+      "ranked": "A kitartás szerint rangsorolva · helyettesítő mérőszám, NEM EREDMÉNY",
+      "searched": "Keresés erre: {terms}, az ide eljutott hirdetések: {country}; {ads, plural, one {# hirdetés} other {# hirdetés}} beolvasva, {requests, plural, one {# kérésben} other {# kérésben}}. MEGFIGYELT, a Meta nyilvános Hirdetéstárából; a nyitómondatokat, ajánlatokat és cselekvésre ösztönzéseket egyszerű minták választják ki, és üresek, ha egyik sem illett.",
+      "quotedTerm": "„{term}”",
+      "competitorsOnly": "csak az Ön versenytársai"
+    },
+    "table": {
+      "business": "Vállalkozás",
+      "format": "Formátum",
+      "running": "Futásidő",
+      "versions": "Változatok",
+      "opens": "Hogyan indít",
+      "offer": "Ajánlat · cselekvésre ösztönzés",
+      "youListed": "Ön adta meg",
+      "inLibrary": "A Hirdetéstárban →",
+      "noText": "nincs szöveg",
+      "noOffer": "nem találtam ajánlatot",
+      "noCta": "nem találtam cselekvésre ösztönzést"
+    },
+    "brief": {
+      "label": "Kreatív terv",
+      "another": "Újabb megírása",
+      "first": "Az első kreatív terv megírása",
+      "meta": "A Sonnet írja · minden része megnevezi a forrását",
+      "earlier": "Korábbi kreatív tervek:",
+      "campaignLabel": "A kampány, saját szavaival",
+      "campaignPlaceholder": "pl. Őszi bögrék ajándékba",
+      "goalLabel": "Vagy a cél, amelyet szolgál",
+      "noGoal": "Nincs konkrét cél",
+      "writing": "Írás…",
+      "write": "Kreatív terv írása →",
+      "allowance": "Ebben a hónapban {perMonth} tervírási hívásból {left} maradt; egy kreatív terv legfeljebb ennyit használ: {attempts}. Csak abból írok, amit hivatkozva lát, és elutasítok minden sort, amely egy másik vállalkozás hirdetéséből öt egymást követő szót ismételne.",
+      "cardLabel": "Kreatív terv · {day}",
+      "attempts": "{count, plural, one {# próbálkozás} other {# próbálkozás}}",
+      "sources": "Minden, amiből ez a kreatív terv készült ({count, plural, one {# forrás} other {# forrás}})",
+      "who": "Kinek szól",
+      "offer": "Az ajánlat",
+      "script": "Forgatókönyv · kb. {seconds} mp",
+      "why": "Miért: {why}",
+      "proposing": "Javaslattétel…",
+      "make": "Elkészítés →",
+      "watching": "A figyelés még tart, vége: {day}; addig semmit sem javaslok.",
+      "makeNote": "Ezt a felvételi listát az Önre vár részbe teszi. Jóváhagyás után „ezt vegye fel” elem lesz belőle; a felvételei a vágószobába kerülnek."
+    }
+  },
+  "site": {
+    "meta": {
+      "title": "Az Ön weboldala — SYB"
+    },
+    "kicker": "Növekedés · Weboldal",
+    "loading": "A weboldal módosításainak beolvasása…",
+    "failed": "ez nem sikerült",
+    "homePage": "kezdőlap",
+    "page": "oldal",
+    "noAction": "nincs teendő",
+    "fine": "Minden módosítás előnézete a valódi oldalból készül, csak az Ön igenje után kerül alkalmazásra a várólistáról, a visszavonhatósága örökre megmarad, és súlyos hiba esetén magától visszaáll — egy csendes hét miatt soha.",
+    "signedOut": {
+      "eyebrow": "az Ön weboldala",
+      "title": "Kezdje az interjúval.",
+      "copy": "A weboldal módosításai egy profilhoz tartoznak — kezdje el, aztán térjen vissza.",
+      "begin": "Kezdés"
+    },
+    "notice": {
+      "rolledBack": "Alkalmazva — de az állapotellenőrzés sikertelen volt, ezért azonnal visszaállítottam. Az okok a kártyán olvashatók.",
+      "proposed": "Javasolva — az előtte/utána nézet a saját lapján van, a döntés pedig a várólistáján.",
+      "applied": "Alkalmazva, és az oldal átment az állapotellenőrzésen.",
+      "undone": "Visszavonva — az oldal korábbi állapota bájtra pontosan visszaállt."
+    },
+    "headline": {
+      "pending": "{count, plural, one {# módosítás} other {# módosítás}} javasolva a weboldalára.",
+      "ready": "{count, plural, one {# jóváhagyott módosítás} other {# jóváhagyott módosítás}} alkalmazásra kész.",
+      "none": "Egyetlen weboldal-módosítás sem vár Önre.",
+      "empty": "Még nincs javasolt weboldal-módosítás."
+    },
+    "head": {
+      "checked": "Utolsó weboldal-ellenőrzés: {day} · {pages, plural, one {# oldal} other {# oldal}} beolvasva · {total} ellenőrzésből {missing} nem látható",
+      "noCheck": "Még nincs rögzített weboldal-ellenőrzés",
+      "measured": "mérve: {day}, {count, plural, one {# megállapítás} other {# megállapítás}}"
+    },
+    "tabs": {
+      "aria": "Weboldal-módosítások",
+      "measured": "Mérve · {count, plural, one {# megállapítás} other {# megállapítás}}",
+      "measure": "A weboldal mérése",
+      "audit": "Ellenőrzés · {count, plural, one {# megjegyzés} other {# megjegyzés}}, nincs teendő",
+      "propose": "Módosítás javaslata"
+    },
+    "status": {
+      "pending": "Önre vár",
+      "approved": "jóváhagyva",
+      "rejected": "elutasítva",
+      "expired": "lejárt",
+      "executed": "alkalmazva",
+      "blocked": "korlát tiltja",
+      "changes_requested": "módosítást kért"
+    },
+    "reverse": {
+      "easy": "visszafordítható",
+      "moderate": "erőfeszítéssel visszafordítható",
+      "hard": "nehezen visszafordítható"
+    },
+    "auditTab": {
+      "label": "Ellenőrzés · ekkor: {day}",
+      "title": "Mit keresnek az ügyfelek, és mutatja-e a weboldala",
+      "foot": "Csak olvasás. Bármelyik javítása a jóváhagyási várólistán keresztül történik — <link>lásd: Vakfoltok</link>.",
+      "what": "Mit ellenőriznek",
+      "onSite": "Az Ön weboldalán",
+      "foundOn": "Itt található",
+      "check": "Ellenőrzés",
+      "shown": "látható",
+      "notFound": "nem található",
+      "unreadable": "Nem tudtam beolvasni: {url} — {reason}"
+    },
+    "propose": {
+      "label": "Módosítás javaslata",
+      "title": "Megmutatom, mielőtt bármikor alkalmaznám",
+      "foot": "A fizetési, kosár-, fizetőeszköz- és számlázási oldalakat eleve elutasítom — ezek még javaslatként sem merülhetnek fel, semmilyen jóváhagyási szinten.",
+      "url": "Az oldal címe",
+      "urlPlaceholder": "azonweboldala.hu/rolunk",
+      "find": "A módosítandó pontos szöveg",
+      "replace": "Mi álljon helyette",
+      "reading": "Az oldal beolvasása…",
+      "preview": "A módosítás előnézete"
+    },
+    "change": {
+      "fromFinding": "a megállapításból: {finding}",
+      "proposedOn": "javasolva: {day}",
+      "undoneByYou": "Ön visszavonta",
+      "autoRolledBack": "automatikusan visszaállítva",
+      "realPage": "A valódi oldal, szkriptek nélkül",
+      "desktopWidth": "Asztali szélesség",
+      "phoneWidth": "Telefonos szélesség",
+      "now": "Most",
+      "proposed": "Javasolt",
+      "frameNow": "Az oldal most",
+      "frameProposed": "Az oldal a javaslat szerint",
+      "nowSays": "Most ez áll rajta",
+      "willSay": "Ez fog állni rajta",
+      "basis": "Alap",
+      "basisValue": "egyszer található az élő oldalon · megfigyelt",
+      "quoted": "„{text}”",
+      "evidence": "A javaslathoz csatolt bizonyítékok",
+      "sensitivity": "érzékenység: {value}",
+      "blocked": "Letiltva: {why}",
+      "yourLimit": "Az Ön korlátja: „{limit}”",
+      "manual": "Hogyan végezheti el ezt a módosítást saját maga",
+      "expected": "Várható hatás · szavakban, nem számban",
+      "expectedDefault": "Az oldalon az új szöveg áll.",
+      "ifWrong": "Ha valami elromlik: {what}",
+      "decide": "Döntés a várólistán",
+      "apply": "Alkalmazás az oldalon",
+      "undo": "Visszavonás — az oldal visszaállítása"
+    },
+    "audit": {
+      "severity": {
+        "critical": "SÜRGŐS",
+        "high": "MAGAS",
+        "medium": "KÖZEPES",
+        "low": "ALACSONY"
+      },
+      "basis": {
+        "field": "valódi látogatók",
+        "field_origin": "valódi látogatók, teljes weboldal",
+        "lab": "egy tesztbetöltés",
+        "page_read": "oldalbeolvasás"
+      },
+      "strategy": {
+        "mobile": "mobil",
+        "desktop": "asztali"
+      },
+      "euroRange": "havonta {low}–{high}",
+      "unit": {
+        "seconds": "{value} mp",
+        "ms": "{value} ms",
+        "mb": "{value} MB",
+        "clicks": "{count, plural, one {# kattintás} other {# kattintás}}",
+        "status": "állapotkód: {code}"
+      },
+      "speed": {
+        "lcp": "LCP {value} mp",
+        "cls": "CLS {value}",
+        "inp": "INP {value} ms",
+        "tbt": "TBT {value} ms (labor)"
+      },
+      "from": {
+        "notMeasured": "nincs mérve",
+        "labOnly": "csak labor — túl kevés látogató a Google valós felhasználói adataihoz",
+        "fieldSite": "valós adatok (teljes weboldal) + labor",
+        "field": "valós adatok + labor"
+      },
+      "notice": {
+        "lastFailed": "Az utolsó futtatás ({day}) sikertelen volt: {reason}",
+        "didntRun": "az ellenőrzés nem futott le",
+        "measured": "Mérve — az alábbi megállapítások ennek a futtatásnak az eredményei.",
+        "tryAgain": "az ellenőrzés nem futott le — próbálja újra egy pillanat múlva"
+      },
+      "run": {
+        "busy": "A weboldal beolvasása… (legfeljebb két perc)",
+        "again": "Az ellenőrzés újbóli futtatása",
+        "first": "Az ellenőrzés futtatása"
+      },
+      "notRun": {
+        "label": "Mérve · még nem futott",
+        "title": "Sebesség, telefonok és a vásárláshoz vezető út, mérve"
+      },
+      "notBuilt": "Csak mérés. A dizájn képernyőképek alapján történő megítélése (site-audit, {section}. szakasz, a vizuális réteg) nincs megépítve: nem készül képernyőkép, és nem kérdezek modellt.",
+      "footFix": "Bármelyik javítása javaslaton és a várólistán keresztül történik; a fizetési oldal soha nem változik automatikusan — az ottani megállapításokhoz útmutató tartozik.",
+      "never": {
+        "reads": "A nyilvános oldalakat látogatóként olvassa, ugyanazzal a védett letöltővel, mint minden más weboldal-olvasás.",
+        "noLogin": "Soha nem jelentkezik be, soha nem küld el űrlapot, soha nem tesz semmit kosárba, és soha nem nyitja meg a fizetési oldalt.",
+        "pagespeed": "A Google nyilvános PageSpeed Insights szolgáltatását kéri meg az oldalak betöltésére; a SYB nem futtat saját böngészőt."
+      },
+      "ran": "Mérve · futtatva: {day} · {pages, plural, one {# oldal} other {# oldal}} beolvasva · {calls, plural, one {# PageSpeed-hívás} other {# PageSpeed-hívás}}",
+      "title": {
+        "none": "Semmi sincs a megadott küszöbértékeken kívül.",
+        "some": "{count, plural, one {# mért megállapítás} other {# mért megállapítás}}, mindegyik egy megadott küszöbértékhez mérve"
+      },
+      "calls": "Ezen a héten {cap} PageSpeed-hívásból {used} elhasználva; a sebesség újra mérhető ekkortól: {day}.",
+      "table": {
+        "severity": "Súlyosság",
+        "what": "Mit mértünk",
+        "measured": "Mért érték",
+        "threshold": "Küszöbérték",
+        "atStake": "Kockán forgó összeg ({currency})",
+        "atStakeMoney": "Kockán forgó összeg"
+      },
+      "path": {
+        "label": "A vásárláshoz vezető út · {what}",
+        "notCounted": "nincs számolva",
+        "fromHome": "{count, plural, one {# kattintás} other {# kattintás}} a kezdőlaptól"
+      },
+      "pages": {
+        "label": "A Google által betöltött oldalak",
+        "page": "Oldal",
+        "phone": "Telefonon",
+        "computer": "Számítógépen",
+        "weight": "Méret",
+        "from": "Forrás",
+        "role": "{role} · {count, plural, one {# kattintás} other {# kattintás}} a kezdőlaptól"
+      },
+      "role": {
+        "home": "kezdőlap",
+        "category": "kategória",
+        "product": "termék",
+        "cart": "kosár",
+        "checkout": "fizetés",
+        "service": "szolgáltatás",
+        "booking": "foglalás",
+        "contact": "kapcsolat",
+        "other": "egyéb"
+      },
+      "refused": {
+        "label": "Láttam, de nem nyúltam hozzá",
+        "login_or_account": "bejelentkezési vagy fiókoldal — az ellenőrzés soha nem jelentkezik be",
+        "cart_action": "kosarat módosító link — az ellenőrzés soha nem tesz semmit kosárba",
+        "checkout": "fizetési oldal — kívülről számolva, soha nem megnyitva",
+        "external_booking": "foglalási oldal egy másik cég weboldalán — számolva, de nem beolvasva"
+      }
+    }
+  },
+  "support": {
+    "meta": {
+      "title": "Támogatás — SYB"
+    },
+    "kicker": "Ügyfelek · Támogatás",
+    "loading": "A támogatás megnyitása…",
+    "signedOut": {
+      "eyebrow": "támogatás",
+      "title": "Kezdje az interjúval.",
+      "body": "Az ügyfélasszisztens azokból a tényekből válaszol, amelyeket Ön az interjúban megad, és a nyilvánosság számára jóváhagy. Tizenkét kérdés, és már lesz mit közzétenni.",
+      "begin": "Kezdés"
+    },
+    "headline": {
+      "none": "Még semmi sincs jóváhagyva, ezért minden kérdés Önhöz kerül.",
+      "some": "Az asszisztens csak azt mondja, amit Ön jóváhagyott."
+    },
+    "counts": "<b>{conversations}</b> {count, plural, one {beszélgetés} other {beszélgetés}} · <b>{handed}</b> átadva Önnek · <b>{waiting}</b> várakozik",
+    "testWidget": "A widget kipróbálása",
+    "failed": "ez nem sikerült",
+    "faq": {
+      "tooFew": "{count, plural, one {Csak # nyitott kérdés van — még nincs mit csoportosítani. Ha hárman kérdezik ugyanazt, abból lesz gyakori kérdés.} other {Csak # nyitott kérdés van — még nincs mit csoportosítani. Ha hárman kérdezik ugyanazt, abból lesz gyakori kérdés.}}",
+      "proposed": "Csoportosítva. A már megadott válaszai a jóváhagyási várólistáján vannak; a többit felsoroltam, hogy megválaszolja.",
+      "none": "Csoportosítva: még nem kérdezte ugyanazt három ember.",
+      "unanswered": "Csoportosítva. Ezekre még senki sem válaszolt — válaszoljon egyre a saját beszélgetésében, majd csoportosítson újra."
+    },
+    "convos": {
+      "label": "Jegyek · {tickets} · beszélgetések · {conversations}",
+      "empty": "Még semmi. Minden widgetes beszélgetés és minden, az ügyféltámogatási címére küldött e-mail ide érkezik, és ami Önre vár, meg van jelölve.",
+      "messages": "{count, plural, one {{n} üzenet} other {{n} üzenet}} · {when}"
+    },
+    "waitingTitle": "{count, plural, =0 {Senki sem vár Önre} one {# fő vár Önre} other {# fő vár Önre}}",
+    "sla": {
+      "yourTime": "Az Ön válaszideje: {hours} óra",
+      "unset": "Nincs megadott válaszidő",
+      "clock": "Naptári órákban számolva, nem munkaórákban.",
+      "overdue": "Lejárt",
+      "dueSoon": "Hamarosan esedékes",
+      "inTime": "Időben",
+      "over": "{duration} túllépés",
+      "left": "{duration} van hátra"
+    },
+    "duration": {
+      "min": "{min} perc",
+      "h": "{h} óra",
+      "hMin": "{h} óra {min} perc",
+      "d": "{d} nap",
+      "dH": "{d} nap {h} óra"
+    },
+    "col": {
+      "channel": "Csatorna",
+      "who": "Ki",
+      "what": "Tárgy vagy kérdés",
+      "waited": "Várakozás",
+      "against": "A válaszidejéhez mérve"
+    },
+    "channel": {
+      "email": "E-mail",
+      "chat": "Csevegés"
+    },
+    "who": {
+      "visitor": "Látogató",
+      "customer": "Ügyfél",
+      "noAddress": "nincs cím",
+      "visitorNoAddress": "Látogató · nincs cím"
+    },
+    "senderNote": {
+      "notVerified": "a feladó nincs ellenőrizve",
+      "givenInChat": "csevegésben megadva, nincs ellenőrizve"
+    },
+    "ticket": {
+      "answeredFlag": "Megválaszolva",
+      "closedFlag": "Lezárva",
+      "youReplied": "Ön válaszolt",
+      "theirTurn": "ők következnek",
+      "answerLabel": "Amit Ön mondott nekik — a nyilvántartásban marad, nem kerül elküldésre",
+      "answered": "Válaszoltam nekik",
+      "propose": "Javaslat válaszként",
+      "close": "Lezárás",
+      "sendsNothing": "A megválaszoltként jelölés semmit sem küld el; az ügyfélhez csak egy fenti, jóváhagyott válasz jut el.",
+      "youSaid": "Ön ezt mondta: {answer}",
+      "handed": "átadva Önnek · {reason}"
+    },
+    "conv": {
+      "waiting": "Önre vár",
+      "answered": "átadva Önnek · Ön válaszolt",
+      "handedClosed": "átadva Önnek · lezárva",
+      "handed": "átadva Önnek",
+      "closed": "lezárva",
+      "open": "nyitott"
+    },
+    "reason": {
+      "customer_asked": "embert kért",
+      "no_answer": "nincs jóváhagyott válasz",
+      "cost_cap": "elérte a költségkeretet",
+      "conversation_cap": "túl hosszúra nyúlt a beszélgetés",
+      "emailed": "e-mailt írt Önnek"
+    },
+    "via": {
+      "widget": "a widgeten keresztül",
+      "email": "e-mailben",
+      "ticket": "jegy",
+      "turns": "{count, plural, one {{n} váltás} other {{n} váltás}} · {cost}"
+    },
+    "transcript": {
+      "empty": "Ebben a beszélgetésben nem hangzott el semmi.",
+      "reading": "A beszélgetés beolvasása…"
+    },
+    "msg": {
+      "assistant": "Asszisztens · automatikus",
+      "visitor": "Látogató"
+    },
+    "emails": {
+      "aria": "E-mailek",
+      "truncated": "Ez az e-mail hosszabb volt annál, amennyit megőrzök; az első {chars} karaktert tartottam meg.",
+      "you": "Ön, e-mailben"
+    },
+    "refused": {
+      "word": "válaszok letiltva",
+      "body": "Ez a cím szerepel a letiltási listáján (leiratkozott, vagy a törlését kérte), ezért semmit sem küldök neki. A jegy azért van itt, hogy tudja: írt Önnek."
+    },
+    "erase": {
+      "ticket": "A jegy törlése",
+      "conversation": "A beszélgetés törlése",
+      "confirm": "Végleges törlés",
+      "cannotUndo": "Ez nem vonható vissza. A napló csak azt őrzi meg, hogy megtörtént."
+    },
+    "answers": {
+      "label": "Jóváhagyott válaszok · {count}",
+      "title": "Amit mondhat",
+      "close": "Bezárás",
+      "write": "Válasz írása",
+      "question": "Egy kérdés, amelyet az ügyfelek feltesznek",
+      "answer": "A válasz, saját szavaival",
+      "propose": "A válasz javaslata",
+      "queueFirst": "Előbb a jóváhagyási várólistájára kerül.",
+      "notPublic": "jóváhagyva · még nem nyilvános",
+      "publish": "Közzététel",
+      "askedTimes": "{count, plural, one {{n} alkalommal kérdezték · nincs megválaszolva} other {{n} alkalommal kérdezték · nincs megválaszolva}}",
+      "answerOne": "Válaszoljon rá az egyik beszélgetésében, majd csoportosítson újra.",
+      "empty": "Még nincsenek válaszok. Amíg nem ad jóváhagyást néhányra, az asszisztens azt mondja, hogy nem tudja, és a kérdést Önnek adja át.",
+      "retiredLabel": "Visszavonva · már nem mondja",
+      "fromFacts": "Válaszok javaslata a tényeimből",
+      "cluster": "Az ügyfelek kérdéseinek csoportosítása"
+    },
+    "entry": {
+      "from": "forrás: {sources}",
+      "fromCustomers": "{count, plural, one {{n} kérdező ügyféltől} other {{n} kérdező ügyféltől}}",
+      "published": "közz. {date}",
+      "retire": "Visszavonás"
+    },
+    "widget": {
+      "label": "A widget",
+      "title": "Asszisztens, amely megmondja, hogy asszisztens",
+      "paste": "Illessze be ezt az egy sort a weboldalába. A látogatók egy olyan asszisztenst látnak, amely automatikusként mutatkozik be, csak a fenti jóváhagyott listából válaszol, és abban a pillanatban átadja Önnek a beszélgetést, amint embert kérnek.",
+      "rotate": "A kulcs cseréje",
+      "keyPublic": "A kulcs szándékosan nyilvános — csak azt mondja meg, melyik vállalkozáshoz tartozik egy beszélgetés. Nem bejelentkezési adat.",
+      "notEnabled": "Még nincs bekapcsolva. A bekapcsolás létrehozza a widget nyilvános kulcsát; senkinek sem mond semmit, amíg Ön jóváhagyást nem ad a válaszokra.",
+      "enable": "Az asszisztens bekapcsolása",
+      "foot": "Az asszisztens a jóváhagyott válaszokat olvassa, és semmi mást: nem a profilját, nem a számait, nem az összekapcsolt fiókjait, és semmit sem tud megváltoztatni."
+    },
+    "inbox": {
+      "label": "Ügyféltámogatási e-mail",
+      "title": "Az ügyféltámogatási címére érkező e-mailekből itt jegyek lesznek",
+      "enableFirst": "Előbb kapcsolja be fent az asszisztenst; ezzel jön létre a címe.",
+      "forward": "Továbbítsa az ügyféltámogatási postafiókját erre a címre. Minden e-mailből itt jegy lesz, a válaszaival együtt szálba rendezve. Semmi sem kap automatikus választ: mindegyiket látja, és semmi sem megy vissza az Ön kattintása nélkül.",
+      "change": "A cím módosítása",
+      "onlyKnown": "Jegyet csak az nyithat, aki ismeri a címet. Ha kiszivárog, módosítsa.",
+      "notSetUp": "Még nincs beállítva: az ügyféltámogatási e-mailhez a bejövő domain és a webhook összekötése szükséges a Resendben. Addig egyetlen e-mail sem jut el erre a képernyőre."
+    },
+    "time": {
+      "label": "Az Ön válaszideje",
+      "title": "{hours, plural, one {Ön {n} órán belül válaszol} other {Ön {n} órán belül válaszol}}",
+      "within": "Ennyi időn belül válaszolok:",
+      "hours": "óra",
+      "save": "Mentés",
+      "clear": "Törlés",
+      "fine": "Naptári órák, nem munkaórák. Minden várakozó jegy mutatja, hogyan áll ehhez képest. A csevegés csak akkor közli ezt az időt az ügyféllel, ha Ön megadta; különben semmit sem ígér.",
+      "setAt": "Beállítva: {when}.",
+      "notify": "Kérek e-mailt a bejelentkezési címemre, ha egy ügyfél e-mailt ír (legfeljebb óránként egyet, és csak ha az e-mail be van állítva)"
+    },
+    "notice": {
+      "answeredBlank": "Megválaszoltként jelölve. Legközelebb írja le, mit mondott — abból jóváhagyott válasz lehet.",
+      "answeredWords": "Megválaszoltként jelölve, a szavaival együtt rögzítve.",
+      "proposedAnswer": "Válaszként javasolva. Adja meg a jóváhagyását a várólistán, majd tegye közzé itt.",
+      "closed": "Lezárva.",
+      "erasedTicket": "A jegy és az e-mailjei törölve. A napló csak azt rögzíti, hogy megtörtént.",
+      "erasedConversation": "A beszélgetés és a jegye törölve. A napló csak azt rögzíti, hogy megtörtént.",
+      "proposed": "Javasolva. Adja meg a jóváhagyását a várólistán, majd tegye közzé itt.",
+      "published": "Közzétéve. Az asszisztens mostantól mondhatja ezeket.",
+      "retired": "Visszavonva. Többé nem hangzik el.",
+      "rotated": "Új kulcs. Minden oldal, amelyen a régi kódrészlet van, leáll, amíg nem frissíti.",
+      "enabled": "Bekapcsolva. Most adjon jóváhagyást néhány válaszra.",
+      "rotatedInbound": "Új cím. A régire érkező leveleket mostantól eldobom, ezért frissítse a továbbítást.",
+      "savedHours": "Mentve: Ön {hours} órán belül válaszol.",
+      "cleared": "Törölve. Nincs megígért válaszidő.",
+      "notifyOn": "Bekapcsolva: egy új ügyféltámogatási e-mailről rövid értesítést kap, legfeljebb óránként egyet.",
+      "notifyOff": "Kikapcsolva: nincsenek értesítések. A menüben lévő szám továbbra is mutatja, mi vár.",
+      "drafted": "A jóváhagyott válaszaiból írva. Olvassa el, szerkessze, majd döntsön a jóváhagyásról vagy az elutasításról.",
+      "noDraft": "Nincs piszkozat.",
+      "savedReply": "Mentve. Ha rendben van, a jóváhagyás után küldje el.",
+      "declined": "Elutasítva. Semmi sem ment ki.",
+      "sent": "Elküldve, pontosan úgy, ahogy jóváhagyta.",
+      "approvedNotSent": "Jóváhagyva, nincs elküldve."
+    },
+    "replyState": {
+      "drafted": "piszkozat · nincs elküldve",
+      "approved": "jóváhagyva · nincs elküldve",
+      "sending": "nincs megerősítve · lehet, hogy kiment",
+      "sent": "elküldve",
+      "failed": "nincs elküldve",
+      "declined": "elutasítva"
+    },
+    "reply": {
+      "noWay": "nem érhető el",
+      "noAddress": "Ez az ügyfél nem adott meg e-mail-címet, így nincs mód a válaszra. Csak akkor lát választ, ha visszatér a csevegésbe.",
+      "label": "Válasz e-mailben",
+      "draft": "Válasz megírása",
+      "writeMyself": "Megírom én",
+      "draftUses": "A piszkozat csak a jóváhagyott válaszait használja.",
+      "aiLabel": "Az asszisztens piszkozata — szabadon szerkesztheti",
+      "yourReply": "Az Ön válasza",
+      "speak": "Diktálás: mondja el a válaszát",
+      "speakAfter": "Olvassa át, és javítson ki mindent, mielőtt menti, vagy megadja a jóváhagyását.",
+      "disclosure": "Küldéskor hozzáadjuk, és nem távolítható el: „{line}”",
+      "approveSend": "Jóváhagyás és küldés",
+      "save": "A válaszom mentése",
+      "decline": "A piszkozat elutasítása",
+      "cancel": "Mégse",
+      "untilApprove": "Semmi sem jut el az ügyfélhez az Ön jóváhagyása nélkül.",
+      "sendNow": "Küldés most",
+      "approvedExact": "Jóváhagyva; pontosan úgy megy ki, ahogy fent áll."
+    },
+    "test": {
+      "meta": {
+        "title": "Widget-tesztoldal — SYB"
+      },
+      "loading": "A tesztoldal előkészítése…",
+      "eyebrow": "widget-tesztoldal",
+      "signedOut": "Kezdje az interjúval.",
+      "disabled": "Előbb kapcsolja be az asszisztenst.",
+      "goSupport": "Ugrás a támogatáshoz",
+      "pretend": "egy kitalált ügyféloldal · a widget a jobb alsó sarokban van",
+      "seesLabel": "amit egy látogató lát",
+      "body": "Ez az oldal az Ön weboldalát helyettesíti. A sarokban lévő gomb a valódi widget, ugyanazzal a szkripttel betöltve, és ugyanazzal a nyilvános végponttal beszél, amelyet egy ügyfél használna. Kérdezzen tőle valamit, amit jóváhagyott, valamit, amit nem, majd kérjen embert — mindegyiknek úgy kell viselkednie, ahogy a <link>Támogatás képernyőn</link> ígérjük."
+    }
+  },
+  "team": {
+    "meta": {
+      "title": "Csapatbeosztás — SYB"
+    },
+    "kicker": "Elemzések · Csapatbeosztás",
+    "aside": "Szerepkörök és órák · soha nem személyek",
+    "limits": {
+      "head": "Szerepkörök, soha nem személyek",
+      "switchOff": "A csapatmodult Ön kapcsolhatja ki a <link>Figyelés</link> oldalon."
+    },
+    "refused": {
+      "readyOn": "Nagyjából ekkorra lesz kész: {day}, ha az adatok továbbra is érkeznek.",
+      "label": "Lefedettség óránként",
+      "title": "Még nincs elég adat",
+      "can": "Amit tudok",
+      "cannot": "Amit még nem tudok",
+      "history": "{history, plural, one {# nap} other {# nap}} előzmény; legalább ennyit olvasok: {needed}. <link>Összekapcsolt fiókok</link>"
+    },
+    "roles": {
+      "label": "Szerepkörök",
+      "title": "Abból, hogy ki dolgozik a vállalkozásban",
+      "none": "Még nincsenek szerepkörök. Az interjúból származnak: ki dolgozik a vállalkozásban, és heti hány órában. <link>Ténylap</link>",
+      "notStated": "nincs megadott óraszám",
+      "perWeek": "heti {hours} óra",
+      "withoutHours": "{count, plural, one {# óraszám nélkül} other {# óraszám nélkül}}"
+    },
+    "grid": {
+      "aria": "Lefedettség szerepkör és óra szerint, {day}",
+      "row": "Sor",
+      "booked": "Lefoglalva",
+      "takings": "Bevétel",
+      "ofCapacity": "a megadott kapacitásból",
+      "ofBusiest": "a legforgalmasabb órához képest",
+      "cellTitle": "{typical} egy átlagos napon; a napok középső felében {low}–{high} ({days, plural, one {# nap} other {# nap}} alapján)",
+      "onAverage": "jelen, átlagos órában"
+    },
+    "ok": {
+      "basis": "Utolsó {weeks, plural, one {# hét} other {# hét}} · {from} – {to} · {demand}",
+      "capacity": "megadott kapacitás: heti {perWeek} (az Ön válasza)",
+      "noCapacity": "nincs pénzben megadott kapacitás, ezért sehol sincs hiány",
+      "labelBookings": "Foglalások a megadott kapacitáshoz képest, szerepkörönként",
+      "labelTakings": "Bevétel óránként, szerepkörönként",
+      "title": "Lefedettség szerepkör és óra szerint",
+      "legend": "Jelmagyarázat",
+      "legendShort": "hiány ≥ {pct}",
+      "legendCovered": "lefedve",
+      "legendQuiet": "csendes ≤ {pct}",
+      "footBookings": "Minden óra megtartott időpontjai (teljesítettek, meg nem jelenések és késői lemondások) az adott hét napjain, a nyitvatartási órákra egyenletesen elosztott megadott kapacitáshoz mérve.",
+      "footTakings": "Minden óra bevétele az adott hét napjának mért napjain, a nap legforgalmasabb órájához mérve.",
+      "footRole": "Egy szerepkör értéke a megadott heti óraszáma osztva a nyitvatartási órákkal: hányan vannak jelen átlagosan az adott szerepkörből egy nyitvatartási órában, mivel a beosztás nem ismert. SZÁMÍTOTT. Sraffozott = zárva. Rossz szerepkörök vagy órák? Módosítsa a válaszát a <link>Ténylapon</link>.",
+      "weekday": "A hét napja",
+      "daysRead": "{days, plural, one {# nap} other {# nap}}",
+      "noDay": "Még egyetlen nyitvatartási nap sincs beolvasva."
+    },
+    "reading": {
+      "label": "Megállapítások",
+      "none": "Semmi sem tűnik ki",
+      "some": "Ahol kevés a lefedettség, vagy túl csendes",
+      "noneBody": "A beolvasott napokon egyetlen nyitvatartási óra sem marad el a megadott kapacitástól, és egyik sem csendes."
+    },
+    "band": {
+      "short": "Hiány",
+      "quiet": "Csendes"
+    },
+    "notes": {
+      "label": "Megjegyzések Önnek",
+      "title": "Ezt Ön mérlegeli"
+    },
+    "built": {
+      "label": "Alapja",
+      "title": "Források és feltételezések",
+      "body": "{days, plural, one {# nyitvatartási nap} other {# nyitvatartási nap}} beolvasva innen: {demand}, {from} – {to}; összesen {history, plural, one {# nap} other {# nap}} előzmény.",
+      "capacity": "Megadott kapacitás: heti {perWeek}, {hours} nyitvatartási órára.",
+      "assumed": "Feltételezve"
+    },
+    "signedOut": {
+      "title": "Itt még nincs vállalkozás.",
+      "body": "<link>Kezdje az interjúval</link>."
+    },
+    "failed": {
+      "title": "A csapatbeosztás nem töltődött be.",
+      "body": "Valami hiba történt nálunk. Frissítse az oldalt, és próbálja újra."
+    },
+    "loading": "A heti lefedettség beolvasása…",
+    "off": {
+      "title": "A csapatmodul ki van kapcsolva.",
+      "body": "Kikapcsolva marad, amíg be nem kapcsolja a <link>Figyelés</link> oldal Modulok részében. Bekapcsolva azt olvassa, mikor kell a hétnek több lefedettség, vagy mikor van több a szükségesnél, szerepkör és óra szerint, és soha semmit egy személyről."
+    }
+  },
+  "teamAccess": {
+    "meta": {
+      "title": "Csapat hozzáférése — SYB"
+    },
+    "kicker": "Az Ön vállalkozása · Csapat hozzáférése",
+    "loading": "Annak beolvasása, ki tartozik a csapathoz…",
+    "signedOut": {
+      "title": "Előbb regisztráljon.",
+      "body": "A csapat Önnel kezdődik: miután bejelentkezett, meghívhatja ide azokat, akikkel együtt dolgozik."
+    },
+    "failed": "Valami hiba történt nálunk. Frissítse az oldalt, és próbálja újra.",
+    "failedTry": "Ez nem sikerült. Próbálja újra.",
+    "failedShort": "Ez nem sikerült.",
+    "title": "{count, plural, =1 {Csak Ön tud ide bejelentkezni.} one {# személy tud ide bejelentkezni.} other {# személy tud ide bejelentkezni.}}",
+    "youAre": "Az Ön szerepköre: {role, select, owner {tulajdonos} manager {menedzser} other {megtekintő}}",
+    "readOnly": "Láthatja, ki van itt.",
+    "members": {
+      "label": "A csapat",
+      "title": "Ki tud bejelentkezni",
+      "person": "Személy",
+      "role": "Szerepkör",
+      "since": "Mióta",
+      "change": "Módosítás",
+      "you": "(Ön)",
+      "roleFor": "Szerepkör: {email}",
+      "nowRole": "{email} szerepköre mostantól: {role, select, owner {tulajdonos} manager {menedzser} other {megtekintő}}.",
+      "lastOwner": "Egy vállalkozásnak mindig marad egy tulajdonosa.",
+      "removed": "{email} már nem tud ide bejelentkezni, és kijelentkeztettem.",
+      "confirmRemove": "{who, select, me {Igen, eltávolítom magam} other {Igen, eltávolítom}}",
+      "keep": "Maradjon",
+      "takeOff": "Eltávolítás a csapatból"
+    },
+    "invites": {
+      "label": "Meghívók",
+      "title": "Csatlakozásra várnak",
+      "none": "Nincs függő meghívó.",
+      "ranOut": "lejárt: {day}",
+      "worksUntil": "érvényes eddig: {day}",
+      "withdrawn": "Meghívó visszavonva.",
+      "withdraw": "Visszavonás",
+      "withdrawFor": "a meghívó ehhez a címhez: {email}",
+      "sent": "Elküldtem a meghívót e-mailben ide: {email}. Egyszer használható, {days, plural, one {# napig} other {# napig}}.",
+      "emailFailed": "A meghívó e-mail nem ment el. Másolja ki az alábbi linket, és küldje el saját maga.",
+      "noEmailSend": "Itt nincs beállítva az e-mail, ezért nem tudom elküldeni. Másolja ki az alábbi linket, és küldje el saját maga.",
+      "email": "E-mail",
+      "role": "Szerepkör",
+      "placeholder": "nev@pelda.hu",
+      "invite": "Meghívás",
+      "noEmail": "Itt nincs beállítva az e-mail, ezért helyette egy másolható linket kap."
+    },
+    "link": {
+      "note": "A meghívó linkje. Egyszer használható, {days, plural, one {# napig} other {# napig}}, és csak a meghívott címhez: aki megnyitja, az is azzal a címmel jelentkezik be.",
+      "aria": "Meghívó linkje",
+      "copy": "Másolás",
+      "copied": "Kimásolva."
+    },
+    "roles": {
+      "label": "Szerepkörök",
+      "title": "Mire jogosult az egyes szerepkör"
+    },
+    "roleMeans": {
+      "owner": "Mindenre, beleértve az összekapcsolt fiókokat, az írási hozzáférést, a számlázást és a csapatot.",
+      "manager": "Jóváhagyja vagy elutasítja a javaslatokat, tartalmat ír, válaszol a támogatási megkeresésekre, és megnyomhatja a leállítást. Fiókokat nem kapcsolhat össze, és a csapatot nem módosíthatja.",
+      "viewer": "Mindent olvas, és megnyomhatja a leállítást. Semmit sem változtat."
+    },
+    "another": {
+      "label": "Másik vállalkozás",
+      "title": "Több vállalkozást vezet?",
+      "body": "Adjon hozzá egy másik vállalkozást ugyanazzal az e-mail-címmel. Mindegyiknek saját interjúja, saját csapata és saját számlája van; a menüben válthat közöttük.",
+      "add": "Másik vállalkozás hozzáadása"
+    }
+  },
+  "invite": {
+    "meta": {
+      "title": "Az Ön meghívója — SYB"
+    },
+    "kicker": "Csapatmeghívó",
+    "label": "Meghívó",
+    "someBusiness": "egy vállalkozás a SYB-n",
+    "headline": {
+      "join": "Csatlakozzon ehhez: {where}.",
+      "bad": "Ez a meghívó nem működik."
+    },
+    "title": {
+      "as": "Szerepkör: {role, select, owner {tulajdonos} manager {menedzser} other {megtekintő}}, cím: {email}",
+      "none": "Itt nincs meghívó"
+    },
+    "unknown": "Ez a link nem egy általam ismert meghívó. Kérjen újat attól, aki küldte.",
+    "status": {
+      "accepted": "Ezt a meghívót már felhasználták.",
+      "revoked": "Ezt a meghívót visszavonták.",
+      "expired": "Ez a meghívó lejárt. A meghívók {days, plural, one {# napig} other {# napig}} érvényesek."
+    },
+    "askNew": "Kérjen újat attól, aki küldte.",
+    "wrong": "Ez a meghívó ehhez a címhez szól: <b>{invited}</b>, Ön viszont ezzel van bejelentkezve: <b>{signedIn}</b>. Nem adok hozzá rossz személyt: jelentkezzen ki, majd nyissa meg újra ezt a linket.",
+    "signedIn": "Bejelentkezve ezzel a címmel: <b>{email}</b>. Csatlakozik ehhez: {where}, {role, select, owner {tulajdonos} manager {menedzser} other {megtekintő}} szerepkörben?",
+    "signIn": "Ezzel a címmel fog bejelentkezni: <b>{email}</b> — erre a címre szól a meghívó. Bejelentkezési linket küldök e-mailben erre a címre; ha megnyitja, bekerül a csapatba.",
+    "foot": "Semmi sem történik, amíg meg nem nyomja a gombot. Nem az Ön címe? Zárja be ezt az oldalt.",
+    "footLink": "Bejelentkezés a SYB-be",
+    "actions": {
+      "failed": "Ez nem sikerült. Próbálja újra egy perc múlva.",
+      "devLink": "Itt nincs beállítva az e-mail (fejlesztői környezet), ezért itt a bejelentkezési link:",
+      "emailed": "Bejelentkezési linket küldtem ide: {email}. Nyissa meg ott, és csatlakozik.",
+      "signOut": "Kijelentkezés",
+      "thenAsks": "Utána ez az oldal újra rákérdez, ezzel a címmel: {email}.",
+      "join": "Csatlakozás",
+      "emailLink": "Bejelentkezési link küldése ide: {email}",
+      "signInJoin": "Bejelentkezés és csatlakozás"
+    }
   }
 }

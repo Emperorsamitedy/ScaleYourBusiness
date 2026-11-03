@@ -14,12 +14,21 @@
 //
 // A role says what someone may do here, nothing more (rule 28): no
 // activity, no counts, nothing about how anyone works.
+//
+// L-3c (TASKS-LANGUAGES.md): the screen's own words are the "teamAccess"
+// catalogue, role names `common.roles`; dates in the reader's locale. The
+// server's refusals and error sentences stay English until L-4; email
+// addresses are shown as they are.
 
 import "../../app/team-access.css";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { useTr } from "../sheet/useTr";
 import type { Role } from "../../lib/auth/role-actions";
-import { ROLES, ROLE_WORD, refusalFor } from "../../lib/auth/role-actions";
+import { ROLES, refusalFor } from "../../lib/auth/role-actions";
+import { dayMonthYear } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
 
 interface Member {
   user_id: string;
@@ -46,7 +55,7 @@ interface View {
   email_configured: boolean;
 }
 
-/** What each role may do, in plain words — the same three the server enforces. */
+/** What each role may do, in plain words — the same three the server enforces (English; the catalogue's `teamAccess.roleMeans`). */
 export const ROLE_MEANS: Record<Role, string> = {
   owner: "Everything, including connections, write access, billing and the team.",
   manager:
@@ -54,8 +63,18 @@ export const ROLE_MEANS: Record<Role, string> = {
   viewer: "Reads everything and can press stop. Changes nothing.",
 };
 
-const day = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+/** How long an invite works — lib/auth/members INVITE_TTL_DAYS, which is server code. */
+export const INVITE_DAYS = 7;
+
+/** "6 Nov 2026", in the reader's language outside English. */
+export function day(iso: string, locale: AppLocale = "en"): string {
+  if (locale !== "en") return dayMonthYear(iso.slice(0, 10), locale);
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 async function post(body: Record<string, unknown>) {
   const res = await fetch("/api/members", {
@@ -68,6 +87,8 @@ async function post(body: Record<string, unknown>) {
 }
 
 export function TeamAccessScreen() {
+  const { tr, locale } = useTr("teamAccess");
+  const roleWord = useTranslations("common.roles");
   const [view, setView] = useState<View | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
   const [notice, setNotice] = useState<string | null>(null);
@@ -99,7 +120,7 @@ export function TeamAccessScreen() {
     const { ok, json } = await post(body);
     setBusy(false);
     if (!ok) {
-      setNotice(typeof json.error === "string" ? json.error : "That didn't work. Try again.");
+      setNotice(typeof json.error === "string" ? json.error : tr("failedTry"));
       return false;
     }
     if (json.signed_out === true) {
@@ -114,25 +135,22 @@ export function TeamAccessScreen() {
   if (state === "loading") {
     return (
       <main className="screen ta-screen">
-        <p className="ta-wait">Reading who&rsquo;s on the team…</p>
+        <p className="ta-wait">{tr("loading")}</p>
       </main>
     );
   }
   if (state === "signed_out") {
     return (
       <main className="screen ta-screen">
-        <PageHead kicker="Your business · Team access" title="Sign up first." />
-        <p className="ta-copy">
-          A team starts with you: once you&rsquo;ve signed in, you can invite the people you work
-          with here.
-        </p>
+        <PageHead kicker={tr("kicker")} title={tr("signedOut.title")} />
+        <p className="ta-copy">{tr("signedOut.body")}</p>
       </main>
     );
   }
   if (state === "error" || view === null) {
     return (
       <main className="screen ta-screen">
-        <p className="ta-wait">Something went wrong on our side. Refresh to try again.</p>
+        <p className="ta-wait">{tr("failed")}</p>
       </main>
     );
   }
@@ -140,16 +158,14 @@ export function TeamAccessScreen() {
   const mayManage = view.can["team.manage"] === true;
   const owners = view.members.filter((m) => m.role === "owner").length;
   const count = view.members.length;
-  const title = count === 1 ? "Only you can sign in here." : `${count} people can sign in here.`;
+  const title = tr("title", { count });
 
   return (
     <main className="screen ta-screen">
       <PageHead
-        kicker="Your business · Team access"
+        kicker={tr("kicker")}
         title={title}
-        aside={
-          <span>You&rsquo;re {view.you.role === "owner" ? "an owner" : `a ${view.you.role}`}</span>
-        }
+        aside={<span>{tr("youAre", { role: view.you.role })}</span>}
       />
 
       {notice !== null && (
@@ -159,20 +175,20 @@ export function TeamAccessScreen() {
       )}
       {!mayManage && (
         <p className="ta-banner" role="note">
-          {refusalFor("team.manage")} You can see who&rsquo;s here.
+          {refusalFor("team.manage")} {tr("readOnly")}
         </p>
       )}
 
-      <SheetCard label="The team" title="Who can sign in">
+      <SheetCard label={tr("members.label")} title={tr("members.title")}>
         <div className="ta-table-wrap">
           <table className="rt rt-stack ta-table">
             <thead>
               <tr>
-                <th scope="col">Person</th>
-                <th scope="col">Role</th>
-                <th scope="col">Since</th>
+                <th scope="col">{tr("members.person")}</th>
+                <th scope="col">{tr("members.role")}</th>
+                <th scope="col">{tr("members.since")}</th>
                 <th scope="col">
-                  <span className="sr-only">Change</span>
+                  <span className="sr-only">{tr("members.change")}</span>
                 </th>
               </tr>
             </thead>
@@ -182,37 +198,37 @@ export function TeamAccessScreen() {
                 const lastOwner = m.role === "owner" && owners === 1;
                 return (
                   <tr key={m.user_id}>
-                    <th scope="row" data-label="Person" className="ta-who">
+                    <th scope="row" data-label={tr("members.person")} className="ta-who">
                       {m.email}
-                      {you && <span className="ta-you"> (you)</span>}
+                      {you && <span className="ta-you"> {tr("members.you")}</span>}
                     </th>
-                    <td data-label="Role">
+                    <td data-label={tr("members.role")}>
                       {mayManage && !lastOwner ? (
                         <select
-                          aria-label={`Role for ${m.email}`}
+                          aria-label={tr("members.roleFor", { email: m.email })}
                           value={m.role}
                           disabled={busy}
                           onChange={(e) =>
                             void act(
                               { action: "set_role", user_id: m.user_id, role: e.target.value },
-                              `${m.email} is now ${e.target.value === "owner" ? "an owner" : `a ${e.target.value}`}.`,
+                              tr("members.nowRole", { email: m.email, role: e.target.value }),
                             )
                           }
                         >
                           {ROLES.map((r) => (
                             <option key={r} value={r}>
-                              {ROLE_WORD[r]}
+                              {roleWord(r)}
                             </option>
                           ))}
                         </select>
                       ) : (
-                        ROLE_WORD[m.role]
+                        roleWord(m.role)
                       )}
                       {lastOwner && mayManage && (
-                        <p className="ta-note">A business always keeps one owner.</p>
+                        <p className="ta-note">{tr("members.lastOwner")}</p>
                       )}
                     </td>
-                    <td data-label="Since">{day(m.joined_at)}</td>
+                    <td data-label={tr("members.since")}>{day(m.joined_at, locale)}</td>
                     <td className="ta-act">
                       {mayManage &&
                         !lastOwner &&
@@ -225,18 +241,18 @@ export function TeamAccessScreen() {
                               onClick={() =>
                                 void act(
                                   { action: "remove", user_id: m.user_id },
-                                  `${m.email} can't sign in here any more, and was signed out.`,
+                                  tr("members.removed", { email: m.email }),
                                 ).then(() => setRemoving(null))
                               }
                             >
-                              Yes, take {you ? "me" : "them"} off
+                              {tr("members.confirmRemove", { who: you ? "me" : "them" })}
                             </button>
                             <button
                               type="button"
                               className="prop-btn quiet"
                               onClick={() => setRemoving(null)}
                             >
-                              Keep
+                              {tr("members.keep")}
                             </button>
                           </span>
                         ) : (
@@ -246,7 +262,8 @@ export function TeamAccessScreen() {
                             disabled={busy}
                             onClick={() => setRemoving(m.user_id)}
                           >
-                            Take off the team<span className="sr-only"> {m.email}</span>
+                            {tr("members.takeOff")}
+                            <span className="sr-only"> {m.email}</span>
                           </button>
                         ))}
                     </td>
@@ -258,19 +275,19 @@ export function TeamAccessScreen() {
         </div>
       </SheetCard>
 
-      <SheetCard label="Invites" title="Waiting to join">
+      <SheetCard label={tr("invites.label")} title={tr("invites.title")}>
         {view.invites.length === 0 ? (
-          <p className="ta-copy">No invites are waiting.</p>
+          <p className="ta-copy">{tr("invites.none")}</p>
         ) : (
           <ul className="ta-invites">
             {view.invites.map((i) => (
               <li key={i.id}>
                 <span className="ta-who">{i.email}</span>
                 <span className="ta-meta">
-                  {ROLE_WORD[i.role]} ·{" "}
+                  {roleWord(i.role)} ·{" "}
                   {i.status === "expired"
-                    ? `ran out ${day(i.expires_at)}`
-                    : `works until ${day(i.expires_at)}`}
+                    ? tr("invites.ranOut", { day: day(i.expires_at, locale) })
+                    : tr("invites.worksUntil", { day: day(i.expires_at, locale) })}
                 </span>
                 {mayManage && (
                   <button
@@ -278,10 +295,17 @@ export function TeamAccessScreen() {
                     className="prop-btn quiet"
                     disabled={busy}
                     onClick={() =>
-                      void act({ action: "revoke_invite", invite_id: i.id }, "Invite withdrawn.")
+                      void act(
+                        { action: "revoke_invite", invite_id: i.id },
+                        tr("invites.withdrawn"),
+                      )
                     }
                   >
-                    Withdraw<span className="sr-only"> the invite for {i.email}</span>
+                    {tr("invites.withdraw")}
+                    <span className="sr-only">
+                      {" "}
+                      {tr("invites.withdrawFor", { email: i.email })}
+                    </span>
                   </button>
                 )}
               </li>
@@ -300,16 +324,16 @@ export function TeamAccessScreen() {
               void post({ action: "invite", email, role }).then(async ({ ok, json }) => {
                 setBusy(false);
                 if (!ok) {
-                  setNotice(typeof json.error === "string" ? json.error : "That didn't work.");
+                  setNotice(typeof json.error === "string" ? json.error : tr("failedShort"));
                   return;
                 }
                 const via = json.delivered_via;
                 setNotice(
                   via === "resend"
-                    ? `I've emailed the invite to ${email.trim()}. It works once, for 7 days.`
+                    ? tr("invites.sent", { email: email.trim(), days: INVITE_DAYS })
                     : via === "failed"
-                      ? "The invite email didn't go. Copy the link below and send it yourself."
-                      : "Email isn't set up here, so I can't send it. Copy the link below and send it yourself.",
+                      ? tr("invites.emailFailed")
+                      : tr("invites.noEmailSend"),
                 );
                 if (typeof json.link === "string") setLink(json.link);
                 setEmail("");
@@ -318,81 +342,71 @@ export function TeamAccessScreen() {
             }}
           >
             <label className="ta-field">
-              <span>Email</span>
+              <span>{tr("invites.email")}</span>
               <input
                 type="email"
                 required
                 autoComplete="off"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
+                placeholder={tr("invites.placeholder")}
               />
             </label>
             <label className="ta-field">
-              <span>Role</span>
+              <span>{tr("invites.role")}</span>
               <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
                 {ROLES.map((r) => (
                   <option key={r} value={r}>
-                    {ROLE_WORD[r]}
+                    {roleWord(r)}
                   </option>
                 ))}
               </select>
             </label>
             <button className="act" disabled={busy || email.trim() === ""}>
-              Invite <span aria-hidden="true">→</span>
+              {tr("invites.invite")} <span aria-hidden="true">→</span>
             </button>
-            <p className="ta-note">{ROLE_MEANS[role]}</p>
-            {!view.email_configured && (
-              <p className="ta-note">
-                Email isn&rsquo;t set up here, so you&rsquo;ll get a link to copy instead.
-              </p>
-            )}
+            <p className="ta-note">{tr(`roleMeans.${role}`)}</p>
+            {!view.email_configured && <p className="ta-note">{tr("invites.noEmail")}</p>}
           </form>
         )}
         {link !== null && (
           <div className="ta-link">
-            <p className="ta-note">
-              The invite link. It works once, for 7 days, and only for the address you invited:
-              whoever opens it still signs in as that address.
-            </p>
+            <p className="ta-note">{tr("link.note", { days: INVITE_DAYS })}</p>
             <input
               readOnly
               value={link}
-              aria-label="Invite link"
+              aria-label={tr("link.aria")}
               onFocus={(e) => e.target.select()}
             />
             <button
               type="button"
               className="prop-btn"
               onClick={() =>
-                void navigator.clipboard?.writeText(link).then(() => setNotice("Copied."))
+                void navigator.clipboard?.writeText(link).then(() => setNotice(tr("link.copied")))
               }
             >
-              Copy
+              {tr("link.copy")}
             </button>
           </div>
         )}
       </SheetCard>
 
-      <SheetCard label="Roles" title="What each role can do">
+      <SheetCard label={tr("roles.label")} title={tr("roles.title")}>
         <dl className="ta-roles">
           {ROLES.map((r) => (
             <div key={r}>
-              <dt>{ROLE_WORD[r]}</dt>
-              <dd>{ROLE_MEANS[r]}</dd>
+              <dt>{roleWord(r)}</dt>
+              <dd>{tr(`roleMeans.${r}`)}</dd>
             </div>
           ))}
         </dl>
       </SheetCard>
 
-      <SheetCard label="Another business" title="Run more than one business?">
-        <p className="ta-copy">
-          Add another business under the same email. Each one has its own interview, its own team
-          and its own bill; you switch between them from the menu.
-        </p>
+      <SheetCard label={tr("another.label")} title={tr("another.title")}>
+        <p className="ta-copy">{tr("another.body")}</p>
         <form method="post" action="/api/auth/business">
           <button className="act" type="submit">
-            Add another business <span aria-hidden="true">→</span>
+            {tr("another.add")} <span aria-hidden="true">→</span>
           </button>
         </form>
       </SheetCard>

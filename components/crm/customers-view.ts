@@ -2,6 +2,16 @@
 // design, 2026-10-17): the headline, the lifecycle words and filters,
 // the search, and the on-screen email mask. Everything is counted from
 // the contacts the API returns; nothing is estimated.
+//
+// L-3c (TASKS-LANGUAGES.md): the words are the "customers" catalogue
+// through an optional translator, English by default from messages/en.json,
+// so English says exactly what it always said. Names and addresses are
+// content, shown as they are.
+
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+
+const EN = (): Tr => englishTr("customers");
 
 export type Lifecycle = "new" | "active" | "lapsing" | "lapsed" | "unknown";
 
@@ -29,16 +39,18 @@ export const LIFECYCLE_ORDER: readonly Lifecycle[] = [
   "unknown",
 ];
 
-function group(n: number): string {
-  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+/** The lifecycle word in the reader's language (English: LIFECYCLE_WORD's). */
+export function lifecycleWord(l: Lifecycle, tr: Tr = EN()): string {
+  return tr(`lifecycle.${l}`);
 }
 
-export function customersHeadline(total: number, lapsed: number): string {
-  if (total === 0) return "No customers imported yet.";
-  const first = `${group(total)} ${total === 1 ? "customer" : "customers"}.`;
-  if (lapsed === 0) return `${first} None have gone quiet.`;
-  if (lapsed === total && total > 1) return `${first} All of them have gone quiet.`;
-  return `${first} ${group(lapsed)} ${lapsed === 1 ? "has" : "have"} gone quiet.`;
+/** "3,884 customers. 412 have gone quiet." — counts grouped the reader's way. */
+export function customersHeadline(total: number, lapsed: number, tr: Tr = EN()): string {
+  if (total === 0) return tr("headline.none");
+  const first = tr("headline.count", { total });
+  if (lapsed === 0) return `${first} ${tr("headline.quietNone")}`;
+  if (lapsed === total && total > 1) return `${first} ${tr("headline.quietAll")}`;
+  return `${first} ${tr("headline.quiet", { lapsed })}`;
 }
 
 /**
@@ -46,8 +58,8 @@ export function customersHeadline(total: number, lapsed: number): string {
  * address stays in the record — the mask only keeps it off a screen
  * someone else might be looking at.
  */
-export function maskEmail(email: string | null): string {
-  if (!email) return "no email";
+export function maskEmail(email: string | null, tr: Tr = EN()): string {
+  if (!email) return tr("noEmail");
   const at = email.lastIndexOf("@");
   if (at <= 0) return "•••";
   const local = email.slice(0, at);

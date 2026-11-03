@@ -3,8 +3,21 @@
 // headline — all counted from the queue the API returns. No targets are
 // invented: a strip's "planned" is what is actually in the queue for
 // that channel, and "posted" is what actually published.
+//
+// L-3c (TASKS-LANGUAGES.md): the words are the "content" catalogue through
+// an optional translator, English by default from messages/en.json, so
+// English says exactly what it always said; figures in the reader's
+// locale. A server sentence (last_error, a performance's arithmetic) and a
+// draft's own words are passed through as they are.
 
 import { format } from "../../lib/core/money";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+import { num } from "../sheet/num";
+
+const EN = (): Tr => englishTr("content");
 
 export type ContentStatus =
   "drafted" | "queued" | "publishing" | "published" | "failed" | "withdrawn";
@@ -72,6 +85,7 @@ export type Tone = "live" | "ok" | "low" | "drift" | "alarm";
 export function stateWord(
   item: QueueItem,
   dayWord: (iso: string) => string,
+  tr: Tr = EN(),
 ): {
   word: string;
   tone: Tone;
@@ -79,72 +93,66 @@ export function stateWord(
   switch (item.status) {
     case "drafted":
       return item.publish_proposal_id !== null
-        ? { word: "in your queue", tone: "live" }
-        : { word: "drafted", tone: "low" };
+        ? { word: tr("state.inQueue"), tone: "live" }
+        : { word: tr("state.drafted"), tone: "low" };
     case "queued":
       return {
-        word: item.scheduled_for ? `scheduled ${dayWord(item.scheduled_for)}` : "scheduled",
+        word: item.scheduled_for
+          ? tr("state.scheduledOn", { day: dayWord(item.scheduled_for) })
+          : tr("state.scheduled"),
         tone: "ok",
       };
     case "publishing":
       // P3-21d: a run that lost Meta's answer leaves it here with a sentence — never re-sent.
       return item.last_error
-        ? { word: "unconfirmed", tone: "drift" }
-        : { word: "publishing", tone: "live" };
+        ? { word: tr("state.unconfirmed"), tone: "drift" }
+        : { word: tr("state.publishing"), tone: "live" };
     case "published":
       return {
-        word: item.published_at ? `posted ${dayWord(item.published_at.slice(0, 10))}` : "posted",
+        word: item.published_at
+          ? tr("state.postedOn", { day: dayWord(item.published_at.slice(0, 10)) })
+          : tr("state.posted"),
         tone: "ok",
       };
     case "failed":
-      return { word: "failed", tone: "alarm" };
+      return { word: tr("state.failed"), tone: "alarm" };
     case "withdrawn":
-      return { word: "withdrawn", tone: "low" };
+      return { word: tr("state.withdrawn"), tone: "low" };
   }
 }
 
-const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
-const NUMBER_WORD = [
-  "None",
-  "One",
-  "Two",
-  "Three",
-  "Four",
-  "Five",
-  "Six",
-  "Seven",
-  "Eight",
-  "Nine",
-];
-const lead = (n: number) => NUMBER_WORD[n] ?? String(n);
-
-/** The page's one sentence, from the queue as it stands. */
-export function contentHeadline(args: {
-  items: readonly QueueItem[];
-  producible: number;
-  blocked: number;
-  nextDate: string | null;
-}): string {
+/**
+ * The page's one sentence, from the queue as it stands. English spells a
+ * small count as a word ("One needs your yes"); the catalogue's plurals
+ * carry that, so each language words its own counts.
+ */
+export function contentHeadline(
+  args: {
+    items: readonly QueueItem[];
+    producible: number;
+    blocked: number;
+    nextDate: string | null;
+  },
+  tr: Tr = EN(),
+): string {
   const { items, producible, blocked, nextDate } = args;
   const drafts = items.filter((i) => i.status === "drafted");
   const inQueue = drafts.filter((i) => i.publish_proposal_id !== null).length;
   if (items.length === 0) {
     return producible > 0
-      ? `Nothing drafted yet. ${lead(producible)} approved ${producible === 1 ? "plan is" : "plans are"} ready to draft.`
-      : "Nothing drafted yet.";
+      ? tr("headline.nothingReady", { count: producible })
+      : tr("headline.nothing");
   }
   if (drafts.length === 0) {
     const scheduled = items.filter((i) => i.status === "queued").length;
     const posted = items.filter((i) => i.status === "published").length;
-    return `${scheduled} scheduled. ${lead(posted)} posted.`;
+    return tr("headline.scheduledPosted", { scheduled, posted });
   }
-  const first = `${plural(drafts.length, "draft")}.`;
-  if (inQueue > 0) return `${first} ${lead(inQueue)} ${inQueue === 1 ? "needs" : "need"} your yes.`;
-  if (producible > 0) {
-    return `${first} ${lead(producible)} more approved ${producible === 1 ? "plan" : "plans"} to draft.`;
-  }
-  if (blocked >= drafts.length) return `${first} None can post yet.`;
-  if (nextDate) return `${first} The next one is due ${nextDate}.`;
+  const first = tr("headline.drafts", { count: drafts.length });
+  if (inQueue > 0) return tr("headline.needsYes", { first, count: inQueue });
+  if (producible > 0) return tr("headline.moreToDraft", { first, count: producible });
+  if (blocked >= drafts.length) return tr("headline.noneCanPost", { first });
+  if (nextDate) return tr("headline.nextDue", { first, date: nextDate });
   return first;
 }
 
@@ -154,8 +162,8 @@ const PLATFORM_WORD: Readonly<Record<string, string>> = {
 };
 
 /** The platform's own name for a stored platform value ("instagram" → "Instagram"). */
-export function platformWord(platform: string | null): string {
-  return platform ? (PLATFORM_WORD[platform] ?? platform) : "the platform";
+export function platformWord(platform: string | null, tr: Tr = EN()): string {
+  return platform ? (PLATFORM_WORD[platform] ?? platform) : tr("platform.unknown");
 }
 
 /**
@@ -166,19 +174,19 @@ export function platformWord(platform: string | null): string {
 export function publishLine(
   item: QueueItem & { platform: string | null },
   realWrites: boolean,
+  tr: Tr = EN(),
 ): string | null {
+  const platform = platformWord(item.platform, tr);
   switch (item.status) {
     case "queued":
       if (item.last_error) return item.last_error;
-      return realWrites
-        ? "Approved. It goes out at its posting time, through the runner; the emergency stop halts it."
-        : "Approved, and waiting for publishing to be switched on. Nothing is sent to Meta until then.";
+      return realWrites ? tr("publish.approvedOn") : tr("publish.approvedOff");
     case "publishing":
-      return item.last_error ?? `Going out to ${platformWord(item.platform)} now.`;
+      return item.last_error ?? tr("publish.goingOut", { platform });
     case "published":
-      return `Live on ${platformWord(item.platform)}.`;
+      return tr("publish.live", { platform });
     case "withdrawn":
-      return `Withdrawn: deleted from ${platformWord(item.platform)}. Its record stays here.`;
+      return tr("publish.withdrawn", { platform });
     default:
       return null;
   }
@@ -198,39 +206,53 @@ export interface PerformanceLike {
   arithmetic: string;
 }
 
-const VERDICT_WORD: Readonly<Record<PerformanceLike["verdict"], { word: string; tone: Tone }>> = {
-  helped: { word: "helped", tone: "ok" },
-  did_nothing: { word: "did nothing", tone: "low" },
-  backfired: { word: "backfired", tone: "alarm" },
-  too_early: { word: "too early", tone: "low" },
-  unmeasured: { word: "unmeasured", tone: "low" },
+const VERDICT_TONE: Readonly<Record<PerformanceLike["verdict"], Tone>> = {
+  helped: "ok",
+  did_nothing: "low",
+  backfired: "alarm",
+  too_early: "low",
+  unmeasured: "low",
 };
 
-const grouped = (n: number) => n.toLocaleString("en-GB").replace(/,/g, " ");
+/** English groups with a space here ("1 240"); other languages group their own way. */
+const grouped = (n: number, locale: AppLocale) =>
+  locale === "en" ? n.toLocaleString("en-GB").replace(/,/g, " ") : num(n, 0, locale);
 
 /**
  * P3-23b: the measured line under a published item — its own figures on
  * the day it is judged, the verdict word, and the arithmetic behind it.
  * Null when nothing has been measured yet (the verdict says why).
  */
-export function performanceLine(p: PerformanceLike | undefined): {
+export function performanceLine(
+  p: PerformanceLike | undefined,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+): {
   figures: string | null;
   word: string;
   tone: Tone;
   arithmetic: string;
 } | null {
   if (!p) return null;
-  const v = VERDICT_WORD[p.verdict];
   const f = p.figures;
   const parts: string[] = [];
   if (f) {
-    if (f.reach !== null) parts.push(`reach ${grouped(f.reach)}`);
-    if (f.views !== null) parts.push(`views ${grouped(f.views)}`);
-    if (f.interactions !== null) parts.push(`interactions ${grouped(f.interactions)}`);
+    if (f.reach !== null) parts.push(tr("perf.reach", { n: grouped(f.reach, locale) }));
+    if (f.views !== null) parts.push(tr("perf.views", { n: grouped(f.views, locale) }));
+    if (f.interactions !== null) {
+      parts.push(tr("perf.interactions", { n: grouped(f.interactions, locale) }));
+    }
   }
   const figures =
-    parts.length > 0 && p.age_days !== null ? `day ${p.age_days} · ${parts.join(" · ")}` : null;
-  return { figures, word: v.word, tone: v.tone, arithmetic: p.arithmetic };
+    parts.length > 0 && p.age_days !== null
+      ? [tr("perf.day", { day: num(p.age_days, 0, locale) }), ...parts].join(" · ")
+      : null;
+  return {
+    figures,
+    word: tr(`verdict.${p.verdict}`),
+    tone: VERDICT_TONE[p.verdict],
+    arithmetic: p.arithmetic,
+  };
 }
 
 /* ── P3-54: "Run this as an ad" ── */
@@ -264,97 +286,85 @@ const DECIDED_ELSEWHERE: ReadonlySet<string> = new Set([
  * item as an ad twice; never says "live" unless the go-live ran. Null when
  * the item can't be an ad and has no ad history.
  */
-export function adLine(ad: AdStateLike | undefined, realWrites: boolean): AdLine | null {
+export function adLine(
+  ad: AdStateLike | undefined,
+  realWrites: boolean,
+  tr: Tr = EN(),
+): AdLine | null {
   if (!ad) return null;
   const { proposal, build, go_live } = ad;
   if (build) {
     if (build.status === "built") {
       if (go_live?.status === "executed") {
-        return {
-          word: "ad live",
-          tone: "ok",
-          text: "The ad is live on Meta for the days you approved, then it stops by itself. The emergency stop halts anything SYB is still sending.",
-          action: null,
-        };
+        return { word: tr("ad.word.live"), tone: "ok", text: tr("ad.text.live"), action: null };
       }
       if (go_live && (go_live.status === "pending" || go_live.status === "blocked")) {
         return {
-          word: "ad paused",
+          word: tr("ad.word.paused"),
           tone: "live",
           text:
             go_live.status === "blocked"
-              ? "The ad is on Meta, paused. Going live is held back by a limit you set."
-              : "The ad is on Meta, paused. Going live is a separate yes, waiting in the queue.",
+              ? tr("ad.text.pausedBlocked")
+              : tr("ad.text.pausedPending"),
           action: go_live.status === "pending" ? "queue" : null,
         };
       }
       if (go_live?.status === "approved") {
         return {
-          word: "ad paused",
+          word: tr("ad.word.paused"),
           tone: "ok",
-          text: realWrites
-            ? "Approved to go live: the ad, its ad set and its campaign switch on at the next run."
-            : "Approved to go live, waiting for Meta ad changes to be switched on. Nothing spends until then.",
+          text: realWrites ? tr("ad.text.goLiveApprovedOn") : tr("ad.text.goLiveApprovedOff"),
           action: null,
         };
       }
       return {
-        word: "ad paused",
+        word: tr("ad.word.paused"),
         tone: "low",
-        text: "The ad is on Meta, paused, spending nothing. Going live is a separate approval.",
+        text: tr("ad.text.paused"),
         action: "go_live",
       };
     }
     if (build.status === "building") {
       return {
-        word: "ad in progress",
+        word: tr("ad.word.inProgress"),
         tone: "live",
-        text: "Being created on Meta, paused. It carries on from where it stopped — nothing is created twice.",
+        text: tr("ad.text.building"),
         action: null,
       };
     }
     return {
-      word: build.status === "uncertain" ? "ad unconfirmed" : "ad failed",
+      word: build.status === "uncertain" ? tr("ad.word.unconfirmed") : tr("ad.word.failed"),
       tone: build.status === "uncertain" ? "drift" : "alarm",
-      text:
-        build.last_error ??
-        "The ad's build stopped. Check Ads Manager; everything SYB made is paused.",
+      text: build.last_error ?? tr("ad.text.buildStopped"),
       action: null,
     };
   }
   if (proposal && !DECIDED_ELSEWHERE.has(proposal.status)) {
     if (proposal.status === "blocked") {
       return {
-        word: "ad held back",
+        word: tr("ad.word.heldBack"),
         tone: "low",
-        text: "Proposed as an ad, and held back by a limit you set.",
+        text: tr("ad.text.heldBack"),
         action: null,
       };
     }
     if (proposal.status === "approved") {
       return {
-        word: "ad approved",
+        word: tr("ad.word.approved"),
         tone: "ok",
-        text: realWrites
-          ? "Approved: the ad is created on Meta, paused, at the next run."
-          : "Approved, waiting for Meta ad changes to be switched on. Nothing is sent until then.",
+        text: realWrites ? tr("ad.text.approvedOn") : tr("ad.text.approvedOff"),
         action: null,
       };
     }
     return {
-      word: "ad proposed",
+      word: tr("ad.word.proposed"),
       tone: "live",
-      text: "Proposed as an ad — it needs your yes in the queue.",
+      text: tr("ad.text.proposed"),
       action: "queue",
     };
   }
   if (ad.reason !== null) return null;
-  return {
-    word: null,
-    tone: "low",
-    text: "Run this as an ad: one proposal with its budget, audience and expected range. Creates paused; going live is a separate approval; created objects can't be deleted, only paused.",
-    action: "run_ad",
-  };
+  return { word: null, tone: "low", text: tr("ad.text.offer"), action: "run_ad" };
 }
 
 /* ── P3-52/53: footage and the AI fallback ── */
@@ -365,8 +375,8 @@ export interface MoneyLike {
 }
 
 /** "€0.04" from integer minor units — the money module's own formatting, never a float in transit. */
-export function formatMinor(m: MoneyLike): string {
-  return format(m);
+export function formatMinor(m: MoneyLike, locale: AppLocale = "en"): string {
+  return format(m, locale === "en" ? "en" : intlTag(locale));
 }
 
 export interface MediaState {
@@ -413,9 +423,9 @@ export interface MediaState {
  * "your footage", "AI-generated image" — so a generated picture is never
  * shown as if it were filmed.
  */
-export function mediaWord(provenance: unknown): string {
+export function mediaWord(provenance: unknown, tr: Tr = EN()): string {
   const origin = (provenance as { media?: { origin?: unknown } } | null)?.media?.origin;
-  if (origin === "generated_image") return "AI-generated image";
-  if (origin === "generated_video") return "AI-generated video";
-  return "your footage";
+  if (origin === "generated_image") return tr("origin.generatedImage");
+  if (origin === "generated_video") return tr("origin.generatedVideo");
+  return tr("origin.footage");
 }

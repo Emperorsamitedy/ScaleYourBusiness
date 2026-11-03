@@ -5,104 +5,108 @@
 // exactly that address — already signed in as it, or a sign-in link
 // emailed to it from here. Signed in as anyone else, the page says so and
 // offers only to sign out: a wrong person never joins.
+//
+// L-3c (TASKS-LANGUAGES.md): the page's own words are the "invite"
+// catalogue, in the reader's language. The business's name and the
+// addresses are shown as they are; the invite email itself is L-6.
 
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { AuthMasthead } from "../../components/auth/AuthMasthead";
 import { InviteActions } from "../../components/auth/InviteActions";
 import { AUTH_COOKIE } from "../../lib/auth/access";
-import { peekInvite } from "../../lib/auth/members";
+import { INVITE_TTL_DAYS, peekInvite } from "../../lib/auth/members";
 import { currentSession } from "../../lib/auth/service";
 import "../auth.css";
 
-export const metadata: Metadata = {
-  title: "Your invite — SYB",
-  // The token is in this page's address; never hand it on.
-  referrer: "no-referrer",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("invite.meta");
+  return {
+    title: t("title"),
+    // The token is in this page's address; never hand it on.
+    referrer: "no-referrer",
+    robots: { index: false, follow: false },
+  };
+}
 
 export const dynamic = "force-dynamic";
-
-const STATUS_WORDS = {
-  accepted: "This invite has already been used.",
-  revoked: "This invite was withdrawn.",
-  expired: "This invite has run out. Invites work for 7 days.",
-} as const;
 
 export default async function InvitePage({
   searchParams,
 }: {
   searchParams: Promise<{ token?: string | string[] }>;
 }) {
+  const t = await getTranslations("invite");
+  const auth = await getTranslations("auth");
   const raw = (await searchParams).token;
   const token = typeof raw === "string" ? raw : "";
   const invite = await peekInvite(token);
   const store = await cookies();
   const session = await currentSession(store.get(AUTH_COOKIE)?.value);
 
-  const role = invite?.role === "owner" ? "an owner" : invite ? `a ${invite.role}` : "";
-  const where = invite?.business ?? "a business on SYB";
+  const role = invite?.role ?? "viewer";
+  const where = invite?.business ?? t("someBusiness");
+  const b = (chunks: ReactNode) => <strong>{chunks}</strong>;
 
   return (
     <div className="desk au">
-      <AuthMasthead href="/login">Sign in &rarr;</AuthMasthead>
+      <AuthMasthead href="/login">{auth("mast.signIn")} &rarr;</AuthMasthead>
       <main className="au-main">
         <section className="au-lede">
-          <p className="au-kicker">Team invite</p>
+          <p className="au-kicker">{t("kicker")}</p>
           <h1 className="au-headline">
-            {invite && invite.status === "pending" ? `Join ${where}.` : "That invite doesn't work."}
+            {invite && invite.status === "pending"
+              ? t("headline.join", { where })
+              : t("headline.bad")}
           </h1>
         </section>
 
         <section className="sheet au-sheet" aria-labelledby="au-sheet-title">
           <header className="au-sheet-head">
-            <p className="au-sheet-label">Invite</p>
+            <p className="au-sheet-label">{t("label")}</p>
             <h2 className="au-sheet-title" id="au-sheet-title">
-              {invite ? `As ${role}, for ${invite.email}` : "No invite here"}
+              {invite ? t("title.as", { role, email: invite.email }) : t("title.none")}
             </h2>
           </header>
           <div className="au-sheet-body">
             {!invite ? (
-              <p className="au-copy">
-                This link isn&rsquo;t an invite I know. Ask whoever sent it for a new one.
-              </p>
+              <p className="au-copy">{t("unknown")}</p>
             ) : invite.status !== "pending" ? (
               <p className="au-copy">
-                {STATUS_WORDS[invite.status]} Ask whoever sent it for a new one.
+                {invite.status === "expired"
+                  ? t("status.expired", { days: INVITE_TTL_DAYS })
+                  : t(`status.${invite.status}`)}{" "}
+                {t("askNew")}
               </p>
             ) : session && session.email !== invite.email ? (
               <>
                 <p className="au-copy">
-                  This invite is for <strong>{invite.email}</strong>, and you&rsquo;re signed in as{" "}
-                  <strong>{session.email}</strong>. I won&rsquo;t add the wrong person: sign out,
-                  then open this link again.
+                  {t.rich("wrong", { invited: invite.email, signedIn: session.email, b })}
                 </p>
                 <InviteActions token={token} mode="wrong" email={invite.email} />
               </>
             ) : session ? (
               <>
                 <p className="au-copy">
-                  You&rsquo;re signed in as <strong>{invite.email}</strong>. Join {where} as {role}?
+                  {t.rich("signedIn", { email: invite.email, where, role, b })}
                 </p>
                 <InviteActions token={token} mode="join" email={invite.email} />
               </>
             ) : (
               <>
-                <p className="au-copy">
-                  You&rsquo;ll sign in as <strong>{invite.email}</strong>, the address the invite is
-                  for. I&rsquo;ll email a sign-in link there; opening it adds you to the team.
-                </p>
+                <p className="au-copy">{t.rich("signIn", { email: invite.email, b })}</p>
                 <InviteActions token={token} mode="sign_in" email={invite.email} />
               </>
             )}
           </div>
           <footer className="au-sheet-foot">
             {invite && invite.status === "pending" ? (
-              "Nothing happens until you press the button. Not your address? Close this page."
+              t("foot")
             ) : (
-              <Link href="/login">Sign in to SYB</Link>
+              <Link href="/login">{t("footLink")}</Link>
             )}
           </footer>
         </section>
