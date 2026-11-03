@@ -1613,6 +1613,1164 @@
       "wholeQueue": "Ver toda la cola"
     }
   },
+  "connections": {
+    "meta": {
+      "title": "Conexiones — SYB"
+    },
+    "kicker": "Su negocio · Conexiones",
+    "aside": "La lectura va aparte de la escritura, siempre",
+    "loading": "Leyendo sus conexiones…",
+    "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
+    "error": {
+      "title": "Las conexiones no se han cargado.",
+      "label": "Conexiones",
+      "cardTitle": "Algo ha salido mal.",
+      "body": "Algo ha salido mal al cargar sus conexiones. Actualice la página para volver a intentarlo."
+    },
+    "signedOut": {
+      "title": "Inicie sesión para conectar sus cifras.",
+      "cardTitle": "Las conexiones pertenecen a su cuenta.",
+      "body": "Una cuenta de pagos, una caja o una tienda online, o una cuenta publicitaria se conecta a su cuenta, no solo a este navegador.",
+      "signIn": "Iniciar sesión"
+    },
+    "headline": {
+      "reading": "{count, plural, one {# fuente leída.} many {# fuentes leídas.} other {# fuentes leídas.}}",
+      "stalled": "Ahora mismo no se está leyendo nada.",
+      "none": "Todavía no hay nada conectado.",
+      "writesUnknown": "No se ha podido leer el acceso de escritura.",
+      "canWrite": "Acceso de escritura: {labels}, solo con su aprobación.",
+      "nothingWritten": "No se puede escribir nada.",
+      "readOnly": "En {labels} hay un permiso que podría escribir; SYB solo lo usa para leer."
+    },
+    "status": {
+      "connected": "conectada",
+      "paused": "en pausa",
+      "failed": "fallida",
+      "disconnected": "desconectada"
+    },
+    "banner": {
+      "see": "Puede ver lo que está conectado.",
+      "seeAndRead": "Puede ver lo que está conectado y volver a leer cualquier fuente ahora mismo.",
+      "readAgainGroup": "Volver a leer ahora",
+      "readingOne": "Leyendo {label}…",
+      "readAgain": "Volver a leer {label} ahora"
+    },
+    "sync": {
+      "didntRun": "La sincronización no se ha ejecutado.",
+      "locked": "Ya hay una sincronización en curso para {label}.",
+      "done": "Sincronización de {label} completada. {count, plural, one {# cifra diaria leída.} many {# cifras diarias leídas.} other {# cifras diarias leídas.}}",
+      "failed": "No se ha podido sincronizar {label}. {reason}",
+      "noReason": "No se ha indicado ningún motivo."
+    },
+    "panel": {
+      "label": "Panel de conexiones",
+      "title": "Lo que está conectado",
+      "legendOn": "activo",
+      "legendOff": "inactivo",
+      "legendNever": "nunca",
+      "source": "Fuente",
+      "gives": "Qué aporta",
+      "read": "Lectura",
+      "write": "Escritura",
+      "lastRead": "Última lectura",
+      "action": "Acción",
+      "reading": "leyendo",
+      "notReading": "sin leer, {status}",
+      "off": "inactivo",
+      "writeNever": "nunca: solo lectura por diseño",
+      "close": "Cerrar",
+      "settings": "Configuración",
+      "connect": "Conectar",
+      "past": "Se ha desconectado {label}. Se ha eliminado la credencial; el historial medido que generó se queda en su perfil.",
+      "foot": "Las cifras medidas sustituyen a sus estimaciones en el informe, y sus estimaciones se quedan en su historial. Google Ads todavía no está disponible: SYB necesita antes la aprobación de Google para que cualquier cuenta pueda conectarse."
+    },
+    "settings": {
+      "access": "acceso",
+      "readOnly": "solo lectura",
+      "granted": "concedido",
+      "nothingRecorded": "nada registrado",
+      "checked": "comprobado",
+      "checkedReported": "{label} ha indicado exactamente estos permisos y los he comprobado: nada de esto puede cambiar nada en sus sistemas.",
+      "checkedProbed": "Estas lecturas se han probado y funcionan. {label} no permite a ninguna aplicación saber qué más permite la clave.",
+      "lastSync": "última sincronización",
+      "never": "nunca",
+      "history": "historial",
+      "shopifyAllOrders": "Sin read_all_orders, que Shopify debe aprobar, Shopify solo muestra {days, plural, one {# día} many {# días} other {# días}}.",
+      "carts": "carritos",
+      "cartsRead": "Leo los pagos que se quedaron sin terminar, con lo que contenían, con el mismo read_orders.",
+      "cartsCustomers": "Con read_customers también leo el correo electrónico del comprador de cada carrito y su preferencia de marketing por correo. Los carritos solo guardan una copia codificada. Los compradores que Shopify indica como suscritos pasan a ser contactos, con su correo, que usted puede borrar.",
+      "cartsNoCustomers": "Shopify solo indica quién dejó un carrito a una aplicación que pueda leer sus clientes. Añada el permiso opcional read_customers y relacionaré los carritos con sus contactos; sin él, no se relaciona ninguno.",
+      "lastError": "último error",
+      "inARow": "({count} seguidos)",
+      "syncing": "Sincronizando…",
+      "syncNow": "Sincronizar ahora",
+      "hideMatching": "Ocultar emparejamiento",
+      "matchProducts": "Emparejar productos",
+      "matchChannels": "Emparejar canales",
+      "disconnectAsk": "¿Desconectar {label}? Se elimina la credencial y se detiene la sincronización. El historial medido se conserva.",
+      "yesDisconnect": "Sí, desconectar",
+      "keepIt": "Mantenerla",
+      "disconnect": "Desconectar",
+      "disconnected": "Se ha desconectado {label}. Se ha eliminado la credencial y el historial medido se conserva.",
+      "disconnectFailed": "No se ha podido desconectar."
+    },
+    "history": {
+      "notSynced": "Todavía sin sincronizar. La primera sincronización lee {days, plural, one {el último día} many {los últimos # días} other {los últimos # días}}.",
+      "never": "Nunca se ha sincronizado.",
+      "upToDate": "Al día hasta el {day}; cubre {days, plural, one {el último día} many {los últimos # días} other {los últimos # días}}.",
+      "readThrough": "Leído hasta el {day}: el {share} {days, plural, one {del último día} many {de los últimos # días} other {de los últimos # días}}."
+    },
+    "mapping": {
+      "reading": "Leyendo {label}…",
+      "couldntRead": "No he podido leer {label}.",
+      "notSaved": "No se ha guardado ese emparejamiento.",
+      "matchedTo": "emparejado con <b>{label}</b>",
+      "notMatched": "aún sin emparejar",
+      "suggested": "{title} (sugerido)",
+      "noneOfThese": "Ninguno de estos",
+      "saving": "guardando…",
+      "confirm": "Confirmar",
+      "product": {
+        "none": "Todavía no hay ofertas en su perfil que emparejar. Añádalas primero en la entrevista.",
+        "intro": "Empareje cada cosa que vende con su producto de {label}. Las ventas de un producto emparejado pasan a ser las unidades mensuales medidas de esa oferta. Yo sugiero emparejamientos; nada cuenta hasta que usted lo confirma.",
+        "noMatch": "sin producto equivalente",
+        "select": "Producto de {label} para {name}",
+        "choose": "elija un producto…",
+        "unmatched": "{count, plural, one {# producto de {label} no está emparejado con nada de su perfil. Es una laguna, y no voy a adivinar qué es.} many {# productos de {label} no están emparejados con nada de su perfil. Es una laguna, y no voy a adivinar qué son.} other {# productos de {label} no están emparejados con nada de su perfil. Es una laguna, y no voy a adivinar qué son.}}"
+      },
+      "channel": {
+        "none": "Todavía no hay canales en su perfil que emparejar. Añádalos primero en la entrevista.",
+        "intro": "Empareje cada uno de sus canales de venta con el canal de tráfico de {label} que le corresponde. Las visitas de un canal emparejado pasan a ser las visitas mensuales medidas de ese canal. Yo sugiero emparejamientos; nada cuenta hasta que usted lo confirma.",
+        "noMatch": "sin canal de tráfico equivalente",
+        "select": "Canal de tráfico de {label} para {name}",
+        "choose": "elija un canal de tráfico…",
+        "unmatched": "{count, plural, one {# canal de tráfico de {label} no está emparejado con nada de su perfil. Es una laguna, y no voy a adivinar qué es.} many {# canales de tráfico de {label} no están emparejados con nada de su perfil. Es una laguna, y no voy a adivinar qué son.} other {# canales de tráfico de {label} no están emparejados con nada de su perfil. Es una laguna, y no voy a adivinar qué son.}}"
+      }
+    },
+    "connect": {
+      "sub": "{label}, solo lectura",
+      "failed": "No se ha podido conectar.",
+      "doneProduct": "Se ha conectado {label}. Pulse Sincronizar ahora para leer sus pedidos y, después, empareje sus productos.",
+      "doneChannel": "Se ha conectado {label}. Pulse Sincronizar ahora para leer su tráfico y, después, empareje sus canales.",
+      "done": "Se ha conectado {label}. Pulse Sincronizar ahora para leer el último año.",
+      "checking": "Comprobando…",
+      "button": "Conectar {label}",
+      "encrypted": "Todo lo que introduce se cifra antes de guardarse y nunca se vuelve a mostrar, ni siquiera a usted."
+    },
+    "verify": {
+      "reported": "{label} indica exactamente qué permisos tiene una credencial, y yo los compruebo cuando usted conecta. Si pudiera cambiar algo en sus sistemas, rechazo la conexión.",
+      "probedStripe": "{label} no permite a ninguna aplicación comprobar el resto de los permisos de una clave. Esto es lo que sí puedo prometer: compruebo que las lecturas de arriba funcionan, y mi código solo puede leer. Rechazo las claves de acceso completo, y dejar todos los demás permisos en None es lo que hace que la propia clave sea de solo lectura.",
+      "probed": "{label} no permite a ninguna aplicación comprobar el resto de los permisos de una clave. Esto es lo que sí puedo prometer: compruebo que las lecturas de arriba funcionan, y mi código solo puede leer. Elegir el acceso de lectura es lo que hace que la propia clave sea de solo lectura."
+    },
+    "guide": {
+      "line": "<b>{grant}</b>. {why}",
+      "sep": ", ",
+      "fixture": {
+        "s0": {
+          "grant": "Ingresos: lectura",
+          "why": "Ingresos diarios, para la cifra mensual.",
+          "gives": "ingresos diarios"
+        },
+        "s1": {
+          "grant": "Pedidos: lectura",
+          "why": "Número de pedidos diario, para la cifra mensual.",
+          "gives": "número de pedidos diario"
+        },
+        "s2": {
+          "grant": "Gasto en anuncios: lectura",
+          "why": "Gasto diario en anuncios, para la cifra mensual.",
+          "gives": "gasto diario en anuncios"
+        }
+      },
+      "stripe": {
+        "s0": {
+          "grant": "Balance: Read",
+          "why": "Su historial de pagos, es decir, cada cobro y cada reembolso, de donde salen los ingresos y el número de pedidos mensuales.",
+          "gives": "su historial de pagos"
+        }
+      },
+      "shopify": {
+        "s0": {
+          "why": "Sus pedidos, de donde salen los ingresos diarios, el número de pedidos y las unidades vendidas, y los pagos que se quedaron sin terminar, con lo que contenían.",
+          "gives": "sus pedidos"
+        },
+        "s1": {
+          "why": "Su lista de productos, para poder emparejar cada producto con lo que usted vende, y cuántas unidades tiene de cada uno en existencias y lo que le cuestan, para poder señalarle las existencias que no se venden.",
+          "gives": "su lista de productos"
+        },
+        "s2": {
+          "grant": "read_all_orders (opcional; Shopify debe aprobarlo)",
+          "why": "Pedidos de hace más de {days, plural, one {# día} many {# días} other {# días}}, para tener un año completo de historial. Sin él leo {days, plural, one {el último día} many {los últimos # días} other {los últimos # días}}.",
+          "gives": "pedidos de hace más de {days, plural, one {# día} many {# días} other {# días}}"
+        },
+        "s3": {
+          "grant": "read_customers (opcional)",
+          "why": "Quién dejó un pago sin terminar, para poder relacionar un carrito con alguien de su lista de contactos. Solo leo el correo electrónico del comprador de un carrito y si ha aceptado recibir su marketing por correo en Shopify. Los carritos guardan una copia codificada del correo. Los compradores que Shopify indica como suscritos se añaden a sus contactos con su correo, donde puede borrarlos, y los demás solo conservan la copia codificada. Sin él, no se relaciona ningún carrito.",
+          "gives": "quién dejó un pago sin terminar"
+        }
+      },
+      "woocommerce": {
+        "s0": {
+          "grant": "Acceso de lectura (incluye los pedidos)",
+          "why": "Sus pedidos, de donde salen los ingresos diarios, el número de pedidos y las unidades vendidas.",
+          "gives": "sus pedidos"
+        },
+        "s1": {
+          "grant": "Acceso de lectura (incluye los productos)",
+          "why": "Su lista de productos, para poder emparejar cada producto con lo que usted vende, y su nivel de existencias, para poder señalarle las existencias que no se venden.",
+          "gives": "su lista de productos"
+        }
+      },
+      "ga4": {
+        "s0": {
+          "grant": "Rol de lector en la propiedad",
+          "why": "Sesiones por día y por canal, de donde sale el tráfico medido del sitio web. El rol de lector puede leer informes y no cambiar nada.",
+          "gives": "sesiones por día y por canal"
+        }
+      },
+      "meta_ads": {
+        "s0": {
+          "why": "El gasto diario en anuncios y las compras que Meta atribuye a sus anuncios. Nada que pueda editar una campaña.",
+          "gives": "el gasto diario en anuncios y las compras que Meta atribuye a sus anuncios"
+        }
+      },
+      "search_console": {
+        "s0": {
+          "grant": "Basta con el permiso restringido en la propiedad",
+          "why": "Las búsquedas de Google en las que apareció su sitio, con qué frecuencia y con qué frecuencia se hizo clic. Puede leer informes y no cambiar nada.",
+          "gives": "las búsquedas de Google en las que apareció su sitio"
+        }
+      },
+      "square": {
+        "s0": {
+          "why": "Cada pago que cobraron sus cajas, con tarjeta o en efectivo registrado en Square, de donde salen los ingresos de caja diarios y por hora.",
+          "gives": "cada pago que cobraron sus cajas"
+        },
+        "s1": {
+          "why": "Su lista de ubicaciones, para que se lean los pagos de todas las cajas, no solo de la principal.",
+          "gives": "su lista de ubicaciones"
+        },
+        "s2": {
+          "grant": "APPOINTMENTS_READ (opcional, para reservas)",
+          "why": "Sus citas: cuáles se cumplieron, cuáles fueron ausencias o cancelaciones y si los clientes volvieron, pero no sus notas.",
+          "gives": "sus citas"
+        },
+        "s3": {
+          "grant": "APPOINTMENTS_ALL_READ (opcional, junto con el anterior)",
+          "why": "Sus citas. Square lo necesita junto con el anterior para leer todas las reservas de sus ubicaciones, no solo las hechas a través de SYB. No puede cambiar ninguna reserva.",
+          "gives": "sus citas"
+        }
+      }
+    },
+    "steps": {
+      "stripe": {
+        "s1": "En el Dashboard de Stripe, abra <b>Desarrolladores</b>, luego <b>Claves de API</b>, y elija <b>Crear clave restringida</b>. Para empezar, el modo de prueba sirve.",
+        "s2": "Deje todos los permisos en <b>None</b>, excepto:",
+        "s3": "Cree la clave y péguela abajo. Empieza por <b>rk_test_</b> o <b>rk_live_</b>."
+      },
+      "shopify": {
+        "s1": "En el <b>Dev Dashboard</b> de Shopify, elija <b>Create app</b>, luego <b>Start from Dev Dashboard</b>, y póngale un nombre.",
+        "s2": "En la pestaña <b>Versions</b> de la aplicación, añada solo estos ámbitos de la Admin API y publique la versión:",
+        "s3": "Desde <b>Home</b>, en la aplicación, elija <b>Install app</b> y seleccione su tienda. La aplicación y la tienda deben estar en la misma organización de Shopify.",
+        "s4": "Desde <b>Settings</b>, en la aplicación, copie el ID de cliente y el secreto de cliente, e introdúzcalos abajo junto con la dirección myshopify.com de su tienda."
+      },
+      "woocommerce": {
+        "s1": "En WordPress, abra <b>WooCommerce</b>, luego <b>Ajustes</b>, <b>Avanzado</b>, <b>REST API</b>, y elija <b>Añadir clave</b>.",
+        "s2": "Ponga <b>Permisos</b> en <b>Lectura</b>. El acceso de lectura incluye:",
+        "s3": "Genere la clave e introduzca abajo la clave de cliente y la clave secreta de cliente junto con la dirección de su tienda."
+      },
+      "ga4": {
+        "s1": "En <b>Google Cloud Console</b>, cree un proyecto (o use uno existente), habilite la <b>Google Analytics Data API</b> y, en <b>IAM y administración</b>, <b>Cuentas de servicio</b>, cree una cuenta de servicio y descargue una <b>clave JSON</b> para ella.",
+        "s2": "En <b>Google Analytics</b>, abra <b>Administrar</b>, luego <b>Gestión del acceso a la propiedad</b>, y añada la dirección de correo electrónico de la cuenta de servicio con el rol:",
+        "s3": "Copie el ID de propiedad de <b>Administrar</b>, <b>Detalles de la propiedad</b>, y péguelo abajo con el contenido del archivo de clave."
+      },
+      "square": {
+        "s1": "En la <b>Square Developer Console</b>, cree una aplicación (o abra una) y copie su <b>Production access token</b>.",
+        "s2": "Concédale solo estos permisos:",
+        "s3": "Pegue el token abajo. Se leen los pagos registrados en Square, con tarjeta o en efectivo; el efectivo que nunca pasa por la caja no lo puede ver nada. Con los dos permisos de citas, también se leen sus reservas de Square Appointments."
+      },
+      "search_console": {
+        "s1": "En <b>Google Cloud Console</b>, habilite la <b>Google Search Console API</b> en un proyecto y cree una cuenta de servicio con una <b>clave JSON</b>; sirve la misma que usa para Google Analytics.",
+        "s2": "En <b>Search Console</b>, abra <b>Settings</b>, luego <b>Users and permissions</b>, y añada el correo electrónico de la cuenta de servicio:",
+        "s3": "Introduzca la propiedad tal como la nombra Search Console, con el contenido del archivo de clave. Google oculta las búsquedas poco frecuentes por privacidad, así que las búsquedas que leo suman algo menos que el total del propio Google."
+      },
+      "meta_ads": {
+        "s1": "En <b>Meta Business Suite</b>, abra <b>Configuración del negocio</b>, luego <b>Usuarios</b>, <b>Usuarios del sistema</b>, y añada un usuario del sistema (basta con el rol de empleado).",
+        "s2": "En <b>Asignar activos</b>, asígnele su cuenta publicitaria solo con <b>Ver rendimiento</b>.",
+        "s3": "Elija <b>Generate token</b>, seleccione su aplicación y marque solo:",
+        "s4": "Pegue el token abajo junto con el ID de su cuenta publicitaria, que aparece en el <b>Administrador de anuncios</b>."
+      }
+    },
+    "field": {
+      "fixture": {
+        "key": {
+          "label": "Credencial de prueba"
+        }
+      },
+      "stripe": {
+        "key": {
+          "label": "Clave restringida"
+        }
+      },
+      "shopify": {
+        "shop": {
+          "label": "Dirección de la tienda"
+        },
+        "client_id": {
+          "label": "ID de cliente",
+          "placeholder": "en la sección Settings de la aplicación"
+        },
+        "client_secret": {
+          "label": "Secreto de cliente",
+          "placeholder": "en la sección Settings de la aplicación"
+        }
+      },
+      "woocommerce": {
+        "site_url": {
+          "label": "Dirección de la tienda"
+        },
+        "consumer_key": {
+          "label": "Clave de cliente"
+        },
+        "consumer_secret": {
+          "label": "Clave secreta de cliente"
+        }
+      },
+      "ga4": {
+        "property_id": {
+          "label": "ID de propiedad",
+          "placeholder": "el número que aparece en Administrar, Detalles de la propiedad"
+        },
+        "service_account_json": {
+          "label": "Archivo de clave de la cuenta de servicio",
+          "placeholder": "pegue aquí todo el archivo de clave JSON"
+        }
+      },
+      "meta_ads": {
+        "ad_account_id": {
+          "label": "ID de la cuenta publicitaria"
+        },
+        "access_token": {
+          "label": "Token de acceso del usuario del sistema"
+        }
+      },
+      "square": {
+        "access_token": {
+          "label": "Token de acceso",
+          "placeholder": "de la Square Developer Console"
+        },
+        "environment": {
+          "label": "Entorno",
+          "placeholder": "production (o sandbox para pruebas)"
+        }
+      },
+      "search_console": {
+        "site_url": {
+          "label": "Propiedad",
+          "placeholder": "https://www.example.com/ o sc-domain:example.com"
+        },
+        "service_account_json": {
+          "label": "Archivo de clave de la cuenta de servicio",
+          "placeholder": "pegue aquí todo el archivo de clave JSON"
+        }
+      }
+    },
+    "write": {
+      "aria": "Acceso de escritura",
+      "sectionLabel": "Acceso de escritura · un consentimiento aparte",
+      "title": {
+        "off": "Desactivado. No se puede publicar nada.",
+        "paused": "En pausa. Vuelva a conectarlo para continuar.",
+        "on": "Activado, solo con su aprobación"
+      },
+      "label": {
+        "meta_publish": "Publicación en Meta (página de Facebook e Instagram)",
+        "meta_ads": "Gestión de anuncios de Meta",
+        "email_campaign": "Correo de campañas",
+        "google_business_reviews": "Reseñas del Perfil de Empresa de Google"
+      },
+      "status": {
+        "connected": "conectada",
+        "paused": "en pausa",
+        "failed": "fallida",
+        "disconnected": "desconectada"
+      },
+      "consentedOn": "consentimiento del {day} · {status}",
+      "notGranted": "no concedido",
+      "grant": "Conceder",
+      "close": "Cerrar",
+      "reconnect": "Volver a conectar",
+      "disconnect": "Desconectar",
+      "disconnecting": "Desconectando…",
+      "cancel": "Cancelar",
+      "checking": "Comprobando…",
+      "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
+      "disconnectFailed": "No se ha podido desconectar.",
+      "connectFailed": "No se ha podido conectar.",
+      "disconnected": "Se ha desconectado {label}. El token se ha eliminado aquí.",
+      "connected": "Se ha conectado {label} y su consentimiento queda registrado.",
+      "fact": {
+        "status": "estado",
+        "permissions": "permisos",
+        "consented": "consentido",
+        "accessTier": "nivel de acceso",
+        "seen": "visto el {day}"
+      },
+      "pausedDefault": "Meta ha dejado de aceptar el inicio de sesión de esta conexión. Vuelva a conectarla y seguiré donde lo dejé.",
+      "typeToConfirm": "Para confirmar, escriba <b>{phrase}</b>",
+      "facebook": {
+        "sub": "Evaluadores invitados: inicie sesión con Facebook",
+        "testerNote": "Durante el piloto, el inicio de sesión con Facebook solo funciona para evaluadores invitados. Primero, Samuel o Tedi, de SYB, le añaden como evaluador (Tester) en la aplicación de Meta de SYB, y usted acepta la invitación desde su propia cuenta de Facebook. Después, Meta le pide que apruebe exactamente los permisos indicados arriba, y usted elige aquí la página o la cuenta publicitaria.",
+        "oneConsent": "Una cuenta de Facebook puede conectar la publicación o la gestión de anuncios mediante el inicio de sesión, pero no ambas: Meta da a la aplicación de SYB todo lo que usted le concedió antes, y SYB rechaza un token que tenga más de lo que nombra este consentimiento. Para la otra, use su propia aplicación de Meta, más abajo.",
+        "opening": "Abriendo Facebook…",
+        "signInPick": {
+          "ad": "Iniciar sesión con Facebook y elegir la cuenta publicitaria",
+          "page": "Iniciar sesión con Facebook y elegir la página"
+        },
+        "signIn": "Iniciar sesión con Facebook"
+      },
+      "facebookOff": "Todavía no está activado.",
+      "pick": {
+        "couldntList": "No he podido enumerar lo que Meta ha compartido.",
+        "connected": "Se ha conectado {label} a través de Facebook y su consentimiento queda registrado.",
+        "cancelled": "Inicio de sesión con Facebook cancelado. No se ha conectado nada y SYB no ha guardado ningún token.",
+        "title": {
+          "ad": "Elija la cuenta publicitaria sobre la que SYB puede actuar",
+          "page": "Elija la página sobre la que SYB puede actuar"
+        },
+        "asking": "Preguntando a Meta qué ha compartido…",
+        "aria": {
+          "ad": "Elegir la cuenta publicitaria",
+          "page": "Elegir la página"
+        },
+        "instagram": "También Instagram {handle}",
+        "noInstagram": "ninguna cuenta de Instagram vinculada: solo Facebook",
+        "active": "activa",
+        "notActive": "inactiva",
+        "allow": {
+          "ad": "Permitir y conectar esta cuenta publicitaria",
+          "page": "Permitir y conectar esta página"
+        },
+        "note": "Antes de guardar nada, SYB comprueba con Meta que el inicio de sesión tiene exactamente los permisos indicados arriba."
+      },
+      "eachAction": "Qué hace cada acción",
+      "undoable": "Se puede deshacer.",
+      "notUndoable": "No se puede deshacer, y se señala así antes de su aprobación.",
+      "op": {
+        "publish_page_post": "Publicar en la página de Facebook una publicación aprobada de texto o de enlace.",
+        "publish_page_photo": "Publicar en la página de Facebook una publicación aprobada con foto.",
+        "publish_page_video": "Publicar en la página de Facebook un vídeo o un reel aprobados.",
+        "publish_ig_media": "Publicar en la cuenta de Instagram una publicación, un carrusel o un reel aprobados.",
+        "pause_campaign": "Pausar una campaña en curso.",
+        "resume_campaign": "Reanudar una campaña en pausa.",
+        "set_daily_budget": "Cambiar el presupuesto diario de una campaña, dentro de los límites aprobados.",
+        "create_campaign_paused": "Crear una campaña nueva en pausa.",
+        "upload_ad_video": "Subir a la cuenta publicitaria el vídeo de un elemento aprobado, para su anuncio.",
+        "create_adset_paused": "Crear un conjunto de anuncios en pausa: su presupuesto diario, su calendario, sus ubicaciones y su público.",
+        "create_adcreative": "Crear un creativo de anuncio a partir de los archivos multimedia y el texto de un elemento aprobado, con su aviso de uso de IA.",
+        "create_ad_paused": "Crear un anuncio en pausa, con su campaña, su conjunto de anuncios y su creativo, todos creados en pausa.",
+        "resume_adset": "Reanudar un conjunto de anuncios en pausa.",
+        "pause_adset": "Pausar un conjunto de anuncios en curso.",
+        "resume_ad": "Reanudar un anuncio en pausa.",
+        "pause_ad": "Pausar un anuncio en curso."
+      },
+      "readback": "Para ver qué resultado da cada publicación, el mismo token también lee:",
+      "ownApp": "O bien: configure su propia aplicación de Meta",
+      "ownAppSteps": {
+        "meta_publish": {
+          "s0": "En Meta Business Suite, compruebe que su página de Facebook y su cuenta de Instagram están ambas en su portfolio comercial.",
+          "s1": "En developers.facebook.com, cree una aplicación de tipo Negocios que sea propiedad de ese mismo portfolio.",
+          "s2": "Añada a la aplicación los casos de uso de páginas e Instagram.",
+          "s3": "En la configuración del negocio, añada un usuario del sistema, asígnele su página y su cuenta de Instagram, y genere un token para su aplicación con exactamente los permisos indicados arriba, ni más ni menos.",
+          "s4": "Pegue aquí el token con el ID de su página y, para publicar también en Instagram, el ID de la cuenta de Instagram."
+        },
+        "meta_ads": {
+          "s0": "En Meta Business Suite, compruebe que su cuenta publicitaria está en su portfolio comercial.",
+          "s1": "En developers.facebook.com, cree una aplicación de tipo Negocios que sea propiedad de ese mismo portfolio.",
+          "s2": "Añada a la aplicación el caso de uso de la Marketing API.",
+          "s3": "En la configuración del negocio, añada un usuario del sistema, asígnele su cuenta publicitaria y genere un token para su aplicación con exactamente el permiso indicado arriba, ni uno más.",
+          "s4": "Pegue aquí el token con el ID de la cuenta publicitaria que aparece en el Administrador de anuncios."
+        }
+      },
+      "field": {
+        "meta_publish": {
+          "access_token": {
+            "label": "token de acceso",
+            "placeholder": "Token de acceso del usuario del sistema"
+          },
+          "page_id": {
+            "label": "ID de la página",
+            "placeholder": "ID de la página de Facebook"
+          },
+          "ig_user_id": {
+            "label": "ID de la cuenta de Instagram",
+            "placeholder": "ID de la cuenta de Instagram (para publicar también allí)"
+          }
+        },
+        "meta_ads": {
+          "access_token": {
+            "label": "token de acceso",
+            "placeholder": "Token de acceso del usuario del sistema"
+          },
+          "ad_account_id": {
+            "label": "ID de la cuenta publicitaria",
+            "placeholder": "ID de la cuenta publicitaria, con o sin act_"
+          }
+        }
+      },
+      "optionalField": "{label} (opcional)",
+      "allowConnect": "Permitir y conectar",
+      "youCancelled": "Ha cancelado el inicio de sesión con Facebook. No se ha conectado nada.",
+      "reason": {
+        "start_here": "Empiece el inicio de sesión con Facebook desde la pantalla Conexiones de SYB, con el botón que hay allí. No se ha enviado nada a Meta.",
+        "signed_out": "Inicie sesión primero en SYB y vuelva a conectar Meta.",
+        "owner_only": "Solo un propietario puede conceder o retirar el acceso de escritura. No se ha enviado nada a Meta.",
+        "unavailable": "El inicio de sesión con Facebook todavía no está disponible. Use en su lugar su propia aplicación de Meta.",
+        "provider": "SYB no ofrece esa conexión de Meta.",
+        "phrase": "La frase de confirmación no coincide. Escríbala tal como se muestra y vuelva a empezar.",
+        "already_connected": "Esa conexión de Meta ya está conectada. Desconéctela primero.",
+        "start_again": "Ese inicio de sesión con Facebook ha caducado o ya se ha usado. Vuelva a empezar desde Conexiones.",
+        "foreign": "Ese inicio de sesión con Facebook empezó en otra cuenta de SYB. Inicie sesión en SYB con esa cuenta o vuelva a empezar.",
+        "meta_error": "El inicio de sesión con Facebook no ha terminado. No se ha conectado nada.",
+        "no_pages": "Meta no ha mostrado a SYB ninguna página de esa cuenta de Facebook. En el cuadro de diálogo de Meta, elija la página (y su cuenta de Instagram) en la que quiere que SYB publique y vuelva a intentarlo.",
+        "no_ad_accounts": "Meta no ha mostrado a SYB ninguna cuenta publicitaria de esa cuenta de Facebook. En el cuadro de diálogo de Meta, elija la cuenta publicitaria que quiere que gestione SYB y vuelva a intentarlo.",
+        "meta_auth": "El inicio de sesión con Facebook no ha terminado: Meta no lo ha aceptado. Vuelva a empezar desde Conexiones.",
+        "meta_permission": "El inicio de sesión con Facebook no ha terminado: Meta indica que SYB no tiene permiso para hacerlo. Revise los permisos indicados en Conexiones y vuelva a empezar.",
+        "meta_busy": "El inicio de sesión con Facebook no ha terminado: Meta estaba ocupado o no ha respondido. No se ha conectado nada; vuelva a intentarlo dentro de unos minutos.",
+        "meta_refused": "El inicio de sesión con Facebook no ha terminado: Meta lo ha rechazado. No se ha conectado nada.",
+        "internal": "Algo ha fallado por nuestra parte. No se ha conectado nada.",
+        "generic": "El inicio de sesión con Facebook no ha terminado. No se ha conectado nada."
+      },
+      "nothingSent": "Al conectar se comprueba el token y se registra su consentimiento. No se publica ni se cambia nada sin su aprobación de cada elemento, y la publicación a través de SYB todavía no está activada.",
+      "disconnectNote": "Al desconectar se elimina aquí el token al instante. No revoca nada por parte de Meta: para retirar allí los permisos, quite la aplicación de la configuración de su negocio.",
+      "access": {
+        "label": "Nivel de acceso de Meta · {level}",
+        "standard": {
+          "word": "estándar",
+          "headline": "Meta todavía no ha aprobado a SYB para el registro abierto.",
+          "body": "Hasta que estén listos el registro mercantil de SYB y las aprobaciones de Meta (acceso avanzado, verificación del negocio y verificación como proveedor de tecnología), la propia Meta rechaza estos permisos en cualquier página o cuenta publicitaria que no sea del propio negocio de SYB. Mientras tanto, funcionan dos vías piloto."
+        },
+        "advanced": {
+          "word": "avanzado",
+          "headline": "Meta ha aprobado que SYB solicite estos permisos.",
+          "body": "Cualquier negocio puede conectar aquí su propia página, su cuenta de Instagram o su cuenta publicitaria."
+        }
+      },
+      "available": "disponible",
+      "unavailable": "no disponible",
+      "route": {
+        "ownApp": "Su propia aplicación de Meta",
+        "ownAppAdvanced": "Configúrela abajo y pegue el token.",
+        "ownAppStandard": "Su aplicación, su portfolio comercial, su token. Configúrela abajo.",
+        "signIn": "Iniciar sesión con Facebook",
+        "signInOn": "Inicie sesión, apruebe los permisos indicados y elija su página o su cuenta publicitaria.",
+        "testers": "Evaluadores invitados: inicie sesión con Facebook",
+        "testersOn": "Para evaluadores que el equipo de SYB ha añadido en Meta: Samuel o Tedi le añaden primero en la aplicación de Meta de SYB, y usted acepta la invitación.",
+        "testersOff": "Para evaluadores que el equipo de SYB ha añadido en Meta. {off}"
+      },
+      "tier": {
+        "unseen": "aún no visto: Meta lo indica en la primera llamada de SYB para un cambio de anuncios",
+        "development_access": "nivel de desarrollo: los límites más bajos de Meta, pensado para desarrollar",
+        "standard_access": "acceso estándar: unas {base} + {perAd} × anuncios activos llamadas por hora en esta cuenta publicitaria",
+        "note": "Meta limita, según el nivel, cuántas llamadas puede hacer SYB cada hora en esta cuenta publicitaria. Basta para un negocio, no para una base de clientes. SYB espera a la siguiente ejecución siempre que Meta indica que se ha usado el {share} del límite. Los límites más altos requieren la revisión de Meta, que SYB solicitará en cuanto haya {calls, plural, one {# llamada correcta} many {# llamadas correctas} other {# llamadas correctas}} en {days, plural, one {# día} many {# días} other {# días}}."
+      }
+    },
+    "email": {
+      "aria": "Correo de campañas",
+      "sectionLabel": "Correo de campañas · un consentimiento aparte",
+      "title": {
+        "on": "Concedido, solo con su aprobación",
+        "off": "Desactivado. No se puede enviar ningún correo a sus clientes."
+      },
+      "label": "Correo de campañas",
+      "status": {
+        "connected": "conectada",
+        "paused": "en pausa",
+        "failed": "fallida",
+        "disconnected": "desconectada"
+      },
+      "consentedOn": "consentimiento del {day} · {status}",
+      "notGranted": "no concedido",
+      "grant": "Conceder",
+      "close": "Cerrar",
+      "disconnect": "Desconectar",
+      "disconnecting": "Desconectando…",
+      "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
+      "connectFailed": "No se ha podido conectar.",
+      "disconnectFailed": "No se ha podido desconectar.",
+      "granted": "El correo de campañas está concedido y su consentimiento queda registrado.",
+      "disconnected": "El correo de campañas está desconectado. No se enviará nada más.",
+      "fact": {
+        "status": "estado",
+        "sentAs": "enviado como",
+        "viaSyb": "{name} a través de SYB",
+        "repliesTo": "las respuestas van a"
+      },
+      "disconnectNote": "Al desconectar se detienen al instante todos los envíos de campañas. No se puede recuperar un correo ya enviado.",
+      "whatItDoes": "Qué hace",
+      "op": {
+        "send_campaign": "Enviar un correo de campaña aprobado a los clientes que aceptaron expresamente recibir noticias suyas, comprobando de nuevo a cada uno en el momento del envío."
+      },
+      "undoable": "Se puede deshacer.",
+      "notUndoable": "No se puede deshacer: un correo enviado no se puede recuperar, y cada campaña se señala así antes de su aprobación.",
+      "ownService": "Las campañas salen del propio servicio de correo de SYB, con el nombre de su negocio. No tiene que darle a SYB ninguna contraseña ni clave para esto.",
+      "sendAs": "Enviar como (el nombre de su negocio)",
+      "repliesTo": "Las respuestas van a (una dirección que usted lea)",
+      "typeToConfirm": "Para confirmar, escriba <b>{phrase}</b>",
+      "recording": "Registrando…",
+      "allow": "Permitir el correo de campañas",
+      "nothingSent": "Al conceder se registra su consentimiento. No se envía nada sin su aprobación de una campaña y, después, del propio correo, y cada destinatario se comprueba de nuevo en el momento del envío.",
+      "how": {
+        "label": "Cómo se envían las campañas",
+        "title": "Desde el propio servicio de correo de SYB, con su nombre.",
+        "body": "No le da a SYB ninguna contraseña ni clave para esto. Cada campaña va solo a los clientes que aceptaron expresamente recibir noticias suyas, comprobando de nuevo a cada uno en el momento del envío, y cada correo lleva su propio enlace para darse de baja, que se respeta al instante y para siempre."
+      },
+      "realSendsOff": "{label}: desactivado hasta que termine la prueba de dos semanas sin supervisión. No se ha enviado nada y la aprobación se mantiene. Saldrá en la primera ejecución tras su activación.",
+      "sharedSender": "Por ahora, las campañas y los correos de inicio de sesión de SYB salen de la misma dirección de envío. Si una campaña recibiera muchas quejas por spam, los correos de inicio de sesión también podrían retrasarse."
+    },
+    "google": {
+      "sectionLabel": "Perfil de Empresa de Google · un consentimiento aparte",
+      "label": "Reseñas del Perfil de Empresa de Google",
+      "title": {
+        "on": "Concedido, solo para leer sus reseñas",
+        "off": "Desactivado. SYB no lee sus reseñas de Google."
+      },
+      "status": {
+        "connected": "conectada",
+        "paused": "en pausa",
+        "failed": "fallida",
+        "disconnected": "desconectada"
+      },
+      "consentedOn": "consentimiento del {day} · {status}",
+      "notGranted": "no concedido",
+      "notSetUpYet": "todavía no configurado",
+      "connect": "Conectar",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "keepIt": "Mantenerlo",
+      "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
+      "connectFailed": "No se ha podido conectar.",
+      "revokeFailed": "No se ha podido revocar.",
+      "connected": "El Perfil de Empresa de Google está conectado y su consentimiento queda registrado.",
+      "signedInPick": "Sesión iniciada con Google. Elija la ubicación que debe leer SYB.",
+      "youCancelled": "Ha cancelado en la pantalla de Google. No se ha conectado nada.",
+      "nothingConnected": "No se ha conectado nada.",
+      "revoked": "Revocado. Se ha eliminado el acceso de SYB a Google y la lectura se ha detenido.",
+      "fact": {
+        "status": "estado",
+        "location": "ubicación",
+        "lastRead": "última lectura",
+        "notYet": "todavía no: SYB lee una vez al día"
+      },
+      "revokeAsk": "SYB dejará de leer sus reseñas de Google.",
+      "revoking": "Revocando…",
+      "yesRevoke": "Sí, revocar",
+      "revoke": "Revocar",
+      "revokeNote": "Al revocar se elimina aquí al instante el acceso de SYB, y SYB deja de leer. Las reseñas ya leídas se quedan en Reseñas hasta que usted las elimine o se cumpla su año. Para quitar también a SYB por parte de Google, abra la página Seguridad de su cuenta de Google y luego Conexiones de terceros.",
+      "pickTitle": "Elija la ubicación que lee SYB",
+      "recording": "Registrando…",
+      "readLocation": "Leer las reseñas de esta ubicación",
+      "googleScreen": "Después, Google muestra su propia pantalla y pregunta por este único permiso. Permítalo y vuelva aquí.",
+      "typeToConfirm": "Para confirmar, escriba <b>{phrase}</b>",
+      "opening": "Abriendo Google…",
+      "signIn": "Iniciar sesión con Google y permitir la lectura de reseñas",
+      "nothingWritten": "Al conectar se registra su consentimiento y se leen sus reseñas una vez al día. SYB nunca responde ni edita su ficha: solo lee de Google.",
+      "reason": {
+        "start_here": "Empiece el inicio de sesión con Google desde la pantalla Conexiones de SYB, con el botón que hay allí. No se ha enviado nada a Google.",
+        "signed_out": "Inicie sesión primero en SYB y vuelva a conectar Google.",
+        "owner_only": "Solo un propietario puede conceder o retirar este permiso. No se ha enviado nada a Google.",
+        "unavailable": "La lectura de reseñas desde Google todavía no está configurada.",
+        "phrase": "La frase de confirmación no coincide. Escríbala tal como se muestra y vuelva a empezar.",
+        "already_connected": "El Perfil de Empresa de Google ya está conectado. Revóquelo primero para conectar otro.",
+        "start_again": "Ese inicio de sesión con Google ha caducado o ya se ha usado. Vuelva a empezar desde Conexiones.",
+        "foreign": "Ese inicio de sesión con Google empezó en otra cuenta de SYB. Inicie sesión en SYB con esa cuenta o vuelva a empezar.",
+        "google_error": "El inicio de sesión con Google no ha terminado. No se ha conectado nada.",
+        "scope": "Google no ha concedido exactamente el único permiso que pide SYB. En la pantalla de Google, permita el permiso del Perfil de Empresa y vuelva a intentarlo.",
+        "no_refresh": "Google no le ha dado a SYB un acceso duradero. Vuelva a empezar: Google pregunta otra vez, y SYB necesita esa respuesta.",
+        "no_locations": "Google no ha mostrado a SYB ningún Perfil de Empresa para esa cuenta de Google. Inicie sesión con la cuenta que gestiona su perfil y vuelva a intentarlo.",
+        "google_auth": "Google no ha aceptado el inicio de sesión. Vuelva a empezar desde Conexiones.",
+        "google_permission": "Google indica que SYB todavía no tiene permiso para leer Perfiles de Empresa. No se ha conectado nada.",
+        "google_busy": "Google estaba ocupado o no ha respondido. No se ha conectado nada; vuelva a intentarlo dentro de unos minutos.",
+        "google_refused": "Google ha rechazado el inicio de sesión. No se ha conectado nada.",
+        "internal": "Algo ha fallado por nuestra parte. No se ha conectado nada.",
+        "generic": "El inicio de sesión con Google no ha terminado. No se ha conectado nada."
+      }
+    },
+    "import": {
+      "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
+      "readFrom": "Leído de {file}. Puede comprobarlo aquí",
+      "orPaste": "O péguelo aquí",
+      "datesLabel": "Cómo se escriben las fechas, si tienen este aspecto: {sample}",
+      "workItOut": "Deducirlo del archivo",
+      "dayFirst": "Primero el día ({example})",
+      "monthFirst": "Primero el mes ({example})",
+      "amountsLabel": "Cómo se escriben los importes, si tienen este aspecto: {sample}",
+      "dotDecimal": "{sample} (la coma separa los miles)",
+      "commaDecimal": "{sample} (el punto separa los miles)",
+      "reading": "Leyendo…"
+    },
+    "bank": {
+      "label": "Extracto bancario · leído una vez, sin mover nada",
+      "title": "El efectivo de su banco, a partir de un extracto",
+      "latest": "{amount} el {day}",
+      "lede": "Exporte un extracto de su banco en CSV y deme el archivo. Solo leo la fecha de cada fila y el saldo posterior, nada sobre quién pagó ni por qué, y guardo el saldo de cierre de cada día. Su previsión de caja parte de él mientras tenga una semana de antigüedad o menos, y compruebo los saldos semanales de mi previsión con los extractos que me dé más adelante. No hay ningún banco conectado y no se puede mover nada.",
+      "file": "El extracto (CSV)",
+      "currency": "Moneda de la cuenta",
+      "through": "El último día que cubre el extracto, si es posterior a su última fila (opcional)",
+      "submit": "Importar este extracto",
+      "failed": "Ese extracto no se ha importado.",
+      "overlap": "Volver a importar un extracto que se solapa no supone ningún riesgo: los días que cubre se sustituyen, no se cuentan dos veces. El extracto necesita una columna de saldo; una simple lista de importes no puede decir qué había en la cuenta.",
+      "outcome": "{rows, plural, one {# fila leída} many {# filas leídas} other {# filas leídas}}: un saldo de cierre para {days, plural, one {# día} many {cada uno de los # días} other {cada uno de los # días}}, del {from} al {through}, con un saldo final de {amount}.",
+      "skipped": {
+        "date": "{count} con una fecha que no he podido leer",
+        "balance": "{count} con un saldo que no he podido leer",
+        "day": "{count} de un día cuyas filas no coinciden",
+        "sep": ", ",
+        "line": "Excluidas, nunca supuestas: {parts}."
+      }
+    },
+    "bookings": {
+      "label": "Importar reservas · leídas una vez, sin escribir nada de vuelta",
+      "title": "Sus citas, desde cualquier sistema de reservas",
+      "lastImport": "Última importación: {day} · {platform}",
+      "lede": "Fresha, Mindbody, Booksy, SimplyBook.me, Timely y la mayoría de los demás no se pueden conectar, pero todos exportan sus citas. Expórtelas en CSV y deme el archivo. Leo la fecha, qué pasó, el servicio, el miembro del personal y el precio. Guardo un código unidireccional por cliente para saber quién volvió. Nunca guardo sus nombres, correos electrónicos ni teléfonos. Si usa Square Appointments, conecte en su lugar Square, más arriba, con sus dos permisos de citas.",
+      "measuresSub": "{source} · del {from} al {to}",
+      "source": {
+        "import": "Su exportación de reservas",
+        "square": "Square"
+      },
+      "platform": "De dónde procede la exportación",
+      "generic": "Otro sistema de reservas o una hoja de cálculo",
+      "file": "El archivo exportado (CSV)",
+      "currency": "Moneda de la columna de precio",
+      "submit": "Importar estas reservas",
+      "failed": "Ese archivo no se ha importado.",
+      "overlap": "Volver a importar una exportación que se solapa no supone ningún riesgo: las citas que ya tengo se actualizan, no se cuentan dos veces. Las filas que no puedo leer se cuentan y se excluyen, nunca se suponen.",
+      "caption": "{source}: {days, plural, one {# día} many {los # días} other {los # días}}, del {from} al {to}",
+      "measureHead": "Medida · {days, plural, one {# día} many {# días} other {# días}}",
+      "value": "Valor",
+      "how": "Cómo lo he obtenido",
+      "notMeasured": "Sin medir",
+      "completedHow": "citas completadas, del {from} al {to}",
+      "measure": {
+        "completed": "Citas completadas",
+        "noShow": "Tasa de ausencias",
+        "lateCancel": "Tasa de cancelaciones tardías",
+        "rebooked": "Clientes que volvieron a reservar",
+        "revenue": "Ingresos por reservas",
+        "full": "Grado de ocupación"
+      },
+      "understood": "Lo que he entendido",
+      "columnsCaption": "Las columnas que he leído de su archivo",
+      "iRead": "Leo",
+      "fromColumn": "De su columna",
+      "role": {
+        "ref": "Referencia de la reserva",
+        "start": "Fecha y hora",
+        "date": "Fecha",
+        "time": "Hora",
+        "status": "Qué pasó",
+        "service": "Servicio",
+        "staff": "Personal",
+        "client_id": "ID de cliente, codificado y no guardado",
+        "client_email": "Correo del cliente, codificado y no guardado",
+        "client_phone": "Teléfono del cliente, codificado y no guardado",
+        "price": "Precio",
+        "duration": "Duración",
+        "cancelled_at": "Cuándo se canceló"
+      },
+      "noIdentity": "El archivo no tiene ningún ID, correo ni teléfono de cliente que pueda seguir, así que no puedo ver quién volvió. Los nombres por sí solos no bastan: dos clientas llamadas Anna se convertirían en una.",
+      "counted": "Lo que he contado",
+      "countedLine": "{rows, plural, one {# fila leída} many {# filas leídas} other {# filas leídas}} de su exportación de {platform}. {added, plural, one {# cita nueva} many {# citas nuevas} other {# citas nuevas}}, {updated} con cambios desde la última importación, {unchanged} ya presentes y sin cambios.",
+      "merged": "{count, plural, one {# línea adicional compartía la referencia de reserva con otra, así que he contado cada reserva una sola vez.} many {# líneas adicionales compartían la referencia de reserva con otra, así que he contado cada reserva una sola vez.} other {# líneas adicionales compartían la referencia de reserva con otra, así que he contado cada reserva una sola vez.}}",
+      "future": "{count, plural, one {# cita todavía por llegar. Contará cuando haya tenido lugar y vuelva a importar.} many {# citas todavía por llegar. Contarán cuando hayan tenido lugar y vuelva a importar.} other {# citas todavía por llegar. Contarán cuando hayan tenido lugar y vuelva a importar.}}",
+      "daysMeasured": "Días medidos: del {from} al {to}.",
+      "leftOut": "Lo que he excluido",
+      "leftOutFlag": "Excluido",
+      "valueLeftOutFlag": "Valor excluido",
+      "skip": {
+        "no_date": "{count, plural, one {# fila sin fecha.} many {# filas sin fecha.} other {# filas sin fecha.}}",
+        "unreadable_date": "{count, plural, one {# fila con una fecha que no he podido leer.} many {# filas con una fecha que no he podido leer.} other {# filas con una fecha que no he podido leer.}}",
+        "no_status": "{count, plural, one {# fila sin estado.} many {# filas sin estado.} other {# filas sin estado.}}",
+        "unknown_status": "{count, plural, one {# fila con un estado que no conozco.} many {# filas con un estado que no conozco.} other {# filas con un estado que no conozco.}}",
+        "not_closed_out": "{count, plural, one {# fila seguía marcada como reservada después de pasar su día, así que no puedo saber qué pasó.} many {# filas seguían marcadas como reservadas después de pasar su día, así que no puedo saber qué pasó.} other {# filas seguían marcadas como reservadas después de pasar su día, así que no puedo saber qué pasó.}}"
+      },
+      "skipOther": "{count, plural, one {# fila} many {# filas} other {# filas}} {reason}.",
+      "gapLine": "{count} con {gap}.",
+      "gap": {
+        "time": "una hora que no he podido leer (se ha conservado el día)",
+        "price": "un precio que no he podido leer (excluido)",
+        "duration": "una duración que no he podido leer (excluida)",
+        "cancelled_at": "una hora de cancelación que no he podido comparar con el inicio, así que cuenta como una cancelación normal",
+        "client": "datos de cliente que no he podido usar, así que no se sigue esa visita",
+        "client_erased": "alguien a quien usted borró o que se dio de baja, así que esa visita no queda vinculada a nadie"
+      },
+      "unknownStatuses": "Estados que no conocía: {list}. No supongo lo que significan.",
+      "unknownStatus": "«{word}» ({count})",
+      "listSep": ", "
+    }
+  },
+  "landing": {
+    "meta": {
+      "title": "SYB — un análisis de sangre para su negocio",
+      "description": "{checks} comprobaciones de sus ventas, reservas, pagos y anuncios, cada fuga valorada en euros y un informe firmado."
+    },
+    "nav": {
+      "label": "Principal",
+      "chart": "El gráfico",
+      "panels": "Qué analizamos",
+      "price": "Precio",
+      "signIn": "Iniciar sesión"
+    },
+    "hero": {
+      "pill": "Un análisis de sangre para su negocio",
+      "titleA": "Su negocio parece sano.",
+      "titleB": "<em>Sus cifras</em>, quizá no.",
+      "lede": "Hacemos {checks} comprobaciones de sus ventas, reservas, pagos y anuncios, ponemos precio en euros a cada fuga y le entregamos un informe firmado en {daysText} {days, plural, one {día} many {días} other {días}}.",
+      "book": "Reserve su análisis — {price}",
+      "see": "Vea lo que encontramos",
+      "trustReadOnly": "Solo lectura",
+      "trustSigned": "Firmado por una persona",
+      "trustRefund": "Reembolso si no encontramos nada"
+    },
+    "chart": {
+      "kicker": "El gráfico",
+      "title": "Su negocio, leído como una acción en bolsa.",
+      "aside": "Marcamos el día en que empezó cada fuga y sombreamos lo que le costó."
+    },
+    "panels": {
+      "kicker": "Qué analizamos",
+      "title": "Nueve paneles. Todo lo que mueve su beneficio.",
+      "p01": {
+        "name": "Conversión",
+        "markers": "reserva o pago · consultas · móvil · profundidad de página"
+      },
+      "p02": {
+        "name": "Margen",
+        "markers": "tras la entrega · coste de venta · comisiones · descuentos"
+      },
+      "p03": {
+        "name": "Precios",
+        "markers": "posición · sensibilidad · venta media · umbrales"
+      },
+      "p04": {
+        "name": "Devoluciones y reembolsos",
+        "markers": "tasa · daños y repeticiones · coste · motivos"
+      },
+      "p05": {
+        "name": "Fidelización",
+        "markers": "repetición · tiempo entre compras · inactivos · valor"
+      },
+      "p06": {
+        "name": "Correo y SMS",
+        "markers": "cuota · flujos · crecimiento de la lista · bajas"
+      },
+      "p07": {
+        "name": "Captación",
+        "markers": "coste por cliente · recuperación de la inversión · mezcla de canales · ROAS"
+      },
+      "p08": {
+        "name": "Existencias y capacidad",
+        "markers": "roturas de existencias · existencias muertas · huecos vacíos · rotación"
+      },
+      "p09": {
+        "name": "Soporte",
+        "markers": "consultas · «dónde está mi pedido o mi reserva» · tiempo de respuesta · autoservicio"
+      }
+    },
+    "steps": {
+      "kicker": "Cómo funciona",
+      "title": "Quince minutos de su tiempo.",
+      "whenMinutes": "Día {day} · {minutes} min",
+      "whenDay": "Día {day}",
+      "connect": {
+        "t": "Conectar",
+        "d": "Solo lectura. No cambia nada."
+      },
+      "questions": {
+        "t": "Responder unas preguntas",
+        "d": "Solo lo que sus cifras no pueden decirnos."
+      },
+      "results": {
+        "t": "Recibir sus resultados",
+        "d": "Cada fuga con su precio y en un gráfico, y primero tres soluciones."
+      }
+    },
+    "price": {
+      "kicker": "Precio",
+      "titleA": "Un análisis.",
+      "titleB": "Un precio.",
+      "card": "Panel completo del negocio",
+      "once": "pago único",
+      "markers": "{count, plural, one {# marcador} many {# marcadores} other {# marcadores}}, cada uno con su precio",
+      "chart": "El gráfico de sus ingresos, con las fugas marcadas",
+      "fixes": "{count, plural, one {# solución} many {# soluciones} other {# soluciones}}, por orden",
+      "walkthrough": "Recorrido firmado de {minutes} min",
+      "subscription": "Suscripción",
+      "none": "ninguna",
+      "book": "Reserve su análisis",
+      "refund": "¿Menos de {leaksText} {leaks, plural, one {fuga corregible} many {fugas corregibles} other {fugas corregibles}}? Reembolso completo."
+    },
+    "faq": {
+      "title": "Preguntas",
+      "passwordQ": "¿Necesitan mi contraseña?",
+      "passwordA": "No. Una conexión de solo lectura que puede quitar en cualquier momento.",
+      "changeQ": "¿Cambiará algo en mis cuentas?",
+      "changeA": "No. Solo leemos. Nunca se ejecuta nada sin su aprobación.",
+      "sizeQ": "¿Es mi negocio lo bastante grande?",
+      "sizeA": "Pensado para negocios que facturan entre {low} y {high} al mes, aproximadamente. ¿Demasiado pequeño para leerlo? Se lo decimos antes de que pague."
+    },
+    "foot": {
+      "book": "Reserve su análisis — {price}",
+      "company": "[Datos de la empresa]",
+      "terms": "Condiciones",
+      "privacy": "Privacidad"
+    },
+    "demo": {
+      "group": "Negocio de demostración",
+      "kicker": "Demo",
+      "shop": "Una tienda online",
+      "salon": "Un salón"
+    },
+    "walk": {
+      "figure": "Vídeo de recorrido por el producto",
+      "bar": "SYB · RECORRIDO POR EL PRODUCTO",
+      "chapterOf": "Capítulo {n} de {total} · {title}",
+      "chapters": "Capítulos",
+      "play": "Reproducir el recorrido",
+      "pause": "Pausar el recorrido",
+      "chapter": {
+        "c01": {
+          "title": "Conectar",
+          "caption": "Conecte sus cuentas: solo lectura, dos minutos.",
+          "crumb": "Conexiones",
+          "state": "conectando"
+        },
+        "c02": {
+          "title": "Preguntas",
+          "caption": "Responda unas preguntas que solo usted puede responder.",
+          "crumb": "Entrevista",
+          "state": "registrando"
+        },
+        "c03": {
+          "title": "La observación",
+          "caption": "Leemos cada cifra. No se toca nada.",
+          "crumb": "Observando",
+          "state": "observando"
+        },
+        "c04": {
+          "title": "Informe",
+          "caption": "Cada fuga, medida y valorada en euros.",
+          "crumb": "Informe",
+          "state": "informe listo"
+        },
+        "c05": {
+          "title": "Aprobar",
+          "caption": "No se ejecuta nada hasta que pulse Aprobar.",
+          "crumb": "Pendiente de usted",
+          "state": "{count, plural, one {# decisión} many {# decisiones} other {# decisiones}}"
+        },
+        "c06": {
+          "title": "Resultados",
+          "caption": "Después, vea exactamente lo que ha aportado cada solución.",
+          "crumb": "Resultados",
+          "state": "midiendo"
+        }
+      },
+      "s1": {
+        "step": "Paso {n} · Conectar",
+        "title": "Conecte sus cuentas, en solo lectura.",
+        "tag": "SOLO LECTURA",
+        "connected": "Conectado · leyendo {months, plural, one {# mes} many {# meses} other {# meses}}",
+        "button": "Conectar"
+      },
+      "s2": {
+        "step": "Paso {n} · Unas preguntas",
+        "range": "Basta con un rango.",
+        "record": "El registro",
+        "you": "usted",
+        "under": "< {a}",
+        "between": "{a}–{b}",
+        "over": "{a}+"
+      },
+      "s3": {
+        "step": "Paso {n} · La observación",
+        "title": "Leemos. No se toca nada.",
+        "tag": "OBSERVANDO",
+        "day": "Día",
+        "readings": "Lecturas",
+        "changes": "Cambios realizados"
+      },
+      "s4": {
+        "step": "Paso {n} · Su informe",
+        "title": "Cada fuga, con su precio.",
+        "leak": "Fuga / mes"
+      },
+      "s5": {
+        "step": "Paso {n} · Usted decide",
+        "proposal": "Propuesta · {area}",
+        "recommended": "RECOMENDADA",
+        "expected": "Previsto",
+        "expectedRange": "+{low}–{high} / mes",
+        "undo": "Deshacer",
+        "anyTime": "En cualquier momento",
+        "approve": "Aprobar",
+        "decline": "Rechazar",
+        "stamp": "APROBADA · se ejecuta a las {time}"
+      },
+      "s6": {
+        "step": "Paso {n} · Medido",
+        "title": "Vea exactamente lo que ha aportado.",
+        "recovered": "Recuperado / mes",
+        "key": "A",
+        "keyLegend": "{key} = aprobada",
+        "before": "Antes · {metric} {value} %",
+        "after": "Después · {metric} {value} %",
+        "measuring": "Después · midiendo…"
+      },
+      "flag": {
+        "ACT": "ACTUAR",
+        "HIGH": "ALTO",
+        "LOW": "BAJO",
+        "OK": "OK"
+      },
+      "shop": {
+        "stage": "Recorrido con una tienda ilustrativa, capítulo {n}: {caption}",
+        "caption": "Demo con una tienda ilustrativa. Sus cifras serán las suyas.",
+        "reads": "Pedidos · Productos · Clientes · Inventario",
+        "question": "Aproximadamente, ¿cuánto le cuesta el envío por pedido?",
+        "fact": "Envío {low}–{high}",
+        "r0": "Pedidos, {days} d",
+        "r1": "Pedido medio",
+        "r2": "Logística",
+        "w2": "propia",
+        "m0": "Conversión en el pago",
+        "m1": "Margen tras el envío",
+        "m2": "Tasa de devoluciones",
+        "m3": "Cuota de correo y SMS",
+        "m4": "Clientes que repiten",
+        "area": "pago",
+        "proposal": "Arreglar el paso del pago en móvil que pierde compradores",
+        "metric": "conversión"
+      },
+      "salon": {
+        "stage": "Recorrido con un salón ilustrativo, capítulo {n}: {caption}",
+        "caption": "Demo con un salón ilustrativo. Sus cifras serán las suyas.",
+        "reads": "Pagos · Reembolsos · Ubicaciones",
+        "question": "Aproximadamente, ¿cuántos clientes con cita no se presentan en una semana?",
+        "fact": "Ausencias {low}–{high} a la semana",
+        "r0": "Visitas pagadas, {days} d",
+        "r1": "Tique medio",
+        "r2": "Señal",
+        "w2": "ninguna",
+        "m0": "Tasa de ausencias",
+        "m1": "Tasa de nuevas reservas",
+        "m2": "Ocupación de sillones",
+        "m3": "Tasa de venta de producto",
+        "m4": "Tique medio",
+        "area": "reservas",
+        "proposal": "Cobrar una señal en las primeras reservas para reducir las ausencias",
+        "metric": "tasa de ausencias"
+      }
+    },
+    "storeChart": {
+      "day": "{count}D",
+      "week": "{count}S",
+      "overlay": "Capa de fugas",
+      "weekOf": "Semana del {day}",
+      "open": "Ap",
+      "high": "Máx",
+      "low": "Mín",
+      "close": "Cie",
+      "withoutLeaks": "Sin fugas {value}",
+      "gap": "Diferencia {value}",
+      "shop": {
+        "title": "TIENDA · INGRESOS",
+        "subtitle": "Tienda ilustrativa · {days, plural, one {# día} many {# días} other {# días}}",
+        "volume": "Pedidos",
+        "description": "Gráfico de velas de los ingresos diarios de una tienda ilustrativa durante {days, plural, one {# día} many {# días} other {# días}}. Una línea de puntos muestra los ingresos sin fugas; la diferencia sombreada entre ambos es dinero perdido. Tres marcadores muestran dónde empezaron las fugas: una actualización del tema, una rotura de existencias y un cambio en el envío.",
+        "T": {
+          "key": "T",
+          "label": "Actualización del tema",
+          "note": "Actualización del tema: el pago en móvil se ralentiza"
+        },
+        "S": {
+          "key": "R",
+          "label": "Rotura de existencias",
+          "note": "Rotura de existencias: los más vendidos llegan a cero"
+        },
+        "F": {
+          "key": "E",
+          "label": "Umbral de envío gratis",
+          "note": "Umbral de envío gratis demasiado bajo"
+        }
+      },
+      "salon": {
+        "title": "SALÓN · INGRESOS",
+        "subtitle": "Salón ilustrativo · {days, plural, one {# día} many {# días} other {# días}}",
+        "volume": "Visitas",
+        "description": "Gráfico de velas de los ingresos diarios de un salón ilustrativo durante {days, plural, one {# día} many {# días} other {# días}}. Una línea de puntos muestra los ingresos sin fugas; la diferencia sombreada entre ambos es dinero perdido. Tres marcadores muestran dónde empezaron las fugas: la marcha de una estilista, las reservas online sin señal y el traslado del expositor de productos.",
+        "L": {
+          "key": "E",
+          "label": "Se va una estilista",
+          "note": "Se va una estilista: su clientela habitual deja de volver a reservar"
+        },
+        "B": {
+          "key": "R",
+          "label": "Reservas online",
+          "note": "Las reservas online se abren sin señal: suben las ausencias"
+        },
+        "R": {
+          "key": "P",
+          "label": "Expositor trasladado",
+          "note": "El expositor de productos se aleja del mostrador: caen las ventas de producto"
+        }
+      }
+    }
+  },
+  "legal": {
+    "toBeSupplied": "SYB facilitará este documento antes del lanzamiento.",
+    "terms": {
+      "meta": "Condiciones — SYB",
+      "label": "Condiciones",
+      "title": "Condiciones del servicio"
+    },
+    "privacy": {
+      "meta": "Aviso de privacidad — SYB",
+      "label": "Privacidad",
+      "title": "Aviso de privacidad",
+      "speakingHead": "Responder hablando",
+      "speaking": "Cuando pulsa Hablar, su navegador convierte su voz en texto. Si el navegador puede hacerlo en su dispositivo, el audio se queda en él. Si no, lo hace el fabricante de su navegador: en Chrome, Google. SYB nunca recibe el audio ni guarda nada de él. Solo se guardan las palabras que usted decide registrar, preguntar o enviar, exactamente como si las hubiera escrito, y no se registra nada solo por hablar."
+    }
+  },
+  "resume": {
+    "meta": "Continuar — SYB",
+    "kicker": "Su entrevista",
+    "headline": "Siga donde lo dejó.",
+    "label": "Confirmar",
+    "title": "¿Continuar con esta entrevista?",
+    "button": "Continuar",
+    "note": "¿No ha pedido este enlace? Cierre esta página. No cambia nada en este navegador a menos que pulse el botón.",
+    "deadHeadline": "Ese enlace ha caducado.",
+    "deadMessage": "Los enlaces para reanudar dejan de funcionar cuando caducan o se revocan. Inicie sesión con su correo electrónico y encontrará su entrevista donde la dejó."
+  },
+  "summaryStop": {
+    "meta": "Resumen semanal — SYB",
+    "label": "Preferencias de correo",
+    "unknown": {
+      "title": "No reconocemos este enlace.",
+      "body": "Compruebe que se copió el enlace completo del correo. No ha cambiado nada."
+    },
+    "stopped": {
+      "title": "El resumen semanal está desactivado.",
+      "body": "No volveré a enviarlo por correo. Todo lo que contenía sigue en su pantalla <watch>Observando</watch>, y puede volver a activarlo allí."
+    },
+    "ask": {
+      "title": "¿Dejar de recibir el resumen semanal por correo?",
+      "body": "Con un clic, se detiene. Los enlaces de inicio de sesión y los avisos de la pantalla Soporte no se ven afectados.",
+      "button": "Dejar de recibir estos correos"
+    }
+  },
   "benchmarks": {
     "meta": {
       "title": "Comparado con negocios similares — SYB"

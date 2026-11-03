@@ -14,6 +14,11 @@
 // form, which render the scope registry (SCOPE_GUIDE), so the screen
 // cannot promise a permission the code doesn't declare. Below it, write
 // access (P3-20h) keeps visibly apart: its own sheet and its own consent.
+//
+// L-3d: the screen's fixed words are the "connections" catalogue, and so
+// are the registry's guide lines and form labels, word for word in English
+// (words.ts); dates and counts are the reader's writing. What the server
+// words (its errors, the role refusals) stays English until L-4.
 
 import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -26,18 +31,26 @@ import type { GoogleView } from "./GoogleBusinessSection";
 import { GoogleBusinessSection } from "./GoogleBusinessSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
-import { gives, headline, lastRead, parseTs } from "./patch";
+import { headline, lastRead } from "./patch";
 import "../../app/connections.css";
 import { useRole } from "../auth/RoleContext";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { bold, useCn } from "./useCn";
+import type { CnTr } from "./words";
+import {
+  SHOPIFY_DEFAULT_DAYS,
+  givesText,
+  guideLine,
+  joinSentences,
+  moment,
+  percent,
+  storedDay,
+} from "./words";
 
 type Verification = "reported" | "probed";
 type Matching = "product" | "channel" | null;
 
-interface GuideEntry {
-  scope: string;
-  grant: string;
-  why: string;
-}
+import type { GuideEntry } from "./words";
 
 interface CredentialField {
   name: string;
@@ -105,15 +118,11 @@ type Payload = Record<string, unknown> | null;
 
 const DAY_MS = 86_400_000;
 const NONE = "__none__";
-const KICKER = "Your business · Connections";
-const ASIDE = "Reading is separate from writing — always";
 
-function historyLine(c: Connection): string {
+function historyLine(c: Connection, t: CnTr, locale: AppLocale): string {
   const days = c.history_days;
   if (c.cursor === null) {
-    return c.status === "connected"
-      ? `Not synced yet. The first sync reads the last ${days} days.`
-      : "Never synced.";
+    return c.status === "connected" ? t("history.notSynced", { days }) : t("history.never");
   }
   const through = Date.parse(`${c.cursor}T00:00:00Z`);
   const windowStart = Date.now() - days * DAY_MS;
@@ -121,20 +130,20 @@ function historyLine(c: Connection): string {
     0,
     Math.min(100, Math.round(((through - windowStart) / (days * DAY_MS)) * 100)),
   );
+  const day = storedDay(c.cursor, locale);
   return pct >= 99
-    ? `Up to date through ${c.cursor}, covering the last ${days} days.`
-    : `Read through ${c.cursor}, ${pct}% of the last ${days} days.`;
+    ? t("history.upToDate", { day, days })
+    : t("history.readThrough", { day, share: percent(pct, locale), days });
 }
 
-function when(iso: string | null): string {
-  if (iso === null) return "never";
-  return new Date(parseTs(iso)).toLocaleString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function when(iso: string | null, t: CnTr, locale: AppLocale): string {
+  if (iso === null) return t("settings.never");
+  return moment(iso, locale);
+}
+
+/** A connection's status word: connected, paused, failed or disconnected. */
+export function statusWord(t: CnTr, status: string): string {
+  return t.has(`status.${status}`) ? t(`status.${status}`) : status;
 }
 
 async function send(
@@ -154,16 +163,16 @@ async function send(
 const errorText = (payload: Payload, fallback: string): string =>
   typeof payload?.error === "string" ? payload.error : fallback;
 
-function checkedLine(c: Connection): string {
-  if (c.scope_verification === "reported") {
-    return `${c.label} reported exactly these permissions, and I checked them: nothing here can change anything on your side.`;
-  }
-  return `These reads were tested and work. ${c.label} can't tell any app what else the key allows.`;
+function checkedLine(c: Connection, t: CnTr): string {
+  return c.scope_verification === "reported"
+    ? t("settings.checkedReported", { label: c.label })
+    : t("settings.checkedProbed", { label: c.label });
 }
 
 /* ── matching (P2-15, P2-18) ── */
 
 function MappingPanel({ connection }: { connection: Connection }) {
+  const { t } = useCn();
   const [view, setView] = useState<MappingView | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [choices, setChoices] = useState<Record<string, string>>({});
@@ -175,14 +184,14 @@ function MappingPanel({ connection }: { connection: Connection }) {
       const res = await fetch(`/api/connections/mapping?id=${encodeURIComponent(connection.id)}`);
       const payload = (await res.json().catch(() => null)) as Payload;
       if (!res.ok) {
-        setError(errorText(payload, `Couldn't read ${connection.label}.`));
+        setError(errorText(payload, t("mapping.couldntRead", { label: connection.label })));
         return;
       }
       setView(payload as unknown as MappingView);
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     }
-  }, [connection.id, connection.label]);
+  }, [connection.id, connection.label, t]);
 
   useEffect(() => {
     void load();
@@ -200,37 +209,30 @@ function MappingPanel({ connection }: { connection: Connection }) {
         ref: choice === NONE ? null : choice,
       });
       if (!ok) {
-        setError(errorText(payload, "That match wasn't saved."));
+        setError(errorText(payload, t("mapping.notSaved")));
         return;
       }
       setView(payload as unknown as MappingView);
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(null);
     }
   };
 
   if (error !== null && view === null) return <p className="cn-error">{error}</p>;
-  if (view === null) return <p className="cn-note">Reading {connection.label}…</p>;
+  if (view === null) {
+    return <p className="cn-note">{t("mapping.reading", { label: connection.label })}</p>;
+  }
+  const kind = view.kind;
   if (view.entities.length === 0) {
-    return (
-      <p className="cn-note">
-        There are no {view.entity_noun}s in your profile to match yet. Add them in the interview
-        first.
-      </p>
-    );
+    return <p className="cn-note">{t(`mapping.${kind}.none`)}</p>;
   }
 
   const unmatchedCount = view.unmapped_items.length;
   return (
     <div className="cn-mapping">
-      <p className="cn-note">
-        {view.kind === "product"
-          ? `Match each thing you sell to its ${connection.label} product. Sales of a matched product become that offer's measured units a month.`
-          : `Match each of your sales channels to the ${connection.label} traffic channel it corresponds to. Visits from a matched channel become that channel's measured monthly visits.`}{" "}
-        I suggest matches; nothing counts until you confirm it.
-      </p>
+      <p className="cn-note">{t(`mapping.${kind}.intro`, { label: connection.label })}</p>
       <ul className="cn-map-list">
         {view.entities.map((entity) => {
           const selected = choices[entity.entity_id] ?? entity.suggestion?.ref ?? "";
@@ -239,27 +241,30 @@ function MappingPanel({ connection }: { connection: Connection }) {
               <span className="cn-map-offer">{entity.name}</span>
               {entity.mapped !== null ? (
                 <span className="cn-map-state">
-                  matched to <strong>{entity.mapped.label_raw}</strong>
+                  {t.rich("mapping.matchedTo", { ...bold, label: entity.mapped.label_raw })}
                 </span>
               ) : entity.no_match ? (
-                <span className="cn-map-state">no matching {view.item_noun}</span>
+                <span className="cn-map-state">{t(`mapping.${kind}.noMatch`)}</span>
               ) : (
-                <span className="cn-map-state">not matched yet</span>
+                <span className="cn-map-state">{t("mapping.notMatched")}</span>
               )}
               <span className="cn-map-pick">
                 <select
                   className="cn-input"
                   value={selected}
-                  aria-label={`${connection.label} ${view.item_noun} for ${entity.name}`}
+                  aria-label={t(`mapping.${kind}.select`, {
+                    label: connection.label,
+                    name: entity.name,
+                  })}
                   onChange={(e) =>
                     setChoices((prev) => ({ ...prev, [entity.entity_id]: e.target.value }))
                   }
                   disabled={busy !== null}
                 >
-                  <option value="">choose a {view.item_noun}…</option>
+                  <option value="">{t(`mapping.${kind}.choose`)}</option>
                   {entity.suggestion !== null && (
                     <option value={entity.suggestion.ref}>
-                      {entity.suggestion.title} (suggested)
+                      {t("mapping.suggested", { title: entity.suggestion.title })}
                     </option>
                   )}
                   {view.items
@@ -269,14 +274,14 @@ function MappingPanel({ connection }: { connection: Connection }) {
                         {i.title}
                       </option>
                     ))}
-                  <option value={NONE}>None of these</option>
+                  <option value={NONE}>{t("mapping.noneOfThese")}</option>
                 </select>
                 <button
                   className="ghost"
                   disabled={busy !== null || selected === ""}
                   onClick={() => void confirm(entity)}
                 >
-                  {busy === entity.entity_id ? "saving…" : "Confirm"}
+                  {busy === entity.entity_id ? t("mapping.saving") : t("mapping.confirm")}
                 </button>
               </span>
             </li>
@@ -286,10 +291,7 @@ function MappingPanel({ connection }: { connection: Connection }) {
       {error !== null && <p className="cn-error">{error}</p>}
       {unmatchedCount > 0 && (
         <p className="cn-note">
-          {unmatchedCount} {connection.label} {view.item_noun}
-          {unmatchedCount === 1 ? " isn't" : "s aren't"} matched to anything in your profile.
-          That&rsquo;s a gap, and I won&rsquo;t guess what{" "}
-          {unmatchedCount === 1 ? "it is" : "they are"}.
+          {t(`mapping.${kind}.unmatched`, { count: unmatchedCount, label: connection.label })}
         </p>
       )}
     </div>
@@ -298,180 +300,59 @@ function MappingPanel({ connection }: { connection: Connection }) {
 
 /* ── connecting ── */
 
-function GuideList({ guide }: { guide: GuideEntry[] }) {
+function GuideList({ provider }: { provider: ProviderOption }) {
+  const { t } = useCn();
   return (
     <ul className="cn-list">
-      {guide.map((g) => (
-        <li key={g.scope}>
-          <strong>{g.grant}</strong>. {g.why}
-        </li>
-      ))}
+      {provider.guide.map((g, i) => {
+        const line = guideLine(t, provider.id, i, g);
+        return (
+          <li key={g.scope}>
+            {t.rich("guide.line", { ...bold, grant: line.grant, why: line.why })}
+          </li>
+        );
+      })}
     </ul>
   );
 }
 
+/** Each provider's setup steps, in order; the step that lists the guide says so. */
+const STEPS: Readonly<Record<string, { steps: readonly string[]; guideAfter: string }>> = {
+  stripe: { steps: ["s1", "s2", "s3"], guideAfter: "s2" },
+  shopify: { steps: ["s1", "s2", "s3", "s4"], guideAfter: "s2" },
+  woocommerce: { steps: ["s1", "s2", "s3"], guideAfter: "s2" },
+  ga4: { steps: ["s1", "s2", "s3"], guideAfter: "s2" },
+  square: { steps: ["s1", "s2", "s3"], guideAfter: "s2" },
+  search_console: { steps: ["s1", "s2", "s3"], guideAfter: "s2" },
+  meta_ads: { steps: ["s1", "s2", "s3", "s4"], guideAfter: "s3" },
+};
+
 function Steps({ provider }: { provider: ProviderOption }) {
-  switch (provider.id) {
-    case "stripe":
-      return (
-        <ol className="cn-steps">
-          <li>
-            In your Stripe Dashboard, open <strong>Developers</strong>, then{" "}
-            <strong>API keys</strong>, and choose <strong>Create restricted key</strong>. Test mode
-            is fine to start with.
-          </li>
-          <li>
-            Leave every permission at <strong>None</strong>, except:
-            <GuideList guide={provider.guide} />
-          </li>
-          <li>
-            Create the key and paste it below. It starts with <strong>rk_test_</strong> or{" "}
-            <strong>rk_live_</strong>.
-          </li>
-        </ol>
-      );
-    case "shopify":
-      return (
-        <ol className="cn-steps">
-          <li>
-            In Shopify&rsquo;s <strong>Dev Dashboard</strong>, choose <strong>Create app</strong>,
-            then <strong>Start from Dev Dashboard</strong>, and name it.
-          </li>
-          <li>
-            In the app&rsquo;s <strong>Versions</strong> tab, add only these Admin API scopes, then
-            release the version:
-            <GuideList guide={provider.guide} />
-          </li>
-          <li>
-            From the app&rsquo;s <strong>Home</strong>, choose <strong>Install app</strong> and pick
-            your store. The app and the store must be in the same Shopify organization.
-          </li>
-          <li>
-            From the app&rsquo;s <strong>Settings</strong>, copy the client ID and client secret,
-            and enter them below with your store&rsquo;s myshopify.com address.
-          </li>
-        </ol>
-      );
-    case "woocommerce":
-      return (
-        <ol className="cn-steps">
-          <li>
-            In WordPress, open <strong>WooCommerce</strong>, then <strong>Settings</strong>,{" "}
-            <strong>Advanced</strong>, <strong>REST API</strong>, and choose{" "}
-            <strong>Add key</strong>.
-          </li>
-          <li>
-            Set <strong>Permissions</strong> to <strong>Read</strong>. Read access covers:
-            <GuideList guide={provider.guide} />
-          </li>
-          <li>
-            Generate the key, then enter the consumer key and consumer secret below with your
-            store&rsquo;s address.
-          </li>
-        </ol>
-      );
-    case "ga4":
-      return (
-        <ol className="cn-steps">
-          <li>
-            In <strong>Google Cloud Console</strong>, create a project (or use one), enable the{" "}
-            <strong>Google Analytics Data API</strong>, then under <strong>IAM &amp; Admin</strong>,{" "}
-            <strong>Service accounts</strong>, create a service account and download a{" "}
-            <strong>JSON key</strong> for it.
-          </li>
-          <li>
-            In <strong>Google Analytics</strong>, open <strong>Admin</strong>, then{" "}
-            <strong>Property access management</strong>, and add the service account&rsquo;s email
-            address with the role:
-            <GuideList guide={provider.guide} />
-          </li>
-          <li>
-            Copy the property ID from <strong>Admin</strong>, <strong>Property details</strong>, and
-            paste it below with the contents of the key file.
-          </li>
-        </ol>
-      );
-    case "square":
-      return (
-        <ol className="cn-steps">
-          <li>
-            In the <strong>Square Developer Console</strong>, create an application (or open one)
-            and copy its <strong>Production access token</strong>.
-          </li>
-          <li>
-            Give it only these permissions:
-            <GuideList guide={provider.guide} />
-          </li>
-          <li>
-            Paste the token below. Payments rung up in Square — card and cash — are read; cash that
-            never goes through the till can&rsquo;t be seen by anything. With the two appointment
-            permissions, your Square Appointments bookings are read too.
-          </li>
-        </ol>
-      );
-    case "search_console":
-      return (
-        <ol className="cn-steps">
-          <li>
-            In <strong>Google Cloud Console</strong>, enable the{" "}
-            <strong>Google Search Console API</strong> on a project and create a service account
-            with a <strong>JSON key</strong> — the same one you use for Google Analytics is fine.
-          </li>
-          <li>
-            In <strong>Search Console</strong>, open <strong>Settings</strong>, then{" "}
-            <strong>Users and permissions</strong>, and add the service account&rsquo;s email:
-            <GuideList guide={provider.guide} />
-          </li>
-          <li>
-            Enter the property exactly as Search Console names it, with the contents of the key
-            file. Rare searches are hidden by Google for privacy, so the searches I read add up to a
-            little less than Google&rsquo;s own total.
-          </li>
-        </ol>
-      );
-    case "meta_ads":
-      return (
-        <ol className="cn-steps">
-          <li>
-            In <strong>Meta Business Suite</strong>, open <strong>Business settings</strong>, then{" "}
-            <strong>Users</strong>, <strong>System users</strong>, and add a system user (Employee
-            role is enough).
-          </li>
-          <li>
-            Under <strong>Assign assets</strong>, give it your ad account with{" "}
-            <strong>View performance</strong> only.
-          </li>
-          <li>
-            Choose <strong>Generate token</strong>, pick your app, and tick only:
-            <GuideList guide={provider.guide} />
-          </li>
-          <li>
-            Paste the token below with your ad account ID, which is shown in{" "}
-            <strong>Ads Manager</strong>.
-          </li>
-        </ol>
-      );
-    default:
-      return <GuideList guide={provider.guide} />;
-  }
+  const { t } = useCn();
+  const plan = STEPS[provider.id];
+  if (plan === undefined) return <GuideList provider={provider} />;
+  return (
+    <ol className="cn-steps">
+      {plan.steps.map((step) => (
+        <li key={step}>
+          {t.rich(`steps.${provider.id}.${step}`, bold)}
+          {step === plan.guideAfter && <GuideList provider={provider} />}
+        </li>
+      ))}
+    </ol>
+  );
 }
 
 function VerificationNote({ provider }: { provider: ProviderOption }) {
+  const { t } = useCn();
   if (provider.scope_verification === "reported") {
-    return (
-      <p className="cn-note">
-        {provider.label} reports exactly which permissions a credential has, and I check them when
-        you connect. If it could change anything on your side, I refuse the connection.
-      </p>
-    );
+    return <p className="cn-note">{t("verify.reported", { label: provider.label })}</p>;
   }
   return (
     <p className="cn-note">
-      {provider.label} doesn&rsquo;t let any app check the rest of a key&rsquo;s permissions. Here
-      is what I can promise: I test that the reads above work, and my code can only read.{" "}
-      {provider.id === "stripe"
-        ? "I refuse full-access keys, and leaving every other permission at None is what makes the key itself read-only."
-        : "Choosing Read access is what makes the key itself read-only."}
+      {t(provider.id === "stripe" ? "verify.probedStripe" : "verify.probed", {
+        label: provider.label,
+      })}
     </p>
   );
 }
@@ -495,51 +376,70 @@ function SourceSettings({
   onCancel: () => void;
   onDisconnect: () => void;
 }) {
+  const { t, locale } = useCn();
   const [matching, setMatching] = useState(false);
 
   return (
     <div className="cn-detail">
       <dl className="cn-facts">
-        <dt>access</dt>
+        <dt>{t("settings.access")}</dt>
         <dd>
-          <span className="word boxed">read-only</span>{" "}
-          <span className={`word ${c.status === "connected" ? "ok" : "alarm"}`}>{c.status}</span>
-        </dd>
-        <dt>granted</dt>
-        <dd>
-          <span className="cn-scope">
-            {c.granted_scopes.length > 0 ? c.granted_scopes.join(" · ") : "nothing recorded"}
+          <span className="word boxed">{t("settings.readOnly")}</span>{" "}
+          <span className={`word ${c.status === "connected" ? "ok" : "alarm"}`}>
+            {statusWord(t, c.status)}
           </span>
         </dd>
-        <dt>checked</dt>
-        <dd>{checkedLine(c)}</dd>
-        <dt>last sync</dt>
-        <dd>{when(c.last_sync_at)}</dd>
-        <dt>history</dt>
+        <dt>{t("settings.granted")}</dt>
         <dd>
-          {historyLine(c)}
-          {c.provider === "shopify" && !c.granted_scopes.includes("read_all_orders")
-            ? " Shopify only shows 60 days without read_all_orders, which Shopify must approve."
-            : ""}
+          <span className="cn-scope">
+            {c.granted_scopes.length > 0
+              ? c.granted_scopes.join(" · ")
+              : t("settings.nothingRecorded")}
+          </span>
+        </dd>
+        <dt>{t("settings.checked")}</dt>
+        <dd>{checkedLine(c, t)}</dd>
+        <dt>{t("settings.lastSync")}</dt>
+        <dd>{when(c.last_sync_at, t, locale)}</dd>
+        <dt>{t("settings.history")}</dt>
+        <dd>
+          {joinSentences(
+            [
+              historyLine(c, t, locale),
+              c.provider === "shopify" && !c.granted_scopes.includes("read_all_orders")
+                ? t("settings.shopifyAllOrders", { days: SHOPIFY_DEFAULT_DAYS })
+                : "",
+            ],
+            locale,
+          )}
         </dd>
         {c.provider === "shopify" && (
           <>
-            <dt>carts</dt>
+            <dt>{t("settings.carts")}</dt>
             <dd>
-              I read the checkouts left unfinished, with what was in them, under the same
-              read_orders.{" "}
-              {c.granted_scopes.includes("read_customers")
-                ? "With read_customers I also read each cart's shopper email and their email marketing setting. Carts keep only a scrambled copy. Shoppers Shopify lists as subscribed become contacts, with their email, which you can erase."
-                : "Shopify only says who left a cart to an app that may read your customers. Add the optional read_customers and I match carts to your contacts; without it none is matched."}
+              {joinSentences(
+                [
+                  t("settings.cartsRead"),
+                  c.granted_scopes.includes("read_customers")
+                    ? t("settings.cartsCustomers")
+                    : t("settings.cartsNoCustomers"),
+                ],
+                locale,
+              )}
             </dd>
           </>
         )}
         {c.last_error !== null && (
           <>
-            <dt>last error</dt>
+            <dt>{t("settings.lastError")}</dt>
             <dd>
-              {c.last_error}
-              {c.failure_count > 1 ? ` (${c.failure_count} in a row)` : ""}
+              {joinSentences(
+                [
+                  c.last_error,
+                  c.failure_count > 1 ? t("settings.inARow", { count: c.failure_count }) : "",
+                ],
+                locale,
+              )}
             </dd>
           </>
         )}
@@ -548,7 +448,7 @@ function SourceSettings({
       <div className="cn-acts">
         {c.status === "connected" && !confirming && (
           <button type="button" className="ghost" disabled={busy} onClick={onSync}>
-            {busy ? "Syncing…" : "Sync now"}
+            {busy ? t("settings.syncing") : t("settings.syncNow")}
           </button>
         )}
         {c.matching !== null && c.status !== "disconnected" && !confirming && (
@@ -560,28 +460,25 @@ function SourceSettings({
             onClick={() => setMatching((m) => !m)}
           >
             {matching
-              ? "Hide matching"
+              ? t("settings.hideMatching")
               : c.matching === "product"
-                ? "Match products"
-                : "Match channels"}
+                ? t("settings.matchProducts")
+                : t("settings.matchChannels")}
           </button>
         )}
         {confirming ? (
           <>
-            <span className="cn-confirm">
-              Disconnect {c.label}? The credential is deleted and syncing stops. The measured
-              history stays.
-            </span>
+            <span className="cn-confirm">{t("settings.disconnectAsk", { label: c.label })}</span>
             <button type="button" className="ghost" disabled={busy} onClick={onDisconnect}>
-              Yes, disconnect
+              {t("settings.yesDisconnect")}
             </button>
             <button type="button" className="ghost quiet" disabled={busy} onClick={onCancel}>
-              Keep it
+              {t("settings.keepIt")}
             </button>
           </>
         ) : (
           <button type="button" className="ghost quiet" disabled={busy} onClick={onAskDisconnect}>
-            Disconnect
+            {t("settings.disconnect")}
           </button>
         )}
       </div>
@@ -600,11 +497,20 @@ function ConnectPanel({
   provider: ProviderOption;
   onConnected: (message: string) => Promise<void>;
 }) {
+  const { t } = useCn();
   const [values, setValues] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const fields = provider.credential_fields;
+  /** A form field's label and placeholder in the reader's words; the registry's where it is a code. */
+  const fieldWords = (f: CredentialField) => {
+    const key = `field.${provider.id}.${f.name}`;
+    return {
+      label: t.has(`${key}.label`) ? t(`${key}.label`) : f.label,
+      placeholder: t.has(`${key}.placeholder`) ? t(`${key}.placeholder`) : f.placeholder,
+    };
+  };
   const complete = fields.every((f) => (values[f.name] ?? "").trim() !== "");
 
   const submit = async (e: React.FormEvent) => {
@@ -626,19 +532,22 @@ function ConnectPanel({
         secret,
       });
       if (!ok) {
-        setError(errorText(payload, "That didn't connect."));
+        setError(errorText(payload, t("connect.failed")));
         return;
       }
       setValues({});
       await onConnected(
-        provider.matching === "product"
-          ? `${provider.label} is connected. Press Sync now to read your orders, then match your products.`
-          : provider.matching === "channel"
-            ? `${provider.label} is connected. Press Sync now to read your traffic, then match your channels.`
-            : `${provider.label} is connected. Press Sync now to read the last year.`,
+        t(
+          provider.matching === "product"
+            ? "connect.doneProduct"
+            : provider.matching === "channel"
+              ? "connect.doneChannel"
+              : "connect.done",
+          { label: provider.label },
+        ),
       );
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(false);
     }
@@ -646,20 +555,20 @@ function ConnectPanel({
 
   return (
     <div className="cn-detail">
-      <p className="cn-sub">{provider.label}, read-only</p>
+      <p className="cn-sub">{t("connect.sub", { label: provider.label })}</p>
       <Steps provider={provider} />
       <VerificationNote provider={provider} />
 
       <form className="cn-form" onSubmit={(e) => void submit(e)}>
         {fields.map((f) => (
           <label key={f.name} className="cn-field">
-            <span className="cn-field-label">{f.label}</span>
+            <span className="cn-field-label">{fieldWords(f).label}</span>
             {f.multiline ? (
               <textarea
                 className="cn-input cn-textarea"
                 rows={6}
                 spellCheck={false}
-                placeholder={f.placeholder}
+                placeholder={fieldWords(f).placeholder}
                 value={values[f.name] ?? ""}
                 onChange={(e) => setValues((prev) => ({ ...prev, [f.name]: e.target.value }))}
                 disabled={busy}
@@ -670,7 +579,7 @@ function ConnectPanel({
                 type={f.secret ? "password" : "text"}
                 autoComplete="off"
                 spellCheck={false}
-                placeholder={f.placeholder}
+                placeholder={fieldWords(f).placeholder}
                 value={values[f.name] ?? ""}
                 onChange={(e) => setValues((prev) => ({ ...prev, [f.name]: e.target.value }))}
                 disabled={busy}
@@ -684,13 +593,10 @@ function ConnectPanel({
           </p>
         )}
         <button className="next" type="submit" disabled={busy || !complete}>
-          {busy ? "Checking…" : `Connect ${provider.label}`}
+          {busy ? t("connect.checking") : t("connect.button", { label: provider.label })}
         </button>
       </form>
-      <p className="cn-note">
-        Everything you enter is encrypted before it&rsquo;s stored and never shown again, not even
-        to you.
-      </p>
+      <p className="cn-note">{t("connect.encrypted")}</p>
     </div>
   );
 }
@@ -706,16 +612,24 @@ interface PanelRow {
 }
 
 function ReadBox({ c }: { c: Connection | null }) {
+  const { t } = useCn();
   const on = c?.status === "connected";
   return (
     <span className={`cn-box${on ? " on" : ""}`}>
-      <span className="sr-only">{on ? "reading" : c ? `not reading, ${c.status}` : "off"}</span>
+      <span className="sr-only">
+        {on
+          ? t("panel.reading")
+          : c
+            ? t("panel.notReading", { status: statusWord(t, c.status) })
+            : t("panel.off")}
+      </span>
     </span>
   );
 }
 
 export function ConnectionsScreen() {
   // Idea 52: connecting, and granting write access, are an owner's (lib/auth/roles).
+  const { t, locale } = useCn();
   const role = useRole();
   const connectWhy = role.why("connections.manage");
   // I-52b: a manager may read a connected source again, though the panel stays locked.
@@ -795,17 +709,20 @@ export function ConnectionsScreen() {
     try {
       const { ok, payload } = await send("/api/connections/sync", "POST", { id: c.id });
       if (!ok) {
-        setNotice(errorText(payload, "The sync didn't run."));
+        setNotice(errorText(payload, t("sync.didntRun")));
       } else if (payload?.skipped === "locked") {
-        setNotice(`A sync is already running for ${c.label}.`);
+        setNotice(t("sync.locked", { label: c.label }));
       } else if (payload?.ok === true) {
-        setNotice(`${c.label} synced. ${String(payload.observations ?? 0)} daily figures read.`);
+        const count = typeof payload.observations === "number" ? payload.observations : 0;
+        setNotice(t("sync.done", { label: c.label, count }));
       } else {
-        setNotice(`${c.label} didn't sync. ${errorText(payload, "No reason was given.")}`);
+        setNotice(
+          t("sync.failed", { label: c.label, reason: errorText(payload, t("sync.noReason")) }),
+        );
       }
       await load();
     } catch {
-      setNotice("I couldn't reach the server. Try again.");
+      setNotice(t("unreachable"));
     } finally {
       setBusy(null);
     }
@@ -817,14 +734,14 @@ export function ConnectionsScreen() {
       const { ok, payload } = await send("/api/connections", "DELETE", { id: c.id });
       setNotice(
         ok
-          ? `${c.label} is disconnected. The credential is deleted, and the measured history stays.`
-          : errorText(payload, "That didn't disconnect."),
+          ? t("settings.disconnected", { label: c.label })
+          : errorText(payload, t("settings.disconnectFailed")),
       );
       setConfirming(null);
       setOpen(null);
       await load();
     } catch {
-      setNotice("I couldn't reach the server. Try again.");
+      setNotice(t("unreachable"));
     } finally {
       setBusy(null);
     }
@@ -833,18 +750,16 @@ export function ConnectionsScreen() {
   if (state === "loading" || (state === "ready" && !execDone)) {
     return (
       <main className="screen cn-screen">
-        <PageHead kicker={KICKER} title="Reading your connections…" aside={ASIDE} />
+        <PageHead kicker={t("kicker")} title={t("loading")} aside={t("aside")} />
       </main>
     );
   }
   if (state === "error") {
     return (
       <main className="screen cn-screen">
-        <PageHead kicker={KICKER} title="Connections didn't load." aside={ASIDE} />
-        <SheetCard label="Connections" title="Something went wrong.">
-          <p className="cn-copy">
-            Something went wrong loading your connections. Refresh to try again.
-          </p>
+        <PageHead kicker={t("kicker")} title={t("error.title")} aside={t("aside")} />
+        <SheetCard label={t("error.label")} title={t("error.cardTitle")}>
+          <p className="cn-copy">{t("error.body")}</p>
         </SheetCard>
       </main>
     );
@@ -852,14 +767,11 @@ export function ConnectionsScreen() {
   if (state === "signed_out") {
     return (
       <main className="screen cn-screen">
-        <PageHead kicker={KICKER} title="Sign in to connect your numbers." aside={ASIDE} />
-        <SheetCard label="Connections" title="Connections belong to your account.">
-          <p className="cn-copy">
-            A payment account, a till or online shop, or an ad account connects to your account, not
-            just to this browser.
-          </p>
+        <PageHead kicker={t("kicker")} title={t("signedOut.title")} aside={t("aside")} />
+        <SheetCard label={t("error.label")} title={t("signedOut.cardTitle")}>
+          <p className="cn-copy">{t("signedOut.body")}</p>
           <Link className="next" href="/login">
-            Sign in <span aria-hidden="true">→</span>
+            {t("signedOut.signIn")} <span aria-hidden="true">→</span>
           </Link>
         </SheetCard>
       </main>
@@ -876,7 +788,7 @@ export function ConnectionsScreen() {
   const rows: PanelRow[] = view.providers.map((p) => ({
     id: p.id,
     label: p.label,
-    gives: gives(p.guide),
+    gives: givesText(t, p.id, p.guide, locale),
     provider: p,
     connection: live.find((c) => c.provider === p.id) ?? null,
   }));
@@ -886,11 +798,22 @@ export function ConnectionsScreen() {
     }
   }
 
-  const title = headline(live, exec ? exec.connections : null);
+  // The write side's names in the reader's words (English keeps the server's).
+  const writes =
+    exec === null
+      ? null
+      : exec.connections.map((c) => ({
+          ...c,
+          label:
+            locale !== "en" && t.has(`write.label.${c.provider}`)
+              ? t(`write.label.${c.provider}`)
+              : c.label,
+        }));
+  const title = headline(live, writes, t, locale);
 
   return (
     <main className="screen cn-screen">
-      <PageHead kicker={KICKER} title={title} aside={ASIDE} />
+      <PageHead kicker={t("kicker")} title={title} aside={t("aside")} />
 
       {notice !== null && (
         <p className="cn-banner" aria-live="polite">
@@ -899,12 +822,14 @@ export function ConnectionsScreen() {
       )}
       {connectWhy !== null && (
         <p className="cn-banner" role="note">
-          {connectWhy} You can see what&rsquo;s plugged in
-          {syncWhy === null ? ", and read any of it again now" : ""}.
+          {joinSentences(
+            [connectWhy, t(syncWhy === null ? "banner.seeAndRead" : "banner.see")],
+            locale,
+          )}
         </p>
       )}
       {connectWhy !== null && syncWhy === null && live.some((c) => c.status === "connected") && (
-        <div className="cn-acts" aria-label="Read again now">
+        <div className="cn-acts" aria-label={t("banner.readAgainGroup")}>
           {live
             .filter((c) => c.status === "connected")
             .map((c) => (
@@ -915,7 +840,9 @@ export function ConnectionsScreen() {
                 disabled={busy !== null}
                 onClick={() => void syncNow(c)}
               >
-                {busy === c.id ? `Reading ${c.label}…` : `Read ${c.label} again now`}
+                {busy === c.id
+                  ? t("banner.readingOne", { label: c.label })
+                  : t("banner.readAgain", { label: c.label })}
               </button>
             ))}
         </div>
@@ -925,33 +852,33 @@ export function ConnectionsScreen() {
         <section className="cs cn-panel" aria-labelledby="cn-panel-title">
           <header className="cs-head">
             <div>
-              <p className="cs-label">Patch panel</p>
+              <p className="cs-label">{t("panel.label")}</p>
               <h2 className="cs-title" id="cn-panel-title">
-                What&rsquo;s plugged in
+                {t("panel.title")}
               </h2>
             </div>
             <p className="cs-meta cn-legend" aria-hidden="true">
-              <span className="cn-box on" /> on <span className="cn-box" /> off{" "}
-              <span className="cn-dash">—</span> never
+              <span className="cn-box on" /> {t("panel.legendOn")} <span className="cn-box" />{" "}
+              {t("panel.legendOff")} <span className="cn-dash">—</span> {t("panel.legendNever")}
             </p>
           </header>
           <div className="cn-table-wrap">
             <table className="rt cn-table">
               <thead>
                 <tr>
-                  <th scope="col">Source</th>
-                  <th scope="col">What it gives</th>
+                  <th scope="col">{t("panel.source")}</th>
+                  <th scope="col">{t("panel.gives")}</th>
                   <th scope="col" className="cn-c">
-                    Read
+                    {t("panel.read")}
                   </th>
                   <th scope="col" className="cn-c">
-                    Write
+                    {t("panel.write")}
                   </th>
                   <th scope="col" className="num">
-                    Last read
+                    {t("panel.lastRead")}
                   </th>
                   <th scope="col">
-                    <span className="sr-only">Action</span>
+                    <span className="sr-only">{t("panel.action")}</span>
                   </th>
                 </tr>
               </thead>
@@ -964,26 +891,26 @@ export function ConnectionsScreen() {
                   return (
                     <Fragment key={r.id}>
                       <tr id={`cn-src-${r.id}`} className={isOpen ? "on" : undefined}>
-                        <th scope="row" className="cn-name" data-label="Source">
+                        <th scope="row" className="cn-name" data-label={t("panel.source")}>
                           {r.label}
                         </th>
-                        <td className="cn-gives" data-label="What it gives">
+                        <td className="cn-gives" data-label={t("panel.gives")}>
                           {r.gives}
                         </td>
-                        <td className="cn-c" data-label="Read">
+                        <td className="cn-c" data-label={t("panel.read")}>
                           <ReadBox c={c} />
                         </td>
-                        <td className="cn-c" data-label="Write">
+                        <td className="cn-c" data-label={t("panel.write")}>
                           <span className="cn-dash" aria-hidden="true">
                             —
                           </span>
-                          <span className="sr-only">never — read-only by design</span>
+                          <span className="sr-only">{t("panel.writeNever")}</span>
                         </td>
-                        <td className="num cn-last" data-label="Last read">
-                          {lastRead(c?.last_sync_at ?? null, now)}
+                        <td className="num cn-last" data-label={t("panel.lastRead")}>
+                          {lastRead(c?.last_sync_at ?? null, now, locale)}
                           {c !== null && c.status !== "connected" && (
                             <span className={`word ${c.status === "failed" ? "alarm" : "drift"}`}>
-                              {c.status}
+                              {statusWord(t, c.status)}
                             </span>
                           )}
                         </td>
@@ -1000,12 +927,12 @@ export function ConnectionsScreen() {
                               }}
                             >
                               {isOpen ? (
-                                "Close"
+                                t("panel.close")
                               ) : c !== null ? (
-                                "Settings"
+                                t("panel.settings")
                               ) : (
                                 <>
-                                  Connect <span aria-hidden="true">→</span>
+                                  {t("panel.connect")} <span aria-hidden="true">→</span>
                                 </>
                               )}
                               <span className="sr-only"> {r.label}</span>
@@ -1051,19 +978,14 @@ export function ConnectionsScreen() {
                 {past.map((c) => (
                   <li key={c.id}>
                     <span className="cn-past-at">
-                      {(c.disconnected_at ?? c.created_at).slice(0, 10)}
+                      {storedDay(c.disconnected_at ?? c.created_at, locale)}
                     </span>{" "}
-                    {c.label} disconnected. The credential was deleted; the measured history it
-                    produced stays in your profile.
+                    {t("panel.past", { label: c.label })}
                   </li>
                 ))}
               </ul>
             )}
-            <p>
-              Measured figures replace your estimates in the report, and your estimates stay in your
-              history. Google Ads isn&rsquo;t available yet: it needs SYB&rsquo;s own approval from
-              Google before any account can connect.
-            </p>
+            <p>{t("panel.foot")}</p>
           </footer>
         </section>
 

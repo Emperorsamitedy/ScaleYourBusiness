@@ -1613,6 +1613,1164 @@
       "cantTell": "A „nem eldönthető” azt jelenti, hogy a mért számok nem álltak rendelkezésre, vagy közbejött valami, ami nem szerepelt az előrejelzésben, például egy szállítás. Soha nem számít találatnak."
     }
   },
+  "connections": {
+    "meta": {
+      "title": "Összekapcsolt fiókok — SYB"
+    },
+    "kicker": "Az Ön vállalkozása · Összekapcsolt fiókok",
+    "aside": "Az olvasás mindig elkülönül az írástól",
+    "loading": "Az összekapcsolt fiókjai beolvasása…",
+    "unreachable": "Nem értem el a szervert. Próbálja újra.",
+    "error": {
+      "title": "Az összekapcsolt fiókok nem töltődtek be.",
+      "label": "Összekapcsolt fiókok",
+      "cardTitle": "Valami hiba történt.",
+      "body": "Hiba történt az összekapcsolt fiókjai betöltésekor. Frissítse az oldalt az újrapróbáláshoz."
+    },
+    "signedOut": {
+      "title": "A számai összekapcsolásához bejelentkezés szükséges.",
+      "cardTitle": "Az összekapcsolt fiókok az Ön fiókjához tartoznak.",
+      "body": "Egy fizetési fiók, egy pénztárgép vagy webshop, illetve egy hirdetési fiók az Ön fiókjához kapcsolódik, nem csak ehhez a böngészőhöz.",
+      "signIn": "Bejelentkezés"
+    },
+    "headline": {
+      "reading": "{count, plural, one {# forrásból olvasok.} other {# forrásból olvasok.}}",
+      "stalled": "Jelenleg egyetlen forrásból sem olvasok.",
+      "none": "Még semmi sincs bekötve.",
+      "writesUnknown": "Az írási hozzáférést nem sikerült beolvasni.",
+      "canWrite": "{labels} – írási joggal, de csak arra, amit Ön jóváhagy.",
+      "nothingWritten": "Semmi sem írható.",
+      "readOnly": "{labels} – olyan engedély birtokában, amellyel írni is lehetne; a SYB csak olvasásra használja."
+    },
+    "status": {
+      "connected": "összekapcsolva",
+      "paused": "szüneteltetve",
+      "failed": "sikertelen",
+      "disconnected": "leválasztva"
+    },
+    "banner": {
+      "see": "Láthatja, mi van bekötve.",
+      "seeAndRead": "Láthatja, mi van bekötve, és bármelyiket most újra beolvashatja.",
+      "readAgainGroup": "Újrabeolvasás most",
+      "readingOne": "Beolvasás: {label}…",
+      "readAgain": "{label} újrabeolvasása most"
+    },
+    "sync": {
+      "didntRun": "A szinkronizálás nem futott le.",
+      "locked": "Már fut egy szinkronizálás ehhez: {label}.",
+      "done": "{label}: szinkronizálva. {count, plural, one {# napi szám beolvasva.} other {# napi szám beolvasva.}}",
+      "failed": "{label}: a szinkronizálás nem sikerült. {reason}",
+      "noReason": "Nem érkezett indoklás."
+    },
+    "panel": {
+      "label": "Kapcsolótábla",
+      "title": "Mi van bekötve",
+      "legendOn": "be",
+      "legendOff": "ki",
+      "legendNever": "soha",
+      "source": "Forrás",
+      "gives": "Mit ad",
+      "read": "Olvasás",
+      "write": "Írás",
+      "lastRead": "Utolsó beolvasás",
+      "action": "Művelet",
+      "reading": "olvas",
+      "notReading": "nem olvas – {status}",
+      "off": "ki",
+      "writeNever": "soha — szándékosan csak olvasható",
+      "close": "Bezárás",
+      "settings": "Beállítások",
+      "connect": "Összekapcsolás",
+      "past": "{label}: leválasztva. A hitelesítő adat törlődött; az általa létrehozott mért előzmények megmaradnak a profiljában.",
+      "foot": "A jelentésben a mért számok váltják fel a becsléseit, a becslései pedig megmaradnak az előzményei között. A Google Ads még nem érhető el: ehhez a SYB-nek előbb a Google saját jóváhagyására van szüksége, csak utána kapcsolódhat bármely fiók."
+    },
+    "settings": {
+      "access": "hozzáférés",
+      "readOnly": "csak olvasható",
+      "granted": "megadva",
+      "nothingRecorded": "nincs rögzítve semmi",
+      "checked": "ellenőrizve",
+      "checkedReported": "{label} pontosan ezeket az engedélyeket jelezte, és én ellenőriztem őket: itt semmi sem változtathat meg semmit az Ön oldalán.",
+      "checkedProbed": "Ezeket az olvasásokat kipróbáltam, és működnek. {label} egyetlen alkalmazásnak sem tudja megmondani, mi mást enged még a kulcs.",
+      "lastSync": "utolsó szinkronizálás",
+      "never": "soha",
+      "history": "előzmények",
+      "shopifyAllOrders": "A read_all_orders nélkül a Shopify csak az utolsó {days, plural, one {# nap} other {# nap}} adatait mutatja, a read_all_orders engedélyhez pedig a Shopify jóváhagyása kell.",
+      "carts": "kosarak",
+      "cartsRead": "Ugyanazzal a read_orders engedéllyel a befejezetlenül hagyott fizetéseket is beolvasom, a tartalmukkal együtt.",
+      "cartsCustomers": "A read_customers engedéllyel minden kosár vásárlójának e-mail-címét és e-mail-marketing beállítását is beolvasom. A kosarak csak egy elkódolt másolatot őriznek meg. Azok a vásárlók, akiket a Shopify feliratkozottként tart nyilván, az e-mail-címükkel együtt kapcsolattartóvá válnak, és Ön törölheti őket.",
+      "cartsNoCustomers": "A Shopify csak olyan alkalmazásnak árulja el, ki hagyott el egy kosarat, amely olvashatja az ügyfeleit. Adja hozzá a nem kötelező read_customers engedélyt, és a kosarakat párosítom a kapcsolattartóival; enélkül egyik sincs párosítva.",
+      "lastError": "utolsó hiba",
+      "inARow": "({count} egymás után)",
+      "syncing": "Szinkronizálás…",
+      "syncNow": "Szinkronizálás most",
+      "hideMatching": "Párosítás elrejtése",
+      "matchProducts": "Termékek párosítása",
+      "matchChannels": "Csatornák párosítása",
+      "disconnectAsk": "Leválasztja ezt: {label}? A hitelesítő adat törlődik, és a szinkronizálás leáll. A mért előzmények megmaradnak.",
+      "yesDisconnect": "Igen, leválasztom",
+      "keepIt": "Megtartom",
+      "disconnect": "Leválasztás",
+      "disconnected": "{label}: leválasztva. A hitelesítő adat törölve, a mért előzmények megmaradnak.",
+      "disconnectFailed": "A leválasztás nem sikerült."
+    },
+    "history": {
+      "notSynced": "Még nincs szinkronizálva. Az első szinkronizálás az utolsó {days, plural, one {# nap} other {# nap}} adatait olvassa be.",
+      "never": "Még soha nem volt szinkronizálva.",
+      "upToDate": "Naprakész eddig: {day}; az utolsó {days, plural, one {# napot} other {# napot}} fedi le.",
+      "readThrough": "Beolvasva eddig: {day}; az utolsó {days, plural, one {# napból} other {# napból}} {share}."
+    },
+    "mapping": {
+      "reading": "Beolvasás: {label}…",
+      "couldntRead": "Nem sikerült beolvasni: {label}.",
+      "notSaved": "A párosítás nem lett mentve.",
+      "matchedTo": "párosítva ezzel: <b>{label}</b>",
+      "notMatched": "még nincs párosítva",
+      "suggested": "{title} (javasolt)",
+      "noneOfThese": "Egyik sem",
+      "saving": "mentés…",
+      "confirm": "Megerősítés",
+      "product": {
+        "none": "A profiljában még nincsenek párosítható ajánlatok. Előbb adja meg őket az interjúban.",
+        "intro": "Párosítson mindent, amit árul, a hozzá tartozó termékkel ({label}). Egy párosított termék eladásaiból lesz az adott ajánlat mért havi darabszáma. Én javaslok párosításokat; semmi sem számít bele, amíg Ön meg nem erősíti.",
+        "noMatch": "nincs megfelelő termék",
+        "select": "Termék ({label}) ehhez: {name}",
+        "choose": "válasszon terméket…",
+        "unmatched": "{count, plural, one {# termék ({label}) nincs párosítva semmivel a profiljában. Ez egy hiány, és nem fogom találgatni, mi az.} other {# termék ({label}) nincs párosítva semmivel a profiljában. Ez egy hiány, és nem fogom találgatni, mik azok.}}"
+      },
+      "channel": {
+        "none": "A profiljában még nincsenek párosítható csatornák. Előbb adja meg őket az interjúban.",
+        "intro": "Párosítsa minden értékesítési csatornáját a neki megfelelő forgalmi csatornával ({label}). Egy párosított csatorna látogatásaiból lesz az adott csatorna mért havi látogatásszáma. Én javaslok párosításokat; semmi sem számít bele, amíg Ön meg nem erősíti.",
+        "noMatch": "nincs megfelelő forgalmi csatorna",
+        "select": "Forgalmi csatorna ({label}) ehhez: {name}",
+        "choose": "válasszon forgalmi csatornát…",
+        "unmatched": "{count, plural, one {# forgalmi csatorna ({label}) nincs párosítva semmivel a profiljában. Ez egy hiány, és nem fogom találgatni, mi az.} other {# forgalmi csatorna ({label}) nincs párosítva semmivel a profiljában. Ez egy hiány, és nem fogom találgatni, mik azok.}}"
+      }
+    },
+    "connect": {
+      "sub": "{label}, csak olvasható",
+      "failed": "Az összekapcsolás nem sikerült.",
+      "doneProduct": "{label}: összekapcsolva. Nyomja meg a Szinkronizálás most gombot a rendelései beolvasásához, majd párosítsa a termékeit.",
+      "doneChannel": "{label}: összekapcsolva. Nyomja meg a Szinkronizálás most gombot a forgalma beolvasásához, majd párosítsa a csatornáit.",
+      "done": "{label}: összekapcsolva. Nyomja meg a Szinkronizálás most gombot az elmúlt év beolvasásához.",
+      "checking": "Ellenőrzés…",
+      "button": "{label} összekapcsolása",
+      "encrypted": "Minden, amit megad, tárolás előtt titkosítva lesz, és soha többé nem jelenik meg, még Önnek sem."
+    },
+    "verify": {
+      "reported": "{label} pontosan jelzi, milyen engedélyekkel rendelkezik egy hitelesítő adat, és én az összekapcsoláskor ellenőrzöm őket. Ha bármit megváltoztathatna az Ön oldalán, elutasítom az összekapcsolást.",
+      "probedStripe": "{label} egyetlen alkalmazásnak sem engedi ellenőrizni egy kulcs többi engedélyét. Ezt tudom megígérni: kipróbálom, hogy a fenti olvasások működnek, és a kódom csak olvasni tud. A teljes hozzáférésű kulcsokat elutasítom, és attól lesz maga a kulcs csak olvasható, hogy minden más engedélyt None értéken hagy.",
+      "probed": "{label} egyetlen alkalmazásnak sem engedi ellenőrizni egy kulcs többi engedélyét. Ezt tudom megígérni: kipróbálom, hogy a fenti olvasások működnek, és a kódom csak olvasni tud. Attól lesz maga a kulcs csak olvasható, hogy olvasási (Read) hozzáférést választ."
+    },
+    "guide": {
+      "line": "<b>{grant}</b>. {why}",
+      "sep": ",",
+      "fixture": {
+        "s0": {
+          "grant": "Árbevétel: olvasás",
+          "why": "Napi árbevétel a havi számhoz.",
+          "gives": "napi árbevétel"
+        },
+        "s1": {
+          "grant": "Rendelések: olvasás",
+          "why": "Napi rendelésszám a havi számhoz.",
+          "gives": "napi rendelésszám"
+        },
+        "s2": {
+          "grant": "Hirdetési költés: olvasás",
+          "why": "Napi hirdetési költés a havi számhoz.",
+          "gives": "napi hirdetési költés"
+        }
+      },
+      "stripe": {
+        "s0": {
+          "grant": "Balance: Read",
+          "why": "A fizetési előzményei, vagyis minden terhelés és visszatérítés: ebből származik a havi árbevétel és a rendelések száma.",
+          "gives": "a fizetési előzményei"
+        }
+      },
+      "shopify": {
+        "s0": {
+          "why": "A rendelései, amelyekből a napi árbevétel, a rendelésszám és az eladott darabszám származik, valamint a befejezetlenül hagyott fizetések, a tartalmukkal együtt.",
+          "gives": "a rendelései"
+        },
+        "s1": {
+          "why": "A terméklistája, hogy minden termék párosítható legyen azzal, amit árul, továbbá hogy miből mennyi van készleten és mennyibe kerül Önnek, így rá tudok mutatni a nem fogyó készletre.",
+          "gives": "a terméklistája"
+        },
+        "s2": {
+          "grant": "read_all_orders (nem kötelező, a Shopify jóváhagyása kell hozzá)",
+          "why": "Rendelések {days, plural, one {# napnál} other {# napnál}} régebbről, a teljes évnyi előzményhez. Enélkül csak az utolsó {days, plural, one {# nap} other {# nap}} rendeléseit olvasom be.",
+          "gives": "rendelések {days, plural, one {# napnál} other {# napnál}} régebbről"
+        },
+        "s3": {
+          "grant": "read_customers (nem kötelező)",
+          "why": "Hogy ki hagyott befejezetlen fizetést, így egy kosár párosítható valakivel a kapcsolattartói listájáról. Csak a kosár vásárlójának e-mail-címét olvasom be, és azt, hogy feliratkozott-e az e-mail-marketingjére a Shopifyban. A kosarak az e-mail-cím elkódolt másolatát őrzik meg. Azokat a vásárlókat, akiket a Shopify feliratkozottként tart nyilván, az e-mail-címükkel együtt felveszem a kapcsolattartói közé, ahol Ön törölheti őket; a többiekből csak az elkódolt másolat marad. Enélkül egyetlen kosár sincs párosítva.",
+          "gives": "hogy ki hagyott befejezetlen fizetést"
+        }
+      },
+      "woocommerce": {
+        "s0": {
+          "grant": "Olvasási hozzáférés (a rendelésekre is kiterjed)",
+          "why": "A rendelései, amelyekből a napi árbevétel, a rendelésszám és az eladott darabszám származik.",
+          "gives": "a rendelései"
+        },
+        "s1": {
+          "grant": "Olvasási hozzáférés (a termékekre is kiterjed)",
+          "why": "A terméklistája, hogy minden termék párosítható legyen azzal, amit árul, valamint a termékek készletszintje, így rá tudok mutatni a nem fogyó készletre.",
+          "gives": "a terméklistája"
+        }
+      },
+      "ga4": {
+        "s0": {
+          "grant": "Megtekintő szerepkör a tulajdonon",
+          "why": "Munkamenetek naponta és csatornánként: ebből származik a mért weboldal-forgalom. A Megtekintő jelentéseket olvashat, de semmit sem módosíthat.",
+          "gives": "munkamenetek naponta és csatornánként"
+        }
+      },
+      "meta_ads": {
+        "s0": {
+          "why": "A napi hirdetési költés és azok a vásárlások, amelyeket a Meta a hirdetéseinek tulajdonít. Semmi olyan, amivel egy kampányt szerkeszteni lehetne.",
+          "gives": "a napi hirdetési költés és azok a vásárlások, amelyeket a Meta a hirdetéseinek tulajdonít"
+        }
+      },
+      "search_console": {
+        "s0": {
+          "grant": "A tulajdonon a korlátozott jogosultság is elég",
+          "why": "Azok a Google-keresések, amelyekben a webhelye megjelent, hogy milyen gyakran, és hogy milyen gyakran kattintottak rá. Jelentéseket olvashat, de semmit sem módosíthat.",
+          "gives": "azok a Google-keresések, amelyekben a webhelye megjelent"
+        }
+      },
+      "square": {
+        "s0": {
+          "why": "Minden fizetés, amelyet a pénztárgépei fogadtak, a Square-ben rögzített kártyás és készpénzes fizetések is: ebből származik a napi és az óránkénti bevétel.",
+          "gives": "minden fizetés, amelyet a pénztárgépei fogadtak"
+        },
+        "s1": {
+          "why": "A helyszínei listája, hogy minden pénztárgép fizetéseit beolvassam, ne csak a fő helyszínét.",
+          "gives": "a helyszínei listája"
+        },
+        "s2": {
+          "grant": "APPOINTMENTS_READ (nem kötelező, a foglalásokhoz)",
+          "why": "Az időpontjai: melyek teljesültek, melyeknél nem jelent meg az ügyfél, vagy melyeket mondták le, és hogy visszatértek-e az ügyfelek – a jegyzeteiket viszont nem.",
+          "gives": "az időpontjai"
+        },
+        "s3": {
+          "grant": "APPOINTMENTS_ALL_READ (nem kötelező, a fentivel együtt)",
+          "why": "Az időpontjai. A Square-nek erre a fentivel együtt van szüksége ahhoz, hogy a helyszínein minden foglalást beolvashassak, ne csak a SYB-n keresztül létrehozottakat. Foglalást nem tud módosítani.",
+          "gives": "az időpontjai"
+        }
+      }
+    },
+    "steps": {
+      "stripe": {
+        "s1": "A Stripe Dashboardon nyissa meg a <b>Developers</b> menüt, majd az <b>API keys</b> oldalt, és válassza a <b>Create restricted key</b> lehetőséget. Kezdésnek a tesztmód is megfelel.",
+        "s2": "Hagyjon minden engedélyt <b>None</b> értéken, kivéve ezeket:",
+        "s3": "Hozza létre a kulcsot, és illessze be lent. A kulcs eleje <b>rk_test_</b> vagy <b>rk_live_</b>."
+      },
+      "shopify": {
+        "s1": "A Shopify <b>Dev Dashboard</b> felületén válassza a <b>Create app</b>, majd a <b>Start from Dev Dashboard</b> lehetőséget, és nevezze el az alkalmazást.",
+        "s2": "Az alkalmazás <b>Versions</b> lapján csak ezeket az Admin API-hatóköröket adja hozzá, majd adja ki a verziót:",
+        "s3": "Az alkalmazás <b>Home</b> oldalán válassza az <b>Install app</b> lehetőséget, és válassza ki a webshopját. Az alkalmazásnak és a webshopnak ugyanabban a Shopify-szervezetben kell lennie.",
+        "s4": "Az alkalmazás <b>Settings</b> oldaláról másolja ki a kliensazonosítót (client ID) és a titkos klienskulcsot (client secret), és adja meg őket lent a webshopja myshopify.com címével együtt."
+      },
+      "woocommerce": {
+        "s1": "A WordPressben nyissa meg a <b>WooCommerce</b> menüt, majd a <b>Settings</b>, <b>Advanced</b>, <b>REST API</b> pontot, és válassza az <b>Add key</b> lehetőséget.",
+        "s2": "A <b>Permissions</b> mezőt állítsa <b>Read</b> értékre. Az olvasási hozzáférés ezekre terjed ki:",
+        "s3": "Generálja a kulcsot, majd adja meg lent a fogyasztói kulcsot (consumer key) és a fogyasztói titkos kulcsot (consumer secret) a webshopja címével együtt."
+      },
+      "ga4": {
+        "s1": "A <b>Google Cloud Console</b> felületén hozzon létre egy projektet (vagy használjon egy meglévőt), engedélyezze a <b>Google Analytics Data API</b> szolgáltatást, majd az <b>IAM & Admin</b>, <b>Service accounts</b> alatt hozzon létre egy szolgáltatásfiókot, és töltsön le hozzá egy <b>JSON key</b> típusú kulcsot.",
+        "s2": "A <b>Google Analytics</b> felületén nyissa meg az <b>Admin</b> részt, majd a <b>Property access management</b> oldalt, és adja hozzá a szolgáltatásfiók e-mail-címét ezzel a szerepkörrel:",
+        "s3": "Másolja ki a tulajdonazonosítót (property ID) az <b>Admin</b>, <b>Property details</b> helyről, és illessze be lent a kulcsfájl tartalmával együtt."
+      },
+      "square": {
+        "s1": "A <b>Square Developer Console</b> felületén hozzon létre egy alkalmazást (vagy nyisson meg egy meglévőt), és másolja ki a <b>Production access token</b> értékét.",
+        "s2": "Csak ezeket az engedélyeket adja meg neki:",
+        "s3": "Illessze be lent a tokent. A Square-ben rögzített fizetéseket — kártyásat és készpénzeset — beolvasom; a pénztárgépen soha át nem futó készpénzt semmi sem láthatja. A két időpont-engedéllyel a Square Appointments foglalásait is beolvasom."
+      },
+      "search_console": {
+        "s1": "A <b>Google Cloud Console</b> felületén engedélyezze egy projektben a <b>Google Search Console API</b> szolgáltatást, és hozzon létre egy szolgáltatásfiókot <b>JSON key</b> típusú kulccsal — a Google Analyticshez használt is megfelel.",
+        "s2": "A <b>Search Console</b> felületén nyissa meg a <b>Settings</b>, majd a <b>Users and permissions</b> részt, és adja hozzá a szolgáltatásfiók e-mail-címét:",
+        "s3": "Adja meg a tulajdont pontosan úgy, ahogy a Search Console nevezi, a kulcsfájl tartalmával együtt. A ritka kereséseket a Google adatvédelmi okokból elrejti, így az általam beolvasott keresések összege kicsit kevesebb a Google saját összesítésénél."
+      },
+      "meta_ads": {
+        "s1": "A <b>Meta Business Suite</b> felületén nyissa meg a <b>Business settings</b>, majd a <b>Users</b>, <b>System users</b> részt, és adjon hozzá egy rendszerfelhasználót (az Employee szerepkör elég).",
+        "s2": "Az <b>Assign assets</b> alatt adja hozzá a hirdetési fiókját, kizárólag <b>View performance</b> joggal.",
+        "s3": "Válassza a <b>Generate token</b> lehetőséget, válassza ki az alkalmazását, és csak ezt jelölje be:",
+        "s4": "Illessze be lent a tokent a hirdetési fiókja azonosítójával együtt, amely az <b>Ads Manager</b> felületén látható."
+      }
+    },
+    "field": {
+      "fixture": {
+        "key": {
+          "label": "Tesztforrás hitelesítő adata"
+        }
+      },
+      "stripe": {
+        "key": {
+          "label": "Korlátozott kulcs"
+        }
+      },
+      "shopify": {
+        "shop": {
+          "label": "Webshop címe"
+        },
+        "client_id": {
+          "label": "Kliensazonosító (Client ID)",
+          "placeholder": "az alkalmazás Settings oldaláról"
+        },
+        "client_secret": {
+          "label": "Titkos klienskulcs (Client secret)",
+          "placeholder": "az alkalmazás Settings oldaláról"
+        }
+      },
+      "woocommerce": {
+        "site_url": {
+          "label": "Webshop címe"
+        },
+        "consumer_key": {
+          "label": "Fogyasztói kulcs (Consumer key)"
+        },
+        "consumer_secret": {
+          "label": "Fogyasztói titkos kulcs (Consumer secret)"
+        }
+      },
+      "ga4": {
+        "property_id": {
+          "label": "Tulajdonazonosító (Property ID)",
+          "placeholder": "a szám az Admin, Property details alatt"
+        },
+        "service_account_json": {
+          "label": "Szolgáltatásfiók kulcsfájlja",
+          "placeholder": "illessze be ide a teljes JSON-kulcsfájlt"
+        }
+      },
+      "meta_ads": {
+        "ad_account_id": {
+          "label": "Hirdetési fiók azonosítója"
+        },
+        "access_token": {
+          "label": "Rendszerfelhasználói hozzáférési token"
+        }
+      },
+      "square": {
+        "access_token": {
+          "label": "Hozzáférési token",
+          "placeholder": "a Square Developer Console-ból"
+        },
+        "environment": {
+          "label": "Környezet",
+          "placeholder": "production (vagy sandbox teszteléshez)"
+        }
+      },
+      "search_console": {
+        "site_url": {
+          "label": "Tulajdon",
+          "placeholder": "https://www.example.com/ vagy sc-domain:example.com"
+        },
+        "service_account_json": {
+          "label": "Szolgáltatásfiók kulcsfájlja",
+          "placeholder": "illessze be ide a teljes JSON-kulcsfájlt"
+        }
+      }
+    },
+    "write": {
+      "aria": "Írási hozzáférés",
+      "sectionLabel": "Írási hozzáférés · külön hozzájárulás",
+      "title": {
+        "off": "Kikapcsolva. Semmi sem tehető közzé.",
+        "paused": "Szüneteltetve. A folytatáshoz kapcsolja össze újra.",
+        "on": "Bekapcsolva, csak arra, amit Ön jóváhagy"
+      },
+      "label": {
+        "meta_publish": "Meta-közzététel (Facebook-oldal és Instagram)",
+        "meta_ads": "Meta-hirdetéskezelés",
+        "email_campaign": "Kampány-e-mail",
+        "google_business_reviews": "Google Cégprofil-értékelések"
+      },
+      "status": {
+        "connected": "összekapcsolva",
+        "paused": "szüneteltetve",
+        "failed": "sikertelen",
+        "disconnected": "leválasztva"
+      },
+      "consentedOn": "hozzájárulás: {day} · {status}",
+      "notGranted": "nincs megadva",
+      "grant": "Megadás",
+      "close": "Bezárás",
+      "reconnect": "Újbóli összekapcsolás",
+      "disconnect": "Leválasztás",
+      "disconnecting": "Leválasztás…",
+      "cancel": "Mégse",
+      "checking": "Ellenőrzés…",
+      "unreachable": "Nem értem el a szervert. Próbálja újra.",
+      "disconnectFailed": "A leválasztás nem sikerült.",
+      "connectFailed": "Az összekapcsolás nem sikerült.",
+      "disconnected": "{label}: leválasztva. A token itt törölve lett.",
+      "connected": "{label}: összekapcsolva, és a hozzájárulása rögzítve van.",
+      "fact": {
+        "status": "állapot",
+        "permissions": "engedélyek",
+        "consented": "hozzájárulás",
+        "accessTier": "hozzáférési szint",
+        "seen": "észlelve: {day}"
+      },
+      "pausedDefault": "A Meta már nem fogadja el ennek az összekapcsolásnak a bejelentkezését. Kapcsolja össze újra, és ott folytatom, ahol abbahagytam.",
+      "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
+      "facebook": {
+        "sub": "Meghívott tesztelők: bejelentkezés Facebookkal",
+        "testerNote": "A próbaidőszak alatt a Facebookos bejelentkezés csak meghívott tesztelőknek működik. Először Samuel vagy Tedi a SYB-nél hozzáadja Önt tesztelőként (Tester) a SYB Meta-alkalmazásához, Ön pedig elfogadja a meghívást a saját Facebook-fiókjából. Ezután a Meta arra kéri, hogy hagyja jóvá pontosan a fent felsorolt engedélyeket, Ön pedig itt kiválasztja az oldalt vagy a hirdetési fiókot.",
+        "oneConsent": "Egy Facebook-fiók bejelentkezéssel vagy a közzétételt, vagy a hirdetéskezelést kapcsolhatja össze, a kettőt együtt nem: a Meta mindent megad a SYB alkalmazásának, amit korábban engedélyezett neki, a SYB pedig elutasítja azt a tokent, amely többet tartalmaz annál, amit ez a hozzájárulás megnevez. A másikhoz használja lent a saját Meta-alkalmazását.",
+        "opening": "A Facebook megnyitása…",
+        "signInPick": {
+          "ad": "Bejelentkezés Facebookkal és a hirdetési fiók kiválasztása",
+          "page": "Bejelentkezés Facebookkal és az oldal kiválasztása"
+        },
+        "signIn": "Bejelentkezés Facebookkal"
+      },
+      "facebookOff": "Még nincs bekapcsolva.",
+      "pick": {
+        "couldntList": "Nem sikerült listáznom, mit osztott meg a Meta.",
+        "connected": "{label}: összekapcsolva a Facebookon keresztül, és a hozzájárulása rögzítve van.",
+        "cancelled": "A Facebookos bejelentkezés megszakadt. Semmi sem lett összekapcsolva, és a SYB nem őrzött meg tokent.",
+        "title": {
+          "ad": "Válassza ki a hirdetési fiókot, amelyen a SYB eljárhat",
+          "page": "Válassza ki az oldalt, amelyen a SYB eljárhat"
+        },
+        "asking": "Megkérdezem a Metától, mit osztott meg…",
+        "aria": {
+          "ad": "A hirdetési fiók kiválasztása",
+          "page": "Az oldal kiválasztása"
+        },
+        "instagram": "Az Instagram is: {handle}",
+        "noInstagram": "nincs összekapcsolt Instagram-fiók: csak Facebook",
+        "active": "aktív",
+        "notActive": "nem aktív",
+        "allow": {
+          "ad": "Engedélyezés és a hirdetési fiók összekapcsolása",
+          "page": "Engedélyezés és az oldal összekapcsolása"
+        },
+        "note": "Mielőtt bármit tárolna, a SYB a Metánál ellenőrzi, hogy a bejelentkezés pontosan a fent felsorolt engedélyeket tartalmazza."
+      },
+      "eachAction": "Az egyes műveletek hatása",
+      "undoable": "Visszavonható.",
+      "notUndoable": "Nem vonható vissza, és ezt jelöljük, mielőtt jóváhagyná.",
+      "op": {
+        "publish_page_post": "Egy jóváhagyott szöveges vagy linkes bejegyzés közzététele a Facebook-oldalon.",
+        "publish_page_photo": "Egy jóváhagyott fotós bejegyzés közzététele a Facebook-oldalon.",
+        "publish_page_video": "Egy jóváhagyott videó vagy Reel közzététele a Facebook-oldalon.",
+        "publish_ig_media": "Egy jóváhagyott bejegyzés, körhinta vagy Reel közzététele az Instagram-fiókon.",
+        "pause_campaign": "Egy futó kampány szüneteltetése.",
+        "resume_campaign": "Egy szüneteltetett kampány folytatása.",
+        "set_daily_budget": "Egy kampány napi költségkeretének módosítása a jóváhagyott határokon belül.",
+        "create_campaign_paused": "Új kampány létrehozása szüneteltetett állapotban.",
+        "upload_ad_video": "Egy jóváhagyott elem videójának feltöltése a hirdetési fiókba, a hozzá tartozó hirdetéshez.",
+        "create_adset_paused": "Hirdetéssorozat létrehozása szüneteltetett állapotban: napi költségkerete, ütemezése, elhelyezései és közönsége.",
+        "create_adcreative": "Hirdetési kreatív létrehozása egy jóváhagyott elem médiájából és képaláírásából, az MI-használat jelölésével együtt.",
+        "create_ad_paused": "Hirdetés létrehozása szüneteltetett állapotban, a kampányával, hirdetéssorozatával és kreatívjával együtt, amelyek mind szüneteltetve jönnek létre.",
+        "resume_adset": "Egy szüneteltetett hirdetéssorozat folytatása.",
+        "pause_adset": "Egy futó hirdetéssorozat szüneteltetése.",
+        "resume_ad": "Egy szüneteltetett hirdetés folytatása.",
+        "pause_ad": "Egy futó hirdetés szüneteltetése."
+      },
+      "readback": "Hogy lássa, hogyan teljesítenek a bejegyzések, ugyanez a token ezeket is beolvassa:",
+      "ownApp": "Vagy: állítsa be a saját Meta-alkalmazását",
+      "ownAppSteps": {
+        "meta_publish": {
+          "s0": "A Meta Business Suite-ban ellenőrizze, hogy a Facebook-oldala és a hozzá tartozó Instagram-fiók is az üzleti portfóliójában van.",
+          "s1": "A developers.facebook.com oldalon hozzon létre egy Business típusú alkalmazást, amely ugyanennek a portfóliónak a tulajdonában van.",
+          "s2": "Adja hozzá az alkalmazáshoz a Pages és az Instagram felhasználási esetet.",
+          "s3": "Az üzleti beállításaiban adjon hozzá egy rendszerfelhasználót, adja meg neki az oldalát és az Instagram-fiókját, és generáljon tokent az alkalmazásához pontosan a fent felsorolt engedélyekkel — se többel, se kevesebbel.",
+          "s4": "Illessze be ide a tokent az oldala azonosítójával, és ha az Instagramon is közzé szeretne tenni, az Instagram-fiók azonosítójával."
+        },
+        "meta_ads": {
+          "s0": "A Meta Business Suite-ban ellenőrizze, hogy a hirdetési fiókja az üzleti portfóliójában van.",
+          "s1": "A developers.facebook.com oldalon hozzon létre egy Business típusú alkalmazást, amely ugyanennek a portfóliónak a tulajdonában van.",
+          "s2": "Adja hozzá az alkalmazáshoz a Marketing API felhasználási esetet.",
+          "s3": "Az üzleti beállításaiban adjon hozzá egy rendszerfelhasználót, adja meg neki a hirdetési fiókját, és generáljon tokent az alkalmazásához pontosan a fent felsorolt engedéllyel — se többel.",
+          "s4": "Illessze be ide a tokent az Ads Managerben látható hirdetésifiók-azonosítóval együtt."
+        }
+      },
+      "field": {
+        "meta_publish": {
+          "access_token": {
+            "label": "hozzáférési token",
+            "placeholder": "Rendszerfelhasználói hozzáférési token"
+          },
+          "page_id": {
+            "label": "Oldalazonosító",
+            "placeholder": "A Facebook-oldal azonosítója"
+          },
+          "ig_user_id": {
+            "label": "Instagram-fiók azonosítója",
+            "placeholder": "Instagram-fiók azonosítója (ha ott is közzétenne)"
+          }
+        },
+        "meta_ads": {
+          "access_token": {
+            "label": "hozzáférési token",
+            "placeholder": "Rendszerfelhasználói hozzáférési token"
+          },
+          "ad_account_id": {
+            "label": "hirdetési fiók azonosítója",
+            "placeholder": "Hirdetési fiók azonosítója, act_ előtaggal vagy anélkül"
+          }
+        }
+      },
+      "optionalField": "{label} (nem kötelező)",
+      "allowConnect": "Engedélyezés és összekapcsolás",
+      "youCancelled": "Megszakította a Facebookos bejelentkezést. Semmi sem lett összekapcsolva.",
+      "reason": {
+        "start_here": "Indítsa a Facebookos bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a Metának.",
+        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a Metát.",
+        "owner_only": "Írási hozzáférést csak tulajdonos adhat meg vagy vonhat vissza. Semmi sem lett elküldve a Metának.",
+        "unavailable": "A Facebookos bejelentkezés még nem érhető el. Használja helyette a saját Meta-alkalmazását.",
+        "provider": "Ez nem olyan Meta-összekapcsolás, amelyet a SYB kínál.",
+        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
+        "already_connected": "Ez a Meta-összekapcsolás már létezik. Előbb válassza le.",
+        "start_again": "Ez a Facebookos bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "foreign": "Ezt a Facebookos bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "meta_error": "A Facebookos bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
+        "no_pages": "A Meta egyetlen oldalt sem mutatott a SYB-nek ehhez a Facebook-fiókhoz. A Meta párbeszédablakában válassza ki azt az oldalt (és a hozzá tartozó Instagram-fiókot), amelyre a SYB közzétehet, majd próbálja újra.",
+        "no_ad_accounts": "A Meta egyetlen hirdetési fiókot sem mutatott a SYB-nek ehhez a Facebook-fiókhoz. A Meta párbeszédablakában válassza ki azt a hirdetési fiókot, amelyet a SYB kezeljen, majd próbálja újra.",
+        "meta_auth": "A Facebookos bejelentkezés nem fejeződött be: a Meta nem fogadta el a bejelentkezést. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "meta_permission": "A Facebookos bejelentkezés nem fejeződött be: a Meta szerint a SYB ezt nem teheti meg. Ellenőrizze az Összekapcsolt fiókok oldalon felsorolt engedélyeket, és kezdje újra.",
+        "meta_busy": "A Facebookos bejelentkezés nem fejeződött be: a Meta túlterhelt volt, vagy nem válaszolt. Semmi sem lett összekapcsolva — próbálja újra néhány perc múlva.",
+        "meta_refused": "A Facebookos bejelentkezés nem fejeződött be: a Meta elutasította. Semmi sem lett összekapcsolva.",
+        "internal": "Hiba történt a mi oldalunkon. Semmi sem lett összekapcsolva.",
+        "generic": "A Facebookos bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
+      },
+      "nothingSent": "Az összekapcsolás igazolja a tokent, és rögzíti a hozzájárulását. Az egyes elemek jóváhagyása előtt semmi sem kerül közzétételre és semmi sem változik, a SYB-n keresztüli közzététel pedig még nincs bekapcsolva.",
+      "disconnectNote": "A leválasztás azonnal törli itt a tokent. A Meta oldalán semmit sem von vissza: az ottani engedélyek visszavonásához távolítsa el az alkalmazást az üzleti beállításaiból.",
+      "access": {
+        "label": "Meta-hozzáférési szint · {level}",
+        "standard": {
+          "word": "standard",
+          "headline": "A Meta még nem hagyta jóvá a SYB-t nyílt regisztrációra.",
+          "body": "Amíg a SYB cégbejegyzése és a Meta jóváhagyásai (Advanced Access, Business Verification és Tech Provider verification) nincsenek meg, maga a Meta utasítja el ezeket az engedélyeket minden olyan oldalon vagy hirdetési fiókban, amely nem a SYB saját vállalkozásáé. Addig két próbaútvonal működik."
+        },
+        "advanced": {
+          "word": "bővített",
+          "headline": "A Meta jóváhagyta, hogy a SYB kérje ezeket az engedélyeket.",
+          "body": "Bármely vállalkozás összekapcsolhatja itt a saját oldalát, Instagram-fiókját vagy hirdetési fiókját."
+        }
+      },
+      "available": "elérhető",
+      "unavailable": "nem elérhető",
+      "route": {
+        "ownApp": "Saját Meta-alkalmazás",
+        "ownAppAdvanced": "Állítsa be lent, majd illessze be a tokent.",
+        "ownAppStandard": "Saját alkalmazás, saját üzleti portfólió, saját token. Beállítás lent.",
+        "signIn": "Bejelentkezés Facebookkal",
+        "signInOn": "Bejelentkezés, a felsorolt engedélyek jóváhagyása, majd az oldal vagy a hirdetési fiók kiválasztása.",
+        "testers": "Meghívott tesztelők: bejelentkezés Facebookkal",
+        "testersOn": "Azoknak a tesztelőknek, akiket a SYB csapata felvett a Metában: Samuel vagy Tedi előbb hozzáadja Önt a SYB Meta-alkalmazásához, Ön pedig elfogadja a meghívást.",
+        "testersOff": "Azoknak a tesztelőknek, akiket a SYB csapata felvett a Metában. {off}"
+      },
+      "tier": {
+        "unseen": "még nem látható — a Meta a SYB első, hirdetésmódosításra irányuló hívásakor jelzi",
+        "development_access": "fejlesztési szint: a Meta legalacsonyabb korlátai, fejlesztéshez szánva",
+        "standard_access": "standard hozzáférés: óránként nagyjából {base} + {perAd} × aktív hirdetések számú hívás ezen a hirdetési fiókon",
+        "note": "A Meta szintenként korlátozza, hány hívást indíthat a SYB óránként ezen a hirdetési fiókon. Ez egy vállalkozásnak elég, egy egész ügyfélkörnek nem. Amikor a Meta szerint a korlátból már {share} elfogyott, a SYB megvárja a következő futást. A magasabb korlátokhoz a Meta felülvizsgálata kell, amelyet a SYB akkor kér, amikor {days, plural, one {# nap} other {# nap}} alatt már {calls, plural, one {# sikeres hívás} other {# sikeres hívás}} gyűlt össze."
+      }
+    },
+    "email": {
+      "aria": "Kampány-e-mail",
+      "sectionLabel": "Kampány-e-mail · külön hozzájárulás",
+      "title": {
+        "on": "Megadva, csak arra, amit Ön jóváhagy",
+        "off": "Kikapcsolva. Semmi sem küldhet e-mailt az ügyfeleinek."
+      },
+      "label": "Kampány-e-mail",
+      "status": {
+        "connected": "összekapcsolva",
+        "paused": "szüneteltetve",
+        "failed": "sikertelen",
+        "disconnected": "leválasztva"
+      },
+      "consentedOn": "hozzájárulás: {day} · {status}",
+      "notGranted": "nincs megadva",
+      "grant": "Megadás",
+      "close": "Bezárás",
+      "disconnect": "Leválasztás",
+      "disconnecting": "Leválasztás…",
+      "unreachable": "Nem értem el a szervert. Próbálja újra.",
+      "connectFailed": "Az összekapcsolás nem sikerült.",
+      "disconnectFailed": "A leválasztás nem sikerült.",
+      "granted": "A kampány-e-mail engedélyezve, és a hozzájárulása rögzítve van.",
+      "disconnected": "A kampány-e-mail leválasztva. Több levél nem megy ki.",
+      "fact": {
+        "status": "állapot",
+        "sentAs": "feladó",
+        "viaSyb": "{name}, a SYB-n keresztül",
+        "repliesTo": "a válaszok ide mennek"
+      },
+      "disconnectNote": "A leválasztás azonnal leállít minden kampányküldést. A már elküldött e-mailt nem tudja visszahívni.",
+      "whatItDoes": "Mit csinál",
+      "op": {
+        "send_campaign": "Egy jóváhagyott kampány-e-mail elküldése azoknak az ügyfeleknek, akik kifejezetten hozzájárultak, hogy megkeresse őket; mindegyiküket újra ellenőrzöm abban a pillanatban, amikor a levél kimegy."
+      },
+      "undoable": "Visszavonható.",
+      "notUndoable": "Nem vonható vissza: az elküldött e-mail nem hívható vissza, és minden kampányt így jelölünk, mielőtt jóváhagyná.",
+      "ownService": "A kampányok a SYB saját e-mail-szolgáltatásáról mennek ki, az Ön vállalkozásának nevével. Ehhez nem ad meg a SYB-nek semmilyen jelszót vagy kulcsot.",
+      "sendAs": "Feladó neve (a vállalkozása neve)",
+      "repliesTo": "A válaszok címzettje (egy cím, amelyet Ön olvas)",
+      "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
+      "recording": "Rögzítés…",
+      "allow": "Kampány-e-mail engedélyezése",
+      "nothingSent": "A megadás rögzíti a hozzájárulását. Semmi sem megy ki, mielőtt Ön jóváhagyná a kampányt, majd magát az e-mailt is, és minden címzettet újra ellenőrzök abban a pillanatban, amikor a levél kimegy.",
+      "how": {
+        "label": "Hogyan mennek ki a kampányok",
+        "title": "A SYB saját e-mail-szolgáltatásáról, az Ön nevével.",
+        "body": "Ehhez nem ad meg a SYB-nek jelszót vagy kulcsot. Minden kampány csak azokhoz az ügyfelekhez megy, akik kifejezetten hozzájárultak, hogy megkeresse őket, mindegyiküket újra ellenőrzöm a küldés pillanatában, és minden e-mailben ott a saját leiratkozási link, amelyet azonnal és véglegesen tiszteletben tartunk."
+      },
+      "realSendsOff": "{label}: kikapcsolva, amíg le nem zárul a kéthetes, felügyelet nélküli teszt. Semmi sem ment ki; ez jóváhagyva marad. A bekapcsolás utáni első futáskor megy ki.",
+      "sharedSender": "Egyelőre a kampányok és a SYB saját bejelentkezési e-mailjei ugyanarról a feladócímről mennek ki. Ha egy kampány sok spampanaszt kapna, a bejelentkezési e-mailek is lelassulhatnak."
+    },
+    "google": {
+      "sectionLabel": "Google Cégprofil · külön hozzájárulás",
+      "label": "Google Cégprofil-értékelések",
+      "title": {
+        "on": "Megadva, csak az értékelései olvasására",
+        "off": "Kikapcsolva. A SYB nem olvassa a Google-értékeléseit."
+      },
+      "status": {
+        "connected": "összekapcsolva",
+        "paused": "szüneteltetve",
+        "failed": "sikertelen",
+        "disconnected": "leválasztva"
+      },
+      "consentedOn": "hozzájárulás: {day} · {status}",
+      "notGranted": "nincs megadva",
+      "notSetUpYet": "még nincs beállítva",
+      "connect": "Összekapcsolás",
+      "close": "Bezárás",
+      "cancel": "Mégse",
+      "keepIt": "Megtartom",
+      "unreachable": "Nem értem el a szervert. Próbálja újra.",
+      "connectFailed": "Az összekapcsolás nem sikerült.",
+      "revokeFailed": "A visszavonás nem sikerült.",
+      "connected": "A Google Cégprofil összekapcsolva, és a hozzájárulása rögzítve van.",
+      "signedInPick": "Bejelentkezett a Google-fiókjával. Válassza ki a helyszínt, amelyet a SYB olvasson.",
+      "youCancelled": "A Google képernyőjén megszakította. Semmi sem lett összekapcsolva.",
+      "nothingConnected": "Semmi sem lett összekapcsolva.",
+      "revoked": "Visszavonva. A SYB Google-hozzáférése törölve, és az olvasás leállt.",
+      "fact": {
+        "status": "állapot",
+        "location": "helyszín",
+        "lastRead": "utolsó beolvasás",
+        "notYet": "még nem: a SYB naponta egyszer olvas"
+      },
+      "revokeAsk": "A SYB abbahagyja a Google-értékelései olvasását.",
+      "revoking": "Visszavonás…",
+      "yesRevoke": "Igen, visszavonom",
+      "revoke": "Visszavonás",
+      "revokeNote": "A visszavonás azonnal törli itt a SYB hozzáférését, és a SYB abbahagyja az olvasást. A már beolvasott értékelések az Értékelések oldalon maradnak, amíg el nem távolítja őket, vagy le nem telik az évük. Ha a Google oldalán is el szeretné távolítani a SYB-t, nyissa meg a Google-fiókja Biztonság oldalát, majd a Third-party connections (harmadik féltől származó összekapcsolások) részt.",
+      "pickTitle": "Válassza ki a helyszínt, amelyet a SYB olvas",
+      "recording": "Rögzítés…",
+      "readLocation": "A helyszín értékeléseinek olvasása",
+      "googleScreen": "Ezután a Google megjeleníti a saját képernyőjét, és erre az egy engedélyre kérdez rá. Engedélyezze, és térjen vissza ide.",
+      "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
+      "opening": "A Google megnyitása…",
+      "signIn": "Bejelentkezés Google-fiókkal és az értékelések olvasásának engedélyezése",
+      "nothingWritten": "Az összekapcsolás rögzíti a hozzájárulását, és naponta egyszer beolvassa az értékeléseit. A SYB soha nem válaszol, és soha nem szerkeszti az adatlapját: csak olvas a Google-ból.",
+      "reason": {
+        "start_here": "Indítsa a Google-bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a Google-nak.",
+        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a Google-t.",
+        "owner_only": "Ezt az engedélyt csak tulajdonos adhatja meg vagy vonhatja vissza. Semmi sem lett elküldve a Google-nak.",
+        "unavailable": "Az értékelések Google-ból való olvasása még nincs beállítva.",
+        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
+        "already_connected": "A Google Cégprofil már össze van kapcsolva. Egy másik összekapcsolásához előbb vonja vissza.",
+        "start_again": "Ez a Google-bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "foreign": "Ezt a Google-bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "google_error": "A Google-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
+        "scope": "A Google nem pontosan azt az egy engedélyt adta meg, amelyet a SYB kér. A Google képernyőjén engedélyezze a Cégprofil-engedélyt, majd próbálja újra.",
+        "no_refresh": "A Google nem adott tartós hozzáférést a SYB-nek. Kezdje újra: a Google még egyszer rákérdez, és a SYB-nek szüksége van erre a válaszra.",
+        "no_locations": "A Google egyetlen Cégprofilt sem mutatott a SYB-nek ehhez a Google-fiókhoz. A bejelentkezéshez azt a fiókot használja, amely a profilját kezeli, majd próbálja újra.",
+        "google_auth": "A Google nem fogadta el a bejelentkezést. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "google_permission": "A Google szerint a SYB még nem olvashat Cégprofilokat. Semmi sem lett összekapcsolva.",
+        "google_busy": "A Google túlterhelt volt, vagy nem válaszolt. Semmi sem lett összekapcsolva — próbálja újra néhány perc múlva.",
+        "google_refused": "A Google elutasította a bejelentkezést. Semmi sem lett összekapcsolva.",
+        "internal": "Hiba történt a mi oldalunkon. Semmi sem lett összekapcsolva.",
+        "generic": "A Google-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
+      }
+    },
+    "import": {
+      "unreachable": "Nem értem el a szervert. Próbálja újra.",
+      "readFrom": "Beolvasva ebből: {file}. Itt ellenőrizheti",
+      "orPaste": "Vagy illessze be ide",
+      "datesLabel": "Hogyan vannak írva a dátumok, ha így néznek ki: {sample}",
+      "workItOut": "Megállapítás a fájlból",
+      "dayFirst": "Elöl a nap ({example})",
+      "monthFirst": "Elöl a hónap ({example})",
+      "amountsLabel": "Hogyan vannak írva az összegek, ha így néznek ki: {sample}",
+      "dotDecimal": "{sample} (a vessző választja el az ezreseket)",
+      "commaDecimal": "{sample} (a pont választja el az ezreseket)",
+      "reading": "Beolvasás…"
+    },
+    "bank": {
+      "label": "Bankszámlakivonat · egyszeri beolvasás, semmi sem mozdul",
+      "title": "A bankban lévő pénze, egy kivonatból",
+      "latest": "{amount} · {day}",
+      "lede": "Exportáljon egy kivonatot a bankjából CSV-ként, és adja oda nekem a fájlt. Minden sorból csak a dátumot és az utána fennmaradó egyenleget olvasom be, azt nem, hogy ki fizetett vagy miért, és minden nap záróegyenlegét megőrzöm. A pénzügyi előrejelzése ebből indul, amíg legfeljebb egyhetes, és az előrejelzésem heti egyenlegeit összevetem a később megadott kivonataival. Egyetlen bank sincs összekapcsolva, és semmi sem mozdítható el.",
+      "file": "A kivonat (CSV)",
+      "currency": "A bankszámla pénzneme",
+      "through": "Az utolsó nap, amelyet a kivonat lefed, ha az utolsó sora utáni (nem kötelező)",
+      "submit": "A kivonat importálása",
+      "failed": "A kivonatot nem sikerült importálni.",
+      "overlap": "Egy átfedő kivonat ismételt importálása biztonságos: az általa lefedett napok lecserélődnek, nem számolódnak kétszer. A kivonatnak egyenlegoszlopot kell tartalmaznia; pusztán az összegek listájából nem derül ki, mennyi pénz volt a bankszámlán.",
+      "outcome": "{rows, plural, one {# sor} other {# sor}} beolvasva: napi záróegyenleg {days, plural, one {# napra} other {# napra}}, {from} és {through} között, {amount} végső egyenleggel.",
+      "skipped": {
+        "date": "{count} sor olyan dátummal, amelyet nem tudtam beolvasni",
+        "balance": "{count} sor olyan egyenleggel, amelyet nem tudtam beolvasni",
+        "day": "{count} sor olyan napról, amelynek sorai ellentmondanak egymásnak",
+        "sep": ",",
+        "line": "Kihagyva, soha nem találgatva: {parts}."
+      }
+    },
+    "bookings": {
+      "label": "Foglalások importálása · egyszeri beolvasás, semmi sem íródik vissza",
+      "title": "Az időpontjai, bármilyen foglalási rendszerből",
+      "lastImport": "Utolsó importálás: {day} · {platform}",
+      "lede": "A Fresha, a Mindbody, a Booksy, a SimplyBook.me, a Timely és a legtöbb más rendszer nem kapcsolható össze, de mindegyik exportálja az időpontjait. Exportálja őket CSV-ként, és adja oda nekem a fájlt. Beolvasom a dátumot, azt, hogy mi történt, a szolgáltatást, a munkatársat és az árat. Minden ügyfélhez egy egyirányú kódot őrzök meg, hogy lássam, ki tért vissza. A nevüket, e-mail-címüket és telefonszámukat soha nem őrzöm meg. Ha a Square Appointments szolgáltatást használja, helyette kapcsolja össze fent a Square-t a két időpont-engedélyével.",
+      "measuresSub": "{source} · {from} – {to}",
+      "source": {
+        "import": "Az Ön foglalási exportja",
+        "square": "Square"
+      },
+      "platform": "Honnan származik az export",
+      "generic": "Másik foglalási rendszer vagy egy táblázat",
+      "file": "Az exportfájl (CSV)",
+      "currency": "Az ár oszlop pénzneme",
+      "submit": "A foglalások importálása",
+      "failed": "A fájlt nem sikerült importálni.",
+      "overlap": "Egy átfedő export ismételt importálása biztonságos: a nálam már meglévő időpontok frissülnek, nem számolódnak kétszer. Az olvashatatlan sorokat megszámolom és kihagyom, soha nem találgatok.",
+      "caption": "{source}: {days, plural, one {# nap} other {# nap}}, {from} és {to} között",
+      "measureHead": "Mérőszám · {days, plural, one {# nap} other {# nap}}",
+      "value": "Érték",
+      "how": "Hogyan kaptam",
+      "notMeasured": "Nincs mérve",
+      "completedHow": "teljesített időpontok, {from} és {to} között",
+      "measure": {
+        "completed": "Teljesített időpontok",
+        "noShow": "Meg nem jelenési arány",
+        "lateCancel": "Késői lemondási arány",
+        "rebooked": "Újra foglaló ügyfelek",
+        "revenue": "Árbevétel a foglalásokból",
+        "full": "Mennyire telített"
+      },
+      "understood": "Amit megértettem",
+      "columnsCaption": "A fájljából beolvasott oszlopok",
+      "iRead": "Amit beolvasok",
+      "fromColumn": "Az Ön oszlopából",
+      "role": {
+        "ref": "Foglalási azonosító",
+        "start": "Dátum és időpont",
+        "date": "Dátum",
+        "time": "Időpont",
+        "status": "Mi történt",
+        "service": "Szolgáltatás",
+        "staff": "Munkatárs",
+        "client_id": "Ügyfélazonosító, elkódolva és nem megőrizve",
+        "client_email": "Ügyfél e-mail-címe, elkódolva és nem megőrizve",
+        "client_phone": "Ügyfél telefonszáma, elkódolva és nem megőrizve",
+        "price": "Ár",
+        "duration": "Időtartam",
+        "cancelled_at": "A lemondás időpontja"
+      },
+      "noIdentity": "A fájlban nincs követhető ügyfélazonosító, e-mail-cím vagy telefonszám, így nem látom, ki tért vissza. A név önmagában nem elég: két Anna nevű ügyfélből egy lenne.",
+      "counted": "Amit megszámoltam",
+      "countedLine": "{rows, plural, one {# sor} other {# sor}} beolvasva az exportjából ({platform}). {added, plural, one {# új időpont} other {# új időpont}}, {updated} módosult a legutóbbi importálás óta, {unchanged} már megvolt, változatlanul.",
+      "merged": "{count, plural, one {# további sor ugyanazzal a foglalási azonosítóval szerepelt, mint egy másik, ezért minden foglalást egyszer számoltam.} other {# további sor ugyanazzal a foglalási azonosítóval szerepelt, mint egy másik, ezért minden foglalást egyszer számoltam.}}",
+      "future": "{count, plural, one {# időpont még hátravan. Akkor számít bele, ha már megtörtént, és Ön újra importál.} other {# időpont még hátravan. Akkor számítanak bele, ha már megtörténtek, és Ön újra importál.}}",
+      "daysMeasured": "Mért napok: {from} – {to}.",
+      "leftOut": "Amit kihagytam",
+      "leftOutFlag": "Kihagyva",
+      "valueLeftOutFlag": "Érték kihagyva",
+      "skip": {
+        "no_date": "{count, plural, one {# sor} other {# sor}} dátum nélkül.",
+        "unreadable_date": "{count, plural, one {# sor} other {# sor}} olyan dátummal, amelyet nem tudtam beolvasni.",
+        "no_status": "{count, plural, one {# sor} other {# sor}} állapot nélkül.",
+        "unknown_status": "{count, plural, one {# sor} other {# sor}} olyan állapottal, amelyet nem ismerek.",
+        "not_closed_out": "{count, plural, one {# sor} other {# sor}} még foglaltként szerepel, pedig a napja már elmúlt, így nem tudom, mi történt."
+      },
+      "skipOther": "{count, plural, one {# sor} other {# sor}}: {reason}.",
+      "gapLine": "{count} esetben: {gap}.",
+      "gap": {
+        "time": "olvashatatlan időpont (a napot megtartottam)",
+        "price": "olvashatatlan ár (kihagyva)",
+        "duration": "olvashatatlan időtartam (kihagyva)",
+        "cancelled_at": "a lemondás időpontja nem volt összevethető a kezdéssel, ezért szokásos lemondásnak számít",
+        "client": "nem használható ügyféladatok, ezért az a látogatás nem követhető",
+        "client_erased": "olyan ügyfél, akit Ön törölt, vagy aki leiratkozott, ezért az a látogatás senkihez sincs kötve"
+      },
+      "unknownStatuses": "Állapotok, amelyeket nem ismertem: {list}. Nem találgatom, mit jelentenek.",
+      "unknownStatus": "„{word}” ({count})",
+      "listSep": ","
+    }
+  },
+  "landing": {
+    "meta": {
+      "title": "SYB — vérvizsgálat a vállalkozása számára",
+      "description": "{checks} vizsgálat az eladásain, foglalásain, fizetésein és hirdetésein, minden szivárgás euróban beárazva, és egy aláírt jelentés."
+    },
+    "nav": {
+      "label": "Főmenü",
+      "chart": "A grafikon",
+      "panels": "Mit vizsgálunk",
+      "price": "Ár",
+      "signIn": "Bejelentkezés"
+    },
+    "hero": {
+      "pill": "Vérvizsgálat a vállalkozása számára",
+      "titleA": "A vállalkozása egészségesnek tűnik.",
+      "titleB": "<em>A számai</em> lehet, hogy nem.",
+      "lede": "{checks} vizsgálatot végzünk az eladásain, foglalásain, fizetésein és hirdetésein, minden szivárgást euróban árazunk be, és {daysText} {days, plural, one {nap} other {nap}} alatt aláírt jelentést adunk át.",
+      "book": "Foglalja le a vizsgálatát — {price}",
+      "see": "Nézze meg, mit találunk",
+      "trustReadOnly": "Csak olvasás",
+      "trustSigned": "Egy ember írja alá",
+      "trustRefund": "Visszatérítés, ha nem találunk semmit"
+    },
+    "chart": {
+      "kicker": "A grafikon",
+      "title": "A vállalkozása, úgy olvasva, mint egy részvény.",
+      "aside": "Megjelöljük a napot, amikor az egyes szivárgások elkezdődtek — és besatírozzuk, mennyibe kerültek Önnek."
+    },
+    "panels": {
+      "kicker": "Mit vizsgálunk",
+      "title": "Kilenc panel. Minden, ami a nyereségét mozgatja.",
+      "p01": {
+        "name": "Konverzió",
+        "markers": "foglalás vagy fizetés · érdeklődések · mobil · oldalmélység"
+      },
+      "p02": {
+        "name": "Árrés",
+        "markers": "szállítás után · eladási költség · díjak · kedvezmények"
+      },
+      "p03": {
+        "name": "Árazás",
+        "markers": "pozíció · érzékenység · átlagos eladás · küszöbök"
+      },
+      "p04": {
+        "name": "Visszaküldések és visszatérítések",
+        "markers": "arány · sérülés és újrakészítés · költség · okok"
+      },
+      "p05": {
+        "name": "Megtartás",
+        "markers": "visszatérés · időköz · elmaradt vásárlók · érték"
+      },
+      "p06": {
+        "name": "E-mail és SMS",
+        "markers": "részesedés · automatizmusok · listanövekedés · leiratkozások"
+      },
+      "p07": {
+        "name": "Ügyfélszerzés",
+        "markers": "ügyfélenkénti költség · megtérülés · csatornamix · ROAS"
+      },
+      "p08": {
+        "name": "Készlet és kapacitás",
+        "markers": "készlethiány · holt készlet · üres időpontok · forgási sebesség"
+      },
+      "p09": {
+        "name": "Ügyféltámogatás",
+        "markers": "kérdések · „hol a rendelésem vagy a foglalásom” · válaszidő · önkiszolgálás"
+      }
+    },
+    "steps": {
+      "kicker": "Hogyan működik",
+      "title": "Tizenöt perc Öntől.",
+      "whenMinutes": "{day}. nap · {minutes} perc",
+      "whenDay": "{day}. nap",
+      "connect": {
+        "t": "Összekapcsolás",
+        "d": "Csak olvasás. Semmi sem változik."
+      },
+      "questions": {
+        "t": "Válaszoljon néhány kérdésre",
+        "d": "Csak arra, amit a számai nem árulnak el nekünk."
+      },
+      "results": {
+        "t": "Kapja meg az eredményeit",
+        "d": "Minden szivárgás beárazva, grafikonon ábrázolva, és elsőként három javítás."
+      }
+    },
+    "price": {
+      "kicker": "Ár",
+      "titleA": "Egy vizsgálat.",
+      "titleB": "Egy ár.",
+      "card": "Teljes panel a vállalkozásának",
+      "once": "egyszeri",
+      "markers": "{count, plural, one {# mutató} other {# mutató}}, mindegyik beárazva",
+      "chart": "Az árbevétel-grafikonja, a szivárgások megjelölve",
+      "fixes": "{count, plural, one {# javítás} other {# javítás}}, sorrendben",
+      "walkthrough": "Aláírt, {minutes} perces átbeszélés",
+      "subscription": "Előfizetés",
+      "none": "nincs",
+      "book": "Foglalja le a vizsgálatát",
+      "refund": "Kevesebb mint {leaksText} javítható {leaks, plural, one {szivárgás} other {szivárgás}}? Teljes visszatérítés."
+    },
+    "faq": {
+      "title": "Kérdések",
+      "passwordQ": "Szükségük van a jelszavamra?",
+      "passwordA": "Nem. Csak olvasási jogú összekapcsolás, amelyet bármikor eltávolíthat.",
+      "changeQ": "Megváltozik bármi a fiókjaimban?",
+      "changeA": "Nem. Csak olvasunk. Az Ön jóváhagyása nélkül soha semmi nem fut.",
+      "sizeQ": "Elég nagy a vállalkozásom?",
+      "sizeA": "Havonta nagyjából {low}–{high} forgalmú vállalkozásoknak készült. Túl kicsi az olvasáshoz? Még a fizetés előtt szólunk."
+    },
+    "foot": {
+      "book": "Foglalja le a vizsgálatát — {price}",
+      "company": "[Cégadatok]",
+      "terms": "Feltételek",
+      "privacy": "Adatvédelem"
+    },
+    "demo": {
+      "group": "Bemutató vállalkozás",
+      "kicker": "Demó",
+      "shop": "Egy webshop",
+      "salon": "Egy szalon"
+    },
+    "walk": {
+      "figure": "Termékbemutató videó",
+      "bar": "SYB · TERMÉKBEMUTATÓ",
+      "chapterOf": "{n}. fejezet / {total} · {title}",
+      "chapters": "Fejezetek",
+      "play": "A bemutató lejátszása",
+      "pause": "A bemutató szüneteltetése",
+      "chapter": {
+        "c01": {
+          "title": "Összekapcsolás",
+          "caption": "Kapcsolja össze a fiókjait — csak olvasási joggal, két perc alatt.",
+          "crumb": "Összekapcsolt fiókok",
+          "state": "összekapcsolás"
+        },
+        "c02": {
+          "title": "Kérdések",
+          "caption": "Válaszoljon néhány kérdésre, amelyekre csak Ön tud válaszolni.",
+          "crumb": "Interjú",
+          "state": "rögzítés"
+        },
+        "c03": {
+          "title": "A figyelés",
+          "caption": "Minden számot beolvasunk. Semmihez sem nyúlunk.",
+          "crumb": "Figyelés",
+          "state": "figyelés"
+        },
+        "c04": {
+          "title": "Jelentés",
+          "caption": "Minden szivárgás, megmérve és euróban beárazva.",
+          "crumb": "Jelentés",
+          "state": "a jelentés kész"
+        },
+        "c05": {
+          "title": "Jóváhagyás",
+          "caption": "Semmi sem fut, amíg meg nem nyomja a Jóváhagyás gombot.",
+          "crumb": "Önre vár",
+          "state": "{count, plural, one {# döntés} other {# döntés}}"
+        },
+        "c06": {
+          "title": "Eredmények",
+          "caption": "Aztán pontosan látja, mennyit hozott minden egyes javítás.",
+          "crumb": "Eredmények",
+          "state": "mérés"
+        }
+      },
+      "s1": {
+        "step": "{n}. lépés · Összekapcsolás",
+        "title": "Kapcsolja össze a fiókjait, csak olvasási joggal.",
+        "tag": "CSAK OLVASÁS",
+        "connected": "Összekapcsolva · {months, plural, one {# hónap} other {# hónap}} beolvasása",
+        "button": "Összekapcsolás"
+      },
+      "s2": {
+        "step": "{n}. lépés · Néhány kérdés",
+        "range": "Egy tartomány is elég.",
+        "record": "A nyilvántartás",
+        "you": "Ön",
+        "under": "< {a}",
+        "between": "{a}–{b}",
+        "over": "{a}+"
+      },
+      "s3": {
+        "step": "{n}. lépés · A figyelés",
+        "title": "Olvasunk. Semmihez sem nyúlunk.",
+        "tag": "FIGYELÉS",
+        "day": "Nap",
+        "readings": "Leolvasások",
+        "changes": "Végrehajtott változtatások"
+      },
+      "s4": {
+        "step": "{n}. lépés · Az Ön jelentése",
+        "title": "Minden szivárgás, beárazva.",
+        "leak": "Szivárgás / hó"
+      },
+      "s5": {
+        "step": "{n}. lépés · Ön dönt",
+        "proposal": "Javaslat · {area}",
+        "recommended": "AJÁNLOTT",
+        "expected": "Várható",
+        "expectedRange": "+{low}–{high} / hó",
+        "undo": "Visszavonás",
+        "anyTime": "Bármikor",
+        "approve": "Jóváhagyás",
+        "decline": "Elutasítás",
+        "stamp": "JÓVÁHAGYVA · fut: {time}"
+      },
+      "s6": {
+        "step": "{n}. lépés · Mérve",
+        "title": "Pontosan látja, mennyit hozott.",
+        "recovered": "Visszanyerve / hó",
+        "key": "J",
+        "keyLegend": "{key} = jóváhagyva",
+        "before": "Előtte · {metric} {value} %",
+        "after": "Utána · {metric} {value} %",
+        "measuring": "Utána · mérés…"
+      },
+      "flag": {
+        "ACT": "TEENDŐ",
+        "HIGH": "MAGAS",
+        "LOW": "ALACSONY",
+        "OK": "RENDBEN"
+      },
+      "shop": {
+        "stage": "Bemutató egy szemléltető webshoppal, {n}. fejezet: {caption}",
+        "caption": "Bemutató egy szemléltető webshoppal. Az Ön számai a sajátjai lesznek.",
+        "reads": "Rendelések · Termékek · Ügyfelek · Raktárkészlet",
+        "question": "Nagyjából mennyibe kerül Önnek a szállítás rendelésenként?",
+        "fact": "Szállítás: {low}–{high}",
+        "r0": "Rendelések, {days} nap",
+        "r1": "Átl. rendelés",
+        "r2": "Teljesítés",
+        "w2": "saját",
+        "m0": "Fizetési konverzió",
+        "m1": "Árrés szállítás után",
+        "m2": "Visszaküldési arány",
+        "m3": "E-mail és SMS részesedése",
+        "m4": "Visszatérő ügyfelek",
+        "area": "fizetés",
+        "proposal": "Javítsa ki a mobilos fizetési lépést, amelyen vásárlók vesznek el",
+        "metric": "konverzió"
+      },
+      "salon": {
+        "stage": "Bemutató egy szemléltető szalonnal, {n}. fejezet: {caption}",
+        "caption": "Bemutató egy szemléltető szalonnal. Az Ön számai a sajátjai lesznek.",
+        "reads": "Fizetések · Visszatérítések · Helyszínek",
+        "question": "Nagyjából hány előjegyzett vendég nem jelenik meg egy héten?",
+        "fact": "Meg nem jelenések: heti {low}–{high}",
+        "r0": "Fizetett látogatások, {days} nap",
+        "r1": "Átl. vendégköltés",
+        "r2": "Előlegek",
+        "w2": "nincs",
+        "m0": "Meg nem jelenési arány",
+        "m1": "Újrafoglalási arány",
+        "m2": "Székkihasználtság",
+        "m3": "Kiegészítő termékeladás aránya",
+        "m4": "Átlagos vendégköltés",
+        "area": "foglalások",
+        "proposal": "Kérjen előleget az első foglalásoknál, hogy kevesebben maradjanak távol",
+        "metric": "meg nem jelenési arány"
+      }
+    },
+    "storeChart": {
+      "day": "{count}N",
+      "week": "{count}H",
+      "overlay": "Szivárgásréteg",
+      "weekOf": "Hét: {day}",
+      "open": "Ny",
+      "high": "M",
+      "low": "A",
+      "close": "Z",
+      "withoutLeaks": "Szivárgások nélkül: {value}",
+      "gap": "Különbség: {value}",
+      "shop": {
+        "title": "WEBSHOP · ÁRBEVÉTEL",
+        "subtitle": "Szemléltető webshop · {days, plural, one {# nap} other {# nap}}",
+        "volume": "Rendelések",
+        "description": "Egy szemléltető webshop napi árbevételének gyertyadiagramja, {days, plural, one {# napra} other {# napra}}. Egy pontozott vonal mutatja a szivárgások nélküli árbevételt; a kettő közötti satírozott rés az elveszett pénz. Három jelölő mutatja, hol kezdődtek a szivárgások: egy témafrissítés, egy készlethiány és egy szállítási változás.",
+        "T": {
+          "key": "T",
+          "label": "Témafrissítés",
+          "note": "Témafrissítés — lelassul a mobilos fizetés"
+        },
+        "S": {
+          "key": "K",
+          "label": "Készlethiány",
+          "note": "Készlethiány — a legkelendőbb termékek elfogynak"
+        },
+        "F": {
+          "key": "I",
+          "label": "Ingyenes szállítás határa",
+          "note": "Az ingyenes szállítás határa túl alacsonyan maradt"
+        }
+      },
+      "salon": {
+        "title": "SZALON · ÁRBEVÉTEL",
+        "subtitle": "Szemléltető szalon · {days, plural, one {# nap} other {# nap}}",
+        "volume": "Látogatások",
+        "description": "Egy szemléltető szalon napi árbevételének gyertyadiagramja, {days, plural, one {# napra} other {# napra}}. Egy pontozott vonal mutatja a szivárgások nélküli árbevételt; a kettő közötti satírozott rés az elveszett pénz. Három jelölő mutatja, hol kezdődtek a szivárgások: egy fodrász távozása, az előleg nélküli online foglalás és a termékpolc áthelyezése.",
+        "L": {
+          "key": "T",
+          "label": "Távozik egy fodrász",
+          "note": "Távozik egy fodrász — a törzsvendégei nem foglalnak újra"
+        },
+        "B": {
+          "key": "F",
+          "label": "Online foglalás",
+          "note": "Előleg nélkül indul az online foglalás — nő a meg nem jelenések száma"
+        },
+        "R": {
+          "key": "P",
+          "label": "Áthelyezett termékpolc",
+          "note": "A termékpolc a pult mellől máshová kerül — visszaesik a termékeladás"
+        }
+      }
+    }
+  },
+  "legal": {
+    "toBeSupplied": "Ezt a dokumentumot a SYB az indulás előtt biztosítja.",
+    "terms": {
+      "meta": "Felhasználási feltételek — SYB",
+      "label": "Feltételek",
+      "title": "Felhasználási feltételek"
+    },
+    "privacy": {
+      "meta": "Adatvédelmi tájékoztató — SYB",
+      "label": "Adatvédelem",
+      "title": "Adatvédelmi tájékoztató",
+      "speakingHead": "Válasz szóban",
+      "speaking": "Amikor megnyomja a Diktálás gombot, a böngészője szöveggé alakítja a beszédét. Ahol a böngésző ezt az Ön eszközén is meg tudja tenni, a hang az eszközön marad. Egyébként a böngészője gyártója végzi: Chrome-ban a Google. A SYB soha nem kapja meg a hangot, és semmit sem tárol belőle. Csak azok a szavak mentődnek, amelyeket Ön rögzít, kérdez vagy elküld, pontosan úgy, mintha begépelte volna őket, és a puszta beszéddel semmi sem kerül rögzítésre."
+    }
+  },
+  "resume": {
+    "meta": "Folytatás — SYB",
+    "kicker": "Az Ön interjúja",
+    "headline": "Folytassa ott, ahol abbahagyta.",
+    "label": "Megerősítés",
+    "title": "Folytatja ezt az interjút?",
+    "button": "Folytatás",
+    "note": "Nem Ön kérte ezt a linket? Zárja be ezt az oldalt. Ebben a böngészőben semmi sem változik, hacsak meg nem nyomja a gombot.",
+    "deadHeadline": "Ez a link már lejárt.",
+    "deadMessage": "A folytatási linkek lejáratkor vagy visszavonáskor nem működnek tovább. Az e-mail-címével történő bejelentkezés után az interjúját ott találja, ahol abbahagyta."
+  },
+  "summaryStop": {
+    "meta": "Heti összefoglaló — SYB",
+    "label": "E-mail-beállítások",
+    "unknown": {
+      "title": "Ezt a linket nem ismerjük fel.",
+      "body": "Ellenőrizze, hogy az e-mailből a teljes linket kimásolta-e. Semmi sem változott."
+    },
+    "stopped": {
+      "title": "A heti összefoglaló kikapcsolva.",
+      "body": "Többé nem küldöm el e-mailben. Minden, amiről beszámolt, továbbra is ott van a <watch>Figyelés</watch> képernyőn, és ott vissza is kapcsolhatja."
+    },
+    "ask": {
+      "title": "Leállítja a heti összefoglaló e-mailt?",
+      "body": "Egy kattintás, és leáll. A bejelentkezési linkeket és a Támogatás képernyő értesítéseit ez nem érinti.",
+      "button": "E-mailek leállítása"
+    }
+  },
   "benchmarks": {
     "meta": {
       "title": "Összehasonlítás hasonló vállalkozásokkal — SYB"

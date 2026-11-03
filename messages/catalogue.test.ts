@@ -40,6 +40,7 @@ import { sessionWords } from "../components/voice/MicButton";
 import { ENGLISH_SESSION_WORDS, NOTICE, errorWords } from "../lib/voice/session";
 import type { AppLocale } from "../lib/i18n/locales";
 import { LOCALES } from "../lib/i18n/locales";
+import { L3D_GLOSSARY_EXCEPTIONS } from "./glossary-exceptions-l3d";
 
 type Tree = { [key: string]: string | Tree };
 
@@ -329,6 +330,8 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  * exception for a term the English no longer uses fails.
  */
 const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> = {
+  // L-3d's, in their own file (connections, the landing).
+  ...L3D_GLOSSARY_EXCEPTIONS,
   "voice.error.network": {
     terms: ["connection"],
     reason: "the device's internet connection, not a connected account",

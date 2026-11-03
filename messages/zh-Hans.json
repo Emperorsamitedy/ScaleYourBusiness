@@ -1613,6 +1613,1164 @@
       "cantTell": "“无法判断”表示没有测量到的数字，或者有我没有预测到的事情干扰了结果，比如一次送货。它永远不会被算作正确。"
     }
   },
+  "connections": {
+    "meta": {
+      "title": "连接 — SYB"
+    },
+    "kicker": "您的企业 · 连接",
+    "aside": "读取与写入始终分开",
+    "loading": "正在读取您的连接…",
+    "unreachable": "我无法连接服务器。请重试。",
+    "error": {
+      "title": "连接未能加载。",
+      "label": "连接",
+      "cardTitle": "出了点问题。",
+      "body": "加载您的连接时出了点问题。请刷新页面重试。"
+    },
+    "signedOut": {
+      "title": "登录后即可连接您的数字。",
+      "cardTitle": "连接属于您的账户。",
+      "body": "支付账户、收银机或网店、广告账户都会连接到您的账户，而不只是这个浏览器。",
+      "signIn": "登录"
+    },
+    "headline": {
+      "reading": "{count, plural, =1 {正在读取一个来源。} other {正在读取 # 个来源。}}",
+      "stalled": "目前没有任何来源在读取。",
+      "none": "还没有接入任何来源。",
+      "writesUnknown": "无法读取写入权限。",
+      "canWrite": "{labels} 可以写入——仅限您批准的内容。",
+      "nothingWritten": "没有任何内容可以写入。",
+      "readOnly": "{labels} 持有一项可以写入的权限；SYB 只用它读取。"
+    },
+    "status": {
+      "connected": "已连接",
+      "paused": "已暂停",
+      "failed": "失败",
+      "disconnected": "已断开"
+    },
+    "banner": {
+      "see": "您可以看到接入了什么。",
+      "seeAndRead": "您可以看到接入了什么，并且现在就可以重新读取其中任何一项。",
+      "readAgainGroup": "立即重新读取",
+      "readingOne": "正在读取 {label}…",
+      "readAgain": "立即重新读取 {label}"
+    },
+    "sync": {
+      "didntRun": "同步没有运行。",
+      "locked": "{label} 已有一次同步正在运行。",
+      "done": "{label} 已同步。{count, plural, other {已读取 # 个每日数字。}}",
+      "failed": "{label} 没有同步成功。{reason}",
+      "noReason": "没有给出原因。"
+    },
+    "panel": {
+      "label": "配线架",
+      "title": "接入了什么",
+      "legendOn": "开",
+      "legendOff": "关",
+      "legendNever": "从不",
+      "source": "来源",
+      "gives": "提供什么",
+      "read": "读取",
+      "write": "写入",
+      "lastRead": "上次读取",
+      "action": "操作",
+      "reading": "读取中",
+      "notReading": "未在读取，{status}",
+      "off": "关",
+      "writeNever": "从不——设计上就是只读",
+      "close": "关闭",
+      "settings": "设置",
+      "connect": "连接",
+      "past": "{label} 已断开。凭据已删除；它产生的测量历史仍保留在您的档案中。",
+      "foot": "测量到的数字会在报告中取代您的估计值，而您的估计值仍保留在您的历史记录中。Google Ads 暂不可用：SYB 需要先获得 Google 的审核通过，任何账户才能连接。"
+    },
+    "settings": {
+      "access": "访问权限",
+      "readOnly": "只读",
+      "granted": "已授予",
+      "nothingRecorded": "没有记录",
+      "checked": "已核查",
+      "checkedReported": "{label} 报告的权限正是这些，我也逐一核查过：这里的任何权限都无法更改您这边的任何内容。",
+      "checkedProbed": "这些读取已经过测试，可以正常使用。{label} 无法告诉任何应用这个密钥还允许做什么。",
+      "lastSync": "上次同步",
+      "never": "从未",
+      "history": "历史",
+      "shopifyAllOrders": "没有 read_all_orders 时，Shopify 只显示最近 {days, plural, other {# 天}}的订单，而这项权限需经 Shopify 审核通过。",
+      "carts": "购物车",
+      "cartsRead": "在同一个 read_orders 权限下，我还会读取未完成的结账及其中的商品。",
+      "cartsCustomers": "有了 read_customers，我还会读取每个购物车的购物者邮箱及其邮件营销设置。购物车只保留一份经过哈希处理、无法还原的副本。Shopify 标记为已订阅的购物者会连同邮箱成为联系人，您可以删除他们。",
+      "cartsNoCustomers": "Shopify 只会把谁留下了购物车告诉有权读取您客户的应用。添加可选的 read_customers，我就会把购物车与您的联系人匹配；没有它，就不会匹配任何购物车。",
+      "lastError": "上次错误",
+      "inARow": "（连续 {count} 次）",
+      "syncing": "正在同步…",
+      "syncNow": "立即同步",
+      "hideMatching": "隐藏匹配",
+      "matchProducts": "匹配产品",
+      "matchChannels": "匹配渠道",
+      "disconnectAsk": "断开 {label}？凭据会被删除，同步也会停止。测量历史会保留。",
+      "yesDisconnect": "是的，断开",
+      "keepIt": "保留",
+      "disconnect": "断开连接",
+      "disconnected": "{label} 已断开。凭据已删除，测量历史会保留。",
+      "disconnectFailed": "断开未成功。"
+    },
+    "history": {
+      "notSynced": "尚未同步。第一次同步会读取最近 {days, plural, other {# 天}}的数据。",
+      "never": "从未同步。",
+      "upToDate": "已更新至 {day}，涵盖最近 {days, plural, other {# 天}}。",
+      "readThrough": "已读取至 {day}，占最近 {days, plural, other {# 天}}的 {share}。"
+    },
+    "mapping": {
+      "reading": "正在读取 {label}…",
+      "couldntRead": "无法读取 {label}。",
+      "notSaved": "这项匹配没有保存。",
+      "matchedTo": "已匹配到 <b>{label}</b>",
+      "notMatched": "尚未匹配",
+      "suggested": "{title}（建议）",
+      "noneOfThese": "都不是",
+      "saving": "正在保存…",
+      "confirm": "确认",
+      "product": {
+        "none": "您的档案中还没有可以匹配的产品或服务。请先在访谈中添加。",
+        "intro": "把您销售的每一样东西与它在 {label} 中对应的产品匹配。已匹配产品的销量会成为该产品或服务每月测量到的销量。我会建议匹配，但在您确认之前，什么都不计入。",
+        "noMatch": "没有匹配的产品",
+        "select": "{name} 对应的 {label} 产品",
+        "choose": "选择一个产品…",
+        "unmatched": "{count, plural, other {有 # 个 {label} 产品没有与您档案中的任何内容匹配。这是一处空白，我不会去猜它们是什么。}}"
+      },
+      "channel": {
+        "none": "您的档案中还没有可以匹配的渠道。请先在访谈中添加。",
+        "intro": "把您的每个销售渠道与它对应的 {label} 流量渠道匹配。来自已匹配渠道的访问量会成为该渠道每月测量到的访问量。我会建议匹配，但在您确认之前，什么都不计入。",
+        "noMatch": "没有匹配的流量渠道",
+        "select": "{name} 对应的 {label} 流量渠道",
+        "choose": "选择一个流量渠道…",
+        "unmatched": "{count, plural, other {有 # 个 {label} 流量渠道没有与您档案中的任何内容匹配。这是一处空白，我不会去猜它们是什么。}}"
+      }
+    },
+    "connect": {
+      "sub": "{label}，只读",
+      "failed": "连接未成功。",
+      "doneProduct": "{label} 已连接。按“立即同步”读取您的订单，然后匹配您的产品。",
+      "doneChannel": "{label} 已连接。按“立即同步”读取您的流量，然后匹配您的渠道。",
+      "done": "{label} 已连接。按“立即同步”读取过去一年的数据。",
+      "checking": "正在核查…",
+      "button": "连接 {label}",
+      "encrypted": "您输入的所有内容在存储前都会加密，之后不会再显示，连您自己也看不到。"
+    },
+    "verify": {
+      "reported": "{label} 会准确报告一个凭据拥有哪些权限，我会在您连接时逐一核查。只要它可能更改您这边的任何内容，我就会拒绝这次连接。",
+      "probedStripe": "{label} 不允许任何应用核查一个密钥的其余权限。我能保证的是：我会测试上面的读取是否可用，而且我的代码只能读取。我会拒绝完全访问权限的密钥；把其他每一项权限都保留为 None，才能让密钥本身成为只读。",
+      "probed": "{label} 不允许任何应用核查一个密钥的其余权限。我能保证的是：我会测试上面的读取是否可用，而且我的代码只能读取。选择 Read 访问权限，才能让密钥本身成为只读。"
+    },
+    "guide": {
+      "line": "<b>{grant}</b>。{why}",
+      "sep": "、",
+      "fixture": {
+        "s0": {
+          "grant": "营收：读取",
+          "why": "每日营收，用于计算月度数字。",
+          "gives": "每日营收"
+        },
+        "s1": {
+          "grant": "订单：读取",
+          "why": "每日订单数，用于计算月度数字。",
+          "gives": "每日订单数"
+        },
+        "s2": {
+          "grant": "广告支出：读取",
+          "why": "每日广告支出，用于计算月度数字。",
+          "gives": "每日广告支出"
+        }
+      },
+      "stripe": {
+        "s0": {
+          "grant": "Balance: Read",
+          "why": "您的付款记录，即每一笔收款和退款，月度营收和订单数就来自这里。",
+          "gives": "您的付款记录"
+        }
+      },
+      "shopify": {
+        "s0": {
+          "why": "您的订单，每日营收、订单数和售出件数都来自这里；还有未完成的结账及其中的商品。",
+          "gives": "您的订单"
+        },
+        "s1": {
+          "why": "您的产品列表，以便把每个产品与您销售的东西匹配；还有每样产品的库存数量及其成本，以便我指出卖不动的库存。",
+          "gives": "您的产品列表"
+        },
+        "s2": {
+          "grant": "read_all_orders（可选，需经 Shopify 审核通过）",
+          "why": "超过 {days, plural, other {# 天}}的订单，用于获取完整一年的历史。没有它，我只读取最近 {days, plural, other {# 天}}。",
+          "gives": "超过 {days, plural, other {# 天}}的订单"
+        },
+        "s3": {
+          "grant": "read_customers（可选）",
+          "why": "谁留下了未完成的结账，以便把购物车与您联系人列表中的某个人匹配。我只读取购物车购物者的邮箱，以及对方是否在 Shopify 中订阅了您的邮件营销。购物车保留一份经过哈希处理、无法还原的邮箱副本。Shopify 标记为已订阅的购物者会连同邮箱添加到您的联系人中，您可以在那里删除他们；其余的人只保留哈希副本。没有它，就不会匹配任何购物车。",
+          "gives": "谁留下了未完成的结账"
+        }
+      },
+      "woocommerce": {
+        "s0": {
+          "grant": "Read 访问权限（涵盖订单）",
+          "why": "您的订单，每日营收、订单数和售出件数都来自这里。",
+          "gives": "您的订单"
+        },
+        "s1": {
+          "grant": "Read 访问权限（涵盖产品）",
+          "why": "您的产品列表，以便把每个产品与您销售的东西匹配；还有它的库存数量，以便我指出卖不动的库存。",
+          "gives": "您的产品列表"
+        }
+      },
+      "ga4": {
+        "s0": {
+          "grant": "媒体资源上的“查看者”角色",
+          "why": "每天及每个渠道的会话数，测量到的网站流量就来自这里。“查看者”可以读取报告，但不能更改任何内容。",
+          "gives": "每天及每个渠道的会话数"
+        }
+      },
+      "meta_ads": {
+        "s0": {
+          "why": "每日广告支出，以及 Meta 归因于您广告的购买。不包含任何可以编辑营销活动的权限。",
+          "gives": "每日广告支出，以及 Meta 归因于您广告的购买"
+        }
+      },
+      "search_console": {
+        "s0": {
+          "grant": "媒体资源上的“受限”权限即可",
+          "why": "您的网站出现在哪些 Google 搜索中、出现的频率，以及人们点击的频率。它可以读取报告，但不能更改任何内容。",
+          "gives": "您的网站出现过的 Google 搜索"
+        }
+      },
+      "square": {
+        "s0": {
+          "why": "您的收银机收取的每一笔付款，包括在 Square 中记录的刷卡和现金，每日及每小时的营业额就来自这里。",
+          "gives": "您的收银机收取的每一笔付款"
+        },
+        "s1": {
+          "why": "您的地点列表，以便读取每一台收银机的付款，而不只是主收银机。",
+          "gives": "您的地点列表"
+        },
+        "s2": {
+          "grant": "APPOINTMENTS_READ（可选，用于预约）",
+          "why": "您的预约：哪些如约完成、哪些爽约或被取消，以及客人是否再次光顾，但不包括他们的备注。",
+          "gives": "您的预约"
+        },
+        "s3": {
+          "grant": "APPOINTMENTS_ALL_READ（可选，与上一项一起使用）",
+          "why": "您的预约。Square 需要这一项与上一项一起，才能读取您各个地点的每一个预约，而不只是通过 SYB 预订的那些。它无法更改任何预约。",
+          "gives": "您的预约"
+        }
+      }
+    },
+    "steps": {
+      "stripe": {
+        "s1": "在您的 Stripe Dashboard 中，打开 <b>Developers</b>，然后打开 <b>API keys</b>，并选择 <b>Create restricted key</b>。一开始使用测试模式也可以。",
+        "s2": "除以下几项外，把每一项权限都保留为 <b>None</b>：",
+        "s3": "创建密钥并粘贴到下方。它以 <b>rk_test_</b> 或 <b>rk_live_</b> 开头。"
+      },
+      "shopify": {
+        "s1": "在 Shopify 的 <b>Dev Dashboard</b> 中，选择 <b>Create app</b>，然后选择 <b>Start from Dev Dashboard</b>，并为应用命名。",
+        "s2": "在应用的 <b>Versions</b> 标签页中，只添加以下 Admin API 权限范围，然后发布该版本：",
+        "s3": "在应用的 <b>Home</b> 中，选择 <b>Install app</b> 并选择您的网店。应用和网店必须属于同一个 Shopify 组织。",
+        "s4": "在应用的 <b>Settings</b> 中，复制客户端 ID 和客户端密钥，并连同您网店的 myshopify.com 地址一起填写在下方。"
+      },
+      "woocommerce": {
+        "s1": "在 WordPress 中，打开 <b>WooCommerce</b>，然后依次打开 <b>Settings</b>、<b>Advanced</b>、<b>REST API</b>，并选择 <b>Add key</b>。",
+        "s2": "把 <b>Permissions</b> 设置为 <b>Read</b>。Read 访问权限涵盖：",
+        "s3": "生成密钥，然后把 Consumer key 和 Consumer secret 连同您网店的地址一起填写在下方。"
+      },
+      "ga4": {
+        "s1": "在 <b>Google Cloud Console</b> 中，创建一个项目（或使用现有项目），启用 <b>Google Analytics Data API</b>，然后在 <b>IAM 和管理</b>中的<b>服务账户</b>下，创建一个服务账户，并为它下载一个 <b>JSON 密钥</b>。",
+        "s2": "在 <b>Google Analytics</b> 中，打开<b>管理</b>，然后打开<b>媒体资源访问权限管理</b>，添加服务账户的邮箱地址，并赋予以下角色：",
+        "s3": "从<b>管理</b>中的<b>媒体资源详情</b>复制媒体资源 ID，并将它与密钥文件的内容一起粘贴到下方。"
+      },
+      "square": {
+        "s1": "在 <b>Square Developer Console</b> 中，创建一个应用（或打开现有应用），并复制它的 <b>Production access token</b>。",
+        "s2": "只给它以下权限：",
+        "s3": "把令牌粘贴到下方。在 Square 中记录的付款——刷卡和现金——都会被读取；从不经过收银机的现金，任何工具都看不到。有了这两项预约权限，您在 Square Appointments 中的预约也会被读取。"
+      },
+      "search_console": {
+        "s1": "在 <b>Google Cloud Console</b> 中，为某个项目启用 <b>Google Search Console API</b>，并创建一个带 <b>JSON 密钥</b>的服务账户——用于 Google Analytics 的那个也可以。",
+        "s2": "在 <b>Search Console</b> 中，打开<b>设置</b>，然后打开<b>用户和权限</b>，并添加服务账户的邮箱：",
+        "s3": "按 Search Console 中显示的名称原样填写媒体资源，并附上密钥文件的内容。出于隐私考虑，Google 会隐藏罕见的搜索，所以我读取到的搜索总数会比 Google 自己的总数略少一些。"
+      },
+      "meta_ads": {
+        "s1": "在 <b>Meta Business Suite</b> 中，打开 <b>Business settings</b>，然后依次打开 <b>Users</b>、<b>System users</b>，并添加一个系统用户（Employee 角色就足够了）。",
+        "s2": "在 <b>Assign assets</b> 下，把您的广告账户分配给它，并且只给予 <b>View performance</b> 权限。",
+        "s3": "选择 <b>Generate token</b>，选择您的应用，并只勾选：",
+        "s4": "把令牌连同您的广告账户 ID 一起粘贴到下方，该 ID 显示在 <b>Ads Manager</b> 中。"
+      }
+    },
+    "field": {
+      "fixture": {
+        "key": {
+          "label": "测试用凭据"
+        }
+      },
+      "stripe": {
+        "key": {
+          "label": "受限密钥"
+        }
+      },
+      "shopify": {
+        "shop": {
+          "label": "网店地址"
+        },
+        "client_id": {
+          "label": "客户端 ID",
+          "placeholder": "来自应用的 Settings"
+        },
+        "client_secret": {
+          "label": "客户端密钥",
+          "placeholder": "来自应用的 Settings"
+        }
+      },
+      "woocommerce": {
+        "site_url": {
+          "label": "网店地址"
+        },
+        "consumer_key": {
+          "label": "Consumer key"
+        },
+        "consumer_secret": {
+          "label": "Consumer secret"
+        }
+      },
+      "ga4": {
+        "property_id": {
+          "label": "媒体资源 ID",
+          "placeholder": "“管理”中“媒体资源详情”下的那串数字"
+        },
+        "service_account_json": {
+          "label": "服务账户密钥文件",
+          "placeholder": "在此粘贴整个 JSON 密钥文件"
+        }
+      },
+      "meta_ads": {
+        "ad_account_id": {
+          "label": "广告账户 ID"
+        },
+        "access_token": {
+          "label": "系统用户访问令牌"
+        }
+      },
+      "square": {
+        "access_token": {
+          "label": "访问令牌",
+          "placeholder": "来自 Square Developer Console"
+        },
+        "environment": {
+          "label": "环境",
+          "placeholder": "production（测试时用 sandbox）"
+        }
+      },
+      "search_console": {
+        "site_url": {
+          "label": "媒体资源",
+          "placeholder": "https://www.example.com/ 或 sc-domain:example.com"
+        },
+        "service_account_json": {
+          "label": "服务账户密钥文件",
+          "placeholder": "在此粘贴整个 JSON 密钥文件"
+        }
+      }
+    },
+    "write": {
+      "aria": "写入权限",
+      "sectionLabel": "写入权限 · 一项单独的同意",
+      "title": {
+        "off": "关闭。任何内容都无法发布。",
+        "paused": "已暂停。重新连接即可继续。",
+        "on": "已开启，仅限您批准的内容"
+      },
+      "label": {
+        "meta_publish": "Meta 发布（Facebook 公共主页和 Instagram）",
+        "meta_ads": "Meta 广告管理",
+        "email_campaign": "营销活动邮件",
+        "google_business_reviews": "Google 商家资料评价"
+      },
+      "status": {
+        "connected": "已连接",
+        "paused": "已暂停",
+        "failed": "失败",
+        "disconnected": "已断开"
+      },
+      "consentedOn": "{day} 已同意 · {status}",
+      "notGranted": "未授予",
+      "grant": "授予",
+      "close": "关闭",
+      "reconnect": "重新连接",
+      "disconnect": "断开连接",
+      "disconnecting": "正在断开…",
+      "cancel": "取消",
+      "checking": "正在核查…",
+      "unreachable": "我无法连接服务器。请重试。",
+      "disconnectFailed": "断开未成功。",
+      "connectFailed": "连接未成功。",
+      "disconnected": "{label} 已断开。令牌已在这里删除。",
+      "connected": "{label} 已连接，您的同意已记录在案。",
+      "fact": {
+        "status": "状态",
+        "permissions": "权限",
+        "consented": "已同意",
+        "accessTier": "访问层级",
+        "seen": "获知于 {day}"
+      },
+      "pausedDefault": "Meta 已不再接受这个连接的登录。重新连接后，我会从中断的地方继续。",
+      "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
+      "facebook": {
+        "sub": "受邀测试者：使用 Facebook 登录",
+        "testerNote": "试点期间，只有受邀测试者才能使用 Facebook 登录。首先由 SYB 的 Samuel 或 Tedi 把您添加为 SYB 的 Meta 应用的测试者（Tester），您再用自己的 Facebook 账户接受邀请。然后 Meta 会请您授予上面列出的这些权限，不多也不少，您再在这里选择公共主页或广告账户。",
+        "oneConsent": "一个 Facebook 账户通过登录只能连接发布或广告管理中的一项，不能两者都连接：Meta 会把您之前授予的所有权限都交给 SYB 的应用，而 SYB 会拒绝持有超出本次同意范围的权限的令牌。另一项请使用下方您自己的 Meta 应用。",
+        "opening": "正在打开 Facebook…",
+        "signInPick": {
+          "ad": "使用 Facebook 登录并选择广告账户",
+          "page": "使用 Facebook 登录并选择公共主页"
+        },
+        "signIn": "使用 Facebook 登录"
+      },
+      "facebookOff": "尚未开启。",
+      "pick": {
+        "couldntList": "我无法列出 Meta 共享的内容。",
+        "connected": "{label} 已通过 Facebook 连接，您的同意已记录在案。",
+        "cancelled": "Facebook 登录已取消。没有连接任何内容，SYB 也没有保留任何令牌。",
+        "title": {
+          "ad": "选择 SYB 可以操作的广告账户",
+          "page": "选择 SYB 可以操作的公共主页"
+        },
+        "asking": "正在向 Meta 查询您共享了什么…",
+        "aria": {
+          "ad": "选择广告账户",
+          "page": "选择公共主页"
+        },
+        "instagram": "以及 Instagram {handle}",
+        "noInstagram": "没有关联的 Instagram 账户：仅限 Facebook",
+        "active": "活跃",
+        "notActive": "未活跃",
+        "allow": {
+          "ad": "允许并连接这个广告账户",
+          "page": "允许并连接这个公共主页"
+        },
+        "note": "在存储任何内容之前，SYB 会向 Meta 核实这次登录所持有的权限与上面列出的完全一致。"
+      },
+      "eachAction": "每项操作的作用",
+      "undoable": "可以撤销。",
+      "notUndoable": "无法撤销，并会在您批准之前加以标注。",
+      "op": {
+        "publish_page_post": "向 Facebook 公共主页发布一条已批准的文字或链接帖子。",
+        "publish_page_photo": "向 Facebook 公共主页发布一条已批准的照片帖子。",
+        "publish_page_video": "向 Facebook 公共主页发布一个已批准的视频或 Reel。",
+        "publish_ig_media": "向 Instagram 账户发布一条已批准的帖子、轮播或 Reel。",
+        "pause_campaign": "暂停一个正在投放的营销活动。",
+        "resume_campaign": "恢复一个已暂停的营销活动。",
+        "set_daily_budget": "在批准的范围内，更改某个营销活动的每日预算。",
+        "create_campaign_paused": "以暂停状态创建一个新的营销活动。",
+        "upload_ad_video": "把某个已批准项目的视频上传到广告账户，用于它的广告。",
+        "create_adset_paused": "以暂停状态创建一个广告组：包括它的每日预算、排期、版位和受众。",
+        "create_adcreative": "用某个已批准项目的媒体和文案创建一个广告创意，并附上它的 AI 披露说明。",
+        "create_ad_paused": "以暂停状态创建一条广告，连同它的营销活动、广告组和创意，每一项都以暂停状态创建。",
+        "resume_adset": "恢复一个已暂停的广告组。",
+        "pause_adset": "暂停一个正在投放的广告组。",
+        "resume_ad": "恢复一条已暂停的广告。",
+        "pause_ad": "暂停一条正在投放的广告。"
+      },
+      "readback": "为了查看每条帖子的表现，同一个令牌还会读取：",
+      "ownApp": "或者：设置您自己的 Meta 应用",
+      "ownAppSteps": {
+        "meta_publish": {
+          "s0": "在 Meta Business Suite 中，确认您的 Facebook 公共主页及其 Instagram 账户都在您的业务资产组合中。",
+          "s1": "在 developers.facebook.com 上，创建一个归属于同一业务资产组合的 Business 类型应用。",
+          "s2": "为应用添加 Pages 和 Instagram 用例。",
+          "s3": "在您的业务设置中，添加一个系统用户，把您的公共主页和 Instagram 账户分配给它，并为您的应用生成一个令牌，权限与上面列出的完全一致——不多也不少。",
+          "s4": "把令牌连同您的公共主页 ID 粘贴到这里；如果也要发布到 Instagram，还需填写 Instagram 账户 ID。"
+        },
+        "meta_ads": {
+          "s0": "在 Meta Business Suite 中，确认您的广告账户在您的业务资产组合中。",
+          "s1": "在 developers.facebook.com 上，创建一个归属于同一业务资产组合的 Business 类型应用。",
+          "s2": "为应用添加 Marketing API 用例。",
+          "s3": "在您的业务设置中，添加一个系统用户，把您的广告账户分配给它，并为您的应用生成一个令牌，权限与上面列出的完全一致——不能多。",
+          "s4": "把令牌连同 Ads Manager 中的广告账户 ID 一起粘贴到这里。"
+        }
+      },
+      "field": {
+        "meta_publish": {
+          "access_token": {
+            "label": "访问令牌",
+            "placeholder": "系统用户访问令牌"
+          },
+          "page_id": {
+            "label": "公共主页 ID",
+            "placeholder": "Facebook 公共主页 ID"
+          },
+          "ig_user_id": {
+            "label": "Instagram 账户 ID",
+            "placeholder": "Instagram 账户 ID（如需同时发布到 Instagram）"
+          }
+        },
+        "meta_ads": {
+          "access_token": {
+            "label": "访问令牌",
+            "placeholder": "系统用户访问令牌"
+          },
+          "ad_account_id": {
+            "label": "广告账户 ID",
+            "placeholder": "广告账户 ID，带不带 act_ 均可"
+          }
+        }
+      },
+      "optionalField": "{label}（选填）",
+      "allowConnect": "允许并连接",
+      "youCancelled": "您取消了 Facebook 登录。没有连接任何内容。",
+      "reason": {
+        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 Facebook 登录。没有向 Meta 发送任何内容。",
+        "signed_out": "请先登录 SYB，然后再次连接 Meta。",
+        "owner_only": "只有所有者才能授予或收回写入权限。没有向 Meta 发送任何内容。",
+        "unavailable": "Facebook 登录暂不可用。请改用您自己的 Meta 应用。",
+        "provider": "SYB 不提供这种 Meta 连接。",
+        "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
+        "already_connected": "这个 Meta 连接已经接通。请先断开它。",
+        "start_again": "这次 Facebook 登录已过期或已被使用。请从“连接”重新开始。",
+        "foreign": "这次 Facebook 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "meta_error": "Facebook 登录没有完成。没有连接任何内容。",
+        "no_pages": "对于这个 Facebook 账户，Meta 没有向 SYB 显示任何公共主页。请在 Meta 的对话框中，选择您希望 SYB 发布到的公共主页（及其 Instagram 账户），然后重试。",
+        "no_ad_accounts": "对于这个 Facebook 账户，Meta 没有向 SYB 显示任何广告账户。请在 Meta 的对话框中，选择您希望 SYB 管理的广告账户，然后重试。",
+        "meta_auth": "Facebook 登录没有完成：Meta 没有接受这次登录。请从“连接”重新开始。",
+        "meta_permission": "Facebook 登录没有完成：Meta 表示 SYB 无权执行该操作。请检查“连接”中列出的权限，然后重新开始。",
+        "meta_busy": "Facebook 登录没有完成：Meta 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
+        "meta_refused": "Facebook 登录没有完成：Meta 拒绝了它。没有连接任何内容。",
+        "internal": "我们这边出了问题。没有连接任何内容。",
+        "generic": "Facebook 登录没有完成。没有连接任何内容。"
+      },
+      "nothingSent": "连接会验证令牌并记录您的同意。在您逐项批准之前，不会发布或更改任何内容，而且通过 SYB 发布的功能尚未开启。",
+      "disconnectNote": "断开连接会立即删除这里的令牌。它不会撤销 Meta 那边的任何权限：如需在那边收回权限，请从您的业务设置中移除该应用。",
+      "access": {
+        "label": "Meta 访问级别 · {level}",
+        "standard": {
+          "word": "标准",
+          "headline": "Meta 尚未批准 SYB 开放注册。",
+          "body": "在 SYB 的公司注册以及 Meta 的各项审核（高级访问权限、企业验证和技术提供商验证）完成之前，对于任何不属于 SYB 自己企业的公共主页或广告账户，Meta 本身都会拒绝这些权限。在此期间，有两种试点途径可用。"
+        },
+        "advanced": {
+          "word": "高级",
+          "headline": "Meta 已批准 SYB 申请这些权限。",
+          "body": "任何企业都可以在这里连接自己的公共主页、Instagram 账户或广告账户。"
+        }
+      },
+      "available": "可用",
+      "unavailable": "不可用",
+      "route": {
+        "ownApp": "您自己的 Meta 应用",
+        "ownAppAdvanced": "先在下方完成设置，然后粘贴令牌。",
+        "ownAppStandard": "您的应用、您的业务资产组合、您的令牌。在下方设置。",
+        "signIn": "使用 Facebook 登录",
+        "signInOn": "登录，授予列出的权限，然后选择您的公共主页或广告账户。",
+        "testers": "受邀测试者：使用 Facebook 登录",
+        "testersOn": "适用于 SYB 工作人员已在 Meta 中添加的测试者：先由 Samuel 或 Tedi 在 SYB 的 Meta 应用中添加您，您再接受邀请。",
+        "testersOff": "适用于 SYB 工作人员已在 Meta 中添加的测试者。{off}"
+      },
+      "tier": {
+        "unseen": "尚未获知——SYB 第一次为广告变更调用接口时，Meta 会告知",
+        "development_access": "开发层级：Meta 最低的限额，供开发构建使用",
+        "standard_access": "标准访问：这个广告账户每小时约可调用 {base} + {perAd} × 活跃广告数 次",
+        "note": "Meta 按层级限制 SYB 每小时可以对这个广告账户进行的调用次数。这足够一家企业使用，但不足以服务大量客户。每当 Meta 报告已用掉限额的 {share}，SYB 就会等到下一次运行。更高的限额需要通过 Meta 的审核；一旦在 {days, plural, other {# 天}}内累计 {calls, plural, other {# 次成功调用}}，SYB 就会提出申请。"
+      }
+    },
+    "email": {
+      "aria": "营销活动邮件",
+      "sectionLabel": "营销活动邮件 · 一项单独的同意",
+      "title": {
+        "on": "已授予，仅限您批准的内容",
+        "off": "关闭。任何内容都无法发邮件给您的客户。"
+      },
+      "label": "营销活动邮件",
+      "status": {
+        "connected": "已连接",
+        "paused": "已暂停",
+        "failed": "失败",
+        "disconnected": "已断开"
+      },
+      "consentedOn": "{day} 已同意 · {status}",
+      "notGranted": "未授予",
+      "grant": "授予",
+      "close": "关闭",
+      "disconnect": "断开连接",
+      "disconnecting": "正在断开…",
+      "unreachable": "我无法连接服务器。请重试。",
+      "connectFailed": "连接未成功。",
+      "disconnectFailed": "断开未成功。",
+      "granted": "营销活动邮件已授予，您的同意已记录在案。",
+      "disconnected": "营销活动邮件已断开。不会再发送任何邮件。",
+      "fact": {
+        "status": "状态",
+        "sentAs": "发件人",
+        "viaSyb": "{name}（经由 SYB）",
+        "repliesTo": "回复发送至"
+      },
+      "disconnectNote": "断开连接会立即停止所有营销活动邮件的发送。已经发出的邮件无法撤回。",
+      "whatItDoes": "它的作用",
+      "op": {
+        "send_campaign": "把一封已批准的营销活动邮件，发送给明确同意接收您消息的客户，每一位都会在发送那一刻再次核查。"
+      },
+      "undoable": "可以撤销。",
+      "notUndoable": "无法撤销：已发送的邮件无法撤回，而且每个营销活动在您批准之前都会如此标注。",
+      "ownService": "营销活动通过 SYB 自己的邮件服务，以您的企业名称发出。您不需要为此向 SYB 提供任何密码或密钥。",
+      "sendAs": "发件人名称（您的企业名称）",
+      "repliesTo": "回复发送至（一个您会查看的地址）",
+      "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
+      "recording": "正在记录…",
+      "allow": "允许营销活动邮件",
+      "nothingSent": "授予会记录您的同意。在您批准一个营销活动以及邮件本身之前，不会发送任何内容，而且每位收件人都会在发送那一刻再次核查。",
+      "how": {
+        "label": "营销活动如何发送",
+        "title": "通过 SYB 自己的邮件服务，以您的名义发出。",
+        "body": "您不需要为此向 SYB 提供任何密码或密钥。每个营销活动只发送给明确同意接收您消息的客户，每一位都会在发送那一刻再次核查；每封邮件都附有自己的退订链接，一经点击立即生效，且永久有效。"
+      },
+      "realSendsOff": "{label} 已关闭，直到为期两周的无人值守测试完成为止。没有发送任何内容；此项仍保持已批准状态。开启后，它会在第一次运行时发出。",
+      "sharedSender": "目前，营销活动邮件和 SYB 自己的登录邮件从同一个发件地址发出。如果某个营销活动招致大量垃圾邮件投诉，登录邮件也可能被延缓。"
+    },
+    "google": {
+      "sectionLabel": "Google 商家资料 · 一项单独的同意",
+      "label": "Google 商家资料评价",
+      "title": {
+        "on": "已授予，仅用于读取您的评价",
+        "off": "关闭。SYB 不会读取您的 Google 评价。"
+      },
+      "status": {
+        "connected": "已连接",
+        "paused": "已暂停",
+        "failed": "失败",
+        "disconnected": "已断开"
+      },
+      "consentedOn": "{day} 已同意 · {status}",
+      "notGranted": "未授予",
+      "notSetUpYet": "尚未设置",
+      "connect": "连接",
+      "close": "关闭",
+      "cancel": "取消",
+      "keepIt": "保留",
+      "unreachable": "我无法连接服务器。请重试。",
+      "connectFailed": "连接未成功。",
+      "revokeFailed": "撤销未成功。",
+      "connected": "Google 商家资料已连接，您的同意已记录在案。",
+      "signedInPick": "已使用 Google 登录。请选择 SYB 应读取的地点。",
+      "youCancelled": "您在 Google 的页面上取消了。没有连接任何内容。",
+      "nothingConnected": "没有连接任何内容。",
+      "revoked": "已撤销。SYB 对 Google 的访问权限已删除，读取已停止。",
+      "fact": {
+        "status": "状态",
+        "location": "地点",
+        "lastRead": "上次读取",
+        "notYet": "尚未读取：SYB 每天读取一次"
+      },
+      "revokeAsk": "SYB 将停止读取您的 Google 评价。",
+      "revoking": "正在撤销…",
+      "yesRevoke": "是的，撤销",
+      "revoke": "撤销",
+      "revokeNote": "撤销会立即删除 SYB 在这里的访问权限，SYB 也会停止读取。已读取的评价会保留在“评价”中，直到您移除它们或保留满一年。如需同时在 Google 那边移除 SYB，请打开您 Google 账户的“安全性”页面，然后打开其中的第三方连接。",
+      "pickTitle": "选择 SYB 读取的地点",
+      "recording": "正在记录…",
+      "readLocation": "读取这个地点的评价",
+      "googleScreen": "随后 Google 会显示它自己的页面，并询问这一项权限。请允许，然后回到这里。",
+      "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
+      "opening": "正在打开 Google…",
+      "signIn": "使用 Google 登录并允许读取评价",
+      "nothingWritten": "连接会记录您的同意，并每天读取一次您的评价。SYB 从不回复，也从不编辑您的商家信息：它只从 Google 读取。",
+      "reason": {
+        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 Google 登录。没有向 Google 发送任何内容。",
+        "signed_out": "请先登录 SYB，然后再次连接 Google。",
+        "owner_only": "只有所有者才能授予或收回这项权限。没有向 Google 发送任何内容。",
+        "unavailable": "从 Google 读取评价尚未设置。",
+        "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
+        "already_connected": "Google 商家资料已经连接。请先撤销它，再连接另一个。",
+        "start_again": "这次 Google 登录已过期或已被使用。请从“连接”重新开始。",
+        "foreign": "这次 Google 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "google_error": "Google 登录没有完成。没有连接任何内容。",
+        "scope": "Google 没有恰好授予 SYB 申请的那一项权限。请在 Google 的页面上允许商家资料权限，然后重试。",
+        "no_refresh": "Google 没有给 SYB 长期访问权限。请重新开始：Google 会再询问一次，SYB 需要这个回答。",
+        "no_locations": "对于这个 Google 账户，Google 没有向 SYB 显示任何商家资料。请使用管理您商家资料的账户登录，然后重试。",
+        "google_auth": "Google 没有接受这次登录。请从“连接”重新开始。",
+        "google_permission": "Google 表示 SYB 尚无权读取商家资料。没有连接任何内容。",
+        "google_busy": "Google 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
+        "google_refused": "Google 拒绝了这次登录。没有连接任何内容。",
+        "internal": "我们这边出了问题。没有连接任何内容。",
+        "generic": "Google 登录没有完成。没有连接任何内容。"
+      }
+    },
+    "import": {
+      "unreachable": "我无法连接服务器。请重试。",
+      "readFrom": "已从 {file} 读取。您可以在这里核对",
+      "orPaste": "或者粘贴到这里",
+      "datesLabel": "如果日期看起来像 {sample}，它的写法是",
+      "workItOut": "根据文件自动判断",
+      "dayFirst": "日在前（{example}）",
+      "monthFirst": "月在前（{example}）",
+      "amountsLabel": "如果金额看起来像 {sample}，它的写法是",
+      "dotDecimal": "{sample}（逗号分隔千位）",
+      "commaDecimal": "{sample}（点号分隔千位）",
+      "reading": "正在读取…"
+    },
+    "bank": {
+      "label": "银行对账单 · 只读取一次，不动用任何资金",
+      "title": "您银行里的现金，来自对账单",
+      "latest": "{day} 余额 {amount}",
+      "lede": "从您的银行导出一份 CSV 格式的对账单，并把文件交给我。我只读取每一行的日期和该行之后的余额，不读取是谁付款、为什么付款，并保留每天的期末余额。只要它不超过一周，您的现金预测就会以它为起点；我还会用您之后提供的对账单，核对我预测的每周余额。没有连接任何银行，也无法动用任何资金。",
+      "file": "对账单（CSV）",
+      "currency": "账户的货币",
+      "through": "对账单涵盖的最后一天，如果晚于其最后一行（选填）",
+      "submit": "导入这份对账单",
+      "failed": "这份对账单没有导入成功。",
+      "overlap": "再次导入有重叠的对账单是安全的：它涵盖的日期会被替换，而不会被重复计算。对账单需要有一列余额；仅有一列金额无法说明账户里有多少钱。",
+      "outcome": "已读取 {rows, plural, other {# 行}}：{days, plural, other {# 天}}中每天的期末余额，从 {from} 到 {through}，最终为 {amount}。",
+      "skipped": {
+        "date": "{count} 行的日期我无法读取",
+        "balance": "{count} 行的余额我无法读取",
+        "day": "{count} 行所在日期的各行互相矛盾",
+        "sep": "、",
+        "line": "已略去，从不猜测：{parts}。"
+      }
+    },
+    "bookings": {
+      "label": "导入预约 · 只读取一次，不回写任何内容",
+      "title": "您的预约，来自任何预约系统",
+      "lastImport": "上次导入 {day} · {platform}",
+      "lede": "Fresha、Mindbody、Booksy、SimplyBook.me、Timely 以及大多数其他系统都无法连接，但它们都能导出您的预约。请把预约导出为 CSV，并把文件交给我。我会读取日期、发生了什么、服务项目、员工和价格。我为每位客人保留一个单向编码，以便知道谁再次光顾。我从不保留他们的姓名、邮箱或电话号码。如果您使用 Square Appointments，请改为在上方连接 Square，并授予它的两项预约权限。",
+      "measuresSub": "{source} · {from} 至 {to}",
+      "source": {
+        "import": "您的预约导出文件",
+        "square": "Square"
+      },
+      "platform": "导出文件来自哪里",
+      "generic": "其他预约系统，或电子表格",
+      "file": "导出文件（CSV）",
+      "currency": "价格列的货币",
+      "submit": "导入这些预约",
+      "failed": "这个文件没有导入成功。",
+      "overlap": "再次导入有重叠的导出文件是安全的：我已有的预约会被更新，而不会被重复计算。我无法读取的行会被计数并略去，从不猜测。",
+      "caption": "{source}：从 {from} 到 {to} 的 {days, plural, other {# 天}}",
+      "measureHead": "指标 · {days, plural, other {# 天}}",
+      "value": "数值",
+      "how": "我是如何得出的",
+      "notMeasured": "未测量",
+      "completedHow": "已完成的预约，{from} 至 {to}",
+      "measure": {
+        "completed": "已完成的预约",
+        "noShow": "爽约率",
+        "lateCancel": "临时取消率",
+        "rebooked": "再次预约的客人",
+        "revenue": "预约营收",
+        "full": "预约饱和度"
+      },
+      "understood": "我理解到的内容",
+      "columnsCaption": "我从您的文件中读取的列",
+      "iRead": "我读取的",
+      "fromColumn": "来自您的列",
+      "role": {
+        "ref": "预约编号",
+        "start": "日期和时间",
+        "date": "日期",
+        "time": "时间",
+        "status": "发生了什么",
+        "service": "服务项目",
+        "staff": "员工",
+        "client_id": "客人 ID，已哈希处理且不保留",
+        "client_email": "客人邮箱，已哈希处理且不保留",
+        "client_phone": "客人电话，已哈希处理且不保留",
+        "price": "价格",
+        "duration": "时长",
+        "cancelled_at": "取消时间"
+      },
+      "noIdentity": "文件中没有我可以追踪的客人 ID、邮箱或电话，所以我看不出谁再次光顾。仅有姓名是不够的：两位同名的客人会被当成同一个人。",
+      "counted": "我统计了什么",
+      "countedLine": "从您的 {platform} 导出文件中读取了 {rows, plural, other {# 行}}。新增 {added, plural, other {# 个预约}}，自上次导入以来有 {updated} 个发生了变化，{unchanged} 个已在这里且没有变化。",
+      "merged": "{count, plural, other {有 # 行额外记录与另一行共用同一个预约编号，所以每个预约我只计算了一次。}}",
+      "future": "{count, plural, other {有 # 个预约尚未到来。它们发生之后，您再次导入时才会计入。}}",
+      "daysMeasured": "测量的日期：{from} 至 {to}。",
+      "leftOut": "我略去了什么",
+      "leftOutFlag": "已略去",
+      "valueLeftOutFlag": "数值已略去",
+      "skip": {
+        "no_date": "{count, plural, other {有 # 行没有日期。}}",
+        "unreadable_date": "{count, plural, other {有 # 行的日期我无法读取。}}",
+        "no_status": "{count, plural, other {有 # 行没有状态。}}",
+        "unknown_status": "{count, plural, other {有 # 行的状态我不认识。}}",
+        "not_closed_out": "{count, plural, other {有 # 行在日期过后仍标记为已预约，所以我无法判断发生了什么。}}"
+      },
+      "skipOther": "{count, plural, other {有 # 行}}{reason}。",
+      "gapLine": "有 {count} 行{gap}。",
+      "gap": {
+        "time": "的时间我无法读取（日期已保留）",
+        "price": "的价格我无法读取（已略去）",
+        "duration": "的时长我无法读取（已略去）",
+        "cancelled_at": "的取消时间无法与开始时间比较，因此按普通取消计算",
+        "client": "的客人信息我无法使用，因此不追踪该次到访",
+        "client_erased": "所属的客人已被您删除或已退订，因此该次到访不与任何人关联"
+      },
+      "unknownStatuses": "我不认识的状态：{list}。我不会猜测它们的含义。",
+      "unknownStatus": "“{word}”（{count}）",
+      "listSep": "、"
+    }
+  },
+  "landing": {
+    "meta": {
+      "title": "SYB — 为您的企业做一次验血",
+      "description": "对您的销售、预约、付款和广告进行 {checks} 项检查，每一处漏洞都以欧元标价，并附上一份签字报告。"
+    },
+    "nav": {
+      "label": "主导航",
+      "chart": "图表",
+      "panels": "检测项目",
+      "price": "价格",
+      "signIn": "登录"
+    },
+    "hero": {
+      "pill": "为您的企业做一次验血",
+      "titleA": "您的企业看起来很健康。",
+      "titleB": "<em>它的数字</em>却未必。",
+      "lede": "我们对您的销售、预约、付款和广告进行 {checks} 项检查，以欧元为每一处漏洞标价，并在 {daysText} {days, plural, other {天}}内交给您一份签字报告。",
+      "book": "预约检测——{price}",
+      "see": "看看我们会发现什么",
+      "trustReadOnly": "只读",
+      "trustSigned": "由真人签字",
+      "trustRefund": "如果我们什么也没发现，全额退款"
+    },
+    "chart": {
+      "kicker": "图表",
+      "title": "像看股票一样读懂您的企业。",
+      "aside": "我们标出每一处漏洞开始的那一天——并用阴影标出它让您损失了多少。"
+    },
+    "panels": {
+      "kicker": "我们检测什么",
+      "title": "九组检测。涵盖影响您利润的一切。",
+      "p01": {
+        "name": "转化",
+        "markers": "预约或结账 · 咨询 · 移动端 · 页面浏览深度"
+      },
+      "p02": {
+        "name": "利润率",
+        "markers": "扣除配送后 · 销售成本 · 手续费 · 折扣"
+      },
+      "p03": {
+        "name": "定价",
+        "markers": "价格定位 · 价格敏感度 · 平均每单金额 · 价格门槛"
+      },
+      "p04": {
+        "name": "退货与退款",
+        "markers": "退货率 · 损坏与返工 · 成本 · 原因"
+      },
+      "p05": {
+        "name": "留存",
+        "markers": "复购 · 复购间隔 · 流失 · 价值"
+      },
+      "p06": {
+        "name": "邮件与短信",
+        "markers": "占比 · 自动化流程 · 名单增长 · 退订"
+      },
+      "p07": {
+        "name": "获客",
+        "markers": "每位客户的获取成本 · 回本周期 · 渠道组合 · ROAS"
+      },
+      "p08": {
+        "name": "库存与产能",
+        "markers": "库存售罄 · 滞销库存 · 空闲时段 · 周转"
+      },
+      "p09": {
+        "name": "客户支持",
+        "markers": "咨询 · “我的订单或预约在哪里” · 回复时间 · 自助服务"
+      }
+    },
+    "steps": {
+      "kicker": "运作方式",
+      "title": "您只需付出十五分钟。",
+      "whenMinutes": "第 {day} 天 · {minutes} 分钟",
+      "whenDay": "第 {day} 天",
+      "connect": {
+        "t": "连接",
+        "d": "只读。什么都不会改变。"
+      },
+      "questions": {
+        "t": "回答几个问题",
+        "d": "只问您的数字无法告诉我们的事。"
+      },
+      "results": {
+        "t": "获取结果",
+        "d": "每一处漏洞都标好价、画进图表，并先给出三项修复。"
+      }
+    },
+    "price": {
+      "kicker": "价格",
+      "titleA": "一次检测。",
+      "titleB": "一个价格。",
+      "card": "企业全套检测",
+      "once": "一次性",
+      "markers": "{count, plural, other {# 项指标}}，每项都标价",
+      "chart": "您的营收图表，标出漏洞",
+      "fixes": "{count, plural, other {# 项修复}}，按顺序排列",
+      "walkthrough": "签字确认，附 {minutes} 分钟讲解",
+      "subscription": "订阅",
+      "none": "无",
+      "book": "预约检测",
+      "refund": "可修复的漏洞少于 {leaksText} {leaks, plural, other {处}}？全额退款。"
+    },
+    "faq": {
+      "title": "常见问题",
+      "passwordQ": "需要我的密码吗？",
+      "passwordA": "不需要。只需一个只读连接，您随时可以移除。",
+      "changeQ": "我的账户里会有任何改动吗？",
+      "changeA": "不会。我们只读取。未经您的批准，任何操作都不会执行。",
+      "sizeQ": "我的企业规模够大吗？",
+      "sizeA": "专为月营业额约 {low}–{high} 的企业打造。规模太小、无法解读？我们会在您付款之前告诉您。"
+    },
+    "foot": {
+      "book": "预约检测——{price}",
+      "company": "[公司信息]",
+      "terms": "条款",
+      "privacy": "隐私"
+    },
+    "demo": {
+      "group": "演示企业",
+      "kicker": "演示",
+      "shop": "一家网店",
+      "salon": "一家沙龙"
+    },
+    "walk": {
+      "figure": "产品演示视频",
+      "bar": "SYB · 产品演示",
+      "chapterOf": "第 {n} 章，共 {total} 章 · {title}",
+      "chapters": "章节",
+      "play": "播放演示",
+      "pause": "暂停演示",
+      "chapter": {
+        "c01": {
+          "title": "连接",
+          "caption": "连接您的账户——只读，两分钟。",
+          "crumb": "连接",
+          "state": "正在连接"
+        },
+        "c02": {
+          "title": "问题",
+          "caption": "回答几个只有您才能回答的问题。",
+          "crumb": "访谈",
+          "state": "正在记录"
+        },
+        "c03": {
+          "title": "观察",
+          "caption": "我们读取每一个数字。什么都不会被改动。",
+          "crumb": "观察",
+          "state": "观察中"
+        },
+        "c04": {
+          "title": "报告",
+          "caption": "每一处漏洞，都经过测量并以欧元标价。",
+          "crumb": "报告",
+          "state": "报告已就绪"
+        },
+        "c05": {
+          "title": "批准",
+          "caption": "在您按下“批准”之前，什么都不会执行。",
+          "crumb": "等待您处理",
+          "state": "{count, plural, other {# 项决定}}"
+        },
+        "c06": {
+          "title": "结果",
+          "caption": "然后准确看到每项修复带来了多少收益。",
+          "crumb": "成果",
+          "state": "正在测量"
+        }
+      },
+      "s1": {
+        "step": "第 {n} 步 · 连接",
+        "title": "连接您的账户，只读。",
+        "tag": "只读",
+        "connected": "已连接 · 正在读取 {months, plural, other {# 个月}}",
+        "button": "连接"
+      },
+      "s2": {
+        "step": "第 {n} 步 · 几个问题",
+        "range": "给出一个范围就够了。",
+        "record": "记录",
+        "you": "您",
+        "under": "< {a}",
+        "between": "{a}–{b}",
+        "over": "{a}+"
+      },
+      "s3": {
+        "step": "第 {n} 步 · 观察",
+        "title": "我们读取。什么都不改动。",
+        "tag": "观察中",
+        "day": "天",
+        "readings": "读数",
+        "changes": "所做改动"
+      },
+      "s4": {
+        "step": "第 {n} 步 · 您的报告",
+        "title": "每一处漏洞，都已标价。",
+        "leak": "漏洞 / 月"
+      },
+      "s5": {
+        "step": "第 {n} 步 · 由您决定",
+        "proposal": "提案 · {area}",
+        "recommended": "推荐",
+        "expected": "预期",
+        "expectedRange": "+{low}–{high} / 月",
+        "undo": "撤销",
+        "anyTime": "随时",
+        "approve": "批准",
+        "decline": "拒绝",
+        "stamp": "已批准 · {time} 执行"
+      },
+      "s6": {
+        "step": "第 {n} 步 · 已测量",
+        "title": "准确看到它带来了多少收益。",
+        "recovered": "挽回 / 月",
+        "key": "批",
+        "keyLegend": "{key} = 已批准",
+        "before": "之前 · {metric} {value}%",
+        "after": "之后 · {metric} {value}%",
+        "measuring": "之后 · 正在测量…"
+      },
+      "flag": {
+        "ACT": "处理",
+        "HIGH": "偏高",
+        "LOW": "偏低",
+        "OK": "正常"
+      },
+      "shop": {
+        "stage": "使用示例网店的演示，第 {n} 章：{caption}",
+        "caption": "使用示例网店的演示。您的数字将是您自己的。",
+        "reads": "订单 · 产品 · 客户 · 库存",
+        "question": "每笔订单的运费大约是多少？",
+        "fact": "运费 {low}–{high}",
+        "r0": "订单，{days} 天",
+        "r1": "平均每单",
+        "r2": "履约",
+        "w2": "自行处理",
+        "m0": "结账转化率",
+        "m1": "扣除运费后的利润率",
+        "m2": "退货率",
+        "m3": "邮件与短信占比",
+        "m4": "复购客户",
+        "area": "结账",
+        "proposal": "修复让买家流失的移动端结账步骤",
+        "metric": "转化率"
+      },
+      "salon": {
+        "stage": "使用示例沙龙的演示，第 {n} 章：{caption}",
+        "caption": "使用示例沙龙的演示。您的数字将是您自己的。",
+        "reads": "付款 · 退款 · 地点",
+        "question": "每周大约有多少已预约的客人没有到场？",
+        "fact": "每周爽约 {low}–{high} 次",
+        "r0": "付费到访，{days} 天",
+        "r1": "平均客单",
+        "r2": "定金",
+        "w2": "无",
+        "m0": "爽约率",
+        "m1": "再次预约率",
+        "m2": "座位利用率",
+        "m3": "零售连带率",
+        "m4": "平均客单价",
+        "area": "预约",
+        "proposal": "对首次预约收取定金，以减少爽约",
+        "metric": "爽约率"
+      }
+    },
+    "storeChart": {
+      "day": "{count} 天",
+      "week": "{count} 周",
+      "overlay": "漏洞叠加",
+      "weekOf": "{day} 当周",
+      "open": "开",
+      "high": "高",
+      "low": "低",
+      "close": "收",
+      "withoutLeaks": "无漏洞时 {value}",
+      "gap": "差距 {value}",
+      "shop": {
+        "title": "网店 · 营收",
+        "subtitle": "示例网店 · {days, plural, other {# 天}}",
+        "volume": "订单",
+        "description": "示例网店在 {days, plural, other {# 天}}内每日营收的 K 线图。虚线表示没有漏洞时的营收；两者之间的阴影差距就是损失的钱。三个标记显示漏洞开始的位置：一次主题更新、一次库存售罄和一次运费调整。",
+        "T": {
+          "key": "主",
+          "label": "主题更新",
+          "note": "主题更新——移动端结账变慢"
+        },
+        "S": {
+          "key": "缺",
+          "label": "库存售罄",
+          "note": "库存售罄——畅销品卖空"
+        },
+        "F": {
+          "key": "邮",
+          "label": "包邮门槛",
+          "note": "包邮门槛定得太低"
+        }
+      },
+      "salon": {
+        "title": "沙龙 · 营收",
+        "subtitle": "示例沙龙 · {days, plural, other {# 天}}",
+        "volume": "到访",
+        "description": "示例沙龙在 {days, plural, other {# 天}}内每日营收的 K 线图。虚线表示没有漏洞时的营收；两者之间的阴影差距就是损失的钱。三个标记显示漏洞开始的位置：一位发型师离职、在线预约不收定金，以及零售货架被挪走。",
+        "L": {
+          "key": "离",
+          "label": "发型师离职",
+          "note": "一位发型师离职——她的老顾客不再预约"
+        },
+        "B": {
+          "key": "约",
+          "label": "在线预约",
+          "note": "在线预约上线却不收定金——爽约增多"
+        },
+        "R": {
+          "key": "架",
+          "label": "零售货架挪走",
+          "note": "零售货架从前台挪走——产品销量下滑"
+        }
+      }
+    }
+  },
+  "legal": {
+    "toBeSupplied": "本文件将由 SYB 在上线前提供。",
+    "terms": {
+      "meta": "使用条款 — SYB",
+      "label": "条款",
+      "title": "使用条款"
+    },
+    "privacy": {
+      "meta": "隐私声明 — SYB",
+      "label": "隐私",
+      "title": "隐私声明",
+      "speakingHead": "用语音回答",
+      "speaking": "当您按下“语音输入”时，您的浏览器会把您的语音转换成文字。如果浏览器能在您的设备上完成这一步，音频就会留在设备上。否则就由您浏览器的开发商完成：在 Chrome 中是 Google。SYB 从不接收音频，也不存储任何音频。只有您选择记录、提问或发送的文字才会被保存，就像您亲手输入的一样；仅仅说话不会记录任何内容。"
+    }
+  },
+  "resume": {
+    "meta": "继续 — SYB",
+    "kicker": "您的访谈",
+    "headline": "从上次停下的地方继续。",
+    "label": "确认",
+    "title": "要继续这次访谈吗？",
+    "button": "继续",
+    "note": "这不是您申请的链接？请关闭此页面。只要您不按下按钮，此浏览器中就不会有任何变化。",
+    "deadHeadline": "该链接已失效。",
+    "deadMessage": "继续访谈的链接在过期或被撤销后即失效。用您的邮箱登录，您的访谈仍停留在您离开时的位置。"
+  },
+  "summaryStop": {
+    "meta": "每周摘要 — SYB",
+    "label": "邮件偏好",
+    "unknown": {
+      "title": "我们不认识这个链接。",
+      "body": "请检查是否复制了邮件中的完整链接。没有任何改动。"
+    },
+    "stopped": {
+      "title": "每周摘要已关闭。",
+      "body": "我不会再通过邮件发送它。它报告过的所有内容仍在您的“<watch>观察</watch>”页面上，您也可以在那里重新开启。"
+    },
+    "ask": {
+      "title": "停止每周摘要邮件？",
+      "body": "点击一下即可停止。登录链接和“客户支持”页面的通知不受影响。",
+      "button": "停止这些邮件"
+    }
+  },
   "benchmarks": {
     "meta": {
       "title": "与同类企业比较 — SYB"
