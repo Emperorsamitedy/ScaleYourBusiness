@@ -216,7 +216,11 @@ describe("P4-08 — rule 21, held by the module graph", () => {
         // Added deliberately by the 2026-10-17 security review: a pure
         // function with no imports, reached through the model metering's
         // logs, that strips a query's bound values (PII) from error lines.
-        file === "lib/core/log-safe.ts",
+        file === "lib/core/log-safe.ts" ||
+        // Added deliberately by L-5 (rule 5 of TASKS-LANGUAGES.md): the
+        // widget answers in the business's own language, so the tier reads
+        // the list of the seven languages — pure data, no imports of its own.
+        file === "lib/i18n/locales.ts",
     );
     expect(allowed, [...graph.files].sort().join("\n")).toBe(true);
   });

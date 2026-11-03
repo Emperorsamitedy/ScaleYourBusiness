@@ -22,6 +22,7 @@ import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { LlmCallRecord } from "../llm/cost-log";
+import { FACTS_AS_GIVEN } from "../llm/language";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
@@ -122,7 +123,9 @@ Wire formats by input type:
 
 Estimates: if the owner hedges a value ("about", "roughly", "maybe", "körülbelül", "talán"), set is_estimate true and put the owner's exact hedge phrase in estimate_wording.
 
-Return JSON only: {"fields": [{"field_key", "value", "is_estimate", "estimate_wording"}]}`;
+Return JSON only: {"fields": [{"field_key", "value", "is_estimate", "estimate_wording"}]}
+
+${FACTS_AS_GIVEN} Codes, numbers and dates always take the wire formats above.`;
 
 type PromptQuestion = Pick<ApplicableQuestion, "writes_to" | "input" | "prompt">;
 

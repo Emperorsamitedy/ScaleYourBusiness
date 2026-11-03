@@ -27,6 +27,7 @@ import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { FACTS_AS_GIVEN } from "../llm/language";
 import { readCurrentField, writeField } from "../profile/field-store";
 
 export const HOURS_KEY = "presence.opening_hours";
@@ -133,7 +134,9 @@ For each weekday the answer covers, return:
 - periods: the open intervals as 24-hour "HH:MM" times. "8pm" is "20:00", "midnight" is "00:00". A close time after midnight stays as written ("01:00") — do not add 24 hours. Two intervals on one day (lunch and dinner) are two periods.
 - quote: the owner's own words that gave you this day, verbatim
 
-Rules: expand ranges ("Mon–Thu" is four days). Never invent a day the answer does not cover — leave it out. Anything you cannot turn into days and times ("bank holidays vary", "later in summer"), put verbatim in unparsed. Return JSON only.`;
+Rules: expand ranges ("Mon–Thu" is four days). Never invent a day the answer does not cover — leave it out. Anything you cannot turn into days and times ("bank holidays vary", "later in summer"), put verbatim in unparsed. The answer may name days and times in any language ("Mo–Do", "lun.–jue.", "周一至周四"): the day codes and times above are always as written here. Return JSON only.
+
+${FACTS_AS_GIVEN}`;
 
 export const liveScheduleLlm: ScheduleLlm = async ({ system, user, accountId }) => {
   const started = Date.now();

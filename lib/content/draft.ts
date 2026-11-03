@@ -21,6 +21,8 @@ import type { VoiceCard } from "./voice";
 import { renderVoiceCard } from "./voice";
 import type { ContentKind } from "./disclosure";
 import { withDisclosure } from "./disclosure";
+import { customerLanguageLine, withLanguage } from "../llm/language";
+import type { AppLocale } from "../i18n/locales";
 
 /** The drafting model: SONNET_MODEL (lib/llm/models.ts), unset = claude-sonnet-5. */
 export function draftModel(): string {
@@ -109,13 +111,22 @@ export async function draftItem(args: {
   item: PlannedItem;
   kind: ContentKind;
   accountId: string;
+  /**
+   * L-5 (rule 5): the business's own language (business_profiles.language).
+   * A post, a campaign email and a follow-up are read by its customers, so
+   * they are written in it whatever language the owner reads SYB in.
+   */
+  language: AppLocale;
   llm?: DraftLlm;
 }): Promise<DraftResult> {
   const llm = args.llm ?? liveDraftLlm;
   const brief =
     `Format: ${args.item.format}. Channel: ${args.item.channel_label}. ` +
     `Scheduled for ${args.item.date}. Focus: ${args.item.focus}. Brief: ${args.item.brief}`;
-  const system = `${SYSTEM_BASE}\n\n${renderVoiceCard(args.card)}`;
+  const system = withLanguage(
+    `${SYSTEM_BASE}\n\n${renderVoiceCard(args.card)}`,
+    customerLanguageLine(args.language),
+  );
   const { text } = await llm({ system, user: brief, accountId: args.accountId });
   const body = text.trim();
   if (body === "") throw new Error("the draft came back empty");

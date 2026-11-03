@@ -153,4 +153,6 @@ export interface ReportView {
   /** Absent from a server older than the derivation sheet. */
   history?: History;
   prior?: { id: string; generated_at: string; unit_economics: Economics } | null;
+  /** L-5: the language the model wrote the report in; absent before L-5 (English). */
+  language?: string;
 }

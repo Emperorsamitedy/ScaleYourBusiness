@@ -210,6 +210,47 @@ Each stage is its own PR, tested and merged before the next.
 
 - [ ] **L-4 The sentences SYB builds from numbers.** These are the view models in `lib/`, such as "€3,518.50 was left in carts…". Each moves to ICU messages with plural forms.
 - [ ] **L-5 What the model writes.** The interviewer, the report, chat, drafts and customer-facing replies are written in the right language (rule 5).
+
+  **Built 2026-11-03.** What was done:
+  - **One place for the instruction:** `lib/llm/language.ts` (pure) writes it in English, naming the language and the register (usted, Sie, vous, Ön with third-person verbs, вы, 您): `ownerLanguageLine` for what the person reads, `customerLanguageLine` for what the business's customers read, `splitLanguageLine` for a brief with both readers, and `FACTS_AS_GIVEN` for extraction. Each says JSON keys, enum values, ids, codes and field keys stay as specified in English, and names, quotes and figures stay as given with no currency converted. `lib/llm/language-of.ts` reads whose language: `businessLanguage(profileId)` (the business's setting, not gated; in its own file, `business-language.ts`, so the support tier reaches only the database and `lib/i18n/locales.ts` — the rule-21 gate in `lib/support/structure.test.ts` now allows that one pure file, with its reason) and `ownerLanguage(accountId)` (the first owner's `users.language` through the status gate, for jobs nobody waits on). `LANGUAGE_FOR_MODEL` moved to `language.ts` from the interviewer prompt, which re-exports it, so its bytes are unchanged.
+  - **The person's language:**
+    - the owner chat answer (Sonnet): `postMessage` takes the asker's locale (`/api/chat` passes `requestLocale()`);
+    - the diagnosis summary and findings, and the recommendations (Opus): `generateReport({ locale })`, from `/api/report`'s POST;
+    - the goal review's summary, causes, reasons and suggestions (Opus, weekly): the owner's language;
+    - the Blind spots topic labels (Haiku, weekly): the owner's language;
+    - the creative brief's audience, offer and shots (Sonnet): `/api/studio` passes the asker's locale.
+  - **The business's language** (rule 5's customer-facing half; the old "in the customer's own language when it is not English" clauses are gone so they can't contradict it):
+    - the support widget's answer;
+    - the support-desk reply draft and the review-reply suggestion;
+    - every content draft through `draftItem` (posts, campaign emails, pipeline follow-ups; `language` is now required);
+    - the brief's hooks and scripts;
+    - the FAQ's canonical question, which becomes a public answer.
+  - **Facts stay as given (rule 4):** the answer parser, hard limits, the opening-schedule parser, competitor research and discovery carry `FACTS_AS_GIVEN`. The review-mail fallback and competitor price reader already copy exactly. The intent and classification calls return codes, so they are unchanged.
+  - **The interviewer:** done in L-2. It chooses an id, so nothing it writes reaches the owner. Not touched.
+  - **Caching (rule 8):** the only cached sites besides the interviewer are the chat answer and the change-intent call. The chat answer's language goes out as its own system block after the breakpoint, so its cached block is byte-identical in every language and one cache entry serves all seven. Every other site caches nothing, and the line is appended last. The intent call is unchanged.
+  - **The report records its language (migration 0080 `report_language`):** `diagnosis_reports.language`, default `en` (every earlier report was English) and checked against the seven codes. `ReportView.language` carries it. The report screen marks the summary with `lang` and, for a reader in another language, says "This report was written in {language}…" (namespace `modelWords`, all seven catalogues, the language named by `Intl.DisplayNames`). The cost guard stands: a report already covering the snapshot is returned in the language it was written in, never re-bought.
+  - **Validators fixed for non-English output:**
+    - `threeSentences` (the summary's cut) splits before any capital (Cyrillic too), ¿ ¡ « „, and after 。！？ with no space;
+    - the brief's word count counts Han, kana and Hangul by how long they take to say, so a Chinese script is no longer one "word";
+    - the review reply's no-offer check (refund, discount, voucher, free…) now covers Spanish, German, French, Hungarian, Russian and Chinese as well as English, with honest replies in each still passing.
+  - **Tests:**
+    - `lib/llm/language.test.ts`: the lines for en, de-DE and zh-Hans (and every register); the chat answer's cached block byte-identical across all seven locales against a caching fake (first call writes, the other six read, the language block uncached); the three customer prompts and `draftItem` for en/de-DE/zh-Hans; the brief's split; the validators in each language; `FACTS_AS_GIVEN` in the extraction prompts; and `businessLanguage`/`ownerLanguage` with the gate.
+    - Flow tests through the real call paths: `report/service.test.ts` (both Opus calls get German, the row records it, a Chinese reader gets the German report unspent), `chat.test.ts`, `review-desk/draft.test.ts`, `support/support.test.ts`, `crm/faq.test.ts` and `care/review.test.ts`.
+    - No real model call anywhere. Cost tags are unchanged.
+
+  **Judgement calls for the owner:**
+  - English prompts now name English too: one appended line. That includes the calibrated diagnosis and recommendation prompts.
+  - Customer-facing text follows rule 5 strictly. A tourist writing English to a Hungarian business gets Hungarian, where before they got their own language.
+  - The formal register is used with customers too.
+  - The shared report link's own view (`lib/report/share.ts`, L-6) doesn't carry `language` yet.
+
+  **Still English after L-5, by stage:**
+  - **Code-built sentences, not model text:** the report's scenario statements, break-even line, assumption statements and sensitivity callouts (`lib/diagnosis/recommendations.ts`, built from numbers and stored on the row: L-4); the chat's and the widget's canned replies (the AI disclosure, the handovers, "I heard you…", the watch refusal); the drafts' refusal messages; the goal-review watch line's "Alert review:" prefix.
+  - **Code-built labels on drafted content:** the AI labels put on drafted content ("Written with AI assistance.", `lib/content/disclosure.ts`), which must stay recognisable to `relabel`. These need their own stage, with the publish path.
+  - **Checks that still assume spaces between words:** the brief's five-words-in-a-row borrowing check (`lib/content/overlap.ts`) can't see a copied Chinese phrase. The change catalogue's matching of the owner's `subject` words against fact names is unverified outside English.
+
+  **Owner step — verify caching per language on a real run (costs money):** with a key, as a named reviewer, set your language to German and ask the chat two questions on the same business. The second call's `llm_calls` row for workload `chat` should show `cache_read_input_tokens > 0`. Switch to Chinese and ask once more: it should read the same entry, because the cached block doesn't change with language. For the interviewer, run two intake turns in each language you want to check (`npm run verify:models` or the intake). Turn two's `interviewer` row should read the cache, one entry per language, as L-2 proved with the fake.
+
 - [ ] **L-6 Emails, exports and shared pages.** The weekly summary, invites, sign-in links, phone alerts, the accountant export's headings, and the shared report link.
 - [ ] **L-7 Native review, then live.** Each language is read by its reviewer, corrections are made, and the language is switched to `live`. This is the owner's step: choosing the reviewers.
 

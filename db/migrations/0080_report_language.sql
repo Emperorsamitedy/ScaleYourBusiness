@@ -1,0 +1,2 @@
+ALTER TABLE "diagnosis_reports" ADD COLUMN "language" text DEFAULT 'en' NOT NULL;--> statement-breakpoint
+ALTER TABLE "diagnosis_reports" ADD CONSTRAINT "diagnosis_reports_language_known" CHECK ("diagnosis_reports"."language" in ('en', 'es-ES', 'de-DE', 'fr-FR', 'hu-HU', 'ru-RU', 'zh-Hans'));

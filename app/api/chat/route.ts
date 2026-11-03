@@ -18,6 +18,7 @@ import { ChangeError, confirmChange, listChanges } from "../../../lib/assistant/
 import { cardView } from "../../../lib/assistant/view";
 import { ChatError, postMessage, readThread } from "../../../lib/chat/service";
 import { requireRole, roleOf } from "../../../lib/auth/roles";
+import { requestLocale } from "../../../lib/i18n/server";
 
 export async function GET(): Promise<NextResponse> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -83,6 +84,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       body.text,
       {},
       roleOf(access) ?? "owner",
+      // L-5: the answer is written in the asker's language (rule 5).
+      await requestLocale(),
     );
     return NextResponse.json({
       intent: outcome.intent,

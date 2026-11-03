@@ -8,7 +8,7 @@
 
 import "dotenv/config";
 import { and, eq, inArray } from "drizzle-orm";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
 import { db } from "../../db";
 import {
   accounts,
@@ -30,6 +30,7 @@ import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { bootstrapIntake } from "../intake/service";
+import { ownerLanguageLine } from "../llm/language";
 import { writeField } from "../profile/field-store";
 import {
   approveProposal,
@@ -319,6 +320,24 @@ describe("P3-46 — validation is code, not prompt", () => {
     const skipped = rejected.filter((r) => r.reason.startsWith("category not weighed"));
     expect(skipped).toHaveLength(CAUSE_CATEGORIES.length - 1);
     expect(skipped.some((r) => r.reason.endsWith("our_advice_was_wrong"))).toBe(true);
+  });
+});
+
+describe("L-5 — the review is written in the owner's language", () => {
+  it("names the owner's own language (through the gate) after the instructions", async () => {
+    const s = await stalled(2);
+    await db.update(users).set({ language: "zh-Hans" }).where(eq(users.id, s.user_id));
+    vi.stubEnv("LANGUAGE_REVIEW_ACCOUNTS", s.account_id);
+    try {
+      const systems: string[] = [];
+      const inner = fakeReview(honestReview);
+      const llm: ReviewLlm = async (args) => (systems.push(args.system), inner(args));
+      await toAlert(s, { llm });
+      expect(systems).toHaveLength(1);
+      expect(systems[0]!.endsWith(ownerLanguageLine("zh-Hans"))).toBe(true);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
 

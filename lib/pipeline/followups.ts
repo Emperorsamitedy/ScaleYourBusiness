@@ -58,6 +58,7 @@ import { dealAge, staleDeals, staleness } from "./maths";
 import type { DealStage } from "./stages";
 import { STAGE_LABELS, isOpenStage } from "./stages";
 import { watchingUntil } from "../care/watch-words";
+import { businessLanguage } from "../llm/language-of";
 
 export const PIPELINE_MODULE = "pipeline";
 export const FOLLOWUP_KIND = "deal_followup";
@@ -437,6 +438,8 @@ export async function draftFollowUp(
     item,
     kind: "email",
     accountId: deal.account_id,
+    // L-5: the follow-up is read by the contact — the business's language.
+    language: await businessLanguage(proposal.profile_id),
     llm: opts.draftLlm ?? draftLlmFor(FOLLOWUP.workload),
   });
 

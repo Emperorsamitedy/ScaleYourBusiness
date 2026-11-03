@@ -24,6 +24,7 @@ import type { DiagnosisLlm } from "../diagnosis/findings";
 import { DiagnosisError } from "../diagnosis/findings";
 import type { RecommendationsLlm } from "../diagnosis/recommendations";
 import { writeField } from "../profile/field-store";
+import { ownerLanguageLine } from "../llm/language";
 import { generateReport, latestReport, priorOf, respondToRecommendation } from "./service";
 
 let accountId: string;
@@ -277,5 +278,39 @@ describe("P1-38/39 — responses update the report and append to the decision lo
         response: "look_into",
       }),
     ).rejects.toThrow(DiagnosisError);
+  });
+});
+
+describe("L-5 — the report is written in its generator's language, and says so", () => {
+  it("tells both Opus calls the language, records it, and keeps the cost guard", async () => {
+    const before = await latestReport(profileId);
+    expect(before?.language).toBe("en"); // every report so far: English
+    await write("goals.main_goal", "Wachstum");
+    const systems: string[] = [];
+    const { report, fresh } = await generateReport({
+      accountId,
+      profileId,
+      findingsLlm: (a) => (systems.push(a.system), findingsLlm(a)),
+      recommendationsLlm: (a) => (systems.push(a.system), recommendationsLlm(a)),
+      locale: "de-DE",
+    });
+    expect(fresh).toBe(true);
+    expect(systems).toHaveLength(2);
+    for (const s of systems) {
+      expect(s.endsWith(ownerLanguageLine("de-DE"))).toBe(true);
+      expect(s).toContain('in German, addressing them formally, as "Sie"');
+    }
+    expect(report.language).toBe("de-DE");
+    expect((await latestReport(profileId))?.language).toBe("de-DE");
+    // A reader in Chinese asking again gets the German report, nothing spent.
+    const again = await generateReport({
+      accountId,
+      profileId,
+      findingsLlm,
+      recommendationsLlm,
+      locale: "zh-Hans",
+    });
+    expect(again.fresh).toBe(false);
+    expect(again.report.language).toBe("de-DE");
   });
 });

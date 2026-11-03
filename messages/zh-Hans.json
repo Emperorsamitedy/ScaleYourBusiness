@@ -5605,5 +5605,8 @@
       "emailLink": "把登录链接发送到 {email}",
       "signInJoin": "登录并加入"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "本报告以{language}撰写，即生成报告者所用的语言。"
   }
 }
