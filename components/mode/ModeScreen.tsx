@@ -8,11 +8,17 @@
 // here; shortening is not on this screen at all (P1-44 buries it behind
 // an acknowledgement), and switching modes is not a feature: the rule
 // decides it from the profile.
+//
+// L-3c (TASKS-LANGUAGES.md): the screen's own words are the "mode"
+// catalogue; dates and counts in the reader's locale. The stored reasons
+// and the rule's reasoning are its own record, shown as they are (L-4).
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { useTr } from "../sheet/useTr";
 import type { ModeDecision } from "./mode-view";
 import { chosenLine, dayMonth, headline, humanise, parseTs, watchDay } from "./mode-view";
 import "../../app/mode.css";
@@ -24,11 +30,14 @@ type State =
   | { phase: "deferred"; reasoning: string }
   | { phase: "ready"; decision: ModeDecision; extending: boolean };
 
-const KICKER = "Your business · How I work";
-
 export function ModeScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
-  const noun = useBusinessNoun();
+  const businessNoun = useBusinessNoun();
+  const { tr, locale } = useTr("mode");
+  const t = useTranslations("mode");
+  const KICKER = tr("kicker");
+  // "your salon" is English's noun table; other languages say "your business".
+  const noun = locale === "en" ? businessNoun : tr("yourBusiness");
 
   const load = useCallback(async () => {
     const res = await fetch("/api/mode");
@@ -73,8 +82,8 @@ export function ModeScreen() {
   if (state.phase === "loading") {
     return (
       <main className="screen md-screen">
-        <PageHead kicker={KICKER} title="How I work." />
-        <p className="md-wait">Reading the decision…</p>
+        <PageHead kicker={KICKER} title={tr("loading.title")} />
+        <p className="md-wait">{tr("loading.copy")}</p>
       </main>
     );
   }
@@ -82,10 +91,10 @@ export function ModeScreen() {
   if (state.phase === "signedout") {
     return (
       <main className="screen md-screen">
-        <PageHead kicker={KICKER} title="Sign in first." />
-        <SheetCard label="How I work" title="This screen reads your profile.">
+        <PageHead kicker={KICKER} title={tr("signedOut.title")} />
+        <SheetCard label={tr("signedOut.label")} title={tr("signedOut.sheetTitle")}>
           <Link className="next" href="/login">
-            Sign in <span aria-hidden="true">→</span>
+            {tr("signedOut.signIn")} <span aria-hidden="true">→</span>
           </Link>
         </SheetCard>
       </main>
@@ -95,14 +104,11 @@ export function ModeScreen() {
   if (state.phase === "none") {
     return (
       <main className="screen md-screen">
-        <PageHead kicker={KICKER} title="Not decided yet." />
-        <SheetCard label="How I work" title="Ready to decide.">
-          <p className="md-copy">
-            One fixed rule reads your answers and picks: act now, or watch first. You see exactly
-            what triggered it.
-          </p>
+        <PageHead kicker={KICKER} title={tr("none.title")} />
+        <SheetCard label={tr("none.label")} title={tr("none.sheetTitle")}>
+          <p className="md-copy">{tr("none.copy")}</p>
           <button type="button" className="next" onClick={() => void decide()}>
-            Decide now <span aria-hidden="true">→</span>
+            {tr("none.decide")} <span aria-hidden="true">→</span>
           </button>
         </SheetCard>
       </main>
@@ -112,11 +118,11 @@ export function ModeScreen() {
   if (state.phase === "deferred") {
     return (
       <main className="screen md-screen">
-        <PageHead kicker={KICKER} title="Not decided yet." />
-        <SheetCard label="Not yet" title="I won't guess.">
+        <PageHead kicker={KICKER} title={tr("none.title")} />
+        <SheetCard label={tr("deferred.label")} title={tr("deferred.sheetTitle")}>
           <p className="md-copy">{state.reasoning}</p>
           <Link className="next" href="/intake">
-            Answer the core questions <span aria-hidden="true">→</span>
+            {tr("deferred.answer")} <span aria-hidden="true">→</span>
           </Link>
         </SheetCard>
       </main>
@@ -136,30 +142,27 @@ export function ModeScreen() {
       aria-current={watching ? "true" : undefined}
     >
       <p className="md-mode-label">
-        <span>Mode A</span>
-        {watching && <span className="md-current">Current</span>}
+        <span>{tr("a.label")}</span>
+        {watching && <span className="md-current">{tr("current")}</span>}
       </p>
       <h2 className="md-mode-title" id="md-a">
-        Watch first
+        {tr("a.title")}
       </h2>
       {watching && weeks !== null ? (
         <>
-          <p className="md-mode-copy">
-            I spend {weeks * 7} days learning how {noun} actually behaves before proposing anything.
-            Changing things quickly could cost you sales. Nothing changes without you.
-          </p>
+          <p className="md-mode-copy">{tr("a.copyWatching", { days: weeks * 7, noun })}</p>
           <p className="md-mode-lines">
             {day && (
               <>
-                Day {day.day} of {day.of} · ends {dayMonth(ends)}
+                {tr("a.day", { day: day.day, of: day.of, date: dayMonth(ends, locale) })}
                 <br />
               </>
             )}
-            The first read still arrives while I watch.
+            {tr("a.firstRead")}
           </p>
           <div className="md-mode-acts">
             <Link className="next" href="/watch">
-              Open Watching <span aria-hidden="true">→</span>
+              {tr("a.openWatching")} <span aria-hidden="true">→</span>
             </Link>
             {weeks !== 8 && (
               <button
@@ -168,21 +171,18 @@ export function ModeScreen() {
                 disabled={state.extending}
                 onClick={() => void extend()}
               >
-                {state.extending ? "Extending…" : "Extend to 56 days"}
+                {state.extending ? tr("a.extending") : tr("a.extend", { days: 8 * 7 })}
               </button>
             )}
           </div>
         </>
       ) : (
         <>
-          <p className="md-mode-copy">
-            I watch for four to eight weeks before proposing anything, so a change can&rsquo;t cost
-            sales I haven&rsquo;t measured.
-          </p>
+          <p className="md-mode-copy">{tr("a.copyIdle")}</p>
           <p className="md-mode-lines">
-            Chosen with 10+ sales a month, staff, paid ads, a support process or 3+ months trading
+            {tr("a.chosenWith", { sales: 10, months: 3 })}
             <br />
-            Every proposal still needs your yes
+            {tr("everyYes")}
           </p>
         </>
       )}
@@ -196,36 +196,33 @@ export function ModeScreen() {
       aria-current={!watching ? "true" : undefined}
     >
       <p className="md-mode-label">
-        <span>Mode B</span>
-        {!watching && <span className="md-current">Current</span>}
+        <span>{tr("b.label")}</span>
+        {!watching && <span className="md-current">{tr("current")}</span>}
       </p>
       <h2 className="md-mode-title" id="md-b">
-        Act right away
+        {tr("b.title")}
       </h2>
       {!watching ? (
         <>
           <p className="md-mode-copy">{decision.reasoning}</p>
           <p className="md-mode-lines">
-            Started {dayMonth(parseTs(decision.decided_at))}
+            {tr("b.started", { date: dayMonth(parseTs(decision.decided_at), locale) })}
             <br />
-            Every proposal still needs your yes
+            {tr("everyYes")}
           </p>
           <div className="md-mode-acts">
             <Link className="next" href="/report">
-              See the first read <span aria-hidden="true">→</span>
+              {tr("b.seeFirstRead")} <span aria-hidden="true">→</span>
             </Link>
           </div>
         </>
       ) : (
         <>
-          <p className="md-mode-copy">
-            Proposals start from the first read. Chosen only when there is nothing running that a
-            change could break.
-          </p>
+          <p className="md-mode-copy">{tr("b.copyIdle")}</p>
           <p className="md-mode-lines">
-            Only under 10 sales a month, no staff, no paid ads, no support process, under 3 months
+            {tr("b.onlyUnder", { sales: 10, months: 3 })}
             <br />
-            Every proposal still needs your yes
+            {tr("everyYes")}
           </p>
         </>
       )}
@@ -234,7 +231,11 @@ export function ModeScreen() {
 
   return (
     <main className="screen md-screen">
-      <PageHead kicker={KICKER} title={headline(decision)} aside={chosenLine(decision)} />
+      <PageHead
+        kicker={KICKER}
+        title={headline(decision, tr)}
+        aside={chosenLine(decision, tr, locale)}
+      />
 
       <div className="md-grid">
         {modeA}
@@ -242,10 +243,8 @@ export function ModeScreen() {
 
         <SheetCard
           className="md-why"
-          label={watching ? "Why I suggested watching" : "Why it's safe to start now"}
-          title={
-            watching ? "Real customers are buying" : "Nothing running that a change could break"
-          }
+          label={watching ? tr("why.labelWatching") : tr("why.labelInstant")}
+          title={watching ? tr("why.titleWatching") : tr("why.titleInstant")}
         >
           {decision.reasons.length > 0 ? (
             <ul className="md-reasons">
@@ -254,38 +253,33 @@ export function ModeScreen() {
               ))}
             </ul>
           ) : (
-            <p className="md-copy">No reasons were stored with this decision.</p>
+            <p className="md-copy">{tr("why.none")}</p>
           )}
         </SheetCard>
 
-        <SheetCard className="md-never" label="In either mode" title="What never changes">
+        <SheetCard className="md-never" label={tr("never.label")} title={tr("never.title")}>
           <ol className="md-rules">
             <li>
               <span className="md-n" aria-hidden="true">
                 01
               </span>
-              <span>
-                Nothing runs without your approval. Unanswered proposals expire — they never run by
-                default.
-              </span>
+              <span>{tr("never.one")}</span>
             </li>
             <li>
               <span className="md-n" aria-hidden="true">
                 02
               </span>
               <span>
-                &ldquo;Stop everything&rdquo; on <Link href="/proposals">Waiting for you</Link>{" "}
-                halts every execution at once, no sign-in needed.
+                {t.rich("never.two", {
+                  link: (chunks) => <Link href="/proposals">{chunks}</Link>,
+                })}
               </span>
             </li>
             <li>
               <span className="md-n" aria-hidden="true">
                 03
               </span>
-              <span>
-                Limits you set hold: a proposal that would break one is withheld, never put to you
-                as if it were fine.
-              </span>
+              <span>{tr("never.three")}</span>
             </li>
           </ol>
         </SheetCard>

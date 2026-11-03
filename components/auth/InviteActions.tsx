@@ -7,8 +7,12 @@
 //   "sign_in"  not signed in — email a sign-in link to the invited address
 //              (never another), and redeeming it joins;
 //   "wrong"    signed in as someone else — sign out first; nothing joins.
+//
+// L-3c: its words are the "invite.actions" catalogue; the server's refusals
+// stay English until L-4.
 
 import { useState } from "react";
+import { useTr } from "../sheet/useTr";
 
 export function InviteActions({
   token,
@@ -19,6 +23,7 @@ export function InviteActions({
   mode: "join" | "sign_in" | "wrong";
   email: string;
 }) {
+  const { tr } = useTr("invite.actions");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [link, setLink] = useState<string | null>(null);
@@ -41,7 +46,7 @@ export function InviteActions({
     };
     setBusy(false);
     if (!res?.ok) {
-      setMessage(json.error ?? "That didn't work. Try again in a minute.");
+      setMessage(json.error ?? tr("failed"));
       return;
     }
     if (json.joined) {
@@ -49,11 +54,7 @@ export function InviteActions({
       return;
     }
     if (json.sent) {
-      setMessage(
-        json.delivered_via === "screen"
-          ? "Email isn't set up here (development), so here's the sign-in link:"
-          : `I've emailed a sign-in link to ${email}. Open it there and you'll join.`,
-      );
+      setMessage(json.delivered_via === "screen" ? tr("devLink") : tr("emailed", { email }));
       if (json.link) setLink(json.link);
     }
   };
@@ -71,12 +72,12 @@ export function InviteActions({
             window.location.reload();
           }}
         >
-          <span>Sign out</span>
+          <span>{tr("signOut")}</span>
           <span className="au-arrow" aria-hidden="true">
             &rarr;
           </span>
         </button>
-        <p className="au-note">Then this page asks again, as {email}.</p>
+        <p className="au-note">{tr("thenAsks", { email })}</p>
       </>
     );
   }
@@ -84,7 +85,7 @@ export function InviteActions({
   return (
     <>
       <button type="button" className="au-primary" disabled={busy} onClick={() => void join()}>
-        <span>{mode === "join" ? "Join" : `Email a sign-in link to ${email}`}</span>
+        <span>{mode === "join" ? tr("join") : tr("emailLink", { email })}</span>
         <span className="au-arrow" aria-hidden="true">
           &rarr;
         </span>
@@ -96,7 +97,7 @@ export function InviteActions({
       )}
       {link && (
         <p className="au-note">
-          <a href={link}>Sign in and join</a>
+          <a href={link}>{tr("signInJoin")}</a>
         </p>
       )}
     </>

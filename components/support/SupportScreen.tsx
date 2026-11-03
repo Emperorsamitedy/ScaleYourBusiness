@@ -11,21 +11,37 @@
 // account or executes anything (rule 21); what customers typed is shown
 // as text and never acted on (rule 24); every assistant turn is labelled
 // as automated (rule 20).
+//
+// L-3c (TASKS-LANGUAGES.md): the screen's own words are the "support"
+// catalogue; times, dates and figures in the reader's locale. What
+// customers wrote, approved answers, ticket summaries and drafts are
+// content, shown as they are; the server's own sentences (errors, a send's
+// outcome note) stay English until L-4.
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import "../../app/support.css";
+import { intlMoney } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
 import { PageHead } from "../sheet/PageHead";
+import { num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
 import { type Reply, ReplyBox } from "./ReplyBox";
 import {
   type ConversationStatus,
-  REASON_WORD,
   type TicketReason,
   type TicketStatus,
+  EMAIL_KEPT_CHARS,
   conversationWord,
+  dayWord,
+  reasonWord,
+  senderNoteWord,
   supportHeadline,
   ticketLine,
   waitingTitle,
+  whenFull,
   whenShort,
 } from "./support-view";
 
@@ -162,8 +178,10 @@ function shortId(id: string): string {
   return `A-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
 }
 
-function dayWord(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+/** SYB's own running cost of a conversation, in euros at four decimals: "€0.0123". */
+function costWords(costEur: string, locale: AppLocale): string {
+  const n = Number.parseFloat(costEur);
+  return locale === "en" ? `€${n.toFixed(4)}` : intlMoney(n, "EUR", 4, locale);
 }
 
 function threadsOf(conversations: Conversation[], tickets: Ticket[]): Thread[] {
@@ -192,6 +210,8 @@ function threadsOf(conversations: Conversation[], tickets: Ticket[]): Thread[] {
 }
 
 export function SupportScreen() {
+  const { tr, locale } = useTr("support");
+  const t = useTranslations("support");
   const [state, setState] = useState<State>({ phase: "loading" });
 
   const load = useCallback(async () => {
@@ -286,7 +306,7 @@ export function SupportScreen() {
   if (state.phase === "loading") {
     return (
       <main className="screen sp-screen">
-        <PageHead kicker="Customers · Support" title="Opening support…" />
+        <PageHead kicker={tr("kicker")} title={tr("loading")} />
       </main>
     );
   }
@@ -296,14 +316,11 @@ export function SupportScreen() {
         <div className="auth-col">
           <span className="wordmark">SYB</span>
           <section className="card auth-card">
-            <span className="auth-eyebrow">support</span>
-            <h1 className="auth-title">Start with the intake.</h1>
-            <p className="auth-copy">
-              The customer assistant answers from facts you give in the intake and approve for the
-              public. Twelve questions and there is something real to publish.
-            </p>
+            <span className="auth-eyebrow">{tr("signedOut.eyebrow")}</span>
+            <h1 className="auth-title">{tr("signedOut.title")}</h1>
+            <p className="auth-copy">{tr("signedOut.body")}</p>
             <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
-              Begin
+              {tr("signedOut.begin")}
             </Link>
           </section>
         </div>
@@ -329,7 +346,7 @@ export function SupportScreen() {
     setState({ ...s, busy: true, notice: null });
     const { ok, json } = await post(payload);
     if (!ok) {
-      setState({ ...s, busy: false, notice: json.error ?? "that didn't work" });
+      setState({ ...s, busy: false, notice: json.error ?? tr("failed") });
       return;
     }
     await load();
@@ -341,7 +358,7 @@ export function SupportScreen() {
     setState({ ...s, busy: true, notice: null });
     const { ok, json } = await post({ action: "cluster_faq" });
     if (!ok) {
-      setState({ ...s, busy: false, notice: json.error ?? "that didn't work" });
+      setState({ ...s, busy: false, notice: json.error ?? tr("failed") });
       return;
     }
     const outcome = json as unknown as FaqOutcome;
@@ -353,12 +370,12 @@ export function SupportScreen() {
             faq: outcome,
             notice:
               outcome.questions < 3
-                ? `Only ${outcome.questions} open question${outcome.questions === 1 ? "" : "s"} — nothing to cluster yet. Three askers make a frequently asked question.`
+                ? tr("faq.tooFew", { count: outcome.questions })
                 : outcome.proposal_id
-                  ? "Clustered. The answers you already gave are in your approval queue; the rest are listed for you to answer."
+                  ? tr("faq.proposed")
                   : outcome.clusters.length === 0
-                    ? "Clustered: no three people have asked the same thing yet."
-                    : "Clustered. Nobody has answered these yet — answer one on its conversation and cluster again.",
+                    ? tr("faq.none")
+                    : tr("faq.unanswered"),
           }
         : cur,
     );
@@ -378,15 +395,19 @@ export function SupportScreen() {
 
   return (
     <main className="screen sp-screen">
-      <PageHead kicker="Customers · Support" title={supportHeadline(publicEntries.length)}>
+      <PageHead kicker={tr("kicker")} title={supportHeadline(publicEntries.length, tr)}>
         <div className="sp-counts">
           <span>
-            <b>{s.conversations.length}</b>{" "}
-            {s.conversations.length === 1 ? "conversation" : "conversations"} ·{" "}
-            <b>{s.tickets.length}</b> handed to you · <b>{openTickets.length}</b> waiting
+            {t.rich("counts", {
+              b: (c) => <b>{c}</b>,
+              count: s.conversations.length,
+              conversations: num(s.conversations.length, 0, locale),
+              handed: num(s.tickets.length, 0, locale),
+              waiting: num(openTickets.length, 0, locale),
+            })}
           </span>
           <Link className="ghost sp-test" href="/support/test">
-            Test the widget <span aria-hidden="true">→</span>
+            {tr("testWidget")} <span aria-hidden="true">→</span>
           </Link>
         </div>
       </PageHead>
@@ -402,26 +423,26 @@ export function SupportScreen() {
         <header className="cs-head">
           <div>
             <p className="cs-label">
-              Tickets · {s.tickets.length} · conversations · {s.conversations.length}
+              {tr("convos.label", {
+                tickets: num(s.tickets.length, 0, locale),
+                conversations: num(s.conversations.length, 0, locale),
+              })}
             </p>
             <h2 className="cs-title" id="sp-convos-title">
-              {waitingTitle(openTickets.length)}
+              {waitingTitle(openTickets.length, tr)}
             </h2>
           </div>
           <p className="cs-meta sp-sla-meta">
             {s.settings?.reply_hours
-              ? `Your reply time: ${s.settings.reply_hours} h`
-              : "No reply time set"}
+              ? tr("sla.yourTime", { hours: num(s.settings.reply_hours, 0, locale) })
+              : tr("sla.unset")}
             <br />
-            Counted in clock hours, not business hours.
+            {tr("sla.clock")}
           </p>
         </header>
         {threads.length === 0 ? (
           <div className="cs-body">
-            <p className="sp-empty">
-              Nothing yet. Every widget conversation and every email to your support address lands
-              here, and anything waiting for you is marked.
-            </p>
+            <p className="sp-empty">{tr("convos.empty")}</p>
           </div>
         ) : (
           <>
@@ -429,48 +450,60 @@ export function SupportScreen() {
               <table className="rt rt-stack sp-tickets">
                 <thead>
                   <tr>
-                    <th scope="col">Channel</th>
-                    <th scope="col">Who</th>
-                    <th scope="col">Subject or question</th>
+                    <th scope="col">{tr("col.channel")}</th>
+                    <th scope="col">{tr("col.who")}</th>
+                    <th scope="col">{tr("col.what")}</th>
                     <th scope="col" className="num">
-                      Waited
+                      {tr("col.waited")}
                     </th>
-                    <th scope="col">Against your reply time</th>
+                    <th scope="col">{tr("col.against")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {threads.map((t) => {
-                    const on = selected?.key === t.key;
-                    const line = t.ticket
-                      ? ticketLine(t.ticket, now, s.settings?.reply_hours ?? null)
+                  {threads.map((th) => {
+                    const on = selected?.key === th.key;
+                    const line = th.ticket
+                      ? ticketLine(th.ticket, now, s.settings?.reply_hours ?? null, tr, locale)
                       : null;
-                    const w = conversationWord(t.conversation?.status ?? "escalated", t.ticket);
+                    const w = conversationWord(
+                      th.conversation?.status ?? "escalated",
+                      th.ticket,
+                      tr,
+                    );
+                    const turns = th.conversation?.turns ?? 0;
                     return (
-                      <tr key={t.key} className={on ? "on" : undefined}>
-                        <td className="src" data-label="Channel">
-                          {line?.channel ?? "Chat"}
+                      <tr key={th.key} className={on ? "on" : undefined}>
+                        <td className="src" data-label={tr("col.channel")}>
+                          {line?.channel ?? tr("channel.chat")}
                         </td>
                         <th scope="row">
                           <button
                             type="button"
                             className="sp-pick"
                             aria-pressed={on}
-                            onClick={() => setState({ ...s, open: t.key, confirmErase: null })}
+                            onClick={() => setState({ ...s, open: th.key, confirmErase: null })}
                           >
-                            {line ? line.who : "Visitor"}
+                            {line ? line.who : tr("who.visitor")}
                           </button>
-                          {t.ticket?.sender_note && (
-                            <span className="sp-fine"> {t.ticket.sender_note}</span>
+                          {th.ticket?.sender_note && (
+                            <span className="sp-fine">
+                              {" "}
+                              {senderNoteWord(th.ticket.sender_note, tr)}
+                            </span>
                           )}
                         </th>
-                        <td className="sp-what" data-label="Subject or question">
+                        <td className="sp-what" data-label={tr("col.what")}>
                           {line?.what ??
-                            `${t.conversation?.turns ?? 0} ${t.conversation?.turns === 1 ? "message" : "messages"} · ${whenShort(t.at)}`}
+                            tr("convos.messages", {
+                              count: turns,
+                              n: num(turns, 0, locale),
+                              when: whenShort(th.at, undefined, locale),
+                            })}
                         </td>
-                        <td className="num" data-label="Waited">
+                        <td className="num" data-label={tr("col.waited")}>
                           {line?.waited ?? ""}
                         </td>
-                        <td data-label="Against your reply time">
+                        <td data-label={tr("col.against")}>
                           {line ? (
                             <>
                               <span className={`flag ${line.tone}`}>{line.flag}</span>
@@ -491,29 +524,27 @@ export function SupportScreen() {
               <div className="sp-thread-view">
                 {selected && (
                   <p className="sp-via">
-                    {whoOf(ticket)}
-                    {ticket?.sender_note && ` (${ticket.sender_note})`} ·{" "}
+                    {whoOf(ticket, tr)}
+                    {ticket?.sender_note && ` (${senderNoteWord(ticket.sender_note, tr)})`} ·{" "}
                     {conversation
-                      ? "via the widget"
+                      ? tr("via.widget")
                       : ticket?.channel === "email"
-                        ? "by email"
-                        : "a ticket"}{" "}
-                    ·{" "}
-                    {new Date(selected.at).toLocaleString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                        ? tr("via.email")
+                        : tr("via.ticket")}{" "}
+                    · {whenFull(selected.at, locale)}
                     {conversation &&
-                      ` · ${conversation.turns} ${conversation.turns === 1 ? "turn" : "turns"} · €${Number.parseFloat(conversation.cost_eur).toFixed(4)}`}
+                      ` · ${tr("via.turns", {
+                        count: conversation.turns,
+                        n: num(conversation.turns, 0, locale),
+                        cost: costWords(conversation.cost_eur, locale),
+                      })}`}
                   </p>
                 )}
                 {conversation && transcript.length === 0 && (
                   <p className="sp-fine">
                     {s.transcriptOf === conversation.id
-                      ? "Nothing was said in this conversation."
-                      : "Reading the conversation…"}
+                      ? tr("transcript.empty")
+                      : tr("transcript.reading")}
                   </p>
                 )}
                 <ol className="sp-msgs">
@@ -522,15 +553,15 @@ export function SupportScreen() {
                       {/* Customer words are text under discussion — rendered, never acted on. */}
                       <p className="sp-msg-text">{m.text}</p>
                       <p className="sp-msg-meta">
-                        {m.role === "assistant" ? "Assistant · automated" : "Visitor"} ·{" "}
-                        {whenShort(m.at)}
+                        {m.role === "assistant" ? tr("msg.assistant") : tr("msg.visitor")} ·{" "}
+                        {whenShort(m.at, undefined, locale)}
                       </p>
                     </li>
                   ))}
                 </ol>
 
                 {emails.length > 0 && (
-                  <ol className="sp-msgs sp-emails" aria-label="Emails">
+                  <ol className="sp-msgs sp-emails" aria-label={tr("emails.aria")}>
                     {emails.map((m) => (
                       <li
                         key={m.id}
@@ -541,15 +572,15 @@ export function SupportScreen() {
                         <p className="sp-msg-text">{m.body}</p>
                         {m.truncated && (
                           <p className="sp-fine">
-                            This email was longer than I keep; I kept the first 20,000 characters.
+                            {tr("emails.truncated", { chars: num(EMAIL_KEPT_CHARS, 0, locale) })}
                           </p>
                         )}
                         <p className="sp-msg-meta">
                           {m.direction === "inbound"
                             ? (m.from_name ?? m.from_address)
-                            : "You, by email"}
-                          {m.sender_verified === false && " · sender not verified"} ·{" "}
-                          {whenShort(m.at)}
+                            : tr("emails.you")}
+                          {m.sender_verified === false && ` · ${tr("senderNote.notVerified")}`} ·{" "}
+                          {whenShort(m.at, undefined, locale)}
                         </p>
                       </li>
                     ))}
@@ -557,9 +588,7 @@ export function SupportScreen() {
                 )}
                 {ticket?.suppressed_address && (
                   <p className="sp-box sp-refused">
-                    <span className="word alarm">replies refused</span> This address is on your
-                    suppression list (they unsubscribed or asked to be erased), so I won&rsquo;t
-                    send it anything. The ticket is here so you know they wrote.
+                    <span className="word alarm">{tr("refused.word")}</span> {tr("refused.body")}
                   </p>
                 )}
               </div>
@@ -582,14 +611,14 @@ export function SupportScreen() {
                   <div className="sp-box sp-handed">
                     <p className="sp-box-label">
                       <span className={`word ${ticket.status === "open" ? "drift" : "ok"}`}>
-                        handed to you · {REASON_WORD[ticket.reason]}
+                        {tr("ticket.handed", { reason: reasonWord(ticket.reason, tr) })}
                       </span>
                     </p>
                     {!conversation && <p className="sp-box-title">{ticket.summary}</p>}
                     {ticket.status === "open" ? (
                       <>
                         <label className="cs-label" htmlFor={`sp-t-${ticket.id}`}>
-                          What you told them — kept on record, not sent
+                          {tr("ticket.answerLabel")}
                         </label>
                         <textarea
                           id={`sp-t-${ticket.id}`}
@@ -617,12 +646,12 @@ export function SupportScreen() {
                                   answer: typed,
                                 },
                                 typed.trim() === ""
-                                  ? "Marked answered. Next time, write what you said — it can become an approved answer."
-                                  : "Marked answered, with your words on record.",
+                                  ? tr("notice.answeredBlank")
+                                  : tr("notice.answeredWords"),
                               )
                             }
                           >
-                            I answered them <span aria-hidden="true">→</span>
+                            {tr("ticket.answered")} <span aria-hidden="true">→</span>
                           </button>
                           <button
                             type="button"
@@ -635,11 +664,11 @@ export function SupportScreen() {
                                   question: ticket.summary,
                                   answer: typed,
                                 },
-                                "Proposed as an answer. Approve it in the queue, then publish it here.",
+                                tr("notice.proposedAnswer"),
                               )
                             }
                           >
-                            Propose as an answer
+                            {tr("ticket.propose")}
                           </button>
                           <button
                             type="button"
@@ -652,20 +681,21 @@ export function SupportScreen() {
                                   ticket_id: ticket.id,
                                   status: "closed",
                                 },
-                                "Closed.",
+                                tr("notice.closed"),
                               )
                             }
                           >
-                            Close
+                            {tr("ticket.close")}
                           </button>
                         </div>
-                        <p className="sp-fine">
-                          Marking it answered sends nothing; only an approved reply above goes to
-                          the customer.
-                        </p>
+                        <p className="sp-fine">{tr("ticket.sendsNothing")}</p>
                       </>
                     ) : (
-                      ticket.answer && <p className="sp-box-title">You said: {ticket.answer}</p>
+                      ticket.answer && (
+                        <p className="sp-box-title">
+                          {tr("ticket.youSaid", { answer: ticket.answer })}
+                        </p>
+                      )
                     )}
                   </div>
                 )}
@@ -681,17 +711,15 @@ export function SupportScreen() {
                         s.confirmErase === ticket.id
                           ? void act(
                               { action: "erase_ticket", ticket_id: ticket.id },
-                              "The ticket and its emails are erased. The log records only that it happened.",
+                              tr("notice.erasedTicket"),
                             )
                           : setState({ ...s, confirmErase: ticket.id })
                       }
                     >
-                      {s.confirmErase === ticket.id ? "Erase permanently" : "Erase this ticket"}
+                      {s.confirmErase === ticket.id ? tr("erase.confirm") : tr("erase.ticket")}
                     </button>
                     {s.confirmErase === ticket.id && (
-                      <span className="sp-fine">
-                        It cannot be undone. The log keeps only that it happened.
-                      </span>
+                      <span className="sp-fine">{tr("erase.cannotUndo")}</span>
                     )}
                   </div>
                 )}
@@ -707,19 +735,17 @@ export function SupportScreen() {
                         s.confirmErase === conversation.id
                           ? void act(
                               { action: "erase_conversation", conversation_id: conversation.id },
-                              "The conversation and its ticket are erased. The log records only that it happened.",
+                              tr("notice.erasedConversation"),
                             )
                           : setState({ ...s, confirmErase: conversation.id })
                       }
                     >
                       {s.confirmErase === conversation.id
-                        ? "Erase permanently"
-                        : "Erase this conversation"}
+                        ? tr("erase.confirm")
+                        : tr("erase.conversation")}
                     </button>
                     {s.confirmErase === conversation.id && (
-                      <span className="sp-fine">
-                        It cannot be undone. The log keeps only that it happened.
-                      </span>
+                      <span className="sp-fine">{tr("erase.cannotUndo")}</span>
                     )}
                   </div>
                 )}
@@ -734,9 +760,11 @@ export function SupportScreen() {
         <section className="cs sp-answers" id="sp-answers" aria-labelledby="sp-answers-title">
           <header className="cs-head">
             <div>
-              <p className="cs-label">Approved answers · {publicEntries.length}</p>
+              <p className="cs-label">
+                {tr("answers.label", { count: num(publicEntries.length, 0, locale) })}
+              </p>
               <h2 className="cs-title" id="sp-answers-title">
-                What it&rsquo;s allowed to say
+                {tr("answers.title")}
               </h2>
             </div>
             <button
@@ -746,7 +774,7 @@ export function SupportScreen() {
               aria-controls="sp-write"
               onClick={() => setState({ ...s, writing: !s.writing })}
             >
-              {s.writing ? "Close" : "Write an answer"}
+              {s.writing ? tr("answers.close") : tr("answers.write")}
             </button>
           </header>
           <div className="cs-body">
@@ -758,12 +786,12 @@ export function SupportScreen() {
                   e.preventDefault();
                   void act(
                     { action: "propose_custom", question: s.question, answer: s.answer },
-                    "Proposed. Approve it in the queue, then publish it here.",
+                    tr("notice.proposed"),
                   );
                 }}
               >
                 <label className="cs-label" htmlFor="sp-q">
-                  A question customers ask
+                  {tr("answers.question")}
                 </label>
                 <input
                   id="sp-q"
@@ -772,7 +800,7 @@ export function SupportScreen() {
                   onChange={(e) => setState({ ...s, question: e.target.value })}
                 />
                 <label className="cs-label" htmlFor="sp-a">
-                  The answer, in your words
+                  {tr("answers.answer")}
                 </label>
                 <textarea
                   id="sp-a"
@@ -786,9 +814,9 @@ export function SupportScreen() {
                     className="prop-btn"
                     disabled={s.busy || s.question.trim() === "" || s.answer.trim() === ""}
                   >
-                    Propose this answer
+                    {tr("answers.propose")}
                   </button>
-                  <span className="sp-fine">It goes to your approval queue first.</span>
+                  <span className="sp-fine">{tr("answers.queueFirst")}</span>
                 </div>
               </form>
             )}
@@ -796,7 +824,7 @@ export function SupportScreen() {
             {s.publishable.map((p) => (
               <div key={p.id} className="sp-box">
                 <p className="sp-box-label">
-                  <span className="word ok">approved · not yet public</span>
+                  <span className="word ok">{tr("answers.notPublic")}</span>
                 </p>
                 <p className="sp-box-title">{p.summary}</p>
                 <div className="sp-row">
@@ -805,13 +833,10 @@ export function SupportScreen() {
                     className="prop-btn"
                     disabled={s.busy}
                     onClick={() =>
-                      void act(
-                        { action: "publish", proposal_id: p.id },
-                        "Published. The assistant can say these now.",
-                      )
+                      void act({ action: "publish", proposal_id: p.id }, tr("notice.published"))
                     }
                   >
-                    Publish
+                    {tr("answers.publish")}
                   </button>
                 </div>
               </div>
@@ -820,20 +845,20 @@ export function SupportScreen() {
             {unanswered.map((c) => (
               <div key={c.question} className="sp-box">
                 <p className="sp-box-label">
-                  <span className="word drift">asked {c.members.length} times · not answered</span>
+                  <span className="word drift">
+                    {tr("answers.askedTimes", {
+                      count: c.members.length,
+                      n: num(c.members.length, 0, locale),
+                    })}
+                  </span>
                 </p>
                 <p className="sp-box-title">{c.question}</p>
-                <p className="sp-fine">
-                  Answer it on one of its conversations, then cluster again.
-                </p>
+                <p className="sp-fine">{tr("answers.answerOne")}</p>
               </div>
             ))}
 
             {s.knowledge.length === 0 && !s.writing && (
-              <p className="sp-empty">
-                No answers yet. Until you approve some, the assistant says it doesn&rsquo;t know and
-                hands the question to you.
-              </p>
+              <p className="sp-empty">{tr("answers.empty")}</p>
             )}
 
             {publicEntries.length > 0 && (
@@ -844,10 +869,7 @@ export function SupportScreen() {
                     e={e}
                     busy={s.busy}
                     onRetire={() =>
-                      void act(
-                        { action: "retire", entry_id: e.id },
-                        "Retired. It will not be said again.",
-                      )
+                      void act({ action: "retire", entry_id: e.id }, tr("notice.retired"))
                     }
                   />
                 ))}
@@ -855,7 +877,7 @@ export function SupportScreen() {
             )}
             {retired.length > 0 && (
               <>
-                <p className="cs-label sp-gap">Retired · no longer said</p>
+                <p className="cs-label sp-gap">{tr("answers.retiredLabel")}</p>
                 <ul className="sp-entries sp-retired">
                   {retired.map((e) => (
                     <EntryRow key={e.id} e={e} busy={s.busy} />
@@ -869,14 +891,9 @@ export function SupportScreen() {
               type="button"
               className="prop-btn"
               disabled={s.busy}
-              onClick={() =>
-                void act(
-                  { action: "propose_knowledge" },
-                  "Proposed. Approve it in the queue, then publish it here.",
-                )
-              }
+              onClick={() => void act({ action: "propose_knowledge" }, tr("notice.proposed"))}
             >
-              Propose answers from my facts
+              {tr("answers.fromFacts")}
             </button>
             <button
               type="button"
@@ -884,7 +901,7 @@ export function SupportScreen() {
               disabled={s.busy}
               onClick={() => void clusterFaq()}
             >
-              Cluster what customers asked
+              {tr("answers.cluster")}
             </button>
           </footer>
         </section>
@@ -894,91 +911,65 @@ export function SupportScreen() {
           <section className="cs sp-widget" aria-labelledby="sp-widget-title">
             <header className="cs-head">
               <div>
-                <p className="cs-label">The widget</p>
+                <p className="cs-label">{tr("widget.label")}</p>
                 <h2 className="cs-title" id="sp-widget-title">
-                  An assistant that says it is one
+                  {tr("widget.title")}
                 </h2>
               </div>
               <Link className="prop-btn sp-small" href="/support/test">
-                Test the widget <span aria-hidden="true">→</span>
+                {tr("testWidget")} <span aria-hidden="true">→</span>
               </Link>
             </header>
             <div className="cs-body">
               {s.settings ? (
                 <>
-                  <p className="sp-prose">
-                    Paste this one line into your website. Visitors see an assistant that introduces
-                    itself as automated, answers only from the approved list above, and hands over
-                    to you the moment they ask for a person.
-                  </p>
+                  <p className="sp-prose">{tr("widget.paste")}</p>
                   <pre className="sp-snippet">{s.settings.snippet}</pre>
                   <div className="sp-row">
                     <button
                       type="button"
                       className="prop-btn"
                       disabled={s.busy}
-                      onClick={() =>
-                        void act(
-                          { action: "rotate" },
-                          "New key. Every page with the old snippet stops working until you update it.",
-                        )
-                      }
+                      onClick={() => void act({ action: "rotate" }, tr("notice.rotated"))}
                     >
-                      Rotate the key
+                      {tr("widget.rotate")}
                     </button>
-                    <span className="sp-fine">
-                      The key is public by design — it only says which business a conversation
-                      belongs to. It is not a login.
-                    </span>
+                    <span className="sp-fine">{tr("widget.keyPublic")}</span>
                   </div>
                 </>
               ) : (
                 <>
-                  <p className="sp-prose">
-                    Not enabled yet. Enabling creates the widget&apos;s public key; nothing is said
-                    to anyone until you approve answers.
-                  </p>
+                  <p className="sp-prose">{tr("widget.notEnabled")}</p>
                   <button
                     type="button"
                     className="next"
                     disabled={s.busy}
-                    onClick={() =>
-                      void act({ action: "enable" }, "Enabled. Now approve some answers.")
-                    }
+                    onClick={() => void act({ action: "enable" }, tr("notice.enabled"))}
                   >
-                    Enable the assistant <span aria-hidden="true">→</span>
+                    {tr("widget.enable")} <span aria-hidden="true">→</span>
                   </button>
                 </>
               )}
             </div>
-            <footer className="cs-foot">
-              The assistant reads approved answers and nothing else: not your profile, not your
-              numbers, not your connections, and it cannot change anything.
-            </footer>
+            <footer className="cs-foot">{tr("widget.foot")}</footer>
           </section>
 
           {/* ── the support inbox (P4-09) ── */}
           <section className="cs sp-widget" aria-labelledby="sp-inbox-title">
             <header className="cs-head">
               <div>
-                <p className="cs-label">Support email</p>
+                <p className="cs-label">{tr("inbox.label")}</p>
                 <h2 className="cs-title" id="sp-inbox-title">
-                  Emails to your support address become tickets here
+                  {tr("inbox.title")}
                 </h2>
               </div>
             </header>
             <div className="cs-body">
               {!s.settings ? (
-                <p className="sp-prose">
-                  Enable the assistant above first; that creates your address.
-                </p>
+                <p className="sp-prose">{tr("inbox.enableFirst")}</p>
               ) : s.settings.inbound_address ? (
                 <>
-                  <p className="sp-prose">
-                    Forward your support mailbox to this address. Every email becomes a ticket here,
-                    threaded with its replies. Nothing is answered automatically: you see each one,
-                    and nothing goes back without your click.
-                  </p>
+                  <p className="sp-prose">{tr("inbox.forward")}</p>
                   <pre className="sp-snippet">{s.settings.inbound_address}</pre>
                   <div className="sp-row">
                     <button
@@ -986,24 +977,16 @@ export function SupportScreen() {
                       className="prop-btn"
                       disabled={s.busy}
                       onClick={() =>
-                        void act(
-                          { action: "rotate_inbound" },
-                          "New address. Mail to the old one is dropped from now on, so update your forwarding.",
-                        )
+                        void act({ action: "rotate_inbound" }, tr("notice.rotatedInbound"))
                       }
                     >
-                      Change the address
+                      {tr("inbox.change")}
                     </button>
-                    <span className="sp-fine">
-                      Only someone who knows it can file a ticket. Change it if it leaks.
-                    </span>
+                    <span className="sp-fine">{tr("inbox.onlyKnown")}</span>
                   </div>
                 </>
               ) : (
-                <p className="sp-prose">
-                  Not set up yet: support email needs the inbound domain and the webhook connected
-                  in Resend. Until then no email reaches this screen.
-                </p>
+                <p className="sp-prose">{tr("inbox.notSetUp")}</p>
               )}
             </div>
           </section>
@@ -1030,6 +1013,7 @@ function ReplyTime({
     notice: string | ((json: Record<string, unknown>) => string),
   ) => Promise<void>;
 }) {
+  const { tr, locale } = useTr("support");
   const [hours, setHours] = useState(settings.reply_hours ? String(settings.reply_hours) : "");
   const n = Number(hours);
   const valid = /^\d+$/.test(hours.trim()) && n >= 1 && n <= 720;
@@ -1037,11 +1021,14 @@ function ReplyTime({
     <section className="cs sp-widget" id="sp-time" aria-labelledby="sp-time-title">
       <header className="cs-head">
         <div>
-          <p className="cs-label">Your reply time</p>
+          <p className="cs-label">{tr("time.label")}</p>
           <h2 className="cs-title" id="sp-time-title">
             {settings.reply_hours
-              ? `You reply within ${settings.reply_hours} ${settings.reply_hours === 1 ? "hour" : "hours"}`
-              : "No reply time set"}
+              ? tr("time.title", {
+                  hours: settings.reply_hours,
+                  n: num(settings.reply_hours, 0, locale),
+                })
+              : tr("sla.unset")}
           </h2>
         </div>
       </header>
@@ -1051,10 +1038,13 @@ function ReplyTime({
           onSubmit={(e) => {
             e.preventDefault();
             if (!valid) return;
-            void act({ action: "set_reply_hours", hours: n }, `Saved: you reply within ${n} h.`);
+            void act(
+              { action: "set_reply_hours", hours: n },
+              tr("notice.savedHours", { hours: num(n, 0, locale) }),
+            );
           }}
         >
-          <label htmlFor="sp-hours">I reply within</label>
+          <label htmlFor="sp-hours">{tr("time.within")}</label>
           <input
             id="sp-hours"
             className="sp-input sp-hours"
@@ -1062,9 +1052,9 @@ function ReplyTime({
             value={hours}
             onChange={(e) => setHours(e.target.value)}
           />
-          <span>hours</span>
+          <span>{tr("time.hours")}</span>
           <button className="act" disabled={busy || !valid}>
-            Save
+            {tr("time.save")}
           </button>
           {settings.reply_hours && (
             <button
@@ -1072,20 +1062,17 @@ function ReplyTime({
               className="act"
               disabled={busy}
               onClick={() =>
-                void act(
-                  { action: "set_reply_hours", hours: null },
-                  "Cleared. No reply time is promised.",
-                )
+                void act({ action: "set_reply_hours", hours: null }, tr("notice.cleared"))
               }
             >
-              Clear
+              {tr("time.clear")}
             </button>
           )}
         </form>
         <p className="sp-fine">
-          Clock hours, not business hours. Each waiting ticket shows how it stands against this. The
-          chat tells a customer this time only when you have set one; otherwise it promises nothing.
-          {settings.reply_hours_set_at && ` Set ${whenShort(settings.reply_hours_set_at)}.`}
+          {tr("time.fine")}
+          {settings.reply_hours_set_at &&
+            ` ${tr("time.setAt", { when: whenShort(settings.reply_hours_set_at, undefined, locale) })}`}
         </p>
         <label className="sp-row sp-check">
           <input
@@ -1095,16 +1082,11 @@ function ReplyTime({
             onChange={(e) =>
               void act(
                 { action: "set_notify", on: e.target.checked },
-                e.target.checked
-                  ? "On: a new support email sends you a short notice, at most one an hour."
-                  : "Off: no notices. The count in the menu still shows what's waiting.",
+                e.target.checked ? tr("notice.notifyOn") : tr("notice.notifyOff"),
               )
             }
           />
-          <span>
-            Email me at my sign-in address when a customer emails (at most one an hour, and only
-            once email is set up)
-          </span>
+          <span>{tr("time.notify")}</span>
         </label>
       </div>
     </section>
@@ -1112,13 +1094,14 @@ function ReplyTime({
 }
 
 /** Who a thread is from, in words: the emailer's name or address, else a widget visitor. */
-function whoOf(ticket: Ticket | null): string {
+function whoOf(ticket: Ticket | null, tr: Tr): string {
   if (ticket?.from) return ticket.from;
-  if (!ticket) return "Visitor";
-  return ticket.has_address ? "Customer" : "Visitor · no address";
+  if (!ticket) return tr("who.visitor");
+  return ticket.has_address ? tr("who.customer") : tr("who.visitorNoAddress");
 }
 
 function EntryRow({ e, busy, onRetire }: { e: Entry; busy: boolean; onRetire?: () => void }) {
+  const { tr, locale } = useTr("support");
   const fromCustomers = e.source_keys.some((k) => k.startsWith("faq:ticket:"));
   return (
     <li className="sp-entry">
@@ -1127,15 +1110,21 @@ function EntryRow({ e, busy, onRetire }: { e: Entry; busy: boolean; onRetire?: (
         <p className="sp-entry-q">{e.question}</p>
         <p className="sp-entry-a">{e.answer}</p>
         <p className="sp-entry-src">
-          from{" "}
-          {fromCustomers ? `${e.source_keys.length} customers who asked` : e.source_keys.join(", ")}
+          {fromCustomers
+            ? tr("entry.fromCustomers", {
+                count: e.source_keys.length,
+                n: num(e.source_keys.length, 0, locale),
+              })
+            : tr("entry.from", { sources: e.source_keys.join(", ") })}
         </p>
       </div>
       <div className="sp-entry-side">
-        <span className="sp-entry-date">pub. {dayWord(e.published_at)}</span>
+        <span className="sp-entry-date">
+          {tr("entry.published", { date: dayWord(e.published_at, locale) })}
+        </span>
         {onRetire && (
           <button type="button" className="prop-btn quiet" disabled={busy} onClick={onRetire}>
-            Retire
+            {tr("entry.retire")}
           </button>
         )}
       </div>

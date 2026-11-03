@@ -4,9 +4,15 @@
 // widget script injected exactly as the snippet would — same script,
 // same public endpoint, same site key. What the owner sees here is what
 // a stranger sees on their site.
+//
+// L-3c: this page's own frame speaks to the owner, so it is the "support"
+// catalogue (support.test) in the owner's language. The widget it loads is
+// customer-facing and speaks the business's language (L-5/L-6); the
+// business's name is content.
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 type State =
   | { phase: "loading" }
@@ -15,6 +21,7 @@ type State =
   | { phase: "ready"; business_name: string; site_key: string };
 
 export function WidgetTestPage() {
+  const t = useTranslations("support.test");
   const [state, setState] = useState<State>({ phase: "loading" });
 
   useEffect(() => {
@@ -49,7 +56,7 @@ export function WidgetTestPage() {
   if (state.phase === "loading") {
     return (
       <main className="auth-stage">
-        <p className="auth-copy">Setting up the test page…</p>
+        <p className="auth-copy">{t("loading")}</p>
       </main>
     );
   }
@@ -58,14 +65,12 @@ export function WidgetTestPage() {
       <main className="auth-stage">
         <div className="auth-col">
           <section className="card auth-card">
-            <span className="auth-eyebrow">widget test page</span>
+            <span className="auth-eyebrow">{t("eyebrow")}</span>
             <h1 className="auth-title">
-              {state.phase === "signedout"
-                ? "Start with the intake."
-                : "Enable the assistant first."}
+              {state.phase === "signedout" ? t("signedOut") : t("disabled")}
             </h1>
             <Link className="next auth-cta" style={{ marginTop: 24 }} href="/support">
-              Go to support
+              {t("goSupport")}
             </Link>
           </section>
         </div>
@@ -77,15 +82,12 @@ export function WidgetTestPage() {
     <main className="ops-shell">
       <header className="ops-head">
         <span className="wordmark">{state.business_name}</span>
-        <span className="ops-meta">a pretend customer page · the widget is bottom right</span>
+        <span className="ops-meta">{t("pretend")}</span>
       </header>
       <section className="card ops-card">
-        <span className="auth-eyebrow">what a visitor sees</span>
+        <span className="auth-eyebrow">{t("seesLabel")}</span>
         <p className="auth-copy">
-          This page stands in for your website. The button in the corner is the real widget, loaded
-          by the same script and talking to the same public endpoint a customer would use. Ask it
-          something you have approved, something you have not, and then ask for a person — each
-          should behave as promised on the <Link href="/support">support screen</Link>.
+          {t.rich("body", { link: (c) => <Link href="/support">{c}</Link> })}
         </p>
       </section>
     </main>

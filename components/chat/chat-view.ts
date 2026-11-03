@@ -3,8 +3,21 @@
 // the owner's latest question, the side sheet lists their earlier ones,
 // and each turn's stamp is read off its stored time. Nothing is invented:
 // with no turns there is no question to title the sheet with.
+//
+// L-3c (TASKS-LANGUAGES.md): the fixed words are the "chat" catalogue
+// through an optional translator, English by default from messages/en.json,
+// so English says exactly what it always said; stamps in the reader's
+// locale. The turns themselves, and what a change card says about the
+// change (its summary, values, screen name, button and result, built on
+// the server), are shown as they are.
 
 import type { ChangeCardView } from "../../lib/assistant/view";
+import { dayMonth } from "../../lib/i18n/format";
+import type { AppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { englishTr } from "../../lib/i18n/tr";
+
+const EN = (): Tr => englishTr("chat");
 
 export interface Turn {
   id: string;
@@ -26,15 +39,23 @@ export function parseTs(s: string): number {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "14:10" today, "9 Oct 14:10" before. */
-export function stamp(at: string, now: number): string {
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/**
+ * "14:10" today, "9 Oct 14:10" before — the browser's local time; the day
+ * and month in the reader's own short form outside English.
+ */
+export function stamp(at: string, now: number, locale: AppLocale = "en"): string {
   const ms = parseTs(at);
   if (Number.isNaN(ms)) return "";
   const d = new Date(ms);
-  const hm = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  return new Date(now).toDateString() === d.toDateString()
-    ? hm
-    : `${d.getDate()} ${MONTHS[d.getMonth()] ?? ""} ${hm}`;
+  const hm = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if (new Date(now).toDateString() === d.toDateString()) return hm;
+  if (locale !== "en") {
+    const day = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    return `${dayMonth(day, locale)} ${hm}`;
+  }
+  return `${d.getDate()} ${MONTHS[d.getMonth()] ?? ""} ${hm}`;
 }
 
 const ownerTurns = (turns: readonly Turn[]) =>
@@ -77,27 +98,38 @@ export function cardsFor(replyId: string, cards: readonly ChangeCardView[]): Cha
 /** The card's worded status: the word carries the meaning, the tone only tints it. */
 export function cardFlag(
   card: Pick<ChangeCardView, "status" | "prepare">,
+  tr: Tr = EN(),
 ): { word: string; tone: "ok" | "low" | "drift" } | null {
   switch (card.status) {
     case "applied":
-      return { word: "Changed", tone: "ok" };
+      return { word: tr("flag.applied"), tone: "ok" };
     case "queued":
-      return { word: "In your queue", tone: "low" };
+      return { word: tr("flag.queued"), tone: "low" };
     case "stale":
-      return { word: "Not changed", tone: "drift" };
+      return { word: tr("flag.stale"), tone: "drift" };
     default:
       return null;
   }
 }
 
+/** The kicker's key under "chat.cardKicker", by the card's state. */
+export function cardKickerKey(
+  card: Pick<ChangeCardView, "status" | "prepare">,
+): "link_only" | "applied" | "queued" | "stale" | "proposal" | "prepared" {
+  if (card.status === "link_only") return "link_only";
+  if (card.status === "applied") return "applied";
+  if (card.status === "queued") return "queued";
+  if (card.status === "stale") return "stale";
+  if (card.prepare === "proposal") return "proposal";
+  return "prepared";
+}
+
 /** The mono line above the change, in first person. */
-export function cardKicker(card: Pick<ChangeCardView, "status" | "prepare" | "screen">): string {
-  if (card.status === "link_only") return `Yours to change · ${card.screen}`;
-  if (card.status === "applied") return `Made · ${card.screen}`;
-  if (card.status === "queued") return `In your queue · ${card.screen}`;
-  if (card.status === "stale") return `Not made · ${card.screen}`;
-  if (card.prepare === "proposal") return `Drafted for your queue · ${card.screen}`;
-  return `Drafted, not yet made · ${card.screen}`;
+export function cardKicker(
+  card: Pick<ChangeCardView, "status" | "prepare" | "screen">,
+  tr: Tr = EN(),
+): string {
+  return tr(`cardKicker.${cardKickerKey(card)}`, { screen: card.screen });
 }
 
 /** Whether the confirming button still applies. */

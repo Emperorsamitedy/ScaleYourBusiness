@@ -3081,5 +3081,1370 @@
       "assumed": "SUPPOSÉ",
       "atCost": "{amount} au prix de revient"
     }
+  },
+  "chat": {
+    "meta": {
+      "title": "Posez-moi vos questions — SYB"
+    },
+    "kicker": "Posez-moi vos questions · Au sujet de : {about}",
+    "yourBusiness": "votre entreprise",
+    "loading": "Ouverture de la conversation…",
+    "signedOut": {
+      "title": "Je réponds à partir de votre entreprise.",
+      "copy": "Cet échange repose sur un seul profil : le vôtre. Commencez l’entretien, et nous aurons quelque chose de concret à discuter.",
+      "begin": "Commencer"
+    },
+    "error": {
+      "title": "La conversation ne s’est pas chargée.",
+      "copy": "Un problème est survenu à la lecture de l’échange. Actualisez la page pour réessayer."
+    },
+    "titleEmpty": "Que souhaitez-vous savoir ?",
+    "newQuestion": "Nouvelle question",
+    "empty": "Posez-moi toutes vos questions au sujet de : {noun}. Pourquoi le rapport a dit ce qu’il a dit, ce que montrent vos chiffres, ce que je surveillerais. Demandez-moi de <em>modifier</em> quelque chose — vos horaires, un objectif, votre délai de réponse — et je le préparerai pour que vous disiez oui, ou je vous mènerai à la page où cela se règle. Si vous me demandez de <em>faire</em> quelque chose dans le monde réel, cela devient une proposition dans votre file ; rien ne s’exécute sur une simple formulation.",
+    "you": "Vous",
+    "thinking": "Lecture de votre profil…",
+    "queued": {
+      "text": "C’est désormais une proposition, qui attend votre oui.",
+      "link": "Ouvrir « En attente de votre décision » →"
+    },
+    "sendFailed": "Un problème est survenu de mon côté — pouvez-vous répéter ?",
+    "composer": {
+      "label": "Question au sujet de : {noun}",
+      "placeholder": "Tapez une question…",
+      "ask": "Demander",
+      "speak": "Parler : dictez votre question",
+      "spokenAfter": "Relisez-la et corrigez ce qu’il faut, puis appuyez sur « Demander ».",
+      "rule": "Je réponds uniquement à partir de ce que contiennent votre profil et votre rapport. Une modification que vous demandez est d’abord préparée : rien n’est écrit tant que vous n’appuyez pas sur son bouton ; les limites que vous fixez ici sont conservées."
+    },
+    "earlier": "Questions précédentes",
+    "change": {
+      "aria": "Une modification que j’ai préparée",
+      "was": "Avant",
+      "now": "Désormais",
+      "new": "Nouveau",
+      "open": "Ouvrir la page",
+      "making": "Modification en cours…",
+      "notChanged": "Non modifié",
+      "failed": "Cela n’a pas abouti de mon côté. Rien n’a été modifié.",
+      "unreachable": "Je n’ai pas pu joindre le serveur. Rien n’a été modifié."
+    },
+    "flag": {
+      "applied": "Modifié",
+      "queued": "Dans votre file",
+      "stale": "Non modifié"
+    },
+    "cardKicker": {
+      "link_only": "À modifier par vous · {screen}",
+      "applied": "Fait · {screen}",
+      "queued": "Dans votre file · {screen}",
+      "stale": "Non fait · {screen}",
+      "proposal": "Préparé pour votre file · {screen}",
+      "prepared": "Préparé, pas encore fait · {screen}"
+    }
+  },
+  "mode": {
+    "meta": {
+      "title": "Ma façon de travailler — SYB"
+    },
+    "kicker": "Votre entreprise · Ma façon de travailler",
+    "yourBusiness": "votre entreprise",
+    "loading": {
+      "title": "Ma façon de travailler.",
+      "copy": "Lecture de la décision…"
+    },
+    "signedOut": {
+      "title": "Connectez-vous d’abord.",
+      "label": "Ma façon de travailler",
+      "sheetTitle": "Cet écran lit votre profil.",
+      "signIn": "Se connecter"
+    },
+    "none": {
+      "title": "Pas encore décidé.",
+      "label": "Ma façon de travailler",
+      "sheetTitle": "Prêt à décider.",
+      "copy": "Une règle fixe lit vos réponses et choisit : agir maintenant, ou observer d’abord. Vous voyez exactement ce qui l’a déclenchée.",
+      "decide": "Décider maintenant"
+    },
+    "deferred": {
+      "label": "Pas encore",
+      "sheetTitle": "Je ne devinerai pas.",
+      "answer": "Répondre aux questions essentielles"
+    },
+    "current": "En vigueur",
+    "everyYes": "Chaque proposition attend toujours votre oui",
+    "a": {
+      "label": "Mode A",
+      "title": "Observer d’abord",
+      "copyWatching": "Je consacre {days, plural, one {# jour} many {# jours} other {# jours}} à comprendre comment fonctionne réellement {noun} avant de proposer quoi que ce soit. Changer les choses trop vite pourrait vous coûter des ventes. Rien ne change sans vous.",
+      "day": "Jour {day} sur {of} · se termine le {date}",
+      "firstRead": "La première lecture arrive quand même pendant l’observation.",
+      "openWatching": "Ouvrir « Observation »",
+      "extending": "Prolongation…",
+      "extend": "Prolonger à {days, plural, one {# jour} many {# jours} other {# jours}}",
+      "copyIdle": "J’observe pendant quatre à huit semaines avant de proposer quoi que ce soit, pour qu’une modification ne coûte pas des ventes que je n’ai pas mesurées.",
+      "chosenWith": "Choisi avec au moins {sales} ventes par mois, du personnel, de la publicité payante, un processus d’assistance ou au moins {months} mois d’activité"
+    },
+    "b": {
+      "label": "Mode B",
+      "title": "Agir tout de suite",
+      "started": "Commencé le {date}",
+      "seeFirstRead": "Voir la première lecture",
+      "copyIdle": "Les propositions commencent dès la première lecture. Choisi uniquement quand rien de ce qui tourne ne risque d’être cassé par une modification.",
+      "onlyUnder": "Uniquement sous {sales} ventes par mois, sans personnel, sans publicité payante, sans processus d’assistance, et moins de {months} mois d’activité"
+    },
+    "why": {
+      "labelWatching": "Pourquoi j’ai suggéré d’observer",
+      "labelInstant": "Pourquoi on peut commencer maintenant sans risque",
+      "titleWatching": "De vrais clients achètent",
+      "titleInstant": "Rien de ce qui tourne ne risque d’être cassé par une modification",
+      "none": "Aucune raison n’a été enregistrée avec cette décision."
+    },
+    "never": {
+      "label": "Dans les deux modes",
+      "title": "Ce qui ne change jamais",
+      "one": "Rien ne s’exécute sans votre validation. Les propositions sans réponse expirent : elles ne s’exécutent jamais par défaut.",
+      "two": "« Tout arrêter », sur <link>En attente de votre décision</link>, interrompt immédiatement toute exécution, sans connexion requise.",
+      "three": "Les limites que vous fixez tiennent : une proposition qui en enfreindrait une est retenue, jamais présentée comme si tout allait bien."
+    },
+    "headline": {
+      "watching": "Observation d’abord, pendant {days, plural, one {# jour} many {# jours} other {# jours}}.",
+      "instant": "Action immédiate."
+    },
+    "chosen": "Choisi le {date}",
+    "chosenOverride": "{chosen} · {kind, select, extend {durée prolongée} other {durée raccourcie}} à {weeks, plural, one {# semaine} many {# semaines} other {# semaines}} le {date}"
+  },
+  "content": {
+    "meta": {
+      "title": "Contenus — SYB"
+    },
+    "kicker": "Croissance · Contenus",
+    "loading": "Lecture de la file des contenus…",
+    "failed": "cela n’a pas fonctionné",
+    "signedOut": {
+      "eyebrow": "contenus",
+      "title": "Commencez par l’entretien.",
+      "body": "Les contenus sont planifiés à partir de votre profil : canaux, objectifs, offres. Douze questions, et il y a de quoi planifier pour de vrai.",
+      "cta": "Commencer"
+    },
+    "aside": "Modifier les objectifs de contenu",
+    "headline": {
+      "nothing": "Rien de rédigé pour l’instant.",
+      "nothingReady": "Rien de rédigé pour l’instant. {count, plural, one {# plan validé est prêt à être rédigé} many {# plans validés sont prêts à être rédigés} other {# plans validés sont prêts à être rédigés}}.",
+      "scheduledPosted": "Programmés : {scheduled}. Publiés : {posted, plural, =0 {aucun} one {#} many {#} other {#}}.",
+      "drafts": "{count, plural, one {# brouillon} many {# brouillons} other {# brouillons}}.",
+      "needsYes": "{first} {count, plural, one {# attend} many {# attendent} other {# attendent}} votre oui.",
+      "moreToDraft": "{first} Encore {count, plural, one {# plan validé} many {# plans validés} other {# plans validés}} à rédiger.",
+      "noneCanPost": "{first} Aucun ne peut encore être publié.",
+      "nextDue": "{first} Le prochain est prévu le {date}."
+    },
+    "state": {
+      "inQueue": "dans votre file",
+      "drafted": "rédigé",
+      "scheduled": "programmé",
+      "scheduledOn": "programmé le {day}",
+      "unconfirmed": "non confirmé",
+      "publishing": "en publication",
+      "posted": "publié",
+      "postedOn": "publié le {day}",
+      "failed": "échec",
+      "withdrawn": "retiré"
+    },
+    "platform": {
+      "unknown": "la plateforme"
+    },
+    "publish": {
+      "approvedOn": "Validé. Il part à son heure de publication, par l’exécuteur ; l’arrêt d’urgence l’interrompt.",
+      "approvedOff": "Validé, en attente de l’activation de la publication. Rien n’est envoyé à Meta d’ici là.",
+      "goingOut": "Envoi en cours vers {platform}.",
+      "live": "En ligne sur {platform}.",
+      "withdrawn": "Retiré : supprimé de {platform}. Son enregistrement reste ici.",
+      "propose": "Proposer pour publication",
+      "proposed": "Sa proposition de publication est dans votre file.",
+      "notProposed": "Non proposé : {reason}.",
+      "notQualify": "il ne remplit pas encore les conditions"
+    },
+    "verdict": {
+      "helped": "utile",
+      "did_nothing": "sans effet",
+      "backfired": "contre-productif",
+      "too_early": "trop tôt",
+      "unmeasured": "non mesuré"
+    },
+    "perf": {
+      "measured": "Mesuré",
+      "day": "jour {day}",
+      "reach": "portée {n}",
+      "views": "vues {n}",
+      "interactions": "interactions {n}"
+    },
+    "ad": {
+      "word": {
+        "live": "pub en ligne",
+        "paused": "pub en pause",
+        "inProgress": "pub en cours",
+        "unconfirmed": "pub non confirmée",
+        "failed": "pub en échec",
+        "heldBack": "pub retenue",
+        "approved": "pub validée",
+        "proposed": "pub proposée"
+      },
+      "text": {
+        "live": "La publicité est en ligne sur Meta pour les jours que vous avez validés, puis elle s’arrête d’elle-même. L’arrêt d’urgence interrompt tout ce que SYB est encore en train d’envoyer.",
+        "pausedBlocked": "La publicité est sur Meta, en pause. Sa mise en ligne est retenue par une limite que vous avez fixée.",
+        "pausedPending": "La publicité est sur Meta, en pause. La mise en ligne demande un oui distinct, qui attend dans la file.",
+        "goLiveApprovedOn": "Mise en ligne validée : la publicité, son ensemble de publicités et sa campagne s’activent à la prochaine exécution.",
+        "goLiveApprovedOff": "Mise en ligne validée, en attente de l’activation des modifications publicitaires Meta. Rien n’est dépensé d’ici là.",
+        "paused": "La publicité est sur Meta, en pause, sans rien dépenser. La mise en ligne demande une validation distincte.",
+        "building": "En cours de création sur Meta, en pause. La création reprend là où elle s’est arrêtée : rien n’est créé deux fois.",
+        "buildStopped": "La création de la publicité s’est arrêtée. Vérifiez le Gestionnaire de publicités ; tout ce que SYB a créé est en pause.",
+        "heldBack": "Proposée comme publicité, et retenue par une limite que vous avez fixée.",
+        "approvedOn": "Validée : la publicité est créée sur Meta, en pause, à la prochaine exécution.",
+        "approvedOff": "Validée, en attente de l’activation des modifications publicitaires Meta. Rien n’est envoyé d’ici là.",
+        "proposed": "Proposée comme publicité : elle attend votre oui dans la file.",
+        "offer": "Diffuser ceci en publicité : une proposition avec son budget, son audience et sa fourchette attendue. Créée en pause ; la mise en ligne demande une validation distincte ; les objets créés ne peuvent pas être supprimés, seulement mis en pause."
+      },
+      "run": "Diffuser ceci en publicité",
+      "runDone": "Proposée comme publicité, dans la file. Elle est créée en pause ; la mise en ligne demande une validation distincte.",
+      "goLive": "Proposer la mise en ligne",
+      "goLiveDone": "La mise en ligne est proposée, dans la file. Rien n’est dépensé tant que vous ne l’avez pas validée.",
+      "decide": "Décider de la publicité dans la file"
+    },
+    "origin": {
+      "footage": "vos images",
+      "generatedImage": "image générée par IA",
+      "generatedVideo": "vidéo générée par IA"
+    },
+    "kind": {
+      "post": "publication",
+      "email": "e-mail",
+      "shot_list": "à filmer",
+      "video": "vidéo"
+    },
+    "strips": {
+      "label": "La file de chaque canal",
+      "undated": "sans date",
+      "bar": "{posted} publiés sur {planned}",
+      "behind": "{count, plural, one {En retard · # date dépassée} many {En retard · # dates dépassées} other {En retard · # dates dépassées}}",
+      "done": "Tout est publié",
+      "next": "Prochain : {day}",
+      "onPace": "Dans les temps"
+    },
+    "strip": {
+      "post": "{count, plural, one {# publication} many {# publications} other {# publications}}",
+      "email": "{count, plural, one {# e-mail} many {# e-mails} other {# e-mails}}",
+      "shot_list": "{count, plural, one {# liste de plans} many {# listes de plans} other {# listes de plans}}",
+      "video": "{count, plural, one {# vidéo} many {# vidéos} other {# vidéos}}",
+      "piece": "{count, plural, one {# contenu} many {# contenus} other {# contenus}}"
+    },
+    "queue": {
+      "label": "File",
+      "titleOn": "Rédigé, programmé, publié",
+      "titleOff": "Rédigé et programmé — la publication est désactivée",
+      "emptyWatching": "La file est vide. Les propositions commencent une fois l’observation terminée, le {day}.",
+      "empty": "La file est vide. Proposez un calendrier ci-dessous : une fois que vous l’aurez validé dans la file, je le rédigerai ici."
+    },
+    "col": {
+      "draft": "Brouillon",
+      "channel": "Canal",
+      "goal": "Objectif servi",
+      "state": "État",
+      "date": "Date"
+    },
+    "anytime": "à tout moment",
+    "detail": {
+      "aria": "Brouillon {id}",
+      "media": "Média · {what}",
+      "email": "E-mail",
+      "caption": "Légende",
+      "writtenFrom": "Rédigé à partir de",
+      "serves": "Sert : {goal}",
+      "disclosure": "Mention : {text}",
+      "notPublishing": "Pas de publication : {why}.",
+      "superseded": "Vos propres images ont remplacé cette version générée, elle ne sera donc pas publiée.",
+      "platformId": "Identifiant {platform} {id}",
+      "posted": "publié le {day}"
+    },
+    "evidence": {
+      "channel": "Canal : {channel} · d’après votre profil",
+      "goal": "Objectif : {goal}",
+      "goalUnknown": "un objectif que vous avez fixé"
+    },
+    "withdraw": {
+      "confirm": "Le retirer ? Cela supprime la publication sur {platform}. L’enregistrement reste ici ; la publication ne pourra pas être remise en ligne.",
+      "openOn": "Ouvrir sur {platform}",
+      "yes": "Oui, le retirer",
+      "keep": "Le garder",
+      "button": "Retirer",
+      "done": "Retiré de {platform}."
+    },
+    "action": {
+      "decide": "Décider dans la file",
+      "reconnect": "Reconnecter",
+      "connections": "Connexions"
+    },
+    "fine": {
+      "on": "Rien n’est publié depuis cet écran. Un élément ne part qu’après son propre oui dans la file, à son heure, par l’exécuteur ; l’arrêt d’urgence l’interrompt, et « Retirer » le supprime à nouveau.",
+      "off": "La publication est désactivée jusqu’à la fin du test de deux semaines sans surveillance. Les publications validées attendent ici, programmées ; rien n’est envoyé à Meta avant l’activation."
+    },
+    "goals": {
+      "label": "Objectifs",
+      "title": "Ce que servent les contenus",
+      "empty": "Aucun objectif pour l’instant. Formulez-en un, ou prenez une suggestion : chaque contenu planifié indiquera l’objectif qu’il sert.",
+      "horizon": "{months, plural, one {# mois} many {# mois} other {# mois}}",
+      "target": "cible {value}",
+      "inputLabel": "Un objectif dans vos propres mots",
+      "placeholder": "daté et mesurable vaut mieux que grandiose",
+      "add": "Ajouter l’objectif"
+    },
+    "propose": {
+      "label": "Proposer",
+      "title": "Rien n’est produit tant que vous n’avez pas validé",
+      "body": "Ces deux options créent une proposition dans votre <link>file de validation</link>. Pas un seul mot n’est rédigé avant que vous y disiez oui.",
+      "watching": "Pas encore : j’observe l’entreprise jusqu’au {day}, et je ne propose rien avant la fin de l’observation. Vos objectifs ci-dessus orientent déjà ce que je proposerai ensuite.",
+      "calendar": "Proposer un calendrier de contenus",
+      "calendarDone": "Le calendrier est dans votre file de validation.",
+      "shotlist": "Proposer une liste de plans",
+      "shotlistDone": "La liste de plans est dans votre file de validation.",
+      "ready": "Validé — prêt à être rédigé",
+      "draft": "Le rédiger",
+      "drafted": "Rédigé. Chaque élément porte sa mention et ses sources."
+    },
+    "mediaPanel": {
+      "uploadFailed": "l’envoi n’a pas fonctionné",
+      "megabytes": "{n} Mo",
+      "uploading": "Envoi de {index} sur {total} : {name}",
+      "uploaded": "{count, plural, one {# clip envoyé.} many {# clips envoyés.} other {# clips envoyés.}}",
+      "footage": "Images",
+      "remove": "Supprimer",
+      "removed": "Clip supprimé.",
+      "render": {
+        "queued": "en attente",
+        "rendering": "montage",
+        "rendered": "terminé",
+        "failed": "échec",
+        "live": "La salle de montage s’en occupe. Cela prend une minute ou deux.",
+        "open": "Ouvrir la vidéo"
+      },
+      "uploadsOff": "Les envois ne sont pas configurés sur ce serveur : les images ne peuvent pas encore arriver ici.",
+      "upload": {
+        "more": "Ajouter des clips",
+        "first": "Envoyer ce que vous avez filmé",
+        "label": "{action} — {mp4} ou {mov}, jusqu’à {mb} Mo chacun, {count, plural, one {# clip au maximum} many {# clips au maximum} other {# clips au maximum}}"
+      },
+      "cut": {
+        "done": "Montage en cours. La vidéo apparaît dans la file une fois terminée.",
+        "caption": "Légende — ce que dit la publication sous la vidéo",
+        "onScreen": "Texte à l’écran (facultatif, incrusté dans la vidéo)",
+        "date": "Publication le",
+        "button": "Monter",
+        "fine": "Coupé, cadré en {ratio} et sous-titré à partir de vos propres clips ; musique sous licence uniquement. Étiqueté « Montage assisté par IA d’images réelles ». Il est ensuite proposé à la publication, avec son propre oui dans la file."
+      },
+      "fallback": {
+        "label": "Pas d’images ? La solution de secours par IA",
+        "pending": "La génération de médias pour cet élément attend votre décision.",
+        "generate": "Générer",
+        "generated": "Généré.",
+        "approved": "Validé. La génération dépense le coût indiqué.",
+        "notOffered": "Non proposé : {reason}.",
+        "offer": "SYB peut proposer de générer une image{image, select, none {} other { (environ {image})}} ou un clip de {seconds} secondes{video, select, none {} other { (environ {video})}} à partir des mots de cet élément. Il est étiqueté comme généré par IA dans le fichier et la légende, ne montre jamais une personne réelle ni une marque, et demande deux fois votre oui : pour le générer, puis pour le publier. Vos propres images le remplacent dès que vous filmez.",
+        "dirLabel": "Ce qu’il doit montrer (facultatif)",
+        "dirPlaceholder": "un bol de soupe au potiron, vu de dessus",
+        "proposed": "Proposé. C’est dans votre file de validation, avec son coût.",
+        "propose": "{media, select, image {Proposer une image} other {Proposer un clip}}",
+        "lastTry": "La dernière tentative : {error}{cost, select, none {} other { ({cost} facturés)}}."
+      },
+      "refused": "refusé"
+    }
+  },
+  "customers": {
+    "meta": {
+      "title": "Clients — SYB"
+    },
+    "kicker": "Clients",
+    "opening": "Ouverture des clients…",
+    "signedOut": {
+      "eyebrow": "clients",
+      "title": "Commencez par l’entretien.",
+      "begin": "Commencer"
+    },
+    "aside": "D’après la liste que vous avez importée · rien ne part sans votre validation de l’e-mail",
+    "failed": "cela n’a pas fonctionné",
+    "headline": {
+      "none": "Aucun client importé pour l’instant.",
+      "count": "{total, plural, one {# client.} many {# clients.} other {# clients.}}",
+      "quietNone": "Aucun ne s’est éloigné.",
+      "quietAll": "Tous se sont éloignés.",
+      "quiet": "{lapsed, plural, one {# s’est éloigné.} many {# se sont éloignés.} other {# se sont éloignés.}}"
+    },
+    "lifecycle": {
+      "active": "actif",
+      "new": "nouveau",
+      "lapsing": "en recul",
+      "lapsed": "éloigné",
+      "unknown": "sans historique"
+    },
+    "noEmail": "pas d’e-mail",
+    "consent": {
+      "explicit_consent": "consentement explicite",
+      "implied_consent": "consentement implicite — non explicite",
+      "no_consent": "aucun consentement",
+      "unsure": "incertain — non explicite"
+    },
+    "posture": {
+      "enabled": "Vous avez indiqué que vos clients ont donné leur consentement explicite : l’envoi est possible, contact par contact.",
+      "caution": "Votre réponse sur le consentement était « implicite » ou « incertain » : seuls les contacts ayant donné leur consentement explicite peuvent recevoir un e-mail.",
+      "disabled": "Vous avez indiqué que vos clients n’ont donné aucun consentement : l’envoi d’e-mails est désactivé.",
+      "unknown": "Vous n’avez pas répondu à la question sur le consentement ({question}) : traité avec prudence."
+    },
+    "import": {
+      "imported": "Importés : {count}.",
+      "skipped": "Ignorés : {list}.",
+      "sep": ", ",
+      "skip": {
+        "suppressed": "{count} sur la liste de désinscription",
+        "already_exists": "{count} déjà présents",
+        "duplicate_in_batch": "{count} en double dans le fichier",
+        "invalid": "{count} lignes illisibles"
+      },
+      "purchase": "Historique d’achat lu dans {columns, plural, one {# colonne} many {# colonnes} other {# colonnes}}.",
+      "purchaseUnreadable": "Historique d’achat lu dans {columns, plural, one {# colonne} many {# colonnes} other {# colonnes}} ; {unreadable, plural, one {# valeur n’a pas pu être lue et a été laissée vide} many {# valeurs n’ont pas pu être lues et ont été laissées vides} other {# valeurs n’ont pas pu être lues et ont été laissées vides}}.",
+      "refreshed": "Historique d’achat mis à jour pour {count, plural, one {# client déjà présent} many {# clients déjà présents} other {# clients déjà présents}} ; leur consentement reste tel qu’enregistré.",
+      "country": "{count, plural, one {# pays n’a pas été reconnu et a été laissé inconnu.} many {# pays n’ont pas été reconnus et ont été laissés inconnus.} other {# pays n’ont pas été reconnus et ont été laissés inconnus.}}",
+      "label": "Import",
+      "title": "Sous votre attestation",
+      "prose": "Collez un CSV issu de votre caisse, de votre système de réservation, de votre boutique en ligne ou d’un tableur. Colonnes reconnues : email, name, phone, country (pour que les règles d’e-mail propres à chaque client s’appliquent) et, pour le cycle de vie, last order date, order count, total spent. Vous indiquez à quoi ces contacts ont consenti et comment ; cette déclaration est inscrite sur chaque ligne.",
+      "csv": "Le CSV",
+      "status": "Ce à quoi ils ont consenti",
+      "option": {
+        "explicit_consent": "Ils ont donné leur consentement explicite aux e-mails marketing",
+        "implied_consent": "Le consentement est implicite (clients, sans opt-in explicite)",
+        "unsure": "Incertain",
+        "no_consent": "Aucun consentement"
+      },
+      "statement": "Comment il a été obtenu, dans vos mots",
+      "statementPlaceholder": "p. ex. case à cocher du formulaire d’inscription depuis {year}",
+      "currency": "Devise de la colonne des dépenses",
+      "submit": "Importer sous mon attestation"
+    },
+    "list": {
+      "label": "Clients",
+      "find": "Trouver un client",
+      "search": "nom ou e-mail",
+      "filters": "Filtrer par comportement",
+      "all": "Tous · {count}",
+      "empty": "Aucun client pour l’instant. Importez votre liste de clients ci-dessous, sous votre propre attestation de ce à quoi ils ont consenti.",
+      "noMatch": "Personne ne correspond.",
+      "customer": "Client",
+      "purchases": "Achats",
+      "spent": "Dépensé",
+      "lastPurchase": "Dernier achat",
+      "pattern": "Comportement",
+      "open": "Ouvrir",
+      "openWho": "Ouvrir {name}",
+      "showing": "{shown} affichés sur {total} · les e-mails sont partiellement masqués à l’écran",
+      "showingFiltered": "{shown} affichés sur {total} ({all} au total) · les e-mails sont partiellement masqués à l’écran",
+      "more": "Afficher {count} de plus"
+    },
+    "record": {
+      "label": "Fiche client",
+      "noName": "Aucun nom enregistré",
+      "countryUnknown": "pays inconnu",
+      "purchases": "Achats",
+      "spent": "Dépensé",
+      "last": "Dernier",
+      "onRecord": "Enregistré",
+      "consent": "Consentement : {consent} · selon votre attestation à l’import",
+      "pattern": "Comportement : {pattern}",
+      "segment": "Segment : {segment} · effectif {size}",
+      "note": "L’historique achat par achat n’est pas importé : ce sont les totaux de votre export."
+    },
+    "erase": {
+      "title": "Effacer ce client",
+      "copy": "Pour une demande de suppression. Supprime définitivement de SYB son nom, son e-mail, ses coordonnées et ses conversations d’assistance. Son adresse reste sur la liste de désinscription sous forme d’empreinte, pour qu’il ne reçoive plus jamais d’e-mail ; le journal d’audit ne garde que des identifiants anonymes.",
+      "irreversible": "irréversible",
+      "cannotUndo": "Cette action est définitive.",
+      "done": "Effacé. L’empreinte d’exclusion reste.",
+      "confirm": "Effacer définitivement",
+      "keep": "Le conserver",
+      "button": "Effacer {name}…",
+      "buttonUnnamed": "Effacer ce client…"
+    },
+    "segments": {
+      "label": "Segments",
+      "title": "De l’arithmétique, calcul à l’appui",
+      "segment": "Segment",
+      "inIt": "Effectif",
+      "emailable": "Joignables par e-mail",
+      "working": "Calcul",
+      "hide": "Masquer",
+      "why": "Pourquoi",
+      "propose": "Proposer une relance et un remerciement",
+      "proposed": "{count, plural, one {# proposition dans votre file de validation.} many {# propositions dans votre file de validation.} other {# propositions dans votre file de validation.}} Rien ne part à la validation : l’envoi arrive avec sa propre nouvelle vérification du consentement.",
+      "nothing": "Rien à proposer.",
+      "queue": "Ouvrir la file"
+    },
+    "campaigns": {
+      "label": "Campagnes validées",
+      "title": "Envoyées seulement après que vous avez validé l’e-mail lui-même"
+    },
+    "fine": "L’historique par client vient de votre propre export clients, et non de vos comptes connectés, qui mesurent l’entreprise dans son ensemble. Effacer un client, c’est l’effacement au sens du RGPD : ses coordonnées disparaissent, et la fiche ne garde que des identifiants anonymes.",
+    "campaign": {
+      "fallbackLabel": "campagne",
+      "drafted": "Rédigé avec votre ton, avec la mention IA et le pied de page. Lisez-le ci-dessous : rien n’a été envoyé.",
+      "alreadyDrafted": "Cette campagne a déjà son brouillon.",
+      "done": "C’est fait.",
+      "draft": "Rédiger l’e-mail",
+      "needs": "Avant de pouvoir partir, il lui manque encore : {gaps}.",
+      "complete": "Complet pour votre situation. Ajouté au moment de l’envoi : {items}, après une nouvelle vérification du consentement pour chaque destinataire.",
+      "irreversible": "irréversible",
+      "irreversibleNote": "Une fois parti, un e-mail envoyé ne peut pas être rappelé. Il ne va qu’aux clients qui ont explicitement accepté d’avoir de vos nouvelles, chacun vérifié à nouveau au moment de l’envoi, et chaque e-mail porte son propre lien de désinscription.",
+      "mislabelled": "Cette campagne a été validée comme une action annulable. Refusez-la dans la file et proposez-la à nouveau, pour qu’elle soit étiquetée honnêtement avant votre validation.",
+      "subject": "Objet",
+      "approveSend": "Valider et envoyer à {count} destinataires au maximum",
+      "notYet": "Pas encore",
+      "approve": "Valider cet e-mail…",
+      "alsoWaiting": "En attente aussi de",
+      "tryNow": "Essayer d’envoyer maintenant",
+      "refusedAtSend": "Refusés à l’envoi : {list}.",
+      "phase": {
+        "sent": "envoyé",
+        "sending": "en cours d’envoi",
+        "held": "retenu",
+        "awaiting_approval": "en attente de votre validation",
+        "awaiting_draft": "non rédigé"
+      },
+      "sentence": {
+        "awaiting_draft": "Validée. Rédigez ensuite l’e-mail ; rien ne part tant que vous n’avez pas validé l’e-mail lui-même.",
+        "awaiting_approval": "Rédigé pour {count, plural, one {# client} many {# clients} other {# clients}}. Lisez-le, puis validez l’e-mail lui-même pour l’envoyer.",
+        "heldGate": "Validée, non envoyée. {gate}",
+        "held": "Validée, pas encore envoyée. Elle part à la prochaine exécution.",
+        "sending": "Envoi en cours : {sent} envoyés sur {total} jusqu’ici. Le reste part à la prochaine exécution, chaque envoi vérifié à nouveau.",
+        "sent": "Envoyée à {count, plural, one {# client} many {# clients} other {# clients}}. Un e-mail envoyé ne peut pas être rappelé.",
+        "sentOn": "Envoyée à {count, plural, one {# client} many {# clients} other {# clients}} le {date}. Un e-mail envoyé ne peut pas être rappelé."
+      },
+      "count": {
+        "sent": "envoyés",
+        "refused": "refusés à l’envoi",
+        "unknown": "résultat inconnu",
+        "failed": "refusés par le service d’e-mail",
+        "pending": "restant à envoyer",
+        "unsubscribed": "désinscrits depuis"
+      },
+      "refusal": {
+        "consent_implied": "consentement seulement implicite",
+        "consent_unsure": "consentement incertain",
+        "consent_none": "aucun consentement",
+        "suppressed": "désinscrit, signalé comme spam ou effacé",
+        "consent_unproven": "consentement enregistré sans le comment ni le quand",
+        "no_regime": "dans un pays pour lequel je n’ai pas de règles d’e-mail",
+        "message_incomplete": "il manquait à l’e-mail un élément exigé par sa loi",
+        "no_email": "pas d’adresse e-mail",
+        "contact_gone": "ne figure plus parmi vos clients",
+        "duplicate_address": "même adresse qu’un autre destinataire"
+      },
+      "unknown": "{count, plural, one {# e-mail est peut-être parti : le service d’e-mail n’a confirmé ni l’un ni l’autre. Je n’enverrai plus rien à ce client pour cette campagne.} many {# e-mails sont peut-être partis : le service d’e-mail n’a confirmé ni l’un ni l’autre. Je n’enverrai plus rien à ces clients pour cette campagne.} other {# e-mails sont peut-être partis : le service d’e-mail n’a confirmé ni l’un ni l’autre. Je n’enverrai plus rien à ces clients pour cette campagne.}}",
+      "verdict": {
+        "helped": "utile",
+        "backfired": "contre-productif",
+        "did_nothing": "sans effet",
+        "too_early": "trop tôt pour le dire",
+        "unmeasured": "non mesuré"
+      },
+      "readback": {
+        "label": "Ce qui s’est passé après l’envoi",
+        "count": "nombre",
+        "rate": "taux",
+        "emails": "{count, plural, one {# e-mail} many {# e-mails} other {# e-mails}}",
+        "people": "{count, plural, one {# personne} many {# personnes} other {# personnes}}",
+        "notReported": "non communiqué",
+        "notCounted": "non compté",
+        "measuredOf": "{returned} sur {measured} mesurés",
+        "points": "{value} pts",
+        "row": {
+          "sent": "envoyés",
+          "delivered": "remis",
+          "bounced": "rejetés",
+          "unsubscribed": "désinscrits",
+          "spam": "signalés comme spam",
+          "replied": "ont répondu",
+          "boughtAgain": "ont racheté depuis",
+          "comparison": "{group, select, vip {meilleurs clients non contactés par e-mail, ayant racheté} other {clients éloignés non contactés par e-mail, ayant racheté}}",
+          "difference": "écart"
+        }
+      }
+    }
+  },
+  "studio": {
+    "meta": {
+      "title": "Studio créatif — SYB"
+    },
+    "kicker": "Croissance · Studio créatif",
+    "aside": "Bibliothèque publicitaire de Meta · lecture seule · OBSERVÉ",
+    "loading": "Lecture de votre niche et de vos briefs…",
+    "signedOut": {
+      "title": "Il n’y a pas encore d’entreprise ici.",
+      "copy": "<intake>Commencez par l’entretien</intake> ; le studio travaille à partir de ce que vous me dites."
+    },
+    "error": {
+      "generic": "Cela n’a pas fonctionné. Réessayez.",
+      "title": "Le studio ne s’est pas chargé.",
+      "copy": "Un problème est survenu de notre côté. Actualisez la page pour réessayer."
+    },
+    "headline": {
+      "notSetUp": "La recherche sur votre niche n’est pas encore configurée.",
+      "blocked": "La Bibliothèque publicitaire de Meta ne peut pas afficher les publicités de votre niche.",
+      "briefsNotRead": "{count, plural, =1 {Un brief rédigé} one {# brief rédigé} many {# briefs rédigés} other {# briefs rédigés}} ; je n’ai pas encore lu les publicités de votre niche.",
+      "notRead": "Je n’ai pas encore lu les publicités de votre niche ({noun}).",
+      "notReadBusiness": "Je n’ai pas encore lu les publicités de la niche de votre entreprise.",
+      "longest": "{format, select, video {La vidéo} other {La publicité}} de {page} tourne depuis {days, plural, one {# jour} many {# jours} other {# jours}} : le concept le plus durable que j’ai trouvé."
+    },
+    "running": {
+      "days": "{count, plural, one {# jour} many {# jours} other {# jours}}",
+      "live": "EN COURS",
+      "stopped": "ARRÊTÉE"
+    },
+    "format": {
+      "video": "VIDÉO",
+      "image": "IMAGE",
+      "multi": "CARROUSEL / VERSIONS"
+    },
+    "source": {
+      "fact": "VOTRE FAIT",
+      "finding": "DIAGNOSTIC",
+      "voice": "VOS MOTS",
+      "post": "VOTRE PUBLICATION",
+      "competitor": "CONCURRENT",
+      "ad": "PUB DE LA NICHE"
+    },
+    "notice": {
+      "readNow": "Bibliothèque publicitaire lue à l’instant.",
+      "stillFresh": "Cette lecture est encore récente : je l’ai utilisée plutôt que d’interroger Meta à nouveau.",
+      "written": "Le brief est rédigé. Chaque partie indique sur quoi elle repose.",
+      "blocked": "Cette liste de plans dépassait l’une de vos limites : elle se trouve donc dans la vue des retenues.",
+      "proposed": "Proposé. C’est dans <queue>En attente de votre décision</queue>."
+    },
+    "niche": {
+      "label": "Les publicités les plus durables de la niche",
+      "nothingYet": "Rien à lire pour l’instant",
+      "notSetUpNote": "Meta n’ouvre l’API de sa Bibliothèque publicitaire qu’à un compte développeur dont il a confirmé l’identité. Une fois le jeton de SYB configuré, cet écran lit les publicités diffusées dans votre niche, en lecture seule.",
+      "blockedNote": "{why} Ce qui est affiché est la dernière lecture.",
+      "termsLabel": "Des mots qu’utiliseraient les publicités de votre niche, séparés par des virgules (deux au plus)",
+      "termsPlaceholder": "p. ex. mug fait main, cours de poterie",
+      "reading": "Lecture…",
+      "readAgain": "Relire →",
+      "readLibrary": "Lire la Bibliothèque publicitaire →",
+      "searches": "La Bibliothèque recherche les mots dans les publicités elles-mêmes, dans leur propre langue. Je cherche aussi les concurrents que vous avez indiqués.",
+      "searchesNamed": "La Bibliothèque recherche les mots dans les publicités elles-mêmes, dans leur propre langue. Je cherche aussi les concurrents que vous avez indiqués ({names}).",
+      "freshFrom": "Une nouvelle lecture est possible à partir de : {when}.",
+      "noAdsTitle": "La Bibliothèque n’avait aucune publicité pour ces mots",
+      "notReadTitle": "Pas encore lu",
+      "noAds": "J’ai lu la Bibliothèque publicitaire de Meta le {day} pour {terms} et n’ai rien trouvé de diffusé dans ce pays : {country}. Essayez d’autres mots.",
+      "yourCompetitors": "vos concurrents",
+      "yourCountry": "votre pays",
+      "notReadCopy": "Je relève les publicités que les entreprises comme la vôtre ont maintenues le plus longtemps, d’après ce qu’en montre la Bibliothèque publicitaire publique de Meta.",
+      "lastTry": "Dernière tentative, le {day} : {reason}.",
+      "foundTitle": "{count, plural, one {# concept publicitaire} many {# concepts publicitaires} other {# concepts publicitaires}} de {businesses, plural, one {# entreprise} many {# entreprises} other {# entreprises}}, lus le {day}",
+      "ranked": "Classés par longévité · un indicateur indirect, PAS UN RÉSULTAT",
+      "searched": "Recherche : {terms}, publicités diffusées dans ce pays : {country} ; {ads, plural, one {# publicité lue} many {# publicités lues} other {# publicités lues}} en {requests, plural, one {# requête} many {# requêtes} other {# requêtes}}. OBSERVÉ dans la Bibliothèque publicitaire publique de Meta ; les accroches, les offres et les appels à l’action sont repérés par de simples motifs, et laissés vides quand aucun ne correspond.",
+      "quotedTerm": "« {term} »",
+      "competitorsOnly": "vos concurrents uniquement"
+    },
+    "table": {
+      "business": "Entreprise",
+      "format": "Format",
+      "running": "Diffusion",
+      "versions": "Versions",
+      "opens": "Accroche",
+      "offer": "Offre · appel à l’action",
+      "youListed": "Indiqué par vous",
+      "inLibrary": "Dans la Bibliothèque publicitaire →",
+      "noText": "pas de texte",
+      "noOffer": "aucune offre trouvée",
+      "noCta": "aucun appel à l’action trouvé"
+    },
+    "brief": {
+      "label": "Brief créatif",
+      "another": "En rédiger un autre",
+      "first": "Rédiger le premier brief",
+      "meta": "Rédigé par Sonnet · chaque partie cite sa source",
+      "earlier": "Briefs précédents :",
+      "campaignLabel": "La campagne, dans vos mots",
+      "campaignPlaceholder": "p. ex. Mugs d’automne à offrir",
+      "goalLabel": "Ou l’objectif qu’elle sert",
+      "noGoal": "Aucun objectif particulier",
+      "writing": "Rédaction…",
+      "write": "Rédiger un brief →",
+      "allowance": "Appels de rédaction de brief restants ce mois-ci : {left} sur {perMonth} ; un brief en demande jusqu’à {attempts}. Je n’écris qu’à partir de ce que vous voyez cité, et je refuse toute ligne qui reprend cinq mots d’affilée de la publicité d’une autre entreprise.",
+      "cardLabel": "Brief créatif · {day}",
+      "attempts": "{count, plural, one {# tentative} many {# tentatives} other {# tentatives}}",
+      "sources": "Tout ce à partir de quoi ce brief a été rédigé ({count, plural, one {# source} many {# sources} other {# sources}})",
+      "who": "À qui il s’adresse",
+      "offer": "L’offre",
+      "script": "Script · environ {seconds} s",
+      "why": "Pourquoi : {why}",
+      "proposing": "Proposition en cours…",
+      "make": "Le réaliser →",
+      "watching": "Observation en cours jusqu’au {day} ; rien n’est proposé avant.",
+      "makeNote": "Place cette liste de plans dans « En attente de votre décision ». Une fois validée, elle devient un élément « à filmer » ; vos images partent en salle de montage."
+    }
+  },
+  "site": {
+    "meta": {
+      "title": "Votre site — SYB"
+    },
+    "kicker": "Croissance · Site web",
+    "loading": "Lecture des modifications de votre site…",
+    "failed": "cela n’a pas fonctionné",
+    "homePage": "page d’accueil",
+    "page": "page",
+    "noAction": "aucune action",
+    "fine": "Chaque modification est prévisualisée à partir de la vraie page, ne s’applique qu’après votre oui dans la file, garde son annulation pour toujours, et revient d’elle-même en arrière en cas d’échec grave — jamais à cause d’une semaine calme.",
+    "signedOut": {
+      "eyebrow": "votre site",
+      "title": "Commencez par l’entretien.",
+      "copy": "Les modifications du site appartiennent à un profil : commencez, puis revenez.",
+      "begin": "Commencer"
+    },
+    "notice": {
+      "rolledBack": "Appliquée — et le contrôle de santé a échoué, je l’ai donc annulée aussitôt. Les raisons figurent sur la fiche.",
+      "proposed": "Proposée : l’avant/après est dans son onglet, et la décision dans votre file.",
+      "applied": "Appliquée, et la page a passé son contrôle de santé.",
+      "undone": "Annulée : l’état précédent de la page est rétabli, octet pour octet."
+    },
+    "headline": {
+      "pending": "{count, plural, one {# modification proposée} many {# modifications proposées} other {# modifications proposées}} pour votre site.",
+      "ready": "{count, plural, one {# modification validée est prête à être appliquée} many {# modifications validées sont prêtes à être appliquées} other {# modifications validées sont prêtes à être appliquées}}.",
+      "none": "Aucune modification du site ne vous attend.",
+      "empty": "Aucune modification du site proposée pour l’instant."
+    },
+    "head": {
+      "checked": "Dernier contrôle du site le {day} · {pages, plural, one {# page lue} many {# pages lues} other {# pages lues}} · {missing} contrôles sur {total} non visibles",
+      "noCheck": "Aucun contrôle du site enregistré pour l’instant",
+      "measured": "mesuré le {day} : {count, plural, one {# constat} many {# constats} other {# constats}}"
+    },
+    "tabs": {
+      "aria": "Modifications du site",
+      "measured": "Mesures · {count, plural, one {# constat} many {# constats} other {# constats}}",
+      "measure": "Mesurer le site",
+      "audit": "Audit · {count, plural, one {# remarque} many {# remarques} other {# remarques}}, sans action",
+      "propose": "Proposer une modification"
+    },
+    "status": {
+      "pending": "en attente de vous",
+      "approved": "validée",
+      "rejected": "refusée",
+      "expired": "expirée",
+      "executed": "appliquée",
+      "blocked": "bloquée par une limite",
+      "changes_requested": "modifications demandées"
+    },
+    "reverse": {
+      "easy": "réversible",
+      "moderate": "réversible avec effort",
+      "hard": "difficile à annuler"
+    },
+    "auditTab": {
+      "label": "Audit · contrôlé le {day}",
+      "title": "Ce que cherchent les clients, et si votre site le montre",
+      "foot": "Lecture seule. La correction passe par la file de validation — <link>voir Angles morts</link>.",
+      "what": "Ce qu’ils vérifient",
+      "onSite": "Sur votre site",
+      "foundOn": "Trouvé sur",
+      "check": "Contrôle",
+      "shown": "visible",
+      "notFound": "introuvable",
+      "unreadable": "Impossible de lire {url} — {reason}"
+    },
+    "propose": {
+      "label": "Proposer une modification",
+      "title": "Montrée avant toute application",
+      "foot": "Les pages de paiement, de panier, de règlement et de facturation sont refusées d’office : elles ne peuvent même pas être proposées, quel que soit le niveau de validation.",
+      "url": "Adresse de la page",
+      "urlPlaceholder": "votresite.fr/a-propos",
+      "find": "Le texte exact à modifier",
+      "replace": "Ce qu’il doit dire à la place",
+      "reading": "Lecture de la page…",
+      "preview": "Prévisualiser la modification"
+    },
+    "change": {
+      "fromFinding": "issu du constat : {finding}",
+      "proposedOn": "proposée le {day}",
+      "undoneByYou": "annulée par vous",
+      "autoRolledBack": "annulée automatiquement",
+      "realPage": "La vraie page, scripts désactivés",
+      "desktopWidth": "Largeur ordinateur",
+      "phoneWidth": "Largeur téléphone",
+      "now": "Actuellement",
+      "proposed": "Proposé",
+      "frameNow": "La page actuelle",
+      "frameProposed": "La page telle que proposée",
+      "nowSays": "Dit actuellement",
+      "willSay": "Dira",
+      "basis": "Base",
+      "basisValue": "trouvé une seule fois sur la page en ligne · observé",
+      "quoted": "« {text} »",
+      "evidence": "Les éléments que porte la proposition",
+      "sensitivity": "sensibilité {value}",
+      "blocked": "Bloquée : {why}",
+      "yourLimit": "Votre limite : « {limit} »",
+      "manual": "Comment faire cette modification vous-même",
+      "expected": "Attendu · en mots, pas en chiffres",
+      "expectedDefault": "La page dit la nouvelle chose.",
+      "ifWrong": "Si cela tourne mal : {what}",
+      "decide": "Décider dans la file",
+      "apply": "L’appliquer à la page",
+      "undo": "Annuler — rétablir la page"
+    },
+    "audit": {
+      "severity": {
+        "critical": "URGENT",
+        "high": "ÉLEVÉE",
+        "medium": "MOYENNE",
+        "low": "FAIBLE"
+      },
+      "basis": {
+        "field": "visiteurs réels",
+        "field_origin": "visiteurs réels, site entier",
+        "lab": "un chargement de test",
+        "page_read": "lecture de la page"
+      },
+      "strategy": {
+        "mobile": "mobile",
+        "desktop": "ordinateur"
+      },
+      "euroRange": "{low}–{high} par mois",
+      "unit": {
+        "seconds": "{value} s",
+        "ms": "{value} ms",
+        "mb": "{value} Mo",
+        "clicks": "{count, plural, one {# clic} many {# clics} other {# clics}}",
+        "status": "statut {code}"
+      },
+      "speed": {
+        "lcp": "LCP {value} s",
+        "cls": "CLS {value}",
+        "inp": "INP {value} ms",
+        "tbt": "TBT {value} ms (labo)"
+      },
+      "from": {
+        "notMeasured": "non mesuré",
+        "labOnly": "labo seulement — trop peu de visiteurs pour les données de terrain de Google",
+        "fieldSite": "terrain (site entier) + labo",
+        "field": "terrain + labo"
+      },
+      "notice": {
+        "lastFailed": "La dernière exécution, le {day}, a échoué : {reason}",
+        "didntRun": "l’audit ne s’est pas exécuté",
+        "measured": "Mesuré : les constats ci-dessous sont ceux de cette exécution.",
+        "tryAgain": "l’audit ne s’est pas exécuté — réessayez dans un instant"
+      },
+      "run": {
+        "busy": "Lecture du site… (jusqu’à deux minutes)",
+        "again": "Relancer l’audit",
+        "first": "Lancer l’audit"
+      },
+      "notRun": {
+        "label": "Mesures · pas encore lancé",
+        "title": "Vitesse, téléphones et parcours d’achat, mesurés"
+      },
+      "notBuilt": "Mesures uniquement. L’évaluation du design à partir de captures d’écran (site-audit §{section}, la couche visuelle) n’est pas construite : aucune capture n’est prise et aucun modèle n’est interrogé.",
+      "footFix": "La correction passe par une proposition et la file ; le paiement n’est jamais modifié automatiquement — les constats qui le concernent sont accompagnés d’instructions.",
+      "never": {
+        "reads": "Lit les pages publiques comme un visiteur, au moyen du même outil de récupération protégé que toutes les autres lectures de site.",
+        "noLogin": "Ne se connecte jamais, n’envoie jamais de formulaire, n’ajoute jamais rien à un panier, n’ouvre jamais le paiement.",
+        "pagespeed": "Demande à PageSpeed Insights, le service public de Google, de charger les pages ; SYB ne fait tourner aucun navigateur à lui."
+      },
+      "ran": "Mesures · exécuté le {day} · {pages, plural, one {# page lue} many {# pages lues} other {# pages lues}} · {calls, plural, one {# appel PageSpeed} many {# appels PageSpeed} other {# appels PageSpeed}}",
+      "title": {
+        "none": "Rien en dehors des seuils indiqués.",
+        "some": "{count, plural, one {# constat mesuré} many {# constats mesurés} other {# constats mesurés}}, chacun par rapport à un seuil indiqué"
+      },
+      "calls": "Appels PageSpeed cette semaine : {used} sur {cap} ; la vitesse pourra être mesurée à nouveau à partir du {day}.",
+      "table": {
+        "severity": "Gravité",
+        "what": "Ce qui a été mesuré",
+        "measured": "Mesuré",
+        "threshold": "Seuil",
+        "atStake": "En jeu ({currency})",
+        "atStakeMoney": "Argent en jeu"
+      },
+      "path": {
+        "label": "Le parcours d’achat · {what}",
+        "notCounted": "non compté",
+        "fromHome": "à {count, plural, one {# clic} many {# clics} other {# clics}} de l’accueil"
+      },
+      "pages": {
+        "label": "Les pages chargées par Google",
+        "page": "Page",
+        "phone": "Sur téléphone",
+        "computer": "Sur ordinateur",
+        "weight": "Poids",
+        "from": "Source",
+        "role": "{role} · à {count, plural, one {# clic} many {# clics} other {# clics}} de l’accueil"
+      },
+      "role": {
+        "home": "accueil",
+        "category": "catégorie",
+        "product": "produit",
+        "cart": "panier",
+        "checkout": "paiement",
+        "service": "service",
+        "booking": "réservation",
+        "contact": "page contact",
+        "other": "autre"
+      },
+      "refused": {
+        "label": "Vu et laissé de côté",
+        "login_or_account": "une page de connexion ou de compte — l’audit ne se connecte jamais",
+        "cart_action": "un lien qui modifie un panier — l’audit n’y ajoute jamais rien",
+        "checkout": "paiement — compté de l’extérieur, jamais ouvert",
+        "external_booking": "une page de réservation sur le site d’une autre société — comptée, pas lue"
+      }
+    }
+  },
+  "support": {
+    "meta": {
+      "title": "Assistance — SYB"
+    },
+    "kicker": "Clients · Assistance",
+    "loading": "Ouverture de l’assistance…",
+    "signedOut": {
+      "eyebrow": "assistance",
+      "title": "Commencez par l’entretien.",
+      "body": "L’assistant pour vos clients répond à partir des faits que vous donnez lors de l’entretien et que vous validez pour le public. Douze questions, et il y a déjà quelque chose de concret à publier.",
+      "begin": "Commencer"
+    },
+    "headline": {
+      "none": "Rien n’est encore validé : chaque question vous arrive donc directement.",
+      "some": "L’assistant ne dit que ce que vous avez validé."
+    },
+    "counts": "<b>{conversations}</b> {count, plural, one {conversation} many {conversations} other {conversations}} · <b>{handed}</b> qui vous ont été transmises · <b>{waiting}</b> en attente",
+    "testWidget": "Tester le widget",
+    "failed": "cela n’a pas fonctionné",
+    "faq": {
+      "tooFew": "{count, plural, one {Seulement # question ouverte : rien à regrouper pour l’instant. Il faut trois personnes pour faire une question fréquente.} many {Seulement # questions ouvertes : rien à regrouper pour l’instant. Il faut trois personnes pour faire une question fréquente.} other {Seulement # questions ouvertes : rien à regrouper pour l’instant. Il faut trois personnes pour faire une question fréquente.}}",
+      "proposed": "Regroupement fait. Les réponses que vous avez déjà données sont dans votre file de validation ; les autres sont listées pour que vous y répondiez.",
+      "none": "Regroupement fait : trois personnes n’ont pas encore posé la même question.",
+      "unanswered": "Regroupement fait. Personne n’a encore répondu à ces questions : répondez à l’une d’elles dans sa conversation, puis regroupez à nouveau."
+    },
+    "convos": {
+      "label": "Tickets · {tickets} · conversations · {conversations}",
+      "empty": "Rien pour l’instant. Chaque conversation du widget et chaque e-mail envoyé à votre adresse d’assistance arrive ici, et tout ce qui vous attend est signalé.",
+      "messages": "{count, plural, one {{n} message} many {{n} messages} other {{n} messages}} · {when}"
+    },
+    "waitingTitle": "{count, plural, =0 {Personne ne vous attend} one {# personne vous attend} many {# personnes vous attendent} other {# personnes vous attendent}}",
+    "sla": {
+      "yourTime": "Votre délai de réponse : {hours} h",
+      "unset": "Aucun délai de réponse fixé",
+      "clock": "Compté en heures pleines, pas en heures ouvrées.",
+      "overdue": "En retard",
+      "dueSoon": "Échéance proche",
+      "inTime": "Dans les temps",
+      "over": "{duration} de retard",
+      "left": "encore {duration}"
+    },
+    "duration": {
+      "min": "{min} min",
+      "h": "{h} h",
+      "hMin": "{h} h {min} min",
+      "d": "{d} j",
+      "dH": "{d} j {h} h"
+    },
+    "col": {
+      "channel": "Canal",
+      "who": "Qui",
+      "what": "Objet ou question",
+      "waited": "Attente",
+      "against": "Par rapport à votre délai de réponse"
+    },
+    "channel": {
+      "email": "E-mail",
+      "chat": "Chat"
+    },
+    "who": {
+      "visitor": "Visiteur",
+      "customer": "Client",
+      "noAddress": "pas d’adresse",
+      "visitorNoAddress": "Visiteur · pas d’adresse"
+    },
+    "senderNote": {
+      "notVerified": "expéditeur non vérifié",
+      "givenInChat": "indiquée dans le chat, non vérifiée"
+    },
+    "ticket": {
+      "answeredFlag": "Répondu",
+      "closedFlag": "Fermé",
+      "youReplied": "Vous avez répondu",
+      "theirTurn": "à eux de répondre",
+      "answerLabel": "Ce que vous leur avez dit — conservé, non envoyé",
+      "answered": "Je leur ai répondu",
+      "propose": "Proposer comme réponse",
+      "close": "Fermer",
+      "sendsNothing": "Le marquer comme répondu n’envoie rien ; seule une réponse validée ci-dessus part au client.",
+      "youSaid": "Vous avez dit : {answer}",
+      "handed": "vous a été transmis · {reason}"
+    },
+    "conv": {
+      "waiting": "vous attend",
+      "answered": "vous a été transmise · vous avez répondu",
+      "handedClosed": "vous a été transmise · fermée",
+      "handed": "vous a été transmise",
+      "closed": "fermée",
+      "open": "ouverte"
+    },
+    "reason": {
+      "customer_asked": "a demandé une personne",
+      "no_answer": "aucune réponse validée",
+      "cost_cap": "plafond de dépense atteint",
+      "conversation_cap": "conversation trop longue",
+      "emailed": "vous a écrit par e-mail"
+    },
+    "via": {
+      "widget": "via le widget",
+      "email": "par e-mail",
+      "ticket": "un ticket",
+      "turns": "{count, plural, one {{n} échange} many {{n} échanges} other {{n} échanges}} · {cost}"
+    },
+    "transcript": {
+      "empty": "Rien n’a été dit dans cette conversation.",
+      "reading": "Lecture de la conversation…"
+    },
+    "msg": {
+      "assistant": "Assistant · automatique",
+      "visitor": "Visiteur"
+    },
+    "emails": {
+      "aria": "E-mails",
+      "truncated": "Cet e-mail était plus long que ce que je conserve ; j’en ai gardé les {chars} premiers caractères.",
+      "you": "Vous, par e-mail"
+    },
+    "refused": {
+      "word": "réponses refusées",
+      "body": "Cette adresse est sur votre liste d’exclusion (désinscription ou demande d’effacement) : je ne lui enverrai donc rien. Le ticket est ici pour que vous sachiez qu’on vous a écrit."
+    },
+    "erase": {
+      "ticket": "Effacer ce ticket",
+      "conversation": "Effacer cette conversation",
+      "confirm": "Effacer définitivement",
+      "cannotUndo": "C’est irréversible. Le journal ne garde que le fait que cela a eu lieu."
+    },
+    "answers": {
+      "label": "Réponses validées · {count}",
+      "title": "Ce qu’il a le droit de dire",
+      "close": "Fermer",
+      "write": "Rédiger une réponse",
+      "question": "Une question que posent les clients",
+      "answer": "La réponse, dans vos mots",
+      "propose": "Proposer cette réponse",
+      "queueFirst": "Elle passe d’abord par votre file de validation.",
+      "notPublic": "validée · pas encore publique",
+      "publish": "Publier",
+      "askedTimes": "{count, plural, one {posée {n} fois · sans réponse} many {posée {n} fois · sans réponse} other {posée {n} fois · sans réponse}}",
+      "answerOne": "Répondez-y dans l’une de ses conversations, puis regroupez à nouveau.",
+      "empty": "Aucune réponse pour l’instant. Tant que vous n’en avez pas validé, l’assistant dit qu’il ne sait pas et vous transmet la question.",
+      "retiredLabel": "Retirées · plus jamais dites",
+      "fromFacts": "Proposer des réponses à partir de mes faits",
+      "cluster": "Regrouper les questions des clients"
+    },
+    "entry": {
+      "from": "d’après {sources}",
+      "fromCustomers": "d’après {count, plural, one {{n} client qui l’a posée} many {{n} clients qui l’ont posée} other {{n} clients qui l’ont posée}}",
+      "published": "publ. {date}",
+      "retire": "Retirer"
+    },
+    "widget": {
+      "label": "Le widget",
+      "title": "Un assistant qui dit qu’il en est un",
+      "paste": "Collez cette ligne dans votre site web. Les visiteurs voient un assistant qui se présente comme automatique, ne répond qu’à partir de la liste validée ci-dessus, et vous passe la main dès qu’ils demandent une personne.",
+      "rotate": "Renouveler la clé",
+      "keyPublic": "La clé est publique par conception : elle indique seulement à quelle entreprise appartient une conversation. Ce n’est pas un identifiant de connexion.",
+      "notEnabled": "Pas encore activé. L’activation crée la clé publique du widget ; rien n’est dit à personne tant que vous n’avez pas validé de réponses.",
+      "enable": "Activer l’assistant",
+      "foot": "L’assistant lit les réponses validées et rien d’autre : ni votre profil, ni vos chiffres, ni vos connexions, et il ne peut rien modifier."
+    },
+    "inbox": {
+      "label": "E-mail d’assistance",
+      "title": "Les e-mails envoyés à votre adresse d’assistance deviennent des tickets ici",
+      "enableFirst": "Activez d’abord l’assistant ci-dessus ; cela crée votre adresse.",
+      "forward": "Transférez votre boîte d’assistance vers cette adresse. Chaque e-mail devient ici un ticket, regroupé avec ses réponses. Rien n’est répondu automatiquement : vous voyez chacun d’eux, et rien ne repart sans votre clic.",
+      "change": "Changer l’adresse",
+      "onlyKnown": "Seule une personne qui la connaît peut ouvrir un ticket. Changez-la si elle fuite.",
+      "notSetUp": "Pas encore configuré : l’e-mail d’assistance nécessite le domaine entrant et le webhook connectés dans Resend. D’ici là, aucun e-mail n’arrive sur cet écran."
+    },
+    "time": {
+      "label": "Votre délai de réponse",
+      "title": "{hours, plural, one {Vous répondez sous {n} heure} many {Vous répondez sous {n} heures} other {Vous répondez sous {n} heures}}",
+      "within": "Je réponds sous",
+      "hours": "heures",
+      "save": "Enregistrer",
+      "clear": "Effacer",
+      "fine": "Heures pleines, pas heures ouvrées. Chaque ticket en attente montre où il en est par rapport à ce délai. Le chat n’annonce ce délai à un client que si vous en avez fixé un ; sinon, il ne promet rien.",
+      "setAt": "Fixé : {when}.",
+      "notify": "M’écrire à mon adresse de connexion quand un client envoie un e-mail (au plus une fois par heure, et seulement une fois l’e-mail configuré)"
+    },
+    "notice": {
+      "answeredBlank": "Marqué comme répondu. La prochaine fois, notez ce que vous avez dit : cela peut devenir une réponse validée.",
+      "answeredWords": "Marqué comme répondu, avec vos mots conservés.",
+      "proposedAnswer": "Proposé comme réponse. Validez-le dans la file, puis publiez-le ici.",
+      "closed": "Fermé.",
+      "erasedTicket": "Le ticket et ses e-mails sont effacés. Le journal ne consigne que le fait que cela a eu lieu.",
+      "erasedConversation": "La conversation et son ticket sont effacés. Le journal ne consigne que le fait que cela a eu lieu.",
+      "proposed": "Proposé. Validez-le dans la file, puis publiez-le ici.",
+      "published": "Publié. L’assistant peut désormais dire ceci.",
+      "retired": "Retiré. Ce ne sera plus dit.",
+      "rotated": "Nouvelle clé. Chaque page qui contient l’ancien extrait cesse de fonctionner tant que vous ne l’avez pas mis à jour.",
+      "enabled": "Activé. Validez maintenant quelques réponses.",
+      "rotatedInbound": "Nouvelle adresse. Le courrier envoyé à l’ancienne est désormais ignoré : mettez à jour votre transfert.",
+      "savedHours": "Enregistré : vous répondez sous {hours} h.",
+      "cleared": "Effacé. Aucun délai de réponse n’est promis.",
+      "notifyOn": "Activé : chaque nouvel e-mail d’assistance vous envoie un bref avis, au plus un par heure.",
+      "notifyOff": "Désactivé : aucun avis. Le compteur du menu montre toujours ce qui attend.",
+      "drafted": "Rédigé à partir de vos réponses validées. Lisez-le, modifiez-le, puis validez ou refusez.",
+      "noDraft": "Aucun brouillon.",
+      "savedReply": "Enregistré. Validez et envoyez quand c’est prêt.",
+      "declined": "Refusé. Rien n’a été envoyé.",
+      "sent": "Envoyé, exactement tel que vous l’avez validé.",
+      "approvedNotSent": "Validé, non envoyé."
+    },
+    "replyState": {
+      "drafted": "brouillon · non envoyé",
+      "approved": "validé · non envoyé",
+      "sending": "non confirmé · peut-être envoyé",
+      "sent": "envoyé",
+      "failed": "non envoyé",
+      "declined": "refusé"
+    },
+    "reply": {
+      "noWay": "aucun moyen de les joindre",
+      "noAddress": "Ce client n’a laissé aucune adresse e-mail : il n’y a donc aucun moyen de lui répondre. Il ne verra une réponse que s’il revient dans le chat.",
+      "label": "Répondre par e-mail",
+      "draft": "Rédiger une réponse",
+      "writeMyself": "L’écrire moi-même",
+      "draftUses": "Un brouillon n’utilise que vos réponses validées.",
+      "aiLabel": "Le brouillon de l’assistant — modifiez-le librement",
+      "yourReply": "Votre réponse",
+      "speak": "Parler : dictez votre réponse",
+      "speakAfter": "Relisez-la et corrigez ce qu’il faut avant de l’enregistrer ou de la valider.",
+      "disclosure": "Ajouté à l’envoi, et impossible à retirer : « {line} »",
+      "approveSend": "Valider et envoyer",
+      "save": "Enregistrer ma réponse",
+      "decline": "Refuser le brouillon",
+      "cancel": "Annuler",
+      "untilApprove": "Rien ne part au client tant que vous ne l’avez pas validé.",
+      "sendNow": "L’envoyer maintenant",
+      "approvedExact": "Validé ; il part exactement tel qu’écrit ci-dessus."
+    },
+    "test": {
+      "meta": {
+        "title": "Page de test du widget — SYB"
+      },
+      "loading": "Préparation de la page de test…",
+      "eyebrow": "page de test du widget",
+      "signedOut": "Commencez par l’entretien.",
+      "disabled": "Activez d’abord l’assistant.",
+      "goSupport": "Aller à l’assistance",
+      "pretend": "une fausse page client · le widget est en bas à droite",
+      "seesLabel": "ce que voit un visiteur",
+      "body": "Cette page remplace votre site web. Le bouton dans le coin est le vrai widget, chargé par le même script et relié au même point d’accès public qu’utiliserait un client. Posez-lui une question que vous avez validée, une autre que vous n’avez pas validée, puis demandez une personne : chacune doit se comporter comme promis sur l’<link>écran Assistance</link>."
+    }
+  },
+  "team": {
+    "meta": {
+      "title": "Couverture de l’équipe — SYB"
+    },
+    "kicker": "Analyses · Couverture de l’équipe",
+    "aside": "Rôles et heures · jamais des personnes",
+    "limits": {
+      "head": "Des rôles, jamais des personnes",
+      "switchOff": "Le module équipe peut être désactivé par vous dans <link>Observation</link>."
+    },
+    "refused": {
+      "readyOn": "Prêt vers le {day}, si les données continuent d’arriver.",
+      "label": "Couverture heure par heure",
+      "title": "Pas encore assez de données à lire",
+      "can": "Je peux",
+      "cannot": "Je ne peux pas encore",
+      "history": "{history, plural, one {# jour} many {# jours} other {# jours}} d’historique ; il m’en faut au moins {needed}. <link>Connexions</link>"
+    },
+    "roles": {
+      "label": "Rôles",
+      "title": "D’après qui travaille dans l’entreprise",
+      "none": "Aucun rôle pour l’instant. Ils viennent de l’entretien : qui travaille dans l’entreprise, et combien d’heures par semaine. <link>Fiche des faits</link>",
+      "notStated": "heures non indiquées",
+      "perWeek": "{hours} h / semaine",
+      "withoutHours": "{count, plural, one {# sans heures} many {# sans heures} other {# sans heures}}"
+    },
+    "grid": {
+      "aria": "Couverture par rôle et par heure, {day}",
+      "row": "Ligne",
+      "booked": "Réservé",
+      "takings": "Recettes",
+      "ofCapacity": "de la capacité indiquée",
+      "ofBusiest": "de l’heure la plus chargée",
+      "cellTitle": "{typical} un jour type, {low}–{high} sur la moitié centrale de {days, plural, one {# jour} many {# jours} other {# jours}}",
+      "onAverage": "présents, heure moyenne"
+    },
+    "ok": {
+      "basis": "{weeks, plural, one {Dernière semaine} many {# dernières semaines} other {# dernières semaines}} · du {from} au {to} · {demand}",
+      "capacity": "capacité indiquée : {perWeek} par semaine (votre réponse)",
+      "noCapacity": "aucune capacité en argent, donc rien ne manque",
+      "labelBookings": "Réservations par rapport à la capacité indiquée, par rôle",
+      "labelTakings": "Recettes heure par heure, par rôle",
+      "title": "Couverture par rôle et par heure",
+      "legend": "Légende",
+      "legendShort": "insuffisant ≥ {pct}",
+      "legendCovered": "couvert",
+      "legendQuiet": "calme ≤ {pct}",
+      "footBookings": "Les rendez-vous tenus de chaque heure (honorés, absences et annulations tardives) sur les jours de ce jour de la semaine, par rapport à la capacité indiquée répartie également sur les heures d’ouverture.",
+      "footTakings": "Les recettes de chaque heure sur les jours mesurés de ce jour de la semaine, par rapport à l’heure la plus chargée de la journée.",
+      "footRole": "Le chiffre d’un rôle correspond à ses heures hebdomadaires indiquées rapportées aux heures d’ouverture : combien de personnes de ce rôle sont présentes en moyenne par heure d’ouverture, puisque le planning n’est pas connu. CALCULÉ. Hachuré = fermé. Rôles ou heures erronés ? Modifiez votre réponse dans la <link>Fiche des faits</link>.",
+      "weekday": "Jour de la semaine",
+      "daysRead": "{days, plural, one {# jour} many {# jours} other {# jours}}",
+      "noDay": "Aucun jour d’ouverture n’a encore été lu."
+    },
+    "reading": {
+      "label": "Lecture",
+      "none": "Rien ne ressort",
+      "some": "Là où la couverture manque ou reste calme",
+      "noneBody": "Aucune heure d’ouverture ne dépasse votre capacité indiquée ni ne reste calme sur les jours lus."
+    },
+    "band": {
+      "short": "Insuffisant",
+      "quiet": "Calme"
+    },
+    "notes": {
+      "label": "Remarques pour vous",
+      "title": "À vous de juger"
+    },
+    "built": {
+      "label": "Fondé sur",
+      "title": "Sources et hypothèses",
+      "body": "{days, plural, one {# jour d’activité lu} many {# jours d’activité lus} other {# jours d’activité lus}} depuis {demand}, du {from} au {to} ; {history, plural, one {# jour} many {# jours} other {# jours}} d’historique au total.",
+      "capacity": "Capacité indiquée : {perWeek} par semaine, sur {hours} heures d’ouverture.",
+      "assumed": "Supposé"
+    },
+    "signedOut": {
+      "title": "Il n’y a pas encore d’entreprise ici.",
+      "body": "<link>Commencez par l’entretien</link>."
+    },
+    "failed": {
+      "title": "La couverture de l’équipe ne s’est pas chargée.",
+      "body": "Un problème est survenu de notre côté. Actualisez la page pour réessayer."
+    },
+    "loading": "Lecture de la couverture de la semaine…",
+    "off": {
+      "title": "Le module équipe est désactivé.",
+      "body": "Il reste désactivé tant que vous ne l’activez pas, dans Modules sur <link>Observation</link>. Une fois activé, il détecte quand la semaine manque de couverture, ou en a plus que nécessaire, par rôle et par heure, et jamais rien au sujet d’une personne."
+    }
+  },
+  "teamAccess": {
+    "meta": {
+      "title": "Accès de l’équipe — SYB"
+    },
+    "kicker": "Votre entreprise · Accès de l’équipe",
+    "loading": "Lecture de la composition de l’équipe…",
+    "signedOut": {
+      "title": "Inscrivez-vous d’abord.",
+      "body": "Une équipe commence avec vous : une fois la connexion établie, vous pouvez inviter ici les personnes avec qui vous travaillez."
+    },
+    "failed": "Un problème est survenu de notre côté. Actualisez la page pour réessayer.",
+    "failedTry": "Cela n’a pas fonctionné. Réessayez.",
+    "failedShort": "Cela n’a pas fonctionné.",
+    "title": "{count, plural, =1 {Personne d’autre que vous ne peut se connecter ici.} one {# personne peut se connecter ici.} many {# personnes peuvent se connecter ici.} other {# personnes peuvent se connecter ici.}}",
+    "youAre": "Votre rôle : {role, select, owner {propriétaire} manager {gestionnaire} other {lecteur}}",
+    "readOnly": "Vous pouvez voir qui est ici.",
+    "members": {
+      "label": "L’équipe",
+      "title": "Qui peut se connecter",
+      "person": "Personne",
+      "role": "Rôle",
+      "since": "Depuis",
+      "change": "Modifier",
+      "you": "(vous)",
+      "roleFor": "Rôle de {email}",
+      "nowRole": "Nouveau rôle de {email} : {role, select, owner {propriétaire} manager {gestionnaire} other {lecteur}}.",
+      "lastOwner": "Une entreprise garde toujours un propriétaire.",
+      "removed": "{email} ne peut plus se connecter ici, et sa session a été fermée.",
+      "confirmRemove": "{who, select, me {Oui, me retirer} other {Oui, retirer cette personne}}",
+      "keep": "Garder",
+      "takeOff": "Retirer de l’équipe"
+    },
+    "invites": {
+      "label": "Invitations",
+      "title": "En attente d’adhésion",
+      "none": "Aucune invitation en attente.",
+      "ranOut": "expirée le {day}",
+      "worksUntil": "valable jusqu’au {day}",
+      "withdrawn": "Invitation retirée.",
+      "withdraw": "Retirer",
+      "withdrawFor": "l’invitation pour {email}",
+      "sent": "J’ai envoyé l’invitation par e-mail à {email}. Elle fonctionne une seule fois, pendant {days, plural, one {# jour} many {# jours} other {# jours}}.",
+      "emailFailed": "L’e-mail d’invitation n’est pas parti. Copiez le lien ci-dessous et envoyez-le vous-même.",
+      "noEmailSend": "L’e-mail n’est pas configuré ici : je ne peux donc pas l’envoyer. Copiez le lien ci-dessous et envoyez-le vous-même.",
+      "email": "E-mail",
+      "role": "Rôle",
+      "placeholder": "nom@exemple.fr",
+      "invite": "Inviter",
+      "noEmail": "L’e-mail n’est pas configuré ici : vous recevrez donc un lien à copier."
+    },
+    "link": {
+      "note": "Le lien d’invitation. Il fonctionne une seule fois, pendant {days, plural, one {# jour} many {# jours} other {# jours}}, et uniquement pour l’adresse invitée : quiconque l’ouvre doit quand même se connecter avec cette adresse.",
+      "aria": "Lien d’invitation",
+      "copy": "Copier",
+      "copied": "Copié."
+    },
+    "roles": {
+      "label": "Rôles",
+      "title": "Ce que chaque rôle peut faire"
+    },
+    "roleMeans": {
+      "owner": "Tout, y compris les connexions, l’accès en écriture, la facturation et l’équipe.",
+      "manager": "Valide et refuse les propositions, rédige les contenus, répond à l’assistance et peut appuyer sur l’arrêt. Ne peut ni connecter de comptes ni modifier l’équipe.",
+      "viewer": "Consulte tout et peut appuyer sur l’arrêt. Ne modifie rien."
+    },
+    "another": {
+      "label": "Une autre entreprise",
+      "title": "Vous gérez plusieurs entreprises ?",
+      "body": "Ajoutez une autre entreprise avec le même e-mail. Chacune a son propre entretien, sa propre équipe et sa propre facture ; vous passez de l’une à l’autre depuis le menu.",
+      "add": "Ajouter une autre entreprise"
+    }
+  },
+  "invite": {
+    "meta": {
+      "title": "Votre invitation — SYB"
+    },
+    "kicker": "Invitation à rejoindre l’équipe",
+    "label": "Invitation",
+    "someBusiness": "une entreprise sur SYB",
+    "headline": {
+      "join": "Rejoindre {where}.",
+      "bad": "Cette invitation ne fonctionne pas."
+    },
+    "title": {
+      "as": "En tant que {role, select, owner {propriétaire} manager {gestionnaire} other {lecteur}}, pour {email}",
+      "none": "Pas d’invitation ici"
+    },
+    "unknown": "Ce lien n’est pas une invitation que je connais. Demandez-en une nouvelle à la personne qui vous l’a envoyée.",
+    "status": {
+      "accepted": "Cette invitation a déjà été utilisée.",
+      "revoked": "Cette invitation a été retirée.",
+      "expired": "Cette invitation a expiré. Les invitations sont valables {days, plural, one {# jour} many {# jours} other {# jours}}."
+    },
+    "askNew": "Demandez-en une nouvelle à la personne qui vous l’a envoyée.",
+    "wrong": "Cette invitation est destinée à <b>{invited}</b>, et votre connexion actuelle utilise <b>{signedIn}</b>. Je n’ajouterai pas la mauvaise personne : déconnectez-vous, puis rouvrez ce lien.",
+    "signedIn": "Votre connexion utilise <b>{email}</b>. Rejoindre {where} en tant que {role, select, owner {propriétaire} manager {gestionnaire} other {lecteur}} ?",
+    "signIn": "Vous vous connecterez avec <b>{email}</b>, l’adresse à laquelle l’invitation est destinée. J’y enverrai un lien de connexion par e-mail ; l’ouvrir vous ajoute à l’équipe.",
+    "foot": "Rien ne se passe tant que vous n’appuyez pas sur le bouton. Ce n’est pas votre adresse ? Fermez cette page.",
+    "footLink": "Se connecter à SYB",
+    "actions": {
+      "failed": "Cela n’a pas fonctionné. Réessayez dans une minute.",
+      "devLink": "L’e-mail n’est pas configuré ici (développement) ; voici donc le lien de connexion :",
+      "emailed": "J’ai envoyé un lien de connexion à {email}. Ouvrez-le là-bas et vous rejoindrez l’équipe.",
+      "signOut": "Se déconnecter",
+      "thenAsks": "Cette page vous redemandera ensuite, en tant que {email}.",
+      "join": "Rejoindre",
+      "emailLink": "Envoyer un lien de connexion à {email}",
+      "signInJoin": "Se connecter et rejoindre"
+    }
   }
 }

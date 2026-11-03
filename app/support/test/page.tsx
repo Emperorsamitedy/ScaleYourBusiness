@@ -3,9 +3,13 @@
 // done-when: "a stranger asks a question on a test page").
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { WidgetTestPage } from "../../../components/support/WidgetTestPage";
 
-export const metadata: Metadata = { title: "Widget test page — SYB" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("support.test.meta");
+  return { title: t("title") };
+}
 
 export default function SupportTestPage() {
   return <WidgetTestPage />;

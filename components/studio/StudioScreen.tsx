@@ -13,16 +13,22 @@ import "../../app/studio.css";
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { BriefCitation, BriefRead, BriefSource } from "../../lib/content/brief";
 import type { NicheView } from "../../lib/research/niche";
 import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { useTr } from "../sheet/useTr";
+import type { Tr } from "../../lib/i18n/tr";
 import {
-  SOURCE_WORD,
+  countText,
+  countryText,
   dayText,
+  formatWord,
   parseTerms,
   researchNotice,
   runningWords,
+  sourceWord,
   studioHeadline,
   timeText,
 } from "./studio-view";
@@ -37,18 +43,13 @@ interface StudioData {
   watching_until: string | null;
 }
 
-const FORMAT_WORD: Record<string, string> = {
-  video: "VIDEO",
-  image: "IMAGE",
-  multi: "CARDS / VERSIONS",
-};
-
-async function errorOf(res: Response): Promise<string> {
+/** The server's error sentence (English, L-4), or the screen's own when there is none. */
+async function errorOf(res: Response, tr: Tr): Promise<string> {
   try {
     const body = (await res.json()) as { error?: string };
-    return body.error ?? "That didn't work. Try again.";
+    return body.error ?? tr("error.generic");
   } catch {
-    return "That didn't work. Try again.";
+    return tr("error.generic");
   }
 }
 
@@ -63,6 +64,7 @@ function NicheAds({
   busy: boolean;
   onRead: (terms: string[], fresh: boolean) => void;
 }) {
+  const { tr, locale } = useTr("studio");
   const [terms, setTerms] = useState(niche.plan_terms.join(", "));
   const read = niche.last_read;
   const submit = (e: FormEvent) => {
@@ -74,30 +76,25 @@ function NicheAds({
   // or the business moved outside the coverage); only reading again stops.
   if (niche.blocked && niche.groups.length === 0) {
     return (
-      <SheetCard label="The niche's longest-running ads" title="Nothing to read yet">
+      <SheetCard label={tr("niche.label")} title={tr("niche.nothingYet")}>
         <p className="st-copy">{niche.blocked}</p>
-        {!niche.set_up && (
-          <p className="st-note">
-            Meta opens its Ad Library API only to a developer account whose identity it has
-            confirmed. Once SYB&rsquo;s token is set, this reads the ads your niche runs, read-only.
-          </p>
-        )}
+        {!niche.set_up && <p className="st-note">{tr("niche.notSetUpNote")}</p>}
       </SheetCard>
     );
   }
 
   const searched = niche.blocked ? (
-    <p className="st-note">{niche.blocked} What is shown is the last read.</p>
+    <p className="st-note">{tr("niche.blockedNote", { why: niche.blocked })}</p>
   ) : (
     <form className="st-terms" onSubmit={submit}>
       <label>
-        <span>Words your niche&rsquo;s ads would use, comma-separated (two at most)</span>
+        <span>{tr("niche.termsLabel")}</span>
         <input
           value={terms}
           onChange={(e) => setTerms(e.target.value)}
           maxLength={130}
           autoComplete="off"
-          placeholder="e.g. handmade mug, pottery class"
+          placeholder={tr("niche.termsPlaceholder")}
         />
       </label>
       <button
@@ -105,18 +102,15 @@ function NicheAds({
         className="act"
         disabled={busy || (read !== null && !read.refresh_allowed)}
       >
-        {busy ? "Reading…" : read ? "Read again →" : "Read the Ad Library →"}
+        {busy ? tr("niche.reading") : read ? tr("niche.readAgain") : tr("niche.readLibrary")}
       </button>
       <p className="st-note st-wide">
-        The Library searches the words in the ads themselves, in their own language. I also look for
-        the competitors you listed
         {niche.competitors.length > 0
-          ? ` (${niche.competitors.map((c) => c.name).join(", ")})`
-          : ""}
-        .{" "}
+          ? tr("niche.searchesNamed", { names: niche.competitors.map((c) => c.name).join(", ") })
+          : tr("niche.searches")}{" "}
         {read &&
           !read.refresh_allowed &&
-          `A fresh read is allowed from ${timeText(read.refresh_from)}.`}
+          tr("niche.freshFrom", { when: timeText(read.refresh_from, locale) })}
       </p>
     </form>
   );
@@ -124,18 +118,25 @@ function NicheAds({
   if (!read || niche.groups.length === 0) {
     return (
       <SheetCard
-        label="The niche's longest-running ads"
-        title={read ? "The Library had no ads for those words" : "Not read yet"}
+        label={tr("niche.label")}
+        title={read ? tr("niche.noAdsTitle") : tr("niche.notReadTitle")}
         foot={searched}
       >
         <p className="st-copy">
           {read
-            ? `I read Meta's Ad Library on ${dayText(read.read_at)} for ${read.terms.join(", ") || "your competitors"} and found nothing that reached ${read.country ?? "your country"}. Try other words.`
-            : "I read which ads businesses like yours have kept running the longest, as far as Meta's public Ad Library shows them."}
+            ? tr("niche.noAds", {
+                day: dayText(read.read_at, locale),
+                terms: read.terms.join(", ") || tr("niche.yourCompetitors"),
+                country: read.country ? countryText(read.country, locale) : tr("niche.yourCountry"),
+              })
+            : tr("niche.notReadCopy")}
         </p>
         {niche.last_failure && (
           <p className="st-error" role="status">
-            Last try, {dayText(niche.last_failure.at)}: {niche.last_failure.reason}.
+            {tr("niche.lastTry", {
+              day: dayText(niche.last_failure.at, locale),
+              reason: niche.last_failure.reason,
+            })}
           </p>
         )}
       </SheetCard>
@@ -144,9 +145,13 @@ function NicheAds({
 
   return (
     <SheetCard
-      label="The niche's longest-running ads"
-      title={`${niche.groups.length} ad concept${niche.groups.length === 1 ? "" : "s"} from ${new Set(niche.groups.map((g) => g.page_id)).size} businesses, read ${dayText(read.read_at)}`}
-      meta={<>Ranked by staying power · a proxy, NOT A RESULT</>}
+      label={tr("niche.label")}
+      title={tr("niche.foundTitle", {
+        count: niche.groups.length,
+        businesses: new Set(niche.groups.map((g) => g.page_id)).size,
+        day: dayText(read.read_at, locale),
+      })}
+      meta={<>{tr("niche.ranked")}</>}
       foot={searched}
     >
       <ul className="st-caveats">
@@ -156,54 +161,70 @@ function NicheAds({
       </ul>
       {niche.last_failure && (
         <p className="st-error" role="status">
-          Last try, {dayText(niche.last_failure.at)}: {niche.last_failure.reason}.
+          {tr("niche.lastTry", {
+            day: dayText(niche.last_failure.at, locale),
+            reason: niche.last_failure.reason,
+          })}
         </p>
       )}
-      <div className="st-table-wrap" tabIndex={0} aria-label="The niche's longest-running ads">
+      <div className="st-table-wrap" tabIndex={0} aria-label={tr("niche.label")}>
         <table className="rt rt-stack st-table">
           <thead>
             <tr>
-              <th scope="col">Business</th>
-              <th scope="col">Format</th>
+              <th scope="col">{tr("table.business")}</th>
+              <th scope="col">{tr("table.format")}</th>
               <th scope="col" className="num">
-                Running
+                {tr("table.running")}
               </th>
               <th scope="col" className="num">
-                Versions
+                {tr("table.versions")}
               </th>
-              <th scope="col">How it opens</th>
-              <th scope="col">Offer · call to action</th>
+              <th scope="col">{tr("table.opens")}</th>
+              <th scope="col">{tr("table.offer")}</th>
             </tr>
           </thead>
           <tbody>
             {niche.groups.map((g) => {
-              const run = runningWords(g);
+              const run = runningWords(g, tr);
               return (
                 <tr key={g.key}>
                   <th scope="row">
                     {g.page_name}
-                    {g.competitor_id && <span className="word boxed st-flag">You listed them</span>}
+                    {g.competitor_id && (
+                      <span className="word boxed st-flag">{tr("table.youListed")}</span>
+                    )}
                     <span className="st-src">
                       <a href={g.library_url} target="_blank" rel="noopener noreferrer">
-                        In the Ad Library →
+                        {tr("table.inLibrary")}
                       </a>
                     </span>
                   </th>
-                  <td data-label="Format">
-                    <span className="word low">{FORMAT_WORD[g.format] ?? g.format}</span>
+                  <td data-label={tr("table.format")}>
+                    <span className="word low">{formatWord(g.format, tr)}</span>
                   </td>
-                  <td data-label="Running" className="num" title={g.arithmetic}>
-                    {run.days} <span className={`word ${g.active ? "ok" : "low"}`}>{run.word}</span>
+                  <td data-label={tr("table.running")} className="num" title={g.arithmetic}>
+                    {run.days}{" "}
+                    <span className={`word ${g.active ? "ok" : "low"}`}>
+                      {run.word === "LIVE" ? tr("running.live") : tr("running.stopped")}
+                    </span>
                   </td>
-                  <td data-label="Versions" className="num">
-                    {g.versions}
+                  <td data-label={tr("table.versions")} className="num">
+                    {countText(g.versions, locale)}
                   </td>
-                  <td data-label="How it opens">
-                    {g.hook ? <q>{g.hook}</q> : <span className="st-src">no text</span>}
+                  <td data-label={tr("table.opens")}>
+                    {g.hook ? (
+                      <q>{g.hook}</q>
+                    ) : (
+                      <span className="st-src">{tr("table.noText")}</span>
+                    )}
                   </td>
-                  <td data-label="Offer · call to action">
-                    {g.offer ? <q>{g.offer}</q> : <span className="st-src">no offer found</span>}
-                    <span className="st-src">{g.cta ?? "no call to action found"}</span>
+                  <td data-label={tr("table.offer")}>
+                    {g.offer ? (
+                      <q>{g.offer}</q>
+                    ) : (
+                      <span className="st-src">{tr("table.noOffer")}</span>
+                    )}
+                    <span className="st-src">{g.cta ?? tr("table.noCta")}</span>
                   </td>
                 </tr>
               );
@@ -212,13 +233,15 @@ function NicheAds({
         </table>
       </div>
       <p className="st-note">
-        Searched for{" "}
-        {read.terms.length > 0
-          ? read.terms.map((t) => `“${t}”`).join(", ")
-          : "your competitors only"}
-        , ads that reached {read.country}; {read.ads_read} ads read in {read.requests} requests.
-        OBSERVED from Meta&rsquo;s public Ad Library; the hooks, offers and calls to action are
-        picked out by plain patterns, and blank when none matched.
+        {tr("niche.searched", {
+          terms:
+            read.terms.length > 0
+              ? read.terms.map((term) => tr("niche.quotedTerm", { term })).join(", ")
+              : tr("niche.competitorsOnly"),
+          country: countryText(read.country ?? "", locale),
+          ads: read.ads_read,
+          requests: read.requests,
+        })}
       </p>
     </SheetCard>
   );
@@ -233,13 +256,14 @@ function Cites({
   cites: readonly BriefCitation[];
   sources: readonly BriefSource[];
 }) {
+  const { tr } = useTr("studio");
   return (
     <span className="st-cites">
       {cites.map((c) => {
         const s = sources.find((x) => x.id === c.id);
         return (
           <span key={c.id} className="st-cite" title={s?.text ?? c.ref}>
-            {c.id} · {SOURCE_WORD[c.kind] ?? c.kind}
+            {c.id} · {sourceWord(c.kind, tr)}
           </span>
         );
       })}
@@ -256,6 +280,7 @@ function BriefForm({
   busy: boolean;
   onWrite: (campaign: string, goalId: string) => void;
 }) {
+  const { tr, locale } = useTr("studio");
   const [campaign, setCampaign] = useState("");
   const [goal, setGoal] = useState("");
   const left = data.brief_allowance.calls_left;
@@ -268,20 +293,20 @@ function BriefForm({
       }}
     >
       <label>
-        <span>The campaign, in your words</span>
+        <span>{tr("brief.campaignLabel")}</span>
         <input
           value={campaign}
           onChange={(e) => setCampaign(e.target.value)}
           maxLength={160}
-          placeholder="e.g. Autumn mugs for gifting"
+          placeholder={tr("brief.campaignPlaceholder")}
           autoComplete="off"
         />
       </label>
       {data.goals.length > 0 && (
         <label>
-          <span>Or the goal it serves</span>
+          <span>{tr("brief.goalLabel")}</span>
           <select value={goal} onChange={(e) => setGoal(e.target.value)}>
-            <option value="">No particular goal</option>
+            <option value="">{tr("brief.noGoal")}</option>
             {data.goals.map((g) => (
               <option key={g.goal_id} value={g.goal_id}>
                 {g.statement}
@@ -291,13 +316,14 @@ function BriefForm({
         </label>
       )}
       <button type="submit" className="act solid" disabled={busy || left === 0}>
-        {busy ? "Writing…" : "Write a brief →"}
+        {busy ? tr("brief.writing") : tr("brief.write")}
       </button>
       <p className="st-note st-wide">
-        {left} of {data.brief_allowance.calls_per_month} brief-writing calls left this month; one
-        brief takes up to {data.brief_allowance.attempts_per_brief}. I write only from what you see
-        cited, and refuse any line that repeats five words in a row from another business&rsquo;s
-        ad.
+        {tr("brief.allowance", {
+          left: countText(left, locale),
+          perMonth: countText(data.brief_allowance.calls_per_month, locale),
+          attempts: countText(data.brief_allowance.attempts_per_brief, locale),
+        })}
       </p>
     </form>
   );
@@ -314,23 +340,24 @@ function BriefCard({
   making: string | null;
   onMake: (briefId: string, hookIndex: number) => void;
 }) {
+  const { tr, locale } = useTr("studio");
   return (
     <SheetCard
-      label={`Creative brief · ${dayText(brief.created_at)}`}
+      label={tr("brief.cardLabel", { day: dayText(brief.created_at, locale) })}
       title={brief.campaign}
       meta={
         <>
-          {brief.disclosure} · {brief.attempts} attempt{brief.attempts === 1 ? "" : "s"}
+          {brief.disclosure} · {tr("brief.attempts", { count: brief.attempts })}
         </>
       }
       foot={
         <details className="st-sources">
-          <summary>Everything this brief was written from ({brief.sources.length} sources)</summary>
+          <summary>{tr("brief.sources", { count: brief.sources.length })}</summary>
           <ol>
             {brief.sources.map((s) => (
               <li key={s.id}>
                 <span className="st-cite">
-                  {s.id} · {SOURCE_WORD[s.kind] ?? s.kind}
+                  {s.id} · {sourceWord(s.kind, tr)}
                 </span>{" "}
                 {s.text}
               </li>
@@ -341,13 +368,13 @@ function BriefCard({
     >
       <dl className="st-claims">
         <div>
-          <dt>Who it&rsquo;s for</dt>
+          <dt>{tr("brief.who")}</dt>
           <dd>
             {brief.audience.text} <Cites cites={brief.audience.cites} sources={brief.sources} />
           </dd>
         </div>
         <div>
-          <dt>The offer</dt>
+          <dt>{tr("brief.offer")}</dt>
           <dd>
             {brief.offer.text} <Cites cites={brief.offer.cites} sources={brief.sources} />
           </dd>
@@ -359,14 +386,14 @@ function BriefCard({
             <p className="st-hook-line">{h.hook}</p>
             <Cites cites={h.cites} sources={brief.sources} />
             <p className="st-script">
-              <span className="st-src">Script · about {h.seconds} s</span>
+              <span className="st-src">{tr("brief.script", { seconds: h.seconds })}</span>
               {h.script}
             </p>
             <ol className="st-shots">
               {h.shots.map((s) => (
                 <li key={s.order}>
                   {s.shot}
-                  <span className="st-src">Why: {s.why}</span>
+                  <span className="st-src">{tr("brief.why", { why: s.why })}</span>
                 </li>
               ))}
             </ol>
@@ -377,12 +404,14 @@ function BriefCard({
                 disabled={watchingUntil !== null || making !== null}
                 onClick={() => onMake(brief.id, h.index)}
               >
-                {making === `${brief.id}:${h.index}` ? "Proposing…" : "Make this →"}
+                {making === `${brief.id}:${h.index}` ? tr("brief.proposing") : tr("brief.make")}
               </button>
               <span className="st-note">
                 {watchingUntil
-                  ? `Still watching until ${dayText(`${watchingUntil}T00:00:00Z`)}; nothing is proposed before then.`
-                  : "Puts this shot list in Waiting for you. Approved, it becomes a “film this” item; your footage goes to the cutting room."}
+                  ? tr("brief.watching", {
+                      day: dayText(`${watchingUntil}T00:00:00Z`, locale),
+                    })
+                  : tr("brief.makeNote")}
               </span>
             </div>
           </li>
@@ -403,15 +432,18 @@ function Frame({
   aside?: ReactNode;
   children?: ReactNode;
 }) {
+  const { tr } = useTr("studio");
   return (
     <main className="screen st-screen">
-      <PageHead kicker="Grow · Creative studio" title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
     </main>
   );
 }
 
 export function StudioScreen() {
+  const { tr, locale } = useTr("studio");
+  const rich = useTranslations("studio");
   const noun = useBusinessNoun();
   const [data, setData] = useState<StudioData | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
@@ -451,9 +483,10 @@ export function StudioScreen() {
       setNotice(
         researchNotice(
           (await res.json()) as { status: string; why: string | null; fresh: boolean },
+          tr,
         ),
       );
-    } else setNotice(await errorOf(res));
+    } else setNotice(await errorOf(res, tr));
     setReading(false);
     await load();
   };
@@ -465,8 +498,8 @@ export function StudioScreen() {
     if (res.ok) {
       const { brief_id } = (await res.json()) as { brief_id: string };
       setShown(brief_id);
-      setNotice("The brief is written. Every part shows what it rests on.");
-    } else setNotice(await errorOf(res));
+      setNotice(tr("notice.written"));
+    } else setNotice(await errorOf(res, tr));
     setWriting(false);
     await load();
   };
@@ -478,43 +511,42 @@ export function StudioScreen() {
     if (res.ok) {
       const { status } = (await res.json()) as { status: string };
       setNotice(
-        status === "blocked" ? (
-          "That shot list crossed one of your limits, so it sits in the restraint view instead."
-        ) : (
-          <>
-            Proposed. It&rsquo;s in <Link href="/proposals">Waiting for you</Link>.
-          </>
-        ),
+        status === "blocked"
+          ? tr("notice.blocked")
+          : rich.rich("notice.proposed", {
+              queue: (chunks) => <Link href="/proposals">{chunks}</Link>,
+            }),
       );
-    } else setNotice(await errorOf(res));
+    } else setNotice(await errorOf(res, tr));
     setMaking(null);
   };
 
   if (failed === "signed_out") {
     return (
-      <Frame title="There's no business here yet.">
+      <Frame title={tr("signedOut.title")}>
         <p className="st-wait">
-          <Link href="/intake">Start with the interview</Link>; the studio works from what you tell
-          me.
+          {rich.rich("signedOut.copy", {
+            intake: (chunks) => <Link href="/intake">{chunks}</Link>,
+          })}
         </p>
       </Frame>
     );
   }
   if (failed) {
     return (
-      <Frame title="The studio didn't load.">
-        <p className="st-wait">Something went wrong on our side. Refresh to try again.</p>
+      <Frame title={tr("error.title")}>
+        <p className="st-wait">{tr("error.copy")}</p>
       </Frame>
     );
   }
-  if (!data) return <Frame title="Reading your niche and your briefs…" />;
+  if (!data) return <Frame title={tr("loading")} />;
 
   const brief = data.briefs.find((b) => b.id === shown) ?? data.briefs[0] ?? null;
 
   return (
     <Frame
-      title={studioHeadline(data.niche, data.briefs.length, noun)}
-      aside={<>Meta Ad Library · read-only · OBSERVED</>}
+      title={studioHeadline(data.niche, data.briefs.length, noun, tr, locale)}
+      aside={<>{tr("aside")}</>}
     >
       {notice && (
         <p className="st-notice" role="status">
@@ -523,14 +555,14 @@ export function StudioScreen() {
       )}
       <NicheAds niche={data.niche} busy={reading} onRead={research} />
       <SheetCard
-        label="Creative brief"
-        title={brief ? "Write another" : "Write the first brief"}
-        meta="Sonnet writes it · every part cites its source"
+        label={tr("brief.label")}
+        title={brief ? tr("brief.another") : tr("brief.first")}
+        meta={tr("brief.meta")}
       >
         <BriefForm data={data} busy={writing} onWrite={write} />
         {data.briefs.length > 1 && (
           <p className="st-note">
-            Earlier briefs:{" "}
+            {tr("brief.earlier")}{" "}
             {data.briefs.map((b, i) => (
               <span key={b.id}>
                 {i > 0 && " · "}
@@ -540,7 +572,7 @@ export function StudioScreen() {
                   aria-pressed={brief?.id === b.id}
                   onClick={() => setShown(b.id)}
                 >
-                  {b.campaign} ({dayText(b.created_at)})
+                  {b.campaign} ({dayText(b.created_at, locale)})
                 </button>
               </span>
             ))}

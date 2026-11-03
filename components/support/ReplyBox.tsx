@@ -7,9 +7,17 @@
 // approved but not sent (and why), sending with an unknown outcome, sent.
 // An AI draft shows the disclosure line that will be added when it is
 // sent — added in code, so it is not in the box to edit.
+//
+// L-3c: the box's own words are the "support" catalogue in the owner's
+// language. The disclosure line itself is customer-facing — it goes out in
+// the email — so it stays as lib/support-desk/disclosure writes it (the
+// business's language, L-5/L-6); the reply and a send's outcome note are
+// content and the server's words.
 
 import { useEffect, useRef, useState } from "react";
 import { replyDisclosure } from "../../lib/support-desk/disclosure";
+import type { Tr } from "../../lib/i18n/tr";
+import { useTr } from "../sheet/useTr";
 import { MicButton } from "../voice/MicButton";
 import { replyStateWord } from "./support-view";
 
@@ -46,6 +54,7 @@ export function ReplyBox({
   busy: boolean;
   act: Act;
 }) {
+  const { tr } = useTr("support");
   const live = replies.find((r) => ["drafted", "approved", "sending"].includes(r.status)) ?? null;
   const lastFailed = [...replies].reverse().find((r) => r.status === "failed") ?? null;
   const [texts, setTexts] = useState<Record<string, string>>({});
@@ -67,22 +76,19 @@ export function ReplyBox({
     return (
       <div className="sp-box sp-reply">
         <p className="sp-box-label">
-          <span className="word alarm">no way to reach them</span>
+          <span className="word alarm">{tr("reply.noWay")}</span>
         </p>
-        <p className="sp-fine">
-          This customer left no email address, so there is no way to reply. They see an answer only
-          if they come back to the chat.
-        </p>
+        <p className="sp-fine">{tr("reply.noAddress")}</p>
       </div>
     );
   }
 
-  const state = live ? replyStateWord(live.status) : null;
+  const state = live ? replyStateWord(live.status, tr) : null;
 
   return (
     <div className="sp-box sp-reply">
       <p className="sp-box-label">
-        <span className="cs-label">Reply by email</span>
+        <span className="cs-label">{tr("reply.label")}</span>
         {state && <span className={`word ${state.tone}`}>{state.word}</span>}
       </p>
 
@@ -97,24 +103,24 @@ export function ReplyBox({
             onClick={() =>
               void act({ action: "draft_reply", ticket_id: ticketId }, (j) =>
                 j.drafted === true
-                  ? "Drafted from your approved answers. Read it, edit it, then approve or decline."
-                  : String(j.message ?? "No draft."),
+                  ? tr("notice.drafted")
+                  : String(j.message ?? tr("notice.noDraft")),
               )
             }
           >
-            Draft a reply
+            {tr("reply.draft")}
           </button>
           <button type="button" className="act" disabled={busy} onClick={() => setWriting(true)}>
-            Write it myself
+            {tr("reply.writeMyself")}
           </button>
-          <span className="sp-fine">A draft uses only your approved answers.</span>
+          <span className="sp-fine">{tr("reply.draftUses")}</span>
         </div>
       )}
 
       {(live?.status === "drafted" || (!live && writing)) && (
         <>
           <label className="cs-label" htmlFor={`sp-r-${key}`}>
-            {live?.ai_drafted ? "The assistant's draft — edit it freely" : "Your reply"}
+            {live?.ai_drafted ? tr("reply.aiLabel") : tr("reply.yourReply")}
           </label>
           <textarea
             id={`sp-r-${key}`}
@@ -124,16 +130,15 @@ export function ReplyBox({
             onChange={(e) => setText(e.target.value)}
           />
           <MicButton
-            label="Speak your reply"
+            label={tr("reply.speak")}
             getText={() => textRef.current}
             setText={setText}
-            after="Read it over and fix anything before you save or approve it."
+            after={tr("reply.speakAfter")}
             disabled={busy}
           />
           {live?.ai_drafted && (
             <p className="sp-fine sp-disclosure">
-              Added when it is sent, and not removable: &ldquo;{replyDisclosure(businessName)}
-              &rdquo;
+              {tr("reply.disclosure", { line: replyDisclosure(businessName) })}
             </p>
           )}
           <div className="sp-row sp-apart">
@@ -143,17 +148,18 @@ export function ReplyBox({
               disabled={busy || text.trim() === ""}
               onClick={async () => {
                 if (live) {
-                  await act({ action: "approve_reply", reply_id: live.id, body: text }, sentNotice);
+                  await act({ action: "approve_reply", reply_id: live.id, body: text }, (j) =>
+                    sentNotice(j, tr),
+                  );
                   return;
                 }
-                await act(
-                  { action: "save_reply", ticket_id: ticketId, body: text },
-                  () => "Saved. Approve and send it when it's right.",
+                await act({ action: "save_reply", ticket_id: ticketId, body: text }, () =>
+                  tr("notice.savedReply"),
                 );
                 setWriting(false);
               }}
             >
-              {live ? "Approve and send" : "Save my reply"}
+              {live ? tr("reply.approveSend") : tr("reply.save")}
             </button>
             {live ? (
               <button
@@ -161,13 +167,10 @@ export function ReplyBox({
                 className="act"
                 disabled={busy}
                 onClick={() =>
-                  void act(
-                    { action: "decline_reply", reply_id: live.id },
-                    "Declined. Nothing was sent.",
-                  )
+                  void act({ action: "decline_reply", reply_id: live.id }, tr("notice.declined"))
                 }
               >
-                Decline draft
+                {tr("reply.decline")}
               </button>
             ) : (
               <button
@@ -176,11 +179,11 @@ export function ReplyBox({
                 disabled={busy}
                 onClick={() => setWriting(false)}
               >
-                Cancel
+                {tr("reply.cancel")}
               </button>
             )}
           </div>
-          <p className="sp-fine">Nothing goes to the customer until you approve it.</p>
+          <p className="sp-fine">{tr("reply.untilApprove")}</p>
         </>
       )}
 
@@ -194,11 +197,13 @@ export function ReplyBox({
                 type="button"
                 className="act"
                 disabled={busy}
-                onClick={() => void act({ action: "send_reply", reply_id: live.id }, sentNotice)}
+                onClick={() =>
+                  void act({ action: "send_reply", reply_id: live.id }, (j) => sentNotice(j, tr))
+                }
               >
-                Send it now
+                {tr("reply.sendNow")}
               </button>
-              <span className="sp-fine">Approved; it goes exactly as written above.</span>
+              <span className="sp-fine">{tr("reply.approvedExact")}</span>
             </div>
           )}
         </>
@@ -207,7 +212,8 @@ export function ReplyBox({
   );
 }
 
-function sentNotice(j: Record<string, unknown>): string {
-  if (j.status === "sent") return "Sent, exactly as you approved it.";
-  return String(j.note ?? "Approved, not sent.");
+/** The notice after an approval or a send; a held send's reason is the server's note (L-4). */
+function sentNotice(j: Record<string, unknown>, tr: Tr): string {
+  if (j.status === "sent") return tr("notice.sent");
+  return String(j.note ?? tr("notice.approvedNotSent"));
 }
