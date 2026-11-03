@@ -3474,7 +3474,8 @@
       "count": "{total, plural, other {# 位客户。}}",
       "quietNone": "没有人沉寂。",
       "quietAll": "他们全都沉寂了。",
-      "quiet": "{lapsed, plural, other {其中 # 位已沉寂。}}"
+      "quiet": "{lapsed, plural, other {其中 # 位已沉寂。}}",
+      "join": "{first}{then}"
     },
     "lifecycle": {
       "active": "活跃",

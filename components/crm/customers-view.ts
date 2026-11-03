@@ -48,9 +48,11 @@ export function lifecycleWord(l: Lifecycle, tr: Tr = EN()): string {
 export function customersHeadline(total: number, lapsed: number, tr: Tr = EN()): string {
   if (total === 0) return tr("headline.none");
   const first = tr("headline.count", { total });
-  if (lapsed === 0) return `${first} ${tr("headline.quietNone")}`;
-  if (lapsed === total && total > 1) return `${first} ${tr("headline.quietAll")}`;
-  return `${first} ${tr("headline.quiet", { lapsed })}`;
+  // The two sentences meet the way the language joins them: Chinese puts no space after "。".
+  const join = (then: string) => tr("headline.join", { first, then });
+  if (lapsed === 0) return join(tr("headline.quietNone"));
+  if (lapsed === total && total > 1) return join(tr("headline.quietAll"));
+  return join(tr("headline.quiet", { lapsed }));
 }
 
 /**
