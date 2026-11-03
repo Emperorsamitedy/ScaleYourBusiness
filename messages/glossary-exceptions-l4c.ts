@@ -34,4 +34,46 @@ export const L4C_GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: 
   },
 
   // customersWords, contentWords, supportWords, connectionsWords
+  "customersWords.gate.law_review_stale": {
+    terms: ["review"],
+    reason: "a person's review of the email-law rules (a check), not a customer review",
+  },
+  "customersWords.gate.first_campaign_unreviewed": {
+    terms: ["review"],
+    reason: "SYB's review of a first campaign before it sends (a check), not a customer review",
+  },
+  "customersWords.measured.delivery": {
+    terms: ["report"],
+    reason: "spam reports: a recipient's complaint, not a report SYB writes",
+  },
+  "customersWords.measured.notDelivery": {
+    terms: ["report"],
+    reason: "spam reports: a recipient's complaint, not a report SYB writes",
+  },
+  "customersWords.measured.opens": {
+    terms: ["report"],
+    reason: "“Apple Mail reports opens”: the verb, not a report SYB writes",
+  },
+  "supportWords.error.nothingNew": {
+    terms: ["support"],
+    reason: "“every answer the profile supports”: the verb (backs up), not customer support",
+  },
+  "connectionsWords.label.google_business_reviews": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
+  "connectionsWords.said.google.neverWrites": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
+  "connectionsWords.said.metaCred.adsAccount": {
+    terms: ["manager"],
+    reason:
+      "Ads Manager: Meta's product name, as Meta names it in each language, not the manager role",
+  },
+  "connectionsWords.said.source.metaAccountId": {
+    terms: ["manager"],
+    reason:
+      "Ads Manager: Meta's product name, as Meta names it in each language, not the manager role",
+  },
 };

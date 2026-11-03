@@ -9,7 +9,6 @@
 
 import { createTranslator } from "next-intl";
 import type { AppLocale } from "./locales";
-import { requestLocale } from "./server";
 import type { Tr } from "./tr";
 import { englishTr } from "./tr";
 
@@ -38,9 +37,14 @@ export async function localeTr(locale: AppLocale, namespace: string): Promise<Tr
   return (key, values) => t(key, values);
 }
 
-/** The request's locale, English when there is no request to read. Never throws. */
+/**
+ * The request's locale, English when there is no request to read. Never
+ * throws. The session lookup (./server) is loaded only here, so a pure
+ * caller of localeTr never pulls in the database.
+ */
 export async function requestLocaleOrEnglish(): Promise<AppLocale> {
   try {
+    const { requestLocale } = await import("./server");
     return await requestLocale();
   } catch {
     return "en";

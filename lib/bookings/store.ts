@@ -54,6 +54,8 @@ import type { DateOrder } from "./parse";
 import type { CellGap, KeyOf, RowSkipReason } from "./rows";
 import { BookingImportError, readExport } from "./rows";
 import { BOOKINGS_IMPORT_PROVIDER } from "./source";
+import type { Say } from "./words";
+import { englishSay } from "./words";
 import type { BookingInput, MeasuredAppointment } from "./types";
 
 type ConnectionRow = typeof connections.$inferSelect;
@@ -118,7 +120,7 @@ export async function ensureImportConnection(accountId: string): Promise<Connect
     // Two imports racing: the partial unique index let one in. Read it.
   }
   const raced = await find();
-  if (!raced) throw new BookingImportError("the bookings import could not be set up", 500);
+  if (!raced) throw new BookingImportError({ key: "notSetUp" }, 500);
   return raced;
 }
 
@@ -376,12 +378,11 @@ export async function importBookings(
     keyOf,
   );
   if (read.appointments.length === 0) {
-    const reasons = Object.entries(read.skipped)
-      .map(([k, n]) => `${n} ${k.replace(/_/g, " ")}`)
-      .join(", ");
-    throw new BookingImportError(
-      `none of the ${read.rows_read} rows could be read${reasons ? ` (${reasons})` : ""}`,
-    );
+    throw new BookingImportError({
+      key: "noneRead",
+      values: { rows: read.rows_read },
+      skipped: read.skipped,
+    });
   }
 
   const conn = await ensureImportConnection(accountId);
@@ -405,7 +406,7 @@ export async function importBookings(
         columns: read.columns as Record<string, string>,
       })
       .returning({ id: bookingImports.id });
-    if (!batch) throw new BookingImportError("the import could not be recorded", 500);
+    if (!batch) throw new BookingImportError({ key: "notRecorded" }, 500);
     const stored = await storeAppointments(tx, conn, read.appointments, {
       batchId: batch.id,
       scope: request.platform,
@@ -526,8 +527,11 @@ async function provenance(conn: ConnectionRow): Promise<string> {
   return `bookings export from ${label}, imported ${new Date(batch.at).toISOString().slice(0, 10)}`;
 }
 
-/** The measures for the screen: null when nothing is measured yet. */
-export async function measuresFor(connectionId: string): Promise<BookingMeasures | null> {
+/** The measures for the screen, in the reader's language (L-4c): null when nothing is measured yet. */
+export async function measuresFor(
+  connectionId: string,
+  say: Say = englishSay(),
+): Promise<BookingMeasures | null> {
   const [conn] = await db.select().from(connections).where(eq(connections.id, connectionId));
   if (!conn) return null;
   const asOf = await latestMeasuredDay(conn.id);
@@ -536,11 +540,17 @@ export async function measuresFor(connectionId: string): Promise<BookingMeasures
     .select({ id: businessProfiles.id })
     .from(businessProfiles)
     .where(eq(businessProfiles.account_id, conn.account_id));
-  return bookingMeasures(await measuredAppointments(db, conn.id), asOf, {
-    lateSeparated: lateSeparated(conn.provider),
-    capacityPerWeek: profile ? await statedCapacity(profile.id) : null,
-    sourceName: conn.provider === "square" ? "Square" : "your bookings export",
-  });
+  return bookingMeasures(
+    await measuredAppointments(db, conn.id),
+    asOf,
+    {
+      lateSeparated: lateSeparated(conn.provider),
+      capacityPerWeek: profile ? await statedCapacity(profile.id) : null,
+      sourceName: conn.provider === "square" ? "Square" : "your bookings export",
+      sourceKind: conn.provider === "square" ? "square" : "import",
+    },
+    say,
+  );
 }
 
 /**
@@ -698,7 +708,11 @@ export interface BookingsView {
   measures: { source: "import" | "square"; measures: BookingMeasures }[];
 }
 
-export async function bookingsView(accountId: string): Promise<BookingsView> {
+/** What /connections shows of bookings; the measures' sentences in the reader's language (L-4c). */
+export async function bookingsView(
+  accountId: string,
+  say: Say = englishSay(),
+): Promise<BookingsView> {
   const conns = await db
     .select()
     .from(connections)
@@ -737,7 +751,7 @@ export async function bookingsView(accountId: string): Promise<BookingsView> {
       .where(eq(bookingAppointments.connection_id, c.id));
     if (rows.length === 0) continue;
     view.stored.push({ source, appointments: rows.length });
-    const m = await measuresFor(c.id);
+    const m = await measuresFor(c.id, say);
     if (m) view.measures.push({ source, measures: m });
   }
   return view;

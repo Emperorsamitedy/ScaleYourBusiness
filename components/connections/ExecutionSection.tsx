@@ -30,7 +30,7 @@
 
 import { useEffect, useState } from "react";
 import { isConnectionsReason } from "../../lib/execution/meta-login-reasons";
-import { bold, useCn } from "./useCn";
+import { bold, useCn, useSaid } from "./useCn";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { CnTr } from "./words";
 import { percent, storedDay } from "./words";
@@ -158,8 +158,9 @@ async function send(
   return { ok: res.ok, payload: (await res.json().catch(() => null)) as Payload };
 }
 
-const errorText = (payload: Payload, fallback: string): string =>
-  typeof payload?.error === "string" ? payload.error : fallback;
+/** The server's refusal (said in the reader's language when it is SYB's own — L-4c), or the fallback. */
+const errorText = (payload: Payload, fallback: string, said: (text: string) => string): string =>
+  typeof payload?.error === "string" ? said(payload.error) : fallback;
 
 /**
  * A write connection's or provider's name in the reader's words. English
@@ -208,6 +209,7 @@ function ConnectedWrite({
   reconnecting: boolean;
 }) {
   const { t, locale } = useCn("connections.write");
+  const said = useSaid();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const label = writeLabel(t, c.provider, c.label, locale);
@@ -218,7 +220,7 @@ function ConnectedWrite({
     try {
       const { ok, payload } = await send("DELETE", { id: c.id });
       if (!ok) {
-        setError(errorText(payload, t("disconnectFailed")));
+        setError(errorText(payload, t("disconnectFailed"), said));
         return;
       }
       await onDone(t("disconnected", { label }));
@@ -258,7 +260,7 @@ function ConnectedWrite({
       </dl>
       {c.status === "paused" && (
         <p className="cn-error" role="alert">
-          {c.last_error ?? t("pausedDefault")}
+          {c.last_error != null ? said(c.last_error) : t("pausedDefault")}
         </p>
       )}
       <div className="cn-acts">
@@ -369,6 +371,7 @@ function MetaPicker({
   onCancel: (message: string) => void;
 }) {
   const { t, locale } = useCn("connections.write");
+  const said = useSaid();
   const [list, setList] = useState<Candidates | null>(null);
   const [picked, setPicked] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -384,7 +387,7 @@ function MetaPicker({
         const payload = (await res.json().catch(() => null)) as Payload;
         if (!live) return;
         if (!res.ok) {
-          setError(errorText(payload, t("pick.couldntList")));
+          setError(errorText(payload, t("pick.couldntList"), said));
           return;
         }
         const got = payload as unknown as Candidates;
@@ -397,7 +400,7 @@ function MetaPicker({
     return () => {
       live = false;
     };
-  }, [provider.id, t]);
+  }, [provider.id, t, said]);
 
   const connect = async () => {
     setBusy(true);
@@ -410,7 +413,7 @@ function MetaPicker({
       });
       const payload = (await res.json().catch(() => null)) as Payload;
       if (!res.ok) {
-        setError(errorText(payload, t("connectFailed")));
+        setError(errorText(payload, t("connectFailed"), said));
         return;
       }
       await onDone(
@@ -515,6 +518,7 @@ function ConsentForm({
   onDone: (message: string) => Promise<void>;
 }) {
   const { t, locale } = useCn("connections.write");
+  const said = useSaid();
   const [values, setValues] = useState<Record<string, string>>({});
   const [typed, setTyped] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -549,7 +553,7 @@ function ConsentForm({
         confirmation: typed,
       });
       if (!ok) {
-        setError(errorText(payload, t("connectFailed")));
+        setError(errorText(payload, t("connectFailed"), said));
         return;
       }
       setValues({});

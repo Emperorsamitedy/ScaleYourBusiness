@@ -5990,5 +5990,520 @@
         "max": "ANGENOMMEN: Gezählt {max, plural, one {wird höchstens # Sekunde} other {werden höchstens # Sekunden}}."
       }
     }
+  },
+  "customersWords": {
+    "join": "{first} {then}",
+    "semi": "{first}; {then}",
+    "sentence": "{text}.",
+    "segment": {
+      "label": {
+        "lapsed": "Still gewordene Kunden",
+        "lapsing": "Nachlassende Kunden",
+        "new": "Neue Kunden",
+        "vip": "Beste Kunden",
+        "abandoned_cart": "Personen mit zurückgelassenem Warenkorb"
+      },
+      "all": "alle Segmente",
+      "evidence": {
+        "lapsed": "still geworden = letzter Kauf (oder letzte Aktivität) mehr als {days} Tage vor {date}",
+        "lapsing": "nachlassend = letzter Kauf vor {from} bis {to} Tagen",
+        "new": "neu = erstmals gesehen innerhalb von {days} Tagen, höchstens eine Bestellung",
+        "vip": "VIP = {orders}+ Bestellungen oder {floor}",
+        "vipFew": "weniger als {min} Kontakte haben einen Ausgabenwert, daher zählt nur die Bestellanzahl",
+        "vipFloor": "die obersten {share} der Ausgaben in {currency} beginnen bei {amount}",
+        "match": "Passende Kontakte: {matched} von {all}; mit ausdrücklicher E-Mail-Einwilligung und ohne Sperre (Regel {rule}): {emailable}, ohne Einwilligung: {noConsent}, ohne Adresse: {noEmail}, gesperrt: {suppressed}"
+      }
+    },
+    "skip": {
+      "line": "{segment}: {reason}",
+      "watching": "Ich beobachte bis {date} und schlage bis dahin nichts vor.",
+      "posture": "Ihre eigene Antwort zur Einwilligung Ihrer Kunden ({question}) lautete „keine Einwilligung“ – ausgehende E-Mails bleiben aus, bis Ihre Daten etwas anderes zeigen",
+      "alreadyToday": "heute schon vorgeschlagen",
+      "alreadyMonth": "diesen Monat schon vorgeschlagen",
+      "cartRecent": "für alle, die diese Woche einen Warenkorb zurückgelassen und E-Mails zugestimmt haben, wurde in den letzten {days, number} Tagen schon eine Erinnerung vorgeschlagen",
+      "noCart": "kein Kontakt, der E-Mails zugestimmt hat, hat in der letzten Woche einen Warenkorb zurückgelassen",
+      "nobody": "niemand ist in diesem Segment",
+      "noConsent": "Im Segment: {count, number}, niemand mit ausdrücklicher E-Mail-Einwilligung – niemand zum Anschreiben",
+      "declined": "Sie haben E-Mails an Kunden {count, number}-mal abgelehnt – ich schlage sie nicht mehr vor"
+    },
+    "campaign": {
+      "fallback": "Kampagne",
+      "summary": {
+        "winback": "{count, plural, one {{n} still gewordenen Kunden zurückgewinnen, der E-Mails zugestimmt hat} other {{n} still gewordene Kunden zurückgewinnen, die E-Mails zugestimmt haben}}",
+        "vip": "{count, plural, one {Ihrem {n} besten Kunden danken} other {Ihren {n} besten Kunden danken}}",
+        "cart": "{count, plural, one {{n} Person erinnern, die diese Woche einen Warenkorb zurückgelassen und E-Mails zugestimmt hat} other {{n} Personen erinnern, die diese Woche einen Warenkorb zurückgelassen und E-Mails zugestimmt haben}}"
+      }
+    },
+    "compliance": {
+      "atSend": {
+        "address": "die Absenderadresse",
+        "unsubscribe": "der eigene Abmeldelink jedes Empfängers"
+      },
+      "ask": {
+        "name": "Namen Ihres Unternehmens ergänzen",
+        "postal": "Postanschrift ergänzen"
+      },
+      "gap": {
+        "name": "der Name des Unternehmens",
+        "postal_address": "die Postanschrift des Unternehmens",
+        "because": "{words} ({why})",
+        "disclosure": "der KI-Hinweis (SYB, überall)"
+      },
+      "noCountry": "das Land des Unternehmens ist unbekannt, also auch seine E-Mail-Regeln",
+      "noRules": "SYB kennt die Regeln für E-Mail-Marketing in {country} noch nicht – dorthin wird nichts gesendet",
+      "regime": {
+        "eu_gdpr": "EU/EWR",
+        "uk_pecr": "Vereinigtes Königreich",
+        "us_can_spam": "Vereinigte Staaten",
+        "ca_casl": "Kanada",
+        "au_spam_act": "Australien"
+      }
+    },
+    "gate": {
+      "stopped": "Alles ist angehalten (der Notstopp ist an). Nichts wird gesendet, bis Sie fortsetzen.",
+      "no_mode_decision": "Es gibt noch keine Entscheidung, wie ich mit Ihrem Unternehmen arbeite, daher wird nichts gesendet.",
+      "watching": "Ich beobachte Ihr Unternehmen, statt es zu verändern, daher wird nichts gesendet, bis die Beobachtung endet.",
+      "labelled_undoable": "Diese Kampagne wurde als rückgängig machbar freigegeben, aber eine gesendete E-Mail lässt sich nicht zurückholen. Lehnen Sie sie in der Warteschlange ab und schlagen Sie sie neu vor.",
+      "not_connected": "Kampagnen-E-Mail ist nicht verbunden. Erteilen Sie den Zugriff zuerst unter Verbindungen.",
+      "outbound_off": "Ihre eigene Antwort zur Einwilligung Ihrer Kunden lautete „keine Einwilligung“, daher sind ausgehende E-Mails aus, bis Ihre Daten etwas anderes zeigen.",
+      "email_not_set_up": "E-Mail ist noch nicht eingerichtet: Der Versandschlüssel von SYB oder seine öffentliche Webadresse fehlt, also gibt es kein Ziel für einen Abmeldelink.",
+      "no_draft": "Für diese Kampagne ist noch keine E-Mail entworfen.",
+      "draft_not_approved": "Sie haben die E-Mail selbst noch nicht freigegeben.",
+      "draft_changed": "Die E-Mail wurde nach Ihrer Freigabe geändert. Erteilen Sie die Freigabe für den jetzigen Stand erneut, bevor sie gesendet wird.",
+      "draft_incomplete": "Der E-Mail fehlt der Platzhalter für die Abmeldung oder der KI-Hinweis, daher kann sie nicht wie freigegeben gesendet werden.",
+      "law_review_missing": "Niemand hat die E-Mail-Rechtsregeln bisher am geltenden Recht geprüft, daher wird keine Kampagne gesendet.",
+      "law_review_stale": "Die E-Mail-Rechtsregeln haben sich nach ihrer letzten Prüfung ({date}) geändert, daher deckt diese Prüfung sie nicht mehr ab, und keine Kampagne wird gesendet, bis sie erneut geprüft sind.",
+      "first_campaign_unreviewed": "Dies ist Ihre erste Kampagne, deshalb liest eine Person bei SYB sie, bevor sie hinausgeht. Kampagnen teilen sich die Absenderadresse von SYB, und so bleibt sie für alle vertrauenswürdig. Sie wird gesendet, sobald diese Prüfung erfasst ist.",
+      "real_sends_off": "{label} ist abgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist. Nichts wurde gesendet; dies bleibt freigegeben. Es geht beim ersten Lauf nach dem Einschalten hinaus.",
+      "real_sends_label": "Kampagnen-E-Mail"
+    },
+    "send": {
+      "sent": "Gesendet. Jeder Empfänger wurde im Moment des Versands erneut geprüft.",
+      "unfinished": "Der Versand wurde nicht abgeschlossen.",
+      "reclaimed": "Der Versand brach ab, ohne fertig zu werden. Wer noch nicht angeschrieben wurde, erhält die E-Mail beim nächsten Lauf; wen sie vielleicht erreicht hat, bleibt unbestätigt und wird nie wieder angeschrieben.",
+      "stillApproved": "Nichts wurde gesendet; dies bleibt freigegeben."
+    },
+    "readback": {
+      "recipients": "{count, plural, one {{n} Empfänger} other {{n} Empfänger}}",
+      "comparisonCustomers": "{count, plural, one {{n} Vergleichskunde} other {{n} Vergleichskunden}}",
+      "harm": "Abgemeldet oder als Spam markiert: {recipients} ({unsubscribed} abgemeldet, {complained} beschwert) von {sent} gesendeten, {rate} – geschadet ab {harmRate} bei mindestens {harmMin} Personen oder bei Beschwerden ab {complaintRate}",
+      "nothingSent": "nichts wurde gesendet – nichts zu messen",
+      "bought": "seitdem erneut gekauft: {returned} von {measured} gemessenen Empfängern ({rate})",
+      "noExport": "kein Kundenexport, der sie abdeckt, ist mindestens {days} Tage nach der E-Mail eingegangen – importieren Sie einen, dann wird ein Urteil möglich",
+      "noExportOf": "kein Kundenexport, der sie abdeckt, ist mindestens {days} Tage nach der E-Mail vom {date} eingegangen – importieren Sie einen, dann wird ein Urteil möglich",
+      "fewMeasured": "Durch einen Kundenexport mindestens {days} Tage nach der E-Mail gemessen: {recipients} – das Urteil braucht {min}",
+      "canEver": "Überhaupt messbar: nur {recipients} ({erased} gelöscht) – das Urteil braucht {min}",
+      "compared": "{bought}, gegenüber {returned} von {measured} {group}, die ich nicht anschreiben konnte ({rate}) – {lift} Punkte (hat geholfen ab {helped}, hat geschadet ab {backfired})",
+      "group": {
+        "winback": "still gewordenen Kunden",
+        "vip": "besten Kunden"
+      },
+      "notRandom": "nicht zufällig: Die Vergleichsgruppe hat E-Mails nie zugestimmt, sie unterscheidet sich also in mehr als der E-Mail",
+      "uncontrolledBase": "Gemessen: {customers} – der Vergleich braucht {min}",
+      "nobodyBought": "niemand hat erneut gekauft, also könnte kein Vergleich daraus einen Gewinn machen ({uncontrolled})",
+      "nextExport": "{uncontrolled}; der nächste Export kann den Rest messen",
+      "uncontrolled": "ohne Kontrollgruppe: {uncontrolled}, daher kann ich nicht sagen, dass die E-Mail es bewirkt hat – ein Anstieg allein heißt nie „hat geholfen“"
+    },
+    "measured": {
+      "delivery": "Zustellung, Rückläufer und Spam-Meldungen vom E-Mail-Dienst",
+      "unsubscribes": "Abmeldungen über die Links in jeder E-Mail",
+      "purchasesOf": "Käufe aus Ihrem Kundenexport vom {date}",
+      "purchasesNext": "Käufe aus Ihrem nächsten Kundenexport, sobald er eingeht",
+      "notDelivery": "Zustellung und Spam-Meldungen (der Webhook des E-Mail-Dienstes ist noch nicht eingerichtet)",
+      "opens": "Öffnungen (dafür bräuchte es ein Tracking-Pixel, was eine eigene Einwilligungsfrage ist, und Apple Mail meldet Öffnungen, die niemand gemacht hat)",
+      "replies": "Antworten, die direkt an Sie gehen",
+      "repliesAt": "Antworten, die direkt an Sie unter {address} gehen",
+      "sentence": "Gezählt habe ich: {counted}; nicht gezählt: {notCounted}.",
+      "sentenceControlled": "Gezählt habe ich: {counted}; nicht gezählt: {notCounted}, und die Kunden, mit denen ich vergleiche, haben E-Mails nie zugestimmt, der Vergleich ist also kein kontrollierter Test."
+    },
+    "error": {
+      "signIn": "Importieren, Löschen oder Vorschlagen erfordert, dass Sie angemeldet sind",
+      "server": "auf unserer Seite ist etwas schiefgelaufen",
+      "csvStatement": "csv und statement sind erforderlich",
+      "status": "status muss einer dieser Werte sein: {values}",
+      "required": "{field} ist erforderlich",
+      "requiredMany": "{fields} sind erforderlich",
+      "action": "action muss eines davon sein: {actions}",
+      "noFields": "ein Kontakt braucht mindestens eine E-Mail, einen Namen oder eine Telefonnummer",
+      "provenance": "eine Einwilligung braucht ihre Herkunft – wie wurde sie eingeholt?",
+      "suppressed": "diese Adresse ist dauerhaft gesperrt ({reason}) – sie kann nicht erneut hinzugefügt werden",
+      "duplicate": "ein Kontakt mit dieser E-Mail existiert bereits",
+      "noContact": "kein solcher Kontakt",
+      "noConversation": "kein solches Gespräch",
+      "noTicket": "kein solches Ticket",
+      "attestation": "ein Import braucht Ihre Bestätigung – wofür haben diese Kontakte ihre Einwilligung gegeben, und wie?",
+      "tooLarge": "diese Datei ist für einen Import zu groß – teilen Sie sie auf",
+      "noRows": "die CSV braucht eine Kopfzeile und mindestens einen Kontakt",
+      "maxRows": "ein Import nimmt bis zu {max, number} Zeilen – teilen Sie die Datei auf",
+      "noColumns": "keine verwendbaren Spalten gefunden – die Kopfzeile braucht mindestens eine davon: {columns}",
+      "currency": "die Datei hat eine spent-Spalte – geben Sie an, in welcher Währung (drei Buchstaben, z. B. {example})",
+      "noProposal": "kein solcher Vorschlag",
+      "notEmail": "dieser Vorschlag ist keine Kunden-E-Mail",
+      "draftNotApproved": "nur eine freigegebene Kampagne wird entworfen – diese ist {status, select, pending {ausstehend} approved {freigegeben} rejected {abgelehnt} expired {abgelaufen} executed {ausgeführt} blocked {blockiert} changes_requested {zur Änderung zurückgegeben} other {{status}}}",
+      "notStored": "der Entwurf konnte nicht gespeichert werden",
+      "noProfile": "kein solches Profil",
+      "noCampaign": "keine solche Kampagne",
+      "sendNotApproved": "nur eine freigegebene Kampagne wird gesendet – diese ist {status, select, pending {ausstehend} approved {freigegeben} rejected {abgelehnt} expired {abgelaufen} executed {ausgeführt} blocked {blockiert} changes_requested {zur Änderung zurückgegeben} other {{status}}}",
+      "subject": "die Betreffzeile muss eine Zeile mit höchstens {max, number} Zeichen sein",
+      "changed": "die E-Mail hat sich geändert, seit Sie sie geöffnet haben – lesen Sie sie im jetzigen Stand erneut und erteilen Sie dann die Freigabe"
+    }
+  },
+  "supportWords": {
+    "error": {
+      "crossSite": "diese Anfrage kam nicht von unserer Seite",
+      "signIn": "Um zu ändern, was der Assistent sagt, oder seinen Schlüssel, müssen Sie angemeldet sein",
+      "server": "auf unserer Seite ist etwas schiefgelaufen",
+      "hours": "hours muss eine Zahl oder null sein",
+      "required": "{field} ist erforderlich",
+      "requiredBoth": "{first} und {second} sind erforderlich",
+      "action": "action muss eines davon sein: {actions}",
+      "nothingNew": "nichts Neues vorzuschlagen – jede Antwort, die das Profil hergibt, ist schon öffentlich oder schon in Ihrer Warteschlange",
+      "bothRequired": "eine Frage und eine Antwort sind beide erforderlich",
+      "tooLong": "halten Sie die Frage unter {question, number} Zeichen und die Antwort unter {answer, number}",
+      "noProposal": "kein solcher Vorschlag",
+      "notKnowledge": "dieser Vorschlag ist kein Wissensvorschlag",
+      "notApproved": "nur ein freigegebener Vorschlag wird veröffentlicht – dieser ist {status, select, pending {ausstehend} approved {freigegeben} rejected {abgelehnt} expired {abgelaufen} executed {ausgeführt} blocked {blockiert} changes_requested {zur Änderung zurückgegeben} other {{status}}}",
+      "noEntries": "der Vorschlag enthielt keine Einträge",
+      "noEntry": "kein solcher öffentlicher Eintrag",
+      "noProfile": "kein solches Profil",
+      "replyHours": "eine Antwortzeit ist eine ganze Zahl an Stunden, von {min, number} bis {max, number}",
+      "noConversation": "kein solches Gespräch",
+      "noTicket": "kein solches Ticket",
+      "answerLong": "halten Sie die Antwort unter {max, number} Zeichen",
+      "noOpenTicket": "kein solches offenes Ticket",
+      "notRecorded": "die Übergabe konnte nicht erfasst werden",
+      "faqDeclined": "das Gruppierungsmodell hat diese Fragen abgelehnt; nichts wurde vorgeschlagen",
+      "noReply": "keine solche Antwort",
+      "liveReply": "auf diesem Ticket gibt es schon eine Antwort – stellen Sie sie zuerst fertig oder lehnen Sie sie ab",
+      "noAddressDraft": "auf diesem Ticket gibt es keine Adresse zum Antworten, also gibt es nichts zu entwerfen",
+      "notEnabled": "der Support ist für dieses Unternehmen nicht aktiviert",
+      "writeFirst": "schreiben Sie zuerst die Antwort",
+      "replyLong": "halten Sie eine Antwort unter {max, number} Zeichen",
+      "already": "diese Antwort ist bereits {status, select, drafted {entworfen} declined {abgelehnt} approved {freigegeben} sending {im Versand} sent {gesendet} failed {fehlgeschlagen} other {{status}}}",
+      "changedEditing": "diese Antwort hat sich geändert, während Sie sie bearbeitet haben",
+      "noAddress": "auf diesem Ticket gibt es keine Adresse zum Antworten",
+      "notSaved": "die Antwort konnte nicht gespeichert werden",
+      "draftNotSaved": "der Entwurf konnte nicht gespeichert werden",
+      "decided": "über diese Antwort wurde gerade eben entschieden"
+    },
+    "draft": {
+      "cant": "Aus Ihren freigegebenen Antworten kann ich das nicht entwerfen – schreiben Sie es selbst.",
+      "budget": "Das Support-Budget dieses Monats ({budget}) ist aufgebraucht, daher entwerfe ich nichts – schreiben Sie es selbst.",
+      "times": "Ich habe dieses Ticket schon {count, number}-mal entworfen – schreiben Sie dieses selbst.",
+      "unreachable": "Ich konnte das Entwurfsmodell gerade nicht erreichen – schreiben Sie es selbst oder versuchen Sie es später noch einmal."
+    },
+    "note": {
+      "notSetUp": "Nicht gesendet: E-Mail ist noch nicht eingerichtet.",
+      "stopped": "Nicht gesendet: Alles ist angehalten (der Notstopp ist an). Die Antwort bleibt freigegeben; sie wird gesendet, wenn Sie fortsetzen und sie senden.",
+      "maybeSent": "Vielleicht habe ich das gesendet: Der E-Mail-Dienst hat es weder bestätigt noch verneint. Ich sende es nicht von selbst erneut – prüfen Sie Ihre gesendeten E-Mails oder fragen Sie beim Kunden nach, bevor Sie erneut schreiben.",
+      "noAddress": "Nicht gesendet: Auf diesem Ticket gibt es keine Adresse zum Antworten.",
+      "suppressed": "Nicht gesendet: Die Prüfung hat es abgelehnt – gesperrt ({reason}).",
+      "refused": "Nicht gesendet: Die Prüfung hat es abgelehnt – {reason}.",
+      "notEnabled": "Nicht gesendet: Der Support ist für dieses Unternehmen nicht aktiviert.",
+      "textChanged": "Nicht gesendet: Der Text stimmt nicht mehr mit dem überein, was Sie freigegeben haben.",
+      "serviceRefused": "Nicht gesendet: Der E-Mail-Dienst hat es abgelehnt ({what}). Nichts ist hinausgegangen – schreiben Sie es erneut, um es nochmals zu versuchen."
+    },
+    "summary": {
+      "facts": "{count, plural, one {{n} Antwort veröffentlichen, die der Kundenassistent geben darf} other {{n} Antworten veröffentlichen, die der Kundenassistent geben darf}}",
+      "custom": "Eine Antwort veröffentlichen, die Sie geschrieben haben: „{question}“",
+      "faq": "{count, plural, one {{n} Antwort veröffentlichen, nach der Kunden immer wieder fragen, in Ihren eigenen Worten} other {{n} Antworten veröffentlichen, nach denen Kunden immer wieder fragen, in Ihren eigenen Worten}}",
+      "fallback": "Wissensvorschlag"
+    }
+  },
+  "connectionsWords": {
+    "sentence": "{text}.",
+    "label": {
+      "meta_publish": "Meta-Veröffentlichung (Facebook-Seite und Instagram)",
+      "meta_ads": "Meta-Anzeigenverwaltung",
+      "email_campaign": "Kampagnen-E-Mail",
+      "google_business_reviews": "Bewertungen im Google Unternehmensprofil"
+    },
+    "part": {
+      "extra": "{scopes} erteilt, die in der Einwilligung nicht genannt sind (eine Berechtigung zu viel ist ein Ablehnungsgrund, kein Bonus)",
+      "missing": "{scopes} fehlt, obwohl die Einwilligung es verlangt",
+      "sep": "; ",
+      "why": {
+        "removed": "die App von SYB wurde aus dem Meta-Konto entfernt",
+        "password": "das Passwort des Meta-Kontos wurde geändert, wodurch alle Apps abgemeldet werden",
+        "expired": "die Anmeldung der Verbindung ist abgelaufen",
+        "invalid": "die Anmeldung der Verbindung ist nicht mehr gültig",
+        "default": "die Anmeldung der Verbindung ist abgelaufen oder wurde widerrufen"
+      }
+    },
+    "said": {
+      "route": {
+        "unknownProvider": "unbekannter Anbieter",
+        "credentialRequired": "Zugangsdaten sind erforderlich",
+        "idRequired": "die ID ist erforderlich",
+        "idEntityRequired": "id und entity_id sind erforderlich",
+        "refItem": "ref muss ein Eintrag oder null sein",
+        "confirmRequired": "die getippte Bestätigung ist erforderlich",
+        "emailRequired": "Absendername, Antwortadresse und die getippte Bestätigung sind erforderlich",
+        "notFound": "Verbindung nicht gefunden",
+        "ourSide": "bei uns ist etwas schiefgelaufen"
+      },
+      "connect": {
+        "unknownProvider": "unbekannter Anbieter „{provider}“",
+        "alreadyConnected": "{provider} ist bereits verbunden – trennen Sie die Verbindung zuerst",
+        "notStored": "die Verbindung konnte nicht gespeichert werden",
+        "noProfileYet": "dieses Konto hat noch kein Unternehmensprofil",
+        "nothingToMatch": "bei {label} gibt es nichts zuzuordnen",
+        "reconnectProducts": "verbinden Sie {label} erneut, um die Produkte zuzuordnen",
+        "reconnectChannels": "verbinden Sie {label} erneut, um die Kanäle zuzuordnen",
+        "offerNotFound": "Angebot nicht gefunden",
+        "channelNotFound": "Kanal nicht gefunden",
+        "notInAccount": "das gehört nicht zu diesem Konto bei {label}",
+        "alreadyMatched": "„{title}“ ist bereits {name} zugeordnet"
+      },
+      "execute": {
+        "notExecute": "keine Ausführungsverbindung",
+        "noCredential": "keine gespeicherten Zugangsdaten – verbinden Sie den Anbieter erneut",
+        "unknownProvider": "unbekannter Ausführungsanbieter „{provider}“",
+        "already": "{label} ist bereits für die Ausführung verbunden – trennen Sie die Verbindung zuerst",
+        "changed": "{label} hat sich beim erneuten Verbinden geändert – versuchen Sie es noch einmal",
+        "notOffered": "„{provider}“ wird für die Ausführung nicht angeboten",
+        "typeToConfirm": "geben Sie zur Bestätigung „{phrase}“ ein – es wurde nichts verbunden",
+        "noBusinessProfile": "zu diesem Konto gibt es noch kein Unternehmensprofil",
+        "refuseScopes": "{label} wird nicht für die Ausführung verbunden: {parts}"
+      },
+      "email": {
+        "senderName": "der Absendername muss der Name Ihres Unternehmens sein: eine Zeile, höchstens {max} Zeichen, keine Anführungszeichen oder spitzen Klammern",
+        "replyAddress": "Antworten brauchen eine E-Mail-Adresse, die Sie lesen, etwa {example}",
+        "already": "Kampagnen-E-Mail ist bereits erteilt – trennen Sie sie zuerst, um den Absender zu ändern",
+        "alreadyBare": "Kampagnen-E-Mail ist bereits erteilt",
+        "consentNotStored": "die Einwilligung konnte nicht gespeichert werden"
+      },
+      "google": {
+        "unreadable": "der gespeicherte Google-Zugriff konnte nicht gelesen werden",
+        "noSuchBusiness": "dieses Unternehmen gibt es in diesem Konto nicht",
+        "neverWrites": "SYB schreibt nie in Ihr Google Unternehmensprofil: Diese Berechtigung dient nur zum Lesen von Bewertungen.",
+        "authLost": "Google akzeptiert den Zugriff von SYB nicht mehr. Widerrufen Sie ihn und verbinden Sie neu, um weiter Bewertungen zu lesen.",
+        "didntFinish": "Google hat den Vorgang nicht abgeschlossen: {reason}"
+      },
+      "metaCred": {
+        "oneLine": "{provider}: fügen Sie das Zugriffstoken in einer einzigen Zeile ein",
+        "numberPage": "{provider}: die Seiten-ID ist eine Zahl",
+        "numberIg": "{provider}: die ID des Instagram-Kontos ist eine Zahl",
+        "numberAd": "{provider}: die ID des Werbekontos ist eine Zahl",
+        "bothNeeded": "{provider}: das Token und die Asset-IDs werden beide benötigt",
+        "pageToken": "{provider}: ein eingefügtes Seiten-Token lässt sich nicht mit Ihrer Einwilligung abgleichen – weisen Sie die Seite stattdessen dem Systemnutzer zu, dann leitet SYB das Seiten-Token daraus ab",
+        "publishPage": "{provider}: zum Veröffentlichen wird die ID der Seite benötigt, auf der gepostet werden soll",
+        "adsAccount": "{provider}: die Anzeigenverwaltung braucht die ID des Werbekontos, die Nummer im Werbeanzeigenmanager",
+        "differentPage": "{provider}: die Seite hat mit einer anderen ID geantwortet",
+        "differentIg": "{provider}: das Instagram-Konto hat mit einer anderen ID geantwortet",
+        "differentAd": "{provider}: das Werbekonto hat mit einer anderen ID geantwortet",
+        "noPageToken": "{provider}: für die Seite {pageId} war kein Seiten-Token zu bekommen. Weisen Sie die Seite dem Systemnutzer mit den aufgeführten Berechtigungen zu",
+        "noToken": "{provider}: die Facebook-Anmeldung hat kein verwendbares Token geliefert",
+        "shape": "{provider}: die Liste kam in einer Form zurück, die SYB nicht lesen kann"
+      },
+      "metaLogin": {
+        "startAgain": "Diese Facebook-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "noPending": "Es wartet keine Facebook-Anmeldung, oder sie ist abgelaufen. Melden Sie sich erneut mit Facebook an.",
+        "foreign": "Diese Facebook-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "phraseNoMatch": "Die Bestätigungsphrase stimmte nicht überein. Beginnen Sie neu.",
+        "typePhrase": "Geben Sie zur Bestätigung „{phrase}“ ein. An Meta wurde nichts gesendet.",
+        "notOffered": "Das ist keine Meta-Verbindung, die SYB anbietet.",
+        "unavailable": "Die Facebook-Anmeldung ist noch nicht verfügbar. Verwenden Sie stattdessen Ihre eigene Meta-App.",
+        "already": "{label} ist bereits verbunden. Trennen Sie die Verbindung zuerst.",
+        "pickPage": "Wählen Sie eine der aufgeführten Seiten.",
+        "pickAd": "Wählen Sie eines der aufgeführten Werbekonten."
+      },
+      "meta": {
+        "auth": "Ich konnte Meta nicht erreichen: {why}. Verbinden Sie es unter „Verbindungen“ neu, dann mache ich dort weiter, wo ich aufgehört habe.",
+        "permission": "Meta sagt, dass SYB das nicht darf: Eine Berechtigung wurde entfernt, oder die Seite bzw. das Konto ist der Verbindung nicht zugewiesen. Verbinden Sie neu, mit den unter „Verbindungen“ aufgeführten Berechtigungen.",
+        "pageLimit": "Das Limit von Meta für diese Seite ist vorerst ausgeschöpft. Nichts ist verloren – ich versuche es nach einer Pause erneut.",
+        "rateLimit": "Meta hat SYB gebeten, langsamer zu machen. Nichts ist verloren – ich versuche es nach einer Pause erneut.",
+        "unavailablePublished": "Meta hat gerade nicht geantwortet. Es wurde nichts veröffentlicht – ich versuche es erneut.",
+        "unavailableChanged": "Meta hat gerade nicht geantwortet. Es wurde nichts geändert – ich versuche es erneut.",
+        "codePublished": "Meta hat mit dem Code {code} abgelehnt; es wurde nichts veröffentlicht.",
+        "codeChanged": "Meta hat mit dem Code {code} abgelehnt; es wurde nichts geändert.",
+        "statusPublished": "Meta hat mit dem Status {status} abgelehnt; es wurde nichts veröffentlicht.",
+        "statusChanged": "Meta hat mit dem Status {status} abgelehnt; es wurde nichts geändert."
+      },
+      "source": {
+        "netFailure": "{provider}: Netzwerkfehler nach {attempts, plural, one {# Versuch} other {# Versuchen}}",
+        "statusFailed": "{provider}: Anfrage mit Status {status} fehlgeschlagen",
+        "statusFailedSaid": "{provider}: Anfrage mit Status {status} fehlgeschlagen. {message}",
+        "requestFailedSaid": "{provider}: Anfrage fehlgeschlagen. {message}",
+        "throttled": "{provider}: nach {attempts, plural, one {# Versuch} other {# Versuchen}} immer noch gedrosselt",
+        "busy": "{provider}: nach {attempts, plural, one {# Versuch} other {# Versuchen}} immer noch begrenzt oder nicht erreichbar",
+        "stripeFullAccess": "das ist ein geheimer Schlüssel mit Vollzugriff, der Geld bewegen kann. Erstellen Sie stattdessen einen eingeschränkten Schlüssel mit Lesezugriff",
+        "stripePublishable": "das ist ein veröffentlichbarer Schlüssel, der keine Zahlungen lesen kann. Erstellen Sie stattdessen einen eingeschränkten Schlüssel",
+        "stripeNotRestricted": "das sieht nicht wie ein eingeschränkter Stripe-Schlüssel aus. Diese beginnen mit rk_test_ oder rk_live_",
+        "stripeRejected": "{provider}: dieser Schlüssel wurde nicht akzeptiert. Er ist vielleicht falsch eingegeben, widerrufen oder abgelaufen",
+        "keyMissing": "{provider}: dem Schlüssel fehlt eine Leseberechtigung",
+        "stripeMissingSaid": "{provider}: dem Schlüssel fehlt eine Leseberechtigung. Stripe meldet: {message}",
+        "tokenNeeded": "{provider}: das Zugriffstoken wird benötigt",
+        "squareNotToken": "{provider}: das sieht nicht wie ein Square-Zugriffstoken aus",
+        "squareRejected": "{provider}: Square hat das Zugriffstoken nicht akzeptiert. Es wurde vielleicht widerrufen oder gehört zur anderen Umgebung",
+        "squareMissing": "{provider}: dem Token fehlt eine Berechtigung",
+        "squareMissingSaid": "{provider}: dem Token fehlt eine Berechtigung – {message}",
+        "squarePathFailed": "{provider}: {path} mit Status {status} fehlgeschlagen",
+        "squarePathFailedSaid": "{provider}: {path} mit Status {status} fehlgeschlagen. {message}",
+        "squarePerms": "{provider}: Square konnte die Berechtigungen des Tokens nicht bestätigen",
+        "squareNoLocations": "{provider}: das Konto hat keine Standorte zum Lesen",
+        "shopifyAllNeeded": "{provider}: Shop-Adresse, Client-ID und Client-Secret werden alle benötigt",
+        "shopifyAddress": "{provider}: die Shop-Adresse muss die myshopify.com-Adresse Ihres Shops sein, etwa your-store.myshopify.com",
+        "shopifyBothNeeded": "{provider}: Client-ID und Client-Secret werden beide benötigt",
+        "shopifyRejected": "{provider}: diese Zugangsdaten wurden nicht akzeptiert. Prüfen Sie Client-ID und Secret und ob die App in diesem Shop installiert ist",
+        "shopifyStopped": "{provider}: der Shop akzeptiert das Token dieser App nicht mehr",
+        "shopifyMissing": "{provider}: der App fehlt eine Leseberechtigung, die sie braucht",
+        "shopifyScopesUnread": "{provider}: die erteilten Berechtigungen der App konnten nicht gelesen werden",
+        "shopifyNeeds": "{provider}: die App braucht {missing}. Fügen Sie es in der App-Version im Dev Dashboard hinzu, geben Sie die Version frei und verbinden Sie neu",
+        "wooAllNeeded": "{provider}: Shop-Adresse, Consumer Key und Consumer Secret werden alle benötigt",
+        "wooFullAddress": "{provider}: die Shop-Adresse muss vollständig sein, etwa https://your-store.com",
+        "wooHttps": "{provider}: die Shop-Adresse muss mit https:// beginnen",
+        "wooUserinfo": "{provider}: die Shop-Adresse darf weder Benutzernamen noch Passwort enthalten",
+        "wooPublic": "{provider}: die Shop-Adresse muss die öffentliche Webadresse Ihres Shops sein",
+        "wooKeyPrefix": "{provider}: der Consumer Key beginnt mit ck_ und das Consumer Secret mit cs_",
+        "wooRejected": "{provider}: dieser Schlüssel wurde nicht akzeptiert. Er ist vielleicht falsch eingegeben oder widerrufen",
+        "wooMissingSaid": "{provider}: dem Schlüssel fehlt eine Leseberechtigung. Der Shop meldet: {message}",
+        "wooNoApi": "{provider}: unter dieser Adresse wurde die WooCommerce-REST-API nicht gefunden. Prüfen Sie die Shop-Adresse",
+        "wooNoResolve": "{provider}: diese Shop-Adresse führt zu keinem öffentlichen Server",
+        "gaBothNeeded": "{provider}: Property-ID und Dienstkontoschlüssel werden beide benötigt",
+        "gaPropertyId": "{provider}: die Property-ID ist die Nummer, die in {ga} unter Verwaltung, Property-Details angezeigt wird",
+        "pasteKey": "{provider}: fügen Sie die ganze Schlüsseldatei des Dienstkontos ein, sie ist JSON",
+        "notKey": "{provider}: das ist keine Schlüsseldatei eines Google-Dienstkontos",
+        "privateKey": "{provider}: der private Schlüssel des Dienstkontos konnte nicht gelesen werden",
+        "googleRejected": "{provider}: Google hat den Dienstkontoschlüssel nicht akzeptiert. Er wurde vielleicht gelöscht oder deaktiviert",
+        "googlePerms": "{provider}: Google konnte die Berechtigungen des Tokens nicht bestätigen",
+        "gaCantRead": "{provider}: {email} kann die Property {property} nicht lesen. Öffnen Sie in {ga} die Verwaltung, dann die Property-Zugriffsverwaltung, und fügen Sie die Adresse als Betrachter hinzu",
+        "gaReportFailed": "{provider}: der Bericht ist mit Status {status} fehlgeschlagen",
+        "gaReportFailedSaid": "{provider}: der Bericht ist mit Status {status} fehlgeschlagen. {message}",
+        "gaNotReadOnly": "{provider}: das Token hat keinen Nur-Lese-Zugriff auf Analytics",
+        "scBothNeeded": "{provider}: Property und Dienstkontoschlüssel werden beide benötigt",
+        "scProperty": "{provider}: die Property ist die Adresse Ihrer Seite, wie Search Console sie anzeigt – https://www.example.com/ oder sc-domain:example.com",
+        "scCantRead": "{provider}: {email} kann {site} nicht lesen. Öffnen Sie in Search Console die Einstellungen, dann Nutzer und Berechtigungen, und fügen Sie die Adresse als Nutzer hinzu",
+        "scQueryFailed": "{provider}: die Abfrage ist mit Status {status} fehlgeschlagen",
+        "scQueryFailedSaid": "{provider}: die Abfrage ist mit Status {status} fehlgeschlagen. {message}",
+        "scNotReadOnly": "{provider}: das Token hat keinen Nur-Lese-Zugriff auf Search Console",
+        "metaBothNeeded": "{provider}: die Werbekonto-ID und das Zugriffstoken werden beide benötigt",
+        "metaAccountId": "{provider}: die Werbekonto-ID ist die Nummer im Werbeanzeigenmanager, mit oder ohne act_",
+        "metaPasteToken": "{provider}: fügen Sie das Zugriffstoken des Systemnutzers in einer einzigen Zeile ein",
+        "metaRejected": "{provider}: dieses Token wurde nicht akzeptiert. Es ist vielleicht abgelaufen oder wurde widerrufen",
+        "metaCantRead": "{provider}: das Token kann das Werbekonto act_{account} nicht lesen. Weisen Sie das Werbekonto dem Systemnutzer zu und geben Sie dem Token ads_read",
+        "metaNeedsAdsRead": "{provider}: das Token braucht die Berechtigung ads_read",
+        "metaPerms": "{provider}: die Berechtigungen des Tokens konnten nicht gelesen werden"
+      }
+    },
+    "bookings": {
+      "source": {
+        "square": "Square",
+        "import": "Ihr Buchungsexport"
+      },
+      "period": "{from} bis {to}",
+      "breakdown": "wahrgenommen {completed} + nicht erschienen {noShows}",
+      "breakdownLate": "wahrgenommen {completed} + nicht erschienen {noShows} + kurzfristig abgesagt {late}",
+      "rate": {
+        "noShow": "{part}-mal nicht erschienen bei {due, plural, one {{n} fälligen Termin} other {{n} fälligen Terminen}} ({breakdown}), {period}",
+        "late": "{part} kurzfristige Absagen bei {due, plural, one {{n} fälligen Termin} other {{n} fälligen Terminen}} ({breakdown}), {period}",
+        "few": "{due, plural, one {{n} fälliger Termin} other {{n} fällige Termine}} zwischen {from} und {to}; ich brauche mindestens {min}, um eine Quote zu nennen"
+      },
+      "lateNotSeparated": "{source} trennt kurzfristige Absagen nicht ab: Wenn Sie sie markieren, zählen sie als Nichterscheinen",
+      "rebook": {
+        "noClient": "{source} enthält keine Kunden-ID, E-Mail-Adresse oder Telefonnummer, der ich folgen kann, daher kann ich nicht sehen, wer wiederkam",
+        "few": "{cohort, plural, one {{n} Person hatte} other {{n} Personen hatten}} zwischen {from} und {to} einen wahrgenommenen Termin; ich brauche mindestens {min}, jeweils mit {days} Tagen danach, um eine Wiederbuchungsquote zu nennen",
+        "arithmetic": "{back} von {cohort, plural, one {{n} Person} other {{n} Personen}} mit einem wahrgenommenen Termin zwischen {from} und {to} haben innerhalb von {days} Tagen erneut gebucht"
+      },
+      "revenue": {
+        "none": "keine wahrgenommenen Termine, {period}",
+        "noPrices": "{source} enthält keine Preise für diese Termine",
+        "currencies": "die Preise sind in {list}, und Währungen werden nie vermischt",
+        "sum": "der Listenpreis von {count, plural, one {{n} wahrgenommenen Termin} other {{n} wahrgenommenen Terminen}}, {period}",
+        "sumUnpriced": "der Listenpreis von {count, plural, one {{n} wahrgenommenen Termin} other {{n} wahrgenommenen Terminen}}, {period} (ohne Preis, als null gezählt: {unpriced})"
+      },
+      "utilisation": {
+        "none": "Sie haben mir nicht gesagt, wie viele Termine Sie pro Woche übernehmen können, daher kann ich nicht sagen, wie ausgelastet Sie sind – ich nehme keine Kapazität an",
+        "arithmetic": "{completed} wahrgenommen von angegebenen {cap} pro Woche × {weeks} Wochen = {slots} Plätze, {period}"
+      },
+      "refuse": {
+        "tooLarge": "diese Datei ist für einen einzelnen Import zu groß – teilen Sie sie nach Datum auf",
+        "needsRows": "die Datei braucht eine Kopfzeile und mindestens einen Termin",
+        "tooMany": "ein Import nimmt bis zu {max} Termine auf – teilen Sie die Datei nach Datum auf",
+        "noDate": "ich habe keine Datumsspalte gefunden – die Kopfzeile braucht eine, etwa Date oder Start",
+        "noStatus": "ich habe keine Statusspalte gefunden. Ohne sie sehen ein wahrgenommener Termin und ein Nichterscheinen gleich aus, also rate ich nicht",
+        "noCurrency": "die Datei hat eine Preisspalte – sagen Sie, in welcher Währung (drei Buchstaben, z. B. {example})",
+        "bothOrders": "die Datumsangaben in dieser Datei stehen sowohl mit dem Tag zuerst als auch mit dem Monat zuerst ({dmy} und {mdy}), daher kann ich sie nicht lesen",
+        "saidDayFirst": "Sie haben gesagt, dass der Tag zuerst steht, aber die Datei enthält Datumsangaben, die sich nur mit dem Monat zuerst lesen lassen",
+        "saidMonthFirst": "Sie haben gesagt, dass der Monat zuerst steht, aber die Datei enthält Datumsangaben, die sich nur mit dem Tag zuerst lesen lassen",
+        "ambiguousDates": "Datumsangaben wie {sample} könnten der {asDmy} oder der {asMdy} sein – sagen Sie, ob der Tag oder der Monat zuerst steht",
+        "decimal": {
+          "ambiguous": "Beträge wie {amount} könnten eintausendzweihundert oder eins Komma zwei sein – sagen Sie, ob der Punkt oder das Komma die Tausender trennt",
+          "both": "die Beträge in dieser Datei sind auf beide Arten geschrieben ({comma} und {dot}), daher kann ich sie nicht lesen",
+          "contradicts_stated": "Sie haben gesagt, welches Zeichen die Tausender trennt, aber die Datei enthält Beträge, die sich nur andersherum lesen lassen"
+        },
+        "noneRead": "keine der Zeilen konnte gelesen werden (insgesamt: {rows})",
+        "noneReadWhy": "keine der Zeilen konnte gelesen werden (insgesamt: {rows}; {reasons})",
+        "skipItem": "{reason}: {count}",
+        "skip": {
+          "no_date": "ohne Datum",
+          "unreadable_date": "Datum unlesbar",
+          "no_status": "ohne Status",
+          "unknown_status": "unbekannter Status",
+          "not_closed_out": "nicht abgeschlossen"
+        },
+        "listSep": ", ",
+        "notSetUp": "der Buchungsimport konnte nicht eingerichtet werden",
+        "notRecorded": "der Import konnte nicht erfasst werden",
+        "noText": "der Text des Exports ist erforderlich",
+        "whichSystem": "sagen Sie, aus welchem Buchungssystem er stammt",
+        "ourSide": "bei uns ist etwas schiefgelaufen"
+      }
+    }
+  },
+  "contentWords": {
+    "publish": {
+      "block": {
+        "proposed": "bereits zur Veröffentlichung vorgeschlagen",
+        "notDraft": "der Status ist „{status}“, kein Entwurf",
+        "shotList": "eine Drehliste ist zum Filmen da, nicht zum Veröffentlichen",
+        "email": "E-Mails werden noch nicht über SYB versendet",
+        "kind": "ein Element dieser Art ({kind}) wird nicht veröffentlicht",
+        "channel": "SYB kann nicht auf {channel} veröffentlichen – nur auf einer Facebook-Seite oder einem Instagram-Konto, das Sie verbinden",
+        "connect": "richten Sie unter Verbindungen das Veröffentlichen über Meta ein, um dies auf {platform} zu veröffentlichen",
+        "noInstagram": "die Meta-Verbindung hat kein Instagram-Konto – verbinden Sie es mit seiner ID neu, um dort zu veröffentlichen",
+        "needsMedia": "{platform} braucht ein Bild oder ein Video, und dieses Element hat noch keins",
+        "png": "Instagram nimmt nur JPEG-Bilder an, und das Bild dieses Elements ist ein PNG",
+        "noDate": "es hat kein Datum, an dem es erscheinen soll",
+        "zone": "die Uhrzeit der Veröffentlichung lässt sich nicht festlegen: {reason}",
+        "declined": "{count, plural, one {Sie haben die Veröffentlichung # Mal abgelehnt – ich schlage sie nicht mehr vor} other {Sie haben die Veröffentlichung # Mal abgelehnt – ich schlage sie nicht mehr vor}}",
+        "passed": "sein Datum ({date}) ist vorbei"
+      },
+      "zoneReason": {
+        "noCountry": "kein Land angegeben",
+        "countryUnknown": "das Land ist nicht bekannt",
+        "zoneUnknown": "die Zeitzone des Unternehmens ist nicht bekannt"
+      },
+      "status": {
+        "drafted": "Entwurf",
+        "queued": "in der Warteschlange",
+        "publishing": "wird veröffentlicht",
+        "published": "veröffentlicht",
+        "failed": "fehlgeschlagen",
+        "withdrawn": "zurückgezogen"
+      },
+      "kind": {
+        "post": "Beitrag",
+        "email": "E-Mail",
+        "shot_list": "Drehliste",
+        "video": "Video"
+      }
+    },
+    "error": {
+      "produceSignedIn": "zum Erstellen von Entwürfen müssen Sie angemeldet sein – es kostet echte Modellaufrufe",
+      "withdrawSignedIn": "zum Zurückziehen eines Beitrags müssen Sie angemeldet sein – er wird auf Meta gelöscht",
+      "proposalId": "proposal_id (die ID des Vorschlags) fehlt",
+      "itemId": "item_id (die ID des Elements) fehlt",
+      "buildId": "build_id (die ID der erstellten Anzeige) fehlt",
+      "action": "action muss \"plan\", \"shotlist\", \"produce\", \"withdraw\", \"run_ad\" oder \"go_live\" sein",
+      "sameOrigin": "dies muss von SYBs eigener Seite kommen",
+      "mediaSignedIn": "für Aufnahmen und generierte Medien müssen Sie angemeldet sein",
+      "noUploads": "Uploads sind auf diesem Server nicht eingerichtet (kein Medienspeicher)",
+      "clipSize": "ein hier hochgeladener Clip darf höchstens {mb} MB groß sein",
+      "itemAndFile": "item_id und die Datei fehlen",
+      "throughSyb": "Uploads laufen hier über SYB, nicht direkt in den Speicher",
+      "noStorage": "hier gibt es keinen Medienspeicher",
+      "unknownAction": "unbekannte Aktion"
+    }
   }
 }

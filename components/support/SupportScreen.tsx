@@ -16,7 +16,8 @@
 // catalogue; times, dates and figures in the reader's locale. What
 // customers wrote, approved answers, ticket summaries and drafts are
 // content, shown as they are; the server's own sentences (errors, a send's
-// outcome note) stay English until L-4.
+// outcome note, a knowledge proposal's summary) arrive in the reader's
+// language since L-4c (lib/support-desk/words).
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";

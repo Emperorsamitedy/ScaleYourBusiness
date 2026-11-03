@@ -7,12 +7,7 @@
 
 import { createHash } from "node:crypto";
 import type { DecimalStyle } from "../core/money";
-import {
-  DECIMAL_STYLE_MESSAGES,
-  isIsoCurrency,
-  parseAmountMinor,
-  settleDecimalStyle,
-} from "../core/money";
+import { isIsoCurrency, parseAmountMinor, settleDecimalStyle } from "../core/money";
 import type { BookingPlatform, ColumnMap, ColumnRole } from "./import-map";
 import { mapColumns, statusTarget } from "./import-map";
 import type { DateOrder, ParsedDateTime } from "./parse";
@@ -25,18 +20,27 @@ import {
   slashEvidence,
 } from "./parse";
 import type { BookingInput, BookingStatus, ClientIdentity } from "./types";
+import type { RefusalWords } from "./words";
+import { sayRefusal } from "./words";
 
 /** A cancellation made less than this long before the start is late (specs/bookings.md §3). */
 export const LATE_CANCEL_HOURS = 24;
 export const MAX_IMPORT_BYTES = 5_000_000;
 export const MAX_IMPORT_ROWS = 50_000;
 
+/**
+ * An export SYB can't honestly read. L-4c: it carries its catalogue key
+ * ("connectionsWords.bookings.refuse") so the route says it in the reader's
+ * language; the message stays the English, for logs and tests.
+ */
 export class BookingImportError extends Error {
   readonly status: number;
-  constructor(message: string, status = 422) {
-    super(message);
+  readonly words: RefusalWords;
+  constructor(words: RefusalWords, status = 422) {
+    super(sayRefusal(words));
     this.name = "BookingImportError";
     this.status = status;
+    this.words = words;
   }
 }
 
@@ -115,24 +119,18 @@ function settleDateOrder(
     if (e !== null) seen.add(e);
   }
   if (seen.has("dmy") && seen.has("mdy")) {
-    throw new BookingImportError(
-      "the dates in this file are written both day-first and month-first (13/01 and 01/13), so I can't read them",
-    );
+    throw new BookingImportError({ key: "bothOrders" });
   }
   const proven = seen.has("dmy") ? "dmy" : seen.has("mdy") ? "mdy" : null;
   if (proven !== null) {
     if (stated !== null && stated !== proven) {
-      throw new BookingImportError(
-        `you said the dates are ${stated === "dmy" ? "day first" : "month first"}, but the file has dates that only read ${proven === "dmy" ? "day first" : "month first"}`,
-      );
+      throw new BookingImportError({ key: stated === "dmy" ? "saidDayFirst" : "saidMonthFirst" });
     }
     return { order: proven, proven: true };
   }
   if (seen.has("ambiguous")) {
     if (stated === null) {
-      throw new BookingImportError(
-        "dates like 03/04/2026 could be 3 April or 4 March — say whether the day or the month comes first",
-      );
+      throw new BookingImportError({ key: "ambiguousDates" });
     }
     return { order: stated, proven: false };
   }
@@ -149,17 +147,14 @@ export type KeyOf = (identity: ClientIdentity) => string | null | false;
 /** Read one export. Throws BookingImportError for a file it can't honestly read at all. */
 export function readExport(text: string, options: ExportOptions, keyOf: KeyOf): ReadExport {
   if (text.length > MAX_IMPORT_BYTES) {
-    throw new BookingImportError("that file is too large for one import — split it by date", 413);
+    throw new BookingImportError({ key: "tooLarge" }, 413);
   }
   const table = parseDelimited(text, detectDelimiter(text));
   if (table.length < 2) {
-    throw new BookingImportError("the file needs a header row and at least one appointment");
+    throw new BookingImportError({ key: "needsRows" });
   }
   if (table.length - 1 > MAX_IMPORT_ROWS) {
-    throw new BookingImportError(
-      `one import takes up to ${MAX_IMPORT_ROWS} appointments — split the file by date`,
-      413,
-    );
+    throw new BookingImportError({ key: "tooMany", values: { max: MAX_IMPORT_ROWS } }, 413);
   }
   const header = table[0] as string[];
   const map: ColumnMap = mapColumns(header, options.platform);
@@ -177,20 +172,14 @@ export function readExport(text: string, options: ExportOptions, keyOf: KeyOf): 
           ? "time"
           : null;
   if (dateRole === null) {
-    throw new BookingImportError(
-      "I couldn't find a date column — the header needs one, such as Date or Start",
-    );
+    throw new BookingImportError({ key: "noDate" });
   }
   if (map.status === undefined) {
-    throw new BookingImportError(
-      "I couldn't find a status column. Without it a kept appointment and a no-show look the same, so I won't guess",
-    );
+    throw new BookingImportError({ key: "noStatus" });
   }
   const currency = options.currency?.trim().toUpperCase() ?? "";
   if (map.price !== undefined && !isIsoCurrency(currency)) {
-    throw new BookingImportError(
-      "the file has a price column — say which currency it is in (three letters, e.g. EUR)",
-    );
+    throw new BookingImportError({ key: "noCurrency" });
   }
 
   const body = table.slice(1);
@@ -207,7 +196,7 @@ export function readExport(text: string, options: ExportOptions, keyOf: KeyOf): 
     body.map((r) => cell(r, "price")),
     options.decimalStyle ?? null,
   );
-  if (!priceStyle.ok) throw new BookingImportError(DECIMAL_STYLE_MESSAGES[priceStyle.reason]);
+  if (!priceStyle.ok) throw new BookingImportError({ key: `decimal.${priceStyle.reason}` });
 
   const identity: ReadExport["identity"] =
     map.client_id !== undefined

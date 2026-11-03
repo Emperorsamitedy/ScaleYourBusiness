@@ -5990,5 +5990,520 @@
       "takingsNoCapacity": "Takings can't show when demand runs past your capacity: capacity isn't counted in money. A bookings export can.",
       "noRolesTakings": "No roles from the interview (who works in the business, and their hours), so this is demand only."
     }
+  },
+  "connectionsWords": {
+    "sentence": "{text}.",
+    "label": {
+      "meta_publish": "Meta publishing (Facebook Page and Instagram)",
+      "meta_ads": "Meta ad management",
+      "email_campaign": "Campaign email",
+      "google_business_reviews": "Google Business Profile reviews"
+    },
+    "part": {
+      "extra": "granted {scopes} which the consent does not name (one scope too many is a refusal, not a bonus)",
+      "missing": "missing {scopes} which the consent requires",
+      "sep": "; ",
+      "why": {
+        "removed": "SYB's app was removed from the Meta account",
+        "password": "the Meta account's password changed, which signs out every app",
+        "expired": "the connection's sign-in expired",
+        "invalid": "the connection's sign-in is no longer valid",
+        "default": "the connection's sign-in expired or was revoked"
+      }
+    },
+    "said": {
+      "route": {
+        "unknownProvider": "unknown provider",
+        "credentialRequired": "a credential is required",
+        "idRequired": "id is required",
+        "idEntityRequired": "id and entity_id are required",
+        "refItem": "ref must be an item or null",
+        "confirmRequired": "the typed confirmation is required",
+        "emailRequired": "the sender name, the reply address and the typed confirmation are required",
+        "notFound": "connection not found",
+        "ourSide": "something went wrong on our side"
+      },
+      "connect": {
+        "unknownProvider": "unknown provider \"{provider}\"",
+        "alreadyConnected": "{provider} is already connected — disconnect it first",
+        "notStored": "connection could not be stored",
+        "noProfileYet": "this account has no business profile yet",
+        "nothingToMatch": "{label} has nothing to match",
+        "reconnectProducts": "reconnect {label} to match its products",
+        "reconnectChannels": "reconnect {label} to match its channels",
+        "offerNotFound": "offer not found",
+        "channelNotFound": "channel not found",
+        "notInAccount": "that isn't in this {label} account",
+        "alreadyMatched": "\"{title}\" is already matched to {name}"
+      },
+      "execute": {
+        "notExecute": "not an execute connection",
+        "noCredential": "no credential at rest — reconnect the provider",
+        "unknownProvider": "unknown execution provider \"{provider}\"",
+        "already": "{label} is already connected for execution — disconnect it first",
+        "changed": "{label} changed while reconnecting — try again",
+        "notOffered": "\"{provider}\" is not offered for execution",
+        "typeToConfirm": "type \"{phrase}\" to confirm — nothing was connected",
+        "noBusinessProfile": "no business profile on this account yet",
+        "refuseScopes": "refusing to connect {label} for execution: {parts}"
+      },
+      "email": {
+        "senderName": "the sender name must be your business name: one line, at most {max} characters, no quotes or angle brackets",
+        "replyAddress": "replies need an email address you read, such as {example}",
+        "already": "Campaign email is already granted — disconnect it first to change the sender",
+        "alreadyBare": "Campaign email is already granted",
+        "consentNotStored": "the consent could not be stored"
+      },
+      "google": {
+        "unreadable": "the stored Google access couldn't be read",
+        "noSuchBusiness": "no such business on this account",
+        "neverWrites": "SYB never writes to Google Business Profile: this permission is used only to read reviews.",
+        "authLost": "Google no longer accepts SYB's access. Revoke it and connect again to keep reading reviews.",
+        "didntFinish": "Google didn't finish: {reason}"
+      },
+      "metaCred": {
+        "oneLine": "{provider}: paste the access token all on one line",
+        "numberPage": "{provider}: the Page id is a number",
+        "numberIg": "{provider}: the Instagram account id is a number",
+        "numberAd": "{provider}: the ad account id is a number",
+        "bothNeeded": "{provider}: the token and the asset ids are both needed",
+        "pageToken": "{provider}: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and SYB derives the Page token from it",
+        "publishPage": "{provider}: publishing needs the id of the Page to post to",
+        "adsAccount": "{provider}: ad management needs the ad account id, the number in Ads Manager",
+        "differentPage": "{provider}: the Page answered with a different id",
+        "differentIg": "{provider}: the Instagram account answered with a different id",
+        "differentAd": "{provider}: the ad account answered with a different id",
+        "noPageToken": "{provider}: no Page token could be had for Page {pageId}. Assign the Page to the system user with the permissions listed",
+        "noToken": "{provider}: the Facebook sign-in returned no usable token",
+        "shape": "{provider}: the list came back in a shape SYB can't read"
+      },
+      "metaLogin": {
+        "startAgain": "That Facebook sign-in expired or was already used. Start again from Connections.",
+        "noPending": "There's no Facebook sign-in waiting, or it expired. Sign in with Facebook again.",
+        "foreign": "That Facebook sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "phraseNoMatch": "The confirmation phrase didn't match. Start again.",
+        "typePhrase": "Type \"{phrase}\" to confirm. Nothing was sent to Meta.",
+        "notOffered": "That isn't a Meta connection SYB offers.",
+        "unavailable": "Facebook sign-in isn't available yet. Use your own Meta app instead.",
+        "already": "{label} is already connected. Disconnect it first.",
+        "pickPage": "Pick one of the Pages listed.",
+        "pickAd": "Pick one of the ad accounts listed."
+      },
+      "meta": {
+        "auth": "I couldn't reach Meta: {why}. Reconnect it on Connections and I'll pick up where I left off.",
+        "permission": "Meta says SYB isn't allowed to do that: a permission was removed, or the Page or account isn't assigned to the connection. Reconnect with the permissions listed on Connections.",
+        "pageLimit": "Meta's limit for this Page is used up for now. Nothing was lost — I'll try again after a pause.",
+        "rateLimit": "Meta asked SYB to slow down. Nothing was lost — I'll try again after a pause.",
+        "unavailablePublished": "Meta didn't answer just now. Nothing was published — I'll try again.",
+        "unavailableChanged": "Meta didn't answer just now. Nothing was changed — I'll try again.",
+        "codePublished": "Meta refused with code {code}; nothing was published.",
+        "codeChanged": "Meta refused with code {code}; nothing was changed.",
+        "statusPublished": "Meta refused with status {status}; nothing was published.",
+        "statusChanged": "Meta refused with status {status}; nothing was changed."
+      },
+      "source": {
+        "netFailure": "{provider}: network failure after {attempts} attempts",
+        "statusFailed": "{provider}: request failed with status {status}",
+        "statusFailedSaid": "{provider}: request failed with status {status}. {message}",
+        "requestFailedSaid": "{provider}: request failed. {message}",
+        "throttled": "{provider}: still throttled after {attempts} attempts",
+        "busy": "{provider}: still rate limited or unavailable after {attempts} attempts",
+        "stripeFullAccess": "that is a full-access secret key, which can move money. Create a restricted key with read access instead",
+        "stripePublishable": "that is a publishable key, which cannot read payments. Create a restricted key instead",
+        "stripeNotRestricted": "that doesn't look like a Stripe restricted key. They start with rk_test_ or rk_live_",
+        "stripeRejected": "{provider}: that key was not accepted. It may be mistyped, revoked, or expired",
+        "keyMissing": "{provider}: the key is missing a read permission",
+        "stripeMissingSaid": "{provider}: the key is missing a read permission. Stripe says: {message}",
+        "tokenNeeded": "{provider}: the access token is needed",
+        "squareNotToken": "{provider}: that doesn't look like a Square access token",
+        "squareRejected": "{provider}: Square didn't accept the access token. It may have been revoked, or be for the other environment",
+        "squareMissing": "{provider}: the token is missing a permission",
+        "squareMissingSaid": "{provider}: the token is missing a permission — {message}",
+        "squarePathFailed": "{provider}: {path} failed with status {status}",
+        "squarePathFailedSaid": "{provider}: {path} failed with status {status}. {message}",
+        "squarePerms": "{provider}: Square could not confirm the token's permissions",
+        "squareNoLocations": "{provider}: the account has no locations to read",
+        "shopifyAllNeeded": "{provider}: the store address, client ID and client secret are all needed",
+        "shopifyAddress": "{provider}: the store address must be your store's myshopify.com address, like your-store.myshopify.com",
+        "shopifyBothNeeded": "{provider}: both the client ID and the client secret are needed",
+        "shopifyRejected": "{provider}: those credentials were not accepted. Check the client ID and secret, and that the app is installed on this store",
+        "shopifyStopped": "{provider}: the store stopped accepting this app's token",
+        "shopifyMissing": "{provider}: the app is missing a read permission it needs",
+        "shopifyScopesUnread": "{provider}: could not read the app's granted scopes",
+        "shopifyNeeds": "{provider}: the app needs {missing}. Add it in the app's Dev Dashboard version, release, and connect again",
+        "wooAllNeeded": "{provider}: the store address, consumer key and consumer secret are all needed",
+        "wooFullAddress": "{provider}: the store address must be a full address, like https://your-store.com",
+        "wooHttps": "{provider}: the store address must start with https://",
+        "wooUserinfo": "{provider}: the store address must not contain a username or password",
+        "wooPublic": "{provider}: the store address must be your store's public web address",
+        "wooKeyPrefix": "{provider}: the consumer key starts with ck_ and the consumer secret with cs_",
+        "wooRejected": "{provider}: that key was not accepted. It may be mistyped or revoked",
+        "wooMissingSaid": "{provider}: the key is missing a read permission. The store says: {message}",
+        "wooNoApi": "{provider}: the WooCommerce REST API wasn't found at this address. Check the store address",
+        "wooNoResolve": "{provider}: that store address doesn't resolve to a public server",
+        "gaBothNeeded": "{provider}: the property ID and the service account key are both needed",
+        "gaPropertyId": "{provider}: the property ID is the number shown in {ga} Admin, under Property details",
+        "pasteKey": "{provider}: paste the whole service account key file, which is JSON",
+        "notKey": "{provider}: that isn't a Google service account key file",
+        "privateKey": "{provider}: the service account's private key couldn't be read",
+        "googleRejected": "{provider}: Google did not accept the service account key. It may have been deleted or disabled",
+        "googlePerms": "{provider}: Google could not confirm the token's permissions",
+        "gaCantRead": "{provider}: {email} can't read property {property}. In {ga} Admin, open Property access management and add it as a Viewer",
+        "gaReportFailed": "{provider}: the report failed with status {status}",
+        "gaReportFailedSaid": "{provider}: the report failed with status {status}. {message}",
+        "gaNotReadOnly": "{provider}: the token doesn't carry read-only analytics access",
+        "scBothNeeded": "{provider}: the property and the service account key are both needed",
+        "scProperty": "{provider}: the property is your site's address as Search Console shows it — https://www.example.com/ or sc-domain:example.com",
+        "scCantRead": "{provider}: {email} can't read {site}. In Search Console, open Settings, then Users and permissions, and add it as a user",
+        "scQueryFailed": "{provider}: the query failed with status {status}",
+        "scQueryFailedSaid": "{provider}: the query failed with status {status}. {message}",
+        "scNotReadOnly": "{provider}: the token doesn't carry read-only Search Console access",
+        "metaBothNeeded": "{provider}: the ad account ID and the access token are both needed",
+        "metaAccountId": "{provider}: the ad account ID is the number in Ads Manager, with or without act_",
+        "metaPasteToken": "{provider}: paste the system user's access token, all on one line",
+        "metaRejected": "{provider}: that token was not accepted. It may have expired or been revoked",
+        "metaCantRead": "{provider}: the token can't read ad account act_{account}. Assign the ad account to the system user and give the token ads_read",
+        "metaNeedsAdsRead": "{provider}: the token needs the ads_read permission",
+        "metaPerms": "{provider}: could not read the token's permissions"
+      }
+    },
+    "bookings": {
+      "source": {
+        "square": "Square",
+        "import": "your bookings export"
+      },
+      "period": "{from} to {to}",
+      "breakdown": "completed {completed} + no-shows {noShows}",
+      "breakdownLate": "completed {completed} + no-shows {noShows} + late cancellations {late}",
+      "rate": {
+        "noShow": "{part} no-shows of {due, plural, one {{n} due appointment} other {{n} due appointments}} ({breakdown}), {period}",
+        "late": "{part} late cancellations of {due, plural, one {{n} due appointment} other {{n} due appointments}} ({breakdown}), {period}",
+        "few": "{due, plural, one {{n} due appointment} other {{n} due appointments}} between {from} and {to}; I need at least {min} to call a rate"
+      },
+      "lateNotSeparated": "{source} doesn't separate late cancellations: it counts them as no-shows when you mark them",
+      "rebook": {
+        "noClient": "{source} has no client id, email or phone I can follow, so I can't see who came back",
+        "few": "{cohort, plural, one {{n} client} other {{n} clients}} had a completed appointment between {from} and {to}; I need at least {min}, each with {days} days after it, to call a rebooking rate",
+        "arithmetic": "{back} of {cohort, plural, one {{n} client} other {{n} clients}} with a completed appointment between {from} and {to} booked again within {days} days"
+      },
+      "revenue": {
+        "none": "no completed appointments {period}",
+        "noPrices": "{source} has no prices for these appointments",
+        "currencies": "the prices are in {list}, and currencies never blend",
+        "sum": "the listed price of {count, plural, one {{n} completed appointment} other {{n} completed appointments}}, {period}",
+        "sumUnpriced": "the listed price of {count, plural, one {{n} completed appointment} other {{n} completed appointments}}, {period} ({unpriced} had no price and count as nothing)"
+      },
+      "utilisation": {
+        "none": "you haven't told me how many appointments you can take a week, so I can't say how full you are — I won't assume a capacity",
+        "arithmetic": "{completed} completed of a stated {cap} a week × {weeks} weeks = {slots} slots, {period}"
+      },
+      "refuse": {
+        "tooLarge": "that file is too large for one import — split it by date",
+        "needsRows": "the file needs a header row and at least one appointment",
+        "tooMany": "one import takes up to {max} appointments — split the file by date",
+        "noDate": "I couldn't find a date column — the header needs one, such as Date or Start",
+        "noStatus": "I couldn't find a status column. Without it a kept appointment and a no-show look the same, so I won't guess",
+        "noCurrency": "the file has a price column — say which currency it is in (three letters, e.g. {example})",
+        "bothOrders": "the dates in this file are written both day-first and month-first ({dmy} and {mdy}), so I can't read them",
+        "saidDayFirst": "you said the dates are day first, but the file has dates that only read month first",
+        "saidMonthFirst": "you said the dates are month first, but the file has dates that only read day first",
+        "ambiguousDates": "dates like {sample} could be {asDmy} or {asMdy} — say whether the day or the month comes first",
+        "decimal": {
+          "ambiguous": "amounts like {amount} could be one thousand two hundred or one point two — say whether the dot or the comma separates thousands",
+          "both": "the amounts in this file are written both ways ({comma} and {dot}), so I can't read them",
+          "contradicts_stated": "you said which mark separates thousands, but the file has amounts that only read the other way"
+        },
+        "noneRead": "none of the {rows} rows could be read",
+        "noneReadWhy": "none of the {rows} rows could be read ({reasons})",
+        "skipItem": "{count} {reason}",
+        "skip": {
+          "no_date": "no date",
+          "unreadable_date": "unreadable date",
+          "no_status": "no status",
+          "unknown_status": "unknown status",
+          "not_closed_out": "not closed out"
+        },
+        "listSep": ", ",
+        "notSetUp": "the bookings import could not be set up",
+        "notRecorded": "the import could not be recorded",
+        "noText": "the export's text is required",
+        "whichSystem": "say which booking system it came from",
+        "ourSide": "something went wrong on our side"
+      }
+    }
+  },
+  "customersWords": {
+    "join": "{first} {then}",
+    "semi": "{first}; {then}",
+    "sentence": "{text}.",
+    "segment": {
+      "label": {
+        "lapsed": "Lapsed customers",
+        "lapsing": "Lapsing customers",
+        "new": "New customers",
+        "vip": "Best customers",
+        "abandoned_cart": "Shoppers who left a cart"
+      },
+      "all": "every segment",
+      "evidence": {
+        "lapsed": "lapsed = last purchase (or activity) more than {days} days before {date}",
+        "lapsing": "lapsing = last purchase between {from} and {to} days ago",
+        "new": "new = first seen within {days} days with at most one order",
+        "vip": "VIP = {orders}+ orders, or {floor}",
+        "vipFew": "fewer than {min} contacts carry a spend figure, so only the order count counts",
+        "vipFloor": "top {share} of spend in {currency} starts at {amount} minor units",
+        "match": "{matched} of {all} contacts match; {emailable} hold explicit email consent and no suppression (rule {rule}), {noConsent} lack consent, {noEmail} have no address, {suppressed} are suppressed"
+      }
+    },
+    "skip": {
+      "line": "{segment}: {reason}",
+      "watching": "I'm watching until {date}, and I propose nothing before then.",
+      "posture": "your own answer on customer consent ({question}) was \"no consent\" — outbound email stays off until your data says otherwise",
+      "alreadyToday": "already proposed today",
+      "alreadyMonth": "already proposed this month",
+      "cartRecent": "everyone who left a cart this week and said yes to email was already proposed a reminder in the last {days} days",
+      "noCart": "no contact who said yes to email left a cart in the last week",
+      "nobody": "nobody is in this segment",
+      "noConsent": "{count} in the segment, none with explicit email consent — nothing to send to",
+      "declined": "you've declined customer email {count} times — I've stopped proposing it"
+    },
+    "campaign": {
+      "fallback": "campaign",
+      "summary": {
+        "winback": "{count, plural, one {Win back {n} lapsed customer who said yes to email} other {Win back {n} lapsed customers who said yes to email}}",
+        "vip": "{count, plural, one {Thank your {n} best customer} other {Thank your {n} best customers}}",
+        "cart": "{count, plural, one {Remind {n} shopper who left a cart this week and said yes to email} other {Remind {n} shoppers who left a cart this week and said yes to email}}"
+      }
+    },
+    "compliance": {
+      "atSend": {
+        "address": "the sending address",
+        "unsubscribe": "each recipient's own unsubscribe link"
+      },
+      "ask": {
+        "name": "Add your business name",
+        "postal": "Add your postal address"
+      },
+      "gap": {
+        "name": "the business's name",
+        "postal_address": "the business's postal address",
+        "because": "{words} ({why})",
+        "disclosure": "the AI disclosure line (SYB, everywhere)"
+      },
+      "noCountry": "the business's country isn't known, so its email rules aren't either",
+      "noRules": "SYB doesn't yet know the email marketing rules for {country} — nothing is sent there",
+      "regime": {
+        "eu_gdpr": "EU/EEA",
+        "uk_pecr": "UK",
+        "us_can_spam": "United States",
+        "ca_casl": "Canada",
+        "au_spam_act": "Australia"
+      }
+    },
+    "gate": {
+      "stopped": "Everything is stopped (the emergency stop is on). Nothing sends until you resume.",
+      "no_mode_decision": "There's no decision yet on how I work with your business, so nothing sends.",
+      "watching": "I'm watching your business, not changing it, so nothing sends until the watch ends.",
+      "labelled_undoable": "This campaign was approved as something that could be undone, and a sent email can't be recalled. Decline it in the queue and propose it again.",
+      "not_connected": "Campaign email isn't connected. Grant it on Connections first.",
+      "outbound_off": "Your own answer on customer consent was \"no consent\", so outbound email is off until your data says otherwise.",
+      "email_not_set_up": "Email isn't set up yet: SYB's sending key or its public web address is missing, so there's nowhere for an unsubscribe link to point.",
+      "no_draft": "There's no email drafted for this campaign yet.",
+      "draft_not_approved": "You haven't approved the email itself yet.",
+      "draft_changed": "The email changed after you approved it. Approve it again as it is now before it sends.",
+      "draft_incomplete": "The email is missing its unsubscribe slot or its AI disclosure, so it can't be sent as approved.",
+      "law_review_missing": "Nobody has reviewed the email-law rules against current law yet, so no campaign sends.",
+      "law_review_stale": "The email-law rules changed after their last review ({date}), so that review no longer covers them and no campaign sends until they are reviewed again.",
+      "first_campaign_unreviewed": "This is your first campaign, so a person at SYB reads it before it goes out. Campaigns share SYB's sending address, and this keeps it trusted for everyone. It sends once that review is recorded.",
+      "real_sends_off": "{label} is switched off until the two-week unattended test completes. Nothing was sent; this stays approved. It goes out on the first run after it is switched on.",
+      "real_sends_label": "Campaign email"
+    },
+    "send": {
+      "sent": "Sent. Every recipient was checked again at the moment it went.",
+      "unfinished": "The send didn't finish.",
+      "reclaimed": "The send stopped without finishing. Anyone not yet emailed goes out on the next run; anyone it may have reached stays unconfirmed and is never emailed again.",
+      "stillApproved": "Nothing was sent; this stays approved."
+    },
+    "readback": {
+      "recipients": "{count, plural, one {{n} recipient} other {{n} recipients}}",
+      "comparisonCustomers": "{count, plural, one {{n} comparison customer} other {{n} comparison customers}}",
+      "harm": "{recipients} unsubscribed or marked it as spam ({unsubscribed} unsubscribed, {complained} complained) of {sent} sent, {rate} — backfired at {harmRate} with at least {harmMin} people, or any complaints at {complaintRate} or more",
+      "nothingSent": "nothing was sent — nothing to measure",
+      "bought": "bought again since: {returned} of {measured} measured recipients ({rate})",
+      "noExport": "no customer export covering them has come in at least {days} days after the email — import one and the verdict becomes possible",
+      "noExportOf": "no customer export covering them has come in at least {days} days after the email of {date} — import one and the verdict becomes possible",
+      "fewMeasured": "{recipients} measured by a customer export at least {days} days after the email — the verdict needs {min}",
+      "canEver": "only {recipients} can ever be measured ({erased} erased) — the verdict needs {min}",
+      "compared": "{bought}, against {returned} of {measured} {group} I couldn't email ({rate}) — {lift} points (helped at {helped}, backfired at {backfired})",
+      "group": {
+        "winback": "lapsed customers",
+        "vip": "best customers"
+      },
+      "notRandom": "not randomised: the comparison group never said yes to email, so they differ in more than the email",
+      "uncontrolledBase": "{customers} measured — the comparison needs {min}",
+      "nobodyBought": "nobody bought again, so no comparison could make it a gain ({uncontrolled})",
+      "nextExport": "{uncontrolled}; the next export can measure the rest",
+      "uncontrolled": "uncontrolled: {uncontrolled}, so I can't say the email caused it — a lift alone is never \"helped\""
+    },
+    "measured": {
+      "delivery": "delivery, bounces and spam reports from the email service",
+      "unsubscribes": "unsubscribes from the links in each email",
+      "purchasesOf": "purchases from your customer export of {date}",
+      "purchasesNext": "purchases from your next customer export, once it comes in",
+      "notDelivery": "delivery and spam reports (the email service's webhook isn't set up yet)",
+      "opens": "opens (that needs a tracking pixel, which is a consent question of its own, and Apple Mail reports opens nobody made)",
+      "replies": "replies, which go straight to you",
+      "repliesAt": "replies, which go straight to you at {address}",
+      "sentence": "I counted {counted}; I don't count {notCounted}.",
+      "sentenceControlled": "I counted {counted}; I don't count {notCounted}, and the customers I compare against never said yes to email, so the comparison isn't a controlled test."
+    },
+    "error": {
+      "signIn": "importing, erasing or proposing needs you signed in",
+      "server": "something went wrong on our side",
+      "csvStatement": "csv and statement are required",
+      "status": "status must be one of {values}",
+      "required": "{field} is required",
+      "requiredMany": "{fields} are required",
+      "action": "action must be {actions}",
+      "noFields": "a contact needs at least an email, a name or a phone",
+      "provenance": "consent needs its provenance — how was it obtained?",
+      "suppressed": "that address is permanently suppressed ({reason}) — it cannot be re-added",
+      "duplicate": "a contact with that email already exists",
+      "noContact": "no such contact",
+      "noConversation": "no such conversation",
+      "noTicket": "no such ticket",
+      "attestation": "an import needs your attestation — what did these contacts consent to, and how?",
+      "tooLarge": "that file is too large for one import — split it",
+      "noRows": "the CSV needs a header row and at least one contact",
+      "maxRows": "one import takes up to {max} rows — split the file",
+      "noColumns": "no usable columns found — the header needs at least one of: {columns}",
+      "currency": "the file has a spent column — say which currency it is in (three letters, e.g. {example})",
+      "noProposal": "no such proposal",
+      "notEmail": "this proposal isn't a customer email",
+      "draftNotApproved": "only an approved campaign is drafted — this one is {status}",
+      "notStored": "the draft could not be stored",
+      "noProfile": "no such profile",
+      "noCampaign": "no such campaign",
+      "sendNotApproved": "only an approved campaign is sent — this one is {status}",
+      "subject": "the subject line must be one line of at most {max} characters",
+      "changed": "the email changed since you opened it — read it again as it is now, then approve"
+    }
+  },
+  "supportWords": {
+    "error": {
+      "crossSite": "this request didn't come from our page",
+      "signIn": "changing what the assistant says, or its key, needs you signed in",
+      "server": "something went wrong on our side",
+      "hours": "hours must be a number or null",
+      "required": "{field} is required",
+      "requiredBoth": "{first} and {second} are required",
+      "action": "action must be {actions}",
+      "nothingNew": "nothing new to propose — every answer the profile supports is already public or already in your queue",
+      "bothRequired": "a question and an answer are both required",
+      "tooLong": "keep the question under {question} characters and the answer under {answer}",
+      "noProposal": "no such proposal",
+      "notKnowledge": "this proposal is not a knowledge proposal",
+      "notApproved": "only an approved proposal publishes — this one is {status}",
+      "noEntries": "the proposal carried no entries",
+      "noEntry": "no such public entry",
+      "noProfile": "no such profile",
+      "replyHours": "a reply time is a whole number of hours, from {min} to {max}",
+      "noConversation": "no such conversation",
+      "noTicket": "no such ticket",
+      "answerLong": "keep the answer under {max} characters",
+      "noOpenTicket": "no such open ticket",
+      "notRecorded": "the escalation could not be recorded",
+      "faqDeclined": "the grouping model declined these questions; nothing was proposed",
+      "noReply": "no such reply",
+      "liveReply": "there's already a reply on this ticket — finish or decline it first",
+      "noAddressDraft": "there's no address to reply to on this ticket, so there is nothing to draft",
+      "notEnabled": "support isn't enabled for this business",
+      "writeFirst": "write the reply first",
+      "replyLong": "keep a reply under {max} characters",
+      "already": "this reply is already {status}",
+      "changedEditing": "this reply changed while you were editing it",
+      "noAddress": "there's no address to reply to on this ticket",
+      "notSaved": "the reply could not be saved",
+      "draftNotSaved": "the draft could not be saved",
+      "decided": "this reply was decided a moment ago"
+    },
+    "draft": {
+      "cant": "I can't draft this from your approved answers — write it yourself.",
+      "budget": "This month's support budget ({budget}) is spent, so I won't draft — write it yourself.",
+      "times": "I've drafted this ticket {count} times already — write this one yourself.",
+      "unreachable": "I couldn't reach the drafting model just now — write it yourself, or try again later."
+    },
+    "note": {
+      "notSetUp": "Not sent: email isn't set up yet.",
+      "stopped": "Not sent: everything is stopped (the emergency stop is on). It stays approved; it sends when you resume and send it.",
+      "maybeSent": "I may have sent this: the email service didn't confirm either way. I won't send it again by myself — check your sent mail, or ask the customer, before you write again.",
+      "noAddress": "Not sent: there's no address to reply to on this ticket.",
+      "suppressed": "Not sent: the gate refused it — suppressed ({reason}).",
+      "refused": "Not sent: the gate refused it — {reason}.",
+      "notEnabled": "Not sent: support isn't enabled for this business.",
+      "textChanged": "Not sent: the text no longer matches what you approved.",
+      "serviceRefused": "Not sent: the email service refused it ({what}). Nothing went out — write it again to retry."
+    },
+    "summary": {
+      "facts": "{count, plural, one {Publish {n} answer the customer assistant may give} other {Publish {n} answers the customer assistant may give}}",
+      "custom": "Publish an answer you wrote: \"{question}\"",
+      "faq": "{count, plural, one {Publish {n} answer customers keep asking for, in your own words} other {Publish {n} answers customers keep asking for, in your own words}}",
+      "fallback": "knowledge proposal"
+    }
+  },
+  "contentWords": {
+    "publish": {
+      "block": {
+        "proposed": "already proposed for publishing",
+        "notDraft": "it is {status}, not a draft",
+        "shotList": "a shot list is for filming, not publishing",
+        "email": "emails aren't sent through SYB yet",
+        "kind": "a {kind} isn't published",
+        "channel": "SYB can't publish to {channel} — only to a Facebook Page or Instagram account you connect",
+        "connect": "connect Meta publishing on Connections to publish this to {platform}",
+        "noInstagram": "the Meta connection has no Instagram account — reconnect with its id to publish there",
+        "needsMedia": "{platform} needs an image or a video, and this item has none yet",
+        "png": "Instagram takes JPEG images only, and this item's image is a PNG",
+        "noDate": "it has no date to go out on",
+        "zone": "the posting time can't be set: {reason}",
+        "declined": "{count, plural, one {you've declined publishing # time — I've stopped proposing it} other {you've declined publishing # times — I've stopped proposing it}}",
+        "passed": "its date ({date}) has passed"
+      },
+      "zoneReason": {
+        "noCountry": "no country given",
+        "countryUnknown": "the country isn't known",
+        "zoneUnknown": "the business's timezone isn't known"
+      },
+      "status": {
+        "drafted": "drafted",
+        "queued": "queued",
+        "publishing": "publishing",
+        "published": "published",
+        "failed": "failed",
+        "withdrawn": "withdrawn"
+      },
+      "kind": {
+        "post": "post",
+        "email": "email",
+        "shot_list": "shot_list",
+        "video": "video"
+      }
+    },
+    "error": {
+      "produceSignedIn": "producing drafts needs you signed in — it spends real model calls",
+      "withdrawSignedIn": "withdrawing a post needs you signed in — it deletes it on Meta",
+      "proposalId": "proposal_id is required",
+      "itemId": "item_id is required",
+      "buildId": "build_id is required",
+      "action": "action must be \"plan\", \"shotlist\", \"produce\", \"withdraw\", \"run_ad\" or \"go_live\"",
+      "sameOrigin": "this has to come from SYB's own page",
+      "mediaSignedIn": "footage and generated media need you signed in",
+      "noUploads": "uploads aren't set up on this server (no media storage)",
+      "clipSize": "a clip uploaded here can be up to {mb} MB",
+      "itemAndFile": "item_id and file are required",
+      "throughSyb": "uploads here go through SYB, not straight to storage",
+      "noStorage": "no media storage here",
+      "unknownAction": "unknown action"
+    }
   }
 }

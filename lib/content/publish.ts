@@ -36,6 +36,8 @@ import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { suppressedKinds } from "../trust/suppression";
 import { enumCode } from "../core/enum-value";
+import type { PublishBlock } from "./publish-words";
+import { ZONE_UNKNOWN, blockWords } from "./publish-words";
 
 export const PUBLISH_KIND = "content_publishing";
 /** The local hour a publish proposal posts at unless the owner picks another (P3-21a). */
@@ -78,66 +80,59 @@ export interface ReadinessItem {
 export type Readiness =
   { ok: true; platform: PublishPlatform; target: PublishTarget } | { ok: false; reason: string };
 
-/**
- * Pure: can this item get a publish proposal, and if not, why not — in
- * the words the queue shows. `platform` is the channel's vocabulary value.
- */
-export function publishReadiness(args: {
+type Check =
+  | { ok: true; platform: PublishPlatform; target: PublishTarget }
+  | { ok: false; block: PublishBlock };
+
+/** A refusal as its code and values (L-4c). */
+function no(code: PublishBlock["code"], values?: PublishBlock["values"]): Check {
+  return { ok: false, block: values ? { code, values } : { code } };
+}
+
+type ReadinessArgs = {
   item: ReadinessItem;
   platform: string | null;
   assets: MetaAssets | null;
   zone: string | null;
   zoneReason?: string;
-}): Readiness {
+};
+
+/**
+ * Pure: can this item get a publish proposal, and if not, why not — in
+ * the words the queue shows. `platform` is the channel's vocabulary value.
+ */
+export function publishReadiness(args: ReadinessArgs): Readiness {
+  const c = check(args);
+  return c.ok ? c : { ok: false, reason: blockWords(c.block) };
+}
+
+/** L-4c: why not, as a code and its values (lib/content/publish-words); null when it qualifies. */
+export function publishBlockOf(args: ReadinessArgs): PublishBlock | null {
+  const c = check(args);
+  return c.ok ? null : c.block;
+}
+
+function check(args: ReadinessArgs): Check {
   const { item, platform, assets } = args;
-  if (item.publish_proposal_id !== null)
-    return { ok: false, reason: "already proposed for publishing" };
-  if (item.status !== "drafted") return { ok: false, reason: `it is ${item.status}, not a draft` };
-  if (item.kind === "shot_list")
-    return { ok: false, reason: "a shot list is for filming, not publishing" };
-  if (item.kind === "email") return { ok: false, reason: "emails aren't sent through SYB yet" };
-  if (!PUBLISHABLE_KINDS.has(item.kind))
-    return { ok: false, reason: `a ${item.kind} isn't published` };
+  if (item.publish_proposal_id !== null) return no("proposed");
+  if (item.status !== "drafted") return no("notDraft", { status: item.status });
+  if (item.kind === "shot_list") return no("shotList");
+  if (item.kind === "email") return no("email");
+  if (!PUBLISHABLE_KINDS.has(item.kind)) return no("kind", { kind: item.kind });
   if (platform === null || !Object.prototype.hasOwnProperty.call(PUBLISH_PLATFORMS, platform)) {
-    return {
-      ok: false,
-      reason: `SYB can't publish to ${item.channel_label} — only to a Facebook Page or Instagram account you connect`,
-    };
+    return no("channel", { channel: item.channel_label });
   }
   const spec = PUBLISH_PLATFORMS[platform as PublishPlatform];
-  if (assets === null) {
-    return {
-      ok: false,
-      reason: `connect Meta publishing on Connections to publish this to ${spec.label}`,
-    };
-  }
+  if (assets === null) return no("connect", { platform: spec.label });
   const id = spec.target === "page_id" ? assets.page_id : assets.ig_user_id;
-  if (id === null) {
-    return {
-      ok: false,
-      reason:
-        "the Meta connection has no Instagram account — reconnect with its id to publish there",
-    };
-  }
-  if (spec.needs_media && item.media_path === null) {
-    return {
-      ok: false,
-      reason: `${spec.label} needs an image or a video, and this item has none yet`,
-    };
-  }
+  if (id === null) return no("noInstagram");
+  if (spec.needs_media && item.media_path === null)
+    return no("needsMedia", { platform: spec.label });
   if (platform === "instagram" && item.media_path !== null && /\.png$/i.test(item.media_path)) {
-    return {
-      ok: false,
-      reason: "Instagram takes JPEG images only, and this item's image is a PNG",
-    };
+    return no("png");
   }
-  if (item.scheduled_for === null) return { ok: false, reason: "it has no date to go out on" };
-  if (args.zone === null) {
-    return {
-      ok: false,
-      reason: `the posting time can't be set: ${args.zoneReason ?? "the business's timezone isn't known"}`,
-    };
-  }
+  if (item.scheduled_for === null) return no("noDate");
+  if (args.zone === null) return no("zone", { reason: args.zoneReason ?? ZONE_UNKNOWN });
   return { ok: true, platform: platform as PublishPlatform, target: { [spec.target]: id } };
 }
 
@@ -199,6 +194,13 @@ function evidenceOf(provenance: unknown): string[] {
 export interface PublishRun {
   created: ProposalRow[];
   skipped: { item_id: string; reason: string }[];
+  /** L-4c: each skipped item's reason as its code and values, for saying it in the reader's language. */
+  blocks?: Record<string, PublishBlock>;
+}
+
+function skip(out: PublishRun, itemId: string, block: PublishBlock): void {
+  out.skipped.push({ item_id: itemId, reason: blockWords(block) });
+  out.blocks = { ...out.blocks, [itemId]: block };
 }
 
 /**
@@ -211,7 +213,7 @@ export async function proposePublishing(
   itemIds: readonly string[],
   opts: { now?: Date; limitLlm?: LimitLlm; postingHour?: number } = {},
 ): Promise<PublishRun> {
-  const out: PublishRun = { created: [], skipped: [] };
+  const out: PublishRun = { created: [], skipped: [], blocks: {} };
   if (itemIds.length === 0) return out;
   const now = opts.now ?? new Date();
   const hour = opts.postingHour ?? DEFAULT_POSTING_HOUR;
@@ -233,7 +235,7 @@ export async function proposePublishing(
   const suppression = (await suppressedKinds(profileId)).get(PUBLISH_KIND);
 
   for (const item of items) {
-    const ready = publishReadiness({
+    const ready = check({
       item,
       platform: await itemPlatform(profileId, item.provenance),
       assets,
@@ -241,20 +243,17 @@ export async function proposePublishing(
       ...(tz.zone === null ? { zoneReason: tz.reason } : {}),
     });
     if (!ready.ok) {
-      out.skipped.push({ item_id: item.id, reason: ready.reason });
+      skip(out, item.id, ready.block);
       continue;
     }
     if (suppression) {
-      out.skipped.push({
-        item_id: item.id,
-        reason: `you've declined publishing ${suppression.rejections} times — I've stopped proposing it`,
-      });
+      skip(out, item.id, { code: "declined", values: { count: suppression.rejections } });
       continue;
     }
     const date = item.scheduled_for as string;
     const publishAt = zonedInstant(date, hour, zone as string);
     if (publishAt.getTime() <= now.getTime()) {
-      out.skipped.push({ item_id: item.id, reason: `its date (${date}) has passed` });
+      skip(out, item.id, { code: "passed", values: { date } });
       continue;
     }
     if (!limitsChecked) {
@@ -340,6 +339,15 @@ export async function publishNotes(
   profileId: string,
   items: readonly (ReadinessItem & { id: string; provenance: unknown })[],
 ): Promise<Record<string, string>> {
+  const blocks = await publishBlocks(profileId, items);
+  return Object.fromEntries(Object.entries(blocks).map(([id, b]) => [id, blockWords(b)]));
+}
+
+/** L-4c: the same "why not", as each item's code and values — said in the reader's language by the route. */
+export async function publishBlocks(
+  profileId: string,
+  items: readonly (ReadinessItem & { id: string; provenance: unknown })[],
+): Promise<Record<string, PublishBlock>> {
   const drafted = items.filter((i) => i.status === "drafted" && i.publish_proposal_id === null);
   if (drafted.length === 0) return {};
   const [profile] = await db
@@ -348,16 +356,16 @@ export async function publishNotes(
     .where(eq(businessProfiles.id, profileId));
   const assets = profile ? await metaAssets(profile.account_id) : null;
   const tz = await ensureTimezone(profileId);
-  const notes: Record<string, string> = {};
+  const notes: Record<string, PublishBlock> = {};
   for (const item of drafted) {
-    const ready = publishReadiness({
+    const block = publishBlockOf({
       item,
       platform: await itemPlatform(profileId, item.provenance),
       assets,
       zone: tz.zone,
       ...(tz.zone === null ? { zoneReason: tz.reason } : {}),
     });
-    if (!ready.ok) notes[item.id] = ready.reason;
+    if (block) notes[item.id] = block;
   }
   return notes;
 }

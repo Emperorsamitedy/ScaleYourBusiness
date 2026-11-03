@@ -5990,5 +5990,520 @@
         "max": "假设：最多计入 {max, plural, other {# 秒}}。"
       }
     }
+  },
+  "customersWords": {
+    "join": "{first}{then}",
+    "semi": "{first}；{then}",
+    "sentence": "{text}。",
+    "segment": {
+      "label": {
+        "lapsed": "已沉寂客户",
+        "lapsing": "渐少客户",
+        "new": "新客户",
+        "vip": "最佳客户",
+        "abandoned_cart": "留下未结账购物车的顾客"
+      },
+      "all": "所有分组",
+      "evidence": {
+        "lapsed": "已沉寂 = 最后一次购买（或活动）距 {date} 超过 {days} 天",
+        "lapsing": "渐少 = 最后一次购买在 {from} 到 {to} 天前",
+        "new": "新客 = 首次出现在 {days} 天内，且最多一笔订单",
+        "vip": "VIP = 订单数达到 {orders} 笔及以上，或{floor}",
+        "vipFew": "带有消费金额的联系人少于 {min} 位，因此只按订单数计算",
+        "vipFloor": "{currency} 消费额前 {share} 的起点为 {amount}",
+        "match": "匹配的联系人：{matched}/{all}；持有明确的邮件同意且未被屏蔽（规则 {rule}）：{emailable}，缺少同意：{noConsent}，没有地址：{noEmail}，已屏蔽：{suppressed}"
+      }
+    },
+    "skip": {
+      "line": "{segment}：{reason}",
+      "watching": "我会观察到 {date}，在此之前不提出任何建议。",
+      "posture": "您自己关于客户同意的回答（{question}）是“不同意”——在您的数据显示不同之前，营销邮件保持关闭",
+      "alreadyToday": "今天已经提出过",
+      "alreadyMonth": "本月已经提出过",
+      "cartRecent": "本周留下购物车并同意接收邮件的每个人，在过去 {days, number} 天内都已被提议过提醒",
+      "noCart": "过去一周内没有同意接收邮件的联系人留下购物车",
+      "nobody": "这个分组里没有人",
+      "noConsent": "分组中有 {count, number} 人，但没有人给出明确的邮件同意——没有可发送的对象",
+      "declined": "您已拒绝客户邮件 {count, number} 次——我已停止提议"
+    },
+    "campaign": {
+      "fallback": "营销活动",
+      "summary": {
+        "winback": "{count, plural, other {赢回 {n} 位同意接收邮件的已沉寂客户}}",
+        "vip": "{count, plural, other {感谢您的 {n} 位最佳客户}}",
+        "cart": "{count, plural, other {提醒 {n} 位本周留下购物车并同意接收邮件的顾客}}"
+      }
+    },
+    "compliance": {
+      "atSend": {
+        "address": "发件地址",
+        "unsubscribe": "每位收件人专属的退订链接"
+      },
+      "ask": {
+        "name": "添加您的企业名称",
+        "postal": "添加您的邮寄地址"
+      },
+      "gap": {
+        "name": "企业名称",
+        "postal_address": "企业的邮寄地址",
+        "because": "{words}（{why}）",
+        "disclosure": "AI 生成声明（SYB 在所有地方都会加上）"
+      },
+      "noCountry": "企业所在国家未知，因此其邮件规则也未知",
+      "noRules": "SYB 还不了解 {country} 的电子邮件营销规则——不会向那里发送任何邮件",
+      "regime": {
+        "eu_gdpr": "欧盟/欧洲经济区",
+        "uk_pecr": "英国",
+        "us_can_spam": "美国",
+        "ca_casl": "加拿大",
+        "au_spam_act": "澳大利亚"
+      }
+    },
+    "gate": {
+      "stopped": "一切都已停止（紧急停止已开启）。在您恢复之前，什么都不会发送。",
+      "no_mode_decision": "关于我如何与您的企业合作，还没有做出决定，所以什么都不会发送。",
+      "watching": "我在观察您的企业，而不是改变它，所以在观察期结束前什么都不会发送。",
+      "labelled_undoable": "这个营销活动被批准为可以撤销的操作，但已发送的邮件无法撤回。请在队列中拒绝它，然后重新提议。",
+      "not_connected": "营销活动邮件尚未连接。请先在“连接”页面授权。",
+      "outbound_off": "您自己关于客户同意的回答是“不同意”，所以在您的数据显示不同之前，营销邮件保持关闭。",
+      "email_not_set_up": "邮件尚未设置：缺少 SYB 的发送密钥或其公开网址，退订链接无处可指。",
+      "no_draft": "这个营销活动还没有起草邮件。",
+      "draft_not_approved": "您还没有批准邮件本身。",
+      "draft_changed": "邮件在您批准后已更改。请按现在的内容重新批准，然后才会发送。",
+      "draft_incomplete": "邮件缺少退订占位或 AI 声明，因此无法按批准的内容发送。",
+      "law_review_missing": "还没有人对照现行法律审核过邮件法规则，所以任何营销活动都不会发送。",
+      "law_review_stale": "邮件法规则在上次审核（{date}）之后有变，那次审核已不再覆盖它们，在重新审核之前任何营销活动都不会发送。",
+      "first_campaign_unreviewed": "这是您的第一个营销活动，所以 SYB 的工作人员会在发送前阅读它。营销活动共用 SYB 的发件地址，这样能让它对所有人都保持可信。审核记录下来后就会发送。",
+      "real_sends_off": "{label}已关闭，直到为期两周的无人值守测试完成。什么都没有发送；仍保持已批准状态。开启后的第一次运行就会发送。",
+      "real_sends_label": "营销活动邮件"
+    },
+    "send": {
+      "sent": "已发送。每位收件人都在发送的那一刻再次检查过。",
+      "unfinished": "发送没有完成。",
+      "reclaimed": "发送中途停止，没有完成。尚未收到邮件的人会在下一次运行时收到；可能已收到的人保持未确认状态，并且永远不会再收到邮件。",
+      "stillApproved": "什么都没有发送；仍保持已批准状态。"
+    },
+    "readback": {
+      "recipients": "{count, plural, other {{n} 位收件人}}",
+      "comparisonCustomers": "{count, plural, other {{n} 位对照客户}}",
+      "harm": "{recipients}退订或标记为垃圾邮件（退订 {unsubscribed}，投诉 {complained}），共发送 {sent}，占 {rate}——达到 {harmRate} 且至少 {harmMin} 人，或投诉达到 {complaintRate} 及以上，即判定为适得其反",
+      "nothingSent": "什么都没有发送——没有可衡量的",
+      "bought": "此后再次购买：{returned}/{measured} 位已衡量的收件人（{rate}）",
+      "noExport": "邮件发出至少 {days} 天后，还没有覆盖他们的客户导出——导入一份，就能得出结论",
+      "noExportOf": "{date} 的邮件发出至少 {days} 天后，还没有覆盖他们的客户导出——导入一份，就能得出结论",
+      "fewMeasured": "邮件发出至少 {days} 天后由客户导出衡量的：{recipients}——结论需要 {min}",
+      "canEver": "最多只能衡量 {recipients}（已删除 {erased}）——结论需要 {min}",
+      "compared": "{bought}，对比无法发邮件的{group}：{returned}/{measured}（{rate}）——{lift} 个百分点（达到 {helped} 为有帮助，达到 {backfired} 为适得其反）",
+      "group": {
+        "winback": "已沉寂客户",
+        "vip": "最佳客户"
+      },
+      "notRandom": "非随机：对照组从未同意接收邮件，所以他们与收件人的差别不只在于邮件",
+      "uncontrolledBase": "已衡量 {customers}——对照需要 {min}",
+      "nobodyBought": "没有人再次购买，因此任何对照都无法让它变成收益（{uncontrolled}）",
+      "nextExport": "{uncontrolled}；下一次导出可以衡量其余的人",
+      "uncontrolled": "无对照：{uncontrolled}，所以我不能说是邮件带来的——单纯的提升永远不算“有帮助”"
+    },
+    "measured": {
+      "delivery": "来自邮件服务的送达、退回和垃圾邮件投诉",
+      "unsubscribes": "每封邮件中链接带来的退订",
+      "purchasesOf": "您 {date} 的客户导出中的购买",
+      "purchasesNext": "您下一次客户导出中的购买（导入之后）",
+      "notDelivery": "送达和垃圾邮件投诉（邮件服务的 webhook 尚未设置）",
+      "opens": "打开次数（这需要跟踪像素，而它本身就是一个同意问题；Apple Mail 还会记下没人做过的打开）",
+      "replies": "回复，它们会直接发给您",
+      "repliesAt": "回复，它们会直接发到您的 {address}",
+      "sentence": "我统计了{counted}；我不统计{notCounted}。",
+      "sentenceControlled": "我统计了{counted}；我不统计{notCounted}，而且用来对照的客户从未同意接收邮件，所以这个对照不是受控测试。"
+    },
+    "error": {
+      "signIn": "导入、删除或提议都需要您先登录",
+      "server": "我们这边出了点问题",
+      "csvStatement": "csv 和 statement 为必填项",
+      "status": "status 必须是以下之一：{values}",
+      "required": "{field} 为必填项",
+      "requiredMany": "{fields} 为必填项",
+      "action": "action 必须是 {actions}",
+      "noFields": "联系人至少需要邮箱、姓名或电话",
+      "provenance": "同意需要注明来源——是如何取得的？",
+      "suppressed": "该地址已被永久屏蔽（{reason}）——无法重新添加",
+      "duplicate": "已有使用该邮箱的联系人",
+      "noContact": "没有这个联系人",
+      "noConversation": "没有这个对话",
+      "noTicket": "没有这个工单",
+      "attestation": "导入需要您的声明担保——这些联系人同意了什么，是如何同意的？",
+      "tooLarge": "该文件太大，无法一次导入——请拆分",
+      "noRows": "CSV 需要一行表头和至少一个联系人",
+      "maxRows": "一次导入最多 {max, number} 行——请拆分文件",
+      "noColumns": "没有找到可用的列——表头至少需要以下之一：{columns}",
+      "currency": "文件中有 spent 列——请说明它使用的货币（三个字母，例如 {example}）",
+      "noProposal": "没有这个提案",
+      "notEmail": "这个提案不是客户邮件",
+      "draftNotApproved": "只有已批准的营销活动才会起草——这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
+      "notStored": "草稿无法保存",
+      "noProfile": "没有这个档案",
+      "noCampaign": "没有这个营销活动",
+      "sendNotApproved": "只有已批准的营销活动才会发送——这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
+      "subject": "主题必须是一行，最多 {max, number} 个字符",
+      "changed": "自您打开后邮件已更改——请按现在的内容重新阅读，然后批准"
+    }
+  },
+  "supportWords": {
+    "error": {
+      "crossSite": "这个请求不是来自我们的页面",
+      "signIn": "更改助手的回答或其密钥需要您先登录",
+      "server": "我们这边出了点问题",
+      "hours": "hours 必须是数字或 null",
+      "required": "{field} 为必填项",
+      "requiredBoth": "{first} 和 {second} 为必填项",
+      "action": "action 必须是 {actions}",
+      "nothingNew": "没有新的可提议内容——档案所能支撑的每个回答都已公开或已在您的队列中",
+      "bothRequired": "问题和回答都必须填写",
+      "tooLong": "问题请少于 {question, number} 个字符，回答请少于 {answer, number} 个字符",
+      "noProposal": "没有这个提案",
+      "notKnowledge": "这个提案不是知识库提案",
+      "notApproved": "只有已批准的提案才会发布——这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
+      "noEntries": "该提案没有任何条目",
+      "noEntry": "没有这个公开条目",
+      "noProfile": "没有这个档案",
+      "replyHours": "回复时间是整数小时，范围为 {min, number} 到 {max, number}",
+      "noConversation": "没有这个对话",
+      "noTicket": "没有这个工单",
+      "answerLong": "回答请少于 {max, number} 个字符",
+      "noOpenTicket": "没有这个未结工单",
+      "notRecorded": "转人工无法记录",
+      "faqDeclined": "归类模型拒绝处理这些问题；没有提出任何内容",
+      "noReply": "没有这个回复",
+      "liveReply": "这个工单已有回复——请先完成或拒绝它",
+      "noAddressDraft": "这个工单没有可回复的地址，所以无需起草",
+      "notEnabled": "这家企业还没有启用客户支持",
+      "writeFirst": "请先写回复",
+      "replyLong": "回复请少于 {max, number} 个字符",
+      "already": "这个回复{status, select, drafted {已经是草稿} declined {已被拒绝} approved {已被批准} sending {正在发送} sent {已经发送} failed {已发送失败} other {已经是 {status}}}",
+      "changedEditing": "您编辑期间这个回复已被更改",
+      "noAddress": "这个工单没有可回复的地址",
+      "notSaved": "回复无法保存",
+      "draftNotSaved": "草稿无法保存",
+      "decided": "这个回复刚刚已被处理"
+    },
+    "draft": {
+      "cant": "我无法根据您批准的回答起草这条回复——请您自己写。",
+      "budget": "本月的客户支持预算（{budget}）已用完，所以我不起草了——请您自己写。",
+      "times": "这个工单我已起草过 {count, number} 次——这次请您自己写。",
+      "unreachable": "我现在无法连接起草模型——请您自己写，或稍后再试。"
+    },
+    "note": {
+      "notSetUp": "未发送：邮件尚未设置。",
+      "stopped": "未发送：一切都已停止（紧急停止已开启）。它仍保持已批准状态；您恢复并发送时就会发出。",
+      "maybeSent": "这条可能已经发出：邮件服务没有确认任何一种情况。我不会自行再次发送——再次回复前，请检查您的已发送邮件，或询问客户。",
+      "noAddress": "未发送：这个工单没有可回复的地址。",
+      "suppressed": "未发送：检查拒绝了它——已屏蔽（{reason}）。",
+      "refused": "未发送：检查拒绝了它——{reason}。",
+      "notEnabled": "未发送：这家企业还没有启用客户支持。",
+      "textChanged": "未发送：文本已与您批准的内容不一致。",
+      "serviceRefused": "未发送：邮件服务拒绝了它（{what}）。什么都没有发出——请重新写一次以重试。"
+    },
+    "summary": {
+      "facts": "{count, plural, other {发布 {n} 条客户助手可以给出的回答}}",
+      "custom": "发布您写的回答：“{question}”",
+      "faq": "{count, plural, other {发布 {n} 条客户反复询问的回答，用您自己的话}}",
+      "fallback": "知识库提案"
+    }
+  },
+  "connectionsWords": {
+    "sentence": "{text}。",
+    "label": {
+      "meta_publish": "Meta 发布（Facebook 公共主页和 Instagram）",
+      "meta_ads": "Meta 广告管理",
+      "email_campaign": "营销活动邮件",
+      "google_business_reviews": "Google 商家资料评价"
+    },
+    "part": {
+      "extra": "授予了同意中未列出的 {scopes}（多一项权限就是拒绝，而不是额外收获）",
+      "missing": "缺少同意所要求的 {scopes}",
+      "sep": "；",
+      "why": {
+        "removed": "SYB 的应用已从 Meta 账户中移除",
+        "password": "Meta 账户的密码已更改，这会让所有应用退出登录",
+        "expired": "该连接的登录已过期",
+        "invalid": "该连接的登录已失效",
+        "default": "该连接的登录已过期或已被撤销"
+      }
+    },
+    "said": {
+      "route": {
+        "unknownProvider": "未知的提供方",
+        "credentialRequired": "需要凭据",
+        "idRequired": "需要 id",
+        "idEntityRequired": "需要 id 和 entity_id",
+        "refItem": "ref 必须是一个条目或 null",
+        "confirmRequired": "需要输入确认短语",
+        "emailRequired": "需要发件人名称、回复地址和输入的确认短语",
+        "notFound": "找不到该连接",
+        "ourSide": "我们这边出了问题"
+      },
+      "connect": {
+        "unknownProvider": "未知的提供方“{provider}”",
+        "alreadyConnected": "{provider} 已连接，请先断开连接",
+        "notStored": "无法保存该连接",
+        "noProfileYet": "此账户还没有企业资料",
+        "nothingToMatch": "{label} 没有可匹配的内容",
+        "reconnectProducts": "请重新连接 {label} 以匹配其产品",
+        "reconnectChannels": "请重新连接 {label} 以匹配其渠道",
+        "offerNotFound": "找不到该产品或服务",
+        "channelNotFound": "找不到该渠道",
+        "notInAccount": "这不在此 {label} 账户中",
+        "alreadyMatched": "“{title}”已匹配到 {name}"
+      },
+      "execute": {
+        "notExecute": "这不是用于执行的连接",
+        "noCredential": "没有已保存的凭据，请重新连接该提供方",
+        "unknownProvider": "未知的执行提供方“{provider}”",
+        "already": "{label} 已连接用于执行，请先断开连接",
+        "changed": "{label} 在重新连接期间发生了变化，请重试",
+        "notOffered": "“{provider}”不提供执行功能",
+        "typeToConfirm": "请输入“{phrase}”以确认，尚未连接任何内容",
+        "noBusinessProfile": "此账户尚无企业资料",
+        "refuseScopes": "拒绝将 {label} 连接用于执行：{parts}"
+      },
+      "email": {
+        "senderName": "发件人名称必须是您的企业名称：一行，最多 {max} 个字符，不含引号或尖括号",
+        "replyAddress": "回复需要一个您会阅读的邮箱地址，例如 {example}",
+        "already": "营销活动邮件已授予，如需更改发件人，请先断开连接",
+        "alreadyBare": "营销活动邮件已授予",
+        "consentNotStored": "无法保存该同意记录"
+      },
+      "google": {
+        "unreadable": "无法读取已保存的 Google 访问权限",
+        "noSuchBusiness": "此账户中没有这家企业",
+        "neverWrites": "SYB 从不写入 Google 商家资料：此权限仅用于读取评价。",
+        "authLost": "Google 不再接受 SYB 的访问权限。请撤销后重新连接，以便继续读取评价。",
+        "didntFinish": "Google 未完成：{reason}"
+      },
+      "metaCred": {
+        "oneLine": "{provider}：请把访问令牌粘贴在同一行中",
+        "numberPage": "{provider}：公共主页 ID 是一个数字",
+        "numberIg": "{provider}：Instagram 账户 ID 是一个数字",
+        "numberAd": "{provider}：广告账户 ID 是一个数字",
+        "bothNeeded": "{provider}：令牌和资产 ID 都是必需的",
+        "pageToken": "{provider}：粘贴的公共主页令牌无法与您的同意核对——请改为把公共主页分配给系统用户，SYB 会据此获取公共主页令牌",
+        "publishPage": "{provider}：发布需要目标公共主页的 ID",
+        "adsAccount": "{provider}：广告管理需要广告账户 ID，即广告管理工具中显示的数字",
+        "differentPage": "{provider}：公共主页返回了不同的 ID",
+        "differentIg": "{provider}：Instagram 账户返回了不同的 ID",
+        "differentAd": "{provider}：广告账户返回了不同的 ID",
+        "noPageToken": "{provider}：无法为公共主页 {pageId} 获取令牌。请把该公共主页连同所列权限一起分配给系统用户",
+        "noToken": "{provider}：Facebook 登录没有返回可用的令牌",
+        "shape": "{provider}：列表返回的格式 SYB 无法读取"
+      },
+      "metaLogin": {
+        "startAgain": "这次 Facebook 登录已过期或已被使用。请从“连接”重新开始。",
+        "noPending": "没有等待中的 Facebook 登录，或者它已过期。请再次使用 Facebook 登录。",
+        "foreign": "这次 Facebook 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "phraseNoMatch": "确认短语不匹配。请重新开始。",
+        "typePhrase": "请输入“{phrase}”以确认。没有向 Meta 发送任何内容。",
+        "notOffered": "SYB 不提供这种 Meta 连接。",
+        "unavailable": "Facebook 登录暂不可用。请改用您自己的 Meta 应用。",
+        "already": "{label} 已连接。请先断开连接。",
+        "pickPage": "请从列出的公共主页中选择一个。",
+        "pickAd": "请从列出的广告账户中选择一个。"
+      },
+      "meta": {
+        "auth": "我无法连接到 Meta：{why}。请在“连接”中重新连接，我会从中断的地方继续。",
+        "permission": "Meta 表示 SYB 无权执行该操作：某项权限已被移除，或者公共主页或账户没有分配给该连接。请按“连接”中列出的权限重新连接。",
+        "pageLimit": "Meta 对此公共主页的限额暂时用完了。没有丢失任何内容，我会在暂停后重试。",
+        "rateLimit": "Meta 要求 SYB 放慢速度。没有丢失任何内容，我会在暂停后重试。",
+        "unavailablePublished": "Meta 刚才没有响应。没有发布任何内容，我会重试。",
+        "unavailableChanged": "Meta 刚才没有响应。没有更改任何内容，我会重试。",
+        "codePublished": "Meta 以代码 {code} 拒绝；没有发布任何内容。",
+        "codeChanged": "Meta 以代码 {code} 拒绝；没有更改任何内容。",
+        "statusPublished": "Meta 以状态 {status} 拒绝；没有发布任何内容。",
+        "statusChanged": "Meta 以状态 {status} 拒绝；没有更改任何内容。"
+      },
+      "source": {
+        "netFailure": "{provider}：尝试 {attempts, plural, other {# 次}}后网络仍然失败",
+        "statusFailed": "{provider}：请求失败，状态码 {status}",
+        "statusFailedSaid": "{provider}：请求失败，状态码 {status}。{message}",
+        "requestFailedSaid": "{provider}：请求失败。{message}",
+        "throttled": "{provider}：尝试 {attempts, plural, other {# 次}}后仍被限流",
+        "busy": "{provider}：尝试 {attempts, plural, other {# 次}}后仍受速率限制或不可用",
+        "stripeFullAccess": "这是一个拥有完全访问权限的密钥，可以转移资金。请改为创建一个具有读取权限的受限密钥",
+        "stripePublishable": "这是一个可发布密钥，无法读取付款。请改为创建一个受限密钥",
+        "stripeNotRestricted": "这看起来不像 Stripe 受限密钥。受限密钥以 rk_test_ 或 rk_live_ 开头",
+        "stripeRejected": "{provider}：该密钥未被接受。它可能输错了、已被撤销或已过期",
+        "keyMissing": "{provider}：该密钥缺少一项读取权限",
+        "stripeMissingSaid": "{provider}：该密钥缺少一项读取权限。Stripe 的说明：{message}",
+        "tokenNeeded": "{provider}：需要访问令牌",
+        "squareNotToken": "{provider}：这看起来不像 Square 访问令牌",
+        "squareRejected": "{provider}：Square 没有接受该访问令牌。它可能已被撤销，或属于另一个环境",
+        "squareMissing": "{provider}：该令牌缺少一项权限",
+        "squareMissingSaid": "{provider}：该令牌缺少一项权限——{message}",
+        "squarePathFailed": "{provider}：{path} 失败，状态码 {status}",
+        "squarePathFailedSaid": "{provider}：{path} 失败，状态码 {status}。{message}",
+        "squarePerms": "{provider}：Square 无法确认该令牌的权限",
+        "squareNoLocations": "{provider}：该账户没有可读取的地点",
+        "shopifyAllNeeded": "{provider}：店铺地址、客户端 ID 和客户端密钥都是必需的",
+        "shopifyAddress": "{provider}：店铺地址必须是您店铺的 myshopify.com 地址，例如 your-store.myshopify.com",
+        "shopifyBothNeeded": "{provider}：客户端 ID 和客户端密钥都是必需的",
+        "shopifyRejected": "{provider}：这些凭据未被接受。请检查客户端 ID 和密钥，并确认该应用已安装在此店铺",
+        "shopifyStopped": "{provider}：店铺已不再接受此应用的令牌",
+        "shopifyMissing": "{provider}：该应用缺少一项所需的读取权限",
+        "shopifyScopesUnread": "{provider}：无法读取该应用已获授予的权限",
+        "shopifyNeeds": "{provider}：该应用需要 {missing}。请在 Dev Dashboard 的应用版本中添加，发布该版本后重新连接",
+        "wooAllNeeded": "{provider}：店铺地址、consumer key 和 consumer secret 都是必需的",
+        "wooFullAddress": "{provider}：店铺地址必须是完整地址，例如 https://your-store.com",
+        "wooHttps": "{provider}：店铺地址必须以 https:// 开头",
+        "wooUserinfo": "{provider}：店铺地址不能包含用户名或密码",
+        "wooPublic": "{provider}：店铺地址必须是您店铺的公开网址",
+        "wooKeyPrefix": "{provider}：consumer key 以 ck_ 开头，consumer secret 以 cs_ 开头",
+        "wooRejected": "{provider}：该密钥未被接受。它可能输错了或已被撤销",
+        "wooMissingSaid": "{provider}：该密钥缺少一项读取权限。店铺的说明：{message}",
+        "wooNoApi": "{provider}：在此地址找不到 WooCommerce REST API。请检查店铺地址",
+        "wooNoResolve": "{provider}：该店铺地址无法解析到公共服务器",
+        "gaBothNeeded": "{provider}：媒体资源 ID 和服务账户密钥都是必需的",
+        "gaPropertyId": "{provider}：媒体资源 ID 是 {ga} 的“管理”中“媒体资源详情”下显示的数字",
+        "pasteKey": "{provider}：请粘贴完整的服务账户密钥文件，它是 JSON 格式",
+        "notKey": "{provider}：这不是 Google 服务账户密钥文件",
+        "privateKey": "{provider}：无法读取服务账户的私钥",
+        "googleRejected": "{provider}：Google 没有接受该服务账户密钥。它可能已被删除或停用",
+        "googlePerms": "{provider}：Google 无法确认该令牌的权限",
+        "gaCantRead": "{provider}：{email} 无法读取媒体资源 {property}。请在 {ga} 的“管理”中打开“媒体资源访问权限管理”，以“查看者”角色添加该地址",
+        "gaReportFailed": "{provider}：报告失败，状态码 {status}",
+        "gaReportFailedSaid": "{provider}：报告失败，状态码 {status}。{message}",
+        "gaNotReadOnly": "{provider}：该令牌没有只读的 Analytics 访问权限",
+        "scBothNeeded": "{provider}：资源和服务账户密钥都是必需的",
+        "scProperty": "{provider}：资源是 Search Console 中显示的网站地址——https://www.example.com/ 或 sc-domain:example.com",
+        "scCantRead": "{provider}：{email} 无法读取 {site}。请在 Search Console 中打开“设置”，然后打开“用户和权限”，将该地址添加为用户",
+        "scQueryFailed": "{provider}：查询失败，状态码 {status}",
+        "scQueryFailedSaid": "{provider}：查询失败，状态码 {status}。{message}",
+        "scNotReadOnly": "{provider}：该令牌没有只读的 Search Console 访问权限",
+        "metaBothNeeded": "{provider}：广告账户 ID 和访问令牌都是必需的",
+        "metaAccountId": "{provider}：广告账户 ID 是广告管理工具中的数字，带不带 act_ 均可",
+        "metaPasteToken": "{provider}：请把系统用户的访问令牌粘贴在同一行中",
+        "metaRejected": "{provider}：该令牌未被接受。它可能已过期或已被撤销",
+        "metaCantRead": "{provider}：该令牌无法读取广告账户 act_{account}。请把该广告账户分配给系统用户，并给令牌 ads_read 权限",
+        "metaNeedsAdsRead": "{provider}：该令牌需要 ads_read 权限",
+        "metaPerms": "{provider}：无法读取该令牌的权限"
+      }
+    },
+    "bookings": {
+      "source": {
+        "square": "Square",
+        "import": "您的预约导出文件"
+      },
+      "period": "{from} 至 {to}",
+      "breakdown": "已完成 {completed} + 爽约 {noShows}",
+      "breakdownLate": "已完成 {completed} + 爽约 {noShows} + 临时取消 {late}",
+      "rate": {
+        "noShow": "{due, plural, other {{n} 个到期预约}}中有 {part} 个爽约（{breakdown}），{period}",
+        "late": "{due, plural, other {{n} 个到期预约}}中有 {part} 个临时取消（{breakdown}），{period}",
+        "few": "{from} 至 {to} 期间有 {due, plural, other {{n} 个到期预约}}；至少需要 {min} 个才能计算比率"
+      },
+      "lateNotSeparated": "{source}：不区分临时取消，您标记临时取消时，会把它们算作爽约",
+      "rebook": {
+        "noClient": "{source}：没有我可以追踪的客人 ID、邮箱或电话，所以我看不出谁再次光顾",
+        "few": "{from} 至 {to} 期间有 {cohort, plural, other {{n} 位客人}}完成了预约；至少需要 {min} 位，且每位之后都有 {days} 天，才能计算再次预约率",
+        "arithmetic": "{from} 至 {to} 期间完成预约的 {cohort, plural, other {{n} 位客人}}中，有 {back} 位在 {days} 天内再次预约"
+      },
+      "revenue": {
+        "none": "{period}没有已完成的预约",
+        "noPrices": "{source}：这些预约没有价格",
+        "currencies": "价格使用的货币是 {list}，而不同货币永远不会混合计算",
+        "sum": "{count, plural, other {{n} 个已完成预约}}的标价，{period}",
+        "sumUnpriced": "{count, plural, other {{n} 个已完成预约}}的标价，{period}（无价格、按零计算：{unpriced}）"
+      },
+      "utilisation": {
+        "none": "您还没有告诉我每周可以接多少个预约，所以我无法判断预约饱和度——我不会假设一个接待能力",
+        "arithmetic": "已完成 {completed} 个，按所述每周 {cap} 个 × {weeks} 周 = {slots} 个名额，{period}"
+      },
+      "refuse": {
+        "tooLarge": "该文件太大，无法一次导入——请按日期拆分",
+        "needsRows": "文件需要一个标题行和至少一个预约",
+        "tooMany": "一次导入最多接受 {max} 个预约——请按日期拆分文件",
+        "noDate": "我找不到日期列——标题行需要有一列，例如 Date 或 Start",
+        "noStatus": "我找不到状态列。没有它，已赴约的预约和爽约看起来一样，所以我不会猜测",
+        "noCurrency": "文件有价格列——请说明它使用哪种货币（三个字母，例如 {example}）",
+        "bothOrders": "此文件中的日期既有日在前也有月在前的写法（{dmy} 和 {mdy}），所以我无法读取",
+        "saidDayFirst": "您说日期是日在前，但文件中有只能按月在前读取的日期",
+        "saidMonthFirst": "您说日期是月在前，但文件中有只能按日在前读取的日期",
+        "ambiguousDates": "像 {sample} 这样的日期可能是 {asDmy}，也可能是 {asMdy}——请说明是日在前还是月在前",
+        "decimal": {
+          "ambiguous": "像 {amount} 这样的金额可能是一千二百，也可能是一点二——请说明是点还是逗号分隔千位",
+          "both": "此文件中的金额两种写法都有（{comma} 和 {dot}），所以我无法读取",
+          "contradicts_stated": "您说明了哪个符号分隔千位，但文件中有只能反过来读取的金额"
+        },
+        "noneRead": "一行都无法读取（共 {rows} 行）",
+        "noneReadWhy": "一行都无法读取（共 {rows} 行；{reasons}）",
+        "skipItem": "{reason}：{count}",
+        "skip": {
+          "no_date": "没有日期",
+          "unreadable_date": "日期无法读取",
+          "no_status": "没有状态",
+          "unknown_status": "状态未知",
+          "not_closed_out": "未结单"
+        },
+        "listSep": "、",
+        "notSetUp": "无法设置预约导入",
+        "notRecorded": "无法记录本次导入",
+        "noText": "需要导出文件的文本",
+        "whichSystem": "请说明它来自哪个预约系统",
+        "ourSide": "我们这边出了问题"
+      }
+    }
+  },
+  "contentWords": {
+    "publish": {
+      "block": {
+        "proposed": "已提出发布提案",
+        "notDraft": "当前状态为“{status}”，不是草稿",
+        "shotList": "拍摄清单用于拍摄，不用于发布",
+        "email": "SYB 目前还不发送邮件",
+        "kind": "此类内容（{kind}）不会发布",
+        "channel": "SYB 无法发布到 {channel}，只能发布到您连接的 Facebook 主页或 Instagram 账户",
+        "connect": "请在“连接”中开通 Meta 发布，才能将此内容发布到 {platform}",
+        "noInstagram": "此 Meta 连接没有 Instagram 账户，请带上其 ID 重新连接后再在那里发布",
+        "needsMedia": "{platform} 需要一张图片或一段视频，而此内容还没有",
+        "png": "Instagram 只接受 JPEG 图片，而此内容的图片是 PNG",
+        "noDate": "没有发布日期",
+        "zone": "无法设定发布时间：{reason}",
+        "declined": "{count, plural, other {您已拒绝发布 # 次，我已不再提议}}",
+        "passed": "其日期（{date}）已过"
+      },
+      "zoneReason": {
+        "noCountry": "未填写国家",
+        "countryUnknown": "国家未知",
+        "zoneUnknown": "企业所在时区未知"
+      },
+      "status": {
+        "drafted": "草稿",
+        "queued": "排队中",
+        "publishing": "发布中",
+        "published": "已发布",
+        "failed": "失败",
+        "withdrawn": "已撤回"
+      },
+      "kind": {
+        "post": "帖子",
+        "email": "邮件",
+        "shot_list": "拍摄清单",
+        "video": "视频"
+      }
+    },
+    "error": {
+      "produceSignedIn": "制作草稿需要您先登录，因为会产生真实的模型调用",
+      "withdrawSignedIn": "撤回帖子需要您先登录，因为会在 Meta 上将其删除",
+      "proposalId": "缺少 proposal_id（提案的 ID）",
+      "itemId": "缺少 item_id（内容的 ID）",
+      "buildId": "缺少 build_id（已创建广告的 ID）",
+      "action": "action 必须是 \"plan\", \"shotlist\", \"produce\", \"withdraw\", \"run_ad\" 或 \"go_live\" 之一",
+      "sameOrigin": "此请求必须来自 SYB 自己的页面",
+      "mediaSignedIn": "素材和生成的媒体需要您先登录",
+      "noUploads": "此服务器未设置上传（没有媒体存储）",
+      "clipSize": "在此上传的片段最大为 {mb} MB",
+      "itemAndFile": "缺少 item_id 和文件",
+      "throughSyb": "此处上传经由 SYB，而不是直接上传到存储",
+      "noStorage": "此处没有媒体存储",
+      "unknownAction": "未知操作"
+    }
   }
 }
